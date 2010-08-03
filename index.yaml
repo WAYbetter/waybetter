@@ -21,7 +21,22 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: common_city
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: common_cityarea
+  properties:
+  - name: __key__
+    direction: desc
+
 - kind: common_country
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: ordering_dispatcher
   properties:
   - name: __key__
     direction: desc
@@ -31,7 +46,17 @@ indexes:
   - name: __key__
     direction: desc
 
+- kind: ordering_orderassignment
+  properties:
+  - name: __key__
+    direction: desc
+
 - kind: ordering_passenger
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: ordering_station
   properties:
   - name: __key__
     direction: desc
