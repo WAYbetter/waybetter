@@ -20,3 +20,18 @@ indexes:
 # manually, move them above the marker line.  The index.yaml file is
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
+
+- kind: common_country
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: ordering_passenger
+  properties:
+  - name: __key__
+    direction: desc
