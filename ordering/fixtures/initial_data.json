@@ -1,0 +1,82 @@
+[
+    {
+        "pk": 14,
+        "model": "contenttypes.contenttype",
+        "fields": {"model": "city", "name": "city", "app_label": "common"}
+    },
+    {
+        "pk": 3,
+        "model": "contenttypes.contenttype",
+        "fields": {"model": "country", "name": "country", "app_label": "common"}
+    },
+    {
+        "pk": 2,
+        "model": "contenttypes.contenttype",
+        "fields": {"model": "order", "name": "order", "app_label": "ordering"}
+    },
+    {
+        "pk": 11,
+        "model": "contenttypes.contenttype",
+        "fields": {"model": "orderassignment", "name": "order assignment", "app_label": "ordering"}
+    },
+    {
+        "pk": 4,
+        "model": "contenttypes.contenttype",
+        "fields": {"model": "passenger", "name": "passenger", "app_label": "ordering"}
+    },
+    {
+        "pk": 5,
+        "model": "contenttypes.contenttype",
+        "fields": {"model": "user", "name": "user", "app_label": "auth"}
+    },
+    {
+        "pk": "66f16ba90c526c1f8086faa2bc9571a0",
+        "model": "sessions.session",
+        "fields": {"expire_date": "2010-08-17 15:10:16", "session_data": "gAJ9cQAoVRJfYXV0aF91c2VyX2JhY2tlbmRxAVUpZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5k\ncy5Nb2RlbEJhY2tlbmRxAlUNX2F1dGhfdXNlcl9pZHEDSwF1LjE4NmQ3NGI0YTE5MWRhYmQ4ZGYy\nYmZiMDljZWQwZmM3\n"}
+    },
+    {
+        "pk": "f5d801e11835152fecfdab8d9f640d97",
+        "model": "sessions.session",
+        "fields": {"expire_date": "2010-08-18 11:06:41", "session_data": "gAJ9cQAoVRJfYXV0aF91c2VyX2JhY2tlbmRxAVUpZGphbmdvLmNvbnRyaWIuYXV0aC5iYWNrZW5k\ncy5Nb2RlbEJhY2tlbmRxAlUNX2F1dGhfdXNlcl9pZHEDigEGdS45ZWZiMjNjZjM4YTZjMDBkNWI4\nYWI1MDVhNzBiNWE0Mg==\n"}
+    },
+    {
+        "pk": 16,
+        "model": "admin.logentry",
+        "fields": {"action_flag": 1, "action_time": "2010-08-04 10:21:32", "object_repr": "Jerusalem", "object_id": "15", "change_message": "", "user": 1, "content_type": 14}
+    },
+    {
+        "pk": 13,
+        "model": "admin.logentry",
+        "fields": {"action_flag": 1, "action_time": "2010-08-04 10:21:17", "object_repr": "Israel", "object_id": "12", "change_message": "", "user": 1, "content_type": 3}
+    },
+    {
+        "pk": 10,
+        "model": "admin.logentry",
+        "fields": {"action_flag": 1, "action_time": "2010-08-03 15:15:09", "object_repr": "john", "object_id": "9", "change_message": "", "user": 1, "content_type": 4}
+    },
+    {
+        "pk": 8,
+        "model": "admin.logentry",
+        "fields": {"action_flag": 2, "action_time": "2010-08-03 15:14:40", "object_repr": "john", "object_id": "6", "change_message": "Changed first_name and last_name.", "user": 1, "content_type": 5}
+    },
+    {
+        "pk": 7,
+        "model": "admin.logentry",
+        "fields": {"action_flag": 1, "action_time": "2010-08-03 15:14:23", "object_repr": "john", "object_id": "6", "change_message": "", "user": 1, "content_type": 5}
+    },
+    {
+        "pk": 12,
+        "model": "common.country",
+        "fields": {"name": "Israel"}
+    },
+    {
+        "pk": 15,
+        "model": "common.city",
+        "fields": {"country": 12, "name": "Jerusalem"}
+    },
+    {
+        "pk": 9,
+        "model": "ordering.passenger",
+        "fields": {"create_date": "2010-08-03 15:15:09", "phone_verification_code": 12312, "phone": "5555555", "user": 6, "modify_date": "2010-08-03 15:15:09", "phone_verified": true}
+    }
+]

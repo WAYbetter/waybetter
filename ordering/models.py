@@ -7,23 +7,23 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 from common.models import Country, City, CityArea
 
-PENDING = _("pending")
-ASSIGNED = _("assigned")
-ACCEPTED = _("accepted")
-IGNORED = _("ignored")
-REJECTED = _("rejected")
+PENDING = 5
+ASSIGNED = 1
+ACCEPTED = 2
+IGNORED = 3
+REJECTED = 4
 
-ASSIGNMENT_STATUS = ((1, ASSIGNED),
-                     (2, ACCEPTED),
-                     (3, IGNORED),
-                     (4, REJECTED))
+ASSIGNMENT_STATUS = ((ASSIGNED, _("assigned")),
+                     (ACCEPTED, _("accepted")),
+                     (IGNORED, _("ignored")),
+                     (REJECTED, _("rejected")))
 
-ORDER_STATUS = ASSIGNMENT_STATUS + ((5, PENDING),) # notice the ,
+ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, _("pending")),) # notice the ,
 
 
 
 class Passenger(models.Model):
-    user = models.ForeignKey(User, verbose_name=_("user"), related_name="passenger")
+    user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger")
 
     phone = models.CharField(_("phone number"), max_length=15)
     phone_verification_code = models.IntegerField(_("phone verification code"), max_length=5)
@@ -37,7 +37,7 @@ class Passenger(models.Model):
 
 
 class Station(models.Model):
-    user = models.ForeignKey(User, verbose_name=_("user"), related_name="station")
+    user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
 
     name = models.CharField(_("station name"), max_length=50)
     phone = models.CharField(_("phone number"), max_length=15)
@@ -68,17 +68,21 @@ class Order(models.Model):
 
     from_country = models.ForeignKey(Country, verbose_name=_("from country"), related_name="orders_from")
     from_city = models.ForeignKey(City, verbose_name=_("from city"), related_name="orders_from")
-    from_city_area = models.ForeignKey(CityArea, verbose_name=_("from city area"), related_name="orders_from")
+    from_city_area = models.ForeignKey(CityArea, verbose_name=_("from city area"), related_name="orders_from", null=True, blank=True)
     from_postal_code = models.CharField(_("from postal code"), max_length=10)
-    from_address = models.CharField(_("from address"), max_length=50)
+    from_street_address = models.CharField(_("from street address"), max_length=50)
     from_geohash = models.CharField(_("from goehash"), max_length=13)
+    # this field holds the data as typed by the user
+    from_raw = models.CharField(_("from address"), max_length=50)
 
     to_country = models.ForeignKey(Country, verbose_name=_("to country"), related_name="orders_to")
     to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="orders_to")
-    to_city_area = models.ForeignKey(CityArea, verbose_name=_("to city area"), related_name="orders_to")
+    to_city_area = models.ForeignKey(CityArea, verbose_name=_("to city area"), related_name="orders_to", null=True, blank=True)
     to_postal_code = models.CharField(_("to postal code"), max_length=10)
-    to_address = models.CharField(_("to address"), max_length=50)
+    to_street_address = models.CharField(_("to street address"), max_length=50)
     to_geohash = models.CharField(_("to goehash"), max_length=13)
+    # this field holds the data as typed by the user
+    to_raw = models.CharField(_("to address"), max_length=50)
 
     pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)
 
