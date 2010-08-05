@@ -2,19 +2,70 @@
 {% load i18n %}
 
 {% block content %}
+        <script language="javascript">
+            function {{ js_function_name }}(prefix, name, street, city, country, geohash) {
+                $('#id_' + prefix + '_raw').val(name);
+                $('#id_geocoded_' + prefix + '_raw' ).val(name);
+                $('#id_' + prefix + '_city').val(city);
+                $('#id_' + prefix + '_street').val(street);
+                $('#id_' + prefix + '_country').val(country);
+                $('#id_' + prefix + '_geohash').val(geohash);
+                
+
+                //TODO_WB: update map
+            }
+        </script>
         <div id="greeting">
             {% trans "Welcome" %} {{ user.first_name }}!
         </div>
         <div class="order_form">
-            <form method="post">
+            <form method="post" name="order_form">
                 {% csrf_token %}
                 {% for field in form %}
                     <div class="fieldWrapper">
-                        {{ field.errors }}
-                        {{ field.label_tag }}: {{ field }}
+                        {% if field.name in hidden_fields %}
+                            {{ field.as_hidden }}
+                        {% else %}
+                            {{ field.errors }}
+                            {{ field.label_tag }}: {{ field }}
+                            <input type="hidden" id="id_geocoded_{{ field.name }}" name="geocoded_{{ field.name }}">   
+                            <div id="choices_for_{{ field.name }}">
+                            {% if field.name == 'from_raw' %}
+                                {% for choice in form.disambiguation_choices.from_raw %}
+                                    <a href="{{ choice.0 }}">{{ choice.1 }}</a><br>
+                                {% endfor %}
+                            {% endif %}
+                            {% if field.name == 'to_raw' %}
+                                {% for choice in form.disambiguation_choices.to_raw %}
+                                    <a href="{{ choice.0 }}">{{ choice.1 }}</a><br>
+                                {% endfor %}
+                            {% endif %}
+                            </div>
+                        {%  endif %}
                     </div>
+
                 {% endfor %}
                 <input type="submit" value="{% trans "Order" %}">
             </form>
         </div>
+        <hr>
+        <div id="map" style="width:70%;height:200px;">
+		</div>
+        <script type="text/javascript">
+		<!--
+			g_waze_config = {
+				div_id:"map",
+				locale : "israel",
+				center_lon:34.7898,
+				center_lat:32.08676,
+				zoom:8,
+				token:"e0df20e6-6d69-487b-a010-fd32b8ab6066",
+				alt_base_layer:"israel_colors",
+				alt_map_servers:"http://ymap1.waze.co.il/wms-c/",
+                //callback:onInit//,
+				//framed_cloud_image_url:"http://www.waze.co.il/test_api/cloud.png"
+			};
+		-->
+		</script>
+        <script type="text/javascript" src="http://www.waze.co.il/js/WazeEmbeddedMap.js"></script> 
 {% endblock content %}

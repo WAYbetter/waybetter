@@ -55,7 +55,7 @@ class OrderTest(TestCase):
         order = Order.objects.filter(from_raw = "some address")[0]
         self.failUnless(order, "order was not created")
 
-
+    
 
 
 

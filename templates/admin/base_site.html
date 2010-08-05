@@ -1,0 +1,12 @@
+{% extends "admin/base.html" %}
+{% load i18n %}
+{% block extrahead %}
+<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
+{% endblock extrahead %}        
+{% block title %}{{ title }} | {% trans 'WAYbetter is better' %}{% endblock %}
+
+{% block branding %}
+<h1 id="site-name">{% trans 'WAYbetter' %}</h1>
+{% endblock %}
+
+{% block nav-global %}{% endblock %}
