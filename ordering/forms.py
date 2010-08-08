@@ -94,7 +94,9 @@ def build_choices_links(options, field_name):
         city = City.get_id_by_name_and_country(option["city"], country, add_if_not_found=True)  
         geohash = geohash_encode(option["lon"], option["lat"])
 
-        link = u"javascript:{function_name}('{prefix}', '{name}', '{street}', '{city}', '{country}', '{geohash}')".format(**locals())
+#        link = u"javascript:{function_name}('{prefix}', '{name}', '{street}', '{city}', '{country}', '{geohash}')".format(**locals())
+        link = "javascript:%s('%s', '%s', '%s', '%s', '%s', '%s')" % (function_name, prefix, name, street, city, country, geohash)
+
         links.append((link, name))
 
     return links
