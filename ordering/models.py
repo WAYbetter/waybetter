@@ -70,17 +70,21 @@ class Order(models.Model):
     from_city = models.ForeignKey(City, verbose_name=_("from city"), related_name="orders_from")
     from_city_area = models.ForeignKey(CityArea, verbose_name=_("from city area"), related_name="orders_from", null=True, blank=True)
     from_postal_code = models.CharField(_("from postal code"), max_length=10, null=True, blank=True)
-    from_street_address = models.CharField(_("from street address"), max_length=50, null=True, blank=True)
-    from_geohash = models.CharField(_("from goehash"), max_length=13, null=True, blank=True)
-    # this field holds the data as typed by the user
+    from_street_address = models.CharField(_("from street address"), max_length=50)
+    from_geohash = models.CharField(_("from goehash"), max_length=13)
+    from_lon = models.FloatField(_("from_lon"))
+    from_lat = models.FloatField(_("from_lat"))
     from_raw = models.CharField(_("from address"), max_length=50)
-
+    # this field holds the data as typed by the user
     to_country = models.ForeignKey(Country, verbose_name=_("to country"), related_name="orders_to")
+
     to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="orders_to")
     to_city_area = models.ForeignKey(CityArea, verbose_name=_("to city area"), related_name="orders_to", null=True, blank=True)
     to_postal_code = models.CharField(_("to postal code"), max_length=10, null=True, blank=True)
-    to_street_address = models.CharField(_("to street address"), max_length=50, null=True, blank=True)
-    to_geohash = models.CharField(_("to goehash"), max_length=13, null=True, blank=True)
+    to_street_address = models.CharField(_("to street address"), max_length=50)
+    to_geohash = models.CharField(_("to goehash"), max_length=13)
+    to_lon = models.FloatField(_("to_lon"))
+    to_lat = models.FloatField(_("to_lat"))
     # this field holds the data as typed by the user
     to_raw = models.CharField(_("to address"), max_length=50)
 

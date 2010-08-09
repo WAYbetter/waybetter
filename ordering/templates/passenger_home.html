@@ -3,17 +3,207 @@
 
 {% block content %}
         <script language="javascript">
-            function {{ js_function_name }}(prefix, name, street, city, country, geohash) {
-                $('#id_' + prefix + '_raw').val(name);
-                $('#id_geocoded_' + prefix + '_raw' ).val(name);
-                $('#id_' + prefix + '_city').val(city);
-                $('#id_' + prefix + '_street').val(street);
-                $('#id_' + prefix + '_country').val(country);
-                $('#id_' + prefix + '_geohash').val(geohash);
-                
 
-                //TODO_WB: update map
+            var ADDRESS_FIELD_ID_BY_TYPE = {"from": "id_from_raw", "to": "id_to_raw"};
+
+            var map_markers = {};
+            var map_markers_popups = {};
+            var choices = {};   // address_type -> list of address choices
+            var selected_choices = {};  //  address_type -> index of selected choice
+
+            function initPoints() {
+                for (var address_type in ADDRESS_FIELD_ID_BY_TYPE) {
+                    var address = Address.fromFields(address_type);
+
+                    if (address.lon && address.lat) {
+                        addPoint(address_type);
+                    }
+                }
             }
+
+            $(document).ready(function() {
+
+                $("input:button, input:submit").button();
+
+                $("#order_button").button("disable");
+                $("#id_from_raw, #id_to_raw").change(function() {
+                    validateForBooking();
+                });
+
+                //TODO_WB:add a check for map, timeout and check again.
+
+                setTimeout('initPoints()', 100);
+            });
+
+            // Address object constructor
+            function Address(name, street, city, country, geohash, lon, lat, address_type) {
+                this.name = name;
+                this.street = street;
+                this.city = city;
+                this.country = country;
+                this.geohash = geohash;
+                this.lon = lon;
+                this.lat = lat;
+                this.address_type = address_type;
+            }
+
+            // static factory method
+            Address.fromFields = function (address_type) {
+                var name = $('#id_' + address_type + '_raw').val();
+                var city = $('#id_' + address_type + '_city').val();
+                var street = $('#id_' + address_type + '_street_address').val();
+                var country = $('#id_' + address_type + '_country').val();
+                var geohash = $('#id_' + address_type + '_geohash').val();
+                var lon = $('#id_' + address_type + '_lon').val();
+                var lat = $('#id_' + address_type + '_lat').val();
+
+                return new Address(name, street, city, country, geohash, lon, lat, address_type);
+            }
+
+            Address.fromServerResponse = function (address_result, address_type) {
+                return new Address(address_result["name"], address_result["street"], address_result["city"],
+                        address_result["country"], address_result["geohash"], address_result["lon"], address_result["lat"], address_type);
+            }
+
+
+            // instance methods
+            Address.prototype.isResolved = function() {
+                    return (this.lon && this.lat) && (this.name == $('#id_geocoded_' + this.address_type + '_raw' ).val());
+            }
+            Address.prototype.populateFields = function () {
+                $('#id_' + this.address_type + '_raw').val(this.name);
+                $('#id_geocoded_' + this.address_type + '_raw' ).val(this.name);
+                $('#id_' + this.address_type + '_city').val(this.city);
+                $('#id_' + this.address_type + '_street_address').val(this.street);
+                $('#id_' + this.address_type + '_country').val(this.country);
+                $('#id_' + this.address_type + '_geohash').val(this.geohash);
+                $('#id_' + this.address_type + '_lon').val(this.lon);
+                $('#id_' + this.address_type + '_lat').val(this.lat);
+            }
+
+
+            function MapMarker(lon, lat, location_name, icon_image, is_center) {
+                this.lon = lon;
+                this.lat = lat;
+                this.location_name = location_name;
+                this.icon_image = icon_image;
+                this.is_center = is_center;
+            }
+
+            function addPoint(address_type) {
+                var address = Address.fromFields(address_type);
+                var location_name = address_type + ": " + $('#id_' + address_type + '_raw').val();
+
+                var icon_image = "/static/img/" + address_type + "_map_marker.gif";
+
+                //TODO_WB:fix center behavior to show both points
+                var center = true;
+                var point = new MapMarker(address.lon, address.lat, location_name, icon_image, center);
+                map_markers[address_type] = point;
+                renderMapMarkers();
+            }
+
+            function renderMapMarkers() {
+			    var map = g_waze_map.map;
+                var markers = map.getLayersByName("Markers")[0];
+                if (!markers) {
+                    markers = new OpenLayers.Layer.Markers( "Markers" );
+                    map.addLayer(markers);
+                }
+                markers.clearMarkers();
+                var bounds = new OpenLayers.Bounds();
+                for (var location_name in map_markers) {
+                    var point = map_markers[location_name];
+                    var lonlat = new OpenLayers.LonLat(point.lon, point.lat);
+                    bounds.extend(lonlat);
+
+                    var size = new OpenLayers.Size(36,47);
+                    var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
+                    var icon = new OpenLayers.Icon(point.icon_image,size,offset);
+                    markers.addMarker(new OpenLayers.Marker(lonlat,icon));
+                    if (map_markers_popups[location_name]) {
+                        map.removePopup(map_markers_popups[location_name]);
+                    }
+                    map_markers_popups[location_name] = new OpenLayers.Popup.FramedCloud("test",lonlat,null,
+                                "<div style='font-family:Arial,sans-serif;font-size:0.8em;'>"+point.location_name+"<div>",
+                                anchor=null,true,null);
+                    map.addPopup(map_markers_popups[location_name]);
+                }
+                map.zoomToExtent(bounds);
+			}
+
+            function invokeResolveAddress(address_field, address_type) {
+                var params = {"address": address_field};  //TODO_WB: add max_size parameter, when "More..." is requested
+                $.getJSON('{% url common.services.resolve_address %}', params, function(resolve_result) {
+                    $('#indicator_for_' + address_type + '_raw').hide();
+                    if (resolve_result.length == 0) {
+                        $("#choices_for_" + address_type + "_raw").html("{% trans "Can't resolve address" %}");
+                    }
+                    else if (resolve_result.length == 1) {
+                        updateAddressChoice(Address.fromServerResponse(resolve_result[0], address_type));
+                    } else {
+                        showAddressCandidates(address_type, resolve_result);
+                    }
+                });
+            }
+
+            function setAddresses() {
+                for (var address_type in ADDRESS_FIELD_ID_BY_TYPE) {
+                    var address_field = $("#" + ADDRESS_FIELD_ID_BY_TYPE[address_type]).val();
+                    $('#indicator_for_' + address_type + '_raw').show();
+                    invokeResolveAddress(address_field, address_type);
+                }
+            }
+
+            function chooseAddress(address_type, i) {
+                selected_choices[address_type] = i;
+                updateAddressChoice(choices[address_type][i]);
+                renderAddressChoices(address_type);
+            }
+
+            function updateAddressChoice(address) {
+                address.populateFields();
+                addPoint(address.address_type);
+                validateForBooking();
+            }
+
+            function validateForBooking() {
+                for (var address_type in ADDRESS_FIELD_ID_BY_TYPE) {
+                    var address = Address.fromFields(address_type);
+                    if (!address.isResolved()) {
+                        $("#order_button").button("disable");
+                        return false;
+                    }
+                }
+                $("#order_button").button("enable");
+            }
+
+            function renderAddressChoices(address_type) {
+                var layer = $("#choices_for_" + address_type + "_raw");
+                var choices_list = "";
+                for (var i in choices[address_type]) {
+                    var address_result = choices[address_type][i];
+                    var link = "javascript:chooseAddress('" + address_type + "', " + i + ")";
+                    var choice_name = choices[address_type][i]["name"];
+                    var class = "";
+                    if (i == selected_choices[address_type]) {
+                        class = "style='background-color: lightBlue'";
+                    }
+                    choices_list += "<a href=\"" + link + "\" " + class + ">" + choice_name + "</a><br/>";
+                }
+                layer.html(choices_list);
+            }
+            function showAddressCandidates(address_type, resolve_result) {
+                var results = eval(resolve_result);
+                choices[address_type] = new Array();
+                for (var i in results) {
+                    var address_result = results[i];
+                    var address = Address.fromServerResponse(address_result, address_type);
+                    choices[address_type][i] = address;
+                }
+                renderAddressChoices(address_type);
+            }
+
         </script>
         <div id="greeting">
             {% trans "Welcome" %} {{ user.first_name }}!
@@ -28,29 +218,21 @@
                         {% else %}
                             {{ field.errors }}
                             {{ field.label_tag }}: {{ field }}
-                            <input type="hidden" id="id_geocoded_{{ field.name }}" name="geocoded_{{ field.name }}">   
+                            <div id="indicator_for_{{ field.name }}" style="display:none;"><img src="/static/img/indicator.gif"></div>
+                            <input type="hidden" id="id_geocoded_{{ field.name }}" name="geocoded_{{ field.name }}">
                             <div id="choices_for_{{ field.name }}">
-                            {% if field.name == 'from_raw' %}
-                                {% for choice in form.disambiguation_choices.from_raw %}
-                                    <a href="{{ choice.0 }}">{{ choice.1 }}</a><br>
-                                {% endfor %}
-                            {% endif %}
-                            {% if field.name == 'to_raw' %}
-                                {% for choice in form.disambiguation_choices.to_raw %}
-                                    <a href="{{ choice.0 }}">{{ choice.1 }}</a><br>
-                                {% endfor %}
-                            {% endif %}
                             </div>
                         {%  endif %}
                     </div>
 
                 {% endfor %}
-                <input type="submit" value="{% trans "Order" %}">
+                <input type="button" value="{% trans "Set Address" %}" onclick="setAddresses()">
+                <hr>
+                <div id="map" style="width:250px;height:250px;">
+                </div>
+                <input id="order_button" type="submit" value="{% trans "Book" %}">
             </form>
         </div>
-        <hr>
-        <div id="map" style="width:70%;height:200px;">
-		</div>
         <script type="text/javascript">
 		<!--
 			g_waze_config = {
@@ -67,5 +249,5 @@
 			};
 		-->
 		</script>
-        <script type="text/javascript" src="http://www.waze.co.il/js/WazeEmbeddedMap.js"></script> 
+        <script type="text/javascript" src="http://www.waze.co.il/js/WazeEmbeddedMapNoJQuery.js"></script> 
 {% endblock content %}
