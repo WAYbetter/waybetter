@@ -149,9 +149,12 @@
 
             function setAddresses() {
                 for (var address_type in ADDRESS_FIELD_ID_BY_TYPE) {
-                    var address_field = $("#" + ADDRESS_FIELD_ID_BY_TYPE[address_type]).val();
-                    $('#indicator_for_' + address_type + '_raw').show();
-                    invokeResolveAddress(address_field, address_type);
+                    var address = Address.fromFields(address_type);
+                    if (!address.isResolved()) {
+                        var address_field = $("#" + ADDRESS_FIELD_ID_BY_TYPE[address_type]).val();
+                        $('#indicator_for_' + address_type + '_raw').show();
+                        invokeResolveAddress(address_field, address_type);
+                    }
                 }
             }
 
