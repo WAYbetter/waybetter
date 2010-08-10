@@ -58,28 +58,28 @@
                 var lat = $('#id_' + address_type + '_lat').val();
 
                 return new Address(name, street, city, country, geohash, lon, lat, address_type);
-            }
+            };
 
             Address.fromServerResponse = function (address_result, address_type) {
                 return new Address(address_result["name"], address_result["street"], address_result["city"],
                         address_result["country"], address_result["geohash"], address_result["lon"], address_result["lat"], address_type);
-            }
+            };
 
 
             // instance methods
             Address.prototype.isResolved = function() {
-                    return (this.lon && this.lat) && (this.name == $('#id_geocoded_' + this.address_type + '_raw' ).val());
-            }
+                return (this.lon && this.lat) && (this.name == $('#id_geocoded_' + this.address_type + '_raw').val());
+            };
             Address.prototype.populateFields = function () {
                 $('#id_' + this.address_type + '_raw').val(this.name);
-                $('#id_geocoded_' + this.address_type + '_raw' ).val(this.name);
+                $('#id_geocoded_' + this.address_type + '_raw').val(this.name);
                 $('#id_' + this.address_type + '_city').val(this.city);
                 $('#id_' + this.address_type + '_street_address').val(this.street);
                 $('#id_' + this.address_type + '_country').val(this.country);
                 $('#id_' + this.address_type + '_geohash').val(this.geohash);
                 $('#id_' + this.address_type + '_lon').val(this.lon);
                 $('#id_' + this.address_type + '_lat').val(this.lat);
-            }
+            };
 
 
             function MapMarker(lon, lat, location_name, icon_image, is_center) {
@@ -94,7 +94,7 @@
                 var address = Address.fromFields(address_type);
                 var location_name = address_type + ": " + $('#id_' + address_type + '_raw').val();
 
-                var icon_image = "/static/img/" + address_type + "_map_marker.gif";
+                var icon_image = "/static/img/" + address_type + "_map_marker.png";
 
                 //TODO_WB:fix center behavior to show both points
                 var center = true;
@@ -114,10 +114,10 @@
                 var bounds = new OpenLayers.Bounds();
                 for (var location_name in map_markers) {
                     var point = map_markers[location_name];
-                    var lonlat = new OpenLayers.LonLat(point.lon, point.lat);
+                    var lonlat = new OpenLayers.LonLat(point.lon + 20, point.lat + 20);
                     bounds.extend(lonlat);
 
-                    var size = new OpenLayers.Size(36,47);
+                    var size = new OpenLayers.Size(15,34);
                     var offset = new OpenLayers.Pixel(-(size.w/2), -size.h);
                     var icon = new OpenLayers.Icon(point.icon_image,size,offset);
                     markers.addMarker(new OpenLayers.Marker(lonlat,icon));
@@ -175,7 +175,7 @@
                     var address = Address.fromFields(address_type);
                     if (!address.isResolved()) {
                         $("#order_button").button("disable");
-                        return false;
+                        return;
                     }
                 }
                 $("#order_button").button("enable");
@@ -231,7 +231,7 @@
                 {% endfor %}
                 <input type="button" value="{% trans "Set Address" %}" onclick="setAddresses()">
                 <hr>
-                <div id="map" style="width:250px;height:250px;">
+                <div id="map" style="width:300px;height:300px;">
                 </div>
                 <input id="order_button" type="submit" value="{% trans "Book" %}">
             </form>

@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 import order_manager
 import sys
 from ordering.errors import OrderError
+from ordering.models import Passenger
 
 
 @login_required
@@ -15,11 +16,11 @@ from ordering.errors import OrderError
 def passenger_home(request):
     user = get_object_or_404(User, username = request.user.username)
     hidden_fields = HIDDEN_FIELDS
-    if not user.passenger:
+    try:
+        passenger = user.passenger
+    except Passenger.DoesNotExist:
         return HttpResponse ("You are not a passenger") #TODO_WB: redirect to registration
-    else:
-        passenger = user.passenger 
-        
+
     if request.POST:
         form = OrderForm(data=request.POST, passenger=passenger)
         if form.is_valid():
