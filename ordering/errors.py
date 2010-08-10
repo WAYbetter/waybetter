@@ -1,0 +1,2 @@
+class OrderError(Exception):
+    pass  

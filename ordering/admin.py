@@ -1,5 +1,5 @@
 from django.contrib import admin
-from ordering.models import Passenger, Order, OrderAssignment, Station, Dispatcher
+from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation
 
 class PassengerAdmin(admin.ModelAdmin):
     pass
@@ -20,4 +20,4 @@ admin.site.register(Passenger, PassengerAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderAssignment, OrderAssignmentAdmin)
 admin.site.register(Station, StationAdmin)
-admin.site.register(Dispatcher, DispatcherAdmin)
+admin.site.register(WorkStation, DispatcherAdmin)

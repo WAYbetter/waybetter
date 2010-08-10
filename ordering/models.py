@@ -56,9 +56,14 @@ class Station(models.Model):
     def __unicode__(self):
         return self.name
 
-class Dispatcher(models.Model):
-    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="dispatchers")
+class WorkStation(models.Model):
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="work_stations")
     token = models.CharField(_("token"), max_length=20)
+    im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=20)
+
+    def __unicode__(self):
+        return u"Workstation of: %d" % (self.station.id)
+
 
 class Order(models.Model):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
@@ -99,7 +104,7 @@ class Order(models.Model):
     
 class OrderAssignment(models.Model):
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")
-    dispatcher = models.ForeignKey(Dispatcher, verbose_name=_("dispatcher"), related_name="assignments")
+    work_station = models.ForeignKey(WorkStation, verbose_name=_("wokr station"), related_name="assignments")
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="assignments")
     
     status = models.IntegerField(_("status"), choices=ASSIGNMENT_STATUS, default=ASSIGNED)
