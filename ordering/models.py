@@ -57,9 +57,11 @@ class Station(models.Model):
         return self.name
 
 class WorkStation(models.Model):
+    user = models.OneToOneField(User, verbose_name=_("user"), related_name="work_station")
+
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="work_stations")
     token = models.CharField(_("token"), max_length=20)
-    im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=20)
+    im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=40)
 
     def __unicode__(self):
         return u"Workstation of: %d" % (self.station.id)

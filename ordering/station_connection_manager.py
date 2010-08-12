@@ -1,20 +1,42 @@
-from google.appengine.api import xmpp
-from django.utils import simplejson
-from django.conf import settings
-from ordering.errors import OrderError
+from google.appengine.api import memcache
+from django.core.serializers import serialize
+from django.utils.datetime_safe import datetime
+
+IS_DEAD_DELTA = 35
+
+def get_heartbeat_key(work_station):
+    return "heartbeat_for_ws.%d" % work_station.id
+
+def get_assignment_key(work_station):
+    return "assignments_for_ws.%d" % work_station.id
+
 
 def is_workstation_available(work_station):
-    user_name = work_station.im_user
-    if user_name:
-        return xmpp.get_presence(user_name)
+    heartbeat = memcache.get(get_heartbeat_key(work_station))
+    if not heartbeat:
+        return False
 
-    return False
+    return (datetime.now() - heartbeat).seconds < IS_DEAD_DELTA
 
 def push_order(order_assignment):
-    user_name = order_assignment.work_station.im_user
+    key = get_assignment_key(order_assignment.work_station)
+    assignments = memcache.get(key) or []
+    assignments.append(order_assignment)
+    if not memcache.replace(key, assignments): # will fail if another process removed existing orders
+        memcache.set(key, [order_assignment])
 
-    return_status = xmpp.send_message(user_name, simplejson.dumps(order_assignment), settings.SYSTEM_IM_USER, xmpp.MESSAGE_TYPE_CHAT)
-    if return_status[0] != xmpp.NO_ERROR:
-        raise OrderError("An error occurred while sending order to station: %s" % xmpp.XmppMessageResponse.XmppMessageStatus_Name(return_status[0]))
+def set_heartbeat(workstation):
+    key = get_heartbeat_key(workstation)
+    memcache.set(key, datetime.now())
+    
+def get_orders(work_station):
+    result = "[]"
+    key = get_assignment_key(work_station)
+    assignments = memcache.get(key) or []
+    result = serialize("json", assignments)
+    memcache.delete(key)
+
+    return result
+
 
     

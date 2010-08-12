@@ -1,0 +1,52 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}
+        {% trans "Workstation page" %}
+{% endblock title %}
+
+{% block content %}
+    <script type="text/javascript">
+        var orders = [];
+        $(document).ready(function() {
+            initConnection();    
+        });
+
+        function initConnection() {
+            pollOrders();
+        }
+
+        function pollOrders() {
+            $.getJSON("{% url ordering.station_controller.get_orders %}", onOrder);
+
+        }
+
+        function onOrder(order_assginments) {
+            for (var order_assignment in order_assginments) {
+                orders.push(order_assginments[order_assignment]);
+            }
+            renderOrders();
+            setTimeout("pollOrders()", {{ polling_interval }});
+        }
+
+        function renderOrders() {
+            var orders_html = "<table>";
+            for (var order in orders) {
+                orders_html += renderOrder(orders[order]);
+            }
+            orders_html += "</table>";
+
+            $("#orders").html(orders_html);
+        }
+
+        function renderOrder(order) {
+           var html = "<tr class='order'>";
+            for (var key in order["fields"]) {
+                html += "<td>" + key + ": " + order["fields"][key] + "</td>";
+           }
+           html += "</tr>";
+           return html;
+        }
+    </script>
+    <div id="orders"></div>
+{% endblock content %}

@@ -1,7 +1,9 @@
 # Create your views here.
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from ordering.models import Order
+from ordering.models import Order, WorkStation
+from google.appengine.api import xmpp
+
 
 def setup(request):
     if "token" in request.GET:
@@ -17,8 +19,14 @@ def setup(request):
                 u.save()
                 return HttpResponse('Admin created!')
 
-        if request.GET["token"] == 'delete_orders':
-            c = Order.objects.filter(from_lon=None).delete()
-            return HttpResponse('delete orders! (%s) ' % c)
+        if request.GET["token"] == 'send_invites':
+            count = 0
+            for ws in WorkStation.objects.all():
+                count = count + 1
+                xmpp.send_invite(ws.im_user)
+
+            return HttpResponse('Sent invites to %d work station' % count)
+
+
 
     return HttpResponse('Wrong usage! (pass token)')
