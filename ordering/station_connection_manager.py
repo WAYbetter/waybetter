@@ -19,22 +19,25 @@ def is_workstation_available(work_station):
     return (datetime.now() - heartbeat).seconds < IS_DEAD_DELTA
 
 def push_order(order_assignment):
+    json = serialize("json", [order_assignment.order])
     key = get_assignment_key(order_assignment.work_station)
     assignments = memcache.get(key) or []
-    assignments.append(order_assignment)
+    assignments.append(json)
     if not memcache.replace(key, assignments): # will fail if another process removed existing orders
-        memcache.set(key, [order_assignment])
+        memcache.set(key, [json])
 
 def set_heartbeat(workstation):
     key = get_heartbeat_key(workstation)
     memcache.set(key, datetime.now())
     
 def get_orders(work_station):
-    result = "[]"
+    """
+    takes (gets & deletes) from the Memecache the list of serialized OrderAssignmenets
+    assigned to the given workstation.
+    """
     key = get_assignment_key(work_station)
-    assignments = memcache.get(key) or []
-    result = serialize("json", assignments)
-    memcache.delete(key)
+    result = memcache.get(key) or []
+    memcache.delete(key)  # TODO_WB: risk of synchronization problem here!
 
     return result
 

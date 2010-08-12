@@ -7,45 +7,99 @@
 
 {% block content %}
     <script type="text/javascript">
+        var LOCAL_STORAGE_KEY = 'stored_orders';
         var orders = [];
         $(document).ready(function() {
-            initConnection();    
+            initConnection();
+
         });
 
+        function initButtons() {
+            $(".send_button").button();
+            $(".reject_button").button();
+        }
         function initConnection() {
-            pollOrders();
+            restoreState();
         }
 
         function pollOrders() {
             $.getJSON("{% url ordering.station_controller.get_orders %}", onOrder);
 
         }
+        
+        function restoreState() {
+            $.getJSON("{% url ordering.station_controller.get_workstation_orders %}", onOrder);
+        }
 
-        function onOrder(order_assginments) {
-            for (var order_assignment in order_assginments) {
-                orders.push(order_assginments[order_assignment]);
+        function onOrder(incoming_orders) {
+            console.log("onOrder: " + incoming_orders);
+            if (incoming_orders) {
+                for (var order_index in incoming_orders) {
+                    localStorage.setItem(LOCAL_STORAGE_KEY, orders);
+                    orders.push(incoming_orders[order_index]);
+                }
+
+                renderOrders();
             }
-            renderOrders();
             setTimeout("pollOrders()", {{ polling_interval }});
         }
 
         function renderOrders() {
-            var orders_html = "<table>";
-            for (var order in orders) {
-                orders_html += renderOrder(orders[order]);
+            var orders_html = "<table width=\"60%\"><tr>";
+            orders_html += "<th>{% trans 'Status' %}</th>";
+            orders_html += "<th>{% trans 'From' %}</th>";
+            orders_html += "<th>{% trans 'To' %}</th>";
+            orders_html += "<th>{% trans 'Action' %}</th></tr>";
+            for (var order_index in orders) {
+                orders_html += renderOrder(orders[order_index]);
             }
             orders_html += "</table>";
 
             $("#orders").html(orders_html);
+            initButtons();
         }
 
         function renderOrder(order) {
            var html = "<tr class='order'>";
-            for (var key in order["fields"]) {
-                html += "<td>" + key + ": " + order["fields"][key] + "</td>";
-           }
+           html += "<td>&nbsp;</td>";
+           html += "<td>" + order["fields"]["from_raw"] + "</td>";
+           html += "<td>" + order["fields"]["to_raw"] + "</td>";
+           html += "<td>{% trans 'Pickup in' %} <select name=\"pickup_time\" id='pickup_time_for_"+ order["pk"] +"'>";
+           {% for n in pickup_times %}
+           html += "<option value=\"{{ n }}\">{{ n }} {% trans 'minutes' %}";
+           {% endfor %}
+           html += "</select><input class='send_button' type=\"button\" value=\"{% trans 'Send' %}\" onclick='accept_order(" + order["pk"] + ")' /></td>";
+           html += "<td><input class = 'reject_button' type=\"button\" value=\"{% trans 'Reject' %}\" onclick='reject_order(" + order["pk"] + ")' /></td>";
            html += "</tr>";
            return html;
+        }
+
+        function accept_order(order_id) {
+            var pickup_time = $("#pickup_time_for_" + order_id).val();
+            $.ajax({"url": "{% url ordering.station_controller.update_order_status %}", "type":"post", "data":{"status": "{{ accept }}", "pickup_time": pickup_time, "order_id": order_id},
+                "success": function(data, status_code) {
+                    var order_index = find_order(order_id);
+                    if (order_index != -1) {
+                        delete orders[order_index];
+                        renderOrders();
+                    } 
+                }, "error": function() {
+                    alert('an error occurred');
+                }
+            });
+        }
+
+        function find_order(order_id) {
+            for (var index in orders) {
+                if (orders[index]["pk"] == order_id) {
+                    return index;
+                }
+            }
+
+            return -1;
+        }
+
+        function reject_order(orded_id) {
         }
     </script>
     <div id="orders"></div>

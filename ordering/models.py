@@ -64,7 +64,7 @@ class WorkStation(models.Model):
     im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=40)
 
     def __unicode__(self):
-        return u"Workstation of: %d" % (self.station.id)
+        return u"Workstation "# of: %d" % (self.station.id)
 
 
 class Order(models.Model):
@@ -101,7 +101,7 @@ class Order(models.Model):
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
     
     def __unicode__(self):
-        return u"%s #%d" % (_("order"), self.id)
+        return u"%s" % (_("order"))
     
     
 class OrderAssignment(models.Model):

@@ -3,7 +3,8 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from ordering.models import Order, WorkStation
 from google.appengine.api import xmpp
-
+import logging
+from django.contrib.auth.decorators import login_required
 
 def setup(request):
     if "token" in request.GET:
@@ -28,5 +29,11 @@ def setup(request):
             return HttpResponse('Sent invites to %d work station' % count)
 
 
-
     return HttpResponse('Wrong usage! (pass token)')
+
+@login_required
+def test_channel(request):
+    from google.appengine.api import channel
+    logging.info("Create channel: " + request.user.username)
+    c = channel.create_channel(request.user.username)
+    return HttpResponse("channel created")
