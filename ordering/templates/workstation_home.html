@@ -11,13 +11,13 @@
         var orders = [];
         $(document).ready(function() {
             initConnection();
-
         });
 
         function initButtons() {
             $(".send_button").button();
             $(".reject_button").button();
         }
+        
         function initConnection() {
             restoreState();
         }
@@ -32,7 +32,6 @@
         }
 
         function onOrder(incoming_orders) {
-            console.log("onOrder: " + incoming_orders);
             if (incoming_orders) {
                 for (var order_index in incoming_orders) {
                     localStorage.setItem(LOCAL_STORAGE_KEY, orders);
