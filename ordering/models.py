@@ -20,8 +20,6 @@ ASSIGNMENT_STATUS = ((ASSIGNED, _("assigned")),
 
 ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, _("pending")),) # notice the ,
 
-
-
 class Passenger(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger")
 
@@ -101,7 +99,7 @@ class Order(models.Model):
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
     
     def __unicode__(self):
-        return u"%s" % (_("order"))
+        return u"%s from %s to %s" % (_("order"), self.from_raw, self.to_raw)
     
     
 class OrderAssignment(models.Model):
@@ -115,6 +113,10 @@ class OrderAssignment(models.Model):
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
     def __unicode__(self):
-        return u"%s #%d %s %s" % (_("order"), self.order.id, _("assigned to station"), self.station)
+        order_id = "Unknown"
+        if self.order:
+            order_id =str(self.order)
+            
+        return u"%s #%s %s %s" % (_("order"), order_id, _("assigned to station:"), self.station)
 
     

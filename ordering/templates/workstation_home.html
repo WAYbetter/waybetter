@@ -67,25 +67,38 @@
            {% for n in pickup_times %}
            html += "<option value=\"{{ n }}\">{{ n }} {% trans 'minutes' %}";
            {% endfor %}
-           html += "</select><input class='send_button' type=\"button\" value=\"{% trans 'Send' %}\" onclick='accept_order(" + order["pk"] + ")' /></td>";
-           html += "<td><input class = 'reject_button' type=\"button\" value=\"{% trans 'Reject' %}\" onclick='reject_order(" + order["pk"] + ")' /></td>";
+           html += "</select><input class='send_button' type=\"button\" value=\"{% trans 'Send' %}\" onclick='acceptOrder(" + order["pk"] + ")' /></td>";
+           html += "<td><input class = 'reject_button' type=\"button\" value=\"{% trans 'Reject' %}\" onclick='rejectOrder(" + order["pk"] + ")' /></td>";
            html += "</tr>";
            return html;
         }
 
-        function accept_order(order_id) {
+        function acceptOrder(order_id) {
             var pickup_time = $("#pickup_time_for_" + order_id).val();
             $.ajax({"url": "{% url ordering.station_controller.update_order_status %}", "type":"post", "data":{"status": "{{ accept }}", "pickup_time": pickup_time, "order_id": order_id},
-                "success": function(data, status_code) {
-                    var order_index = find_order(order_id);
-                    if (order_index != -1) {
-                        delete orders[order_index];
-                        renderOrders();
-                    } 
-                }, "error": function() {
-                    alert('an error occurred');
+                "success": updateOrderCallback, "error": function(xhr, status_code) {
+//                    if (xhr.status == 500)
+                    alert('Oops: ' + xhr.status);   
                 }
             });
+        }
+
+        function rejectOrder(order_id) {
+            $.ajax({"url": "{% url ordering.station_controller.update_order_status %}", "type":"post", "data":{"status": "{{ reject }}", "order_id": order_id},
+                "success": updateOrderCallback, "error": function(xhr, status_code) {
+//                    if (xhr.status == 500)
+                    alert('Oops: ' + xhr.status);
+                }
+            });
+        }
+
+        function updateOrderCallback(json) {
+            var data = eval("(" + json + ")");
+            var order_index = find_order(data.order_id);
+            if (order_index != -1) {
+                delete orders[order_index];
+                renderOrders();
+            }
         }
 
         function find_order(order_id) {

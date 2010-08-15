@@ -6,6 +6,7 @@ urlpatterns = patterns('',
     (r'^get_orders/$', 'ordering.station_controller.get_orders'),
     (r'^get_workstation_orders/$', 'ordering.station_controller.get_workstation_orders'),
     (r'^update_order_status/$', 'ordering.station_controller.update_order_status'),
+    (r'^book_order/$', 'ordering.order_manager.book_order'),
 
 )
 
