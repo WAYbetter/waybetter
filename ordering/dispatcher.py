@@ -1,13 +1,13 @@
 #from ordering.views import OrderError
 from ordering.models import OrderAssignment, WorkStation
 from ordering.station_connection_manager import is_workstation_available
-from ordering.errors import OrderError
+from ordering.errors import OrderError, NoWorkStationFoundError
 import models
 
 def assign_order(order):
     work_station = choose_workstation(order)
     if not work_station:
-        raise OrderError("Could not find a valid station")
+        raise NoWorkStationFoundError("Could not find a valid station")
 
     # create an OrderAssignment
     assignment = OrderAssignment()
@@ -15,6 +15,9 @@ def assign_order(order):
     assignment.station = work_station.station
     assignment.work_station = work_station
     assignment.save()
+
+    order.status = models.ASSIGNED
+    order.save()
 
     return assignment
 

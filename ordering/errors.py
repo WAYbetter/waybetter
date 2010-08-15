@@ -1,2 +1,5 @@
 class OrderError(Exception):
-    pass  
+    pass
+
+class NoWorkStationFoundError(OrderError):
+    pass

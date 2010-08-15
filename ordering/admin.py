@@ -15,11 +15,11 @@ class OrderAssignmentAdmin(admin.ModelAdmin):
     list_display = ["id", "station", "work_station", "order", "status"]
     list_filter = ["status", "work_station", "station" ]
 
-class DispatcherAdmin(admin.ModelAdmin):
-    pass
+class WorkStationAdmin(admin.ModelAdmin):
+    list_display = ["id", "station", "user"]
     
 admin.site.register(Passenger, PassengerAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderAssignment, OrderAssignmentAdmin)
 admin.site.register(Station, StationAdmin)
-admin.site.register(WorkStation, DispatcherAdmin)
+admin.site.register(WorkStation, WorkStationAdmin)

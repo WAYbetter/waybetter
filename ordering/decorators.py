@@ -8,7 +8,10 @@ def passenger_required(function):
     """
     @login_required
     def wrapper(request, **kwargs):
-        if Passenger.objects.filter(user = request.user).count() < 1:
+        try: 
+            passenger = Passenger.objects.filter(user = request.user).get()
+            kwargs["passenger"] = passenger
+        except Passenger.DoesNotExist:
             return HttpResponseForbidden("You are not a passenger")
         return function(request, **kwargs)
 

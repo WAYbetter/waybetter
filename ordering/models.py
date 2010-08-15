@@ -7,18 +7,22 @@ from django.utils.translation import gettext_lazy as _
 from django.contrib.auth.models import User
 from common.models import Country, City, CityArea
 
-PENDING = 5
 ASSIGNED = 1
 ACCEPTED = 2
 IGNORED = 3
 REJECTED = 4
+PENDING = 5
+FAILED = 6 
+ERROR = 7
 
 ASSIGNMENT_STATUS = ((ASSIGNED, _("assigned")),
                      (ACCEPTED, _("accepted")),
                      (IGNORED, _("ignored")),
                      (REJECTED, _("rejected")))
 
-ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, _("pending")),) # notice the ,
+ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, _("pending")),
+                                    (FAILED, _("failed")),
+                                    (ERROR, _("error"))) 
 
 class Passenger(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger")
@@ -50,7 +54,10 @@ class Station(models.Model):
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
-    
+
+    def natural_key(self):
+        return self.name
+        
     def __unicode__(self):
         return self.name
 
@@ -66,6 +73,7 @@ class WorkStation(models.Model):
 
 
 class Order(models.Model):
+
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
 
@@ -100,6 +108,13 @@ class Order(models.Model):
     
     def __unicode__(self):
         return u"%s from %s to %s" % (_("order"), self.from_raw, self.to_raw)
+
+    def get_status_label(self):
+        for key, label in ORDER_STATUS:
+            if key == self.status:
+                return label
+
+        raise ValueError("invalid status")
     
     
 class OrderAssignment(models.Model):

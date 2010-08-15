@@ -1,0 +1,125 @@
+{% extends "admin/base_site.html" %}
+{% load i18n %}
+
+{% block title %}
+        {% trans "Order page" %}
+{% endblock title %}
+
+{% block content %}
+    <script type="text/javascript">
+        var is_in_error = false;
+        var status_labels = {};
+        var order_assignments = [];
+        var order;
+
+        {% for key,val in order_status %}
+            status_labels[{{ key }}] = "{{ val }}";
+        {% endfor %}
+        
+        $(document).ready(function() {
+            initConnection();
+        });
+        function initConnection() {
+            pollOrderStatus();
+        }
+        function pollOrderStatus() {
+            $.ajax({
+                url: "{% url ordering.order_manager.get_order_status order_id=order.id %}",
+                dataType: "json",
+                complete: function(XMLHttpRequest, textStatus) {
+                    if (XMLHttpRequest.status == 0) { // no response from server
+                        onError();
+                    }
+                    $(document).oneTime({{ polling_interval }}, function() {
+                        pollOrderStatus();
+                    });
+                },
+                success: onUpdate,
+                error: onError
+
+            });
+        }
+        function onUpdate(data) {
+            is_in_error = false;
+            renderStatus();
+            if (data) {
+                order = data[0];
+                order_assignments = new Array();
+                for (var index=1; index < data.length; index++) {
+                    order_assignments.push(data[index]);
+                }
+                renderData();
+            }
+        }
+
+        function onError(XMLHttpRequest, textStatus, errorThrown) {
+            is_in_error = true;
+            renderStatus();
+        }
+        function renderStatus() {
+            if (is_in_error) {
+                $("#connection_status").html("an error occurred...");
+                $("#connection_status").show();
+
+            } else {
+                $("#connection_status").hide();
+            }
+        }
+        function renderData() {
+            renderOrder();
+
+            var html = "<table width=\"60%\"><tbody><tr>";
+            html += "<th>{% trans 'Station' %}</th>";
+            html += "<th>{% trans 'Status' %}</th>";
+            html += "<th>{% trans 'Last update' %}</th></tr>";
+
+            for (var index in order_assignments) {
+                html += renderAssignment(order_assignments[index]);
+            }
+            html += "</tbody></table>";
+            if (html != $("#order_assignments").html()) {
+                $("#order_assignments").html(html).effect("highlight", {}, 1300);
+            }
+
+        }
+        function renderOrder() {
+           var html = "Status: " + status_labels[order.fields.status] + "<br>";
+           if (order.fields.pickup_time) {
+               html += "Pickup time: " + order.fields.pickup_time + " minutes <br>";
+           }
+           if (html != $("#order_status").html()) {
+               $("#order_status").html(html).effect("highlight", {}, 1300);
+           }
+
+
+        }
+        function renderAssignment(order_assignment) {
+          var html = "<tr class=\"order_assignment\">";
+           html += "<td>" + order_assignment.fields.station + "</td>";
+           html += "<td>" + status_labels[order_assignment.fields.status] + "</td>";
+           html += "<td>" + order_assignment.fields.modify_date + "</td>";
+           html += "</tr>";
+           return html;
+        }
+    </script>
+    <div id="connection_status"></div>
+    <div id="order_info">
+        <div id="static_info">
+            Order #: {{ order.id }}<br>
+            ordered on: {{ ordered_on|date:"DATETIME_FORMAT" }}<br>
+            from: {{ order.from_raw }}<br>
+            to: {{ order.to_raw }}<br>
+        </div>
+        <div id="order_status">
+           
+        </div>
+        <div id="order_assignments">
+
+        </div>
+
+    </div>
+
+
+{% endblock content %}
+
+
