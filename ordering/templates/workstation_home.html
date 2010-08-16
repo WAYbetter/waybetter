@@ -70,10 +70,11 @@
         function initOrderTable() {
             var order_table = $("<table></table>").attr('width', '60%')
                 .append($("<tr></tr>")
+                    .append($("<th></th>").append("{% trans 'Order ID' %}"))
                     .append($("<th></th>").append("{% trans 'Status' %}"))
                     .append($("<th></th>").append("{% trans 'From' %}"))
                     .append($("<th></th>").append("{% trans 'To' %}"))
-                    .append($("<th></th>").attr('colspan', 3).append("{% trans 'Actions' %}"))
+                    .append($("<th></th>").attr('colspan', 4).append("{% trans 'Actions' %}"))
                 );
 
             $("#orders").empty().append(order_table);
@@ -96,14 +97,19 @@
             var reject_button = $("<button></button").append('{% trans 'Reject' %}').button().click(function() {
                 rejectOrder(order.pk);
             });
+
+            var progress_indicator = $("<span class='indicator'></span>").append("<img src='/static/img/indicator_small.gif'>").hide();
+
             
             var rendered_order = $("<tr class='order'></tr>").attr('id', order.pk).hide()
+                .append($("<td></td>").append(order.pk))
                 .append($("<td></td>").append('&nbsp;'))
                 .append($("<td></td>").append(order.fields.from_raw))
                 .append($("<td></td>").append(order.fields.to_raw))
                 .append($("<td></td>").append("{% trans 'Pickup in' %} ").append(select))
                 .append($("<td></td>").append(send_button))
-                .append($("<td></td>").append(reject_button));
+                .append($("<td></td>").append(reject_button))
+                .append($("<td></td>").append(progress_indicator));
 
             $("#orders table").append(rendered_order);
             rendered_order.effect("highlight", {}, 1300);
@@ -111,21 +117,17 @@
         }
 
         function acceptOrder(order_id) {
+            $("#orders #" + order_id + " .indicator").show();
             var pickup_time = $("#pickup_time_for_" + order_id).val();
             $.ajax({"url": "{% url ordering.station_controller.update_order_status %}", "type":"post", "data":{"status": "{{ accept }}", "pickup_time": pickup_time, "order_id": order_id},
-                "success": updateOrderCallback, "error": function(xhr, status_code) {
-//                    if (xhr.status == 500)
-                    alert('Oops: ' + xhr.status);   
-                }
+                "success": updateOrderCallback, "error": onError
             });
         }
 
         function rejectOrder(order_id) {
+            $("#orders #" + order_id + " .indicator").show();
             $.ajax({"url": "{% url ordering.station_controller.update_order_status %}", "type":"post", "data":{"status": "{{ reject }}", "order_id": order_id},
-                "success": updateOrderCallback, "error": function(xhr, status_code) {
-//                    if (xhr.status == 500)
-                    alert('Oops: ' + xhr.status);
-                }
+                "success": updateOrderCallback, "error": onError
             });
         }
 

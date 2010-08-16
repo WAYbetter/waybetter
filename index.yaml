@@ -49,6 +49,12 @@ indexes:
 - kind: ordering_order
   properties:
   - name: status
+  - name: __key__
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: status
   - name: pickup_time
     direction: desc
 

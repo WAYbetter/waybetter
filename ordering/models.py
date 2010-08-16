@@ -61,6 +61,9 @@ class Station(models.Model):
     def __unicode__(self):
         return self.name
 
+    def get_admin_link(self):
+        return '<a href="%s/%d">%s</a>' % ('/admin/ordering/station', self.id, self.name)
+
 class WorkStation(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="work_station")
 
@@ -70,6 +73,9 @@ class WorkStation(models.Model):
 
     def __unicode__(self):
         return u"Workstation "# of: %d" % (self.station.id)
+
+    def get_admin_link(self):
+        return '<a href="%s/%d">%s</a>' % ('/admin/ordering/workstation', self.id, self.user.username)
 
 
 class Order(models.Model):
@@ -119,7 +125,7 @@ class Order(models.Model):
     
 class OrderAssignment(models.Model):
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")
-    work_station = models.ForeignKey(WorkStation, verbose_name=_("wokr station"), related_name="assignments")
+    work_station = models.ForeignKey(WorkStation, verbose_name=_("work station"), related_name="assignments")
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="assignments")
     
     status = models.IntegerField(_("status"), choices=ASSIGNMENT_STATUS, default=ASSIGNED)
