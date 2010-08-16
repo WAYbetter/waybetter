@@ -21,6 +21,11 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: auth_user
+  properties:
+  - name: is_active
+  - name: username
+
 - kind: common_city
   properties:
   - name: __key__
@@ -80,6 +85,11 @@ indexes:
     direction: desc
 
 - kind: ordering_workstation
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: registration_registrationprofile
   properties:
   - name: __key__
     direction: desc

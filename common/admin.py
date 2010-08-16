@@ -2,8 +2,8 @@ from django.contrib import admin
 from common.models import Country, City, CityArea
 
 class CountryAdmin(admin.ModelAdmin):
-    pass
-
+    list_display = ["id", "name", "code", "dial_code"]
+    
 class CityAdmin(admin.ModelAdmin):
     pass
 

@@ -1,4 +1,4 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/connected_page.html" %}
 {% load i18n %}
 
 {% block title %}
@@ -7,9 +7,6 @@
 
 {% block content %}
     <script type="text/javascript">
-        var orders = [];
-        var is_in_error = false;
-        
         $(document).ready(function() {
             initConnection();
         });
@@ -43,14 +40,9 @@
             pollServer("{% url ordering.station_controller.get_workstation_orders %}");
         }
 
-        function onError(XMLHttpRequest, textStatus, errorThrown) {
-            is_in_error = true;
-            renderStatus();
-        }
-
+        
         function onOrder(incoming_orders) {
-            is_in_error = false;
-            renderStatus();
+            clearError();
             if (incoming_orders) {
                 for (var order_index in incoming_orders) {
                     renderOrder(incoming_orders[order_index]);
@@ -58,17 +50,8 @@
             }
         }
 
-        function renderStatus() {
-            if (is_in_error) {
-                $("#connection_status").html("an error occured...");
-                $("#connection_status").show();
-
-            } else {
-                $("#connection_status").hide();
-            }
-        }
         function initOrderTable() {
-            var order_table = $("<table></table>").attr('width', '60%')
+            var order_table = $("<table></table>").attr('width', '80%')
                 .append($("<tr></tr>")
                     .append($("<th></th>").append("{% trans 'Order ID' %}"))
                     .append($("<th></th>").append("{% trans 'Status' %}"))
@@ -101,7 +84,7 @@
             var progress_indicator = $("<span class='indicator'></span>").append("<img src='/static/img/indicator_small.gif'>").hide();
 
             
-            var rendered_order = $("<tr class='order'></tr>").attr('id', order.pk).hide()
+            var rendered_order = $("<tr class='order'></tr>").attr('id', order.pk)
                 .append($("<td></td>").append(order.pk))
                 .append($("<td></td>").append('&nbsp;'))
                 .append($("<td></td>").append(order.fields.from_raw))
@@ -112,7 +95,7 @@
                 .append($("<td></td>").append(progress_indicator));
 
             $("#orders table").append(rendered_order);
-            rendered_order.effect("highlight", {}, 1300);
+            rendered_order.show().effect("highlight", {}, 1300);
 
         }
 
@@ -139,7 +122,7 @@
         }
       
     </script>
-    <div id="connection_status"></div>
+
     <div id="orders">
         No orders yet...
     </div>

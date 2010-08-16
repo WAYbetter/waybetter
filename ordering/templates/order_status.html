@@ -1,4 +1,4 @@
-{% extends "admin/base_site.html" %}
+{% extends "admin/connected_page.html" %}
 {% load i18n %}
 
 {% block title %}
@@ -7,7 +7,6 @@
 
 {% block content %}
     <script type="text/javascript">
-        var is_in_error = false;
         var status_labels = {};
         var order_assignments = [];
         var order;
@@ -40,8 +39,7 @@
             });
         }
         function onUpdate(data) {
-            is_in_error = false;
-            renderStatus();
+            clearError();
             if (data) {
                 order = data[0];
                 order_assignments = new Array();
@@ -52,19 +50,6 @@
             }
         }
 
-        function onError(XMLHttpRequest, textStatus, errorThrown) {
-            is_in_error = true;
-            renderStatus();
-        }
-        function renderStatus() {
-            if (is_in_error) {
-                $("#connection_status").html("an error occurred...");
-                $("#connection_status").show();
-
-            } else {
-                $("#connection_status").hide();
-            }
-        }
         function renderData() {
             renderOrder();
 
@@ -102,7 +87,7 @@
            return html;
         }
     </script>
-    <div id="connection_status"></div>
+
     <div id="order_info">
         <div id="static_info">
             Order #: {{ order.id }}<br>

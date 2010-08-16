@@ -12,7 +12,7 @@ def passenger_required(function):
             passenger = Passenger.objects.filter(user = request.user).get()
             kwargs["passenger"] = passenger
         except Passenger.DoesNotExist:
-            return HttpResponseForbidden("You are not a passenger")
+            return HttpResponseForbidden("You are not a passenger, please <a href='/passenger/logout/'>logout</a> and try again")
         return function(request, **kwargs)
 
     return wrapper
@@ -39,7 +39,7 @@ def work_station_required(function):
             work_station = WorkStation.objects.filter(user = request.user).get()
             kwargs["work_station"] = work_station
         except WorkStation.DoesNotExist:
-            return HttpResponseForbidden("You are not a workstation")
+            return HttpResponseForbidden("You are not a workstation, please <a href='/workstation/logout/'>logout</a> and try again")
 
         return function(request, **kwargs)
 

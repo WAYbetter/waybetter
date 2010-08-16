@@ -3,8 +3,12 @@ from django.utils.translation import gettext_lazy as _
                                
 # Create your models here.
 class Country(models.Model):
-    name = models.CharField(_("name"), max_length=30, unique=True)
+    name = models.CharField(_("name"), max_length=60, unique=True)
     code = models.CharField(_("country code"), max_length=3, unique=True)
+    dial_code = models.CharField(_("dial code"), max_length=6, null=True, blank=True)
+
+    class Meta:
+        verbose_name_plural = _("countries")
 
     def __unicode__(self):
         return self.name
