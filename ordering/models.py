@@ -27,8 +27,8 @@ ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, _("pending")),
 class Passenger(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger")
 
+    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
     phone = models.CharField(_("phone number"), max_length=15)
-    phone_verification_code = models.IntegerField(_("phone verification code"), max_length=5)
     phone_verified = models.BooleanField(_("phone verified"))
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
