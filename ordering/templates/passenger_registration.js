@@ -57,11 +57,17 @@ $(document).ready(function() {
                     .append($("<label></label>").attr('for', 'password_again').append("{% trans 'Re-enter Password' %}"))
                     .append(password_again)));
 
+
+
+        
     var user_details_form = $("<form></form>").append(user_details_table).submit(function(){ return false });
     var user_details_validator = user_details_form.validate({
         errorClass: 'ui-state-error', 
         rules: {
-            username: "required",
+            username: {
+                required: true,
+                remote: "{% url common.services.is_username_available %}"
+            },
             email: {
                 required: true,
                 email: true
@@ -70,6 +76,11 @@ $(document).ready(function() {
             password_again: {
                 required: true, 
                 equalTo: "#password"
+            }
+        },
+        messages: {
+            username: {
+                remote: "{% trans 'The username is already taken' %}"
             }
         }
     });
