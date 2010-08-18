@@ -7,6 +7,15 @@
 <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% load adminmedia %}{% admin_media_prefix %}css/ie.css{% endblock %}" /><![endif]-->
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% admin_media_prefix %}css/rtl.css{% endblock %}" />{% endif %}
 <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% admin_media_prefix %}{% endfilter %}";</script>
+<script type="text/javascript">
+    function showSignupForm() {
+        if (window.openSignupDialog) {
+            openSignupDialog();
+        } else {
+            $.getScript("{% url ordering.passenger_controller.get_signup_form %}");
+        }
+    }
+</script>
 {% block extrahead %}{% endblock %}
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
 </head>
@@ -23,8 +32,8 @@
         <div id="branding">
         {% block branding %}{% endblock %}
         </div>
+        <div id="user-tools">
         {% if request.user.is_authenticated %}
-            <div id="user-tools">
                 {% trans 'Welcome,' %}
                 <strong>{% filter force_escape %}{% firstof request.user.first_name request.user.username %}{% endfilter %}</strong>.
                 {% block userlinks %}
@@ -47,8 +56,10 @@
                     {% endif %}
                     {% trans 'Log out' %}</a>
                 {% endblock %}
-            </div>
+        {% else %}
+                <a href='javascript:showSignupForm()'>{% trans 'Join!' %}</a>
         {% endif %}
+        </div>
         {% block nav-global %}{% endblock %}
     </div>
     <!-- END Header -->

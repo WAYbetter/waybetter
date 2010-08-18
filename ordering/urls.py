@@ -2,6 +2,7 @@ from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
     (r'^passenger/$', 'ordering.passenger_controller.passenger_home'),
+    (r'^get_signup_form/$', 'ordering.passenger_controller.get_signup_form'),
     (r'^workstation/$', 'ordering.station_controller.workstation_home'),
     (r'^orders/(?P<order_id>\d+)$', 'ordering.order_manager.order_status'),
     (r'^orders/$', 'ordering.passenger_controller.get_orders'),
