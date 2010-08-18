@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     (r'^service/get_workstation_orders/$', 'ordering.station_controller.get_workstation_orders'),
     (r'^services/send_sms_verification/$', 'ordering.passenger_controller.send_sms_verification'),
     (r'^services/register_passenger/$', 'ordering.passenger_controller.register_passenger'),
+    (r'^services/login_passenger/$', 'ordering.passenger_controller.login_passenger'),
     (r'^service/get_order_status/(?P<order_id>\d+)$', 'ordering.order_manager.get_order_status'),
 
 )

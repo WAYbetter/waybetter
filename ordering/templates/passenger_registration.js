@@ -1,186 +1,48 @@
 {% load i18n %}
 var onRegisterSuccess;
-function openSignupDialog() {
-    $('#dialog-form').dialog('open');
-}
+var loginState = {
+    init: function(self) {
+        self.dialog.empty();
+        self.username = $("<input>").attr('name', 'username');
+        self.password = $("<input>").attr('name', 'password').attr('type', 'password').attr('id', 'password')
+        self.allFields = [self.username, self.password];
+        self.user_login_table =
+            $("<table></table>")
+                .append($("<tr></tr>")
+                    .append($("<td></td>")
+                        .append($("<label></label>").attr('for', 'username').append("{% trans 'Username' %}"))
+                        .append(self.username))
+                    .append($("<td></td>")
+                        .append($("<label></label>").attr('for', 'password').append("{% trans 'Password' %}"))
+                        .append(self.password)));
 
-$(document).ready(function() {
-
-    var username = $("<input>").attr('name', 'username'),
-        email = $("<input>").attr('name', 'email'),
-        password = $("<input>").attr('name', 'password').attr('type', 'password').attr('id', 'password'),
-        password_again = $("<input>").attr('name', 'password_again').attr('type', 'password'),
-
-        local_phone = $("<input>").attr('name', 'local_phone').attr('id', 'local_phone').keyup(function() {
-            if ($(this).val()) {
-                send_sms_button.button("enable");
-            } else{
-                send_sms_button.button("disable");
-            }
-        }),
-        verification_code = $("<input>").attr('name', 'verification_code').attr('disabled', 'disabled').keyup(function() {
-            if ($(this).val()) {
-                $(".ui-dialog-buttonset button").button("enable")
-            } else {
-                $(".ui-dialog-buttonset button").button("disable")
-            }
-        });
-
-    var country = $("<select name='country'></select>");
-    {% for country in countries %}
-    country.append($("<option>").val('{{ country.id }}').append("{{ country.name|truncatewords:3 }} ({{ country.dial_code }})"));
-    {% endfor %}
-
-    var allFields = [username, email, password, country, local_phone, verification_code];
-
-    var send_sms_button = $("<button></button>").append("{% trans 'Send SMS verification code' %}").button();
-    send_sms_button.button("disable");
-    send_sms_button.unbind("click");
-    send_sms_button.click(sendSMSVerification);
-
-    var progress_indicator = $("<img>").attr("src", "/static/img/indicator_small.gif").css("display", "inline").hide();
-
-    var user_details_table =
-        $("<table></table>")
-            .append($("<tr></tr>")
-                .append($("<td></td>")
-                    .append($("<label></label>").attr('for', 'username').append("{% trans 'Username' %}"))
-                    .append(username))
-                .append($("<td></td>")
-                    .append($("<label></label>").attr('for', 'email').append("{% trans 'Email' %}"))
-                    .append(email)))
-            .append($("<tr></tr>")
-                .append($("<td></td>")
-                    .append($("<label></label>").attr('for', 'password').append("{% trans 'Password' %}"))
-                    .append(password))
-                .append($("<td></td>")
-                    .append($("<label></label>").attr('for', 'password_again').append("{% trans 'Re-enter Password' %}"))
-                    .append(password_again)));
-
-
-
-        
-    var user_details_form = $("<form></form>").append(user_details_table).submit(function(){ return false });
-    var user_details_validator = user_details_form.validate({
-        errorClass: 'ui-state-error', 
-        rules: {
-            username: {
-                required: true,
-                remote: "{% url common.services.is_username_available %}"
-            },
-            email: {
-                required: true,
-                email: true
-            },
-            password: "required",
-            password_again: {
-                required: true, 
-                equalTo: "#password"
-            }
-        },
-        messages: {
-            username: {
-                remote: "{% trans 'The username is already taken' %}"
-            }
-        }
-    });
-
-    var phone_verification_table =
-        $("<table></table>")
-            .append($("<tr></tr>")
-                .append($("<td></td>")
-                    .append($("<label></label>").attr('for', 'country').append("{% trans 'Country' %}"))
-                    .append(country)))
-            .append($("<tr></tr>")
-                .append($("<td></td>")
-                    .append($("<label></label>").attr('for', 'local_phone').append("{% trans 'Local Phone' %}"))
-                    .append(local_phone)))
-            .append($("<tr></tr>")
-                .append($("<td></td>")
-                    .append(send_sms_button).append(progress_indicator)))
-            .append($("<tr></tr>")
-                .append($("<td></td>")
-                    .append($("<label></label>").attr('for', 'verification_code').append("{% trans 'Enter SMS Code' %}"))
-                    .append(verification_code)));
-
-        var phone_verification_form = $("<form></form").append(phone_verification_table).submit(function(){ return false });
-        var phone_verification_validator = phone_verification_form.validate({
-            errorClass: 'ui-state-error',
+        self.user_login_form = $("<form></form>").append(self.user_login_table).submit(function(){ return false });
+        self.user_login_validator = self.user_login_form.validate({
+            errorClass: 'my-ui-state-error',
             rules: {
-                verification_code: "required",
-                local_phone: {
-                    required: true,
-                    digits: true
-                }
+                username: "required",
+                password: "required"
             }
         });
-
-        var user_details = $("<div></div>").append(user_details_form);
-
-
-        var phone_verification = $("<div></div>").hide().append(phone_verification_form);
-
-        $("<div></div>").attr('id', "dialog-form").appendTo("body");
-        $("#dialog-form").append(user_details).append(phone_verification);
-        $('#dialog-form').dialog({
-            autoOpen: false,
-            height: 300,
-            width: 350,
-            modal: true,
-            title: "{% trans 'Sign up using the following details'  %}",
-            buttons: {
-            '{% trans "Continue" %}': function() {}
-            },
-            open: initDialog
-        });
-
-//        openSignupDialog();
-        $("label").css("display", "block");
-
-
-    function initDialog(event, ui) {
-        var dialog_button = $(".ui-dialog-buttonset button");
-        dialog_button.button("enable");
-        dialog_button.button("option", "label", "{% trans 'Continue' %}");
-        dialog_button.unbind("click");
-        dialog_button.click(function() {
-            doContinue();
-        });
-        phone_verification.hide();
-        user_details.show();
-    }
-
-    function doContinue() {
-        var is_valid = user_details_validator.form();
-        if (is_valid) {
-            $("#dialog-form").dialog("option", "title", "{% trans 'Fill in to finish registration' %}");
-            var dialog_button = $(".ui-dialog-buttonset button");
-            dialog_button.button("disable");
-            dialog_button.button("option", "label", "{% trans 'Finish' %}");
-            dialog_button.unbind("click");
-            dialog_button.click(function() {
-               doSubmit(); 
-            });
-            user_details.hide();
-            phone_verification.show();
-        }
-    }
-
-    function doSubmit() {
-         var is_valid = phone_verification_validator.form();
+        self.registration_link = $("<span></span>").addClass("link").text("{% trans "Don't have an account?" %}").click(function() { self.registerMode(self) });
+        self.login = $("<div></div>").append(self.user_login_form).append(self.registration_link);
+        self.dialog.append(self.login)
+    },
+    doLogin:function(self) {
+        var is_valid = self.user_login_validator.form();
 
         if (is_valid) {
             var data = {};
-            for (var i in allFields) {
-                var input = $(allFields[i]);
+            for (var i in self.allFields) {
+                var input = $(self.allFields[i]);
                 data[input.attr("name")] = input.val();
             }
             $.ajax({
-                url: "{% url ordering.passenger_controller.register_passenger %}",
+                url: "{% url ordering.passenger_controller.login_passenger %}",
                 type: "post",
                 data: data,
                 success: function(data) {
-                    $('#dialog-form').dialog("close");
+                    self.dialog.dialog("close");
                     if (onRegisterSuccess) {
                         onRegisterSuccess.call();
                     }
@@ -190,21 +52,243 @@ $(document).ready(function() {
                 }
             });
         }
+    },
+    registerMode: function(self) {
+        registerState.buildDialog(self.dialog);
+    },
+    dialogSettings: {
+        autoOpen: false,
+        modal: true,
+        title: "{% trans 'Login using the following details' %}",
+        width: 350,
+        height: 200,
+        buttons: {
+            "{% trans 'Login' %}": function() { loginState.doLogin(loginState) },
+        }
+    },
+    buildDialog: function(container) {
+        this.dialog = $(container).dialog(this.dialogSettings);
+        this.init(this);
+        
     }
-   
+}
 
-    function sendSMSVerification() {
-        if (phone_verification_validator.element("#local_phone")) {
-            progress_indicator.show();
-            $.post("{% url ordering.passenger_controller.send_sms_verification %}", { phone: local_phone.val() }, function(data) {
-                progress_indicator.hide();
-                alert('code:' + data);
-                send_sms_button.button("disable");
-                verification_code.attr("disabled", "");
+
+// --------------------===================================-------------------------------===============================
+// --------------------===================================-------------------------------===============================
+// --------------------===================================-------------------------------===============================
+// --------------------===================================-------------------------------===============================
+
+
+
+var registerState = {
+    init: function(self) {
+        self.dialog.empty();
+        
+        self.username = $("<input>").attr('name', 'username');
+        self.email = $("<input>").attr('name', 'email');
+        self.password = $("<input>").attr('name', 'password').attr('type', 'password').attr('id', 'password')
+        self.password_again = $("<input>").attr('name', 'password_again').attr('type', 'password');
+
+        self.local_phone = $("<input>").attr('name', 'local_phone').attr('id', 'local_phone').keyup(function() {
+            if ($(this).val()) {
+                self.send_sms_button.button("enable");
+            } else{
+                self.send_sms_button.button("disable");
+            }
+        });
+        self.verification_code = $("<input>").attr('name', 'verification_code').attr('disabled', 'disabled').keyup(function() {
+            if ($(this).val()) {
+                $(".ui-dialog-buttonset button").button("enable")
+            } else {
+                $(".ui-dialog-buttonset button").button("disable")
+            }
+        });
+
+        self.country = $("<select name='country'></select>");
+        {% for country in countries %}
+        self.country.append($("<option>").val('{{ country.id }}').append("{{ country.name|truncatewords:3 }} ({{ country.dial_code }})"));
+        {% endfor %}
+
+        self.allFields = [self.username, self.email, self.password, self.country, self.local_phone, self.verification_code];
+
+        self.send_sms_button = $("<button></button>").append("{% trans 'Send SMS verification code' %}").button();
+        self.send_sms_button.button("disable");
+        self.send_sms_button.unbind("click");
+        self.send_sms_button.click(function() {
+            self.sendSMSVerification(self);
+        });
+        
+
+        self.progress_indicator = $("<img>").attr("src", "/static/img/indicator_small.gif").css("display", "inline").hide();
+
+        self.user_details_table =
+        $("<table></table>")
+            .append($("<tr></tr>")
+                .append($("<td></td>")
+                    .append($("<label></label>").attr('for', 'username').append("{% trans 'Username' %}"))
+                    .append(self.username))
+                .append($("<td></td>")
+                    .append($("<label></label>").attr('for', 'email').append("{% trans 'Email' %}"))
+                    .append(self.email)))
+            .append($("<tr></tr>")
+                .append($("<td></td>")
+                    .append($("<label></label>").attr('for', 'password').append("{% trans 'Password' %}"))
+                    .append(self.password))
+                .append($("<td></td>")
+                    .append($("<label></label>").attr('for', 'password_again').append("{% trans 'Re-enter Password' %}"))
+                    .append(self.password_again)));
+
+
+        self.user_details_form = $("<form></form>").append(self.user_details_table).submit(function(){ return false });
+        self.user_details_validator = self.user_details_form.validate({
+            errorClass: 'my-ui-state-error',
+            rules: {
+                username: {
+                    required: true,
+                    remote: "{% url common.services.is_username_available %}"
+                },
+                email: {
+                    required: true,
+                    email: true
+                },
+                password: "required",
+                password_again: {
+                    required: true,
+                    equalTo: "#password"
+                }
+            },
+            messages: {
+                username: {
+                    remote: "{% trans 'The username is already taken' %}"
+                }
+            }
+        });
+
+        self.phone_verification_table =
+            $("<table></table>")
+                .append($("<tr></tr>")
+                    .append($("<td></td>")
+                        .append($("<label></label>").attr('for', 'country').append("{% trans 'Country' %}"))
+                        .append(self.country)))
+                .append($("<tr></tr>")
+                    .append($("<td></td>")
+                        .append($("<label></label>").attr('for', 'local_phone').append("{% trans 'Local Phone' %}"))
+                        .append(self.local_phone)))
+                .append($("<tr></tr>")
+                    .append($("<td></td>")
+                        .append(self.send_sms_button).append(self.progress_indicator)))
+                .append($("<tr></tr>")
+                    .append($("<td></td>")
+                        .append($("<label></label>").attr('for', 'verification_code').append("{% trans 'Enter SMS Code' %}"))
+                        .append(self.verification_code)));
+
+        self.phone_verification_form = $("<form></form>").append(self.phone_verification_table).submit(function(){ return false });
+        self.phone_verification_validator = self.phone_verification_form.validate({
+            errorClass: 'ui-state-error',
+            rules: {
+                verification_code: {
+                    required: true,
+                    digits: true,
+                    minlength: 4,
+                    maxlength: 4
+                },
+                local_phone: {
+                    required: true,
+                    digits: true
+                }
+            }
+        });
+
+        self.login_link = $("<span></span>").addClass("link").text("{% trans 'Already have an account?' %}").click(function() { self.loginMode(self) });
+        self.user_details = $("<div></div>").append(self.user_details_form).append(self.login_link);
+        self.phone_verification = $("<div></div>").hide().append(self.phone_verification_form);
+
+
+        self.dialog.append(self.user_details).append(self.phone_verification);
+
+//        openSignupDialog();
+        $("label").css("display", "block");
+    },
+    doContinue: function(self) {
+        var is_valid = self.user_details_validator.form();
+        if (is_valid) {
+            self.dialog.dialog("option", "title", "{% trans 'Fill in to finish registration' %}");
+            var dialog_button = $(".ui-dialog-buttonset button");
+            dialog_button.button("disable");
+            dialog_button.button("option", "label", "{% trans 'Finish' %}");
+            dialog_button.unbind("click");
+            dialog_button.click(function() {
+               self.doSubmit(self);
+            });
+            self.user_details.hide();
+            self.phone_verification.show();
+        }
+    },
+    doSubmit: function(self) {
+         var is_valid = self.phone_verification_validator.form();
+
+        if (is_valid) {
+            var data = {};
+            for (var i in self.allFields) {
+                var input = $(self.allFields[i]);
+                data[input.attr("name")] = input.val();
+            }
+            $.ajax({
+                url: "{% url ordering.passenger_controller.register_passenger %}",
+                type: "post",
+                data: data,
+                success: function(data) {
+                    self.dialog.dialog("close");
+                    if (onRegisterSuccess) {
+                        onRegisterSuccess.call();
+                    }
+                },
+                error: function(XMLHttpRequest, textStatus, errorThrown) {
+                    alert('error: ' + XMLHttpRequest.responseText);
+                }
+            });
+        }
+    },
+    sendSMSVerification: function (self) {
+        if (self.phone_verification_validator.element("#local_phone")) {
+            self.progress_indicator.show();
+            $.post("{% url ordering.passenger_controller.send_sms_verification %}", { phone: self.local_phone.val() }, function(data) {
+                self.progress_indicator.hide();
+                alert('verification code:' + data);
+                self.send_sms_button.button("disable");
+                self.verification_code.attr("disabled", "").focus();
+
             });
         }
         return false;
-    }
+    },
+    loginMode: function(self) {
+        loginState.buildDialog(self.dialog);
+    },
+    dialogSettings: {
+        autoOpen: false,
+        title: "{% trans 'Sign up using the following details'  %}",
+        width: 350,
+        height: 300,
+        buttons: {
+            "{% trans 'Continue' %}": function () { registerState.doContinue(registerState) }
+        },
+        open: function () { registerState.init(registerState) }
+    },
+    buildDialog: function(container) {
+        this.dialog = $(container).dialog(this.dialogSettings);
+        this.init(this);
+    },
+}
+
+
+function openSignupDialog() {
+    $('#dialog-form').dialog('open');
+}
+
+$(document).ready(function() {
+    var container = $("<div></div>").attr('id', "dialog-form").appendTo("body").hide();
+    loginState.buildDialog(container);
 });
-
-
+        
