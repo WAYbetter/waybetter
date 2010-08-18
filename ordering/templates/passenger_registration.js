@@ -57,7 +57,7 @@ $(document).ready(function() {
                     .append($("<label></label>").attr('for', 'password_again').append("{% trans 'Re-enter Password' %}"))
                     .append(password_again)));
 
-    var user_details_form = $("<form></form>").append(user_details_table);
+    var user_details_form = $("<form></form>").append(user_details_table).submit(function(){ return false });
     var user_details_validator = user_details_form.validate({
         errorClass: 'ui-state-error', 
         rules: {
@@ -92,7 +92,7 @@ $(document).ready(function() {
                     .append($("<label></label>").attr('for', 'verification_code').append("{% trans 'Enter SMS Code' %}"))
                     .append(verification_code)));
 
-        var phone_verification_form = $("<form></form").append(phone_verification_table);
+        var phone_verification_form = $("<form></form").append(phone_verification_table).submit(function(){ return false });
         var phone_verification_validator = phone_verification_form.validate({
             errorClass: 'ui-state-error',
             rules: {

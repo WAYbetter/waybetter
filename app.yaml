@@ -1,5 +1,5 @@
 application: waybetter-app
-version: 2
+version: 1
 runtime: python
 api_version: 1
 
@@ -11,7 +11,7 @@ handlers:
   login: admin
 
 - url: /_ah/queue/deferred
-  script: djangoappengine/deferred/handler.py
+  script: $PYTHON_LIB/google/appengine/ext/deferred/deferred.py
   login: admin
 
 - url: /media/admin
