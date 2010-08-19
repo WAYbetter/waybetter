@@ -11,11 +11,9 @@
 <script type="text/javascript">
     function showSignupForm() {
         if (window.openSignupDialog) {
-            onRegisterSuccess = function() {
+            openSignupDialog(function() {
                 window.location.href = "/passenger/";
-            }
-            // will call onRegisterSuccess if defined and registration was successful
-            openSignupDialog();
+            });
         } else {
             $("<script>").attr("type", "text/javascript").attr("src", "{% url ordering.passenger_controller.get_signup_form %}").appendTo("head");
         }

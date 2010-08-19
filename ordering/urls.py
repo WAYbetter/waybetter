@@ -15,6 +15,7 @@ urlpatterns = patterns('',
 
 
     # services
+    (r'^service/book_order/$', 'ordering.passenger_controller.book_order'),
     (r'^service/update_order_status/$', 'ordering.station_controller.update_order_status'),
     (r'^service/get_orders/$', 'ordering.station_controller.get_orders'),
     (r'^service/get_workstation_orders/$', 'ordering.station_controller.get_workstation_orders'),

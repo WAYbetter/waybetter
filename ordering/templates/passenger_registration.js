@@ -64,7 +64,9 @@ var loginState = {
         height: 200,
         buttons: {
             "{% trans 'Login' %}": function() { loginState.doLogin(loginState) },
-        }
+        },
+        open: function() {  }
+
     },
     buildDialog: function(container) {
         this.dialog = $(container).dialog(this.dialogSettings);
@@ -208,7 +210,6 @@ var registerState = {
         self.dialog.append(self.user_details).append(self.phone_verification);
 
 //        openSignupDialog();
-        $("label").css("display", "block");
     },
     doContinue: function(self) {
         var is_valid = self.user_details_validator.form();
@@ -283,7 +284,10 @@ var registerState = {
 }
 
 
-function openSignupDialog() {
+function openSignupDialog(callback) {
+    if (callback) {
+        onRegisterSuccess = callback;
+    }
     $('#dialog-form').dialog('open');
 }
 
