@@ -1,4 +1,4 @@
-{% extends "admin/connected_page.html" %}
+{% extends "connected_page.html" %}
 {% load i18n %}
 {% block page_specific_head %}
 <script type="text/javascript" src="/static/js/jquery.form.js"></script>
@@ -237,9 +237,9 @@
 
         </script>
         <div id="greeting">
-            {% trans "Welcome" %} {{ user.first_name }}!
+            {% trans "Welcome" %} {{ user.username }}!
         </div>
-        <div class="form_container">
+        <div class="form_container" style="width:500px">
             <form method="post" id="order_form" name="order_form" action="{% url ordering.passenger_controller.book_order %}">
                 {% csrf_token %}
                 {% for field in form %}
@@ -248,7 +248,7 @@
                             {{ field.as_hidden }}
                         {% else %}
                             {{ field.errors }}
-                            {{ field.label_tag }}: {{ field }}
+                            {{ field.label_tag }} {{ field }}
                             <div id="indicator_for_{{ field.name }}" style="display:none;"><img src="/static/img/indicator.gif"></div>
                             <input type="hidden" id="id_geocoded_{{ field.name }}" name="geocoded_{{ field.name }}">
                             <div id="choices_for_{{ field.name }}">
