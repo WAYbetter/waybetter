@@ -25,7 +25,17 @@ var loginState = {
             }
         });
         self.registration_link = $("<span></span>").addClass("link").text("{% trans "Don't have an account?" %}").click(function() { self.registerMode(self) });
-        self.login = $("<div></div>").append(self.user_login_form).append(self.registration_link);
+        var input1 = $("<input>").attr('id', 'openid_identifier').attr('name', 'openid_identifier').attr('type', 'text');
+        self.openid_container = $("<div></div>")
+                .append($("<div></div>").attr('id', 'openid_choice').append($("<div></div>").attr('id', 'openid_btns')))
+                .append($("<input>").attr('name', 'openid_next').attr('type', 'hidden'))
+                .append($("<div></div>").attr('id', 'openid_input_areas'));
+        self.openid_form = $("<form></form>").attr('action', "{% url socialauth_openid_login %}").attr('method', 'get').attr('id', 'openid_form')
+                .append($("<input>").attr('type', 'hidden').attr('name', 'action').val('verify'));
+        self.openid_form.append(self.openid_container);
+
+
+        self.login = $("<div></div>").append(self.user_login_form).append(self.registration_link).append(self.openid_form);
         self.dialog.append(self.login)
     },
     doLogin:function(self) {
@@ -71,6 +81,7 @@ var loginState = {
     buildDialog: function(container) {
         this.dialog = $(container).dialog(this.dialogSettings);
         this.init(this);
+        return this;
         
     }
 }
@@ -214,16 +225,7 @@ var registerState = {
     doContinue: function(self) {
         var is_valid = self.user_details_validator.form();
         if (is_valid) {
-            self.dialog.dialog("option", "title", "{% trans 'Fill in to finish registration' %}");
-            var dialog_button = $(".ui-dialog-buttonset button");
-            dialog_button.button("disable");
-            dialog_button.button("option", "label", "{% trans 'Finish' %}");
-            dialog_button.unbind("click");
-            dialog_button.click(function() {
-               self.doSubmit(self);
-            });
-            self.user_details.hide();
-            self.phone_verification.show();
+            phoneVerification(self);
         }
     },
     doSubmit: function(self) {
@@ -250,6 +252,18 @@ var registerState = {
                 }
             });
         }
+    },
+    phoneVerification: function(self) {
+        self.dialog.dialog("option", "title", "{% trans 'Fill in to finish registration' %}");
+        var dialog_button = $(".ui-dialog-buttonset button");
+        dialog_button.button("disable");
+        dialog_button.button("option", "label", "{% trans 'Finish' %}");
+        dialog_button.unbind("click");
+        dialog_button.click(function() {
+            self.doSubmit(self);
+        });
+        self.user_details.hide();
+        self.phone_verification.show();
     },
     sendSMSVerification: function (self) {
         if (self.phone_verification_validator.element("#local_phone")) {
@@ -284,15 +298,21 @@ var registerState = {
 }
 
 
-function openSignupDialog(callback) {
+function openSignupDialog(callback, showPhoneVerificationOnly) {
     if (callback) {
         onRegisterSuccess = callback;
     }
     $('#dialog-form').dialog('open');
+
+    if (showPhoneVerificationOnly) {
+        registerState.buildDialog($('#dialog-form'));
+        registerState.phoneVerification(registerState);
+    }
 }
 
 $(document).ready(function() {
     var container = $("<div></div>").attr('id', "dialog-form").appendTo("body").hide();
     loginState.buildDialog(container);
+    openid.init('openid_identifier');
 });
         

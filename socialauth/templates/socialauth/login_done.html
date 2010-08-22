@@ -1,0 +1,16 @@
+{% extends "base_site.html" %}
+{% load i18n %}
+{% block page_specific_head %}
+<script language="javascript">
+    $(document).ready(function () {
+        if (opener && opener.onRegisterSuccess) {
+            opener.onRegisterSuccess.call();
+        }
+        window.close();
+    });
+</script>
+{% endblock %}
+{% block content %}
+{% trans 'Signing you in...' %}
+        
+{% endblock content %}       
