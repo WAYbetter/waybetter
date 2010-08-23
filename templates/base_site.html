@@ -7,9 +7,20 @@
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.2/jquery.min.js"></script>
 <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/jquery-ui.min.js"></script>
 <script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
-<script type="text/javascript" src="{% url ordering.passenger_controller.get_signup_form %}"></script>
 <script type="text/javascript" src="/static/js/openid-jquery.js"></script>
 <script type="text/javascript" src="/static/js/jquery.timers-1.2.min.js"></script>
+<script type="text/javascript" src="/static/js/utils.js"></script>
+<script>
+    $(document).ready(function() {
+         Registrator.init({
+             urls            : {
+                 login_form_template : '{% url common.registration.get_login_form %}',
+                 reg_form_template   : '{% url common.registration.get_registration_form %}',
+                 phone_form_template : '{% url common.registration.get_phone_form %}'
+             }
+         });
+     });
+</script>
 {% block page_specific_head %}{% endblock %}
 
 {% endblock extrahead %}        

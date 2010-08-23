@@ -2,13 +2,10 @@
 <script>
     var form_config = {
         dialog_config : {
-            title: "{% trans '' %}",
+            title: "{% trans 'Login using the following details' %}",
         },
         urls: {
-
-        },
-        message: {
-
+            login: "{% url ordering.passenger_controller.login_passenger %}"
         }
     };
 </script>
@@ -26,7 +23,10 @@
                 </td>
             </tr>
         </table>
-        <a id="show_register" href="#">{% trans "Don't have an account?" %}</a>
+        <a id="show_register" href="login_form.html#">{% trans "Don't have an account?" %}</a>
+        <div id="button_container">
+            <button id="login">{% trans 'Login' %}</button>
+        </div>
        
     </div>
     <div id="social_login">

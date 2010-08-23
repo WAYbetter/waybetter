@@ -19,6 +19,7 @@ var Registrator = Object.create({
             register            : '/'
         },
         dialog_config   : {
+            autoOpen: false,
             modal: true,
             width: 350,
             height: 200
@@ -26,9 +27,10 @@ var Registrator = Object.create({
         messages        : {
             username_taken  : ''
         },
-        callback        : function f() {}
+        callback        : function () {}
     },
     validator               : {},
+    config                  : {},
     /**
      * Initializes this.config
      *
@@ -38,8 +40,15 @@ var Registrator = Object.create({
     init                    : function (config) {
         // config will be the argument config
         // OR the global var 'form_config' provided in the template
-        config = config || form_config || {};
-        this.config = $.extend(true, {}, this.default_config, config);
+
+        var _config = window.form_config ? form_config : {};
+        config = config || _config;
+
+        this.config = $.extend(true, {}, this.default_config, this.config, config);
+        if (! $("#dialog").length) {
+            $("<div id='dialog'></div>").hide().appendTo("body");
+        }
+        $("#dialog").dialog(this.config.dialog_config);
         return this;
     },
     initValidator           : function ($form, config) {
@@ -84,8 +93,8 @@ var Registrator = Object.create({
                 data : $(form).serialize(),
                 success : function (response) {
                     $('#dialog').dialog('close');
-                    if ( that.callback ) {
-                        that.callback();
+                    if ( that.config.callback ) {
+                        that.config.callback();
                     }
                 }
             });
@@ -101,8 +110,8 @@ var Registrator = Object.create({
                 data : $(form).serialize() + extra_data,
                 success : function (response) {
                     $('#dialog').dialog('close');
-                    if ( that.callback ) {
-                        that.callback();
+                    if ( that.config.callback ) {
+                        that.config.callback();
                     }
                 }
             });
@@ -119,7 +128,7 @@ var Registrator = Object.create({
                     password: "required"
                 }
             },
-            $button = $('form > button', dialog_content).button()
+            $button = $('form button', dialog_content).button()
                 .unbind('click')
                 .bind('click', function (e) {
                     that.doLogin.call(that, this.form);
@@ -152,18 +161,38 @@ var Registrator = Object.create({
                     }
                 }
             },
-            $sms_button = $('form > button#send_sms_verification', dialog_content).button()
+            $sms_button = $('form input#send_sms_verification', dialog_content).button()
                .unbind('click')
                .bind('click', function (e) {
                     that.sendSMS.call(that, this.form);
                     return false;
                }),
-            $finish_button = $('form > button#send_sms_verification', dialog_content).button()
+            $finish_button = $('form input#register', dialog_content).button()
                .unbind('click')
                .bind('click', function (e) {
                     that.doRegister.call(that, this.form, extra_form_data);
                     return false;
-               });
+               }),
+            $phone_input = $('form input#local_phone', dialog_content)
+                .unbind('keyup')
+                .bind('keyup', function(e) {
+                    if (that.validator.element($phone_input)) {
+                        $sms_button.button("enable");
+                    } else {
+                        $sms_button.button("disable");                         
+                    }
+
+            }),
+            $verification_code_input = $('form input#verification_code', dialog_content)
+                .unbind('keyup')
+                .bind('keyup', function(e) {
+                    if (that.validator.element($verification_code_input)) {
+                        $finish_button.button("enable");
+                    } else {
+                        $finish_button.button("disable");
+                    }
+
+            });
             that.openDialog.call(that, validation_config);
         });
     },
@@ -199,7 +228,7 @@ var Registrator = Object.create({
                     }
                 }
             },
-            $button = $('form > button', dialog_content).button()
+            $button = $('form button', dialog_content).button()
                 .unbind('click')
                 .bind('click', function (e) {
                     if ( that.validator.form() ) {
@@ -220,10 +249,9 @@ var Registrator = Object.create({
         var config = $.extend(true, {}, this.config.dialog_config),
             $dialog = $('#dialog');
         this.initValidator($('form', $dialog), validation_config);
-        if ( $dialog.dialog('isOpen') ) {
-            $dialog.dialog('option', config);
-        } else {
-            $dialog.dialog(config);
+        $dialog.dialog('option', config);
+        if (! $dialog.dialog('isOpen') ) {
+            $dialog.dialog('open');
         }
     },
     sendSMS                 : function (form) {
@@ -231,12 +259,12 @@ var Registrator = Object.create({
             $button = $('#send_sms_verification').button('disable');
         if ( this.validator.element('#local_phone') ) {
             $.ajax({
-                url :that.config.urls.register,
+                url :that.config.urls.send_sms,
                 type : 'post',
                 data : $(form).serialize(),
                 success : function (response) {
                     alert('verification code: '+response);
-                    $('#sms_code').removeAttr('disabled').focus();
+                    $('#verification_code').removeAttr('disabled').focus();
                 },
                 error :function () {
                     $button.button('enable');

@@ -2,13 +2,13 @@
 <script>
     var form_config = {
         dialog_config : {
-            title: "{% trans '' %}",
+            title: "{% trans 'Sign up using the following details' %}"
         },
         urls: {
-
+            check_username: "{% url common.services.is_username_available %}"
         },
         message: {
-
+            username_taken: "{% trans 'The username is already taken' %}"
         }
     };
 </script>
@@ -18,25 +18,28 @@
             <tr>
                 <td>
                     <label for="username">{% trans 'Username' %}</label>
-                    <input name="username" id="username">
+                    <input name="username" id="username" type="text" />
                 </td>
                 <td>
                     <label for="password">{% trans 'Choose Password' %}</label>
-                    <input name="password" id="password">
+                    <input name="password" id="password" type="password" />
                 </td>
             </tr>
             <tr>
                 <td>
                     <label for="email">{% trans 'Email' %}</label>
-                    <input name="email" id="email">
+                    <input name="email" id="email" type="text" />
                 </td>
                 <td>
                     <label for="password_again">{% trans 'Re-enter Password' %}</label>
-                    <input name="password_again" id="password_again">
+                    <input name="password_again" id="password_again" type="password" />
                 </td>
             </tr>
         </table>
-        <a id="show_login" href="#">{% trans 'Already have an account?' %}</a>
+        <a id="show_login" href="registration_form.html#">{% trans 'Already have an account?' %}</a>
+        <div id="button_container">
+            <button id="continue">{% trans 'Continue' %}</button>
+        </div>
 
     </div>
     <div id="social_login">

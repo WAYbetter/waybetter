@@ -9,14 +9,12 @@
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% admin_media_prefix %}css/rtl.css{% endblock %}" />{% endif %}
 <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% admin_media_prefix %}{% endfilter %}";</script>
 <script type="text/javascript">
+ 
     function showSignupForm() {
-        if (window.openSignupDialog) {
-            openSignupDialog(function() {
+        Registrator.openRegistrationDialog(function() {
                 window.location.href = "/passenger/";
-            });
-        } else {
-            $("<script>").attr("type", "text/javascript").attr("src", "{% url ordering.passenger_controller.get_signup_form %}").appendTo("head");
-        }
+            }
+        );
     }
 </script>
 {% block extrahead %}{% endblock %}

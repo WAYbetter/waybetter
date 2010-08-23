@@ -2,14 +2,12 @@
 <script>
     var form_config = {
         dialog_config : {
-            title: "{% trans '' %}",
+            title: "{% trans 'Fill in to finish registration' %}",
         },
         urls: {
-
+            send_sms: "{% url ordering.passenger_controller.send_sms_verification %}",
+            register: "{% url ordering.passenger_controller.register_passenger %}"
         },
-        message: {
-            
-        }
     };
 </script>
 <form id="phone_verification_form">
@@ -32,13 +30,18 @@
         </tr>
         <tr>
             <td>
-                <button id="send_sms_verification">{% trans 'Send SMS Verification' %}</button>
+                <input type="button" id="send_sms_verification" disabled="disabled" value="{% trans 'Send SMS Verification' %}" />
             </td>
         </tr>
         <tr>
             <td>
-                <label for="sms_code">{% trans 'Enter SMS code' %}</label>
-                <input name="sms_code" id="sms_code">
+                <label for="verification_code">{% trans 'Enter SMS code' %}</label>
+                <input name="verification_code" id="verification_code" type="text" disabled="disabled" />
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="button" id="register" disabled="disabled" value="{% trans 'Finish' %}" />
             </td>
         </tr>
     </table>

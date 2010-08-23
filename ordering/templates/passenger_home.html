@@ -51,9 +51,9 @@
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
                             if (XMLHttpRequest.status == 403) {
                                 if (XMLHttpRequest.responseText == "{{ not_a_user }}") {
-                                    openSignupDialog(bookOrder);
+                                    Registrator.openLoginDialog(bookOrder);
                                 } else if (XMLHttpRequest.responseText == "{{ not_a_passenger }}") {
-                                    openSignupDialog(bookOrder, true);
+                                    Registrator.openPhoneDialog(bookOrder);
                                 }
                             } else {
                                 onError(XMLHttpRequest, textStatus, errorThrown);
