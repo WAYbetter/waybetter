@@ -25,9 +25,12 @@ var loginState = {
             }
         });
         self.registration_link = $("<span></span>").addClass("link").text("{% trans "Don't have an account?" %}").click(function() { self.registerMode(self) });
+
+        var twitter_link = $("<a></a>").attr('id', 'twitter_login_link').addClass('openid_large_btn twitter').attr('href', "{% url socialauth_twitter_login %}?next={{ next }}");
+
         var input1 = $("<input>").attr('id', 'openid_identifier').attr('name', 'openid_identifier').attr('type', 'text');
         self.openid_container = $("<div></div>")
-                .append($("<div></div>").attr('id', 'openid_choice').append($("<div></div>").attr('id', 'openid_btns')))
+                .append($("<div></div>").attr('id', 'openid_choice').append($("<div></div>").attr('id', 'openid_btns').append(twitter_link)))
                 .append($("<input>").attr('name', 'openid_next').attr('type', 'hidden'))
                 .append($("<div></div>").attr('id', 'openid_input_areas'));
         self.openid_form = $("<form></form>").attr('action', "{% url socialauth_openid_login %}").attr('method', 'get').attr('id', 'openid_form')
@@ -36,7 +39,8 @@ var loginState = {
 
 
         self.login = $("<div></div>").append(self.user_login_form).append(self.registration_link).append(self.openid_form);
-        self.dialog.append(self.login)
+        self.dialog.append(self.login);
+        twitter_link.wrap("<div id='twitter'></div>");
     },
     doLogin:function(self) {
         var is_valid = self.user_login_validator.form();
@@ -225,7 +229,7 @@ var registerState = {
     doContinue: function(self) {
         var is_valid = self.user_details_validator.form();
         if (is_valid) {
-            phoneVerification(self);
+            self.phoneVerification(self);
         }
     },
     doSubmit: function(self) {
