@@ -1,0 +1,35 @@
+{% load i18n %}
+<script>
+    var form_config = {
+        dialog_config : {
+            title: "{% trans '' %}",
+        },
+        urls: {
+
+        },
+        message: {
+
+        }
+    };
+</script>
+<form id="login_form">
+    <div id="user_details">
+        <table>
+            <tr>
+                <td>
+                    <label for="username">{% trans 'Username' %}</label>
+                    <input name="username" id="username">
+                </td>
+                <td>
+                    <label for="password">{% trans 'Password' %}</label>
+                    <input name="password" id="password">
+                </td>
+            </tr>
+        </table>
+        <a id="show_register" href="#">{% trans "Don't have an account?" %}</a>
+       
+    </div>
+    <div id="social_login">
+
+    </div>
+</form>
