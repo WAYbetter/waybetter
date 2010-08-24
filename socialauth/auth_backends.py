@@ -1,7 +1,7 @@
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.conf import settings
-import lib.facebook
+import facebook
 
 import common.urllib_adaptor as urllib
 from socialauth.lib import oauthtwitter2 as oauthtwitter
