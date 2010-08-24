@@ -3,7 +3,13 @@ from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStat
 import station_connection_manager
 
 class PassengerAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["id", "user_name"]
+
+    def user_name(self, obj):
+        if obj.user:
+            return obj.user.username
+        else:
+            return "-- No User -- "
 
 class OrderAdmin(admin.ModelAdmin):
     list_display = ["id", "station_name", "status", "pickup_time", "passenger"]

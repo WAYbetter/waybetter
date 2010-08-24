@@ -21,8 +21,8 @@ var Registrator = Object.create({
         dialog_config   : {
             autoOpen: false,
             modal: true,
-            width: 350,
-            height: 200
+            width: 400,
+            height: 300
         },
         messages        : {
             username_taken  : ''
@@ -96,6 +96,9 @@ var Registrator = Object.create({
                     if ( that.config.callback ) {
                         that.config.callback();
                     }
+                },
+                error: function(xhr) {
+                    alert(xhr.responseText);
                 }
             });
         }
@@ -206,6 +209,7 @@ var Registrator = Object.create({
         this.setCallback(callback);
         this.getTemplate.call(this, 'reg', function (dialog_content) {
             var validation_config = {
+                onkeyup: false,
                 errorClass: 'my-ui-state-error',
                 rules: {
                     username: {
