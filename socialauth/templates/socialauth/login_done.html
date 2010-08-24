@@ -3,8 +3,8 @@
 {% block page_specific_head %}
 <script language="javascript">
     $(document).ready(function () {
-        if (opener && opener.onRegisterSuccess) {
-            opener.onRegisterSuccess.call();
+        if (opener && opener.Registrator) {
+            opener.Registrator.config.callback();
         }
         window.close();
     });

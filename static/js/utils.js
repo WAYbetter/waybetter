@@ -236,7 +236,7 @@ var Registrator = Object.create({
                 .unbind('click')
                 .bind('click', function (e) {
                     if ( that.validator.form() ) {
-                        that._openPhoneDialog.call(that, $('form', dialog_content).serialize());
+                        that._openPhoneDialog.call(that, $('form:first', dialog_content).serialize());
                     }
                     return false;
                }),
@@ -252,7 +252,7 @@ var Registrator = Object.create({
     openDialog              : function (validation_config) {
         var config = $.extend(true, {}, this.config.dialog_config),
             $dialog = $('#dialog');
-        this.initValidator($('form', $dialog), validation_config);
+        this.initValidator($('form:first', $dialog), validation_config);
         $dialog.dialog('option', config);
         if (! $dialog.dialog('isOpen') ) {
             $dialog.dialog('open');

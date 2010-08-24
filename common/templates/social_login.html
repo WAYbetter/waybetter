@@ -1,0 +1,8 @@
+<div id="social_login">
+    <form id="openid_form" method="get" action="{% url socialauth_openid_login %}">
+        <input type="hidden" name="openid_identifier" id="openid_identifier" value="dummy"/>
+        <a class="google openid_large_btn" style="background: url('/static/images/google.gif') no-repeat scroll center center rgb(255, 255, 255);" href="javascript: openid.signin('google');" title="Google"></a>
+        <a class="yahoo openid_large_btn" style="background: url('/static/images/yahoo.gif') no-repeat scroll center center rgb(255, 255, 255);" href="javascript: openid.signin('yahoo');" title="Yahoo"></a>
+        <a class="openid_large_btn twitter" id="twitter_login_link" href="javascript: openid.oauth_signin('{% url socialauth_twitter_login %}', '{{ next }}');"></a>
+    </form>
+</div>

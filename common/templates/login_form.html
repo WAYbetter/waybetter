@@ -2,7 +2,7 @@
 <script>
     var form_config = {
         dialog_config : {
-            title: "{% trans 'Login using the following details' %}",
+            title: "{% trans 'Login using the following details' %}"
         },
         urls: {
             login: "{% url ordering.passenger_controller.login_passenger %}"
@@ -27,9 +27,6 @@
         <div id="button_container">
             <button id="login">{% trans 'Login' %}</button>
         </div>
-       
-    </div>
-    <div id="social_login">
-
     </div>
 </form>
+{% include 'social_login.html' %}
