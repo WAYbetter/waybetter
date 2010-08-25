@@ -22,7 +22,8 @@ var Registrator = Object.create({
             autoOpen: false,
             modal: true,
             width: 500,
-            height: 280
+            height: 285,
+            zIndex:2000
         },
         messages        : {
             username_taken  : ''
