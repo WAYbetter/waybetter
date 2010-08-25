@@ -21,7 +21,7 @@ urlpatterns = patterns('socialauth.views',
     url(r'^openid/complete/$', complete, name='socialauth_openid_complete'),
     url(r'^openid/signout/$', signout, name='openid_signout'),
     url(r'^openid/done/$', 'openid_done', name='openid_openid_done'),
-    url(r'^social/login/done/$', direct_to_template, {'template': 'socialauth/login_done.html'}),
+    url(r'^social/login/done/$', direct_to_template, {'template': 'socialauth/login_done.html'}, name='socialauth_login_done'),
 )
 
 #Other views.

@@ -1,8 +1,68 @@
+{% load i18n %}
+{% if FACEBOOK_APP_ID %}
+<div id="fb-root"></div>
+<script src="http://connect.facebook.net/en_US/all.js" type="text/javascript"></script>
+<script>
+    $(document).ready(function () {
+        window.fbAsyncInit = function () {
+            FB.init({appId: '{{ FACEBOOK_APP_ID }}', status: true, cookie: true, xfbml: true});
+            FB.getLoginStatus(function(response) {
+                if (response.session) {
+                    FB.noNeedForFBLogin = true;
+                }
+            });
+            FB.Event.subscribe('auth.sessionChange', function(response) {
+              if (response.session) {
+                  FBLoginDone();
+              }
+            });
+        };
+    });
+    function FBLoginDone() {
+        $.ajax({
+            url: '{% url socialauth_facebook_login_done %}',
+            complete: function(xhr, statusText) {
+                if (xhr.status === 200) {
+                    if (Registrator.config.callback) {
+                        Registrator.config.callback();
+                    }
+                } else {
+                    alert('Error: could not login :(');
+                }
+            }
+        });
+    }
+    function FBConnect() {
+        if (FB.noNeedForFBLogin) {
+            FBLoginDone();
+        } else {
+            FB.login();
+        }
+    }
+</script>
+{% endif %}
+<hr />
+<div id="social_label">
+{% trans 'OR connect using one of the following services' %}
+</div>        
 <div id="social_login">
     <form id="openid_form" method="get" action="{% url socialauth_openid_login %}">
         <input type="hidden" name="openid_identifier" id="openid_identifier" value="dummy"/>
-        <a class="google openid_large_btn" style="background: url('/static/images/google.gif') no-repeat scroll center center rgb(255, 255, 255);" href="javascript: openid.signin('google');" title="Google"></a>
-        <a class="yahoo openid_large_btn" style="background: url('/static/images/yahoo.gif') no-repeat scroll center center rgb(255, 255, 255);" href="javascript: openid.signin('yahoo');" title="Yahoo"></a>
-        <a class="openid_large_btn twitter" id="twitter_login_link" href="javascript: openid.oauth_signin('{% url socialauth_twitter_login %}', '{{ next }}');"></a>
+        <table>
+            <tr>
+                <td>
+                    <a class="google openid_large_btn" style="background: url('/static/images/google.gif') no-repeat scroll center center rgb(255, 255, 255);" href="javascript: openid.signin('google');" title="Google"></a>
+                </td>
+                <td>
+                    <a class="google openid_large_btn" style="background: url('/static/images/facebook.gif') no-repeat scroll center center rgb(255, 255, 255);" href="javascript: FBConnect();" title="Facebook"></a>
+                </td>
+                <td>
+                    <a class="twitter openid_large_btn" id="twitter_login_link" href="javascript: openid.oauth_signin('{% url socialauth_twitter_login %}', '{{ next }}');"></a>
+                </td>
+                <td>
+                    <a class="google openid_large_btn" style="background: url('/static/images/yahoo.gif') no-repeat scroll center center rgb(255, 255, 255);" href="javascript: openid.signin('yahoo');" title="Yahoo"></a>
+                </td>
+            </tr>
+        </table>
     </form>
 </div>

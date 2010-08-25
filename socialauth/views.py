@@ -5,7 +5,7 @@ from oauth import oauth
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponseForbidden
 from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.contrib.auth.decorators import login_required
@@ -228,7 +228,10 @@ def facebook_login_done(request):
 
         # TODO: maybe the project has its own login page?
         logging.debug("SOCIALAUTH: Couldn't authenticate user with Django, redirecting to Login page")
-        return HttpResponseRedirect(reverse('socialauth_login_page'))
+        if request.is_ajax():
+            return HttpResponseForbidden("Couldn't authenticate user with Django")
+        else:
+            return HttpResponseRedirect(reverse('socialauth_login_page'))
 
     login(request, user)
     

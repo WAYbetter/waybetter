@@ -21,8 +21,8 @@ var Registrator = Object.create({
         dialog_config   : {
             autoOpen: false,
             modal: true,
-            width: 400,
-            height: 300
+            width: 500,
+            height: 280
         },
         messages        : {
             username_taken  : ''

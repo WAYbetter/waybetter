@@ -30,7 +30,7 @@ class Passenger(models.Model):
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
     phone = models.CharField(_("phone number"), max_length=15)
     phone_verified = models.BooleanField(_("phone verified"))
-
+    
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
