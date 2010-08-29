@@ -95,7 +95,6 @@ class StationRegistrationForm(forms.Form):
 
 
     logo = forms.FileField(widget=BlobWidget(attrs=dict(attrs_dict)), label=_("logo"), required=False)
-#    logo = BlobField(widget=BlobWidget(attrs=dict(attrs_dict)), label=_("logo"), required=False)
 
     number_of_taxis = forms.IntegerField(widget=forms.TextInput(attrs=dict(attrs_dict,
                                                                            maxlength=30)),

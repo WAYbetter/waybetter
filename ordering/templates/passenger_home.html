@@ -226,11 +226,11 @@
                     var address_result = choices[address_type][i];
                     var link = "javascript:chooseAddress('" + address_type + "', " + i + ")";
                     var choice_name = choices[address_type][i]["name"];
-                    var class = "";
+                    var element_class = "";
                     if (i == selected_choices[address_type]) {
-                        class = "style='background-color: lightBlue'";
+                        element_class = "style='background-color: lightBlue'";
                     }
-                    choices_list += "<a href=\"" + link + "\" " + class + ">" + choice_name + "</a><br/>";
+                    choices_list += "<a href=\"" + link + "\" " + element_class + ">" + choice_name + "</a><br/>";
                 }
                 layer.html(choices_list);
             }
