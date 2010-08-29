@@ -1,4 +1,4 @@
-{% extends "connected_page.html" %}
+{% extends "base_passenger.html" %}
 {% load i18n %}
 {% block page_specific_head %}
 <script type="text/javascript" src="/static/js/jquery.form.js"></script>
@@ -292,3 +292,7 @@
 		</script>
         <script type="text/javascript" src="http://www.waze.co.il/js/WazeEmbeddedMapNoJQuery.js"></script> 
 {% endblock content %}
+{% block footer %}
+ {{ block.super}}
+<a href="{% url stations.views.stations_home %}">{% trans 'Taxi Stations' %}</a>
+{% endblock footer %}

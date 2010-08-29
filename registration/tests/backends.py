@@ -248,7 +248,7 @@ class DefaultRegistrationBackendTests(TestCase):
         ``registration.forms.RegistrationForm``.
 
         """
-        self.failUnless(self.backend.get_form_class(_mock_request()) is forms.RegistrationForm)
+        self.failUnless(self.backend.get_form_class(_mock_request()) is forms.StationRegistrationForm)
 
     def test_post_registration_redirect(self):
         """
@@ -418,7 +418,7 @@ class SimpleRegistrationBackendTests(TestCase):
         ``registration.forms.RegistrationForm``.
 
         """
-        self.failUnless(self.backend.get_form_class(_mock_request()) is forms.RegistrationForm)
+        self.failUnless(self.backend.get_form_class(_mock_request()) is forms.StationRegistrationForm)
 
     def test_post_registration_redirect(self):
         """

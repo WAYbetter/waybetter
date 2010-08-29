@@ -8,15 +8,7 @@
 <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% load adminmedia %}{% admin_media_prefix %}css/ie.css{% endblock %}" /><![endif]-->
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% admin_media_prefix %}css/rtl.css{% endblock %}" />{% endif %}
 <script type="text/javascript">window.__admin_media_prefix__ = "{% filter escapejs %}{% admin_media_prefix %}{% endfilter %}";</script>
-<script type="text/javascript">
- 
-    function showSignupForm() {
-        Registrator.openRegistrationDialog(function() {
-                window.location.href = "/passenger/";
-            }
-        );
-    }
-</script>
+
 {% block extrahead %}{% endblock %}
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
 <!-- Google Analytics -->
@@ -56,13 +48,6 @@
                     {% if docsroot %}
                         <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
                     {% endif %}
-                    {% url admin:password_change as password_change_url %}
-                    {% if password_change_url %}
-                        <a href="{{ password_change_url }}">
-                    {% else %}
-                        <a href="{{ root_path }}password_change/">
-                    {% endif %}
-                    {% trans 'Change password' %}</a> /
                     {% url admin:logout as logout_url %}
                     {% if logout_url %}
                         <a href="{{ logout_url }}">
@@ -72,7 +57,8 @@
                     {% trans 'Log out' %}</a>
                 {% endblock %}
         {% else %}
-                <a href='javascript:showSignupForm()'>{% trans 'Join!' %}</a>
+            {% block join_or_login %}
+            {% endblock %}
         {% endif %}
         </div>
         {% block nav-global %}{% endblock %}
@@ -99,7 +85,7 @@
     </div>
     <!-- END Content -->
 
-    {% block footer %}<div id="footer"></div>{% endblock %}
+    <div id="footer">{% block footer %}{% endblock %}</div>
 </div>
 <!-- END Container -->
 

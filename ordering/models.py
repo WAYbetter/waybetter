@@ -1,10 +1,8 @@
 from django.db import models
 from django.utils.translation import gettext_lazy as _
-
-
-
-# Create your models here.
+from django.conf import settings
 from django.contrib.auth.models import User
+from djangotoolbox.fields import BlobField
 from common.models import Country, City, CityArea
 
 ASSIGNED = 1
@@ -12,7 +10,7 @@ ACCEPTED = 2
 IGNORED = 3
 REJECTED = 4
 PENDING = 5
-FAILED = 6 
+FAILED = 6
 ERROR = 7
 
 ASSIGNMENT_STATUS = ((ASSIGNED, _("assigned")),
@@ -22,7 +20,11 @@ ASSIGNMENT_STATUS = ((ASSIGNED, _("assigned")),
 
 ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, _("pending")),
                                     (FAILED, _("failed")),
-                                    (ERROR, _("error"))) 
+                                    (ERROR, _("error")))
+
+
+LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
+
 
 class Passenger(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger")
@@ -30,7 +32,7 @@ class Passenger(models.Model):
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
     phone = models.CharField(_("phone number"), max_length=15)
     phone_verified = models.BooleanField(_("phone verified"))
-    
+
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
@@ -38,18 +40,29 @@ class Passenger(models.Model):
         return self.user.username
 
 
+class Phone(models.Model):
+    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
+    local_phone = models.CharField(_("phone number"), max_length=15)
+
+    def __unicode__(self):
+        return self.phone
+
 class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
-
     name = models.CharField(_("station name"), max_length=50)
-    phone = models.CharField(_("phone number"), max_length=15)
+    license_number = models.CharField(_("license number"), max_length=30)
+    website_url = models.URLField(_("website"), max_length=255 ,null=True,blank=True) #verify_exists=False
+    number_of_taxis = models.IntegerField(_("number of taxis"), max_length=4)
+    description = models.CharField(_("description"), max_length=4000,null=True,blank=True)
+    logo = BlobField(_("logo"), null=True,blank=True)
+    language  = models.IntegerField(_("language"), choices=LANGUAGE_CHOICES, default=0)
 
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="stations")
     city_area = models.ForeignKey(CityArea, verbose_name=_("city area"), related_name="stations", null=True, blank=True)
     postal_code = models.CharField(_("postal code"), max_length=10)
-    address = models.CharField(_("address"), max_length=50)
+    address = models.CharField(_("address"), max_length=80)
     geohash = models.CharField(_("goehash"), max_length=13)
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
@@ -57,12 +70,19 @@ class Station(models.Model):
 
     def natural_key(self):
         return self.name
-        
+
     def __unicode__(self):
         return self.name
 
     def get_admin_link(self):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/station', self.id, self.name)
+
+
+class StationPhone(Phone):
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="phones")
+
+    def __unicode__(self):
+        return self.local_phone
 
 class WorkStation(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="work_station")

@@ -1,0 +1,30 @@
+{% extends "connected_page.html" %}
+{% load i18n %}
+{% block extrahead %}
+        {{ block.super }}
+<link rel="stylesheet" href="/static/css/openid.css" />
+<link rel="stylesheet" href="/static/css/socialauth.css" />
+<script type="text/javascript" src="/static/js/utils.js"></script>
+<script type="text/javascript" src="/static/js/social.js"></script>
+<script>
+    $(document).ready(function() {
+         Registrator.init({
+             urls            : {
+                 login_form_template : '{% url common.registration.get_login_form %}',
+                 reg_form_template   : '{% url common.registration.get_registration_form %}',
+                 phone_form_template : '{% url common.registration.get_phone_form %}'
+             }
+         });
+     });
+    function showSignupForm() {
+        Registrator.openRegistrationDialog(function() {
+                window.location.href = "{% url ordering.passenger_controller.passenger_home %}";
+            }
+        );
+    }
+</script>
+{% endblock %}
+        
+{% block join_or_login %}
+<a href='javascript:showSignupForm()'>{% trans 'Join!' %}</a>
+{% endblock %}        

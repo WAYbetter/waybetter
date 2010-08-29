@@ -41,12 +41,12 @@ class RegistrationFormTests(TestCase):
             ]
 
         for invalid_dict in invalid_data_dicts:
-            form = forms.RegistrationForm(data=invalid_dict['data'])
+            form = forms.StationRegistrationForm(data=invalid_dict['data'])
             self.failIf(form.is_valid())
             self.assertEqual(form.errors[invalid_dict['error'][0]],
                              invalid_dict['error'][1])
 
-        form = forms.RegistrationForm(data={'username': 'foo',
+        form = forms.StationRegistrationForm(data={'username': 'foo',
                                             'email': 'foo@example.com',
                                             'password1': 'foo',
                                             'password2': 'foo'})

@@ -4,7 +4,7 @@ from django.contrib.auth import login
 from django.contrib.auth.models import User
 
 from registration import signals
-from registration.forms import RegistrationForm
+from registration.forms import StationRegistrationForm
 
 
 class SimpleBackend(object):
@@ -51,7 +51,7 @@ class SimpleBackend(object):
         return getattr(settings, 'REGISTRATION_OPEN', True)
 
     def get_form_class(self, request):
-        return RegistrationForm
+        return StationRegistrationForm
 
     def post_registration_redirect(self, request, user):
         """

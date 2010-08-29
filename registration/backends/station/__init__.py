@@ -5,9 +5,10 @@ from django.contrib.sites.models import Site
 from registration import signals
 from registration.forms import StationRegistrationForm
 from registration.models import RegistrationProfile
+from ordering.models import Station, StationPhone
 
 
-class DefaultBackend(object):
+class StationBackend(object):
     """
     A registration backend which follows a simple workflow:
 
@@ -70,13 +71,34 @@ class DefaultBackend(object):
         class of this backend as the sender.
 
         """
-        username, email, password = kwargs['username'], kwargs['email'], kwargs['password1']
+        username, email, password, first_name, last_name = kwargs['username'], kwargs['email'], kwargs['password1'], kwargs['first_name'], kwargs['last_name']
         if Site._meta.installed:
             site = Site.objects.get_current()
         else:
             site = RequestSite(request)
         new_user = RegistrationProfile.objects.create_inactive_user(username, email,
-                                                                    password, site)
+                                                                    password, site, first_name, last_name)
+        
+        new_station = Station()
+        new_station.user = new_user
+        new_station.address = kwargs['address']
+        new_station.city = kwargs['city']
+        new_station.country = kwargs['country']
+        new_station.name = kwargs['name']
+        new_station.license_number = kwargs['license_number']
+        new_station.website_url = kwargs['website_url']
+        new_station.number_of_taxis = kwargs['number_of_taxis']
+        new_station.description = kwargs['description']
+        new_station.logo = kwargs['logo']
+        new_station.language = kwargs['language']
+        new_station.save()
+
+        phone = StationPhone()
+        phone.station = new_station
+        phone.local_phone = kwargs['local_phone']
+        phone.country = new_station.country
+        phone.save()
+
         signals.user_registered.send(sender=self.__class__,
                                      user=new_user,
                                      request=request)

@@ -22,7 +22,20 @@ class OrderAdmin(admin.ModelAdmin):
     station_name.allow_tags = True
 
 class StationAdmin(admin.ModelAdmin):
-    pass
+    list_display = ["id", "name", "logo_img"]
+    
+    def logo_img(self, obj):
+        if obj.logo:
+            import base64
+            from google.appengine.api import images
+            img = images.Image(obj.logo)
+            img.resize(height=50)
+            thumbnail = img.execute_transforms(output_encoding=images.PNG)
+            return u"""<img src='data:image/png;base64,%s' />""" % base64.encodestring(thumbnail)
+        else:
+            return "No Logo"
+
+    logo_img.allow_tags = True
 
 class OrderAssignmentAdmin(admin.ModelAdmin):
     list_display = ["id", "station_name", "work_station_name", "order_details", "status"]

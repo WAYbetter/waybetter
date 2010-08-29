@@ -47,7 +47,7 @@ class RegistrationViewTests(TestCase):
         self.assertTemplateUsed(response,
                                 'registration/registration_form.html')
         self.failUnless(isinstance(response.context['form'],
-                                   forms.RegistrationForm))
+                                   forms.StationRegistrationForm))
 
     def test_registration_view_success(self):
         """
