@@ -1,0 +1,17 @@
+in dev_appserver_blobstore.py:
+lines 302:307
+changed from:
+        header_text = mime_message_string[:header_end]
+        content_text = mime_message_string[content_start:]
+
+        complete_headers = ('%s'
+                          'Content-Length: %d\n'
+                          '\n') % (header_text, len(content_text))
+
+to:
+        header_text = mime_message_string[:header_end].replace('\n', '\r\n')
+        content_text = mime_message_string[content_start:].replace('\n', '\r\n')
+
+        complete_headers = ('%s'
+                          'Content-Length: %d\r\n'
+                          '\r\n') % (header_text, len(content_text))
