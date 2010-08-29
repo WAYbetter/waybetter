@@ -17,6 +17,7 @@ from ordering.models import LANGUAGE_CHOICES, Station
 # in the HTML. Your mileage may vary. If/when Django ticket #3515
 # lands in trunk, this will no longer be necessary.
 from djangotoolbox.widgets import BlobWidget
+from djangotoolbox.fields import BlobField
 
 attrs_dict = {'class': 'required'}
 
@@ -93,7 +94,8 @@ class StationRegistrationForm(forms.Form):
 
 
 
-    logo = forms.FileField(widget=BlobWidget(attrs=dict(attrs_dict)), label=_("logo"), required=False)
+#    logo = forms.FileField(widget=BlobWidget(attrs=dict(attrs_dict)), label=_("logo"), required=False)
+    logo = BlobField(widget=BlobWidget(attrs=dict(attrs_dict)), label=_("logo"), required=False)
 
     number_of_taxis = forms.IntegerField(widget=forms.TextInput(attrs=dict(attrs_dict,
                                                                            maxlength=30)),

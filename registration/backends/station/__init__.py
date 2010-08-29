@@ -6,6 +6,8 @@ from registration import signals
 from registration.forms import StationRegistrationForm
 from registration.models import RegistrationProfile
 from ordering.models import Station, StationPhone
+import logging
+from django.contrib.auth.models import User
 
 
 class StationBackend(object):
@@ -76,9 +78,14 @@ class StationBackend(object):
             site = Site.objects.get_current()
         else:
             site = RequestSite(request)
-        new_user = RegistrationProfile.objects.create_inactive_user(username, email,
-                                                                    password, site, first_name, last_name)
-        
+
+        try:
+            new_user = RegistrationProfile.objects.create_inactive_user(username, email,
+                                                                        password, site, first_name, last_name)
+        except:
+            new_user = User.objects.get(username=username)
+            logging.error("user creation failed, probably email related")
+            
         new_station = Station()
         new_station.user = new_user
         new_station.address = kwargs['address']
