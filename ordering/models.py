@@ -141,7 +141,15 @@ class Order(models.Model):
                 return label
 
         raise ValueError("invalid status")
-    
+
+    def get_station(self):
+        assignments = OrderAssignment.objects.filter(order=self)
+        if assignments.count() > 0:
+            for oa in assignments:
+                if oa.status == ACCEPTED:
+                    return oa.station
+        return None
+
     
 class OrderAssignment(models.Model):
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")
