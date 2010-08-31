@@ -41,28 +41,17 @@
     }
 </script>
 {% endif %}
-<hr />
+<div class="clear"></div>
 <div id="social_label">
 {% trans 'OR connect using one of the following services' %}
 </div>        
 <div id="social_login">
     <form id="openid_form" method="get" action="{% url socialauth_openid_login %}">
         <input type="hidden" name="openid_identifier" id="openid_identifier" value="dummy"/>
-        <table>
-            <tr>
-                <td>
-                    <a class="google openid_large_btn" style="background: url('/static/images/google.gif') no-repeat scroll center center rgb(255, 255, 255);" href="javascript: openid.signin('google');" title="Google"></a>
-                </td>
-                <td>
-                    <a class="google openid_large_btn" style="background: url('/static/images/facebook.gif') no-repeat scroll center center rgb(255, 255, 255);" href="javascript: FBConnect();" title="Facebook"></a>
-                </td>
-                <td>
-                    <a class="twitter openid_large_btn" id="twitter_login_link" href="javascript: openid.oauth_signin('{% url socialauth_twitter_login %}', '{{ next }}');"></a>
-                </td>
-                <td>
-                    <a class="google openid_large_btn" style="background: url('/static/images/yahoo.gif') no-repeat scroll center center rgb(255, 255, 255);" href="javascript: openid.signin('yahoo');" title="Yahoo"></a>
-                </td>
-            </tr>
-        </table>
+        <a class="google openid_large_btn" href="javascript: openid.signin('google');" title="Google"></a>
+        <a class="facebook openid_large_btn"  href="javascript: FBConnect();" title="Facebook"></a>
+        <a class="twitter openid_large_btn" id="twitter_login_link" href="javascript: openid.oauth_signin('{% url socialauth_twitter_login %}', '{{ next }}');"></a>
+        <a class="yahoo openid_large_btn" href="javascript: openid.signin('yahoo');" title="Yahoo"></a>
     </form>
+    <div class="clear"></div>
 </div>

@@ -68,9 +68,8 @@ class StationRegistrationForm(forms.Form):
                                                                maxlength=75)),
                              label=_("email address"))
 
-    country_choices = [(c.id, "%s (%s)" % (c.name, c.dial_code)) for c in Country.objects.all().order_by("name")]
     default_country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
-    country = forms.IntegerField(widget=forms.Select(attrs=attrs_dict, choices=country_choices), label=_("country"))
+    country = forms.IntegerField(widget=forms.Select(attrs=attrs_dict, choices=Country.country_choices()), label=_("country"))
     country.initial = default_country.id
 
     city_choices = [(c.id, c.name) for c in City.objects.filter(country=default_country)]

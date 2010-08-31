@@ -21,6 +21,11 @@ class Country(models.Model):
         
         return query[0].id
 
+    @classmethod
+    def country_choices(cls, order_by="name"):
+        return [(c.id, "%s (%s)" % (c.name, c.dial_code)) for c in cls.objects.all().order_by(order_by)]
+
+
     def save(self, force_insert=False, force_update=False, using=None):
         super(Country, self).save(force_insert, force_update, using)
         self.full_clean()

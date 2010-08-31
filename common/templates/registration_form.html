@@ -12,31 +12,25 @@
         }
     };
 </script>
+<a class="title_link" id="show_login" href="#">{% trans 'Already have an account?' %}</a>
 <form id="registration_form">
     <div id="user_details">
-        <table>
-            <tr>
-                <td>
-                    <label for="username">{% trans 'Username' %}</label>
-                    <input name="username" id="username" type="text" />
-                </td>
-                <td>
-                    <label for="password">{% trans 'Choose Password' %}</label>
-                    <input name="password" id="password" type="password" />
-                </td>
-            </tr>
-            <tr>
-                <td>
-                    <label for="email">{% trans 'Email' %}</label>
-                    <input name="email" id="email" type="text" />
-                </td>
-                <td>
-                    <label for="password_again">{% trans 'Re-enter Password' %}</label>
-                    <input name="password_again" id="password_again" type="password" />
-                </td>
-            </tr>
-        </table>
-        <a id="show_login" href="registration_form.html#">{% trans 'Already have an account?' %}</a>
+        <fieldset class="left_column">
+            <label for="username">{% trans 'Username' %}</label>
+            <input name="username" id="username" type="text" />
+        </fieldset>
+        <fieldset>
+            <label for="password">{% trans 'Choose Password' %}</label>
+            <input name="password" id="password" type="password" />
+        </fieldset>
+        <fieldset class="left_column">
+            <label for="email">{% trans 'Email' %}</label>
+            <input name="email" id="email" type="text" />
+        </fieldset>
+        <fieldset>
+            <label for="password_again">{% trans 'Re-enter Password' %}</label>
+            <input name="password_again" id="password_again" type="password" />
+        </fieldset>  
         <div id="button_container">
             <button id="continue">{% trans 'Continue' %}</button>
         </div>

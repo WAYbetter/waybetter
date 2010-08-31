@@ -1,0 +1,10 @@
+{% extends "base_passenger.html" %}
+
+{% block content %}
+        <form action="." method="post">
+            <table>
+            {% for field in form %}
+                {{ field }}
+            {% endfor %}
+        </form>
+{% endblock content %}        

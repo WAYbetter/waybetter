@@ -20,9 +20,10 @@ var Registrator = Object.create({
         },
         dialog_config   : {
             autoOpen: false,
+            resizable: false,
             modal: true,
             width: 500,
-            height: 285,
+            height: 500,
             zIndex:2000
         },
         messages        : {
@@ -126,7 +127,7 @@ var Registrator = Object.create({
         this.setCallback(callback);
         this.getTemplate.call(this, 'login', function (dialog_content) {
             var validation_config = {
-                errorClass: 'my-ui-state-error',
+                errorClass: 'ui-state-error',
                 rules: {
                     username: "required",
                     password: "required"
@@ -211,7 +212,7 @@ var Registrator = Object.create({
         this.getTemplate.call(this, 'reg', function (dialog_content) {
             var validation_config = {
                 onkeyup: false,
-                errorClass: 'my-ui-state-error',
+                errorClass: 'ui-state-error',
                 rules: {
                     username: {
                         required: true,

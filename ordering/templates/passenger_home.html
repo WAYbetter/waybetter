@@ -65,7 +65,7 @@
                 }); // submit
 
                 //TODO_WB:add a check for map, timeout and check again.
-
+                Registrator.openRegistrationDialog();
                 setTimeout('initPoints()', 100);
             });
 
@@ -290,7 +290,7 @@
 			};
 		-->
 		</script>
-        <script type="text/javascript" src="http://www.waze.co.il/js/WazeEmbeddedMapNoJQuery.js"></script> 
+        <script type="text/javascript" src="http://www.waze.co.il/js/WazeEmbeddedMapNoJQuery.js"></script>
 {% endblock content %}
 {% block footer %}
  {{ block.super}}
