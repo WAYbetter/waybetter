@@ -1,0 +1,33 @@
+{% extends "base_passenger.html" %}
+{% load i18n %}
+
+{% block content %}
+
+<h1>{% trans "Your orders" %}</h1>
+
+<table>
+    <tr>
+        <th>{% trans "Id" %}</th>
+        <th>{% trans "Date" %}</th>
+        <th>{% trans "From" %}</th>
+        <th>{% trans "To" %}</th>
+        <th>{% trans "Status" %}</th>
+        <th>{% trans "Station" %}</th>
+        <th>{% trans "Rating" %}</th>
+    </tr>
+    <tbody>
+    {% for order in orders %}
+        <tr>
+            <td><a href="{% url ordering.order_manager.order_status order_id=order.id %}">{{ order.id }}</a></td>
+            <td>{{ order.create_date }}</td>
+            <td>{{ order.from_raw }}</td>
+            <td>{{ order.to_raw }}</td>
+            <td>{{ order.get_status_label }}</td>
+            <td>{{ order.get_station }}</td>
+            <td>{{ order.rating }}</td>
+        </tr>
+    {% endfor %}
+    </tbody>
+</table>
+
+{% endblock content %}
