@@ -125,6 +125,9 @@ var Registrator = Object.create({
                     if ( that.config.callback ) {
                         that.config.callback();
                     }
+                },
+                error :function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('error: ' + XMLHttpRequest.responseText);
                 }
             });
         }
@@ -278,7 +281,8 @@ var Registrator = Object.create({
                     alert('verification code: '+response);
                     $('#verification_code').removeAttr('disabled').focus();
                 },
-                error :function () {
+                error :function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('error: ' + XMLHttpRequest.responseText);
                     $button.button('enable');
                 }
             });

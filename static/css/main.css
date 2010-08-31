@@ -2,19 +2,6 @@ label {
     display: block;
 }
 
-.link {
-    text-decoration: underline;
-    color: #5B80B2;
-    font-size: 11px;
-    padding-left: 5px;
-    cursor: pointer;
-}
-
-form label.ui-state-error {
-    border: none !important;
-    background: transparent !important;
-}
-
 .clear {
     height: 0;
     clear: both;
@@ -80,17 +67,10 @@ div.ui-dialog {
     padding: 20px 0 20px;
 }
 
-#phone_verification_form {
-    /*text-align: center;*/
-}
 
+/** Phone verification dialog **/
 #phone_verification_form label {
     margin: 15px 0 5px;
-
-}
-
-#phone_verification_form input, #phone_verification_form select{
-    /*margin: 0 0 15px;*/
 }
 #phone_verification_form input[type=button], #phone_verification_form select{
     width: 100%;
@@ -99,10 +79,11 @@ div.ui-dialog {
     width: 98%;
 }
 
+
 /** jQuery UI fixes **/
 .ui-state-error, .ui-widget-content .ui-state-error, .ui-widget-header .ui-state-error {
     border: 1px solid #c0402a;
-    background: #e16464 50% 50% repeat-x;
+    background: #e16464;
     color: white;
 }
 
