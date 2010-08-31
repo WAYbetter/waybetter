@@ -3,6 +3,7 @@
     var form_config = {
         dialog_config : {
             title: "{% trans 'Fill in to finish registration' %}",
+            width: 300
         },
         urls: {
             send_sms: "{% url ordering.passenger_controller.send_sms_verification %}",
@@ -11,38 +12,16 @@
     };
 </script>
 <form id="phone_verification_form">
-    <table>
-        <tr>
-            <td>
-                <label for="country">{% trans 'Country' %}</label>
-                <select name="country" id="country">
-                {% for country in countries %}
-                    <option value="{{ country.id }}">{{ country.name|truncatewords:3 }} ({{ country.dial_code }})</option>
-                {% endfor %}
-                </select> 
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="local_phone">{% trans 'Local mobile phone' %}</label>
-                <input name="local_phone" id="local_phone">
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="button" id="send_sms_verification" disabled="disabled" value="{% trans 'Send SMS Verification' %}" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <label for="verification_code">{% trans 'Enter SMS code' %}</label>
-                <input name="verification_code" id="verification_code" type="text" disabled="disabled" />
-            </td>
-        </tr>
-        <tr>
-            <td>
-                <input type="button" id="register" disabled="disabled" value="{% trans 'Finish' %}" />
-            </td>
-        </tr>
-    </table>
+    <label for="country">{% trans 'Country' %}</label>
+    <select name="country" id="country">
+    {% for country in countries %}
+        <option value="{{ country.id }}">{{ country.name|truncatewords:3 }} ({{ country.dial_code }})</option>
+    {% endfor %}
+    </select>
+    <label for="local_phone">{% trans 'Local mobile phone' %}</label>
+    <input name="local_phone" id="local_phone" type="text" />
+    <input type="button" id="send_sms_verification" disabled="disabled" value="{% trans 'Send SMS Verification' %}" />
+    <label for="verification_code">{% trans 'Enter SMS code' %}</label>
+    <input name="verification_code" id="verification_code" type="text" disabled="disabled" />
+    <input type="button" id="register" disabled="disabled" value="{% trans 'Finish' %}" />
 </form>

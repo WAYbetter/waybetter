@@ -23,7 +23,7 @@ var Registrator = Object.create({
             resizable: false,
             modal: true,
             width: 500,
-            height: 500,
+//            height: 530,
             zIndex:2000
         },
         messages        : {
@@ -32,6 +32,12 @@ var Registrator = Object.create({
         callback        : function () {}
     },
     validator               : {},
+    default_validator_config: {
+        errorClass: 'ui-state-error',
+        errorElement: 'span',
+        onkeyup: false,
+        focusCleanup: true
+    },
     config                  : {},
     /**
      * Initializes this.config
@@ -54,7 +60,8 @@ var Registrator = Object.create({
         return this;
     },
     initValidator           : function ($form, config) {
-        this.validator = $form.validate(config);
+        var _config = $.extend(true, {}, this.default_validator_config, config);
+        this.validator = $form.validate(_config);
         return this;
     },
     setCallback             : function (callback) {
@@ -127,7 +134,6 @@ var Registrator = Object.create({
         this.setCallback(callback);
         this.getTemplate.call(this, 'login', function (dialog_content) {
             var validation_config = {
-                errorClass: 'ui-state-error',
                 rules: {
                     username: "required",
                     password: "required"
@@ -152,7 +158,7 @@ var Registrator = Object.create({
         var that = this;
         this.getTemplate.call(this, 'phone', function (dialog_content) {
             var validation_config = {
-                errorClass: 'ui-state-error',
+                onkeyup: true,
                 rules: {
                     verification_code: {
                         required: true,
@@ -211,8 +217,6 @@ var Registrator = Object.create({
         this.setCallback(callback);
         this.getTemplate.call(this, 'reg', function (dialog_content) {
             var validation_config = {
-                onkeyup: false,
-                errorClass: 'ui-state-error',
                 rules: {
                     username: {
                         required: true,
@@ -259,6 +263,8 @@ var Registrator = Object.create({
         if (! $dialog.dialog('isOpen') ) {
             $dialog.dialog('open');
         }
+        $dialog.find("input:first").focus();
+
     },
     sendSMS                 : function (form) {
         var that = this,

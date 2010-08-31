@@ -42,9 +42,9 @@
 </script>
 {% endif %}
 <div class="clear"></div>
-<div id="social_label">
+<h4 id="social_label">
 {% trans 'OR connect using one of the following services' %}
-</div>        
+</h4>
 <div id="social_login">
     <form id="openid_form" method="get" action="{% url socialauth_openid_login %}">
         <input type="hidden" name="openid_identifier" id="openid_identifier" value="dummy"/>

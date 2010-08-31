@@ -22,26 +22,34 @@ form label.ui-state-error {
 }
 
 /** UI dialog **/
-form#registration_form fieldset {
+#dialog button, #dialog input[type=button]{
+    -moz-border-radius: 1px;
+    -webkit-border-radius: 1px;
+    border-radius: 1px;
+    border: 1px outset;
+}
+
+div#dialog form fieldset {
     border: none;
     width: 200px;
+}
+div#dialog form fieldset.right_column {
     float: right;
 }
-form#registration_form fieldset.left_column {
+div#dialog form fieldset.left_column {
     float: left;
 }
 
-form#registration_form button {
+div#dialog form button {
     margin-top: 20px;
     float: right;
 }
 
-form#registration_form fieldset input {
+div#dialog form fieldset input {
     width: 95%;
 }
 
-
-form#registration_form #user_details {
+div#dialog form #user_details {
     clear: both;
 }
 
@@ -57,10 +65,50 @@ div#dialog a.title_link {
     margin-right: 30px;
 }
 
-#dialog {
+div#dialog {
     overflow: visible;
+}
+
+div.ui-dialog {
+    -moz-box-shadow: 4px 4px 10px #666;
+    -webkit-box-shadow: 4px 4px 10px #666;
+    box-shadow: 4px 4px 10px #666;
+    filter:progid:DXImageTransform.Microsoft.DropShadow(color='#666',offX=4,offY=4)
 }
 
 #social_login {
     padding: 20px 0 20px;
+}
+
+#phone_verification_form {
+    /*text-align: center;*/
+}
+
+#phone_verification_form label {
+    margin: 15px 0 5px;
+
+}
+
+#phone_verification_form input, #phone_verification_form select{
+    /*margin: 0 0 15px;*/
+}
+#phone_verification_form input[type=button], #phone_verification_form select{
+    width: 100%;
+}
+#phone_verification_form input[type=text]{
+    width: 98%;
+}
+
+/** jQuery UI fixes **/
+.ui-state-error, .ui-widget-content .ui-state-error, .ui-widget-header .ui-state-error {
+    border: 1px solid #c0402a;
+    background: #e16464 50% 50% repeat-x;
+    color: white;
+}
+
+.ui-widget-content span.ui-state-error {
+    background: transparent;
+    border: none;
+    color: #e16464;
+    margin:0;
 }
