@@ -65,7 +65,6 @@
                 }); // submit
 
                 //TODO_WB:add a check for map, timeout and check again.
-                Registrator.openRegistrationDialog();
                 setTimeout('initPoints()', 100);
             });
 
@@ -175,7 +174,7 @@
                 $.getJSON('{% url common.services.resolve_address %}', params, function(resolve_result) {
                     $('#indicator_for_' + address_type + '_raw').hide();
                     if (resolve_result.length == 0) {
-                        $("#choices_for_" + address_type + "_raw").html("{% trans "Can't resolve address" %}");
+                        $("#choices_for_" + address_type + "_raw").html("{% trans "Can't resolve address" %}").addClass("ui-state-error");
                     }
                     else if (resolve_result.length == 1) {
                         updateAddressChoice(Address.fromServerResponse(resolve_result[0], address_type));
@@ -220,7 +219,7 @@
             }
 
             function renderAddressChoices(address_type) {
-                var layer = $("#choices_for_" + address_type + "_raw");
+                var layer = $("#choices_for_" + address_type + "_raw").removeClass("ui-state-error");
                 var choices_list = "";
                 for (var i in choices[address_type]) {
                     var address_result = choices[address_type][i];
@@ -261,8 +260,7 @@
                             {{ field.label_tag }} {{ field }}
                             <div id="indicator_for_{{ field.name }}" style="display:none;"><img src="/static/img/indicator.gif"></div>
                             <input type="hidden" id="id_geocoded_{{ field.name }}" name="geocoded_{{ field.name }}">
-                            <div id="choices_for_{{ field.name }}">
-                            </div>
+                            <p id="choices_for_{{ field.name }}"></p>
                         {%  endif %}
                     </div>
 
@@ -276,7 +274,7 @@
         </div>
         <script type="text/javascript">
 		<!--
-			g_waze_config = {
+		    g_waze_config = {
 				div_id:"map",
 				locale : "israel",
 				center_lon:34.7898,
