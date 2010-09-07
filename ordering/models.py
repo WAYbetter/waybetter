@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import gettext_lazy as _, gettext
 from django.conf import settings
 from django.contrib.auth.models import User
 from djangotoolbox.fields import BlobField
@@ -13,14 +13,15 @@ PENDING = 5
 FAILED = 6
 ERROR = 7
 
-ASSIGNMENT_STATUS = ((ASSIGNED, _("assigned")),
-                     (ACCEPTED, _("accepted")),
-                     (IGNORED, _("ignored")),
-                     (REJECTED, _("rejected")))
+ASSIGNMENT_STATUS = ((ASSIGNED, gettext("assigned")),
+                     (ACCEPTED, gettext("accepted")),
+                     (IGNORED, gettext("ignored")),
+                     (REJECTED, gettext("rejected")))
 
-ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, _("pending")),
-                                    (FAILED, _("failed")),
-                                    (ERROR, _("error")))
+
+ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, gettext("pending")),
+                                    (FAILED, gettext("failed")),
+                                    (ERROR, gettext("error")))
 
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]

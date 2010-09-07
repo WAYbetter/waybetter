@@ -3,31 +3,50 @@
 
 {% block content %}
 
+<script>
+
+
+    $(document).ready(function() {
+        $.getJSON("{% url ordering.passenger_controller.get_orders_data %}", function(data, textStatus) {
+            init_grid(data);
+      });
+    });
+
+
+    function init_grid(data) {
+        $("#orders_history_grid").jqGrid({
+            data: data,
+            datatype: 'local',
+            height: 'auto',
+            rowNum: 5,
+            rowList: [5,10,15],
+            colNames:['{% trans 'Order' %}', '{% trans 'Date' %}', '{% trans 'From' %}', '{% trans 'To' %}', '{% trans 'Status' %}', '{% trans 'Station' %}'],
+            colModel:[
+                {name:'Order',index:'amount', width:60, sorttype:"int"},
+                {name:'Date',index:'invdate', width:90, sorttype:"date", formatter:"date"},
+                {name:'From',index:'text', width:100, sorttype:"text"},
+                {name:'To',index:'text', width:80, align:"right", sorttype:"text"},
+                {name:'Status',index:'text', width:80, align:"left", sorttype:"text"},
+                {name:'Station',index:'text', width:80,align:"right", sorttype:"text"}
+            ],
+            pager: "#porders_history_grid",
+            viewrecords: true,
+            sortname: 'Order',
+            grouping:true,
+            groupingView : {
+                groupField : ['name']
+            },
+            caption: "{% trans 'My orders' %}"
+        });
+    }
+
+
+</script>
+
+
 <h1>{% trans "Your orders" %}</h1>
 
-<table>
-    <tr>
-        <th>{% trans "Id" %}</th>
-        <th>{% trans "Date" %}</th>
-        <th>{% trans "From" %}</th>
-        <th>{% trans "To" %}</th>
-        <th>{% trans "Status" %}</th>
-        <th>{% trans "Station" %}</th>
-        <th>{% trans "Rating" %}</th>
-    </tr>
-    <tbody>
-    {% for order in orders %}
-        <tr>
-            <td><a href="{% url ordering.order_manager.order_status order_id=order.id %}">{{ order.id }}</a></td>
-            <td>{{ order.create_date }}</td>
-            <td>{{ order.from_raw }}</td>
-            <td>{{ order.to_raw }}</td>
-            <td>{{ order.get_status_label }}</td>
-            <td>{{ order.get_station }}</td>
-            <td>{{ order.rating }}</td>
-        </tr>
-    {% endfor %}
-    </tbody>
-</table>
+<table id="orders_history_grid"></table>
+<div id="porders_history_grid"></div>
 
 {% endblock content %}
