@@ -32,6 +32,7 @@ class Passenger(models.Model):
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
     phone = models.CharField(_("phone number"), max_length=15)
     phone_verified = models.BooleanField(_("phone verified"))
+    phone_verification_code = models.CharField(_("phone verification code"), max_length=20)
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
@@ -39,13 +40,6 @@ class Passenger(models.Model):
     def __unicode__(self):
         return self.user.username
 
-
-class Phone(models.Model):
-    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
-    local_phone = models.CharField(_("phone number"), max_length=15)
-
-    def __unicode__(self):
-        return self.phone
 
 class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
@@ -77,12 +71,17 @@ class Station(models.Model):
     def get_admin_link(self):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/station', self.id, self.name)
 
+class Phone(models.Model):
+    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="phones")
+    local_phone = models.CharField(_("phone number"), max_length=15)
 
-class StationPhone(Phone):
-    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="phones")
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="phones", null=True, blank=True)
 
     def __unicode__(self):
         return self.local_phone
+
+
+
 
 class WorkStation(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="work_station")

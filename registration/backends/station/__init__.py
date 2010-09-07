@@ -5,7 +5,7 @@ from django.contrib.sites.models import Site
 from registration import signals
 from registration.forms import StationRegistrationForm
 from registration.models import RegistrationProfile
-from ordering.models import Station, StationPhone
+from ordering.models import Station, Phone
 import logging
 from django.contrib.auth.models import User
 
@@ -100,7 +100,7 @@ class StationBackend(object):
         new_station.language = kwargs['language']
         new_station.save()
 
-        phone = StationPhone()
+        phone = Phone()
         phone.station = new_station
         phone.local_phone = kwargs['local_phone']
         phone.country = new_station.country

@@ -26,6 +26,11 @@
 
             $(document).ready(function() {
 
+                $("#autocomplete").autocomplete({
+                    source: "{% url common.services.resolve_address %}",
+                    minLength: 2
+                });
+
                 $("input:button, input:submit").button();
 
                 $("#order_button").button("disable");
@@ -249,6 +254,7 @@
             {% trans "Welcome" %} {{ user.username }}!
         </div>
         <div class="form_container" style="width:500px">
+            <input id="autocomplete" type="text" />
             <form method="post" id="order_form" name="order_form" action="{% url ordering.passenger_controller.book_order %}">
                 {% csrf_token %}
                 {% for field in form %}
