@@ -8,7 +8,10 @@ Replace these with more appropriate tests for your application.
 from django.test import TestCase
 from django.contrib.auth.models import User
 from ordering.models import Passenger, Order
-from ordering.forms import OrderForm
+from django.core.urlresolvers import reverse
+from django.utils import simplejson
+import ordering
+from ordering.forms import OrderForm, OrderForm
 
 class OrderTest(TestCase):
 #    fixtures = ['ordering/fixtures/initial_data.json']
@@ -32,13 +35,13 @@ class OrderTest(TestCase):
     def test_show_order_form(self):
 
         self.login()
-        
-        response = self.client.get("/passenger/")
+
+        response = self.client.get(reverse(ordering.passenger_controller.passenger_home))
         self.assertEqual(response.status_code, 200)
         self.failUnless(response.context, "context is None: %s" % response)
 
-        self.assertEquals(response.context["user"].username, "testuser")
-        self.assertEquals(response.context["user"].first_name, "testuser")
+#        self.assertEquals(response.context["user"].username, "testuser")
+#        self.assertEquals(response.context["user"].first_name, "testuser")
 
         self.assertTrue(isinstance(response.context["form"], OrderForm))
 
@@ -49,14 +52,19 @@ class OrderTest(TestCase):
         post_data = {"from_raw": "some address",
                      "to_raw": "some other address"}
 
-        response = self.client.post("/passenger/", post_data)
+        response = self.client.post(reverse("ordering.passenger_controller.book_order"), post_data)
         self.assertEqual(response.status_code, 200)
 
         order = Order.objects.filter(from_raw = "some address")[0]
         self.failUnless(order, "order was not created")
 
     
+    def test_get_order_history(self):
 
+        self.login()
 
-
+        response = self.client.get(reverse('ordering.passenger_controller.get_orders_data'))
+        self.assertEqual(response.status_code, 200)
+        data = simplejson.loads(response.content)
+        self.assertEqual(10, len(data))
 
