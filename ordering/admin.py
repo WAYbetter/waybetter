@@ -1,5 +1,5 @@
 from django.contrib import admin
-from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation
+from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone
 import station_connection_manager
 
 class PassengerAdmin(admin.ModelAdmin):
@@ -21,9 +21,15 @@ class OrderAdmin(admin.ModelAdmin):
 
     station_name.allow_tags = True
 
-class StationAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "logo_img"]
+class PhoneAdmin(admin.TabularInline):
+    model = Phone
+    extra = 2
     
+class StationAdmin(admin.ModelAdmin):
+    
+    list_display = ["id", "name", "logo_img"]
+    inlines = [PhoneAdmin]
+
     def logo_img(self, obj):
         if obj.logo:
             import base64
