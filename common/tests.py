@@ -7,9 +7,9 @@ Replace these with more appropriate tests for your application.
 """
 
 from django.test import TestCase
-from common.geocode import waze_geocode
-from common.util import is_empty
 import common.urllib_adaptor as urllib2
+import logging
+from common.route import calculate_time_and_distance
 
 
 class GeocodeTest(TestCase):
@@ -41,17 +41,18 @@ class Urllib2AdaptorTest(TestCase):
         self.assertTrue(mobile_str not in str(content))
 
 
-__test__ = {
-    'doctest': """
-    Test is_empty
+class RouteTest(TestCase):
+    # need margins to take into account traffic noise.
+    TIME_ERROR_MARGIN = 120
+    DISTANCE_ERROR_MARGIN = 2000
 
->>> is_empty(" a ")
-False
->>> is_empty(None)
-True
->>> is_empty("             ")
-True
->>> is_empty("")
-True
-"""
-}
+    def test_calculate_time_and_distance(self):
+        logging.info("Testing route from p0=Yishayahu 60 to p1=Rotschild 19")
+        p0_x, p0_y = '34.78099', '32.09307'
+        p1_x, p1_y = '34.77127', '32.06355'
+        (t, d) = calculate_time_and_distance(p0_x, p0_y, p1_x, p1_y)
+        (expected_t, expected_d) = (768, 4110)
+        logging.info("Time received: %d (expected %d)" % (t, expected_t))
+        logging.info("Distance received: %d (expected %d)" % (d, expected_d))
+        self.assertTrue(abs(t-expected_t) < self.TIME_ERROR_MARGIN)
+        self.assertTrue(abs(d-expected_d) < self.DISTANCE_ERROR_MARGIN)
