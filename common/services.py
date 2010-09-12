@@ -5,8 +5,10 @@ from common.geocode import geocode, DEFAULT_RESULT_MAX_SIZE
 from django.utils import simplejson
 from django.contrib.auth.models import User
 
-ADDRESS_PARAMETER = "address"
+ADDRESS_PARAMETER = "term"
 MAX_SIZE_PARAMETER = "max_size"
+
+
 
 def resolve_address(request):
     # get parameters
