@@ -7,9 +7,13 @@
 {% block content %}
         <script language="javascript">
             $.widget("custom.catcomplete", $.ui.autocomplete, {
+                options: {
+                    minLength: 3,
+                    delay: 400
+                },
                 _renderMenu: function(ul, items) {
                     var self = this,
-                        currentCategory = "";
+                        currentCategory = undefined;
 
                     $.each(items, function(index, item) {
                         if (item.category != currentCategory) {
@@ -43,7 +47,6 @@
                 $("input:text").each(function(i, element) {
                     var address_type = element.name.split("_")[0];
                     $(element).catcomplete({
-                        minLength: 2,
                         source: function (request, response) {
                             var params = { "term":request.term };  //TODO_WB: add max_size parameter, when "More..." is requested
                             $.ajax({
@@ -57,12 +60,12 @@
                                             value: request.term
                                         }]);
 
-                                    } else {
+                                    } else { // create autocomplete items from server response
                                         var items = $.map(resolve_results.history, function(item) {
                                             return {
                                                 label: item.name,
                                                 value: item.name,
-                                                category: "{% trans 'Ride History Results' %}",
+                                                category: "{% trans 'History Suggestions' %}",
                                                 address: Address.fromServerResponse(item, address_type)
                                             }
                                         });
@@ -71,7 +74,7 @@
                                             return {
                                                 label: item.name,
                                                 value: item.name,
-                                                category: "{% trans 'Geocode Results' %}",
+                                                category: "{% trans 'Map Suggestions' %}",
                                                 address: Address.fromServerResponse(item, address_type)
                                             }
                                         })));
