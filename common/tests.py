@@ -50,8 +50,8 @@ class RouteTest(TestCase):
         logging.info("Testing route from p0=Yishayahu 60 to p1=Rotschild 19")
         p0_x, p0_y = '34.78099', '32.09307'
         p1_x, p1_y = '34.77127', '32.06355'
-        (t, d) = calculate_time_and_distance(p0_x, p0_y, p1_x, p1_y)
-        (expected_t, expected_d) = (768, 4110)
+        t, d = calculate_time_and_distance(p0_x, p0_y, p1_x, p1_y)
+        expected_t, expected_d = 768, 4110
         logging.info("Time received: %d (expected %d)" % (t, expected_t))
         logging.info("Distance received: %d (expected %d)" % (d, expected_d))
         self.assertTrue(abs(t-expected_t) < self.TIME_ERROR_MARGIN)

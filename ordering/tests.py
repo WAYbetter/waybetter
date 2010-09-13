@@ -1,17 +1,13 @@
-"""
-This file demonstrates two different styles of tests (one doctest and one
-unittest). These will both pass when you run "manage.py test".
-
-Replace these with more appropriate tests for your application.
-"""
-
 from django.test import TestCase
 from django.contrib.auth.models import User
 from ordering.models import Passenger, Order
 from django.core.urlresolvers import reverse
 from django.utils import simplejson
 import ordering
-from ordering.forms import OrderForm, OrderForm
+from ordering.forms import OrderForm
+from ordering.pricing import estimate_cost
+import logging
+
 
 class OrderTest(TestCase):
 #    fixtures = ['ordering/fixtures/initial_data.json']
@@ -55,7 +51,9 @@ class OrderTest(TestCase):
         response = self.client.post(reverse("ordering.passenger_controller.book_order"), post_data)
         self.assertEqual(response.status_code, 200)
 
-        order = Order.objects.filter(from_raw = "some address")[0]
+        query = Order.objects.filter(from_raw = "some address")
+        self.assertTrue(query.count() > 0, "order was not created")
+        order = query[0]
         self.failUnless(order, "order was not created")
 
     
@@ -66,5 +64,25 @@ class OrderTest(TestCase):
         response = self.client.get(reverse('ordering.passenger_controller.get_orders_data'))
         self.assertEqual(response.status_code, 200)
         data = simplejson.loads(response.content)
-        self.assertEqual(10, len(data))
+        self.assertEqual(11, len(data))
+
+
+class PricingCalculationTest(TestCase):
+
+    def test_estimate_cost(self):
+        # simple test, with just estimated duration & distance
+        t, d = 768, 4110
+        logging.info("Testing cost estimation, with estimated duration: %d & estimated distance: %d" % (t, d))
+        cost = estimate_cost(t, d, country_code="IL")
+        expected_cost = 32.7
+        logging.info("Cost calculation result: %d (expected %d)" % (cost, expected_cost))
+        self.assertEqual(expected_cost, cost, "Cost calculation yielded wrong result")
+        # test with list of locations
+
+        # test with tariff 2 time
+
+        # test with special place
+
+        # test with special city
+        
 

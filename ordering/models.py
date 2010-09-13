@@ -180,6 +180,14 @@ DAY_OF_WEEK_CHOICES = ((1, _("Sunday")),
 VEHICLE_TYPE_CHOICES = ((1, _("Standard cab")),)
 
 class PricingRule(models.Model):
+    """
+    Used to calculate the estimated cost of a ride.
+    Pricing Rules need to cover the relevant pricing model in
+    each country's regulation of taxi transportation.
+    The algorithm selects all rules applying to a given ride
+    that the passenger wishes to order, &amp; calculates the
+    total estimated cost based on these rules.
+    """
     rule_name = models.CharField(_("name"), max_length=500)
     is_active = models.BooleanField(_("is active"), default=True)
     # geographic predicates
@@ -188,7 +196,6 @@ class PricingRule(models.Model):
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="pricing_rules", null=True, blank=True)
     city_area = models.ForeignKey(CityArea, verbose_name=_("city area"), related_name="pricing_rules", null=True, blank=True)
     special_place = models.CharField(_("special place"), max_length=100, null=True, blank=True, help_text=_("Such as an airport or toll-road inflicting extra charges"))
-
     # time predicates
     from_hour = models.TimeField(_("from hour"), null=True, blank=True)
     to_hour = models.TimeField(_("to hour"), null=True, blank=True)
@@ -196,10 +203,10 @@ class PricingRule(models.Model):
     to_day_of_week = models.IntegerField(_("to day-of-week"), choices=DAY_OF_WEEK_CHOICES, null=True, blank=True)
     # vehicle type predicates
     vehicle_type = models.IntegerField(_("vehicle type"), choices=VEHICLE_TYPE_CHOICES, null=True, blank=True)
-    # distance predicate
+    # distance predicates
     from_distance = models.FloatField(_("from distance (m)"), null=True, blank=True, help_text=_("in meters"))
     to_distance = models.FloatField(_("to distance (m)"), null=True, blank=True, help_text=_("in meters"))
-    # time predicate
+    # time predicates
     from_duration = models.IntegerField(_("from duration (s)"), null=True, blank=True, help_text=_("in seconds"))
     to_duration = models.IntegerField(_("to duration (s)"), null=True, blank=True, help_text=_("in seconds"))
 
