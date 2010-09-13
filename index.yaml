@@ -53,6 +53,16 @@ indexes:
 
 - kind: ordering_order
   properties:
+  - name: passenger_id
+  - name: idxf_from_raw_l_icontains
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: idxf_to_raw_l_icontains
+
+- kind: ordering_order
+  properties:
   - name: status
   - name: __key__
     direction: desc
