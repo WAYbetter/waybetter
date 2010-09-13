@@ -168,4 +168,49 @@ class OrderAssignment(models.Model):
             
         return u"%s #%s %s %s" % (_("order"), order_id, _("assigned to station:"), self.station)
 
-    
+
+DAY_OF_WEEK_CHOICES = ((1, _("Sunday")),
+                       (2, _("Monday")),
+                       (3, _("Tuesday")),
+                       (4, _("Wednesday")),
+                       (5, _("Thurday")),
+                       (6, _("Friday")),
+                       (7, _("Saturday")))
+
+VEHICLE_TYPE_CHOICES = ((1, _("Standard cab")),)
+
+class PricingRule(models.Model):
+    rule_name = models.CharField(_("name"), max_length=500)
+    is_active = models.BooleanField(_("is active"), default=True)
+    # geographic predicates
+    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="pricing_rules")
+    state = models.CharField(_("state"), max_length=100, null=True, blank=True)
+    city = models.ForeignKey(City, verbose_name=_("city"), related_name="pricing_rules", null=True, blank=True)
+    city_area = models.ForeignKey(CityArea, verbose_name=_("city area"), related_name="pricing_rules", null=True, blank=True)
+    special_place = models.CharField(_("special place"), max_length=100, null=True, blank=True, help_text=_("Such as an airport or toll-road inflicting extra charges"))
+
+    # time predicates
+    from_hour = models.TimeField(_("from hour"), null=True, blank=True)
+    to_hour = models.TimeField(_("to hour"), null=True, blank=True)
+    from_day_of_week = models.IntegerField(_("from day-of-week"), choices=DAY_OF_WEEK_CHOICES, null=True, blank=True)
+    to_day_of_week = models.IntegerField(_("to day-of-week"), choices=DAY_OF_WEEK_CHOICES, null=True, blank=True)
+    # vehicle type predicates
+    vehicle_type = models.IntegerField(_("vehicle type"), choices=VEHICLE_TYPE_CHOICES, null=True, blank=True)
+    # distance predicate
+    from_distance = models.FloatField(_("from distance (m)"), null=True, blank=True, help_text=_("in meters"))
+    to_distance = models.FloatField(_("to distance (m)"), null=True, blank=True, help_text=_("in meters"))
+    # time predicate
+    from_duration = models.IntegerField(_("from duration (s)"), null=True, blank=True, help_text=_("in seconds"))
+    to_duration = models.IntegerField(_("to duration (s)"), null=True, blank=True, help_text=_("in seconds"))
+
+    # cost
+    fixed_cost = models.FloatField(_("fixed cost"), null=True, blank=True)
+    tick_distance = models.FloatField(_("tick distance (m)"), null=True, blank=True, help_text=_("In meters"))
+    tick_time = models.IntegerField(_("tick time (s)"), null=True, blank=True, help_text=_("In seconds"))
+    tick_cost = models.FloatField(_("cost per tick"), null=True, blank=True)
+
+    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
+    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+
+    def __unicode__(self):
+        return self.rule_name

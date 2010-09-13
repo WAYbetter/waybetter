@@ -1,6 +1,7 @@
 from django.contrib import admin
-from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone
+from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, PricingRule
 import station_connection_manager
+from common.models import Country
 
 class PassengerAdmin(admin.ModelAdmin):
     list_display = ["id", "user_name"]
@@ -82,9 +83,19 @@ class WorkStationAdmin(admin.ModelAdmin):
             return ""
             
     online_status.allow_tags = True
+
+
+class PricingRuleAdmin(admin.TabularInline):
+    model = PricingRule
+    extra = 5
+    
+
+class CountryPricingRulesAdmin(admin.ModelAdmin):
+    inlines = [PricingRuleAdmin,]
     
 admin.site.register(Passenger, PassengerAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderAssignment, OrderAssignmentAdmin)
 admin.site.register(Station, StationAdmin)
 admin.site.register(WorkStation, WorkStationAdmin)
+admin.site.register(Country, CountryPricingRulesAdmin)

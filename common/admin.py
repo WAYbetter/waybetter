@@ -10,6 +10,6 @@ class CityAdmin(admin.ModelAdmin):
 class CityAreaAdmin(admin.ModelAdmin):
     pass
 
-admin.site.register(Country,CountryAdmin)
+#admin.site.register(Country,CountryAdmin)
 admin.site.register(City,CityAdmin)
 admin.site.register(CityArea,CityAreaAdmin)
