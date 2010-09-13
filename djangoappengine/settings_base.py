@@ -7,6 +7,10 @@ ROOT_URLCONF = 'urls'
 
 DATABASES = {
     'default': {
+        'ENGINE': 'dbindexer',
+        'TARGET': 'gae',
+    },
+    'gae': {
         'ENGINE': 'djangoappengine.db',
         'NAME': '',
         'USER': '',

@@ -6,6 +6,25 @@
 
 {% block content %}
         <script language="javascript">
+            $.widget("custom.catcomplete", $.ui.autocomplete, {
+                options: {
+                    minLength: 3,
+                    delay: 400
+                },
+                _renderMenu: function(ul, items) {
+                    var self = this,
+                        currentCategory = undefined;
+
+                    $.each(items, function(index, item) {
+                        if (item.category != currentCategory) {
+                            ul.append("<li class='ui-autocomplete-category'>" + item.category + "</li>");
+                            currentCategory = item.category;
+                        }
+                        self._renderItem(ul, item);
+                    });
+                }
+            });
+
 
             var ADDRESS_FIELD_ID_BY_TYPE = {"from": "id_from_raw", "to": "id_to_raw"};
 
@@ -25,12 +44,55 @@
             }
 
             $(document).ready(function() {
+                $("input:text").each(function(i, element) {
+                    var address_type = element.name.split("_")[0];
+                    $(element).catcomplete({
+                        source: function (request, response) {
+                            var params = { "term":request.term };  //TODO_WB: add max_size parameter, when "More..." is requested
+                            $.ajax({
+                                url: '{% url common.services.resolve_address %}',
+                                data: params,
+                                dataType: "json",
+                                success: function(resolve_results) {
+                                    if (resolve_results.geocode.length == 0 && resolve_results.history.length == 0) {
+                                        response([{
+                                            label: "{% trans 'Could not resolve address' %}",
+                                            value: request.term
+                                        }]);
 
-                $("#autocomplete").autocomplete({
-                    source: "{% url common.services.resolve_address %}",
-                    minLength: 2
+                                    } else { // create autocomplete items from server response
+                                        var items = $.map(resolve_results.history, function(item) {
+                                            return {
+                                                label: item.name,
+                                                value: item.name,
+                                                category: "{% trans 'History Suggestions' %}",
+                                                address: Address.fromServerResponse(item, address_type)
+                                            }
+                                        });
+
+                                        response(items.concat($.map(resolve_results.geocode, function(item) {
+                                            return {
+                                                label: item.name,
+                                                value: item.name,
+                                                category: "{% trans 'Map Suggestions' %}",
+                                                address: Address.fromServerResponse(item, address_type)
+                                            }
+                                        })));
+                                    }
+                                }
+                            });
+                        },
+                        select: function (event, ui) {
+                            if (ui.item.address) {
+                                updateAddressChoice(ui.item.address);
+                            }
+                        },
+                        open: function(event, ui) {
+                            $('ul.ui-autocomplete').css("z-index", 3000);
+                        }
+                    });
                 });
-
+                
                 $("input:button, input:submit").button();
 
                 $("#order_button").button("disable");
@@ -47,10 +109,10 @@
                         dataType: "json",
                         success: function(order_status) {
                             clearError();
-                            if (order_status.status = "booked") {
+                            if (order_status.status == "booked") {
                                 window.location.href = order_status.order_status_url;
                             } else {
-                                alert(order_status.errors);
+                                alert("error: " + order_status.errors);
                             }
                         },
                         error: function(XMLHttpRequest, textStatus, errorThrown) {
@@ -209,6 +271,9 @@
             function updateAddressChoice(address) {
                 address.populateFields();
                 addPoint(address.address_type);
+                if (address.address_type == "from") {
+                    $("#id_to_raw").focus();
+                }
                 validateForBooking();
             }
 
@@ -254,7 +319,7 @@
             {% trans "Welcome" %} {{ user.username }}!
         </div>
         <div class="form_container" style="width:500px">
-            <input id="autocomplete" type="text" />
+
             <form method="post" id="order_form" name="order_form" action="{% url ordering.passenger_controller.book_order %}">
                 {% csrf_token %}
                 {% for field in form %}
@@ -271,7 +336,6 @@
                     </div>
 
                 {% endfor %}
-                <input type="button" value="{% trans "Set Address" %}" onclick="setAddresses()">
                 <hr>
                 <div id="map" style="width:300px;height:300px;">
                 </div>

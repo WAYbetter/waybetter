@@ -1,7 +1,8 @@
+import dbindexer
+dbindexer.autodiscover()
+
 from django.conf.urls.defaults import *
 from django.contrib import admin
-import common
-
 admin.autodiscover()
 
 urlpatterns = patterns('',
