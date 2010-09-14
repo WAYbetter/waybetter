@@ -7,285 +7,142 @@ Object.create = Object.create || function (p) {
     return new f();
 };
 
-var Registrator = Object.create({
-    default_config           : {
-        urls            : {
-            login_form_template : '/',
-            reg_form_template   : '/',
-            phone_form_template : '/',
-            check_username      : '/',
-            login               : '/',
-            send_sms            : '/',
-            register            : '/'
-        },
-        dialog_config   : {
-            autoOpen: false,
-            resizable: false,
-            modal: true,
-            width: 500,
-//            height: 530,
-            zIndex:2000
-        },
-        messages        : {
-            username_taken  : ''
-        },
-        callback        : function () {}
-    },
-    validator               : {},
-    default_validator_config: {
-        errorClass: 'ui-state-error',
-        errorElement: 'span',
-        onkeyup: false,
-        focusCleanup: true
-    },
-    config                  : {},
-    /**
-     * Initializes this.config
-     *
-     * @param config
-     * @return this
-     */
-    init                    : function (config) {
-        // config will be the argument config
-        // OR the global var 'form_config' provided in the template
 
-        var _config = window.form_config ? form_config : {};
-        config = config || _config;
+/**
+ * defineClass( ) -- a utility function for defining JavaScript classes.
+ *
+ * This function expects a single object as its only argument.  It defines
+ * a new JavaScript class based on the data in that object and returns the
+ * constructor function of the new class.  This function handles the repetitive
+ * tasks of defining classes: setting up the prototype object for correct
+ * inheritance, copying methods from other types, and so on.
+ *
+ * The object passed as an argument should have some or all of the
+ * following properties:
+ *
+ *      name: The name of the class being defined.
+ *            If specified, this value will be stored in the classname
+ *            property of the prototype object.
+ *
+ *    extend: The constructor of the class to be extended. If omitted,
+ *            the Object( ) constructor will be used. This value will
+ *            be stored in the superclass property of the prototype object.
+ *
+ * construct: The constructor function for the class. If omitted, a new
+ *            empty function will be used. This value becomes the return
+ *            value of the function, and is also stored in the constructor
+ *            property of the prototype object.
+ *
+ *   methods: An object that specifies the instance methods (and other shared
+ *            properties) for the class. The properties of this object are
+ *            copied into the prototype object of the class. If omitted,
+ *            an empty object is used instead. Properties named
+ *            "classname", "superclass", and "constructor" are reserved
+ *            and should not be used in this object.
+ *
+ *   statics: An object that specifies the static methods (and other static
+ *            properties) for the class. The properties of this object become
+ *            properties of the constructor function. If omitted, an empty
+ *            object is used instead.
+ *
+ *   borrows: A constructor function or array of constructor functions.
+ *            The instance methods of each of the specified classes are copied
+ *            into the prototype object of this new class so that the
+ *            new class borrows the methods of each specified class.
+ *            Constructors are processed in the order they are specified,
+ *            so the methods of a class listed at the end of the array may
+ *            overwrite the methods of those specified earlier. Note that
+ *            borrowed methods are stored in the prototype object before
+ *            the properties of the methods object above. Therefore,
+ *            methods specified in the methods object can overwrite borrowed
+ *            methods. If this property is not specified, no methods are
+ *            borrowed.
+ *
+ *  provides: A constructor function or array of constructor functions.
+ *            After the prototype object is fully initialized, this function
+ *            verifies that the prototype includes methods whose names and
+ *            number of arguments match the instance methods defined by each
+ *            of these classes. No methods are copied; this is simply an
+ *            assertion that this class "provides" the functionality of the
+ *            specified classes. If the assertion fails, this method will
+ *            throw an exception. If no exception is thrown, any
+ *            instance of the new class can also be considered (using "duck
+ *            typing") to be an instance of these other types.  If this
+ *            property is not specified, no such verification is performed.
+ **/
+function defineClass(data) {
+    // Extract the fields we'll use from the argument object.
+    // Set up default values.
+    var classname = data.name;
+    var superclass = data.extend || Object;
+    var constructor = data.construct || function( ) {};
+    var methods = data.methods || {};
+    var statics = data.statics || {};
+    var borrows;
+    var provides;
 
-        this.config = $.extend(true, {}, this.default_config, this.config, config);
-        if (! $("#dialog").length) {
-            $("<div id='dialog'></div>").hide().appendTo("body");
-        }
-        $("#dialog").dialog(this.config.dialog_config);
-        return this;
-    },
-    initValidator           : function ($form, config) {
-        var _config = $.extend(true, {}, this.default_validator_config, config);
-        this.validator = $form.validate(_config);
-        return this;
-    },
-    setCallback             : function (callback) {
-        if ( callback && $.isFunction(callback) ) {
-            this.config.callback = callback;
-        }
-        return this;
-    },
-    /**
-     * Gets the form template using AJAX by template_name as prefix
-     * on success fires the given callback
-     * with the dialog content as argument
-     *
-     * @param template_name
-     * @param callback
-     * @return callback($dialog_content)
-     */
-    getTemplate             : function (template_name, callback) {
-        var that = this;
-        $.ajax({
-            url : this.config.urls[template_name+'_form_template'],
-            type : 'get',
-            success : function (template) {
-                // inject the form into the DOM
-                var dialog = $('#dialog').empty().append(template);
-                // we probably have a new form_config object
-                that.init.call(that);
-                return callback(dialog);
-            }
-        });
-    },
-    doLogin                 : function (form) {
-        var that = this;
-        if ( this.validator.form() ) {
-            $.ajax({
-                url :that.config.urls.login,
-                type : 'post',
-                data : $(form).serialize(),
-                success : function (response) {
-                    $('#dialog').dialog('close');
-                    if ( that.config.callback ) {
-                        that.config.callback();
-                    }
-                },
-                error: function(xhr) {
-                    alert(xhr.responseText);
-                }
-            });
-        }
-    },
-    doRegister              : function (form, extra_form_data) {
-        var that = this,
-            extra_data = extra_form_data ? '&' + extra_form_data : '';
-        if ( this.validator.form() ) {
-            $.ajax({
-                url :that.config.urls.register,
-                type : 'post',
-                data : $(form).serialize() + extra_data,
-                success : function (response) {
-                    $('#dialog').dialog('close');
-                    if ( that.config.callback ) {
-                        that.config.callback();
-                    }
-                },
-                error :function (XMLHttpRequest, textStatus, errorThrown) {
-                    alert('error: ' + XMLHttpRequest.responseText);
-                }
-            });
-        }
-    },
-    openLoginDialog         : function (callback) {
-        var that = this;
-        this.setCallback(callback);
-        this.getTemplate.call(this, 'login', function (dialog_content) {
-            var validation_config = {
-                rules: {
-                    username: "required",
-                    password: "required"
-                }
-            },
-            $button = $('form button', dialog_content).button()
-                .unbind('click')
-                .bind('click', function (e) {
-                    that.doLogin.call(that, this.form);
-                    return false;
-               }),
-            $show_register_link = $('#show_register')
-                .unbind('click')
-                .bind('click', function (e) {
-                    that.openRegistrationDialog.call(that);
-                    return false;
-            });
-            that.openDialog.call(that, validation_config);
-        });
-    },
-    _openPhoneDialog         : function (extra_form_data) {
-        var that = this;
-        this.getTemplate.call(this, 'phone', function (dialog_content) {
-            var validation_config = {
-                onkeyup: true,
-                rules: {
-                    verification_code: {
-                        required: true,
-                        digits: true,
-                        minlength: 4,
-                        maxlength: 4
-                    },
-                    local_phone: {
-                        required: true,
-                        digits: true
-                    }
-                }
-            },
-            $sms_button = $('form input#send_sms_verification', dialog_content).button()
-               .unbind('click')
-               .bind('click', function (e) {
-                    that.sendSMS.call(that, this.form);
-                    return false;
-               }),
-            $finish_button = $('form input#register', dialog_content).button()
-               .unbind('click')
-               .bind('click', function (e) {
-                    that.doRegister.call(that, this.form, extra_form_data);
-                    return false;
-               }),
-            $phone_input = $('form input#local_phone', dialog_content)
-                .unbind('keyup')
-                .bind('keyup', function(e) {
-                    if (that.validator.element($phone_input)) {
-                        $sms_button.button("enable");
-                    } else {
-                        $sms_button.button("disable");                         
-                    }
+    // Borrows may be a single constructor or an array of them.
+    if (!data.borrows) borrows = [];
+    else if (data.borrows instanceof Array) borrows = data.borrows;
+    else borrows = [ data.borrows ];
 
-            }),
-            $verification_code_input = $('form input#verification_code', dialog_content)
-                .unbind('keyup')
-                .bind('keyup', function(e) {
-                    if (that.validator.element($verification_code_input)) {
-                        $finish_button.button("enable");
-                    } else {
-                        $finish_button.button("disable");
-                    }
+    // Ditto for the provides property.
+    if (!data.provides) provides = [];
+    else if (data.provides instanceof Array) provides = data.provides;
+    else provides = [ data.provides ];
 
-            });
-            that.openDialog.call(that, validation_config);
-        });
-    },
-    openPhoneDialog         : function (callback) {
-        this.setCallback(callback);
-        this._openPhoneDialog();
-        return this;
-    },
-    openRegistrationDialog  : function (callback) {
-        var that = this;
-        this.setCallback(callback);
-        this.getTemplate.call(this, 'reg', function (dialog_content) {
-            var validation_config = {
-                rules: {
-                    username: {
-                        required: true,
-                        remote: that.config.urls.check_username
-                    },
-                    email: {
-                        required: true,
-                        email: true
-                    },
-                    password: "required",
-                    password_again: {
-                        required: true,
-                        equalTo: "#password"
-                    }
-                },
-                messages: {
-                    username: {
-                        remote: that.config.messages.username_taken
-                    }
-                }
-            },
-            $button = $('form button', dialog_content).button()
-                .unbind('click')
-                .bind('click', function (e) {
-                    if ( that.validator.form() ) {
-                        that._openPhoneDialog.call(that, $('form:first', dialog_content).serialize());
-                    }
-                    return false;
-               }),
-            $show_login_link = $('#show_login')
-                .unbind('click')
-                .bind('click', function (e) {
-                    that.openLoginDialog.call(that);
-                    return false;
-            });
-            that.openDialog.call(that, validation_config);
-        });
-    },
-    openDialog              : function (validation_config) {
-        var config = $.extend(true, {}, this.config.dialog_config),
-            $dialog = $('#dialog');
-        this.initValidator($('form:first', $dialog), validation_config);
-        $dialog.dialog('option', config);
-        if (! $dialog.dialog('isOpen') ) {
-            $dialog.dialog('open');
-        }
-        $dialog.find("input:first").focus();
+    // Create the object that will become the prototype for our class.
+    var proto = new superclass( );
 
-    },
-    sendSMS                 : function (form) {
-        var that = this,
-            $button = $('#send_sms_verification').button('disable');
-        if ( this.validator.element('#local_phone') ) {
-            $.ajax({
-                url :that.config.urls.send_sms,
-                type : 'post',
-                data : $(form).serialize(),
-                success : function (response) {
-                    alert('verification code: '+response);
-                    $('#verification_code').removeAttr('disabled').focus();
-                },
-                error :function (XMLHttpRequest, textStatus, errorThrown) {
-                    alert('error: ' + XMLHttpRequest.responseText);
-                    $button.button('enable');
-                }
-            });
+    // Delete any noninherited properties of this new prototype object.
+    for(var p in proto)
+        if (proto.hasOwnProperty(p)) delete proto[p];
+
+    // Borrow methods from "mixin" classes by copying to our prototype.
+    for(var i = 0; i < borrows.length; i++) {
+//        var c = data.borrows[i];
+//        borrows[i] = c;
+        var c = borrows[i];
+        // Copy method properties from prototype of c to our prototype
+        for(var p in c.prototype) {
+            if (typeof c.prototype[p] != "function") continue;
+            proto[p] = c.prototype[p];
         }
     }
-});
+    // Copy instance methods to the prototype object
+    // This may overwrite methods of the mixin classes
+    for(var p in methods) proto[p] = methods[p];
+
+    // Set up the reserved "constructor", "superclass", and "classname"
+    // properties of the prototype.
+    proto.constructor = constructor;
+    proto.superclass = superclass;
+    // classname is set only if a name was actually specified.
+    if (classname) proto.classname = classname;
+
+    // Verify that our prototype provides all of the methods it is supposed to.
+    for(var i = 0; i < provides.length; i++) {  // for each class
+        var c = provides[i];
+        for(var p in c.prototype) {   // for each property
+            if (typeof c.prototype[p] != "function") continue;  // methods only
+            if (p == "constructor" || p == "superclass") continue;
+            // Check that we have a method with the same name and that
+            // it has the same number of declared arguments.  If so, move on
+            if (p in proto &&
+                typeof proto[p] == "function" &&
+                proto[p].length == c.prototype[p].length) continue;
+            // Otherwise, throw an exception
+            throw new Error("Class " + classname + " does not provide method "+
+                            c.classname + "." + p);
+        }
+    }
+
+    // Associate the prototype object with the constructor function
+    constructor.prototype = proto;
+
+    // Copy static properties to the constructor
+    for(var p in statics) constructor[p] = data.statics[p];
+
+    // Finally, return the constructor function
+    return constructor;
+}
