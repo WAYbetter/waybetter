@@ -279,6 +279,9 @@ var OrderingHelper = Object.create({
             var address = Address.fromFields(address_type);
             if (!address.isResolved()) {
                 $("#order_button").button("disable");
+                delete this.map_markers[address.address_type];
+                this.renderMapMarkers();
+                $("#ride_cost_estimate").empty();
                 return;
             }
         }
