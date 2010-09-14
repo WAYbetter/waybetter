@@ -1,8 +1,8 @@
 import common.urllib_adaptor as urllib2
 from django.utils import simplejson
+from django.conf import settings
 
 
-WAZE_API_TOKEN = 'e0df20e6-6d69-487b-a010-fd32b8ab6066'
 
 def calculate_time_and_distance(from_x, from_y, to_x, to_y):
     return waze_calculate_time_and_distance(from_x, from_y, to_x, to_y)
@@ -18,7 +18,7 @@ def waze_calculate_time_and_distance(from_x, from_y, to_x, to_y):
             'from=x:%s+y:%s+bd:true' % (from_x, from_y) + \
             '&to=x:%s+y:%s+bd:true+st_id:46317' % (to_x, to_y) + \
             '&returnJSON=true&returnGeometries=true&returnInstructions=false' + \
-            '&timeout=60000&nPaths=1&token=%s' % WAZE_API_TOKEN
+            '&timeout=60000&nPaths=1&token=%s' % settings.WAZE_API_TOKEN
     json = urllib2.urlopen(url).read()
     result = simplejson.loads(json)
 
