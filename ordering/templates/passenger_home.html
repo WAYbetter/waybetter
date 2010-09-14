@@ -50,7 +50,7 @@
                         source: function (request, response) {
                             var params = { "term":request.term };  //TODO_WB: add max_size parameter, when "More..." is requested
                             $.ajax({
-                                url: '{% url common.services.resolve_address %}',
+                                url: '{% url ordering.passenger_controller.resolve_address %}',
                                 data: params,
                                 dataType: "json",
                                 success: function(resolve_results) {
@@ -238,7 +238,7 @@
 
             function invokeResolveAddress(address_field, address_type) {
                 var params = {"address": address_field};  //TODO_WB: add max_size parameter, when "More..." is requested
-                $.getJSON('{% url common.services.resolve_address %}', params, function(resolve_result) {
+                $.getJSON('{% url ordering.passenger_controller.resolve_address %}', params, function(resolve_result) {
                     $('#indicator_for_' + address_type + '_raw').hide();
                     if (resolve_result.length == 0) {
                         $("#choices_for_" + address_type + "_raw").html("{% trans "Can't resolve address" %}").addClass("ui-state-error");
@@ -274,6 +274,7 @@
                 if (address.address_type == "from") {
                     $("#id_to_raw").focus();
                 }
+                getRideCostEstimate();
                 validateForBooking();
             }
 
@@ -286,6 +287,29 @@
                     }
                 }
                 $("#order_button").button("enable");
+            }
+
+            function getRideCostEstimate() {
+                var from_x = $("#id_from_lon").val();
+                var from_y = $("#id_from_lat").val();
+                var to_x = $("#id_to_lon").val();
+                var to_y = $("#id_to_lat").val();
+                if (from_x && from_y && to_x && to_y) {
+                    $.ajax({
+                       url: '{% url ordering.passenger_controller.estimate_ride_cost %}',
+                       type: 'get',
+                       dataType: 'json',
+                       data: { from_x: from_x, from_y: from_y, to_x: to_x, to_y: to_y},
+                       success: renderRideEstimatedCost
+                    });
+                }
+            }
+
+            function renderRideEstimatedCost(data) {
+                var label = "<img src='/static/img/cost.jpg'> {% trans 'Estimated ride cost' %}: ";
+                label += data.estimated_cost + "{% trans "NIS" %}";
+                label += " (" + data.estimated_duration + ")";
+                $("#ride_cost_estimate").html(label);
             }
 
             function renderAddressChoices(address_type) {
@@ -339,6 +363,7 @@
                 <hr>
                 <div id="map" style="width:300px;height:300px;">
                 </div>
+                <div id="ride_cost_estimate"></div>
                 <input id="order_button" type="submit" value="{% trans "Book" %}">
             </form>
         </div>
