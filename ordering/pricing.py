@@ -1,7 +1,11 @@
+# -*- coding: utf-8 -*-
+
 from django.conf import settings
-from common.models import Country
+from django.utils import simplejson
+from common.models import Country, City, CityArea, CityArea
 import datetime
 from common.util import convert_python_weekday
+from ordering.models import PricingRule
 
 def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUNTRY_CODE,
                     cities=None, streets=None, day_of_week=None, time=None,
@@ -111,3 +115,156 @@ def filter_relevant_duration_rules(base_rules, est_duration):
             else:
                 pass
     return result
+
+
+ISRAELI_RULES = """
+[
+    {
+        "pk": 334,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 13:44:37", "from_distance": null, "to_day_of_week": null, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": 4.5, "is_active": true, "rule_name": "Phone order", "from_day_of_week": null, "to_hour": null, "vehicle_type": null, "tick_time": null, "tick_distance": null, "tick_cost": null, "country": 2, "special_place": null, "from_hour": null, "modify_date": "2010-09-12 13:44:37", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 335,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 13:44:37", "from_distance": null, "to_day_of_week": 6, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": 11.1, "is_active": true, "rule_name": "Tariff 1 - initial cost", "from_day_of_week": 1, "to_hour": "21:00:00", "vehicle_type": null, "tick_time": null, "tick_distance": null, "tick_cost": null, "country": 2, "special_place": null, "from_hour": "05:30:00", "modify_date": "2010-09-12 15:58:41", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 336,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 13:44:37", "from_distance": null, "to_day_of_week": 6, "city": "אילת", "state": "", "city_area": null, "to_duration": null, "fixed_cost": 9.5, "is_active": true, "rule_name": "Tariff 1 - initial cost - Eilat", "from_day_of_week": 1, "to_hour": "21:00:00", "vehicle_type": null, "tick_time": null, "tick_distance": null, "tick_cost": null, "country": 2, "special_place": null, "from_hour": "05:30:00", "modify_date": "2010-09-12 15:58:41", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 354,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 15:58:41", "from_distance": 559.45000000000005, "to_day_of_week": 6, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 1 - cost in 1st 15KM", "from_day_of_week": 1, "to_hour": "21:00:00", "vehicle_type": null, "tick_time": 12, "tick_distance": 90.090000000000003, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": "05:30:00", "modify_date": "2010-09-12 17:26:51", "to_distance": 15000.0, "from_duration": 83}
+    },
+    {
+        "pk": 355,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 15:58:41", "from_distance": 559.75, "to_day_of_week": 6, "city": "אילת", "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 1 - cost in 1st 15KM - Eilat", "from_day_of_week": 1, "to_hour": "21:00:00", "vehicle_type": null, "tick_time": 15, "tick_distance": 105.52, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": "05:30:00", "modify_date": "2010-09-12 17:26:51", "to_distance": 15000.0, "from_duration": 83}
+    },
+    {
+        "pk": 357,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 16:49:13", "from_distance": 15000.0, "to_day_of_week": 6, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 1 - cost after 15KM", "from_day_of_week": 1, "to_hour": "21:00:00", "vehicle_type": null, "tick_time": 12, "tick_distance": 75.140000000000001, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": "05:30:00", "modify_date": "2010-09-12 19:20:04", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 358,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 16:49:13", "from_distance": 15000.0, "to_day_of_week": 6, "city": "אילת", "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 1 - cost after 15KM - Eilat", "from_day_of_week": 1, "to_hour": "21:00:00", "vehicle_type": null, "tick_time": 15, "tick_distance": 84.519999999999996, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": "05:30:00", "modify_date": "2010-09-12 19:20:04", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 361,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 19:20:04", "from_distance": null, "to_day_of_week": 6, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": 11.1, "is_active": true, "rule_name": "Tariff 2 - initial cost", "from_day_of_week": 1, "to_hour": "05:29:00", "vehicle_type": null, "tick_time": null, "tick_distance": null, "tick_cost": null, "country": 2, "special_place": null, "from_hour": "21:01:00", "modify_date": "2010-09-12 19:20:04", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 362,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 19:20:04", "from_distance": null, "to_day_of_week": 6, "city": "אילת", "state": "", "city_area": null, "to_duration": null, "fixed_cost": 9.5, "is_active": true, "rule_name": "Tariff 2 - initial cost - Eilat", "from_day_of_week": 1, "to_hour": "05:29:00", "vehicle_type": null, "tick_time": null, "tick_distance": null, "tick_cost": null, "country": 2, "special_place": null, "from_hour": "21:01:00", "modify_date": "2010-09-12 19:20:04", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 364,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 17:26:51", "from_distance": 153.81, "to_day_of_week": 1, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 2 - cost in 1st 15KM", "from_day_of_week": 1, "to_hour": "05:29:00", "vehicle_type": null, "tick_time": 10, "tick_distance": 72.150000000000006, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": "21:01:00", "modify_date": "2010-09-12 17:26:51", "to_distance": 15000.0, "from_duration": 36}
+    },
+    {
+        "pk": 365,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 17:26:51", "from_distance": 154.16999999999999, "to_day_of_week": 6, "city": "אילת", "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 2 - cost in 1st 15KM - Eilat", "from_day_of_week": 6, "to_hour": "05:29:00", "vehicle_type": null, "tick_time": 12, "tick_distance": 84.420000000000002, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": "21:01:00", "modify_date": "2010-09-12 17:26:51", "to_distance": 15000.0, "from_duration": 36}
+    },
+    {
+        "pk": 369,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 17:30:21", "from_distance": 15000.0, "to_day_of_week": 6, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 2 - cost after 15KM", "from_day_of_week": 1, "to_hour": "05:29:00", "vehicle_type": null, "tick_time": 10, "tick_distance": 60.030000000000001, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": "21:01:00", "modify_date": "2010-09-12 17:30:21", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 370,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 17:30:21", "from_distance": 15000.0, "to_day_of_week": 6, "city": "אילת", "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 2 - cost after 15KM - Eilat", "from_day_of_week": 1, "to_hour": "05:29:00", "vehicle_type": null, "tick_time": 12, "tick_distance": 67.590000000000003, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": "21:00:00", "modify_date": "2010-09-12 17:30:21", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 372,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 17:35:14", "from_distance": null, "to_day_of_week": 7, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": 11.1, "is_active": true, "rule_name": "Tariff 2 - Weekend - initial cost", "from_day_of_week": 7, "to_hour": null, "vehicle_type": null, "tick_time": null, "tick_distance": null, "tick_cost": null, "country": 2, "special_place": null, "from_hour": null, "modify_date": "2010-09-12 17:35:14", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 373,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 17:35:14", "from_distance": null, "to_day_of_week": 7, "city": "אילת", "state": "", "city_area": null, "to_duration": null, "fixed_cost": 9.5, "is_active": true, "rule_name": "Tariff 2 - Weekend - initial cost - Eilat", "from_day_of_week": 7, "to_hour": null, "vehicle_type": null, "tick_time": null, "tick_distance": null, "tick_cost": null, "country": 2, "special_place": null, "from_hour": null, "modify_date": "2010-09-12 17:35:14", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 374,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 17:35:14", "from_distance": 153.81, "to_day_of_week": 7, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 2 - Saturday - cost in 1st 15KM", "from_day_of_week": 7, "to_hour": null, "vehicle_type": null, "tick_time": 10, "tick_distance": 72.150000000000006, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": null, "modify_date": "2010-09-12 17:35:14", "to_distance": 15000.0, "from_duration": 36}
+    },
+    {
+        "pk": 375,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 17:35:14", "from_distance": 154.16999999999999, "to_day_of_week": 7, "city": "אילת", "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 2 - Saturday - cost in 1st 15KM - Eilat", "from_day_of_week": 7, "to_hour": null, "vehicle_type": null, "tick_time": 12, "tick_distance": 84.420000000000002, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": null, "modify_date": "2010-09-12 17:35:14", "to_distance": 15000.0, "from_duration": 36}
+    },
+    {
+        "pk": 377,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 17:37:25", "from_distance": 15000.0, "to_day_of_week": 7, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 2 - Saturday - cost after 15KM", "from_day_of_week": 7, "to_hour": null, "vehicle_type": null, "tick_time": 10, "tick_distance": 60.030000000000001, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": null, "modify_date": "2010-09-12 17:37:25", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 378,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 17:37:25", "from_distance": 15000.0, "to_day_of_week": 7, "city": "אילת", "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 2 - Saturday - cost after 15KM - Eilat", "from_day_of_week": 7, "to_hour": null, "vehicle_type": null, "tick_time": 12, "tick_distance": 67.590000000000003, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": null, "modify_date": "2010-09-12 17:37:25", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 380,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 17:41:48", "from_distance": null, "to_day_of_week": null, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": 14.300000000000001, "is_active": true, "rule_name": "Freeway 6", "from_day_of_week": null, "to_hour": null, "vehicle_type": null, "tick_time": null, "tick_distance": null, "tick_cost": null, "country": 2, "special_place": "\u05db\u05d1\u05d9\u05e9 6", "from_hour": null, "modify_date": "2010-09-13 09:00:01", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 382,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 17:43:38", "from_distance": null, "to_day_of_week": null, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": 5.0, "is_active": true, "rule_name": "Ben-Gurion Airport", "from_day_of_week": null, "to_hour": null, "vehicle_type": null, "tick_time": null, "tick_distance": null, "tick_cost": null, "country": 2, "special_place": "\u05e0\u05ea\u05d1\u05d2", "from_hour": null, "modify_date": "2010-09-13 09:00:01", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 383,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 17:43:38", "from_distance": null, "to_day_of_week": null, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": 2.0, "is_active": true, "rule_name": "Sde-Dov Airport", "from_day_of_week": null, "to_hour": null, "vehicle_type": null, "tick_time": null, "tick_distance": null, "tick_cost": null, "country": 2, "special_place": "\u05e9\u05d3\u05d4-\u05d3\u05d1", "from_hour": null, "modify_date": "2010-09-13 09:00:01", "to_distance": null, "from_duration": null}
+    },
+    {
+        "pk": 384,
+        "model": "ordering.pricingrule",
+        "fields": {"create_date": "2010-09-12 17:43:38", "from_distance": null, "to_day_of_week": null, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": 2.0, "is_active": true, "rule_name": "Haifa Port", "from_day_of_week": null, "to_hour": null, "vehicle_type": null, "tick_time": null, "tick_distance": null, "tick_cost": null, "country": 2, "special_place": "\u05e0\u05de\u05dc \u05d7\u05d9\u05e4\u05d4", "from_hour": null, "modify_date": "2010-09-13 09:00:01", "to_distance": null, "from_duration": null}
+    }
+]
+"""
+
+PRICING_RULES_DATA = {"IL": ISRAELI_RULES}
+
+
+def setup_pricing_rules():
+    for country_code, json in PRICING_RULES_DATA.items():
+        country = Country.objects.get(code=country_code)
+        rules = simplejson.loads(json)
+        for rule in rules:
+            fields = rule["fields"]
+            pr = PricingRule()
+            pr.rule_name = fields["rule_name"]
+            pr.is_active = fields["is_active"]
+            pr.country = country
+            pr.state = fields["state"]
+            if fields["city"]: pr.city = City.objects.get(name=fields["city"])
+            if fields["city_area"]: pr.city_area = CityArea.objects.get(id=fields["city_area"])
+            pr.special_place = fields["special_place"]
+            pr.from_hour = fields["from_hour"]
+            pr.to_hour = fields["to_hour"]
+            pr.from_day_of_week = fields["from_day_of_week"]
+            pr.to_day_of_week = fields["to_day_of_week"]
+            pr.vehicle_type = fields["vehicle_type"]
+            pr.from_distance = fields["from_distance"]
+            pr.to_distance = fields["to_distance"]
+            pr.from_duration = fields["from_duration"]
+            pr.to_duration = fields["from_distance"]
+            pr.fixed_cost = fields["fixed_cost"]
+            pr.tick_distance = fields["tick_distance"]
+            pr.tick_time = fields["tick_time"]
+            pr.tick_cost = fields["tick_cost"]
+            pr.save()
