@@ -84,10 +84,10 @@ var Address = defineClass({
 
 var OrderingHelper = Object.create({
     config:     {
-        history_category_label:     "", // "{% trans 'History Suggestions' %}"
-        map_category_label:         "", // "{% trans 'Map Suggestions' %}"
         unresolved_label:           "", // "{% trans 'Could not resolve address' %}"
-        resolve_address_url:        ""  // '{% url common.services.resolve_address %}'
+        resolve_address_url:        "", // '{% url cordering.passenger_controller.resolve_address %}'
+        estimation_service_url:     ""  // '{% url ordering.passenger_controller.estimate_ride_cost %}'
+
     },
     ADDRESS_FIELD_ID_BY_TYPE:       {
         from:   "id_from_raw",
@@ -95,7 +95,7 @@ var OrderingHelper = Object.create({
     },
     map_markers:                    {},
     map_markers_popups:             {},
-    init:                   function(config) {
+    init:                       function(config) {
         this.config = $.extend(true, {}, this.config, config);
         var that = this;        
         $("input:text").each(function(i, element) {
@@ -121,7 +121,7 @@ var OrderingHelper = Object.create({
                                     return {
                                         label: item.name,
                                         value: item.name,
-                                        category: that.config.history_category_label,
+                                        category: resolve_results.history_label,
                                         address: Address.fromServerResponse(item, address_type)
                                     }
                                 });
@@ -130,7 +130,7 @@ var OrderingHelper = Object.create({
                                     return {
                                         label: item.name,
                                         value: item.name,
-                                        category: that.config.map_category_label,
+                                        category: resolve_results.geocode_label,
                                         address: Address.fromServerResponse(item, address_type)
                                     }
                                 })));
@@ -188,11 +188,11 @@ var OrderingHelper = Object.create({
         }); // submit
 
         //TODO_WB:add a check for map, timeout and check again.
-        setTimeout('that.initPoints()', 100);
+        setTimeout(that.initPoints, 100);
 
         return this;
     },
-    initPoints:             function () {
+    initPoints:                 function () {
         for (var address_type in this.ADDRESS_FIELD_ID_BY_TYPE) {
             var address = Address.fromFields(address_type);
 
@@ -201,7 +201,7 @@ var OrderingHelper = Object.create({
             }
         }
     },
-    addPoint:               function (address) {
+    addPoint:                   function (address) {
         var location_name = address.address_type + ": " +
                 $('#id_' + address.address_type + '_raw').val();
 
@@ -213,7 +213,7 @@ var OrderingHelper = Object.create({
         this.map_markers[address.address_type] = point;
         this.renderMapMarkers();
     },
-    renderMapMarkers:       function () {
+    renderMapMarkers:           function () {
         var map = g_waze_map.map;
         var markers = map.getLayersByName("Markers")[0];
         if (!markers) {
@@ -224,7 +224,7 @@ var OrderingHelper = Object.create({
         var bounds = new OpenLayers.Bounds();
         for (var location_name in this.map_markers) {
             var point = this.map_markers[location_name];
-            var lonlat = new OpenLayers.LonLat(point.lon + 20, point.lat + 20);
+            var lonlat = new OpenLayers.LonLat(point.lon, point.lat);
             bounds.extend(lonlat);
 
             var size = new OpenLayers.Size(15, 34);
@@ -242,15 +242,39 @@ var OrderingHelper = Object.create({
         }
         map.zoomToExtent(bounds);
     },
-    updateAddressChoice:    function(address) {
+    updateAddressChoice:        function(address) {
         address.populateFields();
-        this.addPoint(address.address_type);
+        this.addPoint(address);
         if (address.address_type == "from") {
             $("#id_to_raw").focus();
         }
+        this.getRideCostEstimate();
         this.validateForBooking();
     },
-    validateForBooking:     function() {
+    getRideCostEstimate:        function() {
+        var that = this,
+            from_x = $("#id_from_lon").val(),
+            from_y = $("#id_from_lat").val(),
+            to_x = $("#id_to_lon").val(),
+            to_y = $("#id_to_lat").val();
+
+        if (from_x && from_y && to_x && to_y) {
+            $.ajax({
+               url: that.config.estimation_service_url,
+               type: 'get',
+               dataType: 'json',
+               data: { from_x: from_x, from_y: from_y, to_x: to_x, to_y: to_y},
+               success: that.renderRideEstimatedCost
+            });
+        }
+    },
+    renderRideEstimatedCost:    function (data) {
+        var label = "<img src='/static/img/cost.jpg'>" + data.label + ":";
+        label += data.estimated_cost + data.currency;
+        label += " (" + data.estimated_duration + ")";
+        $("#ride_cost_estimate").html(label);
+    },
+    validateForBooking:         function() {
         for (var address_type in this.ADDRESS_FIELD_ID_BY_TYPE) {
             var address = Address.fromFields(address_type);
             if (!address.isResolved()) {
@@ -263,15 +287,6 @@ var OrderingHelper = Object.create({
     bookOrder:              function () {
         $("#order_form").submit();
     }
-});
-
-
-
-
-
-
-$(document).ready(function() {
-
 });
 
 
