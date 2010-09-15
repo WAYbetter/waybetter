@@ -15,7 +15,14 @@
                     estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}",
                     not_a_passenger_response:   "{{ not_a_passenger }}",
                     not_a_user_response:        "{{ not_a_user }}"
-                })
+                });
+                $("#tabs").tabs({
+                    ajaxOptions: {
+                        error: function(xhr, status, index, anchor) {
+                            $(anchor.hash).html("Couldn't load this tab. We'll try to fix this as soon as possible. If this wouldn't be a demo.");
+                        }
+                    }
+                });
             });
 
         </script>
@@ -64,11 +71,19 @@
 		-->
 		</script>
         <script type="text/javascript" src="http://www.waze.co.il/js/WazeEmbeddedMapNoJQuery.js"></script>
+
+        {% if request.user.passenger %}
+            <div id="tabs">
+                <ul>
+                    <li>
+                        <a href="{% url ordering.passenger_controller.get_passenger_orders %}">{% trans 'My orders' %}</a>
+                    </li>
+                </ul>
+            </div>
+        {% endif %}
+        
 {% endblock content %}
 {% block footer %}
  {{ block.super}}
 <a href="{% url stations.views.stations_home %}">{% trans 'Taxi Stations' %}</a>
-{% if request.user.is_authenticated %}
-    | <a href="{% url ordering.passenger_controller.get_passenger_orders %}">{% trans 'My orders' %}</a>
-{% endif %}
 {% endblock footer %}
