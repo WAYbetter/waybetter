@@ -12,7 +12,9 @@
                 OrderingHelper.init({
                     unresolved_label:           "{% trans 'Could not resolve address' %}",
                     resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
-                    estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}"
+                    estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}",
+                    not_a_passenger_response:   "{{ not_a_passenger }}",
+                    not_a_user_response:        "{{ not_a_user }}"
                 })
             });
 

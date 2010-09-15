@@ -86,7 +86,9 @@ var OrderingHelper = Object.create({
     config:     {
         unresolved_label:           "", // "{% trans 'Could not resolve address' %}"
         resolve_address_url:        "", // '{% url cordering.passenger_controller.resolve_address %}'
-        estimation_service_url:     ""  // '{% url ordering.passenger_controller.estimate_ride_cost %}'
+        estimation_service_url:     "", // '{% url ordering.passenger_controller.estimate_ride_cost %}'
+        not_a_passenger_response:   "",
+        not_a_user_response:        ""
 
     },
     ADDRESS_FIELD_ID_BY_TYPE:       {
@@ -173,9 +175,9 @@ var OrderingHelper = Object.create({
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     if (XMLHttpRequest.status == 403) {
-                        if (XMLHttpRequest.responseText == "{{ not_a_user }}") {
+                        if (XMLHttpRequest.responseText == that.config.not_a_user_response) {
                             Registrator.openRegistrationDialog(that.bookOrder);
-                        } else if (XMLHttpRequest.responseText == "{{ not_a_passenger }}") {
+                        } else if (XMLHttpRequest.responseText == that.config.not_a_passenger_response) {
                             Registrator.openPhoneDialog(that.bookOrder);
                         }
                     } else {

@@ -109,7 +109,7 @@ def filter_relevant_duration_rules(base_rules, est_duration):
             if rule.to_duration and est_duration > rule.to_duration:
                 d = rule.to_duration - rule.from_duration
                 result.append( (d, rule) )
-            elif est_duration > rule.from_duration:
+            elif rule.from_duration and est_duration > rule.from_duration:
                 d = est_duration - rule.from_duration
                 result.append( (d, rule) )
             else:
@@ -262,7 +262,7 @@ def setup_pricing_rules():
             pr.from_distance = fields["from_distance"]
             pr.to_distance = fields["to_distance"]
             pr.from_duration = fields["from_duration"]
-            pr.to_duration = fields["from_distance"]
+            pr.to_duration = fields["to_duration"]
             pr.fixed_cost = fields["fixed_cost"]
             pr.tick_distance = fields["tick_distance"]
             pr.tick_time = fields["tick_time"]
