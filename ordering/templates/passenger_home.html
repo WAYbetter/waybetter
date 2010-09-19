@@ -17,6 +17,9 @@
                     not_a_user_response:        "{{ not_a_user }}"
                 });
                 $("#tabs").tabs({
+                    load: function (event, ui) {
+                        $(this).tabs("option", "spinner", "");    
+                    },
                     ajaxOptions: {
                         error: function(xhr, status, index, anchor) {
                             $(anchor.hash).html("Couldn't load this tab. We'll try to fix this as soon as possible. If this wouldn't be a demo.");
@@ -26,10 +29,10 @@
             });
 
         </script>
-        <div id="greeting">
-            {% trans "Welcome" %} {{ user.username }}!
-        </div>
-        <div class="form_container" style="width:500px">
+        <div id="form_container">
+            <div id="greeting">
+                {% trans "Welcome" %} {{ user.username }}!
+            </div>
 
             <form method="post" id="order_form" name="order_form" action="{% url ordering.passenger_controller.book_order %}">
                 {% csrf_token %}
@@ -76,7 +79,10 @@
             <div id="tabs">
                 <ul>
                     <li>
-                        <a href="{% url ordering.passenger_controller.get_passenger_orders %}">{% trans 'My orders' %}</a>
+                        <a href="{% url ordering.passenger_controller.get_passenger_orders %}">{% trans 'My Orders' %}</a>
+                    </li>
+                    <li>
+                        <a href="{% url ordering.passenger_controller.get_passenger_orders %}">{% trans 'Edit Profile' %}</a>
                     </li>
                 </ul>
             </div>

@@ -1,52 +1,55 @@
-{% extends "base_site.html" %}
 {% load i18n %}
 
-{% block content %}
 
 <script>
+$.getJSON("{% url ordering.passenger_controller.get_orders_data %}", function(data, textStatus) {
+    init_grid(data);
+});
 
 
-    $(document).ready(function() {
-        $.getJSON("{% url ordering.passenger_controller.get_orders_data %}", function(data, textStatus) {
-            init_grid(data);
-      });
+
+function init_grid(data) {
+    $("#orders_history_grid").jqGrid({
+        data:               data,
+        beforeSelectRow:    function () { return false }, // disable row selection
+        datatype:           'local',
+        height:             'auto',
+        rowNum:             10,
+        autowidth:          true,
+        hoverrows:          false,
+        scroll:             false,
+        forceFit:           true,
+        rowList:            [5,10,15],
+        colNames:           [
+            '{% trans 'Order' %}',
+            '{% trans 'Date' %}',
+            '{% trans 'From' %}',
+            '{% trans 'To' %}',
+            '{% trans 'Status' %}',
+            '{% trans 'Station' %}'
+        ],
+        colModel:           [
+            { name:'Order', index:'amount', width:60, sorttype:"int" },
+            { name:'Date', index:'invdate', width:90, sorttype:"date", formatter:"date" },
+            { name:'From', index:'text', width:200, sorttype:"text" },
+            { name:'To', index:'text', width:200, sorttype:"text" },
+            { name:'Status', index:'text', width:80, align:"left", sorttype:"text" },
+            { name:'Station', index:'text', width:80, align:"right", sorttype:"text" }
+        ],
+        pager:              "#porders_history_grid",
+        viewrecords:        true,
+        sortname:           'Order',
+        grouping:           true,
+        groupingView :      {
+            groupField : ['name']
+        },
     });
-
-
-    function init_grid(data) {
-        $("#orders_history_grid").jqGrid({
-            data: data,
-            datatype: 'local',
-            height: 'auto',
-            rowNum: 5,
-            rowList: [5,10,15],
-            colNames:['{% trans 'Order' %}', '{% trans 'Date' %}', '{% trans 'From' %}', '{% trans 'To' %}', '{% trans 'Status' %}', '{% trans 'Station' %}'],
-            colModel:[
-                {name:'Order',index:'amount', width:60, sorttype:"int"},
-                {name:'Date',index:'invdate', width:90, sorttype:"date", formatter:"date"},
-                {name:'From',index:'text', width:100, sorttype:"text"},
-                {name:'To',index:'text', width:80, align:"right", sorttype:"text"},
-                {name:'Status',index:'text', width:80, align:"left", sorttype:"text"},
-                {name:'Station',index:'text', width:80,align:"right", sorttype:"text"}
-            ],
-            pager: "#porders_history_grid",
-            viewrecords: true,
-            sortname: 'Order',
-            grouping:true,
-            groupingView : {
-                groupField : ['name']
-            },
-            caption: "{% trans 'My orders' %}"
-        });
-    }
+}
 
 
 </script>
 
 
-<h1>{% trans "Your orders" %}</h1>
-
 <table id="orders_history_grid"></table>
 <div id="porders_history_grid"></div>
 
-{% endblock content %}
