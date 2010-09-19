@@ -1,7 +1,7 @@
 // define a custom autocomplete widget
 $.widget("custom.catcomplete", $.ui.autocomplete, {
     options: {
-        minLength: 3,
+        minLength: 2,
         delay: 400
     },
     _renderMenu: function(ul, items) {
@@ -360,7 +360,7 @@ var HistorySelector = defineClass({
                     .click(function () {
                         that.fetchAddress($(this));
                         that.deactivate();
-                    })
+                    });
 
             this.is_active = true;
             

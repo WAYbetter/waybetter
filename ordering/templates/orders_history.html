@@ -29,20 +29,18 @@ function init_grid(data) {
             '{% trans 'Date' %}',
             '{% trans 'From' %}',
             '{% trans 'To' %}',
-            '{% trans 'Status' %}',
             '{% trans 'Station' %}'
         ],
         colModel:           [
-            { name:'Order', index:'amount', width:60, sorttype:"int" },
+            { name:'Order', index:'amount', width:60, sorttype:"int", hidden: true },
             { name:'Date', index:'invdate', width:96, sorttype:"date" },
             { name:'From', index:'text', width:200, sorttype:"text" },
             { name:'To', index:'text', width:200, sorttype:"text" },
-            { name:'Status', index:'text', width:80, align:"left", sorttype:"text" },
             { name:'Station', index:'text', width:80, align:"right", sorttype:"text" }
         ],
         pager:              "#porders_history_grid",
         viewrecords:        true,
-        sortname:           'Order',
+        sortname:           'Date',
         sortorder:          'desc',
     });
 }

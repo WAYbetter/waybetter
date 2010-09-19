@@ -17,15 +17,15 @@
                     not_a_user_response:        "{{ not_a_user }}"
                 });
                 $("#tabs").tabs({
-                    load:       function (event, ui) {
-                        SelectFromHistoryHelper.init($(this), { fetch_address_url: "{% url ordering.passenger_controller.get_order_address %}" });
-                    },
+                   
                     ajaxOptions: {
                         error: function(xhr, status, index, anchor) {
                             $(anchor.hash).html("Couldn't load this tab. We'll try to fix this as soon as possible. If this wouldn't be a demo.");
                         }
                     }
                 });
+                SelectFromHistoryHelper.init($("#tabs"), { fetch_address_url: "{% url ordering.passenger_controller.get_order_address %}" });
+                
             });
 
         </script>
