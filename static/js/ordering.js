@@ -294,7 +294,92 @@ var OrderingHelper = Object.create({
     }
 });
 
+var SelectFromHistoryHelper = Object.create({
+    config:     {
+        fetch_address_url:  "",
+        orders_index:       0
 
+    },
+    init:       function($tabs, config) {
+        this.config = $.extend(true, {}, this.config, config);
+
+        if ($tabs.tabs('option', 'selected') == this.config.orders_index) {
+            this.from_selector = new HistorySelector($("#id_from_raw"));
+            this.to_selector = new HistorySelector($("#id_to_raw"));
+        }
+    },
+    updateGrid:   function() {
+        var selectors = [this.from_selector, this.to_selector];
+        for (var i in selectors) {
+            if (selectors[i].is_active) {
+                selectors[i].activate();
+            }
+        }
+    }
+});
+
+var HistorySelector = defineClass({
+    name: "HistorySelector",
+    construct:      function($input) {
+        var that = this;
+        this.$input = $input;
+        this.select_button = $("<input>").attr("type", "button")
+                                         .val("Select")
+                                         .button();
+        this.$input.after(this.select_button);
+        this.select_button.click(function() {
+            that.activate();
+        });
+    },
+    methods: {
+        fetchAddress:       function($td) {
+            var that = this;
+
+            var order_id = $($td.parent().children()[0]).text();
+            var address_type = $td.attr("aria-describedby").split("_").pop().toLowerCase();
+            $.getJSON(SelectFromHistoryHelper.config.fetch_address_url, {order_id: order_id, address_type: address_type}, function(response) {
+                var address = Address.fromServerResponse(response, that.$input[0].id.split("_")[1]);
+                OrderingHelper.updateAddressChoice(address);
+
+            });
+        },
+        activate:           function() {
+            var that = this;
+
+            SelectFromHistoryHelper.to_selector.deactivate();
+            SelectFromHistoryHelper.from_selector.deactivate();
+
+            this.select_button.val("Cancel");
+            this.select_button.unbind("click").click(function() {
+                that.deactivate();
+            });
+
+            this.$input.addClass("select-address");
+            $("#tabs table td[aria-describedby=orders_history_grid_From], #tabs table td[aria-describedby=orders_history_grid_To]")
+                    .addClass("select-address")
+                    .click(function () {
+                        that.fetchAddress($(this));
+                        that.deactivate();
+                    })
+
+            this.is_active = true;
+            
+        },
+        deactivate:         function() {
+            var that = this;
+            this.is_active = false;
+            this.select_button.val("Select");
+            this.select_button.unbind("click").click(function() {
+                that.activate();
+            });
+            
+            this.$input.removeClass("select-address");
+            $("#tabs table td[role=gridcell]").unbind("click").removeClass("select-address");
+
+        }
+
+    }
+});
 
 
 

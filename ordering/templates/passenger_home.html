@@ -17,8 +17,8 @@
                     not_a_user_response:        "{{ not_a_user }}"
                 });
                 $("#tabs").tabs({
-                    load: function (event, ui) {
-                        $(this).tabs("option", "spinner", "");    
+                    load:       function (event, ui) {
+                        SelectFromHistoryHelper.init($(this), { fetch_address_url: "{% url ordering.passenger_controller.get_order_address %}" });
                     },
                     ajaxOptions: {
                         error: function(xhr, status, index, anchor) {

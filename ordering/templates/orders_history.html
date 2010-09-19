@@ -12,14 +12,18 @@ function init_grid(data) {
     $("#orders_history_grid").jqGrid({
         data:               data,
         beforeSelectRow:    function () { return false }, // disable row selection
+        loadComplete:   function (pgButton) {
+            SelectFromHistoryHelper.updateGrid();
+        },
         datatype:           'local',
         height:             'auto',
-        rowNum:             10,
+        rowNum:             15,
         autowidth:          true,
         hoverrows:          false,
         scroll:             false,
-        forceFit:           true,
-        rowList:            [5,10,15],
+//        shrinkToFit:        false,
+//        forceFit:           true,
+        rowList:            [10,15,20],
         colNames:           [
             '{% trans 'Order' %}',
             '{% trans 'Date' %}',
@@ -30,7 +34,7 @@ function init_grid(data) {
         ],
         colModel:           [
             { name:'Order', index:'amount', width:60, sorttype:"int" },
-            { name:'Date', index:'invdate', width:90, sorttype:"date", formatter:"date" },
+            { name:'Date', index:'invdate', width:96, sorttype:"date" },
             { name:'From', index:'text', width:200, sorttype:"text" },
             { name:'To', index:'text', width:200, sorttype:"text" },
             { name:'Status', index:'text', width:80, align:"left", sorttype:"text" },
@@ -39,10 +43,7 @@ function init_grid(data) {
         pager:              "#porders_history_grid",
         viewrecords:        true,
         sortname:           'Order',
-        grouping:           true,
-        groupingView :      {
-            groupField : ['name']
-        },
+        sortorder:          'desc',
     });
 }
 
