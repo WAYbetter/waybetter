@@ -18,20 +18,17 @@
         });
 
         function initAcceptOrders() {
-            {% if work_station.accept_orders %}
-                $("#accept_orders").attr("checked", true);
-            {% else %}
-                $("#accept_orders").attr("checked", false);
-                pollingEnabled(false);
-            {% endif %}
+            var init_val = "{{ work_station.accept_orders }}" == "True";
+            $("#accept_orders input").attr("checked", init_val);
+            pollingEnabled(init_val);
 
-            $("#accept_orders").click(function() {
+            $("#accept_orders input").click(function() {
                 var checkbox = $(this);
                 $.post(
                     "{% url ordering.station_controller.update_online_status %}",
                     { status: checkbox.attr("checked") ? "{{ online }}" : "{{ offline }}" },
                     function(data, textStatus, XMLHttpRequest) {
-                        var accept_orders = XMLHttpRequest.responseText == "True" ? true : false;
+                        var accept_orders = XMLHttpRequest.responseText == "True";
                         checkbox.attr("checked", accept_orders);
                         pollingEnabled(accept_orders);
                     }
@@ -46,9 +43,14 @@
 
         function pollingEnabled(val) {
             if (val) {
+                $('#accept_orders').removeClass('offline');
+                $('#accept_orders').addClass('online');
                 polling_enabled = true;
                 pollOrders();
             } else {
+                $('#accept_orders').removeClass('online');
+                $('#accept_orders').addClass('offline');
+
                 polling_enabled = false;
             }
         }
@@ -174,7 +176,9 @@
         }
       
     </script>
-    <input type="checkbox" name="accept_orders" id="accept_orders" value="Accept Orders" />  {% trans 'Accept Orders' %}
+    <div id ="accept_orders">
+        <input type="checkbox" name="accept_orders" value="Accept Orders" />  {% trans 'Accept Orders' %}
+    </div>
 
     <div id="orders">
         No orders yet...
