@@ -374,7 +374,7 @@ var HistorySelector = defineClass({
             });
             
             this.$input.removeClass("select-address");
-            $("#tabs table td[role=gridcell]").unbind("click").removeClass("select-address");
+            $("#tabs table td.select-address").unbind("click").removeClass("select-address");
 
         }
 

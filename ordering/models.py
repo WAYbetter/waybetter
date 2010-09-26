@@ -4,6 +4,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from djangotoolbox.fields import BlobField
 from common.models import Country, City, CityArea
+from datetime import datetime
 
 ASSIGNED = 1
 ACCEPTED = 2
@@ -100,6 +101,7 @@ class WorkStation(models.Model):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="work_stations")
     token = models.CharField(_("token"), max_length=20)
     im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=40)
+    accept_orders = models.BooleanField(_("Online"), default=True)
 
     def __unicode__(self):
         return u"Workstation "# of: %d" % (self.station.id)
@@ -162,6 +164,8 @@ class Order(models.Model):
 
     
 class OrderAssignment(models.Model):
+    ORDER_ASSIGNMENT_TIMEOUT = 10 # seconds 
+
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")
     work_station = models.ForeignKey(WorkStation, verbose_name=_("work station"), related_name="assignments")
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="assignments")
@@ -170,6 +174,9 @@ class OrderAssignment(models.Model):
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+
+    def is_stale(self):
+         return (datetime.now() - self.create_date).seconds > OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT
 
     def __unicode__(self):
         order_id = "Unknown"

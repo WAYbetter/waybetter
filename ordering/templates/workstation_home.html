@@ -6,13 +6,51 @@
 {% endblock title %}
 
 {% block content %}
+
+
     <script type="text/javascript">
+        var polling_enabled = true;
         $(document).ready(function() {
             initConnection();
+            initAcceptOrders();
+            initOrderTable();
+            
         });
-        
+
+        function initAcceptOrders() {
+            {% if work_station.accept_orders %}
+                $("#accept_orders").attr("checked", true);
+            {% else %}
+                $("#accept_orders").attr("checked", false);
+                pollingEnabled(false);
+            {% endif %}
+
+            $("#accept_orders").click(function() {
+                var checkbox = $(this);
+                $.post(
+                    "{% url ordering.station_controller.update_online_status %}",
+                    { status: checkbox.attr("checked") ? "{{ online }}" : "{{ offline }}" },
+                    function(data, textStatus, XMLHttpRequest) {
+                        var accept_orders = XMLHttpRequest.responseText == "True" ? true : false;
+                        checkbox.attr("checked", accept_orders);
+                        pollingEnabled(accept_orders);
+                    }
+                );
+                return false;
+            });
+        }
+
         function initConnection() {
             restoreState();
+        }
+
+        function pollingEnabled(val) {
+            if (val) {
+                polling_enabled = true;
+                pollOrders();
+            } else {
+                polling_enabled = false;
+            }
         }
 
         function pollServer(url) {
@@ -33,7 +71,9 @@
             });
         }
         function pollOrders() {
-            pollServer("{% url ordering.station_controller.get_orders %}");
+            if (polling_enabled) {
+                pollServer("{% url ordering.station_controller.get_orders %}");
+            }
         }
         
         function restoreState() {
@@ -57,7 +97,7 @@
                     .append($("<th></th>").append("{% trans 'Status' %}"))
                     .append($("<th></th>").append("{% trans 'From' %}"))
                     .append($("<th></th>").append("{% trans 'To' %}"))
-                    .append($("<th></th>").attr('colspan', 4).append("{% trans 'Actions' %}"))
+                    .append($("<th></th>").attr('colspan', 5).append("{% trans 'Actions' %}"))
                 );
 
             $("#orders").empty().append(order_table);
@@ -83,6 +123,17 @@
 
             var progress_indicator = $("<span class='indicator'></span>").append("<img src='/static/img/indicator_small.gif'>").hide();
 
+            var timer = $("<div class='timer'></div>").progressbar({ value: 0 });
+            timer.everyTime(1000, function() {
+                var cur_value = timer.progressbar("value") / 100.0;
+                var increment = 1.0 / {{ timout_interval }};
+                timer.progressbar("value", (cur_value + increment) * 100);
+                if (timer.progressbar("value") >= 100) {
+                    rendered_order.fadeOut("normal", function() {
+                        rendered_order.remove();
+                    });
+                }
+            }, {{ timout_interval }});
             
             var rendered_order = $("<tr class='order'></tr>").attr('id', order.pk)
                 .append($("<td></td>").append(order.pk))
@@ -92,6 +143,7 @@
                 .append($("<td></td>").append("{% trans 'Pickup in' %} ").append(select))
                 .append($("<td></td>").append(send_button))
                 .append($("<td></td>").append(reject_button))
+                .append($("<td></td>").append(timer))
                 .append($("<td></td>").append(progress_indicator));
 
             $("#orders table").append(rendered_order);
@@ -122,6 +174,7 @@
         }
       
     </script>
+    <input type="checkbox" name="accept_orders" id="accept_orders" value="Accept Orders" />  {% trans 'Accept Orders' %}
 
     <div id="orders">
         No orders yet...
