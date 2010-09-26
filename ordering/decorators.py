@@ -5,6 +5,22 @@ from django.http import HttpResponseForbidden
 NOT_A_USER = "NOT_A_USER"
 NOT_A_PASSENGER = "NOT_A_PASSENGER"
 
+def internal_task_on_queue(queue_name):
+    """
+    Ensures request has the matching HTTP_X_APPENGINE_QUEUENAME header
+    """
+    def actual_decorator(function):
+
+        def wrapper(request):
+            if request.META.get('HTTP_X_APPENGINE_QUEUENAME', "") != queue_name:
+                return HttpResponseForbidden("Invalid call to internal task")
+
+            return function(request)
+
+        return wrapper
+
+    return actual_decorator
+
 def passenger_required_no_redirect(function=None):
     """
     Decorator for views that checks that the user is logged in and is a passenger

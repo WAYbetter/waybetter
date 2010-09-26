@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 from ordering.errors import OrderError, NoWorkStationFoundError
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound, HttpResponseServerError
-from ordering.decorators import passenger_required
+from ordering.decorators import passenger_required, internal_task_on_queue
 from django.core.serializers import serialize
 from django.conf import settings
 
@@ -21,6 +21,7 @@ def book_order_async(order):
     q.add(task)
 
 @csrf_exempt
+@internal_task_on_queue("orders")
 def book_order(request):
     order_id = int(request.POST["order_id"])
     logging.info("book_order_task: %d" % order_id)
@@ -77,8 +78,8 @@ def get_order_status(request, order_id, passenger):
     return HttpResponse(serialize("json", [order] + list(order_assignments), use_natural_keys=True))
 
 @csrf_exempt
+@internal_task_on_queue("redispatch-ignored-orders")
 def redispatch_ignored_orders(request):
-    # TODO_WB: check request header to make sure it came from queue
     order_assignment_id = int(request.POST["order_assignment_id"])
     logging.info("redispatch_ignored_orders: %d" % order_assignment_id)
     try:

@@ -163,6 +163,8 @@ var OrderingHelper = Object.create({
                 return false;
             }
 
+            $("#order_button").button("disable");
+
             $(this).ajaxSubmit({
                 dataType: "json",
                 success: function(order_status) {
