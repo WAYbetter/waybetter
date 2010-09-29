@@ -42,8 +42,8 @@ class Passenger(models.Model):
     def __unicode__(self):
         return self.user.username
 
-    @classmethod
-    def get_passenger_from_request(cls, request):
+    @staticmethod
+    def get_passenger_from_request(request):
         if (not request.user or not request.user.is_authenticated()):
             return None
         try:

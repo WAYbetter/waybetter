@@ -50,25 +50,28 @@ class OrderForm(ModelForm):
 class PassengerProfileForm(forms.Form):
     email = forms.EmailField(label=_("Email"))
 
-    password1 = forms.CharField(label=_("Change password"), widget=forms.PasswordInput())
+    password = forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
 
-    password2 = forms.CharField(label=_("Re-enter password"), widget=forms.PasswordInput())
+    password2 = forms.CharField(label=_("Re-enter password"), widget=forms.PasswordInput(), required=False)
 
     country = forms.IntegerField(widget=forms.Select(choices=Country.country_choices()), label=_("Country"))
 
-    local_phone = forms.RegexField(regex=r'^\d+$',
+    phone = forms.RegexField(regex=r'^\d+$',
                                    max_length=20,
                                    widget=forms.TextInput(),
                                    label=_("Local mobile phone #"),
                                    error_messages={'invalid': _("The value must contain only numbers.")})
 
-    verification_code = forms.RegexField(regex=r'^\d+$',
-                                   max_length=4,
-                                   widget=forms.TextInput(),
-                                   label=_("SMS Verification code"),
-                                   error_messages={'invalid': _("The value must contain only numbers.")})
-
+    phone_verification_code = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     
+    class Ajax:
+        rules = [
+            ('password2', {'equal_to_field': 'password'}),
+
+        ]
+        messages = [
+            ('password2', {'equal_to_field': _("The two password fields didn't match.")}),
+        ]
 
     def clean(self):
         """
@@ -81,11 +84,7 @@ class PassengerProfileForm(forms.Form):
         if 'country' in self.cleaned_data:
             country = Country.objects.get(id=self.cleaned_data['country'])
             self.cleaned_data['country'] = country
-
-        if 'password1' in self.cleaned_data and 'password2' in self.cleaned_data:
-            if self.cleaned_data['password1'] != self.cleaned_data['password2']:
-                raise forms.ValidationError(_("The two password fields didn't match."))
-                
+         
         return self.cleaned_data
 
     

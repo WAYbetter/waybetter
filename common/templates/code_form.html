@@ -1,0 +1,21 @@
+{% load i18n %}
+<script>
+    var form_config = {
+        urls          : {
+            update_profile: "{% url ordering.passenger_controller.edit_profile %}"
+        },
+        dialog_config : {
+            title: "{% trans 'Fill in to finish registration' %}",
+            width: 300
+        }
+
+    };
+</script>
+<p>
+    {% trans 'An SMS verification code was sent to you. Please fill it to confirm your details.' %}
+</p>
+<form>
+    <label for="phone_verification_code">{% trans 'Enter SMS code' %}</label>
+    <input name="phone_verification_code" id="phone_verification_code" type="text"/>
+    <input type="submit" id="register" value="{% trans 'Finish' %}" />
+</form>

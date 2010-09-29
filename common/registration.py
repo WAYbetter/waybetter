@@ -10,6 +10,9 @@ def get_login_form(request):
 def get_registration_form(request):
     return render_to_response('registration_form.html')
 
+def get_phone_code_form(request):
+    return render_to_response('code_form.html')
+
 def get_phone_form(request):
     countries = Country.objects.all()
     return render_to_response('phone_verification_form.html', locals())

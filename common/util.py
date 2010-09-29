@@ -1,3 +1,5 @@
+import random
+
 def is_empty(str):
     """
     return True pf string is emtpy, spaces only or None
@@ -18,3 +20,6 @@ PYTHON_WEEKDAY_MAP = {
 
 def convert_python_weekday(wd):
     return PYTHON_WEEKDAY_MAP[wd]
+
+def gen_verification_code():
+    return random.randrange(1000,10000)

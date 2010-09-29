@@ -292,6 +292,7 @@ var OrderingHelper = Object.create({
         $("#order_button").button("enable");
     },
     bookOrder:              function () {
+        $("#order_button").button("enable"); // otherwise the form would not submit
         $("#order_form").submit();
     }
 });
