@@ -18,6 +18,11 @@
          });
      });
     function showSignupForm() {
+        Registrator.init({
+            dialog_config: {
+                width: 500
+            }
+        });
         Registrator.openRegistrationDialog(function() {
                 window.location.href = "{% url ordering.passenger_controller.passenger_home %}";
             }
