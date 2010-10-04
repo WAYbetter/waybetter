@@ -8,6 +8,7 @@ urlpatterns = patterns('',
     (r'^book_order/$', 'ordering.order_manager.book_order'),
     (r'^orders/history/$', 'ordering.passenger_controller.get_passenger_orders'),
     (r'^passenger/profile/$', 'ordering.passenger_controller.profile_page'),
+    (r'^station/profile/$', 'ordering.station_controller.station_profile'),
 
     (r'^passenger/logout/$', 'django.contrib.auth.views.logout'),
     (r'^workstation/logout/$', 'django.contrib.auth.views.logout'),

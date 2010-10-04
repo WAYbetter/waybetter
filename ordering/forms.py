@@ -5,7 +5,7 @@ from django import forms
 from django.utils.translation import gettext as _
 
 from ordering.models import Order
-from common.models import Country
+from common.models import Country, City
 
 
 HIDDEN_FIELDS = ("from_country", "from_city", "from_street_address", "from_geohash", "from_lon", "from_lat",
@@ -46,21 +46,52 @@ class OrderForm(ModelForm):
 
         return model
 
+class StationProfileForm(forms.Form):
+    station = None
+
+    def __init__(self, data=None, station=None):
+        super(forms.Form, self).__init__(data)
+        self.station = station
+
+
+    name = forms.CharField(label=_("Station name"))
+    password = forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
+    password2 = forms.CharField(label=_("Re-enter password"), widget=forms.PasswordInput(), required=False)
+    country = forms.IntegerField(widget=forms.Select(choices=Country.country_choices()), label=_("Country"))
+#    city = forms.IntegerField(widget=forms.Select(choices=City.), label=_("City"))
+    address = forms.CharField(label=_("Address"))
+    no_of_taxis = forms.RegexField( regex=r'^\d+$',
+                                    max_length=4,
+                                    widget=forms.TextInput(),
+                                    label=_("No of taxis"),
+                                    error_messages={'invalid': _("The value must contain only numbers.")})
+
+    website_url = forms.CharField(label=_("Website URL"))
+#    language = form.
+    email = forms.EmailField(label=_("Email"))
+    class Ajax:
+        rules = [
+            ('password2', {'equal_to_field': 'password'}),
+
+        ]
+        messages = [
+            ('password2', {'equal_to_field': _("The two password fields didn't match.")}),
+        ]
 
 class PassengerProfileForm(forms.Form):
     email = forms.EmailField(label=_("Email"))
 
-    password = forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
+    password =  forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
 
     password2 = forms.CharField(label=_("Re-enter password"), widget=forms.PasswordInput(), required=False)
 
-    country = forms.IntegerField(widget=forms.Select(choices=Country.country_choices()), label=_("Country"))
+    country =   forms.IntegerField(widget=forms.Select(choices=Country.country_choices()), label=_("Country"))
 
-    phone = forms.RegexField(regex=r'^\d+$',
-                                   max_length=20,
-                                   widget=forms.TextInput(),
-                                   label=_("Local mobile phone #"),
-                                   error_messages={'invalid': _("The value must contain only numbers.")})
+    phone =     forms.RegexField( regex=r'^\d+$',
+                                  max_length=20,
+                                  widget=forms.TextInput(),
+                                  label=_("Local mobile phone #"),
+                                  error_messages={'invalid': _("The value must contain only numbers.")} )
 
     phone_verification_code = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     

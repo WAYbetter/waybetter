@@ -1,0 +1,50 @@
+{% load i18n %}
+
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.ajax_forms.js"></script>
+<script type="text/javascript" src="{{ MEDIA_URL }}js/jquery.ajax_forms.validation.js"></script>
+{% load ajax_form_utils %}
+<form action="{% url ordering.passenger_controller.edit_profile %}" method="post" id="profile_form">
+    {% csrf_token %}
+    {{ form.as_p }}
+    {{ phone_formset }}
+ <input type="submit" value="{% trans 'Save Changes' %}"/>
+</form>
+
+
+<script>
+$(function() {
+    $("#profile_form input[type=submit]").button();
+    $('#profile_form').validation({% render_ajax_fields form %});
+    $('#profile_form').submit(function(e) {
+        e.preventDefault();
+        if ($("#profile_form input[type=submit]").attr("disabled")) {
+            return false;
+        }
+
+        if (! $(this)[0].validate()) {
+            return false;
+        }
+
+        $("#profile_form input[type=submit]").button("disable");
+
+        $(this).ajaxSubmit({
+            dataType: "json",
+            complete: function() {
+                $("#profile_form input[type=submit]").button("enable");
+            },
+            success: function(order_status) {
+                alert('Changes saved!');
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                if (XMLHttpRequest.status == 403) { // let's show the code dialog
+                    Registrator.openCodeDialog(function() {
+                        alert('Changes saved!');
+                    });
+                }
+            }
+        });
+        return false;
+    });
+});
+
+</script>

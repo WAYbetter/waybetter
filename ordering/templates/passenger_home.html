@@ -3,6 +3,7 @@
 {% block page_specific_head %}
 <script type="text/javascript" src="/static/js/jquery.form.js"></script>
 <script type="text/javascript" src="/static/js/ordering.js"></script>
+<script src="http://api.navigator.telmap.com/maps/api/js?sensor=false" type="text/javascript"></script>    
 {% endblock %}
 
 {% block content %}
@@ -14,7 +15,9 @@
                     resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
                     estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}",
                     not_a_passenger_response:   "{{ not_a_passenger }}",
-                    not_a_user_response:        "{{ not_a_user }}"
+                    not_a_user_response:        "{{ not_a_user }}",
+                    telmap_user:                "{{ telmap_user }}",
+                    telmap_password:            "{{ telmap_password}}",
                 });
                 $("#tabs").tabs({
                    
@@ -57,23 +60,25 @@
                 <input id="order_button" type="submit" value="{% trans "Book" %}">
             </form>
         </div>
-        <script type="text/javascript">
-		<!--
-		    g_waze_config = {
-				div_id:"map",
-				locale : "israel",
-				center_lon:34.7898,
-				center_lat:32.08676,
-				zoom:8,
-                token:"{{ waze_token }}",
-				alt_base_layer:"israel_colors",
-				alt_map_servers:"http://ymap1.waze.co.il/wms-c/",
-                //callback:onInit//,
-				//framed_cloud_image_url:"http://www.waze.co.il/test_api/cloud.png"
-			};
-		-->
+        <script type="text/javascript" defer>
+        function init() {
+            var prefs = {
+              mapTypeId:telmap.maps.MapTypeId.ROADMAP,
+              zoom:15,
+              center:new telmap.maps.LatLng(32.08676,34.7898),
+              login:{contextUrl:'api.navigator.telmap.com/telmapnav', userName:'{{ telmap_user }}', password:'{{ telmap_password }}', appName:'Sample', callback:on_login}
+            };
+            var map = new telmap.maps.Map(document.getElementById("map"), prefs);
+            window.onresize = function(){ telmap.maps.event.trigger(map, "resize"); };
+        }
+        
+        function on_login(response, status) {
+            if (status != telmap.maps.LoginStatus.OK) {
+                alert('Login failed: ' + status);
+            }
+        }
+        init();
 		</script>
-        <script type="text/javascript" src="http://www.waze.co.il/js/WazeEmbeddedMapNoJQuery.js"></script>
 
         {% if request.user.passenger %}
             <div id="tabs">
