@@ -56,7 +56,7 @@ function drawPager(data) {
         else {
             html += "<input type='button' value='&lt;' style='color: lightgray'> ";
         }
-        html += "{% trans 'Page' %} " + data["number"];
+        html += "{% trans 'Page' %} " + data["number"] + " {% trans 'of' %} " + data["num_pages"] + " ";
         if (data["has_next"]) {
             html += "<input type='button' value='&gt;' onclick='loadHistory({page:" + data["next_page_number"] + "})'> ";
         }

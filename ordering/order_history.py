@@ -56,6 +56,7 @@ def get_orders_history(passenger, page=1, keywords=None, sort_by=None, sort_dir=
     # Dump the Page attributes we want to a dictionary
     serializedpage = {}
     serializedpage["page_size"] = len(orders_page.object_list)
+    serializedpage["num_pages"] = paginator.num_pages
     wanted = ("end_index", "has_next", "has_other_pages", "has_previous",
             "next_page_number", "number", "start_index", "previous_page_number")
     for attr in wanted:
@@ -64,6 +65,7 @@ def get_orders_history(passenger, page=1, keywords=None, sort_by=None, sort_dir=
             serializedpage[attr] = v()
         elif isinstance(v, (str, int)):
             serializedpage[attr] = v
+
 
     if keywords and len(query) <= PAGE_SIZE:
         serializedpage["has_other_pages"] = False
