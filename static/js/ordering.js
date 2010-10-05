@@ -366,8 +366,9 @@ var HistorySelector = defineClass({
         fetchAddress:       function($td) {
             var that = this;
 
-            var order_id = $($td.parent().children()[0]).text();
-            var address_type = $td.attr("aria-describedby").split("_").pop().toLowerCase();
+            var order_id = $td.parent().attr("order_id");
+//            var address_type = $td.attr("aria-describedby").split("_").pop().toLowerCase();
+            var address_type = $td.attr("field_type").toLowerCase();
             $.getJSON(SelectFromHistoryHelper.config.fetch_address_url, {order_id: order_id, address_type: address_type}, function(response) {
                 var address = Address.fromServerResponse(response, that.$input[0].id.split("_")[1]);
                 OrderingHelper.updateAddressChoice(address);
@@ -386,7 +387,7 @@ var HistorySelector = defineClass({
             });
 
             this.$input.addClass("select-address");
-            $("#tabs table td[aria-describedby=orders_history_grid_From], #tabs table td[aria-describedby=orders_history_grid_To]")
+            $("#tabs table td.order_history_column_From, #tabs table td.order_history_column_To")
                     .addClass("select-address")
                     .click(function () {
                         that.fetchAddress($(this));

@@ -1,14 +1,14 @@
 import common.urllib_adaptor as urllib2
 from django.utils import simplejson
 from django.conf import settings
-
+from datetime import datetime
 
 
 def calculate_time_and_distance(from_x, from_y, to_x, to_y):
     return waze_calculate_time_and_distance(from_x, from_y, to_x, to_y)
 
 
-def waze_calculate_time_and_distance(from_x, from_y, to_x, to_y):
+def waze_calculate_time_and_distance(from_x, from_y, to_x, to_y, return_cities=False, return_streets=False):
     """
     Uses the Waze API (http://www.waze.co.il/RoutingManager/routingRequest)
     to calculate the time &amp; distance between the 2 given locations.
@@ -26,4 +26,9 @@ def waze_calculate_time_and_distance(from_x, from_y, to_x, to_y):
     for segment in result["response"]["results"]:
         t = t + segment["crossTime"]
         d = d + segment["length"]
-    return (t, d)
+    result = {
+        "estimated_distance":       d,
+        "estimated_duration":   t
+    }
+
+    return result
