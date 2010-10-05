@@ -75,12 +75,34 @@ indexes:
 - kind: ordering_order
   properties:
   - name: passenger_id
+  - name: from_raw
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
   - name: idxf_from_raw_l_icontains
 
 - kind: ordering_order
   properties:
   - name: passenger_id
   - name: idxf_to_raw_l_icontains
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: station_id
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: station_name
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: station_name
+    direction: desc
 
 - kind: ordering_order
   properties:

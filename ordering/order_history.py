@@ -75,11 +75,6 @@ def get_orders_history(passenger, page=1, keywords=None, sort_by=None, sort_dir=
     
     orders = []
     for order in orders_page.object_list:
-        if order.get_station():
-            order.station_name = order.get_station().name
-        else:
-            order.station_name = ""
-
         record = {}
         for i, col in enumerate(ORDER_HISTORY_COLUMNS):
             record[col] = getattr(order, ORDER_HISTORY_FIELDS[i])

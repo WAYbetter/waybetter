@@ -144,6 +144,17 @@ class Order(models.Model):
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
     
+    station_name = models.CharField(_("station name"), max_length=50)
+
+    def save(self, *args, **kwargs):
+        if self.station:
+            self.station_name = self.station.name
+        else:
+            self.station_name = ""
+
+        super(Order, self).save(*args, **kwargs)
+
+
     def __unicode__(self):
         return u"%s from %s to %s" % (_("order"), self.from_raw, self.to_raw)
 

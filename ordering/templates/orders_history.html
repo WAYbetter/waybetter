@@ -75,7 +75,7 @@ function drawTable(orders, page_size) {
   }
   html += "<tr " + baseBgColor + ">";
 
-  $.each(ORDER_HISTORY_COLUMNS, function(i, val) {
+  $.each(ORDER_HISTORY_FIELDS, function(i, val) {
       html += "<th><a href='javascript:loadHistory({sort_by:\"" + val + "\"})'>" + ORDER_HISTORY_COLUMN_NAMES[i] + "</a></th>";
   });
   html += "</tr>";
