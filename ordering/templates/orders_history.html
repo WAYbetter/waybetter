@@ -16,7 +16,12 @@ $(document).ready(function () {
 });
 
 function loadHistory(params) {
-    $("#orders_history_grid").html("<img src='/static/img/indicator.gif'/>");
+//    $("#orders_history_grid table").addClass('history_result_loading');
+    $("#orders_history_grid table").animate({
+        color: "#949494"
+    }, 200);
+    $("#orders_history_pager").append("<img src='/static/img/indicator_small.gif'/>");
+//    $("#orders_history_grid").html("<img src='/static/img/indicator.gif'/>");
     if (params["sort_by"] &&
         current_params["sort_by"] &&
         params["sort_by"] == current_params["sort_by"]) {
@@ -84,14 +89,17 @@ function drawTable(orders, page_size) {
       var bgColor = baseBgColor;
       if (i % 2 == 0) bgColor = "";
 
-      html += "<tr " + bgColor + "' order_id='" + order["Id"] + "'>";
+      html += "<tr " + bgColor + " order_id='" + order["Id"] + "'>";
       $.each(ORDER_HISTORY_COLUMNS, function(name_index, val) {
           html += "<td field_type='" + val + "' class='order_history_column_" + val + "'>" + order[ORDER_HISTORY_COLUMNS[name_index]] + "</td>";
       });
       html += "</tr>";
   });
   html += "</table>";
-  $("#orders_history_grid").html(html);
+    $("#orders_history_grid").html(html);
+    $("#orders_history_grid table").animate({
+        color: "black"
+    }, 400);
 }
 
 function toggle_sort_dir(params) {

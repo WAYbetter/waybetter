@@ -4,8 +4,7 @@ from types import MethodType
 import logging
 from datetime import datetime
 from django.utils.translation import ugettext
-
-PAGE_SIZE = 5
+PAGE_SIZE = 10
 
 ORDER_HISTORY_COLUMNS = ["Date", "From", "To", "Station"]
 ORDER_HISTORY_COLUMN_NAMES = [ugettext(s) for s in ORDER_HISTORY_COLUMNS]
@@ -13,6 +12,7 @@ ORDER_HISTORY_FIELDS = ["create_date", "from_raw", "to_raw", "station_name"]
 
 
 def get_orders_history(passenger, page=1, keywords=None, sort_by=None, sort_dir=None):
+
     query = Order.objects.filter(passenger=passenger)
     # Unfortunately, we need to separate the logic of retrieving orders with or without textual search,
     # because in AppEngine: "Properties In Inequality Filters Must Be Sorted Before Other Sort Orders"
