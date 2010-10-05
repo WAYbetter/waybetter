@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root:tmApiRoot xmlns:root="http://www.telmap.com/xmlapi/v7/apiroot"
+xmlns="http://www.telmap.com/xmlapi/v7/general"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+	<root:header>
+		<root:bodyVersion>0</root:bodyVersion>
+		<root:apiFamily>GENERAL</root:apiFamily>
+	</root:header>
+	<root:body xsi:type="tmLoginRequest">
+		<appName>My app name</appName>
+		<userName>{{ username }}</userName>
+		<password>{{ password }}</password>
+		<languages>
+			<primary>{{ language_code }}</primary>
+			<secondary>{{ sec_language_code }}</secondary>
+		</languages>
+	</root:body>
+</root:tmApiRoot>

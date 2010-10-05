@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root:tmApiRoot xmlns:root="http://www.telmap.com/xmlapi/v7/apiroot"
+xmlns="http://www.telmap.com/xmlapi/v7/general"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+	<root:header>
+		<root:bodyVersion>0</root:bodyVersion>
+		<root:apiFamily>GENERAL</root:apiFamily>
+	</root:header>
+	<root:body xsi:type="tmSearchAddressRequest">
+		<sessionId>{{ session_id }}</sessionId>
+		<countryCode>
+			<code>{{ country_code }}</code>
+		</countryCode>
+		<city></city>
+		<street></street>
+		<houseNumber/>
+		<jctStreet/>
+		<postcode/>
+		<singleLineAddress>{{ query }}</singleLineAddress>
+		<numResults>{{ max_results }}</numResults>
+		<offset>0</offset>
+	</root:body>
+</root:tmApiRoot>
