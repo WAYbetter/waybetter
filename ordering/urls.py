@@ -6,7 +6,7 @@ urlpatterns = patterns('',
     (r'^workstation/$', 'ordering.station_controller.workstation_home'),
     (r'^orders/(?P<order_id>\d+)$', 'ordering.order_manager.order_status'),
     (r'^book_order/$', 'ordering.order_manager.book_order'),
-    (r'^orders/history/$', 'ordering.passenger_controller.get_passenger_orders'),
+    (r'^orders/history/$', 'ordering.passenger_controller.get_passenger_orders_history'),
 
     (r'^passenger/logout/$', 'django.contrib.auth.views.logout'),
     (r'^workstation/logout/$', 'django.contrib.auth.views.logout'),
@@ -26,7 +26,7 @@ urlpatterns = patterns('',
     (r'^services/register_passenger/$', 'ordering.passenger_controller.register_passenger'),
     (r'^services/login_passenger/$', 'ordering.passenger_controller.login_passenger'),
     (r'^services/get_order_status/(?P<order_id>\d+)$', 'ordering.order_manager.get_order_status'),
-    (r'^services/get_orders/$', 'ordering.passenger_controller.get_orders_data'),
+    (r'^services/get_orders/$', 'ordering.passenger_controller.get_passenger_orders_history_data'),
     (r'^setup/init_pricing_rules/$', 'ordering.passenger_controller.init_pricing_rules'),
 
 )

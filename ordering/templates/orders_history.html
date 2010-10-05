@@ -2,53 +2,122 @@
 
 
 <script>
-$.getJSON("{% url ordering.passenger_controller.get_orders_data %}", function(data, textStatus) {
-    init_grid(data);
+var order_history_url = "{% url ordering.passenger_controller.get_passenger_orders_history_data %}";
+
+var current_params = {};
+{% autoescape off %}
+var ORDER_HISTORY_COLUMNS = {{ order_history_columns }};
+var ORDER_HISTORY_COLUMN_NAMES = {{ order_history_column_names }};
+var ORDER_HISTORY_FIELDS = {{ order_history_fields }};
+{% endautoescape %}
+
+$(document).ready(function () {
+    loadHistory({});
 });
 
-
-
-function init_grid(data) {
-    $("#orders_history_grid").jqGrid({
-        data:               data,
-        beforeSelectRow:    function () { return false }, // disable row selection
-        loadComplete:   function (pgButton) {
+function loadHistory(params) {
+    $("#orders_history_grid").html("<img src='/static/img/indicator.gif'/>");
+    if (params["sort_by"] &&
+        current_params["sort_by"] &&
+        params["sort_by"] == current_params["sort_by"]) {
+        toggle_sort_dir(current_params);
+    }
+    current_params = merge_dict(current_params, params);
+    $.ajax({
+        url: order_history_url,
+        type: "get",
+        data: current_params,
+        dataType: 'json',
+        success: function(json) {
+            drawPager(json);
+            drawTable(json["object_list"], json["page_size"]);
             SelectFromHistoryHelper.updateGrid();
         },
-        datatype:           'local',
-        height:             'auto',
-        rowNum:             15,
-        autowidth:          true,
-        hoverrows:          false,
-        scroll:             false,
-//        shrinkToFit:        false,
-//        forceFit:           true,
-        rowList:            [10,15,20],
-        colNames:           [
-            '{% trans 'Order' %}',
-            '{% trans 'Date' %}',
-            '{% trans 'From' %}',
-            '{% trans 'To' %}',
-            '{% trans 'Station' %}'
-        ],
-        colModel:           [
-            { name:'Order', index:'amount', width:60, sorttype:"int", hidden: true },
-            { name:'Date', index:'invdate', width:96, sorttype:"date" },
-            { name:'From', index:'text', width:200, sorttype:"text" },
-            { name:'To', index:'text', width:200, sorttype:"text" },
-            { name:'Station', index:'text', width:80, align:"right", sorttype:"text" }
-        ],
-        pager:              "#porders_history_grid",
-        viewrecords:        true,
-        sortname:           'Date',
-        sortorder:          'desc',
+        error: function(xhr, textStatus, errorThrown) {
+            alert('error: ' + xhr.responseText);
+        }
     });
+
+}
+
+function doSearch() {
+    var keywords = $("#keywords").val();
+    loadHistory({keywords:keywords});
+}
+
+function drawPager(data) {
+    //Use: data["number"], data["has_other_pages"], data["start_index"], data["end_index"], data["has_next"], data["next_page_number"], ...
+    var html = "";
+    if (data["has_other_pages"]) {
+        html += "";
+        if (data["has_previous"]) {
+            html += "<input type='button' value='&lt;' onclick='loadHistory({page:" + data["previous_page_number"] + "})'> ";
+        }
+        else {
+            html += "<input type='button' value='&lt;' style='color: lightgray'> ";
+        }
+        html += "{% trans 'Page' %} " + data["number"];
+        if (data["has_next"]) {
+            html += "<input type='button' value='&gt;' onclick='loadHistory({page:" + data["next_page_number"] + "})'> ";
+        }
+        else {
+            html += "<input type='button' value='&gt;' style='color: lightgray'> ";
+        }
+    }
+    $("#orders_history_pager").html(html);
+}
+
+function drawTable(orders, page_size) {
+  var baseBgColor = "style='background-color: lightGray'";
+  var html = "<table>";
+  if ("keywords" in current_params && current_params["keywords"] != "") {
+      html += "<caption>Results matching " + current_params["keywords"] + "</caption>";
+  }
+  html += "<tr " + baseBgColor + ">";
+  for (var i in ORDER_HISTORY_COLUMN_NAMES) {
+      html += "<th><a href='javascript:loadHistory({sort_by:\"" + ORDER_HISTORY_FIELDS[i] + "\"})'>" + ORDER_HISTORY_COLUMN_NAMES[i] + "</a></th>";
+  }
+  html += "</tr>";
+
+  for (var i in orders) {
+      var bgColor = baseBgColor;
+      if (i % 2 == 0) bgColor = "";
+
+      html += "<tr " + bgColor + "' order_id='" + orders[i]["Id"] + "'>";
+      for (var name in ORDER_HISTORY_COLUMNS) {
+          html += "<td field_type='" + ORDER_HISTORY_COLUMNS[name] + "' class='order_history_column_" + ORDER_HISTORY_COLUMNS[name] + "'>" + orders[i][ORDER_HISTORY_COLUMNS[name]] + "</td>";
+      }
+      html += "</tr>";
+  }
+  html += "</table>";
+  $("#orders_history_grid").html(html);
+}
+
+function toggle_sort_dir(params) {
+    if (params["sort_dir"]) {
+        if (params["sort_dir"] == "")
+            params["sort_dir"] = "-";
+        else
+            params["sort_dir"] = "";
+    }
+    else {
+        params["sort_dir"] = "-";
+    }
 }
 
 
+function merge_dict(base, supp) {
+    for (var key in supp) {
+        base[key] = supp[key];
+    }
+    return base;
+}
+
 </script>
 
-
-<table id="orders_history_grid"></table>
-<div id="porders_history_grid"></div>
+<div>
+	<input type="text" id="keywords" /><input type="button" value="{% trans 'Search' %}" onclick="doSearch()"/>
+</div>
+<div id="orders_history_grid"></div>
+<div id="orders_history_pager"></div>
 
