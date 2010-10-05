@@ -10,13 +10,19 @@
     $(document).ready(function() {
          Registrator.init({
              urls            : {
-                 login_form_template : '{% url common.registration.get_login_form %}',
-                 reg_form_template   : '{% url common.registration.get_registration_form %}',
-                 phone_form_template : '{% url common.registration.get_phone_form %}'
+                 login_form_template        : '{% url common.registration.get_login_form %}',
+                 reg_form_template          : '{% url common.registration.get_registration_form %}',
+                 phone_form_template        : '{% url common.registration.get_phone_form %}',
+                 phone_code_form_template   : '{% url common.registration.get_phone_code_form %}' 
              }
          });
      });
     function showSignupForm() {
+        Registrator.init({
+            dialog_config: {
+                width: 500
+            }
+        });
         Registrator.openRegistrationDialog(function() {
                 window.location.href = "{% url ordering.passenger_controller.passenger_home %}";
             }

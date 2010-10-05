@@ -88,13 +88,16 @@ var OrderingHelper = Object.create({
         resolve_address_url:        "", // '{% url cordering.passenger_controller.resolve_address %}'
         estimation_service_url:     "", // '{% url ordering.passenger_controller.estimate_ride_cost %}'
         not_a_passenger_response:   "",
-        not_a_user_response:        ""
+        not_a_user_response:        "",
+        telmap_user:                "",
+        telmap_password:            ""
 
     },
     ADDRESS_FIELD_ID_BY_TYPE:       {
         from:   "id_from_raw",
         to:     "id_to_raw"
     },
+    map:                            {},
     map_markers:                    {},
     map_markers_popups:             {},
     init:                       function(config) {
@@ -163,6 +166,8 @@ var OrderingHelper = Object.create({
                 return false;
             }
 
+            $("#order_button").button("disable");
+
             $(this).ajaxSubmit({
                 dataType: "json",
                 success: function(order_status) {
@@ -189,10 +194,27 @@ var OrderingHelper = Object.create({
             return false;
         }); // submit
 
+        this.initMap();
+
         //TODO_WB:add a check for map, timeout and check again.
         setTimeout(that.initPoints, 100);
 
         return this;
+    }, // init
+    initMap:                  function () {
+        var prefs = {
+            mapTypeId:telmap.maps.MapTypeId.ROADMAP,
+            zoom:15,
+            center:new telmap.maps.LatLng(32.08676,34.7898),
+            login:{
+                contextUrl: 'api.navigator.telmap.com/telmapnav',
+                userName:   this.config.telmap_user,
+                password:   this.config.telmap_password,
+                appName:    'Sample'
+            }
+        };
+        this.map = new telmap.maps.Map(document.getElementById("map"), prefs);
+        window.onresize = function(){ telmap.maps.event.trigger(this.map, "resize"); };
     },
     initPoints:                 function () {
         for (var address_type in this.ADDRESS_FIELD_ID_BY_TYPE) {
@@ -204,45 +226,53 @@ var OrderingHelper = Object.create({
         }
     },
     addPoint:                   function (address) {
-        var location_name = address.address_type + ": " +
+        var location_name = address.address_type + ": <br/>" +
                 $('#id_' + address.address_type + '_raw').val();
 
         var icon_image = "/static/img/" + address.address_type + "_map_marker.png";
 
         //TODO_WB:fix center behavior to show both points
         var center = true;
-        var point = new MapMarker(address.lon, address.lat, location_name, icon_image, center);
+
+        var point = new telmap.maps.Marker({
+            map:        this.map,
+            position:   new telmap.maps.LatLng(address.lat, address.lon),
+            draggable:  false,
+            icon:       icon_image,
+            title:      'Marker'
+        });
+        point.location_name = location_name; // monkey patch point
+        if (this.map_markers[address.address_type]) {
+            this.map_markers[address.address_type].setMap(); // remove old marker from map
+        }
         this.map_markers[address.address_type] = point;
         this.renderMapMarkers();
     },
     renderMapMarkers:           function () {
-        var map = g_waze_map.map;
-        var markers = map.getLayersByName("Markers")[0];
-        if (!markers) {
-            markers = new OpenLayers.Layer.Markers("Markers");
-            map.addLayer(markers);
-        }
-        markers.clearMarkers();
-        var bounds = new OpenLayers.Bounds();
+        var map = this.map;
+
+        var bounds = new telmap.maps.LatLngBounds();
         for (var location_name in this.map_markers) {
             var point = this.map_markers[location_name];
-            var lonlat = new OpenLayers.LonLat(point.lon, point.lat);
+            var lonlat = point.getPosition();
             bounds.extend(lonlat);
 
-            var size = new OpenLayers.Size(15, 34);
-            var offset = new OpenLayers.Pixel(-(size.w / 2), -size.h);
-            var icon = new OpenLayers.Icon(point.icon_image, size, offset);
-            markers.addMarker(new OpenLayers.Marker(lonlat, icon));
+            var info = new telmap.maps.InfoWindow({
+                content: "<div style='font-family:Arial,sans-serif;font-size:0.8em;'>" + point.location_name + "<div>",
+            });
+
+            info.open(map, point);
             if (this.map_markers_popups[location_name]) {
-                map.removePopup(this.map_markers_popups[location_name]);
+                this.map_markers_popups[location_name].close();
             }
-            this.map_markers_popups[location_name] =
-                    new OpenLayers.Popup.FramedCloud("test", lonlat, null,
-                    "<div style='font-family:Arial,sans-serif;font-size:0.8em;'>" + point.location_name + "<div>",
-                    anchor = null, true, null);
-            map.addPopup(this.map_markers_popups[location_name]);
+            this.map_markers_popups[location_name] = info;
         }
-        map.zoomToExtent(bounds);
+        if (this.map_markers.to && this.map_markers.from) {
+            map.fitBounds(bounds);
+            map.panToBounds(bounds);
+        } else {
+            map.panTo(bounds.getCenter());
+        }
     },
     updateAddressChoice:        function(address) {
         address.populateFields();
@@ -290,6 +320,7 @@ var OrderingHelper = Object.create({
         $("#order_button").button("enable");
     },
     bookOrder:              function () {
+        $("#order_button").button("enable"); // otherwise the form would not submit
         $("#order_form").submit();
     }
 });

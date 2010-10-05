@@ -1,7 +1,9 @@
 from django.contrib import admin
+from django.utils.translation import gettext as _
 from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, PricingRule
 import station_connection_manager
 from common.models import Country
+from google.appengine.api.images import BadImageError
 
 class PassengerAdmin(admin.ModelAdmin):
     list_display = ["id", "user_name"]
@@ -32,15 +34,20 @@ class StationAdmin(admin.ModelAdmin):
     inlines = [PhoneAdmin]
 
     def logo_img(self, obj):
+        res = _("No Logo")
         if obj.logo:
             import base64
             from google.appengine.api import images
             img = images.Image(obj.logo)
             img.resize(height=50)
-            thumbnail = img.execute_transforms(output_encoding=images.PNG)
-            return u"""<img src='data:image/png;base64,%s' />""" % base64.encodestring(thumbnail)
-        else:
-            return "No Logo"
+            try:
+                thumbnail = img.execute_transforms(output_encoding=images.PNG)
+                res = u"""<img src='data:image/png;base64,%s' />""" % base64.encodestring(thumbnail)
+            except BadImageError:
+                pass
+
+
+        return res
 
     logo_img.allow_tags = True
 

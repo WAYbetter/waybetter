@@ -9,5 +9,6 @@ urlpatterns = patterns('',
     (r'registration/get_login_form/$', 'common.registration.get_login_form'),
     (r'registration/get_registration_form/$', 'common.registration.get_registration_form'),
     (r'registration/get_phone_verification_form/$', 'common.registration.get_phone_form'), 
+    (r'registration/get_phone_code_form/$', 'common.registration.get_phone_code_form'), 
 )
 

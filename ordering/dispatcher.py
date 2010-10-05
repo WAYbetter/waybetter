@@ -29,6 +29,8 @@ def choose_workstation(order):
         work_stations = WorkStation.objects.all()
     else:
         work_stations = WorkStation.objects.exclude(id__in=rejected_work_stations_ids)
+
+    work_stations = work_stations.exclude(accept_orders=False)
         
     for ws in work_stations:
         if is_workstation_available(ws):

@@ -1,13 +1,15 @@
 var Registrator = Object.create({
     default_config           : {
         urls            : {
-            login_form_template : '/',
-            reg_form_template   : '/',
-            phone_form_template : '/',
-            check_username      : '/',
-            login               : '/',
-            send_sms            : '/',
-            register            : '/'
+            login_form_template         : '/',
+            reg_form_template           : '/',
+            phone_form_template         : '/',
+            phone_code_form_template    : '/',
+            check_username              : '/',
+            login                       : '/',
+            send_sms                    : '/',
+            update_profile              : '/',
+            register                    : '/'
         },
         dialog_config   : {
             autoOpen: false,
@@ -102,14 +104,14 @@ var Registrator = Object.create({
             });
         }
     },
-    doRegister              : function (form, extra_form_data) {
+    _doDialogSubmit          : function (form, extra_form_data, url) {
         var that = this,
-            extra_data = extra_form_data ? '&' + extra_form_data : '';
+            data = extra_form_data ? extra_form_data + '&' + $(form).serialize() : $(form).serialize();
         if ( this.validator.form() ) {
             $.ajax({
-                url :that.config.urls.register,
+                url :url,
                 type : 'post',
-                data : $(form).serialize() + extra_data,
+                data : data,
                 success : function (response) {
                     $('#dialog').dialog('close');
                     if ( that.config.callback ) {
@@ -121,6 +123,12 @@ var Registrator = Object.create({
                 }
             });
         }
+    },
+    doProfileUpdate         : function(form, extra_form_data) {
+        this._doDialogSubmit(form, extra_form_data, this.config.urls.update_profile);
+    },
+    doRegister              : function (form, extra_form_data) {
+        this._doDialogSubmit(form, extra_form_data, this.config.urls.register);
     },
     openLoginDialog         : function (callback) {
         var that = this;
@@ -143,6 +151,25 @@ var Registrator = Object.create({
                 .bind('click', function (e) {
                     that.openRegistrationDialog.call(that);
                     return false;
+            });
+            that.openDialog.call(that, validation_config);
+        });
+    },
+    openCodeDialog           : function (callback) {
+        var that = this;
+        that.setCallback(callback);
+        this.getTemplate.call(this, 'phone_code', function(dialog_content) {
+            var extra_form_data = $('#profile_form').serialize(),
+            validation_config = {
+                rules: {
+                    verification_code: "required"
+                }
+            },
+            $finish_button = $('form input#register', dialog_content).button();
+            $('form', dialog_content).submit(function(e) {
+                console.log(this);
+                e.preventDefault();
+                that.doProfileUpdate($('form', dialog_content), extra_form_data);
             });
             that.openDialog.call(that, validation_config);
         });

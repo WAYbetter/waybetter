@@ -12,6 +12,7 @@ def get_assignment_key(work_station):
 
 
 def is_workstation_available(work_station):
+   
     heartbeat = memcache.get(get_heartbeat_key(work_station))
     if not heartbeat:
         return False
