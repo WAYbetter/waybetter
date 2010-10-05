@@ -60,7 +60,17 @@ indexes:
   properties:
   - name: passenger_id
   - name: create_date
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: create_date
     direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: from_raw
 
 - kind: ordering_order
   properties:
@@ -71,6 +81,17 @@ indexes:
   properties:
   - name: passenger_id
   - name: idxf_to_raw_l_icontains
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: to_raw
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: to_raw
+    direction: desc
 
 - kind: ordering_order
   properties:
