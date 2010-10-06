@@ -60,25 +60,6 @@
                 <input id="order_button" type="submit" value="{% trans "Book" %}">
             </form>
         </div>
-        <script type="text/javascript" defer>
-        function init() {
-            var prefs = {
-              mapTypeId:telmap.maps.MapTypeId.ROADMAP,
-              zoom:15,
-              center:new telmap.maps.LatLng(32.08676,34.7898),
-              login:{contextUrl:'api.navigator.telmap.com/telmapnav', userName:'{{ telmap_user }}', password:'{{ telmap_password }}', appName:'Sample', callback:on_login}
-            };
-            var map = new telmap.maps.Map(document.getElementById("map"), prefs);
-            window.onresize = function(){ telmap.maps.event.trigger(map, "resize"); };
-        }
-        
-        function on_login(response, status) {
-            if (status != telmap.maps.LoginStatus.OK) {
-                alert('Login failed: ' + status);
-            }
-        }
-        init();
-		</script>
 
         {% if request.user.passenger %}
             <div id="tabs">
