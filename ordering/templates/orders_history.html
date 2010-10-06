@@ -1,132 +1,27 @@
 {% load i18n %}
 
-
-<script>
-var order_history_url = "{% url ordering.passenger_controller.get_passenger_orders_history_data %}";
-
-var current_params = {};
-{% autoescape off %}
-var ORDER_HISTORY_COLUMNS = {{ order_history_columns }};
-var ORDER_HISTORY_COLUMN_NAMES = {{ order_history_column_names }};
-var ORDER_HISTORY_FIELDS = {{ order_history_fields }};
-{% endautoescape %}
-
-$(document).ready(function () {
-    loadHistory({});
-});
-
-function loadHistory(params) {
-//    $("#orders_history_grid table").addClass('history_result_loading');
-    $("#orders_history_grid table").animate({
-        color: "#949494"
-    }, 200);
-    $("#orders_history_pager").append("<img src='/static/img/indicator_small.gif'/>");
-//    $("#orders_history_grid").html("<img src='/static/img/indicator.gif'/>");
-    if (params["sort_by"] &&
-        current_params["sort_by"] &&
-        params["sort_by"] == current_params["sort_by"]) {
-        toggle_sort_dir(current_params);
-    }
-    current_params = merge_dict(current_params, params);
-    $.ajax({
-        url: order_history_url,
-        type: "get",
-        data: current_params,
-        dataType: 'json',
-        success: function(json) {
-            drawPager(json);
-            drawTable(json["object_list"], json["page_size"]);
-            SelectFromHistoryHelper.updateGrid();
-        },
-        error: function(xhr, textStatus, errorThrown) {
-            alert('error: ' + xhr.responseText);
-        }
-    });
-
-}
-
-function doSearch() {
-    var keywords = $("#keywords").val();
-    loadHistory({keywords:keywords});
-}
-
-function drawPager(data) {
-    //Use: data["number"], data["has_other_pages"], data["start_index"], data["end_index"], data["has_next"], data["next_page_number"], ...
-    var html = "";
-    if (data["has_other_pages"]) {
-        html += "";
-        if (data["has_previous"]) {
-            html += "<input type='button' value='&lt;' onclick='loadHistory({page:" + data["previous_page_number"] + "})'> ";
-        }
-        else {
-            html += "<input type='button' value='&lt;' style='color: lightgray'> ";
-        }
-        html += "{% trans 'Page' %} " + data["number"] + " {% trans 'of' %} " + data["num_pages"] + " ";
-        if (data["has_next"]) {
-            html += "<input type='button' value='&gt;' onclick='loadHistory({page:" + data["next_page_number"] + "})'> ";
-        }
-        else {
-            html += "<input type='button' value='&gt;' style='color: lightgray'> ";
-        }
-    }
-    $("#orders_history_pager").html(html);
-}
-
-function drawTable(orders, page_size) {
-  var baseBgColor = "style='background-color: lightGray'";
-  var html = "<table>";
-  if ("keywords" in current_params && current_params["keywords"] != "") {
-      html += "<caption>Results matching " + current_params["keywords"] + "</caption>";
-  }
-  html += "<tr " + baseBgColor + ">";
-
-  $.each(ORDER_HISTORY_FIELDS, function(i, val) {
-      html += "<th><a href='javascript:loadHistory({sort_by:\"" + val + "\"})'>" + ORDER_HISTORY_COLUMN_NAMES[i] + "</a></th>";
-  });
-  html += "</tr>";
-
-  $.each(orders, function(i, order) {
-      var bgColor = baseBgColor;
-      if (i % 2 == 0) bgColor = "";
-
-      html += "<tr " + bgColor + " order_id='" + order["Id"] + "'>";
-      $.each(ORDER_HISTORY_COLUMNS, function(name_index, val) {
-          html += "<td field_type='" + val + "' class='order_history_column_" + val + "'>" + order[ORDER_HISTORY_COLUMNS[name_index]] + "</td>";
-      });
-      html += "</tr>";
-  });
-  html += "</table>";
-    $("#orders_history_grid").html(html);
-    $("#orders_history_grid table").animate({
-        color: "black"
-    }, 400);
-}
-
-function toggle_sort_dir(params) {
-    if (params["sort_dir"]) {
-        if (params["sort_dir"] == "")
-            params["sort_dir"] = "-";
-        else
-            params["sort_dir"] = "";
-    }
-    else {
-        params["sort_dir"] = "-";
-    }
-}
-
-
-function merge_dict(base, supp) {
-    for (var key in supp) {
-        base[key] = supp[key];
-    }
-    return base;
-}
-
-</script>
-
 <div>
-	<input type="text" id="keywords" /><input type="button" value="{% trans 'Search' %}" onclick="doSearch()"/>
+	<input type="text" id="keywords" />
+    <input type="button" id='search_button' value="{% trans 'Search' %}"/>
+    <input type="button" id='reset_button' value="{% trans 'Reset' %}"/>
 </div>
 <div id="orders_history_grid"></div>
 <div id="orders_history_pager"></div>
 
+<script>
+{% autoescape off %}
+function init() {
+    OrderHistoryHelper.init({
+        order_history_url:          "{% url ordering.passenger_controller.get_passenger_orders_history_data %}",
+        order_history_columns:      {{ order_history_columns }},
+        order_history_column_names: {{ order_history_column_names }},
+        order_history_fields:       {{ order_history_fields }},
+        page_label:                 "{% trans 'Page' %}",
+        of_label:                   "{% trans 'of' %}"
+    });
+
+
+}
+init();
+{% endautoescape %}
+</script>

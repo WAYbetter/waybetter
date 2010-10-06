@@ -333,7 +333,7 @@ var SelectFromHistoryHelper = Object.create({
 
     },
     init:       function($tabs, config) {
-        this.config = $.extend(true, {}, this.config, config);
+        $.extend(true, this.config, config);
 
         if ($tabs.tabs('option', 'selected') == this.config.orders_index) {
             this.from_selector = new HistorySelector($("#id_from_raw"));
@@ -365,11 +365,10 @@ var HistorySelector = defineClass({
     },
     methods: {
         fetchAddress:       function($td) {
-            var that = this;
-
-            var order_id = $td.parent().attr("order_id");
-//            var address_type = $td.attr("aria-describedby").split("_").pop().toLowerCase();
-            var address_type = $td.attr("field_type").toLowerCase();
+            var that = this,
+                order_id = $td.parent().attr("order_id"),
+                address_type = $td.attr("field_type").toLowerCase();
+            
             $.getJSON(SelectFromHistoryHelper.config.fetch_address_url, {order_id: order_id, address_type: address_type}, function(response) {
                 var address = Address.fromServerResponse(response, that.$input[0].id.split("_")[1]);
                 OrderingHelper.updateAddressChoice(address);
@@ -414,6 +413,146 @@ var HistorySelector = defineClass({
     }
 });
 
+var OrderHistoryHelper = Object.create({
+    config:     {
+        order_history_url:              "",
+        page_label:                     "",
+        of_label:                       "",
+        order_history_columns:          [],
+        order_history_column_names:     [],
+        order_history_fields:           []
 
+    },
+    current_params:                     {},
+    init:           function(config) {
+        var that = this;
+        // merge the given config with current config
+        $.extend(true, this.config, config);
+        $("#search_button").button().click(function() {
+            that.doSearch.call(that)
+        });
+        $("#reset_button").button().click(function() {
+            if ($("#keywords").val()) {
+                $("#keywords").val('');
+                that.doSearch.call(that);
+            }
+        });
 
+        this.loadHistory({});
+    },
+    loadHistory:    function(params) {
+        var that = this;
+        $("#orders_history_grid table").animate({
+            color: "#949494"
+        }, 200);
+        $("#orders_history_pager").append("<img src='/static/img/indicator_small.gif'/>");
+        if (params.sort_by && this.current_params.sort_by &&
+            params.sort_by == this.current_params.sort_by) {
+                this.toggleSortDir();
+        }
+        $.extend(true, this.current_params, params);
+        $.ajax({
+            url:        this.config.order_history_url,
+            type:       'get',
+            data:       this.current_params,
+            dataType:   'json',
+            success:    function(json) {
+                that.drawPager(json);
+                that.drawTable(json.object_list, json.page_size);
+                SelectFromHistoryHelper.updateGrid();
+            },
+            error:      function(xhr, textStatus, errorThrown) {
+                alert('error: ' + xhr.responseText);
+            }
+        });
+    },
+    drawPager:      function(data) {
+        //Use: data["number"], data["has_other_pages"], data["start_index"], data["end_index"], data["has_next"], data["next_page_number"], ...
+        var that = this,
+            html = "";
+        if (data.has_other_pages) {
+            var $prev_button = $("<button>").append("&lt;").button(),
+                $next_button = $("<button>").append(">").button(),
+                $pager_text = $("<span>").append(that.config.page_label + " "
+                        + data.number + " "
+                        + that.config.of_label + " "
+                        + data.num_pages + " ");
+
+            if (data.has_previous) {
+                $prev_button.click(function() {
+                    that.loadHistory({
+                        page:   data.previous_page_number
+                    });
+                });
+            } else {
+                $prev_button.button("disable");
+            }
+            if (data.has_next) {
+                $next_button.click(function() {
+                    that.loadHistory({
+                        page:   data.next_page_number
+                    });
+                });
+            } else {
+                $next_button.button("disable");
+            }
+        }
+        $("#orders_history_pager").empty().append($prev_button, $pager_text, $next_button);
+    },
+    drawTable:      function(orders, page_size) {
+        var that = this,
+            baseBgColor = "style='background-color: lightGray'",
+            $table = $("<table>");
+
+        if ("keywords" in that.current_params && that.current_params.keywords != "") {
+            $table.append($("<caption>").append("Results matching " + that.current_params.keywords));
+        }
+        var $header_row = $("<tr>");
+
+        $.each(that.config.order_history_fields, function(i, val) {
+            var $th = $("<th>").append($("<a href='#'>").append(that.config.order_history_column_names[i])
+                    .click(function() {
+                        that.loadHistory({
+                            sort_by: val
+                        });
+                    }));
+            $header_row.append($th);
+        });
+        $table.append($header_row);
+
+        $.each(orders, function(i, order) {
+            var $tr = $("<tr>").attr("order_id", order.Id);
+            if (i % 2 == 0) $tr.addClass('even_row');
+
+            $.each(that.config.order_history_columns, function(name_index, val) {
+                var $td = $("<td>").attr("field_type", val).addClass('order_history_column_' + val)
+                        .append(order[that.config.order_history_columns[name_index]]);
+                $tr.append($td);
+            });
+            $table.append($tr);
+        });
+        $("#orders_history_grid").empty().append($table);
+        $("#orders_history_grid table").animate({
+            color: "black"
+        }, 400);
+                
+    },
+    doSearch:       function() {
+        this.loadHistory({
+            keywords: $("#keywords").val()
+        });
+    },
+    toggleSortDir:  function() {
+        if (this.current_params.sort_dir) {
+            if (this.current_params.sort_dir == "")
+                this.current_params.sort_dir = "-";
+            else
+                this.current_params.sort_dir = "";
+        }
+        else {
+            this.current_params.sort_dir = "-";
+        }
+    }
+
+});
 
