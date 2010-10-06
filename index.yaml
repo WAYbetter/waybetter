@@ -117,6 +117,103 @@ indexes:
 
 - kind: ordering_order
   properties:
+  - name: station_id
+  - name: create_date
+
+- kind: ordering_order
+  properties:
+  - name: station_id
+  - name: create_date
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: station_id
+  - name: from_raw
+
+- kind: ordering_order
+  properties:
+  - name: station_id
+  - name: from_raw
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: station_id
+  - name: idxf_from_raw_l_icontains
+
+- kind: ordering_order
+  properties:
+  - name: station_id
+  - name: idxf_to_raw_l_icontains
+
+- kind: ordering_order
+  properties:
+  - name: station_id
+  - name: to_raw
+
+- kind: ordering_order
+  properties:
+  - name: station_id
+  - name: to_raw
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: station_name
+  - name: from_raw
+
+- kind: ordering_order
+  properties:
+  - name: station_name
+  - name: from_raw
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: station_name
+  - name: idxf_from_raw_l_icontains
+
+- kind: ordering_order
+  properties:
+  - name: station_name
+  - name: idxf_to_raw_l_icontains
+
+- kind: ordering_order
+  properties:
+  - name: station_name
+  - name: passenger_phone
+
+- kind: ordering_order
+  properties:
+  - name: station_name
+  - name: passenger_phone
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: station_name
+  - name: station_name
+
+- kind: ordering_order
+  properties:
+  - name: station_name
+  - name: station_name
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: station_name
+  - name: to_raw
+
+- kind: ordering_order
+  properties:
+  - name: station_name
+  - name: to_raw
+    direction: desc
+
+- kind: ordering_order
+  properties:
   - name: status
   - name: __key__
     direction: desc
