@@ -210,7 +210,8 @@ var OrderingHelper = Object.create({
                 contextUrl: 'api.navigator.telmap.com/telmapnav',
                 userName:   this.config.telmap_user,
                 password:   this.config.telmap_password,
-                appName:    'Sample'
+                languages:  ['he', 'en'],
+                appName:    'wayBetter'
             }
         };
         this.map = new telmap.maps.Map(document.getElementById("map"), prefs);
@@ -258,7 +259,7 @@ var OrderingHelper = Object.create({
             bounds.extend(lonlat);
 
             var info = new telmap.maps.InfoWindow({
-                content: "<div style='font-family:Arial,sans-serif;font-size:0.8em;'>" + point.location_name + "<div>",
+                content: "<div style='font-family:Arial,sans-serif;font-size:0.8em;'>" + point.location_name + "<div>"
             });
 
             info.open(map, point);
