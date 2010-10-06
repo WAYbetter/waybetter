@@ -143,14 +143,26 @@ class Order(models.Model):
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
-    
-    station_name = models.CharField(_("station name"), max_length=50)
+
+    # denormalized fields
+    station_name = models.CharField(_("station name"), max_length=50, null=True, blank=True)
+    station_id = models.IntegerField(_("station id"), null=True, blank=True)
+    passenger_phone = models.CharField(_("passenger phone"), max_length=50, null=True, blank=True)
+    passenger_id = models.IntegerField(_("passenger id"), null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.station:
+            self.station_id = self.station.id
             self.station_name = self.station.name
         else:
+            self.station_id = None
             self.station_name = ""
+        if self.passenger:
+            self.passenger_id = self.passenger.id
+            self.passenger_phone = self.passenger.phone
+        else:
+            self.passenger_id = None
+            self.passenger_phone = ""
 
         super(Order, self).save(*args, **kwargs)
 

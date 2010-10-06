@@ -2,7 +2,7 @@
 
 
 <script>
-var order_history_url = "{% url ordering.passenger_controller.get_passenger_orders_history_data %}";
+var order_history_url = "{{ history_data_url }}";
 
 var current_params = {};
 {% autoescape off %}
@@ -14,6 +14,11 @@ var ORDER_HISTORY_FIELDS = {{ order_history_fields }};
 $(document).ready(function () {
     loadHistory({});
 });
+
+
+function setHistoryURL(url) {
+    order_history_url = url;
+}
 
 function loadHistory(params) {
 //    $("#orders_history_grid table").addClass('history_result_loading');

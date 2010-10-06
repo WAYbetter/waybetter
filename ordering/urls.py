@@ -9,6 +9,7 @@ urlpatterns = patterns('',
     (r'^orders/history/$', 'ordering.passenger_controller.get_passenger_orders_history'),
     (r'^passenger/profile/$', 'ordering.passenger_controller.profile_page'),
     (r'^station/profile/$', 'ordering.station_controller.station_profile'),
+    (r'^station/history/$', 'ordering.station_controller.get_station_orders_history'),
 
     (r'^passenger/logout/$', 'django.contrib.auth.views.logout'),
     (r'^workstation/logout/$', 'django.contrib.auth.views.logout'),
@@ -32,6 +33,7 @@ urlpatterns = patterns('',
     (r'^services/login_passenger/$', 'ordering.passenger_controller.login_passenger'),
     (r'^services/get_order_status/(?P<order_id>\d+)$', 'ordering.order_manager.get_order_status'),
     (r'^services/get_orders/$', 'ordering.passenger_controller.get_passenger_orders_history_data'),
+    (r'^services/get_station_orders/$', 'ordering.station_controller.get_station_orders_history_data'),
     (r'^setup/init_pricing_rules/$', 'ordering.passenger_controller.init_pricing_rules'),
 
 )
