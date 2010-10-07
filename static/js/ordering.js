@@ -421,7 +421,6 @@ var OrderHistoryHelper = Object.create({
         order_history_columns:          [],
         order_history_column_names:     [],
         order_history_fields:           []
-
     },
     current_params:                     {},
     init:           function(config) {

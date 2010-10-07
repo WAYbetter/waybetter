@@ -1,2 +1,36 @@
 {% extends "base_station.html" %}
-        
+{% load i18n %}
+
+{% block content %}
+
+    <script type="text/javascript" src="/static/js/ordering.js"></script>
+    
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $("#tabs").tabs({
+                ajaxOptions: {
+                    error: function(xhr, status, index, anchor) {
+                        $(anchor.hash).html("Couldn't load this tab. We'll try to fix this as soon as possible. If this wouldn't be a demo.");
+                    }
+                }
+            });
+        });
+
+
+    </script>
+
+    {% if request.user.station %}
+       <div id="tabs">
+           <ul>
+               <li>
+                   <a href="{% url ordering.station_controller.get_station_orders_history %}">{% trans 'Rides history' %}</a>
+               </li>
+           </ul>
+       </div>
+    {% endif %}
+
+{% endblock content %}
+{% block footer %}
+    {{ block.super}}
+    <a href="{% url ordering.passenger_controller.passenger_home %}">{% trans 'Passengers home' %}</a>
+{% endblock footer %}

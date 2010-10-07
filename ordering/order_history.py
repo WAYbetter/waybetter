@@ -10,10 +10,23 @@ ORDER_HISTORY_COLUMNS = ["Date", "From", "To", "Station"]
 ORDER_HISTORY_COLUMN_NAMES = [ugettext(s) for s in ORDER_HISTORY_COLUMNS]
 ORDER_HISTORY_FIELDS = ["create_date", "from_raw", "to_raw", "station_name"]
 
+STATION_ORDER_HISTORY_COLUMNS = ["Date", "From", "To", "Passenger Phone"]
+STATION_ORDER_HISTORY_COLUMN_NAMES = [ugettext(s) for s in STATION_ORDER_HISTORY_COLUMNS]
+STATION_ORDER_HISTORY_FIELDS = ["create_date", "from_raw", "to_raw", "passenger_phone"]
+
 
 def get_orders_history(passenger, page=1, keywords=None, sort_by=None, sort_dir=None):
-
     query = Order.objects.filter(passenger=passenger)
+    return get_orders_history_data(query, ORDER_HISTORY_COLUMNS, ORDER_HISTORY_FIELDS,
+                                   page, keywords, sort_by, sort_dir)
+
+def get_stations_orders_history_data(station, page=1, keywords=None, sort_by=None, sort_dir=None):
+    query = Order.objects.filter(station_id=station.id)
+    return get_orders_history_data(query, STATION_ORDER_HISTORY_COLUMNS, STATION_ORDER_HISTORY_FIELDS,
+                                   page, keywords, sort_by, sort_dir)
+
+def get_orders_history_data(query, columns, fields, page=1, keywords=None, sort_by=None,
+                            sort_dir=None):
     # Unfortunately, we need to separate the logic of retrieving orders with or without textual search,
     # because in AppEngine: "Properties In Inequality Filters Must Be Sorted Before Other Sort Orders"
     # See: http://code.google.com/appengine/docs/python/datastore/queriesandindexes.html
@@ -78,8 +91,8 @@ def get_orders_history(passenger, page=1, keywords=None, sort_by=None, sort_dir=
     orders = []
     for order in orders_page.object_list:
         record = {}
-        for i, col in enumerate(ORDER_HISTORY_COLUMNS):
-            record[col] = getattr(order, ORDER_HISTORY_FIELDS[i])
+        for i, col in enumerate(columns):
+            record[col] = getattr(order, fields[i])
         record["Id"] = order.id
         
         orders.append(record)

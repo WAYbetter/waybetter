@@ -12,7 +12,7 @@
 {% autoescape off %}
 (function () {
     OrderHistoryHelper.init({
-        order_history_url:          "{% url ordering.passenger_controller.get_passenger_orders_history_data %}",
+        order_history_url:          "{{ history_data_url }}",
         order_history_columns:      {{ order_history_columns }},
         order_history_column_names: {{ order_history_column_names }},
         order_history_fields:       {{ order_history_fields }},
