@@ -1,7 +1,7 @@
 {% extends "base_site.html" %}
 {% load i18n %}
 {% block join_or_login %}
-<a href='{% url stations.views.station_home %}'>{% trans 'Sign In!' %}</a>
+<a href='{% url ordering.station_controller.station_home %}'>{% trans 'Sign In!' %}</a>
 {% endblock %}
 
 {% block content_title %}

@@ -1,5 +1,5 @@
 from django.contrib.auth.decorators import login_required
-from ordering.models import Passenger, WorkStation
+from ordering.models import Passenger, WorkStation, Station
 from django.http import HttpResponseForbidden
 
 NOT_A_USER = "NOT_A_USER"
@@ -68,6 +68,22 @@ def work_station_required(function):
         except WorkStation.DoesNotExist:
             return HttpResponseForbidden("You are not a workstation, please <a href='/workstation/logout/'>logout</a> and try again")
 
+        return function(request, **kwargs)
+
+    return wrapper
+
+
+def station_required(function=None):
+    """
+    Decorator for views that checks that the user is logged in and is a station
+    """
+    @login_required
+    def wrapper(request, **kwargs):
+        try:
+            station = Station.objects.filter(user = request.user).get()
+            kwargs["station"] = station
+        except Station.DoesNotExist:
+            return HttpResponseForbidden("You are not a station")
         return function(request, **kwargs)
 
     return wrapper
