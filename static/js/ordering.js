@@ -250,7 +250,9 @@ var OrderingHelper = Object.create({
                 dataType: "json",
                 success: function(resolve_result) {
                     var new_address = Address.fromServerResponse(resolve_result, address.address_type);
+                    new_address.populateFields();
                     that.addPoint(new_address);
+                    $('#id_' + address.address_type + '_raw').effect("highlight", 2000);
                     point.setMap();
                 }
             });
