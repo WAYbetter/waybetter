@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import *
+from django.conf import settings
 
 urlpatterns = patterns('',
     (r'^$', 'ordering.passenger_controller.passenger_home'),
@@ -14,7 +15,11 @@ urlpatterns = patterns('',
     (r'^passenger/logout/$', 'django.contrib.auth.views.logout'),
     (r'^workstation/logout/$', 'django.contrib.auth.views.logout'),
     (r'^orders/logout/$', 'django.contrib.auth.views.logout'),
-
+    (r'^station/logout/$', 'django.contrib.auth.views.logout'),
+    (r'^station/home/logout/$', 'django.contrib.auth.views.logout'),
+    
+    (r'^station/home/$', 'ordering.station_controller.station_home'),
+    (r'^stations/$', 'ordering.station_controller.stations_home'),
 
 
     # services

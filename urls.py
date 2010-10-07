@@ -12,7 +12,6 @@ urlpatterns = patterns('',
     (r'^common/', include('common.urls')),
     (r'^admin/(.*)', admin.site.root),
     (r'^', include('ordering.urls')),
-    (r'^', include('stations.urls')),
     (r'^', include('socialauth.urls')),
 )
 

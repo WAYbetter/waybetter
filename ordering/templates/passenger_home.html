@@ -77,5 +77,5 @@
 {% endblock content %}
 {% block footer %}
  {{ block.super}}
-<a href="{% url stations.views.stations_home %}">{% trans 'Taxi Stations' %}</a>
+<a href="{% url ordering.station_controller.stations_home %}">{% trans 'Taxi Stations' %}</a>
 {% endblock footer %}
