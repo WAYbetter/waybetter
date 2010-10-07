@@ -87,6 +87,7 @@ var OrderingHelper = Object.create({
         unresolved_label:           "", // "{% trans 'Could not resolve address' %}"
         resolve_address_url:        "", // '{% url cordering.passenger_controller.resolve_address %}'
         estimation_service_url:     "", // '{% url ordering.passenger_controller.estimate_ride_cost %}'
+        resolve_coordinate_url:     "", // '{% url ordering.passenger_controller.resolve_coordinate %}'
         not_a_passenger_response:   "",
         not_a_user_response:        "",
         telmap_user:                "",
@@ -227,20 +228,32 @@ var OrderingHelper = Object.create({
         }
     },
     addPoint:                   function (address) {
-        var location_name = address.address_type + ": <br/>" +
-                $('#id_' + address.address_type + '_raw').val();
+        var that = this,
+            location_name = address.address_type + ": <br/>" + address.name,
+            icon_image = "/static/img/" + address.address_type + "_map_marker.png",
+            point = new telmap.maps.Marker({                             //TODO_WB:fix center behavior to show both points
+                map:        this.map,
+                position:   new telmap.maps.LatLng(address.lat, address.lon),
+                draggable:  true,
+                icon:       icon_image,
+                title:      'Marker'
+            });
 
-        var icon_image = "/static/img/" + address.address_type + "_map_marker.png";
+        $('#id_' + address.address_type + '_raw').val(address.name);
 
-        //TODO_WB:fix center behavior to show both points
-        var center = true;
-
-        var point = new telmap.maps.Marker({
-            map:        this.map,
-            position:   new telmap.maps.LatLng(address.lat, address.lon),
-            draggable:  false,
-            icon:       icon_image,
-            title:      'Marker'
+        telmap.maps.event.addListener(point, 'dragend', function(e) {
+            $.ajax({
+                url: that.config.resolve_coordinate_url,
+                type: "GET",
+                data: { lat: point.getPosition().lat(),
+                        lon: point.getPosition().lng()  },
+                dataType: "json",
+                success: function(resolve_result) {
+                    var new_address = Address.fromServerResponse(resolve_result, address.address_type);
+                    that.addPoint(new_address);
+                    point.setMap();
+                }
+            });
         });
         point.location_name = location_name; // monkey patch point
         if (this.map_markers[address.address_type]) {
@@ -250,25 +263,25 @@ var OrderingHelper = Object.create({
         this.renderMapMarkers();
     },
     renderMapMarkers:           function () {
-        var map = this.map;
-
-        var bounds = new telmap.maps.LatLngBounds();
-        for (var location_name in this.map_markers) {
-            var point = this.map_markers[location_name];
-            var lonlat = point.getPosition();
-            bounds.extend(lonlat);
-
+        var that = this,
+            map = this.map,
+            bounds = new telmap.maps.LatLngBounds();
+        
+        $.each(this.map_markers, function (i, point) {
+            bounds.extend(point.getPosition());
             var info = new telmap.maps.InfoWindow({
-                content: "<div style='font-family:Arial,sans-serif;font-size:0.8em;'>" + point.location_name + "<div>"
+                content: "<div style='font-family:Arial,sans-serif;font-size:0.8em;'>" + point.location_name + "<div>",
+                disableAutoPan: true
             });
 
             info.open(map, point);
-            if (this.map_markers_popups[location_name]) {
-                this.map_markers_popups[location_name].close();
+            if (that.map_markers_popups[i]) {
+                that.map_markers_popups[i].close();
             }
-            this.map_markers_popups[location_name] = info;
-        }
-        if (this.map_markers.to && this.map_markers.from) {
+            that.map_markers_popups[i] = info;
+
+        });
+        if (that.map_markers.to && that.map_markers.from) {
             map.fitBounds(bounds);
             map.panToBounds(bounds);
         } else {
@@ -433,6 +446,11 @@ var OrderHistoryHelper = Object.create({
         $("#reset_button").button().click(function() {
             if ($("#keywords").val()) {
                 $("#keywords").val('');
+                that.doSearch.call(that);
+            }
+        });
+        $("#keywords").keypress(function(event) {
+            if (event.keyCode == '13') { // enter
                 that.doSearch.call(that);
             }
         });

@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<root:tmApiRoot
+xmlns:root="http://www.telmap.com/xmlapi/v7/apiroot"
+xmlns="http://www.telmap.com/xmlapi/v7/general"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" >
+	<root:header>
+		<root:bodyVersion>0</root:bodyVersion>
+		<root:apiFamily>GENERAL</root:apiFamily>
+	</root:header>
+        <root:body xsi:type="tmReverseGeocodeRequest">
+		<sessionId>{{ session_id }}</sessionId>
+		<geoPoint>
+			<latitude>{{ latitude }}</latitude>
+			<longitude>{{ longitude }}</longitude>
+		</geoPoint>
+        </root:body>
+</root:tmApiRoot>
