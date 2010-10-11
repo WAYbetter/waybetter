@@ -146,3 +146,32 @@ function defineClass(data) {
     // Finally, return the constructor function
     return constructor;
 }
+
+function update_options(options) {
+    var config = {
+        parent_id_selector:     "",
+        target_id_selector:     "",
+        url:                    ""
+    };
+    $.extend(true, config, options);
+    $(config.parent_id_selector).unbind("change").change( function() {
+        update_options(options);    
+    });
+    $.ajax({
+        url:        config.url,
+        data:       $(config.parent_id_selector).serialize(),
+        dataType:   'json',
+        success:    function(data) {
+            $(config.target_id_selector).empty();
+            $(config.target_id_selector).append($("<option>").val("").text("---------"));
+            $.each(data.options, function(i, option) {
+                var $option = $("<option>").val(option[0]).text(option[1]);
+                if ('selected_option' in data && data.selected_option == option[0]) {
+                    $option.attr("selected", "selected");
+                }
+                $(config.target_id_selector).append($option);
+            });
+        }
+
+    });
+}

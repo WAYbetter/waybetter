@@ -206,7 +206,7 @@ var OrderingHelper = Object.create({
         var prefs = {
             mapTypeId:telmap.maps.MapTypeId.ROADMAP,
             zoom:15,
-            center:new telmap.maps.LatLng(32.08676,34.7898),
+            center:new telmap.maps.LatLng(32.09279909028302,34.781051985221),
             login:{
                 contextUrl: 'api.navigator.telmap.com/telmapnav',
                 userName:   this.config.telmap_user,
@@ -231,7 +231,7 @@ var OrderingHelper = Object.create({
         var that = this,
             location_name = address.address_type + ": <br/>" + address.name,
             icon_image = "/static/img/" + address.address_type + "_map_marker.png",
-            point = new telmap.maps.Marker({                             //TODO_WB:fix center behavior to show both points
+            point = new telmap.maps.Marker({                           
                 map:        this.map,
                 position:   new telmap.maps.LatLng(address.lat, address.lon),
                 draggable:  true,
@@ -250,10 +250,8 @@ var OrderingHelper = Object.create({
                 dataType: "json",
                 success: function(resolve_result) {
                     var new_address = Address.fromServerResponse(resolve_result, address.address_type);
-                    new_address.populateFields();
-                    that.addPoint(new_address);
+                    that.updateAddressChoice(new_address);
                     $('#id_' + address.address_type + '_raw').effect("highlight", 2000);
-                    point.setMap();
                 }
             });
         });

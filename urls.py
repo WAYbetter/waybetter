@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     (r'^', include('ordering.urls')),
     (r'^', include('stations.urls')),
     (r'^', include('socialauth.urls')),
+    (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/images/favicon.ico'}),
 )
 
 from django.conf import settings

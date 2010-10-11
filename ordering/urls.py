@@ -35,6 +35,7 @@ urlpatterns = patterns('',
     (r'^services/get_order_status/(?P<order_id>\d+)$', 'ordering.order_manager.get_order_status'),
     (r'^services/get_orders/$', 'ordering.passenger_controller.get_passenger_orders_history_data'),
     (r'^services/get_station_orders/$', 'ordering.station_controller.get_station_orders_history_data'),
+    (r'^services/get_cities_for_country/$', 'ordering.station_controller.get_cities_for_country'),
     (r'^setup/init_pricing_rules/$', 'ordering.passenger_controller.init_pricing_rules'),
 
 )

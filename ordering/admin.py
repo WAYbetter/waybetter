@@ -27,6 +27,7 @@ class OrderAdmin(admin.ModelAdmin):
 class PhoneAdmin(admin.TabularInline):
     model = Phone
     extra = 2
+   
     
 class StationAdmin(admin.ModelAdmin):
     

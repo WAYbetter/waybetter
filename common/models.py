@@ -39,6 +39,10 @@ class City(models.Model):
     def __unicode__(self):
         return self.name
 
+    @staticmethod
+    def city_choices(country, order_by="name"):
+        return [(c.id, c.name) for c in City.objects.filter(country=country).order_by(order_by)]
+        
     @classmethod
     def get_id_by_name_and_country(cls, name, country_id, add_if_not_found=False):
         query = City.objects.filter(name = name, country = country_id)

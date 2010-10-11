@@ -78,14 +78,13 @@ class Station(models.Model):
         return self.name
 
     def __unicode__(self):
-        return self.name
+        return u"%s" % self.name
 
     def get_admin_link(self):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/station', self.id, self.name)
 
 class Phone(models.Model):
-    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="phones")
-    local_phone = models.CharField(_("phone number"), max_length=15)
+    local_phone = models.IntegerField(_("phone number"))
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="phones", null=True, blank=True)
 

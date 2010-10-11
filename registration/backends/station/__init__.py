@@ -103,7 +103,6 @@ class StationBackend(object):
         phone = Phone()
         phone.station = new_station
         phone.local_phone = kwargs['local_phone']
-        phone.country = new_station.country
         phone.save()
 
         signals.user_registered.send(sender=self.__class__,
