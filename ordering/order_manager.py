@@ -26,6 +26,7 @@ def book_order(request):
     order_id = int(request.POST["order_id"])
     logging.info("book_order_task: %d" % order_id)
     order = get_object_or_404(Order, id=order_id)
+
     #TODO_WB: check if another dispatching cycle should start
     response = HttpResponse("order handled")
     try:

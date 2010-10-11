@@ -96,6 +96,12 @@ class OrderForm(ModelForm):
         self.passenger = passenger
         self.disambiguation_choices = {}
 
+
+    def clean(self):
+        if self.cleaned_data['from_country'] != self.cleaned_data['to_country']:
+            raise forms.ValidationError(_("To and From countries do not match"))
+        
+
     def save(self, commit=True):
         #TODO_WB: geocode raw address, fill city_area
         
