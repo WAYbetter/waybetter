@@ -42,17 +42,6 @@ class Passenger(models.Model):
     def __unicode__(self):
         return self.user.username
 
-    @staticmethod
-    def get_passenger_from_request(request):
-        if (not request.user or not request.user.is_authenticated()):
-            return None
-        try:
-            passenger = Passenger.objects.filter(user = request.user).get()
-        except Passenger.DoesNotExist:
-            return None
-
-        return passenger
-
 class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
     name = models.CharField(_("station name"), max_length=50)

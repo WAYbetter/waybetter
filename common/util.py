@@ -26,6 +26,16 @@ def convert_python_weekday(wd):
 def gen_verification_code():
     return random.randrange(1000,10000)
 
+def get_model_from_request(model_class, request):
+        if (not request.user or not request.user.is_authenticated()):
+            return None
+        try:
+            model_instance = model_class.objects.filter(user = request.user).get()
+        except model_class.DoesNotExist:
+            return None
+
+        return model_instance
+
 class JSONResponse(HttpResponse):
     def __init__(self, data):
         super(JSONResponse, self).__init__(

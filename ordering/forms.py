@@ -1,13 +1,14 @@
 # This Python file uses the following encoding: utf-8
 
 from django import forms
-from django.forms.models import ModelForm
+from django.forms.models import ModelForm, _get_foreign_key, BaseModelForm
 from django.forms.util import flatatt
+from django.forms.models import BaseInlineFormSet
 from django.utils.translation import gettext as _
 from django.utils.encoding import smart_unicode
 
 from common.models import Country, City
-from ordering.models import Order
+from ordering.models import Order, Station, Phone
 from django.utils.safestring import mark_safe
 from google.appengine.api.images import BadImageError
 from django.core.exceptions import ValidationError
@@ -21,7 +22,7 @@ class AppEngineImageWidget(forms.FileInput):
             from google.appengine.api import images
             try:
                 img = images.Image(value)
-                img.resize(height=50)
+                img.resize(height=80)
                 thumbnail = img.execute_transforms(output_encoding=images.PNG)
                 result = u"""<img src='data:image/png;base64,%s' /><br>""" % base64.encodestring(thumbnail) + result
             except BadImageError:

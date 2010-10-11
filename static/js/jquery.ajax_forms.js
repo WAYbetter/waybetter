@@ -98,34 +98,37 @@
         parent.removeClass(opts.style.invalid);
         parent.addClass(opts.style.processing);
 
-        // Catch Validation errors
-        try {
-            if (value && value.length > 0) {
-                for (var rule in validation.rules) {
-                    var rule_func = $.validation.rules[rule]
-                    if (rule_func) {
-                        rule_func(field[0], validation.rules[rule], value,
-                            validation.msgs);
-                    } else {
-                        log('Rule not found: ' + rule);
+
+        if (validation) {
+            // Catch Validation errors
+            try {
+                if (value && value.length > 0) {
+                    for (var rule in validation.rules) {
+                        var rule_func = $.validation.rules[rule];
+                        if (rule_func) {
+                            rule_func(field[0], validation.rules[rule], value,
+                                validation.msgs);
+                        } else {
+                            log('Rule not found: ' + rule);
+                        }
+                    }
+                } else {
+                    if (validation.required) {
+                        throw new ValidationError(validation.msgs['required']);
                     }
                 }
-            } else {
-                if (validation.required) {
-                    throw new ValidationError(validation.msgs['required']);
-                }
-            }
 
-            // Clear existing error
-            opts.callbacks.clear_error(field, opts);
-        } catch (e) {
-            // Make sure error was thrown by validation.
-            if (e.name && e.name == 'ValidationError') {
-                field_valid = false;
-                opts.callbacks.show_error(field, e.message, opts);
-            } else {
-                log(e.message);
-                throw e;
+                // Clear existing error
+                opts.callbacks.clear_error(field, opts);
+            } catch (e) {
+                // Make sure error was thrown by validation.
+                if (e.name && e.name == 'ValidationError') {
+                    field_valid = false;
+                    opts.callbacks.show_error(field, e.message, opts);
+                } else {
+                    log(e.message);
+                    throw e;
+                }
             }
         }
 

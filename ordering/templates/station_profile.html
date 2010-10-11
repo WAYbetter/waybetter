@@ -25,10 +25,11 @@
     {{ phone_formset.management_form }}
  <input type="submit" value="{% trans 'Save Changes' %}"/>
 </form>
-
+{% endblock %}
+{% block footer %}
 
 <script>
-$(function() {
+$(document).ready(function() {
     update_options({
         parent_id_selector:     "#id_country_id",
         target_id_selector:     "#id_city_id",
@@ -36,9 +37,42 @@ $(function() {
     });
     $("#profile_form input[type=submit]").button();
     $('#profile_form').validation({% render_ajax_fields form %});
+    {% for p_form in phone_formset.forms %}
+    $('#profile_form').validation({% render_ajax_fields p_form %});
+    {% endfor %}
     $(".phone_formset").formset({
         prefix: '{{ phone_formset.prefix }}'
     });
+
+    $('#profile_form').unbind("submit").submit(function(e) {
+        e.preventDefault();
+        if ($("#profile_form input[type=submit]").attr("disabled")) {
+            return false;
+        }
+
+        if (! $(this)[0].validate()) {
+            return false;
+        }
+
+        $("#profile_form input[type=submit]").button("disable");
+
+        $(this).ajaxSubmit({
+            dataType: "json",
+            complete: function() {
+                $("#profile_form input[type=submit]").button("enable");
+            },
+            success: function(order_status) {
+                $("#tabs").tabs("load", $("#tabs").tabs("option", "selected")); // reload selected tab
+                alert('Changes saved!');
+            },
+            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                alert('There was an error saving you data');
+            }
+        });
+        return false;
+    });
+});
+$(function() {
 });
 
 </script>
