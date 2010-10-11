@@ -1,4 +1,6 @@
 import random
+from django.http import HttpResponse
+from django.utils import simplejson
 
 def is_empty(str):
     """
@@ -23,3 +25,8 @@ def convert_python_weekday(wd):
 
 def gen_verification_code():
     return random.randrange(1000,10000)
+
+class JSONResponse(HttpResponse):
+    def __init__(self, data):
+        super(JSONResponse, self).__init__(
+                simplejson.dumps(data), mimetype='application/json')
