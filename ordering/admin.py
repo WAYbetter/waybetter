@@ -15,7 +15,7 @@ class PassengerAdmin(admin.ModelAdmin):
             return "-- No User -- "
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ["id", "station_name", "status", "pickup_time", "passenger"]
+    list_display = ["id", "station_name", "status", "pickup_time", "passenger", "passenger_rating"]
     list_filter = ["status", "station"]
 
     def station_name(self, obj):

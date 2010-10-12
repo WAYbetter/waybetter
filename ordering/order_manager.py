@@ -9,10 +9,12 @@ from ordering.decorators import passenger_required, internal_task_on_queue
 from django.core.serializers import serialize
 from django.conf import settings
 
-from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, ASSIGNED
+from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, ASSIGNED, RATING_CHOICES
 import dispatcher
 import logging
 from datetime import datetime
+from sharded_counters.models import commit_locked
+from ordering.models import Station
 
 def book_order_async(order):
     logging.info("book_order_async: %d" % order.id)
@@ -66,6 +68,7 @@ def order_status(request, order_id, passenger):
     status_label = order.status
     polling_interval = settings.POLLING_INTERVAL
     order_assignments = list(OrderAssignment.objects.filter(order=order))
+    rating_choices = RATING_CHOICES
     return render_to_response("order_status.html", locals())
 
 @passenger_required
@@ -106,3 +109,42 @@ def enqueue_redispatch_ignored_orders(order_assignment, interval):
 
     q = taskqueue.Queue('redispatch-ignored-orders')
     q.add(task)
+
+
+@csrf_exempt
+@passenger_required
+def rate_order(request, order_id, passenger):
+    order = get_object_or_404(Order, id=order_id)
+    rating = int(request.POST["rating"])
+    if rating > 0:
+        order.passenger_rating = rating
+    else:
+        order.passenger_rating = None
+    order.save()
+    # update async the station rating
+    task = taskqueue.Task(url=reverse(update_station_rating),
+                          countdown=10,
+                          params={"rating": rating, "station_id": order.station_id})
+
+    q = taskqueue.Queue('update-station-rating')
+    q.add(task)
+    return HttpResponse("OK")
+
+
+@csrf_exempt
+@commit_locked
+def update_station_rating(request):
+    rating = int(request.POST["rating"])
+    station_id = int(request.POST["station_id"])
+    if station_id:
+        station = get_object_or_404(Station, id=station_id)
+        if station.average_rating == 0.0:
+            station.number_of_ratings = 1
+            station.average_rating = rating
+        else:
+            sum = station.number_of_ratings * station.average_rating
+            sum = sum + rating
+            station.number_of_ratings = station.number_of_ratings + 1
+            station.average_rating = float(sum) / float(station.number_of_ratings)
+        station.save()
+    return HttpResponse("OK")

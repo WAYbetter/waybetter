@@ -28,6 +28,12 @@ ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, gettext("pending")),
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
 
+RATING_CHOICES = ((1, gettext("Very poor")),
+                  (2, gettext("Not so bad")),
+                  (3, gettext("Average")),
+                  (4, gettext("Good")),
+                  (5, gettext("Perfect")))
+
 class Passenger(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger")
 
@@ -59,6 +65,9 @@ class Station(models.Model):
     postal_code = models.CharField(_("postal code"), max_length=10)
     address = models.CharField(_("address"), max_length=80)
     geohash = models.CharField(_("goehash"), max_length=13)
+
+    number_of_ratings = models.IntegerField(_("number of ratings"), default=0)
+    average_rating = models.FloatField(_("average rating"), default=0.0)
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
@@ -127,7 +136,9 @@ class Order(models.Model):
     # this field holds the data as typed by the user
     to_raw = models.CharField(_("to address"), max_length=50)
 
-    pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)
+    pickup_time = models.IntegerField(_("pickup time"), choices=RATING_CHOICES, null=True, blank=True)
+
+    passenger_rating = models.IntegerField(_("passenger rating"), null=True, blank=True)
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
