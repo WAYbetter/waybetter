@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from djangotoolbox.fields import BlobField
 from common.models import Country, City, CityArea
 from datetime import datetime
+from django.contrib.localflavor.us.models import PhoneNumberField
 
 ASSIGNED = 1
 ACCEPTED = 2
@@ -46,7 +47,7 @@ class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
     name = models.CharField(_("station name"), max_length=50)
     license_number = models.CharField(_("license number"), max_length=30)
-    website_url = models.URLField(_("website"), max_length=255 ,null=True,blank=True) #verify_exists=False
+    website_url = models.URLField(_("website"), max_length=255 ,null=True, blank=True) #verify_exists=False
     number_of_taxis = models.IntegerField(_("number of taxis"), max_length=4)
     description = models.CharField(_("description"), max_length=4000,null=True,blank=True)
     logo = BlobField(_("logo"), null=True,blank=True)
@@ -59,6 +60,8 @@ class Station(models.Model):
     postal_code = models.CharField(_("postal code"), max_length=10)
     address = models.CharField(_("address"), max_length=80)
     geohash = models.CharField(_("goehash"), max_length=13)
+    lon = models.FloatField(_("longtitude"), null=True)
+    lat = models.FloatField(_("latitude"), null=True)
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
@@ -73,12 +76,15 @@ class Station(models.Model):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/station', self.id, self.name)
 
 class Phone(models.Model):
-    local_phone = models.IntegerField(_("phone number"))
+    local_phone = models.CharField(_("phone number"), max_length=20)
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="phones", null=True, blank=True)
 
     def __unicode__(self):
-        return self.local_phone
+        if self.local_phone:
+            return u"%s" % self.local_phone
+        else:
+            return u"" 
 
 
 

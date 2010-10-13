@@ -19,18 +19,20 @@
     $.fn.validation = function(fields, options) {
         // Setup options
         var opts = $.extend({}, $.validation.defaults, options);
-
         return $(this).each(function() {
             var form_elem = this;
             var form = $(this);
 
             // Setup fields
             for (var name in fields) {
+
                 var field = $(':input[name='+name+']', form);
                 if (field) {
+
                     field.data('validation', fields[name]);
+
                     // Bind events
-                    for (var idx in opts.validation_events) {
+                    for (var idx = 0; idx <  opts.validation_events.length; idx++) {
                         field.bind(opts.validation_events[idx], function(e) {
                             // Work around to prevent validation when tabbing
                             // into a field.
@@ -42,6 +44,7 @@
                     }
 
                     if (opts.add_required_indicators) {
+
                         $('label[for=' + field[0].id + ']', form).after(
                             '<span class="required">*</span>');
                     }
@@ -82,11 +85,12 @@
 
     // Validate a single field
     function validate_field(field, opts) {
+        
         var parent = opts.callbacks.get_parent_element(field, opts);
         var field_valid = true;
         var validation = field.data('validation');
         var value = field.val();
-
+ 
         // Handle checkboxs
         if (field[0].type && field[0].type == "checkbox") {
             if (!field[0].checked) {
@@ -153,13 +157,13 @@
     // Custom error object
     $.validation.ValidationError = function(msg, params) {
         params = params || [];
-        for(idx in params) {
+        for(var idx in params) {
             msg = msg.replace(idx, params[idx]);
         }
         var err = new Error(msg);
         err.name = "ValidationError";
         return err;
-    }
+    };
     var ValidationError = $.validation.ValidationError;
 
 

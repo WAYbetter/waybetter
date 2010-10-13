@@ -13,6 +13,7 @@ from django.utils.safestring import mark_safe
 from google.appengine.api.images import BadImageError
 from django.core.exceptions import ValidationError
 
+INITIAL_DATA = 'INITIAL_DATA'
 
 class AppEngineImageWidget(forms.FileInput):
     def render(self, name, value, attrs=None):
@@ -100,7 +101,8 @@ class OrderForm(ModelForm):
     def clean(self):
         if self.cleaned_data['from_country'] != self.cleaned_data['to_country']:
             raise forms.ValidationError(_("To and From countries do not match"))
-        
+
+        return self.cleaned_data
 
     def save(self, commit=True):
         #TODO_WB: geocode raw address, fill city_area
@@ -138,7 +140,9 @@ class StationProfileForm(forms.Form):
     email = forms.EmailField(label=_("Email"))
     logo = AppEngineImageField(label=_("Logo"), required=False)
     description  = forms.CharField(label=_("Description"), widget=forms.Textarea, required=False)
-    
+    lon = forms.FloatField(widget=forms.HiddenInput(), required=False)
+    lat = forms.FloatField(widget=forms.HiddenInput(), required=False)
+
     class Ajax:
         rules = [
             ('password2', {'equal_to_field': 'password'}),
@@ -147,6 +151,13 @@ class StationProfileForm(forms.Form):
             ('password2', {'equal_to_field': _("The two password fields didn't match.")}),
         ]
 
+    def clean_address(self):
+        if not INITIAL_DATA in self.data:
+            if not (self.data['lon'] and self.data['lat']):
+                raise forms.ValidationError(_("Invalid address"))
+ 
+        return self.cleaned_data['address']
+         
     def clean(self):
         """
         """
@@ -158,8 +169,15 @@ class StationProfileForm(forms.Form):
             city = City.objects.get(id=self.cleaned_data['city_id'])
             self.cleaned_data['city'] = city
 
-
         return self.cleaned_data
+
+class PhoneForm(ModelForm):
+    local_phone = forms.RegexField( regex=r'^\d+$',
+                              max_length=20,
+                              widget=forms.TextInput(),
+                              label=_("Phone"),
+                              error_messages={'invalid': _("The value must contain only numbers.")} )
+        
 
 class PassengerProfileForm(forms.Form):
     email = forms.EmailField(label=_("Email"))

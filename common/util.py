@@ -35,8 +35,3 @@ def get_model_from_request(model_class, request):
             return None
 
         return model_instance
-
-class JSONResponse(HttpResponse):
-    def __init__(self, data):
-        super(JSONResponse, self).__init__(
-                simplejson.dumps(data), mimetype='application/json')

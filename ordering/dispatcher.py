@@ -2,7 +2,10 @@
 from ordering.models import OrderAssignment, WorkStation
 from ordering.station_connection_manager import is_workstation_available
 from ordering.errors import OrderError, NoWorkStationFoundError
+from common.geo_calculations import distance_between_points
 import models
+
+MAX_STATION_DISTANCE_KM = 30
 
 def assign_order(order):
     work_station = choose_workstation(order)
@@ -33,10 +36,16 @@ def choose_workstation(order):
     work_stations = work_stations.exclude(accept_orders=False)
         
     for ws in work_stations:
-        if is_workstation_available(ws):
+        if is_workstation_available(ws) and station_in_valid_distance(ws.station, order):
             return ws
 
     return None
 
-    
+def station_in_valid_distance(station, order):
+    if not (station.lat and station.lon): # ignore station with unknown address
+        return False
+
+    return (distance_between_points(station.lat, station.lon, order.from_lat, order.from_lon) <= MAX_STATION_DISTANCE_KM or
+        distance_between_points(station.lat, station.lon, order.to_lat, order.to_lon) <= MAX_STATION_DISTANCE_KM)
+
     
