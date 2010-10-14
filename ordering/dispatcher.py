@@ -29,15 +29,24 @@ def assign_order(order):
 def choose_workstation(order):
     rejected_work_stations_ids = [order_assignment.work_station.id for order_assignment in OrderAssignment.objects.filter(order = order, status__in=[models.REJECTED, models.IGNORED])]
     if rejected_work_stations_ids == []:
-        work_stations = WorkStation.objects.all()
+        work_stations_qs = WorkStation.objects.all()
     else:
-        work_stations = WorkStation.objects.exclude(id__in=rejected_work_stations_ids)
+        work_stations_qs = WorkStation.objects.exclude(id__in=rejected_work_stations_ids)
 
-    work_stations = work_stations.exclude(accept_orders=False)
-        
-    for ws in work_stations:
+    work_stations_qs = work_stations_qs.exclude(accept_orders=False)
+    work_stations = []
+
+    for ws in work_stations_qs:
         if is_workstation_available(ws) and station_in_valid_distance(ws.station, order):
+            work_stations.append(ws)
+
+
+    for ws in work_stations:
+        if ws.station == order.passenger.default_station:
             return ws
+
+    if work_stations:
+        return work_stations[0] 
 
     return None
 

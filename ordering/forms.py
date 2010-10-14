@@ -15,6 +15,16 @@ from django.core.exceptions import ValidationError
 
 INITIAL_DATA = 'INITIAL_DATA'
 
+class Id2Model():
+    def id_field_to_model(self, field_name, model):
+        if hasattr(self, "cleaned_data"):
+            if (field_name in self.cleaned_data) and (self.cleaned_data[field_name]):
+                try:
+                    instance = model.objects.get(id=self.cleaned_data[field_name])
+                    self.cleaned_data[field_name] = instance
+                except:
+                    self.cleaned_data[field_name] = None
+
 class AppEngineImageWidget(forms.FileInput):
     def render(self, name, value, attrs=None):
         result = super(AppEngineImageWidget, self).render(name, None, attrs=attrs)
@@ -121,7 +131,7 @@ class OrderForm(ModelForm):
 
         return model
 
-class StationProfileForm(forms.Form):
+class StationProfileForm(forms.Form, Id2Model):
 
     name = forms.CharField(label=_("Station name"))
     password = forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
@@ -161,13 +171,8 @@ class StationProfileForm(forms.Form):
     def clean(self):
         """
         """
-        if 'country_id' in self.cleaned_data:
-            country = Country.objects.get(id=self.cleaned_data['country_id'])
-            self.cleaned_data['country'] = country
-
-        if 'city_id' in self.cleaned_data:
-            city = City.objects.get(id=self.cleaned_data['city_id'])
-            self.cleaned_data['city'] = city
+        self.id_field_to_model('country_id', Country)
+        self.id_field_to_model('city_id', City)
 
         return self.cleaned_data
 
@@ -179,14 +184,16 @@ class PhoneForm(ModelForm):
                               error_messages={'invalid': _("The value must contain only numbers.")} )
         
 
-class PassengerProfileForm(forms.Form):
+class PassengerProfileForm(forms.Form, Id2Model):
     email = forms.EmailField(label=_("Email"))
 
     password =  forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
 
     password2 = forms.CharField(label=_("Re-enter password"), widget=forms.PasswordInput(), required=False)
 
-    country =   forms.IntegerField(widget=forms.Select(choices=Country.country_choices()), label=_("Country"))
+    country =   forms.ModelChoiceField(queryset=Country.objects.all().order_by("name"), label=_("Country"))
+
+    default_station = forms.ModelChoiceField(queryset=Station.objects.all(), label=_("Default station"), empty_label=_("(No station selected)"), required=False)
 
     phone =     forms.RegexField( regex=r'^\d+$',
                                   max_length=20,
@@ -204,20 +211,6 @@ class PassengerProfileForm(forms.Form):
         messages = [
             ('password2', {'equal_to_field': _("The two password fields didn't match.")}),
         ]
-
-    def clean(self):
-        """
-        Verifiy that the values entered into the two password fields
-        match. Note that an error here will end up in
-        ``non_field_errors()`` because it doesn't apply to a single
-        field.
-
-        """
-        if 'country' in self.cleaned_data:
-            country = Country.objects.get(id=self.cleaned_data['country'])
-            self.cleaned_data['country'] = country
-         
-        return self.cleaned_data
 
 class CityChoiceWidget(forms.Select):
     def render(self, name, value, attrs=None, choices=()):

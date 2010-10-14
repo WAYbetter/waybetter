@@ -22,7 +22,7 @@ class Country(models.Model):
         
         return query[0].id
 
-    @classmethod
+    @classmethod 
     def country_choices(cls, order_by="name"):
         return [(c.id, "%s (%s)" % (c.name, c.dial_code)) for c in cls.objects.all().order_by(order_by)]
 

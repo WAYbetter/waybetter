@@ -5,7 +5,6 @@ from django.contrib.auth.models import User
 from djangotoolbox.fields import BlobField
 from common.models import Country, City, CityArea
 from datetime import datetime
-from django.contrib.localflavor.us.models import PhoneNumberField
 
 ASSIGNED = 1
 ACCEPTED = 2
@@ -28,20 +27,6 @@ ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, gettext("pending")),
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
-
-class Passenger(models.Model):
-    user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger")
-
-    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
-    phone = models.CharField(_("phone number"), max_length=15)
-    phone_verified = models.BooleanField(_("phone verified"))
-    phone_verification_code = models.CharField(_("phone verification code"), max_length=20)
-
-    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
-    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
-
-    def __unicode__(self):
-        return self.user.username
 
 class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
@@ -75,6 +60,31 @@ class Station(models.Model):
     def get_admin_link(self):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/station', self.id, self.name)
 
+    @staticmethod
+    def get_default_station_choices(order_by="name"):
+        choices = [(-1, "-----------")]
+        choices.extend([(station.id, station.name) for station in Station.objects.all().order_by(order_by)])
+        return choices
+
+class Passenger(models.Model):
+    user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger")
+
+    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
+    default_station = models.ForeignKey(Station, verbose_name=_("Default station"), related_name="default_passengers", default=None, null=True)
+
+    phone = models.CharField(_("phone number"), max_length=15)
+    phone_verified = models.BooleanField(_("phone verified"))
+    phone_verification_code = models.CharField(_("phone verification code"), max_length=20)
+
+    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
+    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+
+
+
+    def __unicode__(self):
+        return self.user.username
+
+
 class Phone(models.Model):
     local_phone = models.CharField(_("phone number"), max_length=20)
 
@@ -86,16 +96,13 @@ class Phone(models.Model):
         else:
             return u"" 
 
-
-
-
 class WorkStation(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="work_station")
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="work_stations")
     token = models.CharField(_("token"), max_length=20)
     im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=40)
-    accept_orders = models.BooleanField(_("Online"), default=True)
+    accept_orders = models.BooleanField(_("Accept orders"), default=True)
 
     def __unicode__(self):
         return u"Workstation "# of: %d" % (self.station.id)
