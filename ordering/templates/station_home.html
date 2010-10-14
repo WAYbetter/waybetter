@@ -1,12 +1,14 @@
 {% extends "base_station.html" %}
 {% load i18n %}
 
+{% block page_specific_head %}
+<script type="text/javascript" src="/static/js/jquery.form.js"></script>
+<script type="text/javascript" src="/static/js/ordering.js"></script>
+<script type="text/javascript" src="/static/js/utils.js"></script>
+{% endblock %}
+
 {% block content %}
 
-    <script type="text/javascript" src="/static/js/ordering.js"></script>
-    <script type="text/javascript" src="/static/js/utils.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.ajax_forms.js"></script>
-    <script type="text/javascript" src="/static/js/jquery.ajax_forms.validation.js"></script>
 
     <script type="text/javascript">
         $(document).ready(function() {

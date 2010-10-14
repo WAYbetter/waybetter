@@ -1,11 +1,11 @@
 
 {% load i18n %}
 <script type="text/javascript" src="/static/js/jquery.formset.min.js"></script>
-<script type="text/javascript" src="/static/js/jquery.form.js"></script>
-
+<script type="text/javascript" src="/static/js/jquery.ajax_forms.js"></script>
+<script type="text/javascript" src="/static/js/jquery.ajax_forms.validation.js"></script>
 
 {% load ajax_form_utils %}
-<form enctype="multipart/form-data" id="profile_form" action="{% url ordering.station_controller.station_profile %}" method="post" id="profile_form">
+<form enctype="multipart/form-data" id="profile_form" action="{% url ordering.station_controller.station_profile %}" method="post">
     {% csrf_token %}
     {{ form.as_p }}
 

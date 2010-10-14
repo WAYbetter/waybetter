@@ -167,6 +167,7 @@ class StationProfileForm(forms.Form, Id2Model):
                 raise forms.ValidationError(_("Invalid address"))
  
         return self.cleaned_data['address']
+
          
     def clean(self):
         """
@@ -174,6 +175,9 @@ class StationProfileForm(forms.Form, Id2Model):
         self.id_field_to_model('country_id', Country)
         self.id_field_to_model('city_id', City)
 
+        self.cleaned_data['city'] = self.cleaned_data['city_id']
+        self.cleaned_data['country'] = self.cleaned_data['country_id']
+ 
         return self.cleaned_data
 
 class PhoneForm(ModelForm):
