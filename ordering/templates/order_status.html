@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block title %}
-        {% trans "Order page" %}
+    {% trans "Order page" %}
 {% endblock title %}
 
 {% block content %}
@@ -14,9 +14,34 @@
         {% for key,val in order_status %}
             status_labels[{{ key }}] = "{{ val }}";
         {% endfor %}
-        
+
+        function initRating() {
+            $(".stars-wrapper").stars({
+                inputType: "select",
+                captionEl: $("#stars-cap"),
+                callback: function(ui, type, value) {
+
+                    $.ajax({
+                        url: "/services/rate_order/{{ order.id }}",
+                        type: "POST",
+                        data: { rating: value},
+                        success: function() {
+                            $("#stars-wrapper").stars("select", value);
+                            $("#stars-wrapper-red").html(value == ui.options.cancelValue ? "Rating removed" : "Rating saved! (" + value + ")").stop().css("opacity", 1).fadeIn(30);
+                            $("#stars-wrapper2-red").fadeOut(1000);
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                            alert(XMLHttpRequest.responseText);
+                        }
+                    });
+
+                }
+            });
+        }
+
         $(document).ready(function() {
             initConnection();
+            initRating();
         });
         function initConnection() {
             pollOrderStatus();
@@ -43,7 +68,7 @@
             if (data) {
                 order = data[0];
                 order_assignments = new Array();
-                for (var index=1; index < data.length; index++) {
+                for (var index = 1; index < data.length; index++) {
                     order_assignments.push(data[index]);
                 }
                 renderData();
@@ -68,23 +93,23 @@
 
         }
         function renderOrder() {
-           var html = "Status: " + status_labels[order.fields.status] + "<br>";
-           if (order.fields.pickup_time) {
-               html += "Pickup time: " + order.fields.pickup_time + " minutes <br>";
-           }
-           if (html != $("#order_status").html()) {
-               $("#order_status").html(html).effect("highlight", {}, 1300);
-           }
+            var html = "Status: " + status_labels[order.fields.status] + "<br>";
+            if (order.fields.pickup_time) {
+                html += "Pickup time: " + order.fields.pickup_time + " minutes <br>";
+            }
+            if (html != $("#order_status").html()) {
+                $("#order_status").html(html).effect("highlight", {}, 1300);
+            }
 
 
         }
         function renderAssignment(order_assignment) {
-          var html = "<tr class=\"order_assignment\">";
-           html += "<td>" + order_assignment.fields.station + "</td>";
-           html += "<td>" + status_labels[order_assignment.fields.status] + "</td>";
-           html += "<td>" + order_assignment.fields.modify_date + "</td>";
-           html += "</tr>";
-           return html;
+            var html = "<tr class=\"order_assignment\">";
+            html += "<td>" + order_assignment.fields.station + "</td>";
+            html += "<td>" + status_labels[order_assignment.fields.status] + "</td>";
+            html += "<td>" + order_assignment.fields.modify_date + "</td>";
+            html += "</tr>";
+            return html;
         }
     </script>
 
@@ -95,16 +120,30 @@
             from: {{ order.from_raw }}<br>
             to: {{ order.to_raw }}<br>
         </div>
+
         <div id="order_status">
-           
+
         </div>
+
+        <form>
+            {% trans 'Rate this ride' %}:
+            <div class="stars-wrapper">
+                <select name="selrate">
+                {% for choice in rating_choices %}
+                    <option value="{{ choice.0 }}" {% ifequal choice.0 order.passenger_rating %}selected{% endifequal %}>{{ choice.1 }}</option>
+                {% endfor %}
+                </select>
+            </div>
+            <span id="stars-cap"></span>
+            <div id="stars-wrapper-red"></div>
+        </form>
+
+        <br/>
+
         <div id="order_assignments">
 
         </div>
 
     </div>
 
-
 {% endblock content %}
-
-
