@@ -16,7 +16,7 @@
         {% endfor %}
 
         function initRating() {
-            $("#stars-wrapper").stars({
+            $(".stars-wrapper").stars({
                 inputType: "select",
                 captionEl: $("#stars-cap"),
                 callback: function(ui, type, value) {
@@ -127,7 +127,7 @@
 
         <form>
             {% trans 'Rate this ride' %}:
-            <div id="stars-wrapper">
+            <div class="stars-wrapper">
                 <select name="selrate">
                 {% for choice in rating_choices %}
                     <option value="{{ choice.0 }}" {% ifequal choice.0 order.passenger_rating %}selected{% endifequal %}>{{ choice.1 }}</option>

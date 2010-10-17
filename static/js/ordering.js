@@ -433,9 +433,12 @@ var OrderHistoryHelper = Object.create({
         of_label:                       "",
         order_history_columns:          [],
         order_history_column_names:     [],
-        order_history_fields:           []
+        order_history_fields:           [],
+        rating_choices:                 [],
+        rating_disabled:                false
     },
     current_params:                     {},
+    rating_initialized:                 false,
     init:           function(config) {
         var that = this;
         // merge the given config with current config
@@ -517,6 +520,7 @@ var OrderHistoryHelper = Object.create({
         $("#orders_history_pager").empty().append($prev_button, $pager_text, $next_button);
     },
     drawTable:      function(orders, page_size) {
+
         var that = this,
             baseBgColor = "style='background-color: lightGray'",
             $table = $("<table>");
@@ -536,14 +540,32 @@ var OrderHistoryHelper = Object.create({
             $header_row.append($th);
         });
         $table.append($header_row);
-
+        var choices = this.config.rating_choices;
         $.each(orders, function(i, order) {
             var $tr = $("<tr>").attr("order_id", order.Id);
             if (i % 2 == 0) $tr.addClass('even_row');
 
             $.each(that.config.order_history_columns, function(name_index, val) {
-                var $td = $("<td>").attr("field_type", val).addClass('order_history_column_' + val)
+                var $td;
+                if (name_index == 4) {
+                    // rating column
+                    $rating_select = $("<select name='selrate'>");
+                    for (var i = 0; i < choices.length; i++) {
+                        $rating_select.append($("<option value='" + choices[i].val + "'>" + choices[i].name + "</option>"));
+                    }
+
+                    $wrapper = $("<div id='rating_wrapper_" + order["Id"] + "'>")
+                                .addClass('stars-wrapper')
+                                .attr("order_id", order["Id"])
+                                .attr("rating", order["Passenger Rating"])
+                                .append($rating_select);
+                    $form = ($("<form>")).append($wrapper);
+                    $td = $("<td>").append($form);
+                }
+                else {
+                    $td = $("<td>").attr("field_type", val).addClass('order_history_column_' + val)
                         .append(order[that.config.order_history_columns[name_index]]);
+                }
                 $tr.append($td);
             });
             $table.append($tr);
@@ -552,7 +574,7 @@ var OrderHistoryHelper = Object.create({
         $("#orders_history_grid table").animate({
             color: "black"
         }, 400);
-                
+        this.initRating();
     },
     doSearch:       function() {
         this.loadHistory({
@@ -569,6 +591,40 @@ var OrderHistoryHelper = Object.create({
         else {
             this.current_params.sort_dir = "-";
         }
+    },
+    initRating:     function() {
+        var widgets = {};
+        var that = this;
+        $(".stars-wrapper").each(function(index) {
+                $(this).stars({
+                    inputType: "select",
+                    disabled: that.config.rating_disabled,
+        //                captionEl: $("#stars-cap"),
+                    callback: function(ui, type, value) {
+                        var order_id = ui.element.attr("order_id");
+                        $.ajax({
+                            url: "/services/rate_order/" + order_id,
+                            type: "POST",
+                            data: { rating: value},
+                            success: function() {
+                                $("#stars-wrapper").stars("select", value);
+                                $("#stars-wrapper-red").html(value == ui.options.cancelValue ? "Rating removed" : "Rating saved! (" + value + ")").stop().css("opacity", 1).fadeIn(30);
+                                $("#stars-wrapper2-red").fadeOut(1000);
+                            },
+                            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                                alert(XMLHttpRequest.responseText);
+                            }
+                        });
+                    }
+                });
+        });
+        $(".stars-wrapper").each(function(index) {
+            if ($(this).attr('rating') && $(this).attr('rating') != "null") {
+                var rating = $(this).attr('rating');
+                $(this).stars("select", rating);
+            }
+        });
+        this.rating_initialized = true;
     }
 
 });

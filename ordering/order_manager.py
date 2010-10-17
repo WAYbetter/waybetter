@@ -8,6 +8,7 @@ from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFoun
 from ordering.decorators import passenger_required, internal_task_on_queue
 from django.core.serializers import serialize
 from django.conf import settings
+from django.utils.translation import gettext as _
 
 from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, ASSIGNED, RATING_CHOICES
 import dispatcher
@@ -115,6 +116,8 @@ def enqueue_redispatch_ignored_orders(order_assignment, interval):
 @passenger_required
 def rate_order(request, order_id, passenger):
     order = get_object_or_404(Order, id=order_id)
+    if order.passenger != passenger:
+        return HttpResponseForbidden(_("You can't rate this order"))
     rating = int(request.POST["rating"])
     if rating > 0:
         order.passenger_rating = rating

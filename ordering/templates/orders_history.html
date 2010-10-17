@@ -17,10 +17,15 @@
         order_history_column_names: {{ order_history_column_names }},
         order_history_fields:       {{ order_history_fields }},
         page_label:                 "{% trans 'Page' %}",
-        of_label:                   "{% trans 'of' %}"
+        of_label:                   "{% trans 'of' %}",
+        rating_choices:             {{ rating_choices }},
+    {% if rating_disabled %}
+        rating_disabled:            true,
+    {% endif %}
     });
 
 
 })();
 {% endautoescape %}
 </script>
+
