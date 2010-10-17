@@ -345,6 +345,7 @@ var SelectFromHistoryHelper = Object.create({
         orders_index:       0
 
     },
+    initialized:            false,
     init:       function($tabs, config) {
         $.extend(true, this.config, config);
 
@@ -352,12 +353,15 @@ var SelectFromHistoryHelper = Object.create({
             this.from_selector = new HistorySelector($("#id_from_raw"));
             this.to_selector = new HistorySelector($("#id_to_raw"));
         }
+        this.initialized = true;
     },
     updateGrid:   function() {
-        var selectors = [this.from_selector, this.to_selector];
-        for (var i in selectors) {
-            if (selectors[i].is_active) {
-                selectors[i].activate();
+        if (this.initialized) {
+            var selectors = [this.from_selector, this.to_selector];
+            for (var i in selectors) {
+                if (selectors[i].is_active) {
+                    selectors[i].activate();
+                }
             }
         }
     }

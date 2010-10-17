@@ -1,18 +1,27 @@
 # This Python file uses the following encoding: utf-8
 
 from django import forms
-from django.forms.models import ModelForm, _get_foreign_key, BaseModelForm
+from django.forms.models import ModelForm
 from django.forms.util import flatatt
-from django.forms.models import BaseInlineFormSet
 from django.utils.translation import gettext as _
 from django.utils.encoding import smart_unicode
 
 from common.models import Country, City
-from ordering.models import Order, Station, Phone
+from ordering.models import Order, Station
 from django.utils.safestring import mark_safe
-from google.appengine.api.images import BadImageError
-from django.core.exceptions import ValidationError
+from google.appengine.api.images import BadImageError, NotImageError
 
+INITIAL_DATA = 'INITIAL_DATA'
+
+class Id2Model():
+    def id_field_to_model(self, field_name, model):
+        if hasattr(self, "cleaned_data"):
+            if (field_name in self.cleaned_data) and (self.cleaned_data[field_name]):
+                try:
+                    instance = model.objects.get(id=self.cleaned_data[field_name])
+                    self.cleaned_data[field_name] = instance
+                except:
+                    self.cleaned_data[field_name] = None
 
 class AppEngineImageWidget(forms.FileInput):
     def render(self, name, value, attrs=None):
@@ -26,6 +35,8 @@ class AppEngineImageWidget(forms.FileInput):
                 thumbnail = img.execute_transforms(output_encoding=images.PNG)
                 result = u"""<img src='data:image/png;base64,%s' /><br>""" % base64.encodestring(thumbnail) + result
             except BadImageError:
+                pass
+            except NotImageError:
                 pass
 
         return result
@@ -100,7 +111,8 @@ class OrderForm(ModelForm):
     def clean(self):
         if self.cleaned_data['from_country'] != self.cleaned_data['to_country']:
             raise forms.ValidationError(_("To and From countries do not match"))
-        
+
+        return self.cleaned_data
 
     def save(self, commit=True):
         #TODO_WB: geocode raw address, fill city_area
@@ -119,7 +131,7 @@ class OrderForm(ModelForm):
 
         return model
 
-class StationProfileForm(forms.Form):
+class StationProfileForm(forms.Form, Id2Model):
 
     name = forms.CharField(label=_("Station name"))
     password = forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
@@ -138,7 +150,9 @@ class StationProfileForm(forms.Form):
     email = forms.EmailField(label=_("Email"))
     logo = AppEngineImageField(label=_("Logo"), required=False)
     description  = forms.CharField(label=_("Description"), widget=forms.Textarea, required=False)
-    
+    lon = forms.FloatField(widget=forms.HiddenInput(), required=False)
+    lat = forms.FloatField(widget=forms.HiddenInput(), required=False)
+
     class Ajax:
         rules = [
             ('password2', {'equal_to_field': 'password'}),
@@ -147,28 +161,39 @@ class StationProfileForm(forms.Form):
             ('password2', {'equal_to_field': _("The two password fields didn't match.")}),
         ]
 
+    def clean_address(self):
+        if not INITIAL_DATA in self.data:
+            if not (self.data['lon'] and self.data['lat']):
+                raise forms.ValidationError(_("Invalid address"))
+ 
+        return self.cleaned_data['address']
+         
     def clean(self):
         """
         """
-        if 'country_id' in self.cleaned_data:
-            country = Country.objects.get(id=self.cleaned_data['country_id'])
-            self.cleaned_data['country'] = country
-
-        if 'city_id' in self.cleaned_data:
-            city = City.objects.get(id=self.cleaned_data['city_id'])
-            self.cleaned_data['city'] = city
-
+        self.id_field_to_model('country_id', Country)
+        self.id_field_to_model('city_id', City)
 
         return self.cleaned_data
 
-class PassengerProfileForm(forms.Form):
+class PhoneForm(ModelForm):
+    local_phone = forms.RegexField( regex=r'^\d+$',
+                              max_length=20,
+                              widget=forms.TextInput(),
+                              label=_("Phone"),
+                              error_messages={'invalid': _("The value must contain only numbers.")} )
+        
+
+class PassengerProfileForm(forms.Form, Id2Model):
     email = forms.EmailField(label=_("Email"))
 
     password =  forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
 
     password2 = forms.CharField(label=_("Re-enter password"), widget=forms.PasswordInput(), required=False)
 
-    country =   forms.IntegerField(widget=forms.Select(choices=Country.country_choices()), label=_("Country"))
+    country =   forms.ModelChoiceField(queryset=Country.objects.all().order_by("name"), label=_("Country"))
+
+    default_station = forms.ModelChoiceField(queryset=Station.objects.all(), label=_("Default station"), empty_label=_("(No station selected)"), required=False)
 
     phone =     forms.RegexField( regex=r'^\d+$',
                                   max_length=20,
@@ -186,20 +211,6 @@ class PassengerProfileForm(forms.Form):
         messages = [
             ('password2', {'equal_to_field': _("The two password fields didn't match.")}),
         ]
-
-    def clean(self):
-        """
-        Verifiy that the values entered into the two password fields
-        match. Note that an error here will end up in
-        ``non_field_errors()`` because it doesn't apply to a single
-        field.
-
-        """
-        if 'country' in self.cleaned_data:
-            country = Country.objects.get(id=self.cleaned_data['country'])
-            self.cleaned_data['country'] = country
-         
-        return self.cleaned_data
 
 class CityChoiceWidget(forms.Select):
     def render(self, name, value, attrs=None, choices=()):

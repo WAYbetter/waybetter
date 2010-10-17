@@ -28,31 +28,11 @@ ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, gettext("pending")),
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
 
-RATING_CHOICES = ((1, gettext("Very poor")),
-                  (2, gettext("Not so bad")),
-                  (3, gettext("Average")),
-                  (4, gettext("Good")),
-                  (5, gettext("Perfect")))
-
-class Passenger(models.Model):
-    user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger")
-
-    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
-    phone = models.CharField(_("phone number"), max_length=15)
-    phone_verified = models.BooleanField(_("phone verified"))
-    phone_verification_code = models.CharField(_("phone verification code"), max_length=20)
-
-    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
-    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
-
-    def __unicode__(self):
-        return self.user.username
-
 class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
     name = models.CharField(_("station name"), max_length=50)
     license_number = models.CharField(_("license number"), max_length=30)
-    website_url = models.URLField(_("website"), max_length=255 ,null=True,blank=True) #verify_exists=False
+    website_url = models.URLField(_("website"), max_length=255 ,null=True, blank=True) #verify_exists=False
     number_of_taxis = models.IntegerField(_("number of taxis"), max_length=4)
     description = models.CharField(_("description"), max_length=4000,null=True,blank=True)
     logo = BlobField(_("logo"), null=True,blank=True)
@@ -65,6 +45,8 @@ class Station(models.Model):
     postal_code = models.CharField(_("postal code"), max_length=10)
     address = models.CharField(_("address"), max_length=80)
     geohash = models.CharField(_("goehash"), max_length=13)
+    lon = models.FloatField(_("longtitude"), null=True)
+    lat = models.FloatField(_("latitude"), null=True)
 
     number_of_ratings = models.IntegerField(_("number of ratings"), default=0)
     average_rating = models.FloatField(_("average rating"), default=0.0)
@@ -81,16 +63,41 @@ class Station(models.Model):
     def get_admin_link(self):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/station', self.id, self.name)
 
+    @staticmethod
+    def get_default_station_choices(order_by="name"):
+        choices = [(-1, "-----------")]
+        choices.extend([(station.id, station.name) for station in Station.objects.all().order_by(order_by)])
+        return choices
+
+class Passenger(models.Model):
+    user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger")
+
+    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
+    default_station = models.ForeignKey(Station, verbose_name=_("Default station"), related_name="default_passengers", default=None, null=True)
+
+    phone = models.CharField(_("phone number"), max_length=15)
+    phone_verified = models.BooleanField(_("phone verified"))
+    phone_verification_code = models.CharField(_("phone verification code"), max_length=20)
+
+    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
+    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+
+
+
+    def __unicode__(self):
+        return self.user.username
+
+
 class Phone(models.Model):
-    local_phone = models.IntegerField(_("phone number"))
+    local_phone = models.CharField(_("phone number"), max_length=20)
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="phones", null=True, blank=True)
 
     def __unicode__(self):
-        return self.local_phone
-
-
-
+        if self.local_phone:
+            return u"%s" % self.local_phone
+        else:
+            return u"" 
 
 class WorkStation(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="work_station")
@@ -98,7 +105,7 @@ class WorkStation(models.Model):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="work_stations")
     token = models.CharField(_("token"), max_length=20)
     im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=40)
-    accept_orders = models.BooleanField(_("Online"), default=True)
+    accept_orders = models.BooleanField(_("Accept orders"), default=True)
 
     def __unicode__(self):
         return u"Workstation "# of: %d" % (self.station.id)
@@ -106,6 +113,11 @@ class WorkStation(models.Model):
     def get_admin_link(self):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/workstation', self.id, self.user.username)
 
+RATING_CHOICES = ((1, gettext("Very poor")),
+                  (2, gettext("Not so bad")),
+                  (3, gettext("Average")),
+                  (4, gettext("Good")),
+                  (5, gettext("Perfect")))
 
 class Order(models.Model):
 
