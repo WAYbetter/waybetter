@@ -16,6 +16,7 @@ import logging
 from datetime import datetime
 from sharded_counters.models import commit_locked
 from ordering.models import Station
+from common.sms_notification import send_sms
 
 def book_order_async(order):
     logging.info("book_order_async: %d" % order.id)
@@ -55,8 +56,7 @@ def accept_order(order, pickup_time, station):
     order.status = ACCEPTED
     order.station = station
     order.save()
-
-#TODO_WB: send SMS
+    send_sms(order.passenger.phone, "%s %s %d %s" % (station.name, _("sent you a cab, which should arrive in"), pickup_time, _("minutes")))
 
 @passenger_required
 def order_status(request, order_id, passenger):

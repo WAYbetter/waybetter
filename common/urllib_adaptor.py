@@ -44,6 +44,10 @@ class Response:
     def __repr__(self):
         return self.content
 
+    def info(self):
+        return "Response: %d" % self.status_code
+
+
 def urlopen(url, data=None):
     if isinstance(url, basestring):
         req = Request(url, data)

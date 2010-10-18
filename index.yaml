@@ -96,6 +96,17 @@ indexes:
 - kind: ordering_order
   properties:
   - name: passenger_id
+  - name: passenger_rating
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: passenger_rating
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
   - name: station_id
 
 - kind: ordering_order
@@ -161,6 +172,17 @@ indexes:
   properties:
   - name: station_id
   - name: passenger_phone
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: station_id
+  - name: passenger_rating
+
+- kind: ordering_order
+  properties:
+  - name: station_id
+  - name: passenger_rating
     direction: desc
 
 - kind: ordering_order
