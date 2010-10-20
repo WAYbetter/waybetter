@@ -10,9 +10,12 @@ urlpatterns = patterns('',
 #    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
     (r'^accounts/', include('registration.backends.station.urls')),
     (r'^common/', include('common.urls')),
-    (r'^admin/(.*)', admin.site.root),
+    (r'^admin/analytics/', 'analytics.views.analytics'),
+    (r'^admin/', include(admin.site.urls)),
     (r'^', include('ordering.urls')),
+    (r'^', include('analytics.urls')),
     (r'^', include('socialauth.urls')),
+    
     (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/images/favicon.ico'}),
 )
 

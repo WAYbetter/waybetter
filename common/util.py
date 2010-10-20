@@ -1,6 +1,39 @@
 import random
-from django.http import HttpResponse
-from django.utils import simplejson
+from google.appengine.api.labs import taskqueue
+from django.utils.translation import gettext as _
+
+class Enum:
+    @classmethod
+    def choices(cls):
+        result = []
+        for item_name in dir(cls):
+            item = getattr(cls, item_name)
+            if isinstance(item, int) and not item_name.startswith("__"):
+                result.append((item, _(item_name.capitalize())))
+
+        return sorted(result)
+    @classmethod
+    def get_label(cls, val):
+        for item_name in dir(cls):
+            item_value = getattr(cls, item_name)
+            if item_value == val:
+                name = " ".join([p.capitalize() for p in item_name.split("_")])
+                return _(name)
+
+        raise ValueError(_("Invalid value: %s" % str(val)))
+
+class EventType(Enum):
+    ORDER_BOOKED =                  1
+    ORDER_ASSIGNED =                2
+    ORDER_ACCEPTED =                3
+    ORDER_REJECTED =                4
+    ORDER_IGNORED =                 5
+    ORDER_ERROR =                   6
+    CROSS_COUNTRY_ORDER_FAILURE =   7
+    NO_SERVICE_IN_CITY =            8
+    NO_SERVICE_IN_COUNTRY =         9
+    ORDER_FAILED =                  10
+
 
 def is_empty(str):
     """
@@ -35,3 +68,36 @@ def get_model_from_request(model_class, request):
             return None
 
         return model_instance
+
+
+def log_event(event_type, order=None, order_assignment=None, station=None, work_station=None, passenger=None,
+              country=None, city=None):
+    """
+    Log a new analytics event asynchonically:
+        event_type: an EventType field (e.g. EventType.ORDER_BOOKED)
+        order, order_assignment, station, work_station, passenger: an optional instance 
+    """
+    if order and not city:
+        city = order.from_city
+        country = order.from_country
+        if order.from_city != order.to_city:
+            log_event(event_type,
+                      order=order,order_assignment=order_assignment,station=station, work_station=work_station,
+                      passenger=passenger, country=order.from_country, city=order.to_city)
+
+    params = {
+        'event_type': event_type,
+        'order_id': order.id if order else "",
+        'order_assignment_id': order_assignment.id if order_assignment else "",
+        'station_id': station.id if station else "",
+        'work_station_id': work_station.id if work_station else "",
+        'passenger_id': passenger.id if passenger else "",
+        'country_id': country.id if country else "",
+        'city_id': city.id if city else "",
+    }
+
+    # Note that reverse was not used here to avoid circular import!
+    task = taskqueue.Task(url="/services/log_event/", params=params)
+    q = taskqueue.Queue('log-events')
+    q.add(task)
+

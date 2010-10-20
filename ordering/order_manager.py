@@ -4,18 +4,19 @@ from station_connection_manager import push_order
 from django.core.urlresolvers import reverse
 from ordering.errors import OrderError, NoWorkStationFoundError
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError
 from ordering.decorators import passenger_required, internal_task_on_queue
 from django.core.serializers import serialize
 from django.conf import settings
 from django.utils.translation import gettext as _
 
-from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, ASSIGNED, RATING_CHOICES
+from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, ASSIGNED, RATING_CHOICES, ERROR
 import dispatcher
 import logging
 from datetime import datetime
 from sharded_counters.models import commit_locked
 from ordering.models import Station
+from common.util import log_event, EventType
 
 def book_order_async(order):
     logging.info("book_order_async: %d" % order.id)
@@ -39,11 +40,15 @@ def book_order(request):
     except NoWorkStationFoundError:
         order.status = FAILED
         order.save()
+        log_event(EventType.ORDER_FAILED, order=order, passenger=order.passenger)
         logging.warning("no matching workstation found for: %d" % order_id)
         response = HttpResponse("no matching workstation found")
         
         #TODO_WB: send SMS
     except OrderError:
+        order.status = ERROR
+        order.save()
+        log_event(EventType.ORDER_ERROR, order=order, passenger=order.passenger)
         logging.error("book_order: OrderError: %d" % order_id)
         response = HttpResponseServerError("an error occured while handling order")
         #TODO_WB: send SMS
@@ -97,6 +102,13 @@ def redispatch_ignored_orders(request):
         if (datetime.now() - order_assignment.create_date).seconds > OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT:
             order_assignment.status = IGNORED
             order_assignment.save()
+            log_event(EventType.ORDER_IGNORED,
+                      passenger=order_assignment.order.passenger,
+                      order=order_assignment.order,
+                      order_assignment=order_assignment,
+                      station=order_assignment.station,
+                      work_station=order_assignment.work_station)
+
             book_order_async(order_assignment.order)
         else: # enqueue again to check in 1 sec
             enqueue_redispatch_ignored_orders(order_assignment, 1)

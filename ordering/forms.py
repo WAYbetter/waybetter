@@ -10,6 +10,7 @@ from common.models import Country, City
 from ordering.models import Order, Station
 from django.utils.safestring import mark_safe
 from google.appengine.api.images import BadImageError, NotImageError
+from common.util import log_event, EventType
 
 INITIAL_DATA = 'INITIAL_DATA'
 
@@ -110,8 +111,31 @@ class OrderForm(ModelForm):
 
     def clean(self):
         if self.cleaned_data['from_country'] != self.cleaned_data['to_country']:
+            log_event(EventType.CROSS_COUNTRY_ORDER_FAILURE, passenger=self.passenger, country=self.cleaned_data['to_country'])
             raise forms.ValidationError(_("To and From countries do not match"))
 
+        stations_count = Station.objects.filter(country=self.cleaned_data['from_country']).count()
+        if stations_count == 0:
+            log_event(EventType.NO_SERVICE_IN_COUNTRY, passenger=self.passenger, country=self.cleaned_data['from_country'])
+            raise forms.ValidationError(_("Currently, there is no service in the country"))
+
+        # TODO_WB move this check to the DB?
+        close_enough_station_found = False
+        for station in Station.objects.filter(country=self.cleaned_data['from_country']):
+            if station.is_in_valid_distance(self.cleaned_data['from_lon'],
+                                            self.cleaned_data['from_lat'],
+                                            self.cleaned_data['to_lon'],
+                                            self.cleaned_data['to_lat']): 
+                close_enough_station_found = True
+                break
+                
+        if not close_enough_station_found:
+            log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=self.cleaned_data['from_city'])
+            if self.cleaned_data['form_city'] != self.cleaned_data['to_city']:
+                log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=self.cleaned_data['to_city'])
+
+            raise forms.ValidationError(_("Currently, there is no service in %(city)s") % {'city': self.cleaned_data['from_city'].name})
+        
         return self.cleaned_data
 
     def save(self, commit=True):

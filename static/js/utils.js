@@ -150,11 +150,11 @@ function defineClass(data) {
 function update_options(options) {
     var config = {
         parent_id_selector:     "",
-        target_id_selector:     "",
+        target_id_selector:     "", // optional, can be returned from server
         url:                    ""
     };
     $.extend(true, config, options);
-    $(config.parent_id_selector).unbind("change").change( function() {
+    $(config.parent_id_selector).unbind("change.update_options").bind("change.update_options", function() {
         update_options(options);    
     });
     $.ajax({
@@ -162,15 +162,22 @@ function update_options(options) {
         data:       $(config.parent_id_selector).serialize(),
         dataType:   'json',
         success:    function(data) {
-            $(config.target_id_selector).empty();
-            $(config.target_id_selector).append($("<option>").val("").text("---------"));
+            var target_id = data.target_id_selector || config.target_id_selector;
+            if (! target_id) {
+                throw("no target_id!");
+            }
+
+            $(target_id).empty();
             $.each(data.options, function(i, option) {
                 var $option = $("<option>").val(option[0]).text(option[1]);
                 if ('selected_option' in data && data.selected_option == option[0]) {
                     $option.attr("selected", "selected");
                 }
-                $(config.target_id_selector).append($option);
+                $(target_id).append($option);
+                
             });
+            $(target_id).trigger('change');
+
         }
 
     });

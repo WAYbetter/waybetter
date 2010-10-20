@@ -1,0 +1,301 @@
+{% extends 'admin/base_site.html' %}
+{% load i18n %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/static/js/highcharts.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.form.js"></script>
+    <script type="text/javascript" src="/static/js/utils.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.ajax_forms.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.ajax_forms.validation.js"></script>
+    {% load ajax_form_utils %}
+    {{ block.super }}
+
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load('visualization', '1', {packages: ['corechart']});
+    </script>
+    <script type="text/javascript">
+        function drawVisualization(response) {
+        // Create and populate the data table.
+
+            var data = new google.visualization.DataTable();
+            $.each(response.columns, function(i, val) {
+                data.addColumn(val[0], val[1]);
+            });
+            $.each(response.rows, function(i, val) {
+                val[0] = new Date(parseInt(val[0]));
+                data.addRow(val);
+            });
+
+            // Create and draw the visualization.
+            var chart = new google.visualization.ScatterChart(document.getElementById('google_container'));
+            chart.draw(data, {lineWidth:1, curveType:"function"});
+      }
+    </script>
+
+{% endblock %}
+{% block extrastyle %}
+    <link rel="stylesheet" href="/static/css/custom-theme/jquery-ui-1.8.2.custom.css" type="text/css" media="all" />
+    
+    {{ block.super }}
+{% endblock %}
+
+
+{% block content %}
+    <form>
+        {{ form.as_p }}
+        <input type="submit" value="{% trans 'Submit' %}"/>
+    </form>
+    <div id="chart-container1" style="width: 100%; height: 400px"></div>
+    <br/>
+    <div id="chart-container2" style="width: 100%; height: 400px"></div>
+    <br/>
+    <div id="google_container" style="width: 100%; height: 400px"></div>
+
+    <script>
+    var date_chart, hour_chart;
+    function updateChart(response) {
+        updateDateChart(response.by_date);
+        updateHourChart(response.by_hour);
+    }
+    function updateHourChart(data) {
+        date_chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'chart-container2',
+                zoomType: 'x'
+            },
+            title: {
+                text: 'Orders - By Hour'
+            },
+            xAxis: {
+                allowDecimals: false,
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                   text: 'Orders'
+                }
+            },
+            series: data.series
+        });
+    }
+
+    function updateDateChart(data) {
+        date_chart = new Highcharts.Chart({
+            chart: {
+                renderTo: 'chart-container1',
+                zoomType: 'x'
+            },
+            title: {
+                text: 'Orders - By Date'
+            },
+            xAxis: {
+                maxZoom: 1000 * 3600 * 24,
+                allowDecimals: false,
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                        hour: '%e. %b'
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                   text: 'Orders'
+                }
+            },
+            series: data.series
+           
+        });
+    }
+    function initChart() {
+        // Apply the grey theme
+        Highcharts.setOptions({
+            colors: ["#DDDF0D", "#7798BF", "#55BF3B", "#DF5353", "#aaeeee", "#ff0066", "#eeaaee",
+                "#55BF3B", "#DF5353", "#7798BF", "#aaeeee"],
+            chart: {
+                backgroundColor: {
+                    linearGradient: [0, 0, 0, 400],
+                    stops: [
+                        [0, 'rgb(96, 96, 96)'],
+                        [1, 'rgb(16, 16, 16)']
+                    ]
+                },
+                borderWidth: 0,
+                borderRadius: 15,
+                plotBackgroundColor: null,
+                plotShadow: false,
+                plotBorderWidth: 0
+            },
+            title: {
+                style: {
+                    color: '#FFF',
+                    font: '16px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                }
+            },
+            subtitle: {
+                style: {
+                    color: '#DDD',
+                    font: '12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                }
+            },
+            xAxis: {
+                gridLineWidth: 0,
+                lineColor: '#999',
+                tickColor: '#999',
+                labels: {
+                    style: {
+                        color: '#999',
+                        fontWeight: 'bold'
+                    }
+                },
+                title: {
+                    style: {
+                        color: '#AAA',
+                        font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                    }
+                }
+            },
+            yAxis: {
+                alternateGridColor: null,
+                minorTickInterval: null,
+                gridLineColor: 'rgba(255, 255, 255, .1)',
+                lineWidth: 0,
+                tickWidth: 0,
+                labels: {
+                    style: {
+                        color: '#999',
+                        fontWeight: 'bold'
+                    }
+                },
+                title: {
+                    style: {
+                        color: '#AAA',
+                        font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                    }
+                }
+            },
+            legend: {
+                itemStyle: {
+                    color: '#CCC'
+                },
+                itemHoverStyle: {
+                    color: '#FFF'
+                },
+                itemHiddenStyle: {
+                    color: '#333'
+                }
+            },
+            credits: {
+                style: {
+                    right: '50px'
+                }
+            },
+            labels: {
+                style: {
+                    color: '#CCC'
+                }
+            },
+            tooltip: {
+                backgroundColor: {
+                    linearGradient: [0, 0, 0, 50],
+                    stops: [
+                        [0, 'rgba(96, 96, 96, .8)'],
+                        [1, 'rgba(16, 16, 16, .8)']
+                    ]
+                },
+                borderWidth: 0,
+                style: {
+                    color: '#FFF'
+                }
+            },
+
+
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        color: '#CCC'
+                    },
+                    marker: {
+                        lineColor: '#333'
+                    }
+                },
+                spline: {
+                    marker: {
+                        lineColor: '#333'
+                    }
+                },
+                scatter: {
+                    marker: {
+                        lineColor: '#333'
+                    }
+                }
+            },
+
+            toolbar: {
+                itemStyle: {
+                    color: '#CCC'
+                }
+            }
+        });
+    }
+    $(document).ready(function() {
+        initChart();
+        var date_options = { dateFormat: 'yy-mm-dd' };
+        $("#id_start_date").datepicker($.extend({}, date_options, {
+            maxDate: -1,
+            defaultDate: -1
+        }));
+        $("#id_end_date").datepicker($.extend({}, date_options, {
+            defaultDate: $("#id_end_date").attr('rel')
+        }));
+
+        $("#id_city, #id_station").parent().hide();
+        $("#id_data_scope").change(function() {
+            $("#id_city, #id_station").parent().hide();
+            if ($(this).val() == 1) {
+                $("#id_city").parent().show();
+           } else if ($(this).val() == 2) {
+                $("#id_station").parent().show();
+           }
+        });
+        
+
+        var options = {
+            dataType:       'json',
+            beforeSubmit:   function() {
+                if (! $("form")[0].validate()) {
+                    return false;
+                }
+
+                $("form input[type=submit]").val("Loading...").attr("disabled", "disabled");
+
+
+            },
+            complete:       function() {
+                $("form input[type=submit]").val("Submit").attr("disabled", "")
+            },
+            success:        function(data, statusText, xhr, $form) {
+//                drawVisualization(data.google);
+                updateChart(data);
+
+            }
+        };
+        var validations = {% render_ajax_fields form %};
+        $("form").validation(validations, { validation_events: ['change'] });
+        $("form").ajaxForm(options);
+
+        update_options({
+            parent_id_selector:     "#id_data_scope",
+            url:                    "{% url analytics.views.update_scope_select %}"
+        });
+
+
+        
+    });
+
+    
+    </script>
+{% endblock %}
