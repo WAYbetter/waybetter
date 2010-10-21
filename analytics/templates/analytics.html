@@ -3,7 +3,7 @@
 
 {% block extrahead %}
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
-    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js"></script>
     <script type="text/javascript" src="/static/js/highcharts.js"></script>
     <script type="text/javascript" src="/static/js/jquery.form.js"></script>
     <script type="text/javascript" src="/static/js/utils.js"></script>
@@ -40,7 +40,7 @@
 
 {% endblock %}
 {% block extrastyle %}
-    <link rel="stylesheet" href="/static/css/custom-theme/jquery-ui-1.8.2.custom.css" type="text/css" media="all" />
+    <link rel="stylesheet" href="/static/css/redmond/jquery-ui-1.8.5.custom.css" type="text/css" media="all" />
     <style>
         .chart {
             height: 400px;
@@ -414,7 +414,7 @@
 //        initChart();
 //        initMap();
         $("#map_container").hide();
-
+        $("form input[type=submit]").button();
         var date_options = { dateFormat: 'yy-mm-dd' };
         var start_date_offset = -7;
         $("#id_start_date").datepicker($.extend({}, date_options, {
@@ -448,12 +448,12 @@
                     return false;
                 }
 
-                $("form input[type=submit]").val("Loading...").attr("disabled", "disabled");
+                $("form input[type=submit]").val("Loading...").button("disable");
 
 
             },
             complete:       function() {
-                $("form input[type=submit]").val("Submit").attr("disabled", "")
+                $("form input[type=submit]").val("Submit").button("enable")
             },
             success:        function(data, statusText, xhr, $form) {
 //                drawVisualization(data.google);

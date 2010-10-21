@@ -93,11 +93,10 @@ def update_scope_select(request):
     scope = int(request.GET.get("data_scope", -1))
     result = {}
     country = Country.objects.filter(code="IL").get() # TODO_WB allow for other countries.
-    if scope == 1: # return cities
-
+    if scope == AnalysisScope.CITY: # return cities
         result['options'] = City.city_choices(country)
         result['target_id_selector'] = "#id_city"
-    elif scope == 2: # return stations
+    elif scope == AnalysisScope.STATION: # return stations
         result['options'] = Station.get_default_station_choices(include_empty_option=False)
         result['target_id_selector'] = "#id_station"
 

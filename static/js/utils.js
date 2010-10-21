@@ -162,6 +162,9 @@ function update_options(options) {
         data:       $(config.parent_id_selector).serialize(),
         dataType:   'json',
         success:    function(data) {
+            if (! data.options) {
+                return
+            }
             var target_id = data.target_id_selector || config.target_id_selector;
             if (! target_id) {
                 throw("no target_id!");
