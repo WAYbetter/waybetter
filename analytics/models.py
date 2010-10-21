@@ -15,6 +15,7 @@ class AnalyticsEvent(models.Model):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="events", null=True, blank=True)
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="events", null=True, blank=True)
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="events", null=True, blank=True)
+    rating = models.IntegerField(verbose_name=_("ratings"), null=True, blank=True)
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)

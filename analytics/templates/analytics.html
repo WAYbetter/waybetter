@@ -39,7 +39,13 @@
 {% endblock %}
 {% block extrastyle %}
     <link rel="stylesheet" href="/static/css/custom-theme/jquery-ui-1.8.2.custom.css" type="text/css" media="all" />
-    
+    <style>
+        .chart {
+            height: 400px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+    </style>
     {{ block.super }}
 {% endblock %}
 
@@ -49,22 +55,89 @@
         {{ form.as_p }}
         <input type="submit" value="{% trans 'Submit' %}"/>
     </form>
-    <div id="chart-container1" style="width: 100%; height: 400px"></div>
-    <br/>
-    <div id="chart-container2" style="width: 100%; height: 400px"></div>
-    <br/>
-    <div id="google_container" style="width: 100%; height: 400px"></div>
+    <div id="charts">
+    </div>
 
     <script>
-    var date_chart, hour_chart;
-    function updateChart(response) {
-        updateDateChart(response.by_date);
-        updateHourChart(response.by_hour);
+    var date_chart, hour_chart, pie_chart;
+    function clearCharts() {
+        $("#charts").empty();
     }
-    function updateHourChart(data) {
-        date_chart = new Highcharts.Chart({
+    function updateChart(response) {
+        if (response.ratings) {
+            updateRatingChart(response.ratings);
+        } else {
+            if (pie_chart) {
+                pie_chart.destroy();
+                pie_chart = null;
+            }
+        }
+        if (response.by_date) {
+            updateDateChart(response.by_date);
+        } else {
+            if (date_chart) {
+                date_chart.destroy();
+                date_chart = null;
+            }
+        }
+        if (response.by_hour) {
+            updateHourChart(response.by_hour);
+        } else {
+            if (hour_chart) {
+                hour_chart.destroy();
+                hour_chart = null;
+            }
+        }
+    }
+    function updateRatingChart(data) {
+        var container_name = 'pie_container';
+        if (! $("#charts #" + container_name).length) {
+            $("#charts").append($("<div></div>").attr("id", container_name).addClass("chart"))
+        }
+        pie_chart = new Highcharts.Chart({
             chart: {
-                renderTo: 'chart-container2',
+                renderTo: container_name,
+            },
+            title: {
+                text: 'Ratings'
+            },
+            subtitle: {
+                text: 'Avarage Rating: ' + data.avarage + ', Total: ' + data.total
+            },
+            tooltip: {
+                formatter: function() {
+                    return '<b>' + this.point.name + '</b>: ' + Math.round(this.percentage * 100)/100  + ' %';
+                }
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function() {
+                            return this.y;
+                        },
+//                        color: 'white',
+                        style: {
+                            font: '13px Trebuchet MS, Verdana, sans-serif'
+                        }
+                    }
+                }
+            },
+            series: data.series
+        });
+    }
+
+    function updateHourChart(data) {
+        var container_name = 'chart-container2';
+        if (! $("#charts #" + container_name).length) {
+            $("#charts").append($("<div></div>").attr("id", container_name).addClass("chart"))
+        }
+
+        hour_chart = new Highcharts.Chart({
+            chart: {
+                renderTo: container_name,
                 zoomType: 'x'
             },
             title: {
@@ -84,9 +157,14 @@
     }
 
     function updateDateChart(data) {
+        var container_name = 'chart-container1';
+        if (! $("#charts #" + container_name).length) {
+            $("#charts").append($("<div></div>").attr("id", container_name).addClass("chart"))
+        }
+
         date_chart = new Highcharts.Chart({
             chart: {
-                renderTo: 'chart-container1',
+                renderTo: container_name,
                 zoomType: 'x'
             },
             title: {
@@ -211,8 +289,9 @@
                     color: '#FFF'
                 }
             },
-
-
+            global: {
+                useUTC: true
+            },
             plotOptions: {
                 line: {
                     dataLabels: {
@@ -266,6 +345,7 @@
         var options = {
             dataType:       'json',
             beforeSubmit:   function() {
+                clearCharts();
                 if (! $("form")[0].validate()) {
                     return false;
                 }

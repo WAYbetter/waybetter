@@ -1,10 +1,27 @@
 from django import forms
 from datetime import datetime
 from django.utils.translation import gettext as _
-from common.util import Enum
+from common.util import Enum, EventType
 
 class AnalysisType(Enum):
     ORDERS = 1
+    RATINGS = 2
+
+    @classmethod
+    def get_event_types(cls, analysis_type):
+        if analysis_type == cls.RATINGS:
+            return [EventType.ORDER_RATED]
+        elif analysis_type == cls.ORDERS:
+            return [EventType.ORDER_BOOKED,
+                    EventType.ORDER_REJECTED,
+                    EventType.ORDER_IGNORED,
+                    EventType.ORDER_ACCEPTED,
+                    EventType.ORDER_FAILED,
+                    EventType.ORDER_ERROR,
+                    EventType.ORDER_ASSIGNED,
+                    EventType.CROSS_COUNTRY_ORDER_FAILURE,
+                    EventType.NO_SERVICE_IN_COUNTRY,
+                    EventType.NO_SERVICE_IN_CITY ]
 
 class AnalysisScope(Enum):
     CITY =          1

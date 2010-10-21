@@ -33,6 +33,7 @@ class EventType(Enum):
     NO_SERVICE_IN_CITY =            8
     NO_SERVICE_IN_COUNTRY =         9
     ORDER_FAILED =                  10
+    ORDER_RATED =                   11
 
 
 def is_empty(str):
@@ -71,7 +72,7 @@ def get_model_from_request(model_class, request):
 
 
 def log_event(event_type, order=None, order_assignment=None, station=None, work_station=None, passenger=None,
-              country=None, city=None):
+              country=None, city=None, rating=""):
     """
     Log a new analytics event asynchonically:
         event_type: an EventType field (e.g. EventType.ORDER_BOOKED)
@@ -94,6 +95,7 @@ def log_event(event_type, order=None, order_assignment=None, station=None, work_
         'passenger_id': passenger.id if passenger else "",
         'country_id': country.id if country else "",
         'city_id': city.id if city else "",
+        'rating': rating,
     }
 
     # Note that reverse was not used here to avoid circular import!

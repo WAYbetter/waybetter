@@ -136,10 +136,11 @@ def rate_order(request, order_id, passenger):
     else:
         order.passenger_rating = None
     order.save()
+    log_event(EventType.ORDER_RATED, order=order, rating=rating, passenger=passenger, station=order.station)
     # update async the station rating
     task = taskqueue.Task(url=reverse(update_station_rating),
                           countdown=10,
-                          params={"rating": rating, "station_id": order.station_id})
+                          params={"rating": rating, "station_id": order.station_id if order.station else ""})
 
     q = taskqueue.Queue('update-station-rating')
     q.add(task)
@@ -150,7 +151,7 @@ def rate_order(request, order_id, passenger):
 @commit_locked
 def update_station_rating(request):
     rating = int(request.POST["rating"])
-    station_id = int(request.POST["station_id"])
+    station_id = int(request.POST["station_id"]) if request.POST["station_id"] else None 
     if station_id:
         station = get_object_or_404(Station, id=station_id)
         if station.average_rating == 0.0:

@@ -2,6 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from ordering.decorators import internal_task_on_queue
 from django.http import HttpResponse
 from django.db.models import get_model
+from django.utils.translation import gettext as _
 from django.contrib.admin.views.decorators import staff_member_required
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
@@ -13,8 +14,9 @@ import time
 import logging
 import sys
 
-from analytics.forms import AnalyticsForm, AnalysisScope
+from analytics.forms import AnalyticsForm, AnalysisScope, AnalysisType
 from models import AnalyticsEvent
+from common.util import EventType
 
 @csrf_exempt
 @internal_task_on_queue("log-events")
@@ -24,6 +26,8 @@ def log_event_on_queue(request):
         for key, val in request.POST.iteritems():
             if key == 'event_type':
                 event.type = int(val)
+            if key == 'rating' and val:
+                event.rating = int(val)
             if key.endswith("_id") and val:
                 model_name = key.split("_id")[0]
                 model = get_model('ordering', "".join(model_name.split("_")))
@@ -35,10 +39,10 @@ def log_event_on_queue(request):
         event.save()
     except:
         # catch the exception to avoid re-running of the task over and over. Log this as error.
-        logging.error("Could not log event %s: %s" % (request.POST.get('event_type', "No event passed"), sys.exc_info()[1])) 
+        logging.error("Could not log event %s: %s" % (request.POST.get('event_type', "No event passed"), sys.exc_info()[1]))  
         return HttpResponse("NOT OK")
     else:
-        return HttpResponse("OK") 
+        return HttpResponse("OK")  
 
 
 @staff_member_required
@@ -46,22 +50,34 @@ def analytics(request):
     if request.GET:
         form = AnalyticsForm(request.GET)
         if form.is_valid():
-
+            result = {}
             start_date = form.cleaned_data['start_date']
             end_date = form.cleaned_data['end_date']
-            events = AnalyticsEvent.objects.filter(create_date__lte=end_date + timedelta(days=1), create_date__gte=start_date).order_by('create_date')
             
+            events = AnalyticsEvent.objects.filter(create_date__lte=end_date + timedelta(days=1), create_date__gte=start_date).order_by('create_date')
             if int(form.cleaned_data['data_scope']) == AnalysisScope.CITY:
                 events = events.filter(city=int(form.cleaned_data['city']))
 
             elif int(form.cleaned_data['data_scope']) == AnalysisScope.STATION:
                 events = events.filter(station=int(form.cleaned_data['station']))
 
-            result = {
-#                'google':   get_results_google(events),
-                'by_date':  get_results_by_day(events, start_date, end_date),
-                'by_hour':  get_results_by_hour(events, start_date, end_date)
-            }
+            if int(form.cleaned_data['data_type']) == AnalysisType.RATINGS: 
+                events = events.filter(type__in=AnalysisType.get_event_types(AnalysisType.RATINGS))
+                if events:
+                    result = {
+                        'ratings' : get_rating_results(events),
+                        'by_date':  get_results_by_day(events, start_date, end_date),
+                        'by_hour':  get_results_by_hour(events, start_date, end_date)
+                    }
+            elif int(form.cleaned_data['data_type']) == AnalysisType.ORDERS: 
+                events = events.filter(type__in=AnalysisType.get_event_types(AnalysisType.ORDERS))
+                if events:
+                    result = {
+        #                'google':   get_results_google(events),
+                        'by_date':  get_results_by_day(events, start_date, end_date),
+                        'by_hour':  get_results_by_hour(events, start_date, end_date)
+                    }
+
 
             return JSONResponse(result)
     else:
@@ -83,6 +99,33 @@ def update_scope_select(request):
         result['target_id_selector'] = "#id_station"
 
     return JSONResponse(result)
+
+def get_rating_results(events):
+    rating_dic = {}
+    all_ratings = 0
+    rating_count = 0
+    for event in events:
+        if event.rating:
+            rating_count += 1
+            rating = event.rating
+            all_ratings += rating
+            if not rating in rating_dic:
+                rating_dic[rating] = 1
+            else:
+                rating_dic[rating] += 1
+
+    result = {
+        'series': [{
+            'data': [[str(rating), rating_dic[rating]] for rating in rating_dic],
+            'name': _("Rating"),
+            'type': 'pie'
+        }],
+        'avarage':  round(float(all_ratings) / rating_count, 2),
+        'total':    rating_count  
+    }
+
+    return result
+
 
 def get_results_google(events):
 
@@ -116,12 +159,24 @@ def get_results_google(events):
 
 def get_results_by_day(events, start_date, end_date):
     date_dic = {}
+    total_label = _("Total")
+    calc_total = False
     result = {
         'series': []
     }
     for event in events:
         key = get_date_key(event.create_date)
-        label = event.get_label()
+        if event.type == EventType.ORDER_RATED:
+            if not total_label in date_dic:
+                date_dic[total_label] = {}
+                calc_total = True
+
+            if event.rating:
+                label = event.rating
+            else:
+                continue
+        else:
+            label = event.get_label()
         if not label in date_dic:
             date_dic[label] = {}
 
@@ -129,6 +184,14 @@ def get_results_by_day(events, start_date, end_date):
             date_dic[label][key] += 1
         else:
             date_dic[label][key] = 1
+
+        if calc_total:
+            if key in date_dic[total_label]:
+                date_dic[total_label][key] += 1
+            else:
+                date_dic[total_label][key] = 1
+
+
 
     current_date = start_date
 
@@ -154,12 +217,24 @@ def get_results_by_day(events, start_date, end_date):
 
 def get_results_by_hour(events, start_date, end_date):
     date_dic = {}
+    total_label = _("Total")
+    calc_total = False
     result = {
         'series': []
     }
     for event in events:
         key = get_hour_key(event.create_date)
-        label = event.get_label()
+        if event.type == EventType.ORDER_RATED:
+            if not total_label in date_dic:
+                date_dic[total_label] = {}
+                calc_total = True
+
+            if event.rating:
+                label = event.rating
+            else:
+                continue
+        else:
+            label = event.get_label()
         if not label in date_dic:
             date_dic[label] = {}
 
@@ -167,6 +242,13 @@ def get_results_by_hour(events, start_date, end_date):
             date_dic[label][key] += 1
         else:
             date_dic[label][key] = 1
+
+        if calc_total:
+           if key in date_dic[total_label]:
+               date_dic[total_label][key] += 1
+           else:
+               date_dic[total_label][key] = 1
+
 
     days_interval = (end_date - start_date).days
     for i in range(0,24):
