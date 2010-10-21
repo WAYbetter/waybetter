@@ -144,6 +144,7 @@
                 text: data.title
             },
             xAxis: {
+//                maxZoom: 1000 * 3600,
                 allowDecimals: false,
             },
             yAxis: {
@@ -323,13 +324,18 @@
     $(document).ready(function() {
 //        initChart();
         var date_options = { dateFormat: 'yy-mm-dd' };
+        var start_date_offset = -7;
         $("#id_start_date").datepicker($.extend({}, date_options, {
             maxDate: -1,
-            defaultDate: -1
+            defaultDate: start_date_offset
         }));
         $("#id_end_date").datepicker($.extend({}, date_options, {
-            defaultDate: $("#id_end_date").attr('rel')
+            defaultDate: 0
         }));
+        var start_date = new Date();
+        start_date.setDate(start_date.getDate() + start_date_offset);
+        $("#id_end_date").datepicker("setDate", new Date() );
+        $("#id_start_date").datepicker("setDate", start_date );
 
         $("#id_city, #id_station").parent().hide();
         $("#id_data_scope").change(function() {
