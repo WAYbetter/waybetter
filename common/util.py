@@ -23,6 +23,16 @@ class Enum:
 
         raise ValueError(_("Invalid value: %s" % str(val)))
 
+    @classmethod
+    def get_icon(cls, val):
+        for item_name in dir(cls):
+            item_value = getattr(cls, item_name)
+            if item_value == val:
+                return "/static/images/%s_marker.png" % item_name.lower()
+
+        raise ValueError(_("Invalid value: %s" % str(val)))
+        
+
 class EventType(Enum):
     ORDER_BOOKED =                  1
     ORDER_ASSIGNED =                2

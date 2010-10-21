@@ -4,6 +4,7 @@ from django.http import HttpResponse
 from django.db.models import get_model
 from django.utils.translation import gettext as _
 from django.contrib.admin.views.decorators import staff_member_required
+from django.conf import settings
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from ordering.models import Order, Station, ORDER_STATUS
@@ -47,6 +48,8 @@ def log_event_on_queue(request):
 
 @staff_member_required
 def analytics(request):
+    telmap_user = settings.TELMAP_API_USER
+    telmap_password = settings.TELMAP_API_PASSWORD
     if request.GET:
         form = AnalyticsForm(request.GET)
         if form.is_valid():
@@ -74,7 +77,8 @@ def analytics(request):
                 if events:
                     result = {
                         'by_date':  get_results_by_day(events, start_date, end_date),
-                        'by_hour':  get_results_by_hour(events, start_date, end_date)
+                        'by_hour':  get_results_by_hour(events, start_date, end_date),
+                        'map_data':  get_map_results(events)
                     }
 
 
@@ -99,6 +103,25 @@ def update_scope_select(request):
 
     return JSONResponse(result)
 
+def get_map_results(events):
+    map_events = [EventType.ORDER_ACCEPTED, EventType.ORDER_IGNORED, EventType.ORDER_REJECTED, EventType.NO_SERVICE_IN_CITY]
+
+    result = {
+        'markers':  [],
+        'legend':   [ { 'name': EventType.get_label(e), 'icon': EventType.get_icon(e) } for e in map_events ]
+    }
+
+    for event in events:
+        if event.order and event.type in map_events:
+            result['markers'].append({
+                'lon':      event.order.from_lon,
+                'lat':      event.order.from_lat,
+                'type':     "%s: %d" % (event.get_label(), event.order.id),
+                'icon':     EventType.get_icon(event.type),
+                })
+
+    logging.info(result)        
+    return result
 def get_rating_results(events):
     rating_dic = {}
     all_ratings = 0

@@ -27,5 +27,6 @@ class AnalyticsEvent(models.Model):
     def get_label(self):
         return EventType.get_label(self.type)
 
+    
     def __str__(self):
         return self.get_label()

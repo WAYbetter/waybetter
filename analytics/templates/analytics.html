@@ -9,6 +9,8 @@
     <script type="text/javascript" src="/static/js/utils.js"></script>
     <script type="text/javascript" src="/static/js/jquery.ajax_forms.js"></script>
     <script type="text/javascript" src="/static/js/jquery.ajax_forms.validation.js"></script>
+    <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false" type="text/javascript"></script>
+    
     {% load ajax_form_utils %}
     {{ block.super }}
 
@@ -45,21 +47,50 @@
             width: 100%;
             margin-bottom: 10px;
         }
+        #map_container {
+            float: right;
+        }
+        #map_div {
+            height: 300px;
+            width: 800px;
+            background-color: blue;
+        }
+        #legend {
+            height: 30px;
+        }
+        #legend span {
+            margin-left: 5px;
+            margin-right: 5px;
+            font-size: smaller;
+        }
+        #legend span img {
+            padding-right: 3px;
+        }
+
+        #form_container {
+            float: left;
+        }
     </style>
     {{ block.super }}
 {% endblock %}
 
 
 {% block content %}
-    <form>
-        {{ form.as_p }}
-        <input type="submit" value="{% trans 'Submit' %}"/>
-    </form>
-    <div id="charts">
+    <div id="form_container">
+        <form>
+            {{ form.as_p }}
+            <input type="submit" value="{% trans 'Submit' %}"/>
+        </form>
     </div>
+    <div id="map_container">
+        <div id="map_div"></div>
+        <div id="legend"></div>
+    </div>
+    <div class="clear"></div>
+    <div id="charts"></div>
 
     <script>
-    var date_chart, hour_chart, pie_chart;
+    var date_chart, hour_chart, pie_chart, map, points;
     function clearCharts() {
         $("#charts").empty();
     }
@@ -87,6 +118,64 @@
                 hour_chart.destroy();
                 hour_chart = null;
             }
+        }
+        if (response.map_data) {
+            updateMap(response.map_data);
+        } else {
+            $("#map_container").hide();
+        }
+    }
+    function initMap() {
+        points = [];
+        var prefs = {
+            mapTypeId:telmap.maps.MapTypeId.ROADMAP,
+            zoom:15,
+            center:new telmap.maps.LatLng(32.09279909028302,34.781051985221),
+            login:{
+                contextUrl: 'api.navigator.telmap.com/telmapnav',
+                userName:   '{{ telmap_user }}',
+                password:   '{{ telmap_password }}',
+                languages:  ['he', 'en'],
+                appName:    'wayBetter'
+            }
+        };
+        map = new telmap.maps.Map(document.getElementById("map_div"), prefs);
+        window.onresize = function(){ telmap.maps.event.trigger(map, "resize"); };
+    }
+    function updateMap(map_data) {
+        $("#map_container").show();
+        if (! (map && map.init())) {
+            initMap();
+        }
+        $("#legend").empty();
+        $.each(map_data.legend, function(i, val) {
+            var legend_item = $("<span>");
+            legend_item.text(val.name);
+            legend_item.prepend($("<img>").attr("src", val.icon));
+            $("#legend").append(legend_item);
+        });
+        $.each(points, function(i, point) {
+            point.setMap();
+        });
+        points = [];
+        var bounds = new telmap.maps.LatLngBounds();
+        $.each(map_data.markers, function(i, val) {
+            var image = new telmap.maps.MarkerImage(val.icon, {x:8,y:8}, undefined, {x:4,y:4} );
+            var point = new telmap.maps.Marker({
+                map:        map,
+                position:   new telmap.maps.LatLng(val.lat, val.lon),
+                draggable:  false,
+                icon:       image,
+                title:      val.type
+            });
+            points.push(point);
+            bounds.extend(point.getPosition());
+        });
+        if (bounds.ne.x == bounds.sw.x && bounds.ne.y == bounds.sw.y) {
+            map.panTo(bounds.getCenter());
+        } else {
+            map.fitBounds(bounds);
+            map.panToBounds(bounds);
         }
     }
     function updateRatingChart(data) {
@@ -323,6 +412,9 @@
     }
     $(document).ready(function() {
 //        initChart();
+//        initMap();
+        $("#map_container").hide();
+
         var date_options = { dateFormat: 'yy-mm-dd' };
         var start_date_offset = -7;
         $("#id_start_date").datepicker($.extend({}, date_options, {
@@ -379,7 +471,7 @@
         });
 
 
-        
+
     });
 
     
