@@ -141,7 +141,7 @@
                 zoomType: 'x'
             },
             title: {
-                text: 'Orders - By Hour'
+                text: data.title
             },
             xAxis: {
                 allowDecimals: false,
@@ -149,7 +149,7 @@
             yAxis: {
                 min: 0,
                 title: {
-                   text: 'Orders'
+                   text: data.y_axis_title
                 }
             },
             series: data.series
@@ -168,7 +168,7 @@
                 zoomType: 'x'
             },
             title: {
-                text: 'Orders - By Date'
+                text: data.title
             },
             xAxis: {
                 maxZoom: 1000 * 3600 * 24,
@@ -181,7 +181,7 @@
             yAxis: {
                 min: 0,
                 title: {
-                   text: 'Orders'
+                   text: data.y_axis_title
                 }
             },
             series: data.series
@@ -321,7 +321,7 @@
         });
     }
     $(document).ready(function() {
-        initChart();
+//        initChart();
         var date_options = { dateFormat: 'yy-mm-dd' };
         $("#id_start_date").datepicker($.extend({}, date_options, {
             maxDate: -1,

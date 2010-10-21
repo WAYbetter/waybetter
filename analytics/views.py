@@ -66,8 +66,8 @@ def analytics(request):
                 if events:
                     result = {
                         'ratings' : get_rating_results(events),
-                        'by_date':  get_results_by_day(events, start_date, end_date),
-                        'by_hour':  get_results_by_hour(events, start_date, end_date)
+                        'by_date':  get_results_by_day(events, start_date, end_date, rating_results=True),
+                        'by_hour':  get_results_by_hour(events, start_date, end_date, rating_results=True)
                     }
             elif int(form.cleaned_data['data_type']) == AnalysisType.ORDERS: 
                 events = events.filter(type__in=AnalysisType.get_event_types(AnalysisType.ORDERS))
@@ -156,19 +156,20 @@ def get_results_google(events):
 
 
 
-def get_results_by_day(events, start_date, end_date):
+def get_results_by_day(events, start_date, end_date, rating_results=False):
     date_dic = {}
     total_label = _("Total")
-    calc_total = False
     result = {
-        'series': []
+        'series':       [],
+        'title':        _("Ratings - by Date") if rating_results else _("Orders - by Date"),
+        'y_axis_title': _("Ratings") if rating_results else _("Orders")
+        
     }
     for event in events:
         key = get_date_key(event.create_date)
-        if event.type == EventType.ORDER_RATED:
+        if rating_results:
             if not total_label in date_dic:
                 date_dic[total_label] = {}
-                calc_total = True
 
             if event.rating:
                 label = event.rating
@@ -184,7 +185,7 @@ def get_results_by_day(events, start_date, end_date):
         else:
             date_dic[label][key] = 1
 
-        if calc_total:
+        if rating_results:
             if key in date_dic[total_label]:
                 date_dic[total_label][key] += 1
             else:
@@ -211,22 +212,21 @@ def get_results_by_day(events, start_date, end_date):
                                     'pointInterval':1000 * 3600 * 24
                                     })
 
-    logging.info(result['series'])
     return result
 
-def get_results_by_hour(events, start_date, end_date):
+def get_results_by_hour(events, start_date, end_date, rating_results=False):
     date_dic = {}
     total_label = _("Total")
-    calc_total = False
     result = {
-        'series': []
+        'series':       [],
+        'title':        _("Ratings - by Hour") if rating_results else _("Orders - by Hour"),
+        'y_axis_title': _("Ratings") if rating_results else _("Orders")
     }
     for event in events:
         key = get_hour_key(event.create_date)
-        if event.type == EventType.ORDER_RATED:
+        if rating_results:
             if not total_label in date_dic:
                 date_dic[total_label] = {}
-                calc_total = True
 
             if event.rating:
                 label = event.rating
@@ -242,7 +242,7 @@ def get_results_by_hour(events, start_date, end_date):
         else:
             date_dic[label][key] = 1
 
-        if calc_total:
+        if rating_results:
            if key in date_dic[total_label]:
                date_dic[total_label][key] += 1
            else:
@@ -265,7 +265,6 @@ def get_results_by_hour(events, start_date, end_date):
                                     'type':         'spline'
                                 })
 
-    logging.info(result['series'])
     return result
 
 
