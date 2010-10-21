@@ -46,6 +46,7 @@ class EventType(Enum):
     ORDER_FAILED =                  10
     ORDER_RATED =                   11
     UNREGISTERED_ORDER =            12
+    PASSENGER_REGISTERED =          13
 
 
 def is_empty(str):
