@@ -1,6 +1,7 @@
 import random
 from google.appengine.api.labs import taskqueue
 from django.utils.translation import gettext as _
+import logging
 
 class Enum:
     @classmethod
@@ -34,6 +35,7 @@ class EventType(Enum):
     NO_SERVICE_IN_COUNTRY =         9
     ORDER_FAILED =                  10
     ORDER_RATED =                   11
+    UNREGISTERED_ORDER =            12
 
 
 def is_empty(str):

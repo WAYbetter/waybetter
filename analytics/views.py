@@ -73,7 +73,6 @@ def analytics(request):
                 events = events.filter(type__in=AnalysisType.get_event_types(AnalysisType.ORDERS))
                 if events:
                     result = {
-        #                'google':   get_results_google(events),
                         'by_date':  get_results_by_day(events, start_date, end_date),
                         'by_hour':  get_results_by_hour(events, start_date, end_date)
                     }

@@ -21,7 +21,8 @@ class AnalysisType(Enum):
                     EventType.ORDER_ASSIGNED,
                     EventType.CROSS_COUNTRY_ORDER_FAILURE,
                     EventType.NO_SERVICE_IN_COUNTRY,
-                    EventType.NO_SERVICE_IN_CITY ]
+                    EventType.NO_SERVICE_IN_CITY,
+                    EventType.UNREGISTERED_ORDER ]
 
 class AnalysisScope(Enum):
     CITY =          1
