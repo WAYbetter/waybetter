@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import gettext as _
-from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, PricingRule
+from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, PricingRule, SpecificPricingRule
 import station_connection_manager
 from common.models import Country
 from google.appengine.api.images import BadImageError, NotImageError
@@ -99,6 +99,9 @@ class PricingRuleAdmin(admin.TabularInline):
     extra = 5
     
 
+class SpecificPricingRuleAdmin(admin.ModelAdmin):
+    pass
+
 class CountryPricingRulesAdmin(admin.ModelAdmin):
     inlines = [PricingRuleAdmin,]
     
@@ -108,3 +111,4 @@ admin.site.register(OrderAssignment, OrderAssignmentAdmin)
 admin.site.register(Station, StationAdmin)
 admin.site.register(WorkStation, WorkStationAdmin)
 admin.site.register(Country, CountryPricingRulesAdmin)
+admin.site.register(SpecificPricingRule, SpecificPricingRuleAdmin)

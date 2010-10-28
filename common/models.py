@@ -44,7 +44,7 @@ class City(models.Model):
         return [(c.id, c.name) for c in City.objects.filter(country=country).order_by(order_by)]
         
     @classmethod
-    def get_id_by_name_and_country(cls, name, country_id, add_if_not_found=False):
+    def get_by_name_and_country(cls, name, country_id, add_if_not_found=False):
         query = City.objects.filter(name = name, country = country_id)
         if query.count() == 0:
             if add_if_not_found:
@@ -52,13 +52,15 @@ class City(models.Model):
                 new_city.country = Country.objects.get(id = country_id)
                 new_city.name = name
                 new_city.save()
-                return new_city.id
+                return new_city
             else:
                 raise LookupError("No city found matching '%s, %s'" % (name, country_id))
         else:
-            return query[0].id
+            return query[0]
 
-
+    @classmethod
+    def get_id_by_name_and_country(cls, name, country_id, add_if_not_found=False):
+        return cls.get_by_name_and_country(name, country_id, add_if_not_found).id
 
 class CityArea(models.Model):
     name = models.CharField(_("name"), max_length=50)

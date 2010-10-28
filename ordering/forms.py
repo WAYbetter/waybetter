@@ -245,3 +245,7 @@ class CityChoiceWidget(forms.Select):
         output.append('</select>')
         return mark_safe(u'\n'.join(output))
 
+
+class SpecificPricingRuleSetupForm(forms.Form):
+    country = forms.ModelChoiceField(queryset=Country.objects.all())
+    csv = forms.CharField(widget=forms.Textarea)

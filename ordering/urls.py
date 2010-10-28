@@ -44,7 +44,8 @@ urlpatterns = patterns('',
     (r'^services/get_orders/$', 'ordering.passenger_controller.get_passenger_orders_history_data'),
     (r'^services/get_station_orders/$', 'ordering.station_controller.get_station_orders_history_data'),
     (r'^services/get_cities_for_country/$', 'ordering.station_controller.get_cities_for_country'),
-    (r'^setup/init_pricing_rules/$', 'ordering.passenger_controller.init_pricing_rules'),
+    (r'^setup/init_pricing_rules/$', 'ordering.rules_controller.init_pricing_rules'),
+    (r'^setup/upload_specific_pricing_rules/$', 'ordering.rules_controller.setup_specific_rules'),
 
 )
 

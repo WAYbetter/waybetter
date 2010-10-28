@@ -2,10 +2,11 @@
 
 from django.conf import settings
 from django.utils import simplejson
-from common.models import Country, City, CityArea, CityArea
+from common.models import Country, City, CityArea
 import datetime
 from common.util import convert_python_weekday
-from ordering.models import PricingRule
+from ordering.models import PricingRule, SpecificPricingRule
+from django.shortcuts import get_object_or_404
 
 def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUNTRY_CODE,
                     cities=None, streets=None, day_of_week=None, time=None,
@@ -15,24 +16,33 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
     together with the relevant Pricing Rules defined for the country.
     """
 
-    # Step 1: find the relevant pricing rules
     country = Country.objects.get(code=country_code)
+
+    # Step 1: first look for specific rules (inter-city prices)
+    if prescreen_specific_rules(cities):
+        specific_rules = country.specific_pricing_rules.filter(city=cities[0], to_city=cities[1])
+#        specific_rules = SpecificPricingRule.objects.filter(country=country, city=cities[0], to_city=cities[1])
+        relevant_rules = filter_relevant_specific_rules(specific_rules)
+        if relevant_rules != []:
+            return relevant_rules[0].fixed_cost
+
+    # Step 2: find the relevant pricing rules
     base_rules = country.pricing_rules.all()
     relevant_rules = filter_relevant_rules(base_rules, cities, streets, day_of_week,
                                              time, from_address, to_address)
 
-    # Step 2: sum up the rules with fixed cost
+    # Step 3: sum up the rules with fixed cost
     total_fixed_cost = sum([rule.fixed_cost for rule in relevant_rules if rule.fixed_cost])
 
-    # Step 3: sum up the cost-by-ticks rules according to distance
+    # Step 4: sum up the cost-by-ticks rules according to distance
     relevant_distance_rules = filter_relevant_distance_rules(relevant_rules, est_distance)
     tick_cost_by_distance = sum([rule.tick_cost * (distance/rule.tick_distance) for distance, rule in relevant_distance_rules])
 
-    # Step 4: sum up the cost-by-ticks rules according to duration
+    # Step 5: sum up the cost-by-ticks rules according to duration
     relevant_duration_rules = filter_relevant_duration_rules(relevant_rules, est_duration)
     tick_cost_by_duration = sum([rule.tick_cost * (duration/rule.tick_time) for duration, rule in relevant_duration_rules])
 
-    # Step 5: choose the maximum between the 2
+    # Step 6: choose the maximum between the 2
     max_tick_cost = max(tick_cost_by_distance, tick_cost_by_duration)
 
     return total_fixed_cost + max_tick_cost
@@ -43,12 +53,13 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
 def filter_relevant_rules(base_rules, cities=None, streets=None, day_of_week=None, time=None,
                     from_address=None, to_address=None):
     relevant_rules = []
+    if cities: city_names = get_city_names(cities)
     for rule in base_rules:
         rule_conditions = {}
         # check special place
         if rule.special_place:
             rule_conditions["special_place"] = False
-            for collection in [cities, streets]:
+            for collection in [city_names, streets]:
                 if collection:
                     if sum([rule.special_place in loc for loc in collection]) > 0:
                         rule_conditions["special_place"] = True
@@ -57,7 +68,7 @@ def filter_relevant_rules(base_rules, cities=None, streets=None, day_of_week=Non
         if rule.city:
             rule_conditions["city"] = False
             if cities:
-                if sum([rule.city in loc for loc in cities]) > 0:
+                if sum([rule.city.id in cities]) > 0:
                     rule_conditions["city"] = True
             if sum([rule.city in loc for loc in [from_address, to_address] if loc is not None]) > 0:
                 rule_conditions["city"] = True
@@ -114,6 +125,46 @@ def filter_relevant_duration_rules(base_rules, est_duration):
                 result.append( (d, rule) )
             else:
                 pass
+    return result
+
+
+
+def filter_relevant_specific_rules(specific_rules, day_of_week=None, time=None):
+    """
+
+    """
+    result = []
+    for rule in specific_rules:
+        if rule.from_day_of_week and rule.to_day_of_week:
+            if day_of_week is None:
+                day_of_week = convert_python_weekday(datetime.datetime.now().weekday())
+            if not (rule.from_day_of_week <= day_of_week <= rule.to_day_of_week):
+                continue
+        if rule.from_hour and rule.to_hour:
+            if time is None:
+                time = datetime.datetime.now().time()
+            start_time = datetime.time(rule.from_hour.hour, rule.from_hour.minute)
+            end_time = datetime.time(rule.to_hour.hour, rule.to_hour.minute)
+            if not (start_time <= time <= end_time):
+                continue
+        result.append(rule)
+    return result
+
+
+
+def prescreen_specific_rules(cities):
+    if cities:
+        if len(cities) == 2:
+            if cities[0] != cities[1]:
+                return True
+    return False
+
+
+def get_city_names(cities):
+    result = []
+    for id in cities:
+        city = get_object_or_404(City, id=id)
+        result.append(city.name)
     return result
 
 

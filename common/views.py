@@ -16,6 +16,7 @@ except ImportError:
 
 from google.appengine.ext import deferred
 
+
 def setup(request):
     if "token" in request.GET:
         if request.GET["token"] == 'waybetter_init':

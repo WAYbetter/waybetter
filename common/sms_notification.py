@@ -1,7 +1,10 @@
 import logging
 from django.conf import settings
 from settings import SMS_PROVIDER_URL, SMS_PROVIDER_USER_NAME, SMS_PROVIDER_PASSWORD, SMS_FROM_PHONE_NUMBER, SMS_FROM_MARKETING_NAME, SMS_FROM_MARKETING_PHONE, SMS_VALIDITY_PERIOD
-from pysimplesoap.client import SoapClient
+from django.template.loader import get_template
+from django.template.context import Context
+from django.utils.http import urlquote_plus
+from google.appengine.api.urlfetch import fetch
 
 
 def send_sms(destination, text, **kwargs):
@@ -20,22 +23,18 @@ def send_sms(destination, text, **kwargs):
 
 def send_sms_unicell(destination, text, sms_config):
     provider_url = sms_config[SMS_PROVIDER_URL]
-    params = (
-        (SMS_PROVIDER_USER_NAME, sms_config[SMS_PROVIDER_USER_NAME]),
-        (SMS_PROVIDER_PASSWORD, sms_config[SMS_PROVIDER_PASSWORD]),
-        (SMS_FROM_PHONE_NUMBER, sms_config[SMS_FROM_PHONE_NUMBER]),
-        ('destination',         destination),
-        ('text',                text),
-        (SMS_VALIDITY_PERIOD, sms_config[SMS_VALIDITY_PERIOD]),
-        ('reference',         0),
-        ('delayDeliveryMin',  0),
-        ('isTest',            0),
-        (SMS_FROM_MARKETING_NAME, sms_config[SMS_FROM_MARKETING_NAME]),
-        (SMS_FROM_MARKETING_PHONE, sms_config[SMS_FROM_MARKETING_PHONE])
-    )
+    params = {
+        'destination':         destination,
+        'text':                text,
+        'is_test':             "false",
+    }
+    params.update(sms_config)
 
-    client = SoapClient(location=provider_url[:-len('?wsdl')], wsdl=provider_url, trace=True)
-    result = client.call("sendTextSingle", params)
+    c = Context(params)
+    t = get_template("unicell_send_sms.xml")
+    payload = t.render(c)
+    result = fetch(provider_url, method="POST", payload=payload)
     logging.debug(result)
+    logging.debug(result.content)
     return result
 

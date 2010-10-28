@@ -245,6 +245,7 @@ class PricingRule(models.Model):
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="pricing_rules")
     state = models.CharField(_("state"), max_length=100, null=True, blank=True)
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="pricing_rules", null=True, blank=True)
+    to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="to_city_pricing_rules", null=True, blank=True)
     city_area = models.ForeignKey(CityArea, verbose_name=_("city area"), related_name="pricing_rules", null=True, blank=True)
     special_place = models.CharField(_("special place"), max_length=100, null=True, blank=True, help_text=_("Such as an airport or toll-road inflicting extra charges"))
     # time predicates
@@ -272,3 +273,35 @@ class PricingRule(models.Model):
 
     def __unicode__(self):
         return self.rule_name
+
+
+class SpecificPricingRule(models.Model):
+    """
+    These rules are checked 1st (because they're more specific),
+    & if applying to an order, their fixed cost will be used as the cost estimation
+    (no other pricing rule will be checked).
+
+    Important note: currently, these rules are only Inter-city rules (they're only queried
+    if the from_city & to_city differ).
+    """
+    is_active = models.BooleanField(_("is active"), default=True)
+    # geographic predicates
+    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="specific_pricing_rules")
+    state = models.CharField(_("state"), max_length=100, null=True, blank=True)
+    city = models.ForeignKey(City, verbose_name=_("city"), related_name="pricing_rules", null=True, blank=True)
+    to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="to_city_pricing_rules", null=True, blank=True)
+    # time predicates
+    from_hour = models.TimeField(_("from hour"), null=True, blank=True)
+    to_hour = models.TimeField(_("to hour"), null=True, blank=True)
+    from_day_of_week = models.IntegerField(_("from day-of-week"), choices=DAY_OF_WEEK_CHOICES, null=True, blank=True)
+    to_day_of_week = models.IntegerField(_("to day-of-week"), choices=DAY_OF_WEEK_CHOICES, null=True, blank=True)
+
+    # cost
+    fixed_cost = models.FloatField(_("fixed cost"), null=True, blank=True)
+
+    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
+    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+
+    def __unicode__(self):
+        return u"%s - %s" % (self.city, self.to_city)
+

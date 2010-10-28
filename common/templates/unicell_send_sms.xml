@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<sms command="submit" version="1.0">
+    <control>
+        <requestReference>false</requestReference>
+        <test>false</test>
+    </control>
+    <account>
+        <id>{{ user_id }}</id>
+        <password>{{ user_password }}</password>
+    </account>
+    <attributes>
+        <validity type="relative" units="d">{{ sms_validity_period }}</validity>
+        <notify type="0"/>
+        <reference>{{ order_id }}</reference>
+        <serviceType/>
+        <replyPath></replyPath>
+        <pid>0</pid>
+    </attributes>
+    <marketing>
+        <senderName>{{ marketing_sender_name }}</senderName>
+        <senderPhone>{{ marketing_sender_phone }}</senderPhone>
+    </marketing>
+    <schedule>
+        <relative>0</relative>
+    </schedule>
+    <targets>
+        <cellphone reference="{{ passenger_id }}">{{ destination }}</cellphone>
+    </targets>
+    <data type="text" cdmalinktype="sendiconmt" encoding="urlencoded" title="title">
+        {{ text }}
+    </data>
+</sms>

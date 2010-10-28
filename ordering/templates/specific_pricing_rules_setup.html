@@ -1,0 +1,14 @@
+{% extends 'base_site.html' %}
+{% load i18n %}
+
+
+{% block content %}
+<h1>{% trans 'Upload specific pricing rules (inter-city taarif in CSV format)' %}</h1>
+<form method="post">
+    {% csrf_token %}
+    {{ form }}
+    <br/>
+    <input type="submit" value="{% trans "Submit" %}">
+</form>
+
+{% endblock content %}

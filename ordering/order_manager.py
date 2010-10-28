@@ -17,6 +17,8 @@ from datetime import datetime
 from sharded_counters.models import commit_locked
 from ordering.models import Station
 from common.sms_notification import send_sms
+from django.template.context import Context
+from django.template.loader import get_template
 
 def book_order_async(order):
     logging.info("book_order_async: %d" % order.id)
@@ -56,7 +58,16 @@ def accept_order(order, pickup_time, station):
     order.status = ACCEPTED
     order.station = station
     order.save()
-    send_sms(order.passenger.phone, "%s %s %d %s" % (station.name, _("sent you a cab, which should arrive in"), pickup_time, _("minutes")))
+    extra_data = {
+        'order_id': order.id,
+        'passenger_id': order.passenger_id,
+        'station_name': station.name,
+        'pickup_time': pickup_time,
+    }
+    c = Context(extra_data)
+    t = get_template("sms_notification.txt")
+    text = t.render(c)
+    send_sms(order.passenger.phone, text, **extra_data)
 
 @passenger_required
 def order_status(request, order_id, passenger):
@@ -127,7 +138,7 @@ def rate_order(request, order_id, passenger):
     # update async the station rating
     task = taskqueue.Task(url=reverse(update_station_rating),
                           countdown=10,
-                          params={"rating": rating, "station_id": order.station_id})
+                          params={"rating": rating, "station_id": order.station.id})
 
     q = taskqueue.Queue('update-station-rating')
     q.add(task)
