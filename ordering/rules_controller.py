@@ -39,6 +39,7 @@ def do_setup_specific_pricing_rules(country, data, start=0):
         csv_reader = csv.reader(StringIO(data))
         for row in csv_reader:
             if i < start: continue
+            logging.info("Processing data lone %d" % i)
             from_city = resolve_city(cache, row[0].decode('utf-8'), country)
             to_city = resolve_city(cache, row[1].decode('utf-8'), country)
             fixed_cost1 = float(row[2])
@@ -57,10 +58,14 @@ def setup_specific_rules(request):
     if request.method == 'POST':
         form = SpecificPricingRuleSetupForm(request.POST)
         if form.is_valid():
+            logging.info("Uploading specific pricing rules...")
             country = form.cleaned_data["country"]
             # remove existing specific rules
+            logging.info("Deleting existing rules...")
             SpecificPricingRule.objects.filter(country=country).delete()
+            logging.info("Deleted.")
             data = form.cleaned_data["csv"].encode('utf-8')
+            logging.info("Read data")
             return HttpResponse(do_setup_specific_pricing_rules(country, data))
     else:
         form = SpecificPricingRuleSetupForm()
