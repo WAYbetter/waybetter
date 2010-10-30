@@ -13,7 +13,7 @@ urlpatterns = patterns('',
     (r'^admin/(.*)', admin.site.root),
     (r'^', include('ordering.urls')),
     (r'^', include('socialauth.urls')),
-    (r'^tinymce/', include('tinymce.urls')),
+    
     (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/images/favicon.ico'}),
 )
 
