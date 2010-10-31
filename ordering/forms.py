@@ -130,9 +130,11 @@ class OrderForm(ModelForm):
                 break
                 
         if not close_enough_station_found:
-            log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=self.cleaned_data['from_city'])
+            log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=self.cleaned_data['from_city'],
+                      lat=self.cleaned_data['from_lat'], lon=self.cleaned_data['from_lon'])
             if self.cleaned_data['from_city'] != self.cleaned_data['to_city']:
-                log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=self.cleaned_data['to_city'])
+                log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=self.cleaned_data['to_city'],
+                          lat=self.cleaned_data['to_lat'], lon=self.cleaned_data['to_lon'])
 
             raise forms.ValidationError(_("Currently, there is no service in %(city)s") % {'city': self.cleaned_data['from_city'].name})
         
