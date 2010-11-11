@@ -21,6 +21,33 @@ indexes:
 # automatically uploaded to the admin console when you next deploy
 # your application using appcfg.py.
 
+- kind: analytics_analyticsevent
+  properties:
+  - name: city_id
+  - name: create_date
+
+- kind: analytics_analyticsevent
+  properties:
+  - name: city_id
+  - name: type
+  - name: create_date
+
+- kind: analytics_analyticsevent
+  properties:
+  - name: station_id
+  - name: create_date
+
+- kind: analytics_analyticsevent
+  properties:
+  - name: station_id
+  - name: type
+  - name: create_date
+
+- kind: analytics_analyticsevent
+  properties:
+  - name: type
+  - name: create_date
+
 - kind: auth_user
   properties:
   - name: is_active
@@ -60,6 +87,11 @@ indexes:
   properties:
   - name: __key__
     direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: from_city_id
+  - name: create_date
 
 - kind: ordering_order
   properties:
@@ -261,6 +293,11 @@ indexes:
   - name: status
   - name: pickup_time
     direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: to_city_id
+  - name: create_date
 
 - kind: ordering_orderassignment
   properties:

@@ -1,6 +1,7 @@
 from django.contrib.auth.decorators import login_required
 from ordering.models import Passenger, WorkStation, Station
 from django.http import HttpResponseForbidden
+from common.util import log_event, EventType
 
 NOT_A_USER = "NOT_A_USER"
 NOT_A_PASSENGER = "NOT_A_PASSENGER"
@@ -27,12 +28,14 @@ def passenger_required_no_redirect(function=None):
     """
     def wrapper(request, **kwargs):
         if (not request.user or not request.user.is_authenticated()):
+            log_event(EventType.UNREGISTERED_ORDER)
             return HttpResponseForbidden(NOT_A_USER)
 
         try:
             passenger = Passenger.objects.filter(user = request.user).get()
             kwargs["passenger"] = passenger
         except Passenger.DoesNotExist:
+            log_event(EventType.UNREGISTERED_ORDER)
             return HttpResponseForbidden(NOT_A_PASSENGER)
         return function(request, **kwargs)
 

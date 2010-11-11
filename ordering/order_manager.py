@@ -10,7 +10,7 @@ from django.core.serializers import serialize
 from django.conf import settings
 from django.utils.translation import gettext as _
 
-from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, ASSIGNED, RATING_CHOICES
+from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, ASSIGNED, RATING_CHOICES, ERROR
 import dispatcher
 import logging
 from datetime import datetime
@@ -19,6 +19,7 @@ from ordering.models import Station
 from common.sms_notification import send_sms
 from django.template.context import Context
 from django.template.loader import get_template
+from common.util import log_event, EventType
 
 def book_order_async(order):
     logging.info("book_order_async: %d" % order.id)
@@ -42,11 +43,15 @@ def book_order(request):
     except NoWorkStationFoundError:
         order.status = FAILED
         order.save()
+        log_event(EventType.ORDER_FAILED, order=order, passenger=order.passenger)
         logging.warning("no matching workstation found for: %d" % order_id)
         response = HttpResponse("no matching workstation found")
         
         #TODO_WB: send SMS
     except OrderError:
+        order.status = ERROR
+        order.save()
+        log_event(EventType.ORDER_ERROR, order=order, passenger=order.passenger)
         logging.error("book_order: OrderError: %d" % order_id)
         response = HttpResponseServerError("an error occured while handling order")
         #TODO_WB: send SMS
@@ -108,6 +113,13 @@ def redispatch_ignored_orders(request):
         if (datetime.now() - order_assignment.create_date).seconds > OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT:
             order_assignment.status = IGNORED
             order_assignment.save()
+            log_event(EventType.ORDER_IGNORED,
+                      passenger=order_assignment.order.passenger,
+                      order=order_assignment.order,
+                      order_assignment=order_assignment,
+                      station=order_assignment.station,
+                      work_station=order_assignment.work_station)
+
             book_order_async(order_assignment.order)
         else: # enqueue again to check in 1 sec
             enqueue_redispatch_ignored_orders(order_assignment, 1)
@@ -135,10 +147,11 @@ def rate_order(request, order_id, passenger):
     else:
         order.passenger_rating = None
     order.save()
+    log_event(EventType.ORDER_RATED, order=order, rating=rating, passenger=passenger, station=order.station)
     # update async the station rating
     task = taskqueue.Task(url=reverse(update_station_rating),
                           countdown=10,
-                          params={"rating": rating, "station_id": order.station.id})
+                          params={"rating": rating, "station_id": order.station_id if order.station else ""})
 
     q = taskqueue.Queue('update-station-rating')
     q.add(task)
@@ -149,7 +162,7 @@ def rate_order(request, order_id, passenger):
 @commit_locked
 def update_station_rating(request):
     rating = int(request.POST["rating"])
-    station_id = int(request.POST["station_id"])
+    station_id = int(request.POST["station_id"]) if request.POST["station_id"] else None 
     if station_id:
         station = get_object_or_404(Station, id=station_id)
         if station.average_rating == 0.0:

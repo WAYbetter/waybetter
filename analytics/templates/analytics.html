@@ -1,0 +1,479 @@
+{% extends 'admin/base_site.html' %}
+{% load i18n %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/static/js/highcharts.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.form.js"></script>
+    <script type="text/javascript" src="/static/js/utils.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.ajax_forms.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.ajax_forms.validation.js"></script>
+    <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false" type="text/javascript"></script>
+    
+    {% load ajax_form_utils %}
+    {{ block.super }}
+
+
+    <script type="text/javascript" src="http://www.google.com/jsapi"></script>
+    <script type="text/javascript">
+      google.load('visualization', '1', {packages: ['corechart']});
+    </script>
+    <script type="text/javascript">
+        function drawVisualization(response) {
+        // Create and populate the data table.
+
+            var data = new google.visualization.DataTable();
+            $.each(response.columns, function(i, val) {
+                data.addColumn(val[0], val[1]);
+            });
+            $.each(response.rows, function(i, val) {
+                val[0] = new Date(parseInt(val[0]));
+                data.addRow(val);
+            });
+
+            // Create and draw the visualization.
+            var chart = new google.visualization.ScatterChart(document.getElementById('google_container'));
+            chart.draw(data, {lineWidth:1, curveType:"function"});
+      }
+    </script>
+
+{% endblock %}
+{% block extrastyle %}
+    <link rel="stylesheet" href="/static/css/redmond/jquery-ui-1.8.5.custom.css" type="text/css" media="all" />
+    <style>
+        .chart {
+            height: 400px;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        #map_container {
+            float: right;
+        }
+        #map_div {
+            height: 300px;
+            width: 800px;
+            background-color: blue;
+        }
+        #legend {
+            height: 30px;
+        }
+        #legend span {
+            margin-left: 5px;
+            margin-right: 5px;
+            font-size: smaller;
+        }
+        #legend span img {
+            padding-right: 3px;
+        }
+
+        #form_container {
+            float: left;
+        }
+    </style>
+    {{ block.super }}
+{% endblock %}
+
+
+{% block content %}
+    <div id="form_container">
+        <form>
+            {{ form.as_p }}
+            <input type="submit" value="{% trans 'Submit' %}"/>
+        </form>
+    </div>
+    <div id="map_container">
+        <div id="map_div"></div>
+        <div id="legend"></div>
+    </div>
+    <div class="clear"></div>
+    <div id="charts"></div>
+
+    <script>
+    var date_chart, hour_chart, pie_chart, map, points;
+    function clearCharts() {
+        $("#charts").empty();
+    }
+    function updateChart(response) {
+        if (response.ratings) {
+            updateRatingChart(response.ratings);
+        } else {
+            if (pie_chart) {
+                pie_chart.destroy();
+                pie_chart = null;
+            }
+        }
+        if (response.by_date) {
+            updateDateChart(response.by_date);
+        } else {
+            if (date_chart) {
+                date_chart.destroy();
+                date_chart = null;
+            }
+        }
+        if (response.by_hour) {
+            updateHourChart(response.by_hour);
+        } else {
+            if (hour_chart) {
+                hour_chart.destroy();
+                hour_chart = null;
+            }
+        }
+        if (response.map_data) {
+            updateMap(response.map_data);
+        } else {
+            $("#map_container").hide();
+        }
+    }
+    function initMap() {
+        points = [];
+        var prefs = {
+            mapTypeId:telmap.maps.MapTypeId.ROADMAP,
+            zoom:15,
+            center:new telmap.maps.LatLng(32.09279909028302,34.781051985221),
+            login:{
+                contextUrl: 'api.navigator.telmap.com/telmapnav',
+                userName:   '{{ telmap_user }}',
+                password:   '{{ telmap_password }}',
+                languages:  ['he', 'en'],
+                appName:    'wayBetter'
+            }
+        };
+        map = new telmap.maps.Map(document.getElementById("map_div"), prefs);
+        window.onresize = function(){ telmap.maps.event.trigger(map, "resize"); };
+    }
+    function updateMap(map_data) {
+        $("#map_container").show();
+        if (! (map && map.init())) {
+            initMap();
+        }
+        $("#legend").empty();
+        $.each(map_data.legend, function(i, val) {
+            var legend_item = $("<span>");
+            legend_item.text(val.name);
+            legend_item.prepend($("<img>").attr("src", val.icon));
+            $("#legend").append(legend_item);
+        });
+        $.each(points, function(i, point) {
+            point.setMap();
+        });
+        points = [];
+        var bounds = new telmap.maps.LatLngBounds();
+        $.each(map_data.markers, function(i, val) {
+            var image = new telmap.maps.MarkerImage(val.icon, {x:8,y:8}, undefined, {x:4,y:4} );
+            var point = new telmap.maps.Marker({
+                map:        map,
+                position:   new telmap.maps.LatLng(val.lat, val.lon),
+                draggable:  false,
+                icon:       image,
+                title:      val.type
+            });
+            points.push(point);
+            bounds.extend(point.getPosition());
+        });
+        if (bounds.ne.x == bounds.sw.x && bounds.ne.y == bounds.sw.y) {
+            map.panTo(bounds.getCenter());
+        } else {
+            map.fitBounds(bounds);
+            map.panToBounds(bounds);
+        }
+    }
+    function updateRatingChart(data) {
+        var container_name = 'pie_container';
+        if (! $("#charts #" + container_name).length) {
+            $("#charts").append($("<div></div>").attr("id", container_name).addClass("chart"))
+        }
+        pie_chart = new Highcharts.Chart({
+            chart: {
+                renderTo: container_name,
+            },
+            title: {
+                text: 'Ratings'
+            },
+            subtitle: {
+                text: 'Avarage Rating: ' + data.avarage + ', Total: ' + data.total
+            },
+            tooltip: {
+                formatter: function() {
+                    return '<b>' + this.point.name + '</b>: ' + Math.round(this.percentage * 100)/100  + ' %';
+                }
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        formatter: function() {
+                            return this.y;
+                        },
+//                        color: 'white',
+                        style: {
+                            font: '13px Trebuchet MS, Verdana, sans-serif'
+                        }
+                    }
+                }
+            },
+            series: data.series
+        });
+    }
+
+    function updateHourChart(data) {
+        var container_name = 'chart-container2';
+        if (! $("#charts #" + container_name).length) {
+            $("#charts").append($("<div></div>").attr("id", container_name).addClass("chart"))
+        }
+
+        hour_chart = new Highcharts.Chart({
+            chart: {
+                renderTo: container_name,
+                zoomType: 'x'
+            },
+            title: {
+                text: data.title
+            },
+            xAxis: {
+//                maxZoom: 1000 * 3600,
+                allowDecimals: false,
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                   text: data.y_axis_title
+                }
+            },
+            series: data.series
+        });
+    }
+
+    function updateDateChart(data) {
+        var container_name = 'chart-container1';
+        if (! $("#charts #" + container_name).length) {
+            $("#charts").append($("<div></div>").attr("id", container_name).addClass("chart"))
+        }
+
+        date_chart = new Highcharts.Chart({
+            chart: {
+                renderTo: container_name,
+                zoomType: 'x'
+            },
+            title: {
+                text: data.title
+            },
+            xAxis: {
+                maxZoom: 1000 * 3600 * 24,
+                allowDecimals: false,
+                type: 'datetime',
+                dateTimeLabelFormats: {
+                        hour: '%e. %b'
+                }
+            },
+            yAxis: {
+                min: 0,
+                title: {
+                   text: data.y_axis_title
+                }
+            },
+            series: data.series
+           
+        });
+    }
+    function initChart() {
+        // Apply the grey theme
+        Highcharts.setOptions({
+            colors: ["#DDDF0D", "#7798BF", "#55BF3B", "#DF5353", "#aaeeee", "#ff0066", "#eeaaee",
+                "#55BF3B", "#DF5353", "#7798BF", "#aaeeee"],
+            chart: {
+                backgroundColor: {
+                    linearGradient: [0, 0, 0, 400],
+                    stops: [
+                        [0, 'rgb(96, 96, 96)'],
+                        [1, 'rgb(16, 16, 16)']
+                    ]
+                },
+                borderWidth: 0,
+                borderRadius: 15,
+                plotBackgroundColor: null,
+                plotShadow: false,
+                plotBorderWidth: 0
+            },
+            title: {
+                style: {
+                    color: '#FFF',
+                    font: '16px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                }
+            },
+            subtitle: {
+                style: {
+                    color: '#DDD',
+                    font: '12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                }
+            },
+            xAxis: {
+                gridLineWidth: 0,
+                lineColor: '#999',
+                tickColor: '#999',
+                labels: {
+                    style: {
+                        color: '#999',
+                        fontWeight: 'bold'
+                    }
+                },
+                title: {
+                    style: {
+                        color: '#AAA',
+                        font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                    }
+                }
+            },
+            yAxis: {
+                alternateGridColor: null,
+                minorTickInterval: null,
+                gridLineColor: 'rgba(255, 255, 255, .1)',
+                lineWidth: 0,
+                tickWidth: 0,
+                labels: {
+                    style: {
+                        color: '#999',
+                        fontWeight: 'bold'
+                    }
+                },
+                title: {
+                    style: {
+                        color: '#AAA',
+                        font: 'bold 12px Lucida Grande, Lucida Sans Unicode, Verdana, Arial, Helvetica, sans-serif'
+                    }
+                }
+            },
+            legend: {
+                itemStyle: {
+                    color: '#CCC'
+                },
+                itemHoverStyle: {
+                    color: '#FFF'
+                },
+                itemHiddenStyle: {
+                    color: '#333'
+                }
+            },
+            credits: {
+                style: {
+                    right: '50px'
+                }
+            },
+            labels: {
+                style: {
+                    color: '#CCC'
+                }
+            },
+            tooltip: {
+                backgroundColor: {
+                    linearGradient: [0, 0, 0, 50],
+                    stops: [
+                        [0, 'rgba(96, 96, 96, .8)'],
+                        [1, 'rgba(16, 16, 16, .8)']
+                    ]
+                },
+                borderWidth: 0,
+                style: {
+                    color: '#FFF'
+                }
+            },
+            global: {
+                useUTC: true
+            },
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        color: '#CCC'
+                    },
+                    marker: {
+                        lineColor: '#333'
+                    }
+                },
+                spline: {
+                    marker: {
+                        lineColor: '#333'
+                    }
+                },
+                scatter: {
+                    marker: {
+                        lineColor: '#333'
+                    }
+                }
+            },
+
+            toolbar: {
+                itemStyle: {
+                    color: '#CCC'
+                }
+            }
+        });
+    }
+    $(document).ready(function() {
+//        initChart();
+//        initMap();
+        $("#map_container").hide();
+        $("form input[type=submit]").button();
+        var date_options = { dateFormat: 'yy-mm-dd' };
+        var start_date_offset = -7;
+        $("#id_start_date").datepicker($.extend({}, date_options, {
+            maxDate: -1,
+            defaultDate: start_date_offset
+        }));
+        $("#id_end_date").datepicker($.extend({}, date_options, {
+            defaultDate: 0
+        }));
+        var start_date = new Date();
+        start_date.setDate(start_date.getDate() + start_date_offset);
+        $("#id_end_date").datepicker("setDate", new Date() );
+        $("#id_start_date").datepicker("setDate", start_date );
+
+        $("#id_city, #id_station").parent().hide();
+        $("#id_data_scope").change(function() {
+            $("#id_city, #id_station").parent().hide();
+            if ($(this).val() == 1) {
+                $("#id_city").parent().show();
+           } else if ($(this).val() == 2) {
+                $("#id_station").parent().show();
+           }
+        });
+        
+
+        var options = {
+            dataType:       'json',
+            beforeSubmit:   function() {
+                clearCharts();
+                if (! $("form")[0].validate()) {
+                    return false;
+                }
+
+                $("form input[type=submit]").val("Loading...").button("disable");
+
+
+            },
+            complete:       function() {
+                $("form input[type=submit]").val("Submit").button("enable")
+            },
+            success:        function(data, statusText, xhr, $form) {
+//                drawVisualization(data.google);
+                updateChart(data);
+
+            }
+        };
+        var validations = {% render_ajax_fields form %};
+        $("form").validation(validations, { validation_events: ['change'] });
+        $("form").ajaxForm(options);
+
+        update_options({
+            parent_id_selector:     "#id_data_scope",
+            url:                    "{% url analytics.views.update_scope_select %}"
+        });
+
+
+
+    });
+
+    
+    </script>
+{% endblock %}

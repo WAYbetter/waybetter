@@ -5,6 +5,7 @@ from django.contrib.auth.models import User
 from djangotoolbox.fields import BlobField
 from common.models import Country, City, CityArea
 from datetime import datetime
+from common.geo_calculations import distance_between_points
 
 ASSIGNED = 1
 ACCEPTED = 2
@@ -16,17 +17,18 @@ ERROR = 7
 
 ASSIGNMENT_STATUS = ((ASSIGNED, gettext("assigned")),
                      (ACCEPTED, gettext("accepted")),
-                     (IGNORED, gettext("ignored")),
+                     (IGNORED,  gettext("ignored")),
                      (REJECTED, gettext("rejected")))
 
 
-ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, gettext("pending")),
-                                    (FAILED, gettext("failed")),
-                                    (ERROR, gettext("error")))
+ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING,   gettext("pending")),
+                                    (FAILED,    gettext("failed")),
+                                    (ERROR,     gettext("error")))
 
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
+MAX_STATION_DISTANCE_KM = 30
 
 class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
@@ -63,9 +65,16 @@ class Station(models.Model):
     def get_admin_link(self):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/station', self.id, self.name)
 
+    def is_in_valid_distance(self, from_lon, from_lat, to_lon, to_lat):
+        if not (self.lat and self.lon): # ignore station with unknown address
+            return False
+
+        return (distance_between_points(self.lat, self.lon, from_lat, from_lon) <= MAX_STATION_DISTANCE_KM or
+            distance_between_points(self.lat, self.lon, to_lat, to_lon) <= MAX_STATION_DISTANCE_KM)
+
     @staticmethod
-    def get_default_station_choices(order_by="name"):
-        choices = [(-1, "-----------")]
+    def get_default_station_choices(order_by="name", include_empty_option=True):
+        choices = [(-1, "-----------")] if include_empty_option else []
         choices.extend([(station.id, station.name) for station in Station.objects.all().order_by(order_by)])
         return choices
 
@@ -148,12 +157,14 @@ class Order(models.Model):
     # this field holds the data as typed by the user
     to_raw = models.CharField(_("to address"), max_length=50)
 
-    pickup_time = models.IntegerField(_("pickup time"), choices=RATING_CHOICES, null=True, blank=True)
+    pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)
 
-    passenger_rating = models.IntegerField(_("passenger rating"), null=True, blank=True)
+    passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+
+    another_date = models.DateField("another date", null=True, blank=True, default=datetime.now())
 
     # denormalized fields
     station_name = models.CharField(_("station name"), max_length=50, null=True, blank=True)

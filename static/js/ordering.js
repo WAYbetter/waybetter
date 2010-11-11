@@ -171,6 +171,9 @@ var OrderingHelper = Object.create({
 
             $(this).ajaxSubmit({
                 dataType: "json",
+                complete: function() {
+                    that.validateForBooking();    
+                },
                 success: function(order_status) {
                     clearError();
                     if (order_status.status == "booked") {
