@@ -4,8 +4,9 @@ from django.utils.translation import gettext as _
 from common.util import Enum, EventType
 
 class AnalysisType(Enum):
-    ORDERS = 1
-    RATINGS = 2
+    ORDERS =        1
+    RATINGS =       2
+    REGISTRATION =  3
 
     @classmethod
     def get_event_types(cls, analysis_type):
@@ -23,6 +24,8 @@ class AnalysisType(Enum):
                     EventType.NO_SERVICE_IN_COUNTRY,
                     EventType.NO_SERVICE_IN_CITY,
                     EventType.UNREGISTERED_ORDER ]
+        elif analysis_type == cls.REGISTRATION:
+            return [EventType.PASSENGER_REGISTERED]
 
 class AnalysisScope(Enum):
     CITY =          1

@@ -90,6 +90,7 @@ def order_status(request, order_id, passenger):
 
 @passenger_required
 def get_order_status(request, order_id, passenger):
+    #TODO_WB use memchache - saved serialized data
     order = get_object_or_404(Order, id=order_id)
     if order.passenger != passenger:
         return HttpResponseForbidden("You did not order this")
