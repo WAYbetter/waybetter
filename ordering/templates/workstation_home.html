@@ -7,6 +7,7 @@
 
 {% block content %}
 
+    <script src="/static/app/AIRAliases.js"></script>
 
     <script type="text/javascript">
         var polling_enabled = true;
@@ -89,6 +90,20 @@
                 for (var order_index in incoming_orders) {
                     renderOrder(incoming_orders[order_index]);
                 }
+                playNotificationSound();
+            }
+        }
+
+        function playNotificationSound() {
+            try {
+                var soundPath = new air.URLRequest("app-resource:/pop.wav");
+                var s = new air.Sound();
+                s.load(soundPath);
+                s.play();
+            } catch (e) {
+                try {
+                    console.log(e);
+                } catch (e1) {}
             }
         }
 
