@@ -17,6 +17,9 @@ class AnalyticsEvent(models.Model):
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="events", null=True, blank=True)
     rating = models.IntegerField(verbose_name=_("ratings"), null=True, blank=True)
 
+    lat = models.FloatField(verbose_name=("lat"), null=True, blank=True)
+    lon = models.FloatField(verbose_name=("lon"), null=True, blank=True)
+
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 

@@ -29,6 +29,10 @@ def log_event_on_queue(request):
                 event.type = int(val)
             if key == 'rating' and val:
                 event.rating = int(val)
+            if key == 'lon' and val:
+                event.lon = float(val)
+            if key == 'lat' and val:
+                event.lat = float(val)
             if key.endswith("_id") and val:
                 model_name = key.split("_id")[0]
                 model = get_model('ordering', "".join(model_name.split("_")))
@@ -80,6 +84,13 @@ def analytics(request):
                         'by_hour':  get_results_by_hour(events, start_date, end_date),
                         'map_data':  get_map_results(events)
                     }
+            elif int(form.cleaned_data['data_type']) == AnalysisType.REGISTRATION:
+                events = events.filter(type__in=AnalysisType.get_event_types(AnalysisType.REGISTRATION))
+                if events:
+                    result = {
+                        'by_date':  get_results_by_day(events, start_date, end_date),
+                        'by_hour':  get_results_by_hour(events, start_date, end_date),
+                    }
 
 
             return JSONResponse(result)
@@ -111,12 +122,13 @@ def get_map_results(events):
     }
 
     for event in events:
-        if event.order and event.type in map_events:
+        if event.lon and event.lat and event.type in map_events:
             result['markers'].append({
-                'lon':      event.order.from_lon,
-                'lat':      event.order.from_lat,
-                'type':     "%s: %d" % (event.get_label(), event.order.id),
+                'lon':      event.lon,
+                'lat':      event.lat,
+                'title':     "%s" % event.get_label(),
                 'icon':     EventType.get_icon(event.type),
+                'type':     event.get_label()
                 })
 
     logging.info(result)        
@@ -229,7 +241,7 @@ def get_results_by_day(events, start_date, end_date, rating_results=False):
         result['series'].append({
                                     'data':         [[key * 1000, date_dic[status][key]] for key in date_dic[status].keys()],
                                     'name':         status,
-                                    'type':         'spline',
+                                    'type':         'line',
                                     'pointStart':   start_date,
                                     'pointInterval':1000 * 3600 * 24
                                     })
@@ -284,7 +296,7 @@ def get_results_by_hour(events, start_date, end_date, rating_results=False):
         result['series'].append({
                                     'data':         [[str(key) + ":00", date_dic[status][key]] for key in date_dic[status].keys()],
                                     'name':         status,
-                                    'type':         'spline'
+                                    'type':         'line'
                                 })
 
     return result

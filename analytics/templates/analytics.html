@@ -62,6 +62,10 @@
             margin-left: 5px;
             margin-right: 5px;
             font-size: smaller;
+            cursor: pointer;
+        }
+        #legend span.disabled {
+            color:#d3d3d3;
         }
         #legend span img {
             padding-right: 3px;
@@ -90,7 +94,7 @@
     <div id="charts"></div>
 
     <script>
-    var date_chart, hour_chart, pie_chart, map, points;
+    var date_chart, hour_chart, pie_chart, map, points_by_type;
     function clearCharts() {
         $("#charts").empty();
     }
@@ -126,7 +130,7 @@
         }
     }
     function initMap() {
-        points = [];
+        points_by_type = {};
         var prefs = {
             mapTypeId:telmap.maps.MapTypeId.ROADMAP,
             zoom:15,
@@ -152,12 +156,26 @@
             var legend_item = $("<span>");
             legend_item.text(val.name);
             legend_item.prepend($("<img>").attr("src", val.icon));
+            legend_item.click(function() { // toggle points of this type
+                var that = $(this);
+                $.each(points_by_type[val.name], function(i, point) {
+                    if (point.getMap()) {
+                        point.setMap();
+                        that.addClass("disabled")
+                    } else {
+                        point.setMap(map);
+                        that.removeClass("disabled")
+                    }
+                });
+            });
             $("#legend").append(legend_item);
         });
-        $.each(points, function(i, point) {
-            point.setMap();
+        $.each(points_by_type, function(key, points) {
+            $.each(points, function(i, point) {
+                point.setMap();
+            });
         });
-        points = [];
+        points_by_type = {};
         var bounds = new telmap.maps.LatLngBounds();
         $.each(map_data.markers, function(i, val) {
             var image = new telmap.maps.MarkerImage(val.icon, {x:8,y:8}, undefined, {x:4,y:4} );
@@ -166,9 +184,13 @@
                 position:   new telmap.maps.LatLng(val.lat, val.lon),
                 draggable:  false,
                 icon:       image,
-                title:      val.type
+                title:      val.title
             });
-            points.push(point);
+            if (! (val.type in points_by_type)) {
+                points_by_type[val.type] = [];
+            }
+            points_by_type[val.type].push(point);
+
             bounds.extend(point.getPosition());
         });
         if (bounds.ne.x == bounds.sw.x && bounds.ne.y == bounds.sw.y) {
@@ -430,6 +452,15 @@
         $("#id_start_date").datepicker("setDate", start_date );
 
         $("#id_city, #id_station").parent().hide();
+        $("#id_data_type").change(function() {
+            if ($(this).val() == 3) { // registration
+                $("#id_data_scope").val(3).trigger("change").parent().hide(); // set to all
+
+            } else {
+                $("#id_data_scope").parent().show(); 
+            }
+        });
+
         $("#id_data_scope").change(function() {
             $("#id_city, #id_station").parent().hide();
             if ($(this).val() == 1) {

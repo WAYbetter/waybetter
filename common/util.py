@@ -46,6 +46,7 @@ class EventType(Enum):
     ORDER_FAILED =                  10
     ORDER_RATED =                   11
     UNREGISTERED_ORDER =            12
+    PASSENGER_REGISTERED =          13
 
 
 def is_empty(str):
@@ -84,19 +85,23 @@ def get_model_from_request(model_class, request):
 
 
 def log_event(event_type, order=None, order_assignment=None, station=None, work_station=None, passenger=None,
-              country=None, city=None, rating=""):
+              country=None, city=None, rating="", lat="", lon=""):
     """
     Log a new analytics event asynchonically:
         event_type: an EventType field (e.g. EventType.ORDER_BOOKED)
         order, order_assignment, station, work_station, passenger: an optional instance 
     """
-    if order and not city:
-        city = order.from_city
-        country = order.from_country
-        if order.from_city != order.to_city:
-            log_event(event_type,
-                      order=order,order_assignment=order_assignment,station=station, work_station=work_station,
-                      passenger=passenger, country=order.from_country, city=order.to_city)
+    if order: # fill values from order
+        if not city:
+            city = order.from_city
+            country = order.from_country
+            if order.from_city != order.to_city:
+                log_event(event_type,
+                          order=order,order_assignment=order_assignment,station=station, work_station=work_station,
+                          passenger=passenger, country=order.from_country, city=order.to_city)
+
+        if not lat: lat = order.from_lat
+        if not lon: lon = order.from_lon
 
     params = {
         'event_type': event_type,
@@ -108,6 +113,8 @@ def log_event(event_type, order=None, order_assignment=None, station=None, work_
         'country_id': country.id if country else "",
         'city_id': city.id if city else "",
         'rating': rating,
+        'lat': lat,
+        'lon': lon,
     }
 
     # Note that reverse was not used here to avoid circular import!
