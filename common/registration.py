@@ -8,7 +8,7 @@ def get_login_form(request):
     return render_to_response('login_form.html', {'FACEBOOK_APP_ID': FACEBOOK_APP_ID})
 
 def get_registration_form(request):
-    return render_to_response('registration_form.html')
+    return render_to_response('registration_form.html', {'FACEBOOK_APP_ID': FACEBOOK_APP_ID})
 
 def get_phone_code_form(request):
     return render_to_response('code_form.html')

@@ -48,13 +48,7 @@
                     {% if docsroot %}
                         <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
                     {% endif %}
-                    {% url admin:logout as logout_url %}
-                    {% if logout_url %}
-                        <a href="{{ logout_url }}">
-                    {% else %}
-                        <a href="{{ root_path }}logout/">
-                    {% endif %}
-                    {% trans 'Log out' %}</a>
+                    <a href="/logout/">{% trans 'Log out' %}</a>
                 {% endblock %}
         {% else %}
             {% block join_or_login %}
