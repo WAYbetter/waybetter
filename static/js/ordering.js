@@ -205,7 +205,7 @@ var OrderingHelper = Object.create({
 
         return this;
     }, // init
-    initMap:                  function () {
+    initMap:                    function () {
         var prefs = {
             mapTypeId:telmap.maps.MapTypeId.ROADMAP,
             zoom:15,
@@ -253,8 +253,12 @@ var OrderingHelper = Object.create({
                 dataType: "json",
                 success: function(resolve_result) {
                     var new_address = Address.fromServerResponse(resolve_result, address.address_type);
-                    that.updateAddressChoice(new_address);
-                    $('#id_' + address.address_type + '_raw').effect("highlight", 2000);
+                    if (new_address.street) {   // only update to new address if it contains a valid street
+                        that.updateAddressChoice(new_address);
+                        $('#id_' + address.address_type + '_raw').effect("highlight", 2000);
+                    } else {                    // set previous address
+                        that.updateAddressChoice(address);
+                    }
                 }
             });
         });
