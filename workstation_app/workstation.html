@@ -3,11 +3,102 @@
 <html>
 <head>
     <title>wayBetter workstation</title>
-    <meta http-equiv="refresh" content="0; url=http://localhost:8000/workstation"/>
-</head>
-<body>
 
-Loading...
+    <script src="AIRAliases.js"></script>
+
+    <script>
+
+        var Exposed = {};
+        Exposed.trace = function(str) {
+            air.trace(str);
+        }
+        Exposed.playNotificationSound = function() {
+            try {
+                var soundPath = new air.URLRequest("Bleed.mp3");
+                var s = new air.Sound();
+                s.load(soundPath);
+                s.play();
+            } catch (e) {
+                try {
+                    alert(e);
+                } catch (e1) {
+                    alert(e1);
+                }
+            }
+
+        }
+        Exposed.drawAttention = function() {
+            this.trace("Popping up workstation app...");
+            var win = window.nativeWindow;
+            win.visible = true;
+	        win.activate();
+	        win.notifyUser('critical');
+            air.NativeWindowDisplayState = "normal";
+            win.alwaysInFront = true;
+            win.alwaysInFront = false;
+        }
+
+
+        function setupApp() {
+            air.NativeApplication.nativeApplication.autoExit = false;
+            var iconLoad = new air.Loader();
+            var iconMenu = new air.NativeMenu();
+            var acceptOrdersCommand = iconMenu.addItem(new air.NativeMenuItem("Accept Orders"));
+            acceptOrdersCommand.addEventListener(air.Event.SELECT,function(event){
+                // todo implement
+            });
+            var exitCommand = iconMenu.addItem(new air.NativeMenuItem("Exit"));
+            exitCommand.addEventListener(air.Event.SELECT,function(event){
+                air.NativeApplication.nativeApplication.icon.bitmaps = [];
+                air.NativeApplication.nativeApplication.exit();
+            });
+
+            if (air.NativeApplication.supportsSystemTrayIcon) {
+                Exposed.trace("supportsSystemTrayIcon");
+                air.NativeApplication.nativeApplication.autoExit = false;
+                iconLoad.contentLoaderInfo.addEventListener(air.Event.COMPLETE,iconLoadComplete);
+                iconLoad.load(new air.URLRequest("icons/AIRApp_16.png"));
+                air.NativeApplication.nativeApplication.icon.tooltip = "AIR application";
+                air.NativeApplication.nativeApplication.icon.menu = iconMenu;
+            }
+
+            if (air.NativeApplication.supportsDockIcon) {
+                Exposed.trace("supportsDockIcon");
+                iconLoad.contentLoaderInfo.addEventListener(air.Event.COMPLETE,iconLoadComplete);
+                iconLoad.load(new air.URLRequest("icons/AIRApp_128.png"));
+                air.NativeApplication.nativeApplication.icon.menu = iconMenu;
+            }
+        }
+
+        function setupBridge() {
+            var iframe = document.getElementById("app");
+            // make a function on the parent available to the child window
+            iframe.contentWindow.parentSandboxBridge = Exposed;
+        }
+
+
+        var iconLoadComplete = function(event)
+        {
+            air.NativeApplication.nativeApplication.icon.bitmaps = [event.target.content.bitmapData];
+        }
+
+
+    </script>
+
+
+</head>
+<body topmargin="0" leftmargin="0" onload="setupApp()">
+
+
+<iframe src="http://1.latest.waybetter-app.appspot.com/workstation"
+		    sandboxRoot="http://1.latest.waybetter-app.appspot.com/workstation"
+            id="app"
+            width="100%"
+            height="100%"
+            ondominitialize="setupBridge()">
+
+</iframe>
 
 </body>
 </html>
+
