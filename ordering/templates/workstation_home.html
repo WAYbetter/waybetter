@@ -94,8 +94,8 @@
         function initOrderTable() {
             var order_table = $("<table></table>").attr('width', '80%')
                 .append($("<tr></tr>")
-                    .append($("<th></th>").append("{% trans 'Order ID' %}"))
-                    .append($("<th></th>").append("{% trans 'Status' %}"))
+{#                    .append($("<th></th>").append("{% trans 'Order ID' %}"))#}
+{#                    .append($("<th></th>").append("{% trans 'Status' %}"))#}
                     .append($("<th></th>").append("{% trans 'From' %}"))
                     .append($("<th></th>").append("{% trans 'To' %}"))
                     .append($("<th></th>").attr('colspan', 5).append("{% trans 'Actions' %}"))
@@ -137,8 +137,8 @@
             }, {{ timout_interval }});
             
             var rendered_order = $("<tr class='order'></tr>").attr('id', order.pk)
-                .append($("<td></td>").append(order.pk))
-                .append($("<td></td>").append('&nbsp;'))
+//                .append($("<td></td>").append(order.pk))
+//                .append($("<td></td>").append('&nbsp;'))
                 .append($("<td></td>").append(order.fields.from_raw))
                 .append($("<td></td>").append(order.fields.to_raw))
                 .append($("<td></td>").append("{% trans 'Pickup in' %} ").append(select))
