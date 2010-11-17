@@ -28,7 +28,14 @@
 
         }
         Exposed.drawAttention = function() {
-            //air.NativeWindow.notifyUser(air.NotificationType.CRITICAL);
+            this.trace("Popping up workstation app...");
+            var win = window.nativeWindow;
+            win.visible = true;
+	        win.activate();
+	        win.notifyUser('critical');
+            air.NativeWindowDisplayState = "normal";
+            win.alwaysInFront = true;
+            win.alwaysInFront = false;
         }
 
 
@@ -36,6 +43,10 @@
             air.NativeApplication.nativeApplication.autoExit = false;
             var iconLoad = new air.Loader();
             var iconMenu = new air.NativeMenu();
+            var acceptOrdersCommand = iconMenu.addItem(new air.NativeMenuItem("Accept Orders"));
+            acceptOrdersCommand.addEventListener(air.Event.SELECT,function(event){
+                // todo implement
+            });
             var exitCommand = iconMenu.addItem(new air.NativeMenuItem("Exit"));
             exitCommand.addEventListener(air.Event.SELECT,function(event){
                 air.NativeApplication.nativeApplication.icon.bitmaps = [];
@@ -43,6 +54,7 @@
             });
 
             if (air.NativeApplication.supportsSystemTrayIcon) {
+                Exposed.trace("supportsSystemTrayIcon");
                 air.NativeApplication.nativeApplication.autoExit = false;
                 iconLoad.contentLoaderInfo.addEventListener(air.Event.COMPLETE,iconLoadComplete);
                 iconLoad.load(new air.URLRequest("icons/AIRApp_16.png"));
@@ -51,6 +63,7 @@
             }
 
             if (air.NativeApplication.supportsDockIcon) {
+                Exposed.trace("supportsDockIcon");
                 iconLoad.contentLoaderInfo.addEventListener(air.Event.COMPLETE,iconLoadComplete);
                 iconLoad.load(new air.URLRequest("icons/AIRApp_128.png"));
                 air.NativeApplication.nativeApplication.icon.menu = iconMenu;
