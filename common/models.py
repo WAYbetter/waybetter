@@ -35,6 +35,9 @@ class Country(models.Model):
 class City(models.Model):
     name = models.CharField(_("name"), max_length=50)
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="cities")
+    class Meta:
+        verbose_name_plural = _("cities")
+        ordering = ('name',)
 
     def __unicode__(self):
         return self.name
