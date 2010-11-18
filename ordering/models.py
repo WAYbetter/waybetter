@@ -7,6 +7,8 @@ from common.models import Country, City, CityArea
 from datetime import datetime
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone
+import re
+from django.core.validators import RegexValidator
 
 ASSIGNED = 1
 ACCEPTED = 2
@@ -100,10 +102,14 @@ class Passenger(models.Model):
         return self.user.username
 
 
+
+digits_re = re.compile(r'^\d+$')
+validate_digits = RegexValidator(digits_re, _(u"Value must consists of digits only."), 'invalid')
 class Phone(models.Model):
-    local_phone = models.CharField(_("phone number"), max_length=20)
+    local_phone = models.CharField(_("phone number"), max_length=20, validators=[validate_digits])
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="phones", null=True, blank=True)
+
 
     def __unicode__(self):
         if self.local_phone:

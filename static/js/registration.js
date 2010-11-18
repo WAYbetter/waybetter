@@ -295,7 +295,6 @@ var Registrator = Object.create({
                 type : 'post',
                 data : $(form).serialize(),
                 success : function (response) {
-                    alert('verification code: '+response);
                     $('#verification_code').removeAttr('disabled').focus();
                 },
                 error :function (XMLHttpRequest, textStatus, errorThrown) {
