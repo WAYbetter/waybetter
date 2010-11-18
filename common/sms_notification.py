@@ -16,7 +16,7 @@ def send_sms(destination, text, **kwargs):
     """
     sms_config = settings.SMS
     if kwargs is not None:
-        sms_config.update(kwargs)
+        sms_config.update(kwargs) 
 
     return send_sms_cellact(destination, text, sms_config)
 
@@ -51,7 +51,5 @@ def send_sms_cellact(destination, text, sms_config):
     t = get_template("cellact_send_sms.xml")
     payload = "XMLString=" + urlquote_plus(t.render(c))
     result = fetch(provider_url, method="POST", payload=payload)
-    logging.debug(result)
-    logging.debug(result.content)
     return result
 

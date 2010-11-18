@@ -122,3 +122,8 @@ def log_event(event_type, order=None, order_assignment=None, station=None, work_
     q = taskqueue.Queue('log-events')
     q.add(task)
 
+def get_international_phone(country, local_phone):
+    if local_phone.startswith("0"):
+        local_phone = local_phone[1:]
+
+    return "%s%s" % (country.dial_code, local_phone)

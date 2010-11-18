@@ -6,6 +6,7 @@ from djangotoolbox.fields import BlobField
 from common.models import Country, City, CityArea
 from datetime import datetime
 from common.geo_calculations import distance_between_points
+from common.util import get_international_phone
 
 ASSIGNED = 1
 ACCEPTED = 2
@@ -91,7 +92,9 @@ class Passenger(models.Model):
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
-
+    def international_phone(self):
+        return get_international_phone(self.country, self.phone)
+    
 
     def __unicode__(self):
         return self.user.username

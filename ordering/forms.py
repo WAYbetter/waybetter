@@ -225,7 +225,7 @@ class PassengerProfileForm(forms.Form, Id2Model):
 
     default_station = forms.ModelChoiceField(queryset=Station.objects.all(), label=_("Default station"), empty_label=_("(No station selected)"), required=False)
 
-    phone =     forms.RegexField( regex=r'^\d+$',
+    local_phone =     forms.RegexField( regex=r'^\d+$',
                                   max_length=20,
                                   widget=forms.TextInput(),
                                   label=_("Local mobile phone #"),

@@ -17,8 +17,6 @@ from datetime import datetime
 from sharded_counters.models import commit_locked
 from ordering.models import Station
 from common.sms_notification import send_sms
-from django.template.context import Context
-from django.template.loader import get_template
 from common.util import log_event, EventType
 
 def book_order_async(order):
@@ -46,15 +44,18 @@ def book_order(request):
         log_event(EventType.ORDER_FAILED, order=order, passenger=order.passenger)
         logging.warning("no matching workstation found for: %d" % order_id)
         response = HttpResponse("no matching workstation found")
+
+        send_sms(order.passenger.international_phone(),
+                 _("We're sorry, but we could not find a taxi for you"))
         
-        #TODO_WB: send SMS
     except OrderError:
         order.status = ERROR
         order.save()
         log_event(EventType.ORDER_ERROR, order=order, passenger=order.passenger)
         logging.error("book_order: OrderError: %d" % order_id)
         response = HttpResponseServerError("an error occured while handling order")
-        #TODO_WB: send SMS
+        send_sms(order.passenger.international_phone(),
+                 _("We're sorry, but we have encountered an error while handling your request"))
 
     return response
 
@@ -63,16 +64,10 @@ def accept_order(order, pickup_time, station):
     order.status = ACCEPTED
     order.station = station
     order.save()
-    extra_data = {
-        'order_id': order.id,
-        'passenger_id': order.passenger_id,
-        'station_name': station.name,
-        'pickup_time': pickup_time,
-    }
-    c = Context(extra_data)
-    t = get_template("sms_notification.txt")
-    text = t.render(c)
-    send_sms(order.passenger.phone, text, **extra_data)
+
+    send_sms(order.passenger.international_phone(),
+             _("Pickup at %s in %s minutes.\nStation: %s, %s" % (order.from_raw, pickup_time, station.name, station.phones.all()[0])))
+
 
 @passenger_required
 def order_status(request, order_id, passenger):
