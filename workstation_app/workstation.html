@@ -78,6 +78,10 @@
             Exposed.drawAttention();
         }
 
+        Exposed.setStationDetails = function(name, rating) {
+            $("#title").html(name);
+        }
+
 
         function setupApp() {
             air.NativeApplication.nativeApplication.autoExit = false;
@@ -175,7 +179,7 @@
 <div id="chrome_bottom">Service provided by WAYbetter LTD. All rights reserved.</div>
 
 
-<div id="title">Silver cabs</div>
+<div id="title"></div>
 
 
 <img id="grip" src="images/icon_grip.png" width="14" height="14" />
