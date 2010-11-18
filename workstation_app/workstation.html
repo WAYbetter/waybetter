@@ -8,13 +8,22 @@
 
     <script>
 
+
+        var BASE_HEIGHT = 70;
+        var ROW_HEIGHT = 100;
+        var ROW_WIDTH = 331;
+
+        var numberOfRows = 0;
+
         var Exposed = {};
+
         Exposed.trace = function(str) {
             air.trace(str);
         };
+
         Exposed.playNotificationSound = function() {
             try {
-                var soundPath = new air.URLRequest("Bleed.mp3");
+                var soundPath = new air.URLRequest("notify_sound.mp3");
                 var s = new air.Sound();
                 s.load(soundPath);
                 s.play();
@@ -27,6 +36,7 @@
             }
 
         }
+
         Exposed.drawAttention = function() {
             this.trace("Popping up workstation app...");
             var win = window.nativeWindow;
@@ -36,6 +46,36 @@
             air.NativeWindowDisplayState = "normal";
             win.alwaysInFront = true;
             win.alwaysInFront = false;
+        }
+
+        Exposed.addRow = function() {
+            Exposed.resizeWindow(++numberOfRows);
+        }
+
+        Exposed.removeRow = function() {
+            Exposed.resizeWindow(--numberOfRows);
+        }
+
+        Exposed.resizeWindow = function(nrows) {
+
+            numberOfRows = nrows;
+
+            var bounds = new air.Rectangle();
+
+            bounds.x = ( air.Capabilities.screenResolutionX - 1024 ) / 2;
+            bounds.y = ( air.Capabilities.screenResolutionY - 768 ) / 2;
+            bounds.width = ROW_WIDTH;
+            var appHeight = numberOfRows * ROW_HEIGHT;
+            bounds.height = BASE_HEIGHT + appHeight;
+
+            window.nativeWindow.bounds = bounds;
+
+            $("#app").height(appHeight);
+        }
+
+        Exposed.onIncomingOrder = function() {
+            Exposed.playNotificationSound();
+            Exposed.drawAttention();
         }
 
 
@@ -101,10 +141,12 @@
                 window.nativeWindow.startResize( air.NativeWindowResize.BOTTOM_RIGHT );
             } );
 
-            window.nativeWindow.x = ( air.Capabilities.screenResolutionX - window.nativeWindow.width ) / 2;
-            window.nativeWindow.y = ( air.Capabilities.screenResolutionY - window.nativeWindow.height ) / 2;
-            window.nativeWindow.visible = true;
+            //window.nativeWindow.x = ( air.Capabilities.screenResolutionX - window.nativeWindow.width ) / 2;
+            //window.nativeWindow.y = ( air.Capabilities.screenResolutionY - window.nativeWindow.height ) / 2;
 
+            Exposed.resizeWindow(0);
+
+            window.nativeWindow.visible = true;
 
         }
 
@@ -130,7 +172,7 @@
 <body topmargin="0" leftmargin="0" style="overflow:hidden;" onload="setupApp()">
 
 <div id="chrome_top"></div>
-<div id="chrome_bottom"></div>
+<div id="chrome_bottom">Service provided by WAYbetter LTD. All rights reserved.</div>
 
 
 <div id="title">Silver cabs</div>
