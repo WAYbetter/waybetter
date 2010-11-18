@@ -282,7 +282,11 @@ class StationAdminForm(forms.ModelForm):
     class Meta:
         model = Station
 
-    def clean(self):
+       
+    def clean_address(self):
+        if self.cleaned_data["address"] == self.initial["address"]:
+            return self.initial["address"]
+  
         result = None
         geocode_str = u"%s %s" % (self.cleaned_data["city"], self.cleaned_data["address"])
         geocode_results = geocode(geocode_str, add_geohash=True)
@@ -308,4 +312,4 @@ class StationAdminForm(forms.ModelForm):
         self.cleaned_data["geohash"] = result["geohash"]
         self.cleaned_data["address"] = "%s %s" % (result["street"], result["house_number"])
 
-        return self.cleaned_data
+        return self.cleaned_data["address"]
