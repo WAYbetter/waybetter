@@ -18,7 +18,7 @@ def send_sms(destination, text, **kwargs):
     if kwargs is not None:
         sms_config.update(kwargs)
 
-    return send_sms_unicell(destination, text, sms_config)
+    return send_sms_cellact(destination, text, sms_config)
 
 
 def send_sms_unicell(destination, text, sms_config):
@@ -33,6 +33,23 @@ def send_sms_unicell(destination, text, sms_config):
     c = Context(params)
     t = get_template("unicell_send_sms.xml")
     payload = t.render(c)
+    result = fetch(provider_url, method="POST", payload=payload)
+    logging.debug(result)
+    logging.debug(result.content)
+    return result
+
+def send_sms_cellact(destination, text, sms_config):
+    provider_url = sms_config[SMS_PROVIDER_URL]
+    params = {
+        'destination':         destination,
+        'text':                text,
+        'is_test':             "false",
+    }
+    params.update(sms_config)
+
+    c = Context(params)
+    t = get_template("cellact_send_sms.xml")
+    payload = "XMLString=" + urlquote_plus(t.render(c))
     result = fetch(provider_url, method="POST", payload=payload)
     logging.debug(result)
     logging.debug(result.content)
