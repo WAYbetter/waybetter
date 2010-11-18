@@ -148,6 +148,10 @@
             //window.nativeWindow.x = ( air.Capabilities.screenResolutionX - window.nativeWindow.width ) / 2;
             //window.nativeWindow.y = ( air.Capabilities.screenResolutionY - window.nativeWindow.height ) / 2;
 
+            $(window).resize(function(e) {
+                $("#app").height(window.nativeWindow.height - BASE_HEIGHT);
+            })
+
             Exposed.resizeWindow(0);
 
             window.nativeWindow.visible = true;
@@ -176,7 +180,7 @@
 <body topmargin="0" leftmargin="0" style="overflow:hidden;" onload="setupApp()">
 
 <div id="chrome_top"></div>
-<div id="chrome_bottom">Service provided by WAYbetter LTD. All rights reserved.</div>
+<div id="chrome_bottom">&nbsp;<!-- TODO_WB indent using CSS -->&nbsp;Service provided by WAYbetter LTD. All rights reserved.</div>
 
 
 <div id="title"></div>
