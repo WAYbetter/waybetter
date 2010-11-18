@@ -283,17 +283,29 @@ class StationAdminForm(forms.ModelForm):
         model = Station
 
     def clean(self):
+        result = None
         geocode_str = u"%s %s" % (self.cleaned_data["city"], self.cleaned_data["address"])
         geocode_results = geocode(geocode_str, add_geohash=True)
         if len(geocode_results) < 1:
             raise ValidationError("Could not resolve address")
         elif len(geocode_results) > 1:
-            address_options = ["%s %s" % (res["street"], res["house_number"]) for res in geocode_results]
-            raise ValidationError("Please choose one: %s" % ", ".join(address_options))
- 
-        result = geocode_results[0]
+            address_options = []
+            for res in geocode_results:
+                address = "%s %s" % (res["street"], res["house_number"])
+                address_options.append(address)
+                if address == self.cleaned_data["address"]:
+                    result = res
+                    break
+                    
+            if not result:
+                raise ValidationError("Please choose one: %s" % ", ".join(address_options))
+
+        else:
+            result = geocode_results[0]
+            
         self.cleaned_data["lon"] = result["lon"] 
         self.cleaned_data["lat"] = result["lat"]
         self.cleaned_data["geohash"] = result["geohash"]
+        self.cleaned_data["address"] = "%s %s" % (result["street"], result["house_number"])
 
         return self.cleaned_data
