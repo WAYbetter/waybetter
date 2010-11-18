@@ -11,6 +11,8 @@ from ordering.models import Order, Station
 from django.utils.safestring import mark_safe
 from google.appengine.api.images import BadImageError, NotImageError
 from common.util import log_event, EventType
+from django.core.exceptions import ValidationError
+from common.geocode import geocode
 
 INITIAL_DATA = 'INITIAL_DATA'
 
@@ -275,3 +277,23 @@ class CityChoiceWidget(forms.Select):
 class SpecificPricingRuleSetupForm(forms.Form):
     country = forms.ModelChoiceField(queryset=Country.objects.all())
     csv = forms.CharField(widget=forms.Textarea)
+
+class StationAdminForm(forms.ModelForm):
+    class Meta:
+        model = Station
+
+    def clean(self):
+        geocode_str = u"%s %s" % (self.cleaned_data["city"], self.cleaned_data["address"])
+        geocode_results = geocode(geocode_str, add_geohash=True)
+        if len(geocode_results) < 1:
+            raise ValidationError("Could not resolve address")
+        elif len(geocode_results) > 1:
+            address_options = ["%s %s" % (res["street"], res["house_number"]) for res in geocode_results]
+            raise ValidationError("Please choose one: %s" % ", ".join(address_options))
+ 
+        result = geocode_results[0]
+        self.cleaned_data["lon"] = result["lon"] 
+        self.cleaned_data["lat"] = result["lat"]
+        self.cleaned_data["geohash"] = result["geohash"]
+
+        return self.cleaned_data
