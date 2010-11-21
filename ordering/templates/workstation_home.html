@@ -78,7 +78,17 @@
         }
         
         function restoreState() {
-            pollServer("{% url ordering.station_controller.get_workstation_orders %}");
+            $.ajax({
+                url: "{% url ordering.station_controller.get_workstation_orders %}",
+                dataType: "json",
+                complete: function(XMLHttpRequest, textStatus) {
+                    if (XMLHttpRequest.status == 0) { // no response from server
+                        onError();
+                    }
+                },
+                success: onOrder,
+                error: onError
+            });
         }
 
         
