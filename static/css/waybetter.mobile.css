@@ -1,0 +1,293 @@
+* {
+    font-family: Calibri;
+    margin: 0;
+    padding: 0;
+    color: #2e2e2e;
+}
+a:focus {
+    outline: none;
+}
+
+body {
+    text-align: center;
+}
+form ul {
+    list-style: none;
+}
+input::-moz-focus-inner, button::-moz-focus-inner {
+    border:none;
+}
+input.text, input[type=text] {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -moz-box-shadow:0 2px 1px #292929 inset;
+    -webkit-box-shadow:0 2px 1px #292929 inset;
+    box-shadow:0 2px 1px #292929 inset;
+    border-color: #949494;
+    border-style: solid;
+    border-width: 2px 1px 1px 2px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.clear {
+    clear: both;
+    height: 0;
+    overflow: hidden;
+}
+.img {
+    display: block;
+    position: absolute;
+    background-position: left top;
+    background-repeat: no-repeat;
+}
+.round {
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+}
+
+/************* Main *************/
+#main {
+    padding: 16px 0 0;
+    background-image:url(../img/main_background.png);
+}
+#main-container {
+/*width: 896px;*/
+    margin: 0 auto;
+}
+
+/************* Marquee *************/
+span.fade {
+    top: 0;
+    width: 27px;
+    height: 27px;
+}
+span.left-fade {
+    left: -1px;
+    background-image:url(../img/left_fade.png);
+}
+span.right-fade {
+    right: 0;
+    background-image:url(../img/right_fade.png);
+}
+#roller {
+    position: relative;
+}
+#roller div {
+    width: 100%;
+    color: #fdec7c;
+    font-family: 'Lucida Console';
+    font-weight: normal;
+    font-size: 14px;
+}
+
+/************* App Yellow Header *************/
+#yellow_header {
+    position: relative;
+    height: 17px;
+    margin-bottom: 1px;
+    background-color: #ffe63d;
+    background: -webkit-gradient(linear, left top, left bottom, from(#ffe63d), to(#ffdf07));
+    background: -moz-linear-gradient(-90deg, #ffe63d, #ffdf07);
+    -pie-background: linear-gradient(-90deg, #ffe63d, #ffdf07);
+    -webkit-box-shadow:0 -3px 3px #2a2a2a;
+    -moz-box-shadow:0 -3px 3px #2a2a2a;
+    box-shadow:0 -3px 3px #2a2a2a;
+}
+#taxi_tab {
+    bottom: 14px;
+    left: 65px;
+    width: 184px;
+    height: 42px;
+    background-image: url(../img/taxi_tab.png);
+}
+#taxi_tab > h1 {
+    margin-top: 10px;
+    font-size: 27px;
+}
+
+/************* Ordering Form *************/
+.gray_header {
+    position: relative;
+    padding: 10px;
+    background-color: #8d8d8d;
+    background: -webkit-gradient(linear, left top, left bottom, from(#8d8d8d), to(#535353));
+    background: -moz-linear-gradient(-90deg, #8d8d8d, #535353);
+    -pie-background: linear-gradient(-90deg, #8d8d8d, #535353);
+    -webkit-box-shadow:0 3px 3px black;
+    -moz-box-shadow:0 3px 3px black;
+    box-shadow:0 3px 3px black;
+    border-top: 1px solid #f1f1f1;
+}
+#order_form {
+    float: left;
+    margin-top: 20px;
+    margin-left: 9px;
+}
+#map {
+    height: 250px;
+    width: 530px;
+}
+#map_container {
+    position: relative;
+    float: right;
+    height: 250px;
+    width: 530px;
+/*background:white url(../img/map.png) left top no-repeat;*/
+}
+#map_overlay_left {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 250px;
+    width: 3px;
+    background: transparent;
+    -moz-box-shadow:inset 2px 2px 2px #2a2a2a;
+    -webkit-box-shadow:inset 2px 2px 2px #2a2a2a;
+    box-shadow:inset 2px 2px 2px #2a2a2a;
+}
+#map_overlay_top {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 3px;
+    width: 530px;
+    background: transparent;
+    -moz-box-shadow:inset 2px 2px 2px #2a2a2a;
+    -webkit-box-shadow:inset 2px 2px 2px #2a2a2a;
+    box-shadow:inset 2px 2px 2px #2a2a2a;
+}
+input.big_text {
+    width: 245px;
+    height: 23px;
+    margin-bottom: 44px;
+    padding: 8px;
+    border-color: #6e6e6e;
+    border-style: solid;
+    border-width: 1px;
+    font-size: 14px;
+    background-repeat: no-repeat;
+    background-image: url(../img/markers.png);
+}
+input.a_marker {
+    padding-left: 39px;
+    background-position: 6px -35px;
+}
+input.b_marker {
+    padding-left: 39px;
+    background-position: 6px 4px;
+}
+
+input.a_marker.marker_disabled {
+    background-position: 6px -113px;
+}
+input.b_marker.marker_disabled {
+    background-position: 6px -74px;
+}
+input:focus, input.focus{
+    background-color: #fffce0;
+    border-color: #696969;
+    outline-width:0;
+}
+button.order_button {
+    width: 294px;
+    height:53px;
+    margin-bottom: 10px;
+    border: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    background: url("../img/order_button.png") left top no-repeat;
+}
+button.order_button.hover, button.order_button:hover {
+    background-position: 0 -53px;
+}
+button.order_button.active, button.order_button:active{
+    background-position: 0 -106px;
+}
+button.order_button.disabled, button.order_button:disabled {
+    background-position: 0 -159px;
+}
+
+/* Ordering Bottom Tabs */
+#tabs {
+    margin-top: -30px;
+    background: transparent;
+    border: 0;
+    text-align: left;
+}
+#tabs ul > li > a {
+    padding-left: 25px;
+    background-position: left center;
+    background-repeat: no-repeat;
+}
+#tabs ul > li > a[href="#tabs-1"] {
+    background-image: url("../img/history_icon.png");
+}
+#tabs ul > li > a[href="#tabs-2"] {
+    background-image: url("../img/settings_icon.png");
+}
+img.tab_icon {
+    margin-right: 7px;
+    margin-left: -15px;
+    border: none;
+    vertical-align: middle;
+}
+#tabs ul.ui-tabs-nav {
+    padding-right: 0;
+    background: transparent;
+    border: 0;
+}
+#tabs ul.ui-tabs-nav li {
+    top: 4px;
+    float:right;
+    width: 220px;
+    height: 35px;
+    margin-left: -64px;
+    background-image: url(../img/tabs_hompage.png);
+    background-position: 0 -36px;
+    background-repeat: no-repeat;
+    border:0;
+    font-size: 14px;
+
+}
+#tabs .ui-tabs-panel {
+    background-color: white;
+    -moz-box-shadow:0 -1px 2px #282828;
+    -webkit-box-shadow:0 -1px 2px #282828;
+    box-shadow:0 -1px 2px #282828;
+    -moz-border-radius: 10px;
+    -webkot-border-radius: 10px;
+    border-radius: 10px;
+    behavior: url(PIE.htc);
+}
+#tabs ul.ui-tabs-nav li.ui-state-active {
+    background-position: 0 0;
+    z-index: 11 !important;
+}
+/* jQuery UI Tabs Hacking */
+ul.ui-tabs-nav li.ui-state-default {
+    background: transparent;
+}
+ul.ui-widget-header {
+    background: transparent;
+}
+ul.ui-tabs-nav .ui-state-default a, .ui-state-default a:link, .ui-state-default a:visited {
+    margin-left:40px;
+    padding-top: 0.6em;
+    border:0;
+    color: black;
+    background: transparent;
+}
+ul.ui-tabs-nav .ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited {
+    margin-left:40px;
+    border:0;
+    color: black;
+    background: transparent;
+    font-weight: bold;
+}
+ul.ui-tabs-nav .ui-state-hover a {
+    text-decoration: underline;
+}
