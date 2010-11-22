@@ -107,5 +107,7 @@ def detect_mobile(view):
     detected.__doc__ = "%s\n[Wrapped by detect_mobile which detects if the request is from a phone]" % view.__doc__
     return detected
 
+def is_mobile_processor(request):
+    return { 'mobile': request.mobile }
 
-__all__ = ['Middleware', 'detect_mobile']
+__all__ = ['Middleware', 'detect_mobile', 'is_mobile_processor']
