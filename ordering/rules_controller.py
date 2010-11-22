@@ -77,7 +77,8 @@ def resolve_city(cache, name, country):
     if name in cache:
         return cache[name]
     else:
-        city = City.get_by_name_and_country(name, country.id, True)
+        city_id = City.get_id_by_name_and_country(name, country.id, True)
+        city = City.objects.get(id=city_id)
         cache[name] = city
         return city
 

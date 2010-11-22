@@ -299,8 +299,8 @@ class SpecificPricingRule(models.Model):
     # geographic predicates
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="specific_pricing_rules")
     state = models.CharField(_("state"), max_length=100, null=True, blank=True)
-    city = models.ForeignKey(City, verbose_name=_("city"), related_name="pricing_rules", null=True, blank=True)
-    to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="to_city_pricing_rules", null=True, blank=True)
+    city = models.ForeignKey(City, verbose_name=_("city"), related_name="specific_pricing_rules", null=True, blank=True)
+    to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="to_city_specific_pricing_rules", null=True, blank=True)
     # time predicates
     from_hour = models.TimeField(_("from hour"), null=True, blank=True)
     to_hour = models.TimeField(_("to hour"), null=True, blank=True)
