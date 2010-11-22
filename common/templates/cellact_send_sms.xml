@@ -1,0 +1,16 @@
+<PALO>
+    <HEAD>
+        <FROM>{{ from }}</FROM>
+        <APP USER="{{ user_id }}" PASSWORD="{{ user_password }}" />
+        <CMD>sendtextmt</CMD>
+    </HEAD>
+    <BODY>
+        <CONTENT>{{ text }}</CONTENT>
+        <DEST_LIST>
+            <TO>{{ destination }}</TO>
+        </DEST_LIST>
+    </BODY>
+    <OPTIONAL>
+        <CALLBACK>{{ originator }}</CALLBACK>
+    </OPTIONAL>
+</PALO>

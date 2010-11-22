@@ -10,7 +10,6 @@ source other than Adobe.  Nonetheless, you may modify or
 distribute this file only in accordance with such agreement. 
 */
 
-
 var air;
 if (window.runtime)
 {

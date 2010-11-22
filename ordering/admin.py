@@ -4,6 +4,9 @@ from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStat
 import station_connection_manager
 from common.models import Country
 from google.appengine.api.images import BadImageError, NotImageError
+from django.core.exceptions import ValidationError
+import forms
+from common.geocode import geocode
 
 class PassengerAdmin(admin.ModelAdmin):
     list_display = ["id", "user_name"]
@@ -27,12 +30,15 @@ class OrderAdmin(admin.ModelAdmin):
 class PhoneAdmin(admin.TabularInline):
     model = Phone
     extra = 2
-   
+
+
     
 class StationAdmin(admin.ModelAdmin):
     
     list_display = ["id", "name", "logo_img"]
     inlines = [PhoneAdmin]
+    exclude = ["geohash", "lat", "lon", "number_of_ratings", "average_rating"]
+    form = forms.StationAdminForm
 
     def logo_img(self, obj):
         res = _("No Logo")
@@ -50,7 +56,6 @@ class StationAdmin(admin.ModelAdmin):
                 pass
             
         return res
-
     logo_img.allow_tags = True
 
 class OrderAssignmentAdmin(admin.ModelAdmin):

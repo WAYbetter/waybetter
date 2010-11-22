@@ -56,11 +56,11 @@ if (hasReqestedVersion) {
 		'name','badge',
 		'allowscriptaccess','always',
 		'pluginspage','http://www.macromedia.com/go/getflashplayer',
-		'flashvars','appname=workstation_app&appurl=http://localhost:8000/static/app/badge/workstation_app.air&airversion=2.5&imageurl=/static/app/badge/Station_INSTALLER.jpg',
+		'flashvars','appname=workstation_app&appurl=http://localhost:8000/static/app/badge/workstation_app-1.0.4.air&airversion=2.5&imageurl=/static/app/badge/Station_INSTALLER.jpg',
 		'movie','badge' ); //end AC code
 
 } else {  // Flash Player is too old or we can't detect the plugin
-	document.write('<table id="AIRDownloadMessageTable"><tr><td>Download the <a href="workstation_app.air">wayBetter Workstation application</a>.<br /><br /><span id="AIRDownloadMessageRuntime">This application requires the <a href="');
+	document.write('<table id="AIRDownloadMessageTable"><tr><td>Download the <a href="workstation_app-1.0.4.air">wayBetter Workstation application</a>.<br /><br /><span id="AIRDownloadMessageRuntime">This application requires the <a href="');
 	
 	var platform = 'unknown';
 	if (typeof(window.navigator.platform) != undefined)
@@ -91,7 +91,7 @@ if (hasReqestedVersion) {
 <table id="AIRDownloadMessageTable">
 <tr>
 	<td>
-	Download the <a href="/static/app/badge/workstation_app.air">wayBetter Workstation Application</a>.<br /><br /><span id="AIRDownloadMessageRuntime">This application requires Adobe&#174;&nbsp;AIR&#8482; to be installed for <a href="http://airdownload.adobe.com/air/mac/download/latest/AdobeAIR.dmg">Mac OS</a> or <a href="http://airdownload.adobe.com/air/win/download/latest/AdobeAIRInstaller.exe">Windows</a>.</span>
+	Download the <a href="/static/app/badge/workstation_app-1.0.4.air">wayBetter Workstation Application</a>.<br /><br /><span id="AIRDownloadMessageRuntime">This application requires Adobe&#174;&nbsp;AIR&#8482; to be installed for <a href="http://airdownload.adobe.com/air/mac/download/latest/AdobeAIR.dmg">Mac OS</a> or <a href="http://airdownload.adobe.com/air/win/download/latest/AdobeAIRInstaller.exe">Windows</a>.</span>
 	</td>
 </tr>
 </table>

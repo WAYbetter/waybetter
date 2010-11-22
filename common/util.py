@@ -2,6 +2,7 @@ import random
 from google.appengine.api.labs import taskqueue
 from django.utils.translation import gettext as _
 import logging
+from django.shortcuts import render_to_response
 
 class Enum:
     @classmethod
@@ -122,3 +123,26 @@ def log_event(event_type, order=None, order_assignment=None, station=None, work_
     q = taskqueue.Queue('log-events')
     q.add(task)
 
+def get_international_phone(country, local_phone):
+    if local_phone.startswith("0"):
+        local_phone = local_phone[1:]
+
+    return "%s%s" % (country.dial_code, local_phone)
+
+
+def custom_render_to_response(template, dictionary=None, context_instance=None, mimetype=None):
+    """
+    a wrapper around render_to_reponse
+
+    if request.mobile = True then change template name to 'mobile/' + template
+    """
+    if not context_instance:
+        raise RuntimeError("context_instance must be passed")
+
+
+    for d in context_instance.dicts:
+        if "mobile" in d and d["mobile"]:
+            template = "%s/%s" % ('mobile', template)
+            break
+         
+    return render_to_response(template, dictionary=dictionary, context_instance=context_instance, mimetype=mimetype)
