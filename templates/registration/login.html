@@ -25,11 +25,44 @@
   <div class="submit-row">
     <label>&nbsp;</label><input type="submit" value="{% trans 'Log in' %}" />
   </div>
+
+    <input type="hidden" name="token" id="id_token">
+
 </form>
 <p>{% trans "Forgot password" %}? <a href="{% url auth_password_reset %}">{% trans "Reset it" %}</a>!</p>
 <p>{% trans "Not member" %}? <a href="{% url registration_register %}">{% trans "Register" %}</a>!</p>
 <script type="text/javascript">
-document.getElementById('id_username').focus()
+
+    $(function() {
+        init();
+    });
+
+    function readToken() {
+        var token = getToken();
+        document.getElementById("id_token").value = token;
+        return token;
+    }
+    
+    function init() {
+        document.getElementById("id_username").focus();
+        token = readToken();
+        if (token) {
+            var login_form = document.getElementById("login-form");
+            login_form.action = "/services/login_workstation/";
+            login_form.submit();
+        }
+    }
+
+
+     function getToken() {
+        try {
+            return parentSandboxBridge.readToken();
+        }
+        catch (e) {
+            alert(e);
+        }
+    }
+
 </script>
 </div>
 {% endblock %}
