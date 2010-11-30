@@ -5,10 +5,13 @@ from django.contrib.auth.models import User
 from djangotoolbox.fields import BlobField
 from common.models import Country, City, CityArea
 from datetime import datetime
+import time
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone
+from common.util import get_international_phone, generate_random_token
 import re
 from django.core.validators import RegexValidator
+import common.urllib_adaptor as urllib2
+import urllib
 
 ASSIGNED = 1
 ACCEPTED = 2
@@ -20,14 +23,12 @@ ERROR = 7
 
 ASSIGNMENT_STATUS = ((ASSIGNED, gettext("assigned")),
                      (ACCEPTED, gettext("accepted")),
-                     (IGNORED,  gettext("ignored")),
+                     (IGNORED, gettext("ignored")),
                      (REJECTED, gettext("rejected")))
 
-
-ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING,   gettext("pending")),
-                                    (FAILED,    gettext("failed")),
-                                    (ERROR,     gettext("error")))
-
+ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, gettext("pending")),
+                                    (FAILED, gettext("failed")),
+                                    (ERROR, gettext("error")))
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
@@ -37,11 +38,11 @@ class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
     name = models.CharField(_("station name"), max_length=50)
     license_number = models.CharField(_("license number"), max_length=30)
-    website_url = models.URLField(_("website"), max_length=255 ,null=True, blank=True) #verify_exists=False
+    website_url = models.URLField(_("website"), max_length=255, null=True, blank=True) #verify_exists=False
     number_of_taxis = models.IntegerField(_("number of taxis"), max_length=4)
-    description = models.CharField(_("description"), max_length=4000,null=True,blank=True)
-    logo = BlobField(_("logo"), null=True,blank=True)
-    language  = models.IntegerField(_("language"), choices=LANGUAGE_CHOICES, default=0)
+    description = models.CharField(_("description"), max_length=4000, null=True, blank=True)
+    logo = BlobField(_("logo"), null=True, blank=True)
+    language = models.IntegerField(_("language"), choices=LANGUAGE_CHOICES, default=0)
 
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")
@@ -73,7 +74,7 @@ class Station(models.Model):
             return False
 
         return (distance_between_points(self.lat, self.lon, from_lat, from_lon) <= MAX_STATION_DISTANCE_KM or
-            distance_between_points(self.lat, self.lon, to_lat, to_lon) <= MAX_STATION_DISTANCE_KM)
+                distance_between_points(self.lat, self.lon, to_lat, to_lon) <= MAX_STATION_DISTANCE_KM)
 
     @staticmethod
     def get_default_station_choices(order_by="name", include_empty_option=True):
@@ -85,7 +86,8 @@ class Passenger(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger")
 
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
-    default_station = models.ForeignKey(Station, verbose_name=_("Default station"), related_name="default_passengers", default=None, null=True)
+    default_station = models.ForeignKey(Station, verbose_name=_("Default station"), related_name="default_passengers",
+                                        default=None, null=True)
 
     phone = models.CharField(_("phone number"), max_length=15)
     phone_verified = models.BooleanField(_("phone verified"))
@@ -96,11 +98,10 @@ class Passenger(models.Model):
 
     def international_phone(self):
         return get_international_phone(self.country, self.phone)
-    
+
 
     def __unicode__(self):
         return self.user.username
-
 
 
 digits_re = re.compile(r'^\d+$')
@@ -115,13 +116,14 @@ class Phone(models.Model):
         if self.local_phone:
             return u"%s" % self.local_phone
         else:
-            return u"" 
+            return u""
 
 class WorkStation(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="work_station")
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="work_stations")
-    token = models.CharField(_("token"), max_length=20)
+    token = models.CharField(_("token"), max_length=50, null=True, blank=True)
+    installer_url = models.URLField(_("installer URL"), max_length=500, null=True, blank=True)
     im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=40)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
 
@@ -131,6 +133,51 @@ class WorkStation(models.Model):
     def get_admin_link(self):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/workstation', self.id, self.user.username)
 
+    def fetch_installer_URL(self):
+        """
+        Invokes the get_installer_url service in the AIR build service,
+        providing it the workstation token.
+        """
+        if self.token is None:
+            raise RuntimeError("No token found for the workstation")
+        url = "%get_installer/?token=%s" % (settings.BUILD_SERVICE_BASE_URL)
+        installer_url = urllib2.urlopen(url).read()
+        self.installer_url = installer_url
+        self.save()
+        return self.installer_url
+
+
+    def build_installer(self):
+        """
+        Invokes the build_installer_url service in the AIR build service,
+        providing it the workstation token.
+        """
+        if self.token is None or len(self.token) == 0:
+            self.token = generate_random_token(alpha_or_digit_only=True)
+        if self.installer_url is None or len(self.installer_url) == 0:
+            try:
+                url = "%sbuild_installer/" % settings.BUILD_SERVICE_BASE_URL
+                data = {"token": self.token}
+                params = urllib.urlencode(data)
+                installer_url = urllib2.urlopen(url, params).read()
+                self.installer_url = installer_url
+                self.save()
+            except:
+                time.sleep(5)
+                url = "%sget_installer/?token=%s" % (settings.BUILD_SERVICE_BASE_URL, self.token)
+                installer_url = urllib2.urlopen(url).read()
+                self.installer_url = installer_url
+                self.save()
+
+        return self.installer_url
+
+
+def build_installer_for_workstation(sender, instance, **kwargs):
+    instance.build_installer()
+
+
+models.signals.post_save.connect(build_installer_for_workstation, sender=WorkStation)
+
 RATING_CHOICES = ((1, gettext("Very poor")),
                   (2, gettext("Not so bad")),
                   (3, gettext("Average")),
@@ -138,7 +185,6 @@ RATING_CHOICES = ((1, gettext("Very poor")),
                   (5, gettext("Perfect")))
 
 class Order(models.Model):
-
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
 
@@ -146,7 +192,8 @@ class Order(models.Model):
 
     from_country = models.ForeignKey(Country, verbose_name=_("from country"), related_name="orders_from")
     from_city = models.ForeignKey(City, verbose_name=_("from city"), related_name="orders_from")
-    from_city_area = models.ForeignKey(CityArea, verbose_name=_("from city area"), related_name="orders_from", null=True, blank=True)
+    from_city_area = models.ForeignKey(CityArea, verbose_name=_("from city area"), related_name="orders_from", null=True
+                                       , blank=True)
     from_postal_code = models.CharField(_("from postal code"), max_length=10, null=True, blank=True)
     from_street_address = models.CharField(_("from street address"), max_length=50)
     from_geohash = models.CharField(_("from goehash"), max_length=13)
@@ -157,7 +204,8 @@ class Order(models.Model):
     to_country = models.ForeignKey(Country, verbose_name=_("to country"), related_name="orders_to")
 
     to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="orders_to")
-    to_city_area = models.ForeignKey(CityArea, verbose_name=_("to city area"), related_name="orders_to", null=True, blank=True)
+    to_city_area = models.ForeignKey(CityArea, verbose_name=_("to city area"), related_name="orders_to", null=True,
+                                     blank=True)
     to_postal_code = models.CharField(_("to postal code"), max_length=10, null=True, blank=True)
     to_street_address = models.CharField(_("to street address"), max_length=50)
     to_geohash = models.CharField(_("to goehash"), max_length=13)
@@ -216,27 +264,27 @@ class Order(models.Model):
                     return oa.station
         return None
 
-    
+
 class OrderAssignment(models.Model):
     ORDER_ASSIGNMENT_TIMEOUT = 11 # seconds 
 
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")
     work_station = models.ForeignKey(WorkStation, verbose_name=_("work station"), related_name="assignments")
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="assignments")
-    
+
     status = models.IntegerField(_("status"), choices=ASSIGNMENT_STATUS, default=ASSIGNED)
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
     def is_stale(self):
-         return (datetime.now() - self.create_date).seconds > OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT
+        return (datetime.now() - self.create_date).seconds > OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT
 
     def __unicode__(self):
         order_id = "Unknown"
         if self.order:
-            order_id =str(self.order)
-            
+            order_id = str(self.order)
+
         return u"%s #%s %s %s" % (_("order"), order_id, _("assigned to station:"), self.station)
 
 
@@ -265,9 +313,12 @@ class PricingRule(models.Model):
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="pricing_rules")
     state = models.CharField(_("state"), max_length=100, null=True, blank=True)
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="pricing_rules", null=True, blank=True)
-    to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="to_city_pricing_rules", null=True, blank=True)
-    city_area = models.ForeignKey(CityArea, verbose_name=_("city area"), related_name="pricing_rules", null=True, blank=True)
-    special_place = models.CharField(_("special place"), max_length=100, null=True, blank=True, help_text=_("Such as an airport or toll-road inflicting extra charges"))
+    to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="to_city_pricing_rules", null=True,
+                                blank=True)
+    city_area = models.ForeignKey(CityArea, verbose_name=_("city area"), related_name="pricing_rules", null=True,
+                                  blank=True)
+    special_place = models.CharField(_("special place"), max_length=100, null=True, blank=True,
+                                     help_text=_("Such as an airport or toll-road inflicting extra charges"))
     # time predicates
     from_hour = models.TimeField(_("from hour"), null=True, blank=True)
     to_hour = models.TimeField(_("to hour"), null=True, blank=True)
@@ -308,8 +359,9 @@ class SpecificPricingRule(models.Model):
     # geographic predicates
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="specific_pricing_rules")
     state = models.CharField(_("state"), max_length=100, null=True, blank=True)
-    city = models.ForeignKey(City, verbose_name=_("city"), related_name="specific_pricing_rules", null=True, blank=True)
-    to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="to_city_specific_pricing_rules", null=True, blank=True)
+    city = models.ForeignKey(City, verbose_name=_("city"), related_name="pricing_rules", null=True, blank=True)
+    to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="to_city_pricing_rules", null=True,
+                                blank=True)
     # time predicates
     from_hour = models.TimeField(_("from hour"), null=True, blank=True)
     to_hour = models.TimeField(_("to hour"), null=True, blank=True)

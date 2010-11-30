@@ -146,3 +146,19 @@ def custom_render_to_response(template, dictionary=None, context_instance=None, 
             break
          
     return render_to_response(template, dictionary=dictionary, context_instance=context_instance, mimetype=mimetype)
+
+
+
+def generate_random_token(length=random.randint(10, 20), alpha_only=False, alpha_or_digit_only=False):
+    s = ""
+    while len(s) <= length:
+        j = random.randint(33, 126)
+        c = str(chr(j))
+        if alpha_or_digit_only and (c.isalpha() or c.isdigit()):
+            s += c
+        elif alpha_only and c.isalpha():
+            s += c
+        elif not (alpha_only or alpha_or_digit_only):
+            s += c
+    return s
+
