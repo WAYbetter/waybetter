@@ -2,18 +2,18 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
 <title>{% block title %}{% endblock %}</title>
+<meta name="HandheldFriendly" content="true" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="translucent" />
 <!-- link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/themes/base/jquery-ui.css" type="text/css" media="all" /-->
 <link rel="stylesheet" href="/static/css/custom-theme/jquery-ui-1.8.4.custom.css" type="text/css" media="all" />
 <link rel="stylesheet" href="/static/css/jquery.ui.stars.css" type="text/css" media="all" />
 <link rel="stylesheet" type="text/css" href="/static/css/waybetter.mobile.css" />
-<link media="screen and (max-device-width: 280px)" rel="stylesheet" type="text/css" href="/static/css/devices/max-width-280.css" />
-<link media="screen and (max-device-width: 320px)" rel="stylesheet" type="text/css" href="/static/css/devices/max-width-320.css" />
-<link media="screen and (max-device-width: 480px)" rel="stylesheet" type="text/css" href="/static/css/devices/max-width-480.css" />
-<link media="screen and (max-device-width: 640px)" rel="stylesheet" type="text/css" href="/static/css/devices/max-width-640.css" />
 
 {% block extrastyle %}{% endblock %}
 
-    <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}css/ie.css{% endblock %}" /><![endif]-->
+<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}css/ie.css{% endblock %}" /><![endif]-->
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}css/rtl.css{% endblock %}" />{% endif %}
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
@@ -25,7 +25,14 @@
 <script src="/static/js/jquery.placeheld.min.js"></script>
 <script src="/static/js/jquery.marquee.js"></script>
 <script>
+    function hideToolbar() {
+        window.scrollTo(0,0); // hide top bar
+    }
+    function blockMove() {
+        event.preventDefault();
+    }
     $(document).ready(function () {
+        setTimeout(hideToolbar, 3000); // hide top bar
         $('marquee').marquee();
     });
 </script>
@@ -41,14 +48,13 @@
 <!-- Container -->
 <div id="main-container">
 
-    <!-- Content -->
     <div id="main" class="{% block coltype %}colM{% endblock %}">
         {% block header %}
         <div id="roller">
             <span class="img fade left-fade"></span>
-            <span class="img fade right-fade"></span>{{ marquee_text }}
-            <marquee behavior="scroll" scrollamount="1" direction="left" width="870">
-                Coming soon... &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The easiest way to get a taxi! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WAYbetter are the best  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::
+            <span class="img fade right-fade"></span>
+            <marquee behavior="scroll" scrollamount="1" direction="left" width="317">
+                {{ marquee_text }}Coming soon... &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The easiest way to get a taxi! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WAYbetter are the best  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::
             </marquee>
         </div>
         <div id="yellow_header">
@@ -58,13 +64,20 @@
         {% if messages %}
         <ul class="messagelist">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
         {% endif %}
-        <div class="gray_header">
-        {% block content %}{% endblock content %}
+
+        <!-- Top Control -->
+        <div class="gray_header" id="top_control">
+        {% block topcontrol %}{% endblock topcontrol %}
         </div>
-        {% block sidebar %}{% endblock %}
+        <!-- END Top Control -->
+
+        <!-- Content -->
+        {% block content %}{% endblock %}
+        <!-- END Content -->
+
         <div class="clear"></div>
     </div>
-    <!-- END Content -->
+    {% block maincontainerextra %}{% endblock %}
 
     <div id="footer">{% block footer %}{% endblock %}</div>
 </div>

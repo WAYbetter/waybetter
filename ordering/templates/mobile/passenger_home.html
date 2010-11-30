@@ -4,7 +4,7 @@
 {% block extrahead %}
 {{ block.super }}
 <script src="/static/js/jquery.form.js"></script>
-<script src="/static/js/ordering.js"></script>
+<script src="/static/js/ordering.mobile.js"></script>
 <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
 <script>
     $(document).ready(function() {
@@ -17,23 +17,20 @@
             not_a_user_response:        "{{ not_a_user }}",
             telmap_user:                "{{ telmap_user }}",
             telmap_password:            "{{ telmap_password}}",
-        });
-        $("#tabs").tabs({
-
-            ajaxOptions: {
-                error: function(xhr, status, index, anchor) {
-                    $(anchor.hash).html("Couldn't load this tab. We'll try to fix this as soon as possible. If this wouldn't be a demo.");
-                }
+            passenger_messages:         {
+                'from'      : '{% trans "Where From?" %}',
+                'to'        : '{% trans "Where To?" %}',
+                'register'  : '{% trans "First Time?" %}'
             }
         });
-        SelectFromHistoryHelper.init($("#tabs"), { fetch_address_url: "{% url ordering.passenger_controller.get_order_address %}" });
-
+//        $('body').attr('ontouchmove', ''
+        setTimeout(hideToolbar, 3500);
     });
 
 </script>
 {% endblock %}
 
-{% block content %}
+{% block topcontrol %}
 					<form id="order_form" method="post" action="{% url ordering.passenger_controller.book_order %}">
                         {% csrf_token %}
                         {% for field in form %}
@@ -45,32 +42,38 @@
                         {% endfor %}
                         <ul>
                             <li>
+                                <label for="id_from_raw">{% trans 'Enter Pickup Address:' %}</label>
                                 <input type=text class="big_text a_marker marker_disabled" id="id_from_raw" name="from_raw" placeholder="Enter street and city"/>
+                                <a href="#" id="clear_from_raw" class="clear_input"></a>
                             </li>
-                            <li>
+                            <li class="hide">
+                                <label for="id_to_raw">{% trans 'Enter Drop-off Address:' %}</label>
                                 <input type=text class="big_text b_marker marker_disabled" id="id_to_raw" name="to_raw" placeholder="Enter street and city"/>
+                                <a href="#" id="clear_to_raw" class="clear_input"></a>
+                            </li>
+                            <li id="ride_results" class="hide">
+                                <ul>
+                                    <li><a href="#" id="from_raw_result"></a></li>
+                                    <li><a href="#" id="to_raw_result"></a></li>
+                                    <li><div id="ride_cost_estimate"></div></li>
+                                </ul>
                             </li>
                         </ul>
-						<button class="order_button" id="order_button"></button>
 					</form>
-					<div id="map_container">
+                    <div class="clear"></div>
+{% endblock topcontrol %}
+{% block content %}
+                    <h1 id="passenger_message">{% trans 'Where From?' %}</h1>
+                    <div id="map_container" class="">
                         <div id="map"></div>
                         <div id="map_overlay_left"></div>
                         <div id="map_overlay_top"></div>
-					</div>
-                    <div id="ride_cost_estimate"></div>
-                    <div class="clear"></div>
-        {% if request.user.passenger %}
-            <div id="tabs">
-                <ul>
-                    <li><a href="{% url ordering.passenger_controller.get_passenger_orders_history %}">{% trans 'Ride History' %}</a></li>
-                    <li><a href="{% url ordering.passenger_controller.profile_page %}">{% trans 'My Profile' %}</a></li>
-                </ul>
-            </div>
-        {% endif %}
-        
+                    </div>
 {% endblock content %}
+{% block maincontainerextra %}
+        <div class="gray_header hide" id="button_container">
+            <button class="order_button" id="order_button"></button>
+        </div>
+{% endblock maincontainerextra %}
 {% block footer %}
- {{ block.super}}
-<a href="{% url ordering.station_controller.stations_home %}">{% trans 'Taxi Stations' %}</a>
 {% endblock footer %}
