@@ -10,6 +10,7 @@ import logging
 
 from django.shortcuts import render_to_response
 from django.template import RequestContext
+from common.util import custom_render_to_response
 
 
 class OrderTest(TestCase):
@@ -87,7 +88,3 @@ class PricingCalculationTest(TestCase):
         # test with special place
 
         # test with special city
-
-
-def test(request):
-    return render_to_response('mobile/base.html', {}, RequestContext(request))
