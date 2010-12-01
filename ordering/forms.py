@@ -285,7 +285,7 @@ class StationAdminForm(forms.ModelForm):
 
        
     def clean_address(self):
-        if "address" in self.initial and self.cleaned_data["address"] == self.initial["address"]:
+        if self.cleaned_data["address"] == self.initial.get("address", None):
             return self.initial["address"]
   
         result = None
@@ -307,13 +307,12 @@ class StationAdminForm(forms.ModelForm):
 
         else:
             result = geocode_results[0]
-            
+
         self.instance.lon = result["lon"]
         self.instance.lat = result["lat"]
         self.instance.geohash = result["geohash"]
-        self.instance.save()
-
+        self.instance.save()  
+        
         self.cleaned_data["address"] = "%s %s" % (result["street"], result["house_number"])
 
-        logging.info("self: %s" % (self))
         return self.cleaned_data["address"]

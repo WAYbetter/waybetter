@@ -5,6 +5,7 @@ from common.util import log_event, EventType
 
 NOT_A_USER = "NOT_A_USER"
 NOT_A_PASSENGER = "NOT_A_PASSENGER"
+CURRENT_PASSENGER_KEY = "current_passeger"
 
 def internal_task_on_queue(queue_name):
     """
@@ -27,16 +28,10 @@ def passenger_required_no_redirect(function=None):
     Decorator for views that checks that the user is logged in and is a passenger
     """
     def wrapper(request, **kwargs):
-        if (not request.user or not request.user.is_authenticated()):
-            log_event(EventType.UNREGISTERED_ORDER)
-            return HttpResponseForbidden(NOT_A_USER)
-
-        try:
-            passenger = Passenger.objects.filter(user = request.user).get()
-            kwargs["passenger"] = passenger
-        except Passenger.DoesNotExist:
-            log_event(EventType.UNREGISTERED_ORDER)
+        passenger = request.session.get(CURRENT_PASSENGER_KEY, None)
+        if not passenger:
             return HttpResponseForbidden(NOT_A_PASSENGER)
+        kwargs["passenger"] = passenger
         return function(request, **kwargs)
 
     return wrapper
