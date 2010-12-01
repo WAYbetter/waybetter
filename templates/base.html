@@ -5,24 +5,21 @@
 <!-- link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/themes/base/jquery-ui.css" type="text/css" media="all" /-->
 <link rel="stylesheet" href="/static/css/custom-theme/jquery-ui-1.8.4.custom.css" type="text/css" media="all" />
 <link rel="stylesheet" href="/static/css/jquery.ui.stars.css" type="text/css" media="all" />
-<link rel="stylesheet" type="text/css" href="{% block stylesheet %}{% load adminmedia %}{% admin_media_prefix %}css/base.css{% endblock %}" />
-<link rel="stylesheet" type="text/css" href="/static/css/main.css" />
-
+<link rel="stylesheet" type="text/css" href="/static/css/waybetter.css" />
 
 {% block extrastyle %}{% endblock %}
-<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}{% load adminmedia %}{% admin_media_prefix %}css/ie.css{% endblock %}" /><![endif]-->
-{% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}{% admin_media_prefix %}css/rtl.css{% endblock %}" />{% endif %}
 
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
-<script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
-<script type="text/javascript" src="/static/js/jquery.ui.stars.min.js"></script>
+    <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}css/ie.css{% endblock %}" /><![endif]-->
+{% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}css/rtl.css{% endblock %}" />{% endif %}
 
-<script src="/static/js/utils.js" type="text/javascript"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
 
-<script type="text/javascript" src="http://www.google.com/jsapi"></script>
+{% block extrahead %}
+<script src="/static/js/jquery.ui.stars.min.js"></script>
+<script src="/static/js/utils.js"></script>
+{% endblock %}
 
-
-{% block extrahead %}{% endblock %}
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
 <!-- Google Analytics -->
 </head>
@@ -31,51 +28,44 @@
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
 
 <!-- Container -->
-<div id="container">
+<div id="main-container">
 
     {% if not is_popup %}
     <!-- Header -->
-    <div id="header">
-        <div id="branding">
-        {% block branding %}{% endblock %}
-        </div>
-        <div id="user-tools">
-        {% if request.user.is_authenticated %}
-                {% trans 'Welcome,' %}
-                <strong>{% filter force_escape %}{% firstof request.user.first_name request.user.username %}{% endfilter %}</strong>.
-                {% block userlinks %}
-                    {% url django-admindocs-docroot as docsroot %}
-                    {% if docsroot %}
-                        <a href="{{ docsroot }}">{% trans 'Documentation' %}</a> /
-                    {% endif %}
-                    <a href="/logout/">{% trans 'Log out' %}</a>
-                {% endblock %}
-        {% else %}
-            {% block join_or_login %}
-            {% endblock %}
-        {% endif %}
+    <div id="header-container">
+        <div id="header">
+            <div id="banner">
+                <h1>{% trans 'WAYbetter' %}</h1>
+                <h3>{% trans 'The best way to get a taxi (FREE)' %}</h3>
+            </div>
+            <div id="user_tools">
+                {% block usertools %}
+                {% if request.user.is_authenticated %}
+                    <strong>{% trans 'Hi' %} {{ request.user.username }}! | <a href="#">{% trans 'Log out' %}</a></strong>
+                {% else %}
+                    {% block join_or_login %}{% endblock join_or_login %}
+                {% endif %}
+                {% endblock usertools %}
+            </div>
+            <div class="clear"></div>
         </div>
         {% block nav-global %}{% endblock %}
     </div>
     <!-- END Header -->
-    {% block breadcrumbs %}<div class="breadcrumbs"><a href="/">{% trans 'Home' %}</a>{% if title %} &rsaquo; {{ title }}{% endif %}</div>{% endblock %}
     {% endif %}
 
-        {% if messages %}
-        <ul class="messagelist">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
-        {% endif %}
+    {% if messages %}
+    <ul class="messagelist">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+    {% endif %}
 
     <!-- Content -->
-    <div id="content" class="{% block coltype %}colM{% endblock %}">
+    <div id="main" class="{% block coltype %}colM{% endblock %}">
         {% block pretitle %}{% endblock %}
         {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
-        {% block connection_status %}{% endblock connection_status %}
-        {% block content %}
-        {% block object-tools %}{% endblock %}
-        {{ content }}
-        {% endblock %}
+        {% block connection_status %}{% endblock %}
+        {% block content %}{% endblock content %}
         {% block sidebar %}{% endblock %}
-        <br class="clear" />
+        <div class="clear"></div>
     </div>
     <!-- END Content -->
 
@@ -83,8 +73,7 @@
 </div>
 <!-- END Container -->
 
-<script type="text/javascript">
-
+<script>
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-18077675-1']);
   _gaq.push(['_trackPageview']);
@@ -94,7 +83,6 @@
     ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
     var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
   })();
-
 </script>
 {%  block extra-body %}{% endblock %}
 </body>

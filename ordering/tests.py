@@ -8,6 +8,10 @@ from ordering.forms import OrderForm
 from ordering.pricing import estimate_cost
 import logging
 
+from django.shortcuts import render_to_response
+from django.template import RequestContext
+from common.util import custom_render_to_response
+
 
 class OrderTest(TestCase):
 #    fixtures = ['ordering/fixtures/initial_data.json']
@@ -84,5 +88,3 @@ class PricingCalculationTest(TestCase):
         # test with special place
 
         # test with special city
-        
-

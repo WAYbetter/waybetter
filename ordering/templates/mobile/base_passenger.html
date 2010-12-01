@@ -1,4 +1,4 @@
-{% extends "connected_page.html" %}
+{% extends "mobile/base.html" %}
 {% load i18n %}
 
 {% block extrastyle %}
@@ -12,21 +12,16 @@
 <script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
 <script src="/static/js/registration.js"></script>
 <script src="/static/js/social.js"></script>
-<script src="/static/js/jquery.placeheld.min.js"></script>
-<script src="/static/js/jquery.marquee.js"></script>
 <script>
     $(document).ready(function() {
-         Registrator.init({
+        Registrator.init({
              urls            : {
                  login_form_template        : '{% url common.registration.get_login_form %}',
                  reg_form_template          : '{% url common.registration.get_registration_form %}',
                  phone_form_template        : '{% url common.registration.get_phone_form %}',
-                 phone_code_form_template   : '{% url common.registration.get_phone_code_form %}' 
+                 phone_code_form_template   : '{% url common.registration.get_phone_code_form %}'
              }
          });
-        $( "#tabs" ).tabs({
-            selected: 2
-        });
         $("input[placeholder]").placeHeld();
         $(".big_text").keyup(function () {
             if ($(this).val().length > 0) {
@@ -35,28 +30,7 @@
                 $(this).addClass("marker_disabled")
             }
         });
-        $('marquee').marquee();
-        $("#tabs li:first").addClass("first_tab");
-        $("#tabs li:last").addClass("last_tab");
-        $('#join_link').click(function () {
-            showSignupForm();
-            return false;
-        });
+
      });
-    function showSignupForm() {
-        Registrator.init({
-            dialog_config: {
-                width: 500
-            }
-        });
-        Registrator.openRegistrationDialog(function() {
-                window.location.href = "{% url ordering.passenger_controller.passenger_home %}";
-            }
-        );
-    }
 </script>
-{% endblock %}
-        
-{% block join_or_login %}
-<a href="#" id="join_link">{% trans 'Join!' %}</a>
 {% endblock %}

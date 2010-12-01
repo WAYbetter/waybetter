@@ -1,0 +1,373 @@
+* {
+    font-family: Calibri;
+    margin: 0;
+    padding: 0;
+    color: #2e2e2e;
+}
+a:focus {
+    outline: none;
+}
+
+body {
+    text-align: center;
+}
+form ul {
+    list-style: none;
+}
+input::-moz-focus-inner, button::-moz-focus-inner {
+    border:none;
+}
+input.text, input[type=text] {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -moz-box-shadow:0 2px 1px #292929 inset;
+    -webkit-box-shadow:0 2px 1px #292929 inset;
+    box-shadow:0 2px 1px #292929 inset;
+    border-color: #949494;
+    border-style: solid;
+    border-width: 2px 1px 1px 2px;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+.clear {
+    clear: both;
+    height: 0;
+    overflow: hidden;
+}
+.hide {
+    display: none;
+}
+.img {
+    display: block;
+    position: absolute;
+    background-position: left top;
+    background-repeat: no-repeat;
+}
+.round {
+    border-radius: 3px;
+    -webkit-border-radius: 3px;
+    -moz-border-radius: 3px;
+}
+
+/************* Main *************/
+#passenger_message {
+    margin: 10% auto;
+    font-size: 4em;
+    opacity: 0.5;
+    color:gold;
+    text-shadow: -1px -1px 2px #000;
+}
+#main {
+    padding: 16px 0 0;
+    background-image:url(../img/main_background.png);
+}
+#main-container {
+    /*width: 100%;*/
+    margin: 0 auto;
+}
+
+/************* Marquee *************/
+span.fade {
+    top: 0;
+    width: 27px;
+    height: 27px;
+}
+span.left-fade {
+    left: -1px;
+    background-image:url(../img/left_fade.png);
+}
+span.right-fade {
+    right: 0;
+    background-image:url(../img/right_fade.png);
+}
+#roller {
+    position: relative;
+}
+#roller div {
+    width: 100%;
+    color: #fdec7c;
+    font-family: 'Lucida Console';
+    font-weight: normal;
+    font-size: 14px;
+}
+
+/************* App Yellow Header *************/
+#yellow_header {
+    position: relative;
+    height: 17px;
+    margin-bottom: 1px;
+    background-color: #ffe63d;
+    background: -webkit-gradient(linear, left top, left bottom, from(#ffe63d), to(#ffdf07));
+    background: -moz-linear-gradient(-90deg, #ffe63d, #ffdf07);
+    -pie-background: linear-gradient(-90deg, #ffe63d, #ffdf07);
+    -webkit-box-shadow:0 -3px 3px #2a2a2a;
+    -moz-box-shadow:0 -3px 3px #2a2a2a;
+    box-shadow:0 -3px 3px #2a2a2a;
+}
+#taxi_tab {
+    bottom: 14px;
+    left: 65px;
+    width: 184px;
+    height: 42px;
+    background-image: url(../img/taxi_tab.png);
+}
+#taxi_tab > h1 {
+    margin-top: 10px;
+    font-size: 27px;
+}
+
+/************* Ordering Form *************/
+.gray_header {
+    position: relative;
+    z-index: 1001;
+    padding: 10px;
+    background-color: #8d8d8d;
+    background: -webkit-gradient(linear, left top, left bottom, from(#8d8d8d), to(#535353));
+    background: -moz-linear-gradient(-90deg, #8d8d8d, #535353);
+    -pie-background: linear-gradient(-90deg, #8d8d8d, #535353);
+    -webkit-box-shadow:0 3px 3px black;
+    -moz-box-shadow:0 3px 3px black;
+    box-shadow:0 3px 3px black;
+    border-top: 1px solid #f1f1f1;
+}
+#button_container {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+}
+#order_form {
+    float: left;
+    width: 100%;
+    margin-top: 20px;
+}
+#order_form label {
+    float: left;
+    padding-left: 0.5em;
+    font-size: 1.5em;
+    font-family: sans-serif;
+    font-weight: bold;
+    color: #fff;
+    text-shadow: -1px -1px 1px #000;
+}
+#map {
+    height: 250px;
+    width: 530px;
+}
+#map_container {
+    visibility: hidden;
+    position: relative;
+    float: right;
+    height: 250px;
+    width: 530px;
+/*background:white url(../img/map.png) left top no-repeat;*/
+}
+#map_overlay_left {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 250px;
+    width: 3px;
+    background: transparent;
+    -moz-box-shadow:inset 2px 2px 2px #2a2a2a;
+    -webkit-box-shadow:inset 2px 2px 2px #2a2a2a;
+    box-shadow:inset 2px 2px 2px #2a2a2a;
+}
+#map_overlay_top {
+    position: absolute;
+    left: 0;
+    top: 0;
+    height: 3px;
+    width: 530px;
+    background: transparent;
+    -moz-box-shadow:inset 2px 2px 2px #2a2a2a;
+    -webkit-box-shadow:inset 2px 2px 2px #2a2a2a;
+    box-shadow:inset 2px 2px 2px #2a2a2a;
+}
+input.big_text {
+    width: 245px;
+    height: 23px;
+    margin-bottom: 44px;
+    padding: 8px;
+    border-color: #6e6e6e;
+    border-style: solid;
+    border-width: 1px;
+    font-size: 14px;
+    background-repeat: no-repeat;
+    background-image: url(../img/markers.png);
+}
+input.a_marker {
+    padding-left: 39px;
+    background-position: 6px -35px;
+}
+input.b_marker {
+    padding-left: 39px;
+    background-position: 6px 4px;
+}
+
+input.a_marker.marker_disabled {
+    background-position: 6px -113px;
+}
+input.b_marker.marker_disabled {
+    background-position: 6px -74px;
+}
+input:focus, input.focus{
+    background-color: #fffce0;
+    border-color: #696969;
+    outline-width:0;
+}
+button.order_button {
+    width: 294px;
+    height:53px;
+    border: none;
+    box-shadow: none;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    background: url("../img/order_button.png") left top no-repeat;
+}
+button.order_button.hover, button.order_button:hover {
+    background-position: 0 -51px;
+}
+button.order_button.active, button.order_button:active{
+    background-position: 0 -102px;
+}
+button.order_button.disabled, button.order_button:disabled {
+    background-position: 0 -153px;
+}
+
+/************* Ride Results *************/
+#ride_results ul {
+    border: 1px solid #6e6e6e;
+     -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    -moz-box-shadow:0 2px 1px #292929 inset;
+    -webkit-box-shadow:0 2px 1px #292929 inset;
+    box-shadow:0 2px 1px #292929 inset;
+    background: #fff;
+
+}
+#ride_results a {
+    display: block;
+    height: 1.6em;
+    padding: 8px 8px 8px 39px;
+    border-bottom: 1px solid #6e6e6e;
+    text-align: left;
+    font-size: 1.5em;
+    font-weight: bold;
+    text-decoration:none;
+    background-image: url(../img/markers.png);
+    background-repeat: no-repeat;
+}
+#ride_results a#from_raw_result {
+    background-position: 6px -35px;
+}
+#ride_results a#to_raw_result {
+    background-position: 6px 4px;
+}
+#ride_results div#ride_cost_estimate {
+    height: 1.6em;
+    padding: 8px 8px 8px 39px;
+    font-size: 1.5em;
+    background: url(../img/cost.jpg) left center no-repeat;
+}
+
+/* jQuery UI Hacking */
+ul.ui-autocomplete.ui-menu.ui-widget.ui-widget-content.ui-corner-all {
+    left: 0 !important;
+    width: 100% !important;
+    padding: 5px 0 0;
+    -moz-border-radius: 0 !important;
+    -webkit-border-radius: 0 !important;
+    border-radius: 0 !important;
+}
+ul.ui-autocomplete.ui-menu li.ui-menu-item {
+    background: #fff url("../images/devices/device-width-320/list_icons.png") left 6px no-repeat;
+    border-top: 1px solid #aaa;
+}
+ul.ui-autocomplete.ui-menu li.ui-menu-item:last-child {
+    border-bottom: 1px solid #aaa;
+}
+ul.ui-autocomplete.ui-menu li.ui-menu-item > a {
+    color: #000;
+    line-height: 1em;
+    font-size: 2em;
+}
+
+@media screen and (max-device-width: 240px) {}
+@media screen and (max-device-width: 320px) {
+
+* {
+    margin: 0; padding: 0;
+}
+body {
+    font-size: 10px;
+    line-height: 1.5em; 
+}
+input.big_text {
+    width: 84%;
+    height: 1.6em;
+    margin: 0 0 2%;
+    padding: 8px;
+    margin-bottom: 0;
+    font-size: 1.5em;
+}
+input.a_marker {
+    padding-left: 39px;
+    background-position: 6px -32px;
+}
+input.b_marker {
+    padding-left: 39px;
+    background-position: 6px 7px;
+}
+
+input.a_marker.marker_disabled {
+    background-position: 6px -110px;
+}
+input.b_marker.marker_disabled {
+    background-position: 6px -71px;
+}
+span.fade {
+    top: 0;
+    width: 3em;
+    height: 3em;
+}
+span.left-fade {
+    left: 0;
+}
+span.right-fade {
+    right: 0;
+}
+.gray_header {
+    padding: 2% 5%;
+}
+#main {
+    padding: 1em 0 0;
+}
+#roller div {
+    padding-bottom: 0.5em;
+    font-size: 1.5em;
+    font-weight: normal;
+}
+#taxi_tab {
+    top: -3.8em;
+    left: 2em;
+    width: 190px;
+    height: 4em;
+}
+#taxi_tab > h1 {
+    margin-top: 9%;
+    font-family: sans-serif;
+    font-size: 2.5em;
+}
+#yellow_header {
+    height: 1em;
+}
+#order_form {
+    margin: 0;
+}
+
+}
+
+@media screen and (max-device-width: 480px) {}
+@media screen and (max-device-width: 640px) {}

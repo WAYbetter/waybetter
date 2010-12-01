@@ -101,9 +101,33 @@ var OrderingHelper = Object.create({
     map:                            {},
     map_markers:                    {},
     map_markers_popups:             {},
+    has_results:                    false,
+    current_flow_state:             'from',
+    cache:  {
+        $from_raw_input : null,
+        $to_raw_input   : null,
+        $passenger_msg  : null
+    },
     init:                       function(config) {
         this.config = $.extend(true, {}, this.config, config);
-        var that = this;        
+        var that = this,
+            cache = this.cache;
+        cache.$from_raw_input = $("#id_from_raw"),
+        cache.$to_raw_input = $("#id_to_raw"),
+        cache.$passenger_msg = $('#passenger_message'),
+        cache.$catcomplete = $('ul.ui-autocomplete'),
+        cache.$top_control = $('#top_control'),
+        cache.$map_container = $('#map_container'),
+        cache.$order_button = $("#order_button"),
+        cache.$button_container = $("#button_container");
+        $('#from_raw_result').click(function () {
+            that.switchState('from');
+            return false;
+        });
+        $('#to_raw_result').click(function () {
+            that.switchState('to');
+            return false;
+        });
         $("input:text").each(function(i, element) {
             var address_type = element.name.split("_")[0];
             $(element).catcomplete({
@@ -145,29 +169,42 @@ var OrderingHelper = Object.create({
                     });
                 },
                 select: function (event, ui) {
-                    if (ui.item.address) {
-                        that.updateAddressChoice(ui.item.address);
+                    var address = ui.item.address, next_state;
+                    if (address) {
+                        that.updateAddressChoice(address);
+                        next_state = address.address_type === 'to' || that.has_results ? 'results' : 'to';
+                        that.switchState.call(that, next_state);
                     }
                 },
                 open: function(event, ui) {
-                    $('ul.ui-autocomplete').css("z-index", 3000);
+                    var $ul = $('ul.ui-autocomplete');
+                    $ul.position({
+                        my      : "left top",
+                        at      : cache.$top_control
+                    });
+                    $ul.css("z-index", 1000);
                 }
             });
         });
 
-        $("input:button, #order_button").button();
+        $("input:button, input:submit").button();
 
-        $("#order_button").button("disable");
-        $("#id_from_raw, #id_to_raw").change(function() {
-            that.validateForBooking();
+        cache.$order_button.button("disable").click(function () {
+            $('#order_form').submit();
         });
+        cache.$from_raw_input.change(function() {
+            that.validateForBooking();
+        }).focus(hideToolbar).blur(hideToolbar);
+        cache.$to_raw_input.change(function() {
+            that.validateForBooking();
+        }).focus(hideToolbar).blur(hideToolbar);
 
         $("#order_form").submit(function() {
-            if ($("#order_button").attr("disabled")) {
+            if (cache.$order_button.attr("disabled")) {
                 return false;
             }
 
-            $("#order_button").button("disable");
+            cache.$order_button.button("disable");
 
             $(this).ajaxSubmit({
                 dataType: "json",
@@ -202,9 +239,70 @@ var OrderingHelper = Object.create({
 
         //TODO_WB:add a check for map, timeout and check again.
         setTimeout(that.initPoints, 100);
-
+        
         return this;
     }, // init
+    switchPassengerMessage:     function () {
+        var message = '', $msg = this.cache.$passenger_msg.show();
+        if (this.config.passenger_messages[this.current_flow_state]) {
+            message = this.config.passenger_messages[this.current_flow_state];
+        }
+        $msg.text(message);
+        return this;
+    },
+    exitCurrentState:           function () {
+        var $input;
+        switch (this.current_flow_state) {
+            case 'from':
+                $input = this.cache.$from_raw_input;
+                $input.catcomplete('close').css('z-index', '-5');
+                $input.parent().hide();
+                break;
+            case 'to':
+                $input = this.cache.$to_raw_input;
+                $input.parent().hide();
+                break;
+            case 'results':
+                $('#ride_results').hide();
+                this.cache.$map_container.css('visibility', 'hidden');
+                this.cache.$button_container.hide();
+                break;
+        }
+        return this;
+    },
+    switchState:            function (enter_state) {
+        var $input = this.cache.$to_raw_input;
+        this.exitCurrentState();
+        switch ( enter_state ) {
+            case 'from':
+                $input = this.cache.$from_raw_input;
+            case 'to':
+                this.current_flow_state = enter_state; // notice that 'from' case has no break
+                this.switchPassengerMessage()
+                    .inputState($input);
+                break;
+            case 'results':
+                this.resultState();
+                this.current_flow_state = 'results';
+                break;
+        }
+        hideToolbar();
+        return this;
+    },
+    inputState:         function ($input) {
+        $input.parent().show();
+        $input.focus();
+        return this;
+    },
+    resultState:           function () {
+        var c = this.cache;
+        c.$map_container.css('visibility', 'visible');
+        c.$passenger_msg.hide();
+        $('#ride_results').show();
+        c.$button_container.show();
+        this.has_results = true;
+        return this;
+    },
     initMap:                    function () {
         var prefs = {
             mapTypeId:telmap.maps.MapTypeId.ROADMAP,
@@ -281,7 +379,7 @@ var OrderingHelper = Object.create({
                 disableAutoPan: true
             });
 
-//            info.open(map, point);
+            info.open(map, point);
             if (that.map_markers_popups[i]) {
                 that.map_markers_popups[i].close();
             }
@@ -298,11 +396,13 @@ var OrderingHelper = Object.create({
     updateAddressChoice:        function(address) {
         address.populateFields();
         this.addPoint(address);
-        if (address.address_type == "from") {
-            $("#id_to_raw").focus();
-        }
         this.getRideCostEstimate();
         this.validateForBooking();
+        if (address.address_type === 'from') {
+            $('#from_raw_result').text(this.cache.$from_raw_input.val());
+        } else {
+            $('#to_raw_result').text(this.cache.$to_raw_input.val());
+        }
     },
     getRideCostEstimate:        function() {
         var that = this,
@@ -325,30 +425,27 @@ var OrderingHelper = Object.create({
         }
     },
     renderRideEstimatedCost:    function (data) {
-        var label = data.label;
+        var label = data.label + ":";
         label += data.estimated_cost + data.currency;
         label += " (" + data.estimated_duration + ")";
-        $("#ride_cost_estimate").html(label).show();
+        $("#ride_cost_estimate").html(label);
     },
     validateForBooking:         function() {
         for (var address_type in this.ADDRESS_FIELD_ID_BY_TYPE) {
             var address = Address.fromFields(address_type);
             if (!address.isResolved()) {
-                $("#order_button").button("disable");
-                if (this.map_markers[address.address_type]) {
-                    this.map_markers[address.address_type].setMap();
-                    delete this.map_markers[address.address_type];
-                }
+                this.cache.$order_button.button("disable");
+                delete this.map_markers[address.address_type];
                 this.renderMapMarkers();
-                $("#ride_cost_estimate").empty().hide();
+                $("#ride_cost_estimate").empty();
                 return;
             }
         }
-        $("#order_button").button("enable");
+        this.cache.$order_button.button("enable");
     },
     bookOrder:              function () {
-        $("#order_button").button("enable"); // otherwise the form would not submit
-        $("#order_form").submit();
+        this.cache.$order_button.button("enable"); // otherwise the form would not submit
+        this.cache.$order_button.click();
     }
 });
 
@@ -385,12 +482,12 @@ var HistorySelector = defineClass({
     construct:      function($input) {
         var that = this;
         this.$input = $input;
-        this.select_button = $("<a>").attr("href", "#")
-                                     .addClass("input_history_helper");
+        this.select_button = $("<input>").attr("type", "button")
+                                         .val("Select")
+                                         .button();
         this.$input.after(this.select_button);
         this.select_button.click(function() {
             that.activate();
-            return false;
         });
     },
     methods: {
@@ -548,7 +645,7 @@ var OrderHistoryHelper = Object.create({
         var $header_row = $("<tr>");
 
         $.each(that.config.order_history_fields, function(i, val) {
-            var $th = $("<th>").append($('<a href="#" id="history_header_label_' + i + '">').append(that.config.order_history_column_names[i])
+            var $th = $("<th>").append($("<a href='#'>").append(that.config.order_history_column_names[i])
                     .click(function() {
                         that.loadHistory({
                             sort_by: val

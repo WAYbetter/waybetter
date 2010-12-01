@@ -13,6 +13,7 @@ from google.appengine.api.images import BadImageError, NotImageError
 from common.util import log_event, EventType
 from django.core.exceptions import ValidationError
 from common.geocode import geocode
+import logging
 
 INITIAL_DATA = 'INITIAL_DATA'
 
@@ -284,7 +285,7 @@ class StationAdminForm(forms.ModelForm):
 
        
     def clean_address(self):
-        if self.cleaned_data["address"] == self.initial["address"]:
+        if "address" in self.initial and self.cleaned_data["address"] == self.initial["address"]:
             return self.initial["address"]
   
         result = None
@@ -307,9 +308,12 @@ class StationAdminForm(forms.ModelForm):
         else:
             result = geocode_results[0]
             
-        self.cleaned_data["lon"] = result["lon"] 
-        self.cleaned_data["lat"] = result["lat"]
-        self.cleaned_data["geohash"] = result["geohash"]
+        self.instance.lon = result["lon"]
+        self.instance.lat = result["lat"]
+        self.instance.geohash = result["geohash"]
+        self.instance.save()
+
         self.cleaned_data["address"] = "%s %s" % (result["street"], result["house_number"])
 
+        logging.info("self: %s" % (self))
         return self.cleaned_data["address"]

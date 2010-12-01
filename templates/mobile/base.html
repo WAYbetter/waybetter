@@ -1,0 +1,100 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+<title>{% block title %}{% endblock %}</title>
+<meta name="HandheldFriendly" content="true" />
+<meta name="viewport" content="width=device-width,initial-scale=1.0,minimum-scale=1.0,maximum-scale=1.0"/>
+<meta name="apple-mobile-web-app-capable" content="yes" />
+<meta name="apple-mobile-web-app-status-bar-style" content="translucent" />
+<!-- link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/themes/base/jquery-ui.css" type="text/css" media="all" /-->
+<link rel="stylesheet" href="/static/css/custom-theme/jquery-ui-1.8.4.custom.css" type="text/css" media="all" />
+<link rel="stylesheet" href="/static/css/jquery.ui.stars.css" type="text/css" media="all" />
+<link rel="stylesheet" type="text/css" href="/static/css/waybetter.mobile.css" />
+
+{% block extrastyle %}{% endblock %}
+
+<!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}css/ie.css{% endblock %}" /><![endif]-->
+{% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}css/rtl.css{% endblock %}" />{% endif %}
+
+<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
+
+{% block extrahead %}
+<script src="/static/js/jquery.ui.stars.min.js"></script>
+<script src="/static/js/utils.js"></script>
+<script src="/static/js/jquery.placeheld.min.js"></script>
+<script src="/static/js/jquery.marquee.js"></script>
+<script>
+    function hideToolbar() {
+        window.scrollTo(0,0); // hide top bar
+    }
+    function blockMove() {
+        event.preventDefault();
+    }
+    $(document).ready(function () {
+        setTimeout(hideToolbar, 3000); // hide top bar
+        $('marquee').marquee();
+    });
+</script>
+{% endblock %}
+
+{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
+<!-- Google Analytics -->
+</head>
+{% load i18n %}
+
+<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+
+<!-- Container -->
+<div id="main-container">
+
+    <div id="main" class="{% block coltype %}colM{% endblock %}">
+        {% block header %}
+        <div id="roller">
+            <span class="img fade left-fade"></span>
+            <span class="img fade right-fade"></span>
+            <marquee behavior="scroll" scrollamount="1" direction="left" width="317">
+                {{ marquee_text }}Coming soon... &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The easiest way to get a taxi! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WAYbetter are the best  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::
+            </marquee>
+        </div>
+        <div id="yellow_header">
+            <span id="taxi_tab" class="img"><h1>{% trans 'TAXI' %}</h1></span>
+        </div>
+        {% endblock %}
+        {% if messages %}
+        <ul class="messagelist">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+        {% endif %}
+
+        <!-- Top Control -->
+        <div class="gray_header" id="top_control">
+        {% block topcontrol %}{% endblock topcontrol %}
+        </div>
+        <!-- END Top Control -->
+
+        <!-- Content -->
+        {% block content %}{% endblock %}
+        <!-- END Content -->
+
+        <div class="clear"></div>
+    </div>
+    {% block maincontainerextra %}{% endblock %}
+
+    <div id="footer">{% block footer %}{% endblock %}</div>
+</div>
+<!-- END Container -->
+
+<script>
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18077675-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+{%  block extra-body %}{% endblock %}
+</body>
+
+</html>

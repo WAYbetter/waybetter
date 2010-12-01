@@ -52,7 +52,9 @@ class StationAdmin(admin.ModelAdmin):
                 res = u"""<img src='data:image/png;base64,%s' />""" % base64.encodestring(thumbnail)
             except BadImageError:
                 pass
-            except NotImageError:
+            except NotImageError :
+                pass
+            except NotImplementedError:
                 pass
             
         return res

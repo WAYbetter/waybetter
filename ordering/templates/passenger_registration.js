@@ -298,8 +298,8 @@ var registerState = {
     buildDialog: function(container) {
         this.dialog = $(container).dialog(this.dialogSettings);
         this.init(this);
-    },
-}
+    }
+};
 
 
 function openSignupDialog(callback, showPhoneVerificationOnly) {
