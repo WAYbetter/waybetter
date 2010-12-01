@@ -82,7 +82,7 @@ class Station(models.Model):
         return choices
 
 class Passenger(models.Model):
-    user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger")
+    user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
 
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
     default_station = models.ForeignKey(Station, verbose_name=_("Default station"), related_name="default_passengers", default=None, null=True)
@@ -96,12 +96,9 @@ class Passenger(models.Model):
 
     def international_phone(self):
         return get_international_phone(self.country, self.phone)
-    
 
     def __unicode__(self):
-        return self.user.username
-
-
+        return u"Passenger: %s, %s" % (self.phone, self.user.username if self.user else "[UNKNOWN USER]")
 
 digits_re = re.compile(r'^\d+$')
 validate_digits = RegexValidator(digits_re, _(u"Value must consists of digits only."), 'invalid')
