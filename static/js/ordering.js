@@ -155,7 +155,7 @@ var OrderingHelper = Object.create({
             });
         });
 
-        $("input:button, input:submit").button();
+        $("input:button, #order_button").button();
 
         $("#order_button").button("disable");
         $("#id_from_raw, #id_to_raw").change(function() {
@@ -281,7 +281,7 @@ var OrderingHelper = Object.create({
                 disableAutoPan: true
             });
 
-            info.open(map, point);
+//            info.open(map, point);
             if (that.map_markers_popups[i]) {
                 that.map_markers_popups[i].close();
             }
@@ -325,19 +325,22 @@ var OrderingHelper = Object.create({
         }
     },
     renderRideEstimatedCost:    function (data) {
-        var label = "<img src='/static/img/cost.jpg'>" + data.label + ":";
+        var label = data.label;
         label += data.estimated_cost + data.currency;
         label += " (" + data.estimated_duration + ")";
-        $("#ride_cost_estimate").html(label);
+        $("#ride_cost_estimate").html(label).show();
     },
     validateForBooking:         function() {
         for (var address_type in this.ADDRESS_FIELD_ID_BY_TYPE) {
             var address = Address.fromFields(address_type);
             if (!address.isResolved()) {
                 $("#order_button").button("disable");
-                delete this.map_markers[address.address_type];
+                if (this.map_markers[address.address_type]) {
+                    this.map_markers[address.address_type].setMap();
+                    delete this.map_markers[address.address_type];
+                }
                 this.renderMapMarkers();
-                $("#ride_cost_estimate").empty();
+                $("#ride_cost_estimate").empty().hide();
                 return;
             }
         }
@@ -382,12 +385,12 @@ var HistorySelector = defineClass({
     construct:      function($input) {
         var that = this;
         this.$input = $input;
-        this.select_button = $("<input>").attr("type", "button")
-                                         .val("Select")
-                                         .button();
+        this.select_button = $("<a>").attr("href", "#")
+                                     .addClass("input_history_helper");
         this.$input.after(this.select_button);
         this.select_button.click(function() {
             that.activate();
+            return false;
         });
     },
     methods: {
@@ -545,7 +548,7 @@ var OrderHistoryHelper = Object.create({
         var $header_row = $("<tr>");
 
         $.each(that.config.order_history_fields, function(i, val) {
-            var $th = $("<th>").append($("<a href='#'>").append(that.config.order_history_column_names[i])
+            var $th = $("<th>").append($('<a href="#" id="history_header_label_' + i + '">').append(that.config.order_history_column_names[i])
                     .click(function() {
                         that.loadHistory({
                             sort_by: val

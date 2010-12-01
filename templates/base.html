@@ -40,7 +40,7 @@
             </div>
             <div id="user_tools">
                 {% block usertools %}
-                {% if request.user.is_authenticatied %}
+                {% if request.user.is_authenticated %}
                     <strong>{% trans 'Hi' %} {{ request.user.username }}! | <a href="#">{% trans 'Log out' %}</a></strong>
                 {% else %}
                     {% block join_or_login %}{% endblock join_or_login %}
@@ -62,6 +62,7 @@
     <div id="main" class="{% block coltype %}colM{% endblock %}">
         {% block pretitle %}{% endblock %}
         {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
+        {% block connection_status %}{% endblock %}
         {% block content %}{% endblock content %}
         {% block sidebar %}{% endblock %}
         <div class="clear"></div>

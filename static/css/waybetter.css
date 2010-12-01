@@ -164,10 +164,27 @@ span.right-fade {
     -webkit-border-radius: 0 0 10px 10px;
     /*behavior: url(PIE.htc);*/
 }
+a.input_history_helper {
+    display: block;
+    position: absolute;
+    right: 0;
+    top: 0;
+    width: 16px;
+    height: 14px;
+    margin: 15px 10px 0 0;
+    background: url("../img/history_icon.png") left top no-repeat;
+    opacity: 0.3;
+}
+a.input_history_helper:hover {
+    opacity: 1;
+}
 #order_form {
     float: left;
     margin-top: 20px;
     margin-left: 9px;
+}
+#order_form ul > li {
+    position: relative;
 }
 #map {
     height: 250px;
@@ -254,7 +271,7 @@ button.order_button.disabled, button.order_button:disabled {
     background-position: 0 -159px;
 }
 
-/* Ordering Bottom Tabs */
+/************* Ordering Bottom Tabs *************/
 #tabs {
     margin-top: -30px;
     background: transparent;
@@ -310,6 +327,41 @@ img.tab_icon {
     background-position: 0 0;
     z-index: 11 !important;
 }
+
+/************* Orders History ****************/
+#history_header_label_1 {
+    padding-left: 25px;
+    background: url(../img/ride_details.png) left top no-repeat;
+}
+#history_header_label_2 {
+    padding-left: 25px;
+    background: url(../img/ride_details.png) -20px top no-repeat;
+}
+#history_header_label_3 {}
+#history_header_label_4 {}
+#orders_history_grid table {
+    width: 100%;
+    border-top: 2px solid #a8d5fd;
+    border-bottom: 2px solid #a8d5fd;
+    border-spacing: 0 3px;
+
+}
+#orders_history_grid table tr:nth-child(even) {
+    background-color: #e7f1fa;
+}
+#orders_history_grid table th, #orders_history_grid table td {
+    padding: 6px 2px 2px;
+    color: #5b5b5b;
+    text-shadow: 1px 1px 1px white;
+    font-size: 14px;
+}
+#orders_history_grid table th {
+    font-weight: bold;
+}
+#orders_history_grid table th a {
+    text-decoration: none;
+}
+
 /* jQuery UI Tabs Hacking */
 ul.ui-tabs-nav li.ui-state-default {
     background: transparent;
@@ -333,4 +385,19 @@ ul.ui-tabs-nav .ui-state-active a, .ui-state-active a:link, .ui-state-active a:v
 }
 ul.ui-tabs-nav .ui-state-hover a {
     text-decoration: underline;
+}
+
+/************* Cost Estimate *************/
+#ride_cost_estimate {
+    display: none;
+    position: absolute;
+    right: 0;
+    top: 0;
+    margin:15px 13px 0 0;
+    padding:10px 10px 10px 35px;
+    background: rgba(0, 0, 0, 0.7) url("../img/ride_details.png") -25px center no-repeat;
+    color:white;
+    -moz-border-radius:10px;
+    -webkit-border-radius:10px;
+    border-radius:10px;
 }
