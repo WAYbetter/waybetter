@@ -1,0 +1,59 @@
+{% load i18n %}
+
+<style type="text/css">
+    <!--
+    #AIRDownloadMessageTable {
+        width: 310px;
+        height: 200px;
+        border: 1px solid #999;
+        font-family: Verdana, Arial, Helvetica, sans-serif;
+        font-size: 14px;
+    }
+
+    #AIRDownloadMessageRuntime {
+        font-size: 12px;
+        color: #333;
+    }
+
+    -->
+</style>
+<script language="JavaScript" type="text/javascript">
+    <!--
+    // -----------------------------------------------------------------------------
+    // Globals
+    // Major version of Flash required
+    var requiredMajorVersion = 9;
+    // Minor version of Flash required
+    var requiredMinorVersion = 0;
+    // Minor version of Flash required
+    var requiredRevision = 115;        // This is Flash Player 9 Update 3
+    // -----------------------------------------------------------------------------
+    // -->
+</script>
+
+
+<h1>{% trans 'Download workstations' %}</h1>
+{% for t in indexed_workstations %}
+
+    <table id="AIRDownloadMessageTable">
+        <tr>
+            <td>
+                <embed width="310" height="200" align="middle" src="/static/app/badge/badge.swf" quality="high"
+                       bgcolor="#FFFFFF" name="badge" allowscriptaccess="always"
+                       pluginspage="http://www.macromedia.com/go/getflashplayer"
+                       flashvars="appname=workstation_app&amp;appurl={{ t.1.installer_url }}&amp;airversion=2.5&amp;imageurl=/static/app/badge/Station_INSTALLER_{{ t.0 }}.jpg"
+                       type="application/x-shockwave-flash">
+
+                    <!--
+                        Download the <a href="{{ t.1.installer_url }}">wayBetter Workstation Application</a>.<br/><br/><span
+                        id="AIRDownloadMessageRuntime">This application requires Adobe&#174;&nbsp;AIR&#8482; to be installed for <a
+                        href="http://airdownload.adobe.com/air/mac/download/latest/AdobeAIR.dmg">Mac OS</a> or <a
+                        href="http://airdownload.adobe.com/air/win/download/latest/AdobeAIRInstaller.exe">Windows</a>.</span>
+                    -->
+            </td>
+        </tr>
+    </table>
+
+{% endfor %}
+
+

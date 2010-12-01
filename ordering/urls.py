@@ -10,6 +10,7 @@ urlpatterns = patterns('',
     (r'^orders/history/$', 'ordering.passenger_controller.get_passenger_orders_history'),
     (r'^passenger/profile/$', 'ordering.passenger_controller.profile_page'),
     (r'^station/profile/$', 'ordering.station_controller.station_profile'),
+    (r'^station/download_workstation/$', 'ordering.station_controller.download_workstation'),
     (r'^station/history/$', 'ordering.station_controller.get_station_orders_history'),
 
     (r'^passenger/logout/$', 'django.contrib.auth.views.logout'),
