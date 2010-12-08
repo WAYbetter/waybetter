@@ -1,0 +1,31 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}
+        {% trans "Wrong user type" %}
+{% endblock title %}
+
+{% block content %}
+
+    <script type="text/javascript">
+        $(document).ready(function() {
+            redirectToLogin();
+        });
+
+
+        function redirectToLogin() {
+            try {
+                window.location.href = "/accounts/login/?next=/workstation/";
+            }
+            catch (e) {
+                alert(e);
+            }
+        }
+
+    </script>
+
+    <div id="message">
+        {% trans 'You are not a workstation, please' %} <a href='/workstation/logout/'>{% trans 'logout' %}</a> {% trans 'and try again' %}
+    </div>
+
+{% endblock content %}

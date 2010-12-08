@@ -2,6 +2,7 @@ from django.contrib.auth.decorators import login_required
 from ordering.models import Passenger, WorkStation, Station
 from django.http import HttpResponseForbidden
 from common.util import log_event, EventType
+from django.shortcuts import render_to_response
 
 NOT_A_USER = "NOT_A_USER"
 NOT_A_PASSENGER = "NOT_A_PASSENGER"
@@ -69,7 +70,8 @@ def work_station_required(function):
             work_station = WorkStation.objects.filter(user = request.user).get()
             kwargs["work_station"] = work_station
         except WorkStation.DoesNotExist:
-            return HttpResponseForbidden("You are not a workstation, please <a href='/workstation/logout/'>logout</a> and try again")
+#            return HttpResponseForbidden("You are not a workstation, please <a href='/workstation/logout/'>logout</a> and try again")
+            return render_to_response("wrong_user_type_message.html", {})
 
         return function(request, **kwargs)
 
