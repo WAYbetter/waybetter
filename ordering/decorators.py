@@ -88,7 +88,14 @@ def station_required(function=None):
             station = Station.objects.filter(user = request.user).get()
             kwargs["station"] = station
         except Station.DoesNotExist:
-            return HttpResponseForbidden("You are not a station")
+#            return HttpResponseForbidden("You are not a station")
+            try:
+                work_station = WorkStation.objects.filter(user = request.user).get()
+                kwargs["station"] = work_station.station
+            except WorkStation.DoesNotExist:
+#            return HttpResponseForbidden("You are not a workstation, please <a href='/workstation/logout/'>logout</a> and try again")
+                return render_to_response("wrong_user_type_message.html", {})
+
         return function(request, **kwargs)
 
     return wrapper
