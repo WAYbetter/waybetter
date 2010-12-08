@@ -25,9 +25,9 @@ var Registrator = Object.create({
             username_taken          : '',
             invalid_email           : '',
             passwords_dont_match    : '',
-            too_short               : '',
             too_long                : '',
-            only_digits             : ''
+            only_digits             : '',
+            phone_taken             : ''
         },
         messages        : {
             unique_username         : '',
@@ -37,7 +37,10 @@ var Registrator = Object.create({
             checking_user           : '',
             valid_field             : '',
             enter_mobile            : '',
-            phone_taken             : ''
+            code_sent               : '',
+            sending_code            : '',
+            finish                  : '',
+            too_short               : ''
 
         },
         callback        : function () {}
@@ -46,7 +49,6 @@ var Registrator = Object.create({
     default_validator_config: {
         errorClass: 'ui-state-error',
         errorElement: 'span',
-        onkeyup: false,
         focusCleanup: true
     },
     config                  : {},
@@ -123,9 +125,13 @@ var Registrator = Object.create({
             });
         }
     },
-    _doDialogSubmit          : function (form, extra_form_data, url) {
+    _doDialogSubmit          : function (form, extra_form_data, url, errorCallback) {
         var that = this,
-            data = extra_form_data ? extra_form_data + '&' + $(form).serialize() : $(form).serialize();
+            data = extra_form_data ? extra_form_data + '&' + $(form).serialize() : $(form).serialize(),
+            errCallback = errorCallback ? errorCallback : function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('error: ' + XMLHttpRequest.responseText);
+            };
+
         if ( this.validator.form() ) {
             $.ajax({
                 url :url,
@@ -137,9 +143,7 @@ var Registrator = Object.create({
                         that.config.callback();
                     }
                 },
-                error :function (XMLHttpRequest, textStatus, errorThrown) {
-                    alert('error: ' + XMLHttpRequest.responseText);
-                }
+                error   : errCallback
             });
         }
     },
@@ -147,7 +151,10 @@ var Registrator = Object.create({
         this._doDialogSubmit(form, extra_form_data, this.config.urls.update_profile);
     },
     doPhoneValidation       : function(form) {
-        this._doDialogSubmit(form, null, this.config.urls.validate_phone);
+        this._doDialogSubmit(form, null, this.config.urls.validate_phone, function(XMLHttpRequest, textStatus, errorThrown) {
+            $("div[htmlfor=verification_code]").text(XMLHttpRequest.responseText).parent()
+                    .removeClass("sms-button").addClass("red").unbind("click");
+        });
     },
     doRegister              : function (form, extra_form_data) {
         this._doDialogSubmit(form, extra_form_data, this.config.urls.register);
@@ -202,11 +209,10 @@ var Registrator = Object.create({
             var validation_config = {
                 errorClass: "inputError",
                 validClass: "inputValid",
-                focusInvalid: false,
-                focusCleanup: true,
-                wrapper: "div",
+                errorElement: "div",
+                focusCleanup: false,
                 highlight: function(element, errorClass, validClass) {
-                    console.log("highlight: " + this);
+                    console.log("highlight");
                     $(element).next().addClass(errorClass).removeClass(validClass).removeClass("red").removeClass("green");
                     for (var key in that.config.error_messages) {
                         if (that.config.error_messages[key] === this.errorList[0].message) {
@@ -215,18 +221,32 @@ var Registrator = Object.create({
                     }
                 },
                 unhighlight: function(element, errorClass, validClass) {
-                    $(element).next().addClass(validClass).removeClass(errorClass);
+                    $(element).next().addClass(validClass).removeClass(errorClass).removeClass("red");
                 },
                 errorPlacement: function(error, element) {
-                    if (! $(element).next().hasClass('input-helper')) {
-                        $(error).addClass('input-helper');
-                        $(element).after(error);
+                    var container = $("<div></div>").addClass("input-helper");
+                    container.append(error);
+                    container.insertAfter(element);
+                },
+                success: function(label) {
+                    if (label.attr("htmlfor") == 'local_phone') {
+                        label.text(that.config.messages.valid_field);
+                    } else {
+                        label.text(that.config.messages.finish);
                     }
                 },
-                success: function (label) {
-                    console.log("success: " + this);
-                    label.text(that.config.messages.valid_field).parent().removeClass("red").addClass("green");
-                    that.validator.element($("#local_phone"));
+                showErrors: function(errorMap, errorList) {
+                    var form = $("form", dialog_content)[0];
+                    that.setHelperButton(this, 'local_phone', function() {
+                        that.sendSMS.call(that, form);
+                    });
+
+                    that.setHelperButton(this, 'verification_code', function() {
+                        $("div[htmlfor=local_phone]").parent().removeClass("code-sent");
+                        that.doPhoneValidation.call(that, form, extra_form_data);
+                    });
+
+                    this.defaultShowErrors();
                 },
                 rules: {
                     verification_code: {
@@ -237,43 +257,40 @@ var Registrator = Object.create({
                     },
                     local_phone: {
                         required    : true,
-                        remote      : that.config.urls.check_phone,
                         digits      : true,
                         minlength   : 10,
-                        maxlength   : 11
+                        maxlength   : 11,
+                        remote      : that.config.urls.check_phone
                     }
                 },
                 messages: {
                     local_phone: {
                         required    : that.config.messages.enter_mobile,
                         digits      : that.config.error_messages.only_digits,
-                        minlength   : that.config.error_messages.too_short,
+                        minlength   : that.config.messages.too_short,
                         maxlength   : that.config.error_messages.too_long,
-                        remote      : that.config.messages.phone_taken
+                        remote      : that.config.error_messages.phone_taken
+                    },
+                    verification_code: {
+                        required    : that.config.messages.enter_sms_code,
+                        minlength   : that.config.messages.too_short,
+                        maxlength   : that.config.error_messages.too_long,
+                        digits      : that.config.error_messages.only_digits
                     }
                 }
             },
-            $sms_button = $('form input#send_sms_verification', dialog_content).button()
-               .unbind('click')
-               .bind('click', function (e) {
-                    that.sendSMS.call(that, this.form);
-                    return false;
-               }),
+//            $sms_button = $('.sms-button', dialog_content).live('click', function (e) {
+//                    that.sendSMS.call(that, $(this).parents("form")[0]);
+//                    return false;
+//            }),
             $finish_button = $('form input#validate', dialog_content).button()
                .unbind('click')
                .bind('click', function (e) {
                     that.doPhoneValidation.call(that, this.form, extra_form_data);
                     return false;
                }),
-            $phone_input = $('form input#local_phone', dialog_content)
-                .unbind('keyup')
-                .bind('keyup', function(e) {
-                    if (that.validator.element($phone_input)) {
-                        $sms_button.button("enable");
-                    } else {
-                        $sms_button.button("disable");
-                    }
-
+            $phone_input = $('form input#local_phone', dialog_content).focus(function() {
+                $(this).next().removeClass("code-sent");                
             }),
             $verification_code_input = $('form input#verification_code', dialog_content)
                 .unbind('keyup')
@@ -399,11 +416,14 @@ var Registrator = Object.create({
         var that = this,
             $button = $('#send_sms_verification').button('disable');
         if ( this.validator.element('#local_phone') ) {
+            $("input[name=local_phone]").next().removeClass("sms-button").addClass("input-helper").addClass("sending-code").children("div").text(that.config.messages.sending_code);
+            
             $.ajax({
                 url :that.config.urls.send_sms,
                 type : 'post',
                 data : $(form).serialize(),
                 success : function (response) {
+                    $("input[name=local_phone]").next().removeClass("sending-code").addClass("code-sent").children("div").text(that.config.messages.code_sent);
                     $('#verification_code').removeAttr('disabled').focus();
                 },
                 error :function (XMLHttpRequest, textStatus, errorThrown) {
@@ -411,6 +431,16 @@ var Registrator = Object.create({
                     $button.button('enable');
                 }
             });
+        }
+    },
+    setHelperButton         : function (context, id, callable) {
+        if (context.currentElements.length && context.currentElements[0].id == id) {
+            var $elem = $("div[htmlfor=" + id +"]").text("").parent();
+            if (context.errorList.length == 0) {
+                $elem.addClass("sms-button").unbind("click").bind("click", callable);
+            } else {
+                $elem.removeClass("sms-button").unbind("click");
+            }
         }
     }
 });

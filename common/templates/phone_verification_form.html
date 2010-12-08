@@ -1,9 +1,27 @@
 {% load i18n %}
+<style type="text/css">
+    .sending-code {
+        background-color: #63b4da !important;
+        background-image: url(/static/img/indicator_on_blue.gif) !important;
+        background-position: 6px 3px !important;
+    }
+    .sending-code > div {
+        color: white !important;
+    }
+    .code-sent {
+        background-color: #bfddc1;
+        background-image: none !important; 
+    }
+    .code-sent > div {
+         color: #1a7b18 !important;
+    }
+
+</style>
 <script>
     var form_config = {
         dialog_config : {
             title: "{% trans 'First Time?' %}",
-            width: 427
+            width: 450
         },
         urls: {
             send_sms        : "{% url ordering.passenger_controller.send_sms_verification %}",
@@ -11,20 +29,21 @@
             check_phone     : "{% url ordering.passenger_controller.check_phone %}"
         },
         messages: {
-            valid_field     : "{% trans 'OK' %}",
+            valid_field     : "{% trans 'PRESS TO SEND SMS CODE' %}",
+            code_sent       : "{% trans 'CODE SENT' %}",
+            finish          : "{% trans 'FINISH' %}",
+            sending_code    : "{% trans 'Sending...' %}",
             enter_mobile    : "{% trans 'Enter your mobile phone #' %}",
-            phone_taken     : "{% trans 'Phone already in use. (<a href=#>Login?</a>)' %}"
+            enter_sms_code  : "{% trans 'Enter SMS Ver. Code' %}",
+            too_short       : "{% trans 'Number too short' %}"
         },
         error_messages: {
-            too_short       : "{% trans 'Number too short' %}",
+            phone_taken     : "{% trans 'Phone already in use. <a href=#>Login</a>' %}",
             too_long        : "{% trans 'Number too long' %}",
             only_digits     : "{% trans 'Only digits please' %}"
         }
     };
      $(function () {
-         $("#dialog form input[type!=checkbox]").keyup(function() {
-             Registrator.validator.element(this);
-         });
          $("#dialog form input[type!=checkbox]").focus(function() {
              Registrator.validator.element(this);
          });
@@ -33,11 +52,10 @@
 <h1>{% trans 'Get ride details to your hands, via a free SMS!' %}</h1>
 <form id="phone_verification_form">
     <fieldset>
+        <input type="hidden" name="country" value="{{ country_id }}" />
         <label for="local_phone">{% trans 'Local Mobile Phone Number' %}</label>
         <input name="local_phone" id="local_phone" type="text" autofocus/>
-        <input type="button" id="send_sms_verification" disabled="disabled" value="{% trans 'Send SMS Verification' %}" />
         <label for="verification_code">{% trans 'Enter SMS code' %}</label>
         <input name="verification_code" id="verification_code" type="text" disabled="disabled" />
-        <input type="button" id="validate" class="wb_button blue" disabled="disabled" value="{% trans 'Finish' %}" />
     </fieldset>
 </form>
