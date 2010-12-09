@@ -12,6 +12,7 @@ import re
 from django.core.validators import RegexValidator
 import common.urllib_adaptor as urllib2
 import urllib
+import logging
 
 ASSIGNED = 1
 ACCEPTED = 2
@@ -81,6 +82,26 @@ class Station(models.Model):
         choices = [(-1, "-----------")] if include_empty_option else []
         choices.extend([(station.id, station.name) for station in Station.objects.all().order_by(order_by)])
         return choices
+
+
+    def create_workstation(self, index):
+        username = "%s_workstation_%d" % (self.user.username, index)
+        password = generate_random_token(alpha_or_digit_only=True)
+        ws_user = User(username=username, email=self.user.email, password=password)
+        ws_user.save()
+        ws = WorkStation(user=ws_user, station=self)
+        ws.save()
+        logging.debug("Created workstation: %s" % username)
+
+
+
+def build_workstations(sender, instance, **kwargs):
+    for i in range(settings.NUMBER_OF_WORKSTATIONS_TO_CREATE):
+        instance.create_workstation(i+1)
+
+
+models.signals.post_save.connect(build_workstations, sender=Station)
+
 
 class Passenger(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger")
