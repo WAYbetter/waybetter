@@ -31,9 +31,9 @@
     // -->
 
 
-    function disconnect_workstation(token) {
+    function delete_workstation(token) {
         $.ajax({
-            url: "/services/disconnect_workstation/",
+            url: "/services/delete_workstation/",
             type: "POST",
             data: { token: token },
             success: function() {
@@ -70,7 +70,7 @@
             {% else %}
                 <img src="/static/app/badge/{{ t.0 }}_{{ t.2 }}.png"/>
                 <br/>
-                <input type="button" value="{% trans 'Disconnect' %}" onclick="disconnect_workstation('{{ t.1.token }}')"/>
+                <input type="button" value="{% trans 'Delete' %}" onclick="delete_workstation('{{ t.1.token }}')"/>
             {% endifequal %}
             </td>
         </tr>
