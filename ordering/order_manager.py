@@ -171,3 +171,4 @@ def update_station_rating(request):
             station.average_rating = float(sum) / float(station.number_of_ratings)
         station.save()
     return HttpResponse("OK")
+

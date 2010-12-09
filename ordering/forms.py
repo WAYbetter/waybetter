@@ -307,7 +307,7 @@ class StationAdminForm(forms.ModelForm):
 
         else:
             result = geocode_results[0]
-            
+
         self.instance.lon = result["lon"]
         self.instance.lat = result["lat"]
         self.instance.geohash = result["geohash"]
@@ -315,5 +315,4 @@ class StationAdminForm(forms.ModelForm):
 
         self.cleaned_data["address"] = "%s %s" % (result["street"], result["house_number"])
 
-        logging.info("self: %s" % (self))
         return self.cleaned_data["address"]

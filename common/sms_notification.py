@@ -14,12 +14,15 @@ def send_sms(destination, text, **kwargs):
     Returns text response.
     TODO_WB: take back-end function name from settings
     """
+
+    #TODO_WB: remove after debug complete
+    return
+
     sms_config = settings.SMS
     if kwargs is not None:
         sms_config.update(kwargs) 
 
     return send_sms_cellact(destination, text, sms_config)
-
 
 def send_sms_unicell(destination, text, sms_config):
     provider_url = sms_config[SMS_PROVIDER_URL]

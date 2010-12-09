@@ -1,3 +1,9 @@
+* {
+    font-family: Calibri,sans-serif;
+    margin: 0;
+    padding: 0;
+}
+
 label {
     display: block;
 }
@@ -26,6 +32,307 @@ div#tabs {
 div#form_container {
     float:left;
 }
+
+
+/** Registration Form **/
+ #faux-progress {
+     width: 100%;
+     height: 22px;
+     background: -webkit-gradient(
+         linear,
+         left bottom,
+         left top,
+         color-stop(0, rgb(84,84,84)),
+         color-stop(1, rgb(37,37,37))
+     );
+     background: -moz-linear-gradient(
+         center bottom,
+         rgb(84,84,84),
+         rgb(37,37,37)
+     );
+     -moz-border-radius: 15px;
+     border-radius: 15px;
+     border-color: black;
+ }
+ #faux-progress > .ui-progressbar-value {
+     height: 20px;
+     background: -webkit-gradient(
+         linear,
+         left bottom,
+         left top,
+         color-stop(0, #2d7ae5),
+         color-stop(1, #66adf2)
+     );
+     background: -moz-linear-gradient(
+         center bottom,
+         #2d7ae5,
+         #66adf2
+     );
+     -moz-border-radius: 11px;
+     border-radius: 11px;
+     border: none;
+     position:relative;
+     float: left;
+     margin-top: 1px;
+ }
+
+ #faux-progress > .ui-progressbar-value.failure {
+     background: -webkit-gradient(
+         linear,
+         left bottom,
+         left top,
+         color-stop(0, #e85b5b),
+         color-stop(1, #d52424)
+     );
+     background: -moz-linear-gradient(
+         center bottom,
+         #e85b5b,
+         #d52424
+     );
+ }
+ #faux-progress > .ui-progressbar-value.success {
+     background: -webkit-gradient(
+         linear,
+         left bottom,
+         left top,
+         color-stop(0, #14c51b),
+         color-stop(1, #3fdf4d)
+     );
+     background: -moz-linear-gradient(
+         center bottom,
+         #14c51b,
+         #3fdf4d
+     );
+ }
+
+ .progress-header {
+     font-weight:bold;
+     font-size: 1.1em;
+     text-transform: uppercase;
+     color: black;
+     margin-bottom: 6px;
+     margin-left: 10px;
+ }
+
+ .progress-sub-title {
+     font-size: 1.0em;
+     margin-left: 10px;
+     margin-top: 5px;
+ }
+
+ #dialog input[type=text], #dialog input[type=password] {
+     height: 31px;
+     -moz-border-radius: 5px 0 0 5px;
+     border-radius: 5px 0 0 5px;
+     width: 180px;
+     float: left;
+ }
+
+ #dialog input[type=text]:focus, #dialog input[type=password]:focus {
+     -moz-box-shadow: inset 0 1px 2px black;
+     -webkit-box-shadow: inset 0 1px 2px black;
+     box-shadow: inset 0 2px 2px black;
+     outline:none;
+ }
+
+ #dialog fieldset {
+     margin-left: 10px;
+ }
+
+ #dialog label {
+     padding-top: 6px;
+     margin-bottom: 6px;
+     clear: both;
+ }
+ #dialog input[type=checkbox] {
+     width: auto;
+     vertical-align: bottom;
+ }
+
+ #registration_form p {
+     clear: both;
+ }
+
+ #join {
+     margin-left: 10px;
+ }
+
+ .input-helper {
+     -moz-border-radius: 0 5px 5px 0;
+     border-radius:0 5px 5px 0;
+     background-color: #ebebeb;
+     border: 1px solid #d6d6d6;
+     border-left: none;
+     height: 15px;
+     width: 170px;
+     float:left;
+     text-align: center;
+     padding: 10px;
+     margin-top: 2px;
+     background-image: url(/static/images/small_arrow.png);
+     background-repeat: no-repeat;
+     background-position: 12px 12px;
+     padding-left: 18px;
+ }
+ .input-helper.red {
+     color: #d90000;
+     background-image: url(/static/images/small_error.gif);
+     background-position: 9px 9px;
+ }
+ .input-helper.green {
+     color: #008000;
+     background-image: url(/static/images/small_ok.gif);
+     background-position: 9px 9px;
+ }
+
+ .input-helper > span {
+ }
+
+ #registration_form fieldset.register {
+     width: 100%;
+ }
+
+ /** buttons **/
+ input::-moz-focus-inner, button::-moz-focus-inner {
+     border:none;
+ }
+
+ .wb_button {
+     font-size: 15px;
+     font-weight: bold;
+     text-shadow: 1px;
+     width: 80px;
+     border:none;
+     vertical-align: text-top;
+     padding: 6px 0;
+     text-align: center;
+     text-decoration: none;
+
+     -webkit-box-shadow:0px 1px 1px #8f8585;
+     -moz-box-shadow:0px 1px 1px #8f8585;
+     box-shadow:0px 1px 1px #8f8585;
+     border-bottom: 1px solid black;
+
+     display: inline-block;
+
+ }
+ .wb_button:hover, .wb_button.hover {
+     border: 1px solid #828282;
+     border-bottom: 1px solid black;
+     padding-top: 5px;
+ }
+
+ .wb_button:active, .wb_button.active {
+     border: 1px solid #525252;
+     -webkit-box-shadow:none;
+     -moz-box-shadow:none;
+     box-shadow:none;
+     position: relative;
+     top: 1px;
+ }
+
+ .wb_button:disabled, .wb_button.disabled {
+     border: none;
+     filter:alpha(opacity=65);
+     opacity: 0.65;
+     -webkit-box-shadow:none;
+     -moz-box-shadow:none;
+     box-shadow:none;
+     position: relative;
+     top: 0;
+     padding-top: 6px;
+ }
+
+ .blue {
+     background: #49aad7;
+     background: -webkit-gradient(linear, left top, left bottom, from(#49aad7), to(#2c83c1));
+     background: -moz-linear-gradient(-90deg, #49aad7, #2c83c1);
+     -pie-background: linear-gradient(-90deg, #49aad7, #2c83c1);
+
+     color: white;
+     text-shadow: #2a6b8e 0px -1px;
+     behavior: url(PIE.htc);
+ }
+
+ .blue:hover {
+     background: #50b9ea;
+     background: -webkit-gradient(linear, left top, left bottom, from(#50b9ea), to(#298acf));
+     background: -moz-linear-gradient(-90deg, #50b9ea, #298acf);
+     -pie-background: linear-gradient(-90deg, #50b9ea, #298acf);
+     behavior:url(PIE.htc);
+ }
+
+ .blue:active, .blue:disabled {
+     background: #3199df;
+ }
+
+ .purple {
+     background: #de64ac;
+     background: -webkit-gradient(linear, left top, left bottom, from(#de64ac), to(#af3a7c));
+     background: -moz-linear-gradient(-90deg, #de64ac, #af3a7c);
+     -pie-background: linear-gradient(-90deg, #de64ac, #af3a7c);
+
+     color: white;
+     text-shadow: #2a6b8e 0px -1px;
+     behavior: url(PIE.htc);
+ }
+
+ .purple:hover {
+     background: #ff77c7;
+     background: -webkit-gradient(linear, left top, left bottom, from(#ff77c7), to(#c2458c));
+     background: -moz-linear-gradient(-90deg, #ff77c7, #c2458c);
+     -pie-background: linear-gradient(-90deg, #ff77c7, #c2458c);
+     behavior:url(PIE.htc);
+ }
+
+ .purple:active, .purple:disabled {
+     background: #ca4b93;
+ }
+
+ .gray {
+     background: #c5c4c6;
+     background: -webkit-gradient(linear, left top, left bottom, from(#c5c4c6), to(#898585));
+     background: -moz-linear-gradient(-90deg, #c5c4c6, #898585);
+     -pie-background: linear-gradient(-90deg, #c5c4c6, #898585);
+
+     color: black;
+     text-shadow: #e1e1e1 0px 1px;
+ }
+
+ .gray:hover {
+     background: #e9e9e9;
+     background: -webkit-gradient(linear, left top, left bottom, from(#e9e9e9), to(#a0a0a0));
+     background: -moz-linear-gradient(-90deg, #e9e9e9, #a0a0a0);
+     -pie-background: linear-gradient(-90deg, #e9e9e9, #a0a0a0);
+     behavior:url(PIE.htc);
+ }
+
+ .gray:active, .gray:disabled {
+     background: #a4a1a2;
+ }
+
+ .gold {
+     background: #e9d637;
+     background: -webkit-gradient(linear, left top, left bottom, from(#e9d637), to(#dba02d));
+     background: -moz-linear-gradient(-90deg, #e9d637, #dba02d);
+     -pie-background: linear-gradient(-90deg, #e9d637, #dba02d);
+
+     color: black;
+     text-shadow: #e1e1e1 0px 1px;
+ }
+
+ .gold:hover {
+     background: #f7e124;
+     background: -webkit-gradient(linear, left top, left bottom, from(#f7e124), to(#df9b18));
+     background: -moz-linear-gradient(-90deg, #f7e124, #df9b18);
+     -pie-background: linear-gradient(-90deg, #f7e124, #df9b18);
+     behavior:url(PIE.htc);
+ }
+
+ .gold:active, .gold:disabled {
+     background: #cba139;
+ }
+
 
 
 /* Order history */
@@ -74,16 +381,10 @@ input.select-address {
 
 
 /** UI dialog **/
-#dialog button, #dialog input[type=button]{
-    -moz-border-radius: 1px;
-    -webkit-border-radius: 1px;
-    border-radius: 1px;
-    border: 1px outset;
-}
 
 div#dialog form fieldset {
     border: none;
-    width: 200px;
+    /*width: 200px;*/
 }
 div#dialog form fieldset.right_column {
     float: right;
@@ -129,7 +430,7 @@ div.ui-dialog {
 }
 
 #social_login {
-    padding: 20px 0 20px;
+    padding: 10px 0 10px;
 }
 
 
@@ -137,13 +438,6 @@ div.ui-dialog {
 #phone_verification_form label {
     margin: 15px 0 5px;
 }
-#phone_verification_form input[type=button], #phone_verification_form select{
-    width: 100%;
-}
-#phone_verification_form input[type=text]{
-    width: 98%;
-}
-
 div#ride_cost_estimate {
 }
 

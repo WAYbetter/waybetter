@@ -1,35 +1,89 @@
 {% load i18n %}
+
 <script>
     var form_config = {
         dialog_config : {
-            title: "{% trans 'Sign up using the following details' %}"
+            title: "",
+            width: 427
         },
         urls: {
-            check_username: "{% url common.services.is_username_available %}"
+            check_username  : "{% url common.services.is_username_available %}",
+            register        : "{% url ordering.passenger_controller.register_passenger %}"
         },
         messages: {
-            username_taken: "{% trans 'The username is already taken' %}"
+            unique_username : "{% trans 'Enter a unique username' %}",
+            enter_email     : "{% trans 'Enter your email' %}",
+            choose_password : "{% trans 'Choose a password' %}",
+            password_again  : "{% trans 'Re-enter your password' %}",
+            checking_user   : "{% trans 'Checking...' %}",
+            valid_field     : "{% trans 'OK' %}"
+        },
+        error_messages: {
+            username_taken          : "{% trans 'Username is already taken' %}",
+            invalid_email           : "{% trans 'Invalid email address' %}",
+            passwords_dont_match    : "{% trans 'Passwords do not match' %}"
+
         }
     };
+    var values = [12, 35, 64, 100];
+    var timer = $("#faux-progress").progressbar({value: 0});
+    timer.oneTime(100, 'start_animation', function() { // start the animation
+        for (var i = 0; i < values.length; i++) {
+            var val = values[i];
+            setProgressBar(val);
+        }
+    });
+
+    function setProgressBar(val) {
+        timer.oneTime(700, function() {
+            console.log('setProgressBar (' + val + ')');
+            $(".ui-progressbar-value").animate({
+                width: val + "%"
+            }, 500 ,function() {
+                $("#faux-progress").progressbar({value: val});
+                if (val === 100) {
+                    $(".ui-progressbar-value").addClass("success");
+                    $(".progress-header").text("{% trans 'Order Sent' %}");
+                    $(".progress-sub-title").text("{% trans 'An SMS with ride details will be sent soon' %}")
+
+                }
+            });
+        });
+    }
+
+    $(function () {
+        $("#registration_form input[type!=checkbox]").focus(function() {
+            Registrator.validator.element(this);
+        });
+    });
 </script>
-<a class="title_link" id="show_login" href="#">{% trans 'Already have an account?' %}</a>
+<div id="registration_header">
+    <h1 class="progress-header">{% trans 'Sending...' %}</h1>
+    <div id="faux-progress"></div>
+    <div class="progress-sub-title">{% trans 'Looking for taxi stations in your area...' %}</div>
+</div>
+<div id="registration">
+<h1>{% trans "In the meantime, join for better experience (free)" %}</h1>
 <form id="registration_form">
     <div id="user_details">
-        <fieldset class="left_column">
+        <fieldset class="register">
             <label for="username">{% trans 'Username' %}</label>
             <input name="username" id="username" type="text" tabindex="0" />
-            <label for="email">{% trans 'Email' %}</label>
+            <label for="email">{% trans 'Your Email' %}</label>
             <input name="email" id="email" type="text" />
-        </fieldset>
-        <fieldset class="right_column">
             <label for="password">{% trans 'Choose Password' %}</label>
             <input name="password" id="password" type="password" />
             <label for="password_again">{% trans 'Re-enter Password' %}</label>
             <input name="password_again" id="password_again" type="password" />
-        </fieldset>  
+            <p>
+                <input name="approve_emails" type="checkbox" checked/> {% trans 'Get emails from waybetter (we promise not to spam)' %}
+            </p>
+        </fieldset>
         <div id="button_container">
-            <button id="continue">{% trans 'Continue' %}</button>
+            <button id="not_now" class="wb_button gray">{% trans 'Not Now' %}</button>
+            <button id="join" class="wb_button gold">{% trans 'JOIN' %}</button>
         </div>
     </div>
 </form>
 {% include 'social_login.html' %}
+</div>

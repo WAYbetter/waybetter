@@ -13,7 +13,10 @@ def get_registration_form(request):
 def get_phone_code_form(request):
     return render_to_response('code_form.html')
 
+def get_sending_form(request):
+    return render_to_response('sending_form.html')
+
 def get_phone_form(request):
     countries = Country.objects.all()
-    default_country_code = settings.DEFAULT_COUNTRY_CODE
+    country_id = Country.get_id_by_code(settings.DEFAULT_COUNTRY_CODE)
     return render_to_response('phone_verification_form.html', locals())

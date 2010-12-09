@@ -84,7 +84,6 @@ var Address = defineClass({
 
 var OrderingHelper = Object.create({
     config:     {
-        unresolved_label:           "", // "{% trans 'Could not resolve address' %}"
         resolve_address_url:        "", // '{% url cordering.passenger_controller.resolve_address %}'
         estimation_service_url:     "", // '{% url ordering.passenger_controller.estimate_ride_cost %}'
         resolve_coordinate_url:     "", // '{% url ordering.passenger_controller.resolve_coordinate %}'
@@ -115,12 +114,7 @@ var OrderingHelper = Object.create({
                         dataType: "json",
                         success: function(resolve_results) {
                             if (resolve_results.geocode.length == 0 && resolve_results.history.length == 0) {
-                                response([
-                                    {
-                                        label: that.config.unresolved_label,
-                                        value: request.term
-                                    }
-                                ]);
+                                response([]);
 
                             } else { // create autocomplete items from server response
                                 var items = $.map(resolve_results.history, function(item) {
@@ -168,7 +162,6 @@ var OrderingHelper = Object.create({
             }
 
             $("#order_button").button("disable");
-
             $(this).ajaxSubmit({
                 dataType: "json",
                 complete: function() {
@@ -177,16 +170,17 @@ var OrderingHelper = Object.create({
                 success: function(order_status) {
                     clearError();
                     if (order_status.status == "booked") {
-                        window.location.href = order_status.order_status_url;
+                        // show faux-progress
+                        Registrator.openRegistrationDialog(function() {
+                            window.location.href = "/";
+                        }, order_status.show_registration);
                     } else {
                         alert("error: " + order_status.errors);
                     }
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     if (XMLHttpRequest.status == 403) {
-                        if (XMLHttpRequest.responseText == that.config.not_a_user_response) {
-                            Registrator.openRegistrationDialog(that.bookOrder);
-                        } else if (XMLHttpRequest.responseText == that.config.not_a_passenger_response) {
+                        if ( XMLHttpRequest.responseText == that.config.not_a_passenger_response ) {
                             Registrator.openPhoneDialog(that.bookOrder);
                         }
                     } else {
@@ -460,10 +454,10 @@ var OrderHistoryHelper = Object.create({
         var that = this;
         // merge the given config with current config
         $.extend(true, this.config, config);
-        $("#search_button").button().click(function() {
+        $("#search_button").click(function() {
             that.doSearch.call(that)
         });
-        $("#reset_button").button().click(function() {
+        $("#reset_button").click(function() {
             if ($("#keywords").val()) {
                 $("#keywords").val('');
                 that.doSearch.call(that);
