@@ -11,7 +11,7 @@ a:focus {
 body {
     background-image: url(../img/background.png);
     background-repeat: repeat-x;
-    text-align: center;
+    /*text-align: center;*/
 }
 form ul {
     list-style: none;
@@ -19,7 +19,7 @@ form ul {
 input::-moz-focus-inner, button::-moz-focus-inner {
     border:none;
 }
-input.text, input[type=text] {
+input.text, input[type=text], input[type=password] {
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
@@ -91,6 +91,10 @@ input.text, input[type=text] {
     bottom : 0;
     right: 0;
 }
+/************* Footer *************/
+#footer {
+    text-align: center;
+}
 
 /************* Marquee *************/
 span.fade {
@@ -150,6 +154,7 @@ span.right-fade {
 #taxi_tab > h1 {
     margin-top: 6px;
     font-size: 27px;
+    text-align: center;
 }
 
 /************* Ordering Form *************/
@@ -410,6 +415,9 @@ ul.ui-tabs-nav .ui-state-hover a {
 /**************** Registration Form ***************/
 #dialog {
     overflow: visible;
+    margin-top: -30px;
+    font-size: 13px;
+    padding: 10px 22px;
 }
 
 #dialog input[type=text]:focus, #dialog input[type=password]:focus {
@@ -420,7 +428,6 @@ ul.ui-tabs-nav .ui-state-hover a {
 }
 
 #dialog fieldset {
-    margin-left: 10px;
     border:none;
     text-align: left;
     font-size: 13px;
@@ -439,6 +446,9 @@ ul.ui-tabs-nav .ui-state-hover a {
     border-radius: 5px 0 0 5px;
     width: 180px;
     float: left;
+    -moz-box-shadow:none;
+    -webkit-box-shadow:none;
+    box-shadow:none;
 }
 
 #dialog input[type=checkbox] {
@@ -448,7 +458,7 @@ ul.ui-tabs-nav .ui-state-hover a {
 
 
 #dialog h1 {
-    font-size: 18px;
+    font-size: 15px;
 }
 #faux-progress {
     width: 100%;
@@ -492,13 +502,19 @@ ul.ui-tabs-nav .ui-state-hover a {
 }
 
 .progress-sub-title {
-    font-size: 1.0em;
+    font-size: 14px;
     margin-left: 10px;
     margin-top: 5px;
+    padding-bottom: 20px;
 }
 
+#button_container {
+    text-align: right;
+    margin: 13px 0;
+}
 #registration_form p {
     clear: both;
+    padding-top: 5px;
 }
 
 #join {
@@ -594,6 +610,10 @@ ul.ui-tabs-nav .ui-state-hover a {
     width: 100%;
 }
 
+#social_login {
+    margin-top: 5px;
+}
+
 .sending-code {
     background-color: #63b4da !important;
     background-image: url(/static/img/indicator_on_blue.gif) !important;
@@ -612,7 +632,6 @@ ul.ui-tabs-nav .ui-state-hover a {
 
 
 #title {
-    margin-top: -36px;
     width: 97%;
 }
 
