@@ -55,14 +55,14 @@ input.text, input[type=text] {
     /*height:100%;*/
     padding: 16px 8px 8px 8px;
     background-image:url(../img/main_background.png);
-    /*border: 2px #2a2a2a solid;*/
+    border: 1px #2a2a2a solid;
     -moz-border-radius: 15px;
     -webkit-border-radius: 15px;
     border-radius: 15px;
 
-    -webkit-box-shadow: inset 0 3px 10px black, inset 0 -5px 10px #b5b5b5;
-    -moz-box-shadow: inset 0 3px 10px black, inset 0 -5px 10px #b5b5b5;
-    box-shadow: inset 0 3px 10px black, inset 0 -5px 10px #b5b5b5;
+    /*-webkit-box-shadow: inset 0 3px 10px black, inset 0 -5px 10px #b5b5b5;*/
+    /*-moz-box-shadow: inset 0 3px 10px black, inset 0 -5px 10px #b5b5b5;*/
+    /*box-shadow: inset 0 3px 10px black, inset 0 -5px 10px #b5b5b5;*/
 
     behavior: url(PIE.htc);
 }
@@ -408,6 +408,10 @@ ul.ui-tabs-nav .ui-state-hover a {
 }
 
 /**************** Registration Form ***************/
+#dialog {
+    overflow: visible;
+}
+
 #dialog input[type=text]:focus, #dialog input[type=password]:focus {
     -moz-box-shadow: inset 0 1px 2px black;
     -webkit-box-shadow: inset 0 1px 2px black;
@@ -588,6 +592,41 @@ ul.ui-tabs-nav .ui-state-hover a {
 
 #registration_form fieldset.register {
     width: 100%;
+}
+
+.sending-code {
+    background-color: #63b4da !important;
+    background-image: url(/static/img/indicator_on_blue.gif) !important;
+    background-position: 6px 3px !important;
+}
+.sending-code > div {
+    color: white !important;
+}
+.code-sent {
+    background-color: #bfddc1;
+    background-image: none !important;
+}
+.code-sent > div {
+     color: #1a7b18 !important;
+}
+
+
+#title {
+    margin-top: -36px;
+    width: 97%;
+}
+
+#title h1 {
+    float: left;
+}
+#title span {
+    float: right;
+    font-size: small;
+}
+#title h2 {
+    clear:both;
+    font-size: 21px;
+    padding-top: 10px;
 }
 
 /** buttons **/
