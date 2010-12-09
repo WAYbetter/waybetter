@@ -168,7 +168,6 @@ var OrderingHelper = Object.create({
             }
 
             $("#order_button").button("disable");
-
             $(this).ajaxSubmit({
                 dataType: "json",
                 complete: function() {
@@ -177,16 +176,15 @@ var OrderingHelper = Object.create({
                 success: function(order_status) {
                     clearError();
                     if (order_status.status == "booked") {
-                        window.location.href = order_status.order_status_url;
+                        // show faux-progress
+                        Registrator.openRegistrationDialog(null, order_status.show_registration)
                     } else {
                         alert("error: " + order_status.errors);
                     }
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     if (XMLHttpRequest.status == 403) {
-                        if (XMLHttpRequest.responseText == that.config.not_a_user_response) {
-                            Registrator.openRegistrationDialog(that.bookOrder);
-                        } else if (XMLHttpRequest.responseText == that.config.not_a_passenger_response) {
+                        if ( XMLHttpRequest.responseText == that.config.not_a_passenger_response ) {
                             Registrator.openPhoneDialog(that.bookOrder);
                         }
                     } else {
