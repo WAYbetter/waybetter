@@ -16,6 +16,22 @@
             setStationDetails("{{ station_name }}", {{ station_rating }});
         });
 
+
+
+
+        function setAcceptOrders(status) {
+            $.post(
+                    "{% url ordering.station_controller.update_online_status %}",
+                    { status: status },
+                    function(data, textStatus, XMLHttpRequest) {
+                      var accept_orders = XMLHttpRequest.responseText == "True";
+//                      checkbox.attr("checked", accept_orders);
+                      pollingEnabled(accept_orders);
+                    }
+            );
+        }
+
+
         function initAcceptOrders() {
             var init_val = "{{ work_station.accept_orders }}" == "True";
             $("#accept_orders input").attr("checked", init_val);
@@ -23,15 +39,8 @@
 
             $("#accept_orders input").click(function() {
                 var checkbox = $(this);
-                $.post(
-                    "{% url ordering.station_controller.update_online_status %}",
-                    { status: checkbox.attr("checked") ? "{{ online }}" : "{{ offline }}" },
-                    function(data, textStatus, XMLHttpRequest) {
-                        var accept_orders = XMLHttpRequest.responseText == "True";
-                        checkbox.attr("checked", accept_orders);
-                        pollingEnabled(accept_orders);
-                    }
-                );
+                var status = checkbox.attr("checked") ? "{{ online }}" : "{{ offline }}";
+                setAcceptOrders(status);
                 return false;
             });
         }
@@ -45,7 +54,12 @@
                 $('#accept_orders').removeClass('offline');
                 $('#accept_orders').addClass('online');
                 polling_enabled = true;
-                pollOrders();
+                //pollOrders();
+
+                $(document).everyTime({{ polling_interval }}, function() {
+                    pollOrders();
+                });
+
             } else {
                 $('#accept_orders').removeClass('online');
                 $('#accept_orders').addClass('offline');
@@ -62,17 +76,21 @@
                     if (XMLHttpRequest.status == 0) { // no response from server
                         onError();
                     }
+                    /*
                     $(document).oneTime({{ polling_interval }}, function() {
                         pollOrders();
                     });
+                    */
                 },
                 success: onOrder,
                 error: onError
 
-            });
+                });
         }
+
         function pollOrders() {
-            if (polling_enabled) {
+//            if (polling_enabled) {
+            if (parentSandboxBridge && parentSandboxBridge.is_online()) {
                 pollServer("{% url ordering.station_controller.get_orders %}");
             }
         }
