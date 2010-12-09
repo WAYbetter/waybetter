@@ -90,7 +90,7 @@
 
         function pollOrders() {
 //            if (polling_enabled) {
-            if (parentSandboxBridge && parentSandboxBridge.is_online()) {
+            if (parentSandboxBridge && (parentSandboxBridge.is_online() || parentSandboxBridge.is_error())) {
                 pollServer("{% url ordering.station_controller.get_orders %}");
             }
         }
