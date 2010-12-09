@@ -96,7 +96,8 @@ class Station(models.Model):
 
 
 def build_workstations(sender, instance, **kwargs):
-    for i in range(settings.NUMBER_OF_WORKSTATIONS_TO_CREATE):
+    count = instance.work_stations.all().count()
+    for i in range(count, settings.NUMBER_OF_WORKSTATIONS_TO_CREATE):
         instance.create_workstation(i+1)
 
 
