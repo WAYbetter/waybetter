@@ -311,7 +311,7 @@ class StationAdminForm(forms.ModelForm):
         self.instance.lon = result["lon"]
         self.instance.lat = result["lat"]
         self.instance.geohash = result["geohash"]
-        self.instance.save()
+#        self.instance.save()
 
         self.cleaned_data["address"] = "%s %s" % (result["street"], result["house_number"])
 
