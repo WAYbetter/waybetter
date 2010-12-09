@@ -42,7 +42,7 @@
             <div id="user_tools">
                 {% block usertools %}
                 {% if request.user.is_authenticated %}
-                    <strong>{% trans 'Hi' %} {{ request.user.username }}! | <a href="#">{% trans 'Log out' %}</a></strong>
+                    <strong>{% trans 'Hi' %} {{ request.user.username }}! | <a href="/logout?next=/">{% trans 'Log out' %}</a></strong>
                 {% else %}
                     {% block join_or_login %}{% endblock join_or_login %}
                 {% endif %}

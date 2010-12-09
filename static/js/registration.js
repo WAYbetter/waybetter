@@ -31,6 +31,7 @@ var Registrator = Object.create({
         },
         messages        : {
             unique_username         : '',
+            enter_username          : '',
             enter_email             : '',
             choose_password         : '',
             password_again          : '',
@@ -40,6 +41,7 @@ var Registrator = Object.create({
             code_sent               : '',
             sending_code            : '',
             finish                  : '',
+            sms_ok                  : '',
             too_short               : ''
 
         },
@@ -164,21 +166,50 @@ var Registrator = Object.create({
         this.setCallback(callback);
         this.getTemplate.call(this, 'login', function (dialog_content) {
             var validation_config = {
+                errorClass  : "inputError",
+                validClass  : "inputValid",
+                focusCleanup: false,
+                errorElement: "div",
+                highlight: function(element, errorClass, validClass) {
+                    $(element).next().addClass(errorClass).removeClass(validClass).removeClass("red").removeClass("green");
+                    for (var key in that.config.error_messages) {
+                        if (that.config.error_messages[key] === this.errorList[0].message) {
+                            $(element).next().addClass("red");
+                        }
+                    }
+                },
+                unhighlight: function(element, errorClass, validClass) {
+                    $(element).next().addClass(validClass).removeClass(errorClass);
+                },
+                errorPlacement: function(error, element) {
+                    var container = $("<div></div>").addClass("input-helper");
+                    container.append(error);
+                    container.insertAfter(element);
+                },
+                success: function (label) {
+                    label.text(that.config.messages.valid_field).parent().removeClass("red").addClass("green");
+                },
                 rules: {
                     username: "required",
                     password: "required"
+                },
+                messages: {
+                    username: {
+                        required: that.config.messages.enter_username
+                    },
+                    password: {
+                        required: that.config.messages.choose_password
+                    }
                 }
             },
-            $button = $('form button', dialog_content).button()
-                .unbind('click')
-                .bind('click', function (e) {
+            $button = $('form button', dialog_content).unbind('click').bind('click', function (e) {
                     that.doLogin.call(that, this.form);
                     return false;
-               }),
+            }),
             $show_register_link = $('#show_register')
                 .unbind('click')
                 .bind('click', function (e) {
-                    that.openRegistrationDialog.call(that);
+                    that.doJoin();
                     return false;
             });
             that.openDialog.call(that, validation_config);
@@ -230,7 +261,7 @@ var Registrator = Object.create({
                 },
                 success: function(label) {
                     if (label.attr("htmlfor") == 'local_phone') {
-                        label.text(that.config.messages.valid_field);
+                        label.text(that.config.messages.sms_ok);
                     } else {
                         label.text(that.config.messages.finish);
                     }
@@ -279,10 +310,6 @@ var Registrator = Object.create({
                     }
                 }
             },
-//            $sms_button = $('.sms-button', dialog_content).live('click', function (e) {
-//                    that.sendSMS.call(that, $(this).parents("form")[0]);
-//                    return false;
-//            }),
             $finish_button = $('form input#validate', dialog_content).button()
                .unbind('click')
                .bind('click', function (e) {
@@ -292,6 +319,10 @@ var Registrator = Object.create({
             $phone_input = $('form input#local_phone', dialog_content).focus(function() {
                 $(this).next().removeClass("code-sent");                
             }),
+            $login_link = $("#login_link", dialog_content).click(function() {
+                that.openLoginDialog();
+                return false;
+            });
             $verification_code_input = $('form input#verification_code', dialog_content)
                 .unbind('keyup')
                 .bind('keyup', function(e) {
@@ -302,7 +333,9 @@ var Registrator = Object.create({
                     }
 
             });
+
             that.openDialog.call(that, validation_config);
+            $phone_input.focus();
         });
     },
     openPhoneDialog         : function (callback) {
@@ -317,7 +350,7 @@ var Registrator = Object.create({
             that.openDialog.call(that, {});
         });
     },
-    openRegistrationDialog  : function (callback, progress_only) {
+    openRegistrationDialog  : function (callback, show_registration, registration_only) {
         var that = this;
         this.setCallback(callback);
         this.getTemplate.call(this, 'reg', function (dialog_content) {
@@ -385,7 +418,7 @@ var Registrator = Object.create({
             },
             $button = $('#join', dialog_content).unbind('click').bind('click', function (e) {
                     if ( that.validator.form() ) {
-                        that._openPhoneDialog.call(that, $('form:first', dialog_content).serialize());
+                        that.doRegister.call(that, $('form:first', dialog_content));
                     }
                     return false;
                }),
@@ -398,7 +431,26 @@ var Registrator = Object.create({
                     that.openLoginDialog.call(that);
                     return false;
             });
+            if (! show_registration) {
+                $("#registration", dialog_content).hide();
+                $("#dialog").oneTime(7000, function() {
+                    $("#dialog").dialog("close");
+                    OrderHistoryHelper.loadHistory({});
+                });
+            }
+            if (registration_only) {
+                $("#registration_header", dialog_content).hide();
+                $("#registration > h1", dialog_content).hide();
+            }
             that.openDialog.call(that, validation_config);
+        });
+    },
+    doJoin                  : function () {
+        var that = this;
+        that.openPhoneDialog(function() {
+            that.openRegistrationDialog(function() {
+                window.location.href = "/";
+            }, true, true)
         });
     },
     openDialog              : function (validation_config) {

@@ -2,27 +2,40 @@
 <script>
     var form_config = {
         dialog_config : {
-            title: "{% trans 'Login using the following details' %}"
+            title: "",
+            width: 427
         },
         urls: {
             login: "{% url ordering.passenger_controller.login_passenger %}"
+        },
+        messages: {
+            enter_username: "{% trans 'Please enter your username' %}",
+            choose_password : "{% trans 'Please enter your password' %}",
+            valid_field: "{% trans 'OK' %}"
+
         }
     };
+
+    $(function () {
+         $("#dialog form input[type!=checkbox]").focus(function() {
+             Registrator.validator.element(this);
+         });
+    });
+
 </script>
-<a id="show_register" class="title_link" href="login_form.html#">{% trans "Don't have an account?" %}</a>
+{% trans "Don't have an account?" %} <a id="show_register" class="title_link" href="login_form.html#">{% trans 'Join Now!' %}</a>
 <form id="login_form">
     <div id="user_details">
-        <fieldset class="left_column">
+        <fieldset class="register">
             <label for="username">{% trans 'Username' %}</label>
             <input name="username" id="username" type="text" />
-        </fieldset>
-        <fieldset class="right_column">
             <label for="password">{% trans 'Password' %}</label>
             <input name="password" id="password" type="password" />
         </fieldset>
         <div class="clear"></div>
         <div id="button_container">
-            <button id="login">{% trans 'Login' %}</button>
+            <button id="login" class="wb_button gold">{% trans 'LOGIN' %}</button>
+
         </div>
     </div>
 </form>

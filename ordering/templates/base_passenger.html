@@ -39,24 +39,20 @@
         $("#tabs li:first").addClass("first_tab");
         $("#tabs li:last").addClass("last_tab");
         $('#join_link').click(function () {
-            showSignupForm();
+            Registrator.doJoin();
             return false;
         });
-     });
-    function showSignupForm() {
-        Registrator.init({
-            dialog_config: {
-                width: 500
-            }
+        $("#login_link").click(function () {
+            Registrator.openLoginDialog(function() {
+                 window.location.href = "{% url ordering.passenger_controller.passenger_home %}";
+            });
         });
-        Registrator.openRegistrationDialog(function() {
-                window.location.href = "{% url ordering.passenger_controller.passenger_home %}";
-            }
-        );
-    }
+     });
 </script>
 {% endblock %}
         
 {% block join_or_login %}
-<a href="#" id="join_link">{% trans 'Join!' %}</a>
+    <strong>
+        <a href="#" id="join_link">{% trans 'Join!' %}</a> | <a href="#" id="login_link">{% trans 'Login' %}</a>
+    </strong>
 {% endblock %}
