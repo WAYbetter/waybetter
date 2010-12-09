@@ -123,7 +123,8 @@ class WorkStation(models.Model):
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="work_stations")
     token = models.CharField(_("token"), max_length=50, null=True, blank=True)
-    installer_url = models.URLField(_("installer URL"), max_length=500, null=True, blank=True)
+    installer_url = models.URLField(_("installer URL"), verify_exists=False, max_length=500, null=True, blank=True)
+    was_installed = models.BooleanField(_("was installed"), default=False)
     im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=40)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
 
