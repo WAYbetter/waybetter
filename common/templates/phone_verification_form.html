@@ -15,7 +15,7 @@
             check_phone     : "{% url ordering.passenger_controller.check_phone %}"
         },
         messages: {
-            valid_field     : "{% trans 'PRESS TO SEND SMS CODE' %}",
+            sms_ok          : "{% trans 'PRESS TO SEND SMS CODE' %}",
             code_sent       : "{% trans 'CODE SENT' %}",
             finish          : "{% trans 'FINISH' %}",
             sending_code    : "{% trans 'Sending...' %}",
@@ -29,7 +29,7 @@
             only_digits     : "{% trans 'Only digits please' %}"
         }
     };
-     $(function () {
+    $(function () {
          $("#dialog form input[type!=checkbox]").focus(function() {
              Registrator.validator.element(this);
          });
@@ -37,7 +37,7 @@
 </script>
 <div id="title">
     <h1>First Time?</h1>
-    <span>{% trans 'Already Registered?' %} <a href="#">{% trans 'LOGIN' %}</a></span>
+    <span>{% trans 'Already Registered?' %} <a href="#" id="login_link" class="title_link">{% trans 'Login' %}</a></span>
     <h2>{% trans 'Get ride details to your hands, via a <i>free</i> SMS!' %}</h2>
 </div>
 <form id="phone_verification_form">

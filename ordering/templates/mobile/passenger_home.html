@@ -9,7 +9,6 @@
 <script>
     $(document).ready(function() {
         OrderingHelper.init({
-            unresolved_label:           "{% trans 'Could not resolve address' %}",
             resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
             resolve_coordinate_url:     "{% url ordering.passenger_controller.resolve_coordinates %}",
             estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}",

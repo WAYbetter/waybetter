@@ -7,7 +7,8 @@
             width: 427
         },
         urls: {
-            check_username: "{% url common.services.is_username_available %}"
+            check_username  : "{% url common.services.is_username_available %}",
+            register        : "{% url ordering.passenger_controller.register_passenger %}"
         },
         messages: {
             unique_username : "{% trans 'Enter a unique username' %}",
@@ -56,11 +57,13 @@
         });
     });
 </script>
-<h1 class="progress-header">{% trans 'Sending...' %}</h1>
-<div id="faux-progress"></div>
-<div class="progress-sub-title">{% trans 'Looking for taxi stations in your area...' %}</div>
+<div id="registration_header">
+    <h1 class="progress-header">{% trans 'Sending...' %}</h1>
+    <div id="faux-progress"></div>
+    <div class="progress-sub-title">{% trans 'Looking for taxi stations in your area...' %}</div>
+</div>
+<div id="registration">
 <h1>{% trans "In the meantime, join for better experience (free)" %}</h1>
-
 <form id="registration_form">
     <div id="user_details">
         <fieldset class="register">
@@ -83,3 +86,4 @@
     </div>
 </form>
 {% include 'social_login.html' %}
+</div>

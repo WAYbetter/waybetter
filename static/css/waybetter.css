@@ -1,5 +1,5 @@
 * {
-    font-family: Calibri, sans-serif;
+    font-family: Calibri, Arial, sans-serif;
     margin: 0;
     padding: 0;
     color: #2e2e2e;
@@ -71,6 +71,17 @@ input.text, input[type=text], input[type=password] {
     /*min-height: 100%;*/
     margin: 0 auto;
 }
+
+/************* Autocomplete *************/
+.ui-autocomplete.ui-menu {
+    border-radius: 0;
+    font-size: 14px;
+}
+.ui-autocomplete > .ui-active-menuitem {
+    background: blue;
+
+}
+
 
 /************* Header *************/
 #banner {
@@ -341,11 +352,11 @@ img.tab_icon {
 /************* Orders History ****************/
 #history_header_label_1 {
     padding-left: 25px;
-    background: url(../img/ride_details.png) left top no-repeat;
+    background: url(../img/ride_details.png) -3px 2px no-repeat;
 }
 #history_header_label_2 {
     padding-left: 25px;
-    background: url(../img/ride_details.png) -20px top no-repeat;
+    background: url(../img/ride_details.png) -3px -14px no-repeat;
 }
 #history_header_label_3 {}
 #history_header_label_4 {}
@@ -405,7 +416,7 @@ ul.ui-tabs-nav .ui-state-hover a {
     top: 0;
     margin:15px 13px 0 0;
     padding:10px 10px 10px 35px;
-    background: rgba(0, 0, 0, 0.7) url("../img/ride_details.png") -25px center no-repeat;
+    background: rgba(0, 0, 0, 0.7) url("../img/ride_details.png") 7px -36px no-repeat;
     color:white;
     -moz-border-radius:10px;
     -webkit-border-radius:10px;
@@ -519,6 +530,10 @@ ul.ui-tabs-nav .ui-state-hover a {
 
 #join {
     margin-left: 10px;
+}
+
+.title_link {
+    font-weight: bold;
 }
 
 .input-helper {

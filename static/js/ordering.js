@@ -84,7 +84,6 @@ var Address = defineClass({
 
 var OrderingHelper = Object.create({
     config:     {
-        unresolved_label:           "", // "{% trans 'Could not resolve address' %}"
         resolve_address_url:        "", // '{% url cordering.passenger_controller.resolve_address %}'
         estimation_service_url:     "", // '{% url ordering.passenger_controller.estimate_ride_cost %}'
         resolve_coordinate_url:     "", // '{% url ordering.passenger_controller.resolve_coordinate %}'
@@ -115,12 +114,7 @@ var OrderingHelper = Object.create({
                         dataType: "json",
                         success: function(resolve_results) {
                             if (resolve_results.geocode.length == 0 && resolve_results.history.length == 0) {
-                                response([
-                                    {
-                                        label: that.config.unresolved_label,
-                                        value: request.term
-                                    }
-                                ]);
+                                response([]);
 
                             } else { // create autocomplete items from server response
                                 var items = $.map(resolve_results.history, function(item) {
@@ -177,7 +171,9 @@ var OrderingHelper = Object.create({
                     clearError();
                     if (order_status.status == "booked") {
                         // show faux-progress
-                        Registrator.openRegistrationDialog(null, order_status.show_registration)
+                        Registrator.openRegistrationDialog(function() {
+                            window.location.href = "/";
+                        }, order_status.show_registration);
                     } else {
                         alert("error: " + order_status.errors);
                     }

@@ -29,9 +29,19 @@ def passenger_required_no_redirect(function=None):
     Decorator for views that checks that the user is logged in and is a passenger
     """
     def wrapper(request, **kwargs):
-        passenger = request.session.get(CURRENT_PASSENGER_KEY, None)
+        passenger = None
+        if request.user.is_authenticated():
+            try:
+                passenger = Passenger.objects.filter(user = request.user).get()
+            except Passenger.DoesNotExist:
+                pass
+
+        if not passenger:
+            passenger = request.session.get(CURRENT_PASSENGER_KEY, None)
+
         if not passenger:
             return HttpResponseForbidden(NOT_A_PASSENGER)
+
         kwargs["passenger"] = passenger
         return function(request, **kwargs)
 
