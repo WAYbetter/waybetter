@@ -36,7 +36,6 @@
 
     function setProgressBar(val) {
         timer.oneTime(700, function() {
-            console.log('setProgressBar (' + val + ')');
             $(".ui-progressbar-value").animate({
                 width: val + "%"
             }, 500 ,function() {

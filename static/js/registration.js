@@ -227,7 +227,6 @@ var Registrator = Object.create({
             },
             $finish_button = $('form input#register', dialog_content).button();
             $('form', dialog_content).submit(function(e) {
-                console.log(this);
                 e.preventDefault();
                 that.doProfileUpdate($('form', dialog_content), extra_form_data);
             });
@@ -243,7 +242,6 @@ var Registrator = Object.create({
                 errorElement: "div",
                 focusCleanup: false,
                 highlight: function(element, errorClass, validClass) {
-                    console.log("highlight");
                     $(element).next().addClass(errorClass).removeClass(validClass).removeClass("red").removeClass("green");
                     for (var key in that.config.error_messages) {
                         if (that.config.error_messages[key] === this.errorList[0].message) {
