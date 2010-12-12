@@ -17,7 +17,7 @@
             password_again  : "{% trans 'Re-enter your password' %}",
             checking_user   : "{% trans 'Checking...' %}",
             sending_order   : "{% trans 'SENDING ORDER...' %}",
-            order_sent      : "{% trans 'ORDER SENT' %}",
+            order_sent      : "{% trans 'ORDER SENT!' %}",
             ride_details    : "{% trans 'An SMS with ride details will be sent soon' %}", 
             valid_field     : "{% trans 'OK' %}"
         },
@@ -33,6 +33,8 @@
         $("#registration_form input[type!=checkbox]").focus(function() {
             Registrator.validator.element(this);
         });
+        $(".ui-dialog-title").addClass("sending").removeClass("success");
+
     });
 </script>
 <div id="registration_header">

@@ -78,17 +78,42 @@
                     <div id="ride_cost_estimate"></div>
                     <div class="clear"></div>
 				</div>
+        <div id="tabs">
         {% if request.user.passenger %}
-            <div id="tabs">
                 <ul>
                     <li><a href="{% url ordering.passenger_controller.get_passenger_orders_history %}">{% trans 'Ride History' %}</a></li>
                     <li><a href="{% url ordering.passenger_controller.profile_page %}">{% trans 'My Profile' %}</a></li>
                 </ul>
+        {% else %}
+            <ul>
+                <li><a href="#stations">{% trans 'Taxi Stations' %}</a></li>
+                <li><a href="#mobile">{% trans 'Mobile' %}</a></li>
+                <li><a href="#about">{% trans 'About' %}</a></li>
+            </ul>
+            <div id="stations">
+                Stations
+            </div>
+            <div id="mobile">
+                Mobile
+            </div>
+            <div id="about">
+                About
             </div>
         {% endif %}
+        </div>
+
         <div id="dialog"></div>
 {% endblock content %}
 {% block footer %}
- {{ block.super}}
-<a href="{% url ordering.station_controller.stations_home %}">{% trans 'Taxi Stations' %}</a>
+{{ block.super}}
+<span id="footer-links">
+    <a href="#">{% trans 'About' %}</a>
+    <a href="#">{% trans 'Press' %}</a>
+    <a href="#">{% trans 'Help' %}</a>
+    <a href="#">{% trans 'Terms' %}</a>
+    <a href="{% url ordering.station_controller.stations_home %}">{% trans 'Station Entrance' %}</a>
+</span>
+<span id="footer-copyright">
+    &copy; {% trans '2010 WAYbetter' %}
+</span>
 {% endblock footer %}

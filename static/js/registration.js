@@ -20,6 +20,8 @@ var Registrator = Object.create({
             resizable: false,
             modal: true,
             width: 500,
+            position: ["center", 100],
+            draggable: false,
             zIndex:2000
         },
         error_messages  : {
@@ -171,7 +173,9 @@ var Registrator = Object.create({
         this.setCallback(callback);
         this.getTemplate.call(this, 'error', function (dialog_content) {
             $("#content", dialog_content).html(message);
-
+            $("#ok").click(function () {
+                $("#dialog").dialog("close");    
+            });
             that.openDialog.call(that, {}, { "title": title });
         });
     },
@@ -444,14 +448,15 @@ var Registrator = Object.create({
                     that.openLoginDialog.call(that);
                     return false;
             });
+            $("#registration", dialog_content).hide();
             if (! show_registration) {
-                $("#registration", dialog_content).hide();
                 $("#dialog").oneTime(7000, function() {
                     $("#dialog").dialog("close");
                     OrderHistoryHelper.loadHistory({});
                 });
             }
             if (registration_only) {
+                $("#registration", dialog_content).show();
                 $("#registration_header", dialog_content).hide();
                 $("#registration > h1", dialog_content).hide();
             } else {
@@ -461,14 +466,14 @@ var Registrator = Object.create({
                 timer.oneTime(100, 'start_animation', function() { // start the animation
                     for (var i = 0; i < values.length; i++) {
                         var val = values[i];
-                        that._setProgressBar(val, timer, dialog_content);
+                        that._setProgressBar(val, timer, dialog_content, show_registration);
                     }
                 });
             }
             that.openDialog.call(that, validation_config, dialog_config);
         });
     },
-    _setProgressBar         : function(val, timer, dialog_content) {
+    _setProgressBar         : function(val, timer, dialog_content, show_registration) {
         var that = this;
         timer.oneTime(700, function() {
             $(".ui-progressbar-value", dialog_content).animate({
@@ -479,7 +484,21 @@ var Registrator = Object.create({
                     $(".ui-progressbar-value", dialog_content).addClass("success");
                     $("#dialog").dialog("option", "title", that.config.messages.order_sent);
                     $(".progress-sub-title", dialog_content).text(that.config.messages.ride_details);
+                    $(".ui-dialog-title").addClass("success");
 
+                    // animate dialog
+                    if (show_registration) {
+                        $("#dialog").oneTime(2000, function() {
+                            $(".ui-dialog").animate(
+                                { height: "525px" },
+                                { duration: 200,
+                                  easing:  "swing",
+                                  complete: function() {
+                                      $("#registration", dialog_content).fadeIn();
+                                }
+                            });
+                        });
+                    }
                 }
             });
         });
