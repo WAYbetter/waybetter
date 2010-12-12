@@ -319,7 +319,7 @@ var OrderingHelper = Object.create({
         }
     },
     renderRideEstimatedCost:    function (data) {
-        var label = data.label;
+        var label = data.label + " ";
         label += data.estimated_cost + data.currency;
         label += " (" + data.estimated_duration + ")";
         $("#ride_cost_estimate").html(label).show();

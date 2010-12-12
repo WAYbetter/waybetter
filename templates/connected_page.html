@@ -13,7 +13,7 @@
             last_error_text = "{% trans 'No connection to server' %}";    
          }
          renderStatus();
-         if (parentSandboxBridge) {
+         if (window.parentSandboxBridge) {
              parentSandboxBridge.set_error_state(true);
          }
      }
@@ -31,7 +31,7 @@
      function clearError() {
          is_in_error = false;
          renderStatus();
-         if (parentSandboxBridge) {
+         if (window.parentSandboxBridge) {
              parentSandboxBridge.set_error_state(false);
          }
      }

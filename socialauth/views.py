@@ -70,6 +70,7 @@ def linkedin_login_done(request):
     # if user is authenticated then login user
     if user:
         login(request, user)
+        update_passenger(request, user)
     else:
         # We were not able to authenticate user
         # Redirect to login page
@@ -128,6 +129,7 @@ def twitter_login_done(request):
     # if user is authenticated then login user
     if user:
         login(request, user)
+        update_passenger(request, user)
     else:
         # We were not able to authenticate user
         # Redirect to login page
@@ -190,6 +192,8 @@ def openid_done(request, provider=None):
 	    
         if user:
             login(request, user)
+            update_passenger(request, user)
+
             if 'openid_next' in request.session :
                 openid_next = request.session.get('openid_next')
                 if len(openid_next.strip()) >  0 :
@@ -198,7 +202,7 @@ def openid_done(request, provider=None):
             # redirect_url = reverse('socialauth_editprofile')
             # return HttpResponseRedirect(redirect_url)
         else:
-	        return HttpResponseRedirect(LOGIN_URL)
+            return HttpResponseRedirect(LOGIN_URL)
     else:
         return HttpResponseRedirect(LOGIN_URL)
 
@@ -234,6 +238,7 @@ def facebook_login_done(request):
             return HttpResponseRedirect(reverse('socialauth_login_page'))
 
     login(request, user)
+    update_passenger(request, user)
     
     logging.debug("SOCIALAUTH: Successfully logged in with Facebook!")
     
@@ -297,3 +302,10 @@ def social_logout(request):
     else:
         return logout_response
 
+from ordering.decorators import CURRENT_PASSENGER_KEY
+def update_passenger(request, user):
+    if CURRENT_PASSENGER_KEY in request.session:
+        passenger = request.session[CURRENT_PASSENGER_KEY]
+        if user.is_authenticated() and not passenger.user :
+            passenger.user = user
+            passenger.save()
