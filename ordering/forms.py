@@ -139,7 +139,8 @@ class OrderForm(ModelForm):
                 log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=self.cleaned_data['to_city'],
                           lat=self.cleaned_data['to_lat'], lon=self.cleaned_data['to_lon'])
 
-            raise forms.ValidationError(_("Currently, there is no service in %(city)s") % {'city': self.cleaned_data['from_city'].name})
+            raise forms.ValidationError(
+                    _("Service is not available in %(city)s yet.<br>Please try again soon.<p class=bold>THANKS!</p>WAYbetter team :)") % {'city': self.cleaned_data['from_city'].name})
         
         return self.cleaned_data
 

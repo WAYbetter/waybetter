@@ -1,6 +1,7 @@
 var Registrator = Object.create({
     default_config           : {
         urls            : {
+            error_form_template         : '/',
             login_form_template         : '/',
             reg_form_template           : '/',
             phone_form_template         : '/',
@@ -45,6 +46,7 @@ var Registrator = Object.create({
             too_short               : ''
 
         },
+        current_dialog_is_sending   : false,
         callback        : function () {}
     },
     validator               : {},
@@ -78,6 +80,9 @@ var Registrator = Object.create({
         var _config = $.extend(true, {}, this.default_validator_config, config);
         this.validator = $form.validate(_config);
         return this;
+    },
+    isSending               : function() {
+        return this.config.current_dialog_is_sending;
     },
     setCallback             : function (callback) {
         if ( callback && $.isFunction(callback) ) {
@@ -160,6 +165,15 @@ var Registrator = Object.create({
     },
     doRegister              : function (form, extra_form_data) {
         this._doDialogSubmit(form, extra_form_data, this.config.urls.register);
+    },
+    openErrorDialog         : function(title, message, callback) {
+        var that = this;
+        this.setCallback(callback);
+        this.getTemplate.call(this, 'error', function (dialog_content) {
+            $("#content", dialog_content).html(message);
+
+            that.openDialog.call(that, {}, { "title": title });
+        });
     },
     openLoginDialog         : function (callback) {
         var that = this;
@@ -349,7 +363,8 @@ var Registrator = Object.create({
         });
     },
     openRegistrationDialog  : function (callback, show_registration, registration_only) {
-        var that = this;
+        var that = this,
+            dialog_config = {};
         this.setCallback(callback);
         this.getTemplate.call(this, 'reg', function (dialog_content) {
             var validation_config = {
@@ -439,8 +454,34 @@ var Registrator = Object.create({
             if (registration_only) {
                 $("#registration_header", dialog_content).hide();
                 $("#registration > h1", dialog_content).hide();
+            } else {
+                dialog_config = { title: that.config.messages.sending_order}; 
+                var values = [12, 35, 64, 100];
+                var timer = $("#faux-progress", dialog_content).progressbar({value: 0});
+                timer.oneTime(100, 'start_animation', function() { // start the animation
+                    for (var i = 0; i < values.length; i++) {
+                        var val = values[i];
+                        that._setProgressBar(val, timer, dialog_content);
+                    }
+                });
             }
-            that.openDialog.call(that, validation_config);
+            that.openDialog.call(that, validation_config, dialog_config);
+        });
+    },
+    _setProgressBar         : function(val, timer, dialog_content) {
+        var that = this;
+        timer.oneTime(700, function() {
+            $(".ui-progressbar-value", dialog_content).animate({
+                width: val + "%"
+            }, 500 ,function() {
+                $("#faux-progress", dialog_content).progressbar({value: val});
+                if (val === 100) {
+                    $(".ui-progressbar-value", dialog_content).addClass("success");
+                    $("#dialog").dialog("option", "title", that.config.messages.order_sent);
+                    $(".progress-sub-title", dialog_content).text(that.config.messages.ride_details);
+
+                }
+            });
         });
     },
     doJoin                  : function () {
@@ -451,8 +492,8 @@ var Registrator = Object.create({
             }, true, true)
         });
     },
-    openDialog              : function (validation_config) {
-        var config = $.extend(true, {}, this.config.dialog_config),
+    openDialog              : function (validation_config, dialog_config) {
+        var config = $.extend(true, {}, this.config.dialog_config, dialog_config),
             $dialog = $('#dialog');
         this.initValidator($('form:first', $dialog), validation_config);
         $dialog.dialog('option', config);

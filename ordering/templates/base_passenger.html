@@ -18,6 +18,7 @@
     $(document).ready(function() {
          Registrator.init({
              urls            : {
+                 error_form_template        : '{% url common.registration.get_error_form %}',
                  login_form_template        : '{% url common.registration.get_login_form %}',
                  reg_form_template          : '{% url common.registration.get_registration_form %}',
                  phone_form_template        : '{% url common.registration.get_phone_form %}',

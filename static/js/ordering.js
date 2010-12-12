@@ -175,7 +175,8 @@ var OrderingHelper = Object.create({
                             window.location.href = "/";
                         }, order_status.show_registration);
                     } else {
-                        alert("error: " + order_status.errors);
+                        Registrator.openErrorDialog(order_status.errors.title, order_status.errors.message);
+//                        alert("error: " + order_status.errors);
                     }
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {

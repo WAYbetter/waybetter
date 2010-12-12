@@ -1,0 +1,25 @@
+{% load i18n %}
+<script>
+    var form_config = {
+        dialog_config : {
+            title: "",
+            width: 427
+        },
+        urls: {
+            login: "{% url ordering.passenger_controller.login_passenger %}"
+        },
+        messages: {
+            enter_username: "{% trans 'Please enter your username' %}",
+            choose_password : "{% trans 'Please enter your password' %}",
+            valid_field: "{% trans 'OK' %}"
+
+        }
+    };
+    $(function() {
+        $(".ui-dialog-title").addClass("error-dialog")
+    });
+</script>
+
+<div id="content">
+
+</div>

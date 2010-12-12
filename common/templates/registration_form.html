@@ -3,7 +3,7 @@
 <script>
     var form_config = {
         dialog_config : {
-            title: "",
+            title: "{% trans 'Join Us For a WAYbetter Experience' %}",
             width: 427
         },
         urls: {
@@ -16,6 +16,9 @@
             choose_password : "{% trans 'Choose a password' %}",
             password_again  : "{% trans 'Re-enter your password' %}",
             checking_user   : "{% trans 'Checking...' %}",
+            sending_order   : "{% trans 'SENDING ORDER...' %}",
+            order_sent      : "{% trans 'ORDER SENT' %}",
+            ride_details    : "{% trans 'An SMS with ride details will be sent soon' %}", 
             valid_field     : "{% trans 'OK' %}"
         },
         error_messages: {
@@ -25,30 +28,6 @@
 
         }
     };
-    var values = [12, 35, 64, 100];
-    var timer = $("#faux-progress").progressbar({value: 0});
-    timer.oneTime(100, 'start_animation', function() { // start the animation
-        for (var i = 0; i < values.length; i++) {
-            var val = values[i];
-            setProgressBar(val);
-        }
-    });
-
-    function setProgressBar(val) {
-        timer.oneTime(700, function() {
-            $(".ui-progressbar-value").animate({
-                width: val + "%"
-            }, 500 ,function() {
-                $("#faux-progress").progressbar({value: val});
-                if (val === 100) {
-                    $(".ui-progressbar-value").addClass("success");
-                    $(".progress-header").text("{% trans 'Order Sent' %}");
-                    $(".progress-sub-title").text("{% trans 'An SMS with ride details will be sent soon' %}")
-
-                }
-            });
-        });
-    }
 
     $(function () {
         $("#registration_form input[type!=checkbox]").focus(function() {
@@ -57,7 +36,6 @@
     });
 </script>
 <div id="registration_header">
-    <h1 class="progress-header">{% trans 'Sending...' %}</h1>
     <div id="faux-progress"></div>
     <div class="progress-sub-title">{% trans 'Looking for taxi stations in your area...' %}</div>
 </div>

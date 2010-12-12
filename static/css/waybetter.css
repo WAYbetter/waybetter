@@ -441,9 +441,22 @@ ul.ui-tabs-nav .ui-state-hover a {
 }
 
 /**************** Registration Form ***************/
+
+.ui-widget-overlay {
+	background: #666 repeat-x 50% 50%;
+	opacity: 0.85;
+}
+
+.ui-dialog {
+	-webkit-box-shadow:  4px 8px 32px #464646;
+	-moz-box-shadow: 4px 8px 32px #464646;
+    	box-shadow: 4px 8px 32px #464646;
+	border: 3px solid #a0cdf4;
+	
+}
 #dialog {
     overflow: visible;
-    margin-top: -30px;
+    /*margin-top: -30px;*/
     font-size: 13px;
     padding: 10px 22px;
 }
@@ -549,9 +562,6 @@ ul.ui-tabs-nav .ui-state-hover a {
     margin-left: 10px;
 }
 
-.title_link {
-    font-weight: bold;
-}
 
 .input-helper {
     -moz-border-radius: 0 5px 5px 0;
@@ -662,23 +672,35 @@ ul.ui-tabs-nav .ui-state-hover a {
      color: #1a7b18 !important;
 }
 
-
-#title {
-    width: 97%;
+.title_link {
+    font-weight: bold;
+}
+.ui-dialog-titlebar .ui-dialog-titlebar-close .ui-icon-closethick:hover {
+    background-image: url(/static/css/custom-theme/images/ui-icons_454545_256x240.png);
+}
+.ui-dialog-titlebar {
+    height: 15px;
+}
+.ui-dialog-title span {
+    font-size: 14px;
+    font-weight: normal;
+    font-style: italic;
 }
 
-#title h1 {
-    float: left;
+#dialog #content {
+    font-size: 18px;
 }
-#title span {
-    float: right;
-    font-size: small;
+
+#dialog #content .bold {
+    font-weight: bold;
+    margin-top: 1em;
 }
-#title h2 {
-    clear:both;
-    font-size: 21px;
-    padding-top: 10px;
+.ui-dialog-title.error-dialog {
+    color: #ba3636;
+    font-size: 20px;
 }
+
+
 
 /** buttons **/
 input::-moz-focus-inner, button::-moz-focus-inner {

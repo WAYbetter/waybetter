@@ -4,8 +4,10 @@ from django.conf import settings
 
 FACEBOOK_APP_ID = getattr(settings, 'FACEBOOK_APP_ID', '')
 def get_login_form(request):
-
     return render_to_response('login_form.html', {'FACEBOOK_APP_ID': FACEBOOK_APP_ID})
+
+def get_error_form(request):
+    return render_to_response('error_form.html')
 
 def get_registration_form(request):
     return render_to_response('registration_form.html', {'FACEBOOK_APP_ID': FACEBOOK_APP_ID})
