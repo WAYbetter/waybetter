@@ -284,8 +284,15 @@ var OrderingHelper = Object.create({
 
         });
         if (that.map_markers.to && that.map_markers.from) {
+
+            // make room for estimation box
+            var delta = (bounds.ne.y - bounds.sw.y) * 0.5;
+            var newPoint = new telmap.maps.LatLng(bounds.ne.y + delta, bounds.ne.x);
+            bounds.extend(newPoint);
+
             map.fitBounds(bounds);
             map.panToBounds(bounds);
+
         } else {
             map.panTo(bounds.getCenter());
         }
@@ -321,7 +328,7 @@ var OrderingHelper = Object.create({
     },
     renderRideEstimatedCost:    function (data) {
         var label = data.label + " ";
-        label += data.estimated_cost + data.currency;
+        label += data.currency + data.estimated_cost;
         label += " (" + data.estimated_duration + ")";
         $("#ride_cost_estimate").html(label).show();
     },

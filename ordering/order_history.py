@@ -10,9 +10,9 @@ ORDER_HISTORY_COLUMNS = ["Date", "From", "To", "Station", "Passenger Rating"]
 ORDER_HISTORY_COLUMN_NAMES = [ugettext(s) for s in ORDER_HISTORY_COLUMNS]
 ORDER_HISTORY_FIELDS = ["create_date", "from_raw", "to_raw", "station_name", "passenger_rating"]
 
-STATION_ORDER_HISTORY_COLUMNS = ["Date", "From", "To", "Passenger Phone", "Passenger Rating"]
+STATION_ORDER_HISTORY_COLUMNS = ["Date", "From", "To", "Passenger Phone"]
 STATION_ORDER_HISTORY_COLUMN_NAMES = [ugettext(s) for s in STATION_ORDER_HISTORY_COLUMNS]
-STATION_ORDER_HISTORY_FIELDS = ["create_date", "from_raw", "to_raw", "passenger_phone", "passenger_rating"]
+STATION_ORDER_HISTORY_FIELDS = ["create_date", "from_raw", "to_raw", "passenger_phone"]
 
 
 

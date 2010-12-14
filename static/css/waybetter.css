@@ -372,52 +372,7 @@ img.tab_icon {
 }
 
 /************* Orders History ****************/
-#history_header_label_1 {
-    padding-left: 25px;
-    background: url(../img/ride_details.png) -3px 2px no-repeat;
-}
-#history_header_label_2 {
-    padding-left: 25px;
-    background: url(../img/ride_details.png) -3px -14px no-repeat;
-}
-#history_header_label_3 {}
-#history_header_label_4 {}
-#orders_history_grid table {
-    width: 100%;
-    border-top: 2px solid #a8d5fd;
-    border-bottom: 2px solid #a8d5fd;
-    border-spacing: 0 3px;
-
-}
-#orders_history_grid table tr:nth-child(odd) {
-    background-color: white;
-}
-
-#orders_history_grid table tr:nth-child(even) {
-    background-color: #e7f1fa;
-}
-#orders_history_grid table th, #orders_history_grid table td {
-    padding: 6px 2px 2px;
-    color: #5b5b5b;
-    text-shadow: 1px 1px 1px white;
-    font-size: 14px;
-}
-#orders_history_grid table th {
-    font-weight: bold;
-}
-#orders_history_grid table th a {
-    text-decoration: none;
-}
-
-#orders_history_grid .select-address {
-    background-color: #a6eda6;
-    cursor: pointer;
-}
-
-#orders_history_grid .select-address:hover {
-    background-color: #679467;
-    color: white;
-}
+@import url(order_history.css);
 
 
 /* jQuery UI Tabs Hacking */
@@ -455,9 +410,9 @@ ul.ui-tabs-nav .ui-state-hover a {
     padding:10px 10px 10px 35px;
     background: rgba(0, 0, 0, 0.7) url("../img/ride_details.png") 7px -36px no-repeat;
     color:white;
-    -moz-border-radius:10px;
-    -webkit-border-radius:10px;
-    border-radius:10px;
+    -moz-border-radius:5px;
+    -webkit-border-radius:5px;
+    border-radius:5px;
 }
 
 /**************** Registration Form ***************/

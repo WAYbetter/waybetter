@@ -1,21 +1,23 @@
-{% extends "base.html" %}
+
 {% load i18n %}
 
-{% block extrastyle %}
-    {{ block.super }}
-    <style type="text/css">
-        body {
-            background-image: none;
-        }
-    </style>
+{% if not is_popup %}
+    {% block extrastyle %}
+        {{ block.super }}
+        <link rel="stylesheet" type="text/css" href="/static/css/order_history.css" />
+    {% endblock %}
+{% endif %}
 
-
-{% endblock %}
-
-{% block extrahead %}
-    {{ block.super }}
+{% if not is_popup %}
+    {% block extrahead %}
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.timers-1.2.min.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.ui.stars.min.js"></script>
+    <script type="text/javascript" src="/static/js/utils.js"></script>
     <script type="text/javascript" src="/static/js/ordering.js"></script>
-{% endblock  %}
+    {% endblock  %}
+{% endif %}
 {% block content %}
 <div>
 	<input type="text" id="keywords" />
