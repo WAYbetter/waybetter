@@ -33,7 +33,7 @@ ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, gettext("pending")),
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
-MAX_STATION_DISTANCE_KM = 30
+MAX_STATION_DISTANCE_KM = 10
 
 class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
@@ -288,7 +288,7 @@ class Order(models.Model):
 
 
 class OrderAssignment(models.Model):
-    ORDER_ASSIGNMENT_TIMEOUT = 11 # seconds 
+    ORDER_ASSIGNMENT_TIMEOUT = 30 # seconds 
 
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")
     work_station = models.ForeignKey(WorkStation, verbose_name=_("work station"), related_name="assignments")
