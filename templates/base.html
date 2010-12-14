@@ -5,9 +5,10 @@
 <!-- link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/themes/base/jquery-ui.css" type="text/css" media="all" /-->
 <link rel="stylesheet" href="/static/css/custom-theme/jquery-ui-1.8.4.custom.css" type="text/css" media="all" />
 <link rel="stylesheet" href="/static/css/jquery.ui.stars.css" type="text/css" media="all" />
-<link rel="stylesheet" type="text/css" href="/static/css/waybetter.css" />
 
-{% block extrastyle %}{% endblock %}
+{% block extrastyle %}
+    <link rel="stylesheet" type="text/css" href="/static/css/waybetter.css" />
+{% endblock %}
 
     <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}css/ie.css{% endblock %}" /><![endif]-->
 {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}css/rtl.css{% endblock %}" />{% endif %}

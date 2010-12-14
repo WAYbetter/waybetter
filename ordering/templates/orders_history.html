@@ -1,5 +1,22 @@
+{% extends "base.html" %}
 {% load i18n %}
 
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        body {
+            background-image: none;
+        }
+    </style>
+
+
+{% endblock %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script type="text/javascript" src="/static/js/ordering.js"></script>
+{% endblock  %}
+{% block content %}
 <div>
 	<input type="text" id="keywords" />
     <input type="button" id='search_button' class="wb_button blue" value="{% trans 'Search' %}"/>
@@ -29,3 +46,4 @@
 {% endautoescape %}
 </script>
 
+{% endblock content %}
