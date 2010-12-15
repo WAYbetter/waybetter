@@ -4,7 +4,7 @@ from django.conf import settings
 urlpatterns = patterns('',
     (r'^$', 'ordering.passenger_controller.passenger_home'),
     (r'^signup_form.js$', 'ordering.passenger_controller.get_signup_form'),
-    (r'^workstation/$', 'ordering.station_controller.workstation_home'),
+    (r'^workstation/(?P<workstation_id>\d+)$', 'ordering.station_controller.workstation_home'),
     (r'^orders/(?P<order_id>\d+)$', 'ordering.order_manager.order_status'),
     (r'^book_order/$', 'ordering.order_manager.book_order'),
     (r'^orders/history/$', 'ordering.passenger_controller.get_passenger_orders_history'),

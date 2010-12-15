@@ -179,7 +179,7 @@ class WorkStation(models.Model):
         if self.installer_url is None or len(self.installer_url) == 0:
             try:
                 url = "%sbuild_installer/" % settings.BUILD_SERVICE_BASE_URL
-                data = {"token": self.token}
+                data = {"token": self.token, "workstation_id": self.id}
                 params = urllib.urlencode(data)
                 installer_url = urllib2.urlopen(url, params).read()
                 self.installer_url = installer_url

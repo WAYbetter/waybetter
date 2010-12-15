@@ -16,9 +16,6 @@
             setStationDetails("{{ station_name }}", {{ station_rating }});
         });
 
-
-
-
         function setAcceptOrders(status) {
             $.post(
                     "{% url ordering.station_controller.update_online_status %}",
