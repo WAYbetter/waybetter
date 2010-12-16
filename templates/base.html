@@ -16,7 +16,13 @@
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
 <script type="text/javascript" src="/static/js/jquery.timers-1.2.min.js"></script>
-
+<script type="text/javascript">
+    $(function() {
+        $("#banner > h1").click(function() {
+            window.location = "/";
+        })
+    })
+</script>
 
 {% block extrahead %}
 <script type="text/javascript" src="/static/js/jquery.ui.stars.min.js"></script>
@@ -38,7 +44,7 @@
     <div id="header-container">
         <div id="header">
             <div id="banner">
-                <h1>{% trans 'WAYbetter' %}</h1>
+                <a href="/">{% trans 'WAYbetter' %}</a>
                 <h3>{% trans 'The best way to get a taxi (FREE)' %}</h3>
             </div>
             <div id="user_tools">

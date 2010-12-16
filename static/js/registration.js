@@ -285,7 +285,7 @@ var Registrator = Object.create({
                 showErrors: function(errorMap, errorList) {
                     var form = $("form", dialog_content)[0];
                     that.setHelperButton(this, 'local_phone', function() {
-                        that.sendSMS.call(that, form);
+                        that.sendSMS.call(that, form, $('#verification_code', dialog_content));
                     });
 
                     that.setHelperButton(this, 'verification_code', function() {
@@ -334,11 +334,15 @@ var Registrator = Object.create({
                }),
             $phone_input = $('form input#local_phone', dialog_content).focus(function() {
                 $(this).next().removeClass("code-sent");                
+            }).keyup(function(e) {
+                if (e.keyCode == '13') {
+                    $(this).next().click();
+                }
             }),
             $login_link = $("#login_link", dialog_content).click(function() {
                 that.openLoginDialog();
                 return false;
-            });
+            }),
             $verification_code_input = $('form input#verification_code', dialog_content)
                 .unbind('keyup')
                 .bind('keyup', function(e) {
@@ -347,7 +351,9 @@ var Registrator = Object.create({
                     } else {
                         $finish_button.button("disable");
                     }
-
+                    if (e.keyCode == '13') {
+                        $(this).next().click();
+                    }
             });
 
             that.openDialog.call(that, validation_config);
@@ -526,15 +532,15 @@ var Registrator = Object.create({
         var that = this,
             $button = $('#send_sms_verification').button('disable');
         if ( this.validator.element('#local_phone') ) {
-            $("input[name=local_phone]").next().removeClass("sms-button").addClass("input-helper").addClass("sending-code").children("div").text(that.config.messages.sending_code);
+            jQuery("input[name=local_phone]").next().removeClass("sms-button").addClass("input-helper").addClass("sending-code").children("div").text(that.config.messages.sending_code);
             
             $.ajax({
                 url :that.config.urls.send_sms,
                 type : 'post',
                 data : $(form).serialize(),
                 success : function (response) {
-                    $("input[name=local_phone]").next().removeClass("sending-code").addClass("code-sent").children("div").text(that.config.messages.code_sent);
-                    $('#verification_code').removeAttr('disabled').focus();
+                    jQuery("input[name=local_phone]").next().removeClass("sending-code").addClass("code-sent").children("div").text(that.config.messages.code_sent);
+                    jQuery("#verification_code").removeAttr('disabled').focus();
                 },
                 error :function (XMLHttpRequest, textStatus, errorThrown) {
                     alert('error: ' + XMLHttpRequest.responseText);
@@ -546,6 +552,9 @@ var Registrator = Object.create({
     setHelperButton         : function (context, id, callable) {
         if (context.currentElements.length && context.currentElements[0].id == id) {
             var $elem = $("div[htmlfor=" + id +"]").text("").parent();
+            if ($elem.hasClass("sending-code")) { // skip if we are during sms sending
+                return;
+            }
             if (context.errorList.length == 0) {
                 $elem.addClass("sms-button").unbind("click").bind("click", callable);
             } else {
