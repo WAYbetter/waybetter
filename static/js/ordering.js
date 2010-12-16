@@ -2,7 +2,7 @@
 $.widget("custom.catcomplete", $.ui.autocomplete, {
     options: {
         minLength: 2,
-        delay: 400
+        delay: 100
     },
     _renderMenu: function(ul, items) {
         var self = this,
@@ -106,6 +106,8 @@ var OrderingHelper = Object.create({
         $("input:text").each(function(i, element) {
             var address_type = element.name.split("_")[0];
             $(element).catcomplete({
+                cacheLength: 1,
+                mustMatch: true,
                 source: function (request, response) {
                     var params = { "term":request.term };  //TODO_WB: add max_size parameter, when "More..." is requested
                     $.ajax({
