@@ -336,7 +336,7 @@ var Registrator = Object.create({
                 $(this).next().removeClass("code-sent");                
             }).keyup(function(e) {
                 if (e.keyCode == '13') {
-                    $(this).next().click();
+                    $(this).next().mouseup();
                 }
             }),
             $login_link = $("#login_link", dialog_content).click(function() {
@@ -352,7 +352,7 @@ var Registrator = Object.create({
                         $finish_button.button("disable");
                     }
                     if (e.keyCode == '13') {
-                        $(this).next().click();
+                        $(this).next().mouseup();
                     }
             });
 
@@ -556,9 +556,10 @@ var Registrator = Object.create({
                 return;
             }
             if (context.errorList.length == 0) {
-                $elem.addClass("sms-button").unbind("click").bind("click", callable);
+
+                $elem.addClass("sms-button").unbind("mouseup").bind("mouseup", callable);
             } else {
-                $elem.removeClass("sms-button").unbind("click");
+                $elem.removeClass("sms-button").unbind("mouseup");
             }
         }
     }
