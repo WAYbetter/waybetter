@@ -220,7 +220,7 @@ var Registrator = Object.create({
                     }
                 }
             },
-            $button = $('form button', dialog_content).unbind('click').bind('click', function (e) {
+            $button = $('form button', dialog_content).unbind('mouseup').bind('mouseup', function (e) {
                     that.doLogin.call(that, this.form);
                     return false;
             }),
