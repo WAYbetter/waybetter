@@ -253,6 +253,15 @@ var Registrator = Object.create({
     },
     _openPhoneDialog         : function (extra_form_data) {
         var that = this;
+        // add custom validation method
+        $.validator.addMethod('ignoreNonDigits', function(val, elem) {
+            var new_val = val.split(/\D+/).join("");
+            if (new_val != val) {
+                jQuery(elem).val(new_val);
+            }
+            return $.validator.methods.required.call(this, new_val, elem);
+        });
+        
         this.getTemplate.call(this, 'phone', function (dialog_content) {
             var validation_config = {
                 errorClass: "inputError",
@@ -303,20 +312,20 @@ var Registrator = Object.create({
                         maxlength   : 4
                     },
                     local_phone: {
-                        required    : true,
-                        digits      : true,
-                        minlength   : 10,
-                        maxlength   : 11,
-                        remote      : that.config.urls.check_phone
+                        required        : true,
+                        ignoreNonDigits : true,
+                        minlength       : 10,
+                        maxlength       : 11,
+                        remote          : that.config.urls.check_phone
                     }
                 },
                 messages: {
                     local_phone: {
-                        required    : that.config.messages.enter_mobile,
-                        digits      : that.config.error_messages.only_digits,
-                        minlength   : that.config.messages.too_short,
-                        maxlength   : that.config.error_messages.too_long,
-                        remote      : that.config.error_messages.phone_taken
+                        ignoreNonDigits : that.config.messages.enter_mobile,
+                        required        : that.config.messages.enter_mobile,
+                        minlength       : that.config.messages.too_short,
+                        maxlength       : that.config.error_messages.too_long,
+                        remote          : that.config.error_messages.phone_taken
                     },
                     verification_code: {
                         required    : that.config.messages.enter_sms_code,
