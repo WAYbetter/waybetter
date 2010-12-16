@@ -348,10 +348,6 @@ var Registrator = Object.create({
                     $(this).next().mouseup();
                 }
             }),
-            $login_link = $("#login_link", dialog_content).click(function() {
-                that.openLoginDialog();
-                return false;
-            }),
             $verification_code_input = $('form input#verification_code', dialog_content)
                 .unbind('keyup')
                 .bind('keyup', function(e) {
@@ -364,7 +360,10 @@ var Registrator = Object.create({
                         $(this).next().mouseup();
                     }
             });
-
+            $(".login_link").live("mouseup", function() {
+                that.openLoginDialog();
+                return false;
+            });
             that.openDialog.call(that, validation_config);
             $phone_input.focus();
         });

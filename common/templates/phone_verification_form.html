@@ -6,7 +6,7 @@
 <script>
     var form_config = {
         dialog_config : {
-            title : "<span>{% trans 'Already Registered?' %} <a href='#' id=login_link class=title_link>{% trans 'Login' %}</a></span>",
+            title : "<span>{% trans 'Already Registered?' %} <a href='#' id=login_link class='title_link login_link'>{% trans 'Login' %}</a></span>",
             width: 450
         },
         urls: {
@@ -24,7 +24,7 @@
             too_short       : "{% trans 'Number too short' %}"
         },
         error_messages: {
-            phone_taken     : "{% trans 'Phone already in use. <a href=#>Login</a>' %}",
+            phone_taken     : "{% trans 'Phone already in use. <a href=# class=login_link>Login</a>' %}",
             too_long        : "{% trans 'Number too long' %}",
             only_digits     : "{% trans 'Only digits please' %}"
         }
