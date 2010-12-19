@@ -6,7 +6,7 @@
 <script>
     var form_config = {
         dialog_config : {
-            title : "<span>{% trans 'Already Registered?' %} <a href='#' id=login_link class='title_link login_link'>{% trans 'Login' %}</a></span>",
+        	title : "{% trans 'Activate Your Phone (Free)' %} ",
             width: 450
         },
         urls: {
@@ -35,7 +35,6 @@
          });
     });
 </script>
-<h2>{% trans 'Get ride details to your hands, via a <i>free</i> SMS!' %}</h2>
 <form id="phone_verification_form">
     <fieldset>
         <input type="hidden" name="country" value="{{ country_id }}" />
@@ -44,4 +43,5 @@
         <label for="verification_code">{% trans 'Enter SMS code' %}</label>
         <input name="verification_code" id="verification_code" type="text" disabled="disabled" />
     </fieldset>
+    <div class="sms_extra_form_line">{% trans 'Already Registered?' %} <a href='#' id=login_link class='title_link login_link'>{% trans 'Login' %}</a></div>
 </form>

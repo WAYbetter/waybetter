@@ -45,6 +45,7 @@ var Registrator = Object.create({
             sending_code            : '',
             finish                  : '',
             sms_ok                  : '',
+            thanks_for_registering  : '',
             too_short               : ''
 
         },
@@ -464,25 +465,28 @@ var Registrator = Object.create({
             });
             $("#registration", dialog_content).hide();
             if (! show_registration) {
-                $("#dialog").oneTime(7000, function() {
+                $("#dialog #ok").click(function() {
                     $("#dialog").dialog("close");
                     OrderHistoryHelper.loadHistory({});
                 });
+            } else {
+                $("#dialog #ok").hide();
+                $("#dialog").oneTime(2000, function() {
+                    $(".ui-dialog").animate(
+                        { height: "655px" },
+                        { duration: 200,
+                          easing:  "swing",
+                          complete: function() {
+                              $("#registration", dialog_content).fadeIn();
+                        }
+                    });
+                });
             }
             if (registration_only) {
+                dialog_config = { title: that.config.messages.thanks_for_registering };
                 $("#registration", dialog_content).show();
                 $("#registration_header", dialog_content).hide();
                 $("#registration > h1", dialog_content).hide();
-            } else {
-                dialog_config = { title: that.config.messages.sending_order}; 
-                var values = [12, 35, 64, 100];
-                var timer = $("#faux-progress", dialog_content).progressbar({value: 0});
-                timer.oneTime(100, 'start_animation', function() { // start the animation
-                    for (var i = 0; i < values.length; i++) {
-                        var val = values[i];
-                        that._setProgressBar(val, timer, dialog_content, show_registration);
-                    }
-                });
             }
             that.openDialog.call(that, validation_config, dialog_config);
         });
@@ -493,7 +497,6 @@ var Registrator = Object.create({
             $(".ui-progressbar-value", dialog_content).animate({
                 width: val + "%"
             }, 500 ,function() {
-                $("#faux-progress", dialog_content).progressbar({value: val});
                 if (val === 100) {
                     $(".ui-progressbar-value", dialog_content).addClass("success");
                     $("#dialog").dialog("option", "title", that.config.messages.order_sent);
@@ -501,18 +504,7 @@ var Registrator = Object.create({
                     $(".ui-dialog-title").addClass("success");
 
                     // animate dialog
-                    if (show_registration) {
-                        $("#dialog").oneTime(2000, function() {
-                            $(".ui-dialog").animate(
-                                { height: "525px" },
-                                { duration: 200,
-                                  easing:  "swing",
-                                  complete: function() {
-                                      $("#registration", dialog_content).fadeIn();
-                                }
-                            });
-                        });
-                    }
+
                 }
             });
         });

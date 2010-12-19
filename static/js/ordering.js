@@ -164,21 +164,20 @@ var OrderingHelper = Object.create({
             }
 
             $("#order_button").button("disable");
+
             $(this).ajaxSubmit({
                 dataType: "json",
                 complete: function() {
-                    that.validateForBooking();    
+                    that.validateForBooking();
                 },
                 success: function(order_status) {
                     clearError();
-                    if (order_status.status == "booked") {
-                        // show faux-progress
+                    if (order_status.status != "booked") {
+                        Registrator.openErrorDialog(order_status.errors.title, order_status.errors.message);
+                    } else {
                         Registrator.openRegistrationDialog(function() {
                             window.location.href = "/";
                         }, order_status.show_registration);
-                    } else {
-                        Registrator.openErrorDialog(order_status.errors.title, order_status.errors.message);
-//                        alert("error: " + order_status.errors);
                     }
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {

@@ -3,7 +3,7 @@
 <script>
     var form_config = {
         dialog_config : {
-            title: "{% trans 'Join Us For a WAYbetter Experience' %}",
+            title: "{% trans 'YOUR ORDER HAS BEEN RECEIVED' %}",
             width: 427
         },
         urls: {
@@ -11,15 +11,15 @@
             register        : "{% url ordering.passenger_controller.register_passenger %}"
         },
         messages: {
-            unique_username : "{% trans 'Enter a unique username' %}",
-            enter_email     : "{% trans 'Enter your email' %}",
-            choose_password : "{% trans 'Choose a password' %}",
-            password_again  : "{% trans 'Re-enter your password' %}",
-            checking_user   : "{% trans 'Checking...' %}",
-            sending_order   : "{% trans 'SENDING ORDER...' %}",
-            order_sent      : "{% trans 'ORDER SENT!' %}",
-            ride_details    : "{% trans 'An SMS with ride details will be sent soon' %}", 
-            valid_field     : "{% trans 'OK' %}"
+            unique_username         : "{% trans 'Enter a unique username' %}",
+            enter_email             : "{% trans 'Enter your email' %}",
+            choose_password         : "{% trans 'Choose a password' %}",
+            password_again          : "{% trans 'Re-enter your password' %}",
+            checking_user           : "{% trans 'Checking...' %}",
+            order_sent              : "{% trans 'YOUR ORDER HAS BEEN RECEIVED' %}",
+            thanks_for_registering  : "{% trans 'Join Us For a WAYbetter Experience' %}",
+            ride_details            : "{% trans 'An SMS with ride details will be sent soon' %}",
+            valid_field             : "{% trans 'OK' %}"
         },
         error_messages: {
             username_taken          : "{% trans 'Username is already taken' %}",
@@ -38,8 +38,8 @@
     });
 </script>
 <div id="registration_header">
-    <div id="faux-progress"></div>
-    <div class="progress-sub-title">{% trans 'Looking for taxi stations in your area...' %}</div>
+    <div class="progress-sub-title">{% trans 'An SMS with ride details will arrive shortly...' %}</div>
+     <button id="ok" class="wb_button blue">{% trans 'OK' %}</button>
 </div>
 <div id="registration">
 <h1>{% trans "In the meantime, join for better experience (free)" %}</h1>
