@@ -4,7 +4,254 @@
 {% block title %}
         {% trans "Workstation page" %}
 {% endblock title %}
+{% block extrastyle %}
+    <style type="text/css">
+    *  {
+		font-family: Arial, Calibri, sans-serif;
+		font-weight: Bold;
+	}
+    table {
+		border: 0 solid;
+		width: 330px;
+		border-spacing: 0;
+	}
+	tr {
+		background: -webkit-gradient(linear, left top, left bottom, from(#565656), to(#000000));
+		height: 44px;
+	}
+	td:first-child {
+		padding-left: 7px;
+	}
+	td:last-child {
+		padding-right: 7px;
+	}
+	td {
+		padding: 0 3px;
+	}
+	.button_txt {
+		color: black;
+		text-shadow: #e6e6e6 0px 1px 0px;
+	}
+	.button_bg {
+		background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f));
+		/* border: 1px solid  black; */
+		border-radius: 5px;
+		width: 36px;
+		height: 23px;
+		padding-top: 5px;
+		padding-left: 6px;
+	}
+	.button_bg:hover{
+		background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#b9b9b9));
+		cursor: pointer;
+		/* border: 1px solid  black; */
+	}
+	.button_bg:active{
+		color: white;
+		background: -webkit-gradient(linear, left top, left bottom, from(#929292), to(#929292));
+		text-shadow: none;
+		/* border: 1px solid  black; */
+	}
+	.reject_button_bg {
+		/* background-color: blue ; */
+		background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f)) ;
+		/* border: 1px solid  black; */
+		border-radius: 5px;
+		width: 23px;
+		height: 23px;
+		padding-top: 5px;
+		padding-left: 6px;
+	}
+	.reject_button_bg:hover{
+		background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#b9b9b9));
+		cursor: pointer;
+		/* border: 1px solid  black; */
+	}
+	.reject_button_bg:active{
+		color: white;
+		background: -webkit-gradient(linear, left top, left bottom, from(#929292), to(#929292));
+		text-shadow: none;
+		/* border: 1px solid  black; */
+	}
+	.reject_image{
+		background-image: url(/static/images/reject.png) ;
+		background-repeat: no-repeat;
+		background-position: center center;
+		width: 12px;
+		height: 12px;
+		padding-left: 5px;
+		padding-top: 7px;
+	}
+	input, textarea, select {
+		background-image: url(/static/images/combo02.png) ;
+		text-shadow: #e6e6e6 0px 1px 0px;
+		text-align: left;
+		padding-top: 2px;
+		font-size: 16px;
+		/* line-height: 0px; */
+		width: 85px;
+		height: 29px;
+		/* background: -webkit-gradient(linear, left top, left bottom,  from(#ececec), to(#8f8f8f)) ; */
+		-webkit-appearance: none;
+		/* -webkit-box-shadow: 1px 1px 1px #fff; */
+		-webkit-border-radius: 5px;
+		 border: none;
+	}
+	.combo:hover{
+		background-image: url(/static/images/combo_hover02.png) ;
+		cursor: pointer;
+	}
+	.from_address{
+		color: white;
+		text-align: left;
+	}
+	.from_address:hover{
+		color: yellow;
+		text-decoration:underline;
+		cursor: pointer;
+	}
+	.pb-row {
+		height: 7px;
+	}
+	.pb-row > td {
+		padding-bottom: 4px;
+		padding-top: 1px;
+		background: black;
+	}
+	.pb {
+		background: -webkit-gradient(linear, left top, left bottom, from(#000000), to(#615b5b));
+		 border: 1px solid  #1b1b1b;
+		border-radius: 3px;
+		height: 7px;
+		position: relative;
+	}
 
+	.pb > .ui-progressbar-value {
+		background: -webkit-gradient(
+			linear,
+			left bottom,
+			left top,
+			color-stop(0, rgb(154,20,20)),
+			color-stop(0.46, rgb(255,2,2)),
+			color-stop(0.55, rgb(248,94,94)),
+			color-stop(1, rgb(255,175,175))
+		);
+		position: absolute;
+		right: 0;
+		border-radius: 3px;
+		height: 7px;
+		width:30%;
+	}
+
+	.loader{
+		background-image: url(/static/images/loader3.gif) ;
+		background-repeat: no-repeat;
+		background-position: center center;
+		width:48px;
+		height: 48px;
+		padding-left:45px;
+	}
+
+	.sending{
+		color: white;
+		text-align: left;
+	}
+
+	.reject_sending{
+		background-image: url(/static/images/loader4.gif) ;
+		background-repeat: no-repeat;
+		background-position: center center;
+		width: 24px;
+		height: 24px;
+	}
+	.pb_green {
+		background: -webkit-gradient(linear, left top, left bottom, from(#000000), to(#615b5b));
+		 border: 1px solid  #1b1b1b;
+		border-radius: 3px;
+		height: 7px;
+		position: relative;
+	}
+
+	.pb_green > .ui-progressbar-value {
+	background: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0, rgb(71,153,20)),
+		color-stop(0.45, rgb(15,255,2)),
+		color-stop(0.55, rgb(112,248,94)),
+		color-stop(0.93, rgb(176,255,175))
+		);
+		position: absolute;
+		right: 0;
+		border-radius: 3px;
+		height: 7px;
+		width:30%;
+	}
+
+	.order_sent{
+		color: yellow;
+		text-align: left;
+	}
+
+	.pb_sent {
+		background: -webkit-gradient(linear, left top, left bottom, from(#000000), to(#615b5b));
+		 border: 1px solid  #1b1b1b;
+		border-radius: 3px;
+		height: 7px;
+		position: relative;
+	}
+
+	.pb_sent > .ui-progressbar-value {
+	background: -webkit-gradient(
+		linear,
+		left bottom,
+		left top,
+		color-stop(0, rgb(71,153,20)),
+		color-stop(0.45, rgb(15,255,2)),
+		color-stop(0.55, rgb(112,248,94)),
+		color-stop(0.93, rgb(176,255,175))
+		);
+		position: absolute;
+		right: 0;
+		border-radius: 3px;
+		height: 7px;
+		width:30%;
+	}
+	.finish_button_bg{
+		/* background-color: blue ; */
+		background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f)) ;
+		/* border: 1px solid  black; */
+		border-radius: 5px;
+		width: 23px;
+		height: 23px;
+		padding-top: 5px;
+		padding-left: 6px;
+	}
+	.finish_button_bg:hover{
+		background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#b9b9b9));
+		cursor: pointer;
+		/* border: 1px solid  black; */
+	}
+	.finish_button_bg:active{
+		color: white;
+		background: -webkit-gradient(linear, left top, left bottom, from(#929292), to(#929292));
+		text-shadow: none;
+		/* border: 1px solid  black; */
+	}
+	.sent_image{
+		background-image: url(/static/images/sent.png) ;
+		background-repeat: no-repeat;
+		background-position: center center;
+		width: 16px;
+		height: 16px;
+		padding-left: 0px;
+		padding-top: 2px;
+	}
+}
+</style>
+
+{% endblock extrastyle %}
 {% block content %}
 
     <script type="text/javascript">
@@ -91,7 +338,7 @@
                 pollServer("{% url ordering.station_controller.get_orders %}");
             }
         }
-        
+
         function restoreState() {
             $.ajax({
                 url: "{% url ordering.station_controller.get_workstation_orders %}",
@@ -106,7 +353,7 @@
             });
         }
 
-        
+
         function onOrder(incoming_orders) {
             clearError();
             if (incoming_orders) {
@@ -118,15 +365,7 @@
         }
 
         function initOrderTable() {
-            var order_table = $("<table></table>").attr('width', '80%')
-                .append($("<tr></tr>")
-{#                    .append($("<th></th>").append("{% trans 'Order ID' %}"))#}
-{#                    .append($("<th></th>").append("{% trans 'Status' %}"))#}
-                    .append($("<th></th>").append("{% trans 'From' %}"))
-                    .append($("<th></th>").append("{% trans 'To' %}"))
-                    .append($("<th></th>").attr('colspan', 5).append("{% trans 'Actions' %}"))
-                );
-
+            var order_table = $("<table></table>");
             $("#orders").empty().append(order_table);
         }
 
@@ -134,54 +373,64 @@
             if ($("#orders table").length == 0) {
                 initOrderTable();
             }
-            
-            var select = $("<select name='pickup_time'></select>").attr('id', 'pickup_time_for_' + order.pk);
+
+            var select = $("<select name='pickup_time' class='combo'></select>").attr('id', 'pickup_time_for_' + order.pk);
+            select.append($("<option>").val('').append("{% trans 'Define time' %}"));
            {% for n in pickup_times %}
             select.append($("<option>").val('{{ n }}').append("{{ n }} {% trans 'minutes' %}"));
            {% endfor %}
 
-            var send_button = $("<button></button").append('{% trans 'Send' %}').button().click(function() {
+            var send_button = $('<div class="button_txt button_bg" title="{% trans 'Send message to passenger' %}"></div>').text('{% trans 'Send' %}').click(function() {
                 acceptOrder(order.pk);
             });
 
-            var reject_button = $("<button></button").append('{% trans 'Reject' %}').button().click(function() {
+            var reject_button = $("<div class='reject_button_bg'><div class='reject_image'></div></div>").click(function() {
                 rejectOrder(order.pk);
             });
 
-            var progress_indicator = $("<span class='indicator'></span>").append("<img src='/static/img/indicator_small.gif'>").hide();
+            var progress_indicator = $("<div class='pb'></div>").progressbar({ value: 100 });
 
-            var timer = $("<div class='timer'></div>").progressbar({ value: 0 });
-            timer.everyTime(1000, function() {
-                var cur_value = timer.progressbar("value") / 100.0;
+            progress_indicator.everyTime(1000, function() {
+                var cur_value = progress_indicator.progressbar("value") / 100.0;
                 var increment = 1.0 / {{ timout_interval }};
-                timer.progressbar("value", (cur_value + increment) * 100);
-                if (timer.progressbar("value") >= 100) {
-                    rendered_order.fadeOut("normal", function() {
-                        rendered_order.remove();
+                progress_indicator.progressbar("value", (cur_value - increment) * 100);
+                if (progress_indicator.progressbar("value") < 0.1) {
+                    var actual_rows = rendered_order.add(rendered_order.next());
+                    actual_rows.fadeOut("normal", function() {
+                        actual_rows.remove();
                         handleRemoveRow();
                     });
                 }
             }, {{ timout_interval }});
-            
+
             var rendered_order = $("<tr class='order'></tr>").attr('id', order.pk)
+                    .append($("<td></td>").append(reject_button))
+                    .append($("<td class='from_address'></td>").append(order.fields.from_raw))
+                    .append($("<td></td>").append(select))
+                    .append($("<td></td>").append(send_button));
 //                .append($("<td></td>").append(order.pk))
 //                .append($("<td></td>").append('&nbsp;'))
-                .append($("<td></td>").append(order.fields.from_raw))
-                .append($("<td></td>").append(order.fields.to_raw))
-                .append($("<td></td>").append("{% trans 'Pickup in' %} ").append(select))
-                .append($("<td></td>").append(send_button))
-                .append($("<td></td>").append(reject_button))
-                .append($("<td></td>").append(timer))
-                .append($("<td></td>").append(progress_indicator));
+//                .append($("<td class='to_address'></td>").append(order.fields.to_raw))
 
-            $("#orders table").append(rendered_order);
+
+            var progress_bar = $("<tr class='pb-row'></tr>")
+                .append($("<td colspan=4></td>").append(progress_indicator));
+
+            $("#orders table").append(rendered_order).append(progress_bar);
             rendered_order.show().effect("highlight", {}, 1300);
 
             handleOrder();
         }
 
-        function acceptOrder(order_id) {
+        function setStationDetails(order_id) {
+            var order_row = $("#orders #" + order_id).show();
+
             $("#orders #" + order_id + " .indicator").show();
+
+        }
+
+        function acceptOrder(order_id) {
+            setStateSending(order_id);
             var pickup_time = $("#pickup_time_for_" + order_id).val();
             $.ajax({"url": "{% url ordering.station_controller.update_order_status %}", "type":"post", "data":{"status": "{{ accept }}", "pickup_time": pickup_time, "order_id": order_id},
                 "success": updateOrderCallback, "error": onError
@@ -197,8 +446,10 @@
 
         function updateOrderCallback(json) {
             var data = eval("(" + json + ")");
-            $("#orders #" + data.order_id).fadeOut("normal", function() {
-                $(this).remove();
+            var order_row  = $("#orders #" + data.order_id);
+            var actual_rows = order_row.add(order_row.next());
+            actual_rows.fadeOut("normal", function() {
+                actual_rows.remove();
                 handleRemoveRow();
             });
         }
@@ -247,12 +498,8 @@
                 alert(e);
             }
         }
-      
-    </script>
-    <div id ="accept_orders">
-        <input type="checkbox" name="accept_orders" value="Accept Orders" />  {% trans 'Accept Orders' %}
-    </div>
 
+    </script>
     <div id="orders">
         No orders yet...
     </div>

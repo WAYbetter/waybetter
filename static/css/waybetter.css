@@ -292,6 +292,7 @@ input.b_marker {
 input.a_marker.marker_disabled {
     background-position: 6px -111px;
 }
+
 input.b_marker.marker_disabled {
     background-position: 6px -72px;
 }
@@ -519,7 +520,7 @@ ul.ui-tabs-nav .ui-state-hover a {
 }
 #registration_form p {
     clear: both;
-    padding-top: 5px;
+    padding-top: 25px;
 }
 
 #join {
@@ -624,7 +625,9 @@ ul.ui-tabs-nav .ui-state-hover a {
 }
 
 #social_login {
-    margin-top: 15px;
+   margin-bottom: -12px;
+   margin-top: 12px;
+   width: 105%;
 }
 
 .sending-code {
@@ -662,6 +665,7 @@ ul.ui-tabs-nav .ui-state-hover a {
 	border-bottom-right-radius: 0px 0px;
 	border-top-left-radius: 5px 5px;
 	border-top-right-radius: 5px 5px;
+	padding-bottom: 10px;
  }
 
 .ui-dialog .ui-dialog-title {
@@ -689,7 +693,7 @@ ul.ui-tabs-nav .ui-state-hover a {
     margin-top: 1em;
 }
 .ui-dialog-title.error-dialog {
-    color: #ba3636;
+    color: white;
     font-size: 20px;
 }
 
@@ -698,12 +702,44 @@ ul.ui-tabs-nav .ui-state-hover a {
     font-size: 20px;
     width: 100%;
 }
-
+ 
 .ui-dialog-title.success {
     color: #0bda01;
 }
 
+#search_button.wb_button {
+	
+	font-family: Calibri, Arial, sans-serif;
+	font-size: 15px;
+	font-weight: bold;
+	text-shadow: 1px;
+	width: 80px;
+	border: none;
+	-moz-border-radius: 5px;
+   	 border-radius: 5px;
+   	 vertical-align: text-top;
+   	 padding: 6px 0;
+   	 text-align: center;
+   	 text-decoration: none;
+}
+
+#reset_button.wb_button {
+	font-family: Calibri, Arial, sans-serif;
+	font-size: 15px;
+	font-weight: bold;
+	text-shadow: 1px;
+	width: 80px;
+	border: none;
+	-moz-border-radius: 5px;
+	border-radius: 5px;
+	vertical-align: text-top;
+	padding: 6px 0;
+	text-align: center;
+	text-decoration: none;
+}
+
 /** buttons **/
+
 input::-moz-focus-inner, button::-moz-focus-inner {
     border: none;
 }
@@ -714,6 +750,8 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     text-shadow: 1px;
     width: 80px;
     border: none;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
     vertical-align: text-top;
     padding: 6px 0;
     text-align: center;

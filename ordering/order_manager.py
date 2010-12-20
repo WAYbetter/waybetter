@@ -66,7 +66,11 @@ def accept_order(order, pickup_time, station):
     order.save()
 
     send_sms(order.passenger.international_phone(),
-             _("Pickup at %s in %s minutes.\nStation: %s, %s" % (order.from_raw, pickup_time, station.name, station.phones.all()[0])))
+             _("Pickup at %(from)s in %(time)s minutes.\nStation: %(station_name)s, %(station_phone)s" %
+               { "from"             : order.from_raw,
+                 "time"             : pickup_time,
+                 "station_name"     : station.name,
+                 "station_phone"    : station.phones.all()[0] }))
 
 
 @passenger_required

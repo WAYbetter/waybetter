@@ -1,5 +1,4 @@
 #!/usr/bin/python
-# -*- coding: latin-1 -*-
 # This program is free software; you can redistribute it and/or modify
 # it under the terms of the GNU Lesser General Public License as published by the
 # Free Software Foundation; either version 3, or (at your option) any later
@@ -44,7 +43,7 @@ soap_namespaces = dict(
         )
 
 class SoapClient(object):
-    "Simple SOAP Client (símil PHP)"
+    "Simple SOAP Client"
 
     def __init__(self, location=None, action=None, namespace=None,
                  cert=None, trace=False, exceptions=True, proxy=None, ns=False,
