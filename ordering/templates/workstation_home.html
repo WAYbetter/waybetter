@@ -84,7 +84,7 @@
 	}
 	input, textarea, select {
 		background-image: url(/static/images/combo02.png) ;
-		text-shadow: #e6e6e6 0px 1px 0px;
+		text-shadow: #e6e6e6 0 1px 0;
 		text-align: left;
 		padding-top: 2px;
 		font-size: 16px;
@@ -218,7 +218,7 @@
 		height: 7px;
 		width:30%;
 	}
-	.finish_button_bg{
+	.finish_button_bg {
 		/* background-color: blue ; */
 		background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f)) ;
 		/* border: 1px solid  black; */
@@ -245,7 +245,7 @@
 		background-position: center center;
 		width: 16px;
 		height: 16px;
-		padding-left: 0px;
+		padding-left: 0;
 		padding-top: 2px;
 	}
 }
@@ -334,7 +334,8 @@
 
         function pollOrders() {
 //            if (polling_enabled) {
-            if (parentSandboxBridge && (parentSandboxBridge.is_online() || parentSandboxBridge.is_error())) {
+            // TODO_WB: remove polling_enabled from next line
+            if (polling_enabled || window.parentSandboxBridge && (parentSandboxBridge.is_online() || parentSandboxBridge.is_error())) {
                 pollServer("{% url ordering.station_controller.get_orders %}");
             }
         }
@@ -404,14 +405,10 @@
             }, {{ timout_interval }});
 
             var rendered_order = $("<tr class='order'></tr>").attr('id', order.pk)
-                    .append($("<td></td>").append(reject_button))
-                    .append($("<td class='from_address'></td>").append(order.fields.from_raw))
+                    .append($("<td></td>").append(send_button))
                     .append($("<td></td>").append(select))
-                    .append($("<td></td>").append(send_button));
-//                .append($("<td></td>").append(order.pk))
-//                .append($("<td></td>").append('&nbsp;'))
-//                .append($("<td class='to_address'></td>").append(order.fields.to_raw))
-
+                    .append($("<td class='from_address'></td>").append(order.fields.from_raw))
+                    .append($("<td></td>").append(reject_button));
 
             var progress_bar = $("<tr class='pb-row'></tr>")
                 .append($("<td colspan=4></td>").append(progress_indicator));
@@ -422,20 +419,51 @@
             handleOrder();
         }
 
-        function setStationDetails(order_id) {
-            var order_row = $("#orders #" + order_id).show();
+//        function setStationDetails(order_id) {
+//            var order_row = $("#orders #" + order_id).show();
+//
+//            $("#orders #" + order_id + " .indicator").show();
+//
+//        }
 
-            $("#orders #" + order_id + " .indicator").show();
-
+        function setStateSending(order_id) {
+            var order_row = $("#orders #" + order_id);
+            $(order_row.children()[0]).empty().append("<div class='sending'>{% trans 'Sending...' %}</div>");
+            $(order_row.children()[1]).empty().append("<div class='loader'></div>");
+            $(order_row.children()[3]).empty().append("<div class='reject_sending'></div>");
+            order_row.next().hide();
         }
 
+        function setStateSent(data) {
+            var order_row = $("#orders #" + data.order_id);
+            $(order_row.children()[0]).empty().append("<div class='button_txt button_bg'>{% trans 'Close' %}</div>").click(function() {
+                removeOrderRow(data.order_id);
+            });
+            $(order_row.children()[1]).empty().append($("<div class='order_sent'></div>").text(data.pickup_message));
+            $(order_row.children()[3]).empty().append("<div class='finish_button_bg' title='{% trans 'End' %}'><div class='sent_image'></div></div>").click(function() {
+                removeOrderRow(data.order_id);
+            });
+//            order_row.next().find("div").removeClass(function() { $(this).attr('class')}).addClass("pb_sent");
+            order_row.next().hide();
+        }
+        function removeOrderRow(order_id) {
+            var order_row  = $("#orders #" + order_id);
+            var actual_rows = order_row.add(order_row.next());
+            actual_rows.fadeOut("normal", function() {
+                actual_rows.remove();
+                handleRemoveRow();
+            });
+
+            
+        }
         function acceptOrder(order_id) {
-            setStateSending(order_id);
             var pickup_time = $("#pickup_time_for_" + order_id).val();
+            setStateSending(order_id);
             $.ajax({"url": "{% url ordering.station_controller.update_order_status %}", "type":"post", "data":{"status": "{{ accept }}", "pickup_time": pickup_time, "order_id": order_id},
                 "success": updateOrderCallback, "error": onError
             });
         }
+
 
         function rejectOrder(order_id) {
             $("#orders #" + order_id + " .indicator").show();
@@ -446,17 +474,17 @@
 
         function updateOrderCallback(json) {
             var data = eval("(" + json + ")");
-            var order_row  = $("#orders #" + data.order_id);
-            var actual_rows = order_row.add(order_row.next());
-            actual_rows.fadeOut("normal", function() {
-                actual_rows.remove();
-                handleRemoveRow();
-            });
+            if (data.order_status == "stale") {
+                removeOrderRow(data.orde_id);
+            } else {
+                setStateSent(data);
+            }
         }
 
         function handleOrder() {
             try {
-                parentSandboxBridge.onIncomingOrder();
+                if (window.parentSandboxBridge)
+                    parentSandboxBridge.onIncomingOrder();
             }
             catch (e) {
                 alert(e);
@@ -465,7 +493,8 @@
 
         function handleRemoveRow() {
             try {
-                parentSandboxBridge.removeRow();
+                if (window.parentSandboxBridge)
+                    parentSandboxBridge.removeRow();
             }
             catch (e) {
                 alert(e);
@@ -474,7 +503,8 @@
 
         function handleAddRow() {
             try {
-                parentSandboxBridge.addRow();
+                if (window.parentSandboxBridge)
+                    parentSandboxBridge.addRow();
             }
             catch (e) {
                 alert(e);
@@ -483,7 +513,8 @@
 
         function resizeContainer(nrows) {
             try {
-                parentSandboxBridge.resizeWindow(nrows);
+                if (window.parentSandboxBridge)
+                    parentSandboxBridge.resizeWindow(nrows);
             }
             catch (e) {
                 alert(e);
@@ -492,7 +523,8 @@
 
         function setStationDetails(name, rating) {
             try {
-                parentSandboxBridge.setStationDetails(name, rating);
+                if (window.parentSandboxBridge)
+                    parentSandboxBridge.setStationDetails(name, rating);
             }
             catch (e) {
                 alert(e);
