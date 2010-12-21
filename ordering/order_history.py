@@ -14,8 +14,6 @@ STATION_ORDER_HISTORY_COLUMNS = ["Date", "From", "To", "Passenger Phone"]
 STATION_ORDER_HISTORY_COLUMN_NAMES = [ugettext(s) for s in STATION_ORDER_HISTORY_COLUMNS]
 STATION_ORDER_HISTORY_FIELDS = ["create_date", "from_raw", "to_raw", "passenger_phone"]
 
-
-
 def get_orders_history(passenger, page=1, keywords=None, sort_by=None, sort_dir=None):
     query = Order.objects.filter(passenger=passenger)
     return get_orders_history_data(query, ORDER_HISTORY_COLUMNS, ORDER_HISTORY_FIELDS,
