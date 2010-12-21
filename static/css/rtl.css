@@ -311,7 +311,7 @@ button.order_button {
     box-shadow: none;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
-    background: url("../img/order_button.png") right top no-repeat;
+    background: url("../images/order_button_he.png") right top no-repeat;
 }
 button.order_button.hover, button.order_button:hover {
     background-position: 0 -53px;
@@ -491,8 +491,8 @@ ul.ui-tabs-nav .ui-state-hover a {
 #dialog input[type=text], #dialog input[type=password] {
     padding-right: 10px;
     height: 45px;
-    -moz-border-radius: 5px 5px 0 0;
-    border-radius: 5px 5px 0 0;
+    -moz-border-radius: 0 5px 5px  0;
+    border-radius: 0 5px 5px  0;
     width: 180px;
     float: right;
     -moz-box-shadow:none;
@@ -553,8 +553,8 @@ ul.ui-tabs-nav .ui-state-hover a {
 
 
 .input-helper {
-    -moz-border-radius: 0 0 5px 5px;
-    border-radius: 0 0 5px 5px;
+    -moz-border-radius:  5px 0 0 5px ;
+    border-radius: 5px 0 0 5px ;
     background-color: #f3f3f3;
     border: 1px solid #cbcbcb;
     border-right: none;
@@ -566,19 +566,19 @@ ul.ui-tabs-nav .ui-state-hover a {
     padding-left: 10px;
     padding-bottom: 10px;
     padding-right: 18px;
-    background-image: url(/static/images/small_arrow.png);
+    background-image: url(/static/images/small_arrow_he.png);
     background-repeat: no-repeat;
-    background-position: 12px 18px;
+    background-position: 91% 18px;
 }
 
 .input-helper.red {
     background-image: url(/static/images/small_error.gif);
-    background-position: 9px 15px;
+    background-position: 91% 15px;
 }
 
 .input-helper.green {
     background-image: url(/static/images/small_ok.gif);
-    background-position: 9px 15px;
+    background-position: 91% 15px;
 }
 
 .input-helper.green > div {
@@ -652,6 +652,8 @@ ul.ui-tabs-nav .ui-state-hover a {
    margin-bottom: -12px;
    margin-top: 12px;
    width: 105%;
+   position: relative;
+left: 20px;
 }
 
 .sending-code {
