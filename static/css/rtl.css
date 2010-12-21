@@ -248,7 +248,7 @@ a.input_history_helper:hover {
 }
 #map_overlay_left {
     position: absolute;
-    right: 0;
+    left: 0;
     top: 0;
     height: 250px;
     width: 3px;
@@ -257,6 +257,8 @@ a.input_history_helper:hover {
     -webkit-box-shadow:inset 2px 2px 2px #2a2a2a;
     box-shadow:inset 2px 2px 2px #2a2a2a;
 }
+
+
 #map_overlay_top {
     position: absolute;
     right: 0;
@@ -383,7 +385,6 @@ img.tab_icon {
 .ui-tabs .ui-tabs-nav li a 
 {
     float: right;
-  
     text-decoration: none;
 }
 
@@ -391,11 +392,15 @@ img.tab_icon {
 
 #history_header_label_1 
 {
-
-background: url(../img/ride_details.png) 35px 2px no-repeat;
+    background: url(../img/ride_details.png) right 2px no-repeat;
+    padding-right:25px;
 }
 
-
+#history_header_label_2
+{
+    background: url(../img/ride_details.png) right -14px no-repeat;
+    padding-right:25px;
+}
 
 /* jQuery UI Tabs Hacking */
 ul.ui-tabs-nav li.ui-state-default {
@@ -430,7 +435,7 @@ ul.ui-tabs-nav .ui-state-hover a {
     top: 0;
     margin:15px 0 0 13px;
     padding:10px 35px 10px 10px;
-    background: rgba(0, 0, 0, 0.7) url("../img/ride_details.png") 237px -36px no-repeat;
+    background: rgba(0, 0, 0, 0.7) url("../img/ride_details.png") 97% -36px no-repeat;
     color:white;
     -moz-border-radius:5px;
     -webkit-border-radius:5px;
@@ -900,4 +905,16 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 
 .gold:active, .gold:disabled {
     background: #cba139;
+}
+
+.stars-wrapper
+{
+    float:right;
+ 
+}
+
+.ui-dialog .ui-dialog-titlebar-close 
+{
+    right:auto;
+    left: .3em;
 }
