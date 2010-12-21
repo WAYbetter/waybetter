@@ -12,7 +12,7 @@
 	}
     table {
 		border: 0 solid;
-		width: 330px;
+		width: 320px;
 		border-spacing: 0;
 	}
 	tr {
@@ -30,12 +30,15 @@
 	}
 	.button_txt {
 		color: black;
-		text-shadow: #e6e6e6 0px 1px 0px;
+		text-shadow: #e6e6e6 0 1px 0;
 	}
+    .button_txt:disabled {
+        color: gray;
+    }
 	.button_bg {
 		background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f));
 		/* border: 1px solid  black; */
-		border-radius: 5px;
+		-webkit-border-radius: 5px;
 		width: 36px;
 		height: 23px;
 		padding-top: 5px;
@@ -56,7 +59,7 @@
 		/* background-color: blue ; */
 		background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f)) ;
 		/* border: 1px solid  black; */
-		border-radius: 5px;
+		-webkit-border-radius: 5px;
 		width: 23px;
 		height: 23px;
 		padding-top: 5px;
@@ -85,10 +88,10 @@
 	input, textarea, select {
 		background-image: url(/static/images/combo02.png) ;
 		text-shadow: #e6e6e6 0 1px 0;
-		text-align: left;
+		text-align: right;
 		padding-top: 2px;
+        padding-left: 21px;
 		font-size: 16px;
-		/* line-height: 0px; */
 		width: 85px;
 		height: 29px;
 		/* background: -webkit-gradient(linear, left top, left bottom,  from(#ececec), to(#8f8f8f)) ; */
@@ -120,8 +123,8 @@
 	}
 	.pb {
 		background: -webkit-gradient(linear, left top, left bottom, from(#000000), to(#615b5b));
-		 border: 1px solid  #1b1b1b;
-		border-radius: 3px;
+		border: 1px solid  #1b1b1b;
+		-webkit-border-radius: 3px;
 		height: 7px;
 		position: relative;
 	}
@@ -138,7 +141,7 @@
 		);
 		position: absolute;
 		right: 0;
-		border-radius: 3px;
+		-webkit-border-radius: 3px;
 		height: 7px;
 		width:30%;
 	}
@@ -166,8 +169,8 @@
 	}
 	.pb_green {
 		background: -webkit-gradient(linear, left top, left bottom, from(#000000), to(#615b5b));
-		 border: 1px solid  #1b1b1b;
-		border-radius: 3px;
+		border: 1px solid  #1b1b1b;
+		-webkit-border-radius: 3px;
 		height: 7px;
 		position: relative;
 	}
@@ -184,7 +187,7 @@
 		);
 		position: absolute;
 		right: 0;
-		border-radius: 3px;
+		-webkit-border-radius: 3px;
 		height: 7px;
 		width:30%;
 	}
@@ -196,8 +199,8 @@
 
 	.pb_sent {
 		background: -webkit-gradient(linear, left top, left bottom, from(#000000), to(#615b5b));
-		 border: 1px solid  #1b1b1b;
-		border-radius: 3px;
+		border: 1px solid  #1b1b1b;
+		-webkit-border-radius: 3px;
 		height: 7px;
 		position: relative;
 	}
@@ -214,7 +217,7 @@
 		);
 		position: absolute;
 		right: 0;
-		border-radius: 3px;
+		-webkit-border-radius: 3px;
 		height: 7px;
 		width:30%;
 	}
@@ -222,7 +225,7 @@
 		/* background-color: blue ; */
 		background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f)) ;
 		/* border: 1px solid  black; */
-		border-radius: 5px;
+		-webkit-border-radius: 5px;
 		width: 23px;
 		height: 23px;
 		padding-top: 5px;
@@ -269,7 +272,6 @@
                     { status: status },
                     function(data, textStatus, XMLHttpRequest) {
                       var accept_orders = XMLHttpRequest.responseText == "True";
-//                      checkbox.attr("checked", accept_orders);
                       pollingEnabled(accept_orders);
                     }
             );
@@ -334,8 +336,7 @@
 
         function pollOrders() {
 //            if (polling_enabled) {
-            // TODO_WB: remove polling_enabled from next line
-            if (polling_enabled || window.parentSandboxBridge && (parentSandboxBridge.is_online() || parentSandboxBridge.is_error())) {
+            if (window.parentSandboxBridge && (parentSandboxBridge.is_online() || parentSandboxBridge.is_error())) {
                 pollServer("{% url ordering.station_controller.get_orders %}");
             }
         }
@@ -380,8 +381,18 @@
            {% for n in pickup_times %}
             select.append($("<option>").val('{{ n }}').append("{{ n }} {% trans 'minutes' %}"));
            {% endfor %}
+            select.change(function() {
+                if($(this).val()) {
+                    send_button.attr("disabled", "");
+                } else {
+                    send_button.attr("disabled", "disabled");
+                }
+            });
 
-            var send_button = $('<div class="button_txt button_bg" title="{% trans 'Send message to passenger' %}"></div>').text('{% trans 'Send' %}').click(function() {
+            var send_button = $('<div disabled=disabled class="button_txt button_bg" title="{% trans 'Send message to passenger' %}"></div>').text('{% trans 'Send' %}').click(function() {
+                if ($(this).attr("disabled")) {
+                    return false;
+                }
                 acceptOrder(order.pk);
             });
 
@@ -414,17 +425,10 @@
                 .append($("<td colspan=4></td>").append(progress_indicator));
 
             $("#orders table").append(rendered_order).append(progress_bar);
-            rendered_order.show().effect("highlight", {}, 1300);
+            rendered_order.show();
 
             handleOrder();
         }
-
-//        function setStationDetails(order_id) {
-//            var order_row = $("#orders #" + order_id).show();
-//
-//            $("#orders #" + order_id + " .indicator").show();
-//
-//        }
 
         function setStateSending(order_id) {
             var order_row = $("#orders #" + order_id);

@@ -2,20 +2,20 @@
 # Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
 # This file is distributed under the same license as the PACKAGE package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
-# 
+#
 #, fuzzy
 msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-20 11:01+0200\n"
-"PO-Revision-Date: 2010-12-20 05:06\n"
+"POT-Creation-Date: 2010-12-20 18:05+0200\n"
+"PO-Revision-Date: 2010-12-20 09:47\n"
 "Last-Translator: <admin@admin.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "X-Translated-Using: django-rosetta 0.5.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -39,7 +39,7 @@ msgstr "צפוי טופס Django "
 #: ajax_forms/utils.py:63 ajax_forms/utils.py:71
 #, python-format
 msgid "Field \"%s\" not found in this form"
-msgstr "שדה \"s%\" לא נמצא בטופס זה"
+msgstr "שדה \"%s\" לא נמצא בטופס זה"
 
 #: ajax_forms/views.py:14
 msgid "Expected Django Form"
@@ -191,14 +191,16 @@ msgstr "ערים"
 #: common/util.py:25 common/util.py:34
 #, python-format
 msgid "Invalid value: %s"
-msgstr "ערך לא חוקי: s%"
+msgstr "ערך לא חוקי: %s"
 
 #: common/templates/code_form.html:8
 msgid "Fill in to finish registration"
 msgstr "מלא כדי לסיים את ההצטרפות"
 
 #: common/templates/code_form.html:15
-msgid "An SMS verification code was sent to you. Please fill it to confirm your details."
+msgid ""
+"An SMS verification code was sent to you. Please fill it to confirm your "
+"details."
 msgstr "קוד אימות SMS נשלח אליך. אנא מלא אותו כדי לאשר את הפרטים שלך."
 
 #: common/templates/code_form.html:18
@@ -270,6 +272,7 @@ msgid "FINISH"
 msgstr "סיום"
 
 #: common/templates/phone_verification_form.html:21
+#: ordering/templates/workstation_home.html:431
 msgid "Sending..."
 msgstr "שולח..."
 
@@ -403,11 +406,14 @@ msgid "URL"
 msgstr "כתובת אתר אינטרנט"
 
 #: flatpages2/admin.py:11
-msgid "Example: '/about/contact/'. Make sure to have leading and trailing slashes."
+msgid ""
+"Example: '/about/contact/'. Make sure to have leading and trailing slashes."
 msgstr "למשל: \"/ כ / קשר / '. יש לוודא מובילים ונגררים חתכים."
 
 #: flatpages2/admin.py:13
-msgid "This value must contain only letters, numbers, underscores, dashes or slashes."
+msgid ""
+"This value must contain only letters, numbers, underscores, dashes or "
+"slashes."
 msgstr "ערך זה חייב להכיל אותיות, ספרות, מקפים, קווים תחתונים או חתכים."
 
 #: flatpages2/admin.py:24
@@ -431,8 +437,12 @@ msgid "template name"
 msgstr "שם תבנית"
 
 #: flatpages2/models.py:11
-msgid "Example: 'flatpages/contact_page.html'. If this isn't provided, the system will use 'flatpages/default.html'."
-msgstr "למשל: \"אפשר תגובות / contact_page.html\". אם זה לא צויין, המערכת תשתמש \"אפשר תגובות / default.html\"."
+msgid ""
+"Example: 'flatpages/contact_page.html'. If this isn't provided, the system "
+"will use 'flatpages/default.html'."
+msgstr ""
+"למשל: \"אפשר תגובות / contact_page.html\". אם זה לא צויין, המערכת תשתמש "
+"\"אפשר תגובות / default.html\"."
 
 #: flatpages2/models.py:12
 msgid "registration required"
@@ -487,7 +497,9 @@ msgid "No Logo"
 msgstr "אין לוגו"
 
 #: ordering/forms.py:57
-msgid "Upload a valid image. The file you uploaded was either not an image or was a corrupted image."
+msgid ""
+"Upload a valid image. The file you uploaded was either not an image or was a "
+"corrupted image."
 msgstr "יש להעלות תמונה חוקית. הקובץ שהעלת פגום או שאינו תמונה."
 
 #: ordering/forms.py:118
@@ -499,9 +511,13 @@ msgid "Currently, there is no service in the country"
 msgstr "נכון לעכשיו, השירות אינו זמין במדינה זו."
 
 #: ordering/forms.py:143
-#, python-format, fuzzy
-msgid "Service is not available in %(city)s yet.<br>Please try again soon.<p class=bold>THANKS!</p>WAYbetter team :)"
-msgstr "השירות אינו זמין ב(city)% עדיין. <br> אנא נסה שנית בקרוב. <p class=bold style=\";text-align:right;direction:rtl\"> תודה! </p> צוות WAYbetter:)"
+#, fuzzy, python-format
+msgid ""
+"Service is not available in %(city)s yet.<br>Please try again soon.<p "
+"class=bold>THANKS!</p>WAYbetter team :)"
+msgstr ""
+"השירות אינו זמין ב(city)% עדיין. <br> אנא נסה שנית בקרוב. <p class=bold "
+"style=\";text-align:right;direction:rtl\"> תודה! </p> צוות WAYbetter:)"
 
 #: ordering/forms.py:166
 msgid "Station name"
@@ -945,8 +961,10 @@ msgid "We're sorry, but we could not find a taxi for you"
 msgstr "אנו מצטערים, הפעם לא הצלחנו למצוא לך מונית."
 
 #: ordering/order_manager.py:58
-msgid "We're sorry, but we have encountered an error while handling your request"
-msgstr "אנו מצטערים, אך נתקלנו בשגיאה בעת הטיפול בבקשה שלך. נסה שנית מאוחר יותר..."
+msgid ""
+"We're sorry, but we have encountered an error while handling your request"
+msgstr ""
+"אנו מצטערים, אך נתקלנו בשגיאה בעת הטיפול בבקשה שלך. נסה שנית מאוחר יותר..."
 
 #: ordering/order_manager.py:69
 #, python-format
@@ -1006,6 +1024,11 @@ msgstr "שדות חסרים"
 #: ordering/station_controller.py:65
 msgid "Invalid city"
 msgstr "עיר לא חוקית"
+
+#: ordering/station_controller.py:286
+#, python-format
+msgid "Message sent, pickup in %s minutes"
+msgstr "הודעה נשלחה לנוסע: %s דקות"
 
 #: ordering/templates/base_passenger.html:57
 msgid "Join!"
@@ -1148,21 +1171,29 @@ msgstr "מחק"
 msgid "Workstation page"
 msgstr "דף עמדות עבודה"
 
-#: ordering/templates/workstation_home.html:378
+#: ordering/templates/workstation_home.html:379
 msgid "Define time"
-msgstr "הגדרת זמן"
+msgstr "הגדר זמן"
 
-#: ordering/templates/workstation_home.html:380
+#: ordering/templates/workstation_home.html:381
 msgid "minutes"
 msgstr "דקות"
 
-#: ordering/templates/workstation_home.html:383
+#: ordering/templates/workstation_home.html:384
 msgid "Send message to passenger"
 msgstr "שלח הודעה לנוסע"
 
-#: ordering/templates/workstation_home.html:383
+#: ordering/templates/workstation_home.html:384
 msgid "Send"
 msgstr "שלח"
+
+#: ordering/templates/workstation_home.html:439
+msgid "Close"
+msgstr "סגור"
+
+#: ordering/templates/workstation_home.html:443
+msgid "End"
+msgstr "סיום"
 
 #: ordering/templates/wrong_user_type_message.html:5
 msgid "Wrong user type"
@@ -1262,11 +1293,15 @@ msgid "You must agree to the terms to register"
 msgstr "יש להסכים לתנאי השירות כדי להצטרף"
 
 #: registration/forms.py:167
-msgid "This email address is already in use. Please supply a different email address."
+msgid ""
+"This email address is already in use. Please supply a different email "
+"address."
 msgstr "כתובת דוא\"ל זו כבר נמצאת בשימוש. נא לספק כתובת דוא\"ל אחרת."
 
 #: registration/forms.py:194
-msgid "Registration using free email addresses is prohibited. Please supply a different email address."
+msgid ""
+"Registration using free email addresses is prohibited. Please supply a "
+"different email address."
 msgstr "הרשמה באמצעות כתובות דוא\"ל חינם אסורה. נא לספק כתובת דוא\"ל אחרת."
 
 #: registration/models.py:171
@@ -1380,11 +1415,15 @@ msgstr "אימייל עם הוראות לאיפוס הסיסמה נשלחה."
 #: templates/registration/password_reset_email.html:2
 #, python-format
 msgid "Reset password at %(site_name)s"
-msgstr "איפוס סיסמה על% (SITE_NAME) ים"
+msgstr "איפוס סיסמה על %(site_name)s ים"
 
 #: templates/registration/registration_complete.html:13
-msgid "You are now registered. An SMS verification code was sent to you, please fill it in to activate your account."
-msgstr "נרשמת בהצלחה. קוד אימות SMS נשלח אליך, אנא מלאו אותו כדי להפעיל את החשבון שלך."
+msgid ""
+"You are now registered. An SMS verification code was sent to you, please "
+"fill it in to activate your account."
+msgstr ""
+"נרשמת בהצלחה. קוד אימות SMS נשלח אליך, אנא מלאו אותו כדי להפעיל את החשבון "
+"שלך."
 
 #: tinymce/views.py:68
 msgid "Error running spellchecker"

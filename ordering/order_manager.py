@@ -1,5 +1,5 @@
 from django.shortcuts import get_object_or_404, render_to_response
-from google.appengine.api.labs import taskqueue
+from google.appengine.api import taskqueue
 from station_connection_manager import push_order
 from django.core.urlresolvers import reverse
 from ordering.errors import OrderError, NoWorkStationFoundError
