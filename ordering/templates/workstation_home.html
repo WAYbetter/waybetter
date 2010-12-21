@@ -48,7 +48,7 @@
 		background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#b9b9b9));
 		cursor: pointer;
 		/* border: 1px solid  black; */
-	}co
+	}
 	.button_bg:active{
 		color: white;
 		background: -webkit-gradient(linear, left top, left bottom, from(#929292), to(#929292));
@@ -106,7 +106,7 @@
 	}
 	.from_address{
 		color: white;
-		text-align: left;
+		text-align: right;
 	}
 	.from_address:hover{
 		color: yellow;
@@ -336,7 +336,7 @@
 
         function pollOrders() {
 //            if (polling_enabled) {
-            if (window.parentSandboxBridge && (parentSandboxBridge.is_online() || parentSandboxBridge.is_error())) {
+            if (polling_enabled || window.parentSandboxBridge && (parentSandboxBridge.is_online() || parentSandboxBridge.is_error())) {
                 pollServer("{% url ordering.station_controller.get_orders %}");
             }
         }
@@ -407,11 +407,7 @@
                 var increment = 1.0 / {{ timout_interval }};
                 progress_indicator.progressbar("value", (cur_value - increment) * 100);
                 if (progress_indicator.progressbar("value") < 0.1) {
-                    var actual_rows = rendered_order.add(rendered_order.next());
-                    actual_rows.fadeOut("normal", function() {
-                        actual_rows.remove();
-                        handleRemoveRow();
-                    });
+                    removeOrderRow(order.pk);
                 }
             }, {{ timout_interval }});
 
@@ -455,10 +451,8 @@
             var actual_rows = order_row.add(order_row.next());
             actual_rows.fadeOut("normal", function() {
                 actual_rows.remove();
-                handleRemoveRow();
             });
-
-            
+            handleRemoveRow();
         }
         function acceptOrder(order_id) {
             var pickup_time = $("#pickup_time_for_" + order_id).val();

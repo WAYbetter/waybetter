@@ -36,19 +36,25 @@
 }
 
 #orders_history_grid .select-address {
-    color: black;
+    /* color: white; */
+    text-shadow: none;
     border-right: 3px solid #ffffff;
     /* border-bottom: 1px solid black; */
-    background: -webkit-gradient(linear, left top, left bottom, from(#c5c4c6), to(#898585));
-    background: -moz-linear-gradient(-90deg, #c5c4c6, #898585);
-    -pie-background: linear-gradient(-90deg, #c5c4c6, #898585);
-   font-weight: bold; 
+    /* background: -webkit-gradient(linear, left top, left bottom, from(#c5c4c6), to(#898585)); */
+    /* background: -moz-linear-gradient(-90deg, #c5c4c6, #898585); */
+    /* -pie-background: linear-gradient(-90deg, #c5c4c6, #898585); */
+    background-color: #fff145;
+    text-decoration: underline;
     cursor: pointer;
 }
 
 #orders_history_grid .select-address:hover {
-   color: black;
-    background: -webkit-gradient(linear, left top, left bottom, from(#cecece), to(#9e9e9e));
-    background: -moz-linear-gradient(-90deg, #cecece, #9e9e9e);
-    -pie-background: linear-gradient(-90deg, #cecece, #9e9e9e);
+   background-image: url(/static/images/arrow_history.png) !important;
+   background-position: 195px 2px !important;
+   background-repeat: no-repeat;
+    color: black;
+     background-color: #ffce38;
+    /* background: -webkit-gradient(linear, left top, left bottom, from(#cecece), to(#9e9e9e)); */
+    /* background: -moz-linear-gradient(-90deg, #cecece, #9e9e9e); */
+    /* -pie-background: linear-gradient(-90deg, #cecece, #9e9e9e); */
 }
