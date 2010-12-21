@@ -7,11 +7,17 @@
 <link rel="stylesheet" href="/static/css/jquery.ui.stars.css" type="text/css" media="all" />
 
 {% block extrastyle %}
-    <link rel="stylesheet" type="text/css" href="/static/css/waybetter.css" />
-{% endblock %}
 
     <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}css/ie.css{% endblock %}" /><![endif]-->
-{% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}css/rtl.css{% endblock %}" />{% endif %}
+{% if LANGUAGE_BIDI %}
+    <link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}/static/css/rtl.css{% endblock %}" />
+{% else %}
+    <link rel="stylesheet" type="text/css" href="/static/css/waybetter.css" />
+{% endif %}
+
+   
+{% endblock %}
+
 
 <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
 <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
