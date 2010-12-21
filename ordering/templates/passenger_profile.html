@@ -6,7 +6,8 @@
 <form action="{% url ordering.passenger_controller.edit_profile %}" method="post" id="profile_form">
     {% csrf_token %}
     {{ form.as_p }}
- <input type="submit" value="{% trans 'Save Changes' %}"/>
+ <input type="submit" value="{% trans 'Save Changes' %}" class="wb_button blue"/>
+
 </form>
 
 
@@ -14,7 +15,6 @@
 $(function() {
     $('#profile_form').validation({% render_ajax_fields form %});
 
-    $("#profile_form input[type=submit]").button();
     $('#profile_form').submit(function(e) {
         e.preventDefault();
         if ($("#profile_form input[type=submit]").attr("disabled")) {
