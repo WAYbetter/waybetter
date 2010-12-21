@@ -473,7 +473,7 @@ var Registrator = Object.create({
                 $("#dialog #ok").hide();
                 $("#dialog").oneTime(2000, function() {
                     $(".ui-dialog").animate(
-                        { height: "655px" },
+                        { height: "682px" },
                         { duration: 200,
                           easing:  "swing",
                           complete: function() {
