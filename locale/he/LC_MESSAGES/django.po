@@ -8,14 +8,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-20 18:05+0200\n"
-"PO-Revision-Date: 2010-12-20 09:47\n"
+"POT-Creation-Date: 2010-12-21 14:30+0200\n"
+"PO-Revision-Date: 2010-12-21 06:24\n"
 "Last-Translator: <admin@admin.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "X-Translated-Using: django-rosetta 0.5.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -68,6 +68,22 @@ msgstr "עיר"
 #: analytics/forms.py:43 ordering/templates/order_status.html:82
 msgid "Station"
 msgstr "תחנה"
+
+#: ordering/order_history.py:14
+msgid "Passenger Rating"
+msgstr "דירוג נוסע"
+
+#: ordering/order_history.py:14
+msgid "To"
+msgstr "כתובת יעד"
+
+#: ordering/order_history.py:14
+msgid "From"
+msgstr "כתובת מוצא"
+
+#: ordering/order_history.py:14
+msgid "Date"
+msgstr "תאריך"
 
 #: analytics/models.py:9
 msgid "type"
@@ -171,12 +187,10 @@ msgid "name"
 msgstr "שם"
 
 #: common/models.py:7
-#, fuzzy
 msgid "country code"
 msgstr "קוד המדינה"
 
 #: common/models.py:8
-#, fuzzy
 msgid "dial code"
 msgstr "קוד חיוג"
 
@@ -255,9 +269,8 @@ msgid "Login"
 msgstr "כניסה"
 
 #: common/templates/phone_verification_form.html:9
-#, fuzzy
 msgid "Activate Your Phone (Free)"
-msgstr "אימות פרטי טלפון למשלוח SMS (חינם)"
+msgstr "אימות פרטי טלפון ל-SMS (חינם)"
 
 #: common/templates/phone_verification_form.html:18
 msgid "PRESS TO SEND SMS CODE"
@@ -272,7 +285,7 @@ msgid "FINISH"
 msgstr "סיום"
 
 #: common/templates/phone_verification_form.html:21
-#: ordering/templates/workstation_home.html:431
+#: ordering/templates/workstation_home.html:435
 msgid "Sending..."
 msgstr "שולח..."
 
@@ -511,12 +524,12 @@ msgid "Currently, there is no service in the country"
 msgstr "נכון לעכשיו, השירות אינו זמין במדינה זו."
 
 #: ordering/forms.py:143
-#, fuzzy, python-format
+#, python-format
 msgid ""
 "Service is not available in %(city)s yet.<br>Please try again soon.<p "
 "class=bold>THANKS!</p>WAYbetter team :)"
 msgstr ""
-"השירות אינו זמין ב(city)% עדיין. <br> אנא נסה שנית בקרוב. <p class=bold "
+"השירות אינו זמין ב%(city)s עדיין. <br> אנא נסה שנית בקרוב. <p class=bold "
 "style=\";text-align:right;direction:rtl\"> תודה! </p> צוות WAYbetter:)"
 
 #: ordering/forms.py:166
@@ -589,9 +602,8 @@ msgid "Local mobile phone #"
 msgstr "מספר טלפון נייד"
 
 #: ordering/models.py:25
-#, fuzzy
 msgid "assigned"
-msgstr "מוקצה"
+msgstr "הוקצתה"
 
 #: ordering/models.py:26
 msgid "accepted"
@@ -711,9 +723,8 @@ msgid "was installed"
 msgstr "הותקן"
 
 #: ordering/models.py:149
-#, fuzzy
 msgid "instant messaging username"
-msgstr "שם משתמש להודעות אינסטנט"
+msgstr "שם משתמש ל-IM"
 
 #: ordering/models.py:150
 msgid "Accept orders"
@@ -880,7 +891,6 @@ msgid "state"
 msgstr "מדינה"
 
 #: ordering/models.py:342
-#, fuzzy
 msgid "special place"
 msgstr "מקום מיוחד"
 
@@ -1171,27 +1181,27 @@ msgstr "מחק"
 msgid "Workstation page"
 msgstr "דף עמדות עבודה"
 
-#: ordering/templates/workstation_home.html:379
+#: ordering/templates/workstation_home.html:380
 msgid "Define time"
 msgstr "הגדר זמן"
 
-#: ordering/templates/workstation_home.html:381
+#: ordering/templates/workstation_home.html:382
 msgid "minutes"
 msgstr "דקות"
 
-#: ordering/templates/workstation_home.html:384
+#: ordering/templates/workstation_home.html:392
 msgid "Send message to passenger"
 msgstr "שלח הודעה לנוסע"
 
-#: ordering/templates/workstation_home.html:384
+#: ordering/templates/workstation_home.html:392
 msgid "Send"
 msgstr "שלח"
 
-#: ordering/templates/workstation_home.html:439
+#: ordering/templates/workstation_home.html:443
 msgid "Close"
 msgstr "סגור"
 
-#: ordering/templates/workstation_home.html:443
+#: ordering/templates/workstation_home.html:447
 msgid "End"
 msgstr "סיום"
 
@@ -1305,19 +1315,16 @@ msgid ""
 msgstr "הרשמה באמצעות כתובות דוא\"ל חינם אסורה. נא לספק כתובת דוא\"ל אחרת."
 
 #: registration/models.py:171
-#, fuzzy
 msgid "activation key"
-msgstr "מקש הפעלה"
+msgstr "קוד הפעלה"
 
 #: registration/models.py:176
-#, fuzzy
 msgid "registration profile"
-msgstr "פרופיל הצטרפות"
+msgstr "פרופיל הרשמה"
 
 #: registration/models.py:177
-#, fuzzy
 msgid "registration profiles"
-msgstr "פרופילים הצטרפות"
+msgstr "פרופילי הרשמה"
 
 #: socialauth/templates/socialauth/login_done.html:14
 msgid "Signing you in..."
