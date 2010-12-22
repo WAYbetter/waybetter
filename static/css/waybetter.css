@@ -707,50 +707,29 @@ ul.ui-tabs-nav .ui-state-hover a {
     color: #0bda01;
 }
 
-#search_button.wb_button {
-
-	font-family: Calibri, Arial, sans-serif;
-	font-size: 15px;
-	font-weight: bold;
-	text-shadow: 1px;
-	width: 80px;
-	border: none;
-	-moz-border-radius: 5px;
-   	 border-radius: 5px;
-   	 vertical-align: text-top;
-   	 padding: 6px 0;
-   	 text-align: center;
-   	 text-decoration: none;
-}
-
-#reset_button.wb_button {
-	font-family: Calibri, Arial, sans-serif;
-	font-size: 15px;
-	font-weight: bold;
-	text-shadow: 1px;
-	width: 80px;
-	border: none;
-	-moz-border-radius: 5px;
-	border-radius: 5px;
-	vertical-align: text-top;
-	padding: 6px 0;
-	text-align: center;
-	text-decoration: none;
-}
 /** User Profile **/
 
 #profile_form label {
 	display: block;
 	font-size: 15px;
+	padding-top: 15px;
 }
-#profile_form input[type=text],  #profile_form input[type=password] {
-font-size: 15px;
-height: 30px;
-width: 200px;
+#profile_form input,#profile_form select{
+	font-size: 15px;
+	height: 30px;
+	width: 200px;
 }
-#ui-tabs-2 #profile_form{
-padding-left: 79px;
+
+#profile_form input[type=submit]{
+	margin-left: 250px;
+	margin-top: -30px;
 }
+#profile_form{
+	padding-left: 79px;
+}
+/* #profile_form #field_container { */
+	/* max-height: 250px; */
+/* } */
 /** buttons **/
 
 input::-moz-focus-inner, button::-moz-focus-inner {

@@ -5,7 +5,9 @@
 {% load ajax_form_utils %}
 <form action="{% url ordering.passenger_controller.edit_profile %}" method="post" id="profile_form">
     {% csrf_token %}
+    <div id="field_container">
     {{ form.as_p }}
+    </div>
  <input type="submit" value="{% trans 'Save Changes' %}" class="wb_button blue"/>
 
 </form>
