@@ -511,30 +511,32 @@ var OrderHistoryHelper = Object.create({
         var that = this,
             html = "";
         if (data.has_other_pages) {
-            var $prev_button = $("<button>").append("&lt;").button(),
-                $next_button = $("<button>").append(">").button(),
+            var $prev_button = $("<button class='wb_button gray'>").append("&lt;"),
+                $next_button = $("<button class='wb_button gray'>").append(">"),
                 $pager_text = $("<span>").append(that.config.page_label + " "
                         + data.number + " "
                         + that.config.of_label + " "
                         + data.num_pages + " ");
 
             if (data.has_previous) {
+                $prev_button.attr("disable", "");
                 $prev_button.click(function() {
                     that.loadHistory({
                         page:   data.previous_page_number
                     });
                 });
             } else {
-                $prev_button.button("disable");
+                $prev_button.attr("disable", "disable");
             }
             if (data.has_next) {
+                $next_button.attr("disable", "");
                 $next_button.click(function() {
                     that.loadHistory({
                         page:   data.next_page_number
                     });
                 });
             } else {
-                $next_button.button("disable");
+                $next_button.attr("disable", "disable");
             }
         }
         $("#orders_history_pager").empty().append($prev_button, $pager_text, $next_button);
