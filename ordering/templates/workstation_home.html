@@ -9,127 +9,160 @@
     *  {
 		font-family: Arial, Calibri, sans-serif;
 		font-weight: Bold;
+        margin: 0;
 	}
-    table {
-		border: 0 solid;
-		width: 320px;
-		border-spacing: 0;
-	}
-	tr {
+    #orders {
+        /*position: absolute;*/
+        /*top:0;*/
+        width: 330px;
+        direction: rtl;
+        padding:0;
+        border:none;
+    }
+
+	#orders .order {
 		background: -webkit-gradient(linear, left top, left bottom, from(#565656), to(#000000));
-		height: 44px;
+		height: 32px;
+        position: relative;
+        padding-top: 12px;
+        padding-left: 5px;
+
 	}
-	td:first-child {
-		padding-left: 7px;
+    #orders div div {
+        display: inline-block;
+    }    
+    .order > div {
+        margin: 0 4px;
+    }
+	.order > div:first-child {
+		/*padding-left: 7px;*/
 	}
-	td:last-child {
-		padding-right: 7px;
+	.order > div:last-child {
+		/*padding-right: 7px;*/
 	}
-	td {
-		padding: 0 3px;
-	}
-	.button_txt {
+
+	#orders .button_txt {
 		color: black;
 		text-shadow: #e6e6e6 0 1px 0;
 	}
-    .button_txt:disabled {
+    #orders .button_txt:disabled {
         color: gray;
     }
-	.button_bg {
+	#orders .button_bg {
 		background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f));
 		/* border: 1px solid  black; */
 		-webkit-border-radius: 5px;
-		width: 36px;
+		width: 40px;
 		height: 23px;
 		padding-top: 5px;
 		padding-left: 6px;
+        text-align: center;
+        position: relative;
+        bottom: 5px;
+        float: left;
 	}
-	.button_bg:hover{
+	#orders .button_bg:hover{
 		background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#b9b9b9));
 		cursor: pointer;
 		/* border: 1px solid  black; */
 	}
-	.button_bg:active{
+	#orders .button_bg:active{
 		color: white;
 		background: -webkit-gradient(linear, left top, left bottom, from(#929292), to(#929292));
 		text-shadow: none;
 		/* border: 1px solid  black; */
 	}
-	.reject_button_bg {
-		/* background-color: blue ; */
+	#orders .reject_button_bg {
 		background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f)) ;
-		/* border: 1px solid  black; */
 		-webkit-border-radius: 5px;
 		width: 23px;
 		height: 23px;
 		padding-top: 5px;
-		padding-left: 6px;
 	}
-	.reject_button_bg:hover{
+	#orders .reject_button_bg:hover{
 		background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#b9b9b9));
 		cursor: pointer;
 		/* border: 1px solid  black; */
 	}
-	.reject_button_bg:active{
+	#orders .reject_button_bg:active{
 		color: white;
 		background: -webkit-gradient(linear, left top, left bottom, from(#929292), to(#929292));
 		text-shadow: none;
 		/* border: 1px solid  black; */
 	}
-	.reject_image{
+	#orders .reject_image{
 		background-image: url(/static/images/reject.png) ;
 		background-repeat: no-repeat;
 		background-position: center center;
 		width: 12px;
 		height: 12px;
-		padding-left: 5px;
+		margin:0 5px;
 		padding-top: 7px;
 	}
-	input, textarea, select {
+	#orders select {
 		background-image: url(/static/images/combo02.png) ;
 		text-shadow: #e6e6e6 0 1px 0;
-		text-align: right;
+		/*text-align: right;*/
 		padding-top: 2px;
         padding-left: 21px;
 		font-size: 16px;
 		width: 85px;
 		height: 29px;
-		/* background: -webkit-gradient(linear, left top, left bottom,  from(#ececec), to(#8f8f8f)) ; */
 		-webkit-appearance: none;
-		/* -webkit-box-shadow: 1px 1px 1px #fff; */
 		-webkit-border-radius: 5px;
 		 border: none;
+        bottom: 5px;
+        position: relative;
+        float:left;
 	}
-	.combo:hover{
+	#orders .combo:hover{
 		background-image: url(/static/images/combo_hover02.png) ;
 		cursor: pointer;
 	}
-	.from_address{
+	#orders .from_address{
 		color: white;
 		text-align: right;
+        width: 150px;
+        height: 40px;
+        position: absolute;
+        top: 4px;
 	}
-	.from_address:hover{
+	#orders .from_address:hover{
 		color: yellow;
 		text-decoration:underline;
 		cursor: pointer;
 	}
-	.pb-row {
-		height: 7px;
+
+    /*#orders .close_button  {*/
+        /*float:left;*/
+        /*margin-top: 15px;*/
+        /*margin-left: 7px;*/
+    /*}*/
+
+   	#orders .pb-row {
+        height: 14px;
+        padding-right: 2.5%;
+        background: black;
 	}
-	.pb-row > td {
+	#orders .pb-row > td {
 		padding-bottom: 4px;
 		padding-top: 1px;
-		background: black;
+		/*background: black;*/
+		background: blue;
 	}
-	.pb {
+
+	#orders .pb {
 		background: -webkit-gradient(linear, left top, left bottom, from(#000000), to(#615b5b));
 		border: 1px solid  #1b1b1b;
 		-webkit-border-radius: 3px;
 		height: 7px;
 		position: relative;
+        width: 95%;
+        margin-bottom: 3px;
+
 	}
 
-	.pb > .ui-progressbar-value {
+	#orders .pb > .ui-progressbar-value {
 		background: -webkit-gradient(
 			linear,
 			left bottom,
@@ -146,28 +179,36 @@
 		width:30%;
 	}
 
-	.loader{
+    #orders .no_pb .pb,#orders .no_pb .pb > .ui-progressbar-value {
+        background:black;
+        border-color: black;
+    }
+
+	#orders .loader{
 		background-image: url(/static/images/loader3.gif) ;
 		background-repeat: no-repeat;
 		background-position: center center;
 		width:48px;
-		height: 58px;
 		padding-left:45px;
 	}
 
-	.sending{
+	#orders .sending{
 		color: white;
 		text-align: left;
+        float: left;
+        margin-left: 10px;
 	}
 
-	.reject_sending{
+	#orders .reject_sending{
 		background-image: url(/static/images/loader4.gif) ;
 		background-repeat: no-repeat;
 		background-position: center center;
 		width: 24px;
 		height: 24px;
+        margin-top: 6px;
+        margin-right: 15px;
 	}
-	.pb_green {
+	#orders .pb_green {
 		background: -webkit-gradient(linear, left top, left bottom, from(#000000), to(#615b5b));
 		border: 1px solid  #1b1b1b;
 		-webkit-border-radius: 3px;
@@ -175,7 +216,7 @@
 		position: relative;
 	}
 
-	.pb_green > .ui-progressbar-value {
+	#orders .pb_green > .ui-progressbar-value {
 	background: -webkit-gradient(
 		linear,
 		left bottom,
@@ -192,14 +233,14 @@
 		width:30%;
 	}
 
-	.order_sent{
+	#orders .order_sent{
 		color: yellow;
 		text-align: left;
-        height: 48px;
-        padding-top: 10px;
+        position: absolute;
+        height: 40px;
 	}
 
-	.pb_sent {
+	#orders .pb_sent {
 		background: -webkit-gradient(linear, left top, left bottom, from(#000000), to(#615b5b));
 		border: 1px solid  #1b1b1b;
 		-webkit-border-radius: 3px;
@@ -207,7 +248,7 @@
 		position: relative;
 	}
 
-	.pb_sent > .ui-progressbar-value {
+	#orders .pb_sent > .ui-progressbar-value {
 	background: -webkit-gradient(
 		linear,
 		left bottom,
@@ -223,28 +264,27 @@
 		height: 7px;
 		width:30%;
 	}
-	.finish_button_bg {
-		/* background-color: blue ; */
+	#orders .finish_button_bg {
+
 		background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f)) ;
-		/* border: 1px solid  black; */
 		-webkit-border-radius: 5px;
 		width: 23px;
 		height: 23px;
 		padding-top: 5px;
-		padding-left: 6px;
+        margin-right: 4px;
 	}
-	.finish_button_bg:hover{
+	#orders .finish_button_bg:hover{
 		background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#b9b9b9));
 		cursor: pointer;
 		/* border: 1px solid  black; */
 	}
-	.finish_button_bg:active{
+	#orders .finish_button_bg:active{
 		color: white;
 		background: -webkit-gradient(linear, left top, left bottom, from(#929292), to(#929292));
 		text-shadow: none;
 		/* border: 1px solid  black; */
 	}
-	.sent_image{
+	#orders .sent_image{
 		background-image: url(/static/images/sent.png) ;
 		background-repeat: no-repeat;
 		background-position: center center;
@@ -252,7 +292,10 @@
 		height: 16px;
 		padding-left: 0;
 		padding-top: 2px;
+        margin-right: 3px;
 	}
+
+
 }
 </style>
 
@@ -264,10 +307,18 @@
         $(document).ready(function() {
             initConnection();
             initAcceptOrders();
-            initOrderTable();
             setStationDetails("{{ station_name }}", {{ station_rating }});
+            window.childSandboxBridge = {
+                updateOnline    : function() {
+                    if (window.parentSandboxBridge && parentSandboxBridge.online_status) {
+                        setAcceptOrders("{{ online }}")
+                    } else {
+                        setAcceptOrders("{{ offline }}")
+                    }
+                }
+            };
         });
-
+        
         function setAcceptOrders(status) {
             $.post(
                     "{% url ordering.station_controller.update_online_status %}",
@@ -368,15 +419,17 @@
             }
         }
 
-        function initOrderTable() {
-            var order_table = $("<table></table>");
-            $("#orders").empty().append(order_table);
-        }
+//        function initOrderTable() {
+//            var order_table = $("<table></table>");
+//            $("#orders").empty().append(order_table);
+//        }
 
         function renderOrder(order) {
-            if ($("#orders table").length == 0) {
-                initOrderTable();
-            }
+//            if ($("#orders table").length == 0) {
+//                initOrderTable();
+//            }
+
+
 
             var select = $("<select name='pickup_time' class='combo'></select>").attr('id', 'pickup_time_for_' + order.pk);
             select.append($("<option>").val('').append("{% trans 'Define time' %}"));
@@ -413,16 +466,16 @@
                 }
             }, {{ timout_interval }});
 
-            var rendered_order = $("<tr class='order'></tr>").attr('id', order.pk)
-                    .append($("<td></td>").append(send_button))
-                    .append($("<td></td>").append(select))
-                    .append($("<td class='from_address'></td>").append(order.fields.from_raw))
-                    .append($("<td></td>").append(reject_button));
+            var rendered_order = $("<div class='order'></div>").attr('id', order.pk)
+                    .append(reject_button)
+                    .append($("<div class='from_address'></div>").append(order.fields.from_raw))
+                    .append(send_button)
+                    .append(select);
 
-            var progress_bar = $("<tr class='pb-row'></tr>")
-                .append($("<td colspan=4></td>").append(progress_indicator));
+            var progress_bar = $("<div class='pb-row'></div>")
+                .append(progress_indicator);
 
-            $("#orders table").append(rendered_order).append(progress_bar);
+            $("#orders").append(rendered_order).append(progress_bar);
             rendered_order.show();
 
             handleOrder();
@@ -430,30 +483,33 @@
 
         function setStateSending(order_id) {
             var order_row = $("#orders #" + order_id);
-            $(order_row.children()[0]).empty().append("<div class='sending'>{% trans 'Sending...' %}</div>");
-            $(order_row.children()[1]).empty().append("<div class='loader'></div>");
-            $(order_row.children()[3]).empty().append("<div class='reject_sending'></div>");
-            order_row.next().hide();
+            order_row.empty()
+                    .append("<div class='reject_sending'></div>")
+                    .append("<div class='sending'>{% trans 'Sending...' %}</div>");
+
+            order_row.next().empty();
         }
 
         function setStateSent(data) {
             var order_row = $("#orders #" + data.order_id);
-            $(order_row.children()[0]).empty().append("<div class='button_txt button_bg'>{% trans 'Close' %}</div>").click(function() {
+            var finis_button = $("<div class='finish_button_bg' title='{% trans 'End' %}'><div class='sent_image'></div></div>").click(function() {
                 removeOrderRow(data.order_id);
             });
-            $(order_row.children()[1]).empty().append($("<div class='order_sent'></div>").text(data.pickup_message));
-            $(order_row.children()[3]).empty().append("<div class='finish_button_bg' title='{% trans 'End' %}'><div class='sent_image'></div></div>").click(function() {
+            var close_button = $("<div class='button_txt button_bg close_button'>{% trans 'Close' %}</div>").click(function() {
                 removeOrderRow(data.order_id);
             });
-//            order_row.next().find("div").removeClass(function() { $(this).attr('class')}).addClass("pb_sent");
-            order_row.next().hide();
+            order_row.empty()
+                .append(finis_button)
+                .append($("<div class='order_sent'></div>").text(data.pickup_message))
+                .append(close_button);
+
+            order_row.next().empty();
         }
         function removeOrderRow(order_id) {
+
             var order_row  = $("#orders #" + order_id);
             var actual_rows = order_row.add(order_row.next());
-            actual_rows.fadeOut("normal", function() {
-                actual_rows.remove();
-            });
+            actual_rows.remove();
             handleRemoveRow();
         }
         function acceptOrder(order_id) {
@@ -532,8 +588,6 @@
         }
 
     </script>
-    <div id="orders">
-        No orders yet...
-    </div>
+    <div id="orders"></div>
 
 {% endblock content %}
