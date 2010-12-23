@@ -100,8 +100,6 @@ class Station(models.Model):
         for i in range(count, settings.NUMBER_OF_WORKSTATIONS_TO_CREATE):
             self.create_workstation(i+1)
 
-#models.signals.post_save.connect(build_workstations, sender=Station)
-
 class Passenger(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
 

@@ -4,6 +4,16 @@ $.widget("custom.catcomplete", $.ui.autocomplete, {
         minLength: 2,
         delay: 100
     },
+    _response: function( content ) {
+                if ( content.length && ! this.options.disabled ) {
+                        content = this._normalize( content );
+                        this._suggest( content );
+                        this._trigger( "open" );
+                } else {
+                        this.close();
+                }
+                this.element.removeClass( "ui-autocomplete-loading" );
+    },
     _renderMenu: function(ul, items) {
         var self = this,
                 currentCategory = undefined;
@@ -156,6 +166,12 @@ var OrderingHelper = Object.create({
         $("#order_button").button("disable");
         $("#id_from_raw, #id_to_raw").change(function() {
             that.validateForBooking();
+        }).keydown(function(e) {
+            var c = String.fromCharCode(e.keyCode);
+            if (c.match(/\w/)) {
+                console.log("enabling");
+                $(this).catcomplete("enable");
+            }
         });
 
         $("#order_form").submit(function() {
@@ -301,9 +317,12 @@ var OrderingHelper = Object.create({
     updateAddressChoice:        function(address) {
         address.populateFields();
         this.addPoint(address);
+        console.log("disabling");
+        $("#id_from_raw, #id_to_raw").catcomplete("disable");
         if (address.address_type == "from") {
             $("#id_to_raw").focus();
         }
+
         this.getRideCostEstimate();
         this.validateForBooking();
     },
