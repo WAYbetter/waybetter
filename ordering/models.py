@@ -85,6 +85,7 @@ class Station(models.Model):
 
 
     def create_workstation(self, index):
+        # TODO_WB: reuse user names!
         username = "%s_workstation_%d" % (self.user.username, index)
         password = generate_random_token(alpha_or_digit_only=True)
         ws_user = User(username=username, email=self.user.email, password=password)
@@ -94,15 +95,12 @@ class Station(models.Model):
         logging.debug("Created workstation: %s" % username)
 
 
+    def build_workstations(self):
+        count = self.work_stations.all().count()
+        for i in range(count, settings.NUMBER_OF_WORKSTATIONS_TO_CREATE):
+            self.create_workstation(i+1)
 
-def build_workstations(sender, instance, **kwargs):
-    count = instance.work_stations.all().count()
-    for i in range(count, settings.NUMBER_OF_WORKSTATIONS_TO_CREATE):
-        instance.create_workstation(i+1)
-
-
-models.signals.post_save.connect(build_workstations, sender=Station)
-
+#models.signals.post_save.connect(build_workstations, sender=Station)
 
 class Passenger(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)

@@ -1,5 +1,6 @@
 from django.shortcuts import get_object_or_404, render_to_response
 from google.appengine.api import taskqueue
+from google.appengine.api.datastore import RunInTransaction
 from station_connection_manager import push_order
 from django.core.urlresolvers import reverse
 from ordering.errors import OrderError, NoWorkStationFoundError
@@ -159,7 +160,6 @@ def rate_order(request, order_id, passenger):
 
 
 @csrf_exempt
-@commit_locked
 def update_station_rating(request):
     rating = int(request.POST["rating"])
     station_id = int(request.POST["station_id"]) if request.POST["station_id"] else None 

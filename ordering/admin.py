@@ -31,7 +31,10 @@ class PhoneAdmin(admin.TabularInline):
     model = Phone
     extra = 2
 
-
+def build_workstations(modeladmin, request, queryset):
+    for station in queryset:
+        station.build_workstations()
+build_workstations.short_description = "Build workstations"
     
 class StationAdmin(admin.ModelAdmin):
     
@@ -39,6 +42,7 @@ class StationAdmin(admin.ModelAdmin):
     inlines = [PhoneAdmin]
     exclude = ["geohash", "lat", "lon", "number_of_ratings", "average_rating"]
     form = forms.StationAdminForm
+    actions = [build_workstations]
 
     def logo_img(self, obj):
         res = _("No Logo")
