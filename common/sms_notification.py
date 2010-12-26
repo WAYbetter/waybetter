@@ -15,7 +15,7 @@ def send_sms(destination, text, **kwargs):
     TODO_WB: take back-end function name from settings
     """
 
-#    return
+    return
     sms_config = settings.SMS
     if kwargs is not None:
         sms_config.update(kwargs) 

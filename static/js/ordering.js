@@ -5,6 +5,7 @@ $.widget("custom.catcomplete", $.ui.autocomplete, {
         delay: 100
     },
     _response: function( content ) {
+                console.log("_response: " + this.options.disabled);
                 if ( content.length && ! this.options.disabled ) {
                         content = this._normalize( content );
                         this._suggest( content );
@@ -167,8 +168,9 @@ var OrderingHelper = Object.create({
         $("#id_from_raw, #id_to_raw").change(function() {
             that.validateForBooking();
         }).keydown(function(e) {
-            var c = String.fromCharCode(e.keyCode);
-            if (c.match(/\w/)) {
+            // all other keys enable: tab, shift, ctrl, esc, left, right, enter
+            var ignored_key_codes = [9, 13, 16, 17, 18, 20, 27, 37, 38, 39, 40, 91];
+            if (ignored_key_codes.indexOf(e.keyCode) < 0) {
                 console.log("enabling");
                 $(this).catcomplete("enable");
             }

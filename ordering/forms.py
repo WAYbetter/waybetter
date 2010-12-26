@@ -140,7 +140,8 @@ class OrderForm(ModelForm):
                           lat=self.cleaned_data['to_lat'], lon=self.cleaned_data['to_lon'])
 
             raise forms.ValidationError(
-                    _("Service is not available in %(city)s yet.<br>Please try again soon.<p class=bold>THANKS!</p>WAYbetter team :)") % {'city': self.cleaned_data['from_city'].name})
+                    _("Service is not available in %(city)s yet.<br>Please try again soon.<p class=bold>THANKS!</p>WAYbetter team :)") %
+                        {'city': self.cleaned_data['from_city'].name.encode("utf-8")})
         
         return self.cleaned_data
 
