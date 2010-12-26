@@ -85,19 +85,22 @@ class Station(models.Model):
 
 
     def create_workstation(self, index):
-        # TODO_WB: reuse user names!
         username = "%s_workstation_%d" % (self.user.username, index)
         password = generate_random_token(alpha_or_digit_only=True)
-        ws_user = User(username=username, email=self.user.email, password=password)
-        ws_user.save()
-        ws = WorkStation(user=ws_user, station=self)
-        ws.save()
-        logging.debug("Created workstation: %s" % username)
+        ws_user, created = User.objects.get_or_create(username=username)
+        if created:
+            ws_user.email = self.user.email
+            ws_user.set_password(password)
+            ws_user.save()
+
+        ws, ws_created = WorkStation.objects.get_or_create(user=ws_user, station=self)
+        if ws_created:
+            ws.save() # trigger build of installer
+            logging.debug("Created workstation: %s" % username)
 
 
     def build_workstations(self):
-        count = self.work_stations.all().count()
-        for i in range(count, settings.NUMBER_OF_WORKSTATIONS_TO_CREATE):
+        for i in range(0, settings.NUMBER_OF_WORKSTATIONS_TO_CREATE):
             self.create_workstation(i+1)
 
 class Passenger(models.Model):
