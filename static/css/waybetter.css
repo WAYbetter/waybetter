@@ -52,6 +52,15 @@ input.text, input[type=text], input[type=password] {
     -moz-border-radius: 3px;
 }
 
+.round_10 {
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+}
+.bold {
+    font-weight: bold;
+}
+
 /************* Main *************/
 #main {
     /*height:100%;*/
@@ -323,7 +332,7 @@ button.order_button.disabled, button.order_button:disabled {
 
 /************* Ordering Bottom Tabs *************/
 #tabs {
-    margin-top: -30px;
+    margin-top: -18px;
     background: transparent;
     border: 0;
     text-align: left;
@@ -719,6 +728,16 @@ ul.ui-tabs-nav .ui-state-hover a {
     font-weight: bold;
     margin-top: 1em;
 }
+
+#login_error {
+    background: none repeat scroll 0 0 white;
+    color: red;
+    display: inline;
+    margin-right: 10px;
+    vertical-align: bottom;
+}
+
+
 .ui-dialog-title.error-dialog {
     color: white;
     font-size: 20px;
@@ -757,6 +776,78 @@ ul.ui-tabs-nav .ui-state-hover a {
 /* #profile_form #field_container { */
 	/* max-height: 250px; */
 /* } */
+
+/** Stations Home **/
+.content {
+    background: white;
+    -moz-box-shadow:0 0px 5px black;
+    -webkit-box-shadow:0 0px 5px black;
+    box-shadow:0 0px 5px black;
+    padding: 15px;
+    margin-top: -7px;
+    height: 600px;
+
+}
+
+#station_login {
+    background: red;
+    width: 460px;
+}
+#station_login label {
+    display: block;
+    font-size: 13px;
+}
+#station_login input[type=text], #station_login input[type=password] {
+    height: 30px;
+    width: 160px;
+    font-size: 14px;
+    padding: 0 10px;
+}
+#station_login p {
+    float: left;
+    margin: 0 6px;
+}
+#station_login input[type=submit] {
+    float: right;
+    position: absolute;
+    bottom: 1px;
+    right: -13px;
+}
+#diagram {
+    background-image: url(/static/images/new_clients.png);
+    background-repeat: no-repeat;
+    background-position: center center;
+    height: 600px;
+    width: 440px;
+    float: left;
+}
+
+#info {
+    float: right;
+    height: 600px;
+    width: 390px;
+}
+#info h1 {
+    font-size: 20px;
+    color: #139df4;
+    text-decoration: underline;
+    margin-top: 10px;
+    margin-bottom:10px;
+}
+#info h1:first-child {
+    margin-top: 0;
+}
+#info p, #info ul {
+    margin-right: 12px;
+}
+#info li {
+    margin-bottom: 25px;
+}
+#info li:last-child {
+    margin-bottom: 0;
+}
+
+
 /** buttons **/
 
 input::-moz-focus-inner, button::-moz-focus-inner {
@@ -796,8 +887,8 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     box-shadow: none;
-    position: relative;
-    top: 1px;
+    /*position: relative;*/
+    /*top: 1px;*/
 }
 
 .wb_button:disabled, .wb_button.disabled {

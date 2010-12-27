@@ -1,13 +1,11 @@
 {% extends "base_station.html" %}
 {% load i18n %}
-
 {% block page_specific_head %}
 <script type="text/javascript" src="/static/js/jquery.form.js"></script>
 <script type="text/javascript" src="/static/js/ordering.js"></script>
 {% endblock %}
 
 {% block content %}
-
 
     <script type="text/javascript">
         $(document).ready(function() {
@@ -37,10 +35,41 @@
                </li>
            </ul>
        </div>
+    {% else %}
+        <div class="content round_10">
+            <div id="diagram">
+            </div>
+            <div id="info">
+                <h1>{% trans 'WHY CONNECT?' %}</h1>
+                <p>
+                    {% trans "Simply because it's good for business!<br>You get safe exposure to a wide range of passengers you couldn't approach before!" %}
+                </p>
+
+                <h1>{% trans 'WHAT WILL YOU GET?' %}</h1>
+                <ul>
+                    <li>
+                        {% trans "Terminal software (FREE)<br>Easy to use software that allows you to handle the orders" %}
+                    </li>
+                    <li>
+                        {% trans "Personal internet page on www.waybetter.com and private ordering tool (FREE)" %}
+                    </li>
+                    <li>
+                        {% trans "Your own ordering tool at your website (FREE)" %}
+                    </li>
+                    <li>
+                        {% trans "Web application for smart-phone users (FREE)<br>Users will be able to book rides from your website using iPhones, Blackberry, Android and more!" %}
+                    </li>
+                    <li>
+                        {% trans "Serve WAYbetter clients<br>WAYbetter has a fast growing user-base of people who need a taxi. Be the one who serves them in your city" %}
+                    </li>
+                </ul>
+                <h1>{% trans 'WHAT WILL YOU PAY?'%}</h1>
+                <p class=bold>
+                    {% trans "The price is only 1nis for every ride you take, meaning you pay only if and when you make money!!!" %}
+                </p>
+
+            </div>
+        </div>
     {% endif %}
 
 {% endblock content %}
-{% block footer %}
-    {{ block.super}}
-    <a href="{% url ordering.passenger_controller.passenger_home %}">{% trans 'Passengers home' %}</a>
-{% endblock footer %}

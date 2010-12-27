@@ -117,29 +117,15 @@ var Registrator = Object.create({
         });
     },
     doLogin                 : function (form) {
-        var that = this;
-        if ( this.validator.form() ) {
-            $.ajax({
-                url :that.config.urls.login,
-                type : 'post',
-                data : $(form).serialize(),
-                success : function (response) {
-                    $('#dialog').dialog('close');
-                    if ( that.config.callback ) {
-                        that.config.callback();
-                    }
-                },
-                error: function(xhr) {
-                    alert(xhr.responseText);
-                }
-            });
-        }
+        this._doDialogSubmit(form, null, this.config.urls.login, function(XMLHttpRequest, textStatus, errorThrown) {
+            $("#login_error", form).text(XMLHttpRequest.responseText);
+        });
     },
     _doDialogSubmit          : function (form, extra_form_data, url, errorCallback) {
         var that = this,
             data = extra_form_data ? extra_form_data + '&' + $(form).serialize() : $(form).serialize(),
             errCallback = errorCallback ? errorCallback : function (XMLHttpRequest, textStatus, errorThrown) {
-                    alert('error dialog submit: ' + XMLHttpRequest.responseText);
+                    alert(XMLHttpRequest.responseText);
             };
 
         if ( this.validator.form() ) {
@@ -221,8 +207,10 @@ var Registrator = Object.create({
                     }
                 }
             },
-            $button = $('form button', dialog_content).unbind('mouseup').bind('mouseup', function (e) {
+            // something is binding click to form submit here, must unbind
+            $button = $('#login', dialog_content).unbind('click').bind('click', function (e) {
                     that.doLogin.call(that, this.form);
+                    e.preventDefault();
                     return false;
             }),
             $show_register_link = $('#show_register')
