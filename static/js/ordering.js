@@ -502,6 +502,11 @@ var OrderHistoryHelper = Object.create({
         this.loadHistory({});
     },
     loadHistory:    function(params) {
+        if (! this.config.order_history_url) {
+            window.location = window.location; // reload page if not initialized
+            return;
+        }
+        
         var that = this;
         $("#orders_history_grid table").animate({
             color: "#949494"
@@ -523,7 +528,7 @@ var OrderHistoryHelper = Object.create({
                 SelectFromHistoryHelper.updateGrid();
             },
             error:      function(xhr, textStatus, errorThrown) {
-                alert('error: ' + xhr.responseText);
+                alert('error loading history: ' + xhr.responseText);
             }
         });
     },

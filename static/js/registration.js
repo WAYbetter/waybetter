@@ -139,7 +139,7 @@ var Registrator = Object.create({
         var that = this,
             data = extra_form_data ? extra_form_data + '&' + $(form).serialize() : $(form).serialize(),
             errCallback = errorCallback ? errorCallback : function (XMLHttpRequest, textStatus, errorThrown) {
-                    alert('error: ' + XMLHttpRequest.responseText);
+                    alert('error dialog submit: ' + XMLHttpRequest.responseText);
             };
 
         if ( this.validator.form() ) {
@@ -543,7 +543,7 @@ var Registrator = Object.create({
                     jQuery("#verification_code").removeAttr('disabled').focus();
                 },
                 error :function (XMLHttpRequest, textStatus, errorThrown) {
-                    alert('error: ' + XMLHttpRequest.responseText);
+                    alert('error send sms: ' + XMLHttpRequest.responseText);
                     $button.button('enable');
                 }
             });
