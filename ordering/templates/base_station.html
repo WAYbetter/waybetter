@@ -3,10 +3,30 @@
 {% block join_or_login %}
     {% if not request.user.station %}
         <div id="station_login">
-            <form method="post" action="{% url django.contrib.auth.views.login %}">
+            <form method="post" action="{% url station_login %}" id="station_login_form">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <input type="hidden" name="next" value="{% url ordering.station_controller.stations_home %}">
+                {{ form.non_field_errors }}
+                {% if form.username.errors %}
+                    <div class="error-label">{% trans 'Username:' %} </div>
+                    {{ form.username.errors }}
+                {% endif %}
+                {% if form.password.errors %}
+                    <div class="error-label">{% trans 'Password:' %} </div>
+                    {{ form.password.errors }}
+                {% endif %}
+                <p>
+                    <label for="id_username">
+                        {% trans 'Username:' %}
+                    </label>
+                    {{ form.username }}
+                </p>
+                <p>
+                    <label for="id_password">
+                        {% trans 'Password:' %}
+                    </label>
+                    {{ form.password }}
+                </p>
+                <input type="hidden" name="next" value="{{ next }}">
             <input type="submit" class="wb_button gray" value="{% trans 'Login' %}"/>
             </form>
         </div>

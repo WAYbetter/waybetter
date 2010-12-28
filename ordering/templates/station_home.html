@@ -16,6 +16,10 @@
                     }
                 }
             });
+            $("#tabs").bind('tabsselect', function(event, ui) {
+                window.location.href=ui.tab;
+            });
+            
         });
 
 
@@ -25,13 +29,13 @@
        <div id="tabs">
            <ul>
                <li>
-                   <a href="{% url ordering.station_controller.get_station_orders_history %}">{% trans 'Rides history' %}</a>
+                   <a title="history" href="{% url ordering.station_controller.get_station_orders_history %}">{% trans 'Rides history' %}</a>
                </li>
                <li>
-                   <a href="{% url ordering.station_controller.station_profile %}">{% trans 'Profile' %}</a>
+                   <a title="profile" href="{% url ordering.station_controller.station_profile %}">{% trans 'Profile' %}</a>
                </li>
                <li>
-                   <a href="{% url ordering.station_controller.download_workstation %}">{% trans 'Workstations' %}</a>
+                   <a title="download" href="{% url ordering.station_controller.download_workstation %}">{% trans 'Workstations' %}</a>
                </li>
            </ul>
        </div>

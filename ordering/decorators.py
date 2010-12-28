@@ -1,12 +1,18 @@
+from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
+from django.contrib.auth.decorators import user_passes_test
+from django.utils.http import urlquote
 from ordering.models import Passenger, WorkStation, Station
-from django.http import HttpResponseForbidden
-from common.util import log_event, EventType
+from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render_to_response
+from django.conf import settings
 
 NOT_A_USER = "NOT_A_USER"
 NOT_A_PASSENGER = "NOT_A_PASSENGER"
 CURRENT_PASSENGER_KEY = "current_passeger"
+
+def login_needed(login_url):
+    return user_passes_test(lambda u: not u.is_anonymous(), login_url=login_url)
 
 def internal_task_on_queue(queue_name):
     """
@@ -87,7 +93,22 @@ def station_required(function=None):
     """
     Decorator for views that checks that the user is logged in and is a station
     """
-    @login_required
+    @login_needed(settings.STATION_LOGIN_URL)
+    def wrapper(request, **kwargs):
+        try:
+            station = Station.objects.filter(user = request.user).get()
+            kwargs["station"] = station
+        except Station.DoesNotExist:
+             logout(request)
+             path = urlquote(request.get_full_path())
+             return HttpResponseRedirect(path)
+
+        return function(request, **kwargs)
+
+    return wrapper
+
+def station_or_workstation_required(function=None):
+    @login_needed(settings.STATION_LOGIN_URL)
     def wrapper(request, **kwargs):
         try:
             station = Station.objects.filter(user = request.user).get()
@@ -98,8 +119,11 @@ def station_required(function=None):
                 work_station = WorkStation.objects.filter(user = request.user).get()
                 kwargs["station"] = work_station.station
             except WorkStation.DoesNotExist:
+                logout(request)
+                path = urlquote(request.get_full_path())
+                return HttpResponseRedirect(path)
 #            return HttpResponseForbidden("You are not a workstation, please <a href='/workstation/logout/'>logout</a> and try again")
-                return render_to_response("wrong_user_type_message.html", {})
+#                return render_to_response("wrong_user_type_message.html", {})
 
         return function(request, **kwargs)
 

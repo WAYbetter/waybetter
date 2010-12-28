@@ -21,7 +21,9 @@ urlpatterns = patterns('',
     
     (r'^station/home/$', 'ordering.station_controller.station_home'),
     (r'^stations/$', 'ordering.station_controller.stations_home'),
-
+    url(r'^stations/login/$', 'django.contrib.auth.views.login' ,
+        {'template_name': 'station_home.html'},
+        name="station_login"),
 
     # services
     (r'^services/resolve_address/$', 'ordering.passenger_controller.resolve_address'),
