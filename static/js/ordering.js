@@ -12,7 +12,6 @@ $.widget("custom.catcomplete", $.ui.autocomplete, {
         delay: 400
     },
     _response: function( content ) {
-                console.log("_response is disabled: " + this.options.disabled);
                 if ( content.length && ! this.options.disabled && this.element.is(":focus")) {
                         content = this._normalize( content );
                         this._suggest( content );
@@ -230,7 +229,6 @@ var OrderingHelper = Object.create({
             // all other keys enable: tab, shift, ctrl, esc, left, right, enter
             var ignored_key_codes = [9, 13, 16, 17, 18, 20, 27, 37, 38, 39, 40, 91];
             if (ignored_key_codes.indexOf(e.keyCode) < 0) {
-                console.log("enabling");
                 $(this).catcomplete("enable");
             }
         });
@@ -378,7 +376,6 @@ var OrderingHelper = Object.create({
     updateAddressChoice:        function(address) {
         address.populateFields();
         this.addPoint(address);
-        console.log("disabling");
         $("#id_from_raw, #id_to_raw").catcomplete("disable");
         if (address.address_type == "from") {
             $("#id_to_raw").focus();
