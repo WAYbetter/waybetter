@@ -87,8 +87,14 @@ input.text, input[type=text], input[type=password] {
 
 /************* Autocomplete *************/
 .ui-autocomplete.ui-menu {
-    border-radius: 0;
-    font-size: 14px;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    font-size: 13px;
+    -moz-box-shadow:0 2px 2px #5b5b5b;
+    -webkit-box-shadow:0 2px 2px #5b5b5b;
+    box-shadow:0 2px 2px #5b5b5b;
+    border: 1px solid gray;
 }
 .ui-autocomplete > .ui-active-menuitem {
     background: blue;
@@ -96,12 +102,23 @@ input.text, input[type=text], input[type=password] {
 }
 
 .ui-autocomplete  .ui-state-hover {
-    color: black;
-    background: #a8d5fd;
+    color: white;
+    background-color: #999999;
     border-radius: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
 }
-
-
+.ui-menu .ui-menu-item.map_suggestion {
+    /*background: #fff url("../images/devices/device-width-320/list_icons.png") right top no-repeat;*/
+}
+.ui-menu .ui-menu-item.history_suggestion a {
+    background-image:url("../img/history_icon.png");
+    background-position: 3px 3px;
+    background-repeat: no-repeat;
+}
+.ui-menu .ui-menu-item a  {
+    line-height: 1.3em;
+}
 /************* Header *************/
 #banner {
     text-shadow: #e1e1e1 0 1px;
@@ -230,7 +247,7 @@ a.input_history_helper {
     left: 0;
     top: 0;
     width: 16px;
-    height: 14px;
+    height: 16px;
     margin: 15px 0 0 10px;
     background: url("../img/history_icon.png") right top no-repeat;
     opacity: 0.3;
@@ -281,6 +298,9 @@ a.input_history_helper:hover {
     -webkit-box-shadow:inset 2px 2px 2px #2a2a2a;
     box-shadow:inset 2px 2px 2px #2a2a2a;
 }
+.placeheld {
+    color: #d3d3d3;
+}
 input.big_text {
     width: 245px;
     height: 23px;
@@ -309,6 +329,12 @@ input.a_marker.marker_disabled {
 input.b_marker.marker_disabled {
     background-position: 260px -72px;
 }
+
+input.a_marker.not_resolved, input.b_marker.not_resolved {
+    background-position: 260px -150px;
+}
+
+
 input:focus, input.focus{
     background-color: #feffee;
     border-color: black;

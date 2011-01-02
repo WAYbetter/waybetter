@@ -2,6 +2,8 @@ from django.db import models
 from django.utils.translation import gettext_lazy as _
                                
 # Create your models here.
+from djangotoolbox.fields import ListField
+
 class Country(models.Model):
     name = models.CharField(_("name"), max_length=60, unique=True)
     code = models.CharField(_("country code"), max_length=3, unique=True)
@@ -32,10 +34,14 @@ class Country(models.Model):
         self.full_clean()
 
 
+
 class City(models.Model):
     name = models.CharField(_("name"), max_length=50)
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="cities")
-    class Meta:
+    aliases = ListField(models.CharField(max_length=50))
+     
+    class Meta: 
+#        fields = ("name", "country", "aliases")
         verbose_name_plural = _("cities")
         ordering = ('name',)
 

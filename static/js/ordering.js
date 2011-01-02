@@ -1,12 +1,19 @@
+//custom jQuery selector
+jQuery.extend(jQuery.expr[':'], {
+    focus: function(element) {
+        return element == document.activeElement;
+    }
+});
+
 // define a custom autocomplete widget
 $.widget("custom.catcomplete", $.ui.autocomplete, {
     options: {
         minLength: 2,
-        delay: 100
+        delay: 400
     },
     _response: function( content ) {
-                console.log("_response: " + this.options.disabled);
-                if ( content.length && ! this.options.disabled ) {
+                console.log("_response is disabled: " + this.options.disabled);
+                if ( content.length && ! this.options.disabled && this.element.is(":focus")) {
                         content = this._normalize( content );
                         this._suggest( content );
                         this._trigger( "open" );
@@ -18,14 +25,17 @@ $.widget("custom.catcomplete", $.ui.autocomplete, {
     _renderMenu: function(ul, items) {
         var self = this,
                 currentCategory = undefined;
-
-        $.each(items, function(index, item) {
-            if (item.category != currentCategory) {
-                ul.append("<li class='ui-autocomplete-category'>" + item.category + "</li>");
-                currentCategory = item.category;
-            }
-            self._renderItem(ul, item);
+        ul.append("<li class='address-helper-autocomplete'>" + OrderingHelper.config.type_address_msg + "</li>");
+        $.each( items, function( index, item ) {
+            self._renderItem( ul, item );
         });
+    },
+    _renderItem: function( ul, item) {
+                return $( "<li></li>" )
+                        .data( "item.autocomplete", item )
+                        .append( "<a>" + item.label + "</a>" )
+                        .addClass(item.category)
+                        .appendTo( ul );
     }
 });
 
@@ -101,7 +111,10 @@ var OrderingHelper = Object.create({
         not_a_passenger_response:   "",
         not_a_user_response:        "",
         telmap_user:                "",
-        telmap_password:            ""
+        telmap_password:            "",
+        type_address_msg:           "",
+        address_not_resolved_msg:   ""
+
 
     },
     ADDRESS_FIELD_ID_BY_TYPE:       {
@@ -111,11 +124,56 @@ var OrderingHelper = Object.create({
     map:                            {},
     map_markers:                    {},
     map_markers_popups:             {},
+    _isEmpty:                   function(element) {
+        var place_holder_text = $(element).attr("placeholder");
+
+        return (! $(element).val() || $(element).val() == place_holder_text);    
+    },
+    _updateAddressControls:     function(element, address_type) {
+        var address = Address.fromFields(address_type);
+        var address_helper = $(element).siblings(".address-helper");
+        if (address.isResolved()) {
+            $(element).removeClass("not_resolved").removeClass("marker_disabled");
+        } else {
+            if (! this._isEmpty(element)) {
+                $(element).addClass("not_resolved").removeClass("marker_disabled");
+                address_helper.text(this.config.address_not_resolved_msg).addClass("address-error");
+            } else {
+                $(element).addClass("marker_disabled").removeClass("not_resolved");
+                address_helper.text(this.config.type_address_msg).removeClass("address-error");
+            }
+        }
+    },
+    _onAddressInputBlur:        function(element, address_type) {
+        this._updateAddressControls(element, address_type);
+        var address = Address.fromFields(address_type);
+        var address_helper = $(element).siblings(".address-helper");
+         if (address.isResolved() || this._isEmpty(element)) {
+            address_helper.fadeOut("fast");
+        }
+    },
+    _onAddressInputFocus:       function(element, address_type) {
+        this._updateAddressControls(element, address_type);
+        var address = Address.fromFields(address_type);
+        var address_helper = $(element).siblings(".address-helper");
+        if (! address.isResolved()) {
+            $(element).removeClass("not_resolved").addClass("marker_disabled");
+            address_helper.text(this.config.type_address_msg).removeClass("address-error");
+            address_helper.fadeIn("fast");
+        }
+    },
     init:                       function(config) {
         this.config = $.extend(true, {}, this.config, config);
         var that = this;        
         $("input:text").each(function(i, element) {
             var address_type = element.name.split("_")[0];
+            var helper_div = $("<div class='address-helper round'></div>");
+            $(element).after(helper_div);
+            $(element).focus(function() {
+                that._onAddressInputFocus(element, address_type);
+            }).blur(function() {
+                that._onAddressInputBlur(element, address_type);
+            });
             $(element).catcomplete({
                 cacheLength: 1,
                 mustMatch: true,
@@ -154,6 +212,7 @@ var OrderingHelper = Object.create({
                 select: function (event, ui) {
                     if (ui.item.address) {
                         that.updateAddressChoice(ui.item.address);
+                        that._onAddressInputBlur(this, ui.item.address.address_type);
                     }
                 },
                 open: function(event, ui) {

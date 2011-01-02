@@ -95,7 +95,7 @@ input.text, input[type=text], input[type=password] {
 
 .ui-autocomplete  .ui-state-hover {
     color: black;
-    background: #a8d5fd;
+    background: #61ccff;
     border-radius: 0;
 }
 
@@ -277,6 +277,9 @@ a.input_history_helper:hover {
     -webkit-box-shadow:inset 2px 2px 2px #2a2a2a;
     box-shadow:inset 2px 2px 2px #2a2a2a;
 }
+.placeheld {
+    color: #d3d3d3;
+}
 input.big_text {
     width: 245px;
     height: 23px;
@@ -305,6 +308,11 @@ input.a_marker.marker_disabled {
 input.b_marker.marker_disabled {
     background-position: 6px -72px;
 }
+
+input.a_marker.not_resolved, input.b_marker.not_resolved {
+    background-position: 6px -150px;
+}
+
 input:focus, input.focus{
     background-color: #feffee;
     border-color: black;

@@ -29,13 +29,6 @@
             selected: 2
         });
         $("input[placeholder]").placeHeld();
-        $(".big_text").keyup(function () {
-            if ($(this).val().length > 0) {
-                $(this).removeClass("marker_disabled")
-            } else {
-                $(this).addClass("marker_disabled")
-            }
-        });
         $('marquee').marquee();
         $("#tabs li:first").addClass("first_tab");
         $("#tabs li:last").addClass("last_tab");

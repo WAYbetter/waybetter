@@ -16,6 +16,8 @@
             not_a_user_response:        "{{ not_a_user }}",
             telmap_user:                "{{ telmap_user }}",
             telmap_password:            "{{ telmap_password}}",
+            type_address_msg:           "{% trans 'Type city, street, number and choose for the list' %}",
+            address_not_resolved_msg:   "{% trans 'The address is not resolved' %}"
         });
         $("#tabs").tabs({
 
@@ -32,6 +34,49 @@
     });
 
 </script>
+<style type="text/css">
+    .address-helper {
+        background-color: #00acff;
+        display: none;
+        position:absolute;
+        top: 42px;
+        padding: 2px;
+        padding-right: 6px;
+        font-size: 13px;
+        width: 283px;
+        -moz-box-shadow:0 2px 2px #5b5b5b;
+        -webkit-box-shadow:0 2px 2px #5b5b5b;
+        box-shadow:0 2px 2px #5b5b5b;
+        color: white;
+        border: 1px solid #8cd4f7;
+        border-radius: 5px;
+        -webkit-border-radius: 5px;
+        -moz-border-radius: 5px;
+    }
+    .address-helper-autocomplete {
+        background-color: #00acff;
+        color: white;
+        border: 1px solid #8cd4f7;
+        margin: -2px;
+        margin-bottom: 2px;
+        padding: 2px;
+        padding-right: 5px;
+        -moz-border-radius-topleft: 5px;
+        -moz-border-radius-topright: 5px;
+        -moz-border-radius-bottomright: 0;
+        -moz-border-radius-bottomleft: 0;
+        border-top-left-radius: 5px;
+        border-top-right-radius: 5px;
+        border-bottom-right-radius: 0;
+        border-bottom-left-radius: 0;
+    }
+    .address-error {
+
+        background-color: #BC1111;
+        /*background-color: #FEB4B4;*/
+        border-color: #FEB4B4;
+    }
+</style>
 {% endblock %}
 
 {% block content %}
