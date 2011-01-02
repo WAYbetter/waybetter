@@ -9,7 +9,7 @@ import forms
 from common.geocode import geocode
 
 class PassengerAdmin(admin.ModelAdmin):
-    list_display = ["id", "user_name"]
+    list_display = ["id", "phone", "user_name"]
 
     def user_name(self, obj):
         if obj.user:
