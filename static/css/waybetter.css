@@ -705,10 +705,14 @@ ul.ui-tabs-nav .ui-state-hover a {
 
  .ui-dialog .ui-widget-header {
 	background: #46bce8;
-	border-bottom-left-radius: 0px 0px;
-	border-bottom-right-radius: 0px 0px;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
 	border-top-left-radius: 5px 5px;
 	border-top-right-radius: 5px 5px;
+    -moz-border-radius-bottomleft: 0;
+    -moz-border-radius-bottomright: 0;
+    -moz-border-radius-topleft: 5px 5px;
+    -moz-border-radius-topright: 5px 5px;
 	padding-bottom: 10px;
  }
 
