@@ -1,7 +1,12 @@
 @import url(/static/css/order_history.css); /************* Orders History ****************/
+@font-face {
+  font-family: "wb_calibri";
+  src: url( /static/fonts/Calibri.eot ); /* IE */
+  src: local("wb_calibri"), url( /static/fonts/Calibri.ttf ) format("truetype"); /* non-IE */
+}
 
 * {
-    font-family: Calibri, Arial, sans-serif;
+    font-family: Calibri, wb_calibri, Arial, sans-serif;
     margin: 0;
     padding: 0;
     color: #2e2e2e;
@@ -119,6 +124,47 @@ input.text, input[type=text], input[type=password] {
 .ui-menu .ui-menu-item a  {
     line-height: 1.3em;
 }
+.address-helper {
+    background-color: #00acff;
+    display: none;
+    position:absolute;
+    top: 42px;
+    padding: 2px;
+    padding-right: 6px;
+    font-size: 13px;
+    width: 283px;
+    -moz-box-shadow:0 2px 2px #5b5b5b;
+    -webkit-box-shadow:0 2px 2px #5b5b5b;
+    box-shadow:0 2px 2px #5b5b5b;
+    color: white;
+    border: 1px solid #8cd4f7;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+.address-helper-autocomplete {
+    background-color: #00acff;
+    color: white;
+    border: 1px solid #8cd4f7;
+    margin: -2px;
+    margin-bottom: 2px;
+    padding: 2px;
+    padding-right: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+    -moz-border-radius-bottomright: 0;
+    -moz-border-radius-bottomleft: 0;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.address-error {
+
+    background-color: #BC1111;
+    /*background-color: #FEB4B4;*/
+    border-color: #FEB4B4;
+}
 /************* Header *************/
 #banner {
     text-shadow: #e1e1e1 0 1px;
@@ -226,7 +272,7 @@ span.right-fade {
 
 /************* Ordering Form *************/
 .gray_header {
-     position: relative;
+    position: relative;
     padding: 10px;
     background-color: #8d8d8d;
     background: -webkit-gradient(linear, left top, left bottom, from(#8d8d8d), to(#535353));
@@ -248,9 +294,9 @@ a.input_history_helper {
     top: 0;
     width: 16px;
     height: 16px;
-    margin: 15px 0 0 10px;
+    margin: 12px 0 0 10px;
     background: url("../img/history_icon.png") right top no-repeat;
-    opacity: 0.3;
+    opacity: 0.6;
 }
 a.input_history_helper:hover {
     opacity: 1;
@@ -285,8 +331,6 @@ a.input_history_helper:hover {
     -webkit-box-shadow:inset 2px 2px 2px #2a2a2a;
     box-shadow:inset 2px 2px 2px #2a2a2a;
 }
-
-
 #map_overlay_top {
     position: absolute;
     right: 0;
@@ -334,7 +378,6 @@ input.a_marker.not_resolved, input.b_marker.not_resolved {
     background-position: 260px -150px;
 }
 
-
 input:focus, input.focus{
     background-color: #feffee;
     border-color: black;
@@ -368,16 +411,34 @@ button.order_button.disabled, button.order_button:disabled {
     text-align: right;
 }
 #tabs ul > li > a {
-    padding-right: 40px;
-    background-position: right center;
     background-repeat: no-repeat;
+    background-image: url("../images/tab_icons.png");
+    display: block;
+    height: 16px;
+    margin-left: 40px;
+    margin-top: 8px;
+    padding: 0px 28px 0px 0px;
+
 }
-#tabs ul > li > a[href="#tabs-1"] {
-    background-image: url("../img/history_icon.png");
+#tabs ul > li > a[title="profile"] {
+    background-position: 39px -48px;
 }
-#tabs ul > li > a[href="#tabs-2"] {
-    background-image: url("../img/settings_icon.png");
+#tabs ul > li > a[title="mobile"] {
+    background-position: 78px -16px;
 }
+#tabs ul > li > a[title="history"] {
+    background-position: 87px -80px;
+}
+#tabs ul > li > a[title="whats_this"] {
+    background-position: 48px -160px;
+}
+#tabs ul > li > a[title="stations"] {
+    background-position: 70px -32px;
+}
+#tabs ul > li > a[title="download"] {
+    background-position: 70px -64px;
+}
+
 img.tab_icon {
     margin-left: 7px;
     margin-right: -15px;
@@ -606,7 +667,7 @@ ul.ui-tabs-nav .ui-state-hover a {
     padding-right: 18px;
     background-image: url(/static/images/small_arrow_he.png);
     background-repeat: no-repeat;
-    background-position: 91% 18px;
+    background-position: 12px 18px;
 }
 
 .input-helper.red {
@@ -666,7 +727,6 @@ ul.ui-tabs-nav .ui-state-hover a {
     background: -webkit-gradient(linear, right top, right bottom, color-stop(0%,#5DBADA), color-stop(100%,#105F98)); /* webkit */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#5DBADA', endColorstr='#105F98',GradientType=0 ); /* ie */
 }
-
 .input-helper.sms-button:active {
     background: #2E95C4; /* old browsers */
     background: -moz-linear-gradient(top, #2E95C4 0%, #064E8B 100%); /* firefox */
@@ -762,6 +822,15 @@ ul.ui-tabs-nav .ui-state-hover a {
     font-weight: bold;
     margin-top: 1em;
 }
+
+#login_error {
+    background: none repeat scroll 0 0 white;
+    color: red;
+    display: inline;
+    margin-right: 10px;
+    vertical-align: bottom;
+}
+
 .ui-dialog-title.error-dialog {
     color: white;
     font-size: 20px;
@@ -776,6 +845,31 @@ ul.ui-tabs-nav .ui-state-hover a {
 .ui-dialog-title.success {
     color: #0bda01;
 }
+
+/** User Profile **/
+
+#profile_form label {
+	display: block;
+	font-size: 15px;
+	padding-top: 15px;
+}
+#profile_form input,#profile_form select{
+	font-size: 15px;
+	height: 30px;
+	width: 200px;
+}
+
+#profile_form input[type=submit]{
+	margin-left: 250px;
+	margin-top: -30px;
+}
+#profile_form{
+	padding-left: 79px;
+}
+/* #profile_form #field_container { */
+	/* max-height: 250px; */
+/* } */
+
 
 #search_button.wb_button {
 

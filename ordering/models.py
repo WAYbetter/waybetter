@@ -108,7 +108,7 @@ class Passenger(models.Model):
 
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
     default_station = models.ForeignKey(Station, verbose_name=_("Default station"), related_name="default_passengers",
-                                        default=None, null=True)
+                                        default=None, null=True, blank=True)
 
     phone = models.CharField(_("phone number"), max_length=15)
     phone_verified = models.BooleanField(_("phone verified"))

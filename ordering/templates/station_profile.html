@@ -22,7 +22,7 @@
     </div>
     {% endfor %}
     {{ phone_formset.management_form }}
- <input type="submit" value="{% trans 'Save Changes' %}"/>
+ <input type="submit" class="wb_button blue" value="{% trans 'Save Changes' %}"/>
 </form>
 
 <script>
@@ -33,7 +33,6 @@ $(function() {
         target_id_selector:     "#id_city_id",
         url:                    "{% url ordering.station_controller.get_cities_for_country %}"
     });
-    $("#profile_form input[type=submit]").button();
     var validations =  {% render_ajax_fields form %};
     {% for p_form in phone_formset.forms %}
          $.extend(validations, {% render_ajax_fields p_form %});

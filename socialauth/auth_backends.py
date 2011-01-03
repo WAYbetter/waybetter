@@ -1,3 +1,4 @@
+import logging
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.conf import settings
@@ -72,6 +73,7 @@ class OpenIdBackend:
                 valid_username = True
             
             if not user:
+                logging.info("creating new user: '%s'" % username)
                 user = User.objects.create_user(username, email)
                 
             user.first_name = firstname
