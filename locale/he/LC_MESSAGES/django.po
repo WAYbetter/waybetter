@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2010-12-30 11:59+0200\n"
-"PO-Revision-Date: 2010-12-30 04:04\n"
+"POT-Creation-Date: 2011-01-04 14:18+0200\n"
+"PO-Revision-Date: 2011-01-04 06:22\n"
 "Last-Translator: <admin@admin.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -209,10 +209,12 @@ msgid "Finish"
 msgstr "סיום"
 
 #: common/templates/error_form.html:12 common/templates/login_form.html:12
+#: common/templates/terms_form.html:12
 msgid "Please enter your username"
 msgstr "הכנס את שם המשתמש שלך"
 
 #: common/templates/error_form.html:13 common/templates/login_form.html:13
+#: common/templates/terms_form.html:13
 msgid "Please enter your password"
 msgstr "הכנס את הסיסמה שלך"
 
@@ -220,6 +222,7 @@ msgstr "הכנס את הסיסמה שלך"
 #: common/templates/login_form.html:14
 #: common/templates/registration_form.html:22
 #: common/templates/registration_form.html:42
+#: common/templates/terms_form.html:14 common/templates/terms_form.html:32
 msgid "OK"
 msgstr "אישור"
 
@@ -247,7 +250,7 @@ msgstr "סיסמה"
 #: common/templates/login_form.html:39
 #: common/templates/phone_verification_form.html:46
 #: ordering/templates/base_passenger.html:50
-#: ordering/templates/base_station.html:30
+#: ordering/templates/base_station.html:35
 msgid "Login"
 msgstr "כניסה"
 
@@ -396,6 +399,33 @@ msgstr "(או)"
 #: common/templates/social_login.html:48
 msgid "register using your account at:"
 msgstr "הירשם באמצעות החשבון שלך ב:"
+
+#: common/templates/terms_form.html:5
+#: ordering/templates/workstation_download.html:109
+msgid "Terms Of Use"
+msgstr "תנאי השימוש"
+
+#: common/templates/terms_form.html:29
+msgid "actual_terms"
+msgstr ""
+"תנאי שימוש באפליקציית WAYbetter\n"
+"\n"
+"אנו (\"התחנה\"), מעוניינים לשתף פעולה עם חברת ווי-בטר בע\"מ, ח.פ 51-442591-7 (\"החברה\"), וזאת מתוך מחויבות לספק שירות טוב ויעיל לנוסעים המזמינים שירות הסעה באמצעות אפליקציית WAYbetter אשר פיתחה החברה (\"האפליקציה\") במסגרת אתר האינטרנט שכתובתו waybetter.com (\"האתר\").\n"
+"\n"
+"בהתקנת האפליקציה מצהירה התחנה כי היא קראה את האמור בתנאי שימוש אלה וכי היא מסכימה לאמור בהם כדלקמן:\n"
+"בכפוף לאמור בהסכם זה, החברה מעניקה בזאת לתחנה זכות שימוש לא-בלעדית באפליקציה (\"זכות השימוש\"); אין במתן זכות השימוש או בחתימה על הסכם זה משום מתן הרשאה, רישיון  או זכות לתחנה להמחות, להעביר, למכור, להשכיר או לחכור את האפליקציה לצד שלישי, בין אם תמורת תשלום ובין אם לאו;\n"
+"זכות השימוש הינה למשך חודש בלבד והיא מתחדשת באופן אוטומטי מדי חודש, עד למתן הודעה מצד החברה לתחנה כי זכות השימוש פגה ואינה תקפה. הודעה כאמור יכולה להינתן על ידי החברה בכל עת ועל פי שיקול דעתה המלא והבלעדי של החברה;\n"
+"בגין מתן זכות השימוש לתחנה, מתחייבת התחנה לשלם לחברה את הסכומים המפורטים בתנאי שימוש אלה; מובהר כי חיובים אלה יחולו רק לאחר הודעת דואר אלקטרוני אשר תישלח על ידי החברה לכתובת הדואר האלקטרוני של התחנה כפי שנמסר לחברה בעת ההרשמה לאתר ולפיה האפליקציה הושקה לציבור;\n"
+"תנאי החיוב:\n"
+"עבור כל נסיעה שתתבצע על ידי מונית של התחנה (ע\"י לחיצה על כפתור 'שלח' באפליקציה), תחויב התחנה בדמי טיפול של 1‪.‬20 ₪, מלבד נסיעות שיילקחו במסגרת הטבה ו/או מבצע שיפורסם על ידי החברה, ועליהם לא תחויב התחנה, או תחויב במחיר נמוך יותר, בהתאם לפרטי ההטבה ו/או המבצע כפי שיפורסמו על ידי החברה מעת לעת ובהתאם לשיקול דעתה המלא והבלעדי; \n"
+"החיובים יתבצעו אחת לחודש באמצעות כרטיס האשראי שנמסר על ידי התחנה בעת ההרשמה לאתר (או באמצעות כרטיס אשראי חלופי, אם תודיע על כך התחנה בכתב לחברה לפני מועד החיוב הרלוונטי), ובלווי חשבונית חודשית מפורטת.\n"
+"האפליקציה מופצת כמות שהיא (\"as is\"), ללא אחריות מכל סוג שהוא, בין אם מפורשת, מרומזת או מעוגנת בחוק. אי לכך ובהתאם לזאת התחנה מצהירה ומסכימה כי החברה ו/או כל גוף או אדם הקשורים לחברה ובעלי מניותיה ו/או מעורבים ביצירת, הפקת או הפצת האפליקציה יהיו פטורים מכל אחריות וחובות, בקשר לכל נזק, פגיעה, הפסד או הוצאה, ישירים או עקיפים, משניים, מיוחדים או תוצאתיים, וכי השימוש באפליקציה או באתר או בשירות, הינו באחריות התחנה בלבד;\n"
+"התחנה מצהירה כי במקרה והתחנה אינה שבעת-רצון מהאפליקציה או חלק ממנה, או מאחד מתנאי השימוש, הסעד היחידי והבלעדי אשר יעמוד לרשות התחנה הינו הפסקת השימוש באפליקציה ו/או באתר;\n"
+"החברה שומרת לעצמה את הזכות לעדכן את תנאי השימוש, מעת לעת, לפי שיקול דעתה המלא והבלעדי ובכפוף להודעה מראש של שבעה ימים לכתובת הדואר האלקטרוני שתציין התחנה בעת ההרשמה לאתר;\n"
+"מלוא זכויות היוצרים והקניין הרוחני באפליקציה הינו בבעלותה המלאה והבלעדית של החברה וכל הזכויות, לרבות זכויות קניין רוחני באפליקציה הינן ותישארנה תחת בעלותה המלאה והבלעדית של החברה. תנאי שימוש אלה ומתן זכות השימוש אינו מעניק לתחנה כל זכות באפליקציה למעט זכות השימוש המוגבלת המוענקת לתחנה במפורש על פי תנאי שימוש אלה ובתנאים האמורים לעיל. החברה רשאית להפסיק בכל עת וללא הודעה מראש, את מתן השירותים באמצעות האפליקציה, כולם או מקצתם ולתחנה לא תהא כל טענה או דרישה בקשר עם הפסקת מתן השירותים וזכות השימוש על ידי החברה כאמור;\n"
+"התחנה לא תנסה לבצע פענוח מכל סוג שהוא של האפליקציה, לרבות הנדוס לאחור (reverse engineering) ו/או דקומפילציה (decompilation). כמו כן, התחנה לא תנסה לבצע עדכונים או שינויים באפליקציה, כולה או חלקה ו/או לשלב אותה בתוכנות אחרות. בנוסף, התחנה לא תיצור, ולא תנסה ליצור, עותקים מהאפליקציה, כולה או חלקה, להפיצה, לשדרה, לשום מטרה, בשום דרך שתהיה;\n"
+"החברה אינה מתחייבת כי השימוש באפליקציה לא יופרע, יינתן כסדרו ללא הפסקות והפרעות ו/או יהיה חסין מפני גישה לא חוקית למחשבי החברה, נזקים, קלקולים, תקלות, כשלים בחומרה, תוכנה או בקווי התקשורת אצל החברה או מי מספקיה או ייפגע מכל סיבה אחרת, והחברה לא תהא אחראית לכל נזק, ישיר או עקיף, עגמת נפש וכיו\"ב שייגרמו לתחנה או לרכושה עקב כך;\n"
+"תנאי שימוש אלה כפופים לחוקי מדינת ישראל. סמכות השיפוט בלעדית לדון בכל סכסוך העולה מתנאי שימוש אלה תהיה נתונה לבית-משפט בעל הסמכות הרלוונטית בתל-אביב-יפו בלבד."
 
 #: flatpages2/admin.py:10 flatpages2/models.py:6
 msgid "URL"
@@ -958,14 +988,6 @@ msgstr ""
 msgid "You can't rate this order"
 msgstr "אינך יכול לדרג הזמנה זו"
 
-#: ordering/passenger_controller.py:87
-msgid "Map Suggestions"
-msgstr "הצעות מתוך מפה:"
-
-#: ordering/passenger_controller.py:88
-msgid "History Suggestions"
-msgstr "הצעות מנסיעות קודמות:"
-
 #: ordering/passenger_controller.py:130
 msgid "min"
 msgstr "דקות"
@@ -1016,48 +1038,48 @@ msgstr "הודעה נשלחה לנוסע: %s דקות"
 msgid "Join!"
 msgstr "הצטרף!"
 
-#: ordering/templates/base_station.html:10
-#: ordering/templates/base_station.html:19
+#: ordering/templates/base_station.html:15
+#: ordering/templates/base_station.html:24
 #: templates/registration/login.html:19
 msgid "Username:"
 msgstr "שם משתמש:"
 
-#: ordering/templates/base_station.html:14
-#: ordering/templates/base_station.html:25
+#: ordering/templates/base_station.html:19
+#: ordering/templates/base_station.html:30
 #: templates/registration/login.html:22
 msgid "Password:"
 msgstr "סיסמה:"
 
-#: ordering/templates/base_station.html:36
+#: ordering/templates/base_station.html:41
 msgid "Smart Tools for Smart Taxi Stations"
-msgstr "כלים מתקדמים לתחנות מוניות מתקדמות"
+msgstr "כלים חכמים לתחנות חכמות"
 
-#: ordering/templates/base_station.html:45
-#: ordering/templates/passenger_home.html:149
+#: ordering/templates/base_station.html:50
+#: ordering/templates/passenger_home.html:140
 msgid "About"
 msgstr "אודות"
 
-#: ordering/templates/base_station.html:46
-#: ordering/templates/passenger_home.html:150
+#: ordering/templates/base_station.html:51
+#: ordering/templates/passenger_home.html:141
 msgid "Press"
 msgstr "תקשורת"
 
-#: ordering/templates/base_station.html:47
-#: ordering/templates/passenger_home.html:151
+#: ordering/templates/base_station.html:52
+#: ordering/templates/passenger_home.html:142
 msgid "Help"
 msgstr "עזרה"
 
-#: ordering/templates/base_station.html:48
-#: ordering/templates/passenger_home.html:152
+#: ordering/templates/base_station.html:53
+#: ordering/templates/passenger_home.html:143
 msgid "Terms"
 msgstr "תנאי שימוש"
 
-#: ordering/templates/base_station.html:49
+#: ordering/templates/base_station.html:54
 msgid "Passengers home"
 msgstr "דף-בית נוסעים"
 
-#: ordering/templates/base_station.html:52
-#: ordering/templates/passenger_home.html:156
+#: ordering/templates/base_station.html:57
+#: ordering/templates/passenger_home.html:147
 msgid "2010 WAYbetter"
 msgstr "2010 WAYbetter"
 
@@ -1105,43 +1127,51 @@ msgstr "כתובת לא ידועה. בחר כתובת מהרשימה"
 msgid "We're sorry, but an error occurred while loading this page."
 msgstr "אנו מצטערים, אך אירעה שגיאה בעת טעינת דף זה"
 
-#: ordering/templates/passenger_home.html:85 templates/mobile/base.html:61
+#: ordering/templates/passenger_home.html:74 templates/mobile/base.html:61
 msgid "TAXI"
 msgstr "TAXI"
 
-#: ordering/templates/passenger_home.html:88
+#: ordering/templates/passenger_home.html:77
 msgid "Book Now (FREE)"
 msgstr "הזמינו עכשיו (חינם!)"
 
-#: ordering/templates/passenger_home.html:104
+#: ordering/templates/passenger_home.html:93
 msgid "Enter pickup address"
 msgstr "כתובת מוצא (רחוב, מספר, עיר)"
 
-#: ordering/templates/passenger_home.html:107
+#: ordering/templates/passenger_home.html:96
 msgid "Enter drop-off address"
 msgstr "כתובת יעד (רחוב, מספר, עיר)"
 
-#: ordering/templates/passenger_home.html:123
+#: ordering/templates/passenger_home.html:112
 msgid "Ride History"
 msgstr "נסיעות קודמות"
 
-#: ordering/templates/passenger_home.html:124
+#: ordering/templates/passenger_home.html:113
 msgid "My Profile"
 msgstr "הפרופיל שלי"
 
-#: ordering/templates/passenger_home.html:128
+#: ordering/templates/passenger_home.html:117
 msgid "Taxi Stations"
 msgstr "תחנות מונית"
 
-#: ordering/templates/passenger_home.html:129
+#: ordering/templates/passenger_home.html:118
 msgid "Mobile"
 msgstr "טלפונים ניידים"
 
-#: ordering/templates/passenger_home.html:130
+#: ordering/templates/passenger_home.html:119
 msgid "What's This?"
 msgstr "מה זה?"
 
-#: ordering/templates/passenger_home.html:153
+#: ordering/templates/passenger_home.html:125
+msgid "Get a Taxi. Wherever You Are!"
+msgstr "איפה שלא תהיה, קבל מונית!"
+
+#: ordering/templates/passenger_home.html:127
+msgid "Coming soon to all mobiles!"
+msgstr "בקרוב על כל הניידים!"
+
+#: ordering/templates/passenger_home.html:144
 msgid "Station Entrance"
 msgstr "כניסת תחנות"
 
@@ -1207,16 +1237,20 @@ msgstr "מה אשלם?"
 #: ordering/templates/station_home.html:72
 msgid "The price is only 1nis for every ride you take, meaning you pay only if and when you make money!!!"
 msgstr ""
-"המחיר הוא שקל אחד בלבד לכל נסיעה שתבחר לקחת. המשמעות היא שאם לא הרווחת, לא שילמת.\n"
+"המחיר הוא 1.2 שקל בלבד לכל נסיעה שתבחר לקחת. המשמעות היא שאם לא הרווחת, לא שילמת.\n"
 "ההצלחה שלך היא ההצלחה שלנו!"
 
-#: ordering/templates/workstation_download.html:50
+#: ordering/templates/workstation_download.html:78
 msgid "Download workstations"
 msgstr "התקן עמדות עבודה"
 
-#: ordering/templates/workstation_download.html:73
+#: ordering/templates/workstation_download.html:101
 msgid "Delete"
 msgstr "מחק"
+
+#: ordering/templates/workstation_download.html:109
+msgid "By downloading the workstation software I declare that I have read and agree to the "
+msgstr "בהורדת התוכנה אני מצהיר בזאת כי קראתי ואני מסכים ל"
 
 #: ordering/templates/workstation_home.html:5
 msgid "Workstation page"
@@ -1372,8 +1406,8 @@ msgid "WAYbetter"
 msgstr "WAYbetter"
 
 #: templates/base.html:54
-msgid "The best way to get a taxi (FREE)"
-msgstr "הדרך הטובה ביותר להשיג מונית (חינם)"
+msgid "Get Your Taxis Online (FREE)"
+msgstr "פשוט להזמין מונית (חינם)"
 
 #: templates/base.html:59
 msgid "Hi"
@@ -1460,6 +1494,15 @@ msgstr "נרשמת בהצלחה. קוד אימות SMS נשלח אליך, אנא
 #: tinymce/views.py:68
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
+
+#~ msgid "The best way to get a taxi (FREE)"
+#~ msgstr "הדרך הטובה ביותר להשיג מונית (חינם)"
+
+#~ msgid "Map Suggestions"
+#~ msgstr "הצעות מתוך מפה:"
+
+#~ msgid "History Suggestions"
+#~ msgstr "הצעות מנסיעות קודמות:"
 
 #~ msgid "Passenger Rating"
 #~ msgstr "דירוג נוסע"

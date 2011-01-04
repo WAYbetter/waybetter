@@ -7,6 +7,7 @@ var Registrator = Object.create({
             phone_form_template         : '/',
             phone_code_form_template    : '/',
             sending_form_template       : '/',
+            terms_form_template         : '/',
             check_username              : '/',
             login                       : '/',
             send_sms                    : '/',
@@ -164,6 +165,16 @@ var Registrator = Object.create({
                 $("#dialog").dialog("close");    
             });
             that.openDialog.call(that, {}, { "title": title });
+        });
+    },
+    openTermsDialog         : function (callback) {
+        var that = this;
+        that.setCallback(callback);
+        that.getTemplate.call(that, 'terms', function(dialog_content) {
+            $("#ok", dialog_content).click(function() {
+                $("#dialog").dialog('close');
+            });
+            that.openDialog.call(that);
         });
     },
     openLoginDialog         : function (callback) {
@@ -508,7 +519,9 @@ var Registrator = Object.create({
     openDialog              : function (validation_config, dialog_config) {
         var config = $.extend(true, {}, this.config.dialog_config, dialog_config),
             $dialog = $('#dialog');
-        this.initValidator($('form:first', $dialog), validation_config);
+        if (validation_config) {
+            this.initValidator($('form:first', $dialog), validation_config);
+        }
         $dialog.dialog('option', config);
         if (! $dialog.dialog('isOpen') ) {
             $dialog.dialog('open');
