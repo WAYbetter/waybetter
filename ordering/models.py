@@ -287,7 +287,7 @@ class Order(models.Model):
 
 
 class OrderAssignment(models.Model):
-    ORDER_ASSIGNMENT_TIMEOUT = 900 # seconds
+    ORDER_ASSIGNMENT_TIMEOUT = 40 # seconds
 
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")
     work_station = models.ForeignKey(WorkStation, verbose_name=_("work station"), related_name="assignments")
