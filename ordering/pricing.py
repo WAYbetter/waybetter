@@ -14,12 +14,25 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
     """
     Calculates an estimated cost for a ride, based on the estimated duration &amp; distance,
     together with the relevant Pricing Rules defined for the country.
+
+    ARGS:
+    est_duration: in seconds
+    est_distance: in meters
+    country_code: country in which this ride is taking place (optional)
+    cities: cities that are visited in this ride (optional)
+    streets:
+    day_of_week:
+    time:
+    from_address:
+    to_address:
     """
 
     country = Country.objects.get(code=country_code)
 
     # Step 1: first look for specific rules (inter-city prices)
+
     if prescreen_specific_rules(cities):
+    # ride is between two different cities
         specific_rules = country.specific_pricing_rules.filter(city=cities[0], to_city=cities[1])
 #        specific_rules = SpecificPricingRule.objects.filter(country=country, city=cities[0], to_city=cities[1])
         relevant_rules = filter_relevant_specific_rules(specific_rules)
@@ -53,7 +66,10 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
 def filter_relevant_rules(base_rules, cities=None, streets=None, day_of_week=None, time=None,
                     from_address=None, to_address=None):
     relevant_rules = []
-    if cities: city_names = get_city_names(cities)
+    if cities:
+        city_names = get_city_names(cities)
+    else:
+        city_names = []
     for rule in base_rules:
         rule_conditions = {}
         # check special place
@@ -131,15 +147,20 @@ def filter_relevant_duration_rules(base_rules, est_duration):
 
 def filter_relevant_specific_rules(specific_rules, day_of_week=None, time=None):
     """
-
+    ARGS:
+    specific_rules: list of specific rules between two cities
+    day_of_week: that specific rules should apply in
+    time: that specific rules should apply at
     """
     result = []
     for rule in specific_rules:
+        # if rule is day-dependent check if it applies at day_of_week
         if rule.from_day_of_week and rule.to_day_of_week:
             if day_of_week is None:
                 day_of_week = convert_python_weekday(datetime.datetime.now().weekday())
             if not (rule.from_day_of_week <= day_of_week <= rule.to_day_of_week):
                 continue
+        # if rule is time-dependent check if it applies at time
         if rule.from_hour and rule.to_hour:
             if time is None:
                 time = datetime.datetime.now().time()
