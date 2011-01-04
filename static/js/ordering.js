@@ -279,6 +279,8 @@ var OrderingHelper = Object.create({
     initMap:                    function () {
         var prefs = {
             mapTypeId:telmap.maps.MapTypeId.ROADMAP,
+            suit:telmap.maps.SuitType.MEDIUM_4,
+            navigationControlOptions:{style:telmap.maps.NavigationControlStyle.SMALL},
             zoom:15,
             center:new telmap.maps.LatLng(32.09279909028302,34.781051985221),
             login:{
