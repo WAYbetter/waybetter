@@ -14,7 +14,6 @@ urlpatterns = patterns('',
     (r'registration/get_phone_code_form/$', 'common.registration.get_phone_code_form'),
     (r'registration/get_sending_form/$', 'common.registration.get_sending_form'),
     url(r'get_terms/$', direct_to_template, {'template': "terms_form.html"} ,name="terms_dialog"),
-  
 
 )
 

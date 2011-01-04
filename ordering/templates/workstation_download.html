@@ -10,6 +10,10 @@
         font-size: 14px;
         margin-right: 25%;
     }
+    #AIRDownloadMessageTable td {
+        vertical-align: top;
+    }
+
 
     #AIRDownloadMessageRuntime {
         font-size: 12px;
@@ -83,7 +87,7 @@
             <td align="center">
             <p>{{ t.1.user.username }}</p>
             {% ifequal t.2 "disconnected" %}
-                <embed width="217" height="180" align="middle" src="/static/app/badge/badge.swf" quality="high"
+                <embed width="217" height="180" align="middle" src="/static/app/badge/badge.swf" quality="high" wmode="opaque"
                        bgcolor="#FFFFFF" name="badge" allowscriptaccess="always"
                        pluginspage="http://www.macromedia.com/go/getflashplayer"
                        flashvars="appname=workstation_app&amp;appurl={{ t.1.installer_url }}&amp;airversion=2.5&amp;imageurl=/static/app/badge/{{ t.0 }}_{{ t.2 }}.png"
