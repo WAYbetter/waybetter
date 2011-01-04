@@ -30,7 +30,6 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
     country = Country.objects.get(code=country_code)
 
     # Step 1: first look for specific rules (inter-city prices)
-
     if prescreen_specific_rules(cities):
     # ride is between two different cities
         specific_rules = country.specific_pricing_rules.filter(city=cities[0], to_city=cities[1])
@@ -102,8 +101,13 @@ def filter_relevant_rules(base_rules, cities=None, streets=None, day_of_week=Non
                 time = datetime.datetime.now().time()
             start_time = datetime.time(rule.from_hour.hour, rule.from_hour.minute)
             end_time = datetime.time(rule.to_hour.hour, rule.to_hour.minute)
-            if start_time <= time <= end_time:
-                rule_conditions["time"] = True
+            if start_time < end_time:
+                if start_time <= time <= end_time:
+                    rule_conditions["time"] = True
+            # night fare, the end time is smaller than the start time since it is the next day
+            else:
+                if (start_time <= time <= datetime.time(23,59,59)) or (datetime.time(23,59,59)<= time <= end_time):
+                    rule_conditions["time"] = True
         if sum([val for key, val in rule_conditions.items()]) == len(rule_conditions):
             relevant_rules.append(rule)
     return relevant_rules
@@ -214,7 +218,7 @@ ISRAELI_RULES = """
     {
         "pk": 355,
         "model": "ordering.pricingrule",
-        "fields": {"create_date": "2010-09-12 15:58:41", "from_distance": 559.75, "to_day_of_week": 6, "city": "אילת", "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 1 - cost in 1st 15KM - Eilat", "from_day_of_week": 1, "to_hour": "21:00:00", "vehicle_type": null, "tick_time": 15, "tick_distance": 105.52, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": "05:30:00", "modify_date": "2010-09-12 17:26:51", "to_distance": 15000.0, "from_duration": 83}
+        "fields": {"create_date": "2010-09-12 15:58:41", "from_distance": 559.79, "to_day_of_week": 6, "city": "אילת", "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 1 - cost in 1st 15KM - Eilat", "from_day_of_week": 1, "to_hour": "21:00:00", "vehicle_type": null, "tick_time": 15, "tick_distance": 105.52, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": "05:30:00", "modify_date": "2010-09-12 17:26:51", "to_distance": 15000.0, "from_duration": 83}
     },
     {
         "pk": 357,
@@ -239,12 +243,12 @@ ISRAELI_RULES = """
     {
         "pk": 364,
         "model": "ordering.pricingrule",
-        "fields": {"create_date": "2010-09-12 17:26:51", "from_distance": 153.81, "to_day_of_week": 1, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 2 - cost in 1st 15KM", "from_day_of_week": 1, "to_hour": "05:29:00", "vehicle_type": null, "tick_time": 10, "tick_distance": 72.150000000000006, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": "21:01:00", "modify_date": "2010-09-12 17:26:51", "to_distance": 15000.0, "from_duration": 36}
+        "fields": {"create_date": "2010-09-12 17:26:51", "from_distance": 153.81, "to_day_of_week": 6, "city": null, "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 2 - cost in 1st 15KM", "from_day_of_week": 1, "to_hour": "05:29:00", "vehicle_type": null, "tick_time": 10, "tick_distance": 72.150000000000006, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": "21:01:00", "modify_date": "2010-09-12 17:26:51", "to_distance": 15000.0, "from_duration": 36}
     },
     {
         "pk": 365,
         "model": "ordering.pricingrule",
-        "fields": {"create_date": "2010-09-12 17:26:51", "from_distance": 154.16999999999999, "to_day_of_week": 6, "city": "אילת", "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 2 - cost in 1st 15KM - Eilat", "from_day_of_week": 6, "to_hour": "05:29:00", "vehicle_type": null, "tick_time": 12, "tick_distance": 84.420000000000002, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": "21:01:00", "modify_date": "2010-09-12 17:26:51", "to_distance": 15000.0, "from_duration": 36}
+        "fields": {"create_date": "2010-09-12 17:26:51", "from_distance": 154.16999999999999, "to_day_of_week": 6, "city": "אילת", "state": "", "city_area": null, "to_duration": null, "fixed_cost": null, "is_active": true, "rule_name": "Tariff 2 - cost in 1st 15KM - Eilat", "from_day_of_week": 1, "to_hour": "05:29:00", "vehicle_type": null, "tick_time": 12, "tick_distance": 84.420000000000002, "tick_cost": 0.29999999999999999, "country": 2, "special_place": null, "from_hour": "21:01:00", "modify_date": "2010-09-12 17:26:51", "to_distance": 15000.0, "from_duration": 36}
     },
     {
         "pk": 369,
