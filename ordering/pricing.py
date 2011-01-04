@@ -65,10 +65,11 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
 def filter_relevant_rules(base_rules, cities=None, streets=None, day_of_week=None, time=None,
                     from_address=None, to_address=None):
     relevant_rules = []
+    city_names = []
+
     if cities:
         city_names = get_city_names(cities)
-    else:
-        city_names = []
+
     for rule in base_rules:
         rule_conditions = {}
         # check special place
@@ -106,7 +107,7 @@ def filter_relevant_rules(base_rules, cities=None, streets=None, day_of_week=Non
                     rule_conditions["time"] = True
             # night fare, the end time is smaller than the start time since it is the next day
             else:
-                if (start_time <= time <= datetime.time(23,59,59)) or (datetime.time(23,59,59)<= time <= end_time):
+                if (start_time <= time <= datetime.time(23,59,59)) or (datetime.time(00,00,00)<= time <= end_time):
                     rule_conditions["time"] = True
         if sum([val for key, val in rule_conditions.items()]) == len(rule_conditions):
             relevant_rules.append(rule)
@@ -319,6 +320,8 @@ PRICING_RULES_DATA = {"IL": ISRAELI_RULES}
 def setup_pricing_rules():
     for country_code, json in PRICING_RULES_DATA.items():
         country = Country.objects.get(code=country_code)
+        for rule in country.pricing_rules.all():
+            rule.delete()
         rules = simplejson.loads(json)
         for rule in rules:
             fields = rule["fields"]
