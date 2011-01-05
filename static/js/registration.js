@@ -6,6 +6,7 @@ var Registrator = Object.create({
             reg_form_template           : '/',
             phone_form_template         : '/',
             phone_code_form_template    : '/',
+            feedback_form_template      : '/',
             sending_form_template       : '/',
             terms_form_template         : '/',
             check_username              : '/',
@@ -129,7 +130,7 @@ var Registrator = Object.create({
                     alert(XMLHttpRequest.responseText);
             };
 
-        if ( this.validator.form() ) {
+        if (!this.validator.form || this.validator.form() ) {
             $.ajax({
                 url :url,
                 type : 'post',
@@ -143,6 +144,9 @@ var Registrator = Object.create({
                 error   : errCallback
             });
         }
+    },
+    doFeedback              : function(form) {
+        this._doDialogSubmit(form, null, this.config.urls.feedback_form_template);
     },
     doProfileUpdate         : function(form, extra_form_data) {
         this._doDialogSubmit(form, extra_form_data, this.config.urls.update_profile);
@@ -165,6 +169,17 @@ var Registrator = Object.create({
                 $("#dialog").dialog("close");    
             });
             that.openDialog.call(that, {}, { "title": title });
+        });
+    },
+    openFeedbackDialog      : function (callback) {
+        var that = this;
+        that.setCallback(callback);
+        that.getTemplate.call(that, 'feedback', function(dialog_content) {
+            var form = $("form", dialog_content);
+            $("#submit_feedback", dialog_content).click(function() {
+                that.doFeedback(form);
+            });
+            that.openDialog.call(that);
         });
     },
     openTermsDialog         : function (callback) {

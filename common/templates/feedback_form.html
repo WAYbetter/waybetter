@@ -1,0 +1,128 @@
+{% load i18n %}
+<script>
+    var form_config = {
+        dialog_config : {
+            title: "{% trans 'Great To Hear Your Feedback! Please Let Us Know How You Feel' %}",
+            width: 550
+        },
+        urls: {
+            login: "{% url ordering.passenger_controller.login_passenger %}"
+        },
+        messages: {
+            enter_username: "{% trans 'Please enter your username' %}",
+            choose_password : "{% trans 'Please enter your password' %}",
+            valid_field: "{% trans 'OK' %}"
+
+        }
+    };
+    $(function() {
+        $("textarea").hide();
+        $("input[type=checkbox]").change(function() {
+            if ($(this).is(":checked")) {
+                $(this).siblings("textarea").fadeIn("fast");
+            } else {
+                $(this).siblings("textarea").fadeOut("fast");
+            }
+        });
+    });
+</script>
+<style type="text/css">
+    #positive {
+        float: right;
+        background-color: #ff9524;
+    }
+    #positive label {
+        display: inline;
+        color: #eb8313;
+        margin-right: 10px;
+    }
+    #negative {
+        float: left;
+        background-color: #00acec;
+    }
+    #negative label {
+        display: inline;
+        color: #00acec;
+        margin-right: 10px;
+    }
+    #content h1 {
+        padding: 15px;
+        color: white;
+        font-size: 26px;
+        text-shadow: 0px -1px 1px #333333;
+        filter: dropshadow(color=#333333, offx=0, offy=-1);
+    }
+    .feedback {
+        padding-top: 20px;
+        background-color: #e4e4e4;
+        height: 430px;
+        -moz-border-radius-topleft: 0px;
+        -moz-border-radius-topright: 0px;
+        -moz-border-radius-bottomright: 10px;
+        -moz-border-radius-bottomleft: 10px;
+        border-top-left-radius: 0px;
+        border-top-right-radius: 0px;
+        border-bottom-right-radius: 10px;
+        border-bottom-left-radius: 10px;
+    }
+    .feedback_container {
+        width: 250px;
+        -moz-border-radius: 10px;
+        border-radius: 10px;
+        margin-bottom: 22px;
+    }
+    .feedback_container textarea {
+        margin-top: 5px;
+        width: 220px;
+        height: 47px;
+        margin-right: 15px;
+        font-size: 12px;
+    }
+    .feedback_container p {
+        margin-bottom: 5px;
+    }
+
+    .feedback_container input[type=checkbox] {
+        margin-right: 20px;
+    }
+    #button_container {
+        text-align: center;
+    }
+    #submit_feedback {
+        width: 180px;
+    }
+</style>
+
+<div id="content">
+    <form>
+    <div id="positive" class="feedback_container">
+        <h1>{% trans "I'm Happy :)" %}</h1>
+        <div class="feedback">
+        {% for field in form %}
+            {% if field.name|slice:"-3:" == "msg" and "positive" in field.name %}
+                <p>
+                    <input type="checkbox" id="id_{{ field.name|slice:":-4" }}" name="{{ field.name|slice:":-4" }}">{{ field.label_tag }}
+                    <textarea name="{{ field.name }}" id="id_{{ field.name }}"></textarea>
+                </p>
+            {% endif %}
+        {% endfor %}
+        </div>
+    </div>
+    <div id="negative" class="feedback_container">
+        <h1>{% trans "I'm Sad :'(" %}</h1>
+        <div class="feedback">
+            {% for field in form %}
+                {% if field.name|slice:"-3:" == "msg" and "negative" in field.name %}
+                    <p>
+                        <input type="checkbox" id="id_{{ field.name|slice:":-4" }}" name="{{ field.name|slice:":-4" }}">{{ field.label_tag }}
+                        <textarea name="{{ field.name }}" id="id_{{ field.name }}"></textarea>
+                    </p>
+                {% endif %}
+            {% endfor %}
+        </div>
+    </div>
+    </form>
+</div>
+<div id="button_container">
+    <button id="submit_feedback" class="wb_button gold">{% trans 'SUBMIT FEEDBACK' %}</button>
+</div>
