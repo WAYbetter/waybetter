@@ -123,11 +123,17 @@ var Registrator = Object.create({
             $("#login_error", form).text(XMLHttpRequest.responseText);
         });
     },
-    _doDialogSubmit          : function (form, extra_form_data, url, errorCallback) {
+    _doDialogSubmit          : function (form, extra_form_data, url, errorCallback, successCallback) {
         var that = this,
             data = extra_form_data ? extra_form_data + '&' + $(form).serialize() : $(form).serialize(),
-            errCallback = errorCallback ? errorCallback : function (XMLHttpRequest, textStatus, errorThrown) {
+            error = errorCallback ? errorCallback : function (XMLHttpRequest, textStatus, errorThrown) {
                     alert(XMLHttpRequest.responseText);
+            },
+            success = successCallback ? successCallback : function(response) {
+                $('#dialog').dialog('close');
+                if ( that.config.callback ) {
+                    that.config.callback();
+                }
             };
 
         if (!this.validator.form || this.validator.form() ) {
@@ -135,18 +141,15 @@ var Registrator = Object.create({
                 url :url,
                 type : 'post',
                 data : data,
-                success : function (response) {
-                    $('#dialog').dialog('close');
-                    if ( that.config.callback ) {
-                        that.config.callback();
-                    }
-                },
-                error   : errCallback
+                success : success,
+                error   : error
             });
         }
     },
     doFeedback              : function(form) {
-        this._doDialogSubmit(form, null, this.config.urls.feedback_form_template);
+        this._doDialogSubmit(form, undefined, this.config.urls.feedback_form_template, undefined, function(response) {
+            $("#sent_message").fadeIn("fast");
+        });
     },
     doProfileUpdate         : function(form, extra_form_data) {
         this._doDialogSubmit(form, extra_form_data, this.config.urls.update_profile);
@@ -176,6 +179,10 @@ var Registrator = Object.create({
         that.setCallback(callback);
         that.getTemplate.call(that, 'feedback', function(dialog_content) {
             var form = $("form", dialog_content);
+            $("#sent_message", dialog_content).hide();
+            $("#close", dialog_content).click(function() {
+                $('#dialog').dialog('close');
+            });
             $("#submit_feedback", dialog_content).click(function() {
                 that.doFeedback(form);
             });

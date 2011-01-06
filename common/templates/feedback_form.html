@@ -52,6 +52,9 @@
         text-shadow: 0px -1px 1px #333333;
         filter: dropshadow(color=#333333, offx=0, offy=-1);
     }
+    #submit_feedback {
+        margin-left: 15px;
+    }
     .feedback {
         padding-top: 20px;
         background-color: #e4e4e4;
@@ -85,11 +88,12 @@
     .feedback_container input[type=checkbox] {
         margin-right: 20px;
     }
-    #button_container {
-        text-align: center;
-    }
     #submit_feedback {
         width: 180px;
+    }
+    #sent_message {
+        font-size: 20px;
+        margin-top: 15px;
     }
 </style>
 
@@ -125,4 +129,6 @@
 </div>
 <div id="button_container">
     <button id="submit_feedback" class="wb_button gold">{% trans 'SUBMIT FEEDBACK' %}</button>
+    <button id="close" class="wb_button gray">{% trans 'Close' %}</button>
+    <div id="sent_message">{% trans "Thanks, your feedback has been sent" %}</div>
 </div>

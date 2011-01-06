@@ -6,13 +6,13 @@ from datetime import datetime
 from django.utils.translation import ugettext
 PAGE_SIZE = 10
 
-ORDER_HISTORY_COLUMNS = ["Date", "From", "To", "Station", "Passenger Rating"]
-ORDER_HISTORY_COLUMN_NAMES = [ugettext(s) for s in ORDER_HISTORY_COLUMNS]
-ORDER_HISTORY_FIELDS = ["create_date", "from_raw", "to_raw", "station_name", "passenger_rating"]
+ORDER_HISTORY_COLUMNS =         ["Date", "From", "To", "Station", "Passenger Rating"]
+ORDER_HISTORY_COLUMN_NAMES =    [ugettext("Date"), ugettext("From"), ugettext("To"), ugettext("Station"), ugettext("Passenger Rating")]
+ORDER_HISTORY_FIELDS =          ["create_date", "from_raw", "to_raw", "station_name", "passenger_rating"]
 
-STATION_ORDER_HISTORY_COLUMNS = ["Date", "From", "To", "Passenger Phone"]
-STATION_ORDER_HISTORY_COLUMN_NAMES = [ugettext(s) for s in STATION_ORDER_HISTORY_COLUMNS]
-STATION_ORDER_HISTORY_FIELDS = ["create_date", "from_raw", "to_raw", "passenger_phone"]
+STATION_ORDER_HISTORY_COLUMNS =         ["Date", "From", "To", "Passenger Phone"]
+STATION_ORDER_HISTORY_COLUMN_NAMES =    [ugettext("Date"), ugettext("From"), ugettext("To"), ugettext("Passenger Phone")]
+STATION_ORDER_HISTORY_FIELDS =          ["create_date", "from_raw", "to_raw", "passenger_phone"]
 
 def get_orders_history(passenger, page=1, keywords=None, sort_by=None, sort_dir=None):
     query = Order.objects.filter(passenger=passenger)

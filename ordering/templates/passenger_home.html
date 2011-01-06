@@ -28,7 +28,9 @@
             }
         });
         SelectFromHistoryHelper.init($("#tabs"), { fetch_address_url: "{% url ordering.passenger_controller.get_order_address %}" });
-
+        $("#feedback_peal").click(function() {
+            Registrator.openFeedbackDialog();
+        });
         
 
     });
@@ -133,6 +135,7 @@
         </div>
 
         <div id="dialog"></div>
+    <div id="feedback_peal"></div>
 {% endblock content %}
 {% block footer %}
 {{ block.super}}

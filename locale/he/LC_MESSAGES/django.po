@@ -8,8 +8,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-05 20:08+0200\n"
-"PO-Revision-Date: 2011-01-05 12:10\n"
+"POT-Creation-Date: 2011-01-06 17:15+0200\n"
+"PO-Revision-Date: 2011-01-06 09:16\n"
 "Last-Translator: <admin@admin.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -65,7 +65,8 @@ msgstr "היקף"
 msgid "City"
 msgstr "עיר"
 
-#: analytics/forms.py:43 ordering/templates/order_status.html:82
+#: analytics/forms.py:43 ordering/order_history.py:10
+#: ordering/templates/order_status.html:82
 msgid "Station"
 msgstr "תחנה"
 
@@ -91,7 +92,7 @@ msgstr "עמדת עבודה"
 msgid "station"
 msgstr "תחנה"
 
-#: analytics/models.py:15 ordering/models.py:222 ordering/models.py:420
+#: analytics/models.py:15 ordering/models.py:222 ordering/models.py:422
 msgid "passenger"
 msgstr "נוסע"
 
@@ -230,17 +231,26 @@ msgstr "אישור"
 msgid "Great To Hear Your Feedback! Please Let Us Know How You Feel"
 msgstr "איך היה? חשוב לנו לדעת מה אתם חושבים כדי להשתפר"
 
-#: common/templates/feedback_form.html:99
+#: common/templates/feedback_form.html:103
 msgid "I'm Happy :)"
 msgstr "אני שמח :)"
 
-#: common/templates/feedback_form.html:112
+#: common/templates/feedback_form.html:116
 msgid "I'm Sad :'("
 msgstr "אני עצוב :'("
 
-#: common/templates/feedback_form.html:127
+#: common/templates/feedback_form.html:131
 msgid "SUBMIT FEEDBACK"
 msgstr "שלח"
+
+#: common/templates/feedback_form.html:132
+#: ordering/templates/workstation_home.html:498
+msgid "Close"
+msgstr "סגור"
+
+#: common/templates/feedback_form.html:133
+msgid "Thanks, your feedback has been sent"
+msgstr "תגובתך התקבלה. תודה רבה!"
 
 #: common/templates/login_form.html:5
 msgid "Welcome Back!"
@@ -992,25 +1002,45 @@ msgstr "בשניות"
 msgid "cost per tick"
 msgstr "מחיר לכל תקתוק"
 
-#: ordering/models.py:417
+#: ordering/models.py:418
 msgid "Website"
 msgstr "האתר"
 
-#: ordering/models.py:417
+#: ordering/models.py:418
 msgid "Booking"
 msgstr "ההזמנה"
 
-#: ordering/models.py:417
+#: ordering/models.py:418
 msgid "Registration"
 msgstr "ההרשמה"
 
-#: ordering/models.py:417
+#: ordering/models.py:418
 msgid "Taxi Ride"
 msgstr "הנסיעה במונית"
 
-#: ordering/models.py:417
+#: ordering/models.py:418
 msgid "Other"
 msgstr "אחר"
+
+#: ordering/order_history.py:10 ordering/order_history.py:14
+msgid "Date"
+msgstr "תאריך"
+
+#: ordering/order_history.py:10 ordering/order_history.py:14
+msgid "From"
+msgstr "כתובת מוצא"
+
+#: ordering/order_history.py:10 ordering/order_history.py:14
+msgid "To"
+msgstr "כתובת יעד"
+
+#: ordering/order_history.py:10
+msgid "Passenger Rating"
+msgstr "דירוג נוסע"
+
+#: ordering/order_history.py:14
+msgid "Passenger Phone"
+msgstr "טלפון נוסע"
 
 #: ordering/order_manager.py:50
 msgid "We're sorry, but we could not find a taxi for you"
@@ -1322,10 +1352,6 @@ msgstr "שלח"
 msgid "End"
 msgstr "סיום"
 
-#: ordering/templates/workstation_home.html:498
-msgid "Close"
-msgstr "סגור"
-
 #: ordering/templates/wrong_user_type_message.html:5
 msgid "Wrong user type"
 msgstr "סוג משתמש שגוי"
@@ -1552,18 +1578,6 @@ msgstr "שגיאה בבודק האיות"
 
 #~ msgid "History Suggestions"
 #~ msgstr "הצעות מנסיעות קודמות:"
-
-#~ msgid "Passenger Rating"
-#~ msgstr "דירוג נוסע"
-
-#~ msgid "To"
-#~ msgstr "כתובת יעד"
-
-#~ msgid "From"
-#~ msgstr "כתובת מוצא"
-
-#~ msgid "Date"
-#~ msgstr "תאריך"
 
 #~ msgid "Sign In!"
 #~ msgstr "היכנס"

@@ -280,7 +280,7 @@ var OrderingHelper = Object.create({
         var prefs = {
             mapTypeId:telmap.maps.MapTypeId.ROADMAP,
             suit:telmap.maps.SuitType.MEDIUM_4,
-            navigationControlOptions:{style:telmap.maps.NavigationControlStyle.SMALL},
+            navigationControlOptions:{style:telmap.maps.NavigationControlStyle.ANDROID},
             zoom:15,
             center:new telmap.maps.LatLng(32.09279909028302,34.781051985221),
             login:{
@@ -306,12 +306,13 @@ var OrderingHelper = Object.create({
     addPoint:                   function (address) {
         var that = this,
             location_name = address.address_type + ": <br/>" + address.name,
-            icon_image = "/static/img/" + address.address_type + "_map_marker.png",
-            point = new telmap.maps.Marker({                           
+            icon_image = new telmap.maps.MarkerImage("/static/img/" + address.address_type + "_map_marker.png", undefined, undefined, {x:35, y:30}),
+            point = new telmap.maps.Marker({
                 map:        this.map,
                 position:   new telmap.maps.LatLng(address.lat, address.lon),
                 draggable:  true,
                 icon:       icon_image,
+                cursor:     'move',
                 title:      'Marker'
             });
 

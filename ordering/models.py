@@ -132,7 +132,7 @@ class Passenger(models.Model):
         if not passenger:
             passenger = request.session.get(CURRENT_PASSENGER_KEY, None)
         return passenger
-
+  
 
     def __unicode__(self):
         return u"Passenger: %s, %s" % (self.phone, self.user.username if self.user else "[UNKNOWN USER]")
@@ -414,11 +414,10 @@ class SpecificPricingRule(models.Model):
 
 
 
-FEEDBACK_CATEGORIES = ["Website", "Booking", "Registration", "Taxi Ride", "Other"]
-FEEDBACK_CATEGORIES_NAMES = [gettext(s) for s in FEEDBACK_CATEGORIES]
-#FEEDBACK_CATEGORIES = [_("Website"), _("Booking"), _("Registration"), _("Taxi Ride"), _("Other")]
-#FEEDBACK_CATEGORIES = [_("Website"), _("Booking"), _("Registration"), _("Taxi Ride"), _("Other")]
-FEEDBACK_TYPES =       [_("Positive"), _("Negative")]
+FEEDBACK_CATEGORIES =       ["Website", "Booking", "Registration", "Taxi Ride", "Other"]
+FEEDBACK_CATEGORIES_NAMES = [_("Website"), _("Booking"), _("Registration"), _("Taxi Ride"), _("Other")]
+FEEDBACK_TYPES =            ["Positive", "Negative"]
+
 class Feedback(models.Model):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="feedbacks", null=True, blank=True)
 
@@ -428,10 +427,10 @@ class Feedback(models.Model):
             for type in FEEDBACK_TYPES:
                 attr_name = "%s_%s" % (type.lower(), category.lower().replace(" ", "_"))
                 if getattr(self, attr_name):
-                    attributes.append("%s %s" % (_(type), _(category)))
-#        return u"%s: %s" % (self.__class__.__name__, ", ")
-        return u"%s: %s" % (self.__class__.__name__, u", ".join(attributes))
+                    attributes.append(u"%s %s" % (type, category))
 
+        return u"%s: %s" % (self.__class__.__name__, u", ".join(attributes))
+  
     @staticmethod
     def field_names():
         field_names = []
