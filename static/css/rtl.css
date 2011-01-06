@@ -1155,3 +1155,20 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     right:auto;
     left: .3em;
 }
+
+/** Feedback **/
+#feedback_peal {
+    position:fixed;
+    right:0;
+    bottom:0;
+    background-image: url(/static/img/feedback_he.png);
+    height: 77px;
+    width: 90px;
+    background-repeat: no-repeat;
+}
+#feedback_peal:hover {
+    background-position:0 -77px;
+}
+#feedback_peal:active {
+    background-position:0 -154px;
+}
