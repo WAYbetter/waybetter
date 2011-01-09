@@ -305,9 +305,7 @@
     <script type="text/javascript">
         var polling_enabled = true;
         $(document).ready(function() {
-            initConnection();
-            initAcceptOrders();
-            setStationDetails("{{ station_name }}", {{ station_rating }});
+            // setup bridge functions
             window.childSandboxBridge = {
                 updateOnline    : function() {
                     if (window.parentSandboxBridge && parentSandboxBridge.online_status) {
@@ -317,6 +315,11 @@
                     }
                 }
             };
+            
+            initConnection();
+            initAcceptOrders();
+            setStationDetails("{{ station_name }}", {{ station_rating }});
+
         });
         
         function setAcceptOrders(status) {
@@ -330,18 +333,12 @@
             );
         }
 
-
         function initAcceptOrders() {
             var init_val = "{{ work_station.accept_orders }}" == "True";
-            $("#accept_orders input").attr("checked", init_val);
-            pollingEnabled(init_val);
+            if (window.parentSandboxBridge) {
+                window.parentSandboxBridge.set_online_state(init_val);
+            }
 
-            $("#accept_orders input").click(function() {
-                var checkbox = $(this);
-                var status = checkbox.attr("checked") ? "{{ online }}" : "{{ offline }}";
-                setAcceptOrders(status);
-                return false;
-            });
         }
 
         function initConnection() {
@@ -349,6 +346,7 @@
         }
 
         function pollingEnabled(val) {
+            
             if (val) {
                 $('#accept_orders').removeClass('offline');
                 $('#accept_orders').addClass('online');
@@ -419,17 +417,7 @@
             }
         }
 
-//        function initOrderTable() {
-//            var order_table = $("<table></table>");
-//            $("#orders").empty().append(order_table);
-//        }
-
         function renderOrder(order) {
-//            if ($("#orders table").length == 0) {
-//                initOrderTable();
-//            }
-
-
 
             var select = $("<select name='pickup_time' class='combo'></select>").attr('id', 'pickup_time_for_' + order.pk);
             select.append($("<option>").val('').append("{% trans 'Define time' %}"));

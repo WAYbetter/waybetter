@@ -9,7 +9,7 @@ from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFoun
 from ordering.decorators import passenger_required, internal_task_on_queue
 from django.core.serializers import serialize
 from django.conf import settings
-from django.utils.translation import gettext as _
+from django.utils.translation import gettext_lazy as _
 
 from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, ASSIGNED, RATING_CHOICES, ERROR
 import dispatcher
