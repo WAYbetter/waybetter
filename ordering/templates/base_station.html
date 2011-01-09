@@ -1,5 +1,10 @@
 {% extends "base_site.html" %}
 {% load i18n %}
+{% block extrahead %}
+    {{ block.super }}
+    <script src="/static/js/registration.js"></script>
+{% endblock %}
+
 {% block join_or_login %}
     {% if not request.user.station %}
         <div id="station_login">

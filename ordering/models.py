@@ -1,5 +1,5 @@
 from django.db import models
-from django.utils.translation import gettext_lazy as _, gettext
+from django.utils.translation import gettext_lazy as _, gettext, ugettext
 from django.conf import settings
 from django.contrib.auth.models import User
 from djangotoolbox.fields import BlobField
@@ -34,6 +34,7 @@ ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, gettext("pending")),
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
 MAX_STATION_DISTANCE_KM = 10
+CURRENT_PASSENGER_KEY = "current_passeger"
 
 class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
@@ -108,7 +109,7 @@ class Passenger(models.Model):
 
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
     default_station = models.ForeignKey(Station, verbose_name=_("Default station"), related_name="default_passengers",
-                                        default=None, null=True)
+                                        default=None, null=True, blank=True)
 
     phone = models.CharField(_("phone number"), max_length=15)
     phone_verified = models.BooleanField(_("phone verified"))
@@ -120,6 +121,18 @@ class Passenger(models.Model):
     def international_phone(self):
         return get_international_phone(self.country, self.phone)
 
+    @staticmethod
+    def from_request(request):
+        passenger = None
+        if request.user.is_authenticated():
+            try:
+                passenger = Passenger.objects.filter(user=request.user).get()
+            except Passenger.DoesNotExist:
+                pass
+        if not passenger:
+            passenger = request.session.get(CURRENT_PASSENGER_KEY, None)
+        return passenger
+  
 
     def __unicode__(self):
         return u"Passenger: %s, %s" % (self.phone, self.user.username if self.user else "[UNKNOWN USER]")
@@ -287,7 +300,7 @@ class Order(models.Model):
 
 
 class OrderAssignment(models.Model):
-    ORDER_ASSIGNMENT_TIMEOUT = 900 # seconds
+    ORDER_ASSIGNMENT_TIMEOUT = 180 # seconds
 
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")
     work_station = models.ForeignKey(WorkStation, verbose_name=_("work station"), related_name="assignments")
@@ -385,3 +398,34 @@ class ExtraChargeRule(models.Model):
 
     def __unicode__(self):
         return self.rule_name
+
+FEEDBACK_CATEGORIES =       ["Website", "Booking", "Registration", "Taxi Ride", "Other"]
+FEEDBACK_CATEGORIES_NAMES = [_("Website"), _("Booking"), _("Registration"), _("Taxi Ride"), _("Other")]
+FEEDBACK_TYPES =            ["Positive", "Negative"]
+
+class Feedback(models.Model):
+    passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="feedbacks", null=True, blank=True)
+
+    def __unicode__(self):
+        attributes = []
+        for category in FEEDBACK_CATEGORIES:
+            for type in FEEDBACK_TYPES:
+                attr_name = "%s_%s" % (type.lower(), category.lower().replace(" ", "_"))
+                if getattr(self, attr_name):
+                    attributes.append(u"%s %s" % (type, category))
+
+        return u"%s: %s" % (self.__class__.__name__, u", ".join(attributes))
+  
+    @staticmethod
+    def field_names():
+        field_names = []
+        for category in FEEDBACK_CATEGORIES:
+            for type in FEEDBACK_TYPES:
+                field_names.append("%s_%s" % (type.lower(), category.lower().replace(" ", "_")))
+
+        return field_names
+
+for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
+    for type in FEEDBACK_TYPES:
+        models.CharField(FEEDBACK_CATEGORIES_NAMES[i], max_length=100, null=True, blank=True).contribute_to_class(Feedback, "%s_%s_msg" % (type.lower(), category.lower().replace(" ", "_")))
+        models.BooleanField(default=False).contribute_to_class(Feedback, "%s_%s" % (type.lower(), category.lower().replace(" ", "_")))

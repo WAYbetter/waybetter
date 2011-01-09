@@ -1,7 +1,12 @@
 @import url(/static/css/order_history.css); /************* Orders History ****************/
+@font-face {
+  font-family: "wb_calibri";
+  src: url( /static/fonts/Calibri.eot ); /* IE */
+  src: local("wb_calibri"), url( /static/fonts/Calibri.ttf ) format("truetype"); /* non-IE */
+}
 
 * {
-    font-family: Calibri, Arial, sans-serif;
+    font-family: Calibri, wb_calibri, Arial, sans-serif;
     margin: 0;
     padding: 0;
     color: #2e2e2e;
@@ -85,8 +90,14 @@ input.text, input[type=text], input[type=password] {
 
 /************* Autocomplete *************/
 .ui-autocomplete.ui-menu {
-    border-radius: 0;
-    font-size: 14px;
+      border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    font-size: 13px;
+    -moz-box-shadow:0 2px 2px #5b5b5b;
+    -webkit-box-shadow:0 2px 2px #5b5b5b;
+    box-shadow:0 2px 2px #5b5b5b;
+    border: 1px solid gray;
 }
 .ui-autocomplete > .ui-active-menuitem {
     background: blue;
@@ -94,15 +105,67 @@ input.text, input[type=text], input[type=password] {
 }
 
 .ui-autocomplete  .ui-state-hover {
-    color: black;
-    background: #61ccff;
+    color: white;
+    background-color: #999999;
     border-radius: 0;
+    -webkit-border-radius: 0;
+    -moz-border-radius: 0;
 }
+.ui-menu .ui-menu-item.map_suggestion {
+    /*background: #fff url("../images/devices/device-width-320/list_icons.png") right top no-repeat;*/
+}
+.ui-menu .ui-menu-item.history_suggestion a {
+    background-image:url("../img/history_icon.png");
+    background-position: 3px 3px;
+    background-repeat: no-repeat;
+}
+.ui-menu .ui-menu-item a  {
+    line-height: 1.3em;
+}
+.address-helper {
+    background-color: #00acff;
+    display: none;
+    position:absolute;
+    top: 42px;
+    padding: 2px;
+    padding-left: 6px;
+    font-size: 14px;
+    width: 283px;
+    -moz-box-shadow:0 2px 2px #5b5b5b;
+    -webkit-box-shadow:0 2px 2px #5b5b5b;
+    box-shadow:0 2px 2px #5b5b5b;
+    color: white;
+    border: 1px solid #8cd4f7;
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+}
+.address-helper-autocomplete {
+    background-color: #00acff;
+    color: white;
+    border: 1px solid #8cd4f7;
+    margin: -2px;
+    margin-bottom: 2px;
+    padding: 2px;
+    padding-right: 5px;
+    -moz-border-radius-topleft: 5px;
+    -moz-border-radius-topright: 5px;
+    -moz-border-radius-bottomright: 0;
+    -moz-border-radius-bottomleft: 0;
+    border-top-left-radius: 5px;
+    border-top-right-radius: 5px;
+    border-bottom-right-radius: 0;
+    border-bottom-left-radius: 0;
+}
+.address-error {
 
-
+    background-color: #BC1111;
+    /*background-color: #FEB4B4;*/
+    border-color: #FEB4B4;
+}
 /************* Header *************/
 #banner {
-    text-shadow: #e1e1e1 0 1px;
+    /*ext-shadow: #e1e1e1 0 1px;*/
 }
 #banner a {
     text-align: left;
@@ -133,7 +196,7 @@ input.text, input[type=text], input[type=password] {
 #footer #footer-links a {
     color: #5c5c5c;
     padding-right: 67px;
-    font-size: 14px;
+    font-size: 15px;
 }
 
 #footer #footer-links {
@@ -346,40 +409,34 @@ button.order_button.disabled, button.order_button:disabled {
     text-align: left;
 }
 #tabs ul > li > a {
-    padding-left: 25px;
-    background-position: left center;
     background-repeat: no-repeat;
-}
-#tabs ul > li > a[href="#ui-tabs-1"] {
     background-image: url("../images/tab_icons.png");
-    background-position: 0px -80px;
     display: block;
     height: 16px;
     margin-left: 40px;
     margin-top: 8px;
     padding: 0px 0px 0px 21px;
-    padding-left: 21px;
+
 }
-#tabs ul > li > a[href="#ui-tabs-2"] {
-   background-image: url("../images/tab_icons.png");
+#tabs ul > li > a[title="profile"] {
     background-position: 0px -48px;
-    display: block;
-    height: 16px;
-    margin-left: 40px;
-    margin-top: 8px;
-    padding: 0px 0px 0px 21px;
-    padding-left: 21px;
 }
-#tabs ul > li > a[href="#ui-tabs-3"] {
-   background-image: url("../images/tab_icons.png");
+#tabs ul > li > a[title="mobile"] {
+    background-position: 0px -16px;
+}
+#tabs ul > li > a[title="history"] {
+    background-position: 0px -80px;
+}
+#tabs ul > li > a[title="whats_this"] {
+    background-position: 0px -160px;
+}
+#tabs ul > li > a[title="stations"] {
+    background-position: 0px -32px;
+}
+#tabs ul > li > a[title="download"] {
     background-position: 0px -64px;
-    display: block;
-    height: 16px;
-    margin-left: 40px;
-    margin-top: 8px;
-    padding: 0px 0px 0px 21px;
-    padding-left: 21px;
 }
+
 img.tab_icon {
     margin-right: 7px;
     margin-left: -15px;
@@ -394,6 +451,7 @@ img.tab_icon {
 #tabs ul.ui-tabs-nav li {
     top: 4px;
     float:right;
+    right:-10px;
     width: 220px;
     height: 35px;
     margin-left: -64px;
@@ -430,7 +488,7 @@ ul.ui-tabs-nav .ui-state-default a, .ui-state-default a:link, .ui-state-default 
     margin-left:40px;
     padding-top: 0.6em;
     border:0;
-    color: black;
+    color: #4C4C4C;
     background: transparent;
 }
 ul.ui-tabs-nav .ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited {
@@ -672,6 +730,8 @@ ul.ui-tabs-nav .ui-state-hover a {
    margin-bottom: -12px;
    margin-top: 12px;
    width: 105%;
+   position: relative;
+   right  : 5px;
 }
 
 .sending-code {
@@ -703,12 +763,22 @@ ul.ui-tabs-nav .ui-state-hover a {
     height: 15px;
 }
 
+.ui-dialog .ui-dialog-titlebar-close 
+{
+    left:auto;
+    right: .3em;
+}
+
  .ui-dialog .ui-widget-header {
 	background: #46bce8;
-	border-bottom-left-radius: 0px 0px;
-	border-bottom-right-radius: 0px 0px;
+	border-bottom-left-radius: 0;
+	border-bottom-right-radius: 0;
 	border-top-left-radius: 5px 5px;
 	border-top-right-radius: 5px 5px;
+    -moz-border-radius-bottomleft: 0;
+    -moz-border-radius-bottomright: 0;
+    -moz-border-radius-topleft: 5px 5px;
+    -moz-border-radius-topright: 5px 5px;
 	padding-bottom: 10px;
  }
 
@@ -745,7 +815,6 @@ ul.ui-tabs-nav .ui-state-hover a {
     vertical-align: bottom;
 }
 
-
 .ui-dialog-title.error-dialog {
     color: white;
     font-size: 20px;
@@ -769,7 +838,8 @@ ul.ui-tabs-nav .ui-state-hover a {
 	padding-top: 15px;
 }
 #profile_form input,#profile_form select{
-	font-size: 15px;
+	font-size: 13px;
+	padding-left: 10px;
 	height: 30px;
 	width: 200px;
 }
@@ -785,7 +855,12 @@ ul.ui-tabs-nav .ui-state-hover a {
 	/* max-height: 250px; */
 /* } */
 
-/** Stations Home **/
+	/** Stations Profile **/
+.delete-row {
+	color: blue;
+}
+	
+	/** Stations Home **/
 .content {
     background: white;
     -moz-box-shadow:0 0px 5px black;
@@ -821,6 +896,24 @@ ul.ui-tabs-nav .ui-state-hover a {
     bottom: 1px;
     right: -13px;
 }
+#station_login_form > .errorlist {
+    background: #FDF685;
+
+}
+#station_login_form > .errorlist > li {
+    font-size: 12px;
+    color: #fc1414;
+    background: transparent;
+    border: none;
+}
+#station_login_form > .error-label {
+    background: #FDF685;
+    color: red;
+    display: inline;
+    float: left;
+    font-size: 12px;
+}
+
 #diagram {
     background-image: url(/static/images/new_clients.png);
     background-repeat: no-repeat;
@@ -854,7 +947,6 @@ ul.ui-tabs-nav .ui-state-hover a {
 #info li:last-child {
     margin-bottom: 0;
 }
-
 
 /** buttons **/
 
@@ -999,4 +1091,33 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 
 .gold:active, .gold:disabled {
     background: #cba139;
+}
+
+.stars-wrapper
+{
+    float:right;
+ 
+}
+
+.ui-dialog .ui-dialog-titlebar-close 
+{
+    left:auto;
+    right: .3em;
+}
+
+/** Feedback **/
+#feedback_peal {
+    position:fixed;
+    right:left;
+    bottom:0;
+    background-image: url(/static/img/feedback_en.png);
+    height: 77px;
+    width: 90px;
+    background-repeat: no-repeat;
+}
+#feedback_peal:hover {
+    background-position:0 -76px;
+}
+#feedback_peal:active {
+    background-position:0 -154px;
 }

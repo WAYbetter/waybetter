@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import *
+from django.views.generic.simple import direct_to_template
 
 
 urlpatterns = patterns('',
@@ -12,7 +13,9 @@ urlpatterns = patterns('',
     (r'registration/get_phone_verification_form/$', 'common.registration.get_phone_form'), 
     (r'registration/get_phone_code_form/$', 'common.registration.get_phone_code_form'),
     (r'registration/get_sending_form/$', 'common.registration.get_sending_form'),
-
+    (r'feedback/$', 'common.registration.feedback'),
+    url(r'get_terms/$', direct_to_template, {'template': "terms_form.html"} ,name="terms_dialog"),
 
 )
 
+ 

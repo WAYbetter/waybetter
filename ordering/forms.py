@@ -7,7 +7,7 @@ from django.utils.translation import gettext as _
 from django.utils.encoding import smart_unicode
 
 from common.models import Country, City
-from ordering.models import Order, Station
+from ordering.models import Order, Station, Feedback
 from django.utils.safestring import mark_safe
 from google.appengine.api.images import BadImageError, NotImageError
 from common.util import log_event, EventType
@@ -92,6 +92,17 @@ class AppEngineImageField(forms.FileField):
 
 HIDDEN_FIELDS = ("from_country", "from_city", "from_street_address", "from_geohash", "from_lon", "from_lat",
                  "to_country", "to_city", "to_street_address", "to_geohash", "to_lon", "to_lat",)
+
+class FeedbackForm(ModelForm):
+    passenger = None
+    class Meta:
+        model = Feedback
+        exclude = ["passenger"]
+        
+    def __init__(self, data=None, passenger=None):
+        super(ModelForm, self).__init__(data)
+        self.passenger = passenger
+
 
 class OrderForm(ModelForm):
     passenger = None

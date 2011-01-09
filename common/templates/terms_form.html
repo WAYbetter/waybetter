@@ -1,0 +1,33 @@
+{% load i18n %}
+<script>
+    var form_config = {
+        dialog_config : {
+            title: "{% trans "Terms Of Use" %}",
+            width: 600
+        },
+        urls: {
+            login: "{% url ordering.passenger_controller.login_passenger %}"
+        },
+        messages: {
+            enter_username: "{% trans 'Please enter your username' %}",
+            choose_password : "{% trans 'Please enter your password' %}",
+            valid_field: "{% trans 'OK' %}"
+
+        }
+    };
+   
+</script>
+<style type="text/css">
+    .terms {
+        white-space: pre-line;
+        text-align: right;
+        max-height: 300px;
+        overflow-y: scroll;
+    }
+</style>
+<div id="content" class="terms">
+    {% trans "actual_terms" %}
+</div>
+<div id="button_container">
+    <button id="ok" class="wb_button blue">{% trans 'OK' %}</button>
+</div>

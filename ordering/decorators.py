@@ -2,14 +2,13 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.utils.http import urlquote
-from ordering.models import Passenger, WorkStation, Station
+from ordering.models import Passenger, WorkStation, Station, CURRENT_PASSENGER_KEY
 from django.http import HttpResponseForbidden, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.conf import settings
 
 NOT_A_USER = "NOT_A_USER"
 NOT_A_PASSENGER = "NOT_A_PASSENGER"
-CURRENT_PASSENGER_KEY = "current_passeger"
 
 def login_needed(login_url):
     return user_passes_test(lambda u: not u.is_anonymous(), login_url=login_url)

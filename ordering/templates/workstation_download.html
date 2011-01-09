@@ -8,11 +8,32 @@
         border: 1px solid #999;
         font-family: Verdana, Arial, Helvetica, sans-serif;
         font-size: 14px;
+        margin-right: 25%;
     }
+    #AIRDownloadMessageTable td {
+        vertical-align: top;
+    }
+
 
     #AIRDownloadMessageRuntime {
         font-size: 12px;
         color: #333;
+    }
+
+    #download_area {
+        text-align: center;
+        margin-top: 2em;
+    }
+    #terms {
+        line-height: 2em;
+        margin-bottom: 79px;
+        margin-right: 33%;
+        margin-top: 20px;
+        width: 35%;
+        font-size: 14px;
+    }
+    #terms a {
+        color: #0066ff;
     }
 
     -->
@@ -44,18 +65,29 @@
             }
         });
     }
+    $(function() {
+         Registrator.init({
+             urls            : {
+                 terms_form_template        : '{% url terms_dialog %}'
+             }
+         });
+        $("#terms_link").click(function(e) {
+            Registrator.openTermsDialog();
+        });
+
+    });
 </script>
 
 
 <h1>{% trans 'Download workstations' %}</h1>
+<div id="download_area">
+<table id="AIRDownloadMessageTable">
+    <tr>
 {% for t in workstations_list %}
-
-    <table id="AIRDownloadMessageTable">
-        <tr>
             <td align="center">
             <p>{{ t.1.user.username }}</p>
             {% ifequal t.2 "disconnected" %}
-                <embed width="217" height="180" align="middle" src="/static/app/badge/badge.swf" quality="high"
+                <embed width="217" height="180" align="middle" src="/static/app/badge/badge.swf" quality="high" wmode="opaque"
                        bgcolor="#FFFFFF" name="badge" allowscriptaccess="always"
                        pluginspage="http://www.macromedia.com/go/getflashplayer"
                        flashvars="appname=workstation_app&amp;appurl={{ t.1.installer_url }}&amp;airversion=2.5&amp;imageurl=/static/app/badge/{{ t.0 }}_{{ t.2 }}.png"
@@ -73,9 +105,13 @@
                 <input type="button" value="{% trans 'Delete' %}" onclick="delete_workstation('{{ t.1.token }}')"/>
             {% endifequal %}
             </td>
-        </tr>
-    </table>
 
 {% endfor %}
+    </tr>
+</table>
+<div id="terms">
+    {% trans "By downloading the workstation software I declare that I have read and agree to the " %} <a id="terms_link" href="#">{% trans "Terms Of Use" %}</a>
+</div>
+</div>
 
 
