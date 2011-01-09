@@ -5,8 +5,12 @@ from django.core.urlresolvers import reverse
 from django.utils import simplejson
 import ordering
 from ordering.forms import OrderForm
-from ordering.pricing import estimate_cost
 import logging
+
+from pricing2 import estimate_cost
+from common.models import City
+from meterCalc import calculate_meter
+import datetime
 
 from django.shortcuts import render_to_response
 from django.template import RequestContext
@@ -74,16 +78,40 @@ class OrderTest(TestCase):
 class PricingCalculationTest(TestCase):
 
     def test_estimate_cost(self):
-        # simple test, with just estimated duration & distance
         t, d = 768, 4110
-        logging.info("Testing cost estimation, with estimated duration: %d & estimated distance: %d" % (t, d))
-        cost = estimate_cost(t, d, country_code="IL")
+        city_a = City.objects.all().filter(id=1604).get()
+        city_b = City.objects.all().filter(id=1744).get()
+
+        # tariff 1 test
+        logging.info("Testing tariff 1 estimation, with estimated duration: %d & estimated distance: %d" % (t, d))
+        cost = estimate_cost(t, d, country_code="IL", time=datetime.time(12,00))
         expected_cost = 32.7
         logging.info("Cost calculation result: %d (expected %d)" % (cost, expected_cost))
         self.assertEqual(expected_cost, cost, "Cost calculation yielded wrong result")
-        # test with list of locations
 
-        # test with tariff 2 time
+        # night test
+        logging.info("Testing night estimation, with estimated duration: %d & estimated distance: %d" % (t, d))
+        cost = estimate_cost(t, d, country_code="IL", time=datetime.time(21,30))
+        expected_cost = 37.5
+        logging.info("Cost calculation result: %d (expected %d)" % (cost, expected_cost))
+        self.assertEqual(expected_cost, cost, "Cost calculation yielded wrong result")
+
+        # weekend test
+        logging.info("Testing weekend estimation, with estimated duration: %d & estimated distance: %d" % (t, d))
+        cost = estimate_cost(t, d, country_code="IL",day=7)
+        expected_cost = 37.5
+        logging.info("Cost calculation result: %d (expected %d)" % (cost, expected_cost))
+        self.assertEqual(expected_cost, cost, "Cost calculation yielded wrong result")
+
+        # flat rate
+        logging.info("Testing flat rate estimation, from %s to %s" % (city_a.name, city_b.name))
+        cost_tariff1 = estimate_cost(t, d, country_code="IL",time=datetime.time(12,00),cities=[city_a,city_b])
+        cost_tariff2 = estimate_cost(t, d, country_code="IL",time=datetime.time(21,30),cities=[city_a,city_b])
+        cost_weekend = estimate_cost(t, d, country_code="IL",cities=[city_a,city_b], day=7)
+        
+        expected_cost = 66
+        logging.info("Cost calculation result: %d (expected %d)" % (cost, expected_cost))
+        self.assertEqual(expected_cost, cost, "Cost calculation yielded wrong result")
 
         # test with special place
 
