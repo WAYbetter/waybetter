@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import gettext as _
-from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, PricingRule, SpecificPricingRule
+from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, ExtraChargeRule
 import station_connection_manager
 from common.models import Country
 from google.appengine.api.images import BadImageError, NotImageError
@@ -105,21 +105,23 @@ class WorkStationAdmin(admin.ModelAdmin):
     online_status.allow_tags = True
 
 
-class PricingRuleAdmin(admin.TabularInline):
-    model = PricingRule
+class MeteredRateRuleAdmin(admin.TabularInline):
+    model = MeteredRateRule
     extra = 5
-    
 
-class SpecificPricingRuleAdmin(admin.ModelAdmin):
+class FlatRateRuleAdmin(admin.ModelAdmin):
+    pass
+
+class ExtraChargeRuleAdmin(admin.ModelAdmin):
     pass
 
 class CountryPricingRulesAdmin(admin.ModelAdmin):
-    inlines = [PricingRuleAdmin,]
-    
+    inlines = [MeteredRateRuleAdmin,]
+
 admin.site.register(Passenger, PassengerAdmin)
 admin.site.register(Order, OrderAdmin)
 admin.site.register(OrderAssignment, OrderAssignmentAdmin)
 admin.site.register(Station, StationAdmin)
 admin.site.register(WorkStation, WorkStationAdmin)
 admin.site.register(Country, CountryPricingRulesAdmin)
-admin.site.register(SpecificPricingRule, SpecificPricingRuleAdmin)
+admin.site.register(FlatRateRule, FlatRateRuleAdmin)

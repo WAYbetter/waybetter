@@ -3,3 +3,6 @@ class OrderError(Exception):
 
 class NoWorkStationFoundError(OrderError):
     pass
+
+class InvalidRuleSetup(Exception):
+    pass

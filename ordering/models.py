@@ -370,7 +370,7 @@ class FlatRateRule(models.Model):
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
     def __unicode__(self):
-        return self.rule_name
+        return "from %s to %s" % (self.city1.name,self.city2.name)
 
 # rules for extra charges (e.g., phone order)
 class ExtraChargeRule(models.Model):

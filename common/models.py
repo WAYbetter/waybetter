@@ -33,6 +33,17 @@ class Country(models.Model):
         super(Country, self).save(force_insert, force_update, using)
         self.full_clean()
 
+    def print_all_rules(self):
+        rules = []
+        for rule in self.metered_rules:
+            rules += rule
+        for rule in self.extra_charge_rules:
+            rules += rule
+        for rule in self.flat_rate_rules:
+            rules += rule
+
+        return rules
+
     def delete_all_rules(self):
         self.metered_rules.all().delete()
         self.flat_rate_rules.all().delete()
