@@ -1,23 +1,30 @@
 # -*- coding: utf-8 -*-
+import logging
+import datetime
 
 from django.conf import settings
 from common.models import Country, City
-import datetime.time
-from common.util import convert_python_weekday
+from common.util import convert_python_weekday, Enum
 from ordering.errors import InvalidRuleSetup
 from ordering.models import MeteredRateRule, ExtraChargeRule
 
+class CostType(Enum):
+    METER  = 1
+    FLAT   = 2
+
 # Extras:
-PHONE_ORDER = "Phone order"
-NATBAG_AIRPORT = "נמל תעופה בן גוריון"
-SDE_DOV_AIRPORT = "נמל תעופה שדה דב"
-HAIFA_PORT = "נמל חיפה"
-KVISH_6 = "כביש 6"
+class IsraelExtraCosts(Enum):
+    PHONE_ORDER     = u"Phone order"
+    NATBAG_AIRPORT  = u"נמל תעופה בן גוריון"
+    SDE_DOV_AIRPORT = u"נמל תעופה שדה דב"
+    HAIFA_PORT      = u"נמל חיפה"
+    KVISH_6         = u"כביש 6"
 
 def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUNTRY_CODE, cities=None,
                   day=None, time=None, extras=None):
     """
     calculate estimate cost for a taxi ride by meter (by estimated time and duration) or a flat rate.
+    returns a (cost, type) tuple.
     ---
     cities : a list of city ids. Should contain exactly two different cities.
     day    : day of ride (1-7)
@@ -25,14 +32,15 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
     extras : a list of extra costs to add. Phone order is automatically added to all rides.
     """
 
+    logging.info("Calculating estimated cost for ride with duration %d and distance %d" % (est_duration,est_distance))
     # init defaults
     country = Country.objects.get(code=country_code)
 
     if extras is None:
         extras = []
 
-    if not PHONE_ORDER in extras:
-        extras.append(PHONE_ORDER)
+    if not IsraelExtraCosts.PHONE_ORDER in extras:
+        extras.append(IsraelExtraCosts.PHONE_ORDER)
 
     if cities is None:
         cities = []
@@ -58,8 +66,10 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
             raise InvalidRuleSetup("Multiple flat rules for same city pair encountered: %s, %s" % (city_a.name, city_b.name))
 
     if flat_rate_rules:
+        type = CostType.FLAT
         cost = flat_rate_rules[0].fixed_cost
     else:
+        type = CostType.METER
         cost = calculate_meter_cost(country.metered_rules.all(), est_duration, est_distance, day, time)
 
     # Step 2: add extra costs (airport, phone order etc.)
@@ -67,7 +77,7 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
     extra_cost = sum([rule.cost for rule in extra_charge_rules])
 
     # return total cost
-    return cost + extra_cost
+    return cost + extra_cost, type
 
 
 # currently, passing two different cities indicates flat rate
@@ -193,11 +203,11 @@ def setup_israel_meter_and_extra_charge_rules():
     # extra charge rules
     IL.extra_charge_rules.all().delete()
     extra_charge_rules=[
-            ExtraChargeRule(rule_name=PHONE_ORDER,country=IL,cost=4.5),
-            ExtraChargeRule(rule_name=NATBAG_AIRPORT,country=IL,cost=5),
-            ExtraChargeRule(rule_name=SDE_DOV_AIRPORT,country=IL,cost=2),
-            ExtraChargeRule(rule_name=HAIFA_PORT,country=IL,cost=2),
-            ExtraChargeRule(rule_name=KVISH_6,country=IL,cost=14.3),
+            ExtraChargeRule(rule_name=IsraelExtraCosts.PHONE_ORDER,country=IL,cost=4.5),
+            ExtraChargeRule(rule_name=IsraelExtraCosts.NATBAG_AIRPORT,country=IL,cost=5),
+            ExtraChargeRule(rule_name=IsraelExtraCosts.SDE_DOV_AIRPORT,country=IL,cost=2),
+            ExtraChargeRule(rule_name=IsraelExtraCosts.HAIFA_PORT,country=IL,cost=2),
+            ExtraChargeRule(rule_name=IsraelExtraCosts.KVISH_6,country=IL,cost=14.3),
     ]
     for rule in extra_charge_rules: rule.save()
 

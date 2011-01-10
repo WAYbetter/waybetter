@@ -6,14 +6,51 @@ from django.shortcuts import render_to_response
 
 class Enum:
     @classmethod
-    def choices(cls):
+    def _item_names(cls):
         result = []
         for item_name in dir(cls):
             item = getattr(cls, item_name)
-            if isinstance(item, int) and not item_name.startswith("__"):
-                result.append((item, _(item_name.capitalize())))
+            if (isinstance(item, int) or isinstance(item, str)) and not item_name.startswith("_"):
+                result.append(item_name)
+
+        return result
+
+    @classmethod
+    def _items(cls):
+        result = []
+        for item_name in cls._item_names():
+            result.append(getattr(cls, item_name))
+
+        return result
+
+    @classmethod
+    def contains(cls, value):
+        return value in cls._items()
+
+    @classmethod
+    def choices(cls):
+        result = []
+        for item_name in cls._item_names():
+            item = getattr(cls, item_name)
+            result.append((item, _(item_name.capitalize())))
 
         return sorted(result)
+
+class EventType(Enum):
+    ORDER_BOOKED =                  1
+    ORDER_ASSIGNED =                2
+    ORDER_ACCEPTED =                3
+    ORDER_REJECTED =                4
+    ORDER_IGNORED =                 5
+    ORDER_ERROR =                   6
+    CROSS_COUNTRY_ORDER_FAILURE =   7
+    NO_SERVICE_IN_CITY =            8
+    NO_SERVICE_IN_COUNTRY =         9
+    ORDER_FAILED =                  10
+    ORDER_RATED =                   11
+    UNREGISTERED_ORDER =            12
+    PASSENGER_REGISTERED =          13
+
     @classmethod
     def get_label(cls, val):
         for item_name in dir(cls):
@@ -32,22 +69,6 @@ class Enum:
                 return "/static/images/%s_marker.png" % item_name.lower()
 
         raise ValueError(_("Invalid value: %s" % str(val)))
-        
-
-class EventType(Enum):
-    ORDER_BOOKED =                  1
-    ORDER_ASSIGNED =                2
-    ORDER_ACCEPTED =                3
-    ORDER_REJECTED =                4
-    ORDER_IGNORED =                 5
-    ORDER_ERROR =                   6
-    CROSS_COUNTRY_ORDER_FAILURE =   7
-    NO_SERVICE_IN_CITY =            8
-    NO_SERVICE_IN_COUNTRY =         9
-    ORDER_FAILED =                  10
-    ORDER_RATED =                   11
-    UNREGISTERED_ORDER =            12
-    PASSENGER_REGISTERED =          13
 
 
 def is_empty(str):

@@ -7,7 +7,7 @@ from django.utils import simplejson
 
 from common.models import City
 import ordering
-from ordering.pricing import estimate_cost, NATBAG_AIRPORT, SDE_DOV_AIRPORT, PHONE_ORDER
+from ordering.pricing import estimate_cost, IsraelExtraCosts, CostType
 from ordering.forms import OrderForm
 from ordering.testing.meter_calculator import calculate_meter
 
@@ -84,49 +84,53 @@ class PricingCalculationTest(TestCase):
 
         # tariff 1 test
         logging.info("Testing tariff 1 estimation, with estimated duration: %d & estimated distance: %d" % (t, d))
-        cost = estimate_cost(t, d, country_code="IL", time=datetime.time(12,00))
+        cost, type = estimate_cost(t, d, country_code="IL", time=datetime.time(12,00))
         expected_cost = calculate_meter(t,d,datetime.time(05,30),1)
         logging.info("Cost calculation result: %d (expected %d)" % (cost, expected_cost))
         self.assertEqual(expected_cost, cost, "Cost calculation yielded wrong result")
 
         # tariff2 test
         logging.info("Testing tariff2 estimation, with estimated duration: %d & estimated distance: %d" % (t, d))
-        cost = estimate_cost(t, d, country_code="IL", time=datetime.time(21,30))
+        cost, type = estimate_cost(t, d, country_code="IL", time=datetime.time(21,30))
         expected_cost = calculate_meter(t,d,datetime.time(21,01),1)
         logging.info("Cost calculation result: %d (expected %d)" % (cost, expected_cost))
         self.assertEqual(expected_cost, cost, "Cost calculation yielded wrong result")
 
         # weekend test
         logging.info("Testing weekend estimation, with estimated duration: %d & estimated distance: %d" % (t, d))
-        cost = estimate_cost(t, d, country_code="IL",day=7)
+        cost, type = estimate_cost(t, d, country_code="IL",day=7)
         expected_cost = calculate_meter(t,d,datetime.time(12,00),7)
         logging.info("Cost calculation result: %d (expected %d)" % (cost, expected_cost))
         self.assertEqual(expected_cost, cost, "Cost calculation yielded wrong result")
 
         # flat rate
         logging.info("Testing flat rate tariff1 estimation, from %s to %s" % (city_a.name, city_b.name))
-        cost = estimate_cost(t, d, country_code="IL",time=datetime.time(12,00),cities=[city_a.id, city_b.id])
+        cost, type = estimate_cost(t, d, country_code="IL",time=datetime.time(12,00),cities=[city_a.id, city_b.id])
         expected_cost = 66+4.5
         logging.info("Cost calculation result: %d (expected %d)" % (cost, expected_cost))
         self.assertEqual(expected_cost, cost, "Cost calculation yielded wrong result")
+        self.assertEqual(CostType.FLAT, type, "wrong cost type")
 
         logging.info("Testing flat rate tariff2 estimation, from %s to %s" % (city_a.name, city_b.name))
-        cost = estimate_cost(t, d, country_code="IL",time=datetime.time(21,30),cities=[city_a.id, city_b.id])
+        cost, type = estimate_cost(t, d, country_code="IL",time=datetime.time(21,30),cities=[city_a.id, city_b.id])
         expected_cost = 69+4.5
         logging.info("Cost calculation result: %d (expected %d)" % (cost, expected_cost))
         self.assertEqual(expected_cost, cost, "Cost calculation yielded wrong result")
+        self.assertEqual(CostType.FLAT, type, "wrong cost type")
 
         logging.info("Testing flat rate weekend estimation, from %s to %s" % (city_a.name, city_b.name))
-        cost = estimate_cost(t, d, country_code="IL",cities=[city_a.id, city_b.id], day=7)
+        cost, type = estimate_cost(t, d, country_code="IL",cities=[city_a.id, city_b.id], day=7)
         expected_cost = 69+4.5
         logging.info("Cost calculation result: %d (expected %d)" % (cost, expected_cost))
         self.assertEqual(expected_cost, cost, "Cost calculation yielded wrong result")
+        self.assertEqual(CostType.FLAT, type, "wrong cost type")
 
         # test with extra charge
         logging.info("Testing tariff 1 + extras estimation, with estimated duration: %d & estimated distance: %d" % (t, d))
-        cost = estimate_cost(t, d, country_code="IL", time=datetime.time(12,00), extras=[NATBAG_AIRPORT, SDE_DOV_AIRPORT, PHONE_ORDER])
+        cost, type = estimate_cost(t, d, country_code="IL", time=datetime.time(12,00), extras=[IsraelExtraCosts.NATBAG_AIRPORT, IsraelExtraCosts.SDE_DOV_AIRPORT, IsraelExtraCosts.PHONE_ORDER])
         expected_cost = calculate_meter(t,d,datetime.time(05,30),1)+5+2+0 # phone order added automatically
         logging.info("Cost calculation result: %d (expected %d)" % (cost, expected_cost))
         self.assertEqual(expected_cost, cost, "Cost calculation yielded wrong result")
+        self.assertEqual(CostType.METER, type, "wrong cost type")
 
         # test with special city
