@@ -53,6 +53,7 @@ TARIFF2_TICK_DISTANCE_OVER_15K_EILAT = 67.59 # in meter
 TARIFF2_TICK_COST_OVER_15K_EILAT = 0.3 # in NIS
 
 
+# main method
 def calculate_meter(duration,distance,time,day):
     if day==7:
         return calculate_tariff2(duration,distance)
@@ -63,6 +64,7 @@ def calculate_meter(duration,distance,time,day):
 
     return calculate_tariff1(duration,distance)
 
+# helper methods
 def calculate_tariff1(duration, distance):
     extra_distance = 0
     if distance > 15000:

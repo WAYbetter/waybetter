@@ -7,7 +7,7 @@ from django.utils import simplejson
 
 from common.models import City
 import ordering
-from ordering.pricing import estimate_cost, NATBAG_AIRPORT
+from ordering.pricing import estimate_cost, NATBAG_AIRPORT, SDE_DOV_AIRPORT, PHONE_ORDER
 from ordering.forms import OrderForm
 from ordering.testing.meter_calculator import calculate_meter
 
@@ -124,8 +124,8 @@ class PricingCalculationTest(TestCase):
 
         # test with extra charge
         logging.info("Testing tariff 1 + extras estimation, with estimated duration: %d & estimated distance: %d" % (t, d))
-        cost = estimate_cost(t, d, country_code="IL", time=datetime.time(12,00), extras=[NATBAG_AIRPORT])
-        expected_cost = calculate_meter(t,d,datetime.time(05,30),1)+5
+        cost = estimate_cost(t, d, country_code="IL", time=datetime.time(12,00), extras=[NATBAG_AIRPORT, SDE_DOV_AIRPORT, PHONE_ORDER])
+        expected_cost = calculate_meter(t,d,datetime.time(05,30),1)+5+2+0 # phone order added automatically
         logging.info("Cost calculation result: %d (expected %d)" % (cost, expected_cost))
         self.assertEqual(expected_cost, cost, "Cost calculation yielded wrong result")
 

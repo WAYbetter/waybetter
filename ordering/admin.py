@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.utils.translation import gettext as _
-from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, PricingRule, SpecificPricingRule
+from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, ExtraChargeRule, Feedback
 import station_connection_manager
 from common.models import Country
 from google.appengine.api.images import BadImageError, NotImageError

@@ -2,7 +2,7 @@
 
 from django.conf import settings
 from common.models import Country, City
-import datetime
+import datetime.time
 from common.util import convert_python_weekday
 from ordering.errors import InvalidRuleSetup
 from ordering.models import MeteredRateRule, ExtraChargeRule
@@ -17,8 +17,12 @@ KVISH_6 = "כביש 6"
 def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUNTRY_CODE, cities=None,
                   day=None, time=None, extras=None):
     """
-
-    cities = a list of city ids
+    calculate estimate cost for a taxi ride by meter (by estimated time and duration) or a flat rate.
+    ---
+    cities : a list of city ids. Should contain exactly two different cities.
+    day    : day of ride (1-7)
+    time   : datetime.time of ride
+    extras : a list of extra costs to add. Phone order is automatically added to all rides.
     """
 
     # init defaults
@@ -51,8 +55,7 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
         flat_rate_rules = filter_relevant_daytime_rules(flat_rate_rules, day, time)
 
         if len(flat_rate_rules) > 1:
-            raise InvalidRuleSetup(
-                    "Multiple flat rules for same city pair encountered: %s, %s" % (city_a.name, city_b.name))
+            raise InvalidRuleSetup("Multiple flat rules for same city pair encountered: %s, %s" % (city_a.name, city_b.name))
 
     if flat_rate_rules:
         cost = flat_rate_rules[0].fixed_cost
@@ -75,9 +78,9 @@ def filter_relevant_daytime_rules(rule_list, day, time):
     """
     filter relevant rules at day and time from given list
     ---
-    rule_list   : list of rules of any type
-    day         ; day of week (1-7)
-    time        : datetime instance
+    rule_list: list of rules of any type
+    day      : day of ride (1-7)
+    time     : datetime.time of ride
     """
     result = []
     for rule in rule_list:
@@ -85,8 +88,7 @@ def filter_relevant_daytime_rules(rule_list, day, time):
         if rule.from_day and rule.to_day:
             if not (rule.from_day <= day <= rule.to_day):
                 continue
-
-        # if rule is time-dependent check if it applies at time
+                # if rule is time-dependent check if it applies at time
         if rule.from_hour and rule.to_hour:
             start_time = datetime.time(rule.from_hour.hour, rule.from_hour.minute)
             end_time = datetime.time(rule.to_hour.hour, rule.to_hour.minute)
@@ -102,6 +104,13 @@ def filter_relevant_daytime_rules(rule_list, day, time):
     return result
 
 def calculate_meter_cost(rule_list, est_duration, est_distance, day, time):
+    """
+    calculate an estimated meter cost based on estimated duration and distance.
+    ---
+    rule_list: list of MeteredRateRule
+    day      : day of ride (1-7)
+    time     : datetime.time of ride
+    """
     relevant_rules = filter_relevant_daytime_rules(rule_list, day, time)
 
     total_fixed_cost = sum([rule.fixed_cost for rule in relevant_rules if rule.fixed_cost])
@@ -117,7 +126,7 @@ def calculate_meter_cost(rule_list, est_duration, est_distance, day, time):
             [rule.tick_cost * (duration / rule.tick_time) for duration, rule in relevant_duration_rules])
 
     # choose the maximum between the 2
-    return total_fixed_cost + max(tick_cost_by_distance, tick_cost_by_duration)
+    return total_fixed_cost+max(tick_cost_by_distance, tick_cost_by_duration)
 
 def filter_relevant_distance_rules(rule_list, est_distance):
     """
@@ -155,59 +164,41 @@ def filter_relevant_duration_rules(rule_list, est_duration):
 
 
 def setup_israel_meter_and_extra_charge_rules():
+
     IL = Country.objects.filter(code="IL").get()
 
     # meter rules
-    TARIFF1_START = datetime.time(05, 30)
-    TARIFF1_END = datetime.time(21, 00)
-    TARIFF2_START = datetime.time(21, 01)
-    TARIFF2_END = datetime.time(05, 29)
+    TARIFF1_START = datetime.time(05,30)
+    TARIFF1_END = datetime.time(21,00)
+    TARIFF2_START = datetime.time(21,01)
+    TARIFF2_END = datetime.time(05,29)
 
     IL.metered_rules.all().delete()
-    meter_rules = [
-            MeteredRateRule(rule_name="Tariff 1 initial cost", country=IL, from_day=1, to_day=6, from_hour=TARIFF1_START
-                            , to_hour=TARIFF1_END, from_duration=0, to_duration=None, from_distance=0, to_distance=None,
-                            tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=11.1),
-            MeteredRateRule(rule_name="Tariff 2 initial cost", country=IL, from_day=1, to_day=6, from_hour=TARIFF2_START
-                            , to_hour=TARIFF2_END, from_duration=0, to_duration=None, from_distance=0, to_distance=None,
-                            tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=11.1),
+    meter_rules=[
+            MeteredRateRule(rule_name="Tariff 1 initial cost",country=IL,from_day=1, to_day=6, from_hour=TARIFF1_START, to_hour=TARIFF1_END, from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=11.1),
+            MeteredRateRule(rule_name="Tariff 2 initial cost",country=IL,from_day=1, to_day=6, from_hour=TARIFF2_START, to_hour=TARIFF2_END, from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=11.1),
 
-            MeteredRateRule(rule_name="Tariff 1 first 15 km", country=IL, from_day=1, to_day=6, from_hour=TARIFF1_START,
-                            to_hour=TARIFF1_END, from_duration=83, to_duration=None, from_distance=559.45,
-                            to_distance=15000, tick_distance=90.09, tick_time=12, tick_cost=0.3, fixed_cost=None),
-            MeteredRateRule(rule_name="Tariff 2 first 15 km", country=IL, from_day=1, to_day=6, from_hour=TARIFF2_START,
-                            to_hour=TARIFF2_END, from_duration=36, to_duration=None, from_distance=153.81,
-                            to_distance=15000, tick_distance=72.15, tick_time=10, tick_cost=0.3, fixed_cost=None),
+            MeteredRateRule(rule_name="Tariff 1 first 15 km",country=IL,from_day=1, to_day=6, from_hour=TARIFF1_START, to_hour=TARIFF1_END, from_duration=83, to_duration=None, from_distance=559.45, to_distance=15000, tick_distance=90.09, tick_time=12, tick_cost=0.3, fixed_cost=None),
+            MeteredRateRule(rule_name="Tariff 2 first 15 km",country=IL,from_day=1, to_day=6, from_hour=TARIFF2_START, to_hour=TARIFF2_END, from_duration=36, to_duration=None, from_distance=153.81, to_distance=15000, tick_distance=72.15, tick_time=10, tick_cost=0.3, fixed_cost=None),
 
-            MeteredRateRule(rule_name="Tariff 1 after 15 km", country=IL, from_day=1, to_day=6, from_hour=TARIFF1_START,
-                            to_hour=TARIFF1_END, from_duration=None, to_duration=None, from_distance=15000,
-                            to_distance=None, tick_distance=75.14, tick_time=12, tick_cost=0.3, fixed_cost=None),
-            MeteredRateRule(rule_name="Tariff 2 after 15 km", country=IL, from_day=1, to_day=6, from_hour=TARIFF2_START,
-                            to_hour=TARIFF2_END, from_duration=None, to_duration=None, from_distance=15000,
-                            to_distance=None, tick_distance=60.03, tick_time=10, tick_cost=0.3, fixed_cost=None),
+            MeteredRateRule(rule_name="Tariff 1 after 15 km",country=IL,from_day=1, to_day=6, from_hour=TARIFF1_START, to_hour=TARIFF1_END, from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=75.14, tick_time=12, tick_cost=0.3, fixed_cost=None),
+            MeteredRateRule(rule_name="Tariff 2 after 15 km",country=IL,from_day=1, to_day=6, from_hour=TARIFF2_START, to_hour=TARIFF2_END, from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=60.03, tick_time=10, tick_cost=0.3, fixed_cost=None),
 
-            MeteredRateRule(rule_name="Saturday initial cost", country=IL, from_day=7, to_day=7,
-                            from_hour=datetime.time(00, 00), to_hour=datetime.time(23, 59), from_duration=0,
-                            to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None,
-                            tick_cost=None, fixed_cost=11.1),
-            MeteredRateRule(rule_name="Saturday first 15 km", country=IL, from_day=7, to_day=7,
-                            from_hour=datetime.time(00, 00), to_hour=datetime.time(23, 59), from_duration=36,
-                            to_duration=None, from_distance=153.81, to_distance=15000, tick_distance=72.15, tick_time=10
-                            , tick_cost=0.3, fixed_cost=None),
-            MeteredRateRule(rule_name="Saturday after 15 km", country=IL, from_day=7, to_day=7,
-                            from_hour=datetime.time(00, 00), to_hour=datetime.time(23, 59), from_duration=None,
-                            to_duration=None, from_distance=15000, to_distance=None, tick_distance=60.03, tick_time=10,
-                            tick_cost=0.3, fixed_cost=None),
+            MeteredRateRule(rule_name="Saturday initial cost",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00), to_hour=datetime.time(23,59), from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=11.1),
+            MeteredRateRule(rule_name="Saturday first 15 km",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00), to_hour=datetime.time(23,59), from_duration=36, to_duration=None, from_distance=153.81, to_distance=15000, tick_distance=72.15, tick_time=10, tick_cost=0.3, fixed_cost=None),
+            MeteredRateRule(rule_name="Saturday after 15 km",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00), to_hour=datetime.time(23,59), from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=60.03, tick_time=10, tick_cost=0.3, fixed_cost=None),
     ]
     for rule in meter_rules: rule.save()
 
-    # Extra charge rules
+    # extra charge rules
     IL.extra_charge_rules.all().delete()
-    extra_charge_rules = [
-            ExtraChargeRule(rule_name=PHONE_ORDER, country=IL, cost=4.5),
-            ExtraChargeRule(rule_name=NATBAG_AIRPORT, country=IL, cost=5),
-            ExtraChargeRule(rule_name=SDE_DOV_AIRPORT, country=IL, cost=2),
-            ExtraChargeRule(rule_name=HAIFA_PORT, country=IL, cost=2),
-            ExtraChargeRule(rule_name=KVISH_6, country=IL, cost=14.3),
+    extra_charge_rules=[
+            ExtraChargeRule(rule_name=PHONE_ORDER,country=IL,cost=4.5),
+            ExtraChargeRule(rule_name=NATBAG_AIRPORT,country=IL,cost=5),
+            ExtraChargeRule(rule_name=SDE_DOV_AIRPORT,country=IL,cost=2),
+            ExtraChargeRule(rule_name=HAIFA_PORT,country=IL,cost=2),
+            ExtraChargeRule(rule_name=KVISH_6,country=IL,cost=14.3),
     ]
     for rule in extra_charge_rules: rule.save()
+
+    # flat rate rules are set in ordering.rules_controller.setup_flat_rate_rules
