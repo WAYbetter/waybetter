@@ -63,15 +63,16 @@ def book_order(request):
 def accept_order(order, pickup_time, station):
     order.pickup_time = pickup_time
     order.status = ACCEPTED
-    order.station = station
-    order.save()
+    order.station = station  
+    order.save()  
+    msg = _("Pickup at %(from)s in %(time)d minutes.\nStation: %(station_name)s, %(station_phone)s") % \
+           { "from"             : order.from_raw.encode("utf-8"),
+             "time"             : pickup_time,
+             "station_name"     : station.name.encode("utf-8"),
+             "station_phone"    : station.phones.get().local_phone.encode("utf-8") }
 
-    send_sms(order.passenger.international_phone(),
-             _("Pickup at %(from)s in %(time)s minutes.\nStation: %(station_name)s, %(station_phone)s" %
-               { "from"             : order.from_raw,
-                 "time"             : pickup_time,
-                 "station_name"     : station.name,
-                 "station_phone"    : station.phones.all()[0] }))
+    send_sms(order.passenger.international_phone(), msg)
+
 
 
 @passenger_required

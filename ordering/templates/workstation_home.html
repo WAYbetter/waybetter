@@ -304,6 +304,8 @@
 
     <script type="text/javascript">
         var polling_enabled = true;
+        var POLLING_TIMER = "polling_timer";
+        
         $(document).ready(function() {
             // setup bridge functions
             window.childSandboxBridge = {
@@ -351,11 +353,11 @@
                 $('#accept_orders').removeClass('offline');
                 $('#accept_orders').addClass('online');
                 polling_enabled = true;
-                //pollOrders();
+                pollOrders();
 
-                $(document).everyTime({{ polling_interval }}, function() {
-                    pollOrders();
-                });
+//                $(document).everyTime({{ polling_interval }}, function() {
+//                    pollOrders();
+//               });
 
             } else {
                 $('#accept_orders').removeClass('online');
@@ -373,11 +375,10 @@
                     if (XMLHttpRequest.status == 0) { // no response from server
                         onError();
                     }
-                    /*
-                    $(document).oneTime({{ polling_interval }}, function() {
+                    $(document).stopTime(POLLING_TIMER);
+                    $(document).oneTime({{ polling_interval }}, POLLING_TIMER, function() {
                         pollOrders();
                     });
-                    */
                 },
                 success: onOrder,
                 error: onError
