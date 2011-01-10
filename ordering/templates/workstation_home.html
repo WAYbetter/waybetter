@@ -122,7 +122,7 @@
 	#orders .from_address{
 		color: white;
 		text-align: right;
-        width: 150px;
+        width: 130px;
         height: 40px;
         position: absolute;
         top: 4px;
@@ -234,10 +234,13 @@
 	}
 
 	#orders .order_sent{
-		color: yellow;
-		text-align: left;
-        position: absolute;
+        color: yellow;
         height: 40px;
+        left: 60px;
+        position: absolute;
+        text-align: right;
+        top: 4px;
+        width: 101px;
 	}
 
 	#orders .pb_sent {
@@ -339,8 +342,7 @@
             var init_val = "{{ work_station.accept_orders }}" == "True";
             if (window.parentSandboxBridge) {
                 window.parentSandboxBridge.set_online_state(init_val);
-            }
-
+            } 
         }
 
         function initConnection() {
@@ -490,6 +492,7 @@
             order_row.empty()
                 .append(finis_button)
                 .append($("<div class='order_sent'></div>").text(data.pickup_message))
+                .append($("<div class='from_address'></div>").text(data.pickup_address))
                 .append(close_button);
 
             order_row.next().empty();
@@ -513,14 +516,16 @@
         function rejectOrder(order_id) {
             $("#orders #" + order_id + " .indicator").show();
             $.ajax({"url": "{% url ordering.station_controller.update_order_status %}", "type":"post", "data":{"status": "{{ reject }}", "order_id": order_id},
-                "success": updateOrderCallback, "error": onError
+                "success": function() {
+                    removeOrderRow(order_id);
+                }, "error": onError
             });
         }
 
         function updateOrderCallback(json) {
             var data = eval("(" + json + ")");
             if (data.order_status == "stale") {
-                removeOrderRow(data.orde_id);
+                removeOrderRow(data.order_id);
             } else {
                 setStateSent(data);
             }
