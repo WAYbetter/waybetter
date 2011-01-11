@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import logging
 import datetime
+from datetime import tzinfo, timedelta
 
 from django.conf import settings
 from common.models import Country, City
@@ -19,6 +20,20 @@ class IsraelExtraCosts(Enum):
     SDE_DOV_AIRPORT = u"נמל תעופה שדה דב"
     HAIFA_PORT      = u"נמל חיפה"
     KVISH_6         = u"כביש 6"
+
+class IsraelTimeZone(tzinfo):
+    """UTC+2"""
+
+    def utcoffset(self, dt):
+        return timedelta(hours=2)
+
+    def tzname(self, dt):
+        return "UTC+2"
+
+    def dst(self, dt):
+        return timedelta(0)
+
+ILtz = IsraelTimeZone()
 
 def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUNTRY_CODE, cities=None,
                   day=None, time=None, extras=None):
@@ -48,7 +63,7 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
         day = convert_python_weekday(datetime.datetime.now().weekday())
 
     if time is None:
-        time = datetime.datetime.now().time()
+        time = datetime.datetime.now(ILtz).time()
 
     logging.info("Calculating estimated cost with (duration, distance, day, time) = (%d. %d, %d, %s" % (est_duration,est_distance, day, time))
 
