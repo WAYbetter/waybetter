@@ -9,7 +9,7 @@ TARIFF2_END = datetime.time(05,29)
 PHONE_ORDER = 4.5
 
 #Tariff1
-TARIFF1_BASE_PRICE = 11.1 + PHONE_ORDER# in NIS
+TARIFF1_BASE_PRICE = 11.1# in NIS
 TARIFF1_BASE_TIME = 83 # in sec
 TARIFF1_BASE_DISTANCE = 559.45 # in meter
 TARIFF1_TICK_TIME_BELOW_15K = 12 # in sec
@@ -20,7 +20,7 @@ TARIFF1_TICK_DISTANCE_OVER_15K = 75.14 # in meter
 TARIFF1_TICK_COST_OVER_15K = 0.3 # in NIS
 
 #TARIFF2
-TARIFF2_BASE_PRICE = 11.1 + PHONE_ORDER # in NIS
+TARIFF2_BASE_PRICE = 11.1 # in NIS
 TARIFF2_BASE_TIME = 36 # in sec
 TARIFF2_BASE_DISTANCE = 153.81 # in meter
 TARIFF2_TICK_TIME_BELOW_15K = 10 # in sec
@@ -31,7 +31,7 @@ TARIFF2_TICK_DISTANCE_OVER_15K = 60.03 # in meter
 TARIFF2_TICK_COST_OVER_15K = 0.3 # in NIS
 
 #Tariff1 Eilat
-TARIFF1_BASE_PRICE_EILAT = 9.5 + PHONE_ORDER# in NIS
+TARIFF1_BASE_PRICE_EILAT = 9.5# in NIS
 TARIFF1_BASE_TIME_EILAT = 83 # in sec
 TARIFF1_BASE_DISTANCE_EILAT = 559.79 # in meter
 TARIFF1_TICK_TIME_BELOW_15K_EILAT = 15 # in sec
@@ -42,7 +42,7 @@ TARIFF1_TICK_DISTANCE_OVER_15K_EILAT = 84.52 # in meter
 TARIFF1_TICK_COST_OVER_15K_EILAT = 0.3 # in NIS
 
 #TARIFF2 Eilat
-TARIFF2_BASE_PRICE_EILAT = 9.5 + PHONE_ORDER# in NIS
+TARIFF2_BASE_PRICE_EILAT = 9.5# in NIS
 TARIFF2_BASE_TIME_EILAT = 36 # in sec
 TARIFF2_BASE_DISTANCE_EILAT = 154.17 # in meter
 TARIFF2_TICK_TIME_BELOW_15K_EILAT = 12 # in sec
@@ -55,14 +55,18 @@ TARIFF2_TICK_COST_OVER_15K_EILAT = 0.3 # in NIS
 
 # main method
 def calculate_meter(duration,distance,time,day):
-    if day==7:
-        return calculate_tariff2(duration,distance)
-    if TARIFF2_START <= time <= datetime.time(23,59,59):
-        return calculate_tariff2(duration,distance)
-    if datetime.time(00,00,00) <= time <= TARIFF2_END:
-        return calculate_tariff2(duration,distance)
+    cost = 0
 
-    return calculate_tariff1(duration,distance)
+    if day==7:
+        cost =  calculate_tariff2(duration,distance)
+    elif TARIFF2_START <= time <= datetime.time(23,59,59):
+        cost =  calculate_tariff2(duration,distance)
+    elif datetime.time(00,00,00) <= time <= TARIFF2_END:
+        cost =  calculate_tariff2(duration,distance)
+    else:
+        cost = calculate_tariff1(duration,distance)
+
+    return cost + PHONE_ORDER  
 
 # helper methods
 def calculate_tariff1(duration, distance):

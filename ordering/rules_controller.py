@@ -1,16 +1,18 @@
 # This Python file uses the following encoding: utf-8
 
 import csv
+import datetime
 from StringIO import StringIO
 from django.http import HttpResponse, HttpResponseForbidden
 from django.shortcuts import render_to_response
+import ordering
 from ordering.forms import FlatRateRuleSetupForm
 from django.template.context import RequestContext
 from django.views.decorators.csrf import csrf_protect
 from ordering.pricing import setup_israel_meter_and_extra_charge_rules
 from common.models import City
 from ordering.models import FlatRateRule
-from datetime import time
+
 import logging
 from google.appengine.ext import deferred
 
@@ -92,8 +94,8 @@ def add_flat_rate_rule(country, from_city, to_city, fixed_cost_tariff_1, fixed_c
     rule.country = country
     rule.from_day = 1
     rule.to_day = 6
-    rule.from_hour = time(05,30)
-    rule.to_hour = time(21,00)
+    rule.from_hour = ordering.pricing.TARIFF1_START
+    rule.to_hour = ordering.pricing.TARIFF1_END
     rule.save()
     # add tariff2 rule - nights
     rule = FlatRateRule()
@@ -103,8 +105,8 @@ def add_flat_rate_rule(country, from_city, to_city, fixed_cost_tariff_1, fixed_c
     rule.country = country
     rule.from_day = 1
     rule.to_day = 6
-    rule.from_hour = time(21,01)
-    rule.to_hour = time(05,29)
+    rule.from_hour = ordering.pricing.TARIFF2_START
+    rule.to_hour = ordering.pricing.TARIFF2_END
     rule.save()
     # add tariff2 rule - weekend
     rule = FlatRateRule()
@@ -114,6 +116,6 @@ def add_flat_rate_rule(country, from_city, to_city, fixed_cost_tariff_1, fixed_c
     rule.country = country
     rule.from_day = 7
     rule.to_day = 7
-    rule.from_hour = time(00,00)
-    rule.to_hour = time(23,59)
+    rule.from_hour = datetime.time(00,00,00)
+    rule.to_hour = datetime.time(23,59,59)
     rule.save()

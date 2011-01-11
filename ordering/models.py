@@ -390,7 +390,7 @@ class ExtraChargeRule(models.Model):
     rule_name = models.CharField(_("name"), max_length=500)
     is_active = models.BooleanField(_("is active"), default=True)
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="extra_charge_rules")
-
+ 
     cost = models.FloatField(_("fixed cost"))
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
