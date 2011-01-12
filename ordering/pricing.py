@@ -65,7 +65,7 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
     if time is None:
         time = datetime.datetime.now(ILtz).time()
 
-    logging.info("Calculating estimated cost with (duration, distance, day, time) = (%d. %d, %d, %s" % (est_duration,est_distance, day, time))
+    logging.info("Calculating estimated cost with (duration, distance, day, time) = (%d. %d, %d, %s)" % (est_duration,est_distance, day, time))
 
     # Step 1: flat rate or by meter ?
     flat_rate_rules = []
@@ -93,7 +93,7 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
     extra_cost = sum([rule.cost for rule in extra_charge_rules])
 
     # return total cost
-    logging.info(u"Estimation cost %dשח of type %s" % (cost + extra_cost, type))
+    logging.info(u"Estimation %s cost: %d" % (type, cost + extra_cost))
     return cost + extra_cost, type
 
 

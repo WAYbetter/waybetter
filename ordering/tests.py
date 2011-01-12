@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 from django.test import TestCase
 from django.contrib.auth.models import User
-from ordering.errors import InvalidRuleSetup
 from ordering.models import Passenger, Order
 from django.core.urlresolvers import reverse
 from django.utils import simplejson
@@ -74,17 +73,21 @@ class OrderTest(TestCase):
         self.assertEqual(11, len(data))
 
 
-class PricingCalculationTest(TestCase):
+class PricingTest(TestCase):
+
+    fixtures = ['countries', 'cities', 'rules']
+
+    def setUp(self):
+        pass
+    
     def test_estimate_cost(self):
 
         # init Israel test
         IL = Country.objects.filter(code="IL").get()
         city_a = City.objects.all().get(name="תל אביב יפו") #tel aviv
         city_b = City.objects.all().get(name="אור יהודה") # or yehuda
-
-        t, d = 768, 4110
-
         phone_order_price = IL.extra_charge_rules.get(rule_name=IsraelExtraCosts.PHONE_ORDER).cost
+        t, d = 768, 4110
 
         logging.info("\nTesting cost estimation, with estimated duration: %d & estimated distance: %d" % (t, d))
 
@@ -145,8 +148,7 @@ class PricingCalculationTest(TestCase):
         if not flat_rate_rules:
             flat_rate_rules = IL.flat_rate_rules.filter(city1=city_b,city2=city_a)
 
-        if flat_rate_rules.count() > 3:
-            raise InvalidRuleSetup("Multiple flat rules for same city pair encountered: %s, %s" % (city_a.name, city_b.name))
+        self.assertTrue(flat_rate_rules, "No flat rate rule found between cities %s, %s" % (city_a.name,city_b.name))
 
         logging.info("\nTesting flat rate prices, with cities: %s , %s" % (city_a.name, city_b.name))
 
@@ -168,5 +170,3 @@ class PricingCalculationTest(TestCase):
                 cost, type = estimate_cost(t, d, IL.code, cities=[city_a.id, city_b.id], day=7)
                 logging.info("flat rate weekend test: %d (expected %d)" % (cost, expected_cost))
                 self.assertEqual((cost, type), (expected_cost, expected_type), "Cost calculation yielded wrong result")
-
-        logging.info("\nTesting finished successfully")
