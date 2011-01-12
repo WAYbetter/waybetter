@@ -67,6 +67,10 @@ class Middleware(object):
            depending on whether the request should be considered to come from a
            small-screen device such as a phone or a PDA"""
 
+        # temporary hack to prevent mobile sniffing
+        request.mobile = False
+        return None
+
         if request.META.has_key("HTTP_X_OPERAMINI_FEATURES"):
             #Then it's running opera mini. 'Nuff said.
             #Reference from:
