@@ -332,87 +332,72 @@ DAY_OF_WEEK_CHOICES = ((1, _("Sunday")),
 
 VEHICLE_TYPE_CHOICES = ((1, _("Standard cab")),)
 
-class PricingRule(models.Model):
-    """
-    Used to calculate the estimated cost of a ride.
-    Pricing Rules need to cover the relevant pricing model in
-    each country's regulation of taxi transportation.
-    The algorithm selects all rules applying to a given ride
-    that the passenger wishes to order, &amp; calculates the
-    total estimated cost based on these rules.
-    """
+# time and distance dependent rules (meter)
+class MeteredRateRule(models.Model):
     rule_name = models.CharField(_("name"), max_length=500)
     is_active = models.BooleanField(_("is active"), default=True)
-    # geographic predicates
-    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="pricing_rules")
-    state = models.CharField(_("state"), max_length=100, null=True, blank=True)
-    city = models.ForeignKey(City, verbose_name=_("city"), related_name="pricing_rules", null=True, blank=True)
-    to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="to_city_pricing_rules", null=True,
-                                blank=True)
-    city_area = models.ForeignKey(CityArea, verbose_name=_("city area"), related_name="pricing_rules", null=True,
-                                  blank=True)
-    special_place = models.CharField(_("special place"), max_length=100, null=True, blank=True,
-                                     help_text=_("Such as an airport or toll-road inflicting extra charges"))
+    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="metered_rules")
+
     # time predicates
+    from_day = models.IntegerField(_("from day"), choices=DAY_OF_WEEK_CHOICES, null=True, blank=True)
+    to_day = models.IntegerField(_("to day"), choices=DAY_OF_WEEK_CHOICES, null=True, blank=True)
     from_hour = models.TimeField(_("from hour"), null=True, blank=True)
     to_hour = models.TimeField(_("to hour"), null=True, blank=True)
-    from_day_of_week = models.IntegerField(_("from day-of-week"), choices=DAY_OF_WEEK_CHOICES, null=True, blank=True)
-    to_day_of_week = models.IntegerField(_("to day-of-week"), choices=DAY_OF_WEEK_CHOICES, null=True, blank=True)
-    # vehicle type predicates
-    vehicle_type = models.IntegerField(_("vehicle type"), choices=VEHICLE_TYPE_CHOICES, null=True, blank=True)
+
+    from_duration = models.IntegerField(_("from duration (s)"), null=True, blank=True, help_text=_("In seconds"))
+    to_duration = models.IntegerField(_("to duration (s)"), null=True, blank=True, help_text=_("In seconds"))
+
     # distance predicates
-    from_distance = models.FloatField(_("from distance (m)"), null=True, blank=True, help_text=_("in meters"))
-    to_distance = models.FloatField(_("to distance (m)"), null=True, blank=True, help_text=_("in meters"))
-    # time predicates
-    from_duration = models.IntegerField(_("from duration (s)"), null=True, blank=True, help_text=_("in seconds"))
-    to_duration = models.IntegerField(_("to duration (s)"), null=True, blank=True, help_text=_("in seconds"))
+    from_distance = models.FloatField(_("from distance (m)"), null=True, blank=True, help_text=_("In meters"))
+    to_distance = models.FloatField(_("to distance (m)"), null=True, blank=True, help_text=_("In meters"))
 
     # cost
-    fixed_cost = models.FloatField(_("fixed cost"), null=True, blank=True)
     tick_distance = models.FloatField(_("tick distance (m)"), null=True, blank=True, help_text=_("In meters"))
     tick_time = models.IntegerField(_("tick time (s)"), null=True, blank=True, help_text=_("In seconds"))
     tick_cost = models.FloatField(_("cost per tick"), null=True, blank=True)
-
+    fixed_cost = models.FloatField(_("fixed cost"), null=True, blank=True)
+    
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
     def __unicode__(self):
         return self.rule_name
 
-
-class SpecificPricingRule(models.Model):
-    """
-    These rules are checked 1st (because they're more specific),
-    & if applying to an order, their fixed cost will be used as the cost estimation
-    (no other pricing rule will be checked).
-
-    Important note: currently, these rules are only Inter-city rules (they're only queried
-    if the from_city & to_city differ).
-    """
+# rules with flat rate (e.g., from city to another city or airport)
+class FlatRateRule(models.Model):
+    rule_name = models.CharField(_("name"), max_length=500)
     is_active = models.BooleanField(_("is active"), default=True)
-    # geographic predicates
-    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="specific_pricing_rules")
-    state = models.CharField(_("state"), max_length=100, null=True, blank=True)
-    city = models.ForeignKey(City, verbose_name=_("city"), related_name="pricing_rules", null=True, blank=True)
-    to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="to_city_pricing_rules", null=True,
-                                blank=True)
-    # time predicates
+    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="flat_rate_rules")
+
+    city1 = models.ForeignKey(City, verbose_name=_("city 1"), related_name="flat_rate_rule_city1")
+    city2 = models.ForeignKey(City, verbose_name=_("city 2"), related_name="flat_rate_rule_city2")
+
     from_hour = models.TimeField(_("from hour"), null=True, blank=True)
     to_hour = models.TimeField(_("to hour"), null=True, blank=True)
-    from_day_of_week = models.IntegerField(_("from day-of-week"), choices=DAY_OF_WEEK_CHOICES, null=True, blank=True)
-    to_day_of_week = models.IntegerField(_("to day-of-week"), choices=DAY_OF_WEEK_CHOICES, null=True, blank=True)
+    from_day = models.IntegerField(_("from day-of-week"), choices=DAY_OF_WEEK_CHOICES, null=True, blank=True)
+    to_day = models.IntegerField(_("to day-of-week"), choices=DAY_OF_WEEK_CHOICES, null=True, blank=True)
 
-    # cost
-    fixed_cost = models.FloatField(_("fixed cost"), null=True, blank=True)
+    fixed_cost = models.FloatField(_("fixed cost"))
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
     def __unicode__(self):
-        return u"%s - %s" % (self.city, self.to_city)
+        return "from %s to %s" % (self.city1.name,self.city2.name)
 
+# rules for extra charges (e.g., phone order)
+class ExtraChargeRule(models.Model):
+    rule_name = models.CharField(_("name"), max_length=500)
+    is_active = models.BooleanField(_("is active"), default=True)
+    country = models.ForeignKey(Country, verbose_name=_("country"), related_name="extra_charge_rules")
+ 
+    cost = models.FloatField(_("fixed cost"))
 
+    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
+    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
+    def __unicode__(self):
+        return self.rule_name
 
 FEEDBACK_CATEGORIES =       ["Website", "Booking", "Registration", "Taxi Ride", "Other"]
 FEEDBACK_CATEGORIES_NAMES = [_("Website"), _("Booking"), _("Registration"), _("Taxi Ride"), _("Other")]
@@ -444,4 +429,3 @@ for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
     for type in FEEDBACK_TYPES:
         models.CharField(FEEDBACK_CATEGORIES_NAMES[i], max_length=100, null=True, blank=True).contribute_to_class(Feedback, "%s_%s_msg" % (type.lower(), category.lower().replace(" ", "_")))
         models.BooleanField(default=False).contribute_to_class(Feedback, "%s_%s" % (type.lower(), category.lower().replace(" ", "_")))
-
