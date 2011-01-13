@@ -23,8 +23,10 @@ $.widget("custom.catcomplete", $.ui.autocomplete, {
     },
     _renderMenu: function(ul, items) {
         var self = this,
-                currentCategory = undefined;
-        ul.append("<li class='address-helper-autocomplete'>" + OrderingHelper.config.type_address_msg + "</li>");
+                currentCategory = undefined,
+                address_type = this.element[0].id.split("_")[1];
+
+        ul.append("<li class='address-helper-autocomplete " + address_type + "'>" + OrderingHelper.config.autocomplete_msg + "</li>");
         $.each( items, function( index, item ) {
             self._renderItem( ul, item );
         });
@@ -111,7 +113,9 @@ var OrderingHelper = Object.create({
         not_a_user_response:        "",
         telmap_user:                "",
         telmap_password:            "",
-        type_address_msg:           "",
+        address_helper_msg_from:    "",
+        address_helper_msg_to:      "",
+        autocomplete_msg:           "",
         address_not_resolved_msg:   ""
 
 
@@ -139,7 +143,7 @@ var OrderingHelper = Object.create({
                 address_helper.text(this.config.address_not_resolved_msg).addClass("address-error");
             } else {
                 $(element).addClass("marker_disabled").removeClass("not_resolved");
-                address_helper.text(this.config.type_address_msg).removeClass("address-error");
+                address_helper.text(this.config["address_helper_msg_" + address_type]).removeClass("address-error");
             }
         }
     },
@@ -157,7 +161,7 @@ var OrderingHelper = Object.create({
         var address_helper = $(element).siblings(".address-helper");
         if (! address.isResolved()) {
             $(element).removeClass("not_resolved").addClass("marker_disabled");
-            address_helper.text(this.config.type_address_msg).removeClass("address-error");
+            address_helper.text(this.config["address_helper_msg_" + address_type]).removeClass("address-error");
             address_helper.fadeIn("fast");
         }
     },
@@ -166,7 +170,7 @@ var OrderingHelper = Object.create({
         var that = this;        
         $("input:text").each(function(i, element) {
             var address_type = element.name.split("_")[0];
-            var helper_div = $("<div class='address-helper round'></div>");
+            var helper_div = $("<div class='address-helper round "+ address_type +"'></div>");
             $(element).after(helper_div);
             $(element).focus(function() {
                 that._onAddressInputFocus(element, address_type);

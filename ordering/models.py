@@ -104,6 +104,10 @@ class Station(models.Model):
         for i in range(0, settings.NUMBER_OF_WORKSTATIONS_TO_CREATE):
             self.create_workstation(i+1)
 
+    def delete_workstations(self):
+        for ws in self.work_stations:
+            ws.delete()
+
 class Passenger(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
 

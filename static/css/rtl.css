@@ -143,9 +143,7 @@ input.text, input[type=text], input[type=password] {
     -moz-border-radius: 5px;
 }
 .address-helper-autocomplete {
-    background-color: #00acff;
     color: white;
-    border: 1px solid #8cd4f7;
     margin: -2px;
     margin-bottom: 2px;
     padding: 2px;
@@ -159,6 +157,15 @@ input.text, input[type=text], input[type=password] {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
 }
+.address-helper-autocomplete.from, .address-helper.from {
+    background-color: #00acff;
+    border: 1px solid #8cd4f7;
+}
+.address-helper-autocomplete.to, .address-helper.to {
+    background-color: #ec008c;
+    border: 1px solid #f9b1bc;
+}
+
 .address-error {
 
     background-color: #BC1111;
@@ -166,6 +173,14 @@ input.text, input[type=text], input[type=password] {
     border-color: #FEB4B4;
 }
 /************* Header *************/
+#alpha {
+    width: 125px;
+    height: 59px;
+    background-image:url(/static/images/Alpha_TLV.png);
+    position: absolute;
+    top: 0;
+    right: 165px;
+}
 #banner {
     /*text-shadow: #e1e1e1 0 1px;*/
 }
@@ -268,6 +283,7 @@ span.right-fade {
     margin-top: 6px;
     font-size: 27px;
     text-align: center;
+    font-weight: bold;
 }
 
 /************* Ordering Form *************/
@@ -403,6 +419,22 @@ button.order_button.disabled, button.order_button:disabled {
     background-position: 0 -159px;
 }
 
+#slider {
+    height: 300px;
+    width: 563px;
+    margin-right:120px;
+    margin-top: 30px;
+}
+#tabs h1 {
+    color: #00acff;
+    font-size: 24px;
+    margin-bottom: 5px;
+    margin-top: -30px;
+}
+#about p {
+    font-size: 14px;
+}
+
 /************* Ordering Bottom Tabs *************/
 #tabs {
     margin-top: -18px;
@@ -512,7 +544,7 @@ ul.ui-tabs-nav .ui-state-default a, .ui-state-default a:link, .ui-state-default 
     margin-right:40px;
     padding-top: 0.6em;
     border:0;
-    color: black;
+    color: #393939;
     background: transparent;
 }
 ul.ui-tabs-nav .ui-state-active a, .ui-state-active a:link, .ui-state-active a:visited {
@@ -1170,4 +1202,58 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 }
 #feedback_peal:active {
     background-position:0 -154px;
+}
+
+/** Info Pages **/
+#content {
+    float:left;
+    padding: 10px;
+    width: 70%;
+}
+
+#content h1 {
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+#content h3 {
+    font-size: 18px;
+    font-weight: normal;
+}
+#side_bar {
+    float:left;
+    width: 190px;
+    border-right: 1px solid #cccccc;
+    padding-right: 30px;
+    height: 500px;
+
+}
+#side_bar p > span {
+    display: block
+}
+#side_bar p {
+    margin-top: 10px;
+}
+#side_bar h1 {
+    margin-bottom: 10px;
+    margin-top: 30px;
+}
+#wrapper {
+    display: block;
+    height: 100%;
+}
+#wrapper a {
+    color: #ec008c;
+}
+#about_image {
+    background-image: url(/static/images/anim_3.png);
+    width: 563px;
+    height: 268px;
+    margin-top: 10px;
+}
+#buttons {
+    text-align: center;
+}
+#buttons button {
+    width: 200px;
+    margin: 10px;
 }

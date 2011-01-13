@@ -33,6 +33,7 @@ class PhoneAdmin(admin.TabularInline):
 
 def build_workstations(modeladmin, request, queryset):
     for station in queryset:
+        station.delete_workstations()
         station.build_workstations()
 build_workstations.short_description = "Build workstations"
     
