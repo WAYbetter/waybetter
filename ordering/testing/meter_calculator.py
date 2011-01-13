@@ -1,10 +1,11 @@
 import datetime
+import ordering.pricing
 ## Calculate the correct price of the ride based on prices published by ministry of transportation
 
-TARIFF1_START = datetime.time(05,30)
-TARIFF1_END = datetime.time(21,00)
-TARIFF2_START = datetime.time(21,01)
-TARIFF2_END = datetime.time(05,29)
+TARIFF1_START = ordering.pricing.TARIFF1_START
+TARIFF1_END = ordering.pricing.TARIFF1_END
+TARIFF2_START = ordering.pricing.TARIFF2_START
+TARIFF2_END = ordering.pricing.TARIFF2_END
 
 PHONE_ORDER = 4.5
 
@@ -59,7 +60,7 @@ def calculate_meter(duration,distance,time,day):
 
     if day==7:
         cost =  calculate_tariff2(duration,distance)
-    elif TARIFF2_START <= time <= datetime.time(23,59,59):
+    elif TARIFF2_START <= time <= datetime.time(23,59,59,999999):
         cost =  calculate_tariff2(duration,distance)
     elif datetime.time(00,00,00) <= time <= TARIFF2_END:
         cost =  calculate_tariff2(duration,distance)

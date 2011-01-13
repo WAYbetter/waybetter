@@ -30,6 +30,7 @@ class IsraelTimeZone(tzinfo):
     def tzname(self, dt):
         return "UTC+2"
 
+    # update this when DST is on
     def dst(self, dt):
         return timedelta(0)
 
@@ -65,7 +66,7 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
     if time is None:
         time = datetime.datetime.now(ILtz).time()
 
-    logging.info("Calculating estimated cost with (duration, distance, day, time) = (%d. %d, %d, %s)" % (est_duration,est_distance, day, time))
+    logging.debug("Calculating estimated cost with (duration, distance, day, time) = (%d. %d, %d, %s)" % (est_duration,est_distance, day, time))
 
     # Step 1: flat rate or by meter ?
     flat_rate_rules = []
@@ -93,7 +94,7 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
     extra_cost = sum([rule.cost for rule in extra_charge_rules])
 
     # return total cost
-    logging.info(u"Estimation %s cost: %d" % (type, cost + extra_cost))
+    logging.debug(u"Estimation %s cost: %d" % (type, cost + extra_cost))
     return cost + extra_cost, type
 
 
@@ -125,7 +126,7 @@ def filter_relevant_daytime_rules(rule_list, day, time):
             else:
                 # end time is smaller than start time since it is the next day (night fare)
                 if not(
-                (start_time <= time <= datetime.time(23, 59, 59)) or (datetime.time(00, 00, 00) <= time <= end_time)):
+                (start_time <= time <= datetime.time(23, 59, 59, 999999)) or (datetime.time(00, 00, 00) <= time <= end_time)):
                     continue
         result.append(rule)
     return result
@@ -192,8 +193,8 @@ def filter_relevant_duration_rules(rule_list, est_duration):
 
 TARIFF1_START = datetime.time(05,30,00)
 TARIFF1_END = datetime.time(21,00,00)
-TARIFF2_START = datetime.time(21,00,01)
-TARIFF2_END = datetime.time(05,29,59)
+TARIFF2_START = datetime.time(21,00,00,1)
+TARIFF2_END = datetime.time(05,29,59,999999)
 
 def setup_israel_meter_and_extra_charge_rules():
 
@@ -211,9 +212,9 @@ def setup_israel_meter_and_extra_charge_rules():
             MeteredRateRule(rule_name="Tariff 1 after 15 km",country=IL,from_day=1, to_day=6, from_hour=TARIFF1_START, to_hour=TARIFF1_END, from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=75.14, tick_time=12, tick_cost=0.3, fixed_cost=None),
             MeteredRateRule(rule_name="Tariff 2 after 15 km",country=IL,from_day=1, to_day=6, from_hour=TARIFF2_START, to_hour=TARIFF2_END, from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=60.03, tick_time=10, tick_cost=0.3, fixed_cost=None),
 
-            MeteredRateRule(rule_name="Saturday initial cost",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00,00), to_hour=datetime.time(23,59,59), from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=11.1),
-            MeteredRateRule(rule_name="Saturday first 15 km",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00,00), to_hour=datetime.time(23,59,59), from_duration=36, to_duration=None, from_distance=153.81, to_distance=15000, tick_distance=72.15, tick_time=10, tick_cost=0.3, fixed_cost=None),
-            MeteredRateRule(rule_name="Saturday after 15 km",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00,00), to_hour=datetime.time(23,59,59), from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=60.03, tick_time=10, tick_cost=0.3, fixed_cost=None),
+            MeteredRateRule(rule_name="Saturday initial cost",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00,00), to_hour=datetime.time(23,59,59,999999), from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=11.1),
+            MeteredRateRule(rule_name="Saturday first 15 km",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00,00), to_hour=datetime.time(23,59,59,999999), from_duration=36, to_duration=None, from_distance=153.81, to_distance=15000, tick_distance=72.15, tick_time=10, tick_cost=0.3, fixed_cost=None),
+            MeteredRateRule(rule_name="Saturday after 15 km",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00,00), to_hour=datetime.time(23,59,59,999999), from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=60.03, tick_time=10, tick_cost=0.3, fixed_cost=None),
     ]
     for rule in meter_rules: rule.save()
 

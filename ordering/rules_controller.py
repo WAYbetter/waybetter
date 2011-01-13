@@ -117,5 +117,5 @@ def add_flat_rate_rule(country, from_city, to_city, fixed_cost_tariff_1, fixed_c
     rule.from_day = 7
     rule.to_day = 7
     rule.from_hour = datetime.time(00,00,00)
-    rule.to_hour = datetime.time(23,59,59)
+    rule.to_hour = datetime.time(23,59,59,999999)
     rule.save()
