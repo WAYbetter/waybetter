@@ -1,0 +1,39 @@
+{% load i18n %}
+<style type="text/css">
+    #side_bar li {
+        margin-bottom: 25px;
+    }
+    #side_bar ul > li > a {
+        padding-right: 5px;
+        font-size: 14px;
+    }
+    .terms_text {
+        white-space: pre-line;
+        font-size: 14px;
+        width: 510px;
+    }
+</style>
+<div id="wrapper">
+    <div id="side_bar">
+        <h1>{% trans "Subjects" %}</h1>
+
+        <ul>
+            <li>
+                <a href=#>{% trans "Terms of service" %}</a>
+            </li>
+            <li>
+                <a href=#>{% trans "Privacy policy" %}</a>
+            </li>
+            <li>
+                <a href=#>{% trans "DMCA policy" %}</a>
+            </li>
+        </ul>
+    </div>
+    <div id="content">
+        <h1>{% trans "WAYbetter Terms Of Service" %}</h1>
+        <p class="terms_text">{% trans "web_actual_terms" %}</p>
+        <h1>{% trans "Privacy Policy" %}</h1>
+        <p class="terms_text">{% trans "web_actual_privacy_policy" %}</p>
+    </div>
+    <div class="clear"></div>
+</div>

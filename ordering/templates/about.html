@@ -1,0 +1,57 @@
+{% load i18n %}
+<script type="text/javascript">
+    $(function() {
+        $("#station_entrace").click(function() {
+            window.location.href = "{% url ordering.station_controller.stations_home %}"
+        });
+        $("#book_a_taxi").click(function() {
+            window.location.href = "{% url ordering.passenger_controller.passenger_home %}"
+        });
+    })
+</script>
+<style>
+
+</style>
+<div id="wrapper">
+<div id="side_bar">
+    <h1>{% trans 'Contact WAYbetter' %}</h1>
+
+    <p>
+        <span>{% trans "General Issues:" %}</span>
+        <a href="mailto:contact@waybetter.com">contact@waybetter.com</a>
+    </p>
+    <p>
+        {% trans "Office Address:" %}
+        <span>
+            {% trans "WAYbetter LTD" %}
+        </span>
+        <span>
+            {% trans "(Peregrine Ventures)" %}
+        </span>
+        <span>
+            {% trans "6 Yoni Netanyahu Street" %}
+        </span>
+        <span>
+            {% trans "Or Yehuda, 60376, Israel" %}
+        </span>
+    </p>
+    <p>
+        <span> {% trans "Phone: 03-9085008" %}</span>
+        <span> {% trans "Fax: 03-9366873" %}</span>
+    </p>
+
+</div>
+    <div id="content">
+        <div id="about_image"></div>
+        <div id="buttons">
+            <button id="book_a_taxi" class="wb_button gold">{% trans "Book a Taxi Now" %}</button>
+            <button id="station_entrace" class="wb_button gray">{% trans "Stations Entrance" %}</button>
+        </div>
+        <h1>{% trans "WAYbetter connects you - internet and smartphone users to advanced taxi stations who are ready to serve you" %}</h1>
+        <p>
+            {% trans "Instead of looking for a local station, calling, waiting on the line, ordering a cab and hoping the station you found can serve you " %}
+        </p>
+    </div>
+
+<div class="clear"></div>
+</div>

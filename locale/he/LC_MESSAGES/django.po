@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-13 17:49+0200\n"
-"PO-Revision-Date: 2011-01-13 18:01+0200\n"
+"POT-Creation-Date: 2011-01-13 20:47+0200\n"
+"PO-Revision-Date: 2011-01-13 21:01+0200\n"
 "Last-Translator: guy <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -1140,41 +1140,41 @@ msgstr ""
 msgid "You can't rate this order"
 msgstr "אינך יכול לדרג הזמנה זו"
 
-#: ordering/passenger_controller.py:130
+#: ordering/passenger_controller.py:133
 msgid "min"
 msgstr "דקות"
 
-#: ordering/passenger_controller.py:132
+#: ordering/passenger_controller.py:135
 msgid "Estimated ride cost"
 msgstr "מחיר נסיעה משוער"
 
-#: ordering/passenger_controller.py:151
+#: ordering/passenger_controller.py:154
 msgid "Ordering is not allowed so soon after another order"
 msgstr "לא ניתן להזמין כמה נסיעות בסמיכות."
 
-#: ordering/passenger_controller.py:167
+#: ordering/passenger_controller.py:170
 msgid "Your Ride Could Not Be Ordered"
 msgstr "לא ניתן להזמין נסיעה זו"
 
-#: ordering/passenger_controller.py:228
+#: ordering/passenger_controller.py:231
 #, python-format
 msgid "Verification code: %s"
 msgstr "קוד אימות SMS: %s"
 
-#: ordering/passenger_controller.py:240
-#: ordering/passenger_controller.py:337
+#: ordering/passenger_controller.py:243
+#: ordering/passenger_controller.py:340
 msgid "Invalid verification code"
 msgstr "קוד SMS לא נכון"
 
-#: ordering/passenger_controller.py:263
+#: ordering/passenger_controller.py:266
 msgid "wrong username/password"
 msgstr "שם המשתמש או הסיסמה אינם נכונים"
 
-#: ordering/passenger_controller.py:274
+#: ordering/passenger_controller.py:277
 msgid "Username already taken"
 msgstr "שם משתמש כבר תפוס"
 
-#: ordering/passenger_controller.py:277
+#: ordering/passenger_controller.py:280
 msgid "Missing required parameters"
 msgstr "שדות חסרים"
 
@@ -1186,6 +1186,58 @@ msgstr "עיר לא חוקית"
 #, python-format
 msgid "Message sent, pickup in %s minutes"
 msgstr "הודעה נשלחה לנוסע: %s דקות"
+
+#: ordering/templates/about.html:17
+msgid "Contact WAYbetter"
+msgstr "צור קשר"
+
+#: ordering/templates/about.html:20
+msgid "General Issues:"
+msgstr "בנושאים כלליים:"
+
+#: ordering/templates/about.html:24
+msgid "Office Address:"
+msgstr "כתובת:"
+
+#: ordering/templates/about.html:26
+msgid "WAYbetter LTD"
+msgstr "בע\"מ WAYbetter"
+
+#: ordering/templates/about.html:29
+msgid "(Peregrine Ventures)"
+msgstr ""
+
+#: ordering/templates/about.html:32
+msgid "6 Yoni Netanyahu Street"
+msgstr "יוני נתניהו 6"
+
+#: ordering/templates/about.html:35
+msgid "Or Yehuda, 60376, Israel"
+msgstr "אור יהודה, 60376, ישראל"
+
+#: ordering/templates/about.html:39
+msgid "Phone: 03-9085008"
+msgstr "טלפון: 03-9085008"
+
+#: ordering/templates/about.html:40
+msgid "Fax: 03-9366873"
+msgstr "פקס: 03-9366873"
+
+#: ordering/templates/about.html:47
+msgid "Book a Taxi Now"
+msgstr "הזמן מונית עכשיו"
+
+#: ordering/templates/about.html:48
+msgid "Stations Entrance"
+msgstr "כניסת תחנות"
+
+#: ordering/templates/about.html:50
+msgid "WAYbetter connects you - internet and smartphone users to advanced taxi stations who are ready to serve you"
+msgstr "WAYbetter מחברת ביניכם - משתמשי אינטרנט וטלפונים חכמים ובין תחנות מוניות מתקדמות שרוצות לשרת אתכם"
+
+#: ordering/templates/about.html:52
+msgid "Instead of looking for a local station, calling, waiting on the line, ordering a cab and hoping the station you found can serve you "
+msgstr "עברו הימים שצריך לחפש מספר טלפון של תחנה באזור, להתקשר, לחכות על הקו, לבקש מונית ולקוות שדווקא לתחנה זו יש מונית פנויה. היום אפשר פשוט להזמין מונית בלחיצה. תנו לנו ולתחנות שבאזור שלך לדאוג לך למונית, SMS עם פרטי הנסיעה ישלח אליך ישירות ללא עלות. "
 
 #: ordering/templates/base_passenger.html:51
 msgid "Join!"
@@ -1208,22 +1260,26 @@ msgid "Smart Tools for Smart Taxi Stations"
 msgstr "כלים חכמים לתחנות חכמות"
 
 #: ordering/templates/base_station.html:50
-#: ordering/templates/passenger_home.html:174
+#: ordering/templates/info.html:34
+#: ordering/templates/passenger_home.html:165
 msgid "About"
 msgstr "אודות"
 
 #: ordering/templates/base_station.html:51
-#: ordering/templates/passenger_home.html:175
+#: ordering/templates/info.html:35
+#: ordering/templates/passenger_home.html:166
 msgid "Press"
 msgstr "תקשורת"
 
 #: ordering/templates/base_station.html:52
-#: ordering/templates/passenger_home.html:176
+#: ordering/templates/info.html:36
+#: ordering/templates/passenger_home.html:167
 msgid "Help"
 msgstr "עזרה"
 
 #: ordering/templates/base_station.html:53
-#: ordering/templates/passenger_home.html:177
+#: ordering/templates/info.html:37
+#: ordering/templates/passenger_home.html:168
 msgid "Terms"
 msgstr "תנאי שימוש"
 
@@ -1232,9 +1288,15 @@ msgid "Passengers home"
 msgstr "דף-בית נוסעים"
 
 #: ordering/templates/base_station.html:57
-#: ordering/templates/passenger_home.html:181
+#: ordering/templates/passenger_home.html:172
 msgid "2010 WAYbetter"
 msgstr "2010 WAYbetter"
+
+#: ordering/templates/info.html:38
+#: ordering/templates/passenger_home.html:90
+#: templates/mobile/base.html:61
+msgid "TAXI"
+msgstr "TAXI"
 
 #: ordering/templates/order_status.html:5
 msgid "Order page"
@@ -1288,60 +1350,55 @@ msgstr "כתובת לא ידועה. בחר כתובת מהרשימה"
 msgid "We're sorry, but an error occurred while loading this page."
 msgstr "אנו מצטערים, אך אירעה שגיאה בעת טעינת דף זה"
 
-#: ordering/templates/passenger_home.html:99
-#: templates/mobile/base.html:61
-msgid "TAXI"
-msgstr "TAXI"
-
-#: ordering/templates/passenger_home.html:102
+#: ordering/templates/passenger_home.html:93
 msgid "Book Now (FREE)"
 msgstr "הזמינו עכשיו (חינם!)"
 
-#: ordering/templates/passenger_home.html:118
+#: ordering/templates/passenger_home.html:109
 msgid "Enter pickup address"
 msgstr "כתובת מוצא (רחוב, מספר, עיר)"
 
-#: ordering/templates/passenger_home.html:121
+#: ordering/templates/passenger_home.html:112
 msgid "Enter drop-off address"
 msgstr "כתובת יעד (רחוב, מספר, עיר)"
 
-#: ordering/templates/passenger_home.html:137
+#: ordering/templates/passenger_home.html:128
 msgid "Ride History"
 msgstr "נסיעות קודמות"
 
-#: ordering/templates/passenger_home.html:138
+#: ordering/templates/passenger_home.html:129
 msgid "My Profile"
 msgstr "הפרופיל שלי"
 
-#: ordering/templates/passenger_home.html:142
+#: ordering/templates/passenger_home.html:133
 msgid "Taxi Stations"
 msgstr "תחנות מונית"
 
-#: ordering/templates/passenger_home.html:143
+#: ordering/templates/passenger_home.html:134
 msgid "Mobile"
 msgstr "טלפונים ניידים"
 
-#: ordering/templates/passenger_home.html:144
+#: ordering/templates/passenger_home.html:135
 msgid "What's This?"
 msgstr "מה זה?"
 
-#: ordering/templates/passenger_home.html:150
+#: ordering/templates/passenger_home.html:141
 msgid "Get a Taxi. Wherever You Are!"
 msgstr "איפה שלא תהיה, קבל מונית!"
 
-#: ordering/templates/passenger_home.html:152
+#: ordering/templates/passenger_home.html:143
 msgid "Coming soon to all mobiles!"
 msgstr "בקרוב על כל הניידים!"
 
-#: ordering/templates/passenger_home.html:160
+#: ordering/templates/passenger_home.html:151
 msgid "WAYbetter offers the fastest and easiest way to get a taxi!"
 msgstr "פשוט  להזמין מונית עם WAYbetter"
 
-#: ordering/templates/passenger_home.html:162
+#: ordering/templates/passenger_home.html:153
 msgid "We are partnering with the best taxi stations in your city, so all you have to do is push the yellow button. We'll do the rest"
 msgstr "אנחנו מחוברים לתחנות המוניות הכי טובות בעיר שלך.<br>כל מה שנותר לך לעשות הוא ללחוץ על הכפתור הצהוב. אנחנו נעשה את השאר..."
 
-#: ordering/templates/passenger_home.html:178
+#: ordering/templates/passenger_home.html:169
 msgid "Station Entrance"
 msgstr "כניסת תחנות"
 
@@ -1372,7 +1429,7 @@ msgstr "למה שאתחבר?"
 
 #: ordering/templates/station_home.html:49
 msgid "Simply because it's good for business!<br>You get safe exposure to a wide range of passengers you couldn't approach before!"
-msgstr "קודם כל, זה טוב לעסקים!<br> אתה תהנה מחשיפה בטוחה לקהל נוסעים הולך וגדל אליו לו הייתה לך גישה קודם."
+msgstr "קודם כל, זה טוב לעסקים!<br> אתה תהנה מחשיפה בטוחה לקהל נוסעים הולך וגדל אליו לא הייתה לך גישה קודם."
 
 #: ordering/templates/station_home.html:52
 msgid "WHAT WILL YOU GET?"
@@ -1409,6 +1466,45 @@ msgid "The price is only 1nis for every ride you take, meaning you pay only if a
 msgstr ""
 "המחיר הוא 1.2 שקל בלבד לכל נסיעה שתבחר לקחת. המשמעות היא שאם לא הרווחת, לא שילמת.\n"
 "ההצלחה שלך היא ההצלחה שלנו!"
+
+#: ordering/templates/terms.html:18
+msgid "Subjects"
+msgstr "נושאים"
+
+#: ordering/templates/terms.html:22
+msgid "Terms of service"
+msgstr "תנאי השימוש"
+
+#: ordering/templates/terms.html:25
+msgid "Privacy policy"
+msgstr "מדיניות פרטיות"
+
+#: ordering/templates/terms.html:28
+msgid "DMCA policy"
+msgstr "מדיניות DMCA"
+
+#: ordering/templates/terms.html:33
+msgid "WAYbetter Terms Of Service"
+msgstr "תנאי שימוש ב WAYbetter"
+
+#: ordering/templates/terms.html:34
+msgid "web_actual_terms"
+msgstr ""
+"זכויות היוצרים באתר, שייכות באופן  בלעדי WAYbetter LTD.\n"
+"\n"
+"WAYbetter לא תהא חייבת בגין כל נזק ו/ או אבדן ו/ או הוצאה מכל מין וסוג שהם אשר עלולים להגרם לנוסע כתוצאה משמוש באתר ו/ או בשירות ו/ או באפליקציה ו/ או במידע ובנתונים המפורסמים בהם.\n"
+"\n"
+"נוכח אילוצים תנועתיים ואחרים, הגם ש  WAYbetter עושה כל מאמץ על מנת שהמידע והערכות מחיר וזמן יהיו מדויקות,תתכן סטייה או אי התאמה בין המידע שניתן לבין המציאות. WAYbetter לא תהא אחראית לכל טעות, שגיאה, או חוסר התאמה של המידע ו/או הנתונים שניתנו . כמו כן WAYbetter לא תישא בכל נזק ו/או הוצאה שיגרמו עקב מעשים או מחדלים כמפורט לעיל."
+
+#: ordering/templates/terms.html:35
+msgid "Privacy Policy"
+msgstr "מדיניות פרטיות"
+
+#: ordering/templates/terms.html:36
+msgid "web_actual_privacy_policy"
+msgstr ""
+"במסגרת השירות מעבירה WAYbetter את נתוני מסלול הנסיעה ומספר הטלפון של המשתמש לתחנת המוניות.\n"
+"WAYbetter ותחנת המוניות מתחייבים שלא למסור פרטים אישיים לאף צד שלישי."
 
 #: ordering/templates/workstation_download.html:82
 msgid "Download workstations"
@@ -1682,6 +1778,3 @@ msgstr "שגיאה בבודק האיות"
 
 #~ msgid "Sign In!"
 #~ msgstr "היכנס"
-
-#~ msgid "WAYbetter is better"
-#~ msgstr "WAYbetter טובים יותר"
