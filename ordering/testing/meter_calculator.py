@@ -60,7 +60,7 @@ def calculate_meter(duration,distance,time,day):
 
     if day==7:
         cost =  calculate_tariff2(duration,distance)
-    elif TARIFF2_START <= time <= datetime.time(23,59,59,999999):
+    elif TARIFF2_START <= time <= ordering.pricing.MIDNIGHT:
         cost =  calculate_tariff2(duration,distance)
     elif datetime.time(00,00,00) <= time <= TARIFF2_END:
         cost =  calculate_tariff2(duration,distance)
