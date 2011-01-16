@@ -183,3 +183,10 @@ def generate_random_token(length=random.randint(10, 20), alpha_only=False, alpha
             s += c
     return s
 
+def get_unique_id():
+    import hashlib
+    import datetime
+    s = hashlib.sha1()
+    s.update(str(datetime.datetime.now()))
+    return s.hexdigest()
+
