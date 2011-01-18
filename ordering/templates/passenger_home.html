@@ -122,7 +122,7 @@
 					</div>
                     <div class="clear"></div>
 				</div>
-        <div id="tabs">
+        <div id="tabs" class="main_tabs_margin_top">
         {% if request.user.passenger %}
                 <ul>
                     <li><a title="history" href="{% url ordering.passenger_controller.get_passenger_orders_history %}">{% trans 'Ride History' %}</a></li>
