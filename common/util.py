@@ -194,7 +194,7 @@ def get_unique_id():
 def notify_by_email(subject, msg):
     logging.info(u"Sending email: [%s] %s" % (subject, msg))
     address = "notify@waybetter.com"
-    mail.send_mail("admin@waybetter.com",
+    mail.send_mail("guy@waybetter.com",
                    address,
                    subject,
                    msg) 

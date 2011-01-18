@@ -107,6 +107,19 @@ indexes:
 - kind: ordering_order
   properties:
   - name: passenger_id
+  - name: status
+  - name: create_date
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: status
+  - name: create_date
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
   - name: from_raw
 
 - kind: ordering_order

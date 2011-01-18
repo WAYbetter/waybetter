@@ -386,6 +386,8 @@ var OrderingHelper = Object.create({
         $("#id_from_raw, #id_to_raw").catcomplete("disable");
         if (address.address_type == "from") {
             $("#id_to_raw").focus();
+        } else {
+            $("#id_to_raw").blur();
         }
 
         this.getRideCostEstimate();

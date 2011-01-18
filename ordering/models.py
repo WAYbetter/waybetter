@@ -107,8 +107,7 @@ class Station(models.Model):
             self.create_workstation(i+1)
 
     def delete_workstations(self):
-        for ws in self.work_stations:
-            ws.delete()
+        self.work_stations.all().delete()
 
 class Passenger(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
@@ -306,11 +305,12 @@ class Order(models.Model):
         return None
 
     def notify(self):
-        subject = u"New Order: %s" % self.get_status_label().upper()
+        subject = u"Order [%d]: %s" % (self.id, self.get_status_label().upper())
         msg = u"""Order %d:
+    Passenger:  %s
     Created:    %s
     From:       %s
-    To:         %s.""" % (self.id, self.create_date.ctime(), self.from_raw, self.to_raw)
+    To:         %s.""" % (self.id,  unicode(self.passenger), self.create_date.ctime(), self.from_raw, self.to_raw)
 
         if self.status == ACCEPTED:
             msg += u"""
