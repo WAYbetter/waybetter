@@ -15,7 +15,7 @@ def send_sms(destination, text, **kwargs):
     TODO_WB: take back-end function name from settings
     """
 
-    logging.info(u"Sending SMS to [%s]: '%s'" % (destination, text.decode("utf-8")))
+    logging.info(u"Sending SMS to [%s]: '%s'" % (destination, text))  
 #    return
     sms_config = settings.SMS
     if kwargs is not None:
