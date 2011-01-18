@@ -27,7 +27,7 @@ def waze_calculate_time_and_distance(from_x, from_y, to_x, to_y, return_cities=F
         t = t + segment["crossTime"]
         d = d + segment["length"]
     result = {
-        "estimated_distance":       d,
+        "estimated_distance":   d,
         "estimated_duration":   t
     }
 

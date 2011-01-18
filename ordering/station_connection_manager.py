@@ -20,6 +20,9 @@ def is_workstation_available(work_station):
     return (datetime.now() - heartbeat).seconds < IS_DEAD_DELTA
 
 def push_order(order_assignment):
+    """
+    Retrieve the order and workstation from an assignment and add the order to the workstation's queue.
+    """
     json = serialize("json", [order_assignment.order])
     key = get_assignment_key(order_assignment.work_station)
     assignments = memcache.get(key) or []

@@ -29,6 +29,9 @@ def book_order_async(order):
 @csrf_exempt
 @internal_task_on_queue("orders")
 def book_order(request):
+    """
+    Book an order: send it to the dispatcher to get an order assignment, then pass the assignment station manager.
+    """
     order_id = int(request.POST["order_id"])
     logging.info("book_order_task: %d" % order_id)
     order = get_object_or_404(Order, id=order_id)
@@ -36,9 +39,12 @@ def book_order(request):
     #TODO_WB: check if another dispatching cycle should start
     response = HttpResponse("order handled")
     try:
+        # choose an assignment for the order and push it to the relevant workstation
         order_assignment = dispatcher.assign_order(order)
-        enqueue_redispatch_ignored_orders(order_assignment, OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT)
         push_order(order_assignment)
+        # see what's up with this order in ORDER_ASSIGNMENT_TIMEOUT and dispatch it again if it was ignored
+        enqueue_redispatch_ignored_orders(order_assignment, OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT)
+
     except NoWorkStationFoundError:
         order.status = FAILED
         order.save()
@@ -74,9 +80,10 @@ def accept_order(order, pickup_time, station):
     send_sms(order.passenger.international_phone(), msg)
 
 
-
 @passenger_required
 def order_status(request, order_id, passenger):
+    """View for an order status."""
+
     order = get_object_or_404(Order, id=order_id)
     if order.passenger != passenger:
         return HttpResponseForbidden("You did not order this")
@@ -88,6 +95,7 @@ def order_status(request, order_id, passenger):
     order_assignments = list(OrderAssignment.objects.filter(order=order))
     rating_choices = RATING_CHOICES
     return render_to_response("order_status.html", locals())
+
 
 @passenger_required
 def get_order_status(request, order_id, passenger):
@@ -105,6 +113,8 @@ def get_order_status(request, order_id, passenger):
 def redispatch_ignored_orders(request):
     order_assignment_id = int(request.POST["order_assignment_id"])
     logging.info("redispatch_ignored_orders: %d" % order_assignment_id)
+
+    # there should be a previous assignment for this order. get it.
     try:
         order_assignment = OrderAssignment.objects.filter(id=order_assignment_id).get()
     except OrderAssignment.DoesNotExist:
@@ -112,6 +122,7 @@ def redispatch_ignored_orders(request):
         return HttpResponse("No order assignment found")
 
     if order_assignment.status == ASSIGNED:
+        # if time is up mark the assignment as ignored and book the order again.
         if (datetime.now() - order_assignment.create_date).seconds > OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT:
             order_assignment.status = IGNORED
             order_assignment.save()

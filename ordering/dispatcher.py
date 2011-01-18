@@ -9,6 +9,9 @@ from common.util import log_event, EventType
 
 
 def assign_order(order):
+    """
+    Assign the order to a workstation and return the assignment.
+    """
     work_station = choose_workstation(order)
     if not work_station:
         raise NoWorkStationFoundError("Could not find a valid station")
@@ -34,6 +37,9 @@ def assign_order(order):
 
     
 def choose_workstation(order):
+    """
+    Choose a nearby workstation, ignoring those who have previously rejected or ignored the order.
+    """
     rejected_work_stations_ids = [order_assignment.work_station.id for order_assignment in OrderAssignment.objects.filter(order = order, status__in=[models.REJECTED, models.IGNORED])]
     if rejected_work_stations_ids == []:
         work_stations_qs = WorkStation.objects.all()
