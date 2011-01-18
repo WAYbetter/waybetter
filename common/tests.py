@@ -5,16 +5,113 @@ unittest). These will both pass when you run "manage.py test".
 
 Replace these with more appropriate tests for your application.
 """
+from common.geo_calculations import distance_between_points
+from common.geocode import geocode, geohash_encode, geohash_decode
 
 from django.test import TestCase
 import common.urllib_adaptor as urllib2
-import logging
 from common.route import calculate_time_and_distance
 
+import logging
 
 class GeocodeTest(TestCase):
-    def test_geocoding(self):
-       pass
+    """
+    Geocoding unitTest: geo coding, geo distance and geo hashing tests.
+    """
+
+    def setUp(self):
+        self.test_data = (
+            {"address"      : u"מרג 1 תל אביב יפו",
+             "country"      : u"IL",
+             "city"         : u"תל אביב יפו",
+             "street"       : u"מרגולין",
+             "house_number" : u"1",
+             "lon"          : '34.787368',
+             "lat"          : '32.05856',
+        },
+            {"address"      : u"מרגולין 15 תל אביב יפו",
+             "country"      : u"IL",
+             "city"         : u"תל אביב יפו",
+             "street"       : u"מרגולין",
+             "house_number" : u"15",
+             "lon"          : '34.790611',
+             "lat"          : '32.05856',
+        },
+            {"address"      : u"בן יהודה 35 ירושלים",
+             "country"      : u"IL",
+             "city"         : u"ירושלים",
+             "street"       : u"בן יהודה",
+             "house_number" : u"35",
+             "lon"          : '35.214161',
+             "lat"          : '31.780725',
+            },
+        )
+
+    def test_geo_coding(self):
+        """
+        Check that geocoding returns at least one location with correct geocode,
+        i.e., country, city, street, house number, lon. and lat. are matching those of the query.
+        """
+        logging.info("\nTesting geo coding")
+        for test_case in self.test_data:
+            address = test_case["address"]
+            logging.info("Testing geo coding for %s" % address)
+            geo_code = geocode(address)
+            self.assertTrue(geo_code, msg="no geo code received for %s" % address)
+
+            # geo_code may contain more than one location. Check that at least one is the correct.
+            for location in geo_code:
+                success = True
+                logging.info("Processing location %s" % location["description"])
+
+                # string properties, compare lowercase
+                for property in ["country", "city", "street", "house_number"]:
+                    result = "OK"
+                    if not test_case[property].lower() == location[property].lower():
+                        result = "failed"
+                        success = False
+#                    logging.info("comparing %s: %s" % (property, result))
+
+                # numerical properties, allowed to differ a bit.
+                precision = 0.001
+                result = "OK"
+                for property in ["lon", "lat"]:
+                    if not abs(float(test_case[property]) - float(location[property])) < precision:
+                        result = "failed"
+                        success = False
+#                    logging.info("comparing %s with precision %f: %s" % (property, precision, result))
+
+                if success:
+                    logging.info("Found correct location at %s" % location["description"])
+                    break
+
+            self.assertTrue(success, msg="correct geo code was not found")
+
+
+    def test_geo_distance(self):
+        """
+        Test geo distance calculation. Taken from Jan Matuschek's article.
+        """
+        logging.info("\nTesting geo distance liberty to eiffel")
+        # distance is about 5837 km, ignore decimal places
+        self.assertAlmostEqual(distance_between_points(40.6892, -74.0444, 48.8583, 2.2945), 5837.0, places=0, msg="geo distanec error")
+
+    def test_geo_hash(self):
+        """
+        Simple geo hasing test.
+        """
+        logging.info("\nTesting geohash encode/decode.")
+        points = ({"lon"       :"31.776933",
+                   "lat"       :"35.234376",
+                   "hash_code" :"sv9hcbbfh3wu"},
+                  {"lon"       :"21.424172",
+                   "lat"       :"39.826112",
+                   "hash_code" :"sgu3fk0kzejk"},
+                  )
+        for p in points:
+            self.assertEqual(geohash_encode(float(p["lon"]),float(p["lat"])), p["hash_code"], msg="encode error")
+            self.assertEqual(geohash_decode(p["hash_code"]), (p["lon"],p["lat"]), msg="decode error")
+
 
 
 class Urllib2AdaptorTest(TestCase):
@@ -42,17 +139,45 @@ class Urllib2AdaptorTest(TestCase):
 
 
 class RouteTest(TestCase):
-    # need margins to take into account traffic noise.
-    TIME_ERROR_MARGIN = 120
-    DISTANCE_ERROR_MARGIN = 2000
+    """
+    Unit test for route estimation (time and distance).
+    """
+
+    def setUp(self):
+        # error margins to take into account traffic noise.
+        self.ERR_RATIO = 0.3
+
+        self.test_data = (
+            {"p0"         : "Yishayahu 60 Tel Aviv",
+             "p1"         : "Rotschild 19 Tel Aviv",
+             "p0_x"       : '34.78099',
+             "p0_y"       : '32.09307',
+             "p1_x"       : '34.77127',
+             "p1_y"       : '32.06355',
+             "expected_t" : '768',
+             "expected_d" : '4110'
+        },
+            {"p0"         : "Tarsish 17 Or Yehuda",
+             "p1"         : "Margolin 15 Tel Aviv",
+             "p0_x"       : '34.859405',
+             "p0_y"       : '32.028877',
+             "p1_x"       : '34.790611',
+             "p1_y"       : '32.05856',
+             "expected_t" : '900',
+             "expected_d" : '12000'
+            }
+        )
 
     def test_calculate_time_and_distance(self):
-        logging.info("Testing route from p0=Yishayahu 60 to p1=Rotschild 19")
-        p0_x, p0_y = '34.78099', '32.09307'
-        p1_x, p1_y = '34.77127', '32.06355'
-        t, d = calculate_time_and_distance(p0_x, p0_y, p1_x, p1_y)
-        expected_t, expected_d = 768, 4110
-        logging.info("Time received: %d (expected %d)" % (t, expected_t))
-        logging.info("Distance received: %d (expected %d)" % (d, expected_d))
-        self.assertTrue(abs(t-expected_t) < self.TIME_ERROR_MARGIN)
-        self.assertTrue(abs(d-expected_d) < self.DISTANCE_ERROR_MARGIN)
+        for test_case in self.test_data:
+            logging.info("Testing route from %s (p0) to %s (p1)" % (test_case["p0"], test_case["p1"]))
+            estimation = calculate_time_and_distance(test_case["p0_x"], test_case["p0_y"], test_case["p1_x"], test_case["p1_y"])
+
+            t, d = float(estimation["estimated_duration"]), float(estimation["estimated_distance"])
+            expected_t, expected_d = float(test_case["expected_t"]), float(test_case["expected_d"])
+
+            logging.info("Time received: %d (expected %d)" % (t, expected_t))
+            self.assertTrue(1 - self.ERR_RATIO < t/expected_t < 1 + self.ERR_RATIO)
+
+            logging.info("Distance received: %d (expected %d)" % (d, expected_d))
+            self.assertTrue(1 - self.ERR_RATIO < d/expected_d < 1 + self.ERR_RATIO)
