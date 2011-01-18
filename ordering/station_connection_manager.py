@@ -1,6 +1,7 @@
 from google.appengine.api import memcache
 from django.core.serializers import serialize
 from django.utils.datetime_safe import datetime
+from ordering.models import OrderAssignment
 
 IS_DEAD_DELTA = 35
 
@@ -19,8 +20,11 @@ def is_workstation_available(work_station):
 
     return (datetime.now() - heartbeat).seconds < IS_DEAD_DELTA
 
+
+
 def push_order(order_assignment):
-    json = serialize("json", [order_assignment.order])
+    json = OrderAssignment.serialize_for_workstation(order_assignment)
+#    json = serialize("json", [order_assignment.order])
     key = get_assignment_key(order_assignment.work_station)
     assignments = memcache.get(key) or []
     assignments.append(json)

@@ -1,4 +1,4 @@
-from ordering.models import Order
+from ordering.models import Order, ACCEPTED
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from types import MethodType
 import logging
@@ -15,7 +15,7 @@ STATION_ORDER_HISTORY_COLUMN_NAMES =    [ugettext("Date"), ugettext("From"), uge
 STATION_ORDER_HISTORY_FIELDS =          ["create_date", "from_raw", "to_raw", "passenger_phone"]
 
 def get_orders_history(passenger, page=1, keywords=None, sort_by=None, sort_dir=None):
-    query = Order.objects.filter(passenger=passenger)
+    query = Order.objects.filter(passenger=passenger).filter(status=ACCEPTED)
     return get_orders_history_data(query, ORDER_HISTORY_COLUMNS, ORDER_HISTORY_FIELDS,
                                    page, keywords, sort_by, sort_dir)
 

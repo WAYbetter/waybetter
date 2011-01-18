@@ -1,7 +1,9 @@
+from django.db.models.query import QuerySet
 from django.db import models
 from django.utils.translation import gettext_lazy as _, gettext, ugettext
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.utils import simplejson
 from djangotoolbox.fields import BlobField
 from common.models import Country, City, CityArea
 from datetime import datetime
@@ -315,6 +317,25 @@ class OrderAssignment(models.Model):
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
+    @classmethod
+    def serialize_for_workstation(cls, queryset_or_order_assignment):
+        if isinstance(queryset_or_order_assignment, QuerySet):
+            order_assignments = queryset_or_order_assignment
+        elif isinstance(queryset_or_order_assignment, cls):
+            order_assignments = [queryset_or_order_assignment]
+        else:
+            raise RuntimeError("Argument must be either QuerySet or %s" % cls.__name__)
+        
+        result = []
+        for order_assignment in order_assignments:
+            result.append({
+                "pk":               order_assignment.order.id,
+                "from_raw":         order_assignment.order.from_raw,
+                "assignment_date":  order_assignment.create_date.strftime("%a %b %d %Y %H:%M:%S UTC")
+            })
+
+        return simplejson.dumps(result)
+
     def is_stale(self):
         return (datetime.now() - self.create_date).seconds > OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT
 
@@ -330,7 +351,7 @@ DAY_OF_WEEK_CHOICES = ((1, _("Sunday")),
                        (2, _("Monday")),
                        (3, _("Tuesday")),
                        (4, _("Wednesday")),
-                       (5, _("Thurday")),
+                       (5, _("Thursday")),
                        (6, _("Friday")),
                        (7, _("Saturday")))
 

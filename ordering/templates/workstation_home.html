@@ -298,8 +298,6 @@
         margin-right: 3px;
 	}
 
-
-}
 </style>
 
 {% endblock extrastyle %}
@@ -339,10 +337,8 @@
         }
 
         function initAcceptOrders() {
-            var init_val = "{{ work_station.accept_orders }}" == "True";
-            if (window.parentSandboxBridge) {
-                window.parentSandboxBridge.set_online_state(init_val);
-            } 
+            if (window.parentSandboxBridge)
+                window.parentSandboxBridge.set_online_state(true);
         }
 
         function initConnection() {
@@ -354,13 +350,10 @@
             if (val) {
                 $('#accept_orders').removeClass('offline');
                 $('#accept_orders').addClass('online');
+
                 polling_enabled = true;
+                
                 pollOrders();
-
-//                $(document).everyTime({{ polling_interval }}, function() {
-//                    pollOrders();
-//               });
-
             } else {
                 $('#accept_orders').removeClass('online');
                 $('#accept_orders').addClass('offline');
@@ -396,6 +389,9 @@
         }
 
         function restoreState() {
+            if(window.parentSandboxBridge) {
+                window.parentSandboxBridge.set_current_rows(0);
+            }
             $.ajax({
                 url: "{% url ordering.station_controller.get_workstation_orders %}",
                 dataType: "json",
@@ -446,20 +442,25 @@
                 rejectOrder(order.pk);
             });
 
-            var progress_indicator = $("<div class='pb'></div>").progressbar({ value: 100 });
+
+            var timeout_interval = {{ timeout_interval }};
+
+            var time_diff = (new Date().getTime() - new Date(order.assignment_date).getTime()) / 1000;
+            var initial_val = (timeout_interval - time_diff) / timeout_interval * 100;
+            var progress_indicator = $("<div class='pb'></div>").progressbar({ value: initial_val });
 
             progress_indicator.everyTime(1000, function() {
                 var cur_value = progress_indicator.progressbar("value") / 100.0;
-                var increment = 1.0 / {{ timout_interval }};
+                var increment = 1.0 / timeout_interval;
                 progress_indicator.progressbar("value", (cur_value - increment) * 100);
                 if (progress_indicator.progressbar("value") < 0.1) {
                     removeOrderRow(order.pk);
                 }
-            }, {{ timout_interval }});
+            }, timeout_interval);
 
             var rendered_order = $("<div class='order'></div>").attr('id', order.pk)
                     .append(reject_button)
-                    .append($("<div class='from_address'></div>").append(order.fields.from_raw))
+                    .append($("<div class='from_address'></div>").append(order.from_raw))
                     .append(send_button)
                     .append(select);
 
@@ -534,7 +535,7 @@
         function handleOrder() {
             try {
                 if (window.parentSandboxBridge)
-                    parentSandboxBridge.onIncomingOrder();
+                    parentSandboxBridge.on_incoming_order();
             }
             catch (e) {
                 alert(e);
@@ -544,7 +545,7 @@
         function handleRemoveRow() {
             try {
                 if (window.parentSandboxBridge)
-                    parentSandboxBridge.removeRow();
+                    parentSandboxBridge.remove_row();
             }
             catch (e) {
                 alert(e);
@@ -554,7 +555,7 @@
         function handleAddRow() {
             try {
                 if (window.parentSandboxBridge)
-                    parentSandboxBridge.addRow();
+                    parentSandboxBridge.add_row();
             }
             catch (e) {
                 alert(e);
@@ -564,7 +565,7 @@
         function resizeContainer(nrows) {
             try {
                 if (window.parentSandboxBridge)
-                    parentSandboxBridge.resizeWindow(nrows);
+                    parentSandboxBridge.resize_window(nrows);
             }
             catch (e) {
                 alert(e);
@@ -574,7 +575,7 @@
         function setStationDetails(name, rating) {
             try {
                 if (window.parentSandboxBridge)
-                    parentSandboxBridge.setStationDetails(name, rating);
+                    parentSandboxBridge.set_station_details(name, rating);
             }
             catch (e) {
                 alert(e);
