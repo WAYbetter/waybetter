@@ -80,7 +80,7 @@ class OrderAssignmentAdmin(admin.ModelAdmin):
     work_station_name.allow_tags = True
 
     def order_details(self, obj):
-        return str(obj.order)
+        return unicode(obj.order)
 
     
 

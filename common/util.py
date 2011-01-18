@@ -1,5 +1,6 @@
 import random
 from google.appengine.api import taskqueue
+from google.appengine.api import mail
 from django.utils.translation import gettext as _
 import logging
 from django.shortcuts import render_to_response
@@ -190,3 +191,10 @@ def get_unique_id():
     s.update(str(datetime.datetime.now()))
     return s.hexdigest()
 
+def notify_by_email(subject, msg):
+    logging.info(u"Sending email: [%s] %s" % (subject, msg))
+    address = "notify@waybetter.com"
+    mail.send_mail("admin@waybetter.com",
+                   address,
+                   subject,
+                   msg) 

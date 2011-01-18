@@ -9,7 +9,7 @@ from common.models import Country, City, CityArea
 from datetime import datetime
 import time
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token
+from common.util import get_international_phone, generate_random_token, notify_by_email
 import re
 from django.core.validators import RegexValidator
 import common.urllib_adaptor as urllib2
@@ -24,14 +24,14 @@ PENDING = 5
 FAILED = 6
 ERROR = 7
 
-ASSIGNMENT_STATUS = ((ASSIGNED, gettext("assigned")),
-                     (ACCEPTED, gettext("accepted")),
-                     (IGNORED, gettext("ignored")),
-                     (REJECTED, gettext("rejected")))
+ASSIGNMENT_STATUS = ((ASSIGNED, ugettext("assigned")),
+                     (ACCEPTED, ugettext("accepted")),
+                     (IGNORED, ugettext("ignored")),
+                     (REJECTED, ugettext("rejected")))
 
-ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, gettext("pending")),
-                                    (FAILED, gettext("failed")),
-                                    (ERROR, gettext("error")))
+ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, ugettext("pending")),
+                                    (FAILED, ugettext("failed")),
+                                    (ERROR, ugettext("error")))
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
@@ -287,7 +287,8 @@ class Order(models.Model):
 
 
     def __unicode__(self):
-        return u"%s from %s to %s" % (_("order"), self.from_raw, self.to_raw)
+        id = self.id
+        return u"[%d] %s from %s to %s" % (id, ugettext("order"), self.from_raw, self.to_raw) 
 
     def get_status_label(self):
         for key, label in ORDER_STATUS:
@@ -304,6 +305,24 @@ class Order(models.Model):
                     return oa.station
         return None
 
+    def notify(self):
+        subject = u"New Order: %s" % self.get_status_label().upper()
+        msg = u"""Order %d:
+    Created:    %s
+    From:       %s
+    To:         %s.""" % (self.id, self.create_date.ctime(), self.from_raw, self.to_raw)
+
+        if self.status == ACCEPTED:
+            msg += u"""
+    Station:    %s
+    Pickup in:  %d minutes""" % (self.station.name, self.pickup_time)
+
+        if self.assignments.count():
+            msg += u"\n\nEvents:"
+            for assignment in self.assignments.all():
+                msg+= u"\n%s: %s - %s" % (assignment.modify_date.ctime(), assignment.station.name, assignment.get_status_label().upper())
+            
+        notify_by_email(subject, msg)
 
 class OrderAssignment(models.Model):
     ORDER_ASSIGNMENT_TIMEOUT = 180 # seconds
@@ -336,15 +355,23 @@ class OrderAssignment(models.Model):
 
         return simplejson.dumps(result)
 
+    def get_status_label(self):
+        for key, label in ASSIGNMENT_STATUS:
+            if key == self.status:
+                return label
+
+        raise ValueError("invalid status")
+
+
     def is_stale(self):
         return (datetime.now() - self.create_date).seconds > OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT
 
     def __unicode__(self):
-        order_id = "Unknown"
+        order_id = "<Unknown>"
         if self.order:
-            order_id = str(self.order)
-
-        return u"%s #%s %s %s" % (_("order"), order_id, _("assigned to station:"), self.station)
+            order_id = u"<%d>" % self.order.id
+            
+        return u"%s %s %s %s" % (ugettext("order"), order_id, ugettext("assigned to station:"), self.station)
 
 
 DAY_OF_WEEK_CHOICES = ((1, _("Sunday")),

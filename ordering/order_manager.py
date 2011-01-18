@@ -42,6 +42,7 @@ def book_order(request):
     except NoWorkStationFoundError:
         order.status = FAILED
         order.save()
+        order.notify()
         log_event(EventType.ORDER_FAILED, order=order, passenger=order.passenger)
         logging.warning("no matching workstation found for: %d" % order_id)
         response = HttpResponse("no matching workstation found")
@@ -52,11 +53,13 @@ def book_order(request):
     except OrderError:
         order.status = ERROR
         order.save()
+        order.notify()
         log_event(EventType.ORDER_ERROR, order=order, passenger=order.passenger)
         logging.error("book_order: OrderError: %d" % order_id)
         response = HttpResponseServerError("an error occured while handling order")
         send_sms(order.passenger.international_phone(),
                  _("We're sorry, but we have encountered an error while handling your request"))
+
 
     return response
 
@@ -64,7 +67,7 @@ def accept_order(order, pickup_time, station):
     order.pickup_time = pickup_time
     order.status = ACCEPTED
     order.station = station  
-    order.save()  
+    order.save()
     msg = _("Pickup at %(from)s in %(time)d minutes.\nStation: %(station_name)s, %(station_phone)s") % \
            { "from"             : order.from_raw.encode("utf-8"),
              "time"             : pickup_time,
