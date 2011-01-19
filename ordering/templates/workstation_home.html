@@ -19,8 +19,13 @@
         padding:0;
         border:none;
     }
-
-	#orders .order {
+    #connection_status {
+        width: 330px;
+        direction: rtl;
+        padding:0;
+        border:none;
+    }
+	.order {
 		background: -webkit-gradient(linear, left top, left bottom, from(#565656), to(#000000));
 		height: 32px;
         position: relative;
@@ -28,7 +33,7 @@
         padding-left: 5px;
 
 	}
-    #orders div div {
+    #orders div div, #connection_status div {
         display: inline-block;
     }    
     .order > div {
@@ -133,12 +138,6 @@
 		cursor: pointer;
 	}
 
-    /*#orders .close_button  {*/
-        /*float:left;*/
-        /*margin-top: 15px;*/
-        /*margin-left: 7px;*/
-    /*}*/
-
    	#orders .pb-row {
         height: 14px;
         padding-right: 2.5%;
@@ -192,14 +191,14 @@
 		padding-left:45px;
 	}
 
-	#orders .sending{
+	.sending{
 		color: white;
 		text-align: left;
         float: left;
         margin-left: 10px;
 	}
 
-	#orders .reject_sending{
+	.reject_sending{
 		background-image: url(/static/images/loader4.gif) ;
 		background-repeat: no-repeat;
 		background-position: center center;
@@ -324,7 +323,20 @@
             setStationDetails("{{ station_name }}", {{ station_rating }});
 
         });
-        
+        function renderStatus() {
+            if (is_in_error) {
+                $("#orders").empty().append(
+                        $("<div class='order'></div>")
+                            .append("<div class='reject_sending'></div>")
+                            .append("<div class='sending'>{% trans 'Connecting WAYbetter...' %}</div>")
+                        );
+
+                if (window.parentSandboxBridge) {
+                    window.parentSandboxBridge.resize_window(1);
+                }
+            }
+
+        }
         function setAcceptOrders(status) {
             $.post(
                     "{% url ordering.station_controller.update_online_status %}",
@@ -410,7 +422,14 @@
             clearError();
             if (incoming_orders) {
                 for (var count = 0; count < incoming_orders.length; count++) {
-                    renderOrder(incoming_orders[count]);
+
+                    var order = incoming_orders[count];
+                    // maybe we just received this order via a refresh
+                    if ($("#orders #" + order.pk).length) {
+                        continue;
+                    }
+
+                    renderOrder(order);
                     handleAddRow();
                 }
             }

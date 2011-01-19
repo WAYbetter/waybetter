@@ -344,13 +344,16 @@ class OrderAssignment(models.Model):
             order_assignments = [queryset_or_order_assignment]
         else:
             raise RuntimeError("Argument must be either QuerySet or %s" % cls.__name__)
-        
+
         result = []
         for order_assignment in order_assignments:
+#            assignment_date = order_assignment.create_date.strftime("%a %b %d %Y %H:%M:%S UTC")
+            import calendar
+            assignment_date = calendar.timegm(order_assignment.create_date.utctimetuple()) * 1000
             result.append({
                 "pk":               order_assignment.order.id,
                 "from_raw":         order_assignment.order.from_raw,
-                "assignment_date":  order_assignment.create_date.strftime("%a %b %d %Y %H:%M:%S UTC")
+                "assignment_date":  assignment_date
             })
 
         return simplejson.dumps(result)
