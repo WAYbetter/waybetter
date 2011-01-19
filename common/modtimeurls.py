@@ -60,7 +60,7 @@ def append_modtime_to_url(url):
         filename = filename[:index]
         
     try:
-        version = os.environ["CURRENT_VERSION_ID"]
+        version = os.environ["CURRENT_VERSION_ID"] = "1"
 #        logging.info("cashe busting with version: %s" % version)
 #        stat = os.stat(filename)
 #        timestamp = str(int(stat.st_mtime))
