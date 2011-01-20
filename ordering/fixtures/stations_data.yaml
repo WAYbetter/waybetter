@@ -1,0 +1,28 @@
+- fields: {address: Nemal Tel Aviv 15, average_rating: 0.0, city: 2366, city_area: null,
+    country: &id001 12, create_date: !!timestamp '2011-01-20 11:45:57.976821', description: This
+      is a test station, geohash: swnvf65r81b7, language: 0, lat: 32.095528000000002,
+    license_number: '1700707070', logo: None, lon: 34.773026000000002, modify_date: !!timestamp '2011-01-20
+      11:47:05.834540', name: teststation1, number_of_ratings: 0, number_of_taxis: 3,
+    postal_code: '12345', user: 9087, website_url: ''}
+  model: ordering.station
+  pk: &id002 9089
+- fields: {address: "\u05D9\u05E4\u05EA 99", average_rating: 0.0, city: 22, city_area: null,
+    country: *id001, create_date: !!timestamp '2011-01-20 11:52:29.766083', description: '',
+    geohash: swnv9nk6cywm, language: 0, lat: 32.042053000000003, license_number: '1234567',
+    logo: None, lon: 34.751637000000002, modify_date: !!timestamp '2011-01-20 11:52:29.766110',
+    name: teststation2, number_of_ratings: 0, number_of_taxis: 2, postal_code: '12345',
+    user: 9115, website_url: ''}
+  model: ordering.station
+  pk: &id003 9125
+- fields: {accept_orders: true, im_user: '', installer_url: 'https://s3.amazonaws.com/waybetter_air_download/workstation-installer-pusvRKddwQ6w90Pm.air',
+    station: *id002, token: 7m6buLHqkXJxiq5t, user: 1293, was_installed: true}
+  model: ordering.workstation
+  pk: 5142
+- fields: {accept_orders: true, im_user: '', installer_url: 'https://s3.amazonaws.com/waybetter_air_download/workstation-installer-seVXhdvS5Tr.air',
+    station: *id003, token: eHb9KNv48kYlxYCu, user: 1296, was_installed: false}
+  model: ordering.workstation
+  pk: 5144
+- fields: {accept_orders: true, im_user: '', installer_url: 'https://s3.amazonaws.com/waybetter_air_download/workstation-installer-BrlcivPX6BxRlAczFL5.air',
+    station: *id003, token: gY9j1O8p66kPI0, user: 1299, was_installed: false}
+  model: ordering.workstation
+  pk: 5248
