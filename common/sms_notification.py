@@ -1,17 +1,17 @@
 import logging
 from django.conf import settings
-from settings import SMS_PROVIDER_URL, SMS_PROVIDER_USER_NAME, SMS_PROVIDER_PASSWORD, SMS_FROM_PHONE_NUMBER, SMS_FROM_MARKETING_NAME, SMS_FROM_MARKETING_PHONE, SMS_VALIDITY_PERIOD
+import ordering
+from settings import SMS_PROVIDER_URL, SMS_PROVIDER_USER_NAME, SMS_PROVIDER_PASSWORD, SMS_FROM_PHONE_NUMBER, SMS_FROM_MARKETING_NAME, SMS_FROM_MARKETING_PHONE, SMS_VALIDITY_PERIOD, SMS_CALLBACK_URL
 from django.template.loader import get_template
 from django.template.context import Context
 from django.utils.http import urlquote_plus
 from google.appengine.api.urlfetch import fetch
 
-
 def send_sms(destination, text, **kwargs):
     """
     sends a text to some user (by given destination phone number) by SMS.
     delegates to a method for specific SMS back-end.
-    Returns text response.
+    Returns text response. 
     TODO_WB: take back-end function name from settings
     """
 
@@ -46,6 +46,7 @@ def send_sms_cellact(destination, text, sms_config):
         'destination':         destination,
         'text':                text,
         'is_test':             "false",
+        'confirmation_url':    sms_config[SMS_CALLBACK_URL]
     }
     params.update(sms_config)
 

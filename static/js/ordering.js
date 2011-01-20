@@ -68,7 +68,7 @@ var Address = defineClass({
             return (this.lon && this.lat) && (this.name == $('#id_geocoded_' + this.address_type + '_raw').val());
         },
         populateFields: function () {
-            $('#id_' + this.address_type + '_raw').val(this.name);
+            $('#id_' + this.address_type + '_raw').val(this.name).removeClass("placeheld"); // placeheld plugin only removes class on focus
             $('#id_geocoded_' + this.address_type + '_raw').val(this.name);
             $('#id_' + this.address_type + '_city').val(this.city);
             $('#id_' + this.address_type + '_street_address').val(this.street);
@@ -76,6 +76,7 @@ var Address = defineClass({
             $('#id_' + this.address_type + '_geohash').val(this.geohash);
             $('#id_' + this.address_type + '_lon').val(this.lon);
             $('#id_' + this.address_type + '_lat').val(this.lat);
+
         }
     },
     statics:    {
@@ -116,7 +117,9 @@ var OrderingHelper = Object.create({
         address_helper_msg_from:    "",
         address_helper_msg_to:      "",
         autocomplete_msg:           "",
-        address_not_resolved_msg:   ""
+        address_not_resolved_msg:   "",
+        estimation_msg          :   ""
+
 
 
     },
@@ -170,7 +173,8 @@ var OrderingHelper = Object.create({
     },
     init:                       function(config) {
         this.config = $.extend(true, {}, this.config, config);
-        var that = this;        
+        var that = this;
+        $("#ride_cost_estimate").html(this.config.estimation_msg);
         $("input:text").each(function(i, element) {
             var address_type = element.name.split("_")[0];
             var helper_div = $("<div class='address-helper round "+ address_type +"'></div>");
@@ -392,6 +396,7 @@ var OrderingHelper = Object.create({
         this.addPoint(address);
         $("#id_from_raw, #id_to_raw").catcomplete("disable");
         if (address.address_type == "from") {
+            $("#id_from_raw").blur();
             $("#id_to_raw").focus();
         } else {
             $("#id_to_raw").blur();
@@ -436,7 +441,7 @@ var OrderingHelper = Object.create({
                     delete this.map_markers[address.address_type];
                 }
                 this.renderMapMarkers();
-                $("#ride_cost_estimate").empty().hide();
+                $("#ride_cost_estimate").html(this.config.estimation_msg);
                 return;
             }
         }

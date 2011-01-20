@@ -1,6 +1,7 @@
 import random
 from google.appengine.api import taskqueue
 from google.appengine.api import mail
+from google.appengine.api.images import BadImageError, NotImageError
 from django.utils.translation import gettext as _
 import logging
 from django.shortcuts import render_to_response
@@ -194,7 +195,36 @@ def get_unique_id():
 def notify_by_email(subject, msg):
     logging.info(u"Sending email: [%s] %s" % (subject, msg))
     address = "notify@waybetter.com"
-    mail.send_mail("guy@waybetter.com",
-                   address,
-                   subject,
-                   msg) 
+    try:
+        mail.send_mail("guy@waybetter.com",
+                       address,
+                       subject,
+                       msg)
+    except :
+        logging.error("Email sending failed.")
+
+def blob_to_image_tag(blob_data, height=50, width=None):
+    """
+    Convert blob image data to a uri encoded image tag.
+    Perform size transforms if given height or width
+    """
+    import base64
+    from google.appengine.api import images
+    res = ""
+    try:
+        img = images.Image(blob_data)
+        if height:
+            img.resize(height=height)
+        if width:
+            img.resize(width=width)
+
+        thumbnail = img.execute_transforms(output_encoding=images.PNG)
+        res = u"""<img src='data:image/png;base64,%s' />""" % base64.encodestring(thumbnail)
+    except BadImageError:
+        pass
+    except NotImageError :
+        pass
+    except NotImplementedError:
+        pass
+
+    return res

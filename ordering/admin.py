@@ -1,3 +1,4 @@
+from common.util import blob_to_image_tag
 from django.contrib import admin
 from django.utils.translation import gettext as _
 from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, ExtraChargeRule, Feedback
@@ -46,22 +47,13 @@ class StationAdmin(admin.ModelAdmin):
     actions = [build_workstations]
 
     def logo_img(self, obj):
-        res = _("No Logo")
+        res = ""
         if obj.logo:
-            import base64
-            from google.appengine.api import images
-            try:
-                img = images.Image(obj.logo)
-                img.resize(height=50)
-                thumbnail = img.execute_transforms(output_encoding=images.PNG)
-                res = u"""<img src='data:image/png;base64,%s' />""" % base64.encodestring(thumbnail)
-            except BadImageError:
-                pass
-            except NotImageError :
-                pass
-            except NotImplementedError:
-                pass
-            
+            res = blob_to_image_tag(obj.logo, height=50)
+
+        if not res:
+            res = _("No Logo")
+           
         return res
     logo_img.allow_tags = True
 

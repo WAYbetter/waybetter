@@ -42,11 +42,12 @@ class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
     name = models.CharField(_("station name"), max_length=50)
     license_number = models.CharField(_("license number"), max_length=30)
-    website_url = models.URLField(_("website"), max_length=255, null=True, blank=True) #verify_exists=False
+    website_url = models.URLField(_("website"), max_length=255, null=True, blank=True, verify_exists=False)
     number_of_taxis = models.IntegerField(_("number of taxis"), max_length=4)
     description = models.CharField(_("description"), max_length=4000, null=True, blank=True)
     logo = BlobField(_("logo"), null=True, blank=True)
     language = models.IntegerField(_("language"), choices=LANGUAGE_CHOICES, default=0)
+    show_on_list = models.BooleanField(_("show on list"), default=False)
 
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")
@@ -125,6 +126,16 @@ class Passenger(models.Model):
 
     def international_phone(self):
         return get_international_phone(self.country, self.phone)
+
+    def is_internal_passenger(self):
+        """
+        Return True if the passenger's user was registered internally
+        """
+        result = True
+        if self.user and self.user.authmeta_set.all().count():
+            result = False
+
+        return result
 
     @staticmethod
     def from_request(request):
@@ -344,13 +355,16 @@ class OrderAssignment(models.Model):
             order_assignments = [queryset_or_order_assignment]
         else:
             raise RuntimeError("Argument must be either QuerySet or %s" % cls.__name__)
-        
+
         result = []
         for order_assignment in order_assignments:
+#            assignment_date = order_assignment.create_date.strftime("%a %b %d %Y %H:%M:%S UTC")
+            import calendar
+            assignment_date = calendar.timegm(order_assignment.create_date.utctimetuple()) * 1000
             result.append({
                 "pk":               order_assignment.order.id,
                 "from_raw":         order_assignment.order.from_raw,
-                "assignment_date":  order_assignment.create_date.strftime("%a %b %d %Y %H:%M:%S UTC")
+                "assignment_date":  assignment_date
             })
 
         return simplejson.dumps(result)

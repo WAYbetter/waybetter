@@ -1,0 +1,138 @@
+{% load i18n %}
+<style>
+    .station_row {
+        min-height: 120px;
+        max-height: 120px;
+        border-top: 3px solid #add8e6;
+        position: relative;
+        overflow: hidden;
+        padding: 10px 0;
+    }
+    .station_logo {
+        width: 100px;
+        display:inline-block;
+        height: 100%;
+        vertical-align: top;
+
+    }
+    .station_details {
+        display:inline-block;
+        width: 60%;
+        font-size: 16px;
+    }
+    .station_details .more_details div {
+        background-image: url(/static/img/stations_info_icons.png);
+        background-repeat: no-repeat;
+        color: gray;
+        line-height: 1.5em;
+        padding-left: 20px;
+    }
+    .more_details .website{
+        background-position: 0 0;
+    }
+    .more_details .address  {
+        background-position: 0 -20px;
+    }
+    .more_details .phones {
+        background-position: 0 -40px;
+    }
+    .station_details .more_details {
+        position: absolute;
+        left: 5px;
+        bottom: 20px;
+        text-align: left;
+        font-size: 14px;
+    }
+    .station_details button {
+        position: absolute;
+        left: 0;
+        top: 10px;
+        width: 150px;
+    }
+    .toggle_details {
+        position: absolute;
+        left: 0;
+        bottom: 5px;
+    }
+
+    #station_entrance {
+        text-align: left;
+        font-size: 16px;
+        margin-bottom: 10px;
+    }
+    #station_entrance a {
+        color: #ec008c;
+        font-weight: bold;
+    }
+    #tabs .station_details h1 {
+        margin-top: 0
+    }
+    #tabs .station_details a {
+        color: #ec008c;
+        font-size: 14px;
+    }
+</style>
+<script>
+    $(function() {
+        $(".more_details").hide();
+        $(".station_row button").click(function () {
+            $("#id_from_raw").focus();
+        });
+        $(".toggle_details").click(function(e) {
+            var elem = this;
+            var row = $(this).parent().parent();
+            var details = $(".more_details", row);
+            if (details.is(":hidden")) {
+                var max_height = $(".station_details", row).height();
+                row.animate({ "max-height": max_height + "px" }, 500, function() {
+                    details.fadeIn("fast");
+                    $(elem).text("{% trans 'Less details' %}");
+                });
+            } else {
+                details.fadeOut("fast");
+                $(elem).text("{% trans 'More details' %}");
+                row.animate({ "max-height": "120px" }, 500, function() {
+                });
+            }
+            e.preventDefault();
+        });
+    })
+</script>
+<div id="station_entrance">
+    <p>
+        {% trans 'Station Manager?' %}
+        <a href="{% url ordering.station_controller.stations_home %}">{% trans 'Station Entrance' %}</a>
+    </p>
+</div>
+{% for station in stations_data %}
+<div class="station_row">
+    <div class="station_logo">
+        {% autoescape off %}
+            {{ station.logo }}
+        {% endautoescape %}
+    </div>
+    <div class="station_details">
+        <h1>
+            {{ station.name }}
+        </h1>
+        <p>
+            {{ station.description }}
+        </p>
+        <div class="more_details">
+            <div class="website">
+                <a href="{{ station.website }}">{{ station.website }}</a>
+            </div>
+            <div class="address">
+                {{ station.address }}
+            </div>
+            <div class="phones">
+                {{ station.phones }}
+            </div>
+        </div>
+        <a class="toggle_details" href="#">
+            {% trans "More details" %}
+        </a>
+        <button class="wb_button gold">{% trans "Book a Taxi Now" %}</button>
+    </div>
+</div>
+{% endfor %}
