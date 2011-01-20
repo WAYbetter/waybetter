@@ -163,8 +163,10 @@
 {{ block.super}}
 <span id="footer-links">
     <a href="{% url ordering.passenger_controller.info_pages %}#about">{% trans 'About' %}</a>
+    {% comment %}
     <a href="{% url ordering.passenger_controller.info_pages %}#press">{% trans 'Press' %}</a>
     <a href="{% url ordering.passenger_controller.info_pages %}#help">{% trans 'Help' %}</a>
+    {% endcomment %}
     <a href="{% url ordering.passenger_controller.info_pages %}#terms">{% trans 'Terms' %}</a>
     <a href="{% url ordering.station_controller.stations_home %}">{% trans 'Station Entrance' %}</a>
 </span>
