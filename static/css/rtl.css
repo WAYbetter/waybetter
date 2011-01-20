@@ -82,8 +82,10 @@ input.text, input[type=text], input[type=password] {
     background: url(../img/main_background.png), -moz-linear-gradient(top, #4D4D4D 0%, #101010 100%); /* firefox */
     background: url(../img/main_background.png), -webkit-gradient(linear, left top, left bottom, color-stop(0%,#4D4D4D), color-stop(100%,#101010)); /* webkit */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4D4D4D', endColorstr='#101010',GradientType=0 ); /* ie */
-
+	*background-image: url(../img/main_background.png);
+	*background-repeat:repeat;
     behavior: url(PIE.htc);
+    *margin-top: -4px;
 }
 #main-container {
     width: 896px;
@@ -142,6 +144,9 @@ input.text, input[type=text], input[type=password] {
     border-radius: 5px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
+    *left:0;
+    *direction:rtl;
+
 }
 .address-helper-autocomplete {
     color: white;
@@ -180,6 +185,8 @@ input.text, input[type=text], input[type=password] {
     position: absolute;
     top: -8px;
     right: 165px;
+    *right: 15px;
+    *top: -2px;
 }
 #banner {
     /*text-shadow: #e1e1e1 0 1px;*/
@@ -192,6 +199,7 @@ input.text, input[type=text], input[type=password] {
     font-weight: bold;
 }
 #header-container {
+	*width:700px;
     margin: 10px 20px 14px;
 }
 #header {
@@ -234,14 +242,18 @@ span.fade {
 }
 span.left-fade {
     right: -1px;
-    background-image:url(../img/left_fade.png);
+   
+    background-image:url(../img/right_fade.png);
 }
 span.right-fade {
-    left: 3px;
-    background-image:url(../img/right_fade.png);
+    left: 0px;
+   
+    background-image:url(../img/left_fade.png);
 }
 #roller {
     position: relative;
+    direction: ltr;
+    
 }
 #roller div {
     width: 100%;
@@ -303,6 +315,10 @@ span.right-fade {
     border-radius: 0 0 10px 10px;
     -moz-border-radius: 0 0 10px 10px;
     -webkit-border-radius: 0 0 10px 10px;
+    *background-color: #8d8d8d;
+  
+    *margin-top:-1px;
+ 	*height:258px
     /*behavior: url(PIE.htc);*/
 }
 a.input_history_helper {
@@ -323,6 +339,13 @@ a.input_history_helper:hover {
     float: right;
     margin-top: 20px;
     margin-right: 9px;
+    *direction:ltr;
+    
+    
+}
+#order_form ul {
+    
+    
 }
 #order_form ul > li {
     position: relative;
@@ -374,6 +397,7 @@ input.big_text {
     font-size: 14px;
     background-repeat: no-repeat;
     background-image: url(../img/markers.png);
+    *direction:rtl;
 }
 input.a_marker {
     padding-right: 39px;
@@ -574,13 +598,17 @@ ul.ui-tabs-nav .ui-state-hover a {
     display: none;
     position: absolute;
     right: 13px;
-    top: 15px;
+    top: 12px;
     padding:10px 35px 10px 10px;
     background: rgba(0, 0, 0, 0.7) url("../img/ride_details.png") 97% -36px no-repeat;
     color:white;
     -moz-border-radius:5px;
     -webkit-border-radius:5px;
     border-radius:5px;
+	*width: 280px;
+	*background: rgb(0, 0, 0) url("../img/ride_details.png") 97% -36px no-repeat;
+    *left:233px;
+
 }
 
 /**************** Registration Form ***************/
@@ -747,6 +775,8 @@ ul.ui-tabs-nav .ui-state-hover a {
         rgb(6,77,139) 0%,
         rgb(61,156,197) 99%
     );
+
+     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d9cc5', endColorstr='#064d8b',GradientType=0 ); /* ie */
     -webkit-box-shadow: 0px 2px 2px #636363;
     -moz-box-shadow: 0px 2px 2px #636363;
     box-shadow: 0px 2px 2px #636363;
@@ -928,6 +958,9 @@ ul.ui-tabs-nav .ui-state-hover a {
    	 padding: 6px 0;
    	 text-align: center;
    	 text-decoration: none;
+	
+	 *margin-top:-12px;
+    
 }
 
 #reset_button.wb_button {
@@ -943,6 +976,7 @@ ul.ui-tabs-nav .ui-state-hover a {
 	padding: 6px 0;
 	text-align: center;
 	text-decoration: none;
+	 *margin-top:-12px;
 }
 
 #login_error {
@@ -966,7 +1000,7 @@ ul.ui-tabs-nav .ui-state-hover a {
 }
 
 #station_login {
-    background: red;
+
     width: 460px;
 }
 #station_login label {
@@ -978,7 +1012,9 @@ ul.ui-tabs-nav .ui-state-hover a {
     width: 160px;
     font-size: 14px;
     padding: 0 10px;
+    *margin-left:-13px;
 }
+
 #station_login p {
     float: right;
     margin: 0 6px;
@@ -1267,4 +1303,10 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 #buttons button {
     width: 200px;
     margin: 10px;
+}
+*#orders_history_grid
+{
+
+vertical-align:top;
+    padding-top:10px;
 }

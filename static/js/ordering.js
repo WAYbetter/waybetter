@@ -146,6 +146,7 @@ var OrderingHelper = Object.create({
                 address_helper.text(this.config["address_helper_msg_" + address_type]).removeClass("address-error");
             }
         }
+        
     },
     _onAddressInputBlur:        function(element, address_type) {
         this._updateAddressControls(element, address_type);
@@ -154,6 +155,7 @@ var OrderingHelper = Object.create({
          if (address.isResolved() || this._isEmpty(element)) {
             address_helper.fadeOut("fast");
         }
+        
     },
     _onAddressInputFocus:       function(element, address_type) {
         this._updateAddressControls(element, address_type);
@@ -164,6 +166,7 @@ var OrderingHelper = Object.create({
             address_helper.text(this.config["address_helper_msg_" + address_type]).removeClass("address-error");
             address_helper.fadeIn("fast");
         }
+
     },
     init:                       function(config) {
         this.config = $.extend(true, {}, this.config, config);
@@ -217,12 +220,14 @@ var OrderingHelper = Object.create({
                         that.updateAddressChoice(ui.item.address);
                         that._onAddressInputBlur(this, ui.item.address.address_type);
                     }
+
                 },
                 open: function(event, ui) {
                     $('ul.ui-autocomplete').css("z-index", 3000);
                 }
             });
         });
+        $("#id_from_raw, #id_to_raw").catcomplete("disable");
 
         $("input:button, #order_button").button();
 
@@ -277,7 +282,9 @@ var OrderingHelper = Object.create({
 
         //TODO_WB:add a check for map, timeout and check again.
         setTimeout(that.initPoints, 100);
-
+        setTimeout(function() {
+            $("#id_from_raw, #id_to_raw").catcomplete("enable");
+        }, 500);
         return this;
     }, // init
     initMap:                    function () {
@@ -391,7 +398,7 @@ var OrderingHelper = Object.create({
         }
 
         this.getRideCostEstimate();
-        this.validateForBooking();
+       this.validateForBooking();
     },
     getRideCostEstimate:        function() {
         var that = this,
@@ -571,7 +578,7 @@ var OrderHistoryHelper = Object.create({
             window.location = window.location; // reload page if not initialized
             return;
         }
-        
+
         var that = this;
         $("#orders_history_grid table").animate({
             color: "#949494"
@@ -644,12 +651,14 @@ var OrderHistoryHelper = Object.create({
         var $header_row = $("<tr>");
 
         $.each(that.config.order_history_fields, function(i, val) {
-            var $th = $("<th>").append($('<a href="#" id="history_header_label_' + i + '">').append(that.config.order_history_column_names[i])
-                    .click(function() {
+            //var $th = $("<th>").append($('<a href="#" id="history_header_label_' + i + '">'));
+            var link= $('<a>').attr( 'id', 'history_header_label_' + i  ).attr( 'href', '#'  ).append(that.config.order_history_column_names[i]).click(function() {
                         that.loadHistory({
                             sort_by: val
                         });
-                    }));
+                    });
+            // var $th = $("<th>").html('<a href="#" id="history_header_label_' + i + '">' + that.config.order_history_column_names[i] + '</a>')
+            var $th = $("<th>").append(link);
             $header_row.append($th);
         });
         $table.append($header_row);
