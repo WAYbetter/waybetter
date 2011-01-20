@@ -203,7 +203,7 @@ def notify_by_email(subject, msg):
     except :
         logging.error("Email sending failed.")
 
-def blob_to_image_tag(blob_data, height=None, width=None):
+def blob_to_image_tag(blob_data, height=50, width=None):
     """
     Convert blob image data to a uri encoded image tag.
     Perform size transforms if given height or width

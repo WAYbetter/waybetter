@@ -117,7 +117,9 @@ var OrderingHelper = Object.create({
         address_helper_msg_from:    "",
         address_helper_msg_to:      "",
         autocomplete_msg:           "",
-        address_not_resolved_msg:   ""
+        address_not_resolved_msg:   "",
+        estimation_msg          :   ""
+
 
 
     },
@@ -168,7 +170,8 @@ var OrderingHelper = Object.create({
     },
     init:                       function(config) {
         this.config = $.extend(true, {}, this.config, config);
-        var that = this;        
+        var that = this;
+        $("#ride_cost_estimate").html(this.config.estimation_msg);
         $("input:text").each(function(i, element) {
             var address_type = element.name.split("_")[0];
             var helper_div = $("<div class='address-helper round "+ address_type +"'></div>");
@@ -431,7 +434,7 @@ var OrderingHelper = Object.create({
                     delete this.map_markers[address.address_type];
                 }
                 this.renderMapMarkers();
-                $("#ride_cost_estimate").empty().hide();
+                $("#ride_cost_estimate").html(this.config.estimation_msg);
                 return;
             }
         }
