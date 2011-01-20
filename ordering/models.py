@@ -126,6 +126,16 @@ class Passenger(models.Model):
     def international_phone(self):
         return get_international_phone(self.country, self.phone)
 
+    def is_internal_passenger(self):
+        """
+        Return True if the passenger's user was registered internally
+        """
+        result = True
+        if self.user and self.user.authmeta_set.all().count():
+            result = False
+
+        return result
+
     @staticmethod
     def from_request(request):
         passenger = None

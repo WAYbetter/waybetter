@@ -230,13 +230,7 @@ class PhoneForm(ModelForm):
                               error_messages={'invalid': _("The value must contain only numbers.")} )
         
 
-class PassengerProfileForm(forms.Form, Id2Model):
-    email = forms.EmailField(label=_("Email"))
-
-    password =  forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
-
-    password2 = forms.CharField(label=_("Re-enter password"), widget=forms.PasswordInput(), required=False)
-
+class PassengerProfileForm(forms.Form):
     country =   forms.ModelChoiceField(queryset=Country.objects.all().order_by("name"), label=_("Country"))
 
     default_station = forms.ModelChoiceField(queryset=Station.objects.all(), label=_("Default station"), empty_label=_("(No station selected)"), required=False)
@@ -248,7 +242,17 @@ class PassengerProfileForm(forms.Form, Id2Model):
                                   error_messages={'invalid': _("The value must contain only numbers.")} )
 
     phone_verification_code = forms.IntegerField(widget=forms.HiddenInput(), required=False)
-    
+
+    class Ajax:
+        pass
+
+class InternalPassengerProfileForm(PassengerProfileForm):
+    email = forms.EmailField(label=_("Email"))
+
+    password =  forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
+
+    password2 = forms.CharField(label=_("Re-enter password"), widget=forms.PasswordInput(), required=False)
+
     class Ajax:
         rules = [
             ('password2', {'equal_to_field': 'password'}),
@@ -258,6 +262,15 @@ class PassengerProfileForm(forms.Form, Id2Model):
             ('password2', {'equal_to_field': _("The two password fields didn't match.")}),
         ]
 
+def get_profile_form(passenger, data=None):
+    """
+    returns a form instance taking into account if the user was registered via a third party or internally
+    """
+    if passenger.is_internal_passenger():
+        return InternalPassengerProfileForm(data=data)
+    else:
+        return PassengerProfileForm(data=data)
+    
 class CityChoiceWidget(forms.Select):
     def render(self, name, value, attrs=None, choices=()):
         self.choices = [(u"", u"---------")]
