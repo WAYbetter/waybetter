@@ -55,6 +55,9 @@ urlpatterns = patterns('',
     (r'^services/get_orders/$', 'ordering.passenger_controller.get_passenger_orders_history_data'),
     (r'^services/get_station_orders/$', 'ordering.station_controller.get_station_orders_history_data'),
     (r'^services/get_cities_for_country/$', 'ordering.station_controller.get_cities_for_country'),
+    (r'^services/confirm_sms/$', 'ordering.passenger_controller.sms_confirmation'),
+
+
     (r'^setup/init_pricing_rules/$', 'ordering.rules_controller.init_pricing_rules'),
     (r'^setup/upload_flat_rate_rules/$', 'ordering.rules_controller.setup_flat_rate_rules'),
     (r'^setup/do_flat_rate_rules_setup/$', 'ordering.rules_controller.do_setup_flat_rate_pricing_rules'),

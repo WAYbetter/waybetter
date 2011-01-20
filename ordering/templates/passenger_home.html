@@ -42,7 +42,7 @@
         $("#slider").nivoSlider({
             controlNav: false,
             directionNav: false,
-            pauseTime:6000,
+            pauseTime:4000,
             slices:15,
             animSpeed:700,
             effect: "sliceDown",
@@ -84,9 +84,11 @@
 {% block content %}
                 <div id="roller">
                     <span class="img fade left-fade"></span>
-                    <span class="img fade right-fade"></span>{{ marquee_text }}
-                    <marquee behavior="scroll" scrollamount="1" direction="left" width="870">
-                        Coming soon... &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; The easiest way to get a taxi! &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;:: &nbsp;&nbsp;&nbsp;&nbsp;&nbsp; WAYbetter are the best  &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::
+                    <span class="img fade right-fade"></span>
+                    <marquee behavior="scroll" scrollamount="1" direction="right" width="870">
+                        {% comment %}
+                        {% trans 'WAYbetter are happy to announce our Tel Aviv pilot in collaboration with the "Meshuhrar Taxis" station' %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% trans "We hope you'll enjoy the service and give us feedback so we can improve (bottom right corner)" %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% trans 'Enjoy your ride!' %}
+                        {% endcomment %}
                     </marquee>
 				</div>
 				<div id="yellow_header" class="round">
