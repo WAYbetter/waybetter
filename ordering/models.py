@@ -42,11 +42,12 @@ class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
     name = models.CharField(_("station name"), max_length=50)
     license_number = models.CharField(_("license number"), max_length=30)
-    website_url = models.URLField(_("website"), max_length=255, null=True, blank=True) #verify_exists=False
+    website_url = models.URLField(_("website"), max_length=255, null=True, blank=True, verify_exists=False)
     number_of_taxis = models.IntegerField(_("number of taxis"), max_length=4)
     description = models.CharField(_("description"), max_length=4000, null=True, blank=True)
     logo = BlobField(_("logo"), null=True, blank=True)
     language = models.IntegerField(_("language"), choices=LANGUAGE_CHOICES, default=0)
+    show_on_list = models.BooleanField(_("show on list"), default=False)
 
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")

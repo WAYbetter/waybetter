@@ -10,7 +10,7 @@ from common.models import Country, City
 from ordering.models import Order, Station, Feedback
 from django.utils.safestring import mark_safe
 from google.appengine.api.images import BadImageError, NotImageError
-from common.util import log_event, EventType
+from common.util import log_event, EventType, blob_to_image_tag
 from django.core.exceptions import ValidationError
 from common.geocode import geocode
 import logging
@@ -31,17 +31,7 @@ class AppEngineImageWidget(forms.FileInput):
     def render(self, name, value, attrs=None):
         result = super(AppEngineImageWidget, self).render(name, None, attrs=attrs)
         if value:
-            import base64
-            from google.appengine.api import images
-            try:
-                img = images.Image(value)
-                img.resize(height=80)
-                thumbnail = img.execute_transforms(output_encoding=images.PNG)
-                result = u"""<img src='data:image/png;base64,%s' /><br>""" % base64.encodestring(thumbnail) + result
-            except BadImageError:
-                pass
-            except NotImageError:
-                pass
+            result = blob_to_image_tag(value, height=80)
 
         return result
 

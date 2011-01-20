@@ -47,6 +47,8 @@
             effect: "sliceDown",
             startSlide: 0
         });
+
+        $("#id_from_raw").focus();
     });
 
 </script>
@@ -130,13 +132,10 @@
                 </ul>
         {% else %}
             <ul>
-                <li><a title="stations" href="#stations">{% trans 'Taxi Stations' %}</a></li>
+                <li><a title="stations" href="{% url ordering.passenger_controller.stations_tab %}">{% trans 'Taxi Stations' %}</a></li>
                 <li><a title="mobile" href="#mobile">{% trans 'Mobile' %}</a></li>
                 <li><a title="whats_this" href="#about">{% trans "What's This?" %}</a></li>
             </ul>
-            <div id="stations">
-                Stations
-            </div>
             <div id="mobile">
                 <h2>{% trans "Get a Taxi. Wherever You Are!" %}</h2>
                 <img src="/static/images/mobile_button.png">
