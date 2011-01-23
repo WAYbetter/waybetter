@@ -9,7 +9,7 @@ from common.models import Country, City, CityArea
 from datetime import datetime
 import time
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email
+from common.util import get_international_phone, generate_random_token, notify_by_email, get_model_from_request
 import re
 from django.core.validators import RegexValidator
 import common.urllib_adaptor as urllib2
@@ -137,14 +137,9 @@ class Passenger(models.Model):
 
         return result
 
-    @staticmethod
-    def from_request(request):
-        passenger = None
-        if request.user.is_authenticated():
-            try:
-                passenger = Passenger.objects.filter(user=request.user).get()
-            except Passenger.DoesNotExist:
-                pass
+    @classmethod
+    def from_request(cls, request):
+        passenger = get_model_from_request(cls, request)
         if not passenger:
             passenger = request.session.get(CURRENT_PASSENGER_KEY, None)
         return passenger
@@ -358,13 +353,10 @@ class OrderAssignment(models.Model):
 
         result = []
         for order_assignment in order_assignments:
-#            assignment_date = order_assignment.create_date.strftime("%a %b %d %Y %H:%M:%S UTC")
-            import calendar
-            assignment_date = calendar.timegm(order_assignment.create_date.utctimetuple()) * 1000
             result.append({
                 "pk":               order_assignment.order.id,
                 "from_raw":         order_assignment.order.from_raw,
-                "assignment_date":  assignment_date
+                "seconds_passed":   (datetime.now() - order_assignment.create_date).seconds
             })
 
         return simplejson.dumps(result)

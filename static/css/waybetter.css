@@ -39,7 +39,13 @@ input.text, input[type=text], input[type=password] {
     -webkit-appearance: none;
     -moz-appearance: none;
 }
-
+.waybetter:before {
+    content: "WAY";
+    font-weight: bold;
+}
+.waybetter:after {
+    content: "better";
+}
 .clear {
     clear: both;
     height: 0;
@@ -233,6 +239,7 @@ span.right-fade {
 }
 #roller {
     position: relative;
+    top: -4px;
 }
 #roller div {
     width: 100%;
@@ -411,6 +418,26 @@ button.order_button.disabled, button.order_button:disabled {
     background-position: 0 -159px;
 }
 
+#slider {
+    height: 300px;
+    width: 563px;
+    margin-right:120px;
+    margin-top: 30px;
+}
+#tabs h1 {
+    color: #00acff;
+    font-size: 24px;
+    margin-bottom: 5px;
+    margin-top: -30px;
+}
+
+#tabs h1 .waybetter {
+    color: #00acff;
+}
+
+#about p {
+    font-size: 14px;
+}
 /************* Ordering Bottom Tabs *************/
 #tabs {
     margin-top: -18px;

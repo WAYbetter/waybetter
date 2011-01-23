@@ -463,9 +463,7 @@
 
 
             var timeout_interval = {{ timeout_interval }};
-
-            var time_diff = (new Date().getTime() - new Date(order.assignment_date).getTime()) / 1000;
-            var initial_val = (timeout_interval - time_diff) / timeout_interval * 100;
+            var initial_val = (timeout_interval - order.seconds_passed) / timeout_interval * 100;
             var progress_indicator = $("<div class='pb'></div>").progressbar({ value: initial_val });
 
             progress_indicator.everyTime(1000, function() {

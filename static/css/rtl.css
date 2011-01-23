@@ -39,6 +39,14 @@ input.text, input[type=text], input[type=password] {
     -webkit-appearance: none;
     -moz-appearance: none;
 }
+.waybetter:before {
+    content: "WAY";
+    font-weight: bold;
+}
+.waybetter:after {
+    content: "better";
+    font-weight: normal;
+}
 
 .clear {
     clear: both;
@@ -264,6 +272,7 @@ span.right-fade {
 #roller {
     position: relative;
     direction: ltr;
+    top: -4px;
     
 }
 #roller div {
@@ -271,6 +280,14 @@ span.right-fade {
     color: #fdec7c;
     font-weight: normal;
     font-size: 14px;
+}
+
+#roller div div {
+    direction: rtl;
+}
+
+#roller .waybetter {
+    color: #fdec7c;
 }
 
 /************* App Yellow Header *************/
@@ -467,6 +484,11 @@ button.order_button.disabled, button.order_button:disabled {
     margin-bottom: 5px;
     margin-top: -30px;
 }
+
+#tabs h1 .waybetter {
+    color: #00acff;
+}
+
 #about p {
     font-size: 14px;
 }
