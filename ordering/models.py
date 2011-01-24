@@ -237,10 +237,10 @@ class Order(models.Model):
     from_geohash = models.CharField(_("from goehash"), max_length=13)
     from_lon = models.FloatField(_("from_lon"))
     from_lat = models.FloatField(_("from_lat"))
-    from_raw = models.CharField(_("from address"), max_length=50)
     # this field holds the data as typed by the user
-    to_country = models.ForeignKey(Country, verbose_name=_("to country"), related_name="orders_to")
+    from_raw = models.CharField(_("from address"), max_length=50)
 
+    to_country = models.ForeignKey(Country, verbose_name=_("to country"), related_name="orders_to")
     to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="orders_to")
     to_city_area = models.ForeignKey(CityArea, verbose_name=_("to city area"), related_name="orders_to", null=True,
                                      blank=True)

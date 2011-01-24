@@ -188,7 +188,7 @@ class BasicFuncTest(TestCase):
     Test basic functionality provided by common app.
     """
 
-    fixtures = ['countries']
+    fixtures = ['countries.yaml']
     
     def test_send_sms(self):
         logging.info("\nTesting sms sending")

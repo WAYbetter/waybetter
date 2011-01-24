@@ -20,6 +20,9 @@ from ordering.models import Station
 from common.sms_notification import send_sms
 from common.util import log_event, EventType
 
+NO_MATCHING_WORKSTATIONS_FOUND = "no matching workstation found"
+ORDER_HANDLED = "order handled"
+
 def book_order_async(order):
     logging.info("book_order_async: %d" % order.id)
     task = taskqueue.Task(url=reverse(book_order), params={"order_id": order.id})
@@ -37,7 +40,7 @@ def book_order(request):
     order = get_object_or_404(Order, id=order_id)
 
     #TODO_WB: check if another dispatching cycle should start
-    response = HttpResponse("order handled")
+    response = HttpResponse(ORDER_HANDLED)
     try:
         # choose an assignment for the order and push it to the relevant workstation
         order_assignment = dispatcher.assign_order(order)
@@ -50,11 +53,12 @@ def book_order(request):
         order.save()
         log_event(EventType.ORDER_FAILED, order=order, passenger=order.passenger)
         logging.warning("no matching workstation found for: %d" % order_id)
-        response = HttpResponse("no matching workstation found")
+        response = HttpResponse(NO_MATCHING_WORKSTATIONS_FOUND)
 
         send_sms(order.passenger.international_phone(),
                  _("We're sorry, but we could not find a taxi for you"))
         
+    # AMIR: this is not raised by dispatcher
     except OrderError:
         order.status = ERROR
         order.save()
