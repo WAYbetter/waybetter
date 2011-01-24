@@ -27,7 +27,7 @@
             estimation_msg:             "{% trans 'Fill pickup and dropoff for price and time estimation ' %}"
         });
         $("#tabs").tabs({
-
+            selected: 0,
             ajaxOptions: {
                 error: function(xhr, status, index, anchor) {
                     $(anchor.hash).html("{% trans "We're sorry, but an error occurred while loading this page." %}");
@@ -37,6 +37,10 @@
         SelectFromHistoryHelper.init($("#tabs"), { fetch_address_url: "{% url ordering.passenger_controller.get_order_address %}" });
         $("#feedback_peal").click(function() {
             Registrator.openFeedbackDialog();
+        });
+        $("#mobile_interest").click(function() {
+            Registrator.openMobileInterestDialog();
+
         });
         
         $("#slider").nivoSlider({
@@ -77,6 +81,9 @@
         margin-bottom: 3px;
     }
 
+    #mobile #mobile_interest {
+        width: 150px;
+    }
 
 </style>
 {% endblock %}
@@ -130,6 +137,8 @@
                 <ul>
                     <li><a title="history" href="{% url ordering.passenger_controller.get_passenger_orders_history %}">{% trans 'Ride History' %}</a></li>
                     <li><a title="profile" href="{% url ordering.passenger_controller.profile_page %}">{% trans 'My Profile' %}</a></li>
+                    <li><a title="stations" href="{% url ordering.passenger_controller.stations_tab %}">{% trans 'Taxi Stations' %}</a></li>
+                    <li><a title="mobile" href="#mobile">{% trans 'Mobile' %}</a></li>
                 </ul>
         {% else %}
             <ul>
@@ -137,11 +146,6 @@
                 <li><a title="mobile" href="#mobile">{% trans 'Mobile' %}</a></li>
                 <li><a title="whats_this" href="#about">{% trans "What's This?" %}</a></li>
             </ul>
-            <div id="mobile">
-                <h2>{% trans "Get a Taxi. Wherever You Are!" %}</h2>
-                <img src="/static/images/mobile_button.png">
-                <div id="mobile-footer">{% trans "Coming soon to all mobiles!" %}</div>
-            </div>
             <div id="about" style="text-align:center">
                 <div id="slider">
                     <img src="/static/images/anim_1.png" alt="" />
@@ -154,6 +158,12 @@
                 </p>
             </div>
         {% endif %}
+            <div id="mobile">
+                <h2>{% trans "Get a Taxi. Wherever You Are!" %}</h2>
+                <img src="/static/images/mobile_button.png">
+                <button id="mobile_interest" class="wb_button gold">{% trans "Looks Cool!" %}</button>
+                <div id="mobile-footer">{% trans "Coming soon to all mobiles!" %}</div>
+            </div>
         </div>
 
         <div id="dialog"></div>
