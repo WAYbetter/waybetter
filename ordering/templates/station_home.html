@@ -2,6 +2,7 @@
 {% load i18n %}
 {% block page_specific_head %}
 <script type="text/javascript" src="/static/js/jquery.form.js"></script>
+<script type="text/javascript" src="/static/js/registration.js"></script>
 <script type="text/javascript" src="/static/js/ordering.js"></script>
 {% endblock %}
 
@@ -9,6 +10,12 @@
 
     <script type="text/javascript">
         $(document).ready(function() {
+            Registrator.init({
+                urls            : {
+                    station_interest_form_template     : '{% url interests.views.station_interest %}'
+                }
+            });
+
             $("#tabs").tabs({
                 ajaxOptions: {
                     error: function(xhr, status, index, anchor) {
@@ -19,12 +26,12 @@
             $("#tabs").bind('tabsselect', function(event, ui) {
                 window.location.href=ui.tab;
             });
-            
+            $(".big_red").click(function() {
+                Registrator.openStationInterestDialog();
+            })
         });
 
-
     </script>
-
     {% if request.user.station %}
        <div id="tabs">
            <ul>
@@ -41,7 +48,9 @@
        </div>
     {% else %}
         <div class="content round_10">
-            <div id="diagram">
+            <div id="diagram_column">
+                <div id="diagram"></div>
+                <button class="big_red">{% trans 'Join' %}</button>
             </div>
             <div id="info">
                 <h1>{% trans 'WHY CONNECT?' %}</h1>

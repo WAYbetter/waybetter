@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-24 13:48+0200\n"
-"PO-Revision-Date: 2011-01-24 13:51+0200\n"
+"POT-Creation-Date: 2011-01-24 14:59+0200\n"
+"PO-Revision-Date: 2011-01-24 15:06+0200\n"
 "Last-Translator: guy <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -120,6 +120,7 @@ msgstr "מדינה"
 
 #: analytics/models.py:17
 #: common/models.py:89
+#: interests/models.py:14
 #: ordering/models.py:75
 msgid "city"
 msgstr "עיר"
@@ -130,6 +131,7 @@ msgstr "דירוגים"
 
 #: analytics/models.py:23
 #: interests/models.py:9
+#: interests/models.py:18
 #: ordering/models.py:86
 #: ordering/models.py:145
 #: ordering/models.py:287
@@ -142,6 +144,7 @@ msgstr "תאריך יצירה"
 
 #: analytics/models.py:24
 #: interests/models.py:10
+#: interests/models.py:19
 #: ordering/models.py:87
 #: ordering/models.py:146
 #: ordering/models.py:288
@@ -201,6 +204,7 @@ msgstr "שליחה"
 #: common/models.py:8
 #: common/models.py:54
 #: common/models.py:88
+#: interests/models.py:13
 #: ordering/models.py:416
 #: ordering/models.py:447
 #: ordering/models.py:469
@@ -289,6 +293,7 @@ msgstr "שליחה"
 
 #: common/templates/feedback_form.html:132
 #: interests/templates/mobile_interest_form.html:48
+#: interests/templates/station_interest_form.html:59
 #: ordering/templates/workstation_home.html:507
 msgid "Close"
 msgstr "סגירה"
@@ -568,6 +573,14 @@ msgstr "שטוח עמודים"
 msgid "Email"
 msgstr "דוא\"ל"
 
+#: interests/models.py:15
+msgid "contact person"
+msgstr "איש קשר"
+
+#: interests/models.py:16
+msgid "phone"
+msgstr "טלפון"
+
 #: interests/templates/mobile_interest_form.html:9
 #: ordering/templates/passenger_home.html:164
 msgid "Looks Cool!"
@@ -578,9 +591,22 @@ msgid "Please notify me when the app is ready for download"
 msgstr "אשמח אם תידעו אותי כשהאפליקציה זמינה להורדה"
 
 #: interests/templates/mobile_interest_form.html:47
+#: interests/templates/station_interest_form.html:58
 #: ordering/templates/workstation_home.html:453
 msgid "Send"
 msgstr "שליחה"
+
+#: interests/templates/station_interest_form.html:9
+msgid "Join WAYbetter"
+msgstr "הצטרף ל<span class=waybetter></span>"
+
+#: interests/templates/station_interest_form.html:51
+msgid "Please fill the following details and we will contact you"
+msgstr "אנא מלא את הפרטים הבאים ואנו ניצור עמך קשר"
+
+#: interests/templates/station_interest_form.html:60
+msgid "Thanks for your interest.<br>Your details have been sent and we will contact you in 2 business days"
+msgstr "תודה על הענין.<br>הפרטים שלך התקבלו ואנו ניצור עמך קשר תוך 2 ימי עסקים"
 
 #: openid_consumer/views.py:96
 msgid "i-names are not supported"
@@ -1453,47 +1479,51 @@ msgstr "כניסת תחנות"
 msgid "Save Changes"
 msgstr "שמירה"
 
-#: ordering/templates/station_home.html:32
+#: ordering/templates/station_home.html:39
 msgid "Rides history"
 msgstr "נסיעות קודמות"
 
-#: ordering/templates/station_home.html:35
+#: ordering/templates/station_home.html:42
 msgid "Profile"
 msgstr "פרופיל"
 
-#: ordering/templates/station_home.html:38
+#: ordering/templates/station_home.html:45
 msgid "Workstations"
 msgstr "עמדת עבודה"
 
-#: ordering/templates/station_home.html:47
+#: ordering/templates/station_home.html:53
+msgid "Join"
+msgstr "הצטרפות!"
+
+#: ordering/templates/station_home.html:56
 msgid "WHY CONNECT?"
 msgstr "למה שאתחבר?"
 
-#: ordering/templates/station_home.html:49
+#: ordering/templates/station_home.html:58
 msgid "Simply because it's good for business!<br>You get safe exposure to a wide range of passengers you couldn't approach before!"
 msgstr "קודם כל, זה טוב לעסקים!<br> אתה תהנה מחשיפה בטוחה לקהל נוסעים הולך וגדל אליו לא הייתה לך גישה קודם."
 
-#: ordering/templates/station_home.html:52
+#: ordering/templates/station_home.html:61
 msgid "WHAT WILL YOU GET?"
 msgstr "מה אקבל?"
 
-#: ordering/templates/station_home.html:55
+#: ordering/templates/station_home.html:64
 msgid "Terminal software (FREE)<br>Easy to use software that allows you to handle the orders"
 msgstr "תחנת עבודה (חינם)<br> תוכנה פשוטה המאפשרת לקבל ולנהל נסיעות המגיעות ממגוון ערוצים דיגיטליים."
 
-#: ordering/templates/station_home.html:58
+#: ordering/templates/station_home.html:67
 msgid "Personal internet page on www.waybetter.com and private ordering tool (FREE)"
 msgstr "דף אינטרנט ייעודי לתחנה באתר www.waybetter.com + אפשרות להזמנת מונית מיידית מהתחנה (חינם)."
 
-#: ordering/templates/station_home.html:61
+#: ordering/templates/station_home.html:70
 msgid "Your own ordering tool at your website (FREE)"
 msgstr "ממשק נוח להזמנת מוניות באתר הבית של התחנה שלך (חינם)"
 
-#: ordering/templates/station_home.html:64
+#: ordering/templates/station_home.html:73
 msgid "Web application for smart-phone users (FREE)<br>Users will be able to book rides from your website using iPhones, Blackberry, Android and more!"
 msgstr "אפליקצייה לטלפונים חכמים (חינם)<br> נוסעים יכולו להזמין נסיעות מאתר האינטרנט שלך דרך iPhone, BlackBerry, Android ועוד..."
 
-#: ordering/templates/station_home.html:67
+#: ordering/templates/station_home.html:76
 msgid "Serve WAYbetter clients<br>WAYbetter has a fast growing user-base of people who need a taxi. Be the one who serves them in your city"
 msgstr ""
 "תסיע את משתמשי <span class=waybetter></span><br>\n"

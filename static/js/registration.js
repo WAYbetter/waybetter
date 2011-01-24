@@ -10,6 +10,7 @@ var Registrator = Object.create({
             sending_form_template           : '/',
             terms_form_template             : '/',
             mobile_interest_form_template   : '/',
+            station_interest_form_template  : '/',
             check_username                  : '/',
             login                           : '/',
             send_sms                        : '/',
@@ -164,8 +165,8 @@ var Registrator = Object.create({
     doRegister              : function (form, extra_form_data) {
         this._doDialogSubmit(form, extra_form_data, this.config.urls.register);
     },
-    doSubmitInterest        : function(form) {
-        this._doDialogSubmit(form, undefined, this.config.urls.mobile_interest_form_template, undefined, function(response) {
+    doSubmitInterest        : function(form, url) {
+        this._doDialogSubmit(form, undefined, url, undefined, function(response) {
             $("#sent_message").fadeIn("fast");
         });
     },
@@ -205,7 +206,19 @@ var Registrator = Object.create({
                 $('#dialog').dialog('close');
             });
             $("#submit", dialog_content).click(function() {
-                that.doSubmitInterest(form);
+                that.doSubmitInterest(form, that.config.urls.mobile_interest_form_template);
+            });
+            that.openDialog.call(that);
+        });
+    },
+    openStationInterestDialog: function (callback) {
+        var that = this;
+        that.setCallback(callback);
+        that.getTemplate.call(that, "station_interest", function(dialog_content) {
+            var form = $("form", dialog_content);
+            $("#sent_message", dialog_content).hide();
+            $("#close", dialog_content).click(function() {
+                $('#dialog').dialog('close');
             });
             that.openDialog.call(that);
         });

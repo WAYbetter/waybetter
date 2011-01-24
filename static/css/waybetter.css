@@ -835,6 +835,11 @@ ul.ui-tabs-nav .ui-state-hover a {
 	margin-bottom: 0.2em;
 	margin-left: 0px;
 }
+.ui-dialog .ui-dialog-title .waybetter {
+    color:white;
+    font-style: normal;
+    font-size: 1.1em;
+}
 
 .ui-dialog-title span {
     font-size: 14px;
@@ -964,8 +969,31 @@ ul.ui-tabs-nav .ui-state-hover a {
     background-position: center center;
     height: 600px;
     width: 440px;
-    float: left;
 }
+#diagram_column {
+    float: left;
+    width: 440px;
+    text-align: center;
+    position: relative;
+}
+.big_red {
+    width: 380px;
+    height: 90px;
+    color: white;
+    font-size: 30px;
+    background: red;
+    border: none;
+    position: absolute;
+    bottom: 0;
+    left: 10px;
+}
+.big_red:hover {
+    background: #f08080;
+}
+.big_red:active {
+    background: #8b0000;
+}
+
 
 #info {
     float: right;
@@ -991,7 +1019,34 @@ ul.ui-tabs-nav .ui-state-hover a {
 #info li:last-child {
     margin-bottom: 0;
 }
+/** Station Join Dialog **/
+#station_interest .errorlist > li  {
+    color:red;
+    font-size: 14px;
+}
 
+#station_interest  #station_interest_form input {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    width: 250px;
+}
+
+#station_interest  #station_interest_form label {
+    padding-top: 20px;
+}
+
+#station_interest #button_container {
+    margin-top: 70px;
+}
+#station_interest #submit {
+    width: 180px;
+}
+#station_interest #sent_message {
+    font-size: 16px;
+    margin-top: 15px;
+    text-align:left;
+}
 /** buttons **/
 
 input::-moz-focus-inner, button::-moz-focus-inner {
