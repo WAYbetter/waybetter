@@ -600,6 +600,9 @@ var OrderHistoryHelper = Object.create({
             data:       this.current_params,
             dataType:   'json',
             success:    function(json) {
+                that.current_params.sort_dir = json.sort_dir;
+                that.current_params.sort_by = json.sort_by;
+
                 that.drawPager(json);
                 that.drawTable(json.object_list, json.page_size);
                 SelectFromHistoryHelper.updateGrid();

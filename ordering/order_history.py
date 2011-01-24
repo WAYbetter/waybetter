@@ -67,6 +67,8 @@ def get_orders_history_data(query, columns, fields, page=1, keywords=None, sort_
 
     # Dump the Page attributes we want to a dictionary
     serializedpage = {}
+    serializedpage["sort_by"] = sort_by
+    serializedpage["sort_dir"] = sort_dir
     serializedpage["page_size"] = len(orders_page.object_list)
     serializedpage["num_pages"] = paginator.num_pages
     wanted = ("end_index", "has_next", "has_other_pages", "has_previous",
@@ -91,7 +93,12 @@ def get_orders_history_data(query, columns, fields, page=1, keywords=None, sort_
     for order in orders_page.object_list:
         record = {}
         for i, col in enumerate(columns):
-            record[col] = getattr(order, fields[i])
+            # try calling the formatter method for a date field
+            formatter = fields[i] + "_format"
+            if fields[i].endswith("_date") and hasattr(order, formatter):
+                record[col] = getattr(order, formatter).__call__()
+            else:
+                record[col] = getattr(order, fields[i])
         record["Id"] = order.id
         
         orders.append(record)

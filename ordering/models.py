@@ -36,7 +36,28 @@ ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, ugettext("pending")),
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
 MAX_STATION_DISTANCE_KM = 10
-CURRENT_PASSENGER_KEY = "current_passeger"
+CURRENT_PASSENGER_KEY = "current_passenger"
+
+
+def add_formatted_create_date(classes):
+    """
+    For each DateTime in given model classes field add a methods to print the formatted date time according to
+    settings.DATETIME_FORMAT
+    """
+    for model in classes:
+        for f in model._meta.fields:
+            if isinstance(f, models.DateTimeField):
+                # create a wrapper function to force a new closure environment
+                # so that iterator variable f will not be overwritten
+                def format_datefield(field):
+                    # actual formatter method
+                    def do_format(self):
+                        return getattr(self, field.name).strftime(settings.DATETIME_FORMAT)
+                    do_format.admin_order_field = field.name
+                    do_format.short_description = field.verbose_name
+                    return do_format
+                
+                setattr(model, f.name + "_format", format_datefield(f))
 
 class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
@@ -487,3 +508,5 @@ for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
     for type in FEEDBACK_TYPES:
         models.CharField(FEEDBACK_CATEGORIES_NAMES[i], max_length=100, null=True, blank=True).contribute_to_class(Feedback, "%s_%s_msg" % (type.lower(), category.lower().replace(" ", "_")))
         models.BooleanField(default=False).contribute_to_class(Feedback, "%s_%s" % (type.lower(), category.lower().replace(" ", "_")))
+
+add_formatted_create_date([Order, OrderAssignment, Passenger, Station, WorkStation])
