@@ -68,7 +68,7 @@ class Middleware(object):
            small-screen device such as a phone or a PDA"""
 
         # temporary hack to prevent mobile sniffing
-        request.mobile = False
+        request.mobile = True
         return None
 
         if request.META.has_key("HTTP_X_OPERAMINI_FEATURES"):
