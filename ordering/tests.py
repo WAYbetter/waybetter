@@ -5,7 +5,7 @@ from django.core.urlresolvers import reverse
 
 from common.models import City, Country
 
-from ordering.models import Passenger, Order, WorkStation, Station
+from ordering.models import Passenger, Order, WorkStation, Station, OrderAssignment
 from ordering.forms import OrderForm
 from ordering.dispatcher import assign_order
 from ordering.order_manager import NO_MATCHING_WORKSTATIONS_FOUND, ORDER_HANDLED
@@ -18,80 +18,80 @@ from util import setup_testing_env
 import logging
 import datetime
 
-# in order of appearance
-#passenger_controller.passenger_home
-#/home/amir/dev/waybetter/ordering/templates/passenger_home.html
-#passenger_controller.book_order
-#common.registration.get_phone_form
-#/home/amir/dev/waybetter/common/templates/phone_verification_form.html
+PASSENGER = None
+ORDER = None
+ORDER_DATA = {}
+
+def create_test_order():
+    global ORDER
+    global ORDER_DATA
+
+    ORDER_DATA = {
+        "from_city": u'1604',
+        "from_country": u'12',
+        "from_geohash": u'swnvcbg7d23u',
+        "from_lat": u'32.073654',
+        "from_lon": u'34.765465',
+        "from_raw": u'אלנבי 1, תל אביב יפו',
+        "from_street_address": u'אלנבי',
+        "geocoded_from_raw": u'אלנבי 1, תל אביב יפו',
+        "to_city": u'1604',
+        "to_country": u'12',
+        "to_geohash": u'swnvcbdruxgz',
+        "to_lat": u'32.07238',
+        "to_lon": u'34.764862',
+        "to_raw": u'גאולה 1, תל אביב יפו',
+        "to_street_address": u'גאולה',
+        "geocoded_to_raw": u'גאולה 1, תל אביב יפו',
+        # junk field
+        "foo": "bar",
+    }
+
+    form = OrderForm(data=ORDER_DATA, passenger=PASSENGER)
+    order = form.save()
+    order.passenger = PASSENGER
+    order.save()
+    ORDER = order
+
+def create_passenger():
+    global PASSENGER
+
+    test_user = User.objects.get(username='test_user')
+    passenger = Passenger()
+    passenger.user = test_user
+    passenger.country = Country.objects.filter(code="IL").get()
+    passenger.save()
+    PASSENGER = passenger
+
+def resuscitate_work_stations():
+    for ws in WorkStation.objects.all():
+        set_heartbeat(ws)
 
 
-class OrderTest(TestCase):
+#
+# testing starts here
+#
 
-    fixtures = ['countries.yaml', 'cities.yaml', 'stations_data.yaml']
+class OrderingTest(TestCase):
+
+    fixtures = ['countries.yaml', 'cities.yaml', 'ordering_test_data.yaml']
 
     def setUp(self):
         setup_testing_env.setup_appengine_task_queue()
 
-        self.test_user = User()
-        self.test_user.username = 'testuser'
-        self.test_user.set_password('testuser')
-        self.test_user.save()
-        self.passenger = Passenger()
-        self.passenger.user = self.test_user
-        self.passenger.country = Country.objects.filter(code="IL").get()
-        self.passenger.save()
+        self.test_user = User.objects.get(username='test_user')
+        self.passenger = Passenger.objects.filter(user=self.test_user)
 
-        self.test_user_no_passenger = User()
-        self.test_user_no_passenger.username = 'testuser2'
-        self.test_user_no_passenger.set_password('testuser2')
-        self.test_user_no_passenger.save()
-
-        self.order_data = {
-            "from_city": u'1604',
-            "from_country": u'12',
-            "from_geohash": u'swnvcbg7d23u',
-            "from_lat": u'32.073654',
-            "from_lon": u'34.765465',
-            "from_raw": u'אלנבי 1, תל אביב יפו',
-            "from_street_address": u'אלנבי',
-            "geocoded_from_raw": u'אלנבי 1, תל אביב יפו',
-            "to_city": u'1604',
-            "to_country": u'12',
-            "to_geohash": u'swnvcbdruxgz',
-            "to_lat": u'32.07238',
-            "to_lon": u'34.764862',
-            "to_raw": u'גאולה 1, תל אביב יפו',
-            "to_street_address": u'גאולה',
-            "geocoded_to_raw": u'גאולה 1, תל אביב יפו',
-            # junk field
-            "foo": "bar",
-        }
-
-        self.form = OrderForm(data=self.order_data, passenger=self.passenger)
-        self.order = self.form.save()
-        self.order.passenger = self.passenger
-        self.order.save()
-
-    def resuscitate_work_stations(self):
-        for ws in WorkStation.objects.all():
-            set_heartbeat(ws)
-
-    #
-    # test methods start here
-    #
 
     def test_login(self):
-        login = self.client.login(username='testuser', password='wrong_password')
+        login = self.client.login(username='test_user', password='wrong_password')
         self.assertFalse(login)
-        login = self.client.login(username='testuser', password='testuser')
+        login = self.client.login(username='test_user', password='test_user')
         self.assertTrue(login)
-
 
     def test_show_passenger_home(self):
         response = self.client.get(reverse('ordering.passenger_controller.passenger_home'))
         self.assertEqual(response.status_code, 200)
-
 
     def test_allow_book_order(self):
         # not logged in, forbidden
@@ -99,17 +99,18 @@ class OrderTest(TestCase):
         self.assertTrue((response.content, response.status_code) == (NOT_A_PASSENGER, 403))
 
         # login in with no passenger, forbidden
-        self.client.login(username="testuser2", password="testuser2")
+        self.client.login(username='test_user_no_passenger', password='test_user_no_passenger')
         response = self.client.post(reverse('ordering.passenger_controller.book_order'))
         self.assertTrue((response.content, response.status_code) == (NOT_A_PASSENGER, 403))
         self.client.logout()
 
         # login in with passenger, should be OK
-        self.client.login(username="testuser", password="testuser")
+        create_passenger()
+
+        self.client.login(username='test_user', password='test_user')
         response = self.client.post(reverse('ordering.passenger_controller.book_order'))
         self.assertTrue(response.status_code == 200)
         self.client.logout()
-
 
     def test_required_fields(self):
         order_form = OrderForm()
@@ -124,7 +125,6 @@ class OrderTest(TestCase):
 
         self.assertTrue(REQUIRED_FIELDS.sort() == required_fields.sort(), "A required form field is missing or was added.")
 
-
     def test_form_validation(self):
         bad_data = {
             "cross country order": {"from_country": u"1248"},
@@ -132,48 +132,66 @@ class OrderTest(TestCase):
             "no station in valid distance": {"from_lat": 33.239736, "from_lon": 35.654583, "to_lat": 29.550283, "to_lon": 34.914551},
         }
 
+        create_passenger()
+        create_test_order()
+
         # good order
-        form = OrderForm(data=self.order_data, passenger=self.passenger)
+        form = OrderForm(data=ORDER_DATA, passenger=PASSENGER)
         self.assertTrue(form.is_valid(), "Form should pass validation.")
 
         # bad orders
         for dict_name in bad_data:
-            bad_order = self.order_data.copy()
+            bad_order = ORDER_DATA.copy()
             bad_order.update(bad_data[dict_name])
-            form = OrderForm(data=bad_order, passenger=self.passenger)
+            form = OrderForm(data=bad_order, passenger=PASSENGER)
             self.assertFalse(form.is_valid(), "Form should fail validation: %s" % dict_name)
 
+class OrderManagerTest(TestCase):
+    """Unit test for the logic of the order manager."""
 
-    def test_order_manager(self):
-        """Test the ordering logic of the order manager."""
+    fixtures = ['countries.yaml', 'cities.yaml', 'stations_data.yaml']
 
+    def setUp(self):
+        setup_testing_env.setup_appengine_task_queue()
+        create_test_users()
+        create_test_order()
+
+    def test_book_order(self):
         # the call made by book_order_async
-        response = self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": self.order.id})
+        response = self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": ORDER.id})
 
         # working stations are dead, assignment should fail
-        self.assertTrue((response.content, response.status_code) == (NO_MATCHING_WORKSTATIONS_FOUND, 200))
+        self.assertTrue((response.content, response.status_code) == (NO_MATCHING_WORKSTATIONS_FOUND, 200), "Assignment should fail: workstations are dead")
 
         # resuscitate all work stations and try again
-        self.resuscitate_work_stations()
-        response = self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": self.order.id})
-        self.assertTrue((response.content, response.status_code) == (ORDER_HANDLED, 200))
+        resuscitate_work_stations()
+        response = self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": ORDER.id})
+        self.assertTrue((response.content, response.status_code) == (ORDER_HANDLED, 200), "Assignment should succeed: workstations are live")
+
+    def test_redispatch_ignored_orders(self):
+        order = ORDER
+        order.assignments.all().delete()
+        order_assignment = OrderAssignment()
+        response = self.client.post(reverse('ordering.order_manager.redispatch_ignored_orders'), data={"order_id": ORDER.id})
 
 
-    def test_dispatcher(self):
-        """Test the ordering logic of the dispatcher."""
-
-        # resuscitate work stations
-        for ws in WorkStation.objects.all():
-            set_heartbeat(ws)
-
-        # test default station
-        default_station = Station.objects.get(name="teststation2")
-        self.passenger.default_station = default_station
-        self.passenger.save()
-
-        order_assignment = assign_order(self.order)
-        self.assertTrue(order_assignment.station == default_station)
-        self.assertTrue(True)
+#
+#
+#    def test_dispatcher(self):
+#        """Test the ordering logic of the dispatcher."""
+#
+#        # resuscitate work stations
+#        for ws in WorkStation.objects.all():
+#            set_heartbeat(ws)
+#
+#        # test default station
+#        default_station = Station.objects.get(name="teststation2")
+#        self.passenger.default_station = default_station
+#        self.passenger.save()
+#
+#        order_assignment = assign_order(self.order)
+#        self.assertTrue(order_assignment.station == default_station)
+#        self.assertTrue(True)
 
 
 

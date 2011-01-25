@@ -1,0 +1,76 @@
+- fields: {date_joined: !!timestamp '2010-09-07 13:05:05.392384', email: guykrem@gmail.com,
+    first_name: '', is_active: true, is_staff: true, is_superuser: true, last_login: !!timestamp '2011-01-23
+      08:03:21.300489', last_name: '', password: sha1$0e162$403140f39a280a31ce89cd1f4a77854fc68fe3a7,
+    username: waybetter_admin}
+  model: auth.user
+  pk: 1292
+- fields: {date_joined: !!timestamp '2011-01-25 09:31:32.602078', email: '', first_name: '',
+    is_active: true, is_staff: false, is_superuser: false, last_login: !!timestamp '2011-01-25
+      09:31:32.602063', last_name: '', password: sha1$b7d1c$454ee5960a3e636d1c0d840ae3e663b347ac1a89,
+    username: test_user}
+  model: auth.user
+  pk: 9284
+- fields: {date_joined: !!timestamp '2011-01-25 09:31:32.683626', email: '', first_name: '',
+    is_active: true, is_staff: false, is_superuser: false, last_login: !!timestamp '2011-01-25
+      09:31:32.683604', last_name: '', password: sha1$7950c$bc6b1114e16e57666fe32648f7adfb9a420707c7,
+    username: test_user_no_passenger}
+  model: auth.user
+  pk: 9285
+- fields: {date_joined: !!timestamp '2011-01-25 09:31:32.707589', email: '', first_name: '',
+    is_active: true, is_staff: false, is_superuser: false, last_login: !!timestamp '2011-01-25
+      09:31:32.707575', last_name: '', password: sha1$3e1fd$16e7fe49f351045008f4eabb53f7374d58fe2cb3,
+    username: test_station_1}
+  model: auth.user
+  pk: &id001 9286
+- fields: {date_joined: !!timestamp '2011-01-25 09:31:32.723123', email: '', first_name: '',
+    is_active: true, is_staff: false, is_superuser: false, last_login: !!timestamp '2011-01-25
+      09:31:32.723108', last_name: '', password: sha1$c97e0$885f5e7395a7498a94c4a1d9091d60eb9518828b,
+    username: test_station_2}
+  model: auth.user
+  pk: &id003 9287
+- fields: {date_joined: !!timestamp '2011-01-25 09:31:32.793111', email: '', first_name: '',
+    is_active: true, is_staff: false, is_superuser: false, last_login: !!timestamp '2011-01-25
+      09:31:32.793089', last_name: '', password: sha1$030ea$4c95c868ed16096cbc4c042a32772b634ce851be,
+    username: test_ws_1}
+  model: auth.user
+  pk: &id005 9288
+- fields: {date_joined: !!timestamp '2011-01-25 09:31:32.816972', email: '', first_name: '',
+    is_active: true, is_staff: false, is_superuser: false, last_login: !!timestamp '2011-01-25
+      09:31:32.816957', last_name: '', password: sha1$e4896$44440c87c5ad8b2b45b9a55c471e84d5f6f38c57,
+    username: test_ws_2}
+  model: auth.user
+  pk: &id007 9289
+- fields: {date_joined: !!timestamp '2011-01-25 09:31:32.846668', email: '', first_name: '',
+    is_active: true, is_staff: false, is_superuser: false, last_login: !!timestamp '2011-01-25
+      09:31:32.846646', last_name: '', password: sha1$a0f3b$9b4c5c1a95f018e6994cf406569a1f5df6f8443f,
+    username: test_ws_3}
+  model: auth.user
+  pk: &id008 9290
+- fields: {address: "\u05D3\u05D9\u05D6\u05E0\u05D2\u05D5\u05E3 99 \u05EA\u05DC \u05D0\
+      \u05D1\u05D9\u05D1 \u05D9\u05E4\u05D5", average_rating: 0.0, city: 1604, city_area: null,
+    country: &id002 12, create_date: !!timestamp '2011-01-25 09:31:33.004392', description: null,
+    geohash: '', language: 0, lat: 32.07938, license_number: '', logo: None, lon: 34.773896000000001,
+    modify_date: !!timestamp '2011-01-25 09:31:33.004417', name: test_station_1, number_of_ratings: 0,
+    number_of_taxis: 5, postal_code: '', user: *id001, website_url: null}
+  model: ordering.station
+  pk: &id004 9292
+- fields: {address: "\u05D1\u05DF \u05D9\u05D4\u05D5\u05D3\u05D4 35 \u05D9\u05E8\u05D5\
+      \u05E9\u05DC\u05D9\u05DD", average_rating: 0.0, city: 21, city_area: null, country: *id002,
+    create_date: !!timestamp '2011-01-25 09:31:33.044287', description: null, geohash: '',
+    language: 0, lat: 31.780725, license_number: '', logo: None, lon: 35.214160999999997,
+    modify_date: !!timestamp '2011-01-25 09:31:33.044310', name: test_station_2, number_of_ratings: 0,
+    number_of_taxis: 5, postal_code: '', user: *id003, website_url: null}
+  model: ordering.station
+  pk: &id006 9293
+- fields: {accept_orders: true, im_user: null, installer_url: 'https://s3.amazonaws.com/waybetter_air_download/workstation-installer-fNJ9nWbleNyz628.air',
+    station: *id004, token: ChhexrWvM5Fua, user: *id005, was_installed: true}
+  model: ordering.workstation
+  pk: 9294
+- fields: {accept_orders: true, im_user: null, installer_url: 'https://s3.amazonaws.com/waybetter_air_download/workstation-installer-pQ747gyHttaCPSh2.air',
+    station: *id006, token: ZQQzXdm3Iov8N, user: *id007, was_installed: true}
+  model: ordering.workstation
+  pk: 9295
+- fields: {accept_orders: true, im_user: null, installer_url: 'https://s3.amazonaws.com/waybetter_air_download/workstation-installer-HdVULCQJAg6G51.air',
+    station: *id006, token: zLNiHZkwBAWCx, user: *id008, was_installed: true}
+  model: ordering.workstation
+  pk: 9296
