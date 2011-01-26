@@ -908,6 +908,13 @@ ul.ui-tabs-nav .ui-state-hover a {
 .delete-row {
 	color: blue;
 }
+
+/** Mobile Interest **/
+
+#mobile_interest {
+    bottom: 77px;
+    right: 25px;
+    position: absolute;
 	
 	/** Stations Home **/
 .content {
@@ -917,7 +924,7 @@ ul.ui-tabs-nav .ui-state-hover a {
     box-shadow:0 0px 5px black;
     padding: 15px;
     margin-top: -7px;
-    height: 600px;
+    height: 515px;
 
 }
 
@@ -966,8 +973,8 @@ ul.ui-tabs-nav .ui-state-hover a {
 #diagram {
     background-image: url(/static/images/new_clients.png);
     background-repeat: no-repeat;
-    background-position: center center;
-    height: 600px;
+    background-position: top center;
+    height: 500px;
     width: 440px;
 }
 #diagram_column {
@@ -977,27 +984,49 @@ ul.ui-tabs-nav .ui-state-hover a {
     position: relative;
 }
 .big_red {
+	font-weight: bold;
     width: 380px;
     height: 90px;
+    -moz-border-radius: 15px;
+	border-radius: 15px; 
     color: white;
     font-size: 30px;
-    background: red;
+	background: #47A0E5; /* old browsers */
+	background: -moz-linear-gradient(top, #47A0E5 0%, #1E5799 100%); /* firefox */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#47A0E5), color-stop(100%,#1E5799)); /* webkit */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#47A0E5', endColorstr='#1E5799',GradientType=0 ); /* ie */
     border: none;
     position: absolute;
     bottom: 0;
     left: 10px;
+    -webkit-box-shadow: 0px 3px 3px #292929;
+	-moz-box-shadow: 0px 3px 3px #292929;
+	box-shadow: 0px 3px 3px #292929; 
+	text-shadow: px -1px px #000000;
+	filter: dropshadow(color=#000000, offx=, offy=-1);  
 }
 .big_red:hover {
-    background: #f08080;
+   	background: #76B3E2; /* old browsers */
+	background: -moz-linear-gradient(top, #76B3E2 0%, #2077BF 100%); /* firefox */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#76B3E2), color-stop(100%,#2077BF)); /* webkit */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#76B3E2', endColorstr='#2077BF',GradientType=0 ); /* ie */
+
 }
+
 .big_red:active {
-    background: #8b0000;
+   	background: #0051A3; /* old browsers */
+	background: -moz-linear-gradient(top, #0051A3 0%, #347DBA 100%); /* firefox */
+	background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#0051A3), color-stop(100%,#347DBA)); /* webkit */
+	filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#0051A3', endColorstr='#347DBA',GradientType=0 ); /* ie */
+	-webkit-box-shadow: none;
+	-moz-box-shadow: none;
+	box-shadow: none;
 }
 
 
 #info {
     float: right;
-    height: 600px;
+    height: 500px;
     width: 390px;
 }
 #info h1 {
