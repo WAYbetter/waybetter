@@ -13,7 +13,7 @@ from ordering.order_manager import NO_MATCHING_WORKSTATIONS_FOUND, ORDER_HANDLED
 from ordering.station_connection_manager import set_heartbeat, is_workstation_available
 from ordering.decorators import passenger_required, passenger_required_no_redirect, NOT_A_USER, NOT_A_PASSENGER, CURRENT_PASSENGER_KEY
 from ordering.pricing import estimate_cost, IsraelExtraCosts, CostType, TARIFF1_START, TARIFF2_START
-from ordering.testing.meter_calculator import calculate_tariff1, calculate_tariff2
+from ordering.testing.meter_calculator import calculate_tariff, tariff1_dict, tariff2_dict
 
 from util import setup_testing_env
 import logging
@@ -301,17 +301,6 @@ class DispatcherTest(TestCase):
         resuscitate_work_stations()
         self.assertTrue(choose_workstation(ORDER) == default_ws, "default station is expected.")
 
-#
-#
-#    def test_get_order_history(self):
-#
-#        self.login()
-#
-#        response = self.client.get(reverse('ordering.passenger_controller.get_orders_data'))
-#        self.assertEqual(response.status_code, 200)
-#        data = simplejson.loads(response.content)
-#        self.assertEqual(11, len(data))
-
 
 class PricingTest(TestCase):
     """
@@ -336,7 +325,7 @@ class PricingTest(TestCase):
         expected_type = CostType.METER
 
         # tariff 1 test
-        expected_cost = calculate_tariff1(t, d) + phone_order_price
+        expected_cost = calculate_tariff(t, d, tariff1_dict) + phone_order_price
 
         cost, type = estimate_cost(t, d, IL.code, time=datetime.time(05, 30, 00))
         logging.info("tariff 1 estimation: %d (expected %d)" % (cost, expected_cost))
@@ -347,7 +336,7 @@ class PricingTest(TestCase):
         self.assertEqual((cost, type), (expected_cost, expected_type), "Cost calculation yielded wrong result")
 
         # tariff2 test
-        expected_cost = calculate_tariff2(t, d) + phone_order_price
+        expected_cost = calculate_tariff(t, d, tariff2_dict) + phone_order_price
 
         cost, type = estimate_cost(t, d, IL.code, time=datetime.time(21, 00, 1))
         logging.info("tariff 2 estimation: %d (expected %d)" % (cost, expected_cost))
@@ -358,7 +347,7 @@ class PricingTest(TestCase):
         self.assertEqual((cost, type), (expected_cost, expected_type), "Cost calculation yielded wrong result")
 
         # weekend test
-        expected_cost = calculate_tariff2(t, d) + phone_order_price
+        expected_cost = calculate_tariff(t, d, tariff2_dict) + phone_order_price
 
         cost, type = estimate_cost(t, d, IL.code, day=7, time=datetime.time(23, 59, 59))
         logging.info("weekend estimation: %d (expected %d)" % (cost, expected_cost))
@@ -368,12 +357,12 @@ class PricingTest(TestCase):
         extras = [IsraelExtraCosts.NATBAG_AIRPORT, IsraelExtraCosts.KVISH_6, IsraelExtraCosts.PHONE_ORDER]
         extras_cost = sum([IL.extra_charge_rules.get(rule_name=extra).cost for extra in extras])
 
-        expected_cost = calculate_tariff1(t, d) + extras_cost # phone order is automatically added to extras list
+        expected_cost = calculate_tariff(t, d, tariff1_dict) + extras_cost # phone order is automatically added to extras list
         cost, type = estimate_cost(t, d, IL.code, time=datetime.time(12, 00), extras=extras)
         logging.info("tariff 1 + extras' estimation: %d (expected %d)" % (cost, expected_cost))
         self.assertEqual((cost, type), (expected_cost, expected_type), "Cost calculation yielded wrong result")
 
-        expected_cost = calculate_tariff2(t, d) + extras_cost # phone order is automatically added to extras list
+        expected_cost = calculate_tariff(t, d, tariff2_dict) + extras_cost # phone order is automatically added to extras list
         cost, type = estimate_cost(t, d, IL.code, time=datetime.time(22, 00), extras=extras )
         logging.info("tariff 2 + extras' estimation: %d (expected %d)" % (cost, expected_cost))
         self.assertEqual((cost, type), (expected_cost, expected_type), "Cost calculation yielded wrong result")
@@ -412,3 +401,15 @@ class PricingTest(TestCase):
                 cost, type = estimate_cost(t, d, IL.code, cities=[city_a.id, city_b.id], day=7)
                 logging.info("flat rate weekend test: %d (expected %d)" % (cost, expected_cost))
                 self.assertEqual((cost, type), (expected_cost, expected_type), "Cost calculation yielded wrong result")
+
+
+#class HistoryTest(
+#
+#    def test_get_order_history(self):
+#
+#        self.login()
+#
+#        response = self.client.get(reverse('ordering.passenger_controller.get_orders_data'))
+#        self.assertEqual(response.status_code, 200)
+#        data = simplejson.loads(response.content)
+#        self.assertEqual(11, len(data))
