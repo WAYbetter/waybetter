@@ -6,10 +6,10 @@ from django.core.urlresolvers import reverse
 from common.models import City, Country
 
 import ordering
-from ordering.models import Passenger, Order, WorkStation, Station, OrderAssignment, IGNORED, PENDING, ASSIGNED
+from ordering.models import Passenger, Order, WorkStation, Station, OrderAssignment, IGNORED, PENDING, ASSIGNED, ACCEPTED, Phone
 from ordering.forms import OrderForm
 from ordering.dispatcher import assign_order, choose_workstation
-from ordering.order_manager import NO_MATCHING_WORKSTATIONS_FOUND, ORDER_HANDLED, OK
+from ordering.order_manager import NO_MATCHING_WORKSTATIONS_FOUND, ORDER_HANDLED, OK, accept_order
 from ordering.station_connection_manager import set_heartbeat, is_workstation_available
 from ordering.decorators import passenger_required, passenger_required_no_redirect, NOT_A_USER, NOT_A_PASSENGER, CURRENT_PASSENGER_KEY
 from ordering.pricing import estimate_cost, IsraelExtraCosts, CostType, TARIFF1_START, TARIFF2_START
@@ -151,11 +151,10 @@ class OrderManagerTest(TestCase):
 
     def setUp(self):
         setup_testing_env.setup_appengine_task_queue()
-
-    def test_book_order(self):
         create_passenger()
         create_test_order()
 
+    def test_book_order(self):
         # the call made by book_order_async
         response = self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": ORDER.id})
 
@@ -168,9 +167,6 @@ class OrderManagerTest(TestCase):
         self.assertTrue((response.content, response.status_code) == (ORDER_HANDLED, 200), "Assignment should succeed: workstations are live")
 
     def test_redispatch_ignored_orders(self):
-        create_passenger()
-        create_test_order()
-
         station = Station.objects.get(name='test_station_1')
         work_station = WorkStation.objects.filter(station=station)[0]
 
@@ -193,11 +189,18 @@ class OrderManagerTest(TestCase):
         # apparently not supported, see http://code.google.com/appengine/docs/python/taskqueue/queues.html
 
     def test_accept_order(self):
-        # how can we validate sms was sent? maybe create a dummy provider?
-        pass
+        tel_aviv_station = City.objects.get(name="תל אביב יפו").stations.all()[0]
+        phone1, phone2 = Phone(), Phone()
+        phone1.local_phone, phone2.local_phone = u'1234567', u'0000000'
+        phone1.station = phone2.station = tel_aviv_station
+        phone1.save()
+        phone2.save()
 
-    def test_rate_order(self):
-        pass
+        accept_order(ORDER, pickup_time=5, station=tel_aviv_station)
+
+        self.assertTrue(ORDER.status == ACCEPTED)
+        self.assertTrue(ORDER.pickup_time == 5)
+        self.assertTrue(ORDER.station == tel_aviv_station)
 
 
 class DispatcherTest(TestCase):

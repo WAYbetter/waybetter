@@ -81,7 +81,7 @@ def accept_order(order, pickup_time, station):
            { "from"             : order.from_raw.encode("utf-8"),
              "time"             : pickup_time,
              "station_name"     : station.name.encode("utf-8"),
-             "station_phone"    : station.phones.get().local_phone.encode("utf-8") }
+             "station_phone"    : station.phones.all()[0].local_phone.encode("utf-8") }
 
     send_sms(order.passenger.international_phone(), msg)
 
