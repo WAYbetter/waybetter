@@ -52,19 +52,9 @@ def create_test_stations():
 
 def create_test_work_stations():
     WorkStation.objects.all().delete()
-    # one for test_station_1
+    # two for test_station_1
     station = Station.objects.get(name=STATION_NAMES[0])
-    ws_name = WS_NAMES[0]
-    ws = WorkStation()
-    ws.user = User.objects.get(username=ws_name)
-    ws.station = station
-    ws.was_installed = True
-    ws.accept_orders = True
-    ws.save()
-
-    # and two more for test_station_2
-    station = Station.objects.get(name=STATION_NAMES[1])
-    ws1_name, ws2_name = WS_NAMES[1], WS_NAMES[2]
+    ws1_name, ws2_name = WS_NAMES[0], WS_NAMES[1]
     ws1, ws2 = WorkStation(), WorkStation()
     ws1.user, ws2.user = User.objects.get(username=ws1_name), User.objects.get(username=ws2_name)
     ws1.station = ws2.station = station
@@ -73,8 +63,21 @@ def create_test_work_stations():
     ws1.save()
     ws2.save()
 
+    # and one for test_station_2
+    station = Station.objects.get(name=STATION_NAMES[1])
+    ws_name = WS_NAMES[2]
+    ws = WorkStation()
+    ws.user = User.objects.get(username=ws_name)
+    ws.station = station
+    ws.was_installed = True
+    ws.accept_orders = True
+    ws.save()
+
+
 def create():
   out = open(OUTPUT_FILE, 'w')
+
+  out.write('# created using create_ordering_data.py\n')
 
   all_objects = []
 

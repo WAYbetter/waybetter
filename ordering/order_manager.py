@@ -22,6 +22,7 @@ from common.util import log_event, EventType
 
 NO_MATCHING_WORKSTATIONS_FOUND = "no matching workstation found"
 ORDER_HANDLED = "order handled"
+OK = "OK"
 
 def book_order_async(order):
     logging.info("book_order_async: %d" % order.id)
@@ -33,7 +34,8 @@ def book_order_async(order):
 @internal_task_on_queue("orders")
 def book_order(request):
     """
-    Book an order: send it to the dispatcher to get an order assignment, then pass the assignment station manager.
+    Book an order: send it to the dispatcher to get an order assignment,
+    then pass the assignment to the station manager.
     """
     order_id = int(request.POST["order_id"])
     logging.info("book_order_task: %d" % order_id)
@@ -118,7 +120,6 @@ def redispatch_ignored_orders(request):
     order_assignment_id = int(request.POST["order_assignment_id"])
     logging.info("redispatch_ignored_orders: %d" % order_assignment_id)
 
-    # there should be a previous assignment for this order. get it.
     try:
         order_assignment = OrderAssignment.objects.filter(id=order_assignment_id).get()
     except OrderAssignment.DoesNotExist:
@@ -141,7 +142,7 @@ def redispatch_ignored_orders(request):
         else: # enqueue again to check in 1 sec
             enqueue_redispatch_ignored_orders(order_assignment, 1)
 
-    return HttpResponse("OK")
+    return HttpResponse(OK)
 
 def enqueue_redispatch_ignored_orders(order_assignment, interval):
     task = taskqueue.Task(url=reverse(redispatch_ignored_orders),
