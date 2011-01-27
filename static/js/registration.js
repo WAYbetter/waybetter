@@ -528,7 +528,7 @@ var Registrator = Object.create({
                 $("#dialog #ok").hide();
                 $("#dialog").oneTime(2000, function() {
                     $(".ui-dialog").animate(
-                        { height: "682px" },
+                        { height: "700px" },
                         { duration: 200,
                           easing:  "swing",
                           complete: function() {
