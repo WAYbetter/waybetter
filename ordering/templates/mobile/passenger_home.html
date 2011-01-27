@@ -1,4 +1,4 @@
-{% extends "mobile/base_passenger.html" %}
+{% extends "mobile/base.html" %}
 {% load i18n %}
 
 {% block extrahead %}
@@ -22,57 +22,35 @@
                 'register'  : '{% trans "First Time?" %}'
             }
         });
-//        $('body').attr('ontouchmove', ''
-        setTimeout(hideToolbar, 3500);
+
     });
 
 </script>
 {% endblock %}
 
 {% block topcontrol %}
-					<form id="order_form" method="post" action="{% url ordering.passenger_controller.book_order %}">
-                        {% csrf_token %}
-                        {% for field in form %}
-                            {% if field.name in hidden_fields %}
-                                {{ field.as_hidden }}
-                            {% else %}
-                                <input type="hidden" id="id_geocoded_{{ field.name }}" name="geocoded_{{ field.name }}"/>
-                            {%  endif %}
-                        {% endfor %}
-                        <ul>
-                            <li>
-                                <label for="id_from_raw">{% trans 'Enter Pickup Address:' %}</label>
-                                <input type=text class="big_text a_marker marker_disabled" id="id_from_raw" name="from_raw" placeholder="Enter street and city"/>
-                                <a href="#" id="clear_from_raw" class="clear_input"></a>
-                            </li>
-                            <li class="hide">
-                                <label for="id_to_raw">{% trans 'Enter Drop-off Address:' %}</label>
-                                <input type=text class="big_text b_marker marker_disabled" id="id_to_raw" name="to_raw" placeholder="Enter street and city"/>
-                                <a href="#" id="clear_to_raw" class="clear_input"></a>
-                            </li>
-                            <li id="ride_results" class="hide">
-                                <ul>
-                                    <li><a href="#" id="from_raw_result"></a></li>
-                                    <li><a href="#" id="to_raw_result"></a></li>
-                                    <li><div id="ride_cost_estimate"></div></li>
-                                </ul>
-                            </li>
-                        </ul>
-					</form>
-                    <div class="clear"></div>
+    <form id="order_form" method="post" action="{% url ordering.passenger_controller.book_order %}">
+        {% csrf_token %}
+        {% for field in form %}
+            {% if field.name in hidden_fields %}
+                {{ field.as_hidden }}
+            {% else %}
+                <input type="hidden" id="id_geocoded_{{ field.name }}" name="geocoded_{{ field.name }}"/>
+            {%  endif %}
+        {% endfor %}
+        <div class="padder">
+            <input type=text class="big_text a_marker" id="id_from_raw" name="from_raw" placeholder="{% trans 'Enter street and city' %}"/>
+        </div>
+        <div class="padder">
+            <input type=text class="big_text b_marker" id="id_to_raw" name="to_raw" placeholder="{% trans 'Enter street and city' %}"/>
+        </div>
+    </form>
 {% endblock topcontrol %}
 {% block content %}
-                    <h1 id="passenger_message">{% trans 'Where From?' %}</h1>
-                    <div id="map_container" class="">
-                        <div id="map"></div>
-                        <div id="map_overlay_left"></div>
-                        <div id="map_overlay_top"></div>
-                    </div>
+    <div id="map"></div>
 {% endblock content %}
-{% block maincontainerextra %}
-        <div class="gray_header hide" id="button_container">
-            <button class="order_button" id="order_button"></button>
-        </div>
-{% endblock maincontainerextra %}
+{% block bottom_toolbar %}
+    <button class="order_button" id="order_button"></button>
+{% endblock bottom_toolbar %}
 {% block footer %}
 {% endblock footer %}
