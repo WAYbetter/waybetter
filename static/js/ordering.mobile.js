@@ -194,10 +194,10 @@ var OrderingHelper = Object.create({
         });
         cache.$from_raw_input.change(function() {
             that.validateForBooking();
-        }).focus(hideToolbar).blur(hideToolbar);
+        });
         cache.$to_raw_input.change(function() {
             that.validateForBooking();
-        }).focus(hideToolbar).blur(hideToolbar);
+        });
 
         $("#order_form").submit(function() {
             if (cache.$order_button.attr("disabled")) {
