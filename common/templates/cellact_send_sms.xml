@@ -3,6 +3,9 @@
         <FROM>{{ from }}</FROM>
         <APP USER="{{ user_id }}" PASSWORD="{{ user_password }}" />
         <CMD>sendtextmt</CMD>
+        <CONF_LIST>
+            <TO>{{ confirmation_url }}</TO>
+        </CONF_LIST>
     </HEAD>
     <BODY>
         <CONTENT>{{ text }}</CONTENT>

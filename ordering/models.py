@@ -1,13 +1,15 @@
+from django.db.models.query import QuerySet
 from django.db import models
 from django.utils.translation import gettext_lazy as _, gettext, ugettext
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.utils import simplejson
 from djangotoolbox.fields import BlobField
 from common.models import Country, City, CityArea
 from datetime import datetime
 import time
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token
+from common.util import get_international_phone, generate_random_token, notify_by_email, get_model_from_request
 import re
 from django.core.validators import RegexValidator
 import common.urllib_adaptor as urllib2
@@ -22,29 +24,51 @@ PENDING = 5
 FAILED = 6
 ERROR = 7
 
-ASSIGNMENT_STATUS = ((ASSIGNED, gettext("assigned")),
-                     (ACCEPTED, gettext("accepted")),
-                     (IGNORED, gettext("ignored")),
-                     (REJECTED, gettext("rejected")))
+ASSIGNMENT_STATUS = ((ASSIGNED, ugettext("assigned")),
+                     (ACCEPTED, ugettext("accepted")),
+                     (IGNORED, ugettext("ignored")),
+                     (REJECTED, ugettext("rejected")))
 
-ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, gettext("pending")),
-                                    (FAILED, gettext("failed")),
-                                    (ERROR, gettext("error")))
+ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, ugettext("pending")),
+                                    (FAILED, ugettext("failed")),
+                                    (ERROR, ugettext("error")))
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
 MAX_STATION_DISTANCE_KM = 10
-CURRENT_PASSENGER_KEY = "current_passeger"
+CURRENT_PASSENGER_KEY = "current_passenger"
+
+
+def add_formatted_create_date(classes):
+    """
+    For each DateTime in given model classes field add a methods to print the formatted date time according to
+    settings.DATETIME_FORMAT
+    """
+    for model in classes:
+        for f in model._meta.fields:
+            if isinstance(f, models.DateTimeField):
+                # create a wrapper function to force a new closure environment
+                # so that iterator variable f will not be overwritten
+                def format_datefield(field):
+                    # actual formatter method
+                    def do_format(self):
+                        return getattr(self, field.name).strftime(settings.DATETIME_FORMAT)
+                    do_format.admin_order_field = field.name
+                    do_format.short_description = field.verbose_name
+                    return do_format
+                
+                setattr(model, f.name + "_format", format_datefield(f))
 
 class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
     name = models.CharField(_("station name"), max_length=50)
     license_number = models.CharField(_("license number"), max_length=30)
-    website_url = models.URLField(_("website"), max_length=255, null=True, blank=True) #verify_exists=False
+    website_url = models.URLField(_("website"), max_length=255, null=True, blank=True, verify_exists=False)
     number_of_taxis = models.IntegerField(_("number of taxis"), max_length=4)
     description = models.CharField(_("description"), max_length=4000, null=True, blank=True)
     logo = BlobField(_("logo"), null=True, blank=True)
     language = models.IntegerField(_("language"), choices=LANGUAGE_CHOICES, default=0)
+    show_on_list = models.BooleanField(_("show on list"), default=False)
 
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")
@@ -105,8 +129,7 @@ class Station(models.Model):
             self.create_workstation(i+1)
 
     def delete_workstations(self):
-        for ws in self.work_stations:
-            ws.delete()
+        self.work_stations.all().delete()
 
 class Passenger(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
@@ -125,14 +148,19 @@ class Passenger(models.Model):
     def international_phone(self):
         return get_international_phone(self.country, self.phone)
 
-    @staticmethod
-    def from_request(request):
-        passenger = None
-        if request.user.is_authenticated():
-            try:
-                passenger = Passenger.objects.filter(user=request.user).get()
-            except Passenger.DoesNotExist:
-                pass
+    def is_internal_passenger(self):
+        """
+        Return True if the passenger's user was registered internally
+        """
+        result = True
+        if self.user and self.user.authmeta_set.all().count():
+            result = False
+
+        return result
+
+    @classmethod
+    def from_request(cls, request):
+        passenger = get_model_from_request(cls, request)
         if not passenger:
             passenger = request.session.get(CURRENT_PASSENGER_KEY, None)
         return passenger
@@ -285,7 +313,8 @@ class Order(models.Model):
 
 
     def __unicode__(self):
-        return u"%s from %s to %s" % (_("order"), self.from_raw, self.to_raw)
+        id = self.id
+        return u"[%d] %s from %s to %s" % (id, ugettext("order"), self.from_raw, self.to_raw) 
 
     def get_status_label(self):
         for key, label in ORDER_STATUS:
@@ -302,6 +331,25 @@ class Order(models.Model):
                     return oa.station
         return None
 
+    def notify(self):
+        subject = u"Order [%d]: %s" % (self.id, self.get_status_label().upper())
+        msg = u"""Order %d:
+    Passenger:  %s
+    Created:    %s
+    From:       %s
+    To:         %s.""" % (self.id,  unicode(self.passenger), self.create_date.ctime(), self.from_raw, self.to_raw)
+
+        if self.status == ACCEPTED:
+            msg += u"""
+    Station:    %s
+    Pickup in:  %d minutes""" % (self.station.name, self.pickup_time)
+
+        if self.assignments.count():
+            msg += u"\n\nEvents:"
+            for assignment in self.assignments.all():
+                msg+= u"\n%s: %s - %s" % (assignment.modify_date.ctime(), assignment.station.name, assignment.get_status_label().upper())
+            
+        notify_by_email(subject, msg)
 
 class OrderAssignment(models.Model):
     ORDER_ASSIGNMENT_TIMEOUT = 180 # seconds
@@ -315,22 +363,49 @@ class OrderAssignment(models.Model):
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
+    @classmethod
+    def serialize_for_workstation(cls, queryset_or_order_assignment):
+        if isinstance(queryset_or_order_assignment, QuerySet):
+            order_assignments = queryset_or_order_assignment
+        elif isinstance(queryset_or_order_assignment, cls):
+            order_assignments = [queryset_or_order_assignment]
+        else:
+            raise RuntimeError("Argument must be either QuerySet or %s" % cls.__name__)
+
+        result = []
+        for order_assignment in order_assignments:
+            result.append({
+                "pk":               order_assignment.order.id,
+                "from_raw":         order_assignment.order.from_raw,
+                "seconds_passed":   (datetime.now() - order_assignment.create_date).seconds
+            })
+
+        return simplejson.dumps(result)
+
+    def get_status_label(self):
+        for key, label in ASSIGNMENT_STATUS:
+            if key == self.status:
+                return label
+
+        raise ValueError("invalid status")
+
+
     def is_stale(self):
         return (datetime.now() - self.create_date).seconds > OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT
 
     def __unicode__(self):
-        order_id = "Unknown"
+        order_id = "<Unknown>"
         if self.order:
-            order_id = str(self.order)
-
-        return u"%s #%s %s %s" % (_("order"), order_id, _("assigned to station:"), self.station)
+            order_id = u"<%d>" % self.order.id
+            
+        return u"%s %s %s %s" % (ugettext("order"), order_id, ugettext("assigned to station:"), self.station)
 
 
 DAY_OF_WEEK_CHOICES = ((1, _("Sunday")),
                        (2, _("Monday")),
                        (3, _("Tuesday")),
                        (4, _("Wednesday")),
-                       (5, _("Thurday")),
+                       (5, _("Thursday")),
                        (6, _("Friday")),
                        (7, _("Saturday")))
 
@@ -433,3 +508,5 @@ for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
     for type in FEEDBACK_TYPES:
         models.CharField(FEEDBACK_CATEGORIES_NAMES[i], max_length=100, null=True, blank=True).contribute_to_class(Feedback, "%s_%s_msg" % (type.lower(), category.lower().replace(" ", "_")))
         models.BooleanField(default=False).contribute_to_class(Feedback, "%s_%s" % (type.lower(), category.lower().replace(" ", "_")))
+
+add_formatted_create_date([Order, OrderAssignment, Passenger, Station, WorkStation])

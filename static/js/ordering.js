@@ -68,7 +68,7 @@ var Address = defineClass({
             return (this.lon && this.lat) && (this.name == $('#id_geocoded_' + this.address_type + '_raw').val());
         },
         populateFields: function () {
-            $('#id_' + this.address_type + '_raw').val(this.name);
+            $('#id_' + this.address_type + '_raw').val(this.name).removeClass("placeheld"); // placeheld plugin only removes class on focus
             $('#id_geocoded_' + this.address_type + '_raw').val(this.name);
             $('#id_' + this.address_type + '_city').val(this.city);
             $('#id_' + this.address_type + '_street_address').val(this.street);
@@ -76,6 +76,7 @@ var Address = defineClass({
             $('#id_' + this.address_type + '_geohash').val(this.geohash);
             $('#id_' + this.address_type + '_lon').val(this.lon);
             $('#id_' + this.address_type + '_lat').val(this.lat);
+
         }
     },
     statics:    {
@@ -116,7 +117,9 @@ var OrderingHelper = Object.create({
         address_helper_msg_from:    "",
         address_helper_msg_to:      "",
         autocomplete_msg:           "",
-        address_not_resolved_msg:   ""
+        address_not_resolved_msg:   "",
+        estimation_msg          :   ""
+
 
 
     },
@@ -146,6 +149,7 @@ var OrderingHelper = Object.create({
                 address_helper.text(this.config["address_helper_msg_" + address_type]).removeClass("address-error");
             }
         }
+        
     },
     _onAddressInputBlur:        function(element, address_type) {
         this._updateAddressControls(element, address_type);
@@ -154,6 +158,7 @@ var OrderingHelper = Object.create({
          if (address.isResolved() || this._isEmpty(element)) {
             address_helper.fadeOut("fast");
         }
+        
     },
     _onAddressInputFocus:       function(element, address_type) {
         this._updateAddressControls(element, address_type);
@@ -164,10 +169,12 @@ var OrderingHelper = Object.create({
             address_helper.text(this.config["address_helper_msg_" + address_type]).removeClass("address-error");
             address_helper.fadeIn("fast");
         }
+
     },
     init:                       function(config) {
         this.config = $.extend(true, {}, this.config, config);
-        var that = this;        
+        var that = this;
+        $("#ride_cost_estimate").html(this.config.estimation_msg);
         $("input:text").each(function(i, element) {
             var address_type = element.name.split("_")[0];
             var helper_div = $("<div class='address-helper round "+ address_type +"'></div>");
@@ -217,12 +224,14 @@ var OrderingHelper = Object.create({
                         that.updateAddressChoice(ui.item.address);
                         that._onAddressInputBlur(this, ui.item.address.address_type);
                     }
+
                 },
                 open: function(event, ui) {
                     $('ul.ui-autocomplete').css("z-index", 3000);
                 }
             });
         });
+        $("#id_from_raw, #id_to_raw").catcomplete("disable");
 
         $("input:button, #order_button").button();
 
@@ -277,7 +286,9 @@ var OrderingHelper = Object.create({
 
         //TODO_WB:add a check for map, timeout and check again.
         setTimeout(that.initPoints, 100);
-
+        setTimeout(function() {
+            $("#id_from_raw, #id_to_raw").catcomplete("enable");
+        }, 500);
         return this;
     }, // init
     initMap:                    function () {
@@ -385,11 +396,14 @@ var OrderingHelper = Object.create({
         this.addPoint(address);
         $("#id_from_raw, #id_to_raw").catcomplete("disable");
         if (address.address_type == "from") {
+            $("#id_from_raw").blur();
             $("#id_to_raw").focus();
+        } else {
+            $("#id_to_raw").blur();
         }
 
         this.getRideCostEstimate();
-        this.validateForBooking();
+       this.validateForBooking();
     },
     getRideCostEstimate:        function() {
         var that = this,
@@ -427,7 +441,7 @@ var OrderingHelper = Object.create({
                     delete this.map_markers[address.address_type];
                 }
                 this.renderMapMarkers();
-                $("#ride_cost_estimate").empty().hide();
+                $("#ride_cost_estimate").html(this.config.estimation_msg);
                 return;
             }
         }
@@ -569,7 +583,7 @@ var OrderHistoryHelper = Object.create({
             window.location = window.location; // reload page if not initialized
             return;
         }
-        
+
         var that = this;
         $("#orders_history_grid table").animate({
             color: "#949494"
@@ -586,6 +600,9 @@ var OrderHistoryHelper = Object.create({
             data:       this.current_params,
             dataType:   'json',
             success:    function(json) {
+                that.current_params.sort_dir = json.sort_dir;
+                that.current_params.sort_by = json.sort_by;
+
                 that.drawPager(json);
                 that.drawTable(json.object_list, json.page_size);
                 SelectFromHistoryHelper.updateGrid();
@@ -642,12 +659,14 @@ var OrderHistoryHelper = Object.create({
         var $header_row = $("<tr>");
 
         $.each(that.config.order_history_fields, function(i, val) {
-            var $th = $("<th>").append($('<a href="#" id="history_header_label_' + i + '">').append(that.config.order_history_column_names[i])
-                    .click(function() {
+            //var $th = $("<th>").append($('<a href="#" id="history_header_label_' + i + '">'));
+            var link= $('<a>').attr( 'id', 'history_header_label_' + i  ).attr( 'href', '#'  ).append(that.config.order_history_column_names[i]).click(function() {
                         that.loadHistory({
                             sort_by: val
                         });
-                    }));
+                    });
+            // var $th = $("<th>").html('<a href="#" id="history_header_label_' + i + '">' + that.config.order_history_column_names[i] + '</a>')
+            var $th = $("<th>").append(link);
             $header_row.append($th);
         });
         $table.append($header_row);

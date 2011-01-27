@@ -39,6 +39,14 @@ input.text, input[type=text], input[type=password] {
     -webkit-appearance: none;
     -moz-appearance: none;
 }
+.waybetter:before {
+    content: "WAY";
+    font-weight: bold;
+}
+.waybetter:after {
+    content: "better";
+    font-weight: normal;
+}
 
 .clear {
     clear: both;
@@ -67,6 +75,17 @@ input.text, input[type=text], input[type=password] {
     font-weight: bold;
 }
 
+/*** Order History Fixes ***/
+#orders_history_grid .select-address:hover {
+   background-image: url(/static/images/arrow_history_he.png) !important;
+   background-position: 5px 8px !important;
+   background-repeat: no-repeat;
+    color: black;
+     background-color: #ffce38;
+    /* background: -webkit-gradient(linear, left top, left bottom, from(#cecece), to(#9e9e9e)); */
+    /* background: -moz-linear-gradient(-90deg, #cecece, #9e9e9e); */
+    /* -pie-background: linear-gradient(-90deg, #cecece, #9e9e9e); */
+}
 
 /************* Main *************/
 #main {
@@ -76,13 +95,16 @@ input.text, input[type=text], input[type=password] {
     -moz-border-radius: 15px;
     -webkit-border-radius: 15px;
     border-radius: 15px;
+    margin-top: -10px;
 
     background: #4D4D4D; /* old browsers */
     background: url(../img/main_background.png), -moz-linear-gradient(top, #4D4D4D 0%, #101010 100%); /* firefox */
     background: url(../img/main_background.png), -webkit-gradient(linear, left top, left bottom, color-stop(0%,#4D4D4D), color-stop(100%,#101010)); /* webkit */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#4D4D4D', endColorstr='#101010',GradientType=0 ); /* ie */
-
+	*background-image: url(../img/main_background.png);
+	*background-repeat:repeat;
     behavior: url(PIE.htc);
+    *margin-top: -4px;
 }
 #main-container {
     width: 896px;
@@ -141,6 +163,9 @@ input.text, input[type=text], input[type=password] {
     border-radius: 5px;
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
+    *left:0;
+    *direction:rtl;
+
 }
 .address-helper-autocomplete {
     color: white;
@@ -166,8 +191,7 @@ input.text, input[type=text], input[type=password] {
     border: 1px solid #f9b1bc;
 }
 
-.address-error {
-
+.address-helper.address-error {
     background-color: #BC1111;
     /*background-color: #FEB4B4;*/
     border-color: #FEB4B4;
@@ -178,8 +202,10 @@ input.text, input[type=text], input[type=password] {
     height: 59px;
     background-image:url(/static/images/Alpha_TLV.png);
     position: absolute;
-    top: 0;
+    top: -8px;
     right: 165px;
+    *right: 15px;
+    *top: -2px;
 }
 #banner {
     /*text-shadow: #e1e1e1 0 1px;*/
@@ -192,11 +218,13 @@ input.text, input[type=text], input[type=password] {
     font-weight: bold;
 }
 #header-container {
+	*width:700px;
     margin: 10px 20px 14px;
 }
 #header {
     position: relative;
     text-align: right;
+    line-height: 24px;
 }
 #user_tools {
     position: absolute;
@@ -207,6 +235,7 @@ input.text, input[type=text], input[type=password] {
 #footer {
     text-align: center;
     margin-top: 20px;
+    margin-bottom: 100px;
     padding: 0 13px;
 }
 
@@ -232,21 +261,33 @@ span.fade {
 }
 span.left-fade {
     right: -1px;
-    background-image:url(../img/left_fade.png);
+   
+    background-image:url(../img/right_fade.png);
 }
 span.right-fade {
-    left: 3px;
-    background-image:url(../img/right_fade.png);
+    left: 0px;
+   
+    background-image:url(../img/left_fade.png);
 }
 #roller {
     position: relative;
+    direction: ltr;
+    top: -4px;
+    
 }
 #roller div {
     width: 100%;
     color: #fdec7c;
-    font-family: 'Lucida Console';
     font-weight: normal;
     font-size: 14px;
+}
+
+#roller div div {
+    direction: rtl;
+}
+
+#roller .waybetter {
+    color: #fdec7c;
 }
 
 /************* App Yellow Header *************/
@@ -301,6 +342,10 @@ span.right-fade {
     border-radius: 0 0 10px 10px;
     -moz-border-radius: 0 0 10px 10px;
     -webkit-border-radius: 0 0 10px 10px;
+    *background-color: #8d8d8d;
+  
+    *margin-top:-1px;
+ 	*height:258px
     /*behavior: url(PIE.htc);*/
 }
 a.input_history_helper {
@@ -321,6 +366,13 @@ a.input_history_helper:hover {
     float: right;
     margin-top: 20px;
     margin-right: 9px;
+    *direction:ltr;
+    
+    
+}
+#order_form ul {
+    
+    
 }
 #order_form ul > li {
     position: relative;
@@ -372,6 +424,7 @@ input.big_text {
     font-size: 14px;
     background-repeat: no-repeat;
     background-image: url(../img/markers.png);
+    *direction:rtl;
 }
 input.a_marker {
     padding-right: 39px;
@@ -431,6 +484,11 @@ button.order_button.disabled, button.order_button:disabled {
     margin-bottom: 5px;
     margin-top: -30px;
 }
+
+#tabs h1 .waybetter {
+    color: #00acff;
+}
+
 #about p {
     font-size: 14px;
 }
@@ -442,6 +500,11 @@ button.order_button.disabled, button.order_button:disabled {
     border: 0;
     text-align: right;
 }
+
+#tabs.main_tabs_margin_top {
+    margin-top: -34px;
+}
+
 #tabs ul > li > a {
     background-repeat: no-repeat;
     background-image: url("../images/tab_icons.png");
@@ -482,6 +545,7 @@ img.tab_icon {
     padding-left: 0;
     background: transparent;
     border: 0;
+    
 }
 #tabs ul.ui-tabs-nav li {
     top: 4px;
@@ -490,6 +554,7 @@ img.tab_icon {
     width: 220px;
     height: 35px;
     margin-right: -64px;
+    /*margin-top: -15px;*/
     background-image: url(../img/tabs_hompage.png);
     background-position: 0 -36px;
     background-repeat: no-repeat;
@@ -506,6 +571,8 @@ img.tab_icon {
     -webkot-border-radius: 10px;
     border-radius: 10px;
     behavior: url(PIE.htc);
+    margin-left: -3px;
+    margin-right: -3px;
 }
 #tabs ul.ui-tabs-nav li.ui-state-active {
     background-position: 0 0;
@@ -560,16 +627,20 @@ ul.ui-tabs-nav .ui-state-hover a {
 
 /************* Cost Estimate *************/
 #ride_cost_estimate {
-    display: none;
+    /*display: none;*/
     position: absolute;
-    right: 13px;
-    top: 15px;
+    right: 5px;
+    top: 6px;
     padding:10px 35px 10px 10px;
     background: rgba(0, 0, 0, 0.7) url("../img/ride_details.png") 97% -36px no-repeat;
     color:white;
     -moz-border-radius:5px;
     -webkit-border-radius:5px;
     border-radius:5px;
+	*width: 280px;
+	*background: rgb(0, 0, 0) url("../img/ride_details.png") 97% -36px no-repeat;
+    *left:233px;
+
 }
 
 /**************** Registration Form ***************/
@@ -736,6 +807,8 @@ ul.ui-tabs-nav .ui-state-hover a {
         rgb(6,77,139) 0%,
         rgb(61,156,197) 99%
     );
+
+     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#3d9cc5', endColorstr='#064d8b',GradientType=0 ); /* ie */
     -webkit-box-shadow: 0px 2px 2px #636363;
     -moz-box-shadow: 0px 2px 2px #636363;
     box-shadow: 0px 2px 2px #636363;
@@ -830,7 +903,7 @@ ul.ui-tabs-nav .ui-state-hover a {
 	padding-bottom: 10px;
  }
 
-.ui-dialog .ui-dialog-title {
+.ui-dialog .ui-dialog-title{
 	color: white;
 	float: right;
 	margin: -4px 0px 0.2em 16px;
@@ -838,6 +911,11 @@ ul.ui-tabs-nav .ui-state-hover a {
 	margin-left: 16px;
 	margin-bottom: 0.2em;
 	margin-right: 0px;
+}
+.ui-dialog .ui-dialog-title .waybetter {
+    color:white;
+    font-style: normal;
+    font-size: 1.1em;
 }
 
 .ui-dialog-title span {
@@ -917,6 +995,9 @@ ul.ui-tabs-nav .ui-state-hover a {
    	 padding: 6px 0;
    	 text-align: center;
    	 text-decoration: none;
+	
+	 *margin-top:-12px;
+    
 }
 
 #reset_button.wb_button {
@@ -932,6 +1013,7 @@ ul.ui-tabs-nav .ui-state-hover a {
 	padding: 6px 0;
 	text-align: center;
 	text-decoration: none;
+	 *margin-top:-12px;
 }
 
 #login_error {
@@ -955,7 +1037,7 @@ ul.ui-tabs-nav .ui-state-hover a {
 }
 
 #station_login {
-    background: red;
+
     width: 460px;
 }
 #station_login label {
@@ -967,7 +1049,9 @@ ul.ui-tabs-nav .ui-state-hover a {
     width: 160px;
     font-size: 14px;
     padding: 0 10px;
+    *margin-left:-13px;
 }
+
 #station_login p {
     float: right;
     margin: 0 6px;
@@ -1002,8 +1086,31 @@ ul.ui-tabs-nav .ui-state-hover a {
     background-position: center center;
     height: 600px;
     width: 440px;
-    float: right;
 }
+#diagram_column {
+    float: right;
+    width: 440px;
+    text-align: center;
+    position: relative;
+}
+.big_red {
+    width: 380px;
+    height: 90px;
+    color: white;
+    font-size: 30px;
+    background: red;
+    border: none;
+    position: absolute;
+    bottom: 0;
+    right: 10px;
+}
+.big_red:hover {
+    background: #f08080;
+}
+.big_red:active {
+    background: #8b0000;
+}
+
 
 #info {
     float: left;
@@ -1030,6 +1137,34 @@ ul.ui-tabs-nav .ui-state-hover a {
     margin-bottom: 0;
 }
 
+/** Station Join Dialog **/
+#station_interest .errorlist > li  {
+    color:red;
+    font-size: 14px;
+}
+
+#station_interest  #station_interest_form input {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    width: 250px;
+}
+
+#station_interest  #station_interest_form label {
+    padding-top: 20px;
+}
+
+#station_interest #button_container {
+    margin-top: 70px;
+}
+#station_interest #submit {
+    width: 180px;
+}
+#station_interest #sent_message {
+    font-size: 16px;
+    margin-top: 15px;
+    text-align:right;
+}
 /** buttons **/
 
 input::-moz-focus-inner, button::-moz-focus-inner {
@@ -1256,4 +1391,10 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 #buttons button {
     width: 200px;
     margin: 10px;
+}
+*#orders_history_grid
+{
+
+vertical-align:top;
+    padding-top:10px;
 }

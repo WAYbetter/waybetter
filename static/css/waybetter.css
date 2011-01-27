@@ -39,7 +39,13 @@ input.text, input[type=text], input[type=password] {
     -webkit-appearance: none;
     -moz-appearance: none;
 }
-
+.waybetter:before {
+    content: "WAY";
+    font-weight: bold;
+}
+.waybetter:after {
+    content: "better";
+}
 .clear {
     clear: both;
     height: 0;
@@ -74,6 +80,7 @@ input.text, input[type=text], input[type=password] {
     -moz-border-radius: 15px;
     -webkit-border-radius: 15px;
     border-radius: 15px;
+    margin-top: -10px;
 
     background: #4D4D4D; /* old browsers */
     background: url(../img/main_background.png), -moz-linear-gradient(top, #4D4D4D 0%, #101010 100%); /* firefox */
@@ -157,13 +164,20 @@ input.text, input[type=text], input[type=password] {
     border-bottom-right-radius: 0;
     border-bottom-left-radius: 0;
 }
-.address-error {
-
+.address-helper.address-error {
     background-color: #BC1111;
     /*background-color: #FEB4B4;*/
     border-color: #FEB4B4;
 }
 /************* Header *************/
+#alpha {
+    width: 125px;
+    height: 59px;
+    background-image:url(/static/images/Alpha_TLV.png);
+    position: absolute;
+    top: -8px;
+    right: 165px;
+    
 #banner {
     /*ext-shadow: #e1e1e1 0 1px;*/
 }
@@ -180,6 +194,7 @@ input.text, input[type=text], input[type=password] {
 #header {
     position: relative;
     text-align: left;
+    line-height: 24px;
 }
 #user_tools {
     position: absolute;
@@ -190,6 +205,7 @@ input.text, input[type=text], input[type=password] {
 #footer {
     text-align: center;
     margin-top: 20px;
+    margin-bottom: 100px;
     padding: 0 13px;
 }
 
@@ -223,6 +239,7 @@ span.right-fade {
 }
 #roller {
     position: relative;
+    top: -4px;
 }
 #roller div {
     width: 100%;
@@ -401,6 +418,26 @@ button.order_button.disabled, button.order_button:disabled {
     background-position: 0 -159px;
 }
 
+#slider {
+    height: 300px;
+    width: 563px;
+    margin-right:120px;
+    margin-top: 30px;
+}
+#tabs h1 {
+    color: #00acff;
+    font-size: 24px;
+    margin-bottom: 5px;
+    margin-top: -30px;
+}
+
+#tabs h1 .waybetter {
+    color: #00acff;
+}
+
+#about p {
+    font-size: 14px;
+}
 /************* Ordering Bottom Tabs *************/
 #tabs {
     margin-top: -18px;
@@ -408,6 +445,11 @@ button.order_button.disabled, button.order_button:disabled {
     border: 0;
     text-align: left;
 }
+
+#tabs.main_tabs_margin_top {
+    margin-top: -34px;
+}
+
 #tabs ul > li > a {
     background-repeat: no-repeat;
     background-image: url("../images/tab_icons.png");
@@ -455,6 +497,7 @@ img.tab_icon {
     width: 220px;
     height: 35px;
     margin-left: -64px;
+    margin-top: -15px;
     background-image: url(../img/tabs_hompage.png);
     background-position: 0 -36px;
     background-repeat: no-repeat;
@@ -471,6 +514,8 @@ img.tab_icon {
     -webkot-border-radius: 10px;
     border-radius: 10px;
     behavior: url(PIE.htc);
+    margin-left: -3px;
+    margin-right: -3px;
 }
 #tabs ul.ui-tabs-nav li.ui-state-active {
     background-position: 0 0;
@@ -506,8 +551,8 @@ ul.ui-tabs-nav .ui-state-hover a {
 #ride_cost_estimate {
     display: none;
     position: absolute;
-    right: 13px;
-    top: 15px;
+    right: 5px;
+    top: 6px;
     padding:10px 10px 10px 35px;
     background: rgba(0, 0, 0, 0.7) url("../img/ride_details.png") 7px -36px no-repeat;
     color:white;
@@ -790,6 +835,11 @@ ul.ui-tabs-nav .ui-state-hover a {
 	margin-bottom: 0.2em;
 	margin-left: 0px;
 }
+.ui-dialog .ui-dialog-title .waybetter {
+    color:white;
+    font-style: normal;
+    font-size: 1.1em;
+}
 
 .ui-dialog-title span {
     font-size: 14px;
@@ -919,8 +969,31 @@ ul.ui-tabs-nav .ui-state-hover a {
     background-position: center center;
     height: 600px;
     width: 440px;
-    float: left;
 }
+#diagram_column {
+    float: left;
+    width: 440px;
+    text-align: center;
+    position: relative;
+}
+.big_red {
+    width: 380px;
+    height: 90px;
+    color: white;
+    font-size: 30px;
+    background: red;
+    border: none;
+    position: absolute;
+    bottom: 0;
+    left: 10px;
+}
+.big_red:hover {
+    background: #f08080;
+}
+.big_red:active {
+    background: #8b0000;
+}
+
 
 #info {
     float: right;
@@ -946,7 +1019,34 @@ ul.ui-tabs-nav .ui-state-hover a {
 #info li:last-child {
     margin-bottom: 0;
 }
+/** Station Join Dialog **/
+#station_interest .errorlist > li  {
+    color:red;
+    font-size: 14px;
+}
 
+#station_interest  #station_interest_form input {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    width: 250px;
+}
+
+#station_interest  #station_interest_form label {
+    padding-top: 20px;
+}
+
+#station_interest #button_container {
+    margin-top: 70px;
+}
+#station_interest #submit {
+    width: 180px;
+}
+#station_interest #sent_message {
+    font-size: 16px;
+    margin-top: 15px;
+    text-align:left;
+}
 /** buttons **/
 
 input::-moz-focus-inner, button::-moz-focus-inner {

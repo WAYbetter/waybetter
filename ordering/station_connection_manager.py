@@ -1,6 +1,7 @@
 from google.appengine.api import memcache
 from django.core.serializers import serialize
 from django.utils.datetime_safe import datetime
+from ordering.models import OrderAssignment
 
 IS_DEAD_DELTA = 35
 
@@ -23,7 +24,7 @@ def push_order(order_assignment):
     """
     Retrieve the order and workstation from an assignment and add the order to the workstation's queue.
     """
-    json = serialize("json", [order_assignment.order])
+    json = OrderAssignment.serialize_for_workstation(order_assignment)
     key = get_assignment_key(order_assignment.work_station)
     assignments = memcache.get(key) or []
     assignments.append(json)

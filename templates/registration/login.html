@@ -56,7 +56,7 @@
 
      function getToken() {
         try {
-            return parentSandboxBridge.readToken();
+            return window.parentSandboxBridge.read_token();
         }
         catch (e) {
 //            alert(e);

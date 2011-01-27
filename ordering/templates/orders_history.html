@@ -19,7 +19,7 @@
     {% endblock  %}
 {% endif %}
 {% block content %}
-<div>
+<div id="orders_history_controls">
 	<input type="text" id="keywords" />
     <input type="button" id='search_button' class="wb_button blue" value="{% trans 'Search' %}"/>
     <input type="button" id='reset_button' class="wb_button blue" value="{% trans 'Reset' %}"/>
@@ -28,8 +28,10 @@
 <div id="orders_history_pager"></div>
 
 <script>
+
+
 {% autoescape off %}
-(function () {
+$(function () {
     OrderHistoryHelper.init({
         order_history_url:          "{{ history_data_url }}",
         order_history_columns:      {{ order_history_columns }},
@@ -37,14 +39,14 @@
         order_history_fields:       {{ order_history_fields }},
         page_label:                 "{% trans 'Page' %}",
         of_label:                   "{% trans 'of' %}",
-        rating_choices:             {{ rating_choices }},
+        rating_choices:             {{ rating_choices }}
     {% if rating_disabled %}
-        rating_disabled:            true,
+        ,rating_disabled:            true
     {% endif %}
     });
 
 
-})();
+});
 {% endautoescape %}
 </script>
 

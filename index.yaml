@@ -83,6 +83,11 @@ indexes:
   - name: __key__
     direction: desc
 
+- kind: ordering_feedback
+  properties:
+  - name: __key__
+    direction: desc
+
 - kind: ordering_order
   properties:
   - name: __key__
@@ -150,6 +155,19 @@ indexes:
   properties:
   - name: passenger_id
   - name: station_name
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: status
+  - name: create_date
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: status
+  - name: create_date
     direction: desc
 
 - kind: ordering_order

@@ -1,4 +1,4 @@
-from ordering.models import Order
+from ordering.models import Order, ACCEPTED
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from types import MethodType
 import logging
@@ -15,7 +15,7 @@ STATION_ORDER_HISTORY_COLUMN_NAMES =    [ugettext("Date"), ugettext("From"), uge
 STATION_ORDER_HISTORY_FIELDS =          ["create_date", "from_raw", "to_raw", "passenger_phone"]
 
 def get_orders_history(passenger, page=1, keywords=None, sort_by=None, sort_dir=None):
-    query = Order.objects.filter(passenger=passenger)
+    query = Order.objects.filter(passenger=passenger).filter(status=ACCEPTED)
     return get_orders_history_data(query, ORDER_HISTORY_COLUMNS, ORDER_HISTORY_FIELDS,
                                    page, keywords, sort_by, sort_dir)
 
@@ -67,6 +67,8 @@ def get_orders_history_data(query, columns, fields, page=1, keywords=None, sort_
 
     # Dump the Page attributes we want to a dictionary
     serializedpage = {}
+    serializedpage["sort_by"] = sort_by
+    serializedpage["sort_dir"] = sort_dir
     serializedpage["page_size"] = len(orders_page.object_list)
     serializedpage["num_pages"] = paginator.num_pages
     wanted = ("end_index", "has_next", "has_other_pages", "has_previous",
@@ -91,7 +93,12 @@ def get_orders_history_data(query, columns, fields, page=1, keywords=None, sort_
     for order in orders_page.object_list:
         record = {}
         for i, col in enumerate(columns):
-            record[col] = getattr(order, fields[i])
+            # try calling the formatter method for a date field
+            formatter = fields[i] + "_format"
+            if fields[i].endswith("_date") and hasattr(order, formatter):
+                record[col] = getattr(order, formatter).__call__()
+            else:
+                record[col] = getattr(order, fields[i])
         record["Id"] = order.id
         
         orders.append(record)

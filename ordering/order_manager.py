@@ -9,7 +9,7 @@ from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFoun
 from ordering.decorators import passenger_required, internal_task_on_queue
 from django.core.serializers import serialize
 from django.conf import settings
-from django.utils.translation import gettext_lazy as _
+from django.utils.translation import ugettext_lazy as _ 
 
 from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, ASSIGNED, RATING_CHOICES, ERROR
 import dispatcher
@@ -53,6 +53,7 @@ def book_order(request):
     except NoWorkStationFoundError:
         order.status = FAILED
         order.save()
+        order.notify()
         log_event(EventType.ORDER_FAILED, order=order, passenger=order.passenger)
         logging.warning("no matching workstation found for: %d" % order_id)
         response = HttpResponse(NO_MATCHING_WORKSTATIONS_FOUND)
@@ -60,10 +61,10 @@ def book_order(request):
         send_sms(order.passenger.international_phone(),
                  _("We're sorry, but we could not find a taxi for you"))
         
-    # AMIR: this is not raised by dispatcher
     except OrderError:
         order.status = ERROR
         order.save()
+        order.notify()
         log_event(EventType.ORDER_ERROR, order=order, passenger=order.passenger)
         logging.error("book_order: OrderError: %d" % order_id)
         response = HttpResponseServerError("an error occured while handling order")
@@ -76,12 +77,12 @@ def accept_order(order, pickup_time, station):
     order.pickup_time = pickup_time
     order.status = ACCEPTED
     order.station = station  
-    order.save()  
+    order.save()
     msg = _("Pickup at %(from)s in %(time)d minutes.\nStation: %(station_name)s, %(station_phone)s") % \
-           { "from"             : order.from_raw.encode("utf-8"),
+           { "from"             : order.from_raw,
              "time"             : pickup_time,
-             "station_name"     : station.name.encode("utf-8"),
-             "station_phone"    : station.phones.all()[0].local_phone.encode("utf-8") }
+             "station_name"     : station.name,
+             "station_phone"    : station.phones.all()[0].local_phone }
 
     send_sms(order.passenger.international_phone(), msg)
 

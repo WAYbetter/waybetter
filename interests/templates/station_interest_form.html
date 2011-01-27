@@ -1,0 +1,42 @@
+{% load i18n %}
+{% load ajax_form_utils %}
+<script type="text/javascript" src="/static/js/jquery.ajax_forms.js"></script>
+<script type="text/javascript" src="/static/js/jquery.ajax_forms.validation.js"></script>
+
+<script>
+    var form_config = {
+        dialog_config : {
+            title: "{% trans 'Join WAYbetter' %}",
+            width: 400
+        },
+    };
+    $(function() {
+        $('#station_interest_form').validation({% render_ajax_fields form %});
+        $("#submit").click(function(e) {
+            e.preventDefault();
+            var form = $("#station_interest_form");
+            if (! form[0].validate()) {
+                return false;
+            }
+            Registrator.doSubmitInterest(form, Registrator.config.urls.station_interest_form_template);
+        });
+    });
+</script>
+<style type="text/css">
+
+</style>
+<div id="station_interest">
+<div id="content">
+    <p>
+        {% trans "Please fill the following details and we will contact you" %}
+    </p>
+    <form id="station_interest_form">
+    {{ form.as_p }}
+    </form>
+</div>
+<div id="button_container">
+    <button id="submit" class="wb_button gold">{% trans 'Send' %}</button>
+    <button id="close" class="wb_button gray">{% trans 'Close' %}</button>
+    <div id="sent_message">{% trans "Thanks for your interest.<br>Your details have been sent and we will contact you in 2 business days" %}</div>
+</div>
+</div>

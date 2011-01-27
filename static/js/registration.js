@@ -1,21 +1,23 @@
 var Registrator = Object.create({
     default_config           : {
         urls            : {
-            error_form_template         : '/',
-            login_form_template         : '/',
-            reg_form_template           : '/',
-            phone_form_template         : '/',
-            phone_code_form_template    : '/',
-            feedback_form_template      : '/',
-            sending_form_template       : '/',
-            terms_form_template         : '/',
-            check_username              : '/',
-            login                       : '/',
-            send_sms                    : '/',
-            update_profile              : '/',
-            register                    : '/',
-            validate_phone              : '/',
-            check_phone                 : '/'
+            error_form_template             : '/',
+            login_form_template             : '/',
+            reg_form_template               : '/',
+            phone_form_template             : '/',
+            phone_code_form_template        : '/',
+            feedback_form_template          : '/',
+            sending_form_template           : '/',
+            terms_form_template             : '/',
+            mobile_interest_form_template   : '/',
+            station_interest_form_template  : '/',
+            check_username                  : '/',
+            login                           : '/',
+            send_sms                        : '/',
+            update_profile                  : '/',
+            register                        : '/',
+            validate_phone                  : '/',
+            check_phone                     : '/'
         },
         dialog_config   : {
             autoOpen: false,
@@ -163,6 +165,11 @@ var Registrator = Object.create({
     doRegister              : function (form, extra_form_data) {
         this._doDialogSubmit(form, extra_form_data, this.config.urls.register);
     },
+    doSubmitInterest        : function(form, url) {
+        this._doDialogSubmit(form, undefined, url, undefined, function(response) {
+            $("#sent_message").fadeIn("fast");
+        });
+    },
     openErrorDialog         : function(title, message, callback) {
         var that = this;
         this.setCallback(callback);
@@ -185,6 +192,33 @@ var Registrator = Object.create({
             });
             $("#submit_feedback", dialog_content).click(function() {
                 that.doFeedback(form);
+            });
+            that.openDialog.call(that);
+        });
+    },
+    openMobileInterestDialog: function (callback) {
+        var that = this;
+        that.setCallback(callback);
+        that.getTemplate.call(that, "mobile_interest", function(dialog_content) {
+            var form = $("form", dialog_content);
+            $("#sent_message", dialog_content).hide();
+            $("#close", dialog_content).click(function() {
+                $('#dialog').dialog('close');
+            });
+            $("#submit", dialog_content).click(function() {
+                that.doSubmitInterest(form, that.config.urls.mobile_interest_form_template);
+            });
+            that.openDialog.call(that);
+        });
+    },
+    openStationInterestDialog: function (callback) {
+        var that = this;
+        that.setCallback(callback);
+        that.getTemplate.call(that, "station_interest", function(dialog_content) {
+            var form = $("form", dialog_content);
+            $("#sent_message", dialog_content).hide();
+            $("#close", dialog_content).click(function() {
+                $('#dialog').dialog('close');
             });
             that.openDialog.call(that);
         });

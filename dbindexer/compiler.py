@@ -5,13 +5,15 @@ from django.db.models.sql.constants import LOOKUP_SEP, MULTI, SINGLE, LHS_ALIAS,
     JOIN_TYPE, LHS_JOIN_COL, TABLE_NAME, RHS_JOIN_COL
 from django.db.models.sql.where import AND, OR
 from django.db.utils import DatabaseError, IntegrityError
+from django.utils.importlib import import_module
 from django.utils.tree import Node
 import re
 
 def contains_indexer(value):
     # In indexing mode we add all postfixes ('o', 'lo', ..., 'hello')
     result = []
-    result.extend([value[count:] for count in range(len(value))])
+    if value:
+        result.extend([value[count:] for count in range(len(value))])
     return result
 
 LOOKUP_TYPE_CONVERSION = {
@@ -64,11 +66,7 @@ Constraint.__repr__ = __repr__
 # be done because the query can be reused afterwoods by the user so that a
 # manipulated query can result in strange behavior for these cases!
 
-class SQLCompiler(object):
-    def results_iter(self):
-        self.convert_filters(self.query.where)
-        return super(SQLCompiler, self).results_iter()
-
+class BaseCompiler(object):
     def get_column_index(self, constraint):
         if constraint.field:
             column_chain = constraint.field.column
@@ -167,7 +165,16 @@ class SQLCompiler(object):
         constraint.col = constraint.field.column
         constraint.alias = alias
 
-class SQLInsertCompiler(object):
+class SQLCompiler(BaseCompiler):
+    def execute_sql(self, *args, **kwargs):
+        self.convert_filters(self.query.where)
+        return super(SQLCompiler, self).execute_sql(*args, **kwargs)
+
+    def results_iter(self):
+        self.convert_filters(self.query.where)
+        return super(SQLCompiler, self).results_iter()
+
+class SQLInsertCompiler(BaseCompiler):
     def execute_sql(self, return_id=False):
         position = {}
         for index, (field, value) in enumerate(self.query.values[:]):
@@ -182,11 +189,12 @@ class SQLInsertCompiler(object):
         for field, value in self.query.values[:]:
             regex_values = []
             index_keys = []
+            
             if field is None or model not in FIELD_INDEXES:
                 continue
             if field.column not in FIELD_INDEXES[model]:
-                # check for denormalization indexes, if none exist continue with
-                # next field
+                # check for denormalization indexes on the left table, if none
+                # exist continue with next field
                 denormalization_indexes = [field_index.split('__', 1)[0]
                     for field_index in FIELD_INDEXES[model].keys()]
                 if field.column not in denormalization_indexes:
@@ -194,7 +202,7 @@ class SQLInsertCompiler(object):
                 else:
                     for field_index in FIELD_INDEXES[model].keys():
                         # check against field column + '__' to avoid name clashes
-                        # caused by startswith i.e. field.column = foreignkey
+                        # caused by startswith() i.e. field.column = foreignkey
                         # and field2.column = foreignkey2
                         if field_index.startswith(field.column + '__'):
                             index_keys.append(field_index)
@@ -247,8 +255,8 @@ class SQLInsertCompiler(object):
 #        print dict((field.column, value) for field, value in self.query.values)
         return super(SQLInsertCompiler, self).execute_sql(return_id=return_id)
 
-class SQLUpdateCompiler(object):
+class SQLUpdateCompiler(BaseCompiler):
     pass
 
-class SQLDeleteCompiler(object):
+class SQLDeleteCompiler(BaseCompiler):
     pass
