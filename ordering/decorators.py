@@ -20,7 +20,7 @@ def internal_task_on_queue(queue_name):
     def actual_decorator(function):
 
         def wrapper(request):
-            if request._dont_enforce_csrf_checks:
+            if hasattr(request, '_dont_enforce_csrf_checks' ) and request._dont_enforce_csrf_checks:
                 return function(request)
             
             if request.META.get('HTTP_X_APPENGINE_QUEUENAME', "") != queue_name:
