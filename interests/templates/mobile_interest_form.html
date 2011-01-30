@@ -12,6 +12,14 @@
     };
     $(function() {
         $('#mobile_interest_form').validation({% render_ajax_fields form %});
+        $("#submit").click(function(e) {
+            e.preventDefault();
+            var form = $("#mobile_interest_form");
+            if (! form[0].validate()) {
+                return false;
+            }
+            Registrator.doSubmitInterest(form, Registrator.config.urls.mobile_interest_form_template);
+        });
     });
 </script>
 <style type="text/css">
