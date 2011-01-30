@@ -205,9 +205,6 @@ var Registrator = Object.create({
             $("#close", dialog_content).click(function() {
                 $('#dialog').dialog('close');
             });
-            $("#submit", dialog_content).click(function() {
-                that.doSubmitInterest(form, that.config.urls.mobile_interest_form_template);
-            });
             that.openDialog.call(that);
         });
     },
