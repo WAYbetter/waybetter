@@ -27,7 +27,11 @@
             estimation_msg:             "{% trans 'Fill pickup and dropoff for price and time estimation ' %}"
         });
         $("#tabs").tabs({
+            {% if request.user.passenger %}
             selected: 0,
+            {% else %}
+            selected: 2,
+            {% endif %}
             ajaxOptions: {
                 error: function(xhr, status, index, anchor) {
                     $(anchor.hash).html("{% trans "We're sorry, but an error occurred while loading this page." %}");
