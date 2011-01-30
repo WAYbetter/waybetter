@@ -144,12 +144,24 @@
                     <li><a title="stations" href="{% url ordering.passenger_controller.stations_tab %}">{% trans 'Taxi Stations' %}</a></li>
                     <li><a title="mobile" href="#mobile">{% trans 'Mobile' %}</a></li>
                 </ul>
+                <div id="mobile">
+                    <h2>{% trans "Get a Taxi. Wherever You Are!" %}</h2>
+                    <img src="/static/images/mobile_button.png">
+                    <button id="mobile_interest" class="wb_button gold">{% trans "Looks Cool!" %}</button>
+                    <div id="mobile-footer">{% trans "Coming soon to all mobiles!" %}</div>
+                </div>
         {% else %}
             <ul>
                 <li><a title="stations" href="{% url ordering.passenger_controller.stations_tab %}">{% trans 'Taxi Stations' %}</a></li>
                 <li><a title="mobile" href="#mobile">{% trans 'Mobile' %}</a></li>
                 <li><a title="whats_this" href="#about">{% trans "What's This?" %}</a></li>
             </ul>
+            <div id="mobile">
+                <h2>{% trans "Get a Taxi. Wherever You Are!" %}</h2>
+                <img src="/static/images/mobile_button.png">
+                <button id="mobile_interest" class="wb_button gold">{% trans "Looks Cool!" %}</button>
+                <div id="mobile-footer">{% trans "Coming soon to all mobiles!" %}</div>
+            </div>
             <div id="about" style="text-align:center">
                 <div id="slider">
                     <img src="/static/images/anim_1.png" alt="" />
@@ -162,12 +174,7 @@
                 </p>
             </div>
         {% endif %}
-            <div id="mobile">
-                <h2>{% trans "Get a Taxi. Wherever You Are!" %}</h2>
-                <img src="/static/images/mobile_button.png">
-                <button id="mobile_interest" class="wb_button gold">{% trans "Looks Cool!" %}</button>
-                <div id="mobile-footer">{% trans "Coming soon to all mobiles!" %}</div>
-            </div>
+
         </div>
 
         <div id="dialog"></div>
