@@ -1,11 +1,12 @@
 #from ordering.views import OrderError
+import logging
 from ordering.models import OrderAssignment, WorkStation
 from ordering.station_connection_manager import is_workstation_available
 from ordering.errors import OrderError, NoWorkStationFoundError
 from common.geo_calculations import distance_between_points
 import models
 from common.util import log_event, EventType
-
+from datetime import datetime
 
 
 def assign_order(order):
@@ -22,6 +23,11 @@ def assign_order(order):
     assignment.station = work_station.station
     assignment.work_station = work_station
     assignment.save()
+
+    work_station.last_assignment_date = assignment.create_date
+    work_station.save()
+    work_station.station.last_assignment_date = assignment.create_date
+    work_station.station.save()
 
     order.status = models.ASSIGNED
     order.save()
@@ -55,6 +61,8 @@ def choose_workstation(order):
             work_stations.append(ws)
 
 
+    work_stations = sorted(work_stations, key=lambda ws: ws.station.last_assignment_date)
+    logging.info("sorted: %s" % [ws.last_assignment_date for ws in work_stations])
     for ws in work_stations:
         if ws.station == order.passenger.default_station:
             return ws
@@ -63,5 +71,3 @@ def choose_workstation(order):
         return work_stations[0] 
 
     return None
-
-    

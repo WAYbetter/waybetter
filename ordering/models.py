@@ -65,10 +65,12 @@ class Station(models.Model):
     license_number = models.CharField(_("license number"), max_length=30)
     website_url = models.URLField(_("website"), max_length=255, null=True, blank=True, verify_exists=False)
     number_of_taxis = models.IntegerField(_("number of taxis"), max_length=4)
-    description = models.CharField(_("description"), max_length=4000, null=True, blank=True)
+    description = models.TextField(_("description"), max_length=5000, null=True, blank=True)
     logo = BlobField(_("logo"), null=True, blank=True)
     language = models.IntegerField(_("language"), choices=LANGUAGE_CHOICES, default=0)
     show_on_list = models.BooleanField(_("show on list"), default=False)
+
+    last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True, default=datetime(1,1,1))
 
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")
@@ -193,8 +195,21 @@ class WorkStation(models.Model):
     im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=40)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
 
+    last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True, default=datetime(1,1,1))
+
     def __unicode__(self):
-        return u"Workstation "# of: %d" % (self.station.id)
+        result = u"[%d]" % self.id
+        try:
+            result += u" user=%s" % self.user.username
+        except User.DoesNotExist:
+            pass
+
+        try:
+            result += u" station=%s" % self.station.name
+        except Station.DoesNotExist:
+            pass
+
+        return result 
 
     def get_admin_link(self):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/workstation', self.id, self.user.username)

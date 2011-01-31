@@ -236,7 +236,8 @@ class DispatcherTest(TestCase):
         jerusalem_ws = WorkStation.objects.filter(station=jerusalem_station)[0]
 
         # work stations are dead
-        self.assertTrue(choose_workstation(ORDER) is None, "work station are dead, none is expected.")
+        ws = choose_workstation(ORDER)
+        self.assertTrue(ws is None, "work station are dead, none is expected, got %s" % ws)
 
         # live work station but it's in Jerusalem (order is from tel aviv)
         set_heartbeat(jerusalem_ws)
@@ -256,11 +257,7 @@ class DispatcherTest(TestCase):
         self.assertTrue(choose_workstation(ORDER) == tel_aviv_ws2, "tel aviv work station 2 is expected.")
 
         # mark this order as previously ignored by ws2, should return ws1
-        assignment = OrderAssignment()
-        assignment.order = ORDER
-        assignment.station = tel_aviv_station
-        assignment.work_station = tel_aviv_ws2
-        assignment.status = IGNORED
+        assignment = OrderAssignment(order=ORDER, station=tel_aviv_station, work_station=tel_aviv_ws2, status=IGNORED)
         assignment.save()
 
         tel_aviv_ws1.accept_orders = tel_aviv_ws2.accept_orders = True
@@ -303,6 +300,21 @@ class DispatcherTest(TestCase):
 
         resuscitate_work_stations()
         self.assertTrue(choose_workstation(ORDER) == default_ws, "default station is expected.")
+
+        # check that the dispatcher is "fair": chooses first the last station that was given an order
+        PASSENGER.default_station = None
+        PASSENGER.save()
+
+        default_station.last_assignment_date = datetime.datetime.now()
+        default_station.save()
+
+        self.assertTrue(choose_workstation(ORDER).station == tel_aviv_station, "Other Tel Aviv station is expected")
+
+        tel_aviv_station.last_assignment_date = datetime.datetime.now()
+        tel_aviv_station.save()
+
+        self.assertTrue(choose_workstation(ORDER).station == default_station, "Other Tel Aviv station is expected")
+
 
 
 class PricingTest(TestCase):

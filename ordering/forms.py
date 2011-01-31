@@ -223,7 +223,7 @@ class PhoneForm(ModelForm):
 class PassengerProfileForm(forms.Form):
     country =   forms.ModelChoiceField(queryset=Country.objects.all().order_by("name"), label=_("Country"))
 
-    default_station = forms.ModelChoiceField(queryset=Station.objects.all(), label=_("Default station"), empty_label=_("(No station selected)"), required=False)
+    default_station = forms.ModelChoiceField(queryset=Station.objects.filter(show_on_list=True), label=_("Default station"), empty_label=_("(No station selected)"), required=False)
 
     local_phone =     forms.RegexField( regex=r'^\d+$',
                                   max_length=20,
