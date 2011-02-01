@@ -1,11 +1,11 @@
-# set up the testing environment
 
-def setup_appengine_task_queue():
+def setup():
+
+    # setup appengine task queue
     import os
     from google.appengine.api import apiproxy_stub_map
     taskqueue_stub = apiproxy_stub_map.apiproxy.GetStub('taskqueue')
     taskqueue_stub._root_path = os.path.join(os.path.dirname(__file__), '..')
-
 
 
 ## fix datastore path

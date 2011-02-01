@@ -13,9 +13,10 @@ from ordering.order_manager import NO_MATCHING_WORKSTATIONS_FOUND, ORDER_HANDLED
 from ordering.station_connection_manager import set_heartbeat, is_workstation_available
 from ordering.decorators import passenger_required, passenger_required_no_redirect, NOT_A_USER, NOT_A_PASSENGER, CURRENT_PASSENGER_KEY
 from ordering.pricing import estimate_cost, IsraelExtraCosts, CostType, TARIFF1_START, TARIFF2_START
-from ordering.testing.meter_calculator import calculate_tariff, tariff1_dict, tariff2_dict
 
-from util import setup_testing_env
+from testing import setup_testing_env
+from testing.meter_calculator import calculate_tariff, tariff1_dict, tariff2_dict
+
 import logging
 import datetime
 
@@ -69,6 +70,17 @@ def resuscitate_work_stations():
         set_heartbeat(ws)
 
 
+def set_accept_orders_true(ws_list):
+    for ws in ws_list:
+        ws.accept_orders = True
+        ws.save()
+
+def set_accept_orders_false(ws_list):
+    for ws in ws_list:
+        ws.accept_orders = False
+        ws.save()
+
+        
 #
 # testing starts here
 #
@@ -78,7 +90,7 @@ class OrderingTest(TestCase):
     fixtures = ['countries.yaml', 'cities.yaml', 'ordering_test_data.yaml']
 
     def setUp(self):
-        setup_testing_env.setup_appengine_task_queue()
+        setup_testing_env.setup()
 
     def test_login(self):
         login = self.client.login(username='test_user', password='wrong_password')
@@ -150,7 +162,7 @@ class OrderManagerTest(TestCase):
     fixtures = ['countries.yaml', 'cities.yaml', 'ordering_test_data.yaml']
 
     def setUp(self):
-        setup_testing_env.setup_appengine_task_queue()
+        setup_testing_env.setup()
         create_passenger()
         create_test_order()
 
@@ -171,12 +183,8 @@ class OrderManagerTest(TestCase):
         work_station = WorkStation.objects.filter(station=station)[0]
 
         # create a timed out assignment
-        assignment = OrderAssignment()
-        assignment.order = ORDER
-        assignment.station = station
-        assignment.work_station = work_station
-        assignment.status = ASSIGNED
-        assignment.create_date = datetime.datetime.now() - datetime.timedelta(seconds=OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT+1)
+        assignment = OrderAssignment(order=ORDER, station=station, work_station=work_station, status=ASSIGNED,
+                                     create_date = datetime.datetime.now() - datetime.timedelta(seconds=OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT+1))
         assignment.save()
 
         # check that it is dispatched and marked as ignored
@@ -190,18 +198,14 @@ class OrderManagerTest(TestCase):
 
     def test_accept_order(self):
         tel_aviv_station = City.objects.get(name="תל אביב יפו").stations.all()[0]
-        phone1, phone2 = Phone(), Phone()
-        phone1.local_phone, phone2.local_phone = u'1234567', u'0000000'
-        phone1.station = phone2.station = tel_aviv_station
+        phone1 = Phone(local_phone=u'1234567', station=tel_aviv_station)
         phone1.save()
+        phone2 = Phone(local_phone=u'0000000', station=tel_aviv_station)
         phone2.save()
 
         accept_order(ORDER, pickup_time=5, station=tel_aviv_station)
 
-        self.assertTrue(ORDER.status == ACCEPTED)
-        self.assertTrue(ORDER.pickup_time == 5)
-        self.assertTrue(ORDER.station == tel_aviv_station)
-
+        self.assertTrue((ORDER.status, ORDER.pickup_time, ORDER.station) == (ACCEPTED, 5, tel_aviv_station))
 
 class DispatcherTest(TestCase):
     """Unit test for the dispatcher ordering logic."""
@@ -209,7 +213,7 @@ class DispatcherTest(TestCase):
     fixtures = ['countries.yaml', 'cities.yaml', 'ordering_test_data.yaml']
 
     def setUp(self):
-        setup_testing_env.setup_appengine_task_queue()
+        setup_testing_env.setup()
 
     def test_assign_order(self):
         create_passenger()
@@ -218,11 +222,9 @@ class DispatcherTest(TestCase):
         resuscitate_work_stations()
         assignment = assign_order(ORDER)
 
+        self.assertTrue(assignment.station and assignment.work_station)
         self.assertTrue(isinstance(assignment, ordering.models.OrderAssignment))
-        self.assertTrue(assignment.order == ORDER)
-        self.assertTrue(ORDER.status == ASSIGNED)
-        self.assertTrue(assignment.station)
-        self.assertTrue(assignment.work_station)
+        self.assertTrue((assignment.order, ORDER.status) == (ORDER, ASSIGNED))
 
     def test_choose_workstation(self):
         create_passenger()
@@ -244,15 +246,12 @@ class DispatcherTest(TestCase):
         self.assertTrue(choose_workstation(ORDER) is None, "tel aviv work station are dead, none is expected.")
 
         # live but don't accept orders
-        tel_aviv_ws1.accept_orders = tel_aviv_ws2.accept_orders = False
-        tel_aviv_ws1.save()
-        tel_aviv_ws2.save()
+        set_accept_orders_false([tel_aviv_ws1, tel_aviv_ws2])
         set_heartbeat(tel_aviv_ws1)
         self.assertTrue(choose_workstation(ORDER) is None, "tel aviv work station don't accept orders, none is expected.")
 
         # tel_aviv_ws2 is live and accepts orders
-        tel_aviv_ws2.accept_orders = True
-        tel_aviv_ws2.save()
+        set_accept_orders_true([tel_aviv_ws2])
         resuscitate_work_stations()
         self.assertTrue(choose_workstation(ORDER) == tel_aviv_ws2, "tel aviv work station 2 is expected.")
 
@@ -260,9 +259,7 @@ class DispatcherTest(TestCase):
         assignment = OrderAssignment(order=ORDER, station=tel_aviv_station, work_station=tel_aviv_ws2, status=IGNORED)
         assignment.save()
 
-        tel_aviv_ws1.accept_orders = tel_aviv_ws2.accept_orders = True
-        tel_aviv_ws1.save()
-        tel_aviv_ws2.save()
+        set_accept_orders_true([tel_aviv_ws1, tel_aviv_ws2])
         resuscitate_work_stations()
 
         self.assertTrue(choose_workstation(ORDER) == tel_aviv_ws1, "tel aviv work station 1 is expected.")
@@ -272,27 +269,15 @@ class DispatcherTest(TestCase):
         default_ws_name = 'choose me'
 
         for user_name in [default_station_name, default_ws_name]:
-            user = User()
-            user.username = user_name
+            user = User(username=user_name)
             user.set_password(user_name)
             user.save()
 
-        default_station = Station()
-        default_station.name = default_station_name
-        default_station.user = User.objects.get(username=default_station_name)
-        default_station.number_of_taxis = 5
-        default_station.country = Country.objects.filter(code="IL").get()
-        default_station.city = City.objects.get(name="תל אביב יפו")
-        default_station.address = 'אחד העם 1 תל אביב'
-        default_station.lat = 32.063325
-        default_station.lon = 34.768338
+        default_station = Station(name=default_station_name, user=User.objects.get(username=default_station_name), number_of_taxis=5,
+                country=Country.objects.filter(code="IL").get(), city=City.objects.get(name="תל אביב יפו"), address='אחד העם 1 תל אביב', lat=32.063325, lon=34.768338)
         default_station.save()
 
-        default_ws = WorkStation()
-        default_ws.user = User.objects.get(username=default_ws_name)
-        default_ws.station = default_station
-        default_ws.was_installed = True
-        default_ws.accept_orders = True
+        default_ws = WorkStation(user = User.objects.get(username=default_ws_name), station = default_station, was_installed = True, accept_orders = True)
         default_ws.save()
 
         PASSENGER.default_station = default_station
