@@ -1,12 +1,14 @@
 from common.util import blob_to_image_tag
 from django.contrib import admin
 from django.utils.translation import gettext as _
+from django.forms.models import BaseInlineFormSet
 from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, ExtraChargeRule, Feedback
 import station_connection_manager
 from common.models import Country
 from google.appengine.api.images import BadImageError, NotImageError
 from django.core.exceptions import ValidationError
 import forms
+
 from common.geocode import geocode
 
 class PassengerAdmin(admin.ModelAdmin):
@@ -29,8 +31,24 @@ class OrderAdmin(admin.ModelAdmin):
 
     station_name.allow_tags = True
 
+class PhoneInlineFormset(BaseInlineFormSet):
+    def clean(self):
+        # get forms that actually have valid data
+        count = 0
+        for form in self.forms:
+            try:
+                if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                    count += 1
+            except AttributeError:
+                # annoyingly, if a subform is invalid Django explicity raises
+                # an AttributeError for cleaned_data
+                pass
+        if count < 1:
+            raise forms.ValidationError('You must have at least one phone')
+
 class PhoneAdmin(admin.TabularInline):
     model = Phone
+    formset = PhoneInlineFormset
     extra = 2
 
 def build_workstations(modeladmin, request, queryset):
