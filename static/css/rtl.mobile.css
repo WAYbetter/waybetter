@@ -1,0 +1,65 @@
+* {
+    direction: rtl;
+}
+
+input.a_marker {
+    padding-right: 32px;
+    background-position: 99% 6px;
+}
+
+input.b_marker {
+    background-position: 99% -30px;
+    padding-right: 32px;
+}
+
+.padder {
+    padding: 4px;
+    padding-right: 2px;
+    padding-left: 0;
+    text-align: left;
+    width: 97%;
+    -webkit-transition: width 0.3s ease;
+}
+#gray_header .cancel_button {
+    right: auto;
+    left: -53px;
+}
+#gray_header .cancel_button.visible {
+    right: auto;
+    left: 3px;
+}
+
+#ride_cost_estimate {
+    left: 10px;
+    right: auto;
+    padding:5px 44px 10px 20px;
+    background: rgba(0, 0, 0, 0.8) url("/static/images/mobile/calculator.png") 99% 4px no-repeat;
+    text-align: right;
+}
+#close_estimate {
+    right: auto;
+    left: 4px;
+}
+#history_button{
+    margin-left:-3px;
+    background-position: 98% -47px, 0 -106px;
+}
+#history_button:active {
+    background-position: 98% -71px, 0 -71px;
+}
+
+#gps_button {
+    background-position: 98% 4px, 0 -35px;
+}
+
+#gps_button:active {
+    background-position: 98% -20px, 0 0;
+}
+
+ul li {
+    text-align: right;
+}
+
+ul li input[type="tel"] {
+    padding: 2% 1% 2% 0;
+}

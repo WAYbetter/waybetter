@@ -1,17 +1,29 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+{#<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN"#}
+{#"http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">#}
+<!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
-<title>{% block title %}{% endblock %}</title>
+<title>WAYbetter</title>
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
     <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
     <script src="/static/js/jqtouch.js" type="application/x-javascript" charset="utf-8"></script>
     <script src="/static/js/utils.js"></script>
-    
+    <script type="text/javascript">
+       var $jqt = $.jQTouch({
+            statusBar: 'black',
+            addGlossToIcon: false,
+            icon: '/static/images/mobile/icon.png',
+            startupScreen: '/static/images/mobile/pre_image.png',
+            cacheGetRequests: false,
+            preloadImages: ['/static/images/mobile/loader.gif', '/static/images/mobile/gps_refresh_cancel.png']
+        });
+    </script>
+
     <style type="text/css" media="screen">@import "/static/css/jqtouch.css";</style>
-    <style type="text/css" media="screen">@import "/static/css/themes/jqt/theme.css";</style>
+    <style type="text/css" media="screen">@import "/static/css/themes/apple/theme.css";</style>
     <link rel="stylesheet" type="text/css" href="/static/css/waybetter.mobile.css" />
     <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}css/ie.css{% endblock %}" /><![endif]-->
-    {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}css/rtl.css{% endblock %}" />{% endif %}
+    {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}/static/css/rtl.mobile.css{% endblock %}" />{% endif %}
     {% block extrastyle %}{% endblock %}
 
     {% block extrahead %}
@@ -19,33 +31,53 @@
 
 {% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
 <!-- Google Analytics -->
-    <script type="text/javascript">
-        $.jQTouch({
-            statusBar: 'black',
-            startupScreen: '/static/img/webapp_open.png',
-            cacheGetRequests: false
-        });
-    </script>
 </head>
 {% load i18n %}
 
-<body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+<body id="jqt" class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
 
     <div id="home" class="current">
         <!-- Top Control -->
-        <div class="gray_header " id="top_control">
+        <div id="gray_header" id="top_control">
         {% block topcontrol %}{% endblock topcontrol %}
         </div>
         <!-- END Top Control -->
-
         <!-- Content -->
-        {% block content %}{% endblock %}
-        <!-- END Content -->
-        <div id="bottom_toolbar" class="">
-        {% block bottom_toolbar %}{% endblock %}
+        <div id="content">
+            {% block content %}
+            {% endblock content %}
         </div>
+        <!-- END Content -->
     </div>
-    <div id="settings"></div>
+    <div id="resolve_addresses">
+        <div class="toolbar">
+            <h1>{% trans 'Select Address' %}</h1>
+            <a class="back" href="#">{% trans 'Cancel' %}</a>
+        </div>
+        <ul class="edgetoedge">
+        </ul>
+    </div>
+    <div id="sms_dialog">
+        <div class="toolbar">
+            <h1>{% trans 'Verification' %}</h1>
+            <a class="back" href="#">{% trans 'Back' %}</a>
+        </div>
+        <form id="verification_form">
+            <input type="hidden" name="country" value="{{ country_id }}" />
+            <ul class="edit rounded">
+                <li><label>{% trans 'Enter your mobile number' %}</label>
+                    <div>
+                        <input type="tel" class="big_text" name="local_phone" id="local_phone" />
+                    </div>
+                </li>
+                <li><button class="wb_button blue" type="button" id="send_code">{% trans 'Send Verification Code' %}</button></li>
+                <li><label>{% trans 'Enter verification code' %}</label>
+                    <input type="tel" name="verification_code" id="verification_code" />
+                </li>
+                <li><button class="wb_button blue" type="button" id="finish_verification">{% trans 'Finish' %}</button></li>
+            </ul>
+        </form>
+    </div>
 
 <script>
   var _gaq = _gaq || [];

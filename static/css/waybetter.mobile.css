@@ -4,17 +4,19 @@
     padding: 0;
     color: #2e2e2e;
 }
+
 a:focus {
     outline: none;
 }
-
 body {
+    font-size: 10px;
+    line-height: 1.5em;
     text-align: center;
 }
 form ul {
     list-style: none;
 }
-input.text, input[type=text] {
+input.text, input[type=text], input[type=tel] {
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
@@ -26,6 +28,101 @@ input.text, input[type=text] {
     border-width: 2px 1px 1px 2px;
     -webkit-appearance: none;
     -moz-appearance: none;
+}
+.wb_button {
+    font-size: 15px;
+    font-weight: bold;
+    text-shadow: 1px;
+    width: 100%;
+    border: none;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    vertical-align: text-top;
+    padding: 6px 0;
+    text-align: center;
+    text-decoration: none;
+
+    -webkit-box-shadow: 0px 1px 1px #8f8585;
+    -moz-box-shadow: 0px 1px 1px #8f8585;
+    box-shadow: 0px 1px 1px #8f8585;
+    border-bottom: 1px solid black;
+
+    display: inline-block;
+}
+
+.wb_button:active, .wb_button.active {
+    border: 1px solid #525252;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    /*position: relative;*/
+    /*top: 1px;*/
+}
+
+.wb_button:disabled, .wb_button.disabled {
+    border: none;
+    filter: alpha(opacity = 65);
+    opacity: 0.65;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    position: relative;
+    top: 0;
+    padding-top: 6px;
+}
+
+.blue {
+    background: #49aad7;
+    background: -webkit-gradient(linear, left top, left bottom, from(#49aad7), to(#2c83c1));
+
+    color: white;
+    text-shadow: #2a6b8e 0px -1px;
+}
+
+.blue:active, .blue:disabled {
+    background: #3199df;
+}
+
+.purple {
+    background: #de64ac;
+    background: -webkit-gradient(linear, left top, left bottom, from(#de64ac), to(#af3a7c));
+    background: -moz-linear-gradient(-90deg, #de64ac, #af3a7c);
+    -pie-background: linear-gradient(-90deg, #de64ac, #af3a7c);
+
+    color: white;
+    text-shadow: #2a6b8e 0px -1px;
+    behavior: url(PIE.htc);
+}
+.purple:active, .purple:disabled {
+    background: #ca4b93;
+}
+
+.gray {
+    background: #c5c4c6;
+    background: -webkit-gradient(linear, left top, left bottom, from(#c5c4c6), to(#898585));
+    background: -moz-linear-gradient(-90deg, #c5c4c6, #898585);
+    -pie-background: linear-gradient(-90deg, #c5c4c6, #898585);
+
+    color: black;
+    text-shadow: #e1e1e1 0px 1px;
+}
+
+.gray:active, .gray:disabled {
+    background: #a4a1a2;
+}
+
+.gold {
+    background: #e9d637;
+    background: -webkit-gradient(linear, left top, left bottom, from(#e9d637), to(#dba02d));
+    background: -moz-linear-gradient(-90deg, #e9d637, #dba02d);
+    -pie-background: linear-gradient(-90deg, #e9d637, #dba02d);
+
+    color: black;
+    text-shadow: #e1e1e1 0px 1px;
+}
+
+.gold:active, .gold:disabled {
+    background: #cba139;
 }
 .clear {
     clear: both;
@@ -47,117 +144,8 @@ input.text, input[type=text] {
     -moz-border-radius: 3px;
 }
 
-/************* Main *************/
-#passenger_message {
-    margin: 10% auto;
-    font-size: 4em;
-    opacity: 0.5;
-    color:gold;
-    text-shadow: -1px -1px 2px #000;
-}
-#main {
-    padding: 16px 0 0;
-    background-image:url(../img/main_background.png);
-}
-#main-container {
-    /*width: 100%;*/
-    margin: 0 auto;
-}
-
-
-/************* App Yellow Header 2 *************/
-#yellow_header {
-    position: relative;
-    height: 100px;
-    margin-bottom: 1px;
-    background-color: #ffe63d;
-    background: -webkit-gradient(linear, left top, left bottom, from(#ffe63d), to(#ffdf07));
-    -webkit-box-shadow:0 -3px 3px #2a2a2a;
-    padding-left: 10px;
-    text-align: left;
-}
-
 /************* Ordering Form *************/
-.gray_header {
-    position: relative;
-    z-index: 1001;
-    background-color: #8d8d8d;
-    background: -webkit-gradient(linear, left top, left bottom, from(#8d8d8d), to(#535353));
-    background: -moz-linear-gradient(-90deg, #8d8d8d, #535353);
-    -pie-background: linear-gradient(-90deg, #8d8d8d, #535353);
-    -webkit-box-shadow:0 3px 3px black;
-    -moz-box-shadow:0 3px 3px black;
-    box-shadow:0 3px 3px black;
-    border-top: 1px solid #f1f1f1;
-}
-#button_container {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-}
-#bottom_toolbar {
-    height: 75px;
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#E5E5E5), color-stop(1%,#707070), color-stop(100%,#292929)); 
-}
 
-#map {
-    height: 277px;
-    width: 320px;
-}
-#map_container {
-    visibility: hidden;
-    position: relative;
-    float: right;
-    height: 250px;
-    width: 530px;
-/*background:white url(../img/map.png) left top no-repeat;*/
-}
-#map_overlay_left {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 250px;
-    width: 3px;
-    background: transparent;
-    -moz-box-shadow:inset 2px 2px 2px #2a2a2a;
-    -webkit-box-shadow:inset 2px 2px 2px #2a2a2a;
-    box-shadow:inset 2px 2px 2px #2a2a2a;
-}
-#map_overlay_top {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 3px;
-    width: 530px;
-    background: transparent;
-    -moz-box-shadow:inset 2px 2px 2px #2a2a2a;
-    -webkit-box-shadow:inset 2px 2px 2px #2a2a2a;
-    box-shadow:inset 2px 2px 2px #2a2a2a;
-}
-input.big_text {
-    width: 100%;
-    height: 38px;
-    padding: 8px;
-    border-color: #6e6e6e;
-    border-style: solid;
-    border-width: 1px;
-    font-size: 14px;
-    background-repeat: no-repeat;
-    background-image: url(../img/markers.png);
-}
-.padder {
-    padding: 4px;
-    padding-left: 0;
-    padding-right: 0;
-}
-input.a_marker {
-    padding-left: 39px;
-    background-position: 6px -35px;
-}
-input.b_marker {
-    padding-left: 39px;
-    background-position: 6px 4px;
-}
 
 input.a_marker.marker_disabled {
     background-position: 6px -113px;
@@ -188,134 +176,235 @@ button.order_button:disabled {
     background-position: 0 -59px;
 }
 
-/************* Ride Results *************/
-#ride_results ul {
-    border: 1px solid #6e6e6e;
-     -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    -moz-box-shadow:0 2px 1px #292929 inset;
-    -webkit-box-shadow:0 2px 1px #292929 inset;
-    box-shadow:0 2px 1px #292929 inset;
-    background: #fff;
+#map_container {
+    position:relative;
+}
+#ride_cost_estimate {
+    position:absolute;
+    right: 15px;
+    z-index: 1000;
+    width: 75%;
+    height: 34px;
+    bottom: 10px;
+    padding:5px 20px 10px 44px;
+    background: rgba(0, 0, 0, 0.8) url("/static/images/mobile/calculator.png") 2px 4px no-repeat;
+    -webkit-border-radius:8px;
+    text-align: left;
+}
+#ride_cost_estimate > .text {
+    color:white;
+    font-size: 13px;
+    font-weight: bold;
+    line-height: 16px;
 
 }
-#ride_results a {
-    display: block;
-    height: 1.6em;
-    padding: 8px 8px 8px 39px;
-    border-bottom: 1px solid #6e6e6e;
-    text-align: left;
-    font-size: 1.5em;
-    font-weight: bold;
-    text-decoration:none;
-    background-image: url(../img/markers.png);
+#close_estimate {
+    position: absolute;
+    top:4px;
+    right: 4px;
+    width: 20px;
+    height: 20px;
+    background-image:url(/static/images/mobile/calc_x.png);
     background-repeat: no-repeat;
 }
-#ride_results a#from_raw_result {
-    background-position: 6px -35px;
+#gray_header .cancel_button {
+    position: absolute;
+    right: -53px;
+    top: 11px;
+    -webkit-border-image: none;
+    background: url(/static/images/mobile/cancel_back.png) no-repeat;
+    background-position: 0 -48px;
+    height: 38px;
+    background-color: transparent;
+    border:none;
+    width: 53px;
+    color:white;
+    font-size: 12px;
+    font-weight: bold;
+    -webkit-transition: all 0.3s ease-in-out;
+    opacity: 0;
 }
-#ride_results a#to_raw_result {
-    background-position: 6px 4px;
-}
-#ride_results div#ride_cost_estimate {
-    height: 1.6em;
-    padding: 8px 8px 8px 39px;
-    font-size: 1.5em;
-    background: url(../img/cost.jpg) left center no-repeat;
-}
-
-/* jQuery UI Hacking */
-ul.ui-autocomplete.ui-menu.ui-widget.ui-widget-content.ui-corner-all {
-    left: 0 !important;
-    width: 100% !important;
-    padding: 5px 0 0;
-    -moz-border-radius: 0 !important;
-    -webkit-border-radius: 0 !important;
-    border-radius: 0 !important;
-}
-ul.ui-autocomplete.ui-menu li.ui-menu-item {
-    background: #fff url("../images/devices/device-width-320/list_icons.png") left 6px no-repeat;
-    border-top: 1px solid #aaa;
-}
-ul.ui-autocomplete.ui-menu li.ui-menu-item:last-child {
-    border-bottom: 1px solid #aaa;
-}
-ul.ui-autocomplete.ui-menu li.ui-menu-item > a {
-    color: #000;
-    line-height: 1em;
-    font-size: 2em;
+#gray_header .cancel_button.visible {
+    right: 3px;
+    opacity: 1;
 }
 
-@media screen and (max-device-width: 240px) {}
-@media screen and (max-device-width: 320px) {
+.padder {
+    padding: 4px;
+    padding-left: 2px;
+    padding-right: 0;
+    text-align: left;
+    width: 97%;
+    -webkit-transition: width 0.3s ease;
+}
 
-* {
-    margin: 0; padding: 0;
+#gray_header {
+    position: relative;
+    z-index: 1001;
+    background-color: #8d8d8d;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#7D7D7D), color-stop(100%,#353535));
+    -webkit-box-shadow:0 3px 3px black;
+    box-shadow:0 3px 3px black;
+    border-top: 1px solid #f1f1f1;
+    text-align: left;
+    padding: 5px 5px;
 }
-body {
-    font-size: 10px;
-    line-height: 1.5em; 
+
+#bottom_toolbar {
+    position: relative;
+    height: 75px;
+    z-index: 1500;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#E5E5E5), color-stop(1%,#707070), color-stop(100%,#292929));
+    -webkit-box-shadow:0 -3px 10px black;
+    box-shadow:0 -3px 10px black;
 }
+
+#map {
+    height: 277px;
+    width: 100%;
+}
+.toolbar_button {
+    background-image: url(/static/images/mobile/history_gps_icons.png), url(/static/images/mobile/toggle_gps_contacts.png);
+    height: 27px;
+    width: 155px;
+    background-position: 0 -51px;
+    background-color: transparent;
+    border: none;
+    color:white;
+    display: inline;
+    font-weight: bold;
+    background-repeat: no-repeat, no-repeat;
+}
+.toolbar_button:active {
+    color:black;
+}
+#gps_button {
+    margin-left:-3px;
+    background-position: 42px -47px, 0 -106px;
+}
+#gps_button:active {
+    background-position: 42px -71px, 0 -71px;
+}
+
+#history_button {
+    background-position: 35px 4px, 0 -35px;
+}
+
+#history_button:active {
+    background-position: 35px -20px, 0 0;
+}
+
+
 input.big_text {
-    width: 84%;
-    height: 1.6em;
-    margin: 0 0 2%;
-    padding: 8px;
-    margin-bottom: 0;
-    font-size: 1.5em;
+    width: 85%;
+    /*height: 38px;*/
+    padding: 7px;
+    border-color: #6e6e6e;
+    border-style: solid;
+    border-width: 1px;
+    font-size: 14px;
+    background-repeat: no-repeat;
+    background-image: url(/static/images/mobile/A_B_textboxes.png);
 }
-input.a_marker {
-    padding-left: 39px;
-    background-position: 6px -32px;
-}
-input.b_marker {
-    padding-left: 39px;
-    background-position: 6px 7px;
+.padder.shorter {
+    width: 78%;
 }
 
-input.a_marker.marker_disabled {
-    background-position: 6px -110px;
+.sources_toolbar {
+    margin-top: 7px;
 }
-input.b_marker.marker_disabled {
-    background-position: 6px -71px;
+.glass_pane {
+    background: rgba(0,0,0,0.9);
+    color:white;
+    /*display: none;*/
+    width: 100%;
+    height: 100%;
+    size: 200px;
+    -webkit-transition: all 0.3s ease;
+    position: absolute;
+    top: 100%;
+    z-index: 2000;
 }
-span.fade {
+.glass_pane.show {
+    /*display: block;*/
     top: 0;
-    width: 3em;
-    height: 3em;
 }
-span.left-fade {
-    left: 0;
+.glass_pane > #top {
+    margin-top: 20px;
+    height: 50%;
+    color:white;
+    font-weight: bold;
+    font-size: 30px;
 }
-span.right-fade {
-    right: 0;
+.glass_pane > #top.loading {
+    background-image: url(/static/images/mobile/loader.gif);
+    background-repeat: no-repeat;
+    background-position: center;
 }
-.gray_header {
-    padding: 2% 5%;
+.glass_pane > #bottom {
+    position: relative;
+    color:white;
+    font-weight: bold;
+    font-size: 16px;
 }
-#main {
-    padding: 1em 0 0;
+.glass_pane .buttons {
+    margin-top: 10px;
+
 }
-#roller div {
-    padding-bottom: 0.5em;
-    font-size: 1.5em;
-    font-weight: normal;
+.glass_pane button {
+    height: 53px;
+    width: 145px;
+    background-image: url(/static/images/mobile/gps_refresh_cancel.png);
+    background-position: 0 3px;
+    background-color: transparent;
+    border:none;
+    font-size: 16px;
+    font-weight: bold;
 }
-#taxi_tab {
-    top: -3.8em;
-    left: 2em;
-    width: 190px;
-    height: 4em;
+.glass_pane button:active {
+    background-position: 0 -63px;
 }
-#taxi_tab > h1 {
-    margin-top: 9%;
-    font-family: sans-serif;
-    font-size: 2.5em;
+/* theme hacks */
+.back {
+    -webkit-border-image: none !important;
+    background-image: url(/static/images/mobile/cancel_back.png);
+    height: 37px;
+    width: 50px;
+    background-position: 0 -95px;
+    line-height: 36px;
+    padding-left: 3px;
 }
-#yellow_header {
-    height: 1em;
+.back:active {
+    -webkit-border-image: none;
+    background-position: 0 -141px;
+}
+.toolbar {
+    height: 51px;
+}
+#content {
+    position: relative;
 }
 
 
+/************* Cost Estimate *************/
+
+
+.ui-button-text {
+    color: inherit;
+}
+
+/*** Theme hacks **/
+ul li {
+    background-color: #d3d3d3;
+    text-align: left;
+}
+
+ul li label {
+    margin-bottom: 10px;
+    display: block;
+}
+
+ul li input[type="tel"] {
+    padding: 2% 0 2% 1%;
+    width: 99%;
 }

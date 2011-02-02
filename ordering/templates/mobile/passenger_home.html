@@ -8,6 +8,7 @@
 <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
 <script>
     $(document).ready(function() {
+
         OrderingHelper.init({
             resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
             resolve_coordinate_url:     "{% url ordering.passenger_controller.resolve_coordinates %}",
@@ -16,16 +17,129 @@
             not_a_user_response:        "{{ not_a_user }}",
             telmap_user:                "{{ telmap_user }}",
             telmap_password:            "{{ telmap_password}}",
-            passenger_messages:         {
-                'from'      : '{% trans "Where From?" %}',
-                'to'        : '{% trans "Where To?" %}',
-                'register'  : '{% trans "First Time?" %}'
+            messages:         {
+                estimation_msg:          "{% trans 'Fill pickup and dropoff for price and time estimation ' %}",
+                finding_location:        "{% trans 'Finding Your Location...' %}",
+                sorry_msg:               "{% trans 'No Location Found' %}",
+                no_location_msg:         "{% trans 'Unable to locate your position' %}",
+                order_sent_msg:          "{% trans 'Order Sent!\n\nAn SMS with ride details will be sent soon'%}"
             }
         });
+        var map_height;
+        if ("standalone" in window.navigator && window.navigator.standalone) {
+            map_height = $(window).height() - $("#gray_header").height() - $("#bottom_toolbar").height() + 30;
+        } else {
+            map_height = $(window).height() - $("#gray_header").height() - $("#bottom_toolbar").height() + 90;
+        }
+//        $('#sms_dialog').bind('pageAnimationEnd', function(event, info){
+//            $(":focus").blur();
+//        });
 
+        $("#map").css({height: map_height + "px" });
+        $("#ride_cost_estimate > .text").text(OrderingHelper.config.messages.estimation_msg).click(function () {
+            $jqt.goTo("#sms_dialog", "slideleft");
+        });
+        $("#close_estimate").click(function() {
+            $("#ride_cost_estimate").fadeOut("fast");
+        });
+        $(".cancel_button").click(function() {
+            OrderingHelper.switchState();
+            OrderingHelper.hideGlassPane();
+        });
+        $(".wb_button").button().button("disable");
+        $("#local_phone").keyup(function() {
+            if ($(this).val()) {
+                $("#send_code").button("enable");
+            } else {
+                $("#send_code").button("disable");        
+            }
+        });
+        $("#send_code").click(function() {
+            var $button = $(this);
+            $button.button("disable").text("{% trans 'Sending...' %}");
+            $.ajax({
+                url :"{% url ordering.passenger_controller.send_sms_verification %}",
+                type : 'post',
+                data : $("#verification_form").serialize(),
+                success : function (response) {
+                    $("#verification_code").focus();
+                },
+                error :function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('error send sms: ' + XMLHttpRequest.responseText);
+                },
+                complete: function() {
+                    $button.button('enable').text("{% trans 'Send Verification Code' %}");
+                }
+            });
+        });
+        $("#verification_code").keyup(function() {
+            if ($(this).val().length == 4) {
+                $("#finish_verification").button("enable");
+            } else {
+                $("#finish_verification").button("disable");
+            }
+        });
+        $("#finish_verification").click(function() {
+            $.ajax({
+                url :"{% url ordering.passenger_controller.validate_phone %}",
+                type : 'post',
+                data : $("#verification_form").serialize(),
+                success : function (response) {
+                    $jqt.goBack();
+                    OrderingHelper.bookOrder();
+                },
+                error :function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(XMLHttpRequest.responseText);
+                    $("#send_code").button('enable');
+                }
+            });
+        });
+        $(".sources_toolbar").hide();
+        $("#gps_button").click(function(e) {
+            OrderingHelper.setLocationGPS(OrderingHelper.current_flow_state);
+            e.preventDefault();
+        });
+
+        $("#home input:text").each(function(i, element) {
+            var address_type = element.name.split("_")[0];
+            $(element).change(function(e) {
+                var params = { "term": $(element).val() };
+                $.ajax({
+                        url: "{% url ordering.passenger_controller.resolve_address %}",
+//                        url: that.config.resolve_address_url,
+                        data: params,
+                        dataType: "json",
+                        success: function(resolve_results) {
+                            if (resolve_results.geocode.length == 0 && resolve_results.history.length == 0) {
+                                alert('{% trans "Could not resolve address" %}');
+                                // handle unresolved addresses
+                            } else { 
+                                $("#resolve_addresses ul").empty();
+                                // render results
+                                $.each(resolve_results.geocode, function(i, item) {
+                                    var address = Address.fromServerResponse(item, address_type),
+                                        $link = $("<a href='#'></a>").text(item.name).click(function() {
+                                            OrderingHelper.updateAddressChoice(address);
+                                            $jqt.goBack();
+                                        }),
+                                        $li = $("<li></li>").append($link);
+                                    $("#resolve_addresses ul").append($li);
+                                });
+                                $jqt.goTo("#resolve_addresses", "slideleft");
+                            }
+                        },
+                        complete:   function() {
+                            OrderingHelper.validateForBooking();
+                        }
+                    });
+
+            });
+        });
     });
 
 </script>
+<style>
+</style>
 {% endblock %}
 
 {% block topcontrol %}
@@ -41,16 +155,27 @@
         <div class="padder">
             <input type=text class="big_text a_marker" id="id_from_raw" name="from_raw" placeholder="{% trans 'Enter street and city' %}"/>
         </div>
+        <button type="button" class="cancel_button">{% trans 'Cancel' %}</button>
         <div class="padder">
             <input type=text class="big_text b_marker" id="id_to_raw" name="to_raw" placeholder="{% trans 'Enter street and city' %}"/>
+        </div>
+        <button type="button" class="cancel_button">{% trans 'Cancel' %}</button>
+        <div class="sources_toolbar">
+            <button type="button" id="history_button" class="toolbar_button">{% trans 'History' %}</button>
+            <button type="button" id="gps_button" class="toolbar_button">{% trans 'GPS' %}</button>
         </div>
     </form>
 {% endblock topcontrol %}
 {% block content %}
-    <div id="map"></div>
+    <div id="map_container">
+        <div id="ride_cost_estimate"><span class="text"></span><span id="close_estimate"></span></div>
+        <div id="map"></div>
+    </div>
+    <div id="bottom_toolbar" class="">
+        <button type="submit" class="order_button" id="order_button"></button>
+    </div>
+    <div class="glass_pane">
+        <div id="top"></div>
+        <div id="bottom"></div>
+    </div>
 {% endblock content %}
-{% block bottom_toolbar %}
-    <button class="order_button" id="order_button"></button>
-{% endblock bottom_toolbar %}
-{% block footer %}
-{% endblock footer %}
