@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-01-24 14:59+0200\n"
-"PO-Revision-Date: 2011-01-24 15:06+0200\n"
-"Last-Translator: guy <guy@waybetter.com>\n"
+"POT-Creation-Date: 2011-02-03 01:37+0200\n"
+"PO-Revision-Date: 2011-02-03 01:38+0200\n"
+"Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -247,6 +247,7 @@ msgid "Enter SMS code"
 msgstr " קוד ה-SMS שקיבלת"
 
 #: common/templates/code_form.html:20
+#: templates/mobile/base.html:77
 msgid "Finish"
 msgstr "סיום"
 
@@ -293,7 +294,7 @@ msgstr "שליחה"
 
 #: common/templates/feedback_form.html:132
 #: interests/templates/mobile_interest_form.html:48
-#: interests/templates/station_interest_form.html:59
+#: interests/templates/station_interest_form.html:39
 #: ordering/templates/workstation_home.html:507
 msgid "Close"
 msgstr "סגירה"
@@ -349,6 +350,7 @@ msgstr "סיום"
 
 #: common/templates/phone_verification_form.html:21
 #: ordering/templates/workstation_home.html:497
+#: ordering/templates/mobile/passenger_home.html:59
 msgid "Sending..."
 msgstr "שולח..."
 
@@ -591,7 +593,7 @@ msgid "Please notify me when the app is ready for download"
 msgstr "אשמח אם תידעו אותי כשהאפליקציה זמינה להורדה"
 
 #: interests/templates/mobile_interest_form.html:47
-#: interests/templates/station_interest_form.html:58
+#: interests/templates/station_interest_form.html:38
 #: ordering/templates/workstation_home.html:453
 msgid "Send"
 msgstr "שליחה"
@@ -600,11 +602,11 @@ msgstr "שליחה"
 msgid "Join WAYbetter"
 msgstr "הצטרף ל<span class=waybetter></span>"
 
-#: interests/templates/station_interest_form.html:51
+#: interests/templates/station_interest_form.html:31
 msgid "Please fill the following details and we will contact you"
 msgstr "אנא מלא את הפרטים הבאים ואנו ניצור עמך קשר"
 
-#: interests/templates/station_interest_form.html:60
+#: interests/templates/station_interest_form.html:40
 msgid "Thanks for your interest.<br>Your details have been sent and we will contact you in 2 business days"
 msgstr "תודה על הענין.<br>הפרטים שלך התקבלו ואנו ניצור עמך קשר תוך 2 ימי עסקים"
 
@@ -1183,46 +1185,46 @@ msgstr ""
 msgid "You can't rate this order"
 msgstr "אין אפשרות לדרג הזמנה זו"
 
-#: ordering/passenger_controller.py:137
+#: ordering/passenger_controller.py:138
 msgid "Estimated ride cost"
 msgstr "מחיר נסיעה משוער"
 
-#: ordering/passenger_controller.py:140
+#: ordering/passenger_controller.py:141
 msgid "Flat rate"
 msgstr "מחיר מחירון"
 
-#: ordering/passenger_controller.py:146
+#: ordering/passenger_controller.py:147
 msgid "min"
 msgstr "דקות"
 
-#: ordering/passenger_controller.py:168
-#: ordering/passenger_controller.py:186
+#: ordering/passenger_controller.py:169
+#: ordering/passenger_controller.py:187
 msgid "Your Ride Could Not Be Ordered"
 msgstr "לא ניתן להזמין נסיעה זו"
 
-#: ordering/passenger_controller.py:169
+#: ordering/passenger_controller.py:170
 msgid "Ordering is not allowed so soon after another order"
 msgstr "לא ניתן להזמין כמה נסיעות בסמיכות."
 
-#: ordering/passenger_controller.py:247
+#: ordering/passenger_controller.py:248
 #, python-format
 msgid "Verification code: %s"
 msgstr "קוד אימות: %s"
 
-#: ordering/passenger_controller.py:259
-#: ordering/passenger_controller.py:356
+#: ordering/passenger_controller.py:260
+#: ordering/passenger_controller.py:357
 msgid "Invalid verification code"
 msgstr "קוד SMS שגוי"
 
-#: ordering/passenger_controller.py:282
+#: ordering/passenger_controller.py:283
 msgid "wrong username/password"
 msgstr "שם המשתמש או הסיסמה אינם נכונים"
 
-#: ordering/passenger_controller.py:293
+#: ordering/passenger_controller.py:294
 msgid "Username already taken"
 msgstr "שם משתמש כבר תפוס"
 
-#: ordering/passenger_controller.py:296
+#: ordering/passenger_controller.py:297
 msgid "Missing required parameters"
 msgstr "שדות חסרים"
 
@@ -1347,7 +1349,6 @@ msgstr "טען כללים תמחור ספציפי (בינעירוניים taarif
 
 #: ordering/templates/info.html:41
 #: ordering/templates/passenger_home.html:100
-#: templates/mobile/base.html:61
 msgid "TAXI"
 msgstr "TAXI"
 
@@ -1400,6 +1401,7 @@ msgid "The address is not resolved"
 msgstr "כתובת לא ידועה. יש לבחור כתובת מהרשימה"
 
 #: ordering/templates/passenger_home.html:27
+#: ordering/templates/mobile/passenger_home.html:21
 msgid "Fill pickup and dropoff for price and time estimation "
 msgstr "לחישוב מחיר וזמן נסיעה משוערים יש למלא מוצא ויעד"
 
@@ -1633,26 +1635,55 @@ msgstr "התנתק"
 msgid "and try again"
 msgstr "ונסה שוב"
 
-#: ordering/templates/mobile/passenger_home.html:20
-#: ordering/templates/mobile/passenger_home.html:65
-msgid "Where From?"
-msgstr "כתובת מוצא"
-
-#: ordering/templates/mobile/passenger_home.html:21
-msgid "Where To?"
-msgstr "כתובת יעד"
-
 #: ordering/templates/mobile/passenger_home.html:22
-msgid "First Time?"
-msgstr "פעם ראשונה?"
+msgid "Finding Your Location..."
+msgstr "מחפש את מיקומך..."
 
-#: ordering/templates/mobile/passenger_home.html:44
-msgid "Enter Pickup Address:"
-msgstr "כתובת איסוף:"
+#: ordering/templates/mobile/passenger_home.html:23
+msgid "No Location Found"
+msgstr "לא נמצא מיקום"
 
-#: ordering/templates/mobile/passenger_home.html:49
-msgid "Enter Drop-off Address:"
-msgstr "כתובת יעד:"
+#: ordering/templates/mobile/passenger_home.html:24
+msgid "Unable to locate your position"
+msgstr "לא ניתן לאתר את מיקומך הנוכחי"
+
+#: ordering/templates/mobile/passenger_home.html:25
+msgid ""
+"Order Sent!\\n"
+"\\n"
+"An SMS with ride details will be sent soon"
+msgstr ""
+"הזמנה נשלחה!\\n"
+"\\n"
+"התחנות הקרובות מחפשות עבורך מונית פנויה. הודעת SMS עם פרטי הנסיעה תשלח אליך מיד..."
+
+#: ordering/templates/mobile/passenger_home.html:71
+#: templates/mobile/base.html:73
+msgid "Send Verification Code"
+msgstr "שלח קוד אימות"
+
+#: ordering/templates/mobile/passenger_home.html:114
+msgid "Could not resolve address"
+msgstr "כתובת לא ידועה"
+
+#: ordering/templates/mobile/passenger_home.html:156
+#: ordering/templates/mobile/passenger_home.html:160
+msgid "Enter street and city"
+msgstr "הזן עיר ורחוב"
+
+#: ordering/templates/mobile/passenger_home.html:158
+#: ordering/templates/mobile/passenger_home.html:162
+#: templates/mobile/base.html:55
+msgid "Cancel"
+msgstr "ביטול"
+
+#: ordering/templates/mobile/passenger_home.html:164
+msgid "History"
+msgstr "נסיעות קודמות"
+
+#: ordering/templates/mobile/passenger_home.html:165
+msgid "GPS"
+msgstr ""
 
 #: registration/admin.py:23
 msgid "Activate users"
@@ -1763,6 +1794,26 @@ msgstr "הדרך הטובה ביותר להשיג מונית (חינם)"
 msgid "No connection to server"
 msgstr "אין חיבור לשרת"
 
+#: templates/mobile/base.html:54
+msgid "Select Address"
+msgstr "בחר כתובת"
+
+#: templates/mobile/base.html:62
+msgid "Verification"
+msgstr "אימות טלפון"
+
+#: templates/mobile/base.html:63
+msgid "Back"
+msgstr "חזרה"
+
+#: templates/mobile/base.html:68
+msgid "Enter your mobile number"
+msgstr " מספר הטלפון הנייד שלך"
+
+#: templates/mobile/base.html:74
+msgid "Enter verification code"
+msgstr "קוד אימות טלפוני"
+
 #: templates/registration/activate.html:8
 #: templates/registration/activation_complete.html:6
 msgid "Account successfully activated"
@@ -1832,6 +1883,24 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 #: tinymce/views.py:68
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
+
+#~ msgid "Enter your mobile number:"
+#~ msgstr " מספר הטלפון הנייד שלך:"
+
+#~ msgid "Where From?"
+#~ msgstr "כתובת מוצא"
+
+#~ msgid "Where To?"
+#~ msgstr "כתובת יעד"
+
+#~ msgid "First Time?"
+#~ msgstr "פעם ראשונה?"
+
+#~ msgid "Enter Pickup Address:"
+#~ msgstr "כתובת איסוף:"
+
+#~ msgid "Enter Drop-off Address:"
+#~ msgstr "כתובת יעד:"
 
 #~ msgid "state"
 #~ msgstr "מדינה"
