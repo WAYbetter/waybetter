@@ -90,12 +90,6 @@ indexes:
 
 - kind: ordering_order
   properties:
-  - name: passenger_id
-  - name: status
-  - name: idxf_from_raw_l_icontains
-
-- kind: ordering_order
-  properties:
   - name: __key__
     direction: desc
 
@@ -175,6 +169,12 @@ indexes:
   - name: status
   - name: create_date
     direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: status
+  - name: idxf_from_raw_l_icontains
 
 - kind: ordering_order
   properties:

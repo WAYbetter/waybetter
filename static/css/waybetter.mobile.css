@@ -264,9 +264,9 @@ button.order_button:disabled {
     width: 100%;
 }
 .toolbar_button {
-    background-image: url(/static/images/mobile/history_gps_icons.png), url(/static/images/mobile/toggle_gps_contacts.png);
+    background-image: url(/static/images/mobile/history_gps_icons.png), url(/static/images/mobile/gps.png);
     height: 27px;
-    width: 155px;
+    width: 317px;
     background-position: 0 -51px;
     background-color: transparent;
     border: none;
@@ -275,15 +275,18 @@ button.order_button:disabled {
     font-weight: bold;
     background-repeat: no-repeat, no-repeat;
 }
-.toolbar_button:active {
+.toolbar_button:active, .toolbar_button.active {
     color:black;
 }
 #gps_button {
     margin-left:-3px;
-    background-position: 42px -47px, 0 -106px;
+    background-position: 42px -47px, 0 -70px;
 }
-#gps_button:active {
-    background-position: 42px -71px, 0 -71px;
+#gps_button.from:active, #gps_button.from.active {
+    background-position: 42px -71px, 0 0;
+}
+#gps_button.to:active, #gps_button.to.active {
+    background-position: 42px -71px, 0 -35px;
 }
 
 #history_button {
@@ -312,6 +315,8 @@ input.big_text {
 
 .sources_toolbar {
     margin-top: 7px;
+    text-align: center;
+    margin-right: -6px;
 }
 .glass_pane {
     background: rgba(0,0,0,0.9);

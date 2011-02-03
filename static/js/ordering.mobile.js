@@ -81,7 +81,10 @@ var OrderingHelper = Object.create({
             estimation_msg:         "",
             no_location_msg:        "",
             sorry_msg:              "",
-            order_sent_msg:         ""
+            order_sent_msg:         "",
+            cancel:                 "",
+            are_you_sure:           "",
+            try_again:              ""
         }
 
     },
@@ -130,6 +133,9 @@ var OrderingHelper = Object.create({
             if (cache.$order_button.attr("disabled")) {
                 return false;
             }
+            if (! confirm(that.config.messages.are_you_sure)) {
+                return false;
+            }
 
             cache.$order_button.button("disable");
 
@@ -176,6 +182,7 @@ var OrderingHelper = Object.create({
                 window.setTimeout(function() {
                     that.cache.$to_raw_input.parent().hide();
                     that.cache.$from_raw_input.parent().addClass("shorter").next().addClass("visible");
+                    $("#gps_button").removeClass("to").addClass('from');
                     $(".sources_toolbar").show();
                 }, 10);
                 break;
@@ -183,6 +190,7 @@ var OrderingHelper = Object.create({
                 window.setTimeout(function() { // this is here to fix a bug where the caret is not displayed in the input field
                     that.cache.$from_raw_input.parent().hide();
                     that.cache.$to_raw_input.parent().addClass("shorter").next().addClass("visible");
+                    $("#gps_button").removeClass("from").addClass('to');
                     $(".sources_toolbar").show();
                 }, 10);
                 break;
@@ -199,23 +207,24 @@ var OrderingHelper = Object.create({
         $(".glass_pane > #bottom").empty().text(options.message);
 
         $(".glass_pane").addClass("show");
+        $("#gps_button").addClass("active")
     },
     hideGlassPane:              function() {
+        $("#gps_button").removeClass("active");
         $(".glass_pane").removeClass("show");
     },
     showLocationError:          function() {
         var that = this,
-            cancel_button = $("<button></button>").text("Cancel").click(function() {
+            cancel_button = $("<button></button>").text(that.config.messages.cancel).click(function() {
                 that.hideGlassPane();
             }),
-            try_again_button = $("<button></button>").text("Try Again").click(function() {
+            try_again_button = $("<button></button>").text(that.config.messages.try_again).click(function() {
                 that.setLocationGPS(that.current_flow_state);
             }),
             buttons = $("<div class='buttons'></div>").append(cancel_button).append(try_again_button);
 
         $(".glass_pane > #top").text(that.config.messages.sorry_msg).removeClass("loading");
         $(".glass_pane > #bottom").text(that.config.messages.no_location_msg).append(buttons);
-        this.ACCURACY_THRESHOLD = 1000;
     },
     locationSuccess:            function(position) {
         var that = this;

@@ -49,12 +49,28 @@ input.b_marker {
 }
 
 #gps_button {
-    background-position: 98% 4px, 0 -35px;
+    background-position: 97% 4px, 0 -70px;
 }
 
-#gps_button:active {
-    background-position: 98% -20px, 0 0;
+#gps_button.from:active, #gps_button.from.active {
+    background-position: 97% -20px, 0 0;
 }
+
+#gps_button.to:active, #gps_button.to.active {
+    background-position: 97% -20px, 0 -35px;
+}
+button.order_button {
+    width: 290px;
+    height:61px;
+    background: url("/static/images/mobile/book_button_he.png") center top no-repeat;
+}
+button.order_button:active{
+    background-position: 0 -66px;
+}
+button.order_button:disabled {
+    background-position: 0 -133px;
+}
+
 
 ul li {
     text-align: right;
