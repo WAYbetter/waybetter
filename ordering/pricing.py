@@ -118,8 +118,8 @@ def filter_relevant_daytime_rules(rule_list, day, time):
                 continue
                 # if rule is time-dependent check if it applies at time
         if rule.from_hour and rule.to_hour:
-            start_time = datetime.time(rule.from_hour.hour, rule.from_hour.minute, rule.from_hour.second)
-            end_time = datetime.time(rule.to_hour.hour, rule.to_hour.minute, rule.to_hour.second)
+            start_time = rule.from_hour
+            end_time = rule.to_hour
             if start_time < end_time:
                 if not (start_time <= time <= end_time):
                     continue
@@ -192,10 +192,12 @@ def filter_relevant_duration_rules(rule_list, est_duration):
 
 
 TARIFF1_START = datetime.time(05,30,00)
-TARIFF1_END = datetime.time(21,00,00)
-TARIFF2_START = datetime.time(21,00,00,1)
+TARIFF1_END = datetime.time(20,59,59, 999999)
+TARIFF2_START = datetime.time(21,00,00)
 TARIFF2_END = datetime.time(05,29,59,999999)
 MIDNIGHT = datetime.time(23,59,59,999999)
+SABBATH_START = datetime.time(17,00,00,000000)
+SABBATH_START_MINUS_EPSILON = datetime.time(16,59,59,999999)
 
 def setup_israel_meter_and_extra_charge_rules():
 
@@ -204,18 +206,33 @@ def setup_israel_meter_and_extra_charge_rules():
     # meter rules
     IL.metered_rules.all().delete()
     meter_rules=[
-            MeteredRateRule(rule_name="Tariff 1 initial cost",country=IL,from_day=1, to_day=6, from_hour=TARIFF1_START, to_hour=TARIFF1_END, from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=11.1),
-            MeteredRateRule(rule_name="Tariff 2 initial cost",country=IL,from_day=1, to_day=6, from_hour=TARIFF2_START, to_hour=TARIFF2_END, from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=11.1),
+            # Weekdays
+            MeteredRateRule(rule_name="Tariff 1 initial cost",country=IL,from_day=1, to_day=5, from_hour=TARIFF1_START, to_hour=TARIFF1_END, from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=11.1),
+            MeteredRateRule(rule_name="Tariff 2 initial cost",country=IL,from_day=1, to_day=5, from_hour=TARIFF2_START, to_hour=TARIFF2_END, from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=11.1),
 
-            MeteredRateRule(rule_name="Tariff 1 first 15 km",country=IL,from_day=1, to_day=6, from_hour=TARIFF1_START, to_hour=TARIFF1_END, from_duration=83, to_duration=None, from_distance=559.45, to_distance=15000, tick_distance=90.09, tick_time=12, tick_cost=0.3, fixed_cost=None),
-            MeteredRateRule(rule_name="Tariff 2 first 15 km",country=IL,from_day=1, to_day=6, from_hour=TARIFF2_START, to_hour=TARIFF2_END, from_duration=36, to_duration=None, from_distance=153.81, to_distance=15000, tick_distance=72.15, tick_time=10, tick_cost=0.3, fixed_cost=None),
+            MeteredRateRule(rule_name="Tariff 1 first 15 km",country=IL,from_day=1, to_day=5, from_hour=TARIFF1_START, to_hour=TARIFF1_END, from_duration=83, to_duration=None, from_distance=559.45, to_distance=15000, tick_distance=90.09, tick_time=12, tick_cost=0.3, fixed_cost=None),
+            MeteredRateRule(rule_name="Tariff 2 first 15 km",country=IL,from_day=1, to_day=5, from_hour=TARIFF2_START, to_hour=TARIFF2_END, from_duration=36, to_duration=None, from_distance=153.81, to_distance=15000, tick_distance=72.15, tick_time=10, tick_cost=0.3, fixed_cost=None),
 
-            MeteredRateRule(rule_name="Tariff 1 after 15 km",country=IL,from_day=1, to_day=6, from_hour=TARIFF1_START, to_hour=TARIFF1_END, from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=75.14, tick_time=12, tick_cost=0.3, fixed_cost=None),
-            MeteredRateRule(rule_name="Tariff 2 after 15 km",country=IL,from_day=1, to_day=6, from_hour=TARIFF2_START, to_hour=TARIFF2_END, from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=60.03, tick_time=10, tick_cost=0.3, fixed_cost=None),
+            MeteredRateRule(rule_name="Tariff 1 after 15 km",country=IL,from_day=1, to_day=5, from_hour=TARIFF1_START, to_hour=TARIFF1_END, from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=75.14, tick_time=12, tick_cost=0.3, fixed_cost=None),
+            MeteredRateRule(rule_name="Tariff 2 after 15 km",country=IL,from_day=1, to_day=5, from_hour=TARIFF2_START, to_hour=TARIFF2_END, from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=60.03, tick_time=10, tick_cost=0.3, fixed_cost=None),
 
+            # Friday is a special case of a week day because of SABBATH
+            MeteredRateRule(rule_name="Friday Tariff 1 initial cost",country=IL,from_day=6, to_day=6, from_hour=TARIFF1_START, to_hour=SABBATH_START_MINUS_EPSILON, from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=11.1),
+            MeteredRateRule(rule_name="Friday Tariff 2 initial cost",country=IL,from_day=6, to_day=6, from_hour=SABBATH_START, to_hour=MIDNIGHT, from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=11.1),
+
+            MeteredRateRule(rule_name="Friday Tariff 1 first 15 km",country=IL,from_day=6, to_day=6, from_hour=TARIFF1_START, to_hour=SABBATH_START_MINUS_EPSILON, from_duration=83, to_duration=None, from_distance=559.45, to_distance=15000, tick_distance=90.09, tick_time=12, tick_cost=0.3, fixed_cost=None),
+            MeteredRateRule(rule_name="Friday Tariff 2 first 15 km",country=IL,from_day=6, to_day=6, from_hour=SABBATH_START, to_hour=MIDNIGHT, from_duration=36, to_duration=None, from_distance=153.81, to_distance=15000, tick_distance=72.15, tick_time=10, tick_cost=0.3, fixed_cost=None),
+
+            MeteredRateRule(rule_name="Friday Tariff 1 after 15 km",country=IL,from_day=6, to_day=6, from_hour=TARIFF1_START, to_hour=SABBATH_START_MINUS_EPSILON, from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=75.14, tick_time=12, tick_cost=0.3, fixed_cost=None),
+            MeteredRateRule(rule_name="Friday Tariff 2 after 15 km",country=IL,from_day=6, to_day=6, from_hour=SABBATH_START, to_hour=MIDNIGHT, from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=60.03, tick_time=10, tick_cost=0.3, fixed_cost=None),
+
+            # Saturday
             MeteredRateRule(rule_name="Saturday initial cost",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00,00), to_hour=MIDNIGHT, from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=11.1),
             MeteredRateRule(rule_name="Saturday first 15 km",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00,00), to_hour=MIDNIGHT, from_duration=36, to_duration=None, from_distance=153.81, to_distance=15000, tick_distance=72.15, tick_time=10, tick_cost=0.3, fixed_cost=None),
             MeteredRateRule(rule_name="Saturday after 15 km",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00,00), to_hour=MIDNIGHT, from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=60.03, tick_time=10, tick_cost=0.3, fixed_cost=None),
+
+
+
     ]
     for rule in meter_rules: rule.save()
 

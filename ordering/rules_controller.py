@@ -119,37 +119,43 @@ def resolve_city(cache, name, country):
 
 
 def add_flat_rate_rule(country, from_city, to_city, fixed_cost_tariff_1, fixed_cost_tariff_2):
-    # add tariff1 rule
-    rule = FlatRateRule()
-    rule.rule_name = "%s -> %s" % (from_city.name, to_city.name)
-    rule.city1 = from_city
-    rule.city2 = to_city
-    rule.fixed_cost = fixed_cost_tariff_1
-    rule.country = country
+    # Weekdays
+    rule = FlatRateRule(rule_name="%s -> %s" % (from_city.name, to_city.name), city1=from_city, city2=to_city, country=country)
     rule.from_day = 1
-    rule.to_day = 6
+    rule.to_day = 5
+    rule.fixed_cost = fixed_cost_tariff_1
     rule.from_hour = ordering.pricing.TARIFF1_START
     rule.to_hour = ordering.pricing.TARIFF1_END
     rule.save()
-    # add tariff2 rule - nights
-    rule = FlatRateRule()
-    rule.rule_name = "%s -> %s" % (from_city.name, to_city.name)
-    rule.city1 = from_city
-    rule.city2 = to_city
-    rule.fixed_cost = fixed_cost_tariff_2
-    rule.country = country
+
+    rule = FlatRateRule(rule_name="%s -> %s" % (from_city.name, to_city.name), city1=from_city, city2=to_city, country=country)
     rule.from_day = 1
-    rule.to_day = 6
+    rule.to_day = 5
+    rule.fixed_cost = fixed_cost_tariff_2
     rule.from_hour = ordering.pricing.TARIFF2_START
     rule.to_hour = ordering.pricing.TARIFF2_END
     rule.save()
-    # add tariff2 rule - weekend
-    rule = FlatRateRule()
-    rule.rule_name = "%s -> %s" % (from_city.name, to_city.name)
-    rule.city1 = from_city
-    rule.city2 = to_city
+
+    # Friday
+    rule = FlatRateRule(rule_name="%s -> %s" % (from_city.name, to_city.name), city1=from_city, city2=to_city, country=country)
+    rule.from_day = 6
+    rule.to_day = 6
+    rule.fixed_cost = fixed_cost_tariff_1
+    rule.from_hour = ordering.pricing.TARIFF1_START
+    rule.to_hour = ordering.pricing.SABBATH_START_MINUS_EPSILON
+    rule.save()
+
+    rule = FlatRateRule(rule_name="%s -> %s" % (from_city.name, to_city.name), city1=from_city, city2=to_city, country=country)
+    rule.from_day = 6
+    rule.to_day = 6
     rule.fixed_cost = fixed_cost_tariff_2
-    rule.country = country
+    rule.from_hour = ordering.pricing.SABBATH_START
+    rule.to_hour = ordering.pricing.MIDNIGHT
+    rule.save()
+
+    # Saturday
+    rule = FlatRateRule(rule_name="%s -> %s" % (from_city.name, to_city.name), city1=from_city, city2=to_city, country=country)
+    rule.fixed_cost = fixed_cost_tariff_2
     rule.from_day = 7
     rule.to_day = 7
     rule.from_hour = datetime.time(00,00,00)

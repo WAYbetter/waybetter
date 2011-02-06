@@ -7,8 +7,6 @@ TARIFF1_END = ordering.pricing.TARIFF1_END
 TARIFF2_START = ordering.pricing.TARIFF2_START
 TARIFF2_END = ordering.pricing.TARIFF2_END
 
-PHONE_ORDER = 4.5
-
 #TARIFF1
 tariff1_dict = {
     'BASE_PRICE'              : 11.1, # in NIS
