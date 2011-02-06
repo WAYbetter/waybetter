@@ -17,10 +17,16 @@
             cacheGetRequests: false,
             preloadImages: ['/static/images/mobile/loader.gif', '/static/images/mobile/gps_refresh_cancel.png']
         });
+		var addToHomeConfig = {
+			animationIn:'drop',		// Animation In
+			animationOut:'fade',		// Animation Out
+            message: 'he_il',
+		};
     </script>
-
+    <script type="application/javascript" src="/static/js/add2home.js"></script>
     <style type="text/css" media="screen">@import "/static/css/jqtouch.css";</style>
     <style type="text/css" media="screen">@import "/static/css/themes/apple/theme.css";</style>
+    <link rel="stylesheet" href="/static/css/add2home.css">
     <link rel="stylesheet" type="text/css" href="/static/css/waybetter.mobile.css" />
     <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}css/ie.css{% endblock %}" /><![endif]-->
     {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}/static/css/rtl.mobile.css{% endblock %}" />{% endif %}
