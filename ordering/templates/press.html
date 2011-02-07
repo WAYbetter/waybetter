@@ -1,0 +1,63 @@
+{% load i18n %}
+<style type="text/css">
+    #side_bar.press {
+        width: 230px;
+    }
+    #main_content.press {
+        width: 65%;
+    }
+    #side_bar.press ul > li > a {
+        width: auto;
+    }
+    #side_bar.press ul > li > div {
+        color:black;
+        font-style: italic;
+        font-size: 13px;
+        padding-top: 10px;
+    }
+    #embed_code {
+        width: 470px;
+        height: 40px;;
+        font-size: 12px;
+        font-family: monospace;
+        text-align: left;
+        direction: ltr;
+    }
+</style>
+<div id="wrapper">
+    <div id="side_bar" class="press">
+        <h1>{% trans "Press Materials" %}</h1>
+
+        <ul>
+            <li>
+                <a href=#>{% trans "Founders Image (.jpg)" %}</a>
+                <div>{% trans 'Hi-resolution image of the founders' %}</div>
+            </li>
+            <li>
+                <a href=#>{% trans "WAYbetter Logos (.zip)" %}</a>
+                <div>{% trans 'Hi-resolution logos' %}</div>
+            </li>
+            <li>
+                <a href=#>{% trans "iPhone App Screenshots (.zip)" %}</a>
+            </li>
+            <li>
+                <a href=#>{% trans "WAYbetter Website Screenshots" %}</a>
+            </li>
+        </ul>
+        <h1>{% trans 'Press Announcments' %}</h1>
+        <ul>
+            <li>
+                <a href=#>{% trans "TLV Alpha + Company Overview" %}</a>
+                <div>{% trans 'Feb 2010' %}</div>
+            </li>
+        </ul>
+    </div>
+    <div id="main_content" class="press">
+        <iframe title="YouTube video player" width="480" height="390" src="http://www.youtube.com/embed/0GKmb1-lYTg?rel=0" frameborder="0" allowfullscreen></iframe>
+        <p>{% trans 'Embed video code:' %}</p>
+        <textarea id="embed_code">
+<iframe title="YouTube video player" width="480" height="390" src="http://www.youtube.com/embed/0GKmb1-lYTg?rel=0" frameborder="0" allowfullscreen></iframe>
+        </textarea>
+    </div>
+    <div class="clear"></div>
+</div>
