@@ -42,7 +42,7 @@
         $("#feedback_peal").click(function() {
             Registrator.openFeedbackDialog();
         });
-        $("#mobile_interest").click(function() {
+        $("#keep_me_updated").click(function() {
             Registrator.openMobileInterestDialog();
 
         });
@@ -61,35 +61,6 @@
     });
 
 </script>
-<style type="text/css">
-
-    #mobile {
-        text-align: center;
-    }
-    #mobile h2 {
-        margin-bottom: 21px;
-        font-weight: bold;
-        color: #00aeef;
-    }
-    #mobile #mobile-footer {
-        background-color: #d9d9d9;
-        width:100%;
-        color: #ec008c;
-        text-transform: uppercase;
-        font-size: 28px;
-        font-weight: bold;
-        background-image: url(/static/images/smartphones_os.png);
-        background-position: 610px 0;
-        background-repeat: no-repeat;
-        margin-top: 3px;
-        margin-bottom: 3px;
-    }
-
-    #mobile #mobile_interest {
-        width: 150px;
-    }
-
-</style>
 {% endblock %}
 
 {% block content %}
@@ -144,24 +115,14 @@
                     <li><a title="stations" id="stations_tab_btn" href="{% url ordering.passenger_controller.stations_tab %}">{% trans 'Taxi Stations' %}</a></li>
                     <li><a title="mobile" id="mobile_tab_btn" href="#mobile">{% trans 'Mobile' %}</a></li>
                 </ul>
-                <div id="mobile">
-                    <h2>{% trans "Get a Taxi. Wherever You Are!" %}</h2>
-                    <img src="/static/images/mobile_button.png">
-                    <button id="mobile_interest" class="wb_button gold">{% trans "Looks Cool!" %}</button>
-                    <div id="mobile-footer">{% trans "Coming soon to all mobiles!" %}</div>
-                </div>
+            {% include 'mobile_tab.html' %}
         {% else %}
             <ul>
                 <li><a title="stations" href="{% url ordering.passenger_controller.stations_tab %}">{% trans 'Taxi Stations' %}</a></li>
                 <li><a title="mobile" href="#mobile">{% trans 'Mobile' %}</a></li>
                 <li><a title="whats_this" href="#about">{% trans "What's This?" %}</a></li>
             </ul>
-            <div id="mobile">
-                <h2>{% trans "Get a Taxi. Wherever You Are!" %}</h2>
-                <img src="/static/images/mobile_button.png">
-                <button id="mobile_interest" class="wb_button gold">{% trans "Looks Cool!" %}</button>
-                <div id="mobile-footer">{% trans "Coming soon to all mobiles!" %}</div>
-            </div>
+            {% include 'mobile_tab.html' %}
             <div id="about" style="text-align:center">
                 <div id="slider">
                     <img src="/static/images/anim_1.png" alt="" />
