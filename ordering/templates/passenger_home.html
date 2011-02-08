@@ -139,10 +139,10 @@
         <div id="tabs" class="main_tabs_margin_top">
         {% if request.user.passenger %}
                 <ul>
-                    <li><a title="history" href="{% url ordering.passenger_controller.get_passenger_orders_history %}">{% trans 'Ride History' %}</a></li>
-                    <li><a title="profile" href="{% url ordering.passenger_controller.profile_page %}">{% trans 'My Profile' %}</a></li>
-                    <li><a title="stations" href="{% url ordering.passenger_controller.stations_tab %}">{% trans 'Taxi Stations' %}</a></li>
-                    <li><a title="mobile" href="#mobile">{% trans 'Mobile' %}</a></li>
+                    <li><a title="history" id="history_tab_btn" href="{% url ordering.passenger_controller.get_passenger_orders_history %}">{% trans 'Ride History' %}</a></li>
+                    <li><a title="profile" id="profile_tab_btn" href="{% url ordering.passenger_controller.profile_page %}">{% trans 'My Profile' %}</a></li>
+                    <li><a title="stations" id="stations_tab_btn" href="{% url ordering.passenger_controller.stations_tab %}">{% trans 'Taxi Stations' %}</a></li>
+                    <li><a title="mobile" id="mobile_tab_btn" href="#mobile">{% trans 'Mobile' %}</a></li>
                 </ul>
                 <div id="mobile">
                     <h2>{% trans "Get a Taxi. Wherever You Are!" %}</h2>
