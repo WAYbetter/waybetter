@@ -174,7 +174,52 @@ indexes:
   properties:
   - name: passenger_id
   - name: status
+  - name: from_raw
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: status
+  - name: from_raw
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: status
   - name: idxf_from_raw_l_icontains
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: status
+  - name: passenger_rating
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: status
+  - name: station_name
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: status
+  - name: station_name
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: status
+  - name: to_raw
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: status
+  - name: to_raw
+    direction: desc
 
 - kind: ordering_order
   properties:

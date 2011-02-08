@@ -117,10 +117,14 @@ var OrderingHelper = Object.create({
         cache.$from_raw_input.focus(function () {
             that.switchState('from');
             return true;
+        }).change(function() {
+            that.validateForBooking();
         });
         cache.$to_raw_input.focus(function () {
             that.switchState('to');
             return true;
+        }).change(function() {
+            that.validateForBooking();
         });
 
         $("input:button, input:submit").button();
@@ -408,18 +412,19 @@ var OrderingHelper = Object.create({
         for (var address_type in this.ADDRESS_FIELD_ID_BY_TYPE) {
             var address = Address.fromFields(address_type);
             if (!address.isResolved()) {
-                this.cache.$order_button.button("disable");
                 if (this.map_markers[address.address_type]) {
                     this.map_markers[address.address_type].setMap();
                     delete this.map_markers[address.address_type];
                 }
                 this.renderMapMarkers();
                 $("#ride_cost_estimate > .text").text(this.config.messages.estimation_msg);
-
-                return;
+                if (address_type == 'from') {
+                    this.cache.$order_button.button("disable"); // disable ordering if from is not resolved
+                    return;
+                }
             }
         }
-        this.cache.$order_button.button("enable");
+        this.cache.$order_button.button("enable"); // enable ordering
     },
     bookOrder:              function () {
         this.cache.$order_button.button("enable"); // otherwise the form would not submit

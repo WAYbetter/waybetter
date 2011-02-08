@@ -106,14 +106,21 @@
         $("#home input:text").each(function(i, element) {
             var address_type = element.name.split("_")[0];
             $(element).change(function(e) {
-                var params = { "term": $(element).val() };
+                var val = $(element).val();
+                if (! val) {
+                    return;
+                }
+                var params = { "term": val };
+                $jqt.goTo("#resolve_addresses", "slideleft");
+                $("#resolve_addresses ul").addClass("loading_address").empty().append("<li>{% trans 'Looking for address' %}</li>");
                 $.ajax({
                         url: "{% url ordering.passenger_controller.resolve_address %}",
 //                        url: that.config.resolve_address_url,
                         data: params,
                         dataType: "json",
                         success: function(resolve_results) {
-                            if (resolve_results.geocode.length == 0 && resolve_results.history.length == 0) {
+                            if (resolve_results.geocode.length == 0) {
+                                $jqt.goBack();
                                 alert('{% trans "Could not resolve address" %}');
                                 // handle unresolved addresses
                             } else { 
@@ -128,11 +135,10 @@
                                         $li = $("<li></li>").append($link);
                                     $("#resolve_addresses ul").append($li);
                                 });
-                                $jqt.goTo("#resolve_addresses", "slideleft");
                             }
                         },
-                        complete:   function() {
-                            OrderingHelper.validateForBooking();
+                        complete: function() {
+                            $("#resolve_addresses ul").removeClass("loading_address")
                         }
                     });
 
@@ -142,6 +148,20 @@
 
 </script>
 <style>
+    ul.loading_address {
+        background-color: transparent ;
+        border:none;
+        background-image: url(/static/images/mobile/loader.gif);
+        background-repeat: no-repeat;
+        background-position: center center;
+    }
+    ul.loading_address li{
+        border:none;
+        background-color: transparent ;
+        height: 300px;
+        text-align: center;
+        color: white;
+    }
 </style>
 {% endblock %}
 

@@ -243,7 +243,8 @@ class DispatcherTest(TestCase):
 
         # live work station but it's in Jerusalem (order is from tel aviv)
         set_heartbeat(jerusalem_ws)
-        self.assertTrue(choose_workstation(ORDER) is None, "tel aviv work station are dead, none is expected.")
+        ws = choose_workstation(ORDER)
+        self.assertTrue(ws is None, "tel aviv work station are dead, none is expected, got %s" % ws)
 
         # live but don't accept orders
         set_accept_orders_false([tel_aviv_ws1, tel_aviv_ws2])

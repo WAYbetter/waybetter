@@ -111,7 +111,7 @@ def get_model_from_request(model_class, request):
 def log_event(event_type, order=None, order_assignment=None, station=None, work_station=None, passenger=None,
               country=None, city=None, rating="", lat="", lon=""):
     """
-    Log a new analytics event asynchonically:
+    Log a new analytics event asynchronously:
         event_type: an EventType field (e.g. EventType.ORDER_BOOKED)
         order, order_assignment, station, work_station, passenger: an optional instance 
     """
@@ -119,7 +119,7 @@ def log_event(event_type, order=None, order_assignment=None, station=None, work_
         if not city:
             city = order.from_city
             country = order.from_country
-            if order.from_city != order.to_city:
+            if order.from_city != order.to_city and order.to_city:
                 log_event(event_type,
                           order=order,order_assignment=order_assignment,station=station, work_station=work_station,
                           passenger=passenger, country=order.from_country, city=order.to_city)
