@@ -100,9 +100,12 @@ class Station(models.Model):
     def is_in_valid_distance(self, from_lon, from_lat, to_lon, to_lat):
         if not (self.lat and self.lon): # ignore station with unknown address
             return False
+        to_distance = MAX_STATION_DISTANCE_KM + 1
+        from_distance = distance_between_points(self.lat, self.lon, from_lat, from_lon)
+        if to_lon and to_lat:
+            to_distance = distance_between_points(self.lat, self.lon, to_lat, to_lon)
 
-        return (distance_between_points(self.lat, self.lon, from_lat, from_lon) <= MAX_STATION_DISTANCE_KM or
-                distance_between_points(self.lat, self.lon, to_lat, to_lon) <= MAX_STATION_DISTANCE_KM)
+        return from_distance <= MAX_STATION_DISTANCE_KM or to_distance <= MAX_STATION_DISTANCE_KM 
 
     @staticmethod
     def get_default_station_choices(order_by="name", include_empty_option=True):
@@ -283,17 +286,17 @@ class Order(models.Model):
     # this field holds the data as typed by the user
     from_raw = models.CharField(_("from address"), max_length=50)
 
-    to_country = models.ForeignKey(Country, verbose_name=_("to country"), related_name="orders_to")
-    to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="orders_to")
+    to_country = models.ForeignKey(Country, verbose_name=_("to country"), related_name="orders_to", null=True, blank=True)
+    to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="orders_to", null=True, blank=True)
     to_city_area = models.ForeignKey(CityArea, verbose_name=_("to city area"), related_name="orders_to", null=True,
                                      blank=True)
     to_postal_code = models.CharField(_("to postal code"), max_length=10, null=True, blank=True)
-    to_street_address = models.CharField(_("to street address"), max_length=50)
-    to_geohash = models.CharField(_("to goehash"), max_length=13)
-    to_lon = models.FloatField(_("to_lon"))
-    to_lat = models.FloatField(_("to_lat"))
+    to_street_address = models.CharField(_("to street address"), max_length=50, null=True, blank=True)
+    to_geohash = models.CharField(_("to goehash"), max_length=13, null=True, blank=True)
+    to_lon = models.FloatField(_("to_lon"), null=True, blank=True)
+    to_lat = models.FloatField(_("to_lat"), null=True, blank=True)
     # this field holds the data as typed by the user
-    to_raw = models.CharField(_("to address"), max_length=50)
+    to_raw = models.CharField(_("to address"), max_length=50, null=True, blank=True)
 
     pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)
 
@@ -301,8 +304,6 @@ class Order(models.Model):
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
-
-    another_date = models.DateField("another date", null=True, blank=True, default=datetime.now())
 
     # denormalized fields
     station_name = models.CharField(_("station name"), max_length=50, null=True, blank=True)
@@ -329,7 +330,10 @@ class Order(models.Model):
 
     def __unicode__(self):
         id = self.id
-        return u"[%d] %s from %s to %s" % (id, ugettext("order"), self.from_raw, self.to_raw) 
+        if self.to_raw:
+            return u"[%d] %s from %s to %s" % (id, ugettext("order"), self.from_raw, self.to_raw)
+        else:
+            return u"[%d] %s from %s" % (id, ugettext("order"), self.from_raw)
 
     def get_status_label(self):
         for key, label in ORDER_STATUS:

@@ -114,7 +114,7 @@ class OrderForm(ModelForm):
 
 
     def clean(self):
-        if self.cleaned_data['from_country'] != self.cleaned_data['to_country']:
+        if self.cleaned_data['to_country'] and self.cleaned_data['from_country'] != self.cleaned_data['to_country']:
             log_event(EventType.CROSS_COUNTRY_ORDER_FAILURE, passenger=self.passenger, country=self.cleaned_data['to_country'])
             raise forms.ValidationError(_("To and From countries do not match"))
 
