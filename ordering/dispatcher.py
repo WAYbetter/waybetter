@@ -62,7 +62,6 @@ def choose_workstation(order):
 
 
     work_stations = sorted(work_stations, key=lambda ws: ws.station.last_assignment_date)
-    logging.info("sorted: %s" % [ws.last_assignment_date for ws in work_stations])
     for ws in work_stations:
         if ws.station == order.passenger.default_station:
             return ws

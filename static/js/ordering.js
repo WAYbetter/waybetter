@@ -76,7 +76,15 @@ var Address = defineClass({
             $('#id_' + this.address_type + '_geohash').val(this.geohash);
             $('#id_' + this.address_type + '_lon').val(this.lon);
             $('#id_' + this.address_type + '_lat').val(this.lat);
-
+        },
+        clearFields: function () {
+            $('#id_geocoded_' + this.address_type + '_raw').val('');
+            $('#id_' + this.address_type + '_city').val('');
+            $('#id_' + this.address_type + '_street_address').val('');
+            $('#id_' + this.address_type + '_country').val('');
+            $('#id_' + this.address_type + '_geohash').val('');
+            $('#id_' + this.address_type + '_lon').val('');
+            $('#id_' + this.address_type + '_lat').val('');
         }
     },
     statics:    {
@@ -435,7 +443,10 @@ var OrderingHelper = Object.create({
         for (var address_type in this.ADDRESS_FIELD_ID_BY_TYPE) {
             var address = Address.fromFields(address_type);
             if (!address.isResolved()) {
-                $("#order_button").button("disable");
+                if (address_type == 'from') {
+                    $("#order_button").button("disable");
+                }
+                address.clearFields();
                 if (this.map_markers[address.address_type]) {
                     this.map_markers[address.address_type].setMap();
                     delete this.map_markers[address.address_type];
