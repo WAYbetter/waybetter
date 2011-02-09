@@ -505,9 +505,6 @@ var Registrator = Object.create({
                         that.doRegister.call(that, $('form:first', dialog_content));
                     }
                     return false;
-               }),
-            $not_now_button = $('#not_now').unbind('click').bind('click', function (e) {
-                $("#dialog").dialog('close');
             }),
             $show_login_link = $('#show_login')
                 .unbind('click')
