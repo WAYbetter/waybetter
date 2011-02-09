@@ -61,6 +61,8 @@
     });
 
 </script>
+<style type="text/css">
+</style>
 {% endblock %}
 
 {% block content %}
@@ -124,15 +126,15 @@
             </ul>
             {% include 'mobile_tab.html' %}
             <div id="about" style="text-align:center">
+                <h1>{% trans 'WAYbetter offers the fastest and easiest way to get a taxi!' %}</h1>
+                <p>
+                    {% trans "We are partnering with the best taxi stations in your city, so all you have to do is push the yellow button. We'll do the rest" %}
+                </p>
                 <div id="slider">
                     <img src="/static/images/anim_1.png" alt="" />
                     <img src="/static/images/anim_2.png" alt="" />
                     <img src="/static/images/anim_3.png" alt="" />
                 </div>
-                <h1>{% trans 'WAYbetter offers the fastest and easiest way to get a taxi!' %}</h1>
-                <p>
-                    {% trans "We are partnering with the best taxi stations in your city, so all you have to do is push the yellow button. We'll do the rest" %}
-                </p>
             </div>
         {% endif %}
 
