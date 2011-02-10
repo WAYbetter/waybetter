@@ -9,10 +9,9 @@
 {% block extrastyle %}
 
     <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}css/ie.css{% endblock %}" /><![endif]-->
+<link rel="stylesheet" type="text/css" href="/static/css/waybetter.css" />
 {% if LANGUAGE_BIDI %}
     <link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}/static/css/rtl.css{% endblock %}" />
-{% else %}
-    <link rel="stylesheet" type="text/css" href="/static/css/waybetter.css" />
 {% endif %}
 
    
