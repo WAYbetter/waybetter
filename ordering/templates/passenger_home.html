@@ -24,6 +24,8 @@
             address_helper_msg_to:      "{% trans 'Full Drop-off Address: (Street Number City)' %}",
             autocomplete_msg:           "{% trans '(Street Number City) and Select:' %}",
             address_not_resolved_msg:   "{% trans 'The address is not resolved' %}",
+            pick_me_up_msg:             "{% trans 'Pick Me Up' %}",
+            sending_msg:                "{% trans 'Sending...' %}",
             estimation_msg:             "{% trans 'Fill pickup and dropoff for price and time estimation ' %}"
         });
         $("#tabs").tabs({
@@ -99,7 +101,7 @@
                                 <input type=text class="big_text b_marker marker_disabled" id="id_to_raw" name="to_raw" placeholder="{% trans 'Enter drop-off address' %}"/>
                             </li>
                         </ul>
-						<button type=submit class="order_button" id="order_button"></button>
+						<button type=submit class="order_button" id="order_button">{% trans 'Pick Me Up' %}</button>
 					</form>
 					<div id="map_container">
                         <div id="map"></div>
