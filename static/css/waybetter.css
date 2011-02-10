@@ -440,6 +440,13 @@ input:focus, input.focus{
     border-color: black;
     outline-width:0;
 }
+button.order_button.sending > .ui-button-text {
+    color:white;
+    text-shadow: 0 -1px black;
+}
+button.order_button > .ui-button-text {
+    line-height: 36px;
+}
 button.order_button {
     width: 294px;
     height:53px;
@@ -447,8 +454,13 @@ button.order_button {
     box-shadow: none;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
-    background: url("../img/order_button.png") left top no-repeat;
+    background: url("../images/order_button.png") left top no-repeat;
+    color: black;
+    font-size: 26px;
+    font-weight: bold;
+    text-shadow: 0 1px white;
 }
+
 button.order_button.hover, button.order_button:hover {
     background-position: 0 -53px;
 }
