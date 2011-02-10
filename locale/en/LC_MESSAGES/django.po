@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-10 17:59+0200\n"
-"PO-Revision-Date: 2011-02-10 18:01+0200\n"
-"Last-Translator: amir <amir@waybetter.com>\n"
+"POT-Creation-Date: 2011-02-10 19:23+0200\n"
+"PO-Revision-Date: 2011-02-10 19:24+0200\n"
+"Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: settings.py:104
 msgid "Hebrew"
@@ -348,6 +348,7 @@ msgid "FINISH"
 msgstr ""
 
 #: common/templates/phone_verification_form.html:21
+#: ordering/templates/passenger_home.html:28
 #: ordering/templates/workstation_home.html:497
 #: ordering/templates/mobile/passenger_home.html:62
 msgid "Sending..."
@@ -1279,25 +1280,25 @@ msgstr ""
 
 #: ordering/templates/base_station.html:50
 #: ordering/templates/info.html:20
-#: ordering/templates/passenger_home.html:153
+#: ordering/templates/passenger_home.html:157
 msgid "About"
 msgstr ""
 
 #: ordering/templates/base_station.html:51
 #: ordering/templates/info.html:21
-#: ordering/templates/passenger_home.html:154
+#: ordering/templates/passenger_home.html:158
 msgid "Press"
 msgstr ""
 
 #: ordering/templates/base_station.html:52
 #: ordering/templates/info.html:23
-#: ordering/templates/passenger_home.html:156
+#: ordering/templates/passenger_home.html:160
 msgid "Help"
 msgstr ""
 
 #: ordering/templates/base_station.html:53
 #: ordering/templates/info.html:25
-#: ordering/templates/passenger_home.html:158
+#: ordering/templates/passenger_home.html:162
 msgid "Terms"
 msgstr ""
 
@@ -1306,7 +1307,7 @@ msgid "Passengers home"
 msgstr ""
 
 #: ordering/templates/base_station.html:57
-#: ordering/templates/passenger_home.html:162
+#: ordering/templates/passenger_home.html:166
 msgid "2010 WAYbetter"
 msgstr ""
 
@@ -1315,7 +1316,7 @@ msgid "Upload specific pricing rules (inter-city taarif in CSV format)"
 msgstr ""
 
 #: ordering/templates/info.html:26
-#: ordering/templates/passenger_home.html:81
+#: ordering/templates/passenger_home.html:83
 msgid "TAXI"
 msgstr ""
 
@@ -1380,71 +1381,76 @@ msgid "The address is not resolved"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:27
+#: ordering/templates/passenger_home.html:108
+msgid "Pick Me Up"
+msgstr ""
+
+#: ordering/templates/passenger_home.html:29
 #: ordering/templates/mobile/passenger_home.html:21
 msgid "Fill pickup and dropoff for price and time estimation "
 msgstr ""
 
-#: ordering/templates/passenger_home.html:37
+#: ordering/templates/passenger_home.html:39
 msgid "We're sorry, but an error occurred while loading this page."
 msgstr ""
 
-#: ordering/templates/passenger_home.html:77
+#: ordering/templates/passenger_home.html:79
 msgid "WAYbetter are happy to announce our Tel Aviv pilot in collaboration with the \"Meshuhrar Taxis\" station"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:77
+#: ordering/templates/passenger_home.html:79
 msgid "We hope you'll enjoy the service and give us feedback so we can improve (bottom right corner)"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:77
+#: ordering/templates/passenger_home.html:79
 msgid "Enjoy your ride!"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:84
+#: ordering/templates/passenger_home.html:86
 msgid "Book Now (FREE)"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:100
+#: ordering/templates/passenger_home.html:102
 #: ordering/templates/mobile/passenger_home.html:179
 msgid "Enter pickup address"
 msgstr "Pickup address (number, street, city)"
 
-#: ordering/templates/passenger_home.html:103
+#: ordering/templates/passenger_home.html:105
 #: ordering/templates/mobile/passenger_home.html:183
 msgid "Enter drop-off address"
 msgstr "Drop-off address (number, street, city)"
 
-#: ordering/templates/passenger_home.html:119
+#: ordering/templates/passenger_home.html:121
 msgid "Ride History"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:120
+#: ordering/templates/passenger_home.html:122
 msgid "My Profile"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:121
-#: ordering/templates/passenger_home.html:127
+#: ordering/templates/passenger_home.html:123
+#: ordering/templates/passenger_home.html:129
 msgid "Taxi Stations"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:122
-#: ordering/templates/passenger_home.html:128
+#: ordering/templates/passenger_home.html:124
+#: ordering/templates/passenger_home.html:130
 msgid "Mobile"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:129
+#: ordering/templates/passenger_home.html:131
 msgid "What's This?"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:133
+#: ordering/templates/passenger_home.html:136
 msgid "WAYbetter offers the fastest and easiest way to get a taxi!"
-msgstr ""
+msgstr "WAYbetter is the fastest and easiest way to get a taxi!"
 
-#: ordering/templates/passenger_home.html:135
+#: ordering/templates/passenger_home.html:138
 msgid "We are partnering with the best taxi stations in your city, so all you have to do is push the yellow button. We'll do the rest"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:159
+#: ordering/templates/passenger_home.html:163
 #: ordering/templates/stations.html:31
 msgid "Station Entrance"
 msgstr ""
@@ -1786,11 +1792,6 @@ msgstr ""
 msgid "Signing you in..."
 msgstr ""
 
-#: templates/base.html:52
-#: templates/base_site.html:15
-msgid "WAYbetter"
-msgstr ""
-
 #: templates/base.html:53
 msgid "Get Your Taxis Online (FREE)"
 msgstr ""
@@ -1805,6 +1806,10 @@ msgstr ""
 
 #: templates/base_site.html:12
 msgid "WAYbetter: the best way to get a taxi!"
+msgstr ""
+
+#: templates/base_site.html:15
+msgid "WAYbetter"
 msgstr ""
 
 #: templates/connected_page.html:13
