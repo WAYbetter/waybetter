@@ -126,7 +126,9 @@ var OrderingHelper = Object.create({
         address_helper_msg_to:      "",
         autocomplete_msg:           "",
         address_not_resolved_msg:   "",
-        estimation_msg          :   ""
+        pick_me_up_msg:             "",
+        sending_msg:                "",
+        estimation_msg:             ""
 
 
 
@@ -259,11 +261,12 @@ var OrderingHelper = Object.create({
                 return false;
             }
 
-            $("#order_button").button("disable");
+            $("#order_button").button("disable").button("option", "label", that.config.sending_msg).addClass("sending");
 
             $(this).ajaxSubmit({
                 dataType: "json",
                 complete: function() {
+                    $("#order_button").button("option", "label", that.config.pick_me_up_msg).removeClass("sending");
                     that.validateForBooking();
                 },
                 success: function(order_status) {
