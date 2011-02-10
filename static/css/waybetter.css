@@ -2,7 +2,7 @@
 @font-face {
     font-family: "wb_calibri";
     src: url( /static/fonts/Calibri.eot ); /* IE */
-    src: local("wb_calibri"), url( /static/fonts/Calibri.ttf ) format("truetype"); /* non-IE */
+    src: local("wb_calibri"), url( /static/fonts/calibri.ttf ) format("truetype"); /* non-IE */
 }
 
 * {
@@ -212,7 +212,7 @@ input.text, input[type=text], input[type=password] {
     *top: -2px;
 }
 #banner {
-/*text-shadow: #e1e1e1 0 1px;*/
+    margin-top: 18px;
 }
 #banner a {
     text-align: left;
@@ -404,9 +404,10 @@ a.input_history_helper:hover {
 }
 input.big_text {
     width: 245px;
-    height: 23px;
+    height: 17px;
     margin-bottom: 44px;
     padding: 8px;
+    padding-top: 14px;
     border-color: #6e6e6e;
     border-style: solid;
     border-width: 1px;
