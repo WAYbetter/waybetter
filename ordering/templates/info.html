@@ -5,32 +5,17 @@
     <script>
     $(document).ready(function() {
         $("#tabs").tabs();
-        $("#taxi_tab").unbind("click").bind("click", function() {
+        $("li.taxi_tab").unbind("click").bind("click", function() {
             window.location.href = "/";
         })
     });
     </script>
     <style type="text/css">
-        #tabs ul > li > a {
-            background-image: none;
-        }
-        #tabs ul > li#taxi_tab {
-            text-align: center;
-            font-size: 27px;
-            font-weight: bold;
-            margin-top: -1px;
-        }
-        #tabs ul.ui-tabs-nav li#taxi_tab {
-            background-image: url(/static/img/yellow_tab.png);
-            background-position: 10px 1px;
-            right:0;
-            cursor: pointer;
-        }
     </style>
 
 {% endblock extrahead %}
 {% block content %}
- <div id="tabs">
+ <div id="tabs" class="info">
     <ul>
         <li><a title="about" href="#about">{% trans 'About' %}</a></li>
         <li><a title="press" href="#press">{% trans 'Press' %}</a></li>
@@ -38,7 +23,7 @@
         <li><a title="help" href="#help">{% trans "Help" %}</a></li>
         {% endcomment %}
         <li><a title="terms" href="#terms">{% trans "Terms" %}</a></li>
-        <li id="taxi_tab">{% trans "TAXI" %}</li>
+        <li class="taxi_tab"><a>{% trans "TAXI" %}</a></li>
     </ul>
     <div id="about">
         {% include "about.html" %}
