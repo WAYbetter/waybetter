@@ -2,7 +2,7 @@
 @font-face {
     font-family: "wb_calibri";
     src: url( /static/fonts/Calibri.eot ); /* IE */
-    src: local("wb_calibri"), url( /static/fonts/Calibri.ttf ) format("truetype"); /* non-IE */
+    src: local("wb_calibri"), url( /static/fonts/calibri.ttf ) format("truetype"); /* non-IE */
 }
 
 * {
@@ -202,17 +202,24 @@ input.text, input[type=text], input[type=password] {
 }
 /************* Header *************/
 #alpha {
-    width: 125px;
-    height: 59px;
+    width: 147px;
+    height: 56px;
     background-image:url(/static/images/Alpha_TLV_Eng.png);
     position: absolute;
-    top: -8px;
+    top: -1px;
     left: 165px;
     *left: 15px;
     *top: -2px;
 }
 #banner {
-/*text-shadow: #e1e1e1 0 1px;*/
+    /*margin-top: 16px;*/
+}
+#logo {
+    background-image: url(/static/images/WAYbetter_logo.png);
+    height: 30px;
+    width: 162px;
+    display: block;
+    margin-bottom: 4px;
 }
 #banner a {
     text-align: left;
@@ -404,9 +411,10 @@ a.input_history_helper:hover {
 }
 input.big_text {
     width: 245px;
-    height: 23px;
+    height: 17px;
     margin-bottom: 44px;
     padding: 8px;
+    padding-top: 14px;
     border-color: #6e6e6e;
     border-style: solid;
     border-width: 1px;
@@ -472,10 +480,10 @@ button.order_button.disabled, button.order_button:disabled {
 }
 
 #slider {
-    height: 300px;
+    height: 270px;
     width: 563px;
-    margin-right:120px;
-    margin-top: 30px;
+    margin-left:130px;
+    margin-top: 10px;
 }
 #tabs h1 {
     color: #00acff;
@@ -491,13 +499,15 @@ button.order_button.disabled, button.order_button:disabled {
 #about p {
     text-align: left;
     width: 450px;
-    margin-top: 20px;
     font-size: 14px;
 }
 
 #about h1 {
     text-align: left;
     margin-top: 20px;
+}
+#about > div.about_text {
+    margin-left: 147px;
 }
 
 /************* Ordering Bottom Tabs *************/
