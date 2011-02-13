@@ -1,3 +1,4 @@
+from google.appengine.api.taskqueue.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError
 from django.shortcuts import get_object_or_404, render_to_response
 from google.appengine.api import taskqueue
 from google.appengine.api.datastore import RunInTransaction
@@ -26,9 +27,17 @@ OK = "OK"
 
 def book_order_async(order):
     logging.info("book_order_async: %d" % order.id)
-    task = taskqueue.Task(url=reverse(book_order), params={"order_id": order.id})
+    name = "book-order-%d" % order.id
+    task = taskqueue.Task(url=reverse(book_order), params={"order_id": order.id}, name=name)
+
     q = taskqueue.Queue('orders')
-    q.add(task)
+
+    try:
+        q.add(task)
+    except TaskAlreadyExistsError:
+        logging.error("TaskAlreadyExistsError: book order: %d" % order.id)
+    except DuplicateTaskNameError:
+        logging.error("DuplicateTaskNameError: book order: %d" % order.id)
 
 @csrf_exempt
 @internal_task_on_queue("orders")
