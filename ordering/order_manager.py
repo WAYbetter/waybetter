@@ -1,3 +1,4 @@
+from google.appengine.api.taskqueue.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError
 from django.shortcuts import get_object_or_404, render_to_response
 from google.appengine.api import taskqueue
 from google.appengine.api.datastore import RunInTransaction
@@ -24,11 +25,22 @@ NO_MATCHING_WORKSTATIONS_FOUND = "no matching workstation found"
 ORDER_HANDLED = "order handled"
 OK = "OK"
 
-def book_order_async(order):
+def book_order_async(order, order_assignment=None):
     logging.info("book_order_async: %d" % order.id)
-    task = taskqueue.Task(url=reverse(book_order), params={"order_id": order.id})
+    if order_assignment: # in response to a specific order_assignment we want to ensure only one order is generated
+        name = "book-order-%d-%d" % (order.id, order_assignment.id)
+        task = taskqueue.Task(url=reverse(book_order), params={"order_id": order.id}, name=name)
+    else:
+        task = taskqueue.Task(url=reverse(book_order), params={"order_id": order.id})
+    
     q = taskqueue.Queue('orders')
-    q.add(task)
+
+    try:
+        q.add(task)
+    except TaskAlreadyExistsError:
+        logging.error("TaskAlreadyExistsError: book order: %d" % order.id)
+    except DuplicateTaskNameError:
+        logging.error("DuplicateTaskNameError: book order: %d" % order.id)
 
 @csrf_exempt
 @internal_task_on_queue("orders")
@@ -139,7 +151,7 @@ def redispatch_ignored_orders(request):
                       station=order_assignment.station,
                       work_station=order_assignment.work_station)
 
-            book_order_async(order_assignment.order)
+            book_order_async(order_assignment.order, order_assignment)
         else: # enqueue again to check in 1 sec
             enqueue_redispatch_ignored_orders(order_assignment, 1)
 

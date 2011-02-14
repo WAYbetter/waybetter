@@ -505,15 +505,14 @@ class Feedback(models.Model):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="feedbacks", null=True, blank=True)
 
     def __unicode__(self):
-        attributes = []
-        for category in FEEDBACK_CATEGORIES:
-            for type in FEEDBACK_TYPES:
-                attr_name = "%s_%s" % (type.lower(), category.lower().replace(" ", "_"))
-                if getattr(self, attr_name):
-                    attributes.append(u"%s %s" % (type, category))
+        result = u""
+        for f in Feedback.field_names():
+            if getattr(self, f):
+                msg = getattr(self, f + "_msg")
+                result += "<p>%s %s</p>" % (f, u": " + msg if msg else "")
 
-        return u"%s: %s" % (self.__class__.__name__, u", ".join(attributes))
-  
+        return result if result else u"Empty Feedback"
+
     @staticmethod
     def field_names():
         field_names = []

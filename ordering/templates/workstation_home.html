@@ -315,7 +315,8 @@
                     } else {
                         setAcceptOrders("{{ offline }}")
                     }
-                }
+                },
+                pollOrders      : pollOrders
             };
             
             initConnection();
@@ -458,7 +459,10 @@
             });
 
             var reject_button = $("<div class='reject_button_bg'><div class='reject_image'></div></div>").click(function() {
-                rejectOrder(order.pk);
+                if ($(this).attr("disabled") != "disabled") {
+                    $(this).attr("disabled", "disabled");
+                    rejectOrder(order.pk);
+                }
             });
 
 
