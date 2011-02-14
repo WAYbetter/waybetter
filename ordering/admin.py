@@ -133,7 +133,14 @@ class CountryPricingRulesAdmin(admin.ModelAdmin):
 
 class FeedbackAdmin(admin.ModelAdmin):
     model = Feedback
+    list_display = ["feedback"]
     list_filter = Feedback.field_names()
+
+    def feedback(self, obj):
+        return unicode(obj)
+        
+    feedback.allow_tags = True
+
     
 admin.site.register(Passenger, PassengerAdmin)
 admin.site.register(Order, OrderAdmin)

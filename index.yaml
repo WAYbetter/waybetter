@@ -98,6 +98,82 @@ indexes:
   - name: __key__
     direction: desc
 
+- kind: ordering_feedback
+  properties:
+  - name: negative_booking
+  - name: negative_registration
+  - name: negative_taxi_ride
+  - name: negative_website
+  - name: positive_booking
+  - name: positive_registration
+  - name: positive_taxi_ride
+  - name: positive_website
+  - name: __key__
+    direction: desc
+
+- kind: ordering_feedback
+  properties:
+  - name: negative_booking
+  - name: negative_registration
+  - name: negative_website
+  - name: positive_booking
+  - name: positive_registration
+  - name: positive_taxi_ride
+  - name: positive_website
+  - name: __key__
+    direction: desc
+
+- kind: ordering_feedback
+  properties:
+  - name: negative_booking
+  - name: negative_registration
+  - name: negative_website
+  - name: positive_booking
+  - name: positive_registration
+  - name: positive_website
+  - name: __key__
+    direction: desc
+
+- kind: ordering_feedback
+  properties:
+  - name: negative_booking
+  - name: negative_website
+  - name: positive_booking
+  - name: positive_registration
+  - name: positive_website
+  - name: __key__
+    direction: desc
+
+- kind: ordering_feedback
+  properties:
+  - name: negative_booking
+  - name: negative_website
+  - name: positive_booking
+  - name: positive_website
+  - name: __key__
+    direction: desc
+
+- kind: ordering_feedback
+  properties:
+  - name: negative_website
+  - name: positive_booking
+  - name: positive_website
+  - name: __key__
+    direction: desc
+
+- kind: ordering_feedback
+  properties:
+  - name: negative_website
+  - name: positive_website
+  - name: __key__
+    direction: desc
+
+- kind: ordering_feedback
+  properties:
+  - name: positive_website
+  - name: __key__
+    direction: desc
+
 - kind: ordering_order
   properties:
   - name: __key__
