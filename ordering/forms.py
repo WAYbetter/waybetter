@@ -3,7 +3,7 @@
 from django import forms
 from django.forms.models import ModelForm
 from django.forms.util import flatatt
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode
 
 from common.models import Country, City
