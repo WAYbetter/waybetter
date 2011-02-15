@@ -17,7 +17,8 @@ urlpatterns = patterns('',
     (r'^', include('analytics.urls')),
     (r'^interests/', include('interests.urls')),
     (r'^', include('socialauth.urls')),
-    
+    (r'^i18n/', include('django.conf.urls.i18n')),
+
     (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/images/favicon.ico'}),
     (r'^sitemap\.xml$', 'django.views.generic.simple.direct_to_template', {'template': 'sitemap.xml', 'mimetype': 'text/xml'}),
     (r'^robots\.txt$', 'django.views.generic.simple.direct_to_template', {'template': 'robots.txt', 'mimetype': 'text/plain'}),

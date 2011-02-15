@@ -3,11 +3,11 @@ from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from types import MethodType
 import logging
 from datetime import datetime
-from django.utils.translation import ugettext
+from django.utils.translation import ugettext, ugettext_lazy
 PAGE_SIZE = 10
 
 ORDER_HISTORY_COLUMNS =         ["Date", "From", "To", "Station", "Passenger Rating"]
-ORDER_HISTORY_COLUMN_NAMES =    [ugettext("Date"), ugettext("From"), ugettext("To"), ugettext("Station"), ugettext("Passenger Rating")]
+ORDER_HISTORY_COLUMN_NAMES =    [ugettext_lazy("Date"), ugettext_lazy("From"), ugettext_lazy("To"), ugettext_lazy("Station"), ugettext_lazy("Passenger Rating")]
 ORDER_HISTORY_FIELDS =          ["create_date", "from_raw", "to_raw", "station_name", "passenger_rating"]
 
 STATION_ORDER_HISTORY_COLUMNS =         ["Date", "From", "To", "Passenger Phone"]
