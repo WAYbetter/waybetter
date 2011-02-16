@@ -2,7 +2,8 @@ import random
 from google.appengine.api import taskqueue
 from google.appengine.api import mail
 from google.appengine.api.images import BadImageError, NotImageError
-from django.utils.translation import gettext as _
+from django.utils import translation
+from django.utils.translation import ugettext as _
 import logging
 from django.shortcuts import render_to_response
 
@@ -228,3 +229,9 @@ def blob_to_image_tag(blob_data, height=50, width=None):
         pass
 
     return res
+
+def translate_to_lang(msg, lang_code):
+    translation.activate(lang_code)
+    msg = _(msg)
+    translation.deactivate()
+    return msg

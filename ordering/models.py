@@ -273,6 +273,7 @@ class Order(models.Model):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
 
     status = models.IntegerField(_("status"), choices=ORDER_STATUS, default=PENDING)
+    language_code = models.CharField(_("order language"), max_length=5, default=settings.LANGUAGE_CODE)
 
     from_country = models.ForeignKey(Country, verbose_name=_("from country"), related_name="orders_from")
     from_city = models.ForeignKey(City, verbose_name=_("from city"), related_name="orders_from")

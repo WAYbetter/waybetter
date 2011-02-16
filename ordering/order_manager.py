@@ -10,7 +10,8 @@ from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFoun
 from ordering.decorators import passenger_required, internal_task_on_queue
 from django.core.serializers import serialize
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _ 
+from django.utils import translation
+from django.utils.translation import ugettext_lazy as _
 
 from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, ASSIGNED, RATING_CHOICES, ERROR
 import dispatcher
@@ -19,7 +20,7 @@ from datetime import datetime
 from sharded_counters.models import commit_locked
 from ordering.models import Station
 from common.sms_notification import send_sms
-from common.util import log_event, EventType
+from common.util import log_event, EventType, translate_to_lang
 
 NO_MATCHING_WORKSTATIONS_FOUND = "no matching workstation found"
 ORDER_HANDLED = "order handled"
@@ -90,7 +91,8 @@ def accept_order(order, pickup_time, station):
     order.status = ACCEPTED
     order.station = station  
     order.save()
-    msg = _("Pickup at %(from)s in %(time)d minutes.\nStation: %(station_name)s, %(station_phone)s") % \
+
+    msg = translate_to_lang("Pickup at %(from)s in %(time)d minutes.\nStation: %(station_name)s, %(station_phone)s", order.language_code) % \
            { "from"             : order.from_raw,
              "time"             : pickup_time,
              "station_name"     : station.name,
