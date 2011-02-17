@@ -121,7 +121,7 @@ class RouteTest(TestCase):
 
     def setUp(self):
         # error margins to take into account traffic noise.
-        self.ERR_RATIO = 0.3
+        self.ERR_RATIO = 0.4
 
         self.test_data = (
             {"p0"         : "Yishayahu 60 Tel Aviv",

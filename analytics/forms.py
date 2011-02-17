@@ -1,6 +1,6 @@
 from django import forms
 from datetime import datetime
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 from common.util import Enum, EventType
 
 class AnalysisType(Enum):

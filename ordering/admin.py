@@ -1,6 +1,6 @@
 from common.util import blob_to_image_tag
 from django.contrib import admin
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 from django.forms.models import BaseInlineFormSet
 from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, ExtraChargeRule, Feedback
 import station_connection_manager

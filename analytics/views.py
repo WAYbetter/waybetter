@@ -2,7 +2,7 @@ from django.views.decorators.csrf import csrf_exempt
 from ordering.decorators import internal_task_on_queue
 from django.http import HttpResponse
 from django.db.models import get_model
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 from django.contrib.admin.views.decorators import staff_member_required
 from django.conf import settings
 from django.shortcuts import render_to_response
