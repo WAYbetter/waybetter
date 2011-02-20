@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-10 20:23+0200\n"
-"PO-Revision-Date: 2011-02-13 16:02+0200\n"
-"Last-Translator: amir <amir@waybetter.com>\n"
+"POT-Creation-Date: 2011-02-20 16:00+0200\n"
+"PO-Revision-Date: 2011-02-20 16:01+0200\n"
+"Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
@@ -296,7 +296,7 @@ msgstr "שליחה"
 #: common/templates/feedback_form.html:132
 #: interests/templates/mobile_interest_form.html:56
 #: interests/templates/station_interest_form.html:39
-#: ordering/templates/workstation_home.html:507
+#: ordering/templates/workstation_home.html:511
 msgid "Close"
 msgstr "סגירה"
 
@@ -351,8 +351,8 @@ msgstr "סיום"
 
 #: common/templates/phone_verification_form.html:21
 #: ordering/templates/passenger_home.html:28
-#: ordering/templates/workstation_home.html:497
-#: ordering/templates/mobile/passenger_home.html:62
+#: ordering/templates/workstation_home.html:501
+#: ordering/templates/mobile/passenger_home.html:32
 msgid "Sending..."
 msgstr "שולח..."
 
@@ -591,7 +591,7 @@ msgstr "אשמח אם תידעו אותי כשהאפליקציה זמינה לה
 
 #: interests/templates/mobile_interest_form.html:55
 #: interests/templates/station_interest_form.html:38
-#: ordering/templates/workstation_home.html:453
+#: ordering/templates/workstation_home.html:454
 msgid "Send"
 msgstr "שליחה"
 
@@ -1165,15 +1165,15 @@ msgstr "דירוג נוסע"
 msgid "Passenger Phone"
 msgstr "טלפון נוסע"
 
-#: ordering/order_manager.py:62
+#: ordering/order_manager.py:74
 msgid "We're sorry, but we could not find a taxi for you"
 msgstr "אנו מצטערים, הפעם לא הצלחנו למצוא לך מונית ),:"
 
-#: ordering/order_manager.py:72
+#: ordering/order_manager.py:84
 msgid "We're sorry, but we have encountered an error while handling your request"
 msgstr "אנו מצטערים, אך נתקלנו בשגיאה בעת הטיפול בבקשה שלך. ניתן לנסות שנית מאוחר יותר..."
 
-#: ordering/order_manager.py:81
+#: ordering/order_manager.py:93
 #, python-format
 msgid ""
 "Pickup at %(from)s in %(time)d minutes.\n"
@@ -1184,50 +1184,50 @@ msgstr ""
 "תחנת %(station_name)s\n"
 "לשינוי/ביטול: %(station_phone)s נסיעה טובה (:"
 
-#: ordering/order_manager.py:162
+#: ordering/order_manager.py:174
 msgid "You can't rate this order"
 msgstr "אין אפשרות לדרג הזמנה זו"
 
-#: ordering/passenger_controller.py:141
+#: ordering/passenger_controller.py:147
 msgid "Estimated ride cost"
 msgstr "מחיר נסיעה משוער"
 
-#: ordering/passenger_controller.py:144
+#: ordering/passenger_controller.py:150
 msgid "Flat rate"
 msgstr "מחיר מחירון"
 
-#: ordering/passenger_controller.py:150
+#: ordering/passenger_controller.py:156
 msgid "min"
 msgstr "דקות"
 
-#: ordering/passenger_controller.py:172
-#: ordering/passenger_controller.py:190
+#: ordering/passenger_controller.py:178
+#: ordering/passenger_controller.py:196
 msgid "Your Ride Could Not Be Ordered"
 msgstr "לא ניתן להזמין נסיעה זו"
 
-#: ordering/passenger_controller.py:173
+#: ordering/passenger_controller.py:179
 msgid "Ordering is not allowed so soon after another order"
 msgstr "לא ניתן להזמין כמה נסיעות בסמיכות."
 
-#: ordering/passenger_controller.py:256
+#: ordering/passenger_controller.py:262
 #, python-format
 msgid "Verification code: %s"
 msgstr "קוד אימות: %s"
 
-#: ordering/passenger_controller.py:267
-#: ordering/passenger_controller.py:364
+#: ordering/passenger_controller.py:273
+#: ordering/passenger_controller.py:370
 msgid "Invalid verification code"
 msgstr "קוד SMS שגוי"
 
-#: ordering/passenger_controller.py:290
+#: ordering/passenger_controller.py:296
 msgid "wrong username/password"
 msgstr "שם המשתמש או הסיסמה אינם נכונים"
 
-#: ordering/passenger_controller.py:301
+#: ordering/passenger_controller.py:307
 msgid "Username already taken"
 msgstr "שם משתמש כבר תפוס"
 
-#: ordering/passenger_controller.py:304
+#: ordering/passenger_controller.py:310
 msgid "Missing required parameters"
 msgstr "שדות חסרים"
 
@@ -1421,7 +1421,7 @@ msgid "Pick Me Up"
 msgstr "שלח לי מונית"
 
 #: ordering/templates/passenger_home.html:29
-#: ordering/templates/mobile/passenger_home.html:21
+#: ordering/templates/mobile/passenger_home.html:23
 msgid "Fill pickup and dropoff for price and time estimation "
 msgstr "לחישוב מחיר וזמן נסיעה משוערים יש למלא מוצא ויעד"
 
@@ -1446,12 +1446,12 @@ msgid "Book Now (FREE)"
 msgstr "הזמינו עכשיו "
 
 #: ordering/templates/passenger_home.html:102
-#: ordering/templates/mobile/passenger_home.html:179
+#: ordering/templates/mobile/passenger_home.html:79
 msgid "Enter pickup address"
 msgstr "כתובת מוצא (רחוב מספר עיר)"
 
 #: ordering/templates/passenger_home.html:105
-#: ordering/templates/mobile/passenger_home.html:183
+#: ordering/templates/mobile/passenger_home.html:83
 msgid "Enter drop-off address"
 msgstr "כתובת יעד (לא חובה)"
 
@@ -1495,59 +1495,59 @@ msgstr "כניסת תחנות"
 msgid "Save Changes"
 msgstr "שמירה"
 
-#: ordering/templates/press.html:29
+#: ordering/templates/press.html:4
 msgid "Press Materials"
 msgstr "מידע לתקשורת"
 
-#: ordering/templates/press.html:33
+#: ordering/templates/press.html:8
 msgid "Image Catalog"
 msgstr "קטלוג תמונות"
 
-#: ordering/templates/press.html:34
+#: ordering/templates/press.html:9
 msgid "Smaller images and download links"
 msgstr "תמונות מוקטנות + קישורים להורדה"
 
-#: ordering/templates/press.html:37
+#: ordering/templates/press.html:12
 msgid "Founders Images"
 msgstr "תמונות המייסדים"
 
-#: ordering/templates/press.html:38
+#: ordering/templates/press.html:13
 msgid "Print and web resolutions"
 msgstr "רזולוציה דפוס + רזולוציה מסך"
 
-#: ordering/templates/press.html:41
+#: ordering/templates/press.html:16
 msgid "Founders Images with Hamshuhrar Station"
 msgstr "תמונות היזמים ותחנת המשוחרר"
 
-#: ordering/templates/press.html:42
+#: ordering/templates/press.html:17
 msgid "The founders together with the first station to join"
 msgstr "היזמים יחד עם התחנה הראשונה שהתחברה"
 
-#: ordering/templates/press.html:45
+#: ordering/templates/press.html:20
 msgid "Cool Photos"
 msgstr "תמונות מגניבות"
 
-#: ordering/templates/press.html:46
+#: ordering/templates/press.html:21
 msgid "A colletion of cool and useful photos"
 msgstr "אוסף תמונות שימושיות ומגניבות"
 
-#: ordering/templates/press.html:49
+#: ordering/templates/press.html:24
 msgid "WAYbetter Logo"
 msgstr "לוגו <span class=waybetter></span>"
 
-#: ordering/templates/press.html:50
+#: ordering/templates/press.html:25
 msgid "Logos on B&W background"
 msgstr "לוגואים על רקע שחור+לבן"
 
-#: ordering/templates/press.html:53
+#: ordering/templates/press.html:28
 msgid "Screenshots"
 msgstr "תמונות מסך"
 
-#: ordering/templates/press.html:54
+#: ordering/templates/press.html:29
 msgid "Screenshots of our website and iPhone app"
 msgstr "תמונות מסך של האתר והאפליקציית iPhone"
 
-#: ordering/templates/press.html:60
+#: ordering/templates/press.html:35
 msgid "Embed video code:"
 msgstr "קוד להוספת הוידאו:"
 
@@ -1667,23 +1667,23 @@ msgstr "בהורדת התוכנה אני מצהיר בזאת כי קראתי ו�
 msgid "Workstation page"
 msgstr "דף עמדות עבודה"
 
-#: ordering/templates/workstation_home.html:331
+#: ordering/templates/workstation_home.html:332
 msgid "Connecting WAYbetter..."
 msgstr "מתחבר אל WAYbetter..."
 
-#: ordering/templates/workstation_home.html:441
+#: ordering/templates/workstation_home.html:442
 msgid "Define time"
 msgstr "הגדר זמן"
 
-#: ordering/templates/workstation_home.html:443
+#: ordering/templates/workstation_home.html:444
 msgid "minutes"
 msgstr "דקות"
 
-#: ordering/templates/workstation_home.html:453
+#: ordering/templates/workstation_home.html:454
 msgid "Send message to passenger"
 msgstr "שלח הודעה לנוסע"
 
-#: ordering/templates/workstation_home.html:504
+#: ordering/templates/workstation_home.html:508
 msgid "End"
 msgstr "סיום"
 
@@ -1703,19 +1703,19 @@ msgstr "התנתק"
 msgid "and try again"
 msgstr "ונסה שוב"
 
-#: ordering/templates/mobile/passenger_home.html:22
+#: ordering/templates/mobile/passenger_home.html:24
 msgid "Finding Your Location..."
 msgstr "מחפש את מיקומך..."
 
-#: ordering/templates/mobile/passenger_home.html:23
+#: ordering/templates/mobile/passenger_home.html:25
 msgid "No Location Found"
 msgstr "לא נמצא מיקום"
 
-#: ordering/templates/mobile/passenger_home.html:24
+#: ordering/templates/mobile/passenger_home.html:26
 msgid "Unable to locate your position"
 msgstr "לא ניתן לאתר את מיקומך הנוכחי"
 
-#: ordering/templates/mobile/passenger_home.html:25
+#: ordering/templates/mobile/passenger_home.html:27
 msgid ""
 "Order Sent!\\n"
 "\\n"
@@ -1725,35 +1725,42 @@ msgstr ""
 "\\n"
 "התחנות הקרובות מחפשות עבורך מונית פנויה. הודעת SMS עם פרטי הנסיעה תשלח אליך מיד..."
 
-#: ordering/templates/mobile/passenger_home.html:26
-#: ordering/templates/mobile/passenger_home.html:181
-#: ordering/templates/mobile/passenger_home.html:185
-#: templates/mobile/base.html:61
-msgid "Cancel"
-msgstr "ביטול"
+#: ordering/templates/mobile/passenger_home.html:28
+msgid "Enter Address"
+msgstr "הכנס כתובת"
 
-#: ordering/templates/mobile/passenger_home.html:27
+#: ordering/templates/mobile/passenger_home.html:29
 msgid "Are you sure you want to order a taxi now?"
 msgstr "להזמין מונית עכשיו?"
 
-#: ordering/templates/mobile/passenger_home.html:28
+#: ordering/templates/mobile/passenger_home.html:30
 msgid "Try Again"
 msgstr "נסה שוב"
 
-#: ordering/templates/mobile/passenger_home.html:74
+#: ordering/templates/mobile/passenger_home.html:31
 #: templates/mobile/base.html:79
 msgid "Send Verification Code"
 msgstr "שלח קוד אימות"
 
-#: ordering/templates/mobile/passenger_home.html:115
-msgid "Looking for address"
-msgstr "מאתר כתובת..."
+#: ordering/templates/mobile/passenger_home.html:33
+msgid "Code Sent"
+msgstr "קוד נשלח"
 
-#: ordering/templates/mobile/passenger_home.html:124
+#: ordering/templates/mobile/passenger_home.html:34
 msgid "Could not resolve address"
 msgstr "כתובת לא ידועה"
 
-#: ordering/templates/mobile/passenger_home.html:188
+#: ordering/templates/mobile/passenger_home.html:35
+msgid "Looking for address"
+msgstr "מאתר כתובת..."
+
+#: ordering/templates/mobile/passenger_home.html:81
+#: ordering/templates/mobile/passenger_home.html:85
+#: templates/mobile/base.html:61
+msgid "Cancel"
+msgstr "ביטול"
+
+#: ordering/templates/mobile/passenger_home.html:88
 msgid "GPS"
 msgstr ""
 
@@ -1841,15 +1848,15 @@ msgstr "פרופילי הרשמה"
 msgid "Signing you in..."
 msgstr "מכניסים אותך .."
 
-#: templates/base.html:53
+#: templates/base.html:63
 msgid "Get Your Taxis Online (FREE)"
 msgstr "פשוט להזמין מונית (חינם)"
 
-#: templates/base.html:58
+#: templates/base.html:68
 msgid "Hi"
 msgstr "שלום"
 
-#: templates/base.html:58
+#: templates/base.html:68
 msgid "Log out"
 msgstr "התנתקות"
 
@@ -1957,56 +1964,79 @@ msgstr "שגיאה בבודק האיות"
 
 #~ msgid "Not Now"
 #~ msgstr "לא כרגע"
+
 #~ msgid "Get a Taxi. Wherever You Are!"
 #~ msgstr "מכל מקום, המונית בדרך אליך!"
+
 #~ msgid "Hi-resolution image of the founders"
 #~ msgstr "תמונה ברזולוציה גבוהה של המייסדים"
+
 #~ msgid "WAYbetter Logos (.zip)"
 #~ msgstr "לוגו של <span class=waybetter></span> (מכווץ)"
+
 #~ msgid "Hi-resolution logos"
 #~ msgstr "לוגו ברזולוציה גבוהה"
+
 #~ msgid "iPhone App Screenshots (.zip)"
 #~ msgstr " צילומי מסך אפליקציית אייפון (מכווץ)"
+
 #~ msgid "WAYbetter Website Screenshots"
 #~ msgstr "צילומי מסך של אתר <span id=waybetter></span> (מכווץ)"
+
 #~ msgid "Press Announcments"
 #~ msgstr "הודעות לעיתונות"
+
 #~ msgid "TLV Alpha + Company Overview"
 #~ msgstr "תל אביב אלפא + תאור החברה"
+
 #~ msgid "Feb 2010"
 #~ msgstr "פברואר 2010"
+
 #~ msgid "DMCA policy"
 #~ msgstr "מדיניות DMCA"
+
 #~ msgid "Enter street and city"
 #~ msgstr "הזן עיר ורחוב"
+
 #~ msgid "History"
 #~ msgstr "נסיעות קודמות"
+
 #~ msgid "Enter your mobile number:"
 #~ msgstr " מספר הטלפון הנייד שלך:"
+
 #~ msgid "Where From?"
 #~ msgstr "כתובת מוצא"
+
 #~ msgid "Where To?"
 #~ msgstr "כתובת יעד"
+
 #~ msgid "First Time?"
 #~ msgstr "פעם ראשונה?"
-#~ msgid "Enter Pickup Address:"
-#~ msgstr "כתובת איסוף:"
+
 #~ msgid "Enter Drop-off Address:"
 #~ msgstr "כתובת יעד:"
+
 #~ msgid "state"
 #~ msgstr "מדינה"
+
 #~ msgid "special place"
 #~ msgstr "מקום מיוחד"
+
 #~ msgid "Such as an airport or toll-road inflicting extra charges"
 #~ msgstr "דוגמאת שדה תעופה או כביש אגרה עלול לגרור הוצאות נוספות"
+
 #~ msgid "vehicle type"
 #~ msgstr "רכב מסוג"
+
 #~ msgid "in meters"
 #~ msgstr "במטרים"
+
 #~ msgid "in seconds"
 #~ msgstr "בשניות"
+
 #~ msgid "WHAT WILL YOU PAY?"
 #~ msgstr "מה אשלם?"
+
 #~ msgid ""
 #~ "The price is only 1nis for every ride you take, meaning you pay only if "
 #~ "and when you make money!!!"
@@ -2014,18 +2044,24 @@ msgstr "שגיאה בבודק האיות"
 #~ "המחיר הוא 1.2 שקל בלבד לכל נסיעה שתבחר לקחת. המשמעות היא שאם לא הרווחת, "
 #~ "לא שילמת.\n"
 #~ "ההצלחה שלך היא ההצלחה שלנו!"
+
 #~ msgid "Type city, street, number and choose for the list"
 #~ msgstr "הכנס עיר, רחוב, מספר ובחר מהרשימה"
+
 #~ msgid "Pickup at %s "
 #~ msgstr "איסוף ב: %s"
+
 #~ msgid "The Good"
 #~ msgstr "טוב"
+
 #~ msgid "The best way to get a taxi (FREE)"
 #~ msgstr "הדרך הטובה ביותר להשיג מונית (חינם)"
+
 #~ msgid "Map Suggestions"
 #~ msgstr "הצעות מתוך מפה:"
+
 #~ msgid "History Suggestions"
 #~ msgstr "הצעות מנסיעות קודמות:"
+
 #~ msgid "Sign In!"
 #~ msgstr "היכנס"
-
