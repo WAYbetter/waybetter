@@ -79,11 +79,12 @@ var OrderingHelper = Object.create({
             order_sent_msg:         "",
             enter_address:          "",
             are_you_sure:           "",
-            try_again:              ""
+            try_again:              "",
+            no_house_number:        ""
         }
 
     },
-    ACCURACY_THRESHOLD:             300, // meters
+    ACCURACY_THRESHOLD:             250, // meters
     ADDRESS_FIELD_ID_BY_TYPE:       {
         from:   "id_from_raw",
         to:     "id_to_raw"
@@ -105,13 +106,12 @@ var OrderingHelper = Object.create({
         cache.$order_form = $("#order_form"),
         cache.$order_button = $("#order_button");
         cache.$finish_verification = $("#finish_verification");
+        var digits_re = new RegExp(/\d+/);
 
         // setup from input
         cache.$from_raw_input.focus(function () {
             that.switchState('from');
             return true;
-        }).change(function() {
-            that.validateForBooking();
         });
 
 
@@ -119,8 +119,6 @@ var OrderingHelper = Object.create({
         cache.$to_raw_input.focus(function () {
             that.switchState('to');
             return true;
-        }).change(function() {
-            that.validateForBooking();
         });
 
         // send verification code
@@ -175,7 +173,7 @@ var OrderingHelper = Object.create({
         // toolbar setup
         $(".sources_toolbar").hide();
         $("#gps_button").click(function(e) {
-            that.setLocationGPS(that.current_flow_state);
+            that.setLocationGPS(true);
             e.preventDefault();
         });
 
@@ -187,14 +185,24 @@ var OrderingHelper = Object.create({
             // add clear button
             $(element).after($("<span class='clear'></span>").mousedown(function(e) {
                 $(element).val("");
+                that.validateForBooking();
                 return false; // prevent stealing focus from the input field
             }));
             
             $(element).change(function(e) {
                 var val = $(element).val();
+                that.validateForBooking();
+
                 if (! val) {
                     return;
                 }
+
+                if (val.match(digits_re) == null) { // no matches
+                    alert(that.config.messages.no_house_number);
+                    $(element).focus();
+                    return;
+                }
+
                 var params = { "term": val, "lon": that.last_position.longitude, "lat": that.last_position.latitude };
                 $jqt.goTo("#resolve_addresses", "slideleft");
                 $("#resolve_addresses ul").addClass("loading_address").empty().append("<li>" + that.config.messages.looking_for + "</li>");
@@ -291,7 +299,7 @@ var OrderingHelper = Object.create({
         }); // submit
 
         this.initMap();
-        this.setLocationGPS();
+        this.setLocationGPS(false);
 
         //TODO_WB:add a check for map, timeout and check again.
         setTimeout(that.initPoints, 100);
@@ -299,7 +307,9 @@ var OrderingHelper = Object.create({
         return this;
     }, // init
     _setState:              function(active_input, other_input) {
+        var that = this;
         window.setTimeout(function() {
+            that.hideGlassPane();
             other_input.parent().hide();
             active_input.siblings(".clear").show().parent().addClass("shorter").next().addClass("visible");
             $("#gps_button").removeClass(other_input.data("address_type")).addClass(active_input.data("address_type"));
@@ -340,11 +350,10 @@ var OrderingHelper = Object.create({
     showLocationError:          function() {
         var that = this,
             cancel_button = $("<button></button>").text(that.config.messages.enter_address).click(function() {
-                that.hideGlassPane();
                 $("#id_" + that.current_flow_state + "_raw").focus();
             }),
             try_again_button = $("<button></button>").text(that.config.messages.try_again).click(function() {
-                that.setLocationGPS(that.current_flow_state);
+                that.setLocationGPS(true);
             }),
             buttons = $("<div class='buttons'></div>").append(cancel_button).append(try_again_button);
 
@@ -361,7 +370,7 @@ var OrderingHelper = Object.create({
             that.showLocationError();
         }
     },
-    setLocationGPS:             function() {
+    setLocationGPS:             function(showGlassPane) {
         var that = this;
         var options = {
             timeout             : 1000, // 1 second
@@ -370,7 +379,9 @@ var OrderingHelper = Object.create({
         };
 
         if (navigator.geolocation) {
-            that.showGlassPane({style: "loading", message: that.config.messages.finding_location});
+            if (showGlassPane) {
+                that.showGlassPane({style: "loading", message: that.config.messages.finding_location});
+            }
             navigator.geolocation.getCurrentPosition(function(p) {
                 that.locationSuccess.call(that, p);
             }, function() {
