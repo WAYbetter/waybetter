@@ -417,19 +417,19 @@ var OrderingHelper = Object.create({
     },
     getRideCostEstimate:        function() {
         var that = this,
-            from_x = $("#id_from_lon").val(),
-            from_y = $("#id_from_lat").val(),
-            to_x = $("#id_to_lon").val(),
-            to_y = $("#id_to_lat").val(),
+            from_lon = $("#id_from_lon").val(),
+            from_lat = $("#id_from_lat").val(),
+            to_lon = $("#id_to_lon").val(),
+            to_lat = $("#id_to_lat").val(),
             from_city = $("#id_from_city").val(),
             to_city = $("#id_to_city").val();
 
-        if (from_x && from_y && to_x && to_y) {
+        if (from_lon && from_lat && to_lon && to_lat) {
             $.ajax({
                url: that.config.estimation_service_url,
                type: 'get',
                dataType: 'json',
-               data: { from_x: from_x, from_y: from_y, to_x: to_x, to_y: to_y,
+               data: { from_lon: from_lon, from_lat: from_lat, to_lon: to_lon, to_lat: to_lat,
                        from_city: from_city, to_city: to_city},
                success: that.renderRideEstimatedCost
             });
