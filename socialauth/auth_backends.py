@@ -76,10 +76,10 @@ class OpenIdBackend:
                 logging.info("creating new user: '%s'" % username)
                 user = User.objects.create_user(username, email)
                 
-            user.first_name = firstname
-            user.last_name = lastname
+            user.first_name = firstname or ""
+            user.last_name = lastname or ""
             user.save()
-    
+
             #create openid association
             assoc = UserAssociation()
             assoc.openid_key = openid_key
