@@ -172,7 +172,11 @@ class Passenger(models.Model):
   
 
     def __unicode__(self):
-        return u"Passenger: %s, %s" % (self.phone, self.user.username if self.user else "[UNKNOWN USER]")
+        try:
+            return u"Passenger: %s, %s" % (self.phone, self.user.username if self.user else "[UNKNOWN USER]")
+        except User.DoesNotExist:
+            return u"Passenger: %s, %s" % (self.phone, "[UNKNOWN USER]")
+
 
 digits_re = re.compile(r'^\d+$')
 validate_digits = RegexValidator(digits_re, _(u"Value must consists of digits only."), 'invalid')
