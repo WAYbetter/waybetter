@@ -95,9 +95,14 @@ class OrderAssignmentAdmin(admin.ModelAdmin):
         return unicode(obj.order)
 
     
+def build_installer(modeladmin, request, queryset):
+    for ws in queryset:
+        ws.build_installer()
+build_installer.short_description = "Build Installer"
 
 class WorkStationAdmin(admin.ModelAdmin):
     list_display = ["id", "work_station_user", "station_name", "online_status"]
+    actions = [build_installer]
 
     def work_station_user(self, obj):
         return obj.get_admin_link()
