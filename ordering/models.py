@@ -1,6 +1,6 @@
 from django.db.models.query import QuerySet
 from django.db import models
-from django.utils.translation import gettext_lazy as _, gettext, ugettext
+from django.utils.translation import ugettext_lazy as _, ugettext
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.utils import simplejson
@@ -262,11 +262,11 @@ def build_installer_for_workstation(sender, instance, **kwargs):
 
 models.signals.post_save.connect(build_installer_for_workstation, sender=WorkStation)
 
-RATING_CHOICES = ((1, gettext("Very poor")),
-                  (2, gettext("Not so bad")),
-                  (3, gettext("Average")),
-                  (4, gettext("Good")),
-                  (5, gettext("Perfect")))
+RATING_CHOICES = ((1, ugettext("Very poor")),
+                  (2, ugettext("Not so bad")),
+                  (3, ugettext("Average")),
+                  (4, ugettext("Good")),
+                  (5, ugettext("Perfect")))
 
 class Order(models.Model):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)

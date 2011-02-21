@@ -2,7 +2,7 @@ import random
 from google.appengine.api import taskqueue
 from google.appengine.api import mail
 from google.appengine.api.images import BadImageError, NotImageError
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 import logging
 from django.shortcuts import render_to_response
 

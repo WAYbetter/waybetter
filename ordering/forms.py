@@ -3,7 +3,7 @@
 from django import forms
 from django.forms.models import ModelForm
 from django.forms.util import flatatt
-from django.utils.translation import gettext as _
+from django.utils.translation import ugettext as _
 from django.utils.encoding import smart_unicode
 
 from common.models import Country, City
@@ -142,7 +142,7 @@ class OrderForm(ModelForm):
 
             raise forms.ValidationError(
                     _("Service is not available in %(city)s yet.<br>Please try again soon.<p class=bold>THANKS!</p>WAYbetter team :)") %
-                        {'city': self.cleaned_data['from_city'].name.encode("utf-8")})
+                        {'city': self.cleaned_data['from_city'].name})
         
         return self.cleaned_data
 
