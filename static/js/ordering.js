@@ -101,14 +101,19 @@ var Address = defineClass({
             return new Address(name, street, city, country, geohash, lon, lat, address_type);
         },
         fromServerResponse: function(response, address_type) {
-             return new Address( response["name"],
-                                 response["street"],
-                                 response["city"],
-                                 response["country"],
-                                 response["geohash"],
-                                 response["lon"],
-                                 response["lat"],
-                                 address_type );
+            if (response) {
+                return new Address( response["name"],
+                                    response["street"],
+                                    response["city"],
+                                    response["country"],
+                                    response["geohash"],
+                                    response["lon"],
+                                    response["lat"],
+                                    address_type );
+            } else {
+                return new Address();
+            }
+
         }
     }
 });
