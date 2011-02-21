@@ -39,10 +39,6 @@
     });
 
 </script>
-<style>
-
-
-</style>
 {% endblock %}
 
 {% block topcontrol %}
@@ -56,11 +52,11 @@
             {%  endif %}
         {% endfor %}
         <div class="padder">
-            <input type=text class="big_text a_marker" id="id_from_raw" name="from_raw" placeholder="{% trans 'Enter pickup address' %}"/>
+            <input type="search" class="big_text a_marker" id="id_from_raw" name="from_raw" placeholder="{% trans 'Enter pickup address' %}"/>
         </div>
         <button type="button" class="cancel_button">{% trans 'Cancel' %}</button>
         <div class="padder">
-            <input type=text class="big_text b_marker" id="id_to_raw" name="to_raw" placeholder="{% trans 'Enter drop-off address' %}"/>
+            <input type="search" class="big_text b_marker" id="id_to_raw" name="to_raw" placeholder="{% trans 'Enter drop-off address' %}"/>
         </div>
         <button type="button" class="cancel_button">{% trans 'Cancel' %}</button>
         <div class="sources_toolbar">

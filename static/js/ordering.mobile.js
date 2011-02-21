@@ -172,13 +172,13 @@ var OrderingHelper = Object.create({
 
         // toolbar setup
         $(".sources_toolbar").hide();
-        $("#gps_button").click(function(e) {
+        $("#gps_button").mousedown(function(e) {
             that.setLocationGPS(true);
-            e.preventDefault();
+            return false;
         });
 
         // text fields
-        $("#home input:text").each(function(i, element) {
+        $("#home input[type=search]").each(function(i, element) {
 
             var address_type = element.name.split("_")[0];
             $(element).data("address_type", address_type);
