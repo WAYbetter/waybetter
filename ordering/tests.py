@@ -10,6 +10,8 @@ from ordering.models import Passenger, Order, WorkStation, Station, OrderAssignm
 from ordering.forms import OrderForm
 from ordering.dispatcher import assign_order, choose_workstation
 from ordering.order_manager import NO_MATCHING_WORKSTATIONS_FOUND, ORDER_HANDLED, OK, accept_order
+import station_controller
+import station_connection_manager
 from ordering.station_connection_manager import set_heartbeat, is_workstation_available
 from ordering.decorators import passenger_required, passenger_required_no_redirect, NOT_A_USER, NOT_A_PASSENGER, CURRENT_PASSENGER_KEY
 from ordering.pricing import estimate_cost, IsraelExtraCosts, CostType, TARIFF1_START, TARIFF2_START, SABBATH_START
@@ -18,6 +20,7 @@ from testing import setup_testing_env
 from testing.meter_calculator import calculate_tariff, tariff1_dict, tariff2_dict
 
 import logging
+import time
 import datetime
 
 PASSENGER = None
@@ -206,6 +209,36 @@ class OrderManagerTest(TestCase):
         accept_order(ORDER, pickup_time=5, station=tel_aviv_station)
 
         self.assertTrue((ORDER.status, ORDER.pickup_time, ORDER.station) == (ACCEPTED, 5, tel_aviv_station))
+
+class StationConnectionTest(TestCase):
+    """Unit test for the station connection manager."""
+
+    fixtures = ['countries.yaml', 'cities.yaml', 'ordering_test_data.yaml']
+    
+    def setUp(self):
+        setup_testing_env.setup()
+
+    def test_ws_status_notification(self):
+        service_url = reverse('ordering.station_controller.notify_ws_status')
+
+        # nothing happened
+        response = self.client.get(service_url)
+        self.assertEqual(response.content, station_controller.OK)
+
+        # work stations are born
+        resuscitate_work_stations()
+        response = self.client.get(service_url)
+        self.assertEqual(response.content, station_controller.WS_BORN)
+
+        # wait for IS_DEAD_DELTA time to go by without another heartbeat...
+        time.sleep(station_connection_manager.IS_DEAD_DELTA + 1)
+        response = self.client.get(service_url)
+        self.assertEqual(response.content, station_controller.WS_DECEASED)
+
+        # nothing happened
+        response = self.client.get(service_url)
+        self.assertEqual(response.content, station_controller.OK)
+
 
 class DispatcherTest(TestCase):
     """Unit test for the dispatcher ordering logic."""
