@@ -6,6 +6,9 @@ from datetime import datetime
 from geocode import telmap_request, get_text_from_element
 
 def calculate_time_and_distance(from_lon, from_lat, to_lon, to_lat):
+    """
+    Returns estimated time and distance as floats.
+    """
     return telmap_calculate_time_and_distance(from_lon, from_lat, to_lon, to_lat)
 
 def telmap_calculate_time_and_distance(from_lon, from_lat, to_lon, to_lat, return_cities=False, return_streets=False):
@@ -16,8 +19,9 @@ def telmap_calculate_time_and_distance(from_lon, from_lat, to_lon, to_lat, retur
     logging.info("telmap_route")
     route_response = telmap_request({"from_lon": from_lon, "from_lat": from_lat, "to_lon": to_lon, "to_lat": to_lat},
                                    "telmap_route.xml")
-    d = float(get_text_from_element(route_response, "totalDistanceInMeters"))
-    t = float(get_text_from_element( route_response, "totalTimeSeconds"))
+
+    d = float(get_text_from_element(route_response, "totalDistanceInMeters") or 0.0)
+    t = float(get_text_from_element(route_response, "totalTimeSeconds") or 0.0)
 
     result = {
         "estimated_distance":   d,

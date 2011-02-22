@@ -441,9 +441,14 @@ var OrderingHelper = Object.create({
         }
     },
     renderRideEstimatedCost:    function (data) {
-        var label = data.label + " ";
-        label += data.currency + data.estimated_cost;
-        label += " (" + data.estimated_duration + ")";
+        if (data.estimated_cost && data.estimated_duration){
+            var label = data.label + " ";
+            label += data.currency + data.estimated_cost;
+            label += " (" + data.estimated_duration + ")";
+        }
+        else{
+            var label = data.label;
+        }
         $("#ride_cost_estimate").html(label).show();
     },
     validateForBooking:         function() {
