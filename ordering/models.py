@@ -69,6 +69,7 @@ class Station(models.Model):
     logo = BlobField(_("logo"), null=True, blank=True)
     language = models.IntegerField(_("language"), choices=LANGUAGE_CHOICES, default=0)
     show_on_list = models.BooleanField(_("show on list"), default=False)
+    subdomain_name = models.CharField(_("subdomain name"), max_length=50, blank=True, null=True, unique=True)
 
     last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True, default=datetime(1,1,1))
 

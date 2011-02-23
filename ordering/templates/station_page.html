@@ -1,0 +1,125 @@
+{% extends "base_passenger.html" %}
+{% load i18n %}
+{% load ordering_tags %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" type="text/css" href="/static/css/station_page.css" />
+{% endblock extrastyle %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/ordering.js"></script>
+    <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
+    <script>
+        $(document).ready(function() {
+            OrderingHelper.init({
+                resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
+                resolve_coordinate_url:     "{% url ordering.passenger_controller.resolve_coordinates %}",
+                estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}",
+                not_a_passenger_response:   "{{ not_a_passenger }}",
+                not_a_user_response:        "{{ not_a_user }}",
+                telmap_user:                "{{ telmap_user }}",
+                telmap_password:            "{{ telmap_password}}",
+                address_helper_msg_from:    "{% trans 'Full Pickup Address: (Street Number City)' %}",
+                address_helper_msg_to:      "{% trans 'Full Drop-off Address: (Street Number City)' %}",
+                autocomplete_msg:           "{% trans '(Street Number City) and Select:' %}",
+                address_not_resolved_msg:   "{% trans 'The address is not resolved' %}",
+                pick_me_up_msg:             "{% trans 'Pick Me Up' %}",
+                sending_msg:                "{% trans 'Sending...' %}",
+                estimation_msg:             "{% trans 'Fill pickup and dropoff for price and time estimation ' %}"
+            });
+        });
+    </script>
+{% endblock extrahead %}
+
+{% block header %}
+            <div id="banner">
+                {% blob_to_img station.logo %}
+                <h1>{% trans 'Book A Cab Application. Immediate Response via SMS' %}</h1>
+            </div>
+            <div id="user_tools">
+                {% block usertools %}
+                {% if request.user.is_authenticated %}
+                    {% trans 'Hi' %} {{ request.user.username }}! | <a href="/logout/?next={{ request.path }}" id="logout_link">{% trans 'Log out' %}</a>
+                {% else %}
+                    <a href="#" id="login_link">{% trans 'Login' %}</a>
+                {% endif %}
+                    
+                {% endblock usertools %}
+            </div>
+            <div class="clear"></div>
+            {% endblock header %}
+
+{% block content %}
+    <div id="body_bg_image"></div>
+    <div class="gray_header">
+        <form id="order_form" method="post" action="{% url ordering.passenger_controller.book_order %}">
+            {% csrf_token %}
+            {% for field in form %}
+                {% if field.name in hidden_fields %}
+                    {{ field.as_hidden }}
+                {% else %}
+                    <input type="hidden" id="id_geocoded_{{ field.name }}" name="geocoded_{{ field.name }}"/>
+                {%  endif %}
+            {% endfor %}
+            <ul>
+                <li>
+                    <input type=text class="big_text a_marker marker_disabled" id="id_from_raw" name="from_raw" placeholder="{% trans 'Enter pickup address' %}"/>
+                </li>
+                <li>
+                    <input type=text class="big_text b_marker marker_disabled" id="id_to_raw" name="to_raw" placeholder="{% trans 'Enter drop-off address' %}"/>
+                </li>
+            </ul>
+            <button type=submit class="order_button" id="order_button">{% trans 'Pick Me Up' %}</button>
+        </form>
+        <div id="map_container">
+            <div id="map"></div>
+            <div id="map_overlay_left"></div>
+            <div id="map_overlay_top"></div>
+            <div id="ride_cost_estimate"></div>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div id="station_details_container">
+        <div id="station_left">
+            <div id="station_banner" class="station_info_box">
+                <div id="images">
+                    <div id="big_icon"></div>
+                    <div id="mobile_icons"></div>
+                </div>
+                <div id="text">
+                    <h1>{{ station.subdomain_name|default_if_none:"example" }}.taxiapp.co.il</h1>
+
+                    <p>{% trans 'From any smartphone' %}, <strong>{% trans 'one click and the taxi is on the way' %}</strong></p>
+                </div>
+
+            </div>
+        </div>
+        <div id="station_right">
+            <div id="station_info" class="station_info_box">
+                <h1>{{ station.name }} ,{{ station.city.name }}</h1>
+
+                <p>{{ station.description }}</p>
+            </div>
+            <div id="station_contact" class="station_info_box">
+                <h1>{% trans 'Contact Info'%}</h1>
+                <ul>
+                    <li>{% trans 'Address' %}: {{ station.address }} {{ station.city }}</li>
+                    <li>{% trans 'Phone' %}: {{ station.phones.all|join:" "}}</li>
+                    <li><a href="{{ station.website_url }}">{% trans "Station's website" %}</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+
+{% endblock content %}
+
+{% block footer %}
+    <div id="powered_by">
+        &copy; 2011 Powered by <a href="http://www.waybetter.com"><span class=waybetter></span></a>
+    </div>
+
+{% endblock footer %}

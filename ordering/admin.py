@@ -61,7 +61,7 @@ class StationAdmin(admin.ModelAdmin):
     
     list_display = ["id", "name", "logo_img"]
     inlines = [PhoneAdmin]
-    exclude = ["geohash", "lat", "lon", "number_of_ratings", "average_rating"]
+    exclude = ["geohash", "lat", "lon", "number_of_ratings", "average_rating", "last_assignment_date"]
     form = forms.StationAdminForm
     actions = [build_workstations]
 

@@ -38,7 +38,7 @@
         });
         $("#login_link").click(function () {
             Registrator.openLoginDialog(function() {
-                 window.location.href = "{% url ordering.passenger_controller.passenger_home %}";
+                 window.location.href = "{{ request.path }}";
             });
         });
      });
