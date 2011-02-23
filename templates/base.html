@@ -57,6 +57,7 @@
     <!-- Header -->
     <div id="header-container">
         <div id="header">
+            {% block header %}
             <div id="banner">
                 <a href="/" id="logo"></a>
                 <h3>{% block sub-header %}{% trans 'Get Your Taxis Online (FREE)' %}{% endblock %}</h3>
@@ -78,6 +79,7 @@
             </div>
             <div id="alpha"></div>
             <div class="clear"></div>
+            {% endblock header %}
         </div>
         {% block nav-global %}{% endblock %}
     </div>

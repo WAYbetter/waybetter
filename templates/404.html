@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block title %}Page not found{% endblock %}
 
 {% block content %}
-The page you requested could not be found.
+    <div class="content_frame">
+        {% trans 'The page you requested could not be found.' %}
+    </div>
 {% endblock %}
