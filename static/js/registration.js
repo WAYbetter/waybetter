@@ -304,7 +304,7 @@ var Registrator = Object.create({
             that.openDialog.call(that, validation_config);
         });
     },
-    _openPhoneDialog         : function (extra_form_data) {
+    _openPhoneDialog         : function (extra_form_data, while_ordering) {
         var that = this;
         // add custom validation method
         $.validator.addMethod('ignoreNonDigits', function(val, elem) {
@@ -414,6 +414,11 @@ var Registrator = Object.create({
                     }
             });
             $(".login_link").live("mouseup", function() {
+                if (!while_ordering){
+                    that.setCallback(function(){
+                        window.location.href = "/";
+                    });
+                }
                 that.openLoginDialog();
                 return false;
             });
@@ -424,6 +429,11 @@ var Registrator = Object.create({
     openPhoneDialog         : function (callback) {
         this.setCallback(callback);
         this._openPhoneDialog();
+        return this;
+    },
+    openPhoneDialogWhileOrdering         : function (callback) {
+        this.setCallback(callback);
+        this._openPhoneDialog(undefined, true);
         return this;
     },
     openSendingDialog       : function (callback) {

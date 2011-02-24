@@ -287,7 +287,7 @@ var OrderingHelper = Object.create({
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     if (XMLHttpRequest.status == 403) {
                         if ( XMLHttpRequest.responseText == that.config.not_a_passenger_response ) {
-                            Registrator.openPhoneDialog(that.bookOrder);
+                            Registrator.openPhoneDialogWhileOrdering(that.bookOrder);
                         }
                     } else {
                         onError(XMLHttpRequest, textStatus, errorThrown);
