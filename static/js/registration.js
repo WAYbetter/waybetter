@@ -531,8 +531,14 @@ var Registrator = Object.create({
             } else {
                 $("#dialog #ok").hide();
                 $("#dialog").oneTime(2000, function() {
+                    if (registration_only){
+                        var height = "515px";
+                    }
+                    else{
+                        var height = "700px";
+                    }
                     $(".ui-dialog").animate(
-                        { height: "700px" },
+                        { height: height },
                         { duration: 200,
                           easing:  "swing",
                           complete: function() {

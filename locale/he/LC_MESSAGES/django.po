@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-22 15:23+0200\n"
-"PO-Revision-Date: 2011-02-22 15:25+0200\n"
+"POT-Creation-Date: 2011-02-24 12:59+0200\n"
+"PO-Revision-Date: 2011-02-24 13:02+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -254,7 +254,6 @@ msgstr "סיום"
 
 #: common/templates/error_form.html:12
 #: common/templates/feedback_form.html:12
-#: common/templates/login_form.html:12
 #: common/templates/terms_form.html:12
 msgid "Please enter your username"
 msgstr "שם המשתמש שלך"
@@ -309,6 +308,11 @@ msgstr "תגובתך התקבלה. תודה רבה!"
 msgid "Welcome Back!"
 msgstr "ברוך שובך!"
 
+#: common/templates/login_form.html:12
+#: common/templates/registration_form.html:15
+msgid "Enter your email"
+msgstr "הכנס את כתובת הדוא&#34;ל שלך"
+
 #: common/templates/login_form.html:26
 msgid "Don't have an account?"
 msgstr "לא נרשמת?"
@@ -318,9 +322,11 @@ msgid "Join Now!"
 msgstr "להצטרפות!"
 
 #: common/templates/login_form.html:30
-#: common/templates/registration_form.html:49
-msgid "Username"
-msgstr "שם משתמש"
+#: interests/models.py:7
+#: ordering/forms.py:182
+#: ordering/forms.py:240
+msgid "Email"
+msgstr "דוא\"ל"
 
 #: common/templates/login_form.html:32
 msgid "Password"
@@ -396,10 +402,6 @@ msgstr "הזמנתך התקבלה!"
 #: common/templates/registration_form.html:14
 msgid "Enter a unique username"
 msgstr " שם משתמש ייחודי"
-
-#: common/templates/registration_form.html:15
-msgid "Enter your email"
-msgstr "הכנס את כתובת הדוא&#34;ל שלך"
 
 #: common/templates/registration_form.html:16
 msgid "Choose a password"
@@ -567,12 +569,6 @@ msgstr "שטוח הדף"
 msgid "flat pages"
 msgstr "שטוח עמודים"
 
-#: interests/models.py:7
-#: ordering/forms.py:182
-#: ordering/forms.py:240
-msgid "Email"
-msgstr "דוא\"ל"
-
 #: interests/models.py:15
 msgid "contact person"
 msgstr "איש קשר"
@@ -665,12 +661,12 @@ msgid "Station name"
 msgstr "שם התחנה"
 
 #: ordering/forms.py:169
-#: ordering/forms.py:242
+#: ordering/forms.py:245
 msgid "Change password"
 msgstr "שינוי סיסמה"
 
 #: ordering/forms.py:170
-#: ordering/forms.py:244
+#: ordering/forms.py:247
 msgid "Re-enter password"
 msgstr "וידוא סיסמה (עוד פעם)"
 
@@ -707,7 +703,7 @@ msgid "Description"
 msgstr "תיאור"
 
 #: ordering/forms.py:193
-#: ordering/forms.py:252
+#: ordering/forms.py:255
 #: registration/forms.py:136
 msgid "The two password fields didn't match."
 msgstr "שני שדות הסיסמה אינם זהים."
@@ -732,6 +728,14 @@ msgstr "(אין תחנת מועדפת)"
 #: ordering/forms.py:231
 msgid "Local mobile phone #"
 msgstr "מספר טלפון נייד"
+
+#: ordering/forms.py:242
+msgid "First name"
+msgstr "שם פרטי"
+
+#: ordering/forms.py:243
+msgid "Last name"
+msgstr "שם משפחה"
 
 #: ordering/models.py:27
 msgid "assigned"
@@ -809,9 +813,8 @@ msgstr "הצג ברשימת תחנות"
 
 #: ordering/models.py:73
 #: ordering/models.py:205
-#, fuzzy
 msgid "last order date"
-msgstr "מחיר מחירון"
+msgstr "מועד הזמנה אחרונה"
 
 #: ordering/models.py:78
 msgid "city area"
@@ -1219,19 +1222,27 @@ msgid "Verification code: %s"
 msgstr "קוד אימות: %s"
 
 #: ordering/passenger_controller.py:282
-#: ordering/passenger_controller.py:379
+#: ordering/passenger_controller.py:405
 msgid "Invalid verification code"
 msgstr "קוד SMS שגוי"
 
-#: ordering/passenger_controller.py:305
+#: ordering/passenger_controller.py:311
+msgid "this email is registered with multiple users, cannot log you in"
+msgstr ""
+
+#: ordering/passenger_controller.py:313
+msgid "wrong username"
+msgstr "משתמש לא קיים"
+
+#: ordering/passenger_controller.py:319
 msgid "wrong username/password"
 msgstr "שם המשתמש או הסיסמה אינם נכונים"
 
-#: ordering/passenger_controller.py:316
-msgid "Username already taken"
-msgstr "שם משתמש כבר תפוס"
+#: ordering/passenger_controller.py:333
+msgid "Email already registered"
+msgstr "דוא\"ל שייך ליותר ממשתמש אחד"
 
-#: ordering/passenger_controller.py:319
+#: ordering/passenger_controller.py:336
 msgid "Missing required parameters"
 msgstr "שדות חסרים"
 
@@ -1965,6 +1976,10 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
 
+#~ msgid "Username"
+#~ msgstr "שם משתמש"
+#~ msgid "Username already taken"
+#~ msgstr "שם משתמש כבר תפוס"
 #~ msgid "Not Now"
 #~ msgstr "לא כרגע"
 #~ msgid "Get a Taxi. Wherever You Are!"
