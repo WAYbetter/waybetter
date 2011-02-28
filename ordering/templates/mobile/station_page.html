@@ -1,0 +1,82 @@
+{% extends "mobile/base.html" %}
+{% load i18n %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="/static/js/jquery.form.js"></script>
+<script src="/static/js/ordering.mobile.js"></script>
+<script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
+<script>
+    $(document).ready(function() {
+
+        OrderingHelper.init({
+            resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
+            resolve_coordinate_url:     "{% url ordering.passenger_controller.resolve_coordinates %}",
+            estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}",
+            send_sms_url:               "{% url ordering.passenger_controller.send_sms_verification %}",
+            validate_phone_url:         "{% url ordering.passenger_controller.validate_phone %}",
+            not_a_passenger_response:   "{{ not_a_passenger }}",
+            not_a_user_response:        "{{ not_a_user }}",
+            telmap_user:                "{{ telmap_user }}",
+            telmap_password:            "{{ telmap_password}}",
+            messages:         {
+                estimation_msg:          "{% trans 'Fill pickup and dropoff for price and time estimation ' %}",
+                finding_location:        "{% trans 'Finding Your Location...' %}",
+                sorry_msg:               "{% trans 'No Location Found' %}",
+                no_location_msg:         "{% trans 'Unable to locate your position' %}",
+                order_sent_msg:          "{% trans 'Order Sent!\n\nAn SMS with ride details will be sent soon'%}",
+                enter_address:           "{% trans 'Enter Address' %}",
+                are_you_sure:            "{% trans 'Are you sure you want to order a taxi now?' %}",
+                try_again:               "{% trans 'Try Again' %}",
+                send_verification:       "{% trans 'Send Verification Code' %}",
+                sending:                 "{% trans 'Sending...' %}",
+                code_sent:               "{% trans 'Code Sent' %}",
+                could_not_resolve:       "{% trans 'Could not resolve address' %}",
+                looking_for:             "{% trans 'Looking for address' %}",
+                no_house_number:         "{% trans 'Address Incomplete: please enter a house number' %}"
+            }
+        });
+    });
+
+</script>
+{% endblock %}
+
+{% block topcontrol %}
+    <form id="order_form" method="post" action="{% url ordering.passenger_controller.book_order %}">
+        <input type="hidden" name="originating_station" id="id_originating_station" value="{{ station.id }}" />
+
+        {% csrf_token %}
+        {% for field in form %}
+            {% if field.name in hidden_fields %}
+                {{ field.as_hidden }}
+            {% else %}
+                <input type="hidden" id="id_geocoded_{{ field.name }}" name="geocoded_{{ field.name }}"/>
+            {%  endif %}
+        {% endfor %}
+        <div class="padder">
+            <input type="search" class="big_text a_marker" id="id_from_raw" name="from_raw" placeholder="{% trans 'Enter pickup address' %}"/>
+        </div>
+        <button type="button" class="cancel_button">{% trans 'Cancel' %}</button>
+        <div class="padder">
+            <input type="search" class="big_text b_marker" id="id_to_raw" name="to_raw" placeholder="{% trans 'Enter drop-off address' %}"/>
+        </div>
+        <button type="button" class="cancel_button">{% trans 'Cancel' %}</button>
+        <div class="sources_toolbar">
+{#            <button type="button" id="history_button" class="toolbar_button">{% trans 'History' %}</button>#}
+            <button type="button" id="gps_button" class="toolbar_button">{% trans 'GPS' %}</button>
+        </div>
+    </form>
+{% endblock topcontrol %}
+{% block content %}
+    <div id="map_container">
+        <div id="ride_cost_estimate"><span class="text"></span><span id="close_estimate"></span></div>
+        <div id="map"></div>
+    </div>
+    <div id="bottom_toolbar" class="">
+        <button type="submit" class="order_button" id="order_button"></button>
+    </div>
+    <div class="glass_pane">
+        <div id="top"></div>
+        <div id="bottom"></div>
+    </div>
+{% endblock content %}
