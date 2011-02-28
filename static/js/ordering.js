@@ -53,9 +53,10 @@ var MapMarker = defineClass({
 
 var Address = defineClass({
     name:       "Address",
-    construct:  function(name, street, city, country, geohash, lon, lat, address_type) {
+    construct:  function(name, street, house_number, city, country, geohash, lon, lat, address_type) {
         this.name = name;
         this.street = street;
+        this.house_number = house_number;
         this.city = city;
         this.country = country;
         this.geohash = geohash;
@@ -72,6 +73,7 @@ var Address = defineClass({
             $('#id_geocoded_' + this.address_type + '_raw').val(this.name);
             $('#id_' + this.address_type + '_city').val(this.city);
             $('#id_' + this.address_type + '_street_address').val(this.street);
+            $('#id_' + this.address_type + '_house_number').val(this.house_number);
             $('#id_' + this.address_type + '_country').val(this.country);
             $('#id_' + this.address_type + '_geohash').val(this.geohash);
             $('#id_' + this.address_type + '_lon').val(this.lon);
@@ -81,6 +83,7 @@ var Address = defineClass({
             $('#id_geocoded_' + this.address_type + '_raw').val('');
             $('#id_' + this.address_type + '_city').val('');
             $('#id_' + this.address_type + '_street_address').val('');
+            $('#id_' + this.address_type + '_house_number').val('');
             $('#id_' + this.address_type + '_country').val('');
             $('#id_' + this.address_type + '_geohash').val('');
             $('#id_' + this.address_type + '_lon').val('');
@@ -90,19 +93,21 @@ var Address = defineClass({
     statics:    {
         // factory methods
         fromFields:         function(address_type) {
-            var name =      $('#id_' + address_type + '_raw').val(),
-                city =      $('#id_' + address_type + '_city').val(),
-                street =    $('#id_' + address_type + '_street_address').val(),
-                country =   $('#id_' + address_type + '_country').val(),
-                geohash =   $('#id_' + address_type + '_geohash').val(),
-                lon =       $('#id_' + address_type + '_lon').val(),
-                lat =       $('#id_' + address_type + '_lat').val();
+            var name =          $('#id_' + address_type + '_raw').val(),
+                city =          $('#id_' + address_type + '_city').val(),
+                street =        $('#id_' + address_type + '_street_address').val(),
+                house_number =  $('#id_' + address_type + '_house_number').val(),
+                country =       $('#id_' + address_type + '_country').val(),
+                geohash =       $('#id_' + address_type + '_geohash').val(),
+                lon =           $('#id_' + address_type + '_lon').val(),
+                lat =           $('#id_' + address_type + '_lat').val();
 
-            return new Address(name, street, city, country, geohash, lon, lat, address_type);
+            return new Address(name, street, house_number, city, country, geohash, lon, lat, address_type);
         },
         fromServerResponse: function(response, address_type) {
              return new Address( response["name"],
                                  response["street"],
+                                 response["house_number"],
                                  response["city"],
                                  response["country"],
                                  response["geohash"],

@@ -72,7 +72,7 @@ def book_order(request):
         response = HttpResponse(NO_MATCHING_WORKSTATIONS_FOUND)
 
         send_sms(order.passenger.international_phone(),
-                 _("We're sorry, but we could not find a taxi for you"))
+                 translate_to_lang("We're sorry, but we could not find a taxi for you", order.language_code))
         
     except OrderError:
         order.status = ERROR
@@ -82,7 +82,7 @@ def book_order(request):
         logging.error("book_order: OrderError: %d" % order_id)
         response = HttpResponseServerError("an error occured while handling order")
         send_sms(order.passenger.international_phone(),
-                 _("We're sorry, but we have encountered an error while handling your request"))
+                 translate_to_lang("We're sorry, but we have encountered an error while handling your request", order.language_code))
 
     return response
 

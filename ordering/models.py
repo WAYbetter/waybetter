@@ -281,6 +281,8 @@ class Order(models.Model):
                                        , blank=True)
     from_postal_code = models.CharField(_("from postal code"), max_length=10, null=True, blank=True)
     from_street_address = models.CharField(_("from street address"), max_length=50)
+    from_house_number = models.IntegerField(_("from_house_number"), max_length=10, null=True, blank=True)
+
     from_geohash = models.CharField(_("from goehash"), max_length=13)
     from_lon = models.FloatField(_("from_lon"))
     from_lat = models.FloatField(_("from_lat"))
@@ -293,6 +295,8 @@ class Order(models.Model):
                                      blank=True)
     to_postal_code = models.CharField(_("to postal code"), max_length=10, null=True, blank=True)
     to_street_address = models.CharField(_("to street address"), max_length=50, null=True, blank=True)
+    to_house_number = models.IntegerField(_("to_house_number"), max_length=10, null=True, blank=True)
+
     to_geohash = models.CharField(_("to goehash"), max_length=13, null=True, blank=True)
     to_lon = models.FloatField(_("to_lon"), null=True, blank=True)
     to_lat = models.FloatField(_("to_lat"), null=True, blank=True)
@@ -383,6 +387,8 @@ class OrderAssignment(models.Model):
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
+    pickup_address_in_ws_lang = models.CharField(_("pickup_address_in_ws_lang"), max_length=50)
+
     @classmethod
     def serialize_for_workstation(cls, queryset_or_order_assignment):
         if isinstance(queryset_or_order_assignment, QuerySet):
@@ -396,7 +402,7 @@ class OrderAssignment(models.Model):
         for order_assignment in order_assignments:
             result.append({
                 "pk":               order_assignment.order.id,
-                "from_raw":         order_assignment.order.from_raw,
+                "from_raw":         order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
                 "seconds_passed":   (datetime.now() - order_assignment.create_date).seconds
             })
 

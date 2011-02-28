@@ -5,7 +5,7 @@ from ordering.station_connection_manager import is_workstation_available
 from ordering.errors import OrderError, NoWorkStationFoundError
 from common.geo_calculations import distance_between_points
 import models
-from common.util import log_event, EventType
+from common.util import log_event, EventType, translate_pickup_for_ws
 from datetime import datetime
 
 
@@ -22,6 +22,7 @@ def assign_order(order):
     assignment.order = order
     assignment.station = work_station.station
     assignment.work_station = work_station
+    assignment.pickup_address_in_ws_lang = translate_pickup_for_ws(work_station, order)
     assignment.save()
 
     work_station.last_assignment_date = assignment.create_date

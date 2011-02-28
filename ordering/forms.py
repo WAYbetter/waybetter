@@ -80,8 +80,8 @@ class AppEngineImageField(forms.FileField):
         return True
 
 
-HIDDEN_FIELDS = ("from_country", "from_city", "from_street_address", "from_geohash", "from_lon", "from_lat",
-                 "to_country", "to_city", "to_street_address", "to_geohash", "to_lon", "to_lat",)
+HIDDEN_FIELDS = ("from_country", "from_city", "from_street_address", "from_house_number", "from_geohash", "from_lon", "from_lat",
+                 "to_country", "to_city", "to_street_address", "to_house_number", "to_geohash", "to_lon", "to_lat",)
 
 class FeedbackForm(ModelForm):
     passenger = None
