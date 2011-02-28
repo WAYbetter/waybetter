@@ -143,6 +143,7 @@ class Passenger(models.Model):
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
     default_station = models.ForeignKey(Station, verbose_name=_("Default station"), related_name="default_passengers",
                                         default=None, null=True, blank=True)
+    originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")), related_name="originated_passengers", null=True, blank=True, default=None)
 
     phone = models.CharField(_("phone number"), max_length=15)
     phone_verified = models.BooleanField(_("phone verified"))
@@ -276,6 +277,7 @@ RATING_CHOICES = ((1, ugettext("Very poor")),
 class Order(models.Model):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
+    originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")), related_name="originated_orders", null=True, blank=True, default=None)
 
     status = models.IntegerField(_("status"), choices=ORDER_STATUS, default=PENDING)
 

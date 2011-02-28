@@ -52,6 +52,16 @@ def book_order(request):
     order_id = int(request.POST["order_id"])
     logging.info("book_order_task: %d" % order_id)
     order = get_object_or_404(Order, id=order_id)
+    passenger = order.passenger
+
+    # if this is the first order of this passenger, connect him with the station that originated the order
+    if order.originating_station and passenger.orders.count() == 1:
+        logging.info("assigning passenger %s to station %s" % (passenger, order.originating_station))
+        passenger.originating_station = order.originating_station
+        if not passenger.default_station:
+            passenger.default_station = order.originating_station
+            
+        passenger.save()
 
     #TODO_WB: check if another dispatching cycle should start
     response = HttpResponse(ORDER_HANDLED)
