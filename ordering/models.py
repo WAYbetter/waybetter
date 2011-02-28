@@ -69,6 +69,7 @@ class Station(models.Model):
     logo = BlobField(_("logo"), null=True, blank=True)
     language = models.IntegerField(_("language"), choices=LANGUAGE_CHOICES, default=0)
     show_on_list = models.BooleanField(_("show on list"), default=False)
+    subdomain_name = models.CharField(_("subdomain name"), max_length=50, blank=True, null=True, unique=True)
 
     last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True, default=datetime(1,1,1))
 
@@ -142,6 +143,7 @@ class Passenger(models.Model):
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
     default_station = models.ForeignKey(Station, verbose_name=_("Default station"), related_name="default_passengers",
                                         default=None, null=True, blank=True)
+    originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")), related_name="originated_passengers", null=True, blank=True, default=None)
 
     phone = models.CharField(_("phone number"), max_length=15)
     phone_verified = models.BooleanField(_("phone verified"))
@@ -172,7 +174,11 @@ class Passenger(models.Model):
   
 
     def __unicode__(self):
-        return u"Passenger: %s, %s" % (self.phone, self.user.username if self.user else "[UNKNOWN USER]")
+        try:
+            return u"Passenger: %s, %s" % (self.phone, self.user.username if self.user else "[UNKNOWN USER]")
+        except User.DoesNotExist:
+            return u"Passenger: %s, %s" % (self.phone, "[UNKNOWN USER]")
+
 
 digits_re = re.compile(r'^\d+$')
 validate_digits = RegexValidator(digits_re, _(u"Value must consists of digits only."), 'invalid')
@@ -271,6 +277,7 @@ RATING_CHOICES = ((1, ugettext("Very poor")),
 class Order(models.Model):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
+    originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")), related_name="originated_orders", null=True, blank=True, default=None)
 
     status = models.IntegerField(_("status"), choices=ORDER_STATUS, default=PENDING)
     language_code = models.CharField(_("order language"), max_length=5, default=settings.LANGUAGE_CODE)

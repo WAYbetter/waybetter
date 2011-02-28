@@ -62,6 +62,7 @@
     <!-- Header -->
     <div id="header-container">
         <div id="header">
+            {% block header %}
             <div id="banner">
                 <a href="/" id="logo"></a>
                 <h3>{% block sub-header %}{% trans 'Get Your Taxis Online (FREE)' %}{% endblock %}</h3>
@@ -69,7 +70,13 @@
             <div id="user_tools">
                 {% block usertools %}
                 {% if request.user.is_authenticated %}
-                    <strong>{% trans 'Hi' %} {{ request.user.username }}! | <a href="/logout?next=/" id="logout_link">{% trans 'Log out' %}</a></strong>
+                    <strong>{% trans 'Hi' %}
+                    {%  if request.user.first_name %}
+                        {{ request.user.first_name }}
+                    {% else %}
+                        {{ request.user.username }}
+                    {% endif %}
+                    ! | <a href="/logout?next=/" id="logout_link">{% trans 'Log out' %}</a></strong>
                 {% else %}
                     {% block join_or_login %}{% endblock join_or_login %}
                 {% endif %}
@@ -85,6 +92,7 @@
             </div>
             <div id="alpha"></div>
             <div class="clear"></div>
+            {% endblock header %}
         </div>
         {% block nav-global %}{% endblock %}
     </div>
@@ -106,7 +114,23 @@
     </div>
     <!-- END Content -->
 
-    <div id="footer">{% block footer %}{% endblock %}</div>
+    <div id="footer">
+        {% block footer %}
+            <span id="footer-links">
+                <a href="{% url ordering.passenger_controller.passenger_home %}">{% trans 'Passengers home' %}</a>
+                <a href="{% url ordering.passenger_controller.info_pages %}#about">{% trans 'About' %}</a>
+                <a href="{% url ordering.passenger_controller.info_pages %}#press">{% trans 'Press' %}</a>
+                {% comment %}
+                <a href="{% url ordering.passenger_controller.info_pages %}#help">{% trans 'Help' %}</a>
+                {% endcomment %}
+                <a href="{% url ordering.passenger_controller.info_pages %}#terms">{% trans 'Terms' %}</a>
+                <a href="{% url ordering.station_controller.stations_home %}">{% trans 'Station Entrance' %}</a>
+            </span>
+    <span id="footer-copyright">
+        &copy; {% trans '2010 WAYbetter' %}
+    </span>
+        {% endblock %}
+    </div>
 </div>
 <!-- END Container -->
 

@@ -56,6 +56,12 @@ def choose_workstation(order):
     work_stations_qs = work_stations_qs.exclude(accept_orders=False)
     work_stations = []
 
+    if order.originating_station:
+        for ws in order.originating_station.work_stations.all():
+            if is_workstation_available(ws) and \
+                ws.station.is_in_valid_distance(order.from_lon, order.from_lat, order.to_lon, order.to_lat):
+                return ws
+
     for ws in work_stations_qs:
         if is_workstation_available(ws) and \
            ws.station.is_in_valid_distance(order.from_lon, order.from_lat, order.to_lon, order.to_lat):

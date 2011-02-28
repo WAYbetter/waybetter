@@ -62,13 +62,8 @@ var Address = defineClass({
     }
 });
 
-var Registrator = Object.create({
-
-});
-
 var OrderingHelper = Object.create({
     config:     {
-        unresolved_label:           "", // "{% trans 'Could not resolve address' %}"
         resolve_address_url:        "", // '{% url cordering.passenger_controller.resolve_address %}'
         estimation_service_url:     "", // '{% url ordering.passenger_controller.estimate_ride_cost %}'
         resolve_coordinate_url:     "", // '{% url ordering.passenger_controller.resolve_coordinate %}'
@@ -82,26 +77,25 @@ var OrderingHelper = Object.create({
             no_location_msg:        "",
             sorry_msg:              "",
             order_sent_msg:         "",
-            cancel:                 "",
+            enter_address:          "",
             are_you_sure:           "",
-            try_again:              ""
+            try_again:              "",
+            no_house_number:        ""
         }
 
     },
-    ACCURACY_THRESHOLD:             200, // meters
+    ACCURACY_THRESHOLD:             250, // meters
     ADDRESS_FIELD_ID_BY_TYPE:       {
         from:   "id_from_raw",
         to:     "id_to_raw"
     },
     map:                            {},
     map_markers:                    {},
-    map_markers_popups:             {},
-    has_results:                    false,
     current_flow_state:             'from',
-    cache:  {
-        $from_raw_input : null,
-        $to_raw_input   : null,
-        $passenger_msg  : null
+    cache:  {},
+    last_position:                  {
+        longitude       : "",
+        latitude        : ""
     },
     init:                       function(config) {
         this.config = $.extend(true, {}, this.config, config);
@@ -109,31 +103,168 @@ var OrderingHelper = Object.create({
             cache = this.cache;
         cache.$from_raw_input = $("#id_from_raw"),
         cache.$to_raw_input = $("#id_to_raw"),
-        cache.$passenger_msg = $('#passenger_message'),
-        cache.$top_control = $('#top_control'),
-        cache.$map_container = $('#map_container'),
-        cache.$order_button = $("#order_button"),
-        cache.$button_container = $("#button_container");
+        cache.$order_form = $("#order_form"),
+        cache.$order_button = $("#order_button");
+        cache.$finish_verification = $("#finish_verification");
+        var digits_re = new RegExp(/\d+/);
+
+        // setup from input
         cache.$from_raw_input.focus(function () {
             that.switchState('from');
             return true;
-        }).change(function() {
-            that.validateForBooking();
         });
+
+
+        // setup to input
         cache.$to_raw_input.focus(function () {
             that.switchState('to');
             return true;
-        }).change(function() {
-            that.validateForBooking();
         });
 
-        $("input:button, input:submit").button();
+        // send verification code
+        $("#send_code").mouseup(function() {
+            var $button = $(this);
+            $button.button("disable").text(that.config.messages.sending);
 
-        cache.$order_button.button().button("disable").click(function () {
-            $('#order_form').submit();
+            $.ajax({
+                url         : that.config.send_sms_url,
+                type        : 'post',
+                data        : $("#verification_form").serialize(),
+                success     : function (response) {
+                    $("#verification_code").focus();
+                },
+                error       : function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert('error send sms: ' + XMLHttpRequest.responseText);
+                },
+                complete    : function() {
+                    $button.text(that.config.messages.code_sent)
+                }
+            });
+        });
+        $("#local_phone").change(function() {
+            $("#send_code").button('enable').text(that.config.messages.send_verification);
         });
 
-        $("#order_form").submit(function() {
+        // finish verification
+        $("#verification_code").keyup(function() {
+            if ($(this).val().length == 4) {
+                cache.$finish_verification.button("enable");
+            } else {
+                cache.$finish_verification.button("disable");
+            }
+        });
+        cache.$finish_verification.click(function() {
+            $.ajax({
+                url :that.config.validate_phone_url,
+                type : 'post',
+                data : $("#verification_form").serialize(),
+                success : function (response) {
+                    $jqt.goBack();
+                    that.bookOrder();
+                },
+                error :function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert(XMLHttpRequest.responseText);
+                    $("#send_code").button('enable');
+                }
+            });
+        });
+
+
+        // toolbar setup
+        $(".sources_toolbar").hide();
+        $("#gps_button").mousedown(function(e) {
+            that.setLocationGPS(true);
+            return false;
+        });
+
+        // text fields
+        $("#home input[type=search]").each(function(i, element) {
+
+            var address_type = element.name.split("_")[0];
+            $(element).data("address_type", address_type);
+            // add clear button
+            $(element).after($("<span class='clear'></span>").mousedown(function(e) {
+                $(element).val("");
+                that.validateForBooking();
+                return false; // prevent stealing focus from the input field
+            }));
+            
+            $(element).change(function(e) {
+                var val = $(element).val();
+                that.validateForBooking();
+
+                if (! val) {
+                    return;
+                }
+
+                if (val.match(digits_re) == null) { // no matches
+                    alert(that.config.messages.no_house_number);
+                    $(element).focus();
+                    return;
+                }
+
+                var params = { "term": val, "lon": that.last_position.longitude, "lat": that.last_position.latitude };
+                $jqt.goTo("#resolve_addresses", "slideleft");
+                $("#resolve_addresses ul").addClass("loading_address").empty().append("<li>" + that.config.messages.looking_for + "</li>");
+                $.ajax({
+                        url: that.config.resolve_address_url,
+                        data: params,
+                        dataType: "json",
+                        success: function(resolve_results) {
+                            if (resolve_results.geocode.length == 0) {
+                                $jqt.goBack();
+                                alert(that.config.messages.could_not_resolve);
+                                // handle unresolved addresses
+                            } else {
+                                $("#resolve_addresses ul").empty();
+                                // render results
+                                $.each(resolve_results.geocode, function(i, item) {
+                                    var address = Address.fromServerResponse(item, address_type),
+                                        $link = $("<a href='#'></a>").text(item.name).click(function() {
+                                            that.updateAddressChoice(address);
+                                            $jqt.goBack();
+                                        }),
+                                        $li = $("<li></li>").append($link);
+                                    $("#resolve_addresses ul").append($li);
+                                });
+                            }
+                        },
+                        complete: function() {
+                            $("#resolve_addresses ul").removeClass("loading_address")
+                        }
+                    });
+
+            });
+        });
+
+
+
+        $("input:button, input:submit, button").button();
+
+         $("#ride_cost_estimate > .text").text(that.config.messages.estimation_msg).click(function () {
+            $jqt.goTo("#sms_dialog", "slideleft");
+        });
+        $("#close_estimate").click(function() {
+            $("#ride_cost_estimate").fadeOut("fast");
+        });
+        $(".cancel_button").click(function() {
+            that.switchState();
+            that.hideGlassPane();
+        });
+
+        $("#local_phone").keyup(function() {
+            if ($(this).val()) {
+                $("#send_code").button("enable");
+            } else {
+                $("#send_code").button("disable");
+            }
+        });
+        
+        cache.$order_button.button("disable").click(function () {
+            cache.$order_form.submit();
+        });
+
+        cache.$order_form.submit(function() {
             if (cache.$order_button.attr("disabled")) {
                 return false;
             }
@@ -149,7 +280,6 @@ var OrderingHelper = Object.create({
                     that.validateForBooking();    
                 },
                 success: function(order_status) {
-//                    clearError();
                     if (order_status.status == "booked") {
                         alert(that.config.messages.order_sent_msg);
                     } else {
@@ -169,40 +299,40 @@ var OrderingHelper = Object.create({
         }); // submit
 
         this.initMap();
-        this.setLocationGPS();
+        this.setLocationGPS(false);
 
         //TODO_WB:add a check for map, timeout and check again.
         setTimeout(that.initPoints, 100);
         
         return this;
     }, // init
-
+    _setState:              function(active_input, other_input) {
+        var that = this;
+        window.setTimeout(function() {
+            that.hideGlassPane();
+            other_input.parent().hide();
+            active_input.siblings(".clear").show().parent().addClass("shorter").next().addClass("visible");
+            $("#gps_button").removeClass(other_input.data("address_type")).addClass(active_input.data("address_type"));
+            $(".sources_toolbar").show();
+        }, 10);
+    },
     switchState:            function (enter_state) {
         var $input = undefined,
             that = this;
         this.current_flow_state = enter_state;
         switch ( enter_state ) {
             case 'from':
-                window.setTimeout(function() {
-                    that.cache.$to_raw_input.parent().hide();
-                    that.cache.$from_raw_input.parent().addClass("shorter").next().addClass("visible");
-                    $("#gps_button").removeClass("to").addClass('from');
-                    $(".sources_toolbar").show();
-                }, 10);
+                that._setState(that.cache.$from_raw_input, that.cache.$to_raw_input);
                 break;
             case 'to':
-                window.setTimeout(function() { // this is here to fix a bug where the caret is not displayed in the input field
-                    that.cache.$from_raw_input.parent().hide();
-                    that.cache.$to_raw_input.parent().addClass("shorter").next().addClass("visible");
-                    $("#gps_button").removeClass("from").addClass('to');
-                    $(".sources_toolbar").show();
-                }, 10);
+                that._setState(that.cache.$to_raw_input, that.cache.$from_raw_input);
                 break;
             default:
                 $(".sources_toolbar").hide();
                 this.current_flow_state = '';
                 this.cache.$to_raw_input.parent().removeClass("shorter").show().next().removeClass("visible");
                 this.cache.$from_raw_input.parent().removeClass("shorter").show().next().removeClass("visible");
+                $(".clear").hide();
         }
         return this;
     },
@@ -219,11 +349,11 @@ var OrderingHelper = Object.create({
     },
     showLocationError:          function() {
         var that = this,
-            cancel_button = $("<button></button>").text(that.config.messages.cancel).click(function() {
-                that.hideGlassPane();
+            cancel_button = $("<button></button>").text(that.config.messages.enter_address).click(function() {
+                $("#id_" + that.current_flow_state + "_raw").focus();
             }),
             try_again_button = $("<button></button>").text(that.config.messages.try_again).click(function() {
-                that.setLocationGPS(that.current_flow_state);
+                that.setLocationGPS(true);
             }),
             buttons = $("<div class='buttons'></div>").append(cancel_button).append(try_again_button);
 
@@ -232,6 +362,7 @@ var OrderingHelper = Object.create({
     },
     locationSuccess:            function(position) {
         var that = this;
+        that.last_position = position.coords;
         if (position.coords.accuracy < that.ACCURACY_THRESHOLD ) {
             that.resolveLonLat(position.coords.longitude, position.coords.latitude, that.current_flow_state);
             that.map.setCenter(new telmap.maps.LatLng(position.coords.latitude, position.coords.longitude));
@@ -239,34 +370,23 @@ var OrderingHelper = Object.create({
             that.showLocationError();
         }
     },
-//    locationError:              function(error) {
-//        switch(error.code) {
-//            case error.TIMEOUT:
-//                alert ('Timeout');
-//                break;
-//            case error.POSITION_UNAVAILABLE:
-//                alert ('Position unavailable');
-//                break;
-//            case error.PERMISSION_DENIED:
-//                alert ('Permission denied');
-//                break;
-//            case error.UNKNOWN_ERROR:
-//                alert ('Unknown error');
-//                break;
-//        }
-//    },
-    setLocationGPS:             function(address_type) {
+    setLocationGPS:             function(showGlassPane) {
         var that = this;
-        if (!address_type) {
-            address_type = 'from'
-        }
+        var options = {
+            timeout             : 1000, // 1 second
+            enableHighAccuracy  : true,
+            maximumAge          : 60000 // 1 minute
+        };
+
         if (navigator.geolocation) {
-            that.showGlassPane({style: "loading", message: that.config.messages.finding_location});
+            if (showGlassPane) {
+                that.showGlassPane({style: "loading", message: that.config.messages.finding_location});
+            }
             navigator.geolocation.getCurrentPosition(function(p) {
                 that.locationSuccess.call(that, p);
             }, function() {
                 that.showLocationError.call(that);
-            });
+            }, options);
         }
     },
     resolveLonLat:              function(lon, lat, address_type) {
@@ -304,6 +424,17 @@ var OrderingHelper = Object.create({
         };
         this.map = new telmap.maps.Map(document.getElementById("map"), prefs);
         window.onresize = function(){ telmap.maps.event.trigger(this.map, "resize"); };
+        this.initMapSize();
+    },
+    initMapSize:            function () {
+        var map_height;
+        if ("standalone" in window.navigator && window.navigator.standalone) {
+            map_height = $(window).height() - $("#gray_header").height() - $("#bottom_toolbar").height() - 5;
+        } else {
+            map_height = $(window).height() - $("#gray_header").height() - $("#bottom_toolbar").height() + 50;
+        }
+
+        $("#map").css({height: map_height + "px" });
     },
     initPoints:                 function () {
         for (var address_type in this.ADDRESS_FIELD_ID_BY_TYPE) {
@@ -384,28 +515,33 @@ var OrderingHelper = Object.create({
     },
     getRideCostEstimate:        function() {
         var that = this,
-            from_x = $("#id_from_lon").val(),
-            from_y = $("#id_from_lat").val(),
-            to_x = $("#id_to_lon").val(),
-            to_y = $("#id_to_lat").val(),
+            from_lon = $("#id_from_lon").val(),
+            from_lat = $("#id_from_lat").val(),
+            to_lon = $("#id_to_lon").val(),
+            to_lat = $("#id_to_lat").val(),
             from_city = $("#id_from_city").val(),
             to_city = $("#id_to_city").val();
 
-        if (from_x && from_y && to_x && to_y) {
+        if (from_lon && from_lat && to_lon && to_lat) {
             $.ajax({
                url: that.config.estimation_service_url,
                type: 'get',
                dataType: 'json',
-               data: { from_x: from_x, from_y: from_y, to_x: to_x, to_y: to_y,
+               data: { from_lon: from_lon, from_lat: from_lat, to_lon: to_lon, to_lat: to_lat,
                        from_city: from_city, to_city: to_city},
                success: that.renderRideEstimatedCost
             });
         }
     },
     renderRideEstimatedCost:    function (data) {
-        var label = data.label + ":";
-        label += data.estimated_cost + data.currency;
-        label += " (" + data.estimated_duration + ")";
+        if (data.estimated_cost && data.estimated_duration){
+            var label = data.label + ":";
+            label += data.estimated_cost + data.currency;
+            label += " (" + data.estimated_duration + ")";
+        }
+        else{
+            var label = data.label;
+        }
         $("#ride_cost_estimate > .text").text(label);
     },
     validateForBooking:         function() {

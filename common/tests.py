@@ -126,19 +126,19 @@ class RouteTest(TestCase):
         self.test_data = (
             {"p0"         : "Yishayahu 60 Tel Aviv",
              "p1"         : "Rotschild 19 Tel Aviv",
-             "p0_x"       : '34.78099',
-             "p0_y"       : '32.09307',
-             "p1_x"       : '34.77127',
-             "p1_y"       : '32.06355',
+             "p0_lon"       : '34.78099',
+             "p0_lat"       : '32.09307',
+             "p1_lon"       : '34.77127',
+             "p1_lat"       : '32.06355',
              "expected_t" : '768',
              "expected_d" : '4110'
         },
             {"p0"         : "Tarsish 17 Or Yehuda",
              "p1"         : "Margolin 15 Tel Aviv",
-             "p0_x"       : '34.859405',
-             "p0_y"       : '32.028877',
-             "p1_x"       : '34.790611',
-             "p1_y"       : '32.05856',
+             "p0_lon"       : '34.859405',
+             "p0_lat"       : '32.028877',
+             "p1_lon"       : '34.790611',
+             "p1_lat"       : '32.05856',
              "expected_t" : '900',
              "expected_d" : '12000'
             }
@@ -147,7 +147,7 @@ class RouteTest(TestCase):
     def test_calculate_time_and_distance(self):
         for test_case in self.test_data:
             logging.info("Testing route from %s (p0) to %s (p1)" % (test_case["p0"], test_case["p1"]))
-            estimation = calculate_time_and_distance(test_case["p0_x"], test_case["p0_y"], test_case["p1_x"], test_case["p1_y"])
+            estimation = calculate_time_and_distance(test_case["p0_lon"], test_case["p0_lat"], test_case["p1_lon"], test_case["p1_lat"])
 
             t, d = float(estimation["estimated_duration"]), float(estimation["estimated_distance"])
             expected_t, expected_d = float(test_case["expected_t"]), float(test_case["expected_d"])

@@ -1,6 +1,9 @@
 {% extends 'base.html' %}
+{% load i18n %}
 {% block title %}Server error{% endblock %}
 
 {% block content %}
-There was an error while handling your request.
+    <div class="content_frame">
+        {% trans 'There was an error while handling your request.' %}
+    </div>
 {% endblock %}

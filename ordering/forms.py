@@ -104,7 +104,7 @@ class OrderForm(ModelForm):
 
     class Meta:
         model = Order
-        fields = ["from_raw", "to_raw"]
+        fields = ["from_raw", "to_raw", "originating_station"]
         fields.extend(HIDDEN_FIELDS)
 
     def __init__(self, data=None, passenger=None):

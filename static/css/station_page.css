@@ -1,0 +1,149 @@
+#body_bg_image {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    top:0;
+    right:0;
+    /*width: 100%;*/
+    z-index: -1;
+    /*height: 350px;*/
+    background: #CFEBF2; /* old browsers */
+    background: url(/static/images/station_page/city_bg.png), -moz-linear-gradient(top, #CFEBF2 0%, #61BED2 64%, #D6EFF4 100%); /* firefox */
+    background: url(/static/images/station_page/city_bg.png), -webkit-gradient(linear, left top, left bottom, color-stop(0%,#CFEBF2), color-stop(64%,#61BED2), color-stop(100%,#D6EFF4)); /* webkit */
+    background-repeat: repeat-x;
+    background-position: bottom left;
+}
+#main {
+    border: 3px rgba(255,255,255,0.6) solid;
+    background-image: url(/static/images/station_page/pattern.png);
+    background-color: rgba(255,255,255,0.4);
+    padding: 1px;
+    -webkit-box-shadow:0 0 5px gray;
+    -moz-box-shadow:0 0 5px gray;
+    box-shadow:0 0 5px gray;
+}
+#header-container {
+    margin-top: 0;
+}
+#user_tools,  #user_tools * {
+    color: white;
+}
+#user_tools {
+    bottom: auto;
+    top:0;
+    background-color: #9babae;
+    border: 3px rgba(255,255,255,0.8) solid;
+    border-top: none;
+    padding: 10px;
+     border-radius: 0 0 10px 10px;
+    -moz-border-radius: 0 0 10px 10px;
+    -webkit-border-radius: 0 0 10px 10px;
+    -webkit-box-shadow:0 0 5px gray;
+    -moz-box-shadow:0 0 5px gray;
+    box-shadow:0 0 5px gray;
+}
+.gray_header {
+    border-radius: 10px 10px 0 0;
+    -moz-border-radius: 10px 10px 0 0;
+    -webkit-border-radius: 10px 10px 0 0;
+    border: none;
+    margin-top: -1px;
+    background: none;
+    background: #B8CACF; /* old browsers */
+    background: -moz-linear-gradient(top, #B8CACF 0%, #5EA5B5 100%); /* firefox */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#B8CACF), color-stop(100%,#5EA5B5)); /* webkit */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#B8CACF', endColorstr='#5EA5B5',GradientType=0 ); /* ie */
+
+    -webkit-box-shadow:0 3px 3px gray;
+    -moz-box-shadow:0 3px 3px gray;
+    box-shadow:0 3px 3px gray;
+}
+.station_info_box > * {
+        color: #313131;
+}
+.station_info_box {
+    border-radius: 10px;
+    -moz-border-radius: 10px;
+    -webkit-border-radius: 10px;
+    background-color: #E7EAE3;
+    padding: 16px;
+    margin: 10px;
+}
+.station_info_box > h1 {
+    font-size: 20px;
+    margin-bottom: 10px;
+}
+.station_info_box > ul > li {
+    margin-bottom: 5px;
+    list-style-image: url(/static/images/station_page/triangles.png);
+    list-style-position: inside;
+}
+#station_details_container {
+    padding-top: 10px;
+}
+#banner {
+    padding-top: 10px;
+}
+#banner > h1 {
+    font-size: 20px;
+    color: #566265;
+    text-align: center;
+    margin-top: -26px;
+}
+
+#station_banner {
+    position: relative;
+    
+}
+#station_banner #big_icon {
+    background-image: url(/static/images/station_page/cute_icon.png);
+    height: 210px;
+    width: 172px;
+    float:left;
+}
+#station_banner #mobile_icons {
+    background-image: url(/static/images/station_page/smartphones.png);
+    height: 128px;
+    width: 282px;
+    float: right;
+}
+#station_banner #text > h1 {
+    color: #e91c8b;
+}
+#station_banner #text {
+    position: relative;
+    top: -100px;
+    width: 67%;
+    text-align: center;
+}
+
+#station_banner #images {
+    float: left;
+    width: 94%;
+}
+#station_info {
+
+}
+#station_contact {
+
+}
+#station_left {
+    float: left;
+    width: 65%;
+}
+#station_right {
+    float: right;
+    width: 35%;
+}
+#footer {
+    position: relative;
+}
+#powered_by {
+    direction: ltr;
+    position: absolute;
+    right: 0;
+    font-size: 14px;
+}
+#powered_by, #powered_by > * {
+    color: white;
+}

@@ -5,9 +5,19 @@
     <script>
     $(document).ready(function() {
         $("#tabs").tabs();
+        $("#footer-links > a").bind("click", function(){
+            var hash_name = $(this).attr("href").split("#")[1];
+            $("#tabs").tabs('select',hash_name);
+        })
         $("li.taxi_tab").unbind("click").bind("click", function() {
             window.location.href = "/";
         })
+        $("#station_entrace").click(function() {
+            window.location.href = "{% url ordering.station_controller.stations_home %}"
+        });
+        $("#book_a_taxi").click(function() {
+            window.location.href = "{% url ordering.passenger_controller.passenger_home %}"
+        });
     });
     </script>
 

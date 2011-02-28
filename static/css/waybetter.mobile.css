@@ -16,7 +16,7 @@ body {
 form ul {
     list-style: none;
 }
-input.text, input[type=text], input[type=tel] {
+input.text, input[type=text], input[type=tel], input[type=search] {
     -webkit-border-radius: 5px;
     -moz-border-radius: 5px;
     border-radius: 5px;
@@ -236,6 +236,17 @@ button.order_button:disabled {
     text-align: left;
     width: 97%;
     -webkit-transition: width 0.3s ease;
+    position: relative;
+}
+
+span.clear {
+    position: absolute;
+    top: 12px;
+    right: 3px;
+    width: 19px;
+    height: 20px;
+    background-image: url(/static/images/mobile/text_X.png);
+    display: none;
 }
 
 #gray_header {
@@ -299,7 +310,7 @@ button.order_button:disabled {
 
 
 input.big_text {
-    width: 85%;
+    width: 100%;
     /*height: 38px;*/
     padding: 7px;
     border-color: #6e6e6e;
@@ -390,10 +401,6 @@ input.big_text {
     position: relative;
 }
 
-
-/************* Cost Estimate *************/
-
-
 .ui-button-text {
     color: inherit;
 }
@@ -412,4 +419,20 @@ ul li label {
 ul li input[type="tel"] {
     padding: 2% 0 2% 1%;
     width: 99%;
+}
+
+ul.loading_address {
+    background-color: transparent ;
+    border:none;
+    background-image: url(/static/images/mobile/loader.gif);
+    background-repeat: no-repeat;
+    background-position: center center;
+}
+
+ul.loading_address li{
+    border:none;
+    background-color: transparent ;
+    height: 300px;
+    text-align: center;
+    color: white;
 }
