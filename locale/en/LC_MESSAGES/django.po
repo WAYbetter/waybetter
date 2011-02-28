@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-23 21:33+0200\n"
+"POT-Creation-Date: 2011-02-28 18:58+0200\n"
 "PO-Revision-Date: 2011-02-13 16:01+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -71,8 +71,8 @@ msgstr ""
 msgid "type"
 msgstr ""
 
-#: analytics/models.py:11 ordering/models.py:339 ordering/models.py:341
-#: ordering/models.py:381 ordering/models.py:425
+#: analytics/models.py:11 ordering/models.py:341 ordering/models.py:343
+#: ordering/models.py:383 ordering/models.py:427
 msgid "order"
 msgstr ""
 
@@ -80,22 +80,22 @@ msgstr ""
 msgid "order assignment"
 msgstr ""
 
-#: analytics/models.py:13 ordering/models.py:382
+#: analytics/models.py:13 ordering/models.py:384
 msgid "work station"
 msgstr ""
 
-#: analytics/models.py:14 ordering/models.py:187 ordering/models.py:199
-#: ordering/models.py:278 ordering/models.py:383
+#: analytics/models.py:14 ordering/models.py:188 ordering/models.py:200
+#: ordering/models.py:279 ordering/models.py:385
 msgid "station"
 msgstr ""
 
-#: analytics/models.py:15 ordering/models.py:277 ordering/models.py:510
+#: analytics/models.py:15 ordering/models.py:278 ordering/models.py:512
 msgid "passenger"
 msgstr ""
 
 #: analytics/models.py:16 common/models.py:55 ordering/models.py:77
-#: ordering/models.py:143 ordering/models.py:442 ordering/models.py:473
-#: ordering/models.py:495 registration/forms.py:72
+#: ordering/models.py:143 ordering/models.py:444 ordering/models.py:475
+#: ordering/models.py:497 registration/forms.py:72
 msgid "country"
 msgstr ""
 
@@ -109,16 +109,16 @@ msgid "ratings"
 msgstr ""
 
 #: analytics/models.py:23 interests/models.py:9 interests/models.py:18
-#: ordering/models.py:89 ordering/models.py:151 ordering/models.py:310
-#: ordering/models.py:387 ordering/models.py:463 ordering/models.py:485
-#: ordering/models.py:499
+#: ordering/models.py:89 ordering/models.py:152 ordering/models.py:312
+#: ordering/models.py:389 ordering/models.py:465 ordering/models.py:487
+#: ordering/models.py:501
 msgid "create date"
 msgstr ""
 
 #: analytics/models.py:24 interests/models.py:10 interests/models.py:19
-#: ordering/models.py:90 ordering/models.py:152 ordering/models.py:311
-#: ordering/models.py:388 ordering/models.py:464 ordering/models.py:486
-#: ordering/models.py:500
+#: ordering/models.py:90 ordering/models.py:153 ordering/models.py:313
+#: ordering/models.py:390 ordering/models.py:466 ordering/models.py:488
+#: ordering/models.py:502
 msgid "modify date"
 msgstr ""
 
@@ -166,8 +166,8 @@ msgid "Submit"
 msgstr ""
 
 #: common/models.py:8 common/models.py:54 common/models.py:88
-#: interests/models.py:13 ordering/models.py:440 ordering/models.py:471
-#: ordering/models.py:493
+#: interests/models.py:13 ordering/models.py:442 ordering/models.py:473
+#: ordering/models.py:495
 msgid "name"
 msgstr ""
 
@@ -282,7 +282,7 @@ msgstr ""
 #: common/templates/phone_verification_form.html:46
 #: ordering/templates/base_passenger.html:50
 #: ordering/templates/base_station.html:35
-#: ordering/templates/station_page.html:47
+#: ordering/templates/station_page.html:60
 msgid "Login"
 msgstr ""
 
@@ -304,7 +304,7 @@ msgstr ""
 
 #: common/templates/phone_verification_form.html:21
 #: ordering/templates/passenger_home.html:28
-#: ordering/templates/station_page.html:30
+#: ordering/templates/station_page.html:31
 #: ordering/templates/workstation_home.html:501
 #: ordering/templates/mobile/passenger_home.html:32
 msgid "Sending..."
@@ -610,7 +610,7 @@ msgstr ""
 msgid "Country"
 msgstr ""
 
-#: ordering/forms.py:173 ordering/templates/station_page.html:109
+#: ordering/forms.py:173 ordering/templates/station_page.html:126
 msgid "Address"
 msgstr ""
 
@@ -643,7 +643,7 @@ msgstr ""
 msgid "Invalid address"
 msgstr ""
 
-#: ordering/forms.py:219 ordering/templates/station_page.html:110
+#: ordering/forms.py:219 ordering/templates/station_page.html:127
 msgid "Phone"
 msgstr ""
 
@@ -687,12 +687,12 @@ msgstr ""
 msgid "error"
 msgstr ""
 
-#: ordering/models.py:63 ordering/models.py:141 ordering/models.py:197
+#: ordering/models.py:63 ordering/models.py:141 ordering/models.py:198
 #: registration/models.py:170
 msgid "user"
 msgstr ""
 
-#: ordering/models.py:64 ordering/models.py:314 registration/forms.py:50
+#: ordering/models.py:64 ordering/models.py:316 registration/forms.py:50
 msgid "station name"
 msgstr ""
 
@@ -728,7 +728,7 @@ msgstr ""
 msgid "subdomain name"
 msgstr ""
 
-#: ordering/models.py:74 ordering/models.py:206
+#: ordering/models.py:74 ordering/models.py:207
 msgid "last order date"
 msgstr ""
 
@@ -764,287 +764,291 @@ msgstr ""
 msgid "average rating"
 msgstr ""
 
-#: ordering/models.py:147 ordering/models.py:185
+#: ordering/models.py:146 ordering/models.py:280
+msgid "originating station"
+msgstr ""
+
+#: ordering/models.py:148 ordering/models.py:186
 msgid "phone number"
 msgstr ""
 
-#: ordering/models.py:148
+#: ordering/models.py:149
 msgid "phone verified"
 msgstr ""
 
-#: ordering/models.py:149
+#: ordering/models.py:150
 msgid "phone verification code"
 msgstr ""
 
-#: ordering/models.py:183
+#: ordering/models.py:184
 msgid "Value must consists of digits only."
 msgstr ""
 
-#: ordering/models.py:200
+#: ordering/models.py:201
 msgid "token"
 msgstr ""
 
-#: ordering/models.py:201
+#: ordering/models.py:202
 msgid "installer URL"
 msgstr ""
 
-#: ordering/models.py:202
+#: ordering/models.py:203
 msgid "was installed"
 msgstr ""
 
-#: ordering/models.py:203
+#: ordering/models.py:204
 msgid "instant messaging username"
 msgstr ""
 
-#: ordering/models.py:204
+#: ordering/models.py:205
 msgid "Accept orders"
 msgstr ""
 
-#: ordering/models.py:270
+#: ordering/models.py:271
 msgid "Very poor"
 msgstr ""
 
-#: ordering/models.py:271
+#: ordering/models.py:272
 msgid "Not so bad"
 msgstr ""
 
-#: ordering/models.py:272
+#: ordering/models.py:273
 msgid "Average"
 msgstr ""
 
-#: ordering/models.py:273
+#: ordering/models.py:274
 msgid "Good"
 msgstr ""
 
-#: ordering/models.py:274
+#: ordering/models.py:275
 msgid "Perfect"
 msgstr ""
 
-#: ordering/models.py:280 ordering/models.py:385
+#: ordering/models.py:282 ordering/models.py:387
 msgid "status"
 msgstr ""
 
-#: ordering/models.py:282
+#: ordering/models.py:284
 msgid "from country"
 msgstr ""
 
-#: ordering/models.py:283
+#: ordering/models.py:285
 msgid "from city"
 msgstr ""
 
-#: ordering/models.py:284
+#: ordering/models.py:286
 msgid "from city area"
 msgstr ""
 
-#: ordering/models.py:286
+#: ordering/models.py:288
 msgid "from postal code"
 msgstr ""
 
-#: ordering/models.py:287
+#: ordering/models.py:289
 msgid "from street address"
 msgstr ""
 
-#: ordering/models.py:288
+#: ordering/models.py:290
 msgid "from goehash"
 msgstr ""
 
-#: ordering/models.py:289
+#: ordering/models.py:291
 msgid "from_lon"
 msgstr ""
 
-#: ordering/models.py:290
+#: ordering/models.py:292
 msgid "from_lat"
 msgstr ""
 
-#: ordering/models.py:292
+#: ordering/models.py:294
 msgid "from address"
 msgstr ""
 
-#: ordering/models.py:294
+#: ordering/models.py:296
 msgid "to country"
 msgstr ""
 
-#: ordering/models.py:295
+#: ordering/models.py:297
 msgid "to city"
 msgstr ""
 
-#: ordering/models.py:296
+#: ordering/models.py:298
 msgid "to city area"
 msgstr ""
 
-#: ordering/models.py:298
+#: ordering/models.py:300
 msgid "to postal code"
 msgstr ""
 
-#: ordering/models.py:299
+#: ordering/models.py:301
 msgid "to street address"
 msgstr ""
 
-#: ordering/models.py:300
+#: ordering/models.py:302
 msgid "to goehash"
 msgstr ""
 
-#: ordering/models.py:301
+#: ordering/models.py:303
 msgid "to_lon"
 msgstr ""
 
-#: ordering/models.py:302
+#: ordering/models.py:304
 msgid "to_lat"
 msgstr ""
 
-#: ordering/models.py:304
+#: ordering/models.py:306
 msgid "to address"
 msgstr ""
 
-#: ordering/models.py:306
+#: ordering/models.py:308
 msgid "pickup time"
 msgstr ""
 
-#: ordering/models.py:308
+#: ordering/models.py:310
 msgid "passenger rating"
 msgstr ""
 
-#: ordering/models.py:315
+#: ordering/models.py:317
 msgid "station id"
 msgstr ""
 
-#: ordering/models.py:316
+#: ordering/models.py:318
 msgid "passenger phone"
 msgstr ""
 
-#: ordering/models.py:317
+#: ordering/models.py:319
 msgid "passenger id"
 msgstr ""
 
-#: ordering/models.py:425
+#: ordering/models.py:427
 msgid "assigned to station:"
 msgstr ""
 
-#: ordering/models.py:428
+#: ordering/models.py:430
 msgid "Sunday"
 msgstr ""
 
-#: ordering/models.py:429
+#: ordering/models.py:431
 msgid "Monday"
 msgstr ""
 
-#: ordering/models.py:430
+#: ordering/models.py:432
 msgid "Tuesday"
 msgstr ""
 
-#: ordering/models.py:431
+#: ordering/models.py:433
 msgid "Wednesday"
 msgstr ""
 
-#: ordering/models.py:432
+#: ordering/models.py:434
 msgid "Thursday"
 msgstr ""
 
-#: ordering/models.py:433
+#: ordering/models.py:435
 msgid "Friday"
 msgstr ""
 
-#: ordering/models.py:434
+#: ordering/models.py:436
 msgid "Saturday"
 msgstr ""
 
-#: ordering/models.py:436
+#: ordering/models.py:438
 msgid "Standard cab"
 msgstr ""
 
-#: ordering/models.py:441 ordering/models.py:472 ordering/models.py:494
+#: ordering/models.py:443 ordering/models.py:474 ordering/models.py:496
 msgid "is active"
 msgstr ""
 
-#: ordering/models.py:445
+#: ordering/models.py:447
 msgid "from day"
 msgstr ""
 
-#: ordering/models.py:446
+#: ordering/models.py:448
 msgid "to day"
 msgstr ""
 
-#: ordering/models.py:447 ordering/models.py:478
+#: ordering/models.py:449 ordering/models.py:480
 msgid "from hour"
 msgstr ""
 
-#: ordering/models.py:448 ordering/models.py:479
+#: ordering/models.py:450 ordering/models.py:481
 msgid "to hour"
 msgstr ""
 
-#: ordering/models.py:450
+#: ordering/models.py:452
 msgid "from duration (s)"
 msgstr ""
 
-#: ordering/models.py:450 ordering/models.py:451 ordering/models.py:459
+#: ordering/models.py:452 ordering/models.py:453 ordering/models.py:461
 msgid "In seconds"
 msgstr ""
 
-#: ordering/models.py:451
+#: ordering/models.py:453
 msgid "to duration (s)"
 msgstr ""
 
-#: ordering/models.py:454
+#: ordering/models.py:456
 msgid "from distance (m)"
 msgstr ""
 
-#: ordering/models.py:454 ordering/models.py:455 ordering/models.py:458
+#: ordering/models.py:456 ordering/models.py:457 ordering/models.py:460
 msgid "In meters"
 msgstr ""
 
-#: ordering/models.py:455
+#: ordering/models.py:457
 msgid "to distance (m)"
 msgstr ""
 
-#: ordering/models.py:458
+#: ordering/models.py:460
 msgid "tick distance (m)"
 msgstr ""
 
-#: ordering/models.py:459
+#: ordering/models.py:461
 msgid "tick time (s)"
 msgstr ""
 
-#: ordering/models.py:460
+#: ordering/models.py:462
 msgid "cost per tick"
 msgstr ""
 
-#: ordering/models.py:461 ordering/models.py:483 ordering/models.py:497
+#: ordering/models.py:463 ordering/models.py:485 ordering/models.py:499
 msgid "fixed cost"
 msgstr ""
 
-#: ordering/models.py:475
+#: ordering/models.py:477
 msgid "city 1"
 msgstr ""
 
-#: ordering/models.py:476
+#: ordering/models.py:478
 msgid "city 2"
 msgstr ""
 
-#: ordering/models.py:480
+#: ordering/models.py:482
 msgid "from day-of-week"
 msgstr ""
 
-#: ordering/models.py:481
+#: ordering/models.py:483
 msgid "to day-of-week"
 msgstr ""
 
-#: ordering/models.py:506
+#: ordering/models.py:508
 msgid "Website"
 msgstr ""
 
-#: ordering/models.py:506
+#: ordering/models.py:508
 msgid "Booking"
 msgstr ""
 
-#: ordering/models.py:506
+#: ordering/models.py:508
 msgid "Registration"
 msgstr ""
 
-#: ordering/models.py:506
+#: ordering/models.py:508
 msgid "Taxi Ride"
 msgstr ""
 
-#: ordering/models.py:506
+#: ordering/models.py:508
 msgid "Other"
 msgstr ""
 
@@ -1068,23 +1072,23 @@ msgstr ""
 msgid "Passenger Phone"
 msgstr ""
 
-#: ordering/order_manager.py:74
+#: ordering/order_manager.py:84
 msgid "We're sorry, but we could not find a taxi for you"
 msgstr ""
 
-#: ordering/order_manager.py:84
+#: ordering/order_manager.py:94
 msgid ""
 "We're sorry, but we have encountered an error while handling your request"
 msgstr ""
 
-#: ordering/order_manager.py:93
+#: ordering/order_manager.py:103
 #, python-format
 msgid ""
 "Pickup at %(from)s in %(time)d minutes.\n"
 "Station: %(station_name)s, %(station_phone)s"
 msgstr ""
 
-#: ordering/order_manager.py:174
+#: ordering/order_manager.py:184
 msgid "You can't rate this order"
 msgstr ""
 
@@ -1287,34 +1291,34 @@ msgid "of"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:23
-#: ordering/templates/station_page.html:25
+#: ordering/templates/station_page.html:26
 msgid "Full Pickup Address: (Street Number City)"
 msgstr "Pickup Address: (Full street address and city)"
 
 #: ordering/templates/passenger_home.html:24
-#: ordering/templates/station_page.html:26
+#: ordering/templates/station_page.html:27
 msgid "Full Drop-off Address: (Street Number City)"
 msgstr "Drop-off Address: (Full street address and city)"
 
 #: ordering/templates/passenger_home.html:25
-#: ordering/templates/station_page.html:27
+#: ordering/templates/station_page.html:28
 msgid "(Street Number City) and Select:"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:26
-#: ordering/templates/station_page.html:28
+#: ordering/templates/station_page.html:29
 msgid "The address is not resolved"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:27
 #: ordering/templates/passenger_home.html:108
-#: ordering/templates/station_page.html:29
-#: ordering/templates/station_page.html:75
+#: ordering/templates/station_page.html:30
+#: ordering/templates/station_page.html:90
 msgid "Pick Me Up"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:29
-#: ordering/templates/station_page.html:31
+#: ordering/templates/station_page.html:34
 #: ordering/templates/mobile/passenger_home.html:23
 msgid "Fill pickup and dropoff for price and time estimation "
 msgstr ""
@@ -1344,13 +1348,13 @@ msgid "Book Now (FREE)"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:102
-#: ordering/templates/station_page.html:69
+#: ordering/templates/station_page.html:84
 #: ordering/templates/mobile/passenger_home.html:55
 msgid "Enter pickup address"
 msgstr "Pickup address (number, street, city)"
 
 #: ordering/templates/passenger_home.html:105
-#: ordering/templates/station_page.html:72
+#: ordering/templates/station_page.html:87
 #: ordering/templates/mobile/passenger_home.html:59
 msgid "Enter drop-off address"
 msgstr "Drop-off address (number, street, city)"
@@ -1505,31 +1509,40 @@ msgid ""
 "who need a taxi. Be the one who serves them in your city"
 msgstr ""
 
-#: ordering/templates/station_page.html:40
+#: ordering/templates/station_page.html:32
+#: ordering/templates/station_page.html:120
+msgid "More"
+msgstr ""
+
+#: ordering/templates/station_page.html:33
+msgid "Less"
+msgstr ""
+
+#: ordering/templates/station_page.html:53
 msgid "Book A Cab Application. Immediate Response via SMS"
 msgstr ""
 
-#: ordering/templates/station_page.html:45 templates/base.html:68
+#: ordering/templates/station_page.html:58 templates/base.html:68
 msgid "Hi"
 msgstr ""
 
-#: ordering/templates/station_page.html:45 templates/base.html:74
+#: ordering/templates/station_page.html:58 templates/base.html:74
 msgid "Log out"
 msgstr ""
 
-#: ordering/templates/station_page.html:95
+#: ordering/templates/station_page.html:110
 msgid "From any smartphone"
 msgstr ""
 
-#: ordering/templates/station_page.html:95
+#: ordering/templates/station_page.html:110
 msgid "one click and the taxi is on the way"
 msgstr ""
 
-#: ordering/templates/station_page.html:107
+#: ordering/templates/station_page.html:124
 msgid "Contact Info"
 msgstr ""
 
-#: ordering/templates/station_page.html:111
+#: ordering/templates/station_page.html:128
 msgid "Station's website"
 msgstr ""
 
