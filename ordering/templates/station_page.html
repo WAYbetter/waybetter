@@ -13,6 +13,7 @@
     <script src="/static/js/ordering.js"></script>
     <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
     <script>
+
         $(document).ready(function() {
             OrderingHelper.init({
                 resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
@@ -28,8 +29,21 @@
                 address_not_resolved_msg:   "{% trans 'The address is not resolved' %}",
                 pick_me_up_msg:             "{% trans 'Pick Me Up' %}",
                 sending_msg:                "{% trans 'Sending...' %}",
+                more_msg:                   "{% trans 'More' %}",
+                less_msg:                   "{% trans 'Less' %}",
                 estimation_msg:             "{% trans 'Fill pickup and dropoff for price and time estimation ' %}"
             });
+
+            $(".toggle_info_height").click(function() {
+                if ($(this).text() == OrderingHelper.config.less_msg) {
+                    $(this).parent().children("p").animate({ "max-height": "45px" });
+                    $(this).text(OrderingHelper.config.more_msg)
+                } else {
+                    $(this).parent().children("p").animate({ "max-height": "1000px" });
+                    $(this).text(OrderingHelper.config.less_msg)
+                }
+            });
+            $("#banner > h1").unbind("click");
         });
     </script>
 {% endblock extrahead %}
@@ -92,7 +106,7 @@
                     <div id="mobile_icons"></div>
                 </div>
                 <div id="text">
-                    <h1>{{ station.subdomain_name|default_if_none:"example" }}.taxiapp.co.il</h1>
+                    <h1>{{ station.subdomain_name|default_if_none:"example" }}.taxiApp.co.il</h1>
 
                     <p>{% trans 'From any smartphone' %}, <strong>{% trans 'one click and the taxi is on the way' %}</strong></p>
                 </div>
@@ -104,6 +118,8 @@
                 <h1>{{ station.name }} ,{{ station.city.name }}</h1>
 
                 <p>{{ station.description }}</p>
+                <span class="toggle_info_height">{% trans 'More' %}</span>
+
             </div>
             <div id="station_contact" class="station_info_box">
                 <h1>{% trans 'Contact Info'%}</h1>

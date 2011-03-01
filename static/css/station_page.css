@@ -31,6 +31,7 @@
 #user_tools {
     bottom: auto;
     top:0;
+    left: -21px;
     background-color: #9babae;
     border: 3px rgba(255,255,255,0.8) solid;
     border-top: none;
@@ -87,8 +88,9 @@
 #banner > h1 {
     font-size: 20px;
     color: #566265;
-    text-align: center;
+    text-align: right;
     margin-top: -26px;
+    margin-right: 100px;
 }
 
 #station_banner {
@@ -121,9 +123,16 @@
     float: left;
     width: 94%;
 }
-#station_info {
-
+#station_info > p {
+    max-height: 45px;
+    overflow: hidden;
+    margin-bottom: 20px;
 }
+.toggle_info_height {
+    cursor: pointer;
+    text-decoration: underline;
+}
+
 #station_contact {
 
 }

@@ -9,7 +9,7 @@
             login: "{% url ordering.passenger_controller.login_passenger %}"
         },
         messages: {
-            enter_username: "{% trans 'Please enter your username' %}",
+            enter_username: "{% trans 'Enter your email' %}",
             choose_password : "{% trans 'Please enter your password' %}",
             valid_field: "{% trans 'OK' %}"
 
@@ -27,7 +27,7 @@
 <form id="login_form">
     <div id="user_details">
         <fieldset class="register">
-            <label for="username">{% trans 'Username' %}</label>
+            <label for="username">{% trans 'Email' %}</label>
             <input name="username" id="username" type="text" />
             <label for="password">{% trans 'Password' %}</label>
             <input name="password" id="password" type="password" />

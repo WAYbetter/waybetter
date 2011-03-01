@@ -7,13 +7,17 @@ from django.test import TestCase
 from django.core.urlresolvers import reverse
 from selenium import selenium
 from selenium_helper import SelemiumHelper
+import setup_testing_env
 from common.models import Country
 from ordering.passenger_controller import send_sms_verification, SELENIUM_TEST_KEY
 
 APPLICATION_UNDER_TEST = "http://localhost:8000"
 #APPLICATION_UNDER_TEST = "http://3.latest.waybetter-app.appspot.com/"
 
-class IntegrationTests(TestCase, SelemiumHelper):
+SELENIUM_USER_NAME = setup_testing_env.SELENIUM_USER_NAME
+SELENIUM_PASSWORD = setup_testing_env.SELENIUM_USER_NAME
+
+class SeleniumTests(TestCase, SelemiumHelper):
     fixtures = ['countries.yaml']
     selenium = None
 
@@ -56,8 +60,8 @@ class IntegrationTests(TestCase, SelemiumHelper):
         # log in using old password (fail)
         sel.click("login_link")
         self.wait_for_element_present("login")
-        sel.type("username", "selenium_user")
-        sel.type("password", "selenium_user")
+        sel.type("username", SELENIUM_USER_NAME)
+        sel.type("password", SELENIUM_PASSWORD)
         sel.click("login")
         self.wait_for_element_present("login_error")
 
@@ -114,6 +118,6 @@ class IntegrationTests(TestCase, SelemiumHelper):
 
 
     def tearDown(self):
-        self.selenium.open(reverse('testing.test_data.destroy_selenium_test_data'))
+        self.selenium.open(reverse('testing.setup_testing_env.destroy_selenium_test_data'))
         self.selenium.stop()
         self.assertEqual([], self.verificationErrors)
