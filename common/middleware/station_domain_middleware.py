@@ -13,7 +13,7 @@ class StationDomainMiddleware(object):
         return None
 
     def process_request(self, request):
-        subdomain_name = self.get_station_domain(request)
+        subdomain_name = self.get_station_domain(request) 
         if subdomain_name:
             return station_page(request, subdomain_name) # serve station page instead of normal home page
 

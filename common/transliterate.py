@@ -11,7 +11,7 @@ Public functions:       getTransliteration
 import urllib_adaptor as urllib2 # amir: for google app engine
 import urllib
 import re
-import json
+from django.utils import simplejson as json # amir: for google app engine
 
 class TransliterationError(Exception):
     pass
