@@ -174,7 +174,8 @@ var OrderingHelper = Object.create({
         $(".sources_toolbar").hide();
         $("#gps_button").mousedown(function(e) {
             that.setLocationGPS(true);
-            return false;
+            $("#id_" + that.current_flow_state + "_raw").blur(); // collapse the keyboard 
+            return false; // don't trigger the change event on the input fields
         });
 
         // text fields
