@@ -299,8 +299,13 @@ def transliterate_english_order_to_hebrew(order, address_type):
             logging.info("telmap found a match")
             return u"%s %s, %s" % (result["street"], result["house_number"], result["city"])
 
+    logging.info("telmap DID NOT find a match")
     return order.from_raw
 
 e = re.compile("[a-zA-Z]")
 def is_in_english(s):
     return e.search(s)
+
+h = re.compile(u"[א-ת]")
+def is_in_hebrew(s):
+    return h.search(s)

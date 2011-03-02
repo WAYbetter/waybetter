@@ -81,6 +81,7 @@ def book_order(request):
         logging.warning("no matching workstation found for: %d" % order_id)
         response = HttpResponse(NO_MATCHING_WORKSTATIONS_FOUND)
 
+        for_makemessages = _("We're sorry, but we could not find a taxi for you")
         send_sms(order.passenger.international_phone(),
                  translate_to_lang("We're sorry, but we could not find a taxi for you", order.language_code))
         
@@ -91,6 +92,8 @@ def book_order(request):
         log_event(EventType.ORDER_ERROR, order=order, passenger=order.passenger)
         logging.error("book_order: OrderError: %d" % order_id)
         response = HttpResponseServerError("an error occured while handling order")
+
+        for_makemessages = _("We're sorry, but we have encountered an error while handling your request")
         send_sms(order.passenger.international_phone(),
                  translate_to_lang("We're sorry, but we have encountered an error while handling your request", order.language_code))
 
@@ -102,6 +105,7 @@ def accept_order(order, pickup_time, station):
     order.station = station  
     order.save()
 
+    for_makemessages = _("Pickup at %(from)s in %(time)d minutes.\nStation: %(station_name)s, %(station_phone)s")
     msg = translate_to_lang("Pickup at %(from)s in %(time)d minutes.\nStation: %(station_name)s, %(station_phone)s", order.language_code) % \
            { "from"             : order.from_raw,
              "time"             : pickup_time,
