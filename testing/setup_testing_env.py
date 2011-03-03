@@ -5,6 +5,10 @@ from django.contrib.auth.models import User
 from ordering.passenger_controller import create_user, create_passenger
 from ordering.models import Order, Passenger, ACCEPTED, Station, WorkStation
 from common.models import Country, City
+from socialauth.models import OpenidProfile, FacebookUserProfile, LinkedInUserProfile
+from selenium_helper import SELENIUM_USER_NAME,SELENIUM_STATION_USER_NAME, SELENIUM_WS_USER_NAME,SELENIUM_PASSWORD, SELENIUM_PHONE, SELENIUM_USER_NAMES, SELENIUM_EMAIL
+SELENIUM_PASSENGER = None
+SELENIUM_STATION = None
 
 #import os
 #os.environ["DJANGO_SETTINGS_MODULE"] = "settings"
@@ -18,17 +22,17 @@ def setup():
     taskqueue_stub._root_path = os.path.join(os.path.dirname(__file__), '..')
 
 
-SELENIUM_USER_NAME = "selenium@waybetter.com"
-SELENIUM_STATION_USER_NAME = "selenium_station@waybetter.com"
-SELENIUM_WS_USER_NAME = "selenium_ws@waybetter.com"
-SELENIUM_PASSWORD = SELENIUM_USER_NAME
-#SELENIUM_USER_NAMES = ['selenium_user', 'selenium_station_user', 'selenium_ws_user']
-SELENIUM_USER_NAMES = [SELENIUM_USER_NAME, SELENIUM_STATION_USER_NAME, SELENIUM_WS_USER_NAME]
-SELENIUM_PASSENGER = None
-SELENIUM_STATION = None
+#SELENIUM_USER_NAME = "selenium@waybetter.com"
+#SELENIUM_STATION_USER_NAME = "selenium_station@waybetter.com"
+#SELENIUM_WS_USER_NAME = "selenium_ws@waybetter.com"
+#SELENIUM_PASSWORD = SELENIUM_USER_NAME
+#SELENIUM_PHONE = "0001845768"
+#SELENIUM_USER_NAMES = [SELENIUM_USER_NAME, SELENIUM_STATION_USER_NAME, SELENIUM_WS_USER_NAME]
+#SELENIUM_PASSENGER = None
+#SELENIUM_STATION = None
 
 # accounts for social auth tests
-#GOOGLE_USERNAME = "tests@waybetter.com"
+#GOOGLE_USERNAME = "test@waybetter.com"
 #GOOGLE_PASSWORD = "WB110310"
 #FACEBOOK_USERNAME = "tests@waybetter.com"
 #FACEBOOK_PASSWORD = "WB110310"
@@ -71,7 +75,7 @@ def create_selenium_test_data(request):
 def destroy_selenium_test_data(request):
     """ Delete selenium users, passengers, stations and work stations."""
 
-    for user in list(User.objects.filter(username__in=SELENIUM_USER_NAMES)):
+    for user in User.objects.filter(username__in=SELENIUM_USER_NAMES):
         try:
             passenger = Passenger.objects.get(user=user)
             Order.objects.filter(passenger=passenger).delete()
@@ -88,6 +92,13 @@ def destroy_selenium_test_data(request):
             pass
 
         user.delete()
+
+    # only Google account is created by the automated tests
+#    try:
+#        OpenidProfile.objects.get(email=SELENIUM_EMAIL).delete()
+#    except:
+#        pass
+
     return HttpResponse("selenium data destroyed")
 
 def create_selenium_dummy_order(from_raw, to_raw):
@@ -119,5 +130,5 @@ def create_selenium_user(user_name):
     return user
 
 def create_selenium_passenger(user):
-    passenger = create_passenger(user=user, country=Country.objects.filter(code="IL").get(), phone="0123456789")
+    passenger = create_passenger(user=user, country=Country.objects.filter(code="IL").get(), phone=SELENIUM_PHONE)
     return passenger
