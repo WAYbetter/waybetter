@@ -3,7 +3,7 @@
 # don't forget to run a selenium server while running integration tests, see: http://seleniumhq.org/docs/05_selenium_rc.html#installation
 # to use jquery locators you must modify RemoteRunner.html , see http://stackoverflow.com/questions/2814007/how-to-i-add-a-jquery-locators-to-selenium-remote-control
 
-import setup_testing_env
+#import setup_testing_env
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from selenium import selenium
@@ -26,6 +26,15 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
     def test_login(self):
         sel = self.selenium
+        sel.open("/")
+        self.wait_for_element_and_click_at("login_link")
+
+        self.do_login(wrong_username=True)
+        self.assertTrue(sel.get_text("login_error"))
+
+        self.do_login(wrong_password=True)
+        self.assertTrue(sel.get_text("login_error"))
+
         self.login_as_selenium()
         self.logout()
 
@@ -39,7 +48,11 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.wait_for_element_present("logout_link")
         self.logout()
 
-        # social login (Google)
+    def test_social_login(self):
+        sel = self.selenium
+        sel.open("/")
+
+        # Google social login
         self.do_social_login("css=.google", "Google Accounts", "Email", "Passwd", "signIn")
 
         # Facebook and Twitter only allow waybetter.com requests
@@ -51,33 +64,27 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel = self.selenium
         self.login_as_selenium()
 
-        self.assertTrue(sel.is_element_present("history_tab_btn"))
-        self.assertTrue(sel.is_element_present("profile_tab_btn"))
-        self.assertTrue(sel.is_element_present("stations_tab_btn"))
-        self.assertTrue(sel.is_element_present("mobile_tab_btn"))
-        self.assertTrue(sel.is_element_present("id_from_raw"))
-        self.assertTrue(sel.is_element_present("id_to_raw"))
-        self.assertTrue(sel.is_element_present("order_button"))
-        self.assertTrue(sel.is_element_present("feedback_peal"))
+        required_elements = ["history_tab_btn", "profile_tab_btn", "stations_tab_btn", "mobile_tab_btn", "id_from_raw",
+                             "id_to_raw", "order_button", "feedback_peal"]
 
+        for element in required_elements:
+            self.assertTrue(sel.is_element_present(element))
+        
     def test_change_password(self):
         sel = self.selenium
         self.login_as_selenium()
 
         # change password and logout
-        self.wait_for_element_present("profile_tab_btn")
-        sel.click("profile_tab_btn")
-        self.wait_for_element_present("id_password")
-        sel.type("id_password", "newpassword")
+        self.wait_for_element_and_click_at("profile_tab_btn")
+        self.wait_for_element_and_type("id_password", "newpassword")
         sel.type("id_password2", "newpassword")
-        sel.click(u"//input[@value='שמירה']")
-        self.wait_for_alert("Changes saved!", timeout=10)
+        sel.click("save_profile_changes")
+        self.wait_for_alert("Changes saved!")
         self.logout()
 
         # log in using old password (fail)
         sel.click("login_link")
-        self.wait_for_element_present("login")
-        sel.type("username", SELENIUM_USER_NAME)
+        self.wait_for_element_and_type("username", SELENIUM_USER_NAME)
         sel.type("password", SELENIUM_PASSWORD)
         sel.click("login")
         self.wait_for_element_present("login_error")
@@ -87,66 +94,81 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel.click("login")
         self.wait_for_element_present("logout_link")
 
+#    def test_change_phone(self):
+#        sel = self.selenium
+#        self.login_as_selenium()
+#        self.wait_for_element_and_click_at("profile_tab_btn")
+#        self.wait_for_element_and_type("local_phone", SELENIUM_PHONE.replace("000","111"))
+#        sel.click("save_profile_changes")
+#
+
     def test_history_page(self):
         sel = self.selenium
         self.login_as_selenium()
 
-        sel.click("history_tab_btn")
+        self.wait_for_element_and_click_at("history_tab_btn")
         self.wait_for_element_present("orders_history_grid")
         self.assertTrue(sel.is_element_present("search_button"))
         self.assertTrue(sel.is_element_present("reset_button"))
 
-        # test sorting
+        # choose address from history
+        sel.click("id_from_raw")
+        sel.click("css=.input_history_helper")
+        sel.click("//div[@id='orders_history_grid']/table/tbody/tr[2]/td[2]")
+        time.sleep(1)
+        self.assertTrue(sel.get_value("id_from_raw") == sel.get_text("//div[@id='orders_history_grid']/table/tbody/tr[2]/td[2]"))
+
+        # sort history
         self.wait_for_text(u"היכל נוקיה", "//div[@id='orders_history_grid']/table/tbody/tr[2]/td[2]")
         # bug? - double click is needed
         sel.click("history_header_label_1")
         sel.click("history_header_label_1")
         self.wait_for_text(u"גאולה 1 תל אביב", "//div[@id='orders_history_grid']/table/tbody/tr[2]/td[2]")
 
-    def test_phone_verification_form(self):
+    def test_phone_verification(self):
         sel = self.selenium
         sel.open("/")
         sel.click("join_link")
         self.wait_for_element_present("local_phone")
 
-        # append the verification form with a hidden field that indicates that we are in test mode
-        jquery = 'window.jQuery("#phone_verification_form").append("<input type=hidden name=test_key value=%s>")' % SELENIUM_TEST_KEY
-        sel.get_eval(jquery)
-
-        sel.type_keys("local_phone", SELENIUM_PHONE)
-        sel.click("local_phone")
-        self.wait_for_element_present("css=div.sms-button")
-        time.sleep(1)
-        sel.click_at("//form[@id='phone_verification_form']/fieldset/div","0 0")
-        time.sleep(1)
-
-        # wrong code
-        sel.type("verification_code", "1234")
-        sel.click("verification_code")
-        self.wait_for_element_and_click_at("//form[@id='phone_verification_form']/fieldset/div[2]")
+        # wrong code, make sure we get an error
+        self.do_validate_phone(wrong_code=True)
         self.wait_for_element_present("css=.inputError")
 
-        # correct code
-        sel.type("verification_code", SELENIUM_VERIFICATION_CODE)
-        sel.click("verification_code")
-        self.wait_for_element_and_click_at("//form[@id='phone_verification_form']/fieldset/div[2]")
+        # correct code, we should get the registration dialog
+        self.do_validate_phone()
+        self.assertTrue(sel.is_visible("ui-dialog-title-dialog"))
 
-        self.wait_for_element_present("email")
-
-
-    def test_join_internal(self):
+    def test_join(self):
         sel = self.selenium
-        self.validate_phone_and_get_registration_form()
+        sel.open("/")
 
-        sel.type("email", SELENIUM_USER_NAME)
-        sel.type("password", SELENIUM_PASSWORD)
-        sel.type("password_again", SELENIUM_PASSWORD)
+        sel.click("join_link")
+        self.wait_for_element_present("local_phone")
+        self.do_validate_phone()
+
+        # illegal email
+        self.wait_for_element_and_type("email", "not_a_valid_email")
+        self.wait_for_text_present(u'כתובת דוא"ל לא חוקית')
+        self.wait_for_element_and_type("email", SELENIUM_USER_NAME)
+        sel.click("join")
+        self.assertTrue(sel.is_visible("ui-dialog-title-dialog")) # still in registration dialog
+
+        # non matching passwords
+        self.assert_element_and_type("password", SELENIUM_PASSWORD)
+        self.assert_element_and_type("password_again", "not_the_same_password")
+        self.wait_for_text_present(u'אין התאמה בין הסיסמאות')
+        sel.click("join")
+        self.assertTrue(sel.is_visible("ui-dialog-title-dialog")) # still in registration dialog
+
+        # legal registration
+        self.assert_element_and_type("password_again", SELENIUM_PASSWORD)
         sel.click("join")
         self.wait_for_element_present("logout_link")
         self.logout()
 
     def test_autocomplete(self):
-        sel=self.selenium
+        sel = self.selenium
         sel.open("/")
 
         sel.type_keys("id_from_raw", u"אל")
@@ -157,10 +179,15 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
         self.wait_for_text_present(u"מחיר נסיעה משוער")
 
-    def test_login_from_join_page(self):
-        pass
+    def test_order_as_passenger(self):
+        sel = self.selenium
+        self.login_as_selenium()
+
+        sel.type_keys("id_from_raw", u"רמת הגולן 1, אריאל")
+        self.wait_for_autocomplete_and_click(u"//html/body/ul/li/a[. = \"רמת הגולן 1, אריאל\"]")
+
 
     def tearDown(self):
-        self.client.get(reverse('testing.setup_testing_env.destroy_selenium_test_data'))
+        self.selenium.open(reverse('testing.setup_testing_env.destroy_selenium_test_data'))
         self.selenium.stop()
         self.assertEqual([], self.verificationErrors)

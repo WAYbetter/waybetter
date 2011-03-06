@@ -21,26 +21,6 @@ def setup():
     taskqueue_stub = apiproxy_stub_map.apiproxy.GetStub('taskqueue')
     taskqueue_stub._root_path = os.path.join(os.path.dirname(__file__), '..')
 
-
-#SELENIUM_USER_NAME = "selenium@waybetter.com"
-#SELENIUM_STATION_USER_NAME = "selenium_station@waybetter.com"
-#SELENIUM_WS_USER_NAME = "selenium_ws@waybetter.com"
-#SELENIUM_PASSWORD = SELENIUM_USER_NAME
-#SELENIUM_PHONE = "0001845768"
-#SELENIUM_USER_NAMES = [SELENIUM_USER_NAME, SELENIUM_STATION_USER_NAME, SELENIUM_WS_USER_NAME]
-#SELENIUM_PASSENGER = None
-#SELENIUM_STATION = None
-
-# accounts for social auth tests
-#GOOGLE_USERNAME = "test@waybetter.com"
-#GOOGLE_PASSWORD = "WB110310"
-#FACEBOOK_USERNAME = "tests@waybetter.com"
-#FACEBOOK_PASSWORD = "WB110310"
-
-# WAYbetter account details:
-# username: test@waybetter.com
-# password: wbtest
-
 def create_selenium_test_data(request):
     """ Create selenium users, passengers, stations and work stations."""
 
@@ -60,7 +40,7 @@ def create_selenium_test_data(request):
     SELENIUM_PASSENGER = create_selenium_passenger(selenium_user)
 
     SELENIUM_STATION = Station(name="selenium_station", user=selenium_station_user, number_of_taxis=5, country=Country.objects.filter(code="IL").get(),
-                               city=City.objects.get(name="תל אביב יפו"), address='אחד העם 1 תל אביב', lat=32.063325, lon=34.768338)
+                               city=City.objects.get(name="אריאל"), address='רמת הגולן 1', lat=32.105137, lon=35.198071)
     SELENIUM_STATION.save()
 
     selenium_ws = WorkStation(user=selenium_ws_user, station=SELENIUM_STATION, was_installed = True, accept_orders = True)
