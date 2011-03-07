@@ -78,7 +78,7 @@ input.text, input[type=text], input[type=password] {
 /*** Order History Fixes ***/
 #orders_history_grid .select-address:hover {
     background-image: url(/static/images/arrow_history.png) !important;
-    background-position: 5px 8px !important;
+    background-position: 220px 8px !important;
     background-repeat: no-repeat;
     color: black;
     background-color: #ffce38;
@@ -138,7 +138,7 @@ input.text, input[type=text], input[type=password] {
 }
 .ui-menu .ui-menu-item.history_suggestion a {
     background-image:url("../img/history_icon.png");
-    background-position: 3px 3px;
+    background-position: 265px 3px;
     background-repeat: no-repeat;
 }
 .ui-menu .ui-menu-item a  {
@@ -234,6 +234,14 @@ input.text, input[type=text], input[type=password] {
     bottom : 0;
     right: 0;
 }
+form.languages{
+    display: inline;
+}
+form.languages img {
+    cursor: pointer;
+    margin: 0 3px;
+}
+
 /************* Footer *************/
 #footer {
     text-align: center;
@@ -325,24 +333,6 @@ span.right-fade {
 }
 
 /************* Ordering Form *************/
-.content_frame {
-    padding: 10px;
-    border-radius: 10px;
-    -moz-border-radius: 10px;
-    -webkit-border-radius: 10px;
-    background-color: #8d8d8d;
-    background: -webkit-gradient(linear, left top, left bottom, from(#8d8d8d), to(#535353));
-    background: -moz-linear-gradient(-90deg, #8d8d8d, #535353);
-    -pie-background: linear-gradient(-90deg, #8d8d8d, #535353);
-    -webkit-box-shadow:0 3px 3px black;
-    -moz-box-shadow:0 3px 3px black;
-    box-shadow:0 3px 3px black;
-    color: white;
-    font-size: 20px;
-    
-    min-height: 150px;
-
-}
 .gray_header {
     position: relative;
     padding: 10px;
@@ -1460,28 +1450,23 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     font-size: 14px;
     width: 510px;
 }
-
 #side_bar.press {
     width: 230px;
 }
-
 #main_content.press {
     width: 65%;
 }
-
 #side_bar.press ul > li > a {
     width: auto;
     padding: 0;
     margin: 0;
     height: auto;
 }
-
 #side_bar.press ul > li > div {
     color: black;
     font-style: italic;
     font-size: 13px;
 }
-
 #embed_code {
     width: 470px;
     height: 40px;;
@@ -1490,6 +1475,7 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     text-align: left;
     direction: ltr;
 }
+
 
 #wrapper {
     display: block;

@@ -1,4 +1,14 @@
 {% load i18n %}
+<script type="text/javascript">
+    $(function() {
+        $("#station_entrace").click(function() {
+            window.location.href = "{% url ordering.station_controller.stations_home %}"
+        });
+        $("#book_a_taxi").click(function() {
+            window.location.href = "{% url ordering.passenger_controller.passenger_home %}"
+        });
+    })
+</script>
 <div id="wrapper">
 <div id="side_bar">
     <h1>{% trans 'Contact WAYbetter' %}</h1>

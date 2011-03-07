@@ -53,9 +53,10 @@ var MapMarker = defineClass({
 
 var Address = defineClass({
     name:       "Address",
-    construct:  function(name, street, city, country, geohash, lon, lat, address_type) {
+    construct:  function(name, street, house_number, city, country, geohash, lon, lat, address_type) {
         this.name = name;
         this.street = street;
+        this.house_number = house_number;
         this.city = city;
         this.country = country;
         this.geohash = geohash;
@@ -72,6 +73,7 @@ var Address = defineClass({
             $('#id_geocoded_' + this.address_type + '_raw').val(this.name);
             $('#id_' + this.address_type + '_city').val(this.city);
             $('#id_' + this.address_type + '_street_address').val(this.street);
+            $('#id_' + this.address_type + '_house_number').val(this.house_number);
             $('#id_' + this.address_type + '_country').val(this.country);
             $('#id_' + this.address_type + '_geohash').val(this.geohash);
             $('#id_' + this.address_type + '_lon').val(this.lon);
@@ -81,6 +83,7 @@ var Address = defineClass({
             $('#id_geocoded_' + this.address_type + '_raw').val('');
             $('#id_' + this.address_type + '_city').val('');
             $('#id_' + this.address_type + '_street_address').val('');
+            $('#id_' + this.address_type + '_house_number').val('');
             $('#id_' + this.address_type + '_country').val('');
             $('#id_' + this.address_type + '_geohash').val('');
             $('#id_' + this.address_type + '_lon').val('');
@@ -90,20 +93,22 @@ var Address = defineClass({
     statics:    {
         // factory methods
         fromFields:         function(address_type) {
-            var name =      $('#id_' + address_type + '_raw').val(),
-                city =      $('#id_' + address_type + '_city').val(),
-                street =    $('#id_' + address_type + '_street_address').val(),
-                country =   $('#id_' + address_type + '_country').val(),
-                geohash =   $('#id_' + address_type + '_geohash').val(),
-                lon =       $('#id_' + address_type + '_lon').val(),
-                lat =       $('#id_' + address_type + '_lat').val();
+            var name =          $('#id_' + address_type + '_raw').val(),
+                city =          $('#id_' + address_type + '_city').val(),
+                street =        $('#id_' + address_type + '_street_address').val(),
+                house_number =  $('#id_' + address_type + '_house_number').val(),
+                country =       $('#id_' + address_type + '_country').val(),
+                geohash =       $('#id_' + address_type + '_geohash').val(),
+                lon =           $('#id_' + address_type + '_lon').val(),
+                lat =           $('#id_' + address_type + '_lat').val();
 
-            return new Address(name, street, city, country, geohash, lon, lat, address_type);
+            return new Address(name, street, house_number, city, country, geohash, lon, lat, address_type);
         },
         fromServerResponse: function(response, address_type) {
             if (response) {
                 return new Address( response["name"],
                                     response["street"],
+                                    response["house_number"],
                                     response["city"],
                                     response["country"],
                                     response["geohash"],
@@ -113,7 +118,6 @@ var Address = defineClass({
             } else {
                 return new Address();
             }
-
         }
     }
 });
@@ -127,6 +131,7 @@ var OrderingHelper = Object.create({
         not_a_user_response:        "",
         telmap_user:                "",
         telmap_password:            "",
+        telmap_languages:           "",
         address_helper_msg_from:    "",
         address_helper_msg_to:      "",
         autocomplete_msg:           "",
@@ -145,6 +150,8 @@ var OrderingHelper = Object.create({
     map:                            {},
     map_markers:                    {},
     map_markers_popups:             {},
+    map_was_reset:                  false,
+    telmap_prefs:                   {},
     _isEmpty:                   function(element) {
         var place_holder_text = $(element).attr("placeholder");
 
@@ -187,8 +194,25 @@ var OrderingHelper = Object.create({
 
     },
     init:                       function(config) {
-        this.config = $.extend(true, {}, this.config, config);
         var that = this;
+        this.config = $.extend(true, {}, this.config, config);
+        this.telmap_prefs = {
+            mapTypeId:telmap.maps.MapTypeId.ROADMAP,
+            suit:telmap.maps.SuitType.MEDIUM_4,
+            navigationControlOptions:{style:telmap.maps.NavigationControlStyle.ANDROID},
+            zoom:15,
+            center:new telmap.maps.LatLng(32.09279909028302, 34.781051985221),
+            login:{
+                contextUrl: 'api.navigator.telmap.com/telmapnav',
+                userName:   this.config.telmap_user,
+                password:   this.config.telmap_password,
+                languages:  [this.config.telmap_languages, this.config.telmap_languages],
+                appName:    'wayBetter',
+                callback:   function () {
+                    that.resetMap.call(that);
+                }
+            }
+        };
         $("#ride_cost_estimate").html(this.config.estimation_msg);
         $("input:text").each(function(i, element) {
             var address_type = element.name.split("_")[0];
@@ -308,22 +332,17 @@ var OrderingHelper = Object.create({
         return this;
     }, // init
     initMap:                    function () {
-        var prefs = {
-            mapTypeId:telmap.maps.MapTypeId.ROADMAP,
-            suit:telmap.maps.SuitType.MEDIUM_4,
-            navigationControlOptions:{style:telmap.maps.NavigationControlStyle.ANDROID},
-            zoom:15,
-            center:new telmap.maps.LatLng(32.09279909028302,34.781051985221),
-            login:{
-                contextUrl: 'api.navigator.telmap.com/telmapnav',
-                userName:   this.config.telmap_user,
-                password:   this.config.telmap_password,
-                languages:  ['he', 'en'],
-                appName:    'wayBetter'
-            }
-        };
-        this.map = new telmap.maps.Map(document.getElementById("map"), prefs);
+        this.map = new telmap.maps.Map(document.getElementById("map"), this.telmap_prefs);
         window.onresize = function(){ telmap.maps.event.trigger(this.map, "resize"); };
+    },
+    resetMap:                 function (e, a) {
+        var that = this;
+        if (! this.map_was_reset) {
+            this.map_was_reset = true;
+            this.map.logout(function(e, a) {
+                    that.map.login(that.telmap_prefs.login);
+                });
+        }
     },
     initPoints:                 function () {
         for (var address_type in this.ADDRESS_FIELD_ID_BY_TYPE) {
