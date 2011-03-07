@@ -35,11 +35,13 @@
             });
 
             $(".toggle_info_height").click(function() {
+                var $p = $(this).parent().children("p");
                 if ($(this).text() == OrderingHelper.config.less_msg) {
-                    $(this).parent().children("p").animate({ "max-height": "45px" });
+                    $p.animate({ "max-height": $p.data("orignal_height") });
                     $(this).text(OrderingHelper.config.more_msg)
                 } else {
-                    $(this).parent().children("p").animate({ "max-height": "1000px" });
+                    $p.data("orignal_height", $p.css("max-height"));
+                    $p.animate({ "max-height": "1000px" });
                     $(this).text(OrderingHelper.config.less_msg)
                 }
             });
