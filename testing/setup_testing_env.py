@@ -1,12 +1,13 @@
 # -*- coding: utf-8 -*-
 
+import datetime
 from django.http import HttpResponse
 from django.contrib.auth.models import User
 from ordering.passenger_controller import create_user, create_passenger
-from ordering.models import Order, Passenger, ACCEPTED, Station, WorkStation
+from ordering.models import Order, Passenger, ACCEPTED, Station, WorkStation, Phone
 from common.models import Country, City
-from socialauth.models import OpenidProfile, FacebookUserProfile, LinkedInUserProfile
-from selenium_helper import SELENIUM_USER_NAME,SELENIUM_STATION_USER_NAME, SELENIUM_WS_USER_NAME,SELENIUM_PASSWORD, SELENIUM_PHONE, SELENIUM_USER_NAMES, SELENIUM_EMAIL
+from socialauth.models import OpenidProfile
+from selenium_helper import SELENIUM_USER_NAME,SELENIUM_STATION_USER_NAME, SELENIUM_WS_USER_NAME,SELENIUM_PASSWORD, SELENIUM_PHONE, SELENIUM_USER_NAMES, SELENIUM_EMAIL, SELENIUM_ADDRESS, SELENIUM_CITY_NAME
 SELENIUM_PASSENGER = None
 SELENIUM_STATION = None
 
@@ -31,20 +32,12 @@ def create_selenium_test_data(request):
     if User.objects.filter(username__in=SELENIUM_USER_NAMES):
         destroy_selenium_test_data(request)
 
-    # create selenium users
+    # create selenium passenger and station
     selenium_user = create_selenium_user(SELENIUM_USER_NAME)
-    selenium_station_user = create_selenium_user(SELENIUM_STATION_USER_NAME)
-    selenium_ws_user = create_selenium_user(SELENIUM_WS_USER_NAME)
-
-    # create selenium passenger, station and workstation
     SELENIUM_PASSENGER = create_selenium_passenger(selenium_user)
-
-    SELENIUM_STATION = Station(name="selenium_station", user=selenium_station_user, number_of_taxis=5, country=Country.objects.filter(code="IL").get(),
-                               city=City.objects.get(name="אריאל"), address='רמת הגולן 1', lat=32.105137, lon=35.198071)
-    SELENIUM_STATION.save()
-
-    selenium_ws = WorkStation(user=selenium_ws_user, station=SELENIUM_STATION, was_installed = True, accept_orders = True)
-    selenium_ws.save()
+        
+    selenium_station_user = create_selenium_user(SELENIUM_STATION_USER_NAME)
+    SELENIUM_STATION = create_selenium_station(selenium_station_user)
 
     # create some orders
     create_selenium_dummy_order(u"גאולה 1 תל אביב", u"דיזנגוף 9 תל אביב")
@@ -52,9 +45,17 @@ def create_selenium_test_data(request):
 
     return HttpResponse("selenium data created")
 
-def destroy_selenium_test_data(request):
-    """ Delete selenium users, passengers, stations and work stations."""
+def create_selenium_test_station(request):
+    """
+    For tests in which we do not want a selenium user, only a station.
+    """
+    selenium_station_user = create_selenium_user(SELENIUM_STATION_USER_NAME)
+    selenium_station = create_selenium_station(selenium_station_user)
+    return HttpResponse("selenium test station created")
 
+def destroy_selenium_test_data(request):
+
+    # Delete selenium users, passengers, stations and work stations
     for user in User.objects.filter(username__in=SELENIUM_USER_NAMES):
         try:
             passenger = Passenger.objects.get(user=user)
@@ -73,11 +74,14 @@ def destroy_selenium_test_data(request):
 
         user.delete()
 
-    # only Google account is created by the automated tests
-#    try:
-#        OpenidProfile.objects.get(email=SELENIUM_EMAIL).delete()
-#    except:
-#        pass
+    # delete social accounts
+    for openid_account in OpenidProfile.objects.filter(email=SELENIUM_EMAIL):
+        try:
+            user = openid_account.user
+            openid_account.delete()
+            user.delete()
+        except:
+            return HttpResponse("error deleting social data")
 
     return HttpResponse("selenium data destroyed")
 
@@ -88,7 +92,7 @@ def create_selenium_dummy_order(from_raw, to_raw):
             status=ACCEPTED,
             from_city=City.objects.get(name="תל אביב יפו"),
             from_country=Country.objects.get(code="IL"),
-            from_geohash=u'gibrish',
+            from_geohash=u'swnvcbdruxgz',
             from_lat=u'32',
             from_lon=u'34',
             from_raw=from_raw,
@@ -100,6 +104,7 @@ def create_selenium_dummy_order(from_raw, to_raw):
             to_lon=u'34',
             to_raw=to_raw,
             to_street_address=u'street2',
+            create_date=datetime.datetime.now()-datetime.timedelta(hours=1)
             )
     order.save()
 
@@ -112,3 +117,15 @@ def create_selenium_user(user_name):
 def create_selenium_passenger(user):
     passenger = create_passenger(user=user, country=Country.objects.filter(code="IL").get(), phone=SELENIUM_PHONE)
     return passenger
+
+def create_selenium_station(user):
+    selenium_station = Station(name="selenium_station", user=user, number_of_taxis=5, country=Country.objects.filter(code="IL").get(),
+                           city=City.objects.get(name=SELENIUM_CITY_NAME), address=SELENIUM_ADDRESS, lat=32.105137, lon=35.198071, license_number="1234", postal_code='1234')
+    selenium_station.save()
+
+    phone = Phone(local_phone=SELENIUM_PHONE, station=selenium_station)
+    phone.save()
+
+#    selenium_station.build_workstations()
+    
+    return selenium_station

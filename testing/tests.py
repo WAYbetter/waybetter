@@ -7,10 +7,10 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from selenium import selenium
-from selenium_helper import SelemiumHelper, SELENIUM_PHONE, SELENIUM_TEST_KEY, SELENIUM_VERIFICATION_CODE, SELENIUM_USER_NAME, SELENIUM_PASSWORD, SELENIUM_SOCIAL_USERNAME, SELENIUM_SOCIAL_PASSWORD
+from selenium_helper import SelemiumHelper, SELENIUM_USER_NAME, SELENIUM_PASSWORD, SELENIUM_EMAIL, SELENIUM_ADDRESS, SELENIUM_PHONE, SELENIUM_STATION_USER_NAME
 import time
 
-APPLICATION_UNDER_TEST = "http://localhost:8000"
+APPLICATION_UNDER_TEST = "http://localhost:8000/"
 #APPLICATION_UNDER_TEST = "http://3.latest.waybetter-app.appspot.com/"
 #APPLICATION_UNDER_TEST = "http://www.waybetter.com/"
 
@@ -56,9 +56,9 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.do_social_login("css=.google", "Google Accounts", "Email", "Passwd", "signIn")
 
         # Facebook and Twitter only allow waybetter.com requests
-        if APPLICATION_UNDER_TEST == 'http://www.waybetter.com':
+        if APPLICATION_UNDER_TEST == 'http://www.waybetter.com/':
             self.do_social_login("css=.facebook", "Login | Facebook", "email", "pass", "login")
-            self.do_social_login("css=.twitter", "Twitter", "username_or_email", "password", "Allow")
+            self.do_social_login("css=.twitter", "Twitter", "username_or_email", "password", "allow")
 
     def test_passenger_home(self):
         sel = self.selenium
@@ -137,35 +137,46 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
         # correct code, we should get the registration dialog
         self.do_validate_phone()
-        self.assertTrue(sel.is_visible("ui-dialog-title-dialog"))
+        self.wait_for_element_present("join")
+        self.do_register()
+        self.wait_for_element_present("logout_link")
+        self.logout()
 
-    def test_join(self):
+        # try use the same phone again
+        sel.open("/")
+        sel.click("join_link")
+        self.wait_for_element_and_type("local_phone", SELENIUM_PHONE)
+        self.wait_for_text_present(u"הטלפון כבר רשום")
+
+
+    def test_registration(self):
         sel = self.selenium
         sel.open("/")
 
-        sel.click("join_link")
+        self.wait_for_element_and_click_at("join_link")
         self.wait_for_element_present("local_phone")
         self.do_validate_phone()
 
-        # illegal email
-        self.wait_for_element_and_type("email", "not_a_valid_email")
+        # illegal registration
+        self.do_register("not_a_valid_email", SELENIUM_PASSWORD, "non_matching_password")
         self.wait_for_text_present(u'כתובת דוא"ל לא חוקית')
-        self.wait_for_element_and_type("email", SELENIUM_USER_NAME)
-        sel.click("join")
-        self.assertTrue(sel.is_visible("ui-dialog-title-dialog")) # still in registration dialog
-
-        # non matching passwords
-        self.assert_element_and_type("password", SELENIUM_PASSWORD)
-        self.assert_element_and_type("password_again", "not_the_same_password")
         self.wait_for_text_present(u'אין התאמה בין הסיסמאות')
-        sel.click("join")
-        self.assertTrue(sel.is_visible("ui-dialog-title-dialog")) # still in registration dialog
+
+        # still in registration dialog
+        self.assertTrue(sel.is_visible("ui-dialog-title-dialog"))
 
         # legal registration
-        self.assert_element_and_type("password_again", SELENIUM_PASSWORD)
+        self.do_register(SELENIUM_EMAIL, SELENIUM_PASSWORD, SELENIUM_PASSWORD)
         sel.click("join")
         self.wait_for_element_present("logout_link")
         self.logout()
+
+#        # try to register again with same email
+        self.wait_for_element_and_click_at("join_link")
+        self.wait_for_element_present("local_phone")
+        self.do_validate_phone()
+        self.do_register(SELENIUM_EMAIL, SELENIUM_PASSWORD, SELENIUM_PASSWORD)
+        self.wait_for_text_present(u'דוא"ל רבר רשום')
 
     def test_autocomplete(self):
         sel = self.selenium
@@ -179,12 +190,76 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
         self.wait_for_text_present(u"מחיר נסיעה משוער")
 
+    def test_order_no_service(self):
+        sel = self.selenium
+        self.login_as_selenium()
+
+        # order where is no service
+        address = u"אודם 1, אלפי מנשה"
+        self.do_order(address)
+        self.assertTrue(sel.get_text("ui-dialog-title-dialog") == u"לא ניתן להזמין נסיעה זו")
+        sel.click("ok")
+        
     def test_order_as_passenger(self):
         sel = self.selenium
         self.login_as_selenium()
 
-        sel.type_keys("id_from_raw", u"רמת הגולן 1, אריאל")
-        self.wait_for_autocomplete_and_click(u"//html/body/ul/li/a[. = \"רמת הגולן 1, אריאל\"]")
+        sel.open("/")
+        self.do_order(SELENIUM_ADDRESS)
+        self.assertTrue(sel.get_text("ui-dialog-title-dialog") == u"הזמנתך התקבלה!")
+        sel.click("ok")
+
+        # ordering again is forbidden, too soon
+        sel.open("/")
+        self.do_order(SELENIUM_ADDRESS)
+        self.assertTrue(sel.get_text("ui-dialog-title-dialog") == u"לא ניתן להזמין נסיעה זו")
+        sel.click("ok")
+
+    def test_order_as_unregistered(self):
+        sel = self.selenium
+
+        # create test station
+        sel.open(reverse('testing.setup_testing_env.create_selenium_test_station'))
+
+        sel.open("/")
+        self.do_order(SELENIUM_ADDRESS)
+        self.do_validate_phone()
+        time.sleep(1)
+        self.assertTrue(sel.get_text("ui-dialog-title-dialog") == u"הזמנתך התקבלה!")
+        time.sleep(5)
+        self.do_register()
+        self.wait_for_element_present("logout_link")
+        self.logout()
+
+    def test_station_side(self):
+        sel = self.selenium
+        sel.open(reverse('testing.setup_testing_env.create_selenium_test_data'))
+        sel.open("/stations")
+
+        sel.type("id_username", SELENIUM_STATION_USER_NAME)
+        sel.type("id_password", SELENIUM_PASSWORD)
+        sel.click("id_station_login")
+
+        # order history page
+        sel.click("//a[@href='#history']")
+        self.wait_for_text_present(u"היכל נוקיה")
+
+        # profile page
+        sel.click("//a[@href='#profile']")
+        self.assertTrue(sel.get_eval("window.jQuery('#id_name').val()") == u'selenium_station')
+        self.assertTrue(sel.get_eval("window.jQuery('#id_address').val()") == SELENIUM_ADDRESS)
+        self.assertTrue(sel.get_eval("window.jQuery('#id_phones-0-local_phone').val()") == SELENIUM_PHONE)
+        # add phone
+        sel.type_keys("id_phones-0-local_phone", SELENIUM_PHONE)
+        sel.click("id_save_station_profile") # bug - can't save form
+
+        # install workstations page
+        sel.click("//a[@href='#download']")
+
+
+
+
+
 
 
     def tearDown(self):
