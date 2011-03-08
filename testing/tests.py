@@ -7,8 +7,9 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from selenium import selenium
-from selenium_helper import SelemiumHelper, SELENIUM_USER_NAME, SELENIUM_PASSWORD, SELENIUM_EMAIL, SELENIUM_ADDRESS, SELENIUM_PHONE, SELENIUM_STATION_USER_NAME
+from selenium_helper import SelemiumHelper, SELENIUM_PASSWORD, SELENIUM_EMAIL, SELENIUM_ADDRESS, SELENIUM_PHONE, SELENIUM_STATION_USER_NAME
 import time
+import logging
 
 APPLICATION_UNDER_TEST = "http://localhost:8000/"
 #APPLICATION_UNDER_TEST = "http://3.latest.waybetter-app.appspot.com/"
@@ -21,10 +22,13 @@ class SeleniumTests(TestCase, SelemiumHelper):
     def setUp(self):
         self.verificationErrors = []
         self.selenium = selenium("localhost", 4444, "*firefox", APPLICATION_UNDER_TEST)
+#        self.selenium.set_timeout(30000) # milisecond
+#        self.selenium.set_speed(50) # milisecond
         self.selenium.start()
         self.selenium.window_maximize()
 
     def test_login(self):
+        logging.info("testing login")
         sel = self.selenium
         sel.open("/")
         self.wait_for_element_and_click_at("login_link")
@@ -40,15 +44,14 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
         # login from join dialog
         sel.click("join_link")
-        sel.click("login_link")
-        self.wait_for_element_and_type("username", SELENIUM_USER_NAME)
-        self.wait_for_element_and_type("password", SELENIUM_PASSWORD)
-        sel.click("login")
+        self.wait_for_element_and_click_at("login_link")
+        self.login()
 
         self.wait_for_element_present("logout_link")
         self.logout()
 
     def test_social_login(self):
+        logging.info("testing social login")
         sel = self.selenium
         sel.open("/")
 
@@ -61,6 +64,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
             self.social_login("css=.twitter", "Twitter", "username_or_email", "password", "allow")
 
     def test_passenger_home(self):
+        logging.info("testing passenger home")
         sel = self.selenium
         self.login_as_selenium()
 
@@ -69,32 +73,32 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
         for element in required_elements:
             self.assertTrue(sel.is_element_present(element))
-        
+
     def test_change_password(self):
+        logging.info("testing change password")
         sel = self.selenium
         self.login_as_selenium()
 
         # change password and logout
         self.wait_for_element_and_click_at("profile_tab_btn")
         self.wait_for_element_and_type("id_password", "newpassword")
-        sel.type("id_password2", "newpassword")
+        self.type_and_click("id_password2", "newpassword")
         sel.click("save_profile_changes")
         self.wait_for_alert("Changes saved!")
         self.logout()
 
         # log in using old password (fail)
         sel.click("login_link")
-        self.wait_for_element_and_type("username", SELENIUM_USER_NAME)
-        sel.type("password", SELENIUM_PASSWORD)
-        sel.click("login")
-        self.wait_for_element_present("login_error")
+        self.login()
+        self.assertTrue(sel.get_text("login_error"))
 
         # log in using new password (succeed)
-        sel.type("password", "newpassword")
+        self.type_and_click("password", "newpassword")
         sel.click("login")
         self.wait_for_element_present("logout_link")
 
 #    def test_change_phone(self):
+#        logging.info("testing change phone")
 #        sel = self.selenium
 #        self.login_as_selenium()
 #        self.wait_for_element_and_click_at("profile_tab_btn")
@@ -103,6 +107,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
 #
 
     def test_history_page(self):
+        logging.info("testing history page")
         sel = self.selenium
         self.login_as_selenium()
 
@@ -126,6 +131,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.wait_for_text(u"גאולה 1 תל אביב", "//div[@id='orders_history_grid']/table/tbody/tr[2]/td[2]")
 
     def test_phone_verification(self):
+        logging.info("testing phone verification")
         sel = self.selenium
         sel.open("/")
         sel.click("join_link")
@@ -143,13 +149,13 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.logout()
 
         # try use the same phone again
-        sel.open("/")
         sel.click("join_link")
         self.wait_for_element_and_type("local_phone", SELENIUM_PHONE)
         self.wait_for_text_present(u"הטלפון כבר רשום")
 
 
     def test_registration(self):
+        logging.info("testing registration")
         sel = self.selenium
         sel.open("/")
 
@@ -167,18 +173,19 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
         # legal registration
         self.register(SELENIUM_EMAIL, SELENIUM_PASSWORD, SELENIUM_PASSWORD)
-        sel.click("join")
         self.wait_for_element_present("logout_link")
         self.logout()
 
-#        # try to register again with same email
+#        # try to register again with same email (but different phone)
         self.wait_for_element_and_click_at("join_link")
         self.wait_for_element_present("local_phone")
-        self.validate_phone()
+        self.validate_phone(phone="0000000000")
         self.register(SELENIUM_EMAIL, SELENIUM_PASSWORD, SELENIUM_PASSWORD)
+        ### this is a bug that needs fixing:
         self.wait_for_text_present(u'דוא"ל רבר רשום')
 
     def test_autocomplete(self):
+        logging.info("testing autocomplete")
         sel = self.selenium
         sel.open("/")
 
@@ -191,6 +198,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.wait_for_text_present(u"מחיר נסיעה משוער")
 
     def test_order_no_service(self):
+        logging.info("testing order with no service")
         sel = self.selenium
         self.login_as_selenium()
 
@@ -201,6 +209,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel.click("ok")
         
     def test_order_as_passenger(self):
+        logging.info("testing order as passenger")
         sel = self.selenium
         self.login_as_selenium()
 
@@ -216,6 +225,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel.click("ok")
 
     def test_order_as_unregistered(self):
+        logging.info("testing order as unregistered")
         sel = self.selenium
 
         # create test station
@@ -232,6 +242,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.logout()
 
     def test_station_side(self):
+        logging.info("testing station side")
         sel = self.selenium
         sel.open(reverse('testing.setup_testing_env.create_selenium_test_data'))
         sel.open("/stations")
@@ -241,8 +252,8 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel.click("id_station_login")
 
         # order history page
-        sel.click("//a[@href='#history']")
-        self.wait_for_text_present(u"היכל נוקיה")
+        self.wait_for_element_and_click_at("//a[@href='#history']")
+        self.assertTrue(sel.is_text_present(u"היכל נוקיה"))
 
         # profile page
         sel.click("//a[@href='#profile']")
@@ -255,11 +266,6 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
         # install workstations page
         sel.click("//a[@href='#download']")
-
-
-
-
-
 
 
     def tearDown(self):
