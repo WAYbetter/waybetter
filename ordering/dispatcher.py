@@ -5,7 +5,8 @@ from ordering.station_connection_manager import is_workstation_available
 from ordering.errors import OrderError, NoWorkStationFoundError
 from common.geo_calculations import distance_between_points
 import models
-from common.util import log_event, EventType, translate_pickup_for_ws
+from common.util import log_event, EventType
+from common.langsupport.util import translate_pickup_for_ws
 from datetime import datetime
 
 

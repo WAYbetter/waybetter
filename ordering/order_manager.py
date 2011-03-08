@@ -20,11 +20,13 @@ from datetime import datetime
 from sharded_counters.models import commit_locked
 from ordering.models import Station
 from common.sms_notification import send_sms
-from common.util import log_event, EventType, translate_to_lang
+from common.util import log_event, EventType
+from common.langsupport.util import translate_to_lang
 
 NO_MATCHING_WORKSTATIONS_FOUND = "no matching workstation found"
 ORDER_HANDLED = "order handled"
 OK = "OK"
+ugettext = lambda s: s
 
 def book_order_async(order, order_assignment=None):
     logging.info("book_order_async: %d" % order.id)
@@ -81,9 +83,8 @@ def book_order(request):
         logging.warning("no matching workstation found for: %d" % order_id)
         response = HttpResponse(NO_MATCHING_WORKSTATIONS_FOUND)
 
-        for_makemessages = _("We're sorry, but we could not find a taxi for you")
         send_sms(order.passenger.international_phone(),
-                 translate_to_lang("We're sorry, but we could not find a taxi for you", order.language_code))
+                 translate_to_lang(ugettext("We're sorry, but we could not find a taxi for you"), order.language_code)) # use dummy ugettext for makemessages
         
     except OrderError:
         order.status = ERROR
@@ -93,9 +94,8 @@ def book_order(request):
         logging.error("book_order: OrderError: %d" % order_id)
         response = HttpResponseServerError("an error occured while handling order")
 
-        for_makemessages = _("We're sorry, but we have encountered an error while handling your request")
         send_sms(order.passenger.international_phone(),
-                 translate_to_lang("We're sorry, but we have encountered an error while handling your request", order.language_code))
+                 translate_to_lang(ugettext("We're sorry, but we have encountered an error while handling your request"), order.language_code)) # use dummy ugettext for makemessages
 
     return response
 
@@ -105,12 +105,11 @@ def accept_order(order, pickup_time, station):
     order.station = station  
     order.save()
 
-    for_makemessages = _("Pickup at %(from)s in %(time)d minutes.\nStation: %(station_name)s, %(station_phone)s")
-    msg = translate_to_lang("Pickup at %(from)s in %(time)d minutes.\nStation: %(station_name)s, %(station_phone)s", order.language_code) % \
+    msg = translate_to_lang(ugettext("Pickup at %(from)s in %(time)d minutes.\nStation: %(station_name)s, %(station_phone)s"), order.language_code) % \
            { "from"             : order.from_raw,
              "time"             : pickup_time,
              "station_name"     : station.name,
-             "station_phone"    : station.phones.all()[0].local_phone }
+             "station_phone"    : station.phones.all()[0].local_phone } # use dummy ugettext for makemessages
 
     send_sms(order.passenger.international_phone(), msg)
 

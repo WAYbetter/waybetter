@@ -8,7 +8,7 @@ Public functions:       getTransliteration
 #         http://rajeshsr.co.cc
 # Licensed under MIT License
 
-import urllib_adaptor as urllib2 # amir: for google app engine
+import common.urllib_adaptor as urllib2 # amir: for google app engine
 import urllib
 import re
 from django.utils import simplejson as json # amir: for google app engine

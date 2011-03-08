@@ -29,10 +29,10 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel.open("/")
         self.wait_for_element_and_click_at("login_link")
 
-        self.do_login(wrong_username=True)
+        self.login(wrong_username=True)
         self.assertTrue(sel.get_text("login_error"))
 
-        self.do_login(wrong_password=True)
+        self.login(wrong_password=True)
         self.assertTrue(sel.get_text("login_error"))
 
         self.login_as_selenium()
@@ -53,12 +53,12 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel.open("/")
 
         # Google social login
-        self.do_social_login("css=.google", "Google Accounts", "Email", "Passwd", "signIn")
+        self.social_login("css=.google", "Google Accounts", "Email", "Passwd", "signIn")
 
         # Facebook and Twitter only allow waybetter.com requests
         if APPLICATION_UNDER_TEST == 'http://www.waybetter.com/':
-            self.do_social_login("css=.facebook", "Login | Facebook", "email", "pass", "login")
-            self.do_social_login("css=.twitter", "Twitter", "username_or_email", "password", "allow")
+            self.social_login("css=.facebook", "Login | Facebook", "email", "pass", "login")
+            self.social_login("css=.twitter", "Twitter", "username_or_email", "password", "allow")
 
     def test_passenger_home(self):
         sel = self.selenium
@@ -132,13 +132,13 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.wait_for_element_present("local_phone")
 
         # wrong code, make sure we get an error
-        self.do_validate_phone(wrong_code=True)
+        self.validate_phone(wrong_code=True)
         self.wait_for_element_present("css=.inputError")
 
         # correct code, we should get the registration dialog
-        self.do_validate_phone()
+        self.validate_phone()
         self.wait_for_element_present("join")
-        self.do_register()
+        self.register()
         self.wait_for_element_present("logout_link")
         self.logout()
 
@@ -155,10 +155,10 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
         self.wait_for_element_and_click_at("join_link")
         self.wait_for_element_present("local_phone")
-        self.do_validate_phone()
+        self.validate_phone()
 
         # illegal registration
-        self.do_register("not_a_valid_email", SELENIUM_PASSWORD, "non_matching_password")
+        self.register("not_a_valid_email", SELENIUM_PASSWORD, "non_matching_password")
         self.wait_for_text_present(u'כתובת דוא"ל לא חוקית')
         self.wait_for_text_present(u'אין התאמה בין הסיסמאות')
 
@@ -166,7 +166,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.assertTrue(sel.is_visible("ui-dialog-title-dialog"))
 
         # legal registration
-        self.do_register(SELENIUM_EMAIL, SELENIUM_PASSWORD, SELENIUM_PASSWORD)
+        self.register(SELENIUM_EMAIL, SELENIUM_PASSWORD, SELENIUM_PASSWORD)
         sel.click("join")
         self.wait_for_element_present("logout_link")
         self.logout()
@@ -174,8 +174,8 @@ class SeleniumTests(TestCase, SelemiumHelper):
 #        # try to register again with same email
         self.wait_for_element_and_click_at("join_link")
         self.wait_for_element_present("local_phone")
-        self.do_validate_phone()
-        self.do_register(SELENIUM_EMAIL, SELENIUM_PASSWORD, SELENIUM_PASSWORD)
+        self.validate_phone()
+        self.register(SELENIUM_EMAIL, SELENIUM_PASSWORD, SELENIUM_PASSWORD)
         self.wait_for_text_present(u'דוא"ל רבר רשום')
 
     def test_autocomplete(self):
@@ -196,7 +196,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
         # order where is no service
         address = u"אודם 1, אלפי מנשה"
-        self.do_order(address)
+        self.book_order(address)
         self.assertTrue(sel.get_text("ui-dialog-title-dialog") == u"לא ניתן להזמין נסיעה זו")
         sel.click("ok")
         
@@ -205,13 +205,13 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.login_as_selenium()
 
         sel.open("/")
-        self.do_order(SELENIUM_ADDRESS)
+        self.book_order(SELENIUM_ADDRESS)
         self.assertTrue(sel.get_text("ui-dialog-title-dialog") == u"הזמנתך התקבלה!")
         sel.click("ok")
 
         # ordering again is forbidden, too soon
         sel.open("/")
-        self.do_order(SELENIUM_ADDRESS)
+        self.book_order(SELENIUM_ADDRESS)
         self.assertTrue(sel.get_text("ui-dialog-title-dialog") == u"לא ניתן להזמין נסיעה זו")
         sel.click("ok")
 
@@ -222,12 +222,12 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel.open(reverse('testing.setup_testing_env.create_selenium_test_station'))
 
         sel.open("/")
-        self.do_order(SELENIUM_ADDRESS)
-        self.do_validate_phone()
+        self.book_order(SELENIUM_ADDRESS)
+        self.validate_phone()
         time.sleep(1)
         self.assertTrue(sel.get_text("ui-dialog-title-dialog") == u"הזמנתך התקבלה!")
         time.sleep(5)
-        self.do_register()
+        self.register()
         self.wait_for_element_present("logout_link")
         self.logout()
 

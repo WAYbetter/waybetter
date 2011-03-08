@@ -1,18 +1,15 @@
 # This Python file uses the following encoding: utf-8
 
-import settings
-import random
-import re
 from google.appengine.api import taskqueue
 from google.appengine.api import mail
 from google.appengine.api.images import BadImageError, NotImageError
-from django.utils import translation
 from django.utils.translation import ugettext as _
-import logging
 from django.shortcuts import render_to_response
 
-from transliterate import Transliteration, TransliterationError
-from geocode import geocode
+import logging
+import random
+import re
+
 
 class Enum:
     @classmethod
@@ -121,7 +118,7 @@ def log_event(event_type, order=None, order_assignment=None, station=None, work_
     """
     Log a new analytics event asynchronously:
         event_type: an EventType field (e.g. EventType.ORDER_BOOKED)
-        order, order_assignment, station, work_station, passenger: an optional instance 
+        order, order_assignment, station, work_station, passenger: an optional instance
     """
     if order: # fill values from order
         if not city:
@@ -175,7 +172,7 @@ def custom_render_to_response(template, dictionary=None, context_instance=None, 
         if "mobile" in d and d["mobile"]:
             template = "%s/%s" % ('mobile', template)
             break
-         
+
     return render_to_response(template, dictionary=dictionary, context_instance=context_instance, mimetype=mimetype)
 
 
@@ -236,71 +233,6 @@ def blob_to_image_tag(blob_data, height=50, width=None):
         pass
 
     return res
-
-def translate_to_lang(msg, lang_code):
-    translation.activate(lang_code)
-    msg = _(msg)
-    translation.deactivate()
-    return msg
-
-def translate_pickup_for_ws(ws, order):
-    """
-    Translate the pickup address to the workstation's language. Currently only English to Hebrew is supported.
-    """
-    order_lang_code = 'en' if is_in_english(order.from_raw) else 'he'
-    ws_lang_code = settings.LANGUAGES[ws.station.language][0]
-
-    pickup_address = order.from_raw
-
-    if order_lang_code == 'en' and ws_lang_code == 'he':
-        try:
-            pickup_address = transliterate_english_order_to_hebrew(order, address_type='from')
-        except TransliterationError:
-            logging.error("Transliteration error for %s" % order.from_raw)
-
-    return pickup_address
-
-def transliterate_english_order_to_hebrew(order, address_type):
-    """
-    Translate English order to Hebrew by transliterating the street name and geocoding the result, looking for a match.
-    If no match is found, the transliterated result is returned.
-    """
-
-    street_address = getattr(order, "%s_street_address" % address_type)
-    house_number = getattr(order, "%s_house_number" % address_type) or int(re.search("\d+", getattr(order, "%s_raw" % address_type)).group(0))
-    city = getattr(order, "%s_city" % address_type)
-    lat = getattr(order, "%s_lat" % address_type)
-    lon = getattr(order, "%s_lon" % address_type)
-
-    # transliterate English street name to Hebrew
-    logging.info("queying google transliteration for %s" % street_address)
-    hebrew_transliterator = Transliteration('iw')
-    hebrew_street_address = hebrew_transliterator.getTransliteration(street_address.replace("'", ""))
-    logging.info("transliteration returned %s" % hebrew_street_address)
-
-    hebrew_address = hebrew_street_address
-    if house_number:
-        hebrew_address = u"%s %d" % (hebrew_street_address, house_number)
-        
-    # geocode transliterated address, and look for one with matching lon, lat
-    results = geocode(hebrew_address, constrain_to_city=city)
-
-    for result in results:
-        if float(result["lat"]) == lat and float(result["lon"]) == lon:
-            logging.info("telmap found a match")
-            return u"%s %s, %s" % (result["street"], result["house_number"], result["city"])
-
-    # try again without constrain to city
-    hebrew_address = u"%s, %s" % (hebrew_address, city.name)
-    results = geocode(hebrew_address)
-
-    for result in results:
-        if float(result["lat"]) == lat and float(result["lon"]) == lon:
-            logging.info("telmap found a match")
-            return u"%s %s, %s" % (result["street"], result["house_number"], result["city"])
-
-    logging.info("telmap DID NOT find a match")
-    return order.from_raw
 
 e = re.compile("[a-zA-Z]")
 def is_in_english(s):
