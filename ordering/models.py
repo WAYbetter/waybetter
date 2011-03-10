@@ -16,6 +16,7 @@ import common.urllib_adaptor as urllib2
 import urllib
 import logging
 
+PASSENGER_TOKEN = "passenger_token"
 ASSIGNED = 1
 ACCEPTED = 2
 IGNORED = 3
@@ -149,6 +150,9 @@ class Passenger(models.Model):
     phone_verified = models.BooleanField(_("phone verified"))
     phone_verification_code = models.CharField(_("phone verification code"), max_length=20)
 
+    # used to login anonymous passengers
+    login_token = models.CharField(_("login token"), max_length=40, null=True, blank=True)
+
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
@@ -168,9 +172,21 @@ class Passenger(models.Model):
     @classmethod
     def from_request(cls, request):
         passenger = get_model_from_request(cls, request)
+        # try to get passenger from he session
         if not passenger:
             passenger = request.session.get(CURRENT_PASSENGER_KEY, None)
+
+        # try to get passenger from passed token
+        if not passenger:
+            token = request.POST.get(PASSENGER_TOKEN, None) or request.GET.get(PASSENGER_TOKEN)
+            if token:
+                try:
+                    passenger = cls.objects.get(login_token=token)
+                except cls.DoesNotExist:
+                    pass
+
         return passenger
+
   
 
     def __unicode__(self):
