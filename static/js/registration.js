@@ -12,6 +12,7 @@ var Registrator = Object.create({
             mobile_interest_form_template   : '/',
             station_interest_form_template  : '/',
             check_username                  : '/',
+            check_email                     : '/',
             login                           : '/',
             send_sms                        : '/',
             update_profile                  : '/',
@@ -30,6 +31,7 @@ var Registrator = Object.create({
         },
         error_messages  : {
             username_taken          : '',
+            email_taken             : '',
             invalid_email           : '',
             passwords_dont_match    : '',
             too_long                : '',
@@ -43,6 +45,7 @@ var Registrator = Object.create({
             choose_password         : '',
             password_again          : '',
             checking_user           : '',
+            checking_email          : '',
             valid_field             : '',
             enter_mobile            : '',
             code_sent               : '',
@@ -484,7 +487,13 @@ var Registrator = Object.create({
                     },
                     email: {
                         required: true,
-                        email: true
+                        email: true,
+                        remote: {
+                            url: that.config.urls.check_email,
+                            beforeSend: function() {
+                                $("#registration_form").find("[htmlfor=email]").text(that.config.messages.checking_email).parent().removeClass("red").removeClass("green");
+                            }
+                        }
                     },
                     password: "required",
                     password_again: {
@@ -499,7 +508,8 @@ var Registrator = Object.create({
                     },
                     email: {
                         required    : that.config.messages.enter_email,
-                        email       : that.config.error_messages.invalid_email
+                        email       : that.config.error_messages.invalid_email,
+                        remote      : that.config.error_messages.email_taken
                     },
                     password: {
                         required    : that.config.messages.choose_password

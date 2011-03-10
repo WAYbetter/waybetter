@@ -8,6 +8,7 @@
         },
         urls: {
             check_username  : "{% url common.services.is_username_available %}",
+            check_email     : "{% url common.services.is_email_available %}",
             register        : "{% url ordering.passenger_controller.register_passenger %}"
         },
         messages: {
@@ -16,6 +17,7 @@
             choose_password         : "{% trans 'Choose a password' %}",
             password_again          : "{% trans 'Re-enter your password' %}",
             checking_user           : "{% trans 'Checking...' %}",
+            checking_email          : "{% trans 'Checking...' %}",
             order_sent              : "{% trans 'YOUR ORDER HAS BEEN RECEIVED' %}",
             thanks_for_registering  : "{% trans 'Join Us For a WAYbetter Experience' %}",
             ride_details            : "{% trans 'An SMS with ride details will be sent soon' %}",
@@ -23,6 +25,7 @@
         },
         error_messages: {
             username_taken          : "{% trans 'Username is already taken' %}",
+            email_taken             : "{% trans 'Email already registered' %}",
             invalid_email           : "{% trans 'Invalid email address' %}",
             passwords_dont_match    : "{% trans 'Passwords do not match' %}"
 

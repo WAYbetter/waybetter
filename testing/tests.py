@@ -164,7 +164,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.validate_phone()
 
         # illegal registration
-        self.register("not_a_valid_email", SELENIUM_PASSWORD, "non_matching_password")
+        self.register("not_a_valid_email", SELENIUM_PASSWORD, "non_matching_password", dont_click=True)
         self.wait_for_text_present(u'כתובת דוא"ל לא חוקית')
         self.wait_for_text_present(u'אין התאמה בין הסיסמאות')
 
@@ -176,13 +176,13 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.wait_for_element_present("logout_link")
         self.logout()
 
-#        # try to register again with same email (but different phone)
+        # try to register again with same email (using a different phone)
         self.wait_for_element_and_click_at("join_link")
         self.wait_for_element_present("local_phone")
         self.validate_phone(phone="0000000000")
-        self.register(SELENIUM_EMAIL, SELENIUM_PASSWORD, SELENIUM_PASSWORD)
-        ### this is a bug that needs fixing:
-        self.wait_for_text_present(u'דוא"ל רבר רשום')
+        self.wait_for_element_and_type("email", SELENIUM_EMAIL)
+        self.register(SELENIUM_EMAIL, SELENIUM_PASSWORD, SELENIUM_PASSWORD, dont_click=True)
+        self.wait_for_text_present(u'דוא"ל כבר רשום')
 
     def test_autocomplete(self):
         logging.info("testing autocomplete")
