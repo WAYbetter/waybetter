@@ -6,6 +6,11 @@
 <form action="{% url ordering.passenger_controller.edit_profile %}" method="post" id="profile_form">
     {% csrf_token %}
     <div id="field_container">
+    <p>
+        <label>{% trans 'Phone number' %}:</label>
+        <span id="current_phone">{{ local_phone }}</span>
+        <a id="change_phone" href="#">{% trans 'Change' %}</a>
+    </p>
     {{ form.as_p }}
     </div>
  <input type="submit" id="save_profile_changes" value="{% trans 'Save Changes' %}" class="wb_button blue"/>
@@ -15,6 +20,15 @@
 
 <script>
 $(function() {
+    var changes_saved_msg = "{% trans 'Changes saved!' %}";
+    var error_msg = "{% trans 'Error while saving changes' %}";
+    $("#change_phone").click(function(){
+        Registrator.openPhoneDialog(function(new_phone) {
+            if (new_phone) {
+                $("#current_phone").text(new_phone).effect("highlight", {}, 3000);
+            }
+        });
+    });
     $('#profile_form').validation({% render_ajax_fields form %});
 
     $('#profile_form').submit(function(e) {
@@ -35,14 +49,10 @@ $(function() {
                 $("#profile_form input[type=submit]").button("enable");
             },
             success: function(order_status) {
-                alert('Changes saved!');
+                alert(changes_saved_msg);
             },
-            error: function(XMLHttpRequest, textStatus, errorThrown) {
-                if (XMLHttpRequest.status == 403) { // let's show the code dialog
-                    Registrator.openCodeDialog(function() {
-                        alert('Changes saved!');
-                    });
-                }
+            error: function(){
+                alert(error_msg);
             }
         });
         return false;

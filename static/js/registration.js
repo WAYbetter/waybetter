@@ -137,7 +137,7 @@ var Registrator = Object.create({
             success = successCallback ? successCallback : function(response) {
                 $('#dialog').dialog('close');
                 if ( that.config.callback ) {
-                    that.config.callback();
+                    that.config.callback(response);
                 }
             };
 

@@ -225,12 +225,6 @@ class PassengerProfileForm(forms.Form):
 
     default_station = forms.ModelChoiceField(queryset=Station.objects.filter(show_on_list=True), label=_("Default station"), empty_label=_("(No station selected)"), required=False)
 
-    local_phone =     forms.RegexField( regex=r'^\d+$',
-                                  max_length=20,
-                                  widget=forms.TextInput(),
-                                  label=_("Local mobile phone #"),
-                                  error_messages={'invalid': _("The value must contain only numbers.")} )
-
     phone_verification_code = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 
     class Ajax:

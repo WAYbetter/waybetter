@@ -97,14 +97,21 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel.click("login")
         self.wait_for_element_present("logout_link")
 
-#    def test_change_phone(self):
-#        logging.info("testing change phone")
-#        sel = self.selenium
-#        self.login_as_selenium()
-#        self.wait_for_element_and_click_at("profile_tab_btn")
-#        self.wait_for_element_and_type("local_phone", SELENIUM_PHONE.replace("000","111"))
-#        sel.click("save_profile_changes")
-#
+    def test_change_phone(self):
+        logging.info("testing change phone")
+        sel = self.selenium
+        new_phone = "0001234567"
+
+        self.login_as_selenium()
+        self.wait_for_element_and_click_at("profile_tab_btn")
+        self.wait_for_element_present("change_phone")
+
+#        can't get this click to work, fails the test
+        sel.click("change_phone")
+        sel.mouse_down("change_phone")
+        sel.mouse_up("change_phone")
+        self.validate_phone(phone=new_phone)
+        self.wait_for_text(new_phone, "current_phone")
 
     def test_history_page(self):
         logging.info("testing history page")
