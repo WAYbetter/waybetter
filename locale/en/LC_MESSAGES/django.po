@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-01 18:13+0200\n"
+"POT-Creation-Date: 2011-03-13 12:07+0200\n"
 "PO-Revision-Date: 2011-02-20 16:23+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -187,7 +187,7 @@ msgstr ""
 msgid "cities"
 msgstr ""
 
-#: common/util.py:72 common/util.py:81
+#: common/util.py:69 common/util.py:78
 #, python-format
 msgid "Invalid value: %s"
 msgstr ""
@@ -212,8 +212,8 @@ msgid "Finish"
 msgstr ""
 
 #: common/templates/error_form.html:12 common/templates/feedback_form.html:12
-#: common/templates/terms_form.html:12
-msgid "Please enter your username"
+#: common/templates/login_form.html:12 common/templates/terms_form.html:12
+msgid "Please enter your email"
 msgstr ""
 
 #: common/templates/error_form.html:13 common/templates/feedback_form.html:13
@@ -223,8 +223,8 @@ msgstr ""
 
 #: common/templates/error_form.html:14 common/templates/error_form.html:27
 #: common/templates/feedback_form.html:14 common/templates/login_form.html:14
-#: common/templates/registration_form.html:22
-#: common/templates/registration_form.html:42
+#: common/templates/registration_form.html:21
+#: common/templates/registration_form.html:41
 #: common/templates/terms_form.html:14 common/templates/terms_form.html:32
 msgid "OK"
 msgstr ""
@@ -261,32 +261,32 @@ msgstr ""
 msgid "Welcome Back!"
 msgstr ""
 
-#: common/templates/login_form.html:12
-#: common/templates/registration_form.html:15
-msgid "Enter your email"
+#: common/templates/login_form.html:17
+#: common/templates/registration_form.html:25
+msgid "Invalid email address"
 msgstr ""
 
-#: common/templates/login_form.html:26
+#: common/templates/login_form.html:28
 msgid "Don't have an account?"
 msgstr ""
 
-#: common/templates/login_form.html:26
+#: common/templates/login_form.html:28
 msgid "Join Now!"
 msgstr ""
 
-#: common/templates/login_form.html:30 interests/models.py:7
-#: ordering/forms.py:182 ordering/forms.py:240
+#: common/templates/login_form.html:32 interests/models.py:7
+#: ordering/forms.py:182 ordering/forms.py:234
 msgid "Email"
 msgstr ""
 
-#: common/templates/login_form.html:32
+#: common/templates/login_form.html:34
 msgid "Password"
 msgstr ""
 
-#: common/templates/login_form.html:39
+#: common/templates/login_form.html:41
 #: common/templates/phone_verification_form.html:46
 #: ordering/templates/base_passenger.html:50
-#: ordering/templates/base_station.html:35
+#: ordering/templates/base_station.html:51
 #: ordering/templates/station_page.html:61
 msgid "Login"
 msgstr ""
@@ -349,71 +349,68 @@ msgid "Already Registered?"
 msgstr ""
 
 #: common/templates/registration_form.html:6
-#: common/templates/registration_form.html:19
+#: common/templates/registration_form.html:18
 msgid "YOUR ORDER HAS BEEN RECEIVED"
 msgstr ""
 
 #: common/templates/registration_form.html:14
-msgid "Enter a unique username"
+msgid "Enter your email"
 msgstr ""
 
-#: common/templates/registration_form.html:16
+#: common/templates/registration_form.html:15
 msgid "Choose a password"
 msgstr ""
 
-#: common/templates/registration_form.html:17
+#: common/templates/registration_form.html:16
 msgid "Re-enter your password"
 msgstr ""
 
-#: common/templates/registration_form.html:18
+#: common/templates/registration_form.html:17
 msgid "Checking..."
 msgstr ""
 
-#: common/templates/registration_form.html:20
+#: common/templates/registration_form.html:19
 msgid "Join Us For a WAYbetter Experience"
 msgstr ""
 
-#: common/templates/registration_form.html:21
+#: common/templates/registration_form.html:20
 msgid "An SMS with ride details will be sent soon"
 msgstr ""
 
-#: common/templates/registration_form.html:25
-msgid "Username is already taken"
+#: common/templates/registration_form.html:24
+#: ordering/passenger_controller.py:356
+msgid "Email already registered"
 msgstr ""
 
 #: common/templates/registration_form.html:26
-msgid "Invalid email address"
-msgstr ""
-
-#: common/templates/registration_form.html:27
 msgid "Passwords do not match"
 msgstr ""
 
-#: common/templates/registration_form.html:41
+#: common/templates/registration_form.html:40
 msgid "An SMS with ride details will arrive shortly..."
 msgstr ""
 
-#: common/templates/registration_form.html:45
+#: common/templates/registration_form.html:44
 msgid "In the meantime, join for better experience (free)"
 msgstr ""
 
-#: common/templates/registration_form.html:51
+#: common/templates/registration_form.html:48
 msgid "Your Email"
 msgstr ""
 
-#: common/templates/registration_form.html:53
+#: common/templates/registration_form.html:50
 msgid "Choose Password"
 msgstr ""
 
-#: common/templates/registration_form.html:55
+#: common/templates/registration_form.html:52
 msgid "Re-enter Password"
 msgstr ""
 
-#: common/templates/registration_form.html:58
+#: common/templates/registration_form.html:55
 msgid "Get emails from waybetter (we promise not to spam)"
 msgstr ""
 
-#: common/templates/registration_form.html:62
+#: common/templates/registration_form.html:59
 msgid "JOIN"
 msgstr ""
 
@@ -596,11 +593,11 @@ msgstr ""
 msgid "Station name"
 msgstr ""
 
-#: ordering/forms.py:169 ordering/forms.py:245
+#: ordering/forms.py:169 ordering/forms.py:239
 msgid "Change password"
 msgstr ""
 
-#: ordering/forms.py:170 ordering/forms.py:247
+#: ordering/forms.py:170 ordering/forms.py:241
 msgid "Re-enter password"
 msgstr ""
 
@@ -616,8 +613,7 @@ msgstr ""
 msgid "Number of taxis"
 msgstr ""
 
-#: ordering/forms.py:178 ordering/forms.py:220 ordering/forms.py:232
-#: registration/forms.py:92
+#: ordering/forms.py:178 ordering/forms.py:220 registration/forms.py:92
 msgid "The value must contain only numbers."
 msgstr ""
 
@@ -633,7 +629,7 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: ordering/forms.py:193 ordering/forms.py:255 registration/forms.py:136
+#: ordering/forms.py:193 ordering/forms.py:249 registration/forms.py:136
 msgid "The two password fields didn't match."
 msgstr ""
 
@@ -653,15 +649,11 @@ msgstr ""
 msgid "(No station selected)"
 msgstr ""
 
-#: ordering/forms.py:231
-msgid "Local mobile phone #"
-msgstr ""
-
-#: ordering/forms.py:242
+#: ordering/forms.py:236
 msgid "First name"
 msgstr ""
 
-#: ordering/forms.py:243
+#: ordering/forms.py:237
 msgid "Last name"
 msgstr ""
 
@@ -689,7 +681,7 @@ msgstr ""
 msgid "failed"
 msgstr ""
 
-#: ordering/models.py:34
+#: ordering/models.py:34 ordering/templates/base_station.html:23
 msgid "error"
 msgstr ""
 
@@ -1094,11 +1086,11 @@ msgstr ""
 msgid "Passenger Phone"
 msgstr ""
 
-#: ordering/order_manager.py:84
+#: ordering/order_manager.py:87
 msgid "We're sorry, but we could not find a taxi for you"
 msgstr ""
 
-#: ordering/order_manager.py:96
+#: ordering/order_manager.py:98
 msgid ""
 "We're sorry, but we have encountered an error while handling your request"
 msgstr ""
@@ -1110,60 +1102,56 @@ msgid ""
 "Station: %(station_name)s, %(station_phone)s"
 msgstr ""
 
-#: ordering/order_manager.py:190
+#: ordering/order_manager.py:189
 msgid "You can't rate this order"
 msgstr ""
 
-#: ordering/passenger_controller.py:154
+#: ordering/passenger_controller.py:153
 msgid "Ride estimation not available"
 msgstr ""
 
-#: ordering/passenger_controller.py:159
+#: ordering/passenger_controller.py:158
 msgid "Estimated ride cost"
 msgstr ""
 
-#: ordering/passenger_controller.py:162
+#: ordering/passenger_controller.py:161
 msgid "Flat rate"
 msgstr ""
 
-#: ordering/passenger_controller.py:168
+#: ordering/passenger_controller.py:167
 msgid "min"
 msgstr ""
 
-#: ordering/passenger_controller.py:190 ordering/passenger_controller.py:210
+#: ordering/passenger_controller.py:194 ordering/passenger_controller.py:214
 msgid "Your Ride Could Not Be Ordered"
 msgstr ""
 
-#: ordering/passenger_controller.py:191
+#: ordering/passenger_controller.py:195
 msgid "Ordering is not allowed so soon after another order"
 msgstr ""
 
-#: ordering/passenger_controller.py:276
+#: ordering/passenger_controller.py:281
 #, python-format
 msgid "Verification code: %s"
 msgstr ""
 
-#: ordering/passenger_controller.py:287 ordering/passenger_controller.py:407
+#: ordering/passenger_controller.py:294
 msgid "Invalid verification code"
 msgstr ""
 
-#: ordering/passenger_controller.py:316
+#: ordering/passenger_controller.py:337
 msgid "this email is registered with multiple users, cannot log you in"
 msgstr ""
 
-#: ordering/passenger_controller.py:318
-msgid "wrong username"
+#: ordering/passenger_controller.py:339
+msgid "wrong email"
 msgstr ""
 
-#: ordering/passenger_controller.py:324
-msgid "wrong username/password"
+#: ordering/passenger_controller.py:345
+msgid "wrong email/password"
 msgstr ""
 
-#: ordering/passenger_controller.py:335
-msgid "Email already registered"
-msgstr ""
-
-#: ordering/passenger_controller.py:338
+#: ordering/passenger_controller.py:359
 msgid "Missing required parameters"
 msgstr ""
 
@@ -1236,19 +1224,25 @@ msgstr ""
 msgid "Join!"
 msgstr ""
 
-#: ordering/templates/base_station.html:15
-#: ordering/templates/base_station.html:24
+#: ordering/templates/base_station.html:29 registration/forms.py:59
+msgid "username"
+msgstr ""
+
+#: ordering/templates/base_station.html:35 registration/forms.py:63
+msgid "password"
+msgstr ""
+
+#: ordering/templates/base_station.html:40
 #: templates/registration/login.html:19
 msgid "Username:"
 msgstr ""
 
-#: ordering/templates/base_station.html:19
-#: ordering/templates/base_station.html:30
+#: ordering/templates/base_station.html:46
 #: templates/registration/login.html:22
 msgid "Password:"
 msgstr ""
 
-#: ordering/templates/base_station.html:41
+#: ordering/templates/base_station.html:57
 msgid "Smart Tools for Smart Taxi Stations"
 msgstr ""
 
@@ -1427,9 +1421,25 @@ msgid ""
 "to do is push the yellow button. We'll do the rest"
 msgstr ""
 
-#: ordering/templates/passenger_profile.html:11
+#: ordering/templates/passenger_profile.html:10
+msgid "Phone number"
+msgstr ""
+
+#: ordering/templates/passenger_profile.html:12
+msgid "Change"
+msgstr ""
+
+#: ordering/templates/passenger_profile.html:16
 #: ordering/templates/station_profile.html:25
 msgid "Save Changes"
+msgstr ""
+
+#: ordering/templates/passenger_profile.html:23
+msgid "Changes saved!"
+msgstr ""
+
+#: ordering/templates/passenger_profile.html:24
+msgid "Error while saving changes"
 msgstr ""
 
 #: ordering/templates/press.html:4
@@ -1771,16 +1781,8 @@ msgstr ""
 msgid "last name"
 msgstr ""
 
-#: registration/forms.py:59
-msgid "username"
-msgstr ""
-
 #: registration/forms.py:60
 msgid "This value must contain only letters, numbers and underscores."
-msgstr ""
-
-#: registration/forms.py:63
-msgid "password"
 msgstr ""
 
 #: registration/forms.py:66

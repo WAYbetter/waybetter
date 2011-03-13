@@ -9,10 +9,12 @@
             login: "{% url ordering.passenger_controller.login_passenger %}"
         },
         messages: {
-            enter_username: "{% trans 'Enter your email' %}",
-            choose_password : "{% trans 'Please enter your password' %}",
+            enter_email: "{% trans 'Please enter your email' %}",
+            choose_password: "{% trans 'Please enter your password' %}",
             valid_field: "{% trans 'OK' %}"
-
+        },
+        error_messages: {
+            invalid_email: "{% trans 'Invalid email address' %}"
         }
     };
 

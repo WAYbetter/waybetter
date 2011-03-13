@@ -105,8 +105,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.login_as_selenium()
         self.wait_for_element_and_click_at("profile_tab_btn")
         self.wait_for_element_present("change_phone")
-
-#        can't get this click to work, fails the test
+        
         sel.click("change_phone")
         sel.mouse_down("change_phone")
         sel.mouse_up("change_phone")

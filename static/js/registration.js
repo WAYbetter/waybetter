@@ -11,7 +11,6 @@ var Registrator = Object.create({
             terms_form_template             : '/',
             mobile_interest_form_template   : '/',
             station_interest_form_template  : '/',
-            check_username                  : '/',
             check_email                     : '/',
             login                           : '/',
             send_sms                        : '/',
@@ -30,7 +29,6 @@ var Registrator = Object.create({
             zIndex:2000
         },
         error_messages  : {
-            username_taken          : '',
             email_taken             : '',
             invalid_email           : '',
             passwords_dont_match    : '',
@@ -39,12 +37,9 @@ var Registrator = Object.create({
             phone_taken             : ''
         },
         messages        : {
-            unique_username         : '',
-            enter_username          : '',
             enter_email             : '',
             choose_password         : '',
             password_again          : '',
-            checking_user           : '',
             checking_email          : '',
             valid_field             : '',
             enter_mobile            : '',
@@ -262,12 +257,16 @@ var Registrator = Object.create({
                     label.text(that.config.messages.valid_field).parent().removeClass("red").addClass("green");
                 },
                 rules: {
-                    username: "required",
+                    username: {
+                        required: true,
+                        email: true
+                    },
                     password: "required"
                 },
                 messages: {
                     username: {
-                        required: that.config.messages.enter_username
+                        required: that.config.messages.enter_email,
+                        email   : that.config.error_messages.invalid_email
                     },
                     password: {
                         required: that.config.messages.choose_password
@@ -285,24 +284,6 @@ var Registrator = Object.create({
                 .bind('click', function (e) {
                     that.doJoin();
                     return false;
-            });
-            that.openDialog.call(that, validation_config);
-        });
-    },
-    openCodeDialog           : function (callback) {
-        var that = this;
-        that.setCallback(callback);
-        this.getTemplate.call(this, 'phone_code', function(dialog_content) {
-            var extra_form_data = $('#profile_form').serialize(),
-            validation_config = {
-                rules: {
-                    verification_code: "required"
-                }
-            },
-            $finish_button = $('form input#register', dialog_content).button();
-            $('form', dialog_content).submit(function(e) {
-                e.preventDefault();
-                that.doProfileUpdate($('form', dialog_content), extra_form_data);
             });
             that.openDialog.call(that, validation_config);
         });
@@ -476,15 +457,6 @@ var Registrator = Object.create({
                     label.text(that.config.messages.valid_field).parent().removeClass("red").addClass("green");
                 },
                 rules: {
-                    username: {
-                        required: true,
-                        remote: {
-                            url: that.config.urls.check_username,
-                            beforeSend: function() {
-                                $("#registration_form").find("[htmlfor=username]").text(that.config.messages.checking_user).parent().removeClass("red").removeClass("green");
-                            }
-                        }
-                    },
                     email: {
                         required: true,
                         email: true,
@@ -502,10 +474,6 @@ var Registrator = Object.create({
                     }
                 },
                 messages: {
-                    username: {
-                        required    : that.config.messages.unique_username,
-                        remote      : that.config.error_messages.username_taken
-                    },
                     email: {
                         required    : that.config.messages.enter_email,
                         email       : that.config.error_messages.invalid_email,
@@ -541,7 +509,7 @@ var Registrator = Object.create({
             } else {
                 $("#dialog #ok").hide();
                 $("#dialog").oneTime(2000, function() {
-                    var height = (registration_only) ? "515px" : "700px"
+                    var height = (registration_only) ? "515px" : "700px";
                     $(".ui-dialog").animate(
                         { height: height },
                         { duration: 200,
