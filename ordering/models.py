@@ -182,10 +182,10 @@ class Passenger(models.Model):
             return u"Passenger: %s, %s" % (self.phone, "[UNKNOWN USER]")
 
 
-digits_re = re.compile(r'^\d+$')
-validate_digits = RegexValidator(digits_re, _(u"Value must consists of digits only."), 'invalid')
+phone_re = re.compile(r'^[\*|\d]\d+$')
+validate_phone = RegexValidator(phone_re, _(u"Value must consists of digits only."), 'invalid')
 class Phone(models.Model):
-    local_phone = models.CharField(_("phone number"), max_length=20, validators=[validate_digits])
+    local_phone = models.CharField(_("phone number"), max_length=20, validators=[validate_phone])
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="phones", null=True, blank=True)
 
