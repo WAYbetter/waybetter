@@ -180,7 +180,7 @@ class StationProfileForm(forms.Form, Id2Model):
     website_url = forms.CharField(label=_("Website URL"), required=False)
 #    language = form.
     email = forms.EmailField(label=_("Email"))
-    logo = AppEngineImageField(label=_("Logo"), required=False)
+#    logo = AppEngineImageField(label=_("Logo"), required=False)
     description  = forms.CharField(label=_("Description"), widget=forms.Textarea, required=False)
     lon = forms.FloatField(widget=forms.HiddenInput(), required=False)
     lat = forms.FloatField(widget=forms.HiddenInput(), required=False)

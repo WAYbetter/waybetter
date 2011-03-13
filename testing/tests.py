@@ -253,7 +253,13 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel.open(reverse('testing.setup_testing_env.create_selenium_test_data'))
         sel.open("/stations")
 
+        # test login
+        self.wait_for_element_and_click_at("id_station_login")
+        self.wait_for_alert()
         sel.type("id_username", SELENIUM_STATION_USER_NAME)
+        self.wait_for_alert()
+        sel.type("id_password", "wrong_password")
+        self.wait_for_alert()
         sel.type("id_password", SELENIUM_PASSWORD)
         sel.click("id_station_login")
 
@@ -263,12 +269,29 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
         # profile page
         sel.click("//a[@href='#profile']")
-        self.assertTrue(sel.get_eval("window.jQuery('#id_name').val()") == u'selenium_station')
-        self.assertTrue(sel.get_eval("window.jQuery('#id_address').val()") == SELENIUM_ADDRESS)
-        self.assertTrue(sel.get_eval("window.jQuery('#id_phones-0-local_phone').val()") == SELENIUM_PHONE)
-        # add phone
-        sel.type_keys("id_phones-0-local_phone", SELENIUM_PHONE)
-        sel.click("id_save_station_profile") # bug - can't save form
+        data = {
+            # id: (old_val, new_val),
+            '#id_name': (u'selenium_station', u'new_selenium_station'),
+            '#id_address': (SELENIUM_ADDRESS, u"new address"),
+            'id_number_of_taxis': ('5', '6'),
+            'id_website_url': ('http://selenium.waybetter.com','http://selenium.waybetter.co.il'),
+            'id_email': ('selenium_station@waybetter.com', 'selenium_station@waybetter.co.il'),
+            'id_description': ('','new description'),
+            '#id_phones-0-local_phone': (SELENIUM_PHONE, "123")
+        }
+
+        for id in data.keys():
+            self.assertTrue(sel.get_eval("window.jQuery(%s.val()" % id) == data[id][0])
+            sel.type(id, data[id][1])
+
+        sel.click("id_save_station_profile")
+        for id in data.keys():
+            self.assertTrue(sel.get_eval("window.jQuery(%s.val()" % id) == data[id][1])
+
+#        # add phone
+#        sel.type_keys("id_phones-0-local_phone", SELENIUM_PHONE)
+
+        # change password
 
         # install workstations page
         sel.click("//a[@href='#download']")

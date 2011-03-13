@@ -120,7 +120,8 @@ def create_selenium_passenger(user):
 
 def create_selenium_station(user):
     selenium_station = Station(name="selenium_station", user=user, number_of_taxis=5, country=Country.objects.filter(code="IL").get(),
-                           city=City.objects.get(name=SELENIUM_CITY_NAME), address=SELENIUM_ADDRESS, lat=32.105137, lon=35.198071, license_number="1234", postal_code='1234')
+                           city=City.objects.get(name=SELENIUM_CITY_NAME), address=SELENIUM_ADDRESS, lat=32.105137, lon=35.198071, license_number="1234", postal_code='1234',
+                           website_url="http://selenium.waybetter.com")
     selenium_station.save()
 
     phone = Phone(local_phone=SELENIUM_PHONE, station=selenium_station)
