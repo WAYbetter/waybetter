@@ -149,6 +149,8 @@ class Passenger(models.Model):
     phone_verified = models.BooleanField(_("phone verified"))
     phone_verification_code = models.CharField(_("phone verification code"), max_length=20)
 
+    accept_mailing = models.BooleanField(_("accept mailing"), default=True)
+
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
