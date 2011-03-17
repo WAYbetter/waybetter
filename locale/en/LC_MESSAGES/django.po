@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-13 12:07+0200\n"
+"POT-Creation-Date: 2011-03-16 17:45+0200\n"
 "PO-Revision-Date: 2011-02-20 16:23+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -71,8 +71,8 @@ msgstr ""
 msgid "type"
 msgstr ""
 
-#: analytics/models.py:11 ordering/models.py:346 ordering/models.py:348
-#: ordering/models.py:388 ordering/models.py:434
+#: analytics/models.py:11 ordering/models.py:348 ordering/models.py:350
+#: ordering/models.py:390 ordering/models.py:436
 msgid "order"
 msgstr ""
 
@@ -80,22 +80,22 @@ msgstr ""
 msgid "order assignment"
 msgstr ""
 
-#: analytics/models.py:13 ordering/models.py:389
+#: analytics/models.py:13 ordering/models.py:391
 msgid "work station"
 msgstr ""
 
-#: analytics/models.py:14 ordering/models.py:188 ordering/models.py:200
-#: ordering/models.py:279 ordering/models.py:390
+#: analytics/models.py:14 ordering/models.py:190 ordering/models.py:202
+#: ordering/models.py:281 ordering/models.py:392
 msgid "station"
 msgstr ""
 
-#: analytics/models.py:15 ordering/models.py:278 ordering/models.py:519
+#: analytics/models.py:15 ordering/models.py:280 ordering/models.py:521
 msgid "passenger"
 msgstr ""
 
 #: analytics/models.py:16 common/models.py:55 ordering/models.py:77
-#: ordering/models.py:143 ordering/models.py:451 ordering/models.py:482
-#: ordering/models.py:504 registration/forms.py:72
+#: ordering/models.py:143 ordering/models.py:453 ordering/models.py:484
+#: ordering/models.py:506 registration/forms.py:72
 msgid "country"
 msgstr ""
 
@@ -109,16 +109,16 @@ msgid "ratings"
 msgstr ""
 
 #: analytics/models.py:23 interests/models.py:9 interests/models.py:18
-#: ordering/models.py:89 ordering/models.py:152 ordering/models.py:317
-#: ordering/models.py:394 ordering/models.py:472 ordering/models.py:494
-#: ordering/models.py:508
+#: ordering/models.py:89 ordering/models.py:154 ordering/models.py:319
+#: ordering/models.py:396 ordering/models.py:474 ordering/models.py:496
+#: ordering/models.py:510
 msgid "create date"
 msgstr ""
 
 #: analytics/models.py:24 interests/models.py:10 interests/models.py:19
-#: ordering/models.py:90 ordering/models.py:153 ordering/models.py:318
-#: ordering/models.py:395 ordering/models.py:473 ordering/models.py:495
-#: ordering/models.py:509
+#: ordering/models.py:90 ordering/models.py:155 ordering/models.py:320
+#: ordering/models.py:397 ordering/models.py:475 ordering/models.py:497
+#: ordering/models.py:511
 msgid "modify date"
 msgstr ""
 
@@ -166,8 +166,8 @@ msgid "Submit"
 msgstr ""
 
 #: common/models.py:8 common/models.py:54 common/models.py:88
-#: interests/models.py:13 ordering/models.py:449 ordering/models.py:480
-#: ordering/models.py:502
+#: interests/models.py:13 ordering/models.py:451 ordering/models.py:482
+#: ordering/models.py:504
 msgid "name"
 msgstr ""
 
@@ -192,6 +192,18 @@ msgstr ""
 msgid "Invalid value: %s"
 msgstr ""
 
+#: common/templates/cant_login_form.html:6
+msgid "Reset your password"
+msgstr ""
+
+#: common/templates/cant_login_form.html:8
+msgid "Phone you registered with"
+msgstr ""
+
+#: common/templates/cant_login_form.html:9
+msgid "Phone not registered. <a href=# class=join_link>Join</a>"
+msgstr ""
+
 #: common/templates/code_form.html:8
 msgid "Fill in to finish registration"
 msgstr ""
@@ -203,12 +215,38 @@ msgid ""
 msgstr ""
 
 #: common/templates/code_form.html:18
-#: common/templates/phone_verification_form.html:43
+#: common/templates/phone_verification_form.html:80
 msgid "Enter SMS code"
 msgstr ""
 
 #: common/templates/code_form.html:20 templates/mobile/base.html:86
 msgid "Finish"
+msgstr ""
+
+#: common/templates/credentials_form.html:6
+msgid "Change account credentials"
+msgstr ""
+
+#: common/templates/credentials_form.html:19
+msgid "Choose a new Password"
+msgstr ""
+
+#: common/templates/credentials_form.html:21
+#: common/templates/registration_form.html:95
+msgid "Re-enter Password"
+msgstr ""
+
+#: common/templates/credentials_form.html:24
+msgid "Change registered email"
+msgstr ""
+
+#: common/templates/credentials_form.html:26
+#: common/templates/registration_form.html:14
+msgid "Enter your email"
+msgstr ""
+
+#: common/templates/credentials_form.html:31
+msgid "Save"
 msgstr ""
 
 #: common/templates/error_form.html:12 common/templates/feedback_form.html:12
@@ -224,7 +262,7 @@ msgstr ""
 #: common/templates/error_form.html:14 common/templates/error_form.html:27
 #: common/templates/feedback_form.html:14 common/templates/login_form.html:14
 #: common/templates/registration_form.html:21
-#: common/templates/registration_form.html:41
+#: common/templates/registration_form.html:84
 #: common/templates/terms_form.html:14 common/templates/terms_form.html:32
 msgid "OK"
 msgstr ""
@@ -257,57 +295,57 @@ msgstr ""
 msgid "Thanks, your feedback has been sent"
 msgstr ""
 
-#: common/templates/login_form.html:5
-msgid "Welcome Back!"
+#: common/templates/login_form.html:5 common/templates/login_form.html:49
+#: common/templates/phone_verification_form.html:85
+#: ordering/templates/base_passenger.html:52
+#: ordering/templates/base_station.html:51
+#: ordering/templates/station_page.html:61
+msgid "Login"
 msgstr ""
 
-#: common/templates/login_form.html:17
+#: common/templates/login_form.html:18
 #: common/templates/registration_form.html:25
 msgid "Invalid email address"
 msgstr ""
 
-#: common/templates/login_form.html:28
+#: common/templates/login_form.html:32
 msgid "Don't have an account?"
 msgstr ""
 
-#: common/templates/login_form.html:28
+#: common/templates/login_form.html:32
 msgid "Join Now!"
 msgstr ""
 
-#: common/templates/login_form.html:32 interests/models.py:7
+#: common/templates/login_form.html:36 interests/models.py:7
 #: ordering/forms.py:182 ordering/forms.py:234
 msgid "Email"
 msgstr ""
 
-#: common/templates/login_form.html:34
+#: common/templates/login_form.html:38
 msgid "Password"
 msgstr ""
 
-#: common/templates/login_form.html:41
-#: common/templates/phone_verification_form.html:46
-#: ordering/templates/base_passenger.html:50
-#: ordering/templates/base_station.html:51
-#: ordering/templates/station_page.html:61
-msgid "Login"
+#: common/templates/login_form.html:44
+msgid "Can't access my account"
 msgstr ""
 
 #: common/templates/phone_verification_form.html:9
 msgid "Activate Your Phone (Free)"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:18
+#: common/templates/phone_verification_form.html:17
 msgid "PRESS TO SEND SMS CODE"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:19
+#: common/templates/phone_verification_form.html:18
 msgid "CODE SENT"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:20
+#: common/templates/phone_verification_form.html:19
 msgid "FINISH"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:21
+#: common/templates/phone_verification_form.html:20
 #: ordering/templates/passenger_home.html:29
 #: ordering/templates/station_page.html:31
 #: ordering/templates/workstation_home.html:501
@@ -316,45 +354,41 @@ msgstr ""
 msgid "Sending..."
 msgstr ""
 
-#: common/templates/phone_verification_form.html:22
+#: common/templates/phone_verification_form.html:21
 msgid "Enter your mobile phone #"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:23
+#: common/templates/phone_verification_form.html:22
 msgid "Enter SMS Ver. Code"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:24
+#: common/templates/phone_verification_form.html:23
 msgid "Number too short"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:27
+#: common/templates/phone_verification_form.html:26
 msgid "Phone already in use. <a href=# class=login_link>Login</a>"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:28
+#: common/templates/phone_verification_form.html:27
 msgid "Number too long"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:29
+#: common/templates/phone_verification_form.html:28
 msgid "Only digits please"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:41
+#: common/templates/phone_verification_form.html:78
 msgid "Local Mobile Phone Number"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:46
+#: common/templates/phone_verification_form.html:85
 msgid "Already Registered?"
 msgstr ""
 
 #: common/templates/registration_form.html:6
 #: common/templates/registration_form.html:18
 msgid "YOUR ORDER HAS BEEN RECEIVED"
-msgstr ""
-
-#: common/templates/registration_form.html:14
-msgid "Enter your email"
 msgstr ""
 
 #: common/templates/registration_form.html:15
@@ -377,9 +411,8 @@ msgstr ""
 msgid "An SMS with ride details will be sent soon"
 msgstr ""
 
-
 #: common/templates/registration_form.html:24
-#: ordering/passenger_controller.py:356
+#: ordering/passenger_controller.py:381
 msgid "Email already registered"
 msgstr ""
 
@@ -387,31 +420,27 @@ msgstr ""
 msgid "Passwords do not match"
 msgstr ""
 
-#: common/templates/registration_form.html:40
+#: common/templates/registration_form.html:83
 msgid "An SMS with ride details will arrive shortly..."
 msgstr ""
 
-#: common/templates/registration_form.html:44
+#: common/templates/registration_form.html:87
 msgid "In the meantime, join for better experience (free)"
 msgstr ""
 
-#: common/templates/registration_form.html:48
+#: common/templates/registration_form.html:91
 msgid "Your Email"
 msgstr ""
 
-#: common/templates/registration_form.html:50
+#: common/templates/registration_form.html:93
 msgid "Choose Password"
 msgstr ""
 
-#: common/templates/registration_form.html:52
-msgid "Re-enter Password"
-msgstr ""
-
-#: common/templates/registration_form.html:55
+#: common/templates/registration_form.html:98
 msgid "Get emails from waybetter (we promise not to spam)"
 msgstr ""
 
-#: common/templates/registration_form.html:59
+#: common/templates/registration_form.html:102
 msgid "JOIN"
 msgstr ""
 
@@ -428,7 +457,7 @@ msgid "(Or)"
 msgstr ""
 
 #: common/templates/social_login.html:48
-msgid "register using your account at:"
+msgid "login using your account at:"
 msgstr ""
 
 #: common/templates/terms_form.html:5
@@ -622,10 +651,6 @@ msgstr ""
 msgid "Website URL"
 msgstr ""
 
-#: ordering/forms.py:183
-msgid "Logo"
-msgstr ""
-
 #: ordering/forms.py:184
 msgid "Description"
 msgstr ""
@@ -686,12 +711,12 @@ msgstr ""
 msgid "error"
 msgstr ""
 
-#: ordering/models.py:63 ordering/models.py:141 ordering/models.py:198
+#: ordering/models.py:63 ordering/models.py:141 ordering/models.py:200
 #: registration/models.py:170
 msgid "user"
 msgstr ""
 
-#: ordering/models.py:64 ordering/models.py:321 registration/forms.py:50
+#: ordering/models.py:64 ordering/models.py:323 registration/forms.py:50
 msgid "station name"
 msgstr ""
 
@@ -727,7 +752,7 @@ msgstr ""
 msgid "subdomain name"
 msgstr ""
 
-#: ordering/models.py:74 ordering/models.py:207
+#: ordering/models.py:74 ordering/models.py:209
 msgid "last order date"
 msgstr ""
 
@@ -763,11 +788,11 @@ msgstr ""
 msgid "average rating"
 msgstr ""
 
-#: ordering/models.py:146 ordering/models.py:280
+#: ordering/models.py:146 ordering/models.py:282
 msgid "originating station"
 msgstr ""
 
-#: ordering/models.py:148 ordering/models.py:186
+#: ordering/models.py:148 ordering/models.py:188
 msgid "phone number"
 msgstr ""
 
@@ -779,291 +804,295 @@ msgstr ""
 msgid "phone verification code"
 msgstr ""
 
-#: ordering/models.py:184
+#: ordering/models.py:152
+msgid "accept mailing"
+msgstr ""
+
+#: ordering/models.py:186
 msgid "Value must consists of digits only."
 msgstr ""
 
-#: ordering/models.py:201
+#: ordering/models.py:203
 msgid "token"
 msgstr ""
 
-#: ordering/models.py:202
+#: ordering/models.py:204
 msgid "installer URL"
 msgstr ""
 
-#: ordering/models.py:203
+#: ordering/models.py:205
 msgid "was installed"
 msgstr ""
 
-#: ordering/models.py:204
+#: ordering/models.py:206
 msgid "instant messaging username"
 msgstr ""
 
-#: ordering/models.py:205
+#: ordering/models.py:207
 msgid "Accept orders"
 msgstr ""
 
-#: ordering/models.py:271
+#: ordering/models.py:273
 msgid "Very poor"
 msgstr ""
 
-#: ordering/models.py:272
+#: ordering/models.py:274
 msgid "Not so bad"
 msgstr ""
 
-#: ordering/models.py:273
+#: ordering/models.py:275
 msgid "Average"
 msgstr ""
 
-#: ordering/models.py:274
+#: ordering/models.py:276
 msgid "Good"
 msgstr ""
 
-#: ordering/models.py:275
+#: ordering/models.py:277
 msgid "Perfect"
 msgstr ""
 
-#: ordering/models.py:282 ordering/models.py:392
+#: ordering/models.py:284 ordering/models.py:394
 msgid "status"
 msgstr ""
 
-#: ordering/models.py:283
+#: ordering/models.py:285
 msgid "order language"
 msgstr ""
 
-#: ordering/models.py:285
+#: ordering/models.py:287
 msgid "from country"
 msgstr ""
 
-#: ordering/models.py:286
+#: ordering/models.py:288
 msgid "from city"
 msgstr ""
 
-#: ordering/models.py:287
+#: ordering/models.py:289
 msgid "from city area"
 msgstr ""
 
-#: ordering/models.py:289
+#: ordering/models.py:291
 msgid "from postal code"
 msgstr ""
 
-#: ordering/models.py:290
+#: ordering/models.py:292
 msgid "from street address"
 msgstr ""
 
-#: ordering/models.py:291
+#: ordering/models.py:293
 msgid "from_house_number"
 msgstr ""
 
-#: ordering/models.py:293
+#: ordering/models.py:295
 msgid "from goehash"
 msgstr ""
 
-#: ordering/models.py:294
+#: ordering/models.py:296
 msgid "from_lon"
 msgstr ""
 
-#: ordering/models.py:295
+#: ordering/models.py:297
 msgid "from_lat"
 msgstr ""
 
-#: ordering/models.py:297
+#: ordering/models.py:299
 msgid "from address"
 msgstr ""
 
-#: ordering/models.py:299
+#: ordering/models.py:301
 msgid "to country"
 msgstr ""
 
-#: ordering/models.py:300
+#: ordering/models.py:302
 msgid "to city"
 msgstr ""
 
-#: ordering/models.py:301
+#: ordering/models.py:303
 msgid "to city area"
 msgstr ""
 
-#: ordering/models.py:303
+#: ordering/models.py:305
 msgid "to postal code"
 msgstr ""
 
-#: ordering/models.py:304
+#: ordering/models.py:306
 msgid "to street address"
 msgstr ""
 
-#: ordering/models.py:305
+#: ordering/models.py:307
 msgid "to_house_number"
 msgstr ""
 
-#: ordering/models.py:307
+#: ordering/models.py:309
 msgid "to goehash"
 msgstr ""
 
-#: ordering/models.py:308
+#: ordering/models.py:310
 msgid "to_lon"
 msgstr ""
 
-#: ordering/models.py:309
+#: ordering/models.py:311
 msgid "to_lat"
 msgstr ""
 
-#: ordering/models.py:311
+#: ordering/models.py:313
 msgid "to address"
 msgstr ""
 
-#: ordering/models.py:313
+#: ordering/models.py:315
 msgid "pickup time"
 msgstr ""
 
-#: ordering/models.py:315
+#: ordering/models.py:317
 msgid "passenger rating"
 msgstr ""
 
-#: ordering/models.py:322
+#: ordering/models.py:324
 msgid "station id"
 msgstr ""
 
-#: ordering/models.py:323
+#: ordering/models.py:325
 msgid "passenger phone"
 msgstr ""
 
-#: ordering/models.py:324
+#: ordering/models.py:326
 msgid "passenger id"
 msgstr ""
 
-#: ordering/models.py:397
+#: ordering/models.py:399
 msgid "pickup_address_in_ws_lang"
 msgstr ""
 
-#: ordering/models.py:434
+#: ordering/models.py:436
 msgid "assigned to station:"
 msgstr ""
 
-#: ordering/models.py:437
+#: ordering/models.py:439
 msgid "Sunday"
 msgstr ""
 
-#: ordering/models.py:438
+#: ordering/models.py:440
 msgid "Monday"
 msgstr ""
 
-#: ordering/models.py:439
+#: ordering/models.py:441
 msgid "Tuesday"
 msgstr ""
 
-#: ordering/models.py:440
+#: ordering/models.py:442
 msgid "Wednesday"
 msgstr ""
 
-#: ordering/models.py:441
+#: ordering/models.py:443
 msgid "Thursday"
 msgstr ""
 
-#: ordering/models.py:442
+#: ordering/models.py:444
 msgid "Friday"
 msgstr ""
 
-#: ordering/models.py:443
+#: ordering/models.py:445
 msgid "Saturday"
 msgstr ""
 
-#: ordering/models.py:445
+#: ordering/models.py:447
 msgid "Standard cab"
 msgstr ""
 
-#: ordering/models.py:450 ordering/models.py:481 ordering/models.py:503
+#: ordering/models.py:452 ordering/models.py:483 ordering/models.py:505
 msgid "is active"
 msgstr ""
 
-#: ordering/models.py:454
+#: ordering/models.py:456
 msgid "from day"
 msgstr ""
 
-#: ordering/models.py:455
+#: ordering/models.py:457
 msgid "to day"
 msgstr ""
 
-#: ordering/models.py:456 ordering/models.py:487
+#: ordering/models.py:458 ordering/models.py:489
 msgid "from hour"
 msgstr ""
 
-#: ordering/models.py:457 ordering/models.py:488
+#: ordering/models.py:459 ordering/models.py:490
 msgid "to hour"
 msgstr ""
 
-#: ordering/models.py:459
+#: ordering/models.py:461
 msgid "from duration (s)"
 msgstr ""
 
-#: ordering/models.py:459 ordering/models.py:460 ordering/models.py:468
+#: ordering/models.py:461 ordering/models.py:462 ordering/models.py:470
 msgid "In seconds"
 msgstr ""
 
-#: ordering/models.py:460
+#: ordering/models.py:462
 msgid "to duration (s)"
 msgstr ""
 
-#: ordering/models.py:463
+#: ordering/models.py:465
 msgid "from distance (m)"
 msgstr ""
 
-#: ordering/models.py:463 ordering/models.py:464 ordering/models.py:467
+#: ordering/models.py:465 ordering/models.py:466 ordering/models.py:469
 msgid "In meters"
 msgstr ""
 
-#: ordering/models.py:464
+#: ordering/models.py:466
 msgid "to distance (m)"
 msgstr ""
 
-#: ordering/models.py:467
+#: ordering/models.py:469
 msgid "tick distance (m)"
 msgstr ""
 
-#: ordering/models.py:468
+#: ordering/models.py:470
 msgid "tick time (s)"
 msgstr ""
 
-#: ordering/models.py:469
+#: ordering/models.py:471
 msgid "cost per tick"
 msgstr ""
 
-#: ordering/models.py:470 ordering/models.py:492 ordering/models.py:506
+#: ordering/models.py:472 ordering/models.py:494 ordering/models.py:508
 msgid "fixed cost"
 msgstr ""
 
-#: ordering/models.py:484
+#: ordering/models.py:486
 msgid "city 1"
 msgstr ""
 
-#: ordering/models.py:485
+#: ordering/models.py:487
 msgid "city 2"
 msgstr ""
 
-#: ordering/models.py:489
+#: ordering/models.py:491
 msgid "from day-of-week"
 msgstr ""
 
-#: ordering/models.py:490
+#: ordering/models.py:492
 msgid "to day-of-week"
 msgstr ""
 
-#: ordering/models.py:515
+#: ordering/models.py:517
 msgid "Website"
 msgstr ""
 
-#: ordering/models.py:515
+#: ordering/models.py:517
 msgid "Booking"
 msgstr ""
 
-#: ordering/models.py:515
+#: ordering/models.py:517
 msgid "Registration"
 msgstr ""
 
-#: ordering/models.py:515
+#: ordering/models.py:517
 msgid "Taxi Ride"
 msgstr ""
 
-#: ordering/models.py:515
+#: ordering/models.py:517
 msgid "Other"
 msgstr ""
 
@@ -1152,7 +1181,11 @@ msgstr ""
 msgid "wrong email/password"
 msgstr ""
 
-#: ordering/passenger_controller.py:359
+#: ordering/passenger_controller.py:355
+msgid "Must have a user to change credentials"
+msgstr ""
+
+#: ordering/passenger_controller.py:358 ordering/passenger_controller.py:384
 msgid "Missing required parameters"
 msgstr ""
 
@@ -1221,7 +1254,7 @@ msgid ""
 "ordering a cab and hoping the station you found can serve you "
 msgstr ""
 
-#: ordering/templates/base_passenger.html:50
+#: ordering/templates/base_passenger.html:52
 msgid "Join!"
 msgstr ""
 

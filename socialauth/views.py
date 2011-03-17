@@ -303,9 +303,19 @@ def social_logout(request):
         return logout_response
 
 from ordering.decorators import CURRENT_PASSENGER_KEY
+from ordering.passenger_controller import safe_delete_user
 def update_passenger(request, user):
     if CURRENT_PASSENGER_KEY in request.session:
         passenger = request.session[CURRENT_PASSENGER_KEY]
-        if user.is_authenticated() and not passenger.user :
+
+        if user.is_authenticated():
+            old_user = passenger.user
+            if old_user and old_user != user:
+                # keep old user data
+                if old_user.email and not user.email:
+                    user.email = old_user.email
+                    user.save()
             passenger.user = user
             passenger.save()
+
+            safe_delete_user(old_user)

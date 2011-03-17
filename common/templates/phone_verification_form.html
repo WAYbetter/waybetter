@@ -11,8 +11,7 @@
         },
         urls: {
             send_sms        : "{% url ordering.passenger_controller.send_sms_verification %}",
-            validate_phone  : "{% url ordering.passenger_controller.validate_phone %}",
-            check_phone     : "{% url ordering.passenger_controller.check_phone %}"
+            validate_phone  : "{% url ordering.passenger_controller.validate_phone %}"
         },
         messages: {
             sms_ok          : "{% trans 'PRESS TO SEND SMS CODE' %}",
@@ -30,11 +29,54 @@
         }
     };
     $(function () {
-         $("#dialog form input[type!=checkbox]").focus(function() {
-             Registrator.validator.element(this);
+         $("#dialog form input[type!=checkbox]").unbind("focus").focus(function() {
+             try { // fix chrome's Object #<Object> has no method 'element' error
+                 Registrator.validator.element(this);
+             } catch(e) {
+                 console.log("could not check element");
+             }
+
          });
     });
+    var validation_config = {
+        errorClass: "inputError",
+        validClass: "inputValid",
+        errorElement: "div",
+        focusCleanup: false,
+        rules: {
+            verification_code: {
+                required    : true,
+                digits      : true,
+                minlength   : 4,
+                maxlength   : 4
+            },
+            local_phone: {
+                required        : true,
+                ignoreNonDigits : true,
+                minlength       : 10,
+                maxlength       : 11,
+                remote          : "{% url ordering.passenger_controller.check_phone_not_registered %}"
+            }
+        },
+        messages: {
+            local_phone: {
+                ignoreNonDigits : form_config.messages.enter_mobile,
+                required        : form_config.messages.enter_mobile,
+                minlength       : form_config.messages.too_short,
+                maxlength       : form_config.error_messages.too_long,
+                remote          : form_config.error_messages.phone_taken
+            },
+            verification_code: {
+                required    : form_config.messages.enter_sms_code,
+                minlength   : form_config.messages.too_short,
+                maxlength   : form_config.error_messages.too_long,
+                digits      : form_config.error_messages.only_digits
+            }
+        }
+    };
 </script>
+{% block extra_script %}
+{% endblock %}
 <form id="phone_verification_form">
     <fieldset>
         <input type="hidden" name="country" value="{{ country_id }}" />
@@ -43,5 +85,7 @@
         <label for="verification_code">{% trans 'Enter SMS code' %}</label>
         <input name="verification_code" id="verification_code" type="text" disabled="disabled" />
     </fieldset>
-    <div class="sms_extra_form_line">{% trans 'Already Registered?' %} <a href='#' id=login_link class='title_link login_link'>{% trans 'Login' %}</a></div>
 </form>
+{% block footer_links %}
+<div class="sms_extra_form_line">{% trans 'Already Registered?' %} <a href='#' id=login_link class='title_link login_link'>{% trans 'Login' %}</a></div>
+{% endblock %}

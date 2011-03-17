@@ -2,7 +2,7 @@
 <script>
     var form_config = {
         dialog_config : {
-            title: "{% trans 'Welcome Back!' %}",
+            title: "{% trans 'Login' %}",
             width: 427
         },
         urls: {
@@ -23,6 +23,9 @@
          $("#dialog form input[type!=checkbox]").focus(function() {
              Registrator.validator.element(this);
          });
+        $("#cant_login_link").click(function(){
+           Registrator.doResetCredentials();
+        });
     });
 
 </script>
@@ -36,6 +39,10 @@
             <input name="password" id="password" type="password" />
         </fieldset>
         <div class="clear"></div>
+
+        <div id="cant_login_link">
+			<a href="#">{% trans "Can't access my account" %}
+		</a></div>
 
         <div id="button_container">
             <div id="login_error"></div>
