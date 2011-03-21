@@ -28,11 +28,11 @@
         $("#banner > h1").click(function() {
             window.location = "/";
         });
-//        $("form.languages img").click(function() {
-//            var lang = $(this).attr("alt");
-//            $("form.languages > #language").val(lang);
-//            $("form.languages").submit();
-//        })
+        $("form.languages img").click(function() {
+            var lang = $(this).attr("alt");
+            $("form.languages > #language").val(lang);
+            $("form.languages").submit();
+        })
     })
 </script>
 
@@ -81,13 +81,13 @@
                     {% block join_or_login %}{% endblock join_or_login %}
                 {% endif %}
 
-{#                <form action="/i18n/setlang/" method="post" class="languages">#}
-{#                {% csrf_token %}#}
-{#                <input type="hidden" name="language" id="language" />#}
-{#                {% for lang in LANGUAGES %}#}
-{#                    <img src="/static/images/flag_icons/{{ lang.0 }}.png" title="{{ lang.1 }}" alt="{{ lang.0 }}"/>#}
-{#                {% endfor %}#}
-{#                </form>#}
+                <form action="/i18n/setlang/" method="post" class="languages">
+                {% csrf_token %}
+                <input type="hidden" name="language" id="language" />
+                {% for lang in LANGUAGES %}
+                    <img src="/static/images/flag_icons/{{ lang.0 }}.png" title="{{ lang.1 }}" alt="{{ lang.0 }}"/>
+                {% endfor %}
+                </form>
                 {% endblock usertools %}
             </div>
             <div id="alpha"></div>
