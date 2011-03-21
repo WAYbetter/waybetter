@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode
 
 from common.models import Country, City
-from ordering.models import Order, Station, Feedback
+from ordering.models import Order, Station, Feedback, phone_re
 from django.utils.safestring import mark_safe
 from google.appengine.api.images import BadImageError, NotImageError
 from common.util import log_event, EventType, blob_to_image_tag
@@ -213,7 +213,7 @@ class StationProfileForm(forms.Form, Id2Model):
         return self.cleaned_data
 
 class PhoneForm(ModelForm):
-    local_phone = forms.RegexField( regex=r'^\d+$',
+    local_phone = forms.RegexField( regex=phone_re,
                               max_length=20,
                               widget=forms.TextInput(),
                               label=_("Phone"),
