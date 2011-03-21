@@ -7,7 +7,7 @@ from common.geo_calculations import distance_between_points
 from common.geocode import geocode, geohash_encode, geohash_decode
 from common.sms_notification import send_sms
 from common.route import calculate_time_and_distance
-
+from common.util import gen_verification_code
 import logging
 
 class GeocodeTest(TestCase):
@@ -194,16 +194,23 @@ class BasicFuncTest(TestCase):
         logging.info("\nTesting sms sending")
         self.assertTrue(send_sms('+972-3-1234567', 'sms test'), msg="sms send failed")
 
-    def test_is_username_available(self):
+    def test_code_generator(self):
+        logging.info("testing code generator")
+        code1 = gen_verification_code()
+        code2 = gen_verification_code()
+        self.assertTrue(code1!=code2, "same verification code is generated")
+
+    def test_is_email_available(self):
         logging.info("\nTesting username available")
         from django.contrib.auth.models import User
         test_user = User()
         test_user.username = "test_user1"
+        test_user.email = "test_user1@wayebtter.com"
         test_user.save()
 
-        response = self.client.get(reverse('common.services.is_username_available'), {"username": "test_user1"})
+        response = self.client.get(reverse('common.services.is_email_available'), {"username": "test_user1@wayebtter.com"})
         self.assertTrue(response.content == "false", msg="expected username unavailable")
 
-        response = self.client.get(reverse('common.services.is_username_available'), {"username": "test_user2"})
+        response = self.client.get(reverse('common.services.is_username_available'), {"username": "test_user2@wayebtter.com"})
         self.assertTrue(response.content == "true", msg="expected username unavailable")
 

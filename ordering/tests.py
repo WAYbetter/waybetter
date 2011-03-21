@@ -47,9 +47,9 @@ def create_test_order():
         "from_geohash": u'swnvcbg7d23u',
         "from_lat": u'32.073654',
         "from_lon": u'34.765465',
-        "from_raw": u'אלנבי 1, תל אביב יפו',
-        "from_street_address": u'אלנבי',
-        "geocoded_from_raw": u'אלנבי 1, תל אביב יפו',
+        "from_raw": u'Allenby 1, Tel Aviv Yafo',
+        "from_street_address": u'Allenby',
+        "geocoded_from_raw": u'Allenby 1, Tel Aviv Yafo',
         "to_city": u'1604',
         "to_country": u'12',
         "to_geohash": u'swnvcbdruxgz',
@@ -258,6 +258,7 @@ class DispatcherTest(TestCase):
         self.assertTrue(assignment.station and assignment.work_station)
         self.assertTrue(isinstance(assignment, ordering.models.OrderAssignment))
         self.assertTrue((assignment.order, ORDER.status) == (ORDER, ASSIGNED))
+        self.assertTrue(assignment.pickup_address_in_ws_lang == u'אלנבי 1, תל אביב יפו')
 
     def test_originating_station(self):
         global PASSENGER
