@@ -13,7 +13,7 @@
             statusBar: 'black',
             addGlossToIcon: false,
 //            icon: '/static/images/mobile/icon.png',
-            startupScreen: '/static/images/mobile/pre-image.jpg',
+//            startupScreen: '/static/images/mobile/pre-image.jpg',
             cacheGetRequests: false,
             preloadImages: ['/static/images/mobile/loader.gif', '/static/images/mobile/gps_refresh_cancel.png']
         });
@@ -28,8 +28,15 @@
     <style type="text/css" media="screen">@import "/static/css/themes/apple/theme.css";</style>
     <link rel="stylesheet" href="/static/css/add2home.css">
     <link rel="stylesheet" type="text/css" href="/static/css/waybetter.mobile.css" />
-    <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 163dpi)" href="/static/images/mobile/icon.png" />
-    <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 326dpi)" href="/static/images/mobile/icon_114.png" />
+    {% if station %}
+        <link rel="apple-touch-startup-image" href="{{ station.app_splash_url }}">
+        <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 163dpi)" href="{{ station.app_icon_url }}" />
+        <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 326dpi)" href="{{ station.app_icon_url }}" />
+    {% else %}
+        <link rel="apple-touch-startup-image" href="/static/images/mobile/pre-image.jpg">
+        <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 163dpi)" href="/static/images/mobile/icon.png" />
+        <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 326dpi)" href="/static/images/mobile/icon_114.png" />
+    {% endif %}
 
     <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}css/ie.css{% endblock %}" /><![endif]-->
     {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}/static/css/rtl.mobile.css{% endblock %}" />{% endif %}
