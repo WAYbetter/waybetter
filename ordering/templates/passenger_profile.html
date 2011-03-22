@@ -11,6 +11,9 @@
         <span id="current_phone">{{ local_phone }}</span>
         <a id="change_phone" href="#">{% trans 'Change' %}</a>
     </p>
+    <p>
+        <label>{% trans 'Email' %}:</label>{{ email }}
+    </p>
     {{ form.as_p }}
     </div>
  <input type="submit" id="save_profile_changes" value="{% trans 'Save Changes' %}" class="wb_button blue"/>

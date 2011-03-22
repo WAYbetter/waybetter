@@ -650,7 +650,9 @@ var OrderHistoryHelper = Object.create({
                 SelectFromHistoryHelper.updateGrid();
             },
             error:      function(xhr, textStatus, errorThrown) {
-                alert('error loading history: ' + xhr.responseText);
+                if (console){
+                    console.log('error loading history: ' + xhr.responseText);
+                }
             }
         });
     },

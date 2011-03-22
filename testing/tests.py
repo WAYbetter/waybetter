@@ -34,10 +34,11 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.wait_for_element_and_click_at("login_link")
 
         self.login(wrong_username=True)
-        self.assertTrue(sel.get_text("login_error"))
+        self.wait_for_text(None , "login_error")
+        sel.get_eval('window.jQuery("#login_error").text("")')
 
         self.login(wrong_password=True)
-        self.assertTrue(sel.get_text("login_error"))
+        self.wait_for_text(None , "login_error")
 
         self.login_as_selenium()
         self.logout()
@@ -105,10 +106,10 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.login_as_selenium()
         self.wait_for_element_and_click_at("profile_tab_btn")
         self.wait_for_element_present("change_phone")
+
+        time.sleep(1)
         
         sel.click("change_phone")
-        sel.mouse_down("change_phone")
-        sel.mouse_up("change_phone")
         self.validate_phone(phone=new_phone)
         self.wait_for_text(new_phone, "current_phone")
 
@@ -213,7 +214,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.book_order(address)
         self.assertTrue(sel.get_text("ui-dialog-title-dialog") == u"לא ניתן להזמין נסיעה זו")
         sel.click("ok")
-        
+
     def test_order_as_passenger(self):
         logging.info("testing order as passenger")
         sel = self.selenium
@@ -241,11 +242,21 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.book_order(SELENIUM_ADDRESS)
         self.validate_phone()
         time.sleep(1)
-        self.assertTrue(sel.get_text("ui-dialog-title-dialog") == u"הזמנתך התקבלה!")
+        self.wait_for_text(u"הזמנתך התקבלה!", "ui-dialog-title-dialog")
         time.sleep(5)
         self.register()
         self.wait_for_element_present("logout_link")
         self.logout()
+
+    def test_station_subdomain(self):
+        logging.info("testing station subdomain")
+
+        # must use a new selenium instance (same origin policy)
+        sel = selenium("localhost", 4444, "*firefox", "http://ny.taxiapp.co.il")
+        sel.start()
+        sel.open("/")
+        self.assertTrue(sel.is_element_present("//a[@href='http://www.ny-taxi.co.il']"))
+        sel.stop()
 
     def test_station_side(self):
         logging.info("testing station side")
@@ -254,34 +265,32 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel.open("/stations")
 
         # test login
-        self.wait_for_element_and_click_at("id_station_login")
-        self.wait_for_alert()
+        self.wait_for_element_present("id_station_login")
         sel.type("id_username", SELENIUM_STATION_USER_NAME)
-        self.wait_for_alert()
-        sel.type("id_password", "wrong_password")
-        self.wait_for_alert()
         sel.type("id_password", SELENIUM_PASSWORD)
         sel.click("id_station_login")
 
         # order history page
         self.wait_for_element_and_click_at("//a[@href='#history']")
-        self.assertTrue(sel.is_text_present(u"היכל נוקיה"))
+        self.wait_for_text_present(u"היכל נוקיה")
 
         # profile page
         sel.click("//a[@href='#profile']")
+        self.wait_for_element_present("id_name")
+
         data = {
-            # id: (old_val, new_val),
-            '#id_name': (u'selenium_station', u'new_selenium_station'),
-            '#id_address': (SELENIUM_ADDRESS, u"new address"),
-            'id_number_of_taxis': ('5', '6'),
-            'id_website_url': ('http://selenium.waybetter.com','http://selenium.waybetter.co.il'),
-            'id_email': ('selenium_station@waybetter.com', 'selenium_station@waybetter.co.il'),
-            'id_description': ('','new description'),
-            '#id_phones-0-local_phone': (SELENIUM_PHONE, "123")
+            # id                       : (old_val, new_val),
+            '#id_name'                 : (u'selenium_station', u'new_selenium_station'),
+            '#id_address'              : (SELENIUM_ADDRESS, u"new address"),
+            '#id_number_of_taxis'      : ('5', '6'),
+            '#id_website_url'          : ('http://selenium.waybetter.com','http://selenium.waybetter.co.il'),
+            '#id_email'                : ('selenium_station@waybetter.com', 'selenium_station@waybetter.co.il'),
+            '#id_description'          : ('','new description'),
+            '#id_phones-0-local_phone' : (SELENIUM_PHONE, '123')
         }
 
         for id in data.keys():
-            self.assertTrue(sel.get_eval("window.jQuery(%s.val()" % id) == data[id][0])
+            self.assertTrue(sel.get_eval("window.jQuery('%s').val()"%id) == data[id][0])
             sel.type(id, data[id][1])
 
         sel.click("id_save_station_profile")
