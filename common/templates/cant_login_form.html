@@ -3,7 +3,7 @@
 
 {% block extra_script %}
     <script type="text/javascript">
-        form_config.dialog_config.title = "{% trans 'Reset your password' %}";
+        form_config.dialog_config.title = "{% trans 'Phone authentication' %}";
         form_config.urls.validate_phone = "{% url ordering.passenger_controller.validate_phone %}";
         form_config.messages.enter_mobile = "{% trans 'Phone you registered with' %}";
         form_config.error_messages.phone_not_regsitered = "{% trans 'Phone not registered. <a href=# class=join_link>Join</a>' %}";

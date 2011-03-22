@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-16 17:45+0200\n"
-"PO-Revision-Date: 2011-03-16 18:18+0200\n"
+"POT-Creation-Date: 2011-03-21 15:54+0200\n"
+"PO-Revision-Date: 2011-03-21 16:06+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -235,8 +235,8 @@ msgid "Invalid value: %s"
 msgstr "ערך לא חוקי: %s"
 
 #: common/templates/cant_login_form.html:6
-msgid "Reset your password"
-msgstr "איפוס סיסמא"
+msgid "Phone authentication"
+msgstr "זיהוי טלפון"
 
 #: common/templates/cant_login_form.html:8
 msgid "Phone you registered with"
@@ -255,7 +255,7 @@ msgid "An SMS verification code was sent to you. Please fill it to confirm your 
 msgstr "קוד אימות נשלח אליך בSMS. נא להזין לאישור הפרטים שלך"
 
 #: common/templates/code_form.html:18
-#: common/templates/phone_verification_form.html:80
+#: common/templates/phone_verification_form.html:85
 msgid "Enter SMS code"
 msgstr " קוד ה-SMS שקיבלת"
 
@@ -265,30 +265,41 @@ msgid "Finish"
 msgstr "סיום"
 
 #: common/templates/credentials_form.html:6
-msgid "Change account credentials"
-msgstr "שינוי פרטי חשבון"
-
-#: common/templates/credentials_form.html:19
-msgid "Choose a new Password"
-msgstr "סיסמא חדשה"
-
-#: common/templates/credentials_form.html:21
-#: common/templates/registration_form.html:95
-msgid "Re-enter Password"
-msgstr "וידוא סיסמה (עוד פעם)"
+msgid "Reset account credentials"
+msgstr "חידוש פרטי חשבון"
 
 #: common/templates/credentials_form.html:24
-msgid "Change registered email"
-msgstr "שנה דוא\"ל רשום"
+msgid "Change email address"
+msgstr "שינוי כתובת דוא&#34;ל"
 
 #: common/templates/credentials_form.html:26
 #: common/templates/registration_form.html:14
 msgid "Enter your email"
 msgstr "הכנס את כתובת הדוא&#34;ל שלך"
 
-#: common/templates/credentials_form.html:31
-msgid "Save"
-msgstr ""
+#: common/templates/credentials_form.html:30
+msgid "(Optional)"
+msgstr "(לא חובה)"
+
+#: common/templates/credentials_form.html:32
+#: common/templates/registration_form.html:93
+msgid "Choose Password"
+msgstr "בחירת סיסמה"
+
+#: common/templates/credentials_form.html:34
+#: common/templates/registration_form.html:95
+msgid "Re-enter Password"
+msgstr "וידוא סיסמה (עוד פעם)"
+
+#: common/templates/credentials_form.html:38
+#: common/templates/login_form.html:5
+#: common/templates/login_form.html:49
+#: common/templates/phone_verification_form.html:90
+#: ordering/templates/base_passenger.html:52
+#: ordering/templates/base_station.html:51
+#: ordering/templates/station_page.html:61
+msgid "Login"
+msgstr "כניסה"
 
 #: common/templates/error_form.html:12
 #: common/templates/feedback_form.html:12
@@ -343,15 +354,6 @@ msgstr "סגירה"
 msgid "Thanks, your feedback has been sent"
 msgstr "תגובתך התקבלה. תודה רבה!"
 
-#: common/templates/login_form.html:5
-#: common/templates/login_form.html:49
-#: common/templates/phone_verification_form.html:85
-#: ordering/templates/base_passenger.html:52
-#: ordering/templates/base_station.html:51
-#: ordering/templates/station_page.html:61
-msgid "Login"
-msgstr "כניסה"
-
 #: common/templates/login_form.html:18
 #: common/templates/registration_form.html:25
 msgid "Invalid email address"
@@ -377,8 +379,8 @@ msgid "Password"
 msgstr "סיסמה"
 
 #: common/templates/login_form.html:44
-msgid "Can't access my account"
-msgstr "שכחתי סיסמא/דוא\"ל"
+msgid "Can't access your account? <a href='#'> Click here</a>"
+msgstr "לא מצליח להכנס? <a href='#'> לחץ פה</a>"
 
 #: common/templates/phone_verification_form.html:9
 msgid "Activate Your Phone (Free)"
@@ -429,11 +431,11 @@ msgstr "המספר ארוך מדי"
 msgid "Only digits please"
 msgstr "ספרות בלבד בבקשה"
 
-#: common/templates/phone_verification_form.html:78
+#: common/templates/phone_verification_form.html:83
 msgid "Local Mobile Phone Number"
 msgstr "מספר טלפון נייד"
 
-#: common/templates/phone_verification_form.html:85
+#: common/templates/phone_verification_form.html:90
 msgid "Already Registered?"
 msgstr "כבר הצטרפת?"
 
@@ -482,10 +484,6 @@ msgstr "בינתיים, השלם את הרשמתך ל<span class=waybetter></spa
 #: common/templates/registration_form.html:91
 msgid "Your Email"
 msgstr "הדוא&#34;ל שלך"
-
-#: common/templates/registration_form.html:93
-msgid "Choose Password"
-msgstr "בחירת סיסמה"
 
 #: common/templates/registration_form.html:98
 msgid "Get emails from waybetter (we promise not to spam)"
@@ -1247,57 +1245,57 @@ msgstr ""
 msgid "You can't rate this order"
 msgstr "אין אפשרות לדרג הזמנה זו"
 
-#: ordering/passenger_controller.py:153
+#: ordering/passenger_controller.py:154
 msgid "Ride estimation not available"
 msgstr ""
 
-#: ordering/passenger_controller.py:158
+#: ordering/passenger_controller.py:159
 msgid "Estimated ride cost"
 msgstr "מחיר נסיעה משוער"
 
-#: ordering/passenger_controller.py:161
+#: ordering/passenger_controller.py:162
 msgid "Flat rate"
 msgstr "מחיר מחירון"
 
-#: ordering/passenger_controller.py:167
+#: ordering/passenger_controller.py:168
 msgid "min"
 msgstr "דקות"
 
-#: ordering/passenger_controller.py:194
-#: ordering/passenger_controller.py:214
+#: ordering/passenger_controller.py:195
+#: ordering/passenger_controller.py:215
 msgid "Your Ride Could Not Be Ordered"
 msgstr "לא ניתן להזמין נסיעה זו"
 
-#: ordering/passenger_controller.py:195
+#: ordering/passenger_controller.py:196
 msgid "Ordering is not allowed so soon after another order"
 msgstr "לא ניתן להזמין כמה נסיעות בסמיכות."
 
-#: ordering/passenger_controller.py:281
+#: ordering/passenger_controller.py:282
 #, python-format
 msgid "Verification code: %s"
 msgstr "קוד אימות: %s"
 
-#: ordering/passenger_controller.py:294
+#: ordering/passenger_controller.py:295
 msgid "Invalid verification code"
 msgstr "קוד SMS שגוי"
 
-#: ordering/passenger_controller.py:337
+#: ordering/passenger_controller.py:338
 msgid "this email is registered with multiple users, cannot log you in"
 msgstr ""
 
-#: ordering/passenger_controller.py:339
+#: ordering/passenger_controller.py:340
 msgid "wrong email"
-msgstr "כתובת דו\"אל שגויה"
+msgstr "כתובת דוא\"ל שגויה"
 
-#: ordering/passenger_controller.py:345
+#: ordering/passenger_controller.py:346
 msgid "wrong email/password"
 msgstr "כתובת דוא\"ל או הסיסמה אינם נכונים"
 
-#: ordering/passenger_controller.py:355
+#: ordering/passenger_controller.py:356
 msgid "Must have a user to change credentials"
 msgstr ""
 
-#: ordering/passenger_controller.py:358
+#: ordering/passenger_controller.py:359
 #: ordering/passenger_controller.py:384
 msgid "Missing required parameters"
 msgstr "שדות חסרים"
@@ -1572,9 +1570,8 @@ msgid "Phone number"
 msgstr "מספר טלפון"
 
 #: ordering/templates/passenger_profile.html:12
-#, fuzzy
 msgid "Change"
-msgstr "שמירה"
+msgstr "שינוי"
 
 #: ordering/templates/passenger_profile.html:16
 #: ordering/templates/station_profile.html:25
@@ -1582,9 +1579,8 @@ msgid "Save Changes"
 msgstr "שמירה"
 
 #: ordering/templates/passenger_profile.html:23
-#, fuzzy
 msgid "Changes saved!"
-msgstr "שינוי סיסמה"
+msgstr "השינויים נשמרו!"
 
 #: ordering/templates/passenger_profile.html:24
 msgid "Error while saving changes"
@@ -2121,6 +2117,12 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
 
+#~ msgid "Reset your password"
+#~ msgstr "איפוס סיסמא"
+#~ msgid "Choose a new Password"
+#~ msgstr "סיסמא חדשה"
+#~ msgid "Change registered email"
+#~ msgstr "שנה דוא\"ל רשום"
 #~ msgid "Welcome Back!"
 #~ msgstr "ברוך שובך!"
 #~ msgid "Logo"
