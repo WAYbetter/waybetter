@@ -231,8 +231,6 @@ class PassengerProfileForm(forms.Form):
         pass
 
 class InternalPassengerProfileForm(PassengerProfileForm):
-    email = forms.EmailField(label=_("Email"))
-
     first_name =  forms.CharField(label=_("First name"), widget=forms.TextInput(), required=False)
     last_name =  forms.CharField(label=_("Last name"), widget=forms.TextInput(), required=False)
 
