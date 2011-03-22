@@ -70,6 +70,8 @@ class Station(models.Model):
     language = models.IntegerField(_("language"), choices=LANGUAGE_CHOICES, default=0)
     show_on_list = models.BooleanField(_("show on list"), default=False)
     subdomain_name = models.CharField(_("subdomain name"), max_length=50, blank=True, null=True, unique=True)
+    app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True, verify_exists=False)
+    app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True, verify_exists=False)
 
     last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True, default=datetime(1,1,1))
 
