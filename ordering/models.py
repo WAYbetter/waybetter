@@ -85,6 +85,9 @@ class Station(models.Model):
     lon = models.FloatField(_("longtitude"), null=True)
     lat = models.FloatField(_("latitude"), null=True)
 
+    app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True, verify_exists=False)
+    app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True, verify_exists=False)
+
     number_of_ratings = models.IntegerField(_("number of ratings"), default=0)
     average_rating = models.FloatField(_("average rating"), default=0.0)
 
