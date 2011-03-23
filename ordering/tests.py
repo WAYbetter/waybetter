@@ -6,18 +6,19 @@ from django.core.urlresolvers import reverse
 from common.models import City, Country
 
 import ordering
-from ordering.models import Passenger, Order, WorkStation, Station, OrderAssignment, IGNORED, PENDING, ASSIGNED, ACCEPTED, Phone
+from ordering.models import Passenger, WorkStation, Station, OrderAssignment, IGNORED, ASSIGNED, ACCEPTED, Phone
 from ordering.forms import OrderForm
 from ordering.dispatcher import assign_order, choose_workstation
 from ordering.order_manager import NO_MATCHING_WORKSTATIONS_FOUND, ORDER_HANDLED, OK, accept_order
 import station_controller
 import station_connection_manager
-from ordering.station_connection_manager import set_heartbeat, is_workstation_available
-from ordering.decorators import passenger_required, passenger_required_no_redirect, NOT_A_USER, NOT_A_PASSENGER, CURRENT_PASSENGER_KEY
-from ordering.pricing import estimate_cost, IsraelExtraCosts, CostType, TARIFF1_START, TARIFF2_START, SABBATH_START
+from ordering.station_connection_manager import set_heartbeat
+from ordering.decorators import NOT_A_PASSENGER
+from ordering.pricing import estimate_cost, IsraelExtraCosts, CostType, setup_israel_meter_and_extra_charge_rules, tariff1_dict, tariff2_dict
+from ordering.rules_controller import add_flat_rate_rule
 
 from testing import setup_testing_env
-from testing.meter_calculator import calculate_tariff, tariff1_dict, tariff2_dict
+from testing.meter_calculator import calculate_tariff
 
 import logging
 import time
@@ -284,8 +285,8 @@ class DispatcherTest(TestCase):
         ORDER.originating_station = tel_aviv_station
         ORDER.save()
 
-          # the call made by book_order_async
-        response = self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": ORDER.id})
+        # the call made by book_order_async
+        self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": ORDER.id})
         PASSENGER = Passenger.objects.get(id=PASSENGER.id) # refresh passenger
         self.assertTrue(PASSENGER.originating_station == tel_aviv_station, "PASSENGER.originating_station should be tel_aviv_station and not %s" % PASSENGER.originating_station)
 
@@ -372,22 +373,21 @@ class DispatcherTest(TestCase):
 
         self.assertTrue(choose_workstation(ORDER).station == default_station, "Other Tel Aviv station is expected")
 
-
-
 class PricingTest(TestCase):
     """
     Unit test for pricing algorithm.
     """
-    fixtures = ['countries.yaml', 'cities.yaml', 'pricing_test_data']
+    fixtures = ['countries.yaml', 'cities.yaml']
 
     def setUp(self):
         # init Israel test
         self.IL = Country.objects.filter(code="IL").get()
+        setup_israel_meter_and_extra_charge_rules()
         self.phone_order_price = self.IL.extra_charge_rules.get(rule_name=IsraelExtraCosts.PHONE_ORDER).cost
         self.t, self.d = 768, 4110
-        logging.info("Testing meter cost estimation, with estimated duration: %d & estimated distance: %d" % (self.t, self.d))
 
     def test_meter_cost(self):
+        logging.info("Testing meter cost estimation, with estimated duration: %d & estimated distance: %d" % (self.t, self.d))
         IL = self.IL
         t, d = self.t, self.d
         
@@ -399,37 +399,52 @@ class PricingTest(TestCase):
         expected_cost = calculate_tariff(t, d, tariff1_dict) + self.phone_order_price
 
         cost, type = estimate_cost(t, d, IL.code, day=1,time=datetime.time(05, 30, 00))
-        self.assertEqual((cost, type), (expected_cost, expected_type), "tariff 1 estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertEqual(type, expected_type)
+        self.assertAlmostEqual(cost, expected_cost, places=2, msg="tariff 1 estimation failed: %d (expected %d)" % (cost, expected_cost))
+
         cost, type = estimate_cost(t, d, IL.code, day=1, time=datetime.time(20, 59, 59))
-        self.assertEqual((cost, type), (expected_cost, expected_type), "tariff 1 estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertEqual(type, expected_type)
+        self.assertAlmostEqual(cost, expected_cost, places=2, msg="tariff 1 estimation failed: %d (expected %d)" % (cost, expected_cost))
+
         cost, type = estimate_cost(t, d, IL.code, day=6, time=datetime.time(16, 59, 59))
-        self.assertEqual((cost, type), (expected_cost, expected_type), "Friday estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertEqual(type, expected_type)
+        self.assertAlmostEqual(cost, expected_cost, places=2, msg="Friday estimation failed: %d (expected %d)" % (cost, expected_cost))
 
         expected_cost += extras_cost
         cost, type = estimate_cost(t, d, IL.code, time=datetime.time(12, 00), extras=extras)
-        self.assertEqual((cost, type), (expected_cost, expected_type), "tariff 1 + extras' estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertEqual(type, expected_type)
+        self.assertAlmostEqual(cost, expected_cost, places=2, msg="tariff 1 + extras' estimation failed: %d (expected %d)" % (cost, expected_cost))
 
         # tariff2 test
         expected_cost = calculate_tariff(t, d, tariff2_dict) + self.phone_order_price
 
         cost, type = estimate_cost(t, d, IL.code, day=1, time=datetime.time(21, 00, 00))
-        self.assertEqual((cost, type), (expected_cost, expected_type), "tariff 2 estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertEqual(type, expected_type)
+        self.assertAlmostEqual(cost, expected_cost, places=2, msg="tariff 2 estimation failed: %d (expected %d)" % (cost, expected_cost))
+
         cost, type = estimate_cost(t, d, IL.code, day=1, time=datetime.time(05, 29, 59))
-        self.assertEqual((cost, type), (expected_cost, expected_type), "tariff 2 estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertEqual(type, expected_type)
+        self.assertAlmostEqual(cost, expected_cost, places=2, msg="tariff 2 estimation failed: %d (expected %d)" % (cost, expected_cost))
+
         cost, type = estimate_cost(t, d, IL.code, day=6, time=datetime.time(17, 00, 00))
-        self.assertEqual((cost, type), (expected_cost, expected_type), "Friday estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertEqual(type, expected_type)
+        self.assertAlmostEqual(cost, expected_cost, places=2, msg="Friday estimation failed: %d (expected %d)" % (cost, expected_cost))
+
         cost, type = estimate_cost(t, d, IL.code, day=7, time=datetime.time(23, 59, 59))
-        self.assertEqual((cost, type), (expected_cost, expected_type), "Saturday estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertEqual(type, expected_type)
+        self.assertAlmostEqual(cost, expected_cost, places=2, msg="Saturday estimation failed: %d (expected %d)" % (cost, expected_cost))
 
         expected_cost += extras_cost
         cost, type = estimate_cost(t, d, IL.code, time=datetime.time(22, 00), extras=extras)
-        self.assertEqual((cost, type), (expected_cost, expected_type), "tariff 2 + extras' estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertEqual(type, expected_type)
+        self.assertAlmostEqual(cost, expected_cost, places=2, msg="tariff 2 + extras' estimation failed: %d (expected %d)" % (cost, expected_cost))
 
     def test_flat_rate_cost(self):
         IL = self.IL
         t, d = self.t, self.d
         city_a = City.objects.get(name="תל אביב יפו")
         city_b = City.objects.get(name="אור יהודה")
+        add_flat_rate_rule(country=IL, from_city=city_a, to_city=city_b, fixed_cost_tariff_1=66, fixed_cost_tariff_2=70)
 
         expected_type = CostType.FLAT
         logging.info("Testing flat rate prices, with cities: %s , %s" % (city_a.name, city_b.name))
