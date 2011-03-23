@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-23 18:05+0200\n"
+"POT-Creation-Date: 2011-03-23 19:49+0200\n"
 "PO-Revision-Date: 2011-03-17 17:07+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 
 #: settings.py:106
 msgid "Hebrew"
@@ -192,6 +192,18 @@ msgstr ""
 msgid "Invalid value: %s"
 msgstr ""
 
+#: common/templates/cant_login_form.html:6
+msgid "Phone authentication"
+msgstr ""
+
+#: common/templates/cant_login_form.html:8
+msgid "Phone you registered with"
+msgstr ""
+
+#: common/templates/cant_login_form.html:9
+msgid "Phone not registered. <a href=# class=join_link>Join</a>"
+msgstr ""
+
 #: common/templates/code_form.html:8
 msgid "Fill in to finish registration"
 msgstr ""
@@ -203,7 +215,7 @@ msgid ""
 msgstr ""
 
 #: common/templates/code_form.html:18
-#: common/templates/phone_verification_form.html:43
+#: common/templates/phone_verification_form.html:85
 msgid "Enter SMS code"
 msgstr ""
 
@@ -211,6 +223,43 @@ msgstr ""
 #: ordering/templates/mobile/passenger_home.html:166
 #: templates/mobile/base.html:91
 msgid "Finish"
+msgstr ""
+
+#: common/templates/credentials_form.html:6
+msgid "Reset account credentials"
+msgstr ""
+
+#: common/templates/credentials_form.html:27
+#, fuzzy
+msgid "Change email address"
+msgstr "Pickup address (number, street, city)"
+
+#: common/templates/credentials_form.html:29
+#: common/templates/registration_form.html:14
+msgid "Enter your email"
+msgstr ""
+
+#: common/templates/credentials_form.html:37
+msgid "(Optional)"
+msgstr ""
+
+#: common/templates/credentials_form.html:40
+#: common/templates/registration_form.html:93
+msgid "Choose Password"
+msgstr ""
+
+#: common/templates/credentials_form.html:42
+#: common/templates/registration_form.html:95
+msgid "Re-enter Password"
+msgstr ""
+
+#: common/templates/credentials_form.html:46
+#: common/templates/login_form.html:5 common/templates/login_form.html:49
+#: common/templates/phone_verification_form.html:90
+#: ordering/templates/base_passenger.html:52
+#: ordering/templates/base_station.html:51
+#: ordering/templates/station_page.html:64
+msgid "Login"
 msgstr ""
 
 #: common/templates/error_form.html:12 common/templates/feedback_form.html:12
@@ -226,7 +275,7 @@ msgstr ""
 #: common/templates/error_form.html:14 common/templates/error_form.html:27
 #: common/templates/feedback_form.html:14 common/templates/login_form.html:14
 #: common/templates/registration_form.html:21
-#: common/templates/registration_form.html:41
+#: common/templates/registration_form.html:84
 #: common/templates/terms_form.html:14 common/templates/terms_form.html:32
 msgid "OK"
 msgstr ""
@@ -259,57 +308,49 @@ msgstr ""
 msgid "Thanks, your feedback has been sent"
 msgstr ""
 
-#: common/templates/login_form.html:5
-msgid "Welcome Back!"
-msgstr ""
-
 #: common/templates/login_form.html:18
 #: common/templates/registration_form.html:25
 msgid "Invalid email address"
 msgstr ""
 
-#: common/templates/login_form.html:29
+#: common/templates/login_form.html:32
 msgid "Don't have an account?"
 msgstr ""
 
-#: common/templates/login_form.html:29
+#: common/templates/login_form.html:32
 msgid "Join Now!"
 msgstr ""
 
-#: common/templates/login_form.html:33 interests/models.py:7
+#: common/templates/login_form.html:36 interests/models.py:7
 #: ordering/forms.py:182 ordering/templates/passenger_profile.html:15
 msgid "Email"
 msgstr ""
 
-#: common/templates/login_form.html:35
+#: common/templates/login_form.html:38
 msgid "Password"
 msgstr ""
 
-#: common/templates/login_form.html:42
-#: common/templates/phone_verification_form.html:46
-#: ordering/templates/base_passenger.html:50
-#: ordering/templates/base_station.html:51
-#: ordering/templates/station_page.html:64
-msgid "Login"
+#: common/templates/login_form.html:44
+msgid "Can't access your account? <a href='#'> Click here</a>"
 msgstr ""
 
 #: common/templates/phone_verification_form.html:9
 msgid "Activate Your Phone (Free)"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:18
+#: common/templates/phone_verification_form.html:17
 msgid "PRESS TO SEND SMS CODE"
 msgstr "CLICK TO SEND SMS CODE"
 
-#: common/templates/phone_verification_form.html:19
+#: common/templates/phone_verification_form.html:18
 msgid "CODE SENT"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:20
+#: common/templates/phone_verification_form.html:19
 msgid "FINISH"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:21
+#: common/templates/phone_verification_form.html:20
 #: ordering/templates/passenger_home.html:29
 #: ordering/templates/station_page.html:32
 #: ordering/templates/workstation_home.html:501
@@ -317,45 +358,41 @@ msgstr ""
 msgid "Sending..."
 msgstr ""
 
-#: common/templates/phone_verification_form.html:22
+#: common/templates/phone_verification_form.html:21
 msgid "Enter your mobile phone #"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:23
+#: common/templates/phone_verification_form.html:22
 msgid "Enter SMS Ver. Code"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:24
+#: common/templates/phone_verification_form.html:23
 msgid "Number too short"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:27
+#: common/templates/phone_verification_form.html:26
 msgid "Phone already in use. <a href=# class=login_link>Login</a>"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:28
+#: common/templates/phone_verification_form.html:27
 msgid "Number too long"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:29
+#: common/templates/phone_verification_form.html:28
 msgid "Only digits please"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:41
+#: common/templates/phone_verification_form.html:83
 msgid "Local Mobile Phone Number"
 msgstr ""
 
-#: common/templates/phone_verification_form.html:46
+#: common/templates/phone_verification_form.html:90
 msgid "Already Registered?"
 msgstr ""
 
 #: common/templates/registration_form.html:6
 #: common/templates/registration_form.html:18
 msgid "YOUR ORDER HAS BEEN RECEIVED"
-msgstr ""
-
-#: common/templates/registration_form.html:14
-msgid "Enter your email"
 msgstr ""
 
 #: common/templates/registration_form.html:15
@@ -379,7 +416,7 @@ msgid "An SMS with ride details will be sent soon"
 msgstr ""
 
 #: common/templates/registration_form.html:24
-#: ordering/passenger_controller.py:357
+#: ordering/passenger_controller.py:372
 msgid "Email already registered"
 msgstr ""
 
@@ -387,31 +424,23 @@ msgstr ""
 msgid "Passwords do not match"
 msgstr ""
 
-#: common/templates/registration_form.html:40
+#: common/templates/registration_form.html:83
 msgid "An SMS with ride details will arrive shortly..."
 msgstr ""
 
-#: common/templates/registration_form.html:44
+#: common/templates/registration_form.html:87
 msgid "In the meantime, join for better experience (free)"
 msgstr ""
 
-#: common/templates/registration_form.html:48
+#: common/templates/registration_form.html:91
 msgid "Your Email"
 msgstr ""
 
-#: common/templates/registration_form.html:50
-msgid "Choose Password"
-msgstr ""
-
-#: common/templates/registration_form.html:52
-msgid "Re-enter Password"
-msgstr ""
-
-#: common/templates/registration_form.html:55
+#: common/templates/registration_form.html:98
 msgid "Get emails from waybetter (we promise not to spam)"
 msgstr ""
 
-#: common/templates/registration_form.html:59
+#: common/templates/registration_form.html:102
 msgid "JOIN"
 msgstr ""
 
@@ -428,7 +457,7 @@ msgid "(Or)"
 msgstr ""
 
 #: common/templates/social_login.html:48
-msgid "register using your account at:"
+msgid "login using your account at:"
 msgstr ""
 
 #: common/templates/terms_form.html:5
@@ -1115,52 +1144,60 @@ msgstr ""
 msgid "You can't rate this order"
 msgstr ""
 
-#: ordering/passenger_controller.py:153
+#: ordering/passenger_controller.py:154
 msgid "Ride estimation not available"
 msgstr ""
 
-#: ordering/passenger_controller.py:158
+#: ordering/passenger_controller.py:159
 msgid "Estimated ride cost"
 msgstr ""
 
-#: ordering/passenger_controller.py:161
+#: ordering/passenger_controller.py:162
 msgid "Flat rate"
 msgstr ""
 
-#: ordering/passenger_controller.py:167
+#: ordering/passenger_controller.py:168
 msgid "min"
 msgstr ""
 
-#: ordering/passenger_controller.py:194 ordering/passenger_controller.py:214
+#: ordering/passenger_controller.py:195 ordering/passenger_controller.py:215
 msgid "Your Ride Could Not Be Ordered"
 msgstr ""
 
-#: ordering/passenger_controller.py:195
+#: ordering/passenger_controller.py:196
 msgid "Ordering is not allowed so soon after another order"
 msgstr ""
 
-#: ordering/passenger_controller.py:281
+#: ordering/passenger_controller.py:273
 #, python-format
 msgid "Verification code: %s"
 msgstr ""
 
-#: ordering/passenger_controller.py:294
+#: ordering/passenger_controller.py:286
 msgid "Invalid verification code"
 msgstr ""
 
-#: ordering/passenger_controller.py:337
+#: ordering/passenger_controller.py:311
+msgid "Phone has multiple passengers"
+msgstr ""
+
+#: ordering/passenger_controller.py:332
 msgid "this email is registered with multiple users, cannot log you in"
 msgstr ""
 
-#: ordering/passenger_controller.py:339
+#: ordering/passenger_controller.py:334
 msgid "wrong email"
 msgstr ""
 
-#: ordering/passenger_controller.py:345
+#: ordering/passenger_controller.py:340
 msgid "wrong email/password"
 msgstr ""
 
-#: ordering/passenger_controller.py:360
+#: ordering/passenger_controller.py:350
+msgid "Must have a user to change credentials"
+msgstr ""
+
+#: ordering/passenger_controller.py:353 ordering/passenger_controller.py:375
 msgid "Missing required parameters"
 msgstr ""
 
@@ -1233,7 +1270,7 @@ msgstr ""
 "Instead of looking for a local cab station, calling only to be put on hold, "
 "ordering a cab and then waiting in hope that the station will serve you."
 
-#: ordering/templates/base_passenger.html:50
+#: ordering/templates/base_passenger.html:52
 msgid "Join!"
 msgstr ""
 

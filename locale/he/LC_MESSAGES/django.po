@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-23 18:05+0200\n"
-"PO-Revision-Date: 2011-03-23 18:06+0200\n"
-"Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
+"POT-Creation-Date: 2011-03-23 19:49+0200\n"
+"PO-Revision-Date: 2011-03-23 19:52+0200\n"
+"Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "X-Translated-Using: django-rosetta 0.5.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -234,6 +234,18 @@ msgstr "ערים"
 msgid "Invalid value: %s"
 msgstr "ערך לא חוקי: %s"
 
+#: common/templates/cant_login_form.html:6
+msgid "Phone authentication"
+msgstr "זיהוי טלפון"
+
+#: common/templates/cant_login_form.html:8
+msgid "Phone you registered with"
+msgstr "הטלפון איתו נרשמת"
+
+#: common/templates/cant_login_form.html:9
+msgid "Phone not registered. <a href=# class=join_link>Join</a>"
+msgstr "הטלפון לא רשום.  <a href=# class=join_link>הצטרף!</a>"
+
 #: common/templates/code_form.html:8
 msgid "Fill in to finish registration"
 msgstr "יש למלא לסיום ההצטרפות"
@@ -243,7 +255,7 @@ msgid "An SMS verification code was sent to you. Please fill it to confirm your 
 msgstr "קוד אימות נשלח אליך בSMS. נא להזין לאישור הפרטים שלך"
 
 #: common/templates/code_form.html:18
-#: common/templates/phone_verification_form.html:43
+#: common/templates/phone_verification_form.html:85
 msgid "Enter SMS code"
 msgstr " קוד ה-SMS שקיבלת"
 
@@ -252,6 +264,43 @@ msgstr " קוד ה-SMS שקיבלת"
 #: templates/mobile/base.html:91
 msgid "Finish"
 msgstr "סיום"
+
+#: common/templates/credentials_form.html:6
+msgid "Reset account credentials"
+msgstr "שינוי פרטי חשבון"
+
+#: common/templates/credentials_form.html:27
+msgid "Change email address"
+msgstr "שינוי כתובת דוא&#34;ל"
+
+#: common/templates/credentials_form.html:29
+#: common/templates/registration_form.html:14
+msgid "Enter your email"
+msgstr "הכנס את כתובת הדוא&#34;ל שלך"
+
+#: common/templates/credentials_form.html:37
+msgid "(Optional)"
+msgstr "(לא חובה)"
+
+#: common/templates/credentials_form.html:40
+#: common/templates/registration_form.html:93
+msgid "Choose Password"
+msgstr "בחירת סיסמה"
+
+#: common/templates/credentials_form.html:42
+#: common/templates/registration_form.html:95
+msgid "Re-enter Password"
+msgstr "וידוא סיסמה (עוד פעם)"
+
+#: common/templates/credentials_form.html:46
+#: common/templates/login_form.html:5
+#: common/templates/login_form.html:49
+#: common/templates/phone_verification_form.html:90
+#: ordering/templates/base_passenger.html:52
+#: ordering/templates/base_station.html:51
+#: ordering/templates/station_page.html:64
+msgid "Login"
+msgstr "כניסה"
 
 #: common/templates/error_form.html:12
 #: common/templates/feedback_form.html:12
@@ -272,7 +321,7 @@ msgstr "הסיסמה שלך"
 #: common/templates/feedback_form.html:14
 #: common/templates/login_form.html:14
 #: common/templates/registration_form.html:21
-#: common/templates/registration_form.html:41
+#: common/templates/registration_form.html:84
 #: common/templates/terms_form.html:14
 #: common/templates/terms_form.html:32
 msgid "OK"
@@ -306,59 +355,51 @@ msgstr "סגירה"
 msgid "Thanks, your feedback has been sent"
 msgstr "תגובתך התקבלה. תודה רבה!"
 
-#: common/templates/login_form.html:5
-msgid "Welcome Back!"
-msgstr "ברוך שובך!"
-
 #: common/templates/login_form.html:18
 #: common/templates/registration_form.html:25
 msgid "Invalid email address"
 msgstr "כתובת דוא&#34;ל לא חוקית"
 
-#: common/templates/login_form.html:29
+#: common/templates/login_form.html:32
 msgid "Don't have an account?"
 msgstr "לא נרשמת?"
 
-#: common/templates/login_form.html:29
+#: common/templates/login_form.html:32
 msgid "Join Now!"
 msgstr "להצטרפות!"
 
-#: common/templates/login_form.html:33
+#: common/templates/login_form.html:36
 #: interests/models.py:7
 #: ordering/forms.py:182
 #: ordering/templates/passenger_profile.html:15
 msgid "Email"
 msgstr "דוא\"ל"
 
-#: common/templates/login_form.html:35
+#: common/templates/login_form.html:38
 msgid "Password"
 msgstr "סיסמה"
 
-#: common/templates/login_form.html:42
-#: common/templates/phone_verification_form.html:46
-#: ordering/templates/base_passenger.html:50
-#: ordering/templates/base_station.html:51
-#: ordering/templates/station_page.html:64
-msgid "Login"
-msgstr "כניסה"
+#: common/templates/login_form.html:44
+msgid "Can't access your account? <a href='#'> Click here</a>"
+msgstr "לא מצליח להכנס? <a href='#'> לחץ פה</a>"
 
 #: common/templates/phone_verification_form.html:9
 msgid "Activate Your Phone (Free)"
 msgstr "אימות פרטי טלפון ב SMS (חינם)"
 
-#: common/templates/phone_verification_form.html:18
+#: common/templates/phone_verification_form.html:17
 msgid "PRESS TO SEND SMS CODE"
 msgstr "לחץ לשליחת קוד SMS"
 
-#: common/templates/phone_verification_form.html:19
+#: common/templates/phone_verification_form.html:18
 msgid "CODE SENT"
 msgstr "קוד SMS נשלח"
 
-#: common/templates/phone_verification_form.html:20
+#: common/templates/phone_verification_form.html:19
 msgid "FINISH"
 msgstr "סיום"
 
-#: common/templates/phone_verification_form.html:21
+#: common/templates/phone_verification_form.html:20
 #: ordering/templates/passenger_home.html:29
 #: ordering/templates/station_page.html:32
 #: ordering/templates/workstation_home.html:501
@@ -366,35 +407,35 @@ msgstr "סיום"
 msgid "Sending..."
 msgstr "שולח..."
 
-#: common/templates/phone_verification_form.html:22
+#: common/templates/phone_verification_form.html:21
 msgid "Enter your mobile phone #"
 msgstr " מספר הטלפון הנייד שלך"
 
-#: common/templates/phone_verification_form.html:23
+#: common/templates/phone_verification_form.html:22
 msgid "Enter SMS Ver. Code"
 msgstr " קוד ה-SMS שקיבלת"
 
-#: common/templates/phone_verification_form.html:24
+#: common/templates/phone_verification_form.html:23
 msgid "Number too short"
 msgstr "מספר קצר מדי"
 
-#: common/templates/phone_verification_form.html:27
+#: common/templates/phone_verification_form.html:26
 msgid "Phone already in use. <a href=# class=login_link>Login</a>"
 msgstr "הטלפון כבר רשום. <a href=# class=login_link>כניסה</a>"
 
-#: common/templates/phone_verification_form.html:28
+#: common/templates/phone_verification_form.html:27
 msgid "Number too long"
 msgstr "המספר ארוך מדי"
 
-#: common/templates/phone_verification_form.html:29
+#: common/templates/phone_verification_form.html:28
 msgid "Only digits please"
 msgstr "ספרות בלבד בבקשה"
 
-#: common/templates/phone_verification_form.html:41
+#: common/templates/phone_verification_form.html:83
 msgid "Local Mobile Phone Number"
 msgstr "מספר טלפון נייד"
 
-#: common/templates/phone_verification_form.html:46
+#: common/templates/phone_verification_form.html:90
 msgid "Already Registered?"
 msgstr "כבר הצטרפת?"
 
@@ -402,10 +443,6 @@ msgstr "כבר הצטרפת?"
 #: common/templates/registration_form.html:18
 msgid "YOUR ORDER HAS BEEN RECEIVED"
 msgstr "הזמנתך התקבלה!"
-
-#: common/templates/registration_form.html:14
-msgid "Enter your email"
-msgstr "הכנס את כתובת הדוא&#34;ל שלך"
 
 #: common/templates/registration_form.html:15
 msgid "Choose a password"
@@ -428,7 +465,7 @@ msgid "An SMS with ride details will be sent soon"
 msgstr "התחנות הקרובות מחפשות עבורך מונית פנויה. הודעת SMS עם פרטי הנסיעה תשלח אליך מיד..."
 
 #: common/templates/registration_form.html:24
-#: ordering/passenger_controller.py:357
+#: ordering/passenger_controller.py:372
 msgid "Email already registered"
 msgstr "דוא&#34;ל כבר רשום"
 
@@ -436,31 +473,23 @@ msgstr "דוא&#34;ל כבר רשום"
 msgid "Passwords do not match"
 msgstr "אין התאמה בין הסיסמאות"
 
-#: common/templates/registration_form.html:40
+#: common/templates/registration_form.html:83
 msgid "An SMS with ride details will arrive shortly..."
 msgstr "התחנות הקרובות מחפשות עבורך מונית פנויה.<BR>הודעת SMS עם פרטי הנסיעה תשלח אליך מיד..."
 
-#: common/templates/registration_form.html:44
+#: common/templates/registration_form.html:87
 msgid "In the meantime, join for better experience (free)"
 msgstr "בינתיים, השלם את הרשמתך ל<span class=waybetter></span> !"
 
-#: common/templates/registration_form.html:48
+#: common/templates/registration_form.html:91
 msgid "Your Email"
 msgstr "הדוא&#34;ל שלך"
 
-#: common/templates/registration_form.html:50
-msgid "Choose Password"
-msgstr "בחירת סיסמה"
-
-#: common/templates/registration_form.html:52
-msgid "Re-enter Password"
-msgstr "וידוא סיסמה (עוד פעם)"
-
-#: common/templates/registration_form.html:55
+#: common/templates/registration_form.html:98
 msgid "Get emails from waybetter (we promise not to spam)"
 msgstr "קבל הודעות דוא&#34;ל מ <span class=waybetter></span> (אנחנו מבטיחים לא לזבל)"
 
-#: common/templates/registration_form.html:59
+#: common/templates/registration_form.html:102
 msgid "JOIN"
 msgstr "הצטרפות"
 
@@ -477,8 +506,8 @@ msgid "(Or)"
 msgstr "(או)"
 
 #: common/templates/social_login.html:48
-msgid "register using your account at:"
-msgstr "הרשמה באמצעות החשבון שלך ב:"
+msgid "login using your account at:"
+msgstr "כניסה באמצעות החשבון שלך ב:"
 
 #: common/templates/terms_form.html:5
 #: ordering/templates/workstation_download.html:113
@@ -1225,53 +1254,62 @@ msgstr ""
 msgid "You can't rate this order"
 msgstr "אין אפשרות לדרג הזמנה זו"
 
-#: ordering/passenger_controller.py:153
+#: ordering/passenger_controller.py:154
 msgid "Ride estimation not available"
 msgstr "לא ניתן לחשב פרטי נסיעה"
 
-#: ordering/passenger_controller.py:158
+#: ordering/passenger_controller.py:159
 msgid "Estimated ride cost"
 msgstr "מחיר נסיעה משוער"
 
-#: ordering/passenger_controller.py:161
+#: ordering/passenger_controller.py:162
 msgid "Flat rate"
 msgstr "מחיר מחירון"
 
-#: ordering/passenger_controller.py:167
+#: ordering/passenger_controller.py:168
 msgid "min"
 msgstr "דקות"
 
-#: ordering/passenger_controller.py:194
-#: ordering/passenger_controller.py:214
+#: ordering/passenger_controller.py:195
+#: ordering/passenger_controller.py:215
 msgid "Your Ride Could Not Be Ordered"
 msgstr "לא ניתן להזמין נסיעה זו"
 
-#: ordering/passenger_controller.py:195
+#: ordering/passenger_controller.py:196
 msgid "Ordering is not allowed so soon after another order"
 msgstr "לא ניתן להזמין כמה נסיעות בסמיכות."
 
-#: ordering/passenger_controller.py:281
+#: ordering/passenger_controller.py:273
 #, python-format
 msgid "Verification code: %s"
 msgstr "קוד אימות: %s"
 
-#: ordering/passenger_controller.py:294
+#: ordering/passenger_controller.py:286
 msgid "Invalid verification code"
 msgstr "קוד SMS שגוי"
 
-#: ordering/passenger_controller.py:337
+#: ordering/passenger_controller.py:311
+msgid "Phone has multiple passengers"
+msgstr ""
+
+#: ordering/passenger_controller.py:332
 msgid "this email is registered with multiple users, cannot log you in"
 msgstr "דוא\"ל זה נמצא בשימוש, לא ניתן להכניסך"
 
-#: ordering/passenger_controller.py:339
+#: ordering/passenger_controller.py:334
 msgid "wrong email"
 msgstr "כתובת דו\"אל שגויה"
 
-#: ordering/passenger_controller.py:345
+#: ordering/passenger_controller.py:340
 msgid "wrong email/password"
 msgstr "כתובת דוא\"ל או הסיסמה אינם נכונים"
 
-#: ordering/passenger_controller.py:360
+#: ordering/passenger_controller.py:350
+msgid "Must have a user to change credentials"
+msgstr ""
+
+#: ordering/passenger_controller.py:353
+#: ordering/passenger_controller.py:375
 msgid "Missing required parameters"
 msgstr "שדות חסרים"
 
@@ -1337,7 +1375,7 @@ msgstr "<span class=waybetter></span> - הדרך היעילה והקלה ביו�
 msgid "Instead of looking for a local station, calling, waiting on the line, ordering a cab and hoping the station you found can serve you "
 msgstr "עברו הימים שצריך לחפש מספר טלפון של תחנה באזור, להתקשר, לחכות על הקו, לבקש מונית ולקוות שדווקא לתחנה זו יש מונית פנויה. היום אפשר להזמין מונית בלחיצה. תנו לנו ולתחנות שבאזור שלכם לדאוג לכם למונית, SMS עם פרטי הנסיעה ישלח אליכם ישירות וללא עלות. "
 
-#: ordering/templates/base_passenger.html:50
+#: ordering/templates/base_passenger.html:52
 msgid "Join!"
 msgstr "הצטרפות!"
 
@@ -2082,99 +2120,70 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
 
+#~ msgid "Welcome Back!"
+#~ msgstr "ברוך שובך!"
 #~ msgid "Logo"
 #~ msgstr "לוגו"
-
 #~ msgid "Enter a unique username"
 #~ msgstr " שם משתמש ייחודי"
-
 #~ msgid "Username is already taken"
 #~ msgstr "שם משתמש כבר תפוס"
-
 #~ msgid "Local mobile phone #"
 #~ msgstr "מספר טלפון נייד"
-
 #~ msgid "Username"
 #~ msgstr "שם משתמש"
-
 #~ msgid "Username already taken"
 #~ msgstr "שם משתמש כבר תפוס"
-
 #~ msgid "Not Now"
 #~ msgstr "לא כרגע"
-
 #~ msgid "Get a Taxi. Wherever You Are!"
 #~ msgstr "מכל מקום, המונית בדרך אליך!"
-
 #~ msgid "Hi-resolution image of the founders"
 #~ msgstr "תמונה ברזולוציה גבוהה של המייסדים"
-
 #~ msgid "WAYbetter Logos (.zip)"
 #~ msgstr "לוגו של <span class=waybetter></span> (מכווץ)"
-
 #~ msgid "Hi-resolution logos"
 #~ msgstr "לוגו ברזולוציה גבוהה"
-
 #~ msgid "iPhone App Screenshots (.zip)"
 #~ msgstr " צילומי מסך אפליקציית אייפון (מכווץ)"
-
 #~ msgid "WAYbetter Website Screenshots"
 #~ msgstr "צילומי מסך של אתר <span id=waybetter></span> (מכווץ)"
-
 #~ msgid "Press Announcments"
 #~ msgstr "הודעות לעיתונות"
-
 #~ msgid "TLV Alpha + Company Overview"
 #~ msgstr "תל אביב אלפא + תאור החברה"
-
 #~ msgid "Feb 2010"
 #~ msgstr "פברואר 2010"
-
 #~ msgid "DMCA policy"
 #~ msgstr "מדיניות DMCA"
-
 #~ msgid "Enter street and city"
 #~ msgstr "הזן עיר ורחוב"
-
 #~ msgid "History"
 #~ msgstr "נסיעות קודמות"
-
 #~ msgid "Enter your mobile number:"
 #~ msgstr " מספר הטלפון הנייד שלך:"
-
 #~ msgid "Where From?"
 #~ msgstr "כתובת מוצא"
-
 #~ msgid "Where To?"
 #~ msgstr "כתובת יעד"
-
 #~ msgid "First Time?"
 #~ msgstr "פעם ראשונה?"
-
 #~ msgid "Enter Drop-off Address:"
 #~ msgstr "כתובת יעד:"
-
 #~ msgid "state"
 #~ msgstr "מדינה"
-
 #~ msgid "special place"
 #~ msgstr "מקום מיוחד"
-
 #~ msgid "Such as an airport or toll-road inflicting extra charges"
 #~ msgstr "דוגמאת שדה תעופה או כביש אגרה עלול לגרור הוצאות נוספות"
-
 #~ msgid "vehicle type"
 #~ msgstr "רכב מסוג"
-
 #~ msgid "in meters"
 #~ msgstr "במטרים"
-
 #~ msgid "in seconds"
 #~ msgstr "בשניות"
-
 #~ msgid "WHAT WILL YOU PAY?"
 #~ msgstr "מה אשלם?"
-
 #~ msgid ""
 #~ "The price is only 1nis for every ride you take, meaning you pay only if "
 #~ "and when you make money!!!"
@@ -2182,24 +2191,18 @@ msgstr "שגיאה בבודק האיות"
 #~ "המחיר הוא 1.2 שקל בלבד לכל נסיעה שתבחר לקחת. המשמעות היא שאם לא הרווחת, "
 #~ "לא שילמת.\n"
 #~ "ההצלחה שלך היא ההצלחה שלנו!"
-
 #~ msgid "Type city, street, number and choose for the list"
 #~ msgstr "הכנס עיר, רחוב, מספר ובחר מהרשימה"
-
 #~ msgid "Pickup at %s "
 #~ msgstr "איסוף ב: %s"
-
 #~ msgid "The Good"
 #~ msgstr "טוב"
-
 #~ msgid "The best way to get a taxi (FREE)"
 #~ msgstr "הדרך הטובה ביותר להשיג מונית (חינם)"
-
 #~ msgid "Map Suggestions"
 #~ msgstr "הצעות מתוך מפה:"
-
 #~ msgid "History Suggestions"
 #~ msgstr "הצעות מנסיעות קודמות:"
-
 #~ msgid "Sign In!"
 #~ msgstr "היכנס"
+

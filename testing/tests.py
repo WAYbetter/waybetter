@@ -7,13 +7,17 @@
 from django.test import TestCase
 from django.core.urlresolvers import reverse
 from selenium import selenium
-from selenium_helper import SelemiumHelper, SELENIUM_PASSWORD, SELENIUM_EMAIL, SELENIUM_ADDRESS, SELENIUM_PHONE, SELENIUM_STATION_USER_NAME
+from selenium_helper import SelemiumHelper, SELENIUM_PASSWORD, SELENIUM_EMAIL, SELENIUM_ADDRESS, SELENIUM_PHONE, SELENIUM_STATION_USER_NAME, SELENIUM_NEW_USER_NAME, SELENIUM_UNREGISTERED_PHONE
 import time
 import logging
 
-APPLICATION_UNDER_TEST = "http://localhost:8000/"
-#APPLICATION_UNDER_TEST = "http://3.latest.waybetter-app.appspot.com/"
+#APPLICATION_UNDER_TEST = "http://localhost:8000/"
+APPLICATION_UNDER_TEST = "http://3.latest.waybetter-app.appspot.com/"
 #APPLICATION_UNDER_TEST = "http://www.waybetter.com/"
+
+SOCIAL_GOOGLE = ["css=.google", "Google Accounts", "Email", "Passwd", "signIn"]
+SOCIAL_FACEBOOK = ["css=.facebook", "Login | Facebook", "email", "pass", "login"]
+SOCIAL_TWITTER = ["css=.twitter", "Twitter", "username_or_email", "password", "allow"]
 
 class SeleniumTests(TestCase, SelemiumHelper):
     fixtures = ['countries.yaml']
@@ -23,7 +27,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.verificationErrors = []
         self.selenium = selenium("localhost", 4444, "*firefox", APPLICATION_UNDER_TEST)
 #        self.selenium.set_timeout(30000) # milisecond
-#        self.selenium.set_speed(50) # milisecond
+        self.selenium.set_speed(300) # milisecond
         self.selenium.start()
         self.selenium.window_maximize()
 
@@ -57,12 +61,12 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel.open("/")
 
         # Google social login
-        self.social_login("css=.google", "Google Accounts", "Email", "Passwd", "signIn")
+        self.social_login(*SOCIAL_GOOGLE)
 
         # Facebook and Twitter only allow waybetter.com requests
         if APPLICATION_UNDER_TEST == 'http://www.waybetter.com/':
-            self.social_login("css=.facebook", "Login | Facebook", "email", "pass", "login")
-            self.social_login("css=.twitter", "Twitter", "username_or_email", "password", "allow")
+            self.social_login(*SOCIAL_FACEBOOK)
+            self.social_login(*SOCIAL_TWITTER)
 
     def test_passenger_home(self):
         logging.info("testing passenger home")
@@ -75,6 +79,49 @@ class SeleniumTests(TestCase, SelemiumHelper):
         for element in required_elements:
             self.assertTrue(sel.is_element_present(element))
 
+    def test_change_credentials(self):
+        logging.info("testing change credentials")
+        sel = self.selenium
+        new_password = "new_password"
+        new_email = SELENIUM_NEW_USER_NAME
+
+        sel.open(reverse('testing.setup_testing_env.create_selenium_test_data'))
+        sel.open("/")
+
+        self.wait_for_element_and_click_at("login_link")
+        time.sleep(1)
+        self.wait_for_element_and_click_at("cant_login_link")
+
+        # enter unregistered phone - forbidden
+        self.wait_for_element_and_type("local_phone", SELENIUM_UNREGISTERED_PHONE)
+        self.wait_for_text_present(u"הטלפון לא רשום")
+
+        # change password and email and login using new credentials
+        sel.open("/")
+        self.change_credentials(new_email=new_email, new_password=new_password)
+        self.wait_for_element_present("logout_link")
+        self.logout()
+
+        self.wait_for_element_and_click_at("login_link")
+        self.login(username=new_email, password=new_password)
+        self.wait_for_element_present("logout_link")
+        self.logout()
+
+        # use a social account (Google)
+        self.change_credentials(new_email="", new_password="", dont_click=True)
+        self.social_authentication(*SOCIAL_GOOGLE)
+        self.wait_for_element_and_click_at("profile_tab_btn")
+        self.wait_for_text(SELENIUM_PHONE, "current_phone")
+        self.assertFalse(sel.is_element_present("id_password")) # check we indeed have social user
+        self.logout()
+
+        # change back to a waybetter account
+        self.change_credentials(new_email=new_email, new_password=new_password)
+        self.wait_for_element_and_click_at("profile_tab_btn")
+        self.wait_for_text(SELENIUM_PHONE, "current_phone")
+        self.wait_for_element_present("id_password")
+        self.logout()
+
     def test_change_password(self):
         logging.info("testing change password")
         sel = self.selenium
@@ -85,7 +132,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.wait_for_element_and_type("id_password", "newpassword")
         self.type_and_click("id_password2", "newpassword")
         sel.click("save_profile_changes")
-        self.wait_for_alert("Changes saved!")
+        self.wait_for_alert()
         self.logout()
 
         # log in using old password (fail)
@@ -101,7 +148,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
     def test_change_phone(self):
         logging.info("testing change phone")
         sel = self.selenium
-        new_phone = "0001234567"
+        new_phone = SELENIUM_UNREGISTERED_PHONE
 
         self.login_as_selenium()
         self.wait_for_element_and_click_at("profile_tab_btn")
@@ -186,7 +233,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
         # try to register again with same email (using a different phone)
         self.wait_for_element_and_click_at("join_link")
         self.wait_for_element_present("local_phone")
-        self.validate_phone(phone="0000000000")
+        self.validate_phone(phone=SELENIUM_UNREGISTERED_PHONE)
         self.wait_for_element_and_type("email", SELENIUM_EMAIL)
         self.register(SELENIUM_EMAIL, SELENIUM_PASSWORD, SELENIUM_PASSWORD, dont_click=True)
         self.wait_for_text_present(u'דוא"ל כבר רשום')

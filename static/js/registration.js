@@ -4,7 +4,9 @@ var Registrator = Object.create({
             error_form_template             : '/',
             login_form_template             : '/',
             reg_form_template               : '/',
+            credentials_form_template       : '/',
             phone_form_template             : '/',
+            cant_login_form_template        : '/',
             phone_code_form_template        : '/',
             feedback_form_template          : '/',
             sending_form_template           : '/',
@@ -16,8 +18,8 @@ var Registrator = Object.create({
             send_sms                        : '/',
             update_profile                  : '/',
             register                        : '/',
-            validate_phone                  : '/',
-            check_phone                     : '/'
+            change_credentials              : '/',
+            validate_phone                  : '/'
         },
         dialog_config   : {
             autoOpen: false,
@@ -29,36 +31,37 @@ var Registrator = Object.create({
             zIndex:2000
         },
         error_messages  : {
-            email_taken             : '',
-            invalid_email           : '',
-            passwords_dont_match    : '',
-            too_long                : '',
-            only_digits             : '',
-            phone_taken             : ''
+            invalid_email           : ''
         },
         messages        : {
             enter_email             : '',
             choose_password         : '',
-            password_again          : '',
-            checking_email          : '',
             valid_field             : '',
-            enter_mobile            : '',
             code_sent               : '',
             sending_code            : '',
             finish                  : '',
-            sms_ok                  : '',
-            thanks_for_registering  : '',
-            too_short               : ''
-
+            sms_ok                  : ''
         },
         current_dialog_is_sending   : false,
         callback        : function () {}
     },
-    validator               : {},
+    validator               : undefined,
     default_validator_config: {
         errorClass: 'ui-state-error',
         errorElement: 'span',
-        focusCleanup: true
+        focusCleanup: true,
+        ui_functions: {
+            highlight: function(element, errorClass, validClass) {
+                Registrator.highlight.call(Registrator, element, errorClass, validClass)
+            },
+            unhighlight: function(element, errorClass, validClass) {
+                Registrator.unhighlight.call(Registrator, element, errorClass, validClass)
+            },
+            errorPlacement: function(error, element) {
+                Registrator.errorPlacement.call(Registrator, error, element)
+            },
+            success: function(label) { Registrator.success.call(Registrator, label) }
+        }
     },
     config                  : {},
     /**
@@ -163,6 +166,9 @@ var Registrator = Object.create({
     doRegister              : function (form, extra_form_data) {
         this._doDialogSubmit(form, extra_form_data, this.config.urls.register);
     },
+    doChangeCredentials     : function (form, extra_form_data) {
+        this._doDialogSubmit(form, extra_form_data, this.config.urls.change_credentials);
+    },
     doSubmitInterest        : function(form, url) {
         this._doDialogSubmit(form, undefined, url, undefined, function(response) {
             $("#sent_message").fadeIn("fast");
@@ -258,8 +264,8 @@ var Registrator = Object.create({
                 },
                 rules: {
                     username: {
-                        required: true,
-                        email: true
+                        required: true
+                        //email: true
                     },
                     password: "required"
                 },
@@ -288,8 +294,11 @@ var Registrator = Object.create({
             that.openDialog.call(that, validation_config);
         });
     },
-    _openPhoneDialog         : function (extra_form_data, while_ordering) {
+    _openPhoneDialog         : function (extra_form_data, while_ordering, template) {
         var that = this;
+
+        var template_name = (template) ? template : "phone";
+
         // add custom validation method
         $.validator.addMethod('ignoreNonDigits', function(val, elem) {
             var new_val = val.split(/\D+/).join("");
@@ -298,24 +307,35 @@ var Registrator = Object.create({
             }
             return $.validator.methods.required.call(this, new_val, elem);
         });
-        
-        this.getTemplate.call(this, 'phone', function (dialog_content) {
-            var validation_config = {
-                errorClass: "inputError",
-                validClass: "inputValid",
-                errorElement: "div",
-                focusCleanup: false,
-                highlight: function(element, errorClass, validClass) {
-                    $(element).next().addClass(errorClass).removeClass(validClass).removeClass("red").removeClass("green");
-                    for (var key in that.config.error_messages) {
-                        if (that.config.error_messages[key] === this.errorList[0].message) {
-                            $(element).next().addClass("red");
-                        }
+
+        this.getTemplate.call(this, template_name, function (dialog_content) {
+            var $finish_button = $('form input#validate', dialog_content).button()
+               .unbind('click')
+               .bind('click', function (e) {
+                    that.doPhoneValidation.call(that, this.form, extra_form_data);
+                    return false;
+            }),
+            $phone_input = $('form input#local_phone', dialog_content).focus(function() {
+                $(this).next().removeClass("code-sent");
+            }).keyup(function(e) {
+                if (e.keyCode == '13') {
+                    $(this).next().mouseup();
+                }
+            }),
+            $verification_code_input = $('form input#verification_code', dialog_content)
+                .unbind('keyup')
+                .bind('keyup', function(e) {
+                    if (that.validator.element($verification_code_input)) {
+                        $finish_button.button("enable");
+                    } else {
+                        $finish_button.button("disable");
                     }
-                },
-                unhighlight: function(element, errorClass, validClass) {
-                    $(element).next().addClass(validClass).removeClass(errorClass).removeClass("red");
-                },
+                    if (e.keyCode == '13') {
+                        $(this).next().mouseup();
+                    }
+            }),
+            validation_config = window.validation_config,
+            more_validation_config =  {
                 errorPlacement: function(error, element) {
                     var container = $("<div></div>").addClass("input-helper");
                     container.append(error);
@@ -340,63 +360,11 @@ var Registrator = Object.create({
                     });
 
                     this.defaultShowErrors();
-                },
-                rules: {
-                    verification_code: {
-                        required    : true,
-                        digits      : true,
-                        minlength   : 4,
-                        maxlength   : 4
-                    },
-                    local_phone: {
-                        required        : true,
-                        ignoreNonDigits : true,
-                        minlength       : 10,
-                        maxlength       : 11,
-                        remote          : that.config.urls.check_phone
-                    }
-                },
-                messages: {
-                    local_phone: {
-                        ignoreNonDigits : that.config.messages.enter_mobile,
-                        required        : that.config.messages.enter_mobile,
-                        minlength       : that.config.messages.too_short,
-                        maxlength       : that.config.error_messages.too_long,
-                        remote          : that.config.error_messages.phone_taken
-                    },
-                    verification_code: {
-                        required    : that.config.messages.enter_sms_code,
-                        minlength   : that.config.messages.too_short,
-                        maxlength   : that.config.error_messages.too_long,
-                        digits      : that.config.error_messages.only_digits
-                    }
                 }
-            },
-            $finish_button = $('form input#validate', dialog_content).button()
-               .unbind('click')
-               .bind('click', function (e) {
-                    that.doPhoneValidation.call(that, this.form, extra_form_data);
-                    return false;
-               }),
-            $phone_input = $('form input#local_phone', dialog_content).focus(function() {
-                $(this).next().removeClass("code-sent");                
-            }).keyup(function(e) {
-                if (e.keyCode == '13') {
-                    $(this).next().mouseup();
-                }
-            }),
-            $verification_code_input = $('form input#verification_code', dialog_content)
-                .unbind('keyup')
-                .bind('keyup', function(e) {
-                    if (that.validator.element($verification_code_input)) {
-                        $finish_button.button("enable");
-                    } else {
-                        $finish_button.button("disable");
-                    }
-                    if (e.keyCode == '13') {
-                        $(this).next().mouseup();
-                    }
-            });
+            };
+            $.extend(validation_config, that.default_validator_config.ui_functions, more_validation_config);
+
+
             $(".login_link").live("mouseup", function() {
                 if (!while_ordering){
                     that.setCallback(function(){
@@ -420,6 +388,11 @@ var Registrator = Object.create({
         this._openPhoneDialog(undefined, true);
         return this;
     },
+    openCantLoginDialog : function (callback) {
+        this.setCallback(callback);
+        this._openPhoneDialog(undefined, undefined, "cant_login");
+        return this;
+    },
     openSendingDialog       : function (callback) {
         var that = this;
         that.setCallback(callback);
@@ -432,63 +405,7 @@ var Registrator = Object.create({
             dialog_config = {};
         this.setCallback(callback);
         this.getTemplate.call(this, 'reg', function (dialog_content) {
-            var validation_config = {
-                errorClass: "inputError",
-                validClass: "inputValid",
-                focusInvalid: false,
-                focusCleanup: false,
-                wrapper: "div",
-                highlight: function(element, errorClass, validClass) {
-                    $(element).next().addClass(errorClass).removeClass(validClass).removeClass("red").removeClass("green");
-                    for (var key in that.config.error_messages) {
-                        if (that.config.error_messages[key] === this.errorList[0].message) {
-                            $(element).next().addClass("red");
-                        }
-                    }
-                },
-                unhighlight: function(element, errorClass, validClass) {
-                    $(element).next().addClass(validClass).removeClass(errorClass);
-                },
-                errorPlacement: function(error, element) {
-                    error.addClass('input-helper');
-                    $(element).after(error);
-                },
-                success: function (label) {
-                    label.text(that.config.messages.valid_field).parent().removeClass("red").addClass("green");
-                },
-                rules: {
-                    email: {
-                        required: true,
-                        email: true,
-                        remote: {
-                            url: that.config.urls.check_email,
-                            beforeSend: function() {
-                                $("#registration_form").find("[htmlfor=email]").text(that.config.messages.checking_email).parent().removeClass("red").removeClass("green");
-                            }
-                        }
-                    },
-                    password: "required",
-                    password_again: {
-                        required: true,
-                        equalTo: "#password"
-                    }
-                },
-                messages: {
-                    email: {
-                        required    : that.config.messages.enter_email,
-                        email       : that.config.error_messages.invalid_email,
-                        remote      : that.config.error_messages.email_taken
-                    },
-                    password: {
-                        required    : that.config.messages.choose_password
-                    },
-                    password_again: {
-                        required    : that.config.messages.password_again,
-                        equalTo     : that.config.error_messages.passwords_dont_match    
-                    }
-                }
-            },
-            $button = $('#join', dialog_content).unbind('click').bind('click', function (e) {
+            var $button = $('#join', dialog_content).unbind('click').bind('click', function (e) {
                     if ( that.validator.form() ) {
                         that.doRegister.call(that, $('form:first', dialog_content));
                     }
@@ -499,7 +416,10 @@ var Registrator = Object.create({
                 .bind('click', function (e) {
                     that.openLoginDialog.call(that);
                     return false;
-            });
+            }),
+
+            validation_config = $.extend(window.validation_config, that.default_validator_config.ui_functions);
+            
             $("#registration", dialog_content).hide();
             if (! show_registration) {
                 $("#dialog #ok").click(function() {
@@ -521,11 +441,28 @@ var Registrator = Object.create({
                 });
             }
             if (registration_only) {
-                dialog_config = { title: that.config.messages.thanks_for_registering };
+                dialog_config = { title: window.form_config.messages.thanks_for_registering };
                 $("#registration", dialog_content).show();
                 $("#registration_header", dialog_content).hide();
                 $("#registration > h1", dialog_content).hide();
             }
+            that.openDialog.call(that, validation_config, dialog_config);
+        });
+    },
+    openCredentialsDialog  : function(callback){
+        var that = this,
+            dialog_config = {};
+        this.setCallback(callback);
+        this.getTemplate.call(this, 'credentials', function (dialog_content) {
+            var $button = $('#save_credentials', dialog_content).unbind('click').bind('click', function (e) {
+                if (that.validator.form()) {
+                    that.doChangeCredentials.call(that, $('form:first', dialog_content));
+                }
+                return false;
+            }),
+
+            validation_config = $.extend(window.validation_config, that.default_validator_config.ui_functions);
+
             that.openDialog.call(that, validation_config, dialog_config);
         });
     },
@@ -553,6 +490,14 @@ var Registrator = Object.create({
             that.openRegistrationDialog(function() {
                 window.location.href = "/";
             }, true, true)
+        });
+    },
+    doResetCredentials      : function(){
+        var that = this;
+        that.openCantLoginDialog(function(){
+            that.openCredentialsDialog(function(){
+                window.location.href = "/";
+            });
         });
     },
     openDialog              : function (validation_config, dialog_config) {
@@ -602,5 +547,23 @@ var Registrator = Object.create({
                 $elem.removeClass("sms-button").unbind("mouseup");
             }
         }
+    },
+    highlight: function(element, errorClass, validClass) {
+        $(element).next().addClass(errorClass).removeClass(validClass).removeClass("red").removeClass("green");
+        for (var key in this.config.error_messages) {
+            if (this.config.error_messages[key] === this.validator.errorList[0].message) {
+                $(element).next().addClass("red");
+            }
+        }
+    },
+    unhighlight: function(element, errorClass, validClass) {
+        $(element).next().addClass(validClass).removeClass(errorClass).removeClass("red");
+    },
+    errorPlacement: function(error, element) {
+        error.addClass('input-helper');
+        $(element).after(error);
+    },
+    success: function (label) {
+        label.text(this.config.messages.valid_field).parent().removeClass("red").addClass("green");
     }
 });

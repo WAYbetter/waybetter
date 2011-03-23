@@ -58,6 +58,13 @@ def do_setup_flat_rate_pricing_rules(request):
     memcache_key = request.POST["memcache_key"]
     start = int(request.POST["start"])
 
+    country = Country.objects.get(id=country_id)
+
+    # remove existing specific rules, this takes some time, but not long enough to get a DeadlineExceededError
+    logging.info("Deleting existing rules...")
+    FlatRateRule.objects.filter(country=country).delete()
+    logging.info("Deleted.")
+
     cache = {} 
     result = u""
     i = 0
@@ -70,7 +77,6 @@ def do_setup_flat_rate_pricing_rules(request):
                 continue
 
             logging.info("Processing data line %d" % i)
-            country = Country.objects.get(id=country_id)
             from_city = resolve_city(cache, row[0].decode('utf-8'), country)
             to_city = resolve_city(cache, row[1].decode('utf-8'), country)
             fixed_cost1 = float(row[2])
@@ -93,10 +99,6 @@ def setup_flat_rate_rules(request):
         if form.is_valid():
             logging.info("Uploading flat rate pricing rules...")
             country = form.cleaned_data["country"]
-            # remove existing specific rules
-            logging.info("Deleting existing rules...")
-            FlatRateRule.objects.filter(country=country).delete()
-            logging.info("Deleted.")
             data = form.cleaned_data["csv"].encode('utf-8')
             memcache_key = get_unique_id()
             memcache.set(memcache_key, data)
