@@ -1,20 +1,25 @@
-in_file = open('../data/inter-city-rules-raw.txt', 'r')
-out_file = open('../data/inter-city-rules.csv.utf.txt', 'w')
+# -*- coding: utf-8 -*-
+import codecs
+import re
+in_file = codecs.open('/home/amir/dev/data/inter-city-rules-raw.22-03.11.txt', 'r', "utf-8")
+out_file = codecs.open('/home/amir/dev/data/inter-city-rules.csv.utf.22-03.11.txt', 'w', "utf-8")
 
-
-def clean_rtl(str):
-    return str.decode("utf-8").replace(u"\u202b","").replace(u"\u202c","")
+tlv = re.compile(u"תל אביב")
+def clean_city(city):
+    if tlv.search(city):
+        return u"תל אביב יפו"
+    return city
 
 while True:
-    tariff2 = clean_rtl(in_file.readline().strip())
-    if tariff2 == '':
+    from_city = clean_city(in_file.readline().strip())
+    if from_city == '':
         break #EOF reached
-    tariff1 = clean_rtl(in_file.readline().strip())
-    to_city = clean_rtl(in_file.readline().strip())
-    from_city = clean_rtl(in_file.readline().strip())
+    to_city = clean_city(in_file.readline().strip())
+    tariff1 = in_file.readline().strip()
+    tariff2 = in_file.readline().strip()
 
     s = ','.join( (from_city,to_city,tariff1,tariff2) ) + '\n'
-    out_file.write(s.encode("utf-8"))
+    out_file.write(s)
 
 in_file.close()
 out_file.close()
