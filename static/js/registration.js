@@ -264,8 +264,8 @@ var Registrator = Object.create({
                 },
                 rules: {
                     username: {
-                        required: true,
-                        email: true
+                        required: true
+                        //email: true
                     },
                     password: "required"
                 },
