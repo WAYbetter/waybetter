@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-21 15:54+0200\n"
-"PO-Revision-Date: 2011-03-21 16:06+0200\n"
+"POT-Creation-Date: 2011-03-23 17:41+0200\n"
+"PO-Revision-Date: 2011-03-23 17:43+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -268,11 +268,11 @@ msgstr "סיום"
 msgid "Reset account credentials"
 msgstr "חידוש פרטי חשבון"
 
-#: common/templates/credentials_form.html:24
+#: common/templates/credentials_form.html:22
 msgid "Change email address"
 msgstr "שינוי כתובת דוא&#34;ל"
 
-#: common/templates/credentials_form.html:26
+#: common/templates/credentials_form.html:24
 #: common/templates/registration_form.html:14
 msgid "Enter your email"
 msgstr "הכנס את כתובת הדוא&#34;ל שלך"
@@ -297,7 +297,7 @@ msgstr "וידוא סיסמה (עוד פעם)"
 #: common/templates/phone_verification_form.html:90
 #: ordering/templates/base_passenger.html:52
 #: ordering/templates/base_station.html:51
-#: ordering/templates/station_page.html:61
+#: ordering/templates/station_page.html:62
 msgid "Login"
 msgstr "כניסה"
 
@@ -370,7 +370,7 @@ msgstr "להצטרפות!"
 #: common/templates/login_form.html:36
 #: interests/models.py:7
 #: ordering/forms.py:182
-#: ordering/forms.py:234
+#: ordering/templates/passenger_profile.html:15
 msgid "Email"
 msgstr "דוא\"ל"
 
@@ -400,7 +400,7 @@ msgstr "סיום"
 
 #: common/templates/phone_verification_form.html:20
 #: ordering/templates/passenger_home.html:29
-#: ordering/templates/station_page.html:31
+#: ordering/templates/station_page.html:32
 #: ordering/templates/workstation_home.html:501
 #: ordering/templates/mobile/passenger_home.html:32
 #: ordering/templates/mobile/station_page.html:32
@@ -465,7 +465,7 @@ msgid "An SMS with ride details will be sent soon"
 msgstr "התחנות הקרובות מחפשות עבורך מונית פנויה. הודעת SMS עם פרטי הנסיעה תשלח אליך מיד..."
 
 #: common/templates/registration_form.html:24
-#: ordering/passenger_controller.py:381
+#: ordering/passenger_controller.py:382
 msgid "Email already registered"
 msgstr "דוא&#34;ל כבר רשום"
 
@@ -691,12 +691,12 @@ msgid "Station name"
 msgstr "שם התחנה"
 
 #: ordering/forms.py:169
-#: ordering/forms.py:239
+#: ordering/forms.py:237
 msgid "Change password"
 msgstr "שינוי סיסמה"
 
 #: ordering/forms.py:170
-#: ordering/forms.py:241
+#: ordering/forms.py:239
 msgid "Re-enter password"
 msgstr "וידוא סיסמה (עוד פעם)"
 
@@ -706,7 +706,7 @@ msgid "Country"
 msgstr "מדינה"
 
 #: ordering/forms.py:173
-#: ordering/templates/station_page.html:127
+#: ordering/templates/station_page.html:128
 msgid "Address"
 msgstr "כתובת"
 
@@ -729,7 +729,7 @@ msgid "Description"
 msgstr "תיאור"
 
 #: ordering/forms.py:193
-#: ordering/forms.py:249
+#: ordering/forms.py:247
 #: registration/forms.py:136
 msgid "The two password fields didn't match."
 msgstr "שני שדות הסיסמה אינם זהים."
@@ -739,7 +739,7 @@ msgid "Invalid address"
 msgstr "כתובת לא חוקית"
 
 #: ordering/forms.py:219
-#: ordering/templates/station_page.html:128
+#: ordering/templates/station_page.html:129
 msgid "Phone"
 msgstr "טלפון"
 
@@ -752,11 +752,11 @@ msgstr "תחנה מועדפת"
 msgid "(No station selected)"
 msgstr "(אין תחנת מועדפת)"
 
-#: ordering/forms.py:236
+#: ordering/forms.py:234
 msgid "First name"
 msgstr "שם פרטי"
 
-#: ordering/forms.py:237
+#: ordering/forms.py:235
 msgid "Last name"
 msgstr "שם משפחה"
 
@@ -1247,7 +1247,7 @@ msgstr "אין אפשרות לדרג הזמנה זו"
 
 #: ordering/passenger_controller.py:154
 msgid "Ride estimation not available"
-msgstr ""
+msgstr "לא ניתן לחשב פרטי נסיעה"
 
 #: ordering/passenger_controller.py:159
 msgid "Estimated ride cost"
@@ -1296,7 +1296,7 @@ msgid "Must have a user to change credentials"
 msgstr ""
 
 #: ordering/passenger_controller.py:359
-#: ordering/passenger_controller.py:384
+#: ordering/passenger_controller.py:385
 msgid "Missing required parameters"
 msgstr "שדות חסרים"
 
@@ -1464,34 +1464,34 @@ msgid "of"
 msgstr "מתוך"
 
 #: ordering/templates/passenger_home.html:24
-#: ordering/templates/station_page.html:26
+#: ordering/templates/station_page.html:27
 msgid "Full Pickup Address: (Street Number City)"
 msgstr "כתובת מוצא (רחוב מספר עיר)"
 
 #: ordering/templates/passenger_home.html:25
-#: ordering/templates/station_page.html:27
+#: ordering/templates/station_page.html:28
 msgid "Full Drop-off Address: (Street Number City)"
 msgstr "כתובת יעד (לא חובה)"
 
 #: ordering/templates/passenger_home.html:26
-#: ordering/templates/station_page.html:28
+#: ordering/templates/station_page.html:29
 msgid "(Street Number City) and Select:"
 msgstr "(רחוב מספר עיר) יש לבחור מהרשימה:"
 
 #: ordering/templates/passenger_home.html:27
-#: ordering/templates/station_page.html:29
+#: ordering/templates/station_page.html:30
 msgid "The address is not resolved"
 msgstr "כתובת לא ידועה. יש לבחור כתובת מהרשימה"
 
 #: ordering/templates/passenger_home.html:28
 #: ordering/templates/passenger_home.html:111
-#: ordering/templates/station_page.html:30
-#: ordering/templates/station_page.html:91
+#: ordering/templates/station_page.html:31
+#: ordering/templates/station_page.html:92
 msgid "Pick Me Up"
 msgstr "שלח לי מונית"
 
 #: ordering/templates/passenger_home.html:30
-#: ordering/templates/station_page.html:34
+#: ordering/templates/station_page.html:35
 #: ordering/templates/mobile/passenger_home.html:23
 #: ordering/templates/mobile/station_page.html:23
 msgid "Fill pickup and dropoff for price and time estimation "
@@ -1521,14 +1521,14 @@ msgid "Book Now (FREE)"
 msgstr "הזמינו עכשיו "
 
 #: ordering/templates/passenger_home.html:105
-#: ordering/templates/station_page.html:85
+#: ordering/templates/station_page.html:86
 #: ordering/templates/mobile/passenger_home.html:55
 #: ordering/templates/mobile/station_page.html:57
 msgid "Enter pickup address"
 msgstr "כתובת מוצא (רחוב מספר עיר)"
 
 #: ordering/templates/passenger_home.html:108
-#: ordering/templates/station_page.html:88
+#: ordering/templates/station_page.html:89
 #: ordering/templates/mobile/passenger_home.html:59
 #: ordering/templates/mobile/station_page.html:61
 msgid "Enter drop-off address"
@@ -1573,18 +1573,18 @@ msgstr "מספר טלפון"
 msgid "Change"
 msgstr "שינוי"
 
-#: ordering/templates/passenger_profile.html:16
+#: ordering/templates/passenger_profile.html:19
 #: ordering/templates/station_profile.html:25
 msgid "Save Changes"
 msgstr "שמירה"
 
-#: ordering/templates/passenger_profile.html:23
+#: ordering/templates/passenger_profile.html:26
 msgid "Changes saved!"
 msgstr "השינויים נשמרו!"
 
-#: ordering/templates/passenger_profile.html:24
+#: ordering/templates/passenger_profile.html:27
 msgid "Error while saving changes"
-msgstr ""
+msgstr "התרחשה שגיאה בעת שמירת השינויים"
 
 #: ordering/templates/press.html:4
 msgid "Press Materials"
@@ -1692,42 +1692,42 @@ msgstr ""
 "אפשרות להסיע את משתמשי <span class=waybetter></span><br>\n"
 "-ל<span class=waybetter></span> קהל הולך וגדל של משתמשים המחפשים מונית. תדאג להיות האחד שמסיע אותם כשיגיעו לעירך"
 
-#: ordering/templates/station_page.html:32
-#: ordering/templates/station_page.html:121
-msgid "More"
-msgstr ""
-
 #: ordering/templates/station_page.html:33
+#: ordering/templates/station_page.html:122
+msgid "More"
+msgstr "עוד"
+
+#: ordering/templates/station_page.html:34
 msgid "Less"
-msgstr ""
+msgstr "צמצם"
 
-#: ordering/templates/station_page.html:54
+#: ordering/templates/station_page.html:55
 msgid "Book A Cab Application. Immediate Response via SMS"
-msgstr ""
+msgstr "אפליקציה להזמנת מונית. מענה מיידי ב-SMS חינם"
 
-#: ordering/templates/station_page.html:59
+#: ordering/templates/station_page.html:60
 #: templates/base.html:73
 msgid "Hi"
 msgstr "שלום"
 
-#: ordering/templates/station_page.html:59
+#: ordering/templates/station_page.html:60
 #: templates/base.html:79
 msgid "Log out"
 msgstr "התנתקות"
 
-#: ordering/templates/station_page.html:111
+#: ordering/templates/station_page.html:112
 msgid "From any smartphone"
-msgstr ""
+msgstr "מכל טלפון חכם"
 
-#: ordering/templates/station_page.html:111
+#: ordering/templates/station_page.html:112
 msgid "one click and the taxi is on the way"
-msgstr ""
+msgstr "קליק אחד והמונית בדרך"
 
-#: ordering/templates/station_page.html:125
+#: ordering/templates/station_page.html:126
 msgid "Contact Info"
 msgstr "ליצירת קשר"
 
-#: ordering/templates/station_page.html:129
+#: ordering/templates/station_page.html:130
 msgid "Station's website"
 msgstr "לאתר תחנה"
 
@@ -1889,7 +1889,7 @@ msgstr "שלח קוד אימות"
 #: ordering/templates/mobile/passenger_home.html:33
 #: ordering/templates/mobile/station_page.html:33
 msgid "Code Sent"
-msgstr ""
+msgstr "קוד SMS נשלח"
 
 #: ordering/templates/mobile/passenger_home.html:34
 #: ordering/templates/mobile/station_page.html:34
@@ -1904,7 +1904,7 @@ msgstr "מאתר כתובת..."
 #: ordering/templates/mobile/passenger_home.html:36
 #: ordering/templates/mobile/station_page.html:36
 msgid "Address Incomplete: please enter a house number"
-msgstr ""
+msgstr "כתובת חסרה: נא להכניס מספר בית"
 
 #: ordering/templates/mobile/passenger_home.html:57
 #: ordering/templates/mobile/passenger_home.html:61

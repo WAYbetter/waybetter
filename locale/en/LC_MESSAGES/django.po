@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-21 15:54+0200\n"
-"PO-Revision-Date: 2011-02-20 16:23+0200\n"
+"POT-Creation-Date: 2011-03-23 17:41+0200\n"
+"PO-Revision-Date: 2011-03-17 17:07+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -227,12 +227,12 @@ msgstr ""
 msgid "Reset account credentials"
 msgstr ""
 
-#: common/templates/credentials_form.html:24
+#: common/templates/credentials_form.html:22
 #, fuzzy
 msgid "Change email address"
 msgstr "Pickup address (number, street, city)"
 
-#: common/templates/credentials_form.html:26
+#: common/templates/credentials_form.html:24
 #: common/templates/registration_form.html:14
 msgid "Enter your email"
 msgstr ""
@@ -256,7 +256,7 @@ msgstr ""
 #: common/templates/phone_verification_form.html:90
 #: ordering/templates/base_passenger.html:52
 #: ordering/templates/base_station.html:51
-#: ordering/templates/station_page.html:61
+#: ordering/templates/station_page.html:62
 msgid "Login"
 msgstr ""
 
@@ -320,7 +320,7 @@ msgid "Join Now!"
 msgstr ""
 
 #: common/templates/login_form.html:36 interests/models.py:7
-#: ordering/forms.py:182 ordering/forms.py:234
+#: ordering/forms.py:182 ordering/templates/passenger_profile.html:15
 msgid "Email"
 msgstr ""
 
@@ -338,7 +338,7 @@ msgstr ""
 
 #: common/templates/phone_verification_form.html:17
 msgid "PRESS TO SEND SMS CODE"
-msgstr ""
+msgstr "CLICK TO SEND SMS CODE"
 
 #: common/templates/phone_verification_form.html:18
 msgid "CODE SENT"
@@ -350,7 +350,7 @@ msgstr ""
 
 #: common/templates/phone_verification_form.html:20
 #: ordering/templates/passenger_home.html:29
-#: ordering/templates/station_page.html:31
+#: ordering/templates/station_page.html:32
 #: ordering/templates/workstation_home.html:501
 #: ordering/templates/mobile/passenger_home.html:32
 #: ordering/templates/mobile/station_page.html:32
@@ -415,7 +415,7 @@ msgid "An SMS with ride details will be sent soon"
 msgstr ""
 
 #: common/templates/registration_form.html:24
-#: ordering/passenger_controller.py:381
+#: ordering/passenger_controller.py:382
 msgid "Email already registered"
 msgstr ""
 
@@ -622,11 +622,11 @@ msgstr ""
 msgid "Station name"
 msgstr ""
 
-#: ordering/forms.py:169 ordering/forms.py:239
+#: ordering/forms.py:169 ordering/forms.py:237
 msgid "Change password"
 msgstr ""
 
-#: ordering/forms.py:170 ordering/forms.py:241
+#: ordering/forms.py:170 ordering/forms.py:239
 msgid "Re-enter password"
 msgstr ""
 
@@ -634,7 +634,7 @@ msgstr ""
 msgid "Country"
 msgstr ""
 
-#: ordering/forms.py:173 ordering/templates/station_page.html:127
+#: ordering/forms.py:173 ordering/templates/station_page.html:128
 msgid "Address"
 msgstr ""
 
@@ -654,7 +654,7 @@ msgstr ""
 msgid "Description"
 msgstr ""
 
-#: ordering/forms.py:193 ordering/forms.py:249 registration/forms.py:136
+#: ordering/forms.py:193 ordering/forms.py:247 registration/forms.py:136
 msgid "The two password fields didn't match."
 msgstr ""
 
@@ -662,7 +662,7 @@ msgstr ""
 msgid "Invalid address"
 msgstr ""
 
-#: ordering/forms.py:219 ordering/templates/station_page.html:128
+#: ordering/forms.py:219 ordering/templates/station_page.html:129
 msgid "Phone"
 msgstr ""
 
@@ -674,11 +674,11 @@ msgstr ""
 msgid "(No station selected)"
 msgstr ""
 
-#: ordering/forms.py:236
+#: ordering/forms.py:234
 msgid "First name"
 msgstr ""
 
-#: ordering/forms.py:237
+#: ordering/forms.py:235
 msgid "Last name"
 msgstr ""
 
@@ -1184,7 +1184,7 @@ msgstr ""
 msgid "Must have a user to change credentials"
 msgstr ""
 
-#: ordering/passenger_controller.py:359 ordering/passenger_controller.py:384
+#: ordering/passenger_controller.py:359 ordering/passenger_controller.py:385
 msgid "Missing required parameters"
 msgstr ""
 
@@ -1203,7 +1203,7 @@ msgstr ""
 
 #: ordering/templates/about.html:17
 msgid "General Issues:"
-msgstr ""
+msgstr "General Concerns:"
 
 #: ordering/templates/about.html:21
 msgid "Office Address:"
@@ -1223,7 +1223,7 @@ msgstr ""
 
 #: ordering/templates/about.html:32
 msgid "Or Yehuda, 60376, Israel"
-msgstr ""
+msgstr "Or Yehuda, 60376, ISRAEL"
 
 #: ordering/templates/about.html:36
 msgid "Phone: 03-9085008"
@@ -1239,19 +1239,23 @@ msgstr ""
 
 #: ordering/templates/about.html:45
 msgid "Stations Entrance"
-msgstr ""
+msgstr "Station Entrance"
 
 #: ordering/templates/about.html:47
 msgid ""
 "WAYbetter connects you - internet and smartphone users to advanced taxi "
 "stations who are ready to serve you"
 msgstr ""
+"WAYbetter connects YOU - internet and smartphone users to advanced taxi "
+"stations who are ready to serve YOU"
 
 #: ordering/templates/about.html:49
 msgid ""
 "Instead of looking for a local station, calling, waiting on the line, "
 "ordering a cab and hoping the station you found can serve you "
 msgstr ""
+"Instead of looking for a local cab station, calling only to be put on hold, "
+"ordering a cab and then waiting in hope that the station will serve you."
 
 #: ordering/templates/base_passenger.html:52
 msgid "Join!"
@@ -1297,7 +1301,7 @@ msgstr ""
 
 #: ordering/templates/info.html:33 templates/base.html:126
 msgid "Terms"
-msgstr ""
+msgstr "Terms"
 
 #: ordering/templates/info.html:34 ordering/templates/passenger_home.html:86
 msgid "TAXI"
@@ -1305,11 +1309,11 @@ msgstr ""
 
 #: ordering/templates/mobile_tab.html:8
 msgid "Try www.waybetter.com from your iPhone and order a taxi in style!"
-msgstr ""
+msgstr "Try www.waybetter.com from your iPhone to order your taxi in style!"
 
 #: ordering/templates/mobile_tab.html:16
 msgid "Coming soon apps for all smartphones"
-msgstr ""
+msgstr "Coming soon...apps for all smartphones"
 
 #: ordering/templates/mobile_tab.html:16
 msgid "Keep me updated"
@@ -1348,38 +1352,38 @@ msgid "of"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:24
-#: ordering/templates/station_page.html:26
+#: ordering/templates/station_page.html:27
 msgid "Full Pickup Address: (Street Number City)"
 msgstr "Pickup Address: (Full street address and city)"
 
 #: ordering/templates/passenger_home.html:25
-#: ordering/templates/station_page.html:27
+#: ordering/templates/station_page.html:28
 msgid "Full Drop-off Address: (Street Number City)"
 msgstr "Drop-off Address: (optional)"
 
 #: ordering/templates/passenger_home.html:26
-#: ordering/templates/station_page.html:28
+#: ordering/templates/station_page.html:29
 msgid "(Street Number City) and Select:"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:27
-#: ordering/templates/station_page.html:29
+#: ordering/templates/station_page.html:30
 msgid "The address is not resolved"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:28
 #: ordering/templates/passenger_home.html:111
-#: ordering/templates/station_page.html:30
-#: ordering/templates/station_page.html:91
+#: ordering/templates/station_page.html:31
+#: ordering/templates/station_page.html:92
 msgid "Pick Me Up"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:30
-#: ordering/templates/station_page.html:34
+#: ordering/templates/station_page.html:35
 #: ordering/templates/mobile/passenger_home.html:23
 #: ordering/templates/mobile/station_page.html:23
 msgid "Fill pickup and dropoff for price and time estimation "
-msgstr ""
+msgstr "Fill in pick-up & drop-off fields to get price/time estimates"
 
 #: ordering/templates/passenger_home.html:40
 msgid "We're sorry, but an error occurred while loading this page."
@@ -1391,6 +1395,8 @@ msgid ""
 "WAYbetter are happy to announce our Tel Aviv pilot in collaboration with the "
 "\"Meshuhrar Taxis\" station"
 msgstr ""
+"WAYbetter is happy to announce the first Tel Aviv pilot, in collaboration "
+"with the \"Meshuhrar Taxi\" station"
 
 #: ordering/templates/passenger_home.html:77
 #: ordering/templates/passenger_home.html:81
@@ -1398,6 +1404,8 @@ msgid ""
 "We hope you'll enjoy the service and give us feedback so we can improve "
 "(bottom right corner)"
 msgstr ""
+"We hope you enjoy the service and give us feedback so we can improve (bottom "
+"right corner)"
 
 #: ordering/templates/passenger_home.html:77
 #: ordering/templates/passenger_home.html:81
@@ -1409,14 +1417,14 @@ msgid "Book Now (FREE)"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:105
-#: ordering/templates/station_page.html:85
+#: ordering/templates/station_page.html:86
 #: ordering/templates/mobile/passenger_home.html:55
 #: ordering/templates/mobile/station_page.html:57
 msgid "Enter pickup address"
 msgstr "Pickup address (number, street, city)"
 
 #: ordering/templates/passenger_home.html:108
-#: ordering/templates/station_page.html:88
+#: ordering/templates/station_page.html:89
 #: ordering/templates/mobile/passenger_home.html:59
 #: ordering/templates/mobile/station_page.html:61
 msgid "Enter drop-off address"
@@ -1453,6 +1461,8 @@ msgid ""
 "We are partnering with the best taxi stations in your city, so all you have "
 "to do is push the yellow button. We'll do the rest"
 msgstr ""
+"We are partnering with the best taxi stations in your city, so all you have "
+"to do is push the yellow button. We'll do the rest!"
 
 #: ordering/templates/passenger_profile.html:10
 msgid "Phone number"
@@ -1462,16 +1472,16 @@ msgstr ""
 msgid "Change"
 msgstr ""
 
-#: ordering/templates/passenger_profile.html:16
+#: ordering/templates/passenger_profile.html:19
 #: ordering/templates/station_profile.html:25
 msgid "Save Changes"
 msgstr ""
 
-#: ordering/templates/passenger_profile.html:23
+#: ordering/templates/passenger_profile.html:26
 msgid "Changes saved!"
 msgstr ""
 
-#: ordering/templates/passenger_profile.html:24
+#: ordering/templates/passenger_profile.html:27
 msgid "Error while saving changes"
 msgstr ""
 
@@ -1489,7 +1499,7 @@ msgstr ""
 
 #: ordering/templates/press.html:12
 msgid "Founders Images"
-msgstr ""
+msgstr "Founders' Images"
 
 #: ordering/templates/press.html:13
 msgid "Print and web resolutions"
@@ -1501,7 +1511,7 @@ msgstr ""
 
 #: ordering/templates/press.html:17
 msgid "The founders together with the first station to join"
-msgstr ""
+msgstr "Founders with first WAYbetter station"
 
 #: ordering/templates/press.html:20
 msgid "Cool Photos"
@@ -1566,6 +1576,8 @@ msgid ""
 "Terminal software (FREE)<br>Easy to use software that allows you to handle "
 "the orders"
 msgstr ""
+"Terminal software (FREE)<br>Easy-to-use software that allows you to handle "
+"all orders"
 
 #: ordering/templates/station_home.html:67
 msgid ""
@@ -1574,54 +1586,58 @@ msgstr ""
 
 #: ordering/templates/station_home.html:70
 msgid "Your own ordering tool at your website (FREE)"
-msgstr ""
+msgstr "Your own ordering tool for your website (FREE)"
 
 #: ordering/templates/station_home.html:73
 msgid ""
 "Web application for smart-phone users (FREE)<br>Users will be able to book "
 "rides from your website using iPhones, Blackberry, Android and more!"
 msgstr ""
+"Web application for smartphone users (FREE)<br>Users will be able to book "
+"rides from your website using iPhones, Blackberry, Android and more!"
 
 #: ordering/templates/station_home.html:76
 msgid ""
 "Serve WAYbetter clients<br>WAYbetter has a fast growing user-base of people "
 "who need a taxi. Be the one who serves them in your city"
 msgstr ""
+"Serve WAYbetter clients<br>WAYbetter has a fast growing user-base of taxi "
+"riders. Be there to serve this clientele base in your city!  "
 
-#: ordering/templates/station_page.html:32
-#: ordering/templates/station_page.html:121
+#: ordering/templates/station_page.html:33
+#: ordering/templates/station_page.html:122
 msgid "More"
 msgstr ""
 
-#: ordering/templates/station_page.html:33
+#: ordering/templates/station_page.html:34
 msgid "Less"
 msgstr ""
 
-#: ordering/templates/station_page.html:54
+#: ordering/templates/station_page.html:55
 msgid "Book A Cab Application. Immediate Response via SMS"
 msgstr ""
 
-#: ordering/templates/station_page.html:59 templates/base.html:73
+#: ordering/templates/station_page.html:60 templates/base.html:73
 msgid "Hi"
 msgstr ""
 
-#: ordering/templates/station_page.html:59 templates/base.html:79
+#: ordering/templates/station_page.html:60 templates/base.html:79
 msgid "Log out"
 msgstr ""
 
-#: ordering/templates/station_page.html:111
+#: ordering/templates/station_page.html:112
 msgid "From any smartphone"
 msgstr ""
 
-#: ordering/templates/station_page.html:111
+#: ordering/templates/station_page.html:112
 msgid "one click and the taxi is on the way"
-msgstr ""
+msgstr "one click and a taxi is on its way"
 
-#: ordering/templates/station_page.html:125
+#: ordering/templates/station_page.html:126
 msgid "Contact Info"
 msgstr ""
 
-#: ordering/templates/station_page.html:129
+#: ordering/templates/station_page.html:130
 msgid "Station's website"
 msgstr ""
 
@@ -1660,6 +1676,41 @@ msgstr ""
 #: ordering/templates/terms.html:17
 msgid "web_actual_terms"
 msgstr ""
+"The Terms of Use for the website constitutes a legal agreement between you "
+"andWAYbetter Ltd. These terms are an essential condition for using the site "
+"and / or theservice and / or the application and / or the information and "
+"data which appear herein. By using the site and / or the service and / or "
+"the application and / or the informationand data which appear herein, you "
+"agree to be bound by the terms of this Agreement,as well as any future "
+"amendments and additions to this Agreement, as these willbe announced from "
+"time to time on the following link: http://www.waybetter.com/info#terms."
+"WAYbetter Ltd. does not provide transportation services. The "
+"transportationservices are supplied by private taxi stands and taxi drivers. "
+"WAYbetter Ltd. offersinformation and modes of operation in order for you to "
+"receive transportation servicesfrom transportation providers and from third-"
+"party transportation service operators;but WAYbetter Ltd. does not nor will "
+"it provide transportation services or act in anyway as a transportation "
+"provider, and will bear no responsibility for the transportationservices "
+"received from any third party whatsoever.WAYbetter Ltd. will not be "
+"obligated for any damage and / or loss and / or expenseof any kind "
+"whatsoever which may be caused to a passenger as a result of using thesite "
+"and / or the service and / or the application and / or the information and "
+"datawhich appear herein. WAYbetter Ltd. makes every effort so that the "
+"information,price assessment and scheduling will be accurate; however, due "
+"to traffic and otherconstraints there may be a deviation or discrepancy "
+"between the information providedand the actual conditions. WAYbetter Ltd. "
+"will not be liable for any fault, error, ordiscrepancy in the information "
+"and / or data provided. Moreover, WAYbetter Ltd. willnot be liable for any "
+"damage and / or expense incurred due to acts or omissions, asaforesaid. The "
+"service user undertakes not to abuse or make any use of the site that isnot "
+"for the purpose of actually ordering a taxi. WAYbetter Ltd. will be "
+"entitled, at itssole discretion, to discontinue providing the service or to "
+"make amendments thereto.WAYbetter Ltd. reserves the right to modify the "
+"terms of this Agreement, or itspolicies, regarding the service or software, "
+"at any time, and it will be the responsibilityof the user to check this. "
+"Continued use of the service or the software subsequent toany amendment to "
+"the Agreement being made will constitute your acceptance of anychanges."
+"Copyright of this site is the exclusive property of WAYbetter Ltd."
 
 #: ordering/templates/terms.html:18
 msgid "Privacy Policy"
@@ -1668,6 +1719,11 @@ msgstr ""
 #: ordering/templates/terms.html:19
 msgid "web_actual_privacy_policy"
 msgstr ""
+"Within the scope of the service, WAYbetter Ltd. transmits the data regarding "
+"thetravel route, and the telephone number of the user, to the taxi stand. "
+"WAYbetter Ltd.undertakes not to disclose personal information to any third "
+"party.WAYbetter Ltd. reserves the right to use client information without "
+"divulging anypersonal details."
 
 #: ordering/templates/workstation_download.html:83
 msgid "Download workstations"
@@ -1892,7 +1948,7 @@ msgstr ""
 
 #: templates/base.html:120
 msgid "Passengers home"
-msgstr ""
+msgstr "Passenger home"
 
 #: templates/base.html:130
 msgid "2010 WAYbetter"
