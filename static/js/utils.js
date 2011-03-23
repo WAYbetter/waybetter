@@ -8,6 +8,27 @@ Object.create = Object.create || function (p) {
 };
 
 
+(function($) {
+	$.fn.extend({
+		disable: function() {
+			return this.each(function() {
+				$(this).attr({disabled: true});
+			});
+		},
+		enable: function() {
+			return this.each(function() {
+				$(this).removeAttr('disabled');
+			});
+		},
+        set_button_text: function(text) {
+            return this.each(function() {
+                $(this).parent().find(".ui-btn-text").text(text)
+            })
+        }
+	});
+
+})(jQuery);
+
 /**
  * defineClass( ) -- a utility function for defining JavaScript classes.
  *

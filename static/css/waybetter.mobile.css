@@ -1,34 +1,28 @@
 * {
-    font-family: Calibri, sans-serif;
+    /*font-family: Calibri, sans-serif;*/
     margin: 0;
     padding: 0;
-    color: #2e2e2e;
 }
 
 a:focus {
     outline: none;
 }
-body {
-    font-size: 10px;
-    line-height: 1.5em;
-    text-align: center;
-}
 form ul {
     list-style: none;
 }
-input.text, input[type=text], input[type=tel], input[type=search] {
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
-    border-radius: 5px;
-    -moz-box-shadow:0 2px 1px #292929 inset;
-    -webkit-box-shadow:0 2px 1px #292929 inset;
-    box-shadow:0 2px 1px #292929 inset;
-    border-color: #949494;
-    border-style: solid;
-    border-width: 2px 1px 1px 2px;
-    -webkit-appearance: none;
-    -moz-appearance: none;
-}
+/*input.text, input[type=text], input[type=tel], input[type=search] {*/
+    /*-webkit-border-radius: 5px;*/
+    /*-moz-border-radius: 5px;*/
+    /*border-radius: 5px;*/
+    /*-moz-box-shadow:0 2px 1px #292929 inset;*/
+    /*-webkit-box-shadow:0 2px 1px #292929 inset;*/
+    /*box-shadow:0 2px 1px #292929 inset;*/
+    /*border-color: #949494;*/
+    /*border-style: solid;*/
+    /*border-width: 2px 1px 1px 2px;*/
+    /*-webkit-appearance: none;*/
+    /*-moz-appearance: none;*/
+/*}*/
 .wb_button {
     font-size: 15px;
     font-weight: bold;
@@ -185,7 +179,7 @@ button.order_button:disabled {
     z-index: 1000;
     width: 75%;
     height: 34px;
-    bottom: 10px;
+    top: 190px;
     padding:5px 20px 10px 44px;
     background: rgba(0, 0, 0, 0.8) url("/static/images/mobile/calculator.png") 2px 4px no-repeat;
     -webkit-border-radius:8px;
@@ -196,7 +190,7 @@ button.order_button:disabled {
     font-size: 15px;
     font-weight: bold;
     line-height: 16px;
-
+    text-shadow: none;
 }
 #close_estimate {
     position: absolute;
@@ -271,7 +265,7 @@ span.clear {
 }
 
 #map {
-    height: 277px;
+    /*height: 10px;*/
     width: 100%;
 }
 .toolbar_button {
@@ -308,6 +302,9 @@ span.clear {
     background-position: 35px -20px, 0 0;
 }
 
+#order_toolbar {
+    text-align: center;
+}
 
 input.big_text {
     width: 100%;
@@ -340,6 +337,8 @@ input.big_text {
     position: absolute;
     top: 100%;
     z-index: 2000;
+    text-align:center;
+    text-shadow: none;
 }
 .glass_pane.show {
     /*display: block;*/
@@ -347,7 +346,7 @@ input.big_text {
 }
 .glass_pane > #top {
     margin-top: 20px;
-    height: 50%;
+    height: 23%;
     color:white;
     font-weight: bold;
     font-size: 30px;
@@ -435,4 +434,8 @@ ul.loading_address li{
     height: 300px;
     text-align: center;
     color: white;
+}
+
+.ui-field-contain {
+    padding-top: 1em;
 }

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-02-28 18:58+0200\n"
+"POT-Creation-Date: 2011-03-17 18:00+0200\n"
 "PO-Revision-Date: 2011-02-13 16:01+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -207,7 +207,9 @@ msgstr ""
 msgid "Enter SMS code"
 msgstr ""
 
-#: common/templates/code_form.html:20 templates/mobile/base.html:86
+#: common/templates/code_form.html:20
+#: ordering/templates/mobile/passenger_home.html:157
+#: templates/mobile/base.html:144
 msgid "Finish"
 msgstr ""
 
@@ -282,7 +284,7 @@ msgstr ""
 #: common/templates/phone_verification_form.html:46
 #: ordering/templates/base_passenger.html:50
 #: ordering/templates/base_station.html:35
-#: ordering/templates/station_page.html:60
+#: ordering/templates/station_page.html:61
 msgid "Login"
 msgstr ""
 
@@ -306,7 +308,9 @@ msgstr ""
 #: ordering/templates/passenger_home.html:28
 #: ordering/templates/station_page.html:31
 #: ordering/templates/workstation_home.html:501
-#: ordering/templates/mobile/passenger_home.html:32
+#: ordering/templates/mobile/passenger_home.html:56
+#: ordering/templates/mobile/station_page.html:32
+#: templates/mobile/base.html:41
 msgid "Sending..."
 msgstr ""
 
@@ -610,7 +614,7 @@ msgstr ""
 msgid "Country"
 msgstr ""
 
-#: ordering/forms.py:173 ordering/templates/station_page.html:126
+#: ordering/forms.py:173 ordering/templates/station_page.html:127
 msgid "Address"
 msgstr ""
 
@@ -643,7 +647,7 @@ msgstr ""
 msgid "Invalid address"
 msgstr ""
 
-#: ordering/forms.py:219 ordering/templates/station_page.html:127
+#: ordering/forms.py:219 ordering/templates/station_page.html:128
 msgid "Phone"
 msgstr ""
 
@@ -1313,13 +1317,15 @@ msgstr ""
 #: ordering/templates/passenger_home.html:27
 #: ordering/templates/passenger_home.html:108
 #: ordering/templates/station_page.html:30
-#: ordering/templates/station_page.html:90
+#: ordering/templates/station_page.html:91
 msgid "Pick Me Up"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:29
 #: ordering/templates/station_page.html:34
-#: ordering/templates/mobile/passenger_home.html:23
+#: ordering/templates/mobile/passenger_home.html:47
+#: ordering/templates/mobile/station_page.html:23
+#: templates/mobile/base.html:32
 msgid "Fill pickup and dropoff for price and time estimation "
 msgstr ""
 
@@ -1348,14 +1354,17 @@ msgid "Book Now (FREE)"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:102
-#: ordering/templates/station_page.html:84
-#: ordering/templates/mobile/passenger_home.html:55
+#: ordering/templates/station_page.html:85
+#: ordering/templates/mobile/passenger_home.html:97
+#: ordering/templates/mobile/station_page.html:57
+#: templates/mobile/base.html:81
 msgid "Enter pickup address"
 msgstr "Pickup address (number, street, city)"
 
 #: ordering/templates/passenger_home.html:105
-#: ordering/templates/station_page.html:87
-#: ordering/templates/mobile/passenger_home.html:59
+#: ordering/templates/station_page.html:88
+#: ordering/templates/mobile/passenger_home.html:102
+#: ordering/templates/mobile/station_page.html:61
 msgid "Enter drop-off address"
 msgstr "Drop-off address (number, street, city)"
 
@@ -1510,7 +1519,7 @@ msgid ""
 msgstr ""
 
 #: ordering/templates/station_page.html:32
-#: ordering/templates/station_page.html:120
+#: ordering/templates/station_page.html:121
 msgid "More"
 msgstr ""
 
@@ -1518,31 +1527,31 @@ msgstr ""
 msgid "Less"
 msgstr ""
 
-#: ordering/templates/station_page.html:53
+#: ordering/templates/station_page.html:54
 msgid "Book A Cab Application. Immediate Response via SMS"
 msgstr ""
 
-#: ordering/templates/station_page.html:58 templates/base.html:68
+#: ordering/templates/station_page.html:59 templates/base.html:68
 msgid "Hi"
 msgstr ""
 
-#: ordering/templates/station_page.html:58 templates/base.html:74
+#: ordering/templates/station_page.html:59 templates/base.html:74
 msgid "Log out"
 msgstr ""
 
-#: ordering/templates/station_page.html:110
+#: ordering/templates/station_page.html:111
 msgid "From any smartphone"
 msgstr ""
 
-#: ordering/templates/station_page.html:110
+#: ordering/templates/station_page.html:111
 msgid "one click and the taxi is on the way"
 msgstr ""
 
-#: ordering/templates/station_page.html:124
+#: ordering/templates/station_page.html:125
 msgid "Contact Info"
 msgstr ""
 
-#: ordering/templates/station_page.html:128
+#: ordering/templates/station_page.html:129
 msgid "Station's website"
 msgstr ""
 
@@ -1644,64 +1653,120 @@ msgstr ""
 msgid "and try again"
 msgstr ""
 
-#: ordering/templates/mobile/passenger_home.html:24
-msgid "Finding Your Location..."
-msgstr ""
-
 #: ordering/templates/mobile/passenger_home.html:25
-msgid "No Location Found"
-msgstr ""
-
-#: ordering/templates/mobile/passenger_home.html:26
-msgid "Unable to locate your position"
+msgid "Loading..."
 msgstr ""
 
 #: ordering/templates/mobile/passenger_home.html:27
+#: templates/mobile/base.html:130
+msgid "Back"
+msgstr ""
+
+#: ordering/templates/mobile/passenger_home.html:48
+#: ordering/templates/mobile/station_page.html:24
+#: templates/mobile/base.html:33
+msgid "Finding Your Location..."
+msgstr ""
+
+#: ordering/templates/mobile/passenger_home.html:49
+#: ordering/templates/mobile/station_page.html:25
+#: templates/mobile/base.html:34
+msgid "No Location Found"
+msgstr ""
+
+#: ordering/templates/mobile/passenger_home.html:50
+#: ordering/templates/mobile/station_page.html:26
+#: templates/mobile/base.html:35
+msgid "Unable to locate your position"
+msgstr ""
+
+#: ordering/templates/mobile/passenger_home.html:51
+#: ordering/templates/mobile/station_page.html:27
+#: templates/mobile/base.html:36
 msgid "Order Sent!\\n\\nAn SMS with ride details will be sent soon"
 msgstr ""
 
-#: ordering/templates/mobile/passenger_home.html:28
+#: ordering/templates/mobile/passenger_home.html:52
+#: ordering/templates/mobile/station_page.html:28
+#: templates/mobile/base.html:37
 #, fuzzy
 msgid "Enter Address"
 msgstr "Pickup address (number, street, city)"
 
-#: ordering/templates/mobile/passenger_home.html:29
+#: ordering/templates/mobile/passenger_home.html:53
+#: ordering/templates/mobile/station_page.html:29
+#: templates/mobile/base.html:38
 msgid "Are you sure you want to order a taxi now?"
 msgstr ""
 
-#: ordering/templates/mobile/passenger_home.html:30
+#: ordering/templates/mobile/passenger_home.html:54
+#: ordering/templates/mobile/station_page.html:30
+#: templates/mobile/base.html:39
 msgid "Try Again"
 msgstr ""
 
-#: ordering/templates/mobile/passenger_home.html:31
-#: templates/mobile/base.html:82
+#: ordering/templates/mobile/passenger_home.html:55
+#: ordering/templates/mobile/passenger_home.html:152
+#: ordering/templates/mobile/station_page.html:31
+#: templates/mobile/base.html:40 templates/mobile/base.html.py:140
 msgid "Send Verification Code"
 msgstr ""
 
-#: ordering/templates/mobile/passenger_home.html:33
+#: ordering/templates/mobile/passenger_home.html:57
+#: ordering/templates/mobile/station_page.html:33
+#: templates/mobile/base.html:42
 msgid "Code Sent"
 msgstr ""
 
-#: ordering/templates/mobile/passenger_home.html:34
+#: ordering/templates/mobile/passenger_home.html:58
+#: ordering/templates/mobile/station_page.html:34
+#: templates/mobile/base.html:43
 msgid "Could not resolve address"
 msgstr ""
 
-#: ordering/templates/mobile/passenger_home.html:35
+#: ordering/templates/mobile/passenger_home.html:59
+#: ordering/templates/mobile/station_page.html:35
+#: templates/mobile/base.html:44
 msgid "Looking for address"
 msgstr ""
 
-#: ordering/templates/mobile/passenger_home.html:36
+#: ordering/templates/mobile/passenger_home.html:60
+#: ordering/templates/mobile/station_page.html:36
+#: templates/mobile/base.html:45
 msgid "Address Incomplete: please enter a house number"
 msgstr ""
 
-#: ordering/templates/mobile/passenger_home.html:57
-#: ordering/templates/mobile/passenger_home.html:61
-#: templates/mobile/base.html:64
+#: ordering/templates/mobile/passenger_home.html:99
+#: ordering/templates/mobile/passenger_home.html:104
+#: ordering/templates/mobile/station_page.html:59
+#: ordering/templates/mobile/station_page.html:63
+#: templates/mobile/base.html:122
 msgid "Cancel"
 msgstr ""
 
-#: ordering/templates/mobile/passenger_home.html:64
+#: ordering/templates/mobile/passenger_home.html:107
+#: ordering/templates/mobile/station_page.html:66
 msgid "GPS"
+msgstr ""
+
+#: ordering/templates/mobile/passenger_home.html:132
+#: templates/mobile/base.html:121
+msgid "Select Address"
+msgstr ""
+
+#: ordering/templates/mobile/passenger_home.html:143
+#: templates/mobile/base.html:129
+msgid "Verification"
+msgstr ""
+
+#: ordering/templates/mobile/passenger_home.html:150
+#: templates/mobile/base.html:135
+msgid "Enter your mobile number"
+msgstr ""
+
+#: ordering/templates/mobile/passenger_home.html:155
+#: templates/mobile/base.html:141
+msgid "Enter verification code"
 msgstr ""
 
 #: registration/admin.py:23
@@ -1822,26 +1887,6 @@ msgstr ""
 
 #: templates/connected_page.html:13
 msgid "No connection to server"
-msgstr ""
-
-#: templates/mobile/base.html:63
-msgid "Select Address"
-msgstr ""
-
-#: templates/mobile/base.html:71
-msgid "Verification"
-msgstr ""
-
-#: templates/mobile/base.html:72
-msgid "Back"
-msgstr ""
-
-#: templates/mobile/base.html:77
-msgid "Enter your mobile number"
-msgstr ""
-
-#: templates/mobile/base.html:83
-msgid "Enter verification code"
 msgstr ""
 
 #: templates/registration/activate.html:8

@@ -1,72 +1,131 @@
-{#<!DOCTYPE html PUBLIC "-//WAPFORUM//DTD XHTML Mobile 1.2//EN"#}
-{#"http://www.openmobilealliance.org/tech/DTD/xhtml-mobile12.dtd">#}
-<!doctype html>
+{% load i18n %}
+<!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
 <title>WAYbetter</title>
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
-    <script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js"></script>
-    <script src="/static/js/jqtouch.js" type="application/x-javascript" charset="utf-8"></script>
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.css" />
+    <link rel="stylesheet" href="/static/css/add2home.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/waybetter.mobile.css" />
+    <link rel="apple-touch-startup-image" href="/static/images/mobile/pre-image.jpg">
+    <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 163dpi)" href="/static/images/mobile/icon.png" />
+    <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 326dpi)" href="/static/images/mobile/icon_114.png" />
+    {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}/static/css/rtl.mobile.css{% endblock %}" />{% endif %}
+    {% block extrastyle %}{% endblock %}
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
     <script src="/static/js/utils.js"></script>
-    <script type="text/javascript">
-       var $jqt = $.jQTouch({
-            statusBar: 'black',
-            addGlossToIcon: false,
-//            icon: '/static/images/mobile/icon.png',
-            startupScreen: '/static/images/mobile/pre-image.jpg',
-            cacheGetRequests: false,
-            preloadImages: ['/static/images/mobile/loader.gif', '/static/images/mobile/gps_refresh_cancel.png']
+    <script src="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/ordering.mobile.js"></script>
+    <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
+    <script>
+        $(document).ready(function() {
+            OrderingHelper.init({
+                resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
+                resolve_coordinate_url:     "{% url ordering.passenger_controller.resolve_coordinates %}",
+                estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}",
+                send_sms_url:               "{% url ordering.passenger_controller.send_sms_verification %}",
+                validate_phone_url:         "{% url ordering.passenger_controller.validate_phone %}",
+                not_a_passenger_response:   "{{ not_a_passenger }}",
+                not_a_user_response:        "{{ not_a_user }}",
+                telmap_user:                "{{ telmap_user }}",
+                telmap_password:            "{{ telmap_password}}",
+                messages:         {
+                    estimation_msg:          "{% trans 'Fill pickup and dropoff for price and time estimation ' %}",
+                    finding_location:        "{% trans 'Finding Your Location...' %}",
+                    sorry_msg:               "{% trans 'No Location Found' %}",
+                    no_location_msg:         "{% trans 'Unable to locate your position' %}",
+                    order_sent_msg:          "{% trans 'Order Sent!\n\nAn SMS with ride details will be sent soon'%}",
+                    enter_address:           "{% trans 'Enter Address' %}",
+                    are_you_sure:            "{% trans 'Are you sure you want to order a taxi now?' %}",
+                    try_again:               "{% trans 'Try Again' %}",
+                    send_verification:       "{% trans 'Send Verification Code' %}",
+                    sending:                 "{% trans 'Sending...' %}",
+                    code_sent:               "{% trans 'Code Sent' %}",
+                    could_not_resolve:       "{% trans 'Could not resolve address' %}",
+                    looking_for:             "{% trans 'Looking for address' %}",
+                    no_house_number:         "{% trans 'Address Incomplete: please enter a house number' %}"
+                }
+            });
         });
+
+    </script>
+    <script type="text/javascript">
 		var addToHomeConfig = {
 			animationIn:'drop',		// Animation In
 			animationOut:'fade',		// Animation Out
-            message: 'he_il',
+            message: 'he_il'
 		};
     </script>
     <script type="application/javascript" src="/static/js/add2home.js"></script>
-    <style type="text/css" media="screen">@import "/static/css/jqtouch.css";</style>
-    <style type="text/css" media="screen">@import "/static/css/themes/apple/theme.css";</style>
-    <link rel="stylesheet" href="/static/css/add2home.css">
-    <link rel="stylesheet" type="text/css" href="/static/css/waybetter.mobile.css" />
-    <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 163dpi)" href="/static/images/mobile/icon.png" />
-    <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 326dpi)" href="/static/images/mobile/icon_114.png" />
-
-    <!--[if lte IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}css/ie.css{% endblock %}" /><![endif]-->
-    {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}/static/css/rtl.mobile.css{% endblock %}" />{% endif %}
-    {% block extrastyle %}{% endblock %}
 
     {% block extrahead %}
     {% endblock %}
 
-{% block blockbots %}<meta name="robots" content="NONE,NOARCHIVE" />{% endblock %}
-<!-- Google Analytics -->
 </head>
 {% load i18n %}
 
-<body id="jqt" class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
+<body>
+    {# HOME PAGE #}
+    <div id="home" data-role="page" data-fullscreen="true">
+        <div data-role="header" data-position="fixed">
+            <div id="gray_header">
+                <form id="order_form" method="post" action="{% url ordering.passenger_controller.book_order %}">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        {% if field.name in hidden_fields %}
+                            {{ field.as_hidden }}
+                        {% else %}
+                            <input type="hidden" id="id_geocoded_{{ field.name }}" name="geocoded_{{ field.name }}"/>
+                        {%  endif %}
+                    {% endfor %}
+                    <div data-role="fieldcontain">
+                        <input type="search"  placeholder="{% trans 'Enter pickup address' %}"/>
+                    </div>
 
-    <div id="home" class="current">
-        <!-- Top Control -->
-        <div id="gray_header" id="top_control">
-        {% block topcontrol %}{% endblock topcontrol %}
+                    {#                <div class="padder">#}
+                    {#                </div>#}
+                    {#                <button type="button" class="cancel_button">{% trans 'Cancel' %}</button>#}
+                    {#                <div class="padder">#}
+                    {#                    <input type="search" class="big_text b_marker" id="id_to_raw" name="to_raw" placeholder="{% trans 'Enter drop-off address' %}"/>#}
+                    {#                </div>#}
+                    {#                <button type="button" class="cancel_button">{% trans 'Cancel' %}</button>#}
+                    {#                <div class="sources_toolbar">#}
+                    {#            <button type="button" id="history_button" class="toolbar_button">{% trans 'History' %}</button>#}
+                    {#                    <button type="button" id="gps_button" class="toolbar_button">{% trans 'GPS' %}</button>#}
+                    {#                </div>#}
+                </form>
+            </div>
+
         </div>
-        <!-- END Top Control -->
-        <!-- Content -->
-        <div id="content">
-            {% block content %}
-            {% endblock content %}
+        <div id="content" data-role="content">
+
+            <div id="map_container">
+                <div id="ride_cost_estimate"><span class="text"></span><span id="close_estimate"></span></div>
+                <div id="map"></div>
+            </div>
+{#            <div class="glass_pane">#}
+{#                <div id="top"></div>#}
+{#                <div id="bottom"></div>#}
+{#            </div>#}
         </div>
+
+        <div  data-role="footer" data-position="fixed">
+            <button type="submit" class="order_button" id="order_button"></button>
+        </div>
+
         <!-- END Content -->
     </div>
-    <div id="resolve_addresses">
-        <div class="toolbar">
+
+    {#RESOLVE ADDRESS PAGE#}
+    <div id="resolve_addresses" data-role="page"> {# TODO_WB: load via ajax to speed up initial page load? #}
+        <div data-role="header">
             <h1>{% trans 'Select Address' %}</h1>
             <a class="back" href="#">{% trans 'Cancel' %}</a>
         </div>
-        <ul class="edgetoedge">
+        <ul data-role="listview">
         </ul>
     </div>
-    <div id="sms_dialog">
+    <div id="sms_dialog" data-role="page">
         <div class="toolbar">
             <h1>{% trans 'Verification' %}</h1>
             <a class="back" href="#">{% trans 'Back' %}</a>
