@@ -8,9 +8,15 @@
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.css" />
     <link rel="stylesheet" href="/static/css/add2home.css">
     <link rel="stylesheet" type="text/css" href="/static/css/waybetter.mobile.css" />
-    <link rel="apple-touch-startup-image" href="/static/images/mobile/pre-image.jpg">
-    <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 163dpi)" href="/static/images/mobile/icon.png" />
-    <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 326dpi)" href="/static/images/mobile/icon_114.png" />
+    {% if station %}
+        <link rel="apple-touch-startup-image" href="{{ station.app_splash_url }}">
+        <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 163dpi)" href="{{ station.app_icon_url }}" />
+        <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 326dpi)" href="{{ station.app_icon_url }}" />
+    {% else %}
+        <link rel="apple-touch-startup-image" href="/static/images/mobile/pre-image.jpg">
+        <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 163dpi)" href="/static/images/mobile/icon.png" />
+        <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 326dpi)" href="/static/images/mobile/icon_114.png" />
+    {% endif %}
     <style>
         #map_container {
             height: 100%;
@@ -84,6 +90,9 @@
         <div id="content" data-role="content">
             <div id="gray_header"  data-inline="true">
                 <form id="order_form" method="post" action="{% url ordering.passenger_controller.book_order %}">
+                    {% if station %}
+                    <input type="hidden" name="originating_station" id="id_originating_station" value="{{ station.id }}" />
+                    {% endif %}
                     {% csrf_token %}
                     {% for field in form %}
                         {% if field.name in hidden_fields %}
