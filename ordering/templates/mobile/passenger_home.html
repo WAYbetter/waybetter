@@ -1,80 +1,177 @@
-{% extends "mobile/base.html" %}
+{% load i18n %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<head>
+<title>WAYbetter</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.css" />
+    <link rel="stylesheet" href="/static/css/add2home.css">
+    <link rel="stylesheet" type="text/css" href="/static/css/waybetter.mobile.css" />
+    <link rel="apple-touch-startup-image" href="/static/images/mobile/pre-image.jpg">
+    <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 163dpi)" href="/static/images/mobile/icon.png" />
+    <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 326dpi)" href="/static/images/mobile/icon_114.png" />
+    <style>
+        #map_container {
+            height: 100%;
+        }
+    </style>
+    {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}/static/css/rtl.mobile.css{% endblock %}" />{% endif %}
+    {% block extrastyle %}{% endblock %}
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    <script src="/static/js/utils.js"></script>
+    <script>
+        $(document).bind("mobileinit", function(){
+            $.extend($.mobile, {
+                loadingMessage: "{% trans 'Loading...' %}"
+            });
+            $.mobile.page.prototype.options.backBtnText = "{% trans 'Back' %}";
+        })
+    </script>
+    <script src="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.js"></script>
+    <script src="/static/js/jquery.form.js"></script>
+    <script src="/static/js/ordering.mobile.js" defer="defer"></script>
+    <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false" defer='defer'></script>
+    <script defer="defer">
+        $(document).ready(function() {
+            OrderingHelper.init({
+                resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
+                resolve_coordinate_url:     "{% url ordering.passenger_controller.resolve_coordinates %}",
+                estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}",
+                send_sms_url:               "{% url ordering.passenger_controller.send_sms_verification %}",
+                validate_phone_url:         "{% url ordering.passenger_controller.validate_phone %}",
+                not_a_passenger_response:   "{{ not_a_passenger }}",
+                not_a_user_response:        "{{ not_a_user }}",
+                telmap_user:                "{{ telmap_user }}",
+                telmap_password:            "{{ telmap_password}}",
+                messages:         {
+                    estimation_msg:          "{% trans 'Fill pickup and dropoff for price and time estimation ' %}",
+                    finding_location:        "{% trans 'Finding Your Location...' %}",
+                    sorry_msg:               "{% trans 'No Location Found' %}",
+                    no_location_msg:         "{% trans 'Unable to locate your position' %}",
+                    order_sent_msg:          "{% trans 'Order Sent!\n\nAn SMS with ride details will be sent soon'%}",
+                    enter_address:           "{% trans 'Enter Address' %}",
+                    are_you_sure:            "{% trans 'Are you sure you want to order a taxi now?' %}",
+                    try_again:               "{% trans 'Try Again' %}",
+                    send_verification:       "{% trans 'Send Verification Code' %}",
+                    sending:                 "{% trans 'Sending...' %}",
+                    code_sent:               "{% trans 'Code Sent' %}",
+                    could_not_resolve:       "{% trans 'Could not resolve address' %}",
+                    looking_for:             "{% trans 'Looking for address' %}",
+                    no_house_number:         "{% trans 'Address Incomplete: please enter a house number' %}"
+                }
+            });
+        });
+    </script>
+    <script type="text/javascript">
+		var addToHomeConfig = {
+			animationIn:'drop',		// Animation In
+			animationOut:'fade',		// Animation Out
+            message: 'he_il'
+		};
+    </script>
+    <script type="application/javascript" src="/static/js/add2home.js" defer="defer"></script>
+
+    {% block extrahead %}
+    {% endblock %}
+
+</head>
 {% load i18n %}
 
-{% block extrahead %}
-{{ block.super }}
-<script src="/static/js/jquery.form.js"></script>
-<script src="/static/js/ordering.mobile.js"></script>
-<script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
+<body>
+    {# HOME PAGE #}
+    <div id="home" data-role="page" data-fullscreen="true">
+        <div id="content" data-role="content">
+            <div id="gray_header"  data-inline="true">
+                <form id="order_form" method="post" action="{% url ordering.passenger_controller.book_order %}">
+                    {% csrf_token %}
+                    {% for field in form %}
+                        {% if field.name in hidden_fields %}
+                            {{ field.as_hidden }}
+                        {% else %}
+                            <input type="hidden" id="id_geocoded_{{ field.name }}" name="geocoded_{{ field.name }}"/>
+                        {%  endif %}
+                    {% endfor %}
+
+                    <div class="padder">
+                        <input type="search" class="big_text a_marker" id="id_from_raw" name="from_raw" data-role="none" placeholder="{% trans 'Enter pickup address' %}"/>
+                    </div>
+                    <button type="button" class="cancel_button" data-role="none">{% trans 'Cancel' %}</button>
+
+                    <div class="padder">
+                        <input type="search" class="big_text b_marker" id="id_to_raw" name="to_raw" data-role="none" placeholder="{% trans 'Enter drop-off address' %}"/>
+                    </div>
+                    <button type="button" class="cancel_button" data-role="none">{% trans 'Cancel' %}</button>
+                    <div class="sources_toolbar">
+{#                        <button type="button" id="history_button" class="toolbar_button" data-role="none">{% trans 'History' %}</button>#}
+                        <button type="button" id="gps_button" class="toolbar_button" data-role="none">{% trans 'GPS' %}</button>
+                    </div>
+                </form>
+            </div>
+
+            <div id="map_container">
+                <div id="ride_cost_estimate"><span class="text"></span><span id="close_estimate"></span></div>
+                <div id="map"></div>
+                <div class="glass_pane">
+                    <div id="top"></div>
+                    <div id="bottom"></div>
+                </div>
+            </div>
+        </div>
+
+        <div data-role="footer" data-position="fixed" id="order_toolbar">
+            <button type="submit" class="order_button" id="order_button" data-role="none"></button>
+        </div>
+    
+        <!-- END Content -->
+    </div>
+
+    {# RESOLVE ADDRESS PAGE #}
+    <div id="resolve_addresses" data-role="page" data-theme="b"> {# TODO_WB: load via ajax to speed up initial page load? #}
+        <div data-role="header">
+            <h1>{% trans 'Select Address' %}</h1>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview">
+            </ul>
+        </div>
+    </div>
+
+    {# VERIFY PHONE PAGE #}
+    <div id="sms_dialog" data-role="page" data-theme="b">
+        <div data-role="header">
+            <h1>{% trans 'Verification' %}</h1>
+        </div>
+        <div data-role="content">
+            <form id="verification_form">
+                <input type="hidden" name="country" value="{{ country_id }}" />
+
+                <div data-role="fieldcontain">
+                    <label for="local_phone">{% trans 'Enter your mobile number' %}</label>
+                    <input data-theme="b" type="tel" name="local_phone" id="local_phone" />
+                    <button data-theme="b" type="button" id="send_code">{% trans 'Send Verification Code' %}</button>
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="verification_code">{% trans 'Enter verification code' %}</label>
+                    <input type="tel" name="verification_code" id="verification_code" />
+                    <button data-theme="b" type="button" id="finish_verification">{% trans 'Finish' %}</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
 <script>
-    $(document).ready(function() {
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18077675-1']);
+  _gaq.push(['_trackPageview']);
 
-        OrderingHelper.init({
-            resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
-            resolve_coordinate_url:     "{% url ordering.passenger_controller.resolve_coordinates %}",
-            estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}",
-            send_sms_url:               "{% url ordering.passenger_controller.send_sms_verification %}",
-            validate_phone_url:         "{% url ordering.passenger_controller.validate_phone %}",
-            not_a_passenger_response:   "{{ not_a_passenger }}",
-            not_a_user_response:        "{{ not_a_user }}",
-            telmap_user:                "{{ telmap_user }}",
-            telmap_password:            "{{ telmap_password}}",
-            messages:         {
-                estimation_msg:          "{% trans 'Fill pickup and dropoff for price and time estimation ' %}",
-                finding_location:        "{% trans 'Finding Your Location...' %}",
-                sorry_msg:               "{% trans 'No Location Found' %}",
-                no_location_msg:         "{% trans 'Unable to locate your position' %}",
-                order_sent_msg:          "{% trans 'Order Sent!\n\nAn SMS with ride details will be sent soon'%}",
-                enter_address:           "{% trans 'Enter Address' %}",
-                are_you_sure:            "{% trans 'Are you sure you want to order a taxi now?' %}",
-                try_again:               "{% trans 'Try Again' %}",
-                send_verification:       "{% trans 'Send Verification Code' %}",
-                sending:                 "{% trans 'Sending...' %}",
-                code_sent:               "{% trans 'Code Sent' %}",
-                could_not_resolve:       "{% trans 'Could not resolve address' %}",
-                looking_for:             "{% trans 'Looking for address' %}",
-                no_house_number:         "{% trans 'Address Incomplete: please enter a house number' %}"
-            }
-        });
-    });
-
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
 </script>
-{% endblock %}
+{%  block extra-body %}{% endblock %}
+</body>
 
-{% block topcontrol %}
-    <form id="order_form" method="post" action="{% url ordering.passenger_controller.book_order %}">
-        {% csrf_token %}
-        {% for field in form %}
-            {% if field.name in hidden_fields %}
-                {{ field.as_hidden }}
-            {% else %}
-                <input type="hidden" id="id_geocoded_{{ field.name }}" name="geocoded_{{ field.name }}"/>
-            {%  endif %}
-        {% endfor %}
-        <div class="padder">
-            <input type="search" class="big_text a_marker" id="id_from_raw" name="from_raw" placeholder="{% trans 'Enter pickup address' %}"/>
-        </div>
-        <button type="button" class="cancel_button">{% trans 'Cancel' %}</button>
-        <div class="padder">
-            <input type="search" class="big_text b_marker" id="id_to_raw" name="to_raw" placeholder="{% trans 'Enter drop-off address' %}"/>
-        </div>
-        <button type="button" class="cancel_button">{% trans 'Cancel' %}</button>
-        <div class="sources_toolbar">
-{#            <button type="button" id="history_button" class="toolbar_button">{% trans 'History' %}</button>#}
-            <button type="button" id="gps_button" class="toolbar_button">{% trans 'GPS' %}</button>
-        </div>
-    </form>
-{% endblock topcontrol %}
-{% block content %}
-    <div id="map_container">
-        <div id="ride_cost_estimate"><span class="text"></span><span id="close_estimate"></span></div>
-        <div id="map"></div>
-    </div>
-    <div id="bottom_toolbar" class="">
-        <button type="submit" class="order_button" id="order_button"></button>
-    </div>
-    <div class="glass_pane">
-        <div id="top"></div>
-        <div id="bottom"></div>
-    </div>
-{% endblock content %}
+</html>
