@@ -16,13 +16,13 @@ import common.urllib_adaptor as urllib2
 import urllib
 import logging
 
-ASSIGNED = 1
-ACCEPTED = 2
-IGNORED = 3
-REJECTED = 4
-PENDING = 5
-FAILED = 6
-ERROR = 7
+ASSIGNED	= 1
+ACCEPTED	= 2
+IGNORED		= 3
+REJECTED	= 4
+PENDING		= 5
+FAILED		= 6
+ERROR		= 7
 
 ASSIGNMENT_STATUS = ((ASSIGNED, ugettext("assigned")),
                      (ACCEPTED, ugettext("accepted")),

@@ -4,9 +4,10 @@ from django.utils.translation import ugettext as _
 from common.util import Enum, EventType
 
 class AnalysisType(Enum):
-    ORDERS =        1
-    RATINGS =       2
-    REGISTRATION =  3
+    ORDERS          = 1
+    RATINGS         = 2
+    REGISTRATION    = 3
+    TIMING          = 4
 
     @classmethod
     def get_event_types(cls, analysis_type):
