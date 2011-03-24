@@ -246,7 +246,7 @@
             $("#charts").append($("<div></div>").attr("id", container_name).addClass("chart"))
         }
 
-        hour_chart = new Highcharts.Chart({
+        var chart_options = {
             chart: {
                 renderTo: container_name,
                 zoomType: 'x'
@@ -261,11 +261,16 @@
             yAxis: {
                 min: 0,
                 title: {
-                   text: data.y_axis_title
+                    text: data.y_axis_title
                 }
             },
             series: data.series
-        });
+        };
+        if (data.labels) {
+            chart_options.labels= data.labels;
+        }
+
+        hour_chart = new Highcharts.Chart(chart_options);
     }
 
     function updateDateChart(data) {
@@ -421,6 +426,9 @@
                 scatter: {
                     marker: {
                         lineColor: '#333'
+                    },
+                    dataLabels: {
+                        enabled: true
                     }
                 }
             },
@@ -455,9 +463,12 @@
         $("#id_data_type").change(function() {
             if ($(this).val() == 3) { // registration
                 $("#id_data_scope").val(3).trigger("change").parent().hide(); // set to all
-
+            } else if ($(this).val() == 4) { // Timing
+                $("#id_data_scope").val(3).trigger("change"); // set to all
+                $("#id_data_scope").children().first().disable(); // disable city option
             } else {
-                $("#id_data_scope").parent().show(); 
+                $("#id_data_scope").parent().show();
+                $("#id_data_scope").children().first().enable(); // enable city option
             }
         });
 

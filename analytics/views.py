@@ -7,7 +7,7 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.conf import settings
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from ordering.models import Order, Station, ORDER_STATUS
+from ordering.models import Order, Station, ORDER_STATUS, OrderAssignment, ACCEPTED, REJECTED
 from djangotoolbox.http import JSONResponse
 from common.models import City, Country
 from datetime import datetime, timedelta
@@ -58,17 +58,22 @@ def analytics(request):
         form = AnalyticsForm(request.GET)
         if form.is_valid():
             result = {}
+            scope_filter = None
             start_date = form.cleaned_data['start_date']
             end_date = form.cleaned_data['end_date']
-            
+            data_scope = int(form.cleaned_data['data_scope'])
+            data_type = int(form.cleaned_data['data_type'])
             events = AnalyticsEvent.objects.filter(create_date__lte=end_date + timedelta(days=1), create_date__gte=start_date).order_by('create_date')
-            if int(form.cleaned_data['data_scope']) == AnalysisScope.CITY:
-                events = events.filter(city=int(form.cleaned_data['city']))
 
-            elif int(form.cleaned_data['data_scope']) == AnalysisScope.STATION:
-                events = events.filter(station=int(form.cleaned_data['station']))
+            if data_scope == AnalysisScope.CITY:
+                scope_filter = int(form.cleaned_data['city'])
+                events = events.filter(city=scope_filter)
 
-            if int(form.cleaned_data['data_type']) == AnalysisType.RATINGS: 
+            elif data_scope == AnalysisScope.STATION:
+                scope_filter = int(form.cleaned_data['station'])
+                events = events.filter(station=scope_filter)
+
+            if data_type == AnalysisType.RATINGS:
                 events = events.filter(type__in=AnalysisType.get_event_types(AnalysisType.RATINGS))
                 if events:
                     result = {
@@ -76,7 +81,7 @@ def analytics(request):
                         'by_date':  get_results_by_day(events, start_date, end_date, rating_results=True),
                         'by_hour':  get_results_by_hour(events, start_date, end_date, rating_results=True)
                     }
-            elif int(form.cleaned_data['data_type']) == AnalysisType.ORDERS: 
+            elif data_type == AnalysisType.ORDERS:
                 events = events.filter(type__in=AnalysisType.get_event_types(AnalysisType.ORDERS))
                 if events:
                     result = {
@@ -84,7 +89,7 @@ def analytics(request):
                         'by_hour':  get_results_by_hour(events, start_date, end_date),
                         'map_data':  get_map_results(events)
                     }
-            elif int(form.cleaned_data['data_type']) == AnalysisType.REGISTRATION:
+            elif data_type == AnalysisType.REGISTRATION:
                 events = events.filter(type__in=AnalysisType.get_event_types(AnalysisType.REGISTRATION))
                 if events:
                     result = {
@@ -92,6 +97,8 @@ def analytics(request):
                         'by_hour':  get_results_by_hour(events, start_date, end_date),
                     }
 
+            elif data_type == AnalysisType.TIMING:
+                result = get_timing_results(start_date, end_date, data_scope, scope_filter)
 
             return JSONResponse(result)
     else:
@@ -113,6 +120,57 @@ def update_scope_select(request):
 
     return JSONResponse(result)
 
+def get_timing_results(start_date, end_date, data_scope, scope_filter):
+    orders = []
+    if data_scope == AnalysisScope.STATION:
+        orders = OrderAssignment.objects.filter(station=scope_filter, create_date__lte=end_date + timedelta(days=1), create_date__gte=start_date).order_by('create_date')
+    else:
+        orders = OrderAssignment.objects.filter(create_date__lte=end_date + timedelta(days=1), create_date__gte=start_date).order_by('create_date')
+
+    series = {
+        "accepted": {
+                'data': [],
+                'name': _("Accepted"),
+                'type': 'column'
+        },
+        "rejected": {
+            'data': [],
+            'name': _("Rejected"),
+            'type': 'column'
+        }
+    }
+    x_axis = []
+    data = []
+    for i, order in enumerate(orders):
+#        logging.info(order.station)
+        if order.status == ACCEPTED:
+            series["accepted"]["data"].append((order.modify_date - order.create_date).seconds)
+        elif order.status == REJECTED:
+            series["rejected"]["data"].append((order.modify_date - order.create_date).seconds)
+
+    accepted_data = series["accepted"]["data"]
+    accepted_average = sum(accepted_data) / len(accepted_data) if accepted_data else 0
+ 
+    rejected_data = series["rejected"]["data"]
+    rejected_average = sum(rejected_data) / len(rejected_data) if rejected_data else 0
+
+#        x_axis.append(i)
+    return { "by_hour": {
+        'series': [series["accepted"], series["rejected"]],
+        'title':        _("Timing"),
+        'y_axis_title': _("Response Time (sec)"),
+        'labels': {
+            "items": [  {"html": "%s: %s" % ("Accepted Average", accepted_average), "style": {
+                "left": '50px',
+                "top": '10px'
+            }},
+                        {"html": "%s: %s" % ("Rejected Average", rejected_average), "style": {
+                "left": '50px',
+                "top": '30px'
+            }}]
+        }
+    }}
+
 def get_map_results(events):
     map_events = [EventType.ORDER_ACCEPTED, EventType.ORDER_IGNORED, EventType.ORDER_REJECTED, EventType.NO_SERVICE_IN_CITY]
 
@@ -133,6 +191,7 @@ def get_map_results(events):
 
     logging.info(result)        
     return result
+
 def get_rating_results(events):
     rating_dic = {}
     all_ratings = 0
@@ -158,7 +217,6 @@ def get_rating_results(events):
     }
 
     return result
-
 
 def get_results_google(events):
 
@@ -187,8 +245,6 @@ def get_results_google(events):
         'columns':columns,
         'rows': rows,
     }
-
-
 
 def get_results_by_day(events, start_date, end_date, rating_results=False):
     date_dic = {}
@@ -300,9 +356,6 @@ def get_results_by_hour(events, start_date, end_date, rating_results=False):
                                 })
 
     return result
-
-
-
 
 def get_date_key(date):
     day_resolution_date = datetime(date.year, date.month, date.day)
