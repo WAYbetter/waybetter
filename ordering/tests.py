@@ -2,6 +2,7 @@
 from django.test import TestCase
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
+from google.appengine.api import memcache
 
 from common.models import City, Country
 
@@ -10,9 +11,9 @@ from ordering.models import Passenger, WorkStation, Station, OrderAssignment, IG
 from ordering.forms import OrderForm
 from ordering.dispatcher import assign_order, choose_workstation
 from ordering.order_manager import NO_MATCHING_WORKSTATIONS_FOUND, ORDER_HANDLED, OK, accept_order
-import station_controller
-import station_connection_manager
-from ordering.station_connection_manager import set_heartbeat
+from ordering import station_controller
+from ordering.station_connection_manager import get_heartbeat_key, set_heartbeat
+from ordering.station_controller import ALERT_DELTA
 from ordering.decorators import NOT_A_PASSENGER
 from ordering.pricing import estimate_cost, IsraelExtraCosts, CostType, setup_israel_meter_and_extra_charge_rules, tariff1_dict, tariff2_dict
 from ordering.rules_controller import add_flat_rate_rule
@@ -21,7 +22,6 @@ from testing import setup_testing_env
 from testing.meter_calculator import calculate_tariff
 
 import logging
-import time
 import datetime
 
 PASSENGER = None
@@ -221,22 +221,46 @@ class StationConnectionTest(TestCase):
 
     def test_ws_status_notification(self):
         service_url = reverse('ordering.station_controller.notify_ws_status')
+        now = datetime.datetime.now()
 
         # nothing happened
         response = self.client.get(service_url)
         self.assertEqual(response.content, station_controller.OK)
 
-        # work stations are born
+        # new work stations are born
+        response = self.client.get(service_url)
+        self.assertEqual(response.content, station_controller.OK) # cache was cleared, don't notify
+
+        memcache.set("online_ws", set(["ws"]))
         resuscitate_work_stations()
         response = self.client.get(service_url)
         self.assertEqual(response.content, station_controller.WS_BORN)
 
-        # wait for IS_DEAD_DELTA time to go by without another heartbeat...
-        time.sleep(station_connection_manager.IS_DEAD_DELTA + 1)
+        # dead workstation, but not long enough
+        dead_ws = WorkStation.objects.all()[0]
+        key = get_heartbeat_key(dead_ws)
+
+        memcache.set(key, now - (ALERT_DELTA - datetime.timedelta(minutes=1)))
+        response = self.client.get(service_url)
+        self.assertEqual(response.content, station_controller.OK)
+
+        # dead workstation, long enough
+        memcache.set(key, now - (ALERT_DELTA + datetime.timedelta(minutes=1)))
         response = self.client.get(service_url)
         self.assertEqual(response.content, station_controller.WS_DECEASED)
 
-        # nothing happened
+        # same dead station, don't notify again
+        memcache.set(key, now - (ALERT_DELTA + datetime.timedelta(minutes=2)))
+        response = self.client.get(service_url)
+        self.assertEqual(response.content, station_controller.OK)
+
+        # it's alive!
+        memcache.set(key, now)
+        response = self.client.get(service_url)
+        self.assertEqual(response.content, station_controller.WS_BORN)
+
+        # don't notify
+        resuscitate_work_stations()
         response = self.client.get(service_url)
         self.assertEqual(response.content, station_controller.OK)
 
