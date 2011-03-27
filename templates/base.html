@@ -25,13 +25,17 @@
 <script type="text/javascript" src="/static/js/jquery.timers-1.2.min.js"></script>
 <script type="text/javascript">
     $(function() {
+        $("form.languages select").val("{{ LANGUAGE_CODE }}");
         $("#banner > h1").click(function() {
             window.location = "/";
         });
-        $("form.languages img").click(function() {
-            var lang = $(this).attr("alt");
-            $("form.languages > #language").val(lang);
-            $("form.languages").submit();
+        $("form.languages select").change(function() {
+            var selected_lang = $(this).val();
+            var current_lang = $("form.languages > #language").val()
+            if (selected_lang != current_lang) {
+                $("form.languages > #language").val(selected_lang);
+                $("form.languages").submit();
+            }
         })
     })
 </script>
@@ -84,9 +88,11 @@
                 <form action="/i18n/setlang/" method="post" class="languages">
                 {% csrf_token %}
                 <input type="hidden" name="language" id="language" />
-                {% for lang in LANGUAGES %}
-                    <img src="/static/images/flag_icons/{{ lang.0 }}.png" title="{{ lang.1 }}" alt="{{ lang.0 }}"/>
-                {% endfor %}
+                <select>
+                    {% for lang in LANGUAGES %}
+                        <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+                    {% endfor %}
+                </select>
                 </form>
                 {% endblock usertools %}
             </div>
