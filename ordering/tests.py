@@ -223,6 +223,11 @@ class StationConnectionTest(TestCase):
         service_url = reverse('ordering.station_controller.notify_ws_status')
         now = datetime.datetime.now()
 
+        # stations not on list do not generate notifications
+        for station in Station.objects.all():
+            station.show_on_list = True
+            station.save()
+
         # nothing happened
         response = self.client.get(service_url)
         self.assertEqual(response.content, station_controller.OK)
@@ -231,9 +236,10 @@ class StationConnectionTest(TestCase):
         response = self.client.get(service_url)
         self.assertEqual(response.content, station_controller.OK) # cache was cleared, don't notify
 
+        memcache.set("online_ws", set(["ws"]))
         resuscitate_work_stations()
         response = self.client.get(service_url)
-        self.assertEqual(response.content, station_controller.OK)
+        self.assertEqual(response.content, station_controller.WS_BORN)
 
         # dead workstation, but not long enough
         dead_ws = WorkStation.objects.all()[0]
