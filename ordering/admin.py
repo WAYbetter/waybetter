@@ -2,6 +2,7 @@ from common.util import blob_to_image_tag
 from django.contrib import admin
 from django.utils.translation import ugettext as _
 from django.forms.models import BaseInlineFormSet
+from django.http import HttpResponse
 from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, ExtraChargeRule, Feedback
 import station_connection_manager
 from common.models import Country
@@ -56,14 +57,23 @@ def build_workstations(modeladmin, request, queryset):
         station.delete_workstations()
         station.build_workstations()
 build_workstations.short_description = "Build workstations"
-    
+
+def send_dummy_order(modeladmin, request, queryset):
+    for station in queryset:
+        ws_list = list(station.work_stations.all())
+
+        for ws in ws_list:
+            if station_connection_manager.is_workstation_available(ws):
+                station_connection_manager.push_dummy_order(ws)
+                break
+
 class StationAdmin(admin.ModelAdmin):
     
     list_display = ["id", "name", "logo_img"]
     inlines = [PhoneAdmin]
     exclude = ["geohash", "lat", "lon", "number_of_ratings", "average_rating", "last_assignment_date"]
     form = forms.StationAdminForm
-    actions = [build_workstations]
+    actions = [build_workstations, send_dummy_order]
 
     def logo_img(self, obj):
         res = ""

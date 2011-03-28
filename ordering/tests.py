@@ -231,10 +231,9 @@ class StationConnectionTest(TestCase):
         response = self.client.get(service_url)
         self.assertEqual(response.content, station_controller.OK) # cache was cleared, don't notify
 
-        memcache.set("online_ws", set(["ws"]))
         resuscitate_work_stations()
         response = self.client.get(service_url)
-        self.assertEqual(response.content, station_controller.WS_BORN)
+        self.assertEqual(response.content, station_controller.OK)
 
         # dead workstation, but not long enough
         dead_ws = WorkStation.objects.all()[0]
