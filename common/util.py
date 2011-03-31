@@ -57,6 +57,7 @@ class EventType(Enum):
     ORDER_RATED =                   11
     UNREGISTERED_ORDER =            12
     PASSENGER_REGISTERED =          13
+    ORDER_NOT_TAKEN =               14
 
     @classmethod
     def get_label(cls, val):

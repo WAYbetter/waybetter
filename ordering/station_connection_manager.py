@@ -1,11 +1,11 @@
-import settings
 from google.appengine.api import memcache
-from django.core.serializers import serialize
 from django.utils.datetime_safe import datetime
 from django.utils import simplejson
 from ordering.models import OrderAssignment
-from common.langsupport.util import translate_to_lang
+from common.langsupport.util import translate_to_ws_lang
 
+ugettext = lambda s: s
+DUMMY_ADDRESS = ugettext("This is a test order")
 DUMMY_ID = "dummy"
 IS_DEAD_DELTA = 35
 
@@ -32,11 +32,8 @@ def push_order(order_assignment):
     _do_push_order(order_assignment.work_station, json)
 
 def push_dummy_order(ws):
-    ugettext = lambda s: s
-    ws_lang_code = settings.LANGUAGES[ws.station.language][0]
-    dummy_address = translate_to_lang(ugettext("This is a test order"), ws_lang_code)
     json = simplejson.dumps([{"pk": DUMMY_ID,
-                             "from_raw": dummy_address,
+                             "from_raw": translate_to_ws_lang(DUMMY_ADDRESS, ws),
                              "seconds_passed": "10"}])
     _do_push_order(ws, json)
 

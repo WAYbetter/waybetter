@@ -1,29 +1,27 @@
 from google.appengine.api.taskqueue.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError
 from django.shortcuts import get_object_or_404, render_to_response
 from google.appengine.api import taskqueue
-from google.appengine.api.datastore import RunInTransaction
 from station_connection_manager import push_order
 from django.core.urlresolvers import reverse
 from ordering.errors import OrderError, NoWorkStationFoundError
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError
 from ordering.decorators import passenger_required, internal_task_on_queue
 from django.core.serializers import serialize
 from django.conf import settings
-from django.utils import translation
 from django.utils.translation import ugettext_lazy as _
 
-from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, ASSIGNED, RATING_CHOICES, ERROR
+from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, PENDING, ASSIGNED, NOT_TAKEN, RATING_CHOICES, ERROR
 import dispatcher
 import logging
 from datetime import datetime
-from sharded_counters.models import commit_locked
 from ordering.models import Station
 from common.sms_notification import send_sms
 from common.util import log_event, EventType
 from common.langsupport.util import translate_to_lang
 
 NO_MATCHING_WORKSTATIONS_FOUND = "no matching workstation found"
+ORDER_TIMEOUT = "order timeout"
 ORDER_HANDLED = "order handled"
 OK = "OK"
 ugettext = lambda s: s
@@ -66,14 +64,21 @@ def book_order(request):
             
         passenger.save()
 
-    #TODO_WB: check if another dispatching cycle should start
+    sorry_msg = ugettext("We're sorry, but we could not find a taxi for you") # use dummy ugettext for makemessages)
+
+    # check if dispatching should stop and return an answer to the user
+    if (datetime.now() - order.create_date).seconds > Order.ORDER_HANDLE_TIMEOUT:
+        logging.warning("order time out: %d" % order_id)
+        send_sms(order.passenger.international_phone(),
+                 translate_to_lang(sorry_msg, order.language_code))
+        return HttpResponse(ORDER_TIMEOUT)
+
     response = HttpResponse(ORDER_HANDLED)
     try:
         # choose an assignment for the order and push it to the relevant workstation
         order_assignment = dispatcher.assign_order(order)
         push_order(order_assignment)
-        # see what's up with this order in ORDER_ASSIGNMENT_TIMEOUT and dispatch it again if it was ignored
-        enqueue_redispatch_ignored_orders(order_assignment, OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT)
+        enqueue_redispatch_orders(order_assignment, OrderAssignment.TEASER_TIMEOUT, redispatch_pending_orders)
 
     except NoWorkStationFoundError:
         order.status = FAILED
@@ -84,7 +89,7 @@ def book_order(request):
         response = HttpResponse(NO_MATCHING_WORKSTATIONS_FOUND)
 
         send_sms(order.passenger.international_phone(),
-                 translate_to_lang(ugettext("We're sorry, but we could not find a taxi for you"), order.language_code)) # use dummy ugettext for makemessages
+                 translate_to_lang(sorry_msg, order.language_code)) # use dummy ugettext for makemessages
         
     except OrderError:
         order.status = ERROR
@@ -98,6 +103,12 @@ def book_order(request):
                  translate_to_lang(ugettext("We're sorry, but we have encountered an error while handling your request"), order.language_code)) # use dummy ugettext for makemessages
 
     return response
+
+def show_order(order_assignment):
+    order_assignment.status = ASSIGNED
+    order_assignment.show_date = datetime.now()
+    order_assignment.save()
+    enqueue_redispatch_orders(order_assignment, OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT, redispatch_ignored_orders)
 
 def accept_order(order, pickup_time, station):
     order.pickup_time = pickup_time
@@ -143,10 +154,10 @@ def get_order_status(request, order_id, passenger):
     return HttpResponse(serialize("json", [order] + list(order_assignments), use_natural_keys=True))
 
 @csrf_exempt
-@internal_task_on_queue("redispatch-ignored-orders")
-def redispatch_ignored_orders(request):
+@internal_task_on_queue("redispatch-orders")
+def redispatch_pending_orders(request):
     order_assignment_id = int(request.POST["order_assignment_id"])
-    logging.info("redispatch_ignored_orders: %d" % order_assignment_id)
+    logging.info("redispatch_pending_orders: %d" % order_assignment_id)
 
     try:
         order_assignment = OrderAssignment.objects.filter(id=order_assignment_id).get()
@@ -154,30 +165,56 @@ def redispatch_ignored_orders(request):
         logging.error("No order assignment found for id: %d" % order_assignment_id)
         return HttpResponse("No order assignment found")
 
-    if order_assignment.status == ASSIGNED:
-        # if time is up mark the assignment as ignored and book the order again.
-        if (datetime.now() - order_assignment.create_date).seconds > OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT:
-            order_assignment.status = IGNORED
-            order_assignment.save()
-            log_event(EventType.ORDER_IGNORED,
-                      passenger=order_assignment.order.passenger,
-                      order=order_assignment.order,
-                      order_assignment=order_assignment,
-                      station=order_assignment.station,
-                      work_station=order_assignment.work_station)
+    # TODO_WB: use transactions
 
-            book_order_async(order_assignment.order, order_assignment)
-        else: # enqueue again to check in 1 sec
-            enqueue_redispatch_ignored_orders(order_assignment, 1)
+    # if teaser time is up mark the assignment as not taken and book the order again.
+    if order_assignment.status == PENDING:
+        order_assignment.status = NOT_TAKEN
+        order_assignment.save()
+        log_event(EventType.ORDER_NOT_TAKEN,
+                  passenger=order_assignment.order.passenger,
+                  order=order_assignment.order,
+                  order_assignment=order_assignment,
+                  station=order_assignment.station,
+                  work_station=order_assignment.work_station)
+        book_order_async(order_assignment.order, order_assignment)
 
     return HttpResponse(OK)
 
-def enqueue_redispatch_ignored_orders(order_assignment, interval):
-    task = taskqueue.Task(url=reverse(redispatch_ignored_orders),
+@csrf_exempt
+@internal_task_on_queue("redispatch-orders")
+def redispatch_ignored_orders(request):
+    order_assignment_id = int(request.POST["order_assignment_id"])
+    logging.info("redispatch_ignored orders: %d" % order_assignment_id)
+
+    try:
+        order_assignment = OrderAssignment.objects.filter(id=order_assignment_id).get()
+    except OrderAssignment.DoesNotExist:
+        logging.error("No order assignment found for id: %d" % order_assignment_id)
+        return HttpResponse("No order assignment found")
+
+    # TODO_WB: use transactions
+
+    # if time is up mark the assignment as ignored and book the order again.
+    if order_assignment.status == ASSIGNED:
+        order_assignment.status = IGNORED
+        order_assignment.save()
+        log_event(EventType.ORDER_IGNORED,
+                  passenger=order_assignment.order.passenger,
+                  order=order_assignment.order,
+                  order_assignment=order_assignment,
+                  station=order_assignment.station,
+                  work_station=order_assignment.work_station)
+        book_order_async(order_assignment.order, order_assignment)
+
+    return HttpResponse(OK)
+
+def enqueue_redispatch_orders(order_assignment, interval, handler):
+    task = taskqueue.Task(url=reverse(handler),
                           countdown=interval,
                           params={"order_assignment_id": order_assignment.id})
 
-    q = taskqueue.Queue('redispatch-ignored-orders')
+    q = taskqueue.Queue('redispatch-orders')
     q.add(task)
 
 

@@ -42,17 +42,19 @@ def create_test_order():
     global ORDER
     global ORDER_DATA
 
+    country_id = Country.objects.get(code='IL').id
+    city_id = City.objects.get(name=u'תל אביב יפו').id
     ORDER_DATA = {
-        "from_city": u'1604',
-        "from_country": u'12',
+        "from_city": city_id,
+        "from_country": country_id,
         "from_geohash": u'swnvcbg7d23u',
         "from_lat": u'32.073654',
         "from_lon": u'34.765465',
         "from_raw": u'Allenby 1, Tel Aviv Yafo',
         "from_street_address": u'Allenby',
         "geocoded_from_raw": u'Allenby 1, Tel Aviv Yafo',
-        "to_city": u'1604',
-        "to_country": u'12',
+        "to_city": city_id,
+        "to_country": country_id,
         "to_geohash": u'swnvcbdruxgz',
         "to_lat": u'32.07238',
         "to_lon": u'34.764862',
@@ -170,6 +172,7 @@ class OrderManagerTest(TestCase):
         create_passenger()
         create_test_order()
 
+    # order timeout test
     def test_book_order(self):
         # the call made by book_order_async
         response = self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": ORDER.id})
@@ -294,11 +297,11 @@ class DispatcherTest(TestCase):
         global PASSENGER
         create_passenger()
         create_test_order()
-        tel_aviv_station = City.objects.get(name="תל אביב יפו").stations.all()[0]
+        tel_aviv_station = City.objects.get(name=u"תל אביב יפו").stations.all()[0]
 
-        # test default station is chosen over ws1 (ws2 has ignored this order)
-        other_station_name = 'default station in tel aviv'
-        other_ws_name = 'choose me'
+        # create another station in TLV
+        other_station_name = 'non-originating station'
+        other_ws_name = 'ws1'
 
         for user_name in [other_station_name, other_ws_name]:
             user = User(username=user_name)
@@ -314,28 +317,30 @@ class DispatcherTest(TestCase):
         ORDER.originating_station = tel_aviv_station
         ORDER.save()
 
-        # the call made by book_order_async
+        # set the originating station
         self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": ORDER.id})
         PASSENGER = Passenger.objects.get(id=PASSENGER.id) # refresh passenger
         self.assertTrue(PASSENGER.originating_station == tel_aviv_station, "PASSENGER.originating_station should be tel_aviv_station and not %s" % PASSENGER.originating_station)
 
-        # resuscitate work stations and try again
+        # resuscitate work stations and order again
         resuscitate_work_stations()
         self.assertTrue(choose_workstation(ORDER).station == tel_aviv_station, "Other Tel Aviv station is expected")
         tel_aviv_station.last_assignment_date = datetime.datetime.now()
         tel_aviv_station.save()
 
+        # make ORDER look like new
+        memcache.set('ws_list_for_order_%s' % ORDER.id, [])
         self.assertTrue(choose_workstation(ORDER).station == tel_aviv_station, "Other Tel Aviv station is expected")
 
     def test_choose_workstation(self):
         create_passenger()
         create_test_order()
 
-        tel_aviv_station = City.objects.get(name="תל אביב יפו").stations.all()[0]
+        tel_aviv_station = City.objects.get(name=u"תל אביב יפו").stations.all()[0]
         tel_aviv_ws1 = WorkStation.objects.filter(station=tel_aviv_station)[0]
         tel_aviv_ws2 = WorkStation.objects.filter(station=tel_aviv_station)[1]
 
-        jerusalem_station = City.objects.get(name="ירושלים").stations.all()[0]
+        jerusalem_station = City.objects.get(name=u"ירושלים").stations.all()[0]
         jerusalem_ws = WorkStation.objects.filter(station=jerusalem_station)[0]
 
         # work stations are dead

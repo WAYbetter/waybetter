@@ -23,14 +23,16 @@ REJECTED	= 4
 PENDING		= 5
 FAILED		= 6
 ERROR		= 7
+NOT_TAKEN   = 8
 
-ASSIGNMENT_STATUS = ((ASSIGNED, ugettext("assigned")),
+ASSIGNMENT_STATUS = ((PENDING, ugettext("pending")),
+                     (ASSIGNED, ugettext("assigned")),
                      (ACCEPTED, ugettext("accepted")),
                      (IGNORED, ugettext("ignored")),
-                     (REJECTED, ugettext("rejected")))
+                     (REJECTED, ugettext("rejected")),
+                     (NOT_TAKEN, ugettext("not_taken")))
 
-ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, ugettext("pending")),
-                                    (FAILED, ugettext("failed")),
+ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED, ugettext("failed")),
                                     (ERROR, ugettext("error")))
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
@@ -103,7 +105,13 @@ class Station(models.Model):
     def get_admin_link(self):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/station', self.id, self.name)
 
-    def is_in_valid_distance(self, from_lon, from_lat, to_lon, to_lat):
+    def is_in_valid_distance(self, from_lon=None, from_lat=None, to_lon=None, to_lat=None, order=None):
+        if order:
+            from_lon = order.from_lon
+            from_lat = order.from_lat
+            to_lon = order.to_lon
+            to_lat = order.to_lat
+
         if not (self.lat and self.lon): # ignore station with unknown address
             return False
         to_distance = MAX_STATION_DISTANCE_KM + 1
@@ -282,6 +290,8 @@ RATING_CHOICES = ((1, ugettext("Very poor")),
                   (5, ugettext("Perfect")))
 
 class Order(models.Model):
+    ORDER_HANDLE_TIMEOUT = 80 # seconds
+
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
     originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")), related_name="originated_orders", null=True, blank=True, default=None)
@@ -390,21 +400,23 @@ class Order(models.Model):
         notify_by_email(subject, msg)
 
 class OrderAssignment(models.Model):
-    ORDER_ASSIGNMENT_TIMEOUT = 120 # seconds
+    TEASER_TIMEOUT = 10 # seconds
+    ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
 
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")
     work_station = models.ForeignKey(WorkStation, verbose_name=_("work station"), related_name="assignments")
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="assignments")
 
-    status = models.IntegerField(_("status"), choices=ASSIGNMENT_STATUS, default=ASSIGNED)
+    status = models.IntegerField(_("status"), choices=ASSIGNMENT_STATUS, default=PENDING)
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+    show_date = models.DateTimeField(_("show date"), auto_now_add=False, null=True, blank=True)
 
     pickup_address_in_ws_lang = models.CharField(_("pickup_address_in_ws_lang"), max_length=50)
 
     @classmethod
-    def serialize_for_workstation(cls, queryset_or_order_assignment):
+    def serialize_for_workstation(cls, queryset_or_order_assignment, base_time=None):
         if isinstance(queryset_or_order_assignment, QuerySet):
             order_assignments = queryset_or_order_assignment
         elif isinstance(queryset_or_order_assignment, cls):
@@ -414,10 +426,13 @@ class OrderAssignment(models.Model):
 
         result = []
         for order_assignment in order_assignments:
+            if not base_time:
+                base_time = order_assignment.create_date
+
             result.append({
                 "pk":               order_assignment.order.id,
                 "from_raw":         order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
-                "seconds_passed":   (datetime.now() - order_assignment.create_date).seconds
+                "seconds_passed":   (datetime.now() - base_time).seconds
             })
 
         return simplejson.dumps(result)

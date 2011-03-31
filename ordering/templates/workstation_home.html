@@ -436,7 +436,44 @@
             }
         }
 
-        function renderOrder(order) {
+        function renderOrder(order){
+            var show_button = $('<div class="button_txt button_bg" title="{% trans 'Show order' %}"></div>').text('{% trans 'Show' %}').click(function() {
+                if ($(this).attr("disabled")) {
+                    return false;
+                }
+                showOrder(order);
+            });
+
+            show_button.attr('id', 'show' + order.pk);
+
+            var progress_indicator = getProgressIndicator(order, {{ teaser_interval }}, 100);
+
+            var rendered_order = $("<div class='order'></div>").attr('id', order.pk)
+                    .append($("<div class='from_address'></div>").append("{% trans 'Incoming order' %}"))
+                    .append(show_button);
+
+            var progress_bar = $("<div class='pb-row'></div>").attr('id', 'pb_'+order.pk).append(progress_indicator);
+
+            $("#orders").append(rendered_order).append(progress_bar);
+            rendered_order.show();
+
+            handleOrder();
+        }
+
+
+        function showOrder(order) {
+            var order_id = order.pk;
+            $("#show" + order.pk).attr('disabled', 'disabled');
+            setStateSending(order_id);
+            $.ajax({"url": "{% url ordering.station_controller.show_order %}", "type":"post", "data":{"order_id": order_id}, "error": onError,
+                "success": function(){
+                    renderOrderDetails(order);
+                    return false;
+                }
+            });
+        }
+
+        function renderOrderDetails(order) {
 
             var select = $("<select name='pickup_time' class='combo'></select>").attr('id', 'pickup_time_for_' + order.pk);
             select.append($("<option>").val('').append("{% trans 'Define time' %}"));
@@ -468,6 +505,20 @@
 
             var timeout_interval = {{ timeout_interval }};
             var initial_val = (timeout_interval - order.seconds_passed) / timeout_interval * 100;
+            var progress_indicator = getProgressIndicator(order, timeout_interval, initial_val);
+
+            var rendered_order = $("#"+order.pk).empty()
+                    .append(reject_button)
+                    .append($("<div class='from_address'></div>").append(order.from_raw))
+                    .append(send_button)
+                    .append(select);
+
+            var progress_bar = $("#pb_"+order.pk).empty().append(progress_indicator);
+
+            rendered_order.show();
+        }
+
+        function getProgressIndicator(order, timeout_interval, initial_val){
             var progress_indicator = $("<div class='pb'></div>").progressbar({ value: initial_val });
 
             progress_indicator.everyTime(1000, function() {
@@ -479,19 +530,7 @@
                 }
             }, timeout_interval);
 
-            var rendered_order = $("<div class='order'></div>").attr('id', order.pk)
-                    .append(reject_button)
-                    .append($("<div class='from_address'></div>").append(order.from_raw))
-                    .append(send_button)
-                    .append(select);
-
-            var progress_bar = $("<div class='pb-row'></div>")
-                .append(progress_indicator);
-
-            $("#orders").append(rendered_order).append(progress_bar);
-            rendered_order.show();
-
-            handleOrder();
+            return progress_indicator;
         }
 
         function setStateSending(order_id) {
