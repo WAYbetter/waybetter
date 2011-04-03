@@ -46,7 +46,20 @@
 		/*padding-right: 7px;*/
 	}
 
-	#orders .button_txt {
+    #orders .teaser_txt{
+        color: yellow;
+        text-align: right;
+        margin-right: 16px;
+        font-size: 24px;
+        position: absolute;
+        top: 4px;
+    }
+    #orders .teaser_txt:hover{
+        text-decoration:underline;
+        cursor: pointer;
+    }
+
+    #orders .button_txt {
 		color: black;
 		text-shadow: #e6e6e6 0 1px 0;
 	}
@@ -437,21 +450,17 @@
         }
 
         function renderOrder(order){
-            var show_button = $('<div class="button_txt button_bg" title="{% trans 'Show order' %}"></div>').text('{% trans 'Show' %}').click(function() {
-                if ($(this).attr("disabled")) {
-                    return false;
-                }
+            var show_button = $('<div class="button_txt button_bg" style="width:130px; margin-left:16px;" title="{% trans 'Show order' %}"></div>').text('{% trans 'Show details' %}');
+
+            var rendered_order = $("<div class='order'></div>").attr('id', order.pk)
+                    .append($("<div class='teaser_txt'></div>").append("{% trans 'Incoming order' %}"))
+                    .append(show_button);
+
+            $(rendered_order).click(function(){
                 showOrder(order);
             });
 
-            show_button.attr('id', 'show' + order.pk);
-
             var progress_indicator = getProgressIndicator(order, {{ teaser_interval }}, 100);
-
-            var rendered_order = $("<div class='order'></div>").attr('id', order.pk)
-                    .append($("<div class='from_address'></div>").append("{% trans 'Incoming order' %}"))
-                    .append(show_button);
-
             var progress_bar = $("<div class='pb-row'></div>").attr('id', 'pb_'+order.pk).append(progress_indicator);
 
             $("#orders").append(rendered_order).append(progress_bar);
@@ -463,7 +472,7 @@
 
         function showOrder(order) {
             var order_id = order.pk;
-            $("#show" + order.pk).attr('disabled', 'disabled');
+            $("#"+order.pk).unbind("click");
             setStateSending(order_id);
             $.ajax({"url": "{% url ordering.station_controller.show_order %}", "type":"post", "data":{"order_id": order_id}, "error": onError,
                 "success": function(){

@@ -16,29 +16,35 @@ import common.urllib_adaptor as urllib2
 import urllib
 import logging
 
-ASSIGNED	= 1
-ACCEPTED	= 2
-IGNORED		= 3
-REJECTED	= 4
-PENDING		= 5
-FAILED		= 6
-ERROR		= 7
-NOT_TAKEN   = 8
+ORDER_HANDLE_TIMEOUT     = 80 # seconds
+ORDER_TEASER_TIMEOUT     = 10 # seconds
+ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
 
-ASSIGNMENT_STATUS = ((PENDING, ugettext("pending")),
-                     (ASSIGNED, ugettext("assigned")),
-                     (ACCEPTED, ugettext("accepted")),
-                     (IGNORED, ugettext("ignored")),
-                     (REJECTED, ugettext("rejected")),
-                     (NOT_TAKEN, ugettext("not_taken")))
+ASSIGNED                 = 1
+ACCEPTED                 = 2
+IGNORED                  = 3
+REJECTED                 = 4
+PENDING                  = 5
+FAILED                   = 6
+ERROR                    = 7
+NOT_TAKEN                = 8
+TIMED_OUT                = 9
 
-ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED, ugettext("failed")),
-                                    (ERROR, ugettext("error")))
+ASSIGNMENT_STATUS = ((PENDING   , ugettext("pending")),
+                     (ASSIGNED  , ugettext("assigned")),
+                     (ACCEPTED  , ugettext("accepted")),
+                     (IGNORED   , ugettext("ignored")),
+                     (REJECTED  , ugettext("rejected")),
+                     (NOT_TAKEN , ugettext("not_taken")))
+
+ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED    , ugettext("failed")),
+                                    (ERROR     , ugettext("error")),
+                                    (TIMED_OUT , ugettext("timed_out")))
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
 MAX_STATION_DISTANCE_KM = 10
-CURRENT_PASSENGER_KEY = "current_passenger"
+CURRENT_PASSENGER_KEY   = "current_passenger"
 
 
 def add_formatted_create_date(classes):
@@ -58,7 +64,7 @@ def add_formatted_create_date(classes):
                     do_format.admin_order_field = field.name
                     do_format.short_description = field.verbose_name
                     return do_format
-                
+
                 setattr(model, f.name + "_format", format_datefield(f))
 
 class Station(models.Model):
@@ -119,7 +125,7 @@ class Station(models.Model):
         if to_lon and to_lat:
             to_distance = distance_between_points(self.lat, self.lon, to_lat, to_lon)
 
-        return from_distance <= MAX_STATION_DISTANCE_KM or to_distance <= MAX_STATION_DISTANCE_KM 
+        return from_distance <= MAX_STATION_DISTANCE_KM or to_distance <= MAX_STATION_DISTANCE_KM
 
     @staticmethod
     def get_default_station_choices(order_by="name", include_empty_option=True):
@@ -186,7 +192,7 @@ class Passenger(models.Model):
         if not passenger:
             passenger = request.session.get(CURRENT_PASSENGER_KEY, None)
         return passenger
-  
+
 
     def __unicode__(self):
         try:
@@ -233,7 +239,7 @@ class WorkStation(models.Model):
         except Station.DoesNotExist:
             pass
 
-        return result 
+        return result
 
     def get_admin_link(self):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/workstation', self.id, self.user.username)
@@ -290,8 +296,6 @@ RATING_CHOICES = ((1, ugettext("Very poor")),
                   (5, ugettext("Perfect")))
 
 class Order(models.Model):
-    ORDER_HANDLE_TIMEOUT = 80 # seconds
-
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
     originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")), related_name="originated_orders", null=True, blank=True, default=None)
@@ -396,13 +400,10 @@ class Order(models.Model):
             msg += u"\n\nEvents:"
             for assignment in self.assignments.all():
                 msg+= u"\n%s: %s - %s" % (assignment.modify_date.ctime(), assignment.station.name, assignment.get_status_label().upper())
-            
+
         notify_by_email(subject, msg)
 
 class OrderAssignment(models.Model):
-    TEASER_TIMEOUT = 10 # seconds
-    ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
-
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")
     work_station = models.ForeignKey(WorkStation, verbose_name=_("work station"), related_name="assignments")
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="assignments")
@@ -446,13 +447,13 @@ class OrderAssignment(models.Model):
 
 
     def is_stale(self):
-        return (datetime.now() - self.create_date).seconds > OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT
+        return (datetime.now() - self.create_date).seconds > ORDER_ASSIGNMENT_TIMEOUT
 
     def __unicode__(self):
         order_id = "<Unknown>"
         if self.order:
             order_id = u"<%d>" % self.order.id
-            
+
         return u"%s %s %s %s" % (ugettext("order"), order_id, ugettext("assigned to station:"), self.station)
 
 
@@ -490,7 +491,7 @@ class MeteredRateRule(models.Model):
     tick_time = models.IntegerField(_("tick time (s)"), null=True, blank=True, help_text=_("In seconds"))
     tick_cost = models.FloatField(_("cost per tick"), null=True, blank=True)
     fixed_cost = models.FloatField(_("fixed cost"), null=True, blank=True)
-    
+
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
@@ -524,7 +525,7 @@ class ExtraChargeRule(models.Model):
     rule_name = models.CharField(_("name"), max_length=500)
     is_active = models.BooleanField(_("is active"), default=True)
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="extra_charge_rules")
- 
+
     cost = models.FloatField(_("fixed cost"))
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)

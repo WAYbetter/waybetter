@@ -7,7 +7,7 @@ from google.appengine.api import memcache
 from common.models import City, Country
 
 import ordering
-from ordering.models import Passenger, WorkStation, Station, OrderAssignment, IGNORED, ASSIGNED, ACCEPTED, Phone
+from ordering.models import Passenger, WorkStation, Station, OrderAssignment, IGNORED, ASSIGNED, ACCEPTED, Phone, ORDER_ASSIGNMENT_TIMEOUT
 from ordering.forms import OrderForm
 from ordering.dispatcher import assign_order, choose_workstation
 from ordering.order_manager import NO_MATCHING_WORKSTATIONS_FOUND, ORDER_HANDLED, OK, accept_order
@@ -191,7 +191,7 @@ class OrderManagerTest(TestCase):
 
         # create a timed out assignment
         assignment = OrderAssignment(order=ORDER, station=station, work_station=work_station, status=ASSIGNED,
-                                     create_date = datetime.datetime.now() - datetime.timedelta(seconds=OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT+1))
+                                     create_date = datetime.datetime.now() - datetime.timedelta(seconds=ORDER_ASSIGNMENT_TIMEOUT+1))
         assignment.save()
 
         # check that it is dispatched and marked as ignored
