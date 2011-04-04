@@ -7,9 +7,9 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-03-28 12:31+0200\n"
-"PO-Revision-Date: 2011-03-27 15:29+0200\n"
-"Last-Translator: amir <amir@waybetter.com>\n"
+"POT-Creation-Date: 2011-03-30 15:55+0200\n"
+"PO-Revision-Date: 2011-03-30 13:33+0200\n"
+"Last-Translator: aviva <anytext@netvision.net.il>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
 "MIME-Version: 1.0\n"
@@ -117,9 +117,8 @@ msgid "modify date"
 msgstr "Modifié le"
 
 #: analytics/views.py:133
-#, fuzzy
 msgid "Accepted"
-msgstr "acceptée"
+msgstr "Acceptée"
 
 #: analytics/views.py:138
 #, fuzzy
@@ -128,11 +127,11 @@ msgstr "Rejeté"
 
 #: analytics/views.py:160
 msgid "Timing"
-msgstr ""
+msgstr "Timing"
 
 #: analytics/views.py:161
 msgid "Response Time (sec)"
-msgstr ""
+msgstr "Temps de réponse (sec.)"
 
 #: analytics/views.py:212
 msgid "Rating"
@@ -211,7 +210,7 @@ msgstr "code de vérification du téléphone"
 
 #: common/templates/cant_login_form.html:8
 msgid "Phone you registered with"
-msgstr ""
+msgstr "Le téléphone avec lequel vous vous êtes inscrit"
 
 #: common/templates/cant_login_form.html:9
 #, fuzzy
@@ -243,7 +242,7 @@ msgstr "Terminer"
 
 #: common/templates/credentials_form.html:6
 msgid "Reset account credentials"
-msgstr ""
+msgstr "Réinitialiser les identifiants"
 
 #: common/templates/credentials_form.html:27
 #, fuzzy
@@ -257,7 +256,7 @@ msgstr "Saisissez votre e-mail"
 
 #: common/templates/credentials_form.html:37
 msgid "(Optional)"
-msgstr ""
+msgstr "(Facultatif)"
 
 #: common/templates/credentials_form.html:40
 #: common/templates/registration_form.html:93
@@ -328,7 +327,7 @@ msgstr "Merci, votre message a été envoyé"
 #: common/templates/login_form.html:18
 #: common/templates/registration_form.html:25
 msgid "Invalid email address"
-msgstr "Adresse e-mail non valide"
+msgstr "Adresse non valide"
 
 #: common/templates/login_form.html:32
 msgid "Don't have an account?"
@@ -350,6 +349,7 @@ msgstr "Mot de passe"
 #: common/templates/login_form.html:44
 msgid "Can't access your account? <a href='#'> Click here</a>"
 msgstr ""
+"Vous ne pouvez pas accéder à votre compte ? <a href='#'> Cliquez ici</a>"
 
 #: common/templates/phone_verification_form.html:9
 msgid "Activate Your Phone (Free)"
@@ -357,7 +357,7 @@ msgstr "SMS  de vérification (gratuit)"
 
 #: common/templates/phone_verification_form.html:17
 msgid "PRESS TO SEND SMS CODE"
-msgstr "Appuyez pour envoyer code SMS"
+msgstr "Cliquer pour recevoir code SMS"
 
 #: common/templates/phone_verification_form.html:18
 msgid "CODE SENT"
@@ -365,7 +365,7 @@ msgstr "Code SMS envoyé"
 
 #: common/templates/phone_verification_form.html:19
 msgid "FINISH"
-msgstr "Finir"
+msgstr "Terminer"
 
 #: common/templates/phone_verification_form.html:20
 #: ordering/templates/passenger_home.html:29
@@ -426,7 +426,7 @@ msgstr "Vérification..."
 
 #: common/templates/registration_form.html:19
 msgid "Join Us For a WAYbetter Experience"
-msgstr "Inscrivez-vous gratuitement et profitez du service WAYbetter"
+msgstr "Inscrivez-vous gratuitement à WAYbetter"
 
 #: common/templates/registration_form.html:20
 msgid "An SMS with ride details will be sent soon"
@@ -460,7 +460,7 @@ msgstr "Votre e-mail"
 
 #: common/templates/registration_form.html:98
 msgid "Get emails from waybetter (we promise not to spam)"
-msgstr "Pour obtenir des mails de WAYbetter (pas de spam! Promis!)"
+msgstr "J'accepte de recevoir des mails de WAYbetter (pas de spam! Promis!)"
 
 #: common/templates/registration_form.html:102
 msgid "JOIN"
@@ -486,7 +486,7 @@ msgstr "Inscription par votre compte :"
 #: common/templates/terms_form.html:5
 #: ordering/templates/workstation_download.html:113
 msgid "Terms Of Use"
-msgstr "Conditions d'utilisation"
+msgstr "CGU"
 
 #: common/templates/terms_form.html:29
 msgid "actual_terms"
@@ -793,11 +793,11 @@ msgstr "Sous-domaine"
 
 #: ordering/models.py:73 ordering/models.py:88
 msgid "app icon"
-msgstr ""
+msgstr "icône app"
 
 #: ordering/models.py:74 ordering/models.py:89
 msgid "app splash"
-msgstr ""
+msgstr "Page de garde de l'application"
 
 #: ordering/models.py:76 ordering/models.py:214
 msgid "last order date"
@@ -853,7 +853,7 @@ msgstr "code de vérification du téléphone"
 
 #: ordering/models.py:157
 msgid "accept mailing"
-msgstr ""
+msgstr "accepter les mails"
 
 #: ordering/models.py:191
 msgid "Value must consists of digits only."
@@ -1012,7 +1012,7 @@ msgstr "id passager"
 
 #: ordering/models.py:404
 msgid "pickup_address_in_ws_lang"
-msgstr ""
+msgstr "pickup_address_in_ws_lang"
 
 #: ordering/models.py:441
 msgid "assigned to station:"
@@ -1225,15 +1225,16 @@ msgstr "Code SMS erroné"
 
 #: ordering/passenger_controller.py:311
 msgid "Phone has multiple passengers"
-msgstr ""
+msgstr "Même téléphone pour plusieurs passagers"
 
 #: ordering/passenger_controller.py:332
 msgid "this email is registered with multiple users, cannot log you in"
 msgstr ""
+"E-mail possédant plusieurs utilisateurs, vous ne pouvez pas vous connecter"
 
 #: ordering/passenger_controller.py:334
 msgid "wrong email"
-msgstr ""
+msgstr "e-mail erronée"
 
 #: ordering/passenger_controller.py:340
 #, fuzzy
@@ -1242,7 +1243,7 @@ msgstr "nom d'utilisateur/mot de passe erroné"
 
 #: ordering/passenger_controller.py:350
 msgid "Must have a user to change credentials"
-msgstr ""
+msgstr "Vous devez avoir nom d'utilisateur pour modifier les identifiants"
 
 #: ordering/passenger_controller.py:353 ordering/passenger_controller.py:375
 msgid "Missing required parameters"
@@ -1279,7 +1280,7 @@ msgstr "WAYbetter LTD"
 
 #: ordering/templates/about.html:26
 msgid "(Peregrine Ventures)"
-msgstr ""
+msgstr "(Peregrine Ventures)"
 
 #: ordering/templates/about.html:29
 msgid "6 Yoni Netanyahu Street"
@@ -1299,11 +1300,11 @@ msgstr "Fax: 03-9366873"
 
 #: ordering/templates/about.html:44 ordering/templates/stations.html:62
 msgid "Book a Taxi Now"
-msgstr "Commandez un taxi maintenant"
+msgstr "Appelez maintenant un taxi "
 
 #: ordering/templates/about.html:45
 msgid "Stations Entrance"
-msgstr "Entrée de stations"
+msgstr "Stations de taxis"
 
 #: ordering/templates/about.html:47
 msgid ""
@@ -1409,7 +1410,7 @@ msgstr "Recherche"
 
 #: ordering/templates/orders_history.html:25
 msgid "Reset"
-msgstr "Réinitialisation"
+msgstr "Réinitialiser"
 
 #: ordering/templates/orders_history.html:40
 msgid "Page"
@@ -1444,7 +1445,7 @@ msgstr "Adresse inconnue. Sélectionner dans la liste"
 #: ordering/templates/station_page.html:31
 #: ordering/templates/station_page.html:94
 msgid "Pick Me Up"
-msgstr "Merci de m'envoyer un taxi"
+msgstr "Taxi !"
 
 #: ordering/templates/passenger_home.html:30
 #: ordering/templates/station_page.html:35
@@ -1474,7 +1475,7 @@ msgid ""
 "(bottom right corner)"
 msgstr ""
 "Nous espérons que vous apprécierez ce service. Nous attendons vos réactions "
-"(angle inférieur droit de l'écran)"
+"(en bas à droite)"
 
 #: ordering/templates/passenger_home.html:77
 #: ordering/templates/passenger_home.html:81
@@ -1483,7 +1484,7 @@ msgstr "Bon voyage !"
 
 #: ordering/templates/passenger_home.html:89
 msgid "Book Now (FREE)"
-msgstr "Réservez maintenant (gratuit)"
+msgstr "Commandez maintenant, c'est gratuit !"
 
 #: ordering/templates/passenger_home.html:105
 #: ordering/templates/station_page.html:88
@@ -1499,7 +1500,7 @@ msgstr "Adresse de destination (facultatif)"
 
 #: ordering/templates/passenger_home.html:124
 msgid "Ride History"
-msgstr "Courses précédentes"
+msgstr "Historique"
 
 #: ordering/templates/passenger_home.html:125
 msgid "My Profile"
@@ -1517,7 +1518,7 @@ msgstr "Portable"
 
 #: ordering/templates/passenger_home.html:134
 msgid "What's This?"
-msgstr "Qu'est-ce que c'est?"
+msgstr "Notre service"
 
 #: ordering/templates/passenger_home.html:139
 msgid "WAYbetter offers the fastest and easiest way to get a taxi!"
@@ -1553,7 +1554,7 @@ msgstr "Changement du mot de passe"
 
 #: ordering/templates/passenger_profile.html:27
 msgid "Error while saving changes"
-msgstr ""
+msgstr "Erreur de sauvegarde"
 
 #: ordering/templates/press.html:4
 msgid "Press Materials"
@@ -1730,7 +1731,7 @@ msgstr "Directeur de station ?"
 
 #: ordering/templates/stations.html:31 templates/base.html:133
 msgid "Station Entrance"
-msgstr "Entrée des stations"
+msgstr "Stations"
 
 #: ordering/templates/terms.html:4
 msgid "Subjects"
