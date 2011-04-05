@@ -6,7 +6,7 @@ from django.core import serializers
 from django.contrib.auth.models import User
 
 from common.models import Country, City
-from ordering.models import Passenger, Station, WorkStation
+from ordering.models import Passenger, Station, WorkStation, Phone
 
 #OUTPUT_FILE = "ordering/fixtures/ordering_test_data.yaml"
 
@@ -36,6 +36,9 @@ def create_test_stations():
     station.lon = 34.773896
     station.save()
 
+    phone = Phone(local_phone=u'1234567', station=station)
+    phone.save()
+
     # and one in Jerusalem
     station_name = STATION_NAMES[1]
 
@@ -49,6 +52,9 @@ def create_test_stations():
     station.lat = 31.780725
     station.lon = 35.214161
     station.save()
+
+    phone = Phone(local_phone=u'1234567', station=station)
+    phone.save()
 
 def create_test_work_stations():
     # two for test_station_1

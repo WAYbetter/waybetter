@@ -1,7 +1,7 @@
 from google.appengine.api import memcache
 from django.utils.datetime_safe import datetime
 from django.utils import simplejson
-from ordering.models import OrderAssignment
+from ordering.models import OrderAssignment, PENDING
 from common.langsupport.util import translate_to_ws_lang
 
 ugettext = lambda s: s
@@ -33,6 +33,7 @@ def push_order(order_assignment):
 
 def push_dummy_order(ws):
     json = simplejson.dumps([{"pk": DUMMY_ID,
+                             "status": PENDING,
                              "from_raw": translate_to_ws_lang(DUMMY_ADDRESS, ws),
                              "seconds_passed": "10"}])
     _do_push_order(ws, json)

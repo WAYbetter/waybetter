@@ -61,7 +61,7 @@
 
     #orders .button_txt {
 		color: black;
-		text-shadow: #e6e6e6 0 1px 0;
+        text-shadow: #e6e6e6 0 1px 0;
 	}
     #orders .button_txt:disabled {
         color: gray;
@@ -90,7 +90,13 @@
 		text-shadow: none;
 		/* border: 1px solid  black; */
 	}
-	#orders .reject_button_bg {
+
+    #orders .show_button{
+        width:130px;
+        margin-left:16px;
+    }
+    
+    #orders .reject_button_bg {
 		background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f)) ;
 		-webkit-border-radius: 5px;
 		width: 23px;
@@ -450,21 +456,31 @@
         }
 
         function renderOrder(order){
-            var show_button = $('<div class="button_txt button_bg" style="width:130px; margin-left:16px;" title="{% trans 'Show order' %}"></div>').text('{% trans 'Show details' %}');
+            if (order.status == {{ pending }}){
+                var show_button = $('<div class="button_txt button_bg show_button" title="{% trans 'Show order' %}"></div>').text('{% trans 'Show details' %}');
 
-            var rendered_order = $("<div class='order'></div>").attr('id', order.pk)
-                    .append($("<div class='teaser_txt'></div>").append("{% trans 'Incoming order' %}"))
-                    .append(show_button);
+                var rendered_order = $("<div class='order'></div>").attr('id', order.pk)
+                        .append($("<div class='teaser_txt'></div>").append("{% trans 'Incoming order' %}"))
+                        .append(show_button);
 
-            $(rendered_order).click(function(){
-                showOrder(order);
-            });
+                $(rendered_order).click(function(){
+                    showOrder(order);
+                });
 
-            var progress_indicator = getProgressIndicator(order, {{ teaser_interval }}, 100);
-            var progress_bar = $("<div class='pb-row'></div>").attr('id', 'pb_'+order.pk).append(progress_indicator);
+                var progress_indicator = getProgressIndicator(order, {{ teaser_interval }}, 100);
+                var progress_bar = $("<div class='pb-row'></div>").attr('id', 'pb_'+order.pk).append(progress_indicator);
 
-            $("#orders").append(rendered_order).append(progress_bar);
-            rendered_order.show();
+                $("#orders").append(rendered_order).append(progress_bar);
+                rendered_order.show();
+            }
+
+            if (order.status == {{ assigned }}){
+                var rendered_order = $("<div class='order'></div>").attr('id', order.pk);
+                var progress_bar = $("<div class='pb-row'></div>").attr('id', 'pb_' + order.pk);
+
+                $("#orders").append(rendered_order).append(progress_bar);
+                renderOrderDetails(order);
+            }
 
             handleOrder();
         }
@@ -483,7 +499,6 @@
         }
 
         function renderOrderDetails(order) {
-
             var select = $("<select name='pickup_time' class='combo'></select>").attr('id', 'pickup_time_for_' + order.pk);
             select.append($("<option>").val('').append("{% trans 'Define time' %}"));
            {% for n in pickup_times %}

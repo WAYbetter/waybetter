@@ -10,6 +10,8 @@ from datetime import datetime
 import time
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, get_model_from_request
+from common.decorators import run_in_transaction
+from ordering.errors import UpdateOrderAssignmentError
 import re
 from django.core.validators import RegexValidator
 import common.urllib_adaptor as urllib2
@@ -19,6 +21,7 @@ import logging
 ORDER_HANDLE_TIMEOUT     = 80 # seconds
 ORDER_TEASER_TIMEOUT     = 10 # seconds
 ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
+#USER_MAX_WAIT_TIME       = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
 
 ASSIGNED                 = 1
 ACCEPTED                 = 2
@@ -432,6 +435,7 @@ class OrderAssignment(models.Model):
 
             result.append({
                 "pk":               order_assignment.order.id,
+                "status":           order_assignment.status,
                 "from_raw":         order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
                 "seconds_passed":   (datetime.now() - base_time).seconds
             })
@@ -445,6 +449,19 @@ class OrderAssignment(models.Model):
 
         raise ValueError("invalid status")
 
+    @run_in_transaction
+    def transaction_change_status(self, old_status, new_status):
+        """
+        Use a transaction to update assignemtn status.
+
+        Raises UpdateOrderAssignmentError if current status is not as expected (was changed by another process)
+        """
+        if self.status == old_status:
+            self.status = new_status
+            self.save()
+            return True
+        else:
+            raise UpdateOrderAssignmentError("update status failed")
 
     def is_stale(self):
         return (datetime.now() - self.create_date).seconds > ORDER_ASSIGNMENT_TIMEOUT

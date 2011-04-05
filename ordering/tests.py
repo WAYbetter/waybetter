@@ -6,11 +6,11 @@ from google.appengine.api import memcache
 
 from common.models import City, Country
 
-import ordering
-from ordering.models import Passenger, WorkStation, Station, OrderAssignment, IGNORED, ASSIGNED, ACCEPTED, Phone, ORDER_ASSIGNMENT_TIMEOUT
+from ordering.models import Passenger, WorkStation, Station, OrderAssignment, IGNORED, ASSIGNED, ACCEPTED, Phone, ORDER_ASSIGNMENT_TIMEOUT, ORDER_TEASER_TIMEOUT, NOT_TAKEN, ORDER_HANDLE_TIMEOUT, PENDING
 from ordering.forms import OrderForm
-from ordering.dispatcher import assign_order, choose_workstation
-from ordering.order_manager import NO_MATCHING_WORKSTATIONS_FOUND, ORDER_HANDLED, OK, accept_order
+from ordering.dispatcher import assign_order, choose_workstation, compute_ws_list
+from ordering import order_manager
+from ordering.order_manager import NO_MATCHING_WORKSTATIONS_FOUND, ORDER_HANDLED, ORDER_TIMEOUT
 from ordering import station_controller
 from ordering.station_connection_manager import get_heartbeat_key, set_heartbeat
 from ordering.station_controller import ALERT_DELTA
@@ -71,6 +71,29 @@ def create_test_order():
     order.save()
     ORDER = order
 
+# TODO_WB : fixtures to create another station in tel aviv
+def create_another_TLV_station():
+    # create another station in TLV
+    tel_aviv = City.objects.get(name=u'תל אביב יפו')
+    other_station_name = 'tel aviv %d' % (Station.objects.filter(city=tel_aviv).count()+1)
+    other_ws_name = "%s_%s" % (other_station_name, "ws1")
+
+    for user_name in [other_station_name, other_ws_name]:
+        user = User(username=user_name)
+        user.set_password(user_name)
+        user.save()
+    other_station = Station(name=other_station_name, user=User.objects.get(username=other_station_name), number_of_taxis=5,
+                            country=Country.objects.filter(code="IL").get(), city=City.objects.get(name="תל אביב יפו"), address='אחד העם 1 תל אביב', lat=32.063325, lon=34.768338)
+    other_station.save()
+
+    other_ws = WorkStation(user = User.objects.get(username=other_ws_name), station = other_station, was_installed = True, accept_orders = True)
+    other_ws.save()
+
+    return other_station
+
+def refresh_order(order):
+    memcache.set('ws_list_for_order_%s' % order.id, []) # make ORDER look fresh
+
 def resuscitate_work_stations():
     for ws in WorkStation.objects.all():
         set_heartbeat(ws)
@@ -113,13 +136,13 @@ class OrderingTest(TestCase):
         response = self.client.post(reverse('ordering.passenger_controller.book_order'))
         self.assertTrue((response.content, response.status_code) == (NOT_A_PASSENGER, 403))
 
-        # login in with no passenger, forbidden
+        # login with no passenger, forbidden
         self.client.login(username='test_user_no_passenger', password='test_user_no_passenger')
         response = self.client.post(reverse('ordering.passenger_controller.book_order'))
         self.assertTrue((response.content, response.status_code) == (NOT_A_PASSENGER, 403))
         self.client.logout()
 
-        # login in with passenger, should be OK
+        # login with passenger, should be OK
         create_passenger()
 
         self.client.login(username='test_user', password='test_user')
@@ -171,10 +194,16 @@ class OrderManagerTest(TestCase):
         setup_testing_env.setup()
         create_passenger()
         create_test_order()
+        self.station = Station.objects.get(name='test_station_1')
+        self.work_station = WorkStation.objects.filter(station=self.station)[0]
+        self.assignment = OrderAssignment(order=ORDER, station=self.station, work_station=self.work_station)
+        # TODO_WB: remove when we have new fixtures
+        phone1 = Phone(local_phone=u'1234567', station=self.station)
+        phone1.save()
+        phone2 = Phone(local_phone=u'0000000', station=self.station)
+        phone2.save()
 
-    # order timeout test
     def test_book_order(self):
-        # the call made by book_order_async
         response = self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": ORDER.id})
 
         # working stations are dead, assignment should fail
@@ -185,34 +214,40 @@ class OrderManagerTest(TestCase):
         response = self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": ORDER.id})
         self.assertTrue((response.content, response.status_code) == (ORDER_HANDLED, 200), "Assignment should succeed: workstations are live")
 
-    def test_redispatch_ignored_orders(self):
-        station = Station.objects.get(name='test_station_1')
-        work_station = WorkStation.objects.filter(station=station)[0]
+        # timed out order
+        ORDER.create_date = datetime.datetime.now() - datetime.timedelta(seconds=ORDER_HANDLE_TIMEOUT+1)
+        ORDER.save()
+        response = self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": ORDER.id})
+        self.assertTrue((response.content, response.status_code) == (ORDER_TIMEOUT, 200), "Assignment should fail: order time out")
 
-        # create a timed out assignment
-        assignment = OrderAssignment(order=ORDER, station=station, work_station=work_station, status=ASSIGNED,
-                                     create_date = datetime.datetime.now() - datetime.timedelta(seconds=ORDER_ASSIGNMENT_TIMEOUT+1))
+    def test_redispatch_orders(self):
+        assignment = self.assignment
+
+        # NOT_TAKEN assignment
+        assignment.create_date = datetime.datetime.now() - datetime.timedelta(seconds=ORDER_TEASER_TIMEOUT+1)
         assignment.save()
+        self.client.post(reverse('ordering.order_manager.redispatch_pending_orders'), data={"order_assignment_id": assignment.id})
+        assignment = OrderAssignment.objects.get(id=assignment.id) # refresh
+        self.assertTrue(assignment.status == NOT_TAKEN, "assignment should be marked as not taken.")
 
-        # check that it is dispatched and marked as ignored
-        response = self.client.post(reverse('ordering.order_manager.redispatch_ignored_orders'), data={"order_assignment_id": assignment.id})
-        self.assertTrue((response.content, response.status_code) == (OK, 200), "redispatch failed.")
-        assignment = OrderAssignment.objects.get(id=assignment.id)
+        # IGNORED assignment
+        assignment.status = ASSIGNED
+        assignment.create_date = datetime.datetime.now() - datetime.timedelta(seconds=ORDER_ASSIGNMENT_TIMEOUT+1)
+        assignment.save()
+        self.client.post(reverse('ordering.order_manager.redispatch_ignored_orders'), data={"order_assignment_id": assignment.id})
+        assignment = OrderAssignment.objects.get(id=assignment.id) # refresh
         self.assertTrue(assignment.status == IGNORED, "assignment should be marked as ignored.")
 
-        # TODO_WB: make sure that a new task was added to the queue
-        # apparently not supported, see http://code.google.com/appengine/docs/python/taskqueue/queues.html
+    def test_show_and_accept_order(self):
+        assignment = self.assignment
 
-    def test_accept_order(self):
-        tel_aviv_station = City.objects.get(name="תל אביב יפו").stations.all()[0]
-        phone1 = Phone(local_phone=u'1234567', station=tel_aviv_station)
-        phone1.save()
-        phone2 = Phone(local_phone=u'0000000', station=tel_aviv_station)
-        phone2.save()
+        self.assertTrue(assignment.status == PENDING)
+        order_manager.show_order(assignment)
+        self.assertTrue(assignment.status == ASSIGNED and assignment.show_date, "show_order failed")
 
-        accept_order(ORDER, pickup_time=5, station=tel_aviv_station)
-
-        self.assertTrue((ORDER.status, ORDER.pickup_time, ORDER.station) == (ACCEPTED, 5, tel_aviv_station))
+        self.assertTrue(ORDER.status == PENDING)
+        order_manager.accept_order(ORDER, pickup_time=5, station=self.station)
+        self.assertTrue((ORDER.status, ORDER.pickup_time, ORDER.station) == (ACCEPTED, 5, self.station), "accept_order failed")
 
 class StationConnectionTest(TestCase):
     """Unit test for the station connection manager."""
@@ -280,132 +315,147 @@ class DispatcherTest(TestCase):
 
     def setUp(self):
         setup_testing_env.setup()
-
-    def test_assign_order(self):
         create_passenger()
         create_test_order()
+        self.tel_aviv_station = City.objects.get(name=u"תל אביב יפו").stations.all()[0]
+        self.jerusalem_station = City.objects.get(name=u"ירושלים").stations.all()[0]
+        refresh_order(ORDER)
 
+    def test_assign_order(self):
         resuscitate_work_stations()
         assignment = assign_order(ORDER)
 
         self.assertTrue(assignment.station and assignment.work_station)
-        self.assertTrue(isinstance(assignment, ordering.models.OrderAssignment))
-        self.assertTrue((assignment.order, ORDER.status) == (ORDER, ASSIGNED))
+        self.assertTrue((assignment.order, assignment.status, ORDER.status) == (ORDER, PENDING, ASSIGNED))
         self.assertTrue(assignment.pickup_address_in_ws_lang == u'אלנבי 1, תל אביב יפו')
 
-    def test_originating_station(self):
-        global PASSENGER
-        create_passenger()
-        create_test_order()
-        tel_aviv_station = City.objects.get(name=u"תל אביב יפו").stations.all()[0]
-
-        # create another station in TLV
-        other_station_name = 'non-originating station'
-        other_ws_name = 'ws1'
-
-        for user_name in [other_station_name, other_ws_name]:
-            user = User(username=user_name)
-            user.set_password(user_name)
-            user.save()
-        other_station = Station(name=other_station_name, user=User.objects.get(username=other_station_name), number_of_taxis=5,
-                country=Country.objects.filter(code="IL").get(), city=City.objects.get(name="תל אביב יפו"), address='אחד העם 1 תל אביב', lat=32.063325, lon=34.768338)
-        other_station.save()
-
-        other_ws = WorkStation(user = User.objects.get(username=other_ws_name), station = other_station, was_installed = True, accept_orders = True)
-        other_ws.save()
-
-        ORDER.originating_station = tel_aviv_station
-        ORDER.save()
-
-        # set the originating station
-        self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": ORDER.id})
-        PASSENGER = Passenger.objects.get(id=PASSENGER.id) # refresh passenger
-        self.assertTrue(PASSENGER.originating_station == tel_aviv_station, "PASSENGER.originating_station should be tel_aviv_station and not %s" % PASSENGER.originating_station)
-
-        # resuscitate work stations and order again
-        resuscitate_work_stations()
-        self.assertTrue(choose_workstation(ORDER).station == tel_aviv_station, "Other Tel Aviv station is expected")
-        tel_aviv_station.last_assignment_date = datetime.datetime.now()
-        tel_aviv_station.save()
-
-        # make ORDER look like new
-        memcache.set('ws_list_for_order_%s' % ORDER.id, [])
-        self.assertTrue(choose_workstation(ORDER).station == tel_aviv_station, "Other Tel Aviv station is expected")
-
-    def test_choose_workstation(self):
-        create_passenger()
-        create_test_order()
-
-        tel_aviv_station = City.objects.get(name=u"תל אביב יפו").stations.all()[0]
-        tel_aviv_ws1 = WorkStation.objects.filter(station=tel_aviv_station)[0]
-        tel_aviv_ws2 = WorkStation.objects.filter(station=tel_aviv_station)[1]
-
-        jerusalem_station = City.objects.get(name=u"ירושלים").stations.all()[0]
-        jerusalem_ws = WorkStation.objects.filter(station=jerusalem_station)[0]
+    def test_choose_workstation_basics(self):
+        tel_aviv_ws1 = self.tel_aviv_station.work_stations.all()[0]
+        tel_aviv_ws2 = self.tel_aviv_station.work_stations.all()[1]
+        jerusalem_ws = self.jerusalem_station.work_stations.all()[0]
 
         # work stations are dead
-        ws = choose_workstation(ORDER)
-        self.assertTrue(ws is None, "work station are dead, none is expected, got %s" % ws)
+        self.assertTrue(choose_workstation(ORDER) is None, "work station are dead, none is expected")
 
         # live work station but it's in Jerusalem (order is from tel aviv)
         set_heartbeat(jerusalem_ws)
-        ws = choose_workstation(ORDER)
-        self.assertTrue(ws is None, "tel aviv work station are dead, none is expected, got %s" % ws)
+        self.assertTrue(choose_workstation(ORDER) is None, "work station are dead, none is expected")
 
         # live but don't accept orders
         set_accept_orders_false([tel_aviv_ws1, tel_aviv_ws2])
-        set_heartbeat(tel_aviv_ws1)
-        self.assertTrue(choose_workstation(ORDER) is None, "tel aviv work station don't accept orders, none is expected.")
+        resuscitate_work_stations()
+        self.assertTrue(choose_workstation(ORDER) is None, "don't accept orders, none is expected.")
 
         # tel_aviv_ws2 is live and accepts orders
         set_accept_orders_true([tel_aviv_ws2])
         resuscitate_work_stations()
         self.assertTrue(choose_workstation(ORDER) == tel_aviv_ws2, "tel aviv work station 2 is expected.")
 
-        # mark this order as previously ignored by ws2, should return ws1
-        assignment = OrderAssignment(order=ORDER, station=tel_aviv_station, work_station=tel_aviv_ws2, status=IGNORED)
-        assignment.save()
+    def test_choose_workstation_ignored(self):
+        tel_aviv_ws1 = self.tel_aviv_station.work_stations.all()[0]
+        tel_aviv_ws2 = self.tel_aviv_station.work_stations.all()[1]
 
-        set_accept_orders_true([tel_aviv_ws1, tel_aviv_ws2])
+        another_tlv_station = create_another_TLV_station()
+        tel_aviv_ws3 = another_tlv_station.work_stations.all()[0]
+
         resuscitate_work_stations()
 
-        self.assertTrue(choose_workstation(ORDER) == tel_aviv_ws1, "tel aviv work station 1 is expected.")
+        # create an IGNORED assignment by ws1, should get either ws2 or ws3
+        assignment = OrderAssignment(order=ORDER, station=self.tel_aviv_station, work_station=tel_aviv_ws1, status=IGNORED)
+        assignment.save()
+        expected_ws_list = [tel_aviv_ws2, tel_aviv_ws3]
+        self.assertTrue(tel_aviv_ws1 not in compute_ws_list(ORDER) and choose_workstation(ORDER) in expected_ws_list, "tel aviv ws2/ws3 is expected.")
 
-        # test default station is chosen over ws1 (ws2 has ignored this order)
-        default_station_name = 'default station in tel aviv'
-        default_ws_name = 'choose me'
+        # create an IGNORED assignment by ws2, should get ws3
+        assignment = OrderAssignment(order=ORDER, station=self.tel_aviv_station, work_station=tel_aviv_ws2, status=IGNORED)
+        assignment.save()
+        refresh_order(ORDER)
+        self.assertTrue(choose_workstation(ORDER) == tel_aviv_ws3, "tel aviv ws2 is expected.")
 
-        for user_name in [default_station_name, default_ws_name]:
-            user = User(username=user_name)
-            user.set_password(user_name)
-            user.save()
+        # create an IGNORED assignment by ws3, should get None
+        assignment = OrderAssignment(order=ORDER, station=another_tlv_station, work_station=tel_aviv_ws3, status=IGNORED)
+        assignment.save()
+        refresh_order(ORDER)
+        self.assertTrue(choose_workstation(ORDER) is None, "no ws is expected.")
 
-        default_station = Station(name=default_station_name, user=User.objects.get(username=default_station_name), number_of_taxis=5,
-                country=Country.objects.filter(code="IL").get(), city=City.objects.get(name="תל אביב יפו"), address='אחד העם 1 תל אביב', lat=32.063325, lon=34.768338)
-        default_station.save()
+    def test_choose_workstation_order(self):
+        originating_station = create_another_TLV_station()
+        default_station = create_another_TLV_station()
+        tel_aviv_station = self.tel_aviv_station
 
-        default_ws = WorkStation(user = User.objects.get(username=default_ws_name), station = default_station, was_installed = True, accept_orders = True)
-        default_ws.save()
+        ORDER.originating_station = originating_station
+        ORDER.save()
 
         PASSENGER.default_station = default_station
         PASSENGER.save()
 
         resuscitate_work_stations()
-        self.assertTrue(choose_workstation(ORDER) == default_ws, "default station is expected.")
 
+        # round trip, in the following order
+        for station in [originating_station, default_station, tel_aviv_station]:
+            ws = choose_workstation(ORDER)
+            self.assertTrue(ws.station == station, "wrong station order")
+
+        # order should return to originating_station
+        ws = choose_workstation(ORDER)
+        self.assertTrue(ws.station == originating_station, "originating station is expected")
+
+    def test_dispatcher_fairness(self):
         # check that the dispatcher is "fair": chooses first the last station that was given an order
-        PASSENGER.default_station = None
-        PASSENGER.save()
+        tel_aviv_station = self.tel_aviv_station
+        another_station = create_another_TLV_station()
 
-        default_station.last_assignment_date = datetime.datetime.now()
-        default_station.save()
+        another_station.last_assignment_date = datetime.datetime.now()
+        another_station.save()
 
-        self.assertTrue(choose_workstation(ORDER).station == tel_aviv_station, "Other Tel Aviv station is expected")
+        resuscitate_work_stations()
+        self.assertTrue(choose_workstation(ORDER).station == tel_aviv_station, "Tel Aviv station is expected")
 
         tel_aviv_station.last_assignment_date = datetime.datetime.now()
         tel_aviv_station.save()
 
-        self.assertTrue(choose_workstation(ORDER).station == default_station, "Other Tel Aviv station is expected")
+        refresh_order(ORDER)
+        self.assertTrue(choose_workstation(ORDER).station == another_station, "Other Tel Aviv station is expected")
+
+    def test_default_station(self):
+        tel_aviv_station = self.tel_aviv_station
+        default_station = create_another_TLV_station()
+
+        PASSENGER.default_station = default_station
+        PASSENGER.save()
+
+        # resuscitate work stations and order
+        resuscitate_work_stations()
+        self.assertTrue(choose_workstation(ORDER).station == default_station, "default station is expected.")
+
+        # check default station overrides last assignment date criteria
+        tel_aviv_station.last_assignment_date = datetime.datetime.now()
+        tel_aviv_station.save()
+        refresh_order(ORDER)
+        self.assertTrue(choose_workstation(ORDER).station == default_station, "default station is expected")
+
+    def test_originating_station(self):
+        global PASSENGER
+        tel_aviv_station = self.tel_aviv_station
+        originating_station = create_another_TLV_station()
+
+        ORDER.originating_station = originating_station
+        ORDER.save()
+
+        # set the originating station
+        self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": ORDER.id})
+        PASSENGER = Passenger.objects.get(id=PASSENGER.id) # refresh passenger
+        self.assertTrue(PASSENGER.originating_station == originating_station, "PASSENGER.originating_station should be tel_aviv_station and not %s" % PASSENGER.originating_station)
+
+        # resuscitate work stations and order
+        resuscitate_work_stations()
+        self.assertTrue(choose_workstation(ORDER).station == originating_station, "originating station is expected")
+
+        # check originating station overrides last assignment date criteria
+        tel_aviv_station.last_assignment_date = datetime.datetime.now()
+        tel_aviv_station.save()
+        refresh_order(ORDER)
+        self.assertTrue(choose_workstation(ORDER).station == originating_station, "originating station is expected")
 
 class PricingTest(TestCase):
     """
