@@ -1,11 +1,12 @@
 # Create your views here.
+from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from ordering.models import Order, WorkStation
+from ordering.models import WorkStation
 from google.appengine.api import xmpp
 import logging
 from django.contrib.auth.decorators import login_required
-from common.models import Country, Country
+from common.models import Country
 # DeadlineExceededError can live in two different places
 try:
     # When deployed
@@ -20,16 +21,24 @@ from google.appengine.ext import deferred
 def setup(request):
     if "token" in request.GET:
         if request.GET["token"] == 'waybetter_init':
-            if User.objects.filter(username = "waybetter_admin").count() == 0:
+            try:
+                admin = User.objects.get(username = ADMIN_USERNAME)
+                admin.set_password(ADMIN_PASSWORD)
+                admin.email = ADMIN_EMAIL
+                admin.save()
+                return HttpResponse('Admin reset!')
+            except User.DoesNotExist:
                 u = User()
-                u.username = "waybetter_admin"
-                u.set_password('waybetter_admin')
-                u.email = "guykrem@gmail.com"
+                u.username = ADMIN_USERNAME
+                u.set_password(ADMIN_PASSWORD)
+                u.email = ADMIN_EMAIL
                 u.is_active = True
                 u.is_staff = True
                 u.is_superuser = True
                 u.save()
                 return HttpResponse('Admin created!')
+            except User.MultipleObjectsReturned:
+                return HttpResponse('More than one admin.')
 
         if request.GET["token"] == 'send_invites':
             count = 0

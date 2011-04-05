@@ -22,17 +22,20 @@ class IsraelExtraCosts(Enum):
     KVISH_6         = u"כביש 6"
 
 class IsraelTimeZone(tzinfo):
-    """UTC+2"""
+    """
+    Israel time zone. UTC+2 and DST
+    """
 
     def utcoffset(self, dt):
-        return timedelta(hours=2)
+        return timedelta(hours=2) + self.dst(dt)
 
     def tzname(self, dt):
         return "UTC+2"
 
-    # update this when DST is on
+    # update this when DST is on/off
     def dst(self, dt):
-        return timedelta(0)
+        return timedelta(hours=1) # DST on
+        # return timedelta(0)     # DST off
 
 ILtz = IsraelTimeZone()
 
