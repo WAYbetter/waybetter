@@ -24,8 +24,9 @@ def setup(request):
             try:
                 admin = User.objects.get(username = ADMIN_USERNAME)
                 admin.set_password(ADMIN_PASSWORD)
+                admin.email = ADMIN_EMAIL
                 admin.save()
-                return HttpResponse('Admin password reset!')
+                return HttpResponse('Admin reset!')
             except User.DoesNotExist:
                 u = User()
                 u.username = ADMIN_USERNAME
