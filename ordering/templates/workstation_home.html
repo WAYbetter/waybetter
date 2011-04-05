@@ -457,7 +457,7 @@
 
         function renderOrder(order){
             if (order.status == {{ pending }}){
-                var show_button = $('<div class="button_txt button_bg show_button" title="{% trans 'Show order' %}"></div>').text('{% trans 'Show details' %}');
+                var show_button = $('<div class="button_txt button_bg show_button"></div>').text('{% trans 'Show details' %}');
 
                 var rendered_order = $("<div class='order'></div>").attr('id', order.pk)
                         .append($("<div class='teaser_txt'></div>").append("{% trans 'Incoming order' %}"))
