@@ -1,12 +1,14 @@
 # Create your views here.
-from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL
+from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
 from django.contrib.auth.models import User
 from django.http import HttpResponse
-from ordering.models import WorkStation
 from google.appengine.api import xmpp
-import logging
 from django.contrib.auth.decorators import login_required
 from common.models import Country
+from common.util import has_related_objects
+from ordering.models import WorkStation
+import logging
+
 # DeadlineExceededError can live in two different places
 try:
     # When deployed
@@ -17,10 +19,23 @@ except ImportError:
 
 from google.appengine.ext import deferred
 
+def generate_dead_users_list(request):
+    # TODO_WB: use taskqueue
+    if "token" in request.GET:
+        if request.GET["token"] == INIT_TOKEN:
+            table = ""
+            for user in User.objects.all():
+                if has_related_objects(user):
+                    user_link = '<a href="http://www.waybetter.com/admin/auth/user/%s/">%s</a>' % (user.id, user.id)
+                    table += "<tr><td>%s</td><td>%s</td></tr>" % (user.username, user_link)
+            response = "<table>%s</table>" % table
+            return HttpResponse(response)
+    else:
+        return HttpResponse('pass token')
 
 def setup(request):
     if "token" in request.GET:
-        if request.GET["token"] == 'waybetter_init':
+        if request.GET["token"] == INIT_TOKEN:
             try:
                 admin = User.objects.get(username = ADMIN_USERNAME)
                 admin.set_password(ADMIN_PASSWORD)

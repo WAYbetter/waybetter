@@ -5,7 +5,7 @@ from google.appengine.api import mail
 from google.appengine.api.images import BadImageError, NotImageError
 from django.utils.translation import ugettext as _
 from django.shortcuts import render_to_response
-
+from django.db.models.fields import related
 import logging
 import random
 import re
@@ -242,3 +242,39 @@ def is_in_english(s):
 h = re.compile(u"[א-ת]")
 def is_in_hebrew(s):
     return h.search(s)
+
+
+SingleRelatedObjectDescriptor = getattr(related, 'SingleRelatedObjectDescriptor')
+ManyRelatedObjectsDescriptor = getattr(related, 'ManyRelatedObjectsDescriptor')
+ForeignRelatedObjectsDescriptor = getattr(related, 'ForeignRelatedObjectsDescriptor')
+related_class_list = [SingleRelatedObjectDescriptor, ManyRelatedObjectsDescriptor, ForeignRelatedObjectsDescriptor]
+
+def get_related_fields(model):
+    fields = []
+    for attr in dir(model):
+        if type(getattr(model, attr)) in related_class_list:
+            fields.append(attr)
+    return fields
+
+
+def has_related_objects(model_instance):
+    model = type(model_instance)
+    related_fields = get_related_fields(model)
+    has_related = True
+
+    for field in related_fields:
+        relation_type = type(getattr(model, field))
+
+        if relation_type == SingleRelatedObjectDescriptor:
+            try:
+                getattr(model_instance, field)
+                return False
+            except Exception:
+                continue
+
+        if relation_type in [ManyRelatedObjectsDescriptor, ForeignRelatedObjectsDescriptor] :
+            manager = getattr(model_instance, field)
+            if manager.count() or manager.exists(): #TODO_WB: what is the difference?
+                return False
+
+    return has_related
