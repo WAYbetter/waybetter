@@ -19,7 +19,7 @@ import urllib
 import logging
 
 ORDER_HANDLE_TIMEOUT     = 80 # seconds
-ORDER_TEASER_TIMEOUT     = 10 # seconds
+ORDER_TEASER_TIMEOUT     = 18 # seconds
 ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
 #USER_MAX_WAIT_TIME       = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
 
@@ -401,7 +401,7 @@ class Order(models.Model):
 
         if self.assignments.count():
             msg += u"\n\nEvents:"
-            for assignment in self.assignments.all():
+            for assignment in self.assignments.all().order_by('create_date'):
                 msg+= u"\n%s: %s - %s" % (assignment.modify_date.ctime(), assignment.station.name, assignment.get_status_label().upper())
 
         notify_by_email(subject, msg)

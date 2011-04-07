@@ -74,37 +74,38 @@ def book_order(request):
                  translate_to_lang(sorry_msg, order.language_code))
         order.status = TIMED_OUT
         order.save()
-        return HttpResponse(ORDER_TIMEOUT)
-
-    response = HttpResponse(ORDER_HANDLED)
-    try:
-        # choose an assignment for the order and push it to the relevant workstation
-        order_assignment = dispatcher.assign_order(order)
-        push_order(order_assignment)
-        enqueue_redispatch_orders(order_assignment, ORDER_TEASER_TIMEOUT, redispatch_pending_orders)
-
-    except NoWorkStationFoundError:
-        order.status = FAILED
-        order.save()
         order.notify()
-        log_event(EventType.ORDER_FAILED, order=order, passenger=order.passenger)
-        logging.warning("no matching workstation found for: %d" % order_id)
-        response = HttpResponse(NO_MATCHING_WORKSTATIONS_FOUND)
+        response = HttpResponse(ORDER_TIMEOUT)
+    else:
+        try:
+            # choose an assignment for the order and push it to the relevant workstation
+            order_assignment = dispatcher.assign_order(order)
+            push_order(order_assignment)
+            enqueue_redispatch_orders(order_assignment, ORDER_TEASER_TIMEOUT, redispatch_pending_orders)
+            response = HttpResponse(ORDER_HANDLED)
 
-        send_sms(order.passenger.international_phone(),
-                 translate_to_lang(sorry_msg, order.language_code)) # use dummy ugettext for makemessages
+        except NoWorkStationFoundError:
+            order.status = FAILED
+            order.save()
+            order.notify()
+            log_event(EventType.ORDER_FAILED, order=order, passenger=order.passenger)
+            logging.warning("no matching workstation found for: %d" % order_id)
+            response = HttpResponse(NO_MATCHING_WORKSTATIONS_FOUND)
 
-    except OrderError:
-        order.status = ERROR
-        order.save()
-        order.notify()
-        log_event(EventType.ORDER_ERROR, order=order, passenger=order.passenger)
-        logging.error("book_order: OrderError: %d" % order_id)
-        response = HttpResponseServerError("an error occured while handling order")
+            send_sms(order.passenger.international_phone(),
+                     translate_to_lang(sorry_msg, order.language_code)) # use dummy ugettext for makemessages
 
-        send_sms(order.passenger.international_phone(),
-                 translate_to_lang(ugettext("We're sorry, but we have encountered an error while handling your request")
-                                   , order.language_code)) # use dummy ugettext for makemessages
+        except Exception:
+            order.status = ERROR
+            order.save()
+            order.notify()
+            log_event(EventType.ORDER_ERROR, order=order, passenger=order.passenger)
+            logging.error("book_order: OrderError: %d" % order_id)
+            response = HttpResponseServerError("an error occured while handling order")
+
+            send_sms(order.passenger.international_phone(),
+                     translate_to_lang(ugettext("We're sorry, but we have encountered an error while handling your request")
+                                       , order.language_code)) # use dummy ugettext for makemessages
 
     return response
 
@@ -118,7 +119,7 @@ def show_order(order_id, work_station):
     except OrderAssignment.DoesNotExist:
         logging.error("No PENDING assignment for order %d in work station %d" % (order_id, work_station.id))
         raise ShowOrderError()
-    except UpdateOrderError:
+    except UpdateOrderAssignmentError:
         raise ShowOrderError()
 
     order_assignment.show_date = datetime.now()
@@ -227,7 +228,7 @@ def get_order_status(request, order_id, passenger):
     return HttpResponse(serialize("json", [order] + list(order_assignments), use_natural_keys=True))
 
 @csrf_exempt
-@internal_task_on_queue("redispatch-orders")
+@internal_task_on_queue("redispatch-ignored-orders")
 @order_assignment_required
 def redispatch_pending_orders(request, order_assignment):
     """
@@ -250,7 +251,7 @@ def redispatch_pending_orders(request, order_assignment):
     return HttpResponse(OK)
 
 @csrf_exempt
-@internal_task_on_queue("redispatch-orders")
+@internal_task_on_queue("redispatch-ignored-orders")
 @order_assignment_required
 def redispatch_ignored_orders(request, order_assignment):
     """
@@ -277,7 +278,7 @@ def enqueue_redispatch_orders(order_assignment, interval, handler):
                           countdown=interval,
                           params={"order_assignment_id": order_assignment.id})
 
-    q = taskqueue.Queue('redispatch-orders')
+    q = taskqueue.Queue('redispatch-ignored-orders')
     q.add(task)
 
 @csrf_exempt

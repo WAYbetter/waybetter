@@ -197,6 +197,7 @@ class OrderManagerTest(TestCase):
         self.station = Station.objects.get(name='test_station_1')
         self.work_station = WorkStation.objects.filter(station=self.station)[0]
         self.assignment = OrderAssignment(order=ORDER, station=self.station, work_station=self.work_station)
+        self.assignment.save()
         # TODO_WB: remove when we have new fixtures
         phone1 = Phone(local_phone=u'1234567', station=self.station)
         phone1.save()
@@ -242,9 +243,10 @@ class OrderManagerTest(TestCase):
         assignment = self.assignment
 
         self.assertTrue(assignment.status == PENDING)
-        order_manager.show_order(assignment)
-        self.assertTrue(assignment.status == ASSIGNED and assignment.show_date, "show_order failed")
+        order_manager.show_order(assignment.order.id, assignment.work_station)
 
+        assignment = OrderAssignment.objects.get(id=assignment.id) # refresh
+        self.assertTrue(assignment.status == ASSIGNED and assignment.show_date, "show_order failed")
         self.assertTrue(ORDER.status == PENDING)
         order_manager.accept_order(ORDER, pickup_time=5, station=self.station)
         self.assertTrue((ORDER.status, ORDER.pickup_time, ORDER.station) == (ACCEPTED, 5, self.station), "accept_order failed")
