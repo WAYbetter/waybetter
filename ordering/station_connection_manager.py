@@ -1,8 +1,12 @@
 from google.appengine.api import memcache
-from django.core.serializers import serialize
 from django.utils.datetime_safe import datetime
-from ordering.models import OrderAssignment
+from django.utils import simplejson
+from ordering.models import OrderAssignment, PENDING
+from common.langsupport.util import translate_to_ws_lang
 
+ugettext = lambda s: s
+DUMMY_ADDRESS = ugettext("This is a test order")
+DUMMY_ID = "dummy"
 IS_DEAD_DELTA = 35
 
 def get_heartbeat_key(work_station):
@@ -25,7 +29,17 @@ def push_order(order_assignment):
     Retrieve the order and workstation from an assignment and add the order to the workstation's queue.
     """
     json = OrderAssignment.serialize_for_workstation(order_assignment)
-    key = get_assignment_key(order_assignment.work_station)
+    _do_push_order(order_assignment.work_station, json)
+
+def push_dummy_order(ws):
+    json = simplejson.dumps([{"pk": DUMMY_ID,
+                             "status": PENDING,
+                             "from_raw": translate_to_ws_lang(DUMMY_ADDRESS, ws),
+                             "seconds_passed": "10"}])
+    _do_push_order(ws, json)
+
+def _do_push_order(ws, json):
+    key = get_assignment_key(ws)
     assignments = memcache.get(key) or []
     assignments.append(json)
     if not memcache.replace(key, assignments): # will fail if another process removed existing orders

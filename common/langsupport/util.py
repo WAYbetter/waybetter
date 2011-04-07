@@ -15,6 +15,10 @@ def translate_to_lang(msg, lang_code):
     translation.activate(current_lang)
     return msg
 
+def translate_to_ws_lang(msg, ws):
+    ws_lang_code = settings.LANGUAGES[ws.station.language][0]
+    return translate_to_lang(msg, ws_lang_code)
+
 def translate_pickup_for_ws(ws, order):
     """
     Translate the pickup address to the workstation's language. Currently only English to Hebrew is supported.

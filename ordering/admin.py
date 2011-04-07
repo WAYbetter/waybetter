@@ -2,6 +2,7 @@ from common.util import blob_to_image_tag
 from django.contrib import admin
 from django.utils.translation import ugettext as _
 from django.forms.models import BaseInlineFormSet
+from django.http import HttpResponse
 from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, ExtraChargeRule, Feedback
 import station_connection_manager
 from common.models import Country
@@ -56,7 +57,7 @@ def build_workstations(modeladmin, request, queryset):
         station.delete_workstations()
         station.build_workstations()
 build_workstations.short_description = "Build workstations"
-    
+
 class StationAdmin(admin.ModelAdmin):
     
     list_display = ["id", "name", "logo_img"]
@@ -100,9 +101,15 @@ def build_installer(modeladmin, request, queryset):
         ws.build_installer()
 build_installer.short_description = "Build Installer"
 
+def send_dummy_order(modeladmin, request, queryset):
+    for ws in queryset:
+        if station_connection_manager.is_workstation_available(ws):
+            station_connection_manager.push_dummy_order(ws)
+            
+send_dummy_order.short_description = _("Send Dummy Order")
 class WorkStationAdmin(admin.ModelAdmin):
     list_display = ["id", "work_station_user", "station_name", "online_status"]
-    actions = [build_installer]
+    actions = [build_installer, send_dummy_order]
 
     def work_station_user(self, obj):
         return obj.get_admin_link()

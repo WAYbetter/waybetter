@@ -57,6 +57,7 @@ class EventType(Enum):
     ORDER_RATED =                   11
     UNREGISTERED_ORDER =            12
     PASSENGER_REGISTERED =          13
+    ORDER_NOT_TAKEN =               14
 
     @classmethod
     def get_label(cls, val):
@@ -101,6 +102,7 @@ def convert_python_weekday(wd):
 
 def gen_verification_code():
     return random.randrange(1000,10000)
+#    return 1234
 
 def get_model_from_request(model_class, request):
         if (not request.user or not request.user.is_authenticated()):

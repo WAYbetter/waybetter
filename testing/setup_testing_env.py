@@ -3,7 +3,7 @@
 import datetime
 from django.http import HttpResponse
 from django.contrib.auth.models import User
-from ordering.passenger_controller import create_user, create_passenger
+from ordering.passenger_controller import create_user, create_passenger, safe_delete_user
 from ordering.models import Order, Passenger, ACCEPTED, Station, WorkStation, Phone
 from common.models import Country, City
 from socialauth.models import OpenidProfile
@@ -72,16 +72,16 @@ def destroy_selenium_test_data(request):
         except WorkStation.DoesNotExist:
             pass
 
-        user.delete()
+        safe_delete_user(user)
 
-    # delete social accounts
-    for openid_account in OpenidProfile.objects.filter(email=SELENIUM_EMAIL):
-        try:
-            user = openid_account.user
-            openid_account.delete()
-            user.delete()
-        except:
-            return HttpResponse("error deleting social data")
+    # user created by socialauth
+    try:
+        user = User.objects.get(email=SELENIUM_EMAIL)
+        safe_delete_user(user)
+    except User.DoesNotExist:
+        pass
+    except User.MultipleObjectsReturned:
+        return HttpResponse("error deleting social data")
 
     return HttpResponse("selenium data destroyed")
 

@@ -1,20 +1,20 @@
 # -*- coding: utf-8 -*-
 
+## TODO_WB: this is not in sync with the countries and cities fixtures, should create a script for creating ALL fixtures
+
 from django.core import serializers
 from django.contrib.auth.models import User
 
 from common.models import Country, City
-from ordering.models import Passenger, Station, WorkStation
+from ordering.models import Passenger, Station, WorkStation, Phone
 
-OUTPUT_FILE = "/home/amir/dev/data/ordering_test_data.yaml"
+#OUTPUT_FILE = "ordering/fixtures/ordering_test_data.yaml"
 
-USER_NAMES = ['test_user', 'test_user_no_passenger']
-STATION_NAMES = ['test_station_1', 'test_station_2']
-WS_NAMES = ['test_ws_1','test_ws_2', 'test_ws_3']
+USER_NAMES = ['ordering_test_user', 'ordering_test_user_no_passenger']
+STATION_NAMES = ['Tel Aviv station', 'Jerusalem station']
+WS_NAMES = ['ws1','ws2', 'ws3']
 
 def create_test_users():
-    User.objects.all().exclude(username='waybetter_admin').delete()
-
     for user_name in USER_NAMES + STATION_NAMES + WS_NAMES:
         user = User()
         user.username = user_name
@@ -22,11 +22,10 @@ def create_test_users():
         user.save()
 
 def create_test_stations():
-    Station.objects.all().delete()
-
     # one in Tel Aviv
-    station = Station()
     station_name = STATION_NAMES[0]
+
+    station = Station()
     station.name = station_name
     station.user = User.objects.get(username=station_name)
     station.number_of_taxis = 5
@@ -37,9 +36,13 @@ def create_test_stations():
     station.lon = 34.773896
     station.save()
 
+    phone = Phone(local_phone=u'1234567', station=station)
+    phone.save()
+
     # and one in Jerusalem
-    station = Station()
     station_name = STATION_NAMES[1]
+
+    station = Station()
     station.name = station_name
     station.user = User.objects.get(username=station_name)
     station.number_of_taxis = 5
@@ -50,8 +53,10 @@ def create_test_stations():
     station.lon = 35.214161
     station.save()
 
+    phone = Phone(local_phone=u'1234567', station=station)
+    phone.save()
+
 def create_test_work_stations():
-    WorkStation.objects.all().delete()
     # two for test_station_1
     station = Station.objects.get(name=STATION_NAMES[0])
     ws1_name, ws2_name = WS_NAMES[0], WS_NAMES[1]
@@ -79,17 +84,20 @@ def create():
 
   out.write('# created using create_ordering_data.py\n')
 
-  all_objects = []
+  created_objects = []
 
   create_test_users()
-  all_objects += list(User.objects.all())
+  created_objects += list(User.objects.filter(username__in=USER_NAMES + STATION_NAMES + WS_NAMES))
 
   create_test_stations()
-  all_objects += list(Station.objects.all())
+  created_objects += list(Station.objects.filter(user__in=created_objects))
 
   create_test_work_stations()
-  all_objects += list(WorkStation.objects.all())
+  created_objects += list(WorkStation.objects.filter(user__in=created_objects))
     
-  data = serializers.serialize("yaml", all_objects)
+  data = serializers.serialize("yaml", created_objects)
   out.write(data)
   out.close()
+
+  for obj in created_objects:
+      obj.delete()

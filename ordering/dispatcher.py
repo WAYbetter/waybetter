@@ -1,13 +1,11 @@
 #from ordering.views import OrderError
-import logging
+from google.appengine.api import memcache
 from ordering.models import OrderAssignment, WorkStation
 from ordering.station_connection_manager import is_workstation_available
-from ordering.errors import OrderError, NoWorkStationFoundError
-from common.geo_calculations import distance_between_points
+from ordering.errors import  NoWorkStationFoundError
 import models
 from common.util import log_event, EventType
 from common.langsupport.util import translate_pickup_for_ws
-from datetime import datetime
 
 
 def assign_order(order):
@@ -43,38 +41,55 @@ def assign_order(order):
     return assignment
 
 
-    
 def choose_workstation(order):
-    """
-    Choose a nearby workstation, ignoring those who have previously rejected or ignored the order.
-    """
-    rejected_work_stations_ids = [order_assignment.work_station.id for order_assignment in OrderAssignment.objects.filter(order = order, status__in=[models.REJECTED, models.IGNORED])]
-    if rejected_work_stations_ids == []:
-        work_stations_qs = WorkStation.objects.all()
-    else:
-        work_stations_qs = WorkStation.objects.exclude(id__in=rejected_work_stations_ids)
+    ws_list_key = 'ws_list_for_order_%s' % order.id
+    ws_list = memcache.get(ws_list_key) or []
+    if not ws_list:
+        ws_list = compute_ws_list(order)
 
-    work_stations_qs = work_stations_qs.exclude(accept_orders=False)
-    work_stations = []
-
-    if order.originating_station:
-        for ws in order.originating_station.work_stations.all():
-            if is_workstation_available(ws) and \
-                ws.station.is_in_valid_distance(order.from_lon, order.from_lat, order.to_lon, order.to_lat):
-                return ws
-
-    for ws in work_stations_qs:
-        if is_workstation_available(ws) and \
-           ws.station.is_in_valid_distance(order.from_lon, order.from_lat, order.to_lon, order.to_lat):
-            work_stations.append(ws)
-
-
-    work_stations = sorted(work_stations, key=lambda ws: ws.station.last_assignment_date)
-    for ws in work_stations:
-        if ws.station == order.passenger.default_station:
-            return ws
-
-    if work_stations:
-        return work_stations[0] 
+    if ws_list:
+        ws = ws_list.pop(0)
+        memcache.set(ws_list_key, ws_list)
+        return ws
 
     return None
+    
+def compute_ws_list(order):
+    """
+    Compute workstation list, ignoring those who have previously rejected or ignored the order.
+    """
+    # TODO_WB: iterate stations and not work stations
+    rejected_ws_ids = [order_assignment.work_station.id for order_assignment in OrderAssignment.objects.filter(order = order, status__in=[models.REJECTED, models.IGNORED])]
+
+    if not rejected_ws_ids:
+        ws_qs = WorkStation.objects.all()
+    else:
+        ws_qs = WorkStation.objects.exclude(id__in=rejected_ws_ids)
+
+    ws_qs = ws_qs.exclude(accept_orders=False)
+    ws_list = []
+    station_list=[]
+
+    # originating station is first, default station is second then the rest
+    for station in [order.originating_station, order.passenger.default_station]:
+        if station and station.is_in_valid_distance(order=order):
+            for ws in ws_qs.filter(station=station):
+                if is_workstation_available(ws):
+                    ws_list.append(ws)
+                    station_list.append(station)
+                    break
+
+    # then the rest of the stations (one work station each) ordered by last assignment date
+    for ws in sorted(ws_qs, key=lambda ws: ws.station.last_assignment_date):
+        station = ws.station
+        if station in station_list:
+            # TODO_WB: do not skip ws
+            continue
+        if station.is_in_valid_distance(order=order):
+            for ws in ws_qs.filter(station=station):
+                if is_workstation_available(ws):
+                    ws_list.append(ws)
+                    station_list.append(station)
+                    break
+
+    return ws_list

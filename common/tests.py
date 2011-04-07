@@ -208,9 +208,9 @@ class BasicFuncTest(TestCase):
         test_user.email = "test_user1@wayebtter.com"
         test_user.save()
 
-        response = self.client.get(reverse('common.services.is_email_available'), {"username": "test_user1@wayebtter.com"})
+        response = self.client.get(reverse('common.services.is_email_available'), {"email": "test_user1@wayebtter.com"})
         self.assertTrue(response.content == "false", msg="expected username unavailable")
 
-        response = self.client.get(reverse('common.services.is_username_available'), {"username": "test_user2@wayebtter.com"})
+        response = self.client.get(reverse('common.services.is_email_available'), {"email": "test_user2@wayebtter.com"})
         self.assertTrue(response.content == "true", msg="expected username unavailable")
 

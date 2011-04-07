@@ -2,10 +2,12 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.utils.http import urlquote
-from ordering.models import Passenger, WorkStation, Station, CURRENT_PASSENGER_KEY
-from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest
+from ordering.models import Passenger, WorkStation, Station, CURRENT_PASSENGER_KEY, OrderAssignment
+from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.conf import settings
+
+import logging
 
 NOT_A_USER = "NOT_A_USER"
 NOT_A_PASSENGER = "NOT_A_PASSENGER"
@@ -141,6 +143,20 @@ def station_or_workstation_required(function=None):
                 return HttpResponseRedirect(path)
 #            return HttpResponseForbidden("You are not a workstation, please <a href='/workstation/logout/'>logout</a> and try again")
 #                return render_to_response("wrong_user_type_message.html", {})
+
+        return function(request, **kwargs)
+
+    return wrapper
+
+def order_assignment_required(function=None):
+    def wrapper(request, **kwargs):
+        order_assignment_id = int(request.POST["order_assignment_id"])
+        try:
+            order_assignment = OrderAssignment.objects.filter(id=order_assignment_id).get()
+            kwargs["order_assignment"] = order_assignment
+        except OrderAssignment.DoesNotExist:
+            logging.error("No order assignment found for id: %d" % order_assignment_id)
+            return HttpResponse("No order assignment found")
 
         return function(request, **kwargs)
 
