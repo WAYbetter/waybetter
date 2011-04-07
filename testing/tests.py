@@ -11,8 +11,8 @@ from selenium_helper import SelemiumHelper, SELENIUM_PASSWORD, SELENIUM_EMAIL, S
 import time
 import logging
 
-#APPLICATION_UNDER_TEST = "http://localhost:8000/"
-APPLICATION_UNDER_TEST = "http://3.latest.waybetter-app.appspot.com/"
+APPLICATION_UNDER_TEST = "http://localhost:8000/"
+#APPLICATION_UNDER_TEST = "http://3.latest.waybetter-app.appspot.com/"
 #APPLICATION_UNDER_TEST = "http://www.waybetter.com/"
 
 SOCIAL_GOOGLE = ["css=.google", "Google Accounts", "Email", "Passwd", "signIn"]

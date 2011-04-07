@@ -58,22 +58,13 @@ def build_workstations(modeladmin, request, queryset):
         station.build_workstations()
 build_workstations.short_description = "Build workstations"
 
-def send_dummy_order(modeladmin, request, queryset):
-    for station in queryset:
-        ws_list = list(station.work_stations.all())
-
-        for ws in ws_list:
-            if station_connection_manager.is_workstation_available(ws):
-                station_connection_manager.push_dummy_order(ws)
-                break
-
 class StationAdmin(admin.ModelAdmin):
     
     list_display = ["id", "name", "logo_img"]
     inlines = [PhoneAdmin]
     exclude = ["geohash", "lat", "lon", "number_of_ratings", "average_rating", "last_assignment_date"]
     form = forms.StationAdminForm
-    actions = [build_workstations, send_dummy_order]
+    actions = [build_workstations]
 
     def logo_img(self, obj):
         res = ""
@@ -110,9 +101,15 @@ def build_installer(modeladmin, request, queryset):
         ws.build_installer()
 build_installer.short_description = "Build Installer"
 
+def send_dummy_order(modeladmin, request, queryset):
+    for ws in queryset:
+        if station_connection_manager.is_workstation_available(ws):
+            station_connection_manager.push_dummy_order(ws)
+            
+send_dummy_order.short_description = _("Send Dummy Order")
 class WorkStationAdmin(admin.ModelAdmin):
     list_display = ["id", "work_station_user", "station_name", "online_status"]
-    actions = [build_installer]
+    actions = [build_installer, send_dummy_order]
 
     def work_station_user(self, obj):
         return obj.get_admin_link()

@@ -10,33 +10,44 @@ from datetime import datetime
 import time
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, get_model_from_request
+from common.decorators import run_in_transaction
+from ordering.errors import UpdateOrderAssignmentError
 import re
 from django.core.validators import RegexValidator
 import common.urllib_adaptor as urllib2
 import urllib
 import logging
 
-ASSIGNED	= 1
-ACCEPTED	= 2
-IGNORED		= 3
-REJECTED	= 4
-PENDING		= 5
-FAILED		= 6
-ERROR		= 7
+ORDER_HANDLE_TIMEOUT     = 80 # seconds
+ORDER_TEASER_TIMEOUT     = 18 # seconds
+ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
+#USER_MAX_WAIT_TIME       = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
 
-ASSIGNMENT_STATUS = ((ASSIGNED, ugettext("assigned")),
-                     (ACCEPTED, ugettext("accepted")),
-                     (IGNORED, ugettext("ignored")),
-                     (REJECTED, ugettext("rejected")))
+ASSIGNED                 = 1
+ACCEPTED                 = 2
+IGNORED                  = 3
+REJECTED                 = 4
+PENDING                  = 5
+FAILED                   = 6
+ERROR                    = 7
+NOT_TAKEN                = 8
+TIMED_OUT                = 9
 
-ORDER_STATUS = ASSIGNMENT_STATUS + ((PENDING, ugettext("pending")),
-                                    (FAILED, ugettext("failed")),
-                                    (ERROR, ugettext("error")))
+ASSIGNMENT_STATUS = ((PENDING   , ugettext("pending")),
+                     (ASSIGNED  , ugettext("assigned")),
+                     (ACCEPTED  , ugettext("accepted")),
+                     (IGNORED   , ugettext("ignored")),
+                     (REJECTED  , ugettext("rejected")),
+                     (NOT_TAKEN , ugettext("not_taken")))
+
+ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED    , ugettext("failed")),
+                                    (ERROR     , ugettext("error")),
+                                    (TIMED_OUT , ugettext("timed_out")))
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
 MAX_STATION_DISTANCE_KM = 10
-CURRENT_PASSENGER_KEY = "current_passenger"
+CURRENT_PASSENGER_KEY   = "current_passenger"
 
 
 def add_formatted_create_date(classes):
@@ -56,7 +67,7 @@ def add_formatted_create_date(classes):
                     do_format.admin_order_field = field.name
                     do_format.short_description = field.verbose_name
                     return do_format
-                
+
                 setattr(model, f.name + "_format", format_datefield(f))
 
 class Station(models.Model):
@@ -103,7 +114,13 @@ class Station(models.Model):
     def get_admin_link(self):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/station', self.id, self.name)
 
-    def is_in_valid_distance(self, from_lon, from_lat, to_lon, to_lat):
+    def is_in_valid_distance(self, from_lon=None, from_lat=None, to_lon=None, to_lat=None, order=None):
+        if order:
+            from_lon = order.from_lon
+            from_lat = order.from_lat
+            to_lon = order.to_lon
+            to_lat = order.to_lat
+
         if not (self.lat and self.lon): # ignore station with unknown address
             return False
         to_distance = MAX_STATION_DISTANCE_KM + 1
@@ -111,7 +128,7 @@ class Station(models.Model):
         if to_lon and to_lat:
             to_distance = distance_between_points(self.lat, self.lon, to_lat, to_lon)
 
-        return from_distance <= MAX_STATION_DISTANCE_KM or to_distance <= MAX_STATION_DISTANCE_KM 
+        return from_distance <= MAX_STATION_DISTANCE_KM or to_distance <= MAX_STATION_DISTANCE_KM
 
     @staticmethod
     def get_default_station_choices(order_by="name", include_empty_option=True):
@@ -178,7 +195,7 @@ class Passenger(models.Model):
         if not passenger:
             passenger = request.session.get(CURRENT_PASSENGER_KEY, None)
         return passenger
-  
+
 
     def __unicode__(self):
         try:
@@ -225,7 +242,7 @@ class WorkStation(models.Model):
         except Station.DoesNotExist:
             pass
 
-        return result 
+        return result
 
     def get_admin_link(self):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/workstation', self.id, self.user.username)
@@ -384,27 +401,26 @@ class Order(models.Model):
 
         if self.assignments.count():
             msg += u"\n\nEvents:"
-            for assignment in self.assignments.all():
+            for assignment in self.assignments.all().order_by('create_date'):
                 msg+= u"\n%s: %s - %s" % (assignment.modify_date.ctime(), assignment.station.name, assignment.get_status_label().upper())
-            
+
         notify_by_email(subject, msg)
 
 class OrderAssignment(models.Model):
-    ORDER_ASSIGNMENT_TIMEOUT = 120 # seconds
-
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")
     work_station = models.ForeignKey(WorkStation, verbose_name=_("work station"), related_name="assignments")
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="assignments")
 
-    status = models.IntegerField(_("status"), choices=ASSIGNMENT_STATUS, default=ASSIGNED)
+    status = models.IntegerField(_("status"), choices=ASSIGNMENT_STATUS, default=PENDING)
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+    show_date = models.DateTimeField(_("show date"), auto_now_add=False, null=True, blank=True)
 
     pickup_address_in_ws_lang = models.CharField(_("pickup_address_in_ws_lang"), max_length=50)
 
     @classmethod
-    def serialize_for_workstation(cls, queryset_or_order_assignment):
+    def serialize_for_workstation(cls, queryset_or_order_assignment, base_time=None):
         if isinstance(queryset_or_order_assignment, QuerySet):
             order_assignments = queryset_or_order_assignment
         elif isinstance(queryset_or_order_assignment, cls):
@@ -414,10 +430,14 @@ class OrderAssignment(models.Model):
 
         result = []
         for order_assignment in order_assignments:
+            if not base_time:
+                base_time = order_assignment.create_date
+
             result.append({
                 "pk":               order_assignment.order.id,
+                "status":           order_assignment.status,
                 "from_raw":         order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
-                "seconds_passed":   (datetime.now() - order_assignment.create_date).seconds
+                "seconds_passed":   (datetime.now() - base_time).seconds
             })
 
         return simplejson.dumps(result)
@@ -429,15 +449,28 @@ class OrderAssignment(models.Model):
 
         raise ValueError("invalid status")
 
+    @run_in_transaction
+    def transaction_change_status(self, old_status, new_status):
+        """
+        Use a transaction to update assignemtn status.
+
+        Raises UpdateOrderAssignmentError if current status is not as expected (was changed by another process)
+        """
+        if self.status == old_status:
+            self.status = new_status
+            self.save()
+            return True
+        else:
+            raise UpdateOrderAssignmentError("update status failed")
 
     def is_stale(self):
-        return (datetime.now() - self.create_date).seconds > OrderAssignment.ORDER_ASSIGNMENT_TIMEOUT
+        return (datetime.now() - self.create_date).seconds > ORDER_ASSIGNMENT_TIMEOUT
 
     def __unicode__(self):
         order_id = "<Unknown>"
         if self.order:
             order_id = u"<%d>" % self.order.id
-            
+
         return u"%s %s %s %s" % (ugettext("order"), order_id, ugettext("assigned to station:"), self.station)
 
 
@@ -475,7 +508,7 @@ class MeteredRateRule(models.Model):
     tick_time = models.IntegerField(_("tick time (s)"), null=True, blank=True, help_text=_("In seconds"))
     tick_cost = models.FloatField(_("cost per tick"), null=True, blank=True)
     fixed_cost = models.FloatField(_("fixed cost"), null=True, blank=True)
-    
+
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
@@ -509,7 +542,7 @@ class ExtraChargeRule(models.Model):
     rule_name = models.CharField(_("name"), max_length=500)
     is_active = models.BooleanField(_("is active"), default=True)
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="extra_charge_rules")
- 
+
     cost = models.FloatField(_("fixed cost"))
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)

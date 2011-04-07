@@ -1,5 +1,22 @@
+# Order errors
 class OrderError(Exception):
     pass
+
+class ShowOrderError(OrderError):
+    pass
+
+class UpdateOrderError(OrderError):
+    pass
+
+
+# OrderAssignment errors
+class OrderAssignmentError(Exception):
+    pass
+
+class UpdateOrderAssignmentError(OrderAssignmentError):
+    pass
+
+
 
 class NoWorkStationFoundError(OrderError):
     pass
