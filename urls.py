@@ -3,12 +3,15 @@ dbindexer.autodiscover()
 
 from django.conf.urls.defaults import *
 from django.contrib import admin
+from api.urls import CURRENT_VERSION
 admin.autodiscover()
+
 
 urlpatterns = patterns('',
 #    ('^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
 #    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
     (r'^accounts/', include('registration.backends.station.urls')),
+    (r'^api/v%d/' % CURRENT_VERSION, include('api.urls')),
     (r'^common/', include('common.urls')),
     (r'^testing/', include('testing.urls')),
     (r'^admin/analytics/', 'analytics.views.analytics'),

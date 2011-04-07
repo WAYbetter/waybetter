@@ -3,7 +3,7 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.utils.http import urlquote
 from ordering.models import Passenger, WorkStation, Station, CURRENT_PASSENGER_KEY
-from django.http import HttpResponseForbidden, HttpResponseRedirect
+from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.conf import settings
 
@@ -12,6 +12,21 @@ NOT_A_PASSENGER = "NOT_A_PASSENGER"
 
 def login_needed(login_url):
     return user_passes_test(lambda u: not u.is_anonymous(), login_url=login_url)
+
+def require_parameters(method='GET', required_params=()):
+    """
+    Ensure the given parameters where passed to the request, otherwise respond with HttpResponseBadRequest
+    """
+    def actual_decorator(function):
+        def wrapper(request):
+            dic = getattr(request, method)
+            if not all([p in dic for p in required_params]):
+                return HttpResponseBadRequest("Missing parameters")
+
+            return function(request)
+        return wrapper
+    
+    return actual_decorator
 
 def internal_task_on_queue(queue_name):
     """

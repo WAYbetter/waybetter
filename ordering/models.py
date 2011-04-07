@@ -1,3 +1,4 @@
+from api.models import APIUser
 from django.db.models.query import QuerySet
 from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -106,6 +107,9 @@ class Station(models.Model):
     def is_in_valid_distance(self, from_lon, from_lat, to_lon, to_lat):
         if not (self.lat and self.lon): # ignore station with unknown address
             return False
+        if not (from_lon and from_lat):
+            return False
+        
         to_distance = MAX_STATION_DISTANCE_KM + 1
         from_distance = distance_between_points(self.lat, self.lon, from_lat, from_lon)
         if to_lon and to_lat:
@@ -295,7 +299,7 @@ class Order(models.Model):
                                        , blank=True)
     from_postal_code = models.CharField(_("from postal code"), max_length=10, null=True, blank=True)
     from_street_address = models.CharField(_("from street address"), max_length=50)
-    from_house_number = models.IntegerField(_("from_house_number"), max_length=10, null=True, blank=True)
+    from_house_number = models.IntegerField(_("from_house_number"), max_length=10)
 
     from_geohash = models.CharField(_("from goehash"), max_length=13)
     from_lon = models.FloatField(_("from_lon"))
@@ -329,6 +333,8 @@ class Order(models.Model):
     station_id = models.IntegerField(_("station id"), null=True, blank=True)
     passenger_phone = models.CharField(_("passenger phone"), max_length=50, null=True, blank=True)
     passenger_id = models.IntegerField(_("passenger id"), null=True, blank=True)
+
+    api_user = models.ForeignKey(APIUser, verbose_name=_("api user"), related_name="orders", null=True, blank=True)
 
     def save(self, *args, **kwargs):
         if self.station:
