@@ -10,6 +10,11 @@ import logging
 import random
 import re
 
+MINUTE_DELTA    = 60
+HOUR_DELTA      = MINUTE_DELTA * 60
+DAY_DELTA       = HOUR_DELTA * 24
+MONTH_DELTA     = DAY_DELTA * 30
+YEAR_DELTA      = DAY_DELTA * 365
 
 class Enum:
     @classmethod

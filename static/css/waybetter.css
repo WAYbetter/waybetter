@@ -78,13 +78,20 @@ input.text, input[type=text], input[type=password] {
 /*** Order History Fixes ***/
 #orders_history_grid .select-address:hover {
     background-image: url(/static/images/arrow_history.png) !important;
-    background-position: 220px 8px !important;
+    background-position: right !important;
     background-repeat: no-repeat;
     color: black;
-    background-color: #ffce38;
 /* background: -webkit-gradient(linear, left top, left bottom, from(#cecece), to(#9e9e9e)); */
 /* background: -moz-linear-gradient(-90deg, #cecece, #9e9e9e); */
 /* -pie-background: linear-gradient(-90deg, #cecece, #9e9e9e); */
+}
+
+#orders_history_grid .select-address.from{
+    background-color: #8cd4f7;
+}
+
+#orders_history_grid .select-address.to{
+    background-color: #f9b1bc;
 }
 
 /************* Main *************/

@@ -14,6 +14,7 @@
             validate_phone  : "{% url ordering.passenger_controller.validate_phone %}"
         },
         messages: {
+            phone_taken     : "{% trans 'Phone already in use. <a href=# class=login_link>Login</a>' %}",
             sms_ok          : "{% trans 'PRESS TO SEND SMS CODE' %}",
             code_sent       : "{% trans 'CODE SENT' %}",
             finish          : "{% trans 'FINISH' %}",
@@ -23,7 +24,6 @@
             too_short       : "{% trans 'Number too short' %}"
         },
         error_messages: {
-            phone_taken     : "{% trans 'Phone already in use. <a href=# class=login_link>Login</a>' %}",
             too_long        : "{% trans 'Number too long' %}",
             only_digits     : "{% trans 'Only digits please' %}"
         }
@@ -64,7 +64,7 @@
                 required        : form_config.messages.enter_mobile,
                 minlength       : form_config.messages.too_short,
                 maxlength       : form_config.error_messages.too_long,
-                remote          : form_config.error_messages.phone_taken
+                remote          : form_config.messages.phone_taken
             },
             verification_code: {
                 required    : form_config.messages.enter_sms_code,

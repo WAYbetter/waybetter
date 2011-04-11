@@ -187,11 +187,11 @@ var OrderingHelper = Object.create({
         var address = Address.fromFields(address_type);
         var address_helper = $(element).siblings(".address-helper");
         if (! address.isResolved()) {
+            $(element).catcomplete("search");
             $(element).removeClass("not_resolved").addClass("marker_disabled");
             address_helper.text(this.config["address_helper_msg_" + address_type]).removeClass("address-error");
             address_helper.fadeIn("fast");
         }
-
     },
     init:                       function(config) {
         var that = this;
@@ -224,10 +224,11 @@ var OrderingHelper = Object.create({
                 that._onAddressInputBlur(element, address_type);
             });
             $(element).catcomplete({
-                cacheLength: 1,
                 mustMatch: true,
                 source: function (request, response) {
-                    var params = { "term":request.term };  //TODO_WB: add max_size parameter, when "More..." is requested
+                    var from_lon = $("#order_form input[name='from_lon']").val(), // get lon,lat of 'from' to guess city
+                        from_lat = $("#order_form input[name='from_lat']").val(),
+                        params = { "term":request.term, "lon": from_lon, "lat": from_lat };  //TODO_WB: add max_size parameter, when "More..." is requested
                     $.ajax({
                         url: that.config.resolve_address_url,
                         data: params,
@@ -504,12 +505,15 @@ var SelectFromHistoryHelper = Object.create({
     initialized:            false,
     init:       function($tabs, config) {
         $.extend(true, this.config, config);
-
+        this.$tabs = $tabs;
         if ($tabs.tabs('option', 'selected') == this.config.orders_index) {
             this.from_selector = new HistorySelector($("#id_from_raw"));
             this.to_selector = new HistorySelector($("#id_to_raw"));
         }
         this.initialized = true;
+    },
+    selectHistoryTab:   function() {
+        this.$tabs.tabs('option', 'selected', this.config.orders_index);
     },
     updateGrid:   function() {
         if (this.initialized) {
@@ -528,12 +532,13 @@ var HistorySelector = defineClass({
     construct:      function($input) {
         var that = this;
         this.$input = $input;
-        this.select_button = $("<a>").attr("href", "#")
-                                     .addClass("input_history_helper");
-        this.$input.after(this.select_button);
-        this.select_button.click(function() {
+        this.input_type = this.$input[0].id.split("_")[1];
+
+        this.$input.focus(function() {
             that.activate();
-            return false;
+        });
+        this.$input.blur(function() {
+            that.deactivate();
         });
     },
     methods: {
@@ -543,7 +548,7 @@ var HistorySelector = defineClass({
                 address_type = $td.attr("field_type").toLowerCase();
             
             $.getJSON(SelectFromHistoryHelper.config.fetch_address_url, {order_id: order_id, address_type: address_type}, function(response) {
-                var address = Address.fromServerResponse(response, that.$input[0].id.split("_")[1]);
+                var address = Address.fromServerResponse(response, that.input_type);
                 OrderingHelper.updateAddressChoice(address);
 
             });
@@ -551,18 +556,16 @@ var HistorySelector = defineClass({
         activate:           function() {
             var that = this;
 
+            SelectFromHistoryHelper.selectHistoryTab();
+
             SelectFromHistoryHelper.to_selector.deactivate();
             SelectFromHistoryHelper.from_selector.deactivate();
 
-            this.select_button.val("Cancel");
-            this.select_button.unbind("click").click(function() {
-                that.deactivate();
-            });
-
-            this.$input.addClass("select-address");
-            $("#tabs table td.order_history_column_From, #tabs table td.order_history_column_To")
+            $("#tabs table td.order_history_column_From, #tabs table td.order_history_column_To").not(":empty")
                     .addClass("select-address")
-                    .click(function () {
+                    .addClass(that.input_type)
+                    .effect("highlight", {color: 'white'}, 600)
+                    .mousedown(function () {
                         that.fetchAddress($(this));
                         that.deactivate();
                     });
@@ -573,13 +576,7 @@ var HistorySelector = defineClass({
         deactivate:         function() {
             var that = this;
             this.is_active = false;
-            this.select_button.val("Select");
-            this.select_button.unbind("click").click(function() {
-                that.activate();
-            });
-            
-            this.$input.removeClass("select-address");
-            $("#tabs table td.select-address").unbind("click").removeClass("select-address");
+            $("#tabs table td.select-address").unbind("mousedown").removeClass("select-address").removeClass(that.input_type);
 
         }
 
