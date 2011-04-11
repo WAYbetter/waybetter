@@ -4,6 +4,7 @@ from django.core.urlresolvers import reverse
 from django.template.context import Context
 from django.template.loader import get_template
 from django.test import TestCase
+from ordering.models import Order
 
 from testing import setup_testing_env
 
@@ -32,6 +33,11 @@ class APITest(TestCase):
         
         res = self.client.post(url, data=(t.render(c)), content_type="text/xml")
         self.assertEqual(res.status_code, 201) # Created
+
+        # check that the order created point to the correct api_user
+        orders = Order.objects.all().order_by("-create_date")
+        o = orders[len(orders) - 1]
+        self.assertEqual(o.api_user.key, GOOD_API_KEY)
 
         c = Context({
             'passenger_phone'   : BAD_PASSENGER_PHONE,
@@ -91,4 +97,3 @@ class APITest(TestCase):
 
 
 #TODO_WB: Add tests for form error codes
-#TODO_WB: Test that order created via api has api_user attached to it.
