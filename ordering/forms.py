@@ -1,16 +1,16 @@
 # This Python file uses the following encoding: utf-8
 
 from django import forms
-from django.forms.models import ModelForm
-from django.forms.util import flatatt
+from django.forms.models import ModelForm, NON_FIELD_ERRORS
+from django.forms.util import flatatt, ErrorList
 from django.utils.translation import ugettext_lazy as _
-from django.utils.encoding import smart_unicode
+from django.utils.encoding import smart_unicode, force_unicode
 
 from common.models import Country, City
 from ordering.models import Order, Station, Feedback, phone_re
 from django.utils.safestring import mark_safe
 from google.appengine.api.images import BadImageError, NotImageError
-from common.util import log_event, EventType, blob_to_image_tag
+from common.util import log_event, EventType, blob_to_image_tag, Enum
 from django.core.exceptions import ValidationError
 from common.geocode import geocode
 import logging
@@ -94,6 +94,21 @@ class FeedbackForm(ModelForm):
         self.passenger = passenger
 
 
+class ErrorCodes(Enum):
+    COUNTRIES_DONT_MATCH	= 1001
+    NO_SERVICE_IN_COUNTRY	= 1002
+    NO_SERVICE_IN_CITY		= 1003
+    INVALID_ADDRESS         = 1004
+
+class CodeErrorList(ErrorList):
+    def __init__(self, seq=(), code=None):
+        super(ErrorList, self).__init__(seq)
+        self.code = code
+
+    def as_pure_text(self):
+        if not self: return u''
+        return u'\n'.join([force_unicode(e) for e in self])
+
 class OrderForm(ModelForm):
     passenger = None
 
@@ -111,38 +126,48 @@ class OrderForm(ModelForm):
         super(ModelForm, self).__init__(data)
         self.passenger = passenger
         self.disambiguation_choices = {}
+        self.error_class = CodeErrorList
 
+    def _clean_form(self):
+        try:
+            self.cleaned_data = self.clean()
+        except ValidationError, e:
+            self._errors[NON_FIELD_ERRORS] = self.error_class(e.messages, code=e.code)
 
     def clean(self):
-        if self.cleaned_data['to_country'] and self.cleaned_data['from_country'] != self.cleaned_data['to_country']:
-            log_event(EventType.CROSS_COUNTRY_ORDER_FAILURE, passenger=self.passenger, country=self.cleaned_data['to_country'])
-            raise forms.ValidationError(_("To and From countries do not match"))
+        to_country = self.cleaned_data.get('to_country')
+        from_country = self.cleaned_data.get('from_country')
+        from_lon = self.cleaned_data.get('from_lon')
+        from_lat = self.cleaned_data.get('from_lat')
+        to_lon = self.cleaned_data.get('to_lon')
+        to_lat = self.cleaned_data.get('to_lat')
+        from_city = self.cleaned_data.get('from_city')
+        to_city = self.cleaned_data.get('to_city')
 
-        stations_count = Station.objects.filter(country=self.cleaned_data['from_country']).count()
-        if stations_count == 0:
-            log_event(EventType.NO_SERVICE_IN_COUNTRY, passenger=self.passenger, country=self.cleaned_data['from_country'])
-            raise forms.ValidationError(_("Currently, there is no service in the country"))
+        if to_country and from_country != to_country:
+            log_event(EventType.CROSS_COUNTRY_ORDER_FAILURE, passenger=self.passenger, country=to_country)
+            raise forms.ValidationError(_("To and From countries do not match"), code=ErrorCodes.COUNTRIES_DONT_MATCH)
 
-        # TODO_WB move this check to the DB?
+        stations_count = Station.objects.filter(country=from_country).count()
+        if not stations_count:
+            log_event(EventType.NO_SERVICE_IN_COUNTRY, passenger=self.passenger, country=from_country)
+            raise forms.ValidationError(_("Currently, there is no service in the country"), code=ErrorCodes.NO_SERVICE_IN_COUNTRY)
+
+        # TODO_WB: move this check to the DB?
         close_enough_station_found = False
-        for station in Station.objects.filter(country=self.cleaned_data['from_country']):
-            if station.is_in_valid_distance(self.cleaned_data['from_lon'],
-                                            self.cleaned_data['from_lat'],
-                                            self.cleaned_data['to_lon'],
-                                            self.cleaned_data['to_lat']): 
+        for station in Station.objects.filter(country=from_country):
+            if station.is_in_valid_distance(from_lon, from_lat, to_lon, to_lat):
                 close_enough_station_found = True
                 break
                 
         if not close_enough_station_found:
-            log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=self.cleaned_data['from_city'],
-                      lat=self.cleaned_data['from_lat'], lon=self.cleaned_data['from_lon'])
-            if self.cleaned_data['from_city'] != self.cleaned_data['to_city']:
-                log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=self.cleaned_data['to_city'],
-                          lat=self.cleaned_data['to_lat'], lon=self.cleaned_data['to_lon'])
+            log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=from_city, lat=from_lat, lon=from_lon)
+            if from_city != to_city:
+                log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=to_city, lat=to_lat, lon=to_lon)
 
             raise forms.ValidationError(
                     _("Service is not available in %(city)s yet.<br>Please try again soon.<p class=bold>THANKS!</p>WAYbetter team :)") %
-                        {'city': self.cleaned_data['from_city'].name})
+                        {'city': from_city.name}, code=ErrorCodes.NO_SERVICE_IN_CITY)
         
         return self.cleaned_data
 

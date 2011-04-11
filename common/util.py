@@ -11,7 +11,7 @@ import random
 import re
 
 
-class Enum:
+class Enum(object):
     @classmethod
     def _item_names(cls):
         result = []
@@ -196,7 +196,7 @@ def get_unique_id():
     import hashlib
     import datetime
     s = hashlib.sha1()
-    s.update(str(datetime.datetime.now()))
+    s.update(str(datetime.datetime.now()) + generate_random_token(length=3))
     return s.hexdigest()
 
 def notify_by_email(subject, msg):
