@@ -46,7 +46,7 @@ var nav = navigator,
             en_us: 'Install this web app on your %device: tap `%icon` and then `<strong>Add to Home Screen</strong>`.',
             es_es: 'Para instalar esta app en su %device, pulse `%icon` y seleccione `<strong>Añadir a pantalla de inicio</strong>`.',
             fr_fr: 'Ajoutez cette application sur votre %device en cliquant sur `%icon`, puis `<strong>Ajouter à l\'écran d\'accueil</strong>`.',
-            he_il: '<span dir="rtl">לגישה מהירה: הקש `%icon` ואז `<strong>הוסף למסך הבית</strong>`.</span>',
+            he_il: '<span dir="rtl">לשמירת האפליקציה לחץ על %icon ובחר באפשרות "הוסף למסך הבית"</span>',
             it_it: 'Installa questa applicazione sul tuo %device: premi su `%icon` e poi `<strong>Aggiungi a Home</strong>`.',
             ja_jp: 'このウェブアプリをあなたの%deviceにインストールするには`%icon`をタップして`<strong>ホーム画面に追加</strong>`を選んでください。',
             ko_kr: '%device에 웹앱을 설치하려면 %icon을 터치 후 "홈화면에 추가"를 선택하세요',
@@ -119,7 +119,7 @@ function ready () {
 	}
 
 	div.className = (isIPad ? 'ipad' : 'iphone') + (touchIcon ? ' wide' : '');
-	div.innerHTML = touchIcon + options.message.replace('%device', platform).replace('%icon', OSVersion >= 4.2 ? '<span class="share"></span>' : '<span class="plus">+</span>') + (options.arrow ? '<span class="arrow"></span>' : '') + '<span class="close">×</span>';
+	div.innerHTML = touchIcon + '<span class="message">' + options.message.replace('%device', platform).replace('%icon', OSVersion >= 4.2 ? '<span class="share"></span>' : '<span class="plus">+</span>') + '</span>' + (options.arrow ? '<span class="arrow"></span>' : '') + '<span class="close">×</span>';
 
 	document.body.appendChild(div);
 	el = div;

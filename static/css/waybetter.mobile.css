@@ -153,21 +153,28 @@ input:focus, input.focus{
     outline-width:0;
 }
 button.order_button {
+    font-size: 26px;
+    font-weight: bold;
+    color: black;
+    text-shadow: 0 1px white;
+    line-height: 0px;
     width: 190px;
-    height:53px;
+    height:61px;
     border: none;
     box-shadow: none;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
-    background: url("../img/webapp_order_button_eng.png") left top no-repeat;
+    background: url("/static/images/mobile/book_button.png") center top no-repeat;
     margin-top:10px;
 }
 
 button.order_button:active{
-    background-position: 0 -116px;
+    background-position: 0 -66px;
 }
 button.order_button:disabled {
-    background-position: 0 -59px;
+    background-position: 0 -133px;
+    text-shadow: 0 1px #cccccc;
+    color: #1a1a1a;
 }
 
 #map_container {
@@ -179,19 +186,32 @@ button.order_button:disabled {
     z-index: 1000;
     width: 75%;
     height: 34px;
-    top: 190px;
+    bottom: 95px;
     padding:5px 20px 10px 44px;
     background: rgba(0, 0, 0, 0.8) url("/static/images/mobile/calculator.png") 2px 4px no-repeat;
-    -webkit-border-radius:8px;
-    text-align: left;
-}
-#ride_cost_estimate > .text {
+    text-align: center;
     color:white;
     font-size: 15px;
-    font-weight: bold;
     line-height: 16px;
     text-shadow: none;
+    text-align: center;
+
+    -webkit-border-radius:8px;
+    -webkit-transition-property: opacity, bottom;
+    -webkit-transition-duration: 0.7s, 1.5s;
+    /*-webkit-transition-timing-function: ease-out;*/
 }
+#ride_cost_estimate.fade {
+    opacity: 0;
+    bottom: -10px;
+}
+#ride_cost_estimate > .header {
+}
+#ride_cost_estimate > .details {
+    font-weight: bold;
+    line-height: 25px;
+}
+
 #close_estimate {
     position: absolute;
     top:4px;
