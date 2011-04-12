@@ -11,15 +11,21 @@ $.widget("custom.catcomplete", $.ui.autocomplete, {
         minLength: 2,
         delay: 400
     },
-    _response: function( content ) {
-                if ( content.length && ! this.options.disabled && this.element.is(":focus")) {
-                        content = this._normalize( content );
-                        this._suggest( content );
-                        this._trigger( "open" );
-                } else {
-                        this.close();
-                }
-                this.element.removeClass( "ui-autocomplete-loading" );
+    // wrap jquery-ui's for removing additional classes  upon response
+    responseWrapper: function() {
+        this.response.apply( this, arguments );
+
+        var address_type = this.element[0].id.split("_")[1],
+            $header = $(".address-helper-autocomplete"),
+            loader_class = "address-helper-loading-" + address_type;
+
+        if (this.element.hasClass("ui-autocomplete-loading")){
+            $header.addClass(loader_class);
+        }
+        else{
+            $header.removeClass(loader_class);
+            $(".address-helper").filter("." + address_type).removeClass(loader_class);
+        }
     },
     _renderMenu: function(ul, items) {
         var self = this,
@@ -39,6 +45,21 @@ $.widget("custom.catcomplete", $.ui.autocomplete, {
                         .appendTo( ul );
     }
 });
+
+// selectFirst for autocomplete-ui, modified for catcomplete
+(function($) {
+    $(".ui-autocomplete-input").live("catcompleteopen", function() {
+        var autocomplete = $(this).data("catcomplete"),
+                menu = autocomplete.menu;
+
+        if (!autocomplete.options.selectFirst) {
+            return;
+        }
+
+        menu.activate($.Event({ type: "mouseenter" }), menu.element.children().first().next());
+    });
+
+}(jQuery));
 
 var MapMarker = defineClass({
     name: "MapMarker",
@@ -177,10 +198,11 @@ var OrderingHelper = Object.create({
         this._updateAddressControls(element, address_type);
         var address = Address.fromFields(address_type);
         var address_helper = $(element).siblings(".address-helper");
-         if (address.isResolved() || this._isEmpty(element)) {
-            address_helper.fadeOut("fast");
-        }
-        
+
+        address_helper.removeClass("address-helper-loading-" + address_type);
+        if (address.isResolved() || this._isEmpty(element)) {
+             address_helper.fadeOut("fast");
+         }
     },
     _onAddressInputFocus:       function(element, address_type) {
         this._updateAddressControls(element, address_type);
@@ -225,17 +247,28 @@ var OrderingHelper = Object.create({
             });
             $(element).catcomplete({
                 mustMatch: true,
+                selectFirst: true,
                 source: function (request, response) {
-                    var from_lon = $("#order_form input[name='from_lon']").val(), // get lon,lat of 'from' to guess city
-                        from_lat = $("#order_form input[name='from_lat']").val(),
-                        params = { "term":request.term, "lon": from_lon, "lat": from_lat };  //TODO_WB: add max_size parameter, when "More..." is requested
+                    catcomplete_instance = this;
+
+                    $(".address-helper, .address-helper-autocomplete").filter("." + address_type).addClass("address-helper-loading-" + address_type);
+                    var address = undefined,
+                        lat     = undefined,
+                        lon     = undefined;
+
+                    address = (address_type == 'from') ? Address.fromFields('to') : Address.fromFields('from');
+                    if (address.isResolved()) {
+                        lat = address.lat;
+                        lon = address.lon;
+                    }
+                    //TODO_WB: add max_size parameter, when "More..." is requested
                     $.ajax({
                         url: that.config.resolve_address_url,
-                        data: params,
+                        data: { "term":request.term, "lon": lon, "lat": lat },
                         dataType: "json",
                         success: function(resolve_results) {
                             if (resolve_results.geocode.length == 0 && resolve_results.history.length == 0) {
-                                response([]);
+                                catcomplete_instance.responseWrapper([]);
 
                             } else { // create autocomplete items from server response
                                 var items = $.map(resolve_results.history, function(item) {
@@ -247,7 +280,7 @@ var OrderingHelper = Object.create({
                                     }
                                 });
 
-                                response(items.concat($.map(resolve_results.geocode, function(item) {
+                                catcomplete_instance.responseWrapper(items.concat($.map(resolve_results.geocode, function(item) {
                                     return {
                                         label: item.name,
                                         value: item.name,
@@ -256,6 +289,9 @@ var OrderingHelper = Object.create({
                                     }
                                 })));
                             }
+                        },
+                        error: function(){
+                            catcomplete_instance.responseWrapper([]);
                         }
                     });
                 },
@@ -276,13 +312,20 @@ var OrderingHelper = Object.create({
         $("input:button, #order_button").button();
 
         $("#order_button").button("disable");
+
+        var onentry_val = "";
         $("#id_from_raw, #id_to_raw").change(function() {
             that.validateForBooking();
         }).keydown(function(e) {
+            onentry_val = $(this).val();
             // all other keys enable: tab, shift, ctrl, esc, left, right, enter
             var ignored_key_codes = [9, 13, 16, 17, 18, 20, 27, 37, 38, 39, 40, 91];
             if (ignored_key_codes.indexOf(e.keyCode) < 0) {
                 $(this).catcomplete("enable");
+            }
+        }).keyup(function(){
+            if ($(this).val() != onentry_val){
+              $(this).catcomplete("search");
             }
         });
 
@@ -647,9 +690,7 @@ var OrderHistoryHelper = Object.create({
                 SelectFromHistoryHelper.updateGrid();
             },
             error:      function(xhr, textStatus, errorThrown) {
-                if (console){
-                    console.log('error loading history: ' + xhr.responseText);
-                }
+                return false;
             }
         });
     },

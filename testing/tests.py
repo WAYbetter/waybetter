@@ -243,10 +243,10 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel = self.selenium
         sel.open("/")
 
-        sel.type_keys("id_from_raw", u"אל")
+        sel.type_keys("id_from_raw", u"אל 1 תא")
         self.wait_for_autocomplete_and_click(u"//html/body/ul/li/a[. = \"אלנבי 1, תל אביב יפו\"]")
 
-        sel.type_keys("id_to_raw", u"הרצ")
+        sel.type_keys("id_to_raw", u"הרצ 1 תא")
         self.wait_for_autocomplete_and_click(u"//html/body/ul/li/a[. = \"הרצל 1, תל אביב יפו\"]")
 
         self.wait_for_text_present(u"מחיר נסיעה משוער")

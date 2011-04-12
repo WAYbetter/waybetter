@@ -76,22 +76,18 @@ input.text, input[type=text], input[type=password] {
 }
 
 /*** Order History Fixes ***/
-#orders_history_grid .select-address:hover {
-    background-image: url(/static/images/arrow_history.png) !important;
-    background-position: right !important;
-    background-repeat: no-repeat;
-    color: black;
-/* background: -webkit-gradient(linear, left top, left bottom, from(#cecece), to(#9e9e9e)); */
-/* background: -moz-linear-gradient(-90deg, #cecece, #9e9e9e); */
-/* -pie-background: linear-gradient(-90deg, #cecece, #9e9e9e); */
-}
-
 #orders_history_grid .select-address.from{
+    color: #383838;
     background-color: #8cd4f7;
 }
 
 #orders_history_grid .select-address.to{
+    color: #383838;
     background-color: #f9b1bc;
+}
+
+#orders_history_grid .select-address:hover {
+    color: #010101;
 }
 
 /************* Main *************/
@@ -195,6 +191,18 @@ input.text, input[type=text], input[type=password] {
 .address-helper-autocomplete.to, .address-helper.to {
     background-color: #ec008c;
     border: 1px solid #f9b1bc;
+}
+
+.address-helper-loading-from{
+    background-image:url(/static/images/address_helper_loading_from.gif);
+    background-position: 5px -33px;
+    background-repeat: no-repeat;
+}
+
+.address-helper-loading-to{
+    background-image:url(/static/images/address_helper_loading_to.gif);
+    background-position: 5px -33px;
+    background-repeat: no-repeat;
 }
 
 .address-helper.address-error {
