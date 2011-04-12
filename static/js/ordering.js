@@ -325,7 +325,9 @@ var OrderingHelper = Object.create({
             }
         }).keyup(function(){
             if ($(this).val() != onentry_val){
-              $(this).catcomplete("search");
+                var address_type = $(this)[0].id.split("_")[1];
+                that._onAddressInputFocus($(this), address_type);
+                that.validateForBooking();
             }
         });
 

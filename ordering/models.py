@@ -316,7 +316,8 @@ class Order(models.Model):
                                        , blank=True)
     from_postal_code = models.CharField(_("from postal code"), max_length=10, null=True, blank=True)
     from_street_address = models.CharField(_("from street address"), max_length=50)
-    from_house_number = models.IntegerField(_("from_house_number"), max_length=10)
+    # TODO_WB: from_house_number cannot be blank nor null - run task to generate house number for legacy orders
+    from_house_number = models.IntegerField(_("from_house_number"), max_length=10, null=True, blank=True)
 
     from_geohash = models.CharField(_("from goehash"), max_length=13)
     from_lon = models.FloatField(_("from_lon"))
