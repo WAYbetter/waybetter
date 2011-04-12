@@ -52,6 +52,7 @@ def create_test_order():
         "from_lon": u'34.765465',
         "from_raw": u'Allenby 1, Tel Aviv Yafo',
         "from_street_address": u'Allenby',
+        "from_house_number": u'1',
         "geocoded_from_raw": u'Allenby 1, Tel Aviv Yafo',
         "to_city": city_id,
         "to_country": country_id,
@@ -60,6 +61,7 @@ def create_test_order():
         "to_lon": u'34.764862',
         "to_raw": u'גאולה 1, תל אביב יפו',
         "to_street_address": u'גאולה',
+        "to_house_number": u'1',
         "geocoded_to_raw": u'גאולה 1, תל אביב יפו',
         # junk field
         "foo": "bar",

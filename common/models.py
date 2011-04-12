@@ -18,6 +18,9 @@ class Country(models.Model):
 
     @classmethod
     def get_id_by_code(cls, country_code):
+        if not country_code:
+            return None
+        
         query = Country.objects.filter(code=country_code)
         if query.count() == 0:
             raise LookupError("No country found matching '%s'" % country_code)
@@ -69,6 +72,9 @@ class City(models.Model):
         
     @classmethod
     def get_id_by_name_and_country(cls, name, country_id, add_if_not_found=False):
+        if not name or not country_id:
+            return None
+        
         query = City.objects.filter(name = name, country = country_id)
         if query.count() == 0:
             if add_if_not_found:
