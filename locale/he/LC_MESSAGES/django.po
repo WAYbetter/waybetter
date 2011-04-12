@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-04-11 16:29+0300\n"
-"PO-Revision-Date: 2011-04-11 16:31+0200\n"
+"POT-Creation-Date: 2011-04-11 19:05+0300\n"
+"PO-Revision-Date: 2011-04-12 14:57+0200\n"
 "Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -281,7 +281,7 @@ msgid "Enter SMS code"
 msgstr " קוד ה-SMS שקיבלת"
 
 #: common/templates/code_form.html:20
-#: ordering/templates/mobile/passenger_home.html:166
+#: ordering/templates/mobile/passenger_home.html:168
 #: templates/mobile/base.html:91
 msgid "Finish"
 msgstr "סיום"
@@ -486,7 +486,7 @@ msgid "An SMS with ride details will be sent soon"
 msgstr "התחנות הקרובות מחפשות עבורך מונית פנויה. הודעת SMS עם פרטי הנסיעה תשלח אליך מיד..."
 
 #: common/templates/registration_form.html:24
-#: ordering/passenger_controller.py:362
+#: ordering/passenger_controller.py:363
 msgid "Email already registered"
 msgstr "דוא&#34;ל כבר רשום"
 
@@ -705,7 +705,7 @@ msgstr "מדינת מוצא ויעד אינן תואמות"
 
 #: ordering/forms.py:154
 msgid "Currently, there is no service in the country"
-msgstr "נכון לעכשיו, השירות אינו זמין במדינה זו."
+msgstr "השירות אינו זמין במדינה זו כרגע."
 
 #: ordering/forms.py:169
 #, python-format
@@ -1326,37 +1326,37 @@ msgstr "לא ניתן להזמין נסיעה זו"
 msgid "Ordering is not allowed so soon after another order"
 msgstr "לא ניתן להזמין כמה נסיעות בסמיכות."
 
-#: ordering/passenger_controller.py:263
+#: ordering/passenger_controller.py:264
 #, python-format
 msgid "Verification code: %s"
 msgstr "קוד אימות: %s"
 
-#: ordering/passenger_controller.py:276
+#: ordering/passenger_controller.py:277
 msgid "Invalid verification code"
 msgstr "קוד SMS שגוי"
 
-#: ordering/passenger_controller.py:301
+#: ordering/passenger_controller.py:302
 msgid "Phone has multiple passengers"
 msgstr ""
 
-#: ordering/passenger_controller.py:322
+#: ordering/passenger_controller.py:323
 msgid "this email is registered with multiple users, cannot log you in"
 msgstr "דוא\"ל זה נמצא בשימוש, לא ניתן להכניסך"
 
-#: ordering/passenger_controller.py:324
+#: ordering/passenger_controller.py:325
 msgid "wrong email"
 msgstr "כתובת דו\"אל שגויה"
 
-#: ordering/passenger_controller.py:330
+#: ordering/passenger_controller.py:331
 msgid "wrong email/password"
 msgstr "כתובת דוא\"ל או הסיסמה אינם נכונים"
 
-#: ordering/passenger_controller.py:340
+#: ordering/passenger_controller.py:341
 msgid "Must have a user to change credentials"
 msgstr ""
 
-#: ordering/passenger_controller.py:343
-#: ordering/passenger_controller.py:365
+#: ordering/passenger_controller.py:344
+#: ordering/passenger_controller.py:366
 msgid "Missing required parameters"
 msgstr "שדות חסרים"
 
@@ -1546,6 +1546,7 @@ msgstr "כתובת לא ידועה. יש לבחור כתובת מהרשימה"
 #: ordering/templates/passenger_home.html:111
 #: ordering/templates/station_page.html:31
 #: ordering/templates/station_page.html:94
+#: ordering/templates/mobile/passenger_home.html:67
 msgid "Pick Me Up"
 msgstr "שלח לי מונית"
 
@@ -1580,13 +1581,13 @@ msgstr "הזמינו עכשיו "
 
 #: ordering/templates/passenger_home.html:105
 #: ordering/templates/station_page.html:88
-#: ordering/templates/mobile/passenger_home.html:106
+#: ordering/templates/mobile/passenger_home.html:108
 msgid "Enter pickup address"
 msgstr "כתובת מוצא (רחוב מספר עיר)"
 
 #: ordering/templates/passenger_home.html:108
 #: ordering/templates/station_page.html:91
-#: ordering/templates/mobile/passenger_home.html:111
+#: ordering/templates/mobile/passenger_home.html:113
 msgid "Enter drop-off address"
 msgstr "כתובת יעד (לא חובה)"
 
@@ -1928,7 +1929,7 @@ msgid ""
 "\\n"
 "An SMS with ride details will be sent soon"
 msgstr ""
-"הזמנה נשלחה!\\n"
+"הזמנתך התקבלה!\\n"
 "\\n"
 "התחנות הקרובות מחפשות עבורך מונית פנויה. הודעת SMS עם פרטי הנסיעה תשלח אליך מיד..."
 
@@ -1945,7 +1946,7 @@ msgid "Try Again"
 msgstr "נסה שוב"
 
 #: ordering/templates/mobile/passenger_home.html:62
-#: ordering/templates/mobile/passenger_home.html:161
+#: ordering/templates/mobile/passenger_home.html:163
 #: templates/mobile/base.html:87
 msgid "Send Verification Code"
 msgstr "שלח קוד אימות"
@@ -1962,36 +1963,40 @@ msgstr "כתובת לא ידועה"
 msgid "Looking for address"
 msgstr "מאתר כתובת..."
 
-#: ordering/templates/mobile/passenger_home.html:67
+#: ordering/templates/mobile/passenger_home.html:68
 msgid "Address Incomplete: please enter a house number"
 msgstr "כתובת חסרה: נא להכניס מספר בית"
 
-#: ordering/templates/mobile/passenger_home.html:108
-#: ordering/templates/mobile/passenger_home.html:113
+#: ordering/templates/mobile/passenger_home.html:69
+msgid "Order Sent"
+msgstr "הזמנתך התקבלה"
+
+#: ordering/templates/mobile/passenger_home.html:110
+#: ordering/templates/mobile/passenger_home.html:115
 #: templates/mobile/base.html:69
 msgid "Cancel"
 msgstr "ביטול"
 
-#: ordering/templates/mobile/passenger_home.html:116
+#: ordering/templates/mobile/passenger_home.html:118
 msgid "GPS"
 msgstr ""
 
-#: ordering/templates/mobile/passenger_home.html:141
+#: ordering/templates/mobile/passenger_home.html:143
 #: templates/mobile/base.html:68
 msgid "Select Address"
 msgstr "בחר כתובת"
 
-#: ordering/templates/mobile/passenger_home.html:152
+#: ordering/templates/mobile/passenger_home.html:154
 #: templates/mobile/base.html:76
 msgid "Verification"
 msgstr "אימות טלפון"
 
-#: ordering/templates/mobile/passenger_home.html:159
+#: ordering/templates/mobile/passenger_home.html:161
 #: templates/mobile/base.html:82
 msgid "Enter your mobile number"
 msgstr " מספר הטלפון הנייד שלך"
 
-#: ordering/templates/mobile/passenger_home.html:164
+#: ordering/templates/mobile/passenger_home.html:166
 #: templates/mobile/base.html:88
 msgid "Enter verification code"
 msgstr "קוד אימות טלפוני"

@@ -11,7 +11,8 @@ html { -webkit-text-size-adjust:none; }
 	-webkit-user-select:none;
 	-webkit-box-sizing:border-box;
 	width:200px;
-	font-size:15px;
+	font-size:16px;
+    font-weight: bold;
 	padding:10px;
 	text-align:left;
 	font-family:helvetica;
@@ -35,7 +36,7 @@ html { -webkit-text-size-adjust:none; }
  *
  */
 #addToHomeScreen.wide {
-	width:240px;
+	width:260px;
 }
 
 
@@ -58,6 +59,10 @@ html { -webkit-text-size-adjust:none; }
 	-webkit-border-bottom-right-radius:2px;
 }
 
+#addToHomeScreen .message {
+    width: 163px;
+    display: inline-block;
+}
 
 /**
  *
@@ -80,18 +85,17 @@ html { -webkit-text-size-adjust:none; }
 #addToHomeScreen .close {
 	-webkit-box-sizing:border-box;
 	position:absolute;
-	right:2px;
+	left:2px;
 	top:2px;
-	width:14px;
-	height:14px; line-height:10px;
+	width:20px;
+	height:20px; line-height:13px;
 	text-align:center;
-	text-indent:1px;
-	font-size:14px;
-	-webkit-border-radius:7px;
-	background:rgba(0,0,0,0.12);
-	color:#707070;
+	/*text-indent:2px;*/
+	font-size:20px;
+	-webkit-border-radius:9px;
+	background:rgba(0,0,0,0.4);
+	color: transparent;
 	-webkit-box-shadow:0 1px 0 #fff;
-	font-size:13px;
 }
 
 
@@ -131,14 +135,15 @@ html { -webkit-text-size-adjust:none; }
 #addToHomeScreen .touchIcon {
 	display:block;
 	float:left;
+
 	-webkit-border-radius:8px;
-	-webkit-box-shadow:0 1px 3px rgba(0,0,0,0.5),
+	-webkit-box-shadow:0 0px 2px rgba(0,0,0,0.4),
 		inset 0 0 2px rgba(255,255,255,0.9);
 	background-repeat:none;
 	width:44px; height:44px;
 	-webkit-background-size:44px 44px;
-	margin:0 10px 5px 0;
-	border:1px solid #333;
+	margin:10px 10px 5px 10px;
+	/*border:1px solid #333;*/
 	-webkit-background-clip:padding-box;
 }
 

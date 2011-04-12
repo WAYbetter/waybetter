@@ -13,7 +13,7 @@
         <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 163dpi)" href="{{ station.app_icon_url }}" />
         <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 326dpi)" href="{{ station.app_icon_url }}" />
     {% else %}
-        <link rel="apple-touch-startup-image" href="/static/images/mobile/pre-image.jpg">
+        <link rel="apple-touch-startup-image" href="/static/images/mobile/splash_screen.jpg">
         <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 163dpi)" href="/static/images/mobile/icon.png" />
         <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 326dpi)" href="/static/images/mobile/icon_114.png" />
     {% endif %}
@@ -64,16 +64,19 @@
                     code_sent:               "{% trans 'Code Sent' %}",
                     could_not_resolve:       "{% trans 'Could not resolve address' %}",
                     looking_for:             "{% trans 'Looking for address' %}",
-                    no_house_number:         "{% trans 'Address Incomplete: please enter a house number' %}"
+                    pick_me_up:              "{% trans 'Pick Me Up' %}",
+                    no_house_number:         "{% trans 'Address Incomplete: please enter a house number' %}",
                 }
             });
         });
     </script>
     <script type="text/javascript">
 		var addToHomeConfig = {
-			animationIn:'drop',		// Animation In
-			animationOut:'fade',		// Animation Out
-            message: 'he_il'
+			animationIn:'bubble',		// Animation In
+			animationOut:'drop',		// Animation Out
+            message: 'he_il',
+            lifespan: 10000,
+            touchIcon: true
 		};
     </script>
     <script type="application/javascript" src="/static/js/add2home.js" defer="defer"></script>
@@ -119,7 +122,7 @@
             </div>
 
             <div id="map_container">
-                <div id="ride_cost_estimate"><span class="text"></span><span id="close_estimate"></span></div>
+                <div id="ride_cost_estimate"><span class="header"></span><br><span class="details"></span><span id="close_estimate"></span></div>
                 <div id="map"></div>
                 <div class="glass_pane">
                     <div id="top"></div>

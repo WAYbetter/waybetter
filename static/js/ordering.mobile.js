@@ -11,9 +11,10 @@ var MapMarker = defineClass({
 
 var Address = defineClass({
     name:       "Address",
-    construct:  function(name, street, city, country, geohash, lon, lat, address_type) {
+    construct:  function(name, street, city, country, geohash, lon, lat, house_number, address_type) {
         this.name = name;
         this.street = street;
+        this.house_number = house_number;
         this.city = city;
         this.country = country;
         this.geohash = geohash;
@@ -30,6 +31,7 @@ var Address = defineClass({
             $('#id_geocoded_' + this.address_type + '_raw').val(this.name);
             $('#id_' + this.address_type + '_city').val(this.city);
             $('#id_' + this.address_type + '_street_address').val(this.street);
+            $('#id_' + this.address_type + '_house_number').val(this.house_number);
             $('#id_' + this.address_type + '_country').val(this.country);
             $('#id_' + this.address_type + '_geohash').val(this.geohash);
             $('#id_' + this.address_type + '_lon').val(this.lon);
@@ -39,15 +41,16 @@ var Address = defineClass({
     statics:    {
         // factory methods
         fromFields:         function(address_type) {
-            var name =      $('#id_' + address_type + '_raw').val(),
-                city =      $('#id_' + address_type + '_city').val(),
-                street =    $('#id_' + address_type + '_street_address').val(),
-                country =   $('#id_' + address_type + '_country').val(),
-                geohash =   $('#id_' + address_type + '_geohash').val(),
-                lon =       $('#id_' + address_type + '_lon').val(),
-                lat =       $('#id_' + address_type + '_lat').val();
+            var name =          $('#id_' + address_type + '_raw').val(),
+                city =          $('#id_' + address_type + '_city').val(),
+                street =        $('#id_' + address_type + '_street_address').val(),
+                house_number =  $('#id_' + address_type + '_house_number').val(),
+                country =       $('#id_' + address_type + '_country').val(),
+                geohash =       $('#id_' + address_type + '_geohash').val(),
+                lon =           $('#id_' + address_type + '_lon').val(),
+                lat =           $('#id_' + address_type + '_lat').val();
 
-            return new Address(name, street, city, country, geohash, lon, lat, address_type);
+            return new Address(name, street, city, country, geohash, lon, lat, house_number, address_type);
         },
         fromServerResponse: function(response, address_type) {
              return new Address( response["name"],
@@ -57,6 +60,7 @@ var Address = defineClass({
                                  response["geohash"],
                                  response["lon"],
                                  response["lat"],
+                                 response["house_number"],
                                  address_type );
         }
     }
@@ -97,6 +101,7 @@ var OrderingHelper = Object.create({
         longitude       : "",
         latitude        : ""
     },
+    order_confirmed:                false,
     init:                       function(config) {
         this.config = $.extend(true, {}, this.config, config);
         var that = this,
@@ -108,6 +113,8 @@ var OrderingHelper = Object.create({
         cache.$order_form           = $("#order_form"),
         cache.$order_button         = $("#order_button");
         cache.$finish_verification  = $("#finish_verification");
+
+        cache.$order_button.text(that.config.messages.pick_me_up);
 
         // setup from input
         cache.$from_raw_input.focus(function () {
@@ -168,7 +175,6 @@ var OrderingHelper = Object.create({
 
         // toolbar setup
         $(".sources_toolbar").hide();
-        $("#ride_cost_estimate").hide();
 
         $("#gps_button").mousedown(function(e) {
             that.setLocationGPS(true);
@@ -192,6 +198,8 @@ var OrderingHelper = Object.create({
                 var val = $(element).val();
                 that.validateForBooking();
 
+                that.order_confirmed = false;
+                
                 if (! val) {
                     return;
                 }
@@ -243,11 +251,8 @@ var OrderingHelper = Object.create({
 
         // $("input:button, input:submit, button").button();
 
-         $("#ride_cost_estimate > .text").text(that.config.messages.estimation_msg).click(function () {
-            $jqt.goTo("#sms_dialog", "slideleft");
-        });
         $("#close_estimate").click(function() {
-            $("#ride_cost_estimate").fadeOut("fast");
+            $("#ride_cost_estimate").addClass("fade");
         });
         $(".cancel_button").click(function() {
             that.switchState();
@@ -262,7 +267,7 @@ var OrderingHelper = Object.create({
             }
         });
 
-        cache.$order_button.enable().click(function () {
+        cache.$order_button.click(function () {
             cache.$order_form.submit();
         });
 
@@ -270,23 +275,30 @@ var OrderingHelper = Object.create({
             if (cache.$order_button.is(':disabled')) {
                 return false;
             }
-            if (! confirm(that.config.messages.are_you_sure)) {
-                return false;
+            if (! that.order_confirmed) {
+                if (! confirm(that.config.messages.are_you_sure)) {
+                    return false;
+                }
             }
-
+            that.order_confirmed = true;
+            
             cache.$order_button.disable();
 
+            cache.$order_button.text(that.config.messages.sending);
             $(this).ajaxSubmit({
                 dataType: "json",
                 complete: function() {
-                    that.validateForBooking();    
+                    that.validateForBooking();
+                    cache.$order_button.text(that.config.messages.pick_me_up);
                 },
                 success: function(order_status) {
-                    if (order_status.status == "booked") {
-                        alert(that.config.messages.order_sent_msg);
-                    } else {
-                        alert($("<div></div>").html(order_status.errors.message).text()); // stip html and show message
-                    }
+                    setTimeout(function() {
+                        if (order_status.status == "booked") {
+                            alert(that.config.messages.order_sent_msg);
+                        } else {
+                            alert($("<div></div>").html(order_status.errors.message).text()); // stip html and show message
+                        }
+                    }, 100);
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
                     if (XMLHttpRequest.status == 403) {
@@ -519,7 +531,7 @@ var OrderingHelper = Object.create({
         this.validateForBooking();
         if (address.address_type === 'from') {
             $('#from_raw_result').text(this.cache.$from_raw_input.val());
-            $("#ride_cost_estimate").fadeIn("fast");
+            $("#ride_cost_estimate").removeClass("fade");
         } else {
             $('#to_raw_result').text(this.cache.$to_raw_input.val());
         }
@@ -545,15 +557,12 @@ var OrderingHelper = Object.create({
         }
     },
     renderRideEstimatedCost:    function (data) {
+        $("#ride_cost_estimate > .header").text(data.label);
         if (data.estimated_cost && data.estimated_duration){
-            var label = data.label + ":";
-            label += data.estimated_cost + data.currency;
-            label += " (" + data.estimated_duration + ")";
+            var details = data.currency + data.estimated_cost + " (" + data.estimated_duration + ")";
+            $("#ride_cost_estimate > .details").text(details);
         }
-        else{
-            var label = data.label;
-        }
-        $("#ride_cost_estimate > .text").text(label);
+        $("#ride_cost_estimate").removeClass("fade");
     },
     validateForBooking:         function() {
         for (var address_type in this.ADDRESS_FIELD_ID_BY_TYPE) {
@@ -564,7 +573,7 @@ var OrderingHelper = Object.create({
                     delete this.map_markers[address.address_type];
                 }
                 this.renderMapMarkers();
-                $("#ride_cost_estimate > .text").text(this.config.messages.estimation_msg);
+                $("#ride_cost_estimate > .header").text(this.config.messages.estimation_msg);
                 if (address_type == 'from') {
                     this.cache.$order_button.disable(); // disable ordering if from is not resolved
                     return;
