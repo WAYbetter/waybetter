@@ -1,10 +1,3 @@
-//custom jQuery selector
-jQuery.extend(jQuery.expr[':'], {
-    focus: function(element) {
-        return element == document.activeElement;
-    }
-});
-
 // define a custom autocomplete widget
 $.widget("custom.catcomplete", $.ui.autocomplete, {
     options: {
@@ -15,24 +8,24 @@ $.widget("custom.catcomplete", $.ui.autocomplete, {
     responseWrapper: function() {
         this.response.apply( this, arguments );
 
-        var address_type = this.element[0].id.split("_")[1],
+        var address = Address.fromInput(this.element),
             $header = $(".address-helper-autocomplete"),
-            loader_class = "address-helper-loading-" + address_type;
+            loader_class = "address-helper-loading-" + address.address_type;
 
         if (this.element.hasClass("ui-autocomplete-loading")){
             $header.addClass(loader_class);
         }
         else{
             $header.removeClass(loader_class);
-            $(".address-helper").filter("." + address_type).removeClass(loader_class);
+            $(".address-helper").filter("." + address.address_type).removeClass(loader_class);
         }
     },
     _renderMenu: function(ul, items) {
         var self = this,
                 currentCategory = undefined,
-                address_type = this.element[0].id.split("_")[1];
+                address = Address.fromInput(this.element);
 
-        ul.append("<li class='address-helper-autocomplete " + address_type + "'>" + OrderingHelper.config.autocomplete_msg + "</li>");
+        ul.append("<li class='address-helper-autocomplete " + address.address_type + "'>" + OrderingHelper.config.autocomplete_msg + "</li>");
         $.each( items, function( index, item ) {
             self._renderItem( ul, item );
         });
@@ -60,88 +53,6 @@ $.widget("custom.catcomplete", $.ui.autocomplete, {
     });
 
 }(jQuery));
-
-var MapMarker = defineClass({
-    name: "MapMarker",
-    construct:      function(lon, lat, location_name, icon_image, is_center) {
-        this.lon = lon;
-        this.lat = lat;
-        this.location_name = location_name;
-        this.icon_image = icon_image;
-        this.is_center = is_center;
-    }
-});
-
-var Address = defineClass({
-    name:       "Address",
-    construct:  function(name, street, house_number, city, country, geohash, lon, lat, address_type) {
-        this.name = name;
-        this.street = street;
-        this.house_number = house_number;
-        this.city = city;
-        this.country = country;
-        this.geohash = geohash;
-        this.lon = lon;
-        this.lat = lat;
-        this.address_type = address_type;
-    },
-    methods:    {
-        isResolved:     function() {
-            return (this.lon && this.lat) && (this.name == $('#id_geocoded_' + this.address_type + '_raw').val());
-        },
-        populateFields: function () {
-            $('#id_' + this.address_type + '_raw').val(this.name).removeClass("placeheld"); // placeheld plugin only removes class on focus
-            $('#id_geocoded_' + this.address_type + '_raw').val(this.name);
-            $('#id_' + this.address_type + '_city').val(this.city);
-            $('#id_' + this.address_type + '_street_address').val(this.street);
-            $('#id_' + this.address_type + '_house_number').val(this.house_number);
-            $('#id_' + this.address_type + '_country').val(this.country);
-            $('#id_' + this.address_type + '_geohash').val(this.geohash);
-            $('#id_' + this.address_type + '_lon').val(this.lon);
-            $('#id_' + this.address_type + '_lat').val(this.lat);
-        },
-        clearFields: function () {
-            $('#id_geocoded_' + this.address_type + '_raw').val('');
-            $('#id_' + this.address_type + '_city').val('');
-            $('#id_' + this.address_type + '_street_address').val('');
-            $('#id_' + this.address_type + '_house_number').val('');
-            $('#id_' + this.address_type + '_country').val('');
-            $('#id_' + this.address_type + '_geohash').val('');
-            $('#id_' + this.address_type + '_lon').val('');
-            $('#id_' + this.address_type + '_lat').val('');
-        }
-    },
-    statics:    {
-        // factory methods
-        fromFields:         function(address_type) {
-            var name =          $('#id_' + address_type + '_raw').val(),
-                city =          $('#id_' + address_type + '_city').val(),
-                street =        $('#id_' + address_type + '_street_address').val(),
-                house_number =  $('#id_' + address_type + '_house_number').val(),
-                country =       $('#id_' + address_type + '_country').val(),
-                geohash =       $('#id_' + address_type + '_geohash').val(),
-                lon =           $('#id_' + address_type + '_lon').val(),
-                lat =           $('#id_' + address_type + '_lat').val();
-
-            return new Address(name, street, house_number, city, country, geohash, lon, lat, address_type);
-        },
-        fromServerResponse: function(response, address_type) {
-            if (response) {
-                return new Address( response["name"],
-                                    response["street"],
-                                    response["house_number"],
-                                    response["city"],
-                                    response["country"],
-                                    response["geohash"],
-                                    response["lon"],
-                                    response["lat"],
-                                    address_type );
-            } else {
-                return new Address();
-            }
-        }
-    }
-});
 
 var OrderingHelper = Object.create({
     config:     {
@@ -237,7 +148,8 @@ var OrderingHelper = Object.create({
         };
         $("#ride_cost_estimate").html(this.config.estimation_msg);
         $("input:text").each(function(i, element) {
-            var address_type = element.name.split("_")[0];
+            var address = Address.fromInput(element);
+            var address_type = address.address_type;
             var helper_div = $("<div class='address-helper round "+ address_type +"'></div>");
             $(element).after(helper_div);
             $(element).focus(function() {
@@ -325,8 +237,8 @@ var OrderingHelper = Object.create({
             }
         }).keyup(function(){
             if ($(this).val() != onentry_val){
-                var address_type = $(this)[0].id.split("_")[1];
-                that._onAddressInputFocus($(this), address_type);
+                var address = Address.fromInput(this);
+                that._onAddressInputFocus($(this), address.address_type);
                 that.validateForBooking();
             }
         });
@@ -401,7 +313,7 @@ var OrderingHelper = Object.create({
     },
     addPoint:                   function (address) {
         var that = this,
-            location_name = address.address_type + ": <br/>" + address.name,
+            location_name = address.address_type + ": <br/>" + address.raw,
             icon_image = new telmap.maps.MarkerImage("/static/img/" + address.address_type + "_map_marker.png", undefined, undefined, {x:35, y:30}),
             point = new telmap.maps.Marker({
                 map:        this.map,
@@ -412,7 +324,7 @@ var OrderingHelper = Object.create({
                 title:      'Marker'
             });
 
-        $('#id_' + address.address_type + '_raw').val(address.name);
+        $('#id_' + address.address_type + '_raw').val(address.raw);
 
         telmap.maps.event.addListener(point, 'dragend', function(e) {
             $.ajax({
@@ -423,7 +335,7 @@ var OrderingHelper = Object.create({
                 dataType: "json",
                 success: function(resolve_result) {
                     var new_address = Address.fromServerResponse(resolve_result, address.address_type);
-                    if (new_address.street) {   // only update to new address if it contains a valid street
+                    if (new_address.street_address) {   // only update to new address if it contains a valid street
                         that.updateAddressChoice(new_address);
                         $('#id_' + address.address_type + '_raw').effect("highlight", 2000);
                     } else {                    // set previous address
@@ -575,9 +487,10 @@ var SelectFromHistoryHelper = Object.create({
 var HistorySelector = defineClass({
     name: "HistorySelector",
     construct:      function($input) {
-        var that = this;
+        var that = this,
+            address = Address.fromInput($input);
         this.$input = $input;
-        this.input_type = this.$input[0].id.split("_")[1];
+        this.input_type = address.address_type;
 
         this.$input.focus(function() {
             that.activate();

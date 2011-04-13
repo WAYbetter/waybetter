@@ -7,7 +7,6 @@ Object.create = Object.create || function (p) {
     return new f();
 };
 
-
 (function($) {
 	$.fn.extend({
 		disable: function() {
@@ -28,6 +27,13 @@ Object.create = Object.create || function (p) {
 	});
 
 })(jQuery);
+
+//custom jQuery selector
+jQuery.extend(jQuery.expr[':'], {
+    focus: function(element) {
+        return element == document.activeElement;
+    }
+});
 
 /**
  * defineClass( ) -- a utility function for defining JavaScript classes.
@@ -206,3 +212,80 @@ function update_options(options) {
 
     });
 }
+
+var MapMarker = defineClass({
+    name: "MapMarker",
+    construct:      function(lon, lat, location_name, icon_image, is_center) {
+        this.lon = lon;
+        this.lat = lat;
+        this.location_name = location_name;
+        this.icon_image = icon_image;
+        this.is_center = is_center;
+    }
+});
+
+var Address = defineClass({
+    name:       "Address",
+    construct:  function(args) {
+        var that = this;
+        $.each(args, function(k, v) {
+            that[k] = v;
+        });
+    },
+    methods:    {
+        isResolved:     function() {
+            return (this.lon && this.lat) && (this.raw == $('#id_geocoded_' + this.address_type + '_raw').val());
+        },
+        populateFields: function () {
+            var that = this;
+            $.each(Address._fields, function(i, e) {
+                $('#id_' + that.address_type + '_' + e).val(that[e]);
+            });
+
+            $('#id_' + that.address_type + '_raw').removeClass("placeheld"); // placeheld plugin only removes class on focus
+            $('#id_geocoded_' + that.address_type + '_raw').val(that.raw);
+        },
+        clearFields: function () {
+            Address.clearAddressFields(this.address_type);
+        }
+    },
+    statics:    {
+        //TODO_WB: generated from order fields.
+        _fields:    ["raw", "city", "street_address", "house_number", "country", "geohash", "lon", "lat"],
+        // factory methods
+        fromFields:         function(address_type) {
+            var args = { address_type: address_type };
+            $.each(Address._fields, function (i, e) {
+               args[e] =  $('#id_' + address_type + '_' + e).val();
+            });
+
+            return new Address(args);
+        },
+        fromInput:          function(input_element) {
+            var address_type = $(input_element)[0].name.split("_")[0];
+            return Address.fromFields(address_type);
+        },
+        fromServerResponse: function(response, address_type) {
+            var args = { address_type: address_type };
+            if (response) {
+                $.each(Address._fields, function (i, e) {
+                    args[e] = response[e]
+                });
+                return new Address(args);
+            } else {
+                return new Address({});
+            }
+        },
+
+        // utility methods
+        clearAddressFields: function(address_type) {
+            $.each(Address._fields, function(i,e) {
+                if (e != 'raw') {
+                    $("#id_" + address_type + "_" + e).val("");
+                }
+            });
+            $('#id_geocoded_' + address_type + '_raw').val('');
+        }
+    }
+});
+

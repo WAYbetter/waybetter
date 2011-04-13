@@ -1,71 +1,3 @@
-var MapMarker = defineClass({
-    name: "MapMarker",
-    construct:      function(lon, lat, location_name, icon_image, is_center) {
-        this.lon = lon;
-        this.lat = lat;
-        this.location_name = location_name;
-        this.icon_image = icon_image;
-        this.is_center = is_center;
-    }
-});
-
-var Address = defineClass({
-    name:       "Address",
-    construct:  function(name, street, city, country, geohash, lon, lat, house_number, address_type) {
-        this.name = name;
-        this.street = street;
-        this.house_number = house_number;
-        this.city = city;
-        this.country = country;
-        this.geohash = geohash;
-        this.lon = lon;
-        this.lat = lat;
-        this.address_type = address_type;
-    },
-    methods:    {
-        isResolved:     function() {
-            return (this.lon && this.lat) && (this.name == $('#id_geocoded_' + this.address_type + '_raw').val());
-        },
-        populateFields: function () {
-            $('#id_' + this.address_type + '_raw').val(this.name);
-            $('#id_geocoded_' + this.address_type + '_raw').val(this.name);
-            $('#id_' + this.address_type + '_city').val(this.city);
-            $('#id_' + this.address_type + '_street_address').val(this.street);
-            $('#id_' + this.address_type + '_house_number').val(this.house_number);
-            $('#id_' + this.address_type + '_country').val(this.country);
-            $('#id_' + this.address_type + '_geohash').val(this.geohash);
-            $('#id_' + this.address_type + '_lon').val(this.lon);
-            $('#id_' + this.address_type + '_lat').val(this.lat);
-        }
-    },
-    statics:    {
-        // factory methods
-        fromFields:         function(address_type) {
-            var name =          $('#id_' + address_type + '_raw').val(),
-                city =          $('#id_' + address_type + '_city').val(),
-                street =        $('#id_' + address_type + '_street_address').val(),
-                house_number =  $('#id_' + address_type + '_house_number').val(),
-                country =       $('#id_' + address_type + '_country').val(),
-                geohash =       $('#id_' + address_type + '_geohash').val(),
-                lon =           $('#id_' + address_type + '_lon').val(),
-                lat =           $('#id_' + address_type + '_lat').val();
-
-            return new Address(name, street, city, country, geohash, lon, lat, house_number, address_type);
-        },
-        fromServerResponse: function(response, address_type) {
-             return new Address( response["name"],
-                                 response["street"],
-                                 response["city"],
-                                 response["country"],
-                                 response["geohash"],
-                                 response["lon"],
-                                 response["lat"],
-                                 response["house_number"],
-                                 address_type );
-        }
-    }
-});
-
 var OrderingHelper = Object.create({
     config:     {
         resolve_address_url:        "", // '{% url cordering.passenger_controller.resolve_address %}'
@@ -93,7 +25,7 @@ var OrderingHelper = Object.create({
         from:   "id_from_raw",
         to:     "id_to_raw"
     },
-    map:                            {},
+    map:                            undefined,
     map_markers:                    {},
     current_flow_state:             'from',
     cache:  {},
@@ -184,8 +116,8 @@ var OrderingHelper = Object.create({
 
         // text fields
         $("#home input[type=search]").each(function(i, element) {
-
-            var address_type = element.name.split("_")[0];
+            
+            var address_type = Address.fromInput(element).address_type;
             $(element).data("address_type", address_type);
             // add clear button
             $(element).after($("<span class='clear'></span>").mousedown(function(e) {
@@ -210,7 +142,28 @@ var OrderingHelper = Object.create({
                     return;
                 }
 
-                var params = { "term": val, "lon": that.last_position.longitude, "lat": that.last_position.latitude };
+                var lon, lat,
+                    other_address = Address.fromInput($("#home input[type=search]")[(i + 1) % 2]); // get the other address
+
+                if (address_type == 'from') {
+                    if (that.last_position.longitude && that.last_position.latitude) { // get the last GPS position
+                        lon = that.last_position.longitude;
+                        lat = that.last_position.latitude;
+                    } else { // get location from other address
+                        lon = other_address.lon;
+                        lat = other_address.lat;
+                    }
+                } else {
+                    if (other_address.lon && other_address.lat) {
+                        lon = other_address.lon;
+                        lat = other_address.lat;
+                    } else { // get location from other address
+                        lon = that.last_position.longitude;
+                        lat = that.last_position.latitude;
+                    }
+                }
+
+                var params = { "term": val, "lon": lon, "lat": lat };
                 if ($("#resolve_addresses ul li").length) {
                     $("#resolve_addresses ul").empty().listview("refresh");
                 }
@@ -387,7 +340,9 @@ var OrderingHelper = Object.create({
         if (position.coords.accuracy < that.ACCURACY_THRESHOLD ) {
             navigator.geolocation.clearWatch(watch_id); // we have an accurate enough location
             that.resolveLonLat(position.coords.longitude, position.coords.latitude, that.current_flow_state);
-            that.map.setCenter(new telmap.maps.LatLng(position.coords.latitude, position.coords.longitude));
+            if (that.map) {
+                that.map.setCenter(new telmap.maps.LatLng(position.coords.latitude, position.coords.longitude));
+            }
         }
     },
     setLocationGPS:             function(showGlassPane) {
@@ -421,7 +376,7 @@ var OrderingHelper = Object.create({
                 success     : function(resolve_result) {
                     if (resolve_result) {
                         var new_address = Address.fromServerResponse(resolve_result, address_type);
-                        if (new_address.street) {   // only update to new address if it contains a valid street
+                        if (new_address.street_address) {   // only update to new address if it contains a valid street
 
                             that.updateAddressChoice(new_address);
                         }
@@ -468,7 +423,7 @@ var OrderingHelper = Object.create({
     },
     addPoint:                   function (address) {
         var that = this,
-            location_name = address.address_type + ": <br/>" + address.name,
+            location_name = address.address_type + ": <br/>" + address.raw,
             icon_image = new telmap.maps.MarkerImage("/static/images/mobile/" + address.address_type + "_map_marker.png", {x:46, y: 43}, undefined, {x:5, y:43}),
             point = new telmap.maps.Marker({
                 map:        this.map,
@@ -478,7 +433,7 @@ var OrderingHelper = Object.create({
                 title:      'Marker'
             });
 
-        $('#id_' + address.address_type + '_raw').val(address.name);
+        $('#id_' + address.address_type + '_raw').val(address.raw);
 
         telmap.maps.event.addListener(point, 'dragend', function(e) {
             $.ajax({
@@ -489,7 +444,7 @@ var OrderingHelper = Object.create({
                 dataType: "json",
                 success: function(resolve_result) {
                     var new_address = Address.fromServerResponse(resolve_result, address.address_type);
-                    if (new_address.street) {   // only update to new address if it contains a valid street
+                    if (new_address.street_address) {   // only update to new address if it contains a valid street
                         that.updateAddressChoice(new_address);
                         $('#id_' + address.address_type + '_raw').effect("highlight", 2000);
                     } else {                    // set previous address
@@ -573,11 +528,14 @@ var OrderingHelper = Object.create({
                     delete this.map_markers[address.address_type];
                 }
                 this.renderMapMarkers();
+                Address.clearAddressFields(address_type);
                 $("#ride_cost_estimate > .header").text(this.config.messages.estimation_msg);
+                $("#ride_cost_estimate > .details").empty();
                 if (address_type == 'from') {
                     this.cache.$order_button.disable(); // disable ordering if from is not resolved
                     return;
                 }
+
             }
         }
         this.cache.$order_button.enable(); // enable ordering
