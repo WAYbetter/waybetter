@@ -1,12 +1,18 @@
 # Create your views here.
+from google.appengine.api.labs.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError, TombstonedTaskError
+from django.views.decorators.csrf import csrf_exempt
+from django.core.urlresolvers import reverse
+from google.appengine.api.labs.taskqueue import taskqueue
+from django.contrib.admin.views.decorators import staff_member_required
+from ordering.decorators import internal_task_on_queue
 from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
 from django.contrib.auth.models import User
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from google.appengine.api import xmpp
 from django.contrib.auth.decorators import login_required
 from common.models import Country
-from common.util import has_related_objects
-from ordering.models import WorkStation
+from common.util import has_related_objects, url_with_querystring, get_unique_id
+from ordering.models import WorkStation, Order
 import logging
 
 # DeadlineExceededError can live in two different places
@@ -32,6 +38,50 @@ def generate_dead_users_list(request):
             return HttpResponse(response)
     else:
         return HttpResponse('pass token')
+
+@staff_member_required
+def run_maintenance_task(request):
+    base_name = 'maintenance-task'
+    name = request.GET.get("name", base_name)
+    task = taskqueue.Task(url=reverse(maintenance_task), name=name)
+    q = taskqueue.Queue('maintenance')
+    response = HttpResponse("Task Added")
+    try:
+        q.add(task)
+    except TombstonedTaskError:
+        response = HttpResponseRedirect(url_with_querystring(reverse(run_maintenance_task), name="%s-%s" % (base_name, get_unique_id())))
+    except TaskAlreadyExistsError:
+        response = HttpResponse("Task not added: TaskAlreadyExistsError")
+    except DuplicateTaskNameError:
+        response = HttpResponse("Task not added: DuplicateTaskNameError")
+
+    return response
+
+@csrf_exempt
+@internal_task_on_queue("maintenance")
+def maintenance_task(request):
+    try:
+        do_task()
+        return HttpResponse("Done")
+    except Exception, e:
+        logging.error("Failed during task: %s" % e.message)
+        return HttpResponse("Failed")
+
+def do_task():
+    fix_orders()
+    
+def fix_orders():
+    import re
+    for order in Order.objects.all():
+        if not getattr(order, "from_house_number"):
+            logging.info("processing order %d" % order.id)
+            numbers = re.findall(r"\b(\d+)\b", order.from_raw)
+            house_number = numbers[0] if numbers else 1
+            order.from_house_number = house_number
+            try:
+                order.save()
+            except Exception, e:
+                logging.error("Could not save order: %d: %s" % (order.id, e.message))
 
 def setup(request):
     if "token" in request.GET:

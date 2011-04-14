@@ -1,4 +1,5 @@
 # This Python file uses the following encoding: utf-8
+import urllib
 
 from google.appengine.api import taskqueue
 from google.appengine.api import mail
@@ -182,7 +183,8 @@ def custom_render_to_response(template, dictionary=None, context_instance=None, 
 
     return render_to_response(template, dictionary=dictionary, context_instance=context_instance, mimetype=mimetype)
 
-
+def url_with_querystring(path, **kwargs):
+    return path + '?' + urllib.urlencode(kwargs)
 
 def generate_random_token(length=random.randint(10, 20), alpha_only=False, alpha_or_digit_only=False):
     s = ""
