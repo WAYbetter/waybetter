@@ -27,7 +27,7 @@ def is_valid_address(order_data, address_type):
             if address["house_number"]  == order_house_number \
                 and address["city"]     == order_city \
                 and address["country"]  == order_country \
-                and address["street"]   == order_street_address:
+                and address["street_address"]   == order_street_address:
 
                 order_data[address_type + "_raw"] = address["name"]
                 order_data[address_type + "_lon"] = address["lon"]

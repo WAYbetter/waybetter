@@ -332,7 +332,7 @@ class StationAdminForm(forms.ModelForm):
         elif len(geocode_results) > 1:
             address_options = []
             for res in geocode_results:
-                address = "%s %s" % (res["street"], res["house_number"])
+                address = "%s %s" % (res["street_address"], res["house_number"])
                 address_options.append(address)
                 if address == self.cleaned_data["address"]:
                     result = res
@@ -349,6 +349,6 @@ class StationAdminForm(forms.ModelForm):
         self.instance.geohash = result["geohash"]
 #        self.instance.save()
 
-        self.cleaned_data["address"] = "%s %s" % (result["street"], result["house_number"])
+        self.cleaned_data["address"] = "%s %s" % (result["street_address"], result["house_number"])
 
         return self.cleaned_data["address"]

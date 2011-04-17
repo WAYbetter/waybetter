@@ -21,29 +21,29 @@ class GeocodeTest(TestCase):
         i.e., country, city, street, house number, lon. and lat. are matching those of the query.
         """
         test_data = (
-            {"address"      : u"דיזנגוף 99 תל אביב",
-             "country"      : u"IL",
-             "city"         : u"תל אביב יפו",
-             "street"       : u"דיזנגוף",
-             "house_number" : u"99",
-             "lon"          : '34.77388',
-             "lat"          : '32.07933',
+            {"address"          : u"דיזנגוף 99 תל אביב",
+             "country"          : u"IL",
+             "city"             : u"תל אביב יפו",
+             "street_address"   : u"דיזנגוף",
+             "house_number"     : u"99",
+             "lon"              : '34.77388',
+             "lat"              : '32.07933',
         },
-            {"address"      : u"מרג 1 תל אביב יפו",
-             "country"      : u"IL",
-             "city"         : u"תל אביב יפו",
-             "street"       : u"מרגולין",
-             "house_number" : u"1",
-             "lon"          : '34.787368',
-             "lat"          : '32.05856',
+            {"address"          : u"מרג 1 תל אביב יפו",
+             "country"          : u"IL",
+             "city"             : u"תל אביב יפו",
+             "street_address"   : u"מרגולין",
+             "house_number"     : u"1",
+             "lon"              : '34.787368',
+             "lat"              : '32.05856',
         },
-            {"address"      : u"בן יהודה 35 ירושלים",
-             "country"      : u"IL",
-             "city"         : u"ירושלים",
-             "street"       : u"בן יהודה",
-             "house_number" : u"35",
-             "lon"          : '35.214161',
-             "lat"          : '31.780725',
+            {"address"          : u"בן יהודה 35 ירושלים",
+             "country"          : u"IL",
+             "city"             : u"ירושלים",
+             "street_address"   : u"בן יהודה",
+             "house_number"     : u"35",
+             "lon"              : '35.214161',
+             "lat"              : '31.780725',
             },
         )
         
@@ -62,7 +62,7 @@ class GeocodeTest(TestCase):
                 logging.info("Processing location %s" % location["description"])
 
                 # textual properties, compare lowercase
-                for property in ["country", "city", "street", "house_number"]:
+                for property in ["country", "city", "street_address", "house_number"]:
                     result = "OK"
                     if not test_case[property].lower() == location[property].lower():
                         result = "failed"
