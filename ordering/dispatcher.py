@@ -1,4 +1,5 @@
 #from ordering.views import OrderError
+import logging
 from google.appengine.api import memcache
 from ordering.models import OrderAssignment, WorkStation
 from ordering.station_connection_manager import is_workstation_available
@@ -50,6 +51,7 @@ def choose_workstation(order):
     if ws_list:
         ws = ws_list.pop(0)
         memcache.set(ws_list_key, ws_list)
+        logging.info("next ws is: %s" % ws)
         return ws
 
     return None
@@ -92,4 +94,5 @@ def compute_ws_list(order):
                     station_list.append(station)
                     break
 
+    logging.info("computing ws list: %s" % ws_list)
     return ws_list

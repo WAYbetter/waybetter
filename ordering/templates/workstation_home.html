@@ -25,7 +25,7 @@
         padding:0;
         border:none;
     }
-	.order {
+	#orders .order {
 		background: -webkit-gradient(linear, left top, left bottom, from(#565656), to(#000000));
 		height: 32px;
         position: relative;
@@ -33,6 +33,39 @@
         padding-left: 5px;
 
 	}
+    #orders .teaser {
+        height: 100px;
+        text-align: center;
+        padding-top: 1px;
+        padding-left: 7px;
+        cursor: pointer;
+    }
+    #orders .show_button_container:hover {
+        background-color: transparent;
+    }
+    @-webkit-keyframes flash {
+        from {
+            background-color: #ffad3c;
+        }
+        to {
+            background-color: transparent;
+        }
+    }
+    #orders .show_button_container {
+        display: table;
+        width: 100%;
+        height: 65px;
+        -webkit-border-radius: 7px;
+        -webkit-animation-name: flash;
+        -webkit-animation-iteration-count: infinite;
+        -webkit-animation-timing-function: ease-in;
+        -webkit-animation-duration: 0.4s;
+        -webkit-animation-direction: alternate;
+    }
+    #orders .show_button_container > div {
+        display: table-cell;
+        vertical-align: middle;
+    }
     #orders div div, #connection_status div {
         display: inline-block;
     }    
@@ -48,11 +81,8 @@
 
     #orders .teaser_txt{
         color: yellow;
-        text-align: right;
-        margin-right: 16px;
         font-size: 24px;
-        position: absolute;
-        top: 4px;
+        margin-bottom: 5px;
     }
     #orders .teaser_txt:hover{
         text-decoration:underline;
@@ -70,6 +100,7 @@
 		background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f));
 		/* border: 1px solid  black; */
 		-webkit-border-radius: 5px;
+        border: 1px solid black;
 		width: 40px;
 		height: 23px;
 		padding-top: 5px;
@@ -92,8 +123,10 @@
 	}
 
     #orders .show_button{
-        width:130px;
+        width:230px;
         margin-left:16px;
+        float:none;
+        bottom: inherit;
     }
     
     #orders .reject_button_bg {
@@ -456,22 +489,26 @@
         }
 
         function renderOrder(order){
-            if (order.status == {{ pending }}){
+            if (order.status == {{ pending }}) {
+                var show_button_container = $('<div class="show_button_container"></div>');
                 var show_button = $('<div class="button_txt button_bg show_button"></div>').text('{% trans 'Show details' %}');
 
-                var rendered_order = $("<div class='order'></div>").attr('id', order.pk)
+                show_button_container.append($('<div></div>').append(show_button));
+
+                var rendered_order = $("<div class='order teaser'></div>").attr('id', order.pk)
                         .append($("<div class='teaser_txt'></div>").append("{% trans 'Incoming order' %}"))
-                        .append(show_button);
+                        .append(show_button_container);
 
                 $(rendered_order).click(function(){
+                    handleRemoveRow();
                     showOrder(order);
                 });
 
                 var progress_indicator = getProgressIndicator(order, {{ teaser_interval }}, 100);
                 var progress_bar = $("<div class='pb-row'></div>").attr('id', 'pb_'+order.pk).append(progress_indicator);
-
                 $("#orders").append(rendered_order).append(progress_bar);
                 rendered_order.show();
+                handleAddRow();
             }
 
             if (order.status == {{ assigned }}){
@@ -488,7 +525,7 @@
 
         function showOrder(order) {
             var order_id = order.pk;
-            $("#"+order.pk).unbind("click");
+            $("#"+order.pk).unbind("click").removeClass("teaser");
             setStateSending(order_id);
             $.ajax({"url": "{% url ordering.station_controller.show_order %}", "type":"post", "data":{"order_id": order_id}, "error": onError,
                 "success": function(){
@@ -585,6 +622,9 @@
         function removeOrderRow(order_id) {
 
             var order_row  = $("#orders #" + order_id);
+            if (order_row.hasClass("teaser")) { // the teaser is spanning two rows.
+                handleRemoveRow();
+            }
             var actual_rows = order_row.add(order_row.next());
             actual_rows.remove();
             handleRemoveRow();
