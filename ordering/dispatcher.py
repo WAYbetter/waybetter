@@ -79,8 +79,8 @@ def compute_ws_list(order):
                     station_list.append(station)
                     break
 
-    # then the rest of the stations (one work station each) ordered by last assignment date
-    for ws in sorted(ws_qs, key=lambda ws: ws.station.last_assignment_date):
+    # then the rest of the stations (one work station each) ordered by distance from order
+    for ws in sorted(ws_qs, key=lambda ws: ws.station.distance_from_order(order=order)):
         station = ws.station
         if station in station_list:
             # TODO_WB: do not skip ws

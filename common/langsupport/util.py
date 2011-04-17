@@ -73,7 +73,7 @@ def transliterate_english_order_to_hebrew(order, address_type):
     for result in results:
         if float(result["lat"]) == lat and float(result["lon"]) == lon:
             logging.info("telmap found a match")
-            return u"%s %s, %s" % (result["street"], result["house_number"], result["city"])
+            return u"%s %s, %s" % (result["street_address"], result["house_number"], result["city"])
 
     logging.info("telmap DID NOT find a match")
     return order.from_raw

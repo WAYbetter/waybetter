@@ -116,23 +116,32 @@ class Station(models.Model):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/station', self.id, self.name)
 
     def is_in_valid_distance(self, from_lon=None, from_lat=None, to_lon=None, to_lat=None, order=None):
+
+        if not (self.lat and self.lon): # ignore station with unknown address
+            return False
+
+        if not order and not (from_lon and from_lat):
+            return False
+
+        return self.distance_from_order(order=order, from_lon=from_lon, from_lat=from_lat, to_lon=to_lon, to_lat=to_lat) <= MAX_STATION_DISTANCE_KM
+
+    def distance_from_order(self, order=None, from_lon=None, from_lat=None, to_lon=None, to_lat=None):
+        '''
+        returns the minimal distance of this station from the order
+        '''
         if order:
             from_lon = order.from_lon
             from_lat = order.from_lat
             to_lon = order.to_lon
             to_lat = order.to_lat
 
-        if not (self.lat and self.lon): # ignore station with unknown address
-            return False
-        if not (from_lon and from_lat):
-            return False
-        
-        to_distance = MAX_STATION_DISTANCE_KM + 1
         from_distance = distance_between_points(self.lat, self.lon, from_lat, from_lon)
-        if to_lon and to_lat:
-            to_distance = distance_between_points(self.lat, self.lon, to_lat, to_lon)
+        to_distance = distance_between_points(self.lat, self.lon, to_lat, to_lon) if to_lon and to_lat else None
 
-        return from_distance <= MAX_STATION_DISTANCE_KM or to_distance <= MAX_STATION_DISTANCE_KM
+        if to_distance:
+            return min(from_distance, to_distance)
+        else:
+            return from_distance
 
     @staticmethod
     def get_default_station_choices(order_by="name", include_empty_option=True):

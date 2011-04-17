@@ -85,7 +85,8 @@ def create_another_TLV_station():
         user.set_password(user_name)
         user.save()
     other_station = Station(name=other_station_name, user=User.objects.get(username=other_station_name), number_of_taxis=5,
-                            country=Country.objects.filter(code="IL").get(), city=City.objects.get(name="תל אביב יפו"), address='אחד העם 1 תל אביב', lat=32.063325, lon=34.768338)
+                            country=Country.objects.filter(code="IL").get(), city=City.objects.get(name="תל אביב יפו"), address='גאולה 12', lat=32.071838, lon=34.766906)
+
     other_station.save()
 
     other_ws = WorkStation(user = User.objects.get(username=other_ws_name), station = other_station, was_installed = True, accept_orders = True)
@@ -404,22 +405,19 @@ class DispatcherTest(TestCase):
         ws = choose_workstation(ORDER)
         self.assertTrue(ws.station == originating_station, "originating station is expected")
 
-    def test_dispatcher_fairness(self):
-        # check that the dispatcher is "fair": chooses first the last station that was given an order
+    def test_dispatcher_sort_by_distance(self):
         tel_aviv_station = self.tel_aviv_station
-        another_station = create_another_TLV_station()
-
-        another_station.last_assignment_date = datetime.datetime.now()
-        another_station.save()
-
         resuscitate_work_stations()
-        self.assertTrue(choose_workstation(ORDER).station == tel_aviv_station, "Tel Aviv station is expected")
-
-        tel_aviv_station.last_assignment_date = datetime.datetime.now()
-        tel_aviv_station.save()
+        self.assertEqual(choose_workstation(ORDER).station, tel_aviv_station)
 
         refresh_order(ORDER)
-        self.assertTrue(choose_workstation(ORDER).station == another_station, "Other Tel Aviv station is expected")
+        
+        another_station = create_another_TLV_station() # create a closer station to order
+        resuscitate_work_stations()
+
+        self.assertEqual(choose_workstation(ORDER).station, another_station)
+        self.assertEqual(choose_workstation(ORDER).station, tel_aviv_station)
+
 
     def test_default_station(self):
         tel_aviv_station = self.tel_aviv_station
