@@ -357,6 +357,7 @@
     <script type="text/javascript">
         var polling_enabled = true;
         var POLLING_TIMER = "polling_timer";
+        var CURRENT_VERSION = "{{ current_version }}";
         
         $(document).ready(function() {
             // setup bridge functions
@@ -401,9 +402,21 @@
             );
         }
 
+        function setupChannel() {
+            channel = new goog.appengine.Channel('{{ token }}');
+            socket = channel.open();
+            socket.onmessage = function(message) {
+                onOrder($.parseJSON(message.data));
+            },
+            socket.onerror = onError;
+            socket.onclose = onError;
+        }
+
         function initAcceptOrders() {
             if (window.parentSandboxBridge)
                 window.parentSandboxBridge.set_online_state(true);
+
+            setupChannel();
         }
 
         function initConnection() {
@@ -427,20 +440,21 @@
             }
         }
 
-        function pollServer(url) {
+        function heartbeat(url) {
             $.ajax({
                 url: url,
                 dataType: "json",
                 complete: function(XMLHttpRequest, textStatus) {
-                    if (XMLHttpRequest.status == 0) { // no response from server
-                        onError();
-                    }
                     $(document).stopTime(POLLING_TIMER);
                     $(document).oneTime({{ polling_interval }}, POLLING_TIMER, function() {
                         pollOrders();
                     });
                 },
-                success: onOrder,
+                success: function(data) {
+                    if (data != CURRENT_VERSION) {
+                        onError()
+                    }
+                },
                 error: onError
 
                 });
@@ -449,7 +463,7 @@
         function pollOrders() {
 //            if (polling_enabled) {
             if (polling_enabled || window.parentSandboxBridge && (parentSandboxBridge.is_online() || parentSandboxBridge.is_error())) {
-                pollServer("{% url ordering.station_controller.get_orders %}");
+                heartbeat("{% url ordering.station_controller.ws_heartbeat %}");
             }
         }
 

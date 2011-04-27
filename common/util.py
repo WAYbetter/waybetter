@@ -1,5 +1,6 @@
 # This Python file uses the following encoding: utf-8
 import urllib
+import os
 
 from google.appengine.api import taskqueue
 from google.appengine.api import mail
@@ -7,6 +8,7 @@ from google.appengine.api.images import BadImageError, NotImageError
 from django.utils.translation import ugettext as _
 from django.shortcuts import render_to_response
 from django.db.models.fields import related
+from django.db import models
 import logging
 import random
 import re
@@ -84,6 +86,21 @@ class EventType(Enum):
 
         raise ValueError(_("Invalid value: %s" % str(val)))
 
+class BaseModel(models.Model):
+    '''
+    Adds common methods to our models
+    '''
+    class Meta:
+        abstract = True
+
+    @classmethod
+    def by_id(cls, id):
+        try:
+            obj = cls.objects.get(id=id)
+        except cls.DoesNotExist:
+            obj = None
+
+        return obj
 
 def is_empty(str):
     """
@@ -120,6 +137,12 @@ def get_model_from_request(model_class, request):
 
         return model_instance
 
+def get_current_version():
+    return os.environ['CURRENT_VERSION_ID']
+
+def get_channel_key(model):
+    cls = type(model)
+    return "channel_key_%s_%d" % (cls.__name__.lower(), model.id)
 
 def log_event(event_type, order=None, order_assignment=None, station=None, work_station=None, passenger=None,
               country=None, city=None, rating="", lat="", lon=""):
@@ -164,7 +187,6 @@ def get_international_phone(country, local_phone):
         local_phone = local_phone[1:]
 
     return "%s%s" % (country.dial_code, local_phone)
-
 
 def custom_render_to_response(template, dictionary=None, context_instance=None, mimetype=None):
     """
@@ -251,7 +273,6 @@ h = re.compile(u"[א-ת]")
 def is_in_hebrew(s):
     return h.search(s)
 
-
 SingleRelatedObjectDescriptor = getattr(related, 'SingleRelatedObjectDescriptor')
 ManyRelatedObjectsDescriptor = getattr(related, 'ManyRelatedObjectsDescriptor')
 ForeignRelatedObjectsDescriptor = getattr(related, 'ForeignRelatedObjectsDescriptor')
@@ -263,7 +284,6 @@ def get_related_fields(model):
         if type(getattr(model, attr)) in related_class_list:
             fields.append(attr)
     return fields
-
 
 def has_related_objects(model_instance):
     model = type(model_instance)
