@@ -71,28 +71,29 @@ def compute_ws_list(order):
     ws_qs = ws_qs.exclude(accept_orders=False)
     ws_list = []
     station_list=[]
+    originating_ws = None
+    default_ws = None
 
-    # originating station is first, default station is second then the rest
-    for station in [order.originating_station, order.passenger.default_station]:
-        if station and station.is_in_valid_distance(order=order):
-            for ws in ws_qs.filter(station=station):
-                if is_workstation_available(ws):
-                    ws_list.append(ws)
-                    station_list.append(station)
-                    break
-
-    # then the rest of the stations (one work station each) ordered by distance from order
+    # originating station is first, default station is second then the rest of the stations ordered by distance from order
     for ws in sorted(ws_qs, key=lambda ws: ws.station.distance_from_order(order=order)):
         station = ws.station
         if station in station_list:
-            # TODO_WB: do not skip ws
-            continue
-        if station.is_in_valid_distance(order=order):
-            for ws in ws_qs.filter(station=station):
-                if is_workstation_available(ws):
-                    ws_list.append(ws)
-                    station_list.append(station)
-                    break
+            continue    # one ws per station
+
+        if is_workstation_available(ws) and station.is_in_valid_distance(order=order):
+            if station == order.originating_station:
+                originating_ws = ws
+            elif station == order.passenger.default_station:
+                default_ws = ws
+            else:
+                ws_list.append(ws)
+
+            station_list.append(station)
+
+    if default_ws:
+        ws_list.insert(0, default_ws)
+    if originating_ws and originating_ws != default_ws:
+        ws_list.insert(0, originating_ws)
 
     logging.info("computing ws list: %s" % ws_list)
     return ws_list
