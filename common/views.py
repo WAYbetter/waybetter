@@ -1,18 +1,17 @@
-# Create your views here.
-from google.appengine.api.labs.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError, TombstonedTaskError
-from django.views.decorators.csrf import csrf_exempt
-from django.core.urlresolvers import reverse
-from google.appengine.api.labs.taskqueue import taskqueue
-from django.contrib.admin.views.decorators import staff_member_required
-from ordering.decorators import internal_task_on_queue
-from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
-from django.contrib.auth.models import User
-from django.http import HttpResponse, HttpResponseRedirect
-from google.appengine.api import xmpp
-from django.contrib.auth.decorators import login_required
+from common.decorators import internal_task_on_queue
 from common.models import Country
 from common.util import has_related_objects, url_with_querystring, get_unique_id
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
+from google.appengine.api import xmpp
+from google.appengine.api.labs.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError, TombstonedTaskError
+from google.appengine.api.labs.taskqueue import taskqueue
 from ordering.models import WorkStation, Order
+from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
 import logging
 
 # DeadlineExceededError can live in two different places
