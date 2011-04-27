@@ -6,7 +6,7 @@ from google.appengine.api import memcache
 
 from common.models import City, Country
 
-from ordering.models import Passenger, WorkStation, Station, OrderAssignment, IGNORED, ASSIGNED, ACCEPTED, Phone, ORDER_ASSIGNMENT_TIMEOUT, ORDER_TEASER_TIMEOUT, NOT_TAKEN, ORDER_HANDLE_TIMEOUT, PENDING
+from ordering.models import Passenger, WorkStation, Station, Order, OrderAssignment, IGNORED, REJECTED, ASSIGNED, ACCEPTED, Phone, ORDER_ASSIGNMENT_TIMEOUT, ORDER_TEASER_TIMEOUT, NOT_TAKEN, ORDER_HANDLE_TIMEOUT, PENDING
 from ordering.forms import OrderForm
 from ordering.dispatcher import assign_order, choose_workstation, compute_ws_list
 from ordering import order_manager
@@ -94,8 +94,10 @@ def create_another_TLV_station():
 
     return other_station
 
-def refresh_order(order):
-    memcache.set('ws_list_for_order_%s' % order.id, []) # make ORDER look fresh
+def refresh_order():
+    global ORDER
+    ORDER = Order.objects.get(id=ORDER.id)
+    memcache.set('ws_list_for_order_%s' % ORDER.id, []) # make ORDER look fresh
 
 def resuscitate_work_stations():
     for ws in WorkStation.objects.all():
@@ -324,7 +326,7 @@ class DispatcherTest(TestCase):
         create_test_order()
         self.tel_aviv_station = City.objects.get(name=u"תל אביב יפו").stations.all()[0]
         self.jerusalem_station = City.objects.get(name=u"ירושלים").stations.all()[0]
-        refresh_order(ORDER)
+        refresh_order()
 
     def test_assign_order(self):
         resuscitate_work_stations()
@@ -356,7 +358,11 @@ class DispatcherTest(TestCase):
         resuscitate_work_stations()
         self.assertTrue(choose_workstation(ORDER) == tel_aviv_ws2, "tel aviv work station 2 is expected.")
 
-    def test_choose_workstation_ignored(self):
+    def test_choose_workstation_ignored_and_rejected(self):
+        self.run_status_test(IGNORED)
+        self.run_status_test(REJECTED)
+
+    def run_status_test(self, status):
         tel_aviv_ws1 = self.tel_aviv_station.work_stations.all()[0]
         tel_aviv_ws2 = self.tel_aviv_station.work_stations.all()[1]
 
@@ -365,22 +371,22 @@ class DispatcherTest(TestCase):
 
         resuscitate_work_stations()
 
-        # create an IGNORED assignment by ws1, should get either ws2 or ws3
-        assignment = OrderAssignment(order=ORDER, station=self.tel_aviv_station, work_station=tel_aviv_ws1, status=IGNORED)
+        # create an IGNORED/REJECTED assignment by ws1, should get either ws2 or ws3
+        assignment = OrderAssignment(order=ORDER, station=self.tel_aviv_station, work_station=tel_aviv_ws1, status=status)
         assignment.save()
         expected_ws_list = [tel_aviv_ws2, tel_aviv_ws3]
         self.assertTrue(tel_aviv_ws1 not in compute_ws_list(ORDER) and choose_workstation(ORDER) in expected_ws_list, "tel aviv ws2/ws3 is expected.")
 
-        # create an IGNORED assignment by ws2, should get ws3
-        assignment = OrderAssignment(order=ORDER, station=self.tel_aviv_station, work_station=tel_aviv_ws2, status=IGNORED)
+        # create an IGNORED/REJECTED assignment by ws2, should get ws3
+        assignment = OrderAssignment(order=ORDER, station=self.tel_aviv_station, work_station=tel_aviv_ws2, status=status)
         assignment.save()
-        refresh_order(ORDER)
+        refresh_order()
         self.assertTrue(choose_workstation(ORDER) == tel_aviv_ws3, "tel aviv ws2 is expected.")
 
-        # create an IGNORED assignment by ws3, should get None
-        assignment = OrderAssignment(order=ORDER, station=another_tlv_station, work_station=tel_aviv_ws3, status=IGNORED)
+        # create an IGNORED/REJECTED assignment by ws3, should get None
+        assignment = OrderAssignment(order=ORDER, station=another_tlv_station, work_station=tel_aviv_ws3, status=status)
         assignment.save()
-        refresh_order(ORDER)
+        refresh_order()
         self.assertTrue(choose_workstation(ORDER) is None, "no ws is expected.")
 
     def test_choose_workstation_order(self):
@@ -410,7 +416,7 @@ class DispatcherTest(TestCase):
         resuscitate_work_stations()
         self.assertEqual(choose_workstation(ORDER).station, tel_aviv_station)
 
-        refresh_order(ORDER)
+        refresh_order()
         
         another_station = create_another_TLV_station() # create a closer station to order
         resuscitate_work_stations()
@@ -433,7 +439,7 @@ class DispatcherTest(TestCase):
         # check default station overrides last assignment date criteria
         tel_aviv_station.last_assignment_date = datetime.datetime.now()
         tel_aviv_station.save()
-        refresh_order(ORDER)
+        refresh_order()
         self.assertTrue(choose_workstation(ORDER).station == default_station, "default station is expected")
 
     def test_originating_station(self):
@@ -456,8 +462,22 @@ class DispatcherTest(TestCase):
         # check originating station overrides last assignment date criteria
         tel_aviv_station.last_assignment_date = datetime.datetime.now()
         tel_aviv_station.save()
-        refresh_order(ORDER)
+        refresh_order()
         self.assertTrue(choose_workstation(ORDER).station == originating_station, "originating station is expected")
+
+    def test_same_default_and_originating_station(self):
+        # test same originating and default stations results in one assignment
+        global PASSENGER
+        global ORDER
+        station = create_another_TLV_station()
+        ORDER.originating_station = PASSENGER.default_station = station
+        ORDER.save()
+        PASSENGER.save()
+
+        resuscitate_work_stations()
+        ws_list = compute_ws_list(ORDER)
+        count = ws_list.count(station.work_stations.all()[0])
+        self.assertTrue(count == 1, "originating (==default) station should appear exactly once (got %d)" % count)
 
 class PricingTest(TestCase):
     """
