@@ -10,7 +10,7 @@ from common.models import Country, City, CityArea
 from datetime import datetime
 import time
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, get_model_from_request
+from common.util import get_international_phone, generate_random_token, notify_by_email, get_model_from_request, BaseModel
 from common.decorators import run_in_transaction
 from ordering.errors import UpdateOrderAssignmentError
 import re
@@ -20,7 +20,7 @@ import urllib
 import logging
 
 ORDER_HANDLE_TIMEOUT     = 80 # seconds
-ORDER_TEASER_TIMEOUT     = 18 # seconds
+ORDER_TEASER_TIMEOUT     = 12 # seconds
 ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
 #USER_MAX_WAIT_TIME       = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
 
@@ -71,7 +71,7 @@ def add_formatted_create_date(classes):
 
                 setattr(model, f.name + "_format", format_datefield(f))
 
-class Station(models.Model):
+class Station(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
     name = models.CharField(_("station name"), max_length=50)
     license_number = models.CharField(_("license number"), max_length=30)
@@ -163,7 +163,7 @@ class Station(models.Model):
     def delete_workstations(self):
         self.work_stations.all().delete()
 
-class Passenger(models.Model):
+class Passenger(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
 
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
@@ -210,7 +210,7 @@ class Passenger(models.Model):
 
 phone_re = re.compile(r'^[\*|\d]\d+$')
 validate_phone = RegexValidator(phone_re, _(u"Value must consists of digits only."), 'invalid')
-class Phone(models.Model):
+class Phone(BaseModel):
     local_phone = models.CharField(_("phone number"), max_length=20, validators=[validate_phone])
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="phones", null=True, blank=True)
@@ -222,7 +222,7 @@ class Phone(models.Model):
         else:
             return u""
 
-class WorkStation(models.Model):
+class WorkStation(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="work_station")
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="work_stations")
@@ -302,7 +302,7 @@ RATING_CHOICES = ((1, ugettext("Very poor")),
                   (4, ugettext("Good")),
                   (5, ugettext("Perfect")))
 
-class Order(models.Model):
+class Order(BaseModel):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
     originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")), related_name="originated_orders", null=True, blank=True, default=None)
@@ -413,7 +413,7 @@ class Order(models.Model):
 
         notify_by_email(subject, msg)
 
-class OrderAssignment(models.Model):
+class OrderAssignment(BaseModel):
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")
     work_station = models.ForeignKey(WorkStation, verbose_name=_("work station"), related_name="assignments")
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="assignments")
@@ -492,7 +492,7 @@ DAY_OF_WEEK_CHOICES = ((1, _("Sunday")),
 VEHICLE_TYPE_CHOICES = ((1, _("Standard cab")),)
 
 # time and distance dependent rules (meter)
-class MeteredRateRule(models.Model):
+class MeteredRateRule(BaseModel):
     rule_name = models.CharField(_("name"), max_length=500)
     is_active = models.BooleanField(_("is active"), default=True)
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="metered_rules")
@@ -523,7 +523,7 @@ class MeteredRateRule(models.Model):
         return self.rule_name
 
 # rules with flat rate (e.g., from city to another city or airport)
-class FlatRateRule(models.Model):
+class FlatRateRule(BaseModel):
     rule_name = models.CharField(_("name"), max_length=500)
     is_active = models.BooleanField(_("is active"), default=True)
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="flat_rate_rules")
@@ -545,7 +545,7 @@ class FlatRateRule(models.Model):
         return "from %s to %s" % (self.city1.name,self.city2.name)
 
 # rules for extra charges (e.g., phone order)
-class ExtraChargeRule(models.Model):
+class ExtraChargeRule(BaseModel):
     rule_name = models.CharField(_("name"), max_length=500)
     is_active = models.BooleanField(_("is active"), default=True)
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="extra_charge_rules")
@@ -562,7 +562,7 @@ FEEDBACK_CATEGORIES =       ["Website", "Booking", "Registration", "Taxi Ride", 
 FEEDBACK_CATEGORIES_NAMES = [_("Website"), _("Booking"), _("Registration"), _("Taxi Ride"), _("Other")]
 FEEDBACK_TYPES =            ["Positive", "Negative"]
 
-class Feedback(models.Model):
+class Feedback(BaseModel):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="feedbacks", null=True, blank=True)
 
     def __unicode__(self):
