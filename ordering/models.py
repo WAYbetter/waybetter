@@ -418,14 +418,19 @@ class Order(models.Model):
 
         if self.status == ACCEPTED:
             msg += u"""
-    Station:    %s
-    Pickup in:  %d minutes""" % (self.station.name, self.pickup_time)
+    Station:        %s
+    Pickup in:      %d minutes""" % (self.station.name, self.pickup_time)
 
         if self.mobile:
             msg += u"""
 
-    * Ordered from a mobile device.
-    """
+    * Ordered from a mobile device."""
+            
+        if self.passenger.orders.count() == 1:
+            msg += u"""
+            
+    * This is a new passenger."""
+
         if self.assignments.count():
             msg += u"\n\nEvents:"
             for assignment in self.assignments.all().order_by('create_date'):
