@@ -315,6 +315,8 @@ class Order(models.Model):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
     originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")), related_name="originated_orders", null=True, blank=True, default=None)
+    mobile = models.BooleanField(_("mobile"), default=False)
+    user_agent = models.CharField(_("user agent"), max_length=250, null=True, blank=True)
 
     status = models.IntegerField(_("status"), choices=ORDER_STATUS, default=PENDING)
     language_code = models.CharField(_("order language"), max_length=5, default=settings.LANGUAGE_CODE)
@@ -404,16 +406,26 @@ class Order(models.Model):
     def notify(self):
         subject = u"Order [%d]: %s" % (self.id, self.get_status_label().upper())
         msg = u"""Order %d:
-    Passenger:  %s
-    Created:    %s
-    From:       %s
-    To:         %s.""" % (self.id,  unicode(self.passenger), self.create_date.ctime(), self.from_raw, self.to_raw)
+    Passenger:      %s
+    Created:        %s
+    From:           %s
+    To:             %s
+    User Agent:     %s""" % (self.id,  unicode(self.passenger), self.create_date.ctime(), self.from_raw, self.to_raw, self.user_agent)
+
+        if self.originating_station:
+            msg += u"""
+    From Station:   %s""" % self.originating_station.name
 
         if self.status == ACCEPTED:
             msg += u"""
     Station:    %s
     Pickup in:  %d minutes""" % (self.station.name, self.pickup_time)
 
+        if self.mobile:
+            msg += u"""
+
+    * Ordered from a mobile device.
+    """
         if self.assignments.count():
             msg += u"\n\nEvents:"
             for assignment in self.assignments.all().order_by('create_date'):
