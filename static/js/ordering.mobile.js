@@ -81,6 +81,7 @@ var OrderingHelper = Object.create({
             });
         });
 
+        cache.$finish_verification.button().button("disable"); // disabled by default
         // finish verification
         $("#verification_code").keyup(function() {
             if ($(this).val().length == 4) {
