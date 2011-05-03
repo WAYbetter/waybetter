@@ -20,7 +20,7 @@ import urllib
 import logging
 
 ORDER_HANDLE_TIMEOUT     = 80 # seconds
-ORDER_TEASER_TIMEOUT     = 12 # seconds
+ORDER_TEASER_TIMEOUT     = 18 # seconds
 ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
 #USER_MAX_WAIT_TIME       = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
 

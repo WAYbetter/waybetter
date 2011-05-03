@@ -41,29 +41,24 @@ def push_dummy_order(ws):
     _do_push_order(ws, json)
 
 def _do_push_order(ws, json):
-    from google.appengine.api import channel
+    key = get_assignment_key(ws)
+    assignments = memcache.get(key) or []
+    assignments.append(json)
+    if not memcache.replace(key, assignments): # will fail if another process removed existing orders
+        memcache.set(key, [json])
 
-    channel_key = get_channel_key(ws)
-    try:
-        channel.send_message(channel_key, json)
-    except Exception, e:
-        logging.error("Failed pushing %s to: %s: %s" % (json, ws, e.message))
-
-        
 def set_heartbeat(workstation):
     key = get_heartbeat_key(workstation)
     memcache.set(key, datetime.now())
     
-#def get_orders(work_station):
-#    """
-#    takes (gets & deletes) from the Memecache the list of serialized OrderAssignmenets
-#    assigned to the given workstation.
-#    """
-#    key = get_assignment_key(work_station)
-#    result = memcache.get(key) or []
-#    memcache.delete(key)  # TODO_WB: risk of synchronization problem here!
-#
-#    return result
-
+def get_orders(work_station):
+    """
+    takes (gets & deletes) from the Memecache the list of serialized OrderAssignmenets
+    assigned to the given workstation.
+    """
+    key = get_assignment_key(work_station)
+    result = memcache.get(key) or []
+    memcache.delete(key)  # TODO_WB: risk of synchronization problem here!
+    return result
 
     
