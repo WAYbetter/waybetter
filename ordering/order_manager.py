@@ -1,12 +1,13 @@
 from google.appengine.api.taskqueue.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError
 from django.shortcuts import get_object_or_404, render_to_response
 from google.appengine.api import taskqueue
+from ordering.signals import order_assigned_signal, order_assignment_status_change_signal
 from station_connection_manager import push_order
 from django.core.urlresolvers import reverse
-from ordering.errors import OrderError, ShowOrderError, UpdateOrderError, NoWorkStationFoundError, UpdateOrderAssignmentError
+from ordering.errors import  ShowOrderError, UpdateOrderError, NoWorkStationFoundError, UpdateOrderAssignmentError
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError
-from ordering.decorators import passenger_required, internal_task_on_queue, order_assignment_required
+from ordering.decorators import passenger_required, order_assignment_required
 from django.core.serializers import serialize
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
@@ -20,6 +21,7 @@ from ordering.models import Station
 from common.sms_notification import send_sms
 from common.util import log_event, EventType
 from common.langsupport.util import translate_to_lang
+from common.decorators import internal_task_on_queue
 
 NO_MATCHING_WORKSTATIONS_FOUND = "no matching workstation found"
 ORDER_TIMEOUT = "order timeout"
@@ -80,6 +82,7 @@ def book_order(request):
         try:
             # choose an assignment for the order and push it to the relevant workstation
             order_assignment = dispatcher.assign_order(order)
+            order_assigned_signal.send(sender="book_order", order=order, order_assignment=order_assignment)
             push_order(order_assignment)
             enqueue_redispatch_orders(order_assignment, ORDER_TEASER_TIMEOUT, redispatch_pending_orders)
             response = HttpResponse(ORDER_HANDLED)
@@ -95,7 +98,7 @@ def book_order(request):
             send_sms(order.passenger.international_phone(),
                      translate_to_lang(sorry_msg, order.language_code)) # use dummy ugettext for makemessages
 
-        except Exception:
+        except Exception, e:
             order.status = ERROR
             order.save()
             order.notify()
@@ -116,6 +119,8 @@ def show_order(order_id, work_station):
     try:
         order_assignment = OrderAssignment.objects.get(order=order_id, work_station=work_station, status=PENDING)
         order_assignment.transaction_change_status(PENDING, ASSIGNED)
+#    except MultipleObjectsReturned:
+#        OrderAssignment.objects.filter(order=order_id, work_station=work_station, status=PENDING).delete()
     except OrderAssignment.DoesNotExist:
         logging.error("No PENDING assignment for order %d in work station %d" % (order_id, work_station.id))
         raise ShowOrderError()
@@ -143,12 +148,14 @@ def update_order_status(order_id, work_station, new_status, pickup_time=None):
     if order_assignment.is_stale():
         order_assignment.status = IGNORED
         order_assignment.save()
+        order_assignment_status_change_signal.send(None, order_assignment=order_assignment, status=IGNORED, order=Order.by_id(order_id))
         result["order_status"] = "stale"
         return result
 
     if new_status == station_controller.ACCEPT and pickup_time:
         try:
             order_assignment.transaction_change_status(ASSIGNED, ACCEPTED)
+            order_assignment_status_change_signal.send(None, order_assignment=order_assignment, status=ACCEPTED, order=Order.by_id(order_id))
             log_event(EventType.ORDER_ACCEPTED,
                       passenger=order_assignment.order.passenger,
                       order=order_assignment.order,
@@ -167,6 +174,8 @@ def update_order_status(order_id, work_station, new_status, pickup_time=None):
     elif new_status == station_controller.REJECT:
         try:
             order_assignment.transaction_change_status(ASSIGNED, REJECTED)
+            order_assignment_status_change_signal.send(None, order_assignment=order_assignment, status=REJECTED, order=Order.by_id(order_id))
+
             log_event(EventType.ORDER_REJECTED,
                       passenger=order_assignment.order.passenger,
                       order=order_assignment.order,

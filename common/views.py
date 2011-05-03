@@ -1,18 +1,17 @@
-# Create your views here.
-from google.appengine.api.labs.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError, TombstonedTaskError
-from django.views.decorators.csrf import csrf_exempt
-from django.core.urlresolvers import reverse
-from google.appengine.api.labs.taskqueue import taskqueue
-from django.contrib.admin.views.decorators import staff_member_required
-from ordering.decorators import internal_task_on_queue
-from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
-from django.contrib.auth.models import User
-from django.http import HttpResponse, HttpResponseRedirect
-from google.appengine.api import xmpp
-from django.contrib.auth.decorators import login_required
+from common.decorators import internal_task_on_queue
 from common.models import Country
 from common.util import has_related_objects, url_with_querystring, get_unique_id
+from django.contrib.admin.views.decorators import staff_member_required
+from django.contrib.auth.decorators import login_required
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from django.http import HttpResponse, HttpResponseRedirect
+from django.views.decorators.csrf import csrf_exempt
+from google.appengine.api import xmpp
+from google.appengine.api.labs.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError, TombstonedTaskError
+from google.appengine.api.labs.taskqueue import taskqueue
 from ordering.models import WorkStation, Order
+from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
 import logging
 
 # DeadlineExceededError can live in two different places
@@ -68,8 +67,15 @@ def maintenance_task(request):
         return HttpResponse("Failed")
 
 def do_task():
-    fix_orders()
-    
+    reset_password()
+
+def reset_password():
+    names = ["amir_station_2_workstation_1", "amir_station_1_workstation_2", "amir_station_2_workstation_2"]
+    for name in names:
+        user = User.objects.get(username=name)
+        user.set_password(name)
+        user.save()
+
 def fix_orders():
     import re
     for order in Order.objects.all():
