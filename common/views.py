@@ -67,8 +67,15 @@ def maintenance_task(request):
         return HttpResponse("Failed")
 
 def do_task():
-    fix_orders()
-    
+    reset_password()
+
+def reset_password():
+    names = ["amir_station_2_workstation_1", "amir_station_1_workstation_2", "amir_station_2_workstation_2"]
+    for name in names:
+        user = User.objects.get(username=name)
+        user.set_password(name)
+        user.save()
+
 def fix_orders():
     import re
     for order in Order.objects.all():
