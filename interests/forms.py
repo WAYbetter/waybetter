@@ -1,6 +1,5 @@
 from django.forms.models import ModelForm
-from interests.models import StationInterest
-from models import MobileInterest
+from models import MobileInterest, StationInterest, BusinessInterest
 
 class MobileInterestForm(ModelForm):
     class Meta:
@@ -12,6 +11,13 @@ class MobileInterestForm(ModelForm):
 class StationInterestForm(ModelForm):
     class Meta:
         model = StationInterest
+
+    class Ajax:
+        pass
+
+class BusinessInterestForm(ModelForm):
+    class Meta:
+        model = BusinessInterest
 
     class Ajax:
         pass

@@ -100,7 +100,7 @@ $(function() {
                 dataType:   "json",
                 success:    function(results) {
                     var items = $.map(results, function(result) {
-                        var address = result.street;
+                        var address = result.street_address;
 
                         if (result.house_number) {
                             address += " " + result.house_number;

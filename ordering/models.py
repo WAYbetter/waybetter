@@ -10,45 +10,43 @@ from common.models import Country, City, CityArea
 from datetime import datetime
 import time
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, get_model_from_request
+from common.util import get_international_phone, generate_random_token, notify_by_email, get_model_from_request, phone_validator
 from common.decorators import run_in_transaction
 from ordering.errors import UpdateOrderAssignmentError
-import re
-from django.core.validators import RegexValidator
 import common.urllib_adaptor as urllib2
 import urllib
 import logging
 
-ORDER_HANDLE_TIMEOUT     = 80 # seconds
-ORDER_TEASER_TIMEOUT     = 18 # seconds
+ORDER_HANDLE_TIMEOUT = 80 # seconds
+ORDER_TEASER_TIMEOUT = 18 # seconds
 ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
 #USER_MAX_WAIT_TIME       = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
 
-ASSIGNED                 = 1
-ACCEPTED                 = 2
-IGNORED                  = 3
-REJECTED                 = 4
-PENDING                  = 5
-FAILED                   = 6
-ERROR                    = 7
-NOT_TAKEN                = 8
-TIMED_OUT                = 9
+ASSIGNED = 1
+ACCEPTED = 2
+IGNORED = 3
+REJECTED = 4
+PENDING = 5
+FAILED = 6
+ERROR = 7
+NOT_TAKEN = 8
+TIMED_OUT = 9
 
-ASSIGNMENT_STATUS = ((PENDING   , ugettext("pending")),
-                     (ASSIGNED  , ugettext("assigned")),
-                     (ACCEPTED  , ugettext("accepted")),
-                     (IGNORED   , ugettext("ignored")),
-                     (REJECTED  , ugettext("rejected")),
-                     (NOT_TAKEN , ugettext("not_taken")))
+ASSIGNMENT_STATUS = ((PENDING, ugettext("pending")),
+                     (ASSIGNED, ugettext("assigned")),
+                     (ACCEPTED, ugettext("accepted")),
+                     (IGNORED, ugettext("ignored")),
+                     (REJECTED, ugettext("rejected")),
+                     (NOT_TAKEN, ugettext("not_taken")))
 
-ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED    , ugettext("failed")),
-                                    (ERROR     , ugettext("error")),
-                                    (TIMED_OUT , ugettext("timed_out")))
+ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED, ugettext("failed")),
+                                    (ERROR, ugettext("error")),
+                                    (TIMED_OUT, ugettext("timed_out")))
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
 MAX_STATION_DISTANCE_KM = 10
-CURRENT_PASSENGER_KEY   = "current_passenger"
+CURRENT_PASSENGER_KEY = "current_passenger"
 
 
 def add_formatted_create_date(classes):
@@ -65,11 +63,13 @@ def add_formatted_create_date(classes):
                     # actual formatter method
                     def do_format(self):
                         return getattr(self, field.name).strftime(settings.DATETIME_FORMAT)
+
                     do_format.admin_order_field = field.name
                     do_format.short_description = field.verbose_name
                     return do_format
 
                 setattr(model, f.name + "_format", format_datefield(f))
+
 
 class Station(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
@@ -85,7 +85,7 @@ class Station(models.Model):
     app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True, verify_exists=False)
     app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True, verify_exists=False)
 
-    last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True, default=datetime(1,1,1))
+    last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True, default=datetime(1, 1, 1))
 
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")
@@ -116,14 +116,14 @@ class Station(models.Model):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/station', self.id, self.name)
 
     def is_in_valid_distance(self, from_lon=None, from_lat=None, to_lon=None, to_lat=None, order=None):
-
         if not (self.lat and self.lon): # ignore station with unknown address
             return False
 
         if not order and not (from_lon and from_lat):
             return False
 
-        return self.distance_from_order(order=order, from_lon=from_lon, from_lat=from_lat, to_lon=to_lon, to_lat=to_lat) <= MAX_STATION_DISTANCE_KM
+        return self.distance_from_order(order=order, from_lon=from_lon, from_lat=from_lat, to_lon=to_lon,
+                                        to_lat=to_lat) <= MAX_STATION_DISTANCE_KM
 
     def distance_from_order(self, order=None, from_lon=None, from_lat=None, to_lon=None, to_lat=None):
         '''
@@ -167,18 +167,23 @@ class Station(models.Model):
 
     def build_workstations(self):
         for i in range(0, settings.NUMBER_OF_WORKSTATIONS_TO_CREATE):
-            self.create_workstation(i+1)
+            self.create_workstation(i + 1)
 
     def delete_workstations(self):
         self.work_stations.all().delete()
 
-class Passenger(models.Model):
+
+class BasePassenger(models.Model):
+    class Meta:
+        abstract = True
+
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
 
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
     default_station = models.ForeignKey(Station, verbose_name=_("Default station"), related_name="default_passengers",
                                         default=None, null=True, blank=True)
-    originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")), related_name="originated_passengers", null=True, blank=True, default=None)
+    originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")),
+                                            related_name="originated_passengers", null=True, blank=True, default=None)
 
     phone = models.CharField(_("phone number"), max_length=15)
     phone_verified = models.BooleanField(_("phone verified"))
@@ -217,10 +222,25 @@ class Passenger(models.Model):
             return u"Passenger: %s, %s" % (self.phone, "[UNKNOWN USER]")
 
 
-phone_re = re.compile(r'^[\*|\d]\d+$')
-validate_phone = RegexValidator(phone_re, _(u"Value must consists of digits only."), 'invalid')
+class Passenger(BasePassenger):
+    pass
+
+
+class Business(BasePassenger):
+    name = models.CharField(_("business name"), max_length=50)
+    contact_person = models.CharField(_("contact person"), max_length=50)
+
+    city = models.ForeignKey(City, verbose_name=_("city"), related_name="stations")
+    street_address = models.CharField(_("address"), max_length=80)
+    house_number = models.IntegerField(_("house_number"), max_length=10)
+    lon = models.FloatField(_("longtitude"), null=True)
+    lat = models.FloatField(_("latitude"), null=True)
+
+    forward_orders = models.BooleanField(_("forward orders"), default=False)
+
+
 class Phone(models.Model):
-    local_phone = models.CharField(_("phone number"), max_length=20, validators=[validate_phone])
+    local_phone = models.CharField(_("phone number"), max_length=20, validators=[phone_validator])
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="phones", null=True, blank=True)
 
@@ -230,6 +250,7 @@ class Phone(models.Model):
             return u"%s" % self.local_phone
         else:
             return u""
+
 
 class WorkStation(models.Model):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="work_station")
@@ -241,7 +262,7 @@ class WorkStation(models.Model):
     im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=40)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
 
-    last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True, default=datetime(1,1,1))
+    last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True, default=datetime(1, 1, 1))
 
     def __unicode__(self):
         result = u"[%d]" % self.id
@@ -314,7 +335,8 @@ RATING_CHOICES = ((1, ugettext("Very poor")),
 class Order(models.Model):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
-    originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")), related_name="originated_orders", null=True, blank=True, default=None)
+    originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")),
+                                            related_name="originated_orders", null=True, blank=True, default=None)
     mobile = models.BooleanField(_("mobile"), default=False)
     user_agent = models.CharField(_("user agent"), max_length=250, null=True, blank=True)
 
@@ -335,7 +357,8 @@ class Order(models.Model):
     # this field holds the data as typed by the user
     from_raw = models.CharField(_("from address"), max_length=50)
 
-    to_country = models.ForeignKey(Country, verbose_name=_("to country"), related_name="orders_to", null=True, blank=True)
+    to_country = models.ForeignKey(Country, verbose_name=_("to country"), related_name="orders_to", null=True,
+                                   blank=True)
     to_city = models.ForeignKey(City, verbose_name=_("to city"), related_name="orders_to", null=True, blank=True)
     to_city_area = models.ForeignKey(CityArea, verbose_name=_("to city area"), related_name="orders_to", null=True,
                                      blank=True)
@@ -410,7 +433,8 @@ class Order(models.Model):
     Created:        %s
     From:           %s
     To:             %s
-    User Agent:     %s""" % (self.id,  unicode(self.passenger), self.create_date.ctime(), self.from_raw, self.to_raw, self.user_agent)
+    User Agent:     %s""" % (
+        self.id, unicode(self.passenger), self.create_date.ctime(), self.from_raw, self.to_raw, self.user_agent)
 
         if self.originating_station:
             msg += u"""
@@ -425,7 +449,7 @@ class Order(models.Model):
             msg += u"""
 
     * Ordered from a mobile device."""
-            
+
         if self.passenger.orders.count() == 1:
             msg += u"""
             
@@ -434,9 +458,11 @@ class Order(models.Model):
         if self.assignments.count():
             msg += u"\n\nEvents:"
             for assignment in self.assignments.all().order_by('create_date'):
-                msg+= u"\n%s: %s - %s" % (assignment.modify_date.ctime(), assignment.station.name, assignment.get_status_label().upper())
+                msg += u"\n%s: %s - %s" % (
+                assignment.modify_date.ctime(), assignment.station.name, assignment.get_status_label().upper())
 
         notify_by_email(subject, msg)
+
 
 class OrderAssignment(models.Model):
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")
@@ -466,10 +492,10 @@ class OrderAssignment(models.Model):
                 base_time = order_assignment.create_date
 
             result.append({
-                "pk":               order_assignment.order.id,
-                "status":           order_assignment.status,
-                "from_raw":         order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
-                "seconds_passed":   (datetime.now() - base_time).seconds
+                "pk": order_assignment.order.id,
+                "status": order_assignment.status,
+                "from_raw": order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
+                "seconds_passed": (datetime.now() - base_time).seconds
             })
 
         return simplejson.dumps(result)
@@ -567,7 +593,7 @@ class FlatRateRule(models.Model):
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
     def __unicode__(self):
-        return "from %s to %s" % (self.city1.name,self.city2.name)
+        return "from %s to %s" % (self.city1.name, self.city2.name)
 
 # rules for extra charges (e.g., phone order)
 class ExtraChargeRule(models.Model):
@@ -583,12 +609,13 @@ class ExtraChargeRule(models.Model):
     def __unicode__(self):
         return self.rule_name
 
-FEEDBACK_CATEGORIES =       ["Website", "Booking", "Registration", "Taxi Ride", "Other"]
+FEEDBACK_CATEGORIES = ["Website", "Booking", "Registration", "Taxi Ride", "Other"]
 FEEDBACK_CATEGORIES_NAMES = [_("Website"), _("Booking"), _("Registration"), _("Taxi Ride"), _("Other")]
-FEEDBACK_TYPES =            ["Positive", "Negative"]
+FEEDBACK_TYPES = ["Positive", "Negative"]
 
 class Feedback(models.Model):
-    passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="feedbacks", null=True, blank=True)
+    passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="feedbacks", null=True,
+                                  blank=True)
 
     def __unicode__(self):
         result = u""
@@ -610,7 +637,9 @@ class Feedback(models.Model):
 
 for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
     for type in FEEDBACK_TYPES:
-        models.CharField(FEEDBACK_CATEGORIES_NAMES[i], max_length=100, null=True, blank=True).contribute_to_class(Feedback, "%s_%s_msg" % (type.lower(), category.lower().replace(" ", "_")))
-        models.BooleanField(default=False).contribute_to_class(Feedback, "%s_%s" % (type.lower(), category.lower().replace(" ", "_")))
+        models.CharField(FEEDBACK_CATEGORIES_NAMES[i], max_length=100, null=True, blank=True).contribute_to_class(
+            Feedback, "%s_%s_msg" % (type.lower(), category.lower().replace(" ", "_")))
+        models.BooleanField(default=False).contribute_to_class(Feedback, "%s_%s" % (
+        type.lower(), category.lower().replace(" ", "_")))
 
 add_formatted_create_date([Order, OrderAssignment, Passenger, Station, WorkStation])

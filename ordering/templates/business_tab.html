@@ -1,0 +1,77 @@
+{% load i18n %}
+<script type="text/javascript" src="/static/js/jquery.ajax_forms.js"></script>
+<script type="text/javascript" src="/static/js/jquery.ajax_forms.validation.js"></script>
+
+{% load ajax_form_utils %}
+
+<div id="business_tab_container">
+    <h1>{% trans "WAYbetter - Enjoin as business" %}</h1>
+    <div id="business_text">
+        Some text
+    </div>
+    <div id="business_interest">
+        <h3>{% trans "Fill in your details and we will contact you" %}</h3>
+        <form id="business_interest_form" method="post" action="{% url ordering.passenger_controller.business_tab %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="{% trans 'Contact me' %}">
+        </form>
+    </div>
+</div>
+
+<script>
+    $(function() {
+
+        var thanks_dialog_title = '{% trans "Thank you" %}',
+                thanks_dialog_html = '{% trans "We will contact you" %}',
+                error_dialog_title = '{% trans "Error" %}',
+                error_dialog_html = '{% trans "There was an error saving your details" %}';
+
+        var $form = $('#business_interest_form');
+        $form.validation({% render_ajax_fields form %});
+        $form.unbind("submit").submit(function(e) {
+            e.preventDefault();
+            if ($form.find("input[type=submit]").attr("disabled")) {
+                return false;
+            }
+
+            if (! ($(this)[0].validate())) {
+                return false;
+            }
+
+            $form.find(".errorlist").fadeOut('fast', function() {
+                $(this).remove();
+            }); // remove previous errors
+
+            $form.find("input[type=submit]").button("disable");
+            $(this).ajaxSubmit({
+                        dataType: "json",
+                        complete: function() {
+                            $form.filter("input[type=submit]").button("enable");
+                        },
+                        success: function(response) {
+                            if (! response.errors) {   // no errors!
+                                openDialog(thanks_dialog_title, thanks_dialog_html, function() {
+                                    window.location.href = "/";
+                                });
+                            } else {                    // we got errors
+                                $.each(response.errors, function(i, error) {
+                                    for (var field_name in error) {
+                                        var $errors = $("<ul class='errorlist'></ul>").hide();
+                                        $.each(error[field_name], function(i, val) {
+                                            $errors.append($("<li></li>").text(val));
+                                        });
+                                        $("input[name=" + field_name + "]").before($errors);
+                                        $errors.fadeIn('fast');
+                                    }
+                                });
+                            }
+                        },
+                        error: function(XMLHttpRequest, textStatus, errorThrown) {
+                            openDialog(error_dialog_title, error_dialog_html);
+                        }
+                    });
+            return false;
+        });
+    });
+</script>

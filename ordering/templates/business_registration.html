@@ -1,0 +1,179 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block extrahead %}
+    <script type="text/javascript" src="/static/js/utils.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.form.js"></script>
+    <script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.ajax_forms.js"></script>
+    <script type="text/javascript" src="/static/js/jquery.ajax_forms.validation.js"></script>
+    {% load ajax_form_utils %}
+{% endblock %}
+
+{% block content %}
+
+    <div>
+        <h1>{% trans "Business registration" %}</h1>
+        <form id="business_registration_form" method="post"
+              action="{% url ordering.passenger_controller.business_registration %}">
+            {% csrf_token %}
+            {{ form.as_p }}
+            <input type="submit" value="{% trans 'Submit' %}"/>
+        </form>
+    </div>
+
+    <script>
+        $(function() {
+
+            var business_registered_dialog_title = '{% trans "Business registered" %}',
+                business_registered_dialog_html = '{% trans "An email was sent to the business" %}';
+
+            var $form = $("#business_registration_form");
+
+            // django-ajax-forms validator
+            $form.validation({% render_ajax_fields form %});
+
+            // jquery validator for additional validations (resolving address and username availability)
+            jQuery.validator.addMethod("valid_address", function() {
+                return Boolean($("#id_city").val() && $("#id_street_address").val() && $("#id_house_number").val() && $("#id_lat").val() && $("#id_lon").val());
+            });
+            var validator = $form.validate({
+                        focusInvalid: false,
+                        errorPlacement: function(error, element) {
+                            $(element).siblings().filter(".errorlist").remove(); // remove previous errors
+                            $(element).before('<ul class="errorlist"><li>' + error.text() + '</li></ul>');
+                        },
+                        rules: {
+                            username: {
+                                remote: {
+                                    url: "{% url common.services.is_username_available %}"
+                                }
+                            },
+                            address: {
+                                valid_address: true
+                            }
+                        },
+                        messages: {
+                            username: {
+                                remote: "{% trans 'Username already registered' %}"
+                            },
+                            address: {
+                                valid_address: "{% trans 'The address is not resolved' %}"
+                            }
+                        }
+                    });
+
+            $("#id_address, #id_username").blur(function() {
+                if ($(this).val()) { // ajax-forms validates as true, check additional validations
+                    validator.element($(this));
+                }
+            });
+
+            var address_val = '';
+            $("#id_address").keyup(function() {
+                var current_val = $(this).val();
+                if (current_val != address_val) {
+                    address_val = current_val;
+                    clear_hidden_fields(); // address is not resolved
+                }
+            });
+            $("#id_address").autocomplete({
+                        source:     function(request, response) {
+                            $.ajax({
+                                        url:        "{% url ordering.passenger_controller.resolve_address %}",
+                                        data:       { "term":request.term, "include_order_history":'' },
+                                        dataType:   "json",
+                                        success:    function(resolve_results) {
+                                            var items = $.map(resolve_results.geocode, function(result) {
+                                                var address = result.name;
+                                                return {
+                                                    label           : address,
+                                                    value           : address,
+                                                    city            : result.city, //id
+                                                    street_address  : result.street_address,
+                                                    house_number    : result.house_number,
+                                                    lon             : result.lon,
+                                                    lat             : result.lat
+                                                }
+                                            });
+                                            response(items);
+                                        }
+                                    });
+                        },
+                        select:     function(event, ui) {
+                            populate_hidden_fields({"city": ui.item.city, "street_address": ui.item.street_address, "house_number": ui.item.house_number,
+                                        "lon": ui.item.lon, "lat": ui.item.lat});
+                        }
+                    });
+
+            // don't submit on 'enter'
+            $form.find("input [type!='hidden']").keydown(function(e) {
+                if (e.keyCode == 13) {
+                    e.preventDefault();
+                }
+            });
+            $form.unbind("submit").submit(function(e) {
+                e.preventDefault();
+                if ($form.find("input[type=submit]").attr("disabled")) {
+                    return false;
+                }
+
+                var is_valid = $(this)[0].validate();
+                is_valid &= validator.form();
+                if (!is_valid) return false;
+
+                $form.find(".errorlist").fadeOut('fast', function() {
+                    $(this).remove();
+                }); // remove previous errors
+
+                $form.find("input[type=submit]").button("disabled");
+
+                $(this).ajaxSubmit({
+                            dataType: "json",
+                            beforeSubmit: function() {
+                                $form.find("input[type='submit']").val("{% trans 'Sending...' %}").attr("disabled", true);
+                            },
+                            complete: function() {
+                                $form.find("input[type='submit']").val("{% trans 'Send' %}").attr("disabled", false);
+                            },
+                            success: function(response) {
+                                if (response.business_created && ! response.errors && validator.form()) {   // no errors!
+                                    openDialog(business_registered_dialog_title, business_registered_dialog_html, function() {
+                                        window.location.href = "/";
+                                    });
+                                } else {
+                                    if (response.errors) {                    // we got errors
+                                        $.each(response.errors, function(i, error) {
+                                            for (var field_name in error) {
+                                                var $errors = $("<ul class='errorlist'></ul>").hide();
+                                                $.each(error[field_name], function(i, val) {
+                                                    $errors.append($("<li></li>").text(val));
+                                                });
+                                                $("input[name=" + field_name + "]").before($errors);
+                                                $errors.fadeIn('fast');
+                                            }
+                                        });
+                                    }
+                                }
+                            },
+                            error: function(XMLHttpRequest, textStatus, errorThrown) {
+                                alert('{% trans "There was an error saving your data" %}');
+                            }
+                        });
+                return false;
+            });
+
+            function populate_hidden_fields(data) {
+                for (var d in data) {
+                    var $input = $("#id_" + d);
+                    $input.val(data[d]);
+                }
+            }
+
+            function clear_hidden_fields() {
+                $form.find("input[type='hidden']").val('');
+            }
+        });
+
+    </script>
+{% endblock %}

@@ -7,6 +7,7 @@ from google.appengine.api.images import BadImageError, NotImageError
 from django.utils.translation import ugettext as _
 from django.shortcuts import render_to_response
 from django.db.models.fields import related
+from django.core.validators import RegexValidator
 import logging
 import random
 import re
@@ -64,6 +65,7 @@ class EventType(Enum):
     UNREGISTERED_ORDER =            12
     PASSENGER_REGISTERED =          13
     ORDER_NOT_TAKEN =               14
+    BUSINESS_REGISTERED =           15
 
     @classmethod
     def get_label(cls, val):
@@ -212,7 +214,7 @@ def notify_by_email(subject, msg):
     try:
         mail.send_mail("guy@waybetter.com",
                        address,
-                       subject,
+                       "WAYbetter notification: %s" % subject,
                        msg)
     except :
         logging.error("Email sending failed.")
@@ -250,6 +252,9 @@ def is_in_english(s):
 h = re.compile(u"[א-ת]")
 def is_in_hebrew(s):
     return h.search(s)
+
+phone_regexp = re.compile(r'^[\*|\d]\d+$')
+phone_validator = RegexValidator(phone_regexp, _(u"Value must consists of digits only."), 'invalid')
 
 
 SingleRelatedObjectDescriptor = getattr(related, 'SingleRelatedObjectDescriptor')

@@ -289,3 +289,19 @@ var Address = defineClass({
     }
 });
 
+function openDialog(title, html, close_function){
+    var $dialog = $('<div></div>')
+            .html(html)
+            .dialog({
+                autoOpen: false,
+                close: close_function,
+                title: title,
+                resizable: false,
+                modal: true,
+                position: ["center", 100],
+                draggable: false,
+                zIndex:2000
+            });
+    $dialog.dialog('open');
+}
+

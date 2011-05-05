@@ -225,7 +225,6 @@ var OrderingHelper = Object.create({
 
         $("#order_button").button("disable");
 
-        $("#id_from_raw").focus();
         // prevent input fields and submit button from ordering on 'enter'
         $("#order_form input[type!='hidden']").add("#order_form button[type='submit']").keydown(function(e) {
             if (e.keyCode == 13){

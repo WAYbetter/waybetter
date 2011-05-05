@@ -1,19 +1,17 @@
 # This Python file uses the following encoding: utf-8
-
+import settings
 from django import forms
 from django.forms.models import ModelForm, NON_FIELD_ERRORS
 from django.forms.util import flatatt, ErrorList
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode, force_unicode
-
+from django.contrib.auth.models import User
 from common.models import Country, City
-from ordering.models import Order, Station, Feedback, phone_re
+from ordering.models import Order, Station, Feedback, Business
 from django.utils.safestring import mark_safe
-from google.appengine.api.images import BadImageError, NotImageError
-from common.util import log_event, EventType, blob_to_image_tag, Enum
+from common.util import log_event, EventType, blob_to_image_tag, Enum, phone_regexp
 from django.core.exceptions import ValidationError
 from common.geocode import geocode
-import logging
 
 INITIAL_DATA = 'INITIAL_DATA'
 
@@ -26,6 +24,7 @@ class Id2Model():
                     self.cleaned_data[field_name] = instance
                 except:
                     self.cleaned_data[field_name] = None
+
 
 class AppEngineImageWidget(forms.FileInput):
     def render(self, name, value, attrs=None):
@@ -42,14 +41,16 @@ class AppEngineImageWidget(forms.FileInput):
         of this widget. Returns None if it's not provided.
         """
         return data.get(name, None)
+
+
 class AppEngineImageField(forms.FileField):
     default_error_messages = {
-        'invalid_image': _(u"Upload a valid image. The file you uploaded was either not an image or was a corrupted image."),
-    }
+        'invalid_image': _(
+            u"Upload a valid image. The file you uploaded was either not an image or was a corrupted image."),
+        }
     widget = AppEngineImageWidget
-    
-    def clean(self, data, initial=None):
 
+    def clean(self, data, initial=None):
         raw_file = super(AppEngineImageField, self).clean(data, initial)
         if raw_file is None:
             return None
@@ -71,6 +72,7 @@ class AppEngineImageField(forms.FileField):
 
     def _image_bytes_are_valid(self, image_bytes):
         from google.appengine.api import images
+
         try:
             # Unfortunately the only way to validate image bytes on AppEngine is to
             # perform a transform. Lame.
@@ -80,25 +82,27 @@ class AppEngineImageField(forms.FileField):
         return True
 
 
-HIDDEN_FIELDS = ("from_country", "from_city", "from_street_address", "from_house_number", "from_geohash", "from_lon", "from_lat",
-                 "to_country", "to_city", "to_street_address", "to_house_number", "to_geohash", "to_lon", "to_lat",)
+HIDDEN_FIELDS = (
+"from_country", "from_city", "from_street_address", "from_house_number", "from_geohash", "from_lon", "from_lat",
+"to_country", "to_city", "to_street_address", "to_house_number", "to_geohash", "to_lon", "to_lat",)
 
 class FeedbackForm(ModelForm):
     passenger = None
     class Meta:
         model = Feedback
         exclude = ["passenger"]
-        
+
     def __init__(self, data=None, passenger=None):
         super(ModelForm, self).__init__(data)
         self.passenger = passenger
 
 
 class ErrorCodes(Enum):
-    COUNTRIES_DONT_MATCH	= 1001
-    NO_SERVICE_IN_COUNTRY	= 1002
-    NO_SERVICE_IN_CITY		= 1003
-    INVALID_ADDRESS         = 1004
+    COUNTRIES_DONT_MATCH = 1001
+    NO_SERVICE_IN_COUNTRY = 1002
+    NO_SERVICE_IN_CITY = 1003
+    INVALID_ADDRESS = 1004
+
 
 class CodeErrorList(ErrorList):
     def __init__(self, seq=(), code=None):
@@ -108,6 +112,7 @@ class CodeErrorList(ErrorList):
     def as_pure_text(self):
         if not self: return u''
         return u'\n'.join([force_unicode(e) for e in self])
+
 
 class OrderForm(ModelForm):
     passenger = None
@@ -151,7 +156,8 @@ class OrderForm(ModelForm):
         stations_count = Station.objects.filter(country=from_country).count()
         if not stations_count:
             log_event(EventType.NO_SERVICE_IN_COUNTRY, passenger=self.passenger, country=from_country)
-            raise forms.ValidationError(_("Currently, there is no service in the country"), code=ErrorCodes.NO_SERVICE_IN_COUNTRY)
+            raise forms.ValidationError(_("Currently, there is no service in the country"),
+                                        code=ErrorCodes.NO_SERVICE_IN_COUNTRY)
 
         # TODO_WB: move this check to the DB?
         close_enough_station_found = False
@@ -159,29 +165,90 @@ class OrderForm(ModelForm):
             if station.is_in_valid_distance(from_lon, from_lat, to_lon, to_lat):
                 close_enough_station_found = True
                 break
-                
+
         if not close_enough_station_found:
-            log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=from_city, lat=from_lat, lon=from_lon)
+            log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=from_city, lat=from_lat,
+                      lon=from_lon)
             if from_city != to_city:
                 log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=to_city, lat=to_lat, lon=to_lon)
 
             raise forms.ValidationError(
-                    _("Service is not available in %(city)s yet.<br>Please try again soon.<p class=bold>THANKS!</p>WAYbetter team :)") %
-                        {'city': from_city.name}, code=ErrorCodes.NO_SERVICE_IN_CITY)
-        
+                _(
+                    "Service is not available in %(city)s yet.<br>Please try again soon.<p class=bold>THANKS!</p>WAYbetter team :)") %
+                {'city': from_city.name}, code=ErrorCodes.NO_SERVICE_IN_CITY)
+
         return self.cleaned_data
 
     def save(self, commit=True):
         #TODO_WB: geocode raw address, fill city_area
-        
+
         model = super(OrderForm, self).save(commit=False)
         model.passenger = self.passenger
 
-        model.form_postal_code = '000000'
+        model.from_postal_code = '000000'
         model.to_postal_code = '000000'
 
-#        model.from_street_address = self.cleaned_data['from_raw']
-#        model.to_street_address = self.cleaned_data['to_raw']
+        #        model.from_street_address = self.cleaned_data['from_raw']
+        #        model.to_street_address = self.cleaned_data['to_raw']
+
+        if commit:
+            model.save()
+
+        return model
+
+
+class BusinessRegistrationForm(forms.ModelForm):
+    class Meta():
+        model = Business
+        fields = ('name', 'contact_person', 'default_station', 'forward_orders')
+
+    phone = forms.RegexField( regex=phone_regexp,
+                                  max_length=20,
+                                  widget=forms.TextInput(),
+                                  label=_("Phone"),
+                                  error_messages={'invalid': _("The value must contain only numbers.")} )
+    address = forms.CharField(label=_("Address"))
+    email = forms.EmailField(label=_("Email"))
+    username = forms.CharField(label=_("Enter username"), widget=forms.TextInput())
+    password = forms.CharField(label=_("Enter password"), widget=forms.PasswordInput())
+    password2 = forms.CharField(label=_("Re-enter password"), widget=forms.PasswordInput())
+
+    # hidden
+    city = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+    street_address = forms.CharField(widget=forms.HiddenInput(), required=False)
+    house_number = forms.IntegerField(widget=forms.HiddenInput(), required=False)
+    lon = forms.FloatField(widget=forms.HiddenInput(), required=False)
+    lat = forms.FloatField(widget=forms.HiddenInput(), required=False)
+
+    class Ajax:
+        rules = [
+                ('password2', {'equal_to_field': 'password'}),
+                ]
+        messages = [
+                ('password2', {'equal_to_field': _("The two password fields didn't match.")}),
+                ]
+
+    def clean_username(self):
+        cleaned_username = self.cleaned_data['username']
+        if User.objects.filter(username=cleaned_username).count():
+            raise forms.ValidationError(_("username already taken"))
+
+        return cleaned_username
+
+    def save(self, commit=True):
+        model = super(BusinessRegistrationForm, self).save(commit=False)
+
+        user = User(username=self.cleaned_data['username'], email=self.cleaned_data['email'], first_name=self.cleaned_data['name'])
+        user.set_password(self.cleaned_data['password'])
+        user.save()
+
+        model.user = user
+        model.country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
+        model.city = City.objects.get(id=self.cleaned_data['city'])
+        model.street_address = self.cleaned_data['street_address']
+        model.house_number = self.cleaned_data['house_number']
+        model.lon = self.cleaned_data['lon']
+        model.lat = self.cleaned_data['lat']
 
         if commit:
             model.save()
@@ -189,43 +256,42 @@ class OrderForm(ModelForm):
         return model
 
 class StationProfileForm(forms.Form, Id2Model):
-
     name = forms.CharField(label=_("Station name"))
     password = forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
     password2 = forms.CharField(label=_("Re-enter password"), widget=forms.PasswordInput(), required=False)
     country_id = forms.IntegerField(widget=forms.Select(choices=Country.country_choices()), label=_("Country"))
     city_id = forms.IntegerField(widget=forms.Select(choices=[("", "-------------")]), label=_("City"))
     address = forms.CharField(label=_("Address"))
-    number_of_taxis = forms.RegexField( regex=r'^\d+$',
-                                    max_length=4,
-                                    widget=forms.TextInput(),
-                                    label=_("Number of taxis"),
-                                    error_messages={'invalid': _("The value must contain only numbers.")})
+    number_of_taxis = forms.RegexField(regex=r'^\d+$',
+                                       max_length=4,
+                                       widget=forms.TextInput(),
+                                       label=_("Number of taxis"),
+                                       error_messages={'invalid': _("The value must contain only numbers.")})
 
     website_url = forms.CharField(label=_("Website URL"), required=False)
-#    language = form.
+    #    language = form.
     email = forms.EmailField(label=_("Email"))
-#    logo = AppEngineImageField(label=_("Logo"), required=False)
-    description  = forms.CharField(label=_("Description"), widget=forms.Textarea, required=False)
+    #    logo = AppEngineImageField(label=_("Logo"), required=False)
+    description = forms.CharField(label=_("Description"), widget=forms.Textarea, required=False)
     lon = forms.FloatField(widget=forms.HiddenInput(), required=False)
     lat = forms.FloatField(widget=forms.HiddenInput(), required=False)
 
     class Ajax:
         rules = [
-            ('password2', {'equal_to_field': 'password'}),
-        ]
+                ('password2', {'equal_to_field': 'password'}),
+                ]
         messages = [
-            ('password2', {'equal_to_field': _("The two password fields didn't match.")}),
-        ]
+                ('password2', {'equal_to_field': _("The two password fields didn't match.")}),
+                ]
 
     def clean_address(self):
         if not INITIAL_DATA in self.data:
             if not (self.data['lon'] and self.data['lat']):
                 raise forms.ValidationError(_("Invalid address"))
- 
+
         return self.cleaned_data['address']
 
-         
+
     def clean(self):
         """
         """
@@ -234,43 +300,48 @@ class StationProfileForm(forms.Form, Id2Model):
 
         self.cleaned_data['city'] = self.cleaned_data['city_id']
         self.cleaned_data['country'] = self.cleaned_data['country_id']
- 
+
         return self.cleaned_data
 
+
 class PhoneForm(ModelForm):
-    local_phone = forms.RegexField( regex=phone_re,
-                              max_length=20,
-                              widget=forms.TextInput(),
-                              label=_("Phone"),
-                              error_messages={'invalid': _("The value must contain only numbers.")} )
-        
+    local_phone = forms.RegexField(regex=phone_regexp,
+                                   max_length=20,
+                                   widget=forms.TextInput(),
+                                   label=_("Phone"),
+                                   error_messages={'invalid': _("The value must contain only numbers.")})
+
 
 class PassengerProfileForm(forms.Form):
-    country =   forms.ModelChoiceField(queryset=Country.objects.all().order_by("name"), label=_("Country"))
+    country = forms.ModelChoiceField(queryset=Country.objects.all().order_by("name"), label=_("Country"))
 
-    default_station = forms.ModelChoiceField(queryset=Station.objects.filter(show_on_list=True), label=_("Default station"), empty_label=_("(No station selected)"), required=False)
+    default_station = forms.ModelChoiceField(queryset=Station.objects.filter(show_on_list=True),
+                                             label=_("Default station"), empty_label=_("(No station selected)"),
+                                             required=False)
 
     phone_verification_code = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 
     class Ajax:
         pass
 
-class InternalPassengerProfileForm(PassengerProfileForm):
-    first_name =  forms.CharField(label=_("First name"), widget=forms.TextInput(), required=False)
-    last_name =  forms.CharField(label=_("Last name"), widget=forms.TextInput(), required=False)
 
-    password =  forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
+class InternalPassengerProfileForm(PassengerProfileForm):
+    first_name = forms.CharField(label=_("First name"), widget=forms.TextInput(), required=False)
+    last_name = forms.CharField(label=_("Last name"), widget=forms.TextInput(), required=False)
+
+    password = forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
 
     password2 = forms.CharField(label=_("Re-enter password"), widget=forms.PasswordInput(), required=False)
 
     class Ajax:
         rules = [
-            ('password2', {'equal_to_field': 'password'}),
+                ('password2', {'equal_to_field': 'password'}),
 
-        ]
+                ]
         messages = [
-            ('password2', {'equal_to_field': _("The two password fields didn't match.")}),
-        ]
+                ('password2', {'equal_to_field': _("The two password fields didn't match.")}),
+                ]
+
 
 def get_profile_form(passenger, data=None):
     """
@@ -280,7 +351,8 @@ def get_profile_form(passenger, data=None):
         return InternalPassengerProfileForm(data=data)
     else:
         return PassengerProfileForm(data=data)
-    
+
+
 class CityChoiceWidget(forms.Select):
     def render(self, name, value, attrs=None, choices=()):
         self.choices = [(u"", u"---------")]
@@ -315,15 +387,16 @@ class FlatRateRuleSetupForm(forms.Form):
     country = forms.ModelChoiceField(queryset=Country.objects.all())
     csv = forms.CharField(widget=forms.Textarea)
 
+
 class StationAdminForm(forms.ModelForm):
     class Meta:
         model = Station
 
-       
+
     def clean_address(self):
         if "address" in self.initial and self.cleaned_data["address"] == self.initial["address"]:
             return self.initial["address"]
-  
+
         result = None
         geocode_str = u"%s %s" % (self.cleaned_data["city"], self.cleaned_data["address"])
         geocode_results = geocode(geocode_str, add_geohash=True)
@@ -337,7 +410,7 @@ class StationAdminForm(forms.ModelForm):
                 if address == self.cleaned_data["address"]:
                     result = res
                     break
-                    
+
             if not result:
                 raise ValidationError("Please choose one: %s" % ", ".join(address_options))
 
@@ -347,7 +420,7 @@ class StationAdminForm(forms.ModelForm):
         self.instance.lon = result["lon"]
         self.instance.lat = result["lat"]
         self.instance.geohash = result["geohash"]
-#        self.instance.save()
+        #        self.instance.save()
 
         self.cleaned_data["address"] = "%s %s" % (result["street_address"], result["house_number"])
 

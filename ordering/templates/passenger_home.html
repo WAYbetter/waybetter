@@ -60,6 +60,8 @@
             startSlide: 0
         });
 
+        $("#id_from_raw").focus();
+
     });
 
 </script>
@@ -130,6 +132,7 @@
             <ul>
                 <li><a title="stations" href="{% url ordering.passenger_controller.stations_tab %}">{% trans 'Taxi Stations' %}</a></li>
                 <li><a title="mobile" href="#mobile">{% trans 'Mobile' %}</a></li>
+                <li><a title="businesses" href="{% url ordering.passenger_controller.business_tab %}">{% trans 'Businesses' %}</a></li>
                 <li><a title="whats_this" href="#about">{% trans "What's This?" %}</a></li>
             </ul>
             {% include 'mobile_tab.html' %}
