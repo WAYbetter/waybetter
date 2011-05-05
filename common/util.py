@@ -1,5 +1,6 @@
 # This Python file uses the following encoding: utf-8
 import urllib
+import os
 
 from google.appengine.api import taskqueue
 from google.appengine.api import mail
@@ -7,6 +8,7 @@ from google.appengine.api.images import BadImageError, NotImageError
 from django.utils.translation import ugettext as _
 from django.shortcuts import render_to_response
 from django.db.models.fields import related
+from django.db import models
 from django.core.validators import RegexValidator
 import logging
 import random
@@ -86,7 +88,21 @@ class EventType(Enum):
 
         raise ValueError(_("Invalid value: %s" % str(val)))
 
+class BaseModel(models.Model):
+    '''
+    Adds common methods to our models
+    '''
+    class Meta:
+        abstract = True
 
+    @classmethod
+    def by_id(cls, id):
+        try:
+            obj = cls.objects.get(id=id)
+        except cls.DoesNotExist:
+            obj = None
+
+        return obj
 def is_empty(str):
     """
     return True pf string is empty, spaces only or None
@@ -122,7 +138,12 @@ def get_model_from_request(model_class, request):
 
         return model_instance
 
+def get_current_version():
+    return os.environ['CURRENT_VERSION_ID']
 
+def get_channel_key(model):
+    cls = type(model)
+    return "channel_key_%s_%d" % (cls.__name__.lower(), model.id)
 def log_event(event_type, order=None, order_assignment=None, station=None, work_station=None, passenger=None,
               country=None, city=None, rating="", lat="", lon=""):
     """

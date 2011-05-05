@@ -1,5 +1,5 @@
 from django.views.decorators.csrf import csrf_exempt
-from ordering.decorators import internal_task_on_queue
+from common.decorators import internal_task_on_queue
 from django.http import HttpResponse
 from django.db.models import get_model
 from django.utils.translation import ugettext as _

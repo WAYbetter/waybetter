@@ -20,6 +20,7 @@ urlpatterns = patterns('',
     (r'registration/get_phone_code_form/$', 'common.registration.get_phone_code_form'),
     (r'registration/get_sending_form/$', 'common.registration.get_sending_form'),
     (r'feedback/$', 'common.registration.feedback'),
+    (r'broadcast_signal/$', 'common.signals.send_async'),
     (r'flush_memcache/$', 'common.geocode.flush_memcache'),
     url(r'get_terms/$', direct_to_template, {'template': "terms_form.html"} ,name="terms_dialog"),
 
