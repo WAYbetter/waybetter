@@ -1,4 +1,4 @@
-from django.http import HttpResponseForbidden
+from django.http import HttpResponseForbidden, HttpResponse
 from google.appengine.ext import db
 
 def internal_task_on_queue(queue_name):
@@ -39,3 +39,29 @@ def receive_signal(*signals, **kwargs):
         return function
 
     return actual_decorator
+
+def allow_JSONP(function):
+    """
+    support JSONP if request has callback=? parameter
+    """
+    def wrapper(request):
+        callback = request.GET.get("callback")
+        if callback:
+            try:
+                response = function(request)
+            except:
+                response = HttpResponse('error', status=500)
+
+            if response.status_code / 100 != 2:
+                response.content = 'error'
+
+            if response.content[0] not in ['"', '[', '{'] or response.content[-1] not in ['"', ']', '}']:
+                response.content = '"%s"' % response.content
+                
+            response.content = "%s(%s)" % (callback, response.content) 
+            response['Content-Type'] = 'application/javascript'
+        else:
+            response = function(request)
+
+        return response
+    return wrapper
