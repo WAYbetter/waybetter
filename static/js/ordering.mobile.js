@@ -34,6 +34,7 @@ var OrderingHelper = Object.create({
         latitude        : ""
     },
     order_confirmed:                false,
+    order_button_clicked:           false,
     init:                       function(config) {
         this.config = $.extend(true, {}, this.config, config);
         var that = this,
@@ -222,11 +223,12 @@ var OrderingHelper = Object.create({
         });
 
         cache.$order_button.click(function () {
+            that.order_button_clicked = true;
             cache.$order_form.submit();
         });
 
         cache.$order_form.submit(function() {
-            if (cache.$order_button.is(':disabled')) {
+            if (cache.$order_button.is(':disabled') || !that.order_button_clicked) {
                 return false;
             }
             if (! that.order_confirmed) {
@@ -234,6 +236,8 @@ var OrderingHelper = Object.create({
                     return false;
                 }
             }
+
+            that.order_button_clicked = false;
             that.order_confirmed = true;
             
             cache.$order_button.disable();
