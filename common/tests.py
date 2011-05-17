@@ -40,7 +40,7 @@ class GeocodeTest(TestCase):
             {"address"          : u"בן יהודה 35 ירושלים",
              "country"          : u"IL",
              "city"             : u"ירושלים",
-             "street_address"   : u"בן יהודה",
+             "street_address"   : u"אליעזר וחמדה בן יהודה",
              "house_number"     : u"35",
              "lon"              : '35.214161',
              "lat"              : '31.780725',
