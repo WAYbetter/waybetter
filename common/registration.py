@@ -43,5 +43,5 @@ def get_sending_form(request):
 
 def get_phone_form(request):
     countries = Country.objects.all()
-    country_id = Country.get_id_by_code(settings.DEFAULT_COUNTRY_CODE)
+    country_code = settings.DEFAULT_COUNTRY_CODE
     return render_to_response('phone_verification_form.html', locals())

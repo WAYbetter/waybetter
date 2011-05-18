@@ -6,12 +6,12 @@ from station_connection_manager import push_order
 from django.core.urlresolvers import reverse
 from ordering.errors import OrderError, NoWorkStationFoundError
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound, HttpResponseServerError
-from ordering.decorators import passenger_required, internal_task_on_queue
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound, HttpResponseServerError, HttpResponseBadRequest
+from ordering.decorators import passenger_required, internal_task_on_queue, passenger_required_no_redirect
 from django.core.serializers import serialize
 from django.conf import settings
 from django.utils import translation
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 
 from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, ASSIGNED, RATING_CHOICES, ERROR
 import dispatcher
@@ -182,7 +182,7 @@ def enqueue_redispatch_ignored_orders(order_assignment, interval):
 
 
 @csrf_exempt
-@passenger_required
+@passenger_required_no_redirect
 def rate_order(request, order_id, passenger):
     order = get_object_or_404(Order, id=order_id)
     if order.passenger != passenger:
@@ -203,6 +203,20 @@ def rate_order(request, order_id, passenger):
     q.add(task)
     return HttpResponse("OK")
 
+@csrf_exempt
+@passenger_required_no_redirect
+def do_not_rate_order(request, order_id, passenger):
+    order = get_object_or_404(Order, id=order_id)
+    if order.passenger != passenger:
+        return HttpResponseForbidden(_("You can't rate this order"))
+
+    if order.passenger_rating:
+        return HttpResponseBadRequest(_("Order already rated")) 
+    
+    order.passenger_rating = 0
+    order.save()
+
+    return HttpResponse("OK")
 
 @csrf_exempt
 def update_station_rating(request):

@@ -775,7 +775,7 @@ var OrderHistoryHelper = Object.create({
                     callback: function(ui, type, value) {
                         var order_id = ui.element.attr("order_id");
                         $.ajax({
-                            url: "/services/rate_order/" + order_id,
+                            url: "/services/rate_order/" + order_id + "/",
                             type: "POST",
                             data: { rating: value},
                             success: function() {

@@ -284,7 +284,8 @@ def build_installer_for_workstation(sender, instance, **kwargs):
 
 models.signals.post_save.connect(build_installer_for_workstation, sender=WorkStation)
 
-RATING_CHOICES = ((1, ugettext("Very poor")),
+RATING_CHOICES = ((0, ugettext("Unrated")),
+                  (1, ugettext("Very poor")),
                   (2, ugettext("Not so bad")),
                   (3, ugettext("Average")),
                   (4, ugettext("Good")),
@@ -328,6 +329,7 @@ class Order(models.Model):
 
     pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)
 
+    # ratings
     passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
