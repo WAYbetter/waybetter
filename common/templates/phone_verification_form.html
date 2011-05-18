@@ -79,7 +79,7 @@
 {% endblock %}
 <form id="phone_verification_form">
     <fieldset>
-        <input type="hidden" name="country" value="{{ country_id }}" />
+        <input type="hidden" name="country_code" value="{{ country_code }}" />
         <label for="local_phone">{% trans 'Local Mobile Phone Number' %}</label>
         <input name="local_phone" id="local_phone" type="text" autofocus/>
         <label for="verification_code">{% trans 'Enter SMS code' %}</label>

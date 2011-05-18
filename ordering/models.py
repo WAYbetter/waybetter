@@ -23,6 +23,7 @@ ORDER_HANDLE_TIMEOUT     = 80 # seconds
 ORDER_TEASER_TIMEOUT     = 18 # seconds
 ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
 #USER_MAX_WAIT_TIME       = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
+PASSENGER_TOKEN 		 = "passenger_token"
 
 ASSIGNED                 = 1
 ACCEPTED                 = 2
@@ -186,6 +187,9 @@ class Passenger(BaseModel):
 
     accept_mailing = models.BooleanField(_("accept mailing"), default=True)
 
+    # used to login anonymous passengers
+    login_token = models.CharField(_("login token"), max_length=40, null=True, blank=True)
+
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
 
@@ -205,8 +209,19 @@ class Passenger(BaseModel):
     @classmethod
     def from_request(cls, request):
         passenger = get_model_from_request(cls, request)
+        # try to get passenger from he session
         if not passenger:
             passenger = request.session.get(CURRENT_PASSENGER_KEY, None)
+
+        # try to get passenger from passed token
+        if not passenger:
+            token = request.POST.get(PASSENGER_TOKEN, None) or request.GET.get(PASSENGER_TOKEN)
+            if token:
+                try:
+                    passenger = cls.objects.get(login_token=token)
+                except cls.DoesNotExist:
+                    pass
+
         return passenger
 
 
@@ -305,7 +320,8 @@ def build_installer_for_workstation(sender, instance, **kwargs):
 
 models.signals.post_save.connect(build_installer_for_workstation, sender=WorkStation)
 
-RATING_CHOICES = ((1, ugettext("Very poor")),
+RATING_CHOICES = ((0, ugettext("Unrated")),
+                  (1, ugettext("Very poor")),
                   (2, ugettext("Not so bad")),
                   (3, ugettext("Average")),
                   (4, ugettext("Good")),
@@ -351,6 +367,7 @@ class Order(BaseModel):
 
     pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)
 
+    # ratings
     passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
