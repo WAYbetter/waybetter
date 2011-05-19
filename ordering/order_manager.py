@@ -6,11 +6,10 @@ from station_connection_manager import push_order
 from django.core.urlresolvers import reverse
 from ordering.errors import  ShowOrderError, UpdateOrderError, NoWorkStationFoundError, UpdateOrderAssignmentError
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseNotFound, HttpResponseServerError, HttpResponseBadRequest
-from ordering.decorators import passenger_required, internal_task_on_queue, passenger_required_no_redirect, order_assignment_required
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError, HttpResponseBadRequest
+from ordering.decorators import passenger_required, passenger_required_no_redirect, order_assignment_required
 from django.core.serializers import serialize
 from django.conf import settings
-from django.utils import translation
 from django.utils.translation import ugettext as _
 
 from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, PENDING, ASSIGNED, NOT_TAKEN, REJECTED, RATING_CHOICES, ERROR, TIMED_OUT, ORDER_ASSIGNMENT_TIMEOUT, ORDER_HANDLE_TIMEOUT, ORDER_TEASER_TIMEOUT
