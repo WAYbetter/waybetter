@@ -3,13 +3,13 @@ from google.appengine.api import taskqueue
 from django.shortcuts import get_object_or_404, render_to_response
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError, HttpResponseBadRequest
 from django.core.serializers import serialize
 from django.conf import settings
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext as _
 from ordering.models import Station
-from ordering.errors import  ShowOrderError, UpdateOrderError, NoWorkStationFoundError, UpdateStatusError, OrderError
-from ordering.decorators import passenger_required, order_assignment_required, order_required
+from ordering.errors import  ShowOrderError, UpdateOrderError, NoWorkStationFoundError, UpdateStatusError
+from ordering.decorators import passenger_required, passenger_required_no_redirect, order_assignment_required, order_required
 from common.sms_notification import send_sms
 from common.util import log_event, EventType
 from common.langsupport.util import translate_to_lang
@@ -324,7 +324,7 @@ def enqueue_redispatch_orders(order_assignment, interval, handler):
 
 
 @csrf_exempt
-@passenger_required
+@passenger_required_no_redirect
 def rate_order(request, order_id, passenger):
     order = get_object_or_404(Order, id=order_id)
     if order.passenger != passenger:
@@ -345,7 +345,20 @@ def rate_order(request, order_id, passenger):
     q.add(task)
     return HttpResponse("OK")
 
+@csrf_exempt
+@passenger_required_no_redirect
+def do_not_rate_order(request, order_id, passenger):
+    order = get_object_or_404(Order, id=order_id)
+    if order.passenger != passenger:
+        return HttpResponseForbidden(_("You can't rate this order"))
 
+    if order.passenger_rating:
+        return HttpResponseBadRequest(_("Order already rated")) 
+    
+    order.passenger_rating = 0
+    order.save()
+
+    return HttpResponse("OK")
 @csrf_exempt
 def update_station_rating(request):
     rating = int(request.POST["rating"])

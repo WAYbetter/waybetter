@@ -435,7 +435,7 @@ class StationAdminForm(forms.ModelForm):
 
         result = None
         geocode_str = u"%s %s" % (self.cleaned_data["city"], self.cleaned_data["address"])
-        geocode_results = geocode(geocode_str, add_geohash=True)
+        geocode_results = geocode(geocode_str)
         if len(geocode_results) < 1:
             raise ValidationError("Could not resolve address")
         elif len(geocode_results) > 1:

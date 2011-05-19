@@ -102,16 +102,16 @@ class GeocodeTest(TestCase):
         Simple geo hasing test.
         """
         logging.info("\nTesting geohash encode/decode.")
-        points = ({"lon"       :"31.776933",
-                   "lat"       :"35.234376",
+        points = ({"lat"       :"31.776933",
+                   "lon"       :"35.234376",
                    "hash_code" :"sv9hcbbfh3wu"},
-                  {"lon"       :"21.424172",
-                   "lat"       :"39.826112",
+                  {"lat"       :"21.424172",
+                   "lon"       :"39.826112",
                    "hash_code" :"sgu3fk0kzejk"},
                   )
         for p in points:
             self.assertEqual(geohash_encode(float(p["lon"]),float(p["lat"])), p["hash_code"], msg="encode error")
-            self.assertEqual(geohash_decode(p["hash_code"]), (p["lon"],p["lat"]), msg="decode error")
+            self.assertEqual(geohash_decode(p["hash_code"]), (p["lat"],p["lon"]), msg="decode error")
 
 
 class RouteTest(TestCase):

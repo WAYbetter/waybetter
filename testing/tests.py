@@ -18,6 +18,7 @@ APPLICATION_UNDER_TEST = "http://localhost:8000/"
 SOCIAL_GOOGLE = ["css=.google", "Google Accounts", "Email", "Passwd", "signIn"]
 SOCIAL_FACEBOOK = ["css=.facebook", "Login | Facebook", "email", "pass", "login"]
 SOCIAL_TWITTER = ["css=.twitter", "Twitter", "username_or_email", "password", "allow"]
+FIREFOX_LOCATION = '*firefox'
 
 class SeleniumTests(TestCase, SelemiumHelper):
     fixtures = ['countries.yaml']
@@ -25,9 +26,9 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
     def setUp(self):
         self.verificationErrors = []
-        self.selenium = selenium("localhost", 4444, "*firefox", APPLICATION_UNDER_TEST)
+        self.selenium = selenium("localhost", 4444, FIREFOX_LOCATION, APPLICATION_UNDER_TEST)
 #        self.selenium.set_timeout(30000) # milisecond
-        self.selenium.set_speed(300) # milisecond
+        self.selenium.set_speed(250) # milisecond
         self.selenium.start()
         self.selenium.window_maximize()
 
@@ -172,9 +173,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
         # choose address from history
         sel.click("id_from_raw")
-        sel.click("css=.input_history_helper")
-        sel.click("//div[@id='orders_history_grid']/table/tbody/tr[2]/td[2]")
-        time.sleep(1)
+        sel.mouse_down("//div[@id='orders_history_grid']/table/tbody/tr[2]/td[2]")
         self.assertTrue(sel.get_value("id_from_raw") == sel.get_text("//div[@id='orders_history_grid']/table/tbody/tr[2]/td[2]"))
 
         # sort history
@@ -323,26 +322,25 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
         # profile page
         sel.click("//a[@href='#profile']")
-        self.wait_for_element_present("id_name")
+        self.wait_for_element_present("id_email")
 
         data = {
             # id                       : (old_val, new_val),
-            '#id_name'                 : (u'selenium_station', u'new_selenium_station'),
-            '#id_address'              : (SELENIUM_ADDRESS, u"new address"),
-            '#id_number_of_taxis'      : ('5', '6'),
-            '#id_website_url'          : ('http://selenium.waybetter.com','http://selenium.waybetter.co.il'),
-            '#id_email'                : ('selenium_station@waybetter.com', 'selenium_station@waybetter.co.il'),
-            '#id_description'          : ('','new description'),
-            '#id_phones-0-local_phone' : (SELENIUM_PHONE, '123')
+            'id_name'                 : (u'selenium_station', u'new_selenium_station'),
+            'id_address'              : (SELENIUM_ADDRESS, u"new address"),
+            'id_number_of_taxis'      : ('5', '6'),
+            'id_website_url'          : ('http://selenium.waybetter.com','http://selenium.waybetter.co.il'),
+            'id_email'                : ('selenium_station@waybetter.com', 'selenium_station@waybetter.co.il'),
+            'id_description'          : ('','new description'),
+            'id_phones-0-local_phone' : (SELENIUM_PHONE, '123')
         }
 
         for id in data.keys():
-            self.assertTrue(sel.get_eval("window.jQuery('%s').val()"%id) == data[id][0])
+            self.assertTrue(sel.get_eval("window.jQuery('#%s').val()"%id) == data[id][0])
             sel.type(id, data[id][1])
 
         sel.click("id_save_station_profile")
-        for id in data.keys():
-            self.assertTrue(sel.get_eval("window.jQuery(%s.val()" % id) == data[id][1])
+        # TODO_WB: check if no errors where reported
 
 #        # add phone
 #        sel.type_keys("id_phones-0-local_phone", SELENIUM_PHONE)

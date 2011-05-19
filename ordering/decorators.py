@@ -40,15 +40,8 @@ def passenger_required_no_redirect(function=None):
     """
 
     def wrapper(request, **kwargs):
-        passenger = None
-        if request.user.is_authenticated():
-            try:
-                passenger = Passenger.objects.get(user=request.user)
-            except Passenger.DoesNotExist:
-                pass
+        passenger = Passenger.from_request(request)
 
-        if not passenger:
-            passenger = request.session.get(CURRENT_PASSENGER_KEY, None)
 
         if not passenger:
             return HttpResponseForbidden(NOT_A_PASSENGER)
@@ -66,12 +59,11 @@ def passenger_required(function=None):
 
     @login_required
     def wrapper(request, **kwargs):
-        try:
-            passenger = Passenger.objects.get(user=request.user)
+        passenger = Passenger.from_request(request)
+        if passenger:
             kwargs["passenger"] = passenger
-        except Passenger.DoesNotExist:
-            return HttpResponseForbidden(
-                "You are not a passenger, please <a href='/passenger/logout/'>logout</a> and try again")
+        else:
+            return HttpResponseForbidden("You are not a passenger, please <a href='/passenger/logout/'>logout</a> and try again")
         return function(request, **kwargs)
 
     return wrapper
