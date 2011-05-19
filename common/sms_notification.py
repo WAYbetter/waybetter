@@ -52,7 +52,7 @@ def send_sms_cellact(destination, text, sms_config):
 
     c = Context(params)
     t = get_template("cellact_send_sms.xml")
-    payload = "XMLString=" + urlquote_plus(t.render(c))
+    payload = str("XMLString=" + urlquote_plus(t.render(c)))
     result = fetch(provider_url, method="POST", payload=payload)
     return result
 

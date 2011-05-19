@@ -414,7 +414,7 @@ class Order(BaseModel):
                                        , blank=True)
     from_postal_code = models.CharField(_("from postal code"), max_length=10, null=True, blank=True)
     from_street_address = models.CharField(_("from street address"), max_length=50)
-    from_house_number = models.IntegerField(_("from_house_number"), max_length=10)
+    from_house_number = models.IntegerField(_("from_house_number"), max_length=10, null=True, blank=True) # TODO_WB: make this mandatory in a safe manner
 
     from_geohash = models.CharField(_("from goehash"), max_length=13)
     from_lon = models.FloatField(_("from_lon"))
