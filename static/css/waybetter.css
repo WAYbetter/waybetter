@@ -191,13 +191,13 @@ input.text, input[type=text], input[type=password] {
 
 .address-helper-loading-from{
     background-image:url(/static/images/address_helper_loading_from.gif);
-    background-position: 5px -33px;
+    background-position: 220px -33px;
     background-repeat: no-repeat;
 }
 
 .address-helper-loading-to{
     background-image:url(/static/images/address_helper_loading_to.gif);
-    background-position: 5px -33px;
+    background-position: 220px -33px;
     background-repeat: no-repeat;
 }
 
@@ -362,7 +362,7 @@ span.right-fade {
     box-shadow:0 3px 3px black;
     color: white;
     font-size: 20px;
-    min-height: 150px; 
+    min-height: 150px;
 }
 
 .gray_header {
@@ -616,13 +616,13 @@ img.tab_icon {
 
 #history_header_label_1
 {
-    background: url(../img/ride_details.png) left 2px no-repeat;
+    background: url(../img/ride_details.png) -3px 3px no-repeat;
     padding-left:25px;
 }
 
 #history_header_label_2
 {
-    background: url(../img/ride_details.png) left -14px no-repeat;
+    background: url(../img/ride_details.png) -3px -16px no-repeat;
     padding-left:25px;
 }
 
@@ -1718,4 +1718,91 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 
 #business_registration_form {
     background: white;
+}
+
+/** Order tracker **/
+.tracker_order{
+    background: white;
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    border-style: solid;
+    border-color: gray;
+    height: 70px;
+    padding: 5px;
+    margin: 10px;
+}
+
+.tracker_order > *{
+    margin-top: 20px;
+}
+
+.tracker_button{
+    display: block;
+    margin-right: 10px;
+}
+
+.tracker_order.failed{
+    border-color: red;
+}
+
+.tracker_order.accepted{
+    border-color: #bada55;
+}
+
+.tracker_address_list{
+    margin-top: 0;
+    margin-right: 40px;
+    list-style-type: none;
+    padding: 0;
+    text-align: left;
+    float: left;
+}
+
+.tracker_address_list > li{
+    padding-left: 36px;
+    height: 20px;
+    background-repeat: no-repeat;
+
+}
+.tracker_from{
+    background-image: url(../img/ride_details.png);
+    background-position: 6px 4px;
+}
+
+.tracker_to{
+    margin-top: 5px;
+    background-image: url(../img/ride_details.png);
+    background-position: 6px -14px;
+    background-repeat: no-repeat;
+}
+
+.tracker_station{
+    float: left;
+}
+
+.tracker_info{
+    float: left;
+    padding-left: 70px;
+}
+.tracker_info.searching{
+    background: url(../images/tracker_seachring.gif) 6px 2px no-repeat;
+}
+.tracker_info.accepted{
+    background: url(../images/tracker_accepted.gif) 3px 3px no-repeat;
+}
+
+.tracker_indicator{
+    margin-top: 0;
+    margin-right: 10px;
+    height: 30px;
+    float: right;
+}
+.tracker_indicator.searching{
+    background: url(../images/loader5.gif) left 0 no-repeat;
+    padding-left: 30px;
+}
+.tracker_indicator.accepted{
+    background: url(../images/sent.png) left 0 no-repeat;
+    padding-left: 20px;
 }

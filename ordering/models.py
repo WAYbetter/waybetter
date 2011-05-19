@@ -1,21 +1,26 @@
+from google.appengine.api import channel
 from api.models import APIUser
 from django.db.models.query import QuerySet
 from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
 from django.conf import settings
 from django.contrib.auth.models import User
+from django.contrib.sessions.models import Session
 from django.utils import simplejson
-from djangotoolbox.fields import BlobField
+from djangotoolbox.fields import BlobField, ListField
 from common.models import Country, City, CityArea
-from datetime import datetime
-import time
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, get_model_from_request, phone_validator, BaseModel
-from common.decorators import run_in_transaction
-from ordering.errors import UpdateOrderAssignmentError
-import common.urllib_adaptor as urllib2
+from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, BaseModel, StatusField, get_channel_key
+from common.langsupport.util import translate_to_lang
+from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal
+from ordering.errors import UpdateStatusError
+
+import time
+import math
 import urllib
 import logging
+import datetime
+import common.urllib_adaptor as urllib2
 
 ORDER_HANDLE_TIMEOUT = 80 # seconds
 ORDER_TEASER_TIMEOUT = 18 # seconds
@@ -85,7 +90,8 @@ class Station(BaseModel):
     app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True, verify_exists=False)
     app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True, verify_exists=False)
 
-    last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True, default=datetime(1, 1, 1))
+    last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True,
+                                                default=datetime.datetime(1, 1, 1))
 
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")
@@ -173,10 +179,7 @@ class Station(BaseModel):
         self.work_stations.all().delete()
 
 
-class BasePassenger(BaseModel):
-    class Meta:
-        abstract = True
-
+class Passenger(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
 
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
@@ -187,12 +190,43 @@ class BasePassenger(BaseModel):
 
     phone = models.CharField(_("phone number"), max_length=15)
     phone_verified = models.BooleanField(_("phone verified"))
-    phone_verification_code = models.CharField(_("phone verification code"), max_length=20)
 
     accept_mailing = models.BooleanField(_("accept mailing"), default=True)
 
+    session_keys = ListField(models.CharField(max_length=32)) # session is identified by a 32-character hash
+
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+
+    def _get_business(self):
+        try:
+            return self._business
+        except Business.DoesNotExist:
+            return None
+
+    def _set_business(self, value):
+        self._business = value
+
+    business = property(_get_business, _set_business)
+
+    def cleanup_session_keys(self):
+        db_sessions_qs = Session.objects.filter(session_key__in=self.session_keys).filter(expire_date__gt=datetime.datetime.now())
+        db_session_keys = [s.session_key for s in db_sessions_qs]
+
+        for session_key in self.session_keys:
+            if session_key not in db_session_keys:
+                self.session_keys.remove(session_key)
+        self.save()
+
+    def send_channel_msg(self, msg):
+        for session_key in self.session_keys:
+            channel_key = get_channel_key(self, key_data=session_key)
+            try:
+                channel.send_message(channel_key, msg)
+            except channel.InvalidChannelClientIdError:
+                logging.error("InvalidChannelClientIdError: Failed sending channel message to passenger[%d]: %s" % (self.id, msg))
+            except channel.InvalidMessageError:
+                logging.error("InvalidMessageError: Failed sending channel message to passenger[%d]: %s" % (self.id, msg))
 
     def international_phone(self):
         return get_international_phone(self.country, self.phone)
@@ -222,21 +256,48 @@ class BasePassenger(BaseModel):
             return u"Passenger: %s, %s" % (self.phone, "[UNKNOWN USER]")
 
 
-class Passenger(BasePassenger):
-    pass
+class Business(BaseModel):
+    passenger = models.OneToOneField(Passenger, verbose_name=_("passenger"), related_name="_business")
 
-
-class Business(BasePassenger):
     name = models.CharField(_("business name"), max_length=50)
     contact_person = models.CharField(_("contact person"), max_length=50)
 
-    city = models.ForeignKey(City, verbose_name=_("city"), related_name="stations")
+    # holds the full address
+    address = models.CharField(_("address"), max_length=80)
+
+    city = models.ForeignKey(City, verbose_name=_("city"), related_name="businesses")
     street_address = models.CharField(_("address"), max_length=80)
     house_number = models.IntegerField(_("house_number"), max_length=10)
-    lon = models.FloatField(_("longtitude"), null=True)
-    lat = models.FloatField(_("latitude"), null=True)
+    lon = models.FloatField(_("longtitude"))
+    lat = models.FloatField(_("latitude"))
 
-    forward_orders = models.BooleanField(_("forward orders"), default=False)
+    confine_orders = models.BooleanField(_("confine orders"), default=False)
+
+    def send_welcome_email(self, chosen_password):
+        subject = ugettext("Thank you for joining WAYbetter")
+        mail_content = ugettext(
+            """
+            Hi %(name)s!
+
+            Thank you for joining WAYbetter.
+            To start using our service please visit http://www.WAYbetter.com/ and login using the following credentials:
+            Username: %(username)s.
+            Password: %(password)s.
+            You can change your passoword from the 'Profile' tab.
+            """ % {'name': self.name, 'username': self.passenger.user.username, 'password': chosen_password})
+
+        # note: email is sent in Hebrew
+        send_mail_as_noreply(self.passenger.user.email, translate_to_lang(subject, settings.LANGUAGE_CODE),
+                             translate_to_lang(mail_content, settings.LANGUAGE_CODE))
+
+        # send us a copy of the mail
+        notify_by_email("New business joined",
+                        """
+                        Following is a copy of the mail sent to the business.
+                        -----------------------------------------------------
+
+                        %s
+                        """ % mail_content)
 
 
 class Phone(BaseModel):
@@ -262,7 +323,8 @@ class WorkStation(BaseModel):
     im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=40)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
 
-    last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True, default=datetime(1, 1, 1))
+    last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True,
+                                                default=datetime.datetime(1, 1, 1))
 
     def __unicode__(self):
         result = u"[%d]" % self.id
@@ -337,10 +399,13 @@ class Order(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
     originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")),
                                             related_name="originated_orders", null=True, blank=True, default=None)
-    mobile = models.BooleanField(_("mobile"), default=False)
-    user_agent = models.CharField(_("user agent"), max_length=250, null=True, blank=True)
+    confined_to_station = models.ForeignKey(Station, verbose_name=(_("confined to station")),
+                                            related_name="confined_orders", null=True, blank=True, default=None)
 
-    status = models.IntegerField(_("status"), choices=ORDER_STATUS, default=PENDING)
+    mobile = models.BooleanField(_("mobile"), default=False)
+    user_agent = models.CharField(_("user agent"), max_length=250, null=True, blank=True, default=False)
+
+    status = StatusField(_("status"), choices=ORDER_STATUS, default=PENDING)
     language_code = models.CharField(_("order language"), max_length=5, default=settings.LANGUAGE_CODE)
 
     from_country = models.ForeignKey(Country, verbose_name=_("from country"), related_name="orders_from")
@@ -373,6 +438,7 @@ class Order(BaseModel):
     to_raw = models.CharField(_("to address"), max_length=50, null=True, blank=True)
 
     pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)
+    future_pickup = models.BooleanField(_("future pickup"), default=False)
 
     passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)
 
@@ -410,6 +476,33 @@ class Order(BaseModel):
             return u"[%d] %s from %s to %s" % (id, ugettext("order"), self.from_raw, self.to_raw)
         else:
             return u"[%d] %s from %s" % (id, ugettext("order"), self.from_raw)
+
+    def change_status(self, old_status=None, new_status=None):
+        """
+        1. update status in transaction,
+        2. send signal if update was successful,
+        3. notify when needed
+        """
+        if self._change_attr_in_transaction("status", old_status, new_status):
+            sig_args = {
+                'sender': 'order_status_changed_signal',
+                'obj': self,
+                'status': new_status
+            }
+            order_status_changed_signal.send(**sig_args)
+
+            if new_status in [TIMED_OUT, FAILED, ERROR]:
+                self.notify()
+
+        else:
+            raise UpdateStatusError("update order status failed: %s to %s" % (old_status, new_status))
+
+    def get_pickup_time(self):
+        ''' Return updated pickup based on current time (in minutes)'''
+        if self.future_pickup:
+            return int(math.ceil(((self.modify_date + datetime.timedelta(minutes=self.pickup_time)) - datetime.datetime.now()).seconds / 60.0))
+        else:
+            return -1
 
     def get_status_label(self):
         for key, label in ORDER_STATUS:
@@ -469,7 +562,7 @@ class OrderAssignment(BaseModel):
     work_station = models.ForeignKey(WorkStation, verbose_name=_("work station"), related_name="assignments")
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="assignments")
 
-    status = models.IntegerField(_("status"), choices=ASSIGNMENT_STATUS, default=PENDING)
+    status = StatusField(_("status"), choices=ASSIGNMENT_STATUS, default=PENDING)
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
@@ -495,7 +588,7 @@ class OrderAssignment(BaseModel):
                 "pk": order_assignment.order.id,
                 "status": order_assignment.status,
                 "from_raw": order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
-                "seconds_passed": (datetime.now() - base_time).seconds
+                "seconds_passed": (datetime.datetime.now() - base_time).seconds
             })
 
         return simplejson.dumps(result)
@@ -507,22 +600,20 @@ class OrderAssignment(BaseModel):
 
         raise ValueError("invalid status")
 
-    @run_in_transaction
-    def transaction_change_status(self, old_status, new_status):
-        """
-        Use a transaction to update assignemtn status.
-
-        Raises UpdateOrderAssignmentError if current status is not as expected (was changed by another process)
-        """
-        if self.status == old_status:
-            self.status = new_status
-            self.save()
-            return True
+    def change_status(self, old_status=None, new_status=None):
+        """ Update status in transaction, send signal if update was successful """
+        if self._change_attr_in_transaction("status", old_status, new_status):
+            sig_args = {
+                'sender': 'orderassignment_status_changed_signal',
+                'obj': self,
+                'status': new_status
+            }
+            orderassignment_status_changed_signal.send(**sig_args)
         else:
-            raise UpdateOrderAssignmentError("update status failed")
+            raise UpdateStatusError("update order assignment status failed: %s to %s" % (old_status, new_status))
 
     def is_stale(self):
-        return (datetime.now() - self.create_date).seconds > ORDER_ASSIGNMENT_TIMEOUT
+        return (datetime.datetime.now() - self.create_date).seconds > ORDER_ASSIGNMENT_TIMEOUT
 
     def __unicode__(self):
         order_id = "<Unknown>"
@@ -643,3 +734,15 @@ for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
         type.lower(), category.lower().replace(" ", "_")))
 
 add_formatted_create_date([Order, OrderAssignment, Passenger, Station, WorkStation])
+
+# TODO_WB: check if created arg has been fixed and reports False on second save of instance
+#def order_init_handler(sender, **kwargs):
+#    if kwargs.get("instance").id:
+#        order_created_signal.send(sender=Order, obj=kwargs["instance"])
+#post_save.connect(receiver=order_init_handler, sender=Order)
+#
+#def orderassignment_init_handler(sender, **kwargs):
+#    if kwargs.get("created"):
+#        orderassignment_created_signal.send(sender=OrderAssignment, obj=kwargs["instance"])
+#post_save.connect(receiver=orderassignment_init_handler, sender=OrderAssignment)
+

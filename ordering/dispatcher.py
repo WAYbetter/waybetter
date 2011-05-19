@@ -2,8 +2,9 @@
 import logging
 from google.appengine.api import memcache
 from ordering.models import OrderAssignment, WorkStation
+from ordering.signals import orderassignment_created_signal
 from ordering.station_connection_manager import is_workstation_available
-from ordering.errors import  NoWorkStationFoundError
+from ordering.errors import  NoWorkStationFoundError, UpdateStatusError
 import models
 from common.util import log_event, EventType
 from common.langsupport.util import translate_pickup_for_ws
@@ -24,21 +25,24 @@ def assign_order(order):
     assignment.work_station = work_station
     assignment.pickup_address_in_ws_lang = translate_pickup_for_ws(work_station, order)
     assignment.save()
+    orderassignment_created_signal.send(sender="orderassignment_created_signal", obj=assignment)
 
     work_station.last_assignment_date = assignment.create_date
     work_station.save()
     work_station.station.last_assignment_date = assignment.create_date
     work_station.station.save()
 
-    order.status = models.ASSIGNED
-    order.save()
-    log_event(EventType.ORDER_ASSIGNED,
-              passenger=order.passenger,
-              order=order,
-              order_assignment=assignment,
-              station=work_station.station,
-              work_station=work_station)
-    
+    try:
+        order.change_status(new_status=models.ASSIGNED)
+        log_event(EventType.ORDER_ASSIGNED,
+                  passenger=order.passenger,
+                  order=order,
+                  order_assignment=assignment,
+                  station=work_station.station,
+                  work_station=work_station)
+    except UpdateStatusError:
+        logging.error("Cannot assign order: %d" % order.id)
+
     return assignment
 
 
@@ -55,22 +59,27 @@ def choose_workstation(order):
         return ws
 
     return None
-    
+
+
 def compute_ws_list(order):
     """
     Compute workstation list, ignoring those who have previously rejected or ignored the order.
     """
     # TODO_WB: iterate stations and not work stations
-    rejected_ws_ids = [order_assignment.work_station.id for order_assignment in OrderAssignment.objects.filter(order = order, status__in=[models.REJECTED, models.IGNORED])]
-
-    if not rejected_ws_ids:
-        ws_qs = WorkStation.objects.all()
+    if order.confined_to_station:
+        ws_qs = order.confined_to_station.work_stations.all()
     else:
-        ws_qs = WorkStation.objects.exclude(id__in=rejected_ws_ids)
+        ws_qs = WorkStation.objects.all()
+
+    rejected_ws_ids = [order_assignment.work_station.id for order_assignment in
+                       OrderAssignment.objects.filter(order=order, status__in=[models.REJECTED, models.IGNORED])]
+
+    if rejected_ws_ids:
+        ws_qs = ws_qs.exclude(id__in=rejected_ws_ids)
 
     ws_qs = ws_qs.exclude(accept_orders=False)
     ws_list = []
-    station_list=[]
+    station_list = []
     originating_ws = None
     default_ws = None
 

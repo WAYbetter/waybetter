@@ -6,14 +6,29 @@
 <form action="{% url ordering.passenger_controller.edit_profile %}" method="post" id="profile_form">
     {% csrf_token %}
     <div id="field_container">
-    <p>
-        <label>{% trans 'Phone number' %}:</label>
-        <span id="current_phone">{{ local_phone }}</span>
-        <a id="change_phone" href="#">{% trans 'Change' %}</a>
-    </p>
-    <p>
-        <label>{% trans 'Email' %}:</label>{{ email }}
-    </p>
+    {% if passenger.business %}
+        <p>
+            <label>{% trans 'name' %}:</label>
+            {{ name }}
+        </p>
+        <p>
+            <label>{% trans 'address' %}:</label>
+            {{ address }}
+        </p>
+        <p>
+            <label>{% trans 'username' %}:</label>
+            {{ username }}
+        </p>
+    {% else %}
+        <p>
+            <label>{% trans 'Phone number' %}:</label>
+            <span id="current_phone">{{ phone }}</span>
+            <a id="change_phone" href="#">{% trans 'Change' %}</a>
+        </p>
+        <p>
+            <label>{% trans 'Email' %}:</label>{{ email }}
+        </p>
+    {% endif %}
     {{ form.as_p }}
     </div>
  <input type="submit" id="save_profile_changes" value="{% trans 'Save Changes' %}" class="wb_button blue"/>
@@ -23,7 +38,7 @@
 
 <script>
 $(function() {
-    var changes_saved_msg = "{% trans 'Changes saved!' %}";
+    var changes_saved_msg = "{% trans 'Changes saved successfully' %}";
     var error_msg = "{% trans 'Error while saving changes' %}";
     $("#change_phone").click(function(){
         Registrator.openPhoneDialog(function(new_phone) {
@@ -52,10 +67,10 @@ $(function() {
                 $("#profile_form input[type=submit]").button("enable");
             },
             success: function(order_status) {
-                alert(changes_saved_msg);
+                openDialog("{% trans 'OK' %}", changes_saved_msg)
             },
             error: function(){
-                alert(error_msg);
+                openDialog("{% trans 'error' %}", error_msg)
             }
         });
         return false;

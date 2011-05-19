@@ -6,7 +6,7 @@ from google.appengine.api import memcache
 
 from common.models import City, Country
 
-from ordering.models import Passenger, WorkStation, Station, Order, OrderAssignment, IGNORED, REJECTED, ASSIGNED, ACCEPTED, Phone, ORDER_ASSIGNMENT_TIMEOUT, ORDER_TEASER_TIMEOUT, NOT_TAKEN, ORDER_HANDLE_TIMEOUT, PENDING
+from ordering.models import Passenger, WorkStation, Station, Order, OrderAssignment, IGNORED, REJECTED, ASSIGNED, ACCEPTED, Phone, ORDER_ASSIGNMENT_TIMEOUT, ORDER_TEASER_TIMEOUT, NOT_TAKEN, ORDER_HANDLE_TIMEOUT, PENDING, Business
 from ordering.forms import OrderForm
 from ordering.dispatcher import assign_order, choose_workstation, compute_ws_list
 from ordering import order_manager
@@ -221,6 +221,17 @@ class OrderManagerTest(TestCase):
         order.save()
         response = self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": order.id})
         self.assertTrue((response.content, response.status_code) == (ORDER_TIMEOUT, 200), "Assignment should fail: order time out")
+
+    def test_update_future_pickup(self):
+        order = self.order
+        self.assertTrue(order.future_pickup == False, "new orders should have future_pickup == False by default")
+        self.client.post(reverse('ordering.order_manager.update_future_pickup'), data={"order_id": order.id})
+        self.assertTrue(order.future_pickup == False, "future_pickup changed from False to True")
+
+        order.future_pickup = True
+        order.save()
+        self.client.post(reverse('ordering.order_manager.update_future_pickup'), data={"order_id": order.id})
+        self.assertTrue(order.future_pickup == True, "future_pickup should changed to True")
 
     def test_redispatch_orders(self):
         assignment = self.assignment
@@ -486,6 +497,24 @@ class DispatcherTest(TestCase):
         ws_list = compute_ws_list(order)
         count = ws_list.count(originating_station.work_stations.all()[0])
         self.assertTrue(count == 1, "originating (==default) station should appear exactly once (got %d)" % count)
+
+    def test_confine_to_station(self):
+        passenger = self.passenger
+        order = create_test_order(passenger)
+        confining_station = create_another_TLV_station()
+
+        order.confined_to_station = confining_station
+        order.save()
+
+        # order, should get confining station
+        resuscitate_work_stations()
+        self.assertTrue(choose_workstation(order).station == confining_station, "confining station is expected")
+
+        # create a REJECTED assignment by confining_station, should get None
+        assignment = OrderAssignment(order=order, station=confining_station, work_station=confining_station.work_stations.all()[0], status=REJECTED)
+        assignment.save()
+        refresh_order(order)
+        self.assertTrue(choose_workstation(order) is None, "no ws is expected.")
 
 class PricingTest(TestCase):
     """

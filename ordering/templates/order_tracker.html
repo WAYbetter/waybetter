@@ -1,0 +1,135 @@
+{% load i18n %}
+<div id="order_tracker"></div>
+
+<script type="text/javascript" src="/_ah/channel/jsapi"></script>
+
+<script>
+    (function() {
+        getOrder = function(order) {
+            var $order = $("#order_tracker #order_" + order.pk);
+            if ($order.length == 0)
+                return undefined;
+            else
+                return $order.first();
+        };
+
+        buildOrder = function(order) {
+            var $address_list =
+                    $("<ul class='tracker_address_list'></ul>")
+                            .append($("<li class='tracker_from'></li>").text(order.from_raw))
+                            .append($("<li class='tracker_to'></li>").text(order.to_raw)),
+                    $info_container = $("<div class='tracker_info_container'></div>")
+                            .append($("<span class='tracker_station'></span>").attr('id', 'station_' + order.pk))
+                            .append($("<span class='tracker_info'></span>").attr('id', 'info_' + order.pk)),
+                    $indicator = $("<div class='tracker_indicator'></div>").attr('id', 'indicator_' + order.pk);
+            var $order = $("<div class='tracker_order'></div>").attr('id', 'order_' + order.pk)
+                    .append($address_list).append($info_container).append($indicator);
+
+            $($order).hide().prependTo("#order_tracker").slideDown('slow');
+        };
+
+        renderOrder = function(order) {
+            var $order = getOrder(order),
+                    $station = $("#station_" + order.pk),
+                    $info = $("#info_" + order.pk),
+                    $indicator = $("#indicator_" + order.pk);
+
+            switch (order.status) {
+                case {{ PENDING }}: case {{ ASSIGNED }}:
+                    $order.addClass("searching");
+                    $indicator.addClass("searching").text("{% trans 'Please wait' %}");
+                    $info.addClass("searching").text(order.info);
+                    $station.text(order.station);
+                    break;
+                case {{ ACCEPTED }}:
+                    $order.addClass("accepted");
+
+                    if (! order.pickup_time) {
+                        $info.text("{% trans 'Order finished!' %}");
+                    }
+                    // future order, show pickup mode
+                    else {
+                        $indicator.addClass("accepted");
+                        $station.text(order.station);
+                        $info.removeClass("searching").addClass("accepted").text(order.info);
+                        $indicator.val(order.pickup_time).text("{% trans 'Pickup in ' %}" + order.pickup_time + "{% trans ' minutes' %}")
+                                .everyTime(60 * 1000, function() {
+                            var new_val = Math.max(0, $indicator.val() - 1);
+                            if (new_val == 0) {
+                                $info.removeClass("accepted").text("{% trans 'Have a pleasant ride!' %}");
+                                $station.fadeOut('fast');
+                                $indicator.parent().append($("<div class='tracker_button wb_button blue'></div>").text("{% trans 'Close' %}").click(function() {
+                                    $order.slideUp('fast');
+                                }));
+                                $indicator.fadeOut('fast');
+                            }
+                            else {
+                                var minute_label = (new_val == 1) ? "{% trans 'minute' %}" : "{% trans 'minutes' %}";
+                                $indicator.text("{% trans 'Pickup in' %}" + " " + new_val + " " + minute_label);
+                            }
+                            $indicator.val(new_val);
+                        }, order.pickup_time);
+                    }
+                    break;
+                case {{ ORDER_FAILED }}:
+                    $order.addClass("failed");
+                    $info.removeClass("searching").addClass("failed").text("{{ FAILED_MSG }}");
+                    $indicator.parent().append($("<div class='tracker_button wb_button blue'></div>").text("{% trans 'Close' %}").click(function() {
+                        $order.slideUp('fast');
+                    }));
+                    $indicator.fadeOut('fast');
+                    break;
+            }
+        };
+
+        onMessage = function(msg) {
+//            console.log("new msg: ");
+//            console.log(msg.data);
+
+            var order = JSON.parse(msg.data);
+
+            if (order.pk > 0) { // small test the msg is valid
+                var $order = getOrder(order);
+                if (! $order) {
+                    buildOrder(order);
+                }
+
+                renderOrder(order);
+            }
+        };
+
+        openChannel = function() {
+            var channel = new goog.appengine.Channel('{{ token }}');
+            var socket = channel.open();
+//            socket.onopen = function() {
+//                console.log("channel opened")
+//            };
+            socket.onerror = function(error) {
+//                console.log(error.code + ":" + error.description);
+                location.reload();
+            };
+            socket.onclose = function() {
+//                console.log("channel closed");
+                location.reload();
+            };
+            socket.onmessage = onMessage;
+        };
+
+        initOrderTracker = function() {
+            openChannel();
+
+            var recent_orders = {{ tracker_history|safe }};
+            if (recent_orders) {
+                for (var count = 0; count < recent_orders.length; count++) {
+                    var order = JSON.parse(recent_orders[count]);
+                    buildOrder(order);
+                    renderOrder(order);
+                }
+            }
+        };
+
+        $(function() {
+            initOrderTracker();
+        });
+    })()
+</script>

@@ -27,21 +27,27 @@ class SignalStore(BaseModel):
 #    define signal_data property
     signal_data = property(get_signal_data, set_signal_data)
 
-class AsyncSignal(Signal):
+class TypedSignal(Signal):
     '''
-    A sub-class of django.dispatch.dispatcher.Signal that sends the signal asynchronously
-    to registered receivers
+    A sub-class of django.dispatch.dispatcher.Signal that keeps a list of all signals (.all)
+    Adds signal_type argument to all signals
     '''
-    
     all = set() # maintain a list of all signals
 
-    def __init__(self, providing_args=None):
+    def __init__(self, signal_type, providing_args=None):
+        self.signal_type = signal_type
+
         if not providing_args:
             providing_args = []
 
-        super(AsyncSignal, self).__init__(providing_args.append("event_type"))
-        AsyncSignal.all.add(self)
+        super(TypedSignal, self).__init__(providing_args.append("signal_type"))
+        TypedSignal.all.add(self)
 
+class AsyncSignal(TypedSignal):
+    '''
+    A sub-class of TypedSignal that sends the signal asynchronously
+    to registered receivers
+    '''
     def send(self, sender, **named):
         '''
         Send this signal asynchronously to the registered receivers
@@ -50,7 +56,7 @@ class AsyncSignal(Signal):
             return None
 
         for receiver in self._live_receivers(_make_id(sender)):
-            args = {"receiver": receiver, "signal": self, "sender": sender}
+            args = {"receiver": receiver, "signal": self, "sender": sender, "signal_type": self.signal_type}
             args.update(named)
 
             # store the signal to the signal store

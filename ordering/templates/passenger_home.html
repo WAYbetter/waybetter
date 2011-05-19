@@ -33,7 +33,7 @@
             {% if request.user.passenger %}
             selected: 0,
             {% else %}
-            selected: 2,
+            selected: 3,
             {% endif %}
             ajaxOptions: {
                 error: function(xhr, status, index, anchor) {
@@ -49,7 +49,7 @@
             Registrator.openMobileInterestDialog();
 
         });
-        
+
         $("#slider").nivoSlider({
             controlNav: false,
             directionNav: false,
@@ -119,6 +119,11 @@
 					</div>
                     <div class="clear"></div>
 				</div>
+
+    {% if show_tracker %}
+    {% include 'order_tracker.html' %}
+    {% endif %}
+
         <div id="tabs" class="main_tabs_margin_top">
         {% if request.user.passenger %}
                 <ul>
@@ -130,9 +135,9 @@
             {% include 'mobile_tab.html' %}
         {% else %}
             <ul>
+                <li><a title="businesses" href="{% url ordering.passenger_controller.business_tab %}">{% trans 'Businesses' %}</a></li>
                 <li><a title="stations" href="{% url ordering.passenger_controller.stations_tab %}">{% trans 'Taxi Stations' %}</a></li>
                 <li><a title="mobile" href="#mobile">{% trans 'Mobile' %}</a></li>
-                <li><a title="businesses" href="{% url ordering.passenger_controller.business_tab %}">{% trans 'Businesses' %}</a></li>
                 <li><a title="whats_this" href="#about">{% trans "What's This?" %}</a></li>
             </ul>
             {% include 'mobile_tab.html' %}

@@ -2,6 +2,7 @@
 import urllib
 import os
 
+from google.appengine.ext.db import is_in_transaction
 from google.appengine.api import taskqueue
 from google.appengine.api import mail
 from google.appengine.api.images import BadImageError, NotImageError
@@ -10,15 +11,20 @@ from django.shortcuts import render_to_response
 from django.db.models.fields import related
 from django.db import models
 from django.core.validators import RegexValidator
+from common.decorators import run_in_transaction
+from common.errors import TransactionError
+from settings import NO_REPLY_SENDER
+import hashlib
+import datetime
 import logging
 import random
 import re
 
-MINUTE_DELTA    = 60
-HOUR_DELTA      = MINUTE_DELTA * 60
-DAY_DELTA       = HOUR_DELTA * 24
-MONTH_DELTA     = DAY_DELTA * 30
-YEAR_DELTA      = DAY_DELTA * 365
+MINUTE_DELTA = 60
+HOUR_DELTA = MINUTE_DELTA * 60
+DAY_DELTA = HOUR_DELTA * 24
+MONTH_DELTA = DAY_DELTA * 30
+YEAR_DELTA = DAY_DELTA * 365
 
 class Enum(object):
     @classmethod
@@ -52,22 +58,23 @@ class Enum(object):
 
         return sorted(result)
 
+
 class EventType(Enum):
-    ORDER_BOOKED =                  1
-    ORDER_ASSIGNED =                2
-    ORDER_ACCEPTED =                3
-    ORDER_REJECTED =                4
-    ORDER_IGNORED =                 5
-    ORDER_ERROR =                   6
-    CROSS_COUNTRY_ORDER_FAILURE =   7
-    NO_SERVICE_IN_CITY =            8
-    NO_SERVICE_IN_COUNTRY =         9
-    ORDER_FAILED =                  10
-    ORDER_RATED =                   11
-    UNREGISTERED_ORDER =            12
-    PASSENGER_REGISTERED =          13
-    ORDER_NOT_TAKEN =               14
-    BUSINESS_REGISTERED =           15
+    ORDER_BOOKED = 1
+    ORDER_ASSIGNED = 2
+    ORDER_ACCEPTED = 3
+    ORDER_REJECTED = 4
+    ORDER_IGNORED = 5
+    ORDER_ERROR = 6
+    CROSS_COUNTRY_ORDER_FAILURE = 7
+    NO_SERVICE_IN_CITY = 8
+    NO_SERVICE_IN_COUNTRY = 9
+    ORDER_FAILED = 10
+    ORDER_RATED = 11
+    UNREGISTERED_ORDER = 12
+    PASSENGER_REGISTERED = 13
+    ORDER_NOT_TAKEN = 14
+    BUSINESS_REGISTERED = 15
 
     @classmethod
     def get_label(cls, val):
@@ -88,6 +95,7 @@ class EventType(Enum):
 
         raise ValueError(_("Invalid value: %s" % str(val)))
 
+
 class BaseModel(models.Model):
     '''
     Adds common methods to our models
@@ -103,6 +111,52 @@ class BaseModel(models.Model):
             obj = None
 
         return obj
+
+    @classmethod
+    def get_one(cls):
+        '''
+        Convenience method for getting an instance of this model
+        Returns the first instance found
+        '''
+        if cls.objects.count():
+            return cls.objects.all()[0]
+        else:
+            return None
+
+    @run_in_transaction
+    def _change_attr_in_transaction(self, attname, old_value, new_value):
+        if old_value == new_value:
+            return False
+        elif not old_value:
+            setattr(self, attname, new_value)
+            self.save()
+            return True
+        elif getattr(self, attname) == old_value:
+            setattr(self, attname, new_value)
+            self.save()
+            return True
+        else:
+            logging.error("%s.%s : update in transaction failed" % (self.__class__.__name__, attname))
+            return False
+
+
+class TransactionalField(models.Field):
+    def pre_save(self, model_instance, add):
+        # Prevent changes outside of a transaction
+        if model_instance.id:
+            old_value = getattr(self.model.objects.get(id=model_instance.id), self.attname)
+            new_value = getattr(model_instance, self.attname)
+            if old_value != new_value:
+                if not is_in_transaction():
+                    raise TransactionError("%s updates must use transactions" % self.attname)
+
+        return super(TransactionalField, self).pre_save(model_instance, add)
+
+
+class StatusField(TransactionalField, models.IntegerField):
+    pass
+
+
 def is_empty(str):
     """
     return True pf string is empty, spaces only or None
@@ -124,26 +178,34 @@ PYTHON_WEEKDAY_MAP = {
 def convert_python_weekday(wd):
     return PYTHON_WEEKDAY_MAP[wd]
 
+
 def gen_verification_code():
-    return random.randrange(1000,10000)
+    return random.randrange(1000, 10000)
+
 #    return 1234
 
 def get_model_from_request(model_class, request):
-        if (not request.user or not request.user.is_authenticated()):
-            return None
-        try:
-            model_instance = model_class.objects.filter(user = request.user).get()
-        except model_class.DoesNotExist:
-            return None
+    if not request.user or not request.user.is_authenticated():
+        return None
+    try:
+        model_instance = model_class.objects.filter(user=request.user).get()
+    except model_class.DoesNotExist:
+        return None
 
-        return model_instance
+    return model_instance
+
 
 def get_current_version():
     return os.environ['CURRENT_VERSION_ID']
 
-def get_channel_key(model):
+
+def get_channel_key(model, key_data=""):
     cls = type(model)
-    return "channel_key_%s_%d" % (cls.__name__.lower(), model.id)
+    s = hashlib.sha1()
+    s.update(u"channel_key_%s_%d_%s" % (cls.__name__.lower(), model.id, key_data))
+    return s.hexdigest()
+
+
 def log_event(event_type, order=None, order_assignment=None, station=None, work_station=None, passenger=None,
               country=None, city=None, rating="", lat="", lon=""):
     """
@@ -157,7 +219,7 @@ def log_event(event_type, order=None, order_assignment=None, station=None, work_
             country = order.from_country
             if order.from_city != order.to_city and order.to_city:
                 log_event(event_type,
-                          order=order,order_assignment=order_assignment,station=station, work_station=work_station,
+                          order=order, order_assignment=order_assignment, station=station, work_station=work_station,
                           passenger=passenger, country=order.from_country, city=order.to_city)
 
         if not lat: lat = order.from_lat
@@ -175,12 +237,13 @@ def log_event(event_type, order=None, order_assignment=None, station=None, work_
         'rating': rating,
         'lat': lat,
         'lon': lon,
-    }
+        }
 
     # Note that reverse was not used here to avoid circular import!
     task = taskqueue.Task(url="/services/log_event/", params=params)
     q = taskqueue.Queue('log-events')
     q.add(task)
+
 
 def get_international_phone(country, local_phone):
     if local_phone.startswith("0"):
@@ -198,7 +261,6 @@ def custom_render_to_response(template, dictionary=None, context_instance=None, 
     if not context_instance:
         raise RuntimeError("context_instance must be passed")
 
-
     for d in context_instance.dicts:
         if "mobile" in d and d["mobile"]:
             template = "%s/%s" % ('mobile', template)
@@ -206,8 +268,10 @@ def custom_render_to_response(template, dictionary=None, context_instance=None, 
 
     return render_to_response(template, dictionary=dictionary, context_instance=context_instance, mimetype=mimetype)
 
+
 def url_with_querystring(path, **kwargs):
     return path + '?' + urllib.urlencode(kwargs)
+
 
 def generate_random_token(length=random.randint(10, 20), alpha_only=False, alpha_or_digit_only=False):
     s = ""
@@ -222,23 +286,23 @@ def generate_random_token(length=random.randint(10, 20), alpha_only=False, alpha
             s += c
     return s
 
+
 def get_unique_id():
-    import hashlib
-    import datetime
     s = hashlib.sha1()
     s.update(str(datetime.datetime.now()) + generate_random_token(length=3))
     return s.hexdigest()
 
+
 def notify_by_email(subject, msg):
-    logging.info(u"Sending email: [%s] %s" % (subject, msg))
-    address = "notify@waybetter.com"
+    send_mail_as_noreply("notify@waybetter.com", "WAYbetter notification: %s" % subject, msg)
+
+def send_mail_as_noreply(address, subject, msg):
+    logging.info(u"Sending email to %s: [%s] %s" % (address, subject, msg))
     try:
-        mail.send_mail("guy@waybetter.com",
-                       address,
-                       "WAYbetter notification: %s" % subject,
-                       msg)
-    except :
+        mail.send_mail(NO_REPLY_SENDER, address, subject, msg)
+    except:
         logging.error("Email sending failed.")
+
 
 def blob_to_image_tag(blob_data, height=50, width=None):
     """
@@ -247,6 +311,7 @@ def blob_to_image_tag(blob_data, height=50, width=None):
     """
     import base64
     from google.appengine.api import images
+
     res = ""
     try:
         img = images.Image(blob_data)
@@ -259,7 +324,7 @@ def blob_to_image_tag(blob_data, height=50, width=None):
         res = u"""<img src='data:image/png;base64,%s' />""" % base64.encodestring(thumbnail)
     except BadImageError:
         pass
-    except NotImageError :
+    except NotImageError:
         pass
     except NotImplementedError:
         pass
@@ -267,16 +332,17 @@ def blob_to_image_tag(blob_data, height=50, width=None):
     return res
 
 e = re.compile("[a-zA-Z]")
+
 def is_in_english(s):
     return e.search(s)
 
 h = re.compile(u"[א-ת]")
+
 def is_in_hebrew(s):
     return h.search(s)
 
 phone_regexp = re.compile(r'^[\*|\d]\d+$')
 phone_validator = RegexValidator(phone_regexp, _(u"Value must consists of digits only."), 'invalid')
-
 
 SingleRelatedObjectDescriptor = getattr(related, 'SingleRelatedObjectDescriptor')
 ManyRelatedObjectsDescriptor = getattr(related, 'ManyRelatedObjectsDescriptor')
@@ -306,7 +372,7 @@ def has_related_objects(model_instance):
             except Exception:
                 continue
 
-        if relation_type in [ManyRelatedObjectsDescriptor, ForeignRelatedObjectsDescriptor] :
+        if relation_type in [ManyRelatedObjectsDescriptor, ForeignRelatedObjectsDescriptor]:
             manager = getattr(model_instance, field)
             if manager.count() or manager.exists(): #TODO_WB: what is the difference?
                 return False

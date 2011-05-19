@@ -1,6 +1,15 @@
 from common.signals import AsyncSignal
+from common.util import EventType, Enum
 
-book_order_signal                       = AsyncSignal(providing_args=["order"])
-order_assigned_signal                   = AsyncSignal(providing_args=["order", "order_assignment"])
-order_assignment_status_change_signal   = AsyncSignal(providing_args=["order", "order_assignment", "status"])
+class SignalType(Enum):
+    ORDER_CREATED               = 1
+    ORDER_STATUS_CHANGED        = 2
+    ASSIGNMENT_CREATED          = 3
+    ASSIGNMENT_STATUS_CHANGED   = 4 
+
+order_created_signal                    = AsyncSignal(SignalType.ORDER_CREATED, providing_args=["obj"])
+orderassignment_created_signal          = AsyncSignal(SignalType.ASSIGNMENT_CREATED, providing_args=["obj"])
+orderassignment_status_changed_signal   = AsyncSignal(SignalType.ASSIGNMENT_STATUS_CHANGED, providing_args=["obj", "status"])
+order_status_changed_signal             = AsyncSignal(SignalType.ORDER_STATUS_CHANGED, providing_args=["obj", "status"])
+
 

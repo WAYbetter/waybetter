@@ -303,7 +303,7 @@ def social_logout(request):
         return logout_response
 
 from ordering.decorators import CURRENT_PASSENGER_KEY
-from ordering.passenger_controller import safe_delete_user
+from ordering.util import safe_delete_user
 def update_passenger(request, user):
     if CURRENT_PASSENGER_KEY in request.session:
         passenger = request.session[CURRENT_PASSENGER_KEY]

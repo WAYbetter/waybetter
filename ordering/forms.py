@@ -8,6 +8,7 @@ from django.utils.encoding import smart_unicode, force_unicode
 from django.contrib.auth.models import User
 from common.models import Country, City
 from ordering.models import Order, Station, Feedback, Business
+from ordering.util import create_user, create_passenger
 from django.utils.safestring import mark_safe
 from common.util import log_event, EventType, blob_to_image_tag, Enum, phone_regexp
 from django.core.exceptions import ValidationError
@@ -200,14 +201,21 @@ class OrderForm(ModelForm):
 class BusinessRegistrationForm(forms.ModelForm):
     class Meta():
         model = Business
-        fields = ('name', 'contact_person', 'default_station', 'forward_orders')
+        fields = ['name', 'contact_person']
 
-    phone = forms.RegexField( regex=phone_regexp,
-                                  max_length=20,
-                                  widget=forms.TextInput(),
-                                  label=_("Phone"),
-                                  error_messages={'invalid': _("The value must contain only numbers.")} )
+    phone = forms.RegexField(regex=phone_regexp,
+                             max_length=20,
+                             widget=forms.TextInput(),
+                             label=_("Phone"),
+                             error_messages={'invalid': _("The value must contain only numbers.")})
     address = forms.CharField(label=_("Address"))
+
+    default_station = forms.ModelChoiceField(queryset=Station.objects.filter(show_on_list=True),
+                                             label=_("Default station"), empty_label=_("(No station selected)"),
+                                             required=False)
+    confine_orders = forms.BooleanField(label=_("Confine my orders to my default station"), required=False)
+
+
     email = forms.EmailField(label=_("Email"))
     username = forms.CharField(label=_("Enter username"), widget=forms.TextInput())
     password = forms.CharField(label=_("Enter password"), widget=forms.PasswordInput())
@@ -238,12 +246,15 @@ class BusinessRegistrationForm(forms.ModelForm):
     def save(self, commit=True):
         model = super(BusinessRegistrationForm, self).save(commit=False)
 
-        user = User(username=self.cleaned_data['username'], email=self.cleaned_data['email'], first_name=self.cleaned_data['name'])
-        user.set_password(self.cleaned_data['password'])
-        user.save()
+        user = create_user(self.cleaned_data['username'], self.cleaned_data['password'],
+                           email=self.cleaned_data['email'], first_name=self.cleaned_data['name'])
+        passenger = create_passenger(user, Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE),
+                                     self.cleaned_data['phone'])
+        passenger.default_station = self.cleaned_data['default_station']
+        passenger.save()
+        model.passenger = passenger
 
-        model.user = user
-        model.country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
+        model.address = self.cleaned_data['address']
         model.city = City.objects.get(id=self.cleaned_data['city'])
         model.street_address = self.cleaned_data['street_address']
         model.house_number = self.cleaned_data['house_number']
@@ -254,6 +265,7 @@ class BusinessRegistrationForm(forms.ModelForm):
             model.save()
 
         return model
+
 
 class StationProfileForm(forms.Form, Id2Model):
     name = forms.CharField(label=_("Station name"))
@@ -313,13 +325,12 @@ class PhoneForm(ModelForm):
 
 
 class PassengerProfileForm(forms.Form):
-    country = forms.ModelChoiceField(queryset=Country.objects.all().order_by("name"), label=_("Country"))
+    # TODO_WB: uncomment when we start supporting passengers from multiple countries
+#    country = forms.ModelChoiceField(queryset=Country.objects.all().order_by("name"), label=_("Country"))
 
     default_station = forms.ModelChoiceField(queryset=Station.objects.filter(show_on_list=True),
                                              label=_("Default station"), empty_label=_("(No station selected)"),
                                              required=False)
-
-    phone_verification_code = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 
     class Ajax:
         pass
@@ -343,11 +354,36 @@ class InternalPassengerProfileForm(PassengerProfileForm):
                 ]
 
 
+class BusinessPassengerProfileForm(PassengerProfileForm):
+    confine_orders = forms.BooleanField(label=_("Confine my orders to my default station"), required=False)
+
+    contact_person = forms.CharField(_("contact person"))
+    phone = forms.RegexField(regex=phone_regexp,
+                             max_length=20,
+                             widget=forms.TextInput(),
+                             label=_("Phone"),
+                             error_messages={'invalid': _("The value must contain only numbers.")})
+    email = forms.EmailField(label=_("Email"))
+    password = forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
+    password2 = forms.CharField(label=_("Re-enter password"), widget=forms.PasswordInput(), required=False)
+
+    class Ajax:
+        rules = [
+                ('password2', {'equal_to_field': 'password'}),
+
+                ]
+        messages = [
+                ('password2', {'equal_to_field': _("The two password fields didn't match.")}),
+                ]
+
+
 def get_profile_form(passenger, data=None):
     """
     returns a form instance taking into account if the user was registered via a third party or internally
     """
-    if passenger.is_internal_passenger():
+    if passenger.business:
+        return BusinessPassengerProfileForm(data=data)
+    elif passenger.is_internal_passenger():
         return InternalPassengerProfileForm(data=data)
     else:
         return PassengerProfileForm(data=data)

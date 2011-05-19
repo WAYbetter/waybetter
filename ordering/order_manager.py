@@ -1,27 +1,26 @@
 from google.appengine.api.taskqueue.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError
-from django.shortcuts import get_object_or_404, render_to_response
 from google.appengine.api import taskqueue
-from ordering.signals import order_assigned_signal, order_assignment_status_change_signal
-from station_connection_manager import push_order
+from django.shortcuts import get_object_or_404, render_to_response
 from django.core.urlresolvers import reverse
-from ordering.errors import  ShowOrderError, UpdateOrderError, NoWorkStationFoundError, UpdateOrderAssignmentError
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError
-from ordering.decorators import passenger_required, order_assignment_required
 from django.core.serializers import serialize
 from django.conf import settings
 from django.utils.translation import ugettext_lazy as _
-
-from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, PENDING, ASSIGNED, NOT_TAKEN, REJECTED, RATING_CHOICES, ERROR, TIMED_OUT, ORDER_ASSIGNMENT_TIMEOUT, ORDER_HANDLE_TIMEOUT, ORDER_TEASER_TIMEOUT
-import station_controller
-import dispatcher
-import logging
-from datetime import datetime
 from ordering.models import Station
+from ordering.errors import  ShowOrderError, UpdateOrderError, NoWorkStationFoundError, UpdateStatusError, OrderError
+from ordering.decorators import passenger_required, order_assignment_required, order_required
 from common.sms_notification import send_sms
 from common.util import log_event, EventType
 from common.langsupport.util import translate_to_lang
 from common.decorators import internal_task_on_queue
+from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, PENDING, ASSIGNED, NOT_TAKEN, REJECTED, RATING_CHOICES, ERROR, TIMED_OUT, ORDER_ASSIGNMENT_TIMEOUT, ORDER_HANDLE_TIMEOUT, ORDER_TEASER_TIMEOUT
+
+from station_connection_manager import push_order
+import station_controller
+import dispatcher
+import logging
+from datetime import datetime
 
 NO_MATCHING_WORKSTATIONS_FOUND = "no matching workstation found"
 ORDER_TIMEOUT = "order timeout"
@@ -45,6 +44,7 @@ def book_order_async(order, order_assignment=None):
         logging.error("TaskAlreadyExistsError: book order: %d" % order.id)
     except DuplicateTaskNameError:
         logging.error("DuplicateTaskNameError: book order: %d" % order.id)
+
 
 @csrf_exempt
 @internal_task_on_queue("orders")
@@ -71,46 +71,49 @@ def book_order(request):
 
     # check if dispatching should stop and return an answer to the user
     if (datetime.now() - order.create_date).seconds > ORDER_HANDLE_TIMEOUT:
-        logging.warning("order time out: %d" % order_id)
-        send_sms(order.passenger.international_phone(),
-                 translate_to_lang(sorry_msg, order.language_code))
-        order.status = TIMED_OUT
-        order.save()
-        order.notify()
-        response = HttpResponse(ORDER_TIMEOUT)
+        try:
+            order.change_status(new_status=TIMED_OUT)
+            send_sms(order.passenger.international_phone(),
+                     translate_to_lang(sorry_msg, order.language_code))
+            logging.warning("order time out: %d" % order_id)
+            response = HttpResponse(ORDER_TIMEOUT)
+        except UpdateStatusError:
+            logging.error("book_order failed: cannot set order [%d] status to %s" % (order.id, "TIME_OUT"))
     else:
         try:
             # choose an assignment for the order and push it to the relevant workstation
             order_assignment = dispatcher.assign_order(order)
-            order_assigned_signal.send(sender="book_order", order=order, order_assignment=order_assignment)
             push_order(order_assignment)
             enqueue_redispatch_orders(order_assignment, ORDER_TEASER_TIMEOUT, redispatch_pending_orders)
             response = HttpResponse(ORDER_HANDLED)
 
         except NoWorkStationFoundError:
-            order.status = FAILED
-            order.save()
-            order.notify()
-            log_event(EventType.ORDER_FAILED, order=order, passenger=order.passenger)
-            logging.warning("no matching workstation found for: %d" % order_id)
-            response = HttpResponse(NO_MATCHING_WORKSTATIONS_FOUND)
+            try:
+                order.change_status(new_status=FAILED)
+                send_sms(order.passenger.international_phone(),
+                         translate_to_lang(sorry_msg, order.language_code)) # use dummy ugettext for makemessages
 
-            send_sms(order.passenger.international_phone(),
-                     translate_to_lang(sorry_msg, order.language_code)) # use dummy ugettext for makemessages
+                log_event(EventType.ORDER_FAILED, order=order, passenger=order.passenger)
+                logging.warning("no matching workstation found for: %d" % order_id)
+                response = HttpResponse(NO_MATCHING_WORKSTATIONS_FOUND)
+            except UpdateStatusError:
+                logging.error("book_order failed: cannot set order [%d] status to %s" % (order.id, "FAILED"))
 
         except Exception, e:
-            order.status = ERROR
-            order.save()
-            order.notify()
-            log_event(EventType.ORDER_ERROR, order=order, passenger=order.passenger)
-            logging.error("book_order: OrderError: %d" % order_id)
-            response = HttpResponseServerError("an error occured while handling order")
-
-            send_sms(order.passenger.international_phone(),
-                     translate_to_lang(ugettext("We're sorry, but we have encountered an error while handling your request")
-                                       , order.language_code)) # use dummy ugettext for makemessages
+            try:
+                order.change_status(new_status=ERROR)
+                send_sms(order.passenger.international_phone(),
+                         translate_to_lang(
+                             ugettext("We're sorry, but we have encountered an error while handling your request")
+                             , order.language_code)) # use dummy ugettext for makemessages
+                log_event(EventType.ORDER_ERROR, order=order, passenger=order.passenger)
+                logging.error("book_order: OrderError: %d" % order_id)
+                response = HttpResponseServerError("an error occured while handling order")
+            except UpdateStatusError:
+                logging.error("book_order failed: cannot set order [%d] status to %s" % (order.id, "ERROR"))
 
     return response
+
 
 def show_order(order_id, work_station):
     """
@@ -118,13 +121,13 @@ def show_order(order_id, work_station):
     """
     try:
         order_assignment = OrderAssignment.objects.get(order=order_id, work_station=work_station, status=PENDING)
-        order_assignment.transaction_change_status(PENDING, ASSIGNED)
-#    except MultipleObjectsReturned:
-#        OrderAssignment.objects.filter(order=order_id, work_station=work_station, status=PENDING).delete()
+        order_assignment.change_status(PENDING, ASSIGNED)
+    #    except MultipleObjectsReturned:
+    #        OrderAssignment.objects.filter(order=order_id, work_station=work_station, status=PENDING).delete()
     except OrderAssignment.DoesNotExist:
         logging.error("No PENDING assignment for order %d in work station %d" % (order_id, work_station.id))
         raise ShowOrderError()
-    except UpdateOrderAssignmentError:
+    except UpdateStatusError:
         raise ShowOrderError()
 
     order_assignment.show_date = datetime.now()
@@ -132,6 +135,7 @@ def show_order(order_id, work_station):
     enqueue_redispatch_orders(order_assignment, ORDER_ASSIGNMENT_TIMEOUT, redispatch_ignored_orders)
 
     return order_assignment
+
 
 def update_order_status(order_id, work_station, new_status, pickup_time=None):
     """
@@ -146,16 +150,16 @@ def update_order_status(order_id, work_station, new_status, pickup_time=None):
     result = {'order_id': order_id}
 
     if order_assignment.is_stale():
-        order_assignment.status = IGNORED
-        order_assignment.save()
-        order_assignment_status_change_signal.send(None, order_assignment=order_assignment, status=IGNORED, order=Order.by_id(order_id))
-        result["order_status"] = "stale"
-        return result
+        try:
+            order_assignment.change_status(ASSIGNED, IGNORED)
+            result["order_status"] = "stale"
+            return result
+        except UpdateStatusError:
+            logging.error("update_order_status failed [%d]: cannot mark assignment as %s" % (order_id, "IGNORED"))
 
     if new_status == station_controller.ACCEPT and pickup_time:
         try:
-            order_assignment.transaction_change_status(ASSIGNED, ACCEPTED)
-            order_assignment_status_change_signal.send(None, order_assignment=order_assignment, status=ACCEPTED, order=Order.by_id(order_id))
+            order_assignment.change_status(ASSIGNED, ACCEPTED)
             log_event(EventType.ORDER_ACCEPTED,
                       passenger=order_assignment.order.passenger,
                       order=order_assignment.order,
@@ -168,14 +172,12 @@ def update_order_status(order_id, work_station, new_status, pickup_time=None):
             result["pickup_address"] = order_assignment.pickup_address_in_ws_lang
             return result
 
-        except UpdateOrderAssignmentError:
-            pass
+        except UpdateStatusError:
+            logging.error("update_order_status failed [%d]: cannot mark assignment as %s" % (order_id, "ACCEPTED"))
 
     elif new_status == station_controller.REJECT:
         try:
-            order_assignment.transaction_change_status(ASSIGNED, REJECTED)
-            order_assignment_status_change_signal.send(None, order_assignment=order_assignment, status=REJECTED, order=Order.by_id(order_id))
-
+            order_assignment.change_status(ASSIGNED, REJECTED)
             log_event(EventType.ORDER_REJECTED,
                       passenger=order_assignment.order.passenger,
                       order=order_assignment.order,
@@ -185,27 +187,34 @@ def update_order_status(order_id, work_station, new_status, pickup_time=None):
             book_order_async(order_assignment.order, order_assignment)
             return result
 
-        except UpdateOrderAssignmentError:
-            pass
+        except UpdateStatusError:
+            logging.error("update_order_status failed [%d]: cannot mark assignment as %s" % (order_id, "REJECTED"))
 
     else:
         raise UpdateOrderError("Invalid status")
 
-def accept_order(order, pickup_time, station):
-    order.pickup_time = pickup_time
-    order.status = ACCEPTED
-    order.station = station
-    order.save()
 
-    msg = translate_to_lang(
+def accept_order(order, pickup_time, station):
+    try:
+        order.change_status(ASSIGNED, ACCEPTED)
+        order.pickup_time = pickup_time
+        order.station = station
+        order.future_pickup = True
+        order.save()
+
+        enqueue_update_future_pickup(order, order.pickup_time*60)
+
+        msg = translate_to_lang(
             ugettext("Pickup at %(from)s in %(time)d minutes.\nStation: %(station_name)s, %(station_phone)s"),
             order.language_code) %\
-          {"from": order.from_raw,
-           "time": pickup_time,
-           "station_name": station.name,
-           "station_phone": station.phones.all()[0].local_phone} # use dummy ugettext for makemessages
+              {"from": order.from_raw,
+               "time": pickup_time,
+               "station_name": station.name,
+               "station_phone": station.phones.all()[0].local_phone} # use dummy ugettext for makemessages
 
-    send_sms(order.passenger.international_phone(), msg)
+        send_sms(order.passenger.international_phone(), msg)
+    except UpdateStatusError:
+        logging.error("accept_order failed [%d]: cannot mark order as %s" % (order.id, "ACCEPTED"))
 
 
 @passenger_required
@@ -236,6 +245,27 @@ def get_order_status(request, order_id, passenger):
 
     return HttpResponse(serialize("json", [order] + list(order_assignments), use_natural_keys=True))
 
+
+@csrf_exempt
+@internal_task_on_queue("update-future-pickups")
+@order_required
+def update_future_pickup(request, order):
+    if order.future_pickup:
+        order.future_pickup = False
+        order.save()
+    else:
+        logging.error("Error updating future pickup: order[%d] already has future_pickup=False" % order.id)
+
+    return HttpResponse(OK)
+
+def enqueue_update_future_pickup(order, interval):
+    task = taskqueue.Task(url=reverse(update_future_pickup),
+                          countdown=interval,
+                          params={"order_id": order.id})
+
+    q = taskqueue.Queue('update-future-pickups')
+    q.add(task)
+
 @csrf_exempt
 @internal_task_on_queue("redispatch-ignored-orders")
 @order_assignment_required
@@ -246,7 +276,7 @@ def redispatch_pending_orders(request, order_assignment):
     logging.info("redispatch_pending_orders: %d" % order_assignment.id)
 
     try:
-        order_assignment.transaction_change_status(PENDING, NOT_TAKEN)
+        order_assignment.change_status(PENDING, NOT_TAKEN)
         log_event(EventType.ORDER_NOT_TAKEN,
                   passenger=order_assignment.order.passenger,
                   order=order_assignment.order,
@@ -254,10 +284,11 @@ def redispatch_pending_orders(request, order_assignment):
                   station=order_assignment.station,
                   work_station=order_assignment.work_station)
         book_order_async(order_assignment.order, order_assignment)
-    except UpdateOrderAssignmentError:
-        pass
+    except UpdateStatusError:
+        logging.error("redispatch_pending_orders failed: cannot mark assignment [%d] as %s" % (order_assignment.id, "NOT_TAKEN"))
 
     return HttpResponse(OK)
+
 
 @csrf_exempt
 @internal_task_on_queue("redispatch-ignored-orders")
@@ -269,7 +300,7 @@ def redispatch_ignored_orders(request, order_assignment):
     logging.info("redispatch_ignored orders: %d" % order_assignment.id)
 
     try:
-        order_assignment.transaction_change_status(ASSIGNED, IGNORED)
+        order_assignment.change_status(ASSIGNED, IGNORED)
         log_event(EventType.ORDER_IGNORED,
                   passenger=order_assignment.order.passenger,
                   order=order_assignment.order,
@@ -277,10 +308,11 @@ def redispatch_ignored_orders(request, order_assignment):
                   station=order_assignment.station,
                   work_station=order_assignment.work_station)
         book_order_async(order_assignment.order, order_assignment)
-    except UpdateOrderAssignmentError:
-        pass
+    except UpdateStatusError:
+        logging.error("redispatch_ignored_orders failed: cannot mark assignment [%d] as %s" % (order_assignment.id, "IGNORED"))
 
     return HttpResponse(OK)
+
 
 def enqueue_redispatch_orders(order_assignment, interval, handler):
     task = taskqueue.Task(url=reverse(handler),
@@ -289,6 +321,7 @@ def enqueue_redispatch_orders(order_assignment, interval, handler):
 
     q = taskqueue.Queue('redispatch-ignored-orders')
     q.add(task)
+
 
 @csrf_exempt
 @passenger_required
@@ -329,4 +362,3 @@ def update_station_rating(request):
             station.average_rating = float(sum) / float(station.number_of_ratings)
         station.save()
     return HttpResponse("OK")
-

@@ -3,8 +3,8 @@
 import datetime
 from django.http import HttpResponse
 from django.contrib.auth.models import User
-from ordering.passenger_controller import create_user, create_passenger, safe_delete_user
 from ordering.models import Order, Passenger, ACCEPTED, Station, WorkStation, Phone
+from ordering.util import create_passenger, create_user, safe_delete_user
 from common.models import Country, City
 from socialauth.models import OpenidProfile
 from selenium_helper import SELENIUM_USER_NAME,SELENIUM_STATION_USER_NAME, SELENIUM_WS_USER_NAME,SELENIUM_PASSWORD, SELENIUM_PHONE, SELENIUM_USER_NAMES, SELENIUM_EMAIL, SELENIUM_ADDRESS, SELENIUM_CITY_NAME
