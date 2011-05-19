@@ -271,7 +271,7 @@ var OrderingHelper = Object.create({
                     } else {
                         Registrator.openRegistrationDialog(function() {
                             window.location.href = "/";
-                        }, order_status.show_registration);
+                        }, order_status.show_registration, false, order_status.message);
                     }
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {
