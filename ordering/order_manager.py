@@ -1,4 +1,5 @@
 from google.appengine.api.taskqueue.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError
+from common.tz_support import utc_now
 from django.shortcuts import get_object_or_404, render_to_response
 from google.appengine.api import taskqueue
 from ordering.signals import order_assigned_signal, order_assignment_status_change_signal
@@ -16,7 +17,6 @@ from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNOR
 import station_controller
 import dispatcher
 import logging
-from datetime import datetime
 from ordering.models import Station
 from common.sms_notification import send_sms
 from common.util import log_event, EventType
@@ -70,7 +70,7 @@ def book_order(request):
     sorry_msg = ugettext("We're sorry, but we could not find a taxi for you") # use dummy ugettext for makemessages)
 
     # check if dispatching should stop and return an answer to the user
-    if (datetime.now() - order.create_date).seconds > ORDER_HANDLE_TIMEOUT:
+    if (utc_now() - order.create_date).seconds > ORDER_HANDLE_TIMEOUT:
         logging.warning("order time out: %d" % order_id)
         send_sms(order.passenger.international_phone(),
                  translate_to_lang(sorry_msg, order.language_code))
@@ -104,7 +104,7 @@ def book_order(request):
             order.notify()
             log_event(EventType.ORDER_ERROR, order=order, passenger=order.passenger)
             logging.error("book_order: OrderError: %d" % order_id)
-            response = HttpResponseServerError("an error occured while handling order")
+            response = HttpResponseServerError("an error occurred while handling order")
 
             send_sms(order.passenger.international_phone(),
                      translate_to_lang(ugettext("We're sorry, but we have encountered an error while handling your request")
@@ -127,7 +127,7 @@ def show_order(order_id, work_station):
     except UpdateOrderAssignmentError:
         raise ShowOrderError()
 
-    order_assignment.show_date = datetime.now()
+    order_assignment.show_date = utc_now()
     order_assignment.save()
     enqueue_redispatch_orders(order_assignment, ORDER_ASSIGNMENT_TIMEOUT, redispatch_ignored_orders)
 
@@ -338,8 +338,8 @@ def update_station_rating(request):
             station.average_rating = rating
         else:
             sum = station.number_of_ratings * station.average_rating
-            sum = sum + rating
-            station.number_of_ratings = station.number_of_ratings + 1
+            sum += rating
+            station.number_of_ratings += 1
             station.average_rating = float(sum) / float(station.number_of_ratings)
         station.save()
     return HttpResponse("OK")

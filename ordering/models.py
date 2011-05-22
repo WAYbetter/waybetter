@@ -1,4 +1,5 @@
 from api.models import APIUser
+from common.tz_support import UTCDateTimeField, utc_now
 from django.db.models.query import QuerySet
 from django.db import models
 from django.utils.translation import ugettext_lazy as _, ugettext
@@ -86,7 +87,7 @@ class Station(BaseModel):
     app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True, verify_exists=False)
     app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True, verify_exists=False)
 
-    last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True, default=datetime(1,1,1))
+    last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True, default=datetime(1,1,1))
 
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")
@@ -104,8 +105,8 @@ class Station(BaseModel):
     number_of_ratings = models.IntegerField(_("number of ratings"), default=0)
     average_rating = models.FloatField(_("average rating"), default=0.0)
 
-    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
-    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
 
     def natural_key(self):
         return self.name
@@ -190,8 +191,8 @@ class Passenger(BaseModel):
     # used to login anonymous passengers
     login_token = models.CharField(_("login token"), max_length=40, null=True, blank=True)
 
-    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
-    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
 
     def international_phone(self):
         return get_international_phone(self.country, self.phone)
@@ -256,7 +257,7 @@ class WorkStation(BaseModel):
     im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=40)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
 
-    last_assignment_date = models.DateTimeField(_("last order date"), null=True, blank=True, default=datetime(1,1,1))
+    last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True, default=datetime(1,1,1))
 
     def __unicode__(self):
         result = u"[%d]" % self.id
@@ -370,8 +371,8 @@ class Order(BaseModel):
     # ratings
     passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)
 
-    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
-    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
 
     # denormalized fields
     station_name = models.CharField(_("station name"), max_length=50, null=True, blank=True)
@@ -462,9 +463,9 @@ class OrderAssignment(BaseModel):
 
     status = models.IntegerField(_("status"), choices=ASSIGNMENT_STATUS, default=PENDING)
 
-    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
-    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
-    show_date = models.DateTimeField(_("show date"), auto_now_add=False, null=True, blank=True)
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
+    show_date = UTCDateTimeField(_("show date"), auto_now_add=False, null=True, blank=True)
 
     pickup_address_in_ws_lang = models.CharField(_("pickup_address_in_ws_lang"), max_length=50)
 
@@ -486,7 +487,7 @@ class OrderAssignment(BaseModel):
                 "pk":               order_assignment.order.id,
                 "status":           order_assignment.status,
                 "from_raw":         order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
-                "seconds_passed":   (datetime.now() - base_time).seconds
+                "seconds_passed":   (utc_now() - base_time).seconds
             })
 
         return simplejson.dumps(result)
@@ -513,7 +514,7 @@ class OrderAssignment(BaseModel):
             raise UpdateOrderAssignmentError("update status failed")
 
     def is_stale(self):
-        return (datetime.now() - self.create_date).seconds > ORDER_ASSIGNMENT_TIMEOUT
+        return (utc_now() - self.create_date).seconds > ORDER_ASSIGNMENT_TIMEOUT
 
     def __unicode__(self):
         order_id = "<Unknown>"
@@ -558,8 +559,8 @@ class MeteredRateRule(BaseModel):
     tick_cost = models.FloatField(_("cost per tick"), null=True, blank=True)
     fixed_cost = models.FloatField(_("fixed cost"), null=True, blank=True)
 
-    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
-    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
 
     def __unicode__(self):
         return self.rule_name
@@ -580,8 +581,8 @@ class FlatRateRule(BaseModel):
 
     fixed_cost = models.FloatField(_("fixed cost"))
 
-    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
-    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
 
     def __unicode__(self):
         return "from %s to %s" % (self.city1.name,self.city2.name)
@@ -594,8 +595,8 @@ class ExtraChargeRule(BaseModel):
 
     cost = models.FloatField(_("fixed cost"))
 
-    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
-    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
 
     def __unicode__(self):
         return self.rule_name

@@ -171,9 +171,12 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.assertTrue(sel.is_element_present("search_button"))
         self.assertTrue(sel.is_element_present("reset_button"))
 
+        self.wait_for_text(u"היכל נוקיה", "//div[@id='orders_history_grid']/table/tbody/tr[2]/td[2]")
         # choose address from history
         sel.click("id_from_raw")
+        time.sleep(1)
         sel.mouse_down("//div[@id='orders_history_grid']/table/tbody/tr[2]/td[2]")
+        time.sleep(1)
         self.assertTrue(sel.get_value("id_from_raw") == sel.get_text("//div[@id='orders_history_grid']/table/tbody/tr[2]/td[2]"))
 
         # sort history
