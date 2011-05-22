@@ -5,22 +5,37 @@
 {% load ajax_form_utils %}
 
 <div id="business_tab_container">
-    <h1>{% trans "WAYbetter - Enjoin as business" %}</h1>
+    <h1>{% trans "Book your taxi with WAYbetter and save time and money" %}</h1>
     <div id="business_text">
-        Some text
+        <h2>Advantages:</h2>
+        <ul>
+            <li>{% trans 'One click order' %}</li>
+            <li>{% trans 'No holding on the phone while searching for a taxi' %}</li>
+            <li>{% trans 'We partner with the best taxi stations in your area' %}</li>
+            <li>{% trans 'Track and manage your orders' %}</li>
+            <li>{% trans 'Choose a preffered station to receive your orders first or exclusively' %}</li>
+            <li>{% trans 'Suggest our service to your station' %}</li>
+        </ul>
+        <button id="business_login_btn" class="wb_button blue wide">{% trans 'Login' %}</button>
     </div>
     <div id="business_interest">
-        <h3>{% trans "Fill in your details and we will contact you" %}</h3>
+        <h2>{% trans "Fill in your details to join us" %}</h2>
         <form id="business_interest_form" method="post" action="{% url ordering.passenger_controller.business_tab %}">
             {% csrf_token %}
             {{ form.as_p }}
-            <input type="submit" value="{% trans 'Contact me' %}">
+            <input type="submit" id="business_join_btn" class="wb_button purple wide" value="{% trans 'Contact me' %}">
         </form>
     </div>
 </div>
 
 <script>
     $(function() {
+
+        $("#business_login_btn").click(function(){
+            Registrator.openLoginDialog(function(){
+                window.location.href = "/";
+            });
+        });
 
         var thanks_dialog_title = '{% trans "Thank you" %}',
                 thanks_dialog_html = '{% trans "We will contact you" %}',

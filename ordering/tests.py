@@ -217,6 +217,7 @@ class OrderManagerTest(TestCase):
         self.assertTrue((response.content, response.status_code) == (ORDER_HANDLED, 200), "Assignment should succeed: workstations are live")
 
         # timed out order
+        order = refresh_order(order)
         order.create_date = datetime.datetime.now() - datetime.timedelta(seconds=ORDER_HANDLE_TIMEOUT+1)
         order.save()
         response = self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": order.id})
@@ -244,7 +245,7 @@ class OrderManagerTest(TestCase):
         self.assertTrue(assignment.status == NOT_TAKEN, "assignment should be marked as not taken.")
 
         # IGNORED assignment
-        assignment.status = ASSIGNED
+        assignment.change_status(new_status=ASSIGNED)
         assignment.create_date = datetime.datetime.now() - datetime.timedelta(seconds=ORDER_ASSIGNMENT_TIMEOUT+1)
         assignment.save()
         self.client.post(reverse('ordering.order_manager.redispatch_ignored_orders'), data={"order_assignment_id": assignment.id})
@@ -254,13 +255,13 @@ class OrderManagerTest(TestCase):
     def test_show_and_accept_order(self):
         order = self.order
         assignment = self.assignment
+        order.change_status(PENDING, ASSIGNED)
 
         self.assertTrue(assignment.status == PENDING)
         order_manager.show_order(assignment.order.id, assignment.work_station)
 
         assignment = OrderAssignment.objects.get(id=assignment.id) # refresh
         self.assertTrue(assignment.status == ASSIGNED and assignment.show_date, "show_order failed")
-        self.assertTrue(order.status == PENDING)
         order_manager.accept_order(order, pickup_time=5, station=self.station)
         self.assertTrue((order.status, order.pickup_time, order.station) == (ACCEPTED, 5, self.station), "accept_order failed")
 

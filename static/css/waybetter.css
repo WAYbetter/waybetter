@@ -581,6 +581,10 @@ button.order_button.disabled, button.order_button:disabled {
     background-position: 0px -64px;
 }
 
+#tabs ul > li > a[title="businesses"] {
+background-position: 0px -176px;
+}
+
 img.tab_icon {
     margin-right: 7px;
     margin-left: -15px;
@@ -1280,7 +1284,9 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     display: inline-block;
 
 }
-
+.wb_button.wide{
+    width: 250px;
+}
 .wb_button:hover, .wb_button.hover {
     border: 1px solid #828282;
     border-bottom: 1px solid black;
@@ -1693,7 +1699,8 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 
 #businesses h1{
     text-align: center;
-    margin-top: 0px;
+    margin-top: 10px;
+    margin-bottom: 20px;
 }
 
 #businesses h2{
@@ -1709,15 +1716,25 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 #business_interest {
     float: right;
     width: 50%;
+    margin-left: 10px;
 }
 
 #business_text {
     float: left;
-    width: 50%;
+    width: 40%;
 }
 
-#business_registration_form {
-    background: white;
+#business_text ul {
+    margin-left: 20px;
+    margin-top: 10px;
+}
+
+#business_join_btn {
+    margin-top: 20px;
+}
+
+#business_login_btn{
+    margin-top: 20px;
 }
 
 /** Order tracker **/
@@ -1733,15 +1750,6 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     margin: 10px;
 }
 
-.tracker_order > *{
-    margin-top: 20px;
-}
-
-.tracker_button{
-    display: block;
-    margin-right: 10px;
-}
-
 .tracker_order.failed{
     border-color: red;
 }
@@ -1751,8 +1759,7 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 }
 
 .tracker_address_list{
-    margin-top: 0;
-    margin-right: 40px;
+    margin-right: 60px;
     list-style-type: none;
     padding: 0;
     text-align: left;
@@ -1777,26 +1784,40 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     background-repeat: no-repeat;
 }
 
+.tracker_info_container{
+    margin-left: auto;
+    margin-right: auto;
+    /*float: left;*/
+    text-align: center;
+}
 .tracker_station{
+    margin-top: 20px;
     float: left;
 }
 
 .tracker_info{
+    margin-left: auto;
+    margin-right: auto;
+    margin-top: 20px;
     float: left;
-    padding-left: 70px;
 }
 .tracker_info.searching{
+    padding-left: 70px;
     background: url(../images/tracker_seachring.gif) 6px 2px no-repeat;
 }
 .tracker_info.accepted{
+    padding-left: 70px;
     background: url(../images/tracker_accepted.gif) 3px 3px no-repeat;
 }
 
-.tracker_indicator{
-    margin-top: 0;
+.tracker_details_container{
+    margin-top: 20px;
     margin-right: 10px;
-    height: 30px;
     float: right;
+    text-align:center;
+}
+.tracker_indicator{
+    height: 30px;
 }
 .tracker_indicator.searching{
     background: url(../images/loader5.gif) left 0 no-repeat;
@@ -1805,4 +1826,14 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 .tracker_indicator.accepted{
     background: url(../images/sent.png) left 0 no-repeat;
     padding-left: 20px;
+}
+.tracker_station_phone{
+    font-size:10px;
+    display: inline-block;
+}
+.tracker_button {
+    display: block;
+    margin-right: 10px;
+    float: right;
+    margin-top: 0;
 }

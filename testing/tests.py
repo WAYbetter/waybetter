@@ -156,7 +156,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.wait_for_element_present("change_phone")
 
         time.sleep(1)
-        
+
         sel.click("change_phone")
         self.validate_phone(phone=new_phone)
         self.wait_for_text(new_phone, "current_phone")

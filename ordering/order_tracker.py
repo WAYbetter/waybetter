@@ -6,7 +6,7 @@ from common.decorators import  receive_signal
 from models import  OrderAssignment, FAILED, ACCEPTED, PENDING, ASSIGNED, ERROR, TIMED_OUT
 
 STATUS_MESSAGES = {
-    PENDING: ugettext("Waiting..."),
+    PENDING: ugettext("Contacting..."),
     ASSIGNED: ugettext("Searching for taxi"),
     ACCEPTED: ugettext("Taxi on its way"),
     FAILED: ugettext("Sorry, we could not find a taxi for you :(")
@@ -68,7 +68,7 @@ def get_tracker_msg_for_order(order, last_assignment=None):
                     "to_raw": order.to_raw,
                     "info": STATUS_MESSAGES[ACCEPTED] if order.future_pickup else "",
                     "station": order.station.name,
-                    "station_phone": order.station.phones.all()[0],
+                    "station_phone": str(order.station.phones.all()[0]),
                     "pickup_time": order.get_pickup_time() if order.future_pickup else "",
                     })
 
@@ -88,7 +88,7 @@ def get_tracker_msg_for_order(order, last_assignment=None):
                         "to_raw": order.to_raw,
                         "info": STATUS_MESSAGES[status],
                         "station": last_assignment.station.name,
-                        "station_phone": order.station.phones.all()[0] if status == ACCEPTED else "",
+                        "station_phone": str(order.station.phones.all()[0]) if status == ACCEPTED else "",
                         "pickup_time": order.get_pickup_time() if order.future_pickup else "",
                         })
 
