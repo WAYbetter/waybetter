@@ -400,7 +400,7 @@ var Registrator = Object.create({
             that.openDialog.call(that, {});
         });
     },
-    openRegistrationDialog  : function (callback, show_registration, registration_only) {
+    openRegistrationDialog  : function (callback, show_registration, registration_only, order_message) {
         var that = this,
             dialog_config = {};
         this.setCallback(callback);
@@ -445,6 +445,9 @@ var Registrator = Object.create({
                 $("#registration", dialog_content).show();
                 $("#registration_header", dialog_content).hide();
                 $("#registration > h1", dialog_content).hide();
+            }
+            if (order_message) {
+                $("#registration_header .progress-sub-title", dialog_content).html(order_message);
             }
             that.openDialog.call(that, validation_config, dialog_config);
         });
