@@ -23,7 +23,9 @@ from testing.meter_calculator import calculate_tariff
 
 import logging
 import datetime
+import os
 
+os.environ["TZ"] = "UTC"
 ISRAEL_ID = 12
 TLV_ID = 1604
 ORDER_DATA = {

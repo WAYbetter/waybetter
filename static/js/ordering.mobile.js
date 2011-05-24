@@ -252,7 +252,7 @@ var OrderingHelper = Object.create({
                 success: function(order_status) {
                     setTimeout(function() {
                         if (order_status.status == "booked") {
-                            alert(that.config.messages.order_sent_msg);
+                            alert(order_status.message.split(/<br>/i).join("\n"));
                         } else {
                             alert($("<div></div>").html(order_status.errors.message).text()); // stip html and show message
                         }
