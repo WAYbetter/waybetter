@@ -60,10 +60,10 @@ def get_tracker_msg_for_order(order, last_assignment=None):
                     "status": ACCEPTED,
                     "from_raw": order.from_raw,
                     "to_raw": order.to_raw,
-                    "info": _(STATUS_MESSAGES[ACCEPTED]) if order.future_pickup else "",
+                    "info": _(STATUS_MESSAGES[ACCEPTED]),
                     "station": order.station_name,
                     "station_phone": str(order.station.phones.all()[0]),
-                    "pickup_time": order.get_pickup_time() if order.future_pickup else "",
+                    "pickup_time_sec": order.get_pickup_time(),
                     })
 
     # order is still 'alive', get status from the most recent assignment
@@ -82,7 +82,6 @@ def get_tracker_msg_for_order(order, last_assignment=None):
                         "to_raw": order.to_raw,
                         "info": _(STATUS_MESSAGES[status]),
                         "station": last_assignment.station.name,
-                        "pickup_time": order.get_pickup_time() if order.future_pickup else "",
                         })
 
     if msg: # msg was updated with real content

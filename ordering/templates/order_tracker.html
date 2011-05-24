@@ -4,6 +4,8 @@
 <script type="text/javascript" src="/_ah/channel/jsapi"></script>
 
 <script>
+    channel = undefined;
+    socket = undefined;
     (function() {
         getOrder = function(order) {
             var $order = $("#order_tracker #order_" + order.pk);
@@ -29,7 +31,7 @@
             var $order = $("<div class='tracker_order'></div>").attr('id', 'order_' + order.pk)
                     .append($address_list).append($info_container).append($details_container);
 
-            if (order.to_raw == ""){
+            if (order.to_raw == "") {
                 $address_list.find(".tracker_to").hide();
             }
 
@@ -55,7 +57,7 @@
                 case {{ ACCEPTED }}:
                     $order.addClass("accepted");
 
-                    if (! order.pickup_time) {
+                    if (! order.pickup_time_sec) {
                         $info.text("{% trans 'Order finished!' %}");
                     }
                     // future order, show pickup mode
@@ -64,24 +66,17 @@
                         $station.text(order.station);
                         $info.removeClass("searching").addClass("accepted").text(order.info).effect("highlight", 1000);
                         $station_phone.text("{% trans 'Changes: '%}" + order.station_phone).fadeIn();
-                        var minute_label = (order.pickup_time == 1) ? "{% trans 'minute' %}" : "{% trans 'minutes' %}";
-                        $indicator.val(order.pickup_time).text("{% trans 'Pickup in' %}" + " " + order.pickup_time + " " + minute_label)
-                                .everyTime(60 * 1000, function() {
-                            var new_val = Math.max(0, $indicator.val() - 1);
-                            if (new_val == 0) {
-                                $info.removeClass("accepted").text("{% trans 'Have a pleasant ride!' %}").effect("highlight", 1000);
-                                $station.fadeOut();
-                                $close_btn.fadeIn().click(function() {
-                                    $order.slideUp();
-                                });
-                                $indicator.fadeOut();
-                            }
-                            else {
-                                var minute_label = (new_val == 1) ? "{% trans 'minute' %}" : "{% trans 'minutes' %}";
-                                $indicator.text("{% trans 'Pickup in' %}" + " " + new_val + " " + minute_label).effect("highlight", 1000);
-                            }
-                            $indicator.val(new_val);
-                        }, order.pickup_time);
+
+                        var minutes = Math.floor(order.pickup_time_sec / 60),
+                                seconds_remainder = order.pickup_time_sec % 60,
+                                initial_value = (seconds_remainder) ? minutes + 1 : minutes,
+                                minute_label = (initial_value == 1) ? "{% trans 'minute' %}" : "{% trans 'minutes' %}";
+
+                        $indicator.val(initial_value).text("{% trans 'Pickup in' %}" + " " + initial_value + " " + minute_label)
+                                .oneTime(seconds_remainder * 1000, function() {
+                            updateTimer(order)
+                        });
+
                     }
                     break;
                 case {{ ORDER_FAILED }}:
@@ -94,6 +89,37 @@
                     });
                     break;
             }
+        };
+
+        updateTimer = function(order) {
+            var $order = getOrder(order),
+                    $station = $("#station_" + order.pk),
+                    $info = $("#info_" + order.pk),
+                    $indicator = $("#indicator_" + order.pk),
+                    $close_btn = $("#close_btn_" + order.pk);
+
+            var new_val = Math.max(0, $indicator.val() - 1);
+            if (new_val == 0) {
+                $info.removeClass("accepted").text("{% trans 'Have a pleasant ride!' %}").effect("highlight", 1000);
+                $station.fadeOut();
+                $close_btn.fadeIn().click(function() {
+                    $order.slideUp();
+                });
+                $indicator.fadeOut();
+            }
+            else {
+                var minute_label = (new_val == 1) ? "{% trans 'minute' %}" : "{% trans 'minutes' %}";
+                $indicator.text("{% trans 'Pickup in' %}" + " " + new_val + " " + minute_label).effect("highlight", 1000)
+                        .oneTime(60 * 1000, function() {
+                    updateTimer(order)
+                });
+            }
+
+            $indicator.val(new_val);
+        };
+
+        isValidOrder = function(order) {
+            return Boolean(order.pk > 0);  // small test that the msg is valid
         };
 
         onMessage = function(msg) {
@@ -110,24 +136,20 @@
         };
 
         openChannel = function() {
-            var channel = new goog.appengine.Channel('{{ token }}');
-            var socket = channel.open();
-            socket.onopen = function() {
-                if (console && console.log) {
-                    console.log("channel opened with token:" + "{{ token }}");
-                }
-            };
+            channel = new goog.appengine.Channel('{{ token }}');
+            socket = channel.open();
+//            socket.onopen = function() {
+//                if (console && console.log) {
+//                    console.log("channel opened with token:" + "{{ token }}");
+//                }
+//            };
             socket.onerror = function(error) {
-                if (console && console.log) {
-                    console.log("onerror: " + error.code + ":" + error.description + " token is: {{ token }}");
-                }
-                location.reload();
+//                alert("onerror: " + error.code + ":" + error.description + " token is: {{ token }}");
+                window.location.href = "/";
             };
             socket.onclose = function() {
-                if (console && console.log) {
-                    console.log("on close");
-                }
-                location.reload();
+//                alert("on close");
+                window.location.href = "/";
             };
             socket.onmessage = onMessage;
         };
@@ -145,10 +167,6 @@
                     }
                 }
             }
-        };
-
-        isValidOrder = function(order) {
-            return Boolean(order.pk > 0);  // small test that the msg is valid
         };
 
         $(function() {

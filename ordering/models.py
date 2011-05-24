@@ -296,7 +296,7 @@ class Business(BaseModel):
         current_lang = translation.get_language()
         translation.activate(settings.LANGUAGE_CODE)
 
-        subject = ugettext("Thank you for joining WAYbetter")
+        subject = ugettext("business welcome mail subject")
         template_args = {'name': self.name, 'username': self.passenger.user.username, 'password': chosen_password}
         t = get_template("business_welcome_email.html")
 
@@ -518,10 +518,9 @@ class Order(BaseModel):
             raise UpdateStatusError("update order status failed: %s to %s" % (old_status, new_status))
 
     def get_pickup_time(self):
-        ''' Return updated pickup based on current time (in minutes)'''
+        ''' Return the time remaingin until pickup (in seconds), or -1 if pickup time passed already'''
         if self.future_pickup:
-            return int(round(((self.modify_date + datetime.timedelta(
-                minutes=self.pickup_time)) - datetime.datetime.now()).seconds / 60.0))
+            return ((self.modify_date + datetime.timedelta(minutes=self.pickup_time))- utc_now()).seconds
         else:
             return -1
 

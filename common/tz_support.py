@@ -68,7 +68,7 @@ class UTCDateTimeField(models.DateTimeField):
         if not isinstance(value, datetime.datetime):
             raise ValueError("value '%s' is of type '%s'. should be datetime.datetime" % (value, type(value)))
 
-        return value.replace(tzinfo=TZ_INFO["UTC"]).astimezone(TZ_INFO[settings.TIME_ZONE])
+        return value.replace(tzinfo=TZ_INFO["UTC"]).astimezone(TZ_INFO['Asia/Jerusalem'])
 
     def get_prep_value(self, value):
         '''
