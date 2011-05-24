@@ -125,7 +125,7 @@ def show_order(order_id, work_station):
     #    except MultipleObjectsReturned:
     #        OrderAssignment.objects.filter(order=order_id, work_station=work_station, status=PENDING).delete()
     except OrderAssignment.DoesNotExist:
-        logging.error("No PENDING assignment for order %d in work station %d" % (order_id, work_station.id))
+        logging.warning("No PENDING assignment for order %d in work station %d" % (order_id, work_station.id))
         raise ShowOrderError()
     except UpdateStatusError:
         raise ShowOrderError()
@@ -160,13 +160,13 @@ def update_order_status(order_id, work_station, new_status, pickup_time=None):
     if new_status == station_controller.ACCEPT and pickup_time:
         try:
             order_assignment.change_status(ASSIGNED, ACCEPTED)
+            accept_order(order_assignment.order, pickup_time, order_assignment.station)
             log_event(EventType.ORDER_ACCEPTED,
                       passenger=order_assignment.order.passenger,
                       order=order_assignment.order,
                       order_assignment=order_assignment,
                       station=work_station.station,
                       work_station=work_station)
-            accept_order(order_assignment.order, pickup_time, order_assignment.station)
             order_assignment.order.notify()
             result["pickup_message"] = _("Message sent, pickup in %s minutes") % pickup_time
             result["pickup_address"] = order_assignment.pickup_address_in_ws_lang
@@ -196,11 +196,13 @@ def update_order_status(order_id, work_station, new_status, pickup_time=None):
 
 def accept_order(order, pickup_time, station):
     try:
-        order.change_status(ASSIGNED, ACCEPTED)
         order.pickup_time = pickup_time
         order.station = station
         order.future_pickup = True
         order.save()
+
+        # only change status after updating order values so that signal handler will see updated order
+        order.change_status(ASSIGNED, ACCEPTED)
 
         enqueue_update_future_pickup(order, order.pickup_time*60)
 
@@ -209,7 +211,7 @@ def accept_order(order, pickup_time, station):
             order.language_code) %\
               {"from": order.from_raw,
                "time": pickup_time,
-               "station_name": station.name,
+               "station_name": order.station_name,
                "station_phone": station.phones.all()[0].local_phone} # use dummy ugettext for makemessages
 
         send_sms(order.passenger.international_phone(), msg)
@@ -285,7 +287,7 @@ def redispatch_pending_orders(request, order_assignment):
                   work_station=order_assignment.work_station)
         book_order_async(order_assignment.order, order_assignment)
     except UpdateStatusError:
-        logging.error("redispatch_pending_orders failed: cannot mark assignment [%d] as %s" % (order_assignment.id, "NOT_TAKEN"))
+        logging.warning("redispatch_pending_orders failed: cannot mark assignment [%d] as %s" % (order_assignment.id, "NOT_TAKEN"))
 
     return HttpResponse(OK)
 
@@ -309,7 +311,7 @@ def redispatch_ignored_orders(request, order_assignment):
                   work_station=order_assignment.work_station)
         book_order_async(order_assignment.order, order_assignment)
     except UpdateStatusError:
-        logging.error("redispatch_ignored_orders failed: cannot mark assignment [%d] as %s" % (order_assignment.id, "IGNORED"))
+        logging.warning("redispatch_ignored_orders failed: cannot mark assignment [%d] as %s" % (order_assignment.id, "IGNORED"))
 
     return HttpResponse(OK)
 

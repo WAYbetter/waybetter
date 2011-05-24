@@ -1,0 +1,20 @@
+{% load i18n %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
+<html>
+<body>
+{% if show_include_text %}
+    <div>Following is a copy of the mail sent to the business.</div>
+    <hr/>
+{% endif %}
+<div {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+    {% blocktrans %}
+        Hi {{ name }}!<br><br>
+        Thank you for joining <b>WAYbetter</b>.<br>
+        To start using our service please visit http://www.WAYbetter.com/ and login using the following credentials:<br>
+        Username: {{ username }}<br>
+        Password: {{ password }}<br>
+        You can change your password from the 'Profile' tab.<br><br>
+    {% endblocktrans %}
+</div>
+</body>
+</html>

@@ -76,11 +76,12 @@ def send_async(request):
     try:
         stored_signal = SignalStore.by_id(id)
         d = stored_signal.signal_data
-        stored_signal.delete() # delete the signal
 
         receiver = d.pop("receiver")
         receiver(**d)
-    except Exception, e: # prevent this signal from being re-dispatched in case of error 
+
+        stored_signal.delete() # delete the signal unless there was an exception
+    except Exception, e: # prevent this signal from being re-dispatched in case of error
         logging.error("Error dispatching signal: %s: %s: %s" % (id, type(e).__name__, e.message))
 
     return HttpResponse("OK")

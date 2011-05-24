@@ -1,4 +1,7 @@
+from django.template.loader import get_template
+from django.template.context import Context
 from google.appengine.api import channel
+from google.appengine.ext.db import is_in_transaction
 from api.models import APIUser
 from django.db.models.query import QuerySet
 from django.db import models
@@ -6,17 +9,15 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
-from django.utils import simplejson
+from django.utils import simplejson, translation
 from djangotoolbox.fields import BlobField, ListField
 from common.models import Country, City, CityArea
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, BaseModel, StatusField, get_channel_key
-from common.langsupport.util import translate_to_lang
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal
 from ordering.errors import UpdateStatusError
 
 import time
-import math
 import urllib
 import logging
 import datetime
@@ -26,7 +27,7 @@ ORDER_HANDLE_TIMEOUT = 80 # seconds
 ORDER_TEASER_TIMEOUT = 18 # seconds
 ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
 #USER_MAX_WAIT_TIME       = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
-PASSENGER_TOKEN 		 = "passenger_token"
+PASSENGER_TOKEN = "passenger_token"
 
 ASSIGNED = 1
 ACCEPTED = 2
@@ -214,7 +215,8 @@ class Passenger(BaseModel):
     business = property(_get_business, _set_business)
 
     def cleanup_session_keys(self):
-        db_sessions_qs = Session.objects.filter(session_key__in=self.session_keys).filter(expire_date__gt=datetime.datetime.now())
+        db_sessions_qs = Session.objects.filter(session_key__in=self.session_keys).filter(
+            expire_date__gt=datetime.datetime.now())
         db_session_keys = [s.session_key for s in db_sessions_qs]
 
         for session_key in self.session_keys:
@@ -228,9 +230,11 @@ class Passenger(BaseModel):
             try:
                 channel.send_message(channel_key, msg)
             except channel.InvalidChannelClientIdError:
-                logging.error("InvalidChannelClientIdError: Failed sending channel message to passenger[%d]: %s" % (self.id, msg))
+                logging.error(
+                    "InvalidChannelClientIdError: Failed sending channel message to passenger[%d]: %s" % (self.id, msg))
             except channel.InvalidMessageError:
-                logging.error("InvalidMessageError: Failed sending channel message to passenger[%d]: %s" % (self.id, msg))
+                logging.error(
+                    "InvalidMessageError: Failed sending channel message to passenger[%d]: %s" % (self.id, msg))
 
     def international_phone(self):
         return get_international_phone(self.country, self.phone)
@@ -288,30 +292,29 @@ class Business(BaseModel):
     confine_orders = models.BooleanField(_("confine orders"), default=False)
 
     def send_welcome_email(self, chosen_password):
-        subject = ugettext("Thank you for joining WAYbetter")
-        mail_content = ugettext(
-            """
-            Hi %(name)s!
-
-            Thank you for joining WAYbetter.
-            To start using our service please visit http://www.WAYbetter.com/ and login using the following credentials:
-            Username: %(username)s.
-            Password: %(password)s.
-            You can change your passoword from the 'Profile' tab.
-            """ % {'name': self.name, 'username': self.passenger.user.username, 'password': chosen_password})
-
         # note: email is sent in Hebrew
-        send_mail_as_noreply(self.passenger.user.email, translate_to_lang(subject, settings.LANGUAGE_CODE),
-                             translate_to_lang(mail_content, settings.LANGUAGE_CODE))
+        current_lang = translation.get_language()
+        translation.activate(settings.LANGUAGE_CODE)
+
+        subject = ugettext("Thank you for joining WAYbetter")
+        template_args = {'name': self.name, 'username': self.passenger.user.username, 'password': chosen_password}
+        t = get_template("business_welcome_email.html")
+
+        send_mail_as_noreply(self.passenger.user.email, subject, html=t.render(Context(template_args)))
 
         # send us a copy of the mail
-        notify_by_email("New business joined",
-                        """
-                        Following is a copy of the mail sent to the business.
-                        -----------------------------------------------------
+        template_args["show_include_text"] = True
+        notify_by_email("New business joined", html=t.render(Context(template_args)))
 
-                        %s
-                        """ % mail_content)
+        translation.activate(current_lang)
+
+def post_delete_business(sender, instance, **kwargs):
+    passenger = instance.passenger
+    user = passenger.user
+    user.is_active = False
+    user.save()
+
+models.signals.post_delete.connect(post_delete_business, sender=Business)
 
 
 class Phone(BaseModel):
@@ -429,7 +432,8 @@ class Order(BaseModel):
                                        , blank=True)
     from_postal_code = models.CharField(_("from postal code"), max_length=10, null=True, blank=True)
     from_street_address = models.CharField(_("from street address"), max_length=50)
-    from_house_number = models.IntegerField(_("from_house_number"), max_length=10, null=True, blank=True) # TODO_WB: make this mandatory in a safe manner
+    from_house_number = models.IntegerField(_("from_house_number"), max_length=10, null=True,
+                                            blank=True) # TODO_WB: make this mandatory in a safe manner
 
     from_geohash = models.CharField(_("from goehash"), max_length=13)
     from_lon = models.FloatField(_("from_lon"))
@@ -470,18 +474,19 @@ class Order(BaseModel):
     api_user = models.ForeignKey(APIUser, verbose_name=_("api user"), related_name="orders", null=True, blank=True)
 
     def save(self, *args, **kwargs):
-        if self.station:
-            self.station_id = self.station.id
-            self.station_name = self.station.name
-        else:
-            self.station_id = None
-            self.station_name = ""
-        if self.passenger:
-            self.passenger_id = self.passenger.id
-            self.passenger_phone = self.passenger.phone
-        else:
-            self.passenger_id = None
-            self.passenger_phone = ""
+        if not is_in_transaction():
+            if self.station:
+                self.station_id = self.station.id
+                self.station_name = self.station.name
+            else:
+                self.station_id = None
+                self.station_name = ""
+            if self.passenger:
+                self.passenger_id = self.passenger.id
+                self.passenger_phone = self.passenger.phone
+            else:
+                self.passenger_id = None
+                self.passenger_phone = ""
 
         super(Order, self).save(*args, **kwargs)
 
@@ -516,7 +521,8 @@ class Order(BaseModel):
     def get_pickup_time(self):
         ''' Return updated pickup based on current time (in minutes)'''
         if self.future_pickup:
-            return int(math.ceil(((self.modify_date + datetime.timedelta(minutes=self.pickup_time)) - datetime.datetime.now()).seconds / 60.0))
+            return int(round(((self.modify_date + datetime.timedelta(
+                minutes=self.pickup_time)) - datetime.datetime.now()).seconds / 60.0))
         else:
             return -1
 
@@ -563,6 +569,11 @@ class Order(BaseModel):
             msg += u"""
             
     * This is a new passenger."""
+
+        if self.passenger.business:
+            msg += u"""
+
+    * This is a business passenger: %s.""" % self.passenger.business.name
 
         if self.assignments.count():
             msg += u"\n\nEvents:"

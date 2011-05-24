@@ -8,7 +8,7 @@
     <div id="field_container">
     {% if passenger.business %}
         <p>
-            <label>{% trans 'name' %}:</label>
+            <label>{% trans 'business name' %}:</label>
             {{ name }}
         </p>
         <p>
@@ -76,6 +76,15 @@ $(function() {
         return false;
     });
 
+    // for business profiles : forbid confine orders when no default station was chosen
+    $("#id_confine_orders").change(function() {
+        if ($(this).is(":checked") && $("#id_default_station").val() == "") {
+            $(this).attr("checked", false);
+            openDialog("{% trans 'Error' %}", "{% trans 'Please choose a default station' %}");
+            return false;
+        }
+        return true;
+    });
 });
 
 </script>

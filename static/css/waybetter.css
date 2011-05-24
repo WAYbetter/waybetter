@@ -71,6 +71,11 @@ input.text, input[type=text], input[type=password] {
     font-weight: bold;
 }
 
+.errorlist > li {
+    color: red;
+    font-size: 14px;
+}
+
 /*** Order History Fixes ***/
 #orders_history_grid .select-address.from{
     color: #383838;
@@ -1011,6 +1016,12 @@ form.languages > select{
     color: #0bda01;
 }
 
+.dialog-close-btn{
+    position: absolute;
+    right: 10px;
+    bottom: 10px;
+}
+
 /** User Profile **/
 
 #profile_form label {
@@ -1040,6 +1051,18 @@ form.languages > select{
 /* max-height: 250px; */
 /* } */
 
+/** Business Profile **/
+#profile_form #id_default_station{
+    margin-bottom:20px;
+}
+
+#profile_form label[for="id_confine_orders"]{
+    display: inline;
+}
+#profile_form #id_confine_orders{
+    height: auto;
+    width: auto;
+}
 /** Stations Profile **/
 .delete-row {
     color: blue;
@@ -1690,6 +1713,32 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     font-size: 14px;
 }
 
+/** Business registration **/
+#business_registration_form{
+    background: white;
+}
+
+#business_registration_form label {
+    display: block;
+    font-size: 15px;
+    padding-top: 15px;
+}
+
+#business_registration_form input{
+    height: 25px;
+}
+
+#business_registration_form #id_default_station{
+    margin-bottom:20px;
+}
+#business_registration_form label[for="id_confine_orders"]{
+    display: inline;
+}
+#business_registration_form #id_confine_orders{
+    height: auto;
+    width: auto;
+}
+
 /** Business tab **/
 
 #business_tab_container {
@@ -1707,7 +1756,7 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     color: #ec008c;
 }
 
-#business_interest_form label , #business_registration_form label {
+#business_interest_form label{
     display: block;
     font-size: 15px;
     padding-top: 15px;
@@ -1715,29 +1764,36 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 
 #business_interest {
     float: right;
-    width: 50%;
+    width: 40%;
     margin-left: 10px;
 }
 
 #business_text {
     float: left;
-    width: 40%;
+    width: 50%;
 }
 
 #business_text ul {
     margin-left: 20px;
     margin-top: 10px;
 }
+#business_text ul > li {
+    line-height: 30px;
+}
 
 #business_join_btn {
-    margin-top: 20px;
-}
+    bottom: 30px;
+    position: absolute;}
 
 #business_login_btn{
-    margin-top: 20px;
-}
+    bottom: 30px;
+    position: absolute;}
 
 /** Order tracker **/
+#order_tracker {
+    margin-bottom: 26px;
+}
+
 .tracker_order{
     background: white;
     border-radius: 10px;
@@ -1770,7 +1826,8 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     padding-left: 36px;
     height: 20px;
     background-repeat: no-repeat;
-
+    margin-top: 10px;
+    width: 180px;
 }
 .tracker_from{
     background-image: url(../img/ride_details.png);
@@ -1785,10 +1842,9 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 }
 
 .tracker_info_container{
-    margin-left: auto;
-    margin-right: auto;
-    /*float: left;*/
     text-align: center;
+    font-size: 18px;
+    font-weight: bold;
 }
 .tracker_station{
     margin-top: 20px;
@@ -1796,18 +1852,16 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 }
 
 .tracker_info{
-    margin-left: auto;
-    margin-right: auto;
     margin-top: 20px;
     float: left;
 }
 .tracker_info.searching{
     padding-left: 70px;
-    background: url(../images/tracker_seachring.gif) 6px 2px no-repeat;
+    background: url(../images/tracker_seachring.gif) 6px 5px no-repeat;
 }
 .tracker_info.accepted{
     padding-left: 70px;
-    background: url(../images/tracker_accepted.gif) 3px 3px no-repeat;
+    background: url(../images/tracker_accepted.gif) 6px 5px no-repeat;
 }
 
 .tracker_details_container{
@@ -1822,13 +1876,16 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 .tracker_indicator.searching{
     background: url(../images/loader5.gif) left 0 no-repeat;
     padding-left: 30px;
+    line-height: 24px;
 }
 .tracker_indicator.accepted{
+    font-size: 18px;
+    font-weight: bold;
     background: url(../images/sent.png) left 0 no-repeat;
     padding-left: 20px;
 }
 .tracker_station_phone{
-    font-size:10px;
+    font-size: 12px;
     display: inline-block;
 }
 .tracker_button {

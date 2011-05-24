@@ -7,7 +7,7 @@
 <div id="business_tab_container">
     <h1>{% trans "Book your taxi with WAYbetter and save time and money" %}</h1>
     <div id="business_text">
-        <h2>Advantages:</h2>
+        <h2>{% trans 'Advantages' %}:</h2>
         <ul>
             <li>{% trans 'One click order' %}</li>
             <li>{% trans 'No holding on the phone while searching for a taxi' %}</li>
@@ -23,7 +23,7 @@
         <form id="business_interest_form" method="post" action="{% url ordering.passenger_controller.business_tab %}">
             {% csrf_token %}
             {{ form.as_p }}
-            <input type="submit" id="business_join_btn" class="wb_button purple wide" value="{% trans 'Contact me' %}">
+            <input type="submit" id="business_join_btn" class="wb_button purple wide" value="{% trans 'Join' %}">
         </form>
     </div>
 </div>

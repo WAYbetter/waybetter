@@ -19,10 +19,7 @@ def assign_order(order):
         raise NoWorkStationFoundError("Could not find a valid station")
 
     # create an OrderAssignment
-    assignment = OrderAssignment()
-    assignment.order = order
-    assignment.station = work_station.station
-    assignment.work_station = work_station
+    assignment = OrderAssignment(order=order, station=work_station.station, work_station=work_station)
     assignment.pickup_address_in_ws_lang = translate_pickup_for_ws(work_station, order)
     assignment.save()
     orderassignment_created_signal.send(sender="orderassignment_created_signal", obj=assignment)

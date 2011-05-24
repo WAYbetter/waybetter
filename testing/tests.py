@@ -133,7 +133,9 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.wait_for_element_and_type("id_password", "newpassword")
         self.type_and_click("id_password2", "newpassword")
         sel.click("save_profile_changes")
-        self.wait_for_alert()
+        self.wait_for_text_present(u"השינויים נשמרו בהצלחה")
+
+        sel.open("/")
         self.logout()
 
         # log in using old password (fail)

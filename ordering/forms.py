@@ -357,7 +357,7 @@ class InternalPassengerProfileForm(PassengerProfileForm):
 class BusinessPassengerProfileForm(PassengerProfileForm):
     confine_orders = forms.BooleanField(label=_("Confine my orders to my default station"), required=False)
 
-    contact_person = forms.CharField(_("contact person"))
+    contact_person = forms.CharField(label=_("contact person"))
     phone = forms.RegexField(regex=phone_regexp,
                              max_length=20,
                              widget=forms.TextInput(),

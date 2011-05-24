@@ -302,6 +302,9 @@ function openDialog(title, html, close_function){
                 draggable: false,
                 zIndex:2000
             });
+    $dialog.append($("<button class='dialog-close-btn wb_button blue'>OK</button>").click(function(){
+        $dialog.dialog('close');
+    }));
     $dialog.dialog('open');
 }
 

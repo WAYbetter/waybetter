@@ -4,7 +4,8 @@
 {% block extrahead %}
     <script type="text/javascript" src="/static/js/utils.js"></script>
     <script type="text/javascript" src="/static/js/jquery.form.js"></script>
-    <script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
+    <script type="text/javascript"
+            src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
     <script type="text/javascript" src="/static/js/jquery.ajax_forms.js"></script>
     <script type="text/javascript" src="/static/js/jquery.ajax_forms.validation.js"></script>
     {% load ajax_form_utils %}
@@ -14,6 +15,7 @@
 
     <div>
         <h1>{% trans "Business registration" %}</h1>
+
         <form id="business_registration_form" method="post"
               action="{% url ordering.passenger_controller.business_registration %}">
             {% csrf_token %}
@@ -26,7 +28,7 @@
         $(function() {
 
             var business_registered_dialog_title = '{% trans "Business registered" %}',
-                business_registered_dialog_html = '{% trans "An email was sent to the business" %}';
+                    business_registered_dialog_html = '{% trans "An email was sent to the business" %}';
 
             var $form = $("#business_registration_form");
 
@@ -173,6 +175,16 @@
             function clear_hidden_fields() {
                 $form.find("input[type='hidden']").val('');
             }
+
+            // for business profiles : forbid confine orders when no default station was chosen
+            $("#id_confine_orders").change(function() {
+                if ($(this).is(":checked") && $("#id_default_station").val() == "") {
+                    $(this).attr("checked", false);
+                    openDialog("{% trans 'Error' %}", "{% trans 'Please choose a default station' %}");
+                    return false;
+                }
+                return true;
+            });
         });
 
     </script>

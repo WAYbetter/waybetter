@@ -1,10 +1,9 @@
 # This Python file uses the following encoding: utf-8
 import urllib
 import os
-
+from google.appengine.api.mail import EmailMessage
 from google.appengine.ext.db import is_in_transaction
 from google.appengine.api import taskqueue
-from google.appengine.api import mail
 from google.appengine.api.images import BadImageError, NotImageError
 from django.utils.translation import ugettext as _
 from django.shortcuts import render_to_response
@@ -103,6 +102,10 @@ class BaseModel(models.Model):
     class Meta:
         abstract = True
 
+
+    def fresh_copy(self):
+        return type(self).by_id(self.id)
+    
     @classmethod
     def by_id(cls, id):
         try:
@@ -136,7 +139,7 @@ class BaseModel(models.Model):
             self.save()
             return True
         else:
-            logging.error("%s.%s : update in transaction failed" % (self.__class__.__name__, attname))
+            logging.warning("%s.%s : update in transaction failed" % (self.__class__.__name__, attname))
             return False
 
 
@@ -293,13 +296,23 @@ def get_unique_id():
     return s.hexdigest()
 
 
-def notify_by_email(subject, msg):
-    send_mail_as_noreply("notify@waybetter.com", "WAYbetter notification: %s" % subject, msg)
+def notify_by_email(subject, msg=None, html=None):
+    send_mail_as_noreply("notify@waybetter.com", "WAYbetter notification: %s" % subject, msg=msg, html=html)
 
-def send_mail_as_noreply(address, subject, msg):
+def send_mail_as_noreply(address, subject, msg=None, html=None):
     logging.info(u"Sending email to %s: [%s] %s" % (address, subject, msg))
     try:
-        mail.send_mail(NO_REPLY_SENDER, address, subject, msg)
+        mail = EmailMessage()
+        mail.sender = NO_REPLY_SENDER
+        mail.to = address
+        mail.subject = subject
+        if html:
+            mail.html = html
+        else:
+            mail.body = msg
+
+        mail.check_initialized()
+        mail.send()
     except:
         logging.error("Email sending failed.")
 

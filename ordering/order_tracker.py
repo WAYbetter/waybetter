@@ -1,10 +1,12 @@
+from django.utils.translation import ugettext as _
 from django.utils import simplejson
-from django.utils.translation import ugettext
 from ordering.signals import   SignalType
 from common.signals import AsyncSignal
 from common.decorators import  receive_signal
-from models import  OrderAssignment, FAILED, ACCEPTED, PENDING, ASSIGNED, ERROR, TIMED_OUT
+from models import Order, OrderAssignment, FAILED, ACCEPTED, PENDING, ASSIGNED, ERROR, TIMED_OUT
+import datetime
 
+ugettext = lambda s: s # use dummy ugettext for makemessages
 STATUS_MESSAGES = {
     PENDING: ugettext("Contacting..."),
     ASSIGNED: ugettext("Searching for taxi"),
@@ -19,7 +21,7 @@ def order_tracker(sender, signal_type, obj, **kwargs):
     Sends messages to passenger's channel
     '''
     if signal_type in [SignalType.ASSIGNMENT_CREATED, SignalType.ASSIGNMENT_STATUS_CHANGED]:
-        order_assignment = obj
+        order_assignment = obj.fresh_copy()
         order = order_assignment.order
         passenger = order.passenger
 
@@ -31,7 +33,7 @@ def order_tracker(sender, signal_type, obj, **kwargs):
             passenger.send_channel_msg(msg)
 
     elif signal_type in [SignalType.ORDER_STATUS_CHANGED]:
-        order = obj
+        order = obj.fresh_copy()
         passenger = order.passenger
 
         if not passenger.business:
@@ -43,15 +45,7 @@ def order_tracker(sender, signal_type, obj, **kwargs):
 
 
 def get_tracker_msg_for_order(order, last_assignment=None):
-    msg = {"pk": "",
-           "status": "",
-           "from_raw": "",
-           "to_raw": "",
-           "info": "",
-           "station": "",
-           "station_phone": "",
-           "pickup_time": "",
-           }
+    msg = {}
 
     # order has final status
     if order.status in [TIMED_OUT, FAILED, ERROR]:
@@ -59,15 +53,15 @@ def get_tracker_msg_for_order(order, last_assignment=None):
                     "status": FAILED,
                     "from_raw": order.from_raw,
                     "to_raw": order.to_raw,
-                    "info": STATUS_MESSAGES[FAILED],
+                    "info": _(STATUS_MESSAGES[FAILED]),
                     })
     elif order.status == ACCEPTED:
         msg.update({"pk": order.id,
                     "status": ACCEPTED,
                     "from_raw": order.from_raw,
                     "to_raw": order.to_raw,
-                    "info": STATUS_MESSAGES[ACCEPTED] if order.future_pickup else "",
-                    "station": order.station.name,
+                    "info": _(STATUS_MESSAGES[ACCEPTED]) if order.future_pickup else "",
+                    "station": order.station_name,
                     "station_phone": str(order.station.phones.all()[0]),
                     "pickup_time": order.get_pickup_time() if order.future_pickup else "",
                     })
@@ -81,18 +75,40 @@ def get_tracker_msg_for_order(order, last_assignment=None):
                 return {}
 
         status = last_assignment.status
-        if status in STATUS_MESSAGES.keys():
+        if status in [PENDING, ASSIGNED]:
             msg.update({"pk": order.id,
                         "status": status,
                         "from_raw": order.from_raw,
                         "to_raw": order.to_raw,
-                        "info": STATUS_MESSAGES[status],
+                        "info": _(STATUS_MESSAGES[status]),
                         "station": last_assignment.station.name,
-                        "station_phone": str(order.station.phones.all()[0]) if status == ACCEPTED else "",
                         "pickup_time": order.get_pickup_time() if order.future_pickup else "",
                         })
 
-    if msg['pk']: # msg was updated with real content
+    if msg: # msg was updated with real content
         return simplejson.dumps(msg)
     else:
-        return {}
+        return simplejson.dumps({"pk" : 0})
+
+def get_tracker_history(passenger):
+    # 1. currently active orders
+    active_orders_qs = Order.objects.filter(passenger=passenger, status=ASSIGNED)
+    active_orders = [get_tracker_msg_for_order(order) for order in active_orders_qs]
+
+    # 2. orders with future pickup
+    future_pickup_orders = Order.objects.filter(passenger=passenger, future_pickup=True)
+    future_orders_by_pickup = [] # (pickup, msg) pairs
+    for order in future_pickup_orders:
+        pickup = order.get_pickup_time()
+        msg = get_tracker_msg_for_order(order)
+        future_orders_by_pickup.append((pickup, msg))
+    future_orders_by_pickup = [order[1] for order in
+                               sorted(future_orders_by_pickup, reverse=True, key=lambda item: item[0])]
+    # 3. recently failed orders
+    recent_time_delta = datetime.datetime.now() - datetime.timedelta(minutes=10)
+    recent_failed_orders_qs = Order.objects.filter(create_date__gt=recent_time_delta, passenger=passenger,
+                                                   status__in=[ERROR, FAILED, TIMED_OUT])
+    recent_failed_orders = [get_tracker_msg_for_order(order) for order in recent_failed_orders_qs]
+
+
+    return recent_failed_orders + future_orders_by_pickup + active_orders # <-- this side up
