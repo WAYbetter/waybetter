@@ -134,24 +134,26 @@
                 renderOrder(order);
             }
         };
+        setupChannel = function() {
+            $("#wcs-iframe").remove();
+            $.ajax({
+                url: "{% url ordering.passenger_controller.get_channel_token %}",
+                dataType: "json",
+                success: function (token) {
+                    channel = new goog.appengine.Channel(token);
+                    socket = channel.open();
+                    socket.onerror = setupChannel;
+                    socket.onclose = setupChannel;
+                    socket.onmessage = onMessage;
+                },
+                error: function () {
+                    setTimeout(setupChannel, 3000); // try again in 3
+                }
 
+            })
+        },
         openChannel = function() {
-            channel = new goog.appengine.Channel('{{ token }}');
-            socket = channel.open();
-//            socket.onopen = function() {
-//                if (console && console.log) {
-//                    console.log("channel opened with token:" + "{{ token }}");
-//                }
-//            };
-            socket.onerror = function(error) {
-//                alert("onerror: " + error.code + ":" + error.description + " token is: {{ token }}");
-                window.location.href = "/";
-            };
-            socket.onclose = function() {
-//                alert("on close");
-                window.location.href = "/";
-            };
-            socket.onmessage = onMessage;
+            setupChannel();
         };
 
         initOrderTracker = function() {
