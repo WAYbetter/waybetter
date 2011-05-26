@@ -5,6 +5,7 @@ from common.signals import AsyncSignal
 from common.decorators import  receive_signal
 from models import Order, OrderAssignment, FAILED, ACCEPTED, PENDING, ASSIGNED, ERROR, TIMED_OUT
 import datetime
+import logging
 
 ugettext = lambda s: s # use dummy ugettext for makemessages
 STATUS_MESSAGES = {
@@ -22,26 +23,32 @@ def order_tracker(sender, signal_type, obj, **kwargs):
     '''
     if signal_type in [SignalType.ASSIGNMENT_CREATED, SignalType.ASSIGNMENT_STATUS_CHANGED]:
         order_assignment = obj.fresh_copy()
-        order = order_assignment.order
-        passenger = order.passenger
 
-        if not passenger.business:
-            return
+        if order_assignment.status in [PENDING, ASSIGNED]:
+            order = order_assignment.order
+            passenger = order.passenger
 
-        msg = get_tracker_msg_for_order(order, last_assignment=order_assignment)
-        if msg:
-            passenger.send_channel_msg(msg)
+            # remove this when tracker used for all passengers
+            if not passenger.business:
+                return
+
+            msg = get_tracker_msg_for_order(order, last_assignment=order_assignment)
+            if msg != '{}':
+                passenger.send_channel_msg(msg)
 
     elif signal_type in [SignalType.ORDER_STATUS_CHANGED]:
         order = obj.fresh_copy()
-        passenger = order.passenger
 
-        if not passenger.business:
-            return
+        if order.status in [ACCEPTED, TIMED_OUT, FAILED, ERROR]:
+            passenger = order.passenger
 
-        msg = get_tracker_msg_for_order(order)
-        if msg:
-            passenger.send_channel_msg(msg)
+            # remove this when tracker used for all passengers
+            if not passenger.business:
+                return
+
+            msg = get_tracker_msg_for_order(order)
+            if msg != '{}':
+                passenger.send_channel_msg(msg)
 
 
 def get_tracker_msg_for_order(order, last_assignment=None):
@@ -72,22 +79,18 @@ def get_tracker_msg_for_order(order, last_assignment=None):
             try:
                 last_assignment = OrderAssignment.objects.filter(order=order).order_by('-create_date')[0]
             except IndexError:
-                return {}
+                logging.error("tracker msg error: cannot get last assignment of order %d" % order.id)
 
-        status = last_assignment.status
-        if status in [PENDING, ASSIGNED]:
+        if last_assignment and last_assignment.status in [PENDING, ASSIGNED]:
             msg.update({"pk": order.id,
-                        "status": status,
+                        "status": last_assignment.status,
                         "from_raw": order.from_raw,
                         "to_raw": order.to_raw,
-                        "info": _(STATUS_MESSAGES[status]),
+                        "info": _(STATUS_MESSAGES[last_assignment.status]),
                         "station": last_assignment.station.name,
                         })
 
-    if msg: # msg was updated with real content
-        return simplejson.dumps(msg)
-    else:
-        return simplejson.dumps({"pk" : 0})
+    return simplejson.dumps(msg)
 
 def get_tracker_history(passenger):
     # 1. currently active orders

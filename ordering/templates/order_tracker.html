@@ -35,7 +35,12 @@
                 $address_list.find(".tracker_to").hide();
             }
 
-            $($order).hide().prependTo("#order_tracker").slideDown('slow');
+            $($order).hide().prependTo("#order_tracker").slideDown('slow').oneTime(1000 *{{ ORDER_MAX_WAIT_TIME }}, function() {
+                if ($(this).hasClass("searching")) {
+                    resetOrderTracker();
+                }
+            });
+
         };
 
         renderOrder = function(order) {
@@ -67,13 +72,16 @@
                         $info.removeClass("searching").addClass("accepted").text(order.info).effect("highlight", 1000);
                         $station_phone.text("{% trans 'Changes: '%}" + order.station_phone).fadeIn();
 
+                        // stop previously installed timers and set a new one
+                        $indicator.stopTime("pickup_timer_" + order.id);
+
                         var minutes = Math.floor(order.pickup_time_sec / 60),
                                 seconds_remainder = order.pickup_time_sec % 60,
                                 initial_value = (seconds_remainder) ? minutes + 1 : minutes,
                                 minute_label = (initial_value == 1) ? "{% trans 'minute' %}" : "{% trans 'minutes' %}";
 
                         $indicator.val(initial_value).text("{% trans 'Pickup in' %}" + " " + initial_value + " " + minute_label)
-                                .oneTime(seconds_remainder * 1000, function() {
+                                .oneTime(seconds_remainder * 1000, "pickup_timer_" + order.pk, function() {
                             updateTimer(order)
                         });
 
@@ -81,8 +89,8 @@
                     break;
                 case {{ ORDER_FAILED }}:
                     $order.addClass("failed");
-                    $station.fadeOut();
-                    $indicator.fadeOut();
+                    $station.remove();
+                    $indicator.remove();
                     $info.removeClass("searching").addClass("failed").text("{{ FAILED_MSG }}");
                     $close_btn.fadeIn().click(function() {
                         $order.slideUp();
@@ -110,7 +118,7 @@
             else {
                 var minute_label = (new_val == 1) ? "{% trans 'minute' %}" : "{% trans 'minutes' %}";
                 $indicator.text("{% trans 'Pickup in' %}" + " " + new_val + " " + minute_label).effect("highlight", 1000)
-                        .oneTime(60 * 1000, function() {
+                        .oneTime(60 * 1000, "pickup_timer_" + order.pk, function() {
                     updateTimer(order)
                 });
             }
@@ -122,8 +130,8 @@
             return Boolean(order.pk > 0);  // small test that the msg is valid
         };
 
-        onMessage = function(msg) {
-            var order = JSON.parse(msg.data);
+        processOrder = function(msg) {
+            var order = JSON.parse(msg);
 
             if (isValidOrder(order)) {
                 var $order = getOrder(order);
@@ -134,45 +142,43 @@
                 renderOrder(order);
             }
         };
-        setupChannel = function() {
+
+        openChannel = function(token) {
+            channel = new goog.appengine.Channel(token);
+            socket = channel.open();
+            socket.onerror = resetOrderTracker;
+            socket.onclose = resetOrderTracker;
+            socket.onmessage = function(msg) {
+                processOrder(msg.data);
+            };
+        };
+
+        resetOrderTracker = function() {
             $("#wcs-iframe").remove();
             $.ajax({
-                url: "{% url ordering.passenger_controller.get_channel_token %}",
+                url: "{% url ordering.passenger_controller.reset_tracker %}",
                 dataType: "json",
-                success: function (token) {
-                    channel = new goog.appengine.Channel(token);
-                    socket = channel.open();
-                    socket.onerror = setupChannel;
-                    socket.onclose = setupChannel;
-                    socket.onmessage = onMessage;
+                success: function (response) {
+                    initOrderTracker(response.token, response.tracker_history)
                 },
                 error: function () {
-                    setTimeout(setupChannel, 3000); // try again in 3
+                    setTimeout(resetOrderTracker, 3000); // try again in 3 seconds
                 }
 
             })
-        },
-        openChannel = function() {
-            setupChannel();
         };
 
-        initOrderTracker = function() {
-            openChannel();
-
-            var recent_orders = {{ tracker_history|safe }};
-            if (recent_orders) {
-                for (var count = 0; count < recent_orders.length; count++) {
-                    var order = JSON.parse(recent_orders[count]);
-                    if (isValidOrder(order)) {
-                        buildOrder(order);
-                        renderOrder(order);
-                    }
+        initOrderTracker = function(token, tracker_history) {
+            openChannel(token);
+            if (tracker_history) {
+                for (var count = 0; count < tracker_history.length; count++) {
+                    processOrder(tracker_history[count]);
                 }
             }
         };
 
         $(function() {
-            initOrderTracker();
+            initOrderTracker('{{ token }}', {{ tracker_history|safe }});
         });
     })()
 </script>

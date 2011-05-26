@@ -27,7 +27,7 @@ import common.urllib_adaptor as urllib2
 ORDER_HANDLE_TIMEOUT = 80 # seconds
 ORDER_TEASER_TIMEOUT = 18 # seconds
 ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
-#USER_MAX_WAIT_TIME       = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
+ORDER_MAX_WAIT_TIME = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
 PASSENGER_TOKEN = "passenger_token"
 
 ASSIGNED = 1
@@ -93,7 +93,8 @@ class Station(BaseModel):
     app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True, verify_exists=False)
     app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True, verify_exists=False)
 
-    last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True, default=datetime.datetime(1,1,1))
+    last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
+                                            default=datetime.datetime(1, 1, 1))
 
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")
@@ -308,6 +309,7 @@ class Business(BaseModel):
 
         translation.activate(current_lang)
 
+
 def post_delete_business(sender, instance, **kwargs):
     passenger = instance.passenger
     user = passenger.user
@@ -315,7 +317,6 @@ def post_delete_business(sender, instance, **kwargs):
     user.save()
 
 models.signals.post_delete.connect(post_delete_business, sender=Business)
-
 
 class Phone(BaseModel):
     local_phone = models.CharField(_("phone number"), max_length=20, validators=[phone_validator])
@@ -340,7 +341,8 @@ class WorkStation(BaseModel):
     im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=40)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
 
-    last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True, default=datetime.datetime(1,1,1))
+    last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
+                                            default=datetime.datetime(1, 1, 1))
 
     def __unicode__(self):
         result = u"[%d]" % self.id
@@ -520,7 +522,7 @@ class Order(BaseModel):
     def get_pickup_time(self):
         ''' Return the time remaingin until pickup (in seconds), or -1 if pickup time passed already'''
         if self.future_pickup:
-            return ((self.modify_date + datetime.timedelta(minutes=self.pickup_time))- utc_now()).seconds
+            return ((self.modify_date + datetime.timedelta(minutes=self.pickup_time)) - utc_now()).seconds
         else:
             return -1
 
@@ -610,10 +612,10 @@ class OrderAssignment(BaseModel):
                 base_time = order_assignment.create_date
 
             result.append({
-                "pk":               order_assignment.order.id,
-                "status":           order_assignment.status,
-                "from_raw":         order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
-                "seconds_passed":   (utc_now() - base_time).seconds
+                "pk": order_assignment.order.id,
+                "status": order_assignment.status,
+                "from_raw": order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
+                "seconds_passed": (utc_now() - base_time).seconds
             })
 
         return simplejson.dumps(result)
