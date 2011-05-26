@@ -245,8 +245,8 @@ var Address = defineClass({
             $('#id_' + that.address_type + '_raw').removeClass("placeheld"); // placeheld plugin only removes class on focus
             $('#id_geocoded_' + that.address_type + '_raw').val(that.raw);
         },
-        clearFields: function () {
-            Address.clearAddressFields(this.address_type);
+        clearFields: function (including_raw) {
+            Address.clearAddressFields(this.address_type, including_raw);
         }
     },
     statics:    {
@@ -278,9 +278,9 @@ var Address = defineClass({
         },
 
         // utility methods
-        clearAddressFields: function(address_type) {
+        clearAddressFields: function(address_type, including_raw) {
             $.each(Address._fields, function(i,e) {
-                if (e != 'raw') {
+                if (e != 'raw' || including_raw) {
                     $("#id_" + address_type + "_" + e).val("");
                 }
             });

@@ -210,6 +210,10 @@ var OrderingHelper = Object.create({
             $("#ride_cost_estimate").addClass("fade");
         });
         $(".cancel_button").click(function() {
+            var address = Address.fromInput($(this).prev().children()[0]);
+            if (!address.isResolved()) {
+                address.clearFields(true);
+            }
             that.switchState();
             that.hideGlassPane();
         });
@@ -528,12 +532,12 @@ var OrderingHelper = Object.create({
         for (var address_type in this.ADDRESS_FIELD_ID_BY_TYPE) {
             var address = Address.fromFields(address_type);
             if (!address.isResolved()) {
+                address.clearFields();
                 if (this.map_markers[address.address_type]) {
                     this.map_markers[address.address_type].setMap();
                     delete this.map_markers[address.address_type];
                 }
                 this.renderMapMarkers();
-                Address.clearAddressFields(address_type);
                 $("#ride_cost_estimate > .header").text(this.config.messages.estimation_msg);
                 $("#ride_cost_estimate > .details").empty();
                 if (address_type == 'from') {
