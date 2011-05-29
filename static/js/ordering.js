@@ -70,7 +70,8 @@ var OrderingHelper = Object.create({
         address_not_resolved_msg:   "",
         pick_me_up_msg:             "",
         sending_msg:                "",
-        estimation_msg:             ""
+        estimation_msg:             "",
+        order_tracker_visible:      ""
 
 
 
@@ -268,9 +269,14 @@ var OrderingHelper = Object.create({
                     if (order_status.status != "booked") {
                         Registrator.openErrorDialog(order_status.errors.title, order_status.errors.message);
                     } else {
-                        Registrator.openRegistrationDialog(function() {
-                            window.location.href = "/";
-                        }, order_status.show_registration, false, order_status.message);
+                        if (that.config.order_tracker_visible){
+                            // TODO_WB: make sure the order appears in the order tracker
+                        }
+                        else{
+                            Registrator.openRegistrationDialog(function() {
+                                window.location.href = "/";
+                            }, order_status.show_registration, false, order_status.message);
+                        }
                     }
                 },
                 error: function(XMLHttpRequest, textStatus, errorThrown) {

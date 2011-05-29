@@ -1794,27 +1794,62 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     margin-bottom: 26px;
 }
 
-.tracker_order{
-    background: white;
+.tracker_order {
     border-radius: 10px;
     -webkit-border-radius: 10px;
     -moz-border-radius: 10px;
     border-style: solid;
     border-color: gray;
     height: 70px;
-    padding: 5px;
     margin: 10px;
+    border-width: 4px;
+    width: 872px;
+    position: relative;
+    margin-left: 1px;
 }
 
-.tracker_order.failed{
+.tracker_order.error {
+    border-color: yellow;
+}
+
+.tracker_order.failed {
     border-color: red;
 }
 
-.tracker_order.accepted{
+.tracker_order.accepted {
     border-color: #bada55;
 }
 
-.tracker_address_list{
+.content_container {
+    border-radius: 5px;
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    background: white;
+    height: 70px;
+    position: absolute;
+    width: 872px;
+}
+
+.content_container.connection_error {
+    filter: alpha(opacity = 50);
+    -moz-opacity: 0.5;
+    -khtml-opacity: 0.5;
+    opacity: 0.5;
+}
+
+.connection_error_label {
+    background: yellow;
+    border-radius: 0 0 4px 4px;
+    -webkit-border-radius: 0 0 4px 4px;
+    -moz-border-radius: 0 0 4px 4px;
+    left: 230px;
+    position: absolute;
+    padding-left: 3px;
+    padding-right: 3px;
+    box-shadow: 0 2px 2px black;
+}
+
+.tracker_address_list {
     margin-right: 60px;
     list-style-type: none;
     padding: 0;
@@ -1822,72 +1857,81 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     float: left;
 }
 
-.tracker_address_list > li{
+.tracker_address_list > li {
     padding-left: 36px;
     height: 20px;
     background-repeat: no-repeat;
     margin-top: 10px;
     width: 180px;
 }
-.tracker_from{
+
+.tracker_from {
     background-image: url(../img/ride_details.png);
     background-position: 6px 4px;
 }
 
-.tracker_to{
+.tracker_to {
     margin-top: 5px;
     background-image: url(../img/ride_details.png);
     background-position: 6px -14px;
     background-repeat: no-repeat;
 }
 
-.tracker_info_container{
+.tracker_info_container {
     text-align: center;
     font-size: 18px;
     font-weight: bold;
 }
-.tracker_station{
+
+.tracker_station {
     margin-top: 20px;
     float: left;
 }
 
-.tracker_info{
+.tracker_info {
     margin-top: 20px;
     float: left;
 }
-.tracker_info.searching{
+
+.tracker_info.searching {
     padding-left: 70px;
     background: url(../images/tracker_seachring.gif) 6px 5px no-repeat;
 }
-.tracker_info.accepted{
+
+.tracker_info.accepted {
     padding-left: 70px;
     background: url(../images/tracker_accepted.gif) 6px 5px no-repeat;
 }
 
-.tracker_details_container{
+.tracker_details_container {
     margin-top: 20px;
     margin-right: 10px;
     float: right;
-    text-align:center;
+    text-align: center;
 }
-.tracker_indicator{
+
+.tracker_indicator {
     height: 30px;
 }
-.tracker_indicator.searching{
+
+.tracker_indicator.searching {
     background: url(../images/loader5.gif) left 0 no-repeat;
     padding-left: 30px;
     line-height: 24px;
 }
-.tracker_indicator.accepted{
+
+.tracker_indicator.accepted {
     font-size: 18px;
     font-weight: bold;
     background: url(../images/sent.png) left 0 no-repeat;
     padding-left: 20px;
 }
-.tracker_station_phone{
+
+.tracker_station_phone {
     font-size: 12px;
     display: inline-block;
 }
+
 .tracker_button {
     display: block;
     margin-right: 10px;

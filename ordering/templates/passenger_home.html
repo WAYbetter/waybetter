@@ -27,7 +27,12 @@
             address_not_resolved_msg:   "{% trans 'The address is not resolved' %}",
             pick_me_up_msg:             "{% trans 'Pick Me Up' %}",
             sending_msg:                "{% trans 'Sending...' %}",
-            estimation_msg:             "{% trans 'Fill pickup and dropoff for price and time estimation ' %}"
+            estimation_msg:             "{% trans 'Fill pickup and dropoff for price and time estimation ' %}",
+            {% if show_tracker %}
+                order_tracker_visible:      "true"
+            {% else %}
+                order_tracker_visible:      ""
+            {% endif %}
         });
         $("#tabs").tabs({
             {% if request.user.passenger %}
