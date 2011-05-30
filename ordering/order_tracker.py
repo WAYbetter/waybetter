@@ -103,7 +103,7 @@ def get_tracker_msg_for_order(order, last_assignment=None):
 
 def get_tracker_history(passenger):
     # 1. currently active orders
-    active_orders_qs = Order.objects.filter(passenger=passenger, status__in=[PENDING, ASSIGNED])
+    active_orders_qs = Order.objects.filter(passenger=passenger, status__in=[ASSIGNED])
     active_orders = [get_tracker_msg_for_order(order) for order in active_orders_qs]
 
     # 2. orders with future pickup
