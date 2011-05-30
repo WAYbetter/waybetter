@@ -71,7 +71,7 @@ var OrderingHelper = Object.create({
         pick_me_up_msg:             "",
         sending_msg:                "",
         estimation_msg:             "",
-        order_tracker_visible:      ""
+        order_tracker_visible:      false
 
 
 
@@ -269,9 +269,11 @@ var OrderingHelper = Object.create({
                     if (order_status.status != "booked") {
                         Registrator.openErrorDialog(order_status.errors.title, order_status.errors.message);
                     } else {
+                        // if order tracker is visible, show the booked order as pending in the tracker
                         if (that.config.order_tracker_visible){
-                            // TODO_WB: make sure the order appears in the order tracker
+                            OrderTracker.processOrder(order_status.tracker_msg);
                         }
+                        // show dialog otherwise
                         else{
                             Registrator.openRegistrationDialog(function() {
                                 window.location.href = "/";

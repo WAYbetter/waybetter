@@ -22,7 +22,6 @@ def assign_order(order):
     assignment = OrderAssignment(order=order, station=work_station.station, work_station=work_station)
     assignment.pickup_address_in_ws_lang = translate_pickup_for_ws(work_station, order)
     assignment.save()
-    orderassignment_created_signal.send(sender="orderassignment_created_signal", obj=assignment)
 
     work_station.last_assignment_date = assignment.create_date
     work_station.save()
@@ -37,6 +36,8 @@ def assign_order(order):
                   order_assignment=assignment,
                   station=work_station.station,
                   work_station=work_station)
+        # emit the signal only if the order was successfully marked as ASSIGNED
+        orderassignment_created_signal.send(sender="orderassignment_created_signal", obj=assignment)
     except UpdateStatusError:
         logging.error("Cannot assign order: %d" % order.id)
 

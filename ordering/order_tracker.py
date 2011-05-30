@@ -54,14 +54,32 @@ def order_tracker(sender, signal_type, obj, **kwargs):
 def get_tracker_msg_for_order(order, last_assignment=None):
     msg = {}
 
-    # order has final status
-    if order.status in [TIMED_OUT, FAILED, ERROR]:
+    # new order, still pending
+    if order.status == PENDING:
         msg.update({"pk": order.id,
-                    "status": FAILED,
+                    "status": PENDING,
                     "from_raw": order.from_raw,
                     "to_raw": order.to_raw,
-                    "info": _(STATUS_MESSAGES[FAILED]),
                     })
+
+    # order is assigned, get status from the most recent assignment
+    elif order.status == ASSIGNED:
+        if not last_assignment:
+            try:
+                last_assignment = OrderAssignment.objects.filter(order=order).order_by('-create_date')[0]
+            except IndexError:
+                logging.error("tracker msg error: cannot get last assignment of order %d" % order.id)
+
+        if last_assignment and last_assignment.status in [PENDING, ASSIGNED]:
+            msg.update({"pk": order.id,
+                        "status": ASSIGNED,
+                        "from_raw": order.from_raw,
+                        "to_raw": order.to_raw,
+                        "info": _(STATUS_MESSAGES[last_assignment.status]),
+                        "station": last_assignment.station.name,
+                        })
+
+    # order has final status
     elif order.status == ACCEPTED:
         msg.update({"pk": order.id,
                     "status": ACCEPTED,
@@ -73,28 +91,19 @@ def get_tracker_msg_for_order(order, last_assignment=None):
                     "pickup_time_sec": order.get_pickup_time(),
                     })
 
-    # order is still 'alive', get status from the most recent assignment
-    else:
-        if not last_assignment:
-            try:
-                last_assignment = OrderAssignment.objects.filter(order=order).order_by('-create_date')[0]
-            except IndexError:
-                logging.error("tracker msg error: cannot get last assignment of order %d" % order.id)
-
-        if last_assignment and last_assignment.status in [PENDING, ASSIGNED]:
-            msg.update({"pk": order.id,
-                        "status": last_assignment.status,
-                        "from_raw": order.from_raw,
-                        "to_raw": order.to_raw,
-                        "info": _(STATUS_MESSAGES[last_assignment.status]),
-                        "station": last_assignment.station.name,
-                        })
+    elif order.status in [TIMED_OUT, FAILED, ERROR]:
+        msg.update({"pk": order.id,
+                    "status": FAILED,
+                    "from_raw": order.from_raw,
+                    "to_raw": order.to_raw,
+                    "info": _(STATUS_MESSAGES[FAILED]),
+                    })
 
     return simplejson.dumps(msg)
 
 def get_tracker_history(passenger):
     # 1. currently active orders
-    active_orders_qs = Order.objects.filter(passenger=passenger, status=ASSIGNED)
+    active_orders_qs = Order.objects.filter(passenger=passenger, status__in=[PENDING, ASSIGNED])
     active_orders = [get_tracker_msg_for_order(order) for order in active_orders_qs]
 
     # 2. orders with future pickup
