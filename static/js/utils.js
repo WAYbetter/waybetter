@@ -276,6 +276,10 @@ var Address = defineClass({
                 return new Address({});
             }
         },
+        fromJSON:           function(json_string) {
+            var json = JSON.parse(json_string);
+            return Address.fromServerResponse(json, json.address_type);
+        },
 
         // utility methods
         clearAddressFields: function(address_type, including_raw) {

@@ -20,7 +20,8 @@ var OrderingHelper = Object.create({
         }
 
     },
-    ACCURACY_THRESHOLD:             250, // meters
+    ACCURACY_THRESHOLD:             250, // meters,
+    STATE_RESTORE_TIMEOUT:          1000 * 60 * 3, // 3 minutes
     ADDRESS_FIELD_ID_BY_TYPE:       {
         from:   "id_from_raw",
         to:     "id_to_raw"
@@ -66,6 +67,13 @@ var OrderingHelper = Object.create({
             var $button = $(this);
             $button.button("disable").set_button_text(that.config.messages.sending);
 
+            // store current state in case user leaves app to handle SMS
+            localStorage.create_date = new Date();
+            localStorage.local_phone = $("#local_phone").val();
+            localStorage.from_address = JSON.stringify(Address.fromInput($("#id_from_raw")));
+            localStorage.to_address = JSON.stringify(Address.fromInput($("#id_to_raw")));
+
+            // do the actual request
             $.ajax({
                 url         : that.config.send_sms_url,
                 type        : 'post',
@@ -82,8 +90,8 @@ var OrderingHelper = Object.create({
             });
         });
 
-        cache.$finish_verification.button().button("disable"); // disabled by default
         // finish verification
+        cache.$finish_verification.button().button("disable"); // disabled by default
         $("#verification_code").keyup(function() {
             if ($(this).val().length == 4) {
                 cache.$finish_verification.button("enable");
@@ -97,6 +105,7 @@ var OrderingHelper = Object.create({
                 type : 'post',
                 data : $("#verification_form").serialize(),
                 success : function (response) {
+                    localStorage.clear();
                     $.mobile.changePage("#home");
                     that.bookOrder();
                 },
@@ -277,12 +286,14 @@ var OrderingHelper = Object.create({
         $.fixedToolbars.setTouchToggleEnabled(false);
         
         this.validateForBooking();
-        this.setLocationGPS(false);
         setTimeout(function() {
-            that.initMap()
+            that.initMap();
+            if (!that.restoreState()) {
+                that.setLocationGPS(false);
+            }
+            that.initPoints();
         }, 700);
-        setTimeout(that.initPoints, 100);
-        
+
         return this;
     }, // init
     _setState:              function(active_input, other_input) {
@@ -294,6 +305,20 @@ var OrderingHelper = Object.create({
             $("#gps_button").removeClass(other_input.data("address_type")).addClass(active_input.data("address_type"));
             $(".sources_toolbar").show();
         }, 10);
+    },
+    restoreState:           function() {
+        var that = this;
+        if (localStorage.create_date &&
+            (new Date() - Date.parse(localStorage.create_date)) <= that.STATE_RESTORE_TIMEOUT) {
+            Address.fromJSON(localStorage.from_address).populateFields();
+            Address.fromJSON(localStorage.to_address).populateFields();
+            that.validateForBooking();
+            $("#local_phone").val(localStorage.local_phone);
+            $.mobile.changePage("#sms_dialog");
+            $("#verification_code").focus();
+            return true;
+        }
+        return false;
     },
     switchState:            function (enter_state) {
         var $input = undefined,
