@@ -22,7 +22,7 @@ class BusinessAdmin(admin.ModelAdmin):
 
 
 class OrderAdmin(admin.ModelAdmin):
-    list_display = ["create_date_format", "station_name", "status", "pickup_time", "passenger", "passenger_rating"]
+    list_display = ["create_date_format", "from_raw", "to_raw", "station_name", "status", "pickup_time", "passenger", "passenger_rating"]
     list_filter = ["status", "station"]
     ordering = ['-create_date']
 
