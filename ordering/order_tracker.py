@@ -22,7 +22,7 @@ def order_tracker(sender, signal_type, obj, **kwargs):
     Sends messages to passenger's channel
     '''
     if signal_type in [SignalType.ASSIGNMENT_CREATED, SignalType.ASSIGNMENT_STATUS_CHANGED]:
-        order_assignment = obj.fresh_copy()
+        order_assignment = obj
 
         if order_assignment.status in [PENDING, ASSIGNED]:
             order = order_assignment.order
@@ -37,7 +37,7 @@ def order_tracker(sender, signal_type, obj, **kwargs):
                 passenger.send_channel_msg(msg)
 
     elif signal_type in [SignalType.ORDER_STATUS_CHANGED]:
-        order = obj.fresh_copy()
+        order = obj
 
         if order.status in [ACCEPTED, TIMED_OUT, FAILED, ERROR]:
             passenger = order.passenger

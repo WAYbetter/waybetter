@@ -19,9 +19,21 @@ class SignalStore(BaseModel):
     modify_date = models.DateTimeField("modify date", auto_now=True)
 
     def get_signal_data(self):
-        return pickle.loads(self.pickled_value.encode("utf-8"))
+        data = pickle.loads(self.pickled_value.encode("utf-8"))
+        if "obj_id" in data:
+            obj_id = data.pop("obj_id")
+            obj_type = data.pop("obj_type")
+            obj = obj_type.objects.get(id=obj_id)
+            data["obj"] = obj
+
+        return data
 
     def set_signal_data(self, data):
+        if "obj" in data:
+            o = data.pop("obj")
+            data["obj_id"] = o.id
+            data["obj_type"] = type(o)
+            
         self.pickled_value = pickle.dumps(data)
 
 #    define signal_data property
