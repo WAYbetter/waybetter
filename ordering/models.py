@@ -96,6 +96,7 @@ class Station(BaseModel):
     last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
                                             default=datetime.datetime(1, 1, 1))
 
+    confine_orders = models.BooleanField(_("confine orders"), default=False)
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="stations")
