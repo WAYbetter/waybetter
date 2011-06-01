@@ -358,6 +358,7 @@
         var polling_enabled = true;
         var POLLING_TIMER = "polling_timer";
         var CURRENT_VERSION = "{{ current_version }}";
+        var ORDER_IS_SHOWING = "showing";
         
         $(document).ready(function() {
             // setup bridge functions
@@ -496,7 +497,7 @@
 
                 show_button_container.append($('<div></div>').append(show_button));
 
-                var rendered_order = $("<div class='order teaser'></div>").attr('id', order.pk)
+                var rendered_order = $("<div class='order teaser'></div>").attr('id', order.pk).data("state", ORDER_IS_SHOWING)
                         .append($("<div class='teaser_txt'></div>").append("{% trans 'Incoming order' %}"))
                         .append(show_button_container);
 
@@ -526,14 +527,28 @@
 
         function showOrder(order) {
             var order_id = order.pk;
-            $("#"+order.pk).unbind("click").removeClass("teaser");
+            $("#"+order.pk).unbind("click").removeClass("teaser").data("state", "");
             setStateSending(order_id);
+            stopFussing();
             $.ajax({"url": "{% url ordering.station_controller.show_order %}", "type":"post", "data":{"order_id": order_id}, "error": onError,
                 "success": function(){
                     renderOrderDetails(order);
                     return false;
                 }
             });
+        }
+        
+        function stopFussing() {
+            var needs_attention = false;
+            $("#orders").children().each(function() {
+                if ($(this).data("state") === ORDER_IS_SHOWING) {
+                    needs_attention = true;
+                }
+            });
+
+            if (!needs_attention && parentSandboxBridge.stop_notification_sound) {
+                parentSandboxBridge.stop_notification_sound();
+            }
         }
 
         function renderOrderDetails(order) {
@@ -621,7 +636,6 @@
             order_row.next().empty();
         }
         function removeOrderRow(order_id) {
-
             var order_row  = $("#orders #" + order_id);
             if (order_row.hasClass("teaser")) { // the teaser is spanning two rows.
                 handleRemoveRow();
@@ -629,6 +643,7 @@
             var actual_rows = order_row.add(order_row.next());
             actual_rows.remove();
             handleRemoveRow();
+            stopFussing();
         }
         function acceptOrder(order_id) {
             var pickup_time = $("#pickup_time_for_" + order_id).val();
