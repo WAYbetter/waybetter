@@ -231,10 +231,15 @@ var OrderTracker = Object.create({
 
 
             processOrder: function(msg) {
-                var order = $.parseJSON(msg);
+                try {
+                    var order = $.parseJSON(msg);
 
-                if (this.isValidOrder(order)) {
-                    this.updateOrder(order);
+                    if (this.isValidOrder(order)) {
+                        this.updateOrder(order);
+                    }
+                }
+                catch(e) {
+                    // handle JSON parsing errors here
                 }
             },
 

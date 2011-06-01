@@ -10,7 +10,7 @@ from django.utils.translation import ugettext as _
 from ordering.models import Station
 from ordering.errors import  ShowOrderError, UpdateOrderError, NoWorkStationFoundError, UpdateStatusError
 from ordering.decorators import passenger_required, passenger_required_no_redirect, order_assignment_required, order_required
-from common.sms_notification import send_sms
+from ordering.util import send_msg_to_passenger
 from common.util import log_event, EventType
 from common.langsupport.util import translate_to_lang
 from common.tz_support import utc_now
@@ -73,8 +73,7 @@ def book_order(request):
     if (utc_now() - order.create_date).seconds > ORDER_HANDLE_TIMEOUT:
         try:
             order.change_status(new_status=TIMED_OUT)
-            send_sms(order.passenger.international_phone(),
-                     translate_to_lang(sorry_msg, order.language_code))
+            send_msg_to_passenger(passenger, translate_to_lang(sorry_msg, order.language_code))
             logging.warning("order time out: %d" % order_id)
             response = HttpResponse(ORDER_TIMEOUT)
         except UpdateStatusError:
@@ -90,8 +89,7 @@ def book_order(request):
         except NoWorkStationFoundError:
             try:
                 order.change_status(new_status=FAILED)
-                send_sms(order.passenger.international_phone(),
-                         translate_to_lang(sorry_msg, order.language_code)) # use dummy ugettext for makemessages
+                send_msg_to_passenger(passenger, translate_to_lang(sorry_msg, order.language_code)) # use dummy ugettext for makemessages
 
                 log_event(EventType.ORDER_FAILED, order=order, passenger=order.passenger)
                 logging.warning("no matching workstation found for: %d" % order_id)
@@ -102,9 +100,7 @@ def book_order(request):
         except Exception, e:
             try:
                 order.change_status(new_status=ERROR)
-                send_sms(order.passenger.international_phone(),
-                         translate_to_lang(
-                             ugettext("We're sorry, but we have encountered an error while handling your request")
+                send_msg_to_passenger(passenger, translate_to_lang(ugettext("We're sorry, but we have encountered an error while handling your request")
                              , order.language_code)) # use dummy ugettext for makemessages
                 log_event(EventType.ORDER_ERROR, order=order, passenger=order.passenger)
                 logging.error("book_order: OrderError: %d" % order_id)
@@ -214,7 +210,7 @@ def accept_order(order, pickup_time, station):
                "station_name": order.station_name,
                "station_phone": station.phones.all()[0].local_phone} # use dummy ugettext for makemessages
 
-        send_sms(order.passenger.international_phone(), msg)
+        send_msg_to_passenger(order.passenger, msg)
     except UpdateStatusError:
         logging.error("accept_order failed [%d]: cannot mark order as %s" % (order.id, "ACCEPTED"))
 
@@ -355,8 +351,8 @@ def do_not_rate_order(request, order_id, passenger):
         return HttpResponseForbidden(_("You can't rate this order"))
 
     if order.passenger_rating:
-        return HttpResponseBadRequest(_("Order already rated")) 
-    
+        return HttpResponseBadRequest(_("Order already rated"))
+
     order.passenger_rating = 0
     order.save()
 

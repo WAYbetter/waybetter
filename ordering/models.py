@@ -1,6 +1,5 @@
 from django.template.loader import get_template
 from django.template.context import Context
-from google.appengine.api import channel
 from google.appengine.ext.db import is_in_transaction
 from api.models import APIUser
 from django.db.models.query import QuerySet
@@ -13,7 +12,7 @@ from django.utils import simplejson, translation
 from djangotoolbox.fields import BlobField, ListField
 from common.models import Country, City, CityArea
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, BaseModel, StatusField, get_channel_key
+from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, BaseModel, StatusField
 from common.tz_support import UTCDateTimeField, utc_now
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal
 from ordering.errors import UpdateStatusError
@@ -225,18 +224,6 @@ class Passenger(BaseModel):
             if session_key not in db_session_keys:
                 self.session_keys.remove(session_key)
         self.save()
-
-    def send_channel_msg(self, msg):
-        for session_key in self.session_keys:
-            channel_key = get_channel_key(self, key_data=session_key)
-            try:
-                channel.send_message(channel_key, msg)
-            except channel.InvalidChannelClientIdError:
-                logging.error(
-                    "InvalidChannelClientIdError: Failed sending channel message to passenger[%d]: %s" % (self.id, msg))
-            except channel.InvalidMessageError:
-                logging.error(
-                    "InvalidMessageError: Failed sending channel message to passenger[%d]: %s" % (self.id, msg))
 
     def international_phone(self):
         return get_international_phone(self.country, self.phone)

@@ -1,9 +1,10 @@
 from django.utils.translation import ugettext as _
 from django.utils import simplejson
 from ordering.signals import   SignalType
+from ordering.util import send_msg_to_passenger
 from common.signals import AsyncSignal
 from common.decorators import  receive_signal
-from models import Order, OrderAssignment, FAILED, ACCEPTED, PENDING, ASSIGNED, ERROR, TIMED_OUT
+from ordering.models import Order, OrderAssignment, FAILED, ACCEPTED, PENDING, ASSIGNED, ERROR, TIMED_OUT
 import datetime
 import logging
 
@@ -28,13 +29,12 @@ def order_tracker(sender, signal_type, obj, **kwargs):
             order = order_assignment.order
             passenger = order.passenger
 
-            # remove this when tracker used for all passengers
-            if not passenger.business:
+            # change this when tracker used for all passengers
+            if passenger.business:
+                msg = get_tracker_msg_for_order(order, last_assignment=order_assignment)
+                send_msg_to_passenger(passenger, msg)
+            else:
                 return
-
-            msg = get_tracker_msg_for_order(order, last_assignment=order_assignment)
-            if msg != '{}':
-                passenger.send_channel_msg(msg)
 
     elif signal_type in [SignalType.ORDER_STATUS_CHANGED]:
         order = obj
@@ -42,13 +42,12 @@ def order_tracker(sender, signal_type, obj, **kwargs):
         if order.status in [ACCEPTED, TIMED_OUT, FAILED, ERROR]:
             passenger = order.passenger
 
-            # remove this when tracker used for all passengers
-            if not passenger.business:
+            # change this when tracker used for all passengers
+            if passenger.business:
+                msg = get_tracker_msg_for_order(order)
+                send_msg_to_passenger(passenger, msg)
+            else:
                 return
-
-            msg = get_tracker_msg_for_order(order)
-            if msg != '{}':
-                passenger.send_channel_msg(msg)
 
 
 def get_tracker_msg_for_order(order, last_assignment=None):
@@ -99,7 +98,7 @@ def get_tracker_msg_for_order(order, last_assignment=None):
                     "info": _(STATUS_MESSAGES[FAILED]),
                     })
 
-    return simplejson.dumps(msg)
+    return msg
 
 def get_tracker_history(passenger):
     # 1. currently active orders
