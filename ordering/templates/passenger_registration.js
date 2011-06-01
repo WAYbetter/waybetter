@@ -137,7 +137,7 @@ var registerState = {
         });
         
 
-        self.progress_indicator = $("<img>").attr("src", "/static/img/indicator_small.gif").css("display", "inline").hide();
+        self.progress_indicator = $("<img>").attr("src", "/static/images/indicator_small.gif").css("display", "inline").hide();
 
         self.user_details_table =
         $("<table></table>")
