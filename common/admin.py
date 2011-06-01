@@ -1,6 +1,6 @@
 from common.signals import SignalStore
 from django.contrib import admin
-from common.models import Country, City, CityArea
+from common.models import  City, CityArea
 
 class CountryAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "code", "dial_code"]

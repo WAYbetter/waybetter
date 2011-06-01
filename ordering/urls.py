@@ -1,6 +1,5 @@
 from django.conf.urls.defaults import *
 from django.conf.urls.defaults import url
-from django.conf import settings
 
 urlpatterns = patterns('',
     (r'^$', 'ordering.passenger_controller.passenger_home'),

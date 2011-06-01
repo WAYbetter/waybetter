@@ -40,7 +40,6 @@
 import re, os
 
 from django.conf import settings
-import logging
 
 url_attributes = ['src', 'href']
 

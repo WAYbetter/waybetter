@@ -1,6 +1,4 @@
-import logging
 from google.appengine.api import memcache
-from common.util import get_channel_key
 from django.utils.datetime_safe import datetime
 from django.utils import simplejson
 from ordering.models import OrderAssignment, PENDING

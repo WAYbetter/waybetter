@@ -1,7 +1,6 @@
 import logging
 from django.conf import settings
-import ordering
-from settings import SMS_PROVIDER_URL, SMS_PROVIDER_USER_NAME, SMS_PROVIDER_PASSWORD, SMS_FROM_PHONE_NUMBER, SMS_FROM_MARKETING_NAME, SMS_FROM_MARKETING_PHONE, SMS_VALIDITY_PERIOD, SMS_CALLBACK_URL
+from settings import SMS_PROVIDER_URL, SMS_CALLBACK_URL
 from django.template.loader import get_template
 from django.template.context import Context
 from django.utils.http import urlquote_plus

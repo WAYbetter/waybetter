@@ -6,7 +6,7 @@ from google.appengine.api import memcache
 
 from common.models import City, Country
 
-from ordering.models import Passenger, WorkStation, Station, Order, OrderAssignment, IGNORED, REJECTED, ASSIGNED, ACCEPTED, Phone, ORDER_ASSIGNMENT_TIMEOUT, ORDER_TEASER_TIMEOUT, NOT_TAKEN, ORDER_HANDLE_TIMEOUT, PENDING, Business
+from ordering.models import Passenger, WorkStation, Station, Order, OrderAssignment, IGNORED, REJECTED, ASSIGNED, ACCEPTED, Phone, ORDER_ASSIGNMENT_TIMEOUT, ORDER_TEASER_TIMEOUT, NOT_TAKEN, ORDER_HANDLE_TIMEOUT, PENDING
 from ordering.forms import OrderForm
 from ordering.dispatcher import assign_order, choose_workstation, compute_ws_list
 from ordering import order_manager

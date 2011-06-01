@@ -1,5 +1,5 @@
 from common.signals import AsyncSignal
-from common.util import EventType, Enum
+from common.util import  Enum
 
 class SignalType(Enum):
     ORDER_CREATED               = 1

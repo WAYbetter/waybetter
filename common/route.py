@@ -2,7 +2,6 @@ import logging
 import common.urllib_adaptor as urllib2
 from django.utils import simplejson
 from django.conf import settings
-from datetime import datetime
 from geocode import telmap_request, get_text_from_element
 
 def calculate_time_and_distance(from_lon, from_lat, to_lon, to_lat):

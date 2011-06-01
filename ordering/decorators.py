@@ -2,7 +2,7 @@ from django.contrib.auth import logout
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.decorators import user_passes_test
 from django.utils.http import urlquote
-from ordering.models import Passenger, WorkStation, Station, CURRENT_PASSENGER_KEY, OrderAssignment, Order
+from ordering.models import Passenger, WorkStation, Station, OrderAssignment, Order
 from django.http import HttpResponseForbidden, HttpResponseRedirect, HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.conf import settings

@@ -1,6 +1,5 @@
 import logging
 from django.shortcuts import render_to_response
-from common.models import Country
 from django.conf import settings
 from django.template.context import RequestContext
 from ordering.forms import FeedbackForm

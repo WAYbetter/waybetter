@@ -5,7 +5,6 @@ A utility module to handle timezone requirements
 '''
 
 import datetime
-from django.conf import settings
 from django.db import models
 
 class UTC(datetime.tzinfo):
