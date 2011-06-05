@@ -26,8 +26,15 @@
                  cant_login_form_template           : '{% url common.registration.get_cant_login_form %}',
                  phone_code_form_template           : '{% url common.registration.get_phone_code_form %}',
                  feedback_form_template             : '{% url common.registration.feedback %}',
-                 mobile_interest_form_template      : '{% url interests.views.mobile_interest %}'
+                 mobile_interest_form_template      : '{% url interests.views.mobile_interest %}',
+                 business_interest_form_template: '{% url interests.views.business_interest %}'
+             },
+             messages        : {
+                 // TODO_WB: move these to base
+                 interest_submitted_dialog_title_html: '{% trans "Thank you" %}',
+                 interest_submitted_dialog_content_html: '{% trans "We will contact you" %}'
              }
+
          });
  
         $("input[placeholder]").placeHeld();

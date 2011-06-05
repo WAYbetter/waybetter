@@ -245,17 +245,18 @@ input.text, input[type=text], input[type=password] {
     text-align: left;
     line-height: 24px;
 }
-#user_tools {
+#tools {
     position: absolute;
     bottom : 0;
     right: 0;
 }
-form.languages{
-    display: inline;
+
+#user_tools {
+    float: left;
 }
-form.languages img {
-    cursor: pointer;
-    margin: 0 3px;
+
+#lang_tools {
+    float: left;
 }
 
 /************* Footer *************/
@@ -1275,11 +1276,7 @@ form.languages > select{
 #station_interest #submit {
     width: 180px;
 }
-#station_interest #sent_message {
-    font-size: 16px;
-    margin-top: 15px;
-    text-align:left;
-}
+
 /** buttons **/
 
 input::-moz-focus-inner, button::-moz-focus-inner {
@@ -1768,26 +1765,55 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     margin-left: 10px;
 }
 
-#business_text {
+#business_tab_text {
     float: left;
     width: 50%;
 }
 
-#business_text ul {
+#business_tab_text ul {
     margin-left: 20px;
     margin-top: 10px;
 }
-#business_text ul > li {
+#business_tab_text ul > li {
     line-height: 30px;
 }
 
 #business_join_btn {
     bottom: 30px;
-    position: absolute;}
+    position: absolute;
+}
 
 #business_login_btn{
     bottom: 30px;
-    position: absolute;}
+    position: absolute;
+}
+
+/** Business interest dialog **/
+#business_interest_dialog  #business_interest_form input {
+    -webkit-border-radius: 5px;
+    -moz-border-radius: 5px;
+    border-radius: 5px;
+    width: 250px;
+}
+
+#business_interest_dialog  #business_interest_form label {
+    padding-top: 20px;
+}
+
+#business_interest_dialog #button_container {
+    margin-top: 80px;
+    margin-bottom: 0;
+}
+
+#business_interest_dialog #submit {
+    width: 150px;
+    position: relative;
+    
+left: -1px;}
+
+#business_interest_dialog #close {
+    float: left;
+}
 
 /** Order tracker **/
 #order_tracker {

@@ -13,6 +13,7 @@ var Registrator = Object.create({
             terms_form_template             : '/',
             mobile_interest_form_template   : '/',
             station_interest_form_template  : '/',
+            business_interest_form_template : '/',
             check_email                     : '/',
             login                           : '/',
             send_sms                        : '/',
@@ -40,7 +41,9 @@ var Registrator = Object.create({
             code_sent               : '',
             sending_code            : '',
             finish                  : '',
-            sms_ok                  : ''
+            sms_ok                  : '',
+            interest_submitted_dialog_title_html: '',
+            interest_submitted_dialog_content_html: ''
         },
         current_dialog_is_sending   : false,
         callback        : function () {}
@@ -139,7 +142,7 @@ var Registrator = Object.create({
                 }
             };
 
-        if (!this.validator.form || this.validator.form() ) {
+        if (!this.validator || (!this.validator.form || this.validator.form())) {
             $.ajax({
                 url :url,
                 type : 'post',
@@ -171,7 +174,22 @@ var Registrator = Object.create({
     },
     doSubmitInterest        : function(form, url) {
         this._doDialogSubmit(form, undefined, url, undefined, function(response) {
-            $("#sent_message").fadeIn("fast");
+            if (! response.errors) {   // no errors!
+                $("#dialog").dialog("close");
+                openDialog(Registrator.config.messages.interest_submitted_dialog_title_html,
+                            Registrator.config.messages.interest_submitted_dialog_content_html, undefined);
+            } else {                    // we got errors
+                $.each(response.errors, function(i, error) {
+                    for (var field_name in error) {
+                        var $errors = $("<ul class='errorlist'></ul>").hide();
+                        $.each(error[field_name], function(i, val) {
+                            $errors.append($("<li></li>").text(val));
+                        });
+                        $("input[name=" + field_name + "]").before($errors);
+                        $errors.fadeIn('fast');
+                    }
+                });
+            }
         });
     },
     openErrorDialog         : function(title, message, callback) {
@@ -200,29 +218,25 @@ var Registrator = Object.create({
             that.openDialog.call(that);
         });
     },
-    openMobileInterestDialog: function (callback) {
+    _openInterestDialog: function (interest_name, callback) {
         var that = this;
         that.setCallback(callback);
-        that.getTemplate.call(that, "mobile_interest", function(dialog_content) {
+        that.getTemplate.call(that, interest_name+"_interest", function(dialog_content) {
             var form = $("form", dialog_content);
-            $("#sent_message", dialog_content).hide();
             $("#close", dialog_content).click(function() {
                 $('#dialog').dialog('close');
             });
             that.openDialog.call(that);
         });
     },
+    openMobileInterestDialog: function (callback) {
+        this._openInterestDialog.call(this, "mobile", callback);
+    },
     openStationInterestDialog: function (callback) {
-        var that = this;
-        that.setCallback(callback);
-        that.getTemplate.call(that, "station_interest", function(dialog_content) {
-            var form = $("form", dialog_content);
-            $("#sent_message", dialog_content).hide();
-            $("#close", dialog_content).click(function() {
-                $('#dialog').dialog('close');
-            });
-            that.openDialog.call(that);
-        });
+        this._openInterestDialog.call(this, "station", callback);
+    },
+    openBusinessInterestDialog: function(callback){
+        this._openInterestDialog.call(this, "business", callback);
     },
     openTermsDialog         : function (callback) {
         var that = this;

@@ -1,5 +1,5 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
-<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl" class="rtl"{% endif %}>
 <head>
 <meta name="google-site-verification" content="6M7E60YhxlrZR6e8sXaMr2_9hy-TwfdXM-orIbAlwXA" />
 <!--[if IE 9]><meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8"><![endif]-->
@@ -32,7 +32,7 @@
         });
         $("form.languages select").change(function() {
             var selected_lang = $(this).val();
-            var current_lang = $("form.languages > #language").val()
+            var current_lang = $("form.languages > #language").val();
             if (selected_lang != current_lang) {
                 $("form.languages > #language").val(selected_lang);
                 $("form.languages").submit();
@@ -72,30 +72,35 @@
                 <a href="/" id="logo"></a>
                 <h3>{% block sub-header %}{% trans 'Get Your Taxis Online (FREE)' %}{% endblock %}</h3>
             </div>
-            <div id="user_tools">
-                {% block usertools %}
-                {% if request.user.is_authenticated %}
-                    <strong>{% trans 'Hi' %}
-                    {%  if request.user.first_name %}
-                        {{ request.user.first_name }}
+            <div id="tools">
+                <div id="user_tools">
+                    {% block usertools %}
+                    {% if request.user.is_authenticated %}
+                        <strong>{% trans 'Hi' %}
+                        {%  if request.user.first_name %}
+                            {{ request.user.first_name }}
+                        {% else %}
+                            {{ request.user.username }}
+                        {% endif %}
+                        ! | <a href="/logout?next=/" id="logout_link">{% trans 'Log out' %}</a></strong>
                     {% else %}
-                        {{ request.user.username }}
+                        {% block join_or_login %}{% endblock join_or_login %}
                     {% endif %}
-                    ! | <a href="/logout?next=/" id="logout_link">{% trans 'Log out' %}</a></strong>
-                {% else %}
-                    {% block join_or_login %}{% endblock join_or_login %}
-                {% endif %}
-
-                <form action="/i18n/setlang/" method="post" class="languages">
-                {% csrf_token %}
-                <input type="hidden" name="language" id="language" />
-                <select>
-                    {% for lang in LANGUAGES %}
-                        <option value="{{ lang.0 }}">{{ lang.1 }}</option>
-                    {% endfor %}
-                </select>
-                </form>
-                {% endblock usertools %}
+                    {% endblock usertools %}
+                </div>
+                <div id="lang_tools">
+                    {% block langtools %}
+                        <form action="/i18n/setlang/" method="post" class="languages">
+                        {% csrf_token %}
+                        <input type="hidden" name="language" id="language" />
+                        <select>
+                            {% for lang in LANGUAGES %}
+                                <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+                            {% endfor %}
+                        </select>
+                        </form>
+                    {% endblock langtools %}
+                </div>
             </div>
             <div id="alpha"></div>
             <div class="clear"></div>

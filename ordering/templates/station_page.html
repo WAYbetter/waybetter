@@ -4,7 +4,7 @@
 
 {% block extrastyle %}
     {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="/static/css/station_page.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/station_page.css"/>
 {% endblock extrastyle %}
 
 {% block extrahead %}
@@ -12,28 +12,61 @@
     <script src="/static/js/jquery.form.js"></script>
     <script src="/static/js/ordering.1.js"></script>
     <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
+    {% if request.user.passenger.business %}
+        <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+        <script type="text/javascript" src="/static/js/order_tracker.1.js"></script>
+    {% endif %}
     <script>
 
         $(document).ready(function() {
+            Registrator.init({
+                        urls            : {
+                            business_interest_form_template: '{% url interests.views.business_interest %}'
+                        }
+                    });
             OrderingHelper.init({
-                resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
-                resolve_coordinate_url:     "{% url ordering.passenger_controller.resolve_coordinates %}",
-                estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}",
-                not_a_passenger_response:   "{{ not_a_passenger }}",
-                not_a_user_response:        "{{ not_a_user }}",
-                telmap_user:                "{{ telmap_user }}",
-                telmap_password:            "{{ telmap_password}}",
-                telmap_languages:           "{{ telmap_languages }}",
-                address_helper_msg_from:    "{% trans 'Full Pickup Address: (Street Number City)' %}",
-                address_helper_msg_to:      "{% trans 'Full Drop-off Address: (Street Number City)' %}",
-                autocomplete_msg:           "{% trans '(Street Number City) and Select:' %}",
-                address_not_resolved_msg:   "{% trans 'The address is not resolved' %}",
-                pick_me_up_msg:             "{% trans 'Pick Me Up' %}",
-                sending_msg:                "{% trans 'Sending...' %}",
-                more_msg:                   "{% trans 'More' %}",
-                less_msg:                   "{% trans 'Less' %}",
-                estimation_msg:             "{% trans 'Fill pickup and dropoff for price and time estimation ' %}"
-            });
+                        resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
+                        resolve_coordinate_url:     "{% url ordering.passenger_controller.resolve_coordinates %}",
+                        estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}",
+                        not_a_passenger_response:   "{{ not_a_passenger }}",
+                        not_a_user_response:        "{{ not_a_user }}",
+                        telmap_user:                "{{ telmap_user }}",
+                        telmap_password:            "{{ telmap_password}}",
+                        telmap_languages:           "{{ telmap_languages }}",
+                        address_helper_msg_from:    "{% trans 'Full Pickup Address: (Street Number City)' %}",
+                        address_helper_msg_to:      "{% trans 'Full Drop-off Address: (Street Number City)' %}",
+                        autocomplete_msg:           "{% trans '(Street Number City) and Select:' %}",
+                        address_not_resolved_msg:   "{% trans 'The address is not resolved' %}",
+                        pick_me_up_msg:             "{% trans 'Pick Me Up' %}",
+                        sending_msg:                "{% trans 'Sending...' %}",
+                        more_msg:                   "{% trans 'More' %}",
+                        less_msg:                   "{% trans 'Less' %}",
+                        estimation_msg:             "{% trans 'Fill pickup and dropoff for price and time estimation ' %}"
+                    });
+
+            {% if request.user.passenger.business %}
+                OrderingHelper.config.order_tracker_visible = true;
+                OrderTracker.init({
+                            ASSIGNED : {{ ASSIGNED }},
+                            PENDING : {{ PENDING }},
+                            ACCEPTED : {{ ACCEPTED }},
+                            ORDER_FAILED : {{ ORDER_FAILED }},
+                            ORDER_MAX_WAIT_TIME : {{ ORDER_MAX_WAIT_TIME }},
+                            FAILED_MSG : "{{ FAILED_MSG }}",
+                            init_token : "{{ init_token }}",
+                            init_tracker_history : {{ init_tracker_history|safe }},
+                            get_tracker_init_url: "{% url ordering.passenger_controller.get_tracker_init %}",
+                            close_msg: "{% trans 'Close' %}",
+                            changes_msg: "{% trans 'Changes: '%}",
+                            minute_label: "{% trans 'minute' %}",
+                            minutes_label: "{% trans 'minutes' %}",
+                            please_wait_msg: "{% trans 'Please wait' %}",
+                            pickup_in_msg: "{% trans 'Pickup in' %}",
+                            order_finished_msg: "{% trans 'Order finished!' %}",
+                            connection_error_msg: "{% trans 'Re-connecting to server, please wait (your order is being processed)' %} ",
+                            countdown_finished_msg: "{% trans 'Have a pleasant ride!' %}"
+                        });
+            {% endif %}
 
             $(".toggle_info_height").click(function() {
                 var $p = $(this).parent().children("p");
@@ -47,33 +80,59 @@
                 }
             });
             $("#banner > h1").unbind("click");
+            $("#station_for_business").find("#join").click(function() {
+                Registrator.openBusinessInterestDialog();
+            });
+
+            $("#tabs").tabs({
+                        ajaxOptions: {
+                            error: function(xhr, status, index, anchor) {
+                                $(anchor.hash).html("{% trans "We're sorry, but an error occurred while loading this page." %}");
+                            }
+                        }
+
+                    });
+            SelectFromHistoryHelper.init($("#tabs"), { fetch_address_url: "{% url ordering.passenger_controller.get_order_address %}" });
         });
     </script>
 {% endblock extrahead %}
 
 {% block header %}
-            <div id="banner">
-                {% blob_to_img station.logo %}
-                <h1>{% trans 'Book A Cab Application. Immediate Response via SMS' %}</h1>
-            </div>
-            <div id="user_tools">
-                {% block usertools %}
+    <div id="banner">
+        <div id="app_large_icon"></div>
+        {% if request.user.passenger.business %}
+            <h1>{% trans 'Pick Me App for Businesses, with instant feedback and no phone calls ' %}</h1>
+        {% else %}
+            <h1>{% trans 'Book A Taxi Application. Immediate Response via SMS' %}</h1>
+        {% endif %}
+    </div>
+    <div id="tools">
+        <div id="user_tools">
+            {% block usertools %}
                 {% if request.user.is_authenticated %}
-                    {% trans 'Hi' %} {{ request.user.username }}! | <a href="/logout/?next={{ request.path }}" id="logout_link">{% trans 'Log out' %}</a>
+                    {% trans 'Hi' %} {{ request.user.username }}! | <a href="/logout/?next={{ request.path }}"
+                                                                       id="logout_link">{% trans 'Log out' %}</a>
                 {% else %}
                     <a href="#" id="login_link">{% trans 'Login' %}</a>
                 {% endif %}
-                    
-                {% endblock usertools %}
-            </div>
-            <div class="clear"></div>
-            {% endblock header %}
+            {% endblock usertools %}
+        </div>
+        <div id="lang_tools">
+            {% block langtools %}
+                {{ block.super }}
+            {% endblock %}
+
+        </div>
+    </div>
+
+    <div class="clear"></div>
+{% endblock header %}
 
 {% block content %}
     <div id="body_bg_image"></div>
     <div class="gray_header">
         <form id="order_form" method="post" action="{% url ordering.passenger_controller.book_order %}">
-            <input type="hidden" name="originating_station" id="id_originating_station" value="{{ station.id }}" />
+            <input type="hidden" name="originating_station" id="id_originating_station" value="{{ station.id }}"/>
 
             {% csrf_token %}
             {% for field in form %}
@@ -81,14 +140,16 @@
                     {{ field.as_hidden }}
                 {% else %}
                     <input type="hidden" id="id_geocoded_{{ field.name }}" name="geocoded_{{ field.name }}"/>
-                {%  endif %}
+                {% endif %}
             {% endfor %}
             <ul>
                 <li>
-                    <input type=text class="big_text a_marker marker_disabled" id="id_from_raw" name="from_raw" placeholder="{% trans 'Enter pickup address' %}"/>
+                    <input type=text class="big_text a_marker marker_disabled" id="id_from_raw" name="from_raw"
+                           placeholder="{% trans 'Enter pickup address' %}"/>
                 </li>
                 <li>
-                    <input type=text class="big_text b_marker marker_disabled" id="id_to_raw" name="to_raw" placeholder="{% trans 'Enter drop-off address' %}"/>
+                    <input type=text class="big_text b_marker marker_disabled" id="id_to_raw" name="to_raw"
+                           placeholder="{% trans 'Enter drop-off address' %}"/>
                 </li>
             </ul>
             <button type=submit class="order_button" id="order_button">{% trans 'Pick Me Up' %}</button>
@@ -101,40 +162,75 @@
         </div>
         <div class="clear"></div>
     </div>
-    <div id="station_details_container">
-        <div id="station_left">
-            <div id="station_banner" class="station_info_box">
-                <div id="images">
-                    <div id="big_icon"></div>
-                    <div id="mobile_icons"></div>
-                </div>
-                <div id="text">
-                    <h1>{{ station.subdomain_name|default_if_none:"example" }}.taxiApp.co.il</h1>
 
-                    <p>{% trans 'From any smartphone' %}, <strong>{% trans 'one click and the taxi is on the way' %}</strong></p>
-                </div>
+    <div id="order_tracker"></div>
 
-            </div>
+    {% if request.user.passenger %}
+        <div id="tabs" class="main_tabs_margin_top">
+            <ul>
+                <li><a title="history" id="history_tab_btn"
+                       href="{% url ordering.passenger_controller.get_passenger_orders_history %}">{% trans 'Ride History' %}</a>
+                </li>
+                <li><a title="profile" id="profile_tab_btn"
+                       href="{% url ordering.passenger_controller.profile_page %}">{% trans 'My Profile' %}</a></li>
+            </ul>
         </div>
-        <div id="station_right">
-            <div id="station_info" class="station_info_box">
-                <h1>{{ station.name }} ,{{ station.city.name }}</h1>
+    {% else %}
+        <div id="station_details_container">
+            <div id="station_more_info">
+                <div id="station_for_business" class="station_info_box">
+                    <div id="for_business_text">
+                        <h2>{{ station_full_name }} {% trans 'for your business - free!' %}</h2>
+                        <ul>
+                            <li>{% trans 'One click order' %}</li>
+                            <li>{% trans 'No holding on the phone while searching for a taxi' %}</li>
+                            <li>{% trans 'Get instant feedback on your computer' %}</li>
+                            <li>{% trans 'Track and manage your orders' %}</li>
+                        </ul>
+                    </div>
+                    <div id="join">
+                        <button class="wb_button purple">{% trans 'Join' %}</button>
+                    </div>
+                </div>
+                <div id="station_for_smartphones" class="station_info_box">
+                    <div id="for_smartphones_text">
+                        <img src={{ station.app_icon_url }}>
 
-                <p>{{ station.description }}</p>
-                <span class="toggle_info_height">{% trans 'More' %}</span>
+                        <h2>{{ station_full_name }} {% trans 'for your smartphone' %}</h2>
 
+                        <div class="clear"></div>
+
+                        <ol>
+                            <li>{% trans 'Visit' %} <a
+                                    href="http://{{ website_link }}">{{ website_link }}</a> {% trans 'from your smartphone' %}
+                            </li>
+                            <li>{% trans 'Tap "Pick me up"' %}</li>
+                            <li>{% trans 'Enjoy the ride!' %}</li>
+                        </ol>
+                    </div>
+                    <div id="smartphones_img"></div>
+                </div>
             </div>
-            <div id="station_contact" class="station_info_box">
-                <h1>{% trans 'Contact Info'%}</h1>
-                <ul>
-                    <li>{% trans 'Address' %}: {{ station.address }} {{ station.city }}</li>
-                    <li>{% trans 'Phone' %}: {{ station.phones.all|join:" "}}</li>
-                    <li><a href="{{ station.website_url }}">{% trans "Station's website" %}</a></li>
-                </ul>
+            <div id="station_about_info">
+                <div id="station_info" class="station_info_box">
+                    <h1>{{ station.name }} ,{{ station.city.name }}</h1>
+
+                    <p>{{ station.description }}</p>
+
+                    <div class="toggle_info_height">{% trans 'More' %}</div>
+                </div>
+                <div id="station_contact" class="station_info_box">
+                    <h1>{% trans 'Contact Info' %}</h1>
+                    <ul>
+                        <li>{% trans 'Address' %}: {{ station.address }} {{ station.city }}</li>
+                        <li>{% trans 'Phone' %}: {{ station.phones.all|join:" " }}</li>
+                        <li><a href="{{ station.website_url }}">{% trans "Station's website" %}</a></li>
+                    </ul>
+                </div>
             </div>
+            <div class="clear"></div>
         </div>
-        <div class="clear"></div>
-    </div>
+    {% endif %}
 
 {% endblock content %}
 
@@ -142,5 +238,6 @@
     <div id="powered_by">
         &copy; 2011 Powered by <a href="http://www.waybetter.com"><span class=waybetter></span></a>
     </div>
-
+    <div id="taxi_pic">
+    </div>
 {% endblock footer %}

@@ -8,7 +8,7 @@
         dialog_config : {
             title: "{% trans 'Looks Cool!' %}",
             width: 350
-        },
+        }
     };
     $(function() {
         $('#mobile_interest_form').validation({% render_ajax_fields form %});
@@ -23,8 +23,8 @@
     });
 </script>
 <style type="text/css">
-    .errorlist > li  {
-        color:red;
+    .errorlist > li {
+        color: red;
         font-size: 14px;
     }
 
@@ -34,25 +34,23 @@
         border-radius: 5px;
         margin-bottom: 10px;
     }
+
     #submit {
         width: 180px;
     }
-    #sent_message {
-        font-size: 20px;
-        margin-top: 15px;
-    }
+
 </style>
 
 <div id="content">
     <p>
         {% trans "Please notify me when the app is ready for download" %}
     </p>
+
     <form id="mobile_interest_form">
-    {{ form }}
+        {{ form }}
     </form>
 </div>
 <div id="button_container">
     <button id="submit" class="wb_button gold">{% trans 'Send' %}</button>
     <button id="close" class="wb_button gray">{% trans 'Close' %}</button>
-    <div id="sent_message">{% trans "Thanks, your feedback has been sent" %}</div>
 </div>
