@@ -1305,8 +1305,8 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 
 }
 .wb_button.wide{
-    width: 250px;
-}
+    width: 245px;
+height: 60px; font-size: 32px;}
 .wb_button:hover, .wb_button.hover {
     border: 1px solid #828282;
     border-bottom: 1px solid black;
@@ -1747,11 +1747,11 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     text-align: center;
     margin-top: 10px;
     margin-bottom: 20px;
-}
+font-size: 24px; font-weight: bold;}
 
 #businesses h2{
     color: #ec008c;
-}
+font-size: 16px; font-weight: bold;}
 
 #business_interest_form label{
     display: block;
@@ -1765,6 +1765,10 @@ input::-moz-focus-inner, button::-moz-focus-inner {
     margin-left: 10px;
 }
 
+#business_interest input{
+line-height: 40px;
+width: 245px;
+}
 #business_tab_text {
     float: left;
     width: 50%;
@@ -1773,7 +1777,7 @@ input::-moz-focus-inner, button::-moz-focus-inner {
 #business_tab_text ul {
     margin-left: 20px;
     margin-top: 10px;
-}
+font-size: 16px;}
 #business_tab_text ul > li {
     line-height: 30px;
 }
@@ -1828,7 +1832,7 @@ left: -1px;}
     border-color: gray;
     height: 70px;
     margin: 10px;
-    border-width: 4px;
+    border-width: 2px;
     width: 872px;
     position: relative;
     margin-left: 1px;
@@ -1842,14 +1846,22 @@ left: -1px;}
     border-color: red;
 }
 
+.tracker_order.pending {
+    border-color: #00CCFE;
+}
+
+.tracker_order.assigned {
+    border-color: #FFAE00;
+}
+
 .tracker_order.accepted {
-    border-color: #bada55;
+    border-color: #15B300;
 }
 
 .content_container {
-    border-radius: 5px;
-    -webkit-border-radius: 5px;
-    -moz-border-radius: 5px;
+    border-radius: 8px;
+    -webkit-border-radius: 8px;
+    -moz-border-radius: 8px;
     background: white;
     height: 70px;
     position: absolute;
@@ -1883,12 +1895,12 @@ left: -1px;}
 }
 
 .tracker_address_list > li {
-    padding-left: 36px;
+    padding-left: 28px;
     height: 20px;
     background-repeat: no-repeat;
     margin-top: 10px;
     width: 180px;
-}
+margin-left: 17px;}
 
 .tracker_from {
     background-image: url(../img/ride_details.png);
@@ -1929,8 +1941,8 @@ left: -1px;}
 }
 
 .tracker_details_container {
-    margin-top: 20px;
-    margin-right: 10px;
+    margin-top: 12px;
+    margin-right: 55px;
     float: right;
     text-align: center;
 }
@@ -1943,23 +1955,32 @@ left: -1px;}
     background: url(../images/loader5.gif) left 0 no-repeat;
     padding-left: 30px;
     line-height: 24px;
+    position: relative;
+    margin-top: 8px;
+    margin-right: 50px;
 }
 
 .tracker_indicator.accepted {
     font-size: 18px;
     font-weight: bold;
-    background: url(../images/sent.png) left 0 no-repeat;
-    padding-left: 20px;
+    /*background: url(../images/sent.png) left 0 no-repeat;*/
+    /*padding-left: 20px;*/
 }
 
 .tracker_station_phone {
-    font-size: 12px;
-    display: inline-block;
+    font-size: 15px;
+    position: relative;
+    bottom: 5px;
+    text-align: center;
+}
+
+.tracker_station_phone.button_present {
+    text-align: right;
 }
 
 .tracker_button {
     display: block;
-    margin-right: 10px;
-    float: right;
-    margin-top: 0;
+    margin-bottom: 12px;
+    position: relative;
+    bottom: -8px;
 }

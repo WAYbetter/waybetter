@@ -99,11 +99,9 @@ var OrderTracker = Object.create({
             },
 
             updateOrder: function(order) {
-                var $order = this.getOrder(order),
-                    is_new_order = false;
+                var $order = this.getOrder(order);
                 if (! $order) {
                     $order = this.buildOrder(order);
-                    is_new_order = true;
                 }
                 var $station = $("#station_" + order.pk),
                         $station_phone = $("#station_phone_" + order.pk),
@@ -114,28 +112,28 @@ var OrderTracker = Object.create({
                 var that = this;
                 switch (order.status) {
                     case this.config.PENDING:
-                        if (is_new_order){
-                            $order.addClass("searching").data("status", order.status);
-                            $indicator.addClass("searching").text(this.config.please_wait_msg);
-                        }
-                        break;
-
-                    case this.config.ASSIGNED:
-                        $order.addClass("searching").data("status", order.status);
+                        $order.removeClass("assigned").addClass("pending").data("status", order.status);
                         $indicator.addClass("searching").text(this.config.please_wait_msg);
                         $info.addClass("searching").text(order.info);
                         $station.text(order.station).effect("highlight", 1000);
                         break;
 
+                    case this.config.ASSIGNED:
+                        $order.removeClass("pending").addClass("assigned").data("status", order.status);
+                        $indicator.addClass("searching").text(this.config.please_wait_msg);
+                        $info.addClass("searching").text(order.info).effect("highlight", 1000);
+                        $station.text(order.station);
+                        break;
+
                     case  this.config.ACCEPTED :
-                        $order.removeClass("searching").addClass("accepted").data("status", order.status);
+                        $order.removeClass("pending assigned").addClass("accepted").data("status", order.status);
 
                         if (! order.pickup_time_sec) {
                             $info.text(this.config.order_finished_msg);
                         }
                         // future order, show pickup mode
                         else {
-                            $indicator.addClass("accepted");
+                            $indicator.removeClass("searching").addClass("accepted");
                             $station.text(order.station);
                             $info.removeClass("searching").addClass("accepted").text(order.info).effect("highlight", 1000);
                             $station_phone.text(this.config.changes_msg + order.station_phone).fadeIn();
@@ -148,7 +146,7 @@ var OrderTracker = Object.create({
                                     initial_value = (seconds_remainder) ? minutes + 1 : minutes,
                                     minute_label = (initial_value == 1) ? this.config.minute_label : this.config.minutes_label;
 
-                            $indicator.val(initial_value).text(this.config.pickup_in_msg + " " + initial_value + " " + minute_label)
+                            $indicator.val(initial_value).text(this.config.pickup_in_msg + " " + initial_value + " " + minute_label + " (" + order.pickup_hour + ")")
                                     .oneTime(seconds_remainder * 1000, "pickup_timer_" + order.pk, function() {
                                 that.updateTimer(order)
                             });
@@ -157,7 +155,7 @@ var OrderTracker = Object.create({
                         break;
 
                     case  this.config.ORDER_FAILED :
-                        $order.removeClass("searching").addClass("failed").data("status", order.status);
+                        $order.removeClass("pending assigned").addClass("failed").data("status", order.status);
                         $station.remove();
                         $indicator.remove();
                         $info.removeClass("searching").addClass("failed").text(this.config.FAILED_MSG);
@@ -204,6 +202,7 @@ var OrderTracker = Object.create({
             updateTimer: function(order) {
                 var $order = this.getOrder(order),
                         $station = $("#station_" + order.pk),
+                        $station_phone = $("#station_phone_" + order.pk),
                         $info = $("#info_" + order.pk),
                         $indicator = $("#indicator_" + order.pk),
                         $close_btn = $("#close_btn_" + order.pk);
@@ -216,11 +215,12 @@ var OrderTracker = Object.create({
                     $close_btn.fadeIn().click(function() {
                         $order.slideUp();
                     });
+                    $station_phone.addClass("button_present");
                 }
                 else {
                     var that = this,
                             minute_label = (new_val == 1) ? this.config.minute_label : this.config.minutes_label;
-                    $indicator.text(this.config.pickup_in_msg + " " + new_val + " " + minute_label).effect("highlight", 1000)
+                    $indicator.text(this.config.pickup_in_msg + " " + new_val + " " + minute_label + " (" + order.pickup_hour + ")").effect("highlight", 1000)
                             .oneTime(60 * 1000, "pickup_timer_" + order.pk, function() {
                         that.updateTimer(order)
                     });

@@ -6,7 +6,7 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError, HttpResponseBadRequest
 from django.core.serializers import serialize
 from django.conf import settings
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext as _, ugettext_noop
 from ordering.models import Station
 from ordering.errors import  ShowOrderError, UpdateOrderError, NoWorkStationFoundError, UpdateStatusError
 from ordering.decorators import passenger_required, passenger_required_no_redirect, order_assignment_required, order_required
@@ -26,7 +26,6 @@ NO_MATCHING_WORKSTATIONS_FOUND = "no matching workstation found"
 ORDER_TIMEOUT = "order timeout"
 ORDER_HANDLED = "order handled"
 OK = "OK"
-ugettext = lambda s: s
 
 def book_order_async(order, order_assignment=None):
     logging.info("book_order_async: %d" % order.id)
@@ -67,7 +66,7 @@ def book_order(request):
 
         passenger.save()
 
-    sorry_msg = ugettext("We're sorry, but we could not find a taxi for you") # use dummy ugettext for makemessages)
+    sorry_msg = ugettext_noop("We're sorry, but we could not find a taxi for you") # use dummy ugettext for makemessages)
 
     # check if dispatching should stop and return an answer to the user
     if (utc_now() - order.create_date).seconds > ORDER_HANDLE_TIMEOUT:
@@ -100,7 +99,7 @@ def book_order(request):
         except Exception, e:
             try:
                 order.change_status(new_status=ERROR)
-                send_msg_to_passenger(passenger, translate_to_lang(ugettext("We're sorry, but we have encountered an error while handling your request")
+                send_msg_to_passenger(passenger, translate_to_lang(ugettext_noop("We're sorry, but we have encountered an error while handling your request")
                              , order.language_code)) # use dummy ugettext for makemessages
                 log_event(EventType.ORDER_ERROR, order=order, passenger=order.passenger)
                 logging.error("book_order: OrderError: %d" % order_id)
@@ -203,7 +202,7 @@ def accept_order(order, pickup_time, station):
         enqueue_update_future_pickup(order, order.pickup_time*60)
 
         msg = translate_to_lang(
-            ugettext("Pickup at %(from)s in %(time)d minutes.\nStation: %(station_name)s, %(station_phone)s"),
+            ugettext_noop("Pickup at %(from)s in %(time)d minutes.\nStation: %(station_name)s, %(station_phone)s"),
             order.language_code) %\
               {"from": order.from_raw,
                "time": pickup_time,

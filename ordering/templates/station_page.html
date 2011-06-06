@@ -57,7 +57,7 @@
                             init_tracker_history : {{ init_tracker_history|safe }},
                             get_tracker_init_url: "{% url ordering.passenger_controller.get_tracker_init %}",
                             close_msg: "{% trans 'Close' %}",
-                            changes_msg: "{% trans 'Changes: '%}",
+                            changes_msg: "{% trans 'For changes call:'%}",
                             minute_label: "{% trans 'minute' %}",
                             minutes_label: "{% trans 'minutes' %}",
                             please_wait_msg: "{% trans 'Please wait' %}",
@@ -196,7 +196,7 @@
                     <div id="for_smartphones_text">
                         <img src={{ station.app_icon_url }}>
 
-                        <h2>{{ station_full_name }} {% trans 'for your smartphone' %}</h2>
+                        <h2>{{ station_full_name }}<br/>{% trans 'for your smartphone' %}</h2>
 
                         <div class="clear"></div>
 

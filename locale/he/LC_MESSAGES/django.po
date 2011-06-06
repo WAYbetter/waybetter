@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-05 14:57+0300\n"
-"PO-Revision-Date: 2011-06-05 16:05+0200\n"
+"POT-Creation-Date: 2011-06-06 15:33+0300\n"
+"PO-Revision-Date: 2011-06-06 15:34+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -375,8 +375,8 @@ msgid "SUBMIT FEEDBACK"
 msgstr "שליחה"
 
 #: common/templates/feedback_form.html:132
-#: interests/templates/mobile_interest_form.html:56
-#: interests/templates/station_interest_form.html:39
+#: interests/templates/mobile_interest_form.html:55
+#: interests/templates/station_interest_form.html:40
 #: ordering/templates/passenger_home.html:47
 #: ordering/templates/station_page.html:59
 #: ordering/templates/workstation_home.html:627
@@ -661,15 +661,15 @@ msgstr "הצטרף ל<span class=waybetter></span>"
 msgid "Please fill the following details and we will contact you"
 msgstr "אנא מלא את הפרטים הבאים ואנו ניצור עמך קשר"
 
-#: interests/templates/business_interest_form.html:39
-#: interests/templates/mobile_interest_form.html:55
-#: interests/templates/station_interest_form.html:38
+#: interests/templates/business_interest_form.html:40
+#: interests/templates/mobile_interest_form.html:54
+#: interests/templates/station_interest_form.html:39
 #: ordering/templates/business_registration.html:139
 #: ordering/templates/workstation_home.html:568
 msgid "Send"
 msgstr "שליחה"
 
-#: interests/templates/business_interest_form.html:40
+#: interests/templates/business_interest_form.html:41
 #: ordering/templates/mobile/passenger_home.html:111
 #: ordering/templates/mobile/passenger_home.html:116
 #: templates/mobile/base.html:69
@@ -680,7 +680,7 @@ msgstr "ביטול"
 msgid "Looks Cool!"
 msgstr "נראה לי מגניב!"
 
-#: interests/templates/mobile_interest_form.html:48
+#: interests/templates/mobile_interest_form.html:46
 msgid "Please notify me when the app is ready for download"
 msgstr "אשמח אם תידעו אותי כשהאפליקציה זמינה להורדה"
 
@@ -744,7 +744,7 @@ msgstr "השירות אינו זמין ב%(city)s עדיין. <br> אנא נסו
 #: ordering/forms.py:209
 #: ordering/forms.py:323
 #: ordering/forms.py:364
-#: ordering/templates/station_page.html:225
+#: ordering/templates/station_page.html:226
 msgid "Phone"
 msgstr "טלפון"
 
@@ -758,7 +758,7 @@ msgstr "הערך חייב להכיל מספרים בלבד"
 
 #: ordering/forms.py:211
 #: ordering/forms.py:276
-#: ordering/templates/station_page.html:224
+#: ordering/templates/station_page.html:225
 msgid "Address"
 msgstr "כתובת"
 
@@ -1374,20 +1374,20 @@ msgstr "דירוג נוסע"
 msgid "Passenger Phone"
 msgstr "טלפון נוסע"
 
-#: ordering/order_manager.py:70
+#: ordering/order_manager.py:69
 msgid "We're sorry, but we could not find a taxi for you"
 msgstr "אנו מצטערים, הפעם לא הצלחנו למצוא לך מונית ),:"
 
-#: ordering/order_manager.py:103
+#: ordering/order_manager.py:102
 msgid "We're sorry, but we have encountered an error while handling your request"
 msgstr "אנו מצטערים, אך נתקלנו בשגיאה בעת הטיפול בבקשה שלך. ניתן לנסות שנית מאוחר יותר..."
 
-#: ordering/order_manager.py:167
+#: ordering/order_manager.py:166
 #, python-format
 msgid "Message sent, pickup in %s minutes"
 msgstr "הודעה נשלחה לנוסע: %s דקות"
 
-#: ordering/order_manager.py:206
+#: ordering/order_manager.py:205
 #, python-format
 msgid ""
 "Pickup at %(from)s in %(time)d minutes.\n"
@@ -1398,28 +1398,28 @@ msgstr ""
 "תחנת %(station_name)s\n"
 "לשינוי/ביטול: %(station_phone)s נסיעה טובה (:"
 
-#: ordering/order_manager.py:329
-#: ordering/order_manager.py:351
+#: ordering/order_manager.py:328
+#: ordering/order_manager.py:350
 msgid "You can't rate this order"
 msgstr "אין אפשרות לדרג הזמנה זו"
 
-#: ordering/order_manager.py:354
+#: ordering/order_manager.py:353
 msgid "Order already rated"
 msgstr "ההזמנה כבר דורגה"
 
-#: ordering/order_tracker.py:13
-msgid "Contacting..."
-msgstr "יוצר קשר..."
+#: ordering/order_tracker.py:11
+msgid "Sending order"
+msgstr "שולח הזמנה"
 
-#: ordering/order_tracker.py:14
+#: ordering/order_tracker.py:12
 msgid "Searching for taxi"
 msgstr "מחפש מונית"
 
-#: ordering/order_tracker.py:15
+#: ordering/order_tracker.py:13
 msgid "Taxi on its way"
 msgstr "מונית בדרך!"
 
-#: ordering/order_tracker.py:16
+#: ordering/order_tracker.py:14
 msgid "Sorry, we could not find a taxi for you :("
 msgstr "אנו מצטערים, הפעם לא הצלחנו למצוא לך מונית ),:"
 
@@ -1789,8 +1789,7 @@ msgid "Fill pickup and dropoff for price and time estimation "
 msgstr "לחישוב מחיר וזמן נסיעה משוערים יש למלא מוצא ויעד"
 
 #: ordering/templates/passenger_home.html:48
-#: ordering/templates/station_page.html:60
-msgid "Changes: "
+msgid "For changes call: "
 msgstr "לשינוי/ביטול:"
 
 #: ordering/templates/passenger_home.html:49
@@ -2025,13 +2024,17 @@ msgstr ""
 "-ל<span class=waybetter></span> קהל הולך וגדל של משתמשים המחפשים מונית. תדאג להיות האחד שמסיע אותם כשיגיעו לעירך"
 
 #: ordering/templates/station_page.html:42
-#: ordering/templates/station_page.html:219
+#: ordering/templates/station_page.html:220
 msgid "More"
 msgstr "עוד"
 
 #: ordering/templates/station_page.html:43
 msgid "Less"
 msgstr "צמצם"
+
+#: ordering/templates/station_page.html:60
+msgid "For changes call:"
+msgstr "לשינוי/ביטול:"
 
 #: ordering/templates/station_page.html:104
 msgid "Pick Me App for Businesses, with instant feedback and no phone calls "
@@ -2079,11 +2082,11 @@ msgstr "לחצו על \"שלח לי מונית\""
 msgid "Enjoy the ride!"
 msgstr "נסיעה טובה!"
 
-#: ordering/templates/station_page.html:222
+#: ordering/templates/station_page.html:223
 msgid "Contact Info"
 msgstr "ליצירת קשר"
 
-#: ordering/templates/station_page.html:226
+#: ordering/templates/station_page.html:227
 msgid "Station's website"
 msgstr "לאתר תחנה"
 
@@ -2464,6 +2467,12 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 #: tinymce/views.py:68
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
+
+#~ msgid "Changes: "
+#~ msgstr "לשינוי/ביטול:"
+
+#~ msgid "Contacting..."
+#~ msgstr "יוצר קשר..."
 
 #~ msgid "%s Taxis"
 #~ msgstr "מוניות %s"
@@ -2909,10 +2918,6 @@ msgstr "שגיאה בבודק האיות"
 #~ msgid_plural "Please correct the errors below"
 #~ msgstr[0] "כתובת הדוא&#34;ל שלך"
 #~ msgstr[1] "כתובת הדוא&#34;ל שלך"
-
-#, fuzzy
-#~ msgid "or make changes"
-#~ msgstr "שמירה"
 
 #, fuzzy
 #~ msgid "content types"

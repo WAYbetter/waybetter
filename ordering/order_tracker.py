@@ -1,19 +1,18 @@
-from django.utils.translation import ugettext as _
-from django.utils import simplejson
+from django.utils.translation import ugettext_noop
 from ordering.signals import   SignalType
 from ordering.util import send_msg_to_passenger
 from common.signals import AsyncSignal
 from common.decorators import  receive_signal
+from common.langsupport.util import translate_to_lang
 from ordering.models import Order, OrderAssignment, FAILED, ACCEPTED, PENDING, ASSIGNED, ERROR, TIMED_OUT
 import datetime
 import logging
 
-ugettext = lambda s: s # use dummy ugettext for makemessages
 STATUS_MESSAGES = {
-    PENDING: ugettext("Contacting..."),
-    ASSIGNED: ugettext("Searching for taxi"),
-    ACCEPTED: ugettext("Taxi on its way"),
-    FAILED: ugettext("Sorry, we could not find a taxi for you :(")
+    PENDING: ugettext_noop("Sending order"),
+    ASSIGNED: ugettext_noop("Searching for taxi"),
+    ACCEPTED: ugettext_noop("Taxi on its way"),
+    FAILED: ugettext_noop("Sorry, we could not find a taxi for you :(")
 }
 
 @receive_signal(*AsyncSignal.all)
@@ -71,10 +70,10 @@ def get_tracker_msg_for_order(order, last_assignment=None):
 
         if last_assignment and last_assignment.status in [PENDING, ASSIGNED]:
             msg.update({"pk": order.id,
-                        "status": ASSIGNED,
+                        "status": last_assignment.status,
                         "from_raw": order.from_raw,
                         "to_raw": order.to_raw,
-                        "info": _(STATUS_MESSAGES[last_assignment.status]),
+                        "info": translate_to_lang(STATUS_MESSAGES[last_assignment.status], order.language_code),
                         "station": last_assignment.station.name,
                         })
 
@@ -84,10 +83,11 @@ def get_tracker_msg_for_order(order, last_assignment=None):
                     "status": ACCEPTED,
                     "from_raw": order.from_raw,
                     "to_raw": order.to_raw,
-                    "info": _(STATUS_MESSAGES[ACCEPTED]),
+                    "info": translate_to_lang(STATUS_MESSAGES[ACCEPTED], order.language_code),
                     "station": order.station_name,
                     "station_phone": str(order.station.phones.all()[0]),
                     "pickup_time_sec": order.get_pickup_time(),
+                    "pickup_hour": "{0.hour}:{0.minute}".format(order.modify_date + datetime.timedelta(minutes=order.pickup_time)),
                     })
 
     elif order.status in [TIMED_OUT, FAILED, ERROR]:
@@ -95,7 +95,7 @@ def get_tracker_msg_for_order(order, last_assignment=None):
                     "status": FAILED,
                     "from_raw": order.from_raw,
                     "to_raw": order.to_raw,
-                    "info": _(STATUS_MESSAGES[FAILED]),
+                    "info": translate_to_lang(STATUS_MESSAGES[FAILED], order.language_code),
                     })
 
     return msg
@@ -121,4 +121,4 @@ def get_tracker_history(passenger):
     recent_failed_orders = [get_tracker_msg_for_order(order) for order in recent_failed_orders_qs]
 
 
-    return recent_failed_orders + future_orders_by_pickup + active_orders # <-- this side up
+    return filter(None, recent_failed_orders + future_orders_by_pickup + active_orders) # <-- this side up
