@@ -424,9 +424,9 @@
             <fileset dir="${dir.source}/" excludes="${file.default.exclude}, ${file.exclude}">
                 <!-- exclude files that are superseded by optimized versions with different names -->
                 <!-- this is not strictly necessary, but it avoids putting unreferenced files into your server -->
-                <exclude name="${dir.js.main}/*.js"/>
+                <!-- exclude name="${dir.js.main}/*.js"/ -->
                 <exclude name="${dir.js.libs}/**/*.js"/>
-                <exclude name="${dir.js.mylibs}/**/*.js"/>
+                <!-- exclude name="${dir.js.mylibs}/**/*.js"/ -->
                 <!-- <exclude name="${dir.css}/**/*.css"/> -->
             </fileset>
         </copy>
