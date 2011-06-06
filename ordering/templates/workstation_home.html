@@ -81,8 +81,9 @@
 
     #orders .teaser_txt{
         color: yellow;
-        font-size: 24px;
+        font-size: 20px;
         margin-bottom: 5px;
+        height: 29px;
     }
     #orders .teaser_txt:hover{
         text-decoration:underline;
@@ -497,8 +498,14 @@
 
                 show_button_container.append($('<div></div>').append(show_button));
 
+
+                var incoming_text = "{% trans 'Incoming order' %}";
+                if (order.business) {
+                    incoming_text += " (<i>" + order.business + "</i>)";
+                }
+                
                 var rendered_order = $("<div class='order teaser'></div>").attr('id', order.pk).data("state", ORDER_IS_SHOWING)
-                        .append($("<div class='teaser_txt'></div>").append("{% trans 'Incoming order' %}"))
+                        .append($("<div class='teaser_txt'></div>").append(incoming_text))
                         .append(show_button_container);
 
                 $(rendered_order).click(function(){

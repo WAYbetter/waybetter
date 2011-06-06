@@ -183,7 +183,7 @@ var openid = {
     	// add new highlight.
     	$('.'+box_id).wrap('<div id="openid_highlight"></div>');
     },
-    setCookie: function (value) {
+    setCookie: function (value) {url
     
 		var date = new Date();
 		date.setTime(date.getTime()+(this.cookie_expires*24*60*60*1000));

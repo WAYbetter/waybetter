@@ -14,6 +14,7 @@ def assign_order(order):
     """
     Assign the order to a workstation and return the assignment.
     """
+    passenger = order.passenger
     work_station = choose_workstation(order)
     if not work_station:
         raise NoWorkStationFoundError("Could not find a valid station")
@@ -21,6 +22,11 @@ def assign_order(order):
     # create an OrderAssignment
     assignment = OrderAssignment(order=order, station=work_station.station, work_station=work_station)
     assignment.pickup_address_in_ws_lang = translate_pickup_for_ws(work_station, order)
+
+    # de-normalize business name
+    if passenger.business:
+        assignment.business_name = passenger.business.name
+        
     assignment.save()
 
     work_station.last_assignment_date = assignment.create_date
@@ -31,7 +37,7 @@ def assign_order(order):
     try:
         order.change_status(new_status=models.ASSIGNED)
         log_event(EventType.ORDER_ASSIGNED,
-                  passenger=order.passenger,
+                  passenger=passenger,
                   order=order,
                   order_assignment=assignment,
                   station=work_station.station,

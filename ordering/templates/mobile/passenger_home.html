@@ -25,7 +25,7 @@
     {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}/static/css/rtl.mobile.css{% endblock %}" />{% endif %}
     {% block extrastyle %}{% endblock %}
     <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
-    <script src="/static/js/utils.1.js"></script>
+    <script src="/static/js/utils.js"></script>
     <script>
         $(document).bind("mobileinit", function(){
             $.extend($.mobile, {
@@ -35,8 +35,8 @@
         })
     </script>
     <script src="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.js"></script>
-    <script src="/static/js/jquery.form.js"></script>
-    <script src="/static/js/ordering.mobile.js" defer="defer"></script>
+    <script src="/static/js/mylibs/jquery.form.js"></script>
+    <script src="/static/js/mobile/ordering.mobile.js" defer="defer"></script>
     <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false" defer='defer'></script>
     <script defer="defer">
         $(document).ready(function() {
@@ -79,7 +79,7 @@
             touchIcon: true
 		};
     </script>
-    <script type="application/javascript" src="/static/js/add2home.js" defer="defer"></script>
+    <script type="application/javascript" src="/static/js/mobile/add2home.js" defer="defer"></script>
 
     {% block extrahead %}
     {% endblock %}

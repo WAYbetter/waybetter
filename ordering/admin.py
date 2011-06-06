@@ -129,7 +129,7 @@ class WorkStationAdmin(admin.ModelAdmin):
 
     def online_status(self, obj):
         if station_connection_manager.is_workstation_available(obj):
-            return '<img src="%s">' % ("/static/img/online_small.gif")
+            return '<img src="%s">' % ("/static/images/online_small.gif")
         else:
             return ""
 

@@ -9,13 +9,13 @@
 
 {% block extrahead %}
     {{ block.super }}
-    <script src="/static/js/jquery.form.js"></script>
-    <script src="/static/js/ordering.1.js"></script>
     <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
     {% if request.user.passenger.business %}
         <script type="text/javascript" src="/_ah/channel/jsapi"></script>
-        <script type="text/javascript" src="/static/js/order_tracker.1.js"></script>
     {% endif %}
+{% endblock extrahead %}
+{% block doc_ready %}
+    {{ block.super }}
     <script>
 
         $(document).ready(function() {
@@ -95,7 +95,7 @@
             SelectFromHistoryHelper.init($("#tabs"), { fetch_address_url: "{% url ordering.passenger_controller.get_order_address %}" });
         });
     </script>
-{% endblock extrahead %}
+{% endblock doc_ready %}
 
 {% block header %}
     <div id="banner">
