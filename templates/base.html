@@ -1,58 +1,54 @@
-<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Strict//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-strict.dtd">
+<!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 <head>
-<meta name="google-site-verification" content="6M7E60YhxlrZR6e8sXaMr2_9hy-TwfdXM-orIbAlwXA" />
-<!--[if IE 9]><meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8"><![endif]-->
-<title>{% block title %}{% endblock %}</title>
-<!-- link rel="stylesheet" href="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.3/themes/base/jquery-ui.css" type="text/css" media="all" /-->
-<link rel="stylesheet" href="/static/css/custom-theme/jquery-ui-1.8.4.custom.css" type="text/css" media="all" />
-<link rel="stylesheet" href="/static/css/jquery.ui.stars.css" type="text/css" media="all" />
+    <meta charset="utf-8">
+    <meta name="google-site-verification" content="6M7E60YhxlrZR6e8sXaMr2_9hy-TwfdXM-orIbAlwXA" />
 
-{% block extrastyle %}
+    <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+         Remove this if you use the .htaccess -->
+    <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
 
-<link rel="stylesheet" type="text/css" href="/static/css/waybetter.1.css" />
-<!--[if IE]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}/static/css/waybetter.ie.1.css{% endblock %}" /><![endif]-->
-<!--[if IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie7 %}/static/css/waybetter.ie7.1.css{% endblock %}" /><![endif]-->
-    {% if LANGUAGE_BIDI %}
-    <link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}/static/css/rtl.1.css{% endblock %}" />
-    <!--[if IE]><link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl_ie %}/static/css/rtl.ie.css{% endblock %}" /><![endif]-->
-    <!--[if IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl_ie7 %}/static/css/rtl.ie7.css{% endblock %}" /><![endif]-->
-{% endif %}
+    <!-- addresses issue: http://code.google.com/p/googleappengine/issues/detail?id=4780 -->
+    <!--[if IE 9]><meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"><![endif]-->
 
-{% endblock %}
 
-<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
-<script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.11/jquery-ui.min.js"></script>
-<script type="text/javascript" src="/static/js/jquery.timers-1.2.min.js"></script>
-<script type="text/javascript">
-    $(function() {
-        $("form.languages select").val("{{ LANGUAGE_CODE }}");
-        $("#banner > h1").click(function() {
-            window.location = "/";
-        });
-        $("form.languages select").change(function() {
-            var selected_lang = $(this).val();
-            var current_lang = $("form.languages > #language").val()
-            if (selected_lang != current_lang) {
-                $("form.languages > #language").val(selected_lang);
-                $("form.languages").submit();
-            }
-        })
-    })
-</script>
+    <title>{% block title %}{% endblock %}</title>
 
-{# more IE7 fixes #}
-<!--[if IE 7]>
-<script type="text/javascript">
-     $(document).ready(function(){
-        $(".waybetter").html("WAYbetter")
-    });
-</script>
-<![endif]-->
+    <meta name="description" content="">
+    <meta name="author" content="WAYbetter LTD.">
+
+
+    {% block extrastyle %}
+        <!-- css concatenated and minified via ant build script-->
+        <link rel="stylesheet" href="/static/css/custom-theme/jquery-ui-1.8.4.custom.css" type="text/css" media="all" />
+        <link rel="stylesheet" href="/static/css/jquery.ui.stars.css" type="text/css" media="all" />
+        <link rel="stylesheet" type="text/css" href="/static/css/waybetter.css"/>
+        <!-- end css-->
+        <!--[if IE]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}/static/css/waybetter.ie.css{% endblock %}" />
+        <![endif]-->
+        <!--[if IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie7 %}/static/css/waybetter.ie7.css{% endblock %}" />
+        <![endif]-->
+        {% if LANGUAGE_BIDI %}
+            <link rel="stylesheet" type="text/css"
+                  href="{% block stylesheet_rtl %}/static/css/rtl.css{% endblock %}"/>
+            <!--[if IE]><link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl_ie %}/static/css/rtl.ie.css{% endblock %}" />
+            <![endif]-->
+            <!--[if IE 7]><link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl_ie7 %}/static/css/rtl.ie7.css{% endblock %}" />
+            <![endif]-->
+        {% endif %}
+    {% endblock %}
+
+    <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="static/js/libs/jquery-1.6.1.min.js">\x3C/script>')</script>
+
+    <!-- All JavaScript at the bottom, except for Modernizr and Respond.
+         Modernizr enables HTML5 elements & feature detects; Respond is a polyfill for min/max-width CSS3 Media Queries -->
+    <script src="/static/js/libs/modernizr-1.7.min.js"></script>
+    <script src="/static/js/libs/respond.min.js"></script>
+
 
 {% block extrahead %}
-<script type="text/javascript" src="/static/js/jquery.ui.stars.min.js"></script>
-<script type="text/javascript" src="/static/js/utils.1.js"></script>
 {% endblock %}
 
 </head>
@@ -140,19 +136,72 @@
     </div>
 </div>
 <!-- END Container -->
+<!-- JavaScript at the bottom for fast page loading -->
+
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+<script>window.jQuery.ui || document.write('<script src="static/js/libs/jquery-ui-1.8.13.min.js">\x3C/script>')</script>
+
+<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
+
+<!-- scripts concatenated and minified via ant build script-->
+    <script type="text/javascript" src="/static/js/mylibs/jquery.timers-1.2.min.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.placeheld.min.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.marquee.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.validation.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.nivo.slider.pack.min.js"></script>
+
+    <script type="text/javascript" src="/static/js/utils.js"></script>
+    <script type="text/javascript" src="/static/js/registration.js"></script>
+    <script type="text/javascript" src="/static/js/ordering.js"></script>
+    <script type="text/javascript" src="/static/js/social.js"></script>
+    <script type="text/javascript" src="/static/js/order_tracker.js"></script>
+<!-- end scripts-->
+    {% block doc_ready %}
+    {% endblock doc_ready %}
+    <script type="text/javascript">
+        $(function() {
+            $("form.languages select").val("{{ LANGUAGE_CODE }}");
+            $("#banner > h1").click(function() {
+                window.location = "/";
+            });
+            $("form.languages select").change(function() {
+                var selected_lang = $(this).val();
+                var current_lang = $("form.languages > #language").val()
+                if (selected_lang != current_lang) {
+                    $("form.languages > #language").val(selected_lang);
+                    $("form.languages").submit();
+                }
+            })
+        })
+    </script>
+    {# more IE7 fixes #}
+    <!--[if IE 7]>
+    <script type="text/javascript">
+         $(document).ready(function(){
+            $(".waybetter").html("WAYbetter")
+        });
+    </script>
+    <![endif]-->
 
 <!-- Google Analytics -->
+<!-- mathiasbynens.be/notes/async-analytics-snippet Change UA-XXXXX-X to be your site's ID -->
 <script>
-  var _gaq = _gaq || [];
-  _gaq.push(['_setAccount', 'UA-18077675-1']);
-  _gaq.push(['_trackPageview']);
-
-  (function() {
-    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
-    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
-    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
-  })();
+    var _gaq = [
+        ['_setAccount','UA-18077675-1'],
+        ['_trackPageview'],
+        ['_trackPageLoadTime']
+    ];
+    (function(d, t) {
+        var g = d.createElement(t),s = d.getElementsByTagName(t)[0];
+        g.async = 1;
+        g.src = ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g, s)
+    }(document, 'script'));
 </script>
+
 {%  block extra-body %}{% endblock %}
 </body>
 

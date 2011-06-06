@@ -9,9 +9,10 @@
 
 {% block extrahead %}
     {{ block.super }}
-    <script src="/static/js/jquery.form.js"></script>
-    <script src="/static/js/ordering.1.js"></script>
     <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
+{% endblock extrahead %}
+{% block doc_ready %}
+    {{ block.super }}
     <script>
 
         $(document).ready(function() {
@@ -49,7 +50,7 @@
             $("#banner > h1").unbind("click");
         });
     </script>
-{% endblock extrahead %}
+{% endblock doc_ready %}
 
 {% block header %}
             <div id="banner">

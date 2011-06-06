@@ -1,37 +1,34 @@
 {% extends "base_station.html" %}
 {% load i18n %}
-{% block page_specific_head %}
-<script type="text/javascript" src="/static/js/jquery.form.js"></script>
-<script type="text/javascript" src="/static/js/registration.1.js"></script>
-<script type="text/javascript" src="/static/js/ordering.1.js"></script>
-{% endblock %}
 
-{% block content %}
-
-    <script type="text/javascript">
-        $(document).ready(function() {
-            Registrator.init({
-                urls            : {
-                    station_interest_form_template     : '{% url interests.views.station_interest %}'
-                }
-            });
-
-            $("#tabs").tabs({
-                ajaxOptions: {
-                    error: function(xhr, status, index, anchor) {
-                        $(anchor.hash).html("Couldn't load this tab. We'll try to fix this as soon as possible.");
-                    }
-                }
-            });
-            $("#tabs").bind('tabsselect', function(event, ui) {
-                window.location.href=ui.tab;
-            });
-            $(".big_red").click(function() {
-                Registrator.openStationInterestDialog();
-            })
+{% block doc_ready %}
+    {{ block.super }}
+<script type="text/javascript">
+    $(document).ready(function() {
+        Registrator.init({
+            urls            : {
+                station_interest_form_template     : '{% url interests.views.station_interest %}'
+            }
         });
 
-    </script>
+        $("#tabs").tabs({
+            ajaxOptions: {
+                error: function(xhr, status, index, anchor) {
+                    $(anchor.hash).html("Couldn't load this tab. We'll try to fix this as soon as possible.");
+                }
+            }
+        });
+        $("#tabs").bind('tabsselect', function(event, ui) {
+            window.location.href=ui.tab;
+        });
+        $(".big_red").click(function() {
+            Registrator.openStationInterestDialog();
+        })
+    });
+</script>
+{% endblock doc_ready %}
+
+{% block content %}
     {% if request.user.station %}
        <div id="tabs">
            <ul>
