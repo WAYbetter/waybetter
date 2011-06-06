@@ -254,4 +254,4 @@ var OrderTracker = Object.create({
             isValidOrder: function(order) {
                 return Boolean(order.pk > 0);  // small test that the msg is valid
             }
-        });
+});

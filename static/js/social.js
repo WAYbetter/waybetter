@@ -89,4 +89,4 @@ var openid = {
     setOpenIdUrl: function (url) {
         $("#openid_identifier").val(url);
     }
-}
+};

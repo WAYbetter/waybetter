@@ -4,7 +4,6 @@ from django.conf.urls.defaults import url
 urlpatterns = patterns('',
     (r'^$', 'ordering.passenger_controller.passenger_home'),
     (r'^info$', 'ordering.passenger_controller.info_pages'),
-    (r'^signup_form.js$', 'ordering.passenger_controller.get_signup_form'),
     (r'^workstation/(?P<workstation_id>\d+)$', 'ordering.station_controller.workstation_home'),
     (r'^orders/(?P<order_id>\d+)$', 'ordering.order_manager.order_status'),
     (r'^book_order/$', 'ordering.order_manager.book_order'),

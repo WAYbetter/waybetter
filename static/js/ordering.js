@@ -329,7 +329,7 @@ var OrderingHelper = Object.create({
     addPoint:                   function (address) {
         var that = this,
             location_name = address.address_type + ": <br/>" + address.raw,
-            icon_image = new telmap.maps.MarkerImage("/static/img/" + address.address_type + "_map_marker.png", undefined, undefined, {x:35, y:30}),
+            icon_image = new telmap.maps.MarkerImage("/static/images/" + address.address_type + "_map_marker.png", undefined, undefined, {x:35, y:30}),
             point = new telmap.maps.Marker({
                 map:        this.map,
                 position:   new telmap.maps.LatLng(address.lat, address.lon),
@@ -600,7 +600,7 @@ var OrderHistoryHelper = Object.create({
         $("#orders_history_grid table").animate({
             color: "#949494"
         }, 200);
-        $("#orders_history_pager").append("<img src='/static/img/indicator_small.gif'/>");
+        $("#orders_history_pager").append("<img src='/static/images/indicator_small.gif'/>");
         if (params.sort_by && this.current_params.sort_by &&
             params.sort_by == this.current_params.sort_by) {
                 this.toggleSortDir();

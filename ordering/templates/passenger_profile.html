@@ -1,7 +1,5 @@
 {% load i18n %}
 
-<script type="text/javascript" src="/static/js/jquery.ajax_forms.js"></script>
-<script type="text/javascript" src="/static/js/jquery.ajax_forms.validation.js"></script>
 {% load ajax_form_utils %}
 <form action="{% url ordering.passenger_controller.edit_profile %}" method="post" id="profile_form">
     {% csrf_token %}
