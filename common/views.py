@@ -1,6 +1,6 @@
 from common.decorators import internal_task_on_queue
 from common.models import Country
-from common.util import has_related_objects, url_with_querystring, get_unique_id
+from common.util import has_related_objects, url_with_querystring, get_unique_id, notify_by_email
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api import xmpp
 from google.appengine.api.labs.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError, TombstonedTaskError
 from google.appengine.api.labs.taskqueue import taskqueue
-from ordering.models import WorkStation, Order
+from ordering.models import WorkStation, Order, Passenger
 from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
 import logging
 
@@ -23,20 +23,6 @@ except ImportError:
     # In the development server
 
 from google.appengine.ext import deferred
-
-def generate_dead_users_list(request):
-    # TODO_WB: use taskqueue
-    if "token" in request.GET:
-        if request.GET["token"] == INIT_TOKEN:
-            table = ""
-            for user in User.objects.all():
-                if has_related_objects(user):
-                    user_link = '<a href="http://www.waybetter.com/admin/auth/user/%s/">%s</a>' % (user.id, user.id)
-                    table += "<tr><td>%s</td><td>%s</td></tr>" % (user.username, user_link)
-            response = "<table>%s</table>" % table
-            return HttpResponse(response)
-    else:
-        return HttpResponse('pass token')
 
 @staff_member_required
 def run_maintenance_task(request):
@@ -67,7 +53,8 @@ def maintenance_task(request):
         return HttpResponse("Failed")
 
 def do_task():
-    reset_password()
+    generate_passengers_with_non_existing_users()
+    generate_dead_users_list()
 
 def reset_password():
     names = ["amir_station_2_workstation_1", "amir_station_1_workstation_2", "amir_station_2_workstation_2"]
@@ -75,6 +62,26 @@ def reset_password():
         user = User.objects.get(username=name)
         user.set_password(name)
         user.save()
+
+def generate_dead_users_list():
+    list = ""
+    for user in User.objects.all():
+        if has_related_objects(user):
+            user_link = '<a href="http://www.waybetter.com/admin/auth/user/%d/">%d</a>' % (user.id, user.id)
+            list += "user [%s]: %s<br/>" % (user.username, user_link)
+
+    notify_by_email("Dead users list", html=list)
+
+def generate_passengers_with_non_existing_users():
+    passengers_list = ""
+    for passenger in Passenger.objects.all():
+        try:
+            passenger.user
+        except:
+            passenger_link = '<a href="http://www.waybetter.com/admin/ordering/passenger/%d/">%d</a>' % (passenger.id, passenger.id)
+            passengers_list += "passenger [%s]: %s<br/>" % (passenger.phone, passenger_link)
+
+    notify_by_email("Passengers linked to users which do not exist", html=passengers_list)
 
 def fix_orders():
     import re

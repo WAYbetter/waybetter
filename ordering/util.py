@@ -1,9 +1,10 @@
+from django.db import models
 from google.appengine.api import channel
 from django.db.models.loading import get_model
 from django.contrib.auth.models import User
 from django.utils import simplejson
 from ordering.models import Passenger
-from common.util import log_event, EventType, get_channel_key
+from common.util import log_event, EventType, get_channel_key, notify_by_email
 from common.sms_notification import send_sms
 import logging
 
@@ -42,6 +43,16 @@ def create_user(username, password, email, first_name=None):
     return user
 
 
+def create_passenger(user, country, phone):
+    passenger = Passenger()
+    passenger.user = user
+    passenger.country = country
+    passenger.phone = phone
+    passenger.phone_verified = True
+    passenger.save()
+    log_event(EventType.PASSENGER_REGISTERED, passenger=passenger)
+    return passenger
+
 def safe_delete_user(user):
     # delete social account associated with the user
     social_model_names = ["AuthMeta", "FacebookUserProfile", "OpenidProfile", "TwitterUserProfile",
@@ -53,15 +64,18 @@ def safe_delete_user(user):
         except model.DoesNotExist:
             pass
 
-    user.delete()
+#    don't use user.delete(), mark user as inactive instead
+    user.is_active = False
+    user.save()
+    logging.info("safe delete user [%d, %s]: marked as inactive" % (user.id, user.username))
 
 
-def create_passenger(user, country, phone):
-    passenger = Passenger()
-    passenger.user = user
-    passenger.country = country
-    passenger.phone = phone
-    passenger.phone_verified = True
-    passenger.save()
-    log_event(EventType.PASSENGER_REGISTERED, passenger=passenger)
-    return passenger
+# notify us when users/passengers are deleted
+def post_delete_user(sender, instance, **kwargs):
+    notify_by_email("user deleted [%d, %s]" % (instance.id, instance.username))
+
+def post_delete_passenger(sender, instance, **kwargs):
+    notify_by_email("passenger deleted [%d, %s]" % (instance.id, instance.username))
+
+models.signals.post_delete.connect(post_delete_user, sender=User)
+models.signals.post_delete.connect(post_delete_passenger, sender=Passenger)
