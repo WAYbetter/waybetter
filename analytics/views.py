@@ -87,6 +87,7 @@ def analytics(request):
                     result = {
                         'by_date':  get_results_by_day(events, start_date, end_date),
                         'by_hour':  get_results_by_hour(events, start_date, end_date),
+                        'by_type':  get_results_by_type(events, start_date, end_date),
                         'map_data':  get_map_results(events)
                     }
             elif data_type == AnalysisType.REGISTRATION:
@@ -213,7 +214,7 @@ def get_rating_results(events):
             'type': 'pie'
         }],
         'avarage':  round(float(all_ratings) / rating_count, 2),
-        'total':    rating_count  
+        'total':    rating_count
     }
 
     return result
@@ -301,6 +302,25 @@ def get_results_by_day(events, start_date, end_date, rating_results=False):
                                     'pointStart':   start_date,
                                     'pointInterval':1000 * 3600 * 24
                                     })
+
+    return result
+
+def get_results_by_type(events, start_date, end_date):
+    type_dic = {}
+    for event in events:
+        label = event.get_label()
+        if not label in type_dic:
+            type_dic[label] = 1
+        else:
+            type_dic[label] += 1
+
+    result = {
+        'series': [{
+            'data': [[str(t), type_dic[t]] for t in type_dic],
+            'type': 'pie'
+        }],
+        'name': _("Orders By Type"),
+    }
 
     return result
 

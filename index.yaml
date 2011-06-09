@@ -395,6 +395,13 @@ indexes:
 - kind: ordering_order
   properties:
   - name: station_id
+  - name: status
+  - name: create_date
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: station_id
   - name: to_raw
 
 - kind: ordering_order
@@ -466,6 +473,12 @@ indexes:
 - kind: ordering_order
   properties:
   - name: status
+  - name: create_date
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: status
   - name: pickup_time
     direction: desc
 
@@ -497,8 +510,21 @@ indexes:
 
 - kind: ordering_orderassignment
   properties:
+  - name: station_id
+  - name: status
+  - name: create_date
+    direction: desc
+
+- kind: ordering_orderassignment
+  properties:
   - name: status
   - name: __key__
+    direction: desc
+
+- kind: ordering_orderassignment
+  properties:
+  - name: status
+  - name: create_date
     direction: desc
 
 - kind: ordering_passenger

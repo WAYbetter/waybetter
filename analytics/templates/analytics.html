@@ -4,7 +4,7 @@
 {% block extrahead %}
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js"></script>
     <script type="text/javascript" src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.5/jquery-ui.min.js"></script>
-    <script type="text/javascript" src="/static/js/libs/highcharts.js"></script>
+    <script type="text/javascript" src="/static/js/libs/highcharts.min.js"></script>
     <script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
     <script type="text/javascript" src="/static/js/utils.js"></script>
     <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.js"></script>
@@ -46,6 +46,7 @@
             height: 400px;
             width: 100%;
             margin-bottom: 10px;
+            direction: ltr;
         }
         #map_container {
             float: right;
@@ -123,6 +124,16 @@
                 hour_chart = null;
             }
         }
+
+        if (response.by_type) {
+            updateTypeChart(response.by_type);
+        } else {
+            if (pie_chart) {
+                pie_chart.destroy();
+                pie_chart = null;
+            }
+        }
+
         if (response.map_data) {
             updateMap(response.map_data);
         } else {
@@ -239,7 +250,40 @@
             series: data.series
         });
     }
-
+    function updateTypeChart(data) {
+        var container_name = 'pie_container';
+        if (! $("#charts #" + container_name).length) {
+            $("#charts").append($("<div></div>").attr("id", container_name).addClass("chart"))
+        }
+        pie_chart = new Highcharts.Chart({
+            chart: {
+                renderTo: container_name,
+            },
+            title: {
+                text: data.name
+            },
+            tooltip: {
+                formatter: function() {
+                    return '<b>' + this.point.name + '</b>: ' + Math.round(this.percentage * 100) / 100 + ' %';
+                }
+            },
+            plotOptions: {
+                pie: {
+                    allowPointSelect: true,
+                    cursor: 'pointer',
+                    dataLabels: {
+                        enabled: true,
+                        color: '#000000',
+                        connectorColor: '#000000',
+                        formatter: function() {
+                            return '<b>' + this.point.name + '</b>: ' + this.y;
+                        }
+                    }
+                }
+            },
+            series: data.series
+        });
+    }
     function updateHourChart(data) {
         var container_name = 'chart-container2';
         if (! $("#charts #" + container_name).length) {
@@ -256,7 +300,7 @@
             },
             xAxis: {
 //                maxZoom: 1000 * 3600,
-                allowDecimals: false,
+                allowDecimals: false
             },
             yAxis: {
                 min: 0,
