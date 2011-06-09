@@ -79,6 +79,7 @@ def get_tracker_msg_for_order(order, last_assignment=None):
 
     # order has final status
     elif order.status == ACCEPTED:
+        pickup_hour = order.modify_date + datetime.timedelta(minutes=order.pickup_time)
         msg.update({"pk": order.id,
                     "status": ACCEPTED,
                     "from_raw": order.from_raw,
@@ -87,7 +88,7 @@ def get_tracker_msg_for_order(order, last_assignment=None):
                     "station": order.station_name,
                     "station_phone": str(order.station.phones.all()[0]),
                     "pickup_time_sec": order.get_pickup_time(),
-                    "pickup_hour": "{0.hour}:{0.minute}".format(order.modify_date + datetime.timedelta(minutes=order.pickup_time)),
+                    "pickup_hour": pickup_hour.strftime("%H:%M"),
                     })
 
     elif order.status in [TIMED_OUT, FAILED, ERROR]:
