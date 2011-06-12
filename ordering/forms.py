@@ -249,9 +249,8 @@ class BusinessRegistrationForm(forms.ModelForm):
         user = create_user(self.cleaned_data['email'], self.cleaned_data['password'],
                            email=self.cleaned_data['email'], first_name=self.cleaned_data['name'], save=False)
         passenger = create_passenger(user, Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE),
-                                     self.cleaned_data['phone'])
+                                     self.cleaned_data['phone'], save=False)
         passenger.default_station = self.cleaned_data['default_station']
-        model.passenger = passenger
 
         model.address = self.cleaned_data['address']
         model.city = City.objects.get(id=self.cleaned_data['city'])
@@ -266,7 +265,9 @@ class BusinessRegistrationForm(forms.ModelForm):
         
         if commit:
             user.save()
+            passenger.user = user
             passenger.save()
+            model.passenger = passenger
             model.save()
 
         return model

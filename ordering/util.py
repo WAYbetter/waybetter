@@ -45,14 +45,17 @@ def create_user(username, password, email, first_name=None, save=True):
     return user
 
 
-def create_passenger(user, country, phone):
+def create_passenger(user, country, phone, save=True):
     passenger = Passenger()
     passenger.user = user
     passenger.country = country
     passenger.phone = phone
     passenger.phone_verified = True
-    passenger.save()
-    log_event(EventType.PASSENGER_REGISTERED, passenger=passenger)
+
+    if save:
+        passenger.save()
+        log_event(EventType.PASSENGER_REGISTERED, passenger=passenger)
+
     return passenger
 
 def safe_delete_user(user):
