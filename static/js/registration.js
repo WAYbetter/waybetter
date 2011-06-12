@@ -86,7 +86,9 @@ var Registrator = Object.create({
         }
         $("#dialog").dialog(this.config.dialog_config);
         if (open_login_dialog){
-            this.openLoginDialog();
+            this.openLoginDialog(function(){
+                        window.location.href = "/";
+                    });
         }
         return this;
     },
