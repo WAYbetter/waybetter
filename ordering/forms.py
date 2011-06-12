@@ -443,8 +443,9 @@ class StationAdminForm(forms.ModelForm):
 
         if kwargs.has_key('instance'):
             instance = kwargs['instance']
-            script_src = "http://%s%s" %(settings.DEFAULT_DOMAIN, reverse(station_controller.station_mobile_redirect, kwargs={'subdomain_name': instance.subdomain_name}))
-            self.initial['station_mobile_redirect'] = '<script type="text/javascript" src="%s"></script>' % script_src
+            if instance.subdomain_name:
+                script_src = "http://%s%s" %(settings.DEFAULT_DOMAIN, reverse(station_controller.station_mobile_redirect, kwargs={'subdomain_name': instance.subdomain_name}))
+                self.initial['station_mobile_redirect'] = '<script type="text/javascript" src="%s"></script>' % script_src
 
 
     def clean_address(self):
