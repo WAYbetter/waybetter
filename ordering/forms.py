@@ -5,14 +5,16 @@ from django.forms.models import ModelForm, NON_FIELD_ERRORS
 from django.forms.util import flatatt, ErrorList
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode, force_unicode
+from django.utils.safestring import mark_safe
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from common.models import Country, City
+from common.util import log_event, EventType, blob_to_image_tag, Enum, phone_regexp
+from common.geocode import geocode
 from ordering.models import Order, Station, Feedback, Business
 from ordering.util import create_user, create_passenger
-from django.utils.safestring import mark_safe
-from common.util import log_event, EventType, blob_to_image_tag, Enum, phone_regexp
-from django.core.exceptions import ValidationError
-from common.geocode import geocode
+import station_controller
 
 INITIAL_DATA = 'INITIAL_DATA'
 
@@ -431,8 +433,18 @@ class FlatRateRuleSetupForm(forms.Form):
 
 
 class StationAdminForm(forms.ModelForm):
+    station_mobile_redirect = forms.CharField(widget=forms.Textarea(attrs={'dir':'ltr'}), required=False)
+
     class Meta:
         model = Station
+
+    def __init__(self, *args, **kwargs):
+        super(StationAdminForm, self).__init__(*args, **kwargs)
+
+        if kwargs.has_key('instance'):
+            instance = kwargs['instance']
+            script_src = "http://%s%s" %(settings.DEFAULT_DOMAIN, reverse(station_controller.station_mobile_redirect, kwargs={'subdomain_name': instance.subdomain_name}))
+            self.initial['station_mobile_redirect'] = '<script type="text/javascript" src="%s"></script>' % script_src
 
 
     def clean_address(self):

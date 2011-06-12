@@ -47,7 +47,6 @@ urlpatterns = patterns('',
     (r'^services/get_workstation_orders/$', 'ordering.station_controller.get_orders'),
     (r'^services/check_ws_status_and_notify/$', 'ordering.station_controller.notify_ws_status'),
     (r'^services/get_init_workstation_orders/$', 'ordering.station_controller.get_workstation_orders'),
-    (r'^services/mobile_redirect_generator/$', 'ordering.station_controller.get_mobile_redirect_js'),
     (r'^services/send_sms_verification/$', 'ordering.passenger_controller.send_sms_verification'),
     (r'^services/register_passenger/$', 'ordering.passenger_controller.register_passenger'),
     (r'^services/change_credentials/$', 'ordering.passenger_controller.change_credentials'),
@@ -73,6 +72,7 @@ urlpatterns = patterns('',
     (r'^setup/upload_flat_rate_rules/$', 'ordering.rules_controller.setup_flat_rate_rules'),
     (r'^setup/do_flat_rate_rules_setup/$', 'ordering.rules_controller.do_setup_flat_rate_pricing_rules'),
 
+    (r'^resources/station_mobile_redirect/(?P<subdomain_name>\w+)/$', 'ordering.station_controller.station_mobile_redirect'),
 )
 
 
