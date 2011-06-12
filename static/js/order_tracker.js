@@ -185,6 +185,7 @@ var OrderTracker = Object.create({
 
                 if (order.to_raw == "") {
                     $address_list.find(".tracker_to").hide();
+                    $address_list.addClass("from_only");
                 }
 
                 // add this order to the tracker and set a timer to check it is updated
@@ -209,7 +210,7 @@ var OrderTracker = Object.create({
 
                 var new_val = Math.max(0, $indicator.val() - 1);
                 if (new_val == 0) {
-                    $info.removeClass("accepted").text(this.config.countdown_finished_msg).effect("highlight", 1000);
+                    $info.removeClass("accepted").addClass("finished").text(this.config.countdown_finished_msg).effect("highlight", 1000);
                     $station.fadeOut();
                     $indicator.fadeOut();
                     $close_btn.fadeIn().click(function() {

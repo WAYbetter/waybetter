@@ -94,7 +94,6 @@
 }
 
 #station_details_container {
-    padding-top: 10px;
 }
 
 #station_details_container ol > li {
@@ -231,7 +230,7 @@
 }
 
 #station_info > p {
-    max-height: 104px;
+    max-height: 160px;
     overflow: hidden;
     margin-bottom: 2px;
 }
@@ -270,7 +269,7 @@
 #powered_by {
     direction: ltr;
     position: absolute;
-    right: 0;
+    left: 0;
     font-size: 14px;
 }
 
@@ -281,20 +280,11 @@
 #taxi_pic {
     background-image: url(/static/images/station_page/taxi.png);
     position: fixed;
-    left: 0;
+    right: 0;
     bottom: 0;
     width: 312px;
     height: 162px;
-}
-
-.rtl #taxi_pic {
-    -moz-transform: scaleX(-1);
-    -webkit-transform: scaleX(-1);
-    -o-transform: scaleX(-1);
-    transform: scaleX(-1);
-    filter: fliph; /*IE*/
-    left: auto;
-    right: 0;
+    z-index: -1;
 }
 
 /*order tracker fixes*/
