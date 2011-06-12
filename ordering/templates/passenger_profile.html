@@ -75,6 +75,13 @@ $(function() {
     });
 
     // for business profiles : forbid confine orders when no default station was chosen
+    $("#id_default_station").change(function() {
+        if (!$(this).val()) {
+            $("#id_confine_orders").attr("checked", false);
+        }
+        return true;
+    });
+
     $("#id_confine_orders").change(function() {
         if ($(this).is(":checked") && $("#id_default_station").val() == "") {
             $(this).attr("checked", false);

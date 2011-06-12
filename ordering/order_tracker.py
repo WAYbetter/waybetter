@@ -12,7 +12,7 @@ STATUS_MESSAGES = {
     PENDING: ugettext_noop("Sending order"),
     ASSIGNED: ugettext_noop("Searching for taxi"),
     ACCEPTED: ugettext_noop("Taxi on its way"),
-    FAILED: ugettext_noop("Sorry, we could not find a taxi for you :(")
+    FAILED: ugettext_noop("No available taxi at the moment. Please try again soon.")
 }
 
 @receive_signal(*AsyncSignal.all)

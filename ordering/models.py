@@ -280,13 +280,16 @@ class Business(BaseModel):
 
     confine_orders = models.BooleanField(_("confine orders"), default=False)
 
+    from_station = models.ForeignKey(Station, default=None, null=True, blank=True)
+    
     def send_welcome_email(self, chosen_password):
         # note: email is sent in Hebrew
         current_lang = translation.get_language()
         translation.activate(settings.LANGUAGE_CODE)
 
         subject = ugettext("business welcome mail subject")
-        template_args = {'name': self.name, 'username': self.passenger.user.username, 'password': chosen_password}
+        link = "%s.taxiapp.co.il" % self.from_station.subdomain_name if self.from_station and self.from_station.subdomain_name else "www.WAYbetter.com"
+        template_args = {'name': self.name, 'password': chosen_password, 'link': "http://%s/?show_login=true" % link}
         t = get_template("business_welcome_email.html")
 
         send_mail_as_noreply(self.passenger.user.email, subject, html=t.render(Context(template_args)))

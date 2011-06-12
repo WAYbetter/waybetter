@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from common.util import phone_validator, notify_by_email
-
+from ordering.models import Station
 # Create your models here.
 class MobileInterest(models.Model):
     email = models.EmailField(_("Email"))
@@ -43,6 +43,7 @@ class BusinessInterest(models.Model):
     contact_person = models.CharField(_("contact person"), max_length=60)
     phone = models.CharField(_("phone"), max_length=60, validators=[phone_validator])
     email = models.EmailField(_("Email"))
+    from_station = models.ForeignKey(Station, default=None, null=True, blank=True)
 
     create_date = models.DateTimeField(_("create date"), auto_now_add=True)
     modify_date = models.DateTimeField(_("modify date"), auto_now=True)
