@@ -29,7 +29,7 @@ def send_channel_msg_to_passenger(passenger, msg):
                 "InvalidMessageError: Failed sending channel message to passenger[%d]: %s" % (passenger.id, msg))
 
 
-def create_user(username, password, email, first_name=None):
+def create_user(username, password, email, first_name=None, save=True):
     user = User()
     user.username = username
     user.set_password(password)
@@ -38,7 +38,9 @@ def create_user(username, password, email, first_name=None):
         first_name = email.split("@")[0]
     user.first_name = first_name
     user.is_active = True
-    user.save()
+
+    if save:
+        user.save()
 
     return user
 

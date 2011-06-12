@@ -9,7 +9,11 @@
 {{ block.super }}
 <script>
     $(document).ready(function() {
-         Registrator.init({
+        var show_login = false;
+        {% if show_login %}
+        show_login = true;
+        {% endif %}
+        Registrator.init({
              urls            : {
                  error_form_template                : '{% url common.registration.get_error_form %}',
                  login_form_template                : '{% url common.registration.get_login_form %}',
@@ -28,7 +32,7 @@
                  interest_submitted_dialog_content_html: '{% trans "We will contact you" %}'
              }
 
-         });
+         }, show_login);
  
         $("input[placeholder]").placeHeld();
         $('marquee').marquee();

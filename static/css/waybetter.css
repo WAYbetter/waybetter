@@ -1388,8 +1388,8 @@ height: 60px; font-size: 32px;}
     background: -moz-linear-gradient(-90deg, #c5c4c6, #898585);
     -pie-background: linear-gradient(-90deg, #c5c4c6, #898585);
 
-    color: black;
-    text-shadow: #e1e1e1 0px 1px;
+    color: white;
+    text-shadow: #4D4D4D 0 -1px;
 }
 
 .gray:hover {
@@ -1833,7 +1833,7 @@ left: -1px;}
     -moz-border-radius: 10px;
     border-style: solid;
     border-color: gray;
-    height: 70px;
+    height: 66px;
     margin: 10px;
     border-width: 2px;
     width: 872px;
@@ -1866,7 +1866,7 @@ left: -1px;}
     -webkit-border-radius: 8px;
     -moz-border-radius: 8px;
     background: white;
-    height: 70px;
+    height: 66px;
     position: absolute;
     width: 872px;
 }
@@ -1897,13 +1897,20 @@ left: -1px;}
     float: left;
 }
 
+.tracker_address_list.from_only {
+    position: relative;
+    bottom: -12px;
+}
+
 .tracker_address_list > li {
     padding-left: 28px;
     height: 20px;
     background-repeat: no-repeat;
     margin-top: 10px;
     width: 180px;
-margin-left: 17px;}
+    margin-left: 17px;
+    font-size: 14px;
+}
 
 .tracker_from {
     background-image: url(../images/ride_details.png);
@@ -1924,13 +1931,20 @@ margin-left: 17px;}
 }
 
 .tracker_station {
-    margin-top: 20px;
-    float: left;
+    margin-top: 20px; /*float: left;*/
+    position: absolute;
+    left: 190px;
+    text-align: right;
+    width: 200px;
 }
 
 .tracker_info {
+    font-size: 20px;
+    color: #2F2F2F;
     margin-top: 20px;
     float: left;
+    position: absolute;
+    left: 393px;
 }
 
 .tracker_info.searching {
@@ -1943,9 +1957,19 @@ margin-left: 17px;}
     background: url(../images/tracker_accepted.gif) 6px 5px no-repeat;
 }
 
+.tracker_info.failed {
+    font-size: 18px;
+    left: 237px;
+bottom: 24px;}
+
+.tracker_info.finished {
+    left: 323px;
+}
+
+
 .tracker_details_container {
+    margin-right: 15px;
     margin-top: 12px;
-    margin-right: 55px;
     float: right;
     text-align: center;
 }
@@ -1960,14 +1984,13 @@ margin-left: 17px;}
     line-height: 24px;
     position: relative;
     margin-top: 8px;
-    margin-right: 50px;
 }
 
 .tracker_indicator.accepted {
     font-size: 18px;
-    font-weight: bold;
-    /*background: url(../images/sent.png) left 0 no-repeat;*/
-    /*padding-left: 20px;*/
+    font-weight: bold; /*background: url(../images/sent.png) left 0 no-repeat;*/
+/*padding-left: 20px;*/;
+    color: #15B300;
 }
 
 .tracker_station_phone {
@@ -1979,11 +2002,14 @@ margin-left: 17px;}
 
 .tracker_station_phone.button_present {
     text-align: right;
+    position: absolute;
+    right: 16px;
+    bottom: 1px;
 }
 
 .tracker_button {
     display: block;
     margin-bottom: 12px;
     position: relative;
-    bottom: -8px;
+    bottom: -5px;
 }

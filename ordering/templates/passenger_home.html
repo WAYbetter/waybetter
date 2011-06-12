@@ -47,7 +47,7 @@
                         pickup_in_msg: "{% trans 'Pickup in' %}",
                         order_finished_msg: "{% trans 'Order finished!' %}",
                         connection_error_msg: "{% trans 'Re-connecting to server, please wait (your order is being processed)' %} ",
-                        countdown_finished_msg: "{% trans 'Have a pleasant ride!' %}"
+                        countdown_finished_msg: "{% trans 'Have a pleasant ride' %}"
                     });
         {% endif %}
 
@@ -142,7 +142,9 @@
                     <div class="clear"></div>
 				</div>
 
-        <div id="order_tracker"></div>
+        {% if show_tracker %}
+            <div id="order_tracker"></div>
+        {% endif %}
 
         <div id="tabs" class="main_tabs_margin_top">
         {% if request.user.passenger %}
