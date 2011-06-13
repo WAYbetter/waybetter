@@ -318,4 +318,4 @@ def update_passenger(request, user):
             passenger.user = user
             passenger.save()
 
-            safe_delete_user(old_user)
+            safe_delete_user(old_user, remove_from_db=True)

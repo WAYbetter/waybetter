@@ -58,7 +58,7 @@ def create_passenger(user, country, phone, save=True):
 
     return passenger
 
-def safe_delete_user(user):
+def safe_delete_user(user, remove_from_db=False):
     # delete social account associated with the user
     social_model_names = ["AuthMeta", "FacebookUserProfile", "OpenidProfile", "TwitterUserProfile",
                           "LinkedInUserProfile"]
@@ -73,6 +73,9 @@ def safe_delete_user(user):
     user.is_active = False
     user.save()
     logging.info("safe delete user [%d, %s]: marked as inactive" % (user.id, user.username))
+    if remove_from_db:
+        logging.warn("delete user [%d, %s]: " % (user.id, user.username))
+        user.delete()
 
 
 # notify us when users/passengers are deleted
@@ -80,7 +83,7 @@ def post_delete_user(sender, instance, **kwargs):
     notify_by_email("user deleted [%d, %s]" % (instance.id, instance.username))
 
 def post_delete_passenger(sender, instance, **kwargs):
-    notify_by_email("passenger deleted [%d, %s]" % (instance.id, instance.username))
+    notify_by_email("passenger deleted [%d, %s]" % (instance.id, unicode(instance)))
 
 models.signals.post_delete.connect(post_delete_user, sender=User)
 models.signals.post_delete.connect(post_delete_passenger, sender=Passenger)
