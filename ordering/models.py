@@ -23,9 +23,9 @@ import logging
 import datetime
 import common.urllib_adaptor as urllib2
 
-ORDER_HANDLE_TIMEOUT = 80 # seconds
+ORDER_HANDLE_TIMEOUT = 800 # seconds
 ORDER_TEASER_TIMEOUT = 18 # seconds
-ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
+ORDER_ASSIGNMENT_TIMEOUT = 800 # seconds
 ORDER_MAX_WAIT_TIME = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
 PASSENGER_TOKEN = "passenger_token"
 
@@ -584,6 +584,8 @@ class OrderAssignment(BaseModel):
     show_date = UTCDateTimeField(_("show date"), auto_now_add=False, null=True, blank=True)
 
     pickup_address_in_ws_lang = models.CharField(_("pickup_address_in_ws_lang"), max_length=50)
+    dropoff_address_in_ws_lang = models.CharField(_("dropoff_address_in_ws_lang"), max_length=50)
+
 
     # de-normalized fields
     business_name = models.CharField(_("business name"), max_length=50, default="", null=True, blank=True)
@@ -605,6 +607,7 @@ class OrderAssignment(BaseModel):
             result.append({ "pk"            : order_assignment.order.id,
                             "status"        : order_assignment.status,
                             "from_raw"      : order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
+                            "to_raw"        : order_assignment.dropoff_address_in_ws_lang or order_assignment.order.to_raw,
                             "seconds_passed": (utc_now() - base_time).seconds,
                             "business"      : order_assignment.business_name
             })
@@ -619,7 +622,15 @@ class OrderAssignment(BaseModel):
         raise ValueError("invalid status")
 
     def change_status(self, old_status=None, new_status=None):
-        """ Update status in transaction, send signal if update was successful """
+        """
+        Change the status of this C{OrderAssignment}
+        
+        Update status in transaction, send signal if update was successful
+
+        @param old_status: the old status to check
+        @param new_status: the new status to set
+        @return: None
+        """
         if self._change_attr_in_transaction("status", old_status, new_status):
             sig_args = {
                 'sender': 'orderassignment_status_changed_signal',

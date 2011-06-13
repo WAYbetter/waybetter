@@ -7,7 +7,7 @@ from ordering.station_connection_manager import is_workstation_available
 from ordering.errors import  NoWorkStationFoundError, UpdateStatusError
 import models
 from common.util import log_event, EventType
-from common.langsupport.util import translate_pickup_for_ws
+from common.langsupport.util import translate_address_for_ws
 
 
 def assign_order(order):
@@ -21,7 +21,9 @@ def assign_order(order):
 
     # create an OrderAssignment
     assignment = OrderAssignment(order=order, station=work_station.station, work_station=work_station)
-    assignment.pickup_address_in_ws_lang = translate_pickup_for_ws(work_station, order)
+    assignment.pickup_address_in_ws_lang = translate_address_for_ws(work_station, order, 'from')
+    assignment.dropoff_address_in_ws_lang = translate_address_for_ws(work_station, order, 'to')
+
 
     # de-normalize business name
     if passenger.business:

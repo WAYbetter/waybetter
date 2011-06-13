@@ -19,22 +19,28 @@ def translate_to_ws_lang(msg, ws):
     ws_lang_code = settings.LANGUAGES[ws.station.language][0]
     return translate_to_lang(msg, ws_lang_code)
 
-def translate_pickup_for_ws(ws, order):
+def translate_address_for_ws(ws, order, address_type):
     """
-    Translate the pickup address to the workstation's language. Currently only English to Hebrew is supported.
+    Translate the pickup address to the workstation's language. Currently only English to Hebrew are supported.
+    
+    @param ws: C{WorkStation}
+    @param order: C{Order}
+    @param address_type: either 'from' or 'to'
+    @return: the translated address
     """
-    order_lang_code = 'en' if is_in_english(order.from_raw) else 'he'
-    ws_lang_code = settings.LANGUAGES[ws.station.language][0]
+    
+    address = getattr(order, "%s_raw" % address_type)
 
-    pickup_address = order.from_raw
+    order_lang_code = 'en' if is_in_english(address) else 'he'
+    ws_lang_code = settings.LANGUAGES[ws.station.language][0]
 
     if order_lang_code == 'en' and ws_lang_code == 'he':
         try:
-            pickup_address = transliterate_english_order_to_hebrew(order, address_type='from')
+            address = transliterate_english_order_to_hebrew(order, address_type=address_type)
         except TransliterationError:
-            logging.error("Transliteration error for %s" % order.from_raw)
+            logging.error("Transliteration error for %s" % address)
 
-    return pickup_address
+    return address
 
 def transliterate_english_order_to_hebrew(order, address_type):
     """

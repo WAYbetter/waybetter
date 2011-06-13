@@ -33,6 +33,12 @@
         padding-left: 5px;
 
 	}
+    #orders .details {
+        height: 100px;
+        text-align: center;
+        padding-top: 1px;
+        padding-left: 7px;
+    }
     #orders .teaser {
         height: 100px;
         text-align: center;
@@ -129,34 +135,64 @@
         float:none;
         bottom: inherit;
     }
-    
-    #orders .reject_button_bg {
-		background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f)) ;
+
+    #orders .accept_button_bg {
+		background-image:url(/static/images/sent.png), -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f))  ;
+        background-repeat: no-repeat;
+        background-position: 54px, center;
 		-webkit-border-radius: 5px;
-		width: 23px;
+		width: 65px;
 		height: 23px;
 		padding-top: 5px;
+        padding-left: 8px;
+        text-align: left;
+        float:left;
+        margin-right: 8px;
+	}
+
+    #orders .accept_button_bg:hover{
+        background-image:url(/static/images/sent.png), -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#b9b9b9));
+        cursor: pointer;
+    }
+    #orders .accept_button_bg:active{
+        background-image:url(/static/images/sent.png), -webkit-gradient(linear, left top, left bottom, from(#929292), to(#929292));
+        color: white;
+        text-shadow: none;
+    }
+
+    #orders .finish_button {
+        padding-left: 12px;
+    }
+
+    #orders .reject_button_bg {
+		background-image:url(/static/images/reject.png), -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f))  ;
+        background-repeat: no-repeat;
+        background-position: 54px, center;
+		-webkit-border-radius: 5px;
+		width: 65px;
+		height: 23px;
+		padding-top: 5px;
+        padding-left: 8px;
+        text-align: left;
 	}
 	#orders .reject_button_bg:hover{
-		background: -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#b9b9b9));
+        background-image:url(/static/images/reject.png), -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#b9b9b9));
 		cursor: pointer;
-		/* border: 1px solid  black; */
 	}
 	#orders .reject_button_bg:active{
+        background-image:url(/static/images/reject.png), -webkit-gradient(linear, left top, left bottom, from(#929292), to(#929292));
 		color: white;
-		background: -webkit-gradient(linear, left top, left bottom, from(#929292), to(#929292));
 		text-shadow: none;
-		/* border: 1px solid  black; */
 	}
-	#orders .reject_image{
-		background-image: url(/static/images/reject.png) ;
-		background-repeat: no-repeat;
-		background-position: center center;
-		width: 12px;
-		height: 12px;
-		margin:0 5px;
-		padding-top: 7px;
-	}
+	/*#orders .reject_image{*/
+		/*background-image: url(/static/images/reject.png) ;*/
+		/*background-repeat: no-repeat;*/
+		/*background-position: center center;*/
+		/*width: 12px;*/
+		/*height: 12px;*/
+		/*margin:0 5px;*/
+		/*padding-top: 7px;*/
+	/*}*/
 	#orders select {
 		background-image: url(/static/images/combo02.png) ;
 		text-shadow: #e6e6e6 0 1px 0;
@@ -169,27 +205,47 @@
 		-webkit-appearance: none;
 		-webkit-border-radius: 5px;
 		 border: none;
-        bottom: 5px;
-        position: relative;
         float:left;
 	}
 	#orders .combo:hover{
 		background-image: url(/static/images/combo_hover02.png) ;
 		cursor: pointer;
 	}
+
+    #orders .controls{
+        width: 100%;
+        text-align: right;
+    }
+    #orders .addresses {
+        width: 100%;
+        height: 55px;
+        font-weight: normal;
+        text-align: center;
+        padding: 3px 0;
+    }
+
+
 	#orders .from_address{
-		color: white;
-		text-align: right;
-        width: 130px;
-        height: 40px;
-        position: absolute;
-        top: 4px;
+		color: #ffde00;
+        display: block;
+        font-weight: bold;
 	}
 	#orders .from_address:hover{
 		color: yellow;
 		text-decoration:underline;
 		cursor: pointer;
 	}
+
+    #orders .from_address .pickup {
+        color: white;
+        font-weight: normal;
+    }
+
+    #orders .to_address {
+        color: gray;
+        display: block;
+        font-weight: normal;
+    }
 
    	#orders .pb-row {
         height: 14px;
@@ -294,6 +350,9 @@
         top: 4px;
         width: 101px;
 	}
+    #orders .pickup-message {
+        color:white;
+    }
 
 	#orders .pb_sent {
 		background: -webkit-gradient(linear, left top, left bottom, from(#000000), to(#615b5b));
@@ -534,7 +593,7 @@
 
         function showOrder(order) {
             var order_id = order.pk;
-            $("#"+order.pk).unbind("click").removeClass("teaser").data("state", "");
+            $("#"+order.pk).unbind("click").removeClass("teaser").addClass("details").data("state", "");
             setStateSending(order_id);
             stopFussing();
             $.ajax({"url": "{% url ordering.station_controller.show_order %}", "type":"post", "data":{"order_id": order_id}, "error": onError,
@@ -553,12 +612,14 @@
                 }
             });
 
-            if (!needs_attention && parentSandboxBridge.stop_notification_sound) {
+            if (!needs_attention && window.parentSandboxBridge && parentSandboxBridge.stop_notification_sound) {
                 parentSandboxBridge.stop_notification_sound();
             }
         }
 
         function renderOrderDetails(order) {
+            handleAddRow();
+
             var select = $("<select name='pickup_time' class='combo'></select>").attr('id', 'pickup_time_for_' + order.pk);
             select.append($("<option>").val('').append("{% trans 'Define time' %}"));
            {% for n in pickup_times %}
@@ -572,16 +633,18 @@
                 }
             });
 
-            var send_button = $('<div disabled=disabled class="button_txt button_bg" title="{% trans 'Send message to passenger' %}"></div>').text('{% trans 'Send' %}').click(function() {
-                if ($(this).attr("disabled")) {
+            var send_button = $('<div class="accept_button_bg button_txt" title="{% trans 'Send message to passenger' %}"></div>').text('{% trans 'Send' %}').click(function() {
+                if (this.getAttribute("disabled") == "disabled") {
+//                if ($(this).attr("disabled")) {
                     return false;
                 }
                 acceptOrder(order.pk);
             });
 
-            var reject_button = $("<div class='reject_button_bg'><div class='reject_image'></div></div>").click(function() {
+            var reject_button = $("<div class='reject_button_bg button_txt'>{% trans 'Reject' %}</div>").click(function() {
                 if ($(this).attr("disabled") != "disabled") {
                     $(this).attr("disabled", "disabled");
+                    handleRemoveRow();
                     rejectOrder(order.pk);
                 }
             });
@@ -590,16 +653,26 @@
             var timeout_interval = {{ timeout_interval }};
             var initial_val = (timeout_interval - order.seconds_passed) / timeout_interval * 100;
             var progress_indicator = getProgressIndicator(order, timeout_interval, initial_val);
-
-            var rendered_order = $("#"+order.pk).empty()
+            var buttons_div = $("<div class='controls'></div>")
                     .append(reject_button)
-                    .append($("<div class='from_address'></div>").append(order.from_raw))
                     .append(send_button)
                     .append(select);
+
+            var addresses_div= $("<div class='addresses'></div>")
+                    .append($("<div class='from_address'></div>").append($("<span class='pickup'>{% trans 'pickup' %}: </span>")).append(order.from_raw));
+
+            if (order.to_raw) {
+                addresses_div.append($("<div class='to_address'></div>").append("(" + "{% trans 'dropoff' %}: " + order.to_raw + ")"));
+            }
+
+            var rendered_order = $("#" + order.pk).empty().addClass("details")
+                    .append(addresses_div)
+                    .append(buttons_div);
 
             var progress_bar = $("#pb_"+order.pk).empty().append(progress_indicator);
 
             rendered_order.show();
+            send_button.attr("disabled", "disabled");
         }
 
         function getProgressIndicator(order, timeout_interval, initial_val){
@@ -627,18 +700,22 @@
         }
 
         function setStateSent(data) {
+            handleAddRow();
             var order_row = $("#orders #" + data.order_id);
-            var finis_button = $("<div class='finish_button_bg' title='{% trans 'End' %}'><div class='sent_image'></div></div>").click(function() {
+            var finish_button = $("<div class='accept_button_bg button_txt finish_button'>{% trans 'End' %}</div>").click(function() {
+                handleRemoveRow();
                 removeOrderRow(data.order_id);
             });
-            var close_button = $("<div class='button_txt button_bg close_button'>{% trans 'Close' %}</div>").click(function() {
-                removeOrderRow(data.order_id);
-            });
+            var buttons_div = $("<div class='controls'></div>")
+                    .append($("<div class='pickup-message'>" + data.pickup_message + "</div>"))
+                    .append(finish_button);
+
+            var addresses_div= $("<div class='addresses'></div>")
+                    .append($("<div class='from_address'></div>").append($("<span class='pickup'>{% trans 'pickup' %}: </span>")).append(data.pickup_address));
+
             order_row.empty()
-                .append(finis_button)
-                .append($("<div class='order_sent'></div>").text(data.pickup_message))
-                .append($("<div class='from_address'></div>").text(data.pickup_address))
-                .append(close_button);
+                    .append(addresses_div)
+                    .append(buttons_div);
 
             order_row.next().empty();
         }
