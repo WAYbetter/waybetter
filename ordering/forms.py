@@ -14,7 +14,6 @@ from common.util import log_event, EventType, blob_to_image_tag, Enum, phone_reg
 from common.geocode import geocode
 from ordering.models import Order, Station, Feedback, Business
 from ordering.util import create_user, create_passenger
-import station_controller
 
 INITIAL_DATA = 'INITIAL_DATA'
 
@@ -444,7 +443,7 @@ class StationAdminForm(forms.ModelForm):
         if kwargs.has_key('instance'):
             instance = kwargs['instance']
             if instance.subdomain_name:
-                script_src = "http://%s%s" %(settings.DEFAULT_DOMAIN, reverse(station_controller.station_mobile_redirect, kwargs={'subdomain_name': instance.subdomain_name}))
+                script_src = "http://%s%s" %(settings.DEFAULT_DOMAIN, reverse('ordering.station_controller.station_mobile_redirect', kwargs={'subdomain_name': instance.subdomain_name}))
                 self.initial['station_mobile_redirect'] = '<script type="text/javascript" src="%s"></script>' % script_src
 
 
