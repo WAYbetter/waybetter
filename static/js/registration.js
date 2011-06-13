@@ -167,7 +167,7 @@ var Registrator = Object.create({
     },
     doPhoneValidation       : function(form) {
         this._doDialogSubmit(form, null, this.config.urls.validate_phone, function(XMLHttpRequest, textStatus, errorThrown) {
-            $("div[htmlfor=verification_code]").text(XMLHttpRequest.responseText).parent()
+            $("div[for=verification_code]").text(XMLHttpRequest.responseText).parent()
                     .removeClass("sms-button").addClass("red").unbind("click");
         });
     },
@@ -364,7 +364,7 @@ var Registrator = Object.create({
                     container.insertAfter(element);
                 },
                 success: function(label) {
-                    if (label.attr("htmlfor") == 'local_phone') {
+                    if (label.attr("for") == 'local_phone') {
                         label.text(that.config.messages.sms_ok);
                     } else {
                         label.text(that.config.messages.finish);
@@ -377,7 +377,7 @@ var Registrator = Object.create({
                     });
 
                     that.setHelperButton(this, 'verification_code', function() {
-                        $("div[htmlfor=local_phone]").parent().removeClass("code-sent");
+                        $("div[for=local_phone]").parent().removeClass("code-sent");
                         that.doPhoneValidation.call(that, form, extra_form_data);
                     });
 
@@ -561,7 +561,7 @@ var Registrator = Object.create({
     },
     setHelperButton         : function (context, id, callable) {
         if (context.currentElements.length && context.currentElements[0].id == id) {
-            var $elem = $("div[htmlfor=" + id +"]").text("").parent();
+            var $elem = $("div[for=" + id +"]").text("").parent();
             if ($elem.hasClass("sending-code")) { // skip if we are during sms sending
                 return;
             }
