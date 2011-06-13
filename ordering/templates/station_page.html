@@ -102,6 +102,11 @@
 {% block header %}
     <div id="banner">
         <div id="app_large_icon"></div>
+        <div id="station_logo">
+            {% autoescape off %}
+            {{ station_logo }}
+            {% endautoescape %}
+        </div>
         {% if request.user.passenger.business %}
             <h1>{% trans 'Pick Me App for Businesses, with instant feedback and no phone calls ' %}</h1>
         {% else %}
@@ -208,7 +213,7 @@
 
                         <ol>
                             <li>{% trans 'Visit' %} <a
-                                    href="http://{{ website_link }}">{{ website_link }}</a> {% trans 'from your smartphone' %}
+                                    href="{{ website_link }}">{{ pretty_website_link }}</a> {% trans 'from your smartphone' %}
                             </li>
                             <li>{% trans 'Tap "Pick me up"' %}</li>
                             <li>{% trans 'Enjoy the ride!' %}</li>
