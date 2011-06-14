@@ -13,21 +13,17 @@
             <label>{% trans 'address' %}:</label>
             {{ address }}
         </p>
-        <p>
-            <label>{% trans 'username' %}:</label>
-            {{ username }}
-        </p>
     {% else %}
         <p>
             <label>{% trans 'Phone number' %}:</label>
             <span id="current_phone">{{ phone }}</span>
             <a id="change_phone" href="#">{% trans 'Change' %}</a>
         </p>
+    {% endif %}
         <p>
             <label>{% trans 'Email' %}:</label>{{ email }}
         </p>
-    {% endif %}
-    {{ form.as_p }}
+        {{ form.as_p }}
     </div>
  <input type="submit" id="save_profile_changes" value="{% trans 'Save Changes' %}" class="wb_button blue"/>
 
