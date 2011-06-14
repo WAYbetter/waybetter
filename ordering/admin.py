@@ -17,8 +17,15 @@ class PassengerAdmin(admin.ModelAdmin):
             return "-- No User -- "
 
 
+def send_welcome_email(modeladmin, request, queryset):
+    for business in queryset:
+        business.send_welcome_email(chosen_password="*****")
+
+send_welcome_email.short_description = "Send welcome email"
+
 class BusinessAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "contact_person"]
+    actions = [send_welcome_email]
 
 
 class OrderAdmin(admin.ModelAdmin):

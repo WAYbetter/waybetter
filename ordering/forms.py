@@ -5,14 +5,15 @@ from django.forms.models import ModelForm, NON_FIELD_ERRORS
 from django.forms.util import flatatt, ErrorList
 from django.utils.translation import ugettext_lazy as _
 from django.utils.encoding import smart_unicode, force_unicode
+from django.utils.safestring import mark_safe
+from django.core.exceptions import ValidationError
 from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
 from common.models import Country, City
+from common.util import log_event, EventType, blob_to_image_tag, Enum, phone_regexp
+from common.geocode import geocode
 from ordering.models import Order, Station, Feedback, Business
 from ordering.util import create_user, create_passenger
-from django.utils.safestring import mark_safe
-from common.util import log_event, EventType, blob_to_image_tag, Enum, phone_regexp
-from django.core.exceptions import ValidationError
-from common.geocode import geocode
 
 INITIAL_DATA = 'INITIAL_DATA'
 
@@ -217,11 +218,11 @@ class BusinessRegistrationForm(forms.ModelForm):
 
 
     email = forms.EmailField(label=_("Email"))
-    username = forms.CharField(label=_("Enter username"), widget=forms.TextInput())
     password = forms.CharField(label=_("Enter password"), widget=forms.PasswordInput())
     password2 = forms.CharField(label=_("Re-enter password"), widget=forms.PasswordInput())
 
     # hidden
+    from_station = forms.ModelChoiceField(queryset=Station.objects.all(), widget=forms.HiddenInput(), required=False)
     city = forms.IntegerField(widget=forms.HiddenInput(), required=False)
     street_address = forms.CharField(widget=forms.HiddenInput(), required=False)
     house_number = forms.IntegerField(widget=forms.HiddenInput(), required=False)
@@ -236,23 +237,21 @@ class BusinessRegistrationForm(forms.ModelForm):
                 ('password2', {'equal_to_field': _("The two password fields didn't match.")}),
                 ]
 
-    def clean_username(self):
-        cleaned_username = self.cleaned_data['username']
-        if User.objects.filter(username=cleaned_username).count():
-            raise forms.ValidationError(_("username already taken"))
+    def clean_email(self):
+        cleaned_email = self.cleaned_data['email']
+        if User.objects.filter(username=cleaned_email).count():
+            raise forms.ValidationError(_("Email already registered"))
 
-        return cleaned_username
+        return cleaned_email
 
     def save(self, commit=True):
         model = super(BusinessRegistrationForm, self).save(commit=False)
 
-        user = create_user(self.cleaned_data['username'], self.cleaned_data['password'],
-                           email=self.cleaned_data['email'], first_name=self.cleaned_data['name'])
+        user = create_user(self.cleaned_data['email'], self.cleaned_data['password'],
+                           email=self.cleaned_data['email'], first_name=self.cleaned_data['name'], save=False)
         passenger = create_passenger(user, Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE),
-                                     self.cleaned_data['phone'])
+                                     self.cleaned_data['phone'], save=False)
         passenger.default_station = self.cleaned_data['default_station']
-        passenger.save()
-        model.passenger = passenger
 
         model.address = self.cleaned_data['address']
         model.city = City.objects.get(id=self.cleaned_data['city'])
@@ -261,7 +260,15 @@ class BusinessRegistrationForm(forms.ModelForm):
         model.lon = self.cleaned_data['lon']
         model.lat = self.cleaned_data['lat']
 
+        model.confine_orders = self.cleaned_data['confine_orders']
+
+        model.from_station = self.cleaned_data['from_station']
+        
         if commit:
+            user.save()
+            passenger.user = user
+            passenger.save()
+            model.passenger = passenger
             model.save()
 
         return model
@@ -425,8 +432,19 @@ class FlatRateRuleSetupForm(forms.Form):
 
 
 class StationAdminForm(forms.ModelForm):
+    station_mobile_redirect = forms.CharField(widget=forms.Textarea(attrs={'dir':'ltr'}), required=False)
+
     class Meta:
         model = Station
+
+    def __init__(self, *args, **kwargs):
+        super(StationAdminForm, self).__init__(*args, **kwargs)
+
+        if kwargs.has_key('instance'):
+            instance = kwargs['instance']
+            if instance.subdomain_name:
+                script_src = "http://%s%s" %(settings.DEFAULT_DOMAIN, reverse('ordering.station_controller.station_mobile_redirect', kwargs={'subdomain_name': instance.subdomain_name}))
+                self.initial['station_mobile_redirect'] = '<script type="text/javascript" src="%s"></script>' % script_src
 
 
     def clean_address(self):

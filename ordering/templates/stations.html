@@ -3,7 +3,7 @@
     $(function() {
         $(".more_details").hide();
         $(".station_row button").click(function () {
-            $("#id_from_raw").focus();
+            window.location.href = $(this).attr("href");
         });
         $(".toggle_details").click(function(e) {
             var elem = this;
@@ -59,7 +59,9 @@
         <a class="toggle_details" href="#">
             {% trans "More details" %}
         </a>
-        <button class="wb_button gold">{% trans "Book a Taxi Now" %}</button>
+        {% if station.station_page_url %}
+            <button class="wb_button gold" href="{{ station.station_page_url }}">{% trans "Book a Taxi Now" %}</button>
+        {% endif %}
     </div>
 </div>
 {% endfor %}

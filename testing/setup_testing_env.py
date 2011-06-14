@@ -72,16 +72,11 @@ def destroy_selenium_test_data(request):
         except WorkStation.DoesNotExist:
             pass
 
-        safe_delete_user(user)
+        safe_delete_user(user, remove_from_db=True)
 
     # user created by socialauth
-    try:
-        user = User.objects.get(email=SELENIUM_EMAIL)
-        safe_delete_user(user)
-    except User.DoesNotExist:
-        pass
-    except User.MultipleObjectsReturned:
-        return HttpResponse("error deleting social data")
+    for user in User.objects.filter(email=SELENIUM_EMAIL):
+        safe_delete_user(user, remove_from_db=True)
 
     return HttpResponse("selenium data destroyed")
 

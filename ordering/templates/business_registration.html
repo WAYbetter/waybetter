@@ -7,8 +7,12 @@
 
 {% block content %}
 
-    <div>
+    <div class="white-bg">
         <h1>{% trans "Business registration" %}</h1>
+        {% if from_station_name %}
+            <br/>
+            <b>{% trans 'Interest from station ' %}{{ from_station_name }}</b>
+        {% endif %}
 
         <form id="business_registration_form" method="post"
               action="{% url ordering.passenger_controller.business_registration %}">
@@ -40,9 +44,9 @@
                             $(element).before('<ul class="errorlist"><li>' + error.text() + '</li></ul>');
                         },
                         rules: {
-                            username: {
+                            email: {
                                 remote: {
-                                    url: "{% url common.services.is_username_available %}"
+                                    url: "{% url common.services.is_email_available %}"
                                 }
                             },
                             address: {
@@ -50,8 +54,8 @@
                             }
                         },
                         messages: {
-                            username: {
-                                remote: "{% trans 'Username already registered' %}"
+                            email: {
+                                remote: "{% trans 'Email already registered' %}"
                             },
                             address: {
                                 valid_address: "{% trans 'The address is not resolved' %}"
@@ -70,7 +74,7 @@
                 var current_val = $(this).val();
                 if (current_val != address_val) {
                     address_val = current_val;
-                    clear_hidden_fields(); // address is not resolved
+                    clear_address_fields(); // address is not resolved
                 }
             });
             $("#id_address").autocomplete({
@@ -97,7 +101,7 @@
                                     });
                         },
                         select:     function(event, ui) {
-                            populate_hidden_fields({"city": ui.item.city, "street_address": ui.item.street_address, "house_number": ui.item.house_number,
+                            populate_address_fields({"city": ui.item.city, "street_address": ui.item.street_address, "house_number": ui.item.house_number,
                                         "lon": ui.item.lon, "lat": ui.item.lat});
                         }
                     });
@@ -159,18 +163,24 @@
                 return false;
             });
 
-            function populate_hidden_fields(data) {
+            function populate_address_fields(data) {
                 for (var d in data) {
                     var $input = $("#id_" + d);
                     $input.val(data[d]);
                 }
             }
 
-            function clear_hidden_fields() {
-                $form.find("input[type='hidden']").val('');
+            function clear_address_fields() {
+                $("#id_city, #id_street_address, #id_house_number, #id_lon, #id_lat").val('');
             }
 
             // for business profiles : forbid confine orders when no default station was chosen
+            $("#id_default_station").change(function() {
+                if (!$(this).val()) {
+                    $("#id_confine_orders").attr("checked", false);
+                }
+                return true;
+            });
             $("#id_confine_orders").change(function() {
                 if ($(this).is(":checked") && $("#id_default_station").val() == "") {
                     $(this).attr("checked", false);

@@ -308,13 +308,15 @@ def send_mail_as_noreply(address, subject, msg=None, html=None):
         mail.subject = subject
         if html:
             mail.html = html
-        else:
+        elif msg:
             mail.body = msg
+        else:
+            mail.body = "---" # mail.body cannot be empty string, raises exception
 
         mail.check_initialized()
         mail.send()
-    except:
-        logging.error("Email sending failed.")
+    except Exception, e:
+        logging.error("Email sending failed: %s" % e.message)
 
 
 def blob_to_image_tag(blob_data, height=50, width=None):

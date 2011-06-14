@@ -73,7 +73,7 @@ var Registrator = Object.create({
      * @param config
      * @return this
      */
-    init                    : function (config) {
+    init                    : function (config, open_login_dialog) {
         // config will be the argument config
         // OR the global var 'form_config' provided in the template
 
@@ -85,6 +85,11 @@ var Registrator = Object.create({
             $("<div id='dialog'></div>").hide().appendTo("body");
         }
         $("#dialog").dialog(this.config.dialog_config);
+        if (open_login_dialog){
+            this.openLoginDialog(function(){
+                        window.location.href = "/";
+                    });
+        }
         return this;
     },
     initValidator           : function ($form, config) {
@@ -162,7 +167,7 @@ var Registrator = Object.create({
     },
     doPhoneValidation       : function(form) {
         this._doDialogSubmit(form, null, this.config.urls.validate_phone, function(XMLHttpRequest, textStatus, errorThrown) {
-            $("div[htmlfor=verification_code]").text(XMLHttpRequest.responseText).parent()
+            $("div[for=verification_code]").text(XMLHttpRequest.responseText).parent()
                     .removeClass("sms-button").addClass("red").unbind("click");
         });
     },
@@ -218,7 +223,7 @@ var Registrator = Object.create({
             that.openDialog.call(that);
         });
     },
-    _openInterestDialog: function (interest_name, callback) {
+    _openInterestDialog: function (interest_name, callback, dialog_setup_callback) {
         var that = this;
         that.setCallback(callback);
         that.getTemplate.call(that, interest_name+"_interest", function(dialog_content) {
@@ -226,6 +231,9 @@ var Registrator = Object.create({
             $("#close", dialog_content).click(function() {
                 $('#dialog').dialog('close');
             });
+            if (dialog_setup_callback) {
+                dialog_setup_callback.call();
+            }
             that.openDialog.call(that);
         });
     },
@@ -235,8 +243,8 @@ var Registrator = Object.create({
     openStationInterestDialog: function (callback) {
         this._openInterestDialog.call(this, "station", callback);
     },
-    openBusinessInterestDialog: function(callback){
-        this._openInterestDialog.call(this, "business", callback);
+    openBusinessInterestDialog: function(callback, dialog_setup_callback){
+        this._openInterestDialog.call(this, "business", callback, dialog_setup_callback);
     },
     openTermsDialog         : function (callback) {
         var that = this;
@@ -356,7 +364,7 @@ var Registrator = Object.create({
                     container.insertAfter(element);
                 },
                 success: function(label) {
-                    if (label.attr("htmlfor") == 'local_phone') {
+                    if (label.attr("for") == 'local_phone') {
                         label.text(that.config.messages.sms_ok);
                     } else {
                         label.text(that.config.messages.finish);
@@ -369,7 +377,7 @@ var Registrator = Object.create({
                     });
 
                     that.setHelperButton(this, 'verification_code', function() {
-                        $("div[htmlfor=local_phone]").parent().removeClass("code-sent");
+                        $("div[for=local_phone]").parent().removeClass("code-sent");
                         that.doPhoneValidation.call(that, form, extra_form_data);
                     });
 
@@ -553,7 +561,7 @@ var Registrator = Object.create({
     },
     setHelperButton         : function (context, id, callable) {
         if (context.currentElements.length && context.currentElements[0].id == id) {
-            var $elem = $("div[htmlfor=" + id +"]").text("").parent();
+            var $elem = $("div[for=" + id +"]").text("").parent();
             if ($elem.hasClass("sending-code")) { // skip if we are during sms sending
                 return;
             }

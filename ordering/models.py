@@ -124,6 +124,12 @@ class Station(BaseModel):
     def get_admin_link(self):
         return '<a href="%s/%d">%s</a>' % ('/admin/ordering/station', self.id, self.name)
 
+    def get_station_page_link(self):
+        if self.subdomain_name:
+            return "http://%s.taxiapp.co.il" % self.subdomain_name
+        else:
+            return "http://taxiapp.co.il"
+
     def is_in_valid_distance(self, from_lon=None, from_lat=None, to_lon=None, to_lat=None, order=None):
         if not (self.lat and self.lon): # ignore station with unknown address
             return False
@@ -280,13 +286,16 @@ class Business(BaseModel):
 
     confine_orders = models.BooleanField(_("confine orders"), default=False)
 
+    from_station = models.ForeignKey(Station, default=None, null=True, blank=True)
+    
     def send_welcome_email(self, chosen_password):
         # note: email is sent in Hebrew
         current_lang = translation.get_language()
         translation.activate(settings.LANGUAGE_CODE)
 
         subject = ugettext("business welcome mail subject")
-        template_args = {'name': self.name, 'username': self.passenger.user.username, 'password': chosen_password}
+        link = self.from_station.get_station_page_link() if self.from_station else "www.WAYbetter.com"
+        template_args = {'name': self.name, 'password': chosen_password, 'link': "%s/?show_login=true" % link}
         t = get_template("business_welcome_email.html")
 
         send_mail_as_noreply(self.passenger.user.email, subject, html=t.render(Context(template_args)))

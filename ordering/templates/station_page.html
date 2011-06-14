@@ -57,14 +57,14 @@
                             init_tracker_history : {{ init_tracker_history|safe }},
                             get_tracker_init_url: "{% url ordering.passenger_controller.get_tracker_init %}",
                             close_msg: "{% trans 'Close' %}",
-                            changes_msg: "{% trans 'Changes: '%}",
+                            changes_msg: "{% trans 'For changes call:'%}",
                             minute_label: "{% trans 'minute' %}",
                             minutes_label: "{% trans 'minutes' %}",
                             please_wait_msg: "{% trans 'Please wait' %}",
                             pickup_in_msg: "{% trans 'Pickup in' %}",
                             order_finished_msg: "{% trans 'Order finished!' %}",
                             connection_error_msg: "{% trans 'Re-connecting to server, please wait (your order is being processed)' %} ",
-                            countdown_finished_msg: "{% trans 'Have a pleasant ride!' %}"
+                            countdown_finished_msg: "{% trans 'Have a pleasant ride' %}"
                         });
             {% endif %}
 
@@ -81,7 +81,9 @@
             });
             $("#banner > h1").unbind("click");
             $("#station_for_business").find("#join").click(function() {
-                Registrator.openBusinessInterestDialog();
+                Registrator.openBusinessInterestDialog(undefined, function(){
+                    $("#id_from_station").val({{ station.id }});
+                });
             });
 
             $("#tabs").tabs({
@@ -100,6 +102,11 @@
 {% block header %}
     <div id="banner">
         <div id="app_large_icon"></div>
+        <div id="station_logo">
+            {% autoescape off %}
+            {{ station_logo }}
+            {% endautoescape %}
+        </div>
         {% if request.user.passenger.business %}
             <h1>{% trans 'Pick Me App for Businesses, with instant feedback and no phone calls ' %}</h1>
         {% else %}
@@ -163,7 +170,11 @@
         <div class="clear"></div>
     </div>
 
-    <div id="order_tracker"></div>
+
+    {% if request.user.passenger.business %}
+        <div id="order_tracker"></div>
+    {% endif %}
+
 
     {% if request.user.passenger %}
         <div id="tabs" class="main_tabs_margin_top">
@@ -182,27 +193,27 @@
                     <div id="for_business_text">
                         <h2>{{ station_full_name }} {% trans 'for your business - free!' %}</h2>
                         <ul>
-                            <li>{% trans 'One click order' %}</li>
-                            <li>{% trans 'No holding on the phone while searching for a taxi' %}</li>
+                            <li>{% trans 'Easy and friendly ordering' %}</li>
+                            <li>{% trans 'No phone calls' %}</li>
                             <li>{% trans 'Get instant feedback on your computer' %}</li>
-                            <li>{% trans 'Track and manage your orders' %}</li>
+                            <li>{% trans 'Track and manage orders' %}</li>
                         </ul>
                     </div>
                     <div id="join">
-                        <button class="wb_button purple">{% trans 'Join' %}</button>
+                        <button class="wb_button purple">{% trans 'Join now' %}</button>
                     </div>
                 </div>
                 <div id="station_for_smartphones" class="station_info_box">
                     <div id="for_smartphones_text">
                         <img src={{ station.app_icon_url }}>
 
-                        <h2>{{ station_full_name }} {% trans 'for your smartphone' %}</h2>
+                        <h2>{{ station_full_name }}<br/>{% trans 'for your smartphone' %}</h2>
 
                         <div class="clear"></div>
 
                         <ol>
                             <li>{% trans 'Visit' %} <a
-                                    href="http://{{ website_link }}">{{ website_link }}</a> {% trans 'from your smartphone' %}
+                                    href="{{ website_link }}">{{ pretty_website_link }}</a> {% trans 'from your smartphone' %}
                             </li>
                             <li>{% trans 'Tap "Pick me up"' %}</li>
                             <li>{% trans 'Enjoy the ride!' %}</li>

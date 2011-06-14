@@ -10,10 +10,11 @@
     {% blocktrans %}
         Hi {{ name }}!<br><br>
         Thank you for joining <b>WAYbetter</b>.<br>
-        To start using our service please visit http://www.WAYbetter.com/ and login using the following credentials:<br>
-        Username: {{ username }}<br>
-        Password: {{ password }}<br>
-        You can change your password from the 'Profile' tab.<br><br>
+
+        <b>Your password is: {{ password }}</b>
+        You can change it from the 'Profile' tab.<br><br>
+
+        To start using our service please visit {{ link }}<br>
     {% endblocktrans %}
 </div>
 </body>

@@ -12,7 +12,7 @@ import time
 import logging
 
 APPLICATION_UNDER_TEST = "http://localhost:8000/"
-#APPLICATION_UNDER_TEST = "http://3.latest.waybetter-app.appspot.com/"
+#APPLICATION_UNDER_TEST = "http://2.latest.waybetter-app.appspot.com/"
 #APPLICATION_UNDER_TEST = "http://www.waybetter.com/"
 
 SOCIAL_GOOGLE = ["css=.google", "Google Accounts", "Email", "Passwd", "signIn"]
@@ -247,9 +247,11 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel = self.selenium
         sel.open("/")
 
+        sel.click("id_from_raw")
         sel.type_keys("id_from_raw", u"אל 1 תא")
         self.wait_for_autocomplete_and_click(u"//html/body/ul/li/a[. = \"אלנבי 1, תל אביב יפו\"]")
 
+        sel.click("id_to_raw")
         sel.type_keys("id_to_raw", u"הרצ 1 תא")
         self.wait_for_autocomplete_and_click(u"//html/body/ul/li/a[. = \"הרצל 1, תל אביב יפו\"]")
 
@@ -292,7 +294,7 @@ class SeleniumTests(TestCase, SelemiumHelper):
         sel.open("/")
         self.book_order(SELENIUM_ADDRESS)
         self.validate_phone()
-        time.sleep(1)
+        time.sleep(3)
         self.wait_for_text(u"הזמנתך התקבלה!", "ui-dialog-title-dialog")
         time.sleep(5)
         self.register()

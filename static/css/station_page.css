@@ -53,12 +53,23 @@
     background-image: url(/static/images/station_page/app_large_icon.png);
     width: 109px;
     height: 107px;
-    margin-bottom: -36px;
+    margin-bottom: -67px;
     margin-left: -20px;
 }
 
 .rtl #app_large_icon {
     margin-right: -20px;
+}
+
+#station_logo {
+    position: relative;
+    top: 18px;
+    z-index: 1;
+    right: 20px;
+}
+
+.rtl #station_logo {
+    right: -20px;
 }
 
 .gray_header {
@@ -94,7 +105,6 @@
 }
 
 #station_details_container {
-    padding-top: 10px;
 }
 
 #station_details_container ol > li {
@@ -210,7 +220,7 @@
 .rtl #for_smartphones_text>h2 {
     margin-left: 0;
     margin-right: 70px;
-width: 120px;}
+}
 
 #for_smartphones_text>ol {
     margin-top: 20px;
@@ -231,7 +241,7 @@ width: 120px;}
 }
 
 #station_info > p {
-    max-height: 104px;
+    max-height: 160px;
     overflow: hidden;
     margin-bottom: 2px;
 }
@@ -270,7 +280,7 @@ width: 120px;}
 #powered_by {
     direction: ltr;
     position: absolute;
-    right: 0;
+    left: 0;
     font-size: 14px;
 }
 
@@ -281,20 +291,11 @@ width: 120px;}
 #taxi_pic {
     background-image: url(/static/images/station_page/taxi.png);
     position: fixed;
-    left: 0;
+    right: 0;
     bottom: 0;
     width: 312px;
     height: 162px;
-}
-
-.rtl #taxi_pic {
-    -moz-transform: scaleX(-1);
-    -webkit-transform: scaleX(-1);
-    -o-transform: scaleX(-1);
-    transform: scaleX(-1);
-    filter: fliph; /*IE*/
-    left: auto;
-    right: 0;
+    z-index: -1;
 }
 
 /*order tracker fixes*/
