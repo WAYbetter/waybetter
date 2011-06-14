@@ -79,11 +79,18 @@ def safe_delete_user(user, remove_from_db=False):
 
 
 # notify us when users/passengers are deleted
+from testing.selenium_helper import SELENIUM_USER_NAMES, SELENIUM_EMAIL
 def post_delete_user(sender, instance, **kwargs):
-    notify_by_email("user deleted [%d, %s]" % (instance.id, instance.username))
+    if instance.email == SELENIUM_EMAIL or instance.username in SELENIUM_USER_NAMES:
+        pass
+    else:
+        notify_by_email("user deleted [%d, %s]" % (instance.id, instance.username))
 
 def post_delete_passenger(sender, instance, **kwargs):
-    notify_by_email("passenger deleted [%d, %s]" % (instance.id, unicode(instance)))
+    if instance.user.email == SELENIUM_EMAIL or instance.user.username in SELENIUM_USER_NAMES:
+        pass
+    else:
+        notify_by_email("passenger deleted [%d, %s]" % (instance.id, unicode(instance)))
 
 models.signals.post_delete.connect(post_delete_user, sender=User)
 models.signals.post_delete.connect(post_delete_passenger, sender=Passenger)

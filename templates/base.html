@@ -1,5 +1,6 @@
 <!doctype html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl" class="rtl"{% endif %}>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}"
+      {% if LANGUAGE_BIDI %}dir="rtl"{% endif %} class="{{ page_specific_class }} {% if LANGUAGE_BIDI %}rtl{% endif %}">
 <head>
     <meta charset="utf-8">
     <meta name="google-site-verification" content="6M7E60YhxlrZR6e8sXaMr2_9hy-TwfdXM-orIbAlwXA" />
@@ -23,6 +24,7 @@
         <link rel="stylesheet" href="/static/css/custom-theme/jquery-ui-1.8.4.custom.css" type="text/css" media="all" />
         <link rel="stylesheet" href="/static/css/jquery.ui.stars.css" type="text/css" media="all" />
         <link rel="stylesheet" type="text/css" href="/static/css/waybetter.css"/>
+        <link rel="stylesheet" type="text/css" href="/static/css/station_page.css"/>
         <link rel="stylesheet" href="/static/css/nivo-slider.css" type="text/css" media="screen" />
         <link rel="stylesheet" href="/static/css/socialauth.css" />
         <link rel="stylesheet" href="/static/css/openid.css" />

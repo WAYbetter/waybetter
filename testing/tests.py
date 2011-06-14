@@ -333,7 +333,6 @@ class SeleniumTests(TestCase, SelemiumHelper):
 
         data = {
             # id                       : (old_val, new_val),
-            'id_name'                 : (u'selenium_station', u'new_selenium_station'),
             'id_address'              : (SELENIUM_ADDRESS, u"new address"),
             'id_number_of_taxis'      : ('5', '6'),
             'id_website_url'          : ('http://selenium.waybetter.com','http://selenium.waybetter.co.il'),

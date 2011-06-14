@@ -33,7 +33,7 @@
             // django-ajax-forms validator
             $form.validation({% render_ajax_fields form %});
 
-            // jquery validator for additional validations (resolving address and username availability)
+            // jquery validator for additional validations (resolving address and email availability)
             jQuery.validator.addMethod("valid_address", function() {
                 return Boolean($("#id_city").val() && $("#id_street_address").val() && $("#id_house_number").val() && $("#id_lat").val() && $("#id_lon").val());
             });
@@ -63,7 +63,7 @@
                         }
                     });
 
-            $("#id_address, #id_username").blur(function() {
+            $("#id_address, #id_email").blur(function() {
                 if ($(this).val()) { // ajax-forms validates as true, check additional validations
                     validator.element($(this));
                 }
