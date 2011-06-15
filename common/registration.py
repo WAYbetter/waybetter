@@ -2,6 +2,7 @@ import logging
 from django.shortcuts import render_to_response
 from django.conf import settings
 from django.template.context import RequestContext
+from django.http import HttpResponseForbidden
 from ordering.forms import FeedbackForm
 from ordering.models import Passenger, Feedback
 
@@ -35,12 +36,14 @@ def get_registration_form(request):
     return render_to_response('registration_form.html', {'FACEBOOK_APP_ID': FACEBOOK_APP_ID})
 
 def get_credentials_form(request):
-    passenger = request.session.get('current_passenger', None)
-    current_email = passenger.user.email if passenger and passenger.user.email else ""
-
-    context = locals()
-    context.update({'FACEBOOK_APP_ID' : FACEBOOK_APP_ID})
-    return render_to_response('credentials_form.html', context)
+    passenger = Passenger.from_request(request)
+    if passenger and passenger.user:
+        current_email = passenger.user.email
+        context = locals()
+        context.update({'FACEBOOK_APP_ID' : FACEBOOK_APP_ID})
+        return render_to_response('credentials_form.html', context)
+    else:
+        return HttpResponseForbidden()
 
 def get_phone_code_form(request):
     return render_to_response('code_form.html')

@@ -12,10 +12,11 @@ class PassengerAdmin(admin.ModelAdmin):
 
     def user_name(self, obj):
         if obj.user:
-            return obj.user.username
+            return '<a href="%s/%d">%s</a>' % ('/admin/auth/user', obj.user.id, obj.user.username)
         else:
             return "-- No User -- "
 
+    user_name.allow_tags = True
 
 def send_welcome_email(modeladmin, request, queryset):
     for business in queryset:
