@@ -100,12 +100,13 @@
 		color: black;
         text-shadow: #e6e6e6 0 1px 0;
 	}
-    #orders .button_txt:disabled {
-        color: gray;
-    }
+    #orders .button_txt.disabled {
+		color: gray;
+        text-shadow: #e6e6e6 0 1px 0;
+	}
+
 	#orders .button_bg {
 		background: -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f));
-		/* border: 1px solid  black; */
 		-webkit-border-radius: 5px;
         border: 1px solid black;
 		width: 40px;
@@ -128,7 +129,6 @@
 		text-shadow: none;
 		/* border: 1px solid  black; */
 	}
-
     #orders .show_button{
         width:230px;
         margin-left:16px;
@@ -149,7 +149,6 @@
         float:left;
         margin-right: 8px;
 	}
-
     #orders .accept_button_bg:hover{
         background-image:url(/static/images/sent.png), -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#b9b9b9));
         cursor: pointer;
@@ -158,6 +157,12 @@
         background-image:url(/static/images/sent.png), -webkit-gradient(linear, left top, left bottom, from(#929292), to(#929292));
         color: white;
         text-shadow: none;
+    }
+    #orders .accept_button_bg.disabled, #orders .accept_button_bg.disabled:hover, #orders .accept_button_bg.disabled:hover{
+        cursor: default;
+        background-image:url(/static/images/sent.png), -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f))  ;
+        color: gray;
+        text-shadow: #e6e6e6 0 1px 0;
     }
 
     #orders .finish_button {
@@ -184,6 +189,14 @@
 		color: white;
 		text-shadow: none;
 	}
+    #orders .reject_button_bg.disabled, #orders .reject_button_bg.disabled:hover, #orders .reject_button_bg.disabled:hover{
+        cursor: default;
+        background-image:url(/static/images/reject.png), -webkit-gradient(linear, left top, left bottom, from(#ececec), to(#8f8f8f))  ;
+        color: gray;
+        text-shadow: #e6e6e6 0 1px 0;
+    }
+
+
 	/*#orders .reject_image{*/
 		/*background-image: url(/static/images/reject.png) ;*/
 		/*background-repeat: no-repeat;*/
@@ -218,10 +231,12 @@
     }
     #orders .addresses {
         width: 100%;
-        height: 55px;
+        height: 50px;
         font-weight: normal;
         text-align: center;
         padding: 3px 0;
+        margin-top: 5px;
+        line-height: 20px;
     }
 
 
@@ -300,20 +315,21 @@
 		padding-left:45px;
 	}
 
-	.sending{
+	#orders .sending{
 		color: white;
 		text-align: left;
         float: left;
         margin-left: 10px;
+        margin-top: 30px;
 	}
 
-	.reject_sending{
+	#orders .reject_sending{
 		background-image: url(/static/images/loader4.gif) ;
 		background-repeat: no-repeat;
 		background-position: center center;
 		width: 24px;
 		height: 24px;
-        margin-top: 6px;
+        margin-top: 30px;
         margin-right: 15px;
 	}
 	#orders .pb_green {
@@ -419,6 +435,7 @@
         var POLLING_TIMER = "polling_timer";
         var CURRENT_VERSION = "{{ current_version }}";
         var ORDER_IS_SHOWING = "showing";
+        var last_rating = {{ station_rating }};
         
         $(document).ready(function() {
             // setup bridge functions
@@ -440,18 +457,20 @@
         });
         function renderStatus() {
             if (is_in_error) {
+                stopFussing();
                 $("#orders").empty().append(
-                        $("<div class='order'></div>")
+                        $("<div class='order teaser'></div>")
                             .append("<div class='reject_sending'></div>")
                             .append("<div class='sending'>{% trans 'Connecting WAYbetter...' %}</div>")
                         );
 
                 if (window.parentSandboxBridge) {
-                    window.parentSandboxBridge.resize_window(1);
+                    window.parentSandboxBridge.resize_window(2);
                 }
             }
 
         }
+
         function setAcceptOrders(status) {
             $.post(
                     "{% url ordering.station_controller.update_online_status %}",
@@ -532,7 +551,6 @@
             });
         }
 
-
         function onOrder(incoming_orders) {
             clearError();
             if (incoming_orders) {
@@ -544,6 +562,13 @@
                         continue;
                     }
 
+                    // update rating 
+                    if (order.current_rating && Math.round(order.current_rating) != last_rating) {
+                        last_rating = Math.round(order.current_rating);
+                        if (window.parentSandboxBridge && window.parentSandboxBridge.set_rating) {
+                            window.parentSandboxBridge.set_rating(last_rating);
+                        }
+                    }
                     renderOrder(order);
                     handleAddRow();
                 }
@@ -568,7 +593,6 @@
                         .append(show_button_container);
 
                 $(rendered_order).click(function(){
-                    handleRemoveRow();
                     showOrder(order);
                 });
 
@@ -577,6 +601,7 @@
                 $("#orders").append(rendered_order).append(progress_bar);
                 rendered_order.show();
                 handleAddRow();
+                handleOrder();
             }
 
             if (order.status == {{ assigned }}){
@@ -584,12 +609,11 @@
                 var progress_bar = $("<div class='pb-row'></div>").attr('id', 'pb_' + order.pk);
 
                 $("#orders").append(rendered_order).append(progress_bar);
+                handleAddRow();
                 renderOrderDetails(order);
             }
 
-            handleOrder();
         }
-
 
         function showOrder(order) {
             var order_id = order.pk;
@@ -618,8 +642,6 @@
         }
 
         function renderOrderDetails(order) {
-            handleAddRow();
-
             var select = $("<select name='pickup_time' class='combo'></select>").attr('id', 'pickup_time_for_' + order.pk);
             select.append($("<option>").val('').append("{% trans 'Define time' %}"));
            {% for n in pickup_times %}
@@ -627,24 +649,22 @@
            {% endfor %}
             select.change(function() {
                 if($(this).val()) {
-                    send_button.attr("disabled", "");
+                    send_button.removeClass("disabled");
                 } else {
-                    send_button.attr("disabled", "disabled");
+                    send_button.addClass("disabled");
                 }
             });
 
             var send_button = $('<div class="accept_button_bg button_txt" title="{% trans 'Send message to passenger' %}"></div>').text('{% trans 'Send' %}').click(function() {
-                if (this.getAttribute("disabled") == "disabled") {
-//                if ($(this).attr("disabled")) {
+                if ($(this).hasClass("disabled")) {
                     return false;
                 }
                 acceptOrder(order.pk);
             });
 
             var reject_button = $("<div class='reject_button_bg button_txt'>{% trans 'Reject' %}</div>").click(function() {
-                if ($(this).attr("disabled") != "disabled") {
-                    $(this).attr("disabled", "disabled");
-                    handleRemoveRow();
+                if (!$(this).hasClass("disabled")) {
+                    $(this).addClass("disabled");
                     rejectOrder(order.pk);
                 }
             });
@@ -672,7 +692,7 @@
             var progress_bar = $("#pb_"+order.pk).empty().append(progress_indicator);
 
             rendered_order.show();
-            send_button.attr("disabled", "disabled");
+            send_button.addClass("disabled");
         }
 
         function getProgressIndicator(order, timeout_interval, initial_val){
@@ -700,7 +720,6 @@
         }
 
         function setStateSent(data) {
-            handleAddRow();
             var order_row = $("#orders #" + data.order_id);
             var finish_button = $("<div class='accept_button_bg button_txt finish_button'>{% trans 'End' %}</div>").click(function() {
                 handleRemoveRow();
@@ -713,12 +732,17 @@
             var addresses_div= $("<div class='addresses'></div>")
                     .append($("<div class='from_address'></div>").append($("<span class='pickup'>{% trans 'pickup' %}: </span>")).append(data.pickup_address));
 
+            if (data.dropoff_address) {
+                addresses_div.append($("<div class='to_address'></div>").append("(" + "{% trans 'dropoff' %}: " + data.dropoff_address + ")"));
+            }
+
             order_row.empty()
                     .append(addresses_div)
                     .append(buttons_div);
 
             order_row.next().empty();
         }
+
         function removeOrderRow(order_id) {
             var order_row  = $("#orders #" + order_id);
             if (order_row.hasClass("teaser")) { // the teaser is spanning two rows.
@@ -729,6 +753,7 @@
             handleRemoveRow();
             stopFussing();
         }
+
         function acceptOrder(order_id) {
             var pickup_time = $("#pickup_time_for_" + order_id).val();
             setStateSending(order_id);
@@ -737,11 +762,11 @@
             });
         }
 
-
         function rejectOrder(order_id) {
             $("#orders #" + order_id + " .indicator").show();
             $.ajax({"url": "{% url ordering.station_controller.update_order_status %}", "type":"post", "data":{"status": "{{ reject }}", "order_id": order_id},
                 "success": function() {
+                    handleRemoveRow();
                     removeOrderRow(order_id);
                 }, "error": onError
             });

@@ -27,6 +27,10 @@ def send_channel_msg_to_passenger(passenger, msg):
         except channel.InvalidMessageError:
             logging.error(
                 "InvalidMessageError: Failed sending channel message to passenger[%d]: %s" % (passenger.id, msg))
+        except KeyError:
+            logging.error(
+                "KeyError: Failed sending channel message to passenger[%d]: %s" % (passenger.id, msg))
+
 
 
 def create_user(username, password, email, first_name=None, save=True):

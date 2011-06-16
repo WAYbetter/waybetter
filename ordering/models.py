@@ -23,9 +23,9 @@ import logging
 import datetime
 import common.urllib_adaptor as urllib2
 
-ORDER_HANDLE_TIMEOUT = 800 # seconds
+ORDER_HANDLE_TIMEOUT = 80 # seconds
 ORDER_TEASER_TIMEOUT = 18 # seconds
-ORDER_ASSIGNMENT_TIMEOUT = 800 # seconds
+ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
 ORDER_MAX_WAIT_TIME = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
 PASSENGER_TOKEN = "passenger_token"
 
@@ -595,7 +595,6 @@ class OrderAssignment(BaseModel):
     pickup_address_in_ws_lang = models.CharField(_("pickup_address_in_ws_lang"), max_length=50)
     dropoff_address_in_ws_lang = models.CharField(_("dropoff_address_in_ws_lang"), max_length=50)
 
-
     # de-normalized fields
     business_name = models.CharField(_("business name"), max_length=50, default="", null=True, blank=True)
 
@@ -618,7 +617,8 @@ class OrderAssignment(BaseModel):
                             "from_raw"      : order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
                             "to_raw"        : order_assignment.dropoff_address_in_ws_lang or order_assignment.order.to_raw,
                             "seconds_passed": (utc_now() - base_time).seconds,
-                            "business"      : order_assignment.business_name
+                            "business"      : order_assignment.business_name,
+                            "current_rating": order_assignment.station.average_rating
             })
 
         return simplejson.dumps(result)

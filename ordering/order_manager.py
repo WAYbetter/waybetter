@@ -165,6 +165,7 @@ def update_order_status(order_id, work_station, new_status, pickup_time=None):
             order_assignment.order.notify()
             result["pickup_message"] = _("Message sent, pickup in %s minutes") % pickup_time
             result["pickup_address"] = order_assignment.pickup_address_in_ws_lang
+            result["dropoff_address"] = order_assignment.dropoff_address_in_ws_lang
             return result
 
         except UpdateStatusError:

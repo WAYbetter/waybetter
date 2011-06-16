@@ -24,7 +24,6 @@ def assign_order(order):
     assignment.pickup_address_in_ws_lang = translate_address_for_ws(work_station, order, 'from')
     assignment.dropoff_address_in_ws_lang = translate_address_for_ws(work_station, order, 'to')
 
-
     # de-normalize business name
     if passenger.business:
         assignment.business_name = passenger.business.name
