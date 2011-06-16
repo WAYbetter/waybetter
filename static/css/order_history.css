@@ -51,7 +51,6 @@
 }
 
 #search_button.wb_button {
-
 	font-family: Calibri, Arial, sans-serif;
 	font-size: 15px;
 	font-weight: bold;
@@ -85,6 +84,14 @@
 	margin-top: -4px;
 }
 
+.rtl #search_button.wb_button{
+    position: relative;
+    bottom: 1px;
+}
+.rtl #reset_button.wb_button {
+    position: relative;
+    bottom: 1px;
+}
 #orders_history_pager button{
 	width: 35px;
 	height:30px;
@@ -93,10 +100,24 @@
 	/* margin-right: 10px; */
 	padding-top: 2px;
 }
-#orders_history_pager{
-	padding-top: 15px;
+#orders_history_search{
+    display: inline;
 }
+
+#orders_history_pager{
+	display: inline;
+    float: right;
+}
+
+.rtl #orders_history_pager{
+    float: left;
+}
+
 #orders_history_pager span{
 	padding-left: 10px;
 	padding-right: 10px;
+}
+
+#orders_history_controls{
+    padding-top: 15px;
 }

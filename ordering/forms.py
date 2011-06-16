@@ -370,7 +370,6 @@ class BusinessPassengerProfileForm(PassengerProfileForm):
                              widget=forms.TextInput(),
                              label=_("Phone"),
                              error_messages={'invalid': _("The value must contain only numbers.")})
-    email = forms.EmailField(label=_("Email"))
     password = forms.CharField(label=_("Change password"), widget=forms.PasswordInput(), required=False)
     password2 = forms.CharField(label=_("Re-enter password"), widget=forms.PasswordInput(), required=False)
 

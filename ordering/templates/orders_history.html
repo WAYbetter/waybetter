@@ -4,7 +4,9 @@
 {% if not is_popup %}
     {% block extrastyle %}
         {{ block.super }}
-        <link rel="stylesheet" type="text/css" href="/static/css/order_history.css" />
+        {% if use_external_css %}
+            <link rel="stylesheet" type="text/css" href="/static/css/order_history.css" />
+        {% endif %}
     {% endblock %}
 {% endif %}
 
@@ -23,14 +25,15 @@
     {% endblock  %}
 {% endif %}
 {% block content %}
-<div id="orders_history_controls">
-	<input type="text" id="keywords" />
-    <input type="button" id='search_button' class="wb_button blue" value="{% trans 'Search' %}"/>
-    <input type="button" id='reset_button' class="wb_button blue" value="{% trans 'Reset' %}"/>
-</div>
 <div id="orders_history_grid"></div>
-<div id="orders_history_pager"></div>
-
+<div id="orders_history_controls">
+    <div id="orders_history_search">
+        <input type="text" id="keywords" />
+        <input type="button" id='search_button' class="wb_button blue" value="{% trans 'Search' %}"/>
+        <input type="button" id='reset_button' class="wb_button blue" value="{% trans 'Reset' %}"/>
+    </div>
+    <div id="orders_history_pager"></div>
+</div>
 <script>
 
 {% autoescape off %}

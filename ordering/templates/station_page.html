@@ -4,7 +4,6 @@
 
 {% block extrastyle %}
     {{ block.super }}
-    <link rel="stylesheet" type="text/css" href="/static/css/station_page.css"/>
 {% endblock extrastyle %}
 
 {% block extrahead %}
@@ -191,7 +190,7 @@
             <div id="station_more_info">
                 <div id="station_for_business" class="station_info_box">
                     <div id="for_business_text">
-                        <h2>{{ station_full_name }} {% trans 'for your business - free!' %}</h2>
+                        <h2>{{ station.name }} {% trans 'for your business - free!' %}</h2>
                         <ul>
                             <li>{% trans 'Easy and friendly ordering' %}</li>
                             <li>{% trans 'No phone calls' %}</li>
@@ -207,7 +206,7 @@
                     <div id="for_smartphones_text">
                         <img src={{ station.app_icon_url }}>
 
-                        <h2>{{ station_full_name }}<br/>{% trans 'for your smartphone' %}</h2>
+                        <h2>{{ station.name }}<br/>{% trans 'for your smartphone' %}</h2>
 
                         <div class="clear"></div>
 
