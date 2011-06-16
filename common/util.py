@@ -10,7 +10,6 @@ from django.shortcuts import render_to_response
 from django.db.models.fields import related
 from django.db import models
 from django.core.validators import RegexValidator
-from common.decorators import run_in_transaction
 from common.errors import TransactionError
 from settings import NO_REPLY_SENDER
 import hashlib
@@ -95,52 +94,7 @@ class EventType(Enum):
         raise ValueError(_("Invalid value: %s" % str(val)))
 
 
-class BaseModel(models.Model):
-    '''
-    Adds common methods to our models
-    '''
-    class Meta:
-        abstract = True
 
-
-    def fresh_copy(self):
-        return type(self).by_id(self.id)
-    
-    @classmethod
-    def by_id(cls, id):
-        try:
-            obj = cls.objects.get(id=id)
-        except cls.DoesNotExist:
-            obj = None
-
-        return obj
-
-    @classmethod
-    def get_one(cls):
-        '''
-        Convenience method for getting an instance of this model
-        Returns the first instance found
-        '''
-        if cls.objects.count():
-            return cls.objects.all()[0]
-        else:
-            return None
-
-    @run_in_transaction
-    def _change_attr_in_transaction(self, attname, old_value, new_value):
-        if old_value == new_value:
-            return False
-        elif not old_value:
-            setattr(self, attname, new_value)
-            self.save()
-            return True
-        elif getattr(self, attname) == old_value:
-            setattr(self, attname, new_value)
-            self.save()
-            return True
-        else:
-            logging.warning("%s.%s : update in transaction failed" % (self.__class__.__name__, attname))
-            return False
 
 
 class TransactionalField(models.Field):

@@ -1,5 +1,5 @@
 from django.views.decorators.csrf import csrf_exempt
-from common.decorators import internal_task_on_queue
+from common.decorators import internal_task_on_queue, catch_view_exceptions
 from django.http import HttpResponse
 from django.db.models import get_model
 from django.utils.translation import ugettext as _
@@ -20,6 +20,7 @@ from models import AnalyticsEvent
 from common.util import EventType
 
 @csrf_exempt
+@catch_view_exceptions
 @internal_task_on_queue("log-events")
 def log_event_on_queue(request):
     event = AnalyticsEvent()

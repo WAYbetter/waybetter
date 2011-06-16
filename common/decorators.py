@@ -1,5 +1,20 @@
 from django.http import HttpResponseForbidden, HttpResponse
 from google.appengine.ext import db
+from common.util import notify_by_email
+import logging
+import traceback
+
+def catch_view_exceptions(function=None):
+    def wrapper(*args, **kwargs):
+        try:
+            return function(*args, **kwargs)
+        except Exception, e:
+            trace = traceback.format_exc()
+            logging.error("Exception caught by decorator:\n %s" % trace)
+            notify_by_email("Exception caught by decorator", trace)
+            return HttpResponse("Exception caught by decorator")
+
+    return wrapper
 
 def internal_task_on_queue(queue_name):
     """
@@ -24,8 +39,8 @@ def run_in_transaction(function=None):
     """
     Decorator for running transactions
     """
-    def wrapper(*args):
-        return db.run_in_transaction(function, *args)
+    def wrapper(*args, **kwargs):
+        return db.run_in_transaction(function, *args, **kwargs)
 
     return wrapper
 

@@ -97,7 +97,18 @@ class SeleniumTests(TestCase, SelemiumHelper):
         self.wait_for_element_and_type("local_phone", SELENIUM_UNREGISTERED_PHONE)
         self.wait_for_text_present(u"הטלפון לא רשום")
 
-        # change password and email and login using new credentials
+        # change password and login using new credentials
+        sel.open("/")
+        self.change_credentials(new_password=new_password)
+        self.wait_for_element_present("logout_link")
+        self.logout()
+
+        self.wait_for_element_and_click_at("login_link")
+        self.login(password=new_password)
+        self.wait_for_element_present("logout_link")
+        self.logout()
+
+        # change both email and password (create a new user) and login using new credentials
         sel.open("/")
         self.change_credentials(new_email=new_email, new_password=new_password)
         self.wait_for_element_present("logout_link")

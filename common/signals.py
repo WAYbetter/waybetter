@@ -1,5 +1,5 @@
-from common.decorators import internal_task_on_queue
-from common.util import BaseModel
+from common.decorators import internal_task_on_queue, catch_view_exceptions
+from common.models import BaseModel
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch.dispatcher import Signal, _make_id
@@ -82,6 +82,7 @@ class AsyncSignal(TypedSignal):
         return None # discard the responses
 
 @csrf_exempt
+@catch_view_exceptions
 @internal_task_on_queue("signals")
 def send_async(request):
     id = request.POST.get("id")
