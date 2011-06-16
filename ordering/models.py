@@ -10,9 +10,9 @@ from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.utils import simplejson, translation
 from djangotoolbox.fields import BlobField, ListField
-from common.models import Country, City, CityArea
+from common.models import BaseModel, Country, City, CityArea
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, BaseModel, StatusField
+from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField
 from common.tz_support import UTCDateTimeField, utc_now
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal
 from ordering.errors import UpdateStatusError

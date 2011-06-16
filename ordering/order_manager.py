@@ -14,7 +14,7 @@ from ordering.util import send_msg_to_passenger
 from common.util import log_event, EventType
 from common.langsupport.util import translate_to_lang
 from common.tz_support import utc_now
-from common.decorators import internal_task_on_queue
+from common.decorators import internal_task_on_queue, catch_view_exceptions
 from models import Order, OrderAssignment, FAILED, ACCEPTED, ORDER_STATUS, IGNORED, PENDING, ASSIGNED, NOT_TAKEN, REJECTED, RATING_CHOICES, ERROR, TIMED_OUT, ORDER_ASSIGNMENT_TIMEOUT, ORDER_HANDLE_TIMEOUT, ORDER_TEASER_TIMEOUT
 
 from station_connection_manager import push_order
@@ -46,6 +46,7 @@ def book_order_async(order, order_assignment=None):
 
 
 @csrf_exempt
+@catch_view_exceptions
 @internal_task_on_queue("orders")
 def book_order(request):
     """
@@ -103,7 +104,7 @@ def book_order(request):
                              , order.language_code)) # use dummy ugettext for makemessages
                 log_event(EventType.ORDER_ERROR, order=order, passenger=order.passenger)
                 logging.error("book_order: OrderError: %d" % order_id)
-                response = HttpResponseServerError("an error occured while handling order")
+                raise # handle exception in decorator 
             except UpdateStatusError:
                 logging.error("book_order failed: cannot set order [%d] status to %s" % (order.id, "ERROR"))
 
@@ -244,6 +245,7 @@ def get_order_status(request, order_id, passenger):
 
 
 @csrf_exempt
+@catch_view_exceptions
 @internal_task_on_queue("update-future-pickups")
 @order_required
 def update_future_pickup(request, order):
@@ -264,6 +266,7 @@ def enqueue_update_future_pickup(order, interval):
     q.add(task)
 
 @csrf_exempt
+@catch_view_exceptions
 @internal_task_on_queue("redispatch-ignored-orders")
 @order_assignment_required
 def redispatch_pending_orders(request, order_assignment):
@@ -288,6 +291,7 @@ def redispatch_pending_orders(request, order_assignment):
 
 
 @csrf_exempt
+@catch_view_exceptions
 @internal_task_on_queue("redispatch-ignored-orders")
 @order_assignment_required
 def redispatch_ignored_orders(request, order_assignment):

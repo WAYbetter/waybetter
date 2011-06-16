@@ -1,10 +1,57 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-                               
-# Create your models here.
 from djangotoolbox.fields import ListField
+from common.decorators import run_in_transaction
+import logging
 
-class Country(models.Model):
+class BaseModel(models.Model):
+    '''
+    Adds common methods to our models
+    '''
+    class Meta:
+        abstract = True
+
+
+    def fresh_copy(self):
+        return type(self).by_id(self.id)
+
+    @classmethod
+    def by_id(cls, id):
+        try:
+            obj = cls.objects.get(id=id)
+        except cls.DoesNotExist:
+            obj = None
+
+        return obj
+
+    @classmethod
+    def get_one(cls):
+        '''
+        Convenience method for getting an instance of this model
+        Returns the first instance found
+        '''
+        if cls.objects.count():
+            return cls.objects.all()[0]
+        else:
+            return None
+
+    @run_in_transaction
+    def _change_attr_in_transaction(self, attname, old_value, new_value):
+        if old_value == new_value:
+            return False
+        elif not old_value:
+            setattr(self, attname, new_value)
+            self.save()
+            return True
+        elif getattr(self, attname) == old_value:
+            setattr(self, attname, new_value)
+            self.save()
+            return True
+        else:
+            logging.warning("%s.%s : update in transaction failed" % (self.__class__.__name__, attname))
+            return False
+
+class Country(BaseModel):
     name = models.CharField(_("name"), max_length=60, unique=True)
     code = models.CharField(_("country code"), max_length=3, unique=True)
     dial_code = models.CharField(_("dial code"), max_length=6, null=True, blank=True)
@@ -20,14 +67,14 @@ class Country(models.Model):
     def get_id_by_code(cls, country_code):
         if not country_code:
             return None
-        
+
         query = Country.objects.filter(code=country_code)
         if query.count() == 0:
             raise LookupError("No country found matching '%s'" % country_code)
-        
+
         return query[0].id
 
-    @classmethod 
+    @classmethod
     def country_choices(cls, order_by="name"):
         return [(c.id, "%s (%s)" % (c.name, c.dial_code)) for c in cls.objects.all().order_by(order_by)]
 
@@ -53,13 +100,13 @@ class Country(models.Model):
         self.extra_charge_rules.all().delete()
 
 
-class City(models.Model):
+class City(BaseModel):
     name = models.CharField(_("name"), max_length=50)
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="cities")
     aliases = ListField(models.CharField(max_length=50))
-     
-    class Meta: 
-#        fields = ("name", "country", "aliases")
+
+    class Meta:
+    #        fields = ("name", "country", "aliases")
         verbose_name_plural = _("cities")
         ordering = ('name',)
 
@@ -69,17 +116,17 @@ class City(models.Model):
     @staticmethod
     def city_choices(country, order_by="name"):
         return [(c.id, c.name) for c in City.objects.filter(country=country).order_by(order_by)]
-        
+
     @classmethod
     def get_id_by_name_and_country(cls, name, country_id, add_if_not_found=False):
         if not name or not country_id:
             return None
-        
-        query = City.objects.filter(name = name, country = country_id)
+
+        query = City.objects.filter(name=name, country=country_id)
         if query.count() == 0:
             if add_if_not_found:
                 new_city = City()
-                new_city.country = Country.objects.get(id = country_id)
+                new_city.country = Country.objects.get(id=country_id)
                 new_city.name = name
                 new_city.save()
                 return new_city.id
@@ -89,8 +136,7 @@ class City(models.Model):
             return query[0].id
 
 
-
-class CityArea(models.Model):
+class CityArea(BaseModel):
     name = models.CharField(_("name"), max_length=50)
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="city_areas")
 

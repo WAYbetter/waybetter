@@ -1,4 +1,4 @@
-from common.decorators import internal_task_on_queue
+from common.decorators import internal_task_on_queue, catch_view_exceptions
 from common.models import Country
 from common.util import has_related_objects, url_with_querystring, get_unique_id, notify_by_email
 from django.contrib.admin.views.decorators import staff_member_required
@@ -43,6 +43,7 @@ def run_maintenance_task(request):
     return response
 
 @csrf_exempt
+@catch_view_exceptions
 @internal_task_on_queue("maintenance")
 def maintenance_task(request):
     try:

@@ -12,7 +12,7 @@ from django.views.decorators.csrf import csrf_protect, csrf_exempt
 
 
 from ordering.pricing import setup_israel_meter_and_extra_charge_rules
-from common.decorators import internal_task_on_queue
+from common.decorators import internal_task_on_queue, catch_view_exceptions
 from common.models import City, Country
 from common.util import get_unique_id
 from ordering.models import FlatRateRule
@@ -51,6 +51,7 @@ def flat_rate_async(country_id, memcache_key, start=0):
     q.add(task)
 
 @csrf_exempt
+@catch_view_exceptions
 @internal_task_on_queue("flat-rate-setup")
 def do_setup_flat_rate_pricing_rules(request):
     country_id  = int(request.POST["country_id"])
