@@ -73,6 +73,8 @@ class EventType(Enum):
     PASSENGER_REGISTERED = 13
     ORDER_NOT_TAKEN = 14
     BUSINESS_REGISTERED = 15
+    WORKSTATION_UP = 16
+    WORKSTATION_DOWN = 17
 
     @classmethod
     def get_label(cls, val):

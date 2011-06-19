@@ -8,6 +8,7 @@ class AnalysisType(Enum):
     RATINGS         = 2
     REGISTRATION    = 3
     TIMING          = 4
+    ONLINE_STATUS   = 5
 
     @classmethod
     def get_event_types(cls, analysis_type):
@@ -27,6 +28,9 @@ class AnalysisType(Enum):
                     EventType.UNREGISTERED_ORDER ]
         elif analysis_type == cls.REGISTRATION:
             return [EventType.PASSENGER_REGISTERED]
+        elif analysis_type == cls.ONLINE_STATUS:
+            return [EventType.WORKSTATION_DOWN,
+                    EventType.WORKSTATION_UP]
 
 class AnalysisScope(Enum):
     CITY =          1

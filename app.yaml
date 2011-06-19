@@ -27,5 +27,20 @@ handlers:
   static_files: static/images/favicon.ico
   upload: static/images/favicon.ico
 
+skip_files:
+- ^(.*/)?app\.yaml
+- ^(.*/)?app\.yml
+- ^(.*/)?index\.yaml
+- ^(.*/)?index\.yml
+- ^(.*/)?#.*#
+- ^(.*/)?.*~
+- ^(.*/)?.*\.py[co]
+- ^(.*/)?.*/RCS/.*
+- ^(.*/)?\..*
+- ^(.*/)?build\/.*
+- ^(.*/)?intermediate\/.*
+- ^(.*/)?publish\/.*
+
+
 #builtins:
 #- appstats: on # uncomment to activate app stats
