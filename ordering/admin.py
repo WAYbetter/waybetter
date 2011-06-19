@@ -122,6 +122,7 @@ def send_dummy_order(modeladmin, request, queryset):
 send_dummy_order.short_description = _("Send Dummy Order")
 class WorkStationAdmin(admin.ModelAdmin):
     list_display = ["id", "work_station_user", "station_name", "online_status"]
+    list_filter = ["was_installed"]
     actions = [build_installer, send_dummy_order]
 
     def work_station_user(self, obj):
