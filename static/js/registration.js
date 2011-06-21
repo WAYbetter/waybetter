@@ -341,6 +341,7 @@ var Registrator = Object.create({
                 $(this).next().removeClass("code-sent");
             }).keyup(function(e) {
                 if (e.keyCode == '13') {
+                    $(this).blur();
                     $(this).next().mouseup();
                 }
             }),

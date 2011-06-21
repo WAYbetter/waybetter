@@ -4,7 +4,10 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from google.appengine.api import memcache
 
+from analytics.models import AnalyticsEvent
+
 from common.models import City, Country
+from common.util import EventType
 
 from ordering.models import Passenger, WorkStation, Station, Order, OrderAssignment, IGNORED, REJECTED, ASSIGNED, ACCEPTED, Phone, ORDER_ASSIGNMENT_TIMEOUT, ORDER_TEASER_TIMEOUT, NOT_TAKEN, ORDER_HANDLE_TIMEOUT, PENDING
 from ordering.forms import OrderForm
@@ -283,6 +286,11 @@ class StationConnectionTest(TestCase):
         for station in Station.objects.all():
             station.show_on_list = True
             station.save()
+
+        # start with normal state
+        for ws in WorkStation.objects.all():
+            e = AnalyticsEvent(type=EventType.WORKSTATION_UP, work_station=ws)
+            e.save()
 
         # nothing happened
         response = self.client.get(service_url)
