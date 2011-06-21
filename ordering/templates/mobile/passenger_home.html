@@ -1,11 +1,16 @@
 {% load i18n %}
 <!DOCTYPE html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl" class="rtl"{% endif %}>
 <head>
 <title>WAYbetter</title>
     <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1" />
 
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.css" />
+{#    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.css" />#}
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.css" />
+
+
     <link rel="stylesheet" href="/static/css/add2home.css">
     <link rel="stylesheet" type="text/css" href="/static/css/waybetter.mobile.css" />
     {% if station %}
@@ -22,9 +27,8 @@
             height: 100%;
         }
     </style>
-    {% if LANGUAGE_BIDI %}<link rel="stylesheet" type="text/css" href="{% block stylesheet_rtl %}/static/css/rtl.mobile.css{% endblock %}" />{% endif %}
     {% block extrastyle %}{% endblock %}
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.5.1/jquery.min.js"></script>
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
     <script src="/static/js/utils.js"></script>
     <script>
         $(document).bind("mobileinit", function(){
@@ -32,9 +36,12 @@
                 loadingMessage: "{% trans 'Loading...' %}"
             });
             $.mobile.page.prototype.options.backBtnText = "{% trans 'Back' %}";
+            $.mobile.page.prototype.options.addBackBtn = true;
         })
     </script>
-    <script src="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.js"></script>
+{#    <script src="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.js"></script>#}
+    <script src="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.js"></script>
+
     <script src="/static/js/mylibs/jquery.form.js"></script>
     <script src="/static/js/mobile/ordering.mobile.js" defer="defer"></script>
     <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false" defer='defer'></script>
@@ -44,12 +51,15 @@
                 resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
                 resolve_coordinate_url:     "{% url ordering.passenger_controller.resolve_coordinates %}",
                 estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}",
+                order_history_url:          "{% url ordering.passenger_controller.get_passenger_orders_history_data %}",
+                get_order_address_url:      "{% url ordering.passenger_controller.get_order_address %}",
                 send_sms_url:               "{% url ordering.passenger_controller.send_sms_verification %}",
                 validate_phone_url:         "{% url ordering.passenger_controller.validate_phone %}",
                 not_a_passenger_response:   "{{ not_a_passenger }}",
                 not_a_user_response:        "{{ not_a_user }}",
                 telmap_user:                "{{ telmap_user }}",
                 telmap_password:            "{{ telmap_password}}",
+                telmap_languages:           "{{ telmap_languages }}",
                 messages:         {
                     estimation_msg:          "{% trans 'Fill pickup and dropoff for price and time estimation ' %}",
                     finding_location:        "{% trans 'Finding Your Location...' %}",
@@ -66,15 +76,23 @@
                     looking_for:             "{% trans 'Looking for address' %}",
                     pick_me_up:              "{% trans 'Pick Me Up' %}",
                     no_house_number:         "{% trans 'Address Incomplete: please enter a house number' %}",
+                    no_history:              "{% trans 'No rides to show' %}"
                 }
             });
+            var $radios = $('form.languages input:radio[name=language]');
+            if($radios.is(':checked') === false) {
+                $radios.filter('[value={{ LANGUAGE_CODE }}]').attr('checked', true);//.checkboxradio("refresh");
+            }
+			
+			// fix ride_cost_estimate location
+            $("#ride_cost_estimate").css({top: $(document).height() - 235 + "px"}).removeClass("fade");
         });
     </script>
     <script type="text/javascript">
 		var addToHomeConfig = {
 			animationIn:'bubble',		// Animation In
 			animationOut:'drop',		// Animation Out
-            message: 'he_il',
+            message: '{{ LANGUAGE_CODE }}',
             lifespan: 10000,
             touchIcon: true
 		};
@@ -108,12 +126,12 @@
                     <div class="padder">
                         <input type="search" class="big_text a_marker" id="id_from_raw" name="from_raw" data-role="none" placeholder="{% trans 'Enter pickup address' %}"/>
                     </div>
-                    <button type="button" class="cancel_button" data-role="none">{% trans 'Cancel' %}</button>
+                    <div class="cancel_button" >{% trans 'Cancel' %}</div>
 
                     <div class="padder">
                         <input type="search" class="big_text b_marker" id="id_to_raw" name="to_raw" data-role="none" placeholder="{% trans 'Enter drop-off address' %}"/>
                     </div>
-                    <button type="button" class="cancel_button" data-role="none">{% trans 'Cancel' %}</button>
+                    <div class="cancel_button" >{% trans 'Cancel' %}</div>
                     <div class="sources_toolbar">
 {#                        <button type="button" id="history_button" class="toolbar_button" data-role="none">{% trans 'History' %}</button>#}
                         <button type="button" id="gps_button" class="toolbar_button" data-role="none">{% trans 'GPS' %}</button>
@@ -122,7 +140,7 @@
             </div>
 
             <div id="map_container">
-                <div id="ride_cost_estimate"><span class="header"></span><br><span class="details"></span><span id="close_estimate"></span></div>
+                <div id="ride_cost_estimate" class="fade"><span class="header"></span><br><span class="details"></span><span id="close_estimate"></span></div>
                 <div id="map"></div>
                 <div class="glass_pane">
                     <div id="top"></div>
@@ -132,7 +150,9 @@
         </div>
 
         <div data-role="footer" data-position="fixed" id="order_toolbar">
+            <button type="button" id="rides_button" class="footer_button" data-role="none">{% trans 'My Rides' %}</button>
             <button type="submit" class="order_button" id="order_button" data-role="none"></button>
+            <button type="button" id="more_button" class="footer_button" data-role="none">{% trans 'More' %}</button>
         </div>
     
         <!-- END Content -->
@@ -171,7 +191,94 @@
             </form>
         </div>
     </div>
-    
+
+    {# RIDES PAGE #}
+    <div id="rides_page" data-role="page" data-theme="b">
+        <div data-role="header">
+            <h1>{% trans "My Rides" %}</h1>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview">
+            </ul>
+        </div>
+    </div>
+
+    {# HISTORY DIALOG #}
+    <div id="history_dialog" data-role="page" data-theme="b">
+        <div data-role="content">
+           <button data-role="pickup" data-theme="b">{% trans 'Set as Pickup' %}</button>
+           <button data-role="dropoff" data-theme="b">{% trans 'Set as Destination' %}</button>
+           <a href="#" data-role="button" data-rel="back" data-theme="a">{% trans "Cancel" %}</a>
+        </div>
+    </div>
+
+    {# MORE PAGE #}
+    <div id="more_page" data-role="page" data-theme="b">
+        <div data-role="header">
+            <h1>{% trans "More" %}</h1>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview">
+                <li><a href="#language_page">{% trans "Language" %}</a></li>
+                <li><a href="#terms_page">{% trans "Terms Of Use"%}</a></li>
+                <li><a href="#about_page">{% trans "About"%}</a></li>
+            </ul>
+        </div>
+    </div>
+
+    {# LANGUAGE PAGE #}
+    <div id="language_page" data-role="page" data-theme="b">
+        <div data-role="header">
+            <h1>{% trans "Language" %}</h1>
+        </div>
+        <div data-role="content">
+            <form action="/i18n/setlang/" method="post" class="languages" data-ajax="false" >
+            <input type="hidden" name="next" value="/#home">
+
+             {% csrf_token %}
+            <div data-role="fieldcontain">
+                <fieldset data-role="controlgroup">
+                    <legend>{% trans "Choose your preferred language" %}:</legend>
+                    {% for lang in LANGUAGES %}
+                        <input type="radio" name="language" id="radio_{{ lang.0 }}" value="{{ lang.0 }}" />
+                        <label for="radio_{{ lang.0 }}">{{ lang.1 }}</label>
+                    {% endfor %}
+                </fieldset>
+            </div>
+            </form>
+        </div>
+    </div>
+
+    {# TERMS PAGE #}
+    <div id="terms_page" data-role="page" data-theme="b">
+        <div data-role="header">
+            <h1>{% trans "Terms Of Use" %}</h1>
+        </div>
+        <div data-role="content">
+            <p class="terms_text">
+               {% trans "web_actual_terms" %}
+            </p>
+        </div>
+    </div>
+
+    {# ABOUT PAGE #}
+    <div id="about_page" data-role="page" data-theme="b">
+        <div data-role="header">
+            <h1>{% trans "About" %}</h1>
+        </div>
+        <div data-role="content">
+            <fieldset class="ui-grid-a">
+                <div class="about_icon ui-block-a">
+
+                </div>
+                <div class="about_header ui-block-b">
+                    <h1>WAYbetter</h1>
+                    <p>{% trans "Version" %} 1.0</p>
+                </div>
+            </fieldset>
+            <div class="telmap_logo"></div>
+        </div>
+    </div>
 <script>
   var _gaq = _gaq || [];
   _gaq.push(['_setAccount', 'UA-18077675-1']);

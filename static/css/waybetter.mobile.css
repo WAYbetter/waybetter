@@ -4,6 +4,10 @@
     padding: 0;
 }
 
+.rtl * {
+    direction: rtl;
+}
+
 a:focus {
     outline: none;
 }
@@ -141,40 +145,90 @@ form ul {
 /************* Ordering Form *************/
 
 
-input.a_marker.marker_disabled {
-    background-position: 6px -113px;
+input.a_marker {
+    background-position: 6px 6px;
 }
-input.b_marker.marker_disabled {
-    background-position: 6px -74px;
+
+.rtl input.a_marker {
+    padding-right: 32px;
+    background-position: 99% 6px;
 }
+
+input.b_marker {
+    background-position: 6px -30px;
+}
+
+.rtl input.b_marker {
+    background-position: 99% -30px;
+    padding-right: 32px;
+}
+
 input:focus, input.focus{
     background-color: #fffce0;
     border-color: #696969;
     outline-width:0;
 }
 button.order_button {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: bold;
     color: black;
     text-shadow: 0 1px white;
-    line-height: 0px;
-    width: 190px;
-    height:61px;
+    line-height: 15px;
+    width: 195px;
+    height:54px;
     border: none;
     box-shadow: none;
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
     background: url("/static/images/mobile/book_button.png") center top no-repeat;
     margin-top:10px;
+    margin-bottom:10px;
+}
+
+.rtl button.order_button {
+    font-size: 24px;
 }
 
 button.order_button:active{
-    background-position: 0 -66px;
+    background-position: 2px -56px;
 }
 button.order_button:disabled {
-    background-position: 0 -133px;
+    background-position: 0 -112px;
     text-shadow: 0 1px #cccccc;
     color: #1a1a1a;
+}
+
+.footer_button {
+    display: inline-block;
+    background-color: transparent;
+    background-image: url("/static/images/mobile/menu_icons.png");
+    background-repeat: no-repeat;
+    width: 58px;
+    height: 53px;
+    white-space: nowrap;
+    border:none;
+    color: white;
+    font-size: 10px;
+    line-height: 82px;
+    vertical-align: middle;
+    margin-bottom: 10px;
+    text-align: center;
+}
+
+#rides_button {
+    background-position: 0 -110px;
+}
+
+#rides_button:active {
+    background-position: 0 0;
+}
+
+#more_button {
+    background-position: 0 -164px;
+}
+
+#more_button:active {
+    background-position: 0 -54px;
 }
 
 #map_container {
@@ -182,28 +236,34 @@ button.order_button:disabled {
 }
 #ride_cost_estimate {
     position:absolute;
-    right: 15px;
+    left: 8px;
     z-index: 1000;
     width: 75%;
     height: 34px;
-    bottom: 95px;
+    top: 300px;
     padding:5px 20px 10px 44px;
     background: rgba(0, 0, 0, 0.8) url("/static/images/mobile/calculator.png") 2px 4px no-repeat;
     text-align: center;
     color:white;
-    font-size: 15px;
+    font-size: 14px;
     line-height: 16px;
     text-shadow: none;
     text-align: center;
 
     -webkit-border-radius:8px;
-    -webkit-transition-property: opacity, bottom;
+    -webkit-transition-property: opacity, top;
     -webkit-transition-duration: 0.7s, 1.5s;
     /*-webkit-transition-timing-function: ease-out;*/
 }
+
+.rtl #ride_cost_estimate {
+    font-size: 15px;
+    padding:5px 44px 10px 20px;
+    background: rgba(0, 0, 0, 0.8) url("/static/images/mobile/calculator.png") 99% 4px no-repeat;
+}
 #ride_cost_estimate.fade {
     opacity: 0;
-    bottom: -10px;
+    top: 500px !important;
 }
 #ride_cost_estimate > .header {
 }
@@ -221,28 +281,47 @@ button.order_button:disabled {
     background-image:url(/static/images/mobile/calc_x.png);
     background-repeat: no-repeat;
 }
+.rtl #close_estimate {
+    right: auto;
+    left: 4px;
+}
+
 #gray_header .cancel_button {
     position: absolute;
     right: -53px;
-    top: 11px;
+    top: 9px;
     -webkit-border-image: none;
-    background: url(/static/images/mobile/cancel_back.png) no-repeat;
-    background-position: 0 -48px;
-    height: 38px;
-    background-color: transparent;
-    border:none;
-    width: 53px;
+    -webkit-border-radius: 5px;
+    -webkit-box-shadow: 0 1px 1px 0 #d6d3d6;
+    border: 1px solid #2a2a2a;
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#bdbdbd), color-stop(100%,#3f3f3f)); /* Chrome,Safari4+ */
+    height: 33px;
+    width: 65px;
     color:white;
     font-size: 12px;
     font-weight: bold;
     -webkit-transition: all 0.3s ease-in-out;
     opacity: 0;
+    text-align: center;
+    text-shadow: none;
+    line-height: 30px;
+}
+#gray_header .cancel_button:active {
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(100%,#bdbdbd), color-stop(0%,#3f3f3f)); /* Chrome,Safari4+ */
 }
 #gray_header .cancel_button.visible {
     right: 3px;
     opacity: 1;
 }
 
+.rtl #gray_header .cancel_button {
+    right: auto;
+    left: -53px;
+}
+.rtl #gray_header .cancel_button.visible {
+    right: auto;
+    left: 3px;
+}
 .padder {
     padding: 4px;
     padding-left: 2px;
@@ -253,6 +332,15 @@ button.order_button:disabled {
     position: relative;
 }
 
+.rtl .padder {
+    padding: 4px;
+    padding-right: 2px;
+    padding-left: 0;
+    text-align: left;
+    width: 97%;
+    -webkit-transition: width 0.3s ease;
+}
+
 span.clear {
     position: absolute;
     top: 12px;
@@ -261,6 +349,11 @@ span.clear {
     height: 20px;
     background-image: url(/static/images/mobile/text_X.png);
     display: none;
+}
+
+.rtl span.clear {
+    right: auto;
+    left: 3px;
 }
 
 #gray_header {
@@ -305,21 +398,24 @@ span.clear {
 }
 #gps_button {
     margin-left:-3px;
-    background-position: 42px -47px, 0 -70px;
+    background-position: 125px 4px, 0 -70px;
 }
+.rtl #gps_button {
+    background-position: 170px 4px, 0 -70px;
+}
+
 #gps_button.from:active, #gps_button.from.active {
-    background-position: 42px -71px, 0 0;
+    background-position: 125px -20px, 0 0;
 }
+.rtl #gps_button.from:active, .rtl #gps_button.from.active {
+    background-position: 170px -20px, 0 0;
+}
+
 #gps_button.to:active, #gps_button.to.active {
-    background-position: 42px -71px, 0 -35px;
+    background-position: 125px -20px, 0 -35px;
 }
-
-#history_button {
-    background-position: 35px 4px, 0 -35px;
-}
-
-#history_button:active {
-    background-position: 35px -20px, 0 0;
+.rtl #gps_button.to:active, .rtl #gps_button.to.active {
+    background-position: 170px -20px, 0 -35px;
 }
 
 #order_toolbar {
@@ -330,6 +426,7 @@ input.big_text {
     width: 100%;
     /*height: 38px;*/
     padding: 7px;
+    padding-left: 30px;
     border-color: #6e6e6e;
     border-style: solid;
     border-width: 1px;
@@ -337,6 +434,11 @@ input.big_text {
     background-repeat: no-repeat;
     background-image: url(/static/images/mobile/A_B_textboxes.png);
 }
+.rtl input.big_text {
+    padding-right: 30px;
+    padding-left: 7px;
+}
+
 .padder.shorter {
     width: 78%;
 }
@@ -429,6 +531,9 @@ ul li {
     background-color: #d3d3d3;
     text-align: left;
 }
+.rtl ul li {
+    text-align: right;
+}
 
 ul li label {
     margin-bottom: 10px;
@@ -438,6 +543,10 @@ ul li label {
 ul li input[type="tel"] {
     padding: 2% 0 2% 1%;
     width: 99%;
+}
+
+.rtl ul li input[type="tel"] {
+    padding: 2% 1% 2% 0;
 }
 
 ul.loading_address {
@@ -458,4 +567,32 @@ ul.loading_address li{
 
 .ui-field-contain {
     padding-top: 1em;
+}
+
+.rtl #addToHomeScreen {
+    text-align: right;
+}
+
+.rtl #addToHomeScreen .close {
+	left:2px;
+    right: auto;
+}
+
+.terms_text {
+    white-space: pre-line;
+}
+.about_icon {
+    background: url(/static/images/mobile/icon_114.png) no-repeat;
+    height: 114px;
+}
+.about_header h1 {
+    font-size: 25px;
+}
+.telmap_logo {
+    background: url(/static/images/telmap_logo.jpg) no-repeat;
+    height: 33px;
+    width: 200px;
+    margin-top: 20px;
+    border:  1px solid black;
+    float: left;
 }

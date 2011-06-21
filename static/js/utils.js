@@ -244,6 +244,7 @@ var Address = defineClass({
 
             $('#id_' + that.address_type + '_raw').removeClass("placeheld"); // placeheld plugin only removes class on focus
             $('#id_geocoded_' + that.address_type + '_raw').val(that.raw);
+            return $('#id_' + that.address_type + '_raw');
         },
         clearFields: function (including_raw) {
             Address.clearAddressFields(this.address_type, including_raw);

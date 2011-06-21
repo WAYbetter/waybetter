@@ -3,10 +3,13 @@ var OrderingHelper = Object.create({
         resolve_address_url:        "", // '{% url cordering.passenger_controller.resolve_address %}'
         estimation_service_url:     "", // '{% url ordering.passenger_controller.estimate_ride_cost %}'
         resolve_coordinate_url:     "", // '{% url ordering.passenger_controller.resolve_coordinate %}'
+        order_history_url:          "", // '{% url ordering.passenger_controller.get_passenger_orders_history_data %}'
+        get_order_address_url:      "", // {% url ordering.passenger_controller.get_order_address %}
         not_a_passenger_response:   "",
         not_a_user_response:        "",
         telmap_user:                "",
         telmap_password:            "",
+        telmap_languages:           "",
         messages: {
             finding_location:       "",
             estimation_msg:         "",
@@ -16,7 +19,8 @@ var OrderingHelper = Object.create({
             enter_address:          "",
             are_you_sure:           "",
             try_again:              "",
-            no_house_number:        ""
+            no_house_number:        "",
+            no_history:             ""
         }
 
     },
@@ -28,6 +32,8 @@ var OrderingHelper = Object.create({
     },
     map:                            undefined,
     map_markers:                    {},
+    map_was_reset:                  false,
+    telmap_prefs:                   {},
     current_flow_state:             'from',
     cache:  {},
     last_position:                  {
@@ -47,6 +53,8 @@ var OrderingHelper = Object.create({
         cache.$order_form           = $("#order_form"),
         cache.$order_button         = $("#order_button");
         cache.$finish_verification  = $("#finish_verification");
+        cache.$rides_button         = $("#rides_button");
+        cache.$more_button          = $("#more_button");
 
         cache.$order_button.text(that.config.messages.pick_me_up);
 
@@ -61,6 +69,71 @@ var OrderingHelper = Object.create({
             that.switchState('to');
             return true;
         });
+
+        cache.$rides_button.click(function() {
+            $.mobile.showPageLoadingMsg();
+            $.ajax({
+                url: that.config.order_history_url,
+                dataType: "json",
+                success: function(data) {
+                    if (data.object_list.length == 0) {
+                        alert(that.config.messages.no_history);
+                    } else {
+                        if ($("#rides_page ul li").length) {
+                            $("#rides_page ul").empty().listview("refresh");
+                        }
+                        $.mobile.changePage("#rides_page");
+                        $.each(data.object_list, function(i, item) {
+                            var $divider = $("<li data-role='list-divider'></li>").append(item.Date),
+                                $from_icon = $("<img src='/static/images/mobile/a_marker_small.png' class='ui-li-icon'>"),
+                                $from_li = $("<li></li>").append(
+                                    $("<a data-rel='dialog' href='#history_dialog'></a>").append($from_icon).append(item.From).data("order_id", item.Id)
+                                );
+
+
+                            $("#rides_page ul").append($divider).append($from_li);
+                            if (item.To) {
+                                var $to_icon = $("<img src='/static/images/mobile/b_marker_small.png' class='ui-li-icon'>"),
+                                    $to_li = $("<li></li>").append(
+                                        $("<a data-rel='dialog' href='#history_dialog'></a>").append($to_icon).append(item.To).data("order_id", item.Id)
+                                    );
+
+                                $("#rides_page ul").append($to_li);
+                            }
+                        });
+                    }
+                    $("#rides_page ul").listview("refresh");
+                    $("#rides_page ul a").bind("vclick", function() {
+                        that.clicked_address_id = $(this).data("order_id");
+                    });
+
+                    $("#history_dialog button[data-role=pickup]").click(function() {
+                        that.getHistoryAddress('from', that.clicked_address_id)
+                    });
+                    $("#history_dialog button[data-role=dropoff]").click(function() {
+                        that.getHistoryAddress('to', that.clicked_address_id)
+                    })
+
+                },
+                error:   function() {
+                    alert(that.config.messages.no_history);
+                },
+                complete: function() {
+                    $.mobile.hidePageLoadingMsg();
+                }
+            });
+
+        });
+
+        cache.$more_button.click(function() {
+            $.mobile.changePage("#more_page");
+        });
+
+        // language selection
+        $("form.languages input[type=radio]").change(function() {
+            $("form.languages").submit();
+        });
+
 
         // send verification code
         $("#send_code").button().button("disable").mouseup(function() {
@@ -175,11 +248,7 @@ var OrderingHelper = Object.create({
                 }
 
                 var params = { "term": val, "lon": lon, "lat": lat };
-                if ($("#resolve_addresses ul li").length) {
-                    $("#resolve_addresses ul").empty().listview("refresh");
-                }
-                $.mobile.changePage("#resolve_addresses");
-                $.mobile.pageLoading();
+                $.mobile.showPageLoadingMsg();
                 $.ajax({
                         url: that.config.resolve_address_url,
                         data: params,
@@ -189,12 +258,16 @@ var OrderingHelper = Object.create({
                                 $.mobile.changePage("#home");
                                 alert(that.config.messages.could_not_resolve);
                                 // handle unresolved addresses
+                            } else if (resolve_results.geocode.length == 1) {
+                                var address = Address.fromServerResponse(resolve_results.geocode[0], address_type);
+                                that.updateAddressChoice(address);
                             } else {
-                                $("#resolve_addresses ul").empty();
+                                $.mobile.changePage("#resolve_addresses");
+                   				$("#resolve_addresses ul").empty().listview("refresh");
                                 // render results
                                 $.each(resolve_results.geocode, function(i, item) {
                                     var address = Address.fromServerResponse(item, address_type),
-                                        $link = $("<a href='#'></a>").text(item.name).click(function() {
+                                        $link = $("<a href='#'></a>").text(item.name).bind("vclick", function() {
                                             that.updateAddressChoice(address);
                                             $.mobile.changePage("#home");
                                         }),
@@ -204,14 +277,12 @@ var OrderingHelper = Object.create({
                             }
                         },
                         complete: function() {
-                            $.mobile.pageLoading(true);
+                            $.mobile.hidePageLoadingMsg();
                         }
                     });
 
             });
         });
-
-
 
         // $("input:button, input:submit, button").button();
 
@@ -296,7 +367,7 @@ var OrderingHelper = Object.create({
 
         return this;
     }, // init
-    _setState:              function(active_input, other_input) {
+    _setState:                  function(active_input, other_input) {
         var that = this;
         window.setTimeout(function() {
             that.hideGlassPane();
@@ -306,7 +377,7 @@ var OrderingHelper = Object.create({
             $(".sources_toolbar").show();
         }, 10);
     },
-    restoreState:           function() {
+    restoreState:               function() {
         var that = this;
         if (localStorage.create_date &&
             (new Date() - Date.parse(localStorage.create_date)) <= that.STATE_RESTORE_TIMEOUT) {
@@ -320,7 +391,7 @@ var OrderingHelper = Object.create({
         }
         return false;
     },
-    switchState:            function (enter_state) {
+    switchState:                function (enter_state) {
         var $input = undefined,
             that = this;
         this.current_flow_state = enter_state;
@@ -421,9 +492,23 @@ var OrderingHelper = Object.create({
                 }
             });
     },
+    getHistoryAddress:          function(address_type, order_id) {
+        var that = this;
+        $.ajax({
+            url:        that.config.get_order_address_url,
+            data:       { address_type: address_type, order_id: order_id },
+            dataType:   'json',
+            success:    function(data) {
+                var address = Address.fromServerResponse(data, address_type);
+                that.updateAddressChoice(address);
+                $.mobile.changePage("#home");
+            }
+        })
+    },
     initMap:                    function () {
+        var that = this;
         this.initMapSize();
-        var prefs = {
+        this.telmap_prefs = {
             mapTypeId:telmap.maps.MapTypeId.ROADMAP,
             navigationControl:false,
             zoom:15,
@@ -432,14 +517,26 @@ var OrderingHelper = Object.create({
                 contextUrl: 'api.navigator.telmap.com/telmapnav',
                 userName:   this.config.telmap_user,
                 password:   this.config.telmap_password,
-                languages:  ['he', 'en'],
-                appName:    'wayBetter'
+                languages:  [this.config.telmap_languages, this.config.telmap_languages],
+                appName:    'wayBetter',
+                callback:   function () {
+                    that.resetMap.call(that);
+                }
             }
         };
-        this.map = new telmap.maps.Map(document.getElementById("map"), prefs);
+        this.map = new telmap.maps.Map(document.getElementById("map"), this.telmap_prefs);
         window.onresize = function(){ telmap.maps.event.trigger(this.map, "resize"); };
     },
-    initMapSize:            function () {
+    resetMap:                   function (e, a) {
+        var that = this;
+        if (! this.map_was_reset) {
+            this.map_was_reset = true;
+            this.map.logout(function(e, a) {
+                    that.map.login(that.telmap_prefs.login);
+                });
+        }
+    },
+    initMapSize:                function () {
         var map_height;
         map_height = window.innerHeight - $("#gray_header").height();
 
@@ -514,10 +611,11 @@ var OrderingHelper = Object.create({
     updateAddressChoice:        function(address) {
         this.hideGlassPane();
         this.switchState();
-        address.populateFields();
+        var $input = address.populateFields();
         this.addPoint(address);
         this.getRideCostEstimate();
         this.validateForBooking();
+        $input.blur();
         if (address.address_type === 'from') {
             $('#from_raw_result').text(this.cache.$from_raw_input.val());
             $("#ride_cost_estimate").removeClass("fade");
@@ -574,7 +672,7 @@ var OrderingHelper = Object.create({
         }
         this.cache.$order_button.enable(); // enable ordering
     },
-    bookOrder:              function () {
+    bookOrder:                  function () {
         this.cache.$order_button.enable(); // otherwise the form would not submit
         this.cache.$order_button.click();
     }
