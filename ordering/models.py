@@ -555,7 +555,8 @@ class Order(BaseModel):
     Created:        %s
     From:           %s
     To:             %s
-    User Agent:     %s""" % (
+    User Agent:     %s
+    """ % (
         self.id, unicode(self.passenger), self.create_date.ctime(), self.from_raw, self.to_raw, self.user_agent)
 
         if self.originating_station:
@@ -585,8 +586,8 @@ class Order(BaseModel):
         if self.assignments.count():
             msg += u"\n\nEvents:"
             for assignment in self.assignments.all().order_by('create_date'):
-                msg += u"\n%s: %s - %s" % (
-                assignment.modify_date.ctime(), assignment.station.name, assignment.get_status_label().upper())
+                msg += u"\n%s: %s [ws: %d] - %s" % (
+                assignment.modify_date.ctime(), assignment.station.name, assignment.work_station.id, assignment.get_status_label().upper())
 
         notify_by_email(subject, msg)
 
