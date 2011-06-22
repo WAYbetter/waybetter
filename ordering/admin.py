@@ -134,6 +134,7 @@ class WorkStationAdmin(admin.ModelAdmin):
     def station_name(self, obj):
         return obj.station.get_admin_link()
 
+    station_name.admin_order_field = 'dn_station_name'
     station_name.allow_tags = True
 
     def online_status(self, obj):

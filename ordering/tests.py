@@ -74,25 +74,29 @@ def create_test_order(passenger=None):
 
     return order
 
-def create_another_TLV_station():
+def create_another_TLV_station(num_of_ws=1):
     # create another station in TLV
     tel_aviv = City.objects.get(name=u'תל אביב יפו')
-    other_station_name = 'tel aviv %d' % (Station.objects.filter(city=tel_aviv).count()+1)
-    other_ws_name = "%s_%s" % (other_station_name, "ws1")
+    station_name = 'tel_aviv_%d' % (Station.objects.filter(city=tel_aviv).count()+1)
+    ws_names = []
+    for i in range(num_of_ws):
+        ws_names.append("%s_%s%d" % (station_name, "ws", i+1))
 
-    for user_name in [other_station_name, other_ws_name]:
+    station = None
+    for user_name in [station_name] + ws_names:
         user = User(username=user_name)
         user.set_password(user_name)
         user.save()
-    other_station = Station(name=other_station_name, user=User.objects.get(username=other_station_name), number_of_taxis=5,
-                            country=Country.objects.filter(code="IL").get(), city=City.objects.get(name="תל אביב יפו"), address='גאולה 12', lat=32.071838, lon=34.766906)
 
-    other_station.save()
+        if user_name == station_name:
+            station = Station(name=station_name, user=user, number_of_taxis=5,
+                                    country=Country.objects.filter(code="IL").get(), city=City.objects.get(name="תל אביב יפו"), address='גאולה 12', lat=32.071838, lon=34.766906)
+            station.save()
+        else:
+            ws = WorkStation(user=user, station=station, was_installed = True, accept_orders = True)
+            ws.save()
 
-    other_ws = WorkStation(user = User.objects.get(username=other_ws_name), station = other_station, was_installed = True, accept_orders = True)
-    other_ws.save()
-
-    return other_station
+    return station
 
 def refresh_order(order):
     order = Order.objects.get(id=order.id)
@@ -376,58 +380,110 @@ class DispatcherTest(TestCase):
         self.assertTrue(choose_workstation(order) == tel_aviv_ws2, "tel aviv work station 2 is expected.")
 
     def test_choose_workstation_ignored_and_rejected(self):
-        self._run_status_test(IGNORED)
-        self._run_status_test(REJECTED)
+        self._run_ignored_or_rejected_test(IGNORED)
+        self._run_ignored_or_rejected_test(REJECTED)
 
-    def _run_status_test(self, status):
+    def _run_ignored_or_rejected_test(self, status):
         order = self.order
 
-        tel_aviv_ws1 = self.tel_aviv_station.work_stations.all()[0]
-        tel_aviv_ws2 = self.tel_aviv_station.work_stations.all()[1]
+        tel_aviv = self.tel_aviv_station
+        tel_aviv_ws1 = tel_aviv.work_stations.all()[0]
+        tel_aviv_ws2 = tel_aviv.work_stations.all()[1]
 
-        another_tlv_station = create_another_TLV_station()
-        tel_aviv_ws3 = another_tlv_station.work_stations.all()[0]
+        tel_aviv_2 = create_another_TLV_station()
+        tel_aviv_ws3 = tel_aviv_2.work_stations.all()[0]
 
         resuscitate_work_stations()
 
-        # create an IGNORED/REJECTED assignment by ws1, should get either ws2 or ws3
-        assignment = OrderAssignment(order=order, station=self.tel_aviv_station, work_station=tel_aviv_ws1, status=status)
+        # create an IGNORED/REJECTED assignment by first station (ws1, ws2), should get ws3
+        assignment = OrderAssignment(order=order, station=tel_aviv, work_station=tel_aviv_ws1, status=status)
         assignment.save()
-        expected_ws_list = [tel_aviv_ws2, tel_aviv_ws3]
-        self.assertTrue(tel_aviv_ws1 not in compute_ws_list(order) and choose_workstation(order) in expected_ws_list, "tel aviv ws2/ws3 is expected.")
+        ws_list = compute_ws_list(order)
+        self.assertTrue(tel_aviv_ws1 not in ws_list and tel_aviv_ws2 not in ws_list, "this station ignored the order.")
 
-        # create an IGNORED/REJECTED assignment by ws2, should get ws3
-        assignment = OrderAssignment(order=order, station=self.tel_aviv_station, work_station=tel_aviv_ws2, status=status)
-        assignment.save()
-        refresh_order(order)
-        self.assertTrue(choose_workstation(order) == tel_aviv_ws3, "tel aviv ws2 is expected.")
+        next_ws = choose_workstation(order)
+        self.assertTrue(next_ws == tel_aviv_ws3, "tel aviv ws3 is expected.")
 
         # create an IGNORED/REJECTED assignment by ws3, should get None
-        assignment = OrderAssignment(order=order, station=another_tlv_station, work_station=tel_aviv_ws3, status=status)
+        assignment = OrderAssignment(order=order, station=tel_aviv_2, work_station=tel_aviv_ws3, status=status)
         assignment.save()
         refresh_order(order)
         self.assertTrue(choose_workstation(order) is None, "no ws is expected.")
 
     def test_choose_workstation_order(self):
         order = self.order
+        resuscitate_work_stations()
+
+        station1 = self.tel_aviv_station # should have 2 work stations (from fixtures)
+        station2 = create_another_TLV_station(num_of_ws=2)
+
+        resuscitate_work_stations()
+        
+        ws_list = compute_ws_list(order)
+
+        # stations should alternate
+        self.assertTrue(ws_list[0].station == ws_list[2].station and ws_list[1].station == ws_list[3].station, "stations should alternate")
+
+        # work stations should alternate
+        self.assertTrue(ws_list[0] != ws_list[2] and ws_list[1] != ws_list[3], "stations should alternate")
+
+        #
+        # scenario: station x -> station y (reject) -> station x
+        #
+        order = create_test_order()
+        first_ws = choose_workstation(order)
+        second_ws = choose_workstation(order)
+
+        assignment = OrderAssignment(order=order, station=second_ws.station, work_station=second_ws, status=REJECTED)
+        assignment.save()
+        refresh_order(order)
+
+        third_ws = choose_workstation(order)
+
+        self.assertTrue(third_ws.station == first_ws.station)
+
+        #
+        # scenario: station x -> station y (not taken) -> station x -> station y other ws
+        #
+        order = create_test_order()
+        first_ws = choose_workstation(order)
+        second_ws = choose_workstation(order)
+
+        assignment = OrderAssignment(order=order, station=second_ws.station, work_station=second_ws, status=NOT_TAKEN)
+        assignment.save()
+
+        third_ws = choose_workstation(order)
+        fourth_ws = choose_workstation(order)
+
+        self.assertTrue(second_ws.station == fourth_ws.station and second_ws != fourth_ws)
+
+
+    def test_choose_workstation_order_default_and_originating(self):
+        """
+        Test the order when we have a default and an originating station
+        """
+        order = self.order
         passenger = self.passenger
 
-        originating_station = create_another_TLV_station()
-        default_station = create_another_TLV_station()
-        tel_aviv_station = self.tel_aviv_station
+        tel_aviv_station = self.tel_aviv_station # should have 2 work stations (from fixtures)
+        default_station = create_another_TLV_station(num_of_ws=2)
+        originating_station = create_another_TLV_station(num_of_ws=2)
 
+        # set originating and default station
         order.originating_station = originating_station
         order.save()
 
         passenger.default_station = default_station
         passenger.save()
+        order.passenger = passenger
+        order.save()
 
         resuscitate_work_stations()
 
         # round trip, in the following order
-        for station in [originating_station, default_station, tel_aviv_station]:
+        for station in [originating_station]*2 + [default_station]*2 + [tel_aviv_station]*2:
             ws = choose_workstation(order)
-            self.assertTrue(ws.station == station, "wrong station order")
+            self.assertTrue(ws.station == station, "wrong station order: expected %s got %s" % (station, ws.station))
 
         # order should return to originating_station
         ws = choose_workstation(order)
@@ -456,6 +512,8 @@ class DispatcherTest(TestCase):
 
         passenger.default_station = default_station
         passenger.save()
+        order.passenger = passenger
+        order.save()
 
         # resuscitate work stations and order
         resuscitate_work_stations()
@@ -497,6 +555,8 @@ class DispatcherTest(TestCase):
         passenger.default_station = originating_station
         passenger.save()
         order = refresh_order(order)
+        order.passenger = passenger
+        order.save()
         self.assertTrue(order.passenger.default_station == order.originating_station, "originating and default stations are not the same")
 
         resuscitate_work_stations()
@@ -509,7 +569,7 @@ class DispatcherTest(TestCase):
         order = create_test_order(passenger)
         confining_station = create_another_TLV_station()
 
-        order.confined_to_station = confining_station
+        order.confining_station = confining_station
         order.save()
 
         # order, should get confining station

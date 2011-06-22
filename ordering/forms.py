@@ -164,7 +164,7 @@ class OrderForm(ModelForm):
         # TODO_WB: move this check to the DB?
         close_enough_station_found = False
         for station in Station.objects.filter(country=from_country):
-            if station.is_in_valid_distance(from_lon, from_lat, to_lon, to_lat):
+            if station.is_in_valid_distance(from_lon=from_lon, from_lat=from_lat, to_lon=to_lon, to_lat=to_lat):
                 close_enough_station_found = True
                 break
 

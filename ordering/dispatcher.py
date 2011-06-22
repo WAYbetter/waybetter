@@ -1,7 +1,7 @@
 #from ordering.views import OrderError
 import logging
 from google.appengine.api import memcache
-from ordering.models import OrderAssignment, WorkStation
+from ordering.models import OrderAssignment, Station, WorkStation
 from ordering.signals import orderassignment_created_signal
 from ordering.station_connection_manager import is_workstation_available
 from ordering.errors import  NoWorkStationFoundError, UpdateStatusError
@@ -27,7 +27,7 @@ def assign_order(order):
     # de-normalize business name
     if passenger.business:
         assignment.business_name = passenger.business.name
-        
+
     assignment.save()
 
     work_station.last_assignment_date = assignment.create_date
@@ -57,6 +57,16 @@ def choose_workstation(order):
     if not ws_list:
         ws_list = compute_ws_list(order)
 
+
+    # remove work stations whose station rejected/ignored this order
+    rejected_station_ids = [order_assignment.station.id for order_assignment in
+                            OrderAssignment.objects.filter(order=order, status__in=[models.REJECTED, models.IGNORED])]
+    rejected_ws_ids = [ws.id for ws in WorkStation.objects.filter(dn_station_id__in= rejected_station_ids)]
+
+    for ws in rejected_ws_ids:
+        if ws in ws_list:
+            ws_list.remove(ws) # assumes a work station appears at most once
+
     if ws_list:
         ws = ws_list.pop(0)
         memcache.set(ws_list_key, ws_list)
@@ -70,44 +80,52 @@ def compute_ws_list(order):
     """
     Compute workstation list, ignoring those who have previously rejected or ignored the order.
     """
-    # TODO_WB: iterate stations and not work stations
-    if order.confined_to_station:
-        ws_qs = order.confined_to_station.work_stations.all()
+    if order.confining_station:
+        ws_qs = order.confining_station.work_stations.all()
     else:
         ws_qs = WorkStation.objects.all()
 
-    rejected_ws_ids = [order_assignment.work_station.id for order_assignment in
+
+    # exclude work station whose station rejected/ignored this order
+    rejected_station_ids = [order_assignment.station.id for order_assignment in
                        OrderAssignment.objects.filter(order=order, status__in=[models.REJECTED, models.IGNORED])]
+    rejected_ws_ids = [ws.id for ws in WorkStation.objects.filter(dn_station_id__in= rejected_station_ids)]
 
     if rejected_ws_ids:
         ws_qs = ws_qs.exclude(id__in=rejected_ws_ids)
 
+    # exclude work stations that don't accept orders
     ws_qs = ws_qs.exclude(accept_orders=False)
-    ws_list = []
+
     station_list = []
-    originating_ws = None
-    default_ws = None
+    originating_ws = []
+    default_ws = []
+    first_round_ws = []
+    second_round_ws = []
 
     # originating station is first, default station is second then the rest of the stations ordered by distance from order
-    for ws in sorted(ws_qs, key=lambda ws: ws.station.distance_from_order(order=order)):
+    for ws in sorted(ws_qs, key=lambda ws: ws.station.distance_from_order(order=order, to_pickup=True, to_dropoff=False)):
         station = ws.station
-        if station in station_list:
-            continue    # one ws per station
 
         if is_workstation_available(ws) and station.is_in_valid_distance(order=order):
             if station == order.originating_station:
-                originating_ws = ws
+                originating_ws.append(ws)
             elif station == order.passenger.default_station:
-                default_ws = ws
+                default_ws.append(ws)
             else:
-                ws_list.append(ws)
+                if station in station_list:
+                    second_round_ws.append(ws)
+                else:
+                    first_round_ws.append(ws)
+                    station_list.append(station)
 
-            station_list.append(station)
 
-    if default_ws:
-        ws_list.insert(0, default_ws)
-    if originating_ws and originating_ws != default_ws:
-        ws_list.insert(0, originating_ws)
+    # assuming that a work station appears exactly once in every sub list
+    ws_list = originating_ws + default_ws + first_round_ws + second_round_ws
 
-    logging.info("computing ws list: %s" % ws_list)
+    log = "computing ws list:\n"
+    for ws in ws_list:
+        log += "station: %s, ws id:%d\n" % (ws.dn_station_name, ws.id)
+    logging.info(log)
+    
     return ws_list
