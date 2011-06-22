@@ -61,9 +61,9 @@ def choose_workstation(order):
     # remove work stations whose station rejected/ignored this order
     rejected_station_ids = [order_assignment.station.id for order_assignment in
                             OrderAssignment.objects.filter(order=order, status__in=[models.REJECTED, models.IGNORED])]
-    rejected_ws_ids = [ws.id for ws in WorkStation.objects.filter(dn_station_id__in= rejected_station_ids)]
+    rejected_ws = WorkStation.objects.filter(dn_station_id__in=rejected_station_ids)
 
-    for ws in rejected_ws_ids:
+    for ws in rejected_ws:
         if ws in ws_list:
             ws_list.remove(ws) # assumes a work station appears at most once
 
