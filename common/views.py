@@ -57,6 +57,21 @@ def do_task():
     generate_passengers_with_non_existing_users()
     generate_dead_users_list()
 
+def fix_db_stuff():
+    for order in Order.objects.all():
+        if order.confined_to_station:
+            order.confining_station = order.confined_to_station
+            order.confined_to_station = None
+            order.save()
+            logging.info("deprecating field confined_to_station order %d" % order.id)
+
+    for ws in WorkStation.objects.all():
+        ws.dn_station_name = ws.station.name
+        ws.dn_station_id = ws.station.id
+        ws.save()
+        logging.info("denormalizing workstation [%d]" % ws.id)
+    logging.info("task finished")
+
 def reset_password():
     names = ["amir_station_2_workstation_1", "amir_station_1_workstation_2", "amir_station_2_workstation_2"]
     for name in names:

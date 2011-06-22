@@ -130,33 +130,32 @@ class Station(BaseModel):
         else:
             return "http://taxiapp.co.il"
 
-    def is_in_valid_distance(self, from_lon=None, from_lat=None, to_lon=None, to_lat=None, order=None):
+    def is_in_valid_distance(self, order=None, from_lon=None, from_lat=None, to_lon=None, to_lat=None):
         if not (self.lat and self.lon): # ignore station with unknown address
             return False
 
-        if not order and not (from_lon and from_lat):
-            return False
+        distance = float("inf")
 
-        return self.distance_from_order(order=order, from_lon=from_lon, from_lat=from_lat, to_lon=to_lon,
-                                        to_lat=to_lat) <= MAX_STATION_DISTANCE_KM
-
-    def distance_from_order(self, order=None, from_lon=None, from_lat=None, to_lon=None, to_lat=None):
-        '''
-        returns the minimal distance of this station from the order
-        '''
         if order:
-            from_lon = order.from_lon
-            from_lat = order.from_lat
-            to_lon = order.to_lon
-            to_lat = order.to_lat
-
-        from_distance = distance_between_points(self.lat, self.lon, from_lat, from_lon)
-        to_distance = distance_between_points(self.lat, self.lon, to_lat, to_lon) if to_lon and to_lat else None
-
-        if to_distance:
-            return min(from_distance, to_distance)
+            distance = self.distance_from_order(order=order, to_pickup=True, to_dropoff=True)
         else:
-            return from_distance
+            if from_lon and from_lat:
+                distance = distance_between_points(self.lat, self.lon, from_lat, from_lon)
+            if to_lon and to_lat:
+                distance = min(distance, distance_between_points(self.lat, self.lon, to_lat, to_lon))
+
+        return distance <= MAX_STATION_DISTANCE_KM if distance < float("inf") else False
+    
+    def distance_from_order(self, order, to_pickup, to_dropoff):
+        pickup_distance, dropoff_distance = float("inf"), float("inf")
+
+        if to_pickup and order.from_lat and order.from_lon:
+            pickup_distance = distance_between_points(self.lat, self.lon, order.from_lat, order.from_lon)
+
+        if to_dropoff and order.to_lat and order.to_lon:
+            dropoff_distance = distance_between_points(self.lat, self.lon, order.to_lat, order.to_lon)
+
+        return min(pickup_distance, dropoff_distance)
 
     @staticmethod
     def get_default_station_choices(order_by="name", include_empty_option=True):
@@ -341,6 +340,17 @@ class WorkStation(BaseModel):
     last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
                                             default=datetime.datetime(1, 1, 1))
 
+    # denormalized fields
+    dn_station_id = models.IntegerField(_("station id"), null=True, blank=True)
+    dn_station_name = models.CharField(_("station name"), max_length=50, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if self.station:
+            self.dn_station_id  = self.station.id
+            self.dn_station_name = self.station.name
+
+        super(WorkStation, self).save(*args, **kwargs)
+        
     def __unicode__(self):
         result = u"[%d]" % self.id
         try:
@@ -415,7 +425,7 @@ class Order(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
     originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")),
                                             related_name="originated_orders", null=True, blank=True, default=None)
-    confined_to_station = models.ForeignKey(Station, verbose_name=(_("confined to station")),
+    confining_station = models.ForeignKey(Station, verbose_name=(_("confining station")),
                                             related_name="confined_orders", null=True, blank=True, default=None)
 
     mobile = models.BooleanField(_("mobile"), default=False)

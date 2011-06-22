@@ -107,7 +107,7 @@ class TransactionalField(models.Field):
             new_value = getattr(model_instance, self.attname)
             if old_value != new_value:
                 if not is_in_transaction():
-                    raise TransactionError("%s updates must use transactions" % self.attname)
+                    raise TransactionError("%s updates must use transactions (old_val: %d, new_val: %d)" % (self.attname,old_value, new_value))
 
         return super(TransactionalField, self).pre_save(model_instance, add)
 

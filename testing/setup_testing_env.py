@@ -22,6 +22,10 @@ def setup():
     taskqueue_stub = apiproxy_stub_map.apiproxy.GetStub('taskqueue')
     taskqueue_stub._root_path = os.path.join(os.path.dirname(__file__), '..')
 
+    # create denormalized fields
+    for ws in WorkStation.objects.all():
+        ws.save()
+
 def create_selenium_test_data(request):
     """ Create selenium users, passengers, stations and work stations."""
 
