@@ -123,6 +123,46 @@ def set_accept_orders_false(ws_list):
 # testing starts here
 #
 
+class BasicTests(TestCase):
+    fixtures = ['countries.yaml', 'cities.yaml', 'ordering_test_data.yaml']
+
+    def setUp(self):
+        setup_testing_env.setup()
+
+    def test_distance_from_station(self):
+        far_away_lat = -76.936516
+        far_away_lon = -12.234392
+
+        station = Station.objects.all()[0]
+
+        # valid distance from a point
+        self.assertTrue(station.is_in_valid_distance(from_lat=station.lat, from_lon=station.lon))
+        self.assertTrue(station.is_in_valid_distance(to_lat=station.lat, to_lon=station.lon))
+        self.assertTrue(station.is_in_valid_distance(from_lat=station.lat, from_lon=station.lon, to_lat=station.lat, to_lon=station.lon))
+
+        # valid distance from an order pickup
+        order = create_test_order()
+        order.from_lat, order.from_lon = station.lat, station.lon
+        order.to_lat, order.to_lon = None, None
+        order.save()
+        self.assertTrue(station.is_in_valid_distance(order=order))
+
+        # valid distance from an order dropoff
+        order.from_lat, order.from_lon = far_away_lat, far_away_lon
+        order.to_lat, order.to_lon = station.lat, station.lon
+        order.save()
+        self.assertTrue(station.is_in_valid_distance(order=order))
+
+        # not in valid distance
+        self.assertFalse(station.is_in_valid_distance(from_lat=far_away_lat, from_lon=far_away_lon))
+        self.assertFalse(station.is_in_valid_distance(to_lat=far_away_lat, to_lon=far_away_lon))
+        self.assertFalse(station.is_in_valid_distance(from_lat=far_away_lat, from_lon=far_away_lon, to_lat=far_away_lat, to_lon=far_away_lon))
+
+        order.from_lat, order.from_lon = far_away_lat, far_away_lon
+        order.to_lat, order.to_lon = far_away_lat, far_away_lon
+        order.save()
+        self.assertFalse(station.is_in_valid_distance(order=order))
+
 class OrderingTest(TestCase):
 
     fixtures = ['countries.yaml', 'cities.yaml', 'ordering_test_data.yaml']
