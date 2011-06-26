@@ -293,8 +293,9 @@ class Business(BaseModel):
         translation.activate(settings.LANGUAGE_CODE)
 
         subject = ugettext("business welcome mail subject")
-        link = self.from_station.get_station_page_link() if self.from_station else "www.WAYbetter.com"
-        template_args = {'name': self.name, 'password': chosen_password, 'link': "%s/?show_login=true" % link}
+        link = self.from_station.get_station_page_link() if self.from_station else "http://www.WAYbetter.com"
+        pretty_link = link.replace('http://','')
+        template_args = {'name': self.name, 'password': chosen_password, 'link': link, 'pretty_link': pretty_link}
         t = get_template("business_welcome_email.html")
 
         send_mail_as_noreply(self.passenger.user.email, subject, html=t.render(Context(template_args)))
