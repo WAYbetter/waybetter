@@ -73,8 +73,8 @@ class UTCDateTimeField(models.DateTimeField):
         '''
         convert a tz aware date into a naive date, after converting to UTC timezone
         '''
-        if value:
-            if not isinstance(value, datetime.datetime):
+        if value and hasattr(value, "tzinfo"):
+            if not isinstance(value, (datetime.datetime, datetime.date)):     
                 raise ValueError("value '%s' is of type '%s'. should be datetime.datetime" % (value, type(value)))
 
             if value.tzinfo: # make sure this is a tz aware date

@@ -137,19 +137,20 @@ def get_online_status_results(events, data_scope, scope_filter):
     if data_scope == AnalysisScope.STATION:
         work_stations = work_stations.filter(station=scope_filter)
 
+    ws_offset = 0
     series = []
     for ws in work_stations:
         name = ws.station.name
         data = []
         ws_events = events.filter(work_station=ws)
         for event in ws_events:
-            y_val = 1 if event.type == EventType.WORKSTATION_UP else 0
+            y_val = 1+ws_offset if event.type == EventType.WORKSTATION_UP else 0+ws_offset
             # date should be in javascript's Date() format
             data.append([time.mktime(event.create_date.timetuple())*1000, y_val])
-            data.append([time.mktime(event.create_date.timetuple())*1000+1, abs(y_val-1)])
+            data.append([time.mktime(event.create_date.timetuple())*1000+1, 0+ws_offset if event.type == EventType.WORKSTATION_UP else 1+ws_offset])
 
         series.append({'name': name, 'data': data})
-
+        ws_offset += 1.2
 
     return {'title': 'Workstation online status', 'y_axis_title': 'Online status' ,'series': series}
 

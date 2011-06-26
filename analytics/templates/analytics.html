@@ -229,7 +229,7 @@
         time_chart = new Highcharts.Chart({
             chart: {
                 renderTo: container_name,
-                type: 'area',
+                type: 'line',
                 zoomType: 'x'
             },
             title: {
@@ -255,8 +255,12 @@
                     text: data.y_axis_title
                 },
                 min: 0,
-                max: 1,
-                tickInterval: 1
+//                max: 1.1,
+//                tickInterval: 1,
+                gridLineWidth: 0,
+                labels: {
+                    enabled: false
+                }
             },
             tooltip: {
                 formatter: function() {
