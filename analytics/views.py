@@ -1,3 +1,4 @@
+from common.tz_support import utc_now, default_tz_now
 from django.views.decorators.csrf import csrf_exempt
 from common.decorators import internal_task_on_queue, catch_view_exceptions
 from django.http import HttpResponse
@@ -11,6 +12,7 @@ from ordering.models import Order, Station, ORDER_STATUS, OrderAssignment, ACCEP
 from djangotoolbox.http import JSONResponse
 from common.models import City, Country
 from datetime import datetime, timedelta
+from datetime import time as dt_time
 import time
 import logging
 import sys
@@ -106,7 +108,7 @@ def analytics(request):
                 events = events.filter(type__in=AnalysisType.get_event_types(AnalysisType.ONLINE_STATUS), create_date__lte=end_date + timedelta(days=1), create_date__gte=start_date)#.order_by('create_date')
                 if events:
                     result = {
-                        'online_status': get_online_status_results(events, data_scope, scope_filter)
+                        'online_status': get_online_status_results(events, data_scope, scope_filter, end_date)
                     }
                     
             return JSONResponse(result)
@@ -129,7 +131,7 @@ def update_scope_select(request):
 
     return JSONResponse(result)
 
-def get_online_status_results(events, data_scope, scope_filter):
+def get_online_status_results(events, data_scope, scope_filter, end_date):
 
     import time
 
@@ -137,20 +139,33 @@ def get_online_status_results(events, data_scope, scope_filter):
     if data_scope == AnalysisScope.STATION:
         work_stations = work_stations.filter(station=scope_filter)
 
+    offset = 0.1 * work_stations.count() + 1
     ws_offset = 0
     series = []
     for ws in work_stations:
-        name = ws.station.name
+        name = "%s #%s" % (ws.dn_station_name, ws.id)
         data = []
         ws_events = events.filter(work_station=ws)
         for event in ws_events:
-            y_val = 1+ws_offset if event.type == EventType.WORKSTATION_UP else 0+ws_offset
             # date should be in javascript's Date() format
-            data.append([time.mktime(event.create_date.timetuple())*1000, y_val])
-            data.append([time.mktime(event.create_date.timetuple())*1000+1, 0+ws_offset if event.type == EventType.WORKSTATION_UP else 1+ws_offset])
+            data.append([time.mktime(event.create_date.timetuple()) * 1000,
+                         (1 if event.type == EventType.WORKSTATION_UP else 0) + ws_offset])
 
-        series.append({'name': name, 'data': data})
-        ws_offset += 1.2
+
+        # add "fake" event at the end of the chart with the value of the last event
+        ws_count = ws_events.count()
+        if ws_count:
+            last_event = ws_events[ws_count - 1]
+            if utc_now().date() > end_date:
+                end_time = datetime.combine(end_date, dt_time.max)
+            else:
+                end_time = default_tz_now()
+
+            data.append([time.mktime(end_time.timetuple()) * 1000,
+                         (1 if last_event.type == EventType.WORKSTATION_UP else 0) + ws_offset])
+
+            ws_offset += offset
+            series.append({'name': name, 'data': data})
 
     return {'title': 'Workstation online status', 'y_axis_title': 'Online status' ,'series': series}
 
