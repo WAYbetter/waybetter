@@ -621,24 +621,21 @@ class OrderAssignment(BaseModel):
         else:
             raise RuntimeError("Argument must be either QuerySet or %s" % cls.__name__)
 
-        result = {
-            "orders":   [],
-            "version":  get_current_version()
-        }
+        result = []
         for order_assignment in order_assignments:
             if not base_time:
                 base_time = order_assignment.create_date
 
-            result["orders"].append(
-                   { "pk": order_assignment.order.id,
+            result.append(
+                    {"pk": order_assignment.order.id,
                      "status": order_assignment.status,
                      "from_raw": order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
                      "to_raw": order_assignment.dropoff_address_in_ws_lang or order_assignment.order.to_raw,
                      "seconds_passed": (utc_now() - base_time).seconds,
                      "business": order_assignment.business_name,
-                     "current_rating": order_assignment.station.average_rating })
+                     "current_rating": order_assignment.station.average_rating})
 
-        return simplejson.dumps(result)
+        return result
 
     def get_status_label(self):
         for key, label in ASSIGNMENT_STATUS:
