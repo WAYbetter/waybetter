@@ -121,3 +121,18 @@
 #orders_history_controls{
     padding-top: 15px;
 }
+
+.station_analytics td.order_history_column_status_label{
+    font-weight: bold;
+}
+.station_analytics #orders_history_grid table tr.order_accepted > td.order_history_column_status_label {
+    color: #2D9609;
+}
+
+.station_analytics #orders_history_grid table tr.order_ignored > td.order_history_column_status_label {
+    color: #BA0909;
+}
+
+.station_analytics #orders_history_grid table tr.order_rejected > td.order_history_column_status_label {
+    color: #FF7E00;
+}

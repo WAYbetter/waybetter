@@ -1,0 +1,230 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block bodyclass %}clean_body{% endblock %}
+{% block mainclass %}clean_main{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="/static/css/redmond/jquery-ui-1.8.5.custom.css" type="text/css" media="all"/>
+    <style>
+        #ui-datepicker-div {
+            font-size: 0.9em;
+        }
+    </style>
+
+{% endblock %}
+
+{% block content %}
+    <div class="station_analytics">
+        <form id="date_picker" method="post" action="{% url ordering.station_controller.station_analytics %}">
+            {% csrf_token %}
+            {{ form }}
+        </form>
+
+        <h2>{{ station_name }} {% trans 'analytics report:' %} <span id="header_date"></span></h2>
+
+        <div id="analytics_container">
+            <h2 id="error_msg"></h2>
+            <div id="pie_chart_container"></div>
+            <hr/>
+            <div id="history_container">
+                <div id="history_table">
+                    <div id="orders_history_grid"></div>
+                    <div id="orders_history_controls">
+                        <div id="orders_history_pager"></div>
+                    </div>
+                </div>
+                <div id="history_sidebar">
+                    <form id="status_picker" method="get"
+                          action="{% url ordering.station_controller.get_station_assignments_history_data %}">
+                        <span class="bold">{% trans "Show" %}:</span><br/>
+
+                        <p>
+                            <input type="checkbox" id="id_accepted" value="{{ accepted }}" name="accepted"
+                                   checked="checked"/>
+                            <label for="id_accepted" class="order_accepted">{% trans 'Accepted rides' %}</label>
+                        </p>
+
+                        <p>
+                            <input type="checkbox" id="id_ignored" value="{{ ignored }}" name="ignored"
+                                   checked="checked"/>
+                            <label for="id_ignored" class="order_ignored">{% trans 'Ignored rides' %}</label>
+                        </p>
+
+                        <p>
+                            <input type="checkbox" id="id_rejected" value="{{ rejected }}" name="rejected"
+                                   checked="checked"/>
+                            <label for="id_rejected" class="order_rejected">{% trans 'Rejected rides' %}</label>
+                        </p>
+                    </form>
+
+                </div>
+                <div class="clear"></div>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block doc_ready %}
+    <script type="text/javascript" src="/static/js/libs/highcharts.min.js"></script>
+    <script type="text/javascript">
+        loadHistory = function(params) {
+            params.start_date = $("#id_start_date").val();
+            params.end_date = $("#id_end_date").val();
+            $("#history_table").hide();
+            OrderHistoryHelper.loadHistory(params);
+        };
+
+        load_history_callback = function() {
+            $("[order_id]").each(function(i, e) {
+                switch ($(e).data("status")) {
+                    case {{ accepted }}:
+                        $(e).addClass("order_accepted");
+                        break;
+                    case {{ ignored }}:
+                    case {{ not_taken }}:
+                        $(e).addClass("order_ignored");
+                        break;
+                    case {{ rejected }}:
+                        $(e).addClass("order_rejected");
+                        break;
+                }
+            });
+            $("#history_table").show();
+        };
+
+        renderPieChart = function(data, total_count) {
+            chart = new Highcharts.Chart({
+                chart: {
+                    renderTo: 'pie_chart_container',
+                    plotBackgroundColor: null,
+                    plotBorderWidth: null,
+                    plotShadow: false
+                },
+                title: {
+                    text: ''
+                },
+                tooltip: {
+                    formatter: function() {
+                        return Math.round(this.y / total_count * 100) + '%';
+                    }
+                },
+                plotOptions: {
+                    pie: {
+                        allowPointSelect: true,
+                        cursor: 'pointer',
+                        dataLabels: {
+                            enabled: true,
+                            color: '#000000',
+                            connectorColor: '#000000',
+                            style: {
+                                font: '15px Trebuchet MS, Verdana, sans-serif'
+                            },
+                            formatter: function() {
+                                return this.point.name + ' (' + this.y + '  {% trans "Rides" %})';
+                            }
+                        }
+                    }
+                },
+                series: [
+                    {
+                        type: 'pie',
+                        data: data
+                    }
+                ]
+            });
+        };
+
+        $(function() {
+            var date_options = { dateFormat: 'dd/mm/yy' };
+            $("#id_start_date").datepicker($.extend({}, date_options, {
+                maxDate: -1,
+                defaultDate: -7
+            }));
+            $("#id_end_date").datepicker($.extend({}, date_options, {
+                defaultDate: 0
+            }));
+            $("#id_end_date").datepicker("setDate", "{{ end_date }}");
+            $("#id_start_date").datepicker("setDate", "{{ start_date }}");
+            $("#ui-datepicker-div").hide(); // pops up on page load
+
+            $("#header_date").text($("#id_start_date").val() + " - " + $("#id_end_date").val());
+
+            {% autoescape off %} // JSON var's
+                var history_config = {
+                    order_history_columns:      {{ order_history_columns }},
+                    order_history_column_names: {{ order_history_column_names }},
+                    order_history_fields:       {{ order_history_fields }},
+                    order_history_url:          "{% url ordering.station_controller.get_station_assignments_history_data %}",
+                    page_label:                 "{% trans 'Page' %}",
+                    of_label:                   "{% trans 'of' %}",
+                    sorting_disabled:           true,
+                    load_history_callback:      load_history_callback
+                };
+
+                var init_params = {'page': 1, 'start_date': $("#id_start_date").val(), 'end_date': $("#id_end_date").val()};
+
+                renderPieChart({{ pie_data }}, {{ total_count }});
+                OrderHistoryHelper.init(history_config);
+                loadHistory(init_params);
+            {% endautoescape %}
+
+            $("#date_picker").ajaxForm({
+                        dataType:   'json',
+                        success:    function(response) {
+                            $("#header_date").text($("#id_start_date").val() + " - " + $("#id_end_date").val());
+                            $("#error_msg").text("");
+                            
+                            if (response.error) {
+                                $("#error_msg").text("{% trans 'There was an error loading the data.' %}");
+                            }
+                            else {
+                                if (response.pie_data && response.total_count) {
+                                    renderPieChart(response.pie_data, response.total_count);
+                                    loadHistory(init_params);
+                                    $("#pie_chart_container, #history_container").show();
+                                }
+                                else {
+                                    $("#error_msg").text("{% trans 'No data' %}");
+                                    $("#pie_chart_container, #history_container").hide();
+                                }
+                            }
+                        }
+                    }
+            );
+
+            $("#id_start_date, #id_end_date").change(function() {
+                $("#date_picker").submit();
+            });
+
+            $("#status_picker [type=checkbox]").change(function() {
+                var last_one_checked = $.grep($("#status_picker [type=checkbox]"),
+                        function(e, i) {
+                            return $(e).attr("checked")
+                        }).length == 0;
+
+                if (last_one_checked) {
+                    $(this).attr("checked", "checked");
+                    return true;
+                }
+                else {
+                    var status_list = [];
+
+                    $.each($("#status_picker [type=checkbox]"), function(index, element) {
+                        if ($(element).attr("checked")) {
+                            status_list.push(parseInt($(element).attr("value"), 10));
+                        }
+                    });
+
+                    var params = init_params;
+                    params.status_list = JSON.stringify(status_list);
+                    loadHistory(params);
+                }
+            });
+
+        });
+
+    </script>
+{% endblock %}

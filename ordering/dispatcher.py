@@ -24,10 +24,6 @@ def assign_order(order):
     assignment.pickup_address_in_ws_lang = translate_address_for_ws(work_station, order, 'from')
     assignment.dropoff_address_in_ws_lang = translate_address_for_ws(work_station, order, 'to')
 
-    # de-normalize business name
-    if passenger.business:
-        assignment.business_name = passenger.business.name
-
     assignment.save()
 
     work_station.last_assignment_date = assignment.create_date
@@ -123,7 +119,7 @@ def compute_ws_list(order):
     # assuming that a work station appears exactly once in every sub list
     ws_list = originating_ws + default_ws + first_round_ws + second_round_ws
 
-    log = "computing ws list:\n"
+    log = "computing ws list for order %d:\n" % order.id
     for ws in ws_list:
         log += "station: %s, ws id:%d\n" % (ws.dn_station_name, ws.id)
     logging.info(log)

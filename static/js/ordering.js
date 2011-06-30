@@ -565,7 +565,9 @@ var OrderHistoryHelper = Object.create({
         order_history_column_names:     [],
         order_history_fields:           [],
         rating_choices:                 [],
-        rating_disabled:                false
+        rating_disabled:                false,
+        sorting_disabled:               false,
+        load_history_callback:          undefined
     },
     current_params:                     {},
     rating_initialized:                 false,
@@ -605,10 +607,12 @@ var OrderHistoryHelper = Object.create({
             params.sort_by == this.current_params.sort_by) {
                 this.toggleSortDir();
         }
+
         $.extend(true, this.current_params, params);
+        this.current_params.status_list = params.status_list; // don't extend the status list
+
         $.ajax({
             url:        this.config.order_history_url,
-            type:       'get',
             data:       this.current_params,
             dataType:   'json',
             success:    function(json) {
@@ -618,6 +622,9 @@ var OrderHistoryHelper = Object.create({
                 that.drawPager(json);
                 that.drawTable(json.object_list, json.page_size);
                 SelectFromHistoryHelper.updateGrid();
+                if (that.config.load_history_callback){
+                    that.config.load_history_callback.call();
+                }
             },
             error:      function(xhr, textStatus, errorThrown) {
                 return false;
@@ -639,9 +646,7 @@ var OrderHistoryHelper = Object.create({
             if (data.has_previous) {
                 $prev_button.attr("disable", "");
                 $prev_button.click(function() {
-                    that.loadHistory({
-                        page:   data.previous_page_number
-                    });
+                    that.loadHistory($.extend(true, that.current_params, {page:   data.previous_page_number}));
                 });
             } else {
                 $prev_button.attr("disable", "disable");
@@ -649,9 +654,7 @@ var OrderHistoryHelper = Object.create({
             if (data.has_next) {
                 $next_button.attr("disable", "");
                 $next_button.click(function() {
-                    that.loadHistory({
-                        page:   data.next_page_number
-                    });
+                    that.loadHistory($.extend(true, that.current_params, {page:   data.next_page_number}));
                 });
             } else {
                 $next_button.attr("disable", "disable");
@@ -671,12 +674,19 @@ var OrderHistoryHelper = Object.create({
         var $header_row = $("<tr>");
 
         $.each(that.config.order_history_fields, function(i, val) {
+            if (that.config.order_history_column_names[i] == "_HIDDEN"){
+                return true; // don't render hidden columns
+            }
+
             //var $th = $("<th>").append($('<a href="#" id="history_header_label_' + i + '">'));
-            var link= $('<a>').attr( 'id', 'history_header_label_' + i  ).attr( 'href', '#'  ).append(that.config.order_history_column_names[i]).click(function() {
-                        that.loadHistory({
-                            sort_by: val
-                        });
+            var link= $('<a>').attr( 'id', 'history_header_label_' + i  ).append(that.config.order_history_column_names[i]);
+            if (! that.config.sorting_disabled) {
+                link.attr( 'href', '#'  ).click(function() {
+                    that.loadHistory({
+                        sort_by: val
                     });
+                });
+            }
             // var $th = $("<th>").html('<a href="#" id="history_header_label_' + i + '">' + that.config.order_history_column_names[i] + '</a>')
             var $th = $("<th>").append(link);
             $header_row.append($th);
@@ -685,11 +695,17 @@ var OrderHistoryHelper = Object.create({
         var choices = this.config.rating_choices;
         $.each(orders, function(i, order) {
             var $tr = $("<tr>").attr("order_id", order.Id);
+            if (order.status){
+                $tr.data("status", order.status);
+            }
             if (i % 2 == 0) $tr.addClass('even_row');
 
             $.each(that.config.order_history_columns, function(name_index, val) {
+                if (val == "status"){
+                    return true; // don't render the status column
+                }
                 var $td;
-                if (name_index == 4) {
+                if (val == "Passenger Rating") {
                     // rating column
                     $rating_select = $("<select name='selrate'>");
                     for (var i = 0; i < choices.length; i++) {

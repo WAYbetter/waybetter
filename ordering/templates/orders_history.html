@@ -1,58 +1,68 @@
-
 {% load i18n %}
 
 {% if not is_popup %}
     {% block extrastyle %}
         {{ block.super }}
         {% if use_external_css %}
-            <link rel="stylesheet" type="text/css" href="/static/css/order_history.css" />
+            <link rel="stylesheet" type="text/css" href="/static/css/order_history.css"/>
         {% endif %}
     {% endblock %}
 {% endif %}
 
 {% if not is_popup %}
     {% block extrahead %}
-    <script>window.jQuery || document.write('<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js">\x3C/script><script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js">\x3C/script>')</script>
+        <script>window.jQuery || document.write('<script src="http://ajax.googleapis.com/ajax/libs/jquery/1.4.3/jquery.min.js">\x3C/script><script src="http://ajax.googleapis.com/ajax/libs/jqueryui/1.8.4/jquery-ui.min.js">\x3C/script>')</script>
 
-<!-- scripts concatenated and minified via ant build script-->
-    <script type="text/javascript" src="/static/js/mylibs/jquery.timers-1.2.min.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>
-    <script type="text/javascript" src="/static/js/utils.js"></script>
-    <script type="text/javascript" src="/static/js/ordering.js"></script>
-<!-- end scripts-->
+        <!-- scripts concatenated and minified via ant build script-->
+        <script type="text/javascript" src="/static/js/mylibs/jquery.timers-1.2.min.js"></script>
+        <script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>
+        <script type="text/javascript" src="/static/js/utils.js"></script>
+        <script type="text/javascript" src="/static/js/ordering.js"></script>
+        <!-- end scripts-->
 
-    {% endblock  %}
+    {% endblock %}
 {% endif %}
 {% block content %}
-<div id="orders_history_grid"></div>
-<div id="orders_history_controls">
-    <div id="orders_history_search">
-        <input type="text" id="keywords" />
-        <input type="button" id='search_button' class="wb_button blue" value="{% trans 'Search' %}"/>
-        <input type="button" id='reset_button' class="wb_button blue" value="{% trans 'Reset' %}"/>
-    </div>
-    <div id="orders_history_pager"></div>
-</div>
-<script>
+    {% if show_analytics_link %}
+        <br/>
+        <h1>
+            <a href="{% url ordering.station_controller.station_analytics %}"
+           target="_blank">{% trans "To open station analytics in a new page click here" %}</a>
+        </h1>
+        <br/>
+        <br/><br/>
 
-{% autoescape off %}
-$(function () {
-    OrderHistoryHelper.init({
-        order_history_url:          "{{ history_data_url }}",
-        order_history_columns:      {{ order_history_columns }},
-        order_history_column_names: {{ order_history_column_names }},
-        order_history_fields:       {{ order_history_fields }},
-        page_label:                 "{% trans 'Page' %}",
-        of_label:                   "{% trans 'of' %}",
-        rating_choices:             {{ rating_choices }}
-    {% if rating_disabled %}
-        ,rating_disabled:            true
     {% endif %}
-    });
+
+    <div id="orders_history_grid"></div>
+    <div id="orders_history_controls">
+        <div id="orders_history_search">
+            <input type="text" id="keywords"/>
+            <input type="button" id='search_button' class="wb_button blue" value="{% trans 'Search' %}"/>
+            <input type="button" id='reset_button' class="wb_button blue" value="{% trans 'Reset' %}"/>
+        </div>
+        <div id="orders_history_pager"></div>
+    </div>
+    <script>
+
+        {% autoescape off %}
+            $(function () {
+                OrderHistoryHelper.init({
+                    order_history_url:          "{{ history_data_url }}",
+                    order_history_columns:      {{ order_history_columns }},
+                    order_history_column_names: {{ order_history_column_names }},
+                    order_history_fields:       {{ order_history_fields }},
+                    page_label:                 "{% trans 'Page' %}",
+                    of_label:                   "{% trans 'of' %}",
+                    rating_choices:             {{ rating_choices }}
+                    {% if rating_disabled %}
+                        ,rating_disabled:            true
+                    {% endif %}
+                });
 
 
-});
-{% endautoescape %}
-</script>
+            });
+        {% endautoescape %}
+    </script>
 
 {% endblock content %}

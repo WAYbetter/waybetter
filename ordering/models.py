@@ -608,7 +608,20 @@ class OrderAssignment(BaseModel):
     dropoff_address_in_ws_lang = models.CharField(_("dropoff_address_in_ws_lang"), max_length=50)
 
     # de-normalized fields
-    business_name = models.CharField(_("business name"), max_length=50, default="", null=True, blank=True)
+    dn_business_name = models.CharField(_("business name"), max_length=50, null=True, blank=True)
+    dn_from_raw = models.CharField(_("from address"), max_length=50, null=True, blank=True)
+    dn_to_raw = models.CharField(_("to address"), max_length=50, null=True, blank=True)
+
+    def save(self, *args, **kwargs):
+        if not is_in_transaction():
+            if self.order:
+                self.dn_from_raw = self.order.from_raw
+                self.dn_to_raw = self.order.to_raw
+            if self.order.passenger.business:
+                self.dn_business_name = self.order.passenger.business.name
+
+        super(OrderAssignment, self).save(*args, **kwargs)
+
 
     @classmethod
     def serialize_for_workstation(cls, queryset_or_order_assignment, base_time=None):
@@ -629,7 +642,7 @@ class OrderAssignment(BaseModel):
                             "from_raw"      : order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
                             "to_raw"        : order_assignment.dropoff_address_in_ws_lang or order_assignment.order.to_raw,
                             "seconds_passed": (utc_now() - base_time).seconds,
-                            "business"      : order_assignment.business_name,
+                            "business"      : order_assignment.dn_business_name,
                             "current_rating": order_assignment.station.average_rating
             })
 

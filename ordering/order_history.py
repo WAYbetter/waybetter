@@ -1,4 +1,4 @@
-from ordering.models import Order, ACCEPTED
+from ordering.models import Order, ACCEPTED, OrderAssignment, REJECTED, NOT_TAKEN, IGNORED, ASSIGNMENT_STATUS
 from django.core.paginator import Paginator, InvalidPage, EmptyPage
 from types import MethodType
 import logging
@@ -11,8 +11,12 @@ ORDER_HISTORY_COLUMN_NAMES =    [ugettext_lazy("Date"), ugettext_lazy("From"), u
 ORDER_HISTORY_FIELDS =          ["create_date", "from_raw", "to_raw", "station_name", "passenger_rating"]
 
 STATION_ORDER_HISTORY_COLUMNS =         ["Date", "From", "To", "Passenger Phone"]
-STATION_ORDER_HISTORY_COLUMN_NAMES =    [ugettext("Date"), ugettext("From"), ugettext("To"), ugettext("Passenger Phone")]
+STATION_ORDER_HISTORY_COLUMN_NAMES =    [ugettext_lazy("Date"), ugettext_lazy("From"), ugettext_lazy("To"), ugettext_lazy("Passenger Phone")]
 STATION_ORDER_HISTORY_FIELDS =          ["create_date", "from_raw", "to_raw", "passenger_phone"]
+
+STATION_ASSIGNMENT_HISTORY_COLUMNS =         ["Date", "From", "To", "dn_business_name", "status", "status_label"]
+STATION_ASSIGNMENT_HISTORY_COLUMN_NAMES =    [ugettext_lazy("Date"), ugettext_lazy("From"), ugettext_lazy("To"), ugettext_lazy("Passenger"), "_HIDDEN", ugettext_lazy("Status Label")]
+STATION_ASSIGNMENT_HISTORY_FIELDS =          ["create_date", "dn_from_raw", "dn_to_raw", "dn_business_name", "status", "status"]
 
 def get_orders_history(passenger, page=1, keywords=None, sort_by=None, sort_dir=None):
     query = Order.objects.filter(passenger=passenger).filter(status=ACCEPTED)
@@ -23,6 +27,29 @@ def get_stations_orders_history_data(station, page=1, keywords=None, sort_by=Non
     query = Order.objects.filter(station_id=station.id)
     return get_orders_history_data(query, STATION_ORDER_HISTORY_COLUMNS, STATION_ORDER_HISTORY_FIELDS,
                                    page, keywords, sort_by, sort_dir)
+
+def get_stations_assignments_history_data(station, page=1, sort_by=None, sort_dir=None, start_date=None, end_date=None, status_list=None):
+    query = OrderAssignment.objects.filter(station=station)
+    if start_date:
+        query = query.filter(create_date__gte=start_date)
+    if end_date:
+        query = query.filter(create_date__lte=end_date)
+    if not status_list:
+        query = query.filter(status__in=[NOT_TAKEN, REJECTED, IGNORED, ACCEPTED])
+    elif IGNORED in status_list:
+        query = query.filter(status__in=status_list+[NOT_TAKEN])  # not taken orders are counted as ignored
+    else:
+        query = query.filter(status__in=status_list)
+
+    data = get_orders_history_data(query, columns=STATION_ASSIGNMENT_HISTORY_COLUMNS,
+                                   fields=STATION_ASSIGNMENT_HISTORY_FIELDS, page=page, sort_by=sort_by,
+                                   sort_dir=sort_dir)
+    for obj in data['object_list']:
+        obj['dn_business_name'] =  ugettext("Business" if obj['dn_business_name'] else "Private")
+        for key, label in ASSIGNMENT_STATUS:
+            if key == obj['status_label']:
+                obj['status_label'] =  label
+    return data
 
 def get_orders_history_data(query, columns, fields, page=1, keywords=None, sort_by=None,
                             sort_dir=None):

@@ -118,7 +118,7 @@
     {% endif %}
 
     <!-- Content -->
-    <div id="main" class="{% block coltype %}colM{% endblock %}">
+    <div id="main" class="{% block coltype %}colM {% endblock %}{% block mainclass %}{% endblock %}">
         {% block pretitle %}{% endblock %}
         {% block content_title %}{% if title %}<h1>{{ title }}</h1>{% endif %}{% endblock %}
         {% block connection_status %}{% endblock %}
@@ -128,23 +128,25 @@
     </div>
     <!-- END Content -->
 
-    <div id="footer">
-        {% block footer %}
-            <span id="footer-links">
-                <a href="{% url ordering.passenger_controller.passenger_home %}">{% trans 'Passengers home' %}</a>
-                <a href="{% url ordering.passenger_controller.info_pages %}#about">{% trans 'About' %}</a>
-                <a href="{% url ordering.passenger_controller.info_pages %}#press">{% trans 'Press' %}</a>
-                {% comment %}
-                <a href="{% url ordering.passenger_controller.info_pages %}#help">{% trans 'Help' %}</a>
-                {% endcomment %}
-                <a href="{% url ordering.passenger_controller.info_pages %}#terms">{% trans 'Terms' %}</a>
-                <a href="{% url ordering.station_controller.stations_home %}">{% trans 'Station Entrance' %}</a>
-            </span>
-    <span id="footer-copyright">
-        &copy; {% trans '2010 WAYbetter' %}
-    </span>
-        {% endblock %}
-    </div>
+    {% if not is_popup %}
+        <div id="footer">
+            {% block footer %}
+                <span id="footer-links">
+                    <a href="{% url ordering.passenger_controller.passenger_home %}">{% trans 'Passengers home' %}</a>
+                    <a href="{% url ordering.passenger_controller.info_pages %}#about">{% trans 'About' %}</a>
+                    <a href="{% url ordering.passenger_controller.info_pages %}#press">{% trans 'Press' %}</a>
+                    {% comment %}
+                    <a href="{% url ordering.passenger_controller.info_pages %}#help">{% trans 'Help' %}</a>
+                    {% endcomment %}
+                    <a href="{% url ordering.passenger_controller.info_pages %}#terms">{% trans 'Terms' %}</a>
+                    <a href="{% url ordering.station_controller.stations_home %}">{% trans 'Station Entrance' %}</a>
+                </span>
+                <span id="footer-copyright">
+            &copy; {% trans '2010 WAYbetter' %}
+        </span>
+            {% endblock %}
+        </div>
+    {% endif %}
 </div>
 <!-- END Container -->
 <!-- JavaScript at the bottom for fast page loading -->
@@ -155,6 +157,7 @@
 <script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
 
 <!-- scripts concatenated and minified via ant build script-->
+    <script type="text/javascript" src="/static/js/mylibs/json2.min.js"></script>
     <script type="text/javascript" src="/static/js/mylibs/jquery.timers-1.2.min.js"></script>
     <script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>
     <script type="text/javascript" src="/static/js/mylibs/jquery.placeheld.min.js"></script>
@@ -173,6 +176,8 @@
 <!-- end scripts-->
     {% block doc_ready %}
     {% endblock doc_ready %}
+
+    {% if not is_popup %}
     <script type="text/javascript">
         $(function() {
             $("form.languages select").val("{{ LANGUAGE_CODE }}");
@@ -189,6 +194,7 @@
             })
         })
     </script>
+    {% endif %}
     {# more IE7 fixes #}
     <!--[if IE 7]>
     <script type="text/javascript">

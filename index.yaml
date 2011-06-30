@@ -548,9 +548,73 @@ indexes:
 - kind: ordering_orderassignment
   properties:
   - name: station_id
+  - name: create_date
+    direction: desc
+
+- kind: ordering_orderassignment
+  properties:
+  - name: station_id
+  - name: station_id
+  - name: status
+  - name: create_date
+
+- kind: ordering_orderassignment
+  properties:
+  - name: station_id
+  - name: status
+  - name: create_date
+
+- kind: ordering_orderassignment
+  properties:
+  - name: station_id
   - name: status
   - name: create_date
     direction: desc
+
+- kind: ordering_orderassignment
+  properties:
+  - name: station_id
+  - name: status
+  - name: dn_business_name
+
+- kind: ordering_orderassignment
+  properties:
+  - name: station_id
+  - name: status
+  - name: dn_business_name
+    direction: desc
+
+- kind: ordering_orderassignment
+  properties:
+  - name: station_id
+  - name: status
+  - name: dn_from_raw
+
+- kind: ordering_orderassignment
+  properties:
+  - name: station_id
+  - name: status
+  - name: dn_from_raw
+    direction: desc
+
+- kind: ordering_orderassignment
+  properties:
+  - name: station_id
+  - name: status
+  - name: dn_to_raw
+
+- kind: ordering_orderassignment
+  properties:
+  - name: station_id
+  - name: status
+  - name: dn_to_raw
+    direction: desc
+
+- kind: ordering_orderassignment
+  properties:
+  - name: station_id
+  - name: status
+  - name: status
 
 - kind: ordering_orderassignment
   properties:

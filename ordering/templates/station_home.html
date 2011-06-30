@@ -41,6 +41,9 @@
                    <a title="history" href="{% url ordering.station_controller.get_station_orders_history %}">{% trans 'Rides history' %}</a>
                </li>
                <li>
+                   <a title="analytics" href="{% url ordering.station_controller.station_analytics %}">{% trans 'Station analytics' %}</a>
+               </li>
+               <li>
                    <a title="profile" href="{% url ordering.station_controller.station_profile %}">{% trans 'Profile' %}</a>
                </li>
                <li>
@@ -55,30 +58,6 @@
                 <button class="big_red">{% trans 'Join' %}</button>
             </div>
             <div id="info">
-                <h1>{% trans 'WHY CONNECT?' %}</h1>
-                <p>
-                    {% trans "Simply because it's good for business!<br>You get safe exposure to a wide range of passengers you couldn't approach before!" %}
-                </p>
-
-                <h1>{% trans 'WHAT WILL YOU GET?' %}</h1>
-                <ul>
-                    <li>
-                        {% trans "Terminal software (FREE)<br>Easy to use software that allows you to handle the orders" %}
-                    </li>
-                    <li>
-                        {% trans "Personal internet page on www.waybetter.com and private ordering tool (FREE)" %}
-                    </li>
-                    <li>
-                        {% trans "Your own ordering tool at your website (FREE)" %}
-                    </li>
-                    <li>
-                        {% trans "Web application for smart-phone users (FREE)<br>Users will be able to book rides from your website using iPhones, Blackberry, Android and more!" %}
-                    </li>
-                    <li>
-                        {% trans "Serve WAYbetter clients<br>WAYbetter has a fast growing user-base of people who need a taxi. Be the one who serves them in your city" %}
-                    </li>
-                </ul>
-                
             </div>
         </div>
     {% endif %}

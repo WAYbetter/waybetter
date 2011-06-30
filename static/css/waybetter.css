@@ -13,6 +13,11 @@ body {
     background-repeat: repeat-x;
 /*text-align: center;*/
 }
+
+body.clean_body {
+    background-image: none;
+}
+
 form ul {
     list-style: none;
 }
@@ -108,6 +113,11 @@ input.text, input[type=text], input[type=password] {
     background: url(../images/main_background.png), -webkit-gradient(linear, left top, left bottom, color-stop(0%,#4D4D4D), color-stop(100%,#101010)); /* webkit */
 
     behavior: url(PIE.htc);
+}
+
+#main.clean_main {
+    background: none;
+    border: none;
 }
 
 #main-container {
@@ -570,26 +580,28 @@ button.order_button.disabled, button.order_button:disabled {
     width: 120px;
 }
 #tabs ul > li > a[title="profile"] {
-    background-position: 0px -48px;
+    background-position: 0 -48px;
 }
 #tabs ul > li > a[title="mobile"] {
-    background-position: 0px -16px;
+    background-position: 0 -16px;
 }
 #tabs ul > li > a[title="history"] {
-    background-position: 0px -80px;
+    background-position: 0 -80px;
 }
 #tabs ul > li > a[title="whats_this"] {
-    background-position: 0px -160px;
+    background-position: 0 -160px;
 }
 #tabs ul > li > a[title="stations"] {
-    background-position: 0px -32px;
+    background-position: 0 -32px;
 }
 #tabs ul > li > a[title="download"] {
-    background-position: 0px -64px;
+    background-position: 0 -64px;
 }
-
+#tabs ul > li > a[title="analytics"] {
+    background-position: 0 -96px;
+}
 #tabs ul > li > a[title="businesses"] {
-background-position: 0px -176px;
+background-position: 0 -176px;
 }
 
 img.tab_icon {
@@ -968,11 +980,11 @@ form.languages > select{
 .ui-dialog .ui-dialog-title {
     color: white;
     float: left;
-    margin: -4px 16px 0.2em 0px;
+    margin: -4px 16px 0.2em 0;
     margin-top: -4px;
     margin-right: 16px;
     margin-bottom: 0.2em;
-    margin-left: 0px;
+    margin-left: 0;
 }
 .ui-dialog .ui-dialog-title .waybetter {
     color:white;
@@ -1145,10 +1157,9 @@ form.languages > select{
     margin: 0 6px;
 }
 #station_login input[type=submit] {
-    float: right;
     position: absolute;
     bottom: 1px;
-    right: -13px;
+    right: 80px;
 }
 #station_login_form > .errorlist {
     background: #FDF685;
@@ -2011,4 +2022,89 @@ bottom: 24px;}
     margin-bottom: 12px;
     position: relative;
     bottom: -5px;
+}
+
+/** Station analytics **/
+.station_analytics {
+    width: 820px;
+}
+
+.station_analytics #date_picker{
+    margin: 20px 0 20px 0;
+}
+
+.station_analytics #date_picker input{
+    height: 25px;
+    margin-left: 5px;
+    margin-right: 20px;
+}
+
+.station_analytics #analytics_container{
+    border: 1px #2A2A2A solid;
+    padding: 10px;
+}
+
+.rtl .station_analytics #pie_chart_container{
+    direction: ltr;
+}
+
+.rtl .highcharts-highcharts-data-labels tspan{
+    /*direction: rtl;*/
+}
+
+.station_analytics hr{
+    width: 80%;
+    margin: 30px 0 30px 70px;
+}
+
+.rtl .station_analytics hr{
+    margin: 30px 70px 30px 0;
+}
+
+.station_analytics #history_sidebar{
+    width: 20%;
+    float: left;
+}
+
+.rtl .station_analytics #history_sidebar{
+    float: right;
+}
+
+.station_analytics #status_picker{
+    position: relative;
+    top: 20px;
+}
+
+.station_analytics #history_table{
+    width: 80%;
+    float: right;
+}
+
+.rtl .station_analytics #history_table{
+    float: left;
+}
+
+.station_analytics #orders_history_grid table{
+    border-top: 0;
+    border-bottom: 0;
+}
+
+.station_analytics #orders_history_grid table th{
+    text-align: left;
+}
+
+.rtl .station_analytics #orders_history_grid table th{
+    text-align: right;
+}
+
+.station_analytics .order_accepted{
+    color: #2D9609;
+}
+
+.station_analytics .order_ignored{
+    color: #BA0909;
+}
+
+.station_analytics .order_rejected{
+    color: #FF7E00;
 }
