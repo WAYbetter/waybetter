@@ -1,38 +1,38 @@
 #history_header_label_3 {}
 #history_header_label_4 {}
-#orders_history_grid table {
+.orders_history_grid table {
     width: 100%;
     border-top: 2px solid #a8d5fd;
     border-bottom: 2px solid #a8d5fd;
     border-spacing: 0 3px;
 
 }
-#orders_history_grid table tr:nth-child(odd) {
+.orders_history_grid table tr:nth-child(odd) {
     background-color: white;
 }
 
-#orders_history_grid table tr:nth-child(even) {
+.orders_history_grid table tr:nth-child(even) {
     background-color: #e7f1fa;
 }
-#orders_history_grid table th, #orders_history_grid table td {
+.orders_history_grid table th, .orders_history_grid table td {
     padding: 6px 2px 2px;
     color: #5b5b5b;
     text-shadow: 0px 1px 0px white; 
     font-size: 14px;
 }
-#orders_history_grid table th {
+.orders_history_grid table th {
     font-weight: bold;
 }
-#orders_history_grid table th a {
+.orders_history_grid table th a {
     text-decoration: none;
 }
 
-#orders_history_grid caption{
+.orders_history_grid caption{
     font-size:15px;
     float: left;
 }
 
-#orders_history_grid .select-address {
+.orders_history_grid .select-address {
     /* color: white; */
     text-shadow: none;
     border-right: 3px solid #ffffff;
@@ -92,7 +92,7 @@
     position: relative;
     bottom: 1px;
 }
-#orders_history_pager button{
+.orders_history_pager button{
 	width: 35px;
 	height:30px;
 	margin-top: -3px;
@@ -104,16 +104,16 @@
     display: inline;
 }
 
-#orders_history_pager{
+.orders_history_pager{
 	display: inline;
     float: right;
 }
 
-.rtl #orders_history_pager{
+.rtl .orders_history_pager{
     float: left;
 }
 
-#orders_history_pager span{
+.orders_history_pager span{
 	padding-left: 10px;
 	padding-right: 10px;
 }
@@ -125,14 +125,14 @@
 .station_analytics td.order_history_column_status_label{
     font-weight: bold;
 }
-.station_analytics #orders_history_grid table tr.order_accepted > td.order_history_column_status_label {
+.station_analytics .orders_history_grid table tr.order_accepted > td.order_history_column_status_label {
     color: #2D9609;
 }
 
-.station_analytics #orders_history_grid table tr.order_ignored > td.order_history_column_status_label {
+.station_analytics .orders_history_grid table tr.order_ignored > td.order_history_column_status_label {
     color: #BA0909;
 }
 
-.station_analytics #orders_history_grid table tr.order_rejected > td.order_history_column_status_label {
+.station_analytics .orders_history_grid table tr.order_rejected > td.order_history_column_status_label {
     color: #FF7E00;
 }

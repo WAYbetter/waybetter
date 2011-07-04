@@ -23,7 +23,7 @@
     {% endblock %}
 {% endif %}
 {% block content %}
-    {% if show_analytics_link %}
+    {% if workstation_agent %}
         <br/>
         <h1>
             <a href="{% url ordering.station_controller.station_analytics %}"
@@ -34,26 +34,29 @@
 
     {% endif %}
 
-    <div id="orders_history_grid"></div>
+    <div id="orders_history_grid" class="orders_history_grid"></div>
     <div id="orders_history_controls">
         <div id="orders_history_search">
             <input type="text" id="keywords"/>
             <input type="button" id='search_button' class="wb_button blue" value="{% trans 'Search' %}"/>
             <input type="button" id='reset_button' class="wb_button blue" value="{% trans 'Reset' %}"/>
         </div>
-        <div id="orders_history_pager"></div>
+        <div id="orders_history_pager" class="orders_history_pager"></div>
     </div>
     <script>
 
         {% autoescape off %}
             $(function () {
                 OrderHistoryHelper.init({
+                    id_history_grid:            "orders_history_grid",
+                    id_history_pager:           "orders_history_pager",
                     order_history_url:          "{{ history_data_url }}",
                     order_history_columns:      {{ order_history_columns }},
                     order_history_column_names: {{ order_history_column_names }},
                     order_history_fields:       {{ order_history_fields }},
                     page_label:                 "{% trans 'Page' %}",
                     of_label:                   "{% trans 'of' %}",
+                    load_history_on_init:       true,
                     rating_choices:             {{ rating_choices }}
                     {% if rating_disabled %}
                         ,rating_disabled:            true

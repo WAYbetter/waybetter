@@ -25,6 +25,7 @@
         });
         $("#tabs").bind('tabsselect', function(event, ui) {
             window.location.href=ui.tab;
+            $.each($("#ui-datepicker-div"), function(i,e){$(e).remove();}) // analytics datepicker persists between tabs
         });
         $(".big_red").click(function() {
             Registrator.openStationInterestDialog();

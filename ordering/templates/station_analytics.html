@@ -27,12 +27,13 @@
         <div id="analytics_container">
             <h2 id="error_msg"></h2>
             <div id="pie_chart_container"></div>
+            <div id="ride_summary_container"></div>
             <hr/>
             <div id="history_container">
                 <div id="history_table">
-                    <div id="orders_history_grid"></div>
+                    <div id="assignments_history_grid" class="orders_history_grid"></div>
                     <div id="orders_history_controls">
-                        <div id="orders_history_pager"></div>
+                        <div id="assignments_history_pager" class="orders_history_pager"></div>
                     </div>
                 </div>
                 <div id="history_sidebar">
@@ -70,6 +71,12 @@
 {% block doc_ready %}
     <script type="text/javascript" src="/static/js/libs/highcharts.min.js"></script>
     <script type="text/javascript">
+
+        var hasSVG = true;
+        {% if workstation_agent %}
+            hasSVG = false;
+        {% endif %}
+
         loadHistory = function(params) {
             params.start_date = $("#id_start_date").val();
             params.end_date = $("#id_end_date").val();
@@ -77,7 +84,7 @@
             OrderHistoryHelper.loadHistory(params);
         };
 
-        load_history_callback = function() {
+        loadHistoryCallback = function() {
             $("[order_id]").each(function(i, e) {
                 switch ($(e).data("status")) {
                     case {{ accepted }}:
@@ -93,6 +100,22 @@
                 }
             });
             $("#history_table").show();
+        };
+
+        renderChart = function(data, total_count) {
+            if (hasSVG){
+                renderPieChart(data, total_count);
+            }
+            else{
+                $("#ride_summary_container").empty();
+                $("#ride_summary_container").append($("<h2>{% trans 'Ride summary' %}</h2>")).append($("<ul></ul>"));
+                $.each(data, function(i, e) {
+                    var $li = $("<li></li>").text(e.name + "\t: " + e.y + " {% trans 'rides'%} (" + Math.round(this.y / total_count * 100) + "%)");
+                    $("#ride_summary_container ul").append($li);
+                });
+                $("#ride_summary_container ul").append($("<li></li>").addClass("total_count").text("{% trans 'Total' %}: " + total_count));
+            }
+
         };
 
         renderPieChart = function(data, total_count) {
@@ -139,34 +162,42 @@
 
         $(function() {
             var date_options = { dateFormat: 'dd/mm/yy' };
-            $("#id_start_date").datepicker($.extend({}, date_options, {
-                maxDate: -1,
-                defaultDate: -7
-            }));
-            $("#id_end_date").datepicker($.extend({}, date_options, {
-                defaultDate: 0
-            }));
-            $("#id_end_date").datepicker("setDate", "{{ end_date }}");
-            $("#id_start_date").datepicker("setDate", "{{ start_date }}");
-            $("#ui-datepicker-div").hide(); // pops up on page load
+            if (! $("#id_start_date").hasClass("hasDatepicker")){
+                $("#id_start_date").datepicker($.extend({}, date_options, {
+                    maxDate: -1,
+                    defaultDate: -7
+                }));
+                $("#id_start_date").datepicker("setDate", "{{ start_date }}");
+            }
+            if (! $("#id_end_date").hasClass("hasDatepicker")){
+                $("#id_end_date").datepicker($.extend({}, date_options, {
+                    defaultDate: 0
+                }));
+                $("#id_end_date").datepicker("setDate", "{{ end_date }}");
+            }
 
+            $("#ui-datepicker-div").hide(); // pops up on page load
             $("#header_date").text($("#id_start_date").val() + " - " + $("#id_end_date").val());
 
             {% autoescape off %} // JSON var's
                 var history_config = {
+                    id_history_grid:            "assignments_history_grid",
+                    id_history_pager:           "assignments_history_pager",
                     order_history_columns:      {{ order_history_columns }},
                     order_history_column_names: {{ order_history_column_names }},
                     order_history_fields:       {{ order_history_fields }},
                     order_history_url:          "{% url ordering.station_controller.get_station_assignments_history_data %}",
                     page_label:                 "{% trans 'Page' %}",
                     of_label:                   "{% trans 'of' %}",
+                    rating_disabled:            true,
                     sorting_disabled:           true,
-                    load_history_callback:      load_history_callback
+                    load_history_on_init:       false,
+                    load_history_callback:      loadHistoryCallback
                 };
 
                 var init_params = {'page': 1, 'start_date': $("#id_start_date").val(), 'end_date': $("#id_end_date").val()};
 
-                renderPieChart({{ pie_data }}, {{ total_count }});
+                renderChart({{ pie_data }}, {{ total_count }});
                 OrderHistoryHelper.init(history_config);
                 loadHistory(init_params);
             {% endautoescape %}
@@ -182,13 +213,13 @@
                             }
                             else {
                                 if (response.pie_data && response.total_count) {
-                                    renderPieChart(response.pie_data, response.total_count);
+                                    renderChart(response.pie_data, response.total_count);
                                     loadHistory(init_params);
-                                    $("#pie_chart_container, #history_container").show();
+                                    $("#ride_summary_container, #pie_chart_container, #history_container").show();
                                 }
                                 else {
                                     $("#error_msg").text("{% trans 'No data' %}");
-                                    $("#pie_chart_container, #history_container").hide();
+                                    $("#ride_summary_container, #pie_chart_container, #history_container").hide();
                                 }
                             }
                         }

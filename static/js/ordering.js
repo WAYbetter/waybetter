@@ -558,6 +558,8 @@ var HistorySelector = defineClass({
 
 var OrderHistoryHelper = Object.create({
     config:     {
+        id_history_grid:                "",
+        id_history_pager:               "",
         order_history_url:              "",
         page_label:                     "",
         of_label:                       "",
@@ -567,6 +569,7 @@ var OrderHistoryHelper = Object.create({
         rating_choices:                 [],
         rating_disabled:                false,
         sorting_disabled:               false,
+        load_history_on_init:           true,
         load_history_callback:          undefined
     },
     current_params:                     {},
@@ -590,7 +593,9 @@ var OrderHistoryHelper = Object.create({
             }
         });
 
-        this.loadHistory({});
+        if (this.config.load_history_on_init){
+            this.loadHistory({});
+        }
     },
     loadHistory:    function(params) {
         if (! this.config.order_history_url) {
@@ -599,10 +604,10 @@ var OrderHistoryHelper = Object.create({
         }
 
         var that = this;
-        $("#orders_history_grid table").animate({
+        $("#" + that.config.id_history_grid + " table").animate({
             color: "#949494"
         }, 200);
-        $("#orders_history_pager").append("<img src='/static/images/indicator_small.gif'/>");
+        $("#" + that.config.id_history_pager).append("<img src='/static/images/indicator_small.gif'/>");
         if (params.sort_by && this.current_params.sort_by &&
             params.sort_by == this.current_params.sort_by) {
                 this.toggleSortDir();
@@ -660,7 +665,7 @@ var OrderHistoryHelper = Object.create({
                 $next_button.attr("disable", "disable");
             }
         }
-        $("#orders_history_pager").empty().append($prev_button, $pager_text, $next_button);
+        $("#" + that.config.id_history_pager).empty().append($prev_button, $pager_text, $next_button);
     },
     drawTable:      function(orders, page_size) {
 
@@ -728,8 +733,8 @@ var OrderHistoryHelper = Object.create({
             });
             $table.append($tr);
         });
-        $("#orders_history_grid").empty().append($table);
-        $("#orders_history_grid table").animate({
+        $("#" + that.config.id_history_grid).empty().append($table);
+        $("#" + that.config.id_history_grid + " table").animate({
             color: "black"
         }, 400);
         this.initRating();
