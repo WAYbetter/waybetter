@@ -52,19 +52,22 @@ def maintenance_task(request):
         do_task()
         return HttpResponse("Done")
     except Exception, e:
-        logging.error("Failed during task: %s" % e.message)
+        logging.error("Failed during task: %s" % e)
         return HttpResponse("Failed")
 
 
 def do_task():
-    fix_db_stuff()
+    denormalize_order_assignments()
 
 #    generate_passengers_with_non_existing_users()
 #    generate_dead_users_list()
 
-def fix_db_stuff():
+def denormalize_order_assignments():
     for oa in OrderAssignment.objects.all():
 
+        if oa.dn_from_raw:
+            continue # is normalized
+            
         if hasattr(oa, 'business_name'):
             oa.dn_business_name = oa.business_name
             oa.business_name = None
@@ -72,8 +75,12 @@ def fix_db_stuff():
         try:
             oa.save()
             logging.info("denormalizing assignment [%d]" % oa.id)
-        except:
-            logging.error("FAILED denormalizing assignment [%d]" % oa.id)
+        except Order.DoesNotExist:
+            oa.delete()
+        except Passenger.DoesNotExist:
+            pass
+        except Exception, e:
+            logging.error("FAILED denormalizing assignment [%d]: %s" % (oa.id, e))
             
     logging.info("task finished")
 

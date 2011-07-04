@@ -45,7 +45,7 @@ def get_stations_assignments_history_data(station, page=1, sort_by=None, sort_di
                                    fields=STATION_ASSIGNMENT_HISTORY_FIELDS, page=page, sort_by=sort_by,
                                    sort_dir=sort_dir)
     for obj in data['object_list']:
-        obj['dn_business_name'] =  ugettext("Business" if obj['dn_business_name'] else "Private")
+        obj['dn_business_name'] =  ugettext("Business") if obj['dn_business_name'] else ugettext("Private")
         for key, label in ASSIGNMENT_STATUS:
             if key == obj['status_label']:
                 obj['status_label'] =  label

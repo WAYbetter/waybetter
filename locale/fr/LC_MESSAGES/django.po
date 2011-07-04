@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-06-28 09:38+0300\n"
+"POT-Creation-Date: 2011-07-04 09:54+0300\n"
 "PO-Revision-Date: 2011-06-21 16:06+0200\n"
 "Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "X-Translated-Using: django-rosetta 0.5.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -36,11 +36,11 @@ msgstr "Champ \"%s\" introuvable dans ce formulaire"
 msgid "Expected Django Form"
 msgstr "Formulaire Django attendu"
 
-#: analytics/forms.py:41
+#: analytics/forms.py:41 common/forms.py:9
 msgid "Start Date"
 msgstr "Date de début"
 
-#: analytics/forms.py:42
+#: analytics/forms.py:42 common/forms.py:10
 msgid "End Date"
 msgstr "Date de fin"
 
@@ -66,7 +66,7 @@ msgid "type"
 msgstr "Type"
 
 #: analytics/models.py:12 ordering/models.py:508 ordering/models.py:510
-#: ordering/models.py:599 ordering/models.py:676
+#: ordering/models.py:599 ordering/models.py:687
 msgid "order"
 msgstr "Réservation"
 
@@ -84,13 +84,13 @@ msgid "station"
 msgstr "Poste"
 
 #: analytics/models.py:16 ordering/models.py:274 ordering/models.py:427
-#: ordering/models.py:761
+#: ordering/models.py:772
 msgid "passenger"
 msgstr "Passager"
 
 #: analytics/models.py:17 common/models.py:105 ordering/models.py:102
-#: ordering/models.py:195 ordering/models.py:693 ordering/models.py:724
-#: ordering/models.py:746 registration/forms.py:72
+#: ordering/models.py:195 ordering/models.py:704 ordering/models.py:735
+#: ordering/models.py:757 registration/forms.py:72
 msgid "country"
 msgstr "Pays"
 
@@ -105,23 +105,23 @@ msgstr "Classement"
 
 #: analytics/models.py:24 interests/models.py:9 interests/models.py:27
 #: interests/models.py:48 ordering/models.py:117 ordering/models.py:211
-#: ordering/models.py:476 ordering/models.py:605 ordering/models.py:714
-#: ordering/models.py:736 ordering/models.py:750
+#: ordering/models.py:476 ordering/models.py:605 ordering/models.py:725
+#: ordering/models.py:747 ordering/models.py:761
 msgid "create date"
 msgstr "Créé le"
 
 #: analytics/models.py:25 interests/models.py:10 interests/models.py:28
 #: interests/models.py:49 ordering/models.py:118 ordering/models.py:212
-#: ordering/models.py:477 ordering/models.py:606 ordering/models.py:715
-#: ordering/models.py:737 ordering/models.py:751
+#: ordering/models.py:477 ordering/models.py:606 ordering/models.py:726
+#: ordering/models.py:748 ordering/models.py:762
 msgid "modify date"
 msgstr "Modifié le"
 
-#: analytics/views.py:182
+#: analytics/views.py:182 ordering/station_controller.py:379
 msgid "Accepted"
 msgstr "Acceptée"
 
-#: analytics/views.py:187
+#: analytics/views.py:187 ordering/station_controller.py:381
 #, fuzzy
 msgid "Rejected"
 msgstr "Rejeté"
@@ -139,6 +139,7 @@ msgid "Rating"
 msgstr "Classement"
 
 #: analytics/views.py:300 analytics/views.py:377
+#: ordering/templates/station_analytics.html:116
 msgid "Total"
 msgstr "Total"
 
@@ -184,8 +185,8 @@ msgid "Submit"
 msgstr "Envoi"
 
 #: api/models.py:7 common/models.py:55 common/models.py:104
-#: common/models.py:140 interests/models.py:22 ordering/models.py:691
-#: ordering/models.py:722 ordering/models.py:744
+#: common/models.py:140 interests/models.py:22 ordering/models.py:702
+#: ordering/models.py:733 ordering/models.py:755
 msgid "name"
 msgstr "Nom"
 
@@ -470,7 +471,7 @@ msgstr ""
 "sans délai."
 
 #: common/templates/registration_form.html:24 ordering/forms.py:243
-#: ordering/passenger_controller.py:463
+#: ordering/passenger_controller.py:461
 #: ordering/templates/business_registration.html:58
 #, fuzzy
 msgid "Email already registered"
@@ -631,6 +632,54 @@ msgstr "Super !"
 #: interests/templates/mobile_interest_form.html:44
 msgid "Please notify me when the app is ready for download"
 msgstr "Merci de m'indiquer quand l'application est téléchargeable"
+
+#: intermediate/templates/base.html:66 templates/base.html:75
+msgid "Get Your Taxis Online (FREE)"
+msgstr "Commander un taxi, c'est un jeu d'enfant (et c'est gratuit)"
+
+#: intermediate/templates/base.html:72
+#: ordering/templates/station_page.html:119 templates/base.html:81
+msgid "Hi"
+msgstr "Bonjour"
+
+#: intermediate/templates/base.html:78
+#: ordering/templates/station_page.html:120 templates/base.html:87
+msgid "Log out"
+msgstr "Déconnexion"
+
+#: intermediate/templates/base.html:126 templates/base.html:135
+msgid "Passengers home"
+msgstr "Page d'accueil Passagers"
+
+#: intermediate/templates/base.html:127 ordering/templates/info.html:28
+#: ordering/templates/mobile/passenger_home.html:224
+#: ordering/templates/mobile/passenger_home.html:267 templates/base.html:136
+msgid "About"
+msgstr "A  propos de"
+
+#: intermediate/templates/base.html:128 ordering/templates/info.html:29
+#: templates/base.html:137
+msgid "Press"
+msgstr "Médias"
+
+#: intermediate/templates/base.html:130 ordering/templates/info.html:31
+#: templates/base.html:139
+msgid "Help"
+msgstr "Aide"
+
+#: intermediate/templates/base.html:132 ordering/templates/info.html:33
+#: templates/base.html:141
+msgid "Terms"
+msgstr "Conditions d'utilisation"
+
+#: intermediate/templates/base.html:133 ordering/templates/stations.html:31
+#: templates/base.html:142
+msgid "Station Entrance"
+msgstr "Stations"
+
+#: intermediate/templates/base.html:136 templates/base.html:145
+msgid "2010 WAYbetter"
+msgstr "2010-2011 <span class=waybetter></span>"
 
 #: openid_consumer/views.py:96
 msgid "i-names are not supported"
@@ -1055,7 +1104,7 @@ msgstr "de longitude"
 msgid "from_lat"
 msgstr " de latitude"
 
-#: ordering/models.py:453
+#: ordering/models.py:453 ordering/models.py:614
 msgid "from address"
 msgstr "de l'adresse"
 
@@ -1096,7 +1145,7 @@ msgstr "vers longitude"
 msgid "to_lat"
 msgstr "vers latitude"
 
-#: ordering/models.py:468
+#: ordering/models.py:468 ordering/models.py:615
 msgid "to address"
 msgstr "vers l'adresse"
 
@@ -1139,147 +1188,150 @@ msgstr "pickup_address_in_ws_lang"
 msgid "dropoff_address_in_ws_lang"
 msgstr "pickup_address_in_ws_lang"
 
-#: ordering/models.py:676
+#: ordering/models.py:687
 msgid "assigned to station:"
 msgstr "affecté à la station"
 
-#: ordering/models.py:679
+#: ordering/models.py:690
 msgid "Sunday"
 msgstr "dimanche"
 
-#: ordering/models.py:680
+#: ordering/models.py:691
 msgid "Monday"
 msgstr "lundi"
 
-#: ordering/models.py:681
+#: ordering/models.py:692
 msgid "Tuesday"
 msgstr "mardi"
 
-#: ordering/models.py:682
+#: ordering/models.py:693
 msgid "Wednesday"
 msgstr "mercredi"
 
-#: ordering/models.py:683
+#: ordering/models.py:694
 msgid "Thursday"
 msgstr "jeudi"
 
-#: ordering/models.py:684
+#: ordering/models.py:695
 msgid "Friday"
 msgstr "vendredi"
 
-#: ordering/models.py:685
+#: ordering/models.py:696
 msgid "Saturday"
 msgstr "samedi"
 
-#: ordering/models.py:687
+#: ordering/models.py:698
 msgid "Standard cab"
 msgstr "taxi ordinaire"
 
-#: ordering/models.py:692 ordering/models.py:723 ordering/models.py:745
+#: ordering/models.py:703 ordering/models.py:734 ordering/models.py:756
 msgid "is active"
 msgstr "actif"
 
-#: ordering/models.py:696
+#: ordering/models.py:707
 msgid "from day"
 msgstr "du"
 
-#: ordering/models.py:697
+#: ordering/models.py:708
 msgid "to day"
 msgstr "au"
 
-#: ordering/models.py:698 ordering/models.py:729
+#: ordering/models.py:709 ordering/models.py:740
 msgid "from hour"
 msgstr "de"
 
-#: ordering/models.py:699 ordering/models.py:730
+#: ordering/models.py:710 ordering/models.py:741
 msgid "to hour"
 msgstr "à"
 
-#: ordering/models.py:701
+#: ordering/models.py:712
 msgid "from duration (s)"
 msgstr "de"
 
-#: ordering/models.py:701 ordering/models.py:702 ordering/models.py:710
+#: ordering/models.py:712 ordering/models.py:713 ordering/models.py:721
 msgid "In seconds"
 msgstr "en secondes"
 
-#: ordering/models.py:702
+#: ordering/models.py:713
 msgid "to duration (s)"
 msgstr "à"
 
-#: ordering/models.py:705
+#: ordering/models.py:716
 msgid "from distance (m)"
 msgstr "d'une distance de "
 
-#: ordering/models.py:705 ordering/models.py:706 ordering/models.py:709
+#: ordering/models.py:716 ordering/models.py:717 ordering/models.py:720
 msgid "In meters"
 msgstr "en mètres"
 
-#: ordering/models.py:706
+#: ordering/models.py:717
 msgid "to distance (m)"
 msgstr "à une distance de (m)"
 
-#: ordering/models.py:709
+#: ordering/models.py:720
 msgid "tick distance (m)"
 msgstr "distance de pulsation (m)"
 
-#: ordering/models.py:710
+#: ordering/models.py:721
 msgid "tick time (s)"
 msgstr "durée de la pulsation (sec)"
 
-#: ordering/models.py:711
+#: ordering/models.py:722
 msgid "cost per tick"
 msgstr "prix de la pulsation"
 
-#: ordering/models.py:712 ordering/models.py:734 ordering/models.py:748
+#: ordering/models.py:723 ordering/models.py:745 ordering/models.py:759
 msgid "fixed cost"
 msgstr "coût fixe"
 
-#: ordering/models.py:726
+#: ordering/models.py:737
 msgid "city 1"
 msgstr "Ville 1"
 
-#: ordering/models.py:727
+#: ordering/models.py:738
 msgid "city 2"
 msgstr "Ville 2"
 
-#: ordering/models.py:731
+#: ordering/models.py:742
 msgid "from day-of-week"
 msgstr "du"
 
-#: ordering/models.py:732
+#: ordering/models.py:743
 msgid "to day-of-week"
 msgstr "au"
 
-#: ordering/models.py:757
+#: ordering/models.py:768
 msgid "Website"
 msgstr "Site"
 
-#: ordering/models.py:757
+#: ordering/models.py:768
 msgid "Booking"
 msgstr "Réservation"
 
-#: ordering/models.py:757
+#: ordering/models.py:768
 msgid "Registration"
 msgstr "Inscription"
 
-#: ordering/models.py:757
+#: ordering/models.py:768
 msgid "Taxi Ride"
 msgstr "course"
 
-#: ordering/models.py:757
+#: ordering/models.py:768
 msgid "Other"
 msgstr "Autre"
 
 #: ordering/order_history.py:10 ordering/order_history.py:14
+#: ordering/order_history.py:18
 msgid "Date"
 msgstr "Date"
 
 #: ordering/order_history.py:10 ordering/order_history.py:14
+#: ordering/order_history.py:18
 msgid "From"
 msgstr "Adresse de départ"
 
 #: ordering/order_history.py:10 ordering/order_history.py:14
+#: ordering/order_history.py:18
 msgid "To"
 msgstr "Destination"
 
@@ -1290,6 +1342,21 @@ msgstr "Classement passager"
 #: ordering/order_history.py:14
 msgid "Passenger Phone"
 msgstr "Téléphone passager"
+
+#: ordering/order_history.py:18
+#, fuzzy
+msgid "Passenger"
+msgstr "Passager"
+
+#: ordering/order_history.py:18
+#, fuzzy
+msgid "Status Label"
+msgstr "Statut"
+
+#: ordering/order_history.py:48
+#, fuzzy
+msgid "Business"
+msgstr "Nom d'utilisateur"
 
 #: ordering/order_manager.py:70
 msgid "We're sorry, but we could not find a taxi for you"
@@ -1381,29 +1448,29 @@ msgstr ""
 "La station la plus proche recherche un taxi libre. Un SMS vous sera envoyé "
 "sans délai."
 
-#: ordering/passenger_controller.py:350
+#: ordering/passenger_controller.py:348
 #, python-format
 msgid "Verification code: %s"
 msgstr "Code de vérification : %s"
 
-#: ordering/passenger_controller.py:365
+#: ordering/passenger_controller.py:363
 msgid "Error validating phone (check that your browser accepts cookies)"
 msgstr ""
 
-#: ordering/passenger_controller.py:368
+#: ordering/passenger_controller.py:366
 msgid "Invalid verification code"
 msgstr "Code SMS erroné"
 
-#: ordering/passenger_controller.py:394
+#: ordering/passenger_controller.py:392
 msgid "Phone has multiple passengers"
 msgstr "Même téléphone pour plusieurs passagers"
 
-#: ordering/passenger_controller.py:425
+#: ordering/passenger_controller.py:423
 #, fuzzy
 msgid "wrong email/password"
 msgstr "nom d'utilisateur/mot de passe erroné"
 
-#: ordering/passenger_controller.py:434
+#: ordering/passenger_controller.py:432
 msgid "Must have a user to change credentials"
 msgstr "Vous devez avoir nom d'utilisateur pour modifier les identifiants"
 
@@ -1415,7 +1482,12 @@ msgstr ""
 msgid "Invalid city"
 msgstr "Ville non valide"
 
-#: ordering/station_controller.py:421
+#: ordering/station_controller.py:380
+#, fuzzy
+msgid "Ignored"
+msgstr "Ignoré"
+
+#: ordering/station_controller.py:496
 #, fuzzy, python-format
 msgid "%s Taxi station"
 msgstr "Stations de taxi"
@@ -1599,7 +1671,7 @@ msgid "Fill in your details to join us"
 msgstr ""
 
 #: ordering/templates/business_tab.html:24
-#: ordering/templates/station_home.html:55
+#: ordering/templates/station_home.html:59
 msgid "Join"
 msgstr "S'inscrire !"
 
@@ -1628,24 +1700,6 @@ msgid "Upload specific pricing rules (inter-city taarif in CSV format)"
 msgstr ""
 "Téléchargement de règles tarifaires spécifiques (tarif interurbain en format "
 "CSV)"
-
-#: ordering/templates/info.html:28
-#: ordering/templates/mobile/passenger_home.html:224
-#: ordering/templates/mobile/passenger_home.html:267 templates/base.html:135
-msgid "About"
-msgstr "A  propos de"
-
-#: ordering/templates/info.html:29 templates/base.html:136
-msgid "Press"
-msgstr "Médias"
-
-#: ordering/templates/info.html:31 templates/base.html:138
-msgid "Help"
-msgstr "Aide"
-
-#: ordering/templates/info.html:33 templates/base.html:140
-msgid "Terms"
-msgstr "Conditions d'utilisation"
 
 #: ordering/templates/info.html:34 ordering/templates/passenger_home.html:109
 msgid "TAXI"
@@ -1681,19 +1735,25 @@ msgstr "Dernière mise à jour"
 msgid "Rate this ride"
 msgstr "Notez cette course"
 
-#: ordering/templates/orders_history.html:31
+#: ordering/templates/orders_history.html:30
+msgid "To open station analytics in a new page click here"
+msgstr ""
+
+#: ordering/templates/orders_history.html:41
 msgid "Search"
 msgstr "Recherche"
 
-#: ordering/templates/orders_history.html:32
+#: ordering/templates/orders_history.html:42
 msgid "Reset"
 msgstr "Réinitialiser"
 
-#: ordering/templates/orders_history.html:45
+#: ordering/templates/orders_history.html:57
+#: ordering/templates/station_analytics.html:190
 msgid "Page"
 msgstr "Page"
 
-#: ordering/templates/orders_history.html:46
+#: ordering/templates/orders_history.html:58
+#: ordering/templates/station_analytics.html:191
 msgid "of"
 msgstr "sur"
 
@@ -1934,69 +1994,68 @@ msgstr "Captures d'écran du site et de l'application iPhone"
 msgid "Embed video code:"
 msgstr "Code ajout vidéo :"
 
-#: ordering/templates/station_home.html:41
+#: ordering/templates/station_analytics.html:25
+msgid "analytics report:"
+msgstr ""
+
+#: ordering/templates/station_analytics.html:42
+msgid "Show"
+msgstr ""
+
+#: ordering/templates/station_analytics.html:47
+#, fuzzy
+msgid "Accepted rides"
+msgstr "Accepte des réservations"
+
+#: ordering/templates/station_analytics.html:53
+#, fuzzy
+msgid "Ignored rides"
+msgstr "Ignoré"
+
+#: ordering/templates/station_analytics.html:59
+#, fuzzy
+msgid "Rejected rides"
+msgstr "Rejeté"
+
+#: ordering/templates/station_analytics.html:111
+#, fuzzy
+msgid "Ride summary"
+msgstr "Historique"
+
+#: ordering/templates/station_analytics.html:113
+msgid "rides"
+msgstr ""
+
+#: ordering/templates/station_analytics.html:149
+msgid "Rides"
+msgstr ""
+
+#: ordering/templates/station_analytics.html:212
+#, fuzzy
+msgid "There was an error loading the data."
+msgstr "Une erreur est survenue durant le traitement de votre requête."
+
+#: ordering/templates/station_analytics.html:221
+#, fuzzy
+msgid "No data"
+msgstr "Modifié le"
+
+#: ordering/templates/station_home.html:42
 msgid "Rides history"
 msgstr "Courses précédentes"
 
-#: ordering/templates/station_home.html:44
+#: ordering/templates/station_home.html:45
+#, fuzzy
+msgid "Station analytics"
+msgstr "Nom de la station"
+
+#: ordering/templates/station_home.html:48
 msgid "Profile"
 msgstr "Profil"
 
-#: ordering/templates/station_home.html:47
+#: ordering/templates/station_home.html:51
 msgid "Workstations"
 msgstr "Poste de travail"
-
-#: ordering/templates/station_home.html:58
-msgid "WHY CONNECT?"
-msgstr "POURQUOI SE CONNECTER ?"
-
-#: ordering/templates/station_home.html:60
-msgid ""
-"Simply because it's good for business!<br>You get safe exposure to a wide "
-"range of passengers you couldn't approach before!"
-msgstr ""
-"C'est bon pour les affaires !<br>Vous vous faites connaître de passagers qui "
-"ne nous connaissaient pas auparavant !"
-
-#: ordering/templates/station_home.html:63
-msgid "WHAT WILL YOU GET?"
-msgstr "QU'EST-CE QUE VOUS Y GAGNEZ ?"
-
-#: ordering/templates/station_home.html:66
-msgid ""
-"Terminal software (FREE)<br>Easy to use software that allows you to handle "
-"the orders"
-msgstr ""
-"Poste de travail (gratuit). <br> Logiciel simple vous permettant la gestion "
-"des réservations depuis plusieurs sources numériques."
-
-#: ordering/templates/station_home.html:69
-msgid ""
-"Personal internet page on www.waybetter.com and private ordering tool (FREE)"
-msgstr ""
-"Page personnelle sur www.waybetter.com et outil de réservation immédiate de "
-"taxi (gratuit)."
-
-#: ordering/templates/station_home.html:72
-msgid "Your own ordering tool at your website (FREE)"
-msgstr "Votre propre interface de réservation sur votre site (gratuit)"
-
-#: ordering/templates/station_home.html:75
-msgid ""
-"Web application for smart-phone users (FREE)<br>Users will be able to book "
-"rides from your website using iPhones, Blackberry, Android and more!"
-msgstr ""
-"Application Internet pour les utilisateurs de smartphones (gratuit)"
-"<br>Commandez un taxi depuis votre iPhone, Blackberry, androïde, etc. !"
-
-#: ordering/templates/station_home.html:78
-msgid ""
-"Serve WAYbetter clients<br>WAYbetter has a fast growing user-base of people "
-"who need a taxi. Be the one who serves them in your city"
-msgstr ""
-"Soyez les prestataires de service des clients de WAYbetter<br>WAYbetter, "
-"c'est un nombre croissant de gens qui recherchent des taxis. Dans votre "
-"ville, soyez là pour répondre à leurs besoins."
 
 #: ordering/templates/station_page.html:41
 #: ordering/templates/station_page.html:230
@@ -2021,14 +2080,6 @@ msgstr ""
 #, fuzzy
 msgid "Book A Taxi Application. Immediate Response via SMS"
 msgstr "Application pour commander un taxi. Réponse immédiate par SMS."
-
-#: ordering/templates/station_page.html:119 templates/base.html:81
-msgid "Hi"
-msgstr "Bonjour"
-
-#: ordering/templates/station_page.html:120 templates/base.html:87
-msgid "Log out"
-msgstr "Déconnexion"
 
 #: ordering/templates/station_page.html:193
 msgid "for your business - free!"
@@ -2097,10 +2148,6 @@ msgstr "Plus de détails"
 #: ordering/templates/stations.html:30
 msgid "Station Manager?"
 msgstr "Directeur de station ?"
-
-#: ordering/templates/stations.html:31 templates/base.html:141
-msgid "Station Entrance"
-msgstr "Stations"
 
 #: ordering/templates/terms.html:4
 msgid "Subjects"
@@ -2465,18 +2512,6 @@ msgstr "Impossible de trouver la page demandée"
 msgid "There was an error while handling your request."
 msgstr "Une erreur est survenue durant le traitement de votre requête."
 
-#: templates/base.html:75
-msgid "Get Your Taxis Online (FREE)"
-msgstr "Commander un taxi, c'est un jeu d'enfant (et c'est gratuit)"
-
-#: templates/base.html:134
-msgid "Passengers home"
-msgstr "Page d'accueil Passagers"
-
-#: templates/base.html:144
-msgid "2010 WAYbetter"
-msgstr "2010-2011 <span class=waybetter></span>"
-
 #: templates/base_site.html:10
 msgid "WAYbetter: the best way to get a taxi!"
 msgstr "WAYbetter: la meilleure façon de trouver un taxi !"
@@ -2566,6 +2601,742 @@ msgid "Error running spellchecker"
 msgstr "Erreur du vérificateur d'orthographe"
 
 #, fuzzy
+#~ msgid "Danish"
+#~ msgstr "Terminer"
+
+#~ msgid "English"
+#~ msgstr "Anglais"
+
+#, fuzzy
+#~ msgid "British English"
+#~ msgstr "Anglais"
+
+#, fuzzy
+#~ msgid "Spanish"
+#~ msgstr "Terminer"
+
+#, fuzzy
+#~ msgid "Persian"
+#~ msgstr "Vérification"
+
+#, fuzzy
+#~ msgid "Finnish"
+#~ msgstr "Terminer"
+
+#~ msgid "Hebrew"
+#~ msgstr "Hébreu"
+
+#, fuzzy
+#~ msgid "Polish"
+#~ msgstr "Anglais"
+
+#, fuzzy
+#~ msgid "Vietnamese"
+#~ msgstr "Prénom"
+
+#, fuzzy
+#~ msgid "Any date"
+#~ msgstr "Modifié le"
+
+#, fuzzy
+#~ msgid "action time"
+#~ msgstr "Nom de la station"
+
+#, fuzzy
+#~ msgid "action flag"
+#~ msgstr "Nom de la station"
+
+#, fuzzy
+#~ msgid "change message"
+#~ msgstr "Changement du mot de passe"
+
+#, fuzzy
+#~ msgid "log entry"
+#~ msgstr "vers le pays"
+
+#, fuzzy
+#~ msgid "log entries"
+#~ msgstr "Pays"
+
+#, fuzzy
+#~ msgid "Changed %s."
+#~ msgstr "Enregistrer"
+
+#, fuzzy
+#~ msgid "and"
+#~ msgstr "Fin"
+
+#, fuzzy
+#~ msgid "The %(name)s \"%(obj)s\" was added successfully."
+#~ msgstr "Réinitialisation du mot de passe réussie"
+
+#, fuzzy
+#~ msgid "No action selected."
+#~ msgstr "(pas de station sélectionnée)"
+
+#, fuzzy
+#~ msgid "Change %s"
+#~ msgstr "Enregistrer"
+
+#, fuzzy
+#~ msgid "%(count)s %(name)s was changed successfully."
+#~ msgid_plural "%(count)s %(name)s were changed successfully."
+#~ msgstr[0] "Réinitialisation du mot de passe réussie"
+#~ msgstr[1] "Réinitialisation du mot de passe réussie"
+
+#, fuzzy
+#~ msgid "%(total_count)s selected"
+#~ msgid_plural "All %(total_count)s selected"
+#~ msgstr[0] "(pas de station sélectionnée)"
+#~ msgstr[1] "(pas de station sélectionnée)"
+
+#, fuzzy
+#~ msgid "Change history: %s"
+#~ msgstr "Enregistrer"
+
+#, fuzzy
+#~ msgid "Site administration"
+#~ msgstr "Inscription"
+
+#, fuzzy
+#~ msgid "%s administration"
+#~ msgstr "Stations de taxi"
+
+#, fuzzy
+#~ msgid "Date:"
+#~ msgstr "Date"
+
+#, fuzzy
+#~ msgid "Change:"
+#~ msgstr "Enregistrer"
+
+#, fuzzy
+#~ msgid "We're sorry, but the requested page could not be found."
+#~ msgstr "Impossible de trouver la page demandée"
+
+#, fuzzy
+#~ msgid "Go"
+#~ msgstr "Bon"
+
+#, fuzzy
+#~ msgid "%(name)s"
+#~ msgstr "Nom"
+
+#, fuzzy
+#~ msgid "Welcome,"
+#~ msgstr "Heureux de vous revoir !"
+
+#, fuzzy
+#~ msgid "Documentation"
+#~ msgstr "code de vérification du téléphone"
+
+#, fuzzy
+#~ msgid "Django administration"
+#~ msgstr "Inscription"
+
+#, fuzzy
+#~ msgid "Add"
+#~ msgstr "Adresse"
+
+#~ msgid "History"
+#~ msgstr "נסיעות קודמות"
+
+#, fuzzy
+#~ msgid "Unknown content"
+#~ msgstr "contenu"
+
+#, fuzzy
+#~ msgid "Date/time"
+#~ msgstr "Date"
+
+#, fuzzy
+#~ msgid "User"
+#~ msgstr "Nom d'utilisateur"
+
+#, fuzzy
+#~ msgid "Action"
+#~ msgstr "Station"
+
+#, fuzzy
+#~ msgid "Show all"
+#~ msgstr "Plus de détails"
+
+#, fuzzy
+#~ msgid "Save as new"
+#~ msgstr "Enregistrer"
+
+#, fuzzy
+#~ msgid "Password (again)"
+#~ msgstr "mot de passe (à nouveau)"
+
+#, fuzzy
+#~ msgid "Delete?"
+#~ msgstr "Supprimer"
+
+#, fuzzy
+#~ msgid "Log in again"
+#~ msgstr "Connexion"
+
+#, fuzzy
+#~ msgid "Password change"
+#~ msgstr "Mot de passe modifié"
+
+#, fuzzy
+#~ msgid "Password change successful"
+#~ msgstr "Réinitialisation du mot de passe réussie"
+
+#, fuzzy
+#~ msgid "Your password was changed."
+#~ msgstr "Mot de passe modifié"
+
+#, fuzzy
+#~ msgid "Old password"
+#~ msgstr "mot de passe"
+
+#, fuzzy
+#~ msgid "New password"
+#~ msgstr "mot de passe"
+
+#, fuzzy
+#~ msgid "Change my password"
+#~ msgstr "Changement du mot de passe"
+
+#, fuzzy
+#~ msgid "Password reset"
+#~ msgstr "Echec de la réinitialisation du mot de passe "
+
+#, fuzzy
+#~ msgid "Password reset complete"
+#~ msgstr "Echec de la réinitialisation du mot de passe "
+
+#, fuzzy
+#~ msgid "Password reset confirmation"
+#~ msgstr "Echec de la réinitialisation du mot de passe "
+
+#, fuzzy
+#~ msgid "Enter new password"
+#~ msgstr "Saisissez à nouveau le mot de passe"
+
+#, fuzzy
+#~ msgid "New password:"
+#~ msgstr "mot de passe"
+
+#, fuzzy
+#~ msgid "Confirm password:"
+#~ msgstr "Saisissez à nouveau le mot de passe"
+
+#, fuzzy
+#~ msgid "Password reset unsuccessful"
+#~ msgstr "Réinitialisation du mot de passe réussie"
+
+#, fuzzy
+#~ msgid "Password reset successful"
+#~ msgstr "Réinitialisation du mot de passe réussie"
+
+#, fuzzy
+#~ msgid "for your user account at %(site_name)s"
+#~ msgstr "Réinitialiser le mot de passe sur %(site_name)s"
+
+#, fuzzy
+#~ msgid "E-mail address:"
+#~ msgstr "adresse e-mail"
+
+#, fuzzy
+#~ msgid "Reset my password"
+#~ msgstr "Saisissez à nouveau le mot de passe"
+
+#, fuzzy
+#~ msgid "Select %s"
+#~ msgstr "Sélectionnez une adresse"
+
+#, fuzzy
+#~ msgid "site"
+#~ msgstr "Site Internet"
+
+#, fuzzy
+#~ msgid "template"
+#~ msgstr "nom du modèle"
+
+#, fuzzy
+#~ msgid "number of %s"
+#~ msgstr "Nombre de taxis à la station"
+
+#, fuzzy
+#~ msgid "Important dates"
+#~ msgstr "Créé le"
+
+#, fuzzy
+#~ msgid "Password changed successfully."
+#~ msgstr "Réinitialisation du mot de passe réussie"
+
+#, fuzzy
+#~ msgid "Change password: %s"
+#~ msgstr "Changement du mot de passe"
+
+#~ msgid "Username"
+#~ msgstr "Nom d'utilisateur"
+
+#, fuzzy
+#~ msgid ""
+#~ "This value may contain only letters, numbers and @/./+/-/_ characters."
+#~ msgstr ""
+#~ "Cette valeur doit contenir uniquement des chiffres, des lettres et des "
+#~ "caractères de soulignement."
+
+#, fuzzy
+#~ msgid "Password confirmation"
+#~ msgstr "Les mots de passe ne correspondent pas"
+
+#, fuzzy
+#~ msgid "E-mail"
+#~ msgstr "E-mail"
+
+#, fuzzy
+#~ msgid "Password reset on %s"
+#~ msgstr "Echec de la réinitialisation du mot de passe "
+
+#, fuzzy
+#~ msgid "codename"
+#~ msgstr "Nom"
+
+#, fuzzy
+#~ msgid "permission"
+#~ msgstr "Vérification"
+
+#, fuzzy
+#~ msgid "permissions"
+#~ msgstr "Vérification"
+
+#, fuzzy
+#~ msgid "e-mail address"
+#~ msgstr "adresse e-mail"
+
+#, fuzzy
+#~ msgid "staff status"
+#~ msgstr "Statut"
+
+#, fuzzy
+#~ msgid "last login"
+#~ msgstr "Nom de famille"
+
+#, fuzzy
+#~ msgid "users"
+#~ msgstr "Utilisateur"
+
+#, fuzzy
+#~ msgid "Enter a valid e-mail address."
+#~ msgstr "Adresse non valide"
+
+#, fuzzy
+#~ msgid "Content"
+#~ msgstr "contenu"
+
+#, fuzzy
+#~ msgid "Flag selected comments"
+#~ msgstr "autoriser commentaires"
+
+#, fuzzy
+#~ msgid "Approve selected comments"
+#~ msgstr "autoriser commentaires"
+
+#, fuzzy
+#~ msgid "Remove selected comments"
+#~ msgstr "autoriser commentaires"
+
+#, fuzzy
+#~ msgid "1 comment was successfully %(action)s."
+#~ msgid_plural "%(count)s comments were successfully %(action)s."
+#~ msgstr[0] "Activation du compte réussie"
+#~ msgstr[1] "Activation du compte réussie"
+
+#, fuzzy
+#~ msgid "%(site_name)s comments"
+#~ msgstr "autoriser commentaires"
+
+#, fuzzy
+#~ msgid "Latest comments on %(site_name)s"
+#~ msgstr "Réinitialiser le mot de passe sur %(site_name)s"
+
+#, fuzzy
+#~ msgid "Email address"
+#~ msgstr "adresse e-mail"
+
+#, fuzzy
+#~ msgid "content type"
+#~ msgstr "contenu"
+
+#, fuzzy
+#~ msgid "user's name"
+#~ msgstr "Nom d'utilisateur"
+
+#, fuzzy
+#~ msgid "user's email address"
+#~ msgstr "adresse e-mail"
+
+#, fuzzy
+#~ msgid "user's URL"
+#~ msgstr "adresse d'installation"
+
+#, fuzzy
+#~ msgid "comment"
+#~ msgstr "autoriser commentaires"
+
+#, fuzzy
+#~ msgid "IP address"
+#~ msgstr "Adresse"
+
+#, fuzzy
+#~ msgid "comments"
+#~ msgstr "autoriser commentaires"
+
+#, fuzzy
+#~ msgid "date"
+#~ msgstr "Modifié le"
+
+#, fuzzy
+#~ msgid "Approve a comment"
+#~ msgstr "autoriser commentaires"
+
+#, fuzzy
+#~ msgid "Remove a comment"
+#~ msgstr "autoriser commentaires"
+
+#, fuzzy
+#~ msgid "Please correct the error below"
+#~ msgid_plural "Please correct the errors below"
+#~ msgstr[0] "Saisir votre nom d'utilisateur"
+#~ msgstr[1] "Saisir votre nom d'utilisateur"
+
+#, fuzzy
+#~ msgid "or make changes"
+#~ msgstr "Enregistrer"
+
+#, fuzzy
+#~ msgid "content types"
+#~ msgstr "contenu"
+
+#, fuzzy
+#~ msgid "Invalid geometry value."
+#~ msgstr "%s: valeur invalide"
+
+#, fuzzy
+#~ msgid "nd"
+#~ msgstr "Fin"
+
+#, fuzzy
+#~ msgid "one"
+#~ msgstr "téléphone"
+
+#, fuzzy
+#~ msgid "This field requires only numbers."
+#~ msgstr "La valeur ne peut contenir que des chiffres."
+
+#, fuzzy
+#~ msgid "Invalid CUIT."
+#~ msgstr "Ville non valide"
+
+#, fuzzy
+#~ msgid "Enter a 4 digit post code."
+#~ msgstr "Code de vérification téléphonique"
+
+#, fuzzy
+#~ msgid "Thurgau"
+#~ msgstr "jeudi"
+
+#, fuzzy
+#~ msgid "Enter a valid birth number."
+#~ msgstr "Votre numéro de téléphone"
+
+#, fuzzy
+#~ msgid "Enter a valid IC number."
+#~ msgstr "Votre numéro de téléphone"
+
+#, fuzzy
+#~ msgid "Basque Country"
+#~ msgstr "Pays"
+
+#, fuzzy
+#~ msgid "Enter a valid post code"
+#~ msgstr "Code de vérification téléphonique"
+
+#, fuzzy
+#~ msgid "Enter a valid phone number"
+#~ msgstr "numéro de téléphone local"
+
+#, fuzzy
+#~ msgid "Banten"
+#~ msgstr "contenu"
+
+#, fuzzy
+#~ msgid "Jember"
+#~ msgstr "Pas encore inscrit ?"
+
+#, fuzzy
+#~ msgid "Enter a valid zip code."
+#~ msgstr "Code de vérification téléphonique"
+
+#, fuzzy
+#~ msgid "Enter a valid VAT number."
+#~ msgstr "Votre numéro de téléphone"
+
+#, fuzzy
+#~ msgid "Mie"
+#~ msgstr "Portable"
+
+#, fuzzy
+#~ msgid "Morelos"
+#~ msgstr "Plus"
+
+#, fuzzy
+#~ msgid "Enter a valid postal code"
+#~ msgstr "vers le code postal"
+
+#, fuzzy
+#~ msgid "Enter a valid SoFi number"
+#~ msgstr "Votre numéro de téléphone"
+
+#, fuzzy
+#~ msgid "Blekinge"
+#~ msgstr "Réservation"
+
+#, fuzzy
+#~ msgid "Presov"
+#~ msgstr "Médias"
+
+#, fuzzy
+#~ msgid "Enter a valid postcode."
+#~ msgstr "Code de vérification téléphonique"
+
+#, fuzzy
+#~ msgid "Greater Manchester"
+#~ msgstr "Créé le"
+
+#, fuzzy
+#~ msgid "County Antrim"
+#~ msgstr "Pays"
+
+#, fuzzy
+#~ msgid "County Armagh"
+#~ msgstr "Pays"
+
+#, fuzzy
+#~ msgid "County Down"
+#~ msgstr "Pays"
+
+#, fuzzy
+#~ msgid "County Londonderry"
+#~ msgstr "Code pays"
+
+#, fuzzy
+#~ msgid "County Tyrone"
+#~ msgstr "Code pays"
+
+#, fuzzy
+#~ msgid "Borders"
+#~ msgstr "Réservation"
+
+#, fuzzy
+#~ msgid "Enter a valid CI number."
+#~ msgstr "Votre numéro de téléphone"
+
+#, fuzzy
+#~ msgid "expire date"
+#~ msgstr "Créé le"
+
+#, fuzzy
+#~ msgid "session"
+#~ msgstr "Vérification"
+
+#, fuzzy
+#~ msgid "sessions"
+#~ msgstr "Vérification"
+
+#, fuzzy
+#~ msgid "domain name"
+#~ msgstr "Sous-domaine"
+
+#, fuzzy
+#~ msgid "display name"
+#~ msgstr "Nom de famille"
+
+#, fuzzy
+#~ msgid "sites"
+#~ msgstr "Site Internet"
+
+#, fuzzy
+#~ msgid "Enter a valid value."
+#~ msgstr "%s: valeur invalide"
+
+#, fuzzy
+#~ msgid ""
+#~ "Enter a valid 'slug' consisting of letters, numbers, underscores or "
+#~ "hyphens."
+#~ msgstr ""
+#~ "Cette valeur ne peut contenir que des lettres, des chiffres, des "
+#~ "caractères de soulignement, des tirets ou des barres obliques."
+
+#, fuzzy
+#~ msgid "Enter a valid IPv4 address."
+#~ msgstr "Adresse invalide"
+
+#, fuzzy
+#~ msgid "This value must be an integer."
+#~ msgstr "La valeur ne peut contenir que des chiffres."
+
+#, fuzzy
+#~ msgid "Invalid date: %s"
+#~ msgstr "%s: valeur invalide"
+
+#, fuzzy
+#~ msgid "Date (with time)"
+#~ msgstr "Notez cette course"
+
+#, fuzzy
+#~ msgid "This value must be a decimal number."
+#~ msgstr "La valeur ne peut contenir que des chiffres."
+
+#, fuzzy
+#~ msgid "Decimal number"
+#~ msgstr "numéro de téléphone local"
+
+#, fuzzy
+#~ msgid "E-mail address"
+#~ msgstr "adresse e-mail"
+
+#, fuzzy
+#~ msgid "Floating point number"
+#~ msgstr "numéro de téléphone local"
+
+#, fuzzy
+#~ msgid "Enter a whole number."
+#~ msgstr "Votre numéro de téléphone"
+
+#, fuzzy
+#~ msgid "Enter a number."
+#~ msgstr "Votre numéro de téléphone"
+
+#, fuzzy
+#~ msgid ""
+#~ "Upload a valid image. The file you uploaded was either not an image or a "
+#~ "corrupted image."
+#~ msgstr ""
+#~ "Téléchargez une image valide. Le fichier téléchargé n'est pas un fichier "
+#~ "image ou est corrompu."
+
+#, fuzzy
+#~ msgid "Order"
+#~ msgstr "Réservations"
+
+#, fuzzy
+#~ msgid "Mon"
+#~ msgstr "lundi"
+
+#, fuzzy
+#~ msgid "Tue"
+#~ msgstr "mardi"
+
+#, fuzzy
+#~ msgid "Fri"
+#~ msgstr "vendredi"
+
+#, fuzzy
+#~ msgid "Sat"
+#~ msgstr "Statut"
+
+#, fuzzy
+#~ msgid "Sun"
+#~ msgstr "dimanche"
+
+#, fuzzy
+#~ msgid "March"
+#~ msgstr "Recherche"
+
+#, fuzzy
+#~ msgid "May"
+#~ msgstr "lundi"
+
+#, fuzzy
+#~ msgid "September"
+#~ msgstr "Pas encore inscrit ?"
+
+#, fuzzy
+#~ msgid "November"
+#~ msgstr "Pas encore inscrit ?"
+
+#, fuzzy
+#~ msgid "oct"
+#~ msgstr "vers la ville"
+
+#, fuzzy
+#~ msgid "or"
+#~ msgstr "Plus"
+
+#, fuzzy
+#~ msgid "day"
+#~ msgid_plural "days"
+#~ msgstr[0] "dimanche"
+#~ msgstr[1] "dimanche"
+
+#, fuzzy
+#~ msgid "hour"
+#~ msgid_plural "hours"
+#~ msgstr[0] "à"
+#~ msgstr[1] "à"
+
+#, fuzzy
+#~ msgid "The %(verbose_name)s was created successfully."
+#~ msgstr "Réinitialisation du mot de passe réussie"
+
+#, fuzzy
+#~ msgid "The %(verbose_name)s was updated successfully."
+#~ msgstr "Réinitialisation du mot de passe réussie"
+
+#~ msgid "WHY CONNECT?"
+#~ msgstr "POURQUOI SE CONNECTER ?"
+
+#~ msgid ""
+#~ "Simply because it's good for business!<br>You get safe exposure to a wide "
+#~ "range of passengers you couldn't approach before!"
+#~ msgstr ""
+#~ "C'est bon pour les affaires !<br>Vous vous faites connaître de passagers "
+#~ "qui ne nous connaissaient pas auparavant !"
+
+#~ msgid "WHAT WILL YOU GET?"
+#~ msgstr "QU'EST-CE QUE VOUS Y GAGNEZ ?"
+
+#~ msgid ""
+#~ "Terminal software (FREE)<br>Easy to use software that allows you to "
+#~ "handle the orders"
+#~ msgstr ""
+#~ "Poste de travail (gratuit). <br> Logiciel simple vous permettant la "
+#~ "gestion des réservations depuis plusieurs sources numériques."
+
+#~ msgid ""
+#~ "Personal internet page on www.waybetter.com and private ordering tool "
+#~ "(FREE)"
+#~ msgstr ""
+#~ "Page personnelle sur www.waybetter.com et outil de réservation immédiate "
+#~ "de taxi (gratuit)."
+
+#~ msgid "Your own ordering tool at your website (FREE)"
+#~ msgstr "Votre propre interface de réservation sur votre site (gratuit)"
+
+#~ msgid ""
+#~ "Web application for smart-phone users (FREE)<br>Users will be able to "
+#~ "book rides from your website using iPhones, Blackberry, Android and more!"
+#~ msgstr ""
+#~ "Application Internet pour les utilisateurs de smartphones (gratuit)"
+#~ "<br>Commandez un taxi depuis votre iPhone, Blackberry, androïde, etc. !"
+
+#~ msgid ""
+#~ "Serve WAYbetter clients<br>WAYbetter has a fast growing user-base of "
+#~ "people who need a taxi. Be the one who serves them in your city"
+#~ msgstr ""
+#~ "Soyez les prestataires de service des clients de WAYbetter<br>WAYbetter, "
+#~ "c'est un nombre croissant de gens qui recherchent des taxis. Dans votre "
+#~ "ville, soyez là pour répondre à leurs besoins."
+
+#, fuzzy
 #~ msgid "confined to station"
 #~ msgstr "affecté à la station"
 
@@ -2604,10 +3375,6 @@ msgstr "Erreur du vérificateur d'orthographe"
 #~ msgstr "Nous sommes désolés, nous ne vous avons pas trouvé de taxi."
 
 #, fuzzy
-#~ msgid "Changes: "
-#~ msgstr "Enregistrer"
-
-#, fuzzy
 #~ msgid "Contacting..."
 #~ msgstr "Envoi..."
 
@@ -2629,10 +3396,6 @@ msgstr "Erreur du vérificateur d'orthographe"
 #~ msgid "wrong email"
 #~ msgstr "e-mail erronée"
 
-#, fuzzy
-#~ msgid "Changes saved!"
-#~ msgstr "Changement du mot de passe"
-
 #~ msgid "Missing required parameters"
 #~ msgstr "Paramètres manquants"
 
@@ -2643,18 +3406,6 @@ msgstr "Erreur du vérificateur d'orthographe"
 #, fuzzy
 #~ msgid "Show order"
 #~ msgstr "Réservation"
-
-#~ msgid "Hebrew"
-#~ msgstr "Hébreu"
-
-#~ msgid "English"
-#~ msgstr "Anglais"
-
-#~ msgid "Welcome Back!"
-#~ msgstr "Heureux de vous revoir !"
-
-#~ msgid "Username"
-#~ msgstr "Nom d'utilisateur"
 
 #~ msgid "Logo"
 #~ msgstr "Logo"
@@ -2697,9 +3448,6 @@ msgstr "Erreur du vérificateur d'orthographe"
 
 #~ msgid "Enter street and city"
 #~ msgstr "הזן עיר ורחוב"
-
-#~ msgid "History"
-#~ msgstr "נסיעות קודמות"
 
 #~ msgid "Enter your mobile number:"
 #~ msgstr " מספר הטלפון הנייד שלך:"

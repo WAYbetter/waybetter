@@ -617,8 +617,10 @@ class OrderAssignment(BaseModel):
     def save(self, *args, **kwargs):
         if not is_in_transaction():
             if self.order:
-                self.dn_from_raw = self.order.from_raw
-                self.dn_to_raw = self.order.to_raw
+                if self.order.from_raw:
+                    self.dn_from_raw = self.order.from_raw
+                if self.order.to_raw:
+                    self.dn_to_raw = self.order.to_raw
             if self.order.passenger.business:
                 self.dn_business_name = self.order.passenger.business.name
 
@@ -640,8 +642,8 @@ class OrderAssignment(BaseModel):
             result.append({
                 "pk": order_assignment.order.id,
                 "status": order_assignment.status,
-                "from_raw": order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
-                "to_raw": order_assignment.dropoff_address_in_ws_lang or order_assignment.order.to_raw,
+                "from_raw": order_assignment.pickup_address_in_ws_lang or order_assignment.dn_from_raw,
+                "to_raw": order_assignment.dropoff_address_in_ws_lang or order_assignment.dn_to_raw,
                 "seconds_passed": (utc_now() - base_time).seconds,
                 "business": order_assignment.dn_business_name,
                 "current_rating": order_assignment.station.average_rating
