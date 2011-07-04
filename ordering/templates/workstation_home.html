@@ -46,6 +46,7 @@
         padding-left: 7px;
         cursor: pointer;
     }
+
     #orders .show_button_container:hover {
         background-color: transparent;
     }
@@ -94,6 +95,9 @@
     #orders .teaser_txt:hover{
         text-decoration:underline;
         cursor: pointer;
+    }
+    #orders .connection_test {
+        font-size: 15px;
     }
 
     #orders .button_txt {
@@ -435,8 +439,11 @@
         var polling_enabled = true;
         var POLLING_TIMER = "polling_timer";
         var CURRENT_VERSION = "{{ current_version }}";
+        var HEARTBEAT_TIMEOUT_INTERVAL = {{ heartbeat_timeout_interval }};
+        var CONNECTION_CHECK_KEY = "{{ connection_check_key }}";
         var ORDER_IS_SHOWING = "showing";
         var last_rating = {{ station_rating }};
+        var last_heartbeat = undefined;
         
         $(document).ready(function() {
             // setup bridge functions
@@ -454,6 +461,8 @@
             initConnection();
             initAcceptOrders();
             setStationDetails("{{ station_name }}", {{ station_rating }});
+
+            $(document).everyTime(5000, checkHeartbeat);
 
         });
         function renderStatus() {
@@ -552,13 +561,22 @@
             });
         }
 
-        function onOrder(incoming_orders) {
+        function onOrder(data) {
             clearError();
-            if (incoming_orders) {
-                for (var count = 0; count < incoming_orders.length; count++) {
+            last_heartbeat = new Date();
+            if (data.version) {
+                checkVersion(data.version);
+            }
+            if (data.orders) {
+                for (var count = 0; count < data.orders.length; count++) {
 
-                    var order = incoming_orders[count];
-                    // maybe we just received this order via a refresh
+                    var order = data.orders[count];
+
+                    if (order.key && order.key == CONNECTION_CHECK_KEY) {
+                        checkConnection();
+                        continue;
+                    }
+
                     if ($("#orders #" + order.pk).length) {
                         continue;
                     }
@@ -575,7 +593,47 @@
                 }
             }
         }
+        function checkConnection() {
+            var show_button_container = $('<div class="show_button_container"></div>');
+            var show_button = $('<div class="button_txt button_bg show_button"></div>').text('{% trans 'OK' %}');
 
+            show_button_container.append($('<div></div>').append(show_button));
+
+
+            var incoming_text = "{% trans 'Connection Test. Please click the OK button' %}";
+            var rendered_order = $("<div class='order teaser'></div>").attr('id', CONNECTION_CHECK_KEY).data("state", ORDER_IS_SHOWING)
+                    .append($("<div class='teaser_txt connection_test'></div>").append(incoming_text))
+                    .append(show_button_container);
+
+            $(rendered_order).click(function(){
+                removeOrderRow(CONNECTION_CHECK_KEY);
+           });
+
+            var progress_indicator = getProgressIndicator(CONNECTION_CHECK_KEY, {{ connection_check_interval }}, 100, function() {
+                // send email to notify@waybetter.com
+                $.ajax({ url: "{% url ordering.station_controller.connection_check_failed %}" })
+            });
+            var progress_bar = $("<div class='pb-row'></div>").attr('id', 'pb_'+CONNECTION_CHECK_KEY).append(progress_indicator);
+            $("#orders").append(rendered_order).append(progress_bar);
+            rendered_order.show();
+            handleAddRow();
+            handleAddRow();
+            handleOrder();
+        }
+        function checkVersion(version) {
+            if (version != CURRENT_VERSION) {
+                trace("Updated version detected: " + version);
+                onError();
+            }
+        }
+
+        function checkHeartbeat() {
+            var now = new Date();
+            if (last_heartbeat && now - last_heartbeat > HEARTBEAT_TIMEOUT_INTERVAL) {
+				trace("Heartbeat timeout exceeded");
+                onError();
+            }
+        }
         function renderOrder(order){
             if (order.status == {{ pending }}) {
                 var show_button_container = $('<div class="show_button_container"></div>');
@@ -597,7 +655,7 @@
                     showOrder(order);
                 });
 
-                var progress_indicator = getProgressIndicator(order, {{ teaser_interval }}, 100);
+                var progress_indicator = getProgressIndicator(order.pk, {{ teaser_interval }}, 100);
                 var progress_bar = $("<div class='pb-row'></div>").attr('id', 'pb_'+order.pk).append(progress_indicator);
                 $("#orders").append(rendered_order).append(progress_bar);
                 rendered_order.show();
@@ -673,7 +731,7 @@
 
             var timeout_interval = {{ timeout_interval }};
             var initial_val = (timeout_interval - order.seconds_passed) / timeout_interval * 100;
-            var progress_indicator = getProgressIndicator(order, timeout_interval, initial_val);
+            var progress_indicator = getProgressIndicator(order.pk, timeout_interval, initial_val);
             var buttons_div = $("<div class='controls'></div>")
                     .append(reject_button)
                     .append(send_button)
@@ -696,7 +754,7 @@
             send_button.addClass("disabled");
         }
 
-        function getProgressIndicator(order, timeout_interval, initial_val){
+        function getProgressIndicator(order_id, timeout_interval, initial_val, callback){
             var progress_indicator = $("<div class='pb'></div>").progressbar({ value: initial_val });
 
             progress_indicator.everyTime(1000, function() {
@@ -704,7 +762,10 @@
                 var increment = 1.0 / timeout_interval;
                 progress_indicator.progressbar("value", (cur_value - increment) * 100);
                 if (progress_indicator.progressbar("value") < 0.1) {
-                    removeOrderRow(order.pk);
+                    removeOrderRow(order_id);
+                    if (callback) {
+                        callback();
+                    }
                 }
             }, timeout_interval);
 
@@ -832,6 +893,37 @@
             }
         }
 
+        function trace(str) {
+            if (window.parentSandboxBridge) {
+                parentSandboxBridge.trace(str);
+            }
+        }
+
+    </script>
+    <script type="text/javascript">
+    function dump(arr,level) {
+        var dumped_text = "";
+        if(!level) level = 0;
+
+        var level_padding = "";
+        for(var j=0;j<level+1;j++) level_padding += "    ";
+
+        if(typeof(arr) == 'object') {
+            for(var item in arr) {
+                var value = arr[item];
+
+                if(typeof(value) == 'object') {
+                    dumped_text += level_padding + "'" + item + "' ...\n";
+                    dumped_text += dump(value,level+1);
+                } else {
+                    dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
+                }
+            }
+        } else {
+            dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
+        }
+        return dumped_text;
+    }
     </script>
     <div id="orders"></div>
 

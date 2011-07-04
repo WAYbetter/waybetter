@@ -659,6 +659,17 @@ indexes:
   - name: __key__
     direction: desc
 
+- kind: ordering_workstation
+  properties:
+  - name: was_installed
+  - name: dn_station_name
+
+- kind: ordering_workstation
+  properties:
+  - name: was_installed
+  - name: dn_station_name
+    direction: desc
+
 - kind: registration_registrationprofile
   properties:
   - name: __key__

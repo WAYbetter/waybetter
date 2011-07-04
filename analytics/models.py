@@ -1,3 +1,4 @@
+from common.tz_support import UTCDateTimeField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 
@@ -20,8 +21,8 @@ class AnalyticsEvent(models.Model):
     lat = models.FloatField(verbose_name=("lat"), null=True, blank=True)
     lon = models.FloatField(verbose_name=("lon"), null=True, blank=True)
 
-    create_date = models.DateTimeField(_("create date"), auto_now_add=True)
-    modify_date = models.DateTimeField(_("modify date"), auto_now=True)
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
 
     def save(self, force_insert=False, force_update=False, using=None):
         self.full_clean() # validates model

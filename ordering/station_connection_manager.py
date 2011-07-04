@@ -7,6 +7,8 @@ from common.langsupport.util import translate_to_ws_lang
 ugettext = lambda s: s
 DUMMY_ADDRESS = ugettext("This is a test order")
 DUMMY_ID = "dummy"
+CONNECTION_CHECK_KEY = "check_connection"
+CONNECTION_CHECK_INTERVAL = 5 * 60 # 5 minutes
 IS_DEAD_DELTA = 35
 
 def get_heartbeat_key(work_station):
@@ -24,26 +26,34 @@ def is_workstation_available(work_station):
 
     return (datetime.now() - heartbeat).seconds < IS_DEAD_DELTA
 
+def check_connection(ws):
+    orders = [{
+        "key": CONNECTION_CHECK_KEY
+    }]
+
+    _do_push_orders(ws, orders)
+
 def push_order(order_assignment):
     """
     Retrieve the order and workstation from an assignment and add the order to the workstation's queue.
     """
-    json = OrderAssignment.serialize_for_workstation(order_assignment)
-    _do_push_order(order_assignment.work_station, json)
+    orders = OrderAssignment.serialize_for_workstation(order_assignment)
+    _do_push_orders(order_assignment.work_station, orders)
 
 def push_dummy_order(ws):
-    json = simplejson.dumps([{"pk": DUMMY_ID,
-                             "status": PENDING,
-                             "from_raw": translate_to_ws_lang(DUMMY_ADDRESS, ws),
-                             "seconds_passed": "10"}])
-    _do_push_order(ws, json)
+    orders = [{"pk": DUMMY_ID,
+             "status": PENDING,
+             "from_raw": translate_to_ws_lang(DUMMY_ADDRESS, ws),
+             "seconds_passed": "10"}]
+    _do_push_orders(ws, orders)
 
-def _do_push_order(ws, json):
+
+def _do_push_orders(ws, orders):
     key = get_assignment_key(ws)
     assignments = memcache.get(key) or []
-    assignments.append(json)
+    assignments += orders
     if not memcache.replace(key, assignments): # will fail if another process removed existing orders
-        memcache.set(key, [json])
+        memcache.set(key, orders)
 
 def set_heartbeat(workstation):
     key = get_heartbeat_key(workstation)

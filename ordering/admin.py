@@ -115,6 +115,12 @@ def build_installer(modeladmin, request, queryset):
 
 build_installer.short_description = "Build Installer"
 
+def check_connection(modeladmin, request, queryset):
+    for ws in queryset:
+        if station_connection_manager.is_workstation_available(ws):
+            station_connection_manager.check_connection(ws)
+check_connection.short_description = _("Check Connection")
+
 def send_dummy_order(modeladmin, request, queryset):
     for ws in queryset:
         if station_connection_manager.is_workstation_available(ws):
@@ -124,7 +130,7 @@ send_dummy_order.short_description = _("Send Dummy Order")
 class WorkStationAdmin(admin.ModelAdmin):
     list_display = ["id", "work_station_user", "station_name", "online_status"]
     list_filter = ["was_installed"]
-    actions = [build_installer, send_dummy_order]
+    actions = [build_installer, send_dummy_order, check_connection]
 
     def work_station_user(self, obj):
         return obj.get_admin_link()

@@ -12,7 +12,7 @@ from django.utils import simplejson, translation
 from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField
+from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_current_version
 from common.tz_support import UTCDateTimeField, utc_now
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal
 from ordering.errors import UpdateStatusError
@@ -23,9 +23,11 @@ import logging
 import datetime
 import common.urllib_adaptor as urllib2
 
-ORDER_HANDLE_TIMEOUT = 80 # seconds
-ORDER_TEASER_TIMEOUT = 18 # seconds
-ORDER_ASSIGNMENT_TIMEOUT = 80 # seconds
+ORDER_HANDLE_TIMEOUT =                      80 # seconds
+ORDER_TEASER_TIMEOUT =                      18 # seconds
+ORDER_ASSIGNMENT_TIMEOUT =                  80 # seconds
+WORKSTATION_HEARTBEAT_TIMEOUT_INTERVAL =    30 # seconds
+
 ORDER_MAX_WAIT_TIME = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
 PASSENGER_TOKEN = "passenger_token"
 
@@ -621,8 +623,6 @@ class OrderAssignment(BaseModel):
                 self.dn_business_name = self.order.passenger.business.name
 
         super(OrderAssignment, self).save(*args, **kwargs)
-
-
     @classmethod
     def serialize_for_workstation(cls, queryset_or_order_assignment, base_time=None):
         if isinstance(queryset_or_order_assignment, QuerySet):
@@ -637,16 +637,17 @@ class OrderAssignment(BaseModel):
             if not base_time:
                 base_time = order_assignment.create_date
 
-            result.append({ "pk"            : order_assignment.order.id,
-                            "status"        : order_assignment.status,
-                            "from_raw"      : order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
-                            "to_raw"        : order_assignment.dropoff_address_in_ws_lang or order_assignment.order.to_raw,
-                            "seconds_passed": (utc_now() - base_time).seconds,
-                            "business"      : order_assignment.dn_business_name,
-                            "current_rating": order_assignment.station.average_rating
+            result.append({
+                "pk": order_assignment.order.id,
+                "status": order_assignment.status,
+                "from_raw": order_assignment.pickup_address_in_ws_lang or order_assignment.order.from_raw,
+                "to_raw": order_assignment.dropoff_address_in_ws_lang or order_assignment.order.to_raw,
+                "seconds_passed": (utc_now() - base_time).seconds,
+                "business": order_assignment.dn_business_name,
+                "current_rating": order_assignment.station.average_rating
             })
 
-        return simplejson.dumps(result)
+        return result
 
     def get_status_label(self):
         for key, label in ASSIGNMENT_STATUS:

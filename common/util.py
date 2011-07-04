@@ -155,7 +155,7 @@ def get_model_from_request(model_class, request):
 
 
 def get_current_version():
-    return os.environ['CURRENT_VERSION_ID']
+    return os.environ.get('CURRENT_VERSION_ID', '0')
 
 
 def get_channel_key(model, key_data=""):
