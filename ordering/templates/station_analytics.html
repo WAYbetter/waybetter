@@ -11,6 +11,12 @@
         #ui-datepicker-div {
             font-size: 0.9em;
         }
+        .ui-tabs .ui-tabs-nav li a {
+            float: none;
+        }
+        .ui-widget-header .ui-state-default {
+            font-weight: normal;
+        }
     </style>
 
 {% endblock %}
@@ -27,6 +33,7 @@
         <div id="analytics_container">
             <h2 id="error_msg"></h2>
             <img id="station_analytics_loading" src='/static/images/indicator_small.gif'/>
+
             <div id="pie_chart_container"></div>
             <div id="ride_summary_container"></div>
             <hr/>
@@ -104,10 +111,10 @@
         };
 
         renderChart = function(data, total_count) {
-            if (hasSVG){
+            if (hasSVG) {
                 renderPieChart(data, total_count);
             }
-            else{
+            else {
                 $("#ride_summary_container").empty();
                 $("#ride_summary_container").append($("<h2>{% trans 'Ride summary' %}</h2>")).append($("<ul></ul>"));
                 $.each(data, function(i, e) {
@@ -147,7 +154,7 @@
                                 font: '15px Trebuchet MS, Verdana, sans-serif'
                             },
                             formatter: function() {
-                                return this.point.name + ' (' + this.y + '  {% trans "Rides" %})';
+                                return this.point.name + ' : ' + this.y + '  {% trans "Rides" %}';
                             }
                         }
                     }
@@ -165,14 +172,14 @@
             $("#station_analytics_loading").hide();
 
             var date_options = { dateFormat: 'dd/mm/yy' };
-            if (! $("#id_start_date").hasClass("hasDatepicker")){
+            if (! $("#id_start_date").hasClass("hasDatepicker")) {
                 $("#id_start_date").datepicker($.extend({}, date_options, {
                     maxDate: -1,
                     defaultDate: -7
                 }));
                 $("#id_start_date").datepicker("setDate", "{{ start_date }}");
             }
-            if (! $("#id_end_date").hasClass("hasDatepicker")){
+            if (! $("#id_end_date").hasClass("hasDatepicker")) {
                 $("#id_end_date").datepicker($.extend({}, date_options, {
                     defaultDate: 0
                 }));
@@ -205,36 +212,36 @@
                 loadHistory(init_params);
             {% endautoescape %}
 
-            $("#date_picker").ajaxForm({
-                        dataType:   'json',
-                        beforeSubmit: function() {
-                            $("#station_analytics_loading").show();
-                        },
-                        success:    function(response) {
-                            $("#header_date").text($("#id_start_date").val() + " - " + $("#id_end_date").val());
-                            $("#error_msg").text("");
-                            $("#station_analytics_loading").hide();
-                            
-                            if (response.error) {
-                                $("#error_msg").text("{% trans 'There was an error loading the data.' %}");
+
+            $("#id_start_date, #id_end_date").change(function() {
+                $("#station_analytics_loading").show();
+                $.ajax({
+                    url: "{% url ordering.station_controller.station_analytics %}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: $("#date_picker").serialize(),
+                    success: function(response) {
+                        $("#header_date").text($("#id_start_date").val() + " - " + $("#id_end_date").val());
+                        $("#error_msg").text("");
+                        $("#station_analytics_loading").hide();
+
+                        if (response.error) {
+                            $("#error_msg").text("{% trans 'There was an error loading the data.' %}");
+                        }
+                        else {
+                            if (response.pie_data && response.total_count) {
+                                renderChart(response.pie_data, response.total_count);
+                                loadHistory(init_params);
+                                $("#ride_summary_container, #pie_chart_container, #history_container").show();
                             }
                             else {
-                                if (response.pie_data && response.total_count) {
-                                    renderChart(response.pie_data, response.total_count);
-                                    loadHistory(init_params);
-                                    $("#ride_summary_container, #pie_chart_container, #history_container").show();
-                                }
-                                else {
-                                    $("#error_msg").text("{% trans 'No data' %}");
-                                    $("#ride_summary_container, #pie_chart_container, #history_container").hide();
-                                }
+                                $("#error_msg").text("{% trans 'No data' %}");
+                                $("#ride_summary_container, #pie_chart_container, #history_container").hide();
                             }
                         }
                     }
-            );
 
-            $("#id_start_date, #id_end_date").change(function() {
-                $("#date_picker").submit();
+                });
             });
 
             $("#status_picker [type=checkbox]").change(function() {
