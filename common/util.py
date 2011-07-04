@@ -161,6 +161,8 @@ def get_current_version():
 def get_channel_key(model, key_data=""):
     cls = type(model)
     s = hashlib.sha1()
+    if not key_data:
+        key_data = generate_random_token()
     s.update(u"channel_key_%s_%d_%s" % (cls.__name__.lower(), model.id, key_data))
     return s.hexdigest()
 

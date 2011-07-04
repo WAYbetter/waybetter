@@ -271,7 +271,15 @@
             },
             tooltip: {
                 formatter: function() {
-                    return Highcharts.dateFormat('%e. %b', this.x) + '<br/><b>' + this.series.name + '</b><br/>';
+                    var values = this.series.data.map(function(item) { return item.y });
+                    var max_val = Math.max.apply(Math, values);
+                    var status;
+                    if (this.y < max_val)  {    // offline
+                        status = "OFFLINE";
+                    } else {                    // online
+                        status = "ONLINE";
+                    }
+                    return Highcharts.dateFormat('%e. %b %H:%M:%S', this.x) + '<br/><b>' + this.series.name + '</b><br/>' + status;
                 }
             },
             series: data.series

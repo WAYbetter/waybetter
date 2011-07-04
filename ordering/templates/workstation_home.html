@@ -434,7 +434,7 @@
 
 {% endblock extrastyle %}
 {% block content %}
-
+    <script type="text/javascript" src="/_ah/channel/jsapi"></script>
     <script type="text/javascript">
         var polling_enabled = true;
         var POLLING_TIMER = "polling_timer";
@@ -442,8 +442,12 @@
         var HEARTBEAT_TIMEOUT_INTERVAL = {{ heartbeat_timeout_interval }};
         var CONNECTION_CHECK_KEY = "{{ connection_check_key }}";
         var ORDER_IS_SHOWING = "showing";
+        var POLLING_INTERVAL = {{ polling_interval }};
         var last_rating = {{ station_rating }};
         var last_heartbeat = undefined;
+        var init_token = "{{ token }}";
+        var channel;
+        var socket;
         
         $(document).ready(function() {
             // setup bridge functions
@@ -455,16 +459,48 @@
                         setAcceptOrders("{{ offline }}")
                     }
                 },
-                pollOrders      : pollOrders
+                pollOrders      : function() {} // do nothing
             };
-            
+
             initConnection();
             initAcceptOrders();
             setStationDetails("{{ station_name }}", {{ station_rating }});
 
-            $(document).everyTime(5000, checkHeartbeat);
+            $(document).everyTime(POLLING_INTERVAL, checkVersion);
+            $(document).everyTime(2 * POLLING_INTERVAL, checkHeartbeat);
 
         });
+
+        function setupChannel(token) {
+            $("#wcs-iframe").remove();
+
+            channel = new goog.appengine.Channel(token);
+            socket = channel.open();
+            socket.onerror = function() {
+                trace("socket: onerror");
+                onError();
+            };
+            socket.onclose = function() {
+                trace("socket: onclose");
+                onError()
+            };
+            socket.onopen = function() {
+                trace("socket: onopen");
+                clearError();
+            };
+            socket.onmessage = function(msg) {
+                try {
+                    var data = $.parseJSON(msg.data);
+                    onOrder(data);
+                    $.ajax({
+                        url: "{% url ordering.station_controller.message_received %}",
+                        type: "POST",
+                        data: {data: msg.data}
+                    });
+                } catch (e) { trace("error parsing: " + JSON.stringify(e))}
+
+            };
+        }
         function renderStatus() {
             if (is_in_error) {
                 stopFussing();
@@ -487,7 +523,7 @@
                     { status: status },
                     function(data, textStatus, XMLHttpRequest) {
                       var accept_orders = XMLHttpRequest.responseText == "True";
-                      pollingEnabled(accept_orders);
+                      renderAcceptOrderState(accept_orders);
                     }
             );
         }
@@ -499,48 +535,17 @@
 
         function initConnection() {
             restoreState();
+            setupChannel(init_token);
         }
 
-        function pollingEnabled(val) {
+        function renderAcceptOrderState(val) {
             
             if (val) {
                 $('#accept_orders').removeClass('offline');
                 $('#accept_orders').addClass('online');
-
-                polling_enabled = true;
-                
-                pollOrders();
             } else {
                 $('#accept_orders').removeClass('online');
                 $('#accept_orders').addClass('offline');
-
-                polling_enabled = false;
-            }
-        }
-
-        function pollServer(url) {
-            $.ajax({
-                url: url,
-                dataType: "json",
-                complete: function(XMLHttpRequest, textStatus) {
-                    if (XMLHttpRequest.status == 0) { // no response from server
-                        onError();
-                    }
-                    $(document).stopTime(POLLING_TIMER);
-                    $(document).oneTime({{ polling_interval }}, POLLING_TIMER, function() {
-                        pollOrders();
-                    });
-                },
-                success: onOrder,
-                error: onError
-
-                });
-        }
-
-        function pollOrders() {
-//            if (polling_enabled) {
-            if (polling_enabled || window.parentSandboxBridge && (parentSandboxBridge.is_online() || parentSandboxBridge.is_error())) {
-                pollServer("{% url ordering.station_controller.get_orders %}");
             }
         }
 
@@ -562,15 +567,11 @@
         }
 
         function onOrder(data) {
-            clearError();
-            last_heartbeat = new Date();
-            if (data.version) {
-                checkVersion(data.version);
-            }
-            if (data.orders) {
-                for (var count = 0; count < data.orders.length; count++) {
+            trace("onOrder: " + JSON.stringify(data));
+            if (data.length) {
+                for (var count = 0; count < data.length; count++) {
 
-                    var order = data.orders[count];
+                    var order = data[count];
 
                     if (order.key && order.key == CONNECTION_CHECK_KEY) {
                         checkConnection();
@@ -620,11 +621,19 @@
             handleAddRow();
             handleOrder();
         }
-        function checkVersion(version) {
-            if (version != CURRENT_VERSION) {
-                trace("Updated version detected: " + version);
-                onError();
-            }
+        function checkVersion() {
+            $.ajax({
+                url: "{% url ordering.station_controller.current_version %}",
+                dataType: "json",
+                success: function(version) {
+                    last_heartbeat = new Date();
+
+                    if (version != CURRENT_VERSION) {
+                        trace("Updated version detected: " + version);
+                        onError();
+                    }
+                }
+            });
         }
 
         function checkHeartbeat() {
@@ -670,6 +679,7 @@
                 $("#orders").append(rendered_order).append(progress_bar);
                 handleAddRow();
                 renderOrderDetails(order);
+                drawAttention();
             }
 
         }
@@ -731,7 +741,9 @@
 
             var timeout_interval = {{ timeout_interval }};
             var initial_val = (timeout_interval - order.seconds_passed) / timeout_interval * 100;
-            var progress_indicator = getProgressIndicator(order.pk, timeout_interval, initial_val);
+            var progress_indicator = getProgressIndicator(order.pk, timeout_interval, initial_val, function() {
+                handleRemoveRow();
+            });
             var buttons_div = $("<div class='controls'></div>")
                     .append(reject_button)
                     .append(send_button)
@@ -782,6 +794,7 @@
         }
 
         function setStateSent(data) {
+            trace(JSON.stringify(data));
             var order_row = $("#orders #" + data.order_id);
             var finish_button = $("<div class='accept_button_bg button_txt finish_button'>{% trans 'End' %}</div>").click(function() {
                 handleRemoveRow();
@@ -819,7 +832,11 @@
         function acceptOrder(order_id) {
             var pickup_time = $("#pickup_time_for_" + order_id).val();
             setStateSending(order_id);
-            $.ajax({"url": "{% url ordering.station_controller.update_order_status %}", "type":"post", "data":{"status": "{{ accept }}", "pickup_time": pickup_time, "order_id": order_id},
+            $.ajax({
+                "url": "{% url ordering.station_controller.update_order_status %}",
+                "type":"post",
+                "dataType": "json",
+                "data":{"status": "{{ accept }}", "pickup_time": pickup_time, "order_id": order_id},
                 "success": updateOrderCallback, "error": onError
             });
         }
@@ -834,10 +851,11 @@
             });
         }
 
-        function updateOrderCallback(json) {
-            var data = eval("(" + json + ")");
+        function updateOrderCallback(data) {
+            trace("updateOrderCallback: " + JSON.stringify(data));
             if (data.order_status == "stale") {
                 removeOrderRow(data.order_id);
+                handleRemoveRow();
             } else {
                 setStateSent(data);
             }
@@ -851,6 +869,17 @@
             catch (e) {
                 alert(e);
             }
+        }
+
+        function drawAttention() {
+            try {
+                if (window.parentSandboxBridge)
+                    parentSandboxBridge.draw_attention();
+            }
+            catch (e) {
+                alert(e);
+            }
+
         }
 
         function handleRemoveRow() {
@@ -899,31 +928,6 @@
             }
         }
 
-    </script>
-    <script type="text/javascript">
-    function dump(arr,level) {
-        var dumped_text = "";
-        if(!level) level = 0;
-
-        var level_padding = "";
-        for(var j=0;j<level+1;j++) level_padding += "    ";
-
-        if(typeof(arr) == 'object') {
-            for(var item in arr) {
-                var value = arr[item];
-
-                if(typeof(value) == 'object') {
-                    dumped_text += level_padding + "'" + item + "' ...\n";
-                    dumped_text += dump(value,level+1);
-                } else {
-                    dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
-                }
-            }
-        } else {
-            dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
-        }
-        return dumped_text;
-    }
     </script>
     <div id="orders"></div>
 

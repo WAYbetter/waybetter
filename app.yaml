@@ -20,6 +20,9 @@ handlers:
 - url: /static
   static_dir: static/
 
+- url: /_ah/channel/.*
+  script: ordering/channel_handler.py
+
 - url: /.*
   script: djangoappengine/main/main.py
 
@@ -41,6 +44,8 @@ skip_files:
 - ^(.*/)?intermediate\/.*
 - ^(.*/)?publish\/.*
 
+inbound_services:
+- channel_presence
 
 #builtins:
 #- appstats: on # uncomment to activate app stats

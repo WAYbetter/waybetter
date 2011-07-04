@@ -56,16 +56,22 @@ class TypedSignal(Signal):
         TypedSignal.all.add(self)
 
 class AsyncSignal(TypedSignal):
-    '''
+    """
     A sub-class of TypedSignal that sends the signal asynchronously
     to registered receivers
-    '''
+    """
     def send(self, sender, **named):
-        '''
+        """
         Send this signal asynchronously to the registered receivers
-        '''
+
+        @param sender: sender 
+        @param named: named arguments
+        @return:
+        """
         if not self.receivers:
             return None
+
+        logging.info("sending signal: %s" % self.signal_type)
 
         for receiver in self._live_receivers(_make_id(sender)):
             args = {"receiver": receiver, "signal": self, "sender": sender, "signal_type": self.signal_type}
