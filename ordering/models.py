@@ -8,13 +8,13 @@ from django.utils.translation import ugettext_lazy as _, ugettext
 from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
-from django.utils import simplejson, translation
+from django.utils import  translation
 from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_current_version
+from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key
 from common.tz_support import UTCDateTimeField, utc_now
-from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal
+from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
 
 import time
@@ -24,9 +24,9 @@ import datetime
 import common.urllib_adaptor as urllib2
 
 ORDER_HANDLE_TIMEOUT =                      80 # seconds
-ORDER_TEASER_TIMEOUT =                      18 # seconds
+ORDER_TEASER_TIMEOUT =                      14 # seconds
 ORDER_ASSIGNMENT_TIMEOUT =                  80 # seconds
-WORKSTATION_HEARTBEAT_TIMEOUT_INTERVAL =    30 # seconds
+WORKSTATION_HEARTBEAT_TIMEOUT_INTERVAL =    60 # seconds
 
 ORDER_MAX_WAIT_TIME = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
 PASSENGER_TOKEN = "passenger_token"
@@ -331,28 +331,55 @@ class Phone(BaseModel):
 
 
 class WorkStation(BaseModel):
+
+    def __init__(self, *args, **kwargs):
+        super(WorkStation, self).__init__(*args, **kwargs)
+        self._is_online_old = self.is_online
+
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="work_station")
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="work_stations")
     token = models.CharField(_("token"), max_length=50, null=True, blank=True)
     installer_url = models.URLField(_("installer URL"), verify_exists=False, max_length=500, null=True, blank=True)
     was_installed = models.BooleanField(_("was installed"), default=False)
-    im_user = models.CharField(_("instant messaging username"), null=True, blank=True, max_length=40)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
 
     last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
                                             default=datetime.datetime(1, 1, 1))
 
+    channel_id = models.CharField(_("channel_id"), max_length=50, null=True, blank=True)
+    is_online = models.BooleanField(_("is online"), default=False)
+    
     # denormalized fields
     dn_station_id = models.IntegerField(_("station id"), null=True, blank=True)
     dn_station_name = models.CharField(_("station name"), max_length=50, null=True, blank=True)
 
+    def generate_new_channel_id(self):
+        """
+        create a new channel_id for this WorkStation
+
+        @return: the new channel_id
+        """
+        self.channel_id = get_channel_key(self)
+        self.is_online = False # a signal will turn it back on
+        self.save()
+        return self.channel_id
+        
     def save(self, *args, **kwargs):
         if self.station:
             self.dn_station_id  = self.station.id
             self.dn_station_name = self.station.name
 
         super(WorkStation, self).save(*args, **kwargs)
+
+        # emit online/offline signals
+        if self._is_online_old != self.is_online:
+            self._is_online_old = self.is_online
+            if self.is_online:
+                workstation_online_signal.send(sender="workstation_connected", obj=self)
+            else:
+                workstation_offline_signal.send(sender="workstation_disconnected", obj=self)
+
         
     def __unicode__(self):
         result = u"[%d]" % self.id

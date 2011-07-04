@@ -121,7 +121,7 @@ def compute_ws_list(order):
 
     log = "computing ws list for order %d:\n" % order.id
     for ws in ws_list:
-        log += "station: %s, ws id:%d\n" % (ws.dn_station_name, ws.id)
+        log += "\tstation: %s, ws id:%d\n" % (ws.dn_station_name, ws.id)
     logging.info(log)
     
     return ws_list

@@ -4,19 +4,13 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from google.appengine.api import memcache
 
-from analytics.models import AnalyticsEvent
-
 from common.models import City, Country
-from common.util import EventType
 
 from ordering.models import Passenger, WorkStation, Station, Order, OrderAssignment, IGNORED, REJECTED, ASSIGNED, ACCEPTED, Phone, ORDER_ASSIGNMENT_TIMEOUT, ORDER_TEASER_TIMEOUT, NOT_TAKEN, ORDER_HANDLE_TIMEOUT, PENDING
 from ordering.forms import OrderForm
 from ordering.dispatcher import assign_order, choose_workstation, compute_ws_list
 from ordering import order_manager
 from ordering.order_manager import NO_MATCHING_WORKSTATIONS_FOUND, ORDER_HANDLED, ORDER_TIMEOUT
-from ordering import station_controller
-from ordering.station_connection_manager import get_heartbeat_key, set_heartbeat
-from ordering.station_controller import ALERT_DELTA
 from ordering.decorators import NOT_A_PASSENGER
 from ordering.pricing import estimate_cost, IsraelExtraCosts, CostType, setup_israel_meter_and_extra_charge_rules, tariff1_dict, tariff2_dict
 from ordering.rules_controller import add_flat_rate_rule
@@ -105,7 +99,8 @@ def refresh_order(order):
 
 def resuscitate_work_stations():
     for ws in WorkStation.objects.all():
-        set_heartbeat(ws)
+        ws.is_online = True
+        ws.save()
 
 
 def set_accept_orders_true(ws_list):
@@ -314,65 +309,6 @@ class OrderManagerTest(TestCase):
         order_manager.accept_order(order, pickup_time=5, station=self.station)
         self.assertTrue((order.status, order.pickup_time, order.station) == (ACCEPTED, 5, self.station), "accept_order failed")
 
-class StationConnectionTest(TestCase):
-    """Unit test for the station connection manager."""
-
-    fixtures = ['countries.yaml', 'cities.yaml', 'ordering_test_data.yaml']
-    
-    def setUp(self):
-        setup_testing_env.setup()
-
-    def test_ws_status_notification(self):
-        service_url = reverse('ordering.station_controller.notify_ws_status')
-        now = datetime.datetime.now()
-
-        # stations not on list do not generate notifications
-        for station in Station.objects.all():
-            station.show_on_list = True
-            station.save()
-
-        # start with normal state
-        for ws in WorkStation.objects.all():
-            e = AnalyticsEvent(type=EventType.WORKSTATION_UP, work_station=ws)
-            e.save()
-
-        # nothing happened
-        response = self.client.get(service_url)
-        self.assertEqual(response.content, station_controller.OK)
-
-        # new work stations are born
-        response = self.client.get(service_url)
-        self.assertEqual(response.content, station_controller.OK) # cache was cleared, don't notify
-
-        # dead workstation, but not long enough
-        dead_ws = WorkStation.objects.all()[0]
-        key = get_heartbeat_key(dead_ws)
-
-        memcache.set(key, now - (ALERT_DELTA - datetime.timedelta(minutes=1)))
-        response = self.client.get(service_url)
-        self.assertEqual(response.content, station_controller.OK)
-
-        # dead workstation, long enough
-        memcache.set(key, now - (ALERT_DELTA + datetime.timedelta(minutes=1)))
-        response = self.client.get(service_url)
-        self.assertEqual(response.content, station_controller.WS_DECEASED)
-
-        # same dead station, don't notify again
-        memcache.set(key, now - (ALERT_DELTA + datetime.timedelta(minutes=2)))
-        response = self.client.get(service_url)
-        self.assertEqual(response.content, station_controller.OK)
-
-        # it's alive!
-        memcache.set(key, now)
-        response = self.client.get(service_url)
-        self.assertEqual(response.content, station_controller.WS_BORN)
-
-        # don't notify
-        resuscitate_work_stations()
-        response = self.client.get(service_url)
-        self.assertEqual(response.content, station_controller.OK)
-
-
 class DispatcherTest(TestCase):
     """Unit test for the dispatcher ordering logic."""
 
@@ -406,7 +342,8 @@ class DispatcherTest(TestCase):
         self.assertTrue(choose_workstation(order) is None, "work station are dead, none is expected")
 
         # live work station but it's in Jerusalem (order is from tel aviv)
-        set_heartbeat(jerusalem_ws)
+        jerusalem_ws.is_online = True
+        jerusalem_ws.save()
         self.assertTrue(choose_workstation(order) is None, "work station are dead, none is expected")
 
         # live but don't accept orders

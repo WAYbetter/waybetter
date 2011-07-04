@@ -45,9 +45,8 @@ urlpatterns = patterns('',
     (r'^services/set_favorite_station/$', 'ordering.passenger_controller.set_default_station'),
     (r'^services/update_order_status/$', 'ordering.station_controller.update_order_status'),
     (r'^services/update_online_status/$', 'ordering.station_controller.update_online_status'),
-#    (r'^services/get_workstation_orders/$', 'ordering.station_controller.get_orders'),
-    (r'^services/get_ws_orders/$', 'ordering.station_controller.get_orders'),
-    (r'^services/check_ws_status_and_notify/$', 'ordering.station_controller.notify_ws_status'),
+    (r'^services/message_received/$', 'ordering.station_controller.message_received'),
+    (r'^services/get_current_version/$', 'ordering.station_controller.current_version'),
     (r'^services/get_init_workstation_orders/$', 'ordering.station_controller.get_workstation_orders'),
     (r'^services/send_sms_verification/$', 'ordering.passenger_controller.send_sms_verification'),
     (r'^services/register_passenger/$', 'ordering.passenger_controller.register_passenger'),
@@ -77,6 +76,9 @@ urlpatterns = patterns('',
     (r'^setup/do_flat_rate_rules_setup/$', 'ordering.rules_controller.do_setup_flat_rate_pricing_rules'),
 
     (r'^resources/station_mobile_redirect/(?P<subdomain_name>\w+)/$', 'ordering.station_controller.station_mobile_redirect'),
+
+    (r'^queue/handle_dead_workstations/$', 'ordering.station_connection_manager.handle_dead_workstations'),
+
 )
 
 
