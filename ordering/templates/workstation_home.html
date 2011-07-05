@@ -461,13 +461,16 @@
                 },
                 pollOrders      : function() {} // do nothing
             };
+            try {
+                initConnection();
+                initAcceptOrders();
+                setStationDetails("{{ station_name }}", {{ station_rating }});
 
-            initConnection();
-            initAcceptOrders();
-            setStationDetails("{{ station_name }}", {{ station_rating }});
-
-            $(document).everyTime(POLLING_INTERVAL, checkVersion);
-            $(document).everyTime(2 * POLLING_INTERVAL, checkHeartbeat);
+                $(document).everyTime(POLLING_INTERVAL, checkVersion);
+                $(document).everyTime(2 * POLLING_INTERVAL, checkHeartbeat);
+            } catch (e) {
+                onError();
+            }
 
         });
 
