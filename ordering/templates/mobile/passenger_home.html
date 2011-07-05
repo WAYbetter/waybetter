@@ -60,6 +60,7 @@
                 telmap_user:                "{{ telmap_user }}",
                 telmap_password:            "{{ telmap_password}}",
                 telmap_languages:           "{{ telmap_languages }}",
+                passenger_in_session:       {{ passenger|yesno:"true,false" }},
                 messages:         {
                     estimation_msg:          "{% trans 'Fill pickup and dropoff for price and time estimation ' %}",
                     finding_location:        "{% trans 'Finding Your Location...' %}",
@@ -68,6 +69,7 @@
                     order_sent_msg:          "{% trans 'Order Sent!\n\nAn SMS with ride details will be sent soon'%}",
                     enter_address:           "{% trans 'Enter Address' %}",
                     are_you_sure:            "{% trans 'Are you sure you want to order a taxi now?' %}",
+                    phone_registration:      '{% trans 'In order that you may enjoy this service you must first register' %}',
                     try_again:               "{% trans 'Try Again' %}",
                     send_verification:       "{% trans 'Send Verification Code' %}",
                     sending:                 "{% trans 'Sending...' %}",
@@ -172,9 +174,10 @@
     {# VERIFY PHONE PAGE #}
     <div id="sms_dialog" data-role="page" data-theme="b">
         <div data-role="header">
-            <h1>{% trans 'Verification' %}</h1>
+            <h1>{% trans 'Service Registration' %}</h1>
         </div>
         <div data-role="content">
+            <b>{% trans "Ride details are send via free SMS" %}</b>
             <form id="verification_form">
                 <input type="hidden" name="country_code" value="{{ country_code }}" />
 

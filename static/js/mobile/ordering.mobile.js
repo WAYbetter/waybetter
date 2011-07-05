@@ -10,6 +10,7 @@ var OrderingHelper = Object.create({
         telmap_user:                "",
         telmap_password:            "",
         telmap_languages:           "",
+        passenger_in_session:       false,
         messages: {
             finding_location:       "",
             estimation_msg:         "",
@@ -20,7 +21,8 @@ var OrderingHelper = Object.create({
             are_you_sure:           "",
             try_again:              "",
             no_house_number:        "",
-            no_history:             ""
+            no_history:             "",
+            phone_registration:     ""
         }
 
     },
@@ -180,6 +182,7 @@ var OrderingHelper = Object.create({
                 success : function (response) {
                     localStorage.clear();
                     $.mobile.changePage("#home");
+                    that.config.passenger_in_session = true;
                     that.bookOrder();
                 },
                 error :function (XMLHttpRequest, textStatus, errorThrown) {
@@ -315,15 +318,20 @@ var OrderingHelper = Object.create({
             if (cache.$order_button.is(':disabled') || !that.order_button_clicked) {
                 return false;
             }
-            if (! that.order_confirmed) {
-                if (! confirm(that.config.messages.are_you_sure)) {
-                    return false;
+            if (!that.order_confirmed) {
+                if (that.config.passenger_in_session) {
+                    if (! confirm(that.config.messages.are_you_sure)) {
+                        return false;
+                    } else {
+                        that.order_confirmed = true;
+                    }
+                } else {
+                    alert(that.config.messages.phone_registration);
                 }
             }
 
             that.order_button_clicked = false;
-            that.order_confirmed = true;
-            
+
             cache.$order_button.disable();
 
             cache.$order_button.text(that.config.messages.sending);
