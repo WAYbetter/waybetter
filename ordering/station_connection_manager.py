@@ -70,7 +70,10 @@ def _set_workstation_online_status(channel_id, status):
 
     if workstation:
         workstation.is_online = status
-        if not status:
+        if status:
+            logging.info("Workstation connected: %d" % workstation.id)
+        else:
+            logging.info("Workstation disconnected: %d" % workstation.id)
             # clear channel_id field
             workstation.channel_id = None
 
