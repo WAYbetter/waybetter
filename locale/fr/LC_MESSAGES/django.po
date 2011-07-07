@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-05 18:23+0300\n"
+"POT-Creation-Date: 2011-07-07 13:36+0300\n"
 "PO-Revision-Date: 2011-06-21 16:06+0200\n"
 "Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -117,11 +117,11 @@ msgstr "Créé le"
 msgid "modify date"
 msgstr "Modifié le"
 
-#: analytics/views.py:182 ordering/station_controller.py:372
+#: analytics/views.py:182 ordering/station_controller.py:376
 msgid "Accepted"
 msgstr "Acceptée"
 
-#: analytics/views.py:187 ordering/station_controller.py:374
+#: analytics/views.py:187 ordering/station_controller.py:378
 #, fuzzy
 msgid "Rejected"
 msgstr "Rejeté"
@@ -321,7 +321,6 @@ msgstr "Saisir votre mot de passe"
 #: common/templates/registration_form.html:84
 #: common/templates/terms_form.html:14 common/templates/terms_form.html:32
 #: ordering/templates/passenger_profile.html:64
-#: ordering/templates/workstation_home.html:602
 msgid "OK"
 msgstr "OK"
 
@@ -410,7 +409,7 @@ msgstr "Terminer"
 #: ordering/templates/business_registration.html:134
 #: ordering/templates/passenger_home.html:29
 #: ordering/templates/station_page.html:40
-#: ordering/templates/workstation_home.html:794
+#: ordering/templates/workstation_home.html:807
 #: ordering/templates/mobile/passenger_home.html:75
 msgid "Sending..."
 msgstr "Envoi..."
@@ -613,7 +612,7 @@ msgstr "Indiquez vos coordonnées et nous vous contacterons"
 #: interests/templates/mobile_interest_form.html:52
 #: interests/templates/station_interest_form.html:36
 #: ordering/templates/business_registration.html:137
-#: ordering/templates/workstation_home.html:730
+#: ordering/templates/workstation_home.html:743
 msgid "Send"
 msgstr "Envoi"
 
@@ -1438,16 +1437,16 @@ msgstr "Vous devez avoir nom d'utilisateur pour modifier les identifiants"
 msgid "This is a test order"
 msgstr ""
 
-#: ordering/station_controller.py:73
+#: ordering/station_controller.py:74
 msgid "Invalid city"
 msgstr "Ville non valide"
 
-#: ordering/station_controller.py:373
+#: ordering/station_controller.py:377
 #, fuzzy
 msgid "Ignored"
 msgstr "Ignoré"
 
-#: ordering/station_controller.py:436
+#: ordering/station_controller.py:440
 #, fuzzy, python-format
 msgid "%s Taxi station"
 msgstr "Stations de taxi"
@@ -1779,7 +1778,7 @@ msgstr "minutes"
 
 #: ordering/templates/passenger_home.html:47
 #: ordering/templates/station_page.html:61
-#: ordering/templates/workstation_home.html:720
+#: ordering/templates/workstation_home.html:733
 msgid "minutes"
 msgstr "minutes"
 
@@ -2230,48 +2229,52 @@ msgstr ""
 msgid "Workstation page"
 msgstr "Page Poste de travail"
 
-#: ordering/templates/workstation_home.html:513
+#: ordering/templates/workstation_home.html:525
 msgid "Connecting WAYbetter..."
 msgstr "Connexion à WAYbetter..."
 
-#: ordering/templates/workstation_home.html:607
-msgid "Connection Test. Please click the OK button"
+#: ordering/templates/workstation_home.html:614
+msgid "Click Here"
 msgstr ""
 
-#: ordering/templates/workstation_home.html:652
+#: ordering/templates/workstation_home.html:619
+msgid "Connection Check"
+msgstr ""
+
+#: ordering/templates/workstation_home.html:665
 #, fuzzy
 msgid "Show details"
 msgstr "Plus de détails"
 
-#: ordering/templates/workstation_home.html:657
+#: ordering/templates/workstation_home.html:670
 msgid "Incoming order"
 msgstr ""
 
-#: ordering/templates/workstation_home.html:718
+#: ordering/templates/workstation_home.html:731
 msgid "Define time"
 msgstr "Définissez horaire"
 
-#: ordering/templates/workstation_home.html:730
+#: ordering/templates/workstation_home.html:743
 msgid "Send message to passenger"
 msgstr "Envoyer un message au passager"
 
-#: ordering/templates/workstation_home.html:737
+#: ordering/templates/workstation_home.html:750
 #, fuzzy
 msgid "Reject"
 msgstr "Rejeté"
 
-#: ordering/templates/workstation_home.html:756
-#: ordering/templates/workstation_home.html:811
+#: ordering/templates/workstation_home.html:769
+#: ordering/templates/workstation_home.html:824
 #, fuzzy
 msgid "pickup"
 msgstr "heure de ramassage"
 
-#: ordering/templates/workstation_home.html:759
-#: ordering/templates/workstation_home.html:814
+#: ordering/templates/workstation_home.html:772
+#: ordering/templates/workstation_home.html:827
 msgid "dropoff"
 msgstr ""
 
-#: ordering/templates/workstation_home.html:802
+#: ordering/templates/workstation_home.html:815
 msgid "End"
 msgstr "Fin"
 
@@ -2613,6 +2616,10 @@ msgstr ""
 #: tinymce/views.py:68
 msgid "Error running spellchecker"
 msgstr "Erreur du vérificateur d'orthographe"
+
+#, fuzzy
+#~ msgid "Please click the button"
+#~ msgstr "Saisir votre nom d'utilisateur"
 
 #~ msgid "instant messaging username"
 #~ msgstr "Nom d'utilisateur MI"
@@ -3017,12 +3024,6 @@ msgstr "Erreur du vérificateur d'orthographe"
 #, fuzzy
 #~ msgid "Remove a comment"
 #~ msgstr "autoriser commentaires"
-
-#, fuzzy
-#~ msgid "Please correct the error below"
-#~ msgid_plural "Please correct the errors below"
-#~ msgstr[0] "Saisir votre nom d'utilisateur"
-#~ msgstr[1] "Saisir votre nom d'utilisateur"
 
 #, fuzzy
 #~ msgid "or make changes"

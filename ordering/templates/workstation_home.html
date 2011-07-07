@@ -58,6 +58,14 @@
             background-color: transparent;
         }
     }
+    @-webkit-keyframes connection-check-flash {
+        from {
+            background-color: #009fe3;
+        }
+        to {
+            background-color: transparent;
+        }
+    }
     #orders .show_button_container {
         display: table;
         width: 100%;
@@ -73,6 +81,10 @@
         display: table-cell;
         vertical-align: middle;
     }
+    #orders .show_button_container.connection-check {
+        -webkit-animation-name: connection-check-flash;
+    }
+
     #orders div div, #connection_status div {
         display: inline-block;
     }    
@@ -598,18 +610,19 @@
             }
         }
         function checkConnection() {
-            var show_button_container = $('<div class="show_button_container"></div>');
-            var show_button = $('<div class="button_txt button_bg show_button"></div>').text('{% trans 'OK' %}');
+            var show_button_container = $('<div class="show_button_container connection-check"></div>');
+            var show_button = $('<div class="button_txt button_bg show_button"></div>').text('{% trans 'Click Here' %}');
 
             show_button_container.append($('<div></div>').append(show_button));
 
 
-            var incoming_text = "{% trans 'Connection Test. Please click the OK button' %}";
+            var incoming_text = "{% trans 'Connection Check' %}";
             var rendered_order = $("<div class='order teaser'></div>").attr('id', CONNECTION_CHECK_KEY).data("state", ORDER_IS_SHOWING)
-                    .append($("<div class='teaser_txt connection_test'></div>").append(incoming_text))
+                    .append($("<div class='teaser_txt'></div>").append(incoming_text))
                     .append(show_button_container);
 
             $(rendered_order).click(function(){
+                $.ajax({ url: "{% url ordering.station_controller.connection_check_passed %}" })
                 removeOrderRow(CONNECTION_CHECK_KEY);
            });
 
