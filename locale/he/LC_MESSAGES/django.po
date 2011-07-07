@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-05 18:23+0300\n"
-"PO-Revision-Date: 2011-07-05 18:25+0200\n"
+"POT-Creation-Date: 2011-07-07 13:36+0300\n"
+"PO-Revision-Date: 2011-07-07 13:37+0200\n"
 "Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -155,12 +155,12 @@ msgid "modify date"
 msgstr "שינוי תאריך"
 
 #: analytics/views.py:182
-#: ordering/station_controller.py:372
+#: ordering/station_controller.py:376
 msgid "Accepted"
 msgstr "התקבלו"
 
 #: analytics/views.py:187
-#: ordering/station_controller.py:374
+#: ordering/station_controller.py:378
 msgid "Rejected"
 msgstr "נדחו"
 
@@ -364,7 +364,6 @@ msgstr "הסיסמה שלך"
 #: common/templates/terms_form.html:14
 #: common/templates/terms_form.html:32
 #: ordering/templates/passenger_profile.html:64
-#: ordering/templates/workstation_home.html:602
 msgid "OK"
 msgstr "אישור"
 
@@ -454,7 +453,7 @@ msgstr "סיום"
 #: ordering/templates/business_registration.html:134
 #: ordering/templates/passenger_home.html:29
 #: ordering/templates/station_page.html:40
-#: ordering/templates/workstation_home.html:794
+#: ordering/templates/workstation_home.html:807
 #: ordering/templates/mobile/passenger_home.html:75
 msgid "Sending..."
 msgstr "שולח..."
@@ -677,7 +676,7 @@ msgstr "אנא מלא את הפרטים הבאים ואנו ניצור עמך ק
 #: interests/templates/mobile_interest_form.html:52
 #: interests/templates/station_interest_form.html:36
 #: ordering/templates/business_registration.html:137
-#: ordering/templates/workstation_home.html:730
+#: ordering/templates/workstation_home.html:743
 msgid "Send"
 msgstr "שליחה"
 
@@ -1527,15 +1526,15 @@ msgstr "משתמש אינו קיים"
 msgid "This is a test order"
 msgstr "רחוב רחובי 1 רחובות"
 
-#: ordering/station_controller.py:73
+#: ordering/station_controller.py:74
 msgid "Invalid city"
 msgstr "עיר לא חוקית"
 
-#: ordering/station_controller.py:373
+#: ordering/station_controller.py:377
 msgid "Ignored"
 msgstr "ללא התייחסות"
 
-#: ordering/station_controller.py:436
+#: ordering/station_controller.py:440
 #, python-format
 msgid "%s Taxi station"
 msgstr "מונית %s"
@@ -1853,7 +1852,7 @@ msgstr "דקות"
 
 #: ordering/templates/passenger_home.html:47
 #: ordering/templates/station_page.html:61
-#: ordering/templates/workstation_home.html:720
+#: ordering/templates/workstation_home.html:733
 msgid "minutes"
 msgstr "דקות"
 
@@ -2243,45 +2242,49 @@ msgstr "בהורדת התוכנה אני מצהיר בזאת כי קראתי ו�
 msgid "Workstation page"
 msgstr "דף עמדות עבודה"
 
-#: ordering/templates/workstation_home.html:513
+#: ordering/templates/workstation_home.html:525
 msgid "Connecting WAYbetter..."
 msgstr "מתחבר אל WAYbetter..."
 
-#: ordering/templates/workstation_home.html:607
-msgid "Connection Test. Please click the OK button"
-msgstr "בדיקת חיבור. לחץ בבקשה על כפתור האישור"
+#: ordering/templates/workstation_home.html:614
+msgid "Click Here"
+msgstr "לחץ כאן"
 
-#: ordering/templates/workstation_home.html:652
+#: ordering/templates/workstation_home.html:619
+msgid "Connection Check"
+msgstr "בדיקת חיבור"
+
+#: ordering/templates/workstation_home.html:665
 msgid "Show details"
 msgstr "הצג פרטים"
 
-#: ordering/templates/workstation_home.html:657
+#: ordering/templates/workstation_home.html:670
 msgid "Incoming order"
 msgstr "הזמנה נכנסת"
 
-#: ordering/templates/workstation_home.html:718
+#: ordering/templates/workstation_home.html:731
 msgid "Define time"
 msgstr "הגדר זמן"
 
-#: ordering/templates/workstation_home.html:730
+#: ordering/templates/workstation_home.html:743
 msgid "Send message to passenger"
 msgstr "שלח הודעה לנוסע"
 
-#: ordering/templates/workstation_home.html:737
+#: ordering/templates/workstation_home.html:750
 msgid "Reject"
 msgstr "דחייה"
 
-#: ordering/templates/workstation_home.html:756
-#: ordering/templates/workstation_home.html:811
+#: ordering/templates/workstation_home.html:769
+#: ordering/templates/workstation_home.html:824
 msgid "pickup"
 msgstr "איסוף"
 
-#: ordering/templates/workstation_home.html:759
-#: ordering/templates/workstation_home.html:814
+#: ordering/templates/workstation_home.html:772
+#: ordering/templates/workstation_home.html:827
 msgid "dropoff"
 msgstr "הורדה"
 
-#: ordering/templates/workstation_home.html:802
+#: ordering/templates/workstation_home.html:815
 msgid "End"
 msgstr "סיום"
 
@@ -2608,6 +2611,9 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 #: tinymce/views.py:68
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
+
+#~ msgid "Please click the button"
+#~ msgstr "לחץ בבקשה על הכפתור"
 
 #~ msgid "instant messaging username"
 #~ msgstr "שם משתמש ל-IM"
