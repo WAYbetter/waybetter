@@ -2,6 +2,8 @@
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}"
       {% if LANGUAGE_BIDI %}dir="rtl"{% endif %} class="{{ page_specific_class }} {% if LANGUAGE_BIDI %}rtl{% endif %}">
 <head>
+    {% load i18n %}
+
     <meta charset="utf-8">
     <meta name="google-site-verification" content="6M7E60YhxlrZR6e8sXaMr2_9hy-TwfdXM-orIbAlwXA" />
 
@@ -15,8 +17,9 @@
 
     <title>{% block title %}{% endblock %}</title>
 
-    <meta name="description" content="">
-    <meta name="author" content="WAYbetter LTD.">
+    <meta name="description" content="{% trans 'Order a taxi online, no phone call! A large selection of taxi stations in every city. One click and the taxi is on the way '%}" />
+    <meta name="keywords" content="{% trans 'Taxi,iPhone,Android,WAYbetter,get taxi,order taxi,order taxi online' %}" />
+    <meta name="author" content="WAYbetter LTD." />
 
 
     {% block extrastyle %}
@@ -58,7 +61,6 @@
 {% endblock %}
 
 </head>
-{% load i18n %}
 
 <body class="{% if is_popup %}popup {% endif %}{% block bodyclass %}{% endblock %}">
 

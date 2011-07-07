@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-07 13:36+0300\n"
+"POT-Creation-Date: 2011-07-07 17:08+0300\n"
 "PO-Revision-Date: 2011-06-21 16:06+0200\n"
 "Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -117,11 +117,11 @@ msgstr "Créé le"
 msgid "modify date"
 msgstr "Modifié le"
 
-#: analytics/views.py:182 ordering/station_controller.py:376
+#: analytics/views.py:182 ordering/station_controller.py:375
 msgid "Accepted"
 msgstr "Acceptée"
 
-#: analytics/views.py:187 ordering/station_controller.py:378
+#: analytics/views.py:187 ordering/station_controller.py:377
 #, fuzzy
 msgid "Rejected"
 msgstr "Rejeté"
@@ -343,7 +343,7 @@ msgstr "Envoyer"
 #: common/templates/feedback_form.html:132
 #: interests/templates/mobile_interest_form.html:53
 #: interests/templates/station_interest_form.html:37
-#: ordering/templates/passenger_home.html:44
+#: ordering/templates/passenger_home.html:48
 #: ordering/templates/station_page.html:58
 msgid "Close"
 msgstr "Fermer"
@@ -407,7 +407,7 @@ msgstr "Terminer"
 
 #: common/templates/phone_verification_form.html:21
 #: ordering/templates/business_registration.html:134
-#: ordering/templates/passenger_home.html:29
+#: ordering/templates/passenger_home.html:33
 #: ordering/templates/station_page.html:40
 #: ordering/templates/workstation_home.html:807
 #: ordering/templates/mobile/passenger_home.html:75
@@ -1437,16 +1437,16 @@ msgstr "Vous devez avoir nom d'utilisateur pour modifier les identifiants"
 msgid "This is a test order"
 msgstr ""
 
-#: ordering/station_controller.py:74
+#: ordering/station_controller.py:73
 msgid "Invalid city"
 msgstr "Ville non valide"
 
-#: ordering/station_controller.py:377
+#: ordering/station_controller.py:376
 #, fuzzy
 msgid "Ignored"
 msgstr "Ignoré"
 
-#: ordering/station_controller.py:440
+#: ordering/station_controller.py:439
 #, fuzzy, python-format
 msgid "%s Taxi station"
 msgstr "Stations de taxi"
@@ -1569,7 +1569,7 @@ msgid "An email was sent to the business"
 msgstr ""
 
 #: ordering/templates/business_registration.html:61
-#: ordering/templates/passenger_home.html:27
+#: ordering/templates/passenger_home.html:31
 #: ordering/templates/station_page.html:38
 msgid "The address is not resolved"
 msgstr "Adresse inconnue. Sélectionner dans la liste"
@@ -1662,23 +1662,23 @@ msgstr ""
 
 #: ordering/templates/info.html:28
 #: ordering/templates/mobile/passenger_home.html:227
-#: ordering/templates/mobile/passenger_home.html:270 templates/base.html:136
+#: ordering/templates/mobile/passenger_home.html:270 templates/base.html:137
 msgid "About"
 msgstr "A  propos de"
 
-#: ordering/templates/info.html:29 templates/base.html:137
+#: ordering/templates/info.html:29 templates/base.html:138
 msgid "Press"
 msgstr "Médias"
 
-#: ordering/templates/info.html:31 templates/base.html:139
+#: ordering/templates/info.html:31 templates/base.html:140
 msgid "Help"
 msgstr "Aide"
 
-#: ordering/templates/info.html:33 templates/base.html:141
+#: ordering/templates/info.html:33 templates/base.html:142
 msgid "Terms"
 msgstr "Conditions d'utilisation"
 
-#: ordering/templates/info.html:34 ordering/templates/passenger_home.html:109
+#: ordering/templates/info.html:34 ordering/templates/passenger_home.html:113
 msgid "TAXI"
 msgstr "TAXI"
 
@@ -1734,30 +1734,34 @@ msgstr "Page"
 msgid "of"
 msgstr "sur"
 
-#: ordering/templates/passenger_home.html:24
+#: ordering/templates/passenger_home.html:5
+msgid "Free Online Taxi Booking - WAYbetter"
+msgstr ""
+
+#: ordering/templates/passenger_home.html:28
 #: ordering/templates/station_page.html:35
 msgid "Full Pickup Address: (Street Number City)"
 msgstr "Adresse de départ (rue, numéro, ville)"
 
-#: ordering/templates/passenger_home.html:25
+#: ordering/templates/passenger_home.html:29
 #: ordering/templates/station_page.html:36
 msgid "Full Drop-off Address: (Street Number City)"
 msgstr "Adresse de destination (rue, numéro, ville)"
 
-#: ordering/templates/passenger_home.html:26
+#: ordering/templates/passenger_home.html:30
 #: ordering/templates/station_page.html:37
 msgid "(Street Number City) and Select:"
 msgstr "(rue, numéro, ville) et sélectionnez"
 
-#: ordering/templates/passenger_home.html:28
-#: ordering/templates/passenger_home.html:134
+#: ordering/templates/passenger_home.html:32
+#: ordering/templates/passenger_home.html:138
 #: ordering/templates/station_page.html:39
 #: ordering/templates/station_page.html:161
 #: ordering/templates/mobile/passenger_home.html:79
 msgid "Pick Me Up"
 msgstr "Taxi !"
 
-#: ordering/templates/passenger_home.html:30
+#: ordering/templates/passenger_home.html:34
 #: ordering/templates/station_page.html:43
 #: ordering/templates/mobile/passenger_home.html:65
 msgid "Fill pickup and dropoff for price and time estimation "
@@ -1765,55 +1769,55 @@ msgstr ""
 "Saisissez l'adresse de départ et de destination pour une estimation du prix "
 "et du temps nécessaire"
 
-#: ordering/templates/passenger_home.html:45
+#: ordering/templates/passenger_home.html:49
 #: ordering/templates/station_page.html:59
 msgid "For changes call: "
 msgstr ""
 
-#: ordering/templates/passenger_home.html:46
+#: ordering/templates/passenger_home.html:50
 #: ordering/templates/station_page.html:60
 #, fuzzy
 msgid "minute"
 msgstr "minutes"
 
-#: ordering/templates/passenger_home.html:47
+#: ordering/templates/passenger_home.html:51
 #: ordering/templates/station_page.html:61
 #: ordering/templates/workstation_home.html:733
 msgid "minutes"
 msgstr "minutes"
 
-#: ordering/templates/passenger_home.html:48
+#: ordering/templates/passenger_home.html:52
 #: ordering/templates/station_page.html:62
 msgid "Please wait"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:49
+#: ordering/templates/passenger_home.html:53
 #: ordering/templates/station_page.html:63
 #, fuzzy
 msgid "Pickup in"
 msgstr "heure de ramassage"
 
-#: ordering/templates/passenger_home.html:50
+#: ordering/templates/passenger_home.html:54
 #: ordering/templates/station_page.html:64
 msgid "Order finished!"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:51
+#: ordering/templates/passenger_home.html:55
 #: ordering/templates/station_page.html:65
 msgid "Re-connecting to server, please wait (your order is being processed)"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:52
+#: ordering/templates/passenger_home.html:56
 msgid "Have a pleasant ride!"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:64
+#: ordering/templates/passenger_home.html:68
 #: ordering/templates/station_page.html:91
 msgid "We're sorry, but an error occurred while loading this page."
 msgstr "Nous sommes désolés mais une erreur est survenue sur la page"
 
-#: ordering/templates/passenger_home.html:100
 #: ordering/templates/passenger_home.html:104
+#: ordering/templates/passenger_home.html:108
 msgid ""
 "WAYbetter are happy to announce our Tel Aviv pilot in collaboration with the "
 "\"Meshuhrar Taxis\" station"
@@ -1821,8 +1825,8 @@ msgstr ""
 "WAYbetter est heureux de vous annoncer notre projet pilote à Tel Aviv en "
 "collaboration avec la station de taxis \"Meshuhrar\""
 
-#: ordering/templates/passenger_home.html:100
 #: ordering/templates/passenger_home.html:104
+#: ordering/templates/passenger_home.html:108
 msgid ""
 "We hope you'll enjoy the service and give us feedback so we can improve "
 "(bottom right corner)"
@@ -1830,60 +1834,60 @@ msgstr ""
 "Nous espérons que vous apprécierez ce service. Nous attendons vos réactions "
 "(en bas à droite)"
 
-#: ordering/templates/passenger_home.html:100
 #: ordering/templates/passenger_home.html:104
+#: ordering/templates/passenger_home.html:108
 msgid "Enjoy your ride!"
 msgstr "Bon voyage !"
 
-#: ordering/templates/passenger_home.html:112
+#: ordering/templates/passenger_home.html:116
 msgid "Book Now (FREE)"
 msgstr "Commandez maintenant, c'est gratuit !"
 
-#: ordering/templates/passenger_home.html:128
+#: ordering/templates/passenger_home.html:132
 #: ordering/templates/station_page.html:154
 #: ordering/templates/mobile/passenger_home.html:129
 msgid "Enter pickup address"
 msgstr "Adresse de départ"
 
-#: ordering/templates/passenger_home.html:131
+#: ordering/templates/passenger_home.html:135
 #: ordering/templates/station_page.html:158
 #: ordering/templates/mobile/passenger_home.html:134
 msgid "Enter drop-off address"
 msgstr "Adresse de destination (facultatif)"
 
-#: ordering/templates/passenger_home.html:152
+#: ordering/templates/passenger_home.html:156
 #: ordering/templates/station_page.html:182
 msgid "Ride History"
 msgstr "Historique"
 
-#: ordering/templates/passenger_home.html:153
+#: ordering/templates/passenger_home.html:157
 #: ordering/templates/station_page.html:185
 msgid "My Profile"
 msgstr "Mon profil"
 
-#: ordering/templates/passenger_home.html:154
-#: ordering/templates/passenger_home.html:161
+#: ordering/templates/passenger_home.html:158
+#: ordering/templates/passenger_home.html:165
 msgid "Taxi Stations"
 msgstr "Stations de taxi"
 
-#: ordering/templates/passenger_home.html:155
-#: ordering/templates/passenger_home.html:162
+#: ordering/templates/passenger_home.html:159
+#: ordering/templates/passenger_home.html:166
 msgid "Mobile"
 msgstr "Portable"
 
-#: ordering/templates/passenger_home.html:160
+#: ordering/templates/passenger_home.html:164
 msgid "Businesses"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:163
+#: ordering/templates/passenger_home.html:167
 msgid "What's This?"
 msgstr "Notre service"
 
-#: ordering/templates/passenger_home.html:168
+#: ordering/templates/passenger_home.html:172
 msgid "WAYbetter offers the fastest and easiest way to get a taxi!"
 msgstr "C'est si simple de réserver un taxi avec <span class=waybetter></span>"
 
-#: ordering/templates/passenger_home.html:170
+#: ordering/templates/passenger_home.html:174
 msgid ""
 "We are partnering with the best taxi stations in your city, so all you have "
 "to do is push the yellow button. We'll do the rest"
@@ -2058,11 +2062,11 @@ msgstr ""
 msgid "Book A Taxi Application. Immediate Response via SMS"
 msgstr "Application pour commander un taxi. Réponse immédiate par SMS."
 
-#: ordering/templates/station_page.html:119 templates/base.html:81
+#: ordering/templates/station_page.html:119 templates/base.html:82
 msgid "Hi"
 msgstr "Bonjour"
 
-#: ordering/templates/station_page.html:120 templates/base.html:87
+#: ordering/templates/station_page.html:120 templates/base.html:88
 msgid "Log out"
 msgstr "Déconnexion"
 
@@ -2134,7 +2138,7 @@ msgstr "Plus de détails"
 msgid "Station Manager?"
 msgstr "Directeur de station ?"
 
-#: ordering/templates/stations.html:31 templates/base.html:142
+#: ordering/templates/stations.html:31 templates/base.html:143
 msgid "Station Entrance"
 msgstr "Stations"
 
@@ -2513,15 +2517,25 @@ msgstr "Impossible de trouver la page demandée"
 msgid "There was an error while handling your request."
 msgstr "Une erreur est survenue durant le traitement de votre requête."
 
-#: templates/base.html:75
+#: templates/base.html:18
+msgid ""
+"Order a taxi online, no phone call! A large selection of taxi stations in "
+"every city. One click and the taxi is on the way "
+msgstr ""
+
+#: templates/base.html:19
+msgid "Taxi,iPhone,Android,WAYbetter,get taxi,order taxi,order taxi online"
+msgstr ""
+
+#: templates/base.html:76
 msgid "Get Your Taxis Online (FREE)"
 msgstr "Commander un taxi, c'est un jeu d'enfant (et c'est gratuit)"
 
-#: templates/base.html:135
+#: templates/base.html:136
 msgid "Passengers home"
 msgstr "Page d'accueil Passagers"
 
-#: templates/base.html:145
+#: templates/base.html:146
 msgid "2010 WAYbetter"
 msgstr "2010-2011 <span class=waybetter></span>"
 
