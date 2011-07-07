@@ -450,7 +450,7 @@ var Registrator = Object.create({
                     OrderHistoryHelper.loadHistory({});
                 });
             } else {
-                $("#dialog #ok").hide();
+                $("#dialog #ok, #dialog #share").hide();
                 $("#dialog").oneTime(2000, function() {
                     var height = (registration_only) ? "515px" : "700px";
                     $(".ui-dialog").animate(
@@ -464,6 +464,7 @@ var Registrator = Object.create({
                 });
             }
             if (registration_only) {
+                $("#dialog #share").hide();
                 dialog_config = { title: window.form_config.messages.thanks_for_registering };
                 $("#registration", dialog_content).show();
                 $("#registration_header", dialog_content).hide();

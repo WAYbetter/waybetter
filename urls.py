@@ -10,6 +10,7 @@ admin.autodiscover()
 urlpatterns = patterns('',
 #    ('^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
 #    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
+    (r'^dl/$', 'ordering.passenger_controller.passenger_home'),
     (r'^accounts/', include('registration.backends.station.urls')),
     (r'^api/v%d/' % CURRENT_VERSION, include('api.urls')),
     (r'^common/', include('common.urls')),

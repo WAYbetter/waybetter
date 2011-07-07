@@ -3,7 +3,7 @@
       {% if LANGUAGE_BIDI %}dir="rtl"{% endif %} class="{{ page_specific_class }} {% if LANGUAGE_BIDI %}rtl{% endif %}">
 <head>
     <meta charset="utf-8">
-    <meta name="google-site-verification" content="6M7E60YhxlrZR6e8sXaMr2_9hy-TwfdXM-orIbAlwXA" />
+    <meta name="google-site-verification" content="6M7E60YhxlrZR6e8sXaMr2_9hy-TwfdXM-orIbAlwXA"/>
 
     <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
          Remove this if you use the .htaccess -->
@@ -21,14 +21,14 @@
 
     {% block extrastyle %}
         <!-- css concatenated and minified via ant build script-->
-        <link rel="stylesheet" href="/static/css/custom-theme/jquery-ui-1.8.4.custom.css" type="text/css" media="all" />
-        <link rel="stylesheet" href="/static/css/jquery.ui.stars.css" type="text/css" media="all" />
+        <link rel="stylesheet" href="/static/css/custom-theme/jquery-ui-1.8.4.custom.css" type="text/css" media="all"/>
+        <link rel="stylesheet" href="/static/css/jquery.ui.stars.css" type="text/css" media="all"/>
         <link rel="stylesheet" type="text/css" href="/static/css/waybetter.css"/>
         <link rel="stylesheet" type="text/css" href="/static/css/station_page.css"/>
         <link rel="stylesheet" type="text/css" href="/static/css/order_history.css"/>
-        <link rel="stylesheet" href="/static/css/nivo-slider.css" type="text/css" media="screen" />
-        <link rel="stylesheet" href="/static/css/socialauth.css" />
-        <link rel="stylesheet" href="/static/css/openid.css" />
+        <link rel="stylesheet" href="/static/css/nivo-slider.css" type="text/css" media="screen"/>
+        <link rel="stylesheet" href="/static/css/socialauth.css"/>
+        <link rel="stylesheet" href="/static/css/openid.css"/>
         <!-- end css-->
         <!--[if IE]><link rel="stylesheet" type="text/css" href="{% block stylesheet_ie %}/static/css/waybetter.ie.css{% endblock %}" />
         <![endif]-->
@@ -54,8 +54,8 @@
     <script src="/static/js/libs/respond.min.js"></script>
 
 
-{% block extrahead %}
-{% endblock %}
+    {% block extrahead %}
+    {% endblock %}
 
 </head>
 {% load i18n %}
@@ -66,55 +66,56 @@
 <div id="main-container">
 
     {% if not is_popup %}
-    <!-- Header -->
-    <div id="header-container">
-        <div id="header">
-            {% block header %}
-            <div id="banner">
-                <a href="/" id="logo"></a>
-                <h3>{% block sub-header %}{% trans 'Get Your Taxis Online (FREE)' %}{% endblock %}</h3>
+        <!-- Header -->
+        <div id="header-container">
+            <div id="header">
+                {% block header %}
+                    <div id="banner">
+                        <a href="/" id="logo"></a>
+                        <h3>{% block sub-header %}{% trans 'Get Your Taxis Online (FREE)' %}{% endblock %}</h3>
+                    </div>
+                    <div id="tools">
+                        <div id="user_tools">
+                            {% block usertools %}
+                                {% if request.user.is_authenticated %}
+                                    <strong>{% trans 'Hi' %}
+                                        {% if request.user.first_name %}
+                                            {{ request.user.first_name }}
+                                        {% else %}
+                                            {{ request.user.username }}
+                                        {% endif %}
+                                        ! | <a href="/logout?next=/" id="logout_link">{% trans 'Log out' %}</a></strong>
+                                {% else %}
+                                    {% block join_or_login %}{% endblock join_or_login %}
+                                {% endif %}
+                            {% endblock usertools %}
+                        </div>
+                        <div id="lang_tools">
+                            {% block langtools %}
+                                <form action="/i18n/setlang/" method="post" class="languages">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="language" id="language"/>
+                                    <select>
+                                        {% for lang in LANGUAGES %}
+                                            <option value="{{ lang.0 }}">{{ lang.1 }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </form>
+                            {% endblock langtools %}
+                        </div>
+                    </div>
+                    <div id="alpha"></div>
+                    <div class="clear"></div>
+                {% endblock header %}
             </div>
-            <div id="tools">
-                <div id="user_tools">
-                    {% block usertools %}
-                    {% if request.user.is_authenticated %}
-                        <strong>{% trans 'Hi' %}
-                        {%  if request.user.first_name %}
-                            {{ request.user.first_name }}
-                        {% else %}
-                            {{ request.user.username }}
-                        {% endif %}
-                        ! | <a href="/logout?next=/" id="logout_link">{% trans 'Log out' %}</a></strong>
-                    {% else %}
-                        {% block join_or_login %}{% endblock join_or_login %}
-                    {% endif %}
-                    {% endblock usertools %}
-                </div>
-                <div id="lang_tools">
-                    {% block langtools %}
-                        <form action="/i18n/setlang/" method="post" class="languages">
-                        {% csrf_token %}
-                        <input type="hidden" name="language" id="language" />
-                        <select>
-                            {% for lang in LANGUAGES %}
-                                <option value="{{ lang.0 }}">{{ lang.1 }}</option>
-                            {% endfor %}
-                        </select>
-                        </form>
-                    {% endblock langtools %}
-                </div>
-            </div>
-            <div id="alpha"></div>
-            <div class="clear"></div>
-            {% endblock header %}
+            {% block nav-global %}{% endblock %}
         </div>
-        {% block nav-global %}{% endblock %}
-    </div>
-    <!-- END Header -->
+        <!-- END Header -->
     {% endif %}
 
     {% if messages %}
-    <ul class="messagelist">{% for message in messages %}<li>{{ message }}</li>{% endfor %}</ul>
+        <ul class="messagelist">{% for message in messages %}
+            <li>{{ message }}</li>{% endfor %}</ul>
     {% endif %}
 
     <!-- Content -->
@@ -140,10 +141,28 @@
                     {% endcomment %}
                     <a href="{% url ordering.passenger_controller.info_pages %}#terms">{% trans 'Terms' %}</a>
                     <a href="{% url ordering.station_controller.stations_home %}">{% trans 'Station Entrance' %}</a>
+
+                    <div id="footer_plusone">
+                        <g:plusone count="false" size="small"></g:plusone>
+                        <script type="text/javascript" src="https://apis.google.com/js/plusone.js"></script>
+                    </div>
+
+                    <div id="footer_facebook">
+                        <div id="fb-root"></div>
+                        <script src="http://connect.facebook.net/en_US/all.js#xfbml=1"></script>
+                        <fb:like href="http://www.facebook.com/pages/WAYbetter/131114610286539" send="false" layout="button_count" width="50"
+                                 show_faces="true"
+                                 font=""></fb:like>
+                    </div>
+
+                    <div id="footer_twitter">
+                        <a href="http://twitter.com/pickmeapp" class="twitter-follow-button" data-show-count="false"></a>
+                        <script src="http://platform.twitter.com/widgets.js" type="text/javascript"></script>
+                    </div>
                 </span>
-                <span id="footer-copyright">
-            &copy; {% trans '2010 WAYbetter' %}
-        </span>
+                <div id="footer-copyright">
+                    &copy; {% trans '2010 WAYbetter' %}
+                </div>
             {% endblock %}
         </div>
     {% endif %}
@@ -154,30 +173,31 @@
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
 <script>window.jQuery.ui || document.write('<script src="static/js/libs/jquery-ui-1.8.13.min.js">\x3C/script>')</script>
 
-<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
+<script type="text/javascript"
+        src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
 
 <!-- scripts concatenated and minified via ant build script-->
-    <script type="text/javascript" src="/static/js/mylibs/json2.min.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.timers-1.2.min.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.placeheld.min.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.marquee.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.validation.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.formset.min.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.nivo.slider.pack.min.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/json2.min.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.timers-1.2.min.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.placeheld.min.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.marquee.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.validation.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.formset.min.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.nivo.slider.pack.min.js"></script>
 
-    <script type="text/javascript" src="/static/js/utils.js"></script>
-    <script type="text/javascript" src="/static/js/registration.js"></script>
-    <script type="text/javascript" src="/static/js/ordering.js"></script>
-    <script type="text/javascript" src="/static/js/social.js"></script>
-    <script type="text/javascript" src="/static/js/order_tracker.js"></script>
+<script type="text/javascript" src="/static/js/utils.js"></script>
+<script type="text/javascript" src="/static/js/registration.js"></script>
+<script type="text/javascript" src="/static/js/ordering.js"></script>
+<script type="text/javascript" src="/static/js/social.js"></script>
+<script type="text/javascript" src="/static/js/order_tracker.js"></script>
 <!-- end scripts-->
-    {% block doc_ready %}
-    {% endblock doc_ready %}
+{% block doc_ready %}
+{% endblock doc_ready %}
 
-    {% if not is_popup %}
+{% if not is_popup %}
     <script type="text/javascript">
         $(function() {
             $("form.languages select").val("{{ LANGUAGE_CODE }}");
@@ -194,9 +214,9 @@
             })
         })
     </script>
-    {% endif %}
-    {# more IE7 fixes #}
-    <!--[if IE 7]>
+{% endif %}
+{# more IE7 fixes #}
+<!--[if IE 7]>
     <script type="text/javascript">
          $(document).ready(function(){
             $(".waybetter").html("WAYbetter")
@@ -220,7 +240,7 @@
     }(document, 'script'));
 </script>
 
-{%  block extra-body %}{% endblock %}
+{% block extra-body %}{% endblock %}
 </body>
 
 </html>
