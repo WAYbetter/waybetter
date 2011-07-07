@@ -557,7 +557,9 @@ class Order(BaseModel):
             raise UpdateStatusError("update order status failed: %s to %s" % (old_status, new_status))
 
     def get_pickup_time(self):
-        ''' Return the time remaingin until pickup (in seconds), or -1 if pickup time passed already'''
+        """
+        Return the time remaingin until pickup (in seconds), or -1 if pickup time passed already
+        """
         if self.future_pickup:
             return ((self.modify_date + datetime.timedelta(minutes=self.pickup_time)) - utc_now()).seconds
         else:

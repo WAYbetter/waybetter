@@ -25,6 +25,8 @@ import os
 os.environ["TZ"] = "UTC"
 ISRAEL_ID = 12
 TLV_ID = 1604
+FAR_AWAY_LAT = -76.936516
+FAR_AWAY_LON = -12.234392
 ORDER_DATA = {
     "from_city": TLV_ID,
     "from_country": ISRAEL_ID,
@@ -94,7 +96,8 @@ def create_another_TLV_station(num_of_ws=1):
 
 def refresh_order(order):
     order = Order.objects.get(id=order.id)
-    memcache.set('ws_list_for_order_%s' % order.id, []) # make ORDER look fresh
+    memcache.set('ws_list_for_order_%s' % order.id, [])
+    memcache.set('ws_list_index_for_order_%s' % order.id, 0)
     return order
 
 def resuscitate_work_stations():
@@ -125,9 +128,6 @@ class BasicTests(TestCase):
         setup_testing_env.setup()
 
     def test_distance_from_station(self):
-        far_away_lat = -76.936516
-        far_away_lon = -12.234392
-
         station = Station.objects.all()[0]
 
         # valid distance from a point
@@ -143,18 +143,18 @@ class BasicTests(TestCase):
         self.assertTrue(station.is_in_valid_distance(order=order))
 
         # valid distance from an order dropoff
-        order.from_lat, order.from_lon = far_away_lat, far_away_lon
+        order.from_lat, order.from_lon = FAR_AWAY_LAT, FAR_AWAY_LON
         order.to_lat, order.to_lon = station.lat, station.lon
         order.save()
         self.assertTrue(station.is_in_valid_distance(order=order))
 
         # not in valid distance
-        self.assertFalse(station.is_in_valid_distance(from_lat=far_away_lat, from_lon=far_away_lon))
-        self.assertFalse(station.is_in_valid_distance(to_lat=far_away_lat, to_lon=far_away_lon))
-        self.assertFalse(station.is_in_valid_distance(from_lat=far_away_lat, from_lon=far_away_lon, to_lat=far_away_lat, to_lon=far_away_lon))
+        self.assertFalse(station.is_in_valid_distance(from_lat=FAR_AWAY_LAT, from_lon=FAR_AWAY_LON))
+        self.assertFalse(station.is_in_valid_distance(to_lat=FAR_AWAY_LAT, to_lon=FAR_AWAY_LON))
+        self.assertFalse(station.is_in_valid_distance(from_lat=FAR_AWAY_LAT, from_lon=FAR_AWAY_LON, to_lat=FAR_AWAY_LAT, to_lon=FAR_AWAY_LON))
 
-        order.from_lat, order.from_lon = far_away_lat, far_away_lon
-        order.to_lat, order.to_lon = far_away_lat, far_away_lon
+        order.from_lat, order.from_lon = FAR_AWAY_LAT, FAR_AWAY_LON
+        order.to_lat, order.to_lon = FAR_AWAY_LAT, FAR_AWAY_LON
         order.save()
         self.assertFalse(station.is_in_valid_distance(order=order))
 
@@ -345,19 +345,24 @@ class DispatcherTest(TestCase):
         jerusalem_ws.is_online = True
         jerusalem_ws.save()
         self.assertTrue(choose_workstation(order) is None, "work station are dead, none is expected")
+        refresh_order(order)
 
         # live but don't accept orders
         set_accept_orders_false([tel_aviv_ws1, tel_aviv_ws2])
         resuscitate_work_stations()
         self.assertTrue(choose_workstation(order) is None, "don't accept orders, none is expected.")
+        refresh_order(order)
 
         # tel_aviv_ws2 is live and accepts orders
         set_accept_orders_true([tel_aviv_ws2])
         resuscitate_work_stations()
         self.assertTrue(choose_workstation(order) == tel_aviv_ws2, "tel aviv work station 2 is expected.")
+        refresh_order(order)
 
-    def test_choose_workstation_ignored_and_rejected(self):
+    def test_choose_workstation_ignored(self):
         self._run_ignored_or_rejected_test(IGNORED)
+
+    def test_choose_workstation_rejected(self):
         self._run_ignored_or_rejected_test(REJECTED)
 
     def _run_ignored_or_rejected_test(self, status):
@@ -402,7 +407,7 @@ class DispatcherTest(TestCase):
         self.assertTrue(ws_list[0].station == ws_list[2].station and ws_list[1].station == ws_list[3].station, "stations should alternate")
 
         # work stations should alternate
-        self.assertTrue(ws_list[0] != ws_list[2] and ws_list[1] != ws_list[3], "stations should alternate")
+        self.assertTrue(ws_list[0] != ws_list[2] and ws_list[1] != ws_list[3], "work stations should alternate")
 
         #
         # scenario: station x -> station y (reject) -> station x
@@ -516,7 +521,8 @@ class DispatcherTest(TestCase):
         self.client.post(reverse('ordering.order_manager.book_order'), data={"order_id": order.id})
         passenger = Passenger.objects.get(id=passenger.id) # refresh passenger
         self.assertTrue(passenger.originating_station == originating_station, "passenger.originating_station should be tel_aviv_station and not %s" % passenger.originating_station)
-
+        refresh_order(order)
+        
         # resuscitate work stations and order
         resuscitate_work_stations()
         self.assertTrue(choose_workstation(order).station == originating_station, "originating station is expected")
@@ -551,6 +557,13 @@ class DispatcherTest(TestCase):
 
         # order, should get confining station
         resuscitate_work_stations()
+        self.assertTrue(choose_workstation(order).station == confining_station, "confining station is expected")
+
+        # order out of confining station service radius, should still assign the order
+        order.from_lat, order.from_lon = FAR_AWAY_LAT, FAR_AWAY_LON
+        order.to_lat, order.to_lon = None, None
+        order.save()
+        refresh_order(order)
         self.assertTrue(choose_workstation(order).station == confining_station, "confining station is expected")
 
         # create a REJECTED assignment by confining_station, should get None

@@ -48,26 +48,36 @@ def assign_order(order):
 
 
 def choose_workstation(order):
+    """
+    Choose the next work station to be assigned.
+
+    Get the ws_list and iteration index from memcache or re-compute it if necessary (memcache was flushed).
+    """
     ws_list_key = 'ws_list_for_order_%s' % order.id
-    ws_list = memcache.get(ws_list_key) or []
+    index_key = 'ws_list_index_for_order_%s' % order.id
+
+    ws_list = memcache.get(ws_list_key)
+    index = memcache.get(index_key)
+
     if not ws_list:
         ws_list = compute_ws_list(order)
+        memcache.set(ws_list_key, ws_list)
 
+    if not index:
+        index = 0
+        memcache.set(index_key, index)
 
-    # remove work stations whose station rejected/ignored this order
+    # fetch a current list of rejected stations
     rejected_station_ids = [order_assignment.station.id for order_assignment in
                             OrderAssignment.objects.filter(order=order, status__in=[models.REJECTED, models.IGNORED])]
-    rejected_ws = WorkStation.objects.filter(dn_station_id__in=rejected_station_ids)
+    rejected_ws_list = WorkStation.objects.filter(dn_station_id__in=rejected_station_ids)
 
-    for ws in rejected_ws:
-        if ws in ws_list:
-            ws_list.remove(ws) # assumes a work station appears at most once
-
-    if ws_list:
-        ws = ws_list.pop(0)
-        memcache.set(ws_list_key, ws_list)
-        logging.info("next ws is: %s" % ws)
-        return ws
+    # cycle over the list to find the next ws: start at index from previous call (memcached)
+    for i in range(index, len(ws_list)) + range(0, index):
+        ws = ws_list[i].fresh_copy()
+        if is_workstation_available(ws) and ws not in rejected_ws_list:
+            memcache.set(index_key, i+1)
+            return ws
 
     return None
 
@@ -99,11 +109,14 @@ def compute_ws_list(order):
     first_round_ws = []
     second_round_ws = []
 
-    # originating station is first, default station is second then the rest of the stations ordered by distance from order
+    # originating station is first, default station is second then the rest of the stations ordered by distance to pickup
     for ws in sorted(ws_qs, key=lambda ws: ws.station.distance_from_order(order=order, to_pickup=True, to_dropoff=False)):
         station = ws.station
 
-        if is_workstation_available(ws) and station.is_in_valid_distance(order=order):
+        if station == order.confining_station:
+            originating_ws.append(ws)
+
+        elif station.is_in_valid_distance(order=order):
             if station == order.originating_station:
                 originating_ws.append(ws)
             elif station == order.passenger.default_station:
