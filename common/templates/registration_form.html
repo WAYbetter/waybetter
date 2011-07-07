@@ -67,6 +67,14 @@
         }
     };
 
+    function getShareMessage(){
+        var share_msg = "{% trans 'I’ve just ordered a taxi from' %}" + $("#id_from_raw").val();
+            if ($("#id_to_raw").val() !== ""){
+                share_msg += " {% trans 'to' %} " + $("#id_to_raw").val();
+            }
+        return share_msg;
+    }
+
     $(function () {
         $("#registration_form input[type!=checkbox]").focus(function() {
             Registrator.validator.element(this);
@@ -75,8 +83,6 @@
 
         $("#share_on_fb").click(function(e) {
             e.preventDefault();
-
-            var share_msg = "{% trans 'I’ve just ordered a taxi from' %} " + $("#id_from_raw").val() + " using 'Pick Me App'";
             window.location.href = "http://www.facebook.com/dialog/feed?" +
                     "&app_id=192499990799534" +
                     "&link=http://www.WAYbetter.com/dl" +
@@ -84,15 +90,13 @@
                     "&name=" + "{% trans 'Pick Me App by WAYbetter' %}" +
                     "&caption=" + "{% trans 'The easiest way to get a taxi' %}" +
                     "&description=" +
-                    "&message=" + share_msg +
+                    "&message=" + getShareMessage() +
                     "&redirect_uri=http://www.WAYbetter.com";
         });
 
         $("#share_on_twitter").click(function(e) {
             e.preventDefault();
-
-            var share_msg = "{% trans 'I’ve just ordered a taxi from' %} " + $("#id_from_raw").val() + " using 'Pick Me App'";
-            window.location.href = "http://twitter.com/share?text=" + share_msg + "&url=http://www.WAYbetter.com/dl";
+            window.location.href = "http://twitter.com/share?text=" + getShareMessage() + "&url=http://www.WAYbetter.com/dl";
         });
     });
 </script>
