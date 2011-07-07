@@ -281,16 +281,36 @@ input.text, input[type=text], input[type=password] {
 
 #footer #footer-links a {
     color: #5c5c5c;
-    padding-right: 59px;
+    padding-right: 60px;
     font-size: 15px;
 }
 
-#footer #footer-links {
-    float: left;
+#footer_plusone {
+    width: 30px;
+    overflow: hidden;
+    vertical-align: middle;
+    display: inline-block;
+}
+
+#footer_facebook {
+    width: 50px;
+    overflow: hidden;
+    vertical-align: top;
+    display: inline-block;
+}
+
+#footer_twitter {
+    width: 63px;
+    overflow: hidden;
+    vertical-align: top;
+    display: inline-block;
 }
 
 #footer #footer-copyright {
-    float: right
+    margin-top: 10px;
+    position: relative;
+    bottom: -30px;
+    font-size: 14px;
 }
 
 /************* Marquee *************/
@@ -783,6 +803,67 @@ ul.ui-tabs-nav .ui-state-hover a {
 #dialog #ok {
     float: right;
     margin-bottom:  10px;
+}
+
+#dialog #ok.centered {
+    position: absolute;
+    left: 116px;
+    width: 170px;
+    float: none;
+    margin-top: 22px;
+    margin-bottom: 30px;
+    height: 40px;
+    font-size: 24px;
+}
+
+#dialog #share {
+    position: relative;
+    top: 89px;
+    height: 107px;
+}
+
+#dialog #share .facebook_share {
+    float: left;
+}
+
+.rtl #dialog #share .facebook_share {
+    float: right;
+}
+
+#dialog #share .twitter_share {
+    float: right;
+    margin-right: 7px;
+}
+
+.rtl #dialog #share .twitter_share {
+    float: left;
+    margin-right: 0;
+    margin-left: 7px;
+}
+
+.facebook_share_img {
+    display: inline-block;
+    background: url(../images/facebook_share.png) no-repeat;
+    height: 30px;
+    width: 47px;
+    vertical-align: text-bottom;
+    margin-right: 10px;
+}
+
+.twitter_share_img {
+    display: inline-block;
+    background: url(../images/tweet_ride.png) no-repeat;
+    height: 30px;
+    width: 47px;
+    vertical-align: text-bottom;
+    margin-right: 2px;
+}
+
+.rtl .twitter_share_img {
+    -moz-transform: scaleX(-1);
+    -webkit-transform: scaleX(-1);
+    -o-transform: scaleX(-1);
+    transform: scaleX(-1);
 }
 
 .sms_extra_form_line{
@@ -1825,7 +1906,7 @@ font-size: 16px;}
 #business_interest_dialog #submit {
     width: 150px;
     position: relative;
-    
+
 left: -1px;}
 
 #business_interest_dialog #close {
