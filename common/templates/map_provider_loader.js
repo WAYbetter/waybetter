@@ -1,0 +1,1 @@
+document.write('<script src="{{ map_provider_url }}">\x3C/script>');

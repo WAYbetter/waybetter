@@ -1,4 +1,5 @@
 from django.conf.urls.defaults import *
+from django.conf import settings
 from django.views.generic.simple import direct_to_template
 
 
@@ -23,6 +24,7 @@ urlpatterns = patterns('',
     (r'broadcast_signal/$', 'common.signals.send_async'),
     (r'flush_memcache/$', 'common.geocode.flush_memcache'),
     url(r'get_terms/$', direct_to_template, {'template': "terms_form.html"} ,name="terms_dialog"),
+    url(r'map_provider_loader\.js/$', direct_to_template, {'template': "map_provider_loader.js", 'extra_context': { "map_provider_url": settings.MAP_PROVIDER_LIB_URL }}),
 
 )
 

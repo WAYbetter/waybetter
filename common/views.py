@@ -56,6 +56,7 @@ def maintenance_task(request):
         return HttpResponse("Failed")
 
 
+
 def do_task():
     denormalize_order_assignments()
 
