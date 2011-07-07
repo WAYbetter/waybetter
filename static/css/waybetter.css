@@ -285,6 +285,12 @@ input.text, input[type=text], input[type=password] {
     font-size: 15px;
 }
 
+.rtl #footer #footer-links a {
+    padding-right: 0;
+    padding-left: 80px;
+    font-size: 14px;
+}
+
 #footer_plusone {
     width: 30px;
     overflow: hidden;
@@ -299,11 +305,19 @@ input.text, input[type=text], input[type=password] {
     display: inline-block;
 }
 
+.rtl #footer_facebook {
+    direction: ltr;
+}
+
 #footer_twitter {
     width: 63px;
     overflow: hidden;
     vertical-align: top;
     display: inline-block;
+}
+
+.rtl #footer_twitter {
+    direction: ltr;
 }
 
 #footer #footer-copyright {
