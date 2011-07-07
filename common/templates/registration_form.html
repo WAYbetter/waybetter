@@ -67,42 +67,79 @@
         }
     };
 
+    function getShareMessage(){
+        var share_msg = "{% trans 'I’ve just ordered a taxi from' %}" + $("#id_from_raw").val();
+            if ($("#id_to_raw").val() !== ""){
+                share_msg += " {% trans 'to' %} " + $("#id_to_raw").val();
+            }
+        return share_msg;
+    }
+
     $(function () {
         $("#registration_form input[type!=checkbox]").focus(function() {
             Registrator.validator.element(this);
         });
         $(".ui-dialog-title").addClass("sending").removeClass("success");
 
+        $("#share_on_fb").click(function(e) {
+            e.preventDefault();
+            window.location.href = "http://www.facebook.com/dialog/feed?" +
+                    "&app_id=192499990799534" +
+                    "&link=http://www.WAYbetter.com/dl" +
+                    "&picture=http://www.waybetter.com/static/images/90x90_app_icon.jpg" +
+                    "&name=" + "{% trans 'Pick Me App by WAYbetter' %}" +
+                    "&caption=" + "{% trans 'The easiest way to get a taxi' %}" +
+                    "&description=" +
+                    "&message=" + getShareMessage() +
+                    "&redirect_uri=http://www.WAYbetter.com";
+        });
+
+        $("#share_on_twitter").click(function(e) {
+            e.preventDefault();
+            window.location.href = "http://twitter.com/share?text=" + getShareMessage() + "&url=http://www.WAYbetter.com/dl";
+        });
     });
 </script>
 {% block extra_script %}
 {% endblock %}
 
 {% block content %}
-<div id="registration_header">
-    <div class="progress-sub-title"></div>
-     <button id="ok" class="wb_button blue">{% trans 'OK' %}</button>
-</div>
-<div id="registration">
-<h1>{% trans "In the meantime, join for better experience (free)" %}</h1>
-<form id="registration_form">
-    <div id="user_details">
-        <fieldset class="register">
-            <label for="email">{% trans 'Your Email' %}</label>
-            <input name="email" id="email" type="text" />
-            <label for="password">{% trans 'Choose Password' %}</label>
-            <input name="password" id="password" type="password" />
-            <label for="password_again">{% trans 'Re-enter Password' %}</label>
-            <input name="password_again" id="password_again" type="password" />
-            <p>
-                <input name="approve_emails" type="checkbox" checked/> {% trans 'Get emails from waybetter (we promise not to spam)' %}
-            </p>
-        </fieldset>
-        <div id="button_container">
-            <button id="join" class="wb_button gold">{% trans 'JOIN' %}</button>
-        </div>
+    <div id="registration_header">
+        <div class="progress-sub-title"></div>
+        <button id="ok" class="wb_button blue centered">{% trans 'OK' %}</button>
     </div>
-</form>
+    <div id="share">
+        <div class="facebook_share">
+            <span class="facebook_share_img"></span>
+            <a id="share_on_fb" href="#">{% trans 'Share On Facebook' %}</a>
+        </div>
+        <div class="twitter_share">
+            <span class="twitter_share_img"></span>
+            <a id="share_on_twitter" href="#">{% trans 'Tweet Your Ride' %}</a>
+        </div>
+        <div class="clear"></div>
+    </div>
+    <div id="registration">
+    <h1>{% trans "In the meantime, join for better experience (free)" %}</h1>
+    <form id="registration_form">
+        <div id="user_details">
+            <fieldset class="register">
+                <label for="email">{% trans 'Your Email' %}</label>
+                <input name="email" id="email" type="text"/>
+                <label for="password">{% trans 'Choose Password' %}</label>
+                <input name="password" id="password" type="password"/>
+                <label for="password_again">{% trans 'Re-enter Password' %}</label>
+                <input name="password_again" id="password_again" type="password"/>
+                <p>
+                    <input name="approve_emails" type="checkbox"
+                           checked/> {% trans 'Get emails from waybetter (we promise not to spam)' %}
+                </p>
+            </fieldset>
+            <div id="button_container">
+                <button id="join" class="wb_button gold">{% trans 'JOIN' %}</button>
+            </div>
+        </div>
+    </form>
 {% endblock %}
 
 {% include 'social_login.html' %}
