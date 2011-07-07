@@ -1,6 +1,10 @@
 {% extends "base_passenger.html" %}
 {% load i18n %}
 
+{% block title %}
+    {% trans "Free Online Taxi Booking - WAYbetter" %}
+{% endblock title %}
+
 {% block extrahead %}
 {{ block.super }}
     {% if show_tracker %}
