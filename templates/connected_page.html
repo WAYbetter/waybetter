@@ -14,10 +14,12 @@
          }
          renderStatus();
          if (window.parentSandboxBridge) {
-             //TODO: fix this on the air side as well - make sure only one instance of the refresh task is running
-             parentSandboxBridge.set_error_state(false);
-             parentSandboxBridge.refresh();
-             parentSandboxBridge.set_error_state(true);
+             if (! window.parentSandboxBridge.is_error()) { // already in error state
+                 //TODO: fix this on the air side as well - make sure only one instance of the refresh task is running
+                 parentSandboxBridge.set_error_state(false);
+                 parentSandboxBridge.refresh();
+                 parentSandboxBridge.set_error_state(true);
+             }
          }
      }
 
@@ -36,6 +38,7 @@
          renderStatus();
          if (window.parentSandboxBridge) {
              parentSandboxBridge.set_error_state(false);
+             parentSandboxBridge.refresh();
          }
      }
 
