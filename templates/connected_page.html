@@ -14,10 +14,9 @@
          }
          renderStatus();
          if (window.parentSandboxBridge) {
-             {% if test_fix %}
+             //TODO: fix this on the air side as well - make sure only one instance of the refresh task is running
              parentSandboxBridge.set_error_state(false);
              parentSandboxBridge.refresh();
-             {% endif %}
              parentSandboxBridge.set_error_state(true);
          }
      }
