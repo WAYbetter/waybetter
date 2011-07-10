@@ -26,7 +26,7 @@
     {% if workstation_agent %}
         <br/>
         <h1>
-            <a href="{% url ordering.station_controller.station_analytics %}"
+            <a id="station_analytics_link" href="{% url ordering.station_controller.station_analytics %}"
            target="_blank">{% trans "To open station analytics in a new page click here" %}</a>
         </h1>
         <br/>
@@ -61,6 +61,11 @@
                     {% if rating_disabled %}
                         ,rating_disabled:            true
                     {% endif %}
+                });
+
+                $("#station_analytics_link").click(function(e) {
+                    e.preventDefault();
+                    window.open($(this).attr("href"), 'analytics', 'width=850,height=700,resizable');
                 });
 
 
