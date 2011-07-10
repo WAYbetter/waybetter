@@ -14,6 +14,10 @@
          }
          renderStatus();
          if (window.parentSandboxBridge) {
+             {% if test_fix %}
+             parentSandboxBridge.set_error_state(false);
+             parentSandboxBridge.refresh();
+             {% endif %}
              parentSandboxBridge.set_error_state(true);
          }
      }
