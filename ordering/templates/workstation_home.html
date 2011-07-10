@@ -458,6 +458,7 @@
         var last_rating = {{ station_rating }};
         var last_heartbeat = undefined;
         var init_token = "{{ token }}";
+        var channel_opened = false;
         var channel;
         var socket;
         
@@ -480,6 +481,7 @@
 
                 $(document).everyTime(POLLING_INTERVAL, checkVersion);
                 $(document).everyTime(2 * POLLING_INTERVAL, checkHeartbeat);
+                clearError();
             } catch (e) {
                 onError();
             }
@@ -501,7 +503,7 @@
             };
             socket.onopen = function() {
                 trace("socket: onopen");
-                clearError();
+                channel_opened = true;
             };
             socket.onmessage = function(msg) {
                 try {
@@ -515,6 +517,13 @@
                 } catch (e) { trace("error parsing: " + JSON.stringify(e))}
 
             };
+
+            $(document).oneTime("10s", function() {
+                if (! channel_opened) {
+                    trace("Channel did not open correctly");
+                    onError()
+                }
+            })
         }
         function renderStatus() {
             if (is_in_error) {
@@ -940,7 +949,7 @@
 
         function trace(str) {
             if (window.parentSandboxBridge) {
-                parentSandboxBridge.trace(str);
+                parentSandboxBridge.trace(new Date().toISOString() + ": " + str);
             }
         }
 
