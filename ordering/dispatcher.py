@@ -106,7 +106,7 @@ def compute_ws_list(order):
     ws_qs = ws_qs.exclude(accept_orders=False)
 
     # include only work stations within valid distance
-    ws_qs = filter(lambda ws: ws.station.is_in_valid_distance(order=order), ws_qs)
+    ws_qs = filter(lambda ws: ws.station.is_in_valid_distance(order=order) or ws.station == order.confining_station, ws_qs)
 
     station_list = []
     originating_ws = []
