@@ -113,6 +113,7 @@ class Station(BaseModel):
 
     number_of_ratings = models.IntegerField(_("number of ratings"), default=0)
     average_rating = models.FloatField(_("average rating"), default=0.0)
+    internal_rating = models.FloatField(_("internal rating"), default=0)
 
     create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
     modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
