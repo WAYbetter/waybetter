@@ -1,0 +1,3 @@
+class MetricError(Exception):
+    pass
+  

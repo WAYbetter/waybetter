@@ -1,6 +1,8 @@
 #from ordering.views import OrderError
 import logging
 from google.appengine.api import memcache
+from metrics.models import WorkStationMetric
+from metrics.util import sort_by_metrics
 from ordering.models import OrderAssignment, Station, WorkStation
 from ordering.signals import orderassignment_created_signal
 from ordering.station_connection_manager import is_workstation_available
@@ -103,6 +105,9 @@ def compute_ws_list(order):
     # exclude work stations that don't accept orders
     ws_qs = ws_qs.exclude(accept_orders=False)
 
+    # include only work stations within valid distance
+    ws_qs = filter(lambda ws: ws.station.is_in_valid_distance(order=order), ws_qs)
+
     station_list = []
     originating_ws = []
     default_ws = []
@@ -110,13 +115,13 @@ def compute_ws_list(order):
     second_round_ws = []
 
     # originating station is first, default station is second then the rest of the stations ordered by distance to pickup
-    for ws in sorted(ws_qs, key=lambda ws: ws.station.distance_from_order(order=order, to_pickup=True, to_dropoff=False)):
+    for ws in sort_by_metrics(ws_qs, WorkStationMetric.objects.all(), order=order):
         station = ws.station
 
         if station == order.confining_station:
             originating_ws.append(ws)
 
-        elif station.is_in_valid_distance(order=order):
+        else:
             if station == order.originating_station:
                 originating_ws.append(ws)
             elif station == order.passenger.default_station:
