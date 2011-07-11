@@ -26,6 +26,12 @@ handlers:
 - url: /extensions/notifier.crx
   static_files: static/extension/notifier.crx
   upload: static/extension/notifier.crx
+  expiration: "10s"
+
+- url: /extensions/updates.xml
+  static_files: static/extension/updates.xml
+  upload: static/extension/updates.xml
+  expiration: "10s"
 
 - url: /.*
   script: djangoappengine/main/main.py
