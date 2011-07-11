@@ -23,12 +23,17 @@ handlers:
 - url: /_ah/channel/.*
   script: ordering/channel_handler.py
 
+- url: /extensions/notifier.crx
+  static_files: static/extension/notifier.crx
+  upload: static/extension/notifier.crx
+
 - url: /.*
   script: djangoappengine/main/main.py
 
 - url: /favicon.ico
   static_files: static/images/favicon.ico
   upload: static/images/favicon.ico
+
 
 skip_files:
 - ^(.*/)?app\.yaml

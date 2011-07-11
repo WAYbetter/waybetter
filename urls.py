@@ -25,6 +25,7 @@ urlpatterns = patterns('',
 
     (r'^favicon\.ico$', 'django.views.generic.simple.redirect_to', {'url': '/static/images/favicon.ico'}),
     (r'^sitemap\.xml$', 'django.views.generic.simple.direct_to_template', {'template': 'sitemap.xml', 'mimetype': 'text/xml'}),
+    (r'^extensions/updates\.xml$', 'django.views.generic.simple.direct_to_template', {'template': 'updates.xml', 'mimetype': 'text/xml'}),
     (r'^robots\.txt$', 'django.views.generic.simple.direct_to_template', {'template': 'robots.txt', 'mimetype': 'text/plain'}),
 )
 
