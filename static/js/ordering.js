@@ -8,24 +8,24 @@ $.widget("custom.catcomplete", $.ui.autocomplete, {
     responseWrapper: function() {
         this.response.apply( this, arguments );
 
-        var address = Address.fromInput(this.element),
+        var element_type = ($(this.element).hasClass("address_ac_from")) ? 'from' : 'to',
             $header = $(".address-helper-autocomplete"),
-            loader_class = "address-helper-loading-" + address.address_type;
+            loader_class = "address-helper-loading-" + element_type;
 
         if (this.element.hasClass("ui-autocomplete-loading")){
             $header.addClass(loader_class);
         }
         else{
             $header.removeClass(loader_class);
-            $(".address-helper").filter("." + address.address_type).removeClass(loader_class);
+            $(".address-helper").filter("." + element_type).removeClass(loader_class);
         }
     },
     _renderMenu: function(ul, items) {
         var self = this,
                 currentCategory = undefined,
-                address = Address.fromInput(this.element);
+                element_type = ($(this.element).hasClass("address_ac_from")) ? 'from' : 'to';
 
-        ul.append("<li class='address-helper-autocomplete " + address.address_type + "'>" + OrderingHelper.config.autocomplete_msg + "</li>");
+        ul.append("<li class='address-helper-autocomplete " + element_type + "'>" + OrderingHelper.config.autocomplete_msg + "</li>");
         $.each( items, function( index, item ) {
             self._renderItem( ul, item );
         });
@@ -76,10 +76,6 @@ var OrderingHelper = Object.create({
 
 
     },
-    ADDRESS_FIELD_ID_BY_TYPE:       {
-        from:   "id_from_raw",
-        to:     "id_to_raw"
-    },
     map:                            {},
     map_markers:                    {},
     map_markers_popups:             {},
@@ -101,7 +97,8 @@ var OrderingHelper = Object.create({
                 address_helper.text(this.config.address_not_resolved_msg).addClass("address-error").fadeIn("fast");
             } else {
                 $(element).addClass("marker_disabled").removeClass("not_resolved");
-                address_helper.text(this.config["address_helper_msg_" + address_type]).removeClass("address-error");
+                var element_type = ($(element).hasClass("address_ac_from")) ? 'from' : 'to';
+                address_helper.text(this.config["address_helper_msg_" + element_type]).removeClass("address-error");
             }
         }
         
@@ -123,10 +120,92 @@ var OrderingHelper = Object.create({
         if (! address.isResolved()) {
             $(element).catcomplete("search");
             $(element).removeClass("not_resolved").addClass("marker_disabled");
-            address_helper.text(this.config["address_helper_msg_" + address_type]).removeClass("address-error");
+
+            var element_type = ($(element).hasClass("address_ac_from")) ? 'from' : 'to';
+            address_helper.text(this.config["address_helper_msg_" + element_type]).removeClass("address-error");
             address_helper.fadeIn("fast");
         }
     },
+
+    _makeAddressInput:          function(element){
+        var that = this;
+
+        var address = Address.fromInput(element);
+        var address_type = address.address_type;
+
+        var element_type = ($(element).hasClass("address_ac_from")) ? 'from' : 'to';
+
+        var helper_div = $("<div class='address-helper round " + element_type + "'></div>");
+        $(element).after(helper_div);
+        $(element).focus(
+            function() {
+                that._onAddressInputFocus(element, address_type);
+            }).blur(function() {
+                that._onAddressInputBlur(element, address_type);
+            });
+        $(element).catcomplete({
+            mustMatch: true,
+            selectFirst: true,
+            source: function (request, response) {
+                catcomplete_instance = this;
+
+                $(".address-helper, .address-helper-autocomplete").filter("." + element_type).addClass("address-helper-loading-" + element_type);
+                var address = undefined,
+                    lat = undefined,
+                    lon = undefined;
+
+                address = (element_type == 'from') ? Address.fromFields('to') : Address.fromFields('from');
+                if (address.isResolved()) {
+                    lat = address.lat;
+                    lon = address.lon;
+                }
+                //TODO_WB: add max_size parameter, when "More..." is requested
+                $.ajax({
+                    url: that.config.resolve_address_url,
+                    data: { "term":request.term, "lon": lon, "lat": lat },
+                    dataType: "json",
+                    success: function(resolve_results) {
+                        if (resolve_results.geocode.length == 0 && resolve_results.history.length == 0) {
+                            catcomplete_instance.responseWrapper([]);
+
+                        } else { // create autocomplete items from server response
+                            var items = $.map(resolve_results.history, function(item) {
+                                return {
+                                    label: item.name,
+                                    value: item.name,
+                                    category: resolve_results.history_label,
+                                    address: Address.fromServerResponse(item, address_type)
+                                }
+                            });
+
+                            catcomplete_instance.responseWrapper(items.concat($.map(resolve_results.geocode, function(item) {
+                                return {
+                                    label: item.name,
+                                    value: item.name,
+                                    category: resolve_results.geocode_label,
+                                    address: Address.fromServerResponse(item, address_type)
+                                }
+                            })));
+                        }
+                    },
+                    error: function() {
+                        catcomplete_instance.responseWrapper([]);
+                    }
+                });
+            },
+            select: function (event, ui) {
+                if (ui.item.address) {
+                    that.updateAddressChoice(ui.item.address);
+                    that._onAddressInputBlur(this, ui.item.address.address_type);
+                }
+
+            },
+            open: function(event, ui) {
+                $('ul.ui-autocomplete').css("z-index", 3000);
+            }
+        });
+    },
+
     init:                       function(config) {
         var that = this;
         this.config = $.extend(true, {}, this.config, config);
@@ -148,79 +227,12 @@ var OrderingHelper = Object.create({
             }
         };
         $("#ride_cost_estimate").html(this.config.estimation_msg);
-        $("input:text").each(function(i, element) {
-            var address = Address.fromInput(element);
-            var address_type = address.address_type;
-            var helper_div = $("<div class='address-helper round "+ address_type +"'></div>");
-            $(element).after(helper_div);
-            $(element).focus(function() {
-                that._onAddressInputFocus(element, address_type);
-            }).blur(function() {
-                that._onAddressInputBlur(element, address_type);
-            });
-            $(element).catcomplete({
-                mustMatch: true,
-                selectFirst: true,
-                source: function (request, response) {
-                    catcomplete_instance = this;
 
-                    $(".address-helper, .address-helper-autocomplete").filter("." + address_type).addClass("address-helper-loading-" + address_type);
-                    var address = undefined,
-                        lat     = undefined,
-                        lon     = undefined;
-
-                    address = (address_type == 'from') ? Address.fromFields('to') : Address.fromFields('from');
-                    if (address.isResolved()) {
-                        lat = address.lat;
-                        lon = address.lon;
-                    }
-                    //TODO_WB: add max_size parameter, when "More..." is requested
-                    $.ajax({
-                        url: that.config.resolve_address_url,
-                        data: { "term":request.term, "lon": lon, "lat": lat },
-                        dataType: "json",
-                        success: function(resolve_results) {
-                            if (resolve_results.geocode.length == 0 && resolve_results.history.length == 0) {
-                                catcomplete_instance.responseWrapper([]);
-
-                            } else { // create autocomplete items from server response
-                                var items = $.map(resolve_results.history, function(item) {
-                                    return {
-                                        label: item.name,
-                                        value: item.name,
-                                        category: resolve_results.history_label,
-                                        address: Address.fromServerResponse(item, address_type)
-                                    }
-                                });
-
-                                catcomplete_instance.responseWrapper(items.concat($.map(resolve_results.geocode, function(item) {
-                                    return {
-                                        label: item.name,
-                                        value: item.name,
-                                        category: resolve_results.geocode_label,
-                                        address: Address.fromServerResponse(item, address_type)
-                                    }
-                                })));
-                            }
-                        },
-                        error: function(){
-                            catcomplete_instance.responseWrapper([]);
-                        }
-                    });
-                },
-                select: function (event, ui) {
-                    if (ui.item.address) {
-                        that.updateAddressChoice(ui.item.address);
-                        that._onAddressInputBlur(this, ui.item.address.address_type);
-                    }
-
-                },
-                open: function(event, ui) {
-                    $('ul.ui-autocomplete').css("z-index", 3000);
-                }
-            });
+        $(".address_ac_from, .address_ac_to").each(function(i, element) {
+            that._makeAddressInput(element);
         });
-        $("#id_from_raw, #id_to_raw").catcomplete("disable");
+        
+        $(".address_ac_from, .address_ac_to").catcomplete("disable");
 
         $("input:button, #order_button").button();
 
@@ -234,7 +246,7 @@ var OrderingHelper = Object.create({
         });
 
         var onentry_val = "";
-        $("#id_from_raw, #id_to_raw").change(function() {
+        $(".address_ac_from, .address_ac_to").change(function() {
             that.validateForBooking();
         }).keydown(function(e) {
             onentry_val = $(this).val();
@@ -265,7 +277,7 @@ var OrderingHelper = Object.create({
                     that.validateForBooking();
                 },
                 success: function(order_status) {
-                    clearError();
+                    clearError(); // TODO_WB: remove this??? clearError is defined in connected_page
                     if (order_status.status != "booked") {
                         Registrator.openErrorDialog(order_status.errors.title, order_status.errors.message);
                     } else {
@@ -300,7 +312,7 @@ var OrderingHelper = Object.create({
         //TODO_WB:add a check for map, timeout and check again.
         setTimeout(that.initPoints, 100);
         setTimeout(function() {
-            $("#id_from_raw, #id_to_raw").catcomplete("enable");
+            $(".address_ac_from, .address_ac_to").catcomplete("enable");
         }, 500);
         return this;
     }, // init
@@ -318,13 +330,13 @@ var OrderingHelper = Object.create({
         }
     },
     initPoints:                 function () {
-        for (var address_type in this.ADDRESS_FIELD_ID_BY_TYPE) {
-            var address = Address.fromFields(address_type);
-
+        var that = this;
+        $.each($(".address_ac_from, .address_ac_to"), function(i, input_element) {
+            var address = Address.fromInput(input_element);
             if (address.lon && address.lat) {
-                this.addPoint(address);
+                that.addPoint(address);
             }
-        }
+        });
     },
     addPoint:                   function (address) {
         var that = this,
@@ -401,7 +413,7 @@ var OrderingHelper = Object.create({
     updateAddressChoice:        function(address) {
         address.populateFields();
         this.addPoint(address);
-        $("#id_from_raw, #id_to_raw").catcomplete("disable");
+        $(".address_ac_from, .address_ac_to").catcomplete("disable");
         if (address.address_type == "from") {
             $("#id_from_raw").blur();
             $("#id_to_raw").focus();
@@ -444,22 +456,23 @@ var OrderingHelper = Object.create({
         $("#ride_cost_estimate").html(label).show();
     },
     validateForBooking:         function() {
-        for (var address_type in this.ADDRESS_FIELD_ID_BY_TYPE) {
-            var address = Address.fromFields(address_type);
+        var that = this;
+        $.each($(".address_ac_from, .address_ac_to"),function(i, input_element) {
+            var address = Address.fromInput(input_element);
             if (!address.isResolved()) {
                 address.clearFields();
-                if (this.map_markers[address.address_type]) {
-                    this.map_markers[address.address_type].setMap();
-                    delete this.map_markers[address.address_type];
+                if (that.map_markers[address.address_type]) {
+                    that.map_markers[address.address_type].setMap();
+                    delete that.map_markers[address.address_type];
                 }
-                this.renderMapMarkers();
-                $("#ride_cost_estimate").html(this.config.estimation_msg);
-                if (address_type == 'from') {
+                that.renderMapMarkers();
+                $("#ride_cost_estimate").html(that.config.estimation_msg);
+                if (address.address_type == 'from') {
                     $("#order_button").button("disable"); // disable ordering if from is not resolved
-                    return;
+                    return true;
                 }
             }
-        }
+        });
         $("#order_button").button("enable"); // enable ordering
     },
     bookOrder:              function () {
