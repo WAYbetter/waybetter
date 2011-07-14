@@ -87,7 +87,7 @@ def denormalize_order_assignments():
 
 
 def reset_password():
-    names = ["amir_station_2_workstation_1", "amir_station_1_workstation_2", "amir_station_2_workstation_2"]
+    names = ["amir_station_1", "amir_station_1_workstation_1", "amir_station_1_workstation_2", "amir_station_2", "amir_station_2_workstation_1", "amir_station_2_workstation_2"]
     for name in names:
         user = User.objects.get(username=name)
         user.set_password(name)
