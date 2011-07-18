@@ -1,6 +1,7 @@
 # Create your views here.
-from datetime import timedelta
+from datetime import timedelta, datetime
 import logging
+from common.tz_support import  default_tz_now, set_default_tz_time
 from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api.urlfetch import fetch, POST
 from django.core.urlresolvers import reverse
@@ -9,8 +10,9 @@ from django.utils import simplejson
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from ordering.models import Passenger, Order
-from sharing.models import SharedRide, RidePoint, StopType
+from ordering.decorators import passenger_required_no_redirect
+from ordering.forms import OrderForm
+from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType
 import settings
 import re
 
@@ -18,7 +20,6 @@ POINT_ID_REGEXPT = "^(p\d+)_"
 SHARING_ENGINE_URL = "http://waybetter-route-service2.appspot.com/routeservicega1"
 WEB_APP_URL = "http://sharing.latest.waybetter-app.appspot.com/"
 
-@catch_view_exceptions
 @passenger_required_no_redirect
 def hotspot_ordering_page(request, passenger):
     # these should match the fields of utils.Address._fields
@@ -52,8 +53,7 @@ def hotspot_ordering_page(request, passenger):
                     if all(p_data.values()):
                         points.append(p_data)
 
-                orders = ""
-                created = 0
+                orders = []
                 for p_data in points:
                     form_data = p_data.copy()
                     form_data.update(hotspot_data)
@@ -61,11 +61,21 @@ def hotspot_ordering_page(request, passenger):
                     if form.is_valid():
                         order = form.save(commit=False)
                         order.passenger = passenger
-                        order.save()
-                        orders += "%s<br/>" % unicode(order)
-                        created += 1
+                        hotspot_datetime = datetime.combine(default_tz_now().date(),
+                                                        datetime.strptime(request.POST.get("hotspot_time"), "%H:%M").time())
 
-                response = u"created %d orders: <br> <dir='rtl'>%s" % (created, orders)
+                        hotspot_datetime = set_default_tz_time(hotspot_datetime)
+                        if hotspot_type_raw == "pickup":
+                            order.depart_time = hotspot_datetime
+                        else:
+                            order.arrive_time = hotspot_datetime
+                            
+                        order.save()
+                        orders.append(order)
+
+
+                res = submit_orders_for_ride_calculation(orders)
+                response = u"Orders submitted for calculation: %s" % res.content
 
             else:
                 response = "Hotspot data corrupt"
@@ -105,7 +115,7 @@ def submit_orders_for_ride_calculation(orders):
         "callback_url": reverse(ride_calculation_complete, prefix=WEB_APP_URL)
     }
     payload = simplejson.dumps(payload)
-    logging.info("payload = %s" % payload)
+    logging.info("payload = %s" % payload) 
 
     return fetch(SHARING_ENGINE_URL, payload="submit=%s" % payload, method=POST)
 

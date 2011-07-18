@@ -64,6 +64,9 @@ class UTCDateTimeField(models.DateTimeField):
 
         value = super(UTCDateTimeField, self).to_python(value)
 
+        if value.tzinfo:
+            return value
+
         if not isinstance(value, datetime.datetime):
             raise ValueError("value '%s' is of type '%s'. should be datetime.datetime" % (value, type(value)))
 
@@ -86,3 +89,6 @@ def utc_now():
 
 def default_tz_now():
     return datetime.datetime.now(TZ_INFO["Asia/Jerusalem"])
+
+def set_default_tz_time(time):
+    return time.replace(tzinfo=TZ_INFO["Asia/Jerusalem"])

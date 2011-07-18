@@ -347,9 +347,11 @@ var OrderingHelper = Object.create({
     renderMapMarkers:           function () {
         var that = this,
             map = this.map,
+            markers = 0,
             bounds = new telmap.maps.LatLngBounds();
 
         $.each(this.map_markers, function (i, point) {
+            markers++;
             bounds.extend(point.getPosition());
             var info = new telmap.maps.InfoWindow({
                 content: "<div style='font-family:Arial,sans-serif;font-size:0.8em;'>" + point.location_name + "<div>",
@@ -362,7 +364,7 @@ var OrderingHelper = Object.create({
             that.map_markers_popups[i] = info;
 
         });
-        if (that.map_markers.to && that.map_markers.from) {
+        if (markers > 1) {
 
             // make room for estimation box
             var delta = (bounds.ne.y - bounds.sw.y) * 0.5;

@@ -12,7 +12,7 @@ from django.utils import  translation
 from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key
+from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum
 from common.tz_support import UTCDateTimeField, utc_now
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
@@ -846,6 +846,45 @@ for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
         type.lower(), category.lower().replace(" ", "_")))
 
 add_formatted_create_date([Order, OrderAssignment, Passenger, Station, WorkStation])
+
+
+# SHARING MODELS
+# --------------
+class StopType(Enum):
+    PICKUP  = 0
+    DROPOFF = 1
+    
+class Driver(BaseModel):
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
+
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="drivers")
+    name = models.CharField(_("name"), max_length=140, null=True, blank=True)
+
+
+class SharedRide(BaseModel):
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
+
+    depart_time = UTCDateTimeField(_("depart time"))
+    arrive_time = UTCDateTimeField(_("arrive time"))
+
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
+#    driver = models.ForeignKey(Driver, verbose_name=_("driver"), related_name="rides", null=True, blank=True)
+
+
+class RidePoint(BaseModel):
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
+
+    ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="points", null=True, blank=True)
+
+    stop_time = UTCDateTimeField(_("stop time"))
+    type = models.IntegerField(_("type"), choices=StopType.choices(), default=0)
+
+    lon = models.FloatField(_("longtitude"))
+    lat = models.FloatField(_("latitude"))
+    address = models.CharField(_("address"), max_length=200, null=True, blank=True)
 
 # TODO_WB: check if created arg has been fixed and reports False on second save of instance
 #def order_init_handler(sender, **kwargs):
