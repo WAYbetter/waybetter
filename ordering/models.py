@@ -453,6 +453,8 @@ RATING_CHOICES = ((0, ugettext("Unrated")),
 
 class Order(BaseModel):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
+#    ride_point = models.ForeignKey(RidePoint, verbose_name=_("ride point"), related_name="orders", null=True, blank=True)
+    
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
     originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")),
                                             related_name="originated_orders", null=True, blank=True, default=None)
@@ -497,6 +499,9 @@ class Order(BaseModel):
 
     pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)
     future_pickup = models.BooleanField(_("future pickup"), default=False)
+
+    depart_time = UTCDateTimeField(_("depart time"), null=True, blank=True)
+    arrive_time = UTCDateTimeField(_("arrive time"), null=True, blank=True)
 
     # ratings
     passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)
@@ -623,6 +628,17 @@ class Order(BaseModel):
                 assignment.modify_date.ctime(), assignment.station.name, assignment.work_station.id, assignment.get_status_label().upper())
 
         notify_by_email(subject, msg)
+
+    def serialize_for_sharing(self):
+        return { "from_address": self.from_raw,
+                 "from_lat": self.from_lat,
+                 "from_lon": self.from_lon,
+                 "id": self.id,
+                 "order_time": time.mktime(self.create_date.timetuple()),
+                 "passenger_id": self.passenger_id,
+                 "to_address": self.to_raw,
+                 "to_lat": self.to_lat,
+                 "to_lon": self.to_lon }
 
 
 class OrderAssignment(BaseModel):
