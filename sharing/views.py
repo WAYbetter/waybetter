@@ -88,14 +88,14 @@ def hotspot_ordering_page(request, passenger):
         page_specific_class = "hotspot_page"
         hotspot_times = ["11:00","11:30","12:00"]
 
-    telmap_user = settings.TELMAP_API_USER
-    telmap_password = settings.TELMAP_API_PASSWORD
-    telmap_languages = 'he' if str(get_language_from_request(request)) == 'he' else 'en'
-    country_code = settings.DEFAULT_COUNTRY_CODE
+        telmap_user = settings.TELMAP_API_USER
+        telmap_password = settings.TELMAP_API_PASSWORD
+        telmap_languages = 'he' if str(get_language_from_request(request)) == 'he' else 'en'
+        country_code = settings.DEFAULT_COUNTRY_CODE
 
-    passenger = Passenger.from_request(request)
+        passenger = Passenger.from_request(request)
 
-    return render_to_response('hotspot_ordering_page.html', locals(), context_instance=RequestContext(request))
+        return render_to_response('hotspot_ordering_page.html', locals(), context_instance=RequestContext(request))
 
 
 @csrf_exempt
@@ -145,6 +145,14 @@ def fetch_ride_results(result_id):
                 point.stop_time = ride.depart_time + timedelta(seconds=point_data["m_offset_time"])
                 point.ride = ride
                 point.save()
+
+                for order_id in point_data["m_OrderIDs"]:
+                    order = Order.by_id(int(order_id))
+                    if point.type == StopType.PICKUP:
+                        order.pickup_point = point
+                    else:
+                        order.dropoff_point = point
+                    order.save()
 
 
     return data

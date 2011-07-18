@@ -190,6 +190,24 @@ class Station(BaseModel):
         self.work_stations.all().delete()
 
 
+class Driver(BaseModel):
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
+
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="drivers")
+    name = models.CharField(_("name"), max_length=140, null=True, blank=True)
+
+
+class SharedRide(BaseModel):
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
+
+    depart_time = UTCDateTimeField(_("depart time"))
+    arrive_time = UTCDateTimeField(_("arrive time"))
+
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
+#    driver = models.ForeignKey(Driver, verbose_name=_("driver"), related_name="rides", null=True, blank=True)
+
 class Passenger(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
 
@@ -444,6 +462,25 @@ def build_installer_for_workstation(sender, instance, **kwargs):
 
 models.signals.post_save.connect(build_installer_for_workstation, sender=WorkStation)
 
+class StopType(Enum):
+    PICKUP  = 0
+    DROPOFF = 1
+
+
+
+class RidePoint(BaseModel):
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
+
+    ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="points", null=True, blank=True)
+
+    stop_time = UTCDateTimeField(_("stop time"))
+    type = models.IntegerField(_("type"), choices=StopType.choices(), default=0)
+
+    lon = models.FloatField(_("longtitude"))
+    lat = models.FloatField(_("latitude"))
+    address = models.CharField(_("address"), max_length=200, null=True, blank=True)
+
 RATING_CHOICES = ((0, ugettext("Unrated")),
                   (1, ugettext("Very poor")),
                   (2, ugettext("Not so bad")),
@@ -451,10 +488,12 @@ RATING_CHOICES = ((0, ugettext("Unrated")),
                   (4, ugettext("Good")),
                   (5, ugettext("Perfect")))
 
+
 class Order(BaseModel):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
-#    ride_point = models.ForeignKey(RidePoint, verbose_name=_("ride point"), related_name="orders", null=True, blank=True)
-    
+    pickup_point = models.ForeignKey(RidePoint, verbose_name=_("pickup point"), related_name="pickup_orders", null=True, blank=True)
+    dropoff_point = models.ForeignKey(RidePoint, verbose_name=_("dropoff point"), related_name="dropoff_orders", null=True, blank=True)
+
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
     originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")),
                                             related_name="originated_orders", null=True, blank=True, default=None)
@@ -846,45 +885,6 @@ for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
         type.lower(), category.lower().replace(" ", "_")))
 
 add_formatted_create_date([Order, OrderAssignment, Passenger, Station, WorkStation])
-
-
-# SHARING MODELS
-# --------------
-class StopType(Enum):
-    PICKUP  = 0
-    DROPOFF = 1
-    
-class Driver(BaseModel):
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
-
-    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="drivers")
-    name = models.CharField(_("name"), max_length=140, null=True, blank=True)
-
-
-class SharedRide(BaseModel):
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
-
-    depart_time = UTCDateTimeField(_("depart time"))
-    arrive_time = UTCDateTimeField(_("arrive time"))
-
-    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
-#    driver = models.ForeignKey(Driver, verbose_name=_("driver"), related_name="rides", null=True, blank=True)
-
-
-class RidePoint(BaseModel):
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
-
-    ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="points", null=True, blank=True)
-
-    stop_time = UTCDateTimeField(_("stop time"))
-    type = models.IntegerField(_("type"), choices=StopType.choices(), default=0)
-
-    lon = models.FloatField(_("longtitude"))
-    lat = models.FloatField(_("latitude"))
-    address = models.CharField(_("address"), max_length=200, null=True, blank=True)
 
 # TODO_WB: check if created arg has been fixed and reports False on second save of instance
 #def order_init_handler(sender, **kwargs):
