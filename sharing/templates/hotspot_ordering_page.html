@@ -9,10 +9,9 @@
         <div id="map"></div>
         <div id="map_overlay_left"></div>
         <div id="map_overlay_top"></div>
-        <div id="ride_cost_estimate"></div>
     </div>
 
-    <form id="order_form" method="post" action="{% url ordering.passenger_controller.book_order %}">
+    <form id="order_form" method="post" action="{% url sharing.views.hotspot_ordering_page %}">
         {% csrf_token %}
         {% for field in hidden_fields %}
             <input type="hidden" id="id_hotspot_{{ field }}" name="hotspot_{{ field }}"/>
@@ -22,26 +21,31 @@
         <input type="hidden" id="id_geocoded_p1_raw" name="geocoded_p1_raw"/>
 
         <ul>
-            {% trans 'Hotspot' %}
+            <span id="from">{% trans 'From' %}</span>
             <li id="hotspot">
                 <input type=text class="big_text a_marker marker_disabled address_ac_from" id="id_hotspot_raw"
                        name="hotspot_raw"
                        placeholder="{% trans 'Enter pickup address' %}"/>
+                <label for="id_hotspot_times">{% trans 'Select time' %}</label>
+                <select id="id_hotspot_times" name="hotspot_time">
+                    {% for time in hotspot_times %}
+                        <option value={{ time }}>{{ time }}</option>
+                    {% endfor %}
+                </select>
             </li>
-            <li class="point">
+            <span id="to">{% trans 'To' %}</span>
+            <li id="p1" class="point">
                 <input type=text class="big_text b_marker marker_disabled address_ac_to" id="id_p1_raw"
                        name="p1_raw"
                        placeholder="{% trans 'Enter drop-off address' %}"/>
             </li>
-
-            <a href="#" id="add_point">{% trans 'Add point' %}</a>
-            <br/>
-            <a href="#" id="toggle_hotspot">{% trans 'Toggle hotspot' %}</a>
-
-
         </ul>
-{#        <button type=submit class="order_button" id="order_button">{% trans 'Pick Me Up' %}</button>#}
+        <button type=submit class="order_button" id="order_button">{% trans 'Pick Me Up' %}</button>
     </form>
+
+
+    <a href="#" id="add_point">{% trans 'Add point' %}</a>
+    <a href="#" id="toggle_hotspot">{% trans 'Switch Direction' %}</a>
 
 {% endblock %}
 
@@ -50,99 +54,100 @@
     {{ block.super }}
     <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
     <script type="text/javascript">
-        {% autoescape off %}
-            var HIDDEN_FIELDS = {{ hidden_fields }};
-        {% endautoescape %}
 
-        var $order_form = $("#order_form");
+        var pickup = "pickup",
+                dropoff = "dropoff",
+                hotspot_type = pickup,
+                point_counter = 1;
 
-        createHiddenFields = function(address_type) {
-            $.each(HIDDEN_FIELDS, function(i, field_name) {
-                var $field = $('<input type="hidden" id="id_' + address_type + '_' + field_name + '" name="' + address_type + '_' + field_name + '"/>');
-                $order_form.append($field);
+        function addPoint(address) {
+            point_counter ++;
+            var address_type = "p" + point_counter;
+            OrderingHelper.createHiddenFields(address_type);
+
+            var $input = $('<input type=text class="big_text marker_disabled"/>').attr("id", 'id_p' + point_counter + '_raw').attr("name", 'p' + point_counter + '_raw');
+            var $remove = $('<a href="#">Remove</a>').click(function(e) {
+                e.preventDefault();
+                OrderingHelper.deleteHiddenFields(address_type);
+                OrderingHelper.removePoint(address_type);
+                $(this).parent().remove();
             });
-            $order_form.append($('<input type="hidden" id="id_geocoded_' + address_type + '_raw" name="geocoded_' + address_type + '_raw"/>'));
-        };
 
-        deleteHiddenFields = function(address_type) {
-            $("[name^=" + address_type + "]").remove();
-            $("#id_geocoded_" + address_type + "_raw").remove();
-        };
+            var $point = $('<li class="point" id="' + address_type + '"></li>').append($input).append($remove);
+            $(".point").last().after($point);
 
-        asPickup = function(locator) {
-            $(locator + " input").removeClass("b_marker address_ac_to").addClass("a_marker address_ac_from").attr("placeholder", "{% trans 'Enter pickup address' %}");
-            $(locator + " .address-helper").removeClass("to").addClass("from");
-        };
+            var point_type = (hotspot_type == pickup) ? dropoff : pickup;
+            if (point_type == pickup) {
+                OrderingHelper.asPickup("#" + address_type);
+            }
+            else {
+                OrderingHelper.asDropoff("#" + address_type);
+            }
 
-        asDropoff = function(locator) {
-            $(locator + " input").removeClass("a_marker address_ac_from").addClass("b_marker address_ac_to").attr("placeholder", "{% trans 'Enter drop-off address' %}");
-            $(locator + " .address-helper").removeClass("from").addClass("to");
-        };
+            OrderingHelper._makeAddressInput($input);
+
+            if (address){
+                address.address_type = address_type;
+                address.populateFields();
+            }
+        }
 
         $(function() {
-            OrderingHelper.init({
-                resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
-                resolve_coordinate_url:     "{% url ordering.passenger_controller.resolve_coordinates %}",
-                {#                estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}",#}
-                {#                not_a_passenger_response:   "{{ not_a_passenger }}",#}
-                {#                not_a_user_response:        "{{ not_a_user }}",#}
-                telmap_user:                "{{ telmap_user }}",
-                telmap_password:            "{{ telmap_password}}",
-                telmap_languages:           "{{ telmap_languages }}",
-                address_helper_msg_from:    "{% trans 'Full Pickup Address: (Street Number City)' %}",
-                address_helper_msg_to:      "{% trans 'Full Drop-off Address: (Street Number City)' %}",
-                autocomplete_msg:           "{% trans '(Street Number City) and Select:' %}",
-                address_not_resolved_msg:   "{% trans 'The address is not resolved' %}",
-                pick_me_up_msg:             "{% trans 'Pick Me Up' %}",
-                sending_msg:                "{% trans 'Sending...' %}",
-                {#                estimation_msg:             "{% trans 'Fill pickup and dropoff for price and time estimation ' %}"#}
-            });
-
-            var pickup = "pickup",
-                    dropoff = "dropoff",
-                    hotspot_type = pickup,
-                    point_counter = 1;
+            {% autoescape off %}
+                OrderingHelper.config.hidden_fields = {{ hidden_fields }};
+            {% endautoescape %}
 
             $("#toggle_hotspot").click(function(e) {
                 e.preventDefault();
                 hotspot_type = (hotspot_type == pickup) ? dropoff : pickup;
                 if (hotspot_type == pickup) {
-                    asPickup("#hotspot");
-                    asDropoff(".point");
+                    OrderingHelper.asPickup("#hotspot");
+                    OrderingHelper.asDropoff(".point");
+                    $("#to").before($("#hotspot")).after($(".point"));
                 }
                 else {
-                    asDropoff("#hotspot");
-                    asPickup(".point");
+                    OrderingHelper.asDropoff("#hotspot");
+                    OrderingHelper.asPickup(".point");
+                    $("#to").before($(".point")).after($("#hotspot"));
                 }
+                OrderingHelper.initPoints();
             });
 
             $("#add_point").click(function(e) {
                 e.preventDefault();
-
-                point_counter ++;
-                var address_type = "p" + point_counter;
-                createHiddenFields(address_type);
-
-                var $input = $('<input type=text class="big_text marker_disabled"/>').attr("id", 'id_p' + point_counter + '_raw').attr("name", 'p' + point_counter + '_raw');
-                var $remove = $('<a href="">Remove</a>').click(function(e) {
-                    e.preventDefault();
-                    deleteHiddenFields(address_type);
-                    $(this).parent().remove();
-                });
-
-                var $point = $('<li class="point" id="' + address_type+ '"></li>').append($input).append($remove);
-                $(".point").last().after($point);
-
-                var point_type = (hotspot_type == pickup) ? dropoff : pickup;
-                if (point_type == pickup) {
-                    asPickup("#" + address_type);
-                }
-                else {
-                    asDropoff("#" + address_type);
-                }
-
-                OrderingHelper._makeAddressInput($input);
+                addPoint();
             });
+
+            $("#order_form").submit(function() {
+                $(this).append('<input type="hidden" name="hotspot_type" value="' + hotspot_type + '"/>');
+            });
+
+            telmap.maps.event.addListener(OrderingHelper.map, 'click', function(e) {
+                $.ajax({
+                    url: "{% url ordering.passenger_controller.resolve_coordinates %}",
+                    type: "GET",
+                    data: { lat: e.latLng.lat(),
+                        lon: e.latLng.lng()  },
+                    dataType: "json",
+                    success: function(resolve_result) {
+                        var new_address = Address.fromServerResponse(resolve_result);
+                        if (new_address.street_address) {   // only update to new address if it contains a valid street
+                            if ($(":focus").parent().attr("id") == "hotspot" || $(":focus").parent().hasClass("point")) {
+                                new_address.address_type = $(":focus").parent().attr("id");
+                                new_address.populateFields();
+                            }
+                            else{
+                                addPoint(new_address);
+                            }
+                            OrderingHelper.updateAddressChoice(new_address);
+                            $('#id_' + new_address.address_type + '_raw').effect("highlight", 2000);
+                        } else {                    // set previous address
+                            alert("No street address where you clicked");
+                        }
+                    }
+                });
+            });
+
         });
     </script>
 

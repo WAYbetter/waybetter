@@ -2,55 +2,145 @@
 {% load i18n %}
 
 {% block extrastyle %}
-{{ block.super }}
+    {{ block.super }}
 {% endblock extrastyle %}
 
 {% block doc_ready %}
-{{ block.super }}
-<script>
-    $(document).ready(function() {
-        var show_login = false;
-        {% if show_login %}
-        show_login = true;
-        {% endif %}
-        Registrator.init({
-             urls            : {
-                 error_form_template                : '{% url common.registration.get_error_form %}',
-                 login_form_template                : '{% url common.registration.get_login_form %}',
-                 reg_form_template                  : '{% url common.registration.get_registration_form %}',
-                 credentials_form_template          : '{% url common.registration.get_credentials_form %}',
-                 phone_form_template                : '{% url common.registration.get_phone_form %}',
-                 cant_login_form_template           : '{% url common.registration.get_cant_login_form %}',
-                 phone_code_form_template           : '{% url common.registration.get_phone_code_form %}',
-                 feedback_form_template             : '{% url common.registration.feedback %}',
-                 mobile_interest_form_template      : '{% url interests.views.mobile_interest %}',
-                 business_interest_form_template: '{% url interests.views.business_interest %}'
-             },
-             messages        : {
-                 // TODO_WB: move these to base
-                 interest_submitted_dialog_title_html: '{% trans "Thank you" %}',
-                 interest_submitted_dialog_content_html: '{% trans "We will contact you" %}'
-             }
+    {{ block.super }}
+    <script>
+        $(document).ready(function() {
+            var show_login = false;
+            {% if show_login %}
+                show_login = true;
+            {% endif %}
 
-         }, show_login);
- 
-        $("input[placeholder]").placeHeld();
-        $('marquee').marquee();
-        $("#tabs li:first").addClass("first_tab");
-        $("#tabs li:last").addClass("last_tab");
-        $('#join_link').click(function () {
-            Registrator.doJoin();
-            return false;
-        });
-        $("#login_link").click(function () {
-            Registrator.openLoginDialog(function() {
-                 window.location.href = "{{ request.path }}";
+            Registrator.init({
+                urls            : {
+                    error_form_template                : '{% url common.registration.get_error_form %}',
+                    login_form_template                : '{% url common.registration.get_login_form %}',
+                    reg_form_template                  : '{% url common.registration.get_registration_form %}',
+                    credentials_form_template          : '{% url common.registration.get_credentials_form %}',
+                    phone_form_template                : '{% url common.registration.get_phone_form %}',
+                    cant_login_form_template           : '{% url common.registration.get_cant_login_form %}',
+                    phone_code_form_template           : '{% url common.registration.get_phone_code_form %}',
+                    feedback_form_template             : '{% url common.registration.feedback %}',
+                    mobile_interest_form_template      : '{% url interests.views.mobile_interest %}',
+                    business_interest_form_template: '{% url interests.views.business_interest %}'
+                },
+                messages        : {
+                    // TODO_WB: move these to base
+                    interest_submitted_dialog_title_html: '{% trans "Thank you" %}',
+                    interest_submitted_dialog_content_html: '{% trans "We will contact you" %}'
+                }
+
+            }, show_login);
+
+            OrderingHelper.init({
+                resolve_address_url:        "{% url ordering.passenger_controller.resolve_address %}",
+                resolve_coordinate_url:     "{% url ordering.passenger_controller.resolve_coordinates %}",
+                estimation_service_url:     "{% url ordering.passenger_controller.estimate_ride_cost %}",
+                not_a_user_response:        "{{ not_a_user }}",
+                telmap_user:                "{{ telmap_user }}",
+                telmap_password:            "{{ telmap_password}}",
+                telmap_languages:           "{{ telmap_languages }}",
+                address_helper_msg_from:    "{% trans 'Full Pickup Address: (Street Number City)' %}",
+                address_helper_msg_to:      "{% trans 'Full Drop-off Address: (Street Number City)' %}",
+                autocomplete_msg:           "{% trans '(Street Number City) and Select:' %}",
+                address_not_resolved_msg:   "{% trans 'The address is not resolved' %}",
+                more_msg:                   "{% trans 'More' %}",
+                less_msg:                   "{% trans 'Less' %}",
+                estimation_msg:             "{% trans 'Fill pickup and dropoff for price and time estimation ' %}",
+                pickup_placeholder_text:     "{% trans 'Enter pickup address' %}",
+                dropoff_placeholder_text:    "{% trans 'Enter drop-off address' %}"
+            });
+
+            {% if show_tracker %}
+                OrderingHelper.config.order_tracker_visible = true;
+                OrderTracker.init({
+                    ASSIGNED : {{ ASSIGNED }},
+                    PENDING : {{ PENDING }},
+                    ACCEPTED : {{ ACCEPTED }},
+                    ORDER_FAILED : {{ ORDER_FAILED }},
+                    ORDER_MAX_WAIT_TIME : {{ ORDER_MAX_WAIT_TIME }},
+                    FAILED_MSG : "{{ FAILED_MSG }}",
+                    init_token : "{{ init_token }}",
+                    init_tracker_history : {{ init_tracker_history|safe }},
+                    get_tracker_init_url: "{% url ordering.passenger_controller.get_tracker_init %}",
+                    close_msg: "{% trans 'Close' %}",
+                    changes_msg: "{% trans 'For changes call: '%}",
+                    minute_label: "{% trans 'minute' %}",
+                    minutes_label: "{% trans 'minutes' %}",
+                    please_wait_msg: "{% trans 'Please wait' %}",
+                    pickup_in_msg: "{% trans 'Pickup in' %}",
+                    order_finished_msg: "{% trans 'Order finished!' %}",
+                    connection_error_msg: "{% trans 'Re-connecting to server, please wait (your order is being processed)' %} ",
+                    countdown_finished_msg: "{% trans 'Have a pleasant ride' %}"
+                });
+            {% endif %}
+
+            $("input[placeholder]").placeHeld();
+            $('marquee').marquee();
+            $("#tabs li:first").addClass("first_tab");
+            $("#tabs li:last").addClass("last_tab");
+            $('#join_link').click(function () {
+                Registrator.doJoin();
+                return false;
+            });
+            $("#login_link").click(function () {
+                Registrator.openLoginDialog(function() {
+                    window.location.href = "{{ request.path }}";
+                });
             });
         });
-     });
-</script>
+
+        initPickMeApp = function() {
+            $("#order_form").submit(function() {
+                if ($("#order_button").attr("disabled")) {
+                    return false;
+                }
+
+                $("#order_button").button("disable").button("option", "label", "{% trans 'Sending...' %}").addClass("sending");
+
+                $(this).ajaxSubmit({
+                    dataType: "json",
+                    complete: function() {
+                        $("#order_button").button("option", "label", "{% trans 'Pick Me Up' %}").removeClass("sending");
+                        OrderingHelper.validateForBooking();
+                    },
+                    success: function(order_status) {
+                        clearError();
+                        if (order_status.status != "booked") {
+                            Registrator.openErrorDialog(order_status.errors.title, order_status.errors.message);
+                        } else {
+                            // if order tracker is visible, show the booked order as pending in the tracker
+                            if (OrderingHelper.config.order_tracker_visible) {
+                                OrderTracker.processOrder(order_status.tracker_msg);
+                            }
+                            // show dialog otherwise
+                            else {
+                                Registrator.openRegistrationDialog(function() {
+                                    window.location.href = "/";
+                                }, order_status.show_registration, false, order_status.message);
+                            }
+                        }
+                    },
+                    error: function(XMLHttpRequest, textStatus, errorThrown) {
+                        if (XMLHttpRequest.status == 403) {
+                            if (XMLHttpRequest.responseText == "{{ not_a_passenger }}") {
+                                Registrator.openPhoneDialogWhileOrdering(OrderingHelper.bookOrder);
+                            }
+                        } else {
+                            onError(XMLHttpRequest, textStatus, errorThrown);
+                        }
+                    }
+                });
+
+                return false;
+            }); // submit
+        };
+    </script>
 {% endblock %}
-        
+
 {% block join_or_login %}
     <strong>
         <a href="#" id="join_link">{% trans 'Join!' %}</a> | <a href="#" id="login_link">{% trans 'Login' %}</a>

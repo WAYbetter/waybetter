@@ -1,3 +1,7 @@
+getInputType = function(input_element){
+        return ($(input_element).hasClass("address_ac_from")) ? 'from' : 'to';
+};
+
 // define a custom autocomplete widget
 $.widget("custom.catcomplete", $.ui.autocomplete, {
     options: {
@@ -8,24 +12,24 @@ $.widget("custom.catcomplete", $.ui.autocomplete, {
     responseWrapper: function() {
         this.response.apply( this, arguments );
 
-        var element_type = ($(this.element).hasClass("address_ac_from")) ? 'from' : 'to',
+        var input_type = getInputType(this.element),
             $header = $(".address-helper-autocomplete"),
-            loader_class = "address-helper-loading-" + element_type;
+            loader_class = "address-helper-loading-" + input_type;
 
         if (this.element.hasClass("ui-autocomplete-loading")){
             $header.addClass(loader_class);
         }
         else{
             $header.removeClass(loader_class);
-            $(".address-helper").filter("." + element_type).removeClass(loader_class);
+            $(".address-helper").filter("." + input_type).removeClass(loader_class);
         }
     },
     _renderMenu: function(ul, items) {
         var self = this,
                 currentCategory = undefined,
-                element_type = ($(this.element).hasClass("address_ac_from")) ? 'from' : 'to';
+                input_type = getInputType(this.element);
 
-        ul.append("<li class='address-helper-autocomplete " + element_type + "'>" + OrderingHelper.config.autocomplete_msg + "</li>");
+        ul.append("<li class='address-helper-autocomplete " + input_type + "'>" + OrderingHelper.config.autocomplete_msg + "</li>");
         $.each( items, function( index, item ) {
             self._renderItem( ul, item );
         });
@@ -59,7 +63,6 @@ var OrderingHelper = Object.create({
         resolve_address_url:        "", // '{% url cordering.passenger_controller.resolve_address %}'
         estimation_service_url:     "", // '{% url ordering.passenger_controller.estimate_ride_cost %}'
         resolve_coordinate_url:     "", // '{% url ordering.passenger_controller.resolve_coordinate %}'
-        not_a_passenger_response:   "",
         not_a_user_response:        "",
         telmap_user:                "",
         telmap_password:            "",
@@ -68,10 +71,11 @@ var OrderingHelper = Object.create({
         address_helper_msg_to:      "",
         autocomplete_msg:           "",
         address_not_resolved_msg:   "",
-        pick_me_up_msg:             "",
-        sending_msg:                "",
         estimation_msg:             "",
-        order_tracker_visible:      false
+        order_tracker_visible:      false,
+        pickup_placeholder_text:     "",
+        dropoff_placeholder_text:    "",
+        hidden_fields:              []
 
 
 
@@ -84,7 +88,7 @@ var OrderingHelper = Object.create({
     _isEmpty:                   function(element) {
         var place_holder_text = $(element).attr("placeholder");
 
-        return (! $(element).val() || $(element).val() == place_holder_text);    
+        return (! $(element).val() || $(element).val() == place_holder_text);
     },
     _updateAddressControls:     function(element, address_type) {
         var address = Address.fromFields(address_type);
@@ -97,18 +101,19 @@ var OrderingHelper = Object.create({
                 address_helper.text(this.config.address_not_resolved_msg).addClass("address-error").fadeIn("fast");
             } else {
                 $(element).addClass("marker_disabled").removeClass("not_resolved");
-                var element_type = ($(element).hasClass("address_ac_from")) ? 'from' : 'to';
-                address_helper.text(this.config["address_helper_msg_" + element_type]).removeClass("address-error");
+                var input_type = getInputType(element);
+                address_helper.text(this.config["address_helper_msg_" + input_type]).removeClass("address-error");
             }
         }
-        
+
     },
     _onAddressInputBlur:        function(element, address_type) {
         this._updateAddressControls(element, address_type);
         var address = Address.fromFields(address_type);
         var address_helper = $(element).siblings(".address-helper");
+        var input_type = getInputType(element);
 
-        address_helper.removeClass("address-helper-loading-" + address_type);
+        address_helper.removeClass("address-helper-loading-" + input_type);
         if (address.isResolved() || this._isEmpty(element)) {
              address_helper.fadeOut("fast");
          }
@@ -121,8 +126,8 @@ var OrderingHelper = Object.create({
             $(element).catcomplete("search");
             $(element).removeClass("not_resolved").addClass("marker_disabled");
 
-            var element_type = ($(element).hasClass("address_ac_from")) ? 'from' : 'to';
-            address_helper.text(this.config["address_helper_msg_" + element_type]).removeClass("address-error");
+            var input_type = getInputType(element);
+            address_helper.text(this.config["address_helper_msg_" + input_type]).removeClass("address-error");
             address_helper.fadeIn("fast");
         }
     },
@@ -133,9 +138,9 @@ var OrderingHelper = Object.create({
         var address = Address.fromInput(element);
         var address_type = address.address_type;
 
-        var element_type = ($(element).hasClass("address_ac_from")) ? 'from' : 'to';
+        var input_type = getInputType(element);
 
-        var helper_div = $("<div class='address-helper round " + element_type + "'></div>");
+        var helper_div = $("<div class='address-helper round " + input_type + "'></div>");
         $(element).after(helper_div);
         $(element).focus(
             function() {
@@ -149,12 +154,12 @@ var OrderingHelper = Object.create({
             source: function (request, response) {
                 catcomplete_instance = this;
 
-                $(".address-helper, .address-helper-autocomplete").filter("." + element_type).addClass("address-helper-loading-" + element_type);
+                $(".address-helper, .address-helper-autocomplete").filter("." + input_type).addClass("address-helper-loading-" + input_type);
                 var address = undefined,
                     lat = undefined,
                     lon = undefined;
 
-                address = (element_type == 'from') ? Address.fromFields('to') : Address.fromFields('from');
+                address = (input_type == 'from') ? Address.fromFields('to') : Address.fromFields('from');
                 if (address.isResolved()) {
                     lat = address.lat;
                     lon = address.lon;
@@ -231,7 +236,7 @@ var OrderingHelper = Object.create({
         $(".address_ac_from, .address_ac_to").each(function(i, element) {
             that._makeAddressInput(element);
         });
-        
+
         $(".address_ac_from, .address_ac_to").catcomplete("disable");
 
         $("input:button, #order_button").button();
@@ -246,66 +251,22 @@ var OrderingHelper = Object.create({
         });
 
         var onentry_val = "";
-        $(".address_ac_from, .address_ac_to").change(function() {
+        $(".address_ac_from, .address_ac_to").live('change', function() {
             that.validateForBooking();
-        }).keydown(function(e) {
+        }).live('keydown', function(e) {
             onentry_val = $(this).val();
             // all other keys enable: tab, shift, ctrl, esc, left, right, enter
             var ignored_key_codes = [9, 13, 16, 17, 18, 20, 27, 37, 38, 39, 40, 91];
             if (ignored_key_codes.indexOf(e.keyCode) < 0) {
                 $(this).catcomplete("enable");
             }
-        }).keyup(function(){
+        }).live('keyup', function(){
             if ($(this).val() != onentry_val){
                 var address = Address.fromInput(this);
                 that._onAddressInputFocus($(this), address.address_type);
                 that.validateForBooking();
             }
         });
-
-        $("#order_form").submit(function() {
-            if ($("#order_button").attr("disabled")) {
-                return false;
-            }
-
-            $("#order_button").button("disable").button("option", "label", that.config.sending_msg).addClass("sending");
-
-            $(this).ajaxSubmit({
-                dataType: "json",
-                complete: function() {
-                    $("#order_button").button("option", "label", that.config.pick_me_up_msg).removeClass("sending");
-                    that.validateForBooking();
-                },
-                success: function(order_status) {
-                    clearError(); // TODO_WB: remove this??? clearError is defined in connected_page
-                    if (order_status.status != "booked") {
-                        Registrator.openErrorDialog(order_status.errors.title, order_status.errors.message);
-                    } else {
-                        // if order tracker is visible, show the booked order as pending in the tracker
-                        if (that.config.order_tracker_visible){
-                            OrderTracker.processOrder(order_status.tracker_msg);
-                        }
-                        // show dialog otherwise
-                        else{
-                            Registrator.openRegistrationDialog(function() {
-                                window.location.href = "/";
-                            }, order_status.show_registration, false, order_status.message);
-                        }
-                    }
-                },
-                error: function(XMLHttpRequest, textStatus, errorThrown) {
-                    if (XMLHttpRequest.status == 403) {
-                        if ( XMLHttpRequest.responseText == that.config.not_a_passenger_response ) {
-                            Registrator.openPhoneDialogWhileOrdering(that.bookOrder);
-                        }
-                    } else {
-                        onError(XMLHttpRequest, textStatus, errorThrown);
-                    }
-                }
-            });
-
-            return false;
-        }); // submit
 
         this.initMap();
 
@@ -331,17 +292,24 @@ var OrderingHelper = Object.create({
     },
     initPoints:                 function () {
         var that = this;
-        $.each($(".address_ac_from, .address_ac_to"), function(i, input_element) {
+        $(".address_ac_from, .address_ac_to").each(function(i, input_element) {
             var address = Address.fromInput(input_element);
             if (address.lon && address.lat) {
+                that.removePoint(address.address_type);
                 that.addPoint(address);
             }
         });
     },
+    removePoint:                function(address_type){
+        if (this.map_markers[address_type]) {
+            this.map_markers[address_type].setMap(); // remove old marker from map
+        }
+    },
     addPoint:                   function (address) {
         var that = this,
             location_name = address.address_type + ": <br/>" + address.raw,
-            icon_image = new telmap.maps.MarkerImage("/static/images/" + address.address_type + "_map_marker.png", undefined, undefined, {x:35, y:30}),
+            input_type = getInputType($("#id_" + address.address_type + "_raw")),
+            icon_image = new telmap.maps.MarkerImage("/static/images/" + input_type + "_map_marker.png", undefined, undefined, {x:35, y:30}),
             point = new telmap.maps.Marker({
                 map:        this.map,
                 position:   new telmap.maps.LatLng(address.lat, address.lon),
@@ -372,9 +340,7 @@ var OrderingHelper = Object.create({
             });
         });
         point.location_name = location_name; // monkey patch point
-        if (this.map_markers[address.address_type]) {
-            this.map_markers[address.address_type].setMap(); // remove old marker from map
-        }
+        this.removePoint(address.address_type);
         this.map_markers[address.address_type] = point;
         this.renderMapMarkers();
     },
@@ -382,7 +348,7 @@ var OrderingHelper = Object.create({
         var that = this,
             map = this.map,
             bounds = new telmap.maps.LatLngBounds();
-        
+
         $.each(this.map_markers, function (i, point) {
             bounds.extend(point.getPosition());
             var info = new telmap.maps.InfoWindow({
@@ -413,13 +379,8 @@ var OrderingHelper = Object.create({
     updateAddressChoice:        function(address) {
         address.populateFields();
         this.addPoint(address);
-        $(".address_ac_from, .address_ac_to").catcomplete("disable");
-        if (address.address_type == "from") {
-            $("#id_from_raw").blur();
-            $("#id_to_raw").focus();
-        } else {
-            $("#id_to_raw").blur();
-        }
+        $(".address_ac_from, .address_ac_to").catcomplete("disable").blur();
+        $(".address_ac_to:blank").first().focus();
 
         this.getRideCostEstimate();
        this.validateForBooking();
@@ -457,8 +418,11 @@ var OrderingHelper = Object.create({
     },
     validateForBooking:         function() {
         var that = this;
-        $.each($(".address_ac_from, .address_ac_to"),function(i, input_element) {
+        var enable_button = true;
+        $(".address_ac_from, .address_ac_to").each(function(i, input_element) {
             var address = Address.fromInput(input_element);
+            var input_type = getInputType(input_element);
+
             if (!address.isResolved()) {
                 address.clearFields();
                 if (that.map_markers[address.address_type]) {
@@ -467,17 +431,42 @@ var OrderingHelper = Object.create({
                 }
                 that.renderMapMarkers();
                 $("#ride_cost_estimate").html(that.config.estimation_msg);
-                if (address.address_type == 'from') {
+                if (input_type == 'from') {
                     $("#order_button").button("disable"); // disable ordering if from is not resolved
-                    return true;
+                    enable_button = false;
                 }
             }
         });
-        $("#order_button").button("enable"); // enable ordering
+        if (enable_button) {
+            $("#order_button").button("enable"); // enable ordering
+        }
     },
     bookOrder:              function () {
         $("#order_button").button("enable"); // otherwise the form would not submit
         $("#order_form").submit();
+    },
+
+    createHiddenFields: function(address_type) {
+        $.each(this.config.hidden_fields, function(i, field_name) {
+            var $field = $('<input type="hidden" id="id_' + address_type + '_' + field_name + '" name="' + address_type + '_' + field_name + '"/>');
+            $("#order_form").append($field);
+        });
+        $("#order_form").append($('<input type="hidden" id="id_geocoded_' + address_type + '_raw" name="geocoded_' + address_type + '_raw"/>'));
+    },
+
+    deleteHiddenFields: function(address_type) {
+        $("[name^=" + address_type + "]").remove();
+        $("#id_geocoded_" + address_type + "_raw").remove();
+    },
+
+    asPickup: function(locator) {
+        $(locator + " input").removeClass("b_marker address_ac_to").addClass("a_marker address_ac_from").attr("placeholder", this.config.pickup_placeholder_text);
+        $(locator + " .address-helper").removeClass("to address-helper-loading-to").addClass("from");
+    },
+
+    asDropoff: function(locator) {
+        $(locator + " input").removeClass("a_marker address_ac_from").addClass("b_marker address_ac_to").attr("placeholder", this.config.dropoff_placeholder_text);
+        $(locator + " .address-helper").removeClass("from address-helper-loading-from").addClass("to");
     }
 });
 
