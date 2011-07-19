@@ -27,12 +27,57 @@
 {% endblock %}
 
 {% block doc_ready %}
+    <script type="text/javascript" src="/_ah/channel/jsapi"></script>
     <script type="text/javascript">
         {% autoescape off %}
             var rides_data = {{ rides_data }};
             var drivers_data = {{ drivers_data }};
             var taxis_data = {{ taxis_data }};
+            var init_token = "{{ token }}";
+            var channel_opened = false;
+            var channel;
+            var socket;
         {% endautoescape %}
+
+        setupChannel = function(token) {
+            $("#wcs-iframe").remove();
+
+            channel = new goog.appengine.Channel(token);
+            socket = channel.open();
+            socket.onerror = function() {
+                trace("socket: onerror");
+                onError();
+            };
+            socket.onclose = function() {
+                trace("socket: onclose");
+                onError()
+            };
+            socket.onopen = function() {
+                trace("socket: onopen");
+                channel_opened = true;
+            };
+            socket.onmessage = function(msg) {
+                try {
+                    var data = $.parseJSON(msg.data);
+                    onOrder(data);
+                    $.ajax({
+                        url: "{% url ordering.station_controller.message_received %}",
+                        type: "POST",
+                        data: {data: msg.data}
+                    });
+                } catch (e) {
+                    trace("error parsing: " + JSON.stringify(e))
+                }
+
+            };
+
+            $(document).oneTime("10s", function() {
+                if (! channel_opened) {
+                    trace("Channel did not open correctly");
+                    onError()
+                }
+            })
+        };
 
         renderTableRow = function(point) {
             return $("<tr><td>" + point.num_passengers + "</td><td>" + point.address + "</td><td>" + point.time + "</td></tr>")
@@ -100,12 +145,23 @@
             $("#rides_accordion").append($ride_header, $ride_div);
         };
 
+        trace = function(str) {
+            var msg = new Date().toISOString() + ": " + str;
+            if (window.parentSandboxBridge) {
+                parentSandboxBridge.trace(msg);
+            }
+            if (window.console) {
+                console.log(msg)
+            }
+        };
+
         $(function() {
             $.each(rides_data, function(i, ride) {
                 render_ride(ride);
             });
 
             $("#rides_accordion").accordion();
+            setupChannel(init_token);
         });
     </script>
 {% endblock %}

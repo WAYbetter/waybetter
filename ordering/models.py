@@ -218,6 +218,19 @@ class SharedRide(BaseModel):
     driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
 
+    def serialize_for_ws(self):
+        return {'pickups': [ { 'num_passengers': p.pickup_orders.count(),
+                               'address': p.address,
+                               'time': p.stop_time.strftime("%H:%M") } for p in self.points.filter(type=StopType.PICKUP)],
+                'dropoffs': [ { 'num_passengers' : p.dropoff_orders.count(),
+                                'address': p.address,
+                                'time': p.stop_time.strftime("%H:%M") } for p in self.points.filter(type=StopType.DROPOFF)],
+                'depart_time': self.depart_time.strftime("%H:%M"),
+                'arrive_time': self.arrive_time.strftime("%H:%M"),
+                'id': self.id,
+                'status': self.get_status_label()
+        }
+
     def change_status(self, old_status=None, new_status=None):
         if self._change_attr_in_transaction("status", old_status, new_status):
             pass
@@ -229,6 +242,14 @@ class SharedRide(BaseModel):
 #            order_status_changed_signal.send(**sig_args)
         else:
             raise UpdateStatusError("update shared ride status failed: %s to %s" % (old_status, new_status))
+
+    def get_status_label(self):
+        for key, label in SHARED_RIDE_STATUS:
+            if key == self.status:
+                return label
+
+        raise ValueError("invalid status")
+
 
 class Passenger(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)

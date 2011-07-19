@@ -31,29 +31,33 @@ def check_connection(ws):
         "key": CONNECTION_CHECK_KEY
     }]
 
-    _do_push_orders(ws, orders)
+    _do_push(ws, orders)
+
+def push_ride(ws, ride):
+    data = ride.serialize_for_ws() # TODO: serialize for ws
+    _do_push(ws, data)
 
 def push_order(order_assignment):
     """
     Retrieve the order and workstation from an assignment and add the order to the workstation's queue.
     """
     orders = OrderAssignment.serialize_for_workstation(order_assignment)
-    _do_push_orders(order_assignment.work_station, orders)
+    _do_push(order_assignment.work_station, orders)
 
 def push_dummy_order(ws):
     orders = [{"pk": DUMMY_ID,
              "status": PENDING,
              "from_raw": translate_to_ws_lang(DUMMY_ADDRESS, ws),
              "seconds_passed": "10"}]
-    _do_push_orders(ws, orders)
+    _do_push(ws, orders)
 
 
-def _do_push_orders(ws, orders):
-    json = simplejson.dumps(orders)
+def _do_push(obj, data):
+    json = simplejson.dumps(data)
     try:
-        channel.send_message(ws.channel_id, json)
+        channel.send_message(obj.channel_id, json)
     except InvalidChannelClientIdError:
-        logging.error("InvalidChannelClientIdError: could not sent message '%s' to workstation: %s with channel id: '%s'" % (json, ws, ws.channel_id))
+        logging.error("InvalidChannelClientIdError: could not sent message '%s' to obj: %s with channel id: '%s'" % (json, obj, obj.channel_id))
 
 def workstation_connected(channel_id):
     _set_workstation_online_status(channel_id, True)

@@ -1,6 +1,7 @@
 # Create your views here.
 from datetime import timedelta, datetime
 import logging
+from google.appengine.api import channel
 from common.tz_support import  default_tz_now, set_default_tz_time
 from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api.urlfetch import fetch, POST
@@ -10,10 +11,9 @@ from django.utils import simplejson
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from djangotoolbox.http import JSONResponse
-from ordering.decorators import passenger_required_no_redirect, station_or_workstation_required
+from ordering.decorators import passenger_required_no_redirect, work_station_required
 from ordering.forms import OrderForm
-from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, WorkStation, ACCEPTED, ASSIGNED, Station
+from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, WorkStation, ACCEPTED
 import settings
 import re
 
@@ -158,8 +158,8 @@ def fetch_ride_results(result_id):
 
     return data
 
-#@station_or_workstation_required
-def sharing_workstation_home(request):
+@work_station_required
+def sharing_workstation_home(request, work_station):
     is_popup = True
     shared_rides = SharedRide.objects.all()
     drivers = Driver.objects.all()
@@ -167,23 +167,13 @@ def sharing_workstation_home(request):
 
     rides_data = []
     for ride in shared_rides:
-        data = {'pickups': [dict([('num_passengers', p.pickup_orders.count()), ('address', p.address),
-                ('time', p.stop_time.strftime("%H:%M"))])
-                            for p in ride.points.filter(type=StopType.PICKUP)],
-                'dropoffs': [dict([('num_passengers', p.dropoff_orders.count()), ('address', p.address),
-                        ('time', p.stop_time.strftime("%H:%M"))])
-                             for p in ride.points.filter(type=StopType.DROPOFF)],
-                'depart_time': ride.depart_time.strftime("%H:%M"),
-                'arrive_time': ride.arrive_time.strftime("%H:%M"),
-                'id': ride.id,
-                'status': ride.status
-        }
-
-        rides_data.append(data)
+        rides_data.append(ride.serialize_for_ws())
 
     rides_data = simplejson.dumps(rides_data)
     drivers_data = simplejson.dumps([dict([('id', driver.id), ('name', driver.name)]) for driver in drivers])
     taxis_data = simplejson.dumps([dict([('id', taxi.id), ('number', taxi.number)]) for taxi in taxis])
+
+    token = channel.create_channel(work_station.generate_new_channel_id())
 
     return render_to_response('sharing_workstation_home.html', locals(), context_instance=RequestContext(request))
 
