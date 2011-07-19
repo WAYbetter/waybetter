@@ -2,8 +2,12 @@ from django.contrib import admin
 from ordering.models import SharedRide, RidePoint, Driver, Taxi
 
 class SharedRideAdmin(admin.ModelAdmin):
-    list_display = ["id", "create_date", "depart_time", "arrive_time", "status"]
+    list_display = ["id", "create_date", "depart_time", "arrive_time", "status", "taxi_number", "driver_name"]
 
+    def driver_name(self, obj):
+        return obj.driver.name
+    def taxi_number(self, obj):
+        return obj.taxi.number
 
 class RidePointAdmin(admin.ModelAdmin):
     list_display = ["id", "create_date", "stop_time", "type", "address", "ride_id"]

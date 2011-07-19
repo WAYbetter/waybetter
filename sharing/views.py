@@ -16,6 +16,7 @@ from ordering.forms import OrderForm
 from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, WorkStation, ACCEPTED
 import settings
 import re
+from sharing import sharing_dispatcher
 
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 SHARING_ENGINE_URL = "http://waybetter-route-service2.appspot.com/routeservicega1"
@@ -156,6 +157,8 @@ def fetch_ride_results(result_id):
                         order.dropoff_point = point
                     order.save()
 
+            work_station = sharing_dispatcher.assign_ride(ride)
+            # push order to work station via channel
     return data
 
 @work_station_required
