@@ -5,18 +5,19 @@ from common.tz_support import  default_tz_now, set_default_tz_time
 from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api.urlfetch import fetch, POST
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.utils import simplejson
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from ordering.decorators import passenger_required_no_redirect
+from djangotoolbox.http import JSONResponse
+from ordering.decorators import passenger_required_no_redirect, station_or_workstation_required
 from ordering.forms import OrderForm
-from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType
+from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, WorkStation, ACCEPTED, ASSIGNED, Station
 import settings
 import re
 
-POINT_ID_REGEXPT = "^(p\d+)_"
+POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 SHARING_ENGINE_URL = "http://waybetter-route-service2.appspot.com/routeservicega1"
 WEB_APP_URL = "http://sharing.latest.waybetter-app.appspot.com/"
 
@@ -24,6 +25,7 @@ WEB_APP_URL = "http://sharing.latest.waybetter-app.appspot.com/"
 def hotspot_ordering_page(request, passenger):
     # these should match the fields of utils.Address._fields
     hidden_fields = ["city", "street_address", "house_number", "country", "geohash", "lon", "lat"]
+    fields = ["raw"] + hidden_fields
 
     if request.method == 'POST':
         response = ''
@@ -32,7 +34,6 @@ def hotspot_ordering_page(request, passenger):
         if hotspot_type_raw in ["pickup", "dropoff"]:
             hotspot_type, point_type = ("from", "to") if hotspot_type_raw == "pickup" else ("to", "from")
 
-            fields = ["raw"] + hidden_fields
             hotspot_data = {}
             for f in fields:
                 hotspot_data["%s_%s" % (hotspot_type, f)] = request.POST.get("hotspot_%s" % f, None)
@@ -62,17 +63,17 @@ def hotspot_ordering_page(request, passenger):
                         order = form.save(commit=False)
                         order.passenger = passenger
                         hotspot_datetime = datetime.combine(default_tz_now().date(),
-                                                        datetime.strptime(request.POST.get("hotspot_time"), "%H:%M").time())
+                                                            datetime.strptime(request.POST.get("hotspot_time"),
+                                                                              "%H:%M").time())
 
                         hotspot_datetime = set_default_tz_time(hotspot_datetime)
                         if hotspot_type_raw == "pickup":
                             order.depart_time = hotspot_datetime
                         else:
                             order.arrive_time = hotspot_datetime
-                            
+
                         order.save()
                         orders.append(order)
-
 
                 res = submit_orders_for_ride_calculation(orders)
                 response = u"Orders submitted for calculation: %s" % res.content
@@ -86,7 +87,7 @@ def hotspot_ordering_page(request, passenger):
 
     else: # GET
         page_specific_class = "hotspot_page"
-        hotspot_times = ["11:00","11:30","12:00"]
+        hotspot_times = ["11:00", "11:30", "12:00"]
 
         telmap_user = settings.TELMAP_API_USER
         telmap_password = settings.TELMAP_API_PASSWORD
@@ -111,13 +112,14 @@ def ride_calculation_complete(request):
 # UTILITY FUNCTIONS
 def submit_orders_for_ride_calculation(orders):
     payload = {
-        "orders":       [o.serialize_for_sharing() for o in orders],
+        "orders": [o.serialize_for_sharing() for o in orders],
         "callback_url": reverse(ride_calculation_complete, prefix=WEB_APP_URL)
     }
     payload = simplejson.dumps(payload)
-    logging.info("payload = %s" % payload) 
+    logging.info("payload = %s" % payload)
 
     return fetch(SHARING_ENGINE_URL, payload="submit=%s" % payload, method=POST)
+
 
 def fetch_ride_results(result_id):
     result = fetch(SHARING_ENGINE_URL, payload="get=%s" % result_id, method=POST)
@@ -154,5 +156,64 @@ def fetch_ride_results(result_id):
                         order.dropoff_point = point
                     order.save()
 
-
     return data
+
+#@station_or_workstation_required
+def sharing_workstation_home(request):
+    is_popup = True
+    shared_rides = SharedRide.objects.all()
+    drivers = Driver.objects.all()
+    taxis = Taxi.objects.all()
+
+    rides_data = []
+    for ride in shared_rides:
+        data = {'pickups': [dict([('num_passengers', p.pickup_orders.count()), ('address', p.address),
+                ('time', p.stop_time.strftime("%H:%M"))])
+                            for p in ride.points.filter(type=StopType.PICKUP)],
+                'dropoffs': [dict([('num_passengers', p.dropoff_orders.count()), ('address', p.address),
+                        ('time', p.stop_time.strftime("%H:%M"))])
+                             for p in ride.points.filter(type=StopType.DROPOFF)],
+                'depart_time': ride.depart_time.strftime("%H:%M"),
+                'arrive_time': ride.arrive_time.strftime("%H:%M"),
+                'id': ride.id,
+                'status': ride.status
+        }
+
+        rides_data.append(data)
+
+    rides_data = simplejson.dumps(rides_data)
+    drivers_data = simplejson.dumps([dict([('id', driver.id), ('name', driver.name)]) for driver in drivers])
+    taxis_data = simplejson.dumps([dict([('id', taxi.id), ('number', taxi.number)]) for taxi in taxis])
+
+    return render_to_response('sharing_workstation_home.html', locals(), context_instance=RequestContext(request))
+
+
+#@station_or_workstation_required
+def match_ride(request):
+    work_station = WorkStation.get_one()
+
+    ride_id = request.POST.get("ride_id", None)
+    taxi_id = request.POST.get("taxi_id", None)
+    driver_id = request.POST.get("driver_id", None)
+
+    response = HttpResponseBadRequest("Invalid arguments")
+    if all([ride_id, taxi_id, driver_id]):
+        ride = SharedRide.by_id(ride_id)
+        taxi = Taxi.by_id(taxi_id)
+        driver = Driver.by_id(driver_id)
+        if all([ride, taxi, driver]):
+            ride.change_status(new_status=ACCEPTED)
+            ride.driver = driver
+            ride.taxi = taxi
+            ride.station = work_station.station
+            ride.save()
+
+            response = HttpResponse("OK")
+    
+
+    return response
+
+
+
+
+

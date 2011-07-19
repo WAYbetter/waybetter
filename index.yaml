@@ -154,6 +154,11 @@ indexes:
   - name: __key__
     direction: desc
 
+- kind: ordering_driver
+  properties:
+  - name: __key__
+    direction: desc
+
 - kind: ordering_feedback
   properties:
   - name: __key__
@@ -659,6 +664,11 @@ indexes:
     direction: desc
 
 - kind: ordering_station
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: ordering_taxi
   properties:
   - name: __key__
     direction: desc

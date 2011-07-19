@@ -52,6 +52,10 @@ ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED, ugettext("failed")),
                                     (ERROR, ugettext("error")),
                                     (TIMED_OUT, ugettext("timed_out")))
 
+SHARED_RIDE_STATUS = ((PENDING, ugettext("pending")),
+                     (ASSIGNED, ugettext("assigned")),
+                     (ACCEPTED, ugettext("accepted")))
+
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
 MAX_STATION_DISTANCE_KM = 10
@@ -197,6 +201,9 @@ class Driver(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="drivers")
     name = models.CharField(_("name"), max_length=140, null=True, blank=True)
 
+class Taxi(BaseModel):
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="taxis")
+    number = models.IntegerField(_("taxi_number"), max_length=10)
 
 class SharedRide(BaseModel):
     create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
@@ -205,8 +212,23 @@ class SharedRide(BaseModel):
     depart_time = UTCDateTimeField(_("depart time"))
     arrive_time = UTCDateTimeField(_("arrive time"))
 
+    status = StatusField(_("status"), choices=SHARED_RIDE_STATUS, default=PENDING)
+
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
-#    driver = models.ForeignKey(Driver, verbose_name=_("driver"), related_name="rides", null=True, blank=True)
+    driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
+    taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
+
+    def change_status(self, old_status=None, new_status=None):
+        if self._change_attr_in_transaction("status", old_status, new_status):
+            pass
+#            sig_args = {
+#                'sender': 'order_status_changed_signal',
+#                'obj': self,
+#                'status': new_status
+#            }
+#            order_status_changed_signal.send(**sig_args)
+        else:
+            raise UpdateStatusError("update shared ride status failed: %s to %s" % (old_status, new_status))
 
 class Passenger(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
