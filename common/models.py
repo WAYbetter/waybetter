@@ -5,9 +5,9 @@ from common.decorators import run_in_transaction
 import logging
 
 class BaseModel(models.Model):
-    '''
+    """
     Adds common methods to our models
-    '''
+    """
     class Meta:
         abstract = True
 
@@ -26,10 +26,14 @@ class BaseModel(models.Model):
 
     @classmethod
     def get_one(cls):
-        '''
+        """
         Convenience method for getting an instance of this model
         Returns the first instance found
-        '''
+
+
+        @param cls:
+        @return: the first instance of this class
+        """
         if cls.objects.count():
             return cls.objects.all()[0]
         else:
@@ -37,6 +41,14 @@ class BaseModel(models.Model):
 
     @run_in_transaction
     def _change_attr_in_transaction(self, attname, old_value, new_value):
+        """
+        change the given attribute value from B{old_value} to B{new_value}
+        
+        @param attname: the attribute name to change
+        @param old_value: the old value - current value must equal old_value for change to happen
+        @param new_value: the new value to set
+        @return: True to signal success
+        """
         if old_value == new_value:
             return False
         elif not old_value:
@@ -50,6 +62,10 @@ class BaseModel(models.Model):
         else:
             logging.warning("%s.%s : update in transaction failed" % (self.__class__.__name__, attname))
             return False
+
+    def __unicode__(self):
+        return u"%s [%d]" % (type(self).__name__, self.id)
+
 
 class Country(BaseModel):
     name = models.CharField(_("name"), max_length=60, unique=True)

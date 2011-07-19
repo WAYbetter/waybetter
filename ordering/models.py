@@ -481,6 +481,9 @@ class RidePoint(BaseModel):
     lat = models.FloatField(_("latitude"))
     address = models.CharField(_("address"), max_length=200, null=True, blank=True)
 
+    def __unicode__(self):
+        return u"RidePoint [%d]" % self.id
+
 RATING_CHOICES = ((0, ugettext("Unrated")),
                   (1, ugettext("Very poor")),
                   (2, ugettext("Not so bad")),
