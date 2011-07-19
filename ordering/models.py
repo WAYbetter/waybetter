@@ -252,6 +252,7 @@ class Passenger(BaseModel):
         # try to get passenger from the session
         if not passenger:
             passenger = request.session.get(CURRENT_PASSENGER_KEY, None)
+            if passenger: passenger = passenger.fresh_copy() # refresh the passenger copy stored in the session
 
         # try to get passenger from passed token
         if not passenger:
