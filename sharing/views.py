@@ -16,6 +16,7 @@ from ordering.forms import OrderForm
 from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, WorkStation, ACCEPTED, ASSIGNED, Station
 import settings
 import re
+from sharing import sharing_dispatcher
 
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 SHARING_ENGINE_URL = "http://waybetter-route-service2.appspot.com/routeservicega1"
@@ -156,10 +157,14 @@ def fetch_ride_results(result_id):
                         order.dropoff_point = point
                     order.save()
 
+            work_station = sharing_dispatcher.assign_ride(ride)
+            # push order to work station via channel
+
+
     return data
 
-#@station_or_workstation_required
-def sharing_workstation_home(request):
+@station_or_workstation_required
+def sharing_workstation_home(request, station):
     is_popup = True
     shared_rides = SharedRide.objects.all()
     drivers = Driver.objects.all()
@@ -188,10 +193,8 @@ def sharing_workstation_home(request):
     return render_to_response('sharing_workstation_home.html', locals(), context_instance=RequestContext(request))
 
 
-#@station_or_workstation_required
-def match_ride(request):
-    work_station = WorkStation.get_one()
-
+@station_or_workstation_required
+def accept_ride(request, station):
     ride_id = request.POST.get("ride_id", None)
     taxi_id = request.POST.get("taxi_id", None)
     driver_id = request.POST.get("driver_id", None)
@@ -205,7 +208,6 @@ def match_ride(request):
             ride.change_status(new_status=ACCEPTED)
             ride.driver = driver
             ride.taxi = taxi
-            ride.station = work_station.station
             ride.save()
 
             response = HttpResponse("OK")

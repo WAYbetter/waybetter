@@ -72,7 +72,7 @@
             var $match_button = $("<div>{% trans 'Match Ride' %}</div>").attr("id", "match_ride_" + ride.id).button()
                     .click(function(){
                         $.ajax({
-                            url: '{% url sharing.views.match_ride %}',
+                            url: '{% url sharing.views.accept_ride %}',
                             type: 'POST',
                             data: { 'ride_id': ride.id,
                                     'taxi_id': $taxi_selector.val(),
