@@ -1,89 +1,48 @@
-# Create your views here.
-from datetime import timedelta, datetime
-import logging
 from google.appengine.api import channel
 from google.appengine.api.taskqueue import taskqueue
-from common.decorators import internal_task_on_queue, catch_view_exceptions
-from common.tz_support import  default_tz_now, set_default_tz_time
-from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api.urlfetch import fetch, POST
+from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.utils import simplejson
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from ordering import station_connection_manager
+from common.decorators import internal_task_on_queue
+from common.tz_support import  default_tz_now, set_default_tz_time
 from ordering.decorators import passenger_required_no_redirect, work_station_required
 from ordering.forms import OrderForm
-from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, WorkStation, ACCEPTED
+from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, ACCEPTED
+from sharing import signals
+from datetime import timedelta, datetime
+import logging
 import settings
 import re
-from sharing import sharing_dispatcher, signals
 
-POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 SHARING_ENGINE_URL = "http://waybetter-route-service2.appspot.com/routeservicega1"
 WEB_APP_URL = "http://sharing.latest.waybetter-app.appspot.com/"
 
+# these should match the fields of utils.Address._fields
+HIDDEN_FIELDS = ["city", "street_address", "house_number", "country", "geohash", "lon", "lat"]
+POINT_ID_REGEXPT = re.compile("^(p\d+)_")
+
 @passenger_required_no_redirect
 def hotspot_ordering_page(request, passenger):
-    # these should match the fields of utils.Address._fields
-    hidden_fields = ["city", "street_address", "house_number", "country", "geohash", "lon", "lat"]
-    fields = ["raw"] + hidden_fields
-
     if request.method == 'POST':
         response = ''
         hotspot_type_raw = request.POST.get("hotspot_type", None)
 
         if hotspot_type_raw in ["pickup", "dropoff"]:
             hotspot_type, point_type = ("from", "to") if hotspot_type_raw == "pickup" else ("to", "from")
+            data = request.POST.copy()
+            data['passenger'] = passenger
+            orders = create_orders_from_hotspot(data, hotspot_type, point_type)
 
-            hotspot_data = {}
-            for f in fields:
-                hotspot_data["%s_%s" % (hotspot_type, f)] = request.POST.get("hotspot_%s" % f, None)
-
-            if all(hotspot_data.values()):
-                p_names = []
-                for f in request.POST.keys():
-                    p_name = re.search(POINT_ID_REGEXPT, f)
-                    if p_name and p_name.groups()[0] not in p_names:
-                        p_names.append(p_name.groups()[0])
-
-                points = []
-                for p_name in p_names:
-                    p_data = {}
-                    for f in fields:
-                        p_data["%s_%s" % (point_type, f)] = request.POST.get("%s_%s" % (p_name, f), None)
-
-                    if all(p_data.values()):
-                        points.append(p_data)
-
-                orders = []
-                for p_data in points:
-                    form_data = p_data.copy()
-                    form_data.update(hotspot_data)
-                    form = OrderForm(form_data)
-                    if form.is_valid():
-                        order = form.save(commit=False)
-                        order.passenger = passenger
-                        hotspot_datetime = datetime.combine(default_tz_now().date(),
-                                                            datetime.strptime(request.POST.get("hotspot_time"),
-                                                                              "%H:%M").time())
-
-                        hotspot_datetime = set_default_tz_time(hotspot_datetime)
-                        if hotspot_type_raw == "pickup":
-                            order.depart_time = hotspot_datetime
-                        else:
-                            order.arrive_time = hotspot_datetime
-
-                        order.save()
-                        orders.append(order)
-
+            if orders:
                 res = submit_orders_for_ride_calculation(orders)
                 response = u"Orders submitted for calculation: %s" % res.content
-
             else:
-                response = "Hotspot data corrupt"
+                response = "Hotspot data corrupt: no orders created"
         else:
             response = "Hotspot type invalid"
 
@@ -91,6 +50,7 @@ def hotspot_ordering_page(request, passenger):
 
     else: # GET
         page_specific_class = "hotspot_page"
+        hidden_fields = HIDDEN_FIELDS
         hotspot_times = ["11:00", "11:30", "12:00"]
 
         telmap_user = settings.TELMAP_API_USER
@@ -113,20 +73,6 @@ def ride_calculation_complete(request):
         q.add(task)
 
     return HttpResponse("OK")
-
-
-# UTILITY FUNCTIONS
-def submit_orders_for_ride_calculation(orders):
-    payload = {
-        "orders": [o.serialize_for_sharing() for o in orders],
-        "callback_url": reverse(ride_calculation_complete, prefix=WEB_APP_URL)
-    }
-    payload = simplejson.dumps(payload)
-    logging.info("payload = %s" % payload)
-
-    return fetch(SHARING_ENGINE_URL, payload="submit=%s" % payload, method=POST, deadline=30)
-
-
 
 
 @csrf_exempt
@@ -171,6 +117,7 @@ def fetch_ride_results_task(request):
 
     return HttpResponse("OK")
 
+
 @work_station_required
 def sharing_workstation_home(request, work_station):
     is_popup = True
@@ -209,11 +156,62 @@ def accept_ride(request, work_station):
             signals.ride_status_changed_signal.send(sender='accept_ride', obj=ride, status=ACCEPTED)
 
             response = HttpResponse("OK")
-    
 
     return response
 
+# UTILITY FUNCTIONS
+def create_orders_from_hotspot(data, hotspot_type, point_type):
+    fields = ["raw"] + HIDDEN_FIELDS
+
+    hotspot_data = {}
+    for f in fields:
+        hotspot_data["%s_%s" % (hotspot_type, f)] = data.get("hotspot_%s" % f, None)
+
+    orders = []
+    if all(hotspot_data.values()):
+        p_names = []
+        for f in data.keys():
+            p_name = re.search(POINT_ID_REGEXPT, f)
+            if p_name and p_name.groups()[0] not in p_names:
+                p_names.append(p_name.groups()[0])
+
+        points = []
+        for p_name in p_names:
+            p_data = {}
+            for f in fields:
+                p_data["%s_%s" % (point_type, f)] = data.get("%s_%s" % (p_name, f), None)
+
+            if all(p_data.values()):
+                points.append(p_data)
+
+        for p_data in points:
+            form_data = p_data.copy()
+            form_data.update(hotspot_data)
+            form = OrderForm(form_data)
+            if form.is_valid():
+                order = form.save(commit=False)
+                order.passenger = data['passenger']
+                hotspot_datetime = datetime.combine(default_tz_now().date(),
+                                                    datetime.strptime(data.get("hotspot_time"), "%H:%M").time())
+
+                hotspot_datetime = set_default_tz_time(hotspot_datetime)
+                if hotspot_type == "from":
+                    order.depart_time = hotspot_datetime
+                else:
+                    order.arrive_time = hotspot_datetime
+
+                order.save()
+                orders.append(order)
+
+    return orders
 
 
+def submit_orders_for_ride_calculation(orders):
+    payload = {
+        "orders": [o.serialize_for_sharing() for o in orders],
+        "callback_url": reverse(ride_calculation_complete, prefix=WEB_APP_URL)
+    }
+    payload = simplejson.dumps(payload)
+    logging.info("payload = %s" % payload)
 
-
+    return fetch(SHARING_ENGINE_URL, payload="submit=%s" % payload, method=POST, deadline=30)
