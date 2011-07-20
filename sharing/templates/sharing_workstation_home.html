@@ -59,7 +59,7 @@
             socket.onmessage = function(msg) {
                 try {
                     var data = $.parseJSON(msg.data);
-                    onOrder(data);
+                    renderRide(data);
                     $.ajax({
                         url: "{% url ordering.station_controller.message_received %}",
                         type: "POST",
@@ -132,7 +132,7 @@
         };
 
 
-        render_ride = function(ride) {
+        renderRide = function(ride) {
             var $ride_header = $('<h3></h3>').attr("id", "ride_header_" + ride.id)
                     .append('<span>img</span>')
                     .append('<a>' + ride.pickups[0].address + ' (' + ride.pickups[0].time + '</a>')
@@ -142,7 +142,7 @@
 
             $ride_div.append(renderPickupTable(ride), renderDropoffTable(ride), "<hr/>", renderMatcher(ride));
 
-            $("#rides_accordion").append($ride_header, $ride_div);
+            $("#rides_accordion").prepend($ride_header, $ride_div).accordion("destroy").accordion();
         };
 
         trace = function(str) {
@@ -157,10 +157,9 @@
 
         $(function() {
             $.each(rides_data, function(i, ride) {
-                render_ride(ride);
+                renderRide(ride);
             });
 
-            $("#rides_accordion").accordion();
             setupChannel(init_token);
         });
     </script>

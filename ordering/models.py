@@ -405,6 +405,7 @@ class WorkStation(BaseModel):
     installer_url = models.URLField(_("installer URL"), verify_exists=False, max_length=500, null=True, blank=True)
     was_installed = models.BooleanField(_("was installed"), default=False)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
+    accept_shared_rides = models.BooleanField(_("Accept Shared Rides"), default=False)
 
     last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
                                             default=datetime.datetime(1, 1, 1))
@@ -537,6 +538,7 @@ RATING_CHOICES = ((0, ugettext("Unrated")),
 
 class Order(BaseModel):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
+    ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="orders", null=True, blank=True)
     pickup_point = models.ForeignKey(RidePoint, verbose_name=_("pickup point"), related_name="pickup_orders", null=True, blank=True)
     dropoff_point = models.ForeignKey(RidePoint, verbose_name=_("dropoff point"), related_name="dropoff_orders", null=True, blank=True)
 

@@ -10,7 +10,7 @@ from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api import xmpp
 from google.appengine.api.labs.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError, TombstonedTaskError
 from google.appengine.api.labs.taskqueue import taskqueue
-from ordering.models import WorkStation, Order, Passenger, OrderAssignment
+from ordering.models import WorkStation, Order, Passenger, OrderAssignment, SharedRide
 from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
 import logging
 
@@ -58,10 +58,18 @@ def maintenance_task(request):
 
 
 def do_task():
-    denormalize_order_assignments()
+    delete_shared_orders()
 
 #    generate_passengers_with_non_existing_users()
 #    generate_dead_users_list()
+
+def delete_shared_orders():
+    rides = SharedRide.objects.all()
+    for ride in rides:
+        logging.info("deleting ride %d" % ride.id)
+        ride.orders.all().delete()
+        ride.points.all().delete()
+        ride.delete()
 
 def denormalize_order_assignments():
     for oa in OrderAssignment.objects.all():

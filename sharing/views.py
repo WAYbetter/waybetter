@@ -2,6 +2,8 @@
 from datetime import timedelta, datetime
 import logging
 from google.appengine.api import channel
+from google.appengine.api.taskqueue import taskqueue
+from common.decorators import internal_task_on_queue, catch_view_exceptions
 from common.tz_support import  default_tz_now, set_default_tz_time
 from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api.urlfetch import fetch, POST
@@ -11,12 +13,13 @@ from django.utils import simplejson
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
+from ordering import station_connection_manager
 from ordering.decorators import passenger_required_no_redirect, work_station_required
 from ordering.forms import OrderForm
 from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, WorkStation, ACCEPTED
 import settings
 import re
-from sharing import sharing_dispatcher
+from sharing import sharing_dispatcher, signals
 
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 SHARING_ENGINE_URL = "http://waybetter-route-service2.appspot.com/routeservicega1"
@@ -105,7 +108,9 @@ def ride_calculation_complete(request):
     logging.info("ride_calculation_complete: %s" % request)
     result_id = request.POST.get('id')
     if result_id:
-        fetch_ride_results(result_id)
+        task = taskqueue.Task(url=reverse(fetch_ride_results_task), params={"result_id": result_id})
+        q = taskqueue.Queue('orders')
+        q.add(task)
 
     return HttpResponse("OK")
 
@@ -119,12 +124,16 @@ def submit_orders_for_ride_calculation(orders):
     payload = simplejson.dumps(payload)
     logging.info("payload = %s" % payload)
 
-    return fetch(SHARING_ENGINE_URL, payload="submit=%s" % payload, method=POST)
+    return fetch(SHARING_ENGINE_URL, payload="submit=%s" % payload, method=POST, deadline=30)
 
 
-def fetch_ride_results(result_id):
-    result = fetch(SHARING_ENGINE_URL, payload="get=%s" % result_id, method=POST)
-    data = {}
+
+
+@csrf_exempt
+@internal_task_on_queue("orders")
+def fetch_ride_results_task(request):
+    result_id = request.POST["result_id"]
+    result = fetch(SHARING_ENGINE_URL, payload="get=%s" % result_id, method=POST, deadline=30)
     content = result.content.strip()
     if result.status_code == 200 and content:
         data = simplejson.loads(content.decode("utf-8"))
@@ -151,15 +160,16 @@ def fetch_ride_results(result_id):
 
                 for order_id in point_data["m_OrderIDs"]:
                     order = Order.by_id(int(order_id))
+                    order.ride = ride
                     if point.type == StopType.PICKUP:
                         order.pickup_point = point
                     else:
                         order.dropoff_point = point
                     order.save()
 
-            work_station = sharing_dispatcher.assign_ride(ride)
-            # push order to work station via channel
-    return data
+            signals.ride_created_signal.send(sender='fetch_ride_results', obj=ride)
+
+    return HttpResponse("OK")
 
 @work_station_required
 def sharing_workstation_home(request, work_station):
@@ -181,10 +191,8 @@ def sharing_workstation_home(request, work_station):
     return render_to_response('sharing_workstation_home.html', locals(), context_instance=RequestContext(request))
 
 
-#@station_or_workstation_required
-def match_ride(request):
-    work_station = WorkStation.get_one()
-
+@work_station_required
+def accept_ride(request, work_station):
     ride_id = request.POST.get("ride_id", None)
     taxi_id = request.POST.get("taxi_id", None)
     driver_id = request.POST.get("driver_id", None)
@@ -195,11 +203,10 @@ def match_ride(request):
         taxi = Taxi.by_id(taxi_id)
         driver = Driver.by_id(driver_id)
         if all([ride, taxi, driver]):
-            ride.change_status(new_status=ACCEPTED)
             ride.driver = driver
             ride.taxi = taxi
-            ride.station = work_station.station
-            ride.save()
+            ride.change_status(new_status=ACCEPTED) # calls save()
+            signals.ride_status_changed_signal.send(sender='accept_ride', obj=ride, status=ACCEPTED)
 
             response = HttpResponse("OK")
     
