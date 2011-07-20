@@ -105,44 +105,101 @@
             var $driver_label = '<label for="driver_sel_' + ride.id + '"> {% trans 'Select Driver' %}' + '</label>';
             var $driver_selector = $('<select class="driver_selector"></select>').attr("id", "driver_sel_" + ride.id);
             $.each(drivers_data, function(i, driver) {
-                $driver_selector.append('<option value="' + driver.id +'">' + driver.name + '</option>');
+                $driver_selector.append('<option value="' + driver.id + '">' + driver.name + '</option>');
             });
 
             var $taxi_label = '<label for="taxi_sel_' + ride.id + '"> {% trans 'Select Taxi' %}' + '</label>';
             var $taxi_selector = $('<select class="taxi_selector"></select>').attr("id", "taxi_sel_" + ride.id);
             $.each(taxis_data, function(i, taxi) {
-                $taxi_selector.append('<option value="' + taxi.id +'">' + taxi.number + '</option>');
+                $taxi_selector.append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
             });
 
-            var $match_button = $("<div>{% trans 'Match Ride' %}</div>").attr("id", "match_ride_" + ride.id).button()
-                    .click(function(){
+            var $accept_button = $("<div>{% trans 'Accept Ride' %}</div>").attr("id", "match_ride_" + ride.id).button()
+                    .click(function() {
                         $.ajax({
                             url: '{% url sharing.views.accept_ride %}',
                             type: 'POST',
                             data: { 'ride_id': ride.id,
-                                    'taxi_id': $taxi_selector.val(),
-                                    'driver_id': $driver_selector.val() },
-                            success: function(){
+                                'taxi_id': $taxi_selector.val(),
+                                'driver_id': $driver_selector.val() },
+                            success: function() {
+                                acceptRide(ride);
                                 console.log("success");
                             },
-                            error: function(){console.log("error");}
+                            error: function() {
+                                console.log("error");
+                            }
                         });
-            });
-            return $('<div class="ride_matcher" id="matcher_' + ride.id + '"></div>').append($driver_label, $driver_selector, $taxi_label, $taxi_selector, $match_button);
+                    });
+            return $('<div class="ride_matcher" id="matcher_' + ride.id + '"></div>')
+                    .append($driver_label, $driver_selector, $taxi_label, $taxi_selector, $accept_button);
         };
 
 
         renderRide = function(ride) {
-            var $ride_header = $('<h3></h3>').attr("id", "ride_header_" + ride.id)
+            var $ride_header = $('<h3 class="ride_header"></h3>').attr("id", "ride_header_" + ride.id)
                     .append('<span>img</span>')
-                    .append('<a>' + ride.pickups[0].address + ' (' + ride.pickups[0].time + '</a>')
+                    .append('<a>' + ride.pickups[0].address + ' (' + ride.depart_time + '</a>')
                     .append('<span>' + ride.status + '</span>');
 
-            var $ride_div = $("<div></div>").attr("id", "ride_div_" + ride.id);
+            var $ride_div = $("<div></div>").attr("id", "ride_div_" + ride.id).attr("ride_time", ride.depart_time);
 
             $ride_div.append(renderPickupTable(ride), renderDropoffTable(ride), "<hr/>", renderMatcher(ride));
 
-            $("#rides_accordion").prepend($ride_header, $ride_div).accordion("destroy").accordion();
+            var append_after = getRenderPosition(ride);
+            if (append_after) {
+                $(append_after).after($ride_header, $ride_div);
+            }
+            else { // put it first
+                $("#rides_accordion").prepend($ride_header, $ride_div);
+            }
+            $("#rides_accordion").accordion("destroy").accordion();
+        };
+
+        getRenderPosition = function(ride) {
+            // returns the ride_div after which to append the new ride_header and ride_div, or
+            // undefined if no such ride_div exists (i.e., the new ride should be first).
+            // assumes existing rides in the page are ordered by ride time.
+
+            var time = getRideTime(ride);
+            var append_after = undefined;
+
+            $("[id^='ride_div_']").each(function(i, ride_div) {
+                var div_time = getRideTime(undefined, ride_div);
+                if (div_time <= time) {
+                    append_after = this;
+                }
+                else {
+                    return false; // break
+                }
+            });
+
+//            var msg = (append_after) ? "after:" + $(append_after).attr("ride_time") : "first";
+//            console.log(msg);
+
+            return append_after;
+        };
+
+        getRideTime = function(ride, ride_div) {
+            var hours, minutes;
+            if (ride) {
+                hours = ride.depart_time.split(":")[0];
+                minutes = ride.depart_time.split(":")[1];
+            }
+            else { // ride_div element
+                hours = $(ride_div).attr("ride_time").split(":")[0];
+                minutes = $(ride_div).attr("ride_time").split(":")[1];
+            }
+            var time = new Date();
+            time.setHours(hours);
+            time.setMinutes(minutes);
+            time.setSeconds(0);
+            time.setMilliseconds(0);
+            return time;
+        };
+
+        acceptRide = function(ride){
+            $("#ride_header_" + ride.id).addClass("accepted");
         };
 
         trace = function(str) {

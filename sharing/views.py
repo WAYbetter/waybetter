@@ -12,7 +12,7 @@ from common.decorators import internal_task_on_queue
 from common.tz_support import  default_tz_now, set_default_tz_time
 from ordering.decorators import passenger_required_no_redirect, work_station_required
 from ordering.forms import OrderForm
-from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, ACCEPTED
+from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, ACCEPTED, PENDING, ASSIGNED
 from sharing import signals
 from datetime import timedelta, datetime
 import logging
@@ -51,7 +51,7 @@ def hotspot_ordering_page(request, passenger):
     else: # GET
         page_specific_class = "hotspot_page"
         hidden_fields = HIDDEN_FIELDS
-        hotspot_times = ["11:00", "11:30", "12:00"]
+        hotspot_times = ["11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14  :00"]
 
         telmap_user = settings.TELMAP_API_USER
         telmap_password = settings.TELMAP_API_PASSWORD
@@ -121,17 +121,13 @@ def fetch_ride_results_task(request):
 @work_station_required
 def sharing_workstation_home(request, work_station):
     is_popup = True
-    shared_rides = SharedRide.objects.all()
+    shared_rides = SharedRide.objects.filter(status__in=[PENDING, ASSIGNED, ACCEPTED])
     drivers = Driver.objects.all()
     taxis = Taxi.objects.all()
 
-    rides_data = []
-    for ride in shared_rides:
-        rides_data.append(ride.serialize_for_ws())
-
-    rides_data = simplejson.dumps(rides_data)
-    drivers_data = simplejson.dumps([dict([('id', driver.id), ('name', driver.name)]) for driver in drivers])
-    taxis_data = simplejson.dumps([dict([('id', taxi.id), ('number', taxi.number)]) for taxi in taxis])
+    rides_data = simplejson.dumps([ride.serialize_for_ws() for ride in shared_rides])
+    drivers_data = simplejson.dumps([{'id': driver.id, 'name': driver.name} for driver in drivers])
+    taxis_data = simplejson.dumps([{'id': taxi.id, 'number': taxi.number} for taxi in taxis])
 
     token = channel.create_channel(work_station.generate_new_channel_id())
 
