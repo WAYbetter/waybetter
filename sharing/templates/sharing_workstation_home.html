@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block bodyclass %}clean_body{% endblock %}
-{% block mainclass %}clean_main{% endblock %}
+{% block mainclass %}full_screen_main clean_main{% endblock %}
 
 {% block extrastyle %}
     {{ block.super }}
@@ -254,10 +254,9 @@
         };
 
     refreshAccordion = function() {
-        $("#ride_accordion").accordion("destroy").accordion();
         $("[id^='ride_header_']").each(function(i, ride_div) {
             if ($(this).data("status") != {{ accepted }}) {
-                $("#ride_accordion").accordion({ active: i });
+                $("#ride_accordion").accordion("destroy").accordion({ active: i });
                 return false; //break
             }
         });

@@ -35,6 +35,7 @@ def choose_workstation(ride):
 
 @receive_signal(signals.ride_created_signal)
 def ride_created(sender, signal_type, obj, **kwargs):
+    logging.info("ride_created_signal: %s" % obj)
     ride = obj
     work_station = assign_ride(ride)
     if work_station:

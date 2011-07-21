@@ -1,14 +1,15 @@
+from django.contrib.auth import logout
 from google.appengine.api import channel
 from google.appengine.api.taskqueue import taskqueue
 from google.appengine.api.urlfetch import fetch, POST
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.utils import simplejson
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from common.decorators import internal_task_on_queue
+from common.decorators import internal_task_on_queue, catch_view_exceptions
 from common.tz_support import  default_tz_now, set_default_tz_time
 from ordering.decorators import passenger_required_no_redirect, work_station_required
 from ordering.forms import OrderForm
@@ -18,6 +19,7 @@ from datetime import timedelta, datetime
 import logging
 import settings
 import re
+import sharing_dispatcher # so that receive_signal decorator will be evaluted
 
 SHARING_ENGINE_URL = "http://waybetter-route-service2.appspot.com/routeservicega1"
 WEB_APP_URL = "http://sharing.latest.waybetter-app.appspot.com/"
@@ -76,6 +78,7 @@ def ride_calculation_complete(request):
 
 
 @csrf_exempt
+@catch_view_exceptions
 @internal_task_on_queue("orders")
 def fetch_ride_results_task(request):
     result_id = request.POST["result_id"]
@@ -119,7 +122,11 @@ def fetch_ride_results_task(request):
 
 
 @work_station_required
-def sharing_workstation_home(request, work_station):
+def sharing_workstation_home(request, work_station, workstation_id):
+    if work_station.id != int(workstation_id):
+        logout(request)
+        return HttpResponseRedirect(request.path)
+
     is_popup = True
     shared_rides = SharedRide.objects.filter(status__in=[PENDING, ASSIGNED, ACCEPTED])
 
@@ -151,9 +158,10 @@ def accept_ride(request, work_station):
     if all([ride_id, taxi_id, driver_id]):
         ride = SharedRide.by_id(ride_id)
         taxi = Taxi.by_id(taxi_id)
-        driver = Driver.by_id(driver_id)
-        if all([ride, taxi, driver]):
-            ride.driver = driver
+#        driver = Driver.by_id(driver_id)
+#        if all([ride, taxi, driver]):
+        if all([ride, taxi]):
+#            ride.driver = driver
             ride.taxi = taxi
             ride.change_status(new_status=ACCEPTED) # calls save()
             signals.ride_status_changed_signal.send(sender='accept_ride', obj=ride, status=ACCEPTED)

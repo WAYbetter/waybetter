@@ -115,6 +115,12 @@ def build_installer(modeladmin, request, queryset):
 
 build_installer.short_description = "Build Installer"
 
+def build_sharing_installer(modeladmin, request, queryset):
+    for ws in queryset:
+        ws.build_sharing_installer()
+
+build_sharing_installer.short_description = "Build Sharing Installer"
+
 def check_connection(modeladmin, request, queryset):
     for ws in queryset:
         if station_connection_manager.is_workstation_available(ws):
@@ -131,7 +137,7 @@ class WorkStationAdmin(admin.ModelAdmin):
     list_display = ["id", "work_station_user", "station_name", "is_online"]
     list_filter = ["is_online"]
     exclude = ["is_online", "last_assignment_date"]
-    actions = [build_installer, send_dummy_order, check_connection]
+    actions = [build_installer, build_sharing_installer, send_dummy_order, check_connection]
 
     def work_station_user(self, obj):
         return obj.get_admin_link()

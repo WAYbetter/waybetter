@@ -182,7 +182,8 @@ class Station(BaseModel):
 
         ws, ws_created = WorkStation.objects.get_or_create(user=ws_user, station=self)
         if ws_created:
-            ws.save() # trigger build of installer
+#            ws.save() # trigger build of installer
+            ws.build_installer()
             logging.debug("Created workstation: %s" % username)
 
 
@@ -480,31 +481,38 @@ class WorkStation(BaseModel):
         Invokes the build_installer_url service in the AIR build service,
         providing it the workstation token.
         """
-        if self.token is None or len(self.token) == 0:
-            self.token = generate_random_token(alpha_or_digit_only=True)
-        if self.installer_url is None or len(self.installer_url) == 0:
-            try:
-                url = "%sbuild_installer/" % settings.BUILD_SERVICE_BASE_URL
-                data = {"token": self.token, "workstation_id": self.id}
-                params = urllib.urlencode(data)
-                installer_url = urllib2.urlopen(url, params).read()
-                self.installer_url = installer_url
-                self.save()
-            except:
-                time.sleep(5)
-                url = "%sget_installer/?token=%s" % (settings.BUILD_SERVICE_BASE_URL, self.token)
-                installer_url = urllib2.urlopen(url).read()
-                self.installer_url = installer_url
-                self.save()
+        build_installer_for_workstation(instance=self, url="build_installer")
 
-        return self.installer_url
+    def build_sharing_installer(self):
+        """
+        Invokes the build_installer_url service in the AIR build service,
+        providing it the workstation token.
+        """
+        build_installer_for_workstation(instance=self, url="build_sharing_installer")
 
 
-def build_installer_for_workstation(sender, instance, **kwargs):
-    instance.build_installer()
+def build_installer_for_workstation(instance, url):
+    if instance.token is None or len(instance.token) == 0:
+        instance.token = generate_random_token(alpha_or_digit_only=True)
+    if instance.installer_url is None or len(instance.installer_url) == 0:
+        try:
+            url = "%s%s/" % (settings.BUILD_SERVICE_BASE_URL, url)
+            data = {"token": instance.token, "workstation_id": instance.id}
+            params = urllib.urlencode(data)
+            installer_url = urllib2.urlopen(url, params).read()
+            instance.installer_url = installer_url
+            instance.save()
+        except:
+            time.sleep(5)
+            url = "%sget_installer/?token=%s" % (settings.BUILD_SERVICE_BASE_URL, instance.token)
+            installer_url = urllib2.urlopen(url).read()
+            instance.installer_url = installer_url
+            instance.save()
 
+    return instance.installer_url
 
-models.signals.post_save.connect(build_installer_for_workstation, sender=WorkStation)
+#TODO_WB: what is that needed for:
+#models.signals.post_save.connect(build_installer_for_workstation, sender=WorkStation)
 
 class StopType(Enum):
     PICKUP  = 0
