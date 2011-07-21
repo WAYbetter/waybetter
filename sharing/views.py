@@ -122,6 +122,11 @@ def fetch_ride_results_task(request):
 def sharing_workstation_home(request, work_station):
     is_popup = True
     shared_rides = SharedRide.objects.filter(status__in=[PENDING, ASSIGNED, ACCEPTED])
+
+#    for ride in shared_rides:
+#        ride.change_status(new_status=ASSIGNED)
+
+
     drivers = Driver.objects.all()
     taxis = Taxi.objects.all()
 
@@ -129,6 +134,8 @@ def sharing_workstation_home(request, work_station):
     drivers_data = simplejson.dumps([{'id': driver.id, 'name': driver.name} for driver in drivers])
     taxis_data = simplejson.dumps([{'id': taxi.id, 'number': taxi.number} for taxi in taxis])
 
+    assigned = ASSIGNED
+    accepted = ACCEPTED
     token = channel.create_channel(work_station.generate_new_channel_id())
 
     return render_to_response('sharing_workstation_home.html', locals(), context_instance=RequestContext(request))

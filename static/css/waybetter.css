@@ -8,6 +8,10 @@ a:focus {
     outline: none;
 }
 
+select:disabled{
+    opacity: 0.6;
+}
+
 body {
     background-image: url(../images/background.png);
     background-repeat: repeat-x;
@@ -2238,6 +2242,56 @@ bottom: 24px;}
 }
 
 /** sharing workstation home **/
-.ride_header.accepted{
-    background: green;
+#ride_accordion{
+    width: 600px;
 }
+
+.ride_header .sent_icon{
+    background-image: url("/static/images/sent.png");
+    width: 16px;
+    height: 16px;
+    display: inline-block;
+}
+
+.ride_div table th {
+    font-weight: bold;
+}
+
+.ride_div caption{
+    font-size:15px;
+    float: left;
+}
+
+.ride_div table {
+    width: 100%;
+    border: 2px solid #a8d5fd;
+    border-spacing: 0 3px;
+    margin: 15px 5px 0 5px;
+}
+
+.ride_div table tr:nth-child(odd) {
+    background-color: white;
+}
+
+.ride_div table tr:nth-child(even) {
+    background-color: #e7f1fa;
+}
+
+.ride_div table th, .ride_div table td {
+    padding: 6px 2px 2px;
+    color: #5b5b5b;
+    text-shadow: 0 1px 0 white;
+    font-size: 14px;
+    text-align: center;
+}
+
+.ride_div .pickup_table{}
+
+.ride_div .dropoff_table{}
+
+.ride_div .ride_matcher{margin-top: 10px;}
+
+.ride_div .ride_matcher label{}
+.ride_div .ride_matcher select{float: right;}
+.ride_div .ride_matcher .select_tools{float: left;  width: 200px;}
+.ride_div .ride_matcher .accept_button{float: right}

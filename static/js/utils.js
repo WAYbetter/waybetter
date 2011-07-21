@@ -21,7 +21,7 @@ Object.create = Object.create || function (p) {
 		},
         set_button_text: function(text) {
             return this.each(function() {
-                $(this).parent().find(".ui-btn-text").text(text)
+                $(this).parent().find(".ui-btn-text").text(text);
             })
         }
 	});

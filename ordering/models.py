@@ -228,7 +228,7 @@ class SharedRide(BaseModel):
                 'depart_time': self.depart_time.strftime("%H:%M"),
                 'arrive_time': self.arrive_time.strftime("%H:%M"),
                 'id': self.id,
-                'status': self.get_status_label()
+                'status': self.status
         }
 
     def change_status(self, old_status=None, new_status=None):
