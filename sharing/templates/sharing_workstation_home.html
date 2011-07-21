@@ -38,6 +38,9 @@
             var channel;
             var socket;
         {% endautoescape %}
+        function onError(XMLHttpRequest, textStatus, errorThrown) {
+            window.location = window.location;
+        }
 
         setupChannel = function(token) {
             $("#wcs-iframe").remove();
