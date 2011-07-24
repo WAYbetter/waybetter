@@ -223,7 +223,6 @@ class Taxi(BaseModel):
 
     def __unicode__(self):
         return u"%s" % (self.number)
-#        return u"foo"
 
 class TaxiDriverRelation(BaseModel):
     driver = models.ForeignKey(Driver, verbose_name=_("driver"))
