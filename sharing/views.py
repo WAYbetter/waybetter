@@ -7,13 +7,14 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.utils import simplejson
 from django.utils.translation import get_language_from_request
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from common.decorators import internal_task_on_queue, catch_view_exceptions
 from common.tz_support import  default_tz_now, set_default_tz_time
+from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, work_station_required
 from ordering.forms import OrderForm
-from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, ACCEPTED, PENDING, ASSIGNED
+from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, ACCEPTED, PENDING, ASSIGNED, TaxiDriverRelation
 from sharing import signals
 from datetime import timedelta, datetime
 import logging
@@ -134,11 +135,10 @@ def sharing_workstation_home(request, work_station, workstation_id):
 #        ride.change_status(new_status=ASSIGNED)
 
 
-    drivers = Driver.objects.all()
-    taxis = Taxi.objects.all()
+#    drivers = Driver.objects.filter(station=work_station.station)
+    taxis = Taxi.objects.filter(station=work_station.station)
 
     rides_data = simplejson.dumps([ride.serialize_for_ws() for ride in shared_rides])
-    drivers_data = simplejson.dumps([{'id': driver.id, 'name': driver.name} for driver in drivers])
     taxis_data = simplejson.dumps([{'id': taxi.id, 'number': taxi.number} for taxi in taxis])
 
     assigned = ASSIGNED
@@ -147,6 +147,17 @@ def sharing_workstation_home(request, work_station, workstation_id):
 
     return render_to_response('sharing_workstation_home.html', locals(), context_instance=RequestContext(request))
 
+@work_station_required
+def get_drivers_for_taxi(request, work_station):
+    taxi_id = request.GET.get("taxi_id")
+    taxi = get_object_or_404(Taxi, id=taxi_id)
+    if taxi.station != work_station.station:
+        return HttpResponseBadRequest("Cannot query other stations taxis")
+
+    taxi_drivers = TaxiDriverRelation.objects.filter(taxi=taxi)
+    drivers_data = [{'id': taxi_driver.driver.id, 'name': taxi_driver.driver.name} for taxi_driver in taxi_drivers]
+
+    return JSONResponse(drivers_data)
 
 @work_station_required
 def accept_ride(request, work_station):
@@ -158,10 +169,9 @@ def accept_ride(request, work_station):
     if all([ride_id, taxi_id, driver_id]):
         ride = SharedRide.by_id(ride_id)
         taxi = Taxi.by_id(taxi_id)
-#        driver = Driver.by_id(driver_id)
-#        if all([ride, taxi, driver]):
-        if all([ride, taxi]):
-#            ride.driver = driver
+        driver = Driver.by_id(driver_id)
+        if all([ride, taxi, driver]):
+            ride.driver = driver
             ride.taxi = taxi
             ride.change_status(new_status=ACCEPTED) # calls save()
             signals.ride_status_changed_signal.send(sender='accept_ride', obj=ride, status=ACCEPTED)

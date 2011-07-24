@@ -51,7 +51,7 @@
 
         {% autoescape off %}
             var rides_data = {{ rides_data }};
-            var drivers_data = {{ drivers_data }};
+{#            var drivers_data = {{ drivers_data }};#}
             var taxis_data = {{ taxis_data }};
             var init_token = "{{ token }}";
             var channel_opened = false;
@@ -124,21 +124,42 @@
         return $table;
         };
 
+        populate_drivers = function($driver_select, taxi_id) {
+            $driver_select.empty().disable().append('<option>' + "{% trans "Updating..." %}" + '</option>');
+
+            $.ajax({
+                url:        "{% url sharing.views.get_drivers_for_taxi %}",
+                data:       { taxi_id: taxi_id },
+                dataType:   "json",
+                success:    function(data) {
+                    $driver_select.empty();
+                    $.each(data, function(i, driver) {
+                        $driver_select.append('<option value="' + driver.id + '">' + driver.name + '</option>');
+                    });
+                    if (data.length > 1) {
+                        $driver_select.enable();
+                    }
+                },
+                error:      function() {
+                    alert("Error loading drivers")
+                }
+            })
+        };
         renderMatcher = function(ride) {
             var $driver_label = '<label for="driver_sel_' + ride.id + '"> {% trans 'Select Driver' %}' + '</label>';
             var $driver_selector = $('<select class="driver_selector"></select>').attr("id", "driver_sel_" + ride.id);
-            $.each(drivers_data, function(i, driver) {
-                $driver_selector.append('<option value="' + driver.id + '">' + driver.name + '</option>');
-            });
 
             var $taxi_label = '<label for="taxi_sel_' + ride.id + '"> {% trans 'Select Taxi' %}' + '</label>';
             var $taxi_selector = $('<select class="taxi_selector"></select>').attr("id", "taxi_sel_" + ride.id);
             $.each(taxis_data, function(i, taxi) {
                 $taxi_selector.append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
             });
-
-//            var $selectors = $('<div class="select_tools"></div>').append($driver_label, $driver_selector, $taxi_label, $taxi_selector);
-        var $selectors = $('<div class="select_tools"></div>').append($taxi_label, $taxi_selector);
+            $taxi_selector.change(function() {
+                populate_drivers($driver_selector, $(this).val());
+            });
+            $taxi_selector.change();
+            
+            var $selectors = $('<div class="select_tools"></div>').append($driver_label, $driver_selector, $taxi_label, $taxi_selector);
 
         var $accept_button = $('<div class="accept_button">{% trans 'Accept Ride' %}</div>').attr("id", "accept_ride_" + ride.id).button()
                     .click(function() {
