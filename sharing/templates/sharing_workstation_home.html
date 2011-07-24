@@ -176,6 +176,12 @@
 
         $ride_header.find(".easydate").easydate(easydate_config);
 
+        // if ride is today, show exact time
+        var now = new Date();
+        if (ride.depart_time > now && ride.depart_time.getDate() == now.getDate()){
+            $ride_header.find(".easydate").after('<span class="ride_time"> (' + ride.depart_time.getHours() + ':' + ride.depart_time.getMinutes() + ') ' + '</abbr>');
+        }
+
         var $ride_div = $('<div class="ride_div"></div>').attr("id", "ride_div_" + ride.id).data("ride_time", ride.depart_time);
         $ride_div.append(renderPickupTable(ride), renderDropoffTable(ride), renderMatcher(ride));
 
@@ -221,13 +227,16 @@
 
         $rh.data("status", {{ accepted }});
 
-        var $close_btn = $('<div class="close_btn"></div').text("{% trans 'Done' %}").button().click(function() {
+        var $close_btn = $('<div class="close_btn"></div').text("{% trans 'Close' %}").button().click(function() {
             $rh.remove();
             $rd.remove();
             refreshAccordion();
         });
-
+        $close_btn.button("disable").oneTime(Math.max($rd.data("ride_time") - new Date(), 0), function() {
+            $close_btn.button("enable")
+        });
         $rh.append($close_btn).addClass("accepted");
+
         $rh.find("a").before('<span class="sent_icon"></span>');
         $rh.find(".status").text("{% trans 'ACCEPTED' %}");
         $rd.find("select").attr("disabled", "");
