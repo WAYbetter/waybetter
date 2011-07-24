@@ -47,131 +47,134 @@
 
 {% block doc_ready %}
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.easydate-0.2.4.js"></script>
+
     <script type="text/javascript">
+    {% autoescape off %}
+        var rides_data = {{ rides_data }};
+        var drivers_data = {{ drivers_data }};
+        var taxis_data = {{ taxis_data }};
+        var init_token = "{{ token }}";
+        var channel_opened = false;
+        var channel;
+        var socket;
+    {% endautoescape %}
+    function onError(XMLHttpRequest, textStatus, errorThrown) {
+        window.location = window.location;
+    }
 
-        {% autoescape off %}
-            var rides_data = {{ rides_data }};
-            var drivers_data = {{ drivers_data }};
-            var taxis_data = {{ taxis_data }};
-            var init_token = "{{ token }}";
-            var channel_opened = false;
-            var channel;
-            var socket;
-        {% endautoescape %}
-        function onError(XMLHttpRequest, textStatus, errorThrown) {
-            window.location = window.location;
-        }
+    setupChannel = function(token) {
+        $("#wcs-iframe").remove();
 
-        setupChannel = function(token) {
-            $("#wcs-iframe").remove();
+        channel = new goog.appengine.Channel(token);
+        socket = channel.open();
+        socket.onerror = function() {
+            trace("socket: onerror");
+            onError();
+        };
+        socket.onclose = function() {
+            trace("socket: onclose");
+            onError()
+        };
+        socket.onopen = function() {
+            trace("socket: onopen");
+            channel_opened = true;
+        };
+        socket.onmessage = function(msg) {
+            try {
+                var data = $.parseJSON(msg.data);
+                renderRide(data);
+                $.ajax({
+                    url: "{% url ordering.station_controller.message_received %}",
+                    type: "POST",
+                    data: {data: msg.data}
+                });
+            } catch (e) {
+                trace("error parsing: " + JSON.stringify(e))
+            }
 
-            channel = new goog.appengine.Channel(token);
-            socket = channel.open();
-            socket.onerror = function() {
-                trace("socket: onerror");
+        };
+
+        $(document).oneTime("10s", function() {
+            if (! channel_opened) {
+                trace("Channel did not open correctly");
                 onError();
-            };
-            socket.onclose = function() {
-                trace("socket: onclose");
-                onError()
-            };
-            socket.onopen = function() {
-                trace("socket: onopen");
-                channel_opened = true;
-            };
-            socket.onmessage = function(msg) {
-                try {
-                    var data = $.parseJSON(msg.data);
-                    renderRide(data);
-                    $.ajax({
-                        url: "{% url ordering.station_controller.message_received %}",
-                        type: "POST",
-                        data: {data: msg.data}
-                    });
-                } catch (e) {
-                    trace("error parsing: " + JSON.stringify(e))
-                }
+            }
+        })
+    };
 
-            };
+    renderTableRow = function(point) {
+        return $("<tr><td>" + point.num_passengers + "</td><td>" + point.address + "</td><td>" + point.time + "</td></tr>")
+    };
 
-            $(document).oneTime("10s", function() {
-                if (! channel_opened) {
-                    trace("Channel did not open correctly");
-                    onError()
-                }
-            })
-        };
-
-        renderTableRow = function(point) {
-            return $("<tr><td>" + point.num_passengers + "</td><td>" + point.address + "</td><td>" + point.time + "</td></tr>")
-        };
-
-        renderPickupTable = function(ride) {
+    renderPickupTable = function(ride) {
         var $table = $('<table class="pickup_table"><caption>{% trans 'From' %}</caption><tr><th>{% trans '# passengers' %}</th><th>{% trans 'Address' %}</th><th>{% trans 'Time' %}</th></tr></table>')
-                    .attr("id", "pickup_table_" + ride.id);
-            $.each(ride.pickups, function(i, p) {
-                $table.append(renderTableRow(p));
-            });
+                .attr("id", "pickup_table_" + ride.id);
+        $.each(ride.pickups, function(i, p) {
+            $table.append(renderTableRow(p));
+        });
         return $table;
-        };
+    };
 
-        renderDropoffTable = function(ride) {
+    renderDropoffTable = function(ride) {
         var $table = $('<table class="dropoff_table"><caption>{% trans 'To' %}</caption><tr><th>{% trans '# passengers' %}</th><th>{% trans 'Address' %}</th><th>{% trans 'Time' %}</th></tr></table>')
-                    .attr("id", "dropoff_table_" + ride.id);
-            $.each(ride.dropoffs, function(i, d) {
-                $table.append(renderTableRow(d));
-            });
+                .attr("id", "dropoff_table_" + ride.id);
+        $.each(ride.dropoffs, function(i, d) {
+            $table.append(renderTableRow(d));
+        });
         return $table;
-        };
+    };
 
-        renderMatcher = function(ride) {
-            var $driver_label = '<label for="driver_sel_' + ride.id + '"> {% trans 'Select Driver' %}' + '</label>';
-            var $driver_selector = $('<select class="driver_selector"></select>').attr("id", "driver_sel_" + ride.id);
-            $.each(drivers_data, function(i, driver) {
-                $driver_selector.append('<option value="' + driver.id + '">' + driver.name + '</option>');
-            });
+    renderMatcher = function(ride) {
+        var $driver_label = '<label for="driver_sel_' + ride.id + '"> {% trans 'Select Driver' %}' + '</label>';
+        var $driver_selector = $('<select class="driver_selector"></select>').attr("id", "driver_sel_" + ride.id);
+        $.each(drivers_data, function(i, driver) {
+            $driver_selector.append('<option value="' + driver.id + '">' + driver.name + '</option>');
+        });
 
-            var $taxi_label = '<label for="taxi_sel_' + ride.id + '"> {% trans 'Select Taxi' %}' + '</label>';
-            var $taxi_selector = $('<select class="taxi_selector"></select>').attr("id", "taxi_sel_" + ride.id);
-            $.each(taxis_data, function(i, taxi) {
-                $taxi_selector.append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
-            });
+        var $taxi_label = '<label for="taxi_sel_' + ride.id + '"> {% trans 'Select Taxi' %}' + '</label>';
+        var $taxi_selector = $('<select class="taxi_selector"></select>').attr("id", "taxi_sel_" + ride.id);
+        $.each(taxis_data, function(i, taxi) {
+            $taxi_selector.append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
+        });
 
 //            var $selectors = $('<div class="select_tools"></div>').append($driver_label, $driver_selector, $taxi_label, $taxi_selector);
         var $selectors = $('<div class="select_tools"></div>').append($taxi_label, $taxi_selector);
 
         var $accept_button = $('<div class="accept_button">{% trans 'Accept Ride' %}</div>').attr("id", "accept_ride_" + ride.id).button()
-                    .click(function() {
+                .click(function() {
                     var that = this;
-                        $.ajax({
-                            url: '{% url sharing.views.accept_ride %}',
-                            type: 'POST',
-                            data: { 'ride_id': ride.id,
-                                'taxi_id': $taxi_selector.val(),
-                                'driver_id': $driver_selector.val() },
+                    $.ajax({
+                        url: '{% url sharing.views.accept_ride %}',
+                        type: 'POST',
+                        data: { 'ride_id': ride.id,
+                            'taxi_id': $taxi_selector.val(),
+                            'driver_id': $driver_selector.val() },
                         beforeSend: function() {
                             $(that).button("disable");
                         },
-                            success: function() {
-                                acceptRide(ride);
-                                console.log("success");
-                            },
-                            error: function() {
+                        success: function() {
+                            acceptRide(ride);
+                        },
+                        error: function() {
                             $(that).button("enable");
-                                console.log("error");
-                            }
-                        });
+                        }
                     });
-            return $('<div class="ride_matcher" id="matcher_' + ride.id + '"></div>')
+                });
+        return $('<div class="ride_matcher" id="matcher_' + ride.id + '"></div>')
                 .append($selectors, $accept_button, '<div class="clear"></div>');
-        };
+    };
 
 
-        renderRide = function(ride) {
-            var $ride_header = $('<h3 class="ride_header"></h3>').attr("id", "ride_header_" + ride.id)
-                    .append('<a>' + ride.pickups[0].address + ' (' + ride.depart_time + '</a>')
+    renderRide = function(ride) {
+        ride.depart_time = new Date(ride.depart_time);
+        var $ride_header = $('<h3 class="ride_header"></h3>').attr("id", "ride_header_" + ride.id)
+                .append('<a>' + ride.pickups[0].address + '</a>')
+                .append('<abbr class="easydate">' + ride.depart_time + '</abbr>')
                 .append('<span class="status">{% trans "NOT ASSIGNED" %}</span>')
                 .data("status", ride.status);
+
+        $ride_header.find(".easydate").easydate(easydate_config);
 
         var $ride_div = $('<div class="ride_div"></div>').attr("id", "ride_div_" + ride.id).data("ride_time", ride.depart_time);
         $ride_div.append(renderPickupTable(ride), renderDropoffTable(ride), renderMatcher(ride));
@@ -179,60 +182,40 @@
         // re-create the accordion and open it where it was opened
         var $accordion = $("#ride_accordion");
         var $active_header = $("[id^=ride_header_]")[$accordion.accordion("option", "active")];
-            var append_after = getRenderPosition(ride);
-            if (append_after) {
-                $(append_after).after($ride_header, $ride_div);
-            }
-            else { // put it first
+        var append_after = getRenderPosition(ride);
+        if (append_after) {
+            $(append_after).after($ride_header, $ride_div);
+        }
+        else { // put it first
             $accordion.prepend($ride_header, $ride_div);
-            }
+        }
 
         $accordion.accordion("destroy").accordion({ active: $("[id^=ride_header_]").index($active_header) });
-        };
+    };
 
-        getRenderPosition = function(ride) {
-            // returns the ride_div after which to append the new ride_header and ride_div, or
-            // undefined if no such ride_div exists (i.e., the new ride should be first).
-            // assumes existing rides in the page are ordered by ride time.
+    getRenderPosition = function(ride) {
+        // returns the ride_div after which to append the new ride_header and ride_div, or
+        // undefined if no such ride_div exists (i.e., the new ride should be first).
+        // assumes existing rides in the page are ordered by ride time.
 
-            var time = getRideTime(ride);
-            var append_after = undefined;
+        var append_after = undefined;
 
-            $("[id^='ride_div_']").each(function(i, ride_div) {
-                var div_time = getRideTime(undefined, ride_div);
-                if (div_time <= time) {
-                    append_after = this;
-                }
-                else {
-                    return false; // break
-                }
-            });
+        $("[id^='ride_div_']").each(function(i, ride_div) {
+            if ($(this).data("ride_time") <= ride.depart_time) {
+                append_after = this;
+            }
+            else {
+                return false; // break
+            }
+        });
 
 //            var msg = (append_after) ? "after:" + $(append_after).data("ride_time") : "first";
 //            console.log(msg);
 
-            return append_after;
-        };
+        return append_after;
+    };
 
-        getRideTime = function(ride, ride_div) {
-            var hours, minutes;
-            if (ride) {
-                hours = ride.depart_time.split(":")[0];
-                minutes = ride.depart_time.split(":")[1];
-            }
-            else { // ride_div element
-            hours = $(ride_div).data("ride_time").split(":")[0];
-            minutes = $(ride_div).data("ride_time").split(":")[1];
-            }
-            var time = new Date();
-            time.setHours(hours);
-            time.setMinutes(minutes);
-            time.setSeconds(0);
-            time.setMilliseconds(0);
-            return time;
-        };
-
-        acceptRide = function(ride){
+    acceptRide = function(ride) {
         var $rh = $("#ride_header_" + ride.id);
         var $rd = $("#ride_div_" + ride.id);
 
@@ -251,7 +234,7 @@
         $rd.find(".accept_button").button("disable");
 
         refreshAccordion();
-        };
+    };
 
     refreshAccordion = function() {
         $("[id^='ride_header_']").each(function(i, ride_div) {
@@ -262,25 +245,25 @@
         });
     };
 
-        trace = function(str) {
-            var msg = new Date().toISOString() + ": " + str;
-            if (window.parentSandboxBridge) {
-                parentSandboxBridge.trace(msg);
-            }
-            if (window.console) {
-                console.log(msg)
-            }
-        };
+    trace = function(str) {
+        var msg = new Date().toISOString() + ": " + str;
+        if (window.parentSandboxBridge) {
+            parentSandboxBridge.trace(msg);
+        }
+        if (window.console) {
+            console.log(msg)
+        }
+    };
 
-        $(function() {
-            $.each(rides_data, function(i, ride) {
-                renderRide(ride);
+    $(function() {
+        $.each(rides_data, function(i, ride) {
+            renderRide(ride);
             if (ride.status == {{ accepted }}) {
                 acceptRide(ride);
             }
-            });
-
-            setupChannel(init_token);
         });
+
+        setupChannel(init_token);
+    });
     </script>
 {% endblock %}

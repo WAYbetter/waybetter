@@ -128,13 +128,13 @@ def sharing_workstation_home(request, work_station, workstation_id):
         return HttpResponseRedirect(request.path)
 
     is_popup = True
-    shared_rides = SharedRide.objects.filter(status__in=[PENDING, ASSIGNED, ACCEPTED])
+    drivers = Driver.objects.all()
 
-#    for ride in shared_rides:
+#    for ride in SharedRide.objects.all():
 #        ride.change_status(new_status=ASSIGNED)
 
 
-    drivers = Driver.objects.all()
+    shared_rides = SharedRide.objects.filter(status__in=[ASSIGNED])
     taxis = Taxi.objects.all()
 
     rides_data = simplejson.dumps([ride.serialize_for_ws() for ride in shared_rides])
