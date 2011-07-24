@@ -313,3 +313,40 @@ function openDialog(title, html, close_function){
     $dialog.dialog('open');
 }
 
+var easydate_config = {
+    locale: {
+        "future_format": "%s %t",
+        "past_format": "%s %t",
+        "second": "שנייה",
+        "seconds": "שניות",
+        "minute": "דקה",
+        "minutes": "דקות",
+        "hour": "שעה",
+        "hours": "שעות",
+        "day": "יום",
+        "days": "ימים",
+        "week": "שבוע",
+        "weeks": "שבועות",
+        "month": "חודש",
+        "months": "חודשים",
+        "year": "שנה",
+        "years": "שנים",
+        "yesterday": "אתמול",
+        "tomorrow": "מחר",
+        "now": "כעת",
+        "ago": "לפני",
+        "in": "בעוד"
+    },
+    units: [
+        { name: "now", limit: 59 },
+        { name: "minute", limit: 3600, in_seconds: 60 },
+        { name: "hour", limit: 86400, in_seconds: 3600  },
+        { name: "yesterday", limit: 172800, past_only: true },
+        { name: "tomorrow", limit: 172800, future_only: true },
+        { name: "day", limit: 604800, in_seconds: 86400 },
+        { name: "week", limit: 2629743, in_seconds: 604800  },
+        { name: "month", limit: 31556926, in_seconds: 2629743 },
+        { name: "year", limit: Infinity, in_seconds: 31556926 }
+]
+};
+

@@ -262,8 +262,8 @@ class SharedRide(BaseModel):
                 'dropoffs': [ { 'num_passengers' : p.dropoff_orders.count(),
                                 'address': p.address,
                                 'time': p.stop_time.strftime("%H:%M") } for p in sorted(self.points.filter(type=StopType.DROPOFF), key=lambda p: p.stop_time)],
-                'depart_time': self.depart_time.strftime("%H:%M"),
-                'arrive_time': self.arrive_time.strftime("%H:%M"),
+                'depart_time': self.depart_time.isoformat(),
+                'arrive_time': self.arrive_time.isoformat(),
                 'id': self.id,
                 'status': self.status
         }
