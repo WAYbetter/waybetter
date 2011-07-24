@@ -133,7 +133,7 @@ def sharing_workstation_home(request, work_station, workstation_id):
 #    for ride in SharedRide.objects.all():
 #        ride.change_status(new_status=ASSIGNED)
 
-	shared_rides = SharedRide.objects.filter(status__in=[PENDING, ASSIGNED, ACCEPTED])
+    shared_rides = SharedRide.objects.filter(status__in=[PENDING, ASSIGNED, ACCEPTED])
     taxis = Taxi.objects.filter(station=work_station.station)
 
     rides_data = simplejson.dumps([ride.serialize_for_ws() for ride in shared_rides])
