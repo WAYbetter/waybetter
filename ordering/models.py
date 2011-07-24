@@ -1,3 +1,4 @@
+from django.core.exceptions import ValidationError
 from django.template.loader import get_template
 from django.template.context import Context
 from google.appengine.ext.db import is_in_transaction
@@ -119,9 +120,6 @@ class Station(BaseModel):
     average_rating = models.FloatField(_("average rating"), default=0.0)
     internal_rating = models.FloatField(_("internal rating"), default=0)
 
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
-
     def natural_key(self):
         return self.name
 
@@ -196,19 +194,57 @@ class Station(BaseModel):
 
 
 class Driver(BaseModel):
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
-
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="drivers")
     name = models.CharField(_("name"), max_length=140, null=True, blank=True)
+
+    dn_station_name = models.CharField(_("station name"), max_length=50)
+
+    def save(self, *args, **kwargs):
+        if self.station:
+            self.dn_station_name = self.station.name
+
+        super(Driver, self).save(*args, **kwargs)
+        
+    def __unicode__(self):
+        return u"%s" % (self.name)
 
 class Taxi(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="taxis")
     number = models.IntegerField(_("taxi_number"), max_length=10)
 
+    dn_station_name = models.CharField(_("station name"), max_length=50)
+
+    def save(self, *args, **kwargs):
+        if self.station:
+            self.dn_station_name = self.station.name
+
+        super(Taxi, self).save(*args, **kwargs)
+
+
+    def __unicode__(self):
+        return u"%s" % (self.number)
+#        return u"foo"
+
+class TaxiDriverRelation(BaseModel):
+    driver = models.ForeignKey(Driver, verbose_name=_("driver"))
+    taxi = models.ForeignKey(Taxi, verbose_name=_("taxi"))
+
+    dn_station_name = models.CharField(_("station name"), max_length=50)
+
+    def save(self, *args, **kwargs):
+        self.dn_station_name = self.driver.dn_station_name
+
+        super(TaxiDriverRelation, self).save(*args, **kwargs)
+
+
+    class Meta:
+        unique_together = ("driver", "taxi")
+
+    def clean(self):
+        if self.taxi.station != self.driver.station:
+            raise ValidationError("Driver and Taxi must belong to the same station")
+
 class SharedRide(BaseModel):
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
 
     depart_time = UTCDateTimeField(_("depart time"))
     arrive_time = UTCDateTimeField(_("arrive time"))
@@ -270,9 +306,6 @@ class Passenger(BaseModel):
     login_token = models.CharField(_("login token"), max_length=40, null=True, blank=True)
 
     session_keys = ListField(models.CharField(max_length=32)) # session is identified by a 32-character hash
-
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
 
     def _get_business(self):
         try:
@@ -521,9 +554,6 @@ class StopType(Enum):
 
 
 class RidePoint(BaseModel):
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
-
     ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="points", null=True, blank=True)
 
     stop_time = UTCDateTimeField(_("stop time"))
@@ -600,9 +630,6 @@ class Order(BaseModel):
 
     # ratings
     passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)
-
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
 
     # denormalized fields
     station_name = models.CharField(_("station name"), max_length=50, null=True, blank=True)
@@ -743,8 +770,6 @@ class OrderAssignment(BaseModel):
 
     status = StatusField(_("status"), choices=ASSIGNMENT_STATUS, default=PENDING)
 
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
     show_date = UTCDateTimeField(_("show date"), auto_now_add=False, null=True, blank=True)
 
     pickup_address_in_ws_lang = models.CharField(_("pickup_address_in_ws_lang"), max_length=50)
@@ -865,9 +890,6 @@ class MeteredRateRule(BaseModel):
     tick_cost = models.FloatField(_("cost per tick"), null=True, blank=True)
     fixed_cost = models.FloatField(_("fixed cost"), null=True, blank=True)
 
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
-
     def __unicode__(self):
         return self.rule_name
 
@@ -887,9 +909,6 @@ class FlatRateRule(BaseModel):
 
     fixed_cost = models.FloatField(_("fixed cost"))
 
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
-
     def __unicode__(self):
         return "from %s to %s" % (self.city1.name, self.city2.name)
 
@@ -900,9 +919,6 @@ class ExtraChargeRule(BaseModel):
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="extra_charge_rules")
 
     cost = models.FloatField(_("fixed cost"))
-
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
 
     def __unicode__(self):
         return self.rule_name

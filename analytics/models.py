@@ -4,9 +4,9 @@ from django.utils.translation import ugettext_lazy as _
 
 from ordering.models import Order, WorkStation, Station, OrderAssignment, Passenger
 from common.util import EventType
-from common.models import Country, City
+from common.models import Country, City, BaseModel
 
-class AnalyticsEvent(models.Model):
+class AnalyticsEvent(BaseModel):
     type = models.IntegerField(_("type"), choices=EventType.choices())
 
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="events", null=True, blank=True)
@@ -20,9 +20,6 @@ class AnalyticsEvent(models.Model):
 
     lat = models.FloatField(verbose_name=("lat"), null=True, blank=True)
     lon = models.FloatField(verbose_name=("lon"), null=True, blank=True)
-
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
 
     def save(self, force_insert=False, force_update=False, using=None):
         self.full_clean() # validates model

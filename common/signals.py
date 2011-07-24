@@ -15,9 +15,6 @@ class SignalStore(BaseModel):
     '''
     pickled_value = models.TextField("pickled value")
 
-    create_date = models.DateTimeField("create date", auto_now_add=True)
-    modify_date = models.DateTimeField("modify date", auto_now=True)
-
     def get_signal_data(self):
         data = pickle.loads(self.pickled_value.encode("utf-8"))
         if "obj_id" in data:

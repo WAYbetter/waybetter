@@ -1,3 +1,4 @@
+from common.tz_support import UTCDateTimeField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from djangotoolbox.fields import ListField
@@ -5,6 +6,9 @@ from common.decorators import run_in_transaction
 import logging
 
 class BaseModel(models.Model):
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True, null=True, blank=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True, null=True, blank=True)
+
     """
     Adds common methods to our models
     """
