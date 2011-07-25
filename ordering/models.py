@@ -152,7 +152,7 @@ class Station(BaseModel):
                 distance = min(distance, distance_between_points(self.lat, self.lon, to_lat, to_lon))
 
         return distance <= MAX_STATION_DISTANCE_KM if distance < float("inf") else False
-    
+
     def distance_from_order(self, order, to_pickup, to_dropoff):
         pickup_distance, dropoff_distance = float("inf"), float("inf")
 
@@ -206,7 +206,7 @@ class Driver(BaseModel):
             self.dn_station_name = self.station.name
 
         super(Driver, self).save(*args, **kwargs)
-        
+
     def __unicode__(self):
         return u"%s" % (self.name)
 
@@ -289,6 +289,25 @@ class SharedRide(BaseModel):
         raise ValueError("invalid status")
 
 
+class StopType(Enum):
+    PICKUP  = 0
+    DROPOFF = 1
+
+
+class RidePoint(BaseModel):
+    ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="points", null=True, blank=True)
+
+    stop_time = UTCDateTimeField(_("stop time"))
+    type = models.IntegerField(_("type"), choices=StopType.choices(), default=0)
+
+    lon = models.FloatField(_("longtitude"))
+    lat = models.FloatField(_("latitude"))
+    address = models.CharField(_("address"), max_length=200, null=True, blank=True)
+
+    def __unicode__(self):
+        return u"RidePoint [%d]" % self.id
+
+    
 class Passenger(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
 
@@ -385,7 +404,7 @@ class Business(BaseModel):
     confine_orders = models.BooleanField(_("confine orders"), default=False)
 
     from_station = models.ForeignKey(Station, default=None, null=True, blank=True)
-    
+
     def send_welcome_email(self, chosen_password):
         # note: email is sent in Hebrew
         current_lang = translation.get_language()
@@ -447,7 +466,7 @@ class WorkStation(BaseModel):
 
     channel_id = models.CharField(_("channel_id"), max_length=50, null=True, blank=True)
     is_online = models.BooleanField(_("is online"), default=False)
-    
+
     # denormalized fields
     dn_station_id = models.IntegerField(_("station id"), null=True, blank=True)
     dn_station_name = models.CharField(_("station name"), max_length=50, null=True, blank=True)
@@ -462,7 +481,7 @@ class WorkStation(BaseModel):
         self.is_online = False # a signal will turn it back on
         self.save()
         return self.channel_id
-        
+
     def save(self, *args, **kwargs):
         if self.station:
             self.dn_station_id  = self.station.id
@@ -478,7 +497,7 @@ class WorkStation(BaseModel):
             else:
                 workstation_offline_signal.send(sender="workstation_disconnected", obj=self)
 
-        
+
     def __unicode__(self):
         result = u"[%d]" % self.id
         try:
@@ -547,25 +566,6 @@ def build_installer_for_workstation(instance, url):
 
 #TODO_WB: what is that needed for:
 #models.signals.post_save.connect(build_installer_for_workstation, sender=WorkStation)
-
-class StopType(Enum):
-    PICKUP  = 0
-    DROPOFF = 1
-
-
-
-class RidePoint(BaseModel):
-    ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="points", null=True, blank=True)
-
-    stop_time = UTCDateTimeField(_("stop time"))
-    type = models.IntegerField(_("type"), choices=StopType.choices(), default=0)
-
-    lon = models.FloatField(_("longtitude"))
-    lat = models.FloatField(_("latitude"))
-    address = models.CharField(_("address"), max_length=200, null=True, blank=True)
-
-    def __unicode__(self):
-        return u"RidePoint [%d]" % self.id
 
 RATING_CHOICES = ((0, ugettext("Unrated")),
                   (1, ugettext("Very poor")),

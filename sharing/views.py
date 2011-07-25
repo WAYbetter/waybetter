@@ -170,8 +170,7 @@ def show_ride(request, work_station, ride_id):
     telmap_password = settings.TELMAP_API_PASSWORD
     telmap_languages = 'he' if str(get_language_from_request(request)) == 'he' else 'en'
 
-    points = simplejson.dumps(
-        [{'id': p.id, 'lat': p.lat, 'lon': p.lon, 'address': p.address, 'type': p.type} for p in ride.points.all()])
+    points = simplejson.dumps([{'id': p.id, 'lat': p.lat, 'lon': p.lon, 'address': p.address, 'type': p.type} for p in sorted(ride.points.all(), key=lambda p: p.stop_time)])
 
     pickup = StopType.PICKUP
     dropoff = StopType.DROPOFF
