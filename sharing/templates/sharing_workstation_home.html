@@ -259,10 +259,25 @@
 
         $rh.data("status", {{ accepted }});
 
-        var $close_btn = $('<div class="close_btn"></div').text("{% trans 'Close' %}").button().click(function() {
-            $rh.remove();
-            $rd.remove();
-            refreshAccordion();
+        var $close_btn = $('<div class="close_btn"></div').text("{% trans 'Close' %}").button().click(function(e) {
+            var that = this;
+            $.ajax({
+                url: '{% url sharing.views.complete_ride %}',
+                type: 'POST',
+                data: { 'ride_id': ride.id },
+                beforeSend: function() {
+                    $(that).button("disable");
+                },
+                success: function() {
+                    $rh.remove();
+                    $rd.remove();
+                },
+                error: function() {
+                    $(that).button("enable");
+                    alert("error marking ride as finished");
+                }
+            });
+            return false; // prevent the accordion opening
         });
         $close_btn.button("disable").hide().oneTime(Math.max($rd.data("ride_time") - new Date(), 0), function() {
             $close_btn.button("enable").show();

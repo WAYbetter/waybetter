@@ -14,7 +14,7 @@ from common.tz_support import  default_tz_now, set_default_tz_time
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, work_station_required
 from ordering.forms import OrderForm
-from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, ACCEPTED, PENDING, ASSIGNED, TaxiDriverRelation
+from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, ACCEPTED, PENDING, ASSIGNED, TaxiDriverRelation, COMPLETED
 from sharing import signals
 from datetime import timedelta, datetime
 import logging
@@ -120,6 +120,9 @@ def fetch_ride_results_task(request):
             signals.ride_created_signal.send(sender='fetch_ride_results', obj=ride)
 
     return HttpResponse("OK")
+
+
+@work_station_required
 def show_ride(request, ride_id):
     ride = get_object_or_404(SharedRide, id=ride_id)
 
@@ -135,6 +138,8 @@ def show_ride(request, ride_id):
     dropoff = StopType.DROPOFF
 
     return render_to_response('ride_on_map.html', locals(), context_instance=RequestContext(request))
+
+
 @work_station_required
 def sharing_workstation_home(request, work_station, workstation_id):
     if work_station.id != int(workstation_id):
@@ -145,19 +150,19 @@ def sharing_workstation_home(request, work_station, workstation_id):
 
 #    for ride in SharedRide.objects.all():
 #        ride.change_status(new_status=ASSIGNED)
-#
-    shared_rides = SharedRide.objects.filter(status__in=[ASSIGNED])
-#    shared_rides = SharedRide.objects.filter(status__in=[ASSIGNED, ACCEPTED], depart_time__gte=(datetime.now() - timedelta(hours=1)))
-
+        
+    shared_rides = SharedRide.objects.filter(status__in=[ASSIGNED, ACCEPTED])
 
     rides_data = simplejson.dumps([ride.serialize_for_ws() for ride in shared_rides])
-    taxis_data = simplejson.dumps([{'id': taxi.id, 'number': taxi.number} for taxi in Taxi.objects.filter(station=work_station.station)])
+    taxis_data = simplejson.dumps(
+        [{'id': taxi.id, 'number': taxi.number} for taxi in Taxi.objects.filter(station=work_station.station)])
 
     assigned = ASSIGNED
     accepted = ACCEPTED
     token = channel.create_channel(work_station.generate_new_channel_id())
 
     return render_to_response('sharing_workstation_home.html', locals(), context_instance=RequestContext(request))
+
 
 @work_station_required
 def get_drivers_for_taxi(request, work_station):
@@ -170,6 +175,7 @@ def get_drivers_for_taxi(request, work_station):
     drivers_data = [{'id': taxi_driver.driver.id, 'name': taxi_driver.driver.name} for taxi_driver in taxi_drivers]
 
     return JSONResponse(drivers_data)
+
 
 @work_station_required
 def accept_ride(request, work_station):
@@ -191,6 +197,20 @@ def accept_ride(request, work_station):
             response = HttpResponse("OK")
 
     return response
+
+
+@work_station_required
+def complete_ride(request, work_station):
+    ride_id = request.POST.get("ride_id", None)
+    try:
+        ride = SharedRide.by_id(ride_id)
+        ride.change_status(old_status=ACCEPTED, new_status=COMPLETED)
+        signals.ride_status_changed_signal.send(sender='accept_ride', obj=ride, status=COMPLETED)
+        return HttpResponse("OK")
+
+    except Exception:
+        logging.error("error setting ride %s as completed" % ride_id)
+        return HttpResponseBadRequest("Error")
 
 # UTILITY FUNCTIONS
 def create_orders_from_hotspot(data, hotspot_type, point_type):
