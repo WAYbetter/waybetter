@@ -2263,6 +2263,17 @@ bottom: 24px;}
     display: inline-block;
 }
 
+.ride_header .easydate{
+    position: absolute;
+    right: 65px;
+    top: 6px;
+}
+
+.rtl .ride_header .easydate{
+    right: auto;
+    left: 65px;
+}
+
 .ride_div table th {
     font-weight: bold;
 }
@@ -2270,6 +2281,10 @@ bottom: 24px;}
 .ride_div caption{
     font-size:15px;
     float: left;
+}
+
+.rtl .ride_div caption{
+    float: right;
 }
 
 .ride_div table {
@@ -2299,9 +2314,29 @@ bottom: 24px;}
 
 .ride_div .dropoff_table{}
 
+.ride_div .dropoff_table{}
+
+.ride_div .ride_tools{
+    margin-top: 10px;
+    margin-bottom: 10px;
+}
+
+.ride_div .map_link{
+    float: right;
+}
+.rtl .ride_div .map_link{
+    float: left;
+}
+
 .ride_div .ride_matcher{margin-top: 10px;}
 
 .ride_div .ride_matcher label{}
+
 .ride_div .ride_matcher select{float: right;}
+.rtl .ride_div .ride_matcher select{float: left;}
+
 .ride_div .ride_matcher .select_tools{float: left;  width: 200px;}
-.ride_div .ride_matcher .accept_button{float: right}
+.rtl .ride_div .ride_matcher .select_tools{float: right;}
+
+.ride_div .ride_matcher .accept_button{float: right;}
+.rtl .ride_div .ride_matcher .accept_button{float: left;}

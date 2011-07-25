@@ -120,8 +120,21 @@ def fetch_ride_results_task(request):
             signals.ride_created_signal.send(sender='fetch_ride_results', obj=ride)
 
     return HttpResponse("OK")
+def show_ride(request, ride_id):
+    ride = get_object_or_404(SharedRide, id=ride_id)
 
+    is_popup = True
+    telmap_user = settings.TELMAP_API_USER
+    telmap_password = settings.TELMAP_API_PASSWORD
+    telmap_languages = 'he' if str(get_language_from_request(request)) == 'he' else 'en'
 
+    points = simplejson.dumps(
+        [{'id': p.id, 'lat': p.lat, 'lon': p.lon, 'address': p.address, 'type': p.type} for p in ride.points.all()])
+
+    pickup = StopType.PICKUP
+    dropoff = StopType.DROPOFF
+
+    return render_to_response('ride_on_map.html', locals(), context_instance=RequestContext(request))
 @work_station_required
 def sharing_workstation_home(request, work_station, workstation_id):
     if work_station.id != int(workstation_id):
@@ -132,12 +145,13 @@ def sharing_workstation_home(request, work_station, workstation_id):
 
 #    for ride in SharedRide.objects.all():
 #        ride.change_status(new_status=ASSIGNED)
+#
+    shared_rides = SharedRide.objects.filter(status__in=[ASSIGNED])
+#    shared_rides = SharedRide.objects.filter(status__in=[ASSIGNED, ACCEPTED], depart_time__gte=(datetime.now() - timedelta(hours=1)))
 
-    shared_rides = SharedRide.objects.filter(status__in=[PENDING, ASSIGNED, ACCEPTED])
-    taxis = Taxi.objects.filter(station=work_station.station)
 
     rides_data = simplejson.dumps([ride.serialize_for_ws() for ride in shared_rides])
-    taxis_data = simplejson.dumps([{'id': taxi.id, 'number': taxi.number} for taxi in taxis])
+    taxis_data = simplejson.dumps([{'id': taxi.id, 'number': taxi.number} for taxi in Taxi.objects.filter(station=work_station.station)])
 
     assigned = ASSIGNED
     accepted = ACCEPTED

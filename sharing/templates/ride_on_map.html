@@ -1,0 +1,67 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block bodyclass %}clean_body{% endblock %}
+{% block mainclass %}full_screen_main clean_main{% endblock %}
+
+{% block extrastyle %}
+    <style type="text/css">
+    #map_container{
+        position: absolute;
+        left: 0;
+        right: 0;
+        width: 100%;
+        height: 100%;
+    }
+    #map{
+        height: 100%;
+        width: 100%;
+    }
+    </style>
+
+
+{% endblock %}
+
+{% block content %}
+    <div id="map_container">
+        <div id="map"></div>
+{#        <div id="map_overlay_left"></div>#}
+{#        <div id="map_overlay_top"></div>#}
+    </div>
+{% endblock %}
+
+
+{% block doc_ready %}
+    <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript">
+        {% autoescape off %}
+            var points = {{ points }};
+        {% endautoescape %}
+
+        $(function() {
+            OrderingHelper.init({
+                telmap_user:                "{{ telmap_user }}",
+                telmap_password:            "{{ telmap_password}}",
+                telmap_languages:           "{{ telmap_languages }}"
+            });
+
+            $.each(points, function(i, p) {
+                var icon_type = (p.type == {{ pickup }}) ? 'from' : 'to';
+                var icon_image = new telmap.maps.MarkerImage("/static/images/" + icon_type + "_map_marker.png", undefined, undefined, {x:35, y:30});
+                var point = new telmap.maps.Marker({
+                    map:        OrderingHelper.map,
+                    position:   new telmap.maps.LatLng(p.lat, p.lon),
+                    icon:       icon_image,
+                    cursor:     'pointer',
+                    title:      p.address
+                });
+                OrderingHelper.map_markers[p.id] = point;
+            });
+
+            OrderingHelper.renderMapMarkers();
+
+        });
+
+    </script>
+
+{% endblock %}
