@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
 from django.utils import simplejson
 from django.utils.translation import get_language_from_request
-from django.shortcuts import render_to_response
+from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from common.decorators import internal_task_on_queue, catch_view_exceptions
 from common.tz_support import  default_tz_now, set_default_tz_time
@@ -121,6 +121,23 @@ def fetch_ride_results_task(request):
     return HttpResponse("OK")
 
 
+def show_ride(request, ride_id):
+    ride = get_object_or_404(SharedRide, id=ride_id)
+
+    is_popup = True
+    telmap_user = settings.TELMAP_API_USER
+    telmap_password = settings.TELMAP_API_PASSWORD
+    telmap_languages = 'he' if str(get_language_from_request(request)) == 'he' else 'en'
+
+    points = simplejson.dumps(
+        [{'id': p.id, 'lat': p.lat, 'lon': p.lon, 'address': p.address, 'type': p.type} for p in ride.points.all()])
+
+    pickup = StopType.PICKUP
+    dropoff = StopType.DROPOFF
+
+    return render_to_response('ride_on_map.html', locals(), context_instance=RequestContext(request))
+    
+
 @work_station_required
 def sharing_workstation_home(request, work_station, workstation_id):
     if work_station.id != int(workstation_id):
@@ -132,9 +149,10 @@ def sharing_workstation_home(request, work_station, workstation_id):
 
 #    for ride in SharedRide.objects.all():
 #        ride.change_status(new_status=ASSIGNED)
+#
+#    shared_rides = SharedRide.objects.filter(status__in=[ASSIGNED])
+    shared_rides = SharedRide.objects.filter(status__in=[ASSIGNED, ACCEPTED], depart_time__gte=(datetime.now() - timedelta(hours=1)))
 
-
-    shared_rides = SharedRide.objects.filter(status__in=[ASSIGNED])
     taxis = Taxi.objects.all()
 
     rides_data = simplejson.dumps([ride.serialize_for_ws() for ride in shared_rides])

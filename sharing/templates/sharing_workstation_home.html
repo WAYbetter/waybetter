@@ -27,6 +27,11 @@
             height: 20px;
             font-size: 10px;
         }
+        .rtl .ui-accordion .ui-accordion-header .close_btn {
+            right: auto;
+            left: 10px;
+            margin-left: 2.2em;
+        }
 
         .ui-accordion-icons .ui-accordion-header a {
             display: inline-block;
@@ -125,6 +130,12 @@
         return $table;
     };
 
+    renderTools = function(ride){
+        var $map_link = $('<a class="map_link" href="{% url sharing.views.show_ride ride_id=ride.id%}" target="_blank">{% trans "Show on map" %}</a>');
+        var $tools_div = $('<div class="ride_tools"></div>').append($map_link, '<div class="clear"></div>');
+        return $tools_div;
+    };
+    
     renderMatcher = function(ride) {
         var $driver_label = '<label for="driver_sel_' + ride.id + '"> {% trans 'Select Driver' %}' + '</label>';
         var $driver_selector = $('<select class="driver_selector"></select>').attr("id", "driver_sel_" + ride.id);
@@ -169,7 +180,7 @@
     renderRide = function(ride) {
         ride.depart_time = new Date(ride.depart_time);
         var $ride_header = $('<h3 class="ride_header"></h3>').attr("id", "ride_header_" + ride.id)
-                .append('<a>' + ride.pickups[0].address + '</a>')
+                .append('<a class="pickup">' + ride.pickups[0].address + '</a>')
                 .append('<abbr class="easydate">' + ride.depart_time + '</abbr>')
                 .append('<span class="status">{% trans "NOT ASSIGNED" %}</span>')
                 .data("status", ride.status);
@@ -179,11 +190,11 @@
         // if ride is today, show exact time
         var now = new Date();
         if (ride.depart_time > now && ride.depart_time.getDate() == now.getDate()){
-            $ride_header.find(".easydate").after('<span class="ride_time"> (' + ride.depart_time.getHours() + ':' + ride.depart_time.getMinutes() + ') ' + '</abbr>');
+            $ride_header.find(".status").after('<span class="ride_time"> (' + ride.depart_time.getHours() + ':' + ride.depart_time.getMinutes() + ') ' + '</span>');
         }
 
         var $ride_div = $('<div class="ride_div"></div>').attr("id", "ride_div_" + ride.id).data("ride_time", ride.depart_time);
-        $ride_div.append(renderPickupTable(ride), renderDropoffTable(ride), renderMatcher(ride));
+        $ride_div.append(renderPickupTable(ride), renderDropoffTable(ride), renderTools(ride), renderMatcher(ride));
 
         // re-create the accordion and open it where it was opened
         var $accordion = $("#ride_accordion");
@@ -232,8 +243,8 @@
             $rd.remove();
             refreshAccordion();
         });
-        $close_btn.button("disable").oneTime(Math.max($rd.data("ride_time") - new Date(), 0), function() {
-            $close_btn.button("enable")
+        $close_btn.button("disable").hide().oneTime(Math.max($rd.data("ride_time") - new Date(), 0), function() {
+            $close_btn.button("enable").show();
         });
         $rh.append($close_btn).addClass("accepted");
 
