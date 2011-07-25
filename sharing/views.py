@@ -4,7 +4,7 @@ from google.appengine.api.taskqueue import taskqueue
 from google.appengine.api.urlfetch import fetch, POST
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
-from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedirect, HttpResponseForbidden
 from django.utils import simplejson
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response, get_object_or_404
@@ -14,7 +14,7 @@ from common.tz_support import  default_tz_now, set_default_tz_time
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, work_station_required
 from ordering.forms import OrderForm
-from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, ACCEPTED, PENDING, ASSIGNED, TaxiDriverRelation, COMPLETED
+from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, ACCEPTED, ASSIGNED, TaxiDriverRelation, COMPLETED
 from sharing import signals
 from datetime import timedelta, datetime
 import logging
@@ -123,24 +123,6 @@ def fetch_ride_results_task(request):
 
 
 @work_station_required
-def show_ride(request, ride_id):
-    ride = get_object_or_404(SharedRide, id=ride_id)
-
-    is_popup = True
-    telmap_user = settings.TELMAP_API_USER
-    telmap_password = settings.TELMAP_API_PASSWORD
-    telmap_languages = 'he' if str(get_language_from_request(request)) == 'he' else 'en'
-
-    points = simplejson.dumps(
-        [{'id': p.id, 'lat': p.lat, 'lon': p.lon, 'address': p.address, 'type': p.type} for p in ride.points.all()])
-
-    pickup = StopType.PICKUP
-    dropoff = StopType.DROPOFF
-
-    return render_to_response('ride_on_map.html', locals(), context_instance=RequestContext(request))
-
-
-@work_station_required
 def sharing_workstation_home(request, work_station, workstation_id):
     if work_station.id != int(workstation_id):
         logout(request)
@@ -151,7 +133,7 @@ def sharing_workstation_home(request, work_station, workstation_id):
 #    for ride in SharedRide.objects.all():
 #        ride.change_status(new_status=ASSIGNED)
         
-    shared_rides = SharedRide.objects.filter(status__in=[ASSIGNED, ACCEPTED])
+    shared_rides = SharedRide.objects.filter(station=work_station.station, status__in=[ASSIGNED, ACCEPTED])
 
     rides_data = simplejson.dumps([ride.serialize_for_ws() for ride in shared_rides])
     taxis_data = simplejson.dumps(
@@ -175,6 +157,26 @@ def get_drivers_for_taxi(request, work_station):
     drivers_data = [{'id': taxi_driver.driver.id, 'name': taxi_driver.driver.name} for taxi_driver in taxi_drivers]
 
     return JSONResponse(drivers_data)
+
+
+@work_station_required
+def show_ride(request, work_station, ride_id):
+    ride = get_object_or_404(SharedRide, id=ride_id)
+    if ride.station != work_station.station:
+        return HttpResponseForbidden()
+
+    is_popup = True
+    telmap_user = settings.TELMAP_API_USER
+    telmap_password = settings.TELMAP_API_PASSWORD
+    telmap_languages = 'he' if str(get_language_from_request(request)) == 'he' else 'en'
+
+    points = simplejson.dumps(
+        [{'id': p.id, 'lat': p.lat, 'lon': p.lon, 'address': p.address, 'type': p.type} for p in ride.points.all()])
+
+    pickup = StopType.PICKUP
+    dropoff = StopType.DROPOFF
+
+    return render_to_response('ride_on_map.html', locals(), context_instance=RequestContext(request))
 
 
 @work_station_required
