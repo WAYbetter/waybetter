@@ -267,8 +267,8 @@ class SharedRide(BaseModel):
                 'arrive_time': to_js_date(self.arrive_time),
                 'id': self.id,
                 'status': self.status,
-                'driver': self.driver.name,
-                'taxi': self.taxi.number
+                'driver': self.driver.name if self.driver else "",
+                'taxi': self.taxi.number if self.taxi else ""
         }
 
     def change_status(self, old_status=None, new_status=None):
