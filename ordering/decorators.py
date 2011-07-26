@@ -80,8 +80,11 @@ def work_station_required(function):
             work_station = WorkStation.objects.get(user=request.user)
             kwargs["work_station"] = work_station
         except WorkStation.DoesNotExist:
-        #            return HttpResponseForbidden("You are not a workstation, please <a href='/workstation/logout/'>logout</a> and try again")
-            return render_to_response("wrong_user_type_message.html", {})
+            from django.contrib.auth import REDIRECT_FIELD_NAME
+            next = urlquote(request.get_full_path())
+            login_url = settings.LOGIN_URL
+            redirect_field_name = REDIRECT_FIELD_NAME
+            return HttpResponseRedirect('%s?%s=%s' % (login_url, redirect_field_name, next))
 
         return function(request, **kwargs)
 

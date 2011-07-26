@@ -228,14 +228,14 @@ function air() {
     
     if (window.parentSandboxBridge) {
         try {
-            window.parentSandboxBridge[func_name].apply(window.parentSandboxBridge, new_args);
+            return window.parentSandboxBridge[func_name].apply(window.parentSandboxBridge, new_args);
         } catch (e) {
             return false;
         }
     }
-
-    return true;
+    return false;
 }
+
 var MapMarker = defineClass({
     name: "MapMarker",
     construct:      function(lon, lat, location_name, icon_image, is_center) {
