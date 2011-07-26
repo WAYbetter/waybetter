@@ -65,9 +65,6 @@
         var channel;
         var socket;
     {% endautoescape %}
-    function onError(XMLHttpRequest, textStatus, errorThrown) {
-        window.location = window.location;
-    }
 
     setupChannel = function(token) {
         $("#wcs-iframe").remove();
@@ -85,6 +82,7 @@
         socket.onopen = function() {
             trace("socket: onopen");
             channel_opened = true;
+            air("set_error_state", false);
         };
         socket.onmessage = function(msg) {
             try {
@@ -133,7 +131,10 @@
 
     renderTools = function(ride) {
         var link = "{% url sharing.views.show_ride %}" + ride.id;
-        var $map_link = $('<a class="map_link" href=' + link + ' target="_blank">{% trans "Show on map" %}</a>');
+        var $map_link = $('<a class="map_link" href="#">{% trans "Show on map" %}</a>');
+        $map_link.click(function() {
+            air("open_window", link, "Map View");
+        });
         var $tools_div = $('<div class="ride_tools"></div>').append($map_link, '<div class="clear"></div>');
         return $tools_div;
     };
@@ -304,9 +305,7 @@
 
     trace = function(str) {
         var msg = new Date().toISOString() + ": " + str;
-        if (window.parentSandboxBridge) {
-            parentSandboxBridge.trace(msg);
-        }
+        air("trace", msg);
         if (window.console) {
             console.log(msg)
         }
@@ -319,6 +318,7 @@
                 acceptRide(ride);
             }
         });
+        air("set_title", "WAYbetter: {{ work_station.station.name }}");
 
         setupChannel(init_token);
     });

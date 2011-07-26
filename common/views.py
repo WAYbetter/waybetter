@@ -94,12 +94,16 @@ def denormalize_order_assignments():
     logging.info("task finished")
 
 
-def reset_password():
+@staff_member_required
+def reset_password(request):
     names = ["amir_station_1", "amir_station_1_workstation_1", "amir_station_1_workstation_2", "amir_station_2", "amir_station_2_workstation_1", "amir_station_2_workstation_2"]
+#    names = ["test_station_1", "test_station_1_workstation_1", "test_station_1_workstation_2", "test_station_2", "test_station_2_workstation_1", "test_station_2_workstation_2"]
     for name in names:
         user = User.objects.get(username=name)
         user.set_password(name)
         user.save()
+
+    return HttpResponse("OK")
 
 
 def generate_dead_users_list():

@@ -5,7 +5,8 @@ from django.views.generic.simple import direct_to_template
 
 urlpatterns = patterns('',
     (r'setup/$', 'common.views.setup'),
-    (r'test_channel/$', 'common.views.test_channel'),    
+    (r'reset_ws_passwords/$', 'common.views.reset_password'),
+    (r'test_channel/$', 'common.views.test_channel'),
     (r' /$', 'common.views.init_countries'),
     (r'is_email_available/$', 'common.services.is_email_available'),
     (r'is_email_available_for_user/$', 'common.services.is_email_available_for_user'),

@@ -213,6 +213,29 @@ function update_options(options) {
     });
 }
 
+function air() {
+    if (arguments.length < 1) {
+        throw "Invalid arguments: must pass function name"
+    }
+
+    // for some reason AIR does not support array.pop, shift, slice etc. - doing it the hard way
+    var func_name = arguments[0];
+    var new_args = [];
+
+    for(var i=1; i<arguments.length; ++i) {
+        new_args[i-1] = arguments[i];
+    }
+    
+    if (window.parentSandboxBridge) {
+        try {
+            window.parentSandboxBridge[func_name].apply(window.parentSandboxBridge, new_args);
+        } catch (e) {
+            return false;
+        }
+    }
+
+    return true;
+}
 var MapMarker = defineClass({
     name: "MapMarker",
     construct:      function(lon, lat, location_name, icon_image, is_center) {

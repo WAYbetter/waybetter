@@ -14,7 +14,7 @@ from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum
-from common.tz_support import UTCDateTimeField, utc_now
+from common.tz_support import UTCDateTimeField, utc_now, to_js_date
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
 
@@ -263,8 +263,8 @@ class SharedRide(BaseModel):
                 'dropoffs': [ { 'num_passengers' : p.dropoff_orders.count(),
                                 'address': p.address,
                                 'time': p.stop_time.strftime("%H:%M") } for p in sorted(self.points.filter(type=StopType.DROPOFF), key=lambda p: p.stop_time)],
-                'depart_time': self.depart_time.isoformat(),
-                'arrive_time': self.arrive_time.isoformat(),
+                'depart_time': to_js_date(self.depart_time),
+                'arrive_time': to_js_date(self.arrive_time),
                 'id': self.id,
                 'status': self.status,
                 'driver': self.driver.name,
