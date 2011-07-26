@@ -350,3 +350,10 @@ var easydate_config = {
 ]
 };
 
+function getFullDate(date_obj){
+    return date_obj.getDate() + '/' + (date_obj.getMonth() + 1) + '/' + date_obj.getFullYear();
+}
+
+function getFullTime(date_obj){
+    return date_obj.getHours() + ':' + date_obj.getMinutes();
+}

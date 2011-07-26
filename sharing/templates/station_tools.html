@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block bodyclass %}clean_body{% endblock %}
+{% block mainclass %}full_screen_main clean_main{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
+{% endblock %}
+
+{% block content %}
+    <div id="tabs">
+        <ul>
+            <li><a href="{% url sharing.views.station_history %}">{% trans "History" %}</a></li>
+            <li><a href="#">{% trans "Accounting" %}</a></li>
+            <li><a href="#">{% trans "Drivers" %}</a></li>
+        </ul>
+    </div>
+
+{% endblock %}
+
+{% block doc_ready %}
+    <script type="text/javascript">
+        $(function() {
+            $("#tabs").tabs({
+                        select: function(event, ui) {
+                            $(this).append('<div class="added_by_tabs loader"></div>');
+                        },
+                        load: function(event, ui) {
+                            $(".loader.added_by_tabs").remove();
+                        }
+                    }
+            );
+        });
+    </script>
+{% endblock %}

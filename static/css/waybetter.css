@@ -41,6 +41,13 @@ input.text, input[type=text], input[type=password] {
     -webkit-appearance: none;
     -moz-appearance: none;
 }
+
+.loader{
+    background: url(../images/loader5.gif) left 0 no-repeat;
+    height: 24px;
+    width: 24px;
+}
+
 .waybetter {
     color: inherit;
 }
@@ -2263,15 +2270,16 @@ bottom: 24px;}
     display: inline-block;
 }
 
-.ride_header .easydate{
-    position: absolute;
-    right: 65px;
+.ride_header :last-child{
+    float: right;
+    margin-right: 50px;
     top: 6px;
 }
 
-.rtl .ride_header .easydate{
-    right: auto;
-    left: 65px;
+.rtl .ride_header :last-child{
+    float: left;
+    margin-right: 0;
+    margin-left: 50px;
 }
 
 .ride_div table th {

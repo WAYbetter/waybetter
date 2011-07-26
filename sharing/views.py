@@ -10,13 +10,14 @@ from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from common.decorators import internal_task_on_queue, catch_view_exceptions
+from common.forms import DatePickerForm
 from common.tz_support import  default_tz_now, set_default_tz_time
 from djangotoolbox.http import JSONResponse
-from ordering.decorators import passenger_required_no_redirect, work_station_required
+from ordering.decorators import passenger_required_no_redirect, work_station_required, station_or_workstation_required
 from ordering.forms import OrderForm
 from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, ACCEPTED, ASSIGNED, TaxiDriverRelation, COMPLETED
 from sharing import signals
-from datetime import timedelta, datetime
+from datetime import timedelta, datetime, time, date
 import logging
 import settings
 import re
@@ -145,6 +146,34 @@ def sharing_workstation_home(request, work_station, workstation_id):
 
     return render_to_response('sharing_workstation_home.html', locals(), context_instance=RequestContext(request))
 
+@station_or_workstation_required
+def station_tools(request, station):
+    is_popup = True
+    return render_to_response('station_tools.html', locals(), context_instance=RequestContext(request))
+
+@station_or_workstation_required
+def station_history(request, station):
+    is_popup = True
+
+    if request.method == 'POST': # date picker form submitted
+        form = DatePickerForm(request.POST)
+        if form.is_valid():
+            start_date = datetime.combine(form.cleaned_data["start_date"], time.min)
+            end_date = datetime.combine(form.cleaned_data["end_date"], time.max)
+            rides = SharedRide.objects.filter(station=station, status__in=[ACCEPTED, COMPLETED], depart_time__gte=start_date, depart_time__lte=end_date).order_by('depart_time')
+            return JSONResponse({'rides_data': [ride.serialize_for_ws() for ride in rides]})
+        else:
+            return JSONResponse({'error': 'error'})
+    else:
+        form = DatePickerForm()
+        end_date = datetime.combine(date.today(), time.max)
+        start_date = datetime.combine(end_date - timedelta(weeks=1), time.min)
+        rides = SharedRide.objects.filter(station=station, status__in=[ACCEPTED, COMPLETED], depart_time__gte=start_date, depart_time__lte=end_date).order_by('depart_time')
+        rides_data = simplejson.dumps([ride.serialize_for_ws() for ride in rides])
+
+        # stringify the dates to the format used in the page
+        start_date, end_date = start_date.strftime("%d/%m/%Y"), end_date.strftime("%d/%m/%Y")
+        return render_to_response('station_history.html', locals(), context_instance=RequestContext(request))
 
 @work_station_required
 def get_drivers_for_taxi(request, work_station):

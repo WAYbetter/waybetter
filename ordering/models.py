@@ -266,7 +266,9 @@ class SharedRide(BaseModel):
                 'depart_time': self.depart_time.isoformat(),
                 'arrive_time': self.arrive_time.isoformat(),
                 'id': self.id,
-                'status': self.status
+                'status': self.status,
+                'driver': self.driver.name,
+                'taxi': self.taxi.number
         }
 
     def change_status(self, old_status=None, new_status=None):
