@@ -1,3 +1,4 @@
+from django.template.loader import get_template
 from django.contrib.auth import logout
 from google.appengine.api import channel
 from google.appengine.api.taskqueue import taskqueue
@@ -8,14 +9,15 @@ from django.http import HttpResponse, HttpResponseBadRequest, HttpResponseRedire
 from django.utils import simplejson
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response, get_object_or_404
-from django.template.context import RequestContext
-from common.decorators import internal_task_on_queue, catch_view_exceptions
+from django.template.context import RequestContext, Context
+from common.decorators import internal_task_on_queue, catch_view_exceptions, receive_signal
 from common.forms import DatePickerForm
-from common.tz_support import  default_tz_now, set_default_tz_time
+from common.tz_support import  default_tz_now, set_default_tz_time, utc_now, total_seconds
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, work_station_required, station_or_workstation_required
 from ordering.forms import OrderForm
 from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, ACCEPTED, ASSIGNED, TaxiDriverRelation, COMPLETED
+from ordering.util import send_msg_to_passenger, send_msg_to_driver
 from sharing import signals
 from datetime import timedelta, datetime, time, date
 import logging
@@ -55,7 +57,7 @@ def hotspot_ordering_page(request, passenger):
     else: # GET
         page_specific_class = "hotspot_page"
         hidden_fields = HIDDEN_FIELDS
-        hotspot_times = sorted( map(lambda i : "%d:00" % i, range(default_tz_now().hour,24)) + map(lambda i : "%d:30" % i, range(default_tz_now().hour,24)), key=lambda v: int(v.split(":")[0])) # sorry about that :)
+        hotspot_times = sorted( map(lambda i : "%d:00" % i, range(default_tz_now().hour+1,24)) + map(lambda i : "%d:30" % i, range(default_tz_now().hour+1,24)), key=lambda v: int(v.split(":")[0])) # sorry about that :)
 
         telmap_user = settings.TELMAP_API_USER
         telmap_password = settings.TELMAP_API_PASSWORD
@@ -131,9 +133,9 @@ def sharing_workstation_home(request, work_station, workstation_id):
 
     is_popup = True
 
-#    for ride in SharedRide.objects.all():
-#        ride.change_status(new_status=ASSIGNED)
-        
+    #    for ride in SharedRide.objects.all():
+    #        ride.change_status(new_status=ASSIGNED)
+
     shared_rides = SharedRide.objects.filter(station=work_station.station, status__in=[ASSIGNED, ACCEPTED])
 
     rides_data = simplejson.dumps([ride.serialize_for_ws() for ride in shared_rides])
@@ -146,10 +148,12 @@ def sharing_workstation_home(request, work_station, workstation_id):
 
     return render_to_response('sharing_workstation_home.html', locals(), context_instance=RequestContext(request))
 
+
 @station_or_workstation_required
 def station_tools(request, station):
     is_popup = True
     return render_to_response('station_tools.html', locals(), context_instance=RequestContext(request))
+
 
 @station_or_workstation_required
 def station_history(request, station):
@@ -160,7 +164,9 @@ def station_history(request, station):
         if form.is_valid():
             start_date = datetime.combine(form.cleaned_data["start_date"], time.min)
             end_date = datetime.combine(form.cleaned_data["end_date"], time.max)
-            rides = SharedRide.objects.filter(station=station, status__in=[ACCEPTED, COMPLETED], depart_time__gte=start_date, depart_time__lte=end_date).order_by('depart_time')
+            rides = SharedRide.objects.filter(station=station, status__in=[ACCEPTED, COMPLETED],
+                                              depart_time__gte=start_date, depart_time__lte=end_date).order_by(
+                'depart_time')
             return JSONResponse({'rides_data': [ride.serialize_for_ws() for ride in rides]})
         else:
             return JSONResponse({'error': 'error'})
@@ -168,12 +174,14 @@ def station_history(request, station):
         form = DatePickerForm()
         end_date = datetime.combine(date.today(), time.max)
         start_date = datetime.combine(end_date - timedelta(weeks=1), time.min)
-        rides = SharedRide.objects.filter(station=station, status__in=[ACCEPTED, COMPLETED], depart_time__gte=start_date, depart_time__lte=end_date).order_by('depart_time')
+        rides = SharedRide.objects.filter(station=station, status__in=[ACCEPTED, COMPLETED], depart_time__gte=start_date
+                                          , depart_time__lte=end_date).order_by('depart_time')
         rides_data = simplejson.dumps([ride.serialize_for_ws() for ride in rides])
 
         # stringify the dates to the format used in the page
         start_date, end_date = start_date.strftime("%d/%m/%Y"), end_date.strftime("%d/%m/%Y")
         return render_to_response('station_history.html', locals(), context_instance=RequestContext(request))
+
 
 @work_station_required
 def get_drivers_for_taxi(request, work_station):
@@ -199,7 +207,13 @@ def show_ride(request, work_station, ride_id):
     telmap_password = settings.TELMAP_API_PASSWORD
     telmap_languages = 'he' if str(get_language_from_request(request)) == 'he' else 'en'
 
-    points = simplejson.dumps([{'id': p.id, 'lat': p.lat, 'lon': p.lon, 'address': p.address, 'type': p.type} for p in sorted(ride.points.all(), key=lambda p: p.stop_time)])
+    points = simplejson.dumps([{'id': p.id, 'lat': p.lat, 'lon': p.lon, 'address': p.address, 'type': p.type} for p in
+                                                                                                              sorted(
+                                                                                                                  ride.points.all()
+                                                                                                                  ,
+                                                                                                                  key=lambda
+                                                                                                                  p
+                                                                                                                  : p.stop_time)])
 
     pickup = StopType.PICKUP
     dropoff = StopType.DROPOFF
@@ -243,6 +257,98 @@ def complete_ride(request, work_station):
         return HttpResponseBadRequest("Error")
 
 # UTILITY FUNCTIONS
+
+DRIVER_NOTIFICATION_TIME = 60 * 60 # in seconds
+PASSENGER_NOTIFICATION_TIME = 10 * 60 # in seconds
+
+@receive_signal(signals.ride_status_changed_signal)
+def send_ride_notifications(sender, obj, status, **kwargs):
+    if status == ACCEPTED:
+        ride = obj
+
+        # notify driver
+        countdown = int(total_seconds((ride.depart_time - utc_now() - timedelta(seconds=DRIVER_NOTIFICATION_TIME))))
+        if countdown > 0:
+            task = taskqueue.Task(url=reverse(notify_driver_task), countdown=countdown,
+                                  params={"driver_id": ride.driver.id, "msg": get_driver_msg(ride)})
+            q = taskqueue.Queue('ride-notifications')
+            q.add(task)
+        else:
+            logging.error("skipping driver notification, too late [ride:%d]" % ride.id)
+
+        # notify passengers
+        pickups = ride.points.filter(type=StopType.PICKUP)
+        for p in pickups:
+            countdown = int(total_seconds(p.stop_time - utc_now() - timedelta(seconds=PASSENGER_NOTIFICATION_TIME)))
+            if countdown > 0:
+                passengers = [order.passenger for order in p.pickup_orders.all()]
+                for passenger in passengers:
+                    task = taskqueue.Task(url=reverse(notify_passenger_task), countdown=countdown,
+                                          params={"passenger_id": passenger.id, "msg": get_passenger_msg(passenger, ride)})
+                    q = taskqueue.Queue('ride-notifications')
+                    q.add(task)
+            else:
+                logging.error("skipping passenger notification, too late [ride: %d, pickup: %d]" % (ride.id, p.id))
+
+
+@csrf_exempt
+@catch_view_exceptions
+@internal_task_on_queue("ride-notifications")
+def notify_driver_task(request):
+    driver = Driver.by_id(request.POST['driver_id'])
+    msg = request.POST.get('msg', None)
+    send_msg_to_driver(driver, msg)
+
+    return HttpResponse("OK")
+
+
+@csrf_exempt
+@catch_view_exceptions
+@internal_task_on_queue("ride-notifications")
+def notify_passenger_task(request):
+    passenger = Passenger.by_id(request.POST['passenger_id'])
+    msg = request.POST.get('msg', None)
+    send_msg_to_passenger(passenger, msg)
+
+    return HttpResponse("OK")
+
+
+def get_driver_msg(ride):
+    t = get_template("driver_notification_msg.template")
+    template_data = {'pickups':
+                         [{'address': p.address,
+                           'time': p.stop_time.strftime("%H:%M"),
+                           'num_passengers': p.pickup_orders.count(),
+                           'phones': [order.passenger.phone for order in p.pickup_orders.all()]}
+
+                         for p in ride.points.filter(type=StopType.PICKUP).order_by("stop_time")],
+
+                     'dropoffs':
+                         [{'address': p.address,
+                           'time': p.stop_time.strftime("%H:%M"),
+                           'num_passengers': p.dropoff_orders.count(),
+                           'phones': [order.passenger.phone for order in p.dropoff_orders.all()]}
+
+                         for p in ride.points.filter(type=StopType.DROPOFF).order_by("stop_time")]
+                    }
+    return t.render(Context(template_data))
+
+
+def get_passenger_msg(passenger, ride):
+    t = get_template("passenger_notification_msg.template")
+
+    pickup_orders = Order.objects.filter(passenger=passenger, pickup_point__in=list(ride.points.filter(type=StopType.PICKUP)))
+    dropoff_orders = Order.objects.filter(passenger=passenger, dropoff_point__in=list(ride.points.filter(type=StopType.DROPOFF)))
+
+    pickup_data = [{'time': order.pickup_point.stop_time.strftime("%H:%M"), 'address': order.pickup_point.address}
+                    for order in sorted(pickup_orders, key=lambda o: o.pickup_point.stop_time)]
+    dropoff_data = [{'time': order.dropoff_point.stop_time.strftime("%H:%M"), 'address': order.dropoff_point.address}
+                    for order in sorted(pickup_orders, key=lambda o: o.dropoff_point.stop_time)]
+
+    template_data = {'pickups': pickup_data, 'dropoffs': dropoff_data}
+    return t.render(Context(template_data))
+
+
 def create_orders_from_hotspot(data, hotspot_type, point_type):
     fields = ["raw"] + HIDDEN_FIELDS
 

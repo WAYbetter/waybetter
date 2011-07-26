@@ -1,0 +1,7 @@
+{% load i18n %}
+{% for pickup in pickups %}
+    {% trans "Pickup" %}: {{ pickup.time }} @ {{ pickup.address }}
+{% endfor %}
+{% for dropoff in dropoffs %}
+    {% trans "Dropoff" %}: {{ dropoff.time }} @ {{ dropoff.address }}
+{% endfor %}

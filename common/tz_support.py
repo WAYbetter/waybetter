@@ -100,3 +100,13 @@ def to_js_date(dt):
     @return: the date formatted in a Javascript friendly format
     """
     return time.mktime(dt.astimezone(TZ_INFO["UTC"]).timetuple()) * 1000
+
+def total_seconds(td):
+    """
+    @param td: a timedelta object
+    @return: the total number of seconds contained in the duration
+    """
+    # TODO_WB: deprecate this when 2.7 is available for GAE
+    # timedelta.total_seconds is new in Python 2.7.
+    # See: http://docs.python.org/library/datetime.html#datetime.timedelta.total_seconds
+    return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6

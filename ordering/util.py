@@ -8,11 +8,27 @@ from common.util import log_event, EventType, get_channel_key, notify_by_email
 from common.sms_notification import send_sms
 import logging
 
+def send_msg_to_driver(driver, msg):
+    if not msg:
+        logging.error("skipping msg to driver [%d]: empty msg" % driver.id)
+    elif driver.phone:
+        logging.info("sending message driver [%d]: %s" % (driver.id, msg))
+        send_sms(driver.phone, msg)
+    else:
+        logging.error("Driver [%d] missing phone - skipping message: %s" % (driver.id, msg))
+
 def send_msg_to_passenger(passenger, msg):
-    if passenger.business:
+    if not msg:
+        logging.error("skipping msg to passenger [%d]: empty msg" % passenger.id)
+    elif passenger.business:
         send_channel_msg_to_passenger(passenger, msg)
     else:
-        send_sms(passenger.international_phone(), msg)
+        phone = passenger.international_phone()
+        if phone:
+            logging.info("sending message passenger [%d]: %s" % (passenger.id, msg))
+            send_sms(phone, msg)
+        else:
+            logging.error("Passenger [%d] missing phone - skipping message: %s" % (passenger.id, msg))
 
 def send_channel_msg_to_passenger(passenger, msg):
     msg = simplejson.dumps(msg)

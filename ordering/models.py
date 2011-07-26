@@ -198,6 +198,7 @@ class Station(BaseModel):
 class Driver(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="drivers")
     name = models.CharField(_("name"), max_length=140, null=True, blank=True)
+    phone = models.CharField(_("phone number"), max_length=15)
 
     dn_station_name = models.CharField(_("station name"), max_length=50)
 
@@ -259,10 +260,10 @@ class SharedRide(BaseModel):
     def serialize_for_ws(self):
         return {'pickups': [ { 'num_passengers': p.pickup_orders.count(),
                                'address': p.address,
-                               'time': p.stop_time.strftime("%H:%M") } for p in sorted(self.points.filter(type=StopType.PICKUP), key=lambda p: p.stop_time)],
+                               'time': p.stop_time.strftime("%H:%M") } for p in self.points.filter(type=StopType.PICKUP).order_by("stop_time")],
                 'dropoffs': [ { 'num_passengers' : p.dropoff_orders.count(),
                                 'address': p.address,
-                                'time': p.stop_time.strftime("%H:%M") } for p in sorted(self.points.filter(type=StopType.DROPOFF), key=lambda p: p.stop_time)],
+                                'time': p.stop_time.strftime("%H:%M") } for p in self.points.filter(type=StopType.DROPOFF).order_by("stop_time")],
                 'depart_time': to_js_date(self.depart_time),
                 'arrive_time': to_js_date(self.arrive_time),
                 'id': self.id,
