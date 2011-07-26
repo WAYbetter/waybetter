@@ -55,7 +55,7 @@ def hotspot_ordering_page(request, passenger):
     else: # GET
         page_specific_class = "hotspot_page"
         hidden_fields = HIDDEN_FIELDS
-        hotspot_times = sorted( map(lambda i : "%d:00" % i, range(24)) + map(lambda i : "%d:30" % i, range(24)), key=lambda v: int(v.split(":")[0])) # sorry about that :)
+        hotspot_times = sorted( map(lambda i : "%d:00" % i, range(default_tz_now().hour,24)) + map(lambda i : "%d:30" % i, range(default_tz_now().hour,24)), key=lambda v: int(v.split(":")[0])) # sorry about that :)
 
         telmap_user = settings.TELMAP_API_USER
         telmap_password = settings.TELMAP_API_PASSWORD

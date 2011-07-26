@@ -131,10 +131,12 @@
 
     renderTools = function(ride) {
         var link = "{% url sharing.views.show_ride %}" + ride.id;
-        var $map_link = $('<a class="map_link" href="#">{% trans "Show on map" %}</a>');
-        $map_link.click(function() {
-            air("open_window", link, "Map View");
-        });
+        var $map_link = $('<a class="map_link" href="#" target="_blank">{% trans "Show on map" %}</a>')
+                .click(function(e) {
+                    e.preventDefault();
+                    window.open(link, "Map View", 'width=800,height=600,resizable=no');
+                });
+
         var $tools_div = $('<div class="ride_tools"></div>').append($map_link, '<div class="clear"></div>');
         return $tools_div;
     };
