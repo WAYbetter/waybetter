@@ -14,7 +14,13 @@ def send_sms(destination, text, **kwargs):
     TODO_WB: take back-end function name from settings
     """
 
-    logging.info(u"Sending SMS to [%s]: '%s'" % (destination, text))  
+    logging.info(u"Sending SMS to [%s]: '%s'" % (destination, text))
+
+    # don't send SMS to test account
+    if destination.endswith(settings.APPLE_TESTER_PHONE_NUMBER):
+        logging.info("Skipping SMS for test user")
+        return True
+    
 #    return
     sms_config = settings.SMS
     if kwargs is not None:
