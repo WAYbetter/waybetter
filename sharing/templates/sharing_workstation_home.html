@@ -31,9 +31,6 @@
     <script type="text/javascript" src="/static/js/mylibs/jquery.countdown.min.js"></script>
 
     <script type="text/javascript">
-    var assigning_msg = "{% trans "Assigning" %}";
-    var not_assigned_msg = "{% trans "Not Assigned Yet" %}";
-    var missed_msg = "{% trans "Missed" %}";
     {% autoescape off %}
         var rides_data = {{ rides_data }};
         var taxis_data = {{ taxis_data }};
@@ -236,7 +233,7 @@
                 .append('<a class="date">' + getFullDate(ride.depart_time) + '</a>')
                 .append('<span class="seperator"> - </span>')
                 .append('<span class="pickup">' + ride.pickups[0].address + '</span>')
-                .append('<span class="status">' + not_assigned_msg + '</span>')
+                .append('<span class="status">' + "{% trans " + '</span>')
 
                 .data("status", ride.status);
 
@@ -284,7 +281,7 @@
     timeoutRide = function(ride) {
         var $rh = $("#ride_header_" + ride.id);
         $rh.data("status", {{ timed_out }}).addClass("timed_out");
-        $rh.find(".status").empty().text(missed_msg);
+        $rh.find(".status").empty().text("{% trans ");
 
         var $rd = $("#ride_div_" + ride.id);
         $rd.find("select").attr("disabled", "");
@@ -343,7 +340,6 @@
     refreshAccordion = function() {
         $("[id^='ride_header_']").each(function(i, ride_div) {
             if ($(this).data("status") != {{ accepted }}) {
-                $(this).find(".status").text(assigning_msg);
                 $("#ride_accordion").accordion("destroy").accordion({ active: i });
                 return false; //break
             }
@@ -383,14 +379,6 @@
             });
         });
 
-        $('#ride_accordion').bind('accordionchangestart', function(event, ui) {
-            if (ui.newHeader.data("status") == {{ assigned }}){
-                ui.newHeader.find(".status").text(assigning_msg);
-            }
-            if (ui.oldHeader.find(".status").text() == assigning_msg){
-                ui.oldHeader.find(".status").text(not_assigned_msg);
-            }
-        });
         air("set_title", "WAYbetter: {{ work_station.station.name }}");
 
         setupChannel(init_token);
