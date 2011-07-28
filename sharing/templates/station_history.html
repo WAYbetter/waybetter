@@ -33,25 +33,24 @@
             var rides_data = {{ rides_data }};
         {% endautoescape %}
 
-        renderTableRow = function(point) {
-            return $("<tr><td>" + point.num_passengers + "</td><td>" + point.address + "</td><td>" + point.time + "</td></tr>")
-        };
+        renderTable = function(ride) {
+            var $table = $('<table><thead><tr><th></th><th>{% trans 'Time' %}</th><th>{% trans 'Address' %}</th><th>{% trans '# of Passengers' %}</th></tr></thead></table>');
 
-        renderPickupTable = function(ride) {
-            var $table = $('<table class="pickup_table"><caption>{% trans 'From' %}</caption><tr><th>{% trans '# passengers' %}</th><th>{% trans 'Address' %}</th><th>{% trans 'Time' %}</th></tr></table>')
-                    .attr("id", "pickup_table_" + ride.id);
+            $table.append("<tr class='spacer'><td></td><td></td><td></td><td></td></tr>"); // spacer
+
             $.each(ride.pickups, function(i, p) {
-                $table.append(renderTableRow(p));
+                var $row = $("<tr class='pickup'><td>{% trans "Pickup" %}</td><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + "</td></tr>");
+                $table.append($row);
             });
-            return $table;
-        };
 
-        renderDropoffTable = function(ride) {
-            var $table = $('<table class="dropoff_table"><caption>{% trans 'To' %}</caption><tr><th>{% trans '# passengers' %}</th><th>{% trans 'Address' %}</th><th>{% trans 'Time' %}</th></tr></table>')
-                    .attr("id", "dropoff_table_" + ride.id);
-            $.each(ride.dropoffs, function(i, d) {
-                $table.append(renderTableRow(d));
+            $table.append("<tr class='spacer'><td></td><td></td><td></td><td></td></tr>"); // spacer
+            $table.append("<tr class='spacer'><td></td><td></td><td></td><td></td></tr>"); // spacer
+
+            $.each(ride.dropoffs, function(i, p) {
+                var $row = $("<tr class='dropoff'><td>{% trans "Dropoff" %}</td><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + "</td></tr>");
+                $table.append($row);
             });
+
             return $table;
         };
 
@@ -83,7 +82,7 @@
             }
 
             var $ride_div = $('<div class="ride_div"></div>').attr("id", "ride_div_" + ride.id)
-                    .append(renderPickupTable(ride), renderDropoffTable(ride), renderInfo(ride));
+                    .append(renderTable(ride), renderInfo(ride));
             $("#ride_accordion").prepend($ride_header, $ride_div).accordion("destroy").accordion();
         };
 

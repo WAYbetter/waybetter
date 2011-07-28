@@ -84,40 +84,6 @@
         })
     };
 
-{#        renderTableRow = function(point, prefix) {#}
-{#            if (prefix) {#}
-{#                return $("<tr><td>" + prefix + "</td><td>" + point.num_passengers + "</td><td>" + point.address + "</td><td>" + point.time + "</td></tr>")#}
-{#            } else {#}
-{#                return $("<tr><td>" + point.num_passengers + "</td><td>" + point.address + "</td><td>" + point.time + "</td></tr>")#}
-{#            }#}
-{#        };#}
-{##}
-{#        renderPickupTable = function(ride) {#}
-{#            var $table = $('<table class="pickup_table"><colgroup class="from_to"></colgroup><colgroup span="3" class="table_body"></colgroup><tr class="table_header_row"><th></th><th>{% trans '# passengers' %}</th><th>{% trans 'Address' %}</th><th>{% trans 'Time' %}</th></tr></table>')#}
-{#                    .attr("id", "pickup_table_" + ride.id);#}
-{#            $.each(ride.pickups, function(i, p) {#}
-{#                if (i == 0) {#}
-{#                    $table.append(renderTableRow(p, "{% trans 'From' %}"));#}
-{#                } else {#}
-{#                    $table.append(renderTableRow(p, " "));#}
-{#                }#}
-{#            });#}
-{#            return $table;#}
-{#        };#}
-{##}
-{#        renderDropoffTable = function(ride) {#}
-{#            var $table = $('<table class="dropoff_table"><colgroup class="from_to"></colgroup><colgroup span="3" class="table_body"></colgroup></table>')#}
-{#                    .attr("id", "dropoff_table_" + ride.id);#}
-{#            $.each(ride.dropoffs, function(i, d) {#}
-{#                if (i == 0) {#}
-{#                    $table.append(renderTableRow(d, "{% trans 'To' %}"));#}
-{#                } else {#}
-{#                    $table.append(renderTableRow(d, " "));#}
-{#                }#}
-{#            });#}
-{#            return $table;#}
-{#        };#}
-
     renderTable = function(ride) {
         var $table = $('<table><thead><tr><th></th><th>{% trans 'Time' %}</th><th>{% trans 'Address' %}</th><th>{% trans '# of Passengers' %}</th></tr></thead></table>');
 
