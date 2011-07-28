@@ -16,7 +16,7 @@ from common.tz_support import  default_tz_now, set_default_tz_time, utc_now, tot
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, work_station_required, station_or_workstation_required
 from ordering.forms import OrderForm
-from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, ACCEPTED, ASSIGNED, TaxiDriverRelation, COMPLETED
+from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, ACCEPTED, ASSIGNED, TaxiDriverRelation, COMPLETED, NOT_TAKEN, TIMED_OUT
 from ordering.util import send_msg_to_passenger, send_msg_to_driver
 from sharing import signals
 from datetime import timedelta, datetime, time, date
@@ -133,8 +133,9 @@ def sharing_workstation_home(request, work_station, workstation_id):
 
     is_popup = True
 
-#    for ride in SharedRide.objects.all():
-#        ride.change_status(new_status=ASSIGNED)
+    for ride in SharedRide.objects.all():
+        ride.taxi = ride.driver = None
+        ride.change_status(new_status=ASSIGNED)
 
     shared_rides = SharedRide.objects.filter(station=work_station.station, status__in=[ASSIGNED, ACCEPTED])
 #    shared_rides = SharedRide.objects.filter(station=work_station.station, status__in=[ASSIGNED, ACCEPTED], depart_time__gte=datetime.now() )
@@ -146,6 +147,7 @@ def sharing_workstation_home(request, work_station, workstation_id):
 
     assigned = ASSIGNED
     accepted = ACCEPTED
+    timed_out = TIMED_OUT
     token = channel.create_channel(work_station.generate_new_channel_id())
 
     return render_to_response('sharing_workstation_home.html', locals(), context_instance=RequestContext(request))
@@ -227,7 +229,8 @@ def accept_ride(request, work_station):
     response = HttpResponseBadRequest("Invalid arguments")
     if all([ride_id, taxi_id, driver_id]):
         ride = SharedRide.by_id(ride_id)
-        if ride.depart_time > utc_now():
+#        if ride.depart_time > utc_now():
+        if True:
             taxi = Taxi.by_id(taxi_id)
             driver = Driver.by_id(driver_id)
             if all([ride, taxi, driver]):
@@ -238,7 +241,7 @@ def accept_ride(request, work_station):
 
                 response = HttpResponse("OK")
         else:
-            response = HttpResponseBadRequest("Cann't accept a past order")
+            response = HttpResponseBadRequest("You cannot accept a past order")
 
     return response
 
@@ -261,7 +264,7 @@ def complete_ride(request, work_station):
 DRIVER_NOTIFICATION_TIME = 60 * 60 # in seconds
 PASSENGER_NOTIFICATION_TIME = 10 * 60 # in seconds
 
-@receive_signal(signals.ride_status_changed_signal)
+#@receive_signal(signals.ride_status_changed_signal)
 def send_ride_notifications(sender, obj, status, **kwargs):
     if status == ACCEPTED:
         ride = obj

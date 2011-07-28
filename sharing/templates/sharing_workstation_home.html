@@ -179,37 +179,50 @@
 
         var $taxi_label = '<label for="taxi_sel_' + ride.id + '"> {% trans 'Select Taxi' %}' + '</label>';
         var $taxi_selector = $('<select class="taxi_selector"></select>').attr("id", "taxi_sel_" + ride.id);
-        $.each(taxis_data, function(i, taxi) {
-            $taxi_selector.append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
-        });
-        $taxi_selector.change(function() {
-            populate_drivers($driver_selector, $(this).val());
-        });
-//        $taxi_selector.change();
+
+        if (ride.taxi && ride.driver) { // accepted ride
+            $taxi_selector.append('<option value="' + ride.taxi.id + '">' + ride.taxi.number + '</option>').disable();
+            $driver_selector.append('<option value="' + ride.driver.id + '">' + ride.driver.name + '</option>').disable();
+        }
+        else {
+            $.each(taxis_data, function(i, taxi) {
+                $taxi_selector.append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
+            });
+            $taxi_selector.change(function() {
+                populate_drivers($driver_selector, $(this).val());
+            });
+            $taxi_selector.change();
+        }
 
         var $selectors = $('<div class="select_tools"></div>')
-                .append($taxi_label, $taxi_selector,$driver_label, $driver_selector, '<a class="add_driver">{% trans "+ Add" %}</a>');
+                .append($taxi_label, $taxi_selector,$driver_label, $driver_selector);
+{#                .append($taxi_label, $taxi_selector,$driver_label, $driver_selector, '<a class="add_driver">{% trans "+ Add" %}</a>');#}
 
         var $accept_button = $('<div class="accept_button">{% trans 'Finish' %}</div>').attr("id", "accept_ride_" + ride.id).button()
                 .click(function() {
                     var that = this;
-                    $.ajax({
-                        url: '{% url sharing.views.accept_ride %}',
-                        type: 'POST',
-                        data: { 'ride_id': ride.id,
-                            'taxi_id': $taxi_selector.val(),
-                            'driver_id': $driver_selector.val() },
-                        beforeSend: function() {
-                            $(that).button("disable");
-                        },
-                        success: function() {
-                            acceptRide(ride);
-                        },
-                        error: function(response) {
-                            alert(response.responseText);
-                            $(that).button("enable");
-                        }
-                    });
+                    if ($taxi_selector.val() && $driver_selector.val()) {
+                        $.ajax({
+                            url: '{% url sharing.views.accept_ride %}',
+                            type: 'POST',
+                            data: { 'ride_id': ride.id,
+                                'taxi_id': $taxi_selector.val(),
+                                'driver_id': $driver_selector.val() },
+                            beforeSend: function() {
+                                $(that).button("disable");
+                            },
+                            success: function() {
+                                acceptRide(ride);
+                            },
+                            error: function(response) {
+                                alert(response.responseText);
+                                $(that).button("enable");
+                            }
+                        });
+                    }
+                    else {
+                        alert("{% trans "Please choose taxi and driver" %}");
+                    }
                 });
         return $('<div class="ride_matcher" id="matcher_' + ride.id + '"></div>')
                 .append($selectors, $accept_button, '<div class="clear"></div>');
@@ -264,21 +277,25 @@
                 return false; // break
             }
         });
-
-//            var msg = (append_after) ? "after:" + $(append_after).data("ride_time") : "first";
-//            console.log(msg);
-
         return append_after;
+    };
+
+    timeoutRide = function(ride) {
+        var $rh = $("#ride_header_" + ride.id);
+        $rh.data("status", {{ timed_out }}).addClass("timed_out");
+
+        var $rd = $("#ride_div_" + ride.id);
+        $rd.find(".ride_matcher").remove();
+        // ajax to server?
     };
 
     acceptRide = function(ride) {
         var $rh = $("#ride_header_" + ride.id);
+        $rh.data("status", {{ accepted }}).addClass("accepted");
+        $rh.find(".pickup").after('<span class="seperator"> - </span>',
+                '<span class="taxi"> Taxi #' + $("#taxi_sel_" + ride.id).find("option:selected").text() + ' </span>');
+
         var $rd = $("#ride_div_" + ride.id);
-
-        $rh.data("status", {{ accepted }});
-        // need to get the assigned taxi for this ride
-        $rh.find(".pickup").after('<span class="seperator"> - </span>', '<span class="taxi"> Taxi # </span>');
-
         $rd.find("select").attr("disabled", "");
         $rd.find(".accept_button").button("disable");
 
@@ -302,15 +319,22 @@
             });
             return false; // prevent the accordion opening
         });
-        $complete_ride.button("disable").hide().oneTime(Math.max($rd.data("ride_time") - new Date(), 0), function() {
-            $complete_ride.button("enable").show();
-        });
-        $rh.append($complete_ride).addClass("accepted");
 
-        var $countdown = $('<span></span>').countdown({ compact: true, format: 'HM', until: ride.depart_time});
-        $rh.find(".status").empty().append("{% trans 'Ride in ' %}", $countdown, "{% trans ' min' %}");
+        if (ride.depart_time > new Date()){ // future order, show countdown
+            var $countdown = $('<span></span>').countdown(
+                    { compact: true, format: 'MS', until: ride.depart_time,
+                        onExpiry:function() {
+                            $rh.find(".status").empty().after($complete_ride);
+                        }
+                    });
+            $rh.find(".status").empty().append("{% trans 'Ride in ' %}", $countdown, "{% trans ' min' %}");
+        }
+        else{
+            $rh.find(".status").empty().after($complete_ride);
+        }
 
-        refreshAccordion();
+
+//        refreshAccordion();
     };
 
     refreshAccordion = function() {
@@ -334,15 +358,26 @@
     $(function() {
         $("#tools_button").button().click(function(e) {
             e.preventDefault();
-            window.open("{% url sharing.views.station_tools %}")
+            window.open("{% url sharing.views.station_tools %}");
         });
 
 
         $.each(rides_data, function(i, ride) {
             renderRide(ride);
+
             if (ride.status == {{ accepted }}) {
                 acceptRide(ride);
             }
+            if (ride.status == {{ timed_out }}) {
+                timeoutRide(ride);
+            }
+
+            // install timer
+            $("#ride_header_" + ride.id).oneTime(Math.max(ride.depart_time - new Date(), 0), function() {
+                if ($(this).data("status") == {{ assigned }}){
+                    timeoutRide(ride);
+                }
+            });
         });
 
         $('#ride_accordion').bind('accordionchangestart', function(event, ui) {
