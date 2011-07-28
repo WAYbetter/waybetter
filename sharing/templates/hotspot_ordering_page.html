@@ -4,6 +4,12 @@
 {% block bodyclass %}clean_body{% endblock %}
 {% block mainclass %}clean_main{% endblock %}
 
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="/static/css/sharing.css" type="text/css" media="all">
+{% endblock %}
+
+
 {% block content %}
     <div id="map_container">
         <div id="map"></div>

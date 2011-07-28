@@ -46,21 +46,20 @@
                 telmap_languages:           "{{ telmap_languages }}"
             });
 
-            var from_imgs = ['from_A.png', 'from_B.png', 'from_C.png', 'from_D.png'];
-            var from_idx = 0;
-            var to_imgs = ['to_A.png', 'to_B.png', 'to_C.png', 'to_D.png'];
-            var to_idx = 0;
-
+            var from_imgs = ['from_A.png', 'from_B.png', 'from_C.png', 'from_D.png', 'from_E.png'];
+            var to_imgs = ['to_A.png', 'to_B.png', 'to_C.png', 'to_D.png', 'to_E.png'];
+            var idx = 0;
+            
             // assumes the points are sorted
             $.each(points, function(i, p) {
                 var img;
                 switch (p.type) {
                     case {{ pickup }}:
-                        img = from_imgs[from_idx++];
+                        img = from_imgs[idx++];
                         break;
 
                     case {{ dropoff }}:
-                        img = to_imgs[to_idx++];
+                        img = to_imgs[idx++];
                         break;
                 }
                 var icon_image = new telmap.maps.MarkerImage("/static/images/" + img);

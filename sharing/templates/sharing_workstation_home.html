@@ -5,58 +5,34 @@
 {% block mainclass %}full_screen_main clean_main{% endblock %}
 
 {% block extrastyle %}
-    {{ block.super }}
     <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
-    <style>
-        .ui-accordion .ui-accordion-header {
-            background: #FFE6C0;
-        }
-
-        .ui-accordion .ui-accordion-header.accepted {
-            background: #15B300;
-        }
-
-        .ui-accordion .ui-accordion-header.accepted a {
-            padding-left: 1.2em;
-        }
-
-        .ui-accordion .ui-accordion-header .close_btn {
-            position: absolute;
-            right: 10px;
-            top: 6px;
-            height: 20px;
-            font-size: 10px;
-        }
-
-        .rtl .ui-accordion .ui-accordion-header .close_btn {
-            right: auto;
-            left: 10px;
-            margin-left: 2.2em;
-        }
-
-        .ui-accordion-icons .ui-accordion-header a {
-            display: inline-block;
-        }
-
-        .ui-accordion-icons .ui-accordion-header :nth-child(2) {
-            margin-left: 2.2em;
-        }
-    </style>
-
+    <link rel="stylesheet" href="/static/css/sharing.css" type="text/css" media="all">
 {% endblock %}
 
 {% block content %}
-
-    <a class="bold" href="{% url sharing.views.station_tools %}" target="_blank">{% trans "Station tools" %}</a>
+    <div id="header">
+        <div id="tools_button">{% trans "Station Account" %}</div>
+        <div id="summary">
+            {% trans "Overall Status" %}:
+            <span id="untaken_count">10</span> {% trans "Rides Untaken" %}
+            |
+            <span id="taken_count">10</span> {% trans "Rides Taken" %}
+        </div>
+        <div id="connection_status">
+            {% trans "Connected" %}
+        </div>
+        <div class="clear"></div>
+    </div>
     <div id="ride_accordion"></div>
-
 {% endblock %}
 
 {% block doc_ready %}
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.easydate-0.2.4.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.countdown.min.js"></script>
 
     <script type="text/javascript">
+    var assigning_msg = "{% trans "Assigning" %}";
+    var not_assigned_msg = "{% trans "Not Assigned Yet" %}";
     {% autoescape off %}
         var rides_data = {{ rides_data }};
         var taxis_data = {{ taxis_data }};
@@ -107,39 +83,74 @@
         })
     };
 
-    renderTableRow = function(point) {
-        return $("<tr><td>" + point.num_passengers + "</td><td>" + point.address + "</td><td>" + point.time + "</td></tr>")
-    };
+    {#    renderTableRow = function(point) {#}
+    {#        return $("<tr><td>" + point.num_passengers + "</td><td>" + point.address + "</td><td>" + point.time + "</td></tr>")#}
+    {#    };#}
+    {##}
+    {#    renderPickupTable = function(ride) {#}
+    {#        var $table = $('<table class="pickup_table"><caption>{% trans 'From' %}</caption><tr><th>{% trans '# passengers' %}</th><th>{% trans 'Address' %}</th><th>{% trans 'Time' %}</th></tr></table>')#}
+    {#                .attr("id", "pickup_table_" + ride.id);#}
+    {#        $.each(ride.pickups, function(i, p) {#}
+    {#            $table.append(renderTableRow(p));#}
+    {#        });#}
+    {#        return $table;#}
+    {#    };#}
+    {##}
+    {#    renderDropoffTable = function(ride) {#}
+    {#        var $table = $('<table class="dropoff_table"><caption>{% trans 'To' %}</caption><tr><th>{% trans '# passengers' %}</th><th>{% trans 'Address' %}</th><th>{% trans 'Time' %}</th></tr></table>')#}
+    {#                .attr("id", "dropoff_table_" + ride.id);#}
+    {#        $.each(ride.dropoffs, function(i, d) {#}
+    {#            $table.append(renderTableRow(d));#}
+    {#        });#}
+    {#        return $table;#}
+    {#    };#}
 
-    renderPickupTable = function(ride) {
-        var $table = $('<table class="pickup_table"><caption>{% trans 'From' %}</caption><tr><th>{% trans '# passengers' %}</th><th>{% trans 'Address' %}</th><th>{% trans 'Time' %}</th></tr></table>')
-                .attr("id", "pickup_table_" + ride.id);
+    renderTable = function(ride) {
+        var $table = $('<table><thead><tr><th></th><th>{% trans 'Time' %}</th><th>{% trans 'Address' %}</th><th>{% trans '# of Passengers' %}</th></tr></thead></table>');
+
+        $table.append("<tr class='spacer'><td></td><td></td><td></td><td></td></tr>"); // spacer
+
         $.each(ride.pickups, function(i, p) {
-            $table.append(renderTableRow(p));
+            var $row;
+            if (i == 0) {
+                $row = $("<tr><td class='bold'>{% trans "From" %}</td><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + "</td></tr>");
+            }
+            else {
+                $row = $("<tr'><td></td><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + "</td></tr>");
+            }
+            $table.append($row);
         });
+
+        $table.append("<tr><td class='varrow ui-icon ui-icon-triangle-1-s'></td><td></td><td></td><td></td></tr>"); // vertical arrow
+
+        $.each(ride.dropoffs, function(i, p) {
+            var $row;
+            if (i == 0) {
+                $row = $("<tr><td class='bold'>{% trans "To" %}</td><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + "</td></tr>");
+            }
+            else {
+                $row = $("<tr><td></td><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + "</td></tr>");
+            }
+            $table.append($row);
+        });
+
         return $table;
     };
 
-    renderDropoffTable = function(ride) {
-        var $table = $('<table class="dropoff_table"><caption>{% trans 'To' %}</caption><tr><th>{% trans '# passengers' %}</th><th>{% trans 'Address' %}</th><th>{% trans 'Time' %}</th></tr></table>')
-                .attr("id", "dropoff_table_" + ride.id);
-        $.each(ride.dropoffs, function(i, d) {
-            $table.append(renderTableRow(d));
-        });
-        return $table;
-    };
-
-    renderTools = function(ride) {
+    renderInfo = function(ride) {
         var link = "{% url sharing.views.show_ride %}" + ride.id;
-        var $map_link = $('<a class="map_link" href="#" target="_blank">{% trans "Show on map" %}</a>')
+        var $map_link = $('<a class="map_link" href="#" target="_blank">{% trans "Show Points on Map" %}</a>')
                 .click(function(e) {
                     e.preventDefault();
                     window.open(link, "Map View", 'width=800,height=600,resizable=no');
                 });
 
-        var $tools_div = $('<div class="ride_tools"></div>').append($map_link, '<div class="clear"></div>');
-        return $tools_div;
+        var $value = $('<a class="ride_value">{% trans "Value of Ride = X NIS"%}</a>');
+
+        var $info_div = $('<div class="ride_info"></div>').append($value,$map_link, '<div class="clear"></div>');
+        return $info_div;
     };
+
     populate_drivers = function($driver_select, taxi_id) {
         $driver_select.empty().disable().append('<option>' + "{% trans "Updating..." %}" + '</option>');
 
@@ -161,6 +172,7 @@
             }
         })
     };
+
     renderMatcher = function(ride) {
         var $driver_label = '<label for="driver_sel_' + ride.id + '"> {% trans 'Select Driver' %}' + '</label>';
         var $driver_selector = $('<select class="driver_selector"></select>').attr("id", "driver_sel_" + ride.id);
@@ -173,11 +185,12 @@
         $taxi_selector.change(function() {
             populate_drivers($driver_selector, $(this).val());
         });
-        $taxi_selector.change();
+//        $taxi_selector.change();
 
-        var $selectors = $('<div class="select_tools"></div>').append($driver_label, $driver_selector, $taxi_label, $taxi_selector);
+        var $selectors = $('<div class="select_tools"></div>')
+                .append($taxi_label, $taxi_selector,$driver_label, $driver_selector, '<a class="add_driver">{% trans "+ Add" %}</a>');
 
-        var $accept_button = $('<div class="accept_button">{% trans 'Accept Ride' %}</div>').attr("id", "accept_ride_" + ride.id).button()
+        var $accept_button = $('<div class="accept_button">{% trans 'Finish' %}</div>').attr("id", "accept_ride_" + ride.id).button()
                 .click(function() {
                     var that = this;
                     $.ajax({
@@ -192,7 +205,8 @@
                         success: function() {
                             acceptRide(ride);
                         },
-                        error: function() {
+                        error: function(response) {
+                            alert(response.responseText);
                             $(that).button("enable");
                         }
                     });
@@ -205,21 +219,21 @@
     renderRide = function(ride) {
         ride.depart_time = new Date(ride.depart_time);
         var $ride_header = $('<h3 class="ride_header"></h3>').attr("id", "ride_header_" + ride.id)
-                .append('<a class="pickup">' + ride.pickups[0].address + '</a>')
-                .append('<abbr class="easydate">' + ride.depart_time + '</abbr>')
-                .append('<span class="status">{% trans "NOT ASSIGNED" %}</span>')
-                .data("status", ride.status);
+                .append('<a class="date">' + getFullDate(ride.depart_time) + '</a>')
+                .append('<span class="seperator"> - </span>')
+                .append('<span class="pickup">' + ride.pickups[0].address + '</span>')
+                .append('<span class="status">' + not_assigned_msg + '</span>')
 
-        $ride_header.find(".easydate").easydate(easydate_config);
+                .data("status", ride.status);
 
         // if ride is today, show exact time
         var now = new Date();
-        if (ride.depart_time > now && ride.depart_time.getDate() == now.getDate()) {
-            $ride_header.find(".status").after('<span class="ride_time"> (' + ride.depart_time.getHours() + ':' + ride.depart_time.getMinutes() + ') ' + '</span>');
+        if (ride.depart_time.getDate() == now.getDate()) {
+            $ride_header.find(".date").html('{% trans "Today" %}, ' + getFullTime(ride.depart_time));
         }
 
         var $ride_div = $('<div class="ride_div"></div>').attr("id", "ride_div_" + ride.id).data("ride_time", ride.depart_time);
-        $ride_div.append(renderPickupTable(ride), renderDropoffTable(ride), renderTools(ride), renderMatcher(ride));
+        $ride_div.append(renderTable(ride), renderInfo(ride), renderMatcher(ride));
 
         // re-create the accordion and open it where it was opened
         var $accordion = $("#ride_accordion");
@@ -262,8 +276,13 @@
         var $rd = $("#ride_div_" + ride.id);
 
         $rh.data("status", {{ accepted }});
+        // need to get the assigned taxi for this ride
+        $rh.find(".pickup").after('<span class="seperator"> - </span>', '<span class="taxi"> Taxi # </span>');
 
-        var $close_btn = $('<div class="close_btn"></div').text("{% trans 'Close' %}").button().click(function(e) {
+        $rd.find("select").attr("disabled", "");
+        $rd.find(".accept_button").button("disable");
+
+        var $complete_ride = $('<div class="close_btn"></div').text("{% trans 'Ride Started' %}").button().click(function(e) {
             var that = this;
             $.ajax({
                 url: '{% url sharing.views.complete_ride %}',
@@ -283,15 +302,13 @@
             });
             return false; // prevent the accordion opening
         });
-        $close_btn.button("disable").hide().oneTime(Math.max($rd.data("ride_time") - new Date(), 0), function() {
-            $close_btn.button("enable").show();
+        $complete_ride.button("disable").hide().oneTime(Math.max($rd.data("ride_time") - new Date(), 0), function() {
+            $complete_ride.button("enable").show();
         });
-        $rh.append($close_btn).addClass("accepted");
+        $rh.append($complete_ride).addClass("accepted");
 
-        $rh.find("a").before('<span class="sent_icon"></span>');
-        $rh.find(".status").text("{% trans 'ACCEPTED' %}");
-        $rd.find("select").attr("disabled", "");
-        $rd.find(".accept_button").button("disable");
+        var $countdown = $('<span></span>').countdown({ compact: true, format: 'HM', until: ride.depart_time});
+        $rh.find(".status").empty().append("{% trans 'Ride in ' %}", $countdown, "{% trans ' min' %}");
 
         refreshAccordion();
     };
@@ -299,6 +316,7 @@
     refreshAccordion = function() {
         $("[id^='ride_header_']").each(function(i, ride_div) {
             if ($(this).data("status") != {{ accepted }}) {
+                $(this).find(".status").text(assigning_msg);
                 $("#ride_accordion").accordion("destroy").accordion({ active: i });
                 return false; //break
             }
@@ -314,10 +332,25 @@
     };
 
     $(function() {
+        $("#tools_button").button().click(function(e) {
+            e.preventDefault();
+            window.open("{% url sharing.views.station_tools %}")
+        });
+
+
         $.each(rides_data, function(i, ride) {
             renderRide(ride);
             if (ride.status == {{ accepted }}) {
                 acceptRide(ride);
+            }
+        });
+
+        $('#ride_accordion').bind('accordionchangestart', function(event, ui) {
+            if (ui.newHeader.data("status") == {{ assigned }}){
+                ui.newHeader.find(".status").text(assigning_msg);
+            }
+            if (ui.oldHeader.find(".status").text() == assigning_msg){
+                ui.oldHeader.find(".status").text(not_assigned_msg);
             }
         });
         air("set_title", "WAYbetter: {{ work_station.station.name }}");

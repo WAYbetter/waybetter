@@ -133,10 +133,12 @@ def sharing_workstation_home(request, work_station, workstation_id):
 
     is_popup = True
 
-    #    for ride in SharedRide.objects.all():
-    #        ride.change_status(new_status=ASSIGNED)
+#    for ride in SharedRide.objects.all():
+#        ride.change_status(new_status=ASSIGNED)
 
     shared_rides = SharedRide.objects.filter(station=work_station.station, status__in=[ASSIGNED, ACCEPTED])
+#    shared_rides = SharedRide.objects.filter(station=work_station.station, status__in=[ASSIGNED, ACCEPTED], depart_time__gte=datetime.now() )
+
 
     rides_data = simplejson.dumps([ride.serialize_for_ws() for ride in shared_rides])
     taxis_data = simplejson.dumps(
@@ -207,13 +209,8 @@ def show_ride(request, work_station, ride_id):
     telmap_password = settings.TELMAP_API_PASSWORD
     telmap_languages = 'he' if str(get_language_from_request(request)) == 'he' else 'en'
 
-    points = simplejson.dumps([{'id': p.id, 'lat': p.lat, 'lon': p.lon, 'address': p.address, 'type': p.type} for p in
-                                                                                                              sorted(
-                                                                                                                  ride.points.all()
-                                                                                                                  ,
-                                                                                                                  key=lambda
-                                                                                                                  p
-                                                                                                                  : p.stop_time)])
+    points = simplejson.dumps([{'id': p.id, 'lat': p.lat, 'lon': p.lon, 'address': p.address, 'type': p.type}
+                                for p in sorted(ride.points.all(), key=lambda p: p.stop_time)])
 
     pickup = StopType.PICKUP
     dropoff = StopType.DROPOFF
@@ -230,15 +227,18 @@ def accept_ride(request, work_station):
     response = HttpResponseBadRequest("Invalid arguments")
     if all([ride_id, taxi_id, driver_id]):
         ride = SharedRide.by_id(ride_id)
-        taxi = Taxi.by_id(taxi_id)
-        driver = Driver.by_id(driver_id)
-        if all([ride, taxi, driver]):
-            ride.driver = driver
-            ride.taxi = taxi
-            ride.change_status(new_status=ACCEPTED) # calls save()
-            signals.ride_status_changed_signal.send(sender='accept_ride', obj=ride, status=ACCEPTED)
+        if ride.depart_time > utc_now():
+            taxi = Taxi.by_id(taxi_id)
+            driver = Driver.by_id(driver_id)
+            if all([ride, taxi, driver]):
+                ride.driver = driver
+                ride.taxi = taxi
+                ride.change_status(new_status=ACCEPTED) # calls save()
+                signals.ride_status_changed_signal.send(sender='accept_ride', obj=ride, status=ACCEPTED)
 
-            response = HttpResponse("OK")
+                response = HttpResponse("OK")
+        else:
+            response = HttpResponseBadRequest("Cann't accept a past order")
 
     return response
 
