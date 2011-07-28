@@ -31,6 +31,8 @@
     <script type="text/javascript" src="/static/js/mylibs/jquery.countdown.min.js"></script>
 
     <script type="text/javascript">
+    var not_assigned_msg = "{% trans "Not Assigned Yet" %}";
+    var missed_msg = "{% trans "Missed" %}";
     {% autoescape off %}
         var rides_data = {{ rides_data }};
         var taxis_data = {{ taxis_data }};
@@ -233,7 +235,7 @@
                 .append('<a class="date">' + getFullDate(ride.depart_time) + '</a>')
                 .append('<span class="seperator"> - </span>')
                 .append('<span class="pickup">' + ride.pickups[0].address + '</span>')
-                .append('<span class="status">' + "{% trans " + '</span>')
+                .append('<span class="status">' + not_assigned_msg + '</span>')
 
                 .data("status", ride.status);
 
@@ -281,7 +283,7 @@
     timeoutRide = function(ride) {
         var $rh = $("#ride_header_" + ride.id);
         $rh.data("status", {{ timed_out }}).addClass("timed_out");
-        $rh.find(".status").empty().text("{% trans ");
+        $rh.find(".status").empty().text(missed_msg);
 
         var $rd = $("#ride_div_" + ride.id);
         $rd.find("select").attr("disabled", "");
