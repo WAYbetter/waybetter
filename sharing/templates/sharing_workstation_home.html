@@ -10,20 +10,21 @@
 {% endblock %}
 
 {% block content %}
-    <div id="header">
+    <div id="header" class="ui-widget-header">
         <div id="tools_button">{% trans "Station Account" %}</div>
         <div id="summary">
             {% trans "Overall Status" %}:
-            <span id="untaken_count">10</span> {% trans "Rides Untaken" %}
+            <span id="untaken_count">10 {% trans "Rides Untaken" %}</span>
             |
-            <span id="taken_count">10</span> {% trans "Rides Taken" %}
+            <span id="taken_count">10 {% trans "Rides Taken" %}</span>
         </div>
         <div id="connection_status">
-            {% trans "Connected" %}
         </div>
         <div class="clear"></div>
     </div>
-    <div id="ride_accordion"></div>
+    <div id="ride_accordion_container">
+        <div id="ride_accordion"></div>
+    </div>
 {% endblock %}
 
 {% block doc_ready %}
@@ -145,7 +146,7 @@
                     window.open(link, "Map View", 'width=800,height=600,resizable=no');
                 });
 
-        var $value = $('<a class="ride_value">{% trans "Value of Ride = X NIS"%}</a>');
+        var $value = $('<span class="ride_value"></span>');
 
         var $info_div = $('<div class="ride_info"></div>').append($value,$map_link, '<div class="clear"></div>');
         return $info_div;
@@ -185,40 +186,40 @@
             $driver_selector.append('<option value="' + ride.driver.id + '">' + ride.driver.name + '</option>').disable();
         }
         else {
-            $.each(taxis_data, function(i, taxi) {
-                $taxi_selector.append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
-            });
-            $taxi_selector.change(function() {
-                populate_drivers($driver_selector, $(this).val());
-            });
+        $.each(taxis_data, function(i, taxi) {
+            $taxi_selector.append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
+        });
+        $taxi_selector.change(function() {
+            populate_drivers($driver_selector, $(this).val());
+        });
             $taxi_selector.change();
         }
 
+        var $add_driver = $('<a class="add_driver">{% trans "+ Add" %}</a>');
         var $selectors = $('<div class="select_tools"></div>')
                 .append($taxi_label, $taxi_selector,$driver_label, $driver_selector);
-{#                .append($taxi_label, $taxi_selector,$driver_label, $driver_selector, '<a class="add_driver">{% trans "+ Add" %}</a>');#}
 
         var $accept_button = $('<div class="accept_button">{% trans 'Finish' %}</div>').attr("id", "accept_ride_" + ride.id).button()
                 .click(function() {
                     var that = this;
                     if ($taxi_selector.val() && $driver_selector.val()) {
-                        $.ajax({
-                            url: '{% url sharing.views.accept_ride %}',
-                            type: 'POST',
-                            data: { 'ride_id': ride.id,
-                                'taxi_id': $taxi_selector.val(),
-                                'driver_id': $driver_selector.val() },
-                            beforeSend: function() {
-                                $(that).button("disable");
-                            },
-                            success: function() {
-                                acceptRide(ride);
-                            },
-                            error: function(response) {
-                                alert(response.responseText);
-                                $(that).button("enable");
-                            }
-                        });
+                    $.ajax({
+                        url: '{% url sharing.views.accept_ride %}',
+                        type: 'POST',
+                        data: { 'ride_id': ride.id,
+                            'taxi_id': $taxi_selector.val(),
+                            'driver_id': $driver_selector.val() },
+                        beforeSend: function() {
+                            $(that).button("disable");
+                        },
+                        success: function() {
+                            acceptRide(ride);
+                        },
+                        error: function(response) {
+                            alert(response.responseText);
+                            $(that).button("enable");
+                        }
+                    });
                     }
                     else {
                         alert("{% trans "Please choose taxi and driver" %}");
@@ -232,10 +233,10 @@
     renderRide = function(ride) {
         ride.depart_time = new Date(ride.depart_time);
         var $ride_header = $('<h3 class="ride_header"></h3>').attr("id", "ride_header_" + ride.id)
-                .append('<a class="date">' + getFullDate(ride.depart_time) + '</a>')
+                .append('<span class="date">' + getFullDate(ride.depart_time) + '</span>')
                 .append('<span class="seperator"> - </span>')
                 .append('<span class="pickup">' + ride.pickups[0].address + '</span>')
-                .append('<span class="status">' + not_assigned_msg + '</span>')
+                .append('<span class="status not_assigned">' + not_assigned_msg + '</span>')
 
                 .data("status", ride.status);
 
@@ -299,7 +300,7 @@
         $rd.find("select").attr("disabled", "");
         $rd.find(".accept_button").button("disable");
 
-        var $complete_ride = $('<div class="close_btn"></div').text("{% trans 'Ride Started' %}").button().click(function(e) {
+        var $complete_ride = $('<a href="#" class="action_link"></a>').text("{% trans 'Ride Started' %}").click(function(e) {
             var that = this;
             $.ajax({
                 url: '{% url sharing.views.complete_ride %}',
@@ -326,7 +327,7 @@
                         onExpiry:function() {
                             $rh.find(".status").empty().after($complete_ride);
                         }
-                    });
+        });
             $rh.find(".status").empty().append("{% trans 'Ride in ' %}", $countdown, "{% trans ' min' %}");
         }
         else{
@@ -357,8 +358,7 @@
 
     $(function() {
         $("#tools_button").button().click(function(e) {
-            e.preventDefault();
-            window.open("{% url sharing.views.station_tools %}");
+            window.open("{% url sharing.views.station_tools %}")
         });
 
 
@@ -377,7 +377,7 @@
                 if ($(this).data("status") == {{ assigned }}){
                     timeoutRide(ride);
                 }
-            });
+        });
         });
 
         $('#ride_accordion').bind('accordionchangestart', function(event, ui) {
