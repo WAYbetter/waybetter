@@ -15,7 +15,7 @@ def send_sms(destination, text, **kwargs):
     """
 
     logging.info(u"Sending SMS to [%s]: '%s'" % (destination, text))  
-#    return
+    return
     sms_config = settings.SMS
     if kwargs is not None:
         sms_config.update(kwargs) 
