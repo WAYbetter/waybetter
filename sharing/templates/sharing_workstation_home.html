@@ -241,8 +241,7 @@
                 .data("status", ride.status);
 
         // if ride is today, show exact time
-        var now = new Date();
-        if (ride.depart_time.getDate() == now.getDate()) {
+        if (ride.depart_time.getDate() == (new Date()).getDate()) {
             $ride_header.find(".date").html('{% trans "Today" %}, ' + getFullTime(ride.depart_time));
         }
 
@@ -261,7 +260,7 @@
         }
 
         $accordion.accordion("destroy").accordion({ active: $("[id^=ride_header_]").index($active_header) });
-        updateCounters(ride.status);
+        updateCounters({{ assigned }});
     };
 
     getRenderPosition = function(ride) {

@@ -135,7 +135,7 @@ def sharing_workstation_home(request, work_station, workstation_id):
 
     for ride in SharedRide.objects.all():
         ride.taxi = ride.driver = None
-        ride.change_status(new_status=ASSIGNED)
+        ride.change_status(new_status=ACCEPTED)
 
     shared_rides = SharedRide.objects.filter(station=work_station.station, status__in=[ASSIGNED, ACCEPTED])
 #    shared_rides = SharedRide.objects.filter(station=work_station.station, status__in=[ASSIGNED, ACCEPTED], depart_time__gte=datetime.now() )
@@ -156,12 +156,14 @@ def sharing_workstation_home(request, work_station, workstation_id):
 @station_or_workstation_required
 def station_tools(request, station):
     is_popup = True
+    page_specific_class = "station_tools station_history"
     return render_to_response('station_tools.html', locals(), context_instance=RequestContext(request))
 
 
 @station_or_workstation_required
 def station_history(request, station):
     is_popup = True
+    page_specific_class = "station_history"
 
     if request.method == 'POST': # date picker form submitted
         form = DatePickerForm(request.POST)

@@ -7,25 +7,20 @@
 {% block extrastyle %}
     <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
     <link rel="stylesheet" href="/static/css/sharing.css" type="text/css" media="all">
-    <style>
-        .ui-accordion-icons .ui-accordion-header a {
-            display: inline-block;
-        }
-
-        .ui-accordion-icons .ui-accordion-header :nth-child(2) {
-            margin-left: 2.2em;
-        }
-    </style>
 {% endblock %}
 
 {% block content %}
-    <h2>{% trans "Rides History" %} - {{ station.name }}</h2>
-    <form id="date_picker" method="post" action="{% url ordering.station_controller.station_analytics %}">
-        {% csrf_token %}
-        {{ form }}
-    </form>
+    <div id="header" class="ui-widget-header">
+        <form id="date_picker" method="post" action="{% url ordering.station_controller.station_analytics %}">
+            {% csrf_token %}
+            {{ form }}
+        </form>
+    </div>
+
     <div class="loader"></div>
-    <div id="ride_accordion"></div>
+    <div id="ride_accordion_container">
+        <div id="ride_accordion"></div>
+    </div>
     <h2 id="error_msg"></h2>
 {% endblock %}
 
@@ -60,34 +55,35 @@
             return $table;
         };
 
-        renderTools = function(ride) {
+        renderInfo = function(ride) {
             var link = "{% url sharing.views.show_ride %}" + ride.id;
-            var $map_link = $('<a class="map_link" href="#" target="_blank">{% trans "Show on map" %}</a>')
+            var $map_link = $('<a class="map_link" href="#" target="_blank">{% trans "Show Points On Map" %}</a>')
                     .click(function(e) {
                         e.preventDefault();
                         window.open(link, "Map View", 'width=800,height=600,resizable=no');
                     });
 
-            var $tools_div = $('<div class="ride_tools"></div>').append($map_link, '<div class="clear"></div>');
-            return $tools_div;
+            var $value = $('<span class="ride_value"></span>');
+
+            var $info_div = $('<div class="ride_info"></div>').append($value, $map_link, '<div class="clear"></div>');
+            return $info_div;
         };
 
         renderRide = function(ride) {
             ride.depart_time = new Date(ride.depart_time);
             var $ride_header = $('<h3 class="ride_header"></h3>').attr("id", "ride_header_" + ride.id)
                     .append('<span class="date">' + getFullDate(ride.depart_time) + '</span>')
-                    .append('<span> - ' + ride.pickups[0].address + ' >> ' + ride.dropoffs[ride.dropoffs.length - 1].address + '</span>')
-                    .append('<span> {% trans "Taxi" %} ' + ride.taxi + ' - ' + ride.driver + '</span>');
+                    .append('<span class="seperator"> - </span>')
+                    .append('<span class="address">' + ride.pickups[0].address + ' >> ' + ride.dropoffs[ride.dropoffs.length - 1].address + '</span>')
+                    .append('<span class="taxi_n_driver">{% trans "Taxi" %} #' + ride.taxi.number + ' - ' + ride.driver.name + '</span>');
 
             // if ride is today, show exact time
-            var now = new Date();
-            if (ride.depart_time.getDate() == now.getDate()) {
-                $ride_header.find(".date").html('{% trans "Today" %} (' + getFullTime(ride.depart_time) + ') ');
+            if (ride.depart_time.getDate() == (new Date()).getDate()) {
+                $ride_header.find(".date").html('{% trans "Today" %}, ' + getFullTime(ride.depart_time));
             }
 
-            var $ride_div = $('<div class="ride_div"></div>').attr("id", "ride_div_" + ride.id).data("ride_time", ride.depart_time);
-            $ride_div.append(renderPickupTable(ride), renderDropoffTable(ride), renderTools(ride));
-
+            var $ride_div = $('<div class="ride_div"></div>').attr("id", "ride_div_" + ride.id)
+                    .append(renderPickupTable(ride), renderDropoffTable(ride), renderInfo(ride));
             $("#ride_accordion").prepend($ride_header, $ride_div).accordion("destroy").accordion();
         };
 
