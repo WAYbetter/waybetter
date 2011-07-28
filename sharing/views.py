@@ -133,9 +133,10 @@ def sharing_workstation_home(request, work_station, workstation_id):
 
     is_popup = True
 
-    for ride in SharedRide.objects.all():
-        ride.taxi = ride.driver = None
-        ride.change_status(new_status=ACCEPTED)
+#    for ride in SharedRide.objects.all():
+#        ride.taxi = ride.driver = None
+#        ride.depart_time = default_tz_now() + timedelta(minutes=5)
+#        ride.change_status(new_status=ACCEPTED)
 
     shared_rides = SharedRide.objects.filter(station=work_station.station, status__in=[ASSIGNED, ACCEPTED])
 #    shared_rides = SharedRide.objects.filter(station=work_station.station, status__in=[ASSIGNED, ACCEPTED], depart_time__gte=datetime.now() )
