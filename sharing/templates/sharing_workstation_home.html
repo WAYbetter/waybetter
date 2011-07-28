@@ -140,7 +140,7 @@
 
     renderInfo = function(ride) {
         var link = "{% url sharing.views.show_ride %}" + ride.id;
-        var $map_link = $('<a class="map_link" href="#" target="_blank">{% trans "Show Points on Map" %}</a>')
+        var $map_link = $('<a class="map_link" href="#" target="_blank">{% trans "Show Points On Map" %}</a>')
                 .click(function(e) {
                     e.preventDefault();
                     window.open(link, "Map View", 'width=800,height=600,resizable=no');
@@ -175,10 +175,10 @@
     };
 
     renderMatcher = function(ride) {
-        var $driver_label = '<label for="driver_sel_' + ride.id + '"> {% trans 'Select Driver' %}' + '</label>';
+        var $driver_label = '<label for="driver_sel_' + ride.id + '"> {% trans 'Driver' %}' + '</label>';
         var $driver_selector = $('<select class="driver_selector"></select>').attr("id", "driver_sel_" + ride.id);
 
-        var $taxi_label = '<label for="taxi_sel_' + ride.id + '"> {% trans 'Select Taxi' %}' + '</label>';
+        var $taxi_label = '<label for="taxi_sel_' + ride.id + '"> {% trans 'Taxi #' %}' + '</label>';
         var $taxi_selector = $('<select class="taxi_selector"></select>').attr("id", "taxi_sel_" + ride.id);
 
         if (ride.taxi && ride.driver) { // accepted ride
@@ -321,16 +321,16 @@
             return false; // prevent the accordion opening
         });
 
-        if (ride.depart_time > new Date()){ // future order, show countdown
+        if (ride.depart_time > new Date()) { // future order, show countdown
             var $countdown = $('<span></span>').countdown(
                     { compact: true, format: 'MS', until: ride.depart_time,
                         onExpiry:function() {
                             $rh.find(".status").empty().after($complete_ride);
                         }
-        });
-            $rh.find(".status").empty().append("{% trans 'Ride in ' %}", $countdown, "{% trans ' min' %}");
+                    });
+            $rh.find(".status").removeClass("not_assigned").append("{% trans 'Ride in ' %}", $countdown, "{% trans ' min' %}");
         }
-        else{
+        else {
             $rh.find(".status").empty().after($complete_ride);
         }
 

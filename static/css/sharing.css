@@ -193,9 +193,6 @@ a, .ui-accordion-header a.action_link, .ui-widget-content a {
     margin-top: 35px;
     margin-bottom: 10px;
     padding: 10px;
-    position: relative;
-    left: 85px;
-    width: 88%;
 }
 
 .ride_div .map_link {
@@ -215,7 +212,8 @@ a, .ui-accordion-header a.action_link, .ui-widget-content a {
     margin-top: 10px;
     background: #F7F6E2;
     height: 74px;
-    /*margin-bottom: 25px;*/
+    border: 1px solid #E2E2E2;
+    border-radius: 5px;
 }
 
 .ride_div .ride_matcher label {
@@ -231,12 +229,14 @@ a, .ui-accordion-header a.action_link, .ui-widget-content a {
 
 .ride_div .ride_matcher .select_tools {
     float: left;
-    margin-left: 135px;
+    margin-left: 110px;
     margin-top: 25px;
 }
 
 .rtl .ride_div .ride_matcher .select_tools {
     float: right;
+    margin-left: inherit;
+    margin-right: 110px;
 }
 
 .ride_div .ride_matcher .accept_button {
