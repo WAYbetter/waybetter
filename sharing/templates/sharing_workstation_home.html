@@ -33,6 +33,7 @@
     <script type="text/javascript">
     var assigning_msg = "{% trans "Assigning" %}";
     var not_assigned_msg = "{% trans "Not Assigned Yet" %}";
+    var missed_msg = "{% trans "Missed" %}";
     {% autoescape off %}
         var rides_data = {{ rides_data }};
         var taxis_data = {{ taxis_data }};
@@ -151,7 +152,7 @@
         return $info_div;
     };
 
-    populate_drivers = function($driver_select, taxi_id) {
+    populate_drivers = function($driver_select, $taxi_selector, taxi_id) {
         $driver_select.empty().disable().append('<option>' + "{% trans "Updating..." %}" + '</option>');
 
         $.ajax({
@@ -163,7 +164,7 @@
                 $.each(data, function(i, driver) {
                     $driver_select.append('<option value="' + driver.id + '">' + driver.name + '</option>');
                 });
-                if (data.length > 1) {
+                if (data.length > 1 && ! $taxi_selector.attr("disabled")) {
                     $driver_select.enable();
                 }
             },
@@ -189,7 +190,7 @@
                 $taxi_selector.append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
             });
             $taxi_selector.change(function() {
-                populate_drivers($driver_selector, $(this).val());
+                populate_drivers($driver_selector, $taxi_selector, $(this).val());
             });
             $taxi_selector.change();
         }
@@ -283,9 +284,11 @@
     timeoutRide = function(ride) {
         var $rh = $("#ride_header_" + ride.id);
         $rh.data("status", {{ timed_out }}).addClass("timed_out");
+        $rh.find(".status").empty().text(missed_msg);
 
         var $rd = $("#ride_div_" + ride.id);
-        $rd.find(".ride_matcher").remove();
+        $rd.find("select").attr("disabled", "");
+        $rd.find(".accept_button").button("disable");
         // ajax to server?
     };
 
