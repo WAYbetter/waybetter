@@ -169,8 +169,7 @@ def station_history(request, station):
             start_date = datetime.combine(form.cleaned_data["start_date"], time.min)
             end_date = datetime.combine(form.cleaned_data["end_date"], time.max)
             rides = SharedRide.objects.filter(station=station, status__in=[ACCEPTED, COMPLETED],
-                                              depart_time__gte=start_date, depart_time__lte=end_date).order_by(
-                'depart_time')
+                                              depart_time__gte=start_date, depart_time__lte=end_date).order_by('depart_time')
             return JSONResponse({'rides_data': [ride.serialize_for_ws() for ride in rides]})
         else:
             return JSONResponse({'error': 'error'})

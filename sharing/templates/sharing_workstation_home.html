@@ -14,9 +14,9 @@
         <div id="tools_button">{% trans "Station Account" %}</div>
         <div id="summary">
             {% trans "Overall Status" %}:
-            <span id="untaken_count">10 {% trans "Rides Untaken" %}</span>
+            <span id="untaken_counter" class="untaken_count"></span> <span class="untaken_count"> {% trans "Rides Untaken" %}</span>
             |
-            <span id="taken_count">10 {% trans "Rides Taken" %}</span>
+            <span id="taken_counter" class="taken_count"></span> <span class="taken_count"> {% trans "Rides Taken" %}</span>
         </div>
         <div id="connection_status">
         </div>
@@ -261,6 +261,7 @@
         }
 
         $accordion.accordion("destroy").accordion({ active: $("[id^=ride_header_]").index($active_header) });
+        updateCounters(ride.status);
     };
 
     getRenderPosition = function(ride) {
@@ -336,8 +337,23 @@
             $rh.find(".status").empty().after($complete_ride);
         }
 
-
+        updateCounters({{ accepted }});
+        
 //        refreshAccordion();
+    };
+
+    updateCounters = function(status){
+        var taken = parseInt($("#taken_counter").text(), 10);
+        var untaken = parseInt($("#untaken_counter").text(), 10);
+
+        switch (status){
+            case {{ assigned }}:
+                $("#untaken_counter").text(++untaken); break;
+            case {{ accepted }}:
+                $("#taken_counter").text(++taken);
+                $("#untaken_counter").text(--untaken);
+                break;
+        }
     };
 
     refreshAccordion = function() {
@@ -362,6 +378,7 @@
             window.open("{% url sharing.views.station_tools %}")
         });
 
+        $("#untaken_counter, #taken_counter").text(0);
 
         $.each(rides_data, function(i, ride) {
             renderRide(ride);
