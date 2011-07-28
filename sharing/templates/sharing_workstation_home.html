@@ -84,27 +84,39 @@
         })
     };
 
-    {#    renderTableRow = function(point) {#}
-    {#        return $("<tr><td>" + point.num_passengers + "</td><td>" + point.address + "</td><td>" + point.time + "</td></tr>")#}
-    {#    };#}
-    {##}
-    {#    renderPickupTable = function(ride) {#}
-    {#        var $table = $('<table class="pickup_table"><caption>{% trans 'From' %}</caption><tr><th>{% trans '# passengers' %}</th><th>{% trans 'Address' %}</th><th>{% trans 'Time' %}</th></tr></table>')#}
-    {#                .attr("id", "pickup_table_" + ride.id);#}
-    {#        $.each(ride.pickups, function(i, p) {#}
-    {#            $table.append(renderTableRow(p));#}
-    {#        });#}
-    {#        return $table;#}
-    {#    };#}
-    {##}
-    {#    renderDropoffTable = function(ride) {#}
-    {#        var $table = $('<table class="dropoff_table"><caption>{% trans 'To' %}</caption><tr><th>{% trans '# passengers' %}</th><th>{% trans 'Address' %}</th><th>{% trans 'Time' %}</th></tr></table>')#}
-    {#                .attr("id", "dropoff_table_" + ride.id);#}
-    {#        $.each(ride.dropoffs, function(i, d) {#}
-    {#            $table.append(renderTableRow(d));#}
-    {#        });#}
-    {#        return $table;#}
-    {#    };#}
+{#        renderTableRow = function(point, prefix) {#}
+{#            if (prefix) {#}
+{#                return $("<tr><td>" + prefix + "</td><td>" + point.num_passengers + "</td><td>" + point.address + "</td><td>" + point.time + "</td></tr>")#}
+{#            } else {#}
+{#                return $("<tr><td>" + point.num_passengers + "</td><td>" + point.address + "</td><td>" + point.time + "</td></tr>")#}
+{#            }#}
+{#        };#}
+{##}
+{#        renderPickupTable = function(ride) {#}
+{#            var $table = $('<table class="pickup_table"><colgroup class="from_to"></colgroup><colgroup span="3" class="table_body"></colgroup><tr class="table_header_row"><th></th><th>{% trans '# passengers' %}</th><th>{% trans 'Address' %}</th><th>{% trans 'Time' %}</th></tr></table>')#}
+{#                    .attr("id", "pickup_table_" + ride.id);#}
+{#            $.each(ride.pickups, function(i, p) {#}
+{#                if (i == 0) {#}
+{#                    $table.append(renderTableRow(p, "{% trans 'From' %}"));#}
+{#                } else {#}
+{#                    $table.append(renderTableRow(p, " "));#}
+{#                }#}
+{#            });#}
+{#            return $table;#}
+{#        };#}
+{##}
+{#        renderDropoffTable = function(ride) {#}
+{#            var $table = $('<table class="dropoff_table"><colgroup class="from_to"></colgroup><colgroup span="3" class="table_body"></colgroup></table>')#}
+{#                    .attr("id", "dropoff_table_" + ride.id);#}
+{#            $.each(ride.dropoffs, function(i, d) {#}
+{#                if (i == 0) {#}
+{#                    $table.append(renderTableRow(d, "{% trans 'To' %}"));#}
+{#                } else {#}
+{#                    $table.append(renderTableRow(d, " "));#}
+{#                }#}
+{#            });#}
+{#            return $table;#}
+{#        };#}
 
     renderTable = function(ride) {
         var $table = $('<table><thead><tr><th></th><th>{% trans 'Time' %}</th><th>{% trans 'Address' %}</th><th>{% trans '# of Passengers' %}</th></tr></thead></table>');
@@ -112,26 +124,15 @@
         $table.append("<tr class='spacer'><td></td><td></td><td></td><td></td></tr>"); // spacer
 
         $.each(ride.pickups, function(i, p) {
-            var $row;
-            if (i == 0) {
-                $row = $("<tr><td class='bold'>{% trans "From" %}</td><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + "</td></tr>");
-            }
-            else {
-                $row = $("<tr'><td></td><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + "</td></tr>");
-            }
+            var $row = $("<tr class='pickup'><td>{% trans "Pickup" %}</td><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + "</td></tr>");
             $table.append($row);
         });
 
-        $table.append("<tr><td class='varrow ui-icon ui-icon-triangle-1-s'></td><td></td><td></td><td></td></tr>"); // vertical arrow
+        $table.append("<tr class='spacer'><td></td><td></td><td></td><td></td></tr>"); // spacer
+        $table.append("<tr class='spacer'><td></td><td></td><td></td><td></td></tr>"); // spacer
 
         $.each(ride.dropoffs, function(i, p) {
-            var $row;
-            if (i == 0) {
-                $row = $("<tr><td class='bold'>{% trans "To" %}</td><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + "</td></tr>");
-            }
-            else {
-                $row = $("<tr><td></td><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + "</td></tr>");
-            }
+            var $row = $("<tr class='dropoff'><td>{% trans "Dropoff" %}</td><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + "</td></tr>");
             $table.append($row);
         });
 
@@ -248,6 +249,7 @@
 
         var $ride_div = $('<div class="ride_div"></div>').attr("id", "ride_div_" + ride.id).data("ride_time", ride.depart_time);
         $ride_div.append(renderTable(ride), renderInfo(ride), renderMatcher(ride));
+//        $ride_div.append(renderPickupTable(ride), renderDropoffTable(ride), renderInfo(ride), renderMatcher(ride));
 
         // re-create the accordion and open it where it was opened
         var $accordion = $("#ride_accordion");
@@ -331,7 +333,7 @@
                             $rh.find(".status").empty().after($complete_ride);
                         }
                     });
-            $rh.find(".status").removeClass("not_assigned").append("{% trans 'Ride in ' %}", $countdown, "{% trans ' min' %}");
+            $rh.find(".status").empty().removeClass("not_assigned").append("{% trans 'Ride in ' %}", $countdown, "{% trans ' min' %}");
         }
         else {
             $rh.find(".status").empty().after($complete_ride);
@@ -359,7 +361,7 @@
     refreshAccordion = function() {
         $("[id^='ride_header_']").each(function(i, ride_div) {
             if ($(this).data("status") != {{ accepted }}) {
-                $("#ride_accordion").accordion("destroy").accordion({ active: i });
+                $("#ride_accordion").accordion("destroy").accordion({ autoHeight: false, active: i });
                 return false; //break
             }
         });
