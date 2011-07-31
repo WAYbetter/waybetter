@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block bodyclass %}clean_body{% endblock %}
-{% block mainclass %}clean_main{% endblock %}
+{% block mainclass %}clean_main full_screen_main{% endblock %}
 
 {% block extrastyle %}
     {{ block.super }}
@@ -13,8 +13,6 @@
 {% block content %}
     <div id="map_container">
         <div id="map"></div>
-        <div id="map_overlay_left"></div>
-        <div id="map_overlay_top"></div>
     </div>
 
     <form id="order_form" method="post" action="{% url sharing.views.hotspot_ordering_page %}">
@@ -46,6 +44,10 @@
                        placeholder="{% trans 'Enter drop-off address' %}"/>
             </li>
         </ul>
+
+        <h3>{% trans "Time constraints (optional)" %}</h3>
+        {{ constraints_form.as_p }}
+
         <button type=submit class="order_button" id="order_button">{% trans 'Pick Me Up' %}</button>
     </form>
 
@@ -125,6 +127,19 @@
             });
 
             $("#order_form").submit(function() {
+                if ($("#id_time_const_min").val() && $("#id_time_const_frac").val()) {
+                    alert("Please specify only one time constraint");
+                    return false;
+                }
+                else {
+                    if ($("#id_time_const_frac").val()) {
+                        $(this).append('<input type="hidden" name="time_const_frac" value="' + $("#id_time_const_frac").val() + '"/>');
+                    }
+                    if ($("#id_time_const_const").val()) {
+                        $(this).append('<input type="hidden" name="time_const_min" value="' + $("#id_time_const_min").val() + '"/>');
+                    }
+                }
+
                 $(this).append('<input type="hidden" name="hotspot_type" value="' + hotspot_type + '"/>');
             });
 

@@ -19,6 +19,7 @@ from ordering.forms import OrderForm
 from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, Taxi, ACCEPTED, ASSIGNED, TaxiDriverRelation, COMPLETED, NOT_TAKEN, TIMED_OUT
 from ordering.util import send_msg_to_passenger, send_msg_to_driver
 from sharing import signals
+from sharing.forms import ConstraintsForm
 from datetime import timedelta, datetime, time, date
 import logging
 import settings
@@ -45,7 +46,15 @@ def hotspot_ordering_page(request, passenger):
             orders = create_orders_from_hotspot(data, hotspot_type, point_type)
 
             if orders:
-                res = submit_orders_for_ride_calculation(orders)
+                params = {}
+#                time_const_min = request.POST.get("time_const_min")
+#                if time_const_min:
+#                    params = {"toleration_factor": int(time_const_min)}
+                time_const_frac = request.POST.get("time_const_frac")
+                if time_const_frac:
+                    params = {"toleration_factor": float(time_const_frac)}
+
+                res = submit_orders_for_ride_calculation(orders, params)
                 response = u"Orders submitted for calculation: %s" % res.content
             else:
                 response = "Hotspot data corrupt: no orders created"
@@ -66,6 +75,7 @@ def hotspot_ordering_page(request, passenger):
         country_code = settings.DEFAULT_COUNTRY_CODE
 
         passenger = Passenger.from_request(request)
+        constraints_form = ConstraintsForm()
 
         return render_to_response('hotspot_ordering_page.html', locals(), context_instance=RequestContext(request))
 
@@ -382,11 +392,18 @@ def create_orders_from_hotspot(data, hotspot_type, point_type):
     return orders
 
 
-def submit_orders_for_ride_calculation(orders):
+def submit_orders_for_ride_calculation(orders, params=None):
     payload = {
         "orders": [o.serialize_for_sharing() for o in orders],
         "callback_url": reverse(ride_calculation_complete, prefix=WEB_APP_URL)
     }
+
+    if params:
+        payload["parameters"] = {"car_availability":
+                                         {"car_types": [{"cost_multiplier": 1, "max_passengers": 3}],
+                                          "m_Availability": [{"Key": {"cost_multiplier": 1, "max_passengers": 3}, "Value": 10000}]},
+                                 "toleration_factor": params['toleration_factor']}
+
     payload = simplejson.dumps(payload)
     logging.info("payload = %s" % payload)
 
