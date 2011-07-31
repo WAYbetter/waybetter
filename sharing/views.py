@@ -262,37 +262,24 @@ def complete_ride(request, work_station):
 
 # UTILITY FUNCTIONS
 
-#DRIVER_NOTIFICATION_TIME = 60 * 60 # in seconds
-#PASSENGER_NOTIFICATION_TIME = 10 * 60 # in seconds
-#
-#@receive_signal(signals.ride_status_changed_signal)
+@receive_signal(signals.ride_status_changed_signal)
 def send_ride_notifications(sender, obj, status, **kwargs):
     if status == ACCEPTED:
         ride = obj
 
         # notify driver
-        countdown = int(total_seconds((ride.depart_time - utc_now() - timedelta(seconds=DRIVER_NOTIFICATION_TIME))))
-        if countdown > 0:
-            task = taskqueue.Task(url=reverse(notify_driver_task), countdown=countdown,
-                                  params={"driver_id": ride.driver.id, "msg": get_driver_msg(ride)})
-            q = taskqueue.Queue('ride-notifications')
-            q.add(task)
-        else:
-            logging.error("skipping driver notification, too late [ride:%d]" % ride.id)
+        task = taskqueue.Task(url=reverse(notify_driver_task), params={"driver_id": ride.driver.id, "msg": get_driver_msg(ride)})
+        q = taskqueue.Queue('ride-notifications')
+        q.add(task)
 
         # notify passengers
         pickups = ride.points.filter(type=StopType.PICKUP)
         for p in pickups:
-            countdown = int(total_seconds(p.stop_time - utc_now() - timedelta(seconds=PASSENGER_NOTIFICATION_TIME)))
-            if countdown > 0:
-                passengers = [order.passenger for order in p.pickup_orders.all()]
-                for passenger in passengers:
-                    task = taskqueue.Task(url=reverse(notify_passenger_task), countdown=countdown,
-                                          params={"passenger_id": passenger.id, "msg": get_passenger_msg(passenger, ride)})
-                    q = taskqueue.Queue('ride-notifications')
-                    q.add(task)
-            else:
-                logging.error("skipping passenger notification, too late [ride: %d, pickup: %d]" % (ride.id, p.id))
+            passengers = [order.passenger for order in p.pickup_orders.all()]
+            for passenger in passengers:
+                task = taskqueue.Task(url=reverse(notify_passenger_task), params={"passenger_id": passenger.id, "msg": get_passenger_msg(passenger, ride)})
+                q = taskqueue.Queue('ride-notifications')
+                q.add(task)
 
 
 @csrf_exempt
