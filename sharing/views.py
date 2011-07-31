@@ -46,14 +46,8 @@ def hotspot_ordering_page(request, passenger):
             orders = create_orders_from_hotspot(data, hotspot_type, point_type)
 
             if orders:
-                params = {}
-#                time_const_min = request.POST.get("time_const_min")
-#                if time_const_min:
-#                    params = {"toleration_factor": int(time_const_min)}
-                time_const_frac = request.POST.get("time_const_frac")
-                if time_const_frac:
-                    params = {"toleration_factor": float(time_const_frac)}
-
+                params = {"toleration_factor": float(request.POST.get("time_const_frac") or 0),
+                          "toleration_factor_minutes": int(request.POST.get("time_const_min") or 0)}
                 res = submit_orders_for_ride_calculation(orders, params)
                 response = u"Orders submitted for calculation: %s" % res.content
             else:
@@ -402,7 +396,8 @@ def submit_orders_for_ride_calculation(orders, params=None):
         payload["parameters"] = {"car_availability":
                                          {"car_types": [{"cost_multiplier": 1, "max_passengers": 3}],
                                           "m_Availability": [{"Key": {"cost_multiplier": 1, "max_passengers": 3}, "Value": 10000}]},
-                                 "toleration_factor": params['toleration_factor']}
+                                 "toleration_factor": params['toleration_factor'],
+                                 "toleration_factor_minutes": params['toleration_factor_minutes']}
 
     payload = simplejson.dumps(payload)
     logging.info("payload = %s" % payload)

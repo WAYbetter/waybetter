@@ -2,7 +2,7 @@ from django import forms
 from django.core.exceptions import ValidationError
 
 class ConstraintsForm(forms.Form):
-#    time_const_min = forms.IntegerField(label="Time constraint in minutes")
+    time_const_min = forms.IntegerField(label="Time constraint in minutes")
     time_const_frac = forms.FloatField(label="Fractional Time constraint")
 
     def clean(self):
