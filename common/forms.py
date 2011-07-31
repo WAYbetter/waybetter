@@ -1,5 +1,26 @@
 from django import forms
+from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
+
+class MandatoryInlineFormset(BaseInlineFormSet):
+    """
+    Inline formset for mandatory fields: at least one should be defined.
+    """
+
+    def clean(self):
+        # get forms that actually have valid data
+        count = 0
+        for form in self.forms:
+            try:
+                if form.cleaned_data and not form.cleaned_data.get('DELETE', False):
+                    count += 1
+            except AttributeError:
+                # annoyingly, if a subform is invalid Django explicity raises
+                # an AttributeError for cleaned_data
+                pass
+        if count < 1:
+            raise forms.ValidationError('Please define at least one.')
+
 
 class DatePickerForm(forms.Form):
     """
