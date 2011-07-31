@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-07-07 17:18+0300\n"
+"POT-Creation-Date: 2011-07-28 17:15+0300\n"
 "PO-Revision-Date: 2011-03-29 23:26+0200\n"
 "Last-Translator: Yulia <yulia1il@yahoo.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -61,12 +61,12 @@ msgstr "Город"
 msgid "Station"
 msgstr "Служба такси"
 
-#: analytics/models.py:10
+#: analytics/models.py:10 ordering/models.py:304
 msgid "type"
 msgstr "тип"
 
-#: analytics/models.py:12 ordering/models.py:535 ordering/models.py:537
-#: ordering/models.py:628 ordering/models.py:718
+#: analytics/models.py:12 ordering/models.py:667 ordering/models.py:669
+#: ordering/models.py:771 ordering/models.py:859
 msgid "order"
 msgstr "заказ"
 
@@ -74,28 +74,29 @@ msgstr "заказ"
 msgid "order assignment"
 msgstr "назначение на заказ"
 
-#: analytics/models.py:14 ordering/models.py:629
+#: analytics/models.py:14 ordering/models.py:772
 msgid "work station"
 msgstr "рабочая станция"
 
-#: analytics/models.py:15 ordering/models.py:323 ordering/models.py:341
-#: ordering/models.py:455 ordering/models.py:630
+#: analytics/models.py:15 ordering/models.py:199 ordering/models.py:215
+#: ordering/models.py:256 ordering/models.py:442 ordering/models.py:460
+#: ordering/models.py:587 ordering/models.py:773
 msgid "station"
 msgstr "служба"
 
-#: analytics/models.py:16 ordering/models.py:274 ordering/models.py:454
-#: ordering/models.py:803
+#: analytics/models.py:16 ordering/models.py:393 ordering/models.py:582
+#: ordering/models.py:935
 msgid "passenger"
 msgstr "пассажир"
 
-#: analytics/models.py:17 common/models.py:105 ordering/models.py:102
-#: ordering/models.py:195 ordering/models.py:735 ordering/models.py:766
-#: ordering/models.py:788 registration/forms.py:72
+#: analytics/models.py:17 common/models.py:125 ordering/models.py:109
+#: ordering/models.py:317 ordering/models.py:876 ordering/models.py:904
+#: ordering/models.py:923 registration/forms.py:72
 msgid "country"
 msgstr "страна"
 
-#: analytics/models.py:18 common/models.py:141 interests/models.py:23
-#: ordering/models.py:103 ordering/models.py:282
+#: analytics/models.py:18 common/models.py:161 interests/models.py:23
+#: ordering/models.py:110 ordering/models.py:401
 msgid "city"
 msgstr "город"
 
@@ -103,25 +104,11 @@ msgstr "город"
 msgid "ratings"
 msgstr "оценки"
 
-#: analytics/models.py:24 interests/models.py:9 interests/models.py:27
-#: interests/models.py:48 ordering/models.py:117 ordering/models.py:211
-#: ordering/models.py:503 ordering/models.py:634 ordering/models.py:756
-#: ordering/models.py:778 ordering/models.py:792
-msgid "create date"
-msgstr "дата создания"
-
-#: analytics/models.py:25 interests/models.py:10 interests/models.py:28
-#: interests/models.py:49 ordering/models.py:118 ordering/models.py:212
-#: ordering/models.py:504 ordering/models.py:635 ordering/models.py:757
-#: ordering/models.py:779 ordering/models.py:793
-msgid "modify date"
-msgstr "дата модификации"
-
-#: analytics/views.py:182 ordering/station_controller.py:375
+#: analytics/views.py:182 ordering/station_controller.py:383
 msgid "Accepted"
 msgstr "Принят"
 
-#: analytics/views.py:187 ordering/station_controller.py:377
+#: analytics/views.py:187 ordering/station_controller.py:385
 msgid "Rejected"
 msgstr "Отклонен"
 
@@ -183,9 +170,9 @@ msgstr "Заказы - по часам"
 msgid "Submit"
 msgstr "Отослать"
 
-#: api/models.py:7 common/models.py:55 common/models.py:104
-#: common/models.py:140 interests/models.py:22 ordering/models.py:733
-#: ordering/models.py:764 ordering/models.py:786
+#: api/models.py:7 common/models.py:75 common/models.py:124
+#: common/models.py:160 interests/models.py:22 ordering/models.py:200
+#: ordering/models.py:874 ordering/models.py:902 ordering/models.py:921
 msgid "name"
 msgstr "имя"
 
@@ -203,19 +190,29 @@ msgstr "активен"
 msgid "phone validation required"
 msgstr "необходима регистрация"
 
-#: common/models.py:56
+#: common/models.py:9 interests/models.py:9 interests/models.py:27
+#: interests/models.py:48
+msgid "create date"
+msgstr "дата создания"
+
+#: common/models.py:10 interests/models.py:10 interests/models.py:28
+#: interests/models.py:49
+msgid "modify date"
+msgstr "дата модификации"
+
+#: common/models.py:76
 msgid "country code"
 msgstr "код страны"
 
-#: common/models.py:57
+#: common/models.py:77
 msgid "dial code"
 msgstr "телефонный код"
 
-#: common/models.py:60
+#: common/models.py:80
 msgid "countries"
 msgstr "страны"
 
-#: common/models.py:110
+#: common/models.py:130
 msgid "cities"
 msgstr "города"
 
@@ -259,6 +256,7 @@ msgstr "Введите SMS-код"
 
 #: common/templates/code_form.html:20
 #: ordering/templates/mobile/passenger_home.html:192
+#: sharing/templates/sharing_workstation_home.html:170
 #: templates/mobile/base.html:91
 msgid "Finish"
 msgstr "Завершить"
@@ -281,22 +279,22 @@ msgid "(Optional)"
 msgstr "(Необязательно)"
 
 #: common/templates/credentials_form.html:37
-#: common/templates/registration_form.html:93
+#: common/templates/registration_form.html:129
 msgid "Choose Password"
 msgstr "Выбрать пароль"
 
 #: common/templates/credentials_form.html:39
-#: common/templates/registration_form.html:95
+#: common/templates/registration_form.html:131
 msgid "Re-enter Password"
 msgstr "Подтвердить пароль"
 
 #: common/templates/credentials_form.html:43
 #: common/templates/login_form.html:5 common/templates/login_form.html:49
 #: common/templates/phone_verification_form.html:90
-#: ordering/templates/base_passenger.html:56
+#: ordering/templates/base_passenger.html:146
 #: ordering/templates/base_station.html:50
 #: ordering/templates/business_tab.html:17
-#: ordering/templates/station_page.html:122
+#: ordering/templates/station_page.html:73
 msgid "Login"
 msgstr "Войти"
 
@@ -313,7 +311,7 @@ msgstr "Введите пароль"
 #: common/templates/error_form.html:14 common/templates/error_form.html:27
 #: common/templates/feedback_form.html:14 common/templates/login_form.html:14
 #: common/templates/registration_form.html:21
-#: common/templates/registration_form.html:84
+#: common/templates/registration_form.html:109
 #: common/templates/terms_form.html:14 common/templates/terms_form.html:32
 #: ordering/templates/passenger_profile.html:64
 msgid "OK"
@@ -338,8 +336,7 @@ msgstr "Отправить отзыв"
 #: common/templates/feedback_form.html:132
 #: interests/templates/mobile_interest_form.html:53
 #: interests/templates/station_interest_form.html:37
-#: ordering/templates/passenger_home.html:48
-#: ordering/templates/station_page.html:58
+#: ordering/templates/base_passenger.html:69
 msgid "Close"
 msgstr "Закрыть"
 
@@ -400,10 +397,9 @@ msgid "FINISH"
 msgstr "Завершить"
 
 #: common/templates/phone_verification_form.html:21
+#: ordering/templates/base_passenger.html:102
 #: ordering/templates/business_registration.html:134
-#: ordering/templates/passenger_home.html:33
-#: ordering/templates/station_page.html:40
-#: ordering/templates/workstation_home.html:807
+#: ordering/templates/workstation_home.html:816
 #: ordering/templates/mobile/passenger_home.html:75
 msgid "Sending..."
 msgstr "Отправка..."
@@ -462,7 +458,7 @@ msgid "An SMS with ride details will be sent soon"
 msgstr "Вскоре Вы получите SMS с данными заказа"
 
 #: common/templates/registration_form.html:24 ordering/forms.py:243
-#: ordering/passenger_controller.py:461
+#: ordering/passenger_controller.py:460
 #: ordering/templates/business_registration.html:58
 msgid "Email already registered"
 msgstr "Этот Email занят"
@@ -471,20 +467,45 @@ msgstr "Этот Email занят"
 msgid "Passwords do not match"
 msgstr "Пароли неидентичны"
 
-#: common/templates/registration_form.html:87
+#: common/templates/registration_form.html:71
+msgid "I’ve just ordered a taxi from"
+msgstr ""
+
+#: common/templates/registration_form.html:73
+msgid "to"
+msgstr ""
+
+#: common/templates/registration_form.html:90
+msgid "Pick Me App by WAYbetter"
+msgstr ""
+
+#: common/templates/registration_form.html:91
+#, fuzzy
+msgid "The easiest way to get a taxi"
+msgstr "הדרך הטובה ביותר להשיג מונית (חינם)"
+
+#: common/templates/registration_form.html:114
+msgid "Share On Facebook"
+msgstr ""
+
+#: common/templates/registration_form.html:118
+msgid "Tweet Your Ride"
+msgstr ""
+
+#: common/templates/registration_form.html:123
 msgid "In the meantime, join for better experience (free)"
 msgstr ""
 "А пока присоединяйтесь к нам (бесплатно) <span class=waybetter></span> !"
 
-#: common/templates/registration_form.html:91
+#: common/templates/registration_form.html:127
 msgid "Your Email"
 msgstr "Ваш Email"
 
-#: common/templates/registration_form.html:98
+#: common/templates/registration_form.html:135
 msgid "Get emails from waybetter (we promise not to spam)"
 msgstr "Получать эл. почту от Waybetter (рассылка спама исключена)  "
 
-#: common/templates/registration_form.html:102
+#: common/templates/registration_form.html:139
 msgid "JOIN"
 msgstr "Регистрация"
 
@@ -681,7 +702,7 @@ msgid "flat pages"
 msgstr "статические страницы"
 
 #: interests/models.py:24 interests/models.py:43 ordering/forms.py:367
-#: ordering/models.py:277
+#: ordering/models.py:396
 msgid "contact person"
 msgstr "контактное лицо"
 
@@ -703,7 +724,7 @@ msgstr "Пожалуйста, заполните следующие данные
 #: interests/templates/mobile_interest_form.html:52
 #: interests/templates/station_interest_form.html:36
 #: ordering/templates/business_registration.html:137
-#: ordering/templates/workstation_home.html:743
+#: ordering/templates/workstation_home.html:752
 msgid "Send"
 msgstr "Отослать"
 
@@ -759,11 +780,11 @@ msgstr "Вход"
 msgid "No Logo"
 msgstr "Логотип отсутствует"
 
-#: ordering/admin.py:122
+#: ordering/admin.py:128
 msgid "Check Connection"
 msgstr ""
 
-#: ordering/admin.py:129
+#: ordering/admin.py:135
 msgid "Send Dummy Order"
 msgstr ""
 
@@ -794,7 +815,7 @@ msgstr ""
 "<span class=waybetter></span>:)"
 
 #: ordering/forms.py:210 ordering/forms.py:330 ordering/forms.py:371
-#: ordering/templates/station_page.html:236
+#: ordering/templates/station_page.html:187
 msgid "Phone"
 msgstr "Телефон"
 
@@ -804,11 +825,13 @@ msgid "The value must contain only numbers."
 msgstr "Значение должно содержать только цифры."
 
 #: ordering/forms.py:212 ordering/forms.py:283
-#: ordering/templates/station_page.html:235
+#: ordering/templates/station_page.html:186
+#: sharing/templates/sharing_workstation_home.html:88
+#: sharing/templates/station_history.html:37
 msgid "Address"
 msgstr "Адрес"
 
-#: ordering/forms.py:215 ordering/forms.py:339 ordering/models.py:196
+#: ordering/forms.py:215 ordering/forms.py:339 ordering/models.py:318
 msgid "Default station"
 msgstr "Служба по умолчанию"
 
@@ -871,494 +894,563 @@ msgstr "Имя"
 msgid "Last name"
 msgstr "Фамилия"
 
-#: ordering/models.py:44
+#: ordering/models.py:46 ordering/models.py:57
 msgid "pending"
 msgstr "в режиме ожидания"
 
-#: ordering/models.py:45
+#: ordering/models.py:47 ordering/models.py:58
 msgid "assigned"
 msgstr "назначен"
 
-#: ordering/models.py:46
+#: ordering/models.py:48 ordering/models.py:60
 msgid "accepted"
 msgstr "принят"
 
-#: ordering/models.py:47
+#: ordering/models.py:49
 msgid "ignored"
 msgstr "без ответа"
 
-#: ordering/models.py:48
+#: ordering/models.py:50
 msgid "rejected"
 msgstr "отклонен"
 
-#: ordering/models.py:49
+#: ordering/models.py:51
 msgid "not_taken"
 msgstr ""
 
-#: ordering/models.py:51
+#: ordering/models.py:53
 msgid "failed"
 msgstr "не удалось"
 
-#: ordering/models.py:52 ordering/templates/base_station.html:22
+#: ordering/models.py:54 ordering/templates/base_station.html:22
 #: ordering/templates/passenger_profile.html:67
 msgid "error"
 msgstr "ошибка"
 
-#: ordering/models.py:53
+#: ordering/models.py:55
 msgid "timed_out"
 msgstr ""
 
-#: ordering/models.py:84 ordering/models.py:193 ordering/models.py:339
+#: ordering/models.py:59
+#, fuzzy
+msgid "completed"
+msgstr "разрешить комментарии"
+
+#: ordering/models.py:91 ordering/models.py:315 ordering/models.py:458
 #: registration/models.py:170
 msgid "user"
 msgstr "пользователь"
 
-#: ordering/models.py:85 ordering/models.py:355 ordering/models.py:507
+#: ordering/models.py:92 ordering/models.py:203 ordering/models.py:218
+#: ordering/models.py:234 ordering/models.py:475 ordering/models.py:639
 #: registration/forms.py:50
 msgid "station name"
 msgstr "название службы"
 
-#: ordering/models.py:86 registration/forms.py:54
+#: ordering/models.py:93 registration/forms.py:54
 msgid "license number"
 msgstr "номер лицензии"
 
-#: ordering/models.py:87
+#: ordering/models.py:94
 msgid "website"
 msgstr "сайт"
 
-#: ordering/models.py:88 registration/forms.py:100
+#: ordering/models.py:95 registration/forms.py:100
 msgid "number of taxis"
 msgstr "число такси "
 
-#: ordering/models.py:89 registration/forms.py:104
+#: ordering/models.py:96 registration/forms.py:104
 msgid "description"
 msgstr "описание"
 
-#: ordering/models.py:90 registration/forms.py:96
+#: ordering/models.py:97 registration/forms.py:96
 msgid "logo"
 msgstr "логотип службы"
 
-#: ordering/models.py:91 registration/forms.py:82
+#: ordering/models.py:98 registration/forms.py:82
 msgid "language"
 msgstr "язык"
 
-#: ordering/models.py:92
+#: ordering/models.py:99
 msgid "show on list"
 msgstr "показать в списке служб"
 
-#: ordering/models.py:93
+#: ordering/models.py:100
 msgid "subdomain name"
 msgstr "имя поддомена"
 
-#: ordering/models.py:94 ordering/models.py:111
+#: ordering/models.py:101 ordering/models.py:118
 msgid "app icon"
 msgstr "значок приложения"
 
-#: ordering/models.py:95 ordering/models.py:112
+#: ordering/models.py:102 ordering/models.py:119
 msgid "app splash"
 msgstr "заставка приложения"
 
-#: ordering/models.py:97 ordering/models.py:347
+#: ordering/models.py:104 ordering/models.py:467
 msgid "last order date"
 msgstr "Дата последнего заказа"
 
-#: ordering/models.py:100 ordering/models.py:288
+#: ordering/models.py:107 ordering/models.py:407
 #, fuzzy
 msgid "confine orders"
 msgstr "принятие заказов"
 
-#: ordering/models.py:104
+#: ordering/models.py:111
 msgid "city area"
 msgstr "район города"
 
-#: ordering/models.py:105
+#: ordering/models.py:112
 msgid "postal code"
 msgstr "почтовый индекс"
 
-#: ordering/models.py:106 ordering/models.py:280 ordering/models.py:283
-#: ordering/templates/passenger_profile.html:13 registration/forms.py:80
+#: ordering/models.py:113 ordering/models.py:308 ordering/models.py:399
+#: ordering/models.py:402 ordering/templates/passenger_profile.html:13
+#: registration/forms.py:80
 msgid "address"
 msgstr "адрес"
 
-#: ordering/models.py:107
+#: ordering/models.py:114
 msgid "goehash"
 msgstr "geohash"
 
-#: ordering/models.py:108 ordering/models.py:285
+#: ordering/models.py:115 ordering/models.py:306 ordering/models.py:404
 msgid "longtitude"
 msgstr "долгота"
 
-#: ordering/models.py:109 ordering/models.py:286
+#: ordering/models.py:116 ordering/models.py:307 ordering/models.py:405
 msgid "latitude"
 msgstr "широта"
 
-#: ordering/models.py:114
+#: ordering/models.py:121
 msgid "number of ratings"
 msgstr "количество оценок"
 
-#: ordering/models.py:115
+#: ordering/models.py:122
 msgid "average rating"
 msgstr "средняя оценка"
 
-#: ordering/models.py:198 ordering/models.py:456
-msgid "originating station"
-msgstr "создана службой"
+#: ordering/models.py:123
+#, fuzzy
+msgid "internal rating"
+msgstr "средняя оценка"
 
-#: ordering/models.py:201 ordering/models.py:321
+#: ordering/models.py:201 ordering/models.py:323 ordering/models.py:440
 msgid "phone number"
 msgstr "номер телефона"
 
-#: ordering/models.py:202
+#: ordering/models.py:216
+#, fuzzy
+msgid "taxi_number"
+msgstr "к дому №"
+
+#: ordering/models.py:231
+msgid "driver"
+msgstr ""
+
+#: ordering/models.py:232
+msgid "taxi"
+msgstr ""
+
+#: ordering/models.py:251 ordering/models.py:632
+#, fuzzy
+msgid "depart time"
+msgstr "Название службы такси"
+
+#: ordering/models.py:252 ordering/models.py:633
+#, fuzzy
+msgid "arrive time"
+msgstr "Задать время"
+
+#: ordering/models.py:254 ordering/models.py:596 ordering/models.py:775
+msgid "status"
+msgstr "статус"
+
+#: ordering/models.py:257
+#, fuzzy
+msgid "assigned driver"
+msgstr "назначен"
+
+#: ordering/models.py:258
+#, fuzzy
+msgid "assigned taxi"
+msgstr "назначен"
+
+#: ordering/models.py:301 ordering/models.py:583
+#, fuzzy
+msgid "ride"
+msgstr "заказ"
+
+#: ordering/models.py:303
+#, fuzzy
+msgid "stop time"
+msgstr "Название службы такси"
+
+#: ordering/models.py:320 ordering/models.py:588
+msgid "originating station"
+msgstr "создана службой"
+
+#: ordering/models.py:324
 msgid "phone verified"
 msgstr "номер телефона подтвержден"
 
-#: ordering/models.py:204
+#: ordering/models.py:326
 msgid "accept mailing"
 msgstr "принимать почту"
 
-#: ordering/models.py:207
+#: ordering/models.py:329
 #, fuzzy
 msgid "login token"
 msgstr "ключ"
 
-#: ordering/models.py:276 ordering/models.py:642
+#: ordering/models.py:395 ordering/models.py:783
 #: ordering/templates/passenger_profile.html:9
 #, fuzzy
 msgid "business name"
 msgstr "имя пользователя"
 
-#: ordering/models.py:284
+#: ordering/models.py:403
 #, fuzzy
 msgid "house_number"
 msgstr "к дому №"
 
-#: ordering/models.py:297
+#: ordering/models.py:416
 msgid "business welcome mail subject"
 msgstr ""
 
-#: ordering/models.py:342
+#: ordering/models.py:461
 msgid "token"
 msgstr "ключ"
 
-#: ordering/models.py:343
+#: ordering/models.py:462
 msgid "installer URL"
 msgstr "URL установочного пакета"
 
-#: ordering/models.py:344
+#: ordering/models.py:463
 msgid "was installed"
 msgstr "установлен"
 
-#: ordering/models.py:345
+#: ordering/models.py:464
 msgid "Accept orders"
 msgstr "принятие заказов"
 
-#: ordering/models.py:350
+#: ordering/models.py:465
+#, fuzzy
+msgid "Accept Shared Rides"
+msgstr "принятие заказов"
+
+#: ordering/models.py:470
 msgid "channel_id"
 msgstr ""
 
-#: ordering/models.py:351
+#: ordering/models.py:471
 msgid "is online"
 msgstr ""
 
-#: ordering/models.py:354 ordering/models.py:508
+#: ordering/models.py:474 ordering/models.py:640
 msgid "station id"
 msgstr "ID службы"
 
-#: ordering/models.py:446
+#: ordering/models.py:573
 msgid "Unrated"
 msgstr ""
 
-#: ordering/models.py:447
+#: ordering/models.py:574
 msgid "Very poor"
 msgstr "очень плохо"
 
-#: ordering/models.py:448
+#: ordering/models.py:575
 msgid "Not so bad"
 msgstr "не так уж плохо"
 
-#: ordering/models.py:449
+#: ordering/models.py:576
 msgid "Average"
 msgstr "средне"
 
-#: ordering/models.py:450
+#: ordering/models.py:577
 msgid "Good"
 msgstr "хорошо"
 
-#: ordering/models.py:451
+#: ordering/models.py:578
 msgid "Perfect"
 msgstr "отлично"
 
-#: ordering/models.py:458
+#: ordering/models.py:584
+#, fuzzy
+msgid "pickup point"
+msgstr "время посадки"
+
+#: ordering/models.py:585
+msgid "dropoff point"
+msgstr ""
+
+#: ordering/models.py:590
 #, fuzzy
 msgid "confining station"
 msgstr "создана службой"
 
-#: ordering/models.py:461
+#: ordering/models.py:593
 #, fuzzy
 msgid "mobile"
 msgstr "Моб. телефоны"
 
-#: ordering/models.py:462
+#: ordering/models.py:594
 #, fuzzy
 msgid "user agent"
 msgstr "имя пользователя"
 
-#: ordering/models.py:464 ordering/models.py:632
-msgid "status"
-msgstr "статус"
-
-#: ordering/models.py:465
+#: ordering/models.py:597
 msgid "order language"
 msgstr "язык заказа"
 
-#: ordering/models.py:467
+#: ordering/models.py:599
 msgid "from country"
 msgstr "из страны"
 
-#: ordering/models.py:468
+#: ordering/models.py:600
 msgid "from city"
 msgstr "из города"
 
-#: ordering/models.py:469
+#: ordering/models.py:601
 msgid "from city area"
 msgstr "из района города"
 
-#: ordering/models.py:471
+#: ordering/models.py:603
 msgid "from postal code"
 msgstr "с индекса"
 
-#: ordering/models.py:472
+#: ordering/models.py:604
 msgid "from street address"
 msgstr "с улицы по адресу"
 
-#: ordering/models.py:473
+#: ordering/models.py:605
 msgid "from_house_number"
 msgstr "от дома №"
 
-#: ordering/models.py:476
+#: ordering/models.py:608
 msgid "from goehash"
 msgstr "из geohash"
 
-#: ordering/models.py:477
+#: ordering/models.py:609
 msgid "from_lon"
 msgstr "от долготы"
 
-#: ordering/models.py:478
+#: ordering/models.py:610
 msgid "from_lat"
 msgstr "от широты"
 
-#: ordering/models.py:480 ordering/models.py:643
+#: ordering/models.py:612 ordering/models.py:784
 msgid "from address"
 msgstr "с адреса"
 
-#: ordering/models.py:482
+#: ordering/models.py:614
 msgid "to country"
 msgstr "в страну"
 
-#: ordering/models.py:484
+#: ordering/models.py:616
 msgid "to city"
 msgstr "в город"
 
-#: ordering/models.py:485
+#: ordering/models.py:617
 msgid "to city area"
 msgstr "в район города"
 
-#: ordering/models.py:487
+#: ordering/models.py:619
 msgid "to postal code"
 msgstr "на почтовый индекс"
 
-#: ordering/models.py:488
+#: ordering/models.py:620
 msgid "to street address"
 msgstr "на улицу по адресу"
 
-#: ordering/models.py:489
+#: ordering/models.py:621
 msgid "to_house_number"
 msgstr "к дому №"
 
-#: ordering/models.py:491
+#: ordering/models.py:623
 msgid "to goehash"
 msgstr "в geohash"
 
-#: ordering/models.py:492
+#: ordering/models.py:624
 msgid "to_lon"
 msgstr "на долготу"
 
-#: ordering/models.py:493
+#: ordering/models.py:625
 msgid "to_lat"
 msgstr "на широту"
 
-#: ordering/models.py:495 ordering/models.py:644
+#: ordering/models.py:627 ordering/models.py:785
 msgid "to address"
 msgstr "на адрес"
 
-#: ordering/models.py:497
+#: ordering/models.py:629
 msgid "pickup time"
 msgstr "время посадки"
 
-#: ordering/models.py:498
+#: ordering/models.py:630
 msgid "future pickup"
 msgstr ""
 
-#: ordering/models.py:501
+#: ordering/models.py:636
 msgid "passenger rating"
 msgstr "оценка пассажира"
 
-#: ordering/models.py:509
+#: ordering/models.py:641
 msgid "passenger phone"
 msgstr "ном. телефона пассажира"
 
-#: ordering/models.py:510
+#: ordering/models.py:642
 msgid "passenger id"
 msgstr "ID пассажира"
 
-#: ordering/models.py:512
+#: ordering/models.py:644
 #, fuzzy
 msgid "api user"
 msgstr "пользователь"
 
-#: ordering/models.py:636
+#: ordering/models.py:777
 #, fuzzy
 msgid "show date"
 msgstr "дата модификации"
 
-#: ordering/models.py:638
+#: ordering/models.py:779
 msgid "pickup_address_in_ws_lang"
 msgstr "адрес_ посадки_in_ws_lang"
 
-#: ordering/models.py:639
+#: ordering/models.py:780
 #, fuzzy
 msgid "dropoff_address_in_ws_lang"
 msgstr "адрес_ посадки_in_ws_lang"
 
-#: ordering/models.py:718
+#: ordering/models.py:859
 msgid "assigned to station:"
 msgstr "назначен службе:"
 
-#: ordering/models.py:721
+#: ordering/models.py:862
 msgid "Sunday"
 msgstr "воскресенье"
 
-#: ordering/models.py:722
+#: ordering/models.py:863
 msgid "Monday"
 msgstr "понедельник"
 
-#: ordering/models.py:723
+#: ordering/models.py:864
 msgid "Tuesday"
 msgstr "вторник"
 
-#: ordering/models.py:724
+#: ordering/models.py:865
 msgid "Wednesday"
 msgstr "среда"
 
-#: ordering/models.py:725
+#: ordering/models.py:866
 msgid "Thursday"
 msgstr "четверг"
 
-#: ordering/models.py:726
+#: ordering/models.py:867
 msgid "Friday"
 msgstr "пятница"
 
-#: ordering/models.py:727
+#: ordering/models.py:868
 msgid "Saturday"
 msgstr "суббота"
 
-#: ordering/models.py:729
+#: ordering/models.py:870
 msgid "Standard cab"
 msgstr "стандартное такси"
 
-#: ordering/models.py:734 ordering/models.py:765 ordering/models.py:787
+#: ordering/models.py:875 ordering/models.py:903 ordering/models.py:922
 msgid "is active"
 msgstr "активен"
 
-#: ordering/models.py:738
+#: ordering/models.py:879
 msgid "from day"
 msgstr "со дня"
 
-#: ordering/models.py:739
+#: ordering/models.py:880
 msgid "to day"
 msgstr "на день"
 
-#: ordering/models.py:740 ordering/models.py:771
+#: ordering/models.py:881 ordering/models.py:909
 msgid "from hour"
 msgstr "с часа"
 
-#: ordering/models.py:741 ordering/models.py:772
+#: ordering/models.py:882 ordering/models.py:910
 msgid "to hour"
 msgstr "до часа"
 
-#: ordering/models.py:743
+#: ordering/models.py:884
 msgid "from duration (s)"
 msgstr "от продолжительности (сек)"
 
-#: ordering/models.py:743 ordering/models.py:744 ordering/models.py:752
+#: ordering/models.py:884 ordering/models.py:885 ordering/models.py:893
 msgid "In seconds"
 msgstr "в секундах"
 
-#: ordering/models.py:744
+#: ordering/models.py:885
 msgid "to duration (s)"
 msgstr "до продолжительности (сек)"
 
-#: ordering/models.py:747
+#: ordering/models.py:888
 msgid "from distance (m)"
 msgstr "от расстояния (м)"
 
-#: ordering/models.py:747 ordering/models.py:748 ordering/models.py:751
+#: ordering/models.py:888 ordering/models.py:889 ordering/models.py:892
 msgid "In meters"
 msgstr "в метрах"
 
-#: ordering/models.py:748
+#: ordering/models.py:889
 msgid "to distance (m)"
 msgstr "до расстояния (м)"
 
-#: ordering/models.py:751
+#: ordering/models.py:892
 msgid "tick distance (m)"
 msgstr "расстояние между тиками (м)"
 
-#: ordering/models.py:752
+#: ordering/models.py:893
 msgid "tick time (s)"
 msgstr "время тика (сек)"
 
-#: ordering/models.py:753
+#: ordering/models.py:894
 msgid "cost per tick"
 msgstr "стоимость одного тика"
 
-#: ordering/models.py:754 ordering/models.py:776 ordering/models.py:790
+#: ordering/models.py:895 ordering/models.py:914 ordering/models.py:925
 msgid "fixed cost"
 msgstr "установленная стоимость"
 
-#: ordering/models.py:768
+#: ordering/models.py:906
 msgid "city 1"
 msgstr "город 1"
 
-#: ordering/models.py:769
+#: ordering/models.py:907
 msgid "city 2"
 msgstr "город 2"
 
-#: ordering/models.py:773
+#: ordering/models.py:911
 msgid "from day-of-week"
 msgstr "со дня недели"
 
-#: ordering/models.py:774
+#: ordering/models.py:912
 msgid "to day-of-week"
 msgstr "до дня недели"
 
-#: ordering/models.py:799
+#: ordering/models.py:931
 msgid "Website"
 msgstr "Сайт"
 
-#: ordering/models.py:799
+#: ordering/models.py:931
 msgid "Booking"
 msgstr "Процедура заказа"
 
-#: ordering/models.py:799
+#: ordering/models.py:931
 msgid "Registration"
 msgstr "Регистрация"
 
-#: ordering/models.py:799
+#: ordering/models.py:931
 msgid "Taxi Ride"
 msgstr "поездка в такси"
 
-#: ordering/models.py:799
+#: ordering/models.py:931
 msgid "Other"
 msgstr "Другое"
 
@@ -1369,11 +1461,13 @@ msgstr "Дата"
 
 #: ordering/order_history.py:10 ordering/order_history.py:14
 #: ordering/order_history.py:18
+#: sharing/templates/hotspot_ordering_page.html:30
 msgid "From"
 msgstr "Откуда"
 
 #: ordering/order_history.py:10 ordering/order_history.py:14
 #: ordering/order_history.py:18
+#: sharing/templates/hotspot_ordering_page.html:42
 msgid "To"
 msgstr "Куда"
 
@@ -1453,63 +1547,64 @@ msgstr ""
 msgid "No available taxi at the moment. Please try again soon."
 msgstr ""
 
-#: ordering/passenger_controller.py:209
+#: ordering/passenger_controller.py:208
 msgid "Ride estimation not available"
 msgstr "Невозможно оценить данные заказа"
 
-#: ordering/passenger_controller.py:214
+#: ordering/passenger_controller.py:213
 msgid "Estimated ride cost"
 msgstr "Приблизительная стоимость поездки"
 
-#: ordering/passenger_controller.py:217
+#: ordering/passenger_controller.py:216
 msgid "Flat rate"
 msgstr "Примерная стоимость"
 
-#: ordering/passenger_controller.py:223
+#: ordering/passenger_controller.py:222
+#: sharing/templates/sharing_workstation_home.html:309
 msgid "min"
 msgstr "мин"
 
-#: ordering/passenger_controller.py:244 ordering/passenger_controller.py:295
+#: ordering/passenger_controller.py:243 ordering/passenger_controller.py:294
 msgid "Your Ride Could Not Be Ordered"
 msgstr "Невозможно заказать поездку"
 
-#: ordering/passenger_controller.py:245
+#: ordering/passenger_controller.py:244
 msgid "Ordering is not allowed so soon after another order"
 msgstr "Совершив заказ, вы не можете немедленно сделать новый"
 
-#: ordering/passenger_controller.py:270
+#: ordering/passenger_controller.py:269
 msgid "An SMS with ride details will arrive shortly..."
 msgstr "Вскоре Вы получите SMS с данными заказа... "
 
-#: ordering/passenger_controller.py:273
+#: ordering/passenger_controller.py:272
 #, fuzzy, python-format
 msgid ""
 "%s is looking for a free taxi. An SMS with ride details will arrive "
 "shortly..."
 msgstr "Вскоре Вы получите SMS с данными заказа... "
 
-#: ordering/passenger_controller.py:348
+#: ordering/passenger_controller.py:347
 #, python-format
 msgid "Verification code: %s"
 msgstr "Проверочный код: %s"
 
-#: ordering/passenger_controller.py:363
+#: ordering/passenger_controller.py:362
 msgid "Error validating phone (check that your browser accepts cookies)"
 msgstr ""
 
-#: ordering/passenger_controller.py:366
+#: ordering/passenger_controller.py:365
 msgid "Invalid verification code"
 msgstr "Неверный проверочный код"
 
-#: ordering/passenger_controller.py:392
+#: ordering/passenger_controller.py:391
 msgid "Phone has multiple passengers"
 msgstr "Номер принадлежит многим пассажирам"
 
-#: ordering/passenger_controller.py:423
+#: ordering/passenger_controller.py:422
 msgid "wrong email/password"
 msgstr "неверные email или пароль"
 
-#: ordering/passenger_controller.py:432
+#: ordering/passenger_controller.py:431
 msgid "Must have a user to change credentials"
 msgstr "Только пользователь может изменять аккаунт"
 
@@ -1517,16 +1612,16 @@ msgstr "Только пользователь может изменять акк
 msgid "This is a test order"
 msgstr ""
 
-#: ordering/station_controller.py:73
+#: ordering/station_controller.py:74
 msgid "Invalid city"
 msgstr "Неверно указан город"
 
-#: ordering/station_controller.py:376
+#: ordering/station_controller.py:384
 #, fuzzy
 msgid "Ignored"
 msgstr "без ответа"
 
-#: ordering/station_controller.py:439
+#: ordering/station_controller.py:447
 #, fuzzy, python-format
 msgid "%s Taxi station"
 msgstr "Службы такси"
@@ -1594,19 +1689,111 @@ msgstr ""
 "сайт и вскоре Вы получите подтверждающее SMS-сообщение (бесплатно) cо всеми "
 "данными поездки. "
 
-#: ordering/templates/base_passenger.html:31
+#: ordering/templates/base_passenger.html:32
 #: ordering/templates/business_tab.html:38
 #: ordering/templates/station_home.html:14
 msgid "Thank you"
 msgstr ""
 
-#: ordering/templates/base_passenger.html:32
+#: ordering/templates/base_passenger.html:33
 #: ordering/templates/business_tab.html:39
 #: ordering/templates/station_home.html:15
 msgid "We will contact you"
 msgstr ""
 
-#: ordering/templates/base_passenger.html:56
+#: ordering/templates/base_passenger.html:46
+msgid "Full Pickup Address: (Street Number City)"
+msgstr "Адрес отправления (улица, № дома, город)"
+
+#: ordering/templates/base_passenger.html:47
+msgid "Full Drop-off Address: (Street Number City)"
+msgstr "Адрес доставки (необязательно)"
+
+#: ordering/templates/base_passenger.html:48
+msgid "(Street Number City) and Select:"
+msgstr "(улица, № дома, город), выбрать из списка:"
+
+#: ordering/templates/base_passenger.html:49
+#: ordering/templates/business_registration.html:61
+msgid "The address is not resolved"
+msgstr "Адрес неизвестен"
+
+#: ordering/templates/base_passenger.html:50
+#: ordering/templates/station_page.html:181
+#: ordering/templates/mobile/passenger_home.html:157
+#: ordering/templates/mobile/passenger_home.html:221
+msgid "More"
+msgstr "Показать больше"
+
+#: ordering/templates/base_passenger.html:51
+msgid "Less"
+msgstr "Показать меньше"
+
+#: ordering/templates/base_passenger.html:52
+#: ordering/templates/mobile/passenger_home.html:65
+msgid "Fill pickup and dropoff for price and time estimation "
+msgstr "Для оценки времени и стоимости поездки укажите адрес (откуда и куда) "
+
+#: ordering/templates/base_passenger.html:53
+#: ordering/templates/passenger_home.html:92
+#: ordering/templates/station_page.html:105
+#: ordering/templates/mobile/passenger_home.html:129
+#: sharing/templates/hotspot_ordering_page.html:34
+msgid "Enter pickup address"
+msgstr "Введите адрес отправления"
+
+#: ordering/templates/base_passenger.html:54
+#: ordering/templates/passenger_home.html:95
+#: ordering/templates/station_page.html:109
+#: ordering/templates/mobile/passenger_home.html:134
+#: sharing/templates/hotspot_ordering_page.html:46
+msgid "Enter drop-off address"
+msgstr "Введите адрес доставки"
+
+#: ordering/templates/base_passenger.html:70
+msgid "For changes call: "
+msgstr ""
+
+#: ordering/templates/base_passenger.html:71
+#, fuzzy
+msgid "minute"
+msgstr "минуты"
+
+#: ordering/templates/base_passenger.html:72
+#: ordering/templates/workstation_home.html:742
+msgid "minutes"
+msgstr "минуты"
+
+#: ordering/templates/base_passenger.html:73
+msgid "Please wait"
+msgstr ""
+
+#: ordering/templates/base_passenger.html:74
+#, fuzzy
+msgid "Pickup in"
+msgstr "время посадки"
+
+#: ordering/templates/base_passenger.html:75
+msgid "Order finished!"
+msgstr ""
+
+#: ordering/templates/base_passenger.html:76
+msgid "Re-connecting to server, please wait (your order is being processed)"
+msgstr ""
+
+#: ordering/templates/base_passenger.html:77
+msgid "Have a pleasant ride"
+msgstr ""
+
+#: ordering/templates/base_passenger.html:107
+#: ordering/templates/passenger_home.html:98
+#: ordering/templates/station_page.html:112
+#: ordering/templates/mobile/passenger_home.html:79
+#: sharing/templates/hotspot_ordering_page.html:49
+msgid "Pick Me Up"
+msgstr "Прислать такси"
+
+#: ordering/templates/base_passenger.html:146
 msgid "Join!"
 msgstr "Присоединяйтесь!"
 
@@ -1649,12 +1836,6 @@ msgstr "Этот Email занят"
 #: ordering/templates/business_registration.html:29
 msgid "An email was sent to the business"
 msgstr ""
-
-#: ordering/templates/business_registration.html:61
-#: ordering/templates/passenger_home.html:31
-#: ordering/templates/station_page.html:38
-msgid "The address is not resolved"
-msgstr "Адрес неизвестен"
 
 #: ordering/templates/business_registration.html:160
 #, fuzzy
@@ -1743,23 +1924,23 @@ msgstr ""
 
 #: ordering/templates/info.html:28
 #: ordering/templates/mobile/passenger_home.html:227
-#: ordering/templates/mobile/passenger_home.html:270 templates/base.html:138
+#: ordering/templates/mobile/passenger_home.html:270 templates/base.html:140
 msgid "About"
 msgstr "О нас"
 
-#: ordering/templates/info.html:29 templates/base.html:139
+#: ordering/templates/info.html:29 templates/base.html:141
 msgid "Press"
 msgstr "СМИ"
 
-#: ordering/templates/info.html:31 templates/base.html:141
+#: ordering/templates/info.html:31 templates/base.html:143
 msgid "Help"
 msgstr "Помощь"
 
-#: ordering/templates/info.html:33 templates/base.html:143
+#: ordering/templates/info.html:33 templates/base.html:145
 msgid "Terms"
 msgstr "Условия "
 
-#: ordering/templates/info.html:34 ordering/templates/passenger_home.html:113
+#: ordering/templates/info.html:34 ordering/templates/passenger_home.html:73
 msgid "TAXI"
 msgstr "TAXI"
 
@@ -1819,84 +2000,13 @@ msgstr "из"
 msgid "Free Online Taxi Booking - WAYbetter"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:28
-#: ordering/templates/station_page.html:35
-msgid "Full Pickup Address: (Street Number City)"
-msgstr "Адрес отправления (улица, № дома, город)"
-
-#: ordering/templates/passenger_home.html:29
-#: ordering/templates/station_page.html:36
-msgid "Full Drop-off Address: (Street Number City)"
-msgstr "Адрес доставки (необязательно)"
-
-#: ordering/templates/passenger_home.html:30
-#: ordering/templates/station_page.html:37
-msgid "(Street Number City) and Select:"
-msgstr "(улица, № дома, город), выбрать из списка:"
-
-#: ordering/templates/passenger_home.html:32
-#: ordering/templates/passenger_home.html:138
-#: ordering/templates/station_page.html:39
-#: ordering/templates/station_page.html:161
-#: ordering/templates/mobile/passenger_home.html:79
-msgid "Pick Me Up"
-msgstr "Прислать такси"
-
-#: ordering/templates/passenger_home.html:34
-#: ordering/templates/station_page.html:43
-#: ordering/templates/mobile/passenger_home.html:65
-msgid "Fill pickup and dropoff for price and time estimation "
-msgstr "Для оценки времени и стоимости поездки укажите адрес (откуда и куда) "
-
-#: ordering/templates/passenger_home.html:49
-#: ordering/templates/station_page.html:59
-msgid "For changes call: "
-msgstr ""
-
-#: ordering/templates/passenger_home.html:50
-#: ordering/templates/station_page.html:60
-#, fuzzy
-msgid "minute"
-msgstr "минуты"
-
-#: ordering/templates/passenger_home.html:51
-#: ordering/templates/station_page.html:61
-#: ordering/templates/workstation_home.html:733
-msgid "minutes"
-msgstr "минуты"
-
-#: ordering/templates/passenger_home.html:52
-#: ordering/templates/station_page.html:62
-msgid "Please wait"
-msgstr ""
-
-#: ordering/templates/passenger_home.html:53
-#: ordering/templates/station_page.html:63
-#, fuzzy
-msgid "Pickup in"
-msgstr "время посадки"
-
-#: ordering/templates/passenger_home.html:54
-#: ordering/templates/station_page.html:64
-msgid "Order finished!"
-msgstr ""
-
-#: ordering/templates/passenger_home.html:55
-#: ordering/templates/station_page.html:65
-msgid "Re-connecting to server, please wait (your order is being processed)"
-msgstr ""
-
-#: ordering/templates/passenger_home.html:56
-msgid "Have a pleasant ride!"
-msgstr ""
-
-#: ordering/templates/passenger_home.html:68
-#: ordering/templates/station_page.html:91
+#: ordering/templates/passenger_home.html:27
+#: ordering/templates/station_page.html:41
 msgid "We're sorry, but an error occurred while loading this page."
 msgstr "Извините, при загрузке этой страницы произошла ошибка"
 
-#: ordering/templates/passenger_home.html:104
-#: ordering/templates/passenger_home.html:108
+#: ordering/templates/passenger_home.html:64
+#: ordering/templates/passenger_home.html:68
 msgid ""
 "WAYbetter are happy to announce our Tel Aviv pilot in collaboration with the "
 "\"Meshuhrar Taxis\" station"
@@ -1904,8 +2014,8 @@ msgstr ""
 "WAYbetter рада сообщить о запуске пилотного проекта совместно с компаниями "
 "\"Meshuhrar Taxis\" и  \"Taxi New-York\" "
 
-#: ordering/templates/passenger_home.html:104
-#: ordering/templates/passenger_home.html:108
+#: ordering/templates/passenger_home.html:64
+#: ordering/templates/passenger_home.html:68
 msgid ""
 "We hope you'll enjoy the service and give us feedback so we can improve "
 "(bottom right corner)"
@@ -1913,62 +2023,50 @@ msgstr ""
 "Мы надеемся, что сможем предоставить Вам отличный сервис, и ждем Ваших "
 "отзывов (правый нижний угол)."
 
-#: ordering/templates/passenger_home.html:104
-#: ordering/templates/passenger_home.html:108
+#: ordering/templates/passenger_home.html:64
+#: ordering/templates/passenger_home.html:68
 msgid "Enjoy your ride!"
 msgstr "Счастливого пути!"
 
-#: ordering/templates/passenger_home.html:116
+#: ordering/templates/passenger_home.html:76
 msgid "Book Now (FREE)"
 msgstr "Заказать сейчас (бесплатно)"
 
-#: ordering/templates/passenger_home.html:132
-#: ordering/templates/station_page.html:154
-#: ordering/templates/mobile/passenger_home.html:129
-msgid "Enter pickup address"
-msgstr "Введите адрес отправления"
-
-#: ordering/templates/passenger_home.html:135
-#: ordering/templates/station_page.html:158
-#: ordering/templates/mobile/passenger_home.html:134
-msgid "Enter drop-off address"
-msgstr "Введите адрес доставки"
-
-#: ordering/templates/passenger_home.html:156
-#: ordering/templates/station_page.html:182
+#: ordering/templates/passenger_home.html:116
+#: ordering/templates/station_page.html:133
 msgid "Ride History"
 msgstr "История заказов"
 
-#: ordering/templates/passenger_home.html:157
-#: ordering/templates/station_page.html:185
+#: ordering/templates/passenger_home.html:117
+#: ordering/templates/station_page.html:136
 msgid "My Profile"
 msgstr "Мой профиль"
 
-#: ordering/templates/passenger_home.html:158
-#: ordering/templates/passenger_home.html:165
+#: ordering/templates/passenger_home.html:118
+#: ordering/templates/passenger_home.html:125
 msgid "Taxi Stations"
 msgstr "Службы такси"
 
-#: ordering/templates/passenger_home.html:159
-#: ordering/templates/passenger_home.html:166
+#: ordering/templates/passenger_home.html:119
+#: ordering/templates/passenger_home.html:126
 msgid "Mobile"
 msgstr "Моб. телефоны"
 
-#: ordering/templates/passenger_home.html:164
+#: ordering/templates/passenger_home.html:124
 msgid "Businesses"
 msgstr ""
 
-#: ordering/templates/passenger_home.html:167
+#: ordering/templates/passenger_home.html:127
 msgid "What's This?"
 msgstr "Что это такое?"
 
-#: ordering/templates/passenger_home.html:172
+#: ordering/templates/passenger_home.html:132
 msgid "WAYbetter offers the fastest and easiest way to get a taxi!"
 msgstr ""
 "<span class=waybetter></span> - это самый простой и быстрый способ заказать "
 "такси! "
 
-#: ordering/templates/passenger_home.html:174
+#: ordering/templates/passenger_home.html:134
 msgid ""
 "We are partnering with the best taxi stations in your city, so all you have "
 "to do is push the yellow button. We'll do the rest"
@@ -2091,11 +2189,13 @@ msgid "Rides"
 msgstr ""
 
 #: ordering/templates/station_analytics.html:229
+#: sharing/templates/station_history.html:121
 #, fuzzy
 msgid "There was an error loading the data."
 msgstr "Во время обработки Вашего запроса произошла ошибка."
 
 #: ordering/templates/station_analytics.html:238
+#: sharing/templates/station_history.html:130
 #, fuzzy
 msgid "No data"
 msgstr "дата модификации"
@@ -2117,92 +2217,77 @@ msgstr "Профиль"
 msgid "Workstations"
 msgstr "Рабочие станции"
 
-#: ordering/templates/station_page.html:41
-#: ordering/templates/station_page.html:230
-#: ordering/templates/mobile/passenger_home.html:157
-#: ordering/templates/mobile/passenger_home.html:221
-msgid "More"
-msgstr "Показать больше"
-
-#: ordering/templates/station_page.html:42
-msgid "Less"
-msgstr "Показать меньше"
-
-#: ordering/templates/station_page.html:66
-msgid "Have a pleasant ride"
-msgstr ""
-
-#: ordering/templates/station_page.html:110
+#: ordering/templates/station_page.html:61
 msgid "Pick Me App for Businesses, with instant feedback and no phone calls "
 msgstr ""
 
-#: ordering/templates/station_page.html:112
+#: ordering/templates/station_page.html:63
 #, fuzzy
 msgid "Book A Taxi Application. Immediate Response via SMS"
 msgstr "Приложение для заказа такси. Немедленный ответ через SMS"
 
-#: ordering/templates/station_page.html:119 templates/base.html:83
+#: ordering/templates/station_page.html:70 templates/base.html:84
 msgid "Hi"
 msgstr "Приветствуем"
 
-#: ordering/templates/station_page.html:120 templates/base.html:89
+#: ordering/templates/station_page.html:71 templates/base.html:90
 msgid "Log out"
 msgstr "Выход"
 
-#: ordering/templates/station_page.html:193
+#: ordering/templates/station_page.html:144
 msgid "for your business - free!"
 msgstr ""
 
-#: ordering/templates/station_page.html:195
+#: ordering/templates/station_page.html:146
 msgid "Easy and friendly ordering"
 msgstr ""
 
-#: ordering/templates/station_page.html:196
+#: ordering/templates/station_page.html:147
 msgid "No phone calls"
 msgstr ""
 
-#: ordering/templates/station_page.html:197
+#: ordering/templates/station_page.html:148
 msgid "Get instant feedback on your computer"
 msgstr ""
 
-#: ordering/templates/station_page.html:198
+#: ordering/templates/station_page.html:149
 msgid "Track and manage orders"
 msgstr ""
 
-#: ordering/templates/station_page.html:202
+#: ordering/templates/station_page.html:153
 #, fuzzy
 msgid "Join now"
 msgstr "Присоединяйтесь!"
 
-#: ordering/templates/station_page.html:209
+#: ordering/templates/station_page.html:160
 #, fuzzy
 msgid "for your smartphone"
 msgstr "С любого смартфона"
 
-#: ordering/templates/station_page.html:214
+#: ordering/templates/station_page.html:165
 msgid "Visit"
 msgstr ""
 
-#: ordering/templates/station_page.html:215
+#: ordering/templates/station_page.html:166
 #, fuzzy
 msgid "from your smartphone"
 msgstr "С любого смартфона"
 
-#: ordering/templates/station_page.html:217
+#: ordering/templates/station_page.html:168
 #, fuzzy
 msgid "Tap \"Pick me up\""
 msgstr "Прислать такси"
 
-#: ordering/templates/station_page.html:218
+#: ordering/templates/station_page.html:169
 #, fuzzy
 msgid "Enjoy the ride!"
 msgstr "Счастливого пути!"
 
-#: ordering/templates/station_page.html:233
+#: ordering/templates/station_page.html:184
 msgid "Contact Info"
 msgstr "Данные контакта"
 
-#: ordering/templates/station_page.html:237
+#: ordering/templates/station_page.html:188
 msgid "Station's website"
 msgstr "Сайт службы такси"
 
@@ -2218,7 +2303,7 @@ msgstr "Показать больше"
 msgid "Station Manager?"
 msgstr "Руководитель службы?"
 
-#: ordering/templates/stations.html:31 templates/base.html:144
+#: ordering/templates/stations.html:31 templates/base.html:146
 msgid "Station Entrance"
 msgstr "Вход для служб такси"
 
@@ -2317,52 +2402,52 @@ msgstr ""
 msgid "Workstation page"
 msgstr "Страница рабочей станции"
 
-#: ordering/templates/workstation_home.html:525
+#: ordering/templates/workstation_home.html:534
 msgid "Connecting WAYbetter..."
 msgstr "Подключение к WAYbetter..."
 
-#: ordering/templates/workstation_home.html:614
+#: ordering/templates/workstation_home.html:623
 msgid "Click Here"
 msgstr ""
 
-#: ordering/templates/workstation_home.html:619
+#: ordering/templates/workstation_home.html:628
 msgid "Connection Check"
 msgstr ""
 
-#: ordering/templates/workstation_home.html:665
+#: ordering/templates/workstation_home.html:674
 #, fuzzy
 msgid "Show details"
 msgstr "Показать больше"
 
-#: ordering/templates/workstation_home.html:670
+#: ordering/templates/workstation_home.html:679
 msgid "Incoming order"
 msgstr ""
 
-#: ordering/templates/workstation_home.html:731
+#: ordering/templates/workstation_home.html:740
 msgid "Define time"
 msgstr "Задать время"
 
-#: ordering/templates/workstation_home.html:743
+#: ordering/templates/workstation_home.html:752
 msgid "Send message to passenger"
 msgstr "Отослать сообщение пассажиру"
 
-#: ordering/templates/workstation_home.html:750
+#: ordering/templates/workstation_home.html:759
 #, fuzzy
 msgid "Reject"
 msgstr "Отклонен"
 
-#: ordering/templates/workstation_home.html:769
-#: ordering/templates/workstation_home.html:824
+#: ordering/templates/workstation_home.html:778
+#: ordering/templates/workstation_home.html:833
 #, fuzzy
 msgid "pickup"
 msgstr "время посадки"
 
-#: ordering/templates/workstation_home.html:772
-#: ordering/templates/workstation_home.html:827
+#: ordering/templates/workstation_home.html:781
+#: ordering/templates/workstation_home.html:836
 msgid "dropoff"
 msgstr ""
 
-#: ordering/templates/workstation_home.html:815
+#: ordering/templates/workstation_home.html:824
 msgid "End"
 msgstr "Завершить"
 
@@ -2584,6 +2669,138 @@ msgstr "профиль регистрации"
 msgid "registration profiles"
 msgstr "профили регистрации"
 
+#: sharing/templates/hotspot_ordering_page.html:35
+#, fuzzy
+msgid "Select time"
+msgstr "Выбрать адрес"
+
+#: sharing/templates/hotspot_ordering_page.html:53
+msgid "Add point"
+msgstr ""
+
+#: sharing/templates/hotspot_ordering_page.html:54
+msgid "Switch Direction"
+msgstr ""
+
+#: sharing/templates/sharing_workstation_home.html:14
+#, fuzzy
+msgid "Station Account"
+msgstr "Название службы такси"
+
+#: sharing/templates/sharing_workstation_home.html:16
+#, fuzzy
+msgid "Overall Status"
+msgstr "Статус"
+
+#: sharing/templates/sharing_workstation_home.html:17
+msgid "Rides Untaken"
+msgstr ""
+
+#: sharing/templates/sharing_workstation_home.html:19
+msgid "Rides Taken"
+msgstr ""
+
+#: sharing/templates/sharing_workstation_home.html:35
+msgid "Not Assigned Yet"
+msgstr ""
+
+#: sharing/templates/sharing_workstation_home.html:36
+#, fuzzy
+msgid "Missed"
+msgstr "Моб. телефоны"
+
+#: sharing/templates/sharing_workstation_home.html:88
+#: sharing/templates/station_history.html:37
+#, fuzzy
+msgid "Time"
+msgstr "Тайминг"
+
+#: sharing/templates/sharing_workstation_home.html:88
+#: sharing/templates/station_history.html:37
+#, fuzzy
+msgid "# of Passengers"
+msgstr "пассажир"
+
+#: sharing/templates/sharing_workstation_home.html:93
+#: sharing/templates/station_history.html:42
+#, fuzzy
+msgid "Pickup"
+msgstr "время посадки"
+
+#: sharing/templates/sharing_workstation_home.html:101
+#: sharing/templates/station_history.html:50
+msgid "Dropoff"
+msgstr ""
+
+#: sharing/templates/sharing_workstation_home.html:110
+#: sharing/templates/station_history.html:59
+msgid "Show Points On Map"
+msgstr ""
+
+#: sharing/templates/sharing_workstation_home.html:123
+#, fuzzy
+msgid "Updating..."
+msgstr "Отправка..."
+
+#: sharing/templates/sharing_workstation_home.html:145
+msgid "Driver"
+msgstr ""
+
+#: sharing/templates/sharing_workstation_home.html:148
+#: sharing/templates/sharing_workstation_home.html:275
+#, fuzzy
+msgid "Taxi No."
+msgstr "поездка в такси"
+
+#: sharing/templates/sharing_workstation_home.html:165
+#, fuzzy
+msgid "+ Add"
+msgstr "Адрес"
+
+#: sharing/templates/sharing_workstation_home.html:166
+#, fuzzy
+msgid "Assign Ride"
+msgstr "назначен"
+
+#: sharing/templates/sharing_workstation_home.html:193
+#, fuzzy
+msgid "Please choose taxi and driver"
+msgstr "Служба по умолчанию"
+
+#: sharing/templates/sharing_workstation_home.html:213
+#: sharing/templates/station_history.html:81
+#, fuzzy
+msgid "Today"
+msgstr "воскресенье"
+
+#: sharing/templates/sharing_workstation_home.html:281
+msgid "Ride Started"
+msgstr ""
+
+#: sharing/templates/sharing_workstation_home.html:309
+#, fuzzy
+msgid "Ride in"
+msgstr "История заказов"
+
+#: sharing/templates/station_history.html:77
+#, fuzzy
+msgid "Taxi"
+msgstr "поездка в такси"
+
+#: sharing/templates/station_tools.html:15
+msgid "History"
+msgstr "נסיעות קודמות"
+
+#: sharing/templates/station_tools.html:16
+#, fuzzy
+msgid "Accounting"
+msgstr "страны"
+
+#: sharing/templates/station_tools.html:17
+#, fuzzy
+msgid "Drivers"
+msgstr "Заказы"
+
 #: socialauth/templates/socialauth/login_done.html:14
 msgid "Signing you in..."
 msgstr "Вы входите..."
@@ -2606,15 +2823,15 @@ msgstr ""
 msgid "Taxi,iPhone,Android,WAYbetter,get taxi,order taxi,order taxi online"
 msgstr ""
 
-#: templates/base.html:77
+#: templates/base.html:78
 msgid "Get Your Taxis Online (FREE)"
 msgstr "Заказ такси он-лайн (бесплатно)"
 
-#: templates/base.html:137
+#: templates/base.html:139
 msgid "Passengers home"
 msgstr "Вход для пассажиров"
 
-#: templates/base.html:147
+#: templates/base.html:167
 msgid "2010 WAYbetter"
 msgstr "<span class=waybetter></span> 2010-2011 "
 
@@ -2641,7 +2858,7 @@ msgstr "Аккаунт успешно активирован"
 
 #: templates/registration/activate.html:10
 #: templates/registration/activation_complete.html:8
-#: templates/registration/login.html:26
+#: templates/registration/login.html:27
 #: templates/registration/login_reg.html:8
 #: templates/registration/password_reset_complete.html:8
 msgid "Log in"
@@ -2651,22 +2868,22 @@ msgstr "Войти"
 msgid "Account activation failed"
 msgstr "Не удалось активировать аккаунт"
 
-#: templates/registration/login.html:32
+#: templates/registration/login.html:33
 #: templates/registration/login_reg.html:12
 msgid "Forgot password"
 msgstr "Забыли пароль?"
 
-#: templates/registration/login.html:32
+#: templates/registration/login.html:33
 #: templates/registration/login_reg.html:12
 msgid "Reset it"
 msgstr "Сбросить"
 
-#: templates/registration/login.html:33
+#: templates/registration/login.html:34
 #: templates/registration/login_reg.html:13
 msgid "Not member"
 msgstr "Не зарегистрированы?"
 
-#: templates/registration/login.html:33
+#: templates/registration/login.html:34
 #: templates/registration/login_reg.html:13
 msgid "Register"
 msgstr "Регистрация"
@@ -2707,6 +2924,10 @@ msgstr ""
 #: tinymce/views.py:68
 msgid "Error running spellchecker"
 msgstr "Ошибка при  проверке орфографии"
+
+#, fuzzy
+#~ msgid " min"
+#~ msgstr "мин"
 
 #, fuzzy
 #~ msgid "Please click the button"
@@ -2752,10 +2973,6 @@ msgstr "Ошибка при  проверке орфографии"
 #, fuzzy
 #~ msgid "Any date"
 #~ msgstr "дата модификации"
-
-#, fuzzy
-#~ msgid "action time"
-#~ msgstr "Название службы такси"
 
 #, fuzzy
 #~ msgid "action flag"
@@ -2848,13 +3065,6 @@ msgstr "Ошибка при  проверке орфографии"
 #, fuzzy
 #~ msgid "Django administration"
 #~ msgstr "Регистрация"
-
-#, fuzzy
-#~ msgid "Add"
-#~ msgstr "Адрес"
-
-#~ msgid "History"
-#~ msgstr "נסיעות קודמות"
 
 #, fuzzy
 #~ msgid "Unknown content"
@@ -2959,10 +3169,6 @@ msgstr "Ошибка при  проверке орфографии"
 #, fuzzy
 #~ msgid "Reset my password"
 #~ msgstr "Подтвердить пароль"
-
-#, fuzzy
-#~ msgid "Select %s"
-#~ msgstr "Выбрать адрес"
 
 #, fuzzy
 #~ msgid "site"
@@ -3091,10 +3297,6 @@ msgstr "Ошибка при  проверке орфографии"
 #~ msgstr "URL установочного пакета"
 
 #, fuzzy
-#~ msgid "comment"
-#~ msgstr "разрешить комментарии"
-
-#, fuzzy
 #~ msgid "IP address"
 #~ msgstr "адрес"
 
@@ -3185,10 +3387,6 @@ msgstr "Ошибка при  проверке орфографии"
 #, fuzzy
 #~ msgid "Enter a valid VAT number."
 #~ msgstr "Введите № моб. телефона"
-
-#, fuzzy
-#~ msgid "Mie"
-#~ msgstr "Моб. телефоны"
 
 #, fuzzy
 #~ msgid "Morelos"
@@ -3377,12 +3575,6 @@ msgstr "Ошибка при  проверке орфографии"
 #, fuzzy
 #~ msgid "or"
 #~ msgstr "Показать больше"
-
-#, fuzzy
-#~ msgid "day"
-#~ msgid_plural "days"
-#~ msgstr[0] "воскресенье"
-#~ msgstr[1] "воскресенье"
 
 #, fuzzy
 #~ msgid "hour"
@@ -3596,9 +3788,6 @@ msgstr "Ошибка при  проверке орфографии"
 
 #~ msgid "The Good"
 #~ msgstr "טוב"
-
-#~ msgid "The best way to get a taxi (FREE)"
-#~ msgstr "הדרך הטובה ביותר להשיג מונית (חינם)"
 
 #~ msgid "Map Suggestions"
 #~ msgstr "הצעות מתוך מפה:"

@@ -378,5 +378,13 @@ function getFullDate(date_obj){
 }
 
 function getFullTime(date_obj){
-    return date_obj.getHours() + ':' + date_obj.getMinutes();
+    var minutes = date_obj.getMinutes();
+    var hours = date_obj.getHours();
+    var s = hours + ":";
+    if (minutes < 10) {
+        s += "0" + minutes
+    } else {
+        s += minutes
+    }
+    return s;
 }

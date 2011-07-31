@@ -1,13 +1,4 @@
-{% extends "base.html" %}
 {% load i18n %}
-
-{% block bodyclass %}clean_body{% endblock %}
-{% block mainclass %}full_screen_main clean_main{% endblock %}
-
-{% block extrastyle %}
-    <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
-    <link rel="stylesheet" href="/static/css/sharing.css" type="text/css" media="all">
-{% endblock %}
 
 {% block content %}
     <div id="header" class="ui-widget-header">
@@ -83,7 +74,7 @@
 
             var $ride_div = $('<div class="ride_div"></div>').attr("id", "ride_div_" + ride.id)
                     .append(renderTable(ride), renderInfo(ride));
-            $("#ride_accordion").prepend($ride_header, $ride_div).accordion("destroy").accordion();
+            $("#ride_accordion").prepend($ride_header, $ride_div).accordion("destroy").accordion({collapsible: true, active: false});
         };
 
         $(function() {

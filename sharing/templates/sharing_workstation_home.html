@@ -145,7 +145,7 @@
         var $driver_label = '<label for="driver_sel_' + ride.id + '"> {% trans 'Driver' %}' + '</label>';
         var $driver_selector = $('<select class="driver_selector"></select>').attr("id", "driver_sel_" + ride.id);
 
-        var $taxi_label = '<label for="taxi_sel_' + ride.id + '"> {% trans 'Taxi #' %}' + '</label>';
+        var $taxi_label = '<label for="taxi_sel_' + ride.id + '"> {% trans 'Taxi No.' %}' + '</label>';
         var $taxi_selector = $('<select class="taxi_selector"></select>').attr("id", "taxi_sel_" + ride.id);
 
         if (ride.taxi && ride.driver) { // accepted ride
@@ -163,6 +163,7 @@
         }
 
         var $add_driver = $('<a class="add_driver">{% trans "+ Add" %}</a>');
+        var $matcher_label = $("<span class='matcher_label'>{% trans "Assign Ride" %}:</span>");
         var $selectors = $('<div class="select_tools"></div>')
                 .append($taxi_label, $taxi_selector,$driver_label, $driver_selector);
 
@@ -193,7 +194,7 @@
                     }
                 });
         return $('<div class="ride_matcher" id="matcher_' + ride.id + '"></div>')
-                .append($selectors, $accept_button, '<div class="clear"></div>');
+                .append($accept_button, $selectors, $matcher_label, '<div class="clear"></div>');
     };
 
 
@@ -229,6 +230,13 @@
 
         $accordion.accordion("destroy").accordion({ active: $("[id^=ride_header_]").index($active_header) });
         updateCounters({{ assigned }});
+        // install timer
+        $("#ride_header_" + ride.id).oneTime(Math.max(ride.depart_time - new Date(), 0), function() {
+            if ($(this).data("status") == {{ assigned }}) {
+                timeoutRide(ride);
+            }
+        });
+
     };
 
     getRenderPosition = function(ride) {
@@ -264,13 +272,13 @@
         var $rh = $("#ride_header_" + ride.id);
         $rh.data("status", {{ accepted }}).addClass("accepted");
         $rh.find(".pickup").after('<span class="seperator"> - </span>',
-                '<span class="taxi"> Taxi #' + $("#taxi_sel_" + ride.id).find("option:selected").text() + ' </span>');
+                '<span class="taxi"> {% trans 'Taxi No.' %} ' + $("#taxi_sel_" + ride.id).find("option:selected").text() + ' </span>');
 
         var $rd = $("#ride_div_" + ride.id);
         $rd.find("select").attr("disabled", "");
         $rd.find(".accept_button").button("disable");
 
-        var $complete_ride = $('<a href="#" class="action_link"></a>').text("{% trans 'Ride Started' %}").click(function(e) {
+        var $complete_ride = $('<span href="#" class="action_link"></span>').text("{% trans 'Ride Started' %}").click(function(e) {
             var that = this;
             $.ajax({
                 url: '{% url sharing.views.complete_ride %}',
@@ -295,13 +303,13 @@
             var $countdown = $('<span></span>').countdown(
                     { compact: true, format: 'MS', until: ride.depart_time,
                         onExpiry:function() {
-                            $rh.find(".status").empty().after($complete_ride);
+                            $rh.find(".status").empty().append($complete_ride);
                         }
                     });
-            $rh.find(".status").empty().removeClass("not_assigned").append("{% trans 'Ride in ' %}", $countdown, "{% trans ' min' %}");
+            $rh.find(".status").empty().removeClass("not_assigned").append("{% trans 'Ride in'%} ", $countdown, " {% trans 'min' %}");
         }
         else {
-            $rh.find(".status").empty().after($complete_ride);
+            $rh.find(".status").empty().append($complete_ride);
         }
 
         updateCounters({{ accepted }});
@@ -342,7 +350,7 @@
 
     $(function() {
         $("#tools_button").button().click(function(e) {
-            window.open("{% url sharing.views.station_tools %}")
+            window.open("{% url sharing.views.station_tools %}", "station_tools", "width=800,height=600,resizable=0,scrollbars=1");
         });
 
         $("#untaken_counter, #taken_counter").text(0);
@@ -356,13 +364,6 @@
             if (ride.status == {{ timed_out }}) {
                 timeoutRide(ride);
             }
-
-            // install timer
-            $("#ride_header_" + ride.id).oneTime(Math.max(ride.depart_time - new Date(), 0), function() {
-                if ($(this).data("status") == {{ assigned }}){
-                    timeoutRide(ride);
-                }
-        });
         });
 
         air("set_title", "WAYbetter: {{ work_station.station.name }}");
