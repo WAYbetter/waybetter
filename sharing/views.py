@@ -55,9 +55,10 @@ def hotspot_ordering_page(request, passenger):
         return HttpResponse(response)
 
     else: # GET
+        is_popup = True
         page_specific_class = "hotspot_page"
         hidden_fields = HIDDEN_FIELDS
-        hotspot_times = sorted( map(lambda i : "%d:00" % i, range(default_tz_now().hour+1,24)) + map(lambda i : "%d:30" % i, range(default_tz_now().hour+1,24)), key=lambda v: int(v.split(":")[0])) # sorry about that :)
+        hotspot_times = sorted( map(lambda i : "%d:00" % i, range(default_tz_now().hour,24)) + map(lambda i : "%d:30" % i, range(default_tz_now().hour,24)), key=lambda v: int(v.split(":")[0])) # sorry about that :)
 
         telmap_user = settings.TELMAP_API_USER
         telmap_password = settings.TELMAP_API_PASSWORD
@@ -100,6 +101,10 @@ def fetch_ride_results_task(request):
                 ride.arrive_time = order.arrive_time
                 ride.depart_time = ride.arrive_time - timedelta(seconds=ride_data["m_Duration"])
 
+#            hack for testing
+#            ride.depart_time = datetime.now() + timedelta(minutes=3)
+#            ride.arrive_time = ride.depart_time + timedelta(seconds=ride_data["m_Duration"])
+
             ride.save()
             for point_data in ride_data["m_RidePoints"]:
                 point = RidePoint()
@@ -132,10 +137,6 @@ def sharing_workstation_home(request, work_station, workstation_id):
         return HttpResponseRedirect(request.path)
 
     is_popup = True
-
-    for ride in SharedRide.objects.all():
-        ride.taxi = ride.driver = None
-        ride.change_status(new_status=ACCEPTED)
 
     shared_rides = SharedRide.objects.filter(station=work_station.station, status__in=[ASSIGNED, ACCEPTED])
 #    shared_rides = SharedRide.objects.filter(station=work_station.station, status__in=[ASSIGNED, ACCEPTED], depart_time__gte=datetime.now() )
@@ -230,8 +231,7 @@ def accept_ride(request, work_station):
     response = HttpResponseBadRequest("Invalid arguments")
     if all([ride_id, taxi_id, driver_id]):
         ride = SharedRide.by_id(ride_id)
-#        if ride.depart_time > utc_now():
-        if True:
+        if ride.depart_time > utc_now():
             taxi = Taxi.by_id(taxi_id)
             driver = Driver.by_id(driver_id)
             if all([ride, taxi, driver]):
@@ -262,9 +262,9 @@ def complete_ride(request, work_station):
 
 # UTILITY FUNCTIONS
 
-DRIVER_NOTIFICATION_TIME = 60 * 60 # in seconds
-PASSENGER_NOTIFICATION_TIME = 10 * 60 # in seconds
-
+#DRIVER_NOTIFICATION_TIME = 60 * 60 # in seconds
+#PASSENGER_NOTIFICATION_TIME = 10 * 60 # in seconds
+#
 #@receive_signal(signals.ride_status_changed_signal)
 def send_ride_notifications(sender, obj, status, **kwargs):
     if status == ACCEPTED:
@@ -341,15 +341,11 @@ def get_driver_msg(ride):
 def get_passenger_msg(passenger, ride):
     t = get_template("passenger_notification_msg.template")
 
-    pickup_orders = Order.objects.filter(passenger=passenger, pickup_point__in=list(ride.points.filter(type=StopType.PICKUP)))
-    dropoff_orders = Order.objects.filter(passenger=passenger, dropoff_point__in=list(ride.points.filter(type=StopType.DROPOFF)))
+    orders = [{'pickup_time': o.pickup_point.stop_time.strftime("%H:%M"), 'pickup_address': o.pickup_point.address,
+               'dropoff_time': o.dropoff_point.stop_time.strftime("%H:%M"), 'dropoff_address': o.dropoff_point.address}
+            for o in Order.objects.filter(passenger=passenger, ride=ride)]
 
-    pickup_data = [{'time': order.pickup_point.stop_time.strftime("%H:%M"), 'address': order.pickup_point.address}
-                    for order in sorted(pickup_orders, key=lambda o: o.pickup_point.stop_time)]
-    dropoff_data = [{'time': order.dropoff_point.stop_time.strftime("%H:%M"), 'address': order.dropoff_point.address}
-                    for order in sorted(pickup_orders, key=lambda o: o.dropoff_point.stop_time)]
-
-    template_data = {'pickups': pickup_data, 'dropoffs': dropoff_data}
+    template_data = {'orders': orders, 'driver': ride.driver}
     return t.render(Context(template_data))
 
 

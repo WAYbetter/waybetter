@@ -1,7 +1,5 @@
 {% load i18n %}
-{% for pickup in pickups %}
-    {% trans "Pickup" %}: {{ pickup.time }} @ {{ pickup.address }}
+{% for order in orders %} {% trans "Pickup" %}: {{ order.pickup_time }} {{ order.pickup_address }}
+    {% trans "Dropoff" %}: {{ order.dropoff_time }} {{ order.dropoff_address }}
 {% endfor %}
-{% for dropoff in dropoffs %}
-    {% trans "Dropoff" %}: {{ dropoff.time }} @ {{ dropoff.address }}
-{% endfor %}
+{% trans "Driver details" %}: {{ driver.name}} {{ driver.phone }}
