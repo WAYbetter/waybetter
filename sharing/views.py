@@ -412,4 +412,4 @@ def submit_orders_for_ride_calculation(orders, params=None):
     payload = simplejson.dumps(payload)
     logging.info("payload = %s" % payload)
 
-    return fetch(SHARING_ENGINE_URL, payload="submit=%s" % payload, method=POST, deadline=30)
+    return fetch(SHARING_ENGINE_URL, payload="submit=%s" % payload, method=POST, deadline=50)
