@@ -141,6 +141,7 @@ def sharing_workstation_home(request, work_station, workstation_id):
         return HttpResponseRedirect(request.path)
 
     is_popup = True
+    debug = 1 if int(workstation_id) in [3010, 1700111] else 0
 
     shared_rides = SharedRide.objects.filter(station=work_station.station, status__in=[ASSIGNED, ACCEPTED])
 #    shared_rides = SharedRide.objects.filter(station=work_station.station, status__in=[ASSIGNED, ACCEPTED], depart_time__gte=datetime.now() )
@@ -254,9 +255,15 @@ def accept_ride(request, work_station):
 @work_station_required
 def complete_ride(request, work_station):
     ride_id = request.POST.get("ride_id", None)
+    force = int(request.POST.get("force", 0)) # used for debug mode
+
     try:
         ride = SharedRide.by_id(ride_id)
-        ride.change_status(old_status=ACCEPTED, new_status=COMPLETED)
+        if force == 1:
+            ride.change_status(new_status=COMPLETED)
+        else:
+            ride.change_status(old_status=ACCEPTED, new_status=COMPLETED)
+
         signals.ride_status_changed_signal.send(sender='accept_ride', obj=ride, status=COMPLETED)
         return HttpResponse("OK")
 

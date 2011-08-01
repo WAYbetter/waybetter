@@ -57,7 +57,8 @@ ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED, ugettext("failed")),
 SHARED_RIDE_STATUS = ((PENDING, ugettext("pending")),
                      (ASSIGNED, ugettext("assigned")),
                      (COMPLETED, ugettext("completed")),
-                     (ACCEPTED, ugettext("accepted")))
+                     (ACCEPTED, ugettext("accepted")),
+                     (NOT_TAKEN, ugettext("not_taken")))
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 

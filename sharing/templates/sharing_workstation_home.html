@@ -217,6 +217,31 @@
         $ride_div.append(renderTable(ride), renderInfo(ride), renderMatcher(ride));
 //        $ride_div.append(renderPickupTable(ride), renderDropoffTable(ride), renderInfo(ride), renderMatcher(ride));
 
+        if ({{ debug }}) {
+            var $close_btn = $('<span href="#" class="action_link"></span>').text("{% trans 'Close' %}").click(function(e) {
+                var that = this;
+                $.ajax({
+                    url: '{% url sharing.views.complete_ride %}',
+                    type: 'POST',
+                    data: { 'ride_id': ride.id, 'force': 1 },
+                    beforeSend: function() {
+                        $(that).button("disable");
+                    },
+                    success: function() {
+                        $ride_header.remove();
+                        $ride_div.remove();
+                    },
+                    error: function() {
+                        $(that).button("enable");
+                        alert("error closing");
+                    }
+                });
+                return false; // prevent the accordion opening
+            });
+            $ride_header.append($close_btn);
+        }
+
+
         // re-create the accordion and open it where it was opened
         var $accordion = $("#ride_accordion");
         var $active_header = $("[id^=ride_header_]")[$accordion.accordion("option", "active")];
