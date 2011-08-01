@@ -11,7 +11,7 @@ from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from common.models import Country, City
 from common.util import log_event, EventType, blob_to_image_tag, Enum, phone_regexp
-from common.geocode import geocode
+from common.forms import _clean_address
 from ordering.models import Order, Station, Feedback, Business
 from ordering.util import create_user, create_passenger
 
@@ -447,34 +447,4 @@ class StationAdminForm(forms.ModelForm):
 
 
     def clean_address(self):
-        if "address" in self.initial and self.cleaned_data["address"] == self.initial["address"]:
-            return self.initial["address"]
-
-        result = None
-        geocode_str = u"%s %s" % (self.cleaned_data["city"], self.cleaned_data["address"])
-        geocode_results = geocode(geocode_str)
-        if len(geocode_results) < 1:
-            raise ValidationError("Could not resolve address")
-        elif len(geocode_results) > 1:
-            address_options = []
-            for res in geocode_results:
-                address = "%s %s" % (res["street_address"], res["house_number"])
-                address_options.append(address)
-                if address == self.cleaned_data["address"]:
-                    result = res
-                    break
-
-            if not result:
-                raise ValidationError("Please choose one: %s" % ", ".join(address_options))
-
-        else:
-            result = geocode_results[0]
-
-        self.instance.lon = result["lon"]
-        self.instance.lat = result["lat"]
-        self.instance.geohash = result["geohash"]
-        #        self.instance.save()
-
-        self.cleaned_data["address"] = "%s %s" % (result["street_address"], result["house_number"])
-
-        return self.cleaned_data["address"]
+        return _clean_address(self)
