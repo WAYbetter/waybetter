@@ -260,8 +260,11 @@ def complete_ride(request, work_station):
         signals.ride_status_changed_signal.send(sender='accept_ride', obj=ride, status=COMPLETED)
         return HttpResponse("OK")
 
-    except Exception:
-        logging.error("error setting ride %s as completed" % ride_id)
+    except SharedRide.DoesNotExist:
+        logging.error("error setting ride %s as COMPLETED: ride does not exist" % ride_id)
+        return HttpResponseBadRequest("Error")
+    except Exception, e:
+        logging.error("error setting ride %s as COMPLETED: status is %s (should be ACCEPTED)\n %s" % (ride_id, ride.get_status_label(), e))
         return HttpResponseBadRequest("Error")
 
 # UTILITY FUNCTIONS
