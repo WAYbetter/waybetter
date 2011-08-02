@@ -47,6 +47,9 @@ $(function() {
     var currently_editing_id = undefined;
     var drag_marker = undefined;
     var last_listener = undefined;
+    var hotspot_lat = {{ original.lat }};
+    var hotspot_lon = {{ original.lon }};
+
 
     setTimeout(renderPolygons, 1000);
 
@@ -111,6 +114,10 @@ $(function() {
 
     });
 
+
+    function renderHotspot() {
+        
+    }
     function removeDragMarker() {
         if (drag_marker) {
             drag_marker.setMap();
