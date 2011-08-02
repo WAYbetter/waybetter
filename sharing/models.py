@@ -36,13 +36,13 @@ class HotSpot(BaseModel):
 
         return sorted(times)
 
-    def getDatesForMonth(self, year, month, with_times=False):
+    def get_dates_for_month(self, year, month):
         start_date = date(year, month, 1)
         end_date = date(year, month, calendar.monthrange(year, month)[1]) # last day of month
-        return self.getDates(start_date, end_date, with_times)
+        return self.get_dates(start_date, end_date)
 
 
-    def getDates(self, start_date, end_date):
+    def get_dates(self, start_date, end_date):
         """
         @param start_date: datetime.date instance
         @param end_date: datetime.date instance
