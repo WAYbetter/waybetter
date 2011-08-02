@@ -6,7 +6,7 @@ from sharing.models import HotSpot
 class TimeFrameForm(forms.ModelForm):
     def clean(self):
         by_date = bool(self.cleaned_data.get("from_date") or self.cleaned_data.get("to_date"))
-        by_weekday = bool(self.cleaned_data.get("from_day") or self.cleaned_data.get("to_day"))
+        by_weekday = bool(self.cleaned_data.get("from_weekday") or self.cleaned_data.get("to_weekday"))
 
         if by_date and by_weekday:
             raise forms.ValidationError("Can not define time frame by both date and day.")
@@ -17,10 +17,12 @@ class TimeFrameForm(forms.ModelForm):
         elif by_date and self.cleaned_data.get("from_date") > self.cleaned_data.get("to_date"):
             raise forms.ValidationError("From date should be smaller than To date.")
 
-        elif by_weekday and not (self.cleaned_data.get("from_day") and self.cleaned_data.get("to_day")):
+        elif by_weekday and not (self.cleaned_data.get("from_weekday") and self.cleaned_data.get("to_weekday")):
             raise ValidationError("Please enter both From and To fields")
 
         else:
+            self.cleaned_data["from_hour"] = self.cleaned_data["from_hour"].replace(second=0, microsecond=0)
+            self.cleaned_data["to_hour"] = self.cleaned_data["to_hour"].replace(second=0, microsecond=0)
             return self.cleaned_data
 
 

@@ -122,8 +122,19 @@ def is_empty(str):
     """
     return not str or len(str.strip()) == 0
 
+def datetimeIterator(from_datetime=None, to_datetime=None, delta=datetime.timedelta(days=1)):
+    """
+    Return a generator iterating the dates between two datetime instances.
+    """
+    from_datetime = from_datetime or datetime.now()
+    while to_datetime is None or from_datetime <= to_datetime:
+        yield from_datetime
+        from_datetime = from_datetime + delta
+    return
 
 # python weekdays (see: datetime.weekday()): monday=0 .. sunday=6
+FIRST_WEEKDAY = 1
+LAST_WEEKDAY = 7
 PYTHON_WEEKDAY_MAP = {
     6: 1,
     0: 2,
@@ -133,6 +144,13 @@ PYTHON_WEEKDAY_MAP = {
     4: 6,
     5: 7
 }
+DAY_OF_WEEK_CHOICES = ((1, _("Sunday")),
+                       (2, _("Monday")),
+                       (3, _("Tuesday")),
+                       (4, _("Wednesday")),
+                       (5, _("Thursday")),
+                       (6, _("Friday")),
+                       (7, _("Saturday")))
 
 def convert_python_weekday(wd):
     return PYTHON_WEEKDAY_MAP[wd]

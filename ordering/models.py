@@ -13,7 +13,7 @@ from django.utils import  translation
 from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum
+from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
@@ -859,14 +859,6 @@ class OrderAssignment(BaseModel):
 
         return u"%s %s %s %s" % (ugettext("order"), order_id, ugettext("assigned to station:"), self.station)
 
-
-DAY_OF_WEEK_CHOICES = ((1, _("Sunday")),
-                       (2, _("Monday")),
-                       (3, _("Tuesday")),
-                       (4, _("Wednesday")),
-                       (5, _("Thursday")),
-                       (6, _("Friday")),
-                       (7, _("Saturday")))
 
 VEHICLE_TYPE_CHOICES = ((1, _("Standard cab")),)
 

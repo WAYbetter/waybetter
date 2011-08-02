@@ -1,0 +1,114 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block bodyclass %}clean_body{% endblock %}
+{% block mainclass %}clean_main full_screen_main{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/static/css/sharing.css" type="text/css" media="all">
+{% endblock %}
+
+{% block content %}
+    <select id="hotspot_select">
+        {% for hotspot in hotspots %}
+            <option value="{{ hotspot.id }}">{{ hotspot.name }}</option>
+        {% endfor %}
+    </select>
+
+    <input type="text" id="hotspot_datepicker">
+
+    <select id="hotspot_times">
+    </select>
+
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
+    <script src="/static/js/sharing.js"></script>
+
+    <script type="text/javascript">
+
+        var CACHED_DATES = [];
+        var CACHED_MONTHS = []; //TODO: get initial month
+
+
+        addDates = function(python_date_list) {
+            var new_dates = $.map(python_date_list, function(date, i) {
+                return (new Date(date)).toDateString();
+            });
+            CACHED_DATES = CACHED_DATES.concat(new_dates);
+        };
+
+        asHotSpotSelector = function(hotspot_selector, datepicker_selector, times_selector) {
+
+            var $hotspot = $(hotspot_selector);
+            var $datepicker = $(datepicker_selector);
+            var $times = $(times_selector);
+
+            CACHED_DATES = [];
+            CACHED_MONTHS = [];
+            $datepicker.datepicker("destroy");
+            $times.empty().disable().append("<option>{% trans "Choose Date" %}</option>");
+
+            $datepicker.datepicker({
+                dateFormat: 'dd/mm/yy',
+                firstDay: 0,
+                minDate: new Date(),
+                isRTL: true,
+                beforeShowDay: function(date) {
+                    return ($.inArray(date.toDateString(), CACHED_DATES) !== -1) ? [true, "", ""] : [false, "", ""];
+                },
+                onChangeMonthYear: function(year, month, inst) {
+                    if ($.inArray(month, CACHED_MONTHS) < 0) {
+                        // get dates for this month
+                        $.ajax({
+                            url: "{% url sharing.passenger_controller.get_hotspot_dates %}",
+                            dataType: "json",
+                            data: {'month': month, 'year': year, 'hotspot_id': $hotspot.val()},
+                            success: function(response) {
+                                addDates(response.dates);
+                                CACHED_MONTHS[CACHED_MONTHS.length] = month;
+                                inst.input.datepicker("refresh");
+                            },
+                            error: function() {
+                                alert("Error loading hotspot dates data");
+                            }
+                        });
+                    }
+                },
+                onSelect: function(dateText, inst) {
+                    $times.empty().disable().append("<option>{% trans "Updating..." %}</option>");
+
+                    $.ajax({
+                        url: "{% url sharing.passenger_controller.get_hotspot_times %}",
+                        dataType: "json",
+                        data: {'day': dateText, 'hotspot_id': $hotspot.val()},
+                        success: function(response) {
+                            $times.empty();
+                            $.each(response.times, function(i, d) {
+                                $times.append("<option>" + d + "</option>");
+                            });
+                            $times.enable();
+                        },
+                        error: function() {
+                            alert("Error loading hotspot times data");
+                        }
+                    });
+                }
+            });
+
+            $datepicker.datepicker("setDate", undefined); // triggers onChangeMonthYear for getting initial data
+        };
+
+        $(function() {
+            asHotSpotSelector("#hotspot_select", "#hotspot_datepicker", "#hotspot_times");
+
+            $("#hotspot_select").change(function() {
+                asHotSpotSelector("#hotspot_select", "#hotspot_datepicker", "#hotspot_times");
+            });
+
+        });
+    </script>
+{% endblock %}
