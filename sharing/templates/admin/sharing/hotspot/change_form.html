@@ -1,0 +1,314 @@
+{% extends "admin/change_form.html" %}
+{% load value_from_settings %}
+
+{% block extrahead %}
+    {{ block.super }}
+    <link rel="stylesheet" href="/static/css/colorPicker.css" type="text/css" media="all"/>
+
+    <style type="text/css">
+        .colMS {
+            margin-left: 660px !important;
+        }
+        #content-related {
+            position: static;
+        }
+        #map_container {
+            width: 650px;
+            height: 650px;
+            top: 85px;
+            left:0;
+            position: absolute;
+        }
+        #map {
+            width: 650px;
+            height: 650px;
+        }
+        .editing {
+            font-weight: bold;
+        }
+        .row-dragging {
+            background-color: #ffd385;
+        }
+    </style>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
+    <script src="/static/js/libs/jquery.colorPicker.js"></script>
+    <script src="/static/js/libs/jquery.tablednd_0_5.js"></script>
+    <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" src="/static/js/utils.js"></script>
+    <script src="/static/js/ordering.js"></script>
+    <script type="text/javascript">
+
+$(function() {
+    var polygons = {};
+    var map_listeners = [];
+    var polygon_listeners = [];
+    var currently_editing_id = undefined;
+    var drag_marker = undefined;
+    var hotspot_marker = undefined;
+    var last_listener = undefined;
+    var hotspot_lat = {{ original.lat }};
+    var hotspot_lon = {{ original.lon }};
+
+
+    setTimeout(init, 1000);
+
+    $("#areas-group").find("table").tableDnD({
+        onDragClass: "row-dragging",
+        onDrop: function(table, row) {
+            var rows = table.tBodies[0].rows;
+            var name_re = /(.*-)\d(-.*)/;
+            $.each(rows, function(i, r) {
+                $(r).removeClass("row1 row2");
+                if (i % 2 == 0) {
+                    $(r).addClass("row1");
+                } else {
+                    $(r).addClass("row2");
+                }
+
+                $(r).find("td").each(function(j, td) {
+                    if ($(td).attr("class") == "original") {
+                        return;
+                    }
+                    var $input = $(td).find("input");
+                    if ($input.attr("id")) {
+                        $input.attr("id", $input.attr("id").replace(name_re,"$1" + i + "$2"));
+                    }
+                    if ($input.attr("name")) {
+                        $input.attr("name", $input.attr("name").replace(name_re,"$1" + i + "$2"));
+                    }
+                })
+            });
+
+            console.log(row);
+        }
+    });
+    $(".edit-polygon").live("click", function() {
+        doEditPolygon(this.id.replace("edit-", ""));
+    });
+
+    $("#areas-group").find(".color").find("input").live("change", function() {
+        var p_id = this.id.replace("color", "points");
+        if (p_id in polygons) {
+            var polygon = getPolygon(p_id);
+            var color = $(this).val();
+            polygon.setOptions({
+                fillColor: color,
+                strokeColor: color
+            });
+        }
+    });
+
+    $(document).keydown(function(e) {
+        if (e.keyCode == 46 && drag_marker && currently_editing_id) {
+            var polygon = getPolygon(currently_editing_id);
+            var path = polygon.getPath();
+            $.each(path.array, function(i, p) {
+                if(p == drag_marker.getPosition()) {
+                    path.removeAt(i);
+                    removeDragMarker();
+                    return false;
+                }
+            });
+        }
+
+    });
+
+    function init() {
+        renderPolygons();
+        renderHotspot();
+        centerMap();
+    }
+    
+    function renderHotspot() {
+        var icon_image = new telmap.maps.MarkerImage("/static/images/hotspot_marker.png", undefined, undefined, {x:20, y:20});
+        var point = new telmap.maps.LatLng(hotspot_lat, hotspot_lon);
+        hotspot_marker = new telmap.maps.Marker({
+            map:        OrderingHelper.map,
+            position:   point,
+            draggable:  false,
+            icon:       icon_image,
+            title:      'Hotspot'
+        });
+    }
+    function removeDragMarker() {
+        if (drag_marker) {
+            drag_marker.setMap();
+            drag_marker = undefined;
+        }
+    }
+
+    function removeListeners() {
+        $.each(map_listeners, function(i, e) {
+            telmap.maps.event.removeListener(e);
+        });
+
+        $.each(polygon_listeners, function(i, e) {
+            telmap.maps.event.removeListener(e);
+        });
+    }
+    function centerMap() {
+        var bounds = new telmap.maps.LatLngBounds();
+        bounds.extend(hotspot_marker.getPosition());
+        $.each(polygons, function(i, polygon) {
+            $.each(polygon.getPath().array, function(i, point) {
+                bounds.extend(point);
+            })
+        });
+
+        OrderingHelper.map.fitBounds(bounds);
+        OrderingHelper.map.panToBounds(bounds);
+    }
+    function renderPolygons() {
+
+        $("#areas-group").find(".points").find("input[type=hidden]").each(function(i, e) {
+            var val = $(e).val();
+            if (val) {
+                var val_array = val.split("|");
+                var polygon = getPolygon(e.id);
+                $.each(val_array, function(i, e) {
+                    if (i % 2 == 0) {
+                        updatePolygonPoint(polygon, -1, val_array[i], val_array[i + 1]);
+                    }
+                });
+                console.log("found val:" + val);
+            }
+        })
+    }
+
+    function updatePolygonPoint(polygon, index, lat, lng) {
+        var path = polygon.getPath() || new telmap.maps.MVCArray([]);
+        var point = new telmap.maps.LatLng(lat, lng);
+
+        if (index > path.getLength() || index < 0) {
+            path.push(point);
+        } else {
+            path.setAt(index, point);
+        }
+        polygon.setPath(path);
+        polygon.setMap(OrderingHelper.map);
+
+    }
+
+    function pointDistance(p1, p2) {
+        return Math.sqrt(Math.pow((p1.lat() - p2.lat()),2) + Math.pow((p1.lng() - p2.lng()),2));
+    }
+
+    function getPolygon(id) {
+        if (! (id in polygons)) {
+            console.log("creating new polygon: " + id);
+
+            var color = $("#" + id.replace("points", "color")).val();
+            polygons[id] = new telmap.maps.Polygon({
+                fillColor: color,
+                fillOpacity: 0.4,
+                strokeColor: color,
+                strokeOpacity: 1.0,
+                strokeWeight: 2,
+                path: new telmap.maps.MVCArray([])
+            });
+
+            // redispatch mouse events to map
+            telmap.maps.event.addListener(polygons[id], "click", function(e) {
+                telmap.maps.event.trigger(OrderingHelper.map, "click", e);
+            });
+            telmap.maps.event.addListener(polygons[id], "mousemove", function(e) {
+                telmap.maps.event.trigger(OrderingHelper.map, "mousemove", e);
+            });
+        }
+        return polygons[id];
+    }
+
+    function doEditPolygon(id) {
+        if (currently_editing_id) {
+            // clear old listeners
+            removeListeners();
+            removeDragMarker();
+            $("#edit-" + id).removeClass("editing").text("Edit");
+
+            // update stored val
+            var path = getPolygon(id).getPath();
+            if (path) {
+                var val_array = [];
+                $.each(path.array, function(i, e) {
+                    val_array.push(e.lat());
+                    val_array.push(e.lng());
+                });
+                $("#" + id).val(val_array.join("|"));
+            }
+        }
+
+        if (id == currently_editing_id) { // just stop editing
+            currently_editing_id = undefined;
+        } else { // start editing another polygon
+            currently_editing_id = id;
+            $("#edit-" + id).addClass("editing").text("Done");
+
+            var polygon = getPolygon(currently_editing_id);
+            map_listeners.push(telmap.maps.event.addListener(OrderingHelper.map, 'click', function(e) {
+                updatePolygonPoint(polygon, -1, e.latLng.lat(), e.latLng.lng());
+            }));
+
+            map_listeners.push(telmap.maps.event.addListener(OrderingHelper.map, 'rightclick', function(e) {
+                var path = polygon.getPath();
+                if (path) {
+                    path.removeAt(path.length - 1);
+                }
+            }));
+
+            map_listeners.push(telmap.maps.event.addListener(OrderingHelper.map, "mousemove", function(e) {
+                var distances = $.map(polygon.getPath().array, function(p, i) {
+                    return pointDistance(p, e.latLng);
+                });
+                var min_index = distances.indexOf(Math.min.apply(null, distances));
+                if (! drag_marker || drag_marker.getPosition() != polygon.getPath().getAt(min_index)) {
+                    createDragMarker(polygon, min_index);
+                }
+            }));
+
+        }
+    }
+
+    function createDragMarker(polygon, point_index) {
+        removeDragMarker();
+        var path = polygon.getPath();
+        var point = path.getAt(point_index);
+        var icon_image = new telmap.maps.MarkerImage("/static/images/polygon_drag_marker.png", undefined, undefined, {x:5, y:5});
+        drag_marker = new telmap.maps.Marker({
+            map:        OrderingHelper.map,
+            position:   point,
+            draggable:  true,
+            icon:       icon_image,
+            cursor:     'move',
+            title:      'Drag to edit polygon'
+        });
+        telmap.maps.event.addListener(drag_marker, 'dragend', function(e) {
+            path.setAt(point_index, drag_marker.getPosition());
+            polygon.setPath(path);
+            polygon.setMap(OrderingHelper.map);
+        });
+
+    }
+
+    OrderingHelper.init({
+        telmap_user:                "{% value_from_settings "TELMAP_API_USER" %}",
+        telmap_password:            "{% value_from_settings "TELMAP_API_PASSWORD" %}",
+        telmap_languages:           "he"
+    });
+        })
+    </script>
+{% endblock %}
+
+{% block coltype %}colMS{% endblock coltype %}
+{% block form_top %}
+  <p>Insert meaningful help message here...</p>
+{% endblock %}
+
+{% block after_related_objects %}
+    <div id="content-related">
+        <div id="map_container">
+            <div id="map"></div>
+        </div>
+    </div>
+{% endblock %}

@@ -1,9 +1,11 @@
 import calendar
+from common.util import split_to_tuples, point_inside_polygon
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from common.models import BaseModel, Country, City
 from common.util import DAY_OF_WEEK_CHOICES, FIRST_WEEKDAY, LAST_WEEKDAY, convert_python_weekday, datetimeIterator
 from datetime import datetime, date, timedelta, time
+from common.models import BaseModel, Country, City
+from sharing.widgets import ListFieldWithUI, ColorField
 
 class HotSpot(BaseModel):
     name = models.CharField(_("hotspot name"), max_length=50)
@@ -14,6 +16,15 @@ class HotSpot(BaseModel):
     geohash = models.CharField(_("goehash"), max_length=13)
     lon = models.FloatField(_("longtitude"), null=True)
     lat = models.FloatField(_("latitude"), null=True)
+
+    def get_area_for_point(self, lat, lon):
+        #noinspection PyUnresolvedReferences
+        for area_id in self.get_pricearea_order():
+            area = PriceArea.by_id(area_id)
+            if area.is_in_area(lat, lon):
+                return area
+
+        return None
 
     def get_times(self, day=None, start_time=None, end_time=None):
         day = day or date.today()
@@ -108,3 +119,24 @@ class HotSpotTimeFrame(BaseModel):
                 weekdays = range(self.from_weekday, LAST_WEEKDAY + 1) + range(FIRST_WEEKDAY, self.to_weekday + 1)
 
         return weekdays
+
+
+class PriceArea(BaseModel):
+    points = ListFieldWithUI(models.FloatField(), verbose_name=_("Edit Points"), null=True, blank=True)
+    color = ColorField(default="yellow")
+    cost = models.FloatField()
+    price = models.FloatField(null=True, blank=True)
+    name = models.CharField(_("name"), max_length=50)
+
+    hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="areas")
+
+    class Meta:
+        order_with_respect_to = 'hotspot'
+
+    def is_in_area(self, lat, lon):
+        return point_inside_polygon(lat, lon, self.polygon)
+
+    @property
+    def polygon(self):
+        #TODO_WB: refactor into polygon class
+        return list(split_to_tuples(self.points, 2))

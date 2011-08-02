@@ -68,7 +68,10 @@ class BaseModel(models.Model):
             return False
 
     def __unicode__(self):
-        return u"%s [%d]" % (type(self).__name__, self.id)
+        if self.id:
+            return u"%s [%d]" % (type(self).__name__, self.id)
+        else:
+            return u"%s [?]" % (type(self).__name__)
 
 
 class Country(BaseModel):
