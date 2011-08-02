@@ -1,9 +1,9 @@
+from common.util import split_to_tuples, point_inside_polygon
 from django.db import models
-from django.utils.translation import ugettext_lazy as _, ugettext
-from djangotoolbox.fields import BlobField, ListField
-from common.models import BaseModel, Country, City, CityArea
-from common.tz_support import UTCDateTimeField
+from django.utils.translation import ugettext_lazy as _
+from common.models import BaseModel, Country, City
 from ordering.models import DAY_OF_WEEK_CHOICES
+from sharing.widgets import ListFieldWithUI, ColorField
 
 class HotSpot(BaseModel):
     name = models.CharField(_("hotspot name"), max_length=50)
@@ -15,11 +15,38 @@ class HotSpot(BaseModel):
     lon = models.FloatField(_("longtitude"), null=True)
     lat = models.FloatField(_("latitude"), null=True)
 
+    def get_area_for_point(self, lat, lon):
+        #noinspection PyUnresolvedReferences
+        for area_id in self.get_pricearea_order():
+            area = PriceArea.by_id(area_id)
+            if area.is_in_area(lat, lon):
+                return area
+
+        return None
+
+class PriceArea(BaseModel):
+    points = ListFieldWithUI(models.FloatField(), verbose_name=_("Edit Points"), null=True, blank=True)
+    color = ColorField(default="yellow")
+    cost = models.FloatField()
+    price = models.FloatField(null=True, blank=True)
+    name = models.CharField(_("name"), max_length=50)
+    
+    hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="areas")
+
+    class Meta:
+        order_with_respect_to = 'hotspot'
+
+    def is_in_area(self, lat, lon):
+        return point_inside_polygon(lat, lon, self.polygon)
+
+    @property
+    def polygon(self):
+        #TODO_WB: refactor into polygon class
+        return list(split_to_tuples(self.points, 2))
 
 class HotSpotTag(BaseModel):
     name = models.CharField(_("tag"), max_length=50)
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="tags")
-
 
 class HotSpotTimeFrame(BaseModel):
     TIME_INTERVAL_CHOICES = [(5, "5 min"), (10, "10 min"), (15, "15 min"), (30, "30 min")]
