@@ -46,12 +46,13 @@ $(function() {
     var polygon_listeners = [];
     var currently_editing_id = undefined;
     var drag_marker = undefined;
+    var hotspot_marker = undefined;
     var last_listener = undefined;
     var hotspot_lat = {{ original.lat }};
     var hotspot_lon = {{ original.lon }};
 
 
-    setTimeout(renderPolygons, 1000);
+    setTimeout(init, 1000);
 
     $("#areas-group").find("table").tableDnD({
         onDragClass: "row-dragging",
@@ -114,9 +115,22 @@ $(function() {
 
     });
 
-
+    function init() {
+        renderPolygons();
+        renderHotspot();
+        centerMap();
+    }
+    
     function renderHotspot() {
-        
+        var icon_image = new telmap.maps.MarkerImage("/static/images/hotspot_marker.png", undefined, undefined, {x:20, y:20});
+        var point = new telmap.maps.LatLng(hotspot_lat, hotspot_lon);
+        hotspot_marker = new telmap.maps.Marker({
+            map:        OrderingHelper.map,
+            position:   point,
+            draggable:  false,
+            icon:       icon_image,
+            title:      'Hotspot'
+        });
     }
     function removeDragMarker() {
         if (drag_marker) {
@@ -134,8 +148,20 @@ $(function() {
             telmap.maps.event.removeListener(e);
         });
     }
+    function centerMap() {
+        var bounds = new telmap.maps.LatLngBounds();
+        bounds.extend(hotspot_marker.getPosition());
+        $.each(polygons, function(i, polygon) {
+            $.each(polygon.getPath().array, function(i, point) {
+                bounds.extend(point);
+            })
+        });
 
+        OrderingHelper.map.fitBounds(bounds);
+        OrderingHelper.map.panToBounds(bounds);
+    }
     function renderPolygons() {
+
         $("#areas-group").find(".points").find("input[type=hidden]").each(function(i, e) {
             var val = $(e).val();
             if (val) {
@@ -164,9 +190,11 @@ $(function() {
         polygon.setMap(OrderingHelper.map);
 
     }
+
     function pointDistance(p1, p2) {
         return Math.sqrt(Math.pow((p1.lat() - p2.lat()),2) + Math.pow((p1.lng() - p2.lng()),2));
     }
+
     function getPolygon(id) {
         if (! (id in polygons)) {
             console.log("creating new polygon: " + id);
