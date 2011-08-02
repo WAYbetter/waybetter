@@ -1,7 +1,7 @@
 from django.contrib import admin
 from ordering.models import SharedRide, RidePoint, Driver, Taxi, TaxiDriverRelation
 from common.forms import MandatoryInlineFormset
-from sharing.models import HotSpot, HotSpotTag, HotSpotTimeFrame
+from sharing.models import HotSpot, HotSpotTag, HotSpotTimeFrame, PriceArea
 from sharing.forms import HotSpotAdminForm, TimeFrameForm
 
 class HotSpotTagAdmin(admin.TabularInline):
@@ -14,10 +14,14 @@ class HotSpotTimeFrameAdmin(admin.TabularInline):
     formset = MandatoryInlineFormset
     extra = 1
 
+class HotSpotPriceAreaAdmin(admin.TabularInline):
+    model = PriceArea
+    extra = 0
+
 class HotSpotAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "address"]
     exclude = ["geohash", "lat", "lon"]
-    inlines = [HotSpotTagAdmin, HotSpotTimeFrameAdmin]
+    inlines = [HotSpotTagAdmin, HotSpotTimeFrameAdmin, HotSpotPriceAreaAdmin]
     form = HotSpotAdminForm
 
 class SharedRideAdmin(admin.ModelAdmin):

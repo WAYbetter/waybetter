@@ -351,3 +351,56 @@ def has_related_objects(model_instance):
                 return False
 
     return has_related
+
+def split_to_tuples(l, n):
+    """
+    Yield successive n-sized tuples from l.
+
+    @param l: a list
+    @param n: size of tuple
+    @return: an iterator 
+    """
+    for i in xrange(0, len(l), n):
+        yield tuple(l[i:i+n])
+
+def point_inside_polygon(x,y,poly):
+
+    n = len(poly)
+    inside =False
+
+    p1x,p1y = poly[0]
+    for i in range(n+1):
+        p2x,p2y = poly[i % n]
+        if y > min(p1y,p2y):
+            if y <= max(p1y,p2y):
+                if x <= max(p1x,p2x):
+                    if p1y != p2y:
+                        xinters = (y-p1y)*(p2x-p1x)/(p2y-p1y)+p1x
+                        if p1x == p2x or x <= xinters:
+                            inside = not inside
+        p1x,p1y = p2x,p2y
+
+    return inside
+
+def point_inside_polygon_2(x, y, poly):
+    nvert = len(poly)
+    testx = x
+    testy = y
+    vertx = []
+    verty = []
+    for t in poly:
+        valx, valy = t
+        vertx.append(valx)
+        verty.append(valy)
+        
+    i = 0
+    j = nvert - 1
+    c = False
+
+    while i < nvert:
+        if ((verty[i]>testy) != (verty[j]>testy)) and (testx < (vertx[j]-vertx[i]) * (testy-verty[i]) / (verty[j]-verty[i]) + vertx[i]):
+            c = not c
+        j = i
+        i += 1
+
+    return c
