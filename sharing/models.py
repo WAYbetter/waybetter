@@ -113,7 +113,9 @@ class HotSpotTimeFrame(BaseModel):
     def get_weekdays(self):
         weekdays = []
         if self.from_weekday and self.to_weekday:
-            if self.from_weekday < self.to_weekday:
+            if self.from_weekday == self.to_weekday:
+                weekdays = [self.from_weekday]
+            elif self.from_weekday < self.to_weekday:
                 weekdays = range(self.from_weekday, self.to_weekday + 1)
             else:
                 weekdays = range(self.from_weekday, LAST_WEEKDAY + 1) + range(FIRST_WEEKDAY, self.to_weekday + 1)
