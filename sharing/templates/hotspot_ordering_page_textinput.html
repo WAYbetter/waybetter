@@ -5,7 +5,7 @@
 {% block mainclass %}clean_main full_screen_main{% endblock %}
 
 {% block extrastyle %}
-    <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
+    {{ block.super }}
     <link rel="stylesheet" href="/static/css/sharing.css" type="text/css" media="all">
 {% endblock %}
 
@@ -15,25 +15,27 @@
         <div id="map"></div>
     </div>
 
-    <form id="order_form" method="post" action="{% url hotspot_select %}">
+    <form id="order_form" method="post" action="{% url hotspot_textinput %}">
         {% csrf_token %}
         {% for field in hidden_fields %}
+            <input type="hidden" id="id_hotspot_{{ field }}" name="hotspot_{{ field }}"/>
             <input type="hidden" id="id_p1_{{ field }}" name="p1_{{ field }}"/>
         {% endfor %}
+        <input type="hidden" id="id_geocoded_hotspot_raw" name="geocoded_hotspot_raw"/>
         <input type="hidden" id="id_geocoded_p1_raw" name="geocoded_p1_raw"/>
 
         <ul>
             <span id="from">{% trans 'From' %}</span>
             <li id="hotspot">
-                <select id="id_hotspot_select" name="hotspot_id">
-                    {% for hotspot in hotspots %}
-                        <option value="{{ hotspot.id }}" lat="{{ hotspot.lat }}" lon="{{ hotspot.lon }}">
-                            {{ hotspot.name }}
-                        </option>
+                <input type=text class="big_text a_marker marker_disabled address_ac_from" id="id_hotspot_raw"
+                       name="hotspot_raw"
+                       placeholder="{% trans 'Enter pickup address' %}"/>
+                <label for="id_hotspot_times">{% trans 'Select time' %}</label>
+                <select id="id_hotspot_times" name="hotspot_time">
+                    {% for time in hotspot_times %}
+                        <option value={{ time }}>{{ time }}</option>
                     {% endfor %}
                 </select>
-                <input type="text" id="id_hotspot_datepicker" name="hotspot_date">
-                <select id="id_hotspot_time" name="hotspot_time"></select>
             </li>
             <span id="to">{% trans 'To' %}</span>
             <li id="p1" class="point">
@@ -43,12 +45,8 @@
             </li>
         </ul>
 
-        <h3>{% trans "Time constraints (optional)" %}</h3>
-        {{ constraints_form.as_p }}
-
         <button type=submit class="order_button" id="order_button">{% trans 'Pick Me Up' %}</button>
     </form>
-
 
     <a href="#" id="add_point">{% trans 'Add point' %}</a>
     <a href="#" id="toggle_hotspot">{% trans 'Switch Direction' %}</a>
@@ -92,103 +90,13 @@
 
             OrderingHelper._makeAddressInput($input);
 
-            if (address){
+            if (address) {
                 address.address_type = address_type;
                 address.populateFields();
             }
         }
 
-        function asHotSpotInput(hotspot_selector, datepicker_selector, times_selector) {
-
-            var $hotspot = $(hotspot_selector);
-            var $datepicker = $(datepicker_selector);
-            var $times = $(times_selector);
-
-            $datepicker.data("cached_dates", []);
-            $datepicker.data("cached_months", []);
-            var cached_dates = $datepicker.data("cached_dates");
-            var cached_months = $datepicker.data("cached_months");
-
-            $datepicker.datepicker("destroy");
-            $times.empty().disable().append("<option>{% trans "Choose Date" %}</option>");
-
-            $datepicker.datepicker({
-                dateFormat: 'dd/mm/yy',
-                firstDay: 0,
-                minDate: new Date(),
-                isRTL: true,
-                beforeShowDay: function(date) {
-                    return ($.inArray(date.toDateString(), cached_dates) !== -1) ? [true, "", ""] : [false, "", ""];
-                },
-                onChangeMonthYear: function(year, month, inst) {
-                    if ($.inArray(month, cached_months) < 0) {
-                        // get dates for this month
-                        $.ajax({
-                            url: "{% url sharing.passenger_controller.get_hotspot_dates %}",
-                            dataType: "json",
-                            data: {'month': month, 'year': year, 'hotspot_id': $hotspot.val()},
-                            success: function(response) {
-                                var new_dates = $.map(response.dates, function(date, i) {
-                                    return (new Date(date)).toDateString();
-                                });
-                                cached_dates = cached_dates.concat(new_dates);
-                                cached_months[cached_months.length] = month;
-                                inst.input.datepicker("refresh");
-                            },
-                            error: function() {
-                                alert("Error loading hotspot dates data");
-                            }
-                        });
-                    }
-                },
-                onSelect: function(dateText, inst) {
-                    $times.empty().disable().append("<option>{% trans "Updating..." %}</option>");
-
-                    $.ajax({
-                        url: "{% url sharing.passenger_controller.get_hotspot_times %}",
-                        dataType: "json",
-                        data: {'day': dateText, 'hotspot_id': $hotspot.val()},
-                        success: function(response) {
-                            $times.empty();
-                            $.each(response.times, function(i, d) {
-                                $times.append("<option>" + d + "</option>");
-                            });
-                            $times.enable();
-                        },
-                        error: function() {
-                            alert("Error loading hotspot times data");
-                        }
-                    });
-                }
-            });
-            $datepicker.datepicker("setDate", undefined); // triggers onChangeMonthYear for getting initial data
-        }
-
-        function refrestHotspotMarker() {
-            var lat = $("#id_hotspot_select :selected").attr("lat");
-            var lon = $("#id_hotspot_select :selected").attr("lon");
-            var icon_image = new telmap.maps.MarkerImage("/static/images/hotspot_marker.png", undefined, undefined, {x:20, y:20});
-            var point = new telmap.maps.Marker({
-                map:        OrderingHelper.map,
-                position:   new telmap.maps.LatLng(lat, lon),
-                draggable:  false,
-                icon:       icon_image,
-                title:      'Hotspot'
-            });
-
-            OrderingHelper.removePoint("hotspot");
-            OrderingHelper.map_markers["hotspot"] = point;
-            OrderingHelper.renderMapMarkers();
-        }
-
         $(function() {
-            
-            $("#id_hotspot_select").change(function() {
-                asHotSpotInput("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
-                refrestHotspotMarker();
-            });
-            $("#id_hotspot_select").change();
-
             {% autoescape off %}
                 OrderingHelper.config.hidden_fields = {{ hidden_fields }};
             {% endautoescape %}
@@ -197,10 +105,12 @@
                 e.preventDefault();
                 hotspot_type = (hotspot_type == pickup) ? dropoff : pickup;
                 if (hotspot_type == pickup) {
+                    OrderingHelper.asPickup("#hotspot");
                     OrderingHelper.asDropoff(".point");
                     $("#to").before($("#hotspot")).after($(".point"));
                 }
                 else {
+                    OrderingHelper.asDropoff("#hotspot");
                     OrderingHelper.asPickup(".point");
                     $("#to").before($(".point")).after($("#hotspot"));
                 }
@@ -213,8 +123,6 @@
             });
 
             $("#order_form").submit(function() {
-                $(this).append('<input type="hidden" name="hotspot_type" value="' + hotspot_type + '"/>');
-
                 if ($("#id_time_const_min").val() && $("#id_time_const_frac").val()) {
                     alert("Please specify only one time constraint");
                     return false;
@@ -227,6 +135,8 @@
                         $(this).append('<input type="hidden" name="time_const_min" value="' + $("#id_time_const_min").val() + '"/>');
                     }
                 }
+
+                $(this).append('<input type="hidden" name="hotspot_type" value="' + hotspot_type + '"/>');
             });
 
             telmap.maps.event.addListener(OrderingHelper.map, 'click', function(e) {
@@ -239,7 +149,7 @@
                     success: function(resolve_result) {
                         var new_address = Address.fromServerResponse(resolve_result);
                         if (new_address.street_address) {   // only update to new address if it contains a valid street
-                            if ($(":focus").parent().hasClass("point")) {
+                            if ($(":focus").parent().attr("id") == "hotspot" || $(":focus").parent().hasClass("point")) {
                                 new_address.address_type = $(":focus").parent().attr("id");
                                 new_address.populateFields();
                             }

@@ -1,7 +1,8 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
-    (r'^hotspot/$', 'sharing.passenger_controller.hotspot_ordering_page'),
+    url(r'^hotspot/$', 'sharing.passenger_controller.hotspot_ordering_page',  kwargs={'is_textinput': False}, name='hotspot_select'),
+    url(r'^hotspot/textinput/$', 'sharing.passenger_controller.hotspot_ordering_page', kwargs={'is_textinput': True}, name='hotspot_textinput'),
     (r'^ride/$', 'sharing.station_controller.show_ride'),
     (r'^ride/(?P<ride_id>\d+)$', 'sharing.station_controller.show_ride'),
     (r'^accept_ride/$', 'sharing.station_controller.accept_ride'),
