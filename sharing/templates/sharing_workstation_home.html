@@ -106,7 +106,7 @@
     };
 
     renderInfo = function(ride) {
-        var link = "{% url sharing.views.show_ride %}" + ride.id;
+        var link = "{% url sharing.station_controller.show_ride %}" + ride.id;
         var $map_link = $('<a class="map_link" href="#" target="_blank">{% trans "Show Points On Map" %}</a>')
                 .click(function(e) {
                     e.preventDefault();
@@ -123,7 +123,7 @@
         $driver_select.empty().disable().append('<option>' + "{% trans "Updating..." %}" + '</option>');
 
         $.ajax({
-            url:        "{% url sharing.views.get_drivers_for_taxi %}",
+            url:        "{% url sharing.station_controller.get_drivers_for_taxi %}",
             data:       { taxi_id: taxi_id },
             dataType:   "json",
             success:    function(data) {
@@ -172,7 +172,7 @@
                     var that = this;
                     if ($taxi_selector.val() && $driver_selector.val()) {
                     $.ajax({
-                        url: '{% url sharing.views.accept_ride %}',
+                        url: '{% url sharing.station_controller.accept_ride %}',
                         type: 'POST',
                         data: { 'ride_id': ride.id,
                             'taxi_id': $taxi_selector.val(),
@@ -221,7 +221,7 @@
             var $close_btn = $('<span href="#" class="action_link"></span>').text("{% trans 'Close' %}").click(function(e) {
                 var that = this;
                 $.ajax({
-                    url: '{% url sharing.views.complete_ride %}',
+                    url: '{% url sharing.station_controller.complete_ride %}',
                     type: 'POST',
                     data: { 'ride_id': ride.id, 'force': 1 },
                     beforeSend: function() {
@@ -306,7 +306,7 @@
         var $complete_ride = $('<span href="#" class="action_link"></span>').text("{% trans 'Ride Started' %}").click(function(e) {
             var that = this;
             $.ajax({
-                url: '{% url sharing.views.complete_ride %}',
+                url: '{% url sharing.station_controller.complete_ride %}',
                 type: 'POST',
                 data: { 'ride_id': ride.id },
                 beforeSend: function() {
@@ -375,7 +375,7 @@
 
     $(function() {
         $("#tools_button").button().click(function(e) {
-            window.open("{% url sharing.views.station_tools %}", "station_tools", "width=800,height=600,resizable=0,scrollbars=1");
+            window.open("{% url sharing.station_controller.station_tools %}", "station_tools", "width=800,height=600,resizable=0,scrollbars=1");
         });
 
         $("#untaken_counter, #taken_counter").text(0);

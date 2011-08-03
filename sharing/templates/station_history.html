@@ -45,7 +45,7 @@
         };
 
         renderInfo = function(ride) {
-            var link = "{% url sharing.views.show_ride %}" + ride.id;
+            var link = "{% url sharing.station_controller.show_ride %}" + ride.id;
             var $map_link = $('<a class="map_link" href="#" target="_blank">{% trans "Show Points On Map" %}</a>')
                     .click(function(e) {
                         e.preventDefault();
@@ -95,7 +95,7 @@
 
             $("#id_start_date, #id_end_date").change(function() {
                 $.ajax({
-                    url: "{% url sharing.views.station_history %}",
+                    url: "{% url sharing.station_controller.station_history %}",
                     type: "POST",
                     dataType: 'json',
                     data: $("#date_picker").serialize(),

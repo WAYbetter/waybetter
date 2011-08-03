@@ -15,7 +15,7 @@
         <div id="map"></div>
     </div>
 
-    <form id="order_form" method="post" action="{% url sharing.views.hotspot_ordering_page %}">
+    <form id="order_form" method="post" action="{% url sharing.passenger_controller.hotspot_ordering_page %}">
         {% csrf_token %}
         {% for field in hidden_fields %}
             <input type="hidden" id="id_hotspot_{{ field }}" name="hotspot_{{ field }}"/>
