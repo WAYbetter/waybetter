@@ -75,7 +75,8 @@ var OrderingHelper = Object.create({
         order_tracker_visible:      false,
         pickup_placeholder_text:     "",
         dropoff_placeholder_text:    "",
-        hidden_fields:              []
+        hidden_fields:              [],
+        update_address_callback:    undefined
 
 
 
@@ -385,7 +386,11 @@ var OrderingHelper = Object.create({
         $(".address_ac_to:blank").first().focus();
 
         this.getRideCostEstimate();
-       this.validateForBooking();
+        this.validateForBooking();
+
+        if (this.config.update_address_callback){
+            this.config.update_address_callback.call(this, address);
+        }
     },
     getRideCostEstimate:        function() {
         var that = this,

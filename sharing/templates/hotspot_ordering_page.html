@@ -40,6 +40,7 @@
                 <input type=text class="big_text b_marker marker_disabled address_ac_to" id="id_p1_raw"
                        name="p1_raw"
                        placeholder="{% trans 'Enter drop-off address' %}"/>
+                <span class="price"></span>
             </li>
         </ul>
 
@@ -78,8 +79,9 @@
                 OrderingHelper.removePoint(address_type);
                 $(this).parent().remove();
             });
+            var $price = $('<span class="price"></span>');
 
-            var $point = $('<li class="point" id="' + address_type + '"></li>').append($input).append($remove);
+            var $point = $('<li class="point" id="' + address_type + '"></li>').append($input, $remove, $price);
             $(".point").last().after($point);
 
             var point_type = (hotspot_type == pickup) ? dropoff : pickup;
@@ -181,16 +183,40 @@
             OrderingHelper.renderMapMarkers();
         }
 
+        function updatePrice(address) {
+            if (address.lon && address.lat) {
+                var $price = $("#id_" + address.address_type + "_raw").siblings(".price");
+                $.ajax({
+                    url: "{% url sharing.passenger_controller.get_hotspot_price %}",
+                    dataType: "json",
+                    data: {'lon': address.lon, 'lat': address.lat, 'hotspot_id': $("#id_hotspot_select").val()},
+                    success: function(response) {
+                        var price = (response.price) ? response.price : "?";
+                        $price.text(price);
+                    },
+                    error: function() {
+                        $price.text("?");
+                        alert("Error loading price");
+                    }
+                });
+            }
+        }
+
         $(function() {
-            
+
             $("#id_hotspot_select").change(function() {
                 asHotSpotInput("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
                 refrestHotspotMarker();
+                $(".address_ac_to").each(function(i, e) {
+                    var address = Address.fromInput(e);
+                    updatePrice(address);
+                });
             });
             $("#id_hotspot_select").change();
 
             {% autoescape off %}
                 OrderingHelper.config.hidden_fields = {{ hidden_fields }};
+                OrderingHelper.config.update_address_callback = updatePrice;
             {% endautoescape %}
 
             $("#toggle_hotspot").click(function(e) {

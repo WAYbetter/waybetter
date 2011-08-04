@@ -18,5 +18,6 @@ urlpatterns = patterns('',
     (r'^drivers_for_taxi/$', 'sharing.station_controller.get_drivers_for_taxi'),
     (r'^dates_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_dates'),
     (r'^times_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_times'),
+    (r'^price_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_price'),
 
 )
