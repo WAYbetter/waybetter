@@ -1,9 +1,11 @@
 from common.tz_support import UTCDateTimeField
+from common.util import point_inside_polygon, split_to_tuples, Polygon
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from djangotoolbox.fields import ListField
 from common.decorators import run_in_transaction
 import logging
+from common.widgets import ListFieldWithUI, ColorField
 
 class BaseModel(models.Model):
     create_date = UTCDateTimeField(_("create date"), auto_now_add=True, null=True, blank=True)
@@ -161,7 +163,16 @@ class City(BaseModel):
 
 class CityArea(BaseModel):
     name = models.CharField(_("name"), max_length=50)
+    points = ListFieldWithUI(models.FloatField(), verbose_name=_("Edit Points"))
+    color = ColorField(default="yellow")
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="city_areas")
 
     def __unicode__(self):
         return self.name
+
+    @property
+    def polygon(self):
+        return Polygon(self.points)
+
+    def contains(self, lat, lon):
+        return self.polygon.contains(lat, lon)

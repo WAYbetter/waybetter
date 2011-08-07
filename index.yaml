@@ -739,6 +739,31 @@ indexes:
   - name: dn_station_name
     direction: desc
 
+- kind: pricing_fixedpricerule
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: pricing_fixedpriceruleset
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: pricing_ruleset
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: pricing_tariff
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: pricing_temporalrule
+  properties:
+  - name: __key__
+    direction: desc
+
 - kind: registration_registrationprofile
   properties:
   - name: __key__
@@ -748,6 +773,16 @@ indexes:
   properties:
   - name: __key__
     direction: desc
+
+- kind: sharing_hotspotcustompricerule
+  properties:
+  - name: hotspot_id
+  - name: _order
+
+- kind: sharing_hotspotpricerule
+  properties:
+  - name: hotspot_id
+  - name: _order
 
 - kind: sharing_pricearea
   properties:

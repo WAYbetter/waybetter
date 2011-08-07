@@ -57,6 +57,17 @@ class Enum(object):
         return sorted(result)
 
 
+class Polygon(object):
+    def __init__(self, points):
+        self.polygon = list(split_to_tuples(points, 2))
+
+    def __repr__(self):
+        return unicode(self.polygon)
+    
+    def contains(self, lat, lon):
+        return point_inside_polygon(lat, lon, self.polygon)
+
+
 class EventType(Enum):
     ORDER_BOOKED = 1
     ORDER_ASSIGNED = 2

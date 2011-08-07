@@ -1,3 +1,4 @@
+from __future__ import absolute_import
 from django.core.exceptions import ValidationError
 from django.template.loader import get_template
 from django.template.context import Context
@@ -17,6 +18,7 @@ from common.util import get_international_phone, generate_random_token, notify_b
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
+from pricing.models import RuleSet
 
 import time
 import urllib
@@ -194,6 +196,17 @@ class Station(BaseModel):
 
     def delete_workstations(self):
         self.work_stations.all().delete()
+
+
+class StationFixedPriceRule(BaseModel):
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="fixed_prices")
+    rule_set = models.ForeignKey(RuleSet, verbose_name=_("rule set"))
+    from_city_area = models.ForeignKey(CityArea, verbose_name=_("from city area"))
+    to_city_area = models.ForeignKey(CityArea, verbose_name=_("to city area"))
+    price = models.FloatField(_("price"))
+
+    def is_active(self, from_lat, from_lon, to_lat, to_lon, day, t):
+        return self.from_city_area.contains(from_lat, from_lon) and self.to_city_area.contains(to_lat, to_lon)# and self.rule_set.is_active(day, t)
 
 
 class Driver(BaseModel):

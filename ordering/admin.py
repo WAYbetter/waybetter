@@ -2,11 +2,51 @@ from common.util import blob_to_image_tag
 from django.contrib import admin
 from django.utils.translation import ugettext as _
 from django.forms.models import BaseInlineFormSet
-from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, Feedback, Business
+from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, Feedback, Business, SharedRide, RidePoint, Driver, Taxi, TaxiDriverRelation, StationFixedPriceRule
 import station_connection_manager
 from common.models import Country
 from common.forms import MandatoryInlineFormset
 import forms
+
+class SharedRideAdmin(admin.ModelAdmin):
+    list_display = ["id", "create_date", "depart_time", "arrive_time", "status", "taxi_number", "driver_name"]
+
+    def driver_name(self, obj):
+        return obj.driver.name
+
+    def taxi_number(self, obj):
+        return obj.taxi.number
+
+
+class RidePointAdmin(admin.ModelAdmin):
+    list_display = ["id", "create_date", "stop_time", "type", "address", "ride_id"]
+
+    def ride_id(self, obj):
+        return obj.ride_id
+
+
+class TaxiAdmin(admin.ModelAdmin):
+    list_display = ["id", "dn_station_name", "number"]
+    exclude = ["dn_station_name"]
+
+
+class DriverAdmin(admin.ModelAdmin):
+    list_display = ["id", "dn_station_name", "name"]
+    exclude = ["dn_station_name"]
+
+
+class TaxiDriverRelationAdmin(admin.ModelAdmin):
+    list_display = ["id", "_driver", "_taxi", "dn_station_name"]
+    list_filter = ["driver", "taxi"]
+    exclude = ["dn_station_name"]
+
+    def _driver(self, obj):
+        driver = Driver.by_id(obj.driver_id)
+        return driver
+
+    def _taxi(self, obj):
+        return Taxi.by_id(obj.taxi_id)
+
 
 class PassengerAdmin(admin.ModelAdmin):
     list_display = ["id", "user_name", "phone"]
@@ -48,6 +88,9 @@ class PhoneAdmin(admin.TabularInline):
     formset = MandatoryInlineFormset
     extra = 2
 
+class StationFixedPriceRuleAdmin(admin.TabularInline):
+    model = StationFixedPrice
+    extra = 1
 
 def build_workstations(modeladmin, request, queryset):
     for station in queryset:
@@ -58,7 +101,7 @@ build_workstations.short_description = "Build workstations"
 
 class StationAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "logo_img"]
-    inlines = [PhoneAdmin]
+    inlines = [PhoneAdmin, StationFixedPriceRuleAdmin]
     exclude = ["geohash", "lat", "lon", "number_of_ratings", "average_rating", "last_assignment_date"]
     form = forms.StationAdminForm
     actions = [build_workstations]
@@ -173,6 +216,11 @@ class FeedbackAdmin(admin.ModelAdmin):
     feedback.allow_tags = True
 
 
+admin.site.register(SharedRide, SharedRideAdmin)
+admin.site.register(RidePoint, RidePointAdmin)
+admin.site.register(Taxi, TaxiAdmin)
+admin.site.register(Driver, DriverAdmin)
+admin.site.register(TaxiDriverRelation, TaxiDriverRelationAdmin)
 admin.site.register(Passenger, PassengerAdmin)
 admin.site.register(Business, BusinessAdmin)
 admin.site.register(Order, OrderAdmin)
