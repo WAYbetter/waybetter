@@ -89,7 +89,7 @@ class PhoneAdmin(admin.TabularInline):
     extra = 2
 
 class StationFixedPriceRuleAdmin(admin.TabularInline):
-    model = StationFixedPrice
+    model = StationFixedPriceRule
     extra = 1
 
 def build_workstations(modeladmin, request, queryset):

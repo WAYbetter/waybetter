@@ -189,10 +189,16 @@
                 $.ajax({
                     url: "{% url sharing.passenger_controller.get_hotspot_price %}",
                     dataType: "json",
-                    data: {'lon': address.lon, 'lat': address.lat, 'hotspot_id': $("#id_hotspot_select").val()},
+                    data: { 'lon': address.lon,
+                            'lat': address.lat,
+                            'hotspot_id': $("#id_hotspot_select").val(),
+                            'day': $("#id_hotspot_datepicker").val(),
+                            'time': $("#id_hotspot_time").val()
+                    },
                     success: function(response) {
-                        var price = (response.price) ? response.price : "?";
+                        var price = (response.price) ? response.price + "₪" : "?";
                         $price.text(price);
+                        $(".price").effect("highlight");
                     },
                     error: function() {
                         $price.text("?");
@@ -207,12 +213,29 @@
             $("#id_hotspot_select").change(function() {
                 asHotSpotInput("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
                 refrestHotspotMarker();
+                $(".price").text("");
+            });
+            $("#id_hotspot_select").change();
+
+            $("#id_hotspot_time").change(function() {
                 $(".address_ac_to").each(function(i, e) {
                     var address = Address.fromInput(e);
                     updatePrice(address);
                 });
             });
-            $("#id_hotspot_select").change();
+
+            var datepicker_val = "";
+            $("#id_hotspot_datepicker").focus(function() {
+                        datepicker_val = $(this).val();
+                    }).blur(function() {
+                if ($(this).val != datepicker_val) {
+                    $(".address_ac_to").each(function(i, e) {
+                        var address = Address.fromInput(e);
+                        updatePrice(address);
+                    });
+
+                }
+            });
 
             {% autoescape off %}
                 OrderingHelper.config.hidden_fields = {{ hidden_fields }};

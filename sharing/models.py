@@ -2,7 +2,7 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from common.util import convert_python_weekday, datetimeIterator
 from common.models import BaseModel, Country, City, CityArea
-from pricing.models import RuleSet, AbstractTemporalRule
+from pricing.models import RuleSet, AbstractTemporalRule, TemporalRule
 from datetime import datetime, date, timedelta, time
 import calendar
 
@@ -18,10 +18,17 @@ class HotSpot(BaseModel):
 
     def get_price(self, lat, lon, day, t):
         #noinspection PyUnresolvedReferences
-        for rule_id in self.get_hotspotpricerule_order():
+        for rule_id in self.get_hotspotcustompricerule_order():
             rule = HotSpotCustomPriceRule.by_id(rule_id)
 
-            if rule.city_area.contains(lat, lon) and rule.is_active(day, t):
+            if rule.is_active(lat, lon, day, t):
+                return rule.price
+
+        #noinspection PyUnresolvedReferences
+        for rule_id in self.get_hotspottariffrule_order():
+            rule = HotSpotTariffRule.by_id(rule_id)
+
+            if rule.is_active(lat, lon, day, t):
                 return rule.price
 
         return None
@@ -111,7 +118,8 @@ class HotSpotCustomPriceRule(AbstractTemporalRule):
         self.rule_set = None
 
     def is_active(self, lat, lon, day, t):
-        return self.city_area.contains(lat, lon) and super(AbstractTemporalRule, self).is_active(day, t)
+        # using super does not work for some reason: super(AbstractTemporalRule, self).is_active(day, t)
+        return self.city_area.contains(lat, lon) and getattr(AbstractTemporalRule, "is_active")(self, day, t)
 
 
 class HotSpotTariffRule(BaseModel):
@@ -122,6 +130,9 @@ class HotSpotTariffRule(BaseModel):
 
     def is_active(self, lat, lon, day, t):
         return self.city_area.contains(lat, lon) and self.rule_set.is_active(day, t)
+
+    class Meta:
+        order_with_respect_to = 'hotspot'
 
 
 class HotSpotTag(BaseModel):
