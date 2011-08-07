@@ -7,20 +7,20 @@
 
     <style type="text/css">
         .colMS {
-            margin-left: 660px !important;
+            margin-left: 33% !important;
         }
         #content-related {
             position: static;
         }
         #map_container {
-            width: 650px;
+            width: 32%;
             height: 650px;
             top: 85px;
             left:0;
             position: absolute;
         }
         #map {
-            width: 650px;
+            width: 100%;
             height: 650px;
         }
         .editing {
@@ -150,7 +150,7 @@ $(function() {
     }
     function centerMap() {
         var bounds = new telmap.maps.LatLngBounds();
-        bounds.extend(hotspot_marker.getPosition());
+//        bounds.extend(hotspot_marker.getPosition());
         $.each(polygons, function(i, polygon) {
             $.each(polygon.getPath().array, function(i, point) {
                 bounds.extend(point);
@@ -162,7 +162,7 @@ $(function() {
     }
     function renderPolygons() {
 
-        $("#areas-group").find(".points").find("input[type=hidden]").each(function(i, e) {
+        $(".points").find("input[type=hidden]").each(function(i, e) {
             var val = $(e).val();
             if (val) {
                 var val_array = val.split("|");
