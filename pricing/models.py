@@ -15,7 +15,7 @@ class RuleSet(BaseModel):
         return self.name
 
     def is_active(self, day, t):
-        for rule in self.rules:
+        for rule in self.rules.all():
             if rule.is_active(day, t):
                 return True
 
@@ -30,7 +30,6 @@ class AbstractTemporalRule(BaseModel):
         abstract = True
 
     name = models.CharField(_("name"), max_length=50, null=True, blank=True)
-    rule_set = models.ForeignKey(RuleSet, verbose_name=_("rule set"), related_name="rules", null=True, blank=True)
 
     from_date = models.DateField(_("from date"), null=True, blank=True)
     to_date = models.DateField(_("to date"), null=True, blank=True)
@@ -112,4 +111,4 @@ class AbstractTemporalRule(BaseModel):
 
 
 class TemporalRule(AbstractTemporalRule):
-    pass
+    rule_set = models.ForeignKey(RuleSet, verbose_name=_("rule set"), related_name="rules", null=True, blank=True)

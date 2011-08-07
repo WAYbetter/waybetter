@@ -201,12 +201,14 @@ class Station(BaseModel):
 class StationFixedPriceRule(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="fixed_prices")
     rule_set = models.ForeignKey(RuleSet, verbose_name=_("rule set"))
-    from_city_area = models.ForeignKey(CityArea, verbose_name=_("from city area"))
-    to_city_area = models.ForeignKey(CityArea, verbose_name=_("to city area"))
+    city_area_1 = models.ForeignKey(CityArea, verbose_name=_("city area 1"))
+    city_area_2 = models.ForeignKey(CityArea, verbose_name=_("city area 2"))
     price = models.FloatField(_("price"))
 
     def is_active(self, from_lat, from_lon, to_lat, to_lon, day, t):
-        return self.from_city_area.contains(from_lat, from_lon) and self.to_city_area.contains(to_lat, to_lon)# and self.rule_set.is_active(day, t)
+        contains = (self.city_area_1.contains(from_lat, from_lon) and self.city_area_2.contains(to_lat, to_lon)) or \
+                   (self.city_area_2.contains(from_lat, from_lon) and self.city_area_1.contains(to_lat, to_lon))
+        return contains and self.rule_set.is_active(day, t)
 
 
 class Driver(BaseModel):

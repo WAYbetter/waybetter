@@ -77,11 +77,6 @@ class HotSpotServiceRule(AbstractTemporalRule):
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="service_rules")
     interval = models.IntegerField(_("time interval"), choices=TIME_INTERVAL_CHOICES) # minutes
 
-    def __init__(self, *args, **kwargs):
-        super(AbstractTemporalRule, self).__init__(*args, **kwargs)
-        self.rule_set = None
-
-
     def get_times(self, start_time=None, end_time=None):
         """
         Times the rule is active on the days it is active.
@@ -112,10 +107,6 @@ class HotSpotCustomPriceRule(AbstractTemporalRule):
 
     class Meta:
         order_with_respect_to = 'hotspot'
-
-    def __init__(self, *args, **kwargs):
-        super(AbstractTemporalRule, self).__init__(*args, **kwargs)
-        self.rule_set = None
 
     def is_active(self, lat, lon, day, t):
         # using super does not work for some reason: super(AbstractTemporalRule, self).is_active(day, t)

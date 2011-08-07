@@ -73,7 +73,7 @@
             OrderingHelper.createHiddenFields(address_type);
 
             var $input = $('<input type=text class="big_text marker_disabled"/>').attr("id", 'id_p' + point_counter + '_raw').attr("name", 'p' + point_counter + '_raw');
-            var $remove = $('<a href="#">Remove</a>').click(function(e) {
+            var $remove = $('<a href="#" dir="rtl">X</a>').click(function(e) {
                 e.preventDefault();
                 OrderingHelper.deleteHiddenFields(address_type);
                 OrderingHelper.removePoint(address_type);
@@ -81,7 +81,7 @@
             });
             var $price = $('<span class="price"></span>');
 
-            var $point = $('<li class="point" id="' + address_type + '"></li>').append($input, $remove, $price);
+            var $point = $('<li class="point" id="' + address_type + '"></li>').append($remove, $input, $price);
             $(".point").last().after($point);
 
             var point_type = (hotspot_type == pickup) ? dropoff : pickup;
@@ -114,6 +114,49 @@
             $datepicker.datepicker("destroy");
             $times.empty().disable().append("<option>{% trans "Choose Date" %}</option>");
 
+            function onChangeMonthYear(year, month, inst) {
+                if ($.inArray(month, cached_months) < 0) {
+                    // get dates for this month
+                    $.ajax({
+                        url: "{% url sharing.passenger_controller.get_hotspot_dates %}",
+                        dataType: "json",
+                        data: {'month': month, 'year': year, 'hotspot_id': $hotspot.val()},
+                        success: function(response) {
+                            var new_dates = $.map(response.dates, function(date, i) {
+                                return (new Date(date)).toDateString();
+                            });
+                            cached_dates = cached_dates.concat(new_dates);
+                            cached_months[cached_months.length] = month;
+                            inst.input.datepicker("refresh");
+                        },
+                        error: function() {
+                            alert("Error loading hotspot dates data");
+                        }
+                    });
+                }
+            }
+
+            function onSelect(dateText, inst) {
+                $times.empty().disable().append("<option>{% trans "Updating..." %}</option>");
+
+                $.ajax({
+                    url: "{% url sharing.passenger_controller.get_hotspot_times %}",
+                    dataType: "json",
+                    data: {'day': dateText, 'hotspot_id': $hotspot.val()},
+                    success: function(response) {
+                        $times.empty();
+                        $.each(response.times, function(i, d) {
+                            $times.append("<option>" + d + "</option>");
+                        });
+                        $times.enable();
+                        $times.change();
+                    },
+                    error: function() {
+                        alert("Error loading hotspot times data");
+                    }
+                });
+            }
+
             $datepicker.datepicker({
                 dateFormat: 'dd/mm/yy',
                 firstDay: 0,
@@ -122,48 +165,13 @@
                 beforeShowDay: function(date) {
                     return ($.inArray(date.toDateString(), cached_dates) !== -1) ? [true, "", ""] : [false, "", ""];
                 },
-                onChangeMonthYear: function(year, month, inst) {
-                    if ($.inArray(month, cached_months) < 0) {
-                        // get dates for this month
-                        $.ajax({
-                            url: "{% url sharing.passenger_controller.get_hotspot_dates %}",
-                            dataType: "json",
-                            data: {'month': month, 'year': year, 'hotspot_id': $hotspot.val()},
-                            success: function(response) {
-                                var new_dates = $.map(response.dates, function(date, i) {
-                                    return (new Date(date)).toDateString();
-                                });
-                                cached_dates = cached_dates.concat(new_dates);
-                                cached_months[cached_months.length] = month;
-                                inst.input.datepicker("refresh");
-                            },
-                            error: function() {
-                                alert("Error loading hotspot dates data");
-                            }
-                        });
-                    }
-                },
-                onSelect: function(dateText, inst) {
-                    $times.empty().disable().append("<option>{% trans "Updating..." %}</option>");
-
-                    $.ajax({
-                        url: "{% url sharing.passenger_controller.get_hotspot_times %}",
-                        dataType: "json",
-                        data: {'day': dateText, 'hotspot_id': $hotspot.val()},
-                        success: function(response) {
-                            $times.empty();
-                            $.each(response.times, function(i, d) {
-                                $times.append("<option>" + d + "</option>");
-                            });
-                            $times.enable();
-                        },
-                        error: function() {
-                            alert("Error loading hotspot times data");
-                        }
-                    });
-                }
+                onChangeMonthYear: onChangeMonthYear,
+                onSelect: onSelect
             });
-            $datepicker.datepicker("setDate", undefined); // triggers onChangeMonthYear for getting initial data
+
+            var today = getFullDate(new Date());
+            $datepicker.datepicker("setDate", today);
+            onSelect(today, undefined);
         }
 
         function refrestHotspotMarker() {
@@ -195,13 +203,15 @@
                             'day': $("#id_hotspot_datepicker").val(),
                             'time': $("#id_hotspot_time").val()
                     },
+                    beforeSend: function(){
+                        $price.text("{% trans "Updating..." %}");
+                    },
                     success: function(response) {
-                        var price = (response.price) ? response.price + "₪" : "?";
+                        var price = (response.price) ? response.price + "₪" : "No price defined";
                         $price.text(price);
-                        $(".price").effect("highlight");
                     },
                     error: function() {
-                        $price.text("?");
+                        $price.text("Err");
                         alert("Error loading price");
                     }
                 });
@@ -222,19 +232,6 @@
                     var address = Address.fromInput(e);
                     updatePrice(address);
                 });
-            });
-
-            var datepicker_val = "";
-            $("#id_hotspot_datepicker").focus(function() {
-                        datepicker_val = $(this).val();
-                    }).blur(function() {
-                if ($(this).val != datepicker_val) {
-                    $(".address_ac_to").each(function(i, e) {
-                        var address = Address.fromInput(e);
-                        updatePrice(address);
-                    });
-
-                }
             });
 
             {% autoescape off %}

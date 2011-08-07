@@ -317,7 +317,7 @@ var OrderingHelper = Object.create({
                 draggable:  true,
                 icon:       icon_image,
                 cursor:     'move',
-                title:      'Marker'
+                title:      address.raw
             });
 
         $('#id_' + address.address_type + '_raw').val(address.raw);

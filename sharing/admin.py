@@ -9,7 +9,6 @@ class InlineHotSpotTagAdmin(admin.TabularInline):
 
 
 class InlineHotSpotServiceRuleAdmin(admin.TabularInline):
-    exclude = ["rule_set"]
     model = HotSpotServiceRule
     form = HotSpotServiceRuleAdminForm
     formset = MandatoryInlineFormset
@@ -17,7 +16,6 @@ class InlineHotSpotServiceRuleAdmin(admin.TabularInline):
 
 
 class InlineHotSpotCustomPriceRuleAdmin(admin.TabularInline):
-    exclude = ["rule_set"]
     model = HotSpotCustomPriceRule
     #    formset = MandatoryInlineFormset
     extra = 1
