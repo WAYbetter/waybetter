@@ -17,6 +17,13 @@ class HotSpot(BaseModel):
     lat = models.FloatField(_("latitude"), null=True)
 
     def get_price(self, lat, lon, day, t):
+        """
+        @param lat:
+        @param lon:
+        @param day: date of ride
+        @param t: time of ride
+        @return: price as float if any price found, otherwise returns None
+        """
         #noinspection PyUnresolvedReferences
         for rule_id in self.get_hotspotcustompricerule_order():
             rule = HotSpotCustomPriceRule.by_id(rule_id)
@@ -24,12 +31,11 @@ class HotSpot(BaseModel):
             if rule.is_active(lat, lon, day, t):
                 return rule.price
 
-        #noinspection PyUnresolvedReferences
-        for rule_id in self.get_hotspottariffrule_order():
-            rule = HotSpotTariffRule.by_id(rule_id)
-
-            if rule.is_active(lat, lon, day, t):
-                return rule.price
+        active_rule_set = RuleSet.get_active_set(day, t)
+        if active_rule_set:
+            for rule in self.tariff_rules.filter(rule_set=active_rule_set):
+                if rule.is_active(lat, lon):
+                    return rule.price
 
         return None
 
@@ -119,8 +125,12 @@ class HotSpotTariffRule(BaseModel):
     city_area = CityAreaField(verbose_name=_("city area"))
     price = models.FloatField(_("price"))
 
-    def is_active(self, lat, lon, day, t):
-        return self.city_area.contains(lat, lon) and self.rule_set.is_active(day, t)
+    def is_active(self, lat, lon, day=None, t=None):
+        result = self.city_area.contains(lat, lon)
+        if day and t:
+            result = result and self.rule_set.is_active(day, t)
+
+        return result
 
     class Meta:
         order_with_respect_to = 'hotspot'
