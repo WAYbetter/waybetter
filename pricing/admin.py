@@ -29,12 +29,9 @@ class InlineTemporalRuleAdmin(admin.TabularInline):
 
 
 class RuleSetAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "num_of_rules"]
+    list_display = ["id", "name", "priority"]
     inlines = [InlineTemporalRuleAdmin]
 
-    def num_of_rules(self, obj):
-        return obj.rules.count()
-
-
+    
 #admin.site.register(TemporalRule, TemporalRuleAdmin)
 admin.site.register(RuleSet, RuleSetAdmin)
