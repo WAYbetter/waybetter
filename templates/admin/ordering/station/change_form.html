@@ -1,0 +1,14 @@
+{% extends "admin/map_city_area.html" %}
+{% block extrahead %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        $(function() {
+            $.extend(MapPointsHelper, {
+                hotspot_fill_color  : 'yellow',
+                hotspot_stroke_color: 'black',
+                hotspot_radius: 50
+            });
+        });
+    </script>
+{% endblock %}

@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from common.util import convert_python_weekday, datetimeIterator
-from common.models import BaseModel, Country, City, CityArea
+from common.models import BaseModel, Country, City, CityAreaField
 from pricing.models import RuleSet, AbstractTemporalRule, TemporalRule
 from datetime import datetime, date, timedelta, time
 import calendar
@@ -102,7 +102,7 @@ class HotSpotServiceRule(AbstractTemporalRule):
 
 class HotSpotCustomPriceRule(AbstractTemporalRule):
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="custom_rules")
-    city_area = models.ForeignKey(CityArea, verbose_name=_("city area"))
+    city_area = CityAreaField(verbose_name=_("city area"))
     price = models.FloatField(_("price"))
 
     class Meta:
@@ -116,7 +116,7 @@ class HotSpotCustomPriceRule(AbstractTemporalRule):
 class HotSpotTariffRule(BaseModel):
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="tariff_rules")
     rule_set = models.ForeignKey(RuleSet, verbose_name=_("rule set"))
-    city_area = models.ForeignKey(CityArea, verbose_name=_("city area"))
+    city_area = CityAreaField(verbose_name=_("city area"))
     price = models.FloatField(_("price"))
 
     def is_active(self, lat, lon, day, t):

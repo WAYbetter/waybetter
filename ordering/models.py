@@ -12,7 +12,7 @@ from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.utils import  translation
 from djangotoolbox.fields import BlobField, ListField
-from common.models import BaseModel, Country, City, CityArea
+from common.models import BaseModel, Country, City, CityArea, CityAreaField
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date
@@ -201,8 +201,8 @@ class Station(BaseModel):
 class StationFixedPriceRule(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="fixed_prices")
     rule_set = models.ForeignKey(RuleSet, verbose_name=_("rule set"))
-    city_area_1 = models.ForeignKey(CityArea, verbose_name=_("city area 1"))
-    city_area_2 = models.ForeignKey(CityArea, verbose_name=_("city area 2"))
+    city_area_1 = CityAreaField(verbose_name=_("city area 1"))
+    city_area_1 = CityAreaField(verbose_name=_("city area 2"))
     price = models.FloatField(_("price"))
 
     def is_active(self, from_lat, from_lon, to_lat, to_lon, day, t):
