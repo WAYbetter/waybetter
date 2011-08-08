@@ -12,7 +12,7 @@
                 hotspot_fill_color  : 'white',
                 hotspot_stroke_color: 'green',
                 hotspot_radius      : 100,
-
+                city_area_re        : /city_area$/,
 
                 renderHotspot       : function() {
                     var that = this;
@@ -51,7 +51,7 @@
                     $('select').each(function(i, element) {
                         var $element = $(element);
                         var val = $element.val();
-                        if (/city_area$/.test($element.attr("name")) && val) {
+                        if (that.city_area_re.test($element.attr("name")) && val) {
                             city_areas_ids.push(val);
                         }
                     });
