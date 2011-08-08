@@ -9,6 +9,7 @@ from django.template.context import  Context
 from common.decorators import internal_task_on_queue, catch_view_exceptions, receive_signal
 from ordering.models import Passenger, Order, SharedRide, RidePoint, StopType, Driver, ACCEPTED
 from ordering.util import send_msg_to_passenger, send_msg_to_driver
+from sharing.models import RideComputation
 from sharing import signals
 from datetime import timedelta
 import logging
@@ -39,6 +40,12 @@ def fetch_ride_results_task(request):
     content = result.content.strip()
     if result.status_code == 200 and content:
         data = simplejson.loads(content.decode("utf-8"))
+
+        computation = RideComputation.objects.get(algo_key=result_id)
+        computation.statistics = simplejson.dumps(data["m_OutputStat"])
+        computation.completed = True
+        computation.save()
+
         for ride_data in data["m_Rides"]:
             order = Order.by_id(ride_data["m_OrderInfos"].keys()[0])
             ride = SharedRide()

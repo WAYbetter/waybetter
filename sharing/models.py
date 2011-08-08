@@ -2,7 +2,8 @@ from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from common.util import convert_python_weekday, datetimeIterator
 from common.models import BaseModel, Country, City, CityArea
-from pricing.models import RuleSet, AbstractTemporalRule, TemporalRule
+from djangotoolbox.fields import ListField
+from pricing.models import RuleSet, AbstractTemporalRule
 from datetime import datetime, date, timedelta, time
 import calendar
 
@@ -129,3 +130,19 @@ class HotSpotTariffRule(BaseModel):
 class HotSpotTag(BaseModel):
     name = models.CharField(_("tag"), max_length=50)
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="tags")
+
+
+class RideComputationSet(BaseModel):
+    name = models.CharField(_("name"), max_length=50)
+
+
+class RideComputation(BaseModel):
+    set = models.ForeignKey(RideComputationSet, verbose_name=_("Computation set"), related_name="members", null=True, blank=True)
+    order_ids = ListField(models.IntegerField(max_length=30))
+    algo_key = models.CharField(max_length=100)
+    completed = models.BooleanField(default=False, editable=False)
+
+    toleration_factor = models.FloatField(null=True, blank=True)
+    toleration_factor_minutes = models.FloatField(null=True, blank=True)
+    statistics = models.TextField()
+

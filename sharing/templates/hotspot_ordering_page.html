@@ -44,7 +44,11 @@
             </li>
         </ul>
 
-        <h3>{% trans "Time constraints (optional)" %}</h3>
+        <h3>{% trans "More (optional)" %}</h3>
+        <p>
+            <label for="id_computation_set_name">{% trans "Name" %}</label>
+            <input type="text" id="id_computation_set_name" name="computation_set_name">
+        </p>
         {{ constraints_form.as_p }}
 
         <button type=submit class="order_button" id="order_button">{% trans 'Pick Me Up' %}</button>
