@@ -1,11 +1,12 @@
 from common.tz_support import UTCDateTimeField
-from common.util import point_inside_polygon, split_to_tuples, Polygon
+from common.util import Polygon
 from django.db import models
+from django.db.models.fields.related import ManyToOneRel
 from django.utils.translation import ugettext_lazy as _
 from djangotoolbox.fields import ListField
 from common.decorators import run_in_transaction
 import logging
-from common.widgets import ListFieldWithUI, ColorField
+from common.widgets import ListFieldWithUI, ColorField, CityAreaFormField
 
 class BaseModel(models.Model):
     create_date = UTCDateTimeField(_("create date"), auto_now_add=True, null=True, blank=True)
@@ -159,6 +160,17 @@ class City(BaseModel):
                 raise LookupError("No city found matching '%s, %s'" % (name, country_id))
         else:
             return query[0].id
+
+class CityAreaField(models.ForeignKey):
+    def __init__(self, to_field=None, rel_class=ManyToOneRel, **kwargs):
+        super(CityAreaField, self).__init__(CityArea, to_field=to_field, rel_class=rel_class, **kwargs)
+
+    def formfield(self, **kwargs):
+        defaults = {
+            'form_class': CityAreaFormField,
+        }
+        defaults.update(kwargs)
+        return super(CityAreaField, self).formfield(**defaults)
 
 
 class CityArea(BaseModel):

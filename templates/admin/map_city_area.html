@@ -1,0 +1,93 @@
+{% extends "admin/map_points.html" %}
+
+{% block extrahead %}
+    {{ block.super }}
+
+    <script type="text/javascript">
+        $(function() {
+            $.extend(MapPointsHelper, {
+                hotspot_marker      : undefined,
+                hotspot_lat         : {{ original.lat }},
+                hotspot_lon         : {{ original.lon }},
+                hotspot_fill_color  : 'white',
+                hotspot_stroke_color: 'green',
+                hotspot_radius      : 100,
+
+
+                renderHotspot       : function() {
+                    var that = this;
+                    var point = new telmap.maps.LatLng(that.hotspot_lat, that.hotspot_lon);
+                    that.hotspot_marker = new telmap.maps.Circle({
+                        map: OrderingHelper.map,
+                        center: point,
+                        radius: that.hotspot_radius,
+                        strokeColor: that.hotspot_stroke_color,
+                        strokeOpacity: 1,
+                        strokeWeight: 2,
+                        fillColor: that.hotspot_fill_color,
+                        fillOpacity: 1.0,
+                        zIndex: 1000
+                    });
+                },
+                centerMap           : function () {
+                    var that = this;
+                    var bounds = new telmap.maps.LatLngBounds();
+                    if (that.hotspot_marker) {
+                        bounds.extend(that.hotspot_marker.getCenter());
+                    }
+                    $.each(that.polygons, function(i, polygon) {
+                        $.each(polygon.getPath().array, function(i, point) {
+                            bounds.extend(point);
+                        })
+                    });
+                    if (! bounds.isEmpty()) {
+                        OrderingHelper.map.fitBounds(bounds);
+                        OrderingHelper.map.panToBounds(bounds);
+                    }
+                },
+                updateActivePolygons : function() {
+                    var that = this;
+                    var city_areas_ids = [];
+                    $('select').each(function(i, element) {
+                        var $element = $(element);
+                        var val = $element.val();
+                        if (/city_area$/.test($element.attr("name")) && val) {
+                            city_areas_ids.push(val);
+                        }
+                    });
+                    $.unique(city_areas_ids);
+                    $.ajax({
+                        url: "{% url common.services.get_polygons %}",
+                        dataType: "json",
+                        type: "POST",
+                        data: {data: JSON.stringify(city_areas_ids)},
+                        success:    function(data) {
+                            that.removeAllPolygons();
+                            $.each(data, function(key, val_array) {
+                                var polygon = that.getPolygon(key, $(document).data("colors")[key]);
+                                $.each(val_array, function(i, e) {
+                                    if (i % 2 == 0) {
+                                        that.updatePolygonPoint(polygon, -1, val_array[i], val_array[i + 1]);
+                                    }
+                                });
+                            });
+                            that.centerMap();
+                        }
+                    });
+
+                }
+            });
+
+            $(document).bind("map_loaded", function() {
+                MapPointsHelper.renderHotspot();
+                MapPointsHelper.updateActivePolygons();
+            });
+
+            $('select').change(function() {
+                MapPointsHelper.updateActivePolygons();
+            })
+        });
+
+
+    </script>
+{% endblock %}
