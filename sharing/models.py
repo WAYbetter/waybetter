@@ -1,7 +1,7 @@
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from common.util import convert_python_weekday, datetimeIterator
-from common.models import BaseModel, Country, City, CityArea
+from common.models import BaseModel, Country, City, CityAreaField
 from djangotoolbox.fields import ListField
 from pricing.models import RuleSet, AbstractTemporalRule
 from datetime import datetime, date, timedelta, time
@@ -18,6 +18,13 @@ class HotSpot(BaseModel):
     lat = models.FloatField(_("latitude"), null=True)
 
     def get_price(self, lat, lon, day, t):
+        """
+        @param lat:
+        @param lon:
+        @param day: date of ride
+        @param t: time of ride
+        @return: price as float if any price found, otherwise returns None
+        """
         #noinspection PyUnresolvedReferences
         for rule_id in self.get_hotspotcustompricerule_order():
             rule = HotSpotCustomPriceRule.by_id(rule_id)
@@ -25,12 +32,11 @@ class HotSpot(BaseModel):
             if rule.is_active(lat, lon, day, t):
                 return rule.price
 
-        #noinspection PyUnresolvedReferences
-        for rule_id in self.get_hotspottariffrule_order():
-            rule = HotSpotTariffRule.by_id(rule_id)
-
-            if rule.is_active(lat, lon, day, t):
-                return rule.price
+        active_rule_set = RuleSet.get_active_set(day, t)
+        if active_rule_set:
+            for rule in self.tariff_rules.filter(rule_set=active_rule_set):
+                if rule.is_active(lat, lon):
+                    return rule.price
 
         return None
 
@@ -103,7 +109,7 @@ class HotSpotServiceRule(AbstractTemporalRule):
 
 class HotSpotCustomPriceRule(AbstractTemporalRule):
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="custom_rules")
-    city_area = models.ForeignKey(CityArea, verbose_name=_("city area"))
+    city_area = CityAreaField(verbose_name=_("city area"))
     price = models.FloatField(_("price"))
 
     class Meta:
@@ -117,11 +123,15 @@ class HotSpotCustomPriceRule(AbstractTemporalRule):
 class HotSpotTariffRule(BaseModel):
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="tariff_rules")
     rule_set = models.ForeignKey(RuleSet, verbose_name=_("rule set"))
-    city_area = models.ForeignKey(CityArea, verbose_name=_("city area"))
+    city_area = CityAreaField(verbose_name=_("city area"))
     price = models.FloatField(_("price"))
 
-    def is_active(self, lat, lon, day, t):
-        return self.city_area.contains(lat, lon) and self.rule_set.is_active(day, t)
+    def is_active(self, lat, lon, day=None, t=None):
+        result = self.city_area.contains(lat, lon)
+        if day and t:
+            result = result and self.rule_set.is_active(day, t)
+
+        return result
 
     class Meta:
         order_with_respect_to = 'hotspot'

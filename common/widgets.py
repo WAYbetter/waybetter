@@ -1,8 +1,11 @@
-from django import forms
-from django.db import models
-from django.conf import settings
-from django.utils.safestring import mark_safe
 from djangotoolbox.fields import ListField
+from django.utils import simplejson
+from django.utils.safestring import mark_safe
+from django.conf import settings
+from django.utils.encoding import smart_unicode
+from django.forms import models
+from django import forms
+from django.db import models as db_models
 
 class ColorPickerWidget(forms.TextInput):
     # required jquery and jquery colorPicker present in the page
@@ -52,7 +55,7 @@ class FormListField(forms.CharField):
             return value.split("|")
         return []
 
-class ColorField(models.CharField):
+class ColorField(db_models.CharField):
     def __init__(self, *args, **kwargs):
         kwargs['max_length'] = 10
         super(ColorField, self).__init__(*args, **kwargs)
@@ -60,3 +63,30 @@ class ColorField(models.CharField):
     def formfield(self, **kwargs):
         kwargs['widget'] = ColorPickerWidget
         return super(ColorField, self).formfield(**kwargs)
+
+
+class CityAreaWidget(forms.Select):
+    def __init__(self, language=None, attrs=None):
+        self.language = language or settings.LANGUAGE_CODE[:2]
+        super(CityAreaWidget, self).__init__(attrs=attrs)
+
+    def render(self, name, value, attrs=None, choices=()):
+        rendered = super(CityAreaWidget, self).render(name, value, attrs, choices)
+        return rendered + mark_safe(u'''<script type="text/javascript">
+            setTimeout(function() {
+                $(document).data("colors", %s);
+                initColors('#id_%s');
+            }, 100);
+            </script>''' % (simplejson.dumps(self.choices.field.colors), name))
+
+class CityAreaFormField(models.ModelChoiceField):
+    colors = {}
+
+    def __init__(self, queryset, **kwargs):
+        kwargs['widget'] = CityAreaWidget
+        super(CityAreaFormField, self).__init__(queryset, **kwargs)
+
+    def label_from_instance(self, obj):
+        self.colors[obj.id] = obj.color
+
+        return smart_unicode(obj)

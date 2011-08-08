@@ -10,6 +10,10 @@ class RuleSet(BaseModel):
     A set of rules having something in common
     """
     name = models.CharField(_("name"), max_length=50)
+    priority = models.FloatField(_("priority"), unique=True, null=True, blank=True)
+
+    class Meta:
+        ordering = ['-priority']
 
     def __unicode__(self):
         return self.name
@@ -21,6 +25,13 @@ class RuleSet(BaseModel):
 
         return False
 
+    @classmethod
+    def get_active_set(cls, day, t):
+        for rule_set in cls.objects.all():
+            if rule_set.is_active(day, t):
+                return rule_set
+
+        return None
 
 class AbstractTemporalRule(BaseModel):
     """
