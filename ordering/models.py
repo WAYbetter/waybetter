@@ -125,6 +125,8 @@ class Station(BaseModel):
     average_rating = models.FloatField(_("average rating"), default=0.0)
     internal_rating = models.FloatField(_("internal rating"), default=0)
 
+    stop_price = models.FloatField(_("stop price"), default=0)
+
     def natural_key(self):
         return self.name
 
