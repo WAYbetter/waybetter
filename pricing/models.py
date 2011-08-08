@@ -10,7 +10,7 @@ class RuleSet(BaseModel):
     A set of rules having something in common
     """
     name = models.CharField(_("name"), max_length=50)
-    priority = models.FloatField(_("priority"), unique=True, null=True, blank=True)
+    priority = models.FloatField(_("priority"), unique=True)
 
     class Meta:
         ordering = ['-priority']
