@@ -94,6 +94,7 @@ def order_in_relation_to_field(clas, field_name):
     clas._meta.abstract = True
 
     def _set_order(self, new_order):
+        logging.info("%s is setting new order: %d" % (self, new_order))
         field_id = getattr(self, field_name).id
         setattr(self, order_field_name, "%d__%s" % (field_id, '1' * (new_order + 1)))
 
@@ -122,10 +123,20 @@ def order_in_relation_to_field(clas, field_name):
         """
         return sorted(list_of_models, key = lambda element: getattr(getattr(element, rel_field_name), field_name))
 
+    @classmethod
+    def _init_order(cls):
+        related_field_manager = getattr(cls, field_name).field.rel.to
+        for related in related_field_manager.objects.all():
+            logging.info("related: %s" % related)
+            for i, m in enumerate(cls.objects.filter(**{field_name: related}).order_by()):
+                logging.info("i, m: %s, %s" %  (i,m))
+                getattr(m, set_order_func_name)(i)
+                m.save()
+
     class wrapper_class(clas):
         def save(self, **kwargs):
             if not getattr(self, order_field_name):
-                count = self.__class__.objects.filter(city=getattr(self, field_name)).count()
+                count = self.__class__.objects.filter(field_name=getattr(self, field_name)).count()
                 getattr(self, set_order_func_name)(count)
 
             super(wrapper_class, self).save(**kwargs)
@@ -137,4 +148,5 @@ def order_in_relation_to_field(clas, field_name):
     setattr(wrapper_class, set_order_func_name,  _set_order)
     setattr(wrapper_class, "sort_ids_by_%s_order" % field_name,  _sort_ids_by_order)
     setattr(wrapper_class, "sort_models_by_%s_order" % field_name,  _sort_models)
+    setattr(wrapper_class, "init_%s_order" % field_name,  _init_order)
     return wrapper_class

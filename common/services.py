@@ -1,3 +1,4 @@
+from django.http import HttpResponse
 from common.models import CityArea
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
@@ -56,3 +57,8 @@ def update_city_area_order(request):
         ca.save()
         
     return JSONResponse("")
+
+@staff_member_required
+def init_city_area_order(request):
+    CityArea.init_city_order()
+    return HttpResponse("OK")
