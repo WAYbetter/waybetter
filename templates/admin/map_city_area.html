@@ -6,26 +6,39 @@
     <script type="text/javascript">
         $(function() {
             $.extend(MapPointsHelper, {
-                hotspot_marker      : undefined,
-                hotspot_lat         : {{ original.lat }},
-                hotspot_lon         : {{ original.lon }},
-                hotspot_fill_color  : 'white',
-                hotspot_stroke_color: 'green',
-                hotspot_radius      : 100,
-                city_area_re        : /city_area$/,
+                hotspot_marker          : undefined,
+                hotspot_circle          : undefined,
+                hotspot_lat             : {{ original.lat }},
+                hotspot_lon             : {{ original.lon }},
+                hotspot_fill_color      : '#94c87b',
+                hotspot_fill_opacity    : 0.5,
+                hotspot_stroke_color    : 'black',
+                hotspot_stroke_opacity  : 1,
+                hotspot_stroke_weight   : 1,
+                hotspot_radius          : 100,
+                hotsport_marker_image   : '/static/images/hotspot_marker.png',
+                city_area_re            : /city_area$/,
 
                 renderHotspot       : function() {
                     var that = this;
                     var point = new telmap.maps.LatLng(that.hotspot_lat, that.hotspot_lon);
-                    that.hotspot_marker = new telmap.maps.Circle({
+                    var icon_image = new telmap.maps.MarkerImage(that.hotsport_marker_image, undefined, undefined, {x:32, y:63});
+                    that.hotspot_marker = new telmap.maps.Marker({
+                        map:        OrderingHelper.map,
+                        position:   point,
+                        icon:       icon_image,
+                        title:      "Hotspot"
+                    });
+
+                    that.hotspot_circle = new telmap.maps.Circle({
                         map: OrderingHelper.map,
                         center: point,
                         radius: that.hotspot_radius,
                         strokeColor: that.hotspot_stroke_color,
-                        strokeOpacity: 1,
-                        strokeWeight: 2,
+                        strokeOpacity: that.hotspot_stroke_opacity,
+                        strokeWeight: that.hotspot_stroke_weight,
                         fillColor: that.hotspot_fill_color,
-                        fillOpacity: 1.0,
+                        fillOpacity: that.hotspot_fill_opacity,
                         zIndex: 1000
                     });
                 },
@@ -33,7 +46,7 @@
                     var that = this;
                     var bounds = new telmap.maps.LatLngBounds();
                     if (that.hotspot_marker) {
-                        bounds.extend(that.hotspot_marker.getCenter());
+                        bounds.extend(that.hotspot_circle.getCenter());
                     }
                     $.each(that.polygons, function(i, polygon) {
                         $.each(polygon.getPath().array, function(i, point) {
