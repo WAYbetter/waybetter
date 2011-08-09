@@ -1167,31 +1167,33 @@ $.widget("ui.selectmenu", {
         $("#city_areas-group").find("table").tableDnD({
             onDragClass: "row-dragging",
             onDrop: function(table, row) {
+                var data = {};
                 var rows = table.tBodies[0].rows;
-                var name_re = /(.*-)\d(-.*)/;
                 $.each(rows, function(i, r) {
+                    var id = $(r).find(".original").find("input[name*=id]").val();
+                    if (id) {
+                        data[id] = i;
+                    }
                     $(r).removeClass("row1 row2");
                     if (i % 2 == 0) {
                         $(r).addClass("row1");
                     } else {
                         $(r).addClass("row2");
                     }
-
-                    $(r).find("td").each(function(j, td) {
-                        if ($(td).attr("class") == "original") {
-                            return;
-                        }
-                        var $input = $(td).find("input");
-                        if ($input.attr("id")) {
-                            $input.attr("id", $input.attr("id").replace(name_re, "$1" + i + "$2"));
-                        }
-                        if ($input.attr("name")) {
-                            $input.attr("name", $input.attr("name").replace(name_re, "$1" + i + "$2"));
-                        }
-                    })
                 });
-
-                console.log(row);
+                $.ajax({
+                    url     : "{% url common.services.update_city_area_order %}",
+                    data    : {data: JSON.stringify(data)},
+                    type: "POST",
+                    dataType: "json",
+                    success : function(d) {
+                        MapPointsHelper.removeAllPolygons();
+                        MapPointsHelper.renderPolygons();
+                    },
+                    error   : function(e) {
+                        alert(e)
+                    }
+                });
             }
         });
         $(".edit-polygon").live("click", function() {
