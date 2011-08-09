@@ -10,11 +10,11 @@
                 hotspot_circle          : undefined,
                 hotspot_lat             : {{ original.lat }},
                 hotspot_lon             : {{ original.lon }},
-                hotspot_fill_color      : '#94c87b',
+                hotspot_fill_color      : '#BA1F1F',
                 hotspot_fill_opacity    : 0.5,
                 hotspot_stroke_color    : 'black',
                 hotspot_stroke_opacity  : 1,
-                hotspot_stroke_weight   : 1,
+                hotspot_stroke_weight   : 2,
                 hotspot_radius          : 100,
                 hotsport_marker_image   : '/static/images/hotspot_marker.png',
                 city_area_re            : /city_area$/,
@@ -76,13 +76,15 @@
                         data: {data: JSON.stringify(city_areas_ids)},
                         success:    function(data) {
                             that.removeAllPolygons();
-                            $.each(data, function(key, val_array) {
-                                var polygon = that.getPolygon(key, $(document).data("colors")[key]);
-                                $.each(val_array, function(i, e) {
-                                    if (i % 2 == 0) {
-                                        that.updatePolygonPoint(polygon, -1, val_array[i], val_array[i + 1]);
-                                    }
-                                });
+                            $.each(data, function(j, dic) {
+                                $.each(dic, function(key, val_array) {
+                                    var polygon = that.getPolygon(key, $(document).data("colors")[key]);
+                                    $.each(val_array, function(i, e) {
+                                        if (i % 2 == 0) {
+                                            that.updatePolygonPoint(polygon, -1, val_array[i], val_array[i + 1]);
+                                        }
+                                    });
+                                })
                             });
                             that.centerMap();
                         }

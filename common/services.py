@@ -36,9 +36,23 @@ def is_user_property_available(request, prop_name):
 @staff_member_required
 def get_polygons(request):
     city_areas_ids = simplejson.loads(request.POST['data'])
-    result = {}
-    for city_area_id in city_areas_ids:
+    ca_ids = CityArea.sort_ids_by_city_order(city_areas_ids)
+
+    result = [] 
+    for city_area_id in ca_ids:
         city_area = CityArea.by_id(city_area_id)
-        result[city_area_id] = city_area.points
+        result.append({
+            city_area_id: city_area.points
+        })
 
     return JSONResponse(result)
+
+@staff_member_required
+def update_city_area_order(request):
+    new_order = simplejson.loads(request.POST['data'])
+    for city_area_id in new_order.keys():
+        ca = CityArea.by_id(city_area_id)
+        ca.set_city_order(new_order[city_area_id])
+        ca.save()
+        
+    return JSONResponse("")

@@ -203,8 +203,8 @@ class Station(BaseModel):
 class StationFixedPriceRule(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="fixed_prices")
     rule_set = models.ForeignKey(RuleSet, verbose_name=_("rule set"))
-    city_area_1 = CityAreaField(verbose_name=_("city area 1"))
-    city_area_2 = CityAreaField(verbose_name=_("city area 2"))
+    city_area_1 = CityAreaField(verbose_name=_("city area 1"), related_name="fixed_price_rules_1")
+    city_area_2 = CityAreaField(verbose_name=_("city area 2"), related_name="fixed_price_rules_2")
     price = models.FloatField(_("price"))
 
     def is_active(self, from_lat, from_lon, to_lat, to_lon, day, t):
