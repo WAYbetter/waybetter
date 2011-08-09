@@ -18,6 +18,14 @@ import sharing_dispatcher # so that receive_signal decorator will be evaluted
 SHARING_ENGINE_URL = "http://waybetter-route-service2.appspot.com/routeservicega1"
 WEB_APP_URL = "http://sharing.latest.waybetter-app.appspot.com/"
 
+@csrf_exempt
+def ride_calculation_complete_noop(request):
+    """
+    Callback for requests by dev server: do nothing.
+    """
+    logging.info("ride_calculation_complete NOOP: %s" % request)
+    return HttpResponse("OK")
+
 
 @csrf_exempt
 def ride_calculation_complete(request):
