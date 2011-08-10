@@ -12,11 +12,11 @@
                 hotspot_lon             : {{ original.lon }},
                 hotspot_fill_color      : '#BA1F1F',
                 hotspot_fill_opacity    : 0.5,
-                hotspot_stroke_color    : 'black',
+                hotspot_stroke_color    : '#671111',
                 hotspot_stroke_opacity  : 1,
                 hotspot_stroke_weight   : 2,
                 hotspot_radius          : 100,
-                hotsport_marker_image   : '/static/images/hotspot_marker.png',
+                hotsport_marker_image   : '/static/images/hotspot_red_marker.png',
                 city_area_re            : /city_area$/,
 
                 renderHotspot       : function() {
@@ -68,7 +68,7 @@
                             city_areas_ids.push(val);
                         }
                     });
-                    $.unique(city_areas_ids);
+                    city_areas_ids = city_areas_ids.unique();
                     $.ajax({
                         url: "{% url common.services.get_polygons %}",
                         dataType: "json",
