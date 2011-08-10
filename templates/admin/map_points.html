@@ -1006,14 +1006,18 @@ $.widget("ui.selectmenu", {
             })
         },
 
-        updatePolygonPoint      : function (polygon, index, lat, lng) {
+        updatePolygonPoint      : function (polygon, index, lat, lng, insert) {
             var path = polygon.getPath() || new telmap.maps.MVCArray([]);
             var point = new telmap.maps.LatLng(lat, lng);
 
             if (index > path.getLength() || index < 0) {
                 path.push(point);
             } else {
-                path.setAt(index, point);
+                if (insert) {
+                    path.insertAt(index, point);
+                } else {
+                    path.setAt(index, point);
+                }
             }
             polygon.setPath(path);
             polygon.setMap(OrderingHelper.map);
@@ -1051,30 +1055,31 @@ $.widget("ui.selectmenu", {
             }
             return that.polygons[id];
         },
-
-        doEditPolygon           : function (id) {
+        stopEditingPolygon      : function() {
             var that = this;
             if (that.currently_editing_id) {
                 // clear old listeners
                 that.removeListeners();
                 that.removeDragMarker();
-                $("#edit-" + id).removeClass("editing").text("Edit");
+                $("#edit-" + that.currently_editing_id).removeClass("editing").text("Edit");
 
                 // update stored val
-                var path = that.getPolygon(id).getPath();
+                var path = that.getPolygon(that.currently_editing_id).getPath();
                 if (path) {
                     var val_array = [];
                     $.each(path.array, function(i, e) {
                         val_array.push(e.lat());
                         val_array.push(e.lng());
                     });
-                    $("#" + id).val(val_array.join("|"));
+                    $("#" + that.currently_editing_id).val(val_array.join("|"));
                 }
-            }
-
-            if (id == that.currently_editing_id) { // just stop editing
                 that.currently_editing_id = undefined;
-            } else { // start editing another polygon
+            }
+        },
+        doEditPolygon           : function (id) {
+            var that = this;
+            if (id != that.currently_editing_id) {
+                that.stopEditingPolygon();
                 that.currently_editing_id = id;
                 $("#edit-" + id).addClass("editing").text("Done");
 
@@ -1099,7 +1104,8 @@ $.widget("ui.selectmenu", {
                         that.createDragMarker(polygon, min_index);
                     }
                 }));
-
+            } else {
+                that.stopEditingPolygon();
             }
         },
 
@@ -1220,6 +1226,19 @@ $.widget("ui.selectmenu", {
             MapPointsHelper.centerMap();
         });
 
+        $(document).bind("color_picker_built", function(e, element) {
+            var current_colors = $(".color").find("input").map(function(e) { return $(this).val() });
+            var colors = $().colorPicker.defaultColors;
+            while ($.inArray(element.val(), current_colors) > -1) {
+                element.val("#" + colors[Math.floor(Math.random()*colors.length)]);
+                element.trigger("change");
+            }
+        });
+
+        $(".submit-row > input[type=submit]").bind("mousedown", function() {
+            MapPointsHelper.stopEditingPolygon();
+            return true;
+        });
 
         OrderingHelper.init({
             telmap_user:                "{% value_from_settings "TELMAP_API_USER" %}",

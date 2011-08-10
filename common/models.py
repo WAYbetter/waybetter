@@ -177,7 +177,7 @@ class CityAreaField(models.ForeignKey):
 class CityArea(BaseModel):
     name = models.CharField(_("name"), max_length=50)
     points = ListFieldWithUI(models.FloatField(), verbose_name=_("Edit Points"))
-    color = ColorField(default="yellow")
+    color = ColorField(default="#ffff00")
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="city_areas")
 
     def __unicode__(self):

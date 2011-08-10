@@ -39,6 +39,7 @@
 
         //hide the input box
         $(element).hide();
+        $(document).trigger("color_picker_built", [$(element)]);
 
     };
 
