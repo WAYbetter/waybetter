@@ -1,3 +1,4 @@
+import sys
 from django.db.models.fields.related import ForeignKey
 from django.http import HttpResponseForbidden, HttpResponse
 from django.db import models
@@ -84,35 +85,37 @@ def allow_JSONP(function):
         return response
     return wrapper
 
-def order_in_relation_to_field(clas, field_name):
+def order_relative_to_field(model, field_name):
     """
-    Makes clas ordered relative to field_name
+    Makes model ordered relative to field_name
 
     Adds the following instance methods:
 
-        - C{set_<field_name>_order}
+        - C{set_order}
 
     Add the following class methods:
 
-        - C{sort_ids_by_<field_name>_order}
+        - C{relative_sort_ids}
 
-        - C{sort_models_by_<field_name>_order}
+        - C{relative_sort_models}
 
-        - C{init_<field_name>_order}
+        - C{init_order}
 
 
-    @param clas: a model Class
+    @param model: a model Class
     @param field_name: a ForeignKey field on the class
     @return: 
     """
 
+    MAX_COUNT_SUPPORTED = 1000000
+
     # check that given field_name is a ForeignKey
-    if not isinstance(clas._meta.get_field_by_name(field_name)[0], ForeignKey):
+    if not isinstance(model._meta.get_field_by_name(field_name)[0], ForeignKey):
         raise AttributeError("field_name '%s' must be a ForeignKey on given class" % field_name)
 
     order_field_name = "_%s_order" % field_name
-    clas_field_name = clas._meta.verbose_name.replace(" ", "_")
-    set_order_func_name = "set_%s_order" % field_name
+    clas_field_name = model._meta.verbose_name.replace(" ", "_")
+    set_order_func_name = "set_order"
 
     def _set_order(self, new_order):
         """
@@ -121,9 +124,21 @@ def order_in_relation_to_field(clas, field_name):
         @param new_order: the new order index
         @return:
         """
-#        logging.info("%s is setting new order: %d" % (self, new_order))
+        delta = max(sys.float_info.epsilon, 1.0/MAX_COUNT_SUPPORTED)
+        if delta == sys.float_info.epsilon:
+            logging.warning("Ordering is using the system epsilon - relative ordering on '%s' might be broken" % model)
+
         field_id = getattr(self, field_name).id
-        setattr(self, order_field_name, "%d__%s" % (field_id, '1' * (new_order + 1)))
+        after_val =  field_id + (new_order * delta)
+
+        if not field_id + 1.0 > after_val:
+            raise ValueError("Ordering overflow detected with new_order value: %d field_id: %d on model '%s'" % (new_order, field_id, model))
+
+#        logging.info("%s is setting new order: %d" % (self, new_order))
+        setattr(self, order_field_name, after_val)
+
+    def _get_order(self):
+        return getattr(self, order_field_name)
 
     @classmethod
     def _sort_ids_by_order(cls, array_of_ids):
@@ -145,10 +160,10 @@ def order_in_relation_to_field(clas, field_name):
 
         @param cls:
         @param list_of_models:
-        @param rel_field_name: if the field name on the model is not "city_area"
+        @param rel_field_name: if the field name on the model is not "city_area" if model == CityArea
         @return: the sorted list
         """
-        return sorted(list_of_models, key = lambda element: getattr(getattr(element, rel_field_name), field_name))
+        return sorted(list_of_models, key = lambda element: getattr(element, rel_field_name).get_order())
 
     @classmethod
     def _init_order(cls):
@@ -162,22 +177,23 @@ def order_in_relation_to_field(clas, field_name):
 
     def _save(self, **kwargs):
         if not getattr(self, order_field_name):
-            count = self.__class__.objects.filter(field_name=getattr(self, field_name)).count()
+            count = self.__class__.objects.filter(**{field_name:getattr(self, field_name)}).count()
             getattr(self, set_order_func_name)(count)
 
-        super(clas, self).save(**kwargs)
+        super(model, self).save(**kwargs)
 
     # add ordering field to class
-    models.CharField(null=True, blank=True).contribute_to_class(clas, order_field_name)
+    models.FloatField(null=True, blank=True, editable=False).contribute_to_class(model, order_field_name)
 
     # set ordering by field
-    clas._meta.ordering = [order_field_name]
+    model._meta.ordering = [order_field_name]
 
     # patch class
-    setattr(clas, "save",  _save)
-    setattr(clas, set_order_func_name,  _set_order)
-    setattr(clas, "sort_ids_by_%s_order" % field_name,  _sort_ids_by_order)
-    setattr(clas, "sort_models_by_%s_order" % field_name,  _sort_models)
-    setattr(clas, "init_%s_order" % field_name,  _init_order)
+    setattr(model, "save",  _save)
+    setattr(model, set_order_func_name,  _set_order)
+    setattr(model, "get_order",  _get_order)
+    setattr(model, "relative_sort_ids",  _sort_ids_by_order)
+    setattr(model, "relative_sort_models",  _sort_models)
+    setattr(model, "init_order",  _init_order)
 
-    return clas
+    return model

@@ -1,4 +1,5 @@
 import logging
+from common.decorators import order_relative_to_field
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from common.util import convert_python_weekday, datetimeIterator
@@ -36,7 +37,7 @@ class HotSpot(BaseModel):
         active_rule_set = RuleSet.get_active_set(day, t)
         if active_rule_set:
             active_tariff_rules = self.tariff_rules.filter(rule_set=active_rule_set)
-            for rule in CityArea.sort_models_by_city_order(active_tariff_rules):
+            for rule in CityArea.relative_sort_models(active_tariff_rules):
                 if rule.is_active(lat, lon):
                     return rule.price
 
@@ -137,6 +138,8 @@ class HotSpotTariffRule(BaseModel):
             result = result and self.rule_set.is_active(day, t)
 
         return result
+
+order_relative_to_field(HotSpotTariffRule, "rule_set")
 
 class HotSpotTag(BaseModel):
     name = models.CharField(_("tag"), max_length=50)
