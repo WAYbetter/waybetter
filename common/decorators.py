@@ -124,9 +124,7 @@ def order_relative_to_field(model, field_name):
         @param new_order: the new order index
         @return:
         """
-        delta = max(sys.float_info.epsilon, 1.0/MAX_COUNT_SUPPORTED)
-        if delta == sys.float_info.epsilon:
-            logging.warning("Ordering is using the system epsilon - relative ordering on '%s' might be broken" % model)
+        delta = 1.0/MAX_COUNT_SUPPORTED
 
         field_id = getattr(self, field_name).id
         after_val =  field_id + (new_order * delta)

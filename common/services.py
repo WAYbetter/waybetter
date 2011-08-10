@@ -52,7 +52,7 @@ def update_city_area_order(request):
     new_order = simplejson.loads(request.POST['data'])
     for city_area_id in new_order.keys():
         ca = CityArea.by_id(city_area_id)
-        ca.set_city_order(new_order[city_area_id])
+        ca.set_order(new_order[city_area_id])
         ca.save()
         
     return JSONResponse("")
