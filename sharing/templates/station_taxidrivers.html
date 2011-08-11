@@ -68,10 +68,10 @@
 
 {% block doc_ready %}
     <script type="text/javascript">
-        var accordion_options = {
-            collapsible: true,
-            autoHeight: false
-        };
+            var accordion_options = {
+                collapsible: true,
+                autoHeight: false
+            };
 
         deleteDriver = function(driver){
             $.ajax({
@@ -144,7 +144,7 @@
         renderDriverDiv = function(driver) {
             var $taxis_div = $('<div class="driver_taxis"><div>');
             var $list = $('<ul></ul>').appendTo($taxis_div);
-            var $add_taxi_link = $('<span class="action_link">{% trans "+ Add Taxi" %}</span>').click(function() {
+            var $add_taxi_link = $('<span class="action_link add">{% trans "Add Taxi" %}</span>').click(function() {
                 showTaxiDriverDialog(driver, undefined);
             });
 
@@ -155,7 +155,7 @@
             else{
                 $.each(driver.taxis, function(i, taxi) {
                     var $li = $('<li></li>').append('<span>{% trans "Taxi #" %}' + taxi.number + '</span');
-                    var $remove = $('<span class="action_link">{% trans "Remove" %}</span>').appendTo($li).click(
+                    var $remove = $('<span class="action_link remove">{% trans "Remove" %}</span>').appendTo($li).click(
                             function() {
                                 deleteTaxiDriverRelation(driver.id, taxi.id);
                             });
@@ -220,7 +220,7 @@
                 $taxi_div.append($table)
             }
 
-            var $add_driver_link = $('<span class="action_link">{% trans "+ Add Driver" %}</span>').click(function() {
+            var $add_driver_link = $('<span class="action_link add">{% trans "Add Driver" %}</span>').click(function() {
                 showTaxiDriverDialog(undefined, taxi);
             }).appendTo($taxi_div);
 
@@ -291,15 +291,15 @@
                         success: function(response){
                             $("#select_driver, #select_taxi").empty();
                             $.each(response.drivers_data, function(i, driver) {
-                                $("#select_driver").append('<option value="' + driver.id + '">' + driver.name + '</option>');
-                            });
+                        $("#select_driver").append('<option value="' + driver.id + '">' + driver.name + '</option>');
+                    });
                             $.each(response.taxis_data, function(i, taxi) {
-                                $("#select_taxi").append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
-                            });
-                        }
+                        $("#select_taxi").append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
+                    });
+                }
                     });
 
-                }
+            }
             }
             
             $("#new_taxidriver_form").dialog({'title': dialog_title}).dialog("open");
@@ -328,13 +328,17 @@
                 modal: true,
                 width: 600,
                 resizable: false,
+                isRTL: true,
                 open: function(event, ui){
                     $("#choose_driver").click().blur();
                     $("#choose_taxi").click().blur();
                     validateTaxiDriverDialog();
                 },
                 buttons: [
-                    {'text': "{% trans "Save" %}", 'class': "save_btn" ,'click': function(){
+                    {'text': "{% trans "Cancel" %}", 'click': function() {
+                        $(this).dialog("close");
+                    }},
+                    {'text': "{% trans "Save" %}", 'class': "save_btn" ,'click': function() {
                         if (validateTaxiDriverDialog()) {
                             var driver_data = ($("#choose_driver").attr("checked")) ? {'id': $("#select_driver").val()} : {'name': $("#new_driver_name").val(), 'phone': $("#new_driver_phone").val()};
                             var taxi_data = ($("#choose_taxi").attr("checked")) ? {'id': $("#select_taxi").val()} : {'number': $("#new_taxi_number").val()};
@@ -342,12 +346,10 @@
                                 $("#new_taxidriver_form").dialog("close");
                             })
                         }
-                        else{
+                        else {
                             alert("{% trans "Invalid driver/taxi" %}");
                         }
-                    }},
-                    {'text': "{% trans "Cancel" %}", 'click': function(){
-                        $(this).dialog("close");}}
+                    }}
                 ]
             };
 
@@ -401,8 +403,8 @@
 
         toggleMode = function (old_mode, new_mode, active_id) {
             $("#" + old_mode + "_accordion").hide();
-            $("#show_" + old_mode + "s").button("enable");
-            $("#show_" + new_mode + "s").button("disable");
+            $("#show_" + old_mode + "s").button("enable").removeClass("active");
+            $("#show_" + new_mode + "s").button("disable").addClass("active");
             $("#" + new_mode + "_accordion").show();
             if (active_id) {
                 $("#" + new_mode + "_accordion").accordion( "option", "animated", false);

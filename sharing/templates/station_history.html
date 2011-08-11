@@ -8,7 +8,6 @@
         </form>
     </div>
 
-    <div class="loader"></div>
     <div id="ride_accordion_container">
         <div id="ride_accordion"></div>
     </div>
@@ -76,12 +75,12 @@
         };
 
         $(function() {
-            $(".loader").hide();
-            var date_options = { dateFormat: 'dd/mm/yy' };
+            var date_options = { dateFormat: 'dd/mm/yy', isRTL: true };
             $("#id_start_date").datepicker($.extend({}, date_options, {
                 maxDate: -1,
                 defaultDate: -7
-            }));
+            })).datepicker( "option", $.datepicker.regional[ "he" ] );
+
             $("#id_end_date").datepicker($.extend({}, date_options, {
                 defaultDate: 0
             }));
@@ -99,12 +98,6 @@
                     type: "POST",
                     dataType: 'json',
                     data: $("#date_picker").serialize(),
-                    beforeSend:function() {
-                        $(".loader").show();
-                    },
-                    complete: function() {
-                        $(".loader").hide();
-                    },
                     success: function(response) {
                         $("#ride_accordion, #error_msg").empty();
                         if (response.error) {
