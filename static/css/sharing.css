@@ -19,10 +19,6 @@ a, .action_link, .ui-widget-content a {
     text-decoration: underline;
 }
 
-.action_link:hover{
-    cursor: pointer;
-}
-
 #main.full_screen_main {
     position: absolute;
     left: 0;
@@ -338,15 +334,39 @@ table .pickup {
 }
 
 .driver_div .driver_taxis{
-    float: left;
+    /*float: left;*/
+    display: inline-block;
+    vertical-align: top;
+    padding-right: 30px;
+}
+.driver_div .driver_taxis li {
+    margin-top: 5px;
 }
 
+.driver_div .driver_taxis .action_link.add{
+    margin-left: 20px;
+}
+.rtl .driver_div .driver_taxis .action_link.add{
+    margin-left: inherit;
+    margin-right: 20px;
+}
+
+
 .driver_div .driver_details{
-    float: right;
+    /*float: right;*/
+    width: 50%;
+    display: inline-block;
+    border-left: 1px solid #d3d3d3;
 }
 
 .driver_div .driver_details label {
-    margin: 0 10px;
+    /*margin: 0 10px;*/
+    display: block;
+    margin-top: 5px;
+}
+
+.driver_div .driver_details input[type=text] {
+    width: 150px;
 }
 
 
@@ -367,7 +387,7 @@ table .pickup {
 }
 .rtl .action_link.add {
     background-position: 101% 0;
-    padding-right: 16px;
+    padding-right: 20px;
 }
 
 .action_link.remove {
@@ -377,7 +397,7 @@ table .pickup {
 
 .rtl .action_link.remove {
     background-position: 101% 0;
-    padding-right: 16px;
+    padding-right: 20px;
 }
 
 
@@ -401,6 +421,10 @@ table .pickup {
 .taxi_div table tr:nth-child(even) {
     background-color: #e7f1fa;
 }
+.taxi_div .action_link.add {
+    margin-top: 10px;
+    display: inline-block;
+}
 
 #new_taxidriver_form .formgroup{
     float: left;
@@ -420,5 +444,9 @@ table .pickup {
     padding-top: 20px;
 }
 .driver_btns .ui-button {
-    margin: 0 10px;
+    margin-right:10px;
+}
+.rtl .driver_btns .ui-button {
+    margin-right:inherit;
+    margin-left: 10px;
 }

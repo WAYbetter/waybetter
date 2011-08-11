@@ -149,22 +149,15 @@
             });
 
             var last = driver.taxis.length - 1;
-            if (last < 0) { // driver has no taxis
-                $taxis_div.append($add_taxi_link);
-            }
-            else{
-                $.each(driver.taxis, function(i, taxi) {
-                    var $li = $('<li></li>').append('<span>{% trans "Taxi #" %}' + taxi.number + '</span');
-                    var $remove = $('<span class="action_link remove">{% trans "Remove" %}</span>').appendTo($li).click(
-                            function() {
-                                deleteTaxiDriverRelation(driver.id, taxi.id);
-                            });
-                    if (i == last) {
-                        $li.append($add_taxi_link);
-                    }
-                    $list.append($li);
-                });
-            }
+            $.each(driver.taxis, function(i, taxi) {
+                var $li = $('<li></li>').append('<span>{% trans "Taxi #" %}' + taxi.number + '</span');
+                var $remove = $('<span class="action_link remove">{% trans "Remove" %}</span>').appendTo($li).click(
+                        function() {
+                            deleteTaxiDriverRelation(driver.id, taxi.id);
+                        });
+                $list.append($li);
+            });
+            $taxis_div.append($add_taxi_link);
 
             var $phone = $('<input type="text" value="' + driver.phone + '"/>').data("orig", driver.phone);
             var $name = $('<input type="text" value="' + driver.name + '"/>').data("orig", driver.name);
@@ -191,7 +184,7 @@
                     .append('<label for="">{% trans "Name" %}:</label>', $name, '<label for="">{% trans "Phone" %}:</label>', $phone)
                     .append($('<div class="driver_btns"></div>').append($delete, $save));
 
-            return $('<div class="driver_div"></div>').attr("id", "driver_div_" + driver.id).data("name", driver.name).append($taxis_div, $driver_details);
+            return $('<div class="driver_div"></div>').attr("id", "driver_div_" + driver.id).data("name", driver.name).append($driver_details, $taxis_div);
         };
 
         renderTaxiDiv = function(taxi) {
@@ -205,7 +198,7 @@
                 var $table = $('<table></table>');
                 $.each(taxi.drivers, function(i, driver) {
                     var $tr = $('<tr></tr>');
-                    var $remove = $('<a href="#">{% trans "Remove" %}</a>').click(function() {
+                    var $remove = $('<a href="#" class="action_link remove">{% trans "Remove" %}</a>').click(function() {
                         deleteTaxiDriverRelation(driver.id, taxi.id);
                     });
                     var $driver_name = $('<a class="action_link">' + driver.name + '</a>').click(function() {
