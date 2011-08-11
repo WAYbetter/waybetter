@@ -388,3 +388,20 @@ function getFullTime(date_obj){
     }
     return s;
 }
+
+function getAccordionPosition(elements, key, val) {
+    // returns the div after which to append the new header and div, or
+    // undefined if no such div exists (i.e., the new header and div should be first).
+    // assumes existing accordion elements in the page are ordered.
+
+    var append_after = undefined;
+    $.each(elements, function(i, e) {
+        if ($(this).data(key) <= val) {
+            append_after = this;
+        }
+        else {
+            return false; // break
+        }
+    });
+    return append_after;
+}

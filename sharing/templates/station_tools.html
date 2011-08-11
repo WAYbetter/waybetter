@@ -14,7 +14,8 @@
         <ul>
             <li><a href="{% url sharing.station_controller.station_history %}">{% trans "History" %}</a></li>
             <li><a href="#">{% trans "Accounting" %}</a></li>
-            <li><a href="#">{% trans "Drivers" %}</a></li>
+            <li><a href="{% url sharing.station_controller.station_taxidrivers %}">{% trans "Drivers and Taxis" %}</a></li>
+            <li><div id="tab_loader" class="loader"></div></li>
         </ul>
     </div>
 
@@ -24,11 +25,12 @@
     <script type="text/javascript">
         $(function() {
             $("#tabs").tabs({
+                        selected: 0,
                         select: function(event, ui) {
-                            $(this).append('<div class="added_by_tabs loader"></div>');
+                            $("#tab_loader").show();
                         },
                         load: function(event, ui) {
-                            $(".loader.added_by_tabs").remove();
+                            $("#tab_loader").hide();
                         }
                     }
             );

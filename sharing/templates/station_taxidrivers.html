@@ -1,0 +1,428 @@
+{#uncomment for debugging (open as non-tab page) #}
+{#{% extends "base.html" %}#}
+{##}
+{#{% block bodyclass %}clean_body{% endblock %}#}
+{#{% block mainclass %}full_screen_main clean_main{% endblock %}#}
+{##}
+{#{% block extrastyle %}#}
+{#    <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">#}
+{#    <link rel="stylesheet" href="/static/css/sharing.css" type="text/css" media="all">#}
+{#{% endblock %}#}
+
+{% load i18n %}
+{% block content %}
+    <div id="header" class="ui-widget-header">
+
+        <div id="taxidriver_buttons">
+            {% trans "Show" %}:
+            <a id="show_drivers">{% trans "Drivers" %}</a>
+            <a id="show_taxis">{% trans "Taxis" %}</a>
+        </div>
+        <div id="add_taxidriver_button">{% trans "New Driver/Taxi" %}</div>
+        <div class="clear"></div>
+    </div>
+
+    <div class="loader"></div>
+    <div id="ride_accordion_container">
+        <div id="driver_accordion"></div>
+        <div id="taxi_accordion"></div>
+    </div>
+
+    <form id="new_taxidriver_form">
+        <div id="driver_form">
+            <h3>{% trans "Driver Details" %}:</h3>
+            <div class="formgroup">
+                <input type="radio" name="driver" id="choose_driver"/>
+                <label for="choose_driver">{% trans "Choose Existing" %}</label>
+                <select id="select_driver">
+                </select>
+            </div>
+            <div class="formgroup">
+                <input type="radio" name="driver" id="new_driver"/>
+                <label for="new_driver">{% trans "Add New" %}</label>
+                <input type="text" id="new_driver_name" placeholder="{% trans "Name" %}">
+                <input type="text" id="new_driver_phone" placeholder="{% trans "Phone number" %}">
+            </div>
+
+        </div>
+
+        <div class="clear"></div>
+        
+        <div id="taxi_form">
+            <h3>{% trans "Taxi Details" %}:</h3>
+            <div class="formgroup">
+                <input type="radio" name="taxi" id="choose_taxi"/>
+                <label for="choose_taxi">{% trans "Choose Existing" %}</label>
+                <select id="select_taxi">
+                </select>
+            </div>
+            <div class="formgroup">
+                <input type="radio" name="taxi" id="new_taxi"/>
+                <label for="new_taxi">{% trans "Add New" %}</label>
+                <input type="text" id="new_taxi_number" placeholder="{% trans "Taxi number" %}">
+            </div>
+        </div>
+    </form>
+
+{% endblock %}
+
+{% block doc_ready %}
+    <script type="text/javascript">
+        {% autoescape off %}
+            var drivers_data = {{ drivers_data }};
+            var taxis_data = {{ taxis_data }};
+        {% endautoescape %}
+
+            var accordion_options = {
+                collapsible: true,
+                autoHeight: false
+            };
+        deleteDriver = function(driver){
+            $.ajax({
+                url: "{% url sharing.station_controller.delete_driver %}",
+                type: "POST",
+                data: {'driver_id': driver.id},
+                success: function(response){
+                    $("#driver_header_" + driver.id + ", #driver_div_" + driver.id).remove();
+                    alert("{% trans "Driver deleted" %}");
+                },
+                error: function(){
+                  alert("{% trans "Error" %}");
+                }
+            });
+        };
+
+        deleteTaxiDriverRelation = function(driver_id, taxi_id) {
+            $.ajax({
+                url: "{% url sharing.station_controller.delete_taxidriver_relation %}",
+                type: "POST",
+                data: {'driver_id': driver_id, 'taxi_id': taxi_id},
+                success: function(response) {
+                    refreshTaxiDriverRelation(response.driver, response.taxi);
+                },
+                error: function() {
+                    alert("{% trans "Error" %}");
+                }
+            });
+        };
+
+        createTaxiDriverRelation = function(driver_data, taxi_data, callback) {
+            var data = {};
+            if (driver_data && driver_data.id) { // existing driver
+                data.driver_id = driver_data.id;
+            }
+            else { // create new driver
+                if (driver_data && driver_data.name && driver_data.phone) {
+                    data.driver_phone = driver_data.phone;
+                    data.driver_name = driver_data.name;
+                }
+            }
+
+            if (taxi_data && taxi_data.id) { // existing taxi
+                data.taxi_id = taxi_data.id;
+            }
+            else { // create new taxi
+                if (taxi_data && taxi_data.number) {
+                    data.taxi_number = taxi_data.number;
+                }
+            }
+
+            $.ajax({
+                url: "{% url sharing.station_controller.create_taxidriver_relation %}",
+                type: "POST",
+                data: data,
+                success: function(response) {
+                    if (callback){
+                        callback();
+                    }
+                    refreshTaxiDriverRelation(response.driver, response.taxi);
+                },
+                error: function() {
+                    alert("{% trans "Error" %}");
+                }
+            });
+        };
+
+        refreshTaxiDriverRelation = function(driver, taxi){
+            $("#driver_div_" + driver.id + ", #driver_header_" + driver.id).remove();
+            renderDriver(driver);
+
+            $("#taxi_div_" + taxi.id + ", #taxi_header_" + taxi.id).remove();
+            renderTaxi(taxi);
+        };
+
+        renderDriverDiv = function(driver) {
+            var $taxis_div = $('<div class="driver_taxis"><div>');
+            var $list = $('<ul></ul>').appendTo($taxis_div);
+            var $add_taxi_link = $('<span class="action_link">{% trans "+ Add Taxi" %}</span>').click(function() {
+                showTaxiDriverDialog(driver, undefined);
+            });
+
+            var last = driver.taxis.length - 1;
+            if (last < 0) { // driver has no taxis
+                $taxis_div.append($add_taxi_link);
+            }
+            else{
+                $.each(driver.taxis, function(i, taxi) {
+                    var $li = $('<li></li>').append('<span>{% trans "Taxi #" %}' + taxi.number + '</span');
+                    var $remove = $('<span class="action_link">{% trans "Remove" %}</span>').appendTo($li).click(
+                            function() {
+                                deleteTaxiDriverRelation(driver.id, taxi.id);
+                            });
+                    if (i == last) {
+                        $li.append($add_taxi_link);
+                    }
+                    $list.append($li);
+                });
+            }
+
+            var $phone = $('<input type="text" value="' + driver.phone + '"/>').data("orig", driver.phone);
+            var $name = $('<input type="text" value="' + driver.name + '"/>').data("orig", driver.name);
+            var $save = $('<div>{% trans "Save" %}</div>').button().click(function() {
+                $.ajax({
+                    url: "{% url sharing.station_controller.change_driver_details %}",
+                    type: "POST",
+                    data: {'driver_id': driver.id, 'name': $name.val(), 'phone': $phone.val()},
+                    success: function(response){
+                        $phone.val(response.phone).data("orig", response.phone);
+                        $name.val(response.name).data("orig", response.name);
+                        alert("{% trans "Changes Saved" %}");
+                    },
+                    error: function(){
+                      alert("{% trans "Error" %}");
+                    }
+                });
+            });
+            var $delete = $('<div>{% trans "Delete" %}</div>').button().click(function() {
+                deleteDriver(driver);
+            });
+
+            var $driver_details = $('<div class="driver_details"><div>')
+                    .append('<label for="">{% trans "Name" %}:</label>', $name, '<label for="">{% trans "Phone" %}:</label>', $phone)
+                    .append($('<div class="driver_btns"></div>').append($delete, $save));
+
+            return $('<div class="driver_div"></div>').attr("id", "driver_div_" + driver.id).data("name", driver.name).append($taxis_div, $driver_details);
+        };
+
+        renderTaxiDiv = function(taxi) {
+            var $taxi_div = $('<div class="taxi_div"></div>').attr("id", "taxi_div_" + taxi.id).data("number", taxi.number);
+
+            var count = taxi.drivers.length;
+            if (count == 0) { // no drivers
+                $taxi_div.append("<div>{% trans "No Drivers" %}</div>");
+            }
+            else{
+                var $table = $('<table></table>');
+                $.each(taxi.drivers, function(i, driver) {
+                    var $remove = $('<a href="#">{% trans "Remove" %}</a>').click(function() {
+                        deleteTaxiDriverRelation(driver.id, taxi.id);
+                    });
+                    var $driver_name = $('<a class="action_link">' + driver.name + '</a>').click(function() {
+                        showDrivers(driver.id);
+                    });
+                    var $tr = $('<tr></tr>')
+                            .append($('<td></td>').append($driver_name))
+                            .append('<td>' + driver.phone + '</td>')
+                            .append($('<td></td>').append($remove))
+                            .appendTo($table);
+                });
+                $taxi_div.append($table)
+            }
+
+            var $add_driver_link = $('<span class="action_link">{% trans "+ Add Driver" %}</span>').click(function() {
+                showTaxiDriverDialog(undefined, taxi);
+            }).appendTo($taxi_div);
+
+            return $taxi_div;
+        };
+
+        renderDriver = function(driver) {
+            var $driver_header = $('<h3 class="driver_header"></h3>').attr("id", "driver_header_" + driver.id)
+                    .append('<span class="driver_name">' + driver.name + '</span>');
+
+            var $driver_div = renderDriverDiv(driver);
+            var append_after = getAccordionPosition($("[id^='driver_div_']"), "name", driver.name);
+            renderElement("driver", $driver_header, $driver_div, append_after);
+        };
+
+        renderTaxi = function(taxi) {
+            var $taxi_header = $('<h3 class="taxi_header"></h3>').attr("id", "taxi_header_" + taxi.id)
+                    .append('<span class="taxi_number">{% trans "Taxi #" %} ' + taxi.number + '</span>');
+
+            var $taxi_div = renderTaxiDiv(taxi);
+
+            var append_after = getAccordionPosition($("[id^='taxi_div_']"), "number", taxi.number);
+            renderElement("taxi", $taxi_header, $taxi_div, append_after);
+        };
+
+        renderElement = function(type, $header, $div, append_after){
+            if (append_after) {
+                $(append_after).after($header, $div);
+            }
+            else{
+                $("#" + type + "_accordion").prepend($header, $div);
+            }
+            refreshAccordions();
+        };
+
+        showTaxiDriverDialog = function(driver, taxi){
+            var dialog_title = '{% trans "New Driver/Taxi" %}';
+            $("#driver_form, #taxi_form").show();
+            $("#select_driver, #select_taxi").empty().val("");
+            if (driver){ // add taxi to driver
+                dialog_title = '{% trans "Assign Taxi to Driver" %} ' + driver.name;
+                $("#select_driver").append('<option value="' + driver.id + '">' + driver.name + '</option>').val(driver.id).disable(); // confine driver
+                $.each(driver.available_taxis, function(i, taxi) {
+                    $("#select_taxi").append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
+                });
+                $("#driver_form").hide();
+            }
+            else{
+                if (taxi){ // add driver to taxi
+                    dialog_title = '{% trans "Assign Driver to Taxi" %} #' + taxi.number;
+                    $("#select_taxi").append('<option value="' + taxi.id + '">' + taxi.number + '</option>').val(taxi.id).disable(); // confine taxi
+                    $.each(taxi.available_drivers, function(i, driver) {
+                        $("#select_driver").append('<option value="' + driver.id + '">' + driver.name + '</option>');
+                    });
+                    $("#taxi_form").hide();
+                }
+                else{ // add new driver and taxi
+                    $("#select_driver, #select_taxi").append('<option value="" disabled="disabled">{% trans "Choose" %}</option>'); // reset taxi, driver
+                    $.each(drivers_data, function(i, driver) {
+                        $("#select_driver").append('<option value="' + driver.id + '">' + driver.name + '</option>');
+                    });
+                    $.each(taxis_data, function(i, taxi) {
+                        $("#select_taxi").append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
+                    });
+                }
+            }
+            
+            $("#new_taxidriver_form").dialog({'title': dialog_title}).dialog("open");
+        };
+
+        validateTaxiDriverDialog = function(){
+            $(".save_btn").button("disable");
+            var driver_valid = Boolean($("#choose_driver").attr("checked") && $("#select_driver").val()) || Boolean($("#new_driver").attr("checked") && $("#new_driver_name").val() && $("#new_driver_phone").val());
+            var taxi_valid = Boolean($("#choose_taxi").attr("checked") && $("#select_taxi").val()) || Boolean($("#new_taxi").attr("checked") && $("#new_taxi_number").val());
+
+            var is_valid = Boolean(driver_valid && taxi_valid);
+            if (is_valid) {
+                $(".save_btn").button("enable");
+            }
+            return is_valid;
+        };
+
+        initTaxiDriverDialog = function(){
+            asFormGroupSelector("#new_driver", "#new_driver_phone, #new_driver_name", "#select_driver");
+            asFormGroupSelector("#choose_driver", "#select_driver", "#new_driver_phone, #new_driver_name");
+            asFormGroupSelector("#new_taxi", "#new_taxi_number", "#select_taxi");
+            asFormGroupSelector("#choose_taxi", "#select_taxi", "#new_taxi_number");
+
+            var dialog_options = {
+                autoOpen: false,
+                modal: true,
+                width: 600,
+//                resizable: false,
+                open: function(event, ui){
+                    $("#choose_driver").click().blur();
+                    $("#choose_taxi").click().blur();
+                    validateTaxiDriverDialog();
+                },
+                buttons: [
+                    {'text': "{% trans "Save" %}", 'class': "save_btn" ,'click': function(){
+                        if (validateTaxiDriverDialog()) {
+                            var driver_data = ($("#choose_driver").attr("checked")) ? {'id': $("#select_driver").val()} : {'name': $("#new_driver_name").val(), 'phone': $("#new_driver_phone").val()};
+                            var taxi_data = ($("#choose_taxi").attr("checked")) ? {'id': $("#select_taxi").val()} : {'number': $("#new_taxi_number").val()};
+                            createTaxiDriverRelation(driver_data, taxi_data, function() {
+                                $("#new_taxidriver_form").dialog("close");
+                            })
+                        }
+                        else{
+                            alert("{% trans "Invalid driver/taxi" %}");
+                        }
+                    }},
+                    {'text': "{% trans "Cancel" %}", 'click': function(){
+                        $(this).dialog("close");}}
+                ]
+            };
+
+            $("#new_taxidriver_form").dialog(dialog_options);
+
+            $("#new_taxidriver_form input, #new_taxidriver_form select").change(function() {
+                validateTaxiDriverDialog();
+            });
+        };
+
+        asFormGroupSelector = function(radio_selector, enabled_selector, disabled_selector){
+            $(radio_selector).change(function() {
+                if ($(this).attr("checked")) {
+                    $(enabled_selector).enable();
+                    $(disabled_selector).val("").disable();
+                }
+            });
+        };
+
+        showDrivers = function(driver_id){
+            toggleAccordion("taxi", "driver", driver_id);
+        };
+
+        showTaxis = function(taxi_id){
+            toggleAccordion("driver", "taxi", taxi_id);
+        };
+
+        toggleAccordion = function (old_mode, new_mode, active_id) {
+            $("#" + old_mode + "_accordion").hide();
+            $("#show_" + old_mode + "s").button("enable");
+            $("#show_" + new_mode + "s").button("disable");
+            $("#" + new_mode + "_accordion").show();
+            if (active_id) {
+                $("#" + new_mode + "_accordion").accordion( "option", "animated", false);
+                $("#" + new_mode + "_accordion").accordion( "option", "active", false);
+                $("#" + new_mode + "_accordion").accordion( "option", "animated", 'slide');
+                $("#" + new_mode + "_accordion").accordion( "option", "active", "#" + new_mode + "_header_" + active_id);
+            }
+        };
+
+        refreshAccordions = function(){
+            var active_taxi = $("#taxi_accordion").accordion( "option", "active" );
+            var active_driver = $("#driver_accordion").accordion( "option", "active" );
+            var opt = $.extend({}, accordion_options, { active: active_taxi });
+            $("#taxi_accordion").accordion("destroy").accordion(opt);
+            opt = $.extend({}, accordion_options, { active: active_driver });
+            $("#driver_accordion").accordion("destroy").accordion(opt);
+        };
+
+        $(function() {
+            $(".loader").hide();
+
+            $.each(drivers_data, function(i, driver) {
+                renderDriver(driver);
+            });
+
+            $.each(taxis_data, function(i, taxi) {
+                renderTaxi(taxi);
+            });
+
+            initTaxiDriverDialog();
+
+            $("#add_taxidriver_button").button().click(function() {
+                showTaxiDriverDialog();
+            });
+
+            $("#driver_accordion").bind('accordionchangestart', function(event, ui) {
+                ui.oldContent.find("input").each(function(i, input) {
+                    $(input).val($(input).data("orig"));
+                });
+            });
+
+            $("#show_drivers").button().click(function() {
+                showDrivers();
+            });
+            $("#show_taxis").button().click(function() {
+                showTaxis();
+            });
+
+            showDrivers();
+        });
+    </script>
+{% endblock %}

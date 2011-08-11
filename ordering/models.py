@@ -226,6 +226,9 @@ class Driver(BaseModel):
 
         super(Driver, self).save(*args, **kwargs)
 
+    def get_taxis(self):
+        return sorted([r.taxi for r in TaxiDriverRelation.objects.filter(driver=self)], key=lambda taxi: taxi.number)
+
     def __unicode__(self):
         return u"%s" % (self.name)
 
@@ -241,6 +244,8 @@ class Taxi(BaseModel):
 
         super(Taxi, self).save(*args, **kwargs)
 
+    def get_drivers(self):
+        return sorted([r.driver for r in TaxiDriverRelation.objects.filter(taxi=self)], key=lambda driver: driver.name)
 
     def __unicode__(self):
         return u"%s" % (self.number)

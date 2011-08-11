@@ -159,6 +159,11 @@ indexes:
   - name: __key__
     direction: desc
 
+- kind: ordering_driver
+  properties:
+  - name: station_id
+  - name: name
+
 - kind: ordering_feedback
   properties:
   - name: __key__
@@ -695,6 +700,11 @@ indexes:
   - name: __key__
     direction: desc
 
+- kind: ordering_taxi
+  properties:
+  - name: station_id
+  - name: number
+
 - kind: ordering_taxidriverrelation
   properties:
   - name: __key__
@@ -705,6 +715,16 @@ indexes:
   - name: driver_id
   - name: __key__
     direction: desc
+
+- kind: ordering_taxidriverrelation
+  properties:
+  - name: driver_id
+  - name: number
+
+- kind: ordering_taxidriverrelation
+  properties:
+  - name: taxi_id
+  - name: name
 
 - kind: ordering_workstation
   properties:

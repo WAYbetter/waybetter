@@ -7,9 +7,19 @@
     font-weight: bold;
 }
 
+.loader{
+    background: url(../images/loader5.gif) left 0 no-repeat;
+    height: 24px;
+    width: 24px;
+}
+
 a, .action_link, .ui-widget-content a {
     color: #174599;
     text-decoration: underline;
+}
+
+.action_link:hover{
+    cursor: pointer;
 }
 
 #main.full_screen_main {
@@ -253,7 +263,12 @@ table .pickup {
 
 }
 
-/* Station history page */
+.station_tools h3{
+    height: 26px;
+    padding: 5px 25px 0 25px;
+}
+
+/* Station history tab */
 .station_history #date_picker{
     margin-top: 10px;
     margin-left: 10px;
@@ -274,4 +289,67 @@ table .pickup {
 
 .rtl.station_history .taxi_n_driver {
     float: left;
+}
+
+/* Station taxidrivers tab */
+#add_taxidriver_button {
+    float: right;
+    margin-top: 6px;
+    margin-left: 10px;
+}
+.rtl #add_taxidriver_button {
+    float: left;
+    margin-right: 10px;
+    margin-left: inherit;
+}
+
+#taxidriver_buttons {
+    float: left;
+    margin-top: 6px;
+    margin-left: 10px;
+}
+.rtl #taxidriver_buttons {
+    float: right;
+    margin-right: 10px;
+    margin-left: inherit;
+}
+
+.driver_div .driver_taxis{
+    float: left;
+}
+
+.driver_div .driver_details{
+    float: right;
+}
+
+.driver_div li .action_link{
+    margin-left: 20px;
+}
+
+.taxi_div table {
+    /*border-collapse: collapse;*/
+    width: 100%;
+    border: 2px solid #a8d5fd;
+    border-spacing: 0 3px;
+}
+
+.taxi_div table th, .taxi_div table td {
+    padding: 5px;
+    color: #5b5b5b;
+    text-shadow: 0 1px 0 white;
+}
+
+.taxi_div table tr:nth-child(odd) {
+    background-color: white;
+}
+
+.taxi_div table tr:nth-child(even) {
+    background-color: #e7f1fa;
+}
+
+#new_taxidriver_form .formgroup{
+    float: left;
+}
+#new_taxidriver_form .formgroup input {
+    display: block
 }
