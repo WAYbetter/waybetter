@@ -14,8 +14,10 @@
         <ul>
             <li><a href="{% url sharing.station_controller.station_history %}">{% trans "History" %}</a></li>
             <li><a href="#">{% trans "Accounting" %}</a></li>
-            <li><a href="{% url sharing.station_controller.station_taxidrivers %}">{% trans "Drivers and Taxis" %}</a></li>
-            <li><div id="tab_loader" class="loader"></div></li>
+            <li><a href="{% url sharing.station_controller.station_taxidrivers %}">{% trans "Drivers and Taxis" %}</a>
+            </li>
+            <li id="tab_loader">
+            </li>
         </ul>
     </div>
 
@@ -34,6 +36,12 @@
                         }
                     }
             );
+            $(document).ajaxSend(function() {
+                $("#tab_loader").show();
+            });
+            $(document).ajaxComplete(function() {
+                $("#tab_loader").hide();
+            })
         });
     </script>
 {% endblock %}

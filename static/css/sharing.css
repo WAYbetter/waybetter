@@ -7,8 +7,9 @@
     font-weight: bold;
 }
 
-.loader{
-    background: url(../images/loader5.gif) left 0 no-repeat;
+#tab_loader {
+    background: url(../images/loader1.gif) left 0 no-repeat;
+    float: right;
     height: 24px;
     width: 24px;
 }
@@ -126,6 +127,9 @@ a, .action_link, .ui-widget-content a {
     font-weight: bold;
 }
 
+.ui-accordion .ui-accordion-header {
+    font-weight: bold;
+}
 
 .ui-accordion-icons .ui-accordion-header a {
     display: inline-block;
@@ -135,6 +139,20 @@ a, .action_link, .ui-widget-content a {
     background: white;
     opacity: 1;
     border: 1px solid;
+}
+
+.rtl .ui-dialog .ui-dialog-title {
+    float: right;
+    margin: .1em 0 .1em 16px;
+}
+
+.rtl .ui-dialog .ui-dialog-titlebar-close {
+    right: auto;
+    left: .3em;
+}
+
+.rtl .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
+    float: left;
 }
 
 #ride_accordion_container {
@@ -339,6 +357,29 @@ table .pickup {
     margin-left: inherit;
     margin-right: 20px;
 }
+.action_link {
+    cursor: pointer;
+}
+.action_link.add {
+    background-color: green;
+    background: url(/static/images/add.png) no-repeat;
+
+}
+.rtl .action_link.add {
+    background-position: 101% 0;
+    padding-right: 16px;
+}
+
+.action_link.remove {
+    background-color: red;
+    background: url(/static/images/delete.png) no-repeat;
+}
+
+.rtl .action_link.remove {
+    background-position: 101% 0;
+    padding-right: 16px;
+}
+
 
 .taxi_div table {
     /*border-collapse: collapse;*/

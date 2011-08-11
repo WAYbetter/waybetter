@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-11 16:15+0300\n"
-"PO-Revision-Date: 2011-08-11 16:21+0200\n"
+"POT-Creation-Date: 2011-08-11 18:02+0300\n"
+"PO-Revision-Date: 2011-08-11 18:03+0200\n"
 "Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -737,7 +737,7 @@ msgstr "שליחה"
 #: ordering/templates/mobile/passenger_home.html:131
 #: ordering/templates/mobile/passenger_home.html:136
 #: ordering/templates/mobile/passenger_home.html:214
-#: sharing/templates/station_taxidrivers.html:344
+#: sharing/templates/station_taxidrivers.html:338
 #: templates/mobile/base.html:69
 msgid "Cancel"
 msgstr "ביטול"
@@ -815,7 +815,7 @@ msgstr "השירות אינו זמין ב%(city)s עדיין. <br> אנא נסו
 #: ordering/forms.py:330
 #: ordering/forms.py:371
 #: ordering/templates/station_page.html:187
-#: sharing/templates/station_taxidrivers.html:201
+#: sharing/templates/station_taxidrivers.html:191
 msgid "Phone"
 msgstr "טלפון"
 
@@ -831,7 +831,7 @@ msgstr "הערך חייב להכיל מספרים בלבד"
 #: ordering/forms.py:283
 #: ordering/templates/station_page.html:186
 #: sharing/templates/sharing_workstation_home.html:88
-#: sharing/templates/station_history.html:25
+#: sharing/templates/station_history.html:24
 msgid "Address"
 msgstr "כתובת"
 
@@ -1904,10 +1904,10 @@ msgstr "אנו מצטערים, אך נתקלנו בשגיאה בעת הטיפו�
 #: ordering/templates/business_registration.html:187
 #: ordering/templates/business_tab.html:40
 #: ordering/templates/passenger_profile.html:84
-#: sharing/templates/station_taxidrivers.html:90
-#: sharing/templates/station_taxidrivers.html:104
-#: sharing/templates/station_taxidrivers.html:141
-#: sharing/templates/station_taxidrivers.html:192
+#: sharing/templates/station_taxidrivers.html:86
+#: sharing/templates/station_taxidrivers.html:101
+#: sharing/templates/station_taxidrivers.html:139
+#: sharing/templates/station_taxidrivers.html:182
 msgid "Error"
 msgstr "שגיאה"
 
@@ -2234,12 +2234,12 @@ msgid "Rides"
 msgstr "נסיעות"
 
 #: ordering/templates/station_analytics.html:229
-#: sharing/templates/station_history.html:109
+#: sharing/templates/station_history.html:102
 msgid "There was an error loading the data."
 msgstr "אנו מצטערים, אך נתקלנו בשגיאה בעת הטיפול בבקשה שלך. ניתן לנסות שנית מאוחר יותר..."
 
 #: ordering/templates/station_analytics.html:238
-#: sharing/templates/station_history.html:118
+#: sharing/templates/station_history.html:111
 msgid "No data"
 msgstr "אין נתונים"
 
@@ -2390,7 +2390,7 @@ msgid "Download workstations"
 msgstr "התקן עמדות עבודה"
 
 #: ordering/templates/workstation_download.html:105
-#: sharing/templates/station_taxidrivers.html:196
+#: sharing/templates/station_taxidrivers.html:186
 msgid "Delete"
 msgstr "מחק"
 
@@ -2712,7 +2712,7 @@ msgstr "(לא חובה)"
 
 #: sharing/templates/hotspot_ordering_page.html:49
 #: sharing/templates/station_taxidrivers.html:43
-#: sharing/templates/station_taxidrivers.html:201
+#: sharing/templates/station_taxidrivers.html:191
 msgid "Name"
 msgstr "שם"
 
@@ -2733,6 +2733,7 @@ msgstr "בחירת תאריך"
 #: sharing/templates/hotspot_ordering_page.html:144
 #: sharing/templates/hotspot_ordering_page.html:211
 #: sharing/templates/sharing_workstation_home.html:123
+#: sharing/templates/station_taxidrivers.html:285
 msgid "Updating..."
 msgstr "מעדכן..."
 
@@ -2765,27 +2766,27 @@ msgid "Missed"
 msgstr "לא נלקחה"
 
 #: sharing/templates/sharing_workstation_home.html:88
-#: sharing/templates/station_history.html:25
+#: sharing/templates/station_history.html:24
 msgid "Time"
 msgstr "זמן"
 
 #: sharing/templates/sharing_workstation_home.html:88
-#: sharing/templates/station_history.html:25
+#: sharing/templates/station_history.html:24
 msgid "# of Passengers"
 msgstr "מספר נוסעים"
 
 #: sharing/templates/sharing_workstation_home.html:93
-#: sharing/templates/station_history.html:30
+#: sharing/templates/station_history.html:29
 msgid "Pickup"
 msgstr "איסוף"
 
 #: sharing/templates/sharing_workstation_home.html:101
-#: sharing/templates/station_history.html:38
+#: sharing/templates/station_history.html:37
 msgid "Dropoff"
 msgstr "הורדה"
 
 #: sharing/templates/sharing_workstation_home.html:110
-#: sharing/templates/station_history.html:47
+#: sharing/templates/station_history.html:46
 msgid "Show Points On Map"
 msgstr "הצג על מפה"
 
@@ -2811,7 +2812,7 @@ msgid "Please choose taxi and driver"
 msgstr "יש לבחור מונית ונהג"
 
 #: sharing/templates/sharing_workstation_home.html:213
-#: sharing/templates/station_history.html:69
+#: sharing/templates/station_history.html:68
 msgid "Today"
 msgstr "היום"
 
@@ -2823,7 +2824,7 @@ msgstr "יצאה לדרך"
 msgid "Ride in"
 msgstr "עוד"
 
-#: sharing/templates/station_history.html:65
+#: sharing/templates/station_history.html:64
 msgid "Taxi"
 msgstr "מונית"
 
@@ -2836,7 +2837,7 @@ msgid "Taxis"
 msgstr "מוניות"
 
 #: sharing/templates/station_taxidrivers.html:21
-#: sharing/templates/station_taxidrivers.html:269
+#: sharing/templates/station_taxidrivers.html:264
 msgid "New Driver/Taxi"
 msgstr "מונית/נהג חדש"
 
@@ -2862,54 +2863,49 @@ msgstr "פרטי מונית"
 msgid "Taxi number"
 msgstr "מספר מונית"
 
-#: sharing/templates/station_taxidrivers.html:87
+#: sharing/templates/station_taxidrivers.html:83
 msgid "Driver deleted"
 msgstr "הנהג נמחק"
 
-#: sharing/templates/station_taxidrivers.html:157
-msgid "+ Add Taxi"
-msgstr "+ הוסף מונית"
+#: sharing/templates/station_taxidrivers.html:147
+msgid "Add Taxi"
+msgstr "הוסף מונית"
 
-#: sharing/templates/station_taxidrivers.html:167
-#: sharing/templates/station_taxidrivers.html:250
+#: sharing/templates/station_taxidrivers.html:157
+#: sharing/templates/station_taxidrivers.html:245
 msgid "Taxi #"
 msgstr "מונית #"
 
-#: sharing/templates/station_taxidrivers.html:168
-#: sharing/templates/station_taxidrivers.html:217
-msgid "Remove"
-msgstr "הסר"
-
-#: sharing/templates/station_taxidrivers.html:181
-#: sharing/templates/station_taxidrivers.html:332
+#: sharing/templates/station_taxidrivers.html:171
+#: sharing/templates/station_taxidrivers.html:341
 msgid "Save"
 msgstr "שמור"
 
-#: sharing/templates/station_taxidrivers.html:189
+#: sharing/templates/station_taxidrivers.html:179
 msgid "Changes Saved"
 msgstr "השינויים נשמרו"
 
-#: sharing/templates/station_taxidrivers.html:212
+#: sharing/templates/station_taxidrivers.html:202
 msgid "No Drivers"
 msgstr "אין נהגים"
 
-#: sharing/templates/station_taxidrivers.html:232
-msgid "+ Add Driver"
-msgstr "+ הוסף נהג"
+#: sharing/templates/station_taxidrivers.html:208
+msgid "Remove"
+msgstr "הסר"
 
-#: sharing/templates/station_taxidrivers.html:273
+#: sharing/templates/station_taxidrivers.html:223
+msgid "Add Driver"
+msgstr "הוסף נהג"
+
+#: sharing/templates/station_taxidrivers.html:268
 msgid "Assign Taxi to Driver"
 msgstr "הקצה מונית לנהג"
 
-#: sharing/templates/station_taxidrivers.html:282
+#: sharing/templates/station_taxidrivers.html:277
 msgid "Assign Driver to Taxi"
 msgstr "הקצה נהג למונית"
 
-#: sharing/templates/station_taxidrivers.html:290
-msgid "Choose"
-msgstr "בחר"
-
-#: sharing/templates/station_taxidrivers.html:341
+#: sharing/templates/station_taxidrivers.html:350
 #, fuzzy
 msgid "Invalid driver/taxi"
 msgstr "כתובת לא חוקית"
@@ -3043,6 +3039,9 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 #: tinymce/views.py:68
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
+
+#~ msgid "Choose"
+#~ msgstr "בחר"
 
 #~ msgid " min"
 #~ msgstr "דקות"
