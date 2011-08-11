@@ -16,6 +16,7 @@
 {% endblock %}
 
 {% block doc_ready %}
+    <script type="text/javascript" src="/static/js/mylibs/jquery.ui.datepicker-he.js"></script>
     <script type="text/javascript">
         {% autoescape off %}
             var rides_data = {{ rides_data }};
@@ -86,7 +87,8 @@
             }));
             $("#id_start_date").datepicker("setDate", "{{ start_date }}");
             $("#id_end_date").datepicker("setDate", "{{ end_date }}");
-
+            $("#id_start_date, #id_end_date").datepicker("option",$.datepicker.regional["he"]);
+            
             $.each(rides_data, function(i, ride) {
                 renderRide(ride);
             });
