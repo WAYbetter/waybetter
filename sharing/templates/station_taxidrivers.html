@@ -75,7 +75,8 @@
 
             var accordion_options = {
                 collapsible: true,
-                autoHeight: false
+                autoHeight: false,
+                animation: 'foo'
             };
         deleteDriver = function(driver){
             $.ajax({
@@ -372,8 +373,8 @@
 
         toggleAccordion = function (old_mode, new_mode, active_id) {
             $("#" + old_mode + "_accordion").hide();
-            $("#show_" + old_mode + "s").button("enable");
-            $("#show_" + new_mode + "s").button("disable");
+            $("#show_" + old_mode + "s").button("enable").removeClass("active");
+            $("#show_" + new_mode + "s").button("disable").addClass("active");
             $("#" + new_mode + "_accordion").show();
             if (active_id) {
                 $("#" + new_mode + "_accordion").accordion( "option", "animated", false);
