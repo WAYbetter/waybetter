@@ -68,15 +68,11 @@
 
 {% block doc_ready %}
     <script type="text/javascript">
-        {% autoescape off %}
-            var drivers_data = {{ drivers_data }};
-            var taxis_data = {{ taxis_data }};
-        {% endautoescape %}
+        var accordion_options = {
+            collapsible: true,
+            autoHeight: false
+        };
 
-            var accordion_options = {
-                collapsible: true,
-                autoHeight: false
-            };
         deleteDriver = function(driver){
             $.ajax({
                 url: "{% url sharing.station_controller.delete_driver %}",
@@ -98,7 +94,8 @@
                 type: "POST",
                 data: {'driver_id': driver_id, 'taxi_id': taxi_id},
                 success: function(response) {
-                    refreshTaxiDriverRelation(response.driver, response.taxi);
+                    renderTaxi(response.taxi);
+                    renderDriver(response.driver);
                 },
                 error: function() {
                     alert("{% trans "Error" %}");
@@ -132,23 +129,16 @@
                 type: "POST",
                 data: data,
                 success: function(response) {
+                    renderTaxi(response.taxi);
+                    renderDriver(response.driver);
                     if (callback){
                         callback();
                     }
-                    refreshTaxiDriverRelation(response.driver, response.taxi);
                 },
                 error: function() {
                     alert("{% trans "Error" %}");
                 }
             });
-        };
-
-        refreshTaxiDriverRelation = function(driver, taxi){
-            $("#driver_div_" + driver.id + ", #driver_header_" + driver.id).remove();
-            renderDriver(driver);
-
-            $("#taxi_div_" + taxi.id + ", #taxi_header_" + taxi.id).remove();
-            renderTaxi(taxi);
         };
 
         renderDriverDiv = function(driver) {
@@ -214,14 +204,15 @@
             else{
                 var $table = $('<table></table>');
                 $.each(taxi.drivers, function(i, driver) {
+                    var $tr = $('<tr></tr>');
                     var $remove = $('<a href="#">{% trans "Remove" %}</a>').click(function() {
                         deleteTaxiDriverRelation(driver.id, taxi.id);
                     });
                     var $driver_name = $('<a class="action_link">' + driver.name + '</a>').click(function() {
                         showDrivers(driver.id);
                     });
-                    var $tr = $('<tr></tr>')
-                            .append($('<td></td>').append($driver_name))
+
+                    $tr.append($('<td></td>').append($driver_name))
                             .append('<td>' + driver.phone + '</td>')
                             .append($('<td></td>').append($remove))
                             .appendTo($table);
@@ -237,6 +228,8 @@
         };
 
         renderDriver = function(driver) {
+            $("#driver_div_" + driver.id + ", #driver_header_" + driver.id).remove();
+
             var $driver_header = $('<h3 class="driver_header"></h3>').attr("id", "driver_header_" + driver.id)
                     .append('<span class="driver_name">' + driver.name + '</span>');
 
@@ -246,6 +239,8 @@
         };
 
         renderTaxi = function(taxi) {
+            $("#taxi_div_" + taxi.id + ", #taxi_header_" + taxi.id).remove();
+
             var $taxi_header = $('<h3 class="taxi_header"></h3>').attr("id", "taxi_header_" + taxi.id)
                     .append('<span class="taxi_number">{% trans "Taxi #" %} ' + taxi.number + '</span>');
 
@@ -268,7 +263,7 @@
         showTaxiDriverDialog = function(driver, taxi){
             var dialog_title = '{% trans "New Driver/Taxi" %}';
             $("#driver_form, #taxi_form").show();
-            $("#select_driver, #select_taxi").empty().val("");
+            $("#select_driver, #select_taxi").empty();
             if (driver){ // add taxi to driver
                 dialog_title = '{% trans "Assign Taxi to Driver" %} ' + driver.name;
                 $("#select_driver").append('<option value="' + driver.id + '">' + driver.name + '</option>').val(driver.id).disable(); // confine driver
@@ -287,13 +282,23 @@
                     $("#taxi_form").hide();
                 }
                 else{ // add new driver and taxi
-                    $("#select_driver, #select_taxi").append('<option value="" disabled="disabled">{% trans "Choose" %}</option>'); // reset taxi, driver
-                    $.each(drivers_data, function(i, driver) {
-                        $("#select_driver").append('<option value="' + driver.id + '">' + driver.name + '</option>');
+                    $("#select_driver, #select_taxi").append('<option value="" disabled="disabled">{% trans "Updating..." %}</option>'); // reset taxi, driver
+                    $.ajax({
+                        url: "{% url sharing.station_controller.station_taxidrivers %}",
+                        type: "GET",
+                        data: {"get_taxidrivers": true},
+                        dataType: 'json',
+                        success: function(response){
+                            $("#select_driver, #select_taxi").empty();
+                            $.each(response.drivers_data, function(i, driver) {
+                                $("#select_driver").append('<option value="' + driver.id + '">' + driver.name + '</option>');
+                            });
+                            $.each(response.taxis_data, function(i, taxi) {
+                                $("#select_taxi").append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
+                            });
+                        }
                     });
-                    $.each(taxis_data, function(i, taxi) {
-                        $("#select_taxi").append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
-                    });
+
                 }
             }
             
@@ -322,7 +327,7 @@
                 autoOpen: false,
                 modal: true,
                 width: 600,
-//                resizable: false,
+                resizable: false,
                 open: function(event, ui){
                     $("#choose_driver").click().blur();
                     $("#choose_taxi").click().blur();
@@ -363,14 +368,38 @@
         };
 
         showDrivers = function(driver_id){
-            toggleAccordion("taxi", "driver", driver_id);
+            $("#driver_accordion").empty();
+            $.ajax({
+                url: "{% url sharing.station_controller.station_taxidrivers %}",
+                type: "GET",
+                data: {"get_drivers": true},
+                dataType: 'json',
+                success: function(response) {
+                    $.each(response.drivers_data, function(i, driver) {
+                        renderDriver(driver);
+                    });
+                }
+            });
+            toggleMode("taxi", "driver", driver_id);
         };
 
         showTaxis = function(taxi_id){
-            toggleAccordion("driver", "taxi", taxi_id);
+            $("#taxi_accordion").empty();
+            $.ajax({
+                url: "{% url sharing.station_controller.station_taxidrivers %}",
+                type: "GET",
+                data: {"get_taxis": true},
+                dataType: 'json',
+                success: function(response) {
+                    $.each(response.taxis_data, function(i, taxi) {
+                        renderTaxi(taxi);
+                    });
+                }
+            });
+            toggleMode("driver", "taxi", taxi_id);
         };
 
-        toggleAccordion = function (old_mode, new_mode, active_id) {
+        toggleMode = function (old_mode, new_mode, active_id) {
             $("#" + old_mode + "_accordion").hide();
             $("#show_" + old_mode + "s").button("enable");
             $("#show_" + new_mode + "s").button("disable");
@@ -394,14 +423,6 @@
 
         $(function() {
             $(".loader").hide();
-
-            $.each(drivers_data, function(i, driver) {
-                renderDriver(driver);
-            });
-
-            $.each(taxis_data, function(i, taxi) {
-                renderTaxi(taxi);
-            });
 
             initTaxiDriverDialog();
 
