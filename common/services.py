@@ -1,3 +1,5 @@
+from django.conf import settings
+from django.http import HttpResponse
 from common.models import CityArea
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
@@ -36,9 +38,33 @@ def is_user_property_available(request, prop_name):
 @staff_member_required
 def get_polygons(request):
     city_areas_ids = simplejson.loads(request.POST['data'])
-    result = {}
-    for city_area_id in city_areas_ids:
-        city_area = CityArea.by_id(city_area_id)
-        result[city_area_id] = city_area.points
+
+    result = []
+    for city_area in CityArea.objects.filter(id__in=city_areas_ids):
+        result.append({
+            city_area.id: city_area.points
+        })
 
     return JSONResponse(result)
+
+@staff_member_required
+def update_city_area_order(request):
+    new_order = simplejson.loads(request.POST['data'])
+    for city_area_id in new_order.keys():
+        ca = CityArea.by_id(city_area_id)
+        ca.set_order(new_order[city_area_id])
+        ca.save()
+        
+    return JSONResponse("")
+
+@staff_member_required
+def init_model_order(request, model_name):
+    from django.db.models.loading import get_model
+    fixed_model_name = "".join(map(lambda s: s.title(), model_name.split("_")))
+    for app in settings.INSTALLED_APPS:
+        model = get_model(app, fixed_model_name)
+        if model:
+            model.init_order()
+            return HttpResponse("OK")
+
+    return HttpResponse("No model found for: %s" % model_name)

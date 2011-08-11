@@ -1,4 +1,8 @@
+import sys
+from django.db.models.fields.related import ForeignKey
 from django.http import HttpResponseForbidden, HttpResponse
+from django.db import models
+
 from google.appengine.ext import db
 from common.util import notify_by_email
 import logging
@@ -80,3 +84,114 @@ def allow_JSONP(function):
 
         return response
     return wrapper
+
+def order_relative_to_field(model, field_name):
+    """
+    Makes model ordered relative to field_name
+
+    Adds the following instance methods:
+
+        - C{set_order}
+
+    Add the following class methods:
+
+        - C{relative_sort_ids}
+
+        - C{relative_sort_models}
+
+        - C{init_order}
+
+
+    @param model: a model Class
+    @param field_name: a ForeignKey field on the class
+    @return: 
+    """
+
+    MAX_COUNT_SUPPORTED = 1000000
+
+    # check that given field_name is a ForeignKey
+    if not isinstance(model._meta.get_field_by_name(field_name)[0], ForeignKey):
+        raise AttributeError("field_name '%s' must be a ForeignKey on given class" % field_name)
+
+    order_field_name = "_%s_order" % field_name
+    clas_field_name = model._meta.verbose_name.replace(" ", "_")
+    set_order_func_name = "set_order"
+
+    def _set_order(self, new_order):
+        """
+        Sets the order of the instance
+        
+        @param new_order: the new order index
+        @return:
+        """
+        delta = 1.0/MAX_COUNT_SUPPORTED
+
+        field_id = getattr(self, field_name).id
+        after_val =  field_id + (new_order * delta)
+
+        if not field_id + 1.0 > after_val:
+            raise ValueError("Ordering overflow detected with new_order value: %d field_id: %d on model '%s'" % (new_order, field_id, model))
+
+#        logging.info("%s is setting new order: %d" % (self, new_order))
+        setattr(self, order_field_name, after_val)
+
+    def _get_order(self):
+        return getattr(self, order_field_name)
+
+    @classmethod
+    def _sort_ids_by_order(cls, array_of_ids):
+        """
+        Sort an array of ids according to the order defined
+
+        @param cls:
+        @param array_of_ids: array of this model ids
+        @return: sorted array of ids
+        """
+        array_of_ids = [int(v) for v in array_of_ids] # convert to int
+        sorted_ids = [ca.id for ca in cls.objects.filter(id__in=array_of_ids)] # get ids sorted by ordering
+        return sorted_ids
+
+    @classmethod
+    def _sort_models(cls, list_of_models, rel_field_name=clas_field_name):
+        """
+        Sort the given models by the defined order
+
+        @param cls:
+        @param list_of_models:
+        @param rel_field_name: if the field name on the model is not "city_area" if model == CityArea
+        @return: the sorted list
+        """
+        return sorted(list_of_models, key = lambda element: getattr(element, rel_field_name).get_order())
+
+    @classmethod
+    def _init_order(cls):
+        related_field_manager = getattr(cls, field_name).field.rel.to
+        for related in related_field_manager.objects.all():
+#            logging.info("related: %s" % related)
+            for i, m in enumerate(cls.objects.filter(**{field_name: related}).order_by()):
+#                logging.info("i, m: %s, %s" %  (i,m))
+                getattr(m, set_order_func_name)(i)
+                m.save()
+
+    def _save(self, **kwargs):
+        if not getattr(self, order_field_name):
+            count = self.__class__.objects.filter(**{field_name:getattr(self, field_name)}).count()
+            getattr(self, set_order_func_name)(count)
+
+        super(model, self).save(**kwargs)
+
+    # add ordering field to class
+    models.FloatField(null=True, blank=True, editable=False).contribute_to_class(model, order_field_name)
+
+    # set ordering by field
+    model._meta.ordering = [order_field_name]
+
+    # patch class
+    setattr(model, "save",  _save)
+    setattr(model, set_order_func_name,  _set_order)
+    setattr(model, "get_order",  _get_order)
+    setattr(model, "relative_sort_ids",  _sort_ids_by_order)
+    setattr(model, "relative_sort_models",  _sort_models)
+    setattr(model, "init_order",  _init_order)
+
+    return model

@@ -405,3 +405,14 @@ function getAccordionPosition(elements, key, val) {
     });
     return append_after;
 }
+
+Array.prototype.unique = function() {
+    var unique_array = [];
+    for (var i = 0; i < this.length; ++i) {
+        var val = this[i];
+        if (unique_array.indexOf(val) === -1) {
+            unique_array.push(val)
+        }
+    }
+    return unique_array;
+};

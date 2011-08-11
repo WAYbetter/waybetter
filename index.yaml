@@ -104,6 +104,21 @@ indexes:
   - name: __key__
     direction: desc
 
+- kind: common_cityarea
+  properties:
+  - name: city_id
+  - name: _ca_order
+
+- kind: common_cityarea
+  properties:
+  - name: city_id
+  - name: _city_order
+
+- kind: common_cityarea
+  properties:
+  - name: city_id
+  - name: _order
+
 - kind: common_country
   properties:
   - name: __key__
@@ -118,6 +133,11 @@ indexes:
   properties:
   - name: __key__
     direction: desc
+
+- kind: common_wrapper_class
+  properties:
+  - name: city_id
+  - name: _city_order
 
 - kind: interests_businessinterest
   properties:
@@ -812,13 +832,59 @@ indexes:
 - kind: sharing_hotspottariffrule
   properties:
   - name: hotspot_id
+  - name: _city_area_order
+
+- kind: sharing_hotspottariffrule
+  properties:
+  - name: hotspot_id
   - name: _order
+
+- kind: sharing_hotspottariffrule
+  properties:
+  - name: hotspot_id
+  - name: _rule_set_order
+
+- kind: sharing_hotspottariffrule
+  properties:
+  - name: hotspot_id
+  - name: rule_set_id
+  - name: _city_area_order
 
 - kind: sharing_hotspottariffrule
   properties:
   - name: hotspot_id
   - name: rule_set_id
   - name: _order
+
+- kind: sharing_hotspottariffrule
+  properties:
+  - name: hotspot_id
+  - name: rule_set_id
+  - name: _rule_set_order
+
+- kind: sharing_hotspottariffrule
+  properties:
+  - name: hotspot_id
+  - name: rule_set_id
+  - name: ciry_are2a
+
+- kind: sharing_hotspottariffrule
+  properties:
+  - name: hotspot_id
+  - name: rule_set_id
+  - name: ciry_area
+
+- kind: sharing_hotspottariffrule
+  properties:
+  - name: hotspot_id
+  - name: rule_set_id
+  - name: city_area
+
+- kind: sharing_hotspottariffrule
+  properties:
+  - name: hotspot_id
+  - name: rule_set_id
+  - name: price
 
 - kind: sharing_pricearea
   properties:

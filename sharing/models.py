@@ -1,7 +1,9 @@
+import logging
+from common.decorators import order_relative_to_field
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from common.util import convert_python_weekday, datetimeIterator
-from common.models import BaseModel, Country, City, CityAreaField
+from common.models import BaseModel, Country, City, CityAreaField, CityArea
 from djangotoolbox.fields import ListField
 from pricing.models import RuleSet, AbstractTemporalRule
 from datetime import datetime, date, timedelta, time
@@ -34,7 +36,8 @@ class HotSpot(BaseModel):
 
         active_rule_set = RuleSet.get_active_set(day, t)
         if active_rule_set:
-            for rule in self.tariff_rules.filter(rule_set=active_rule_set):
+            active_tariff_rules = self.tariff_rules.filter(rule_set=active_rule_set)
+            for rule in CityArea.relative_sort_models(active_tariff_rules):
                 if rule.is_active(lat, lon):
                     return rule.price
 
@@ -126,6 +129,9 @@ class HotSpotTariffRule(BaseModel):
     city_area = CityAreaField(verbose_name=_("city area"))
     price = models.FloatField(_("price"))
 
+#    class Meta:
+#        ordering = ["city_area"]
+
     def is_active(self, lat, lon, day=None, t=None):
         result = self.city_area.contains(lat, lon)
         if day and t:
@@ -133,9 +139,7 @@ class HotSpotTariffRule(BaseModel):
 
         return result
 
-    class Meta:
-        order_with_respect_to = 'hotspot'
-
+order_relative_to_field(HotSpotTariffRule, "rule_set")
 
 class HotSpotTag(BaseModel):
     name = models.CharField(_("tag"), max_length=50)

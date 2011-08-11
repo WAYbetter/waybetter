@@ -1,10 +1,11 @@
+import types
 from common.tz_support import UTCDateTimeField
 from common.util import Polygon
 from django.db import models
 from django.db.models.fields.related import ManyToOneRel
 from django.utils.translation import ugettext_lazy as _
 from djangotoolbox.fields import ListField
-from common.decorators import run_in_transaction
+from common.decorators import run_in_transaction, order_relative_to_field
 import logging
 from common.widgets import ListFieldWithUI, ColorField, CityAreaFormField
 
@@ -176,7 +177,7 @@ class CityAreaField(models.ForeignKey):
 class CityArea(BaseModel):
     name = models.CharField(_("name"), max_length=50)
     points = ListFieldWithUI(models.FloatField(), verbose_name=_("Edit Points"))
-    color = ColorField(default="yellow")
+    color = ColorField(default="#ffff00")
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="city_areas")
 
     def __unicode__(self):
@@ -188,3 +189,5 @@ class CityArea(BaseModel):
 
     def contains(self, lat, lon):
         return self.polygon.contains(lat, lon)
+    
+CityArea = order_relative_to_field(CityArea, 'city')
