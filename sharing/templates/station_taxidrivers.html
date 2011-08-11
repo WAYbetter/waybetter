@@ -68,10 +68,10 @@
 
 {% block doc_ready %}
     <script type="text/javascript">
-        var accordion_options = {
-            collapsible: true,
-            autoHeight: false
-        };
+            var accordion_options = {
+                collapsible: true,
+                autoHeight: false
+            };
 
         deleteDriver = function(driver){
             $.ajax({
@@ -291,15 +291,15 @@
                         success: function(response){
                             $("#select_driver, #select_taxi").empty();
                             $.each(response.drivers_data, function(i, driver) {
-                                $("#select_driver").append('<option value="' + driver.id + '">' + driver.name + '</option>');
-                            });
+                        $("#select_driver").append('<option value="' + driver.id + '">' + driver.name + '</option>');
+                    });
                             $.each(response.taxis_data, function(i, taxi) {
-                                $("#select_taxi").append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
-                            });
-                        }
+                        $("#select_taxi").append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
+                    });
+                }
                     });
 
-                }
+            }
             }
             
             $("#new_taxidriver_form").dialog({'title': dialog_title}).dialog("open");
@@ -401,8 +401,8 @@
 
         toggleMode = function (old_mode, new_mode, active_id) {
             $("#" + old_mode + "_accordion").hide();
-            $("#show_" + old_mode + "s").button("enable");
-            $("#show_" + new_mode + "s").button("disable");
+            $("#show_" + old_mode + "s").button("enable").removeClass("active");
+            $("#show_" + new_mode + "s").button("disable").addClass("active");
             $("#" + new_mode + "_accordion").show();
             if (active_id) {
                 $("#" + new_mode + "_accordion").accordion( "option", "animated", false);

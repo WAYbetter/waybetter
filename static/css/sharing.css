@@ -131,6 +131,12 @@ a, .action_link, .ui-widget-content a {
     display: inline-block;
 }
 
+.ui-button.active {
+    background: white;
+    opacity: 1;
+    border: 1px solid;
+}
+
 #ride_accordion_container {
     margin-top: 50px;
     padding:  5px;
@@ -299,8 +305,7 @@ table .pickup {
 }
 .rtl #add_taxidriver_button {
     float: left;
-    margin-right: 10px;
-    margin-left: inherit;
+    margin-left: 10px;
 }
 
 #taxidriver_buttons {
@@ -322,8 +327,17 @@ table .pickup {
     float: right;
 }
 
+.driver_div .driver_details label {
+    margin: 0 10px;
+}
+
+
 .driver_div li .action_link{
     margin-left: 20px;
+}
+.rtl .driver_div li .action_link{
+    margin-left: inherit;
+    margin-right: 20px;
 }
 
 .taxi_div table {
@@ -350,6 +364,20 @@ table .pickup {
 #new_taxidriver_form .formgroup{
     float: left;
 }
+
+.rtl #new_taxidriver_form .formgroup{
+    float: right;
+    padding: 0 12px;
+    width: 200px;
+}
+
 #new_taxidriver_form .formgroup input {
     display: block
+}
+
+.driver_btns {
+    padding-top: 20px;
+}
+.driver_btns .ui-button {
+    margin: 0 10px;
 }
