@@ -1,4 +1,4 @@
-{#uncomment for debugging (open as non-tab page) #}
+{#uncomment for debugging (open as non-tab page)#}
 {#{% extends "base.html" %}#}
 {##}
 {#{% block bodyclass %}clean_body{% endblock %}#}
@@ -184,29 +184,10 @@
                     }
                 });
             });
-            var $delete = $('<div>{% trans "Delete" %}</div>').button().click(function() {
-                $("#delete_taxidriver_dialog").text("{% trans "Are you sure you want to delete driver:" %} " + driver.name + " ?")
-                        .dialog({
-                            title: "{% trans "Confirm driver deletion" %}",
-                            buttons: [
-                                {'text': "{% trans "Cancel" %}", 'click': function() {
-                                    $(this).dialog("close");
-                                }},
-                                {'text': "{% trans "Delete" %}", 'click': function() {
-                                    deleteElement("{% url sharing.station_controller.delete_driver %}", {'driver_id': driver.id},
-                                            function(response) {
-                                                $("#driver_header_" + driver.id + ", #driver_div_" + driver.id).remove();
-                                                $("#delete_taxidriver_dialog").dialog("close");
-                                                alert("{% trans "Driver deleted" %}");
-                                            });
-                                }}
-                            ]
-                        }).dialog("open");
-            });
 
             var $driver_details = $('<div class="driver_details"><div>')
                     .append('<label for="">{% trans "Name" %}:</label>', $name, '<label for="">{% trans "Phone" %}:</label>', $phone)
-                    .append($('<div class="driver_btns"></div>').append($delete, $save));
+                    .append($('<div class="driver_btns"></div>').append($save));
 
             return $('<div class="driver_div"></div>').attr("id", "driver_div_" + driver.id).data("name", driver.name).append($driver_details, $taxis_div);
         };
@@ -241,34 +222,35 @@
                 showTaxiDriverDialog(undefined, taxi);
             }).appendTo($taxi_div);
 
-            var $delete = $('<div>{% trans "Delete" %}</div>').button().click(function() {
-                $("#delete_taxidriver_dialog").text("{% trans "Are you sure you want to delete taxi:" %} " + taxi.number + " ?")
-                        .dialog({
-                            title: "{% trans "Confirm taxi deletion" %}",
-                            buttons: [
-                                {'text': "{% trans "Cancel" %}", 'click': function() {
-                                    $(this).dialog("close");
-                                }},
-                                {'text': "{% trans "Delete" %}", 'click': function() {
-                                    deleteElement("{% url sharing.station_controller.delete_taxi %}", {'taxi_id': taxi.id},
-                                            function(response) {
-                                                $("#taxi_header_" + taxi.id + ", #taxi_div_" + taxi.id).remove();
-                                                $("#delete_taxidriver_dialog").dialog("close");
-                                                alert("{% trans "Taxi deleted" %}");
-                                            });
-                                }}
-                            ]
-                        }).dialog("open");
-            }).appendTo($taxi_div);
-
             return $taxi_div;
         };
 
         renderDriver = function(driver) {
             $("#driver_div_" + driver.id + ", #driver_header_" + driver.id).remove();
+            var $delete = $('<a href="#" class="action_link delete">{% trans "Delete" %}</a>').click(function() {
+                $("#delete_taxidriver_dialog").text("{% trans "Are you sure you want to delete driver" %} " + driver.name + " ?")
+                        .dialog({
+                            title: "{% trans "Confirm driver deletion" %}",
+                            buttons: [
+                                {'text': "{% trans "Cancel" %}", 'click': function() {
+                                    $(this).dialog("close");
+                                }},
+                                {'text': "{% trans "Delete" %}", 'click': function() {
+                                    deleteElement("{% url sharing.station_controller.delete_driver %}", {'driver_id': driver.id},
+                                            function(response) {
+                                                $("#driver_header_" + driver.id + ", #driver_div_" + driver.id).remove();
+                                                $("#delete_taxidriver_dialog").dialog("close");
+                                                alert("{% trans "Driver deleted" %}");
+                                            });
+                                }}
+                            ]
+                        }).dialog("open");
+                return false;
+            });
 
             var $driver_header = $('<h3 class="driver_header"></h3>').attr("id", "driver_header_" + driver.id)
-                    .append('<span class="driver_name">' + driver.name + '</span>');
+                    .append('<span class="driver_name">' + driver.name + '</span>', $delete);
+
 
             var $driver_div = renderDriverDiv(driver);
             var append_after = getAccordionPosition($("[id^='driver_div_']"), "name", driver.name);
@@ -277,9 +259,30 @@
 
         renderTaxi = function(taxi) {
             $("#taxi_div_" + taxi.id + ", #taxi_header_" + taxi.id).remove();
+            var $delete = $('<a href="#" class="action_link delete">{% trans "Delete" %}</a>').click(function() {
+                $("#delete_taxidriver_dialog").text("{% trans "Are you sure you want to delete taxi" %} " + taxi.number + " ?")
+                        .dialog({
+                            title: "{% trans "Confirm taxi deletion" %}",
+                            buttons: [
+                                {'text': "{% trans "Cancel" %}", 'click': function() {
+                                    $(this).dialog("close");
+                                }},
+                                {'text': "{% trans "Delete" %}",
+                                    'click': function() {
+                                        deleteElement("{% url sharing.station_controller.delete_taxi %}", {'taxi_id': taxi.id},
+                                                function(response) {
+                                                    $("#taxi_header_" + taxi.id + ", #taxi_div_" + taxi.id).remove();
+                                                    $("#delete_taxidriver_dialog").dialog("close");
+                                                    alert("{% trans "Taxi deleted" %}");
+                                                });
+                                    }}
+                            ]
+                        }).dialog("open");
+                return false;
+            });
 
             var $taxi_header = $('<h3 class="taxi_header"></h3>').attr("id", "taxi_header_" + taxi.id)
-                    .append('<span class="taxi_number">{% trans "Taxi #" %} ' + taxi.number + '</span>');
+                    .append('<span class="taxi_number">{% trans "Taxi #" %} ' + taxi.number + '</span>', $delete);
 
             var $taxi_div = renderTaxiDiv(taxi);
 
@@ -301,6 +304,8 @@
             var dialog_title = '{% trans "New Driver/Taxi" %}';
             $("#driver_form, #taxi_form").show();
             $("#select_driver, #select_taxi").empty();
+            $("#new_taxidriver_form input[type=text]").val("");
+
             if (driver){ // add taxi to driver
                 $("#choose_driver, #choose_taxi").click().blur();
                 dialog_title = '{% trans "Assign Taxi to Driver" %} ' + driver.name;
@@ -395,10 +400,10 @@
                 ]
             }));
 
-            $("#new_taxidriver_form input, #new_taxidriver_form select").change(function() {
+            $("#new_taxidriver_form input[type=radio], #new_taxidriver_form select").change(function() {
                 validateTaxiDriverDialog();
             });
-            $("#new_taxidriver_form input").keydown(function() {
+            $("#new_taxidriver_form input[type=text]").keyup(function() {
                 validateTaxiDriverDialog();
             });
         };

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-11 18:02+0300\n"
+"POT-Creation-Date: 2011-08-14 14:45+0300\n"
 "PO-Revision-Date: 2011-07-05 18:21+0200\n"
 "Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -650,7 +650,9 @@ msgstr ""
 #: ordering/templates/mobile/passenger_home.html:131
 #: ordering/templates/mobile/passenger_home.html:136
 #: ordering/templates/mobile/passenger_home.html:214
-#: sharing/templates/station_taxidrivers.html:338
+#: sharing/templates/station_taxidrivers.html:192
+#: sharing/templates/station_taxidrivers.html:249
+#: sharing/templates/station_taxidrivers.html:380
 #: templates/mobile/base.html:69
 msgid "Cancel"
 msgstr ""
@@ -730,7 +732,7 @@ msgstr ""
 
 #: ordering/forms.py:210 ordering/forms.py:330 ordering/forms.py:371
 #: ordering/templates/station_page.html:187
-#: sharing/templates/station_taxidrivers.html:191
+#: sharing/templates/station_taxidrivers.html:208
 msgid "Phone"
 msgstr ""
 
@@ -742,7 +744,7 @@ msgstr ""
 #: ordering/forms.py:212 ordering/forms.py:283
 #: ordering/templates/station_page.html:186
 #: sharing/templates/sharing_workstation_home.html:88
-#: sharing/templates/station_history.html:24
+#: sharing/templates/station_history.html:25
 msgid "Address"
 msgstr ""
 
@@ -1722,10 +1724,10 @@ msgstr ""
 #: ordering/templates/business_registration.html:187
 #: ordering/templates/business_tab.html:40
 #: ordering/templates/passenger_profile.html:84
-#: sharing/templates/station_taxidrivers.html:86
-#: sharing/templates/station_taxidrivers.html:101
-#: sharing/templates/station_taxidrivers.html:139
-#: sharing/templates/station_taxidrivers.html:182
+#: sharing/templates/station_taxidrivers.html:88
+#: sharing/templates/station_taxidrivers.html:103
+#: sharing/templates/station_taxidrivers.html:141
+#: sharing/templates/station_taxidrivers.html:183
 msgid "Error"
 msgstr ""
 
@@ -1947,7 +1949,7 @@ msgstr ""
 "to do is push the yellow button. We'll do the rest!"
 
 #: ordering/templates/passenger_profile.html:18
-#: sharing/templates/station_taxidrivers.html:44
+#: sharing/templates/station_taxidrivers.html:49
 msgid "Phone number"
 msgstr ""
 
@@ -2058,12 +2060,12 @@ msgid "Rides"
 msgstr ""
 
 #: ordering/templates/station_analytics.html:229
-#: sharing/templates/station_history.html:102
+#: sharing/templates/station_history.html:104
 msgid "There was an error loading the data."
 msgstr ""
 
 #: ordering/templates/station_analytics.html:238
-#: sharing/templates/station_history.html:111
+#: sharing/templates/station_history.html:113
 msgid "No data"
 msgstr ""
 
@@ -2242,7 +2244,10 @@ msgid "Download workstations"
 msgstr ""
 
 #: ordering/templates/workstation_download.html:105
-#: sharing/templates/station_taxidrivers.html:186
+#: sharing/templates/station_taxidrivers.html:187
+#: sharing/templates/station_taxidrivers.html:195
+#: sharing/templates/station_taxidrivers.html:244
+#: sharing/templates/station_taxidrivers.html:252
 msgid "Delete"
 msgstr ""
 
@@ -2557,8 +2562,8 @@ msgid "More (optional)"
 msgstr ""
 
 #: sharing/templates/hotspot_ordering_page.html:49
-#: sharing/templates/station_taxidrivers.html:43
-#: sharing/templates/station_taxidrivers.html:191
+#: sharing/templates/station_taxidrivers.html:48
+#: sharing/templates/station_taxidrivers.html:208
 msgid "Name"
 msgstr ""
 
@@ -2579,7 +2584,7 @@ msgstr ""
 #: sharing/templates/hotspot_ordering_page.html:144
 #: sharing/templates/hotspot_ordering_page.html:211
 #: sharing/templates/sharing_workstation_home.html:123
-#: sharing/templates/station_taxidrivers.html:285
+#: sharing/templates/station_taxidrivers.html:325
 msgid "Updating..."
 msgstr ""
 
@@ -2613,28 +2618,28 @@ msgid "Missed"
 msgstr ""
 
 #: sharing/templates/sharing_workstation_home.html:88
-#: sharing/templates/station_history.html:24
+#: sharing/templates/station_history.html:25
 msgid "Time"
 msgstr ""
 
 #: sharing/templates/sharing_workstation_home.html:88
-#: sharing/templates/station_history.html:24
+#: sharing/templates/station_history.html:25
 #, fuzzy
 msgid "# of Passengers"
 msgstr "Passenger home"
 
 #: sharing/templates/sharing_workstation_home.html:93
-#: sharing/templates/station_history.html:29
+#: sharing/templates/station_history.html:30
 msgid "Pickup"
 msgstr ""
 
 #: sharing/templates/sharing_workstation_home.html:101
-#: sharing/templates/station_history.html:37
+#: sharing/templates/station_history.html:38
 msgid "Dropoff"
 msgstr ""
 
 #: sharing/templates/sharing_workstation_home.html:110
-#: sharing/templates/station_history.html:46
+#: sharing/templates/station_history.html:47
 msgid "Show Points On Map"
 msgstr ""
 
@@ -2660,7 +2665,7 @@ msgid "Please choose taxi and driver"
 msgstr ""
 
 #: sharing/templates/sharing_workstation_home.html:213
-#: sharing/templates/station_history.html:68
+#: sharing/templates/station_history.html:69
 msgid "Today"
 msgstr ""
 
@@ -2672,7 +2677,7 @@ msgstr ""
 msgid "Ride in"
 msgstr ""
 
-#: sharing/templates/station_history.html:64
+#: sharing/templates/station_history.html:65
 msgid "Taxi"
 msgstr ""
 
@@ -2684,77 +2689,106 @@ msgstr ""
 msgid "Taxis"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:21
-#: sharing/templates/station_taxidrivers.html:264
+#: sharing/templates/station_taxidrivers.html:24
+#: sharing/templates/station_taxidrivers.html:301
 msgid "New Driver/Taxi"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:33
+#: sharing/templates/station_taxidrivers.html:38
 msgid "Driver Details"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:36
-#: sharing/templates/station_taxidrivers.html:55
+#: sharing/templates/station_taxidrivers.html:41
+#: sharing/templates/station_taxidrivers.html:60
 msgid "Choose Existing"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:42
-#: sharing/templates/station_taxidrivers.html:61
+#: sharing/templates/station_taxidrivers.html:47
+#: sharing/templates/station_taxidrivers.html:66
 msgid "Add New"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:52
+#: sharing/templates/station_taxidrivers.html:57
 msgid "Taxi Details"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:62
+#: sharing/templates/station_taxidrivers.html:67
 msgid "Taxi number"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:83
-msgid "Driver deleted"
-msgstr ""
-
-#: sharing/templates/station_taxidrivers.html:147
+#: sharing/templates/station_taxidrivers.html:149
 msgid "Add Taxi"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:157
-#: sharing/templates/station_taxidrivers.html:245
-msgid "Taxi #"
-msgstr ""
-
-#: sharing/templates/station_taxidrivers.html:171
-#: sharing/templates/station_taxidrivers.html:341
-msgid "Save"
-msgstr ""
-
-#: sharing/templates/station_taxidrivers.html:179
-msgid "Changes Saved"
-msgstr ""
-
-#: sharing/templates/station_taxidrivers.html:202
-msgid "No Drivers"
-msgstr ""
-
-#: sharing/templates/station_taxidrivers.html:208
+#: sharing/templates/station_taxidrivers.html:155
+#: sharing/templates/station_taxidrivers.html:225
 msgid "Remove"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:223
+#: sharing/templates/station_taxidrivers.html:158
+#: sharing/templates/station_taxidrivers.html:282
+msgid "Taxi #"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:172
+#: sharing/templates/station_taxidrivers.html:383
+msgid "Save"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:180
+msgid "Changes Saved"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:188
+msgid "Are you sure you want to delete driver"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:190
+msgid "Confirm driver deletion"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:200
+msgid "Driver deleted"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:219
+msgid "No Drivers"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:240
 msgid "Add Driver"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:268
+#: sharing/templates/station_taxidrivers.html:245
+msgid "Are you sure you want to delete taxi"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:247
+msgid "Confirm taxi deletion"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:257
+msgid "Taxi deleted"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:306
 msgid "Assign Taxi to Driver"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:277
+#: sharing/templates/station_taxidrivers.html:316
 msgid "Assign Driver to Taxi"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:350
+#: sharing/templates/station_taxidrivers.html:392
 msgid "Invalid driver/taxi"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:417
+msgid "Drivers List"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:434
+msgid "Taxi List"
 msgstr ""
 
 #: sharing/templates/station_tools.html:15

@@ -131,6 +131,23 @@ a, .action_link, .ui-widget-content a {
     display: inline-block;
 }
 
+
+.ui-accordion-icons .ui-accordion-header .action_link.delete {
+    float: left;
+    background: url(/static/images/cross.png) no-repeat;
+    display: inline-block;
+    color: #174599;
+    font-weight: normal;
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+.rtl .ui-accordion-icons .ui-accordion-header .action_link.delete {
+    background-position: 98% 7px;
+    padding-right: 20px;
+}
+
+
 .ui-button.active {
     background: white;
     opacity: 1;
@@ -150,6 +167,11 @@ a, .action_link, .ui-widget-content a {
 .rtl .ui-dialog .ui-dialog-buttonpane .ui-dialog-buttonset {
     float: left;
 }
+
+/*.ui-state-default .ui-icon.delete_button {*/
+    /*background-image: url(/static/images/delete.png);*/
+    /*background-repeat: no-repeat;*/
+/*}*/
 
 #ride_accordion_container {
     margin-top: 50px;
@@ -441,10 +463,27 @@ table.striped {
 .driver_btns {
     padding-top: 20px;
 }
+
+.rtl .driver_btns {
+    text-align: left;
+    padding-left: 14px;
+}
+
 .driver_btns .ui-button {
     margin-right:10px;
 }
 .rtl .driver_btns .ui-button {
     margin-right:inherit;
     margin-left: 10px;
+}
+
+#header #title {
+    float:left;
+    margin-left: 30px;
+    margin-top: 16px;
+}
+.rtl #header #title {
+    float:right;
+    margin-left: inherit;
+    margin-right: 30px;
 }
