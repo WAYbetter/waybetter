@@ -142,6 +142,26 @@ class Station(BaseModel):
         else:
             return "http://taxiapp.co.il"
 
+    def get_ride_price(self, shared_ride):
+        """
+        Get the station's pricing for a shared ride.
+        @param shared_ride: a SharedRide
+        @return: the price, or None if price is not defined for all orders of the shared ride.
+        """
+        orders = set(shared_ride.orders.all())
+        priced_orders = set()
+        price_rules = set()
+        for rule in self.fixed_prices.all():
+            for order in orders:
+                if rule.is_active(order.pickup_point.lat, order.pickup_point.lon, order.dropoff_point.lat, order.dropoff_point.lon, shared_ride.depart_time.date(), shared_ride.depart_time.time()):
+                    price_rules.add(rule)
+                    priced_orders.add(order)
+
+        if price_rules and priced_orders == orders:
+            return max([pr.price for pr in price_rules]) + self.stop_price * (shared_ride.get_number_of_stops() - 1) # first stop is free
+        else:
+            return None
+
     def is_in_valid_distance(self, order=None, from_lon=None, from_lat=None, to_lon=None, to_lat=None):
         if not (self.lat and self.lon): # ignore station with unknown address
             return False
@@ -207,9 +227,9 @@ class StationFixedPriceRule(BaseModel):
     city_area_2 = CityAreaField(verbose_name=_("city area 2"), related_name="fixed_price_rules_2")
     price = models.FloatField(_("price"))
 
-    def is_active(self, from_lat, from_lon, to_lat, to_lon, day, t):
-        contains = (self.city_area_1.contains(from_lat, from_lon) and self.city_area_2.contains(to_lat, to_lon)) or \
-                   (self.city_area_2.contains(from_lat, from_lon) and self.city_area_1.contains(to_lat, to_lon))
+    def is_active(self, lat1, lon1, lat2, lon2, day, t):
+        contains = (self.city_area_1.contains(lat1, lon1) and self.city_area_2.contains(lat2, lon2)) or \
+                   (self.city_area_2.contains(lat1, lon1) and self.city_area_1.contains(lat2, lon2))
         return contains and self.rule_set.is_active(day, t)
 
 
@@ -292,8 +312,16 @@ class SharedRide(BaseModel):
                 'id': self.id,
                 'status': self.status,
                 'driver': {'name': self.driver.name} if self.driver else "",
-                'taxi': {'number': self.taxi.number} if self.taxi else ""
+                'taxi': {'number': self.taxi.number} if self.taxi else "",
+                'value': self.station.get_ride_price(self) or ""
         }
+
+    def get_number_of_stops(self):
+        """
+        Assumes many to one
+        @return: the number of stops (dropoffs or pickups)
+        """
+        return self.points.count() - 1
 
     def change_status(self, old_status=None, new_status=None):
         if self._change_attr_in_transaction("status", old_status, new_status):
@@ -333,7 +361,7 @@ class RidePoint(BaseModel):
     def __unicode__(self):
         return u"RidePoint [%d]" % self.id
 
-    
+
 class Passenger(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
 
@@ -762,7 +790,7 @@ class Order(BaseModel):
 
         if self.passenger.orders.count() == 1:
             msg += u"""
-            
+
     * This is a new passenger."""
 
         if self.passenger.business:
@@ -854,7 +882,7 @@ class OrderAssignment(BaseModel):
     def change_status(self, old_status=None, new_status=None):
         """
         Change the status of this C{OrderAssignment}
-        
+
         Update status in transaction, send signal if update was successful
 
         @param old_status: the old status to check
