@@ -332,29 +332,25 @@ table .pickup {
     margin-right: 10px;
     margin-left: inherit;
 }
+.driver_div {
+    overflow-x: hidden;
+    white-space: nowrap;
+}
 
 .driver_div .driver_taxis{
     /*float: left;*/
     display: inline-block;
     vertical-align: top;
     padding-right: 30px;
+    width: 65%;
 }
 .driver_div .driver_taxis li {
     margin-top: 5px;
 }
 
-.driver_div .driver_taxis .action_link.add{
-    margin-left: 20px;
-}
-.rtl .driver_div .driver_taxis .action_link.add{
-    margin-left: inherit;
-    margin-right: 20px;
-}
-
-
 .driver_div .driver_details{
     /*float: right;*/
-    width: 50%;
+    width: 180px;
     display: inline-block;
     border-left: 1px solid #d3d3d3;
 }
@@ -383,6 +379,8 @@ table .pickup {
 .action_link.add {
     background-color: green;
     background: url(/static/images/add.png) no-repeat;
+    margin-top: 10px;
+    display: inline-block;
 
 }
 .rtl .action_link.add {
@@ -401,27 +399,27 @@ table .pickup {
 }
 
 
-.taxi_div table {
+table.striped {
     /*border-collapse: collapse;*/
     width: 100%;
     border: 2px solid #a8d5fd;
     border-spacing: 0 3px;
 }
 
-.taxi_div table th, .taxi_div table td {
+.striped th, .striped td {
     padding: 5px;
     color: #5b5b5b;
     text-shadow: 0 1px 0 white;
 }
 
-.taxi_div table tr:nth-child(odd) {
+.striped tr:nth-child(odd) {
     background-color: white;
 }
 
-.taxi_div table tr:nth-child(even) {
+.striped tr:nth-child(even) {
     background-color: #e7f1fa;
 }
-.taxi_div .action_link.add {
+.striped .action_link.add {
     margin-top: 10px;
     display: inline-block;
 }

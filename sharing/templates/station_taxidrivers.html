@@ -143,20 +143,26 @@
 
         renderDriverDiv = function(driver) {
             var $taxis_div = $('<div class="driver_taxis"><div>');
-            var $list = $('<ul></ul>').appendTo($taxis_div);
+            var $taxi_table = $('<table class="striped"></table>').appendTo($taxis_div);
             var $add_taxi_link = $('<span class="action_link add">{% trans "Add Taxi" %}</span>').click(function() {
                 showTaxiDriverDialog(driver, undefined);
             });
 
-            var last = driver.taxis.length - 1;
             $.each(driver.taxis, function(i, taxi) {
-                var $li = $('<li></li>').append('<span>{% trans "Taxi #" %}' + taxi.number + '</span');
-                var $remove = $('<span class="action_link remove">{% trans "Remove" %}</span>').appendTo($li).click(
-                        function() {
-                            deleteTaxiDriverRelation(driver.id, taxi.id);
-                        });
-                $list.append($li);
+                var $tr = $('<tr></tr>');
+                var $remove = $('<a href="#" class="action_link remove">{% trans "Remove" %}</a>').click(function() {
+                    deleteTaxiDriverRelation(driver.id, taxi.id);
+                });
+                var $taxi_name = $('<a class="action_link">{% trans "Taxi #" %}' + taxi.number + '</a>').click(function() {
+                    showTaxis(taxi.id);
+                });
+
+                $tr.append($('<td></td>').append($taxi_name))
+                        .append($('<td></td>').append($remove))
+                        .appendTo($taxi_table);
             });
+
+            $taxis_div.append($taxi_table);
             $taxis_div.append($add_taxi_link);
 
             var $phone = $('<input type="text" value="' + driver.phone + '"/>').data("orig", driver.phone);
@@ -195,7 +201,7 @@
                 $taxi_div.append("<div>{% trans "No Drivers" %}</div>");
             }
             else{
-                var $table = $('<table></table>');
+                var $table = $('<table class="striped"></table>');
                 $.each(taxi.drivers, function(i, driver) {
                     var $tr = $('<tr></tr>');
                     var $remove = $('<a href="#" class="action_link remove">{% trans "Remove" %}</a>').click(function() {
