@@ -113,10 +113,9 @@
                     window.open(link, "Map View", 'width=800,height=600,resizable=no');
                 });
 
-        var $value = $('<span class="ride_value"></span>');
+        var $value = $('<span class="ride_value">{% trans "Value:" %}' + ride.value + ' ₪</span>');
 
-        var $info_div = $('<div class="ride_info"></div>').append($value,$map_link, '<div class="clear"></div>');
-        return $info_div;
+        return $('<div class="ride_info"></div>').append($value, $map_link, '<div class="clear"></div>');
     };
 
     populate_drivers = function($driver_select, $taxi_selector, taxi_id) {
