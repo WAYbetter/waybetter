@@ -18,6 +18,9 @@
             <a id="show_drivers">{% trans "Drivers" %}</a>
             <a id="show_taxis">{% trans "Taxis" %}</a>
         </div>
+
+        <div id="title"></div>
+
         <div id="add_taxidriver_button">{% trans "New Driver/Taxi" %}</div>
         <div class="clear"></div>
     </div>
@@ -27,6 +30,8 @@
         <div id="driver_accordion"></div>
         <div id="taxi_accordion"></div>
     </div>
+
+    <div id="delete_taxidriver_dialog"></div>
 
     <form id="new_taxidriver_form">
         <div id="driver_form">
@@ -73,17 +78,14 @@
                 autoHeight: false
             };
 
-        deleteDriver = function(driver){
+        deleteElement = function(url, data, success) {
             $.ajax({
-                url: "{% url sharing.station_controller.delete_driver %}",
+                url: url,
                 type: "POST",
-                data: {'driver_id': driver.id},
-                success: function(response){
-                    $("#driver_header_" + driver.id + ", #driver_div_" + driver.id).remove();
-                    alert("{% trans "Driver deleted" %}");
-                },
-                error: function(){
-                  alert("{% trans "Error" %}");
+                data: data,
+                success: success,
+                error: function() {
+                    alert("{% trans "Error" %}");
                 }
             });
         };
@@ -177,7 +179,23 @@
                 });
             });
             var $delete = $('<div>{% trans "Delete" %}</div>').button().click(function() {
-                deleteDriver(driver);
+                $("#delete_taxidriver_dialog").text("{% trans "Are you sure you want to delete driver:" %} " + driver.name + " ?")
+                        .dialog({
+                            title: "{% trans "Confirm driver deletion" %}",
+                            buttons: [
+                                {'text': "{% trans "Cancel" %}", 'click': function() {
+                                    $(this).dialog("close");
+                                }},
+                                {'text': "{% trans "Delete" %}", 'click': function() {
+                                    deleteElement("{% url sharing.station_controller.delete_driver %}", {'driver_id': driver.id},
+                                            function(response) {
+                                                $("#driver_header_" + driver.id + ", #driver_div_" + driver.id).remove();
+                                                $("#delete_taxidriver_dialog").dialog("close");
+                                                alert("{% trans "Driver deleted" %}");
+                                            });
+                                }}
+                            ]
+                        }).dialog("open");
             });
 
             var $driver_details = $('<div class="driver_details"><div>')
@@ -215,6 +233,26 @@
 
             var $add_driver_link = $('<span class="action_link add">{% trans "Add Driver" %}</span>').click(function() {
                 showTaxiDriverDialog(undefined, taxi);
+            }).appendTo($taxi_div);
+
+            var $delete = $('<div>{% trans "Delete" %}</div>').button().click(function() {
+                $("#delete_taxidriver_dialog").text("{% trans "Are you sure you want to delete taxi:" %} " + taxi.number + " ?")
+                        .dialog({
+                            title: "{% trans "Confirm taxi deletion" %}",
+                            buttons: [
+                                {'text': "{% trans "Cancel" %}", 'click': function() {
+                                    $(this).dialog("close");
+                                }},
+                                {'text': "{% trans "Delete" %}", 'click': function() {
+                                    deleteElement("{% url sharing.station_controller.delete_taxi %}", {'taxi_id': taxi.id},
+                                            function(response) {
+                                                $("#taxi_header_" + taxi.id + ", #taxi_div_" + taxi.id).remove();
+                                                $("#delete_taxidriver_dialog").dialog("close");
+                                                alert("{% trans "Taxi deleted" %}");
+                                            });
+                                }}
+                            ]
+                        }).dialog("open");
             }).appendTo($taxi_div);
 
             return $taxi_div;
@@ -258,6 +296,7 @@
             $("#driver_form, #taxi_form").show();
             $("#select_driver, #select_taxi").empty();
             if (driver){ // add taxi to driver
+                $("#choose_driver, #choose_taxi").click().blur();
                 dialog_title = '{% trans "Assign Taxi to Driver" %} ' + driver.name;
                 $("#select_driver").append('<option value="' + driver.id + '">' + driver.name + '</option>').val(driver.id).disable(); // confine driver
                 $.each(driver.available_taxis, function(i, taxi) {
@@ -267,6 +306,7 @@
             }
             else{
                 if (taxi){ // add driver to taxi
+                    $("#choose_driver, #choose_taxi").click().blur();
                     dialog_title = '{% trans "Assign Driver to Taxi" %} #' + taxi.number;
                     $("#select_taxi").append('<option value="' + taxi.id + '">' + taxi.number + '</option>').val(taxi.id).disable(); // confine taxi
                     $.each(taxi.available_drivers, function(i, driver) {
@@ -275,6 +315,7 @@
                     $("#taxi_form").hide();
                 }
                 else{ // add new driver and taxi
+                    $("#new_driver, #new_taxi").click().blur();
                     $("#select_driver, #select_taxi").append('<option value="" disabled="disabled">{% trans "Updating..." %}</option>'); // reset taxi, driver
                     $.ajax({
                         url: "{% url sharing.station_controller.station_taxidrivers %}",
@@ -293,7 +334,7 @@
                     });
 
             }
-            }
+        }
             
             $("#new_taxidriver_form").dialog({'title': dialog_title}).dialog("open");
         };
@@ -310,21 +351,23 @@
             return is_valid;
         };
 
-        initTaxiDriverDialog = function(){
-            asFormGroupSelector("#new_driver", "#new_driver_phone, #new_driver_name", "#select_driver");
-            asFormGroupSelector("#choose_driver", "#select_driver", "#new_driver_phone, #new_driver_name");
-            asFormGroupSelector("#new_taxi", "#new_taxi_number", "#select_taxi");
-            asFormGroupSelector("#choose_taxi", "#select_taxi", "#new_taxi_number");
-
+        initDialogs = function(){
             var dialog_options = {
                 autoOpen: false,
                 modal: true,
                 width: 600,
                 resizable: false,
-                isRTL: true,
+            };
+
+            $("#delete_taxidriver_dialog").dialog(dialog_options);
+
+            asFormGroupSelector("#new_driver", "#new_driver_phone, #new_driver_name", "#select_driver");
+            asFormGroupSelector("#choose_driver", "#select_driver", "#new_driver_phone, #new_driver_name");
+            asFormGroupSelector("#new_taxi", "#new_taxi_number", "#select_taxi");
+            asFormGroupSelector("#choose_taxi", "#select_taxi", "#new_taxi_number");
+
+            $("#new_taxidriver_form").dialog($.extend({}, dialog_options, {
                 open: function(event, ui){
-                    $("#choose_driver").click().blur();
-                    $("#choose_taxi").click().blur();
                     validateTaxiDriverDialog();
                 },
                 buttons: [
@@ -344,11 +387,12 @@
                         }
                     }}
                 ]
-            };
-
-            $("#new_taxidriver_form").dialog(dialog_options);
+            }));
 
             $("#new_taxidriver_form input, #new_taxidriver_form select").change(function() {
+                validateTaxiDriverDialog();
+            });
+            $("#new_taxidriver_form input").keydown(function() {
                 validateTaxiDriverDialog();
             });
         };
@@ -364,6 +408,7 @@
 
         showDrivers = function(driver_id){
             $("#driver_accordion").empty();
+            $("#title").text("{% trans "Drivers List" %}");
             $.ajax({
                 url: "{% url sharing.station_controller.station_taxidrivers %}",
                 type: "GET",
@@ -380,6 +425,7 @@
 
         showTaxis = function(taxi_id){
             $("#taxi_accordion").empty();
+            $("#title").text("{% trans "Taxi List" %}");
             $.ajax({
                 url: "{% url sharing.station_controller.station_taxidrivers %}",
                 type: "GET",
@@ -419,7 +465,7 @@
         $(function() {
             $(".loader").hide();
 
-            initTaxiDriverDialog();
+            initDialogs();
 
             $("#add_taxidriver_button").button().click(function() {
                 showTaxiDriverDialog();
