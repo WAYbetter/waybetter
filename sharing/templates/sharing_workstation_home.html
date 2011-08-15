@@ -214,9 +214,8 @@
 
         var $ride_div = $('<div class="ride_div"></div>').attr("id", "ride_div_" + ride.id).data("ride_time", ride.depart_time);
         $ride_div.append(renderTable(ride), renderInfo(ride), renderMatcher(ride));
-//        $ride_div.append(renderPickupTable(ride), renderDropoffTable(ride), renderInfo(ride), renderMatcher(ride));
 
-        if ({{ debug }}) {
+        if (ride.debug) {
             var $close_btn = $('<span href="#" class="action_link"></span>').text("{% trans 'Close' %} ").click(function(e) {
                 var that = this;
                 $.ajax({

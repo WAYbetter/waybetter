@@ -303,6 +303,8 @@ class SharedRide(BaseModel):
     driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
 
+    debug = models.BooleanField(default=True, editable=False)
+
     def serialize_for_ws(self):
         return {'pickups': [ { 'num_passengers': p.pickup_orders.count(),
                                'address': p.address,
@@ -316,7 +318,8 @@ class SharedRide(BaseModel):
                 'status': self.status,
                 'driver': {'name': self.driver.name} if self.driver else "",
                 'taxi': {'number': self.taxi.number} if self.taxi else "",
-                'value': self.station.get_ride_price(self) or ""
+                'value': self.station.get_ride_price(self) or "",
+                'debug': self.debug
         }
 
     def get_number_of_stops(self):
@@ -526,6 +529,7 @@ class WorkStation(BaseModel):
 
     channel_id = models.CharField(_("channel_id"), max_length=50, null=True, blank=True)
     is_online = models.BooleanField(_("is online"), default=False)
+    is_debug = models.BooleanField(_("is debug"), default=False)
 
     # denormalized fields
     dn_station_id = models.IntegerField(_("station id"), null=True, blank=True)

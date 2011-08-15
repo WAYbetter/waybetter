@@ -18,8 +18,6 @@ def assign_ride(ride):
             ride.change_status(old_status=PENDING, new_status=ASSIGNED) # calls save()
             return work_station
 
-            signals.ride_status_changed_signal.send(sender='sharing_dispatcher', obj=ride, status=ASSIGNED)
-
         except UpdateStatusError:
             logging.error("Cannot assign ride: %d" % ride.id)
 
@@ -27,7 +25,7 @@ def assign_ride(ride):
 
 
 def choose_workstation(ride):
-    ws_list = WorkStation.objects.filter(accept_shared_rides=True, is_online=True)
+    ws_list = WorkStation.objects.filter(accept_shared_rides=True, is_online=True, is_debug=ride.debug)
     if ws_list:
         return ws_list[0]
 

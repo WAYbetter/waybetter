@@ -68,6 +68,9 @@ def fetch_ride_results_task(request):
             #            ride.depart_time = datetime.now() + timedelta(minutes=3)
             #            ride.arrive_time = ride.depart_time + timedelta(seconds=ride_data["m_Duration"])
 
+            # TODO_WB: get debug mode from ride_data
+            # ride.debug = ride_data["m_debug"]
+
             ride.save()
             for point_data in ride_data["m_RidePoints"]:
                 point = RidePoint()
