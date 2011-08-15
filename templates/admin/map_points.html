@@ -991,11 +991,12 @@ $.widget("ui.selectmenu", {
 
         renderPolygons          : function () {
             var that = this;
-            $(".points").find("input[type=hidden]").each(function(i, e) {
+            var polygon_inputs = $(".points").find("input[type=hidden]");
+            polygon_inputs.each(function(i, e) {
                 var val = $(e).val();
                 if (val) {
                     var val_array = val.split("|");
-                    var polygon = that.getPolygon(e.id);
+                    var polygon = that.getPolygon(e.id, {index: polygon_inputs.length - i});
                     $.each(val_array, function(i, e) {
                         if (i % 2 == 0) {
                             that.updatePolygonPoint(polygon, -1, val_array[i], val_array[i + 1]);
@@ -1029,13 +1030,20 @@ $.widget("ui.selectmenu", {
             return Math.sqrt(Math.pow((p1.lat() - p2.lat()), 2) + Math.pow((p1.lng() - p2.lng()), 2));
         },
 
-        getPolygon              : function (id, color) {
+        getPolygon              : function (id, opts) {
             var that = this;
+            var color = $("#" + id.replace("points", "color")).val();
+            var index = 100 - id.match(/-(\d+)-/)[1];
+
             if (! (id in that.polygons)) {
                 console.log("creating new polygon: " + id);
-
-                if (!color) {
-                    color = $("#" + id.replace("points", "color")).val();
+                if (opts) {
+                    if (opts.color)  {
+                        color = opts.color
+                    }
+                    if (opts.index) {
+                        index = opts.index
+                    }
                 }
                 that.polygons[id] = new telmap.maps.Polygon({
                     fillColor: color,
@@ -1043,7 +1051,8 @@ $.widget("ui.selectmenu", {
                     strokeColor: color,
                     strokeOpacity: 0.9,
                     strokeWeight: 2,
-                    path: new telmap.maps.MVCArray([])
+                    path: new telmap.maps.MVCArray([]),
+                    zIndex: index
                 });
 
                 // redispatch mouse events to map

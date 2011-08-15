@@ -78,7 +78,7 @@
                             that.removeAllPolygons();
                             $.each(data, function(j, dic) {
                                 $.each(dic, function(key, val_array) {
-                                    var polygon = that.getPolygon(key, $(document).data("colors")[key]);
+                                    var polygon = that.getPolygon(key, {color: $(document).data("colors")[key] });
                                     $.each(val_array, function(i, e) {
                                         if (i % 2 == 0) {
                                             that.updatePolygonPoint(polygon, -1, val_array[i], val_array[i + 1]);
