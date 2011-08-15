@@ -260,7 +260,6 @@
             $ride_header.prepend($close_btn);
         }
 
-
         // re-create the accordion and open it where it was opened
         var $accordion = $("#ride_accordion");
         var $active_header = $("[id^=ride_header_]")[$accordion.accordion("option", "active")];
@@ -281,6 +280,7 @@
             }
         });
 
+        populateTaxis();
     };
 
     getRenderPosition = function(ride) {
@@ -403,8 +403,6 @@
         air("set_title", "WAYbetter: {{ work_station.station.name }}");
 
         setupChannel(init_token);
-
-        populateTaxis();
     });
     </script>
 {% endblock %}
