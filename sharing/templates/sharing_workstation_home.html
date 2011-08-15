@@ -217,7 +217,7 @@
 //        $ride_div.append(renderPickupTable(ride), renderDropoffTable(ride), renderInfo(ride), renderMatcher(ride));
 
         if ({{ debug }}) {
-            var $close_btn = $('<span href="#" class="action_link"></span>').text("{% trans 'Close' %}").click(function(e) {
+            var $close_btn = $('<span href="#" class="action_link"></span>').text("{% trans 'Close' %} ").click(function(e) {
                 var that = this;
                 $.ajax({
                     url: '{% url sharing.station_controller.complete_ride %}',
@@ -237,7 +237,7 @@
                 });
                 return false; // prevent the accordion opening
             });
-            $ride_header.append($close_btn);
+            $ride_header.prepend($close_btn);
         }
 
 

@@ -227,7 +227,7 @@
 
         renderDriver = function(driver) {
             $("#driver_div_" + driver.id + ", #driver_header_" + driver.id).remove();
-            var $delete = $('<a href="#" class="action_link delete">{% trans "Delete" %}</a>').click(function() {
+            var $delete = $('<span href="#" class="action_link delete">{% trans "Delete" %}</span>').click(function() {
                 $("#delete_taxidriver_dialog").text("{% trans "Are you sure you want to delete driver" %} " + driver.name + " ?")
                         .dialog({
                             title: "{% trans "Confirm driver deletion" %}",
@@ -259,7 +259,7 @@
 
         renderTaxi = function(taxi) {
             $("#taxi_div_" + taxi.id + ", #taxi_header_" + taxi.id).remove();
-            var $delete = $('<a href="#" class="action_link delete">{% trans "Delete" %}</a>').click(function() {
+            var $delete = $('<span href="#" class="action_link delete">{% trans "Delete" %}</span>').click(function() {
                 $("#delete_taxidriver_dialog").text("{% trans "Are you sure you want to delete taxi" %} " + taxi.number + " ?")
                         .dialog({
                             title: "{% trans "Confirm taxi deletion" %}",
@@ -367,7 +367,7 @@
                 autoOpen: false,
                 modal: true,
                 width: 600,
-                resizable: false,
+                resizable: false
             };
 
             $("#delete_taxidriver_dialog").dialog(dialog_options);

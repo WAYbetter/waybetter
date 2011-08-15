@@ -232,7 +232,8 @@
             $("#id_hotspot_select").change();
 
             $("#id_hotspot_time").change(function() {
-                $(".address_ac_to").each(function(i, e) {
+                var selector = (hotspot_type == pickup) ? ".address_ac_to" : ".address_ac_from";
+                $(selector).each(function(i, e) {
                     var address = Address.fromInput(e);
                     updatePrice(address);
                 });
