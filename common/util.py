@@ -395,6 +395,18 @@ def split_to_tuples(l, n):
     for i in xrange(0, len(l), n):
         yield tuple(l[i:i+n])
 
+
+def split_to_chunks(l, n):
+    """
+    Yield successive n-sized chunks from l.
+
+    @param l: a list
+    @param n: size of tuple
+    @return: an iterator
+    """
+    for i in xrange(0, len(l), n):
+        yield l[i:i+n]
+
 def point_inside_polygon(x,y,poly):
 
     n = len(poly)
