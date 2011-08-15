@@ -78,12 +78,19 @@
                 autoHeight: false
             };
 
+        refreshHomeWindow = function(){
+            window.opener.populateTaxis();
+        };
+
         deleteElement = function(url, data, success) {
             $.ajax({
                 url: url,
                 type: "POST",
                 data: data,
-                success: success,
+                success: function(){
+                    success();
+                    refreshHomeWindow();
+                },
                 error: function() {
                     alert("{% trans "Error" %}");
                 }
@@ -98,6 +105,7 @@
                 success: function(response) {
                     renderTaxi(response.taxi);
                     renderDriver(response.driver);
+                    refreshHomeWindow();
                 },
                 error: function() {
                     alert("{% trans "Error" %}");
@@ -133,6 +141,7 @@
                 success: function(response) {
                     renderTaxi(response.taxi);
                     renderDriver(response.driver);
+                    refreshHomeWindow();
                     if (callback){
                         callback();
                     }
