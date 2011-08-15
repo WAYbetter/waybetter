@@ -36,7 +36,6 @@
     var missed_msg = "{% trans "Missed" %}";
     {% autoescape off %}
         var rides_data = {{ rides_data }};
-        var taxis_data = {{ taxis_data }};
         var init_token = "{{ token }}";
         var channel_opened = false;
         var channel;
@@ -84,6 +83,54 @@
         })
     };
 
+    populateDrivers = function($driver_select, $taxi_selector, taxi_id) {
+        $driver_select.empty().disable().append('<option>' + "{% trans "Updating..." %}" + '</option>');
+
+        $.ajax({
+            url:        "{% url sharing.station_controller.get_drivers_for_taxi %}",
+            data:       { taxi_id: taxi_id },
+            dataType:   "json",
+            success:    function(data) {
+                $driver_select.empty();
+                $.each(data, function(i, driver) {
+                    $driver_select.append('<option value="' + driver.id + '">' + driver.name + '</option>');
+                });
+                if (data.length > 1 && ! $taxi_selector.attr("disabled")) {
+                    $driver_select.enable();
+                }
+            },
+            error:      function() {
+                alert("Error loading drivers")
+            }
+        })
+    };
+
+    populateTaxis = function() {
+        $(".taxi_selector").each(function(i, e) {
+            $(this).data("orig_val", $(this).val());
+        });
+        $(".taxi_selector").empty().disable().append('<option>' + "{% trans "Updating..." %}" + '</option>');
+
+        $.ajax({
+            url: "{% url sharing.station_controller.station_taxidrivers %}",
+            type: "GET",
+            data: {"get_taxis": true},
+            dataType: 'json',
+            success: function(response) {
+                $(".taxi_selector").each(function(i, selector) {
+                    $(this).empty();
+                    $.each(response.taxis_data, function(i, taxi) {
+                        $(selector).append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
+                    });
+                    $(this).val($(this).data("orig_val"));
+                    $(this).change(); // trigger populateDrivers
+                    $(this).enable();
+                });
+            }
+        });
+
+    };
+
     renderTable = function(ride) {
         var $table = $('<table><thead><tr><th></th><th>{% trans 'Time' %}</th><th>{% trans 'Address' %}</th><th>{% trans '# of Passengers' %}</th></tr></thead></table>');
 
@@ -118,28 +165,6 @@
         return $('<div class="ride_info"></div>').append($value, $map_link, '<div class="clear"></div>');
     };
 
-    populate_drivers = function($driver_select, $taxi_selector, taxi_id) {
-        $driver_select.empty().disable().append('<option>' + "{% trans "Updating..." %}" + '</option>');
-
-        $.ajax({
-            url:        "{% url sharing.station_controller.get_drivers_for_taxi %}",
-            data:       { taxi_id: taxi_id },
-            dataType:   "json",
-            success:    function(data) {
-                $driver_select.empty();
-                $.each(data, function(i, driver) {
-                    $driver_select.append('<option value="' + driver.id + '">' + driver.name + '</option>');
-                });
-                if (data.length > 1 && ! $taxi_selector.attr("disabled")) {
-                    $driver_select.enable();
-                }
-            },
-            error:      function() {
-                alert("Error loading drivers")
-            }
-        })
-    };
-
     renderMatcher = function(ride) {
         var $driver_label = '<label for="driver_sel_' + ride.id + '"> {% trans 'Driver' %}' + '</label>';
         var $driver_selector = $('<select class="driver_selector"></select>').attr("id", "driver_sel_" + ride.id);
@@ -152,13 +177,9 @@
             $driver_selector.append('<option value="' + ride.driver.id + '">' + ride.driver.name + '</option>').disable();
         }
         else {
-        $.each(taxis_data, function(i, taxi) {
-            $taxi_selector.append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
-        });
-        $taxi_selector.change(function() {
-                populate_drivers($driver_selector, $taxi_selector, $(this).val());
-        });
-            $taxi_selector.change();
+            $taxi_selector.change(function() {
+                populateDrivers($driver_selector, $taxi_selector, $(this).val());
+            });
         }
 
         var $add_driver = $('<a class="add_driver">{% trans "+ Add" %}</a>');
@@ -337,7 +358,6 @@
 
         updateCounters({{ accepted }});
         
-//        refreshAccordion();
     };
 
     updateCounters = function(status){
@@ -352,15 +372,6 @@
                 $("#untaken_counter").text(--untaken);
                 break;
         }
-    };
-
-    refreshAccordion = function() {
-        $("[id^='ride_header_']").each(function(i, ride_div) {
-            if ($(this).data("status") != {{ accepted }}) {
-                $("#ride_accordion").accordion("destroy").accordion({ autoHeight: false, active: i });
-                return false; //break
-            }
-        });
     };
 
     trace = function(str) {
@@ -392,6 +403,8 @@
         air("set_title", "WAYbetter: {{ work_station.station.name }}");
 
         setupChannel(init_token);
+
+        populateTaxis();
     });
     </script>
 {% endblock %}
