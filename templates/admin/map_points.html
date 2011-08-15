@@ -957,7 +957,7 @@ $.widget("ui.selectmenu", {
         polygon_listeners		: [],
         currently_editing_id	: undefined,
         drag_marker			    : undefined,
-        last_listener		    : undefined,
+        undo_buffers            : {},
 
         removeDragMarker        : function () {
             if (this.drag_marker) {
@@ -1001,7 +1001,6 @@ $.widget("ui.selectmenu", {
                             that.updatePolygonPoint(polygon, -1, val_array[i], val_array[i + 1]);
                         }
                     });
-                    console.log("found val:" + val);
                 }
             })
         },
@@ -1012,6 +1011,7 @@ $.widget("ui.selectmenu", {
 
             if (index > path.getLength() || index < 0) {
                 path.push(point);
+                index = path.getLength();
             } else {
                 if (insert) {
                     path.insertAt(index, point);
@@ -1021,6 +1021,7 @@ $.widget("ui.selectmenu", {
             }
             polygon.setPath(path);
             polygon.setMap(OrderingHelper.map);
+            return index;
 
         },
 
@@ -1085,13 +1086,44 @@ $.widget("ui.selectmenu", {
 
                 var polygon = that.getPolygon(that.currently_editing_id);
                 that.map_listeners.push(telmap.maps.event.addListener(OrderingHelper.map, 'click', function(e) {
-                    that.updatePolygonPoint(polygon, -1, e.latLng.lat(), e.latLng.lng());
+                    if (! that.undo_buffers[polygon]) {
+                        that.undo_buffers[polygon] = []
+                    }
+                    var index;
+
+                    // add the point in the correct index
+                    if (polygon.getPath() && polygon.getPath().getLength() > 2) {
+                        var path = polygon.getPath().array;
+                        var edges = path.map(function(pp, i) { // create a list of edges
+                            return new Array(path[i % path.length], path[(i + 1) % path.length]);
+                        });
+                        var min_distance = Infinity;
+                        var min_edge = undefined;
+                        $.each(edges, function (i, edge) {
+                            var distance = that.distanceFromEdge(e.latLng, edge[0], edge[1]);
+                            if (distance < min_distance) {
+                                min_distance = distance;
+                                min_edge = edge;
+                            }
+                        });
+                        index = that.updatePolygonPoint(polygon, edges.indexOf(min_edge) + 1, e.latLng.lat(), e.latLng.lng(), true);
+                    } else {
+                        index = that.updatePolygonPoint(polygon, -1, e.latLng.lat(), e.latLng.lng());
+                    }
+
+                    that.undo_buffers[polygon].push(index);
+
                 }));
 
                 that.map_listeners.push(telmap.maps.event.addListener(OrderingHelper.map, 'rightclick', function(e) {
-                    var path = polygon.getPath();
-                    if (path) {
-                        path.removeAt(path.length - 1);
+                    var undo_buffer = that.undo_buffers[polygon];
+                    if (undo_buffer && undo_buffer.length) {
+                        var last_index = undo_buffer.pop();
+                        that.undo_buffers[polygon] = undo_buffer;
+                        var path = polygon.getPath();
+                        if (path) {
+                            path.removeAt(last_index);
+                        }
                     }
                 }));
 
@@ -1109,6 +1141,21 @@ $.widget("ui.selectmenu", {
             }
         },
 
+        distanceFromEdge        : function(p, e2, e1) {
+            var xD = e2.x - e1.x;
+            var yD = e2.y - e1.y;
+            var u = ((p.x - e1.x) * xD + (p.y - e1.y) * yD) / (xD * xD + yD * yD);
+            if (u < 0 || u > 1) {                                       // point intersects outside of edge segment
+                return Infinity
+            }
+            var t = [e1.x - e2.x, e1.y-e2.y];                           // Vector ab
+            var dd = Math.sqrt(Math.pow(t[0], 2) + Math.pow(t[1], 2));  // Length of ab
+            t = [t[0] / dd, t[1] / dd];                                 // unit vector of ab
+            var n = [-t[1], t[0]];                                      // normal unit vector to ab
+            var ac = [p.x - e1.x, p.y-e1.y];                            // vector ac
+
+            return Math.abs(ac[0]*n[0] + ac[1]*n[1]);                   // Projection of ac to n (the minimum distance)
+        },
         createDragMarker        : function (polygon, point_index) {
             var that = this;
             that.removeDragMarker();
@@ -1121,16 +1168,14 @@ $.widget("ui.selectmenu", {
                 draggable:  true,
                 icon:       icon_image,
                 cursor:     'move',
-                title:      'Drag to edit polygon'
+                title:      'Drag to edit polygon (' + point.x + ',' + point.y + ')'
             });
             telmap.maps.event.addListener(that.drag_marker, 'dragend', function(e) {
                 path.setAt(point_index, that.drag_marker.getPosition());
                 polygon.setPath(path);
                 polygon.setMap(OrderingHelper.map);
             });
-
         },
-
         deletePoint             : function () {
             var that = this;
             if (that.drag_marker && that.currently_editing_id) {
