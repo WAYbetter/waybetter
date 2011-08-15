@@ -17,12 +17,13 @@
                 hotspot_stroke_weight   : 2,
                 hotspot_radius          : 100,
                 hotsport_marker_image   : '/static/images/hotspot_red_marker.png',
+                hotsport_marker_offset  : {x:32, y:63},
                 city_area_re            : /city_area$/,
 
                 renderHotspot       : function() {
                     var that = this;
                     var point = new telmap.maps.LatLng(that.hotspot_lat, that.hotspot_lon);
-                    var icon_image = new telmap.maps.MarkerImage(that.hotsport_marker_image, undefined, undefined, {x:32, y:63});
+                    var icon_image = new telmap.maps.MarkerImage(that.hotsport_marker_image, undefined, undefined, that.hotsport_marker_offset);
                     that.hotspot_marker = new telmap.maps.Marker({
                         map:        OrderingHelper.map,
                         position:   point,
