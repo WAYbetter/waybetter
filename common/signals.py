@@ -66,6 +66,7 @@ class AsyncSignal(TypedSignal):
         @return:
         """
         if not self.receivers:
+            logging.warning("no receivers found. sender: %s, signal type: %s" % (sender, self.signal_type))
             return None
 
         logging.info("sending signal: %s" % self.signal_type)

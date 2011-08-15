@@ -18,9 +18,21 @@ def send_sms(destination, text, **kwargs):
 #    return
     sms_config = settings.SMS
     if kwargs is not None:
-        sms_config.update(kwargs) 
+        sms_config.update(kwargs)
 
-    return send_sms_cellact(destination, text, sms_config)
+    ok = True
+
+    max_chunk_length = 126
+    chunks = [text[i:i + max_chunk_length] for i in xrange(0, len(text), max_chunk_length)]
+
+    for chunk in chunks:
+        result = send_sms_cellact(destination, chunk, sms_config)
+
+        if not result:
+            logging.error("error sending sms")
+            ok = False
+
+    return ok
 
 def send_sms_unicell(destination, text, sms_config):
     provider_url = sms_config[SMS_PROVIDER_URL]
@@ -51,7 +63,14 @@ def send_sms_cellact(destination, text, sms_config):
 
     c = Context(params)
     t = get_template("cellact_send_sms.xml")
-    payload = str("XMLString=" + urlquote_plus(t.render(c)))
+    rendered_payload = t.render(c)
+    logging.info("sms payload: %s" % rendered_payload)
+    payload = str("XMLString=" + urlquote_plus(rendered_payload))
     result = fetch(provider_url, method="POST", payload=payload)
-    return result
+
+    if result.content.find("<RESULTCODE>0</RESULTCODE>") == -1:
+        logging.error("error sending sms: %s" % result.content)
+        return None
+    else:
+        return result
 

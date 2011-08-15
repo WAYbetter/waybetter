@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from __future__ import absolute_import
 from django.core.exceptions import ValidationError
 from django.template.loader import get_template
@@ -20,6 +22,7 @@ from ordering.signals import order_status_changed_signal, orderassignment_status
 from ordering.errors import UpdateStatusError
 from pricing.models import RuleSet
 
+import re
 import time
 import urllib
 import logging
@@ -361,6 +364,9 @@ class RidePoint(BaseModel):
     def __unicode__(self):
         return u"RidePoint [%d]" % self.id
 
+    @property
+    def clean_address(self):
+        return re.sub(",?\s+תל אביב יפו".decode("utf-8"), "", self.address)
 
 class Passenger(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
