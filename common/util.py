@@ -56,6 +56,9 @@ class Enum(object):
 
         return sorted(result)
 
+    @classmethod
+    def get_name(cls, value):
+        return cls._item_names()[cls._items().index(value)]
 
 class Polygon(object):
     def __init__(self, points):
