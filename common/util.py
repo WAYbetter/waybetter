@@ -400,7 +400,7 @@ def split_to_chunks(l, n):
     """
     Yield successive n-sized chunks from l.
 
-    @param l: a list
+    @param l: a sequence
     @param n: size of tuple
     @return: an iterator
     """

@@ -1,10 +1,13 @@
 import logging
+from common.util import split_to_chunks
 from django.conf import settings
 from settings import SMS_PROVIDER_URL, SMS_CALLBACK_URL
 from django.template.loader import get_template
 from django.template.context import Context
 from django.utils.http import urlquote_plus
 from google.appengine.api.urlfetch import fetch
+
+MAX_CHUNK_LENGTH = 126
 
 def send_sms(destination, text, **kwargs):
     """
@@ -22,10 +25,7 @@ def send_sms(destination, text, **kwargs):
 
     ok = True
 
-    max_chunk_length = 126
-    chunks = [text[i:i + max_chunk_length] for i in xrange(0, len(text), max_chunk_length)]
-
-    for chunk in chunks:
+    for chunk in list(split_to_chunks(text, MAX_CHUNK_LENGTH)):
         result = send_sms_cellact(destination, chunk, sms_config)
 
         if not result:
