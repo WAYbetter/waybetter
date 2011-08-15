@@ -1120,10 +1120,9 @@ $.widget("ui.selectmenu", {
                     if (undo_buffer && undo_buffer.length) {
                         var last_index = undo_buffer.pop();
                         that.undo_buffers[polygon] = undo_buffer;
-                        var path = polygon.getPath();
-                        if (path) {
-                            path.removeAt(last_index);
-                        }
+                        that.deletePoint(last_index);
+                    } else {
+                        that.deletePoint();
                     }
                 }));
 
@@ -1176,18 +1175,22 @@ $.widget("ui.selectmenu", {
                 polygon.setMap(OrderingHelper.map);
             });
         },
-        deletePoint             : function () {
+        deletePoint             : function (index) {
             var that = this;
             if (that.drag_marker && that.currently_editing_id) {
                 var polygon = that.getPolygon(that.currently_editing_id);
                 var path = polygon.getPath();
-                $.each(path.array, function(i, p) {
-                    if (p == that.drag_marker.getPosition()) {
-                        path.removeAt(i);
-                        that.removeDragMarker();
-                        return false;
-                    }
-                });
+                if (index) { // delete point at given index
+                    path.removeAt(index);
+                } else { // delete piont at current drag_marker location
+                    $.each(path.array, function(i, p) {
+                        if (p == that.drag_marker.getPosition()) {
+                            path.removeAt(i);
+                            return false;
+                        }
+                    });
+                }
+                that.removeDragMarker();
             }
         },
         changePolygonColor      : function(p_id, color) {
