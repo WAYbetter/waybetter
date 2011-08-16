@@ -149,10 +149,7 @@
             $table.append($row);
         });
 
-        var $copy_data = $('<div>{% trans "Copy ride data" %}</div>').button().click(function(){
-            alert(air("copy", "bla bla bla"));
-        }).appendTo($table);
-        
+
         return $table;
     };
 
@@ -164,9 +161,18 @@
                     window.open(link, "Map View", 'width=800,height=600,resizable=no');
                 });
 
+        var $copy_link = $('<a class="map_link copy_link" href="#">{% trans "Copy" %}</a>').click(function(){
+            if (air("copy", ride.driver_jist)) {
+                flashMessage("{% trans "Ride Copied" %}");
+            } else {
+                flashError("{% trans "Failed Copying" %}");
+            }
+            return false;
+        });
+
         var $value = $('<span class="ride_value">{% trans "Value" %}:' + ride.value + ' ₪</span>');
 
-        return $('<div class="ride_info"></div>').append($value, $map_link, '<div class="clear"></div>');
+        return $('<div class="ride_info"></div>').append($value, $map_link, $copy_link, '<div class="clear"></div>');
     };
 
     renderMatcher = function(ride) {

@@ -51,6 +51,7 @@ a, .action_link, .ui-widget-content a {
     -webkit-animation-timing-function: ease-in-out;
     -webkit-animation-duration: 5s;
     opacity: 0;
+    z-index: 1000;
 
 }
 #flash.error {
@@ -275,14 +276,24 @@ table .pickup {
 
 .ride_div .map_link {
     float: right;
+    padding-left: 20px;
+    height: 20px;
+    background: url(/static/images/map.png) no-repeat;
+    background-position: 0 0;
 }
 
+.ride_div .map_link.copy_link {
+    background: url(/static/images/paste_plain.png) no-repeat;
+}
 .ride_div .ride_value {
     float: left;
 }
 
 .rtl .ride_div .map_link {
     float: left;
+    padding-right: 20px;
+    padding-left: inherit;
+    background-position: 100% 0;
 }
 
 .ride_div .ride_value {

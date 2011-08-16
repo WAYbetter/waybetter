@@ -320,7 +320,8 @@ class SharedRide(BaseModel):
                 'driver': {'name': self.driver.name} if self.driver else "",
                 'taxi': {'number': self.taxi.number} if self.taxi else "",
                 'value': self.station.get_ride_price(self) or "",
-                'debug': self.debug
+                'debug': self.debug,
+                'driver_jist': self.driver_jist()
         }
 
     def get_number_of_stops(self):
@@ -348,6 +349,26 @@ class SharedRide(BaseModel):
                 return label
 
         raise ValueError("invalid status")
+
+    def driver_jist(self):
+        t = get_template("driver_notification_msg.template")
+        template_data = {'pickups':
+                             [{'address': p.clean_address,
+                               'time': p.stop_time.strftime("%H:%M"),
+                               'num_passengers': p.pickup_orders.count(),
+                               'phones': [order.passenger.phone for order in p.pickup_orders.all()]}
+
+                             for p in self.points.filter(type=StopType.PICKUP).order_by("stop_time")],
+
+                         'dropoffs':
+                             [{'address': p.clean_address,
+                               'time': p.stop_time.strftime("%H:%M"),
+                               'num_passengers': p.dropoff_orders.count(),
+                               'phones': [order.passenger.phone for order in p.dropoff_orders.all()]}
+
+                             for p in self.points.filter(type=StopType.DROPOFF).order_by("stop_time")]
+        }
+        return t.render(Context(template_data))
 
 
 class StopType(Enum):

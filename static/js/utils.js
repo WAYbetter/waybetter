@@ -213,6 +213,33 @@ function update_options(options) {
     });
 }
 
+flashError = function(msg) {
+    flashMessage(msg, "error");
+};
+
+flashMessage = function(msg, extra_class) {
+    var $flash = $("#flash");
+    if ($flash.length == 0) {
+        $("body").append("<div id='flash'></div>");
+        $flash = $("#flash");
+    }
+
+    // init flasher
+    $flash.stopTime("show_flash").stopTime("hide_flash");
+    $flash.removeClass("show").removeClass(extra_class);
+
+    $flash.oneTime(10, "show_flash", function() {
+        $flash.empty().html(msg).addClass("show");
+        if (extra_class) {
+            $flash.addClass(extra_class);
+        }
+        $flash.css({ "margin-left": -($flash.outerWidth() / 2) + "px" });
+        $flash.oneTime(5000, "hide_flash", function() {
+            $flash.removeClass("show").removeClass(extra_class);
+        }, 5000);
+    });
+};
+
 function air() {
     if (arguments.length < 1) {
         throw "Invalid arguments: must pass function name"
@@ -230,7 +257,6 @@ function air() {
         try {
             return window.parentSandboxBridge[func_name].apply(window.parentSandboxBridge, new_args);
         } catch (e) {
-            alert(e);
             return false;
         }
     }

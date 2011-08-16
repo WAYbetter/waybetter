@@ -11,7 +11,6 @@
 
 {% load i18n %}
 {% block content %}
-    <div id="flash"></div>
     <div id="header" class="ui-widget-header">
 
         <div id="taxidriver_buttons">
@@ -481,29 +480,6 @@
             $("#taxi_accordion").accordion("destroy").accordion(opt);
             opt = $.extend({}, accordion_options, { active: active_driver });
             $("#driver_accordion").accordion("destroy").accordion(opt);
-        };
-
-        flashError = function(msg) {
-            flashMessage(msg, "error");
-        };
-        flashMessage = function(msg, extra_class) {
-            var $flash = $("#flash");
-
-            // init flasher
-            $flash.stopTime("show_flash").stopTime("hide_flash");
-            $flash.removeClass("show").removeClass(extra_class);
-            
-            $flash.oneTime(10, "show_flash", function() {
-                $flash.empty().html(msg).addClass("show");
-                if (extra_class) {
-                    $flash.addClass(extra_class);
-                }
-                console.log($flash.outerWidth());
-                $flash.css({ "margin-left": -($flash.outerWidth() / 2) + "px" });
-                $flash.oneTime(5000, "hide_flash", function() {
-                    $flash.removeClass("show").removeClass(extra_class);
-                }, 5000);
-            });
         };
 
         $(function() {
