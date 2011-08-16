@@ -11,6 +11,7 @@
 
 {% load i18n %}
 {% block content %}
+    <div id="flash"></div>
     <div id="header" class="ui-widget-header">
 
         <div id="taxidriver_buttons">
@@ -92,7 +93,7 @@
                     refreshHomeWindow();
                 },
                 error: function() {
-                    alert("{% trans "Error" %}");
+                    flashError("{% trans "Error" %}");
                 }
             });
         };
@@ -108,7 +109,7 @@
                     refreshHomeWindow();
                 },
                 error: function() {
-                    alert("{% trans "Error" %}");
+                    flashError("{% trans "Error" %}");
                 }
             });
         };
@@ -147,7 +148,7 @@
                     }
                 },
                 error: function() {
-                    alert("{% trans "Error" %}");
+                    flashError("{% trans "Error" %}");
                 }
             });
         };
@@ -186,10 +187,10 @@
                     success: function(response){
                         $phone.val(response.phone).data("orig", response.phone);
                         $name.val(response.name).data("orig", response.name);
-                        alert("{% trans "Changes Saved" %}");
+                        flashMessage("{% trans "Changes Saved" %}");
                     },
                     error: function(){
-                      alert("{% trans "Error" %}");
+                      flashError("{% trans "Error" %}");
                     }
                 });
             });
@@ -249,7 +250,7 @@
                                             function(response) {
                                                 $("#driver_header_" + driver.id + ", #driver_div_" + driver.id).remove();
                                                 $("#delete_taxidriver_dialog").dialog("close");
-                                                alert("{% trans "Driver deleted" %}");
+                                                flashMessage("{% trans "Driver deleted" %}");
                                             });
                                 }}
                             ]
@@ -282,7 +283,7 @@
                                                 function(response) {
                                                     $("#taxi_header_" + taxi.id + ", #taxi_div_" + taxi.id).remove();
                                                     $("#delete_taxidriver_dialog").dialog("close");
-                                                    alert("{% trans "Taxi deleted" %}");
+                                                    flashMessage("{% trans "Taxi deleted" %}");
                                                 });
                                     }}
                             ]
@@ -403,7 +404,7 @@
                             })
                         }
                         else {
-                            alert("{% trans "Invalid driver/taxi" %}");
+                            flashError("{% trans "Invalid driver/taxi" %}");
                         }
                     }}
                 ]
@@ -480,6 +481,29 @@
             $("#taxi_accordion").accordion("destroy").accordion(opt);
             opt = $.extend({}, accordion_options, { active: active_driver });
             $("#driver_accordion").accordion("destroy").accordion(opt);
+        };
+
+        flashError = function(msg) {
+            flashMessage(msg, "error");
+        };
+        flashMessage = function(msg, extra_class) {
+            var $flash = $("#flash");
+
+            // init flasher
+            $flash.stopTime("show_flash").stopTime("hide_flash");
+            $flash.removeClass("show").removeClass(extra_class);
+            
+            $flash.oneTime(10, "show_flash", function() {
+                $flash.empty().html(msg).addClass("show");
+                if (extra_class) {
+                    $flash.addClass(extra_class);
+                }
+                console.log($flash.outerWidth());
+                $flash.css({ "margin-left": -($flash.outerWidth() / 2) + "px" });
+                $flash.oneTime(5000, "hide_flash", function() {
+                    $flash.removeClass("show").removeClass(extra_class);
+                }, 5000);
+            });
         };
 
         $(function() {
