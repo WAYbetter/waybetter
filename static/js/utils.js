@@ -230,6 +230,7 @@ function air() {
         try {
             return window.parentSandboxBridge[func_name].apply(window.parentSandboxBridge, new_args);
         } catch (e) {
+            alert(e);
             return false;
         }
     }

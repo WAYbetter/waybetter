@@ -149,6 +149,10 @@
             $table.append($row);
         });
 
+        var $copy_data = $('<div>{% trans "Copy ride data" %}</div>').button().click(function(){
+            alert(air("copy", "bla bla bla"));
+        }).appendTo($table);
+        
         return $table;
     };
 
