@@ -204,14 +204,15 @@
                     $.ajax({
                         url: '{% url sharing.station_controller.accept_ride %}',
                         type: 'POST',
+                        dataType: "json",
                         data: { 'ride_id': ride.id,
                             'taxi_id': $taxi_selector.val(),
                             'driver_id': $driver_selector.val() },
                         beforeSend: function() {
                             $(that).button("disable");
                         },
-                        success: function() {
-                            acceptRide(ride);
+                        success: function(response) {
+                            acceptRide(response.ride);
                         },
                         error: function(response) {
                             alert(response.responseText);
@@ -326,7 +327,7 @@
         var $rh = $("#ride_header_" + ride.id);
         $rh.data("status", {{ accepted }}).addClass("accepted");
         $rh.find(".pickup").after('<span class="seperator"> - </span>',
-                '<span class="taxi"> {% trans 'Taxi No.' %} ' + $("#taxi_sel_" + ride.id).find("option:selected").text() + ' </span>');
+                '<span class="taxi"> {% trans 'Taxi No.' %} ' + ride.taxi.number + ' </span>');
 
         var $rd = $("#ride_div_" + ride.id);
         $rd.find("select").attr("disabled", "");
