@@ -354,6 +354,7 @@
             return false; // prevent the accordion opening
         });
 
+        ride.depart_time = new Date(ride.depart_time);
         if (ride.depart_time > new Date()) { // future order, show countdown
             var $countdown = $('<span></span>').countdown(
                     { compact: true, format: 'MS', until: ride.depart_time,
