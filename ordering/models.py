@@ -129,7 +129,6 @@ class Station(BaseModel):
     internal_rating = models.FloatField(_("internal rating"), default=0)
 
     stop_price = models.FloatField(_("stop price"), default=0)
-    same_area_price = models.FloatField(_("same area price"), default=0)
 
     def natural_key(self):
         return self.name
@@ -308,6 +307,7 @@ class SharedRide(BaseModel):
 
     def serialize_for_ws(self):
         return {'pickups': [ { 'num_passengers': p.pickup_orders.count(),
+                               'passenger_phones': [order.passenger.phone for order in p.pickup_orders.all()],
                                'address': p.address,
                                'time': p.stop_time.strftime("%H:%M") } for p in self.points.filter(type=StopType.PICKUP).order_by("stop_time")],
                 'dropoffs': [ { 'num_passengers' : p.dropoff_orders.count(),

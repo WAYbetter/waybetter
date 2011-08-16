@@ -137,7 +137,7 @@
         $table.append("<tr class='spacer'><td></td><td></td><td></td><td></td></tr>"); // spacer
 
         $.each(ride.pickups, function(i, p) {
-            var $row = $("<tr class='pickup'><td>{% trans "Pickup" %}</td><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + "</td></tr>");
+            var $row = $("<tr class='dropoff'><td>{% trans "Dropoff" %}</td><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + " (" +  p.passenger_phones.join()+ ")</td></tr>");
             $table.append($row);
         });
 
