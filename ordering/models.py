@@ -20,6 +20,7 @@ from common.util import get_international_phone, generate_random_token, notify_b
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
+from sharing.signals import ride_status_changed_signal
 from pricing.models import RuleSet
 
 import re
@@ -333,13 +334,12 @@ class SharedRide(BaseModel):
 
     def change_status(self, old_status=None, new_status=None):
         if self._change_attr_in_transaction("status", old_status, new_status):
-            pass
-#            sig_args = {
-#                'sender': 'order_status_changed_signal',
-#                'obj': self,
-#                'status': new_status
-#            }
-#            order_status_changed_signal.send(**sig_args)
+            sig_args = {
+                'sender': 'sharedride_status_changed_signal',
+                'obj': self,
+                'status': new_status
+            }
+            ride_status_changed_signal.send(**sig_args)
         else:
             raise UpdateStatusError("update shared ride status failed: %s to %s" % (old_status, new_status))
 

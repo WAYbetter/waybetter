@@ -62,6 +62,6 @@ def mark_ride_not_taken_task(request):
     except SharedRide.DoesNotExist:
         logging.error("Error marking ride as not taken: SharedRide.DoesNotExist")
     except UpdateStatusError:
-        logging.error("Error changing ride [%d] status to not taken: UpdateStatusError" % ride.id)
+        logging.warning("Error changing ride [%d] status to not taken: UpdateStatusError" % ride.id)
 
     return HttpResponse("OK")
