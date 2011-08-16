@@ -19,6 +19,46 @@ a, .action_link, .ui-widget-content a {
     text-decoration: underline;
 }
 
+@-webkit-keyframes flash_fade {
+    0%, 100% {
+        opacity: 0;
+    }
+    10% {
+        opacity: 1.0;
+    }
+}
+
+
+#flash {
+    display: none;
+}
+
+#flash.show {
+    display: block;
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    color: black;
+    background-color: #fafad2;
+    text-align: center;
+    padding: 10px 25px;
+    border-radius: 10px;
+    border: 1px solid #b8860b;
+
+    /*margin-left: -halfthewidthofcontainer*/
+    -webkit-animation-name: flash_fade;
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-timing-function: ease-in-out;
+    -webkit-animation-duration: 5s;
+    opacity: 0;
+
+}
+#flash.error {
+    color: white;
+    background-color: #8b0000;
+    border: 1px solid red;
+}
+
 #main.full_screen_main {
     position: absolute;
     left: 0;
