@@ -92,7 +92,7 @@
                     refreshHomeWindow();
                 },
                 error: function() {
-                    alert("{% trans "Error" %}");
+                    flashError("{% trans "Error" %}");
                 }
             });
         };
@@ -108,7 +108,7 @@
                     refreshHomeWindow();
                 },
                 error: function() {
-                    alert("{% trans "Error" %}");
+                    flashError("{% trans "Error" %}");
                 }
             });
         };
@@ -147,7 +147,7 @@
                     }
                 },
                 error: function() {
-                    alert("{% trans "Error" %}");
+                    flashError("{% trans "Error" %}");
                 }
             });
         };
@@ -186,10 +186,10 @@
                     success: function(response){
                         $phone.val(response.phone).data("orig", response.phone);
                         $name.val(response.name).data("orig", response.name);
-                        alert("{% trans "Changes Saved" %}");
+                        flashMessage("{% trans "Changes Saved" %}");
                     },
                     error: function(){
-                      alert("{% trans "Error" %}");
+                      flashError("{% trans "Error" %}");
                     }
                 });
             });
@@ -249,7 +249,7 @@
                                             function(response) {
                                                 $("#driver_header_" + driver.id + ", #driver_div_" + driver.id).remove();
                                                 $("#delete_taxidriver_dialog").dialog("close");
-                                                alert("{% trans "Driver deleted" %}");
+                                                flashMessage("{% trans "Driver deleted" %}");
                                             });
                                 }}
                             ]
@@ -282,7 +282,7 @@
                                                 function(response) {
                                                     $("#taxi_header_" + taxi.id + ", #taxi_div_" + taxi.id).remove();
                                                     $("#delete_taxidriver_dialog").dialog("close");
-                                                    alert("{% trans "Taxi deleted" %}");
+                                                    flashMessage("{% trans "Taxi deleted" %}");
                                                 });
                                     }}
                             ]
@@ -403,7 +403,7 @@
                             })
                         }
                         else {
-                            alert("{% trans "Invalid driver/taxi" %}");
+                            flashError("{% trans "Invalid driver/taxi" %}");
                         }
                     }}
                 ]
