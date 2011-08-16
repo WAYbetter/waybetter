@@ -280,6 +280,12 @@ table .pickup {
     height: 20px;
     background: url(/static/images/map.png) no-repeat;
     background-position: 0 0;
+    opacity: 0.7;
+    -webkit-transition: opacity 200ms;
+}
+
+.ride_div .map_link:hover {
+    opacity: 1;
 }
 
 .ride_div .map_link.copy_link {
