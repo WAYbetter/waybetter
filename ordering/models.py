@@ -317,8 +317,8 @@ class SharedRide(BaseModel):
                 'arrive_time': to_js_date(self.arrive_time),
                 'id': self.id,
                 'status': self.status,
-                'driver': {'name': self.driver.name} if self.driver else "",
-                'taxi': {'number': self.taxi.number} if self.taxi else "",
+                'driver': {'name': self.driver.name, 'id': self.driver.id} if self.driver else "",
+                'taxi': {'number': self.taxi.number, 'id': self.taxi.id} if self.taxi else "",
                 'value': self.station.get_ride_price(self) or "",
                 'debug': self.debug,
                 'driver_jist': self.driver_jist()
