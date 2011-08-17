@@ -26,7 +26,7 @@
     </div>
 
     <div class="loader"></div>
-    <div id="ride_accordion_container">
+    <div id="tab_accordion_container">
         <div id="driver_accordion"></div>
         <div id="taxi_accordion"></div>
     </div>
@@ -79,7 +79,7 @@
             };
 
         refreshHomeWindow = function(){
-            window.opener.populateTaxis();
+            window.opener.getTaxiDriverData(true);
         };
 
         deleteElement = function(url, data, success) {
@@ -138,16 +138,17 @@
                 url: "{% url sharing.station_controller.create_taxidriver_relation %}",
                 type: "POST",
                 data: data,
-                success: function(response) {
+                success         : function(response) {
                     renderTaxi(response.taxi);
                     renderDriver(response.driver);
                     refreshHomeWindow();
-                    if (callback){
+                    if (callback) {
                         callback();
                     }
+                    flashMessage("{% trans 'Operation Successful' %}");
                 },
-                error: function() {
-                    flashError("{% trans "Error" %}");
+                error           : function(e) {
+                    flashError("{% trans 'Error' %}");
                 }
             });
         };
@@ -345,15 +346,14 @@
                         success: function(response){
                             $("#select_driver, #select_taxi").empty();
                             $.each(response.drivers_data, function(i, driver) {
-                        $("#select_driver").append('<option value="' + driver.id + '">' + driver.name + '</option>');
-                    });
+                                $("#select_driver").append('<option value="' + driver.id + '">' + driver.name + '</option>');
+                            });
                             $.each(response.taxis_data, function(i, taxi) {
-                        $("#select_taxi").append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
+                                $("#select_taxi").append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
+                            });
+                        }
                     });
                 }
-                    });
-
-            }
         }
             
             $("#new_taxidriver_form").dialog({'title': dialog_title}).dialog("open");
@@ -418,7 +418,7 @@
         };
 
         asFormGroupSelector = function(radio_selector, enabled_selector, disabled_selector){
-            $(radio_selector).change(function() {
+            $(radio_selector).click(function() {
                 if ($(this).attr("checked")) {
                     $(enabled_selector).enable();
                     $(disabled_selector).val("").disable();

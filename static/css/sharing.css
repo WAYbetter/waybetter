@@ -42,7 +42,8 @@ a, .action_link, .ui-widget-content a {
     background-color: #fafad2;
     text-align: center;
     padding: 10px 25px;
-    border-radius: 10px;
+    border-radius: 7px;
+    -webkit-border-radius: 7px;
     border: 1px solid #b8860b;
 
     /*margin-left: -halfthewidthofcontainer*/
@@ -106,15 +107,24 @@ a, .action_link, .ui-widget-content a {
     position:relative;
 }
 
-#tools_button {
-    float: left;
+.toolbar_button {
     margin-top: 6px;
     margin-left: 10px;
+    margin-right: 10px;
+
+}
+#tools_button {
+    float: right;
 }
 .rtl #tools_button {
+    float: left;
+}
+
+#toggle_mode_button {
+    float: left;
+}
+.rtl #toggle_mode_button {
     float: right;
-    margin-right: 10px;
-    margin-left: inherit;
 }
 
 #summary {
@@ -166,6 +176,7 @@ a, .action_link, .ui-widget-content a {
 
 .ui-accordion .ui-accordion-header {
     font-weight: bold;
+    overflow: hidden;
 }
 
 .ui-accordion-icons .ui-accordion-header a {
@@ -209,14 +220,41 @@ a, .action_link, .ui-widget-content a {
     float: left;
 }
 
+
+.ui-accordion .ui-accordion-content-active {
+    background: #f9fbff;
+}
+.ui-state-active, .ui-widget-content .ui-state-active, .ui-widget-header .ui-state-active {
+    background: #f9fbff;
+}
 /*.ui-state-default .ui-icon.delete_button {*/
     /*background-image: url(/static/images/delete.png);*/
     /*background-repeat: no-repeat;*/
 /*}*/
 
-#ride_accordion_container {
-    margin-top: 50px;
+#tab_accordion_container {
+    /*margin-top: 50px;*/
     padding:  5px;
+    top: 96px;
+    bottom: 0;
+    left:0;
+    right:0;
+    min-height: 0;
+    overflow: auto;
+    position: fixed;
+}
+
+
+#ride_accordion_container {
+    /*margin-top: 50px;*/
+    padding:  5px;
+    position: fixed;
+    top: 50px;
+    bottom: 0;
+    left:0;
+    right:0;
+    min-height: 300px;
+    overflow: auto;
 }
 #ride_accordion {
     width: 100%;
@@ -257,6 +295,10 @@ a, .action_link, .ui-widget-content a {
     height: 10px;
 }
 
+.ride_div table td.table_header {
+    font-weight: bold;
+}
+
 .ride_div table th, .ride_div table td {
     padding: 5px;
     color: #5b5b5b;
@@ -280,6 +322,12 @@ table .pickup {
     height: 20px;
     background: url(/static/images/map.png) no-repeat;
     background-position: 0 0;
+    opacity: 0.7;
+    -webkit-transition: opacity 200ms;
+}
+
+.ride_div .map_link:hover {
+    opacity: 1;
 }
 
 .ride_div .map_link.copy_link {
@@ -303,21 +351,13 @@ table .pickup {
 .ride_div .ride_matcher {
     margin-top: 10px;
     background: #F7F6E2;
-    height: 74px;
     border: 1px solid #E2E2E2;
     border-radius: 5px;
+    -webkit-border-radius: 5px;
+    padding: 10px;
 }
 .ride_div .matcher_label {
-    margin-top: 30px;
-    display: block;
-    float: left;
-    margin-left: 40px;
     font-weight: bold;
-}
-.rtl .ride_div .matcher_label {
-    float: right;
-    margin-left: inherit;
-    margin-right: 40px;
 }
 
 .ride_div .ride_matcher select {
@@ -334,19 +374,16 @@ table .pickup {
 /*}*/
 
 .ride_div .ride_matcher .select_tools {
-    float: right;
-    margin-top: 25px;
+    float: left;
+    margin-top: 14px;
 }
 
 .rtl .ride_div .ride_matcher .select_tools {
-    float: left;
+    float: right;
 }
 
 .ride_div .ride_matcher .accept_button {
     float: right;
-    margin-top: 20px;
-    margin-right: 30px;
-    margin-left: 30px;
 }
 
 .rtl .ride_div .ride_matcher .accept_button {
@@ -375,7 +412,8 @@ table .pickup {
     margin-left: inherit;
 }
 
-.station_history .ui-tabs .ui-tabs-panel {
+.station_tools .ui-tabs { 
+    border: none;
 }
 .station_history #date_picker input {
     margin-right: 10px
