@@ -3,7 +3,7 @@ from django.conf.urls.defaults import url
 
 urlpatterns = patterns('',
     (r'^$', 'ordering.passenger_controller.passenger_home'),
-    (r'^pickmeapp/$', 'ordering.passenger_controller.passenger_home'),
+    (r'^pickmeapp/$', 'ordering.passenger_controller.pickmeapp_home'),
     (r'^info$', 'ordering.passenger_controller.info_pages'),
     (r'^workstation/(?P<workstation_id>\d+)$', 'ordering.station_controller.workstation_home'),
     (r'^orders/(?P<order_id>\d+)$', 'ordering.order_manager.order_status'),
