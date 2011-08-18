@@ -151,6 +151,9 @@ class OrderForm(ModelForm):
         from_city = self.cleaned_data.get('from_city')
         to_city = self.cleaned_data.get('to_city')
 
+        if self.passenger.is_banned:
+            raise forms.ValidationError(_("Your account has been suspended. Please contact support@waybetter.com"))
+
         if to_country and from_country != to_country:
             log_event(EventType.CROSS_COUNTRY_ORDER_FAILURE, passenger=self.passenger, country=to_country)
             raise forms.ValidationError(_("To and From countries do not match"), code=ErrorCodes.COUNTRIES_DONT_MATCH)
@@ -171,7 +174,7 @@ class OrderForm(ModelForm):
         if not close_enough_station_found:
             log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=from_city, lat=from_lat,
                       lon=from_lon)
-            if from_city != to_city:
+            if to_city and from_city != to_city:
                 log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=to_city, lat=to_lat, lon=to_lon)
 
             raise forms.ValidationError(

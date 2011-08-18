@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-18 14:53+0300\n"
+"POT-Creation-Date: 2011-08-18 15:00+0300\n"
 "PO-Revision-Date: 2011-06-21 16:06+0200\n"
 "Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -52,7 +52,7 @@ msgstr "Type"
 msgid "Scope"
 msgstr "Périmètre"
 
-#: analytics/forms.py:47 ordering/forms.py:282 registration/forms.py:76
+#: analytics/forms.py:47 ordering/forms.py:285 registration/forms.py:76
 msgid "City"
 msgstr "Ville"
 
@@ -65,8 +65,8 @@ msgstr "Station"
 msgid "type"
 msgstr "Type"
 
-#: analytics/models.py:12 ordering/models.py:537 ordering/models.py:539
-#: ordering/models.py:630 ordering/models.py:720
+#: analytics/models.py:12 ordering/models.py:540 ordering/models.py:542
+#: ordering/models.py:633 ordering/models.py:723
 msgid "order"
 msgstr "Réservation"
 
@@ -74,28 +74,28 @@ msgstr "Réservation"
 msgid "order assignment"
 msgstr "Affectation de la réservation"
 
-#: analytics/models.py:14 ordering/models.py:631
+#: analytics/models.py:14 ordering/models.py:634
 msgid "work station"
 msgstr "Poste de travail"
 
-#: analytics/models.py:15 ordering/models.py:325 ordering/models.py:343
-#: ordering/models.py:457 ordering/models.py:632
+#: analytics/models.py:15 ordering/models.py:328 ordering/models.py:346
+#: ordering/models.py:460 ordering/models.py:635
 msgid "station"
 msgstr "Poste"
 
-#: analytics/models.py:16 ordering/models.py:276 ordering/models.py:456
-#: ordering/models.py:805
+#: analytics/models.py:16 ordering/models.py:279 ordering/models.py:459
+#: ordering/models.py:808
 msgid "passenger"
 msgstr "Passager"
 
 #: analytics/models.py:17 common/models.py:105 ordering/models.py:102
-#: ordering/models.py:196 ordering/models.py:737 ordering/models.py:768
-#: ordering/models.py:790 registration/forms.py:72
+#: ordering/models.py:196 ordering/models.py:740 ordering/models.py:771
+#: ordering/models.py:793 registration/forms.py:72
 msgid "country"
 msgstr "Pays"
 
 #: analytics/models.py:18 common/models.py:141 interests/models.py:23
-#: ordering/models.py:103 ordering/models.py:284
+#: ordering/models.py:103 ordering/models.py:287
 msgid "city"
 msgstr "Ville"
 
@@ -104,16 +104,16 @@ msgid "ratings"
 msgstr "Classement"
 
 #: analytics/models.py:24 interests/models.py:9 interests/models.py:27
-#: interests/models.py:48 ordering/models.py:118 ordering/models.py:212
-#: ordering/models.py:505 ordering/models.py:636 ordering/models.py:758
-#: ordering/models.py:780 ordering/models.py:794
+#: interests/models.py:48 ordering/models.py:118 ordering/models.py:215
+#: ordering/models.py:508 ordering/models.py:639 ordering/models.py:761
+#: ordering/models.py:783 ordering/models.py:797
 msgid "create date"
 msgstr "Créé le"
 
 #: analytics/models.py:25 interests/models.py:10 interests/models.py:28
-#: interests/models.py:49 ordering/models.py:119 ordering/models.py:213
-#: ordering/models.py:506 ordering/models.py:637 ordering/models.py:759
-#: ordering/models.py:781 ordering/models.py:795
+#: interests/models.py:49 ordering/models.py:119 ordering/models.py:216
+#: ordering/models.py:509 ordering/models.py:640 ordering/models.py:762
+#: ordering/models.py:784 ordering/models.py:798
 msgid "modify date"
 msgstr "Modifié le"
 
@@ -185,8 +185,8 @@ msgid "Submit"
 msgstr "Envoi"
 
 #: api/models.py:7 common/models.py:55 common/models.py:104
-#: common/models.py:140 interests/models.py:22 ordering/models.py:735
-#: ordering/models.py:766 ordering/models.py:788
+#: common/models.py:140 interests/models.py:22 ordering/models.py:738
+#: ordering/models.py:769 ordering/models.py:791
 msgid "name"
 msgstr "Nom"
 
@@ -371,7 +371,7 @@ msgid "Join Now!"
 msgstr "Pour s'inscrire..."
 
 #: common/templates/login_form.html:36 interests/models.py:7
-#: interests/models.py:45 ordering/forms.py:220 ordering/forms.py:292
+#: interests/models.py:45 ordering/forms.py:223 ordering/forms.py:295
 #: ordering/templates/passenger_profile.html:24
 msgid "Email"
 msgstr "E-mail"
@@ -469,7 +469,7 @@ msgstr ""
 "La station la plus proche recherche un taxi libre. Un SMS vous sera envoyé "
 "sans délai."
 
-#: common/templates/registration_form.html:24 ordering/forms.py:243
+#: common/templates/registration_form.html:24 ordering/forms.py:246
 #: ordering/passenger_controller.py:475
 #: ordering/templates/business_registration.html:58
 #, fuzzy
@@ -614,8 +614,8 @@ msgstr "page plane"
 msgid "flat pages"
 msgstr "pages planes"
 
-#: interests/models.py:24 interests/models.py:43 ordering/forms.py:367
-#: ordering/models.py:279
+#: interests/models.py:24 interests/models.py:43 ordering/forms.py:370
+#: ordering/models.py:282
 msgid "contact person"
 msgstr "contact "
 
@@ -704,21 +704,21 @@ msgid "Build Installer"
 msgstr "adresse d'installation"
 
 #: ordering/admin.py:127
-#, python-format
-msgid "%d dummy orders sent"
-msgstr ""
-
-#: ordering/admin.py:128
-msgid "Send Dummy Order"
-msgstr ""
-
-#: ordering/admin.py:149
 #, fuzzy, python-format
 msgid "%d checks performed successfully"
 msgstr "Réinitialisation du mot de passe réussie"
 
-#: ordering/admin.py:150
+#: ordering/admin.py:128
 msgid "Check Connection"
+msgstr ""
+
+#: ordering/admin.py:136
+#, python-format
+msgid "%d dummy orders sent"
+msgstr ""
+
+#: ordering/admin.py:137
+msgid "Send Dummy Order"
 msgstr ""
 
 #: ordering/forms.py:51
@@ -729,15 +729,19 @@ msgstr ""
 "Téléchargez une image valide. Le fichier téléchargé n'est pas un fichier "
 "image ou est corrompu."
 
-#: ordering/forms.py:156
+#: ordering/forms.py:155
+msgid "Your account has been suspended. Please contact support@waybetter.com"
+msgstr ""
+
+#: ordering/forms.py:159
 msgid "To and From countries do not match"
 msgstr "Les pays de départ et de destination ne correspondent pas."
 
-#: ordering/forms.py:161
+#: ordering/forms.py:164
 msgid "Currently, there is no service in the country"
 msgstr "Le service n'est pas présentement disponible dans le pays."
 
-#: ordering/forms.py:179
+#: ordering/forms.py:182
 #, fuzzy, python-format
 msgid ""
 "Service is not available in %(city)s yet.\n"
@@ -748,82 +752,82 @@ msgstr ""
 "Le service n'est pas encore disponible dans la ville de %(city)s.<br>Essayez "
 "ultérieurement.<p class=bold>MERCI !</p>L'équipe WAYbetter:)"
 
-#: ordering/forms.py:210 ordering/forms.py:330 ordering/forms.py:371
+#: ordering/forms.py:213 ordering/forms.py:333 ordering/forms.py:374
 #: ordering/templates/station_page.html:236
 msgid "Phone"
 msgstr "Téléphone"
 
-#: ordering/forms.py:211 ordering/forms.py:288 ordering/forms.py:331
-#: ordering/forms.py:372 registration/forms.py:92
+#: ordering/forms.py:214 ordering/forms.py:291 ordering/forms.py:334
+#: ordering/forms.py:375 registration/forms.py:92
 msgid "The value must contain only numbers."
 msgstr "La valeur ne peut contenir que des chiffres."
 
-#: ordering/forms.py:212 ordering/forms.py:283
+#: ordering/forms.py:215 ordering/forms.py:286
 #: ordering/templates/station_page.html:235
 msgid "Address"
 msgstr "Adresse"
 
-#: ordering/forms.py:215 ordering/forms.py:339 ordering/models.py:197
+#: ordering/forms.py:218 ordering/forms.py:342 ordering/models.py:197
 msgid "Default station"
 msgstr "Station préférée"
 
-#: ordering/forms.py:215 ordering/forms.py:339
+#: ordering/forms.py:218 ordering/forms.py:342
 msgid "(No station selected)"
 msgstr "(pas de station sélectionnée)"
 
-#: ordering/forms.py:217 ordering/forms.py:365
+#: ordering/forms.py:220 ordering/forms.py:368
 msgid "Confine my orders to my default station"
 msgstr ""
 
-#: ordering/forms.py:221
+#: ordering/forms.py:224
 #, fuzzy
 msgid "Enter password"
 msgstr "Saisissez à nouveau le mot de passe"
 
-#: ordering/forms.py:222 ordering/forms.py:280 ordering/forms.py:352
-#: ordering/forms.py:374
+#: ordering/forms.py:225 ordering/forms.py:283 ordering/forms.py:355
+#: ordering/forms.py:377
 msgid "Re-enter password"
 msgstr "Saisissez à nouveau le mot de passe"
 
-#: ordering/forms.py:237 ordering/forms.py:303 ordering/forms.py:360
-#: ordering/forms.py:382 registration/forms.py:136
+#: ordering/forms.py:240 ordering/forms.py:306 ordering/forms.py:363
+#: ordering/forms.py:385 registration/forms.py:136
 msgid "The two password fields didn't match."
 msgstr "Les deux champs Mot de passe ne correspondent pas."
 
-#: ordering/forms.py:278
+#: ordering/forms.py:281
 msgid "Station name"
 msgstr "Nom de la station"
 
-#: ordering/forms.py:279 ordering/forms.py:350 ordering/forms.py:373
+#: ordering/forms.py:282 ordering/forms.py:353 ordering/forms.py:376
 msgid "Change password"
 msgstr "Changement du mot de passe"
 
-#: ordering/forms.py:281
+#: ordering/forms.py:284
 msgid "Country"
 msgstr "Pays"
 
-#: ordering/forms.py:287
+#: ordering/forms.py:290
 msgid "Number of taxis"
 msgstr "Nombre de taxis"
 
-#: ordering/forms.py:290
+#: ordering/forms.py:293
 msgid "Website URL"
 msgstr "URL du site"
 
-#: ordering/forms.py:294
+#: ordering/forms.py:297
 msgid "Description"
 msgstr "Description"
 
-#: ordering/forms.py:309
+#: ordering/forms.py:312
 msgid "Invalid address"
 msgstr "Adresse invalide"
 
-#: ordering/forms.py:347
+#: ordering/forms.py:350
 #, fuzzy
 msgid "First name"
 msgstr "Prénom"
 
-#: ordering/forms.py:348
+#: ordering/forms.py:351
 #, fuzzy
 msgid "Last name"
 msgstr "Nom de famille"
@@ -865,12 +869,12 @@ msgstr "Erreur"
 msgid "timed_out"
 msgstr ""
 
-#: ordering/models.py:84 ordering/models.py:194 ordering/models.py:341
+#: ordering/models.py:84 ordering/models.py:194 ordering/models.py:344
 #: registration/models.py:170
 msgid "user"
 msgstr "Utilisateur"
 
-#: ordering/models.py:85 ordering/models.py:357 ordering/models.py:509
+#: ordering/models.py:85 ordering/models.py:360 ordering/models.py:512
 #: registration/forms.py:50
 msgid "station name"
 msgstr "Nom du poste"
@@ -915,11 +919,11 @@ msgstr "icône app"
 msgid "app splash"
 msgstr "Page de garde de l'application"
 
-#: ordering/models.py:97 ordering/models.py:349
+#: ordering/models.py:97 ordering/models.py:352
 msgid "last order date"
 msgstr "Dernière course"
 
-#: ordering/models.py:100 ordering/models.py:290
+#: ordering/models.py:100 ordering/models.py:293
 #, fuzzy
 msgid "confine orders"
 msgstr "Accepte des réservations"
@@ -932,7 +936,7 @@ msgstr "Zone d'activité principale"
 msgid "postal code"
 msgstr "Code postal"
 
-#: ordering/models.py:106 ordering/models.py:282 ordering/models.py:285
+#: ordering/models.py:106 ordering/models.py:285 ordering/models.py:288
 #: ordering/templates/passenger_profile.html:13 registration/forms.py:80
 msgid "address"
 msgstr "Adresse"
@@ -941,11 +945,11 @@ msgstr "Adresse"
 msgid "goehash"
 msgstr "goehash"
 
-#: ordering/models.py:108 ordering/models.py:287
+#: ordering/models.py:108 ordering/models.py:290
 msgid "longtitude"
 msgstr "longitude"
 
-#: ordering/models.py:109 ordering/models.py:288
+#: ordering/models.py:109 ordering/models.py:291
 msgid "latitude"
 msgstr "latitude"
 
@@ -962,11 +966,11 @@ msgstr "classement moyen"
 msgid "internal rating"
 msgstr "classement moyen"
 
-#: ordering/models.py:199 ordering/models.py:458
+#: ordering/models.py:199 ordering/models.py:461
 msgid "originating station"
 msgstr "Station d'origine"
 
-#: ordering/models.py:202 ordering/models.py:323
+#: ordering/models.py:202 ordering/models.py:326
 msgid "phone number"
 msgstr "numéro de téléphone"
 
@@ -983,347 +987,352 @@ msgstr "accepter les mails"
 msgid "login token"
 msgstr "clé"
 
-#: ordering/models.py:278 ordering/models.py:644
+#: ordering/models.py:213
+#, fuzzy
+msgid "banned"
+msgstr "Fin"
+
+#: ordering/models.py:281 ordering/models.py:647
 #: ordering/templates/passenger_profile.html:9
 #, fuzzy
 msgid "business name"
 msgstr "Nom d'utilisateur"
 
-#: ordering/models.py:286
+#: ordering/models.py:289
 #, fuzzy
 msgid "house_number"
 msgstr "numéro de téléphone"
 
-#: ordering/models.py:299
+#: ordering/models.py:302
 msgid "business welcome mail subject"
 msgstr ""
 
-#: ordering/models.py:344
+#: ordering/models.py:347
 msgid "token"
 msgstr "clé"
 
-#: ordering/models.py:345
+#: ordering/models.py:348
 msgid "installer URL"
 msgstr "adresse d'installation"
 
-#: ordering/models.py:346
+#: ordering/models.py:349
 msgid "was installed"
 msgstr "a été installé"
 
-#: ordering/models.py:347
+#: ordering/models.py:350
 msgid "Accept orders"
 msgstr "Accepte des réservations"
 
-#: ordering/models.py:352
+#: ordering/models.py:355
 msgid "channel_id"
 msgstr ""
 
-#: ordering/models.py:353
+#: ordering/models.py:356
 msgid "is online"
 msgstr ""
 
-#: ordering/models.py:356 ordering/models.py:510
+#: ordering/models.py:359 ordering/models.py:513
 msgid "station id"
 msgstr "id station"
 
-#: ordering/models.py:448
+#: ordering/models.py:451
 msgid "Unrated"
 msgstr ""
 
-#: ordering/models.py:449
+#: ordering/models.py:452
 msgid "Very poor"
 msgstr "Mauvais"
 
-#: ordering/models.py:450
+#: ordering/models.py:453
 msgid "Not so bad"
 msgstr "Pas si mauvais"
 
-#: ordering/models.py:451
+#: ordering/models.py:454
 msgid "Average"
 msgstr "Moyen"
 
-#: ordering/models.py:452
+#: ordering/models.py:455
 msgid "Good"
 msgstr "Bon"
 
-#: ordering/models.py:453
+#: ordering/models.py:456
 msgid "Perfect"
 msgstr "Excellent"
 
-#: ordering/models.py:460
+#: ordering/models.py:463
 #, fuzzy
 msgid "confining station"
 msgstr "Station d'origine"
 
-#: ordering/models.py:463
+#: ordering/models.py:466
 #, fuzzy
 msgid "mobile"
 msgstr "Portable"
 
-#: ordering/models.py:464
+#: ordering/models.py:467
 #, fuzzy
 msgid "user agent"
 msgstr "Nom d'utilisateur"
 
-#: ordering/models.py:466 ordering/models.py:634
+#: ordering/models.py:469 ordering/models.py:637
 msgid "status"
 msgstr "Statut"
 
-#: ordering/models.py:467
+#: ordering/models.py:470
 #, fuzzy
 msgid "order language"
 msgstr "Langue"
 
-#: ordering/models.py:469
+#: ordering/models.py:472
 msgid "from country"
 msgstr "du pays"
 
-#: ordering/models.py:470
+#: ordering/models.py:473
 msgid "from city"
 msgstr "de la ville"
 
-#: ordering/models.py:471
+#: ordering/models.py:474
 msgid "from city area"
 msgstr "du quartier"
 
-#: ordering/models.py:473
+#: ordering/models.py:476
 msgid "from postal code"
 msgstr "du code postal"
 
-#: ordering/models.py:474
+#: ordering/models.py:477
 msgid "from street address"
 msgstr "de l'adresse "
 
-#: ordering/models.py:475
+#: ordering/models.py:478
 #, fuzzy
 msgid "from_house_number"
 msgstr "numéro de téléphone"
 
-#: ordering/models.py:478
+#: ordering/models.py:481
 msgid "from goehash"
 msgstr "de goehash"
 
-#: ordering/models.py:479
+#: ordering/models.py:482
 msgid "from_lon"
 msgstr "de longitude"
 
-#: ordering/models.py:480
+#: ordering/models.py:483
 msgid "from_lat"
 msgstr " de latitude"
 
-#: ordering/models.py:482 ordering/models.py:645
+#: ordering/models.py:485 ordering/models.py:648
 msgid "from address"
 msgstr "de l'adresse"
 
-#: ordering/models.py:484
+#: ordering/models.py:487
 msgid "to country"
 msgstr "vers le pays"
 
-#: ordering/models.py:486
+#: ordering/models.py:489
 msgid "to city"
 msgstr "vers la ville"
 
-#: ordering/models.py:487
+#: ordering/models.py:490
 msgid "to city area"
 msgstr "vers le quartier"
 
-#: ordering/models.py:489
+#: ordering/models.py:492
 msgid "to postal code"
 msgstr "vers le code postal"
 
-#: ordering/models.py:490
+#: ordering/models.py:493
 msgid "to street address"
 msgstr "vers l'adresse"
 
-#: ordering/models.py:491
+#: ordering/models.py:494
 #, fuzzy
 msgid "to_house_number"
 msgstr "numéro de téléphone"
 
-#: ordering/models.py:493
+#: ordering/models.py:496
 msgid "to goehash"
 msgstr "vers goehash"
 
-#: ordering/models.py:494
+#: ordering/models.py:497
 msgid "to_lon"
 msgstr "vers longitude"
 
-#: ordering/models.py:495
+#: ordering/models.py:498
 msgid "to_lat"
 msgstr "vers latitude"
 
-#: ordering/models.py:497 ordering/models.py:646
+#: ordering/models.py:500 ordering/models.py:649
 msgid "to address"
 msgstr "vers l'adresse"
 
-#: ordering/models.py:499
+#: ordering/models.py:502
 msgid "pickup time"
 msgstr "heure de ramassage"
 
-#: ordering/models.py:500
+#: ordering/models.py:503
 msgid "future pickup"
 msgstr ""
 
-#: ordering/models.py:503
+#: ordering/models.py:506
 msgid "passenger rating"
 msgstr "classement passager"
 
-#: ordering/models.py:511
+#: ordering/models.py:514
 msgid "passenger phone"
 msgstr "numéro de téléphone passager"
 
-#: ordering/models.py:512
+#: ordering/models.py:515
 msgid "passenger id"
 msgstr "id passager"
 
-#: ordering/models.py:514
+#: ordering/models.py:517
 #, fuzzy
 msgid "api user"
 msgstr "Utilisateur"
 
-#: ordering/models.py:638
+#: ordering/models.py:641
 #, fuzzy
 msgid "show date"
 msgstr "Modifié le"
 
-#: ordering/models.py:640
+#: ordering/models.py:643
 msgid "pickup_address_in_ws_lang"
 msgstr "pickup_address_in_ws_lang"
 
-#: ordering/models.py:641
+#: ordering/models.py:644
 #, fuzzy
 msgid "dropoff_address_in_ws_lang"
 msgstr "pickup_address_in_ws_lang"
 
-#: ordering/models.py:720
+#: ordering/models.py:723
 msgid "assigned to station:"
 msgstr "affecté à la station"
 
-#: ordering/models.py:723
+#: ordering/models.py:726
 msgid "Sunday"
 msgstr "dimanche"
 
-#: ordering/models.py:724
+#: ordering/models.py:727
 msgid "Monday"
 msgstr "lundi"
 
-#: ordering/models.py:725
+#: ordering/models.py:728
 msgid "Tuesday"
 msgstr "mardi"
 
-#: ordering/models.py:726
+#: ordering/models.py:729
 msgid "Wednesday"
 msgstr "mercredi"
 
-#: ordering/models.py:727
+#: ordering/models.py:730
 msgid "Thursday"
 msgstr "jeudi"
 
-#: ordering/models.py:728
+#: ordering/models.py:731
 msgid "Friday"
 msgstr "vendredi"
 
-#: ordering/models.py:729
+#: ordering/models.py:732
 msgid "Saturday"
 msgstr "samedi"
 
-#: ordering/models.py:731
+#: ordering/models.py:734
 msgid "Standard cab"
 msgstr "taxi ordinaire"
 
-#: ordering/models.py:736 ordering/models.py:767 ordering/models.py:789
+#: ordering/models.py:739 ordering/models.py:770 ordering/models.py:792
 msgid "is active"
 msgstr "actif"
 
-#: ordering/models.py:740
+#: ordering/models.py:743
 msgid "from day"
 msgstr "du"
 
-#: ordering/models.py:741
+#: ordering/models.py:744
 msgid "to day"
 msgstr "au"
 
-#: ordering/models.py:742 ordering/models.py:773
+#: ordering/models.py:745 ordering/models.py:776
 msgid "from hour"
 msgstr "de"
 
-#: ordering/models.py:743 ordering/models.py:774
+#: ordering/models.py:746 ordering/models.py:777
 msgid "to hour"
 msgstr "à"
 
-#: ordering/models.py:745
+#: ordering/models.py:748
 msgid "from duration (s)"
 msgstr "de"
 
-#: ordering/models.py:745 ordering/models.py:746 ordering/models.py:754
+#: ordering/models.py:748 ordering/models.py:749 ordering/models.py:757
 msgid "In seconds"
 msgstr "en secondes"
 
-#: ordering/models.py:746
+#: ordering/models.py:749
 msgid "to duration (s)"
 msgstr "à"
 
-#: ordering/models.py:749
+#: ordering/models.py:752
 msgid "from distance (m)"
 msgstr "d'une distance de "
 
-#: ordering/models.py:749 ordering/models.py:750 ordering/models.py:753
+#: ordering/models.py:752 ordering/models.py:753 ordering/models.py:756
 msgid "In meters"
 msgstr "en mètres"
 
-#: ordering/models.py:750
+#: ordering/models.py:753
 msgid "to distance (m)"
 msgstr "à une distance de (m)"
 
-#: ordering/models.py:753
+#: ordering/models.py:756
 msgid "tick distance (m)"
 msgstr "distance de pulsation (m)"
 
-#: ordering/models.py:754
+#: ordering/models.py:757
 msgid "tick time (s)"
 msgstr "durée de la pulsation (sec)"
 
-#: ordering/models.py:755
+#: ordering/models.py:758
 msgid "cost per tick"
 msgstr "prix de la pulsation"
 
-#: ordering/models.py:756 ordering/models.py:778 ordering/models.py:792
+#: ordering/models.py:759 ordering/models.py:781 ordering/models.py:795
 msgid "fixed cost"
 msgstr "coût fixe"
 
-#: ordering/models.py:770
+#: ordering/models.py:773
 msgid "city 1"
 msgstr "Ville 1"
 
-#: ordering/models.py:771
+#: ordering/models.py:774
 msgid "city 2"
 msgstr "Ville 2"
 
-#: ordering/models.py:775
+#: ordering/models.py:778
 msgid "from day-of-week"
 msgstr "du"
 
-#: ordering/models.py:776
+#: ordering/models.py:779
 msgid "to day-of-week"
 msgstr "au"
 
-#: ordering/models.py:801
+#: ordering/models.py:804
 msgid "Website"
 msgstr "Site"
 
-#: ordering/models.py:801
+#: ordering/models.py:804
 msgid "Booking"
 msgstr "Réservation"
 
-#: ordering/models.py:801
+#: ordering/models.py:804
 msgid "Registration"
 msgstr "Inscription"
 
-#: ordering/models.py:801
+#: ordering/models.py:804
 msgid "Taxi Ride"
 msgstr "course"
 
-#: ordering/models.py:801
+#: ordering/models.py:804
 msgid "Other"
 msgstr "Autre"
 
@@ -2764,10 +2773,6 @@ msgstr "Erreur du vérificateur d'orthographe"
 #, fuzzy
 #~ msgid "Changed %s."
 #~ msgstr "Enregistrer"
-
-#, fuzzy
-#~ msgid "and"
-#~ msgstr "Fin"
 
 #, fuzzy
 #~ msgid "The %(name)s \"%(obj)s\" was added successfully."

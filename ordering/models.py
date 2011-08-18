@@ -209,6 +209,9 @@ class Passenger(BaseModel):
 
     session_keys = ListField(models.CharField(max_length=32)) # session is identified by a 32-character hash
 
+    # disallow ordering
+    is_banned = models.BooleanField(_("banned"), default=False)
+
     create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
     modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
 
