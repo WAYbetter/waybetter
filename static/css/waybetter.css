@@ -588,6 +588,24 @@ button.order_button.disabled, button.order_button:disabled {
     margin-left: 147px;
 }
 
+#about .download {
+    font-size: 15px;
+    font-weight: bold;
+    color: #EC008C;
+}
+
+#about .download img {
+    vertical-align: middle;
+}
+#about .download a {
+    margin-left: 20px;
+}
+.rtl #about .download a {
+    margin-left: inherit;
+    margin-right: 20px;
+}
+
+
 /************* Ordering Bottom Tabs *************/
 #tabs {
     margin-top: -18px;
@@ -1671,8 +1689,26 @@ height: 60px; font-size: 32px;}
 
 #mobile #mobile_text > div > div.sub_title {
     font-size: 20px;
-    color: black;
     text-align: left;
+}
+
+#mobile .download a {
+    float: right;
+}
+
+.rtl #mobile .download a {
+    float: left;
+}
+
+#mobile .download {
+    font-size: 20px;
+    margin-top: 162px;
+    line-height: 57px;
+}
+
+.rtl #mobile .download {
+    text-align: right;
+    padding-right: 60px;
 }
 
 #mobile #mobile_text > div > span {
@@ -1715,13 +1751,20 @@ height: 60px; font-size: 32px;}
 #mobile #container {
     width: 550px;
     height: 400px;
-    margin-right: 100px;
+    margin-left: 100px;
     margin-top: 20px;
+}
+
+.rtl #mobile #container {
+    margin-left: inherit;
+    margin-right: 100px;
 }
 
 #mobile #mobile_image {
     float: left;
 }
+
+
 
 .station_row {
     min-height: 120px;

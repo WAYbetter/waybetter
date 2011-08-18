@@ -99,15 +99,9 @@
                 <div id="roller">
                     <span class="img fade left-fade"></span>
                     <span class="img fade right-fade"></span>
-                    {% if LANGUAGE_BIDI %}
-                        <marquee behavior="scroll" scrollamount="1" direction="right" width="870">
-                            {% trans 'WAYbetter are happy to announce our Tel Aviv pilot in collaboration with the "Meshuhrar Taxis" station' %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% trans "We hope you'll enjoy the service and give us feedback so we can improve (bottom right corner)" %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% trans 'Enjoy your ride!' %}
-                        </marquee>
-                    {% else %}
-                        <marquee behavior="scroll" scrollamount="1" direction="left" width="870">
-                            {% trans 'WAYbetter are happy to announce our Tel Aviv pilot in collaboration with the "Meshuhrar Taxis" station' %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% trans "We hope you'll enjoy the service and give us feedback so we can improve (bottom right corner)" %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% trans 'Enjoy your ride!' %}
-                        </marquee>
-                    {% endif %}
+                    <marquee behavior="scroll" scrollamount="1" direction="{{ LANGUAGE_BIDI|yesno:"right,left" }}" width="870">
+                        {% trans 'Order a taxi with a click' %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% blocktrans %}Service is currently available in: {{ service_cities }}{% endblocktrans %}&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;::&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;{% trans 'Enjoy your ride!' %}
+                    </marquee>
 				</div>
 				<div id="yellow_header" class="round">
 					<span id="taxi_tab" class="img"><h1>{% trans 'TAXI' %}</h1></span>
@@ -178,6 +172,10 @@
                     <img src="/static/images/anim_1.png" alt="" />
                     <img src="/static/images/anim_2.png" alt="" />
                     <img src="/static/images/anim_3.png" alt="" />
+                </div>
+                <div class="download">
+                    {% trans "New!! iPhone Application - Download Now" %}
+                    <a href="http://itunes.apple.com/il/app/pickmeapp/id444681703?mt=8&uo=4" target="itunes_store"><img src="/static/images/app_store_badge.png" alt="PickMeApp - WAYbetter" style="border: 0;"/></a>
                 </div>
             </div>
         {% endif %}
