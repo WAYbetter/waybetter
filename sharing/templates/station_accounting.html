@@ -1,0 +1,124 @@
+{#uncomment for debugging (open as non-tab page)#}
+{#{% extends "base.html" %}#}
+{##}
+{#{% block bodyclass %}clean_body{% endblock %}#}
+{#{% block mainclass %}full_screen_main clean_main{% endblock %}#}
+{##}
+{#{% block extrastyle %}#}
+{#    <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">#}
+{#    <link rel="stylesheet" href="/static/css/sharing.css" type="text/css" media="all">#}
+{#{% endblock %}#}
+
+{% load i18n %}
+
+{% block content %}
+    <div id="header" class="ui-widget-header">
+        <form id="date_picker" method="post" action="{% url ordering.station_controller.station_analytics %}">
+            {% csrf_token %}
+            {{ form }}
+        </form>
+    </div>
+
+    <div id="tab_accordion_container">
+        <div id="accounts_accordion"></div>
+    </div>
+    <h2 id="error_msg"></h2>
+{% endblock %}
+
+{% block doc_ready %}
+    <script type="text/javascript" src="/static/js/mylibs/jquery.ui.datepicker-he.js"></script>
+    <script type="text/javascript">
+        {% autoescape off %}
+            var data = {{ data }};
+        {% endautoescape %}
+
+        renderRidesTable = function(rides) {
+            var col_names = ["{% trans 'Ride' %}", "{% trans 'Date' %}", "{% trans 'Taxi' %}", "{% trans 'From' %}", "{% trans 'To' %}", "{% trans '#Stops' %}", "{% trans "Value" %}", "{% trans "Payday" %}"];
+            var $table = $('<table class="striped"><thead></thead></table>');
+
+            $.each(col_names, function(i, col_name) {
+                $table.find("thead").append("<th>" + col_name + "</th>");
+            });
+
+            $.each(rides, function(i, ride) {
+                var ride_date = getFullDate(new Date(ride.date));
+                var ride_link = $('<a class="action_link">' + ride.id + '</a>').click(function() {
+                    window.open("{% url sharing.station_controller.show_ride %}" + ride.id, "Map View", 'width=800,height=600,resizable=no');
+                });
+                var ride_value = (ride.value) ? ride.value + " ₪" : "" ;
+                var ride_payday = getFullDate(new Date(ride.payday));
+                var $tr = $('<tr></tr>').appendTo($table).append($('<td></td>').append(ride_link));
+                $tr.append('<td>' + ride_date + '</td><td>' + ride.taxi + '</td><td>' + ride.from + '</td><td>' + ride.to + '</td><td>' + ride.stops + '</td><td>' + ride_value + '</td><td>' + ride_payday + '</td>');
+            });
+
+            return $table;
+        };
+
+        renderDriverAccount = function(driver) {
+            var $account_header = $('<h3 class="account_header"></h3>').attr("id", "account_header_" + driver.id)
+                    .append('<span class="driver_name">' + driver.name + '</span>')
+                    .append('<span class="driver_total">{% trans "Total" %} ' + driver.total + ' ₪</span>');
+
+            var $account_div = $('<div class="account_div"></div>').attr("id", "account_div_" + driver.id);
+
+            if (driver.rides.length > 0) {
+{#                var $email_link = $('<a class="action_link img_link email">{% trans "Email" %}</a>');#}
+{#                var $print_link = $('<a class="action_link img_link print">{% trans "Print" %}</a>');#}
+                $account_div.append(renderRidesTable(driver.rides));
+
+            }
+            else{
+                $account_div.append("<div>{% trans "No Rides" %}</div>");
+            }
+
+            $("#accounts_accordion").append($account_header, $account_div).accordion("destroy").accordion({collapsible: true, active: false, autoHeight: false});
+        };
+
+        $(function() {
+            var date_options = { dateFormat: 'dd/mm/yy', isRTL: true };
+            $("#id_start_date").datepicker($.extend({}, date_options, {
+                maxDate: -1,
+                defaultDate: -7
+            })).datepicker( "option", $.datepicker.regional[ "he" ] );
+
+            $("#id_end_date").datepicker($.extend({}, date_options, {
+                defaultDate: 0
+            }));
+            $("#id_start_date").datepicker("setDate", new Date({{ start_date }}));
+            $("#id_end_date").datepicker("setDate", new Date({{ end_date }}));
+            $("#id_start_date, #id_end_date").datepicker("option",$.datepicker.regional["he"]);
+            
+            $.each(data, function(i, driver) {
+                renderDriverAccount(driver);
+            });
+
+            $("#id_start_date, #id_end_date").change(function() {
+                $.ajax({
+                    url: "{% url sharing.station_controller.station_accounting %}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: $("#date_picker").serialize(),
+                    success: function(response) {
+                        var active_header_id = $("[id^='account_header']")[$("#accounts_accordion").accordion("option", "active")].id;
+                        $("#accounts_accordion, #error_msg").empty();
+                        if (response.error) {
+                            $("#error_msg").text("{% trans 'There was an error loading the data.' %}");
+                        }
+                        else {
+                            if (response.data && response.data.length) {
+                                $.each(response.data, function(i, driver) {
+                                    renderDriverAccount(driver);
+                                });
+                                $("#accounts_accordion").accordion("option", "active", "#" + active_header_id);
+                            }
+                            else {
+                                $("#error_msg").text("{% trans 'No data' %}");
+                            }
+                        }
+                    }
+
+                });
+            });
+        });
+    </script>
+{% endblock %}

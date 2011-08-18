@@ -91,6 +91,12 @@ def utc_now():
 def default_tz_now():
     return datetime.datetime.now(TZ_INFO["Asia/Jerusalem"])
 
+def default_tz_now_min():
+    return datetime.datetime.combine(default_tz_now(), set_default_tz_time(datetime.time.min))
+
+def default_tz_now_max():
+    return datetime.datetime.combine(default_tz_now(), set_default_tz_time(datetime.time.max))
+
 def set_default_tz_time(time):
     return time.replace(tzinfo=TZ_INFO["Asia/Jerusalem"])
 
@@ -99,6 +105,8 @@ def to_js_date(dt):
     @param dt: a datetime object
     @return: the date formatted in a Javascript friendly format
     """
+    if not dt.tzinfo:
+        dt = dt.replace(tzinfo=TZ_INFO["UTC"])
     return time.mktime(dt.astimezone(TZ_INFO["UTC"]).timetuple()) * 1000
 
 def total_seconds(td):

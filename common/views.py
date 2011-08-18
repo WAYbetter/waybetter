@@ -1,17 +1,24 @@
+from common.tz_support import to_js_date, default_tz_now_max, default_tz_now_min
 from common.decorators import internal_task_on_queue, catch_view_exceptions
 from common.models import Country
 from common.util import has_related_objects, url_with_querystring, get_unique_id, notify_by_email
+from common.forms import DatePickerForm
+from django.template.context import RequestContext
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseRedirect
+from django.shortcuts import render_to_response
+from django.utils import simplejson
 from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api import xmpp
 from google.appengine.api.labs.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError, TombstonedTaskError
 from google.appengine.api.labs.taskqueue import taskqueue
+from djangotoolbox.http import JSONResponse
 from ordering.models import WorkStation, Order, Passenger, OrderAssignment, SharedRide
 from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
+from datetime import  datetime, time
 import logging
 
 # DeadlineExceededError can live in two different places
@@ -23,6 +30,30 @@ except ImportError:
     # In the development server
 
 from google.appengine.ext import deferred
+
+def base_datepicker_page(request, f_data, template_name, wrapper_locals, init_start_date=None, init_end_date=None):
+    if request.method == 'POST': # date picker form submitted
+        form = DatePickerForm(request.POST)
+        if form.is_valid():
+            start_date = datetime.combine(form.cleaned_data["start_date"], time.min)
+            end_date = datetime.combine(form.cleaned_data["end_date"], time.max)
+            return JSONResponse({'data': f_data(start_date, end_date)})
+        else:
+            return JSONResponse({'error': 'error'})
+    else:
+        form = DatePickerForm()
+        init_end_date = init_end_date or default_tz_now_max()
+        init_start_date = init_start_date or default_tz_now_min()
+
+        data = simplejson.dumps(f_data(init_start_date, init_end_date))
+
+        start_date, end_date = to_js_date(init_start_date), to_js_date(init_end_date)
+
+        extended_locals = wrapper_locals
+        extended_locals.update(locals())
+
+        return render_to_response(template_name, extended_locals, context_instance=RequestContext(request))
+
 
 @staff_member_required
 def run_maintenance_task(request):
@@ -76,7 +107,7 @@ def denormalize_order_assignments():
 
         if oa.dn_from_raw:
             continue # is normalized
-            
+
         if hasattr(oa, 'business_name'):
             oa.dn_business_name = oa.business_name
             oa.business_name = None
@@ -90,7 +121,7 @@ def denormalize_order_assignments():
             pass
         except Exception, e:
             logging.error("FAILED denormalizing assignment [%d]: %s" % (oa.id, e))
-            
+
     logging.info("task finished")
 
 

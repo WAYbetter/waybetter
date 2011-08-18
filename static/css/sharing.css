@@ -174,17 +174,21 @@ a, .action_link, .ui-widget-content a {
 
 
 .ui-accordion-icons .ui-accordion-header .action_link.delete {
-    float: left;
+    float: right;
     background: url(/static/images/cross.png) no-repeat;
     display: inline-block;
     color: #174599;
     font-weight: normal;
     text-decoration: underline;
     cursor: pointer;
+    background-position: 2% 1px;
+    padding-left: 20px;
 }
 
 .rtl .ui-accordion-icons .ui-accordion-header .action_link.delete {
+    float: left;
     background-position: 98% 1px;
+    padding-left: inherit;
     padding-right: 20px;
 }
 
@@ -363,6 +367,66 @@ table .pickup {
 .station_tools h3{
     height: 26px;
     padding: 5px 25px 0 25px;
+}
+
+/* Station accounting tab */
+.station_accounting .account_div table {
+    width: 100%;
+}
+
+.station_accounting .account_div table thead {
+    font-weight: bold;
+    background-color: #f0f9fc;
+}
+
+.station_accounting .account_div table th {
+    text-align: left;
+    font-weight: bold;
+}
+
+.rtl.station_accounting .account_div table th {
+    text-align: right;
+}
+.station_accounting .account_div table th, .station_accounting .account_div table td {
+    padding: 5px;
+    color: #5b5b5b;
+    text-shadow: 0 1px 0 white;
+}
+
+.station_accounting h3 .driver_total{
+    float: right;
+
+}
+.rtl.station_accounting h3 .driver_total{
+    float: left;
+}
+
+.station_accounting .action_link.img_link{
+    float: right;
+    padding-left: 20px;
+    height: 20px;
+    margin-top: 7px;
+    background-position: 0 0;
+}
+
+.rtl.station_accounting .action_link.img_link{
+    float: left;
+    padding-left: 0;
+    padding-right: 20px;
+    background-position: 98% 0;
+}
+.station_accounting .img_link.email{
+    background: url(/static/images/email.png) no-repeat;
+}
+
+.station_accounting .img_link.print{
+    background: url(/static/images/printer_empty.png) no-repeat;
+    margin-right: 13px;
+}
+
+.rtl.station_accounting .img_link.print{
+    margin-right: inherit;
+    margin-left: 13px;
 }
 
 /* Station history tab */

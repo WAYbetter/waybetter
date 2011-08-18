@@ -18,7 +18,7 @@
     <script type="text/javascript" src="/static/js/mylibs/jquery.ui.datepicker-he.js"></script>
     <script type="text/javascript">
         {% autoescape off %}
-            var rides_data = {{ rides_data }};
+            var data = {{ data }};
         {% endautoescape %}
 
         renderTable = function(ride) {
@@ -84,11 +84,11 @@
             $("#id_end_date").datepicker($.extend({}, date_options, {
                 defaultDate: 0
             }));
-            $("#id_start_date").datepicker("setDate", "{{ start_date }}");
-            $("#id_end_date").datepicker("setDate", "{{ end_date }}");
+            $("#id_start_date").datepicker("setDate", new Date({{ start_date }}));
+            $("#id_end_date").datepicker("setDate", new Date({{ end_date }}));
             $("#id_start_date, #id_end_date").datepicker("option",$.datepicker.regional["he"]);
             
-            $.each(rides_data, function(i, ride) {
+            $.each(data, function(i, ride) {
                 renderRide(ride);
             });
 
@@ -104,8 +104,8 @@
                             $("#error_msg").text("{% trans 'There was an error loading the data.' %}");
                         }
                         else {
-                            if (response.rides_data && response.rides_data.length) {
-                                $.each(response.rides_data, function(i, ride) {
+                            if (response.data && response.data.length) {
+                                $.each(response.data, function(i, ride) {
                                     renderRide(ride);
                                 });
                             }

@@ -689,6 +689,13 @@ indexes:
   - name: type
   - name: stop_time
 
+- kind: ordering_ridepoint
+  properties:
+  - name: ride_id
+  - name: type
+  - name: stop_time
+    direction: desc
+
 - kind: ordering_sharedride
   properties:
   - name: __key__
@@ -696,9 +703,29 @@ indexes:
 
 - kind: ordering_sharedride
   properties:
+  - name: driver_id
+  - name: status
+  - name: depart_time
+
+- kind: ordering_sharedride
+  properties:
+  - name: driver_id
+  - name: status
+  - name: depart_time
+    direction: desc
+
+- kind: ordering_sharedride
+  properties:
   - name: station_id
   - name: status
   - name: depart_time
+
+- kind: ordering_sharedride
+  properties:
+  - name: station_id
+  - name: status
+  - name: depart_time
+    direction: desc
 
 - kind: ordering_sharedride
   properties:

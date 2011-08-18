@@ -130,6 +130,7 @@ class Station(BaseModel):
     internal_rating = models.FloatField(_("internal rating"), default=0)
 
     stop_price = models.FloatField(_("stop price"), default=0)
+    payday = models.IntegerField(_("payday"), max_length=2, default=10) # day of month the drivers get paid
 
     def natural_key(self):
         return self.name
@@ -162,7 +163,7 @@ class Station(BaseModel):
                     priced_orders.add(order)
 
         if price_rules and priced_orders == orders:
-            return max([pr.price for pr in price_rules]) + self.stop_price * (shared_ride.get_number_of_stops() - 1) # first stop is free
+            return max([pr.price for pr in price_rules]) + self.stop_price * (shared_ride.number_of_stops - 1) # first stop is free
         else:
             return None
 
@@ -306,6 +307,39 @@ class SharedRide(BaseModel):
 
     debug = models.BooleanField(default=True, editable=False)
 
+    value = models.FloatField(_("ride value"), null=True, blank=True) # the value of this ride to the assigned station
+
+    def save(self, *args, **kwargs):
+        if not self.value and self.station:
+            self.value = self.station.get_ride_price(self)
+
+        super(SharedRide, self).save(*args, **kwargs)
+
+    @property
+    def first_pickup(self):
+        pickups =  self.points.filter(type=StopType.PICKUP).order_by("stop_time")
+        if pickups:
+            return pickups[0]
+        else:
+            return None
+
+    @property
+    def last_dropoff(self):
+        dropoffs =  self.points.filter(type=StopType.DROPOFF).order_by("-stop_time")
+        if dropoffs:
+            return dropoffs[0]
+        else:
+            return None
+        
+    @property
+    def number_of_stops(self):
+        """
+        Compute the number of stops not counting the first one (starting point of the ride).
+        @return: number of stops
+        """
+        # TODO_WB: safer if algo. computes this ?
+        return len(set([(p.lat, p.lon) for p in self.points.all()])) - 1 # don't count the starting point
+
     def serialize_for_ws(self):
         return {'pickups': [ { 'num_passengers': p.pickup_orders.count(),
                                'passenger_phones': [order.passenger.phone for order in p.pickup_orders.all()],
@@ -320,17 +354,10 @@ class SharedRide(BaseModel):
                 'status': self.status,
                 'driver': {'name': self.driver.name} if self.driver else "",
                 'taxi': {'number': self.taxi.number} if self.taxi else "",
-                'value': self.station.get_ride_price(self) or "",
+                'value': self.value or "",
                 'debug': self.debug,
                 'driver_jist': self.driver_jist()
         }
-
-    def get_number_of_stops(self):
-        """
-        Assumes many to one
-        @return: the number of stops (dropoffs or pickups)
-        """
-        return self.points.count() - 1
 
     def change_status(self, old_status=None, new_status=None):
         if self._change_attr_in_transaction("status", old_status, new_status):
