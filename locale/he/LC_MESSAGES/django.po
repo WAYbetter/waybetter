@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-18 14:14+0300\n"
-"PO-Revision-Date: 2011-08-18 14:20+0200\n"
+"POT-Creation-Date: 2011-08-18 14:53+0300\n"
+"PO-Revision-Date: 2011-08-18 14:54+0200\n"
 "Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -756,13 +756,32 @@ msgstr "כניסה"
 msgid "No Logo"
 msgstr "אין לוגו"
 
-#: ordering/admin.py:122
-msgid "Check Connection"
-msgstr "בדיקת חיבור"
+#: ordering/admin.py:117
+#, python-format
+msgid "%d installers built"
+msgstr "%d חבילות התקנה נוצרו"
 
-#: ordering/admin.py:129
+#: ordering/admin.py:119
+msgid "Build Installer"
+msgstr "ייצר חבילת התקנה"
+
+#: ordering/admin.py:127
+#, python-format
+msgid "%d dummy orders sent"
+msgstr "%d הזמנות דמה נשלחו"
+
+#: ordering/admin.py:128
 msgid "Send Dummy Order"
 msgstr "שלח הזמנת דמה"
+
+#: ordering/admin.py:149
+#, python-format
+msgid "%d checks performed successfully"
+msgstr "%d בדיקות חיבור נשלחו"
+
+#: ordering/admin.py:150
+msgid "Check Connection"
+msgstr "בדיקת חיבור"
 
 #: ordering/forms.py:51
 msgid "Upload a valid image. The file you uploaded was either not an image or was a corrupted image."
