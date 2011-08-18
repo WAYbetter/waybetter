@@ -13,9 +13,16 @@
 
 {% block content %}
     <div id="header" class="ui-widget-header">
-        <form id="date_picker" method="post" action="{% url ordering.station_controller.station_analytics %}">
+        <form id="accounting_datepicker" method="post">
             {% csrf_token %}
-            {{ form }}
+            <tr>
+                <th><label for="id_start_date_accounting">{% trans "Start Date" %}</label></th>
+                <td><input type="text" name="start_date" id="id_start_date_accounting"/></td>
+            </tr>
+            <tr>
+                <th><label for="id_end_date_accounting">{% trans "End Date" %}</label></th>
+                <td><input type="text" name="end_date" id="id_end_date_accounting"/></td>
+            </tr>
         </form>
     </div>
 
@@ -55,6 +62,7 @@
         };
 
         renderDriverAccount = function(driver) {
+            $("#account_header_" + driver.id + ", #account_div_" + driver.id).remove();
             var $account_header = $('<h3 class="account_header"></h3>').attr("id", "account_header_" + driver.id)
                     .append('<span class="driver_name">' + driver.name + '</span>')
                     .append('<span class="driver_total">{% trans "Total" %} ' + driver.total + ' ₪</span>');
@@ -75,32 +83,28 @@
         };
 
         $(function() {
-            var date_options = { dateFormat: 'dd/mm/yy', isRTL: true };
-            $("#id_start_date").datepicker($.extend({}, date_options, {
-                maxDate: -1,
-                defaultDate: -7
-            })).datepicker( "option", $.datepicker.regional[ "he" ] );
+            var date_options = $.extend({}, $.datepicker.regional["he"], {dateFormat: 'dd/mm/yy'});
+            var start_date = new Date({{ start_date }});
+            var end_date = new Date({{ end_date }});
+            $("#id_start_date_accounting").datepicker($.extend({}, date_options, {maxDate: -1, defaultDate: start_date}));
+            $("#id_end_date_accounting").datepicker($.extend({}, date_options, {defaultDate: end_date}));
+            $("#id_start_date_accounting").datepicker("setDate", start_date);
+            $("#id_end_date_accounting").datepicker("setDate", end_date);
 
-            $("#id_end_date").datepicker($.extend({}, date_options, {
-                defaultDate: 0
-            }));
-            $("#id_start_date").datepicker("setDate", new Date({{ start_date }}));
-            $("#id_end_date").datepicker("setDate", new Date({{ end_date }}));
-            $("#id_start_date, #id_end_date").datepicker("option",$.datepicker.regional["he"]);
-            
             $.each(data, function(i, driver) {
                 renderDriverAccount(driver);
             });
 
-            $("#id_start_date, #id_end_date").change(function() {
+            $("#id_start_date_accounting, #id_end_date_accounting").change(function() {
                 $.ajax({
                     url: "{% url sharing.station_controller.station_accounting %}",
                     type: "POST",
                     dataType: 'json',
-                    data: $("#date_picker").serialize(),
+                    data: $("#accounting_datepicker").serialize(),
                     success: function(response) {
-                        var active_header_id = $("[id^='account_header']")[$("#accounts_accordion").accordion("option", "active")].id;
-                        $("#accounts_accordion, #error_msg").empty();
+                        var active = $("#accounts_accordion").accordion("option", "active");
+                        var active_header_id = (active !== false) ? $("[id^='account_header']")[active].id : false;
+                        $("#error_msg").empty();
                         if (response.error) {
                             $("#error_msg").text("{% trans 'There was an error loading the data.' %}");
                         }
@@ -109,7 +113,9 @@
                                 $.each(response.data, function(i, driver) {
                                     renderDriverAccount(driver);
                                 });
-                                $("#accounts_accordion").accordion("option", "active", "#" + active_header_id);
+                                if (active_header_id !== false){
+                                    $("#accounts_accordion").accordion("option", "active", "#" + active_header_id);
+                                }
                             }
                             else {
                                 $("#error_msg").text("{% trans 'No data' %}");

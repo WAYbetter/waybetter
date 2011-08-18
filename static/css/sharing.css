@@ -406,6 +406,22 @@ table .pickup {
     padding: 5px 25px 0 25px;
 }
 
+#history_datepicker, #accounting_datepicker{
+    margin-top: 10px;
+    margin-left: 10px;
+}
+.rtl #history_datepicker, #accounting_datepicker{
+    margin-right: 10px;
+    margin-left: inherit;
+}
+
+.station_tools .ui-tabs {
+    border: none;
+}
+#history_datepicker input, #accounting_datepicker input{
+    margin-right: 10px
+}
+
 /* Station accounting tab */
 .station_accounting .account_div table {
     width: 100%;
@@ -467,21 +483,6 @@ table .pickup {
 }
 
 /* Station history tab */
-.station_history #date_picker{
-    margin-top: 10px;
-    margin-left: 10px;
-}
-.rtl.station_history #date_picker{
-    margin-right: 10px;
-    margin-left: inherit;
-}
-
-.station_tools .ui-tabs { 
-    border: none;
-}
-.station_history #date_picker input {
-    margin-right: 10px
-}
 .station_history .taxi_n_driver{
     float: right;
 }

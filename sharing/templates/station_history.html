@@ -2,9 +2,16 @@
 
 {% block content %}
     <div id="header" class="ui-widget-header">
-        <form id="date_picker" method="post" action="{% url ordering.station_controller.station_analytics %}">
+        <form id="history_datepicker" method="post">
             {% csrf_token %}
-            {{ form }}
+            <tr>
+                <th><label for="id_start_date_history">{% trans "Start Date" %}</label></th>
+                <td><input type="text" name="start_date" id="id_start_date_history"/></td>
+            </tr>
+            <tr>
+                <th><label for="id_end_date_history">{% trans "End Date" %}</label></th>
+                <td><input type="text" name="end_date" id="id_end_date_history"/></td>
+            </tr>
         </form>
     </div>
 
@@ -75,29 +82,24 @@
         };
 
         $(function() {
-            var date_options = { dateFormat: 'dd/mm/yy', isRTL: true };
-            $("#id_start_date").datepicker($.extend({}, date_options, {
-                maxDate: -1,
-                defaultDate: -7
-            })).datepicker( "option", $.datepicker.regional[ "he" ] );
-
-            $("#id_end_date").datepicker($.extend({}, date_options, {
-                defaultDate: 0
-            }));
-            $("#id_start_date").datepicker("setDate", new Date({{ start_date }}));
-            $("#id_end_date").datepicker("setDate", new Date({{ end_date }}));
-            $("#id_start_date, #id_end_date").datepicker("option",$.datepicker.regional["he"]);
+            var date_options = $.extend({}, $.datepicker.regional["he"], {dateFormat: 'dd/mm/yy'});
+            var start_date = new Date({{ start_date }});
+            var end_date = new Date({{ end_date }});
+            $("#id_start_date_history").datepicker($.extend({}, date_options, {maxDate: -1, defaultDate: start_date}));
+            $("#id_end_date_history").datepicker($.extend({}, date_options, {defaultDate: end_date}));
+            $("#id_start_date_history").datepicker("setDate", start_date);
+            $("#id_end_date_history").datepicker("setDate", end_date);
             
             $.each(data, function(i, ride) {
                 renderRide(ride);
             });
 
-            $("#id_start_date, #id_end_date").change(function() {
+            $("#id_start_date_history, #id_end_date_history").change(function() {
                 $.ajax({
                     url: "{% url sharing.station_controller.station_history %}",
                     type: "POST",
                     dataType: 'json',
-                    data: $("#date_picker").serialize(),
+                    data: $("#history_datepicker").serialize(),
                     success: function(response) {
                         $("#ride_accordion, #error_msg").empty();
                         if (response.error) {
