@@ -163,7 +163,7 @@ class OrderForm(ModelForm):
 
         # TODO_WB: move this check to the DB?
         close_enough_station_found = False
-        for station in Station.objects.filter(country=from_country):
+        for station in Station.objects.filter(country=from_country, show_on_list=True):
             if station.is_in_valid_distance(from_lon=from_lon, from_lat=from_lat, to_lon=to_lon, to_lat=to_lat):
                 close_enough_station_found = True
                 break
@@ -176,7 +176,7 @@ class OrderForm(ModelForm):
 
             raise forms.ValidationError(
                 _(
-                    "Service is not available in %(city)s yet.<br>Please try again soon.<p class=bold>THANKS!</p>WAYbetter team :)") %
+                    "Service is not available in %(city)s yet.\nPlease try again soon.\nTHANKS!\nWAYbetter team :)") %
                 {'city': from_city.name}, code=ErrorCodes.NO_SERVICE_IN_CITY)
 
         return self.cleaned_data
