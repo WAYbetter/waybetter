@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-08-16 11:44+0300\n"
+"POT-Creation-Date: 2011-08-17 12:13+0300\n"
 "PO-Revision-Date: 2011-06-21 16:06+0200\n"
 "Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -78,8 +78,8 @@ msgstr "Affectation de la réservation"
 msgid "work station"
 msgstr "Poste de travail"
 
-#: analytics/models.py:15 ordering/models.py:228 ordering/models.py:241
-#: ordering/models.py:260 ordering/models.py:303 ordering/models.py:524
+#: analytics/models.py:15 ordering/models.py:227 ordering/models.py:240
+#: ordering/models.py:259 ordering/models.py:302 ordering/models.py:524
 #: ordering/models.py:542 ordering/models.py:670 ordering/models.py:856
 msgid "station"
 msgstr "Poste"
@@ -172,7 +172,7 @@ msgid "Submit"
 msgstr "Envoi"
 
 #: api/models.py:7 common/models.py:82 common/models.py:131
-#: common/models.py:178 interests/models.py:22 ordering/models.py:242
+#: common/models.py:178 interests/models.py:22 ordering/models.py:241
 #: ordering/models.py:949 ordering/models.py:977 ordering/models.py:996
 #: pricing/models.py:12 pricing/models.py:43 sharing/models.py:150
 msgid "name"
@@ -292,7 +292,7 @@ msgstr " Saisir le code SMS reçu"
 
 #: common/templates/code_form.html:20
 #: ordering/templates/mobile/passenger_home.html:192
-#: sharing/templates/sharing_workstation_home.html:200
+#: sharing/templates/sharing_workstation_home.html:221
 #: templates/mobile/base.html:91
 msgid "Finish"
 msgstr "Terminer"
@@ -375,7 +375,6 @@ msgstr "Envoyer"
 #: interests/templates/mobile_interest_form.html:53
 #: interests/templates/station_interest_form.html:37
 #: ordering/templates/base_passenger.html:69
-#: sharing/templates/sharing_workstation_home.html:250
 msgid "Close"
 msgstr "Fermer"
 
@@ -675,9 +674,9 @@ msgstr "Envoi"
 #: ordering/templates/mobile/passenger_home.html:131
 #: ordering/templates/mobile/passenger_home.html:136
 #: ordering/templates/mobile/passenger_home.html:214
-#: sharing/templates/station_taxidrivers.html:244
-#: sharing/templates/station_taxidrivers.html:276
-#: sharing/templates/station_taxidrivers.html:394
+#: sharing/templates/station_taxidrivers.html:245
+#: sharing/templates/station_taxidrivers.html:277
+#: sharing/templates/station_taxidrivers.html:400
 #: templates/mobile/base.html:69
 msgid "Cancel"
 msgstr "Annulation"
@@ -761,7 +760,7 @@ msgstr ""
 
 #: ordering/forms.py:210 ordering/forms.py:330 ordering/forms.py:371
 #: ordering/templates/station_page.html:187
-#: sharing/templates/station_taxidrivers.html:198
+#: sharing/templates/station_taxidrivers.html:199
 msgid "Phone"
 msgstr "Téléphone"
 
@@ -772,7 +771,7 @@ msgstr "La valeur ne peut contenir que des chiffres."
 
 #: ordering/forms.py:212 ordering/forms.py:283
 #: ordering/templates/station_page.html:186
-#: sharing/templates/sharing_workstation_home.html:135
+#: sharing/templates/sharing_workstation_home.html:155
 #: sharing/templates/station_history.html:25
 msgid "Address"
 msgstr "Adresse"
@@ -889,8 +888,8 @@ msgstr "autoriser commentaires"
 msgid "user"
 msgstr "Utilisateur"
 
-#: ordering/models.py:98 ordering/models.py:245 ordering/models.py:263
-#: ordering/models.py:281 ordering/models.py:558 ordering/models.py:722
+#: ordering/models.py:98 ordering/models.py:244 ordering/models.py:262
+#: ordering/models.py:280 ordering/models.py:558 ordering/models.py:722
 #: registration/forms.py:50
 msgid "station name"
 msgstr "Nom du poste"
@@ -990,68 +989,63 @@ msgstr "classement moyen"
 msgid "stop price"
 msgstr "Nom de la station"
 
-#: ordering/models.py:132
-#, fuzzy
-msgid "same area price"
-msgstr "Déjà inscrit ?"
-
-#: ordering/models.py:229 pricing/models.py:125 sharing/models.py:128
+#: ordering/models.py:228 pricing/models.py:125 sharing/models.py:128
 #, fuzzy
 msgid "rule set"
 msgstr "Réinitialiser"
 
-#: ordering/models.py:230
+#: ordering/models.py:229
 #, fuzzy
 msgid "city area 1"
 msgstr "Zone d'activité principale"
 
-#: ordering/models.py:231
+#: ordering/models.py:230
 #, fuzzy
 msgid "city area 2"
 msgstr "Zone d'activité principale"
 
-#: ordering/models.py:232 sharing/models.py:116 sharing/models.py:130
+#: ordering/models.py:231 sharing/models.py:116 sharing/models.py:130
 #, fuzzy
 msgid "price"
 msgstr "Réservation"
 
-#: ordering/models.py:243 ordering/models.py:405 ordering/models.py:522
+#: ordering/models.py:242 ordering/models.py:405 ordering/models.py:522
 msgid "phone number"
 msgstr "numéro de téléphone"
 
-#: ordering/models.py:261
+#: ordering/models.py:260
 #, fuzzy
 msgid "taxi_number"
 msgstr "numéro de téléphone"
 
-#: ordering/models.py:278
+#: ordering/models.py:277
 msgid "driver"
 msgstr ""
 
-#: ordering/models.py:279
+#: ordering/models.py:278
 msgid "taxi"
 msgstr ""
 
-#: ordering/models.py:298 ordering/models.py:715
+#: ordering/models.py:297 ordering/models.py:715
 #, fuzzy
 msgid "depart time"
 msgstr "Nom de la station"
 
-#: ordering/models.py:299 ordering/models.py:716
+#: ordering/models.py:298 ordering/models.py:716
 #, fuzzy
 msgid "arrive time"
 msgstr "Définissez horaire"
 
-#: ordering/models.py:301 ordering/models.py:679 ordering/models.py:858
+#: ordering/models.py:300 ordering/models.py:679 ordering/models.py:858
 msgid "status"
 msgstr "Statut"
 
-#: ordering/models.py:304
+#: ordering/models.py:303
 #, fuzzy
 msgid "assigned driver"
 msgstr "Affectée"
 
-#: ordering/models.py:305
+#: ordering/models.py:304
 #, fuzzy
 msgid "assigned taxi"
 msgstr "Affectée"
@@ -1523,7 +1517,7 @@ msgid "Flat rate"
 msgstr "Barème"
 
 #: ordering/passenger_controller.py:231
-#: sharing/templates/sharing_workstation_home.html:363
+#: sharing/templates/sharing_workstation_home.html:385
 msgid "min"
 msgstr "minutes"
 
@@ -1817,8 +1811,8 @@ msgstr "Une erreur est survenue durant le traitement de votre requête."
 #: ordering/templates/passenger_profile.html:84
 #: sharing/templates/station_taxidrivers.html:95
 #: sharing/templates/station_taxidrivers.html:111
-#: sharing/templates/station_taxidrivers.html:150
-#: sharing/templates/station_taxidrivers.html:192
+#: sharing/templates/station_taxidrivers.html:151
+#: sharing/templates/station_taxidrivers.html:193
 #, fuzzy
 msgid "Error"
 msgstr "Erreur"
@@ -2359,10 +2353,10 @@ msgid "Download workstations"
 msgstr "Télécharger postes de travail"
 
 #: ordering/templates/workstation_download.html:105
-#: sharing/templates/station_taxidrivers.html:239
-#: sharing/templates/station_taxidrivers.html:247
-#: sharing/templates/station_taxidrivers.html:271
-#: sharing/templates/station_taxidrivers.html:279
+#: sharing/templates/station_taxidrivers.html:240
+#: sharing/templates/station_taxidrivers.html:248
+#: sharing/templates/station_taxidrivers.html:272
+#: sharing/templates/station_taxidrivers.html:280
 msgid "Delete"
 msgstr "Supprimer"
 
@@ -2698,7 +2692,7 @@ msgstr "(Facultatif)"
 
 #: sharing/templates/hotspot_ordering_page.html:49
 #: sharing/templates/station_taxidrivers.html:48
-#: sharing/templates/station_taxidrivers.html:198
+#: sharing/templates/station_taxidrivers.html:199
 #, fuzzy
 msgid "Name"
 msgstr "Nom"
@@ -2719,10 +2713,9 @@ msgid "Choose Date"
 msgstr "Saisissez un mot de passe "
 
 #: sharing/templates/hotspot_ordering_page.html:144
-#: sharing/templates/hotspot_ordering_page.html:211
-#: sharing/templates/sharing_workstation_home.html:87
-#: sharing/templates/sharing_workstation_home.html:112
-#: sharing/templates/station_taxidrivers.html:339
+#: sharing/templates/hotspot_ordering_page.html:213
+#: sharing/templates/sharing_workstation_home.html:137
+#: sharing/templates/station_taxidrivers.html:343
 #, fuzzy
 msgid "Updating..."
 msgstr "Envoi..."
@@ -2759,90 +2752,101 @@ msgstr ""
 msgid "Missed"
 msgstr "Portable"
 
-#: sharing/templates/sharing_workstation_home.html:135
+#: sharing/templates/sharing_workstation_home.html:155
 #: sharing/templates/station_history.html:25
 #, fuzzy
 msgid "Time"
 msgstr "Timing"
 
-#: sharing/templates/sharing_workstation_home.html:135
+#: sharing/templates/sharing_workstation_home.html:155
 #: sharing/templates/station_history.html:25
 #, fuzzy
 msgid "# of Passengers"
 msgstr "Passager"
 
-#: sharing/templates/sharing_workstation_home.html:140
-#: sharing/templates/station_history.html:30
+#: sharing/templates/sharing_workstation_home.html:158
 #, fuzzy
-msgid "Pickup"
+msgid "Pickups"
 msgstr "heure de ramassage"
 
-#: sharing/templates/sharing_workstation_home.html:148
-#: sharing/templates/station_history.html:38
-msgid "Dropoff"
+#: sharing/templates/sharing_workstation_home.html:166
+msgid "Dropoffs"
 msgstr ""
 
-#: sharing/templates/sharing_workstation_home.html:158
+#: sharing/templates/sharing_workstation_home.html:179
 #: sharing/templates/station_history.html:47
 msgid "Show Points On Map"
 msgstr ""
 
-#: sharing/templates/sharing_workstation_home.html:164
+#: sharing/templates/sharing_workstation_home.html:185
 msgid "Copy"
 msgstr ""
 
-#: sharing/templates/sharing_workstation_home.html:166
+#: sharing/templates/sharing_workstation_home.html:187
 #, fuzzy
 msgid "Ride Copied"
 msgstr "Historique"
 
-#: sharing/templates/sharing_workstation_home.html:168
+#: sharing/templates/sharing_workstation_home.html:189
 msgid "Failed Copying"
 msgstr ""
 
-#: sharing/templates/sharing_workstation_home.html:173
+#: sharing/templates/sharing_workstation_home.html:194
 msgid "Value"
 msgstr ""
 
-#: sharing/templates/sharing_workstation_home.html:179
+#: sharing/templates/sharing_workstation_home.html:200
 msgid "Driver"
 msgstr ""
 
-#: sharing/templates/sharing_workstation_home.html:182
-#: sharing/templates/sharing_workstation_home.html:329
+#: sharing/templates/sharing_workstation_home.html:203
+#: sharing/templates/sharing_workstation_home.html:351
 #, fuzzy
 msgid "Taxi No."
 msgstr "course"
 
-#: sharing/templates/sharing_workstation_home.html:195
+#: sharing/templates/sharing_workstation_home.html:216
 #, fuzzy
 msgid "+ Add"
 msgstr "Adresse"
 
-#: sharing/templates/sharing_workstation_home.html:196
+#: sharing/templates/sharing_workstation_home.html:217
 #, fuzzy
 msgid "Assign Ride"
 msgstr "Affectée"
 
-#: sharing/templates/sharing_workstation_home.html:223
+#: sharing/templates/sharing_workstation_home.html:245
 #, fuzzy
 msgid "Please choose taxi and driver"
 msgstr "Station préférée"
 
-#: sharing/templates/sharing_workstation_home.html:243
+#: sharing/templates/sharing_workstation_home.html:265
 #: sharing/templates/station_history.html:69
 #, fuzzy
 msgid "Today"
 msgstr "dimanche"
 
-#: sharing/templates/sharing_workstation_home.html:335
+#: sharing/templates/sharing_workstation_home.html:272
+msgid "x"
+msgstr ""
+
+#: sharing/templates/sharing_workstation_home.html:357
 msgid "Ride Started"
 msgstr ""
 
-#: sharing/templates/sharing_workstation_home.html:363
+#: sharing/templates/sharing_workstation_home.html:385
 #, fuzzy
 msgid "Ride in"
 msgstr "Historique"
+
+#: sharing/templates/station_history.html:30
+#, fuzzy
+msgid "Pickup"
+msgstr "heure de ramassage"
+
+#: sharing/templates/station_history.html:38
+msgid "Dropoff"
+msgstr ""
 
 #: sharing/templates/station_history.html:65
 #, fuzzy
@@ -2860,7 +2864,7 @@ msgid "Taxis"
 msgstr "course"
 
 #: sharing/templates/station_taxidrivers.html:24
-#: sharing/templates/station_taxidrivers.html:313
+#: sharing/templates/station_taxidrivers.html:314
 msgid "New Driver/Taxi"
 msgstr ""
 
@@ -2889,92 +2893,96 @@ msgstr "Stations de taxi"
 msgid "Taxi number"
 msgstr "numéro de téléphone"
 
-#: sharing/templates/station_taxidrivers.html:158
+#: sharing/templates/station_taxidrivers.html:148
+msgid "Operation Successful"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:159
 #, fuzzy
 msgid "Add Taxi"
 msgstr "Adresse"
 
-#: sharing/templates/station_taxidrivers.html:164
-#: sharing/templates/station_taxidrivers.html:215
+#: sharing/templates/station_taxidrivers.html:165
+#: sharing/templates/station_taxidrivers.html:216
 msgid "Remove"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:167
-#: sharing/templates/station_taxidrivers.html:294
+#: sharing/templates/station_taxidrivers.html:168
+#: sharing/templates/station_taxidrivers.html:295
 #, fuzzy
 msgid "Taxi #"
 msgstr "course"
 
-#: sharing/templates/station_taxidrivers.html:181
-#: sharing/templates/station_taxidrivers.html:397
+#: sharing/templates/station_taxidrivers.html:182
+#: sharing/templates/station_taxidrivers.html:403
 #, fuzzy
 msgid "Save"
 msgstr "actif"
 
-#: sharing/templates/station_taxidrivers.html:189
+#: sharing/templates/station_taxidrivers.html:190
 #, fuzzy
 msgid "Changes Saved"
 msgstr "Changement du mot de passe"
 
-#: sharing/templates/station_taxidrivers.html:209
+#: sharing/templates/station_taxidrivers.html:210
 #, fuzzy
 msgid "No Drivers"
 msgstr "Réservations"
 
-#: sharing/templates/station_taxidrivers.html:230
+#: sharing/templates/station_taxidrivers.html:231
 #, fuzzy
 msgid "Add Driver"
 msgstr "Réservations"
 
-#: sharing/templates/station_taxidrivers.html:240
+#: sharing/templates/station_taxidrivers.html:241
 #, fuzzy
 msgid "Are you sure you want to delete driver"
 msgstr "Etes-vous sûr de vouloir commander un taxi maintenant ?"
 
-#: sharing/templates/station_taxidrivers.html:242
+#: sharing/templates/station_taxidrivers.html:243
 msgid "Confirm driver deletion"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:252
+#: sharing/templates/station_taxidrivers.html:253
 #, fuzzy
 msgid "Driver deleted"
 msgstr "Supprimer"
 
-#: sharing/templates/station_taxidrivers.html:272
+#: sharing/templates/station_taxidrivers.html:273
 #, fuzzy
 msgid "Are you sure you want to delete taxi"
 msgstr "Etes-vous sûr de vouloir commander un taxi maintenant ?"
 
-#: sharing/templates/station_taxidrivers.html:274
+#: sharing/templates/station_taxidrivers.html:275
 msgid "Confirm taxi deletion"
 msgstr ""
 
-#: sharing/templates/station_taxidrivers.html:285
+#: sharing/templates/station_taxidrivers.html:286
 #, fuzzy
 msgid "Taxi deleted"
 msgstr "Supprimer"
 
-#: sharing/templates/station_taxidrivers.html:320
+#: sharing/templates/station_taxidrivers.html:321
 #, fuzzy
 msgid "Assign Taxi to Driver"
 msgstr "Affectée"
 
-#: sharing/templates/station_taxidrivers.html:330
+#: sharing/templates/station_taxidrivers.html:333
 #, fuzzy
 msgid "Assign Driver to Taxi"
 msgstr "Affectée"
 
-#: sharing/templates/station_taxidrivers.html:406
+#: sharing/templates/station_taxidrivers.html:412
 #, fuzzy
 msgid "Invalid driver/taxi"
 msgstr "Adresse invalide"
 
-#: sharing/templates/station_taxidrivers.html:431
+#: sharing/templates/station_taxidrivers.html:437
 #, fuzzy
 msgid "Drivers List"
 msgstr "Réservations"
 
-#: sharing/templates/station_taxidrivers.html:448
+#: sharing/templates/station_taxidrivers.html:454
 #, fuzzy
 msgid "Taxi List"
 msgstr "course"
@@ -3117,6 +3125,10 @@ msgstr ""
 #: tinymce/views.py:68
 msgid "Error running spellchecker"
 msgstr "Erreur du vérificateur d'orthographe"
+
+#, fuzzy
+#~ msgid "same area price"
+#~ msgstr "Déjà inscrit ?"
 
 #, fuzzy
 #~ msgid "Choose"
