@@ -140,7 +140,7 @@ class WorkStationAdmin(admin.ModelAdmin):
     list_display = ["id", "work_station_user", "station_name", "is_online"]
     list_filter = ["is_online"]
     exclude = ["is_online", "last_assignment_date"]
-    actions = [build_installer, send_dummy_order, "check_connection"]
+    actions = [build_installer, send_dummy_order, check_connection]
 
     def work_station_user(self, obj):
         return obj.get_admin_link()
