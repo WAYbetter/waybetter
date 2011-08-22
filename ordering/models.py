@@ -307,13 +307,15 @@ class SharedRide(BaseModel):
 
     debug = models.BooleanField(default=True, editable=False)
 
-    value = models.FloatField(_("ride value"), null=True, blank=True) # the value of this ride to the assigned station
+    _value = models.FloatField(_("ride value"), null=True, blank=True) # the value of this ride to the assigned station
 
-    def save(self, *args, **kwargs):
-        if not self.value and self.station:
-            self.value = self.station.get_ride_price(self)
-
-        super(SharedRide, self).save(*args, **kwargs)
+    @property
+    def value(self):
+        if not self._value and self.station:
+            self._value = self.station.get_ride_price(self)
+            self.save()
+        
+        return self._value
 
     @property
     def first_pickup(self):
