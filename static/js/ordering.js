@@ -1,5 +1,5 @@
 getInputType = function(input_element){
-        return ($(input_element).hasClass("address_ac_from")) ? 'from' : 'to';
+        return ($(input_element).hasClass("address_ac_from")) ? 'from' : ($(input_element).hasClass("address_ac_to")) ? 'to' : 'plain';
 };
 
 // define a custom autocomplete widget
@@ -103,7 +103,9 @@ var OrderingHelper = Object.create({
             } else {
                 $(element).addClass("marker_disabled").removeClass("not_resolved");
                 var input_type = getInputType(element);
-                address_helper.text(this.config["address_helper_msg_" + input_type]).removeClass("address-error");
+                if (this.config["address_helper_msg_" + input_type]) {
+                    address_helper.text(this.config["address_helper_msg_" + input_type]).removeClass("address-error");
+                }
             }
         }
 
@@ -128,12 +130,14 @@ var OrderingHelper = Object.create({
             $(element).removeClass("not_resolved").addClass("marker_disabled");
 
             var input_type = getInputType(element);
-            address_helper.text(this.config["address_helper_msg_" + input_type]).removeClass("address-error");
+            if (this.config["address_helper_msg_" + input_type]) {
+                address_helper.text(this.config["address_helper_msg_" + input_type]).removeClass("address-error");
+            }
             address_helper.fadeIn("fast");
         }
     },
 
-    _makeAddressInput:          function(element){
+    _makeAddressInput:          function(element, onSelect){
         var that = this;
 
         var address = Address.fromInput(element);
@@ -199,7 +203,7 @@ var OrderingHelper = Object.create({
                     }
                 });
             },
-            select: function (event, ui) {
+            select: onSelect || function (event, ui) {
                 if (ui.item.address) {
                     that.updateAddressChoice(ui.item.address);
                     that._onAddressInputBlur(this, ui.item.address.address_type);

@@ -1,7 +1,7 @@
 from django import forms
 from django.core.exceptions import ValidationError
 from common.forms import _clean_address
-from sharing.models import HotSpot
+from sharing.models import HotSpot, ProducerPassenger
 
 class HotSpotServiceRuleAdminForm(forms.ModelForm):
     def clean(self):
@@ -34,3 +34,9 @@ class ConstraintsForm(forms.Form):
             raise ValidationError("Fractional time constraint must be smaller than 2")
         else:
             return self.cleaned_data["time_const_frac"]
+
+
+class ProducerPassengerForm(forms.ModelForm):
+    class Meta:
+        exclude = ["producer", "country", "geohash"]
+        model = ProducerPassenger
