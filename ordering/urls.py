@@ -1,5 +1,6 @@
 from django.conf.urls.defaults import *
 from django.conf.urls.defaults import url
+from django.views.generic.simple import direct_to_template
 
 urlpatterns = patterns('',
     (r'^$', 'ordering.passenger_controller.passenger_home'),
@@ -72,6 +73,7 @@ urlpatterns = patterns('',
     (r'^services/check_connection_passed/$', 'ordering.station_controller.connection_check_passed'),
     (r'^services/confirm_sms/$', 'ordering.passenger_controller.sms_confirmation'),
     (r'^services/get_online_count/$', 'ordering.passenger_controller.get_ws_online_count'),
+    (r'^services/pilot_interest/$', 'ordering.passenger_controller.pilot_interest'),
 
     (r'^setup/init_pricing_rules/$', 'ordering.rules_controller.init_pricing_rules'),
     (r'^setup/upload_flat_rate_rules/$', 'ordering.rules_controller.setup_flat_rate_rules'),
@@ -80,6 +82,10 @@ urlpatterns = patterns('',
     (r'^resources/station_mobile_redirect/(?P<subdomain_name>\w+)/$', 'ordering.station_controller.station_mobile_redirect'),
 
     (r'^queue/handle_dead_workstations/$', 'ordering.station_connection_manager.handle_dead_workstations'),
+
+    url(r'^landing_page/$',  direct_to_template, {"template": "landing_page.html"}),
+
+
 
 )
 
