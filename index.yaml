@@ -918,6 +918,16 @@ indexes:
   - name: hotspot_id
   - name: _order
 
+- kind: sharing_producer
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: sharing_producerpassenger
+  properties:
+  - name: producer_id
+  - name: name
+
 - kind: sharing_ridecomputation
   properties:
   - name: __key__
