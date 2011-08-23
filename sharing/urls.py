@@ -1,5 +1,7 @@
 from django.conf.urls.defaults import *
-from sharing.passenger_controller import send_ride_notifications # force loading this code
+# manual loading so signal receivers code is evaluated
+from sharing.passenger_controller import send_ride_notifications
+from sharing.sharing_dispatcher import *
 
 urlpatterns = patterns('',
     url(r'^hotspot/$', 'sharing.passenger_controller.hotspot_ordering_page',  kwargs={'is_textinput': False}, name='hotspot_select'),
