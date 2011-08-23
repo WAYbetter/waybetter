@@ -3,6 +3,16 @@
       {% if LANGUAGE_BIDI %}dir="rtl"{% endif %} class="{{ page_specific_class }} {% if LANGUAGE_BIDI %}rtl{% endif %}">
 <head>
 
+{% load i18n %}
+
+<title>WAYbetter</title>
+
+
+<meta name="description" content="{% trans 'Order a taxi online, no phone call! A large selection of taxi stations in every city. One click and the taxi is on the way '%}" />
+<meta name="keywords" content="{% trans 'Taxi,iPhone,Android,WAYbetter,get taxi,order taxi,order taxi online' %}" />
+<meta name="author" content="WAYbetter LTD." />
+
+
 <style>
 .wb_button {
     font-size: 15px;
