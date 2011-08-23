@@ -512,7 +512,7 @@
                     $.ajax({
                         url: "{% url ordering.station_controller.message_received %}",
                         type: "POST",
-                        data: {data: msg.data}
+                        data: {msg_data: msg.data}
                     });
                 } catch (e) { trace("error parsing: " + JSON.stringify(e))}
 

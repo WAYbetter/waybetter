@@ -64,6 +64,7 @@
 {% block doc_ready %}
     {{ block.super }}
     <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
+    <script src="/static/js/sharing.js"></script>
     <script type="text/javascript">
 
         var pickup = "pickup",
@@ -102,80 +103,6 @@
                 address.address_type = address_type;
                 address.populateFields();
             }
-        }
-
-        function asHotSpotInput(hotspot_selector, datepicker_selector, times_selector) {
-
-            var $hotspot = $(hotspot_selector);
-            var $datepicker = $(datepicker_selector);
-            var $times = $(times_selector);
-
-            $datepicker.data("cached_dates", []);
-            $datepicker.data("cached_months", []);
-            var cached_dates = $datepicker.data("cached_dates");
-            var cached_months = $datepicker.data("cached_months");
-
-            $datepicker.datepicker("destroy");
-            $times.empty().disable().append("<option>{% trans "Choose Date" %}</option>");
-
-            function onChangeMonthYear(year, month, inst) {
-                if ($.inArray(month, cached_months) < 0) {
-                    // get dates for this month
-                    $.ajax({
-                        url: "{% url sharing.passenger_controller.get_hotspot_dates %}",
-                        dataType: "json",
-                        data: {'month': month, 'year': year, 'hotspot_id': $hotspot.val()},
-                        success: function(response) {
-                            var new_dates = $.map(response.dates, function(date, i) {
-                                return (new Date(date)).toDateString();
-                            });
-                            cached_dates = cached_dates.concat(new_dates);
-                            cached_months[cached_months.length] = month;
-                            inst.input.datepicker("refresh");
-                        },
-                        error: function() {
-                            alert("Error loading hotspot dates data");
-                        }
-                    });
-                }
-            }
-
-            function onSelect(dateText, inst) {
-                $times.empty().disable().append("<option>{% trans "Updating..." %}</option>");
-
-                $.ajax({
-                    url: "{% url sharing.passenger_controller.get_hotspot_times %}",
-                    dataType: "json",
-                    data: {'day': dateText, 'hotspot_id': $hotspot.val()},
-                    success: function(response) {
-                        $times.empty();
-                        $.each(response.times, function(i, d) {
-                            $times.append("<option>" + d + "</option>");
-                        });
-                        $times.enable();
-                        $times.change();
-                    },
-                    error: function() {
-                        alert("Error loading hotspot times data");
-                    }
-                });
-            }
-
-            $datepicker.datepicker({
-                dateFormat: 'dd/mm/yy',
-                firstDay: 0,
-                minDate: new Date(),
-                isRTL: true,
-                beforeShowDay: function(date) {
-                    return ($.inArray(date.toDateString(), cached_dates) !== -1) ? [true, "", ""] : [false, "", ""];
-                },
-                onChangeMonthYear: onChangeMonthYear,
-                onSelect: onSelect
-            });
-
-            var today = getFullDate(new Date());
-            $datepicker.datepicker("setDate", today);
-            onSelect(today, undefined);
         }
 
         function refrestHotspotMarker() {
@@ -227,7 +154,11 @@
         $(function() {
 
             $("#id_hotspot_select").change(function() {
-                asHotSpotInput("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
+                asHotSpotInput("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time", {
+                'labels': {'choose_date': "{% trans "Choose Date" %}", 'updating': "{% trans "Updating..." %}"},
+                'urls': {'get_hotspot_dates': "{% url sharing.passenger_controller.get_hotspot_dates %}",
+                         'get_hotspot_times': "{% url sharing.passenger_controller.get_hotspot_times %}"}
+            });
                 refrestHotspotMarker();
                 $(".price").text("");
             });

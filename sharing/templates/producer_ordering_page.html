@@ -1,0 +1,322 @@
+{% extends "base_passenger.html" %}
+{% load i18n %}
+
+{% block bodyclass %}clean_body{% endblock %}
+{% block mainclass %}clean_main full_screen_main{% endblock %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/static/css/sharing.css" type="text/css" media="all">
+{% endblock %}
+
+
+{% block content %}
+    <div id="map_container">
+        <div id="map"></div>
+    </div>
+
+    <form id="new_passenger_form" method="post" action="{% url sharing.producer_controller.new_producer_passenger %}">
+        {% csrf_token %}
+        <p>
+            <label for="id_name">{% trans "Name" %}</label>
+            <input id="id_name" type="text" name="name">
+        </p>
+
+        <p>
+            <label for="id_phone">{% trans "Phone" %}</label>
+            <input id="id_phone" type="text" name="phone">
+        </p>
+
+        <p>
+            <label for="id_address_raw">{% trans "Address" %}</label>
+            <input id="id_address_raw" type="text" name="address_raw">
+        </p>
+
+        <p>
+            <label for="id_is_sharing">{% trans "Is Sharing" %}</label>
+            <input checked="checked" type="checkbox" name="is_sharing" id="id_is_sharing">
+        </p>
+
+        <input type="hidden" name="producer_id" id="id_producer_id" value="{{ producer.id }}"/>
+
+        {% for field in hidden_fields %}
+            <input type="hidden" id="id_address_{{ field }}" name="address_{{ field }}"/>
+        {% endfor %}
+        <input type="hidden" id="id_geocoded_address_raw" name="geocoded_address_raw"/>
+    </form>
+
+
+    <div id="ordering_container">
+        <form id="order_form" method="post" action="{% url sharing.producer_controller.producer_ordering_page %}">
+            {% csrf_token %}
+
+            <div><span id="from">{% trans 'Pickup' %}</span></div>
+            <div id="hotspot">
+                <select id="id_hotspot_select" name="hotspot_id">
+                    {% for hotspot in hotspots %}
+                        <option value="{{ hotspot.id }}" lat="{{ hotspot.lat }}" lon="{{ hotspot.lon }}">
+                            {{ hotspot.name }}
+                        </option>
+                    {% endfor %}
+                </select>
+                <div id="hotspot_datetime">
+                    <input type="text" id="id_hotspot_datepicker" name="hotspot_date">
+                    <select id="id_hotspot_time" name="hotspot_time"></select>
+                </div>
+            </div>
+
+            <div class="action_link" id="toggle_hotspot">{% trans 'Switch Direction' %}</div>
+
+            <div><span id="to">{% trans 'Dropoff' %}</span></div>
+            <div id="p1" class="passenger">
+                <select id="id_p1_select" name="p1_select"></select>
+                <span class="passenger_details">
+                    <span class="address"></span>
+                    <span class="phone"></span>
+                    <span class="is_sharing bold"></span>
+                </span>
+            </div>
+        </form>
+
+        <div id="p_actions">
+            <a class="action_link" id="new_passenger">{% trans 'Create new passenger' %}</a> /
+            <a class="action_link" id="add_passenger">{% trans 'Add existing passenger' %}</a>
+        </div>
+
+        <div id="book_order">{% trans 'Send' %}</div>
+    </div>
+
+{% endblock %}
+
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
+    <script src="/static/js/sharing.js"></script>
+    <script type="text/javascript">
+
+    var pickup = "pickup",
+            dropoff = "dropoff",
+            hotspot_type = pickup,
+            p_counter = 1;
+
+    function addPassenger() {
+        p_counter ++;
+        var p_id = "p" + p_counter;
+        var p_select_id = "id_p" + p_counter + "_select";
+        var p_select_name = "p" + p_counter + "_select";
+
+        var $p = $("#p1").clone(true).attr("id", p_id);
+        $p.find("select").attr("id", p_select_id).attr("name", p_select_name);
+        var $remove = $('<a class="action_link">({% trans "Remove" %})</a>').click(function(e) {
+            OrderingHelper.removePoint(p_id);
+            $("#" + p_id).remove();
+        });
+        $p.find(".is_sharing").after($remove);
+        $p.find("select").change();
+
+        $(".passenger").last().after($p);
+    }
+
+    function refrestHotspotMarker() {
+        var lat = $("#id_hotspot_select :selected").attr("lat");
+        var lon = $("#id_hotspot_select :selected").attr("lon");
+        var hotsport_marker_image = '/static/images/hotspot_red_marker.png';
+        var hotsport_marker_offset = {x:32, y:63};
+
+        var icon_image = new telmap.maps.MarkerImage(hotsport_marker_image, undefined, undefined, hotsport_marker_offset);
+        var point = new telmap.maps.Marker({
+            map:        OrderingHelper.map,
+            position:   new telmap.maps.LatLng(lat, lon),
+            icon:       icon_image,
+            title:      "Hotspot"
+        });
+
+        OrderingHelper.removePoint("hotspot");
+        OrderingHelper.map_markers["hotspot"] = point;
+        OrderingHelper.renderMapMarkers();
+    }
+
+    function initNewPassengerForm() {
+        OrderingHelper._makeAddressInput("#new_passenger_form #id_address_raw", function (event, ui) {
+            if (ui.item.address) {
+                ui.item.address.populateFields();
+                $("#new_passenger_form #id_address_raw").catcomplete("disable").blur();
+                OrderingHelper._onAddressInputBlur($("#new_passenger_form #id_address_raw"), ui.item.address.address_type)
+            }
+        });
+        $("#new_passenger_form input[type=text]").bind("keyup blur",function() {
+            validateNewPassengerForm();
+        });
+        $("#new_passenger_form").dialog({
+            title: '{% trans "New Passenger" %}',
+            autoOpen: false,
+            modal: true,
+            width: 300,
+            resizable: false,
+            draggable: false,
+            open: function(event, ui) {
+                validateNewPassengerForm();
+            },
+            buttons: [
+                {'text': '{% trans "Cancel" %}',
+                    'click': function() {
+                        $(this).dialog("close")
+                    }},
+                {'text': '{% trans "Save" %}', 'class': 'save_btn',
+                    'click': function() {
+                        if (validateNewPassengerForm()) {
+                            $(this).submit();
+                        }
+                        else {
+                            flashError("{% trans "Please fill all fields" %}");
+                        }
+                    }}
+            ]
+        });
+
+        $("#new_passenger").click(function() {
+            $("#new_passenger_form").dialog("open");
+        });
+
+        $("#new_passenger_form").submit(function() {
+            $(this).ajaxSubmit({
+                beforeSend: function() {
+                    $(".save_btn").text("{% trans "Saving" %}").button("disable");
+                },
+                complete: function() {
+                    $(".save_btn").text("{% trans "Save" %}");
+                },
+                success: function(response) {
+                    if (response.error) {
+                        flashError("{% trans "Error" %}");
+                    }
+                    else {
+                        flashMessage("{% trans "Passenger Created" %}");
+                        updatePassengers();
+                        $("#new_passenger_form input[type=text]").val("");
+                        $("#new_passenger_form").dialog("close");
+                    }
+                },
+                error: function() {
+                    $(".save_btn").button("enable");
+                    flashError("{% trans "Error" %}");
+                }
+            });
+            return false;
+        });
+    }
+
+    function validateNewPassengerForm() {
+        $(".save_btn").button("disable");
+        var only_digits = $("#new_passenger_form #id_phone").val().split(/\D+/).join("");
+        $("#new_passenger_form #id_phone").val(only_digits);
+
+        var address = Address.fromInput("#new_passenger_form #id_address_raw");
+        var is_valid = Boolean(address.isResolved()) && Boolean($("#id_name").val()) && Boolean($("#id_phone").val());
+        if (is_valid) {
+            $(".save_btn").button("enable");
+        }
+        return is_valid;
+    }
+
+    function updatePassengers() {
+        $.ajax({
+            url: "{% url sharing.producer_controller.get_producer_passengers %}",
+            type: "GET",
+            data: {"producer_id": "{{ producer.id }}"},
+            dataType: "json",
+            success: function(response) {
+                $(".passenger select").each(function() {
+                    var that = this;
+                    var old_val = $(this).val();
+                    $(this).empty();
+                    $.each(response.passengers, function(i, p) {
+                        var $option = $('<option value="' + p.id + '">' + p.name + '</option>');
+                        $.each(["address", "phone", "is_sharing", "name", "lon", "lat"], function(i, prop) {
+                            $option.data(prop, p[prop]);
+                        });
+                        $(that).append($option);
+                    });
+                    $(this).val(old_val);
+                    $(this).change();
+                });
+            },
+            error: function() {
+                flashError("{% trans "Error updating passengers" %}");
+            }
+        });
+    }
+
+    $(function() {
+
+        initNewPassengerForm();
+
+        $("#add_passenger").click(function(e) {
+            addPassenger();
+        });
+
+        $("#id_hotspot_select").change(
+                function() {
+                    asHotSpotInput("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time", {
+                        'labels': {'choose_date': "{% trans "Choose Date" %}", 'updating': "{% trans "Updating..." %}"},
+                        'urls': {'get_hotspot_dates': "{% url sharing.passenger_controller.get_hotspot_dates %}",
+                            'get_hotspot_times': "{% url sharing.passenger_controller.get_hotspot_times %}"}
+                    });
+
+                    refrestHotspotMarker();
+                }).change();
+
+        $("#toggle_hotspot").click(function(e) {
+            hotspot_type = (hotspot_type == pickup) ? dropoff : pickup;
+            if (hotspot_type == pickup) {
+                $("#from").after($("#hotspot"));
+                $("#to").after($(".passenger"));
+            }
+            else {
+                $("#from").after($(".passenger"));
+                $("#to").after($("#hotspot"));
+            }
+            $(".passenger").last().after($("#p_actions"));
+        });
+
+        updatePassengers();
+        $(".passenger").live("change", function() {
+            var address = $(this).find("option:selected").data("address"),
+                    lon = $(this).find("option:selected").data("lon"),
+                    lat = $(this).find("option:selected").data("lat");
+            $(this).find(".address").text(address + " ");
+            $(this).find(".phone").text($(this).find("option:selected").data("phone") + " ");
+            $(this).find(".is_sharing").text(($(this).find("option:selected").data("is_sharing") === false) ? "{% trans "Not sharing" %} " : "");
+            var point = new telmap.maps.Marker({
+                map:        OrderingHelper.map,
+                position:   new telmap.maps.LatLng(lat, lon),
+                icon:       new telmap.maps.MarkerImage("/static/images/plain_map_marker.png"),
+                cursor:     'pointer',
+                title:      address
+            });
+            OrderingHelper.removePoint(this.id);
+            OrderingHelper.map_markers[this.id] = point;
+            OrderingHelper.renderMapMarkers();
+        });
+
+        $("#book_order").button().click(function() {
+            $("#book_order").button("disable");
+            $("#order_form").append('<input type="hidden" name="hotspot_type" value="' + hotspot_type + '"/>');
+            $("#order_form").submit();
+        });
+
+        $("#hotspot_datetime").change(
+                function() {
+                    $("#book_order").button("enable");
+                    $(this).find("input, select").each(function(i, e) {
+                        if (! Boolean($(e).val())) {
+                            $("#book_order").button("disable");
+                        }
+                    });
+                }).change();
+
+    });
+    </script>
+
+{% endblock %}

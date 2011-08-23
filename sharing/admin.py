@@ -2,7 +2,7 @@ from django.utils.translation import ugettext as _
 from django.contrib import admin
 from common.forms import MandatoryInlineFormset
 from django.core.urlresolvers import reverse
-from sharing.models import HotSpot, HotSpotTag, HotSpotServiceRule, HotSpotCustomPriceRule, HotSpotTariffRule, RideComputation, RideComputationSet
+from sharing.models import HotSpot, HotSpotTag, HotSpotServiceRule, HotSpotCustomPriceRule, HotSpotTariffRule, RideComputation, RideComputationSet, Producer, ProducerPassenger
 from sharing.forms import HotSpotAdminForm, HotSpotServiceRuleAdminForm
 
 class InlineHotSpotTagAdmin(admin.TabularInline):
@@ -60,7 +60,15 @@ class RideComputationSetAdmin(admin.ModelAdmin):
 
     statistics.allow_tags = True
 
+class ProducerPassengerInlineAdmin(admin.TabularInline):
+    model = ProducerPassenger
+    fields = ["name", "phone", "is_sharing", "address"]
+    extra = 0
+    
+class ProducerAdmin(admin.ModelAdmin):
+    inlines = [ProducerPassengerInlineAdmin]
 
 admin.site.register(HotSpot, HotSpotAdmin)
+admin.site.register(Producer, ProducerAdmin)
 admin.site.register(RideComputation, RideComputationAdmin)
 admin.site.register(RideComputationSet, RideComputationSetAdmin)
