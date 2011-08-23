@@ -25,7 +25,9 @@ def assign_ride(ride):
 
 
 def choose_workstation(ride):
-    ws_list = WorkStation.objects.filter(accept_shared_rides=True, is_online=True, is_debug=ride.debug)
+    ws_list = WorkStation.objects.filter(accept_shared_rides=True, is_online=True)
+    if ride.debug:
+        ws_list.filter(accept_debug=True)
     if ws_list:
         return ws_list[0]
 

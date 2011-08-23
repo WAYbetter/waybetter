@@ -32,11 +32,13 @@ def producer_ordering_page(request, passenger):
 
             if shared_orders:
                 res = submit_orders_for_ride_calculation(orders['shared_orders'], debug=False)
-                response = u"%d orders submitted for sharing: %s" % (len(shared_orders) ,res.content)
+                response = u"%d orders submitted for sharing: %s" % (len(shared_orders) ,res.content.strip())
             if not_shared_orders:
+                algo_keys = []
                 for order in not_shared_orders:
-                    submit_orders_for_ride_calculation([order], debug=False)
-                response += u"</br>%d orders not shared" % len(not_shared_orders)
+                    res = submit_orders_for_ride_calculation([order], debug=False)
+                    algo_keys.append(res.content.strip())
+                response += u"</br>%d orders not shared: %s" % (len(not_shared_orders), algo_keys)
         else:
             response = "Hotspot type invalid"
 

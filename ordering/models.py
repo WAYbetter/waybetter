@@ -305,7 +305,7 @@ class SharedRide(BaseModel):
     driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
 
-    debug = models.BooleanField(default=True, editable=False)
+    debug = models.BooleanField(default=False, editable=False)
 
     _value = models.FloatField(_("ride value"), null=True, blank=True) # the value of this ride to the assigned station
 
@@ -574,13 +574,13 @@ class WorkStation(BaseModel):
     was_installed = models.BooleanField(_("was installed"), default=False)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
     accept_shared_rides = models.BooleanField(_("Accept Shared Rides"), default=False)
+    accept_debug = models.BooleanField(_("Accept debug"), default=False)
 
     last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
                                             default=datetime.datetime(1, 1, 1))
 
     channel_id = models.CharField(_("channel_id"), max_length=50, null=True, blank=True)
     is_online = models.BooleanField(_("is online"), default=False)
-    is_debug = models.BooleanField(_("is debug"), default=False)
 
     # denormalized fields
     dn_station_id = models.IntegerField(_("station id"), null=True, blank=True)

@@ -45,18 +45,22 @@ def fetch_ride_results_task(request):
     content = result.content.strip()
     if result.status_code == 200 and content:
         data = simplejson.loads(content.decode("utf-8"))
+        logging.info("data = %s" % data)
 
         try:
             computation = RideComputation.objects.get(algo_key=result_id)
-            computation.statistics = simplejson.dumps(data["m_OutputStat"])
+            computation.statistics = simplejson.dumps(data.get("m_OutputStat"))
             computation.completed = True
             computation.save()
         except RideComputation.DoesNotExist:
             logging.error("ride computation does not exist. this usually happens when fetching algo. results submitted by localhost or vice versa")
 
+        #TODO_WB: debug = bool(data.get("m_Debug"))
+        debug = True
         for ride_data in data["m_Rides"]:
-            order = Order.by_id(ride_data["m_OrderInfos"].keys()[0])
             ride = SharedRide()
+            ride.debug = debug
+            order = Order.by_id(ride_data["m_OrderInfos"].keys()[0])
             if order.depart_time:
                 ride.depart_time = order.depart_time
                 ride.arrive_time = ride.depart_time + timedelta(seconds=ride_data["m_Duration"])
@@ -67,9 +71,6 @@ def fetch_ride_results_task(request):
             #            hack for testing
             #            ride.depart_time = datetime.now() + timedelta(minutes=3)
             #            ride.arrive_time = ride.depart_time + timedelta(seconds=ride_data["m_Duration"])
-
-            # TODO_WB: get debug mode from ride_data
-            # ride.debug = ride_data["m_debug"]
 
             ride.save()
             for point_data in ride_data["m_RidePoints"]:

@@ -301,6 +301,7 @@
         });
 
         $("#book_order").button().click(function() {
+            $("#book_order").button("disable");
             $("#order_form").append('<input type="hidden" name="hotspot_type" value="' + hotspot_type + '"/>');
             $("#order_form").submit();
         });
@@ -310,7 +311,6 @@
                     $("#book_order").button("enable");
                     $(this).find("input, select").each(function(i, e) {
                         if (! Boolean($(e).val())) {
-                            console.log("disable");
                             $("#book_order").button("disable");
                         }
                     });
