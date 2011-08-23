@@ -24,11 +24,14 @@ class BaseModel(models.Model):
         return type(self).by_id(self.id)
 
     @classmethod
-    def by_id(cls, id):
+    def by_id(cls, id, safe=True):
         try:
             obj = cls.objects.get(id=id)
-        except cls.DoesNotExist:
-            obj = None
+        except cls.DoesNotExist, e:
+            if safe:
+                obj = None
+            else:
+                raise e
 
         return obj
 

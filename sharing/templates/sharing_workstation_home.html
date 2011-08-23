@@ -68,12 +68,15 @@
         };
         socket.onmessage = function(msg) {
             try {
-                var data = $.parseJSON(msg.data);
-                renderRide(data);
+                var ride = $.parseJSON(msg.data);
+                if ($("#ride_header_" + ride.id + ", #ride_div_" + ride.id).length < 2){ // render if ride is new or rendered incorrectly
+                    $("#ride_header_" + ride.id + ", #ride_div_" + ride.id).remove();
+                    renderRide(ride);
+                }
                 $.ajax({
                     url: "{% url ordering.station_controller.message_received %}",
                     type: "POST",
-                    data: {data: msg.data}
+                    data: {msg_data: msg.data}
                 });
             } catch (e) {
                 trace("error parsing: " + JSON.stringify(e))

@@ -307,6 +307,9 @@ class SharedRide(BaseModel):
 
     debug = models.BooleanField(default=False, editable=False)
 
+    sent_time = UTCDateTimeField("sent time", null=True, blank=True)
+    received_time = UTCDateTimeField("received time", null=True, blank=True)
+
     _value = models.FloatField(_("ride value"), null=True, blank=True) # the value of this ride to the assigned station
 
     @property
