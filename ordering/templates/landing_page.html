@@ -4,7 +4,6 @@
 <head>
 
 <style>
-
 .wb_button {
     font-size: 15px;
     font-weight: bold;
@@ -160,6 +159,8 @@ body {
     left: 0;
     right: 0;
     margin: 0;
+
+    height: 850px;
 }
 
 #header {
@@ -182,9 +183,8 @@ body {
 }
 
 #main #form_container {
-    height: 430px;
     width: 100%;
-    color: #464646;
+    color: #5e5e5e;
     clear: both;
 }
 
@@ -192,37 +192,51 @@ body {
     text-align: center;
 }
 
+#form_header h1 {
+    font-size: large;
+}
 #form_header h3 {
     font-weight: normal;
 }
 
 #form_main {
-    background: url(/static/images/landing_page/form_register.png);
-    width: 361px;
-    height: 279px;
-    margin-left: auto;
-    margin-right: auto;
+    /*background: url(/static/images/landing_page/form_register.png);*/
+    width: 290px;
+    float: left;
+    /*border-right: 1px solid black;*/
+    padding: 45px 43px;
+    background-image: url(/static/images/landing_page/seperation_line.png);
+    background-repeat: repeat-y;
+    background-position: 100% 0;
 }
 
 #form_main h1 {
-    color: white;
-    font-size: 17px;
-    font-weight: normal;
-    padding-top: 38px;
-    text-align: center;
+    color: #3bb54d;
+}
+
+#form_main .wink {
+    margin-top: 10px;
+    text-align: left;
+    font-size: smaller;
+    color: #A9A8A8;
+}
+
+#form_main p {
+    font-size: small;
+    margin-top: 65px;
 }
 
 #form_main form {
-    padding-right: 35px;
-    padding-top: 20px;
-    color: #5e5e5e;
+    
 }
 #form_main button {
-    width: 275px;
+    width: 97%;
     font-family: Arial, sans-serif;
-    margin: 5px 0;
+    font-weight: normal;
 }
-
+#form_main button.last {
+    margin-top: 22px;
+}
 
 
 #form_main input {
@@ -232,17 +246,26 @@ body {
     border-left: 1px solid #cccccc;
     color: #666;
     height: 14px;
-    width: 272px;
+    width: 97%;
     font-size: 16px;
 }
 
-#form_main input.error {
-    border: 2px solid #ee5b5a;
+#form_desc {
+    width: 413px;
+    padding:  45px 43px;
+    float: right;
+}
+#form_desc p b {
+    color:#000000;
+}
+#form_desc p {
+    font-size: 15px;
+    line-height: 20px;
 }
 
-#form_main input.error:before {
-    content: "שדה חובה";
-    color:red;
+
+#form_desc h1 {
+    color: #ef9032;
 }
 
 #main #main_footer {
@@ -268,6 +291,11 @@ body {
 #footer {
     background: #EEEFEF;
     border-top: 12px solid #555A5F;
+    cursor: pointer;
+    position:absolute;
+    bottom:0;
+    left:0;
+    right:0;
 }
 #footer_content {
     width: 320px;
@@ -309,21 +337,20 @@ body {
 }
 
 #error_message {
-    width: 223px;
-    height: 50px;
-    color: white;
+    width: 205px;
+    height: 56px;
+    color: #FF4545;
     float: left;
-    margin-top: -198px;
-    margin-left: 80px;
+    margin-top: -258px;
+    margin-left: 278px;
     padding: 5px;
     background-image: url(/static/images/landing_page/error_box.png);
     background-repeat: no-repeat;
     background-position: 0 0;
     text-align: left;
     padding-left: 37px;
-    padding-top: 11px;
+    padding-top: 22px;
     font-size: 13px;
-    opacity: 0.8;
 }
 
 #thank_you {
@@ -335,7 +362,15 @@ body {
     font-weight: normal;
     font-size: 18px;
 }
-
+.clear {
+    clear: both;
+}
+.header {
+    font-size: large;
+    font-weight: normal;
+    margin: 0;
+    margin-bottom: 30px;
+}
 
 </style>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
@@ -347,19 +382,18 @@ body {
     <div id="logo"></div>
     <div id="form_container" class="light_grad">
         <div id="form_header">
-            <h1>המהפיכה החברתית בתחבורה הציבורית מתחילה כאן!</h1>
-
-            <h3>שירות התחבורה הציבורית הדינאמי הראשון בעולם</h3>
         </div>
         <div id="form_main">
-            <h1>הצטרפו לפיילוט ותהנו מנסיעות מונית בחצי מחיר</h1>
+            <h1 class="header">נשמע טוב‫,‬ עדכנו אותי</h1>
 
             <form>
                 <input id="email" name="email" type="text" placeholder="כתובת אימייל"/>
+
+                <p class="wink">(אנחנו מבטיחים לא לזבל...)</p>
                 <input type="hidden" id="location" name="location"/>
                 <p>איפה את/ה רוצה את השירות?</p>
                 <button type="button" id="ramat_hachayal" class="wb_button blue">רמת החייל - קריית עתידים</button>
-                <button type="button" id="rakevet" class="wb_button blue">תחנת רכבת ארלוזורוב</button>
+                <button type="button" id="rakevet" class="wb_button blue last">תחנת רכבת ארלוזורוב</button>
             </form>
             <div id="thank_you">
                 <h2>תודה רבה!</h2>
@@ -368,6 +402,18 @@ body {
             </div>
 
         </div>
+        <div id="form_desc">
+            <h1 class="header">שירות של מונית, במחיר שפוי</h1>
+            <p>
+                בשבועות הקרובים תשיק WAYbetter בטא מצומצמת לשירות התחבורה הציבורית החכמה שלה.
+                <br>
+                השירות יאפשר להזמין נסיעה משותפת במונית ולשלם <b>הרבה</b> פחות.
+            </p>
+            <p>
+אנחנו בוחנים שני אתרים להשקת השירות. אם בא לכם להשתתף ולשתף אז תשאירו מייל וניצור קשר בקרוב.
+            </p>
+        </div>
+        <div class="clear"></div>
         <div id="error_message">יש למלא כתובת מייל תקינה</div>
     </div>
     <div id="main_footer" class="light_grad">
