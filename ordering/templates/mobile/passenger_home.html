@@ -8,7 +8,8 @@
     <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1" />
 
 {#    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.css" />#}
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.css" />
+{#    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.css" />#}
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b2/jquery.mobile-1.0b2.min.css" />
 
 
     <link rel="stylesheet" href="/static/css/add2home.css">
@@ -40,7 +41,8 @@
         })
     </script>
 {#    <script src="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.js"></script>#}
-    <script src="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.js"></script>
+{#    <script src="http://code.jquery.com/mobile/1.0b1/jquery.mobile-1.0b1.min.js"></script>#}
+    <script src="http://code.jquery.com/mobile/1.0b2/jquery.mobile-1.0b2.min.js"></script>
 
     <script src="/static/js/mylibs/jquery.form.js"></script>
     <script src="/static/js/mobile/ordering.mobile.js" defer="defer"></script>
@@ -162,7 +164,7 @@
 
     {# RESOLVE ADDRESS PAGE #}
     <div id="resolve_addresses" data-role="page" data-theme="b"> {# TODO_WB: load via ajax to speed up initial page load? #}
-        <div data-role="header">
+        <div data-role="header" data-theme="b">
             <h1>{% trans 'Select Address' %}</h1>
         </div>
         <div data-role="content">
@@ -173,7 +175,7 @@
 
     {# VERIFY PHONE PAGE #}
     <div id="sms_dialog" data-role="page" data-theme="b">
-        <div data-role="header">
+        <div data-role="header" data-theme="b">
             <h1>{% trans 'Service Registration' %}</h1>
         </div>
         <div data-role="content">
@@ -197,7 +199,7 @@
 
     {# RIDES PAGE #}
     <div id="rides_page" data-role="page" data-theme="b">
-        <div data-role="header">
+        <div data-role="header" data-theme="b">
             <h1>{% trans "My Rides" %}</h1>
         </div>
         <div data-role="content">
@@ -217,7 +219,7 @@
 
     {# MORE PAGE #}
     <div id="more_page" data-role="page" data-theme="b">
-        <div data-role="header">
+        <div data-role="header" data-theme="b">
             <h1>{% trans "More" %}</h1>
         </div>
         <div data-role="content">
@@ -231,7 +233,7 @@
 
     {# LANGUAGE PAGE #}
     <div id="language_page" data-role="page" data-theme="b">
-        <div data-role="header">
+        <div data-role="header" data-theme="b">
             <h1>{% trans "Language" %}</h1>
         </div>
         <div data-role="content">
@@ -254,7 +256,7 @@
 
     {# TERMS PAGE #}
     <div id="terms_page" data-role="page" data-theme="b">
-        <div data-role="header">
+        <div data-role="header" data-theme="b">
             <h1>{% trans "Terms Of Use" %}</h1>
         </div>
         <div data-role="content">
@@ -266,7 +268,7 @@
 
     {# ABOUT PAGE #}
     <div id="about_page" data-role="page" data-theme="b">
-        <div data-role="header">
+        <div data-role="header" data-theme="b">
             <h1>{% trans "About" %}</h1>
         </div>
         <div data-role="content">

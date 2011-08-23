@@ -3,7 +3,7 @@ from django.conf.urls.defaults import url
 from django.views.generic.simple import direct_to_template
 
 urlpatterns = patterns('',
-    (r'^$', 'ordering.passenger_controller.passenger_home'),
+    (r'^$', 'ordering.passenger_controller.landing_page'),
     (r'^pickmeapp/$', 'ordering.passenger_controller.pickmeapp_home'),
     (r'^info$', 'ordering.passenger_controller.info_pages'),
     (r'^workstation/(?P<workstation_id>\d+)$', 'ordering.station_controller.workstation_home'),
@@ -82,10 +82,6 @@ urlpatterns = patterns('',
     (r'^resources/station_mobile_redirect/(?P<subdomain_name>\w+)/$', 'ordering.station_controller.station_mobile_redirect'),
 
     (r'^queue/handle_dead_workstations/$', 'ordering.station_connection_manager.handle_dead_workstations'),
-
-    url(r'^landing_page/$',  direct_to_template, {"template": "landing_page.html"}),
-
-
 
 )
 
