@@ -1,4 +1,5 @@
 import logging
+from google.appengine.runtime import DeadlineExceededError
 from django.conf import settings
 from settings import SMS_PROVIDER_URL, SMS_CALLBACK_URL
 from django.template.loader import get_template
@@ -58,6 +59,11 @@ def send_sms_cellact(destination, text, sms_config):
     c = Context(params)
     t = get_template("cellact_send_sms.xml")
     payload = str("XMLString=" + urlquote_plus(t.render(c)))
-    result = fetch(provider_url, method="POST", payload=payload, deadline=10)
+    try:
+        result = fetch(provider_url, method="POST", payload=payload, deadline=10)
+    except DeadlineExceededError:
+        logging.warn("SMS sending failed due to DeadlineExceededError, retrying")
+        result = send_sms_cellact(destination, text, sms_config)
+
     return result
 
