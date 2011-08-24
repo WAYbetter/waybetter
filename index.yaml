@@ -181,6 +181,12 @@ indexes:
 
 - kind: ordering_driver
   properties:
+  - name: is_active
+  - name: station_id
+  - name: name
+
+- kind: ordering_driver
+  properties:
   - name: station_id
   - name: name
 
@@ -746,6 +752,12 @@ indexes:
   properties:
   - name: __key__
     direction: desc
+
+- kind: ordering_taxi
+  properties:
+  - name: is_active
+  - name: station_id
+  - name: number
 
 - kind: ordering_taxi
   properties:

@@ -37,7 +37,7 @@ def choose_workstation(ride):
     if ws_list:
         return ws_list[0]
     else:
-        logging.error("no work stations for sharing available (debug=%s)" % ride.debug)
+        logging.error("no work stations for sharing available (ride.debug=%s)" % ride.debug)
         return None
 
 

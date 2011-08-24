@@ -16,7 +16,7 @@ from google.appengine.api import xmpp
 from google.appengine.api.labs.taskqueue import DuplicateTaskNameError, TaskAlreadyExistsError, TombstonedTaskError
 from google.appengine.api.labs.taskqueue import taskqueue
 from djangotoolbox.http import JSONResponse
-from ordering.models import WorkStation, Order, Passenger, OrderAssignment, SharedRide
+from ordering.models import WorkStation, Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation
 from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
 from datetime import  datetime, time
 import logging
@@ -89,10 +89,31 @@ def maintenance_task(request):
 
 
 def do_task():
-    delete_shared_orders()
+    fix_driver_taxi()
 
 #    generate_passengers_with_non_existing_users()
 #    generate_dead_users_list()
+
+def fix_driver_taxi():
+    for relation in TaxiDriverRelation.objects.all():
+        try:
+            logging.info("fixing taxidriver relation %d" % relation.id)
+            driver = relation.driver
+            taxi = relation.taxi
+        except:
+            relation.delete()
+
+    for ride in SharedRide.objects.all():
+        try:
+            logging.info("fixing ride %d" % ride.id)
+            driver = ride.driver
+            taxi = ride.taxi
+        except:
+            ride.driver = None
+            ride.station = None
+            ride.save()
+
+    logging.info("DONE")
 
 def delete_shared_orders():
     rides = SharedRide.objects.all()

@@ -242,6 +242,7 @@ class Driver(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="drivers")
     name = models.CharField(_("name"), max_length=140, null=True, blank=True)
     phone = models.CharField(_("phone number"), max_length=15)
+    is_active = models.BooleanField(_('active'), default=True)
 
     dn_station_name = models.CharField(_("station name"), max_length=50)
 
@@ -251,8 +252,21 @@ class Driver(BaseModel):
 
         super(Driver, self).save(*args, **kwargs)
 
-    def get_taxis(self):
-        return sorted([r.taxi for r in TaxiDriverRelation.objects.filter(driver=self)], key=lambda taxi: taxi.number)
+    def get_taxis(self, only_active=True):
+        taxis = [r.taxi for r in TaxiDriverRelation.objects.filter(driver=self)]
+        if only_active:
+            taxis = filter(lambda taxi: taxi.is_active, taxis)
+
+        return sorted(taxis, key=lambda taxi: taxi.number)
+
+    def serialize_for_ws(self, queried_taxis=None):
+        taxis = queried_taxis or Taxi.objects.filter(station=self.station, is_active=True).order_by("number")
+        self_taxis = self.get_taxis()
+        return {'id': self.id,
+                'name': self.name,
+                'phone': self.phone,
+                'taxis': [{'id': taxi.id, 'number': taxi.number} for taxi in self_taxis],
+                'available_taxis': sorted([{'id': t.id, 'number': t.number} for t in set(taxis) - set(self_taxis)], key=lambda x: x['number'])}
 
     def __unicode__(self):
         return u"%s" % (self.name)
@@ -260,6 +274,7 @@ class Driver(BaseModel):
 class Taxi(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="taxis")
     number = models.IntegerField(_("taxi_number"), max_length=10)
+    is_active = models.BooleanField(_('active'), default=True)
 
     dn_station_name = models.CharField(_("station name"), max_length=50)
 
@@ -269,8 +284,20 @@ class Taxi(BaseModel):
 
         super(Taxi, self).save(*args, **kwargs)
 
-    def get_drivers(self):
-        return sorted([r.driver for r in TaxiDriverRelation.objects.filter(taxi=self)], key=lambda driver: driver.name)
+    def get_drivers(self, only_active=True):
+        drivers = [r.driver for r in TaxiDriverRelation.objects.filter(taxi=self)]
+        if only_active:
+            drivers = filter(lambda driver: driver.is_active, drivers)
+
+        return sorted(drivers, key=lambda driver: driver.name)
+
+    def serialize_for_ws(self, queried_drivers=None):
+        drivers = queried_drivers or Driver.objects.filter(station=self.station, is_active=True).order_by("name")
+        self_drivers = self.get_drivers()
+        return {'id': self.id,
+                'number': self.number,
+                'drivers': [{'id': driver.id, 'name': driver.name, 'phone': driver.phone} for driver in self_drivers],
+                'available_drivers': sorted([{'id': d.id, 'name': d.name} for d in set(drivers) - set(self_drivers)], key=lambda x: x['name'])}
 
     def __unicode__(self):
         return u"%s" % (self.number)
