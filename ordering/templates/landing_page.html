@@ -8,9 +8,10 @@
 <title>WAYbetter</title>
 
 
-<meta name="description" content="{% trans 'Order a taxi online, no phone call! A large selection of taxi stations in every city. One click and the taxi is on the way '%}" />
-<meta name="keywords" content="{% trans 'Taxi,iPhone,Android,WAYbetter,get taxi,order taxi,order taxi online' %}" />
-<meta name="author" content="WAYbetter LTD." />
+<meta name="description"
+      content="{% trans 'Order a taxi online, no phone call! A large selection of taxi stations in every city. One click and the taxi is on the way '%}"/>
+<meta name="keywords" content="{% trans 'Taxi,iPhone,Android,WAYbetter,get taxi,order taxi,order taxi online' %}"/>
+<meta name="author" content="WAYbetter LTD."/>
 
 
 <style>
@@ -155,17 +156,10 @@
 html {
     /*height: 100%;*/
 }
+
 body {
     font-family: Arial, sans-serif;
-
-    background: #ffffff; /* Old browsers */
-    background: -moz-linear-gradient(top, #ffffff 0%, #c3d0dc 100%); /* FF3.6+ */
-    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #c3d0dc)); /* Chrome,Safari4+ */
-    background: -webkit-linear-gradient(top, #ffffff 0%, #c3d0dc 100%); /* Chrome10+,Safari5.1+ */
-    background: -o-linear-gradient(top, #ffffff 0%, #c3d0dc 100%); /* Opera11.10+ */
-    background: -ms-linear-gradient(top, #ffffff 0%, #c3d0dc 100%); /* IE10+ */
-    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#ffffff', endColorstr = '#c3d0dc', GradientType = 0); /* IE6-9 */
-    background: linear-gradient(top, #ffffff 0%, #c3d0dc 100%); /* W3C */
+    background: #EEEFEF;
 
     top: 0;
     bottom: 0;
@@ -184,6 +178,19 @@ body {
     float: left;
     margin-left: -50px;
     margin-bottom: 20px;
+}
+
+#main-wrapper {
+    width: 100%;
+    height: 100%;
+    background: #ffffff; /* Old browsers */
+    background: -moz-linear-gradient(top, #ffffff 0%, #c3d0dc 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffffff), color-stop(100%, #c3d0dc)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #ffffff 0%, #c3d0dc 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #ffffff 0%, #c3d0dc 100%); /* Opera11.10+ */
+    background: -ms-linear-gradient(top, #ffffff 0%, #c3d0dc 100%); /* IE10+ */
+    filter: progid:DXImageTransform.Microsoft.gradient(startColorstr = '#ffffff', endColorstr = '#c3d0dc', GradientType = 0); /* IE6-9 */
+    background: linear-gradient(top, #ffffff 0%, #c3d0dc 100%); /* W3C */
 }
 
 #main {
@@ -205,6 +212,7 @@ body {
 #form_header h1 {
     font-size: large;
 }
+
 #form_header h3 {
     font-weight: normal;
 }
@@ -237,17 +245,18 @@ body {
 }
 
 #form_main form {
-    
+
 }
+
 #form_main button {
     width: 97%;
     font-family: Arial, sans-serif;
     font-weight: normal;
 }
+
 #form_main button.last {
     margin-top: 22px;
 }
-
 
 #form_main input {
     padding: 13px 10px 13px 0;
@@ -262,17 +271,18 @@ body {
 
 #form_desc {
     width: 413px;
-    padding:  45px 43px;
+    padding: 45px 43px;
     float: right;
 }
+
 #form_desc p b {
-    color:#000000;
+    color: #000000;
 }
+
 #form_desc p {
     font-size: 15px;
     line-height: 20px;
 }
-
 
 #form_desc h1 {
     color: #ef9032;
@@ -292,22 +302,25 @@ body {
     margin-left: auto;
     margin-right: auto;
 }
+
 #wb {
     color: #656667;
     margin-top: -50px;
     font-size: 13px;
     margin-bottom: 20px;
 }
+
 #footer {
-    background: #EEEFEF;
     border-top: 12px solid #555A5F;
     cursor: pointer;
     height: 120px;
-    position:fixed;
-    bottom:0;
-    left:0;
-    right:0;
+    background: #EEEFEF;
+    /*position:fixed;*/
+    /*bottom:0;*/
+    /*left:0;*/
+    /*right:0;*/
 }
+
 #footer_content {
     width: 320px;
     margin-left: auto;
@@ -319,13 +332,16 @@ body {
     height: 50px;
     padding-top: 61px;
 }
+
 #footer_content a {
     color: #0170b7;
     text-decoration: none;
 }
+
 #footer_content a:hover {
     text-decoration: underline;
 }
+
 .light_grad {
     background: #ffffff; /* Old browsers */
     background: -moz-linear-gradient(top, #ffffff 0%, #ececec 100%); /* FF3.6+ */
@@ -372,11 +388,58 @@ body {
 
 #thank_you h3 {
     font-weight: normal;
-    font-size: 18px;
+    font-size: 15px;
 }
+
+#sharing_buttons {
+    margin-top: 150px;
+    margin-bottom: 50px;
+}
+
+.share_button {
+    height: 33px;
+    width: 31px;
+    background-image: url(/static/images/landing_page/sharing-icons.png);
+    background-repeat: no-repeat;
+    display: inline-block;
+    padding-left: 50px;
+}
+
+.share_button:hover {
+    cursor: pointer;
+}
+
+.share_button span {
+    position: relative;
+    bottom: -5px;
+    left: -4px;
+    font-weight: bold;
+    color: #0170b7;
+    font-size: 13px;
+}
+
+.share_button span:hover {
+    text-decoration: underline;
+}
+
+#share_facebook {
+    background-position: left -70px;
+}
+
+#share_twiter {
+    background-position: left -36px;
+    margin-right: 80px;
+}
+
+#share_email {
+    background-position: left 0;
+    margin-right: 80px;
+}
+
 .clear {
     clear: both;
 }
+
 .header {
     font-size: large;
     font-weight: normal;
@@ -390,57 +453,65 @@ body {
 
 </head>
 <body>
-<div id="main">
-    <div id="logo"></div>
-    <div id="form_container" class="light_grad">
-        <div id="form_main">
-            <h1 class="header">נשמע טוב‫,‬ עדכנו אותי</h1>
+<div id="main-wrapper">
+    <div id="main">
+        <div id="logo"></div>
+        <div id="form_container" class="light_grad">
+            <div id="form_main">
+                <h1 class="header">נשמע טוב‫,‬ עדכנו אותי</h1>
 
-            <form>
-                <input id="email" name="email" type="text" placeholder="כתובת אימייל"/>
+                <form>
+                    <input id="email" name="email" type="text" placeholder="כתובת אימייל"/>
 
-                <p class="wink">(אנחנו מבטיחים לא לזבל...)</p>
-                <input type="hidden" id="location" name="location"/>
-                <p>איפה את/ה רוצה את השירות?</p>
-                <button type="button" id="ramat_hachayal" class="wb_button blue">רמת החייל - קריית עתידים</button>
-                <button type="button" id="rakevet" class="wb_button blue last">תחנת רכבת ארלוזורוב</button>
-            </form>
-            <div id="thank_you">
-                <h2 class="header">תודה על פנייתך!</h2>
-                <h3>נתראה בקרוב...</h3>
+                    <p class="wink">(אנחנו מבטיחים לא לזבל...)</p>
+                    <input type="hidden" id="location" name="location"/>
+
+                    <p>איפה את/ה רוצה את השירות?</p>
+                    <button type="button" id="ramat_hachayal" class="wb_button blue">רמת החייל - קריית עתידים</button>
+                    <button type="button" id="rakevet" class="wb_button blue last">תחנת רכבת ארלוזורוב</button>
+                </form>
             </div>
+            <div id="form_desc">
+                <h1 class="header">שירות של מונית, במחיר שפוי</h1>
 
+                <p>
+                    בשבועות הקרובים תשיק WAYbetter בטא מצומצמת לשירות התחבורה הציבורית החכמה שלה.
+                    <br>
+                    השירות יאפשר להזמין נסיעה משותפת במונית ולשלם <b>הרבה</b> פחות.
+                </p>
+
+                <p>
+                    אנחנו בוחנים שני אתרים להשקת השירות. אם בא לכם להשתתף ולשתף אז תשאירו מייל וניצור קשר בקרוב.
+                </p>
+            </div>
+            <div id="thank_you">
+                <div id="sharing_buttons">
+                    <div id="share_facebook" class="share_button"><span>Share</span></div>
+                    <div id="share_twiter" class="share_button"><span>Share</span></div>
+                    <div id="share_email" class="share_button"><span>Email</span></div>
+                </div>
+                <h3>נתראה במונית :)</h3>
+            </div>
+            <div class="clear"></div>
+            <div id="error_message">יש למלא כתובת מייל תקינה</div>
         </div>
-        <div id="form_desc">
-            <h1 class="header">שירות של מונית, במחיר שפוי</h1>
-            <p>
-                בשבועות הקרובים תשיק WAYbetter בטא מצומצמת לשירות התחבורה הציבורית החכמה שלה.
-                <br>
-                השירות יאפשר להזמין נסיעה משותפת במונית ולשלם <b>הרבה</b> פחות.
-            </p>
-            <p>
-אנחנו בוחנים שני אתרים להשקת השירות. אם בא לכם להשתתף ולשתף אז תשאירו מייל וניצור קשר בקרוב.
-            </p>
+        <div id="main_footer" class="light_grad">
+            <div id="main_footer_img"></div>
         </div>
-        <div class="clear"></div>
-        <div id="error_message">יש למלא כתובת מייל תקינה</div>
+        <div id="wb"><b>WAY</b>better 2011 ©</div>
     </div>
-    <div id="main_footer" class="light_grad">
-        <div id="main_footer_img"></div>
+    <div id="footer">
+        <div id="footer_content">
+            להזמנת מונית בלחיצה
+            <a href="/pickmeapp">נגעת נסעת</a>
+        </div>
     </div>
-    <div id="wb"><b>WAY</b>better 2011 ©</div>
-</div>
-<div id="footer">
-    <div id="footer_content">
-    להזמנת מונית בלחיצה
-    <a href="/pickmeapp">נגעת נסעת</a>
-    </div>
+
 </div>
 <script>
     $(function() {
-        function validateEmail(email)
-        {
-             var re = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
+        function validateEmail(email) {
+            var re = /[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?/
 
             return email.match(re)
         }
@@ -462,13 +533,16 @@ body {
         $("#error_message").hide();
         $("#thank_you").hide();
 
-       $("#footer").click(function() {
-           location.href = "/pickmeapp";
-       });
+        $("#footer").click(function() {
+            location.href = "/pickmeapp";
+        });
 
-       $("#email").blur(function() {
-           checkEmail()
-       });
+        $("form").submit(function() {
+            return false;
+        });
+        $("#email").blur(function() {
+            checkEmail()
+        });
         $("button").click(function() {
             if (checkEmail()) {
                 $("#location").val($(this).attr("id"));
@@ -478,12 +552,34 @@ body {
                     data: $("form").serialize(),
                     type: "POST",
                     success: function() {
-                        $("form").fadeOut("slow", function() {
-                            $("#thank_you").fadeIn("slow")
+                        $("#form_main, #form_desc").fadeOut("slow", function() {
+                            $("#thank_you").fadeIn("slow");
                         });
                     }
                 });
             }
+        });
+
+        var subject = "WAYbetter - שירות מוניות בחצי מחיר !";
+        var mail_body = "בשבועות הקרובים תשיק WAYbetter בטא פרטית למערכת המוניות שלה ברמת החייל וברכבת צפון.%0Aהשירות יאפשר להזמין מונית בסמארטפון או באינטרנט ממבחר תחנות מוניות מובילות בתל אביב, ולשלם על הנסיעה הרבה פחות (חצי מחיר).%0Aהמחיר מתאפשר הודות לטכנולוגיה שמאחדת הזמנות בעלות מסלול חופף לנסיעות משותפות, תוך שמירה על רמת שירות אופטימאלית.%0A%0Aרוצה להיות חלק?%0Awww.waybetter.com";
+
+        var social_message = "WAYbetter משיקה מערכת שתוזיל נסיעות מונית בתל אביב לחצי מחיר!%0Aקחו חלק בניסוי הפרטי www.waybetter.com";
+
+        $("#share_email").click(function() {
+            window.location.href = "mailto:?subject=" + subject + "&body=" + mail_body;
+        });
+        $("#share_twiter").click(function() {
+            window.location.href = "http://twitter.com/share?text=" + social_message + "&url=http://www.WAYbetter.com";
+        });
+        $("#share_facebook").click(function() {
+            window.location.href = "http://www.facebook.com/dialog/feed?" +
+                    "&app_id=280509678631025" +
+                    "&link=http://www.WAYbetter.com" +
+                    "&picture=http://fbcdn-photos-a.akamaihd.net/photos-ak-snc1/v43/53/280509678631025/app_1_280509678631025_3183.gif" +
+                    "&name=" + "WAYbetter" +
+//                    "&caption=" +
+                    "&description=" + social_message +
+                    "&redirect_uri=http://www.waybetter.com";
         });
 
         // תודה רבה!
