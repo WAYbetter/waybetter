@@ -9,11 +9,22 @@ from ordering.models import  Order, SharedRide, RidePoint, StopType
 from sharing.models import RideComputation
 from sharing import signals
 from datetime import timedelta
+import urllib
 import logging
-import sharing_dispatcher # so that receive_signal decorator will be evaluted
 
 SHARING_ENGINE_URL = "http://waybetter-route-service2.appspot.com/routeservicega1"
+PRE_FETCHING_URL = "%s/%s" % (SHARING_ENGINE_URL, "prefetch")
 WEB_APP_URL = "http://sharing.latest.waybetter-app.appspot.com/"
+
+def submit_to_prefetch(orders, hotspot_key, address_type):
+    for order in orders:
+        #TODO_WB: use task for fetching
+        payload = urllib.urlencode({'id': hotspot_key,
+                                    'address': getattr(order, "%s_raw" % address_type),
+                                    'latitude': getattr(order, "%s_lat" % address_type),
+                                    'longitude': getattr(order, "%s_lon" % address_type)})
+        result = fetch(PRE_FETCHING_URL, payload=payload, method=POST, deadline=10)
+
 
 @csrf_exempt
 def ride_calculation_complete_noop(request):

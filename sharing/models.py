@@ -22,6 +22,9 @@ class HotSpot(BaseModel):
     lon = models.FloatField(_("longtitude"), null=True)
     lat = models.FloatField(_("latitude"), null=True)
 
+    def get_prefetching_key(self, *args, **kwargs):
+        return "%s_%s" % (self.id, kwargs.get('time'))
+
     def get_price(self, lat, lon, day, t):
         """
         @param lat:
