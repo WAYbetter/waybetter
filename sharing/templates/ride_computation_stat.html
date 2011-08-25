@@ -125,7 +125,7 @@
             }
 
             $.ajax({
-                url: "{% url sharing.passenger_controller.ride_computation_stat %}{{ computation_set.id }}",
+                url: "{% url sharing.staff_controller.ride_computation_stat %}{{ computation_set.id }}",
                 type: "POST",
                 data: {"time_const_frac": toleration_factor_fractional, "time_const_min": toleration_factor_minutes},
                 beforeSend: function(){

@@ -56,7 +56,7 @@ class RideComputationSetAdmin(admin.ModelAdmin):
 
     def statistics(self, obj):
         return '<a href="%s">%s</a>' % (
-            reverse('sharing.passenger_controller.ride_computation_stat', kwargs={'computation_set_id': obj.id}),_("View"))
+            reverse('sharing.staff_controller.ride_computation_stat', kwargs={'computation_set_id': obj.id}),_("View"))
 
     statistics.allow_tags = True
 

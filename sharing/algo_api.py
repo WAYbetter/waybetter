@@ -6,11 +6,12 @@ from django.http import HttpResponse
 from django.utils import simplejson
 from common.decorators import internal_task_on_queue, catch_view_exceptions
 from ordering.models import  Order, SharedRide, RidePoint, StopType
-from sharing.models import RideComputation
+from sharing.models import RideComputation, RideComputationSet
 from sharing import signals
 from datetime import timedelta
 import urllib
 import logging
+import settings
 
 SHARING_ENGINE_URL = "http://waybetter-route-service2.appspot.com/routeservicega1"
 PRE_FETCHING_URL = "%s/%s" % (SHARING_ENGINE_URL, "prefetch")
@@ -24,6 +25,46 @@ def submit_to_prefetch(orders, hotspot_key, address_type):
                                     'latitude': getattr(order, "%s_lat" % address_type),
                                     'longitude': getattr(order, "%s_lon" % address_type)})
         result = fetch(PRE_FETCHING_URL, payload=payload, method=POST, deadline=10)
+
+
+def submit_orders_for_ride_calculation(orders, debug=False, hotspot_key=None, params=None, computation_set_name=None,
+                                       computation_set_id=None):
+    callback = ride_calculation_complete_noop if settings.is_dev() else ride_calculation_complete
+    payload = {
+        "debug": debug,
+        "orders": [o.serialize_for_sharing() for o in orders],
+        "callback_url": reverse(callback, prefix=WEB_APP_URL),
+        "hotspot_id": hotspot_key
+    }
+
+    if params:
+        payload["parameters"] = {"car_availability": {"car_types": [{"cost_multiplier": 1, "max_passengers": 3}],
+                                                      "m_Availability": [{"Key": {"cost_multiplier": 1, "max_passengers": 3}, "Value": 10000}]},
+                                 "toleration_factor": params.get('toleration_factor', 0),
+                                 "toleration_factor_minutes": params.get('toleration_factor_minutes', 0)}
+
+    payload = simplejson.dumps(payload)
+    logging.info("payload = %s" % payload)
+
+    response = fetch(SHARING_ENGINE_URL, payload="submit=%s" % payload, method=POST, deadline=50)
+
+    if response.content:
+        algo_key = response.content
+        computation = RideComputation(algo_key=algo_key.strip(), order_ids=[order.id for order in orders])
+        computation.toleration_factor = params.get('toleration_factor')
+        computation.toleration_factor_minutes = params.get('toleration_factor_minutes')
+
+        if computation_set_id:
+            computation_set = RideComputationSet.by_id(computation_set_id)
+            computation.set = computation_set
+        elif computation_set_name:
+            computation_set = RideComputationSet(name=computation_set_name)
+            computation_set.save()
+            computation.set = computation_set
+
+        computation.save()
+
+    return response
 
 
 @csrf_exempt

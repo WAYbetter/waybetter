@@ -9,8 +9,9 @@ from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
 from sharing.forms import ProducerPassengerForm
-from sharing.passenger_controller import submit_orders_for_ride_calculation, HIDDEN_FIELDS
+from sharing.passenger_controller import HIDDEN_FIELDS
 from sharing.models import HotSpot, Producer, ProducerPassenger
+from sharing.algo_api import submit_orders_for_ride_calculation
 from datetime import  datetime, date
 import re
 import time
