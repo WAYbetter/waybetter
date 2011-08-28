@@ -105,7 +105,9 @@ def to_js_date(dt):
     @param dt: a datetime object
     @return: the date formatted in a Javascript friendly format
     """
-    if not dt.tzinfo:
+    if not dt:
+        return None
+    elif not dt.tzinfo:
         dt = dt.replace(tzinfo=TZ_INFO["UTC"])
     return time.mktime(dt.astimezone(TZ_INFO["UTC"]).timetuple()) * 1000
 

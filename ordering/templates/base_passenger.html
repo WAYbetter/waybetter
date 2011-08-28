@@ -78,6 +78,18 @@
                 });
             {% endif %}
 
+            HotspotHelper.init({
+                'labels': {
+                    'choose_date': "{% trans "Choose Date" %}",
+                    'updating': "{% trans "Updating..." %}"
+                },
+                'urls': {
+                    'get_hotspot_data': "{% url sharing.passenger_controller.get_hotspots_data %}",
+                    'get_hotspot_dates': "{% url sharing.passenger_controller.get_hotspot_dates %}",
+                    'get_hotspot_times': "{% url sharing.passenger_controller.get_hotspot_times %}"
+                }
+            });
+
             $("input[placeholder]").placeHeld();
             $('marquee').marquee();
             $("#tabs li:first").addClass("first_tab");

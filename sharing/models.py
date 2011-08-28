@@ -1,5 +1,6 @@
 import re
 from common.decorators import order_relative_to_field
+from common.tz_support import default_tz_now
 from common.util import phone_validator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -22,8 +23,14 @@ class HotSpot(BaseModel):
     lon = models.FloatField(_("longtitude"), null=True)
     lat = models.FloatField(_("latitude"), null=True)
 
-    def get_prefetching_key(self, *args, **kwargs):
-        return "%s_%s" % (self.id, kwargs.get('time'))
+    def get_unique_key(self, hotspot_direction, hotspot_datetime):
+        """
+
+        @param hotspot_direction: "from" if the ride starts at hotspot, otherwise "to"
+        @param hotspot_datetime: the time and date of the ride
+        @return: unique key representing the hotspot at given time and direction
+        """
+        return "_".join([self.id, hotspot_direction, hotspot_datetime])
 
     def get_price(self, lat, lon, day, t):
         """
@@ -48,6 +55,27 @@ class HotSpot(BaseModel):
                     return rule.price
 
         return None
+
+    def get_next_datetime(self, base_time=None):
+        if not base_time:
+            base_time = default_tz_now()
+
+        d = base_time.date()
+        t1 = base_time.time()
+
+        next = None
+        times = self.get_times(day=d, start_time=t1)
+        if times:
+            next = datetime.combine(d, times[0])
+        if not next:
+            itr = datetimeIterator(d + timedelta(days=1), d + timedelta(weeks=1))
+            for day in itr:
+                times = self.get_times(day=day)
+                if times:
+                    next = datetime.combine(day, times[0])
+                    break
+
+        return next
 
 
     def get_times(self, day=None, start_time=None, end_time=None):
@@ -86,8 +114,8 @@ class HotSpot(BaseModel):
                 dates.add(d)
 
         return list(dates)
-    
-    
+
+
     def serialize_for_order(self, address_type):
         # TODO_WB: add house number field to hotspot model
         hn = re.search("(\d+)", self.address)
@@ -101,7 +129,7 @@ class HotSpot(BaseModel):
                 '%s_geohash' % address_type: self.geohash,
                 '%s_city' % address_type: self.city.id,
                 '%s_country' % address_type: self.country.id}
-        
+
 
 class HotSpotServiceRule(AbstractTemporalRule):
     TIME_INTERVAL_CHOICES = [(5, "5 min"), (10, "10 min"), (15, "15 min"), (30, "30 min"), (60, "1 hour")]
@@ -150,8 +178,8 @@ class HotSpotTariffRule(BaseModel):
     city_area = CityAreaField(verbose_name=_("city area"))
     price = models.FloatField(_("price"))
 
-#    class Meta:
-#        ordering = ["city_area"]
+    #    class Meta:
+    #        ordering = ["city_area"]
 
     def is_active(self, lat, lon, day=None, t=None):
         result = self.city_area.contains(lat, lon)
@@ -172,14 +200,17 @@ class RideComputationSet(BaseModel):
 
 
 class RideComputation(BaseModel):
-    set = models.ForeignKey(RideComputationSet, verbose_name=_("Computation set"), related_name="members", null=True, blank=True)
+    set = models.ForeignKey(RideComputationSet, verbose_name=_("Computation set"), related_name="members", null=True,
+                            blank=True)
     order_ids = ListField(models.IntegerField(max_length=30))
-    algo_key = models.CharField(max_length=100)
+    algo_key = models.CharField(max_length=150, null=True, blank=True)
+    hotspot_key = models.CharField(max_length=150, null=True, blank=True)
+
     completed = models.BooleanField(default=False, editable=False)
 
     toleration_factor = models.FloatField(null=True, blank=True)
     toleration_factor_minutes = models.FloatField(null=True, blank=True)
-    statistics = models.TextField()
+    statistics = models.TextField(null=True, blank=True)
 
 
 class Producer(BaseModel):

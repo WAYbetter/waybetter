@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 # manual loading so signal receivers code is evaluated
+from sharing.sharing_dispatcher import ride_created
 from sharing.passenger_controller import send_ride_notifications
-from sharing.sharing_dispatcher import *
 
 urlpatterns = patterns('',
     url(r'^hotspot/$', 'sharing.staff_controller.hotspot_ordering_page',  kwargs={'is_textinput': False}, name='hotspot_select'),
@@ -34,6 +34,7 @@ urlpatterns = patterns('',
     (r'^station/create_taxidriver/$', 'sharing.station_controller.create_taxidriver_relation'),
     (r'^station/delete_taxidriver/$', 'sharing.station_controller.delete_taxidriver_relation'),
     (r'^drivers_for_taxi/$', 'sharing.station_controller.get_drivers_for_taxi'),
+    (r'^hotspots_data/$', 'sharing.passenger_controller.get_hotspots_data'),
     (r'^dates_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_dates'),
     (r'^times_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_times'),
     (r'^price_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_price'),
