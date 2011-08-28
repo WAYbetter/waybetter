@@ -24,7 +24,7 @@ import datetime
 import common.urllib_adaptor as urllib2
 
 ORDER_HANDLE_TIMEOUT =                      80 # seconds
-ORDER_TEASER_TIMEOUT =                      14 # seconds
+ORDER_TEASER_TIMEOUT =                      19 # seconds
 ORDER_ASSIGNMENT_TIMEOUT =                  80 # seconds
 WORKSTATION_HEARTBEAT_TIMEOUT_INTERVAL =    60 # seconds
 
