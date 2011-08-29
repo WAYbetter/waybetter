@@ -124,7 +124,7 @@
             if (ui.item.address) {
                 ui.item.address.populateFields();
                 $("#new_passenger_form #id_address_raw").catcomplete("disable").blur();
-                OrderingHelper._onAddressInputBlur($("#new_passenger_form #id_address_raw"), ui.item.address.address_type)
+                OrderingHelper._onAddressInputBlur($("#new_passenger_form #id_address_raw"), ui.item.address.address_type);
             }
         });
         $("#new_passenger_form input[type=text]").bind("keyup blur",function() {
@@ -209,20 +209,26 @@
             data: {"producer_id": "{{ producer.id }}"},
             dataType: "json",
             success: function(response) {
-                $(".passenger select").each(function() {
-                    var that = this;
-                    var old_val = $(this).val();
-                    $(this).empty();
-                    $.each(response.passengers, function(i, p) {
-                        var $option = $('<option value="' + p.id + '">' + p.name + '</option>');
-                        $.each(["address", "phone", "is_sharing", "name", "lon", "lat"], function(i, prop) {
-                            $option.data(prop, p[prop]);
+                if (response.passengers.length) {
+                    $("#no_passengers").remove();
+                    $(".passenger select").each(function() {
+                        var that = this;
+                        var old_val = $(this).val();
+                        $(this).empty();
+                        $.each(response.passengers, function(i, p) {
+                            var $option = $('<option value="' + p.id + '">' + p.name + '</option>');
+                            $.each(["address", "phone", "is_sharing", "name", "lon", "lat"], function(i, prop) {
+                                $option.data(prop, p[prop]);
+                            });
+                            $(that).append($option);
                         });
-                        $(that).append($option);
+                        $(this).val(old_val);
+                        $(this).change();
                     });
-                    $(this).val(old_val);
-                    $(this).change();
-                });
+                }
+                else{
+                    $(".passenger select").after('<span id="no_passengers">{% trans "No Passengers" %}</span>');
+                }
             },
             error: function() {
                 flashError("{% trans "Error updating passengers" %}");

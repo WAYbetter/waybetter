@@ -210,6 +210,7 @@ class Producer(BaseModel):
 
 class ProducerPassenger(BaseModel):
     producer = models.ForeignKey(Producer, related_name="passengers")
+    passenger = models.OneToOneField(Passenger, related_name="producerpassenger", default=None)
 
     name = models.CharField(_("name"), max_length=50)
     phone = models.CharField(_("phone number"), max_length=15, validators=[phone_validator])
@@ -225,7 +226,16 @@ class ProducerPassenger(BaseModel):
     geohash = models.CharField(_("goehash"), max_length=13)
 
     def save(self, *args, **kargs):
-        self.country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
+        country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
+        if hasattr(self, "passenger"):
+            self.passenger.phone = self.phone
+            self.passenger.save()
+        else:
+            passenger = Passenger(phone=self.phone, country=country)
+            passenger.save()
+            self.passenger = passenger
+
+        self.country = country
 
         super(ProducerPassenger, self).save(*args, **kargs)
 
@@ -238,3 +248,10 @@ class ProducerPassenger(BaseModel):
                 '%s_geohash' % address_type: self.geohash,
                 '%s_city' % address_type: self.city.id,
                 '%s_country' % address_type: self.country.id}
+
+
+def post_delete_producer_passenger(sender, instance, **kwargs):
+    passenger = instance.passenger
+    passenger.delete()
+
+models.signals.post_delete.connect(post_delete_producer_passenger, sender=ProducerPassenger)

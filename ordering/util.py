@@ -8,15 +8,6 @@ from common.util import log_event, EventType, get_channel_key, notify_by_email
 from common.sms_notification import send_sms
 import logging
 
-def send_msg_to_driver(driver, msg):
-    if not msg:
-        logging.error("skipping msg to driver [%d]: empty msg" % driver.id)
-    elif driver.phone:
-        logging.info("sending message driver [%d]: %s" % (driver.id, msg))
-        send_sms(driver.phone, msg)
-    else:
-        logging.error("Driver [%d] missing phone - skipping message: %s" % (driver.id, msg))
-
 def send_msg_to_passenger(passenger, msg):
     if not msg:
         logging.error("skipping msg to passenger [%d]: empty msg" % passenger.id)
@@ -107,7 +98,7 @@ def post_delete_user(sender, instance, **kwargs):
         notify_by_email("user deleted [%d, %s]" % (instance.id, instance.username))
 
 def post_delete_passenger(sender, instance, **kwargs):
-    if instance.user.email == SELENIUM_EMAIL or instance.user.username in SELENIUM_USER_NAMES:
+    if instance.user and (instance.user.email == SELENIUM_EMAIL or instance.user.username in SELENIUM_USER_NAMES):
         pass
     else:
         notify_by_email("passenger deleted [%d, %s]" % (instance.id, unicode(instance)))

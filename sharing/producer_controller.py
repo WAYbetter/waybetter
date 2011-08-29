@@ -1,7 +1,7 @@
 from common.models import  Country
 from common.geocode import geohash_encode
 from common.tz_support import set_default_tz_time
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseForbidden
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
@@ -19,6 +19,9 @@ import settings
 
 @passenger_required
 def producer_ordering_page(request, passenger):
+    if not hasattr(passenger, "producer"):
+        return HttpResponseForbidden("You are not a producer")
+    
     if request.method == 'POST':
         response = ''
         hotspot_type_raw = request.POST.get("hotspot_type", None)
@@ -120,7 +123,7 @@ def create_orders(data, hotspot_type, producer):
         form = OrderForm(form_data)
         if form.is_valid():
             order = form.save(commit=False)
-            order.passenger = producer.passenger
+            order.passenger = p.passenger
             if hotspot_type == "from":
                 order.depart_time = hotspot_datetime
             else:

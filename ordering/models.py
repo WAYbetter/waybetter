@@ -112,6 +112,8 @@ class Station(BaseModel):
                                             default=datetime.datetime(1, 1, 1))
 
     confine_orders = models.BooleanField(_("confine orders"), default=False)
+    sms_drivers = models.BooleanField(_("send sms to drivers"), default=False)
+
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="stations")

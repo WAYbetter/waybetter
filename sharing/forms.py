@@ -38,5 +38,5 @@ class ConstraintsForm(forms.Form):
 
 class ProducerPassengerForm(forms.ModelForm):
     class Meta:
-        exclude = ["producer", "country", "geohash"]
+        exclude = ["producer", "country", "geohash", "passenger"]
         model = ProducerPassenger

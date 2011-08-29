@@ -68,7 +68,7 @@ class RideComputationSetAdmin(admin.ModelAdmin):
 
 class ProducerPassengerInlineAdmin(admin.TabularInline):
     model = ProducerPassenger
-    fields = ["name", "phone", "is_sharing", "address"]
+    fields = ["passenger", "name", "phone", "is_sharing", "address"]
     extra = 0
     
 class ProducerAdmin(admin.ModelAdmin):
