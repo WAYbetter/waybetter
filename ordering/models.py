@@ -321,6 +321,33 @@ class TaxiDriverRelation(BaseModel):
         if self.taxi.station != self.driver.station:
             raise ValidationError("Driver and Taxi must belong to the same station")
 
+
+class RideComputationSet(BaseModel):
+    name = models.CharField(_("name"), max_length=50)
+
+    @property
+    def orders(self):
+        computations = self.members.filter(completed=True)
+        return list(computations[0].orders.all()) if computations else []
+
+
+class RideComputation(BaseModel):
+    set = models.ForeignKey(RideComputationSet, verbose_name=_("Computation set"), related_name="members", null=True, blank=True)
+    key = models.CharField(max_length=150, null=True, blank=True)
+    algo_key = models.CharField(max_length=150, null=True, blank=True)
+
+    completed = models.BooleanField(default=False, editable=False)
+
+    toleration_factor = models.FloatField(null=True, blank=True)
+    toleration_factor_minutes = models.FloatField(null=True, blank=True)
+    statistics = models.TextField(null=True, blank=True)
+
+    @classmethod
+    def get_orders_by_key(cls, key):
+        computations = cls.objects.filter(key=key)
+        return [order for c in computations for order in c.orders.all()]
+
+    
 class SharedRide(BaseModel):
 
     depart_time = UTCDateTimeField(_("depart time"))
@@ -723,6 +750,7 @@ RATING_CHOICES = ((0, ugettext("Unrated")),
 class Order(BaseModel):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
     ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="orders", null=True, blank=True)
+    computation = models.ForeignKey(RideComputation, related_name="orders", null=True, blank=True)
     pickup_point = models.ForeignKey(RidePoint, verbose_name=_("pickup point"), related_name="pickup_orders", null=True, blank=True)
     dropoff_point = models.ForeignKey(RidePoint, verbose_name=_("dropoff point"), related_name="dropoff_orders", null=True, blank=True)
 

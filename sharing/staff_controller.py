@@ -8,9 +8,9 @@ from common.tz_support import  default_tz_now, set_default_tz_time
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
-from ordering.models import StopType, Order
+from ordering.models import StopType, RideComputation, RideComputationSet
 from sharing.forms import ConstraintsForm
-from sharing.models import HotSpot, RideComputationSet
+from sharing.models import HotSpot
 from sharing.passenger_controller import HIDDEN_FIELDS
 from sharing.algo_api import submit_orders_for_ride_calculation
 from datetime import  datetime, date
@@ -40,7 +40,7 @@ def hotspot_ordering_page(request, passenger, is_textinput):
                 if int(request.POST.get("time_const_min") or 0):
                     params["toleration_factor_minutes"] = request.POST["time_const_min"]
                 name = request.POST.get("computation_set_name")
-                res = submit_orders_for_ride_calculation(orders, debug=True, params=params, computation_set_name=name)
+                res = submit_test_computation(orders, params=params, computation_set_name=name)
                 response = u"Orders submitted for calculation: %s" % res.content
             else:
                 response = "Hotspot data corrupt: no orders created"
@@ -78,7 +78,7 @@ def hotspot_ordering_page(request, passenger, is_textinput):
 @staff_member_required
 def ride_computation_stat(request, computation_set_id):
     computation_set = get_object_or_404(RideComputationSet, id=computation_set_id)
-    orders = list(Order.objects.filter(id__in=(computation_set.members.filter(completed=True)[0]).order_ids))
+    orders = computation_set.orders
 
     if request.method == 'POST':
         params = {}
@@ -87,8 +87,7 @@ def ride_computation_stat(request, computation_set_id):
         if int(request.POST.get("time_const_min") or 0):
             params["toleration_factor_minutes"] = request.POST["time_const_min"]
 
-        res = submit_orders_for_ride_calculation(orders, debug=True, params=params,
-                                                 computation_set_id=computation_set.id)
+        res = submit_test_computation(orders, params=params, computation_set_id=computation_set.id)
         return JSONResponse({'content': u"Orders submitted for calculation: %s" % res.content})
 
     else:
@@ -163,3 +162,31 @@ def create_orders_from_hotspot(data, hotspot_type, point_type, is_textinput):
                 orders.append(order)
 
     return orders
+
+
+def submit_test_computation(orders, params, computation_set_name=None, computation_set_id=None):
+
+    key = "test_%s" % str(default_tz_now())
+    response = submit_orders_for_ride_calculation(orders, key=key, debug=True, params=params)
+
+    if response.content:
+        algo_key = response.content.strip()
+        computation = RideComputation(algo_key=algo_key)
+        computation.toleration_factor = params.get('toleration_factor')
+        computation.toleration_factor_minutes = params.get('toleration_factor_minutes')
+
+        if computation_set_id: # add to existing set
+            computation_set = RideComputationSet.by_id(computation_set_id)
+            computation.set = computation_set
+        elif computation_set_name: # create new set
+            computation_set = RideComputationSet(name=computation_set_name)
+            computation_set.save()
+            computation.set = computation_set
+
+        computation.save()
+
+        for order in orders:
+            order.computation = computation
+            order.save()
+
+    return response

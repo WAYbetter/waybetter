@@ -2,7 +2,8 @@ from django.utils.translation import ugettext as _
 from django.contrib import admin
 from common.forms import MandatoryInlineFormset
 from django.core.urlresolvers import reverse
-from sharing.models import HotSpot, HotSpotTag, HotSpotServiceRule, HotSpotCustomPriceRule, HotSpotTariffRule, RideComputation, RideComputationSet, Producer, ProducerPassenger
+from ordering.models import RideComputation, RideComputationSet, Order
+from sharing.models import HotSpot, HotSpotTag, HotSpotServiceRule, HotSpotCustomPriceRule, HotSpotTariffRule, Producer, ProducerPassenger
 from sharing.forms import HotSpotAdminForm, HotSpotServiceRuleAdminForm
 
 class InlineHotSpotTagAdmin(admin.TabularInline):
@@ -37,6 +38,11 @@ class HotSpotAdmin(admin.ModelAdmin):
     form = HotSpotAdminForm
 
 
+class OrderInlineAdmin(admin.TabularInline):
+    model = Order
+    extra = 0
+    fields = ["from_raw", "to_raw", "depart_time", "arrive_time"]
+
 class RideComputationInlineAdmin(admin.TabularInline):
     model = RideComputation
     extra = 0
@@ -44,7 +50,8 @@ class RideComputationInlineAdmin(admin.TabularInline):
 
 class RideComputationAdmin(admin.ModelAdmin):
     list_display = ["id", "completed", "set_name"]
-
+    inlines = [OrderInlineAdmin,]
+    
     def set_name(self, obj):
         return '<a href="%s/%d">%s</a>' % ('/admin/sharing/ridecomputationset', obj.set.id, obj.set.name) if obj.set else ""
     set_name.allow_tags = True

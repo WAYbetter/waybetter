@@ -22,29 +22,22 @@
         {% endfor %}
         <input type="hidden" id="id_geocoded_p1_raw" name="geocoded_p1_raw"/>
 
-        <ul>
+        <div>
             <span id="from">{% trans 'From' %}</span>
             <li id="hotspot">
-                <select id="id_hotspot_select" name="hotspot_id">
-                    {% for hotspot in hotspots %}
-                        <option value="{{ hotspot.id }}" lat="{{ hotspot.lat }}" lon="{{ hotspot.lon }}">
-                            {{ hotspot.name }}
-                        </option>
-                    {% endfor %}
-                </select>
+                <select id="id_hotspot_select" name="hotspot_id"></select>
                 <input type="text" id="id_hotspot_datepicker" name="hotspot_date">
                 <select id="id_hotspot_time" name="hotspot_time"></select>
-            </li>
-            <span id="to">{% trans 'To' %}</span>
-            <li id="p1" class="point">
-                <input type=text class="big_text b_marker marker_disabled address_ac_to" id="id_p1_raw"
-                       name="p1_raw"
-                       placeholder="{% trans 'Enter drop-off address' %}"/>
-                <span class="price"></span>
-            </li>
-        </ul>
+            </div>
 
-        <button type=submit class="order_button" id="order_button">{% trans 'Pick Me Up' %}</button>
+            <span id="to">{% trans 'To' %}</span>
+
+            <div id="p1" class="point">
+                <input type=text id="id_p1_raw" name="p1_raw" placeholder="{% trans 'Enter drop-off address' %}"/>
+                <span class="price"></span>
+            </div>
+        <button type=submit class="order_button" id="order_button">{% trans 'Send' %}</button>
+        </div>
     </form>
 {% endblock %}
 
@@ -52,31 +45,11 @@
 {% block doc_ready %}
     {{ block.super }}
     <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
-    <script src="/static/js/sharing.js"></script>
     <script type="text/javascript">
 
         var pickup = "pickup",
                 dropoff = "dropoff",
                 hotspot_type = pickup;
-
-        function refrestHotspotMarker() {
-            var lat = $("#id_hotspot_select :selected").attr("lat");
-            var lon = $("#id_hotspot_select :selected").attr("lon");
-            var hotsport_marker_image = '/static/images/hotspot_red_marker.png';
-            var hotsport_marker_offset = {x:32, y:63};
-
-            var icon_image = new telmap.maps.MarkerImage(hotsport_marker_image, undefined, undefined, hotsport_marker_offset);
-            var point = new telmap.maps.Marker({
-                map:        OrderingHelper.map,
-                position:   new telmap.maps.LatLng(lat, lon),
-                icon:       icon_image,
-                title:      "Hotspot"
-            });
-
-            OrderingHelper.removePoint("hotspot");
-            OrderingHelper.map_markers["hotspot"] = point;
-            OrderingHelper.renderMapMarkers();
-        }
 
         function updatePrice(address) {
             if (address.lon && address.lat) {
@@ -107,23 +80,15 @@
 
         $(function() {
 
+            HotspotHelper.makeHotSpotSelector("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
+
             $("#id_hotspot_select").change(function() {
-                asHotSpotInput("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time", {
-                    'labels': {'choose_date': "{% trans "Choose Date" %}", 'updating': "{% trans "Updating..." %}"},
-                    'urls': {'get_hotspot_dates': "{% url sharing.passenger_controller.get_hotspot_dates %}",
-                        'get_hotspot_times': "{% url sharing.passenger_controller.get_hotspot_times %}"}
-                });
-                refrestHotspotMarker();
                 $(".price").text("");
             });
-            $("#id_hotspot_select").change();
 
             $("#id_hotspot_time").change(function() {
-                var selector = (hotspot_type == pickup) ? ".address_ac_to" : ".address_ac_from";
-                $(selector).each(function(i, e) {
-                    var address = Address.fromInput(e);
-                    updatePrice(address);
-                });
+                var address = Address.fromInput($("#id_p1_raw"));
+                updatePrice(address);
             });
 
             {% autoescape off %}
@@ -132,21 +97,24 @@
             {% endautoescape %}
 
             $("#order_form").submit(function() {
+                var that = this;
                 $(this).append('<input type="hidden" name="hotspot_type" value="' + hotspot_type + '"/>');
-
-                if ($("#id_time_const_min").val() && $("#id_time_const_frac").val()) {
-                    alert("Please specify only one time constraint");
-                    return false;
-                }
-                else {
-                    if ($("#id_time_const_frac").val()) {
-                        $(this).append('<input type="hidden" name="time_const_frac" value="' + $("#id_time_const_frac").val() + '"/>');
+                $(this).ajaxSubmit({
+                    beforeSend: function() {
+                        $(that).find("button[type='submit']").text("{% trans "Sending" %}").button("disable");
+                    },
+                    complete: function() {
+                        $(that).find("button[type='submit']").text("{% trans "Send" %}").button("enable");
+                    },
+                    success: function(response) {
+                        if (response.status && response.status == "booked") {
+                            alert("{% trans "Order booked" %}");
+                        }
                     }
-                    if ($("#id_time_const_const").val()) {
-                        $(this).append('<input type="hidden" name="time_const_min" value="' + $("#id_time_const_min").val() + '"/>');
-                    }
-                }
+                });
+                return false;
             });
+
 
             telmap.maps.event.addListener(OrderingHelper.map, 'click', function(e) {
                 $.ajax({

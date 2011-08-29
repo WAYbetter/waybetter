@@ -7,7 +7,7 @@ from django.utils.translation import ugettext_lazy as _
 from djangotoolbox.fields import ListField
 from common.util import convert_python_weekday, datetimeIterator
 from common.models import BaseModel, Country, City, CityAreaField, CityArea
-from ordering.models import Passenger
+from ordering.models import Passenger, Order
 from pricing.models import RuleSet, AbstractTemporalRule
 from datetime import datetime, date, timedelta, time
 import calendar
@@ -23,14 +23,14 @@ class HotSpot(BaseModel):
     lon = models.FloatField(_("longtitude"), null=True)
     lat = models.FloatField(_("latitude"), null=True)
 
-    def get_unique_key(self, hotspot_direction, hotspot_datetime):
+    def get_computation_key(self, hotspot_direction, hotspot_datetime):
         """
 
         @param hotspot_direction: "from" if the ride starts at hotspot, otherwise "to"
         @param hotspot_datetime: the time and date of the ride
         @return: unique key representing the hotspot at given time and direction
         """
-        return "_".join([self.id, hotspot_direction, hotspot_datetime])
+        return "_".join([str(s) for s in [self.id, hotspot_direction, hotspot_datetime]])
 
     def get_price(self, lat, lon, day, t):
         """
@@ -56,7 +56,13 @@ class HotSpot(BaseModel):
 
         return None
 
-    def get_next_datetime(self, base_time=None):
+    def get_next_active_datetime(self, base_time=None, timeframe=timedelta(weeks=1)):
+        """
+        Return the next datetime the hotspot is active in given range, or None
+        @param base_time: the datetime searching starts at
+        @param timeframe: a timedelta within to search
+        @return: datetime or None
+        """
         if not base_time:
             base_time = default_tz_now()
 
@@ -68,7 +74,7 @@ class HotSpot(BaseModel):
         if times:
             next = datetime.combine(d, times[0])
         if not next:
-            itr = datetimeIterator(d + timedelta(days=1), d + timedelta(weeks=1))
+            itr = datetimeIterator(d + timedelta(days=1), d + timeframe)
             for day in itr:
                 times = self.get_times(day=day)
                 if times:
@@ -193,24 +199,6 @@ order_relative_to_field(HotSpotTariffRule, "rule_set")
 class HotSpotTag(BaseModel):
     name = models.CharField(_("tag"), max_length=50)
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="tags")
-
-
-class RideComputationSet(BaseModel):
-    name = models.CharField(_("name"), max_length=50)
-
-
-class RideComputation(BaseModel):
-    set = models.ForeignKey(RideComputationSet, verbose_name=_("Computation set"), related_name="members", null=True,
-                            blank=True)
-    order_ids = ListField(models.IntegerField(max_length=30))
-    algo_key = models.CharField(max_length=150, null=True, blank=True)
-    hotspot_key = models.CharField(max_length=150, null=True, blank=True)
-
-    completed = models.BooleanField(default=False, editable=False)
-
-    toleration_factor = models.FloatField(null=True, blank=True)
-    toleration_factor_minutes = models.FloatField(null=True, blank=True)
-    statistics = models.TextField(null=True, blank=True)
 
 
 class Producer(BaseModel):

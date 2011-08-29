@@ -5,36 +5,40 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils import simplejson
 from common.decorators import internal_task_on_queue, catch_view_exceptions
-from ordering.models import  Order, SharedRide, RidePoint, StopType
-from sharing.models import RideComputation, RideComputationSet
+from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation
+from sharing.models import HotSpot
 from sharing import signals
 from datetime import timedelta
 import urllib
 import logging
 import settings
 
-SHARING_ENGINE_URL = "http://waybetter-route-service2.appspot.com/routeservicega1"
-PRE_FETCHING_URL = "%s/%s" % (SHARING_ENGINE_URL, "prefetch")
+SHARING_ENGINE_DOMAIN = "http://waybetter-route-service2.appspot.com"
+SHARING_ENGINE_URL = "/".join([SHARING_ENGINE_DOMAIN, "routeservicega1"])
+PRE_FETCHING_URL = "/".join([SHARING_ENGINE_DOMAIN, "prefetch"])
 WEB_APP_URL = "http://sharing.latest.waybetter-app.appspot.com/"
 
-def submit_to_prefetch(orders, hotspot_key, address_type):
-    for order in orders:
-        #TODO_WB: use task for fetching
-        payload = urllib.urlencode({'id': hotspot_key,
-                                    'address': getattr(order, "%s_raw" % address_type),
-                                    'latitude': getattr(order, "%s_lat" % address_type),
-                                    'longitude': getattr(order, "%s_lon" % address_type)})
-        result = fetch(PRE_FETCHING_URL, payload=payload, method=POST, deadline=10)
+def submit_to_prefetch(order, key, address_type):
+    payload = urllib.urlencode({'id': key,
+                                'name': getattr(order, "%s_raw" % address_type).encode("utf-8"),
+                                'latitude': getattr(order, "%s_lat" % address_type),
+                                'longitude': getattr(order, "%s_lon" % address_type)})
+
+    result = fetch(PRE_FETCHING_URL, payload=payload, method=POST, deadline=10)
+    if result.status_code == 200:
+        logging.info("submitted to prefetching order %s: payload=%s, response=%s" % (order.id, payload, result.content))
+    else:
+        logging.error("error while prefetching order %s" % order.id)
+    return result
 
 
-def submit_orders_for_ride_calculation(orders, debug=False, hotspot_key=None, params=None, computation_set_name=None,
-                                       computation_set_id=None):
+def submit_orders_for_ride_calculation(orders, key=None, params=None, debug=False):
     callback = ride_calculation_complete_noop if settings.is_dev() else ride_calculation_complete
     payload = {
         "debug": debug,
         "orders": [o.serialize_for_sharing() for o in orders],
         "callback_url": reverse(callback, prefix=WEB_APP_URL),
-        "hotspot_id": hotspot_key
+        "hotspot_id": key
     }
 
     if params:
@@ -47,22 +51,6 @@ def submit_orders_for_ride_calculation(orders, debug=False, hotspot_key=None, pa
     logging.info("payload = %s" % payload)
 
     response = fetch(SHARING_ENGINE_URL, payload="submit=%s" % payload, method=POST, deadline=50)
-
-    if response.content:
-        algo_key = response.content
-        computation = RideComputation(algo_key=algo_key.strip(), order_ids=[order.id for order in orders])
-        computation.toleration_factor = params.get('toleration_factor')
-        computation.toleration_factor_minutes = params.get('toleration_factor_minutes')
-
-        if computation_set_id:
-            computation_set = RideComputationSet.by_id(computation_set_id)
-            computation.set = computation_set
-        elif computation_set_name:
-            computation_set = RideComputationSet(name=computation_set_name)
-            computation_set.save()
-            computation.set = computation_set
-
-        computation.save()
 
     return response
 
@@ -105,7 +93,7 @@ def fetch_ride_results_task(request):
             computation.completed = True
             computation.save()
         except RideComputation.DoesNotExist:
-            logging.error("ride computation does not exist. this usually happens when fetching algo. results submitted by localhost or vice versa")
+            logging.error("computation does not exist. this usually happens when fetching algo. results submitted by localhost or vice versa")
 
         #TODO_WB: debug = bool(data.get("m_Debug"))
         debug = True
