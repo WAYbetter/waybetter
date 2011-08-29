@@ -13,7 +13,7 @@ import signals
 import logging
 
 MSG_DELIVERY_GRACE = 10 # seconds
-NOTIFY_STATION_DELTA = timedelta(minutes=5)
+NOTIFY_STATION_DELTA = timedelta(minutes=10)
 
 def assign_ride(ride):
     work_station = choose_workstation(ride)
@@ -37,7 +37,9 @@ def choose_workstation(ride):
     if ws_list:
         return ws_list[0]
     else:
-        logging.error("no work stations for sharing available (ride.debug=%s)" % ride.debug)
+        msg = "no work stations for sharing available ride.id=%s ride.debug=%s)" % (ride.id, ride.debug)
+        logging.error(msg)
+        notify_by_email("No sharing stations found", msg=msg)
         return None
 
 

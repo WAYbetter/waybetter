@@ -328,7 +328,8 @@ class RideComputationSet(BaseModel):
     @property
     def orders(self):
         computations = self.members.filter(completed=True)
-        return list(computations[0].orders.all()) if computations else []
+        computation = filter(lambda c: c.orders.count(), computations)[0]
+        return computation.orders.all()
 
 
 class RideComputation(BaseModel):

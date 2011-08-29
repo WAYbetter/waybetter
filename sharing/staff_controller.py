@@ -167,7 +167,8 @@ def create_orders_from_hotspot(data, hotspot_type, point_type, is_textinput):
 def submit_test_computation(orders, params, computation_set_name=None, computation_set_id=None):
 
     key = "test_%s" % str(default_tz_now())
-    response = submit_orders_for_ride_calculation(orders, key=key, debug=True, params=params)
+    params.update({'debug': True})
+    response = submit_orders_for_ride_calculation(orders, key=key, params=params)
 
     if response.content:
         algo_key = response.content.strip()

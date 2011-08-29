@@ -31,10 +31,9 @@ def submit_to_prefetch(order, key, address_type):
     return result
 
 
-def submit_orders_for_ride_calculation(orders, key=None, params=None, debug=False):
+def submit_orders_for_ride_calculation(orders, key=None, params=None):
     callback = ride_calculation_complete_noop if settings.is_dev() else ride_calculation_complete
     payload = {
-        "debug": debug,
         "orders": [o.serialize_for_sharing() for o in orders],
         "callback_url": reverse(callback, prefix=WEB_APP_URL),
         "hotspot_id": key,
@@ -107,8 +106,7 @@ def fetch_ride_results_task(request):
         except RideComputation.DoesNotExist:
             logging.error("computation does not exist. this usually happens when fetching algo. results submitted by localhost or vice versa")
 
-        #TODO_WB: debug = bool(data.get("m_Debug"))
-        debug = True
+        debug = bool(data.get("m_Debug"))
         for ride_data in data["m_Rides"]:
             ride = SharedRide()
             ride.debug = debug

@@ -32,12 +32,12 @@ def producer_ordering_page(request, passenger):
             not_shared_orders = orders.get('not_shared_orders')
 
             if shared_orders:
-                res = submit_orders_for_ride_calculation(orders['shared_orders'], debug=False)
+                res = submit_orders_for_ride_calculation(orders['shared_orders'])
                 response = u"%d orders submitted for sharing: %s" % (len(shared_orders) ,res.content.strip())
             if not_shared_orders:
                 algo_keys = []
                 for order in not_shared_orders:
-                    res = submit_orders_for_ride_calculation([order], debug=False)
+                    res = submit_orders_for_ride_calculation([order])
                     algo_keys.append(res.content.strip())
                 response += u"</br>%d orders not shared: %s" % (len(not_shared_orders), algo_keys)
         else:
