@@ -33,8 +33,8 @@
         </p>
 
         <p>
-            <label for="id_is_sharing">{% trans "Is Sharing" %}</label>
             <input checked="checked" type="checkbox" name="is_sharing" id="id_is_sharing">
+            <label for="id_is_sharing">{% trans "Is Sharing" %}</label>
         </p>
 
         <input type="hidden" name="producer_id" id="id_producer_id" value="{{ producer.id }}"/>
@@ -79,8 +79,9 @@
         </form>
 
         <div id="p_actions">
-            <a class="action_link" id="new_passenger">{% trans 'Create new passenger' %}</a> /
             <a class="action_link" id="add_passenger">{% trans 'Add existing passenger' %}</a>
+             /
+            <a class="action_link" id="new_passenger">{% trans 'Create new passenger' %}</a>
         </div>
 
         <div id="book_order">{% trans 'Send' %}</div>
