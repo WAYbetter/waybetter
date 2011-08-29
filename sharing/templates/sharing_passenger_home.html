@@ -108,7 +108,10 @@
                     },
                     success: function(response) {
                         if (response.status && response.status == "booked") {
-                            alert("{% trans "Order booked" %}");
+                            flashMessage("{% trans "Order booked" %}");
+                        }
+                        else{
+                            flashError("{% trans "Error" %}");
                         }
                     }
                 });

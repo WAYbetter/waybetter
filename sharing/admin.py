@@ -49,11 +49,11 @@ class RideComputationInlineAdmin(admin.TabularInline):
 
 
 class RideComputationAdmin(admin.ModelAdmin):
-    list_display = ["id", "completed", "set_name"]
+    list_display = ["create_date", "id", "completed", "set_name"]
     inlines = [OrderInlineAdmin,]
     
     def set_name(self, obj):
-        return '<a href="%s/%d">%s</a>' % ('/admin/sharing/ridecomputationset', obj.set.id, obj.set.name) if obj.set else ""
+        return '<a href="%s">%s</a>' % (reverse('sharing.staff_controller.ride_computation_stat', kwargs={'computation_set_id': obj.set.id}), obj.set.name)
     set_name.allow_tags = True
 
 
@@ -62,8 +62,7 @@ class RideComputationSetAdmin(admin.ModelAdmin):
     inlines = [RideComputationInlineAdmin]
 
     def statistics(self, obj):
-        return '<a href="%s">%s</a>' % (
-            reverse('sharing.staff_controller.ride_computation_stat', kwargs={'computation_set_id': obj.id}),_("View"))
+        return '<a href="%s">%s</a>' % (reverse('sharing.staff_controller.ride_computation_stat', kwargs={'computation_set_id': obj.id}),_("View"))
 
     statistics.allow_tags = True
 

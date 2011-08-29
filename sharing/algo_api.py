@@ -6,7 +6,6 @@ from django.http import HttpResponse
 from django.utils import simplejson
 from common.decorators import internal_task_on_queue, catch_view_exceptions
 from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation
-from sharing.models import HotSpot
 from sharing import signals
 from datetime import timedelta
 import urllib
@@ -38,21 +37,34 @@ def submit_orders_for_ride_calculation(orders, key=None, params=None, debug=Fals
         "debug": debug,
         "orders": [o.serialize_for_sharing() for o in orders],
         "callback_url": reverse(callback, prefix=WEB_APP_URL),
-        "hotspot_id": key
+        "hotspot_id": key,
+        "parameters": params
     }
-
-    if params:
-        payload["parameters"] = {"car_availability": {"car_types": [{"cost_multiplier": 1, "max_passengers": 3}],
-                                                      "m_Availability": [{"Key": {"cost_multiplier": 1, "max_passengers": 3}, "Value": 10000}]},
-                                 "toleration_factor": params.get('toleration_factor', 0),
-                                 "toleration_factor_minutes": params.get('toleration_factor_minutes', 0)}
 
     payload = simplejson.dumps(payload)
     logging.info("payload = %s" % payload)
 
     response = fetch(SHARING_ENGINE_URL, payload="submit=%s" % payload, method=POST, deadline=50)
+    if response.status_code != 200 or not response.content:
+        logging.error("error submitting orders for ride calculation: %s" % response)
 
     return response
+
+
+@csrf_exempt
+@catch_view_exceptions
+@internal_task_on_queue("orders")
+def submit_computation_task(request):
+    computation = RideComputation.by_id(request.POST.get("computation_id"))
+    if computation:
+        response = submit_orders_for_ride_calculation(computation.orders.all(), computation.key)
+        if response.content:
+            computation.algo_key = response.content.strip()
+            computation.save()
+    else:
+        logging.error("error submitting computation for calculation: %s" % request.POST.get("computation_id"))
+
+    return HttpResponse("OK")
 
 
 @csrf_exempt
