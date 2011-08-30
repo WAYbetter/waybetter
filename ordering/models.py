@@ -115,6 +115,9 @@ class Station(BaseModel):
     average_rating = models.FloatField(_("average rating"), default=0.0)
     internal_rating = models.FloatField(_("internal rating"), default=0)
 
+    page_description = models.CharField(_("page description"), null=True, blank=True, max_length=255)
+    page_keywords = models.CharField(_("page keywords"), null=True, blank=True, max_length=255)
+
     create_date = UTCDateTimeField(_("create date"), auto_now_add=True)
     modify_date = UTCDateTimeField(_("modify date"), auto_now=True)
 

@@ -17,8 +17,8 @@
 
     <title>{% block title %}{% endblock %}</title>
 
-    <meta name="description" content="{% trans 'Order a taxi online, no phone call! A large selection of taxi stations in every city. One click and the taxi is on the way '%}" />
-    <meta name="keywords" content="{% trans 'Taxi,iPhone,Android,WAYbetter,get taxi,order taxi,order taxi online' %}" />
+    <meta name="description" content="{% block description %}{% trans 'Order a taxi online, no phone call! A large selection of taxi stations in every city. One click and the taxi is on the way '%}{% endblock %}" />
+    <meta name="keywords" content="{% block keywords %}{% trans 'Taxi,iPhone,Android,WAYbetter,get taxi,order taxi,order taxi online' %}{% endblock %}" />
     <meta name="author" content="WAYbetter LTD." />
 
 
