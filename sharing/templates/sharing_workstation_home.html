@@ -12,7 +12,7 @@
 {% block content %}
     <div id="header" class="ui-widget-header">
         <div id="tools_button" class="toolbar_button">{% trans "Station Account" %}</div>
-        <div id="toggle_mode_button" class="toolbar_button"></div>
+{#        <div id="toggle_mode_button" class="toolbar_button"></div>#}
         <div id="summary">
             {% trans "Overall Status" %}:
             <span id="untaken_counter" class="untaken_count"></span> <span class="untaken_count"> {% trans "Rides Untaken" %}</span>
@@ -355,7 +355,7 @@
         var $rh = $("#ride_header_" + ride.id);
         $rh.data("status", {{ accepted }}).addClass("accepted");
         $rh.find(".pickup").after('<span class="seperator"> - </span>',
-                '<span class="taxi"> {% trans 'Taxi No.' %} ' + ride.taxi.number + ' </span>');
+                '<span class="taxi"> {% trans 'Taxi No.' %}' + ride.taxi.number + ' </span>');
 
         var $rd = $("#ride_div_" + ride.id);
         $rd.find("select").disable();
