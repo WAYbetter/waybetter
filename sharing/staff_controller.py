@@ -152,12 +152,14 @@ def create_orders_from_hotspot(data, hotspot_type, point_type, is_textinput):
             form = OrderForm(form_data)
             if form.is_valid():
                 order = form.save(commit=False)
-                order.passenger = data['passenger']
                 if hotspot_type == "from":
                     order.depart_time = hotspot_datetime
                 else:
                     order.arrive_time = hotspot_datetime
 
+                passenger = data['passenger']
+                order.passenger = passenger
+                order.confining_station = passenger.default_sharing_station
                 order.save()
                 orders.append(order)
 

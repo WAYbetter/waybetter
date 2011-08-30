@@ -494,10 +494,9 @@ class Passenger(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
 
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="passengers")
-    default_station = models.ForeignKey(Station, verbose_name=_("Default station"), related_name="default_passengers",
-                                        default=None, null=True, blank=True)
-    originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")),
-                                            related_name="originated_passengers", null=True, blank=True, default=None)
+    default_station = models.ForeignKey(Station, verbose_name=_("Default station"), related_name="default_passengers", default=None, null=True, blank=True)
+    default_sharing_station = models.ForeignKey(Station, verbose_name=_("Default sharing station"), default=None, null=True, blank=True)
+    originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")), related_name="originated_passengers", null=True, blank=True, default=None)
 
     phone = models.CharField(_("phone number"), max_length=15)
     phone_verified = models.BooleanField(_("phone verified"))

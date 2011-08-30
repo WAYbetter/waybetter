@@ -135,6 +135,7 @@ def create_orders(data, hotspot_type, producer):
             else:
                 order.arrive_time = hotspot_datetime
 
+            order.confining_station = producer.default_sharing_station
             order.save()
 
             if p.is_sharing:

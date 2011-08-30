@@ -31,7 +31,13 @@ def assign_ride(ride):
 
 
 def choose_workstation(ride):
+
+    confining_stations = [order.confining_station for order in ride.orders.all()]
+    confining_station = confining_stations[0] if all(map(lambda s: s==confining_stations[0], confining_stations)) else None
+
     ws_list = WorkStation.objects.filter(accept_shared_rides=True, is_online=True)
+    if confining_station:
+        ws_list = ws_list.filter(station=confining_station)
     if ride.debug:
         ws_list = ws_list.filter(accept_debug=True)
     if ws_list:

@@ -4,10 +4,9 @@ from common.tz_support import default_tz_now
 from common.util import phone_validator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from djangotoolbox.fields import ListField
 from common.util import convert_python_weekday, datetimeIterator
 from common.models import BaseModel, Country, City, CityAreaField, CityArea
-from ordering.models import Passenger, Order
+from ordering.models import Passenger, Station
 from pricing.models import RuleSet, AbstractTemporalRule
 from datetime import datetime, date, timedelta, time
 import calendar
@@ -204,8 +203,8 @@ class HotSpotTag(BaseModel):
 class Producer(BaseModel):
     name = models.CharField(_("name"), max_length=50)
     passenger = models.OneToOneField(Passenger, related_name="producer")
+    default_sharing_station = models.ForeignKey(Station, verbose_name=_("Default sharing station"), default=None, null=True, blank=True)
     # hotspots ?
-    # station ?
 
 
 class ProducerPassenger(BaseModel):
