@@ -40,7 +40,7 @@
         {% endautoescape %}
 
         renderRidesTable = function(rides) {
-            var col_names = ["{% trans 'Ride' %}", "{% trans 'Date' %}", "{% trans 'Taxi' %}", "{% trans 'From' %}", "{% trans 'To' %}", "{% trans '#Stops' %}", "{% trans "Value" %}", "{% trans "Payday" %}"];
+            var col_names = ["{% trans 'Ride' %}", "{% trans 'Date' %}", "{% trans 'Taxi' %}", "{% trans 'From' %}", "{% trans 'To' %}", "{% trans '#Stops' %}", "{% trans "Value" %}", "{% trans 'Tariff' %}", "{% trans "Payday" %}"];
             var $table = $('<table class="striped"><thead></thead></table>');
 
             $.each(col_names, function(i, col_name) {
@@ -55,7 +55,7 @@
                 var ride_value = (ride.value) ? ride.value + " ₪" : "" ;
                 var ride_payday = getFullDate(new Date(ride.payday));
                 var $tr = $('<tr></tr>').appendTo($table).append($('<td></td>').append(ride_link));
-                $tr.append('<td>' + ride_date + '</td><td>' + ride.taxi + '</td><td>' + ride.from + '</td><td>' + ride.to + '</td><td>' + ride.stops + '</td><td>' + ride_value + '</td><td>' + ride_payday + '</td>');
+                $tr.append('<td>' + ride_date + '</td><td>' + ride.taxi + '</td><td>' + ride.from + '</td><td>' + ride.to + '</td><td>' + ride.stops + '</td><td>' + ride_value + '</td><td>' + ride.tariff_name + '</td><td>' + ride_payday + '</td>');
             });
 
             return $table;

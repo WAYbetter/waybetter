@@ -165,7 +165,7 @@ class Station(BaseModel):
                     priced_orders.add(order)
 
         if price_rules and priced_orders == orders:
-            return max([pr.price for pr in price_rules]) + self.stop_price * (shared_ride.number_of_stops - 1) # first stop is free
+            return max([pr.price for pr in price_rules]) + self.stop_price * shared_ride.charged_stops
         else:
             return None
 
@@ -367,7 +367,8 @@ class SharedRide(BaseModel):
     sent_time = UTCDateTimeField("sent time", null=True, blank=True)
     received_time = UTCDateTimeField("received time", null=True, blank=True)
 
-    _value = models.FloatField(_("ride value"), null=True, blank=True) # the value of this ride to the assigned station
+    _value = models.FloatField(null=True, blank=True, editable=False) # the value of this ride to the assigned station
+    _stops = models.IntegerField(null=True, blank=True, editable=False)
 
     @property
     def value(self):
@@ -394,13 +395,20 @@ class SharedRide(BaseModel):
             return None
         
     @property
-    def number_of_stops(self):
+    def stops(self):
         """
         Compute the number of stops not counting the first one (starting point of the ride).
         @return: number of stops
         """
-        # TODO_WB: safer if algo. computes this ?
-        return len(set([(p.lat, p.lon) for p in self.points.all()])) - 1 # don't count the starting point
+        if not self._stops:
+            self._stops = len(set([(p.lat, p.lon) for p in self.points.all()])) - 1 # don't count the starting point
+            self.save()
+
+        return self._stops
+
+    @property
+    def charged_stops(self):
+        return self.stops - 1
 
     def serialize_for_ws(self):
         return {'pickups': [ { 'num_passengers': p.pickup_orders.count(),
