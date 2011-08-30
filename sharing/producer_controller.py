@@ -34,15 +34,21 @@ def producer_ordering_page(request, passenger):
             shared_orders = orders.get('shared_orders')
             not_shared_orders = orders.get('not_shared_orders')
 
+            wb_data = ""
             if shared_orders:
                 res = submit_orders_for_ride_calculation(orders['shared_orders'])
-                response = u"%d orders submitted for sharing: %s" % (len(shared_orders) ,res.content.strip())
+                response = u"%d orders submitted for sharing" % len(shared_orders)
+                wb_data = u"sharing keys: %s" % res.content.strip()
             if not_shared_orders:
                 algo_keys = []
                 for order in not_shared_orders:
                     res = submit_orders_for_ride_calculation([order])
                     algo_keys.append(res.content.strip())
-                response += u"</br>%d orders not shared: %s" % (len(not_shared_orders), algo_keys)
+                response += u"</br>%d orders not shared" % len(not_shared_orders)
+                wb_data += u"<br/>non sharing keys: %s" % " ".join(algo_keys)
+
+            if wb_data:
+                response = "%s %s %s" % (response, "</br></br></br>For internal use by WAYbetter:</br>", wb_data)
         else:
             response = "Hotspot type invalid"
 

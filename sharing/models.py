@@ -226,16 +226,21 @@ class ProducerPassenger(BaseModel):
     geohash = models.CharField(_("goehash"), max_length=13)
 
     def save(self, *args, **kargs):
-        country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
+        if not hasattr(self, "country"):
+            country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
+            self.country = country
         if hasattr(self, "passenger"):
             self.passenger.phone = self.phone
             self.passenger.save()
         else:
-            passenger = Passenger(phone=self.phone, country=country)
-            passenger.save()
-            self.passenger = passenger
+            try:
+                passenger = Passenger.objects.get(phone=self.phone)
+            except Passenger.DoesNotExist:
+                country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
+                passenger = Passenger(phone=self.phone, country=country)
+                passenger.save()
 
-        self.country = country
+            self.passenger = passenger
 
         super(ProducerPassenger, self).save(*args, **kargs)
 
@@ -248,10 +253,3 @@ class ProducerPassenger(BaseModel):
                 '%s_geohash' % address_type: self.geohash,
                 '%s_city' % address_type: self.city.id,
                 '%s_country' % address_type: self.country.id}
-
-
-def post_delete_producer_passenger(sender, instance, **kwargs):
-    passenger = instance.passenger
-    passenger.delete()
-
-models.signals.post_delete.connect(post_delete_producer_passenger, sender=ProducerPassenger)

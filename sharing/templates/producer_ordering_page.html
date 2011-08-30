@@ -125,6 +125,7 @@
                 ui.item.address.populateFields();
                 $("#new_passenger_form #id_address_raw").catcomplete("disable").blur();
                 OrderingHelper._onAddressInputBlur($("#new_passenger_form #id_address_raw"), ui.item.address.address_type);
+                $("#new_passenger_form #id_address_raw").catcomplete("enable");
             }
         });
         $("#new_passenger_form input[type=text]").bind("keyup blur",function() {
@@ -151,7 +152,7 @@
                             $(this).submit();
                         }
                         else {
-                            flashError("{% trans "Please fill all fields" %}");
+                            alert("{% trans "Please fill all fields" %}");
                         }
                     }}
             ]
@@ -171,10 +172,10 @@
                 },
                 success: function(response) {
                     if (response.error) {
-                        flashError("{% trans "Error" %}");
+                        alert("{% trans "Error" %}");
                     }
                     else {
-                        flashMessage("{% trans "Passenger Created" %}");
+                        alert("{% trans "Passenger Created" %}");
                         updatePassengers();
                         $("#new_passenger_form input[type=text]").val("");
                         $("#new_passenger_form").dialog("close");
@@ -182,7 +183,7 @@
                 },
                 error: function() {
                     $(".save_btn").button("enable");
-                    flashError("{% trans "Error" %}");
+                    alert("{% trans "Error" %}");
                 }
             });
             return false;
@@ -231,7 +232,7 @@
                 }
             },
             error: function() {
-                flashError("{% trans "Error updating passengers" %}");
+                alert("{% trans "Error updating passengers" %}");
             }
         });
     }
@@ -285,15 +286,14 @@
             $("#order_form").submit();
         });
 
-        $("#hotspot_datetime").change(
-                function() {
-                    $("#book_order").button("enable");
-                    $(this).find("input, select").each(function(i, e) {
-                        if (! Boolean($(e).val())) {
-                            $("#book_order").button("disable");
-                        }
-                    });
-                }).change();
+        $("#hotspot_datetime").change(function() {
+            $("#book_order").button("enable");
+            $(this).find("input, select").each(function(i, e) {
+                if (! Boolean($(e).val())) {
+                    $("#book_order").button("disable");
+                }
+            });
+        }).change();
 
     });
     </script>
