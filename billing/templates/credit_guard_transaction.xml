@@ -1,0 +1,22 @@
+<ashrait>
+    <request>
+        <command>doDeal</command>
+        <requestId>{{ request_id }}</requestId>
+        <version>1001</version>
+        <language>{{ language }}</language>
+        <mayBeDuplicate>{{ may_be_duplicate }}</mayBeDuplicate>
+        <doDeal>
+            <terminalNumber>{{ terminal_number }}</terminalNumber>
+            <cardId>{{ card_id }}</cardId>
+            <cardExpiration>{{ card_expiration }}</cardExpiration>
+            <transactionType>Debit</transactionType>
+            <creditType>RegularCredit</creditType>
+            <currency>{{ currency }}</currency>
+            <transactionCode>Phone</transactionCode>
+            <total>{{ total }}</total>
+            <validation>{{ validation }}</validation>
+            <user>{{ billing_transaction_id }}</user>
+            <authNumber>{{ auth_number }}</authNumber>
+        </doDeal>
+    </request>
+</ashrait>

@@ -10,6 +10,7 @@ from django.shortcuts import render_to_response
 from django.db.models.fields import related
 from django.db import models
 from django.core.validators import RegexValidator
+from django.conf import settings
 from common.errors import TransactionError
 from settings import NO_REPLY_SENDER
 import hashlib
@@ -70,7 +71,6 @@ class Polygon(object):
     def contains(self, lat, lon):
         return point_inside_polygon(lat, lon, self.polygon)
 
-
 class EventType(Enum):
     ORDER_BOOKED = 1
     ORDER_ASSIGNED = 2
@@ -109,10 +109,6 @@ class EventType(Enum):
 
         raise ValueError(_("Invalid value: %s" % str(val)))
 
-
-
-
-
 class TransactionalField(models.Field):
     def pre_save(self, model_instance, add):
         # Prevent changes outside of a transaction
@@ -125,10 +121,8 @@ class TransactionalField(models.Field):
 
         return super(TransactionalField, self).pre_save(model_instance, add)
 
-
 class StatusField(TransactionalField, models.IntegerField):
     pass
-
 
 def is_empty(str):
     """
@@ -448,3 +442,44 @@ def point_inside_polygon_2(x, y, poly):
         i += 1
 
     return c
+
+def get_text_from_element(node, *elements):
+    """
+    Tries to traverse the path of elements and retrieve the text node's data
+    in the last element
+    """
+    for elem in elements:
+        try:
+            node = node.getElementsByTagName(elem)[0]
+        except:
+            return None
+
+    if node.childNodes:
+        if node.firstChild.data.isspace():
+            return None
+        else:
+            return node.firstChild.data
+
+
+def add_formatted_date_fields(classes):
+    """
+    For each DateTime in given model classes field add a methods to print the formatted date time according to
+    settings.DATETIME_FORMAT
+    """
+    for model in classes:
+        for f in model._meta.fields:
+            if isinstance(f, models.DateTimeField):
+                # create a wrapper function to force a new closure environment
+                # so that iterator variable f will not be overwritten
+                def format_datefield(field):
+                    # actual formatter method
+                    def do_format(self):
+                        return getattr(self, field.name).strftime(settings.DATETIME_FORMAT)
+
+                    do_format.admin_order_field = field.name
+                    do_format.short_description = field.verbose_name
+                    return do_format
+
+                setattr(model, f.name + "_format", format_datefield(f))
+
+
