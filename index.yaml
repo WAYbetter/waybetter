@@ -89,6 +89,105 @@ indexes:
   - name: is_active
   - name: username
 
+- kind: billing_billingtransaction
+  properties:
+  - name: __key__
+    direction: desc
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: __key__
+    direction: desc
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: amount
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: amount
+    direction: desc
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: charge_date
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: charge_date
+    direction: desc
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: comments
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: comments
+    direction: desc
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: dn_dropoff
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: dn_dropoff
+    direction: desc
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: dn_passenger_name
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: dn_passenger_name
+    direction: desc
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: dn_pickup
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: dn_pickup
+    direction: desc
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: dn_pickup_time
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: dn_pickup_time
+    direction: desc
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: transaction_id
+
+- kind: billing_billingtransaction
+  properties:
+  - name: status
+  - name: transaction_id
+    direction: desc
+
 - kind: common_city
   properties:
   - name: __key__

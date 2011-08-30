@@ -1,4 +1,5 @@
 import types
+from common.errors import TransactionError
 from common.tz_support import UTCDateTimeField
 from common.util import Polygon
 from django.db import models
@@ -51,7 +52,7 @@ class BaseModel(models.Model):
             return None
 
     @run_in_transaction
-    def _change_attr_in_transaction(self, attname, old_value, new_value):
+    def _change_attr_in_transaction(self, attname, old_value=None, new_value=None, safe=True):
         """
         change the given attribute value from B{old_value} to B{new_value}
         
@@ -61,25 +62,33 @@ class BaseModel(models.Model):
         @return: True to signal success
         """
         if old_value == new_value:
-            return False
-        elif not old_value:
+            logging.info("old == new")
+            result =  False
+        elif old_value is None:
             setattr(self, attname, new_value)
             self.save()
-            return True
+            result = True
         elif getattr(self, attname) == old_value:
             setattr(self, attname, new_value)
             self.save()
-            return True
+            result = True
         else:
-            logging.warning("%s.%s : update in transaction failed" % (self.__class__.__name__, attname))
-            return False
+            result = False
+
+        if not result:
+            msg = "%s.%s : update in transaction failed (%s --> %s)" % (self.__class__.__name__, attname, str(old_value), str(new_value))
+            if safe:
+                logging.warning(msg)
+            else:
+                raise TransactionError(msg)
+
+        return result
 
     def __unicode__(self):
         if self.id:
             return u"%s [%d]" % (type(self).__name__, self.id)
         else:
             return u"%s [?]" % (type(self).__name__)
-
 
 class Country(BaseModel):
     name = models.CharField(_("name"), max_length=60, unique=True)
@@ -129,7 +138,6 @@ class Country(BaseModel):
         self.flat_rate_rules.all().delete()
         self.extra_charge_rules.all().delete()
 
-
 class City(BaseModel):
     name = models.CharField(_("name"), max_length=50)
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="cities")
@@ -175,7 +183,6 @@ class CityAreaField(models.ForeignKey):
         }
         defaults.update(kwargs)
         return super(CityAreaField, self).formfield(**defaults)
-
 
 class CityArea(BaseModel):
     name = models.CharField(_("name"), max_length=50)
