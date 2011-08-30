@@ -16,7 +16,7 @@ from django.utils import  translation
 from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea, CityAreaField
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES
+from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, add_formatted_date_fields
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
@@ -70,28 +70,6 @@ LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGE
 
 MAX_STATION_DISTANCE_KM = 10
 CURRENT_PASSENGER_KEY = "current_passenger"
-
-
-def add_formatted_create_date(classes):
-    """
-    For each DateTime in given model classes field add a methods to print the formatted date time according to
-    settings.DATETIME_FORMAT
-    """
-    for model in classes:
-        for f in model._meta.fields:
-            if isinstance(f, models.DateTimeField):
-                # create a wrapper function to force a new closure environment
-                # so that iterator variable f will not be overwritten
-                def format_datefield(field):
-                    # actual formatter method
-                    def do_format(self):
-                        return getattr(self, field.name).strftime(settings.DATETIME_FORMAT)
-
-                    do_format.admin_order_field = field.name
-                    do_format.short_description = field.verbose_name
-                    return do_format
-
-                setattr(model, f.name + "_format", format_datefield(f))
 
 
 class Station(BaseModel):
@@ -467,11 +445,9 @@ class SharedRide(BaseModel):
         }
         return t.render(Context(template_data))
 
-
 class StopType(Enum):
     PICKUP  = 0
     DROPOFF = 1
-
 
 class RidePoint(BaseModel):
     ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="points", null=True, blank=True)
@@ -566,7 +542,6 @@ class Passenger(BaseModel):
         except User.DoesNotExist:
             return u"Passenger: %s, %s" % (self.phone, "[UNKNOWN USER]")
 
-
 class Business(BaseModel):
     passenger = models.OneToOneField(Passenger, verbose_name=_("passenger"), related_name="_business")
 
@@ -604,7 +579,6 @@ class Business(BaseModel):
         notify_by_email("New business joined", html=t.render(Context(template_args)))
 
         translation.activate(current_lang)
-
 
 def post_delete_business(sender, instance, **kwargs):
     passenger = instance.passenger
@@ -1132,7 +1106,7 @@ for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
         models.BooleanField(default=False).contribute_to_class(Feedback, "%s_%s" % (
         type.lower(), category.lower().replace(" ", "_")))
 
-add_formatted_create_date([Order, OrderAssignment, Passenger, Station, WorkStation])
+add_formatted_date_fields([Order, OrderAssignment, Passenger, Station, WorkStation])
 
 # TODO_WB: check if created arg has been fixed and reports False on second save of instance
 #def order_init_handler(sender, **kwargs):

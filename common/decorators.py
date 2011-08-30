@@ -1,12 +1,33 @@
 import sys
 from django.db.models.fields.related import ForeignKey
-from django.http import HttpResponseForbidden, HttpResponse
+from django.http import HttpResponseForbidden, HttpResponse, HttpResponseBadRequest
 from django.db import models
 
 from google.appengine.ext import db
 from common.util import notify_by_email
 import logging
 import traceback
+
+def require_parameters(method='GET', required_params=()):
+    """
+    Ensure the given parameters where passed to the request, otherwise respond with HttpResponseBadRequest
+    """
+
+    def actual_decorator(function):
+        def wrapper(request, **kwargs):
+            dic = getattr(request, method)
+
+            for p in required_params:
+                if p in dic:
+                    kwargs[p] = dic[p]
+                else:
+                    return HttpResponseBadRequest("Missing parameter: %s" % p)
+
+            return function(request, **kwargs)
+
+        return wrapper
+
+    return actual_decorator
 
 def catch_view_exceptions(function=None):
     def wrapper(*args, **kwargs):

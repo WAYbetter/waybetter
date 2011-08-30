@@ -16,24 +16,6 @@ def login_needed(login_url):
     return user_passes_test(lambda u: not u.is_anonymous(), login_url=login_url)
 
 
-def require_parameters(method='GET', required_params=()):
-    """
-    Ensure the given parameters where passed to the request, otherwise respond with HttpResponseBadRequest
-    """
-
-    def actual_decorator(function):
-        def wrapper(request):
-            dic = getattr(request, method)
-            if not all([p in dic for p in required_params]):
-                return HttpResponseBadRequest("Missing parameters")
-
-            return function(request)
-
-        return wrapper
-
-    return actual_decorator
-
-
 def passenger_required_no_redirect(function=None):
     """
     Decorator for views that checks that the user is logged in and is a passenger
