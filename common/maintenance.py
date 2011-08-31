@@ -11,6 +11,7 @@ from common.util import notify_by_email
 from common.route import calculate_time_and_distance
 from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation
 import logging
+import traceback
 
 
 TEL_AVIV_POINTS = [
@@ -56,13 +57,16 @@ def test_routing_service_task(request):
 
     success = True
     err_msg = ""
-    for i, p in enumerate(TEL_AVIV_POINTS):
-        q = TEL_AVIV_POINTS[(i + 1) % l]
-        result = calculate_time_and_distance(p["lon"], p["lat"], q["lon"], q["lat"])
-        if not (result["estimated_distance"] and result["estimated_duration"]):
-            err_msg += "calculate_time_and_distance failed for: p=(%s, %s), q=(%s, %s)\n" % (
-                p["lon"], p["lat"], q["lon"], q["lat"])
-            success = False
+    try:
+        for i, p in enumerate(TEL_AVIV_POINTS):
+            q = TEL_AVIV_POINTS[(i + 1) % l]
+            result = calculate_time_and_distance(p["lon"], p["lat"], q["lon"], q["lat"])
+            if not (result["estimated_distance"] and result["estimated_duration"]):
+                err_msg += "calculate_time_and_distance failed for: p=(%s, %s), q=(%s, %s)\n" % (p["lon"], p["lat"], q["lon"], q["lat"])
+                success = False
+    except Exception, e:
+        success = False
+        err_msg = "%s\n There was an exception: %s\nTraceback:%s" % (err_msg, e, traceback.format_exc())
 
     if not success:
         notify_by_email("uh oh, routing service may be down", err_msg)
