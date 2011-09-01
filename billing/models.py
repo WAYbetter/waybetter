@@ -28,41 +28,49 @@ class BillingInfo(BaseModel):
     def expiration_date_formatted(self):
         return self.expiration_date.strftime("%m%y")
 
-def setup_charge_date():
-    return datetime.now() + timedelta(days=1)
-#    return datetime.now() + timedelta(minutes=2)
-
 class BillingTransaction(BaseModel):
     passenger = models.ForeignKey(Passenger, related_name="billing_transactions")
     order = models.ForeignKey(Order, related_name="billing_transactions")
-    amount = models.IntegerField() # Agorot, Cents
+    amount = models.FloatField() # Agorot, Cents
     status = StatusField(choices=BillingStatus.choices(), default=BillingStatus.PENDING)
     committed = models.BooleanField(default=False)
-    charge_date = UTCDateTimeField(_("charge date"), default=setup_charge_date)
+    charge_date = UTCDateTimeField(_("charge date"), blank=True, null=True)
 
     transaction_id = models.CharField(max_length=36)
 
     comments = models.CharField(max_length=255, blank=True, default="")
     auth_number = models.CharField(max_length=50, blank=True, null=True)
 
-    # denormalized fields
+    # Denormalized fields
     dn_passenger_name = models.CharField(_("passenger name"))
     dn_pickup = models.CharField(_("pickup"))
     dn_dropoff = models.CharField(_("dropoff"))
     dn_pickup_time = UTCDateTimeField(_("pickup time"))
 
+    @property
+    def amount_in_cents(self):
+        return int(self.amount * 100)
+
     def save(self, *args, **kwargs):
         if not is_in_transaction():
-            if self.order:
-                self.dn_pickup = self.order.from_raw
-                self.dn_dropoff = self.order.to_raw
-                self.dn_pickup_time = self.order.pickup_point.stop_time
-                self.passenger = self.order.passenger
-
-            if self.passenger.user:
-                self.dn_passenger_name  = self.passenger.user.username
+            try:
+                order = self.order
+                self.dn_pickup = order.from_raw
+                self.dn_dropoff = order.to_raw
+                self.dn_pickup_time = order.depart_time
+                self.passenger = order.passenger
+                self.dn_passenger_name = order.passenger.name
+            except Order.DoesNotExist:
+                pass
 
         super(BillingTransaction, self).save(*args, **kwargs)
+
+    def change_status(self, old_value, new_value):
+        return self._change_attr_in_transaction("status", old_value=old_value, new_value=new_value, safe=False)
+
+    def _setup_charge_date(self):
+#        self.charge_date = self.dn_pickup_time + timedelta(days=1)
+        self.charge_date = self.dn_pickup_time + timedelta(minutes=5)
 
     def commit(self):
         """
@@ -81,29 +89,31 @@ class BillingTransaction(BaseModel):
             raise InvalidOperationError("No billing info found for passenger: %s" % self.passenger)
 
         self._change_attr_in_transaction("committed", False, True, safe=False)
+        self._setup_charge_date()
+        self.save()
 
-        result = self._commit_transaction(token=billing_info.token,
-                                          amount=self.amount,
-                                          card_expiration=billing_info.expiration_date_formatted,
-                                          action="commit")
+        self._commit_transaction(token=billing_info.token,
+                                 amount=self.amount_in_cents,
+                                 card_expiration=billing_info.expiration_date_formatted,
+                                 action="commit")
 
 
     def disable(self):
-        self._change_attr_in_transaction("status", BillingStatus.APPROVED, BillingStatus.CANCELLED, safe=False)
+        self.change_status(BillingStatus.APPROVED, BillingStatus.CANCELLED)
 
     def enable(self):
-        self._change_attr_in_transaction("status", BillingStatus.CANCELLED, BillingStatus.APPROVED, safe=False)
+        self.change_status(BillingStatus.CANCELLED, BillingStatus.APPROVED)
 
-        self.charge_date = setup_charge_date()
+        self._setup_charge_date()
         self.save()
         self.charge(immediately=True)
 
     def charge(self, immediately=False):
         eta = datetime.now() if immediately else self.charge_date
-        result = self._commit_transaction(token=self.passenger.billing_info.token,
-                                          amount=self.amount,
-                                          card_expiration=self.passenger.billing_info.expiration_date_formatted,
-                                          action="charge", eta=eta)
+        self._commit_transaction(token=self.passenger.billing_info.token,
+                                 amount=self.amount_in_cents,
+                                 card_expiration=self.passenger.billing_info.expiration_date_formatted,
+                                 action="charge", eta=eta)
 
 
     def _commit_transaction(self, token, amount, card_expiration, action, eta=None):

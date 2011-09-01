@@ -30,12 +30,14 @@ import logging
 import datetime
 import common.urllib_adaptor as urllib2
 
+
 ORDER_HANDLE_TIMEOUT =                      80 # seconds
 ORDER_TEASER_TIMEOUT =                      14 # seconds
 ORDER_ASSIGNMENT_TIMEOUT =                  80 # seconds
 WORKSTATION_HEARTBEAT_TIMEOUT_INTERVAL =    60 # seconds
 
 ORDER_MAX_WAIT_TIME = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
+UNKNOWN_USER = "[UNKNOWN USER]"
 PASSENGER_TOKEN = "passenger_token"
 
 ASSIGNED = 1
@@ -127,7 +129,7 @@ class Station(BaseModel):
         else:
             return "http://taxiapp.co.il"
 
-    def get_ride_price(self, shared_ride):
+    def get_ride_price(self, shared_ride, rules_only=False):
         """
         Get the station's pricing for a shared ride.
         @param shared_ride: a SharedRide
@@ -142,7 +144,9 @@ class Station(BaseModel):
                     price_rules.add(rule)
                     priced_orders.add(order)
 
-        if price_rules and priced_orders == orders:
+        if rules_only:
+            return price_rules
+        elif price_rules and priced_orders == orders:
             return max([pr.price for pr in price_rules]) + self.stop_price * shared_ride.charged_stops
         else:
             return None
@@ -484,6 +488,16 @@ class Passenger(BaseModel):
 
     session_keys = ListField(models.CharField(max_length=32)) # session is identified by a 32-character hash
 
+    @property
+    def name(self):
+        try:
+            if self.user and self.user.username:
+                return self.user.username
+        except User.DoesNotExist:
+            pass
+
+        return UNKNOWN_USER
+
     def _get_business(self):
         try:
             return self._business
@@ -537,10 +551,7 @@ class Passenger(BaseModel):
 
 
     def __unicode__(self):
-        try:
-            return u"Passenger: %s, %s" % (self.phone, self.user.username if self.user else "[UNKNOWN USER]")
-        except User.DoesNotExist:
-            return u"Passenger: %s, %s" % (self.phone, "[UNKNOWN USER]")
+        return u"Passenger: %s, %s" % (self.phone, self.name)
 
 class Business(BaseModel):
     passenger = models.OneToOneField(Passenger, verbose_name=_("passenger"), related_name="_business")
