@@ -89,10 +89,20 @@ indexes:
   - name: is_active
   - name: username
 
+- kind: billing_billinginfo
+  properties:
+  - name: __key__
+    direction: desc
+
 - kind: billing_billingtransaction
   properties:
   - name: __key__
     direction: desc
+
+- kind: billing_billingtransaction
+  properties:
+  - name: passenger_id
+  - name: charge_date
 
 - kind: billing_billingtransaction
   properties:

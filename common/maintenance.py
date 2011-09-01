@@ -130,8 +130,11 @@ def fix_driver_taxi():
     logging.info("DONE")
 
 
-def delete_shared_orders():
-    rides = SharedRide.objects.all()
+def delete_shared_orders(ids=None):
+    if ids:
+        rides = SharedRide.objects.filter(id__in=ids)
+    else:
+        rides = SharedRide.objects.all()
     for ride in rides:
         logging.info("deleting ride %d" % ride.id)
         ride.orders.all().delete()

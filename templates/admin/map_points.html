@@ -1033,7 +1033,13 @@ $.widget("ui.selectmenu", {
         getPolygon              : function (id, opts) {
             var that = this;
             var color = $("#" + id.replace("points", "color")).val();
-            var index = 100 - id.match(/-(\d+)-/)[1];
+            var match = id.match(/-(\d+)-/);
+            if (match) {
+                var index = 100 - id.match(/-(\d+)-/)[1];
+            } else {
+                var index = 10;
+            }
+
 
             if (! (id in that.polygons)) {
                 console.log("creating new polygon: " + id);
