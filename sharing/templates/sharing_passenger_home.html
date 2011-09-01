@@ -17,28 +17,111 @@
 
     <form id="order_form" method="post" action="{% url sharing.passenger_controller.book_ride %}">
         {% csrf_token %}
-        {% for field in hidden_fields %}
-            <input type="hidden" id="id_p1_{{ field }}" name="p1_{{ field }}"/>
-        {% endfor %}
-        <input type="hidden" id="id_geocoded_p1_raw" name="geocoded_p1_raw"/>
 
         <div>
-            <span id="from">{% trans 'From' %}</span>
-            <li id="hotspot">
-                <select id="id_hotspot_select" name="hotspot_id"></select>
-                <input type="text" id="id_hotspot_datepicker" name="hotspot_date">
-                <select id="id_hotspot_time" name="hotspot_time"></select>
-            </div>
+            <span>{% trans "From" %}</span>
 
-            <span id="to">{% trans 'To' %}</span>
-
-            <div id="p1" class="point">
-                <input type=text id="id_p1_raw" name="p1_raw" placeholder="{% trans 'Enter drop-off address' %}"/>
-                <span class="price"></span>
-            </div>
-        <button type=submit class="order_button" id="order_button">{% trans 'Send' %}</button>
+            <div type="address_input" id="from_input"></div>
         </div>
+
+        <div><a>{% trans "Switch" %}</a></div>
+
+        <div>
+            <span>{% trans "To" %}</span>
+
+            <div type="address_input" id="to_input"></div>
+        </div>
+
+        {#        <button type=submit class="order_button" id="order_button">{% trans 'Send' %}</button>#}
     </form>
+
+    <div id="from_input_tip" class="tooltip"></div>
+    <div id="to_input_tip" class="tooltip"></div>
+
+    <div id="tooltip_helpers_repo">
+
+        <div id="select_input_helper" class="tooltip-content">
+            <div class="header_icon"></div>
+            <h2></h2>
+
+            <a id="sel_hotspot">{% trans "Select Hotspot" %}</a>
+            <a id="sel_address">{% trans "Enter Address" %}</a>
+
+            <div class="tooltip_footer">
+                <span>{% trans "Help" %}</span>
+            </div>
+        </div>
+
+        <div id="hotspot_input_helper" class="tooltip-content">
+            <div class="header_icon"></div>
+            <h2></h2>
+            <label class="city">
+                {% trans "City" %}
+                <select id="id_hotspot_city" name="hotspot_city">
+                    <option>Tel Aviv</option>
+                    <option>Haifa</option>
+                </select>
+            </label>
+            <label class="hotspot">
+                {% trans "Hotspot" %}
+                <select id="id_hotspot_select" name="hotspot_id"></select>
+            </label>
+
+            <div class="tooltip_footer">
+                <span>{% trans "Switch to Address" %}</span>
+
+                <div class="next_btn">{% trans "Next" %}</div>
+            </div>
+        </div>
+
+        <div id="address_input_helper" class="tooltip-content">
+            <div class="header_icon"></div>
+            <h2></h2>
+            <label class="city">
+                {% trans "City" %}
+                <select id="id_city" name="city">
+                    <option>Tel Aviv</option>
+                    <option>Haifa</option>
+                </select>
+            </label>
+            <label>
+                {% trans "Address" %}
+                <input type="text" id="id_street_address" name="street_address"/>
+            </label>
+            <label>
+                {% trans "House #" %}
+                <input type="text" id="id_house_number" name="house_number"/>
+            </label>
+
+            <div class="tooltip_footer">
+                <span>{% trans "Switch to Hotspot" %}</span>
+
+                <div class="next_btn">{% trans "Next" %}</div>
+            </div>
+        </div>
+
+        <div id="datetime_input_helper" class="tooltip-content">
+            <div class="header_icon"></div>
+            <h2>{% trans "Define Time" %}</h2>
+            <label>
+                {% trans "Departure Time" %}
+                <input type="radio"/>
+            </label>
+            <label>
+                {% trans "Arrival Time" %}
+                <input type="radio"/>
+            </label>
+
+            <input type="text" id="id_hotspot_datepicker" name="hotspot_date">
+            <select id="id_hotspot_time" name="hotspot_time"></select>
+
+            <div class="tooltip_footer">
+                <span>{% trans "*Times may vary due to traffic and stuff..." %}</span>
+
+                <div class="next_btn">{% trans "Next" %}</div>
+            </div>
+        </div>
+    </div>
 {% endblock %}
 
 
@@ -47,54 +130,111 @@
     <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
     <script type="text/javascript">
 
-        var pickup = "pickup",
-                dropoff = "dropoff",
-                hotspot_type = pickup;
+        function hideTooltips() {
+            $(".tooltip-content").hide();
+            $("[type='address_input']").each(function() {
+                var api = $(this).data("tooltip");
+                if (api && api.isShown()) {
+                    api.hide();
+                }
+            });
+        }
 
-        function updatePrice(address) {
-            if (address.lon && address.lat) {
-                var $price = $("#id_" + address.address_type + "_raw").siblings(".price");
-                $.ajax({
-                    url: "{% url sharing.passenger_controller.get_hotspot_price %}",
-                    dataType: "json",
-                    data: { 'lon': address.lon,
-                        'lat': address.lat,
-                        'hotspot_id': $("#id_hotspot_select").val(),
-                        'day': $("#id_hotspot_datepicker").val(),
-                        'time': $("#id_hotspot_time").val()
-                    },
-                    beforeSend: function() {
-                        $price.text("{% trans "Updating..." %}");
-                    },
-                    success: function(response) {
-                        var price = (response.price) ? response.price + "₪" : "No price defined";
-                        $price.text(price);
-                    },
-                    error: function() {
-                        $price.text("Err");
-                        alert("Error loading price");
-                    }
-                });
+        function openTooltipHelper(trigger, helper_type) {
+            hideTooltips();
+            var hdr_txt = ($(trigger).attr("id").split("_")[0] == "from") ? "{% trans "Your Pickup" %}" : "{% trans "Your Dropoff" %}";
+
+            var $helper = $("#" + helper_type + "_input_helper");
+            $helper.find("h2").text(hdr_txt);
+
+            var api = $(trigger).data("tooltip");
+            if (api) {
+                var old_content = api.getTip().find(".tooltip-content");
+                $("#tooltip_helpers_repo").append(old_content);
+                api.getTip().append($helper);
+                api.show();
+                $helper.show();
             }
         }
 
+        var pickup = "pickup",
+                dropoff = "dropoff",
+                hotspot_type = pickup,
+                select_input_resolved = false,
+                hotspot_resolved = false,
+                address_resolved = false,
+                datetime_resolved = false;
+
         $(function() {
 
+            var tooltip_conf = {
+                effect: 'slide',
+                events: {
+                    address_input: "click,",
+                    tooltip: "mouseenter,"
+                }
+            };
+
+            $("#from_input").tooltip($.extend({}, tooltip_conf, {tip: "#from_input_tip"}));
+            $("#to_input").tooltip($.extend({}, tooltip_conf, {tip: "#to_input_tip"}));
+
+            hideTooltips();
+
+            $("html").click(function(e) {
+                var $target = $(e.target);
+                var inside_tooltip = $target.hasClass("tooltip") || $target.parents(".tooltip").length ||
+                        $target.hasClass("ui-datepicker") || $target.parents(".ui-datepicker").length ||
+                        $target.hasClass("ui-datepicker-header") || $target.parents(".ui-datepicker-header").length;
+
+                if (! inside_tooltip) {
+                    hideTooltips();
+                }
+            });
+
+            $("[type='address_input']").click(function(e) {
+                e.stopPropagation();
+
+                if (! select_input_resolved) {
+                    openTooltipHelper(this, "select");
+                }
+                else{
+                    if (! hotspot_resolved) {
+                        openTooltipHelper(this, "hotspot");
+                    }
+                    else {
+                        if (! address_resolved) {
+                            openTooltipHelper(this, "address");
+
+                        }
+                        else {
+                            if (! datetime_resolved) {
+                                openTooltipHelper(this, "datetime");
+                            }
+                        }
+                    }
+                }
+            });
+
+            $("#sel_hotspot").click(function(){
+                var tip_type = $(this).parents(".tooltip").attr("id").split("_")[0];
+                var trigger = $("#" + tip_type + "_input");
+                openTooltipHelper(trigger, "hotspot");
+            });
+
+            $("#hotspot_input_helper .next_btn").button().click(function() {
+                select_input_resolved = true;
+                hotspot_resolved = true;
+            });
+            $("#address_input_helper .next_btn").button().click(function() {
+                select_input_resolved = true;
+                address_resolved = true;
+            });
+            $("#datetime_input_helper .next_btn").button().click(function() {
+                datetime_resolved = true;
+            });
+
+
             HotspotHelper.makeHotSpotSelector("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
-
-            $("#id_hotspot_select").change(function() {
-                $(".price").text("");
-            });
-
-            $("#id_hotspot_time").change(function() {
-                var address = Address.fromInput($("#id_p1_raw"));
-                updatePrice(address);
-            });
-
-            {% autoescape off %}
-                OrderingHelper.config.hidden_fields = {{ hidden_fields }};
-                OrderingHelper.config.update_address_callback = updatePrice;
-            {% endautoescape %}
 
             $("#order_form").submit(function() {
                 var that = this;
@@ -110,7 +250,7 @@
                         if (response.status && response.status == "booked") {
                             flashMessage("{% trans "Order booked" %}");
                         }
-                        else{
+                        else {
                             flashError("{% trans "Error" %}");
                         }
                     }

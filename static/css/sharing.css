@@ -695,21 +695,56 @@ table.striped {
 
 
 /** passenger home **/
-.rtl.passenger_home #map_container {
+.passenger_home #map_container {
     position: absolute;
     left: 0;
     right: 0;
     top: 60px;
-    height: 350px;
+    height: 50px;
     width: 100%;
 }
 
-.rtl.passenger_home #map {
+.passenger_home #map {
     height: 100%;
     width: 100%;
 }
 
-.passenger_home #order_form{
+.passenger_home #order_form {
+    border: 1px solid;
+    padding: 20px;
     position: absolute;
-    top: 500px;
+    left: 30%;
+    top: 300px;
 }
+
+.passenger_home #order_form div{
+    display: inline-block;
+
+}
+.passenger_home #from_input, .passenger_home #to_input{
+    height: 25px;
+    width: 100px;
+    border: 1px solid;
+}
+
+.tooltip {
+    display: none;
+    background: transparent url(/static/images/jquery_tools/white_arrow_big.png);
+    font-size: 12px;
+    height: 166px;
+    width: 320px;
+    padding: 25px;
+}
+
+.tooltip label.city{
+    display: block;
+}
+
+.tooltip-content #id_house_number{ width: 25px;}
+
+.tooltip_footer{
+    position: absolute;
+    bottom: 50px;
+    width: 85%;
+}
+.tooltip_footer .next_btn{ float: right;}
