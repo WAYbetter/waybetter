@@ -2,6 +2,7 @@ from datetime import datetime
 import logging
 from google.appengine.api.urlfetch import fetch
 from common.util import get_unique_id
+from ordering.decorators import passenger_required_no_redirect
 
 TRANSACTION_URL = "https://cgmpiuat.creditguard.co.il/CGMPI_Server/CreateTransactionExtended"
 ALL_QUERY_FIELDS = {
@@ -46,14 +47,20 @@ ALL_QUERY_FIELDS = {
 #    transaction = BillingTransaction(passenger=passenger, amount=amount, ride=ride)
 #    transaction.commit()
 
-def get_transaction_id(amount=0):
+@passenger_required_no_redirect
+def get_transaction_id(request, passenger=None, amount=0):
     data = ALL_QUERY_FIELDS.copy()
+    unique_id = get_unique_id()
+
+    # save passenger in the session
+    request.session[unique_id] = passenger
+    
     data.update({
         "MID":              112,
         "userName":         "wiibet",
         "password":         "312.2BE#e704",
         "terminal":         "0962831",
-        "uniqueID":         get_unique_id(),
+        "uniqueID":         unique_id,
         "amount":           amount,
         "currency":         "ILS",
         "transactionType":  "Debit",

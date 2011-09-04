@@ -7,4 +7,7 @@ class BillingStatus(Enum):
     PROCESSING	= 3
     CANCELLED	= 4
     CHARGED     = 5 # J4
-    
+
+class BillingAction(Enum):
+    COMMIT      = 1
+    CHARGE      = 2

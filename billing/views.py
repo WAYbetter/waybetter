@@ -2,9 +2,9 @@
 import logging
 import csv
 from billing import billing_backend
-from billing.enums import BillingStatus
+from billing.enums import BillingStatus, BillingAction
 from django.views.decorators.csrf import csrf_exempt
-from billing.models import BillingForm, InvalidOperationError, BillingTransaction
+from billing.models import BillingForm, InvalidOperationError, BillingTransaction, BillingInfo
 from common.decorators import require_parameters, internal_task_on_queue, catch_view_exceptions
 from django.http import HttpResponse
 from billing.billing_manager import get_transaction_id
@@ -13,7 +13,7 @@ from django.template.context import RequestContext
 from ordering.models import SharedRide, COMPLETED, ACCEPTED
 
 def get_token(request):
-    txId = get_transaction_id()
+    txId = get_transaction_id(request)
     url = "https://cgmpiuat.creditguard.co.il/CGMPI_Server/PerformTransaction?txId=%s" % txId
     form = BillingForm()
     
@@ -34,16 +34,25 @@ def bill_passenger(request):
 @internal_task_on_queue("orders")
 @require_parameters(method="POST", required_params=("token", "amount", "card_expiration", "billing_transaction_id", "action"))
 def billing_task(request, token, amount, card_expiration, billing_transaction_id, action):
-    if action == "commit":
+    if action == BillingAction.COMMIT:
         return billing_backend.do_J5(token, amount, card_expiration, billing_transaction_id)
-    elif action == "charge":
+    elif action == BillingAction.CHARGE:
         return billing_backend.do_J4(token, amount, card_expiration, billing_transaction_id)
     else:
-        raise InvalidOperationError("Unknown action or billing: %s" % action)
+        raise InvalidOperationError("Unknown action for billing: %s" % action)
     
 def transaction_ok(request):
-    # get passenger
-    # create billing info and attach to passenger
+    #TODO: handle errors
+    passenger = request.session.get(request.GET.get("uniqueId"))
+    kwargs = {
+        "passenger"				: passenger,
+        "token"					: request.GET.get("cardToken"),
+        "expiration_date"		: request.GET.get("cardExp"),
+        "card_repr"				: request.GET.get("cardMask")
+    }
+    billing_info = BillingInfo(**kwargs)
+    billing_info.save()
+
     logging.info(request)
     return HttpResponse("\n".join([ "%s = %s" % t for t in request.GET.items()]))
 
