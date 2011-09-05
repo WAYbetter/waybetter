@@ -166,7 +166,7 @@ def create_orders_from_hotspot(data, hotspot_type, point_type, is_textinput):
                 order.confining_station = passenger.default_sharing_station
                 order.save()
 
-                if price and passenger.billing_info:
+                if price and hasattr(passenger, "billing_info"):
                     billing_trx = BillingTransaction(order=order, amount=price)
                     billing_trx.save()
                     billing_trx.commit()
