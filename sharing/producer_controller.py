@@ -1,13 +1,15 @@
 from common.models import  Country
 from common.geocode import geohash_encode
-from common.tz_support import set_default_tz_time
+from common.tz_support import set_default_tz_time, to_js_date
 from django.http import HttpResponse, HttpResponseForbidden
+from django.utils import simplejson
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
+from ordering.models import SharedRide, StopType
 from sharing.forms import ProducerPassengerForm
 from sharing.passenger_controller import HIDDEN_FIELDS
 from sharing.models import HotSpot, Producer, ProducerPassenger
@@ -36,7 +38,10 @@ def producer_ordering_page(request, passenger):
 
             wb_data = ""
             if shared_orders:
-                res = submit_orders_for_ride_calculation(orders['shared_orders'])
+                params = {"car_availability": {"car_types": [{"cost_multiplier": 1, "max_passengers": 4}],
+                                               "m_Availability": [{"Key": {"cost_multiplier": 1, "max_passengers": 4},"Value": 10000}]}
+                }
+                res = submit_orders_for_ride_calculation(orders['shared_orders'], params=params)
                 response = u"%d orders submitted for sharing" % len(shared_orders)
                 wb_data = u"sharing keys: %s" % res.content.strip()
             if not_shared_orders:
@@ -104,6 +109,30 @@ def get_producer_passengers(request):
     passengers = [{'name': p.name, 'id': p.id, 'address': p.address, 'is_sharing': p.is_sharing, 'phone': p.phone, 'lon': p.lon, 'lat': p.lat}
         for p in producer.passengers.all().order_by("name")]
     return JSONResponse({'passengers': passengers})
+
+
+@passenger_required
+def producer_rides_summary(request, passenger):
+    if not hasattr(passenger, "producer"):
+        return HttpResponseForbidden("You are not a producer")
+    else:
+        is_popup = True
+        producer = passenger.producer
+#        raw_d = request.GET.get("hotspot_date")
+#        d = date(*time.strptime(raw_d, '%d/%m/%Y')[:3]) if raw_d else date.today()
+        rides_data = simplejson.dumps([
+            {'pickups': [{'num_passengers': p.pickup_orders.count(),
+                          'passenger_phones': [order.passenger.phone for order in p.pickup_orders.all()],
+                          'address': p.address,
+                          'time': p.stop_time.strftime("%H:%M")} for p in ride.points.filter(type=StopType.PICKUP).order_by("stop_time")],
+             'dropoffs': [{'num_passengers': p.dropoff_orders.count(),
+                           'address': p.address,
+                           'time': p.stop_time.strftime("%H:%M")} for p in ride.points.filter(type=StopType.DROPOFF).order_by("stop_time")],
+             'depart_time': to_js_date(ride.depart_time),
+             'arrive_time': to_js_date(ride.arrive_time),
+             'id': ride.id,
+             } for ride in SharedRide.objects.filter(station=producer.default_sharing_station)])
+        return render_to_response('producer_rides_summary.html', locals(), context_instance=RequestContext(request))
 
 
 # utility methods

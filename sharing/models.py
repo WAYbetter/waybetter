@@ -244,7 +244,7 @@ class ProducerPassenger(BaseModel):
         super(ProducerPassenger, self).save(*args, **kargs)
 
     def serialize_for_order(self, address_type):
-        return {'%s_raw' % address_type: '%s %s' % (self.address, self.city),
+        return {'%s_raw' % address_type:self.address,
                 '%s_street_address' % address_type: self.street_address,
                 '%s_house_number' % address_type: self.house_number,
                 '%s_lon' % address_type: self.lon,
