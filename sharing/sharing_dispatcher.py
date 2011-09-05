@@ -35,13 +35,16 @@ def choose_workstation(ride):
     confining_stations = [order.confining_station for order in ride.orders.all()]
     confining_station = confining_stations[0] if all(map(lambda s: s==confining_stations[0], confining_stations)) else None
 
-    ws_list = WorkStation.objects.filter(accept_shared_rides=True, is_online=True)
+    ws_list = WorkStation.objects.filter(accept_shared_rides=True)
     if confining_station:
         ws_list = ws_list.filter(station=confining_station)
     if ride.debug:
         ws_list = ws_list.filter(accept_debug=True)
     if ws_list:
-        return ws_list[0]
+        ws = ws_list[0]
+        if not ws.is_online:
+            notify_by_email("ride assigned to offline workstation", msg="work station=%s\nride id=%s" % (ws, ride.id))
+        return ws
     else:
         msg = "no work stations for sharing available ride.id=%s ride.debug=%s)" % (ride.id, ride.debug)
         logging.error(msg)
@@ -72,10 +75,10 @@ def push_ride_task(request):
     ws_id = request.POST.get("ws_id")
     try:
         ride = SharedRide.by_id(id=ride_id, safe=False)
+        work_station = WorkStation.by_id(ws_id, safe=False)
         if not ride.received_time:
             if utc_now() < ride.depart_time - NOTIFY_STATION_DELTA:
                 logging.info("push ride task: ride=%s, workstation=%s" % (ride_id, ws_id))
-                work_station = WorkStation.by_id(ws_id, safe=False)
                 station_connection_manager.push_ride(work_station, ride)
 
                 task = taskqueue.Task(url=reverse(push_ride_task), countdown=MSG_DELIVERY_GRACE, params={"ride_id": ride_id, "ws_id": ws_id})
@@ -86,7 +89,7 @@ def push_ride_task(request):
 depart_time: %s
 work station: %s
 ride id: %s
-""" % (ride.depart_time, ws_id, ride_id)
+""" % (ride.depart_time, work_station, ride_id)
                 notify_by_email("Ride not delivered to station", msg=msg)
 
     except (SharedRide.DoesNotExist, WorkStation.DoesNotExist):
@@ -104,7 +107,7 @@ def mark_ride_not_taken_task(request):
         ride = SharedRide.by_id(ride_id, safe=False)
         ride.change_status(old_status=ASSIGNED, new_status=NOT_TAKEN)
         logging.info("Marked ride [%d] as not taken" % ride.id)
-        # TODO_WB: notify by email
+        notify_by_email("Ride not taken (not assigned by station)", msg="ride=%s" % ride.id)
 
     except SharedRide.DoesNotExist:
         logging.error("Error marking ride as not taken: SharedRide.DoesNotExist")
