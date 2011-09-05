@@ -32,6 +32,13 @@ def submit_to_prefetch(order, key, address_type):
 
 
 def submit_orders_for_ride_calculation(orders, key=None, params=None):
+    """
+    Submit orders to sharing algorithm
+    @param orders: a list of orders to submit
+    @param key: prefetching key
+    @param params: additional parameters
+    @return: the sharing algorithm key for the computation if submit was successful, None otherwise
+    """
     callback = ride_calculation_complete_noop if settings.is_dev() else ride_calculation_complete
     payload = {
         "orders": [o.serialize_for_sharing() for o in orders],
@@ -44,11 +51,13 @@ def submit_orders_for_ride_calculation(orders, key=None, params=None):
     logging.info("payload = %s" % payload)
 
     response = fetch(SHARING_ENGINE_URL, payload="submit=%s" % payload, method=POST, deadline=50)
-    if response.status_code != 200 or not response.content:
-        logging.error("error submitting orders for ride calculation: response=%s" % response.content)
-
-    return response
-
+    data = simplejson.loads(response.content) or {}
+    error = data.get("m_Error") if data else "EMPTY RESPONSE"
+    if response.status_code != 200 or error:
+        logging.error("error submitting orders for ride calculation (status=%s): %s" % (response.status_code, error))
+        return None
+    else:
+        return data.get("m_Key").strip()
 
 @csrf_exempt
 @catch_view_exceptions
@@ -56,9 +65,9 @@ def submit_orders_for_ride_calculation(orders, key=None, params=None):
 def submit_computation_task(request):
     computation = RideComputation.by_id(request.POST.get("computation_id"))
     if computation:
-        response = submit_orders_for_ride_calculation(computation.orders.all(), computation.key)
-        if response.content:
-            computation.algo_key = response.content.strip()
+        algo_key = submit_orders_for_ride_calculation(computation.orders.all(), computation.key)
+        if algo_key:
+            computation.algo_key = algo_key
             computation.save()
     else:
         logging.error("error submitting computation for calculation: %s" % request.POST.get("computation_id"))

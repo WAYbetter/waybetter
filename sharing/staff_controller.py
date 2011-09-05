@@ -41,8 +41,8 @@ def hotspot_ordering_page(request, passenger, is_textinput):
                 if int(request.POST.get("time_const_min") or 0):
                     params["toleration_factor_minutes"] = request.POST["time_const_min"]
                 name = request.POST.get("computation_set_name")
-                res = submit_test_computation(orders, params=params, computation_set_name=name)
-                response = u"Orders submitted for calculation: %s" % res.content
+                key = submit_test_computation(orders, params=params, computation_set_name=name)
+                response = u"Orders submitted for calculation: %s" % key
             else:
                 response = "Hotspot data corrupt: no orders created"
         else:
@@ -88,8 +88,8 @@ def ride_computation_stat(request, computation_set_id):
         if int(request.POST.get("time_const_min") or 0):
             params["toleration_factor_minutes"] = request.POST["time_const_min"]
 
-        res = submit_test_computation(orders, params=params, computation_set_id=computation_set.id)
-        return JSONResponse({'content': u"Orders submitted for calculation: %s" % res.content})
+        key = submit_test_computation(orders, params=params, computation_set_id=computation_set.id)
+        return JSONResponse({'content': u"Orders submitted for calculation: %s" % key})
 
     else:
         is_popup = True
@@ -180,10 +180,9 @@ def submit_test_computation(orders, params, computation_set_name=None, computati
 
     key = "test_%s" % str(default_tz_now())
     params.update({'debug': True})
-    response = submit_orders_for_ride_calculation(orders, key=key, params=params)
+    algo_key = submit_orders_for_ride_calculation(orders, key=key, params=params)
 
-    if response.content:
-        algo_key = response.content.strip()
+    if algo_key:
         computation = RideComputation(algo_key=algo_key)
         computation.toleration_factor = params.get('toleration_factor')
         computation.toleration_factor_minutes = params.get('toleration_factor_minutes')
@@ -202,4 +201,4 @@ def submit_test_computation(orders, params, computation_set_name=None, computati
             order.computation = computation
             order.save()
 
-    return response
+    return algo_key

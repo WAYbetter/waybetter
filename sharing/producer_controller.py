@@ -41,14 +41,14 @@ def producer_ordering_page(request, passenger):
                 params = {"car_availability": {"car_types": [{"cost_multiplier": 1, "max_passengers": 4}],
                                                "m_Availability": [{"Key": {"cost_multiplier": 1, "max_passengers": 4},"Value": 10000}]}
                 }
-                res = submit_orders_for_ride_calculation(orders['shared_orders'], params=params)
+                key = submit_orders_for_ride_calculation(orders['shared_orders'], params=params)
                 response = u"%d orders submitted for sharing" % len(shared_orders)
-                wb_data = u"sharing keys: %s" % res.content.strip()
+                wb_data = u"sharing key: %s" % key
             if not_shared_orders:
                 algo_keys = []
                 for order in not_shared_orders:
-                    res = submit_orders_for_ride_calculation([order])
-                    algo_keys.append(res.content.strip())
+                    key = submit_orders_for_ride_calculation([order])
+                    algo_keys.append(key)
                 response += u"</br>%d orders not shared" % len(not_shared_orders)
                 wb_data += u"<br/>non sharing keys: %s" % " ".join(algo_keys)
 
