@@ -39,21 +39,8 @@ var HotspotHelper = Object.create({
         this.hotspot_datepicker = $(datepicker_selector).datepicker("destroy");
         this.hotspot_timepicker = $(times_selector).empty().disable();
 
-        $.ajax({
-            url: that.config.urls.get_hotspot_data,
-            type: "POST",
-            dataType: "json",
-            success: function(response) {
-                $.each(response.data, function(i, hotspot) {
-                    var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, next_datetime: new Date(hotspot.next_datetime)};
-                    $("<option>" + hotspot.name + "</option>").attr("value", hotspot.id).data(data).appendTo(that.hotspot_selector);
-                });
-                that.hotspot_selector.change();
-            },
-            error: function() {
-                flashError("Error getting hotspot data");
-            }
-        });
+        this.refreshData();
+
         this.hotspot_datepicker.datepicker({
             dateFormat: 'dd/mm/yy',
             firstDay: 0,
@@ -65,6 +52,29 @@ var HotspotHelper = Object.create({
             onChangeMonthYear: that._onChangeMonthYear,
             onSelect: that._onDateSelect
         })
+    },
+
+    refreshData: function(){
+        var that = this;
+        $.ajax({
+            url: that.config.urls.get_hotspot_data,
+            type: "POST",
+            dataType: "json",
+            beforeSend: function(){
+                that.hotspot_selector.empty().disable().append("<option>" + that.config.labels.updating + "</option>");
+            },
+            success: function(response) {
+                that.hotspot_selector.empty().enable();
+                $.each(response.data, function(i, hotspot) {
+                    var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, next_datetime: new Date(hotspot.next_datetime)};
+                    $("<option>" + hotspot.name + "</option>").attr("value", hotspot.id).data(data).appendTo(that.hotspot_selector);
+                });
+                that.hotspot_selector.change();
+            },
+            error: function() {
+                flashError("Error getting hotspot data");
+            }
+        });
     },
 
     refrestHotspotMarker: function() {
