@@ -156,7 +156,7 @@ var OrderingHelper = Object.create({
             mustMatch: true,
             selectFirst: true,
             source: function (request, response) {
-                catcomplete_instance = this;
+                var catcomplete_instance = this;
 
                 $(".address-helper, .address-helper-autocomplete").filter("." + input_type).addClass("address-helper-loading-" + input_type);
                 var address = undefined,

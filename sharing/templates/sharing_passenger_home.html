@@ -66,8 +66,11 @@
             <label class="city">
                 {% trans "City" %}
                 <select id="id_hotspot_city" name="hotspot_city">
-                    <option>Tel Aviv</option>
-                    <option>Haifa</option>
+                    {% for city in cities %}
+                        <option value="{{ city.id }}">{{ city.name }}</option>
+                    {% endfor %}
+{#                    <option disabled="disabled">חיפה</option>#}
+{#                    <option disabled="disabled">ירושלים</option>#}
                 </select>
             </label>
             <label class="hotspot">
@@ -88,23 +91,27 @@
             <label class="city">
                 {% trans "City" %}
                 <select id="id_city" name="city">
-                    <option>Tel Aviv</option>
-                    <option>Haifa</option>
+                    {% for city in cities %}
+                        <option value="{{ city.id }}">{{ city.name }}</option>
+                    {% endfor %}
                 </select>
             </label>
             <label>
                 {% trans "Address" %}
                 <input type="text" id="id_street_address" name="street_address"/>
+                <span class="address_error"></span>
             </label>
             <label>
                 {% trans "House #" %}
                 <input type="text" id="id_house_number" name="house_number"/>
+                <span class="hn_error"></span>
             </label>
 
             <div class="tooltip_footer">
                 <a id="switch2hotspot">{% trans "Switch to Hotspot" %}</a>
 
                 <div class="next_btn"></div>
+                <div class="tooltip_loader"></div>
             </div>
         </div>
 
@@ -188,8 +195,9 @@
             closeTooltips(trigger);
             var $helper = $("#" + helper_type + "_input_helper");
             $helper.find("input, select").each(function(i, el){
-                $(el).val($(el).data("saved_val"))
+                $(el).val($(el).data("saved_val")); // restore saved values
             });
+            ($helper.data("validator") || function(){}).call();
 
             var trigger_type = getAddressType(trigger);
             var hdr_txt = (trigger_type == PICKUP) ? "{% trans "Your Pickup" %}" : "{% trans "Your Dropoff" %}";
@@ -215,12 +223,33 @@
                 }
                 $("#tooltip_helpers_container").append(tip.find(".tooltip-content")); // append old content to container
                 tip.append($helper);
-                if (!api.isShown()) {
-                    api.show();
-                    $helper.show();
+//                if (!api.isShown()) {
+                api.show();
+                $helper.show();
+//                }
+            }
+
+        }
+
+        function openNextTooltip(here, there){
+            if (! hotspot_resolved) {
+                openTooltipHelper(there, "hotspot");
+            }
+            else {
+                if (! address_resolved) {
+                    openTooltipHelper(there, "address");
+                }
+                else {
+                    if (! datetime_resolved) {
+                        openTooltipHelper(here, "datetime");
+                    }
+                    else { // all resolved
+                        closeTooltips();
+                    }
                 }
             }
         }
+
 
         $(function() {
 
@@ -235,6 +264,10 @@
             $("#pickup_input").tooltip($.extend({}, tooltip_conf, {tip: "#pickup_input_tip"}));
             $("#dropoff_input").tooltip($.extend({}, tooltip_conf, {tip: "#dropoff_input_tip"}));
 
+            HotspotHelper.makeHotSpotSelector("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
+            AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number");
+            openTooltipHelper("#pickup_input", "select");
+
 //            $("html").click(function(e) {
 //                var $target = $(e.target);
 //                var inside_tooltip = $target.hasClass("tooltip") || $target.parents(".tooltip").length ||
@@ -245,6 +278,27 @@
 //                    closeTooltips();
 //                }
 //            });
+
+            $("[type='address_input']").click(function(e) {
+                e.stopPropagation();
+                var resolved_as = $(this).data("resolved_as");
+                if (resolved_as) {
+                    openTooltipHelper(this, resolved_as);
+                }
+                else {
+                    if (! select_input_resolved) {
+                        openTooltipHelper(this, "select");
+                    }
+                    else {
+                        openNextTooltip(this, this);
+                    }
+                }
+            });
+
+            $("[type='address_input'] .when").click(function(e) {
+                e.stopPropagation();
+                openTooltipHelper(getAddressInput($(this).parent()), "datetime");
+            });
 
             $("#sel_hotspot, #sel_address").click(function(e) {
                 e.stopPropagation();
@@ -264,41 +318,16 @@
                 openTooltipHelper(getAddressInput(this), helper_type);
             });
 
-            $("[type='address_input']").click(function(e) {
-                e.stopPropagation();
-                var resolved_as = $(this).data("resolved_as");
-                if (resolved_as) {
-                    openTooltipHelper(this, resolved_as);
-                }
-                else {
-                    if (! select_input_resolved) {
-                        openTooltipHelper(this, "select");
-                    }
-                    else {
-                        if (! hotspot_resolved) {
-                            openTooltipHelper(this, "hotspot");
-                        }
-                        else {
-                            if (! address_resolved) {
-                                openTooltipHelper(this, "address");
-                            }
-                            else {
-                                if (! datetime_resolved) {
-                                    openTooltipHelper(this, "datetime");
-                                }
-                            }
-                        }
-                    }
-                }
-            });
-
             $("#hotspot_input_helper .next_btn, #address_input_helper .next_btn").button().click(function(e) {
                 e.stopPropagation();
 
-                var helper_type = $(this).parents(".tooltip-content").attr("id").split("_")[0];
-                var $input = getAddressInput(this);
-
                 select_input_resolved = true;
+
+                var $input = getAddressInput(this);
+                var $other_input = (getAddressType(this) == PICKUP) ? $("#" + DROPOFF + "_input") : $("#" + PICKUP + "_input");
+
+                var $helper = $(this).parents(".tooltip-content");
+                var helper_type = $helper.attr("id").split("_")[0]; // what was clicked?
                 $("#" + helper_type + "_input_helper").find("input, select").each(function(i, el) {
                     $(el).data("saved_val", $(el).val());
                 });
@@ -307,29 +336,33 @@
                     hotspot_type = getAddressType(this);
                     $input.find(".where").text($("#id_hotspot_select :selected").text());
                     $input.data("resolved_as", "hotspot");
+                    openNextTooltip($input, $other_input);
                 }
-                else{ // "address"
-                    address_resolved = true;
-                    $input.find(".where").text($("#id_street_address").val() + " " + $("#id_house_number").val() + " " + $("#id_city :selected").text());
-                    $input.data("resolved_as", "address");
-                }
-
-                var other_input = (getAddressType(this) == PICKUP) ? $("#" + DROPOFF + "_input") : $("#" + PICKUP + "_input");
-                if (! hotspot_resolved) {
-                    openTooltipHelper(other_input, "hotspot");
-                }
-                else {
-                    if (! address_resolved) {
-                        openTooltipHelper(other_input, "address");
-                    }
-                    else {
-                        if (! datetime_resolved) {
-                            openTooltipHelper($input, "datetime");
+                else{ // helper_type == "address"
+                    var $sa_input = $("#id_street_address"),
+                        $hn_input = $("#id_house_number");
+                    AddressHelper.resolveStructured("#id_city", $sa_input, $hn_input, {
+                        beforeSend: function(){
+                            $helper.find(".tooltip_loader").show();
+                        },
+                        complete: function() {
+                            $helper.find(".tooltip_loader").hide();
+                        },
+                        resolved: function() {
+                            address_resolved = true;
+                            $input.find(".where").text($sa_input.val() + " " + $hn_input.val() + " " + $("#id_city :selected").text());
+                            $input.data("resolved_as", "address");
+                            openNextTooltip($input, $other_input);
+                        },
+                        unresolved: function(errors) {
+                            if (errors.house_number) {
+                                $hn_input.siblings(".hn_error").text(errors.house_number);
+                            }
+                            if (errors.street) {
+                                $sa_input.siblings(".street_error").text(errors.street);
+                            }
                         }
-                        else{ // all resolved
-                            closeTooltips();
-                        }
-                    }
+                    });
                 }
             });
 
@@ -341,14 +374,25 @@
                 closeTooltips();
             });
 
-            $("[type='address_input'] .when").click(function(e) {
-                e.stopPropagation();
-                openTooltipHelper(getAddressInput($(this).parent()), "datetime");
+            /**
+             * Validation
+             */
+            var $address_helper = $("#address_input_helper").data("validator", function() {
+                $address_helper.find(".next_btn").button("disable");
+
+                var only_digits = $("#id_house_number").val().split(/\D+/).join("");
+                $("#id_house_number").val(only_digits);
+
+                var is_valid = Boolean($("#id_street_address").data("resolved")) && Boolean($("#id_house_number").val());
+                if (is_valid) {
+                    $address_helper.find(".next_btn").button("enable");
+                }
+                return is_valid;
             });
 
-
-
-            HotspotHelper.makeHotSpotSelector("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
+            $address_helper.find("input[type=text]").bind("keyup blur", function() {
+                $address_helper.data("validator").call();
+            });
 
             $("#order_form").submit(function() {
                 var that = this;
@@ -373,27 +417,27 @@
             });
 
 
-            telmap.maps.event.addListener(OrderingHelper.map, 'click', function(e) {
-                $.ajax({
-                    url: "{% url ordering.passenger_controller.resolve_coordinates %}",
-                    type: "GET",
-                    data: { lat: e.latLng.lat(),
-                        lon: e.latLng.lng()  },
-                    dataType: "json",
-                    success: function(resolve_result) {
-                        var new_address = Address.fromServerResponse(resolve_result);
-                        if (new_address.street_address) {   // only update to new address if it contains a valid street
-                            new_address.address_type = "p1";
-                            new_address.populateFields();
-                            OrderingHelper.updateAddressChoice(new_address);
-                            $('#id_' + new_address.address_type + '_raw').effect("highlight", 2000);
-                        } else {                    // set previous address
-                            flashMessage("No street address where you clicked");
-                        }
-                    }
-                });
-            });
-
+{#            telmap.maps.event.addListener(OrderingHelper.map, 'click', function(e) {#}
+{#                $.ajax({#}
+{#                    url: "{% url ordering.passenger_controller.resolve_coordinates %}",#}
+{#                    type: "GET",#}
+{#                    data: { lat: e.latLng.lat(),#}
+{#                        lon: e.latLng.lng()  },#}
+{#                    dataType: "json",#}
+{#                    success: function(resolve_result) {#}
+{#                        var new_address = Address.fromServerResponse(resolve_result);#}
+{#                        if (new_address.street_address) {   // only update to new address if it contains a valid street#}
+{#                            new_address.address_type = "p1";#}
+{#                            new_address.populateFields();#}
+{#                            OrderingHelper.updateAddressChoice(new_address);#}
+{#                            $('#id_' + new_address.address_type + '_raw').effect("highlight", 2000);#}
+{#                        } else {                    // set previous address#}
+{#                            flashMessage("No street address where you clicked");#}
+{#                        }#}
+{#                    }#}
+{#                });#}
+{#            });#}
+{##}
         });
     </script>
 
