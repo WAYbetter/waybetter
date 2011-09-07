@@ -83,13 +83,13 @@ class HotSpot(BaseModel):
         return next
 
 
-    def get_times(self, day=None, start_time=None, end_time=None):
+    def get_times(self, day=None, start_time=None, end_time=None, offset=0):
         d = day or date.today()
 
         times = set()
         for rule in self.service_rules.all():
             if rule.is_active(day=d, t=None): # rule is active on day
-                times.update(rule.get_times(start_time, end_time))
+                times.update(rule.get_times(start_time, end_time, offset))
 
         return sorted(times)
 
@@ -141,25 +141,25 @@ class HotSpotServiceRule(AbstractTemporalRule):
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="service_rules")
     interval = models.IntegerField(_("time interval"), choices=TIME_INTERVAL_CHOICES) # minutes
 
-    def get_times(self, start_time=None, end_time=None):
+    def get_times(self, start_time=None, end_time=None, offset=0):
         """
         Times the rule is active on the days it is active.
         @param start_time: a datetime.time lower bound.
         @param end_time: a datetime.time upper bound.
+        @param offset: number of seconds to add/remove
         @return: a list of times.
         """
         t1 = start_time or time.min
         t2 = end_time or time.max
-
-        from_datetime = datetime.combine(date.today(), self.from_hour)
-        to_datetime = datetime.combine(date.today(), self.to_hour)
-
+        today = date.today()
+        
         times = []
-        itr = datetimeIterator(from_datetime, to_datetime, delta=timedelta(minutes=self.interval))
+        itr = datetimeIterator(datetime.combine(today, self.from_hour), datetime.combine(today, self.to_hour), delta=timedelta(minutes=self.interval))
         for d in itr:
-            t = d.time()
-            if t1 <= t <= t2:
-                times.append(t)
+            if offset:
+                d = d + timedelta(seconds=offset)
+            if datetime.combine(today, t1) <= d <= datetime.combine(today, t2):
+                times.append(d.time())
 
         return times
 

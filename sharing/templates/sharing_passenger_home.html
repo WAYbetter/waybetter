@@ -21,18 +21,18 @@
         <div>
             <span>{% trans "From" %}</span>
 
-            <div type="address_input" id="pickup_input">
+            <div id="pickup_input" class="address_input" type="address_input">
                 <a class="where"></a>
                 <a class="when"></a>
             </div>
         </div>
 
-        <div><a>{% trans "Switch" %}</a></div>
+        <div id="switch"><a>{% trans "Switch" %}</a></div>
 
         <div>
             <span>{% trans "To" %}</span>
 
-            <div type="address_input" id="dropoff_input">
+            <div id="dropoff_input" class="address_input" type="address_input" >
                 <a class="where"></a>
                 <a class="when"></a>
             </div>
@@ -148,10 +148,13 @@
         var PICKUP = "pickup",
                 DROPOFF = "dropoff",
                 hotspot_type = PICKUP,
+                address_lat = undefined,
+                address_lon = undefined,
                 select_input_resolved = false,
                 hotspot_resolved = false,
                 address_resolved = false,
                 datetime_resolved = false;
+
 
         function getAddressType(element) {
             var $element = $(element);
@@ -192,28 +195,39 @@
         }
 
         function openTooltipHelper(trigger, helper_type) {
-            closeTooltips(trigger);
+            var trigger_type = getAddressType(trigger);
             var $helper = $("#" + helper_type + "_input_helper");
+
+            // restore last saved values
             $helper.find("input, select").each(function(i, el){
-                $(el).val($(el).data("saved_val")); // restore saved values
+                if ($(el).data("saved_val")){
+                    $(el).val($(el).data("saved_val"));
+                }
             });
+
+            // call validator if any
             ($helper.data("validator") || function(){}).call();
 
-            var trigger_type = getAddressType(trigger);
-            var hdr_txt = (trigger_type == PICKUP) ? "{% trans "Your Pickup" %}" : "{% trans "Your Dropoff" %}";
-            $helper.find("h2").text(hdr_txt);
-
+            // helper specific stuff
             if (helper_type == "datetime") {
-                HotspotHelper.refreshData();
                 $("#" + trigger_type + "_input_tip").addClass("datetime");
                 $("#datetime_input_helper").find("#" + trigger_type + "_time").attr("checked", "checked");
+                $helper.find("h2").text("{% trans "Define Time" %}");
+                getHotspotTimes();
             }else{
                 $("#" + trigger_type + "_input_tip").removeClass("datetime");
+                var hdr_txt = (trigger_type == PICKUP) ? "{% trans "Your Pickup" %}" : "{% trans "Your Dropoff" %}";
+                $helper.find("h2").text(hdr_txt);
             }
-            var resolved_count = hotspot_resolved + address_resolved + datetime_resolved - window[helper_type + "_resolved"];
-            var btn_txt = (resolved_count === 2) ? "{% trans "Finish" %}" : "{% trans "Next" %}";
+
+            // set button text
+            var predicates = [hotspot_resolved, address_resolved, datetime_resolved];
+            var resolved_count = predicates.sum() - window[helper_type + "_resolved"];
+            var btn_txt = (resolved_count === predicates.length - 1) ? "{% trans "Finish" %}" : "{% trans "Next" %}";
             $helper.find(".next_btn").button("option", "label", btn_txt);
 
+            // show the damn thing
+            closeTooltips(trigger);
             var api = $(trigger).data("tooltip");
             if (api) {
                 var tip = api.getTip();
@@ -221,14 +235,11 @@
                     api.show();
                     tip = api.getTip();
                 }
-                $("#tooltip_helpers_container").append(tip.find(".tooltip-content")); // append old content to container
-                tip.append($helper);
-//                if (!api.isShown()) {
+                $("#tooltip_helpers_container").append(tip.find(".tooltip-content")); // move old content to container
+                tip.append($helper); // append new content
                 api.show();
                 $helper.show();
-//                }
             }
-
         }
 
         function openNextTooltip(here, there){
@@ -250,6 +261,23 @@
             }
         }
 
+        function getHotspotTimes(){
+            // hotspot_type -> offset types
+            // PICKUP: depart 0, arrive +1
+            // DROPOFF: depart -1, arrive 0
+
+            if (address_resolved) {
+                var offset_type = (hotspot_type == PICKUP && $("#dropoff_time").attr("checked")) ? +1 :
+                        (hotspot_type == DROPOFF && $("#pickup_time").attr("checked")) ? -1 : 0;
+                HotspotHelper.refreshTimes({offset_type: offset_type, lat: address_lat, lon: address_lon});
+            }
+        }
+
+        function copy_input_data(source, target){
+            $(target).data("resolved_as", $(source).data("resolved_as"));
+            $(target).find(".where").text($(source).find(".where").text());
+            $(target).find(".when").text($(source).find(".when").text());
+        }
 
         $(function() {
 
@@ -265,8 +293,9 @@
             $("#dropoff_input").tooltip($.extend({}, tooltip_conf, {tip: "#dropoff_input_tip"}));
 
             HotspotHelper.makeHotSpotSelector("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
+            HotspotHelper.config.update_on_dateselect = false; // we trigger the update manually
+
             AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number");
-            openTooltipHelper("#pickup_input", "select");
 
 //            $("html").click(function(e) {
 //                var $target = $(e.target);
@@ -300,6 +329,13 @@
                 openTooltipHelper(getAddressInput($(this).parent()), "datetime");
             });
 
+            $("#switch").click(function() {
+                hotspot_type = (hotspot_type == PICKUP) ? DROPOFF : PICKUP;
+                var $clone = $("#pickup_input").clone(true);
+                copy_input_data("#dropoff_input", "#pickup_input");
+                copy_input_data($clone, "#dropoff_input");
+            });
+
             $("#sel_hotspot, #sel_address").click(function(e) {
                 e.stopPropagation();
 
@@ -311,11 +347,16 @@
                 e.stopPropagation();
 
                 hotspot_resolved = address_resolved = datetime_resolved = select_input_resolved = false;
+                address_lat = address_lon = undefined;
                 $("[type='address_input']").data("resolved_as", false).each(function(){
                     $(this).find(".where, .when").text("");
                 });
                 var helper_type = this.id.split("2")[1];
                 openTooltipHelper(getAddressInput(this), helper_type);
+            });
+
+            $("#pickup_time, #dropoff_time").change(function(){
+                getHotspotTimes();
             });
 
             $("#hotspot_input_helper .next_btn, #address_input_helper .next_btn").button().click(function(e) {
@@ -344,17 +385,23 @@
                     AddressHelper.resolveStructured("#id_city", $sa_input, $hn_input, {
                         beforeSend: function(){
                             $helper.find(".tooltip_loader").show();
+                            $sa_input.siblings(".street_error").text("");
+                            $hn_input.siblings(".hn_error").text("");
                         },
                         complete: function() {
                             $helper.find(".tooltip_loader").hide();
                         },
-                        resolved: function() {
+                        resolved: function(result) {
                             address_resolved = true;
+                            address_lat = result.lat;
+                            address_lon = result.lon;
                             $input.find(".where").text($sa_input.val() + " " + $hn_input.val() + " " + $("#id_city :selected").text());
                             $input.data("resolved_as", "address");
                             openNextTooltip($input, $other_input);
                         },
                         unresolved: function(errors) {
+                            address_lat = undefined;
+                            address_lon = undefined;
                             if (errors.house_number) {
                                 $hn_input.siblings(".hn_error").text(errors.house_number);
                             }
@@ -390,8 +437,20 @@
                 return is_valid;
             });
 
-            $address_helper.find("input[type=text]").bind("keyup blur", function() {
-                $address_helper.data("validator").call();
+            var $datetime_helper = $("#datetime_input_helper").data("validator", function() {
+                $datetime_helper.find(".next_btn").button("disable");
+
+                var is_valid = Boolean($("#id_hotspot_time option:selected")) && Boolean($("#id_hotspot_datepicker").val());
+                if (is_valid) {
+                    $datetime_helper.find(".next_btn").button("enable");
+                }
+                return is_valid;
+            });
+
+            $.each([$address_helper, $datetime_helper], function(i, helper) {
+                $(helper).find("input[type=text]").bind("keyup blur", function() {
+                    $(helper).data("validator").call();
+                });
             });
 
             $("#order_form").submit(function() {
