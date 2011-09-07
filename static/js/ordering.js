@@ -1,7 +1,3 @@
-getInputType = function(input_element){
-        return ($(input_element).hasClass("address_ac_from")) ? 'from' : ($(input_element).hasClass("address_ac_to")) ? 'to' : 'plain';
-};
-
 // define a custom autocomplete widget
 $.widget("custom.catcomplete", $.ui.autocomplete, {
     options: {
@@ -12,7 +8,7 @@ $.widget("custom.catcomplete", $.ui.autocomplete, {
     responseWrapper: function() {
         this.response.apply( this, arguments );
 
-        var input_type = getInputType(this.element),
+        var input_type = OrderingHelper._getInputType(this.element),
             $header = $(".address-helper-autocomplete"),
             loader_class = "address-helper-loading-" + input_type;
 
@@ -27,7 +23,7 @@ $.widget("custom.catcomplete", $.ui.autocomplete, {
     _renderMenu: function(ul, items) {
         var self = this,
                 currentCategory = undefined,
-                input_type = getInputType(this.element);
+                input_type = OrderingHelper._getInputType(this.element);
 
         ul.append("<li class='address-helper-autocomplete " + input_type + "'>" + OrderingHelper.config.autocomplete_msg + "</li>");
         $.each( items, function( index, item ) {
@@ -91,6 +87,9 @@ var OrderingHelper = Object.create({
 
         return (! $(element).val() || $(element).val() == place_holder_text);
     },
+    _getInputType: function(input_element){
+            return ($(input_element).hasClass("address_ac_from")) ? 'from' : ($(input_element).hasClass("address_ac_to")) ? 'to' : 'plain';
+    },
     _updateAddressControls:     function(element, address_type) {
         var address = Address.fromFields(address_type);
         var address_helper = $(element).siblings(".address-helper");
@@ -102,7 +101,7 @@ var OrderingHelper = Object.create({
                 address_helper.text(this.config.address_not_resolved_msg).addClass("address-error").fadeIn("fast");
             } else {
                 $(element).addClass("marker_disabled").removeClass("not_resolved");
-                var input_type = getInputType(element);
+                var input_type = this._getInputType(element);
                 if (this.config["address_helper_msg_" + input_type]) {
                     address_helper.text(this.config["address_helper_msg_" + input_type]).removeClass("address-error");
                 }
@@ -114,7 +113,7 @@ var OrderingHelper = Object.create({
         this._updateAddressControls(element, address_type);
         var address = Address.fromFields(address_type);
         var address_helper = $(element).siblings(".address-helper");
-        var input_type = getInputType(element);
+        var input_type = this._getInputType(element);
 
         address_helper.removeClass("address-helper-loading-" + input_type);
         if (address.isResolved() || this._isEmpty(element)) {
@@ -129,7 +128,7 @@ var OrderingHelper = Object.create({
             $(element).catcomplete("search");
             $(element).removeClass("not_resolved").addClass("marker_disabled");
 
-            var input_type = getInputType(element);
+            var input_type = this._getInputType(element);
             if (this.config["address_helper_msg_" + input_type]) {
                 address_helper.text(this.config["address_helper_msg_" + input_type]).removeClass("address-error");
             }
@@ -143,7 +142,7 @@ var OrderingHelper = Object.create({
         var address = Address.fromInput(element);
         var address_type = address.address_type;
 
-        var input_type = getInputType(element);
+        var input_type = this._getInputType(element);
 
         var helper_div = $("<div class='address-helper round " + input_type + "'></div>");
         $(element).after(helper_div);
@@ -157,7 +156,7 @@ var OrderingHelper = Object.create({
             mustMatch: true,
             selectFirst: true,
             source: function (request, response) {
-                catcomplete_instance = this;
+                var catcomplete_instance = this;
 
                 $(".address-helper, .address-helper-autocomplete").filter("." + input_type).addClass("address-helper-loading-" + input_type);
                 var address = undefined,
@@ -313,7 +312,7 @@ var OrderingHelper = Object.create({
     addPoint:                   function (address) {
         var that = this,
             location_name = address.address_type + ": <br/>" + address.raw,
-            input_type = getInputType($("#id_" + address.address_type + "_raw")),
+            input_type = this._getInputType($("#id_" + address.address_type + "_raw")),
             icon_image = new telmap.maps.MarkerImage("/static/images/" + input_type + "_map_marker.png", undefined, undefined, {x:35, y:30}),
             point = new telmap.maps.Marker({
                 map:        this.map,
@@ -432,7 +431,7 @@ var OrderingHelper = Object.create({
         var enable_button = true;
         $(".address_ac_from, .address_ac_to").each(function(i, input_element) {
             var address = Address.fromInput(input_element);
-            var input_type = getInputType(input_element);
+            var input_type = that._getInputType(input_element);
 
             if (!address.isResolved()) {
                 address.clearFields();

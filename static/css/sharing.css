@@ -721,9 +721,9 @@ table.striped {
     display: inline-block;
 
 }
-.passenger_home #from_input, .passenger_home #to_input{
+.passenger_home #pickup_input, .passenger_home #dropoff_input{
     height: 25px;
-    width: 100px;
+    width: 250px;
     border: 1px solid;
 }
 
@@ -736,15 +736,31 @@ table.striped {
     padding: 25px;
 }
 
+.tooltip.datetime {
+    height: 125px;
+}
+
 .tooltip label.city{
     display: block;
 }
 
 .tooltip-content #id_house_number{ width: 25px;}
 
+.tooltip_footer .next_btn{ float: right;}
+
 .tooltip_footer{
     position: absolute;
     bottom: 50px;
     width: 85%;
 }
-.tooltip_footer .next_btn{ float: right;}
+
+.tooltip.datetime .tooltip_footer{
+    bottom: 10px;
+}
+
+.tooltip_loader {
+    display: none;
+    background: url(../images/loader1.gif) left 0 no-repeat;
+    height: 24px;
+    width: 24px;
+}

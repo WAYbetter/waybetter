@@ -39,21 +39,8 @@ var HotspotHelper = Object.create({
         this.hotspot_datepicker = $(datepicker_selector).datepicker("destroy");
         this.hotspot_timepicker = $(times_selector).empty().disable();
 
-        $.ajax({
-            url: that.config.urls.get_hotspot_data,
-            type: "POST",
-            dataType: "json",
-            success: function(response) {
-                $.each(response.data, function(i, hotspot) {
-                    var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, next_datetime: new Date(hotspot.next_datetime)};
-                    $("<option>" + hotspot.name + "</option>").attr("value", hotspot.id).data(data).appendTo(that.hotspot_selector);
-                });
-                that.hotspot_selector.change();
-            },
-            error: function() {
-                flashError("Error getting hotspot data");
-            }
-        });
+        this.refreshData();
+
         this.hotspot_datepicker.datepicker({
             dateFormat: 'dd/mm/yy',
             firstDay: 0,
@@ -65,6 +52,29 @@ var HotspotHelper = Object.create({
             onChangeMonthYear: that._onChangeMonthYear,
             onSelect: that._onDateSelect
         })
+    },
+
+    refreshData: function(){
+        var that = this;
+        $.ajax({
+            url: that.config.urls.get_hotspot_data,
+            type: "POST",
+            dataType: "json",
+            beforeSend: function(){
+                that.hotspot_selector.empty().disable().append("<option>" + that.config.labels.updating + "</option>");
+            },
+            success: function(response) {
+                that.hotspot_selector.empty().enable();
+                $.each(response.data, function(i, hotspot) {
+                    var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, next_datetime: new Date(hotspot.next_datetime)};
+                    $("<option>" + hotspot.name + "</option>").attr("value", hotspot.id).data(data).appendTo(that.hotspot_selector);
+                });
+                that.hotspot_selector.change();
+            },
+            error: function() {
+                flashError("Error getting hotspot data");
+            }
+        });
     },
 
     refrestHotspotMarker: function() {
@@ -131,4 +141,131 @@ var HotspotHelper = Object.create({
             }
         });
     }
+});
+
+var AddressHelper = Object.create({
+    config: {
+        urls:{
+            structured_resolve_url: ""
+        }
+    },
+
+    init: function(config) {
+        this.config = $.extend(true, {}, this.config, config);
+    },
+
+    makeStructuredAddressInput: function(city_selector, street_input, hn_input) {
+        var that = this,
+            $street_input = $(street_input),
+            $hn_input = $(hn_input);
+
+        $street_input.data("resolved", false);
+        $street_input.autocomplete({
+            selectFirst: true,
+            minLength: 2,
+            source: function(request, response){
+                $.ajax({
+                    url: that.config.urls.structured_resolve_url,
+                    data: {"city_id": $(city_selector).val(), "street": $street_input.val(), "house_number": $hn_input.val()},
+                    dataType: "json",
+                    success: function(data) {
+                        response($.map(data.geocoding_results, function(item) {
+                            return {
+                                label: item.street_address
+                            }
+                        }));
+                    },
+                    error: function(){
+                        response([]);
+                    }
+                });
+            },
+            select: function(){
+                $(this).data("resolved", true);
+                $(this).autocomplete("disable").blur();
+            }
+
+        });
+
+        $street_input.focus(
+                function() {
+                    $(this).autocomplete("enable");
+                    $(this).autocomplete("search");
+                    $(this).data("value", $(this).val());
+                }).keyup(function() {
+                    if ($(this).data("value") !== $(this).val()) {
+                        $(this).data("resolved", false);
+                    }
+                });
+    },
+
+    resolveStructured: function(city_selector, street_input, hn_input, callbacks) {
+        var that = this,
+            $city_selector = $(city_selector),
+            $street_input = $(street_input),
+            $hn_input = $(hn_input);
+
+        function _beforeSend() {
+            $street_input.siblings(".street_error").text("");
+            $hn_input.siblings(".hn_error").text("");
+            $.each([$city_selector, $street_input, $hn_input], function(){
+                $(this).disable();
+            });
+            if (callbacks && callbacks.beforeSend) {
+                callbacks.beforeSend();
+            }
+        }
+
+        function _complete() {
+            $.each([$city_selector, $street_input, $hn_input], function(){
+                $(this).enable();
+            });
+
+            if (callbacks && callbacks.complete) {
+                callbacks.complete();
+            }
+        }
+
+        function _resolved() {
+            if (callbacks && callbacks.resolved) {
+                callbacks.resolved();
+            }
+        }
+
+        function _unresolved(errors) {
+            if (callbacks && callbacks.unresolved) {
+                callbacks.unresolved(errors);
+            }
+        }
+
+        function _error(){
+            if (callbacks && callbacks.error) {
+                callbacks.error();
+            }
+        }
+
+        var query = {"city_id": $(city_selector).val(), "street": $street_input.val(), "house_number": $hn_input.val()};
+        $.ajax({
+            url: that.config.urls.structured_resolve_url,
+            data: query,
+            dataType: "json",
+            beforeSend: _beforeSend,
+            complete: _complete,
+            success: function(data) {
+                if (data.errors){
+                    _unresolved(data.errors);
+                }
+                else {
+                    $.each(data.geocoding_results, function(i, result) {
+                        if (result.street_address && result.street_address == query.street && result.house_number && result.house_number == query.house_number) {
+                            _resolved();
+                            return false; // break;
+                        }
+                    });
+                }
+            },
+            error: _error
+        });
+    }
+
 });

@@ -21,7 +21,10 @@
         <div>
             <span>{% trans "From" %}</span>
 
-            <div type="address_input" id="from_input"></div>
+            <div type="address_input" id="pickup_input">
+                <a class="where"></a>
+                <a class="when"></a>
+            </div>
         </div>
 
         <div><a>{% trans "Switch" %}</a></div>
@@ -29,16 +32,21 @@
         <div>
             <span>{% trans "To" %}</span>
 
-            <div type="address_input" id="to_input"></div>
+            <div type="address_input" id="dropoff_input">
+                <a class="where"></a>
+                <a class="when"></a>
+            </div>
         </div>
 
         {#        <button type=submit class="order_button" id="order_button">{% trans 'Send' %}</button>#}
     </form>
 
-    <div id="from_input_tip" class="tooltip"></div>
-    <div id="to_input_tip" class="tooltip"></div>
+    <!-- anchor tips with changing content -->
+    <div id="pickup_input_tip" class="tooltip"></div>
+    <div id="dropoff_input_tip" class="tooltip"></div>
 
-    <div id="tooltip_helpers_repo">
+    <!-- hidden container to hold tooltips content -->
+    <div id="tooltip_helpers_container" style="display:none;">
 
         <div id="select_input_helper" class="tooltip-content">
             <div class="header_icon"></div>
@@ -58,8 +66,11 @@
             <label class="city">
                 {% trans "City" %}
                 <select id="id_hotspot_city" name="hotspot_city">
-                    <option>Tel Aviv</option>
-                    <option>Haifa</option>
+                    {% for city in cities %}
+                        <option value="{{ city.id }}">{{ city.name }}</option>
+                    {% endfor %}
+{#                    <option disabled="disabled">חיפה</option>#}
+{#                    <option disabled="disabled">ירושלים</option>#}
                 </select>
             </label>
             <label class="hotspot">
@@ -68,9 +79,9 @@
             </label>
 
             <div class="tooltip_footer">
-                <span>{% trans "Switch to Address" %}</span>
+                <a id="switch2address">{% trans "Switch to Address" %}</a>
 
-                <div class="next_btn">{% trans "Next" %}</div>
+                <div class="next_btn"></div>
             </div>
         </div>
 
@@ -80,23 +91,27 @@
             <label class="city">
                 {% trans "City" %}
                 <select id="id_city" name="city">
-                    <option>Tel Aviv</option>
-                    <option>Haifa</option>
+                    {% for city in cities %}
+                        <option value="{{ city.id }}">{{ city.name }}</option>
+                    {% endfor %}
                 </select>
             </label>
             <label>
                 {% trans "Address" %}
                 <input type="text" id="id_street_address" name="street_address"/>
+                <span class="address_error"></span>
             </label>
             <label>
                 {% trans "House #" %}
                 <input type="text" id="id_house_number" name="house_number"/>
+                <span class="hn_error"></span>
             </label>
 
             <div class="tooltip_footer">
-                <span>{% trans "Switch to Hotspot" %}</span>
+                <a id="switch2hotspot">{% trans "Switch to Hotspot" %}</a>
 
-                <div class="next_btn">{% trans "Next" %}</div>
+                <div class="next_btn"></div>
+                <div class="tooltip_loader"></div>
             </div>
         </div>
 
@@ -104,12 +119,12 @@
             <div class="header_icon"></div>
             <h2>{% trans "Define Time" %}</h2>
             <label>
-                {% trans "Departure Time" %}
-                <input type="radio"/>
+                <input id="pickup_time" type="radio" name="datetime_type"/>
+                {% trans "Pickup Time" %}
             </label>
             <label>
-                {% trans "Arrival Time" %}
-                <input type="radio"/>
+                <input id="dropoff_time" type="radio" name="datetime_type"/>
+                {% trans "Dropoff Time" %}
             </label>
 
             <input type="text" id="id_hotspot_datepicker" name="hotspot_date">
@@ -118,7 +133,7 @@
             <div class="tooltip_footer">
                 <span>{% trans "*Times may vary due to traffic and stuff..." %}</span>
 
-                <div class="next_btn">{% trans "Next" %}</div>
+                <div class="next_btn"></div>
             </div>
         </div>
     </div>
@@ -130,40 +145,111 @@
     <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
     <script type="text/javascript">
 
-        function hideTooltips() {
-            $(".tooltip-content").hide();
+        var PICKUP = "pickup",
+                DROPOFF = "dropoff",
+                hotspot_type = PICKUP,
+                select_input_resolved = false,
+                hotspot_resolved = false,
+                address_resolved = false,
+                datetime_resolved = false;
+
+        function getAddressType(element) {
+            var $element = $(element);
+            var id = "";
+
+            if ($element.attr("type") == "address_input" || $element.hasClass("tooltip")) {
+                id = $element.attr("id");
+            }
+            else{
+                id = $element.parents(".tooltip").attr("id");
+            }
+
+            return (id.split("_")[0] == PICKUP) ? PICKUP : DROPOFF;
+        }
+
+        function getAddressInput(element){
+            return $("#" + getAddressType(element) + "_input");
+        }
+
+        function closeTooltips(exclude) {
+            exclude = exclude || undefined;
+            try{
+                exclude = $(exclude).data("tooltip").getTip();
+            }
+            catch (e){}
+
             $("[type='address_input']").each(function() {
                 var api = $(this).data("tooltip");
-                if (api && api.isShown()) {
-                    api.hide();
+                if (api) {
+                    if (exclude == api.getTip()) {
+                        return true; // do not hide
+                    }
+                    else{
+                        api.hide();
+                    }
                 }
             });
         }
 
         function openTooltipHelper(trigger, helper_type) {
-            hideTooltips();
-            var hdr_txt = ($(trigger).attr("id").split("_")[0] == "from") ? "{% trans "Your Pickup" %}" : "{% trans "Your Dropoff" %}";
-
+            closeTooltips(trigger);
             var $helper = $("#" + helper_type + "_input_helper");
+            $helper.find("input, select").each(function(i, el){
+                $(el).val($(el).data("saved_val")); // restore saved values
+            });
+            ($helper.data("validator") || function(){}).call();
+
+            var trigger_type = getAddressType(trigger);
+            var hdr_txt = (trigger_type == PICKUP) ? "{% trans "Your Pickup" %}" : "{% trans "Your Dropoff" %}";
             $helper.find("h2").text(hdr_txt);
+
+            if (helper_type == "datetime") {
+                HotspotHelper.refreshData();
+                $("#" + trigger_type + "_input_tip").addClass("datetime");
+                $("#datetime_input_helper").find("#" + trigger_type + "_time").attr("checked", "checked");
+            }else{
+                $("#" + trigger_type + "_input_tip").removeClass("datetime");
+            }
+            var resolved_count = hotspot_resolved + address_resolved + datetime_resolved - window[helper_type + "_resolved"];
+            var btn_txt = (resolved_count === 2) ? "{% trans "Finish" %}" : "{% trans "Next" %}";
+            $helper.find(".next_btn").button("option", "label", btn_txt);
 
             var api = $(trigger).data("tooltip");
             if (api) {
-                var old_content = api.getTip().find(".tooltip-content");
-                $("#tooltip_helpers_repo").append(old_content);
-                api.getTip().append($helper);
+                var tip = api.getTip();
+                if (! tip){ // initialize tip
+                    api.show();
+                    tip = api.getTip();
+                }
+                $("#tooltip_helpers_container").append(tip.find(".tooltip-content")); // append old content to container
+                tip.append($helper);
+//                if (!api.isShown()) {
                 api.show();
                 $helper.show();
+//                }
+            }
+
+        }
+
+        function openNextTooltip(here, there){
+            if (! hotspot_resolved) {
+                openTooltipHelper(there, "hotspot");
+            }
+            else {
+                if (! address_resolved) {
+                    openTooltipHelper(there, "address");
+                }
+                else {
+                    if (! datetime_resolved) {
+                        openTooltipHelper(here, "datetime");
+                    }
+                    else { // all resolved
+                        closeTooltips();
+                    }
+                }
             }
         }
 
-        var pickup = "pickup",
-                dropoff = "dropoff",
-                hotspot_type = pickup,
-                select_input_resolved = false,
-                hotspot_resolved = false,
-                address_resolved = false,
-                datetime_resolved = false;
 
         $(function() {
 
@@ -175,66 +261,138 @@
                 }
             };
 
-            $("#from_input").tooltip($.extend({}, tooltip_conf, {tip: "#from_input_tip"}));
-            $("#to_input").tooltip($.extend({}, tooltip_conf, {tip: "#to_input_tip"}));
+            $("#pickup_input").tooltip($.extend({}, tooltip_conf, {tip: "#pickup_input_tip"}));
+            $("#dropoff_input").tooltip($.extend({}, tooltip_conf, {tip: "#dropoff_input_tip"}));
 
-            hideTooltips();
+            HotspotHelper.makeHotSpotSelector("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
+            AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number");
+            openTooltipHelper("#pickup_input", "select");
 
-            $("html").click(function(e) {
-                var $target = $(e.target);
-                var inside_tooltip = $target.hasClass("tooltip") || $target.parents(".tooltip").length ||
-                        $target.hasClass("ui-datepicker") || $target.parents(".ui-datepicker").length ||
-                        $target.hasClass("ui-datepicker-header") || $target.parents(".ui-datepicker-header").length;
-
-                if (! inside_tooltip) {
-                    hideTooltips();
-                }
-            });
+//            $("html").click(function(e) {
+//                var $target = $(e.target);
+//                var inside_tooltip = $target.hasClass("tooltip") || $target.parents(".tooltip").length ||
+//                        $target.hasClass("ui-datepicker") || $target.parents(".ui-datepicker").length ||
+//                        $target.hasClass("ui-datepicker-header") || $target.parents(".ui-datepicker-header").length;
+//
+//                if (! inside_tooltip) {
+//                    closeTooltips();
+//                }
+//            });
 
             $("[type='address_input']").click(function(e) {
                 e.stopPropagation();
-
-                if (! select_input_resolved) {
-                    openTooltipHelper(this, "select");
+                var resolved_as = $(this).data("resolved_as");
+                if (resolved_as) {
+                    openTooltipHelper(this, resolved_as);
                 }
-                else{
-                    if (! hotspot_resolved) {
-                        openTooltipHelper(this, "hotspot");
+                else {
+                    if (! select_input_resolved) {
+                        openTooltipHelper(this, "select");
                     }
                     else {
-                        if (! address_resolved) {
-                            openTooltipHelper(this, "address");
-
-                        }
-                        else {
-                            if (! datetime_resolved) {
-                                openTooltipHelper(this, "datetime");
-                            }
-                        }
+                        openNextTooltip(this, this);
                     }
                 }
             });
 
-            $("#sel_hotspot").click(function(){
-                var tip_type = $(this).parents(".tooltip").attr("id").split("_")[0];
-                var trigger = $("#" + tip_type + "_input");
-                openTooltipHelper(trigger, "hotspot");
+            $("[type='address_input'] .when").click(function(e) {
+                e.stopPropagation();
+                openTooltipHelper(getAddressInput($(this).parent()), "datetime");
             });
 
-            $("#hotspot_input_helper .next_btn").button().click(function() {
-                select_input_resolved = true;
-                hotspot_resolved = true;
+            $("#sel_hotspot, #sel_address").click(function(e) {
+                e.stopPropagation();
+
+                var sel_type = $(this).attr("id").split("_")[1];
+                openTooltipHelper(getAddressInput(this), sel_type);
             });
-            $("#address_input_helper .next_btn").button().click(function() {
-                select_input_resolved = true;
-                address_resolved = true;
+
+            $("#switch2hotspot, #switch2address").click(function(e){
+                e.stopPropagation();
+
+                hotspot_resolved = address_resolved = datetime_resolved = select_input_resolved = false;
+                $("[type='address_input']").data("resolved_as", false).each(function(){
+                    $(this).find(".where, .when").text("");
+                });
+                var helper_type = this.id.split("2")[1];
+                openTooltipHelper(getAddressInput(this), helper_type);
             });
+
+            $("#hotspot_input_helper .next_btn, #address_input_helper .next_btn").button().click(function(e) {
+                e.stopPropagation();
+
+                select_input_resolved = true;
+
+                var $input = getAddressInput(this);
+                var $other_input = (getAddressType(this) == PICKUP) ? $("#" + DROPOFF + "_input") : $("#" + PICKUP + "_input");
+
+                var $helper = $(this).parents(".tooltip-content");
+                var helper_type = $helper.attr("id").split("_")[0]; // what was clicked?
+                $("#" + helper_type + "_input_helper").find("input, select").each(function(i, el) {
+                    $(el).data("saved_val", $(el).val());
+                });
+                if (helper_type == "hotspot") {
+                    hotspot_resolved = true;
+                    hotspot_type = getAddressType(this);
+                    $input.find(".where").text($("#id_hotspot_select :selected").text());
+                    $input.data("resolved_as", "hotspot");
+                    openNextTooltip($input, $other_input);
+                }
+                else{ // helper_type == "address"
+                    var $sa_input = $("#id_street_address"),
+                        $hn_input = $("#id_house_number");
+                    AddressHelper.resolveStructured("#id_city", $sa_input, $hn_input, {
+                        beforeSend: function(){
+                            $helper.find(".tooltip_loader").show();
+                        },
+                        complete: function() {
+                            $helper.find(".tooltip_loader").hide();
+                        },
+                        resolved: function() {
+                            address_resolved = true;
+                            $input.find(".where").text($sa_input.val() + " " + $hn_input.val() + " " + $("#id_city :selected").text());
+                            $input.data("resolved_as", "address");
+                            openNextTooltip($input, $other_input);
+                        },
+                        unresolved: function(errors) {
+                            if (errors.house_number) {
+                                $hn_input.siblings(".hn_error").text(errors.house_number);
+                            }
+                            if (errors.street) {
+                                $sa_input.siblings(".street_error").text(errors.street);
+                            }
+                        }
+                    });
+                }
+            });
+
             $("#datetime_input_helper .next_btn").button().click(function() {
                 datetime_resolved = true;
+                $("[type='address_input'] .when").text("");
+                var input_type = $("#datetime_input_helper input:radio:checked").attr("id").split("_")[0];
+                $("#" + input_type + "_input").find(".when").text($("#id_hotspot_datepicker").val() + " " + $("#id_hotspot_time").val());
+                closeTooltips();
             });
 
+            /**
+             * Validation
+             */
+            var $address_helper = $("#address_input_helper").data("validator", function() {
+                $address_helper.find(".next_btn").button("disable");
 
-            HotspotHelper.makeHotSpotSelector("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
+                var only_digits = $("#id_house_number").val().split(/\D+/).join("");
+                $("#id_house_number").val(only_digits);
+
+                var is_valid = Boolean($("#id_street_address").data("resolved")) && Boolean($("#id_house_number").val());
+                if (is_valid) {
+                    $address_helper.find(".next_btn").button("enable");
+                }
+                return is_valid;
+            });
+
+            $address_helper.find("input[type=text]").bind("keyup blur", function() {
+                $address_helper.data("validator").call();
+            });
 
             $("#order_form").submit(function() {
                 var that = this;
@@ -259,27 +417,27 @@
             });
 
 
-            telmap.maps.event.addListener(OrderingHelper.map, 'click', function(e) {
-                $.ajax({
-                    url: "{% url ordering.passenger_controller.resolve_coordinates %}",
-                    type: "GET",
-                    data: { lat: e.latLng.lat(),
-                        lon: e.latLng.lng()  },
-                    dataType: "json",
-                    success: function(resolve_result) {
-                        var new_address = Address.fromServerResponse(resolve_result);
-                        if (new_address.street_address) {   // only update to new address if it contains a valid street
-                            new_address.address_type = "p1";
-                            new_address.populateFields();
-                            OrderingHelper.updateAddressChoice(new_address);
-                            $('#id_' + new_address.address_type + '_raw').effect("highlight", 2000);
-                        } else {                    // set previous address
-                            flashMessage("No street address where you clicked");
-                        }
-                    }
-                });
-            });
-
+{#            telmap.maps.event.addListener(OrderingHelper.map, 'click', function(e) {#}
+{#                $.ajax({#}
+{#                    url: "{% url ordering.passenger_controller.resolve_coordinates %}",#}
+{#                    type: "GET",#}
+{#                    data: { lat: e.latLng.lat(),#}
+{#                        lon: e.latLng.lng()  },#}
+{#                    dataType: "json",#}
+{#                    success: function(resolve_result) {#}
+{#                        var new_address = Address.fromServerResponse(resolve_result);#}
+{#                        if (new_address.street_address) {   // only update to new address if it contains a valid street#}
+{#                            new_address.address_type = "p1";#}
+{#                            new_address.populateFields();#}
+{#                            OrderingHelper.updateAddressChoice(new_address);#}
+{#                            $('#id_' + new_address.address_type + '_raw').effect("highlight", 2000);#}
+{#                        } else {                    // set previous address#}
+{#                            flashMessage("No street address where you clicked");#}
+{#                        }#}
+{#                    }#}
+{#                });#}
+{#            });#}
+{##}
         });
     </script>
 

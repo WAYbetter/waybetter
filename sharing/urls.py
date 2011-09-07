@@ -40,5 +40,6 @@ urlpatterns = patterns('',
     (r'^dates_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_dates'),
     (r'^times_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_times'),
     (r'^price_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_price'),
+    (r'^resolve_structured_address/$', 'sharing.passenger_controller.resolve_structured_address'),
 
 )
