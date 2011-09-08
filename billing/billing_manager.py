@@ -1,7 +1,12 @@
 from datetime import datetime
 import logging
 from google.appengine.api.urlfetch import fetch
-from common.util import get_unique_id
+from billing.enums import BillingStatus
+from billing.models import BillingTransaction
+from common.util import get_unique_id, custom_render_to_response
+from django.conf import settings
+from django.template.context import RequestContext
+from ordering.decorators import passenger_required_no_redirect
 
 TRANSACTION_URL = "https://cgmpiuat.creditguard.co.il/CGMPI_Server/CreateTransactionExtended"
 ALL_QUERY_FIELDS = {
@@ -42,19 +47,20 @@ ALL_QUERY_FIELDS = {
 }
 
 
-#def bill_passenger(passenger, ride, amount):
-#    transaction = BillingTransaction(passenger=passenger, amount=amount, ride=ride)
-#    transaction.commit()
-
-def get_transaction_id(amount=0):
+def get_transaction_id(unique_id):
     data = ALL_QUERY_FIELDS.copy()
+#    unique_id = get_unique_id()
+
+#    # save passenger in the session
+#    request.session[unique_id] = passenger
+    
     data.update({
         "MID":              112,
         "userName":         "wiibet",
         "password":         "312.2BE#e704",
         "terminal":         "0962831",
-        "uniqueID":         get_unique_id(),
-        "amount":           amount,
+        "uniqueID":         unique_id,
+        "amount":           0,
         "currency":         "ILS",
         "transactionType":  "Debit",
         "creditType":       "RegularCredit",
@@ -75,3 +81,8 @@ def get_transaction_id(amount=0):
         return None
 
     return res.content
+
+
+def get_token_url(unique_id, order=None):
+    trx_id = get_transaction_id(unique_id)
+    return settings.BILLING["token_url"] % trx_id

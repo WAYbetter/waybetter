@@ -1,19 +1,24 @@
 # Create your views here.
+from datetime import  date
 import logging
 import csv
 from billing import billing_backend
-from billing.enums import BillingStatus
+from billing.enums import BillingStatus, BillingAction
+from common.util import custom_render_to_response
+from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
-from billing.models import BillingForm, InvalidOperationError, BillingTransaction
+from billing.models import BillingForm, InvalidOperationError, BillingTransaction, BillingInfo
 from common.decorators import require_parameters, internal_task_on_queue, catch_view_exceptions
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
 from billing.billing_manager import get_transaction_id
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
-from ordering.models import SharedRide, COMPLETED, ACCEPTED
+from djangotoolbox.http import JSONResponse
+from ordering.decorators import passenger_required_no_redirect, passenger_required
+from ordering.models import SharedRide, COMPLETED, ACCEPTED, Order
 
 def get_token(request):
-    txId = get_transaction_id()
+    txId = get_transaction_id(request)
     url = "https://cgmpiuat.creditguard.co.il/CGMPI_Server/PerformTransaction?txId=%s" % txId
     form = BillingForm()
     
@@ -34,19 +39,50 @@ def bill_passenger(request):
 @internal_task_on_queue("orders")
 @require_parameters(method="POST", required_params=("token", "amount", "card_expiration", "billing_transaction_id", "action"))
 def billing_task(request, token, amount, card_expiration, billing_transaction_id, action):
-    if action == "commit":
+    action = int(action)
+    if action == BillingAction.COMMIT:
         return billing_backend.do_J5(token, amount, card_expiration, billing_transaction_id)
-    elif action == "charge":
+    elif action == BillingAction.CHARGE:
         return billing_backend.do_J4(token, amount, card_expiration, billing_transaction_id)
     else:
-        raise InvalidOperationError("Unknown action or billing: %s" % action)
+        raise InvalidOperationError("Unknown action for billing: %s" % action)
     
-def transaction_ok(request):
-    # get passenger
-    # create billing info and attach to passenger
-    logging.info(request)
-    return HttpResponse("\n".join([ "%s = %s" % t for t in request.GET.items()]))
+@passenger_required_no_redirect
+def transaction_ok(request, passenger):
+    #TODO: handle errors
+    #TODO: makesure referrer is creditguard
+    date_string = request.GET.get("cardExp")
+    exp_date = date(year=int(date_string[2:]) + 2000, month=int(date_string[:2]), day=1)
+    kwargs = {
+        "passenger"				: passenger,
+        "token"					: request.GET.get("cardToken"),
+        "expiration_date"		: exp_date,
+        "card_repr"				: request.GET.get("cardMask")
+    }
+    # clean up old billing info objects
+    BillingInfo.objects.filter(passenger=passenger).delete()
 
+    # save new billing info
+    billing_info = BillingInfo(**kwargs)
+    billing_info.save()
+
+    logging.info("looking for order via: %s" % request.GET.get("uniqueID"))
+    order = request.session.get(request.GET.get("uniqueID"))
+    if order and order.passenger == passenger:
+        logging.info("Billing order: %s" % order)
+        billing_trx = BillingTransaction(order=order, amount=99)
+        billing_trx.save()
+        return HttpResponseRedirect(reverse("bill_order", args=[billing_trx.id]))
+    else:
+        return HttpResponseRedirect("/")
+
+
+@passenger_required
+def bill_order(request, trx_id, passenger):
+    billing_trx = BillingTransaction.by_id(trx_id)
+    billing_trx.commit()
+    processing = BillingStatus.PROCESSING
+    return custom_render_to_response("transaction_page.html", locals(), context_instance=RequestContext(request))
 
 def transaction_error(request):
 
@@ -55,6 +91,15 @@ def transaction_error(request):
 
     return HttpResponse("\n".join([ "%s = %s" % t for t in request.GET.items()]))
 
+@passenger_required
+def get_trx_status(request, passenger):
+    trx_id = request.GET.get("trx_id")
+    trx = BillingTransaction.by_id(trx_id)
+
+    if trx and trx.passenger == passenger:
+        return JSONResponse(BillingStatus.get_name(trx.status))
+
+    return JSONResponse("")
 def get_invoices_csv(request):
 
     response = HttpResponse(mimetype='text/csv')

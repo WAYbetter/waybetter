@@ -1,6 +1,6 @@
 from google.appengine.api import taskqueue
 from google.appengine.ext.db import is_in_transaction
-from billing.enums import BillingStatus
+from billing.enums import BillingStatus, BillingAction
 from common.models import BaseModel
 from common.tz_support import UTCDateTimeField
 from common.util import StatusField, add_formatted_date_fields
@@ -70,7 +70,7 @@ class BillingTransaction(BaseModel):
 
     def _setup_charge_date(self):
 #        self.charge_date = self.dn_pickup_time + timedelta(days=1)
-        self.charge_date = self.dn_pickup_time + timedelta(minutes=5)
+        self.charge_date = self.dn_pickup_time + timedelta(minutes=15)
 
     def commit(self):
         """
@@ -95,7 +95,7 @@ class BillingTransaction(BaseModel):
         self._commit_transaction(token=billing_info.token,
                                  amount=self.amount_in_cents,
                                  card_expiration=billing_info.expiration_date_formatted,
-                                 action="commit")
+                                 action=BillingAction.COMMIT)
 
 
     def disable(self):
@@ -113,15 +113,12 @@ class BillingTransaction(BaseModel):
         self._commit_transaction(token=self.passenger.billing_info.token,
                                  amount=self.amount_in_cents,
                                  card_expiration=self.passenger.billing_info.expiration_date_formatted,
-                                 action="charge", eta=eta)
+                                 action=BillingAction.CHARGE, eta=eta)
 
 
     def _commit_transaction(self, token, amount, card_expiration, action, eta=None):
         billing_transaction_id = self.id
-        if action == "charge":
-            task = taskqueue.Task(url=reverse("billing.views.billing_task"), params=locals(), eta=eta)
-        else:
-            task = taskqueue.Task(url=reverse("billing.views.billing_task"), params=locals())
+        task = taskqueue.Task(url=reverse("billing.views.billing_task"), params=locals(), eta=eta)
 
         q = taskqueue.Queue('orders')
         q.add(task)
