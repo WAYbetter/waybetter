@@ -156,10 +156,8 @@ class HotSpotServiceRule(AbstractTemporalRule):
         times = []
         itr = datetimeIterator(datetime.combine(today, self.from_hour), datetime.combine(today, self.to_hour), delta=timedelta(minutes=self.interval))
         for d in itr:
-            if offset:
-                d = d + timedelta(seconds=offset)
             if datetime.combine(today, t1) <= d <= datetime.combine(today, t2):
-                times.append(d.time())
+                times.append((d + timedelta(seconds=offset)).time())
 
         return times
 
