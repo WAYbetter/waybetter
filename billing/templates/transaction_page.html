@@ -1,0 +1,37 @@
+{% extends "base_passenger.html" %}
+{% load i18n %}
+
+{% block bodyclass %}clean_body{% endblock %}
+{% block mainclass %}clean_main full_screen_main{% endblock %}
+
+{% block extrastyle %}
+<style>
+</style>
+{% endblock %}
+
+{% block content %}
+    <div id="trx_status">
+        WAITING
+    </div>
+{% endblock %}
+
+{% block doc_ready %}
+    <script src="/static/js/sharing.js"></script>
+    <script type="text/javascript">
+    $(function() {
+        $(document).everyTime("5s", "poll_status", function() {
+            $.ajax({
+                url: "{% url get_trx_status %}",
+                data: {trx_id: "{{ billing_trx.id }}"},
+                success:    function(data) {
+                    $("#trx_status").html(data);
+                },
+                error:  function() {
+                    $("#trx_status").html("ERROR");
+                    $(document).stopTime("poll_status");
+                }
+            })
+        })
+    })
+    </script>
+{% endblock %}

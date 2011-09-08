@@ -70,7 +70,7 @@ class BillingTransaction(BaseModel):
 
     def _setup_charge_date(self):
 #        self.charge_date = self.dn_pickup_time + timedelta(days=1)
-        self.charge_date = self.dn_pickup_time + timedelta(minutes=5)
+        self.charge_date = self.dn_pickup_time + timedelta(minutes=15)
 
     def commit(self):
         """
@@ -95,7 +95,7 @@ class BillingTransaction(BaseModel):
         self._commit_transaction(token=billing_info.token,
                                  amount=self.amount_in_cents,
                                  card_expiration=billing_info.expiration_date_formatted,
-                                 action=BillingAction.CHARGE)
+                                 action=BillingAction.COMMIT)
 
 
     def disable(self):

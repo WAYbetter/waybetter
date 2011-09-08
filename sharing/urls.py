@@ -40,5 +40,9 @@ urlpatterns = patterns('',
     (r'^dates_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_dates'),
     (r'^times_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_times'),
     (r'^price_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_price'),
+    (r'^registration/$', 'sharing.passenger_controller.registration'),
+    url(r'^send_verification_code/$', 'sharing.passenger_controller.send_sms_verification', name="send_verification_code"),
+    url(r'^validate_phone/$', 'sharing.passenger_controller.validate_phone', name="validate_phone"),
+    url(r'^register/$', 'sharing.passenger_controller.do_register', name="register"),
 
 )

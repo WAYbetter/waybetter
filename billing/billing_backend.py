@@ -56,7 +56,7 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
 def do_J4(token, amount, card_expiration, billing_transaction_id):
     billing_transaction = BillingTransaction.by_id(billing_transaction_id)
     if billing_transaction.status == BillingStatus.CANCELLED:
-        return HttpResponse("Canceled")
+        return HttpResponse("Cancelled")
     
     billing_transaction.change_status(BillingStatus.APPROVED, BillingStatus.PROCESSING)
 
