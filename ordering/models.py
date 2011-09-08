@@ -796,6 +796,7 @@ class Order(BaseModel):
 
     depart_time = UTCDateTimeField(_("depart time"), null=True, blank=True)
     arrive_time = UTCDateTimeField(_("arrive time"), null=True, blank=True)
+    price = models.FloatField(null=True, blank=True, editable=False)
 
     # ratings
     passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)

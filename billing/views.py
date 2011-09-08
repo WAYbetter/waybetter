@@ -9,13 +9,13 @@ from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from billing.models import BillingForm, InvalidOperationError, BillingTransaction, BillingInfo
 from common.decorators import require_parameters, internal_task_on_queue, catch_view_exceptions
-from django.http import HttpResponse, HttpResponseRedirect, HttpResponseForbidden
+from django.http import HttpResponse, HttpResponseRedirect
 from billing.billing_manager import get_transaction_id
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, passenger_required
-from ordering.models import SharedRide, COMPLETED, ACCEPTED, Order
+from ordering.models import SharedRide, COMPLETED, ACCEPTED
 
 def get_token(request):
     txId = get_transaction_id(request)
@@ -68,9 +68,9 @@ def transaction_ok(request, passenger):
 
     logging.info("looking for order via: %s" % request.GET.get("uniqueID"))
     order = request.session.get(request.GET.get("uniqueID"))
-    if order and order.passenger == passenger:
+    if order and order.price and order.passenger == passenger:
         logging.info("Billing order: %s" % order)
-        billing_trx = BillingTransaction(order=order, amount=99)
+        billing_trx = BillingTransaction(order=order, amount=order.price)
         billing_trx.save()
         return HttpResponseRedirect(reverse("bill_order", args=[billing_trx.id]))
     else:

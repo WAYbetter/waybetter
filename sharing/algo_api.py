@@ -119,19 +119,9 @@ def fetch_ride_results_task(request):
         for ride_data in data["m_Rides"]:
             ride = SharedRide()
             ride.debug = debug
-            order = Order.by_id(ride_data["m_OrderInfos"].keys()[0])
-            if order.depart_time:
-                ride.depart_time = order.depart_time
-                ride.arrive_time = ride.depart_time + timedelta(seconds=ride_data["m_Duration"])
-            else:
-                ride.arrive_time = order.arrive_time
-                ride.depart_time = ride.arrive_time - timedelta(seconds=ride_data["m_Duration"])
-
-            #            hack for testing
-            #            ride.depart_time = datetime.now() + timedelta(minutes=3)
-            #            ride.arrive_time = ride.depart_time + timedelta(seconds=ride_data["m_Duration"])
-
             ride.save()
+
+            stop_times = []
             for point_data in ride_data["m_RidePoints"]:
                 point = RidePoint()
                 point.type = StopType.PICKUP if point_data["m_Type"] == "ePickup" else StopType.DROPOFF
@@ -141,6 +131,7 @@ def fetch_ride_results_task(request):
                 point.stop_time = ride.depart_time + timedelta(seconds=point_data["m_offset_time"])
                 point.ride = ride
                 point.save()
+                stop_times.append(point.stop_time)
 
                 for order_id in point_data["m_OrderIDs"]:
                     order = Order.by_id(int(order_id))
@@ -150,6 +141,10 @@ def fetch_ride_results_task(request):
                     else:
                         order.dropoff_point = point
                     order.save()
+
+            ride.depart_time = min(stop_times)
+            ride.arrive_time = max(stop_times)
+            ride.save()
 
             signals.ride_created_signal.send(sender='fetch_ride_results', obj=ride)
 

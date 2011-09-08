@@ -83,6 +83,10 @@ def get_transaction_id(unique_id):
     return res.content
 
 
-def get_token_url(unique_id, order=None):
+def get_token_url(request, order=None):
+    unique_id = get_unique_id()
+    if order:
+        request.session[unique_id] = order
+
     trx_id = get_transaction_id(unique_id)
     return settings.BILLING["token_url"] % trx_id

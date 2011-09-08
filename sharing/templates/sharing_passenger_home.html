@@ -38,7 +38,7 @@
             </div>
         </div>
 
-        {#        <button type=submit class="order_button" id="order_button">{% trans 'Send' %}</button>#}
+        <button type=submit class="order_button" id="order_button">{% trans 'Send' %}</button>
     </form>
 
     <div id="ride_details_container">
@@ -112,7 +112,7 @@
             <h2></h2>
             <label class="city">
                 {% trans "City" %}
-                <select id="id_city" name="city">
+                <select id="id_city" name="id_city">
                     {% for city in cities %}
                         <option value="{{ city.id }}">{{ city.name }}</option>
                     {% endfor %}
@@ -305,21 +305,21 @@
                 beforeSend: function() {
                     $(".price, .time").text("{% trans "Updating..." %}");
                 },
-                complete: function(){
-                    $(".price, .time").text();
-                },
                 success: function(response) {
                     if (response.sharing_price && response.sharing_time && response.private_price && response.private_time) {
                         $("#sharing_price").text(response.sharing_price + "₪");
                         $("#sharing_time").text(response.sharing_time + "{% trans "minutes" %}");
                         $("#private_price").text(response.private_price + "₪");
                         $("#private_time").text(response.private_time + "{% trans "minutes" %}");
+                        $("#order_button").button("enable")
                     } else {
+                        $(".price, .time").text("");
                         alert("Error loading price");
                     }
                 },
                 error: function() {
                     alert("Error loading price");
+                    $(".price, .time").text("");
                 }
             });
         }
@@ -508,7 +508,11 @@
 
             $("#order_form").submit(function() {
                 var that = this;
+                $(".tooltip-content").appendTo("#tooltip_helpers_container");
+                $("#tooltip_helpers_container").appendTo($(this));
                 $(this).append('<input type="hidden" name="hotspot_type" value="' + hotspot_type + '"/>');
+                $(this).append('<input type="hidden" name="lat" value="' + address_lat + '"/>');
+                $(this).append('<input type="hidden" name="lon" value="' + address_lon + '"/>');
                 $(this).ajaxSubmit({
                     beforeSend: function() {
                         $(that).find("button[type='submit']").text("{% trans "Sending" %}").button("disable");
@@ -518,7 +522,10 @@
                     },
                     success: function(response) {
                         if (response.status && response.status == "booked") {
-                            flashMessage("{% trans "Order booked" %}");
+                            alert("{% trans "Order booked" %}");
+                            if (response.redirect){
+                                window.location.href = response.redirect;
+                            }
                         }
                         else {
                             flashError("{% trans "Error" %}");
