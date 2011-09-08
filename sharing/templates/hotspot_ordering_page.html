@@ -121,7 +121,7 @@
                         $price.text("{% trans "Updating..." %}");
                     },
                     success: function(response) {
-                        var price = (response.price) ? response.price + "₪" : "No price defined";
+                        var price = (response.sharing_price) ? response.sharing_price + "₪" : "No price defined";
                         $price.text(price);
                     },
                     error: function() {

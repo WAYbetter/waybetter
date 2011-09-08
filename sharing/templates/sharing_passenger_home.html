@@ -32,7 +32,7 @@
         <div>
             <span>{% trans "To" %}</span>
 
-            <div id="dropoff_input" class="address_input" type="address_input" >
+            <div id="dropoff_input" class="address_input" type="address_input">
                 <a class="where"></a>
                 <a class="when"></a>
             </div>
@@ -41,6 +41,28 @@
         {#        <button type=submit class="order_button" id="order_button">{% trans 'Send' %}</button>#}
     </form>
 
+    <div id="ride_details_container">
+        <div>
+            {% trans "Sharing" %}
+            <div>{% trans "Price" %}
+                <span class="price" id="sharing_price"></span>
+            </div>
+            <div>{% trans "Time" %}
+                <span class="time" id="sharing_time"></span>
+            </div>
+        </div>
+
+        <div>
+            {% trans "Private" %}
+            <div>{% trans "Price" %}
+                <span class="price" id="private_price"></span>
+            </div>
+            <div>{% trans "Time" %}
+                <span class="time" id="private_time"></span>
+            </div>
+
+        </div>
+    </div>
     <!-- anchor tips with changing content -->
     <div id="pickup_input_tip" class="tooltip"></div>
     <div id="dropoff_input_tip" class="tooltip"></div>
@@ -256,6 +278,7 @@
                     }
                     else { // all resolved
                         closeTooltips();
+                        getRideDetails();
                     }
                 }
             }
@@ -266,6 +289,39 @@
                 var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF;
                 HotspotHelper.refreshTimes({hotspot_type: hotspot_type, time_type: time_type, lat: address_lat, lon: address_lon});
             }
+        }
+
+        function getRideDetails(){
+            $.ajax({
+                url: "{% url sharing.passenger_controller.get_hotspot_price %}",
+                dataType: "json",
+                data: {
+                    'lon': address_lon,
+                    'lat': address_lat,
+                    'hotspot_id': $("#id_hotspot_select").val(),
+                    'day': $("#id_hotspot_datepicker").val(),
+                    'time': $("#id_hotspot_time").val()
+                },
+                beforeSend: function() {
+                    $(".price, .time").text("{% trans "Updating..." %}");
+                },
+                complete: function(){
+                    $(".price, .time").text();
+                },
+                success: function(response) {
+                    if (response.sharing_price && response.sharing_time && response.private_price && response.private_time) {
+                        $("#sharing_price").text(response.sharing_price + "₪");
+                        $("#sharing_time").text(response.sharing_time + "{% trans "minutes" %}");
+                        $("#private_price").text(response.private_price + "₪");
+                        $("#private_time").text(response.private_time + "{% trans "minutes" %}");
+                    } else {
+                        alert("Error loading price");
+                    }
+                },
+                error: function() {
+                    alert("Error loading price");
+                }
+            });
         }
 
         function copy_input_data(source, target){
@@ -415,6 +471,7 @@
                 var input_type = $("#datetime_input_helper input:radio:checked").attr("id").split("_")[0];
                 $("#" + input_type + "_input").find(".when").text($("#id_hotspot_datepicker").val() + " " + $("#id_hotspot_time").val());
                 closeTooltips();
+                getRideDetails();
             });
 
             /**
