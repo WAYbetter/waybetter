@@ -262,14 +262,9 @@
         }
 
         function getHotspotTimes(){
-            // hotspot_type -> offset types
-            // PICKUP: depart 0, arrive +1
-            // DROPOFF: depart -1, arrive 0
-
             if (address_resolved) {
-                var offset_type = (hotspot_type == PICKUP && $("#dropoff_time").attr("checked")) ? +1 :
-                        (hotspot_type == DROPOFF && $("#pickup_time").attr("checked")) ? -1 : 0;
-                HotspotHelper.refreshTimes({offset_type: offset_type, lat: address_lat, lon: address_lon});
+                var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF;
+                HotspotHelper.refreshTimes({hotspot_type: hotspot_type, time_type: time_type, lat: address_lat, lon: address_lon});
             }
         }
 
@@ -334,6 +329,7 @@
                 var $clone = $("#pickup_input").clone(true);
                 copy_input_data("#dropoff_input", "#pickup_input");
                 copy_input_data($clone, "#dropoff_input");
+                getHotspotTimes();
             });
 
             $("#sel_hotspot, #sel_address").click(function(e) {
