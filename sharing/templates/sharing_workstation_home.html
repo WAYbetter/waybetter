@@ -173,16 +173,6 @@
             }
             $(this).change(); // trigger populateDrivers
         });
-
-        $.ajax({
-            url: "{% url sharing.station_controller.station_taxidrivers %}",
-            type: "GET",
-            data: {"get_taxis": true},
-            dataType: 'json',
-            success: function(response) {
-            }
-        });
-
     };
 
     getTaxiDriverData = function(populate) {
@@ -193,18 +183,28 @@
             });
             $(".taxi_selector").empty().disable().append('<option>' + "{% trans "Updating..." %}" + '</option>');
         }
-        $.ajax({
-            url: "{% url sharing.station_controller.station_taxidrivers %}",
-            type: "GET",
-            data: {"get_taxis": true},
-            dataType: 'json',
-            success: function(response) {
-                taxi_driver_data = response.taxis_data;
-                if (populate) {
-                    populateTaxis();
+        try {
+            $.ajax({
+                url: "{% url sharing.station_controller.station_taxidrivers %}",
+                type: "GET",
+                data: {"get_taxis": true},
+                dataType: 'json',
+                success: function(response) {
+                    try {
+                        taxi_driver_data = response.taxis_data;
+                        if (populate) {
+                            populateTaxis();
+                        }
+                    } catch (e) {
+                        trace(e);
+                        onError();
+                    }
                 }
-            }
-        });
+            });
+        } catch (e) {
+            trace(e);
+            onError();
+        }
 
     };
 
@@ -290,9 +290,15 @@
                                 $(that).button("disable");
                             },
                             success: function(response) {
-                                acceptRide(response.ride);
+                                try {
+                                    acceptRide(response.ride);
+                                } catch (e) {
+                                    trace(e);
+                                    onError();
+                                }
                             },
                             error: function(response) {
+                                trace(response);
                                 alert(response.responseText);
                                 $(that).button("enable");
                             }
@@ -512,8 +518,7 @@
             minimize();
         }
     };
-
-    $(function() {
+    init = function() {
         $("#tools_button").button().click(function(e) {
             var win = window.open("{% url sharing.station_controller.station_tools %}", "station_tools", "width=800,height=600,resizable=0,scrollbars=1");
             var x, y;
@@ -523,8 +528,6 @@
             } else {
                 x = $(window).width() + 10;
             }
-            trace("x = " + x);
-            trace("y = " + y);
             win.moveTo(x, y);
 
         });
@@ -582,7 +585,15 @@
         updateCounters();
         air("set_visible", true);
         setupChannel(init_token);
+    };
 
+    $(function() {
+        try {
+            init();
+        } catch (e) {
+            trace(e);
+            onError();
+        }
     });
     </script>
 {% endblock %}
