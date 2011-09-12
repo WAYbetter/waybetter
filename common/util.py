@@ -1,6 +1,7 @@
 # This Python file uses the following encoding: utf-8
 import urllib
 import os
+import uuid
 from google.appengine.api.mail import EmailMessage
 from google.appengine.ext.db import is_in_transaction
 from google.appengine.api import taskqueue
@@ -273,6 +274,9 @@ def generate_random_token(length=random.randint(10, 20), alpha_only=False, alpha
             s += c
     return s
 
+
+def get_uuid():
+    return str(uuid.uuid4().hex)
 
 def get_unique_id():
     s = hashlib.sha1()

@@ -11,58 +11,82 @@
 
 
 {% block content %}
+    <div id="header"></div>
     <div id="map_container">
         <div id="map"></div>
     </div>
 
-    <form id="order_form" method="post" action="{% url sharing.passenger_controller.book_ride %}">
-        {% csrf_token %}
+    <div id="main_content_container">
+        <form id="order_form">
+            {% csrf_token %}
 
-        <div>
-            <span>{% trans "From" %}</span>
+            <div class="address_input_container">
+                <span>{% trans "From" %}</span>
 
-            <div id="pickup_input" class="address_input" type="address_input">
-                <a class="where"></a>
-                <a class="when"></a>
-            </div>
-        </div>
-
-        <div id="switch"><a>{% trans "Switch" %}</a></div>
-
-        <div>
-            <span>{% trans "To" %}</span>
-
-            <div id="dropoff_input" class="address_input" type="address_input">
-                <a class="where"></a>
-                <a class="when"></a>
-            </div>
-        </div>
-
-        <button type=submit class="order_button" id="order_button">{% trans 'Send' %}</button>
-    </form>
-
-    <div id="ride_details_container">
-        <div>
-            {% trans "Sharing" %}
-            <div>{% trans "Price" %}
-                <span class="price" id="sharing_price"></span>
-            </div>
-            <div>{% trans "Time" %}
-                <span class="time" id="sharing_time"></span>
-            </div>
-        </div>
-
-        <div>
-            {% trans "Private" %}
-            <div>{% trans "Price" %}
-                <span class="price" id="private_price"></span>
-            </div>
-            <div>{% trans "Time" %}
-                <span class="time" id="private_time"></span>
+                <div id="pickup_input" class="address_input" type="address_input">
+                    <a class="where"></a>
+                    <a class="when"></a>
+                </div>
             </div>
 
+            <div id="switch" class="clickable"></div>
+
+            <div class="address_input_container">
+                <span>{% trans "To" %}</span>
+
+                <div id="dropoff_input" class="address_input" type="address_input">
+                    <a class="where"></a>
+                    <a class="when"></a>
+                </div>
+            </div>
+        </form>
+
+        <div id="banner_and_ride_details_container">
+            <div id="banner">
+                <div id="slider">
+                    <img src="/static/images/anim_1.png" alt=""/>
+                    <img src="/static/images/anim_2.png" alt=""/>
+                    <img src="/static/images/anim_3.png" alt=""/>
+                </div>
+                <div id="tryitnow" class="clickable">{% trans "Try It Now!" %}</div>
+            </div>
+
+            <div id="ride_details_container">
+                <div id="sharing_details" class="ride_details">
+                    <h2>{% trans "WAYbetter Smart Taxi Ride" %}</h2>
+                    <ul>
+                        <li>
+                            {% trans "Price" %}
+                            <span class="price" id="sharing_price"></span>
+                        </li>
+                        <li>
+                            {% trans "Time" %}
+                            <span class="time" id="sharing_time"></span>
+                        </li>
+                    </ul>
+                    <button class="order_button" id="book_sharing">{% trans 'Order WAYbetter Ride' %}</button>
+                </div>
+
+                <div id="private_details" class="ride_details">
+                    <h2>{% trans "Private Taxi Ride" %}</h2>
+                    <ul>
+                        <li>
+                            {% trans "Price" %}
+                            <span class="price" id="private_price"></span>
+                        </li>
+                        <li>
+                            {% trans "Time" %}
+                            <span class="time" id="private_time"></span>
+                        </li>
+                    </ul>
+                    <button class="order_button" id="book_private">{% trans 'Order Private Ride' %}</button>
+                </div>
+
+                <div class="clear"></div>
+            </div>
         </div>
     </div>
+
     <!-- anchor tips with changing content -->
     <div id="pickup_input_tip" class="tooltip"></div>
     <div id="dropoff_input_tip" class="tooltip"></div>
@@ -74,11 +98,20 @@
             <div class="header_icon"></div>
             <h2></h2>
 
-            <a id="sel_hotspot">{% trans "Select Hotspot" %}</a>
-            <a id="sel_address">{% trans "Enter Address" %}</a>
+            <div class="content_container">
+                <div id="sel_hotspot" class="clickable">
+                    <span class="img"></span>
+                    <span class="link">{% trans "Select Hotspot" %}</span>
+                </div>
+                <div id="sel_address" class="clickable">
+                    <span class="img"></span>
+                    <span class="link">{% trans "Enter Address" %}</span>
+                </div>
+                <div class="clear"></div>
+            </div>
 
             <div class="tooltip_footer">
-                <span>{% trans "Help" %}</span>
+                <a>{% trans "Help" %}</a>
             </div>
         </div>
 
@@ -118,7 +151,7 @@
                     {% endfor %}
                 </select>
             </label>
-            <label>
+            <label class="street_address">
                 {% trans "Address" %}
                 <input type="text" id="id_street_address" name="street_address"/>
                 <span class="address_error"></span>
@@ -140,20 +173,27 @@
         <div id="datetime_input_helper" class="tooltip-content">
             <div class="header_icon"></div>
             <h2>{% trans "Define Time" %}</h2>
-            <label>
-                <input id="pickup_time" type="radio" name="datetime_type"/>
-                {% trans "Pickup Time" %}
-            </label>
-            <label>
-                <input id="dropoff_time" type="radio" name="datetime_type"/>
-                {% trans "Dropoff Time" %}
-            </label>
+            <div class="content">
+                <div id="time_radio">
+                    <label>
+                        <input id="pickup_time" type="radio" name="datetime_type"/>
+                        {% trans "Pickup Time" %}
+                    </label>
+                    <label>
+                        <input id="dropoff_time" type="radio" name="datetime_type"/>
+                        {% trans "Dropoff Time" %}
+                    </label>
+                </div>
 
-            <input type="text" id="id_hotspot_datepicker" name="hotspot_date">
-            <select id="id_hotspot_time" name="hotspot_time"></select>
+                <div id="time_tools">
+                    <input type="text" id="id_hotspot_datepicker" name="hotspot_date"> @ 
+                    <select id="id_hotspot_time" name="hotspot_time"></select>
+                </div>
 
+                <div class="clear"></div>
+            </div>
             <div class="tooltip_footer">
-                <span>{% trans "*Times may vary due to traffic and stuff..." %}</span>
+                <span class="help">{% trans "*Times may vary due to traffic and stuff..." %}</span>
 
                 <div class="next_btn"></div>
             </div>
@@ -265,22 +305,28 @@
         }
 
         function openNextTooltip(here, there){
-            if (! hotspot_resolved) {
-                openTooltipHelper(there, "hotspot");
+            if (! select_input_resolved) {
+                openTooltipHelper(here, "select");
             }
             else {
-                if (! address_resolved) {
-                    openTooltipHelper(there, "address");
+                if (! hotspot_resolved) {
+                    openTooltipHelper(there, "hotspot");
                 }
                 else {
-                    if (! datetime_resolved) {
-                        openTooltipHelper(here, "datetime");
+                    if (! address_resolved) {
+                        openTooltipHelper(there, "address");
                     }
-                    else { // all resolved
-                        closeTooltips();
-                        getRideDetails();
+                    else {
+                        if (! datetime_resolved) {
+                            openTooltipHelper(here, "datetime");
+                        }
+                        else { // all resolved
+                            closeTooltips();
+                            showRideDetails();
+                        }
                     }
                 }
+
             }
         }
 
@@ -291,7 +337,7 @@
             }
         }
 
-        function getRideDetails(){
+        function showRideDetails(){
             $.ajax({
                 url: "{% url sharing.passenger_controller.get_hotspot_price %}",
                 dataType: "json",
@@ -311,7 +357,10 @@
                         $("#sharing_time").text(response.sharing_time + "{% trans "minutes" %}");
                         $("#private_price").text(response.private_price + "₪");
                         $("#private_time").text(response.private_time + "{% trans "minutes" %}");
-                        $("#order_button").button("enable")
+                        $(".order_button").button("enable");
+                        $("#banner").fadeOut("slow");
+                        $("#ride_details").fadeIn("slow");
+                        $(".order_button").enable();
                     } else {
                         $(".price, .time").text("");
                         alert("Error loading price");
@@ -324,6 +373,48 @@
             });
         }
 
+        function book_ride(is_private){
+            var $form = $("#order_form");
+            $(".tooltip-content").appendTo("#tooltip_helpers_container");
+            $("#tooltip_helpers_container").appendTo($form);
+
+            var hidden_inputs = {
+                is_private: is_private,
+                time_type: ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF,
+                ride_duration: $("#id_hotspot_time").data("ride_duration"),
+                hotspot_type: hotspot_type,
+                lat: address_lat,
+                lon: address_lon
+            };
+
+            $.each(hidden_inputs, function(k, v) {
+                $form.find("input[name='" + k + "']").remove();
+                $form.append($('<input type="hidden"/>').attr("name", k).attr("value", v));
+            });
+
+            $form.ajaxSubmit({
+                url: "{% url sharing.passenger_controller.book_ride %}",
+                type: "POST",
+                beforeSend: function() {
+                    $("#order_button").button("disable");
+                },
+                complete: function() {
+                    $("#order_button").button("enable");
+                },
+                success: function(response) {
+                    if (response.status && response.status == "booked") {
+                        alert("{% trans "Order booked" %}");
+                        if (response.redirect) {
+                            window.location.href = response.redirect;
+                        }
+                    }
+                    else {
+                        flashError("{% trans "Error" %}");
+                    }
+                }
+            });
+        }
+
         function copy_input_data(source, target){
             $(target).data("resolved_as", $(source).data("resolved_as"));
             $(target).find(".where").text($(source).find(".where").text());
@@ -331,6 +422,16 @@
         }
 
         $(function() {
+
+            $("#slider").nivoSlider({
+                controlNav: false,
+                directionNav: false,
+                pauseTime:4000,
+                slices:1,
+                animSpeed:700,
+                effect: "fade",
+                startSlide: 0
+            });
 
             var tooltip_conf = {
                 effect: 'slide',
@@ -348,16 +449,28 @@
 
             AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number");
 
-//            $("html").click(function(e) {
-//                var $target = $(e.target);
-//                var inside_tooltip = $target.hasClass("tooltip") || $target.parents(".tooltip").length ||
-//                        $target.hasClass("ui-datepicker") || $target.parents(".ui-datepicker").length ||
-//                        $target.hasClass("ui-datepicker-header") || $target.parents(".ui-datepicker-header").length;
-//
-//                if (! inside_tooltip) {
-//                    closeTooltips();
-//                }
-//            });
+            $(".order_button").disable();
+            $("#ride_details").hide();
+{#            $("#sharing_price").text("10 ₪");#}
+{#            $("#sharing_time").text("21 {% trans "minutes" %}");#}
+{#            $("#private_price").text("20₪");#}
+{#            $("#private_time").text("15 {% trans "minutes" %}");#}
+{#            $("#banner").hide();#}
+{#            $("#ride_details").show();#}
+
+
+            $("html").click(function(e) {
+                var $target = $(e.target);
+                var inside_tooltip = ($target.attr("id") == "tryitnow") ||
+                        $target.hasClass("tooltip") || $target.parents(".tooltip").length ||
+                        $target.hasClass("ui-datepicker") || $target.parents(".ui-datepicker").length ||
+                        $target.hasClass("ui-datepicker-header") || $target.parents(".ui-datepicker-header").length ||
+                        $target.hasClass("ui-autocomplete") || $target.parents(".ui-autocomplete").length;
+
+                if (! inside_tooltip) {
+                    closeTooltips();
+                }
+            });
 
             $("[type='address_input']").click(function(e) {
                 e.stopPropagation();
@@ -366,12 +479,7 @@
                     openTooltipHelper(this, resolved_as);
                 }
                 else {
-                    if (! select_input_resolved) {
-                        openTooltipHelper(this, "select");
-                    }
-                    else {
-                        openNextTooltip(this, this);
-                    }
+                    openNextTooltip(this, this);
                 }
             });
 
@@ -379,6 +487,11 @@
                 e.stopPropagation();
                 openTooltipHelper(getAddressInput($(this).parent()), "datetime");
             });
+
+            $("#tryitnow").click(function(){
+                openNextTooltip("#pickup_input", "#dropoff_input");
+            });
+
 
             $("#switch").click(function() {
                 hotspot_type = (hotspot_type == PICKUP) ? DROPOFF : PICKUP;
@@ -471,7 +584,7 @@
                 var input_type = $("#datetime_input_helper input:radio:checked").attr("id").split("_")[0];
                 $("#" + input_type + "_input").find(".when").text($("#id_hotspot_datepicker").val() + " " + $("#id_hotspot_time").val());
                 closeTooltips();
-                getRideDetails();
+                showRideDetails();
             });
 
             /**
@@ -506,62 +619,15 @@
                 });
             });
 
-            $("#order_form").submit(function() {
-                var that = this;
-                var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF ;
-                var ride_duration = $("#id_hotspot_time").data("ride_duration");
-                $(".tooltip-content").appendTo("#tooltip_helpers_container");
-                $("#tooltip_helpers_container").appendTo($(this));
-                $(this).append('<input type="hidden" name="hotspot_type" value="' + hotspot_type + '"/>');
-                $(this).append('<input type="hidden" name="time_type" value="' + time_type + '"/>');
-                $(this).append('<input type="hidden" name="ride_duration" value="' + ride_duration + '"/>');
-                $(this).append('<input type="hidden" name="lat" value="' + address_lat + '"/>');
-                $(this).append('<input type="hidden" name="lon" value="' + address_lon + '"/>');
-                $(this).ajaxSubmit({
-                    beforeSend: function() {
-                        $(that).find("button[type='submit']").text("{% trans "Sending" %}").button("disable");
-                    },
-                    complete: function() {
-                        $(that).find("button[type='submit']").text("{% trans "Send" %}").button("enable");
-                    },
-                    success: function(response) {
-                        if (response.status && response.status == "booked") {
-                            alert("{% trans "Order booked" %}");
-                            if (response.redirect){
-                                window.location.href = response.redirect;
-                            }
-                        }
-                        else {
-                            flashError("{% trans "Error" %}");
-                        }
-                    }
-                });
-                return false;
+            $("#book_sharing").click(function() {
+                book_ride(false);
+            });
+            $("#book_private").click(function() {
+                book_ride(true);
             });
 
-
-{#            telmap.maps.event.addListener(OrderingHelper.map, 'click', function(e) {#}
-{#                $.ajax({#}
-{#                    url: "{% url ordering.passenger_controller.resolve_coordinates %}",#}
-{#                    type: "GET",#}
-{#                    data: { lat: e.latLng.lat(),#}
-{#                        lon: e.latLng.lng()  },#}
-{#                    dataType: "json",#}
-{#                    success: function(resolve_result) {#}
-{#                        var new_address = Address.fromServerResponse(resolve_result);#}
-{#                        if (new_address.street_address) {   // only update to new address if it contains a valid street#}
-{#                            new_address.address_type = "p1";#}
-{#                            new_address.populateFields();#}
-{#                            OrderingHelper.updateAddressChoice(new_address);#}
-{#                            $('#id_' + new_address.address_type + '_raw').effect("highlight", 2000);#}
-{#                        } else {                    // set previous address#}
-{#                            flashMessage("No street address where you clicked");#}
-{#                        }#}
-{#                    }#}
-{#                });#}
-{#            });#}
-{##}
         });
+
     </script>
 
 {% endblock %}
