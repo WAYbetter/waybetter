@@ -14,12 +14,11 @@
         <div id="options_button" class="toolbar_button"></div>
         <div id="expand_collapse_button" class="toolbar_button">{% trans "Hide List" %}</div>
         <div id="summary">
-            {% trans "Overall Status" %}:
             <span id="untaken_counter" class="untaken_count"></span> <span
-                class="untaken_count"> {% trans "Rides Untaken" %}</span>
+                class="untaken_count"> {% trans "Pending" %}</span>
             |
             <span id="taken_counter" class="taken_count"></span> <span
-                class="taken_count"> {% trans "Rides Taken" %}</span>
+                class="taken_count"> {% trans "Ready to go" %}</span>
         </div>
         <div id="tools_button" class="toolbar_button">{% trans "Station Account" %}</div>
         <div class="clear"></div>
@@ -53,6 +52,9 @@
     var online_label = "{% trans 'Online Status: OK' %}";
     var offline_label = "{% trans 'Online Status: ERROR' %}";
     var is_minimized = false;
+    var minimize_nag_interval = 30; // seconds
+    var taken = 0;
+    var untaken = 0;
 
     {% autoescape off %}
         var rides_data = {{ rides_data }};
@@ -306,6 +308,7 @@
 
 
     renderRide = function(ride) {
+        updateCounters({{ assigned }});
         ride.depart_time = new Date(ride.depart_time);
         var $ride_header = $('<h3 class="ride_header"></h3>').attr("id", "ride_header_" + ride.id)
                 .append('<span class="date">' + getFullDate(ride.depart_time) + '</span>')
@@ -336,6 +339,8 @@
                     success: function() {
                         $ride_header.remove();
                         $ride_div.remove();
+                        updateCounters({{ accepted }});
+                        updateCounters({{ completed }});
                     },
                     error: function() {
                         $(that).button("enable");
@@ -359,7 +364,6 @@
         }
 
         $accordion.accordion("destroy").accordion({ active: $("[id^=ride_header_]").index($active_header) });
-        updateCounters({{ assigned }});
         // install timer
         $("#ride_header_" + ride.id).oneTime(Math.max(ride.depart_time - new Date(), 0), function() {
             if ($(this).data("status") == {{ assigned }}) {
@@ -449,8 +453,8 @@
     };
 
     updateCounters = function(status) {
-        var taken = parseInt($("#taken_counter").text(), 10);
-        var untaken = parseInt($("#untaken_counter").text(), 10);
+        taken = parseInt($("#taken_counter").text(), 10);
+        untaken = parseInt($("#untaken_counter").text(), 10);
 
         switch (status) {
             case {{ assigned }}:
@@ -460,13 +464,16 @@
                 $("#taken_counter").text(++taken);
                 $("#untaken_counter").text(--untaken);
                 break;
+            case {{ completed }}:
+                $("#taken_counter").text(--taken);
+
         }
         if (taken + untaken > 0) {
             maximize();
-            $("#expand_collapse_button").enable().addClass("not_taken");
+            $("#expand_collapse_button").enable()
         } else {
             minimize();
-            $("#expand_collapse_button").disable().removeClass("not_taken");
+            $("#expand_collapse_button").disable()
         }
     };
 
@@ -479,15 +486,23 @@
 
     maximize = function() {
         air("maximize");
-        $("#expand_collapse_button").button("option", "label", minimize_label);
+        $("#expand_collapse_button").button("option", "label", minimize_label).removeClass("not_taken");
         $("#ride_accordion_container").add("#summary").show();
         is_minimized = false;
     };
     minimize = function() {
         air("minimize");
         $("#expand_collapse_button").button("option", "label", maximize_label);
+        if (taken + untaken > 0) {
+            $("#expand_collapse_button").addClass("not_taken");
+            $(document).stopTime("minimize_nag");
+            $(document).oneTime(minimize_nag_interval * 1000, "minimize_nag", function() {
+                maximize();
+            });
+        }
         $("#ride_accordion_container").add("#summary").hide();
         is_minimized = true;
+
 
     };
     toggleExpandCollapse = function() {
@@ -500,7 +515,18 @@
 
     $(function() {
         $("#tools_button").button().click(function(e) {
-            window.open("{% url sharing.station_controller.station_tools %}", "station_tools", "width=800,height=600,resizable=0,scrollbars=1");
+            var win = window.open("{% url sharing.station_controller.station_tools %}", "station_tools", "width=800,height=600,resizable=0,scrollbars=1");
+            var x, y;
+            y = window.screenTop;
+            if (window.screenLeft > 0) { // module is snapped to right
+                x = window.screenLeft - 800 - 10;
+            } else {
+                x = $(window).width() + 10;
+            }
+            trace("x = " + x);
+            trace("y = " + y);
+            win.moveTo(x, y);
+
         });
         $("#options_button").button({
             icons: {
@@ -516,7 +542,7 @@
                 var width = $(this).width();
                 //show the menu directly over the placeholder
 
-                $menu.css({ "left": (pos.left + width + 10) + "px", "top":pos.top + "px" });
+                $menu.css({ "left": (pos.left + width + 5) + "px", "top":pos.top + "px" });
                 $menu.fadeIn("fast");
             }
         });

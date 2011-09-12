@@ -126,23 +126,37 @@ a, .action_link, .ui-widget-content a {
 
 #tools_button {
     float: left;
+    margin-left: 20px;
 }
 .rtl #tools_button {
     float: right;
+    margin-left: inherit;
+    margin-right: 20px;
 }
 
 #expand_collapse_button {
     float: right;
 }
+#expand_collapse_button.not_taken {
+    color: #ac5515;
+}
+
+#expand_collapse_button.ui-state-disabled {
+    color: #555;
+}
+
 .rtl #expand_collapse_button {
     float: left;
 }
 
 #options_button {
     float: right;
+    margin-right: 20px;
 }
 .rtl #options_button {
     float: left;
+    margin-right: inherit;
+    margin-left: 20px;
 }
 #option_menu {
     -webkit-user-select: none;
@@ -171,7 +185,7 @@ a, .action_link, .ui-widget-content a {
 #station_name {
     float: left;
     margin-top: 4px;
-    margin-left: 15px;
+    margin-left: 20px;
     font-weight: normal;
     color: #555;
     text-shadow: 0 1px white;
@@ -182,7 +196,7 @@ a, .action_link, .ui-widget-content a {
     padding-right: 20px;
     background-position: 100% -2px;
     margin-top: 4px;
-    margin-right: 15px;
+    margin-right: 20px;
     font-weight: normal;
     color: #555;
     text-shadow: 0 1px white;
@@ -207,7 +221,7 @@ a, .action_link, .ui-widget-content a {
 }
 
 #summary > .untaken_count {
-    color: #912e2e;
+    color: #ac5515;
     font-weight: bold;
 }
 #summary > .taken_count {
