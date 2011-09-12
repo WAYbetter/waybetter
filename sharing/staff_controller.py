@@ -186,6 +186,9 @@ def submit_test_computation(orders, params, computation_set_name=None, computati
         computation = RideComputation(algo_key=algo_key)
         computation.toleration_factor = params.get('toleration_factor')
         computation.toleration_factor_minutes = params.get('toleration_factor_minutes')
+        order = orders[0]
+        computation.hotspot_depart_time = order.depart_time
+        computation.hotspot_arrive_time = order.arrive_time
 
         if computation_set_id: # add to existing set
             computation_set = RideComputationSet.by_id(computation_set_id)

@@ -73,6 +73,10 @@ LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGE
 MAX_STATION_DISTANCE_KM = 10
 CURRENT_PASSENGER_KEY = "current_passenger"
 
+class StopType(Enum):
+    PICKUP  = 0
+    DROPOFF = 1
+
 
 class Station(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
@@ -318,21 +322,19 @@ class RideComputationSet(BaseModel):
 
 class RideComputation(BaseModel):
     set = models.ForeignKey(RideComputationSet, verbose_name=_("Computation set"), related_name="members", null=True, blank=True)
-    key = models.CharField(max_length=150, null=True, blank=True)
-    algo_key = models.CharField(max_length=150, null=True, blank=True)
+    key = models.CharField(max_length=150, null=True, blank=True, editable=False)
+    algo_key = models.CharField(max_length=150, null=True, blank=True, editable=False)
 
     completed = models.BooleanField(default=False, editable=False)
+
+    hotspot_depart_time = UTCDateTimeField(null=True, blank=True, editable=False)
+    hotspot_arrive_time = UTCDateTimeField(null=True, blank=True, editable=False)
 
     toleration_factor = models.FloatField(null=True, blank=True)
     toleration_factor_minutes = models.FloatField(null=True, blank=True)
     statistics = models.TextField(null=True, blank=True)
 
-    @classmethod
-    def get_orders_by_key(cls, key):
-        computations = cls.objects.filter(key=key)
-        return [order for c in computations for order in c.orders.all()]
 
-    
 class SharedRide(BaseModel):
 
     depart_time = UTCDateTimeField(_("depart time"))
@@ -357,7 +359,7 @@ class SharedRide(BaseModel):
         if not self._value and self.station:
             self._value = self.station.get_ride_price(self)
             self.save()
-        
+
         return self._value
 
     @property
@@ -375,7 +377,7 @@ class SharedRide(BaseModel):
             return dropoffs[0]
         else:
             return None
-        
+
     @property
     def stops(self):
         """
@@ -449,9 +451,6 @@ class SharedRide(BaseModel):
         }
         return t.render(Context(template_data))
 
-class StopType(Enum):
-    PICKUP  = 0
-    DROPOFF = 1
 
 class RidePoint(BaseModel):
     ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="points", null=True, blank=True)
@@ -791,9 +790,11 @@ class Order(BaseModel):
     # this field holds the data as typed by the user
     to_raw = models.CharField(_("to address"), max_length=50, null=True, blank=True)
 
+    # pickmeapp fields
     pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)
     future_pickup = models.BooleanField(_("future pickup"), default=False)
 
+    # sharing fields
     depart_time = UTCDateTimeField(_("depart time"), null=True, blank=True)
     arrive_time = UTCDateTimeField(_("arrive time"), null=True, blank=True)
     price = models.FloatField(null=True, blank=True, editable=False)

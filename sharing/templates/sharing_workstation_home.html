@@ -96,17 +96,19 @@
         var prev_val = $driver_select.val();
         $driver_select.empty().disable();
         var taxi = $.grep(taxi_driver_data, function(e) {
-            return e.id == taxi_id
+            return e.id == taxi_id;
         })[0];
-        $.each(taxi.drivers, function(i, driver) {
-            var opt = $('<option value="' + driver.id + '">' + driver.name + '</option>').appendTo($driver_select);
-            if (driver.id == prev_val) {
-                $driver_select.val(prev_val);
-            }
-        });
+        if (taxi) {
+            $.each(taxi.drivers, function(i, driver) {
+                var opt = $('<option value="' + driver.id + '">' + driver.name + '</option>').appendTo($driver_select);
+                if (driver.id == prev_val) {
+                    $driver_select.val(prev_val);
+                }
+            });
 
-        if (taxi.drivers.length > 1 && ! $taxi_selector.is(":disabled")) {
-            $driver_select.enable();
+            if (taxi.drivers.length > 1 && ! $taxi_selector.is(":disabled")) {
+                $driver_select.enable();
+            }
         }
     };
 

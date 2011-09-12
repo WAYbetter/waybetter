@@ -134,7 +134,7 @@ def datetimeIterator(from_datetime=None, to_datetime=None, delta=datetime.timede
     """
     Return a generator iterating the dates between two datetime instances.
     """
-    from_datetime = from_datetime or datetime.now()
+    from_datetime = from_datetime or datetime.datetime.now()
     while to_datetime is None or from_datetime <= to_datetime:
         yield from_datetime
         from_datetime = from_datetime + delta

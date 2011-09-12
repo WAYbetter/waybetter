@@ -27,9 +27,9 @@ class HotSpot(BaseModel):
 
         @param hotspot_direction: "from" if the ride starts at hotspot, otherwise "to"
         @param hotspot_datetime: the time and date of the ride
-        @return: unique key representing the hotspot at given time and direction
+        @return: unique key representing the hotspot at given time and direction. Should match task name expression "^[a-zA-Z0-9_-]{1,500}$"
         """
-        return "_".join([str(s) for s in [self.id, hotspot_direction, hotspot_datetime]])
+        return "_".join([str(self.id), hotspot_direction, hotspot_datetime.ctime().replace(":","-").replace(" ","_")])
 
     def get_price(self, lat, lon, day, t):
         """
@@ -80,7 +80,7 @@ class HotSpot(BaseModel):
                     next = datetime.combine(day, times[0])
                     break
 
-        return next
+        return next.replace(tzinfo=base_time.tzinfo)
 
 
     def get_times(self, day=None, start_time=None, end_time=None, offset=0):

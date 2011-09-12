@@ -9,7 +9,7 @@ from django.template.context import RequestContext
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
-from ordering.models import SharedRide, StopType
+from ordering.models import SharedRide, StopType, RideComputation
 from sharing.forms import ProducerPassengerForm
 from sharing.passenger_controller import HIDDEN_FIELDS
 from sharing.models import HotSpot, Producer, ProducerPassenger
@@ -42,12 +42,29 @@ def producer_ordering_page(request, passenger):
                                                "m_Availability": [{"Key": {"cost_multiplier": 1, "max_passengers": 4},"Value": 10000}]}
                 }
                 key = submit_orders_for_ride_calculation(orders['shared_orders'], params=params)
+                order = shared_orders[0]
+                computation = RideComputation(algo_key=key)
+                computation.hotspot_depart_time = order.depart_time
+                computation.hotspot_arrive_time = order.arrive_time
+                computation.save()
+
+                for order in shared_orders:
+                    order.computation = computation
+                    order.save()
+
                 response = u"%d orders submitted for sharing" % len(shared_orders)
                 wb_data = u"sharing key: %s" % key
             if not_shared_orders:
                 algo_keys = []
                 for order in not_shared_orders:
                     key = submit_orders_for_ride_calculation([order])
+                    computation = RideComputation(algo_key=key)
+                    computation.hotspot_depart_time = order.depart_time
+                    computation.hotspot_arrive_time = order.arrive_time
+                    computation.save()
+                    order.computation = computation
+                    order.save()
+
                     algo_keys.append(key)
                 response += u"</br>%d orders not shared" % len(not_shared_orders)
                 wb_data += u"<br/>non sharing keys: %s" % " ".join(algo_keys)

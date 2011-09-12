@@ -49,7 +49,7 @@ class RideComputationInlineAdmin(admin.TabularInline):
 
 
 class RideComputationAdmin(admin.ModelAdmin):
-    list_display = ["create_date", "id", "completed", "set_name"]
+    list_display = ["create_date", "id", "completed", "set_name", "key", "algo_key"]
     inlines = [OrderInlineAdmin,]
     
     def set_name(self, obj):

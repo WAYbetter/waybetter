@@ -508,9 +508,13 @@
 
             $("#order_form").submit(function() {
                 var that = this;
+                var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF ;
+                var ride_duration = $("#id_hotspot_time").data("ride_duration");
                 $(".tooltip-content").appendTo("#tooltip_helpers_container");
                 $("#tooltip_helpers_container").appendTo($(this));
                 $(this).append('<input type="hidden" name="hotspot_type" value="' + hotspot_type + '"/>');
+                $(this).append('<input type="hidden" name="time_type" value="' + time_type + '"/>');
+                $(this).append('<input type="hidden" name="ride_duration" value="' + ride_duration + '"/>');
                 $(this).append('<input type="hidden" name="lat" value="' + address_lat + '"/>');
                 $(this).append('<input type="hidden" name="lon" value="' + address_lon + '"/>');
                 $(this).ajaxSubmit({

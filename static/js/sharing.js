@@ -91,11 +91,16 @@ var HotspotHelper = Object.create({
             dataType: "json",
             data: $.extend(true, {'day': that.hotspot_datepicker.val(), 'hotspot_id': that.hotspot_selector.val()}, data),
             success: function(response) {
-                that.hotspot_timepicker.empty();
-                $.each(response.times, function(i, t) {
-                    that.hotspot_timepicker.append("<option>" + t + "</option>");
-                });
-                that.hotspot_timepicker.enable().change();
+                if (response.times) {
+                    that.hotspot_timepicker.empty();
+                    $.each(response.times, function(i, t) {
+                        that.hotspot_timepicker.append("<option>" + t + "</option>");
+                    });
+                    that.hotspot_timepicker.enable().change();
+                    if (response.ride_duration){
+                        that.hotspot_timepicker.data("ride_duration", response.ride_duration);
+                    }
+                }
             },
             error: function() {
                 alert("Error loading hotspot times data");
@@ -167,7 +172,7 @@ var AddressHelper = Object.create({
 
         $street_input.data("resolved", false);
         $street_input.autocomplete({
-            selectFirst: true,
+            autoFocus: true,
             minLength: 2,
             source: function(request, response){
                 $.ajax({
@@ -189,6 +194,7 @@ var AddressHelper = Object.create({
             select: function(event, ui){
                 $(this).data({resolved: true, lat: ui.item.lat, lon: ui.item.lon});
                 $(this).autocomplete("disable").blur();
+//                $hn_input.focus();
             }
 
         });
@@ -197,9 +203,9 @@ var AddressHelper = Object.create({
                 function() {
                     $(this).autocomplete("enable");
                     $(this).autocomplete("search");
-                    $(this).data("value", $(this).val());
-                }).keyup(function() {
-                    if ($(this).data("value") !== $(this).val()) {
+                    $(this).data("old_val", $(this).val());
+                }).keyup(function(e) {
+                    if ($(this).data("old_val") !== $(this).val()) {
                         $(this).data("resolved", false);
                     }
                 });

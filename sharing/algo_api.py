@@ -1,5 +1,6 @@
 from google.appengine.api.taskqueue import taskqueue
 from google.appengine.api.urlfetch import fetch, POST
+from billing.enums import BillingStatus
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
@@ -59,18 +60,32 @@ def submit_orders_for_ride_calculation(orders, key=None, params=None):
     else:
         return data.get("m_Key").strip()
 
+
 @csrf_exempt
 @catch_view_exceptions
 @internal_task_on_queue("orders")
-def submit_computation_task(request):
-    computation = RideComputation.by_id(request.POST.get("computation_id"))
-    if computation:
-        algo_key = submit_orders_for_ride_calculation(computation.orders.all(), computation.key)
-        if algo_key:
+def submit_computations_task(request):
+    key = request.POST.get("computation_key")
+    computations = RideComputation.objects.filter(key=key, completed=False)
+    if computations:
+        approved_orders = []
+        orders = [order for c in computations for order in c.orders.all()]
+        for order in orders:
+            if len(order.billing_transactions.filter(status=BillingStatus.APPROVED)):
+                approved_orders.append(order)
+            else:
+                logging.info("order [%s] billing not approved, NOT submitting to algorithm" % order.id)
+
+        algo_key = submit_orders_for_ride_calculation(approved_orders, key)
+        logging.info(
+            "submitted %s approved orders: computation_key=%s algo_key=%s. " % (len(approved_orders), key, algo_key))
+
+        for computation in computations:
             computation.algo_key = algo_key
             computation.save()
+
     else:
-        logging.error("error submitting computation for calculation: %s" % request.POST.get("computation_id"))
+        logging.error("no computations for key=%s" % key)
 
     return HttpResponse("OK")
 
@@ -107,21 +122,26 @@ def fetch_ride_results_task(request):
         data = simplejson.loads(content.decode("utf-8"))
         logging.info("data = %s" % data)
 
-        try:
-            computation = RideComputation.objects.get(algo_key=result_id)
+        computations = RideComputation.objects.filter(algo_key=result_id)
+        for computation in computations:
             computation.statistics = simplejson.dumps(data.get("m_OutputStat"))
             computation.completed = True
             computation.save()
-        except RideComputation.DoesNotExist:
-            logging.error("computation does not exist. this usually happens when fetching algo. results submitted by localhost or vice versa")
 
         debug = bool(data.get("m_Debug"))
         for ride_data in data["m_Rides"]:
             ride = SharedRide()
             ride.debug = debug
+
+            computation = computations[0]
+            if computation.hotspot_depart_time:
+                ride.depart_time = computation.hotspot_depart_time
+                ride.arrive_time = ride.depart_time + timedelta(seconds=ride_data["m_Duration"])
+            elif computation.hotspot_arrive_time:
+                ride.arrive_time = computation.hotspot_arrive_time
+                ride.depart_time = ride.arrive_time - timedelta(seconds=ride_data["m_Duration"])
             ride.save()
 
-            stop_times = []
             for point_data in ride_data["m_RidePoints"]:
                 point = RidePoint()
                 point.type = StopType.PICKUP if point_data["m_Type"] == "ePickup" else StopType.DROPOFF
@@ -131,7 +151,6 @@ def fetch_ride_results_task(request):
                 point.stop_time = ride.depart_time + timedelta(seconds=point_data["m_offset_time"])
                 point.ride = ride
                 point.save()
-                stop_times.append(point.stop_time)
 
                 for order_id in point_data["m_OrderIDs"]:
                     order = Order.by_id(int(order_id))
@@ -141,10 +160,6 @@ def fetch_ride_results_task(request):
                     else:
                         order.dropoff_point = point
                     order.save()
-
-            ride.depart_time = min(stop_times)
-            ride.arrive_time = max(stop_times)
-            ride.save()
 
             signals.ride_created_signal.send(sender='fetch_ride_results', obj=ride)
 
