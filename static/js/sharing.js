@@ -194,7 +194,7 @@ var AddressHelper = Object.create({
             select: function(event, ui){
                 $(this).data({resolved: true, lat: ui.item.lat, lon: ui.item.lon});
                 $(this).autocomplete("disable").blur();
-//                $hn_input.focus();
+                $hn_input.focus();
             }
 
         });
