@@ -11,17 +11,29 @@ Object.create = Object.create || function (p) {
 	$.fn.extend({
 		disable: function() {
 			return this.each(function() {
-				$(this).attr({disabled: true});
+                if ($(this).hasClass("ui-button")) {
+                    $(this).button("disable");
+                } else {
+				    $(this).attr({disabled: true});
+                }
 			});
 		},
 		enable: function() {
 			return this.each(function() {
-				$(this).removeAttr('disabled');
+                if ($(this).hasClass("ui-button")) {
+                    $(this).button("enable");
+                } else {
+				    $(this).removeAttr('disabled');
+                }
 			});
 		},
         set_button_text: function(text) {
             return this.each(function() {
-                $(this).parent().find(".ui-btn-text").text(text);
+                if ($(this).hasClass("ui-button")) {
+                    $(this).button("option", "label", text);
+                } else {
+                    $(this).parent().find(".ui-btn-text").text(text);
+                }
             })
         }
 	});
