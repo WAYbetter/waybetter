@@ -1,4 +1,4 @@
-{% extends "connected_page.html" %}
+{% extends "base.html" %}
 {% load i18n %}
 
 {% block bodyclass %}clean_body{% endblock %}
@@ -11,21 +11,34 @@
 
 {% block content %}
     <div id="header" class="ui-widget-header">
-        <div id="tools_button" class="toolbar_button">{% trans "Station Account" %}</div>
-{#        <div id="toggle_mode_button" class="toolbar_button"></div>#}
+        <div id="options_button" class="toolbar_button"></div>
+        <div id="expand_collapse_button" class="toolbar_button">{% trans "Hide List" %}</div>
         <div id="summary">
             {% trans "Overall Status" %}:
-            <span id="untaken_counter" class="untaken_count"></span> <span class="untaken_count"> {% trans "Rides Untaken" %}</span>
+            <span id="untaken_counter" class="untaken_count"></span> <span
+                class="untaken_count"> {% trans "Rides Untaken" %}</span>
             |
-            <span id="taken_counter" class="taken_count"></span> <span class="taken_count"> {% trans "Rides Taken" %}</span>
+            <span id="taken_counter" class="taken_count"></span> <span
+                class="taken_count"> {% trans "Rides Taken" %}</span>
         </div>
-        <div id="connection_status">
-        </div>
+        <div id="tools_button" class="toolbar_button">{% trans "Station Account" %}</div>
         <div class="clear"></div>
     </div>
     <div id="ride_accordion_container">
         <div id="ride_accordion"></div>
     </div>
+    <div id="footer" class="ui-widget-header">
+        <div id="online_status" class="offline">{% trans 'Connecting' %}</div>
+        <div id="station_name">{{ work_station.station.name }}</div>
+
+    </div>
+    <div id="option_menu">
+        <ul>
+            <li id="snap_right_action">{% trans "Snap to right corner" %}</li>
+            <li id="snap_left_action">{% trans "Snap to left corner" %}</li>
+        </ul>
+    </div>
+
 {% endblock %}
 
 {% block doc_ready %}
@@ -35,8 +48,10 @@
     <script type="text/javascript">
     var not_assigned_msg = "{% trans "Not Assigned Yet" %}";
     var missed_msg = "{% trans "Missed" %}";
-    var minimize_label = "{% trans 'Minimize' %}";
-    var maximize_label = "{% trans 'Maximize' %}";
+    var minimize_label = "{% trans 'Hide List' %}";
+    var maximize_label = "{% trans 'Show List' %}";
+    var online_label = "{% trans 'Online Status: OK' %}";
+    var offline_label = "{% trans 'Online Status: ERROR' %}";
     var is_minimized = false;
 
     {% autoescape off %}
@@ -48,20 +63,40 @@
         var socket;
     {% endautoescape %}
 
+    onError = function (XMLHttpRequest, textStatus, errorThrown) {
+        is_in_error = true;
+        if (XMLHttpRequest) {
+            last_error_text = XMLHttpRequest.responseText;
+        } else {
+           last_error_text = "{% trans 'No connection to server' %}";
+        }
+        if (window.parentSandboxBridge) {
+            if (! window.parentSandboxBridge.is_error()) { // already in error state
+                //TODO: fix this on the air side as well - make sure only one instance of the refresh task is running
+                parentSandboxBridge.set_error_state(false);
+                parentSandboxBridge.refresh();
+                parentSandboxBridge.set_error_state(true);
+            }
+        }
+    };
+
     setupChannel = function(token) {
         $("#wcs-iframe").remove();
 
         channel = new goog.appengine.Channel(token);
         socket = channel.open();
         socket.onerror = function() {
+            set_online(false);
             trace("socket: onerror");
             onError();
         };
         socket.onclose = function() {
+            set_online(false);
             trace("socket: onclose");
             onError()
         };
         socket.onopen = function() {
+            set_online(true);
             trace("socket: onopen");
             channel_opened = true;
             air("set_error_state", false);
@@ -69,7 +104,7 @@
         socket.onmessage = function(msg) {
             try {
                 var ride = $.parseJSON(msg.data);
-                if ($("#ride_header_" + ride.id + ", #ride_div_" + ride.id).length < 2){ // render if ride is new or rendered incorrectly
+                if ($("#ride_header_" + ride.id + ", #ride_div_" + ride.id).length < 2) { // render if ride is new or rendered incorrectly
                     $("#ride_header_" + ride.id + ", #ride_div_" + ride.id).remove();
                     renderRide(ride);
                 }
@@ -90,6 +125,17 @@
                 onError();
             }
         })
+    };
+
+    set_online = function(online) {
+        var $online_status = $("#online_status");
+        if (online) {
+            $online_status.addClass("online").removeClass("offline");
+            $online_status.text(online_label);
+        } else {
+            $online_status.addClass("offline").removeClass("online");
+            $online_status.text(offline_label);
+        }
     };
 
     populateDrivers = function($driver_select, $taxi_selector, taxi_id) {
@@ -165,7 +211,7 @@
         $table.append("<tr class='spacer'><td colspan=3 class='table_header'>{% trans 'Pickups' %}</td></tr>"); // spacer
 
         $.each(ride.pickups, function(i, p) {
-            var $row = $("<tr class='dropoff'><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + " (" +  p.passenger_phones.join()+ ")</td></tr>");
+            var $row = $("<tr class='dropoff'><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + " (" + p.passenger_phones.join() + ")</td></tr>");
             $table.append($row);
         });
 
@@ -189,7 +235,7 @@
                     window.open(link, "Map View", 'width=800,height=600,resizable=no');
                 });
 
-        var $copy_link = $('<a class="map_link copy_link" href="#">{% trans "Copy" %}</a>').click(function(){
+        var $copy_link = $('<a class="map_link copy_link" href="#">{% trans "Copy" %}</a>').click(function() {
             if (air("copy", ride.driver_jist)) {
                 flashMessage("{% trans "Ride Copied" %}");
             } else {
@@ -223,30 +269,30 @@
         var $add_driver = $('<a class="add_driver">{% trans "+ Add" %}</a>');
         var $matcher_label = $("<div class='matcher_label'>{% trans "Assign Ride" %}:</div>");
         var $selectors = $('<div class="select_tools"></div>')
-                .append($taxi_label, $taxi_selector,$driver_label, $driver_selector);
+                .append($taxi_label, $taxi_selector, $driver_label, $driver_selector);
 
         var $accept_button = $('<div class="accept_button">{% trans 'Finish' %}</div>').attr("id", "accept_ride_" + ride.id).button()
                 .click(function() {
                     var that = this;
                     if ($taxi_selector.val() && $driver_selector.val()) {
-                    $.ajax({
-                        url: '{% url sharing.station_controller.accept_ride %}',
-                        type: 'POST',
-                        dataType: "json",
-                        data: { 'ride_id': ride.id,
-                            'taxi_id': $taxi_selector.val(),
-                            'driver_id': $driver_selector.val() },
-                        beforeSend: function() {
-                            $(that).button("disable");
-                        },
-                        success: function(response) {
-                            acceptRide(response.ride);
-                        },
-                        error: function(response) {
-                            alert(response.responseText);
-                            $(that).button("enable");
-                        }
-                    });
+                        $.ajax({
+                            url: '{% url sharing.station_controller.accept_ride %}',
+                            type: 'POST',
+                            dataType: "json",
+                            data: { 'ride_id': ride.id,
+                                'taxi_id': $taxi_selector.val(),
+                                'driver_id': $driver_selector.val() },
+                            beforeSend: function() {
+                                $(that).button("disable");
+                            },
+                            success: function(response) {
+                                acceptRide(response.ride);
+                            },
+                            error: function(response) {
+                                alert(response.responseText);
+                                $(that).button("enable");
+                            }
+                        });
                     }
                     else {
                         alert("{% trans "Please choose taxi and driver" %}");
@@ -276,7 +322,7 @@
         $ride_div.append(renderTable(ride), renderInfo(ride), renderMatcher(ride));
 
         if (ride.debug) {
-            var $close_btn = $('<span href="#" class="action_link"></span>').text("{% trans 'x' %} ").click(function(e) {
+            var $close_btn = $('<span href="#" class="action_link"></span>').text('x').click(function(e) {
                 var that = this;
                 $.ajax({
                     url: '{% url sharing.station_controller.complete_ride %}',
@@ -397,28 +443,56 @@
         }
 
         updateCounters({{ accepted }});
-        
+
     };
 
-    updateCounters = function(status){
+    updateCounters = function(status) {
         var taken = parseInt($("#taken_counter").text(), 10);
         var untaken = parseInt($("#untaken_counter").text(), 10);
 
-        switch (status){
+        switch (status) {
             case {{ assigned }}:
-                $("#untaken_counter").text(++untaken); break;
+                $("#untaken_counter").text(++untaken);
+                break;
             case {{ accepted }}:
                 $("#taken_counter").text(++taken);
                 $("#untaken_counter").text(--untaken);
                 break;
         }
+        if (taken + untaken > 0) {
+            maximize();
+            $("#expand_collapse_button").enable().addClass("not_taken");
+        } else {
+            minimize();
+            $("#expand_collapse_button").disable().removeClass("not_taken");
+        }
     };
 
     trace = function(str) {
-        var msg = new Date().toISOString() + ": " + str;
-        air("trace", msg);
+        air("trace", str);
         if (window.console) {
-            console.log(msg)
+            console.log(str)
+        }
+    };
+
+    maximize = function() {
+        air("maximize");
+        $("#expand_collapse_button").button("option", "label", minimize_label);
+        $("#ride_accordion_container").add("#summary").show();
+        is_minimized = false;
+    };
+    minimize = function() {
+        air("minimize");
+        $("#expand_collapse_button").button("option", "label", maximize_label);
+        $("#ride_accordion_container").add("#summary").hide();
+        is_minimized = true;
+
+    };
+    toggleExpandCollapse = function() {
+        if (is_minimized) {
+            maximize();
+        } else {
+            minimize();
         }
     };
 
@@ -426,18 +500,43 @@
         $("#tools_button").button().click(function(e) {
             window.open("{% url sharing.station_controller.station_tools %}", "station_tools", "width=800,height=600,resizable=0,scrollbars=1");
         });
-        $("#toggle_mode_button").text(minimize_label).button().click(function() {
-            if (is_minimized) {
-                air("maximize");
-                $(this).button("option", "label", minimize_label);
-                $("#ride_accordion_container").show();
+        $("#options_button").button({
+            icons: {
+                primary: "ui-icon-gear"
+            },
+            text: false
+        }).click(function() {
+            var $menu = $("#option_menu");
+            if ($menu.is(":visible")) {
+                $menu.fadeOut("fast");
             } else {
-                air("minimize");
-                $(this).button("option", "label", maximize_label);
-                $("#ride_accordion_container").hide();
+                var pos = $(this).offset();
+                var width = $(this).width();
+                //show the menu directly over the placeholder
+
+                $menu.css({ "left": (pos.left + width + 10) + "px", "top":pos.top + "px" });
+                $menu.fadeIn("fast");
             }
-            is_minimized = !is_minimized;
         });
+
+        $("#option_menu li").click(function() {
+            $("#option_menu").fadeOut("fast")
+        });
+
+        $("#snap_left_action").click(function() {
+            air("snap_left");
+            if (!is_minimized) {
+                air("maximize");
+            }
+        });
+        $("#snap_right_action").click(function() {
+            air("snap_right");
+            if (!is_minimized) {
+                air("maximize");
+            }
+        });
+
+        $("#expand_collapse_button").text(minimize_label).button().click(toggleExpandCollapse);
 
         $("#untaken_counter, #taken_counter").text(0);
 
@@ -452,10 +551,10 @@
             }
         });
 
-        air("set_title", "WAYbetter: {{ work_station.station.name }}");
-        air("maximize");
-
+        updateCounters();
+        air("set_visible", true);
         setupChannel(init_token);
+
     });
     </script>
 {% endblock %}
