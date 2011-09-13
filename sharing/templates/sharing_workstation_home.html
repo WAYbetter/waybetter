@@ -53,8 +53,11 @@
     var offline_label = "{% trans 'Online Status: ERROR' %}";
     var is_minimized = false;
     var minimize_nag_interval = 30; // seconds
+    var hearbeat_check_interval = 30 * 1000; // 30 seconds
     var taken = 0;
     var untaken = 0;
+    var current_version = "{{ current_version }}";
+    var last_heartbeat = new Date();
 
     {% autoescape off %}
         var rides_data = {{ rides_data }};
@@ -89,36 +92,41 @@
         socket = channel.open();
         socket.onerror = function() {
             set_online(false);
-            trace("socket: onerror");
+            trace("channel error");
             onError();
         };
         socket.onclose = function() {
             set_online(false);
-            trace("socket: onclose");
+            trace("channel closed");
             onError()
         };
         socket.onopen = function() {
             set_online(true);
-            trace("socket: onopen");
+            trace("channel opened");
             channel_opened = true;
             air("set_error_state", false);
         };
         socket.onmessage = function(msg) {
+            air("trace", "channel message received: " + msg.data);
+
             try {
-                var ride = $.parseJSON(msg.data);
-                if ($("#ride_header_" + ride.id + ", #ride_div_" + ride.id).length < 2) { // render if ride is new or rendered incorrectly
-                    $("#ride_header_" + ride.id + ", #ride_div_" + ride.id).remove();
-                    renderRide(ride);
+                var data = $.parseJSON(msg.data);
+                if (data.heartbeat) {
+                    last_heartbeat = new Date();
+                    if (data.heartbeat != current_version) {
+                        air("trace", "new version detected: " + data.heartbeat);
+                        onError();
+                    }
+                } else {
+                    if ($("#ride_header_" + data.id + ", #ride_div_" + data.id).length < 2) { // render if data (ride) is new or rendered incorrectly
+                        $("#ride_header_" + data.id + ", #ride_div_" + data.id).remove();
+                        renderRide(data);
+                    }
                 }
-                $.ajax({
-                    url: "{% url ordering.station_controller.message_received %}",
-                    type: "POST",
-                    data: {msg_data: msg.data}
-                });
             } catch (e) {
                 trace("error parsing: " + JSON.stringify(e))
             }
-
+            acknowledgeMessage(msg);
         };
 
         $(document).oneTime("10s", function() {
@@ -127,6 +135,18 @@
                 onError();
             }
         })
+    };
+
+    acknowledgeMessage = function(msg) {
+        try {
+            $.ajax({
+                url: "{% url ordering.station_controller.message_received %}",
+                type: "POST",
+                data: {msg_data: msg.data}
+            });
+        } catch (e) {
+            trace("error during message_received: " + e);
+        }
     };
 
     set_online = function(online) {
@@ -518,17 +538,26 @@
             minimize();
         }
     };
+
+    setupHearbeatCheck = function() {
+        $(document).everyTime(hearbeat_check_interval, "check_heartbeat", function() {
+            if (new Date() - last_heartbeat > 2.5 * hearbeat_check_interval) {
+                trace("heartbeat check failed");
+                onError();
+            }
+        })
+    };
+
     init = function() {
         $("#tools_button").button().click(function(e) {
             var win = window.open("{% url sharing.station_controller.station_tools %}", "station_tools", "width=800,height=600,resizable=0,scrollbars=1");
-            var x, y;
-            y = window.screenTop;
+            var offset = 10;
+            var x = $(window).width() + offset;
             if (window.screenLeft > 0) { // module is snapped to right
-                x = window.screenLeft - 800 - 10;
-            } else {
-                x = $(window).width() + 10;
+                x = window.screenLeft - 800 - offset;
             }
-            win.moveTo(x, y);
+            
+            win.moveTo(x, window.screenTop);
 
         });
         $("#options_button").button({
@@ -583,8 +612,10 @@
         });
 
         updateCounters();
+        air("set_app_loaded", true);
         air("set_visible", true);
         setupChannel(init_token);
+        setupHearbeatCheck();
     };
 
     $(function() {

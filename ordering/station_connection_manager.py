@@ -8,7 +8,7 @@ from google.appengine.api import channel
 from google.appengine.api.taskqueue import taskqueue
 from analytics.models import AnalyticsEvent
 from common.decorators import receive_signal, internal_task_on_queue, catch_view_exceptions
-from common.util import  log_event, EventType, notify_by_email
+from common.util import  log_event, EventType, notify_by_email, get_current_version
 from django.utils import simplejson
 from datetime import timedelta
 from ordering.models import OrderAssignment, PENDING, WorkStation
@@ -140,4 +140,9 @@ def handle_dead_workstations(request):
 
     return HttpResponse("OK")
 
+def send_heartbeat(request):
+    current_version = get_current_version()
+    for ws in WorkStation.objects.filter(is_online=True):
+        _do_push(ws, {"heartbeat": current_version})
 
+    return HttpResponse("OK")
