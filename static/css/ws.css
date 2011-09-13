@@ -1,103 +1,65 @@
 * {
-    font-size: 12px;
-    font-family: "Lucida Grande", Arial, sans-serif;
-}
+  font-size: 12px;
+  font-family: "Lucida Grande", Arial, sans-serif; }
+
+body {
+  padding: 0;
+  margin: 0; }
 
 .bold {
-    font-weight: bold;
-}
-
-#tab_loader {
-    background: url(../images/loader1.gif) left 0 no-repeat;
-    float: right;
-    height: 24px;
-    width: 24px;
-}
-
-.clickable{ cursor: pointer; }
-a, .action_link, .ui-widget-content a {
-    color: #174599;
-    text-decoration: underline;
-}
-
-@-webkit-keyframes flash_fade {
-    0%, 100% {
-        opacity: 0;
-    }
-    10% {
-        opacity: 1.0;
-    }
-}
-
-
-#flash {
-    display: none;
-}
-
-#flash.show {
-    display: block;
-    position: fixed;
-    top: 10px;
-    left: 50%;
-    color: black;
-    background-color: #fafad2;
-    text-align: center;
-    padding: 10px 25px;
-    border-radius: 7px;
-    -webkit-border-radius: 7px;
-    border: 1px solid #b8860b;
-
-    /*margin-left: -halfthewidthofcontainer*/
-    -webkit-animation-name: flash_fade;
-    -webkit-animation-iteration-count: 1;
-    -webkit-animation-timing-function: ease-in-out;
-    -webkit-animation-duration: 5s;
-    opacity: 0;
-    z-index: 1000;
-
-}
-#flash.error {
-    color: white;
-    background-color: #8b0000;
-    border: 1px solid red;
-}
-
-#main.full_screen_main {
-    position: absolute;
-    left: 0;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: 100%;
-    padding: 0;
-    margin: 0;
-}
+  font-weight: bold; }
 
 .clear {
-    clear: both;
-    height: 0;
-    overflow: hidden;
-}
+  clear: both;
+  height: 0;
+  overflow: hidden; }
 
-/** Hotspot page **/
-.rtl.hotspot_page #map_container {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 65%;
-}
+#tab_loader {
+  background: url(../images/loader1.gif) left 0 no-repeat;
+  float: right;
+  height: 24px;
+  width: 24px; }
 
-.rtl.hotspot_page #map {
-    height: 100%;
-    width: 100%;
-}
+a, .action_link, .ui-widget-content a {
+  color: #174599;
+  text-decoration: underline; }
 
-.rtl.hotspot_page.textinput #map_container {
-    width: 55%;
-}
+@-webkit-keyframes flash_fade {
+  0%, 100% {
+    opacity: 0; }
 
-/** sharing workstation home **/
+  10% {
+    opacity: 1.0; } }
+
+#flash {
+  display: none; }
+
+#flash.show {
+  display: block;
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  color: black;
+  background-color: #fafad2;
+  text-align: center;
+  padding: 10px 25px;
+  border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border: 1px solid #b8860b;
+  /*margin-left: -halfthewidthofcontainer*/
+  -webkit-animation-name: flash_fade;
+  -webkit-animation-iteration-count: 1;
+  -webkit-animation-timing-function: ease-in-out;
+  -webkit-animation-duration: 5s;
+  opacity: 0;
+  z-index: 1000; }
+
+#flash.error {
+  color: white;
+  background-color: #8b0000;
+  border: 1px solid red; }
+
+/** ws home **/
 #header {
     top:0;
     left:0;
@@ -733,185 +695,3 @@ table.striped {
     margin-left: inherit;
     margin-right: 30px;
 }
-
-/** producers page **/
-.producer_page #ordering_container {
-    margin-top: 25px;
-    margin-right: 25px;
-}
-
-.producer_page .passenger {
-    margin: 10px 0 10px;
-}
-
-.producer_page #p_actions {
-    margin: 20px 4px 20px;
-}
-
-.producer_page #hotspot_datetime, .producer_page .passenger_details{
-    display: inline;
-    position: absolute;
-    right: 140px;
-}
-
-.producer_page .passenger_details {
-    margin-top: 2px;
-}
-
-.producer_page #book_order {
-    margin-top: 20px;
-}
-
-.rtl.producer_page #map_container {
-    position: absolute;
-    left: 0;
-    top: 0;
-    height: 100%;
-    width: 65%;
-}
-
-.rtl.producer_page #map {
-    height: 100%;
-    width: 100%;
-}
-
-.rtl.producer_page.textinput #map_container {
-    width: 55%;
-}
-
-
-/** passenger home **/
-#header{
-    height: 57px;
-    background: #bada55;
-}
-.passenger_home #map_container {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 300px;
-    width: 100%;
-}
-
-.passenger_home #map { height: 100%; width: 100%;}
-
-.passenger_home #main_content_container{
-    position: absolute;
-    left: 20%;
-    top: 340px;
-    width: 800px;
-}
-
-.passenger_home #order_form {
-    background: white;
-    border: 1px solid;
-    padding: 0 5px 10px 10px;
-}
-.passenger_home #order_form div{
-    display: inline-block;
-}
-.passenger_home #order_form #switch{ background: url(/static/images/arrow_refresh.png); height: 16px; width: 16px; position: relative; top: 4px;}
-
-.passenger_home #slider {
-    height: 270px;
-    width: 563px;
-    margin-left:130px;
-    margin-top: 10px;
-}
-
-.passenger_home #tryitnow{
-    z-index: 2;
-    background: yellow;
-    width: 70px;
-    height: 30px;
-    border: 1px solid;
-    position: relative;
-    bottom: 70px;
-    left: 730px;
-}
-
-.address_input_container{ margin: 10px; }
-
-.address_input{
-    height: 25px;
-    width: 245px;
-    border: 1px solid;
-    position: relative;
-    top: 13px;
-    margin-left: 10px;
-    padding: 6px 13px 0 13px;
-}
-
-.address_input .where{float:left}
-.address_input .when{float:right}
-
-.tooltip {
-    display: none;
-    background: transparent url(/static/images/jquery_tools/white_arrow_big.png);
-    font-size: 12px;
-    height: 166px;
-    width: 320px;
-    padding: 25px;
-}
-
-.tooltip h2{ text-decoration: underline;}
-
-#select_input_helper .content_container{ position: relative; top: 18px; width: 80%;}
-#select_input_helper #sel_hotspot {float: left;left: 50px;position: relative; color: #174599;}
-#select_input_helper #sel_address {float: right; border-left: 1px solid; padding-left: 20px; color: #174599;}
-#select_input_helper .link:hover { text-decoration: underline;}
-#select_input_helper .img { display: block; height:24px; width: 24px; background: transparent url(/static/images/add_24.png); position: relative; left: 24px; bottom: 5px;}
-
-
-#hotspot_input_helper label {display:block;margin: 15px;}
-
-#address_input_helper label {margin-bottom: 15px;margin-left: 10px;}
-#address_input_helper label.city{display: block;}
-#address_input_helper #id_house_number{ width: 25px;}
-#address_input_helper #id_street_address{ width: 150px;}
-#address_input_helper .hn_error {position:absolute; left: 285px; color: red;bottom: 81px;}
-
-#datetime_input_helper #time_radio{ float: left; }
-#datetime_input_helper #time_radio label{ display: block; margin-bottom: 15px; }
-#datetime_input_helper #time_tools{ float: right; position: relative; top: 15px; right: 25px;}
-#datetime_input_helper #id_hotspot_datepicker{ width: 80px; }
-
-.tooltip_footer{
-    position: absolute;
-    bottom: 40px;
-    width: 334px;
-    /*background-color: #EDEDED;*/
-    height: 30px;
-    left: 17px;
-}
-
-.tooltip_footer .next_btn{ float: right; position: relative; bottom: 5px; right: 10px;}
-.tooltip_footer .help, .tooltip_footer a{position:relative; left: 17px; top: 1px;}
-.tooltip_footer .ui-button-text{ padding: 5px; }
-
-/*.tooltip.datetime {height: 125px;}*/
-/*.tooltip.datetime .tooltip_footer{ bottom: 10px; }*/
-
-.tooltip_loader {
-    display: none;
-    background: url(../images/loader1.gif) left 0 no-repeat;
-    height: 24px;
-    width: 24px;
-    position: relative;
-    left: 250px;
-    bottom: 18px;
-}
-
-.passenger_home #ride_details_container{margin-top: 30px;}
-.passenger_home .ride_details {border: 1px solid;}
-.passenger_home .ride_details h2{
-    font-size: 14px;
-    left: 81px;
-    position: relative;
-}
-.passenger_home .ride_details ul{}
-.passenger_home .ride_details button{ position: relative; left: 125px; bottom: 5px; margin-top: 50px;}
-.passenger_home .price{ font-size: 22px; font-weight: bold;}
-.passenger_home .time{ font-size: 18px; font-weight: bold;}
-.passenger_home #sharing_details{ float:left; width: 45%;}
-.passenger_home #private_details{ float:right; width: 45%;}

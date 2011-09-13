@@ -1,15 +1,12 @@
-{% extends "base.html" %}
+{% extends "wb_base.html" %}
 {% load i18n %}
-
-{% block bodyclass %}clean_body{% endblock %}
-{% block mainclass %}full_screen_main clean_main{% endblock %}
 
 {% block extrastyle %}
     <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
-    <link rel="stylesheet" href="/static/css/sharing.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/static/css/ws.css" type="text/css" media="all">
 {% endblock %}
 
-{% block content %}
+{% block body %}
     <div id="tabs">
         <ul>
             <li><a href="{% url sharing.station_controller.station_history %}">{% trans "History" %}</a></li>
