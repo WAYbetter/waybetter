@@ -267,9 +267,6 @@
                 }
             });
 
-            // call validator if any
-            ($helper.data("validator") || function(){}).call();
-
             // helper specific stuff
             if (helper_type == "datetime") {
                 $("#" + trigger_type + "_input_tip").addClass("datetime");
@@ -302,6 +299,9 @@
                 api.show();
                 $helper.show();
             }
+
+            // call validator if any
+            ($helper.data("validator") || function(){}).call();
         }
 
         function openNextTooltip(here, there){
@@ -606,7 +606,7 @@
             var $datetime_helper = $("#datetime_input_helper").data("validator", function() {
                 $datetime_helper.find(".next_btn").button("disable");
 
-                var is_valid = Boolean($("#id_hotspot_time option:selected")) && Boolean($("#id_hotspot_datepicker").val());
+                var is_valid = Boolean(!$("#id_hotspot_time:disabled").length&& $("#id_hotspot_time option:selected")) && Boolean($("#id_hotspot_datepicker").val());
                 if (is_valid) {
                     $datetime_helper.find(".next_btn").button("enable");
                 }
@@ -617,6 +617,9 @@
                 $(helper).find("input[type=text]").bind("keyup blur", function() {
                     $(helper).data("validator").call();
                 });
+            });
+            $datetime_helper.find("input[type=radio], select").bind("change", function() {
+                $datetime_helper.data("validator").call();
             });
 
             $("#book_sharing").click(function() {
