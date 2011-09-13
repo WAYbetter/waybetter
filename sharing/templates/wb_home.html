@@ -1,90 +1,82 @@
-{% extends "base_passenger.html" %}
+{% extends "wb_base_site.html" %}
 {% load i18n %}
 
-{% block bodyclass %}clean_body{% endblock %}
-{% block mainclass %}clean_main full_screen_main{% endblock %}
 
 {% block extrastyle %}
     <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
     <link rel="stylesheet" href="/static/css/wb.css" type="text/css" media="all">
 {% endblock %}
 
-
 {% block content %}
-    <div id="header"></div>
     <div id="map_container">
         <div id="map"></div>
     </div>
 
-    <div id="main_content_container">
-        <form id="order_form">
-            {% csrf_token %}
+    <div id="banner">
+        <div id="slider">
+            <img src="/static/images/anim_1.png" alt=""/>
+            <img src="/static/images/anim_2.png" alt=""/>
+            <img src="/static/images/anim_3.png" alt=""/>
+        </div>
+        <div id="tryitnow" class="clickable">{% trans "Try It Now!" %}</div>
+    </div>
 
-            <div class="address_input_container">
-                <span>{% trans "From" %}</span>
+    <form id="order_form">
+        {% csrf_token %}
 
-                <div id="pickup_input" class="address_input" type="address_input">
-                    <a class="where"></a>
-                    <a class="when"></a>
-                </div>
-            </div>
+        <div class="address_input_container">
+            <span>{% trans "From" %}</span>
 
-            <div id="switch" class="clickable"></div>
-
-            <div class="address_input_container">
-                <span>{% trans "To" %}</span>
-
-                <div id="dropoff_input" class="address_input" type="address_input">
-                    <a class="where"></a>
-                    <a class="when"></a>
-                </div>
-            </div>
-        </form>
-
-        <div id="banner_and_ride_details_container">
-            <div id="banner">
-                <div id="slider">
-                    <img src="/static/images/anim_1.png" alt=""/>
-                    <img src="/static/images/anim_2.png" alt=""/>
-                    <img src="/static/images/anim_3.png" alt=""/>
-                </div>
-                <div id="tryitnow" class="clickable">{% trans "Try It Now!" %}</div>
-            </div>
-
-            <div id="ride_details_container">
-                <div id="sharing_details" class="ride_details">
-                    <h2>{% trans "WAYbetter Smart Taxi Ride" %}</h2>
-                    <ul>
-                        <li>
-                            {% trans "Price" %}
-                            <span class="price" id="sharing_price"></span>
-                        </li>
-                        <li>
-                            {% trans "Time" %}
-                            <span class="time" id="sharing_time"></span>
-                        </li>
-                    </ul>
-                    <button class="order_button" id="book_sharing">{% trans 'Order WAYbetter Ride' %}</button>
-                </div>
-
-                <div id="private_details" class="ride_details">
-                    <h2>{% trans "Private Taxi Ride" %}</h2>
-                    <ul>
-                        <li>
-                            {% trans "Price" %}
-                            <span class="price" id="private_price"></span>
-                        </li>
-                        <li>
-                            {% trans "Time" %}
-                            <span class="time" id="private_time"></span>
-                        </li>
-                    </ul>
-                    <button class="order_button" id="book_private">{% trans 'Order Private Ride' %}</button>
-                </div>
-
-                <div class="clear"></div>
+            <div id="pickup_input" class="address_input" type="address_input">
+                <a class="where"></a>
+                <a class="when"></a>
             </div>
         </div>
+
+        <div id="switch" class="clickable"></div>
+
+        <div class="address_input_container">
+            <span>{% trans "To" %}</span>
+
+            <div id="dropoff_input" class="address_input" type="address_input">
+                <a class="where"></a>
+                <a class="when"></a>
+            </div>
+        </div>
+    </form>
+
+    <div id="ride_details_container">
+        <div id="sharing_details" class="ride_details">
+            <h2>{% trans "WAYbetter Smart Taxi Ride" %}</h2>
+            <ul>
+                <li>
+                    {% trans "Price" %}
+                    <span class="price" id="sharing_price"></span>
+                </li>
+                <li>
+                    {% trans "Time" %}
+                    <span class="time" id="sharing_time"></span>
+                </li>
+            </ul>
+            <button class="order_button" id="book_sharing">{% trans 'Order WAYbetter Ride' %}</button>
+        </div>
+
+        <div id="private_details" class="ride_details">
+            <h2>{% trans "Private Taxi Ride" %}</h2>
+            <ul>
+                <li>
+                    {% trans "Price" %}
+                    <span class="price" id="private_price"></span>
+                </li>
+                <li>
+                    {% trans "Time" %}
+                    <span class="time" id="private_time"></span>
+                </li>
+            </ul>
+            <button class="order_button" id="book_private">{% trans 'Order Private Ride' %}</button>
+        </div>
+
+        <div class="clear"></div>
     </div>
 
     <!-- anchor tips with changing content -->
@@ -358,8 +350,7 @@
                         $("#private_price").text(response.private_price + "₪");
                         $("#private_time").text(response.private_time + "{% trans "minutes" %}");
                         $(".order_button").button("enable");
-                        $("#banner").fadeOut("slow");
-                        $("#ride_details").fadeIn("slow");
+                        $("#ride_details_container").fadeIn("slow");
                         $(".order_button").enable();
                     } else {
                         $(".price, .time").text("");
@@ -450,14 +441,7 @@
             AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number");
 
             $(".order_button").disable();
-            $("#ride_details").hide();
-{#            $("#sharing_price").text("10 ₪");#}
-{#            $("#sharing_time").text("21 {% trans "minutes" %}");#}
-{#            $("#private_price").text("20₪");#}
-{#            $("#private_time").text("15 {% trans "minutes" %}");#}
-{#            $("#banner").hide();#}
-{#            $("#ride_details").show();#}
-
+            $("#ride_details_container").hide();
 
             $("html").click(function(e) {
                 var $target = $(e.target);

@@ -44,37 +44,9 @@
     {% block extrahead %}{% endblock %}
 </head>
 
-<body class="{% block bodyclass %}{% endblock %}{% if is_popup %}popup {% endif %}">
+<body class="{% block bodyclass %}{% endblock %}">
 
-<!-- Container -->
-<div id="main-container">
-
-    {% if not is_popup %}
-        <!-- Header -->
-        <div id="header-container">
-            <div id="header">
-                {% block header %}{% endblock header %}
-            </div>
-        </div>
-        <!-- END Header -->
-    {% endif %}
-
-
-    <!-- Content -->
-    <div id="content-container" class="{% block mainclass %}{% endblock %}">
-        {% block content %}{% endblock content %}
-        <div class="clear"></div>
-    </div>
-    <!-- END Content -->
-
-    {% if not is_popup %}
-        <div id="footer-container">
-            {% block footer %}{% endblock %}
-        </div>
-    {% endif %}
-</div>
-<!-- END Container -->
-
+{% block body %}{% endblock %}
 
 <!-- JavaScript at the bottom for fast page loading -->
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>

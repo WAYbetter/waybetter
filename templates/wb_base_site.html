@@ -1,0 +1,110 @@
+{% extends "wb_base.html" %}
+{% load i18n %}
+
+{% block bodyclass %}base-site{% endblock %}
+
+{% block body %}
+    <!-- Container -->
+    <div id="main-container">
+
+        {% if not is_popup %}
+            <!-- Header -->
+            <div id="header-container">
+                <div id="site-header">
+                    <div id="wb_logo"></div>
+                    <ul class="hz">
+                        <li>WAYbetter</li>
+                        <li>{% trans "Community" %}</li>
+                        <li>{% trans "Help" %}</li>
+                        <li>{% trans "About" %}</li>
+                        <li>{% trans "Log-in" %}</li>
+                    </ul>
+                    <div class="clear"></div>
+                </div>
+            </div>
+            <!-- END Header -->
+        {% endif %}
+
+        <!-- Content -->
+        <div id="content-container" class="{% block mainclass %}{% endblock %}">
+            {% block content %}{% endblock content %}
+            <div class="clear"></div>
+        </div>
+        <!-- END Content -->
+
+        {% if not is_popup %}
+            <div id="footer-container">
+                <div id="site-footer">
+                    <div id="sitemap">
+                        <ul>
+                            <li>WAYbetter</li>
+                            <li>{% trans "Home" %}</li>
+                            <li>{% trans "Mobile" %}</li>
+                            <li>{% trans "Stations" %}</li>
+                        </ul>
+                        <ul>
+                            <li>{% trans "Community" %}</li>
+                            <li>{% trans "Votespot" %}</li>
+                            <li>{% trans "Developer" %}</li>
+                        </ul>
+                        <ul>
+                            <li>{% trans "Profile" %}</li>
+                            <li>{% trans "My Rides" %}</li>
+                            <li>{% trans "My Profile" %}</li>
+                        </ul>
+                    </div>
+                    <div class="tools">
+                        <ul class="hz">
+                            <li>Language</li>
+                            <li>F</li>
+                            <li>t</li>
+                        </ul>
+                        <ul id="lang-drpodown">
+                            <li>English</li>
+                            <li>עברית</li>
+                        </ul>
+                    </div>
+                    <div class="clear"></div>
+                </div>
+            </div>
+        {% endif %}
+
+    </div>
+    <!-- END Container -->
+
+{% endblock body %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script>
+        $(document).ready(function() {
+            {% if init_map %}
+                $.getScript("http://api.navigator.telmap.com/maps/api/js?sensor=false", function success(data, textStatus) {
+                    TelmapHelper.init({
+                        telmap_user:                "{{ telmap_user }}",
+                        telmap_password:            "{{ telmap_password}}",
+                        telmap_languages:           "{{ telmap_languages }}"
+                    });
+                });
+            {% endif %}
+
+            HotspotHelper.init({
+                labels: {
+                    choose_date: "{% trans "Choose Date" %}",
+                    updating: "{% trans "Updating..." %}"
+                },
+                urls: {
+                    get_hotspot_data: "{% url sharing.passenger_controller.get_hotspots_data %}",
+                    get_hotspot_dates: "{% url sharing.passenger_controller.get_hotspot_dates %}",
+                    get_hotspot_times: "{% url sharing.passenger_controller.get_hotspot_times %}"
+                }
+            });
+
+            AddressHelper.init({
+                urls:{
+                    structured_resolve_url: "{% url sharing.passenger_controller.resolve_structured_address %}"
+                }
+            });
+        });
+    </script>
+{% endblock %}

@@ -107,8 +107,20 @@ var HotspotHelper = Object.create({
             }
         });
     },
-    
+
     refrestHotspotMarker: function() {
+        var that = this;
+        if (TelmapHelper.mapready) {
+            this._refrestHotspotMarker();
+        }
+        else{
+            $(window).one("mapready", function() {
+                that._refrestHotspotMarker();
+            });
+        }
+    },
+
+    _refrestHotspotMarker: function() {
         var selected = this.hotspot_selector.find(":selected")[0];
         var lat = $(selected).data("lat");
         var lon = $(selected).data("lon");
@@ -290,6 +302,7 @@ var TelmapHelper = Object.create({
         telmap_languages:           ""
     },
 
+    mapready:                       false,
     map:                            {},
     map_markers:                    {},
     map_markers_popups:             {},
@@ -315,12 +328,17 @@ var TelmapHelper = Object.create({
                     that.resetMap.call(that);
                 }
             }
+
         };
 
         this.map = new telmap.maps.Map(document.getElementById("map"), this.telmap_prefs);
         window.onresize = function() {
             telmap.maps.event.trigger(this.map, "resize");
         };
+       telmap.maps.event.addListener(this.map, 'tilesloaded', function() {
+           that.mapready = true;
+           $(window).trigger("mapready");
+        });
         return this;
     },
     resetMap:                 function (e, a) {
