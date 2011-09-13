@@ -68,6 +68,26 @@ a, .action_link, .ui-widget-content a {
     z-index: 1;
     position:relative;
     -webkit-user-select: none;
+    display: none;
+}
+
+#loader {
+    top:0;
+    left:0;
+    height: 47px;
+    width: 100%;
+    z-index: 1;
+    position:relative;
+    -webkit-user-select: none;
+    font-size: 15px;
+    text-align: right;
+    color: #555;
+    text-shadow: 0 1px white;
+    padding-top: 10px;
+    padding-right: 54px;
+    background-image: url(/static/images/loader1.gif);
+    background-repeat: no-repeat;
+    background-position: 300px 8px;
 }
 
 #footer {

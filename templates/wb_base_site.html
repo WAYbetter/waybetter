@@ -74,9 +74,31 @@
 
 {% endblock body %}
 
-{% block doc_ready %}
+{% block extrastyle %}
     {{ block.super }}
+    <link rel="stylesheet" href="/static/css/nivo-slider.css" type="text/css" media="screen"/>
+{% endblock %}
+
+{% block doc_ready %}
+    <script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
+
+    {{ block.super }}
+    <!-- scripts concatenated and minified via ant build script-->
+    <script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.placeheld.min.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.marquee.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.validation.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.formset.min.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.nivo.slider.pack.min.js"></script>
+
+    <script type="text/javascript" src="/static/js/mylibs/tooltip.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/tooltip.slide.js"></script>
+
     <script type="text/javascript" src="/static/js/helpers.js"></script>
+    <!-- end scripts-->
+
     <script>
         $(document).ready(function() {
             {% if init_map %}
