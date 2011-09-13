@@ -12,3 +12,8 @@ cron:
   url: /common/maintenance/routing_service_test
   schedule: every 5 minutes
   target: sharing
+
+- description: send workstation heartbeat
+  url: /services/ws_heartbeat/
+  schedule: every 30 seconds
+  target: sharing

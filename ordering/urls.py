@@ -79,6 +79,7 @@ urlpatterns = patterns('',
     (r'^resources/station_mobile_redirect/(?P<subdomain_name>\w+)/$', 'ordering.station_controller.station_mobile_redirect'),
 
     (r'^queue/handle_dead_workstations/$', 'ordering.station_connection_manager.handle_dead_workstations'),
+    (r'^services/ws_heartbeat/$', 'ordering.station_connection_manager.send_heartbeat'),
 
 )
 
