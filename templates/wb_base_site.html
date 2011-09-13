@@ -76,6 +76,7 @@
 
 {% block doc_ready %}
     {{ block.super }}
+    <script type="text/javascript" src="/static/js/helpers.js"></script>
     <script>
         $(document).ready(function() {
             {% if init_map %}
