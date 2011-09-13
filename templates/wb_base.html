@@ -1,0 +1,134 @@
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}"
+      {% if LANGUAGE_BIDI %}dir="rtl"{% endif %} class="{{ page_specific_class }} {% if LANGUAGE_BIDI %}rtl{% endif %}">
+<head>
+    {% load i18n %}
+
+    <meta charset="utf-8">
+    <meta name="google-site-verification" content="6M7E60YhxlrZR6e8sXaMr2_9hy-TwfdXM-orIbAlwXA"/>
+
+    <!-- Always force latest IE rendering engine (even in intranet) & Chrome Frame
+         Remove this if you use the .htaccess -->
+    <!--[if IE]><meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1"><![endif]-->
+
+    <!-- addresses issue: http://code.google.com/p/googleappengine/issues/detail?id=4780 -->
+    <!--[if IE 9]><meta http-equiv="X-UA-Compatible" content="IE=EmulateIE8,chrome=1"><![endif]-->
+
+
+    <title>{% block title %}{% endblock %}</title>
+
+    <meta name="description"
+          content="{% trans 'Order a taxi online, no phone call! A large selection of taxi stations in every city. One click and the taxi is on the way '%}"/>
+    <meta name="keywords" content="{% trans 'Taxi,iPhone,Android,WAYbetter,get taxi,order taxi,order taxi online' %}"/>
+    <meta name="author" content="WAYbetter LTD."/>
+
+
+    {% block extrastyle %}
+        <!-- css concatenated and minified via ant build script-->
+        <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
+        <link rel="stylesheet" type="text/css" href="/static/css/wb.css"/>
+        <link rel="stylesheet" href="/static/css/nivo-slider.css" type="text/css" media="screen"/>
+        <!-- end css-->
+    {% endblock %}
+
+    <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/static/js/libs/jquery-1.6.1.min.js">\x3C/script>')</script>
+
+    <!-- All JavaScript at the bottom, except for Modernizr and Respond.
+         Modernizr enables HTML5 elements & feature detects; Respond is a polyfill for min/max-width CSS3 Media Queries -->
+    <script src="/static/js/libs/modernizr-1.7.min.js"></script>
+    <script src="/static/js/libs/respond.min.js"></script>
+
+    {% block extrahead %}{% endblock %}
+</head>
+
+<body class="{% block bodyclass %}{% endblock %}{% if is_popup %}popup {% endif %}">
+
+<!-- Container -->
+<div id="main-container">
+
+    {% if not is_popup %}
+        <!-- Header -->
+        <div id="header-container">
+            <div id="header">
+                {% block header %}{% endblock header %}
+            </div>
+        </div>
+        <!-- END Header -->
+    {% endif %}
+
+
+    <!-- Content -->
+    <div id="content-container" class="{% block mainclass %}{% endblock %}">
+        {% block content %}{% endblock content %}
+        <div class="clear"></div>
+    </div>
+    <!-- END Content -->
+
+    {% if not is_popup %}
+        <div id="footer-container">
+            {% block footer %}{% endblock %}
+        </div>
+    {% endif %}
+</div>
+<!-- END Container -->
+
+
+<!-- JavaScript at the bottom for fast page loading -->
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script>window.jQuery.ui || document.write('<script src="/static/js/libs/jquery-ui-1.8.13.min.js">\x3C/script>')</script>
+
+<script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
+
+<!-- scripts concatenated and minified via ant build script-->
+<script type="text/javascript" src="/static/js/mylibs/json2.min.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.timers-1.2.min.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.placeheld.min.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.marquee.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.validation.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.formset.min.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.nivo.slider.pack.min.js"></script>
+
+<script type="text/javascript" src="/static/js/mylibs/tooltip.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/tooltip.slide.js"></script>
+
+<script type="text/javascript" src="/static/js/utils.js"></script>
+<script type="text/javascript" src="/static/js/helpers.js"></script>
+<!-- end scripts-->
+
+{% block doc_ready %}{% endblock doc_ready %}
+
+{# more IE7 fixes #}
+<!--[if IE 7]>
+    <script type="text/javascript">
+         $(document).ready(function(){
+            $(".waybetter").html("WAYbetter")
+        });
+    </script>
+    <![endif]-->
+
+<!-- Google Analytics -->
+<!-- mathiasbynens.be/notes/async-analytics-snippet Change UA-XXXXX-X to be your site's ID -->
+<script>
+    var _gaq = [
+        ['_setAccount','UA-18077675-1'],
+        ['_trackPageview'],
+        ['_trackPageLoadTime']
+    ];
+    (function(d, t) {
+        var g = d.createElement(t),s = d.getElementsByTagName(t)[0];
+        g.async = 1;
+        g.src = ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
+        s.parentNode.insertBefore(g, s)
+    }(document, 'script'));
+</script>
+
+{% block extra-body %}{% endblock %}
+</body>
+
+</html>

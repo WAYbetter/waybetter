@@ -118,15 +118,15 @@ var HotspotHelper = Object.create({
 
             var icon_image = new telmap.maps.MarkerImage(hotsport_marker_image, undefined, undefined, hotsport_marker_offset);
             var point = new telmap.maps.Marker({
-                map:        OrderingHelper.map,
+                map:        TelmapHelper.map,
                 position:   new telmap.maps.LatLng(lat, lon),
                 icon:       icon_image,
                 title:      "Hotspot"
             });
 
-            OrderingHelper.removePoint("hotspot");
-            OrderingHelper.map_markers["hotspot"] = point;
-            OrderingHelper.renderMapMarkers();
+            TelmapHelper.removePoint("hotspot");
+            TelmapHelper.map_markers["hotspot"] = point;
+            TelmapHelper.renderMapMarkers();
         }
     },
 
@@ -280,4 +280,94 @@ var AddressHelper = Object.create({
         });
     }
 
+});
+
+
+var TelmapHelper = Object.create({
+    config:     {
+        telmap_user:                "",
+        telmap_password:            "",
+        telmap_languages:           ""
+    },
+
+    map:                            {},
+    map_markers:                    {},
+    map_markers_popups:             {},
+    map_was_reset:                  false,
+    telmap_prefs:                   {},
+
+    init:                       function(config) {
+        var that = this;
+        this.config = $.extend(true, {}, this.config, config);
+        this.telmap_prefs = {
+            mapTypeId:telmap.maps.MapTypeId.ROADMAP,
+            suit:telmap.maps.SuitType.MEDIUM_4,
+            navigationControlOptions:{style:telmap.maps.NavigationControlStyle.ANDROID},
+            zoom:15,
+            center:new telmap.maps.LatLng(32.09279909028302, 34.781051985221),
+            login:{
+                contextUrl: 'api.navigator.telmap.com/telmapnav',
+                userName:   this.config.telmap_user,
+                password:   this.config.telmap_password,
+                languages:  [this.config.telmap_languages, this.config.telmap_languages],
+                appName:    'wayBetter',
+                callback:   function () {
+                    that.resetMap.call(that);
+                }
+            }
+        };
+
+        this.map = new telmap.maps.Map(document.getElementById("map"), this.telmap_prefs);
+        window.onresize = function() {
+            telmap.maps.event.trigger(this.map, "resize");
+        };
+        return this;
+    },
+    resetMap:                 function (e, a) {
+        var that = this;
+        if (! this.map_was_reset) {
+            this.map_was_reset = true;
+            this.map.logout(function(e, a) {
+                that.map.login(that.telmap_prefs.login);
+            });
+        }
+    },
+    removePoint:                function(address_type) {
+        if (this.map_markers[address_type]) {
+            this.map_markers[address_type].setMap(); // remove old marker from map
+        }
+    },
+    renderMapMarkers:           function () {
+        var that = this,
+            map = this.map,
+            markers = 0,
+            bounds = new telmap.maps.LatLngBounds();
+
+        $.each(this.map_markers, function (i, point) {
+            markers++;
+            bounds.extend(point.getPosition());
+            var info = new telmap.maps.InfoWindow({
+                content: "<div style='font-family:Arial,sans-serif;font-size:0.8em;'>" + point.location_name + "<div>",
+                disableAutoPan: true
+            });
+
+            if (that.map_markers_popups[i]) {
+                that.map_markers_popups[i].close();
+            }
+            that.map_markers_popups[i] = info;
+
+        });
+        if (markers > 1) {
+            // make room for estimation box
+            var delta = (bounds.ne.y - bounds.sw.y) * 0.5;
+            var newPoint = new telmap.maps.LatLng(bounds.ne.y + delta, bounds.ne.x);
+            bounds.extend(newPoint);
+
+            map.fitBounds(bounds);
+            map.panToBounds(bounds);
+
+        } else if (bounds.valid) {
+            map.panTo(bounds.getCenter());
+        }
+    }
 });
