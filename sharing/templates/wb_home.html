@@ -1,76 +1,75 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
 
-{% block content %}
+{% block pre_content %}
     <div id="map_container">
+        <div id="banner">
+            <div id="tryitnow" class="clickable">{% trans "Try It Now!" %}</div>
+        </div>
+
         <div id="map"></div>
     </div>
+{% endblock %}
 
-    <div id="banner">
-        <div id="slider">
-            <img src="/static/images/anim_1.png" alt=""/>
-            <img src="/static/images/anim_2.png" alt=""/>
-            <img src="/static/images/anim_3.png" alt=""/>
+{% block content %}
+    <div id="booking_container">
+        <div id="order_form_container">
+            <div class="ribbon">{% trans "Your WAY" %}</div>
+
+            <form id="order_form">
+                {% csrf_token %}
+
+                <div id="pickup_input" class="address_input from" type="address_input">
+                    {% trans "From" %}
+                </div>
+
+
+                <div id="dropoff_input" class="address_input to" type="address_input">
+                    {% trans "To" %}
+                </div>
+
+                <div id="datetime_input" class="address_input time">
+                    <span class="type">{% trans "Departure" %}</span>
+                    <span class="value"></span>
+                </div>
+
+                <div id="switch" class="clickable"></div>
+            </form>
         </div>
-        <div id="tryitnow" class="clickable">{% trans "Try It Now!" %}</div>
-    </div>
 
-    <form id="order_form">
-        {% csrf_token %}
+        <div id="ride_details_container">
+            <div id="private_details" class="ride_details">
+                <span class="header">{% trans "Private Taxi" %}</span>
+                <ul>
+                    <li>
+                        {% trans "Ride Price" %}
+                        <span class="price" id="private_price">40<span class="label">₪</span></span>
+                    </li>
+                    <li>
+                        {% trans "Est. Ride Duration" %}
+                        <span class="time" id="private_time">16<span class="label">MIN</span></span>
+                    </li>
+                </ul>
+                <button class="order_button blue" id="book_private">{% trans 'Book Ride' %}</button>
+            </div>
 
-        <div class="address_input_container">
-            <span>{% trans "From" %}</span>
+            <span id="ticket-perforation"></span>
 
-            <div id="pickup_input" class="address_input" type="address_input">
-                <a class="where"></a>
-                <a class="when"></a>
+            <div id="sharing_details" class="ride_details">
+                <span class="header">{% trans "WAYbetter Taxi" %}</span>
+                <ul>
+                    <li>
+                        {% trans "Ride Price" %}
+                        <span class="price" id="sharing_price">18<span class="label">₪</span></span>
+                    </li>
+                    <li>
+                        {% trans "Est. Ride Duration" %}
+                        <span class="time" id="sharing_time">20<span class="label">MIN</span></span>
+                    </li>
+                </ul>
+                <button class="order_button orange" id="book_sharing">{% trans 'Book Ride' %}</button>
             </div>
         </div>
-
-        <div id="switch" class="clickable"></div>
-
-        <div class="address_input_container">
-            <span>{% trans "To" %}</span>
-
-            <div id="dropoff_input" class="address_input" type="address_input">
-                <a class="where"></a>
-                <a class="when"></a>
-            </div>
-        </div>
-    </form>
-
-    <div id="ride_details_container">
-        <div id="sharing_details" class="ride_details">
-            <h2>{% trans "WAYbetter Smart Taxi Ride" %}</h2>
-            <ul>
-                <li>
-                    {% trans "Price" %}
-                    <span class="price" id="sharing_price"></span>
-                </li>
-                <li>
-                    {% trans "Time" %}
-                    <span class="time" id="sharing_time"></span>
-                </li>
-            </ul>
-            <button class="order_button" id="book_sharing">{% trans 'Order WAYbetter Ride' %}</button>
-        </div>
-
-        <div id="private_details" class="ride_details">
-            <h2>{% trans "Private Taxi Ride" %}</h2>
-            <ul>
-                <li>
-                    {% trans "Price" %}
-                    <span class="price" id="private_price"></span>
-                </li>
-                <li>
-                    {% trans "Time" %}
-                    <span class="time" id="private_time"></span>
-                </li>
-            </ul>
-            <button class="order_button" id="book_private">{% trans 'Order Private Ride' %}</button>
-        </div>
-
-        <div class="clear"></div>
     </div>
 
     <!-- anchor tips with changing content -->
@@ -172,7 +171,7 @@
                 </div>
 
                 <div id="time_tools">
-                    <input type="text" id="id_hotspot_datepicker" name="hotspot_date"> @ 
+                    <input type="text" id="id_hotspot_datepicker" name="hotspot_date"> @
                     <select id="id_hotspot_time" name="hotspot_time"></select>
                 </div>
 
@@ -295,6 +294,14 @@
                 openTooltipHelper(here, "select");
             }
             else {
+                $("#banner").hide();
+                $.getScript("http://api.navigator.telmap.com/maps/api/js?sensor=false", function success(data, textStatus) {
+                    TelmapHelper.init({
+                        telmap_user:                "{{ telmap_user }}",
+                        telmap_password:            "{{ telmap_password}}",
+                        telmap_languages:           "{{ telmap_languages }}"
+                    });
+                });
                 if (! hotspot_resolved) {
                     openTooltipHelper(there, "hotspot");
                 }
@@ -402,8 +409,7 @@
 
         function copy_input_data(source, target){
             $(target).data("resolved_as", $(source).data("resolved_as"));
-            $(target).find(".where").text($(source).find(".where").text());
-            $(target).find(".when").text($(source).find(".when").text());
+            $(target).text($(source).text());
         }
 
         $(function() {
@@ -434,8 +440,8 @@
 
             AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number");
 
-            $(".order_button").disable();
-            $("#ride_details_container").hide();
+//            $(".order_button").disable();
+//            $("#ride_details_container").hide();
 
             $("html").click(function(e) {
                 var $target = $(e.target);
@@ -492,7 +498,7 @@
                 hotspot_resolved = address_resolved = datetime_resolved = select_input_resolved = false;
                 address_lat = address_lon = undefined;
                 $("[type='address_input']").data("resolved_as", false).each(function(){
-                    $(this).find(".where, .when").text("");
+                    $(this).text("");
                 });
                 var helper_type = this.id.split("2")[1];
                 openTooltipHelper(getAddressInput(this), helper_type);
@@ -518,7 +524,7 @@
                 if (helper_type == "hotspot") {
                     hotspot_resolved = true;
                     hotspot_type = getAddressType(this);
-                    $input.find(".where").text($("#id_hotspot_select :selected").text());
+                    $input.text($("#id_hotspot_select :selected").text());
                     $input.data("resolved_as", "hotspot");
                     openNextTooltip($input, $other_input);
                 }
@@ -538,7 +544,7 @@
                             address_resolved = true;
                             address_lat = result.lat;
                             address_lon = result.lon;
-                            $input.find(".where").text($sa_input.val() + " " + $hn_input.val() + " " + $("#id_city :selected").text());
+                            $input.text($sa_input.val() + " " + $hn_input.val() + " " + $("#id_city :selected").text());
                             $input.data("resolved_as", "address");
                             openNextTooltip($input, $other_input);
                         },
@@ -558,9 +564,7 @@
 
             $("#datetime_input_helper .next_btn").button().click(function() {
                 datetime_resolved = true;
-                $("[type='address_input'] .when").text("");
-                var input_type = $("#datetime_input_helper input:radio:checked").attr("id").split("_")[0];
-                $("#" + input_type + "_input").find(".when").text($("#id_hotspot_datepicker").val() + " " + $("#id_hotspot_time").val());
+                $("#datetime_input").text($("#id_hotspot_datepicker").val() + " " + $("#id_hotspot_time").val());
                 closeTooltips();
                 showRideDetails();
             });

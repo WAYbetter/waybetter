@@ -19,11 +19,11 @@ ul.hz li {
   display: inline;
   padding-right: 20px; }
 
-#tab_loader {
-  background: url(../images/loader1.gif) left 0 no-repeat;
-  float: right;
-  height: 24px;
-  width: 24px; }
+.float-l {
+  float: left; }
+
+.float-r {
+  float: right; }
 
 .clickable {
   cursor: pointer; }
@@ -68,35 +68,133 @@ a, .action_link, .ui-widget-content a {
   background-color: #8b0000;
   border: 1px solid red; }
 
+.order_button {
+  font-size: 18px;
+  font-weight: bold;
+  text-shadow: 0 -1px rgba(0, 0, 0, 0.5);
+  width: 215px;
+  height: 43px;
+  border: none;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  vertical-align: text-top;
+  padding: 6px 0;
+  text-align: center;
+  text-decoration: none;
+  -webkit-box-shadow: 0px 1px 3px #404040;
+  -moz-box-shadow: 0px 1px 3px #404040;
+  box-shadow: 0px 1px 3px #404040;
+  display: inline-block; }
+
+.wb_button:hover, .wb_button.hover {
+  border: 1px solid #828282;
+  border-bottom: 1px solid black;
+  padding-top: 5px; }
+
+.wb_button:active, .wb_button.active {
+  border: 1px solid #525252;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  /*position: relative;*/
+  /*top: 1px;*/ }
+
+.wb_button:disabled, .wb_button.disabled {
+  border: none;
+  opacity: 0.65;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  position: relative;
+  top: 0;
+  padding-top: 6px; }
+
+.blue {
+  background: #16acd3;
+  /* Old browsers */
+  background: -moz-linear-gradient(top, #16acd3 0%, #0e82a8 100%);
+  /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #16acd3), color-stop(100%, #0e82a8));
+  /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #16acd3 0%, #0e82a8 100%);
+  /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #16acd3 0%, #0e82a8 100%);
+  /* Opera11.10+ */
+  background: -ms-linear-gradient(top, #16acd3 0%, #0e82a8 100%);
+  /* IE10+ */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#16acd3', endColorstr='#0e82a8',GradientType=0 );
+  /* IE6-9 */
+  background: linear-gradient(top, #16acd3 0%, #0e82a8 100%);
+  /* W3C */
+  color: white; }
+
+.orange {
+  background: #ffa733;
+  /* Old browsers */
+  background: -moz-linear-gradient(top, #ffa733 0%, #d47d1f 100%);
+  /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #ffa733), color-stop(100%, #d47d1f));
+  /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #ffa733 0%, #d47d1f 100%);
+  /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #ffa733 0%, #d47d1f 100%);
+  /* Opera11.10+ */
+  background: -ms-linear-gradient(top, #ffa733 0%, #d47d1f 100%);
+  /* IE10+ */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffa733', endColorstr='#d47d1f',GradientType=0 );
+  /* IE6-9 */
+  background: linear-gradient(top, #ffa733 0%, #d47d1f 100%);
+  /* W3C */
+  color: white; }
+
 /*********************************************/
 /***************** BASE SITE *****************/
 /*********************************************/
 body.base-site {
-  background-image: url(../images/background.png);
-  background-repeat: repeat-x; }
-  body.base-site #main-container {
+  background-color: gray; }
+
+#header-container {
+  background-image: url(/static/images/header_bg.png);
+  background-repeat: repeat-x;
+  position: absolute;
+  top: 0;
+  width: 100%;
+  height: 88px;
+  z-index: 1; }
+  #header-container #site-header {
+    width: 800px;
+    margin: 0 auto; }
+    #header-container #site-header #wb_logo {
+      background-image: url(/static/images/logo_header.png);
+      height: 88px;
+      width: 111px;
+      float: left;
+      margin-left: 60px; }
+    #header-container #site-header ul {
+      float: right; }
+    #header-container #site-header ul li:hover {
+      text-decoration: underline;
+      cursor: pointer; }
+
+#content-container {
+  background: #F9F8EA;
+  border-top: 3px solid white;
+  margin-top: 370px;
+  -webkit-box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.75);
+  -moz-box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.75);
+  box-shadow: 0px 0px 7px 0px rgba(0, 0, 0, 0.75);
+  position: relative;
+  top: -18px;
+  z-index: 1px; }
+  #content-container #site-content {
     width: 800px;
     margin: 0 auto; }
 
-#site-header {
-  height: 130px; }
-  #site-header #wb_logo {
-    background-image: url(/static/images/wb_logo.png);
-    height: 135px;
-    width: 305px;
-    float: left;
-    margin-left: 60px; }
-  #site-header ul {
-    float: right; }
-  #site-header ul li:hover {
-    text-decoration: underline;
-    cursor: pointer; }
-
 #footer-container {
-  width: 100%;
-  margin-top: 20px; }
+  background: gray; }
   #footer-container #site-footer {
-    border-top: 1px solid; }
+    width: 800px;
+    margin: 0 auto; }
     #footer-container #site-footer #sitemap {
       float: left; }
       #footer-container #site-footer #sitemap ul {
@@ -111,177 +209,247 @@ body.base-site {
 /*********************************************/
 /******************* HOME ********************/
 /*********************************************/
-.wb_home {
-  /*#main_content_container{*/
-  /*position: absolute;*/
-  /*left: 20%;*/
-  /*top: 340px;*/
-  /*width: 800px;*/
-  /*}*/
-  /*.tooltip.datetime {height: 125px;}*/
-  /*.tooltip.datetime .tooltip_footer{ bottom: 10px; }*/ }
-  .wb_home #map_container {
-    position: absolute;
-    left: 0;
-    right: 0;
-    height: 300px;
-    width: 100%; }
-  .wb_home #map {
-    height: 100%;
-    width: 100%; }
-  .wb_home #order_form {
-    background: white;
-    border: 1px solid;
-    padding: 0 5px 10px 10px; }
-  .wb_home #order_form div {
+.wb_home #map_container {
+  width: 100%;
+  height: 300px;
+  position: relative;
+  top: -285px;
+  z-index: -1; }
+.wb_home #map {
+  height: 100%;
+  width: 100%; }
+.wb_home #banner {
+  height: 100%;
+  width: 100%;
+  background: orange; }
+.wb_home #tryitnow {
+  z-index: 2;
+  background: yellow;
+  width: 70px;
+  height: 30px;
+  border: 1px solid;
+  position: relative;
+  top: 140px;
+  left: 1040px; }
+.wb_home #booking_container {
+  position: relative;
+  top: -50px;
+  width: 800px;
+  height: 240px;
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  border-radius: 12px;
+  -webkit-box-shadow: 0px 0px 6px 0px #747474;
+  -moz-box-shadow: 0px 0px 6px 0px #747474;
+  box-shadow: 0px 0px 6px 0px #747474; }
+.wb_home #order_form_container {
+  float: left;
+  width: 303px;
+  height: 100%;
+  background-color: #DADADA;
+  border-right: 1px solid white;
+  -webkit-border-radius: 12px 0 0 12px;
+  -moz-border-radius: 12px 0 0 12px;
+  border-radius: 12px 0 0 12px; }
+  .wb_home #order_form_container .ribbon {
+    font-size: 18px;
+    font-weight: bold;
+    padding-left: 56px;
+    line-height: 39px;
+    color: white;
+    background: url(/static/images/wb_site/ribbon.png) 6px 0 no-repeat;
+    width: 167px;
+    height: 56px;
+    position: relative;
+    left: -30px;
+    margin-top: 17px; }
+.wb_home #order_form {
+  margin: -6px 0 0 28px; }
+  .wb_home #order_form .address_input {
+    height: 35px;
+    width: 214px;
+    padding-left: 33px;
+    line-height: 34px;
+    background: url(/static/images/wb_site/field_icons.png) 6px 0 no-repeat white;
+    margin-bottom: 21px;
+    font-size: 11px;
+    color: #6c6c6a; }
+  .wb_home #order_form .address_input:hover {
+    -webkit-box-shadow: inset 0px 0px 1px black;
+    -moz-box-shadow: inset 0px 0px 1px black;
+    box-shadow: inset 0px 0px 1px black; }
+  .wb_home #order_form .address_input.from {
+    background: url(/static/images/wb_site/field_icons.png) 6px -3px no-repeat white; }
+  .wb_home #order_form .address_input.to {
+    background: url(/static/images/wb_site/field_icons.png) 6px -48px no-repeat white; }
+  .wb_home #order_form .address_input.time {
+    background: url(/static/images/wb_site/field_icons.png) 6px -93px no-repeat white; }
+.wb_home #ride_details_container {
+  float: right;
+  height: 100%;
+  width: 495px;
+  border-left: 1px solid #BEBEBB; }
+  .wb_home #ride_details_container > div {
     display: inline-block; }
-  .wb_home #order_form #switch {
-    background: url(/static/images/arrow_refresh.png);
-    height: 16px;
-    width: 16px;
-    position: relative;
-    top: 4px; }
-  .wb_home #slider {
-    height: 270px;
-    width: 563px;
-    margin-left: 130px;
-    margin-top: 10px; }
-  .wb_home #tryitnow {
-    z-index: 2;
-    background: yellow;
-    width: 70px;
-    height: 30px;
-    border: 1px solid;
-    position: relative;
-    bottom: 70px;
-    left: 730px; }
-  .wb_home .address_input_container {
-    margin: 10px; }
-  .wb_home .address_input {
-    height: 25px;
-    width: 245px;
-    border: 1px solid;
-    position: relative;
-    top: 13px;
-    margin-left: 10px;
-    padding: 6px 13px 0 13px; }
-  .wb_home .address_input .where {
-    float: left; }
-  .wb_home .address_input .when {
-    float: right; }
-  .wb_home .tooltip {
-    display: none;
-    background: transparent url(/static/images/jquery_tools/white_arrow_big.png);
-    font-size: 12px;
-    height: 166px;
-    width: 320px;
-    padding: 25px; }
-  .wb_home .tooltip h2 {
-    text-decoration: underline; }
-  .wb_home #select_input_helper .content_container {
-    position: relative;
-    top: 18px;
-    width: 80%; }
-  .wb_home #select_input_helper #sel_hotspot {
-    float: left;
-    left: 50px;
-    position: relative;
-    color: #174599; }
-  .wb_home #select_input_helper #sel_address {
-    float: right;
-    border-left: 1px solid;
-    padding-left: 20px;
-    color: #174599; }
-  .wb_home #select_input_helper .link:hover {
-    text-decoration: underline; }
-  .wb_home #select_input_helper .img {
+.wb_home .ride_details {
+  background: white;
+  height: 100%;
+  width: 242px;
+  color: #6c6c6a; }
+  .wb_home .ride_details .header {
     display: block;
-    height: 24px;
-    width: 24px;
-    background: transparent url(/static/images/add_24.png);
-    position: relative;
-    left: 24px;
-    bottom: 5px; }
-  .wb_home #hotspot_input_helper label {
-    display: block;
-    margin: 15px; }
-  .wb_home #address_input_helper label {
-    margin-bottom: 15px;
-    margin-left: 10px; }
-  .wb_home #address_input_helper label.city {
-    display: block; }
-  .wb_home #address_input_helper #id_house_number {
-    width: 25px; }
-  .wb_home #address_input_helper #id_street_address {
-    width: 150px; }
-  .wb_home #address_input_helper .hn_error {
-    position: absolute;
-    left: 285px;
-    color: red;
-    bottom: 81px; }
-  .wb_home #datetime_input_helper #time_radio {
-    float: left; }
-  .wb_home #datetime_input_helper #time_radio label {
-    display: block;
-    margin-bottom: 15px; }
-  .wb_home #datetime_input_helper #time_tools {
-    float: right;
-    position: relative;
-    top: 15px;
-    right: 25px; }
-  .wb_home #datetime_input_helper #id_hotspot_datepicker {
-    width: 80px; }
-  .wb_home .tooltip_footer {
-    position: absolute;
-    bottom: 40px;
-    width: 334px;
-    /*background-color: #EDEDED;*/
-    height: 30px;
-    left: 17px; }
-  .wb_home .tooltip_footer .next_btn {
-    float: right;
-    position: relative;
-    bottom: 5px;
-    right: 10px; }
-  .wb_home .tooltip_footer .help, .wb_home .tooltip_footer a {
-    position: relative;
-    left: 17px;
-    top: 1px; }
-  .wb_home .tooltip_footer .ui-button-text {
-    padding: 5px; }
-  .wb_home .tooltip_loader {
-    display: none;
-    background: url(../images/loader1.gif) left 0 no-repeat;
-    height: 24px;
-    width: 24px;
-    position: relative;
-    left: 250px;
-    bottom: 18px; }
-  .wb_home #ride_details_container {
-    margin-top: 30px; }
-  .wb_home .ride_details {
-    border: 1px solid; }
-  .wb_home .ride_details h2 {
-    font-size: 14px;
-    left: 81px;
-    position: relative; }
-  .wb_home .ride_details button {
-    position: relative;
-    left: 125px;
-    bottom: 5px;
-    margin-top: 50px; }
-  .wb_home .price {
-    font-size: 22px;
-    font-weight: bold; }
-  .wb_home .time {
+    height: 52px;
+    line-height: 52px;
+    padding-left: 49px;
+    margin-left: 17px;
+    margin-top: 13px;
     font-size: 18px;
     font-weight: bold; }
-  .wb_home #sharing_details {
-    float: left;
-    width: 45%; }
-  .wb_home #private_details {
-    float: right;
-    width: 45%; }
+  .wb_home .ride_details ul {
+    width: 100%;
+    list-style: none;
+    position: relative;
+    left: -20px;
+    top: -16px; }
+  .wb_home .ride_details li {
+    padding-left: 5px;
+    font-size: 11px;
+    line-height: 52px; }
+  .wb_home .ride_details li:first-child {
+    line-height: 45px; }
+  .wb_home .ride_details .price {
+    font-size: 35px;
+    font-weight: bold;
+    position: relative;
+    left: 62px; }
+    .wb_home .ride_details .price .label {
+      font-size: 29.3px;
+      margin-left: 5px; }
+  .wb_home .ride_details .time {
+    font-size: 24px;
+    font-weight: bold;
+    position: relative;
+    left: 32px; }
+    .wb_home .ride_details .time .label {
+      font-size: 13px;
+      margin-left: 5px; }
+  .wb_home .ride_details .order_button {
+    margin-left: 17px;
+    margin-top: -20px; }
+.wb_home #sharing_details {
+  float: right;
+  -webkit-border-radius: 0 12px 12px 0;
+  -moz-border-radius: 0 12px 12px 0;
+  border-radius: 0 12px 12px 0; }
+  .wb_home #sharing_details .header {
+    background: url(/static/images/wb_site/shared_icon.png) left 0 no-repeat;
+    color: #FF921E; }
+  .wb_home #sharing_details ul {
+    left: -24px; }
+  .wb_home #sharing_details li {
+    background: url(/static/images/wb_site/orange_bracket.png) left 35px no-repeat; }
+  .wb_home #sharing_details .order_button {
+    margin-left: 11px; }
+.wb_home #private_details {
+  float: left; }
+  .wb_home #private_details .header {
+    background: url(/static/images/wb_site/private_icon.png) left 0 no-repeat;
+    color: #16ACD3; }
+  .wb_home #private_details li {
+    background: url(/static/images/wb_site/blue_bracket.png) left 35px no-repeat; }
+.wb_home #ticket-perforation {
+  background-image: url(/static/images/wb_site/ticket-perforation.png);
+  height: 100%;
+  width: 11px;
+  float: left; }
+.wb_home .tooltip {
+  display: none;
+  background: transparent url(/static/images/jquery_tools/white_arrow_big.png);
+  font-size: 12px;
+  height: 166px;
+  width: 320px;
+  padding: 25px; }
+.wb_home .tooltip h2 {
+  text-decoration: underline; }
+.wb_home #select_input_helper .content_container {
+  position: relative;
+  top: 18px;
+  width: 80%; }
+.wb_home #select_input_helper #sel_hotspot {
+  float: left;
+  left: 50px;
+  position: relative;
+  color: #174599; }
+.wb_home #select_input_helper #sel_address {
+  float: right;
+  border-left: 1px solid;
+  padding-left: 20px;
+  color: #174599; }
+.wb_home #select_input_helper .link:hover {
+  text-decoration: underline; }
+.wb_home #select_input_helper .img {
+  display: block;
+  height: 24px;
+  width: 24px;
+  background: transparent url(/static/images/add_24.png);
+  position: relative;
+  left: 24px;
+  bottom: 5px; }
+.wb_home #hotspot_input_helper label {
+  display: block;
+  margin: 15px; }
+.wb_home #address_input_helper label {
+  margin-bottom: 15px;
+  margin-left: 10px; }
+.wb_home #address_input_helper label.city {
+  display: block; }
+.wb_home #address_input_helper #id_house_number {
+  width: 25px; }
+.wb_home #address_input_helper #id_street_address {
+  width: 150px; }
+.wb_home #address_input_helper .hn_error {
+  position: absolute;
+  left: 285px;
+  color: red;
+  bottom: 81px; }
+.wb_home #datetime_input_helper #time_radio {
+  float: left; }
+.wb_home #datetime_input_helper #time_radio label {
+  display: block;
+  margin-bottom: 15px; }
+.wb_home #datetime_input_helper #time_tools {
+  float: right;
+  position: relative;
+  top: 15px;
+  right: 25px; }
+.wb_home #datetime_input_helper #id_hotspot_datepicker {
+  width: 80px; }
+.wb_home .tooltip_footer {
+  position: absolute;
+  bottom: 40px;
+  width: 334px;
+  /*background-color: #EDEDED;*/
+  height: 30px;
+  left: 17px; }
+.wb_home .tooltip_footer .next_btn {
+  float: right;
+  position: relative;
+  bottom: 5px;
+  right: 10px; }
+.wb_home .tooltip_footer .help, .wb_home .tooltip_footer a {
+  position: relative;
+  left: 17px;
+  top: 1px; }
+.wb_home .tooltip_footer .ui-button-text {
+  padding: 5px; }
+.wb_home .tooltip_loader {
+  display: none;
+  background: url(../images/loader1.gif) left 0 no-repeat;
+  height: 24px;
+  width: 24px;
+  position: relative;
+  left: 250px;
+  bottom: 18px; }
 
 /*********************************************/
 /******************* REGISTRATION ************/
