@@ -17,14 +17,6 @@ from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, passenger_required
 from ordering.models import SharedRide, COMPLETED, ACCEPTED
 
-def get_token(request):
-    txId = get_transaction_id(request)
-    url = "https://cgmpiuat.creditguard.co.il/CGMPI_Server/PerformTransaction?txId=%s" % txId
-    form = BillingForm()
-    
-    #    return HttpResponseRedirect("https://cgmpiuat.creditguard.co.il/CGMPI_Server/PerformTransaction?txId=%s" % txId)
-    return render_to_response("token_form.html", locals(), RequestContext(request))
-
 def bill_passenger(request):
     form = BillingForm(data=request.POST)
     if form.is_valid():

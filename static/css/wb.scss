@@ -40,6 +40,7 @@ ul.hz{
 a, .action_link, .ui-widget-content a {
     color: #174599;
     text-decoration: underline;
+    cursor: pointer;
 }
 
 @-webkit-keyframes flash_fade {
@@ -275,7 +276,38 @@ body.base-site{
 } // HOME
 
 
-
+/*********************************************/
+/******************* REGISTRATION ************/
+/*********************************************/
+.registration{
+    .header{
+        h1{
+            float:left;
+        }
+        h2{
+            float:right;
+        }
+    }
+    #validation, #passenger_form{
+        margin-top: 20px;
+        border-top: 1px solid;
+    }
+    #verification_status {
+        width: 20px;
+        height: 20px;
+        border:  1px solid black;
+        display: inline-block;
+    }
+    #verification_status.success {
+        background-color: #008000;
+    }
+    #verification_status.error {
+        background-color: red;
+    }
+    #verification_status.sending {
+        background-color: orange;
+    }
+}
 
 
 /** Hotspot page **/

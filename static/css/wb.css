@@ -30,7 +30,8 @@ ul.hz li {
 
 a, .action_link, .ui-widget-content a {
   color: #174599;
-  text-decoration: underline; }
+  text-decoration: underline;
+  cursor: pointer; }
 
 @-webkit-keyframes flash_fade {
   0%, 100% {
@@ -281,6 +282,28 @@ body.base-site {
   .wb_home #private_details {
     float: right;
     width: 45%; }
+
+/*********************************************/
+/******************* REGISTRATION ************/
+/*********************************************/
+.registration .header h1 {
+  float: left; }
+.registration .header h2 {
+  float: right; }
+.registration #validation, .registration #passenger_form {
+  margin-top: 20px;
+  border-top: 1px solid; }
+.registration #verification_status {
+  width: 20px;
+  height: 20px;
+  border: 1px solid black;
+  display: inline-block; }
+.registration #verification_status.success {
+  background-color: #008000; }
+.registration #verification_status.error {
+  background-color: red; }
+.registration #verification_status.sending {
+  background-color: orange; }
 
 /** Hotspot page **/
 .rtl.hotspot_page #map_container {
