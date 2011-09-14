@@ -7,6 +7,7 @@
 {% endblock %}
 
 {% block body %}
+    <div id="loader" class="ui-widget-header">{% trans 'Please wait, connecting' %}</div>
     <div id="header" class="ui-widget-header">
         <div id="options_button" class="toolbar_button"></div>
         <div id="expand_collapse_button" class="toolbar_button">{% trans "Hide List" %}</div>
@@ -147,13 +148,20 @@
     };
 
     set_online = function(online) {
-        var $online_status = $("#online_status");
+        var $online_status = $("#online_status"),
+                $loader = $("#loader"),
+                $header = $("#header");
+
         if (online) {
             $online_status.addClass("online").removeClass("offline");
             $online_status.text(online_label);
+            $loader.hide();
+            $header.show();
         } else {
             $online_status.addClass("offline").removeClass("online");
             $online_status.text(offline_label);
+            $header.hide();
+            $loader.show();
         }
     };
 
