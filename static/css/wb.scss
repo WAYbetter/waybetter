@@ -4,7 +4,13 @@ $font-size-small: 11px;
 $font-size-medium: 13px;
 $font-size-big: 24px;
 $font-size-huge: 35px;
+
 $color-gray: #6C6C6A;
+$light-gray: #BCBCBC;
+$color-service: #EB1F79;
+$color-community: #4CBA00;
+$color-environment: #16ACD3;
+$color-efficiency: #FF921E;
 
 * {
     font-size: 12px;
@@ -45,10 +51,12 @@ ul.hz{
     cursor: pointer;
 }
 
-a, .action_link, .ui-widget-content a {
-    color: #174599;
-    text-decoration: underline;
+.wb_link{
+    color: #0088CC;
     cursor: pointer;
+}
+.wb_link:hover{
+    text-decoration: underline;
 }
 
 @-webkit-keyframes flash_fade {
@@ -170,16 +178,15 @@ a, .action_link, .ui-widget-content a {
 /***************** BASE SITE *****************/
 /*********************************************/
 body.base-site{
-    background-color: gray;
+    background: #98988F;
 }
 
 #header-container{
     background-image: url(/static/images/header_bg.png);
     background-repeat: repeat-x;
-    position: absolute;
-    top: 0;
     width: 100%;
     height: 88px;
+    position: relative;
     z-index: 1;
 
     #site-header{
@@ -204,34 +211,44 @@ body.base-site{
 
 #content-container{
     background: #F9F8EA;
-    border-top: 3px solid white;
-    margin-top: 370px;
-    -webkit-box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.75);
-    -moz-box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.75);
-    box-shadow: 0px 0px 7px 0px rgba(0,0,0,0.75);
+    min-height: 550px;
     position: relative;
     top: -18px;
-    z-index: 1px;
+    padding-top: 80px;
+    border-bottom: 1px solid #98988F;
+
     #site-content{
         width: $site-width;
-        margin: 0 auto;
+        margin: 0 auto 50px auto;
+        background: white;
+        -webkit-border-radius: 12px;
+        -moz-border-radius: 12px;
+        border-radius: 12px;
+
+        -webkit-box-shadow: 0px 0px 6px 0px #747474;
+        -moz-box-shadow: 0px 0px 6px 0px #747474;
+        box-shadow: 0px 0px 6px 0px #747474;
     }
 }
 
 #footer-container{
-    background: gray;
+    position: relative;
+    top: -18px;
+    border-top: 1px solid white;
     #site-footer{
-        width: $site-width;
         margin: 0 auto;
+        width: $site-width;
         #sitemap{
             float: left;
             ul{
                 list-style: none;
                 display:inline-block;
+                vertical-align: top;
             }
             ul :first-child{
                 font-weight: bold;
                 margin-bottom: 5px;
+                color: white;
             }
         }
         .tools{
@@ -240,16 +257,58 @@ body.base-site{
     }
 }
 
+#wb_values{
+    width: $site-width;
+    margin: 0 auto;
+    position: relative;
+    left: 10px;
+
+    .value{
+        height: 70px;
+        width: 130px;
+        float: left;
+        padding-left: 45px;
+        font-size: $font-size-small;
+        margin-right: 25px;
+    }
+    .header{
+        display: block;
+        font-weight: bold;
+        font-size: $font-size-medium;
+        line-height: 23px;
+    }
+    .service .header {color: $color-service;}
+    .community .header {color: $color-community;}
+    .env .header {color: $color-environment;}
+    .eff .header {color: $color-efficiency;}
+    .service{ background: url(/static/images/wb_site/values.png) 0 -37px no-repeat; }
+    .community{ background: url(/static/images/wb_site/values.png) 0 -133px no-repeat; }
+    .env{ background: url(/static/images/wb_site/values.png) 0 -237px no-repeat; }
+    .eff{ background: url(/static/images/wb_site/values.png) 0 -329px no-repeat; }
+
+    .more{
+        display: block;
+        background: url(/static/images/wb_site/more_en.png) 68px 2px no-repeat;
+    }
+}
 /*********************************************/
 /******************* HOME ********************/
 /*********************************************/
 .wb_home{
+    #content-container{
+        padding-top: 0;
+        min-height: 700px;
+    }
+
+    #content-container #site-content{
+        position: relative;
+        top: -50px;
+        margin-bottom: 0;
+    }
+
     #map_container {
         width: 100%;
         height: 300px;
-        position: relative;
-        top: -285px;
-        z-index: -1;
     }
 
     #map { height: 100%; width: 100%;}
@@ -257,7 +316,6 @@ body.base-site{
     #banner { height: 100%; width: 100%; background: orange; }
 
     #tryitnow{
-        z-index: 2;
         background: yellow;
         width: 70px;
         height: 30px;
@@ -268,18 +326,7 @@ body.base-site{
     }
 
     #booking_container{
-        position: relative;
-        top: -50px;
-        width: $site-width;
         height: 240px;
-
-        -webkit-border-radius: 12px;
-        -moz-border-radius: 12px;
-        border-radius: 12px;
-
-        -webkit-box-shadow: 0px 0px 6px 0px #747474;
-        -moz-box-shadow: 0px 0px 6px 0px #747474;
-        box-shadow: 0px 0px 6px 0px #747474;
     }
 
     #order_form_container{
@@ -325,14 +372,25 @@ body.base-site{
             box-shadow:inset 0px 0px 1px black;
         }
         .address_input.from{
-            background: url(/static/images/wb_site/field_icons.png) 6px -3px no-repeat white;
-
+            background: url(/static/images/wb_site/field_icons.png) 6px -8px no-repeat white;
+        }
+        .address_input.from.resolved{
+            background: url(/static/images/wb_site/field_icons.png) 6px -89px no-repeat white;
         }
         .address_input.to{
-            background: url(/static/images/wb_site/field_icons.png) 6px -48px no-repeat white;
+            background: url(/static/images/wb_site/field_icons.png) 6px -50px no-repeat white;
+        }
+        .address_input.to.resolved{
+            background: url(/static/images/wb_site/field_icons.png) 6px -131px no-repeat white;
         }
         .address_input.time{
-            background: url(/static/images/wb_site/field_icons.png) 6px -93px no-repeat white;
+            background: url(/static/images/wb_site/field_icons.png) 6px -173px no-repeat white;
+        }
+        .address_input.time.depart{
+            background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat white;
+        }
+        .address_input.time.arrive{
+            background: url(/static/images/wb_site/field_icons.png) 6px -254px no-repeat white;
         }
     }
 
@@ -377,20 +435,24 @@ body.base-site{
             line-height: 45px;
         }
         .price{
-            font-size: $font-size-huge;
-            font-weight: bold;
             position: relative;
             left: 62px;
+            font-weight: bold;
+            .value{
+                font-size: $font-size-huge;
+            }
             .label{
                 font-size: 29.3px;
                 margin-left: 5px;
             }
         }
         .time{
-            font-size: $font-size-big;
             font-weight: bold;
             position: relative;
             left: 32px;
+            .value{
+                font-size: $font-size-big;
+            }
             .label{
                 font-size: $font-size-medium;
                 margin-left: 5px;
@@ -440,56 +502,154 @@ body.base-site{
 
     .tooltip {
         display: none;
-        background: transparent url(/static/images/jquery_tools/white_arrow_big.png);
-        font-size: 12px;
-        height: 166px;
-        width: 320px;
-        padding: 25px;
+        background: transparent url(/static/images/wb_site/tooltip.png);
+        height: 238px;
+        width: 434px;
     }
 
-    .tooltip h2{ text-decoration: underline;}
-
-    #select_input_helper .content_container{ position: relative; top: 18px; width: 80%;}
-    #select_input_helper #sel_hotspot {float: left;left: 50px;position: relative; color: #174599;}
-    #select_input_helper #sel_address {float: right; border-left: 1px solid; padding-left: 20px; color: #174599;}
-    #select_input_helper .link:hover { text-decoration: underline;}
-    #select_input_helper .img { display: block; height:24px; width: 24px; background: transparent url(/static/images/add_24.png); position: relative; left: 24px; bottom: 5px;}
-
-
-    #hotspot_input_helper label {display:block;margin: 15px;}
-
-    #address_input_helper label {margin-bottom: 15px;margin-left: 10px;}
-    #address_input_helper label.city{display: block;}
-    #address_input_helper #id_house_number{ width: 25px;}
-    #address_input_helper #id_street_address{ width: 150px;}
-    #address_input_helper .hn_error {position:absolute; left: 285px; color: red;bottom: 81px;}
-
-    #datetime_input_helper #time_radio{ float: left; }
-    #datetime_input_helper #time_radio label{ display: block; margin-bottom: 15px; }
-    #datetime_input_helper #time_tools{ float: right; position: relative; top: 15px; right: 25px;}
-    #datetime_input_helper #id_hotspot_datepicker{ width: 80px; }
-
-    .tooltip_footer{
-        position: absolute;
-        bottom: 40px;
-        width: 334px;
-        /*background-color: #EDEDED;*/
-        height: 30px;
-        left: 17px;
-    }
-
-    .tooltip_footer .next_btn{ float: right; position: relative; bottom: 5px; right: 10px;}
-    .tooltip_footer .help, .tooltip_footer a{position:relative; left: 17px; top: 1px;}
-    .tooltip_footer .ui-button-text{ padding: 5px; }
-
-    .tooltip_loader {
-        display: none;
-        background: url(../images/loader1.gif) left 0 no-repeat;
-        height: 24px;
-        width: 24px;
+    .tooltip-content {
         position: relative;
-        left: 250px;
-        bottom: 18px;
+        top: 16px;
+        left: 32px;
+        height: 158px;
+        width: 339px;
+        padding: 20px;
+        .header{
+            position: relative;
+            top: -6px;
+            left: -7px;
+            padding-left: 27px;
+            height: 24px;
+            line-height: 20px;
+            font-size: $font-size-medium;
+            /*font-weight: bold;*/
+        }
+        .header.pickup{
+            background: url(/static/images/wb_site/field_icons.png) 0 -96px no-repeat;
+        }
+        .header.dropoff{
+            background: url(/static/images/wb_site/field_icons.png) 0 -136px no-repeat;
+        }
+        .header.datetime{
+            background: url(/static/images/wb_site/field_icons.png) 0 -176px no-repeat;
+        }
+        .content{
+            height: 75px;
+            width: 339px;
+            margin-top: 9px;
+            margin-bottom: 18px;
+            input: {padding: 2px;}
+            select{ height: 30px; }
+        }
+        .footer{
+            border-top: 1px solid $light-gray;
+            padding-top: 17px;
+            .help{
+                font-size: $font-size-small;
+                position: relative;
+                float: left;
+                line-height: 25px;
+                height: 33px;
+            }
+            .next_btn{
+                float: right; width: 79px; height: 29px;
+                position: relative; bottom: 6px; right: -2px;
+            }
+            .ui-button-text{ padding: 5px; }
+        }
+    }
+
+    #select_input_helper{
+        #sel_address {float: left; position: relative; left: 50px;}
+        #sel_hotspot {float: right; border-left: 1px solid $light-gray ; padding-left: 35px; position: relative; right: 62px; height: 76px;}
+        .img { display: block; height:42px; width: 42px; position: relative; left: 20px; top: 8px;}
+        #sel_address .img{ background: transparent url(/static/images/wb_site/addresshotsopt_42.png) left 5px no-repeat; }
+        #sel_hotspot .img{ background: transparent url(/static/images/wb_site/addresshotsopt_42.png) 1px -43px no-repeat; }
+        .wb_link{position: relative; top: 21px; left: -1px;}
+        .help{
+            color: $color-gray;
+            left: 8px;
+            top: 3px;
+            height: 22px;
+            line-height: 15px;
+        }
+    }
+
+    #hotspot_input_helper, #address_input_helper{
+        label div{ float: left;}
+        label.city div{
+            position: relative;
+            top: 5px;
+        }
+        select{ float: right; }
+    }
+
+    #hotspot_input_helper{
+        label.hotspot{
+            display: block;
+            position: relative;
+            top: 17px;
+        }
+        label.hotspot div{
+            position: relative;
+            top: 23px;
+        }
+        select{
+            width: 240px;
+        }
+        .footer{
+            .help{
+                padding-left: 25px;
+                background: transparent url(/static/images/wb_site/addresshotsopt_25.png) -3px -2px no-repeat;
+            }
+        }
+    }
+
+    #address_input_helper{
+        label {display: block}
+        .label{position: relative; left: -5px}
+        #id_city{
+            width: 263px;
+        }
+        label.street_address{
+            position: relative; top: 16px;
+            .label{ top: 9px }
+        }
+
+        .container {float: right }
+        input{ display: block; height: 24px; }
+        #id_house_number{ width: 69px; margin-left: 8px}
+        #id_street_address{ width: 178px;}
+        .err { color: red }
+        .hn_error{ margin-left: 8px;}
+        .footer{
+            .help{
+                padding-left: 32px;
+                background: transparent url(/static/images/wb_site/addresshotsopt_25.png) 0 -35px no-repeat;
+            }
+        }
+
+        .tooltip_loader {
+            display: none;
+            background: url(../images/wb_site/loader16.gif) left 0 no-repeat;
+            height: 16px;
+            width: 16px;
+            position: relative;
+            left: 236px;
+            bottom: -2px;
+        }
+    }
+
+    #datetime_input_helper{
+        #time_radio{ float: left; position: relative; left: -7px; top: 3px;}
+        #time_tools{ float: right; position: relative;}
+        #time_tools.depart { top: -7px; }
+        #time_tools.arrive { top: 43px; }
+        label {display: block; margin-bottom: 30px;}
+        #id_hotspot_datepicker{ width: 80px; }
+        .img{ height: 28px; width: 30px; display: inline-block; position: relative; top: 5px;}
+        .img.depart{ background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat; }
+        .img.arrive{ background: url(/static/images/wb_site/field_icons.png) 6px -254px no-repeat; }
     }
 
 } // HOME

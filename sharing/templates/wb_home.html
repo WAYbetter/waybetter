@@ -28,9 +28,9 @@
                     {% trans "To" %}
                 </div>
 
-                <div id="datetime_input" class="address_input time">
-                    <span class="type">{% trans "Departure" %}</span>
-                    <span class="value"></span>
+                <div id="datetime_input" class="address_input time" type="datetime_input">
+                    <span class="type">{% trans "Time" %}</span>
+                    <span id="datetime_value"></span>
                 </div>
 
                 <div id="switch" class="clickable"></div>
@@ -43,11 +43,11 @@
                 <ul>
                     <li>
                         {% trans "Ride Price" %}
-                        <span class="price" id="private_price">40<span class="label">₪</span></span>
+                        <span class="price" id="private_price"><span class="value">40</span><span class="label">₪</span></span>
                     </li>
                     <li>
                         {% trans "Est. Ride Duration" %}
-                        <span class="time" id="private_time">16<span class="label">MIN</span></span>
+                        <span class="time" id="private_time"><span class="value">16</span><span class="label">MIN</span></span>
                     </li>
                 </ul>
                 <button class="order_button blue" id="book_private">{% trans 'Book Ride' %}</button>
@@ -60,11 +60,11 @@
                 <ul>
                     <li>
                         {% trans "Ride Price" %}
-                        <span class="price" id="sharing_price">18<span class="label">₪</span></span>
+                        <span class="price" id="sharing_price"><span class="value">18</span><span class="label">₪</span></span>
                     </li>
                     <li>
                         {% trans "Est. Ride Duration" %}
-                        <span class="time" id="sharing_time">20<span class="label">MIN</span></span>
+                        <span class="time" id="sharing_time"><span class="value">20</span><span class="label">MIN</span></span>
                     </li>
                 </ul>
                 <button class="order_button orange" id="book_sharing">{% trans 'Book Ride' %}</button>
@@ -75,93 +75,91 @@
     <!-- anchor tips with changing content -->
     <div id="pickup_input_tip" class="tooltip"></div>
     <div id="dropoff_input_tip" class="tooltip"></div>
+    <div id="datetime_input_tip" class="tooltip"></div>
 
     <!-- hidden container to hold tooltips content -->
     <div id="tooltip_helpers_container" style="display:none;">
 
         <div id="select_input_helper" class="tooltip-content">
-            <div class="header_icon"></div>
-            <h2></h2>
-
-            <div class="content_container">
-                <div id="sel_hotspot" class="clickable">
-                    <span class="img"></span>
-                    <span class="link">{% trans "Select Hotspot" %}</span>
-                </div>
+            <div class="header"></div>
+            <div class="content">
                 <div id="sel_address" class="clickable">
                     <span class="img"></span>
-                    <span class="link">{% trans "Enter Address" %}</span>
+                    <span class="wb_link">{% trans "Enter Address" %}</span>
+                </div>
+                <div id="sel_hotspot" class="clickable">
+                    <span class="img"></span>
+                    <span class="wb_link">{% trans "Select Hotspot" %}</span>
                 </div>
                 <div class="clear"></div>
             </div>
-
-            <div class="tooltip_footer">
-                <a>{% trans "Help" %}</a>
+            <div class="footer">
+                <div class="help">{% trans "Note: Orders are only possible between TLV and Ramat Hachail." %}</div>
             </div>
         </div>
 
         <div id="hotspot_input_helper" class="tooltip-content">
-            <div class="header_icon"></div>
-            <h2></h2>
-            <label class="city">
-                {% trans "City" %}
-                <select id="id_hotspot_city" name="hotspot_city">
-                    {% for city in cities %}
-                        <option value="{{ city.id }}">{{ city.name }}</option>
-                    {% endfor %}
-{#                    <option disabled="disabled">חיפה</option>#}
-{#                    <option disabled="disabled">ירושלים</option>#}
-                </select>
-            </label>
-            <label class="hotspot">
-                {% trans "Hotspot" %}
-                <select id="id_hotspot_select" name="hotspot_id"></select>
-            </label>
-
-            <div class="tooltip_footer">
-                <a id="switch2address">{% trans "Switch to Address" %}</a>
-
+            <div class="header"></div>
+            <div class="content">
+                <label class="city">
+                    <div>{% trans "Select City" %}:</div>
+                    <select id="id_hotspot_city" name="hotspot_city">
+                        {% for city in cities %}
+                            <option value="{{ city.id }}">{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <label class="hotspot">
+                    <div>{% trans "Select HotSpot" %}:</div>
+                    <select id="id_hotspot_select" name="hotspot_id"></select>
+                </label>
+            </div>
+            <div class="footer">
+                <div class="help wb_link" id="switch2address">{% trans 'Switch to "Enter Address"' %}</div>
                 <div class="next_btn"></div>
             </div>
         </div>
 
         <div id="address_input_helper" class="tooltip-content">
-            <div class="header_icon"></div>
-            <h2></h2>
-            <label class="city">
-                {% trans "City" %}
-                <select id="id_city" name="id_city">
-                    {% for city in cities %}
-                        <option value="{{ city.id }}">{{ city.name }}</option>
-                    {% endfor %}
-                </select>
-            </label>
-            <label class="street_address">
-                {% trans "Address" %}
-                <input type="text" id="id_street_address" name="street_address"/>
-                <span class="address_error"></span>
-            </label>
-            <label>
-                {% trans "House #" %}
-                <input type="text" id="id_house_number" name="house_number"/>
-                <span class="hn_error"></span>
-            </label>
+            <div class="header"></div>
+            <div class="content">
+                <label class="city">
+                    <div class="label">{% trans "Select City" %}:</div>
+                    <select id="id_city" name="id_city">
+                        {% for city in cities %}
+                            <option value="{{ city.id }}">{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
+                </label>
+                <div class="clear"></div>
+                <label class="street_address">
+                    <div class="label">{% trans "Address" %}:</div>
+                    <div class="container">
+                        <div>
+                            <input type="text" id="id_street_address" name="street_address"/>
+                            <div class="err address_error"></div>
+                        </div>
+                        <div>
+                            <input type="text" id="id_house_number" name="house_number"/>
+                            <div class="err hn_error"></div>
+                        </div>
+                    </div>
+                </label>
+            </div>
 
-            <div class="tooltip_footer">
-                <a id="switch2hotspot">{% trans "Switch to Hotspot" %}</a>
-
+            <div class="footer">
+                <div class="help wb_link" id="switch2hotspot">{% trans 'Switch to "Select HotSpot"' %}</div>
                 <div class="next_btn"></div>
                 <div class="tooltip_loader"></div>
             </div>
         </div>
 
         <div id="datetime_input_helper" class="tooltip-content">
-            <div class="header_icon"></div>
-            <h2>{% trans "Define Time" %}</h2>
+            <div class="header datetime">>{% trans "Set Time" %}</div>
             <div class="content">
                 <div id="time_radio">
                     <label>
-                        <input id="pickup_time" type="radio" name="datetime_type"/>
+                        <input id="pickup_time" type="radio" name="datetime_type" checked="checked"/>
                         {% trans "Pickup Time" %}
                     </label>
                     <label>
@@ -169,17 +167,16 @@
                         {% trans "Dropoff Time" %}
                     </label>
                 </div>
-
-                <div id="time_tools">
-                    <input type="text" id="id_hotspot_datepicker" name="hotspot_date"> @
+                <div id="time_tools" class="depart">
+                    <div class="img depart"></div>
+                    <input type="text" id="id_hotspot_datepicker" name="hotspot_date" class="depart"> @
                     <select id="id_hotspot_time" name="hotspot_time"></select>
                 </div>
 
                 <div class="clear"></div>
             </div>
-            <div class="tooltip_footer">
-                <span class="help">{% trans "*Times may vary due to traffic and stuff..." %}</span>
-
+            <div class="footer">
+                <div class="help">{% trans "*Times may vary due to traffic and stuff..." %}</div>
                 <div class="next_btn"></div>
             </div>
         </div>
@@ -192,15 +189,15 @@
     <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
     <script type="text/javascript">
 
-        var PICKUP = "pickup",
-                DROPOFF = "dropoff",
-                hotspot_type = PICKUP,
-                address_lat = undefined,
-                address_lon = undefined,
-                select_input_resolved = false,
-                hotspot_resolved = false,
-                address_resolved = false,
-                datetime_resolved = false;
+    var PICKUP = "pickup",
+        DROPOFF = "dropoff",
+        hotspot_type = PICKUP,
+        address_lat = undefined,
+        address_lon = undefined,
+        select_input_resolved = false,
+        hotspot_resolved = false,
+        address_resolved = false,
+        datetime_resolved = false;
 
 
         function getAddressType(element) {
@@ -214,7 +211,12 @@
                 id = $element.parents(".tooltip").attr("id");
             }
 
-            return (id.split("_")[0] == PICKUP) ? PICKUP : DROPOFF;
+            if (id) {
+                return (id.split("_")[0] == PICKUP) ? PICKUP : DROPOFF;
+            }
+            else{
+                return undefined;
+            }
         }
 
         function getAddressInput(element){
@@ -228,7 +230,7 @@
             }
             catch (e){}
 
-            $("[type='address_input']").each(function() {
+            $("[type='address_input'], [type='datetime_input']").each(function() {
                 var api = $(this).data("tooltip");
                 if (api) {
                     if (exclude == api.getTip()) {
@@ -242,7 +244,6 @@
         }
 
         function openTooltipHelper(trigger, helper_type) {
-            var trigger_type = getAddressType(trigger);
             var $helper = $("#" + helper_type + "_input_helper");
 
             // restore last saved values
@@ -254,14 +255,12 @@
 
             // helper specific stuff
             if (helper_type == "datetime") {
-                $("#" + trigger_type + "_input_tip").addClass("datetime");
-                $("#datetime_input_helper").find("#" + trigger_type + "_time").attr("checked", "checked");
-                $helper.find("h2").text("{% trans "Define Time" %}");
+                $helper.find(".header").text("{% trans "Define Time" %}");
                 getHotspotTimes();
             }else{
-                $("#" + trigger_type + "_input_tip").removeClass("datetime");
-                var hdr_txt = (trigger_type == PICKUP) ? "{% trans "Your Pickup" %}" : "{% trans "Your Dropoff" %}";
-                $helper.find("h2").text(hdr_txt);
+                var address_type = getAddressType(trigger);
+                var hdr_txt = (address_type == PICKUP) ? "{% trans "Your Pickup" %}" : "{% trans "Your Dropoff" %}";
+                $helper.find(".header").text(hdr_txt).removeClass(PICKUP + " " + DROPOFF).addClass(address_type);
             }
 
             // set button text
@@ -294,6 +293,7 @@
                 openTooltipHelper(here, "select");
             }
             else {
+                $(here).addClass("resolved");
                 $("#banner").hide();
                 $.getScript("http://api.navigator.telmap.com/maps/api/js?sensor=false", function success(data, textStatus) {
                     TelmapHelper.init({
@@ -311,7 +311,7 @@
                     }
                     else {
                         if (! datetime_resolved) {
-                            openTooltipHelper(here, "datetime");
+                            openTooltipHelper("#datetime_input", "datetime");
                         }
                         else { // all resolved
                             closeTooltips();
@@ -342,25 +342,23 @@
                     'time': $("#id_hotspot_time").val()
                 },
                 beforeSend: function() {
-                    $(".price, .time").text("{% trans "Updating..." %}");
+                    $(".price .value, .time .value").text("-");
                 },
                 success: function(response) {
                     if (response.sharing_price && response.sharing_time && response.private_price && response.private_time) {
-                        $("#sharing_price").text(response.sharing_price + "₪");
-                        $("#sharing_time").text(response.sharing_time + "{% trans "minutes" %}");
-                        $("#private_price").text(response.private_price + "₪");
-                        $("#private_time").text(response.private_time + "{% trans "minutes" %}");
-                        $(".order_button").button("enable");
-                        $("#ride_details_container").fadeIn("slow");
+                        $("#sharing_price .value").text(response.sharing_price);
+                        $("#sharing_time .value").text(response.sharing_time);
+                        $("#private_price .value").text(response.private_price);
+                        $("#private_time .value").text(response.private_time);
                         $(".order_button").enable();
                     } else {
-                        $(".price, .time").text("");
+                        $(".price .value, .time .value").text("");
                         alert("Error loading price");
                     }
                 },
                 error: function() {
                     alert("Error loading price");
-                    $(".price, .time").text("");
+                    $(".price .value, .time .value").text("");
                 }
             });
         }
@@ -388,10 +386,10 @@
                 url: "{% url sharing.passenger_controller.book_ride %}",
                 type: "POST",
                 beforeSend: function() {
-                    $("#order_button").button("disable");
+                    $("#order_button").disable();
                 },
                 complete: function() {
-                    $("#order_button").button("enable");
+                    $("#order_button").enable();
                 },
                 success: function(response) {
                     if (response.status && response.status == "booked") {
@@ -426,22 +424,25 @@
 
             var tooltip_conf = {
                 effect: 'slide',
+                position: 'top right',
+                offset: [-220, -300],
                 events: {
                     address_input: "click,",
+                    datetime_input: ",",
                     tooltip: "mouseenter,"
                 }
             };
 
             $("#pickup_input").tooltip($.extend({}, tooltip_conf, {tip: "#pickup_input_tip"}));
             $("#dropoff_input").tooltip($.extend({}, tooltip_conf, {tip: "#dropoff_input_tip"}));
+            $("#datetime_input").tooltip($.extend({}, tooltip_conf, {tip: "#datetime_input_tip"}));
 
             HotspotHelper.makeHotSpotSelector("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
             HotspotHelper.config.update_on_dateselect = false; // we trigger the update manually
 
-            AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number");
+            AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number", "#address_input_helper .tooltip_loader");
 
-//            $(".order_button").disable();
-//            $("#ride_details_container").hide();
+            $(".order_button").disable();
 
             $("html").click(function(e) {
                 var $target = $(e.target);
@@ -467,9 +468,14 @@
                 }
             });
 
-            $("[type='address_input'] .when").click(function(e) {
+            $("#datetime_input").click(function(e) {
                 e.stopPropagation();
-                openTooltipHelper(getAddressInput($(this).parent()), "datetime");
+                if (datetime_resolved) {
+                    openTooltipHelper($(this), "datetime");
+                }
+                else{
+                    openNextTooltip("#pickup_input", "#dropoff_input");
+                }
             });
 
             $("#tryitnow").click(function(){
@@ -506,6 +512,13 @@
 
             $("#pickup_time, #dropoff_time").change(function(){
                 getHotspotTimes();
+                var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF;
+                if (time_type == PICKUP) {
+                    $("#time_tools, #time_tools .img").removeClass("arrive").addClass("depart");
+                }
+                else {
+                    $("#time_tools, #time_tools .img").removeClass("depart").addClass("arrive");
+                }
             });
 
             $("#hotspot_input_helper .next_btn, #address_input_helper .next_btn").button().click(function(e) {
@@ -564,7 +577,21 @@
 
             $("#datetime_input_helper .next_btn").button().click(function() {
                 datetime_resolved = true;
-                $("#datetime_input").text($("#id_hotspot_datepicker").val() + " " + $("#id_hotspot_time").val());
+                $("#datetime_input_helper").find("input, select").each(function(i, el) {
+                    $(el).data("saved_val", $(el).val());
+                });
+
+                var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF;
+                if (time_type == PICKUP) {
+                    $("#datetime_input").removeClass("arrive").addClass("depart");
+                    $("#datetime_input .type").text("{% trans "Departure" %}");
+                }
+                else {
+                    $("#datetime_input").removeClass("depart").addClass("arrive");
+                    $("#datetime_input .type").text("{% trans "Arrival" %}");
+                }
+                $("#datetime_value").text($("#id_hotspot_datepicker").val() + " " + $("#id_hotspot_time").val());
+
                 closeTooltips();
                 showRideDetails();
             });
@@ -610,7 +637,6 @@
             $("#book_private").click(function() {
                 book_ride(true);
             });
-
         });
 
     </script>
