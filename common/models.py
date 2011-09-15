@@ -1,4 +1,5 @@
 import types
+from google.appengine.ext import db
 from common.errors import TransactionError
 from common.tz_support import UTCDateTimeField
 from common.util import Polygon
@@ -201,3 +202,18 @@ class CityArea(BaseModel):
         return self.polygon.contains(lat, lon)
     
 CityArea = order_relative_to_field(CityArea, 'city')
+
+class Counter(BaseModel):
+    name = models.CharField(max_length=50)
+    value = models.IntegerField(default=1)
+
+    @classmethod
+    def get_next(cls, name):
+        counter, created = cls.objects.get_or_create(name=name)
+        def increment(id):
+            c = cls.objects.get(id=id)
+            c.value += 1
+            c.save()
+            return c.value
+
+        return db.run_in_transaction(increment, counter.id)

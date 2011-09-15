@@ -77,6 +77,9 @@ class StopType(Enum):
     PICKUP  = 0
     DROPOFF = 1
 
+class OrderType(Enum):
+    PRIVATE     = 1
+    SHARED      = 2
 
 class Station(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
@@ -487,6 +490,8 @@ class Passenger(BaseModel):
 
     session_keys = ListField(models.CharField(max_length=32)) # session is identified by a 32-character hash
 
+    invoice_id = models.IntegerField(_("invoice id"), null=True, blank=True, unique=True)
+
     @property
     def name(self):
         try:
@@ -790,6 +795,8 @@ class Order(BaseModel):
     # this field holds the data as typed by the user
     to_raw = models.CharField(_("to address"), max_length=50, null=True, blank=True)
 
+    type = models.IntegerField(choices=OrderType.choices() ,default=OrderType.PRIVATE)
+
     # pickmeapp fields
     pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)
     future_pickup = models.BooleanField(_("future pickup"), default=False)
@@ -809,6 +816,20 @@ class Order(BaseModel):
     passenger_id = models.IntegerField(_("passenger id"), null=True, blank=True)
 
     api_user = models.ForeignKey(APIUser, verbose_name=_("api user"), related_name="orders", null=True, blank=True)
+
+    @property
+    def invoice_description(self):
+        if self.type == OrderType.PRIVATE:
+            type = _("private")
+        else:
+            type = _("shared")
+
+        return _('%(date)s: %(type)s ride from %(pickup)s to %(dropoff)s') % {
+            "type"      : type,
+            "pickup"    : self.from_raw,
+            "dropoff"   : self.to_raw,
+            "date"      : self.depart_time_format()
+        }
 
     def save(self, *args, **kwargs):
         if not is_in_transaction():
