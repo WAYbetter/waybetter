@@ -17,3 +17,9 @@ cron:
   url: /services/ws_heartbeat/
   schedule: every 30 seconds
   target: sharing
+
+- description: send invoices to passengers
+  url: /billing/send_invoices/
+  schedule: 1 of month 08:00
+  target: sharing
+

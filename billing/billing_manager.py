@@ -1,12 +1,8 @@
 from datetime import datetime
 import logging
 from google.appengine.api.urlfetch import fetch
-from billing.enums import BillingStatus
-from billing.models import BillingTransaction
-from common.util import get_unique_id, custom_render_to_response
+from common.util import get_unique_id
 from django.conf import settings
-from django.template.context import RequestContext
-from ordering.decorators import passenger_required_no_redirect
 
 TRANSACTION_URL = "https://cgmpiuat.creditguard.co.il/CGMPI_Server/CreateTransactionExtended"
 ALL_QUERY_FIELDS = {

@@ -1,17 +1,17 @@
 # Create your views here.
-from datetime import  date
+from datetime import  date, datetime
 import logging
 import csv
 from billing import billing_backend
+from billing.billing_backend import create_invoices
 from billing.enums import BillingStatus, BillingAction
+from common.tz_support import default_tz_now
 from common.util import custom_render_to_response
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from billing.models import BillingForm, InvalidOperationError, BillingTransaction, BillingInfo
 from common.decorators import require_parameters, internal_task_on_queue, catch_view_exceptions
 from django.http import HttpResponse, HttpResponseRedirect
-from billing.billing_manager import get_transaction_id
-from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, passenger_required
@@ -78,7 +78,7 @@ def bill_order(request, trx_id, passenger):
 
 def transaction_error(request):
 
-    #report error
+    #TODO: report error
     logging.info(request)
 
     return HttpResponse("\n".join([ "%s = %s" % t for t in request.GET.items()]))
@@ -92,31 +92,30 @@ def get_trx_status(request, passenger):
         return JSONResponse(BillingStatus.get_name(trx.status))
 
     return JSONResponse("")
-def get_invoices_csv(request):
 
-    response = HttpResponse(mimetype='text/csv')
-    response['Content-Disposition'] = 'attachment; filename=invoices.csv'
-    s = ""
-    s.encode()
-#    response = HttpResponse()
-    writer = csv.writer(response)
-    writer.writerow(["Credit Number","Expiry Date","CVV","Amount","Customer Name","Subject","ItemDescription","MailTo","CompanyInfo","CompanyCode","IdNumber"])
-    for bt in BillingTransaction.objects.filter(status=BillingStatus.CHARGED):
-        row = ["", "1", "",
-               str(bt.amount),
-               bt.dn_passenger_name,
-               "WAYbetter Invoice",
-               "Ride from %s, to %s" % (bt.dn_pickup, bt.dn_dropoff),
-               bt.passenger.user.email,
-               bt.passenger.user.username,
-               "",
-               ""]
+def send_invoices(request, month=None):
+    import calendar
+    import itertools
+    now = default_tz_now()
+    month = month or now.month - 1
+    start_date = datetime(year=now.year, month=month, day=1, hour=0, minute=0, second=0, microsecond=0, tzinfo=now.tzinfo)
+    end_date = datetime(year=now.year,
+                        month=month,
+                        day=calendar.monthrange(now.year, month)[1],
+                        hour=23,
+                        minute=59,
+                        second=59,
+                        microsecond=9999,
+                        tzinfo=now.tzinfo)
 
-        encoded_row = [s.encode("iso8859_8") for s in row]
-        writer.writerow(encoded_row)
-    
-    return response
+    qs = BillingTransaction.objects.filter(create_date__gte=start_date, create_date__lte=end_date, status=BillingStatus.CHARGED)
+    data = sorted(qs, key=lambda trx: trx.passenger_id) # in memory sort since DataStore can only sort on filtering property
 
+    for p, g in itertools.groupby(data, lambda trx: trx.passenger_id):
+        logging.info("Creating invoices for %d for month %d" % (p, month))
+        create_invoices(sorted(list(g), key=lambda trx: trx.order.create_date))
+
+    return HttpResponse("OK")
 
 def get_csv(request):
     if request.GET.get("format") == "screen":

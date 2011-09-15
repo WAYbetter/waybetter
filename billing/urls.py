@@ -9,6 +9,10 @@ urlpatterns = patterns('',
     url(r'bill_order/(?P<trx_id>\d+)/$', 'billing.views.bill_order', name="bill_order"),
     (r'/tasks/billing/$', 'billing.views.billing_task'),
 
+
+
+    (r'send_invoices/$', 'billing.views.send_invoices'),
+
 )
 
  
