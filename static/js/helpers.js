@@ -177,11 +177,18 @@ var AddressHelper = Object.create({
         this.config = $.extend(true, {}, this.config, config);
     },
 
-    makeStructuredAddressInput: function(city_selector, street_input, hn_input) {
+    makeStructuredAddressInput: function(city_selector, street_input, hn_input, loader) {
         var that = this,
             $street_input = $(street_input),
-            $hn_input = $(hn_input);
+            $hn_input = $(hn_input),
+            $loader = $(loader);
 
+        function _beforeSend(){
+            $loader.show();
+        }
+        function _complete(){
+            $loader.hide();
+        }
         $street_input.data("resolved", false);
         $street_input.autocomplete({
             autoFocus: true,
@@ -191,6 +198,8 @@ var AddressHelper = Object.create({
                     url: that.config.urls.structured_resolve_url,
                     data: {"city_id": $(city_selector).val(), "street": $street_input.val(), "house_number": $hn_input.val()},
                     dataType: "json",
+                    beforeSend: _beforeSend,
+                    complete: _complete,
                     success: function(data) {
                         response($.map(data.geocoding_results, function(item) {
                             return {

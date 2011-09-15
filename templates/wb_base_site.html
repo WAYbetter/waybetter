@@ -29,11 +29,34 @@
         <div class="clear"></div>
 
         <div id="content-container" class="{% block mainclass %}{% endblock %}">
-            {% block pre_content %}
-            {% endblock %}
+
+            {% block pre_content %}{% endblock %}
 
             <div id="site-content">
                 {% block content %}{% endblock content %}
+            </div>
+        
+            <div id="wb_values">
+                <div class="value service">
+                    <span class="header">{% trans "Service" %}</span>
+                    variables as well as basic math operations and many useful functions.
+                    <a class="more wb_link">{% trans "Learn More" %}</a>
+                </div>
+                <div class="value community">
+                    <span class="header">{% trans "Community" %}</span>
+                    variables as well as basic math operations and many useful functions.
+                    <a class="more wb_link">{% trans "Learn More" %}</a>
+                </div>
+                <div class="value env">
+                    <span class="header">{% trans "Environment" %}</span>
+                    variables as well as basic math operations and many useful functions.
+                    <a class="more wb_link">{% trans "Learn More" %}</a>
+                </div>
+                <div class="value eff">
+                    <span class="header">{% trans "Efficiency" %}</span>
+                    variables as well as basic math operations and many useful functions.
+                    <a class="more wb_link">{% trans "Learn More" %}</a>
+                </div>
             </div>
         </div>
 
@@ -88,7 +111,8 @@
 {% endblock %}
 
 {% block doc_ready %}
-    <script type="text/javascript" src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
+    <script type="text/javascript"
+            src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
 
     {{ block.super }}
     <!-- scripts concatenated and minified via ant build script-->
