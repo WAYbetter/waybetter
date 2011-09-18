@@ -351,6 +351,7 @@ class WorkStation(BaseModel):
     installer_url = models.URLField(_("installer URL"), verify_exists=False, max_length=500, null=True, blank=True)
     was_installed = models.BooleanField(_("was installed"), default=False)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
+    accept_shared_rides = models.BooleanField(_("Accept Shared Rides"), default=False)
 
     last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
                                             default=datetime.datetime(1, 1, 1))
