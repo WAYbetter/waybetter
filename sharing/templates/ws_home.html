@@ -49,13 +49,15 @@
     var maximize_label = "{% trans 'Show List' %}";
     var online_label = "{% trans 'Online Status: OK' %}";
     var offline_label = "{% trans 'Online Status: ERROR' %}";
-    var is_minimized = false;
+    var is_minimized = true;
+    var is_online = false;
     var minimize_nag_interval = 30; // seconds
     var hearbeat_check_interval = 30 * 1000; // 30 seconds
     var taken = 0;
     var untaken = 0;
     var current_version = "{{ current_version }}";
     var last_heartbeat = new Date();
+    var exit_app_seq = false;
 
     {% autoescape off %}
         var rides_data = {{ rides_data }};
@@ -67,6 +69,7 @@
     {% endautoescape %}
 
     onError = function (XMLHttpRequest, textStatus, errorThrown) {
+        set_online(false);
         is_in_error = true;
         if (XMLHttpRequest) {
             last_error_text = XMLHttpRequest.responseText;
@@ -89,12 +92,10 @@
         channel = new goog.appengine.Channel(token);
         socket = channel.open();
         socket.onerror = function() {
-            set_online(false);
             trace("channel error");
             onError();
         };
         socket.onclose = function() {
-            set_online(false);
             trace("channel closed");
             onError()
         };
@@ -119,6 +120,7 @@
                     if ($("#ride_header_" + data.id + ", #ride_div_" + data.id).length < 2) { // render if data (ride) is new or rendered incorrectly
                         $("#ride_header_" + data.id + ", #ride_div_" + data.id).remove();
                         renderRide(data);
+                        air("play_notification_sound");
                     }
                 }
             } catch (e) {
@@ -150,17 +152,21 @@
     set_online = function(online) {
         var $online_status = $("#online_status"),
                 $loader = $("#loader"),
+                $content = $("#ride_accordion_container"),
                 $header = $("#header");
 
+        is_online = online;
         if (online) {
             $online_status.addClass("online").removeClass("offline");
             $online_status.text(online_label);
             $loader.hide();
-            $header.show();
+            $header.add($content).show();
+            updateCounters();
         } else {
+            air("minimize");
             $online_status.addClass("offline").removeClass("online");
             $online_status.text(offline_label);
-            $header.hide();
+            $header.add($content).hide();
             $loader.show();
         }
     };
@@ -221,13 +227,13 @@
                             populateTaxis();
                         }
                     } catch (e) {
-                        trace(e);
+                        trace("error in populateTaxis" + e);
                         onError();
                     }
                 }
             });
         } catch (e) {
-            trace(e);
+            trace("error in getTaxiDriverData" + e);
             onError();
         }
 
@@ -240,20 +246,26 @@
         $table.append("<tr class='spacer'><td colspan=3 class='table_header'>{% trans 'Pickups' %}</td></tr>"); // spacer
 
         $.each(ride.pickups, function(i, p) {
-            var $row = $("<tr class='dropoff'><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + " (" + p.passenger_phones.join() + ")</td></tr>");
-            $table.append($row);
+            $table.append(renderPointRow(p));
         });
 
         $table.append("<tr class='spacer'><td colspan=3></td></tr>"); // spacer
         $table.append("<tr class='spacer'><td colspan=3 class='table_header'>{% trans 'Dropoffs' %}</td></tr>"); // spacer
 
         $.each(ride.dropoffs, function(i, p) {
-            var $row = $("<tr class='dropoff'><td>" + p.time + "</td><td>" + p.address + "</td><td>" + p.num_passengers + "</td></tr>");
-            $table.append($row);
+            $table.append(renderPointRow(p));
         });
 
-
         return $table;
+    };
+
+    renderPointRow = function(point_data) {
+        var row_content = "<tr class='dropoff'><td>" + point_data.time + "</td><td>" + point_data.address + "</td><td>" + point_data.num_passengers;
+        if (point_data.num_passengers == 1) {
+            row_content += " (" + point_data.passenger_phones[0] + ")"
+        }
+        row_content += "</td></tr>";
+        return $(row_content);
     };
 
     renderInfo = function(ride) {
@@ -318,7 +330,7 @@
                                 try {
                                     acceptRide(response.ride);
                                 } catch (e) {
-                                    trace(e);
+                                    trace("error in acceptRide" + e);
                                     onError();
                                 }
                             },
@@ -394,7 +406,7 @@
             $accordion.prepend($ride_header, $ride_div);
         }
 
-        $accordion.accordion("destroy").accordion({ active: $("[id^=ride_header_]").index($active_header) });
+        $accordion.accordion("destroy").accordion({ autoHeight: false, active: $("[id^=ride_header_]").index($active_header) });
         // install timer
         $("#ride_header_" + ride.id).oneTime(Math.max(ride.depart_time - new Date(), 0), function() {
             if ($(this).data("status") == {{ assigned }}) {
@@ -499,12 +511,14 @@
                 $("#taken_counter").text(--taken);
 
         }
-        if (taken + untaken > 0) {
-            maximize();
-            $("#expand_collapse_button").enable()
-        } else {
-            minimize();
-            $("#expand_collapse_button").disable()
+        if (is_online) {
+            if (taken + untaken > 0) {
+                maximize();
+                $("#expand_collapse_button").enable()
+            } else {
+                minimize();
+                $("#expand_collapse_button").disable()
+            }
         }
     };
 
@@ -554,6 +568,8 @@
     };
 
     init = function() {
+        set_online(false);
+
         $("#tools_button").button().click(function(e) {
             var win = window.open("{% url sharing.station_controller.station_tools %}", "station_tools", "width=800,height=600,resizable=0,scrollbars=1");
             var offset = 10;
@@ -604,6 +620,19 @@
         $("#expand_collapse_button").text(minimize_label).button().click(toggleExpandCollapse);
 
         $("#untaken_counter, #taken_counter").text(0);
+        $("#untaken_counter").dblclick(function(e) {
+            exit_app_seq = true;
+            $(document).oneTime("5s", function() {
+                exit_app_seq = false;
+            })
+        });
+        $("#taken_counter").dblclick(function(e) {
+            if (exit_app_seq) {
+                trace("exiting app");
+                air("exit_app", true)
+            }
+        });
+
 
         $.each(rides_data, function(i, ride) {
             renderRide(ride);
@@ -616,9 +645,9 @@
             }
         });
 
-        updateCounters();
         air("set_app_loaded", true);
         air("set_visible", true);
+        updateCounters();
         setupChannel(init_token);
         setupHearbeatCheck();
     };
@@ -627,7 +656,7 @@
         try {
             init();
         } catch (e) {
-            trace(e);
+            trace("error in init(): " + e);
             onError();
         }
     });

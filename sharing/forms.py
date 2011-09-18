@@ -53,7 +53,7 @@ class PassengerRegistrationForm(forms.Form):
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput(), required=True)
     re_password = forms.CharField(label=_("Re-Password"), widget=forms.PasswordInput(), required=True)
     agree_to_terms = forms.BooleanField(label=_("I agree to the Terms Of Use and Privacy Statement"), required=True)
-    order_id = forms.IntegerField(widget=forms.HiddenInput())
+    order_id = forms.IntegerField(widget=forms.HiddenInput(), required=False)
 
     class Ajax:
         rules = [('re_password', {'equal_to_field': 'password'})]
