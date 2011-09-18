@@ -159,6 +159,7 @@ def create_orders_from_hotspot(data, hotspot_type, point_type, is_textinput):
                     price = hotspot.get_price(order.to_lat, order.to_lon, hotspot_datetime.date(), hotspot_datetime.time())
                 else:
                     order.arrive_time = hotspot_datetime
+                    order.depart_time = hotspot_datetime
                     price = hotspot.get_price(order.from_lat, order.from_lon, hotspot_datetime.date(), hotspot_datetime.time())
 
                 passenger = data['passenger']
