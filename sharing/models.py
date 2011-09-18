@@ -80,7 +80,10 @@ class HotSpot(BaseModel):
                     next = datetime.combine(day, times[0])
                     break
 
-        return next.replace(tzinfo=base_time.tzinfo)
+        if next:
+            next = next.replace(tzinfo=base_time.tzinfo)
+
+        return next
 
 
     def get_times(self, day=None, start_time=None, end_time=None, offset=0):

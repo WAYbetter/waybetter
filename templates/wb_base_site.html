@@ -17,7 +17,19 @@
                         <li>{% trans "Community" %}</li>
                         <li>{% trans "Help" %}</li>
                         <li>{% trans "About" %}</li>
-                        <li>{% trans "Log-in" %}</li>
+                        <li>
+                            {% if request.user.is_authenticated %}
+                                {% trans 'Hi' %}
+                                    {% if request.user.first_name %}
+                                        {{ request.user.first_name }}
+                                    {% else %}
+                                        {{ request.user.username }}
+                                    {% endif %}
+                                    ! | <a class="wb_link" href="{% url auth_logout %}">{% trans 'Log out' %}</a>
+                            {% else %}
+                                <a class="wb_link" href="{% url auth_login %}">{% trans "Log-in" %}</a>
+                            {% endif %}
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -35,7 +47,7 @@
             <div id="site-content">
                 {% block content %}{% endblock content %}
             </div>
-        
+
             <div id="wb_values">
                 <div class="value service">
                     <span class="header">{% trans "Service" %}</span>

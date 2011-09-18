@@ -26,6 +26,10 @@ body{
     font-weight: bold;
 }
 
+a:hover{
+    text-decoration: none;
+}
+
 .clear {
     clear: both;
     height: 0;
@@ -202,10 +206,6 @@ body.base-site{
         ul{
             float: right;
         }
-        ul li:hover{
-            text-decoration: underline;
-            cursor: pointer;
-        }
     }
 }
 
@@ -221,6 +221,7 @@ body.base-site{
         width: $site-width;
         margin: 0 auto 50px auto;
         background: white;
+        padding: 25px;
         -webkit-border-radius: 12px;
         -moz-border-radius: 12px;
         border-radius: 12px;
@@ -305,6 +306,7 @@ body.base-site{
         position: relative;
         top: -50px;
         margin-bottom: 0;
+        padding: 0;
     }
 
     #map_container {
@@ -318,12 +320,11 @@ body.base-site{
 
     #tryitnow{
         background: yellow;
-        width: 70px;
-        height: 30px;
-        border: 1px solid;
+        width: 72px;
         position: relative;
         top: 140px;
         left: 1040px;
+        font-weight: bold;
     }
 
     #booking_container{
@@ -675,7 +676,7 @@ body.base-site{
         margin-right: 10px;
     }
 
-    #site-content{ padding: 25px; }
+    #site-content{  }
     #registration_details{
         border-top: 1px solid $light-gray;
         border-bottom: 1px solid $light-gray;

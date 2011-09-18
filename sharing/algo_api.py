@@ -16,7 +16,7 @@ import settings
 SHARING_ENGINE_DOMAIN = "http://waybetter-route-service2.appspot.com"
 SHARING_ENGINE_URL = "/".join([SHARING_ENGINE_DOMAIN, "routeservicega1"])
 PRE_FETCHING_URL = "/".join([SHARING_ENGINE_DOMAIN, "prefetch"])
-WEB_APP_URL = "http://sharing.latest.waybetter-app.appspot.com/"
+WEB_APP_URL = "http://dev.latest.waybetter-app.appspot.com/"
 
 def submit_to_prefetch(order, key, address_type):
     payload = urllib.urlencode({'id': key,

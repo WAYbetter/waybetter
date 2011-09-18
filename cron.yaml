@@ -8,18 +8,22 @@ cron:
   schedule: every 2 minutes
   target: sharing
 
+- description: keep alive dev
+  url: /
+  schedule: every 2 minutes
+  target: dev
+
 - description: test routing service
   url: /common/maintenance/routing_service_test
   schedule: every 5 minutes
-  target: sharing
+  target: dev
 
 - description: send workstation heartbeat
   url: /services/ws_heartbeat/
-  schedule: every 30 seconds
-  target: sharing
+  schedule: every 1 minutes
+  target: dev
 
 - description: send invoices to passengers
   url: /billing/send_invoices/
   schedule: 1 of month 08:00
-  target: sharing
-
+  target: dev
