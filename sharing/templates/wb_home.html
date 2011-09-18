@@ -132,7 +132,7 @@
                     </select>
                 </label>
                 <div class="clear"></div>
-                <label class="street_address">
+                <div class="street_address">
                     <div class="label">{% trans "Address" %}:</div>
                     <div class="container">
                         <div>
@@ -144,7 +144,7 @@
                             <div class="err hn_error"></div>
                         </div>
                     </div>
-                </label>
+                </div>
             </div>
 
             <div class="footer">
@@ -186,7 +186,6 @@
 
 {% block doc_ready %}
     {{ block.super }}
-    <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>
     <script type="text/javascript">
 
     var PICKUP = "pickup",
@@ -286,6 +285,11 @@
 
             // call validator if any
             ($helper.data("validator") || function(){}).call();
+
+            // init state
+            if (helper_type == "address"){
+                    $("#id_street_address").focus();
+            }
         }
 
         function openNextTooltip(here, there){
@@ -342,7 +346,7 @@
                     'time': $("#id_hotspot_time").val()
                 },
                 beforeSend: function() {
-                    $(".price .value, .time .value").text("-");
+                    $(".price .value, .time .value").text("");
                 },
                 success: function(response) {
                     if (response.sharing_price && response.sharing_time && response.private_price && response.private_time) {
@@ -408,6 +412,31 @@
         function copy_input_data(source, target){
             $(target).data("resolved_as", $(source).data("resolved_as"));
             $(target).text($(source).text());
+        }
+
+        function addressValidator() {
+            var $address_helper = $("#address_input_helper");
+            $address_helper.find(".next_btn").button("disable");
+
+            var only_digits = $("#id_house_number").val().split(/\D+/).join("");
+            $("#id_house_number").val(only_digits);
+
+            var is_valid = Boolean($("#id_street_address").data("resolved")) && Boolean($("#id_house_number").val());
+            if (is_valid) {
+                $address_helper.find(".next_btn").button("enable");
+            }
+            return is_valid;
+        }
+
+        function datetimeValidator() {
+            var $datetime_helper = $("#datetime_input_helper")
+            $datetime_helper.find(".next_btn").button("disable");
+
+            var is_valid = Boolean(!$("#id_hotspot_time:disabled").length&& $("#id_hotspot_time option:selected")) && Boolean($("#id_hotspot_datepicker").val());
+            if (is_valid) {
+                $datetime_helper.find(".next_btn").button("enable");
+            }
+            return is_valid;
         }
 
         $(function() {
@@ -506,6 +535,7 @@
                 $("[type='address_input']").data("resolved_as", false).each(function(){
                     $(this).text("");
                 });
+                $("#datetime_value").text("");
                 var helper_type = this.id.split("2")[1];
                 openTooltipHelper(getAddressInput(this), helper_type);
             });
@@ -599,28 +629,8 @@
             /**
              * Validation
              */
-            var $address_helper = $("#address_input_helper").data("validator", function() {
-                $address_helper.find(".next_btn").button("disable");
-
-                var only_digits = $("#id_house_number").val().split(/\D+/).join("");
-                $("#id_house_number").val(only_digits);
-
-                var is_valid = Boolean($("#id_street_address").data("resolved")) && Boolean($("#id_house_number").val());
-                if (is_valid) {
-                    $address_helper.find(".next_btn").button("enable");
-                }
-                return is_valid;
-            });
-
-            var $datetime_helper = $("#datetime_input_helper").data("validator", function() {
-                $datetime_helper.find(".next_btn").button("disable");
-
-                var is_valid = Boolean(!$("#id_hotspot_time:disabled").length&& $("#id_hotspot_time option:selected")) && Boolean($("#id_hotspot_datepicker").val());
-                if (is_valid) {
-                    $datetime_helper.find(".next_btn").button("enable");
-                }
-                return is_valid;
-            });
+            var $address_helper = $("#address_input_helper").data("validator", addressValidator);
+            var $datetime_helper = $("#datetime_input_helper").data("validator", datetimeValidator);
 
             $.each([$address_helper, $datetime_helper], function(i, helper) {
                 $(helper).find("input[type=text]").bind("keyup blur", function() {
@@ -630,6 +640,13 @@
             $datetime_helper.find("input[type=radio], select").bind("change", function() {
                 $datetime_helper.data("validator").call();
             });
+
+            $("#id_house_number").keydown(function(e) {
+                if (e.keyCode == 13 && addressValidator()) {
+                    $("#address_input_helper .next_btn").trigger("click");
+                }
+            });
+            // end validation
 
             $("#book_sharing").click(function() {
                 book_ride(false);
