@@ -17,10 +17,22 @@ a:hover {
   height: 0;
   overflow: hidden; }
 
-ul.hz li {
+ul.hz > li {
   list-style: none;
   display: inline;
   padding-right: 20px; }
+
+.wbdropdown-list {
+  display: block;
+  list-style: none;
+  background: #FAFCFF;
+  border: 1px solid #AECEEF;
+  margin: 0;
+  padding: 0;
+  position: absolute;
+  z-index: 3; }
+  .wbdropdown-list > li {
+    cursor: pointer; }
 
 .float-l {
   float: left; }
@@ -174,7 +186,7 @@ body.base-site {
       width: 111px;
       float: left;
       margin-left: 60px; }
-    #header-container #site-header ul {
+    #header-container #site-header .links {
       float: right; }
 
 #content-container {
