@@ -126,15 +126,16 @@ def create_invoices(billing_transactions):
         create_invoice_passenger(trx.passenger)
 
     payload = {
-        "TransType"						: "IR:CREATE",
+        "TransType"						: "IR:CREATE101",
         "Username"						: settings.BILLING["invoice_username"],
         "InvoiceSubject"				: _("Ride Summary"),
         "InvoiceItemCode"				: "|".join([str(trx.id) for trx in billing_transactions]),
         "InvoiceItemDescription"		: "|".join([trx.order.invoice_description for trx in billing_transactions]),
         "InvoiceItemQuantity"			: "|".join(["1" for trx in billing_transactions]),
-        "InvoiceItemPrice"				: "|".join([str(trx.amount / 1.16) for trx in billing_transactions]),
+        "InvoiceItemPrice"				: "|".join([str(trx.amount) for trx in billing_transactions]),
         "MailTo"						: trx.passenger.user.email,
         "CompanyCode"					: trx.passenger.invoice_id,
+        "ItemPriceIsWithTax"			: 1,
         }
 
     url = settings.BILLING["invoice_url"]
