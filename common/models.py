@@ -27,6 +27,9 @@ class BaseModel(models.Model):
 
     @classmethod
     def by_id(cls, id, safe=True):
+        if safe and id is None:
+            return None
+
         try:
             obj = cls.objects.get(id=id)
         except cls.DoesNotExist, e:

@@ -404,6 +404,7 @@ class SharedRide(BaseModel):
                                'time': p.stop_time.strftime("%H:%M") } for p in self.points.filter(type=StopType.PICKUP).order_by("stop_time")],
                 'dropoffs': [ { 'num_passengers' : p.dropoff_orders.count(),
                                 'address': p.address,
+                                'passenger_phones': [order.passenger.phone for order in p.dropoff_orders.all()],
                                 'time': p.stop_time.strftime("%H:%M") } for p in self.points.filter(type=StopType.DROPOFF).order_by("stop_time")],
                 'depart_time': to_js_date(self.depart_time),
                 'arrive_time': to_js_date(self.arrive_time),
