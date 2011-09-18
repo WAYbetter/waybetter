@@ -49,6 +49,7 @@
 <div id="social_login">
     <form id="openid_form" method="get" action="{% url socialauth_openid_login %}">
         <input type="hidden" name="openid_identifier" id="openid_identifier" value="dummy"/>
+        <input type="hidden" name="next" id="next" value="{{ next }}"/>
         <a class="google openid_large_btn" href="javascript: openid.signin('google');" title="Google"></a>
         <a class="facebook openid_large_btn"  href="javascript: FBConnect();" title="Facebook"></a>
         <a class="twitter openid_large_btn" id="twitter_login_link" href="javascript: openid.oauth_signin('{% url socialauth_twitter_login %}', '{{ next }}');"></a>
