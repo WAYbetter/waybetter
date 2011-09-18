@@ -37,10 +37,24 @@ a:hover{
 }
 
 ul.hz{
-    li{
+    > li{
         list-style: none;
         display: inline;
         padding-right: 20px;
+    }
+}
+
+.wbdropdown-list{
+    display: block;
+    list-style: none;
+    background: #FAFCFF;
+    border: 1px solid #AECEEF;
+    margin: 0;
+    padding: 0;
+    position: absolute;
+    z-index: 3;
+    > li{
+        cursor: pointer;
     }
 }
 
@@ -203,7 +217,7 @@ body.base-site{
             float: left;
             margin-left: 60px;
         }
-        ul{
+        .links{
             float: right;
         }
     }

@@ -12,23 +12,42 @@
             <div id="header-container">
                 <div id="site-header">
                     <div id="wb_logo"></div>
-                    <ul class="hz">
+                    <ul class="links hz">
                         <li>WAYbetter</li>
-                        <li>{% trans "Community" %}</li>
                         <li>{% trans "Help" %}</li>
                         <li>{% trans "About" %}</li>
                         <li>
                             {% if request.user.is_authenticated %}
                                 {% trans 'Hi' %}
-                                    {% if request.user.first_name %}
-                                        {{ request.user.first_name }}
-                                    {% else %}
-                                        {{ request.user.username }}
-                                    {% endif %}
-                                    ! | <a class="wb_link" href="{% url auth_logout %}">{% trans 'Log out' %}</a>
+                                {% if request.user.first_name %}
+                                    {{ request.user.first_name }}
+                                {% else %}
+                                    {{ request.user.username }}
+                                {% endif %}
+                                ! | <a class="wb_link" href="{% url auth_logout %}">{% trans 'Log out' %}</a>
                             {% else %}
                                 <a class="wb_link" href="{% url auth_login %}">{% trans "Log-in" %}</a>
                             {% endif %}
+                        </li>
+                        <li>
+                            <div class="lang-selector">
+                                {% for lang in LANGUAGES %}
+                                    {% if lang.0 == LANGUAGE_CODE %}
+                                        {{ lang.1 }}
+                                    {% endif %}
+                                {% endfor %}
+                                <form action="/i18n/setlang/" method="post" class="languages">
+                                    {% csrf_token %}
+                                    <input type="hidden" name="language" id="language"/>
+                                    <ul class="wbdropdown-list">
+                                        {% for lang in LANGUAGES %}
+                                            {% if lang.0 != LANGUAGE_CODE %}
+                                                <li code="{{ lang.0 }}">{{ lang.1 }}</li>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </ul>
+                                </form>
+                            </div>
                         </li>
                     </ul>
                 </div>
@@ -145,6 +164,13 @@
 
     <script>
         $(document).ready(function() {
+            $("form.languages li").click(function() {
+                var code = $(this).attr("code");
+                if (code != "{{ LANGUAGE_CODE }}") {
+                    $("form.languages > #language").val(code);
+                    $("form.languages").submit();
+                }
+            });
             HotspotHelper.init({
                 labels: {
                     choose_date: "{% trans "Choose Date" %}",
