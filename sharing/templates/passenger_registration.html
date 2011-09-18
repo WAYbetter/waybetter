@@ -1,45 +1,97 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
 
+{% block pre_content %}
+    <div id="top-container">
+        <div id="top-header">
+            {% trans "First Time? Join the Movement...  " %}
+        </div>
+        <div id="top-login">
+            {% trans "Already a member?" %} <span class="wb_link">{% trans "Sign In" %}</span>
+        </div>
+        <div class="clear"></div>
+    </div>
+
+{% endblock %}
+
 {% block content %}
     {% if order %}
         <div>
             Order Details:<br>{{ order }}<br> {{ order.value }} NIS
         </div>
     {% endif %}
-    <div class="header">
-        <h1>{% trans "First Time? Join the movement!" %}</h1>
-
-        <h2>{% trans "Already a member?" %}<a class="action_link">{% trans "Sign in" %}</a></h2>
-
-        <div class="clear"></div>
-    </div>
 
     <form id="validation">
-        <h2>1. {% trans "Ride notifications are sent via free SMS:" %}</h2>
-        <label for="local_phone">
-            {% trans "Mobile Phone" %}
-        </label>
-        <input id="local_phone" name="local_phone" type="text"/>
-        <button type="button" id="validate_phone">{% trans "Get Code" %}</button>
-        <label for="verification_code">
-            {% trans "Verification Code" %}
-        </label>
-        <input id="verification_code" name="verification_code" type="text"/>
-        <input name="country_code" type="hidden" value="{{ country_code }}"/>
-        <span id="verification_status"></span>
+        <div class="header">
+            1. {% trans "Ride notifications are sent via free SMS:" %}
+        </div>
+        <div class="container">
+            <div class="float-l">
+                <label for="local_phone">
+                    {% trans "Mobile Phone" %}
+                </label>
+                <input id="local_phone" name="local_phone" type="text"/>
+                <button type="button" id="validate_phone">{% trans "Get Code" %}</button>
+            </div>
+            <div class="float-r">
+                <label for="verification_code">
+                    {% trans "Code" %}
+                </label>
+                <input id="verification_code" name="verification_code" type="text"/>
+                <input name="country_code" type="hidden" value="{{ country_code }}"/>
+                <span id="verification_status"></span>
+            </div>
+        </div>
     </form>
 
-    {% load ajax_form_utils %}
-    <form id="passenger_form" action="{% url register %}" method="POST">
-        <h2>2. {% trans "Setup your account:" %}</h2>
-        {% csrf_token %}
-        <table>
-            {{ form.as_table }}
-        </table>
+    <table id="registration_details">
+        <tr>
+            <td colspan="3">
+                <span class="header">
+                    2. {% trans "Setup your account:" %}
+                </span>
+            </td>
+        </tr>
 
-        <button id="finish_registration">{% trans "Next" %} >></button>
-    </form>
+        <tr>
+            <td>
+                {% trans "Use your Facebook account for fast registration:" %}
+                <div id="fb_connect"></div>
+            </td>
+            <td>
+                <div class="vrule"></div>
+                <div>{% trans "OR" %}</div>
+                <div class="vrule"></div>
+            </td>
+            <td>
+                {% load ajax_form_utils %}
+                <form id="passenger_form" action="{% url register %}" method="POST">
+                    {% csrf_token %}
+                    <table id="user_details">
+                        {% for hidden in form.hidden_fields %}
+                            {{ hidden }}
+                        {% endfor %}
+                        {% for field in form.visible_fields %}
+                            {% if field.html_name != "agree_to_terms" %}
+                                <tr>
+                                    <th>{{ field.label_tag }}</th>
+                                    <td>{{ field }}</td>
+                                </tr>
+                            {% endif %}
+                        {% endfor %}
+                    </table>
+                    <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
+                    <label for="id_agree_to_terms">{% trans "I agree to the" %}
+                        <span class="wb_link">{% trans "Terms Of Use" %} </span>
+                        {% trans "and" %} <span class="wb_link">{% trans "Privacy Statement" %}</span>
+                    </label>
+                </form>
+            </td>
+        </tr>
+    </table>
+
+    <button id="finish_registration">{% trans "Next" %} >></button>
+
 {% endblock %}
 
 {% block doc_ready %}

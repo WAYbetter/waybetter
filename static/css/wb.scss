@@ -214,7 +214,7 @@ body.base-site{
     min-height: 550px;
     position: relative;
     top: -18px;
-    padding-top: 80px;
+    padding-top: 50px;
     border-bottom: 1px solid #98988F;
 
     #site-content{
@@ -259,9 +259,10 @@ body.base-site{
 
 #wb_values{
     width: $site-width;
-    margin: 0 auto;
+    margin: 0 auto 50px auto;
     position: relative;
     left: 10px;
+    height: 70px;
 
     .value{
         height: 70px;
@@ -611,12 +612,11 @@ body.base-site{
         #id_city{
             width: 263px;
         }
-        label.street_address{
-            position: relative; top: 16px;
-            .label{ top: 9px }
+        .street_address{
+            .label{ top: 21px }
         }
 
-        .container {float: right }
+        .container {float: right; div {float: left;} }
         input{ display: block; height: 24px; }
         #id_house_number{ width: 69px; margin-left: 8px}
         #id_street_address{ width: 178px;}
@@ -659,17 +659,36 @@ body.base-site{
 /******************* REGISTRATION ************/
 /*********************************************/
 .registration{
-    .header{
-        h1{
-            float:left;
-        }
-        h2{
-            float:right;
-        }
+    #top-container{
+        width: $site-width;
+        margin: 0 auto 10px auto;
     }
-    #validation, #passenger_form{
-        margin-top: 20px;
-        border-top: 1px solid;
+    #top-header{
+        font-size: $font-size-header1;
+        font-weight: bold;
+        float:left;
+        margin-left: 10px;
+    }
+    #top-login{
+        float:right;
+        margin-top: 12px;
+        margin-right: 10px;
+    }
+
+    #site-content{ padding: 25px; }
+    #registration_details{
+        border-top: 1px solid $light-gray;
+        border-bottom: 1px solid $light-gray;
+        padding-top: 25px;
+        padding-bottom: 25px;
+        margin: 50px auto;
+        width: 100%;
+    }
+    #validation{
+        .container{
+            margin-top: 20px;
+            padding: 0 15px 0 15px;
+        }
     }
     #verification_status {
         width: 20px;
@@ -686,6 +705,28 @@ body.base-site{
     #verification_status.sending {
         background-color: orange;
     }
+    .vrule{
+        border-left: 1px solid $light-gray;
+        height: 50px;
+        position: relative;
+        left: 7px;
+    }
+    .header{
+        font-size: $font-size-medium;
+        font-weight: bold;
+    }
+    #fb_connect{
+        width: 150px;
+        height: 50px;
+        background-color: blue;
+    }
+    #user_details{
+        th {text-align: left};
+        input { width: 200px; }
+
+    }
+
+    #finish_registration { float: right;}
 }
 
 

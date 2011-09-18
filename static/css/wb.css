@@ -182,7 +182,7 @@ body.base-site {
   min-height: 550px;
   position: relative;
   top: -18px;
-  padding-top: 80px;
+  padding-top: 50px;
   border-bottom: 1px solid #98988F; }
   #content-container #site-content {
     width: 800px;
@@ -217,9 +217,10 @@ body.base-site {
 
 #wb_values {
   width: 800px;
-  margin: 0 auto;
+  margin: 0 auto 50px auto;
   position: relative;
-  left: 10px; }
+  left: 10px;
+  height: 70px; }
   #wb_values .value {
     height: 70px;
     width: 130px;
@@ -523,13 +524,12 @@ body.base-site {
   left: -5px; }
 .wb_home #address_input_helper #id_city {
   width: 263px; }
-.wb_home #address_input_helper label.street_address {
-  position: relative;
-  top: 16px; }
-  .wb_home #address_input_helper label.street_address .label {
-    top: 9px; }
+.wb_home #address_input_helper .street_address .label {
+  top: 21px; }
 .wb_home #address_input_helper .container {
   float: right; }
+  .wb_home #address_input_helper .container div {
+    float: left; }
 .wb_home #address_input_helper input {
   display: block;
   height: 24px; }
@@ -584,13 +584,30 @@ body.base-site {
 /*********************************************/
 /******************* REGISTRATION ************/
 /*********************************************/
-.registration .header h1 {
-  float: left; }
-.registration .header h2 {
-  float: right; }
-.registration #validation, .registration #passenger_form {
+.registration #top-container {
+  width: 800px;
+  margin: 0 auto 10px auto; }
+.registration #top-header {
+  font-size: 18px;
+  font-weight: bold;
+  float: left;
+  margin-left: 10px; }
+.registration #top-login {
+  float: right;
+  margin-top: 12px;
+  margin-right: 10px; }
+.registration #site-content {
+  padding: 25px; }
+.registration #registration_details {
+  border-top: 1px solid #bcbcbc;
+  border-bottom: 1px solid #bcbcbc;
+  padding-top: 25px;
+  padding-bottom: 25px;
+  margin: 50px auto;
+  width: 100%; }
+.registration #validation .container {
   margin-top: 20px;
-  border-top: 1px solid; }
+  padding: 0 15px 0 15px; }
 .registration #verification_status {
   width: 20px;
   height: 20px;
@@ -602,6 +619,24 @@ body.base-site {
   background-color: red; }
 .registration #verification_status.sending {
   background-color: orange; }
+.registration .vrule {
+  border-left: 1px solid #bcbcbc;
+  height: 50px;
+  position: relative;
+  left: 7px; }
+.registration .header {
+  font-size: 13px;
+  font-weight: bold; }
+.registration #fb_connect {
+  width: 150px;
+  height: 50px;
+  background-color: blue; }
+.registration #user_details th {
+  text-align: left; }
+.registration #user_details input {
+  width: 200px; }
+.registration #finish_registration {
+  float: right; }
 
 /** Hotspot page **/
 .rtl.hotspot_page #map_container {
