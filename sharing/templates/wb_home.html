@@ -328,9 +328,12 @@
         }
 
         function getHotspotTimes(){
-            if (address_resolved) {
+            if (hotspot_resolved && address_resolved) {
                 var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF;
                 HotspotHelper.refreshTimes({hotspot_type: hotspot_type, time_type: time_type, lat: address_lat, lon: address_lon});
+            }
+            else{
+                $("#id_hotspot_time").empty().disable();
             }
         }
 
@@ -367,7 +370,7 @@
             });
         }
 
-        function book_ride(is_private){
+        function bookRide(is_private){
             var $form = $("#order_form");
             $(".tooltip-content").appendTo("#tooltip_helpers_container");
             $("#tooltip_helpers_container").appendTo($form);
@@ -475,14 +478,22 @@
             $(".order_button").disable();
 
             $("html").click(function(e) {
+                var id_exceptions = ["switch", "tryitnow"];
                 var $target = $(e.target);
-                var inside_tooltip = ($target.attr("id") == "tryitnow") ||
-                        $target.hasClass("tooltip") || $target.parents(".tooltip").length ||
-                        $target.hasClass("ui-datepicker") || $target.parents(".ui-datepicker").length ||
-                        $target.hasClass("ui-datepicker-header") || $target.parents(".ui-datepicker-header").length ||
-                        $target.hasClass("ui-autocomplete") || $target.parents(".ui-autocomplete").length;
 
-                if (! inside_tooltip) {
+                var close = $.inArray($target.attr("id"), id_exceptions) == -1;
+
+                if (close){
+                    // maybe clicked inside tooltip?
+                    var insider_tooltip = $target.hasClass("tooltip") || $target.parents(".tooltip").length ||
+                            $target.hasClass("ui-datepicker") || $target.parents(".ui-datepicker").length ||
+                            $target.hasClass("ui-datepicker-header") || $target.parents(".ui-datepicker-header").length ||
+                            $target.hasClass("ui-autocomplete") || $target.parents(".ui-autocomplete").length;
+
+                    close = !insider_tooltip
+                }
+
+                if (close) {
                     closeTooltips();
                 }
             });
@@ -514,11 +525,13 @@
 
 
             $("#switch").click(function() {
-                hotspot_type = (hotspot_type == PICKUP) ? DROPOFF : PICKUP;
-                var $clone = $("#pickup_input").clone(true);
-                copy_input_data("#dropoff_input", "#pickup_input");
-                copy_input_data($clone, "#dropoff_input");
-                getHotspotTimes();
+                if (hotspot_resolved && address_resolved) {
+                    openTooltipHelper("#datetime_input", "datetime");
+                    hotspot_type = (hotspot_type == PICKUP) ? DROPOFF : PICKUP;
+                    var $clone = $("#pickup_input").clone(true);
+                    copy_input_data("#dropoff_input", "#pickup_input");
+                    copy_input_data($clone, "#dropoff_input");
+                }
             });
 
             $("#sel_hotspot, #sel_address").click(function(e) {
@@ -650,10 +663,10 @@
             // end validation
 
             $("#book_sharing").click(function() {
-                book_ride(false);
+                bookRide(false);
             });
             $("#book_private").click(function() {
-                book_ride(true);
+                bookRide(true);
             });
         });
 
