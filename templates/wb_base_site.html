@@ -13,9 +13,7 @@
                 <div id="site-header">
                     <div id="wb_logo"></div>
                     <ul class="links hz">
-                        <li>WAYbetter</li>
-                        <li>{% trans "Help" %}</li>
-                        <li>{% trans "About" %}</li>
+                        <li class="home_link wb_link">{% trans "Home" %}</li>
                         <li>
                             {% if request.user.is_authenticated %}
                                 {% trans 'Hi' %}
@@ -30,24 +28,24 @@
                             {% endif %}
                         </li>
                         <li>
-                            <div class="lang-selector">
+                            <span id="languages_top">
                                 {% for lang in LANGUAGES %}
                                     {% if lang.0 == LANGUAGE_CODE %}
                                         {{ lang.1 }}
                                     {% endif %}
                                 {% endfor %}
+                                <span class="more"></span>
                                 <form action="/i18n/setlang/" method="post" class="languages">
                                     {% csrf_token %}
                                     <input type="hidden" name="language" id="language"/>
                                     <ul class="wbdropdown-list">
-                                        {% for lang in LANGUAGES %}
-                                            {% if lang.0 != LANGUAGE_CODE %}
-                                                <li code="{{ lang.0 }}">{{ lang.1 }}</li>
-                                            {% endif %}
-                                        {% endfor %}
+                                        <li code="he" class="disabled">עברית</li>
+                                        <li code="en" class="clickable">English</li>
+                                        <li code="" class="disabled">Русский</li>
+                                        <li code="" class="disabled">français</li>
                                     </ul>
                                 </form>
-                            </div>
+                            </span>
                         </li>
                     </ul>
                 </div>
@@ -61,34 +59,46 @@
 
         <div id="content-container" class="{% block mainclass %}{% endblock %}">
 
-            {% block pre_content %}{% endblock %}
+            {% block pre_content %}
+                <div id="top-container">
+                    <div id="top-left">
+                        {% block top_left %}{% endblock %}
+                    </div>
+                    <div id="top-right">
+                        {% block top_right %}{% endblock %}
+                    </div>
+                    <div class="clear"></div>
+                </div>
+            {% endblock %}
 
             <div id="site-content">
                 {% block content %}{% endblock content %}
             </div>
 
-            <div id="wb_values">
-                <div class="value service">
-                    <span class="header">{% trans "Service" %}</span>
-                    variables as well as basic math operations and many useful functions.
-                    <a class="more wb_link">{% trans "Learn More" %}</a>
+            {% block post_content %}
+                <div id="wb_values">
+                    <div class="value service">
+                        <span class="header">{% trans "Service" %}</span>
+                        variables as well as basic math operations and many useful functions.
+                        <div class="wb_link">{% trans "Learn More" %}<span class="more"></span></div>
+                    </div>
+                    <div class="value community">
+                        <span class="header">{% trans "Community" %}</span>
+                        variables as well as basic math operations and many useful functions.
+                        <div class="wb_link">{% trans "Learn More" %}<span class="more"></span></div>
+                    </div>
+                    <div class="value env">
+                        <span class="header">{% trans "Environment" %}</span>
+                        variables as well as basic math operations and many useful functions.
+                        <div class="wb_link">{% trans "Learn More" %}<span class="more"></span></div>
+                    </div>
+                    <div class="value eff">
+                        <span class="header">{% trans "Efficiency" %}</span>
+                        variables as well as basic math operations and many useful functions.
+                        <div class="wb_link">{% trans "Learn More" %}<span class="more"></span></div>
+                    </div>
                 </div>
-                <div class="value community">
-                    <span class="header">{% trans "Community" %}</span>
-                    variables as well as basic math operations and many useful functions.
-                    <a class="more wb_link">{% trans "Learn More" %}</a>
-                </div>
-                <div class="value env">
-                    <span class="header">{% trans "Environment" %}</span>
-                    variables as well as basic math operations and many useful functions.
-                    <a class="more wb_link">{% trans "Learn More" %}</a>
-                </div>
-                <div class="value eff">
-                    <span class="header">{% trans "Efficiency" %}</span>
-                    variables as well as basic math operations and many useful functions.
-                    <a class="more wb_link">{% trans "Learn More" %}</a>
-                </div>
-            </div>
+            {% endblock %}
         </div>
 
         <div class="clear"></div>
@@ -97,36 +107,38 @@
         {% if not is_popup %}
             <div id="footer-container">
                 <div id="site-footer">
-                    <div id="sitemap">
-                        <ul>
-                            <li>WAYbetter</li>
-                            <li>{% trans "Home" %}</li>
-                            <li>{% trans "Mobile" %}</li>
-                            <li>{% trans "Stations" %}</li>
-                        </ul>
-                        <ul>
-                            <li>{% trans "Community" %}</li>
-                            <li>{% trans "Votespot" %}</li>
-                            <li>{% trans "Developer" %}</li>
-                        </ul>
-                        <ul>
-                            <li>{% trans "Profile" %}</li>
-                            <li>{% trans "My Rides" %}</li>
-                            <li>{% trans "My Profile" %}</li>
-                        </ul>
-                    </div>
-                    <div class="tools">
-                        <ul class="hz">
-                            <li>Language</li>
-                            <li>F</li>
-                            <li>t</li>
-                        </ul>
-                        <ul id="lang-drpodown">
-                            <li>English</li>
-                            <li>עברית</li>
-                        </ul>
-                    </div>
-                    <div class="clear"></div>
+                    {% block footer %}
+                        <div id="sitemap">
+                            <ul>
+                                <li>WAYbetter</li>
+                                <li>{% trans "Home" %}</li>
+                                <li>{% trans "Mobile" %}</li>
+                                <li>{% trans "Stations" %}</li>
+                            </ul>
+                            <ul>
+                                <li>{% trans "Community" %}</li>
+                                <li>{% trans "Votespot" %}</li>
+                                <li>{% trans "Developer" %}</li>
+                            </ul>
+                            <ul>
+                                <li>{% trans "Profile" %}</li>
+                                <li>{% trans "My Rides" %}</li>
+                                <li>{% trans "My Profile" %}</li>
+                            </ul>
+                        </div>
+                        <div class="tools">
+                            <ul class="hz">
+                                <li>Language</li>
+                                <li>F</li>
+                                <li>t</li>
+                            </ul>
+                            <ul id="lang-dropdown">
+                                <li>English</li>
+                                <li>עברית</li>
+                            </ul>
+                        </div>
+                        <div class="clear"></div>
+                    {% endblock %}
                 </div>
             </div>
         {% endif %}
@@ -138,7 +150,6 @@
 
 {% block extrastyle %}
     {{ block.super }}
-    <link rel="stylesheet" href="/static/css/nivo-slider.css" type="text/css" media="screen"/>
 {% endblock %}
 
 {% block doc_ready %}
@@ -164,9 +175,16 @@
 
     <script>
         $(document).ready(function() {
+            $(".home_link").click(function() {
+                document.location.href = "/";
+            });
+            $("#languages_top .more").click(function(){
+                $("#languages_top .languages").show();
+            });
             $("form.languages li").click(function() {
+                $(".languages").hide();
                 var code = $(this).attr("code");
-                if (code != "{{ LANGUAGE_CODE }}") {
+                if (code != "{{ LANGUAGE_CODE }}" && !$(this).hasClass("disabled")) {
                     $("form.languages > #language").val(code);
                     $("form.languages").submit();
                 }

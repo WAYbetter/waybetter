@@ -7,6 +7,7 @@ $font-size-huge: 35px;
 
 $color-gray: #6C6C6A;
 $light-gray: #BCBCBC;
+$color-disabled: #BCBCBC;
 $color-service: #EB1F79;
 $color-community: #4CBA00;
 $color-environment: #16ACD3;
@@ -50,12 +51,9 @@ ul.hz{
     background: #FAFCFF;
     border: 1px solid #AECEEF;
     margin: 0;
-    padding: 0;
+    padding: 4px;
     position: absolute;
     z-index: 3;
-    > li{
-        cursor: pointer;
-    }
 }
 
 .float-l{
@@ -65,6 +63,10 @@ ul.hz{
     float: right;
 }
 
+.disabled{
+    color: $color-disabled;
+}
+
 .clickable{
     cursor: pointer;
 }
@@ -72,9 +74,18 @@ ul.hz{
 .wb_link{
     color: #0088CC;
     cursor: pointer;
+    text-decoration: none;
 }
 .wb_link:hover{
     text-decoration: underline;
+}
+
+.more{
+    display: inline-block;
+    background: url(/static/images/wb_site/more_en.png) 0 2px no-repeat;
+    width: 12px;
+    height: 13px;
+    margin-left: 4px;
 }
 
 @-webkit-keyframes flash_fade {
@@ -221,6 +232,32 @@ body.base-site{
             float: right;
         }
     }
+    #languages_top .languages{
+        display: none;
+        position: relative;
+        top: 5px;
+        left: 119px;
+    }
+}
+
+#top-container{
+    width: $site-width;
+    margin: 0 auto 10px auto;
+    position: relative;
+    padding-left: 10px;
+    padding-right: 10px;
+}
+#top-left{
+    font-size: $font-size-header1;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+    bottom: 0;
+}
+#top-right{
+     position: absolute;
+     right: 0;
+     bottom: 0;
 }
 
 #content-container{
@@ -301,11 +338,6 @@ body.base-site{
     .community{ background: url(/static/images/wb_site/values.png) 0 -133px no-repeat; }
     .env{ background: url(/static/images/wb_site/values.png) 0 -237px no-repeat; }
     .eff{ background: url(/static/images/wb_site/values.png) 0 -329px no-repeat; }
-
-    .more{
-        display: block;
-        background: url(/static/images/wb_site/more_en.png) 68px 2px no-repeat;
-    }
 }
 /*********************************************/
 /******************* HOME ********************/
@@ -686,23 +718,6 @@ body.base-site{
 /******************* REGISTRATION ************/
 /*********************************************/
 .registration{
-    #top-container{
-        width: $site-width;
-        margin: 0 auto 10px auto;
-    }
-    #top-header{
-        font-size: $font-size-header1;
-        font-weight: bold;
-        float:left;
-        margin-left: 10px;
-    }
-    #top-login{
-        float:right;
-        margin-top: 12px;
-        margin-right: 10px;
-    }
-
-    #site-content{  }
     #registration_details{
         border-top: 1px solid $light-gray;
         border-bottom: 1px solid $light-gray;

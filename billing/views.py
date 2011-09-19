@@ -218,3 +218,8 @@ def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
 def utf_8_encoder(unicode_csv_data):
     for line in unicode_csv_data:
         yield line.encode('utf-8')
+
+
+def credit_guard_page(request):
+    page_specific_class = "credit_guard_page"
+    return custom_render_to_response("credit_guard_page.jsp", locals(), context_instance=RequestContext(request))

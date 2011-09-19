@@ -1,17 +1,12 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
 
-{% block pre_content %}
-    <div id="top-container">
-        <div id="top-header">
-            {% trans "First Time? Join the Movement...  " %}
-        </div>
-        <div id="top-login">
-            {% trans "Already a member?" %} <span class="wb_link">{% trans "Sign In" %}</span>
-        </div>
-        <div class="clear"></div>
-    </div>
+{% block top_left %}
+    {% trans "First Time? Join the Movement...  " %}
+{% endblock %}
 
+{% block top_right %}
+    {% trans "Already a member?" %} <span class="wb_link">{% trans "Sign In" %}</span>
 {% endblock %}
 
 {% block content %}
@@ -23,7 +18,7 @@
 
     <form id="validation">
         <div class="header">
-            1. {% trans "Ride notifications are sent via free SMS:" %}
+            1. {% trans "Ride details are sent by free SMS" %}:
         </div>
         <div class="container">
             <div class="float-l">
@@ -117,7 +112,7 @@
             }
         }
         $(function() {
-            var validations =  {% render_ajax_fields form %};
+            var validations = {% render_ajax_fields form %};
             $('#passenger_form').validation(validations);
 
             updateValidatePhoneButtonState();
