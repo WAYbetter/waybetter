@@ -1,37 +1,74 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
 
-{% block bodyclass %}clean_body{% endblock %}
-{% block mainclass %}clean_main full_screen_main{% endblock %}
-
-{% block extrastyle %}
-<style>
-</style>
-{% endblock %}
-
 {% block content %}
     <div id="trx_status">
-        WAITING
+        <div id="status_icon" class="float-l"></div>
+        <div id="status_msg" class="float-l">
+            <div id="status_header"></div>
+            <div id="status_help"></div>
+        </div>
+        <button id="home" class="float-r">{% trans "Home" %}</button>
     </div>
 {% endblock %}
 
 {% block doc_ready %}
-    <script src="/static/js/helpers.js"></script>
+    {{ block.super }}
     <script type="text/javascript">
-    $(function() {
-        $(document).everyTime("5s", "poll_status", function() {
+        var pending = {{ pending }};
+        var processing = {{ processing }};
+        var approved = {{ approved }};
+        var failed = {{ failed }};
+
+        function renderStatus(status, msg) {
+            $("#status_icon").removeClass("processing approved failed");
+
+            switch (status) {
+                case approved:
+                    $("#status_icon").addClass("approved");
+                    $("#status_header").html("{% trans "Order Approved" %}");
+                    $("#status_help").html("{% trans "We'll send you an SMS with pickup details about 15 minutes before departure." %}");
+                    break;
+                case failed:
+                    $("#status_icon").addClass("failed");
+                    $("#status_header").html("{% trans "Oops... Order Failed" %}");
+                    $("#status_help").html(msg || "{% trans "There was an error processing your order. Please try again soon." %}");
+                    break;
+                default: // processing or pending
+                    $("#status_icon").addClass("processing");
+                    $("#status_header").html("{% trans "Processing Your Order" %}");
+                    $("#status_help").html("{% trans "Please wait, this may take a few seconds" %}...");
+            }
+        }
+
+        function getStatus() {
             $.ajax({
                 url: "{% url get_trx_status %}",
                 data: {trx_id: "{{ billing_trx.id }}"},
-                success:    function(data) {
-                    $("#trx_status").html(data);
+                success:    function(response) {
+                    if (response.hasOwnProperty("status")) {
+                        var status = response.status;
+                        renderStatus(status, response.error_message);
+                        if (status == processing || status == pending) {
+                            $(document).oneTime(5e3, function(){getStatus();});
+                        }
+                        else {
+                            $("#home").enable();
+                        }
+                    }
                 },
                 error:  function() {
-                    $("#trx_status").html("ERROR");
-                    $(document).stopTime("poll_status");
+                    $(document).oneTime(5e3, function(){getStatus();});
                 }
             })
-        })
-    })
+        }
+
+        $(document).ready(function() {
+            $("#home").disable().click(function(){
+                window.location.href = "/";
+            });
+            renderStatus(processing);
+            getStatus();
+        });
     </script>
 {% endblock %}

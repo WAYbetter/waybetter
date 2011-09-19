@@ -196,17 +196,18 @@ body.base-site {
   top: -18px;
   padding-top: 50px;
   border-bottom: 1px solid #98988F; }
-  #content-container #site-content {
-    width: 800px;
-    margin: 0 auto 50px auto;
-    background: white;
-    padding: 25px;
-    -webkit-border-radius: 12px;
-    -moz-border-radius: 12px;
-    border-radius: 12px;
-    -webkit-box-shadow: 0px 0px 6px 0px #747474;
-    -moz-box-shadow: 0px 0px 6px 0px #747474;
-    box-shadow: 0px 0px 6px 0px #747474; }
+
+#site-content {
+  width: 800px;
+  margin: 0 auto 50px auto;
+  background: white;
+  padding: 25px;
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  border-radius: 12px;
+  -webkit-box-shadow: 0px 0px 6px 0px #747474;
+  -moz-box-shadow: 0px 0px 6px 0px #747474;
+  box-shadow: 0px 0px 6px 0px #747474; }
 
 #footer-container {
   position: relative;
@@ -657,6 +658,35 @@ body.base-site {
   width: 200px; }
 .registration #finish_registration {
   float: right; }
+
+.transaction_page #site-content {
+  padding: 10px; }
+.transaction_page #trx_status {
+  position: relative;
+  height: 100px; }
+.transaction_page #status_icon {
+  width: 100px;
+  height: 100px; }
+.transaction_page #status_icon.processing {
+  background: url(/static/images/wb_site/loading_large.gif) left 0 no-repeat; }
+.transaction_page #status_icon.approved {
+  background: url(/static/images/wb_site/processing_icons.png) 7px -84px no-repeat; }
+.transaction_page #status_icon.failed {
+  background: url(/static/images/wb_site/processing_icons.png) 7px 10px no-repeat; }
+.transaction_page #status_msg {
+  position: relative;
+  left: 50px;
+  top: 20px; }
+.transaction_page #status_header {
+  font-weight: bold;
+  font-size: 18px; }
+.transaction_page #status_help {
+  font-size: 13px;
+  margin-top: 10px; }
+.transaction_page #home {
+  position: absolute;
+  right: 0;
+  bottom: 0; }
 
 /** Hotspot page **/
 .rtl.hotspot_page #map_container {

@@ -73,7 +73,13 @@ def transaction_ok(request, passenger):
 def bill_order(request, trx_id, passenger):
     billing_trx = BillingTransaction.by_id(trx_id)
     billing_trx.commit()
+
+    page_specific_class = "transaction_page"
+    pending = BillingStatus.PENDING
     processing = BillingStatus.PROCESSING
+    approved = BillingStatus.APPROVED
+    failed = BillingStatus.FAILED
+
     return custom_render_to_response("transaction_page.html", locals(), context_instance=RequestContext(request))
 
 def transaction_error(request):
@@ -89,7 +95,10 @@ def get_trx_status(request, passenger):
     trx = BillingTransaction.by_id(trx_id)
 
     if trx and trx.passenger == passenger:
-        return JSONResponse(BillingStatus.get_name(trx.status))
+        response = {'status': trx.status}
+        if trx.status == BillingStatus.FAILED and trx.comments:
+            response.update({'error_message': trx.comments})
+        return JSONResponse(response)
 
     return JSONResponse("")
 
