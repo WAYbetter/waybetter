@@ -35,11 +35,6 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
     <script>window.jQuery || document.write('<script src="/static/js/libs/jquery-1.6.1.min.js">\x3C/script>')</script>
 
-    <!-- All JavaScript at the bottom, except for Modernizr and Respond.
-         Modernizr enables HTML5 elements & feature detects; Respond is a polyfill for min/max-width CSS3 Media Queries -->
-    <script src="/static/js/libs/modernizr-1.7.min.js"></script>
-    <script src="/static/js/libs/respond.min.js"></script>
-
     {% block extrahead %}{% endblock %}
 </head>
 
@@ -48,20 +43,26 @@
 {% block body %}{% endblock %}
 
 <!-- JavaScript at the bottom for fast page loading -->
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-<script>window.jQuery.ui || document.write('<script src="/static/js/libs/jquery-ui-1.8.13.min.js">\x3C/script>')</script>
+{% block scripts %}
+    <!-- All JavaScript at the bottom, except for Modernizr and Respond.
+         Modernizr enables HTML5 elements & feature detects; Respond is a polyfill for min/max-width CSS3 Media Queries -->
+    <script src="/static/js/libs/modernizr-1.7.min.js"></script>
+    <script src="/static/js/libs/respond.min.js"></script>
 
-<!-- scripts concatenated and minified via ant build script-->
-<script type="text/javascript" src="/static/js/mylibs/json2.min.js"></script>
-<script type="text/javascript" src="/static/js/mylibs/jquery.timers-1.2.min.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+    <script>window.jQuery.ui || document.write('<script src="/static/js/libs/jquery-ui-1.8.13.min.js">\x3C/script>')</script>
 
-<script type="text/javascript" src="/static/js/utils.js"></script>
-<!-- end scripts-->
+    <!-- scripts concatenated and minified via ant build script-->
+    <script type="text/javascript" src="/static/js/mylibs/json2.min.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.timers-1.2.min.js"></script>
 
-{% block doc_ready %}{% endblock doc_ready %}
+    <script type="text/javascript" src="/static/js/utils.js"></script>
+    <!-- end scripts-->
+{% endblock scripts %}
 
-{# more IE7 fixes #}
-<!--[if IE 7]>
+{% block doc_ready %}
+    {# more IE7 fixes #}
+    <!--[if IE 7]>
     <script type="text/javascript">
          $(document).ready(function(){
             $(".waybetter").html("WAYbetter")
@@ -69,21 +70,22 @@
     </script>
     <![endif]-->
 
-<!-- Google Analytics -->
-<!-- mathiasbynens.be/notes/async-analytics-snippet Change UA-XXXXX-X to be your site's ID -->
-<script>
-    var _gaq = [
-        ['_setAccount','UA-18077675-1'],
-        ['_trackPageview'],
-        ['_trackPageLoadTime']
-    ];
-    (function(d, t) {
-        var g = d.createElement(t),s = d.getElementsByTagName(t)[0];
-        g.async = 1;
-        g.src = ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
-        s.parentNode.insertBefore(g, s)
-    }(document, 'script'));
-</script>
+    <!-- Google Analytics -->
+    <!-- mathiasbynens.be/notes/async-analytics-snippet Change UA-XXXXX-X to be your site's ID -->
+    <script>
+        var _gaq = [
+            ['_setAccount','UA-18077675-1'],
+            ['_trackPageview'],
+            ['_trackPageLoadTime']
+        ];
+        (function(d, t) {
+            var g = d.createElement(t),s = d.getElementsByTagName(t)[0];
+            g.async = 1;
+            g.src = ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
+            s.parentNode.insertBefore(g, s)
+        }(document, 'script'));
+    </script>
+{% endblock doc_ready %}
 
 {% block extra-body %}{% endblock %}
 </body>

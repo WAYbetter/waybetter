@@ -12,29 +12,30 @@
             <div id="header-container">
                 <div id="site-header">
                     <div id="wb_logo"></div>
-                    <ul class="links hz">
-                        <li class="home_link wb_link">{% trans "Home" %}</li>
-                        <li>
-                            {% if request.user.is_authenticated %}
-                                {% trans 'Hi' %}
-                                {% if request.user.first_name %}
-                                    {{ request.user.first_name }}
-                                {% else %}
-                                    {{ request.user.username }}
-                                {% endif %}
-                                ! | <a class="wb_link" href="{% url auth_logout %}">{% trans 'Log out' %}</a>
-                            {% else %}
-                                <a class="wb_link" href="{% url auth_login %}">{% trans "Log-in" %}</a>
-                            {% endif %}
-                        </li>
-                        <li>
-                            <span id="languages_top">
-                                {% for lang in LANGUAGES %}
-                                    {% if lang.0 == LANGUAGE_CODE %}
-                                        {{ lang.1 }}
+                    {% block header_links %}
+                        <ul class="links hz">
+                            <li class="home_link wb_link">{% trans "Home" %}</li>
+                            <li>
+                                {% if request.user.is_authenticated %}
+                                    {% trans 'Hi' %}
+                                    {% if request.user.first_name %}
+                                        {{ request.user.first_name }}
+                                    {% else %}
+                                        {{ request.user.username }}
                                     {% endif %}
-                                {% endfor %}
-                                <span class="more"></span>
+                                    ! | <a class="wb_link" href="{% url auth_logout %}">{% trans 'Log out' %}</a>
+                                {% else %}
+                                    <a class="wb_link" href="{% url auth_login %}">{% trans "Log-in" %}</a>
+                                {% endif %}
+                            </li>
+                            <li>
+                                <span id="languages_top">
+                                    {% for lang in LANGUAGES %}
+                                        {% if lang.0 == LANGUAGE_CODE %}
+                                            {{ lang.1 }}
+                                        {% endif %}
+                                    {% endfor %}
+                                    <span class="more"></span>
                                 <form action="/i18n/setlang/" method="post" class="languages">
                                     {% csrf_token %}
                                     <input type="hidden" name="language" id="language"/>
@@ -45,9 +46,10 @@
                                         <li code="" class="disabled">français</li>
                                     </ul>
                                 </form>
-                            </span>
-                        </li>
-                    </ul>
+                                </span>
+                            </li>
+                        </ul>
+                    {% endblock %}
                 </div>
             </div>
             <!-- END Header -->
@@ -152,11 +154,11 @@
     {{ block.super }}
 {% endblock %}
 
-{% block doc_ready %}
+{% block scripts %}
     <script type="text/javascript"
             src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
-
     {{ block.super }}
+
     <!-- scripts concatenated and minified via ant build script-->
     <script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>
     <script type="text/javascript" src="/static/js/mylibs/jquery.placeheld.min.js"></script>
@@ -172,13 +174,16 @@
 
     <script type="text/javascript" src="/static/js/helpers.js"></script>
     <!-- end scripts-->
+{% endblock scripts %}
 
-    <script>
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
         $(document).ready(function() {
             $(".home_link").click(function() {
                 document.location.href = "/";
             });
-            $("#languages_top .more").click(function(){
+            $("#languages_top .more").click(function() {
                 $("#languages_top .languages").show();
             });
             $("form.languages li").click(function() {
@@ -187,23 +192,6 @@
                 if (code != "{{ LANGUAGE_CODE }}" && !$(this).hasClass("disabled")) {
                     $("form.languages > #language").val(code);
                     $("form.languages").submit();
-                }
-            });
-            HotspotHelper.init({
-                labels: {
-                    choose_date: "{% trans "Choose Date" %}",
-                    updating: "{% trans "Updating..." %}"
-                },
-                urls: {
-                    get_hotspot_data: "{% url sharing.passenger_controller.get_hotspots_data %}",
-                    get_hotspot_dates: "{% url sharing.passenger_controller.get_hotspot_dates %}",
-                    get_hotspot_times: "{% url sharing.passenger_controller.get_hotspot_times %}"
-                }
-            });
-
-            AddressHelper.init({
-                urls:{
-                    structured_resolve_url: "{% url sharing.passenger_controller.resolve_structured_address %}"
                 }
             });
         });
