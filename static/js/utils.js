@@ -263,10 +263,11 @@ function air() {
     for(var i=1; i<arguments.length; ++i) {
         new_args[i-1] = arguments[i];
     }
-    
+
     if (window.parentSandboxBridge) {
         try {
-            return window.parentSandboxBridge[func_name].apply(window.parentSandboxBridge, new_args);
+            var func = window.parentSandboxBridge[func_name];
+            return func.apply(window.parentSandboxBridge, new_args);
         } catch (e) {
             return false;
         }

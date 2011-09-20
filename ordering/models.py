@@ -100,6 +100,7 @@ class Station(BaseModel):
 
     confine_orders = models.BooleanField(_("confine orders"), default=False)
     sms_drivers = models.BooleanField(_("send sms to drivers"), default=False)
+    vouchers_emails = models.CharField(_("voucher emails"), max_length=255, null=True, blank=True)
 
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")
@@ -1141,7 +1142,7 @@ for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
         models.BooleanField(default=False).contribute_to_class(Feedback, "%s_%s" % (
         type.lower(), category.lower().replace(" ", "_")))
 
-add_formatted_date_fields([Order, OrderAssignment, Passenger, Station, WorkStation])
+add_formatted_date_fields([Order, OrderAssignment, Passenger, Station, WorkStation, RidePoint, SharedRide])
 
 # TODO_WB: check if created arg has been fixed and reports False on second save of instance
 #def order_init_handler(sender, **kwargs):

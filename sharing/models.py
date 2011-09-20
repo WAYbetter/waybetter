@@ -129,7 +129,7 @@ class HotSpot(BaseModel):
         hn = re.search("(\d+)", self.address)
         hn = hn.groups()[0] if hn else 0
 
-        return {'%s_raw' % address_type: '%s %s' % (self.address, self.city),
+        return {'%s_raw' % address_type: '%s, %s' % (self.address, self.city),
                 '%s_street_address' % address_type: self.address.replace(hn, ""),
                 '%s_house_number' % address_type: hn,
                 '%s_lon' % address_type: self.lon,
