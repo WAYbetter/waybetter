@@ -105,6 +105,7 @@
 
 {% endblock %}
 
+{% block header_links %}{% endblock %}
 {% block top_left %}
     {% trans "Enter Payment Method" %}
 {% endblock %}
@@ -191,3 +192,5 @@
     </div>
 {% endblock %}
 
+{% block scripts %}{% endblock %}
+{% block doc_ready %}{% endblock %}

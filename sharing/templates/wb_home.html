@@ -444,6 +444,29 @@
 
         $(function() {
 
+            HotspotHelper.init({
+                labels: {
+                    choose_date: "{% trans "Choose Date" %}",
+                    updating: "{% trans "Updating..." %}"
+                },
+                urls: {
+                    get_hotspot_data: "{% url sharing.passenger_controller.get_hotspots_data %}",
+                    get_hotspot_dates: "{% url sharing.passenger_controller.get_hotspot_dates %}",
+                    get_hotspot_times: "{% url sharing.passenger_controller.get_hotspot_times %}"
+                }
+            });
+
+            AddressHelper.init({
+                urls:{
+                    structured_resolve_url: "{% url sharing.passenger_controller.resolve_structured_address %}"
+                }
+            });
+
+            HotspotHelper.makeHotSpotSelector("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
+            HotspotHelper.config.update_on_dateselect = false; // we trigger the update manually
+
+            AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number", "#address_input_helper .tooltip_loader");
+
             $("#slider").nivoSlider({
                 controlNav: false,
                 directionNav: false,
@@ -469,11 +492,6 @@
             $("#pickup_input").tooltip($.extend({}, tooltip_conf, {tip: "#pickup_input_tip"}));
             $("#dropoff_input").tooltip($.extend({}, tooltip_conf, {tip: "#dropoff_input_tip"}));
             $("#datetime_input").tooltip($.extend({}, tooltip_conf, {tip: "#datetime_input_tip"}));
-
-            HotspotHelper.makeHotSpotSelector("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
-            HotspotHelper.config.update_on_dateselect = false; // we trigger the update manually
-
-            AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number", "#address_input_helper .tooltip_loader");
 
             $(".order_button").disable();
 
