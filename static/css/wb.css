@@ -6,8 +6,17 @@ body {
   padding: 0;
   margin: 0; }
 
+input[type=text], input[type=password] {
+  border: 1px solid #bcbcbc;
+  height: 28px; }
+
 .bold {
   font-weight: bold; }
+
+.transparent {
+  zoom: 1;
+  filter: alpha(opacity=50);
+  opacity: 0.5; }
 
 a:hover {
   text-decoration: none; }
@@ -39,7 +48,8 @@ ul.hz > li {
   float: right; }
 
 .disabled {
-  color: #bcbcbc; }
+  color: #bcbcbc;
+  cursor: default; }
 
 .clickable {
   cursor: pointer; }
@@ -231,6 +241,7 @@ body.base-site {
   border-bottom: 1px solid #98988F; }
 
 #site-content {
+  position: relative;
   width: 800px;
   margin: 0 auto 50px auto;
   background: white;
@@ -637,45 +648,80 @@ body.base-site {
 /*********************************************/
 /******************* REGISTRATION ************/
 /*********************************************/
-.registration #registration_details {
-  border-top: 1px solid #bcbcbc;
-  border-bottom: 1px solid #bcbcbc;
-  padding-top: 25px;
-  padding-bottom: 25px;
-  margin: 50px auto;
-  width: 100%; }
 .registration #validation .container {
   margin-top: 20px;
-  padding: 0 15px 0 15px; }
-.registration #verification_status {
-  width: 20px;
-  height: 20px;
-  border: 1px solid black;
-  display: inline-block; }
+  padding: 15px; }
+  .registration #validation .container .float-r {
+    position: relative;
+    top: -10px; }
+.registration #verification_status, .registration #verification_status_top {
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+  background-color: #6c6c6a;
+  position: relative;
+  top: 9px; }
+.registration #verification_status_top {
+  border: 1px solid;
+  background: white;
+  top: 5px;
+  right: 23px; }
 .registration #verification_status.success {
   background-color: #008000; }
 .registration #verification_status.error {
   background-color: red; }
 .registration #verification_status.sending {
   background-color: orange; }
+.registration #registration_details {
+  border-top: 1px solid #bcbcbc;
+  border-bottom: 1px solid #bcbcbc;
+  padding-top: 25px;
+  padding-bottom: 25px;
+  margin-top: 15px;
+  margin-bottom: 45px;
+  width: 100%; }
+  .registration #registration_details label {
+    font-weight: normal;
+    width: 95px;
+    margin-right: 30px; }
+  .registration #registration_details td {
+    vertical-align: top; }
+  .registration #registration_details td.padded {
+    padding: 20px; }
+  .registration #registration_details #id_agree_to_terms {
+    margin-top: 30px; }
+.registration .errorlist {
+  list-style: none; }
+  .registration .errorlist li {
+    display: inline; }
 .registration .vrule {
   border-left: 1px solid #bcbcbc;
-  height: 50px;
+  height: 80px;
   position: relative;
-  left: 7px; }
+  left: 7px;
+  margin: 15px 0 15px 0; }
 .registration .header {
   font-size: 13px;
   font-weight: bold; }
-.registration #fb_connect {
-  width: 150px;
-  height: 50px;
-  background-color: blue; }
 .registration #user_details th {
   text-align: left; }
 .registration #user_details input {
   width: 200px; }
-.registration #finish_registration {
-  float: right; }
+.registration #fb_connect {
+  position: relative;
+  top: 71px;
+  left: 71px;
+  width: 170px;
+  height: 28px; }
+.registration #fb_connect.disabled {
+  background: url("/static/images/wb_site/fb_disabled.jpeg") -1px 0 no-repeat; }
+.registration #next_container {
+  position: absolute;
+  bottom: 25px;
+  right: 25px;
+  vertical-align: bottom; }
+.registration #bottom_login {
+  display: inline-block; }
 
 .transaction_page #site-content {
   padding: 10px; }

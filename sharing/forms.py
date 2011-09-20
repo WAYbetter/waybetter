@@ -59,13 +59,13 @@ class PassengerRegistrationForm(forms.Form):
         rules = [('re_password', {'equal_to_field': 'password'})]
         messages = [('re_password', {'equal_to_field': _("The two password fields didn't match.")})]
 
-    def clean(self):
+    def clean_email(self):
         try:
             user = User.objects.get(username=self.cleaned_data["email"])
         except User.DoesNotExist:
             user = None
 
         if user:
-            raise ValidationError(_("Username is already taken"))
+            raise ValidationError(_("Username is already taken."))
 
-        return self.cleaned_data
+        return self.cleaned_data["email"]

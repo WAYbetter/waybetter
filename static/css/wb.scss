@@ -23,8 +23,19 @@ body{
     margin: 0;
 }
 
+input[type=text], input[type=password]{
+    border: 1px solid $light-gray;
+    height: 28px;
+}
+
 .bold {
     font-weight: bold;
+}
+
+.transparent {
+        zoom: 1;
+        filter: alpha(opacity=50);
+        opacity: 0.5;
 }
 
 a:hover{
@@ -65,6 +76,7 @@ ul.hz{
 
 .disabled{
     color: $color-disabled;
+    cursor: default;
 }
 
 .clickable{
@@ -270,6 +282,7 @@ body.base-site{
 }
 
 #site-content{
+    position: relative;
     width: $site-width;
     margin: 0 auto 50px auto;
     background: white;
@@ -718,57 +731,88 @@ body.base-site{
 /******************* REGISTRATION ************/
 /*********************************************/
 .registration{
+    #validation{
+        .container{
+            margin-top: 20px;
+            padding: 15px;
+            .float-r{
+                position: relative;
+                top: -10px;
+            }
+        }
+    }
+    #verification_status, #verification_status_top {
+        width: 30px;
+        height: 30px;
+        display: inline-block;
+        background-color: $color-gray;
+        position: relative;
+        top: 9px;
+    }
+    #verification_status_top{
+        border: 1px solid;
+        background: white;
+        top: 5px;
+        right: 23px;
+    }
+    #verification_status.success { background-color: #008000; }
+    #verification_status.error { background-color: red; }
+    #verification_status.sending { background-color: orange; }
     #registration_details{
         border-top: 1px solid $light-gray;
         border-bottom: 1px solid $light-gray;
         padding-top: 25px;
         padding-bottom: 25px;
-        margin: 50px auto;
+        margin-top: 15px;
+        margin-bottom: 45px;
         width: 100%;
-    }
-    #validation{
-        .container{
-            margin-top: 20px;
-            padding: 0 15px 0 15px;
+        label { font-weight: normal; width: 95px; margin-right: 30px;}
+        td{ vertical-align: top; }
+        td.padded{ padding: 20px;}
+        #id_agree_to_terms{
+            margin-top: 30px;
         }
     }
-    #verification_status {
-        width: 20px;
-        height: 20px;
-        border:  1px solid black;
-        display: inline-block;
-    }
-    #verification_status.success {
-        background-color: #008000;
-    }
-    #verification_status.error {
-        background-color: red;
-    }
-    #verification_status.sending {
-        background-color: orange;
+    .errorlist{
+        list-style: none;
+        li{
+            display: inline;
+        }
     }
     .vrule{
         border-left: 1px solid $light-gray;
-        height: 50px;
+        height: 80px;
         position: relative;
         left: 7px;
+        margin: 15px 0 15px 0;
     }
     .header{
         font-size: $font-size-medium;
         font-weight: bold;
     }
-    #fb_connect{
-        width: 150px;
-        height: 50px;
-        background-color: blue;
-    }
     #user_details{
         th {text-align: left};
         input { width: 200px; }
-
     }
-
-    #finish_registration { float: right;}
+    #fb_connect{
+        position: relative;
+        top: 71px;
+        left: 71px;
+        width: 170px;
+        height: 28px;
+    }
+    #fb_connect.disabled{
+        background: url("/static/images/wb_site/fb_disabled.jpeg") -1px 0 no-repeat;
+    }
+    #next_container {
+        position: absolute;
+        bottom: 25px;
+        right: 25px;
+        vertical-align: bottom;
+    }
+    #bottom_login{
+        display: inline-block;
+    }
 }
 
 
