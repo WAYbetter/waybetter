@@ -42,9 +42,9 @@ class BillingTransaction(BaseModel):
     auth_number = models.CharField(max_length=50, blank=True, null=True)
 
     # Denormalized fields
-    dn_passenger_name = models.CharField(_("passenger name"))
-    dn_pickup = models.CharField(_("pickup"))
-    dn_dropoff = models.CharField(_("dropoff"))
+    dn_passenger_name = models.CharField(_("passenger name"), max_length=255)
+    dn_pickup = models.CharField(_("pickup"), max_length=255)
+    dn_dropoff = models.CharField(_("dropoff"), max_length=255)
     dn_pickup_time = UTCDateTimeField(_("pickup time"))
 
     @property

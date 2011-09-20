@@ -2,7 +2,7 @@
 {% load i18n %}
 
 {% block extrastyle %}
-    <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
+    <link rel="stylesheet" href="/static/css/cupertino-modified/jquery-ui-1.8.16.custom.css" type="text/css" media="all">
     <link rel="stylesheet" href="/static/css/ws.css" type="text/css" media="all">
 {% endblock %}
 
@@ -18,7 +18,7 @@
             <span id="taken_counter" class="taken_count"></span> <span
                 class="taken_count"> {% trans "Ready to go" %}</span>
         </div>
-        <div id="tools_button" class="toolbar_button">{% trans "Station Account" %}</div>
+        <div id="tools_button" class="toolbar_button">{% trans "Manage" %}</div>
         <div class="clear"></div>
     </div>
     <div id="ride_accordion_container">
@@ -45,8 +45,8 @@
     <script type="text/javascript">
     var not_assigned_msg = "{% trans "Not Assigned Yet" %}";
     var missed_msg = "{% trans "Missed" %}";
-    var minimize_label = "{% trans 'Hide List' %}";
-    var maximize_label = "{% trans 'Show List' %}";
+    var minimize_label = "{% trans 'Hide' %}";
+    var maximize_label = "{% trans 'Show' %}";
     var online_label = "{% trans 'Online Status: OK' %}";
     var offline_label = "{% trans 'Online Status: ERROR' %}";
     var is_minimized = true;
@@ -240,29 +240,28 @@
     };
 
     renderTable = function(ride) {
-        var $table = $('<table><thead><tr><th>{% trans 'Time' %}</th><th>{% trans 'Address' %}</th><th>{% trans '# of Passengers' %}</th></tr></thead></table>');
-
+        var $table = $('<table></table>');
         $table.append("<tr class='spacer'><td colspan=3></td></tr>"); // spacer
-        $table.append("<tr class='spacer'><td colspan=3 class='table_header'>{% trans 'Pickups' %}</td></tr>"); // spacer
+        $table.append("<tr class='spacer'><td colspan=2 class='table_header'>{% trans 'Pickups' %}</td><td class='table_header'>{% trans '# of Passengers' %}</td></tr>"); // spacer
 
         $.each(ride.pickups, function(i, p) {
-            $table.append(renderPointRow(p));
+            $table.append(renderPointRow(p, 'pickup'));
         });
 
         $table.append("<tr class='spacer'><td colspan=3></td></tr>"); // spacer
         $table.append("<tr class='spacer'><td colspan=3 class='table_header'>{% trans 'Dropoffs' %}</td></tr>"); // spacer
 
         $.each(ride.dropoffs, function(i, p) {
-            $table.append(renderPointRow(p));
+            $table.append(renderPointRow(p, "dropoff"));
         });
 
         return $table;
     };
 
-    renderPointRow = function(point_data) {
-        var row_content = "<tr class='dropoff'><td>" + point_data.time + "</td><td>" + point_data.address + "</td><td>" + point_data.num_passengers;
+    renderPointRow = function(point_data, class_name) {
+        var row_content = "<tr class='"+ class_name +"'><td>" + point_data.time + "</td><td>" + point_data.address + "</td><td>" + point_data.num_passengers;
         if (point_data.num_passengers == 1) {
-            row_content += " (" + point_data.passenger_phones[0] + ")"
+            row_content += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "{% trans "Tel" %}': " + point_data.passenger_phones[0];
         }
         row_content += "</td></tr>";
         return $(row_content);
@@ -276,7 +275,7 @@
                     window.open(link, "Map View", 'width=800,height=600,resizable=no');
                 });
 
-        var $copy_link = $('<a class="map_link copy_link" href="#">{% trans "Copy" %}</a>').click(function() {
+        var $copy_link = $('<a class="map_link copy_link" href="#">{% trans "Copy Info" %}</a>').click(function() {
             if (air("copy", ride.driver_jist)) {
                 flashMessage("{% trans "Ride Copied" %}");
             } else {
@@ -308,7 +307,6 @@
         }
 
         var $add_driver = $('<a class="add_driver">{% trans "+ Add" %}</a>');
-        var $matcher_label = $("<div class='matcher_label'>{% trans "Assign Ride" %}:</div>");
         var $selectors = $('<div class="select_tools"></div>')
                 .append($taxi_label, $taxi_selector, $driver_label, $driver_selector);
 
@@ -346,7 +344,7 @@
                     }
                 });
         return $('<div class="ride_matcher" id="matcher_' + ride.id + '"></div>')
-                .append($matcher_label, $accept_button, $selectors, '<div class="clear"></div>');
+                .append($accept_button, $selectors, '<div class="clear"></div>');
     };
 
 
@@ -530,9 +528,10 @@
     };
 
     maximize = function() {
-        air("maximize");
+        air("maximize", null, 450);
         $("#expand_collapse_button").button("option", "label", minimize_label).removeClass("not_taken");
         $("#ride_accordion_container").add("#summary").show();
+        $(document).stopTime("minimize_nag");
         is_minimized = false;
     };
     minimize = function() {
@@ -542,7 +541,7 @@
             $("#expand_collapse_button").addClass("not_taken");
             $(document).stopTime("minimize_nag");
             $(document).oneTime(minimize_nag_interval * 1000, "minimize_nag", function() {
-                maximize();
+                updateCounters();
             });
         }
         $("#ride_accordion_container").add("#summary").hide();
@@ -607,13 +606,13 @@
         $("#snap_left_action").click(function() {
             air("snap_left");
             if (!is_minimized) {
-                air("maximize");
+                maximize();
             }
         });
         $("#snap_right_action").click(function() {
             air("snap_right");
             if (!is_minimized) {
-                air("maximize");
+                maximize();
             }
         });
 
