@@ -1,7 +1,7 @@
 from billing.models import BillingTransaction
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
-from django.utils import simplejson
+from django.utils import simplejson, translation
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
@@ -24,6 +24,8 @@ POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 @staff_member_required
 @passenger_required
 def hotspot_ordering_page(request, passenger, is_textinput):
+    translation.activate("he")
+
     if request.method == 'POST':
         response = ''
         hotspot_type_raw = request.POST.get("hotspot_type", None)
