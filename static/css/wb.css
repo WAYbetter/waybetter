@@ -132,18 +132,25 @@ ul.hz > li {
   width: 215px;
   height: 43px;
   border: none;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
   vertical-align: text-top;
   padding: 6px 0;
   text-align: center;
   text-decoration: none;
+  cursor: pointer;
   -webkit-box-shadow: 0px 1px 3px #404040;
   -moz-box-shadow: 0px 1px 3px #404040;
   box-shadow: 0px 1px 3px #404040;
-  display: inline-block; }
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  display: inline-block;
+  color: white; }
 
-.blue {
+.order_button:disabled, .order_button.disabled {
+  cursor: default;
+  opacity: 0.5; }
+
+.order_button.blue {
   background: #16acd3;
   /* Old browsers */
   background: -moz-linear-gradient(top, #16acd3 0%, #0e82a8 100%);
@@ -159,10 +166,9 @@ ul.hz > li {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#16acd3', endColorstr='#0e82a8',GradientType=0 );
   /* IE6-9 */
   background: linear-gradient(top, #16acd3 0%, #0e82a8 100%);
-  /* W3C */
-  color: white; }
+  /* W3C */ }
 
-.orange {
+.order_button.orange {
   background: #ffa733;
   /* Old browsers */
   background: -moz-linear-gradient(top, #ffa733 0%, #d47d1f 100%);
@@ -178,8 +184,7 @@ ul.hz > li {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffa733', endColorstr='#d47d1f',GradientType=0 );
   /* IE6-9 */
   background: linear-gradient(top, #ffa733 0%, #d47d1f 100%);
-  /* W3C */
-  color: white; }
+  /* W3C */ }
 
 /*********************************************/
 /***************** BASE SITE *****************/
@@ -247,9 +252,9 @@ body.base-site {
   -webkit-border-radius: 12px;
   -moz-border-radius: 12px;
   border-radius: 12px;
-  -webkit-box-shadow: 0px 0px 6px 0px #747474;
-  -moz-box-shadow: 0px 0px 6px 0px #747474;
-  box-shadow: 0px 0px 6px 0px #747474; }
+  -webkit-box-shadow: 0 0 6px 0 #747474;
+  -moz-box-shadow: 0 0 6px 0 #747474;
+  box-shadow: 0 0 6px 0 #747474; }
 
 #footer-container {
   position: relative;
@@ -328,11 +333,18 @@ body.base-site {
 .wb_home #content-container {
   padding-top: 0;
   min-height: 700px; }
-.wb_home #content-container #site-content {
+.wb_home #site-content {
   position: relative;
   top: -50px;
   margin-bottom: 0;
-  padding: 0; }
+  padding: 3px;
+  -webkit-border-radius: 8px;
+  -moz-border-radius: 8px;
+  border-radius: 8px;
+  border: 2px solid #bcbcbc;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none; }
 .wb_home #map_container {
   width: 100%;
   height: 300px; }
@@ -358,9 +370,9 @@ body.base-site {
   height: 100%;
   background-color: #DADADA;
   border-right: 1px solid white;
-  -webkit-border-radius: 12px 0 0 12px;
-  -moz-border-radius: 12px 0 0 12px;
-  border-radius: 12px 0 0 12px; }
+  -webkit-border-radius: 5px 0 0 5px;
+  -moz-border-radius: 5px 0 0 5px;
+  border-radius: 5px 0 0 5px; }
   .wb_home #order_form_container .ribbon {
     font-size: 18px;
     font-weight: bold;
@@ -384,7 +396,7 @@ body.base-site {
     background: url(/static/images/wb_site/switch.png) left 0 no-repeat; }
   .wb_home #order_form #switch:hover {
     background-position: left -49px; }
-  .wb_home #order_form .address_input {
+  .wb_home #order_form .input {
     height: 35px;
     width: 214px;
     padding-left: 33px;
@@ -393,37 +405,41 @@ body.base-site {
     margin-bottom: 21px;
     font-size: 11px;
     color: #6c6c6a; }
-  .wb_home #order_form .address_input:hover {
+  .wb_home #order_form .input:hover {
     -webkit-box-shadow: inset 0px 0px 1px black;
     -moz-box-shadow: inset 0px 0px 1px black;
     box-shadow: inset 0px 0px 1px black; }
-  .wb_home #order_form .address_input.from {
+  .wb_home #order_form .input.from {
     background: url(/static/images/wb_site/field_icons.png) 6px -8px no-repeat white; }
-  .wb_home #order_form .address_input.from.resolved {
+  .wb_home #order_form .input.from.resolved {
     background: url(/static/images/wb_site/field_icons.png) 6px -89px no-repeat white; }
-  .wb_home #order_form .address_input.to {
+  .wb_home #order_form .input.to {
     background: url(/static/images/wb_site/field_icons.png) 6px -50px no-repeat white; }
-  .wb_home #order_form .address_input.to.resolved {
+  .wb_home #order_form .input.to.resolved {
     background: url(/static/images/wb_site/field_icons.png) 6px -131px no-repeat white; }
-  .wb_home #order_form .address_input.time {
+  .wb_home #order_form .input.time {
     background: url(/static/images/wb_site/field_icons.png) 6px -173px no-repeat white; }
-  .wb_home #order_form .address_input.time.depart {
+  .wb_home #order_form .input.time.depart {
     background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat white; }
-  .wb_home #order_form .address_input.time.arrive {
+  .wb_home #order_form .input.time.arrive {
     background: url(/static/images/wb_site/field_icons.png) 6px -254px no-repeat white; }
-.wb_home #ride_details_container {
+  .wb_home #order_form .input.tooltip-visible {
+    -webkit-box-shadow: inset 1px 1px 1px black;
+    -moz-box-shadow: inset 1px 1px 1px black;
+    box-shadow: inset 1px 1px 1px black; }
+.wb_home #ride_data_container {
   float: right;
   height: 100%;
   width: 495px;
   border-left: 1px solid #BEBEBB; }
-  .wb_home #ride_details_container > div {
+  .wb_home #ride_data_container > div {
     display: inline-block; }
-.wb_home .ride_details {
+.wb_home .ride_data_container {
   background: white;
   height: 100%;
   width: 242px;
   color: #6c6c6a; }
-  .wb_home .ride_details .header {
+  .wb_home .ride_data_container .header {
     display: block;
     height: 52px;
     line-height: 52px;
@@ -432,60 +448,69 @@ body.base-site {
     margin-top: 13px;
     font-size: 18px;
     font-weight: bold; }
-  .wb_home .ride_details ul {
+  .wb_home .ride_data_container ul {
     width: 100%;
     list-style: none;
     position: relative;
     left: -20px;
     top: -16px; }
-  .wb_home .ride_details li {
+  .wb_home .ride_data_container li {
     padding-left: 5px;
     font-size: 11px;
     line-height: 52px; }
-  .wb_home .ride_details li:first-child {
+  .wb_home .ride_data_container li:first-child {
     line-height: 45px; }
-  .wb_home .ride_details .price {
+  .wb_home .ride_data_container .price {
     position: relative;
     left: 62px;
     font-weight: bold; }
-    .wb_home .ride_details .price .value {
+    .wb_home .ride_data_container .price .value {
       font-size: 35px; }
-    .wb_home .ride_details .price .label {
+    .wb_home .ride_data_container .price .label {
       font-size: 29.3px;
       margin-left: 5px; }
-  .wb_home .ride_details .time {
+  .wb_home .ride_data_container .time {
     font-weight: bold;
     position: relative;
     left: 32px; }
-    .wb_home .ride_details .time .value {
+    .wb_home .ride_data_container .time .value {
       font-size: 24px; }
-    .wb_home .ride_details .time .label {
+    .wb_home .ride_data_container .time .label {
       font-size: 13px;
       margin-left: 5px; }
-  .wb_home .ride_details .order_button {
+  .wb_home .ride_data_container .order_button {
     margin-left: 17px;
     margin-top: -20px; }
-.wb_home #sharing_details {
+.wb_home #sharing_data_container {
   float: right;
   -webkit-border-radius: 0 12px 12px 0;
   -moz-border-radius: 0 12px 12px 0;
   border-radius: 0 12px 12px 0; }
-  .wb_home #sharing_details .header {
+  .wb_home #sharing_data_container .header {
     background: url(/static/images/wb_site/shared_icon.png) left 0 no-repeat;
     color: #FF921E; }
-  .wb_home #sharing_details ul {
+  .wb_home #sharing_data_container .ride_details ul {
     left: -24px; }
-  .wb_home #sharing_details li {
+  .wb_home #sharing_data_container .ride_details li {
     background: url(/static/images/wb_site/orange_bracket.png) left 35px no-repeat; }
-  .wb_home #sharing_details .order_button {
+  .wb_home #sharing_data_container .ride_details .order_button {
     margin-left: 11px; }
-.wb_home #private_details {
+.wb_home #private_data_container {
   float: left; }
-  .wb_home #private_details .header {
+  .wb_home #private_data_container .header {
     background: url(/static/images/wb_site/private_icon.png) left 0 no-repeat;
     color: #16ACD3; }
-  .wb_home #private_details li {
+  .wb_home #private_data_container .ride_details li {
     background: url(/static/images/wb_site/blue_bracket.png) left 35px no-repeat; }
+.wb_home .ride_details {
+  display: none; }
+.wb_home .ride_benefits .h {
+  font-size: 13px;
+  font-weight: bold; }
+.wb_home .ride_benefits .c {
+  line-height: 2px;
+  margin-bottom: 5px;
+  margin-top: -7px; }
 .wb_home #ticket-perforation {
   background-image: url(/static/images/wb_site/ticket-perforation.png);
   height: 100%;

@@ -13,6 +13,18 @@ $color-community: #4CBA00;
 $color-environment: #16ACD3;
 $color-efficiency: #FF921E;
 
+@mixin border-radius($r){
+    -webkit-border-radius: $r;
+    -moz-border-radius: $r;
+    border-radius: $r;
+}
+
+@mixin box-shadow($r){
+    -webkit-box-shadow: $r;
+    -moz-box-shadow: $r;
+    box-shadow: $r;
+}
+
 * {
     font-size: 12px;
     font-family: "Lucida Grande", Arial, sans-serif;
@@ -174,21 +186,24 @@ ul.hz{
     width: 215px;
     height: 43px;
     border: none;
-    -moz-border-radius: 6px;
-    border-radius: 6px;
     vertical-align: text-top;
     padding: 6px 0;
     text-align: center;
     text-decoration: none;
-
-    -webkit-box-shadow: 0px 1px 3px #404040;
-    -moz-box-shadow: 0px 1px 3px #404040;
-    box-shadow: 0px 1px 3px #404040;
+    cursor: pointer;
+    @include box-shadow(0px 1px 3px #404040);
+    @include border-radius(6px);
 
     display: inline-block;
+    color: white;
 }
 
-.blue {
+.order_button:disabled, .order_button.disabled{
+    cursor: default;
+    opacity: 0.5;
+}
+
+.order_button.blue {
     background: #16acd3; /* Old browsers */
     background: -moz-linear-gradient(top, #16acd3 0%, #0e82a8 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#16acd3), color-stop(100%,#0e82a8)); /* Chrome,Safari4+ */
@@ -197,11 +212,9 @@ ul.hz{
     background: -ms-linear-gradient(top, #16acd3 0%,#0e82a8 100%); /* IE10+ */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#16acd3', endColorstr='#0e82a8',GradientType=0 ); /* IE6-9 */
     background: linear-gradient(top, #16acd3 0%,#0e82a8 100%); /* W3C */
-
-    color: white;
 }
 
-.orange{
+.order_button.orange{
     background: #ffa733; /* Old browsers */
     background: -moz-linear-gradient(top, #ffa733 0%, #d47d1f 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffa733), color-stop(100%,#d47d1f)); /* Chrome,Safari4+ */
@@ -210,8 +223,6 @@ ul.hz{
     background: -ms-linear-gradient(top, #ffa733 0%,#d47d1f 100%); /* IE10+ */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffa733', endColorstr='#d47d1f',GradientType=0 ); /* IE6-9 */
     background: linear-gradient(top, #ffa733 0%,#d47d1f 100%); /* W3C */
-
-    color: white;
 }
 
 /*********************************************/
@@ -286,13 +297,8 @@ body.base-site{
     margin: 0 auto 50px auto;
     background: white;
     padding: 25px;
-    -webkit-border-radius: 12px;
-    -moz-border-radius: 12px;
-    border-radius: 12px;
-
-    -webkit-box-shadow: 0px 0px 6px 0px #747474;
-    -moz-box-shadow: 0px 0px 6px 0px #747474;
-    box-shadow: 0px 0px 6px 0px #747474;
+    @include border-radius(12px);
+    @include box-shadow(0 0 6px 0 #747474);
 }
 
 #footer-container{
@@ -376,11 +382,14 @@ body.base-site{
         min-height: 700px;
     }
 
-    #content-container #site-content{
+    #site-content{
         position: relative;
         top: -50px;
         margin-bottom: 0;
-        padding: 0;
+        padding: 3px;
+        @include border-radius(8px);
+        border: 2px solid $light-gray;
+        @include box-shadow(none);
     }
 
     #map_container {
@@ -412,9 +421,7 @@ body.base-site{
          background-color: #DADADA;
          border-right: 1px solid white;
 
-        -webkit-border-radius: 12px 0 0 12px;
-        -moz-border-radius: 12px 0 0 12px;
-        border-radius: 12px 0 0 12px;
+        @include border-radius(5px 0 0 5px);
         .ribbon{
             font-size: $font-size-header1;
             font-weight: bold;
@@ -444,7 +451,7 @@ body.base-site{
         #switch:hover{
             background-position: left -49px;
         }
-        .address_input{
+        .input{
             height: 35px;
             width: 214px;
             padding-left: 33px;
@@ -454,35 +461,36 @@ body.base-site{
             font-size: $font-size-small;
             color: $color-gray;
         }
-        .address_input:hover{
-            -webkit-box-shadow:inset 0px 0px 1px black;
-            -moz-box-shadow:inset 0px 0px 1px black;
-            box-shadow:inset 0px 0px 1px black;
+        .input:hover{
+            @include box-shadow(inset 0px 0px 1px black);
         }
-        .address_input.from{
+        .input.from{
             background: url(/static/images/wb_site/field_icons.png) 6px -8px no-repeat white;
         }
-        .address_input.from.resolved{
+        .input.from.resolved{
             background: url(/static/images/wb_site/field_icons.png) 6px -89px no-repeat white;
         }
-        .address_input.to{
+        .input.to{
             background: url(/static/images/wb_site/field_icons.png) 6px -50px no-repeat white;
         }
-        .address_input.to.resolved{
+        .input.to.resolved{
             background: url(/static/images/wb_site/field_icons.png) 6px -131px no-repeat white;
         }
-        .address_input.time{
+        .input.time{
             background: url(/static/images/wb_site/field_icons.png) 6px -173px no-repeat white;
         }
-        .address_input.time.depart{
+        .input.time.depart{
             background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat white;
         }
-        .address_input.time.arrive{
+        .input.time.arrive{
             background: url(/static/images/wb_site/field_icons.png) 6px -254px no-repeat white;
+        }
+        .input.tooltip-visible{
+            @include box-shadow(inset 1px 1px 1px black);
         }
     }
 
-    #ride_details_container{
+    #ride_data_container{
         float: right;
         height: 100%;
         width: 495px;
@@ -492,7 +500,7 @@ body.base-site{
             display: inline-block;
         }
     }
-    .ride_details{
+    .ride_data_container{
         background: white;
         height: 100%;
         width: 242px;
@@ -551,7 +559,7 @@ body.base-site{
             margin-top: -20px;
         }
     }
-    #sharing_details{
+    #sharing_data_container{
         float: right;
         -webkit-border-radius: 0 12px 12px 0;
         -moz-border-radius: 0 12px 12px 0;
@@ -561,24 +569,40 @@ body.base-site{
             background: url(/static/images/wb_site/shared_icon.png) left 0 no-repeat;
             color: #FF921E;
         }
-        ul{
-            left: -24px;
-        }
-        li{
-            background: url(/static/images/wb_site/orange_bracket.png) left 35px no-repeat;
-        }
-        .order_button{
-            margin-left: 11px;
+        .ride_details{
+            ul{
+                left: -24px;
+            }
+            li{
+                background: url(/static/images/wb_site/orange_bracket.png) left 35px no-repeat;
+            }
+            .order_button{
+                margin-left: 11px;
+            }
         }
     }
-    #private_details{
+    #private_data_container{
         float: left;
         .header{
             background: url(/static/images/wb_site/private_icon.png) left 0 no-repeat;
             color: #16ACD3;
         }
-        li{
-            background: url(/static/images/wb_site/blue_bracket.png) left 35px no-repeat;
+        .ride_details{
+            li{
+                background: url(/static/images/wb_site/blue_bracket.png) left 35px no-repeat;
+            }
+        }
+    }
+    .ride_details{ display: none; }
+    .ride_benefits{
+        .h{
+            font-size: $font-size-medium;
+            font-weight: bold;
+        }
+        .c{
+            line-height: 2px;
+            margin-bottom: 5px;
+            margin-top: -7px;
         }
     }
     #ticket-perforation{
