@@ -233,7 +233,7 @@ body.base-site {
   bottom: 0; }
 
 #content-container {
-  background: #F9F8EA;
+  background: url(/static/images/wb_site/BG_texture.png);
   min-height: 550px;
   position: relative;
   top: -18px;
@@ -258,18 +258,28 @@ body.base-site {
   top: -18px;
   border-top: 1px solid white; }
   #footer-container #site-footer {
-    margin: 0 auto;
-    width: 800px; }
+    margin: 8px auto 0 auto;
+    width: 800px;
+    position: relative; }
+    #footer-container #site-footer * {
+      color: white; }
+    #footer-container #site-footer #copyright {
+      position: absolute;
+      right: 0;
+      bottom: 0; }
     #footer-container #site-footer #sitemap {
       float: left; }
       #footer-container #site-footer #sitemap ul {
+        margin-right: 50px;
         list-style: none;
         display: inline-block;
         vertical-align: top; }
-      #footer-container #site-footer #sitemap ul :first-child {
-        font-weight: bold;
-        margin-bottom: 5px;
-        color: white; }
+      #footer-container #site-footer #sitemap li {
+        margin-bottom: 3px; }
+      #footer-container #site-footer #sitemap ul li:first-child {
+        font-weight: bold; }
+      #footer-container #site-footer #sitemap a {
+        text-decoration: none; }
     #footer-container #site-footer .tools {
       float: right; }
 
@@ -307,6 +317,12 @@ body.base-site {
     background: url(/static/images/wb_site/values.png) 0 -237px no-repeat; }
   #wb_values .eff {
     background: url(/static/images/wb_site/values.png) 0 -329px no-repeat; }
+  #wb_values .learnmore {
+    display: inline-block;
+    background: url(/static/images/wb_site/more_en.png) 0 2px no-repeat;
+    width: 12px;
+    height: 13px;
+    margin-left: 4px; }
 
 /*********************************************/
 /******************* HOME ********************/
@@ -752,22 +768,22 @@ body.base-site {
   right: 0;
   bottom: 0; }
 
-.privacy_he, .terms_he {
+.privacy_he #site-content, .terms_he #site-content {
   direction: rtl; }
-  .privacy_he #top-left, .terms_he #top-left {
-    right: 0;
-    left: auto; }
-  .privacy_he #top-right, .terms_he #top-right {
-    left: 0;
-    right: auto; }
-  .privacy_he .header, .terms_he .header {
-    font-size: 13px;
-    font-width: bold; }
-  .privacy_he p, .terms_he p {
-    font-size: 11px; }
-  .privacy_he .important, .terms_he .important {
-    text-decoration: underline;
-    font-weight: bold; }
+.privacy_he #top-left, .terms_he #top-left {
+  right: 0;
+  left: auto; }
+.privacy_he #top-right, .terms_he #top-right {
+  left: 0;
+  right: auto; }
+.privacy_he .header, .terms_he .header {
+  font-size: 13px;
+  font-width: bold; }
+.privacy_he p, .terms_he p {
+  font-size: 11px; }
+.privacy_he .important, .terms_he .important {
+  text-decoration: underline;
+  font-weight: bold; }
 
 /** Hotspot page **/
 .rtl.hotspot_page #map_container {

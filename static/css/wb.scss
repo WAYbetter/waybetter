@@ -273,7 +273,7 @@ body.base-site{
 }
 
 #content-container{
-    background: #F9F8EA;
+    background: url(/static/images/wb_site/BG_texture.png);
     min-height: 550px;
     position: relative;
     top: -18px;
@@ -301,20 +301,28 @@ body.base-site{
     top: -18px;
     border-top: 1px solid white;
     #site-footer{
-        margin: 0 auto;
+        * {color: white;}
+
+        margin: 8px auto 0 auto;
         width: $site-width;
+        position: relative;
+        #copyright{ position: absolute; right: 0; bottom: 0;}
         #sitemap{
             float: left;
             ul{
+                margin-right: 50px;
                 list-style: none;
                 display:inline-block;
                 vertical-align: top;
             }
-            ul :first-child{
+            li{ margin-bottom: 3px;}
+            ul li:first-child{
                 font-weight: bold;
-                margin-bottom: 5px;
-                color: white;
             }
+            a {
+                text-decoration: none;
+             }
+
         }
         .tools{
             float: right;
@@ -351,6 +359,14 @@ body.base-site{
     .community{ background: url(/static/images/wb_site/values.png) 0 -133px no-repeat; }
     .env{ background: url(/static/images/wb_site/values.png) 0 -237px no-repeat; }
     .eff{ background: url(/static/images/wb_site/values.png) 0 -329px no-repeat; }
+    .learnmore{
+        display: inline-block;
+        background: url(/static/images/wb_site/more_en.png) 0 2px no-repeat;
+        width: 12px;
+        height: 13px;
+        margin-left: 4px;
+    }
+
 }
 /*********************************************/
 /******************* HOME ********************/
@@ -851,7 +867,7 @@ body.base-site{
 }
 
 .privacy_he, .terms_he{
-    direction: rtl;
+    #site-content{direction: rtl;}
     #top-left {right: 0; left: auto;}
     #top-right {left: 0; right: auto;}
     .header {font-size: 13px; font-width: bold;}

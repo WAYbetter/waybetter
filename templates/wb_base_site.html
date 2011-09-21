@@ -82,22 +82,22 @@
                     <div class="value service">
                         <span class="header">{% trans "Service" %}</span>
                         variables as well as basic math operations and many useful functions.
-                        <div class="wb_link">{% trans "Learn More" %}<span class="more"></span></div>
+                        <div class="wb_link">{% trans "Learn More" %}<span class="learnmore"></span></div>
                     </div>
                     <div class="value community">
                         <span class="header">{% trans "Community" %}</span>
                         variables as well as basic math operations and many useful functions.
-                        <div class="wb_link">{% trans "Learn More" %}<span class="more"></span></div>
+                        <div class="wb_link">{% trans "Learn More" %}<span class="learnmore"></span></div>
                     </div>
                     <div class="value env">
                         <span class="header">{% trans "Environment" %}</span>
                         variables as well as basic math operations and many useful functions.
-                        <div class="wb_link">{% trans "Learn More" %}<span class="more"></span></div>
+                        <div class="wb_link">{% trans "Learn More" %}<span class="learnmore"></span></div>
                     </div>
                     <div class="value eff">
                         <span class="header">{% trans "Efficiency" %}</span>
                         variables as well as basic math operations and many useful functions.
-                        <div class="wb_link">{% trans "Learn More" %}<span class="more"></span></div>
+                        <div class="wb_link">{% trans "Learn More" %}<span class="learnmore"></span></div>
                     </div>
                 </div>
             {% endblock %}
@@ -113,33 +113,33 @@
                         <div id="sitemap">
                             <ul>
                                 <li>WAYbetter</li>
-                                <li>{% trans "Home" %}</li>
-                                <li>{% trans "Mobile" %}</li>
-                                <li>{% trans "Stations" %}</li>
+                                <li><a href="{% url wb_home %}">{% trans "Home" %}</a></li>
+                                <li><a>{% trans "Mobile" %}</a></li>
+                                <li><a>{% trans "Contact" %}</a></li>
                             </ul>
                             <ul>
-                                <li>{% trans "Community" %}</li>
-                                <li>{% trans "Votespot" %}</li>
-                                <li>{% trans "Developer" %}</li>
+                                <li><a>{% trans "Info" %}</a></li>
+                                <li><a>{% trans "The Service" %}</a></li>
+                                <li><a>{% trans "FAQ" %}</a></li>
+                                <li><a href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
+                                <li><a href="{% url privacy %}">{% trans "Privacy Policy" %}</a></li>
                             </ul>
                             <ul>
-                                <li>{% trans "Profile" %}</li>
-                                <li>{% trans "My Rides" %}</li>
-                                <li>{% trans "My Profile" %}</li>
+                                <li><a>{% trans "Community" %}</a></li>
+                                <li><a>{% trans "About Us" %}</a></li>
+                                <li><a>{% trans "Facebook" %}</a></li>
+                                <li><a>{% trans "Twitter" %}</a></li>
+                                <li><a>{% trans "Stations" %}</a></li>
                             </ul>
-                        </div>
-                        <div class="tools">
-                            <ul class="hz">
-                                <li>Language</li>
-                                <li>F</li>
-                                <li>t</li>
-                            </ul>
-                            <ul id="lang-dropdown">
-                                <li>English</li>
-                                <li>עברית</li>
+                            <ul>
+                                <li><a>{% trans "Account" %}</a></li>
+                                <li><a>{% trans "My Rides" %}</a></li>
+                                <li><a>{% trans "My Profile" %}</a></li>
+                                <li><a>{% trans "Log Out" %}</a></li>
                             </ul>
                         </div>
                         <div class="clear"></div>
+                        <div id="copyright">WAYbetter LTD © 2011</div>
                     {% endblock %}
                 </div>
             </div>
