@@ -65,7 +65,7 @@
 
         $(document).ready(function() {
             $("#home").disable().click(function(){
-                window.location.href = "/";
+                window.location.href = "{% url wb_home %}";
             });
             renderStatus(processing);
             getStatus();
