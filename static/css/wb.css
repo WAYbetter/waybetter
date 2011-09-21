@@ -104,6 +104,27 @@ ul.hz > li {
   background-color: #8b0000;
   border: 1px solid red; }
 
+.wb_button {
+  border: #454545;
+  background: #666666;
+  color: white;
+  padding: 10px 15px 10px 15px;
+  width: 80px;
+  height: 31px;
+  line-height: 0; }
+
+.wb_button:hover, .wb_button.hover {
+  border: #454545;
+  background: #eb1f79; }
+
+.wb_button:active, .wb_button.active {
+  border: #323232;
+  background: #FF4C96; }
+
+.wb_button:disabled, .wb_button.disabled {
+  border: none;
+  background: #C7C7C7; }
+
 .order_button {
   font-size: 18px;
   font-weight: bold;
@@ -121,29 +142,6 @@ ul.hz > li {
   -moz-box-shadow: 0px 1px 3px #404040;
   box-shadow: 0px 1px 3px #404040;
   display: inline-block; }
-
-.wb_button:hover, .wb_button.hover {
-  border: 1px solid #828282;
-  border-bottom: 1px solid black;
-  padding-top: 5px; }
-
-.wb_button:active, .wb_button.active {
-  border: 1px solid #525252;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
-  /*position: relative;*/
-  /*top: 1px;*/ }
-
-.wb_button:disabled, .wb_button.disabled {
-  border: none;
-  opacity: 0.65;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
-  position: relative;
-  top: 0;
-  padding-top: 6px; }
 
 .blue {
   background: #16acd3;
@@ -190,7 +188,7 @@ body.base-site {
   background: #98988F; }
 
 #header-container {
-  background-image: url(/static/images/header_bg.png);
+  background-image: url(/static/images/wb_site/header_bg.png);
   background-repeat: repeat-x;
   width: 100%;
   height: 88px;
@@ -200,7 +198,7 @@ body.base-site {
     width: 800px;
     margin: 0 auto; }
     #header-container #site-header #wb_logo {
-      background-image: url(/static/images/logo_header.png);
+      background-image: url(/static/images/wb_site/logo_header.png);
       height: 88px;
       width: 111px;
       float: left;

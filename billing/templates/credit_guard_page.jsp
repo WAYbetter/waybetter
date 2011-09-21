@@ -1,10 +1,13 @@
-{#<%@ page language="java" contentType="text/html; charset=utf-8"#}
-{#	pageEncoding="utf-8" errorPage="/error.jsp"%>#}
-{##}
-{#<jsp:useBean id="transactionDetails" scope="request" type="com.creditguard.common.transactions.TransactionDetails" />#}
-{#<%@ include file="/merchantPages/WebSources/includes/main.jsp" %>#}
-{#<script src="merchantPages/WebSources/js/EN.js"></script>#}
-{#<script src="merchantPages/WebSources/js/main.js"></script>#}
+<!-- uncomment for jsp file -->
+<!--
+<%@ page language="java" contentType="text/html; charset=utf-8"
+	pageEncoding="utf-8" errorPage="/error.jsp"%>
+
+<jsp:useBean id="transactionDetails" scope="request" type="com.creditguard.common.transactions.TransactionDetails" />
+<%@ include file="/merchantPages/WebSources/includes/main.jsp" %>
+<script src="merchantPages/WebSources/js/EN.js"></script>
+<script src="merchantPages/WebSources/js/main.js"></script>
+-->
 
 {% extends "wb_base_site.html" %}
 {% load i18n %}
@@ -12,8 +15,10 @@
 {% block extrastyle %}
     {{ block.super }}
     <style type="text/css">
-        #content-container{min-height: 0;}
-        
+        #content-container {
+            min-height: 0;
+        }
+
         .td_style_fieldName {
             font-weight: bold;
             font-size: 13px;
@@ -34,14 +39,11 @@
         }
 
         #CVVhelp {
-            width: 18px;
-            height: 18px;
-            background: url("/static/images/wb_site/question_mark.png") left 0 no-repeat;
-            cursor:pointer;
-            display: inline-block;
-            position: relative;
-            top: 2px;
-            left: 4px;
+            display: none;
+            position: absolute;
+            border: 1px #cccccc solid;
+            padding: 10px;
+            background: white;
         }
 
         #wb_lock {
@@ -157,7 +159,12 @@
             <tr>
                 <td class="td_style_fieldName">CVV</td>
                 <td><input type="text" name="cvv" id="cvv" maxlength="4" autocomplete="off"/>
-                    <div id="CVVhelp" onmouseover="showHideCVVhelp();" onmouseout="showHideCVVhelp();"></div>
+                    <img src="merchantPages/WebSources/images/qm.png" onmouseover="showHideCVVhelp();"
+                        onmouseout="showHideCVVhelp();" style="cursor:pointer;"/>
+
+                    <div id="CVVhelp">
+                        <img src="merchantPages/WebSources/images/cvv.jpg"/>
+                    </div>
                 </td>
                 <td class="td_style_fieldName"></td>
             </tr>
@@ -170,7 +177,7 @@
         <div id="wb_content_footer">
             <div id="wb_cg_logo"></div>
             <div id="wb_cards"></div>
-            <input type="submit" id="submitBtn" value="{% trans "Finish" %}"/>
+            <input type="submit" class="wb_button" id="submitBtn" value="{% trans "Finish" %}"/>
         </div>
     </form>
 
@@ -188,7 +195,7 @@
         <br/>
         {% trans "Please insert your credit card details as required above" %}.
         <br/>
-        {% trans "Payment for the order will only be auctioned after you click on the 'Next' button at the bottom on the screen" %}.
+        {% trans "Payment for the order will only be auctioned after you click on the 'Finish' button at the bottom on the screen" %}.
     </div>
 {% endblock %}
 

@@ -66,6 +66,6 @@ class PassengerRegistrationForm(forms.Form):
             user = None
 
         if user:
-            raise ValidationError(_("Username is already taken."))
+            raise ValidationError(_("Email already registered."))
 
         return self.cleaned_data["email"]
