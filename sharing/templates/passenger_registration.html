@@ -7,7 +7,7 @@
 {% endblock %}
 
 {% block top_right %}
-    {% trans "Already a member?" %} <span class="wb_link">{% trans "Sign In" %}</span>
+    {% trans "Already a member?" %} <a href="{{ login_link }}" class="wb_link">{% trans "Sign In" %}</a>
 {% endblock %}
 
 {% block content %}
@@ -96,7 +96,7 @@
 
     <div id="next_container">
         <div id="bottom_login">
-            {% trans "Already a member?" %} <span class="wb_link">{% trans "Sign In" %}</span>
+            {% trans "Already a member?" %} <a href="{{ login_link }}" class="wb_link">{% trans "Sign In" %}</a>
         </div>
         <button id="finish_registration">{% trans "Next" %} ></button>
     </div>
@@ -165,7 +165,7 @@
                         if (val && val.length == 4) {
                             var data = $("#validation").serialize();
                             $("#verification_code").disable();
-                            $("#verification_status").addClass("sending");
+                            $("#verification_status").removeClass("error success").addClass("sending");
 
                             $.ajax({
                                 url: "{% url validate_phone %}",

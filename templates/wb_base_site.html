@@ -14,7 +14,7 @@
                     <div id="wb_logo"></div>
                     {% block header_links %}
                         <ul class="links hz">
-                            <li class="home_link wb_link">{% trans "Home" %}</li>
+                            <li><a class="wb_link" href="{% url wb_home %}">{% trans 'Home' %}</a></li>
                             <li>
                                 {% if request.user.is_authenticated %}
                                     {% trans 'Hi' %}
@@ -180,9 +180,6 @@
     {{ block.super }}
     <script type="text/javascript">
         $(document).ready(function() {
-            $(".home_link").click(function() {
-                document.location.href = "/";
-            });
             $("#languages_top .more").click(function() {
                 $("#languages_top .languages").show();
             });
