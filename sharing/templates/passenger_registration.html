@@ -11,11 +11,11 @@
 {% endblock %}
 
 {% block content %}
-{#    {% if order %}#}
-{#        <div>#}
-{#            Order Details:<br>{{ order }}<br> {{ order.value }} NIS#}
-{#        </div>#}
-{#    {% endif %}#}
+    {#    {% if order %}#}
+    {#        <div>#}
+    {#            Order Details:<br>{{ order }}<br> {{ order.value }} NIS#}
+    {#        </div>#}
+    {#    {% endif %}#}
 
     <form id="validation">
         <div class="header">
@@ -27,7 +27,7 @@
                     {% trans "Mobile Phone" %}
                 </label>
                 <input id="local_phone" name="local_phone" type="text"/>
-                <button type="button" id="validate_phone">{% trans "Get Code" %}</button>
+                <button type="button" class="wb_button" id="validate_phone">{% trans "Get Code" %}</button>
             </div>
             <div class="float-r">
                 <label for="verification_code">
@@ -84,11 +84,14 @@
                             {% endif %}
                         {% endfor %}
                     </table>
-                    <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
-                    <label for="id_agree_to_terms">{% trans "I agree to the" %}
-                        <a class="wb_link" href="{% url terms %}">{% trans "Terms Of Use" %} </a>
-                        {% trans "and" %} <a class="wb_link" href="{% url privacy %}">{% trans "Privacy Statement" %}.</a>
-                    </label>
+                    <div id="terms_container" class="float-r">
+                        <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
+                        <label for="id_agree_to_terms">{% trans "I agree to the" %}
+                            <a class="wb_link" href="{% url terms %}">{% trans "Terms Of Use" %} </a>
+                            {% trans "and" %} <a class="wb_link"
+                                                 href="{% url privacy %}">{% trans "Privacy Statement" %}.</a>
+                        </label>
+                    </div>
                 </form>
             </td>
         </tr>
@@ -124,18 +127,22 @@
             var sel = "#passenger_form input, #passenger_form button";
             if (enable) {
                 $(sel).enable();
+                $("#registration_details").removeClass("disabled");
 //                initFbAsync();
 //                $("#fb_connect").removeClass("disabled");
             } else {
+                $("#registration_details").addClass("disabled");
                 $("#fb_connect *").hide();
                 $("#fb_connect").addClass("disabled");
                 $(sel).disable();
             }
         }
 
-        function initFbAsync(){
+        function initFbAsync() {
             window.fbAsyncInit = function() {
-                var appId = {% value_from_settings "FACEBOOK" %}.appId;
+                var appId =
+                {% value_from_settings "FACEBOOK" %}.
+                appId;
                 FB.init({
                     appId: appId,
                     cookie:true,
@@ -199,11 +206,11 @@
                     url: "{% url send_verification_code %}",
                     data: $("#validation").serialize(),
                     type: "POST",
-                    beforeSend: function(){
+                    beforeSend: function() {
                         var $that = $("#validate_phone");
                         $that.disable().data("old_text", $that.text()).text("{% trans "Sending" %}");
                     },
-                    complete: function(){
+                    complete: function() {
                         var $that = $("#validate_phone");
                         $that.text($that.data("old_text")).enable();
                     },
@@ -216,11 +223,11 @@
                 })
             });
 
-            $("#id_agree_to_terms").change(function(){
+            $("#id_agree_to_terms").change(function() {
                 if ($(this).attr("checked") == "checked") {
                     $("#finish_registration").enable();
                 }
-                else{
+                else {
                     $("#finish_registration").disable();
                 }
             });
@@ -230,11 +237,11 @@
                     url: "{% url register %}",
                     type: "POST",
                     data: $("#passenger_form").serialize(),
-                    beforeSend: function(){
+                    beforeSend: function() {
                         var $that = $("#finish_registration");
                         $that.disable().data("old_text", $that.text()).text("{% trans "Sending" %}");
                     },
-                    complete: function(){
+                    complete: function() {
                         var $that = $("#finish_registration");
                         $that.text($that.data("old_text")).enable();
                     },
@@ -244,11 +251,11 @@
                                 $("#id_" + e.field_name).siblings(".errorlist").replaceWith(e.errors_ul);
                             });
                         }
-                        else{
-                            if (response.redirect){
+                        else {
+                            if (response.redirect) {
                                 window.location.href = response.redirect;
                             }
-                            else{
+                            else {
                                 alert("Error");
                             }
                         }

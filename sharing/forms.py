@@ -48,8 +48,8 @@ class ProducerPassengerForm(forms.ModelForm):
 class PassengerRegistrationForm(forms.Form):
     order = None
 
-    name = forms.CharField(required=True)
-    email = forms.EmailField(required=True)
+    name = forms.CharField(label=_("Full Name"), required=True)
+    email = forms.EmailField(label=_("Your Email"), required=True)
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput(), required=True)
     re_password = forms.CharField(label=_("Re-Password"), widget=forms.PasswordInput(), required=True)
     agree_to_terms = forms.BooleanField(label=_("I agree to the Terms Of Use and Privacy Statement"), required=True)

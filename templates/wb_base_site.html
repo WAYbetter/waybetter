@@ -11,36 +11,29 @@
             <!-- Header -->
             <div id="header-container">
                 <div id="site-header">
-                    <div id="wb_logo"></div>
+                    <div class="clickable" id="wb_logo"></div>
                     {% block header_links %}
                         <ul class="links hz">
                             <li>
-                                {% if request.user.is_authenticated %}
-                                    {{ request.user.username }}
-                                {% endif %}
-                            </li>
-                            <li><a class="wb_link" href="{% url wb_home %}">{% trans 'Home' %}</a></li>
-                            <li>
-                                <span>
+                                <span class="menu_link">
                                     {% for lang in LANGUAGES %}
                                         {% if lang.0 == LANGUAGE_CODE %}
                                             {{ lang.1 }}
                                         {% endif %}
                                     {% endfor %}
-                                    <span class="show-lang more"></span>
                                 </span>
                             </li>
+                            <li><a class="menu_link">{% trans "Mobile" %}</a></li>
                             <li>
                                 {% if request.user.is_authenticated %}
-                                    <a class="wb_link" href="{% url auth_logout %}">{% trans 'Log out' %}</a>
+                                    <span class="menu_link bold">{% trans "Hi" %} {{ request.user.first_name }}</span>
                                 {% else %}
-                                    <a class="wb_link" href="{% url auth_login %}">{% trans "Log-in" %}</a>
+                                    <a class="menu_link" href="{% url auth_login %}">{% trans "Log-in" %}</a>
                                 {% endif %}
                             </li>
-
                         </ul>
-
                     {% endblock %}
+                    <div class="clear"></div>
                     <form action="/i18n/setlang/" method="post" id="lang_dropdown">
                         {% csrf_token %}
                         <input type="hidden" name="language" id="language"/>
@@ -82,22 +75,22 @@
                 <div id="wb_values">
                     <div class="value service">
                         <span class="header">{% trans "Service" %}</span>
-                        variables as well as basic math operations and many useful functions.
+                        variables as well and many useful functions.
                         <div class="wb_link">{% trans "Learn More" %}<span class="learnmore"></span></div>
                     </div>
                     <div class="value community">
                         <span class="header">{% trans "Community" %}</span>
-                        variables as well as basic math operations and many useful functions.
+                        variables as well and many useful functions.
                         <div class="wb_link">{% trans "Learn More" %}<span class="learnmore"></span></div>
                     </div>
                     <div class="value env">
                         <span class="header">{% trans "Environment" %}</span>
-                        variables as well as basic math operations and many useful functions.
+                        variables as well and many useful functions.
                         <div class="wb_link">{% trans "Learn More" %}<span class="learnmore"></span></div>
                     </div>
-                    <div class="value eff">
+                    <div class="value eff last">
                         <span class="header">{% trans "Efficiency" %}</span>
-                        variables as well as basic math operations and many useful functions.
+                        variables as well and many useful functions.
                         <div class="wb_link">{% trans "Learn More" %}<span class="learnmore"></span></div>
                     </div>
                 </div>
@@ -142,7 +135,9 @@
                                 {% else %}
                                     <li><a>{% trans "Account" %}</a></li>
                                     <li><a href="{% url auth_login %}">{% trans "Log In" %}</a></li>
-                                    <li><a href="{% url sharing.passenger_controller.registration %}">{% trans "Join" %}</a></li>
+                                    <li>
+                                        <a href="{% url sharing.passenger_controller.registration %}">{% trans "Join" %}</a>
+                                    </li>
                                 {% endif %}
 
                             </ul>
@@ -179,7 +174,6 @@
     <script type="text/javascript" src="/static/js/mylibs/jquery.nivo.slider.pack.min.js"></script>
 
     <script type="text/javascript" src="/static/js/mylibs/tooltip.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/tooltip.slide.js"></script>
 
     <script type="text/javascript" src="/static/js/helpers.js"></script>
     <!-- end scripts-->
@@ -189,6 +183,9 @@
     {{ block.super }}
     <script type="text/javascript">
         $(document).ready(function() {
+            $("#wb_logo").click(function() {
+                window.location.href = "{% url wb_home %}";
+            });
 //            $(".show-lang").click(function() {
 //                var offset = $(this).offset();
 //                offset.left = offset.left + 336;
