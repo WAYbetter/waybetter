@@ -146,7 +146,7 @@
             </div>
             <div class="footer">
                 <div class="help wb_link" id="switch2address">{% trans 'Switch to "Enter Address"' %}</div>
-                <div class="next_btn"></div>
+                <button class="next_btn wb_button"></button>
             </div>
         </div>
 
@@ -181,7 +181,7 @@
 
             <div class="footer">
                 <div class="help wb_link" id="switch2hotspot">{% trans 'Switch to "Select HotSpot"' %}</div>
-                <div class="next_btn"></div>
+                <button class="next_btn wb_button"></button>
                 <div class="tooltip_loader"></div>
             </div>
         </div>
@@ -209,7 +209,7 @@
             </div>
             <div class="footer">
                 <div class="help">{% trans "*Times may vary due to traffic and stuff..." %}</div>
-                <div class="next_btn"></div>
+                <button class="next_btn wb_button"></button>
             </div>
         </div>
     </div>
@@ -301,7 +301,7 @@
             var predicates = [hotspot_resolved, address_resolved, datetime_resolved];
             var resolved_count = predicates.sum() - window[helper_type + "_resolved"];
             var btn_txt = (resolved_count === predicates.length - 1) ? "{% trans "Finish" %}" : "{% trans "Next" %}";
-            $helper.find(".next_btn").button("option", "label", btn_txt);
+            $helper.find(".next_btn").text(btn_txt);
 
             // show the damn thing
             closeTooltips(trigger);
@@ -454,25 +454,25 @@
 
         function addressValidator() {
             var $address_helper = $("#address_input_helper");
-            $address_helper.find(".next_btn").button("disable");
+            $address_helper.find(".next_btn").disable();
 
             var only_digits = $("#id_house_number").val().split(/\D+/).join("");
             $("#id_house_number").val(only_digits);
 
             var is_valid = Boolean($("#id_street_address").data("resolved")) && Boolean($("#id_house_number").val());
             if (is_valid) {
-                $address_helper.find(".next_btn").button("enable");
+                $address_helper.find(".next_btn").enable();
             }
             return is_valid;
         }
 
         function datetimeValidator() {
-            var $datetime_helper = $("#datetime_input_helper")
-            $datetime_helper.find(".next_btn").button("disable");
+            var $datetime_helper = $("#datetime_input_helper");
+            $datetime_helper.find(".next_btn").disable();
 
             var is_valid = Boolean(!$("#id_hotspot_time:disabled").length&& $("#id_hotspot_time option:selected")) && Boolean($("#id_hotspot_datepicker").val());
             if (is_valid) {
-                $datetime_helper.find(".next_btn").button("enable");
+                $datetime_helper.find(".next_btn").enable();
             }
             return is_valid;
         }
@@ -618,7 +618,7 @@
                 }
             });
 
-            $("#hotspot_input_helper .next_btn, #address_input_helper .next_btn").button().click(function(e) {
+            $("#hotspot_input_helper .next_btn, #address_input_helper .next_btn").click(function(e) {
                 e.stopPropagation();
 
                 select_input_resolved = true;
@@ -677,7 +677,7 @@
                 }
             });
 
-            $("#datetime_input_helper .next_btn").button().click(function() {
+            $("#datetime_input_helper .next_btn").click(function() {
                 datetime_resolved = true;
                 $("#datetime_input_helper").find("input, select").each(function(i, el) {
                     $(el).data("saved_val", $(el).val());
