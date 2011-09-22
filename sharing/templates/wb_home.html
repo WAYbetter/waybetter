@@ -588,31 +588,36 @@
                 else{ // helper_type == "address"
                     var $sa_input = $("#id_street_address"),
                         $hn_input = $("#id_house_number");
-                    AddressHelper.resolveStructured("#id_city", $sa_input, $hn_input, {
-                        beforeSend: function(){
-                            $helper.find(".tooltip_loader").show();
-                            $sa_input.siblings(".street_error").text("");
-                            $hn_input.siblings(".hn_error").text("");
-                        },
-                        complete: function() {
-                            $helper.find(".tooltip_loader").hide();
-                        },
-                        resolved: function(result) {
-                            address_resolved = true;
-                            address_lat = result.lat;
-                            address_lon = result.lon;
-                            $input.text($sa_input.val() + " " + $hn_input.val() + " " + $("#id_city :selected").text());
-                            $input.data("resolved_as", "address");
-                            openNextTooltip($input, $other_input);
-                        },
-                        unresolved: function(errors) {
-                            address_lat = undefined;
-                            address_lon = undefined;
-                            if (errors.house_number) {
-                                $hn_input.siblings(".hn_error").text(errors.house_number);
-                            }
-                            if (errors.street) {
-                                $sa_input.siblings(".street_error").text(errors.street);
+                    AddressHelper.resolveStructured({
+                        city_selector       : "#id_city",
+                        street_input        : $sa_input,
+                        hn_input            : $hn_input,
+                        callbacks           :{
+                            beforeSend:function() {
+                                $helper.find(".tooltip_loader").show();
+                                $sa_input.siblings(".street_error").text("");
+                                $hn_input.siblings(".hn_error").text("");
+                            },
+                            complete:function() {
+                                $helper.find(".tooltip_loader").hide();
+                            },
+                            resolved:function(result) {
+                                address_resolved = true;
+                                address_lat = result.lat;
+                                address_lon = result.lon;
+                                $input.text($sa_input.val() + " " + $hn_input.val() + " " + $("#id_city :selected").text());
+                                $input.data("resolved_as", "address");
+                                openNextTooltip($input, $other_input);
+                            },
+                            unresolved:function(errors) {
+                                address_lat = undefined;
+                                address_lon = undefined;
+                                if (errors.house_number) {
+                                    $hn_input.siblings(".hn_error").text(errors.house_number);
+                                }
+                                if (errors.street) {
+                                    $sa_input.siblings(".street_error").text(errors.street);
+                                }
                             }
                         }
                     });

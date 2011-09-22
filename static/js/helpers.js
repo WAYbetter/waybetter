@@ -232,11 +232,13 @@ var AddressHelper = Object.create({
                 });
     },
 
-    resolveStructured: function(city_selector, street_input, hn_input, callbacks) {
+    resolveStructured: function(options) {
+//        city_selector, street_input, hn_input, callbacks
         var that = this,
-            $city_selector = $(city_selector),
-            $street_input = $(street_input),
-            $hn_input = $(hn_input);
+            $city_selector = $(options.city_selector),
+            $street_input = $(options.street_input),
+            $hn_input = $(options.hn_input),
+            callbacks = options.callbacks;
 
         function _beforeSend() {
             $.each([$city_selector, $street_input, $hn_input], function(){
@@ -275,7 +277,7 @@ var AddressHelper = Object.create({
             }
         }
 
-        var query = {"city_id": $(city_selector).val(), "street": $street_input.val(), "house_number": $hn_input.val()};
+        var query = {"city_id": $city_selector.val(), "street": $street_input.val(), "house_number": $hn_input.val()};
         $.ajax({
             url: that.config.urls.structured_resolve_url,
             data: query,
@@ -287,14 +289,18 @@ var AddressHelper = Object.create({
                     _unresolved(data.errors);
                 }
                 else {
+                    var geocode_result = [];
                     $.each(data.geocoding_results, function(i, result) {
-                        if (result.lat && result.lon && result.street_address && result.house_number &&
-                                result.street_address == query.street && result.house_number == query.house_number) {
-
-                            _resolved(result);
-                            return false; // break;
+                        if (result.lat && result.lon && result.street_address && result.house_number) { // this is a valid result
+                            if (options.return_multiple) {
+                                geocode_result.push(result);
+                            } else if (result.street_address == query.street && result.house_number == query.house_number) {
+                                geocode_result = result;
+                                return false; // break;
+                            }
                         }
                     });
+                    _resolved(geocode_result);
                 }
             },
             error: _error
