@@ -769,6 +769,24 @@ body.base-site{
 /*********************************************/
 /******************* REGISTRATION ************/
 /*********************************************/
+#login-form{
+
+    label {
+        width: 80px;
+        display: inline-block;
+    }
+    .form-row{
+        margin-bottom: 10px;
+    }
+    .submit-row{
+        position: relative;
+    }
+    input[type=submit]{
+        position: absolute;
+        right: 0;
+    }
+}
+
 .registration{
     #validation{
         .container{
@@ -851,6 +869,9 @@ body.base-site{
     }
     #bottom_login{
         display: inline-block;
+        position: relative;
+        top: 9px;
+        margin-right: 9px;
     }
 }
 

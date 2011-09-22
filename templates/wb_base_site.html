@@ -131,11 +131,19 @@
                                 <li><a>{% trans "Twitter" %}</a></li>
                                 <li><a>{% trans "Stations" %}</a></li>
                             </ul>
+
                             <ul>
-                                <li><a>{% trans "Account" %}</a></li>
-                                <li><a>{% trans "My Rides" %}</a></li>
-                                <li><a>{% trans "My Profile" %}</a></li>
-                                <li><a>{% trans "Log Out" %}</a></li>
+                                {% if request.user.is_authenticated %}
+                                    <li><a>{% trans "Account" %}</a></li>
+                                    <li><a>{% trans "My Rides" %}</a></li>
+                                    <li><a>{% trans "My Profile" %}</a></li>
+                                    <li><a>{% trans "Log Out" %}</a></li>
+                                {% else %}
+                                    <li><a>{% trans "Account" %}</a></li>
+                                    <li><a href="{% url auth_login %}">{% trans "Log In" %}</a></li>
+                                    <li><a href="{% url sharing.passenger_controller.registration %}">{% trans "Join" %}</a></li>
+                                {% endif %}
+
                             </ul>
                         </div>
                         <div class="clear"></div>
@@ -180,18 +188,18 @@
     {{ block.super }}
     <script type="text/javascript">
         $(document).ready(function() {
-{# uncomment when we have hebrew #}
-{#            $("#languages_top .more").click(function() {#}
-{#                $("#languages_top .languages").show();#}
-{#            });#}
-{#            $("form.languages li").click(function() {#}
-{#                $(".languages").hide();#}
-{#                var code = $(this).attr("code");#}
-{#                if (code != "{{ LANGUAGE_CODE }}" && !$(this).hasClass("disabled")) {#}
-{#                    $("form.languages > #language").val(code);#}
-{#                    $("form.languages").submit();#}
-{#                }#}
-{#            });#}
+            {# uncomment when we have hebrew #}
+            {#            $("#languages_top .more").click(function() {#}
+            {#                $("#languages_top .languages").show();#}
+            {#            });#}
+            {#            $("form.languages li").click(function() {#}
+            {#                $(".languages").hide();#}
+            {#                var code = $(this).attr("code");#}
+            {#                if (code != "{{ LANGUAGE_CODE }}" && !$(this).hasClass("disabled")) {#}
+            {#                    $("form.languages > #language").val(code);#}
+            {#                    $("form.languages").submit();#}
+            {#                }#}
+            {#            });#}
         });
     </script>
 {% endblock %}
