@@ -13,12 +13,17 @@ def compute_metrics(objects, metrics, **kwargs):
             for obj in result.keys():
                 total[obj] += result[obj] * metric.weight
 
+            result_log = u"Results for %s (DESC):" % metric.name
+            for t in sorted(result.items(), key = lambda tup: tup[1], reverse=True):
+                result_log += u"\n%s: %f" % t
+            logging.info(result_log)
+
         except Exception, e:
             logging.error("error computing metric %s: %s" % (metric, e))
 
-    log = ""
-    for key in total.keys():
-        log += "%s: %f\n" % (key, total[key])
-
-    logging.info("metrics total:\n%s" % log)
+    log = u"Metrics total (DESC):"
+    for t in sorted(total.items(), key = lambda tup: tup[1], reverse=True):
+        log += u"\n%s: %f" % t
+    logging.info(log)
+    
     return total

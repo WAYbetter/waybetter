@@ -79,7 +79,13 @@ def choose_workstation(order):
         ws = ws_list[i].fresh_copy()
         if is_workstation_available(ws) and ws not in rejected_ws_list:
             memcache.set(index_key, i+1)
+            logging.info("next ws: %d [%s]" % (ws.id, ws.dn_station_name))
             return ws
+
+        elif not is_workstation_available(ws):
+            logging.info("skipping ws: %d [%s] (offline)" % (ws.id, ws.dn_station_name))
+        else:
+            logging.info("skipping ws: %d [%s] (rejected by station)" % (ws.id, ws.dn_station_name))
 
     return None
 
@@ -91,7 +97,7 @@ def compute_ws_list(order):
     if order.confining_station:
         ws_qs = order.confining_station.work_stations.all()
     else:
-        ws_qs = WorkStation.objects.all()
+        ws_qs = WorkStation.objects.filter(accept_shared_rides=False)
 
 
     # exclude work station whose station rejected/ignored this order

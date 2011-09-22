@@ -32,7 +32,7 @@ import common.urllib_adaptor as urllib2
 
 
 ORDER_HANDLE_TIMEOUT =                      80 # seconds
-ORDER_TEASER_TIMEOUT =                      14 # seconds
+ORDER_TEASER_TIMEOUT =                      19 # seconds
 ORDER_ASSIGNMENT_TIMEOUT =                  80 # seconds
 WORKSTATION_HEARTBEAT_TIMEOUT_INTERVAL =    60 # seconds
 
@@ -121,6 +121,10 @@ class Station(BaseModel):
 
     stop_price = models.FloatField(_("stop price"), default=0)
     payday = models.IntegerField(_("payday"), max_length=2, default=10) # day of month the drivers get paid
+
+    page_description = models.CharField(_("page description"), null=True, blank=True, max_length=255)
+    page_keywords = models.CharField(_("page keywords"), null=True, blank=True, max_length=255)
+
 
     def natural_key(self):
         return self.name
@@ -492,6 +496,9 @@ class Passenger(BaseModel):
 
     session_keys = ListField(models.CharField(max_length=32)) # session is identified by a 32-character hash
 
+    # disallow ordering
+    is_banned = models.BooleanField(_("banned"), default=False)
+
     invoice_id = models.IntegerField(_("invoice id"), null=True, blank=True, unique=True)
 
     @property
@@ -544,6 +551,7 @@ class Passenger(BaseModel):
         # try to get passenger from the session
         if not passenger:
             passenger = request.session.get(CURRENT_PASSENGER_KEY, None)
+            if passenger: passenger = passenger.fresh_copy() # refresh the passenger copy stored in the session
 
         # try to get passenger from passed token
         if not passenger:

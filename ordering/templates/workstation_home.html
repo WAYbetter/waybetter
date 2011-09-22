@@ -483,6 +483,7 @@
                 $(document).everyTime(2 * POLLING_INTERVAL, checkHeartbeat);
                 clearError();
             } catch (e) {
+                trace(JSON.stringify(e));
                 onError();
             }
 
@@ -506,6 +507,7 @@
                 channel_opened = true;
             };
             socket.onmessage = function(msg) {
+                trace("socket: onmessage");
                 try {
                     var data = $.parseJSON(msg.data);
                     onOrder(data);
@@ -948,8 +950,12 @@
         }
 
         function trace(str) {
+            var msg = new Date().toISOString() + ": " + str;
             if (window.parentSandboxBridge) {
-                parentSandboxBridge.trace(new Date().toISOString() + ": " + str);
+                parentSandboxBridge.trace(msg);
+            }
+            if (window.console) {
+                console.log(msg);
             }
         }
 

@@ -90,26 +90,27 @@ def _set_workstation_online_status(channel_id, status):
 
 @receive_signal(workstation_offline_signal, workstation_online_signal)
 def log_connection_events(sender, signal_type, obj, **kwargs):
-    event_qs = AnalyticsEvent.objects.filter(work_station=obj, type__in=[EventType.WORKSTATION_UP, EventType.WORKSTATION_DOWN]).order_by('-create_date')
+    last_event_qs = AnalyticsEvent.objects.filter(work_station=obj, type__in=[EventType.WORKSTATION_UP, EventType.WORKSTATION_DOWN]).order_by('-create_date')[:1]
+    station = obj.station
 
     if signal_type == SignalType.WORKSTATION_ONLINE:
-        if event_qs.count():
+        if last_event_qs:
             # send workstation reconnect mail
-            last_event = event_qs[0]
-            if last_event.type == EventType.WORKSTATION_DOWN and (utc_now() - last_event.create_date) >= ALERT_DELTA and obj.station.show_on_list:
+            last_event = last_event_qs[0]
+            if last_event.type == EventType.WORKSTATION_DOWN and (utc_now() - last_event.create_date) >= ALERT_DELTA and station.show_on_list:
                 msg = u"Workstation is up again:\n\tid = %d station = %s" % (obj.id, obj.dn_station_name)
                 notify_by_email(u"Workstation Reconnected", msg=msg)
-        elif obj.station.show_on_list:
+        elif station.show_on_list:
             # send "new workstation" mail
             msg = u"A new workstation just connected: id = %d station = %s" % (obj.id, obj.dn_station_name)
             notify_by_email(u"New Workstation", msg=msg)
 
-        log_event(EventType.WORKSTATION_UP, station=obj.station, work_station=obj)
+        log_event(EventType.WORKSTATION_UP, station=station, work_station=obj)
 
     elif signal_type == SignalType.WORKSTATION_OFFLINE:
-        log_event(EventType.WORKSTATION_DOWN, station=obj.station, work_station=obj)
+        log_event(EventType.WORKSTATION_DOWN, station=station, work_station=obj)
 
-        if obj.station.show_on_list:
+        if station.show_on_list:
             # add task to check if workstation is still dead after ALERT_DELTA
             task = taskqueue.Task(url=reverse(handle_dead_workstations),
                                   countdown=ALERT_DELTA.seconds + 1,
@@ -130,9 +131,9 @@ def handle_dead_workstations(request):
         logging.error("handle_dead_workstations: invalid workstation_id '%s" % ws_id)
 
     if workstation:
-        events = AnalyticsEvent.objects.filter(work_station=workstation, type__in=[EventType.WORKSTATION_UP, EventType.WORKSTATION_DOWN]).order_by('-create_date')
-        if events.count():
-            last_event = events[0]
+        last_event = AnalyticsEvent.objects.filter(work_station=workstation, type__in=[EventType.WORKSTATION_UP, EventType.WORKSTATION_DOWN]).order_by('-create_date')[:1]
+        if last_event:
+            last_event = last_event[0]
             if last_event.type == EventType.WORKSTATION_DOWN and (utc_now() - last_event.create_date) >= ALERT_DELTA:
                 # send station down mail
                 msg = u"Workstation has been down for the last %d minutes:\n\tid = %d station = %s" % (ALERT_DELTA.seconds / 60, workstation.id, workstation.dn_station_name)

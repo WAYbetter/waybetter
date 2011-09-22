@@ -1,3 +1,5 @@
+from common.models import BaseModel
+from common.tz_support import UTCDateTimeField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from common.util import phone_validator, notify_by_email
@@ -63,3 +65,7 @@ class BusinessInterest(models.Model):
         """ % (self.contact_person, self.phone, self.email, registration_link)
 
         notify_by_email(subject, msg)
+
+class PilotInterest(BaseModel):
+    email = models.CharField(max_length=50)
+    location = models.CharField(max_length=20)

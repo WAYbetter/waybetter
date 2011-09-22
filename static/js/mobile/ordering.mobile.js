@@ -299,6 +299,7 @@ var OrderingHelper = Object.create({
             }
             that.switchState();
             that.hideGlassPane();
+            $.mobile.silentScroll(0); // hide address bar
         });
 
         $("#local_phone").keyup(function() {
@@ -630,6 +631,7 @@ var OrderingHelper = Object.create({
         } else {
             $('#to_raw_result').text(this.cache.$to_raw_input.val());
         }
+        $.mobile.silentScroll(0); // hide address bar
     },
     getRideCostEstimate:        function() {
         var that = this,

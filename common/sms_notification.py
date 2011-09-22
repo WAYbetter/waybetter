@@ -1,5 +1,6 @@
 import logging
 from common.util import split_to_chunks
+from google.appengine.runtime import DeadlineExceededError
 from django.conf import settings
 from settings import SMS_PROVIDER_URL, SMS_CALLBACK_URL
 from django.template.loader import get_template
@@ -17,7 +18,13 @@ def send_sms(destination, text, **kwargs):
     TODO_WB: take back-end function name from settings
     """
 
-    logging.info(u"Sending SMS to [%s]: '%s'" % (destination, text))  
+    logging.info(u"Sending SMS to [%s]: '%s'" % (destination, text))
+
+    # don't send SMS to test account
+    if destination.endswith(settings.APPLE_TESTER_PHONE_NUMBER):
+        logging.info("Skipping SMS for test user")
+        return True
+    
 #    return
     sms_config = settings.SMS
     if kwargs is not None:
@@ -66,11 +73,16 @@ def send_sms_cellact(destination, text, sms_config):
     rendered_payload = t.render(c)
     logging.info("sms payload: %s" % rendered_payload)
     payload = str("XMLString=" + urlquote_plus(rendered_payload))
-    result = fetch(provider_url, method="POST", payload=payload)
 
-    if result.content.find("<RESULTCODE>0</RESULTCODE>") == -1:
-        logging.error("error sending sms: %s" % result.content)
-        return None
-    else:
-        return result
+    try:
+        result = fetch(provider_url, method="POST", payload=payload, deadline=10)
 
+        if result.content.find("<RESULTCODE>0</RESULTCODE>") == -1:
+            logging.error("error sending sms: %s" % result.content)
+            return None
+        else:
+            return result
+
+    except DeadlineExceededError:
+        logging.warn("SMS sending failed due to DeadlineExceededError, retrying")
+        send_sms_cellact(destination, text, sms_config)

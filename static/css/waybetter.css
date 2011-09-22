@@ -123,7 +123,6 @@ input.text, input[type=text], input[type=password] {
     background: url(../images/main_background.png), -moz-linear-gradient(top, #4D4D4D 0%, #101010 100%); /* firefox */
     background: url(../images/main_background.png), -webkit-gradient(linear, left top, left bottom, color-stop(0%,#4D4D4D), color-stop(100%,#101010)); /* webkit */
 
-    behavior: url(PIE.htc);
 }
 
 #main.clean_main {
@@ -395,7 +394,6 @@ span.right-fade {
     -webkit-box-shadow:0 -3px 3px #2a2a2a;
     -moz-box-shadow:0 -3px 3px #2a2a2a;
     box-shadow:0 -3px 3px #2a2a2a;
-/*behavior: url(PIE.htc);*/
 }
 #yellow_header p {
     padding-left: 110px;
@@ -452,7 +450,6 @@ span.right-fade {
     border-radius: 0 0 10px 10px;
     -moz-border-radius: 0 0 10px 10px;
     -webkit-border-radius: 0 0 10px 10px;
-    /*behavior: url(PIE.htc);*/
 }
 a.input_history_helper {
     display: block;
@@ -612,6 +609,24 @@ button.order_button.disabled, button.order_button:disabled {
     margin-left: 147px;
 }
 
+#about .download {
+    font-size: 15px;
+    font-weight: bold;
+    color: #EC008C;
+}
+
+#about .download img {
+    vertical-align: middle;
+}
+#about .download a {
+    margin-left: 20px;
+}
+.rtl #about .download a {
+    margin-left: inherit;
+    margin-right: 20px;
+}
+
+
 /************* Ordering Bottom Tabs *************/
 #tabs {
     margin-top: -18px;
@@ -713,7 +728,6 @@ img.tab_icon {
     -moz-border-radius: 10px;
     -webkot-border-radius: 10px;
     border-radius: 10px;
-    behavior: url(PIE.htc);
     margin-left: -3px;
     margin-right: -3px;
 }
@@ -1469,7 +1483,6 @@ height: 60px; font-size: 32px;}
 
     color: white;
     text-shadow: #2a6b8e 0px -1px;
-    behavior: url(PIE.htc);
 }
 
 .blue:hover {
@@ -1477,7 +1490,6 @@ height: 60px; font-size: 32px;}
     background: -webkit-gradient(linear, left top, left bottom, from(#50b9ea), to(#298acf));
     background: -moz-linear-gradient(-90deg, #50b9ea, #298acf);
     -pie-background: linear-gradient(-90deg, #50b9ea, #298acf);
-    behavior: url(PIE.htc);
 }
 
 .blue:active, .blue:disabled {
@@ -1492,7 +1504,6 @@ height: 60px; font-size: 32px;}
 
     color: white;
     text-shadow: #2a6b8e 0px -1px;
-    behavior: url(PIE.htc);
 }
 
 .purple:hover {
@@ -1500,7 +1511,6 @@ height: 60px; font-size: 32px;}
     background: -webkit-gradient(linear, left top, left bottom, from(#ff77c7), to(#c2458c));
     background: -moz-linear-gradient(-90deg, #ff77c7, #c2458c);
     -pie-background: linear-gradient(-90deg, #ff77c7, #c2458c);
-    behavior: url(PIE.htc);
 }
 
 .purple:active, .purple:disabled {
@@ -1522,7 +1532,6 @@ height: 60px; font-size: 32px;}
     background: -webkit-gradient(linear, left top, left bottom, from(#e9e9e9), to(#a0a0a0));
     background: -moz-linear-gradient(-90deg, #e9e9e9, #a0a0a0);
     -pie-background: linear-gradient(-90deg, #e9e9e9, #a0a0a0);
-    behavior: url(PIE.htc);
 }
 
 .gray:active, .gray:disabled {
@@ -1544,7 +1553,6 @@ height: 60px; font-size: 32px;}
     background: -webkit-gradient(linear, left top, left bottom, from(#f7e124), to(#df9b18));
     background: -moz-linear-gradient(-90deg, #f7e124, #df9b18);
     -pie-background: linear-gradient(-90deg, #f7e124, #df9b18);
-    behavior: url(PIE.htc);
 }
 
 .gold:active, .gold:disabled {
@@ -1702,8 +1710,26 @@ height: 60px; font-size: 32px;}
 
 #mobile #mobile_text > div > div.sub_title {
     font-size: 20px;
-    color: black;
     text-align: left;
+}
+
+#mobile .download a {
+    float: right;
+}
+
+.rtl #mobile .download a {
+    float: left;
+}
+
+#mobile .download {
+    font-size: 20px;
+    margin-top: 162px;
+    line-height: 57px;
+}
+
+.rtl #mobile .download {
+    text-align: right;
+    padding-right: 60px;
 }
 
 #mobile #mobile_text > div > span {
@@ -1746,13 +1772,20 @@ height: 60px; font-size: 32px;}
 #mobile #container {
     width: 550px;
     height: 400px;
-    margin-right: 100px;
+    margin-left: 100px;
     margin-top: 20px;
+}
+
+.rtl #mobile #container {
+    margin-left: inherit;
+    margin-right: 100px;
 }
 
 #mobile #mobile_image {
     float: left;
 }
+
+
 
 .station_row {
     min-height: 120px;

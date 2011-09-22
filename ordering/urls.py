@@ -1,7 +1,10 @@
 from django.conf.urls.defaults import *
 from django.conf.urls.defaults import url
+from django.views.generic.simple import direct_to_template
 
 urlpatterns = patterns('',
+    (r'^$', 'ordering.passenger_controller.landing_page'),
+    (r'^pickmeapp/$', 'ordering.passenger_controller.pickmeapp_home'),
     (r'^info$', 'ordering.passenger_controller.info_pages'),
     (r'^workstation/(?P<workstation_id>\d+)$', 'ordering.station_controller.workstation_home'),
     (r'^orders/(?P<order_id>\d+)$', 'ordering.order_manager.order_status'),
@@ -70,6 +73,7 @@ urlpatterns = patterns('',
     (r'^services/check_connection_passed/$', 'ordering.station_controller.connection_check_passed'),
     (r'^services/confirm_sms/$', 'ordering.passenger_controller.sms_confirmation'),
     (r'^services/get_online_count/$', 'ordering.passenger_controller.get_ws_online_count'),
+    (r'^services/pilot_interest/$', 'ordering.passenger_controller.pilot_interest'),
 
     (r'^setup/init_pricing_rules/$', 'ordering.rules_controller.init_pricing_rules'),
     (r'^setup/upload_flat_rate_rules/$', 'ordering.rules_controller.setup_flat_rate_rules'),

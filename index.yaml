@@ -263,6 +263,11 @@ indexes:
   - name: __key__
     direction: desc
 
+- kind: interests_pilotinterest
+  properties:
+  - name: __key__
+    direction: desc
+
 - kind: interests_stationinterest
   properties:
   - name: __key__
@@ -913,6 +918,11 @@ indexes:
   properties:
   - name: __key__
     direction: desc
+
+- kind: ordering_workstation
+  properties:
+  - name: accept_shared_rides
+  - name: accept_orders
 
 - kind: ordering_workstation
   properties:

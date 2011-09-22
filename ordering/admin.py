@@ -1,5 +1,5 @@
 from common.util import blob_to_image_tag
-from django.contrib import admin
+from django.contrib import admin, messages
 from django.utils.translation import ugettext as _
 from django.forms.models import BaseInlineFormSet
 from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, Feedback, Business, SharedRide, RidePoint, Driver, Taxi, TaxiDriverRelation, StationFixedPriceRule
@@ -139,10 +139,13 @@ class OrderAssignmentAdmin(admin.ModelAdmin):
 
 
 def build_installer(modeladmin, request, queryset):
+    count = 0
     for ws in queryset:
         ws.build_installer()
+        count += 1
+    modeladmin.message_user(request, _("%d installers built") % count)
 
-build_installer.short_description = "Build Installer"
+build_installer.short_description = _("Build Installer")
 
 def build_sharing_installer(modeladmin, request, queryset):
     for ws in queryset:
@@ -151,17 +154,23 @@ def build_sharing_installer(modeladmin, request, queryset):
 build_sharing_installer.short_description = "Build Sharing Installer"
 
 def check_connection(modeladmin, request, queryset):
+    checks_performed = 0
     for ws in queryset:
         if station_connection_manager.is_workstation_available(ws):
             station_connection_manager.check_connection(ws)
+            checks_performed += 1
+    modeladmin.message_user(request, _("%d checks performed successfully") % checks_performed)
 check_connection.short_description = _("Check Connection")
 
 def send_dummy_order(modeladmin, request, queryset):
+    orders_sent = 0
     for ws in queryset:
         if station_connection_manager.is_workstation_available(ws):
             station_connection_manager.push_dummy_order(ws)
-
+            orders_sent += 1
+    modeladmin.message_user(request, _("%d dummy orders sent") % orders_sent)
 send_dummy_order.short_description = _("Send Dummy Order")
+
 class WorkStationAdmin(admin.ModelAdmin):
     list_display = ["id", "work_station_user", "station_name", "is_online"]
     list_filter = ["is_online"]

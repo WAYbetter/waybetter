@@ -192,7 +192,7 @@ class BasicFuncTest(TestCase):
     
     def test_send_sms(self):
         logging.info("\nTesting sms sending")
-        self.assertTrue(send_sms('+972-3-1234567', 'sms test'), msg="sms send failed")
+        self.assertTrue(send_sms('0526342974', 'sms test'), msg="sms send failed")
 
     def test_code_generator(self):
         logging.info("testing code generator")

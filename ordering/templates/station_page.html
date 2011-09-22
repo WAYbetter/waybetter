@@ -6,6 +6,12 @@
     {{ block.super }}
 {% endblock extrastyle %}
 
+{% block title %}{{ station.name }}{% endblock %}
+
+{% block description %}{{ station.page_description }}{% endblock %}
+
+{% block keywords %}{{ station.page_keywords }}{% endblock %}
+
 {% block extrahead %}
     {{ block.super }}
     <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false"></script>

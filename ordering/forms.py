@@ -151,6 +151,9 @@ class OrderForm(ModelForm):
         from_city = self.cleaned_data.get('from_city')
         to_city = self.cleaned_data.get('to_city')
 
+        if self.passenger.is_banned:
+            raise forms.ValidationError(_("Your account has been suspended. Please contact support@waybetter.com"))
+
         if to_country and from_country != to_country:
             log_event(EventType.CROSS_COUNTRY_ORDER_FAILURE, passenger=self.passenger, country=to_country)
             raise forms.ValidationError(_("To and From countries do not match"), code=ErrorCodes.COUNTRIES_DONT_MATCH)
@@ -163,7 +166,14 @@ class OrderForm(ModelForm):
 
         # TODO_WB: move this check to the DB?
         close_enough_station_found = False
-        for station in Station.objects.filter(country=from_country):
+        stations = Station.objects.filter(country=from_country)
+
+        if self.passenger.user and self.passenger.user.is_staff:
+            pass
+        else:
+            stations = stations.filter(show_on_list=True)
+
+        for station in stations:
             if station.is_in_valid_distance(from_lon=from_lon, from_lat=from_lat, to_lon=to_lon, to_lat=to_lat):
                 close_enough_station_found = True
                 break
@@ -171,12 +181,12 @@ class OrderForm(ModelForm):
         if not close_enough_station_found:
             log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=from_city, lat=from_lat,
                       lon=from_lon)
-            if from_city != to_city:
+            if to_city and from_city != to_city:
                 log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=to_city, lat=to_lat, lon=to_lon)
 
             raise forms.ValidationError(
                 _(
-                    "Service is not available in %(city)s yet.<br>Please try again soon.<p class=bold>THANKS!</p>WAYbetter team :)") %
+                    "Service is not available in %(city)s yet.\nPlease try again soon.\nTHANKS!\nWAYbetter team :)") %
                 {'city': from_city.name}, code=ErrorCodes.NO_SERVICE_IN_CITY)
 
         return self.cleaned_data

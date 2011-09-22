@@ -11,7 +11,7 @@ from selenium_helper import SelemiumHelper, SELENIUM_PASSWORD, SELENIUM_EMAIL, S
 import time
 import logging
 
-APPLICATION_UNDER_TEST = "http://localhost:8000/"
+APPLICATION_UNDER_TEST = "http://localhost:8000/pickmeapp"
 #APPLICATION_UNDER_TEST = "http://2.latest.waybetter-app.appspot.com/"
 #APPLICATION_UNDER_TEST = "http://www.waybetter.com/"
 
