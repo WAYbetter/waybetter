@@ -21,23 +21,13 @@
                             </li>
                             <li><a class="wb_link" href="{% url wb_home %}">{% trans 'Home' %}</a></li>
                             <li>
-                                <span id="languages_top">
+                                <span>
                                     {% for lang in LANGUAGES %}
                                         {% if lang.0 == LANGUAGE_CODE %}
                                             {{ lang.1 }}
                                         {% endif %}
                                     {% endfor %}
-                                    <span class="more"></span>
-                                <form action="/i18n/setlang/" method="post" class="languages">
-                                    {% csrf_token %}
-                                    <input type="hidden" name="language" id="language"/>
-                                    <ul class="wbdropdown-list">
-                                        <li code="he" class="disabled">עברית</li>
-                                        <li code="en" class="clickable">English</li>
-                                        <li code="" class="disabled">Русский</li>
-                                        <li code="" class="disabled">français</li>
-                                    </ul>
-                                </form>
+                                    <span class="show-lang more"></span>
                                 </span>
                             </li>
                             <li>
@@ -49,7 +39,18 @@
                             </li>
 
                         </ul>
+
                     {% endblock %}
+                    <form action="/i18n/setlang/" method="post" id="lang_dropdown">
+                        {% csrf_token %}
+                        <input type="hidden" name="language" id="language"/>
+                        <ul class="wbdropdown-list">
+                            <li code="he" class="disabled">עברית</li>
+                            <li code="en" class="clickable">English</li>
+                            <li code="" class="disabled">Русский</li>
+                            <li code="" class="disabled">français</li>
+                        </ul>
+                    </form>
                 </div>
             </div>
             <!-- END Header -->
@@ -137,7 +138,7 @@
                                     <li><a>{% trans "Account" %}</a></li>
                                     <li><a>{% trans "My Rides" %}</a></li>
                                     <li><a>{% trans "My Profile" %}</a></li>
-                                    <li><a>{% trans "Log Out" %}</a></li>
+                                    <li><a href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
                                 {% else %}
                                     <li><a>{% trans "Account" %}</a></li>
                                     <li><a href="{% url auth_login %}">{% trans "Log In" %}</a></li>
@@ -188,18 +189,20 @@
     {{ block.super }}
     <script type="text/javascript">
         $(document).ready(function() {
-            {# uncomment when we have hebrew #}
-            {#            $("#languages_top .more").click(function() {#}
-            {#                $("#languages_top .languages").show();#}
-            {#            });#}
-            {#            $("form.languages li").click(function() {#}
-            {#                $(".languages").hide();#}
-            {#                var code = $(this).attr("code");#}
-            {#                if (code != "{{ LANGUAGE_CODE }}" && !$(this).hasClass("disabled")) {#}
-            {#                    $("form.languages > #language").val(code);#}
-            {#                    $("form.languages").submit();#}
-            {#                }#}
-            {#            });#}
+//            $(".show-lang").click(function() {
+//                var offset = $(this).offset();
+//                offset.left = offset.left + 336;
+//                offset.top = offset.top + 24;
+//                $("#lang_dropdown").offset(offset).show();
+//            });
+            $("form.languages li").click(function() {
+                $(".languages").hide();
+                var code = $(this).attr("code");
+                if (code != "{{ LANGUAGE_CODE }}" && !$(this).hasClass("disabled")) {
+                    $("form.languages > #language").val(code);
+                    $("form.languages").submit();
+                }
+            });
         });
     </script>
 {% endblock %}

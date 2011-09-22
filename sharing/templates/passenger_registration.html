@@ -86,8 +86,8 @@
                     </table>
                     <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
                     <label for="id_agree_to_terms">{% trans "I agree to the" %}
-                        <span class="wb_link">{% trans "Terms Of Use" %} </span>
-                        {% trans "and" %} <span class="wb_link">{% trans "Privacy Statement" %}</span>
+                        <a class="wb_link" href="{% url terms %}">{% trans "Terms Of Use" %} </a>
+                        {% trans "and" %} <a class="wb_link" href="{% url privacy %}">{% trans "Privacy Statement" %}.</a>
                     </label>
                 </form>
             </td>

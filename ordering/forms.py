@@ -151,7 +151,7 @@ class OrderForm(ModelForm):
         from_city = self.cleaned_data.get('from_city')
         to_city = self.cleaned_data.get('to_city')
 
-        if self.passenger.is_banned:
+        if self.passenger and self.passenger.is_banned:
             raise forms.ValidationError(_("Your account has been suspended. Please contact support@waybetter.com"))
 
         if to_country and from_country != to_country:
@@ -168,7 +168,8 @@ class OrderForm(ModelForm):
         close_enough_station_found = False
         stations = Station.objects.filter(country=from_country)
 
-        if self.passenger.user and self.passenger.user.is_staff:
+        user = self.passenger.user if self.passenger else None
+        if user and user.is_staff:
             pass
         else:
             stations = stations.filter(show_on_list=True)
