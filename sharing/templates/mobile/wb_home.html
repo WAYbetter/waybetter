@@ -1,0 +1,492 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}class="rtl"{% endif %}>
+{#<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl" class="rtl"{% endif %}>#}
+<head>
+<title>WAYbetter</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1" />
+
+{#    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.css" />#}
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b3/jquery.mobile-1.0b3.min.css" />
+
+
+    {% if station %}
+        <link rel="apple-touch-startup-image" href="{{ station.app_splash_url }}">
+        <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 163dpi)" href="{{ station.app_icon_url }}" />
+        <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 326dpi)" href="{{ station.app_icon_url }}" />
+    {% else %}
+        <link rel="apple-touch-startup-image" href="/static/images/mobile/splash_screen.jpg">
+        <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 163dpi)" href="/static/images/mobile/icon.png" />
+        <link rel="apple-touch-icon-precomposed" media="screen and (resolution: 3      26dpi)" href="/static/images/mobile/icon_114.png" />
+    {% endif %}
+    <style>
+        #map_container {
+            min-height: 200px;
+            width: 100%;
+            background-color: green;
+            margin: 10px 0;
+            border: 1px solid black;
+        }
+        #map {
+            height: 200px;
+            width: 100%;
+        }
+
+        .nav-big-icons .ui-btn .ui-btn-inner {
+            padding-top: 40px !important;
+        }
+
+        .nav-big-icons .ui-btn .ui-icon {
+            width: 30px !important;
+            height: 30px !important;
+            margin-left: -15px !important;
+            box-shadow: none !important;
+            -moz-box-shadow: none !important;
+            -webkit-box-shadow: none !important;
+            -webkit-border-radius: none !important;
+            border-radius: none !important;
+        }
+
+        #from-gps .ui-icon {
+            background: url(/static/images/mobile/sharing/74-location.png) 50% 50% no-repeat;
+            background-size: 20px 20px;
+        }
+
+        #from-search .ui-icon {
+            background: url(/static/images/mobile/sharing/06-magnify.png) 50% 50% no-repeat;
+            background-size: 24px 24px;
+        }
+
+        #from-hotspot .ui-icon {
+            background: url(/static/images/mobile/sharing/13-target.png) 50% 50% no-repeat;
+            background-size: 28px 28px;
+        }
+
+        #from-history .ui-icon {
+            background: url(/static/images/mobile/sharing/96-book.png) 50% 50% no-repeat;
+            background-size: 18px 26px;
+        }
+        #address-form input {
+            display: inline-block;
+        }
+        #address-form input[type=text] {
+            width: 68%;
+        }
+        #address-form input[type=tel] {
+            width: 20%;
+        }
+
+        .price {
+            font-size: 15px;
+        }
+
+    </style>
+    {% block extrastyle %}{% endblock %}
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script src="/static/js/utils.js"></script>
+    <script src="/static/js/helpers.js"></script>
+    <script>
+        $(document).bind("mobileinit", function(){
+            $.extend($.mobile, {
+                loadingMessage: "{% trans 'Loading...' %}"
+            });
+            $.mobile.page.prototype.options.backBtnText = "{% trans 'Back' %}";
+//            $.mobile.page.prototype.options.addBackBtn = true;
+        })
+    </script>
+{#    <script src="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.js"></script>#}
+    <script src="http://code.jquery.com/mobile/1.0b3/jquery.mobile-1.0b3.min.js"></script>
+    <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false" defer='defer'></script>
+    <script defer="defer">
+        var MobileHelper = Object.create({
+            // CONSTANTS
+            // ---------
+            ACCURACY_THRESHOLD          : 250, // meters,
+
+            // VARIABLES
+            // ---------
+            last_position               : undefined,
+            pickup_address              : undefined,
+            dropoff_address             : undefined,
+
+            // METHODS
+            // -------
+            getCurrentLocation          : function() {
+                var that = this;
+                var options = {
+                    timeout             : 5000, // 5 second
+                    enableHighAccuracy  : true,
+                    maximumAge          : 0 // always get new location
+                };
+
+                if (navigator.geolocation) {
+                    var watch_id = navigator.geolocation.watchPosition(function(p) {
+                        that.locationSuccess.call(that, p, watch_id);
+                    }, function() {
+                        that.showLocationError.call(that, watch_id);
+                    }, options);
+                } else {
+                    error_callback(watch_id);
+                }
+            },
+            locationSuccess             : function(position, watch_id) {
+                if (console) {
+                    console.log("new position: " + position.coords.longitude + ", " + position.coords.latitude + " (" + position.coords.accuracy + ")");
+                }
+                
+                var that = this;
+                that.last_position = position.coords;
+                if (position.coords.accuracy < that.ACCURACY_THRESHOLD) {
+                    navigator.geolocation.clearWatch(watch_id); // we have an accurate enough location
+                    that.resolveLonLat(position.coords.longitude, position.coords.latitude, that.current_flow_state);
+                    if (that.map) {
+                        that.map.setCenter(new telmap.maps.LatLng(position.coords.latitude, position.coords.longitude));
+                    }
+                }
+            },
+            showLocationError:          function(watch_id) {
+                navigator.geolocation.clearWatch(watch_id); // remove watch
+                var that = this,
+                    cancel_button = $("<button></button>").text(that.config.messages.enter_address).click(function() {
+                        $("#id_" + that.current_flow_state + "_raw").focus();
+                    }),
+                    try_again_button = $("<button></button>").text(that.config.messages.try_again).click(function() {
+                        that.setLocationGPS(true);
+                    }),
+                    buttons = $("<div class='buttons'></div>").append(cancel_button).append(try_again_button);
+
+                $(".glass_pane > #top").text(that.config.messages.sorry_msg).removeClass("loading");
+                $(".glass_pane > #bottom").text(that.config.messages.no_location_msg).append(buttons);
+            },
+            resolveLonLat:              function(lon, lat, address_type) {
+                var that = this;
+                $.ajax({
+                    url:that.config.resolve_coordinate_url,
+                    type:"GET",
+                    data:{ lat:lat,
+                        lon:lon  },
+                    dataType:"json",
+                    success:function(resolve_result) {
+                        if (resolve_result) {
+                            var new_address = Address.fromServerResponse(resolve_result, address_type);
+                            if (new_address.street_address) {   // only update to new address if it contains a valid street
+
+                                that.updateAddressChoice(new_address);
+                            }
+                        }
+                    },
+                    complete:function() {
+                        that.hideGlassPane();
+                    }
+                });
+            }
+        });
+        $(document).ready(function() {
+            AddressHelper.init({
+                urls:{
+                    structured_resolve_url: "{% url sharing.passenger_controller.resolve_structured_address %}"
+                }
+            });
+
+            TelmapHelper.init({
+                telmap_user:                "{{ telmap_user }}",
+                telmap_password:            "{{ telmap_password}}",
+                telmap_languages:           "{{ telmap_languages }}",
+            });
+
+            $(".ui-block-a").click(function() {
+                $.mobile.changePage("#pickup");
+            });
+            $(".ui-block-b").click(function() {
+                $.mobile.changePage("#select-address");
+            });
+
+            $("#map_container").click(function() {
+                $.mobile.changePage( "#choose_from_map", { transition: "flip"} );
+            });
+
+            $("#address-form").submit(function() {
+                var that = this;
+                var $sa_input = $("#id_street"),
+                    $hn_input = $("#id_house_number");
+
+                AddressHelper.resolveStructured({
+                    city_selector       : "#id_city",
+                    street_input        : $sa_input,
+                    hn_input            : $hn_input,
+                    return_multiple     : true,
+                    callbacks           :{
+                        beforeSend:function() {
+                            $.mobile.showPageLoadingMsg();
+                        },
+                        complete:function() {
+                            $.mobile.hidePageLoadingMsg();
+                        },
+                        resolved:function(results) {
+                            if (results.length > 1) {
+                                var $addresss_list = $("#address-list");
+                                $addresss_list.empty();
+                                
+                                $.each(results, function (i, result) {
+                                    var $li = $("<li>" + result.name + "</li>");
+                                    $li.click(function() {
+                                        that.pickup_address = result;
+                                        $.mobile.changePage("#pickup")
+                                    });
+                                    $addresss_list.append($li);
+                                });
+                                $.mobile.changePage("#select-address");
+                                $addresss_list.listview("refresh");
+
+                            } else {
+                                that.pickup_address = results[0];
+                                $.mobile.changePage("#pickup")
+                            }
+                        },
+                        unresolved:function(errors) {
+                            alert("{% trans 'Could not resolve address' %}");
+                        }
+                    }
+                });
+                
+                return false;
+            });
+        });
+    </script>
+
+    {% block extrahead %}
+    {% endblock %}
+
+</head>
+{% load i18n %}
+
+<body>
+    {# HOME PAGE #}
+    <div id="home" data-role="page" data-fullscreen="true">
+        <div data-role="header" >
+            <h1>WAYbetter</h1>
+        </div>
+        <div data-role="content">
+            <div class="ui-grid-a"> {#  2-column grid #}
+            	<div class="ui-block-a">
+                    <button data-iconpos="top" data-icon="check">
+                        {% trans 'Order a Ride' %}
+                    </button>
+                </div>
+            	<div class="ui-block-b">
+                    <button data-iconpos="top" data-icon="check">
+                        {% trans 'My Account' %}
+                    </button>
+            	</div>
+            	<div class="ui-block-a">
+                    <button data-iconpos="top" data-icon="check">
+                        {% trans 'Feedback' %}
+                    </button>
+            	</div>
+            	<div class="ui-block-b">
+                    <button data-iconpos="top" data-icon="check">
+                        {% trans 'More' %}
+                    </button>
+            	</div>
+            </div>
+            <div class="ui-grid-b"> {# 3-column grid #}
+                <div class="ui-block-a"></div>
+                <div class="ui-block-b">
+                    <button data-iconpos="top" data-icon="check">
+                        {% trans 'Invite' %}
+                    </button>
+                </div>
+                <div class="ui-block-c"></div>
+            </div>
+        </div>
+    </div>
+    
+    <div id="pickup" data-role="page" data-fullscreen="true">
+        <div data-role="header"  data-theme="c">
+            <a href="#home" data-icon="grid" data-iconpos="notext"></a>
+            <h1>{% trans 'Your Pickup' %}</h1>
+
+            <div data-role="navbar" class="nav-big-icons">
+                <ul>
+                    <li><a href="#choose_from_hotspot" id="from-hotspot" data-transition="slideup" data-icon="custom">HotSpot</a>
+                    </li>
+                    <li><a href="#choose_from_history" id="from-history" data-transition="slideup" data-icon="custom">History</a>
+                    </li>
+                    <li><a href="#choose_from_gps" id="from-gps" data-transition="slideup" data-icon="custom">GPS</a>
+                    </li>
+                    <li><a href="#choose_from_search" id="from-search" data-transition="slideup" data-icon="custom">Search</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div data-role="content">
+            <div id="map_container">
+                <div id="map"></div>
+            </div>
+            <label>Address</label>
+            <button>{% trans 'Next' %}</button>
+        </div>
+    </div>
+
+    <div id="choose_from_hotspot" data-role="page" data-fullscreen="true">
+        <div data-role="header" data-theme="b">
+            <a href="#" data-rel="back" >{% trans 'Cancel' %}</a>
+            <h1>{% trans 'Select HotSpot' %}</h1>
+        </div>
+        <div data-role="content">
+            <div id="hotspot-list">
+                <ul data-role="listview" >
+                    <li data-theme="c" data-role="list-divider" class="hotspot-description">{% trans 'Hotspots are areas where WAYbetter offers cheap taxis' %}</li>
+                    <li data-role="list-divider">Tel Aviv</li>
+                    <li>
+                        <h3>Ramat Hayal</h3>
+                        <p>Habarzel 1, Tel Aviv Yafo</p>
+                    </li>
+                    <li>
+                        <h3>Ramat Hayal</h3>
+                        <p>Habarzel 1, Tel Aviv Yafo</p>
+                    </li>
+                    <li>
+                        <h3>Ramat Hayal</h3>
+                        <p>Habarzel 1, Tel Aviv Yafo</p>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <div id="choose_from_history" data-role="page" data-fullscreen="true">
+        <div data-role="header" data-theme="b">
+            <a href="#" data-rel="back" >{% trans 'Cancel' %}</a>
+            <h1>{% trans 'Choose From History' %}</h1>
+        </div>
+        <div data-role="content">
+        </div>
+    </div>
+
+    <div id="choose_from_gps" data-role="page" data-fullscreen="true">
+        <div data-role="header" data-theme="b">
+            <a href="#" data-rel="back" >{% trans 'Cancel' %}</a>
+            <h1>{% trans 'Choose From GPS' %}</h1>
+        </div>
+        <div data-role="content">
+        </div>
+    </div>
+
+    <div id="choose_from_search" data-role="page" data-fullscreen="true">
+        <div data-role="header" data-theme="b">
+            <a href="#" data-rel="back" >{% trans 'Cancel' %}</a>
+            <h1>{% trans 'Enter Address' %}</h1>
+        </div>
+        <div data-role="content">
+            <form action="" id="address-form">
+                <fieldset>
+                    <select name="city" id="id_city">
+                        <option value="">{% trans 'Choose City' %}</option>
+                        <option value="485" selected="selected">{% trans 'Tel Aviv' %}</option>
+                    </select>
+                    <input type="text" name="street" id="id_street" placeholder="{% trans 'Street' %}" />
+                    <input type="tel" name="house_number" id="id_house_number" placeholder="{% trans 'House #' %}" />
+                </fieldset>
+                <button>{% trans 'OK' %}</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="choose_from_map" data-role="page" data-fullscreen="true">
+        <div data-role="header" data-theme="b">
+            <a href="#" data-rel="back" >{% trans 'Cancel' %}</a>
+            <h1>{% trans 'Choose Address' %}</h1>
+        </div>
+        <div data-role="content">
+        </div>
+    </div>
+
+    <div id="define_time" data-role="page" data-fullscreen="true">
+        <div data-role="header" data-theme="b">
+            <a href="#" data-icon="grid" data-rel="back" data-iconpos="notext"></a>
+            <h1>{% trans 'Define Time' %}</h1>
+            <div data-role="navbar" class="nav-big-icons">
+                <ul>
+                    <li><a href="#" id="nav-departure" data-icon="custom" class="ui-btn-active">{% trans 'Departure' %}</a>
+                    </li>
+                    <li><a href="#" id="nav-arrival" data-icon="custom">{% trans 'Arrival' %}</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div data-role="content">
+            <form action="" id="define-time-form">
+                <fieldset>
+                    <select name="ride-date" id="ride-date"></select>
+                    <select name="ride-time" id="ride-time"></select>
+                    <button>{% trans 'Next' %}</button>
+                </fieldset>
+            </form>
+        </div>
+    </div>
+
+    <div id="ride-summary" data-role="page" data-fullscreen="true">
+        <div data-role="header" data-theme="b">
+            <a href="#" data-icon="grid" data-rel="back" data-iconpos="notext"></a>
+            <h1>{% trans 'Ride Sumary' %}</h1>
+            <a href="#" >{% trans 'Map' %}</a>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview" data-inset="true">
+                <li>
+                    <a href="#">from address</a>
+                </li>
+                <li>
+                    <a href="#">to address</a>
+                </li>
+                <li>
+                    <a href="#">time</a>
+                </li>
+            </ul>
+            <ul data-role="listview" data-inset="true" data-theme="b">
+                <li>
+                    <h3>WAYbetter ride</h3>
+                    <p>Ride price: <span class="price">30 NIS</span></p>
+                    <p>Estimated time: <span class="price">12 min</span></p>
+
+                </li>
+                <li>
+                    <h3>Private ride</h3>
+                    <p>Ride price: <span class="price">60 NIS</span></p>
+                    <p>Estimated time: <span class="price">10 min</span></p>
+                </li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="select-address" data-role="page" data-fullscreen="true">
+        <div data-role="header" data-theme="b">
+            <a href="#" data-rel="back" >{% trans 'Back' %}</a>
+            <h1>{% trans 'Select Address' %}</h1>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview" id="address-list">
+            </ul>
+        </div>
+    </div>
+
+
+
+<script>
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18077675-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+{%  block extra-body %}{% endblock %}
+</body>
+
+</html>
