@@ -120,3 +120,6 @@ def total_seconds(td):
     # timedelta.total_seconds is new in Python 2.7.
     # See: http://docs.python.org/library/datetime.html#datetime.timedelta.total_seconds
     return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
+
+def to_task_name_safe(t):
+    return t.ctime().replace(":","_").replace(" ","_")
