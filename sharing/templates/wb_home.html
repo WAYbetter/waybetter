@@ -31,7 +31,7 @@
                     {% trans "To" %}
                 </div>
 
-                <div id="datetime_input" class="input time disabled" type="datetime_input">
+                <div id="datetime_input" class="input datetime disabled" type="datetime_input">
                     <span class="type">{% trans "When" %}</span>
                     <span id="datetime_value"></span>
                 </div>
@@ -59,13 +59,17 @@
                     <ul>
                         <li>
                             {% trans "Ride Price" %}
-                            <span class="price" id="private_price"><span class="value"></span><span
-                                    class="label">₪</span></span>
+                            <span class="price" id="private_price">
+                                <span class="value"></span>
+                                <span class="label">₪</span>
+                            </span>
                         </li>
                         <li>
                             {% trans "Est. Ride Duration" %}
-                            <span class="time" id="private_time"><span class="value"></span><span
-                                    class="label">MIN</span></span>
+                            <span class="time" id="private_time">
+                                <span class="value"></span>
+                                <span class="label">MIN</span>
+                            </span>
                         </li>
                     </ul>
                     <button class="order_button blue" id="book_private">{% trans 'Book Private' %}</button>
@@ -99,13 +103,17 @@
                     <ul>
                         <li>
                             {% trans "Ride Price" %}
-                            <span class="price" id="sharing_price"><span class="value"></span><span
-                                    class="label">₪</span></span>
+                            <span class="price" id="sharing_price">
+                                <span class="value"></span>
+                                <span class="label">₪</span>
+                            </span>
                         </li>
                         <li>
                             {% trans "Est. Ride Duration" %}
-                            <span class="time" id="sharing_time"><span class="value"></span><span
-                                    class="label">MIN</span></span>
+                            <span class="time" id="sharing_time">
+                                <span class="value"></span>
+                                <span class="label">MIN</span>
+                            </span>
                         </li>
                     </ul>
                     <button class="order_button orange" id="book_sharing">{% trans 'Book WAYbetter' %}</button>
@@ -399,9 +407,6 @@
                 'day': $("#id_hotspot_datepicker").val(),
                 'time': $("#id_hotspot_time").val()
             },
-            beforeSend: function() {
-                $(".price .value, .time .value").text("");
-            },
             success: function(response) {
                 if (response.sharing_price && response.sharing_time && response.private_price && response.private_time) {
                     var saved = (response.private_price - response.sharing_price) / response.private_price * 100;
@@ -414,16 +419,20 @@
                     $(".ride_details, #save_stamp").fadeIn("fast");
                     $(".order_button").enable();
                 } else {
-                    $(".price .value, .time .value").text("");
-                    alert("{% trans "Currently, there is no service to this address." %}");
+                    orderingError("{% trans "Currently, there is no service to this address." %}");
                 }
             },
             error: function() {
-                //TODO_WB: redirect to error page
-                alert("{% trans "We have encountered an error. Please try again." %}");
-                $(".price .value, .time .value").text("");
+                orderingError("{% trans "We have encountered an error. Please try again." %}");
             }
         });
+    }
+
+    function orderingError(msg){
+        //TODO_WB: redirect to error page
+        $(".ride_details, #save_stamp").hide();
+        $(".ride_benefits").fadeIn("fast");
+        alert(msg);
     }
 
     function bookRide(is_private) {
