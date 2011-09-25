@@ -1,7 +1,6 @@
 from django.utils.translation import ugettext_noop
-from ordering.signals import   SignalType
+from ordering.signals import   SignalType, order_created_signal, order_status_changed_signal, orderassignment_created_signal, orderassignment_status_changed_signal
 from ordering.util import send_msg_to_passenger
-from common.signals import AsyncSignal
 from common.decorators import  receive_signal
 from common.langsupport.util import translate_to_lang
 from ordering.models import Order, OrderAssignment, FAILED, ACCEPTED, PENDING, ASSIGNED, ERROR, TIMED_OUT
@@ -15,12 +14,12 @@ STATUS_MESSAGES = {
     FAILED: ugettext_noop("No available taxi at the moment. Please try again soon.")
 }
 
-@receive_signal(*AsyncSignal.all)
+@receive_signal(order_created_signal, order_status_changed_signal, orderassignment_created_signal, orderassignment_status_changed_signal)
 def order_tracker(sender, signal_type, obj, **kwargs):
-    '''
+    """
     Handler for all async signals
     Sends messages to passenger's channel
-    '''
+    """
     if signal_type in [SignalType.ASSIGNMENT_CREATED, SignalType.ASSIGNMENT_STATUS_CHANGED]:
         order_assignment = obj
 

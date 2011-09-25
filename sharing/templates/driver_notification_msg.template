@@ -1,6 +1,1 @@
-{% load i18n %}{% trans "Pickup" %}:
-{% autoescape off %}{% for pickup in pickups %}{{ pickup.time }} {{ pickup.address }} ({{ pickup.phones|join:", " }})
-{% endfor %}{% endautoescape %}
-{% trans "Dropoff" %}:
-{% autoescape off %}{% for dropoff in dropoffs %}{% if dropoff.num_passengers > 1 %}({{ dropoff.num_passengers }}) {{ dropoff.time }} {{ dropoff.address }}{% else %}{{ dropoff.time }} {{ dropoff.address }}{% endif %}
-{% endfor %}{% endautoescape %}
+{% load i18n %}{% autoescape off %}{{ first_pickup_time }} {{ pickups }} {% trans "to" %}: {{ dropoffs }}{% endautoescape %}

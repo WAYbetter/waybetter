@@ -22,14 +22,15 @@ PRE_FETCHING_URL = "/".join([SHARING_ENGINE_DOMAIN, "prefetch"])
 WEB_APP_URL = "http://dev.latest.waybetter-app.appspot.com/"
 
 def submit_to_prefetch(order, key, address_type):
+    address = getattr(order, "%s_raw" % address_type).encode("utf-8")
     payload = urllib.urlencode({'id': key,
-                                'name': getattr(order, "%s_raw" % address_type).encode("utf-8"),
+                                'name': address,
                                 'latitude': getattr(order, "%s_lat" % address_type),
                                 'longitude': getattr(order, "%s_lon" % address_type)})
 
     result = fetch(PRE_FETCHING_URL, payload=payload, method=POST, deadline=10)
     if result.status_code == 200:
-        logging.info("submitted to prefetching order %s: payload=%s, response=%s" % (order.id, payload, result.content))
+        logging.info("submitted to prefetching %s: payload=%s, response=%s" % (address, payload, result.content))
     else:
         logging.error("error while prefetching order %s" % order.id)
     return result
@@ -69,7 +70,7 @@ def submit_orders_for_ride_calculation(orders, key=None, params=None):
 @internal_task_on_queue("orders")
 def submit_computations_task(request):
     key = request.POST.get("computation_key")
-    computations = RideComputation.objects.filter(key=key, completed=False)
+    computations = RideComputation.objects.filter(key=key, submitted=False)
     if computations:
         approved_orders = []
         orders = [order for c in computations for order in c.orders.all()]
@@ -85,10 +86,11 @@ def submit_computations_task(request):
 
         for computation in computations:
             computation.algo_key = algo_key
+            computation.submitted = True
             computation.save()
 
     else:
-        logging.error("no computations for key=%s" % key)
+        logging.info("no un-submitted computations for key=%s" % key)
 
     return HttpResponse("OK")
 

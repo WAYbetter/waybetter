@@ -333,6 +333,7 @@ class RideComputation(BaseModel):
     key = models.CharField(max_length=150, null=True, blank=True, editable=False)
     algo_key = models.CharField(max_length=150, null=True, blank=True, editable=False)
 
+    submitted = models.BooleanField(default=False, editable=False)
     completed = models.BooleanField(default=False, editable=False)
 
     hotspot_depart_time = UTCDateTimeField(null=True, blank=True, editable=False)
@@ -441,24 +442,30 @@ class SharedRide(BaseModel):
         raise ValueError("invalid status")
 
     def driver_jist(self):
+        ws_lang_code = settings.LANGUAGES[self.station.language][0]
+        current_lang = translation.get_language()
+        translation.activate(ws_lang_code)
+
         t = get_template("driver_notification_msg.template")
-        template_data = {'pickups':
-                             [{'address': p.clean_address,
-                               'time': p.stop_time.strftime("%H:%M"),
-                               'num_passengers': p.pickup_orders.count(),
-                               'phones': [order.passenger.phone for order in p.pickup_orders.all()]}
 
-                             for p in self.points.filter(type=StopType.PICKUP).order_by("stop_time")],
+        pickups = []
+        for p in self.points.filter(type=StopType.PICKUP).order_by("stop_time"):
+            pickups.append("%s %s" % (p.clean_address, p.pickup_orders.all()[0].passenger.phone) if p.pickup_orders.count() == 1 else p.clean_address)
 
-                         'dropoffs':
-                             [{'address': p.clean_address,
-                               'time': p.stop_time.strftime("%H:%M"),
-                               'num_passengers': p.dropoff_orders.count(),
-                               'phones': [order.passenger.phone for order in p.dropoff_orders.all()]}
+        dropoffs = []
+        for p in self.points.filter(type=StopType.DROPOFF).order_by("stop_time"):
+            dropoffs.append("%s %s" % (p.clean_address, p.dropoff_orders.all()[0].passenger.phone) if p.dropoff_orders.count() == 1 else p.clean_address)
 
-                             for p in self.points.filter(type=StopType.DROPOFF).order_by("stop_time")]
+        template_data = {
+            'first_pickup_time': self.first_pickup.stop_time.strftime("%H:%M"),
+            'pickups': ", ".join(pickups),
+            'dropoffs': ", ".join(dropoffs)
         }
-        return t.render(Context(template_data))
+        msg = t.render(Context(template_data))
+
+        translation.activate(current_lang)
+
+        return msg.replace("\n","").replace("'","")
 
 
 class RidePoint(BaseModel):

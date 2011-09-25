@@ -1,6 +1,6 @@
 import re
 from common.decorators import order_relative_to_field
-from common.tz_support import default_tz_now
+from common.tz_support import default_tz_now, to_task_name_safe
 from common.util import phone_validator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -30,7 +30,7 @@ class HotSpot(BaseModel):
         @param hotspot_datetime: the time and date of the ride
         @return: unique key representing the hotspot at given time and direction. Should match task name expression "^[a-zA-Z0-9_-]{1,500}$"
         """
-        return "_".join([str(self.id), hotspot_direction, hotspot_datetime.ctime().replace(":","_").replace(" ","_")])
+        return "_".join([str(self.id), hotspot_direction, to_task_name_safe(hotspot_datetime)])
 
     def get_price(self, lat, lon, day, t):
         """
