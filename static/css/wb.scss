@@ -30,7 +30,7 @@ $color-error: #CC162A;
 }
 
 * {
-    font-size: 11px;
+    font-size: $font-size-small;
     font-family: "Lucida Grande", Arial, sans-serif;
     color: $dark-gray;
 }
@@ -342,7 +342,7 @@ body.base-site{
     top: -18px;
     border-top: 1px solid white;
     #site-footer{
-        * {color: $color-offwhite; font-size: $font-size-small;}
+        * {color: $color-offwhite;}
 
         margin: 8px auto 0 auto;
         width: $site-width;
@@ -423,6 +423,10 @@ body.base-site{
 /******************* HOME ********************/
 /*********************************************/
 .wb_home{
+    .ride_details, #save_stamp{
+        display: none;
+    }
+    
     #content-container{
         padding-top: 0;
         min-height: 700px;
@@ -444,15 +448,32 @@ body.base-site{
 
     #map { height: 100%; width: 100%;}
 
+
     #banner { height: 100%; width: 100%; background: orange; }
 
-    #tryitnow{
-        background: yellow;
-        width: 72px;
+    #banner_text_container{
+        width: $site-width;
+        height: 100%;
+        margin: 0 auto;
         position: relative;
-        top: 140px;
-        left: 1040px;
+    }
+
+    #banner_text {
+        position: absolute;
+        top: 60px;
+        left: 40%;
+        font-size: $font-size-big; color: white;
+    }
+
+    #tryitnow{
+        position: absolute;
+        bottom: 50px;
+        right: 0;
         font-weight: bold;
+        font-size: $font-size-big; color: white;
+    }
+    #tryitnow:hover{
+        text-decoration: underline;
     }
 
     #booking_container{
@@ -511,6 +532,9 @@ body.base-site{
         .input:hover{
             @include box-shadow(inset 0 0 0 1px $dark-gray);
         }
+        .input.disabled:hover{
+            @include box-shadow(none);
+        }
         .input.from{
             background: url(/static/images/wb_site/field_icons.png) 6px -10px no-repeat white;
         }
@@ -554,7 +578,7 @@ body.base-site{
         background: white;
         height: 100%;
         width: 242px;
-        * {color: $color-gray;}
+        li, .value, .label {color: $color-gray;}
         .header_img{
             display: inline-block;
             height: 52px;
@@ -655,7 +679,28 @@ body.base-site{
             }
         }
     }
-    .ride_details{ display: none; }
+    #save_stamp{
+        background: url(/static/images/wb_site/save_stamp.png) 0 0 no-repeat;
+        width: 90px;
+        height: 90px;
+        position: absolute;
+        z-index: 1;
+        top: -25px;
+        right: -15px;
+        .container{
+            position: relative;
+            top: 21px;
+            left: 20px;
+            width: 40px;
+            height: 40px;
+            line-height: 18px;
+        }
+        .txt, .label, .value {color: #313131; text-shadow: 0 1px 0 white; font-weight: bold;}
+        .txt { font-size: $font-size-header1; }
+        .label, .value{ font-size: $font-size-big; }
+    }
+
+    /*.ride_details{ display: none; }*/
     .ride_benefits{
         .h{
             font-size: $font-size-medium;
@@ -709,7 +754,6 @@ body.base-site{
             background: url(/static/images/wb_site/field_icons.png) 0 -176px no-repeat;
         }
         .content{
-            * {font-size: $font-size-small;}
             height: 75px;
             width: 339px;
             margin-top: 9px;

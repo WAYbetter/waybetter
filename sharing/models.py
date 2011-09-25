@@ -21,6 +21,7 @@ class HotSpot(BaseModel):
     geohash = models.CharField(_("goehash"), max_length=13)
     lon = models.FloatField(_("longtitude"), null=True)
     lat = models.FloatField(_("latitude"), null=True)
+    is_public = models.BooleanField(default=False)
 
     def get_computation_key(self, hotspot_direction, hotspot_datetime):
         """

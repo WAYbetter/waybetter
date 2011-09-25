@@ -4,7 +4,10 @@
 {% block pre_content %}
     <div id="map_container">
         <div id="banner">
-            {#            <div id="tryitnow" class="clickable">{% trans "Try It Now" %} !</div>#}
+            <div id="banner_text_container">
+                <div id="banner_text">Animated Banner</div>
+                <div id="tryitnow" class="clickable">{% trans "Try It Now" %} ></div>
+            </div>
         </div>
 
         <div id="map"></div>
@@ -74,6 +77,13 @@
             <div id="sharing_data_container" class="ride_data_container">
                 <span class="header_img"></span>
                 <span class="header">{% trans "WAYbetter Taxi Ride" %}</span>
+                <div id="save_stamp">
+                    <span class="container">
+                        <span class="txt">{% trans "SAVE" %}</span>
+                        <span class="value">50</span><span class="label">%</span>
+                    </span>
+                </div>
+
 
                 <div class="ride_benefits">
                     <ul>
@@ -281,7 +291,7 @@
     }
 
     function openTooltipHelper(trigger, helper_type) {
-        $(trigger).addClass("tooltip-visible");
+        $(trigger).addClass("tooltip-visible").removeClass("disabled");
         var $helper = $("#" + helper_type + "_input_helper");
 
         // restore last saved values
@@ -323,23 +333,17 @@
         }
 
         // call validator if any
-        ($helper.data("validator") || function() {}).call();
+        ($helper.data("validator") || function() {
+        }).call();
     }
 
     function openNextTooltip(here, there) {
+        showMap();
         if (! select_input_resolved) {
             openTooltipHelper(here, "select");
         }
         else {
             $(here).addClass("resolved");
-            $("#banner").hide();
-            $.getScript("http://api.navigator.telmap.com/maps/api/js?sensor=false", function success(data, textStatus) {
-                TelmapHelper.init({
-                    telmap_user:                "{{ telmap_user }}",
-                    telmap_password:            "{{ telmap_password}}",
-                    telmap_languages:           "{{ telmap_languages }}"
-                });
-            });
             if (! hotspot_resolved) {
                 openTooltipHelper(there, "hotspot");
             }
@@ -358,6 +362,19 @@
                 }
             }
 
+        }
+    }
+
+    function showMap() {
+        if (! window.telmap) {
+            $("#banner").hide();
+            $.getScript("http://api.navigator.telmap.com/maps/api/js?sensor=false", function success(data, textStatus) {
+                TelmapHelper.init({
+                    telmap_user:                "{{ telmap_user }}",
+                    telmap_password:            "{{ telmap_password}}",
+                    telmap_languages:           "{{ telmap_languages }}"
+                });
+            });
         }
     }
 
@@ -387,12 +404,14 @@
             },
             success: function(response) {
                 if (response.sharing_price && response.sharing_time && response.private_price && response.private_time) {
+                    var saved = (response.private_price - response.sharing_price) / response.private_price * 100;
                     $("#sharing_price .value").text(response.sharing_price);
                     $("#sharing_time .value").text(response.sharing_time);
                     $("#private_price .value").text(response.private_price);
                     $("#private_time .value").text(response.private_time);
+                    $("#save_stamp .value").text(Math.round(saved));
                     $(".ride_benefits").hide();
-                    $(".ride_details").fadeIn("fast");
+                    $(".ride_details, #save_stamp").fadeIn("fast");
                     $(".order_button").enable();
                 } else {
                     $(".price .value, .time .value").text("");
@@ -556,7 +575,9 @@
                 openTooltipHelper($(this), "datetime");
             }
             else {
-                openNextTooltip("#pickup_input", "#dropoff_input");
+                if (hotspot_resolved && address_resolved) {
+                    openNextTooltip("#pickup_input", "#dropoff_input");
+                }
             }
         });
 
@@ -710,7 +731,7 @@
 
         $("input[placeholder]").placeHeld();
         $(".order_button").disable();
-        $(".ride_details").hide();
+        $(".ride_details, #save_stamp").hide();
 
         $("#book_sharing").click(function() {
             bookRide(false);

@@ -103,7 +103,7 @@ var HotspotHelper = Object.create({
                 }
             },
             error: function() {
-                alert("Error loading hotspot times data");
+                flashError("Error loading hotspot times data");
             }
         });
     },
@@ -159,7 +159,7 @@ var HotspotHelper = Object.create({
                     inst.input.datepicker("refresh");
                 },
                 error: function() {
-                    alert("Error loading hotspot dates data");
+                    flashError("Error loading hotspot dates data");
                 }
             });
         }
