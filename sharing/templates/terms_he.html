@@ -1,12 +1,4 @@
-{% extends "wb_base_site.html" %}
-
-{% block top_left %}
-    תנאי שימוש WAYbetter
-{% endblock %}
-
-{% block top_right %}
-    עדכון: 21/9/2011
-{% endblock %}
+{% extends "wb_info.html" %}
 
 {% block content %}
     <div class="header"></div>
@@ -234,4 +226,13 @@
         יישארו בתוקף מלא ואותה הוראה כאמור תפורש, תיושם ותהא תקפה ככל שהחוק מאפשר זאת, ובמידה המירבית שהחוק מאפשר זאת,
         בהתאם לתוכן אותה הוראה. </p>
 
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(function(){
+            $("#li_terms").addClass("active");
+        });
+    </script>
 {% endblock %}

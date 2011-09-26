@@ -49,7 +49,10 @@ urlpatterns = patterns('',
     url(r'^send_verification_code/$', 'sharing.passenger_controller.send_sms_verification', name="send_verification_code"),
     url(r'^validate_phone/$', 'sharing.passenger_controller.validate_phone', name="validate_phone"),
     url(r'^register/$', 'sharing.passenger_controller.do_register', name="register"),
-    url(r'^privacy/$', 'sharing.passenger_controller.privacy', name="privacy"),
-    url(r'^terms/$', 'sharing.passenger_controller.terms', name="terms"),
+
+
+    url(r'^info/$', 'sharing.content_controller.info', name="info"),
+    url(r'^privacy/$', 'sharing.content_controller.privacy', name="privacy"),
+    url(r'^terms/$', 'sharing.content_controller.terms', name="terms"),
 
 )

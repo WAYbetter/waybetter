@@ -47,7 +47,7 @@ a:hover {
   height: 0;
   overflow: hidden; }
 
-ul.hz > li {
+ul.hz > li, #top-right ul.content_links > li {
   list-style: none;
   display: inline;
   margin-left: 45px; }
@@ -262,6 +262,15 @@ body.base-site {
   position: absolute;
   right: 0;
   bottom: 0; }
+  #top-right ul.content_links {
+    position: relative;
+    top: 12px; }
+    #top-right ul.content_links a {
+      text-decoration: none; }
+    #top-right ul.content_links .active {
+      opacity: 0.5; }
+    #top-right ul.content_links .active:hover {
+      cursor: default; }
 
 #content-container {
   background: url(/static/images/wb_site/BG_texture.png);
@@ -912,12 +921,6 @@ body.base-site {
 
 .privacy_he #site-content, .terms_he #site-content {
   direction: rtl; }
-.privacy_he #top-left, .terms_he #top-left {
-  right: 0;
-  left: auto; }
-.privacy_he #top-right, .terms_he #top-right {
-  left: 0;
-  right: auto; }
 .privacy_he .header, .terms_he .header {
   font-size: 13px;
   font-width: bold; }

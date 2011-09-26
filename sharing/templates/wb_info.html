@@ -1,0 +1,12 @@
+{% extends "wb_base_site.html" %}
+{% load i18n %}
+
+{% block top_left %}{% trans "Info" %}{% endblock %}
+{% block top_right %}
+    <ul class="content_links">
+        <li>{% trans "The Service" %}</li>
+        <li>{% trans "FAQ" %}</li>
+        <li><a id="li_terms" href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
+        <li><a id="li_privacy" href="{% url privacy %}">{% trans "Privacy Policy" %}</a></li>
+    </ul>
+{% endblock %}

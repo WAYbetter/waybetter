@@ -316,6 +316,18 @@ body.base-site{
      position: absolute;
      right: 0;
      bottom: 0;
+     ul.content_links{
+         @extend ul.hz;
+         position: relative;
+         top: 12px;
+         a {text-decoration: none;}
+         .active{
+            opacity: 0.5;
+         }
+         .active:hover{
+            cursor: default;
+         }
+     }
 }
 
 #content-container{
@@ -1037,8 +1049,6 @@ body.base-site{
 
 .privacy_he, .terms_he{
     #site-content{direction: rtl;}
-    #top-left {right: 0; left: auto;}
-    #top-right {left: 0; right: auto;}
     .header {font-size: 13px; font-width: bold;}
     p {font-size: 11px;}
     .important{ text-decoration: underline; font-weight: bold;}
