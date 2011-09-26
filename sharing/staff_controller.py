@@ -20,11 +20,12 @@ import settings
 import re
 
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
+LANG_CODE="he"
 
 @staff_member_required
 @passenger_required
 def hotspot_ordering_page(request, passenger, is_textinput):
-    translation.activate("he")
+    translation.activate(LANG_CODE)
 
     if request.method == 'POST':
         response = ''
@@ -167,6 +168,7 @@ def create_orders_from_hotspot(data, hotspot_type, point_type, is_textinput):
                 passenger = data['passenger']
                 order.passenger = passenger
                 order.confining_station = passenger.default_sharing_station
+                order.language_code = LANG_CODE
                 order.save()
 
                 if price and hasattr(passenger, "billing_info"):
