@@ -919,14 +919,40 @@ body.base-site {
   right: 0;
   bottom: 0; }
 
-.privacy_he #site-content, .terms_he #site-content {
+/*
+Info pages
+****************************************************/
+.contact #contact_header {
+  font-size: 16px;
+  font-weight: bold; }
+.contact #contact_details {
+  position: relative;
+  margin: 40px auto 0 auto; }
+.contact .details_row {
+  vertical-align: top; }
+  .contact .details_row > td {
+    width: 350px; }
+.contact .img {
+  height: 55px;
+  width: 65px; }
+.contact .header {
+  font-size: 13px; }
+.contact .details {
+  margin-top: 5px;
+  margin-left: 9px; }
+.contact #customer_service .img {
+  background: url("/static/images/wb_site/contact_icons.png") left 0 no-repeat; }
+.contact #offices .img {
+  background: url("/static/images/wb_site/contact_icons.png") left -76px no-repeat; }
+
+.privacy #site-content, .terms #site-content {
   direction: rtl; }
-.privacy_he .header, .terms_he .header {
+.privacy .header, .terms .header {
   font-size: 13px;
   font-width: bold; }
-.privacy_he p, .terms_he p {
+.privacy p, .terms p {
   font-size: 11px; }
-.privacy_he .important, .terms_he .important {
+.privacy .important, .terms .important {
   text-decoration: underline;
   font-weight: bold; }
 

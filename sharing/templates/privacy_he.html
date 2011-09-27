@@ -141,12 +141,3 @@
         מוחלט מפני גישה בלתי-מורשית למידע המאוחסן בהם, או לאבדן הנובע מסיבות שאינן תלויות בה.</p>
 
 {% endblock %}
-
-{% block doc_ready %}
-    {{ block.super }}
-    <script type="text/javascript">
-        $(function(){
-            $("#li_privacy").addClass("active");
-        });
-    </script>
-{% endblock %}

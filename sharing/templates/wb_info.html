@@ -4,9 +4,20 @@
 {% block top_left %}{% trans "Info" %}{% endblock %}
 {% block top_right %}
     <ul class="content_links">
-        <li>{% trans "The Service" %}</li>
+        <li><a id="li_about" href="{% url about %}">{% trans "The Service" %}</a></li>
         <li>{% trans "FAQ" %}</li>
         <li><a id="li_terms" href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
         <li><a id="li_privacy" href="{% url privacy %}">{% trans "Privacy Policy" %}</a></li>
+        <li><a id="li_contact" href="{% url contact %}">{% trans "Contact Us" %}</a></li>
     </ul>
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(function() {
+            var page_name = "{{ page_name }}";
+            $("#li_" + page_name).addClass("active");
+        });
+    </script>
 {% endblock %}

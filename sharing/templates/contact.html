@@ -1,0 +1,60 @@
+{% extends "wb_info.html" %}
+{% load i18n %}
+
+{% block content %}
+    <div id="contact_header">{% trans "Contact WAYbetter" %}</div>
+    <table id="contact_details">
+        <tr class="details_row">
+            <td id="customer_service">
+                <table>
+                    <tr>
+                        <td class="img"></td>
+                        <td class="header">{% trans "Support and Customer Relations" %}
+                            <table class="details">
+                                <tr>
+                                    <td>{% trans "Email" %}:</td>
+                                    <td>support@waybetter.com</td>
+                                </tr>
+                                <tr>
+                                    <td>{% trans "Tel" %}:</td>
+                                    <td>0722-555-442</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+
+            <td id="offices">
+                <table>
+                    <tr>
+                        <td class="img"></td>
+                        <td class="header">{% trans "Our Offices" %}
+                            <table class="details">
+                                <tr>
+                                    <td colspan="2">{% trans "Yoni Netanyahu 6." %}</td>
+                                </tr>
+                                <tr>
+                                    <td colspan="2">{% trans "Or Yehuda 60376, Israel" %}</td>
+                                </tr>
+                                <tr>
+                                    <td>{% trans "Email" %}:</td>
+                                    <td>contact@waybetter.com</td>
+                                </tr>
+                                <tr>
+                                    <td>{% trans "Tel" %}:</td>
+                                    <td>03-9085008</td>
+                                </tr>
+                                <tr>
+                                    <td>{% trans "Fax" %}:</td>
+                                    <td>03-9366873</td>
+                                </tr>
+                            </table>
+                        </td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+    
+{% endblock %}

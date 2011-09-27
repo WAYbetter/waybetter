@@ -1047,7 +1047,46 @@ body.base-site{
     }
 }
 
-.privacy_he, .terms_he{
+/*
+Info pages
+****************************************************/
+.contact{
+    #contact_header{
+        font-size: $font-size-header2;
+        font-weight: bold;
+    }
+    #contact_details{
+        position: relative;
+        margin: 40px auto 0 auto;
+    }
+    .details_row {
+        vertical-align: top;
+        > td {width: 350px;}
+    }
+    .img{
+        height: 55px;
+        width: 65px;
+    }
+    .header{
+        font-size: $font-size-medium;
+    }
+    .details{
+        margin-top: 5px;
+        margin-left: 9px;
+    }
+    #customer_service{
+        .img{
+            background: url("/static/images/wb_site/contact_icons.png") left 0 no-repeat;
+        }
+    }
+    #offices{
+        .img{
+            background: url("/static/images/wb_site/contact_icons.png") left -76px no-repeat;
+        }
+    }
+
+}
+.privacy, .terms{
     #site-content{direction: rtl;}
     .header {font-size: 13px; font-width: bold;}
     p {font-size: 11px;}

@@ -105,13 +105,13 @@ def mark_ride_not_taken_task(request):
     ride_id = request.POST.get("ride_id", None)
     try:
         ride = SharedRide.by_id(ride_id, safe=False)
-        ride.change_status(old_status=ASSIGNED, new_status=NOT_TAKEN)
-        logging.info("Marked ride [%d] as not taken" % ride.id)
-        notify_by_email("Ride not taken (not accepted by station)", msg="ride=%s station=%s" % (ride.id, ride.station))
+        ride.change_status(new_status=NOT_TAKEN)
+        logging.info("Marked ride [%s] as not taken" % ride_id)
+        notify_by_email("Ride not taken (not accepted by station)", msg=u"ride=%s\nstation=%s" % (ride.id, ride.station))
 
     except SharedRide.DoesNotExist:
         logging.error("Error marking ride as not taken: SharedRide.DoesNotExist")
     except UpdateStatusError:
-        logging.warning("Error changing ride [%d] status to not taken: UpdateStatusError" % ride_id)
+        logging.warning("UpdateStatusError: Error changing ride [%s] status to not taken" % ride_id)
 
     return HttpResponse("OK")

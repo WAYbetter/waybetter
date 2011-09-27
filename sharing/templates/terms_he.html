@@ -227,12 +227,3 @@
         בהתאם לתוכן אותה הוראה. </p>
 
 {% endblock %}
-
-{% block doc_ready %}
-    {{ block.super }}
-    <script type="text/javascript">
-        $(function(){
-            $("#li_terms").addClass("active");
-        });
-    </script>
-{% endblock %}
