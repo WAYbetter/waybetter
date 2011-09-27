@@ -26,7 +26,13 @@
                             <li><a class="menu_link">{% trans "Mobile" %}</a></li>
                             <li>
                                 {% if request.user.is_authenticated %}
-                                    <span class="menu_link bold">{% trans "Hi" %} {{ request.user.first_name }}</span>
+                                    <span class="menu_link bold">{% trans "Hi" %}
+                                    {% if request.user.first_name %}
+                                        {{ request.user.first_name }}
+                                    {% else %}
+                                        {{ request.user.username }}
+                                    {% endif %}
+                                    </span>
                                 {% else %}
                                     <a class="menu_link" href="{% url auth_login %}">{% trans "Log-in" %}</a>
                                 {% endif %}
@@ -130,7 +136,7 @@
                             <ul>
                                 {% if request.user.is_authenticated %}
                                     <li><a>{% trans "Account" %}</a></li>
-                                    <li><a>{% trans "My Rides" %}</a></li>
+                                    <li><a href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
                                     <li><a>{% trans "My Profile" %}</a></li>
                                     <li><a href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
                                 {% else %}

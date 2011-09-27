@@ -38,10 +38,13 @@ urlpatterns = patterns('',
     (r'^station/delete_taxidriver/$', 'sharing.station_controller.delete_taxidriver_relation'),
     (r'^drivers_for_taxi/$', 'sharing.station_controller.get_drivers_for_taxi'),
     (r'^check_auth/$', 'sharing.station_controller.workstation_auth'),
+
+    (r'^myrides_data/$', 'sharing.passenger_controller.get_myrides_data'),
     (r'^hotspots_data/$', 'sharing.passenger_controller.get_hotspots_data'),
     (r'^dates_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_dates'),
     (r'^times_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_times'),
     (r'^price_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_price'),
+
     (r'^resolve_structured_address/$', 'sharing.passenger_controller.resolve_structured_address'),
     (r'^registration/(?P<order_id>\d+)/$', 'sharing.passenger_controller.registration'),
     (r'^registration/$', 'sharing.passenger_controller.registration'),
@@ -56,5 +59,6 @@ urlpatterns = patterns('',
     url(r'^terms/$', 'sharing.content_controller.terms', name="terms"),
     url(r'^contact/$', 'sharing.content_controller.contact', name="contact"),
     url(r'^about/$', 'sharing.content_controller.about', name="about"),
+    url(r'^my_rides/$', 'sharing.content_controller.my_rides', name="my_rides"),
 
 )

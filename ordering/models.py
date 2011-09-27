@@ -765,11 +765,6 @@ RATING_CHOICES = ((0, ugettext("Unrated")),
 
 class Order(BaseModel):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
-    ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="orders", null=True, blank=True)
-    computation = models.ForeignKey(RideComputation, related_name="orders", null=True, blank=True)
-    pickup_point = models.ForeignKey(RidePoint, verbose_name=_("pickup point"), related_name="pickup_orders", null=True, blank=True)
-    dropoff_point = models.ForeignKey(RidePoint, verbose_name=_("dropoff point"), related_name="dropoff_orders", null=True, blank=True)
-
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="orders", null=True, blank=True)
     originating_station = models.ForeignKey(Station, verbose_name=(_("originating station")),
                                             related_name="originated_orders", null=True, blank=True, default=None)
@@ -819,6 +814,10 @@ class Order(BaseModel):
     future_pickup = models.BooleanField(_("future pickup"), default=False)
 
     # sharing fields
+    ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="orders", null=True, blank=True)
+    computation = models.ForeignKey(RideComputation, related_name="orders", null=True, blank=True)
+    pickup_point = models.ForeignKey(RidePoint, verbose_name=_("pickup point"), related_name="pickup_orders", null=True, blank=True)
+    dropoff_point = models.ForeignKey(RidePoint, verbose_name=_("dropoff point"), related_name="dropoff_orders", null=True, blank=True)
     depart_time = UTCDateTimeField(_("depart time"), null=True, blank=True)
     arrive_time = UTCDateTimeField(_("arrive time"), null=True, blank=True)
     price = models.FloatField(null=True, blank=True, editable=False)
@@ -971,6 +970,10 @@ class Order(BaseModel):
                  "to_lat": self.to_lat,
                  "to_lon": self.to_lon }
 
+    def serialize_for_myrides(self):
+        return {'type': self.type, 'from': self.from_raw, 'to': self.to_raw,
+                'when': (self.pickup_point.stop_time if self.pickup_point else self.depart_time).strftime("%d/%m/%y, %H:%M"),
+                'price': self.price}
 
 class OrderAssignment(BaseModel):
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")

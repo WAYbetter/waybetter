@@ -1,5 +1,7 @@
 from django.template.context import RequestContext
 from common.util import custom_render_to_response
+from django.utils import simplejson
+from ordering.models import OrderType
 
 def info(request):
     return custom_render_to_response("wb_info.html", locals(), context_instance=RequestContext(request))
@@ -20,4 +22,9 @@ def terms(request):
     page_name = page_specific_class = "terms"
     return custom_render_to_response("terms_he.html", locals(), context_instance=RequestContext(request))
 
-  
+def my_rides(request):
+    page_name = page_specific_class = "my_rides"
+    order_types = simplejson.dumps({'private': OrderType.PRIVATE,
+                                    'shared': OrderType.SHARED})
+
+    return custom_render_to_response("my_rides.html", locals(), context_instance=RequestContext(request))

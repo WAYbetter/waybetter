@@ -128,10 +128,6 @@ def fetch_ride_results_task(request):
         logging.info("data = %s" % data)
 
         computations = RideComputation.objects.filter(algo_key=result_id)
-        for computation in computations:
-            computation.statistics = simplejson.dumps(data.get("m_OutputStat"))
-            computation.completed = True
-            computation.save()
 
         debug = bool(data.get("m_Debug"))
         for ride_data in data["m_Rides"]:
@@ -167,5 +163,10 @@ def fetch_ride_results_task(request):
                     order.save()
 
             signals.ride_created_signal.send(sender='fetch_ride_results', obj=ride)
+
+        for computation in computations:
+            computation.statistics = simplejson.dumps(data.get("m_OutputStat"))
+            computation.completed = True
+            computation.save()
 
     return HttpResponse("OK")

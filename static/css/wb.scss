@@ -29,6 +29,13 @@ $color-error: #CC162A;
     box-shadow: $r;
 }
 
+@mixin site-container(){
+    width: $site-width;
+    background: white;
+    @include border-radius(12px);
+    @include box-shadow(0 0 6px 0 #747474);
+}
+
 * {
     font-size: $font-size-small;
     font-family: "Lucida Grande", Arial, sans-serif;
@@ -302,8 +309,6 @@ body.base-site{
     width: $site-width;
     margin: 0 auto 10px auto;
     position: relative;
-    padding-left: 10px;
-    padding-right: 10px;
 }
 #top-left{
     font-size: $font-size-header1;
@@ -340,13 +345,10 @@ body.base-site{
 }
 
 #site-content{
+    @include site-container();
     position: relative;
-    width: $site-width;
     margin: 0 auto 50px auto;
-    background: white;
     padding: 25px;
-    @include border-radius(12px);
-    @include box-shadow(0 0 6px 0 #747474);
 }
 
 #footer-container{
@@ -431,9 +433,38 @@ body.base-site{
     }
 
 }
-/*********************************************/
-/******************* HOME ********************/
-/*********************************************/
+
+.myrides-table{
+    display: none;
+    width: 100%;
+    text-align: left;
+    border-spacing: 7px 7px;
+    th{
+        font-size: $font-size-medium;
+    }
+    th.border{
+        border-bottom: 1px solid $light-gray;
+    }
+    td.shared-img{
+        width: 25px;
+        height: 25px;
+        background: url("/static/images/wb_site/ride_type.png") 2px 1px no-repeat;
+    }
+    td.private-img{
+        width: 25px;
+        height: 25px;
+        background: url("/static/images/wb_site/ride_type.png") 2px -23px no-repeat;
+    }
+    td.info{
+        width: 15px;
+        height: 10px;
+        background: url("/static/images/wb_site/info_icons.png") 0 -5px no-repeat;
+    }
+}
+
+/*
+Home
+/*******************************************************/
 .wb_home{
     .ride_details, #save_stamp{
         display: none;
@@ -450,6 +481,29 @@ body.base-site{
         margin-bottom: 0;
         padding: 0;
         @include border-radius(6px);
+        @include box-shadow(none);
+        background: none;
+    }
+
+    #booking_container{
+        @include site-container();
+        @include border-radius(6px);
+        padding: 0;
+        height: 240px;
+    }
+
+    #myrides_container{
+        @include site-container();
+        width: $site-width - 15 * 2;
+        padding: 5px 15px;
+        display: none;
+        margin-top: 50px;
+        h1{
+            font-size: $font-size-header2;
+        }
+        hr{
+            color: $light-gray;
+        }
     }
 
     #map_container {
@@ -486,10 +540,6 @@ body.base-site{
     }
     #tryitnow:hover{
         text-decoration: underline;
-    }
-
-    #booking_container{
-        height: 240px;
     }
 
     #order_form_container{
@@ -885,6 +935,31 @@ body.base-site{
 
 } // HOME
 
+
+/*
+Account
+**********************************************/
+.my_rides{
+    #site-content{
+        padding: 0;
+        @include border-radius(6px);
+        @include box-shadow(none);
+        background: none;
+    }
+
+    #next_rides_container, #previous_rides_container{
+        @include site-container();
+        width: $site-width - 15 * 2;
+        padding: 15px;
+        .header{
+            font-size: $font-size-medium;
+            font-weight: bold;
+        }
+    }
+    #next_rides_container {
+        margin-bottom: 20px;
+    }
+}
 
 /*********************************************/
 /******************* REGISTRATION ************/

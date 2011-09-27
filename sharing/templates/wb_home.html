@@ -81,6 +81,7 @@
             <div id="sharing_data_container" class="ride_data_container">
                 <span class="header_img"></span>
                 <span class="header">{% trans "WAYbetter Taxi Ride" %}</span>
+
                 <div id="save_stamp">
                     <span class="container">
                         <span class="txt">{% trans "SAVE" %}</span>
@@ -120,6 +121,13 @@
                 </div>
             </div>
         </div>
+    </div>
+    <div id="myrides_container">
+        <h1>{% trans "My Next Rides" %}</h1>
+        <hr>
+        <table id="my_next_rides" class="myrides-table">
+            {% include "myrides_table.html" %}
+        </table>
     </div>
 
     <!-- anchor tips with changing content -->
@@ -237,11 +245,14 @@
     </div>
 {% endblock %}
 
-
 {% block doc_ready %}
     {{ block.super }}
     <script type="text/javascript">
 
+    {% autoescape off %}
+    var order_types = {{ order_types }};
+    {% endautoescape%}
+    
     var PICKUP = "pickup",
             DROPOFF = "dropoff",
             hotspot_type = PICKUP,
@@ -432,6 +443,10 @@
         //TODO_WB: redirect to error page
         $(".ride_details, #save_stamp").hide();
         $(".ride_benefits").fadeIn("fast");
+        showError(msg);
+    }
+
+    function showError(msg){
         alert(msg);
     }
 
@@ -505,6 +520,26 @@
 
     $(function() {
 
+        {% if request.user.passenger %}
+            MyRidesHelper.init({
+                order_types: order_types,
+                next_rides_table: "#my_next_rides",
+                urls: {
+                    get_myrides_url: "{% url sharing.passenger_controller.get_myrides_data %}"
+                }
+            });
+
+            MyRidesHelper.getData({'get_next_rides': true}, {
+                        success: function(has_next, has_previous) {
+                            if (has_next) $("#myrides_container").fadeIn("fast");
+                        },
+                        error: function(){
+                            showError("{% trans "Error getting rides data" %}")
+                        }
+                    });
+        {% endif %}
+
+        
         HotspotHelper.init({
             labels: {
                 choose_date: "{% trans "Choose Date" %}",

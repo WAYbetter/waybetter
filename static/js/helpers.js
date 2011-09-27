@@ -1,3 +1,79 @@
+var MyRidesHelper = Object.create({
+    config: {
+        order_types: {},
+        next_rides_table: undefined,
+        previous_rides_table: undefined,
+        urls: {
+            get_myrides_url: ""
+        }
+    },
+
+    init: function(config){
+        this.config = $.extend(true, {}, this.config, config);
+    },
+
+    getData: function(data, callbacks){
+        var that = this;
+        $.ajax({
+            url: that.config.urls.get_myrides_url,
+            dataType: "json",
+            data: data,
+            success: function(data){
+                var has_next = (data.next_rides || []).length > 0;
+                var has_previous = (data.previous_rides || []).length > 0;
+                var $next_table = $(that.config.next_rides_table).eq(0);
+                var $previous_table = $(that.config.previous_rides_table).eq(0);
+
+                if ($next_table && has_next) {
+                    $.each(data.next_rides, function(i, ride) {
+                        var row = that.renderRide(ride);
+                        $next_table.find("tbody").append(row);
+                    });
+                    $next_table.show();
+                }
+                else{
+                    $next_table.hide();
+                }
+
+                if ($previous_table && has_previous){
+                    $.each(data.previous_rides, function(i, ride) {
+                        var row = that.renderRide(ride);
+                        $previous_table.find("tbody").append(row);
+                    });
+                    $previous_table.show();
+                }
+                else{
+                    $previous_table.hide();
+                }
+
+                if (callbacks.success) callbacks.success.call(undefined, has_next, has_previous);
+            },
+            error: (callbacks.error || function(){})
+        });
+    },
+
+    renderRide: function(ride){
+        var $row = $('<tr></tr>');
+        switch (ride.type){
+            case this.config.order_types['private']:
+                $row.append('<td class="private-img"></td>');
+                break;
+            case this.config.order_types['shared']:
+                $row.append('<td class="shared-img"></td>');
+                break;
+            default:
+                $row.append('<td></td>');
+        }
+        $row.append('<td>' + ride.from + '</td>');
+        $row.append('<td>' + ride.to + '</td>');
+        $row.append('<td>' + ride.when + '</td>');
+        $row.append('<td>' + ride.price + '</td>');
+        $row.append('<td class="info"></td>');
+        return $row;
+    }
+
+});
+
 var HotspotHelper = Object.create({
     config: {
         update_on_dateselect: true,

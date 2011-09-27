@@ -1,0 +1,62 @@
+{% extends "wb_base_site.html" %}
+{% load i18n %}
+
+{% block top_left %}{% trans "My Account" %}{% endblock %}
+{% block top_right %}
+    <ul class="content_links">
+        <li><a id="li_my_rides" href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
+        <li><a id="li_my_profile" href="">{% trans "My Profile" %}</a></li>
+        <li><a id="li_logout" href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
+    </ul>
+{% endblock %}
+
+{% block content %}
+    <div id="next_rides_container">
+        <div class="header"></div>
+        <table id="next_rides" class="myrides-table">
+            {% include "myrides_table.html" %}
+        </table>
+    </div>
+
+    <div id="previous_rides_container">
+        <div class="header"></div>
+        <table id="previous_rides" class="myrides-table">
+            {% include "myrides_table.html" %}
+        </table>
+    </div>
+
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(function() {
+            var page_name = "{{ page_name }}";
+            $("#li_" + page_name).addClass("active");
+        });
+
+        {% autoescape off %}
+            var order_types = {{ order_types }};
+        {% endautoescape%}
+
+        MyRidesHelper.init({
+            order_types: order_types,
+            next_rides_table: "#next_rides",
+            previous_rides_table: "#previous_rides",
+            urls: {
+                get_myrides_url: "{% url sharing.passenger_controller.get_myrides_data %}"
+            }
+        });
+
+        MyRidesHelper.getData({'get_next_rides': true, 'get_previous_rides': true}, {
+                    success: function(has_next, has_previous) {
+                        $("#next_rides_container .header").text((has_next) ? "{% trans "Next Rides" %}" : "{% trans "No Next Rides" %}");
+                        $("#previous_rides_container .header").text((has_previous) ? "{% trans "Previous Rides" %}" : "{% trans "No Previous Rides" %}");
+                    },
+                    has_previous: function() {
+                    },
+                    error: function() {
+                    }
+                });
+    </script>
+{% endblock %}

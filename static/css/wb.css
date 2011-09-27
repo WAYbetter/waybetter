@@ -247,9 +247,7 @@ body.base-site {
 #top-container {
   width: 800px;
   margin: 0 auto 10px auto;
-  position: relative;
-  padding-left: 10px;
-  padding-right: 10px; }
+  position: relative; }
 
 #top-left {
   font-size: 18px;
@@ -281,17 +279,17 @@ body.base-site {
   border-bottom: 1px solid #98988F; }
 
 #site-content {
-  position: relative;
   width: 800px;
-  margin: 0 auto 50px auto;
   background: white;
-  padding: 25px;
   -webkit-border-radius: 12px;
   -moz-border-radius: 12px;
   border-radius: 12px;
   -webkit-box-shadow: 0 0 6px 0 #747474;
   -moz-box-shadow: 0 0 6px 0 #747474;
-  box-shadow: 0 0 6px 0 #747474; }
+  box-shadow: 0 0 6px 0 #747474;
+  position: relative;
+  margin: 0 auto 50px auto;
+  padding: 25px; }
 
 #footer-container {
   position: relative;
@@ -371,9 +369,31 @@ body.base-site {
   #wb_values .wb_link {
     font-size: 11px; }
 
-/*********************************************/
-/******************* HOME ********************/
-/*********************************************/
+.myrides-table {
+  display: none;
+  width: 100%;
+  text-align: left;
+  border-spacing: 7px 7px; }
+  .myrides-table th {
+    font-size: 13px; }
+  .myrides-table th.border {
+    border-bottom: 1px solid #bcbcbc; }
+  .myrides-table td.shared-img {
+    width: 25px;
+    height: 25px;
+    background: url("/static/images/wb_site/ride_type.png") 2px 1px no-repeat; }
+  .myrides-table td.private-img {
+    width: 25px;
+    height: 25px;
+    background: url("/static/images/wb_site/ride_type.png") 2px -23px no-repeat; }
+  .myrides-table td.info {
+    width: 15px;
+    height: 10px;
+    background: url("/static/images/wb_site/info_icons.png") 0 -5px no-repeat; }
+
+/*
+Home
+/*******************************************************/
 .wb_home {
   /*.ride_details{ display: none; }*/ }
   .wb_home .ride_details, .wb_home #save_stamp {
@@ -388,7 +408,42 @@ body.base-site {
     padding: 0;
     -webkit-border-radius: 6px;
     -moz-border-radius: 6px;
-    border-radius: 6px; }
+    border-radius: 6px;
+    -webkit-box-shadow: none;
+    -moz-box-shadow: none;
+    box-shadow: none;
+    background: none; }
+  .wb_home #booking_container {
+    width: 800px;
+    background: white;
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    border-radius: 12px;
+    -webkit-box-shadow: 0 0 6px 0 #747474;
+    -moz-box-shadow: 0 0 6px 0 #747474;
+    box-shadow: 0 0 6px 0 #747474;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    padding: 0;
+    height: 240px; }
+  .wb_home #myrides_container {
+    width: 800px;
+    background: white;
+    -webkit-border-radius: 12px;
+    -moz-border-radius: 12px;
+    border-radius: 12px;
+    -webkit-box-shadow: 0 0 6px 0 #747474;
+    -moz-box-shadow: 0 0 6px 0 #747474;
+    box-shadow: 0 0 6px 0 #747474;
+    width: 770px;
+    padding: 5px 15px;
+    display: none;
+    margin-top: 50px; }
+    .wb_home #myrides_container h1 {
+      font-size: 16px; }
+    .wb_home #myrides_container hr {
+      color: #bcbcbc; }
   .wb_home #map_container {
     width: 100%;
     height: 300px;
@@ -420,8 +475,6 @@ body.base-site {
     color: white; }
   .wb_home #tryitnow:hover {
     text-decoration: underline; }
-  .wb_home #booking_container {
-    height: 240px; }
   .wb_home #order_form_container {
     float: left;
     width: 300px;
@@ -783,6 +836,35 @@ body.base-site {
     background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat; }
   .wb_home #datetime_input_helper .img.arrive {
     background: url(/static/images/wb_site/field_icons.png) 6px -254px no-repeat; }
+
+/*
+Account
+**********************************************/
+.my_rides #site-content {
+  padding: 0;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  background: none; }
+.my_rides #next_rides_container, .my_rides #previous_rides_container {
+  width: 800px;
+  background: white;
+  -webkit-border-radius: 12px;
+  -moz-border-radius: 12px;
+  border-radius: 12px;
+  -webkit-box-shadow: 0 0 6px 0 #747474;
+  -moz-box-shadow: 0 0 6px 0 #747474;
+  box-shadow: 0 0 6px 0 #747474;
+  width: 770px;
+  padding: 15px; }
+  .my_rides #next_rides_container .header, .my_rides #previous_rides_container .header {
+    font-size: 13px;
+    font-weight: bold; }
+.my_rides #next_rides_container {
+  margin-bottom: 20px; }
 
 /*********************************************/
 /******************* REGISTRATION ************/
