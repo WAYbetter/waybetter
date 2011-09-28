@@ -73,6 +73,9 @@ ul.hz > li, #top-right ul.content_links > li {
   cursor: default;
   opacity: 0.5; }
 
+.hidden {
+  display: none; }
+
 .clickable {
   cursor: pointer; }
 
@@ -389,7 +392,40 @@ body.base-site {
   .myrides-table td.info {
     width: 15px;
     height: 10px;
-    background: url("/static/images/wb_site/info_icons.png") 0 -5px no-repeat; }
+    background: url("/static/images/wb_site/info_icons.png") 0 -5px no-repeat;
+    cursor: pointer; }
+  .myrides-table td.info:hover {
+    background: url("/static/images/wb_site/info_icons.png") 0 -27px no-repeat; }
+  .myrides-table td.info.report {
+    background: url("/static/images/wb_site/info_icons.png") 0 -50px no-repeat; }
+  .myrides-table td.info.report:hover {
+    background: url("/static/images/wb_site/info_icons.png") 0 -72px no-repeat; }
+
+#myrides_tooltip {
+  background: transparent url(/static/images/wb_site/tooltip_small_ltr.png);
+  width: 350px;
+  height: 180px; }
+
+.myrides-tip-content {
+  position: relative;
+  top: 30px;
+  left: 33px;
+  width: 270px;
+  height: 120px; }
+  .myrides-tip-content .header {
+    font-size: 13px;
+    font-weight: bold; }
+  .myrides-tip-content .close {
+    position: absolute;
+    top: 0;
+    right: 0;
+    cursor: pointer;
+    font-weight: normal; }
+  .myrides-tip-content .content {
+    margin-top: 15px; }
+  .myrides-tip-content .footer {
+    position: absolute;
+    bottom: 0; }
 
 /*
 Home
@@ -668,7 +704,7 @@ Home
     float: left; }
   .wb_home .tooltip {
     display: none;
-    background: transparent url(/static/images/wb_site/tooltip.png);
+    background: transparent url(/static/images/wb_site/tooltip_big_ltr.png);
     height: 238px;
     width: 434px; }
   .wb_home .tooltip-content {

@@ -127,6 +127,10 @@ ul.hz{
     opacity: 0.5;
 }
 
+.hidden{
+    display: none;
+}
+
 .clickable{
     cursor: pointer;
 }
@@ -459,6 +463,41 @@ body.base-site{
         width: 15px;
         height: 10px;
         background: url("/static/images/wb_site/info_icons.png") 0 -5px no-repeat;
+        cursor: pointer;
+    }
+    td.info:hover{ background: url("/static/images/wb_site/info_icons.png") 0 -27px no-repeat; }
+    td.info.report{ background: url("/static/images/wb_site/info_icons.png") 0 -50px no-repeat; }
+    td.info.report:hover{ background: url("/static/images/wb_site/info_icons.png") 0 -72px no-repeat; }
+}
+
+#myrides_tooltip {
+    background: transparent url(/static/images/wb_site/tooltip_small_ltr.png);
+    width: 350px;
+    height: 180px;
+}
+.myrides-tip-content{
+    position: relative;
+    top: 30px;
+    left: 33px;
+    width: 270px;
+    height: 120px;
+    .header{
+        font-size: $font-size-medium;
+        font-weight: bold;
+    }
+    .close{
+        position: absolute;
+        top: 0;
+        right: 0;
+        cursor: pointer;
+        font-weight: normal;
+    }
+    .content{
+        margin-top: 15px;
+    }
+    .footer{
+        position: absolute;
+        bottom: 0;
     }
 }
 
@@ -783,7 +822,7 @@ Home
 
     .tooltip {
         display: none;
-        background: transparent url(/static/images/wb_site/tooltip.png);
+        background: transparent url(/static/images/wb_site/tooltip_big_ltr.png);
         height: 238px;
         width: 434px;
     }

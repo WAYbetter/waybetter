@@ -5,7 +5,7 @@
 {% block top_right %}
     <ul class="content_links">
         <li><a id="li_my_rides" href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
-        <li><a id="li_my_profile" href="">{% trans "My Profile" %}</a></li>
+        <li><a id="li_my_profile">{% trans "My Profile" %}</a></li>
         <li><a id="li_logout" href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
     </ul>
 {% endblock %}
@@ -25,6 +25,9 @@
         </table>
     </div>
 
+    <div id="myrides_tooltip" class="hidden">
+        {% include "myrides_tooltips.html" %}
+    </div>
 {% endblock %}
 
 {% block doc_ready %}
@@ -44,7 +47,8 @@
             next_rides_table: "#next_rides",
             previous_rides_table: "#previous_rides",
             urls: {
-                get_myrides_url: "{% url sharing.passenger_controller.get_myrides_data %}"
+                get_myrides_data: "{% url sharing.passenger_controller.get_myrides_data %}",
+                get_order_status: "{% url sharing.passenger_controller.get_order_status %}"
             }
         });
 
@@ -52,10 +56,6 @@
                     success: function(has_next, has_previous) {
                         $("#next_rides_container .header").text((has_next) ? "{% trans "Next Rides" %}" : "{% trans "No Next Rides" %}");
                         $("#previous_rides_container .header").text((has_previous) ? "{% trans "Previous Rides" %}" : "{% trans "No Previous Rides" %}");
-                    },
-                    has_previous: function() {
-                    },
-                    error: function() {
                     }
                 });
     </script>

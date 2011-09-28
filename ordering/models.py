@@ -971,7 +971,7 @@ class Order(BaseModel):
                  "to_lon": self.to_lon }
 
     def serialize_for_myrides(self):
-        return {'type': self.type, 'from': self.from_raw, 'to': self.to_raw,
+        return {'id': self.id, 'type': self.type, 'from': self.from_raw, 'to': self.to_raw,
                 'when': (self.pickup_point.stop_time if self.pickup_point else self.depart_time).strftime("%d/%m/%y, %H:%M"),
                 'price': self.price}
 

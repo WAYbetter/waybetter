@@ -40,6 +40,7 @@ urlpatterns = patterns('',
     (r'^check_auth/$', 'sharing.station_controller.workstation_auth'),
 
     (r'^myrides_data/$', 'sharing.passenger_controller.get_myrides_data'),
+    (r'^order_status/$', 'sharing.passenger_controller.get_order_status'),
     (r'^hotspots_data/$', 'sharing.passenger_controller.get_hotspots_data'),
     (r'^dates_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_dates'),
     (r'^times_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_times'),

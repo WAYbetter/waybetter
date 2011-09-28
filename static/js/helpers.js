@@ -1,10 +1,18 @@
 var MyRidesHelper = Object.create({
     config: {
+        urls: {
+            get_myrides_data: "",
+            get_order_status: ""
+        },
         order_types: {},
         next_rides_table: undefined,
         previous_rides_table: undefined,
-        urls: {
-            get_myrides_url: ""
+        tip: "#myrides_tooltip",
+        tip_content: {
+            pending: "#ride_pending_tip",
+            processing: "#ride_submitted_tip",
+            ready: "#ride_completed_tip",
+            report_ride: "#report_ride_tip"
         }
     },
 
@@ -15,7 +23,7 @@ var MyRidesHelper = Object.create({
     getData: function(data, callbacks){
         var that = this;
         $.ajax({
-            url: that.config.urls.get_myrides_url,
+            url: that.config.urls.get_myrides_data,
             dataType: "json",
             data: data,
             success: function(data){
@@ -25,8 +33,8 @@ var MyRidesHelper = Object.create({
                 var $previous_table = $(that.config.previous_rides_table).eq(0);
 
                 if ($next_table && has_next) {
-                    $.each(data.next_rides, function(i, ride) {
-                        var row = that.renderRide(ride);
+                    $.each(data.next_rides, function(i, order) {
+                        var row = that._renderRideRow(order, true);
                         $next_table.find("tbody").append(row);
                     });
                     $next_table.show();
@@ -36,8 +44,8 @@ var MyRidesHelper = Object.create({
                 }
 
                 if ($previous_table && has_previous){
-                    $.each(data.previous_rides, function(i, ride) {
-                        var row = that.renderRide(ride);
+                    $.each(data.previous_rides, function(i, order) {
+                        var row = that._renderRideRow(order, false);
                         $previous_table.find("tbody").append(row);
                     });
                     $previous_table.show();
@@ -52,9 +60,11 @@ var MyRidesHelper = Object.create({
         });
     },
 
-    renderRide: function(ride){
-        var $row = $('<tr></tr>');
-        switch (ride.type){
+    _renderRideRow: function(order, is_next){
+        var that = this;
+
+        var $row = $('<tr data-order_id="' + order.id + '"></tr>');
+        switch (order.type){
             case this.config.order_types['private']:
                 $row.append('<td class="private-img"></td>');
                 break;
@@ -64,14 +74,66 @@ var MyRidesHelper = Object.create({
             default:
                 $row.append('<td></td>');
         }
-        $row.append('<td>' + ride.from + '</td>');
-        $row.append('<td>' + ride.to + '</td>');
-        $row.append('<td>' + ride.when + '</td>');
-        $row.append('<td>' + ride.price + '</td>');
-        $row.append('<td class="info"></td>');
-        return $row;
-    }
+        $row.append('<td>' + order.from + '</td>');
+        $row.append('<td>' + order.to + '</td>');
+        $row.append('<td>' + order.when + '</td>');
+        $row.append('<td>' + order.price + '</td>');
 
+        var $info = $('<td class="info' + ((is_next) ? '"' : ' report"') + '></td>').tooltip({
+            tip: that.config.tip,
+            position: 'center left',
+            relative: true,
+            offset: [-30,10],
+            events: {
+                def: ","
+            }
+        }).click(function() {
+            (is_next) ? that._showStatusTooltip(this, order.id) : that._showReportTooltip(this, order.id);
+        }).appendTo($row);
+
+        return $row;
+    },
+
+    _showStatusTooltip: function(info_el, order_id){
+        var that = this;
+        $.ajax({
+            url: that.config.urls.get_order_status,
+            data: {order_id: order_id},
+            dataType: "json",
+            success: function(response){
+                that._showTooltip(info_el, response.status);
+            }
+        });
+    },
+
+    _showReportTooltip: function(info_el, order_id){
+        $(this.config.tip_content.report_ride).find("#report_ride_link").attr("href", "mailto:rides@waybetter.com?subject=Report Ride " + order_id);
+        this._showTooltip(info_el, "report_ride");
+    },
+
+    _showTooltip: function(info_el, content) {
+        $.each(this.config.tip_content, function(status, content){
+            $(content).hide();
+        });
+
+        var api = $(info_el).data("tooltip");
+        if (api) {
+            var tip = api.getTip();
+            if (! tip) { // initialize tip
+                api.show();
+                tip = api.getTip();
+            }
+
+            tip.find(".close").click(function(){
+                api.hide();
+            });
+
+            api.hide();
+            api.show();
+        }
+
+        $(this.config.tip_content[content]).show();
+    }
 });
 
 var HotspotHelper = Object.create({
