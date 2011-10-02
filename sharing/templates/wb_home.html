@@ -1,16 +1,22 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
+{% load value_from_settings %}
 
 {% block pre_content %}
     <div id="map_container">
         <div id="banner">
-            <div id="banner_text_container">
-                <div id="banner_text">Animated Banner</div>
-                <div id="tryitnow" class="clickable">{% trans "Try It Now" %} ></div>
+
+            <div id="banner_content">
+                <div id="slides">
+                        <img src="/static/images/wb_site/banner01.png">
+                        <img src="/static/images/wb_site/banner02.png">
+                        <img src="/static/images/wb_site/banner03.png">
+                </div>
+                <div id="tryitnow" class="clickable">{% trans "Try It Now" %}</div>
             </div>
         </div>
 
-        <div id="map"></div>
+        <div id="cm-map"></div>
     </div>
 {% endblock %}
 
@@ -227,6 +233,8 @@
 
 {% block doc_ready %}
     {{ block.super }}
+    <script type="text/javascript" src="http://tile.cloudmade.com/wml/latest/web-maps-lite.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/slides.js" ></script>
     <script type="text/javascript">
 
     {% autoescape off %}
@@ -367,12 +375,8 @@
     function showMap() {
         if (! window.telmap) {
             $("#banner").hide();
-            $.getScript("http://api.navigator.telmap.com/maps/api/js?sensor=false", function success(data, textStatus) {
-                TelmapHelper.init({
-                    telmap_user:                "{{ telmap_user }}",
-                    telmap_password:            "{{ telmap_password}}",
-                    telmap_languages:           "{{ telmap_languages }}"
-                });
+            CMHelper.init({
+                api_key: "{% value_from_settings "CLOUDMADE_API_KEY" %}"
             });
         }
     }
@@ -767,6 +771,21 @@
         $("#book_private").click(function() {
             bookRide(true);
         });
+
+        $('#slides').slides({
+            width: 800,
+            direction: "Up",
+            preload: {
+                active: true,
+                image: "../static/images/wb_site/loading_large.gif"
+            },
+            play: 5000,
+            pause: 2500,
+            navigation: false,
+            pagination: false
+        });
+
+        $("#slides").slides("play");
     });
 
     </script>

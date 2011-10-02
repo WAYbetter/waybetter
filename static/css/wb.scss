@@ -542,7 +542,7 @@ Home
 
     #site-content{
         position: relative;
-        top: -50px;
+        top: -33px;
         margin-bottom: 0;
         width: 800px;
         padding: 0;
@@ -578,31 +578,31 @@ Home
         border-bottom: 4px solid white;
     }
 
-    #map { height: 100%; width: 100%;}
+    #cm-map { height: 100%; width: 100%; z-index: 0;}
 
+    #slides {
+    }
+    .slidesContainer{
+        z-index: 0;
+        margin: 0 auto;
+    }
 
-    #banner { height: 100%; width: 100%; background: orange; }
-
-    #banner_text_container{
+    #banner { height: 100%; width: 100%; background: #F19C00; }
+    #banner_content{
         width: $site-width;
         height: 100%;
         margin: 0 auto;
         position: relative;
     }
-
-    #banner_text {
-        position: absolute;
-        top: 60px;
-        left: 40%;
-        font-size: $font-size-big; color: white;
-    }
-
+    
     #tryitnow{
         position: absolute;
-        bottom: 50px;
-        right: 0;
-        font-weight: bold;
-        font-size: $font-size-big; color: white;
+        bottom: 45px;
+        right: 10px;
+        padding-right: 10px;
+        font-size: $font-size-header2;
+        color: black;
+        background: url("/static/images/wb_site/tri_it_now.png") right 6px no-repeat;
     }
     #tryitnow:hover{
         text-decoration: underline;

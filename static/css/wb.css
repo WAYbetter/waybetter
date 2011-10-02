@@ -457,7 +457,7 @@ Home
   min-height: 700px; }
 .wb_home #site-content {
   position: relative;
-  top: -50px;
+  top: -33px;
   margin-bottom: 0;
   width: 800px;
   padding: 0;
@@ -501,31 +501,30 @@ Home
   width: 100%;
   height: 300px;
   border-bottom: 4px solid white; }
-.wb_home #map {
+.wb_home #cm-map {
   height: 100%;
-  width: 100%; }
+  width: 100%;
+  z-index: 0; }
+.wb_home .slidesContainer {
+  z-index: 0;
+  margin: 0 auto; }
 .wb_home #banner {
   height: 100%;
   width: 100%;
-  background: orange; }
-.wb_home #banner_text_container {
+  background: #F19C00; }
+.wb_home #banner_content {
   width: 800px;
   height: 100%;
   margin: 0 auto;
   position: relative; }
-.wb_home #banner_text {
-  position: absolute;
-  top: 60px;
-  left: 40%;
-  font-size: 24px;
-  color: white; }
 .wb_home #tryitnow {
   position: absolute;
-  bottom: 50px;
-  right: 0;
-  font-weight: bold;
-  font-size: 24px;
-  color: white; }
+  bottom: 45px;
+  right: 10px;
+  padding-right: 10px;
+  font-size: 16px;
+  color: black;
+  background: url("/static/images/wb_site/tri_it_now.png") right 6px no-repeat; }
 .wb_home #tryitnow:hover {
   text-decoration: underline; }
 .wb_home #order_form_container {

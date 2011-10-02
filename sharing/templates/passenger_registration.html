@@ -215,6 +215,7 @@
                         $that.text("{% trans "Code Sent" %}");
                         $("#local_phone").one("keydown", function(){
                             $that.text($that.data("old_text")).enable();
+
                         })
                     },
                     error: function() {
