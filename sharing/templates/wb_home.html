@@ -41,85 +41,62 @@
         </div>
 
         <div id="ride_data_container">
-            <div id="private_data_container" class="ride_data_container">
+            <div id="private_data_container" class="ride_data">
                 <span class="header_img"></span>
                 <span class="header">{% trans "Private Taxi Ride" %}</span>
 
-                <div class="ride_benefits">
-                    <ul>
-                        <li class="h">{% trans "Pay Fixed Price" %}</li>
-                        <li class="c">{% trans "Know how much the ride will cost you" %}</li>
-                        <li class="h">{% trans "No Cash" %}</li>
-                        <li class="c">{% trans "Pay online for your rides" %}</li>
-                        <li class="h">{% trans "Future Order" %}</li>
-                        <li class="c">{% trans "View and manage your rides" %}</li>
-                    </ul>
-                </div>
                 <div class="ride_details">
-                    <ul>
-                        <li>
-                            {% trans "Ride Price" %}
-                            <span class="price" id="private_price">
-                                <span class="value"></span>
+                    <div class="price_row">
+                        <span class="desc">{% trans "Ride Price" %}</span>
+                        <span class="price" id="private_price">
+                                <span class="value">--</span>
                                 <span class="label">₪</span>
-                            </span>
-                        </li>
-                        <li>
-                            {% trans "Est. Ride Duration" %}
-                            <span class="time" id="private_time">
-                                <span class="value"></span>
+                        </span>
+                    </div>
+                    <div class="time_row">
+                        <span class="desc">{% trans "Est. Ride Duration" %}</span>
+                        <span class="time" id="private_time">
+                                <span class="value">--</span>
                                 <span class="label">MIN</span>
-                            </span>
-                        </li>
-                    </ul>
-                    <button class="order_button blue" id="book_private">{% trans 'Book Private' %}</button>
+                        </span>
+                    </div>
                 </div>
+                <button class="order_button blue" id="book_private">{% trans 'Book Private' %}</button>
             </div>
 
-            <span id="ticket-perforation"></span>
+            <div id="ticket-perforation"></div>
 
-            <div id="sharing_data_container" class="ride_data_container">
+            <div id="sharing_data_container" class="ride_data">
                 <span class="header_img"></span>
                 <span class="header">{% trans "WAYbetter Taxi Ride" %}</span>
 
-                <div id="save_stamp">
+                <div id="save_stamp" class="hidden">
                     <span class="container">
                         <span class="txt">{% trans "SAVE" %}</span>
-                        <span class="value">50</span><span class="label">%</span>
+                        <span class="value"></span><span class="label">%</span>
                     </span>
                 </div>
 
-
-                <div class="ride_benefits">
-                    <ul>
-                        <li class="h">{% trans "Save Money" %}</li>
-                        <li class="c">{% trans "WAYbetter rides cost" %}<strong> 50% {% trans "less" %}</strong></li>
-                        <li class="h">{% trans "Save Time" %}</li>
-                        <li class="c">{% trans "No more than 5 min delay" %}</li>
-                        <li class="h">{% trans "No Cash" %}</li>
-                        <li class="c">{% trans "Pay online for your rides" %}</li>
-                    </ul>
-                </div>
                 <div class="ride_details">
-                    <ul>
-                        <li>
-                            {% trans "Ride Price" %}
-                            <span class="price" id="sharing_price">
-                                <span class="value"></span>
-                                <span class="label">₪</span>
-                            </span>
-                        </li>
-                        <li>
-                            {% trans "Est. Ride Duration" %}
-                            <span class="time" id="sharing_time">
-                                <span class="value"></span>
-                                <span class="label">MIN</span>
-                            </span>
-                        </li>
-                    </ul>
-                    <button class="order_button orange" id="book_sharing">{% trans 'Book WAYbetter' %}</button>
+                    <div class="price_row">
+                        <span class="desc">{% trans "Ride Price" %}</span>
+                        <span class="price" id="sharing_price">
+                            <span class="value">--</span>
+                            <span class="label">₪</span>
+                        </span>
+                    </div>
+                    <div class="time_row">
+                        <span class="desc">{% trans "Est. Ride Duration" %}</span>
+                        <span class="time" id="sharing_time">
+                            <span class="value">--</span>
+                            <span class="label">MIN</span>
+                        </span>
+                    </div>
                 </div>
+                <button class="order_button orange" id="book_sharing">{% trans 'Book WAYbetter' %}</button>
             </div>
+
+            <div class="clear"></div>
         </div>
     </div>
     <div id="myrides_container">
@@ -429,8 +406,7 @@
                     $("#private_price .value").text(response.private_price);
                     $("#private_time .value").text(response.private_time);
                     $("#save_stamp .value").text(Math.round(saved));
-                    $(".ride_benefits").hide();
-                    $(".ride_details, #save_stamp").fadeIn("fast");
+                    $("#save_stamp").fadeIn("fast");
                     $(".order_button").enable();
                 } else {
                     orderingError("{% trans "Currently, there is no service to this address." %}");
@@ -444,8 +420,7 @@
 
     function orderingError(msg){
         //TODO_WB: redirect to error page
-        $(".ride_details, #save_stamp").hide();
-        $(".ride_benefits").fadeIn("fast");
+        $("#save_stamp").hide();
         showError(msg);
     }
 
@@ -662,7 +637,7 @@
             hotspot_resolved = address_resolved = datetime_resolved = select_input_resolved = false;
             address_lat = address_lon = undefined;
             $("[type='address_input']").data("resolved_as", false).each(function() {
-                $(this).text("");
+                $(this).text($(this).hasClass("from") ? "{% trans "From" %}" : "{% trans "To" %}");
             });
             $("#datetime_value").text("");
             var helper_type = this.id.split("2")[1];
@@ -784,7 +759,7 @@
 
         $("input[placeholder]").placeHeld();
         $(".order_button").disable();
-        $(".ride_details, #save_stamp").hide();
+        $("#save_stamp").hide();
 
         $("#book_sharing").click(function() {
             bookRide(false);

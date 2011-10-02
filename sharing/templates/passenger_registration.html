@@ -203,23 +203,23 @@
                     });
 
             $("#validate_phone").click(function() {
+                var $that = $(this);
                 $.ajax({
                     url: "{% url send_verification_code %}",
                     data: $("#validation").serialize(),
                     type: "POST",
                     beforeSend: function() {
-                        var $that = $("#validate_phone");
                         $that.disable().data("old_text", $that.text()).text("{% trans "Sending" %}");
                     },
-                    complete: function() {
-                        var $that = $("#validate_phone");
-                        $that.text($that.data("old_text")).enable();
-                    },
                     success: function(d) {
-                        alert(d);
+                        $that.text("{% trans "Code Sent" %}");
+                        $("#local_phone").one("keydown", function(){
+                            $that.text($that.data("old_text")).enable();
+                        })
                     },
                     error: function() {
                         alert("error");
+                        $that.text($that.data("old_text")).enable();
                     }
                 })
             });

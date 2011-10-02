@@ -1,5 +1,4 @@
 * {
-  font-size: 11px;
   font-family: "Lucida Grande", Arial, sans-serif;
   color: #3d3d3d; }
 
@@ -178,6 +177,9 @@ ul.hz > li, #top-right ul.content_links > li {
   display: inline-block;
   color: white; }
 
+.order_button:hover {
+  opacity: 0.9; }
+
 .order_button:disabled, .order_button.disabled {
   cursor: default;
   opacity: 0.5; }
@@ -261,10 +263,12 @@ body.base-site {
   bottom: 0; }
 
 #top-right {
+  font-size: 13px;
   position: absolute;
   right: 0;
   bottom: 0; }
   #top-right ul.content_links {
+    font-size: 11px;
     position: relative;
     top: 12px; }
     #top-right ul.content_links a {
@@ -285,15 +289,17 @@ body.base-site {
 #site-content {
   width: 800px;
   background: white;
-  -webkit-border-radius: 12px;
-  -moz-border-radius: 12px;
-  border-radius: 12px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
   -webkit-box-shadow: 0 0 6px 0 #747474;
   -moz-box-shadow: 0 0 6px 0 #747474;
   box-shadow: 0 0 6px 0 #747474;
-  position: relative;
+  width: 750px;
+  padding: 25px;
   margin: 0 auto 50px auto;
-  padding: 25px; }
+  position: relative;
+  font-size: 11px; }
 
 #footer-container {
   position: relative;
@@ -304,7 +310,8 @@ body.base-site {
     width: 800px;
     position: relative; }
     #footer-container #site-footer * {
-      color: #e4e4e4; }
+      color: #e4e4e4;
+      font-size: 11px; }
     #footer-container #site-footer #copyright {
       position: absolute;
       right: 0;
@@ -319,7 +326,8 @@ body.base-site {
       #footer-container #site-footer #sitemap li {
         margin-bottom: 3px; }
       #footer-container #site-footer #sitemap ul li:first-child {
-        font-weight: bold; }
+        font-weight: bold;
+        margin-bottom: 7px; }
       #footer-container #site-footer #sitemap a {
         text-decoration: none; }
       #footer-container #site-footer #sitemap a[href]:hover {
@@ -444,448 +452,427 @@ body.base-site {
 /*
 Home
 /*******************************************************/
-.wb_home {
-  /*.ride_details{ display: none; }*/ }
-  .wb_home .ride_details, .wb_home #save_stamp {
-    display: none; }
-  .wb_home #content-container {
-    padding-top: 0;
-    min-height: 700px; }
-  .wb_home #site-content {
+.wb_home #content-container {
+  padding-top: 0;
+  min-height: 700px; }
+.wb_home #site-content {
+  position: relative;
+  top: -50px;
+  margin-bottom: 0;
+  width: 800px;
+  padding: 0;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none;
+  background: none; }
+.wb_home #booking_container {
+  position: relative;
+  width: 800px;
+  background: white;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: 0 0 6px 0 #747474;
+  -moz-box-shadow: 0 0 6px 0 #747474;
+  box-shadow: 0 0 6px 0 #747474;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  padding: 0;
+  height: 240px; }
+.wb_home #myrides_container {
+  width: 800px;
+  background: white;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
+  -webkit-box-shadow: 0 0 6px 0 #747474;
+  -moz-box-shadow: 0 0 6px 0 #747474;
+  box-shadow: 0 0 6px 0 #747474;
+  width: 770px;
+  padding: 5px 15px;
+  display: none;
+  margin-top: 50px; }
+  .wb_home #myrides_container h1 {
+    font-size: 16px; }
+  .wb_home #myrides_container hr {
+    color: #bcbcbc; }
+.wb_home #map_container {
+  width: 100%;
+  height: 300px;
+  border-bottom: 4px solid white; }
+.wb_home #map {
+  height: 100%;
+  width: 100%; }
+.wb_home #banner {
+  height: 100%;
+  width: 100%;
+  background: orange; }
+.wb_home #banner_text_container {
+  width: 800px;
+  height: 100%;
+  margin: 0 auto;
+  position: relative; }
+.wb_home #banner_text {
+  position: absolute;
+  top: 60px;
+  left: 40%;
+  font-size: 24px;
+  color: white; }
+.wb_home #tryitnow {
+  position: absolute;
+  bottom: 50px;
+  right: 0;
+  font-weight: bold;
+  font-size: 24px;
+  color: white; }
+.wb_home #tryitnow:hover {
+  text-decoration: underline; }
+.wb_home #order_form_container {
+  position: absolute;
+  left: 0;
+  width: 300px;
+  height: 234px;
+  margin-left: 3px;
+  margin-top: 3px;
+  background-color: #DADADA;
+  border-right: 1px solid white;
+  -webkit-border-radius: 5px 0 0 5px;
+  -moz-border-radius: 5px 0 0 5px;
+  border-radius: 5px 0 0 5px; }
+  .wb_home #order_form_container .ribbon {
+    font-size: 18px;
+    font-weight: bold;
+    padding-left: 51px;
+    line-height: 39px;
+    color: white;
+    background: url(/static/images/wb_site/ribbon.png) 6px 0 no-repeat;
+    width: 167px;
+    height: 56px;
     position: relative;
-    top: -50px;
-    margin-bottom: 0;
-    padding: 0;
-    -webkit-border-radius: 6px;
-    -moz-border-radius: 6px;
-    border-radius: 6px;
+    left: -32px;
+    margin-top: 17px; }
+.wb_home #order_form {
+  margin: -6px 0 0 28px; }
+  .wb_home #order_form #switch {
+    width: 15px;
+    height: 40px;
+    position: relative;
+    bottom: 143px;
+    left: -20px;
+    background: url(/static/images/wb_site/switch.png) left 0 no-repeat; }
+  .wb_home #order_form #switch:hover {
+    background-position: left -49px; }
+  .wb_home #order_form .input {
+    height: 35px;
+    width: 214px;
+    padding-left: 33px;
+    line-height: 34px;
+    background: url(/static/images/wb_site/field_icons.png) 6px 0 no-repeat white;
+    margin-bottom: 21px;
+    font-size: 11px;
+    color: #6c6c6a; }
+  .wb_home #order_form .input:hover {
+    -webkit-box-shadow: inset 0 0 0 1px #3d3d3d;
+    -moz-box-shadow: inset 0 0 0 1px #3d3d3d;
+    box-shadow: inset 0 0 0 1px #3d3d3d; }
+  .wb_home #order_form .input.disabled:hover {
     -webkit-box-shadow: none;
     -moz-box-shadow: none;
-    box-shadow: none;
-    background: none; }
-  .wb_home #booking_container {
-    width: 800px;
-    background: white;
-    -webkit-border-radius: 12px;
-    -moz-border-radius: 12px;
-    border-radius: 12px;
-    -webkit-box-shadow: 0 0 6px 0 #747474;
-    -moz-box-shadow: 0 0 6px 0 #747474;
-    box-shadow: 0 0 6px 0 #747474;
-    -webkit-border-radius: 6px;
-    -moz-border-radius: 6px;
-    border-radius: 6px;
-    padding: 0;
-    height: 240px; }
-  .wb_home #myrides_container {
-    width: 800px;
-    background: white;
-    -webkit-border-radius: 12px;
-    -moz-border-radius: 12px;
-    border-radius: 12px;
-    -webkit-box-shadow: 0 0 6px 0 #747474;
-    -moz-box-shadow: 0 0 6px 0 #747474;
-    box-shadow: 0 0 6px 0 #747474;
-    width: 770px;
-    padding: 5px 15px;
-    display: none;
-    margin-top: 50px; }
-    .wb_home #myrides_container h1 {
-      font-size: 16px; }
-    .wb_home #myrides_container hr {
-      color: #bcbcbc; }
-  .wb_home #map_container {
-    width: 100%;
-    height: 300px;
-    border-bottom: 4px solid white; }
-  .wb_home #map {
-    height: 100%;
-    width: 100%; }
-  .wb_home #banner {
-    height: 100%;
-    width: 100%;
-    background: orange; }
-  .wb_home #banner_text_container {
-    width: 800px;
-    height: 100%;
-    margin: 0 auto;
-    position: relative; }
-  .wb_home #banner_text {
-    position: absolute;
-    top: 60px;
-    left: 40%;
-    font-size: 24px;
-    color: white; }
-  .wb_home #tryitnow {
-    position: absolute;
-    bottom: 50px;
-    right: 0;
-    font-weight: bold;
-    font-size: 24px;
-    color: white; }
-  .wb_home #tryitnow:hover {
-    text-decoration: underline; }
-  .wb_home #order_form_container {
-    float: left;
-    width: 300px;
-    height: 234px;
-    margin-left: 3px;
-    margin-top: 3px;
-    background-color: #DADADA;
-    border-right: 1px solid white;
-    -webkit-border-radius: 5px 0 0 5px;
-    -moz-border-radius: 5px 0 0 5px;
-    border-radius: 5px 0 0 5px; }
-    .wb_home #order_form_container .ribbon {
-      font-size: 18px;
-      font-weight: bold;
-      padding-left: 51px;
-      line-height: 39px;
-      color: white;
-      background: url(/static/images/wb_site/ribbon.png) 6px 0 no-repeat;
-      width: 167px;
-      height: 56px;
-      position: relative;
-      left: -32px;
-      margin-top: 17px; }
-  .wb_home #order_form {
-    margin: -6px 0 0 28px; }
-    .wb_home #order_form #switch {
-      width: 15px;
-      height: 40px;
-      position: relative;
-      bottom: 143px;
-      left: -20px;
-      background: url(/static/images/wb_site/switch.png) left 0 no-repeat; }
-    .wb_home #order_form #switch:hover {
-      background-position: left -49px; }
-    .wb_home #order_form .input {
-      height: 35px;
-      width: 214px;
-      padding-left: 33px;
-      line-height: 34px;
-      background: url(/static/images/wb_site/field_icons.png) 6px 0 no-repeat white;
-      margin-bottom: 21px;
-      font-size: 11px;
-      color: #6c6c6a; }
-    .wb_home #order_form .input:hover {
-      -webkit-box-shadow: inset 0 0 0 1px #3d3d3d;
-      -moz-box-shadow: inset 0 0 0 1px #3d3d3d;
-      box-shadow: inset 0 0 0 1px #3d3d3d; }
-    .wb_home #order_form .input.disabled:hover {
-      -webkit-box-shadow: none;
-      -moz-box-shadow: none;
-      box-shadow: none; }
-    .wb_home #order_form .input.from {
-      background: url(/static/images/wb_site/field_icons.png) 6px -10px no-repeat white; }
-    .wb_home #order_form .input.from.resolved {
-      background: url(/static/images/wb_site/field_icons.png) 6px -90px no-repeat white; }
-    .wb_home #order_form .input.to {
-      background: url(/static/images/wb_site/field_icons.png) 6px -51px no-repeat white; }
-    .wb_home #order_form .input.to.resolved {
-      background: url(/static/images/wb_site/field_icons.png) 6px -131px no-repeat white; }
-    .wb_home #order_form .input.datetime {
-      background: url(/static/images/wb_site/field_icons.png) 6px -171px no-repeat white; }
-    .wb_home #order_form .input.datetime.depart {
-      background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat white; }
-    .wb_home #order_form .input.datetime.arrive {
-      background: url(/static/images/wb_site/field_icons.png) 6px -251px no-repeat white; }
-    .wb_home #order_form .input.datetime.disabled {
-      opacity: 0.4; }
-    .wb_home #order_form .input.tooltip-visible {
-      -webkit-box-shadow: inset 0 0 0 2px #00b0f1;
-      -moz-box-shadow: inset 0 0 0 2px #00b0f1;
-      box-shadow: inset 0 0 0 2px #00b0f1; }
-  .wb_home #ride_data_container {
-    float: right;
-    height: 100%;
-    width: 495px;
-    border-left: 1px solid #BEBEBB; }
-    .wb_home #ride_data_container > div {
-      display: inline-block; }
-  .wb_home .ride_data_container {
-    background: white;
-    height: 100%;
-    width: 242px; }
-    .wb_home .ride_data_container li, .wb_home .ride_data_container .value, .wb_home .ride_data_container .label {
-      color: #6c6c6a; }
-    .wb_home .ride_data_container .header_img {
-      display: inline-block;
-      height: 52px;
-      width: 50px;
-      position: relative;
-      top: 11px;
-      left: 23px; }
-    .wb_home .ride_data_container .header {
-      display: inline-block;
-      height: 52px;
-      line-height: 19px;
-      margin-left: 17px;
-      margin-top: 17px;
-      font-size: 18px;
-      font-weight: bold;
-      width: 100px; }
-    .wb_home .ride_data_container ul {
-      width: 100%;
-      list-style: none;
-      position: relative;
-      left: -20px;
-      top: -16px; }
-    .wb_home .ride_data_container li {
-      padding-left: 5px;
-      font-size: 11px;
-      line-height: 52px; }
-    .wb_home .ride_data_container li:first-child {
-      line-height: 45px; }
-    .wb_home .ride_data_container .price {
-      position: relative;
-      left: 62px;
-      font-weight: bold; }
-      .wb_home .ride_data_container .price .value {
-        font-size: 35px; }
-      .wb_home .ride_data_container .price .label {
-        font-size: 29.3px;
-        margin-left: 5px; }
-    .wb_home .ride_data_container .time {
-      font-weight: bold;
-      position: relative;
-      left: 32px; }
-      .wb_home .ride_data_container .time .value {
-        font-size: 24px; }
-      .wb_home .ride_data_container .time .label {
-        font-size: 13px;
-        margin-left: 5px; }
-    .wb_home .ride_data_container .order_button {
-      margin-left: 17px;
-      margin-top: -22px; }
-  .wb_home #sharing_data_container {
-    float: right;
-    -webkit-border-radius: 0 12px 12px 0;
-    -moz-border-radius: 0 12px 12px 0;
-    border-radius: 0 12px 12px 0; }
-    .wb_home #sharing_data_container .header_img {
-      background: url(/static/images/wb_site/shared_icon.png) left 0 no-repeat; }
-    .wb_home #sharing_data_container .header {
-      color: #FF921E; }
-    .wb_home #sharing_data_container .ride_details ul {
-      left: -24px; }
-    .wb_home #sharing_data_container .ride_details li {
-      background: url(/static/images/wb_site/orange_bracket.png) left 35px no-repeat; }
-    .wb_home #sharing_data_container .ride_details .order_button {
-      margin-left: 11px; }
-  .wb_home #private_data_container {
-    float: left; }
-    .wb_home #private_data_container .header_img {
-      background: url(/static/images/wb_site/private_icon.png) left 0 no-repeat; }
-    .wb_home #private_data_container .header {
-      color: #16ACD3; }
-    .wb_home #private_data_container .ride_details li {
-      background: url(/static/images/wb_site/blue_bracket.png) left 35px no-repeat; }
-  .wb_home #save_stamp {
-    background: url(/static/images/wb_site/save_stamp.png) 0 0 no-repeat;
-    width: 90px;
-    height: 90px;
-    position: absolute;
-    z-index: 1;
-    top: -25px;
-    right: -15px; }
-    .wb_home #save_stamp .container {
-      position: relative;
-      top: 21px;
-      left: 20px;
-      width: 40px;
-      height: 40px;
-      line-height: 18px; }
-    .wb_home #save_stamp .txt, .wb_home #save_stamp .label, .wb_home #save_stamp .value {
-      color: #313131;
-      text-shadow: 0 1px 0 white;
-      font-weight: bold; }
-    .wb_home #save_stamp .txt {
-      font-size: 18px; }
-    .wb_home #save_stamp .label, .wb_home #save_stamp .value {
-      font-size: 24px; }
-  .wb_home .ride_benefits .h {
-    font-size: 13px;
-    font-weight: bold; }
-  .wb_home .ride_benefits .c {
-    line-height: 2px;
-    margin-bottom: 5px;
-    margin-top: -7px; }
-  .wb_home #ticket-perforation {
-    background-image: url(/static/images/wb_site/ticket-perforation.png);
-    height: 100%;
-    width: 11px;
-    float: left; }
-  .wb_home .tooltip {
-    display: none;
-    background: transparent url(/static/images/wb_site/tooltip_big_ltr.png);
-    height: 238px;
-    width: 434px; }
-  .wb_home .tooltip-content {
-    position: relative;
-    top: 16px;
-    left: 32px;
-    height: 158px;
-    width: 339px;
-    padding: 20px; }
-    .wb_home .tooltip-content label, .wb_home .tooltip-content .label, .wb_home .tooltip-content select, .wb_home .tooltip-content .header {
-      color: #3d3d3d; }
-    .wb_home .tooltip-content .header {
-      position: relative;
-      top: -6px;
-      left: -7px;
-      padding-left: 27px;
-      height: 24px;
-      line-height: 20px;
-      font-size: 13px;
-      /*font-weight: bold;*/ }
-    .wb_home .tooltip-content .header.pickup {
-      background: url(/static/images/wb_site/field_icons.png) 0 -96px no-repeat; }
-    .wb_home .tooltip-content .header.dropoff {
-      background: url(/static/images/wb_site/field_icons.png) 0 -136px no-repeat; }
-    .wb_home .tooltip-content .header.datetime {
-      background: url(/static/images/wb_site/field_icons.png) 0 -176px no-repeat; }
-    .wb_home .tooltip-content .content {
-      height: 75px;
-      width: 339px;
-      margin-top: 9px;
-      margin-bottom: 18px;
-      input-padding: 2px; }
-      .wb_home .tooltip-content .content select {
-        height: 30px; }
-    .wb_home .tooltip-content .footer {
-      border-top: 1px solid #bcbcbc;
-      padding-top: 13px; }
-      .wb_home .tooltip-content .footer .help {
-        font-size: 11px;
-        position: relative;
-        float: left;
-        line-height: 25px;
-        height: 33px; }
-      .wb_home .tooltip-content .footer .next_btn {
-        float: right;
-        width: 79px;
-        height: 29px;
-        position: relative;
-        bottom: 2px;
-        right: -2px; }
-      .wb_home .tooltip-content .footer .ui-button-text {
-        padding: 5px; }
-  .wb_home #select_input_helper #sel_address {
-    float: left;
-    position: relative;
-    left: 50px; }
-  .wb_home #select_input_helper #sel_hotspot {
-    float: right;
-    border-left: 1px solid #bcbcbc;
-    padding-left: 35px;
-    position: relative;
-    right: 62px;
-    height: 76px; }
-  .wb_home #select_input_helper .img {
-    display: block;
-    height: 42px;
-    width: 42px;
-    position: relative;
-    left: 20px;
-    top: 8px; }
-  .wb_home #select_input_helper #sel_address .img {
-    background: transparent url(/static/images/wb_site/addresshotsopt_42.png) left 5px no-repeat; }
-  .wb_home #select_input_helper #sel_hotspot .img {
-    background: transparent url(/static/images/wb_site/addresshotsopt_42.png) 1px -43px no-repeat; }
-  .wb_home #select_input_helper .wb_link {
-    position: relative;
-    top: 21px;
-    left: -1px; }
-  .wb_home #select_input_helper .help {
-    color: #6c6c6a;
-    left: 8px;
-    top: 3px;
-    height: 22px;
-    line-height: 15px; }
-  .wb_home #hotspot_input_helper label div, .wb_home #address_input_helper label div {
-    float: left; }
-  .wb_home #hotspot_input_helper label.city div, .wb_home #address_input_helper label.city div {
-    position: relative;
-    top: 5px; }
-  .wb_home #hotspot_input_helper select, .wb_home #address_input_helper select {
-    float: right; }
-  .wb_home #hotspot_input_helper label.hotspot {
-    display: block;
-    position: relative;
-    top: 17px; }
-  .wb_home #hotspot_input_helper label.hotspot div {
-    position: relative;
-    top: 23px; }
-  .wb_home #hotspot_input_helper select {
-    width: 240px; }
-  .wb_home #hotspot_input_helper .footer .help {
-    padding-left: 25px;
-    background: transparent url(/static/images/wb_site/addresshotsopt_25.png) -3px -2px no-repeat; }
-  .wb_home #address_input_helper label {
-    display: block; }
-  .wb_home #address_input_helper .label {
-    position: relative;
-    left: -5px; }
-  .wb_home #address_input_helper #id_city {
-    width: 263px; }
-  .wb_home #address_input_helper .street_address .label {
-    top: 21px;
-    width: 70px; }
-  .wb_home #address_input_helper .container {
-    float: right; }
-    .wb_home #address_input_helper .container div {
-      float: left; }
-  .wb_home #address_input_helper input {
-    display: block;
-    height: 24px; }
-  .wb_home #address_input_helper #id_house_number {
-    width: 66px;
-    margin-left: 12px; }
-  .wb_home #address_input_helper #id_street_address {
-    width: 181px; }
-  .wb_home #address_input_helper .err {
-    color: red; }
-  .wb_home #address_input_helper .hn_error {
-    margin-left: 8px; }
-  .wb_home #address_input_helper .footer .help {
-    padding-left: 32px;
-    background: transparent url(/static/images/wb_site/addresshotsopt_25.png) 0 -35px no-repeat; }
-  .wb_home #address_input_helper .tooltip_loader {
-    display: none;
-    background: url(../images/wb_site/loader16.gif) left 0 no-repeat;
-    height: 16px;
-    width: 16px;
-    position: relative;
-    left: 236px;
-    bottom: -2px; }
-  .wb_home #datetime_input_helper #time_radio {
-    float: left;
-    position: relative;
-    left: -7px;
-    top: 3px; }
-  .wb_home #datetime_input_helper #time_tools {
-    float: right;
-    position: relative; }
-  .wb_home #datetime_input_helper #time_tools.depart {
-    top: -7px; }
-  .wb_home #datetime_input_helper #time_tools.arrive {
-    top: 43px; }
-  .wb_home #datetime_input_helper label {
-    display: block;
-    margin-bottom: 30px; }
-  .wb_home #datetime_input_helper #id_hotspot_datepicker {
-    width: 80px; }
-  .wb_home #datetime_input_helper .img {
-    height: 28px;
-    width: 30px;
+    box-shadow: none; }
+  .wb_home #order_form .input.from {
+    background: url(/static/images/wb_site/field_icons.png) 6px -10px no-repeat white; }
+  .wb_home #order_form .input.from.resolved {
+    background: url(/static/images/wb_site/field_icons.png) 6px -90px no-repeat white; }
+  .wb_home #order_form .input.to {
+    background: url(/static/images/wb_site/field_icons.png) 6px -51px no-repeat white; }
+  .wb_home #order_form .input.to.resolved {
+    background: url(/static/images/wb_site/field_icons.png) 6px -131px no-repeat white; }
+  .wb_home #order_form .input.datetime {
+    background: url(/static/images/wb_site/field_icons.png) 6px -171px no-repeat white; }
+  .wb_home #order_form .input.datetime.depart {
+    background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat white; }
+  .wb_home #order_form .input.datetime.arrive {
+    background: url(/static/images/wb_site/field_icons.png) 6px -251px no-repeat white; }
+  .wb_home #order_form .input.datetime.disabled {
+    opacity: 0.4; }
+  .wb_home #order_form .input.tooltip-visible {
+    -webkit-box-shadow: inset 0 0 0 2px #00b0f1;
+    -moz-box-shadow: inset 0 0 0 2px #00b0f1;
+    box-shadow: inset 0 0 0 2px #00b0f1; }
+.wb_home #ride_data_container {
+  position: absolute;
+  right: 0;
+  height: 100%;
+  width: 495px;
+  border-left: 1px solid #BEBEBB; }
+.wb_home #sharing_data_container, .wb_home #private_data_container, .wb_home #ticket-perforation {
+  float: left;
+  position: relative;
+  height: 100%; }
+.wb_home #ticket-perforation {
+  background-image: url(/static/images/wb_site/ticket-perforation.png);
+  width: 11px; }
+.wb_home .ride_data {
+  width: 239px; }
+  .wb_home .ride_data .header_img {
     display: inline-block;
+    height: 52px;
+    width: 50px;
     position: relative;
-    top: 5px; }
-  .wb_home #datetime_input_helper .img.depart {
-    background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat; }
-  .wb_home #datetime_input_helper .img.arrive {
-    background: url(/static/images/wb_site/field_icons.png) 6px -254px no-repeat; }
+    top: 11px;
+    left: 23px; }
+  .wb_home .ride_data .header {
+    display: inline-block;
+    height: 52px;
+    line-height: 19px;
+    margin-left: 17px;
+    margin-top: 17px;
+    font-size: 18px;
+    font-weight: bold;
+    width: 100px; }
+  .wb_home .ride_data .ride_details {
+    height: 90px;
+    width: 203px;
+    margin: 0 auto; }
+  .wb_home .ride_data .time_row, .wb_home .ride_data .price_row {
+    position: relative;
+    height: 50%; }
+  .wb_home .ride_data .desc, .wb_home .ride_data .value, .wb_home .ride_data .label {
+    color: #6c6c6a; }
+  .wb_home .ride_data .desc {
+    position: absolute;
+    left: 5px;
+    bottom: 1px; }
+  .wb_home .ride_data .price, .wb_home .ride_data .time {
+    position: absolute;
+    right: 5px;
+    bottom: -2px;
+    font-weight: bold; }
+  .wb_home .ride_data .price .value {
+    font-size: 35px; }
+  .wb_home .ride_data .price .label {
+    font-size: 29.3px; }
+  .wb_home .ride_data .time .value {
+    font-size: 24px; }
+  .wb_home .ride_data .time .label {
+    font-size: 13px; }
+  .wb_home .ride_data .order_button {
+    position: absolute;
+    bottom: 10px;
+    left: 10px; }
+.wb_home #sharing_data_container {
+  -webkit-border-radius: 0 12px 12px 0;
+  -moz-border-radius: 0 12px 12px 0;
+  border-radius: 0 12px 12px 0; }
+  .wb_home #sharing_data_container .header_img {
+    background: url(/static/images/wb_site/shared_icon.png) left 0 no-repeat; }
+  .wb_home #sharing_data_container .header {
+    color: #ff921e; }
+  .wb_home #sharing_data_container .price_row, .wb_home #sharing_data_container .time_row {
+    background: url(/static/images/wb_site/orange_bracket.png) left bottom no-repeat; }
+.wb_home #private_data_container .header_img {
+  background: url(/static/images/wb_site/private_icon.png) left 0 no-repeat; }
+.wb_home #private_data_container .header {
+  color: #16acd3; }
+.wb_home #private_data_container .price_row, .wb_home #private_data_container .time_row {
+  background: url(/static/images/wb_site/blue_bracket.png) left bottom no-repeat; }
+.wb_home #save_stamp {
+  background: url(/static/images/wb_site/save_stamp.png) 0 0 no-repeat;
+  width: 90px;
+  height: 90px;
+  position: absolute;
+  z-index: 1;
+  top: -25px;
+  right: -15px; }
+  .wb_home #save_stamp .container {
+    position: relative;
+    top: 21px;
+    left: 20px;
+    width: 40px;
+    height: 40px;
+    line-height: 18px; }
+  .wb_home #save_stamp .txt, .wb_home #save_stamp .label, .wb_home #save_stamp .value {
+    color: #313131;
+    text-shadow: 0 1px 0 white;
+    font-weight: bold; }
+  .wb_home #save_stamp .txt {
+    font-size: 18px; }
+  .wb_home #save_stamp .label, .wb_home #save_stamp .value {
+    font-size: 24px; }
+.wb_home .tooltip {
+  display: none;
+  background: transparent url(/static/images/wb_site/tooltip_big_ltr.png);
+  height: 238px;
+  width: 434px; }
+.wb_home .ui-autocomplete {
+  font-size: 11px; }
+.wb_home .tooltip-content {
+  position: relative;
+  top: 16px;
+  left: 32px;
+  height: 158px;
+  width: 339px;
+  padding: 20px; }
+  .wb_home .tooltip-content label, .wb_home .tooltip-content .label, .wb_home .tooltip-content select, .wb_home .tooltip-content .header {
+    color: #3d3d3d; }
+  .wb_home .tooltip-content .header {
+    position: relative;
+    top: -6px;
+    left: -7px;
+    padding-left: 27px;
+    height: 24px;
+    line-height: 20px;
+    font-size: 13px;
+    /*font-weight: bold;*/ }
+  .wb_home .tooltip-content .header.pickup {
+    background: url(/static/images/wb_site/field_icons.png) 0 -96px no-repeat; }
+  .wb_home .tooltip-content .header.dropoff {
+    background: url(/static/images/wb_site/field_icons.png) 0 -136px no-repeat; }
+  .wb_home .tooltip-content .header.datetime {
+    background: url(/static/images/wb_site/field_icons.png) 0 -176px no-repeat; }
+  .wb_home .tooltip-content .content {
+    height: 75px;
+    width: 339px;
+    margin-top: 9px;
+    margin-bottom: 18px; }
+    .wb_home .tooltip-content .content select {
+      height: 30px; }
+    .wb_home .tooltip-content .content * {
+      font-size: 11px; }
+  .wb_home .tooltip-content .footer {
+    border-top: 1px solid #bcbcbc;
+    padding-top: 13px; }
+    .wb_home .tooltip-content .footer .help {
+      font-size: 11px;
+      position: relative;
+      float: left;
+      line-height: 25px;
+      height: 33px; }
+    .wb_home .tooltip-content .footer .next_btn {
+      float: right;
+      width: 79px;
+      height: 29px;
+      position: relative;
+      bottom: 2px;
+      right: -2px; }
+    .wb_home .tooltip-content .footer .ui-button-text {
+      padding: 5px; }
+.wb_home #select_input_helper #sel_address {
+  float: left;
+  position: relative;
+  left: 50px; }
+.wb_home #select_input_helper #sel_hotspot {
+  float: right;
+  border-left: 1px solid #bcbcbc;
+  padding-left: 35px;
+  position: relative;
+  right: 62px;
+  height: 76px; }
+.wb_home #select_input_helper .img {
+  display: block;
+  height: 42px;
+  width: 42px;
+  position: relative;
+  left: 20px;
+  top: 8px; }
+.wb_home #select_input_helper #sel_address .img {
+  background: transparent url(/static/images/wb_site/addresshotsopt_42.png) left 5px no-repeat; }
+.wb_home #select_input_helper #sel_hotspot .img {
+  background: transparent url(/static/images/wb_site/addresshotsopt_42.png) 1px -43px no-repeat; }
+.wb_home #select_input_helper .wb_link {
+  position: relative;
+  top: 21px;
+  left: -1px; }
+.wb_home #select_input_helper .help {
+  color: #6c6c6a;
+  left: 8px;
+  top: 3px;
+  height: 22px;
+  line-height: 15px; }
+.wb_home #hotspot_input_helper label div, .wb_home #address_input_helper label div {
+  float: left; }
+.wb_home #hotspot_input_helper label.city div, .wb_home #address_input_helper label.city div {
+  position: relative;
+  top: 5px; }
+.wb_home #hotspot_input_helper select, .wb_home #address_input_helper select {
+  float: right; }
+.wb_home #hotspot_input_helper label.hotspot {
+  display: block;
+  position: relative;
+  top: 17px; }
+.wb_home #hotspot_input_helper label.hotspot div {
+  position: relative;
+  top: 23px; }
+.wb_home #hotspot_input_helper select {
+  width: 240px; }
+.wb_home #hotspot_input_helper .footer .help {
+  padding-left: 25px;
+  background: transparent url(/static/images/wb_site/addresshotsopt_25.png) -3px -2px no-repeat; }
+.wb_home #address_input_helper label {
+  display: block; }
+.wb_home #address_input_helper .label {
+  position: relative;
+  left: -5px; }
+.wb_home #address_input_helper #id_city {
+  width: 263px; }
+.wb_home #address_input_helper .street_address .label {
+  top: 21px;
+  width: 70px; }
+.wb_home #address_input_helper .container {
+  float: right; }
+  .wb_home #address_input_helper .container div {
+    float: left; }
+.wb_home #address_input_helper input {
+  display: block;
+  height: 24px; }
+.wb_home #address_input_helper #id_house_number {
+  width: 66px;
+  margin-left: 12px; }
+.wb_home #address_input_helper #id_street_address {
+  width: 181px; }
+.wb_home #address_input_helper .err {
+  color: red; }
+.wb_home #address_input_helper .hn_error {
+  margin-left: 8px; }
+.wb_home #address_input_helper .footer .help {
+  padding-left: 32px;
+  background: transparent url(/static/images/wb_site/addresshotsopt_25.png) 0 -35px no-repeat; }
+.wb_home #address_input_helper .tooltip_loader {
+  display: none;
+  background: url(../images/wb_site/loader16.gif) left 0 no-repeat;
+  height: 16px;
+  width: 16px;
+  position: relative;
+  left: 236px;
+  bottom: -2px; }
+.wb_home #datetime_input_helper #time_radio {
+  float: left;
+  position: relative;
+  left: -7px;
+  top: 3px; }
+.wb_home #datetime_input_helper #time_tools {
+  float: right;
+  position: relative; }
+.wb_home #datetime_input_helper #time_tools.depart {
+  top: -7px; }
+.wb_home #datetime_input_helper #time_tools.arrive {
+  top: 43px; }
+.wb_home #datetime_input_helper label {
+  display: block;
+  margin-bottom: 30px; }
+.wb_home #datetime_input_helper #id_hotspot_datepicker {
+  width: 80px; }
+.wb_home #datetime_input_helper .img {
+  height: 28px;
+  width: 30px;
+  display: inline-block;
+  position: relative;
+  top: 5px; }
+.wb_home #datetime_input_helper .img.depart {
+  background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat; }
+.wb_home #datetime_input_helper .img.arrive {
+  background: url(/static/images/wb_site/field_icons.png) 6px -254px no-repeat; }
 
 /*
 Account
@@ -902,9 +889,9 @@ Account
 .my_rides #next_rides_container, .my_rides #previous_rides_container {
   width: 800px;
   background: white;
-  -webkit-border-radius: 12px;
-  -moz-border-radius: 12px;
-  border-radius: 12px;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px;
   -webkit-box-shadow: 0 0 6px 0 #747474;
   -moz-box-shadow: 0 0 6px 0 #747474;
   box-shadow: 0 0 6px 0 #747474;
@@ -916,8 +903,8 @@ Account
 .my_rides #next_rides_container {
   margin-bottom: 20px; }
 
-/*********************************************/
-/******************* REGISTRATION ************/
+/*
+Registration
 /*********************************************/
 #login-form label {
   width: 80px;
@@ -1071,7 +1058,8 @@ Info pages
   font-size: 13px; }
 .contact .details {
   margin-top: 5px;
-  margin-left: 9px; }
+  margin-left: 9px;
+  font-size: 11px; }
 .contact #customer_service .img {
   background: url("/static/images/wb_site/contact_icons.png") left 0 no-repeat; }
 .contact #offices .img {
@@ -1087,6 +1075,34 @@ Info pages
 .privacy .important, .terms .important {
   text-decoration: underline;
   font-weight: bold; }
+
+.the_service #site-content {
+  width: 796px;
+  padding: 2px;
+  font-size: 13px; }
+.the_service #passenger_pic {
+  width: 794px;
+  height: 250px;
+  margin: 0 auto;
+  background: url("/static/images/wb_site/passenger_pic.png") 0 0 no-repeat;
+  -webkit-border-radius: 6px;
+  -moz-border-radius: 6px;
+  border-radius: 6px; }
+.the_service #desc {
+  margin: 0 25px 25px 25px; }
+  .the_service #desc .header {
+    color: #ef2c8c;
+    font-weight: bold;
+    font-size: 18px;
+    margin-bottom: 35px; }
+  .the_service #desc .remember {
+    color: #ff921e;
+    font-weight: bold; }
+  .the_service #desc li {
+    line-height: 25px;
+    font-weight: bold; }
+  .the_service #desc .footer {
+    margin-top: 35px; }
 
 /** Hotspot page **/
 .rtl.hotspot_page #map_container {

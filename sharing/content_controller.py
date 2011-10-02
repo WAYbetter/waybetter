@@ -6,9 +6,9 @@ from ordering.models import OrderType
 def info(request):
     return custom_render_to_response("wb_info.html", locals(), context_instance=RequestContext(request))
 
-def about(request):
-    page_name = page_specific_class = "about"
-    return custom_render_to_response("wb_about.html", locals(), context_instance=RequestContext(request))
+def the_service(request):
+    page_name = page_specific_class = "the_service"
+    return custom_render_to_response("the_service.html", locals(), context_instance=RequestContext(request))
 
 def contact(request):
     page_name = page_specific_class = "contact"

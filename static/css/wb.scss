@@ -8,6 +8,9 @@ $font-size-huge: 35px;
 
 $color-gray: #6C6C6A;
 $color-offwhite: #E4E4E4;
+$color-orange: #FF921E;
+$color-pink: #EF2C8C;
+$color-blue: #16ACD3;
 $light-gray: #BCBCBC;
 $dark-gray: #3D3D3D;
 $color-disabled: #BCBCBC;
@@ -32,12 +35,11 @@ $color-error: #CC162A;
 @mixin site-container(){
     width: $site-width;
     background: white;
-    @include border-radius(12px);
+    @include border-radius(6px);
     @include box-shadow(0 0 6px 0 #747474);
 }
 
 * {
-    font-size: $font-size-small;
     font-family: "Lucida Grande", Arial, sans-serif;
     color: $dark-gray;
 }
@@ -246,6 +248,10 @@ ul.hz{
     color: white;
 }
 
+.order_button:hover{
+    opacity: 0.9;
+}
+
 .order_button:disabled, .order_button.disabled{
     cursor: default;
     opacity: 0.5;
@@ -323,10 +329,12 @@ body.base-site{
     bottom: 0;
 }
 #top-right{
+     font-size: $font-size-medium;
      position: absolute;
      right: 0;
      bottom: 0;
      ul.content_links{
+         font-size: $font-size-small;
          @extend ul.hz;
          position: relative;
          top: 12px;
@@ -351,9 +359,11 @@ body.base-site{
 
 #site-content{
     @include site-container();
-    position: relative;
-    margin: 0 auto 50px auto;
+    width: $site-width - 25 * 2;
     padding: 25px;
+    margin: 0 auto 50px auto;
+    position: relative;
+    font-size: $font-size-small;
 }
 
 #footer-container{
@@ -361,7 +371,10 @@ body.base-site{
     top: -18px;
     border-top: 1px solid white;
     #site-footer{
-        * {color: $color-offwhite;}
+        * {
+            color: $color-offwhite;
+            font-size: $font-size-small;
+        }
 
         margin: 8px auto 0 auto;
         width: $site-width;
@@ -378,6 +391,7 @@ body.base-site{
             li{ margin-bottom: 3px;}
             ul li:first-child{
                 font-weight: bold;
+                margin-bottom: 7px;
             }
             a {
                 text-decoration: none;
@@ -521,10 +535,6 @@ body.base-site{
 Home
 /*******************************************************/
 .wb_home{
-    .ride_details, #save_stamp{
-        display: none;
-    }
-    
     #content-container{
         padding-top: 0;
         min-height: 700px;
@@ -534,13 +544,14 @@ Home
         position: relative;
         top: -50px;
         margin-bottom: 0;
+        width: 800px;
         padding: 0;
-        @include border-radius(6px);
         @include box-shadow(none);
         background: none;
     }
 
     #booking_container{
+        position: relative;
         @include site-container();
         @include border-radius(6px);
         padding: 0;
@@ -598,7 +609,8 @@ Home
     }
 
     #order_form_container{
-         float: left;
+         position: absolute;
+         left: 0;
          width: 300px;
          height: 234px;
          margin-left: 3px;
@@ -682,20 +694,26 @@ Home
     }
 
     #ride_data_container{
-        float: right;
+        position: absolute;
+        right: 0;
         height: 100%;
         width: 495px;
         border-left: 1px solid #BEBEBB;
-
-        > div{
-            display: inline-block;
-        }
     }
-    .ride_data_container{
-        background: white;
+
+    #sharing_data_container, #private_data_container, #ticket-perforation{
+        float:left;
+        position: relative;
         height: 100%;
-        width: 242px;
-        li, .value, .label {color: $color-gray;}
+    }
+
+    #ticket-perforation{
+        background-image: url(/static/images/wb_site/ticket-perforation.png);
+        width: 11px;
+    }
+
+    .ride_data{
+        width: 239px;
         .header_img{
             display: inline-block;
             height: 52px;
@@ -714,86 +732,53 @@ Home
             font-weight: bold;
             width: 100px;
         }
-        ul{
-            width: 100%;
-            list-style: none;
-            position: relative;
-            left: -20px;
-            top: -16px;
+
+        .ride_details{
+            height: 90px;
+            width: 203px;
+            margin: 0 auto;
         }
-        li{
-            padding-left: 5px;
-            font-size: $font-size-small;
-            line-height: 52px;
-        }
-        li:first-child{
-            line-height: 45px;
-        }
+        .time_row, .price_row { position: relative; height: 50%;}
+        .desc, .value, .label {color: $color-gray;}
+        .desc { position: absolute; left: 5px; bottom: 1px}
+        .price, .time { position: absolute; right: 5px; bottom: -2px; font-weight: bold; }
         .price{
-            position: relative;
-            left: 62px;
-            font-weight: bold;
-            .value{
-                font-size: $font-size-huge;
-            }
-            .label{
-                font-size: 29.3px;
-                margin-left: 5px;
-            }
+            .value{ font-size: $font-size-huge; }
+            .label{ font-size: 29.3px; }
         }
         .time{
-            font-weight: bold;
-            position: relative;
-            left: 32px;
-            .value{
-                font-size: $font-size-big;
-            }
-            .label{
-                font-size: $font-size-medium;
-                margin-left: 5px;
-            }
+            .value{ font-size: $font-size-big; }
+            .label{ font-size: $font-size-medium; }
         }
+
         .order_button{
-            margin-left: 17px;
-            margin-top: -22px;
+            position: absolute;
+            bottom: 10px;
+            left: 10px;
         }
     }
-    #sharing_data_container{
-        float: right;
-        -webkit-border-radius: 0 12px 12px 0;
-        -moz-border-radius: 0 12px 12px 0;
-        border-radius: 0 12px 12px 0;
 
+    #sharing_data_container{
+        @include border-radius(0 12px 12px 0);
         .header_img{
             background: url(/static/images/wb_site/shared_icon.png) left 0 no-repeat;
         }
         .header{
-            color: #FF921E;
+            color: $color-orange;
         }
-        .ride_details{
-            ul{
-                left: -24px;
-            }
-            li{
-                background: url(/static/images/wb_site/orange_bracket.png) left 35px no-repeat;
-            }
-            .order_button{
-                margin-left: 11px;
-            }
+        .price_row, .time_row{
+            background: url(/static/images/wb_site/orange_bracket.png) left bottom no-repeat;
         }
     }
     #private_data_container{
-        float: left;
         .header_img{
             background: url(/static/images/wb_site/private_icon.png) left 0 no-repeat;
         }
         .header{
-            color: #16ACD3;
+            color: $color-blue;
         }
-        .ride_details{
-            li{
-                background: url(/static/images/wb_site/blue_bracket.png) left 35px no-repeat;
-            }
+        .price_row, .time_row{
+            background: url(/static/images/wb_site/blue_bracket.png) left bottom no-repeat;
         }
     }
     #save_stamp{
@@ -817,25 +802,6 @@ Home
         .label, .value{ font-size: $font-size-big; }
     }
 
-    /*.ride_details{ display: none; }*/
-    .ride_benefits{
-        .h{
-            font-size: $font-size-medium;
-            font-weight: bold;
-        }
-        .c{
-            line-height: 2px;
-            margin-bottom: 5px;
-            margin-top: -7px;
-        }
-    }
-    #ticket-perforation{
-        background-image: url(/static/images/wb_site/ticket-perforation.png);
-        height: 100%;
-        width: 11px;
-        float: left;
-    }
-
     .tooltip {
         display: none;
         background: transparent url(/static/images/wb_site/tooltip_big_ltr.png);
@@ -843,6 +809,10 @@ Home
         width: 434px;
     }
 
+    .ui-autocomplete{
+        font-size: $font-size-small;
+    }
+    
     .tooltip-content {
         label, .label, select, .header {color: $dark-gray;}
         position: relative;
@@ -875,8 +845,8 @@ Home
             width: 339px;
             margin-top: 9px;
             margin-bottom: 18px;
-            input: {padding: 2px;}
             select{ height: 30px; }
+            * {font-size: $font-size-small;}
         }
         .footer{
             border-top: 1px solid $light-gray;
@@ -1016,8 +986,8 @@ Account
     }
 }
 
-/*********************************************/
-/******************* REGISTRATION ************/
+/*
+Registration
 /*********************************************/
 #login-form{
 
@@ -1203,6 +1173,7 @@ Info pages
     .details{
         margin-top: 5px;
         margin-left: 9px;
+        font-size: $font-size-small;
     }
     #customer_service{
         .img{
@@ -1221,6 +1192,44 @@ Info pages
     .header {font-size: 13px; font-width: bold;}
     p {font-size: 11px;}
     .important{ text-decoration: underline; font-weight: bold;}
+}
+
+.the_service{
+
+    #site-content{
+        width: $site-width - 2 * 2;
+        padding: 2px;
+        font-size: $font-size-medium;
+    }
+
+    #passenger_pic{
+        width: 794px;
+        height: 250px;
+        margin: 0 auto;
+        background: url("/static/images/wb_site/passenger_pic.png") 0 0 no-repeat;
+        @include border-radius(6px);
+    }
+
+    #desc{
+        margin: 0 25px 25px 25px;
+        .header{
+            color: $color-pink;
+            font-weight: bold;
+            font-size: $font-size-header1;
+            margin-bottom: 35px;
+        }
+        .remember{
+            color: $color-orange;
+            font-weight: bold;
+        }
+        li{
+            line-height: 25px;
+            font-weight: bold;
+         }
+        .footer{
+            margin-top: 35px;
+        }
+    }
 }
 
 /** Hotspot page **/
