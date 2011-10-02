@@ -15,7 +15,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, passenger_required
-from ordering.models import SharedRide, COMPLETED, ACCEPTED
+from ordering.models import SharedRide, COMPLETED, ACCEPTED, CANCELLED
 
 def bill_passenger(request):
     form = BillingForm(data=request.POST)

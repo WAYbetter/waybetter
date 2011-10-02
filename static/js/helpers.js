@@ -2,16 +2,21 @@ var MyRidesHelper = Object.create({
     config: {
         urls: {
             get_myrides_data: "",
-            get_order_status: ""
+            get_order_status: "",
+            cancel_order: ""
+        },
+        messages: {
+            ride_cancelled: ""
         },
         order_types: {},
         next_rides_table: undefined,
         previous_rides_table: undefined,
         tip: "#myrides_tooltip",
         tip_content: {
+            error: "#error_tip",
             pending: "#ride_pending_tip",
-            processing: "#ride_submitted_tip",
-            ready: "#ride_completed_tip",
+            submitted: "#ride_submitted_tip",
+            completed: "#ride_completed_tip",
             report_ride: "#report_ride_tip"
         }
     },
@@ -83,7 +88,7 @@ var MyRidesHelper = Object.create({
             tip: that.config.tip,
             position: 'center left',
             relative: true,
-            offset: [-30,10],
+            offset: [-30,0],
             events: {
                 def: ","
             }
@@ -101,7 +106,25 @@ var MyRidesHelper = Object.create({
             data: {order_id: order_id},
             dataType: "json",
             success: function(response){
-                that._showTooltip(info_el, response.status);
+                var status = response.status;
+
+                if (status == "completed"){
+                    var details = response.details;
+                    var tip = $(that.config.tip_content.completed);
+                    tip.find("#pickup_time_val").text(details.pickup_time);
+                    tip.find("#taxi_number_val").text(details.taxi_number);
+                    tip.find("#station_name_val").text(details.station_name + " " + details.station_phone);
+                }
+                if (status == "pending"){
+                    $(that.config.tip_content.pending).find("#cancel_ride_link").click(function() {
+                        that._cancelOrder(info_el, order_id);
+                    });
+                }
+
+                that._showTooltip(info_el, status);
+            },
+            error: function(){
+                that._showTooltip(info_el, "error");
             }
         });
     },
@@ -133,6 +156,34 @@ var MyRidesHelper = Object.create({
         }
 
         $(this.config.tip_content[content]).show();
+    },
+
+    _cancelOrder: function(info_el, order_id){
+        var that = this;
+        var $tip = $(that.config.tip_content.pending);
+        var $loader = $tip.find(".tooltip_loader");
+        var $link = $tip.find("#cancel_ride_link");
+        $.ajax({
+            url: that.config.urls.cancel_order,
+            type: "POST",
+            data: {order_id: order_id},
+            dataType: "json",
+            beforeSend: function(){
+                $loader.show();
+                $link.addClass("disabled");
+            },
+            complete: function(){
+                $loader.hide();
+                $link.removeClass("disabled");
+            },
+            success: function(){
+                $link.removeClass("wb_link").text(that.config.messages.ride_cancelled);
+                $tip.find(".close").click(function() {
+                    $(info_el).data("tooltip").hide();
+                    $(info_el).parent("tr").fadeOut("fast");
+                });
+            }
+        });
     }
 });
 

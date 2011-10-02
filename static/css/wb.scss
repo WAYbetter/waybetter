@@ -125,6 +125,7 @@ ul.hz{
     color: $color-disabled;
     cursor: default;
     opacity: 0.5;
+    text-decoration: none;
 }
 
 .hidden{
@@ -472,7 +473,7 @@ body.base-site{
 
 #myrides_tooltip {
     background: transparent url(/static/images/wb_site/tooltip_small_ltr.png);
-    width: 350px;
+    width: 345px;
     height: 180px;
 }
 .myrides-tip-content{
@@ -498,6 +499,21 @@ body.base-site{
     .footer{
         position: absolute;
         bottom: 0;
+        width: 100%;
+    }
+    #cancel_ride_link{
+       display: inline-block;
+       position: absolute;
+       right: 20px;
+    }
+    .tooltip_loader {
+        display: none;
+        background: url(../images/wb_site/loader16.gif) left 0 no-repeat;
+        height: 16px;
+        width: 16px;
+        position: absolute;
+        right: 0;
+        bottom: -2px;
     }
 }
 

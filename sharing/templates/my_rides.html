@@ -11,14 +11,14 @@
 {% endblock %}
 
 {% block content %}
-    <div id="next_rides_container">
+    <div id="next_rides_container" class="hidden">
         <div class="header"></div>
         <table id="next_rides" class="myrides-table">
             {% include "myrides_table.html" %}
         </table>
     </div>
 
-    <div id="previous_rides_container">
+    <div id="previous_rides_container" class="hidden">
         <div class="header"></div>
         <table id="previous_rides" class="myrides-table">
             {% include "myrides_table.html" %}
@@ -48,7 +48,11 @@
             previous_rides_table: "#previous_rides",
             urls: {
                 get_myrides_data: "{% url sharing.passenger_controller.get_myrides_data %}",
-                get_order_status: "{% url sharing.passenger_controller.get_order_status %}"
+                get_order_status: "{% url sharing.passenger_controller.get_order_status %}",
+                cancel_order: "{% url sharing.passenger_controller.cancel_order %}"
+            },
+            messages: {
+                ride_cancelled: "{% trans "Ride cancelled." %}"
             }
         });
 
@@ -56,6 +60,8 @@
                     success: function(has_next, has_previous) {
                         $("#next_rides_container .header").text((has_next) ? "{% trans "Next Rides" %}" : "{% trans "No Next Rides" %}");
                         $("#previous_rides_container .header").text((has_previous) ? "{% trans "Previous Rides" %}" : "{% trans "No Previous Rides" %}");
+
+                        $("#previous_rides_container, #next_rides_container").fadeIn("fast");
                     }
                 });
     </script>

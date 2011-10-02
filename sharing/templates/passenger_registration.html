@@ -140,9 +140,7 @@
 
         function initFbAsync() {
             window.fbAsyncInit = function() {
-                var appId =
-                {% value_from_settings "FACEBOOK" %}.
-                appId;
+                var appId = {% value_from_settings "FACEBOOK" %}.appId;
                 FB.init({
                     appId: appId,
                     cookie:true,
@@ -157,6 +155,9 @@
         }
 
         $(function() {
+            $("[href='{% url auth_login %}']").attr("href", "{{ login_link }}");
+
+
             var validations = {% render_ajax_fields form %};
             $('#passenger_form').validation(validations);
 

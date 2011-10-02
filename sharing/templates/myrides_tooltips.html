@@ -1,4 +1,15 @@
 {% load i18n %}
+<div id="error_tip" class="myrides-tip-content hidden">
+    <span class="close">X</span>
+    <div class="header">{% trans "Error" %}</div>
+    <div class="content">
+        <p>
+            {% trans "An error has occurred, Please try again." %}
+        </p>
+    </div>
+    <div class="footer"></div>
+</div>
+
 <div id="ride_pending_tip" class="myrides-tip-content hidden">
     <span class="close">X</span>
     <div class="header">{% trans "Your WAY is Booked" %}</div>
@@ -8,7 +19,9 @@
         </p>
     </div>
     <div class="footer">
-        {% trans "*This ride can be canceled." %} <span class="wb_link">{% trans "Cancel ride" %}</span>
+        {% trans "*This ride can be canceled." %}
+        <div id="cancel_ride_link" class="wb_link">{% trans "Cancel ride" %}</div>
+        <div class="tooltip_loader"></div>
     </div>
 </div>
 
@@ -34,28 +47,16 @@
     <div class="content">
         <table>
             <tr>
-                <td>
-                    {% trans "Pickup Time" %}:
-                </td>
-                <td>
-                    12:03
-                </td>
+                <td>{% trans "Pickup Time" %}:</td>
+                <td id="pickup_time_val"></td>
             </tr>
             <tr>
-                <td>
-                    {% trans "Taxi Number" %}:
-                </td>
-                <td>
-                    15
-                </td>
+                <td>{% trans "Taxi Number" %}:</td>
+                <td id="taxi_number_val"></td>
             </tr>
             <tr>
-                <td>
-                    {% trans "Station" %}:
-                </td>
-                <td>
-                    ניו יורק *1265
-                </td>
+                <td>{% trans "Station" %}:</td>
+                <td id="station_name_val"></td>
             </tr>
         </table>
     </div>

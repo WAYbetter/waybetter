@@ -6,7 +6,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils import simplejson
 from common.decorators import internal_task_on_queue, catch_view_exceptions
-from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation
+from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation, CANCELLED
 from sharing import signals
 from datetime import timedelta
 import urllib
@@ -75,7 +75,7 @@ def submit_computations_task(request):
         approved_orders = []
         orders = [order for c in computations for order in c.orders.all()]
         for order in orders:
-            if len(order.billing_transactions.filter(status=BillingStatus.APPROVED)):
+            if order.status != CANCELLED and len(order.billing_transactions.filter(status=BillingStatus.APPROVED)):
                 approved_orders.append(order)
             else:
                 logging.info("order [%s] billing not approved, NOT submitting to algorithm" % order.id)

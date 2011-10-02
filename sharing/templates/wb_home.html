@@ -529,7 +529,11 @@
                 next_rides_table: "#my_next_rides",
                 urls: {
                     get_myrides_data: "{% url sharing.passenger_controller.get_myrides_data %}",
-                    get_order_status: "{% url sharing.passenger_controller.get_order_status %}"
+                    get_order_status: "{% url sharing.passenger_controller.get_order_status %}",
+                    cancel_order: "{% url sharing.passenger_controller.cancel_order %}"
+                },
+                messages: {
+                    ride_cancelled: "{% trans "Ride cancelled." %}"
                 }
             });
 

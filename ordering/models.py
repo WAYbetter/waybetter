@@ -50,6 +50,7 @@ ERROR = 7
 NOT_TAKEN = 8
 TIMED_OUT = 9
 COMPLETED = 10
+CANCELLED = 11
 
 ASSIGNMENT_STATUS = ((PENDING, ugettext("pending")),
                      (ASSIGNED, ugettext("assigned")),
@@ -60,7 +61,8 @@ ASSIGNMENT_STATUS = ((PENDING, ugettext("pending")),
 
 ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED, ugettext("failed")),
                                     (ERROR, ugettext("error")),
-                                    (TIMED_OUT, ugettext("timed_out")))
+                                    (TIMED_OUT, ugettext("timed_out")),
+                                    (CANCELLED, ugettext("cancelled")))
 
 SHARED_RIDE_STATUS = ((PENDING, ugettext("pending")),
                      (ASSIGNED, ugettext("assigned")),
@@ -126,6 +128,10 @@ class Station(BaseModel):
     page_keywords = models.CharField(_("page keywords"), null=True, blank=True, max_length=255)
 
 
+    @property
+    def phone(self):
+        return self.phones.all()[0].local_phone
+    
     def natural_key(self):
         return self.name
 
