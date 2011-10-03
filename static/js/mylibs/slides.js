@@ -1,6 +1,9 @@
-/* 
+/*
 	===========================================================
 	
+    NOT AN ORIGINAL - HACKED BY AMIR
+
+
 	Note: SlidesJS version 2.0 beta 1 is not meant
 	for production deployment. Please download the latest
 	version at https://github.com/nathansearles/Slides.
@@ -416,8 +419,10 @@
       this.options[key] = value;
       if (key === "disabled") {
         this.widget().toggleClass(this.widgetBaseClass + "-disabled ui-state-disabled", !! value).attr("aria-disabled", value);
-        this.hoverable.removeClass("ui-state-hover");
-        this.focusable.removeClass("ui-state-focus");
+        if (this.hoverable !== undefined) // add this line
+            this.hoverable.removeClass("ui-state-hover");
+        if (this.focusable !== undefined) // and this one too
+            this.focusable.removeClass("ui-state-focus");
       }
       return this;
     },
