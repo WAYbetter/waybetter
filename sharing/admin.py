@@ -49,9 +49,12 @@ class RideComputationInlineAdmin(admin.TabularInline):
 
 
 class RideComputationAdmin(admin.ModelAdmin):
-    list_display = ["create_date", "id", "completed", "set_name", "key", "algo_key"]
+    list_display = ["create_date", "id", "debug", "submitted", "completed", "num_orders", "key", "algo_key", "set_name"]
     inlines = [OrderInlineAdmin,]
     
+    def num_orders(self, obj):
+        return obj.orders.count()
+
     def set_name(self, obj):
         return '<a href="%s">%s</a>' % (reverse('sharing.staff_controller.ride_computation_stat', kwargs={'computation_set_id': obj.set.id}), obj.set.name)
     set_name.allow_tags = True

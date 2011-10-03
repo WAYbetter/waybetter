@@ -15,6 +15,18 @@ import logging
 MSG_DELIVERY_GRACE = 10 # seconds
 NOTIFY_STATION_DELTA = timedelta(minutes=10)
 
+def dispatch_ride(ride):
+    work_station = assign_ride(ride)
+    if work_station:
+        station_connection_manager.push_ride(work_station, ride)
+        task = taskqueue.Task(url=reverse(push_ride_task), countdown=MSG_DELIVERY_GRACE, params={"ride_id": ride.id, "ws_id": work_station.id})
+        taskqueue.Queue('orders').add(task)
+
+    task = taskqueue.Task(url=reverse(mark_ride_not_taken_task), eta=ride.depart_time, params={"ride_id": ride.id})
+    q = taskqueue.Queue('orders')
+    q.add(task)
+
+
 def assign_ride(ride):
     work_station = choose_workstation(ride)
 
@@ -31,24 +43,46 @@ def assign_ride(ride):
 
 
 def choose_workstation(ride):
-
-    confining_stations = [order.confining_station for order in ride.orders.all()]
+    orders = list(ride.orders.all())
+    confining_stations = [order.confining_station for order in orders]
     confining_station = confining_stations[0] if all(map(lambda s: s==confining_stations[0], confining_stations)) else None
 
-    ws_list = WorkStation.objects.filter(accept_shared_rides=True)
+    log = u"""
+ride.id=%s
+ride.debug=%s
+confining_stations=%s
+
+orders:
+%s
+
+passengers:
+%s
+""" % (ride.id, ride.debug, [unicode(s) for s in confining_stations],
+       "\n".join([unicode(order) for order in orders]), "\n".join([unicode(order.passenger) for order in orders]))
+
+    logging.info(log)
+
     if confining_station:
-        ws_list = ws_list.filter(station=confining_station)
+        ws_list = WorkStation.objects.filter(station=confining_station, accept_shared_rides=True)
+    else:
+        ws_list = WorkStation.objects.filter(accept_shared_rides=True)
+
     if ride.debug:
         ws_list = ws_list.filter(accept_debug=True)
+
     if ws_list:
         ws = ws_list[0]
         if not ws.is_online:
-            notify_by_email("ride assigned to offline workstation", msg="work station=%s\nride id=%s" % (ws, ride.id))
+            notify_by_email("ride assigned to offline workstation %s" % ws, msg=log)
+        else:
+            notify_by_email("ride assigned successfully workstation %s" %ws, msg=log)
+
         return ws
+
     else:
-        msg = "no work stations for sharing available ride.id=%s ride.debug=%s)" % (ride.id, ride.debug)
-        logging.error(msg)
-        notify_by_email("No sharing stations found", msg=msg)
+        logging.error("No sharing stations found %s" % log)
+        notify_by_email("No sharing stations found", msg=log)
+
         return None
 
 
@@ -56,15 +90,7 @@ def choose_workstation(ride):
 def ride_created(sender, signal_type, obj, **kwargs):
     logging.info("ride_created_signal: %s" % obj)
     ride = obj
-    work_station = assign_ride(ride)
-    if work_station:
-        station_connection_manager.push_ride(work_station, ride)
-        task = taskqueue.Task(url=reverse(push_ride_task), countdown=MSG_DELIVERY_GRACE, params={"ride_id": ride.id, "ws_id": work_station.id})
-        taskqueue.Queue('orders').add(task)
-
-    task = taskqueue.Task(url=reverse(mark_ride_not_taken_task), eta=ride.depart_time, params={"ride_id": ride.id})
-    q = taskqueue.Queue('orders')
-    q.add(task)
+    dispatch_ride(ride)
 
 
 @csrf_exempt

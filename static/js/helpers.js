@@ -503,15 +503,19 @@ var CMHelper = Object.create({
     config: {
         api_key: '',
         map_element: 'cm-map',
-        styleId: 3121
+        styleId: 45836
     },
 
     init: function(config){
         this.config = $.extend(true, {}, this.config, config);
-        var cloudmade = new CM.Tiles.CloudMade.Web({key: this.config.api_key, styleId: this.config.styleId});
+        var cloudmade = new CM.Tiles.CloudMade.Web({
+            key: this.config.api_key,
+            styleId: this.config.styleId
+//            copyright: ""
+        });
         var map = new CM.Map(this.config.map_element, cloudmade);
         map.setCenter(new CM.LatLng(32.09279909028302, 34.781051985221), 15);
-        // trigger mapready
+        // $(window).trigger("mapready");
     }
 });
 

@@ -6,7 +6,7 @@
     <div id="map_container">
         <div id="banner">
 
-            <div id="banner_content">
+            <div id="banner_content" class="hidden">
                 <div id="slides">
                         <img src="/static/images/wb_site/banner01.png">
                         <img src="/static/images/wb_site/banner02.png">
@@ -451,6 +451,11 @@
             $form.append($('<input type="hidden"/>').attr("name", k).attr("value", v));
         });
 
+        {% if is_debug %}
+            $form.find("input[name='is_debug']").remove();
+            $form.append($('<input type="hidden" name="is_debug" value="true"/>'));
+        {% endif %}
+
         $form.ajaxSubmit({
             url: "{% url sharing.passenger_controller.book_ride %}",
             type: "POST",
@@ -777,7 +782,7 @@
             colors.push($(this).css("color"));
         });
         $("#banner").css("background", colors[getRandomInt(0, colors.length-1)]);
-
+        $("#banner_content").show();
         $('#slides').slides({
             width: 800,
             startAtSlide: 1,

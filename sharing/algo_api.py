@@ -72,6 +72,8 @@ def submit_computations_task(request):
     key = request.POST.get("computation_key")
     computations = RideComputation.objects.filter(key=key, submitted=False)
     if computations:
+        params = {'debug': computations[0].debug}
+
         approved_orders = []
         orders = [order for c in computations for order in c.orders.all()]
         for order in orders:
@@ -80,9 +82,9 @@ def submit_computations_task(request):
             else:
                 logging.info("order [%s] billing not approved, NOT submitting to algorithm" % order.id)
 
-        algo_key = submit_orders_for_ride_calculation(approved_orders, key)
+        algo_key = submit_orders_for_ride_calculation(approved_orders, key, params=params)
         logging.info(
-            "submitted %s approved orders: computation_key=%s algo_key=%s. " % (len(approved_orders), key, algo_key))
+            "submitted %s approved orders: computation_key=%s algo_key=%s params=%s." % (len(approved_orders), key, algo_key, params))
 
         for computation in computations:
             computation.algo_key = algo_key

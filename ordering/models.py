@@ -339,6 +339,7 @@ class RideComputation(BaseModel):
     key = models.CharField(max_length=150, null=True, blank=True, editable=False)
     algo_key = models.CharField(max_length=150, null=True, blank=True, editable=False)
 
+    debug = models.BooleanField(default=False, editable=False)
     submitted = models.BooleanField(default=False, editable=False)
     completed = models.BooleanField(default=False, editable=False)
 

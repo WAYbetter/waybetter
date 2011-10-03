@@ -1,4 +1,7 @@
+# This Python file uses the following encoding: utf-8
 from billing.models import BillingTransaction
+from common.models import City
+from common.util import custom_render_to_response
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
 from django.utils import simplejson, translation
@@ -9,7 +12,7 @@ from common.tz_support import  default_tz_now, set_default_tz_time
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
-from ordering.models import StopType, RideComputation, RideComputationSet
+from ordering.models import StopType, RideComputation, RideComputationSet, OrderType
 from sharing.forms import ConstraintsForm
 from sharing.models import HotSpot
 from sharing.passenger_controller import HIDDEN_FIELDS
@@ -21,6 +24,23 @@ import re
 
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 LANG_CODE="he"
+
+@staff_member_required
+def staff_home(request):
+    page_specific_class = "wb_home staff_home"
+    hidden_fields = HIDDEN_FIELDS
+
+    order_types = simplejson.dumps({'private': OrderType.PRIVATE,
+                                    'shared': OrderType.SHARED})
+
+    country_code = settings.DEFAULT_COUNTRY_CODE
+
+    cities = [{'id': city.id, 'name': city.name} for city in City.objects.filter(name="תל אביב יפו")]
+
+    is_debug = True
+
+    return custom_render_to_response('wb_home.html', locals(), context_instance=RequestContext(request))
+
 
 @staff_member_required
 @passenger_required

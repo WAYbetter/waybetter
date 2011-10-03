@@ -6,6 +6,7 @@ from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStat
 import station_connection_manager
 from common.models import Country
 from common.forms import MandatoryInlineFormset
+from sharing.sharing_dispatcher import dispatch_ride
 import forms
 
 class SharedRideAdmin(admin.ModelAdmin):
@@ -17,6 +18,24 @@ class SharedRideAdmin(admin.ModelAdmin):
     def taxi_number(self, obj):
         return obj.taxi.number
 
+    actions = ['dispatch']
+
+    def dispatch(self, request, queryset):
+        dispatched = []
+        not_dispatched = []
+
+        for ride in queryset:
+            if ride.station:
+                not_dispatched.append(ride)
+            else:
+                dispatch_ride(ride)
+                dispatched.append(ride)
+
+        if not_dispatched:
+            messages.error(request, "%s rides not dispatched, already assigned to station %s" % (len(not_dispatched), [ride.id for ride in not_dispatched]))
+        if dispatched:
+            messages.error(request, "%s rides dispatched %s" % (len(dispatched), [ride.id for ride in dispatched]))
+    dispatch.short_description = _("Dispatch ride")
 
 class RidePointAdmin(admin.ModelAdmin):
     list_display = ["id", "create_date", "stop_time", "type", "address", "ride_id"]
