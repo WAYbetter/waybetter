@@ -9,7 +9,7 @@
     <script type="text/javascript" src="/static/js/utils.js"></script>
     <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.js"></script>
     <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.validation.js"></script>
-    <script src="http://api.navigator.telmap.com/maps/api/js?sensor=false" type="text/javascript"></script>
+    <script src="http://api.telmap.com/maps/api/js?sensor=false" type="text/javascript"></script>
     
     {% load ajax_form_utils %}
     {{ block.super }}
@@ -156,7 +156,7 @@
             zoom:15,
             center:new telmap.maps.LatLng(32.09279909028302,34.781051985221),
             login:{
-                contextUrl: 'api.navigator.telmap.com/telmapnav',
+                contextUrl: 'api.telmap.com/telmapnav',
                 userName:   '{{ telmap_user }}',
                 password:   '{{ telmap_password }}',
                 languages:  ['he', 'en'],

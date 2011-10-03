@@ -12,7 +12,7 @@ def calculate_time_and_distance(from_lon, from_lat, to_lon, to_lat):
 
 def telmap_calculate_time_and_distance(from_lon, from_lat, to_lon, to_lat, return_cities=False, return_streets=False):
     """
-    Uses the Telmap API (http://api.navigator.telmap.com/xmlwiki/Wiki.jsp?page=General#section-General-RouteRequest)
+    Uses the Telmap API (http://api.telmap.com/xmlwiki/Wiki.jsp?page=General#section-General-RouteRequest)
     to calculate the time &amp; distance between the 2 given locations.
     """
     logging.info("telmap_route")

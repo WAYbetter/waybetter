@@ -543,7 +543,7 @@ var TelmapHelper = Object.create({
             zoom:15,
             center:new telmap.maps.LatLng(32.09279909028302, 34.781051985221),
             login:{
-                contextUrl: 'api.navigator.telmap.com/telmapnav',
+                contextUrl: 'api.telmap.com/telmapnav',
                 userName:   this.config.telmap_user,
                 password:   this.config.telmap_password,
                 languages:  [this.config.telmap_languages, this.config.telmap_languages],
