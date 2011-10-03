@@ -40,7 +40,7 @@ def waze_calculate_time_and_distance(from_lon, from_lat, to_lon, to_lat, return_
             '&to=x:%s+y:%s+bd:true+st_id:46317' % (to_lon, to_lat) + \
             '&returnJSON=true&returnGeometries=true&returnInstructions=false' + \
             '&timeout=60000&nPaths=1&token=%s' % settings.WAZE_API_TOKEN
-    json = urllib2.urlopen(url).read()
+    json = urllib2.urlopen(url, deadline=10).read()
     result = simplejson.loads(json)
 
     t, d = 0, 0

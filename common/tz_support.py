@@ -34,8 +34,8 @@ class IsraelTimeZone(datetime.tzinfo):
 
     # update this when DST is on/off
     def dst(self, dt):
-        return datetime.timedelta(hours=1) # DST on
-        # return timedelta(0)     # DST off
+#        return datetime.timedelta(hours=1) # DST on
+        return datetime.timedelta(0)     # DST off
 
 TZ_INFO = {
     "UTC": UTC(),

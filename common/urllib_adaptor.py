@@ -48,7 +48,7 @@ class Response:
         return "Response: %d" % self.status_code
 
 
-def urlopen(url, data=None):
+def urlopen(url, data=None, deadline=None):
     if isinstance(url, basestring):
         req = Request(url, data)
     else:
@@ -56,7 +56,7 @@ def urlopen(url, data=None):
         if data is not None:
             req.data = data
 
-    fetch_response = fetch(req.url, payload=req.data, method=req.get_method(), headers=req.headers)
+    fetch_response = fetch(req.url, payload=req.data, method=req.get_method(), headers=req.headers, deadline=deadline)
     return Response(fetch_response.content, fetch_response.status_code, fetch_response.headers)
 
 def urlencode(query,doseq=0):
