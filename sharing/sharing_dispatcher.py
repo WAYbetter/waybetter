@@ -50,14 +50,14 @@ def choose_workstation(ride):
     log = u"""
 ride.id=%s
 ride.debug=%s
-confining_stations=%s
+confining_stations=[%s]
 
 orders:
 %s
 
 passengers:
 %s
-""" % (ride.id, ride.debug, [unicode(s) for s in confining_stations],
+""" % (ride.id, ride.debug, ",".join([unicode(s) for s in confining_stations]),
        "\n".join([unicode(order) for order in orders]), "\n".join([unicode(order.passenger) for order in orders]))
 
     logging.info(log)
@@ -72,16 +72,16 @@ passengers:
 
     if ws_list:
         ws = ws_list[0]
-        if not ws.is_online:
-            notify_by_email("ride assigned to offline workstation %s" % ws, msg=log)
+        if ws.is_online:
+            notify_by_email(u"ride assigned successfully to workstation %s" % ws, msg=log)
         else:
-            notify_by_email("ride assigned successfully workstation %s" %ws, msg=log)
+            notify_by_email(u"ride assigned to offline workstation %s" % ws, msg=log)
 
         return ws
 
     else:
-        logging.error("No sharing stations found %s" % log)
-        notify_by_email("No sharing stations found", msg=log)
+        logging.error(u"No sharing stations found %s" % log)
+        notify_by_email(u"No sharing stations found", msg=log)
 
         return None
 

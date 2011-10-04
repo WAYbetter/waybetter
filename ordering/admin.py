@@ -10,8 +10,11 @@ from sharing.sharing_dispatcher import dispatch_ride
 import forms
 
 class SharedRideAdmin(admin.ModelAdmin):
-    list_display = ["id", "create_date", "depart_time", "arrive_time", "status", "taxi_number", "driver_name"]
+    list_display = ["id", "create_date", "computation_id", "depart_time", "arrive_time", "status", "station", "taxi_number", "driver_name"]
 
+    def computation_id(self, obj):
+        return obj.computation.id
+    
     def driver_name(self, obj):
         return obj.driver.name
 

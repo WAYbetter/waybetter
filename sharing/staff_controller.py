@@ -208,7 +208,7 @@ def submit_test_computation(orders, params, computation_set_name=None, computati
     algo_key = submit_orders_for_ride_calculation(orders, key=key, params=params)
 
     if algo_key:
-        computation = RideComputation(algo_key=algo_key)
+        computation = RideComputation(algo_key=algo_key, debug=True, submitted=True)
         computation.toleration_factor = params.get('toleration_factor')
         computation.toleration_factor_minutes = params.get('toleration_factor_minutes')
         order = orders[0]

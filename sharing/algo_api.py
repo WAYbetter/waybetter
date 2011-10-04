@@ -137,6 +137,7 @@ def fetch_ride_results_task(request):
             ride.debug = debug
 
             computation = computations[0]
+            ride.computation = computation
             if computation.hotspot_depart_time:
                 ride.depart_time = computation.hotspot_depart_time
                 ride.arrive_time = ride.depart_time + timedelta(seconds=ride_data["m_Duration"])

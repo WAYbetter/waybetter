@@ -350,13 +350,14 @@ class RideComputation(BaseModel):
     toleration_factor_minutes = models.FloatField(null=True, blank=True)
     statistics = models.TextField(null=True, blank=True)
 
-
+    
 class SharedRide(BaseModel):
 
     depart_time = UTCDateTimeField(_("depart time"))
     arrive_time = UTCDateTimeField(_("arrive time"))
 
     status = StatusField(_("status"), choices=SHARED_RIDE_STATUS, default=PENDING)
+    computation = models.ForeignKey(RideComputation, verbose_name=_("computation"), related_name="rides", null=True, blank=True)
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
     driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
