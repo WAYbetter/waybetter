@@ -22,14 +22,14 @@
             1. {% trans "Ride details are sent by free SMS" %}:
         </div>
         <div class="container">
-            <div class="float-l">
+            <div id="phone_container">
                 <label for="local_phone">
                     {% trans "Mobile Phone" %}
                 </label>
                 <input id="local_phone" name="local_phone" type="text"/>
                 <button type="button" class="wb_button" id="validate_phone">{% trans "Get Code" %}</button>
             </div>
-            <div class="float-r">
+            <div id="code_container">
                 <label for="verification_code">
                     {% trans "Code" %}
                 </label>
@@ -84,7 +84,7 @@
                             {% endif %}
                         {% endfor %}
                     </table>
-                    <div id="terms_container" class="float-r">
+                    <div id="terms_container">
                         <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
                         <label for="id_agree_to_terms">{% trans "I agree to the" %}
                             <a class="wb_link" href="{% url terms %}">{% trans "Terms Of Use" %} </a>

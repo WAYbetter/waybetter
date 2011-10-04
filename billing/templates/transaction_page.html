@@ -3,12 +3,12 @@
 
 {% block content %}
     <div id="trx_status">
-        <div id="status_icon" class="float-l"></div>
-        <div id="status_msg" class="float-l">
+        <div id="status_icon"></div>
+        <div id="status_msg">
             <div id="status_header"></div>
             <div id="status_help"></div>
         </div>
-        <button id="home" class="wb_button float-r">{% trans "Home" %}</button>
+        <button id="home" class="wb_button">{% trans "Home" %}</button>
     </div>
 {% endblock %}
 
@@ -27,7 +27,7 @@
                 case approved:
                     $("#status_icon").addClass("approved");
                     $("#status_header").html("{% trans "Order Approved" %}");
-                    $("#status_help").html("{% trans "We'll send you an SMS with pickup details about 15 minutes before departure." %}");
+                    $("#status_help").html("{% trans "A detailed SMS reminder will be sent 5-10 minutes prior to the taxi's arrival." %}");
                     break;
                 case failed:
                     $("#status_icon").addClass("failed");

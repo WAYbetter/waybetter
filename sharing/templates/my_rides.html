@@ -43,6 +43,9 @@
         {% endautoescape%}
 
         MyRidesHelper.init({
+            {% if LANGUAGE_BIDI %}
+                rtl: true,
+            {% endif %}
             order_types: order_types,
             next_rides_table: "#next_rides",
             previous_rides_table: "#previous_rides",

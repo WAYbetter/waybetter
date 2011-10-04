@@ -15,7 +15,7 @@
                     {% block header_links %}
                         <ul class="links hz">
                             <li>
-                                <span class="menu_link">
+                                <span class="change_lang menu_link">
                                     {% for lang in LANGUAGES %}
                                         {% if lang.0 == LANGUAGE_CODE %}
                                             {{ lang.1 }}
@@ -40,14 +40,14 @@
                         </ul>
                     {% endblock %}
                     <div class="clear"></div>
-                    <form action="/i18n/setlang/" method="post" id="lang_dropdown">
+                    <form action="/i18n/setlang/" method="post" id="lang_form" class="hidden">
                         {% csrf_token %}
                         <input type="hidden" name="language" id="language"/>
                         <ul class="wbdropdown-list">
-                            <li code="he" class="disabled">עברית</li>
-                            <li code="en" class="clickable">English</li>
-                            <li code="" class="disabled">Русский</li>
-                            <li code="" class="disabled">français</li>
+                            <li data-code="he" class="clickable">עברית</li>
+                            <li data-code="en" class="clickable">English</li>
+                            <li data-code="" class="disabled">Русский</li>
+                            <li data-code="" class="disabled">français</li>
                         </ul>
                     </form>
                 </div>
@@ -190,21 +190,24 @@
     {{ block.super }}
     <script type="text/javascript">
         $(document).ready(function() {
+            $("html").click(function(e) {
+                var $target = $(e.target);
+                if (!$target.hasClass("change_lang"))
+                    $("#lang_form").hide();
+            });
             $("#wb_logo").click(function() {
                 window.location.href = "{% url wb_home %}";
             });
-//            $(".show-lang").click(function() {
-//                var offset = $(this).offset();
-//                offset.left = offset.left + 336;
-//                offset.top = offset.top + 24;
-//                $("#lang_dropdown").offset(offset).show();
-//            });
-            $("form.languages li").click(function() {
-                $(".languages").hide();
-                var code = $(this).attr("code");
+            $(".change_lang").click(function() {
+                var offset = $(this).offset();
+                offset.top = offset.top + 20;
+                $("#lang_form").show().offset(offset);
+            });
+            $("#lang_form li").click(function() {
+                var code = $(this).data("code");
                 if (code != "{{ LANGUAGE_CODE }}" && !$(this).hasClass("disabled")) {
-                    $("form.languages > #language").val(code);
-                    $("form.languages").submit();
+                    $("#lang_form #language").val(code);
+                    $("#lang_form").submit();
                 }
             });
         });

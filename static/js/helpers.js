@@ -1,5 +1,6 @@
 var MyRidesHelper = Object.create({
     config: {
+        rtl: false,
         urls: {
             get_myrides_data: "",
             get_order_status: "",
@@ -85,8 +86,8 @@ var MyRidesHelper = Object.create({
         $row.append('<td>' + order.price + '</td>');
 
         var $info = $('<td class="info' + ((is_next) ? '"' : ' report"') + '></td>').tooltip({
-            tip: that.config.tip,
-            position: 'center left',
+            tip: this.config.tip,
+            position: (this.config.rtl) ? 'center right' : 'center left',
             relative: true,
             offset: [-30,0],
             events: {

@@ -509,6 +509,9 @@
 
         {% if request.user.passenger %}
             MyRidesHelper.init({
+                {% if LANGUAGE_BIDI %}
+                    rtl: true,
+                {% endif %}
                 order_types: order_types,
                 next_rides_table: "#my_next_rides",
                 urls: {
@@ -556,10 +559,15 @@
         AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number", "#address_input_helper .tooltip_loader");
 
         var tooltip_conf = {
-            effect: 'fade',
-            position: 'top right',
             relative: true,
-            offset: [91, -50],
+            effect: 'fade',
+            {% if LANGUAGE_BIDI %}
+                position: 'top left',
+                offset: [91, 530],
+            {% else %}
+                position: 'top right',
+                offset: [91, -50],
+            {% endif %}
             events: {
                 // "" is supposedly better for oldIE
                 address_input: 'click, ""',
