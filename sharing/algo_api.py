@@ -77,7 +77,7 @@ def submit_computations_task(request):
         approved_orders = []
         orders = [order for c in computations for order in c.orders.all()]
         for order in orders:
-            if order.status != CANCELLED and len(order.billing_transactions.filter(status=BillingStatus.APPROVED)):
+            if order.status != CANCELLED and order.approved:
                 approved_orders.append(order)
             else:
                 logging.info("order [%s] billing not approved, NOT submitting to algorithm" % order.id)

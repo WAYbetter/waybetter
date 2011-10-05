@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
+from billing.enums import BillingStatus
 from django.core.exceptions import ValidationError
 from django.template.loader import get_template
 from django.template.context import Context
@@ -840,6 +841,10 @@ class Order(BaseModel):
     passenger_id = models.IntegerField(_("passenger id"), null=True, blank=True)
 
     api_user = models.ForeignKey(APIUser, verbose_name=_("api user"), related_name="orders", null=True, blank=True)
+
+    @property
+    def approved(self):
+        return len(self.billing_transactions.filter(status=BillingStatus.APPROVED)) > 0
 
     @property
     def invoice_description(self):
