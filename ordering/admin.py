@@ -1,16 +1,20 @@
 from common.util import blob_to_image_tag
 from django.contrib import admin, messages
+from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 from django.forms.models import BaseInlineFormSet
 from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, Feedback, Business, SharedRide, RidePoint, Driver, Taxi, TaxiDriverRelation, StationFixedPriceRule
+from sharing.admin import OrderInlineAdmin
 import station_connection_manager
 from common.models import Country
 from common.forms import MandatoryInlineFormset
 from sharing.sharing_dispatcher import dispatch_ride
+from sharing.station_controller import show_ride
 import forms
 
 class SharedRideAdmin(admin.ModelAdmin):
-    list_display = ["id", "create_date", "computation_id", "depart_time", "arrive_time", "status", "station", "taxi_number", "driver_name"]
+    inlines = [OrderInlineAdmin,]
+    list_display = ["id", "create_date", "debug", "computation_id", "depart_time", "arrive_time", "status", "map", "station", "taxi_number", "driver_name"]
 
     def computation_id(self, obj):
         return obj.computation.id
@@ -20,6 +24,10 @@ class SharedRideAdmin(admin.ModelAdmin):
 
     def taxi_number(self, obj):
         return obj.taxi.number
+
+    def map(self, obj):
+        return '<a href="%s">map</a>' % reverse(show_ride, args=[obj.id])
+    map.allow_tags = True
 
     actions = ['dispatch']
 

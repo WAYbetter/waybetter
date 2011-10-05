@@ -43,22 +43,10 @@ def assign_ride(ride):
 
 
 def choose_workstation(ride):
-    orders = list(ride.orders.all())
-    confining_stations = [order.confining_station for order in orders]
+    confining_stations = [order.confining_station for order in ride.orders.all()]
     confining_station = confining_stations[0] if all(map(lambda s: s==confining_stations[0], confining_stations)) else None
 
-    log = u"""
-ride.id=%s
-ride.debug=%s
-confining_stations=[%s]
-
-orders:
-%s
-
-passengers:
-%s
-""" % (ride.id, ride.debug, ",".join([unicode(s) for s in confining_stations]),
-       "\n".join([unicode(order) for order in orders]), "\n".join([unicode(order.passenger) for order in orders]))
+    log = u"Choose Workstation:\nconfining_stations=[%s]\n%s" % (",".join([unicode(s) for s in confining_stations]), get_ride_log(ride))
 
     logging.info(log)
 
@@ -73,15 +61,15 @@ passengers:
     if ws_list:
         ws = ws_list[0]
         if ws.is_online:
-            notify_by_email(u"ride assigned successfully to workstation %s" % ws, msg=log)
+            notify_by_email(u"Ride [%s] assigned successfully to workstation %s" % (ride.id, ws), msg=log)
         else:
-            notify_by_email(u"ride assigned to offline workstation %s" % ws, msg=log)
+            notify_by_email(u"Ride [%s] assigned to offline workstation %s" % (ride.id, ws), msg=log)
 
         return ws
 
     else:
         logging.error(u"No sharing stations found %s" % log)
-        notify_by_email(u"No sharing stations found", msg=log)
+        notify_by_email(u"Ride [%s] ERROR - No sharing stations found" % ride.id, msg=log)
 
         return None
 
@@ -104,22 +92,17 @@ def push_ride_task(request):
         work_station = WorkStation.by_id(ws_id, safe=False)
         if not ride.received_time:
             if utc_now() < ride.depart_time - NOTIFY_STATION_DELTA:
-                logging.info("push ride task: ride=%s, workstation=%s" % (ride_id, ws_id))
+                logging.info(u"push ride task: ride=%s, workstation=%s" % (ride_id, work_station))
                 station_connection_manager.push_ride(work_station, ride)
 
                 task = taskqueue.Task(url=reverse(push_ride_task), countdown=MSG_DELIVERY_GRACE, params={"ride_id": ride_id, "ws_id": ws_id})
                 taskqueue.Queue('orders').add(task)
-            else:
-                msg = \
-"""
-depart_time: %s
-work station: %s
-ride id: %s
-""" % (ride.depart_time, work_station, ride_id)
-                notify_by_email("Ride not delivered to station", msg=msg)
+            elif not ride.debug:
+                msg = u"work station: %s\n%s" % (work_station, get_ride_log(ride))
+                notify_by_email(u"Ride [%s]: Not delivered to station %s" % (ride.id, ride.station.name), msg=msg)
 
     except (SharedRide.DoesNotExist, WorkStation.DoesNotExist):
-        logging.error("push ride task error: ride=%s, workstation=%s" % (ride_id, ws_id))
+        logging.error(u"push ride task error (model.DoesNotExist): ride_id=%s, ws_id=%s" % (ride_id, ws_id))
 
     return HttpResponse("OK")
 
@@ -133,11 +116,36 @@ def mark_ride_not_taken_task(request):
         ride = SharedRide.by_id(ride_id, safe=False)
         ride.change_status(new_status=NOT_TAKEN)
         logging.info("Marked ride [%s] as not taken" % ride_id)
-        notify_by_email("Ride not taken (not accepted by station)", msg=u"ride=%s\nstation=%s" % (ride.id, ride.station))
+        if not ride.debug:
+            notify_by_email(u"Ride [%s] : Not accepted by station" % ride_id, msg=get_ride_log(ride))
 
     except SharedRide.DoesNotExist:
-        logging.error("Error marking ride as not taken: SharedRide.DoesNotExist")
+        logging.error("Error marking ride [%s] as not taken: SharedRide.DoesNotExist" % ride_id)
     except UpdateStatusError:
         logging.warning("UpdateStatusError: Error changing ride [%s] status to not taken" % ride_id)
 
     return HttpResponse("OK")
+
+
+def get_ride_log(ride):
+    orders = list(ride.orders.all())
+    return u"""
+
+ride.id: %s
+ride.debug: %s
+
+station: %s
+
+depart_time: %s
+
+orders:
+%s
+
+passengers:
+%s
+""" % (ride.id,
+       ride.debug,
+       ride.station,
+       ride.depart_time,
+       "\n".join([unicode(order) for order in orders]),
+       "\n".join([unicode(order.passenger) for order in orders]))
