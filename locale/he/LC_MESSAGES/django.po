@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-05 12:10+0200\n"
-"PO-Revision-Date: 2011-10-05 13:14+0200\n"
+"POT-Creation-Date: 2011-10-05 16:49+0200\n"
+"PO-Revision-Date: 2011-10-05 17:02+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -274,7 +274,7 @@ msgid "pickup time"
 msgstr "זמן איסוף"
 
 #: billing/templates/transaction_page.html:11
-#: templates/wb_base_site.html:116
+#: templates/wb_base_site.html:138
 #: templates/admin/billing/billingtransaction/change_form.html:18
 msgid "Home"
 msgstr "דף הבית"
@@ -525,13 +525,13 @@ msgstr "להצטרפות!"
 #: ordering/templates/passenger_profile.html:24
 #: sharing/templates/contact.html:15
 #: sharing/templates/contact.html.py:41
-#: templates/registration/login.html:11
+#: templates/registration/login.html:40
 msgid "Email"
 msgstr "דוא\"ל"
 
 #: common/templates/login_form.html:38
 #: sharing/forms.py:53
-#: templates/registration/login.html:14
+#: templates/registration/login.html:44
 msgid "Password"
 msgstr "סיסמה"
 
@@ -1816,6 +1816,8 @@ msgid "Flat rate"
 msgstr "מחיר מחירון"
 
 #: ordering/passenger_controller.py:237
+#: sharing/templates/wb_home.html:66
+#: sharing/templates/wb_home.html.py:98
 #: sharing/templates/ws_home.html:486
 msgid "min"
 msgstr "דקות"
@@ -2053,6 +2055,7 @@ msgid "Pick Me Up"
 msgstr "שלח לי מונית"
 
 #: ordering/templates/base_passenger.html:164
+#: templates/registration/login.html:30
 msgid "Join!"
 msgstr "הצטרפות!"
 
@@ -2154,7 +2157,7 @@ msgstr "להצטרפות יש למלא פרטי התקשרות:"
 
 #: ordering/templates/business_tab.html:24
 #: ordering/templates/station_home.html:59
-#: templates/wb_base_site.html:146
+#: templates/wb_base_site.html:168
 msgid "Join"
 msgstr "הצטרפות!"
 
@@ -2301,7 +2304,7 @@ msgstr "נסיעות קודמות"
 #: ordering/templates/passenger_home.html:111
 #: ordering/templates/station_page.html:142
 #: sharing/templates/my_rides.html:8
-#: templates/wb_base_site.html:140
+#: templates/wb_base_site.html:162
 msgid "My Profile"
 msgstr "הפרופיל שלי"
 
@@ -2312,8 +2315,8 @@ msgstr "תחנות מונית"
 
 #: ordering/templates/passenger_home.html:113
 #: ordering/templates/passenger_home.html:120
-#: templates/wb_base_site.html:26
-#: templates/wb_base_site.html.py:117
+#: templates/wb_base_site.html:27
+#: templates/wb_base_site.html.py:139
 msgid "Mobile"
 msgstr "טלפונים ניידים"
 
@@ -2487,7 +2490,7 @@ msgstr "הזמינו מונית בקליק עכשיו, מענה מיידי ב-SM
 
 #: ordering/templates/station_page.html:76
 #: templates/base.html:84
-#: templates/wb_base_site.html:29
+#: templates/wb_base_site.html:30
 msgid "Hi"
 msgstr "שלום"
 
@@ -2596,7 +2599,7 @@ msgstr ""
 
 #: ordering/templates/terms.html:18
 #: sharing/templates/wb_info.html:10
-#: templates/wb_base_site.html:125
+#: templates/wb_base_site.html:147
 msgid "Privacy Policy"
 msgstr "מדיניות פרטיות"
 
@@ -2766,7 +2769,7 @@ msgstr "GPS"
 #: ordering/templates/mobile/passenger_home.html:157
 #: ordering/templates/mobile/passenger_home.html:203
 #: sharing/templates/my_rides.html:7
-#: templates/wb_base_site.html:139
+#: templates/wb_base_site.html:161
 msgid "My Rides"
 msgstr "הנסיעות שלי"
 
@@ -3001,7 +3004,8 @@ msgid "My Account"
 msgstr "החשבון שלי"
 
 #: sharing/templates/my_rides.html:9
-#: templates/wb_base_site.html:141
+#: templates/wb_base_site.html:38
+#: templates/wb_base_site.html.py:163
 msgid "Log Out"
 msgstr "התנתקות"
 
@@ -3612,27 +3616,27 @@ msgid "Arrival"
 msgstr "הגעה"
 
 #: sharing/templates/wb_info.html:4
-#: templates/wb_base_site.html:121
+#: templates/wb_base_site.html:143
 msgid "Info"
 msgstr "מידע"
 
 #: sharing/templates/wb_info.html:7
-#: templates/wb_base_site.html:122
+#: templates/wb_base_site.html:144
 msgid "The Service"
 msgstr "מה זה?"
 
 #: sharing/templates/wb_info.html:8
-#: templates/wb_base_site.html:123
+#: templates/wb_base_site.html:145
 msgid "FAQ"
 msgstr "שאלות נפוצות"
 
 #: sharing/templates/wb_info.html:9
-#: templates/wb_base_site.html:124
+#: templates/wb_base_site.html:146
 msgid "Terms of Use"
 msgstr "תנאי שימוש"
 
 #: sharing/templates/wb_info.html:11
-#: templates/wb_base_site.html:126
+#: templates/wb_base_site.html:148
 msgid "Contact Us"
 msgstr "יצירת קשר"
 
@@ -3810,60 +3814,96 @@ msgstr "הדרך הטובה ביותר להשיג מונית (חינם)"
 msgid "WAYbetter"
 msgstr "<span class=waybetter></span>"
 
-#: templates/wb_base_site.html:37
+#: templates/wb_base_site.html:40
 msgid "Log-in"
 msgstr "כניסה"
 
-#: templates/wb_base_site.html:83
+#: templates/wb_base_site.html:86
+#: templates/wb_base_site.html.py:105
 msgid "Service"
 msgstr "שירות"
 
-#: templates/wb_base_site.html:85
-#: templates/wb_base_site.html.py:90
-#: templates/wb_base_site.html:95
-#: templates/wb_base_site.html.py:100
-msgid "Learn More"
-msgstr "קרא עוד"
+#: templates/wb_base_site.html:87
+msgid "learnmore_service_content"
+msgstr "<p>אנו שואפים לספק לחברים בווי-בטר חווית תנועה מושלמת, חופש תנועה אמיתי.אנו רוצים שתחבורה ציבורית תהפוך להיות שירות של בחירה ולא שירות של אין ברירה.</p><p>כדי שיהיה לכם קל וכיף אנו מאפשרים הזמנת בלחיצה, תשלום באשראי בחשבון חודשי, ושירות דינמי המתאים לצורכיכם, והכל תוך חסכון של עשרות שקלים לנסיעה.<p>"
 
-#: templates/wb_base_site.html:88
-#: templates/wb_base_site.html.py:129
+#: templates/wb_base_site.html:90
+#: templates/wb_base_site.html.py:110
+#: templates/wb_base_site.html:151
 msgid "Community"
 msgstr "קהילה"
 
-#: templates/wb_base_site.html:93
+#: templates/wb_base_site.html:91
+msgid "learnmore_community_content"
+msgstr "<p>ייצרנו ואנו לוקחים חלק בקהילת נוסעים המביעים רצון לחלוק צי מוניות לטובת הוזלת מחירי הנסיעה, שיפור שירות התחבורה הציבורית, ושיפור איכות החיים והסביבה בעיר.</p><p>אנחנו חולקים דרך משותפת, בואו נאפשר לצרכינו להתאחד וניצור תנועה מסוג חדש.</p>"
+
+#: templates/wb_base_site.html:94
+#: templates/wb_base_site.html.py:115
 msgid "Environment"
 msgstr "סביבה"
 
+#: templates/wb_base_site.html:95
+msgid "learnmore_environment_content"
+msgstr "<p>אנחנו מאמינים בתחבורה ציבורית. </p><p>השעבוד לרכב הפרטי, וחוסר היעילות בה אנו צרכים תחבורה הם הגורמים לערינו להיות צפופות, רועשות, ומזוהמות. אנו יודעים שגם מכוניות חשמליות לבדן וגם סלילת כבישים נוספים לא יסייעו. אנו צריכים להשתמש בתשתיות הקיימות בצורה יעילה יותר. השירות שווי-בטר מציעה ישחרר אותנו מהתלות ברכב הפרטי ויאפשר לנו להפוך את הצפיפות מקושי ליתרון אמיתי...</p>"
+
 #: templates/wb_base_site.html:98
+#: templates/wb_base_site.html.py:120
 msgid "Efficiency"
 msgstr "יעילות"
 
-#: templates/wb_base_site.html:118
+#: templates/wb_base_site.html:99
+msgid "learnmore_efficiency_content"
+msgstr "<p>ליעילות משמעות כפולה בעולם התחבורה:<ol><li>תחבורה יעילה היא תחבורה שלא מייצרת בזבוז.</li><li>תחבורה יעילה היא תחבורה שנותנת שירות יעיל ומועיל.</li></ol>תפיסת התחבורה שלנו, המתאימה היצע וביקוש, מבטיחה שיפור משמעותי בשני המובנים: מערכת המתאימה לצרכים שלכם הנוסעים (שיפור השירות).  ורק לצרכים שלכם (מניעת בזבוז).</p>"
+
+#: templates/wb_base_site.html:106
+msgid "gist_service_content"
+msgstr "חווית מוניות חדשה, אישית ומתקדמת"
+
+#: templates/wb_base_site.html:107
+#: templates/wb_base_site.html.py:112
+#: templates/wb_base_site.html:117
+#: templates/wb_base_site.html.py:122
+msgid "Learn More"
+msgstr "קרא עוד"
+
+#: templates/wb_base_site.html:111
+msgid "gist_community_content"
+msgstr "אנחנו חולקים עיר, בואו נחלוק גם דרך"
+
+#: templates/wb_base_site.html:116
+msgid "gist_environment_content"
+msgstr "יותר אנשים ברכב, פחות רכבים על הכביש"
+
+#: templates/wb_base_site.html:121
+msgid "gist_efficiency_content"
+msgstr "פחות בזבוז, יותר התאמה אישית"
+
+#: templates/wb_base_site.html:140
 msgid "Contact"
 msgstr "יצירת קשר"
 
-#: templates/wb_base_site.html:130
+#: templates/wb_base_site.html:152
 msgid "About Us"
 msgstr "אודות"
 
-#: templates/wb_base_site.html:131
+#: templates/wb_base_site.html:153
 msgid "Facebook"
 msgstr "פייסבוק"
 
-#: templates/wb_base_site.html:132
+#: templates/wb_base_site.html:154
 msgid "Twitter"
 msgstr "טוויטר"
 
-#: templates/wb_base_site.html:133
+#: templates/wb_base_site.html:155
 msgid "Stations"
 msgstr "תחנות"
 
-#: templates/wb_base_site.html:138
-#: templates/wb_base_site.html.py:143
+#: templates/wb_base_site.html:160
+#: templates/wb_base_site.html.py:165
 msgid "Account"
 msgstr "חשבון"
 
-#: templates/wb_base_site.html:144
+#: templates/wb_base_site.html:166
 msgid "Log In"
 msgstr "כניסה"
 
@@ -3893,7 +3933,7 @@ msgstr "החשבון הופעל בהצלחה"
 
 #: templates/registration/activate.html:10
 #: templates/registration/activation_complete.html:8
-#: templates/registration/login.html:19
+#: templates/registration/login.html:53
 #: templates/registration/login_reg.html:8
 #: templates/registration/password_reset_complete.html:8
 msgid "Log in"
@@ -3902,6 +3942,15 @@ msgstr "התחברות"
 #: templates/registration/activate.html:14
 msgid "Account activation failed"
 msgstr "הפעלת חשבון נכשלה"
+
+#: templates/registration/login.html:25
+#, fuzzy
+msgid "Log-in To Your Account"
+msgstr "כניסה באמצעות החשבון שלך ב:"
+
+#: templates/registration/login.html:29
+msgid "New to WAYbetter?"
+msgstr "פעם ראשונה?"
 
 #: templates/registration/login_reg.html:12
 msgid "Forgot password"

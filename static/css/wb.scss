@@ -114,14 +114,28 @@ ul.hz{
 .wbdropdown-list{
     display: block;
     list-style: none;
-    background: #FAFCFF;
-    border: 1px solid #AECEEF;
+    background: #FFFFFF;
+    border: 1px solid #AAAAAA;
     margin: 0;
     padding: 4px;
     position: absolute;
     z-index: 3;
     font-size: $font-size-small;
+    li:hover{
+        background: #DEDEDE;
+    }
+    li.disabled:hover{
+        background: none;
+    }
 }
+
+.dropdown-trigger{
+    display: inline-block;
+    width: 13px;
+    height: 10px;
+    background: url("/static/images/wb_site/dropdown.png") right 0 no-repeat;
+}
+.rtl .dropdown-trigger{ background-position: left 0; }
 
 .disabled{
     color: $color-disabled;
@@ -439,6 +453,13 @@ body.base-site{
     }
 }
 
+#wb_values, #values_learnmore{
+    .service .header {color: $color-service;}
+    .community .header {color: $color-community;}
+    .env .header {color: $color-environment;}
+    .eff .header {color: $color-efficiency;}
+}
+
 #wb_values{
     width: $site-width;
     margin: 0 auto 50px auto;
@@ -464,15 +485,11 @@ body.base-site{
         font-size: $font-size-medium;
         line-height: 23px;
     }
-    .service .header {color: $color-service;}
-    .community .header {color: $color-community;}
-    .env .header {color: $color-environment;}
-    .eff .header {color: $color-efficiency;}
     .service{ background: url(/static/images/wb_site/values.png) 0 -31px no-repeat; }
     .community{ background: url(/static/images/wb_site/values.png) 0 -133px no-repeat; }
     .env{ background: url(/static/images/wb_site/values.png) 0 -237px no-repeat; }
     .eff{ background: url(/static/images/wb_site/values.png) 0 -338px no-repeat; }
-    .learnmore{
+    .lm-img{
         display: inline-block;
         background: url(/static/images/wb_site/more.png) 3px 4px no-repeat;
         width: 12px;
@@ -502,11 +519,46 @@ body.base-site{
     .community{ background-position: right -133px; }
     .env{ background-position: right -237px; }
     .eff{ background-position: right -338px; }
-    .learnmore{
+    .lm-img{
         background-position: 3px -15px;
         margin-left: auto;
         margin-right: 4px;
     }
+}
+
+#values_learnmore{
+    .learnmore-content{
+        display: none;
+        position: absolute;
+        bottom: 25%;
+        width: 410px;
+        height: 150px;
+        padding: 15px;
+        border: 6px solid;
+        @include border-radius(6px);
+        @include box-shadow(0 0 15px 10px rgba(0,0,0,0.5));
+        background: white;
+        .header{
+            font-size: $font-size-header2;
+        }
+        .content{
+            font-size: $font-size-medium;
+        }
+    }
+    .learnmore-content.service{ left: 10%; }
+    .learnmore-content.community{ left: 30%; }
+    .learnmore-content.eff{ right: 10%; }
+    .learnmore-content.env{ right: 30%; }
+    .service{ border-color: rgba($color-service, 0.4); }
+    .community{ border-color: rgba($color-community, 0.4); }
+    .eff{ border-color: rgba($color-efficiency, 0.4); }
+    .env{ border-color: rgba($color-environment, 0.4); }
+}
+.rtl #values_learnmore{
+    .learnmore-content.service{ left: auto; right: 10%; }
+    .learnmore-content.community{ left: auto; right: 30%; }
+    .learnmore-content.eff{ right: auto; left: 10%; }
+    .learnmore-content.env{ right: auto; left: 30%; }
 }
 
 .myrides-table{

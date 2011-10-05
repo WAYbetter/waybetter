@@ -9,7 +9,18 @@ Object.create = Object.create || function (p) {
 
 (function($) {
 	$.fn.extend({
-		disable: function() {
+        toggleVisibile: function(){
+            return this.each(function() {
+                if ($(this).is(":visible")) {
+                    $(this).hide();
+                }
+                else {
+                    $(this).show();
+                }
+            });
+        },
+
+        disable: function() {
 			return this.each(function() {
                 if ($(this).hasClass("ui-button")) {
                     $(this).button("disable");

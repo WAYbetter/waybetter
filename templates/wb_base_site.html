@@ -15,13 +15,14 @@
                     {% block header_links %}
                         <ul class="links hz">
                             <li>
-                                <span class="change_lang menu_link">
+                                <span id="lang_top" class="change-lang menu_link">
                                     {% for lang in LANGUAGES %}
                                         {% if lang.0 == LANGUAGE_CODE %}
                                             {{ lang.1 }}
                                         {% endif %}
                                     {% endfor %}
                                 </span>
+                                <span class="change-lang dropdown-trigger"></span>
                             </li>
                             <li><a class="menu_link">{% trans "Mobile" %}</a></li>
                             <li>
@@ -33,6 +34,7 @@
                                         {{ request.user.username }}
                                     {% endif %}
                                     </span>
+                                    <a class="menu_link" href="{% url auth_logout %}">({% trans "Log Out" %})</a>
                                 {% else %}
                                     <a class="menu_link" href="{% url auth_login %}">{% trans "Log-in" %}</a>
                                 {% endif %}
@@ -78,26 +80,45 @@
             </div>
 
             {% block post_content %}
+                <div id="values_learnmore">
+                    <div class="service learnmore-content">
+                        <div class="header">WAYbetter {% trans "Service" %}</div>
+                        <div class="content">{% trans "learnmore_service_content" %}</div>
+                    </div>
+                    <div class="community learnmore-content">
+                        <div class="header">WAYbetter {% trans "Community" %}</div>
+                        <div class="content">{% trans "learnmore_community_content" %}</div>
+                    </div>
+                    <div class="env learnmore-content">
+                        <div class="header">WAYbetter {% trans "Environment" %}</div>
+                        <div class="content">{% trans "learnmore_environment_content" %}</div>
+                    </div>
+                    <div class="eff learnmore-content">
+                        <div class="header">WAYbetter {% trans "Efficiency" %}</div>
+                        <div class="content">{% trans "learnmore_efficiency_content" %}</div>
+                    </div>
+                </div>
+
                 <div id="wb_values">
                     <div class="value service">
                         <span class="header">{% trans "Service" %}</span>
-                        variables as well and many useful functions.
-                        <div class="wb_link">{% trans "Learn More" %}<span class="learnmore"></span></div>
+                        {% trans "gist_service_content" %}
+                        <div class="wb_link learnmore" data-value="service">{% trans "Learn More" %}<span class="lm-img"></span></div>
                     </div>
                     <div class="value community">
                         <span class="header">{% trans "Community" %}</span>
-                        variables as well and many useful functions.
-                        <div class="wb_link">{% trans "Learn More" %}<span class="learnmore"></span></div>
+                        {% trans "gist_community_content" %}
+                        <div class="wb_link learnmore" data-value="community">{% trans "Learn More" %}<span class="lm-img"></span></div>
                     </div>
                     <div class="value env">
                         <span class="header">{% trans "Environment" %}</span>
-                        variables as well and many useful functions.
-                        <div class="wb_link">{% trans "Learn More" %}<span class="learnmore"></span></div>
+                        {% trans "gist_environment_content" %}
+                        <div class="wb_link learnmore" data-value="env">{% trans "Learn More" %}<span class="lm-img"></span></div>
                     </div>
                     <div class="value eff last">
                         <span class="header">{% trans "Efficiency" %}</span>
-                        variables as well and many useful functions.
-                        <div class="wb_link">{% trans "Learn More" %}<span class="learnmore"></span></div>
+                        {% trans "gist_efficiency_content" %}
+                        <div class="wb_link learnmore" data-value="eff">{% trans "Learn More" %}<span class="lm-img"></span></div>
                     </div>
                 </div>
             {% endblock %}
@@ -192,14 +213,14 @@
         $(document).ready(function() {
             $("html").click(function(e) {
                 var $target = $(e.target);
-                if (!$target.hasClass("change_lang"))
+                if (!$target.hasClass("change-lang"))
                     $("#lang_form").hide();
             });
             $("#wb_logo").click(function() {
                 window.location.href = "{% url wb_home %}";
             });
-            $(".change_lang").click(function() {
-                var offset = $(this).offset();
+            $(".change-lang").click(function() {
+                var offset = $("#lang_top").offset();
                 offset.top = offset.top + 20;
                 $("#lang_form").show().offset(offset);
             });
@@ -210,6 +231,13 @@
                     $("#lang_form").submit();
                 }
             });
+            $(".value .learnmore").hover(function() {
+                        var $el = $("#values_learnmore ." + $(this).data("value"));
+                        $el.toggleVisibile();
+                    }, function() {
+                        var $el = $("#values_learnmore ." + $(this).data("value"));
+                        $el.toggleVisibile();
+                    });
         });
     </script>
 {% endblock %}

@@ -51,7 +51,7 @@ urlpatterns = patterns('',
 
     (r'^resolve_structured_address/$', 'sharing.passenger_controller.resolve_structured_address'),
     (r'^registration/(?P<order_id>\d+)/$', 'sharing.passenger_controller.registration'),
-    (r'^registration/$', 'sharing.passenger_controller.registration'),
+    url(r'^registration/$', 'sharing.passenger_controller.registration', name="join"),
     (r'^login_redirect/(?P<order_id>\d+)/$', 'sharing.passenger_controller.login_redirect'),
     url(r'^send_verification_code/$', 'sharing.passenger_controller.send_sms_verification', name="send_verification_code"),
     url(r'^validate_phone/$', 'sharing.passenger_controller.validate_phone', name="validate_phone"),

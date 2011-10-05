@@ -1,6 +1,35 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
 
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        #top-container{
+            width: 410px;
+        }
+        #site-content {
+            width: 360px;
+            padding: 35px 25px;
+        }
+        #id_username, #id_password{
+            width: 272px;
+        }
+        hr{
+            margin-top: 35px;
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}
+
+{% block top_left %}
+    {% trans "Log-in To Your Account" %}
+{% endblock %}
+
+{% block top_right %}
+    <span>{% trans "New to WAYbetter?" %}</span>
+    <a href="{% url join %}" class="wb_link">{% trans "Join!" %}</a>
+{% endblock %}
+
 {% block content %}
     {% if error_message %}
         <p class="errornote">{{ error_message }}</p>
@@ -8,20 +37,25 @@
     <div id="content-main">
         <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
             <div class="form-row">
-                <label for="id_username">{% trans 'Email' %}:</label> <input type="text" name="username" id="id_username"/>
+                <label for="id_username">{% trans 'Email' %}:</label> <input type="text" name="username"
+                                                                             id="id_username"/>
             </div>
             <div class="form-row">
-                <label for="id_password">{% trans 'Password' %}:</label> <input type="password" name="password" id="id_password"/>
+                <label for="id_password">{% trans 'Password' %}:</label> <input type="password" name="password"
+                                                                                id="id_password"/>
                 <input type="hidden" name="this_is_the_login_form" value="1"/>
                 <input type="hidden" name="next" value="{{ next }}"/>
             </div>
+
+            <hr>
+
             <div class="submit-row">
                 <label>&nbsp;</label><input type="submit" class="wb_button" value="{% trans 'Log in' %}"/>
             </div>
 
             <input type="hidden" name="token" id="id_token">
         </form>
-        
+
 {#        <p>{% trans "Forgot password" %}? <a href="{% url auth_password_reset %}">{% trans "Reset it" %}</a>!</p>#}
 {##}
 {#        <p>{% trans "Not member" %}? <a href="{% url registration_register %}">{% trans "Register" %}</a>!</p>#}
