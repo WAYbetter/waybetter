@@ -1,0 +1,128 @@
+{% extends "wb_info.html" %}
+{% load i18n %}
+
+{% block content %}
+    <div class="header">מי אנחנו</div>
+    <div class="content">
+        <p class="gist">
+            החזון שלנו הוא לאפשר חופש תנועה אמיתי בערים צפופות בעולם.
+            חופש מפקקים, חופש מלוחות זמנים ותחנות, חופש מלחפש ולשלם על חניה, חופש מהוצאות גבוהות, חופש מזיהום מיותר,
+            חופש ממוסכים, חופש מלנהוג, חופש לנסות, חופש להתפנק, וחופש לשתף ולעשות שינוי.
+        </p>
+
+        <p>
+            הקמנו את חברת WAYbetter בהמשך לפרויקט גמר אקדמי במחלקה לעיצוב תעשייתי בבצלאל.
+            במהלך הלימודים למדנו שאפשר וצריך להשתמש במגוון הטכנולוגיות המקיפות אותנו כדי לשאוף לשפר את המוצרים ואת
+            השירותים שאנו צורכים בכל התחומים, וכי תחבורה ציבורית היא תחום הזועק לייעול ולשיפור.
+            כבר משלב מוקדם הבנו שהרעיון שלנו לתחבורה ציבורית דינאמית ויעילה מקסים אנשים ומעודד אותם לחשוב ולחלום וכך
+            המעגל התרחב. במהלך השנתיים שעברו מאז הצטרפו אל הצוות מגוון שותפים, עובדים, משקיעים ויועצים מתחומים מגוונים
+            וחברת WAYbetter יצאה לדרך.
+        </p>
+
+        <p>
+            לפני כשנה השקנו את PickMeApp, שהיא פלטפורמה הכוללת אתרי אינטרנט ואפליקציית אייפון להזמנת מוניות בלחיצה.
+            PickMeApp אשר זכתה לביקורות נלהבות ביותר מחוברת למגוון תחנות מוניות בפריסה רחבה ומשרתת מאות נוסעי מוניות על
+            בסיס יומיומי.
+        </p>
+
+        <p>
+            כעת אנו גאים להשיק את הדור הראשון של החזון שלנו: מוניות יעילות, קלות, וזולות וגם רווחיות יותר לנהג.
+            כרגע אנו בשלב האלפא אשר פועל בשעות העומס בין תל אביב ובין רמת החייל, ומאפשר לכם לנסוע במוניות
+            תוך חיסכון משמעותי של כסף, זמן, וזיהום.
+        </p>
+
+        <p>
+            אנחנו מזמינים אתכם להצטרף לדרכינו המשותפת, להיות חלק מהתנועה החדשה ולספר לחבר'ה.
+
+            נסיעה טובה!
+        </p>
+    </div>
+
+{% endblock %}
+
+{% block post_content %}
+    <div id="the_team">
+        <div id="zeev" class="member">
+            <div class="img"></div>
+            <div class="name">{% trans "Zeev Zohar" %}</div>
+            <div class="title">{% trans "CEO" %}</div>
+            <div class="about">
+                Zeev graduated from Bezalel - WAYbetter was his final project. Since then he spends his days and nights
+                building the company, making business relations and turning the vision into tasks. Every day, before
+                going to work you’ll find zeev swimming in the sea.
+            </div>
+        </div>
+        <div id="shay" class="member">
+            <div class="img"></div>
+            <div class="name">{% trans "Shay Shafranek" %}</div>
+            <div class="title">{% trans "CMO" %}</div>
+            <div class="about">
+                Shay is a product designer, and is in charge of the product management and marketing.
+                Shay is a freak of service design and user experience, and while not working at WAYbetter, he likes to
+                play guitar, meditate, and go to the beach.
+            </div>
+        </div>
+        <div id="guy" class="member">
+            <div class="img"></div>
+            <div class="name">{% trans "Guy Kremitzer" %}</div>
+            <div class="title">{% trans "CTO" %}</div>
+            <div class="about">
+                Guy is the CTO and founder of WAYbetter. At the moment guy is in Cuba enjoining his honeymoon and new
+                wife, and didn’t care to send us the description about himself :)
+            </div>
+        </div>
+        <div id="yonatan" class="member">
+            <div class="img"></div>
+            <div class="name">{% trans "Yonatan Aumann" %}</div>
+            <div class="title">{% trans "Algorithms" %}</div>
+            <div class="about">
+                Yonatan is professor of Computer Science at Bar Ilan university, and one of the founders of ClearForest,
+                now part of Thomson-Reuters. At WAYbetter, Yonatan is in charge of developing the mathematical
+                algorithms for optimizing the taxi rides. Outside work, Yonatan has no free-time - having three kids
+                under the age of 10.
+            </div>
+        </div>
+        <div id="amir" class="member">
+            <div class="img"></div>
+            <div class="name">{% trans "Amir Nissim" %}</div>
+            <div class="title">{% trans "Engineer" %}</div>
+            <div class="about">
+                Amir joined WAYbetter to help bringing public transportation to the information age.
+                He holds a BSc in Mathematics from the Hebrew U. and an MSc in Computer Science from the Weizmann
+                Institude. He does not own a car.
+                When not coding at WAYbetter he enjoys biking, climbing and pizza.
+            </div>
+        </div>
+        <div id="orly" class="member">
+            <div class="img"></div>
+            <div class="name">{% trans "Orly Lipshtat" %}</div>
+            <div class="title">{% trans "Engineer" %}</div>
+            <div class="about">
+                Orly develops the algorithmic core of WAYbetter. She holds an MSc. in Computer Science from Bar-Ilan
+                university. Orly joined WAYbetter after spending a few years in NY, managing a software development
+                group. When not working, and not taking care of her 3 children, she enjoys enriching her spiritual
+                world, learning Torah (Jewish Studies) in various settings.
+            </div>
+        </div>
+        <div class="clear"></div>
+    </div>
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script>
+        $(function() {
+            $(".member").each(function() {
+                var name = $(this).attr("id");
+                $(this).tooltip({
+                    tip: "#" + name + " .about",
+                    effect: 'fade',
+//                    relative: true,
+                    position: 'top center',
+                    offset: [-80, 80]
+                });
+            });
+
+        });
+    </script>
+{% endblock %}

@@ -10,6 +10,10 @@ def the_service(request):
     page_name = page_specific_class = "the_service"
     return custom_render_to_response("the_service.html", locals(), context_instance=RequestContext(request))
 
+def about_us(request):
+    page_name = page_specific_class = "about_us"
+    return custom_render_to_response("about_us.html", locals(), context_instance=RequestContext(request))
+
 def contact(request):
     page_name = page_specific_class = "contact"
     return custom_render_to_response("contact.html", locals(), context_instance=RequestContext(request))
@@ -21,6 +25,10 @@ def privacy(request):
 def terms(request):
     page_name = page_specific_class = "terms"
     return custom_render_to_response("terms_he.html", locals(), context_instance=RequestContext(request))
+
+def faq(request):
+    page_name = page_specific_class = "faq"
+    return custom_render_to_response("faq.html", locals(), context_instance=RequestContext(request))
 
 def my_rides(request):
     page_name = page_specific_class = "my_rides"

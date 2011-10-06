@@ -139,16 +139,16 @@
                                 <li><a>{% trans "Contact" %}</a></li>
                             </ul>
                             <ul>
-                                <li><a>{% trans "Info" %}</a></li>
+                                <li><a>{% trans "Information" %}</a></li>
                                 <li><a href="{% url the_service %}">{% trans "The Service" %}</a></li>
-                                <li><a>{% trans "FAQ" %}</a></li>
+                                <li><a href="{% url about_us %}">{% trans "About Us" %}</a></li>
+                                <li><a href="{% url faq %}">{% trans "FAQ" %}</a></li>
                                 <li><a href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
                                 <li><a href="{% url privacy %}">{% trans "Privacy Policy" %}</a></li>
                                 <li><a href="{% url contact %}">{% trans "Contact Us" %}</a></li>
                             </ul>
                             <ul>
                                 <li><a>{% trans "Community" %}</a></li>
-                                <li><a>{% trans "About Us" %}</a></li>
                                 <li><a>{% trans "Facebook" %}</a></li>
                                 <li><a>{% trans "Twitter" %}</a></li>
                                 <li><a>{% trans "Stations" %}</a></li>
@@ -170,9 +170,22 @@
 
                             </ul>
                         </div>
+                        <div id="footer_tools">
+                            <div class="change-lang clickable">
+                                <div class="footer-icon lang"></div>
+                                <div class="lang-code">
+                                    {{ LANGUAGE_CODE|capfirst }}
+                                    <span class="dropdown-trigger white"></span>
+                                </div>
+                            </div>
+                            <div class="footer-icon fb"></div>
+                            <div class="footer-icon tt"></div>
+                        </div>
                         <div class="clear"></div>
-                        <div id="copyright">WAYbetter LTD © 2011</div>
                     {% endblock %}
+                    {% block copyright %}
+                        <div id="copyright">WAYbetter LTD © 2011</div>
+                    {% endblock  %}
                 </div>
             </div>
         {% endif %}

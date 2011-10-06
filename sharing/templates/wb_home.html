@@ -231,6 +231,29 @@
     </div>
 {% endblock %}
 
+{% block copyright %}
+    <div id="partners">
+        <table>
+            <tr>
+                <td>{% trans "WAYbetter is proudly supported and powered by" %}:</td>
+                <td class="hr-td"><div class="hr"></div></td>
+            </tr>
+        </table>
+        <table id="partner_logos">
+            <tr>
+                <td class="ibm-logo"></td>
+                <td class="ny-taxi-logo"></td>
+                <td class="peregrine-logo"></td>
+                <td class="its-logo"></td>
+            </tr>
+            <tr>
+                <td class="telmap-logo"></td>
+            </tr>
+        </table>
+    </div>
+    {{ block.super }}
+{% endblock %}
+
 {% block doc_ready %}
     {{ block.super }}
     <script type="text/javascript" src="http://tile.cloudmade.com/wml/latest/web-maps-lite.js"></script>

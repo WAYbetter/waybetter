@@ -62,7 +62,9 @@ urlpatterns = patterns('',
     url(r'^privacy/$', 'sharing.content_controller.privacy', name="privacy"),
     url(r'^terms/$', 'sharing.content_controller.terms', name="terms"),
     url(r'^contact/$', 'sharing.content_controller.contact', name="contact"),
+    url(r'^faq/$', 'sharing.content_controller.faq', name="faq"),
     url(r'^the_service/$', 'sharing.content_controller.the_service', name="the_service"),
+    url(r'^about_us/$', 'sharing.content_controller.about_us', name="about_us"),
     url(r'^my_rides/$', 'sharing.content_controller.my_rides', name="my_rides"),
 
 )

@@ -72,12 +72,18 @@ ul.hz > li, #top-right ul.content_links > li {
 
 .dropdown-trigger {
   display: inline-block;
-  width: 13px;
-  height: 10px;
+  width: 8px;
+  height: 8px;
   background: url("/static/images/wb_site/dropdown.png") right 0 no-repeat; }
+
+.dropdown-trigger.white {
+  background-position: right -10px; }
 
 .rtl .dropdown-trigger {
   background-position: left 0; }
+
+.rtl .dropdown-trigger.white {
+  background-position: left -10px; }
 
 .disabled {
   color: #bcbcbc;
@@ -335,14 +341,17 @@ body.base-site {
     width: 800px;
     position: relative; }
     #footer-container #site-footer * {
-      color: #e4e4e4;
       font-size: 11px; }
     #footer-container #site-footer #copyright {
       position: absolute;
-      right: 0;
-      bottom: 0; }
+      right: 40%;
+      bottom: 0;
+      color: #3d3d3d; }
     #footer-container #site-footer #sitemap {
-      float: left; }
+      float: left;
+      margin-bottom: 25px; }
+      #footer-container #site-footer #sitemap * {
+        color: #e4e4e4; }
       #footer-container #site-footer #sitemap ul {
         margin-right: 50px;
         list-style: none;
@@ -357,12 +366,32 @@ body.base-site {
         text-decoration: none; }
       #footer-container #site-footer #sitemap a[href]:hover {
         text-decoration: underline; }
-    #footer-container #site-footer .tools {
-      float: right; }
+    #footer-container #site-footer #footer_tools {
+      float: right;
+      position: relative;
+      top: 10px; }
+      #footer-container #site-footer #footer_tools div {
+        display: inline-block; }
+      #footer-container #site-footer #footer_tools .lang-code {
+        position: relative;
+        bottom: 8px;
+        color: white; }
+      #footer-container #site-footer #footer_tools .footer-icon {
+        display: inline-block;
+        width: 20px;
+        height: 20px;
+        margin-left: 10px;
+        background: url("/static/images/wb_site/footer_icons.png") no-repeat; }
+      #footer-container #site-footer #footer_tools .footer-icon.lang {
+        background-position: left 0; }
+      #footer-container #site-footer #footer_tools .footer-icon.fb {
+        background-position: left -32px; }
+      #footer-container #site-footer #footer_tools .footer-icon.tt {
+        background-position: left -63px; }
 
 .rtl #footer-container #site-footer #copyright {
   right: auto;
-  left: 0; }
+  left: 40%; }
 .rtl #footer-container #site-footer #sitemap {
   float: right; }
   .rtl #footer-container #site-footer #sitemap ul {
@@ -971,6 +1000,32 @@ Home
   background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat; }
 .wb_home #datetime_input_helper .img.arrive {
   background: url(/static/images/wb_site/field_icons.png) 6px -254px no-repeat; }
+.wb_home #partners table {
+  margin: 0 auto;
+  border-spacing: 17px 17px;
+  width: 100%; }
+.wb_home #partners td {
+  color: #bcbcbc; }
+.wb_home #partners .hr-td {
+  width: 63%; }
+.wb_home #partners .hr {
+  width: 100%;
+  height: 1px;
+  border-bottom: 1px solid #bcbcbc; }
+.wb_home #partners #partner_logos td {
+  width: 174px;
+  height: 90px;
+  background: url(/static/images/wb_site/partners_logos_small.png) no-repeat; }
+.wb_home #partners #partner_logos td.ibm-logo {
+  background-position: left 0; }
+.wb_home #partners #partner_logos td.ny-taxi-logo {
+  background-position: left -99px; }
+.wb_home #partners #partner_logos td.peregrine-logo {
+  background-position: left -198px; }
+.wb_home #partners #partner_logos td.its-logo {
+  background-position: left -297px; }
+.wb_home #partners #partner_logos td.telmap-logo {
+  background-position: left -396px; }
 
 .rtl.wb_home #tryitnow {
   right: auto;
@@ -1432,6 +1487,75 @@ Info pages
     font-weight: bold; }
   .the_service #desc .footer {
     margin-top: 35px; }
+
+.about_us #site-content {
+  direction: rtl;
+  width: 500px; }
+.about_us .header {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 20px; }
+.about_us .gist {
+  font-weight: bold; }
+.about_us #the_team {
+  width: 800px;
+  margin: 0 auto 50px auto; }
+  .about_us #the_team .member {
+    float: left;
+    padding: 10px;
+    border: 1px solid #969696;
+    margin: 0 5px; }
+    .about_us #the_team .member .about {
+      display: none;
+      direction: ltr;
+      width: 300px;
+      padding: 15px;
+      border: 2px solid #bcbcbc;
+      background: white;
+      font-size: 11px;
+      -webkit-border-radius: 2px;
+      -moz-border-radius: 2px;
+      border-radius: 2px;
+      -webkit-box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.5);
+      -moz-box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.5);
+      box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.5); }
+  .about_us #the_team .name, .about_us #the_team .title {
+    text-align: center;
+    font-size: 11px; }
+  .about_us #the_team .name {
+    color: black;
+    margin: 5px auto; }
+  .about_us #the_team .title {
+    color: #555555; }
+  .about_us #the_team .img {
+    width: 100px;
+    height: 120px; }
+  .about_us #the_team #zeev .img {
+    background: url("/static/images/wb_site/the_team/zeev.png"); }
+  .about_us #the_team #shay .img {
+    background: url("/static/images/wb_site/the_team/shay.png"); }
+  .about_us #the_team #guy .img {
+    background: url("/static/images/wb_site/the_team/guy.png"); }
+  .about_us #the_team #yonatan .img {
+    background: url("/static/images/wb_site/the_team/yonatan.png"); }
+  .about_us #the_team #amir .img {
+    background: url("/static/images/wb_site/the_team/amir.png"); }
+  .about_us #the_team #orly .img {
+    background: url("/static/images/wb_site/the_team/orly.png"); }
+
+.faq #site-content {
+  direction: rtl;
+  width: 500px; }
+.faq .header, .faq .q, .faq .a {
+  margin-bottom: 20px; }
+.faq .header {
+  font-size: 18px;
+  font-weight: bold; }
+.faq .q {
+  font-size: 13px;
+  font-weight: bold; }
+.faq .a {
+  font-size: 11px; }
 
 /** Hotspot page **/
 .rtl.hotspot_page #map_container {
