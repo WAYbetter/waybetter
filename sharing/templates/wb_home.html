@@ -340,8 +340,7 @@
         }
 
         // call validator if any
-        ($helper.data("validator") || function() {
-        }).call();
+        ($helper.data("validator") || function() {}).call();
     }
 
     function openNextTooltip(here, there) {
@@ -635,6 +634,7 @@
             if (hotspot_resolved && address_resolved) {
                 openTooltipHelper("#datetime_input", "datetime");
                 hotspot_type = (hotspot_type == PICKUP) ? DROPOFF : PICKUP;
+                HotspotHelper.refreshHotspotMarker(hotspot_type);
                 var $clone = $("#pickup_input").clone(true);
                 copy_input_data("#dropoff_input", "#pickup_input");
                 copy_input_data($clone, "#dropoff_input");
@@ -690,6 +690,7 @@
                 hotspot_type = getAddressType(this);
                 $input.text($("#id_hotspot_select :selected").text());
                 $input.data("resolved_as", "hotspot");
+                HotspotHelper.refreshHotspotMarker(hotspot_type);
                 openNextTooltip($input, $other_input);
             }
             else { // helper_type == "address"

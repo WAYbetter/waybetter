@@ -81,19 +81,19 @@
 
             {% block post_content %}
                 <div id="values_learnmore">
-                    <div class="service learnmore-content">
+                    <div class="service learnmore-content wb-tooltip">
                         <div class="header">WAYbetter {% trans "Service" %}</div>
                         <div class="content">{% trans "learnmore_service_content" %}</div>
                     </div>
-                    <div class="community learnmore-content">
+                    <div class="community learnmore-content wb-tooltip">
                         <div class="header">WAYbetter {% trans "Community" %}</div>
                         <div class="content">{% trans "learnmore_community_content" %}</div>
                     </div>
-                    <div class="env learnmore-content">
+                    <div class="env learnmore-content wb-tooltip">
                         <div class="header">WAYbetter {% trans "Environment" %}</div>
                         <div class="content">{% trans "learnmore_environment_content" %}</div>
                     </div>
-                    <div class="eff learnmore-content">
+                    <div class="eff learnmore-content wb-tooltip">
                         <div class="header">WAYbetter {% trans "Efficiency" %}</div>
                         <div class="content">{% trans "learnmore_efficiency_content" %}</div>
                     </div>
@@ -103,22 +103,22 @@
                     <div class="value service">
                         <span class="header">{% trans "Service" %}</span>
                         {% trans "gist_service_content" %}
-                        <div class="wb_link learnmore" data-value="service">{% trans "Learn More" %}<span class="lm-img"></span></div>
+                        <div class="wb_link learnmore" data-value-name="service">{% trans "Learn More" %}<span class="lm-img"></span></div>
                     </div>
                     <div class="value community">
                         <span class="header">{% trans "Community" %}</span>
                         {% trans "gist_community_content" %}
-                        <div class="wb_link learnmore" data-value="community">{% trans "Learn More" %}<span class="lm-img"></span></div>
+                        <div class="wb_link learnmore" data-value-name="community">{% trans "Learn More" %}<span class="lm-img"></span></div>
                     </div>
                     <div class="value env">
                         <span class="header">{% trans "Environment" %}</span>
                         {% trans "gist_environment_content" %}
-                        <div class="wb_link learnmore" data-value="env">{% trans "Learn More" %}<span class="lm-img"></span></div>
+                        <div class="wb_link learnmore" data-value-name="env">{% trans "Learn More" %}<span class="lm-img"></span></div>
                     </div>
                     <div class="value eff last">
                         <span class="header">{% trans "Efficiency" %}</span>
                         {% trans "gist_efficiency_content" %}
-                        <div class="wb_link learnmore" data-value="eff">{% trans "Learn More" %}<span class="lm-img"></span></div>
+                        <div class="wb_link learnmore" data-value-name="eff">{% trans "Learn More" %}<span class="lm-img"></span></div>
                     </div>
                 </div>
             {% endblock %}
@@ -231,13 +231,16 @@
                     $("#lang_form").submit();
                 }
             });
-            $(".value .learnmore").hover(function() {
-                        var $el = $("#values_learnmore ." + $(this).data("value"));
-                        $el.toggleVisibile();
-                    }, function() {
-                        var $el = $("#values_learnmore ." + $(this).data("value"));
-                        $el.toggleVisibile();
-                    });
+            $(".value .learnmore").each(function(){
+                var name = $(this).data("value-name");
+                $(this).tooltip({
+                    effect: 'fade',
+//                    relative: true,
+                    position: 'top center',
+                    offset: [-80, 80],
+                    tip: "#values_learnmore ." + name
+                });
+            });
         });
     </script>
 {% endblock %}

@@ -199,6 +199,11 @@ var HotspotHelper = Object.create({
         labels: {
             choose_date: "",
             updating: ""
+        },
+        hotspot_markers: {
+            generic: "/static/images/hotspot_red_marker.png",
+            pickup: "/static/images/wb_site/map_pin_A.png",
+            dropoff: "/static/images/wb_site/map_pin_B.png"
         }
     },
     cache: {
@@ -206,12 +211,14 @@ var HotspotHelper = Object.create({
         months: []
     },
 
+    MapHelper: undefined,
     hotspot_selector: undefined,
     hotspot_datepicker: undefined,
     hotspot_timepicker: undefined,
 
     init: function(config) {
         this.config = $.extend(true, {}, this.config, config);
+        this.MapHelper = config.MapHelper || CMHelper;
     },
 
     makeHotSpotSelector: function(hotspot_selector, datepicker_selector, times_selector) {
@@ -241,7 +248,6 @@ var HotspotHelper = Object.create({
                 var date = getFullDate($(selected).data("next_datetime") || new Date());
                 that.hotspot_datepicker.datepicker("setDate", date);
                 that.refreshTimes({'day': date});
-                that.refrestHotspotMarker();
             }
         });
 
@@ -298,37 +304,26 @@ var HotspotHelper = Object.create({
         });
     },
 
-    refrestHotspotMarker: function() {
+    refreshHotspotMarker: function(marker_type) {
         var that = this;
-        if (TelmapHelper.mapready) {
-            this._refrestHotspotMarker();
+        if (this.MapHelper.mapready) {
+            this._refreshHotspotMarker(marker_type);
         }
         else{
+            // wait for it..
             $(window).one("mapready", function() {
-                that._refrestHotspotMarker();
+                that._refreshHotspotMarker(marker_type);
             });
         }
     },
 
-    _refrestHotspotMarker: function() {
+    _refreshHotspotMarker: function(marker_type) {
         var selected = this.hotspot_selector.find(":selected")[0];
         var lat = $(selected).data("lat");
         var lon = $(selected).data("lon");
-        if (lat && lon && window.telmap) {
-            var hotsport_marker_image = '/static/images/hotspot_red_marker.png';
-            var hotsport_marker_offset = {x:32, y:63};
-
-            var icon_image = new telmap.maps.MarkerImage(hotsport_marker_image, undefined, undefined, hotsport_marker_offset);
-            var point = new telmap.maps.Marker({
-                map:        TelmapHelper.map,
-                position:   new telmap.maps.LatLng(lat, lon),
-                icon:       icon_image,
-                title:      "Hotspot"
-            });
-
-            TelmapHelper.removePoint("hotspot");
-            TelmapHelper.map_markers["hotspot"] = point;
-            TelmapHelper.renderMapMarkers();
+        if (lat && lon && this.MapHelper) {
+            var img = this.config.hotspot_markers[marker_type] || this.config.hotspot_markers.generic;
+            this.MapHelper.addMarker(lat, lon, {icon_image: img});
         }
     },
 
@@ -504,19 +499,62 @@ var CMHelper = Object.create({
     config: {
         api_key: '',
         map_element: 'cm-map',
-        styleId: 45836
+        styleId: 45836,
+        icon_image: "/static/images/wb_site/map_pin_A.png",
+        icon_size_x: 61 / 2,
+        icon_size_y: 77 / 2
     },
+    map: undefined,
+    icon: undefined,
+    mapready: false,
 
     init: function(config){
+        var that = this;
         this.config = $.extend(true, {}, this.config, config);
+
         var cloudmade = new CM.Tiles.CloudMade.Web({
             key: this.config.api_key,
             styleId: this.config.styleId
 //            copyright: ""
         });
-        var map = new CM.Map(this.config.map_element, cloudmade);
-        map.setCenter(new CM.LatLng(32.09279909028302, 34.781051985221), 15);
-        // $(window).trigger("mapready");
+
+        this.map = new CM.Map(this.config.map_element, cloudmade);
+        this.map.setCenter(new CM.LatLng(32.09279909028302, 34.781051985221), 15);
+        this.map.addControl(new CM.LargeMapControl());
+        this.map.addControl(new CM.ScaleControl());
+
+        this.icon = new CM.Icon();
+        this.icon.image = this.config.icon_image;
+        this.icon.iconSize = new CM.Size(this.config.icon_size_x, this.config.icon_size_y);
+//        icon.iconAnchor = new CM.Point(16, 32);
+
+//        CM.Event.addListener(map, 'load', function() {}); - TODO_WB: why is this not working?
+        $(window).oneTime(1e3, function mapLoaded() {
+            if (that.map.isLoaded()){
+                that.mapready = true;
+                $(window).trigger("mapready");
+            }
+            else{
+                mapLoaded();
+            }
+        });
+    },
+
+    addMarker: function(lat, lon, options){
+        var options = options || {};
+        var title = options.title || "";
+        var zoom = options.zoom || 14;
+        var icon_image = options.icon_image || undefined;
+        var icon = options.icon || new CM.Icon(this.icon, icon_image);
+
+        var myMarkerLatLng = new CM.LatLng(lat, lon);
+        var myMarker = new CM.Marker(myMarkerLatLng, {
+            title: title,
+            icon: icon
+        });
+
+        this.map.setCenter(myMarkerLatLng, zoom);
+        this.map.addOverlay(myMarker);
     }
 });
 
@@ -574,6 +612,22 @@ var TelmapHelper = Object.create({
                 that.map.login(that.telmap_prefs.login);
             });
         }
+    },
+    addMarker: function(lat, lon){
+        var hotsport_marker_image = '/static/images/hotspot_red_marker.png';
+        var hotsport_marker_offset = {x:32, y:63};
+
+        var icon_image = new telmap.maps.MarkerImage(hotsport_marker_image, undefined, undefined, hotsport_marker_offset);
+        var point = new telmap.maps.Marker({
+            map:        this.map,
+            position:   new telmap.maps.LatLng(lat, lon),
+            icon:       icon_image,
+            title:      "Hotspot"
+        });
+
+        this.removePoint("hotspot");
+        this.map_markers["hotspot"] = point;
+        this.renderMapMarkers();
     },
     removePoint:                function(address_type) {
         if (this.map_markers[address_type]) {
