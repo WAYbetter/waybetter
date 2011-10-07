@@ -14,15 +14,15 @@
                     <div class="clickable" id="wb_logo"></div>
                     {% block header_links %}
                         <ul class="links hz">
-                            <li>
-                                <span id="lang_top" class="change-lang menu_link">
+                            <li class="first">
+                                <span id="lang_top" class="change-lang-top menu_link clickable">
                                     {% for lang in LANGUAGES %}
                                         {% if lang.0 == LANGUAGE_CODE %}
                                             {{ lang.1 }}
                                         {% endif %}
                                     {% endfor %}
                                 </span>
-                                <span class="change-lang dropdown-trigger"></span>
+                                <span class="change-lang-top dropdown-trigger"></span>
                             </li>
                             <li><a class="menu_link">{% trans "Mobile" %}</a></li>
                             <li>
@@ -100,25 +100,21 @@
                 </div>
 
                 <div id="wb_values">
-                    <div class="value service">
+                    <div class="value service" data-value-name="service">
                         <span class="header">{% trans "Service" %}</span>
                         {% trans "gist_service_content" %}
-                        <div class="wb_link learnmore" data-value-name="service">{% trans "Learn More" %}<span class="lm-img"></span></div>
                     </div>
-                    <div class="value community">
+                    <div class="value community" data-value-name="community">
                         <span class="header">{% trans "Community" %}</span>
                         {% trans "gist_community_content" %}
-                        <div class="wb_link learnmore" data-value-name="community">{% trans "Learn More" %}<span class="lm-img"></span></div>
                     </div>
-                    <div class="value env">
+                    <div class="value env" data-value-name="env">
                         <span class="header">{% trans "Environment" %}</span>
                         {% trans "gist_environment_content" %}
-                        <div class="wb_link learnmore" data-value-name="env">{% trans "Learn More" %}<span class="lm-img"></span></div>
                     </div>
-                    <div class="value eff last">
+                    <div class="value eff last" data-value-name="eff">
                         <span class="header">{% trans "Efficiency" %}</span>
                         {% trans "gist_efficiency_content" %}
-                        <div class="wb_link learnmore" data-value-name="eff">{% trans "Learn More" %}<span class="lm-img"></span></div>
                     </div>
                 </div>
             {% endblock %}
@@ -171,11 +167,11 @@
                             </ul>
                         </div>
                         <div id="footer_tools">
-                            <div class="change-lang clickable">
-                                <div class="footer-icon lang"></div>
-                                <div class="lang-code">
+                            <div class="clickable">
+                                <div class="footer-icon lang change-lang-footer"></div>
+                                <div class="lang-code change-lang-footer ">
                                     {{ LANGUAGE_CODE|capfirst }}
-                                    <span class="dropdown-trigger white"></span>
+                                    <span class="dropdown-trigger white change-lang-footer"></span>
                                 </div>
                             </div>
                             <div class="footer-icon fb"></div>
@@ -226,14 +222,15 @@
         $(document).ready(function() {
             $("html").click(function(e) {
                 var $target = $(e.target);
-                if (!$target.hasClass("change-lang"))
+                if (!($target.hasClass("change-lang-top") || $target.hasClass("change-lang-footer")))
                     $("#lang_form").hide();
             });
             $("#wb_logo").click(function() {
                 window.location.href = "{% url wb_home %}";
             });
-            $(".change-lang").click(function() {
-                var offset = $("#lang_top").offset();
+            $(".change-lang-top, .change-lang-footer").click(function() {
+                var $anchor = ($(this).hasClass("change-lang-top")) ? $("#lang_top") : $(".footer-icon.lang");
+                var offset = $anchor.offset();
                 offset.top = offset.top + 20;
                 $("#lang_form").show().offset(offset);
             });
@@ -244,13 +241,19 @@
                     $("#lang_form").submit();
                 }
             });
-            $(".value .learnmore").each(function(){
+            $("#wb_values .value").each(function(){
                 var name = $(this).data("value-name");
+                var position = "center right", left = 6;
+                if (name == "service" || name == "community"){
+                    position =  "center left";
+                    left = -left;
+                }
                 $(this).tooltip({
                     effect: 'fade',
 //                    relative: true,
-                    position: 'top center',
-                    offset: [-80, 80],
+                    delay: 3,
+                    position: position,
+                    offset: [-80, left],
                     tip: "#values_learnmore ." + name
                 });
             });

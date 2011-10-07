@@ -8,9 +8,15 @@
 
             <div id="banner_content" class="hidden">
                 <div id="slides">
+                    {% if LANGUAGE_CODE == "he" %}
+                        <img src="/static/images/wb_site/banner01_he.png">
+                        <img src="/static/images/wb_site/banner02_he.png">
+                        <img src="/static/images/wb_site/banner03_he.png">
+                    {% else %}
                         <img src="/static/images/wb_site/banner01.png">
                         <img src="/static/images/wb_site/banner02.png">
                         <img src="/static/images/wb_site/banner03.png">
+                    {% endif %}
                 </div>
                 <div id="tryitnow" class="clickable">{% trans "Try It Now" %}</div>
             </div>
@@ -55,14 +61,14 @@
                     <div class="price_row">
                         <span class="desc">{% trans "Ride Price" %}</span>
                         <span class="price" id="private_price">
-                                <span class="value">--</span>
+                                <span class="value">0</span>
                                 <span class="label">₪</span>
                         </span>
                     </div>
                     <div class="time_row">
                         <span class="desc">{% trans "Est. Ride Duration" %}</span>
                         <span class="time" id="private_time">
-                                <span class="value">--</span>
+                                <span class="value">0</span>
                                 <span class="label">{% trans "min" %}</span>
                         </span>
                     </div>
@@ -87,14 +93,14 @@
                     <div class="price_row">
                         <span class="desc">{% trans "Ride Price" %}</span>
                         <span class="price" id="sharing_price">
-                            <span class="value">--</span>
+                            <span class="value">0</span>
                             <span class="label">₪</span>
                         </span>
                     </div>
                     <div class="time_row">
                         <span class="desc">{% trans "Est. Ride Duration" %}</span>
                         <span class="time" id="sharing_time">
-                            <span class="value">--</span>
+                            <span class="value">0</span>
                             <span class="label">{% trans "min" %}</span>
                         </span>
                     </div>
@@ -817,7 +823,7 @@
         $("#banner_content").show();
         $('#slides').slides({
             width: 800,
-            startAtSlide: 1,
+            startAtSlide: 0,
             direction: "Up",
             preload: {
                 active: true,

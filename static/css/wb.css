@@ -74,7 +74,8 @@ ul.hz > li, #top-right ul.content_links > li {
   display: inline-block;
   width: 8px;
   height: 8px;
-  background: url("/static/images/wb_site/dropdown.png") right 0 no-repeat; }
+  background: url("/static/images/wb_site/dropdown.png") right 0 no-repeat;
+  cursor: pointer; }
 
 .dropdown-trigger.white {
   background-position: right -10px; }
@@ -185,9 +186,7 @@ ul.hz > li, #top-right ul.content_links > li {
   -webkit-box-shadow: 0px 1px 3px #404040;
   -moz-box-shadow: 0px 1px 3px #404040;
   box-shadow: 0px 1px 3px #404040;
-  -webkit-border-radius: 6px;
-  -moz-border-radius: 6px;
-  border-radius: 6px;
+  /*@include border-radius(6px);*/
   display: inline-block;
   color: white; }
 
@@ -196,7 +195,8 @@ ul.hz > li, #top-right ul.content_links > li {
 
 .order_button:disabled, .order_button.disabled {
   cursor: default;
-  opacity: 0.5; }
+  opacity: 0.5;
+  text-shadow: none; }
 
 .order_button.blue {
   background: #16acd3;
@@ -238,26 +238,29 @@ ul.hz > li, #top-right ul.content_links > li {
 /***************** BASE SITE *****************/
 /*********************************************/
 body.base-site {
-  background: #98988F; }
+  background: url("/static/images/wb_site/body_texture.png"); }
 
 #lang_form {
   width: 50px; }
 
 #header-container {
-  background-image: url(/static/images/wb_site/header_bg.png);
+  background: white;
   background-repeat: repeat-x;
   width: 100%;
-  height: 88px;
+  height: 80px;
   position: relative;
-  z-index: 1; }
+  z-index: 1;
+  -webkit-box-shadow: 0 0 6px 0 #747474;
+  -moz-box-shadow: 0 0 6px 0 #747474;
+  box-shadow: 0 0 6px 0 #747474; }
   #header-container #site-header {
     width: 800px;
     margin: 0 auto;
     position: relative; }
     #header-container #site-header #wb_logo {
       background-image: url(/static/images/wb_site/logo_header.png);
-      height: 88px;
-      width: 244px;
+      height: 80px;
+      width: 236px;
       position: absolute;
       left: 0; }
     #header-container #site-header .links {
@@ -265,13 +268,10 @@ body.base-site {
       right: 0;
       top: 21px; }
 
-.rtl #header-container #site-header #wb_logo {
-  background-image: url(/static/images/wb_site/logo_header_he.png);
-  left: auto;
-  right: 0; }
 .rtl #header-container #site-header .links {
-  right: auto;
-  left: 0; }
+  padding-right: 0; }
+.rtl #header-container #site-header li.first {
+  margin-right: 0; }
 
 #top-container {
   width: 800px;
@@ -473,20 +473,20 @@ body.base-site {
 
 #values_learnmore .learnmore-content {
   display: none;
-  width: 410px;
-  padding: 15px;
-  border: 6px solid;
+  width: 380px;
+  padding: 25px;
+  border: 2px solid;
   -webkit-border-radius: 6px;
   -moz-border-radius: 6px;
   border-radius: 6px;
-  -webkit-box-shadow: 0 0 15px 10px rgba(0, 0, 0, 0.5);
-  -moz-box-shadow: 0 0 15px 10px rgba(0, 0, 0, 0.5);
-  box-shadow: 0 0 15px 10px rgba(0, 0, 0, 0.5);
   background: white; }
   #values_learnmore .learnmore-content .header {
-    font-size: 16px; }
+    font-size: 13px;
+    font-weight: bold; }
   #values_learnmore .learnmore-content .content {
-    font-size: 13px; }
+    font-size: 11px; }
+  #values_learnmore .learnmore-content p {
+    margin-bottom: 0; }
 #values_learnmore .service {
   border-color: rgba(235, 31, 121, 0.4); }
 #values_learnmore .community {
@@ -600,6 +600,8 @@ Home
   -moz-box-shadow: none;
   box-shadow: none;
   background: none; }
+.wb_home #footer-container #site-footer #sitemap {
+  margin-bottom: 0; }
 .wb_home #booking_container {
   position: relative;
   width: 800px;
@@ -614,7 +616,8 @@ Home
   -moz-border-radius: 6px;
   border-radius: 6px;
   padding: 0;
-  height: 240px; }
+  height: 240px;
+  margin-bottom: 40px; }
 .wb_home #myrides_container {
   width: 800px;
   background: white;
@@ -675,7 +678,7 @@ Home
   .wb_home #order_form_container .ribbon {
     font-size: 18px;
     font-weight: bold;
-    padding-left: 51px;
+    padding-left: 31px;
     line-height: 39px;
     color: white;
     background: url(/static/images/wb_site/ribbon.png) 6px 0 no-repeat;
@@ -790,7 +793,7 @@ Home
     font-size: 13px; }
   .wb_home .ride_data .order_button {
     position: absolute;
-    bottom: 10px;
+    bottom: 20px;
     left: 10px; }
 .wb_home #sharing_data_container .header_img {
   background: url(/static/images/wb_site/shared_icon.png) left 0 no-repeat; }
@@ -1043,10 +1046,10 @@ Home
   border-radius: 0 5px 5px 0; }
   .rtl.wb_home #order_form_container .ribbon {
     padding-left: 0;
-    padding-right: 51px;
+    padding-right: 31px;
     background: url(/static/images/wb_site/ribbon_rtl.png) right 0 no-repeat;
     left: auto;
-    right: -32px; }
+    right: -27px; }
 .rtl.wb_home #order_form {
   margin: -6px 28px 0 0; }
   .rtl.wb_home #order_form #switch {

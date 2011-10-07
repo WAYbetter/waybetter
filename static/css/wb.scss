@@ -135,6 +135,7 @@ ul.hz{
     width: 8px;
     height: 8px;
     background: url("/static/images/wb_site/dropdown.png") right 0 no-repeat;
+    cursor: pointer;
 }
 .dropdown-trigger.white{ background-position: right -10px; }
 .rtl .dropdown-trigger{ background-position: left 0; }
@@ -255,7 +256,7 @@ ul.hz{
     text-decoration: none;
     cursor: pointer;
     @include box-shadow(0px 1px 3px #404040);
-    @include border-radius(6px);
+    /*@include border-radius(6px);*/
 
     display: inline-block;
     color: white;
@@ -268,6 +269,7 @@ ul.hz{
 .order_button:disabled, .order_button.disabled{
     cursor: default;
     opacity: 0.5;
+    text-shadow: none;
 }
 
 .order_button.blue {
@@ -296,7 +298,7 @@ ul.hz{
 /***************** BASE SITE *****************/
 /*********************************************/
 body.base-site{
-    background: #98988F;
+    background: url("/static/images/wb_site/body_texture.png");
 }
 
 #lang_form{
@@ -304,21 +306,21 @@ body.base-site{
 }
 
 #header-container{
-    background-image: url(/static/images/wb_site/header_bg.png);
+    background: white;
     background-repeat: repeat-x;
     width: 100%;
-    height: 88px;
+    height: 80px;
     position: relative;
     z-index: 1;
-
+    @include box-shadow(0 0 6px 0 #747474);
     #site-header{
         width: $site-width;
         margin: 0 auto;
         position: relative;
         #wb_logo{
             background-image: url(/static/images/wb_site/logo_header.png);
-            height: 88px;
-            width: 244px;
+            height: 80px;
+            width: 236px;
             position: absolute;
             left: 0;
         }
@@ -331,16 +333,13 @@ body.base-site{
 }
 .rtl #header-container{
     #site-header{
-        #wb_logo{
-            background-image: url(/static/images/wb_site/logo_header_he.png);
-            left: auto;
-            right: 0;
-        }
         .links{
-            right: auto;
-            left: 0;
+            padding-right: 0;
         }
-    }
+        li.first{
+            margin-right: 0;
+        }
+   }
 }
 
 #top-container{
@@ -549,17 +548,20 @@ body.base-site{
 #values_learnmore{
     .learnmore-content{
         display: none;
-        width: 410px;
-        padding: 15px;
-        border: 6px solid;
+        width: 380px;
+        padding: 25px;
+        border: 2px solid;
         @include border-radius(6px);
-        @include box-shadow(0 0 15px 10px rgba(0,0,0,0.5));
         background: white;
         .header{
-            font-size: $font-size-header2;
+            font-size: $font-size-medium;
+            font-weight: bold;
         }
         .content{
-            font-size: $font-size-medium;
+            font-size: $font-size-small;
+        }
+        p{
+            margin-bottom: 0;
         }
     }
     .service{ border-color: rgba($color-service, 0.4); }
@@ -687,12 +689,17 @@ Home
         background: none;
     }
 
+    #footer-container #site-footer #sitemap{
+        margin-bottom: 0;
+    }
+
     #booking_container{
         position: relative;
         @include site-container();
         @include border-radius(6px);
         padding: 0;
         height: 240px;
+        margin-bottom: 40px;
     }
 
     #myrides_container{
@@ -758,7 +765,7 @@ Home
         .ribbon{
             font-size: $font-size-header1;
             font-weight: bold;
-            padding-left: 51px;
+            padding-left: 31px;
             line-height: 39px;
             color: white;
             background: url(/static/images/wb_site/ribbon.png) 6px 0 no-repeat;
@@ -888,7 +895,7 @@ Home
 
         .order_button{
             position: absolute;
-            bottom: 10px;
+            bottom: 20px;
             left: 10px;
         }
     }
@@ -1142,10 +1149,10 @@ Home
 
         .ribbon{
             padding-left: 0;
-            padding-right: 51px;
+            padding-right: 31px;
             background: url(/static/images/wb_site/ribbon_rtl.png) right 0 no-repeat;
             left: auto;
-            right: -32px;
+            right: -27px;
         }
     }
 
