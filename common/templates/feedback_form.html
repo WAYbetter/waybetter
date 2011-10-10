@@ -2,7 +2,7 @@
 <script>
     var form_config = {
         dialog_config : {
-            title: "{% trans 'Great To Hear Your Feedback! Please Let Us Know How You Feel' %}",
+            title: "{% trans 'Please Let Us Know How You Feel' %}",
             width: 550
         },
         urls: {
@@ -26,79 +26,9 @@
         });
     });
 </script>
-<style type="text/css">
-    #positive {
-        float: right;
-        background-color: #ff9524;
-    }
-    #positive label {
-        display: inline;
-        color: #eb8313;
-        margin-right: 10px;
-    }
-    #negative {
-        float: left;
-        background-color: #00acec;
-    }
-    #negative label {
-        display: inline;
-        color: #00acec;
-        margin-right: 10px;
-    }
-    #content h1 {
-        padding: 15px;
-        color: white;
-        font-size: 26px;
-        text-shadow: 0px -1px 1px #333333;
-        filter: dropshadow(color=#333333, offx=0, offy=-1);
-    }
-    #submit_feedback {
-        margin-left: 15px;
-    }
-    .feedback {
-        padding-top: 20px;
-        background-color: #e4e4e4;
-        height: 430px;
-        -moz-border-radius-topleft: 0px;
-        -moz-border-radius-topright: 0px;
-        -moz-border-radius-bottomright: 10px;
-        -moz-border-radius-bottomleft: 10px;
-        border-top-left-radius: 0px;
-        border-top-right-radius: 0px;
-        border-bottom-right-radius: 10px;
-        border-bottom-left-radius: 10px;
-    }
-    .feedback_container {
-        width: 250px;
-        -moz-border-radius: 10px;
-        border-radius: 10px;
-        margin-bottom: 22px;
-    }
-    .feedback_container textarea {
-        margin-top: 5px;
-        width: 220px;
-        height: 47px;
-        margin-right: 15px;
-        font-size: 12px;
-    }
-    .feedback_container p {
-        margin-bottom: 5px;
-    }
-
-    .feedback_container input[type=checkbox] {
-        margin-right: 20px;
-    }
-    #submit_feedback {
-        width: 180px;
-    }
-    #sent_message {
-        font-size: 20px;
-        margin-top: 15px;
-    }
-</style>
 
 <div id="content">
-    <form>
+    <form id="feedback_form">
     <div id="positive" class="feedback_container">
         <h1>{% trans "I'm Happy :)" %}</h1>
         <div class="feedback">
@@ -113,7 +43,7 @@
         </div>
     </div>
     <div id="negative" class="feedback_container">
-        <h1>{% trans "I'm Sad :'(" %}</h1>
+        <h1>{% trans "I'm Sad :(" %}</h1>
         <div class="feedback">
             {% for field in form %}
                 {% if field.name|slice:"-3:" == "msg" and "negative" in field.name %}
@@ -125,10 +55,10 @@
             {% endfor %}
         </div>
     </div>
+    <div class="clear"></div>
     </form>
 </div>
-<div id="button_container">
-    <button id="submit_feedback" class="wb_button gold">{% trans 'SUBMIT FEEDBACK' %}</button>
-    <button id="close" class="wb_button gray">{% trans 'Close' %}</button>
+<div id="button_container" class="feedback">
+    <button id="submit_feedback" class="wb_button gold">{% trans 'Submit' %}</button>
     <div id="sent_message">{% trans "Thanks, your feedback has been sent" %}</div>
 </div>

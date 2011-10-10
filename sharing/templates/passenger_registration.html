@@ -31,7 +31,7 @@
             </div>
             <div id="code_container">
                 <label for="verification_code">
-                    {% trans "Code" %}
+                    {% trans "Enter Code" %}
                 </label>
                 <input id="verification_code" name="verification_code" type="text"/>
                 <input name="country_code" type="hidden" value="{{ country_code }}"/>
@@ -51,7 +51,7 @@
         </tr>
 
         <tr>
-            <td class="padded">
+            <td class="padded first">
                 {% trans "Use your Facebook account for fast registration:" %}
 
                 <div id="fb_connect">
@@ -116,7 +116,7 @@
         function updateValidatePhoneButtonState() {
             var $local_phone = $("#local_phone");
             $local_phone.val($local_phone.val().split(/\D+/).join(""));
-            if ($local_phone.val().length > 3) {
+            if ($local_phone.val().length > 9) {
                 $("#validate_phone").enable();
             } else {
                 $("#validate_phone").disable();

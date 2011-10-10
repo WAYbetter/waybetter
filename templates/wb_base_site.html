@@ -1,5 +1,6 @@
 {% extends "wb_base.html" %}
 {% load i18n %}
+{% load value_from_settings %}
 
 {% block bodyclass %}base-site{% endblock %}
 
@@ -24,15 +25,15 @@
                                 </span>
                                 <span class="change-lang-top dropdown-trigger"></span>
                             </li>
-                            <li><a class="menu_link">{% trans "Mobile" %}</a></li>
+                            <li><a class="menu_link" href="{% url the_service %}">{% trans "The Service" %}</a></li>
                             <li>
                                 {% if request.user.is_authenticated %}
                                     <span class="menu_link bold">{% trans "Hi" %}
-                                    {% if request.user.first_name %}
-                                        {{ request.user.first_name }}
-                                    {% else %}
-                                        {{ request.user.username }}
-                                    {% endif %}
+                                        {% if request.user.first_name %}
+                                            {{ request.user.first_name }}
+                                        {% else %}
+                                            {{ request.user.username }}
+                                        {% endif %}
                                     </span>
                                     <a class="menu_link" href="{% url auth_logout %}">({% trans "Log Out" %})</a>
                                 {% else %}
@@ -48,8 +49,8 @@
                         <ul class="wbdropdown-list">
                             <li data-code="he" class="clickable">עברית</li>
                             <li data-code="en" class="clickable">English</li>
-                            <li data-code="" class="disabled">Русский</li>
-                            <li data-code="" class="disabled">français</li>
+{#                            <li data-code="" class="disabled">Русский</li>#}
+{#                            <li data-code="" class="disabled">français</li>#}
                         </ul>
                     </form>
                 </div>
@@ -132,29 +133,29 @@
                                 <li>WAYbetter</li>
                                 <li><a href="{% url wb_home %}">{% trans "Home" %}</a></li>
                                 <li><a>{% trans "Mobile" %}</a></li>
-                                <li><a>{% trans "Contact" %}</a></li>
-                            </ul>
-                            <ul>
-                                <li><a>{% trans "Information" %}</a></li>
-                                <li><a href="{% url the_service %}">{% trans "The Service" %}</a></li>
-                                <li><a href="{% url about_us %}">{% trans "About Us" %}</a></li>
-                                <li><a href="{% url faq %}">{% trans "FAQ" %}</a></li>
                                 <li><a href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
                                 <li><a href="{% url privacy %}">{% trans "Privacy Policy" %}</a></li>
+                            </ul>
+                            <ul>
+                                <li><a>{% trans "About" %}</a></li>
+                                <li><a href="{% url about_us %}">{% trans "About Us" %}</a></li>
+                                <li><a href="{% url the_service %}">{% trans "The Service" %}</a></li>
+                                <li><a href="{% url faq %}">{% trans "FAQ" %}</a></li>
+                                <li><a>{% trans "Press" %}</a></li>
                                 <li><a href="{% url contact %}">{% trans "Contact Us" %}</a></li>
                             </ul>
                             <ul>
                                 <li><a>{% trans "Community" %}</a></li>
-                                <li><a>{% trans "Facebook" %}</a></li>
+                                <li><a href="{% value_from_settings FACEBOOK_APP_URL%}">{% trans "Facebook" %}</a></li>
                                 <li><a>{% trans "Twitter" %}</a></li>
                                 <li><a>{% trans "Stations" %}</a></li>
                             </ul>
 
                             <ul>
                                 {% if request.user.is_authenticated %}
-                                    <li><a>{% trans "Account" %}</a></li>
-                                    <li><a href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
-                                    <li><a>{% trans "My Profile" %}</a></li>
+                                    <li><a>{% trans "My Account" %}</a></li>
+                                    <li><a href="{% url my_rides %}">{% trans "Rides" %}</a></li>
+                                    <li><a>{% trans "Profile" %}</a></li>
                                     <li><a href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
                                 {% else %}
                                     <li><a>{% trans "Account" %}</a></li>
@@ -167,22 +168,25 @@
                             </ul>
                         </div>
                         <div id="footer_tools">
-                            <div class="clickable">
+                            <div class="clickable ltr">
                                 <div class="footer-icon lang change-lang-footer"></div>
                                 <div class="lang-code change-lang-footer ">
                                     {{ LANGUAGE_CODE|capfirst }}
                                     <span class="dropdown-trigger white change-lang-footer"></span>
                                 </div>
                             </div>
-                            <div class="footer-icon fb"></div>
+                            <div class="footer-icon fb clickable"></div>
                             <div class="footer-icon tt"></div>
                         </div>
                         <div class="clear"></div>
                     {% endblock %}
-                    {% block copyright %}
-                        <div id="copyright">WAYbetter LTD © 2011</div>
-                    {% endblock  %}
+                    {% block post_footer %}{% endblock %}
                 </div>
+                {% block copyright %}
+                   <div id="copyright-container">
+                       <div id="copyright">© 2011 WAYbetter™ LTD. All rights reserved. Patent pending.</div>
+                   </div>
+                {% endblock %}
             </div>
         {% endif %}
 
@@ -241,20 +245,37 @@
                     $("#lang_form").submit();
                 }
             });
+            $(".footer-icon.fb").click(function() {
+                window.location.href = "{% value_from_settings FACEBOOK_APP_URL%}";
+            });
             $("#wb_values .value").each(function(){
                 var name = $(this).data("value-name");
-                var position = "center right", left = 6;
-                if (name == "service" || name == "community"){
-                    position =  "center left";
-                    left = -left;
-                }
+                var position, left;
+                {% if LANGUAGE_BIDI %}
+                    position = "center right";
+                    left = 6;
+                    if (name == "service" || name == "community") {
+                        position = "center left";
+                        left = -left;
+                    }
+                {% else %}
+                    position = "center left";
+                    left = -6;
+                    if (name == "service" || name == "community") {
+                        position = "center right";
+                        left = -left;
+                    }
+                {% endif %}
                 $(this).tooltip({
                     effect: 'fade',
 //                    relative: true,
                     delay: 3,
                     position: position,
                     offset: [-80, left],
-                    tip: "#values_learnmore ." + name
+                    tip: "#values_learnmore ." + name,
+                    events:{
+                        def: "mouseover, mouseleave"
+                    }
                 });
             });
         });

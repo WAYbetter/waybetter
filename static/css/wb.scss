@@ -92,6 +92,10 @@ a:hover{
     text-decoration: none;
 }
 
+.ltr{
+    direction: ltr;
+}
+
 .clear {
     clear: both;
     height: 0;
@@ -118,10 +122,13 @@ ul.hz{
     background: #FFFFFF;
     border: 1px solid #AAAAAA;
     margin: 0;
-    padding: 4px;
+    padding: 0;
     position: absolute;
     z-index: 3;
     font-size: $font-size-small;
+    li{
+        padding: 8px;
+    }
     li:hover{
         background: #DEDEDE;
     }
@@ -170,7 +177,9 @@ ul.hz{
     font-size: $font-size-small;
     text-decoration: none;
 }
-
+.menu_link:hover{
+    text-decoration: underline;
+}
 .wb-tooltip{
     z-index: 1000;
 }
@@ -230,7 +239,7 @@ ul.hz{
 
 .wb_button:hover, .wb_button.hover {
     border: #454545;
-    background: #eb1f79;
+    background: $color-service;
 }
 
 .wb_button:active, .wb_button.active {
@@ -294,9 +303,28 @@ ul.hz{
     background: linear-gradient(top, #ffa733 0%,#d47d1f 100%); /* W3C */
 }
 
-/*********************************************/
-/***************** BASE SITE *****************/
-/*********************************************/
+/*
+jQuery UI override
+****************************************************/
+.ui-widget button{
+    font-size: $font-size-medium;
+}
+.ui-dialog{
+    border: 5px solid;
+    border-color: rgba($color-service, 0.5);
+}
+.ui-dialog-titlebar{
+    font-size: $font-size-header1;
+    font-weight: bold;
+    background: none;
+    border: none;
+}
+.rtl .ui-dialog-title{
+    float: right;
+}
+/*
+Base site
+****************************************************/
 body.base-site{
     background: url("/static/images/wb_site/body_texture.png");
 }
@@ -309,7 +337,7 @@ body.base-site{
     background: white;
     background-repeat: repeat-x;
     width: 100%;
-    height: 80px;
+    height: 75px;
     position: relative;
     z-index: 1;
     @include box-shadow(0 0 6px 0 #747474);
@@ -319,8 +347,8 @@ body.base-site{
         position: relative;
         #wb_logo{
             background-image: url(/static/images/wb_site/logo_header.png);
-            height: 80px;
-            width: 236px;
+            height: 75px;
+            width: 300px;
             position: absolute;
             left: 0;
         }
@@ -344,7 +372,7 @@ body.base-site{
 
 #top-container{
     width: $site-width;
-    margin: 0 auto 10px auto;
+    margin: 0 auto 15px auto;
     position: relative;
 }
 #top-left{
@@ -381,7 +409,6 @@ body.base-site{
     background: url(/static/images/wb_site/BG_texture.png);
     min-height: 550px;
     position: relative;
-    top: -18px;
     padding-top: 70px;
     border-bottom: 1px solid #98988F;
 }
@@ -397,8 +424,25 @@ body.base-site{
 
 #footer-container{
     position: relative;
-    top: -18px;
+    height: 250px;
     border-top: 1px solid white;
+    #copyright-container{
+        position: absolute;
+        width: 100%;
+        bottom: 0;
+        padding: 20px 0;
+        background: #424242
+    }
+    #copyright{
+        width: 330px;
+        padding-left: 25px;
+        margin: 0 auto;
+        color: $color-offwhite;
+        font-size: $font-size-small;
+        text-align: center;
+        background: url("/static/images/wb_site/logo_footer.png") left bottom no-repeat;
+    }
+
     #site-footer{
         * {
             font-size: $font-size-small;
@@ -407,7 +451,6 @@ body.base-site{
         margin: 8px auto 0 auto;
         width: $site-width;
         position: relative;
-        #copyright{ position: absolute; right: 40%; bottom: 0; color: $dark-gray;}
         #sitemap{
             float: left;
             margin-bottom: 25px;
@@ -432,9 +475,9 @@ body.base-site{
 
         }
         #footer_tools{
-            float: right;
-            position: relative;
+            position: absolute;
             top: 10px;
+            right: 20px;
             div{
                 display: inline-block;
             }
@@ -458,7 +501,6 @@ body.base-site{
 }
 .rtl #footer-container{
     #site-footer{
-        #copyright{ right: auto; left: 40%; }
         #sitemap{
             float: right;
             ul{
@@ -468,6 +510,10 @@ body.base-site{
         }
         .tools{
             float: left;
+        }
+        #footer_tools{
+            right: auto;
+            left: 20px;
         }
     }
 }
@@ -574,9 +620,11 @@ body.base-site{
     display: none;
     width: 100%;
     text-align: left;
-    border-spacing: 7px 7px;
+    border-spacing: 7px 4px;
     th{
-        font-size: $font-size-medium;
+        font-size: $font-size-small;
+        font-weight: bold;
+        color: $color-gray;
     }
     th.border{
         border-bottom: 1px solid $light-gray;
@@ -641,6 +689,7 @@ body.base-site{
        display: inline-block;
        position: absolute;
        right: 20px;
+       bottom: 3px;
     }
     .tooltip_loader {
         display: none;
@@ -689,7 +738,10 @@ Home
         background: none;
     }
 
-    #footer-container #site-footer #sitemap{
+    #footer-container{
+        height: 600px;
+    }
+    #site-footer #sitemap{
         margin-bottom: 0;
     }
 
@@ -707,9 +759,10 @@ Home
         width: $site-width - 15 * 2;
         padding: 5px 15px;
         display: none;
-        margin-top: 50px;
+        margin-top: 30px;
         h1{
-            font-size: $font-size-header2;
+            font-size: $font-size-medium;
+            color: $color-gray;
         }
         hr{
             color: $light-gray;
@@ -717,26 +770,35 @@ Home
     }
 
     #map_container {
+        position: relative;
         width: 100%;
         height: 300px;
         border-bottom: 4px solid white;
     }
 
-    #cm-map { height: 100%; width: 100%; z-index: 0;}
-
-    #slides {
-    }
-    .slidesContainer{
+    #cm-map {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        width: 100%;
         z-index: 0;
-        margin: 0 auto;
     }
 
-    #banner { height: 100%; width: 100%; }
+    #banner {
+        position: absolute;
+        top: 0;
+        height: 100%;
+        width: 100%;
+    }
     #banner_content{
         width: $site-width;
         height: 100%;
         margin: 0 auto;
         position: relative;
+        .slidesContainer{
+            z-index: 0;
+            margin: 0 auto;
+        }
     }
     
     #tryitnow{
@@ -750,6 +812,18 @@ Home
     }
     #tryitnow:hover{
         text-decoration: underline;
+    }
+
+    #feedback{
+        position: absolute;
+        left: 0;
+        top: 450px;
+        width: 35px;
+        height: 93px;
+        background: url("/static/images/wb_site/feedback.png") right bottom no-repeat;
+    }
+    #feedback:hover{
+        width: 43px;
     }
 
     #order_form_container{
@@ -1132,6 +1206,9 @@ Home
 
 .rtl.wb_home{
 
+    #cm-map{
+        direction: ltr; // fixes a loading issue: map loads to the left
+    }
     #tryitnow{
         right: auto;
         left: 10px;
@@ -1236,6 +1313,7 @@ Home
 
     .tooltip {
         background: transparent url(/static/images/wb_site/tooltip_big_rtl.png);
+        width: 426px;
     }
 
     .tooltip-content {
@@ -1350,6 +1428,7 @@ Account
         .header{
             font-size: $font-size-medium;
             font-weight: bold;
+            color: $color-gray;
         }
     }
     #next_rides_container {
@@ -1423,6 +1502,7 @@ Registration
         label { font-weight: normal; width: 95px; margin-right: 30px;}
         td{ vertical-align: top; }
         td.padded{ padding: 20px 0 20px 20px;}
+        td.first{width: 310px;}
         #id_agree_to_terms{
             margin-top: 30px;
         }
@@ -1496,7 +1576,7 @@ Registration
         left: 23px;
     }
     #registration_details{
-        label { margin-right: auto; margin-left: 30px;}
+        label { margin-right: 0; margin-left: 30px;}
         td.padded{ padding: 20px 20px 20px 0;}
     }
     .vrule{
@@ -1590,11 +1670,15 @@ Info pages
     }
     #contact_details{
         position: relative;
-        margin: 40px auto 0 auto;
+        width: 100%;
+        margin: 20px auto 20px auto;
     }
     .details_row {
         vertical-align: top;
-        > td {width: 350px;}
+        > td {
+            width: 50%;
+            padding-left: 50px;
+        }
     }
     .img{
         height: 55px;
@@ -1625,6 +1709,13 @@ Info pages
         margin-left: auto;
         margin-right: 9px;
     }
+    .details_row {
+        > td {
+            padding-left: 0;
+            padding-right: 50px;
+        }
+    }
+
 }
 .privacy, .terms{
     #site-content{direction: rtl;}
@@ -1655,7 +1746,7 @@ Info pages
             color: $color-pink;
             font-weight: bold;
             font-size: $font-size-header1;
-            margin-bottom: 35px;
+            margin-bottom: 20px;
         }
         .remember{
             color: $color-orange;
@@ -1733,10 +1824,10 @@ Info pages
         direction: rtl;
         width: $site-width-thin;
     }
-    .header, .q, .a{
+    .h, .q, .a{
         margin-bottom: 20px;
     }
-    .header{
+    .h{
         font-size: $font-size-header1;
         font-weight: bold;
     }
@@ -1747,6 +1838,81 @@ Info pages
     .a{
         font-size: $font-size-small;
     }
+}
+
+/*
+Feedback dialog
+****************************************************/
+#feedback_form{
+    label{
+        display: inline;
+        font-size: $font-size-medium;
+        margin-left: 10px;
+    }
+    #positive {
+        float: left;
+        h1{
+            color: $color-efficiency;
+        }
+    }
+    #negative {
+        float: right;
+        h1{
+            color: $color-environment;
+        }
+    }
+    h1 {
+        padding: 5px;
+        font-size: $font-size-header2;
+    }
+    #submit_feedback {
+        margin-right: 15px;
+    }
+    .feedback {
+        padding: 0 20px 20px 20px;
+    }
+    .feedback_container {
+        width: 250px;
+        margin-bottom: 22px;
+    }
+    .feedback_container textarea {
+        margin-top: 5px;
+        width: 200px;
+        height: 50px;
+        margin-left: 15px;
+        font-size: $font-size-medium;
+    }
+    .feedback_container p {
+        margin-bottom: 5px;
+    }
+}
+
+.rtl #feedback_form{
+    label{
+        margin-left: auto;
+        margin-right: 10px;
+    }
+    #positive {
+        float: right;
+    }
+    #negative {
+        float: left;
+    }
+    #submit_feedback {
+        margin-right: auto;
+        margin-left: 15px;
+    }
+    .feedback_container textarea {
+        margin-left: auto;
+        margin-right: 15px;
+    }
+}
+
+#button_container.feedback{
+    float: right;
+}
+.rtl #button_container.feedback{
+    float: left;
 }
 
 /** Hotspot page **/

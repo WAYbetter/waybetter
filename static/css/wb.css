@@ -41,6 +41,9 @@ input:-moz-placeholder {
 a:hover {
   text-decoration: none; }
 
+.ltr {
+  direction: ltr; }
+
 .clear {
   clear: both;
   height: 0;
@@ -61,10 +64,12 @@ ul.hz > li, #top-right ul.content_links > li {
   background: #FFFFFF;
   border: 1px solid #AAAAAA;
   margin: 0;
-  padding: 4px;
+  padding: 0;
   position: absolute;
   z-index: 3;
   font-size: 11px; }
+  .wbdropdown-list li {
+    padding: 8px; }
   .wbdropdown-list li:hover {
     background: #DEDEDE; }
   .wbdropdown-list li.disabled:hover {
@@ -110,6 +115,9 @@ ul.hz > li, #top-right ul.content_links > li {
   color: #6c6c6a;
   font-size: 11px;
   text-decoration: none; }
+
+.menu_link:hover {
+  text-decoration: underline; }
 
 .wb-tooltip {
   z-index: 1000; }
@@ -234,9 +242,28 @@ ul.hz > li, #top-right ul.content_links > li {
   background: linear-gradient(top, #ffa733 0%, #d47d1f 100%);
   /* W3C */ }
 
-/*********************************************/
-/***************** BASE SITE *****************/
-/*********************************************/
+/*
+jQuery UI override
+****************************************************/
+.ui-widget button {
+  font-size: 13px; }
+
+.ui-dialog {
+  border: 5px solid;
+  border-color: rgba(235, 31, 121, 0.5); }
+
+.ui-dialog-titlebar {
+  font-size: 18px;
+  font-weight: bold;
+  background: none;
+  border: none; }
+
+.rtl .ui-dialog-title {
+  float: right; }
+
+/*
+Base site
+****************************************************/
 body.base-site {
   background: url("/static/images/wb_site/body_texture.png"); }
 
@@ -247,7 +274,7 @@ body.base-site {
   background: white;
   background-repeat: repeat-x;
   width: 100%;
-  height: 80px;
+  height: 75px;
   position: relative;
   z-index: 1;
   -webkit-box-shadow: 0 0 6px 0 #747474;
@@ -259,8 +286,8 @@ body.base-site {
     position: relative; }
     #header-container #site-header #wb_logo {
       background-image: url(/static/images/wb_site/logo_header.png);
-      height: 80px;
-      width: 236px;
+      height: 75px;
+      width: 300px;
       position: absolute;
       left: 0; }
     #header-container #site-header .links {
@@ -275,7 +302,7 @@ body.base-site {
 
 #top-container {
   width: 800px;
-  margin: 0 auto 10px auto;
+  margin: 0 auto 15px auto;
   position: relative; }
 
 #top-left {
@@ -313,7 +340,6 @@ body.base-site {
   background: url(/static/images/wb_site/BG_texture.png);
   min-height: 550px;
   position: relative;
-  top: -18px;
   padding-top: 70px;
   border-bottom: 1px solid #98988F; }
 
@@ -334,19 +360,28 @@ body.base-site {
 
 #footer-container {
   position: relative;
-  top: -18px;
+  height: 250px;
   border-top: 1px solid white; }
+  #footer-container #copyright-container {
+    position: absolute;
+    width: 100%;
+    bottom: 0;
+    padding: 20px 0;
+    background: #424242; }
+  #footer-container #copyright {
+    width: 330px;
+    padding-left: 25px;
+    margin: 0 auto;
+    color: #e4e4e4;
+    font-size: 11px;
+    text-align: center;
+    background: url("/static/images/wb_site/logo_footer.png") left bottom no-repeat; }
   #footer-container #site-footer {
     margin: 8px auto 0 auto;
     width: 800px;
     position: relative; }
     #footer-container #site-footer * {
       font-size: 11px; }
-    #footer-container #site-footer #copyright {
-      position: absolute;
-      right: 40%;
-      bottom: 0;
-      color: #3d3d3d; }
     #footer-container #site-footer #sitemap {
       float: left;
       margin-bottom: 25px; }
@@ -367,9 +402,9 @@ body.base-site {
       #footer-container #site-footer #sitemap a[href]:hover {
         text-decoration: underline; }
     #footer-container #site-footer #footer_tools {
-      float: right;
-      position: relative;
-      top: 10px; }
+      position: absolute;
+      top: 10px;
+      right: 20px; }
       #footer-container #site-footer #footer_tools div {
         display: inline-block; }
       #footer-container #site-footer #footer_tools .lang-code {
@@ -389,9 +424,6 @@ body.base-site {
       #footer-container #site-footer #footer_tools .footer-icon.tt {
         background-position: left -63px; }
 
-.rtl #footer-container #site-footer #copyright {
-  right: auto;
-  left: 40%; }
 .rtl #footer-container #site-footer #sitemap {
   float: right; }
   .rtl #footer-container #site-footer #sitemap ul {
@@ -399,6 +431,9 @@ body.base-site {
     margin-left: 50px; }
 .rtl #footer-container #site-footer .tools {
   float: left; }
+.rtl #footer-container #site-footer #footer_tools {
+  right: auto;
+  left: 20px; }
 
 #wb_values .service .header, #values_learnmore .service .header {
   color: #eb1f79; }
@@ -500,9 +535,11 @@ body.base-site {
   display: none;
   width: 100%;
   text-align: left;
-  border-spacing: 7px 7px; }
+  border-spacing: 7px 4px; }
   .myrides-table th {
-    font-size: 13px; }
+    font-size: 11px;
+    font-weight: bold;
+    color: #6c6c6a; }
   .myrides-table th.border {
     border-bottom: 1px solid #bcbcbc; }
   .myrides-table td.shared-img {
@@ -560,7 +597,8 @@ body.base-site {
   .myrides-tip-content #cancel_ride_link {
     display: inline-block;
     position: absolute;
-    right: 20px; }
+    right: 20px;
+    bottom: 3px; }
   .myrides-tip-content .tooltip_loader {
     display: none;
     background: url(../images/wb_site/loader16.gif) left 0 no-repeat;
@@ -600,7 +638,9 @@ Home
   -moz-box-shadow: none;
   box-shadow: none;
   background: none; }
-.wb_home #footer-container #site-footer #sitemap {
+.wb_home #footer-container {
+  height: 600px; }
+.wb_home #site-footer #sitemap {
   margin-bottom: 0; }
 .wb_home #booking_container {
   position: relative;
@@ -630,23 +670,26 @@ Home
   width: 770px;
   padding: 5px 15px;
   display: none;
-  margin-top: 50px; }
+  margin-top: 30px; }
   .wb_home #myrides_container h1 {
-    font-size: 16px; }
+    font-size: 13px;
+    color: #6c6c6a; }
   .wb_home #myrides_container hr {
     color: #bcbcbc; }
 .wb_home #map_container {
+  position: relative;
   width: 100%;
   height: 300px;
   border-bottom: 4px solid white; }
 .wb_home #cm-map {
+  position: absolute;
+  top: 0;
   height: 100%;
   width: 100%;
   z-index: 0; }
-.wb_home .slidesContainer {
-  z-index: 0;
-  margin: 0 auto; }
 .wb_home #banner {
+  position: absolute;
+  top: 0;
   height: 100%;
   width: 100%; }
 .wb_home #banner_content {
@@ -654,6 +697,9 @@ Home
   height: 100%;
   margin: 0 auto;
   position: relative; }
+  .wb_home #banner_content .slidesContainer {
+    z-index: 0;
+    margin: 0 auto; }
 .wb_home #tryitnow {
   position: absolute;
   bottom: 45px;
@@ -664,6 +710,15 @@ Home
   background: url("/static/images/wb_site/tri_it_now.png") right 6px no-repeat; }
 .wb_home #tryitnow:hover {
   text-decoration: underline; }
+.wb_home #feedback {
+  position: absolute;
+  left: 0;
+  top: 450px;
+  width: 35px;
+  height: 93px;
+  background: url("/static/images/wb_site/feedback.png") right bottom no-repeat; }
+.wb_home #feedback:hover {
+  width: 43px; }
 .wb_home #order_form_container {
   position: absolute;
   left: 0;
@@ -1030,6 +1085,8 @@ Home
 .wb_home #partners #partner_logos td.telmap-logo {
   background-position: left -396px; }
 
+.rtl.wb_home #cm-map {
+  direction: ltr; }
 .rtl.wb_home #tryitnow {
   right: auto;
   left: 10px;
@@ -1109,7 +1166,8 @@ Home
     position: relative;
     left: -5px; }
 .rtl.wb_home .tooltip {
-  background: transparent url(/static/images/wb_site/tooltip_big_rtl.png); }
+  background: transparent url(/static/images/wb_site/tooltip_big_rtl.png);
+  width: 426px; }
 .rtl.wb_home .tooltip-content {
   left: auto;
   right: 32px; }
@@ -1226,7 +1284,8 @@ Account
   padding: 15px; }
   .my_rides #next_rides_container .header, .my_rides #previous_rides_container .header {
     font-size: 13px;
-    font-weight: bold; }
+    font-weight: bold;
+    color: #6c6c6a; }
 .my_rides #next_rides_container {
   margin-bottom: 20px; }
 
@@ -1293,6 +1352,8 @@ Registration
     vertical-align: top; }
   .registration #registration_details td.padded {
     padding: 20px 0 20px 20px; }
+  .registration #registration_details td.first {
+    width: 310px; }
   .registration #registration_details #id_agree_to_terms {
     margin-top: 30px; }
 .registration .errorlist {
@@ -1353,7 +1414,7 @@ Registration
   right: auto;
   left: 23px; }
 .rtl.registration #registration_details label {
-  margin-right: auto;
+  margin-right: 0;
   margin-left: 30px; }
 .rtl.registration #registration_details td.padded {
   padding: 20px 20px 20px 0; }
@@ -1429,11 +1490,13 @@ Info pages
   font-weight: bold; }
 .contact #contact_details {
   position: relative;
-  margin: 40px auto 0 auto; }
+  width: 100%;
+  margin: 20px auto 20px auto; }
 .contact .details_row {
   vertical-align: top; }
   .contact .details_row > td {
-    width: 350px; }
+    width: 50%;
+    padding-left: 50px; }
 .contact .img {
   height: 55px;
   width: 65px; }
@@ -1451,6 +1514,9 @@ Info pages
 .rtl.contact .details {
   margin-left: auto;
   margin-right: 9px; }
+.rtl.contact .details_row > td {
+  padding-left: 0;
+  padding-right: 50px; }
 
 .privacy #site-content, .terms #site-content {
   direction: rtl; }
@@ -1481,7 +1547,7 @@ Info pages
     color: #ef2c8c;
     font-weight: bold;
     font-size: 18px;
-    margin-bottom: 35px; }
+    margin-bottom: 20px; }
   .the_service #desc .remember {
     color: #ff921e;
     font-weight: bold; }
@@ -1549,9 +1615,9 @@ Info pages
 .faq #site-content {
   direction: rtl;
   width: 500px; }
-.faq .header, .faq .q, .faq .a {
+.faq .h, .faq .q, .faq .a {
   margin-bottom: 20px; }
-.faq .header {
+.faq .h {
   font-size: 18px;
   font-weight: bold; }
 .faq .q {
@@ -1559,6 +1625,60 @@ Info pages
   font-weight: bold; }
 .faq .a {
   font-size: 11px; }
+
+/*
+Feedback dialog
+****************************************************/
+#feedback_form label {
+  display: inline;
+  font-size: 13px;
+  margin-left: 10px; }
+#feedback_form #positive {
+  float: left; }
+  #feedback_form #positive h1 {
+    color: #ff921e; }
+#feedback_form #negative {
+  float: right; }
+  #feedback_form #negative h1 {
+    color: #16acd3; }
+#feedback_form h1 {
+  padding: 5px;
+  font-size: 16px; }
+#feedback_form #submit_feedback {
+  margin-right: 15px; }
+#feedback_form .feedback {
+  padding: 0 20px 20px 20px; }
+#feedback_form .feedback_container {
+  width: 250px;
+  margin-bottom: 22px; }
+#feedback_form .feedback_container textarea {
+  margin-top: 5px;
+  width: 200px;
+  height: 50px;
+  margin-left: 15px;
+  font-size: 13px; }
+#feedback_form .feedback_container p {
+  margin-bottom: 5px; }
+
+.rtl #feedback_form label {
+  margin-left: auto;
+  margin-right: 10px; }
+.rtl #feedback_form #positive {
+  float: right; }
+.rtl #feedback_form #negative {
+  float: left; }
+.rtl #feedback_form #submit_feedback {
+  margin-right: auto;
+  margin-left: 15px; }
+.rtl #feedback_form .feedback_container textarea {
+  margin-left: auto;
+  margin-right: 15px; }
+
+#button_container.feedback {
+  float: right; }
+
+.rtl #button_container.feedback {
+  float: left; }
 
 /** Hotspot page **/
 .rtl.hotspot_page #map_container {

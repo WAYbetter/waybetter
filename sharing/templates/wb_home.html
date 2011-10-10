@@ -4,8 +4,10 @@
 
 {% block pre_content %}
     <div id="map_container">
-        <div id="banner">
 
+        <div id="cm-map"></div>
+
+        <div id="banner">
             <div id="banner_content" class="hidden">
                 <div id="slides">
                     {% if LANGUAGE_CODE == "he" %}
@@ -21,12 +23,13 @@
                 <div id="tryitnow" class="clickable">{% trans "Try It Now" %}</div>
             </div>
         </div>
-
-        <div id="cm-map"></div>
     </div>
+
+    <div id="feedback"></div>
 {% endblock %}
 
 {% block content %}
+
     <div id="booking_container">
         <div id="order_form_container">
             <div class="ribbon">{% trans "Enter Your WAY" %}</div>
@@ -237,12 +240,14 @@
     </div>
 {% endblock %}
 
-{% block copyright %}
+{% block post_footer %}
     <div id="partners">
-        <table>
+        <table class="ltr">
             <tr>
-                <td>{% trans "WAYbetter is proudly supported and powered by" %}:</td>
-                <td class="hr-td"><div class="hr"></div></td>
+                <td>WAYbetter is proudly supported and powered by:</td>
+                <td class="hr-td">
+                    <div class="hr"></div>
+                </td>
             </tr>
         </table>
         <table id="partner_logos">
@@ -257,24 +262,29 @@
             </tr>
         </table>
     </div>
+{% endblock %}
+
+{% block scripts %}
     {{ block.super }}
+    <script type="text/javascript" src="/static/js/registration.js"></script>
+    <script type="text/javascript" src="http://tile.cloudmade.com/wml/latest/web-maps-lite.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/slides.js"></script>
 {% endblock %}
 
 {% block doc_ready %}
     {{ block.super }}
-    <script type="text/javascript" src="http://tile.cloudmade.com/wml/latest/web-maps-lite.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/slides.js" ></script>
     <script type="text/javascript">
 
     {% autoescape off %}
-    var order_types = {{ order_types }};
+        var order_types = {{ order_types }};
     {% endautoescape%}
-    
+
     var PICKUP = "pickup",
             DROPOFF = "dropoff",
             hotspot_type = PICKUP,
             address_lat = undefined,
             address_lon = undefined,
+            address_name = undefined,
             select_input_resolved = false,
             hotspot_resolved = false,
             address_resolved = false,
@@ -370,21 +380,26 @@
 
         // call validator if any
         ($helper.data("validator") || function() {}).call();
+
+        // init state
+        if (helper_type == "address") {
+            $("#id_street_address").focus();
+        }
+
     }
 
     function openNextTooltip(here, there) {
-        showMap();
-        if (! select_input_resolved) {
+        if (false && ! select_input_resolved) { // don't open "select" tooltip until we decide otherwise
             openTooltipHelper(here, "select");
         }
         else {
             $(here).addClass("resolved");
-            if (! hotspot_resolved) {
-                openTooltipHelper(there, "hotspot");
+            if (! address_resolved) {
+                openTooltipHelper(there, "address");
             }
             else {
-                if (! address_resolved) {
-                    openTooltipHelper(there, "address");
+                if (! hotspot_resolved) {
+                    openTooltipHelper(there, "hotspot");
                 }
                 else {
                     if (! datetime_resolved) {
@@ -401,12 +416,7 @@
     }
 
     function showMap() {
-        if (! window.telmap) {
-            $("#banner").hide();
-            CMHelper.init({
-                api_key: "{% value_from_settings "CLOUDMADE_API_KEY" %}"
-            });
-        }
+        $("#banner").hide();
     }
 
     function getHotspotTimes() {
@@ -450,13 +460,13 @@
         });
     }
 
-    function orderingError(msg){
+    function orderingError(msg) {
         //TODO_WB: redirect to error page
         $("#save_stamp").hide();
         showError(msg);
     }
 
-    function showError(msg){
+    function showError(msg) {
         alert(msg);
     }
 
@@ -556,13 +566,19 @@
                         success: function(has_next, has_previous) {
                             if (has_next) $("#myrides_container").fadeIn("fast");
                         },
-                        error: function(){
+                        error: function() {
                             showError("{% trans "Error getting rides data" %}")
                         }
                     });
         {% endif %}
 
-        
+
+        CMHelper.init({
+            api_key: "{% value_from_settings "CLOUDMADE_API_KEY" %}",
+            center_lat: 32.115985,
+            center_lon: 34.835441
+        });
+
         HotspotHelper.init({
             labels: {
                 choose_date: "{% trans "Choose Date" %}",
@@ -586,15 +602,21 @@
 
         AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number", "#address_input_helper .tooltip_loader");
 
+        Registrator.init({
+            urls            : {
+                feedback_form_template: '{% url common.registration.feedback %}'
+            }
+        });
+
         var tooltip_conf = {
             relative: true,
             effect: 'fade',
             {% if LANGUAGE_BIDI %}
                 position: 'top left',
-                offset: [91, 530],
+                offset: [91, 650],
             {% else %}
                 position: 'top right',
-                offset: [91, -50],
+                offset: [91, -190],
             {% endif %}
             events: {
                 // "" is supposedly better for oldIE
@@ -661,12 +683,19 @@
 
         $("#switch").click(function() {
             if (hotspot_resolved && address_resolved) {
-                openTooltipHelper("#datetime_input", "datetime");
                 hotspot_type = (hotspot_type == PICKUP) ? DROPOFF : PICKUP;
                 HotspotHelper.refreshHotspotMarker(hotspot_type);
+                if (hotspot_type == PICKUP){
+                    CMHelper.addBMarker(address_lat, address_lon, {title: address_name});
+                }
+                else{
+                    CMHelper.addAMarker(address_lat, address_lon, {title: address_name});
+                }
+
                 var $clone = $("#pickup_input").clone(true);
                 copy_input_data("#dropoff_input", "#pickup_input");
                 copy_input_data($clone, "#dropoff_input");
+                openTooltipHelper("#datetime_input", "datetime");
             }
         });
 
@@ -686,6 +715,7 @@
                 $(this).text($(this).hasClass("from") ? "{% trans "From" %}" : "{% trans "To" %}");
             });
             $("#datetime_value").text("");
+            CMHelper.removeMarker("all");
             var helper_type = this.id.split("2")[1];
             openTooltipHelper(getAddressInput(this), helper_type);
         });
@@ -705,7 +735,9 @@
             e.stopPropagation();
 
             select_input_resolved = true;
+            showMap();
 
+            var address_type = getAddressType(this);
             var $input = getAddressInput(this);
             var $other_input = (getAddressType(this) == PICKUP) ? $("#" + DROPOFF + "_input") : $("#" + PICKUP + "_input");
 
@@ -716,7 +748,7 @@
             });
             if (helper_type == "hotspot") {
                 hotspot_resolved = true;
-                hotspot_type = getAddressType(this);
+                hotspot_type = address_type;
                 $input.text($("#id_hotspot_select :selected").text());
                 $input.data("resolved_as", "hotspot");
                 HotspotHelper.refreshHotspotMarker(hotspot_type);
@@ -742,8 +774,15 @@
                             address_resolved = true;
                             address_lat = result.lat;
                             address_lon = result.lon;
+                            address_name = result.name;
                             $input.text($sa_input.val() + " " + $hn_input.val() + " " + $("#id_city :selected").text());
                             $input.data("resolved_as", "address");
+                            if (address_type == PICKUP){
+                                CMHelper.addAMarker(address_lat, address_lon, {title: address_name})
+                            }
+                            else{
+                                CMHelper.addBMarker(address_lat, address_lon, {title: address_name})
+                            }
                             openNextTooltip($input, $other_input);
                         },
                         unresolved:function(errors) {
@@ -819,7 +858,7 @@
         $("#wb_values .header").each(function() {
             colors.push($(this).css("color"));
         });
-        $("#banner").css("background", colors[getRandomInt(0, colors.length-1)]);
+        $("#banner").css("background", colors[getRandomInt(0, colors.length - 1)]);
         $("#banner_content").show();
         $('#slides').slides({
             width: 800,
@@ -836,6 +875,10 @@
         });
 
         $("#slides").slides("play");
+
+        $("#feedback").click(function() {
+            Registrator.openFeedbackDialog();
+        });
     });
 
     </script>

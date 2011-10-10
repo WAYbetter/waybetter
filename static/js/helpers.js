@@ -323,7 +323,7 @@ var HotspotHelper = Object.create({
         var lon = $(selected).data("lon");
         if (lat && lon && this.MapHelper) {
             var img = this.config.hotspot_markers[marker_type] || this.config.hotspot_markers.generic;
-            this.MapHelper.addMarker(lat, lon, {icon_image: img});
+            this.MapHelper.addMarker(lat, lon, {icon_image: img, title: $(selected).text(), marker_name: "hotspot"});
         }
     },
 
@@ -500,11 +500,14 @@ var CMHelper = Object.create({
         api_key: '',
         map_element: 'cm-map',
         styleId: 45836,
+        center_lat: 32.09279909028302,
+        center_lon: 34.781051985221,
         icon_image: "/static/images/wb_site/map_pin_A.png",
-        icon_size_x: 61 / 2,
-        icon_size_y: 77 / 2
+        icon_size_x: 61,
+        icon_size_y: 154
     },
     map: undefined,
+    markers: {},
     icon: undefined,
     mapready: false,
 
@@ -519,16 +522,14 @@ var CMHelper = Object.create({
         });
 
         this.map = new CM.Map(this.config.map_element, cloudmade);
-        this.map.setCenter(new CM.LatLng(32.09279909028302, 34.781051985221), 15);
-        this.map.addControl(new CM.LargeMapControl());
-        this.map.addControl(new CM.ScaleControl());
+        this.map.setCenter(new CM.LatLng(this.config.center_lat, this.config.center_lon), 15);
 
         this.icon = new CM.Icon();
         this.icon.image = this.config.icon_image;
         this.icon.iconSize = new CM.Size(this.config.icon_size_x, this.config.icon_size_y);
-//        icon.iconAnchor = new CM.Point(16, 32);
 
-//        CM.Event.addListener(map, 'load', function() {}); - TODO_WB: why is this not working?
+        // TODO_WB: why load event is not fired?
+        //CM.Event.addListener(this.map, 'load', function() {alert("foo")});
         $(window).oneTime(1e3, function mapLoaded() {
             if (that.map.isLoaded()){
                 that.mapready = true;
@@ -538,23 +539,73 @@ var CMHelper = Object.create({
                 mapLoaded();
             }
         });
+
+        window.onresize = function() {
+            that.map.checkResize();
+        };
     },
 
     addMarker: function(lat, lon, options){
-        var options = options || {};
+        options = $.extend(true, {}, options);
         var title = options.title || "";
         var zoom = options.zoom || 14;
         var icon_image = options.icon_image || undefined;
         var icon = options.icon || new CM.Icon(this.icon, icon_image);
+        var marker_name = options.marker_name || undefined;
 
         var myMarkerLatLng = new CM.LatLng(lat, lon);
         var myMarker = new CM.Marker(myMarkerLatLng, {
             title: title,
-            icon: icon
+            icon: icon,
+            clickable: false
+        });
+        this.map.addOverlay(myMarker);
+
+        if (marker_name) {
+            var old_marker = this.markers[marker_name];
+            if (old_marker) {
+                this.map.removeOverlay(old_marker);
+            }
+            this.markers[marker_name] = myMarker;
+        }
+
+        var bounds = [];
+        $.each(this.markers, function(i, marker) {
+            bounds.push(marker.getLatLng());
         });
 
-        this.map.setCenter(myMarkerLatLng, zoom);
-        this.map.addOverlay(myMarker);
+        if (bounds.length > 1){
+            var _bounds = new CM.LatLngBounds(bounds);
+            this.map.zoomToBounds(_bounds);
+        }
+        else{
+            this.map.setCenter(myMarkerLatLng, zoom);
+        }
+    },
+
+    addAMarker: function(lat, lon, options){
+        options = $.extend(true, {}, options, {icon_image: "/static/images/wb_site/map_pin_A.png", marker_name: "A"});
+        this.addMarker(lat, lon, options);
+    },
+    addBMarker: function(lat, lon, options){
+        options = $.extend(true, {}, options, {icon_image: "/static/images/wb_site/map_pin_B.png", marker_name: "B"});
+        this.addMarker(lat, lon, options);
+    },
+    removeMarker: function(marker_name) {
+        var that = this;
+        if (marker_name == "all") {
+            $.each(this.markers, function(i, marker) {
+                that.map.removeOverlay(marker);
+            });
+            that.markers = {};
+        }
+        else {
+            var marker = this.markers[marker_name];
+            if (marker) {
+                this.map.removeOverlay(marker);
+                delete this.markers.marker_name;
+            }
+        }
     }
 });
 
