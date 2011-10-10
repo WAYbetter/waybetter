@@ -1,3 +1,4 @@
+from google.appengine.api.taskqueue import taskqueue
 from common.util import blob_to_image_tag
 from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
@@ -9,13 +10,16 @@ import station_connection_manager
 from common.models import Country
 from common.forms import MandatoryInlineFormset
 from sharing.sharing_dispatcher import dispatch_ride
-from sharing.station_controller import show_ride
+from sharing.station_controller import show_ride, send_ride_voucher
 import forms
 
 class SharedRideAdmin(admin.ModelAdmin):
     inlines = [OrderInlineAdmin,]
-    list_display = ["id", "create_date", "debug", "computation_id", "depart_time", "arrive_time", "status", "map", "station", "taxi_number", "driver_name"]
+    list_display = ["id", "create_date", "debug", "num_orders", "computation_id", "depart_time", "arrive_time", "status", "map", "station", "taxi_number", "driver_name"]
 
+    def num_orders(self, obj):
+        return obj.orders.count()
+    
     def computation_id(self, obj):
         return obj.computation.id
     
@@ -29,7 +33,7 @@ class SharedRideAdmin(admin.ModelAdmin):
         return '<a href="%s">map</a>' % reverse(show_ride, args=[obj.id])
     map.allow_tags = True
 
-    actions = ['dispatch']
+    actions = ['dispatch', 'resend_voucher']
 
     def dispatch(self, request, queryset):
         dispatched = []
@@ -47,6 +51,20 @@ class SharedRideAdmin(admin.ModelAdmin):
         if dispatched:
             messages.error(request, "%s rides dispatched %s" % (len(dispatched), [ride.id for ride in dispatched]))
     dispatch.short_description = _("Dispatch ride")
+
+    def resend_voucher(self, request, queryset):
+        sent = []
+        for ride in queryset:
+            if ride.station.vouchers_emails:
+                q = taskqueue.Queue('ride-notifications')
+                task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
+                q.add(task)
+                sent.append(ride)
+        if sent:
+            messages.info(request, "%d vouchers sent %s" % (len(sent), [ride.station.vouchers_emails for ride in sent]))
+        else:
+            messages.info(request, "Nothing sent")
+    resend_voucher.short_description = _("Resend Voucher")
 
 class RidePointAdmin(admin.ModelAdmin):
     list_display = ["id", "create_date", "stop_time", "type", "address", "ride_id"]

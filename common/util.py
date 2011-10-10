@@ -345,7 +345,9 @@ def is_in_hebrew(s):
     return h.search(s)
 
 phone_regexp = re.compile(r'^[\*|\d]\d+$')
+cellphone_regexp = re.compile(r'^\d{10}$')
 phone_validator = RegexValidator(phone_regexp, _(u"Value must consists of digits only."), 'invalid')
+cellphone_validator = RegexValidator(cellphone_regexp, _(u"Value must consists of exactly ten digits."), 'invalid')
 
 SingleRelatedObjectDescriptor = getattr(related, 'SingleRelatedObjectDescriptor')
 ManyRelatedObjectsDescriptor = getattr(related, 'ManyRelatedObjectsDescriptor')

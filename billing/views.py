@@ -31,6 +31,7 @@ def bill_passenger(request):
 @internal_task_on_queue("orders")
 @require_parameters(method="POST", required_params=("token", "amount", "card_expiration", "billing_transaction_id", "action"))
 def billing_task(request, token, amount, card_expiration, billing_transaction_id, action):
+    logging.info("billing task: transaction_id=%s" % billing_transaction_id)
     action = int(action)
     if action == BillingAction.COMMIT:
         return billing_backend.do_J5(token, amount, card_expiration, billing_transaction_id)

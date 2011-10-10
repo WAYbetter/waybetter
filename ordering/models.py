@@ -455,7 +455,7 @@ class SharedRide(BaseModel):
         current_lang = translation.get_language()
         translation.activate(ws_lang_code)
 
-        t = get_template("driver_notification_msg.template")
+        t = get_template("driver_notification_msg.html")
 
         pickups = []
         for p in self.points.filter(type=StopType.PICKUP).order_by("stop_time"):

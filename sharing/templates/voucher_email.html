@@ -5,41 +5,42 @@
     <title></title>
 </head>
 <body {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
+
+<div width="100%" style="text-align: center;">WAYbetter LTD. {% trans "Voucher Ride Order"%}</div>
+
 <table cellspacing="0" cellpadding="5" width="100%">
     <tr>
         <td>{% trans "Ride ID" %}: {{ ride.id }}</td>
-        <td>{% trans "Date and Time" %}: {{ date_and_time }}</td>
-        <td>WAYbetter</td>
+        <td>{% trans "Ride Date" %}: {{ ride_date }}</td>
+        <td>{% trans "Fax Sent" %}: {{ now_time }}</td>
     </tr>
 </table>
+
+<div width="100%">{% trans "Pickup" %}</div>
 <table border="1" cellspacing="0" cellpadding="5" width="100%">
+    {% for stop in pickups %}
     <tr>
-        <td>{% trans "From" %}: {{ from_address }}</td><td>{% trans "To" %}: {{ to_address }}</td>
-    </tr>
-</table>
-<table border="1" cellspacing="0" cellpadding="5" width="100%">
-    <tr>
-        <th>{% trans "Number of Passengers" %}</th>
-        <th>{% trans "Address" %}</th>
-        <th>{% trans "Stop Time" %}</th>
-        <th>{% trans "Phone" %}</th>
-    </tr>
-    {% for stop in stops %}
-    <tr>
-        <td>{{ stop.count }}</td>
-        <td>{{ stop.address }}</td>
+        <td>{{ stop.phones|join:"<BR/>" }}</td>
+        <td><b>{{ stop.count }} {% trans "Passengers" %}</b></td>
+        <td><b>{{ stop.address }}</b></td>
         <td>{{ stop.pickup_time }}</td>
-        <td>{{ stop.phones|join:"<BR>" }}</td>
     </tr>
     {% endfor %}
 </table>
+
+<div width="100%">{% trans "Dropoff" %}</div>
 <table border="1" cellspacing="0" cellpadding="5" width="100%">
+    {% for stop in dropoffs %}
     <tr>
-        <td>{% trans "Radio Number" %}: {{ ride.taxi.number }}</td>
-        <td>{% trans "Driver Name" %}: {{ ride.driver.name}}</td>
-        <td>{% trans "Ride Cost" %}: {{ ride.value }}</td>
+        <td>{{ stop.phones|join:"<BR/>" }}</td>
+        <td>{{ stop.count }} {% trans "Passengers" %}</td>
+        <td><b>{{ stop.address }}</b></td>
+        <td>{{ stop.pickup_time }}</td>
     </tr>
+    {% endfor %}
 </table>
+
+<div width="100%" style="text-align: center;">{% trans 'Please make sure drivers are <b>On Time</b>' %}</div>
 
 </body>
 </html>
