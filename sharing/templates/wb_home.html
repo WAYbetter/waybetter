@@ -31,6 +31,13 @@
 {% block content %}
 
     <div id="booking_container">
+        <div id="save_stamp" class="hidden">
+                <span class="container">
+                    <span class="txt">{% trans "SAVE" %}</span>
+                    <span class="value"></span>
+                </span>
+        </div>
+
         <div id="order_form_container">
             <div class="ribbon">{% trans "Enter Your WAY" %}</div>
 
@@ -84,13 +91,6 @@
             <div id="sharing_data_container" class="ride_data">
                 <span class="header_img"></span>
                 <span class="header">{% trans "WAYbetter Taxi Ride" %}</span>
-
-                <div id="save_stamp" class="hidden">
-                    <span class="container">
-                        <span class="txt">{% trans "SAVE" %}</span>
-                        <span class="value"></span><span class="label">%</span>
-                    </span>
-                </div>
 
                 <div class="ride_details">
                     <div class="price_row">
@@ -259,6 +259,8 @@
             </tr>
             <tr>
                 <td class="telmap-logo"></td>
+                <td class="google-logo"></td>
+                <td class="cloudmade-logo"></td>
             </tr>
         </table>
     </div>
@@ -447,7 +449,7 @@
                     $("#sharing_time .value").text(response.sharing_time);
                     $("#private_price .value").text(response.private_price);
                     $("#private_time .value").text(response.private_time);
-                    $("#save_stamp .value").text(Math.round(saved));
+                    $("#save_stamp .value").text(Math.round(saved) + "%");
                     $("#save_stamp").fadeIn("fast");
                     $(".order_button").enable();
                 } else {

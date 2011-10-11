@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-10 16:06+0200\n"
-"PO-Revision-Date: 2011-10-10 16:07+0200\n"
+"POT-Creation-Date: 2011-10-11 10:45+0200\n"
+"PO-Revision-Date: 2011-10-11 10:47+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -374,8 +374,13 @@ msgstr "יום שישי"
 msgid "Saturday"
 msgstr "יום שבת"
 
-#: common/util.py:348
+#: common/util.py:349
 msgid "Value must consists of digits only."
+msgstr "הערך חייב להיות מורכב מספרות בלבד."
+
+#: common/util.py:350
+#, fuzzy
+msgid "Value must consists of exactly ten digits."
 msgstr "הערך חייב להיות מורכב מספרות בלבד."
 
 #: common/templates/cant_login_form.html:6
@@ -405,7 +410,7 @@ msgstr " קוד ה-SMS שקיבלת"
 
 #: common/templates/code_form.html:20
 #: ordering/templates/mobile/passenger_home.html:194
-#: sharing/templates/wb_home.html:363
+#: sharing/templates/wb_home.html:365
 #: sharing/templates/ws_home.html:313
 #: templates/mobile/base.html:91
 msgid "Finish"
@@ -1928,8 +1933,8 @@ msgstr "תאריך"
 #: sharing/templates/hotspot_ordering_page_textinput.html:28
 #: sharing/templates/myrides_table.html:5
 #: sharing/templates/station_accounting.html:32
-#: sharing/templates/wb_home.html:41
-#: sharing/templates/wb_home.html.py:715
+#: sharing/templates/wb_home.html:48
+#: sharing/templates/wb_home.html.py:717
 msgid "From"
 msgstr "מוצא"
 
@@ -1940,8 +1945,8 @@ msgstr "מוצא"
 #: sharing/templates/hotspot_ordering_page_textinput.html:40
 #: sharing/templates/myrides_table.html:6
 #: sharing/templates/station_accounting.html:32
-#: sharing/templates/wb_home.html:46
-#: sharing/templates/wb_home.html.py:715
+#: sharing/templates/wb_home.html:53
+#: sharing/templates/wb_home.html.py:717
 msgid "To"
 msgstr "יעד"
 
@@ -2031,7 +2036,7 @@ msgid "Flat rate"
 msgstr "מחיר מחירון"
 
 #: ordering/passenger_controller.py:237
-#: sharing/templates/wb_home.html:75
+#: sharing/templates/wb_home.html:82
 #: sharing/templates/wb_home.html.py:107
 #: sharing/templates/ws_home.html:486
 msgid "min"
@@ -2120,7 +2125,7 @@ msgstr "(Peregrine Ventures)"
 
 #: ordering/templates/about.html:20
 msgid "6 Yoni Netanyahu Street"
-msgstr "יוני נתניהו 6"
+msgstr "יהונתן נתניהו 6"
 
 #: ordering/templates/about.html:23
 msgid "Or Yehuda, 60376, Israel"
@@ -2248,14 +2253,14 @@ msgid "Have a pleasant ride"
 msgstr "נסיעה נעימה!"
 
 #: ordering/templates/base_passenger.html:83
-#: sharing/templates/wb_home.html:584
+#: sharing/templates/wb_home.html:586
 msgid "Choose Date"
 msgstr "בחירת תאריך"
 
 #: ordering/templates/base_passenger.html:84
 #: sharing/templates/hotspot_ordering_page.html:121
 #: sharing/templates/station_taxidrivers.html:329
-#: sharing/templates/wb_home.html:585
+#: sharing/templates/wb_home.html:587
 #: sharing/templates/ws_home.html:215
 msgid "Updating..."
 msgstr "מעדכן..."
@@ -3200,7 +3205,7 @@ msgid "Select time"
 msgstr "בחר זמן"
 
 #: sharing/templates/my_rides.html:58
-#: sharing/templates/wb_home.html:561
+#: sharing/templates/wb_home.html:563
 msgid "Ride cancelled."
 msgstr "הנסיעה בוטלה."
 
@@ -3304,8 +3309,7 @@ msgstr "המונית בדרך!"
 #: sharing/templates/passenger_notification_msg.html:3
 #: sharing/templates/producer_ordering_page.html:53
 #: sharing/templates/station_history.html:37
-#: sharing/templates/voucher_email.html:27
-#: sharing/templates/voucher_email.html:41
+#: sharing/templates/voucher_email.html:19
 msgid "Pickup"
 msgstr "מוצא"
 
@@ -3372,7 +3376,7 @@ msgid "Privacy Statement"
 msgstr "הצהרת פרטיות"
 
 #: sharing/templates/passenger_registration.html:104
-#: sharing/templates/wb_home.html:363
+#: sharing/templates/wb_home.html:365
 #: sharing/templates/mobile/wb_home.html:329
 #: sharing/templates/mobile/wb_home.html:425
 msgid "Next"
@@ -3389,6 +3393,7 @@ msgstr "נוסע בSharing"
 
 #: sharing/templates/producer_ordering_page.html:70
 #: sharing/templates/station_history.html:45
+#: sharing/templates/voucher_email.html:31
 msgid "Dropoff"
 msgstr "יעד"
 
@@ -3621,70 +3626,70 @@ msgstr "נהגים ומוניות"
 
 #: sharing/templates/the_service.html:8
 msgid "the_service_content"
-msgstr "            <p class=\"header\">                ווי בטר מציעה אלטרנטיבה תחבורתית חדשה ומשתלמת, נסיעה שיתופית במונית ספיישל תוך חסכון של עשרות שקלים ושמירה על איכות הסביבה.            </p>            <div class=\"content\">                <p>                    באמצעות מערכת WAYbetter ניתן להזמין נסיעה הממקסמת את יעילות המונית באמצעות חיבור בין ביניכם לבין משתמשים אחרים הנוסעים לאותו הכיוון. כך אתם יכולים ליהנות משירות תחבורה ברמה הגבוהה ביותר, במחיר שווה לכל כיס.                </p>                <p>                    ואם אתם מרגישים שדווקא היום לא בא לכם לפגוש אנשים חדשים, אפשר גם להזמין נסיעת מונית רגילה, ועדיין ליהנות מהזמנת מונית אינטואיטיבית וקלה. תשלום בחשבון חודשי ומהטבות נוספות הניתנות לחברים בקהילה.                </p>            </div>            <div class=\"footer\">            </div>"
+msgstr "            <p class=\"header\">                WAYbetter מציעה אלטרנטיבה תחבורתית חדשה ומשתלמת, נסיעה שיתופית במונית ספיישל תוך חסכון של עשרות שקלים ושמירה על איכות הסביבה.            </p>            <div class=\"content\">                <p>                    באמצעות מערכת WAYbetter ניתן להזמין נסיעה המשפרת את יעילות המונית באמצעות חיבור ביניכם לבין משתמשים אחרים הנוסעים לאותו הכיוון. כך אתם יכולים ליהנות משירות תחבורה ברמה הגבוהה ביותר, במחיר שווה לכל כיס.                </p>                <p>                    ואם אתם מרגישים שדווקא היום לא בא לכם לפגוש אנשים חדשים, אפשר גם להזמין נסיעת מונית רגילה, ועדיין ליהנות מהזמנת מונית אינטואיטיבית וקלה, תשלום בחשבון חודשי ומהטבות נוספות הניתנות לחברים בקהילה.                </p>            </div>            <div class=\"footer\">            </div>"
 
 #: sharing/templates/voucher_email.html:9
 msgid "Voucher Ride Order"
 msgstr "נסיעת אשראי"
 
-#: sharing/templates/voucher_email.html:15
+#: sharing/templates/voucher_email.html:13
 msgid "Ride ID"
 msgstr "   נסיעה מספר"
 
-#: sharing/templates/voucher_email.html:16
+#: sharing/templates/voucher_email.html:14
 msgid "Ride Date"
 msgstr "תאריך נסיעה"
 
-#: sharing/templates/voucher_email.html:17
+#: sharing/templates/voucher_email.html:15
 msgid "Fax Sent"
 msgstr "פקס נשלח"
 
-#: sharing/templates/voucher_email.html:23
-msgid "Please make sure drivers are <b>On Time</b>"
-msgstr "בבקשה שים לב שהנהג מקפיד על <b>זמני איסוף</b>"
-
-#: sharing/templates/voucher_email.html:33
-#: sharing/templates/voucher_email.html:47
+#: sharing/templates/voucher_email.html:24
+#: sharing/templates/voucher_email.html:36
 msgid "Passengers"
 msgstr "נוסעים"
+
+#: sharing/templates/voucher_email.html:43
+msgid "Please make sure drivers are <b>On Time</b>"
+msgstr "בבקשה שים לב שהנהג מקפיד על <b>זמני איסוף</b>"
 
 #: sharing/templates/wb_home.html:23
 msgid "Try It Now"
 msgstr "הזמינו עכשיו"
 
-#: sharing/templates/wb_home.html:35
+#: sharing/templates/wb_home.html:36
+msgid "SAVE"
+msgstr "חסוך"
+
+#: sharing/templates/wb_home.html:42
 msgid "Enter Your WAY"
 msgstr "הנסיעה שלך"
 
-#: sharing/templates/wb_home.html:50
+#: sharing/templates/wb_home.html:57
 msgid "When"
 msgstr "מתי"
 
-#: sharing/templates/wb_home.html:61
+#: sharing/templates/wb_home.html:68
 msgid "Private Taxi Ride"
 msgstr "נסיעת מונית פרטית"
 
-#: sharing/templates/wb_home.html:65
+#: sharing/templates/wb_home.html:72
 #: sharing/templates/wb_home.html.py:97
 msgid "Ride Price"
 msgstr "מחיר נסיעה"
 
-#: sharing/templates/wb_home.html:72
+#: sharing/templates/wb_home.html:79
 #: sharing/templates/wb_home.html.py:104
 msgid "Est. Ride Duration"
 msgstr "משך נסיעה משוער"
 
-#: sharing/templates/wb_home.html:79
+#: sharing/templates/wb_home.html:86
 msgid "Book Private"
 msgstr "הזמן נסיעה פרטית"
 
-#: sharing/templates/wb_home.html:86
+#: sharing/templates/wb_home.html:93
 msgid "WAYbetter Taxi Ride"
 msgstr "נסיעת מונית WAYbetter"
-
-#: sharing/templates/wb_home.html:90
-msgid "SAVE"
-msgstr "חסוך"
 
 #: sharing/templates/wb_home.html:111
 msgid "Book WAYbetter"
@@ -3737,39 +3742,39 @@ msgstr "שעת הגעה"
 msgid "*Times may vary due to traffic and stuff..."
 msgstr "*זמנים משוערים. ייתכנו שינויים עקב עומסי תנועה..."
 
-#: sharing/templates/wb_home.html:352
+#: sharing/templates/wb_home.html:354
 #: sharing/templates/mobile/wb_home.html:410
 msgid "Define Time"
 msgstr "הגדר זמן"
 
-#: sharing/templates/wb_home.html:356
+#: sharing/templates/wb_home.html:358
 #: sharing/templates/mobile/wb_home.html:309
 msgid "Your Pickup"
 msgstr "מוצא"
 
-#: sharing/templates/wb_home.html:356
+#: sharing/templates/wb_home.html:358
 msgid "Your Dropoff"
 msgstr "יעד"
 
-#: sharing/templates/wb_home.html:454
+#: sharing/templates/wb_home.html:456
 msgid "Currently, there is no service to this address."
 msgstr "השירות אינו זמין באזור זה כרגע."
 
-#: sharing/templates/wb_home.html:458
-#: sharing/templates/wb_home.html.py:509
+#: sharing/templates/wb_home.html:460
+#: sharing/templates/wb_home.html.py:511
 msgid "We have encountered an error. Please try again."
 msgstr "אופס, התרחשה שגיאה. אנא נסו שוב."
 
-#: sharing/templates/wb_home.html:570
+#: sharing/templates/wb_home.html:572
 msgid "Error getting rides data"
 msgstr ""
 
-#: sharing/templates/wb_home.html:812
+#: sharing/templates/wb_home.html:814
 #: sharing/templates/mobile/wb_home.html:413
 msgid "Departure"
 msgstr "יציאה"
 
-#: sharing/templates/wb_home.html:816
+#: sharing/templates/wb_home.html:818
 #: sharing/templates/mobile/wb_home.html:415
 msgid "Arrival"
 msgstr "הגעה"
