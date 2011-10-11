@@ -9,6 +9,7 @@ from ordering import station_connection_manager
 from ordering.errors import UpdateStatusError
 from ordering.models import WorkStation, PENDING, ASSIGNED, SharedRide, NOT_TAKEN, ACCEPTED
 from datetime import timedelta
+from sharing.passenger_controller import send_ride_notifications
 from sharing.station_controller import send_ride_voucher
 import signals
 import logging
@@ -28,6 +29,7 @@ def dispatch_ride(ride):
             task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
             q.add(task)
 
+        send_ride_notifications(ride)
 #    task = taskqueue.Task(url=reverse(mark_ride_not_taken_task), eta=ride.depart_time, params={"ride_id": ride.id})
 #    q = taskqueue.Queue('orders')
 #    q.add(task)
@@ -59,7 +61,7 @@ def assign_ride(ride):
 
 def choose_workstation(ride):
     confining_stations = [order.confining_station for order in ride.orders.all()]
-    confining_station = confining_stations[0] if all(map(lambda s: s==confining_stations[0], confining_stations)) else None
+    confining_station = confining_stations[0] if confining_stations and all(map(lambda s: s==confining_stations[0], confining_stations)) else None
 
     log = u"Choose Workstation:\nconfining_stations=[%s]\n%s" % (",".join([unicode(s) for s in confining_stations]), get_ride_log(ride))
 

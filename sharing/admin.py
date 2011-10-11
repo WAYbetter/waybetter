@@ -41,7 +41,7 @@ class HotSpotAdmin(admin.ModelAdmin):
 class OrderInlineAdmin(admin.TabularInline):
     model = Order
     extra = 0
-    fields = ["from_raw", "to_raw", "depart_time", "arrive_time"]
+    fields = ["from_raw", "to_raw", "depart_time", "arrive_time", "status"]
 
 class RideComputationInlineAdmin(admin.TabularInline):
     model = RideComputation
