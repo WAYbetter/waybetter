@@ -424,7 +424,7 @@
     function getHotspotTimes() {
         if (hotspot_resolved && address_resolved) {
             var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF;
-            HotspotHelper.refreshTimes({hotspot_type: hotspot_type, time_type: time_type, lat: address_lat, lon: address_lon});
+            HotspotHelper.getIntervals({hotspot_type: hotspot_type, time_type: time_type, lat: address_lat, lon: address_lon});
         }
         else {
             $("#id_hotspot_time").empty().disable();

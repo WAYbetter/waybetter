@@ -89,6 +89,14 @@ class HotSpot(BaseModel):
 
 
     def get_times(self, day=None, start_time=None, end_time=None, offset=0):
+        """
+        Get active times for hotspot on day, within given time frame (if given)
+        @param day: datetime.date instance
+        @param start_time: datetime.time
+        @param end_time: datetime.time
+        @param offset: number
+        @return: list of datetimes
+        """
         d = day or date.today()
 
         times = set()
@@ -152,7 +160,7 @@ class HotSpotServiceRule(AbstractTemporalRule):
         @param start_time: a datetime.time lower bound.
         @param end_time: a datetime.time upper bound.
         @param offset: number of seconds to add/remove
-        @return: a list of times.
+        @return: a list of datetimes.
         """
         t1 = start_time or time.min
         t2 = end_time or time.max

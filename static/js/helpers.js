@@ -236,7 +236,7 @@ var HotspotHelper = Object.create({
             },
             onChangeMonthYear: that._onChangeMonthYear,
             onSelect: (that.config.update_on_dateselect) ? function(dateText, inst) {
-                that.refreshTimes({'day': dateText});
+                that.getIntervals({'day': dateText});
             } : undefined
         });
 
@@ -247,36 +247,40 @@ var HotspotHelper = Object.create({
             if ($(selected)) {
                 var date = getFullDate($(selected).data("next_datetime") || new Date());
                 that.hotspot_datepicker.datepicker("setDate", date);
-                that.refreshTimes({'day': date});
+                that.getIntervals({'day': date});
             }
         });
 
-        this.refreshData();
+        this.getHotspotData({});
     },
 
-    refreshData: function(){
+    getHotspotData: function(options){
         var that = this;
+        var _beforeSend = options.beforeSend || function() {
+            that.hotspot_selector.empty().disable().append("<option>" + that.config.labels.updating + "</option>");
+        };
+        var _success = options.success || function(response) {
+            that.hotspot_selector.empty().enable();
+            $.each(response.data, function(i, hotspot) {
+                var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, next_datetime: new Date(hotspot.next_datetime)};
+                $("<option>" + hotspot.name + "</option>").attr("value", hotspot.id).data(data).appendTo(that.hotspot_selector);
+            });
+            that.hotspot_selector.change();
+        };
+        var _error = options.error || function() {
+            flashError("Error getting hotspot data");
+        };
+
         $.ajax({
             url: that.config.urls.get_hotspot_data,
             dataType: "json",
-            beforeSend: function(){
-                that.hotspot_selector.empty().disable().append("<option>" + that.config.labels.updating + "</option>");
-            },
-            success: function(response) {
-                that.hotspot_selector.empty().enable();
-                $.each(response.data, function(i, hotspot) {
-                    var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, next_datetime: new Date(hotspot.next_datetime)};
-                    $("<option>" + hotspot.name + "</option>").attr("value", hotspot.id).data(data).appendTo(that.hotspot_selector);
-                });
-                that.hotspot_selector.change();
-            },
-            error: function() {
-                flashError("Error getting hotspot data");
-            }
+            beforeSend: _beforeSend,
+            success: _success,
+            error: _error
         });
     },
 
-    refreshTimes: function(data){
+    getIntervals: function(data){
         this.hotspot_timepicker.empty().disable().append("<option>" + this.config.labels.updating + "</option>");
         if (!this.hotspot_datepicker.val()) {
             this.hotspot_datepicker.datepicker("setDate", new Date());
@@ -717,5 +721,90 @@ var TelmapHelper = Object.create({
         } else if (bounds.valid) {
             map.panTo(bounds.getCenter());
         }
+    }
+});
+
+var MobileHelper = Object.create({
+    // CONSTANTS
+    // ---------
+    ACCURACY_THRESHOLD          : 250, // meters,
+
+    // VARIABLES
+    // ---------
+    last_position               : undefined,
+    pickup_address              : undefined,
+    dropoff_address             : undefined,
+    hotspot                     : undefined,
+
+    // METHODS
+    // -------
+    getCurrentLocation          : function() {
+        var that = this;
+        var options = {
+            timeout             : 5000, // 5 second
+            enableHighAccuracy  : true,
+            maximumAge          : 0 // always get new location
+        };
+
+        if (navigator.geolocation) {
+            var watch_id = navigator.geolocation.watchPosition(function(p) {
+                        that.locationSuccess.call(that, p, watch_id);
+                    }, function() {
+                        that.showLocationError.call(that, watch_id);
+                    }, options);
+        } else {
+            error_callback(watch_id);
+        }
+    },
+    locationSuccess             : function(position, watch_id) {
+        if (console) {
+            console.log("new position: " + position.coords.longitude + ", " + position.coords.latitude + " (" + position.coords.accuracy + ")");
+        }
+
+        var that = this;
+        that.last_position = position.coords;
+        if (position.coords.accuracy < that.ACCURACY_THRESHOLD) {
+            navigator.geolocation.clearWatch(watch_id); // we have an accurate enough location
+            that.resolveLonLat(position.coords.longitude, position.coords.latitude, that.current_flow_state);
+            if (that.map) {
+                that.map.setCenter(new telmap.maps.LatLng(position.coords.latitude, position.coords.longitude));
+            }
+        }
+    },
+    showLocationError:          function(watch_id) {
+        navigator.geolocation.clearWatch(watch_id); // remove watch
+        var that = this,
+                cancel_button = $("<button></button>").text(that.config.messages.enter_address).click(function() {
+                    $("#id_" + that.current_flow_state + "_raw").focus();
+                }),
+                try_again_button = $("<button></button>").text(that.config.messages.try_again).click(function() {
+                    that.setLocationGPS(true);
+                }),
+                buttons = $("<div class='buttons'></div>").append(cancel_button).append(try_again_button);
+
+        $(".glass_pane > #top").text(that.config.messages.sorry_msg).removeClass("loading");
+        $(".glass_pane > #bottom").text(that.config.messages.no_location_msg).append(buttons);
+    },
+    resolveLonLat:              function(lon, lat, address_type) {
+        var that = this;
+        $.ajax({
+            url:that.config.resolve_coordinate_url,
+            type:"GET",
+            data:{ lat:lat,
+                lon:lon  },
+            dataType:"json",
+            success:function(resolve_result) {
+                if (resolve_result) {
+                    var new_address = Address.fromServerResponse(resolve_result, address_type);
+                    if (new_address.street_address) {   // only update to new address if it contains a valid street
+
+                        that.updateAddressChoice(new_address);
+                    }
+                }
+            },
+            complete:function() {
+                that.hideGlassPane();
+            }
+        });
     }
 });
