@@ -204,20 +204,24 @@
             src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
     {{ block.super }}
 
-    <!-- scripts concatenated and minified via ant build script-->
-    <script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.placeheld.min.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.marquee.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.validation.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.formset.min.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.nivo.slider.pack.min.js"></script>
+    <!-- when not dev these scripts are already included in the concatenated js -->
+    {% if DEV %}
+        <!-- scripts concatenated and minified via ant build script-->
+        <script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>
+        <script type="text/javascript" src="/static/js/mylibs/jquery.placeheld.min.js"></script>
+        <script type="text/javascript" src="/static/js/mylibs/jquery.marquee.js"></script>
+        <script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
+        <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.js"></script>
+        <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.validation.js"></script>
+        <script type="text/javascript" src="/static/js/mylibs/jquery.formset.min.js"></script>
+        <script type="text/javascript" src="/static/js/mylibs/jquery.nivo.slider.pack.min.js"></script>
 
-    <script type="text/javascript" src="/static/js/mylibs/tooltip.js"></script>
+        <script type="text/javascript" src="/static/js/mylibs/tooltip.js"></script>
 
-    <script type="text/javascript" src="/static/js/helpers.js"></script>
-    <!-- end scripts-->
+        <script type="text/javascript" src="/static/js/helpers.js"></script>
+        <!-- end scripts-->
+    {% endif %}
+
 {% endblock scripts %}
 
 {% block doc_ready %}
@@ -248,24 +252,25 @@
             $(".footer-icon.fb").click(function() {
                 window.location.href = "{% value_from_settings FACEBOOK_APP_URL%}";
             });
-            $("#wb_values .value").each(function(){
+            $("#wb_values .value").each(function() {
                 var name = $(this).data("value-name");
                 var position, left;
-                {% if LANGUAGE_BIDI %}
+                if ($("html").hasClass("rtl")) {
                     position = "center right";
                     left = 6;
                     if (name == "service" || name == "community") {
                         position = "center left";
                         left = -left;
                     }
-                {% else %}
+                }
+                else {
                     position = "center left";
                     left = -6;
                     if (name == "service" || name == "community") {
                         position = "center right";
                         left = -left;
                     }
-                {% endif %}
+                }
                 $(this).tooltip({
                     effect: 'fade',
 //                    relative: true,

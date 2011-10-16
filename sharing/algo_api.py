@@ -44,7 +44,7 @@ def submit_orders_for_ride_calculation(orders, key=None, params=None):
     @param params: additional parameters
     @return: the sharing algorithm key for the computation if submit was successful, None otherwise
     """
-    callback = ride_calculation_complete_noop if settings.is_dev() else ride_calculation_complete
+    callback = ride_calculation_complete_noop if settings.DEV else ride_calculation_complete
     payload = {
         "orders": [o.serialize_for_sharing() for o in orders],
         "callback_url": reverse(callback, prefix=WEB_APP_URL),
