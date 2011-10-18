@@ -134,7 +134,23 @@
 
         $(function() {
 
-            HotspotHelper.makeHotSpotSelector("#id_hotspot_select", "#id_hotspot_datepicker", "#id_hotspot_time");
+            HotspotHelper.init({
+                selectors: {
+                    hotspotpicker: "#id_hotspot_select",
+                    datepicker: "#id_hotspot_datepicker",
+                    timepicker: "#id_hotspot_time"
+                },
+                labels: {
+                    choose_date: "{% trans "Choose Date" %}",
+                    updating: "{% trans "Updating..." %}"
+                },
+                urls: {
+                    get_hotspot_data: "{% url sharing.passenger_controller.get_hotspots_data %}",
+                    get_hotspot_dates: "{% url sharing.passenger_controller.get_hotspot_dates %}",
+                    get_hotspot_times: "{% url sharing.passenger_controller.get_hotspot_times %}"
+                }
+            });
+            HotspotHelper.makeHotSpotSelector();
             $("#id_hotspot_select").change(function() {
                 $(".price").text("");
             });
@@ -145,6 +161,14 @@
                     var address = Address.fromInput(e);
                     updatePrice(address);
                 });
+            });
+
+            $("#id_hotspot_datepicker").datepicker("option", {
+                onSelect: function(dateText, inst) {
+                    HotspotHelper.refreshHotspotSelector({
+                        refresh_intervals: true
+                    });
+                }
             });
 
             {% autoescape off %}

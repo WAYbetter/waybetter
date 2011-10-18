@@ -13,9 +13,11 @@
     <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b3/jquery.mobile-1.0b3.min.css"/>
     <link rel="stylesheet" href="/static/css/wb.mobile.css"/>
 
-    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-    <script src="/static/js/utils.js"></script>
-    <script src="/static/js/helpers.js"></script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
+
+    <script type="text/javascript" src="/static/js/utils.js"></script>
+    <script type="text/javascript" src="/static/js/helpers.js"></script>
 
     <!-- Because the mobileinit event is triggered immediately upon execution,
     you'll need to bind your event handler before jQuery Mobile is loaded -->
@@ -27,9 +29,182 @@
             $.mobile.page.prototype.options.backBtnText = "{% trans 'Back' %}";
 //            $.mobile.page.prototype.options.addBackBtn = true;
         });
+    </script>
+    {#    <script src="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.js"></script>#}
+    {#    <script src="http://code.jquery.com/mobile/1.0b3/jquery.mobile-1.0b3.min.js"></script>#}
+    <script src="http://code.jquery.com/mobile/1.0rc1/jquery.mobile-1.0rc1.min.js"></script>
 
-        $("#hotspot_page").live("pagecreate", function(event) {
-            console.log("init");
+
+    <script defer="defer">
+        var init_complete = false;
+
+        function showError(msg) {
+            alert(msg);
+        }
+
+        function getIntervals() {
+            console.log("get intervals");
+            var day = $("#ride-date").val();
+            var $time_sel = $("#ride-time");
+            HotspotHelper.getIntervals({
+                data: {
+                    hotspot_id: MobileHelper.hotspot.id,
+                    day: day,
+                    hotspot_type: MobileHelper.hotspot_type,
+                    time_type: MobileHelper.time_type,
+                    lat: MobileHelper.address.lat,
+                    lon: MobileHelper.address.lon},
+                beforeSend: function(){
+                    $time_sel.empty().append('<option>{% trans "Updating..." %}</option>');
+                    $time_sel.selectmenu().selectmenu('refresh', true);
+                },
+                success: function(response) {
+                    if (response.times) {
+                        $time_sel.empty();
+                        $.each(response.times, function(i, t) {
+                            $time_sel.append("<option>" + t + "</option>");
+                        });
+                        if (response.ride_duration) {
+                            $time_sel.data("ride_duration", response.ride_duration);
+                        }
+                        $time_sel.selectmenu().selectmenu('refresh', true);
+                        showRideDetails();
+                        if (!init_complete) {
+                            init_complete = true;
+                            console.log("init complete");
+                            $("#when").text(day + " " + response.times[0]);
+                        }
+                    }
+                }
+            });
+        }
+
+        function selectAddress(address) {
+            if (!(MobileHelper.address && MobileHelper.address.description == address.description)){
+                console.log("select address");
+                MobileHelper.address = address;
+                $("#pickup_name").text(address.description);
+                getIntervals();
+            }
+        }
+
+        function selectHotspot(hotspot) {
+            if (hotspot !== MobileHelper.hotspot){
+                console.log("select hotspot");
+                MobileHelper.hotspot = hotspot;
+                $("#dropoff_name").text(hotspot.name + ", " + hotspot.address);
+                var $date_sel = $("#ride-date").empty();
+
+                // set hotspot dates
+                $.each(hotspot.next_dates, function(i, date) {
+                    var d = getFullDate(new Date(date));
+                    var $option = $('<option value="' + d + '">' + d + '</option>');
+                    $date_sel.append($option);
+                });
+            }
+        }
+
+        function showRideDetails() {
+            console.log("ride details");
+            $.ajax({
+                url: "{% url sharing.passenger_controller.get_hotspot_price %}",
+                dataType: "json",
+                data: {
+                    'lat': MobileHelper.address.lat,
+                    'lon': MobileHelper.address.lon,
+                    'hotspot_id': MobileHelper.hotspot.id,
+                    'day': $("#ride-date").val(),
+                    'time': $("#ride-time").val()
+                },
+                success: function(response) {
+                    if (response.sharing_price && response.sharing_time && response.private_price && response.private_time) {
+                        $("#sharing_price .value").text(response.sharing_price);
+                        $("#sharing_time .value").text(response.sharing_time);
+                        $("#private_price .value").text(response.private_price);
+                        $("#private_time .value").text(response.private_time);
+                        $(".order_button").enable();
+                    } else {
+                        showError("{% trans "Currently, there is no service to this address." %}");
+                    }
+                },
+                error: function() {
+                    showError("{% trans "We have encountered an error. Please try again." %}");
+                }
+            });
+        }
+
+        function bookRide(is_private) {
+            var $form = $("#order_form");
+
+            var hidden_inputs = {
+                is_private: is_private,
+                time_type: MobileHelper.time_type,
+                ride_duration: $("#ride-time").data("ride_duration"),
+                hotspot_id: MobileHelper.hotspot.id,
+                hotspot_type: MobileHelper.hotspot_type,
+                hotspot_time: $("#ride-time").val(),
+                hotspot_date: $("#ride-date").val(),
+                id_city: $("#id_city").val(),
+                street_address: MobileHelper.address.street_address,
+                house_number: MobileHelper.address.house_number,
+                lat: MobileHelper.address.lat,
+                lon: MobileHelper.address.lon
+            };
+
+            $.each(hidden_inputs, function(k, v) {
+                $form.find("input[name='" + k + "']").remove();
+                $form.append($('<input type="hidden"/>').attr("name", k).attr("value", v));
+            });
+
+            $form.ajaxSubmit({
+                url: "{% url sharing.passenger_controller.book_ride %}",
+                type: "POST",
+                beforeSend: function() {
+                    $(".order_button").disable();
+                },
+                success: function(response) {
+                    if (response.status && response.status == "booked" && response.redirect) {
+                        window.location.href = response.redirect;
+                    }
+                    else {
+                        //TODO_WB: redirect to error page
+                        alert("{% trans "We have encountered an error. Please try again." %}");
+                        $(".order_button").enable();
+                    }
+                },
+                error: function(){
+                    $(".order_button").enable();
+                }
+            });
+        }
+
+        $(document).ready(function() {
+            $("#ride-date").change(function() {
+                getIntervals();
+            });
+
+            $("#gps").click(function() {
+                MobileHelper.getCurrentLocation();
+                $.mobile.changePage("#booking_page");
+            });
+
+            $(".order_button").disable();
+            $("#book_sharing").click(function() {
+                bookRide(false);
+            });
+            $("#book_private").click(function() {
+                bookRide(true);
+            });
+
+            MobileHelper.init({
+                urls:{
+                    resolve_coordinates: "{% url ordering.passenger_controller.resolve_coordinates %}"
+                },
+                callbacks:{
+                    onNewAddress: selectAddress
+                }
+            });
+
             HotspotHelper.init({
                 labels: {
                     choose_date: "{% trans "Choose Date" %}",
@@ -43,6 +218,7 @@
             });
 
             HotspotHelper.getHotspotData({
+                data: {numdays: 7},
                 beforeSend: function() {
                 },
                 success: function(response) {
@@ -59,36 +235,34 @@
                     $.each(hs_by_city_name, function(city_name, hotspots) {
                         $hotspot_list.append('<li data-role="list-divider">' + city_name + '</li>');
                         $.each(hotspots, function(i, hotspot) {
-                            $hotspot_list.append('<li><h1>' + hotspot.name + '</h1><p>' + hotspot.address + '</p></li>')
-                        })
+                            var $li = $('<li><h1>' + hotspot.name + '</h1><p>' + hotspot.address + '</p></li>');
+                            $li.click(function() {
+                                selectHotspot(hotspot);
+                                $.mobile.changePage("#booking_page");
+                            });
+                            $hotspot_list.append($li)
+                        });
+
+                        console.log("got hotspot data, getting location");
+                        MobileHelper.getCurrentLocation();
+
+                        // we only have one hotspot for now. choose it.
+                        selectHotspot(hotspots[0]);
                     });
-                    $hotspot_list.listview("refresh");
                 }
             });
-        });
 
-    </script>
-    {#    <script src="http://code.jquery.com/mobile/1.0a3/jquery.mobile-1.0a3.min.js"></script>#}
-    <script src="http://code.jquery.com/mobile/1.0b3/jquery.mobile-1.0b3.min.js"></script>
-
-
-    <script defer="defer">
-
-        $(document).ready(function() {
             AddressHelper.init({
                 urls:{
                     structured_resolve_url: "{% url sharing.passenger_controller.resolve_structured_address %}"
                 }
             });
 
-            $(window).bind("pagebeforechange", function(event, data) {
-                if (data.toPage == "#booking_page"){
-                    // do something
-                }
-            });
-
-            $("#book_ride").click(function() {
+            $("#select-interval-form").submit(function() {
+                $("#when").text($("#ride-date").val() + " " + $("#ride-time").val());
                 $.mobile.changePage("#booking_page");
+                showRideDetails();
+                return false;
             });
 
             $("#address-form").submit(function() {
@@ -116,19 +290,17 @@
                                 $.each(results, function (i, result) {
                                     var $li = $("<li>" + result.name + "</li>");
                                     $li.click(function() {
-                                        MobileHelper.pickup_address = result;
-                                        $("#pickup_name").text(MobileHelper.pickup_address.name);
+                                        selectAddress(result);
                                         $.mobile.changePage("#booking_page");
                                     });
                                     $addresss_list.append($li);
                                 });
-                                $.mobile.changePage("#select_address_page");
+                                $.mobile.changePage("#address_list_page");
                                 $addresss_list.listview("refresh");
 
                             } else {
-                                MobileHelper.pickup_address = results[0];
-                                $("#pickup_name").text(MobileHelper.pickup_address.name);
-                                $.mobile.changePage("#booking_page")
+                                selectAddress(results[0]);
+                                $.mobile.changePage("#booking_page");
                             }
                         },
                         unresolved:function(errors) {
@@ -150,33 +322,33 @@
     </div>
     <div data-role="content">
         <div class="ui-grid-a"> {#  2-column grid #}
-            <div id="book_ride" class="ui-block-a">
-                <button data-iconpos="top" data-icon="check">
+            <div class="ui-block-a">
+                <a href="#booking_page" data-role="button" data-iconpos="top" data-icon="check">
                     {% trans 'Order a Ride' %}
-                </button>
+                </a>
             </div>
             <div class="ui-block-b">
-                <button data-iconpos="top" data-icon="check">
+                <a href="#" data-role="button" data-iconpos="top" data-icon="check">
                     {% trans 'My Account' %}
-                </button>
+                </a>
             </div>
             <div class="ui-block-a">
-                <button data-iconpos="top" data-icon="check">
+                <a href="#" data-role="button" data-iconpos="top" data-icon="check">
                     {% trans 'Feedback' %}
-                </button>
+                </a>
             </div>
             <div class="ui-block-b">
-                <button data-iconpos="top" data-icon="check">
+                <a href="#" data-role="button" data-iconpos="top" data-icon="check">
                     {% trans 'More' %}
-                </button>
+                </a>
             </div>
         </div>
         <div class="ui-grid-b"> {# 3-column grid #}
             <div class="ui-block-a"></div>
             <div class="ui-block-b">
-                <button data-iconpos="top" data-icon="check">
+                <a href="#" data-role="button" data-iconpos="top" data-icon="check">
                     {% trans 'Invite' %}
-                </button>
+                </a>
             </div>
             <div class="ui-block-c"></div>
         </div>
@@ -185,7 +357,7 @@
 
 <div id="booking_page" data-role="page" data-fullscreen="true">
     <div data-role="header" data-theme="b">
-        <a href="#" data-icon="grid" data-rel="back" data-iconpos="notext"></a>
+        <a href="#home" data-icon="grid" data-iconpos="notext"></a>
 
         <h1>{% trans 'Your WAY' %}</h1>
         <a href="#">{% trans 'Map' %}</a>
@@ -201,34 +373,41 @@
             <li>
                 <a href="#hotspot_page">
                     <h1>{% trans "To" %}</h1>
-                    <p>Ramat Hachail</p>
-                    <p>Habarzel 1, Tel Aviv Yafo</p>
-                </a>
-            </li>
-            <li>
-                <a href="#">
-                    <h1>{% trans "When" %}</h1>
-                    <p></p>
-                </a>
-            </li>
-        </ul>
-        <ul data-role="listview" data-inset="true" data-theme="b">
-            <li>
-                <h3>{% trans "WAYbetter Taxi Ride" %}</h3>
-                <div class="ui-li-aside">
-                    <p>Ride price: 0 NIS</p>
-                    <p>Estimated time: 0 min</p>
-                </div>
 
+                    <p id="dropoff_name">HotSpot</p>
+                </a>
             </li>
             <li>
-                <h3>{% trans "Private Taxi Ride" %}</h3>
-                <div class="ui-li-aside">
-                    <p>Ride price: 0 NIS</p>
-                    <p>Estimated time: 0 min</p>
-                </div>
+                <a href="#interval_page">
+                    <h1>{% trans "When" %}</h1>
+                    <p id="when"></p>
+                </a>
             </li>
         </ul>
+        <form id="order_form">
+            {% csrf_token %}
+
+            <ul data-role="listview" data-inset="true">
+
+                <li>
+                    <h3>{% trans "WAYbetter Taxi Ride" %}</h3>
+                    <div class="ui-li-aside">
+                        <p id="sharing_price">Ride price: <span class="value">0</span>₪</p>
+                        <p id="sharing_time">Estimated time: <span class="value">0</span>min</p>
+                    </div>
+                    <button id="book_sharing" class="order_button">{% trans "Book" %}</button>
+                </li>
+
+                <li>
+                    <h3>{% trans "Private Taxi Ride" %}</h3>
+                    <div class="ui-li-aside">
+                        <p id="private_price">Ride price: <span class="value">0</span>₪</p>
+                        <p id="private_time">Estimated time: <span class="value">0</span>min</p>
+                    </div>
+                    <button id="book_private" class="order_button">{% trans "Book" %}</button>
+                </li>
+            </ul>
+        </form>
     </div>
 </div>
 
@@ -240,7 +419,7 @@
     </div>
     <div data-role="content">
         <ul id="hotspot_list" data-role="listview">
-            <li data-theme="c">
+            <li>
                 {% trans 'Hotspots are areas where WAYbetter offers cheap taxis' %}
             </li>
         </ul>
@@ -252,16 +431,17 @@
         <a href="#" data-rel="back">{% trans 'Cancel' %}</a>
 
         <h1>{% trans 'Enter Address' %}</h1>
-        <a href="#">{% trans 'GPS' %}</a>
+        <a id="gps">{% trans 'GPS' %}</a>
 
     </div>
     <div data-role="content">
         <form action="" id="address-form">
             <div data-role="fieldcontain">
-                <select name="city" id="id_city">
-                    <option value="">{% trans 'Choose City' %}</option>
-                    <option value="485" selected="selected">{% trans 'Tel Aviv' %}</option>
-                </select>
+                <select id="id_city" name="id_city">
+                        {% for city in cities %}
+                            <option value="{{ city.id }}">{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
                 <input type="text" name="street" id="id_street" placeholder="{% trans 'Street' %}"/>
                 <input type="tel" name="house_number" id="id_house_number" placeholder="{% trans 'House #' %}"/>
             </div>
@@ -270,7 +450,7 @@
     </div>
 </div>
 
-<div id="select_address_page" data-role="page" data-fullscreen="true">
+<div id="address_list_page" data-role="page" data-fullscreen="true">
     <div data-role="header" data-theme="b">
         <a href="#" data-rel="back">{% trans 'Back' %}</a>
 
@@ -281,28 +461,20 @@
     </div>
 </div>
 
-<div id="datetime_page" data-role="page" data-fullscreen="true">
+<div id="interval_page" data-role="page" data-fullscreen="true">
     <div data-role="header" data-theme="b">
-        <a href="#" data-icon="grid" data-rel="back" data-iconpos="notext"></a>
+        <a href="#booking_page" data-icon="grid" data-rel="back" data-iconpos="notext"></a>
 
-        <h1>{% trans 'Define Time' %}</h1>
-
-        <div data-role="navbar" class="nav-big-icons">
-            <ul>
-                <li><a href="#" id="nav-departure" data-icon="custom" class="ui-btn-active">{% trans 'Departure' %}</a>
-                </li>
-                <li><a href="#" id="nav-arrival" data-icon="custom">{% trans 'Arrival' %}</a>
-                </li>
-            </ul>
-        </div>
+        <h1>{% trans 'Pickup Time' %}</h1>
     </div>
+
     <div data-role="content">
-        <form action="" id="define-time-form">
-            <fieldset>
-                <select name="ride-date" id="ride-date"></select>
-                <select name="ride-time" id="ride-time"></select>
-                <button>{% trans 'Next' %}</button>
-            </fieldset>
+        <form action="" id="select-interval-form">
+            <label for="ride-date">{% trans "Choose day" %}</label>
+            <select name="ride-date" id="ride-date"></select>
+            <label for="ride-time">{% trans "Choose time" %}</label>
+            <select name="ride-time" id="ride-time"></select>
+            <button>{% trans 'Next' %}</button>
         </form>
     </div>
 </div>

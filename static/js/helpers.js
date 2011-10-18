@@ -190,7 +190,11 @@ var MyRidesHelper = Object.create({
 
 var HotspotHelper = Object.create({
     config: {
-        update_on_dateselect: true,
+        selectors: {
+            hotspotpicker: undefined,
+            datepicker: undefined,
+            timepicker: undefined
+        },
         urls: {
             get_hotspot_data: "",
             get_hotspot_dates: "",
@@ -212,99 +216,44 @@ var HotspotHelper = Object.create({
     },
 
     MapHelper: undefined,
-    hotspot_selector: undefined,
-    hotspot_datepicker: undefined,
-    hotspot_timepicker: undefined,
 
     init: function(config) {
         this.config = $.extend(true, {}, this.config, config);
         this.MapHelper = config.MapHelper || CMHelper;
     },
 
-    makeHotSpotSelector: function(hotspot_selector, datepicker_selector, times_selector) {
-        var that = this;
-        this.cache.dates = [];
-        this.cache.months = [];
-
-        this.hotspot_datepicker = $(datepicker_selector).datepicker("destroy").datepicker({
-            dateFormat: 'dd/mm/yy',
-            firstDay: 0,
-            minDate: new Date(),
-            isRTL: true,
-            beforeShowDay: function(date) {
-                return ($.inArray(date.toDateString(), that.cache.dates) !== -1) ? [true, "", ""] : [false, "", ""];
-            },
-            onChangeMonthYear: that._onChangeMonthYear,
-            onSelect: (that.config.update_on_dateselect) ? function(dateText, inst) {
-                that.getIntervals({'day': dateText});
-            } : undefined
-        });
-
-        this.hotspot_timepicker = $(times_selector).empty().disable();
-
-        this.hotspot_selector = $(hotspot_selector).empty().change(function() {
-            var selected = that.hotspot_selector.find(":selected")[0];
-            if ($(selected)) {
-                var date = getFullDate($(selected).data("next_datetime") || new Date());
-                that.hotspot_datepicker.datepicker("setDate", date);
-                that.getIntervals({'day': date});
-            }
-        });
-
-        this.getHotspotData({});
-    },
-
     getHotspotData: function(options){
         var that = this;
-        var _beforeSend = options.beforeSend || function() {
-            that.hotspot_selector.empty().disable().append("<option>" + that.config.labels.updating + "</option>");
-        };
-        var _success = options.success || function(response) {
-            that.hotspot_selector.empty().enable();
-            $.each(response.data, function(i, hotspot) {
-                var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, next_datetime: new Date(hotspot.next_datetime)};
-                $("<option>" + hotspot.name + "</option>").attr("value", hotspot.id).data(data).appendTo(that.hotspot_selector);
-            });
-            that.hotspot_selector.change();
-        };
-        var _error = options.error || function() {
-            flashError("Error getting hotspot data");
-        };
-
         $.ajax({
             url: that.config.urls.get_hotspot_data,
+            data: options.data,
             dataType: "json",
-            beforeSend: _beforeSend,
-            success: _success,
-            error: _error
+            beforeSend: options.beforeSend,
+            success: options.success,
+            error: options.error
         });
     },
 
-    getIntervals: function(data){
-        this.hotspot_timepicker.empty().disable().append("<option>" + this.config.labels.updating + "</option>");
-        if (!this.hotspot_datepicker.val()) {
-            this.hotspot_datepicker.datepicker("setDate", new Date());
-        }
+    getDates: function(options) {
+        var that = this;
+        $.ajax({
+            url: that.config.urls.get_hotspot_dates,
+            dataType: "json",
+            data: options.data,
+            success: options.success,
+            error: options.error
+        });
+    },
+
+    getIntervals: function(options){
         var that = this;
         $.ajax({
             url: that.config.urls.get_hotspot_times,
             dataType: "json",
-            data: $.extend(true, {'day': that.hotspot_datepicker.val(), 'hotspot_id': that.hotspot_selector.val()}, data),
-            success: function(response) {
-                if (response.times) {
-                    that.hotspot_timepicker.empty();
-                    $.each(response.times, function(i, t) {
-                        that.hotspot_timepicker.append("<option>" + t + "</option>");
-                    });
-                    that.hotspot_timepicker.enable().change();
-                    if (response.ride_duration){
-                        that.hotspot_timepicker.data("ride_duration", response.ride_duration);
-                    }
-                }
-            },
-            error: function() {
-                flashError("Error loading hotspot times data");
-            }
+            data: options.data,
+            beforeSend: options.beforeSend,
+            success: options.success,
+            error: options.error
         });
     },
 
@@ -322,12 +271,97 @@ var HotspotHelper = Object.create({
     },
 
     _refreshHotspotMarker: function(marker_type) {
-        var selected = this.hotspot_selector.find(":selected")[0];
-        var lat = $(selected).data("lat");
-        var lon = $(selected).data("lon");
+        var $selected = $(this.config.selectors.hotspotpicker).find(":selected").eq(0);
+        var lat = $selected.data("lat");
+        var lon = $selected.data("lon");
         if (lat && lon && this.MapHelper) {
             var img = this.config.hotspot_markers[marker_type] || this.config.hotspot_markers.generic;
-            this.MapHelper.addMarker(lat, lon, {icon_image: img, title: $(selected).text(), marker_name: "hotspot"});
+            this.MapHelper.addMarker(lat, lon, {icon_image: img, title: $selected.text(), marker_name: "hotspot"});
+        }
+    },
+
+    makeHotSpotSelector: function() {
+        var that = this;
+        var $hotspotpicker = $(this.config.selectors.hotspotpicker);
+        var $datepicker = $(this.config.selectors.datepicker);
+        var $timepicker = $(this.config.selectors.timepicker);
+        this.cache.dates = [];
+        this.cache.months = [];
+
+        $datepicker.datepicker("destroy").datepicker({
+            dateFormat: 'dd/mm/yy',
+            firstDay: 0,
+            minDate: new Date(),
+            isRTL: true,
+            beforeShowDay: function(date) {
+                return ($.inArray(date.toDateString(), that.cache.dates) !== -1) ? [true, "", ""] : [false, "", ""];
+            },
+            onChangeMonthYear: that._onChangeMonthYear
+        });
+
+        $timepicker.empty().disable();
+        $hotspotpicker.empty().change(function() {
+            var $selected = $hotspotpicker.find(":selected").eq(0);
+            if ($selected) {
+                var date = getFullDate($selected.data("next_datetime") || new Date());
+                $datepicker.datepicker("setDate", date);
+                that.refreshHotspotSelector({
+                    refresh_intervals: true
+                });
+            }
+        });
+
+        this.getHotspotData({
+            beforeSend: function() {
+                $hotspotpicker.empty().disable().append("<option>" + that.config.labels.updating + "</option>");
+            },
+            success: function(response) {
+                $hotspotpicker.empty().enable();
+                $.each(response.data, function(i, hotspot) {
+                    var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, next_datetime: new Date(hotspot.next_datetime)};
+                    $("<option>" + hotspot.name + "</option>").attr("value", hotspot.id).data(data).appendTo($hotspotpicker);
+                });
+                $hotspotpicker.change();
+            },
+            error:function() {
+                flashError("Error getting hotspot data");
+            }
+        });
+    },
+
+    refreshHotspotSelector: function(options) {
+        options = $.extend(true, {}, options);
+        var that = this;
+        var $hotspotpicker = $(this.config.selectors.hotspotpicker);
+        var $datepicker = $(this.config.selectors.datepicker);
+        var $timepicker = $(this.config.selectors.timepicker);
+
+        if (options.refresh_intervals) {
+            this.getIntervals({
+                data: $.extend(true, {'day': $datepicker.val(), 'hotspot_id': $hotspotpicker.val()},
+                        options.get_intervals_data),
+                beforeSend: function() {
+                    $timepicker.empty().disable().append("<option>" + that.config.labels.updating + "</option>");
+                    if (!$datepicker.val()) {
+                        $datepicker.datepicker("setDate", new Date());
+                    }
+                },
+                success: function(response) {
+                    if (response.times) {
+                        $timepicker.empty();
+                        $.each(response.times, function(i, t) {
+                            $timepicker.append("<option>" + t + "</option>");
+                        });
+                        $timepicker.enable().change();
+                        if (response.ride_duration) {
+                            $timepicker.data("ride_duration", response.ride_duration);
+                        }
+                    }
+                },
+                error: function() {
+                    flashError("Error loading hotspot times data");
+                }
+            });
         }
     },
 
@@ -335,10 +369,8 @@ var HotspotHelper = Object.create({
         var that = HotspotHelper;
         if ($.inArray(month, that.cache.months) < 0) {
             // get dates for this month
-            $.ajax({
-                url: that.config.urls.get_hotspot_dates,
-                dataType: "json",
-                data: {'month': month, 'year': year, 'hotspot_id': that.hotspot_selector.val()},
+            that.getDates({
+                data: {'month': month, 'year': year, 'hotspot_id': $(that.config.selectors.hotspotpicker).val()},
                 success: function(response) {
                     var new_dates = $.map(response.dates, function(date, i) {
                         return (new Date(date)).toDateString();
@@ -725,85 +757,89 @@ var TelmapHelper = Object.create({
 });
 
 var MobileHelper = Object.create({
+    config: {
+        urls:{
+            resolve_coordinates: "",
+            get_hotspot_dates: ""
+        },
+        callbacks:{
+            onNewAddress: function(address){
+                if (console){
+                    console.log(address);
+                }
+            },
+            noGeolocation: function(){},
+            locationError: function(watch_id){
+                navigator.geolocation.clearWatch(watch_id); // remove watch
+            }
+        }
+    },
+
+    MapHelper: undefined,
+
     // CONSTANTS
     // ---------
-    ACCURACY_THRESHOLD          : 250, // meters,
+    ACCURACY_THRESHOLD: 250, // meters,
 
     // VARIABLES
     // ---------
-    last_position               : undefined,
-    pickup_address              : undefined,
-    dropoff_address             : undefined,
-    hotspot                     : undefined,
+    last_position: undefined,
+    address: undefined,
+    hotspot: undefined,
+    hotspot_type: "dropoff",
+    time_type: "pickup",
 
     // METHODS
     // -------
-    getCurrentLocation          : function() {
+    init: function(config){
+        this.config = $.extend(true, {}, this.config, config);
+    },
+    
+    getCurrentLocation: function() {
         var that = this;
         var options = {
-            timeout             : 5000, // 5 second
-            enableHighAccuracy  : true,
-            maximumAge          : 0 // always get new location
+            timeout: 5000, // 5 second
+            enableHighAccuracy: true,
+            maximumAge: 0 // always get new location
         };
 
         if (navigator.geolocation) {
             var watch_id = navigator.geolocation.watchPosition(function(p) {
                         that.locationSuccess.call(that, p, watch_id);
                     }, function() {
-                        that.showLocationError.call(that, watch_id);
+                        that.config.callbacks.locationError(watch_id);
                     }, options);
         } else {
-            error_callback(watch_id);
+            this.config.callbacks.noGeolocation();
         }
     },
-    locationSuccess             : function(position, watch_id) {
+    locationSuccess: function(position, watch_id) {
         if (console) {
             console.log("new position: " + position.coords.longitude + ", " + position.coords.latitude + " (" + position.coords.accuracy + ")");
         }
 
-        var that = this;
-        that.last_position = position.coords;
-        if (position.coords.accuracy < that.ACCURACY_THRESHOLD) {
+        this.last_position = position.coords;
+        if (position.coords.accuracy < this.ACCURACY_THRESHOLD) {
             navigator.geolocation.clearWatch(watch_id); // we have an accurate enough location
-            that.resolveLonLat(position.coords.longitude, position.coords.latitude, that.current_flow_state);
-            if (that.map) {
-                that.map.setCenter(new telmap.maps.LatLng(position.coords.latitude, position.coords.longitude));
+            this.resolveLonLat(position.coords.longitude, position.coords.latitude);
+            if (this.MapHelper) {
+                this.MapHelper.addMarker(position.coords.latitude, position.coords.longitude);
             }
         }
     },
-    showLocationError:          function(watch_id) {
-        navigator.geolocation.clearWatch(watch_id); // remove watch
-        var that = this,
-                cancel_button = $("<button></button>").text(that.config.messages.enter_address).click(function() {
-                    $("#id_" + that.current_flow_state + "_raw").focus();
-                }),
-                try_again_button = $("<button></button>").text(that.config.messages.try_again).click(function() {
-                    that.setLocationGPS(true);
-                }),
-                buttons = $("<div class='buttons'></div>").append(cancel_button).append(try_again_button);
-
-        $(".glass_pane > #top").text(that.config.messages.sorry_msg).removeClass("loading");
-        $(".glass_pane > #bottom").text(that.config.messages.no_location_msg).append(buttons);
-    },
-    resolveLonLat:              function(lon, lat, address_type) {
+    resolveLonLat: function(lon, lat) {
         var that = this;
         $.ajax({
-            url:that.config.resolve_coordinate_url,
+            url:that.config.urls.resolve_coordinates,
             type:"GET",
-            data:{ lat:lat,
-                lon:lon  },
+            data:{ lat:lat, lon:lon },
             dataType:"json",
-            success:function(resolve_result) {
-                if (resolve_result) {
-                    var new_address = Address.fromServerResponse(resolve_result, address_type);
-                    if (new_address.street_address) {   // only update to new address if it contains a valid street
-
-                        that.updateAddressChoice(new_address);
-                    }
+            success:function(address) {
+                if (address && address.street_address) {
+                    that.config.callbacks.onNewAddress(address);
                 }
             },
             complete:function() {
-                that.hideGlassPane();
             }
         });
     }
