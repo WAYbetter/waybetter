@@ -1,0 +1,87 @@
+{% extends "wb_base_mobile.html" %}
+{% load i18n %}
+
+{% block body %}
+    <div id="trx_status" data-role="page" data-fullscreen="true">
+        <div data-role="header" data-theme="b">
+            <h1 id="status_header"></h1>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview">
+                <li>
+                    <img id="status_icon"/>
+                    <div id="status_help"></div>
+                </li>
+                <li>
+                    <button id="home" class="wb_button">{% trans "Home" %}</button>
+                </li>
+            </ul>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        var pending = {{ pending }};
+        var processing = {{ processing }};
+        var approved = {{ approved }};
+        var failed = {{ failed }};
+
+        function renderStatus(status, msg) {
+            $("#status_icon").removeClass("processing approved failed");
+
+            switch (status) {
+                case approved:
+                    $("#status_icon").addClass("approved");
+                    $("#status_header").html("{% trans "Order Approved" %}");
+                    $("#status_help").html("{% trans "A detailed SMS reminder will be sent 5-10 minutes prior to the taxi's arrival." %}");
+                    break;
+                case failed:
+                    $("#status_icon").addClass("failed");
+                    $("#status_header").html("{% trans "Oops... Order Failed" %}");
+                    $("#status_help").html(msg || "{% trans "There was an error processing your order. Please try again soon." %}");
+                    break;
+                default: // processing or pending
+                    $("#status_icon").addClass("processing");
+                    $("#status_header").html("{% trans "Processing Your Order" %}");
+                    $("#status_help").html("{% trans "Please wait, this may take a few seconds" %}...");
+            }
+        }
+
+        function getStatus() {
+            $.ajax({
+                url: "{% url get_trx_status %}",
+                data: {trx_id: "{{ billing_trx.id }}"},
+                success:    function(response) {
+                    if (response.hasOwnProperty("status")) {
+                        var status = response.status;
+                        renderStatus(status, response.error_message);
+                        if (status == processing || status == pending) {
+                            $(document).oneTime(5e3, function() {
+                                getStatus();
+                            });
+                        }
+                        else {
+                            $("#home").enable();
+                        }
+                    }
+                },
+                error:  function() {
+                    $(document).oneTime(5e3, function() {
+                        getStatus();
+                    });
+                }
+            })
+        }
+
+        $(document).ready(function() {
+            $("#home").disable().click(function() {
+                window.location.href = "{% url wb_home %}";
+            });
+            renderStatus(processing);
+            getStatus();
+        });
+    </script>
+{% endblock %}

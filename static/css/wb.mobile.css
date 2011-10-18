@@ -9,3 +9,21 @@
 #address-form input[type=tel] {
     width: 20%;
 }
+
+/* transaction page */
+#status_icon {
+    width: 80px;
+    height: 80px;
+}
+
+#status_icon.processing {
+    background: url(/static/images/wb_site/loading_large.gif) left 0 no-repeat;
+}
+
+#status_icon.approved {
+    background: url(/static/images/wb_site/processing_icons.png) left -84px no-repeat;
+}
+
+#status_icon.failed {
+    background: url(/static/images/wb_site/processing_icons.png) left 10px no-repeat;
+}

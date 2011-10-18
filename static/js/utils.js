@@ -27,6 +27,9 @@ Object.create = Object.create || function (p) {
                 } else {
 				    $(this).attr({disabled: true});
                 }
+                if ($.mobile){
+                    $(this).button().button("refresh");
+                }
 			});
 		},
 		enable: function() {
@@ -35,6 +38,9 @@ Object.create = Object.create || function (p) {
                     $(this).button("enable");
                 } else {
 				    $(this).removeAttr('disabled');
+                }
+                if ($.mobile){
+                    $(this).button().button("refresh");
                 }
 			});
 		},

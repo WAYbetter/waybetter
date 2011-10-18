@@ -1,0 +1,55 @@
+{% extends "wb_base.html" %}
+{% load i18n %}
+{% load value_from_settings %}
+
+{% block extrastyle %}
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b3/jquery.mobile-1.0b3.min.css"/>
+    <link rel="stylesheet" href="/static/css/wb.mobile.css"/>
+{% endblock extrastyle %}
+
+{% block extrahead %}
+    <meta name="apple-mobile-web-app-capable" content="yes"/>
+    <meta name="apple-mobile-web-app-status-bar-style" content="black"/>
+    <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1"/>
+{% endblock extrahead %}
+
+
+{% block scripts %}
+    <!-- Because the mobileinit event is triggered immediately upon execution,
+         you'll need to bind your event handler before jQuery Mobile is loaded -->
+    <script>
+        $(document).bind("mobileinit", function() {
+            $.extend($.mobile, {
+                loadingMessage: "{% trans 'Loading...' %}"
+            });
+            $.mobile.page.prototype.options.backBtnText = "{% trans 'Back' %}";
+//            $.mobile.page.prototype.options.addBackBtn = true;
+        });
+    </script>
+    <script src="http://code.jquery.com/mobile/1.0rc1/jquery.mobile-1.0rc1.min.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.timers-1.2.min.js"></script>
+    <script type="text/javascript" src="/static/js/utils.js"></script>
+    <script type="text/javascript" src="/static/js/helpers.js"></script>
+{% endblock scripts %}
+
+{# TODO_WB: which analytics to use? #}
+{% block doc_ready %}
+    {{ block.super }}
+{% endblock doc_ready %}
+{#{% block doc_ready %}#}
+{#    <script>#}
+{#        var _gaq = _gaq || [];#}
+{#        _gaq.push(['_setAccount', 'UA-18077675-1']);#}
+{#        _gaq.push(['_trackPageview']);#}
+{##}
+{#        (function() {#}
+{#            var ga = document.createElement('script');#}
+{#            ga.type = 'text/javascript';#}
+{#            ga.async = true;#}
+{#            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';#}
+{#            var s = document.getElementsByTagName('script')[0];#}
+{#            s.parentNode.insertBefore(ga, s);#}
+{#        })();#}
+{#    </script>#}
+{#{% endblock %}#}
