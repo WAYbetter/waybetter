@@ -23,10 +23,6 @@
                 time_type: MobileHelper.time_type,
                 lat: MobileHelper.address.lat,
                 lon: MobileHelper.address.lon},
-            beforeSend: function() {
-                $time_sel.empty().append('<option>{% trans "Updating..." %}</option>');
-                $time_sel.selectmenu().selectmenu('refresh', true);
-            },
             success: function(response) {
                 if (response.times) {
                     $time_sel.empty();
@@ -37,11 +33,12 @@
                         $time_sel.data("ride_duration", response.ride_duration);
                     }
                     $time_sel.selectmenu().selectmenu('refresh', true);
-                    showRideDetails();
+                    getRideDetails();
                     if (!init_complete) {
                         init_complete = true;
+                        // select the closest interval
+                        $("#select-interval-form").submit();
                         console.log("init complete");
-                        $("#when").text(day + " " + response.times[0]);
                     }
                 }
             }
@@ -73,7 +70,7 @@
         }
     }
 
-    function showRideDetails() {
+    function getRideDetails() {
         console.log("ride details");
         $.ajax({
             url: "{% url sharing.passenger_controller.get_hotspot_price %}",
@@ -155,23 +152,6 @@
             $.mobile.hidePageLoadingMsg();
         });
 
-        $("#ride-date").change(function() {
-            getIntervals();
-        });
-
-        $("#gps").click(function() {
-            MobileHelper.getCurrentLocation();
-            $.mobile.changePage("#booking_page");
-        });
-
-        $(".order_button").disable();
-        $("#book_sharing").click(function() {
-            bookRide(false);
-        });
-        $("#book_private").click(function() {
-            bookRide(true);
-        });
-
         MobileHelper.init({
             urls:{
                 resolve_coordinates: "{% url ordering.passenger_controller.resolve_coordinates %}"
@@ -234,12 +214,42 @@
             }
         });
 
-        $("#select-interval-form").submit(function() {
-            $("#when").text($("#ride-date").val() + " " + $("#ride-time").val());
+
+        $("#ride-date").change(function() {
+            getIntervals();
+        });
+
+        $("#gps").click(function() {
+            MobileHelper.getCurrentLocation();
             $.mobile.changePage("#booking_page");
-            showRideDetails();
+        });
+
+        $(".order_button").disable();
+        $("#book_sharing").click(function() {
+            bookRide(false);
+        });
+        $("#book_private").click(function() {
+            bookRide(true);
+        });
+
+        $("#interval_page").bind("pagebeforeshow",function(e, data) {
+            $("#ride-date").val($("#ride-date").jqmData("saved_val")).selectmenu("refresh");
+            $("#ride-time").val($("#ride-time").jqmData("saved_val")).selectmenu("refresh");
+        });
+
+        $("#select-interval-form").submit(function() {
+            $("#ride-date").jqmData("saved_val", $("#ride-date").val());
+            $("#ride-time").jqmData("saved_val", $("#ride-time").val());
+            $("#when").text($("#ride-date").val() + " " + $("#ride-time").val());
+            getRideDetails();
             return false;
         });
+        $("#select-interval-form button").click(function(){
+           $("#select-interval-form").submit();
+            $.mobile.changePage("#booking_page");
+            return false;
+        });
+
 
         $("#address-form").submit(function() {
             var that = this;
@@ -287,7 +297,7 @@
 
 {% block body %}
 
-    <div id="home" data-role="page" data-fullscreen="true">
+    <div id="home" data-role="page">
         <div data-role="header">
             <h1>WAYbetter</h1>
         </div>
@@ -318,7 +328,7 @@
                 <div class="ui-block-a"></div>
                 <div class="ui-block-b">
                     <a href="#" data-role="button" data-iconpos="top" data-icon="check">
-                        {% trans 'Invite' %}
+                        {% trans 'Share' %}
                     </a>
                 </div>
                 <div class="ui-block-c"></div>
@@ -326,7 +336,7 @@
         </div>
     </div>
 
-    <div id="booking_page" data-role="page" data-fullscreen="true">
+    <div id="booking_page" data-role="page">
         <div data-role="header" data-theme="b">
             <a href="#home" data-icon="grid" data-iconpos="notext"></a>
 
@@ -388,7 +398,7 @@
         </div>
     </div>
 
-    <div id="hotspot_page" data-role="page" data-fullscreen="true">
+    <div id="hotspot_page" data-role="page">
         <div data-role="header" data-theme="b">
             <a href="#" data-rel="back">{% trans 'Cancel' %}</a>
 
@@ -403,7 +413,7 @@
         </div>
     </div>
 
-    <div id="address_page" data-role="page" data-fullscreen="true">
+    <div id="address_page" data-role="page">
         <div data-role="header" data-theme="b">
             <a href="#" data-rel="back">{% trans 'Cancel' %}</a>
 
@@ -427,7 +437,7 @@
         </div>
     </div>
 
-    <div id="address_list_page" data-role="page" data-fullscreen="true">
+    <div id="address_list_page" data-role="page">
         <div data-role="header" data-theme="b">
             <a href="#" data-rel="back">{% trans 'Back' %}</a>
 
@@ -438,7 +448,7 @@
         </div>
     </div>
 
-    <div id="interval_page" data-role="page" data-fullscreen="true">
+    <div id="interval_page" data-role="page">
         <div data-role="header" data-theme="b">
             <a href="#booking_page" data-icon="grid" data-rel="back" data-iconpos="notext"></a>
 

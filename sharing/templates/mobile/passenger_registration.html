@@ -1,0 +1,235 @@
+{% extends "wb_base_mobile.html" %}
+{% load i18n %}
+{% load value_from_settings %}
+{% load ajax_form_utils %}
+
+{% block body %}
+    <div id="validation_page" data-role="page">
+        <div data-role="header">
+            <h1>{% trans "Phone Verification" %}</h1>
+            <a href="{% url wb_home %}">{% trans 'Back' %}</a>
+            <a href="{{ login_link }}">{% trans 'Login' %}</a>
+        </div>
+        <div data-role="content">
+            <form id="validation">
+                <ul data-role="listview">
+                    <input name="country_code" type="hidden" value="{{ country_code }}"/>
+                    <li>
+                        {% trans "Ride details are sent by free SMS" %}
+                    </li>
+                    <li>
+                        <div data-role="fieldcontain">
+                            <input id="local_phone" name="local_phone" placeholder="{% trans "Mobile Phone" %}"
+                                   type="text"/>
+                            <button id="validate_phone">{% trans "Get Code" %}</button>
+                        </div>
+                    </li>
+                    <li>
+                        <div data-role="fieldcontain">
+                            <input id="verification_code" name="verification_code"
+                                   placeholder="{% trans "Enter Code" %}"
+                                   type="text"/>
+                            <button id="validate_code">{% trans "Next" %}</button>
+                        </div>
+                    </li>
+                </ul>
+            </form>
+
+        </div>
+    </div>
+
+    <div id="registration_page" data-role="page">
+        <div data-role="header">
+            <h1>{% trans "Registration" %}</h1>
+            <a href="#" data-rel="back">{% trans 'Back' %}</a>
+        </div>
+        <div data-role="content">
+            <form id="passenger_form" action="{% url register %}" method="POST">
+                {% csrf_token %}
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+
+                <ul data-role="listview">
+                    <li>
+                        <div id="fb_connect">
+                            <div id="fb-root"></div>
+                            <fb:login-button perms="email,user_checkins"></fb:login-button>
+                        </div>
+                    </li>
+                    <li data-role="list-divider">{% trans "OR" %}</li>
+                    <li>
+                        {% for field in form.visible_fields %}
+                            <!-- separate the fields for .siblings, see below -->
+                            <div data-role="fieldcontain">
+                                {% if field.html_name != "agree_to_terms" %}
+                                    <label>{{ field.label_tag }}</label>
+                                    {{ field }}
+                                    <div class="errorlist-placeholder"></div>
+                                {% endif %}
+                            </div>
+                        {% endfor %}
+                        <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
+                        <label for="id_agree_to_terms">{% trans "I agree to the" %}
+                            <a href="{% url terms %}">{% trans "Terms Of Use" %} </a>{% trans "and" %}
+                            <a href="{% url privacy %}"> {% trans "Privacy Statement" %}.</a>
+                        </label>
+                    </li>
+                    <li>
+                        <button id="finish_registration">{% trans "Next" %}</button>
+                    </li>
+                </ul>
+
+            </form>
+        </div>
+    </div>
+
+
+
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        function initFbAsync() {
+            window.fbAsyncInit = function() {
+                var appId =
+                {% value_from_settings "FACEBOOK" %}.
+                appId;
+                FB.init({
+                    appId: appId,
+                    cookie:true,
+                    status:true,
+                    xfbml:true
+                });
+            };
+
+            $.getScript('http://connect.facebook.net/en_US/all.js', function() {
+                $("#fb_connect *").show();
+            });
+        }
+
+        $(function() {
+            $("[href='{% url auth_login %}']").attr("href", "{{ login_link }}");
+        });
+
+        $("#validation_page").bind("pageinit", function(e) {
+            $("#validate_phone, #validate_code").button("disable");
+            $("#verification_code").textinput("disable");
+
+            $("#validate_code").click(function() {
+                $.mobile.changePage("#registration_page");
+                return false; // prevent re-submitting
+            });
+            $("#local_phone").keyup(function(e) {
+                if (e.keyCode == 13) {
+                    return false;
+                }
+
+                var $local_phone = $(this);
+                $local_phone.val($local_phone.val().split(/\D+/).join(""));
+
+                if ($local_phone.val().length > 9) {
+                    $("#validate_phone").button("enable");
+                } else {
+                    $("#validate_phone").button("disable");
+                }
+            });
+
+            $("#validation").submit(function() {
+                var $validate_phone = $("#validate_phone").button("disable");
+                $.ajax({
+                    url: "{% url send_verification_code %}",
+                    data: $("#validation").serialize(),
+                    type: "POST",
+                    beforeSend: function() {
+                        $validate_phone.jqmData("old_text", $validate_phone.text()).set_button_text("{% trans "Sending" %}");
+                    },
+                    success: function(d) {
+                        $validate_phone.set_button_text("{% trans "Code Sent" %}");
+                        $("#local_phone").one("keydown", function() {
+                            $validate_phone.set_button_text($validate_phone.jqmData("old_text")).button("enable");
+                        });
+                        $("#verification_code").val("").textinput("enable").focus();
+                    },
+                    error: function() {
+                        alert("error");
+                        $validate_phone.set_button_text($validate_phone.jqmData("old_text")).button("enable");
+                    }
+                });
+                return false;
+            });
+
+            $("#verification_code").keyup(
+                    function() {
+                        $("#validate_code").set_button_text("{% trans "Next" %}");
+                        var val = $(this).val();
+                        if (val && val.length == 4) {
+                            var data = $("#validation").serialize();
+                            $("#verification_code").textinput("disable");
+                            $.ajax({
+                                url: "{% url validate_phone %}",
+                                type: "POST",
+                                data: data,
+                                success: function() {
+                                    $("#local_phone").textinput("disable");
+                                    $("#validate_phone").button("disable");
+                                    $("#validate_code").button("enable");
+                                },
+                                error: function() {
+                                    $("#verification_code").textinput("enable");
+                                    $("#validate_code").set_button_text("{% trans "Wrong Code" %}");
+                                }
+                            })
+                        }
+                    }).keydown(function(event) {
+                        var permittedKeys = [8,37,38,39,40,46];
+                        if ($(this).val().length >= 4 && $.inArray(event.which, permittedKeys) < 0) {
+                            return false;
+                        }
+                    });
+        });
+
+        $("#registration_page").bind("pageinit", function(e) {
+            $("#finish_registration").button("disable").click(function() {
+                var $that = $("#finish_registration");
+                $.ajax({
+                    url: "{% url register %}",
+                    type: "POST",
+                    data: $("#passenger_form").serialize(),
+                    beforeSend: function() {
+                        $that.disable().data("old_text", $that.text()).text("{% trans "Sending" %}");
+                    },
+                    complete: function() {
+                        $that.text($that.data("old_text")).enable();
+                    },
+                    success: function(response) {
+                        $(".errorlist-placeholder, .errorlist").empty();
+                        if (response.errors) {
+                            $.each(response.errors, function(i, e) {
+                                $("#id_" + e.field_name).siblings(".errorlist-placeholder, .errorlist").replaceWith(e.errors_ul);
+                            });
+                        }
+                        else {
+                            if (response.redirect) {
+                                window.location.href = response.redirect;
+                            }
+                        }
+                    },
+                    error: function() {
+                        alert("Error");
+                    }
+                });
+            });
+
+            $("#id_agree_to_terms").change(function() {
+                if ($(this).attr("checked") == "checked") {
+                    $("#finish_registration").button("enable");
+                }
+                else {
+                    $("#finish_registration").button("disable");
+                }
+            });
+        });
+    </script>
+{% endblock %}
