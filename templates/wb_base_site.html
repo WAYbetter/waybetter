@@ -205,7 +205,7 @@
     {{ block.super }}
 
     <!-- when not dev these scripts are already included in the concatenated js -->
-    {% if DEV %}
+{#    {% if DEV %}#}
         <!-- scripts concatenated and minified via ant build script-->
         <script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>
         <script type="text/javascript" src="/static/js/mylibs/jquery.placeheld.min.js"></script>
@@ -220,7 +220,7 @@
 
         <script type="text/javascript" src="/static/js/helpers.js"></script>
         <!-- end scripts-->
-    {% endif %}
+{#    {% endif %}#}
 
 {% endblock scripts %}
 
