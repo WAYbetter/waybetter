@@ -95,7 +95,7 @@ class AbstractTemporalRule(BaseModel):
         """
         dates = []
         if self.from_date and self.to_date:
-            if self.from_date == self.to_date:
+            if self.from_date == self.to_date and start_date <= self.from_date <= end_date:
                 dates = [self.from_date]
             elif self.from_date < self.to_date:
                 d1 = max(start_date, self.from_date) if start_date else self.from_date

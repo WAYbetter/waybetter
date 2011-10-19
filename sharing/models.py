@@ -124,14 +124,14 @@ class HotSpot(BaseModel):
 
         for rule in self.service_rules.all():
             weekdays.update(rule.get_weekdays())
-            dates.update(rule.get_dates())
+            dates.update(rule.get_dates(start_date, end_date))
 
         itr = datetimeIterator(start_date, end_date)
         for d in itr:
             if convert_python_weekday(d.weekday()) in weekdays:
                 dates.add(d)
 
-        return list(dates)
+        return sorted(list(dates))
 
 
     def serialize_for_order(self, address_type):
