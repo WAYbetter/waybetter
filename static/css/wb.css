@@ -1566,7 +1566,6 @@ Info pages
     margin-top: 35px; }
 
 .about_us #site-content {
-  direction: rtl;
   width: 500px; }
 .about_us .header {
   font-size: 18px;
@@ -1577,11 +1576,14 @@ Info pages
 .about_us #the_team {
   width: 800px;
   margin: 0 auto 50px auto; }
+  .about_us #the_team .members-row {
+    width: 730px;
+    padding: 0 35px; }
   .about_us #the_team .member {
-    float: left;
+    display: inline-block;
     padding: 10px;
     border: 1px solid #969696;
-    margin: 0 5px; }
+    margin: 0 25px 25px 0; }
     .about_us #the_team .member .about {
       display: none;
       direction: ltr;
@@ -1596,6 +1598,8 @@ Info pages
       -webkit-box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.5);
       -moz-box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.5);
       box-shadow: 0 0 5px 2px rgba(0, 0, 0, 0.5); }
+  .about_us #the_team .member.last {
+    margin-right: 0; }
   .about_us #the_team .name, .about_us #the_team .title {
     text-align: center;
     font-size: 11px; }
@@ -1603,6 +1607,7 @@ Info pages
     color: black;
     margin: 5px auto; }
   .about_us #the_team .title {
+    width: 100px;
     color: #555555; }
   .about_us #the_team .img {
     width: 100px;
@@ -1619,9 +1624,10 @@ Info pages
     background: url("/static/images/wb_site/the_team/amir.png"); }
   .about_us #the_team #orly .img {
     background: url("/static/images/wb_site/the_team/orly.png"); }
+  .about_us #the_team #micky .img {
+    background: url("/static/images/wb_site/the_team/micky.png"); }
 
 .faq #site-content {
-  direction: rtl;
   width: 500px; }
 .faq .h, .faq .q, .faq .a {
   margin-bottom: 20px; }
@@ -1632,14 +1638,12 @@ Info pages
   font-size: 13px;
   font-weight: bold; }
 .faq .a {
-  font-size: 11px; }
+  font-size: 13px;
+  line-height: 22px; }
 
 /*
 Dialogs
 ****************************************************/
-/*.dialog{*/
-/*position: relative;*/
-/*}*/
 .dialog #button_container {
   float: right;
   margin-top: 25px; }

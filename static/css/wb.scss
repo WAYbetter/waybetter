@@ -1773,7 +1773,6 @@ Info pages
 
 .about_us{
     #site-content{
-        direction: rtl;
         width: $site-width-thin;
     }
     .header{
@@ -1787,11 +1786,15 @@ Info pages
     #the_team{
         width: $site-width;
         margin: 0 auto 50px auto;
+        .members-row{
+            width: 730px;
+            padding: 0 35px;
+        }
         .member{
-            float: left;
+            display: inline-block;
             padding: 10px;
             border: 1px solid #969696;
-            margin: 0 5px;
+            margin: 0 25px 25px 0;
             .about {
                 display: none;
                 direction: ltr;
@@ -1804,6 +1807,9 @@ Info pages
                 @include box-shadow(0 0 5px 2px rgba(0,0,0,0.5));
             }
         }
+        .member.last{
+            margin-right: 0;
+        }
         .name, .title {
             text-align: center;
             font-size: $font-size-small;
@@ -1813,6 +1819,7 @@ Info pages
             margin: 5px auto;
         }
         .title{
+            width: 100px;
             color: #555555;
         }
         .img{
@@ -1825,12 +1832,12 @@ Info pages
         #yonatan .img {background: url("/static/images/wb_site/the_team/yonatan.png")}
         #amir .img {background: url("/static/images/wb_site/the_team/amir.png")}
         #orly .img {background: url("/static/images/wb_site/the_team/orly.png")}
+        #micky .img {background: url("/static/images/wb_site/the_team/micky.png")}
     }
 }
 
 .faq{
     #site-content{
-        direction: rtl;
         width: $site-width-thin;
     }
     .h, .q, .a{
@@ -1845,16 +1852,14 @@ Info pages
         font-weight: bold;
     }
     .a{
-        font-size: $font-size-small;
+        font-size: $font-size-medium;
+        line-height: 22px;
     }
 }
 
 /*
 Dialogs
 ****************************************************/
-/*.dialog{*/
-    /*position: relative;*/
-/*}*/
 .dialog{
     #button_container{
         float:right;
