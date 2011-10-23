@@ -71,6 +71,11 @@ class Middleware(object):
 #        request.mobile = True
 #        return None
 
+        # do not consider iPads as mobile
+        if request.META.get("HTTP_USER_AGENT", "").lower().find("ipad") > -1:
+            request.mobile = False
+            return None
+
         if request.META.has_key("HTTP_X_OPERAMINI_FEATURES"):
             #Then it's running opera mini. 'Nuff said.
             #Reference from:

@@ -71,8 +71,11 @@ class PassengerRegistrationForm(forms.Form):
         return self.cleaned_data
         
     def clean_email(self):
+        email = self.cleaned_data.get("email", "").lower()
+        self.cleaned_data["email"] = email
+
         try:
-            user = User.objects.get(username=self.cleaned_data.get("email"))
+            user = User.objects.get(username=email)
         except User.DoesNotExist:
             user = None
 
