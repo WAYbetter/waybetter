@@ -518,6 +518,7 @@ class Passenger(BaseModel):
 
     # disallow ordering
     is_banned = models.BooleanField(_("banned"), default=False)
+    can_share = models.BooleanField(_("can share"), default=False)
 
     invoice_id = models.IntegerField(_("invoice id"), null=True, blank=True, unique=True)
 

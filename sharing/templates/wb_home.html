@@ -83,7 +83,7 @@
                         </span>
                     </div>
                 </div>
-                <button class="order_button blue" id="book_private">{% trans 'Book Private' %}</button>
+                <button class="order_button orange" id="book_private">{% trans 'Book Private' %}</button>
             </div>
 
             <div id="ticket-perforation"></div>
@@ -108,7 +108,7 @@
                         </span>
                     </div>
                 </div>
-                <button class="order_button orange" id="book_sharing">{% trans 'Book WAYbetter' %}</button>
+                <button class="order_button blue" id="book_sharing">{% trans 'Book WAYbetter' %}</button>
             </div>
 
             <div class="clear"></div>
@@ -510,8 +510,11 @@
                 $(".order_button").disable();
             },
             success: function(response) {
-                if (response.status && response.status == "booked" && response.redirect) {
-                    window.location.href = response.redirect;
+                if (response.status) {
+                    if (response.status == "forbidden")
+                        Registrator.openPilotInterestDialog();
+                    if (response.status == "booked" && response.redirect)
+                        window.location.href = response.redirect;
                 }
                 else {
                     //TODO_WB: redirect to error page
@@ -615,7 +618,8 @@
 
         Registrator.init({
             urls            : {
-                feedback_form_template: '{% url common.registration.feedback %}'
+                feedback_form_template: '{% url common.registration.feedback %}',
+                pilot_interest_form_template: '{% url interests.views.pilot_interest %}'
             }
         });
 

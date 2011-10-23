@@ -245,6 +245,9 @@ ul.hz > li, #top-right ul.content_links > li {
 /*
 jQuery UI override
 ****************************************************/
+.ui-widget-overlay {
+  background-color: black; }
+
 .ui-widget button {
   font-size: 13px; }
 
@@ -260,6 +263,9 @@ jQuery UI override
 
 .ui-datepicker {
   font-size: 13px; }
+
+.ui-dialog-title {
+  color: #6C6C6A; }
 
 .rtl .ui-dialog-title {
   float: right; }
@@ -439,13 +445,13 @@ body.base-site {
   left: 20px; }
 
 #wb_values .service .header, #values_learnmore .service .header {
-  color: #eb1f79; }
+  color: #f26523; }
 #wb_values .community .header, #values_learnmore .community .header {
-  color: #4cba00; }
+  color: #eb1f79; }
 #wb_values .env .header, #values_learnmore .env .header {
   color: #16acd3; }
 #wb_values .eff .header, #values_learnmore .eff .header {
-  color: #ff921e; }
+  color: #4cba00; }
 
 #wb_values {
   width: 800px;
@@ -526,11 +532,11 @@ body.base-site {
   #values_learnmore .learnmore-content p {
     margin-bottom: 0; }
 #values_learnmore .service {
-  border-color: rgba(235, 31, 121, 0.4); }
+  border-color: rgba(242, 101, 35, 0.4); }
 #values_learnmore .community {
-  border-color: rgba(76, 186, 0, 0.4); }
+  border-color: rgba(235, 31, 121, 0.4); }
 #values_learnmore .eff {
-  border-color: rgba(255, 146, 30, 0.4); }
+  border-color: rgba(76, 186, 0, 0.4); }
 #values_learnmore .env {
   border-color: rgba(22, 172, 211, 0.4); }
 
@@ -856,15 +862,15 @@ Home
 .wb_home #sharing_data_container .header_img {
   background: url(/static/images/wb_site/shared_icon.png) left 0 no-repeat; }
 .wb_home #sharing_data_container .header {
-  color: #ff921e; }
+  color: #16acd3; }
 .wb_home #sharing_data_container .price_row, .wb_home #sharing_data_container .time_row {
-  background: url(/static/images/wb_site/orange_bracket.png) left bottom no-repeat; }
+  background: url(/static/images/wb_site/blue_bracket.png) left bottom no-repeat; }
 .wb_home #private_data_container .header_img {
   background: url(/static/images/wb_site/private_icon.png) left 0 no-repeat; }
 .wb_home #private_data_container .header {
-  color: #16acd3; }
+  color: #ff921e; }
 .wb_home #private_data_container .price_row, .wb_home #private_data_container .time_row {
-  background: url(/static/images/wb_site/blue_bracket.png) left bottom no-repeat; }
+  background: url(/static/images/wb_site/orange_bracket.png) left bottom no-repeat; }
 .wb_home #save_stamp {
   position: absolute;
   z-index: 3;
@@ -1629,6 +1635,22 @@ Info pages
   font-size: 11px; }
 
 /*
+Dialogs
+****************************************************/
+/*.dialog{*/
+/*position: relative;*/
+/*}*/
+.dialog #button_container {
+  float: right;
+  margin-top: 25px; }
+.dialog .content p, .dialog .content label {
+  font-size: 13px;
+  color: #6C6C6A; }
+
+.rtl .dialog #button_container {
+  float: left; }
+
+/*
 Feedback dialog
 ****************************************************/
 #feedback_form label {
@@ -1638,7 +1660,7 @@ Feedback dialog
 #feedback_form #positive {
   float: left; }
   #feedback_form #positive h1 {
-    color: #ff921e; }
+    color: #4cba00; }
 #feedback_form #negative {
   float: right; }
   #feedback_form #negative h1 {
@@ -1676,11 +1698,48 @@ Feedback dialog
   margin-left: auto;
   margin-right: 15px; }
 
-#button_container.feedback {
-  float: right; }
+/*
+Pilot interest dialog
+****************************************************/
+#pilot_interest_dialog #thank_you {
+  text-align: center;
+  margin-top: 35px; }
+#pilot_interest_dialog #pilot_interest_form .field_container {
+  margin-top: 30px; }
+#pilot_interest_dialog input {
+  width: 200px; }
+#pilot_interest_dialog #sharing_buttons {
+  margin-top: 55px; }
+#pilot_interest_dialog .share_button {
+  height: 33px;
+  width: 31px;
+  background-image: url(/static/images/landing_page/sharing-icons.png);
+  background-repeat: no-repeat;
+  display: inline-block;
+  padding-left: 50px; }
+#pilot_interest_dialog .share_button span {
+  position: relative;
+  bottom: -5px;
+  left: -4px;
+  font-size: 13px; }
+#pilot_interest_dialog #share_facebook {
+  background-position: left -70px; }
+#pilot_interest_dialog #share_twiter {
+  background-position: left -36px;
+  margin-left: 40px; }
+#pilot_interest_dialog #share_email {
+  background-position: left 0;
+  margin-left: 40px; }
 
-.rtl #button_container.feedback {
-  float: left; }
+.rtl #pilot_interest_dialog .share_button span {
+  left: auto;
+  right: -4px; }
+.rtl #pilot_interest_dialog #share_twiter {
+  margin-left: 0;
+  margin-right: 40px; }
+.rtl #pilot_interest_dialog #share_email {
+  margin-left: 0;
+  margin-right: 40px; }
 
 /** Hotspot page **/
 .rtl.hotspot_page #map_container {

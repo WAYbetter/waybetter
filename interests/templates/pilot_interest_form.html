@@ -1,0 +1,96 @@
+{% load i18n %}
+<script>window.jQuery || document.write('<script src="/static/js/libs/jquery-1.6.1.min.js">\x3C/script>')</script>
+<script>
+    var form_config = {
+        dialog_config : {
+            title: "{% trans 'We are currently running a private alpha' %}",
+            width: "400px"
+        }
+    };
+    $(function() {
+        $("#submit").click(function(e) {
+            var form = $("#pilot_interest_form");
+
+            $.ajax({
+                url: '{% url interests.views.pilot_interest %}',
+                type: 'POST',
+                data: form.serialize(),
+                dataType: "json",
+                success: function(response) {
+                    if (! response.errors) {   // no errors!
+                        $("#pilot_interest_form, #submit").hide();
+                        $("#thank_you").fadeIn("fast");
+                    } else {                    // we got errors
+                        $(".errorlist").remove();
+                        $.each(response.errors, function(i, error) {
+                            for (var field_name in error) {
+                                var $errors = $("<ul class='errorlist'></ul>").hide();
+                                $.each(error[field_name], function(i, val) {
+                                    $errors.append($("<li></li>").text(val));
+                                });
+                                $("input[name=" + field_name + "]").before($errors);
+                                $errors.fadeIn('fast');
+                            }
+                        });
+                    }
+
+                }
+            });
+            return false;
+
+        });
+
+        var subject = "WAYbetter - מוניות לכולם, בחצי מחיר";
+        var mail_body = "בשבועות הקרובים תשיק חברת WAYbetter שירות מוניות מהפכני ברמת החייל.%0Aהשירות יאפשר להזמין חינם מונית בסמארטפון או באינטרנט ולשלם על הנסיעה חצי מחיר (!).%0Aבאמצעות מערכת WAYbetter ניתן להזמין נסיעה המשפרת את יעילות המונית באמצעות חיבור ביניכם לבין משתמשים אחרים הנוסעים לאותו הכיוון. כך אתם יכולים ליהנות משירות תחבורה ברמה הגבוהה ביותר, במחיר שווה לכל כיס.%0A%0Aרוצה לקחת חלק?%0Awww.waybetter.com";
+
+        var social_message = "WAYbetter משיקה מערכת שתוזיל נסיעות מונית בתל אביב לחצי מחיר!%0Aקחו חלק בניסוי הפרטי www.waybetter.com";
+
+        $("#share_email").click(function() {
+            window.location.href = "mailto:?subject=" + subject + "&body=" + mail_body;
+        });
+        $("#share_twiter").click(function() {
+            window.location.href = "http://twitter.com/share?text=" + social_message + "&url=http://www.WAYbetter.com";
+        });
+        $("#share_facebook").click(function() {
+            window.location.href = "http://www.facebook.com/dialog/feed?" +
+                    "&app_id=280509678631025" +
+                    "&link=http://www.WAYbetter.com" +
+                    "&picture=http://www.waybetter.com/static/images/wb_site/wb_beta_logo.png" +
+                    "&name=" + "WAYbetter" +
+//                    "&caption=" +
+                    "&description=" + social_message +
+                    "&redirect_uri=http://www.waybetter.com";
+        });
+    });
+
+</script>
+<style type="text/css">
+
+</style>
+
+<div id="pilot_interest_dialog" class="dialog">
+    <div id="content" class="content">
+        <form id="pilot_interest_form">
+            <p>
+                {% trans "If you would like to be one of the first to use the service please leave your email." %}
+            </p>
+            <div class="field_container">
+                {{ form.as_p }}
+            </div>
+        </form>
+
+        <div id="thank_you" class="hidden">
+            <p>{% trans "Thanks. We'll contact you soon." %}</p>
+
+            <div id="sharing_buttons">
+                <div id="share_facebook" class="share_button clickable"><span class="wb_link">Share</span></div>
+                <div id="share_twiter" class="share_button clickable"><span class="wb_link">Share</span></div>
+                <div id="share_email" class="share_button clickable"><span class="wb_link">Email</span></div>
+            </div>
+        </div>
+    </div>
+    <div id="button_container">
+        <button id="submit" class="wb_button purple">{% trans 'Send' %}</button>
+    </div>
+</div>
+

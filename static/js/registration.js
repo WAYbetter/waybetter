@@ -14,6 +14,7 @@ var Registrator = Object.create({
             mobile_interest_form_template   : '/',
             station_interest_form_template  : '/',
             business_interest_form_template : '/',
+            pilot_interest_form_template    : '/',
             check_email                     : '/',
             login                           : '/',
             send_sms                        : '/',
@@ -239,6 +240,9 @@ var Registrator = Object.create({
     },
     openMobileInterestDialog: function (callback) {
         this._openInterestDialog.call(this, "mobile", callback);
+    },
+    openPilotInterestDialog: function (callback) {
+        this._openInterestDialog.call(this, "pilot", callback);
     },
     openStationInterestDialog: function (callback) {
         this._openInterestDialog.call(this, "station", callback);

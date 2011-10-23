@@ -15,10 +15,10 @@ $color-blue: #16ACD3;
 $light-gray: #BCBCBC;
 $dark-gray: #3D3D3D;
 $color-disabled: #BCBCBC;
-$color-service: #EB1F79;
-$color-community: #4CBA00;
+$color-service: #F26523;
+$color-community: #EB1F79;
 $color-environment: #16ACD3;
-$color-efficiency: #FF921E;
+$color-efficiency: #4CBA00;
 $color-error: #CC162A;
 
 @mixin border-radius($r){
@@ -239,7 +239,7 @@ ul.hz{
 
 .wb_button:hover, .wb_button.hover {
     border: #454545;
-    background: $color-service;
+    background: $color-community;
 }
 
 .wb_button:active, .wb_button.active {
@@ -306,12 +306,15 @@ ul.hz{
 /*
 jQuery UI override
 ****************************************************/
+.ui-widget-overlay{
+    background-color: black;
+}
 .ui-widget button{
     font-size: $font-size-medium;
 }
 .ui-dialog{
     border: 5px solid;
-    border-color: rgba($color-service, 0.5);
+    border-color: rgba($color-community, 0.5);
 }
 .ui-dialog-titlebar{
     font-size: $font-size-header1;
@@ -322,6 +325,10 @@ jQuery UI override
 .ui-datepicker{
     font-size: $font-size-medium;
 }
+.ui-dialog-title{
+    color: #6C6C6A;
+}
+
 .rtl .ui-dialog-title{
     float: right;
 }
@@ -982,10 +989,10 @@ Home
             background: url(/static/images/wb_site/shared_icon.png) left 0 no-repeat;
         }
         .header{
-            color: $color-orange;
+            color: $color-blue;
         }
         .price_row, .time_row{
-            background: url(/static/images/wb_site/orange_bracket.png) left bottom no-repeat;
+            background: url(/static/images/wb_site/blue_bracket.png) left bottom no-repeat;
         }
     }
     #private_data_container{
@@ -993,10 +1000,10 @@ Home
             background: url(/static/images/wb_site/private_icon.png) left 0 no-repeat;
         }
         .header{
-            color: $color-blue;
+            color: $color-orange;
         }
         .price_row, .time_row{
-            background: url(/static/images/wb_site/blue_bracket.png) left bottom no-repeat;
+            background: url(/static/images/wb_site/orange_bracket.png) left bottom no-repeat;
         }
     }
     #save_stamp{
@@ -1843,6 +1850,30 @@ Info pages
 }
 
 /*
+Dialogs
+****************************************************/
+/*.dialog{*/
+    /*position: relative;*/
+/*}*/
+.dialog{
+    #button_container{
+        float:right;
+        margin-top: 25px;
+    }
+    .content{
+        p, label{
+            font-size: $font-size-medium;
+            color: #6C6C6A;
+        }
+    }
+}
+
+.rtl .dialog{
+    #button_container{
+        float:left;
+    }
+}
+/*
 Feedback dialog
 ****************************************************/
 #feedback_form{
@@ -1910,11 +1941,64 @@ Feedback dialog
     }
 }
 
-#button_container.feedback{
-    float: right;
+/*
+Pilot interest dialog
+****************************************************/
+#pilot_interest_dialog{
+    #thank_you {
+        text-align: center;
+        margin-top: 35px;
+    }
+    #pilot_interest_form .field_container{
+        margin-top: 30px;
+    }
+    input{
+        width: 200px;
+    }
+    #sharing_buttons{
+        margin-top: 55px;
+    }
+    .share_button {
+        height: 33px;
+        width: 31px;
+        background-image: url(/static/images/landing_page/sharing-icons.png);
+        background-repeat: no-repeat;
+        display: inline-block;
+        padding-left: 50px;
+    }
+    .share_button span {
+        position: relative;
+        bottom: -5px;
+        left: -4px;
+        font-size: $font-size-medium;
+    }
+    #share_facebook {
+        background-position: left -70px;
+    }
+    #share_twiter {
+        background-position: left -36px;
+        margin-left: 40px;
+    }
+    #share_email {
+        background-position: left 0;
+        margin-left: 40px;
+    }
 }
-.rtl #button_container.feedback{
-    float: left;
+
+.rtl #pilot_interest_dialog{
+    .share_button span {
+        left: auto;
+        right: -4px;
+    }
+    #share_twiter {
+        margin-left: 0;
+        margin-right: 40px;
+    }
+
+    #share_email {
+        margin-left: 0;
+        margin-right: 40px;
+    }
 }
 
 /** Hotspot page **/

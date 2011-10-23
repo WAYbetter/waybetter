@@ -3,6 +3,7 @@ from django.template.context import RequestContext
 from django.shortcuts import render_to_response
 from djangotoolbox.http import JSONResponse
 from forms import MobileInterestForm, StationInterestForm, BusinessInterestForm
+from interests.forms import PilotInterestForm
 
 def interest_view(request, interest_form, interest_form_template):
     if request.method == 'POST':
@@ -10,7 +11,6 @@ def interest_view(request, interest_form, interest_form_template):
         form = interest_form(request.POST)
         if form.is_valid():
             interest = form.save()
-            # TODO_WB: add notify methods to Station and Mobile interests
             if hasattr(interest, "notify"):
                 interest.notify()
         else:
@@ -31,3 +31,6 @@ def station_interest(request):
 
 def business_interest(request):
     return interest_view(request, BusinessInterestForm, "business_interest_form.html")
+
+def pilot_interest(request):
+    return interest_view(request, PilotInterestForm, "pilot_interest_form.html")

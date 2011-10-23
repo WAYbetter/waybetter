@@ -2,7 +2,7 @@ from common.models import BaseModel
 from common.tz_support import UTCDateTimeField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
-from common.util import phone_validator, notify_by_email
+from common.util import phone_validator, notify_by_email, send_mail_as_noreply
 from ordering.models import Station
 # Create your models here.
 class MobileInterest(models.Model):
@@ -67,5 +67,16 @@ class BusinessInterest(models.Model):
         notify_by_email(subject, msg)
 
 class PilotInterest(BaseModel):
-    email = models.CharField(max_length=50)
-    location = models.CharField(max_length=20)
+    email = models.EmailField(_("Your Email"))
+    location = models.CharField(max_length=20, null=True, blank=True)
+
+    def notify(self):
+        subject = "Thanks for your interest in WAYbetter"
+        msg = """
+We will contact you soon.
+
+
+WAYbetter Team
+waybetter.com
+"""
+        send_mail_as_noreply(self.email, subject, msg)
