@@ -4,7 +4,7 @@ from billing.signals import billing_failed_signal, billing_approved_signal, bill
 from common.models import Counter
 from common.urllib_adaptor import urlencode
 from common.util import get_text_from_element, get_unique_id
-from ordering.models import CANCELLED
+from ordering.models import CANCELLED, PENDING, APPROVED, CHARGED
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.context import Context
@@ -46,13 +46,12 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
     if int(status_code):
         message = get_text_from_element(xml, "message")
         billing_transaction.comments = message
-        billing_transaction.save()
-        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED)
+        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
         billing_failed_signal.send(sender="do_J5", obj=billing_transaction)
     else:
         billing_transaction.auth_number = auth_number
-        billing_transaction.save()
-        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.APPROVED)
+        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.APPROVED) #calls save
+        billing_transaction.order.change_status(old_status=PENDING, new_status=APPROVED)
         billing_approved_signal.send(sender="do_J5", obj=billing_transaction)
         billing_transaction.charge() # setup J4
 
@@ -85,14 +84,13 @@ def do_J4(token, amount, card_expiration, billing_transaction_id):
     if int(status_code):
         message = get_text_from_element(xml, "message")
         billing_transaction.comments = message
-        billing_transaction.save()
-        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED)
+        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
         billing_failed_signal.send(sender="do_J4", obj=billing_transaction)
 
     else:
         billing_transaction.auth_number = auth_number
-        billing_transaction.save()
-        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.CHARGED)
+        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.CHARGED) #calls save
+        billing_transaction.order.change_status(new_status=CHARGED)
         billing_charged_signal.send(sender="do_J4", obj=billing_transaction)
 
 

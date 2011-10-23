@@ -52,6 +52,8 @@ NOT_TAKEN = 8
 TIMED_OUT = 9
 COMPLETED = 10
 CANCELLED = 11
+APPROVED = 12 # J5
+CHARGED = 13 # J4
 
 ASSIGNMENT_STATUS = ((PENDING, ugettext("pending")),
                      (ASSIGNED, ugettext("assigned")),
@@ -63,7 +65,9 @@ ASSIGNMENT_STATUS = ((PENDING, ugettext("pending")),
 ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED, ugettext("failed")),
                                     (ERROR, ugettext("error")),
                                     (TIMED_OUT, ugettext("timed_out")),
-                                    (CANCELLED, ugettext("cancelled")))
+                                    (CANCELLED, ugettext("cancelled")),
+                                    (APPROVED, ugettext("approved")),
+                                    (CHARGED, ugettext("charged")))
 
 SHARED_RIDE_STATUS = ((PENDING, ugettext("pending")),
                      (ASSIGNED, ugettext("assigned")),
@@ -841,10 +845,6 @@ class Order(BaseModel):
     passenger_id = models.IntegerField(_("passenger id"), null=True, blank=True)
 
     api_user = models.ForeignKey(APIUser, verbose_name=_("api user"), related_name="orders", null=True, blank=True)
-
-    @property
-    def approved(self):
-        return len(self.billing_transactions.filter(status=BillingStatus.APPROVED)) > 0
 
     @property
     def invoice_description(self):
