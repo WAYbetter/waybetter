@@ -13,10 +13,10 @@ import urllib
 import logging
 import settings
 
-TELMAP = 2
+TELMAP = 4
 WAZE = 3
 
-SHARING_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % WAZE
+SHARING_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % TELMAP
 SHARING_ENGINE_URL = "/".join([SHARING_ENGINE_DOMAIN, "routeservicega1"])
 PRE_FETCHING_URL = "/".join([SHARING_ENGINE_DOMAIN, "prefetch"])
 WEB_APP_URL = "http://dev.latest.waybetter-app.appspot.com/"
