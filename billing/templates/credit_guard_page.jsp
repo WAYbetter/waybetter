@@ -5,18 +5,40 @@
 
 <jsp:useBean id="transactionDetails" scope="request" type="com.creditguard.common.transactions.TransactionDetails" />
 <%@ include file="/merchantPages/WebSources/includes/main.jsp" %>
-<script src="merchantPages/WebSources/js/EN.js"></script>
-<script src="merchantPages/WebSources/js/main.js"></script>
 -->
 
 {% extends "wb_base_site.html" %}
 {% load i18n %}
 
+{% block extrahead %}
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <meta http-equiv="cache-control" content="no-cache">
+    <meta http-equiv="pragma" content="no-cache">
+    <meta http-equiv="expires" content="-1">
+    <script src="merchantPages/WebSources/js/<%=lang%>.js"></script>
+    <script src="merchantPages/WebSources/js/main.js"></script>
+    <%
+    if(lang.equals("EN")){
+        langdir="ltr";
+        abs-vert-pos="right: 0";
+    } else {
+        langdir="rtl";
+        abs-vert-pos="left: 0";
+    }
+    %>
+{% endblock %}
 {% block extrastyle %}
     {{ block.super }}
     <style type="text/css">
+        #creditForm{
+            direction: <%=langdir%>;
+        }
         #content-container {
             min-height: 0;
+        }
+
+        #site-content, #top-container {
+            width: 450px;
         }
 
         .td_style_fieldName {
@@ -38,12 +60,23 @@
             width: 50px;
         }
 
-        #CVVhelp {
+        #qm {
+            display: inline-block;
+            height: 18px;
+            width: 18px;
+            position: relative;
+            top: 3px;
+            margin-right: 10px;
+            cursor: pointer;
+            background: url("/static/images/wb_site/question_mark.png") left 0 no-repeat;
+        }
+
+        #wb_CVVhelp {
             display: none;
             position: absolute;
-            border: 1px #cccccc solid;
-            padding: 10px;
-            background: white;
+            width: 225px;
+            height: 125px;
+            background: url("/static/images/wb_site/cvv.png") left 0 no-repeat;
         }
 
         #wb_lock {
@@ -56,32 +89,42 @@
         }
 
         #wb_content_footer {
-            height: 40px;
             border-top: 1px solid #BCBCBC;
             padding-top: 20px;
             margin-top: 40px;
             position: relative;
         }
 
+        #footer_logos {
+        }
+
         #wb_cg_logo {
-            width: 164px;
+            display: inline-block;
+            width: 200px;
             height: 44px;
             background: url("/static/images/wb_site/credit-guard.png") left 0 no-repeat;
-            float: left;
         }
 
         #wb_cards {
+            display: inline-block;
             width: 218px;
             height: 34px;
             background: url("/static/images/wb_site/card_types.png") left 0 no-repeat;
-            float: left;
-            margin-left: 55px;
         }
 
+        #button_container {
+            position: relative;
+            height: 50px;
+            margin-top: 35px;
+        }
+
+        #resetBtn{
+            display:none;
+        }
         #submitBtn {
             position: absolute;
             bottom: 0;
-            right: 0;
+            <%=abs-vert-pos%>;
         }
 
         #site-footer {
@@ -109,7 +152,7 @@
 
 {% block header_links %}{% endblock %}
 {% block top_left %}
-    {% trans "Enter Payment Method" %}
+    <%=pageTitle%>
 {% endblock %}
 
 {% block top_right %}
@@ -128,12 +171,12 @@
         <input type="hidden" name="transactionCode" value="Phone" autocomplete="off"/>
         <table class="data_tbl">
             <tr>
-                <td class="td_style_fieldName">{% trans "Card Number" %}</td>
+                <td class="td_style_fieldName"><%=CCNumber%></td>
                 <td><input type="text" id="cardNumber" name="cardNumber" maxlength="19" autocomplete="off"/></td>
                 <td class="td_style_fieldName"></td>
             </tr>
             <tr>
-                <td class="td_style_fieldName">{% trans "Expiration Date" %}</td>
+                <td class="td_style_fieldName"><%=CCExp%></td>
                 <td>
                     <select id="expYear" name="expYear">
                         <%=expYear%>
@@ -159,25 +202,27 @@
             <tr>
                 <td class="td_style_fieldName">CVV</td>
                 <td><input type="text" name="cvv" id="cvv" maxlength="4" autocomplete="off"/>
-                    <img src="merchantPages/WebSources/images/qm.png" onmouseover="showHideCVVhelp();"
-                        onmouseout="showHideCVVhelp();" style="cursor:pointer;"/>
+                    <span id="qm" src="merchantPages/WebSources/images/qm.png"></span>
 
-                    <div id="CVVhelp">
-                        <img src="merchantPages/WebSources/images/cvv.jpg"/>
-                    </div>
+                    <span id="wb_CVVhelp"></span>
                 </td>
                 <td class="td_style_fieldName"></td>
             </tr>
             <tr>
-                <td class="td_style_fieldName">{% trans "Card Owner ID" %}</td>
+                <td class="td_style_fieldName"><%=CCPId%></td>
                 <td><input type="text" id="personalId" name="personalId" maxlength="9" autocomplete="off"/></td>
                 <td class="td_style_fieldName"></td>
             </tr>
         </table>
         <div id="wb_content_footer">
-            <div id="wb_cg_logo"></div>
-            <div id="wb_cards"></div>
-            <input type="submit" class="wb_button" id="submitBtn" value="{% trans "Finish" %}"/>
+            <div id="footer_logos">
+                <div id="wb_cg_logo"></div>
+                <div id="wb_cards"></div>
+            </div>
+            <div id="button_container">
+                <input type="submit" class="wb_button" id="submitBtn" value="<%=formSend%>"/>
+                <input id="resetBtn" type="reset" value="<%=formReset%>"/>
+            </div>
         </div>
     </form>
 
@@ -200,4 +245,24 @@
 {% endblock %}
 
 {% block scripts %}{% endblock %}
-{% block doc_ready %}{% endblock %}
+{% block doc_ready %}
+    <script type="text/javascript">
+        $(function() {
+            $("#wb_logo").click(function() {
+                window.location.href = "http://www.waybetter.com";
+            });
+            $("#lang_dropdown").hide();
+            $("#qm").bind("mouseover mouseout", function() {
+                var $help = $("#wb_CVVhelp");
+                if ($help.is(":visible")) {
+                    $help.hide();
+                }
+                else {
+                    $help.show();
+                }
+            });
+
+
+        })
+    </script>
+{% endblock %}

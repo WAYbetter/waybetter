@@ -1,5 +1,6 @@
 from datetime import datetime
 import logging
+from django.utils.translation import get_language_from_request
 from google.appengine.api.urlfetch import fetch
 from common.util import get_unique_id
 from django.conf import settings
@@ -43,17 +44,15 @@ ALL_QUERY_FIELDS = {
 }
 
 
-def get_transaction_id(unique_id):
+def get_transaction_id(unique_id, lang_code, mpi_data):
     data = ALL_QUERY_FIELDS.copy()
 #    unique_id = get_unique_id()
 
 #    # save passenger in the session
 #    request.session[unique_id] = passenger
     
+    data.update(mpi_data)
     data.update({
-        "MID":              112,
-        "userName":         "wiibet",
-        "password":         "312.2BE#e704",
         "terminal":         "0962831",
         "uniqueID":         unique_id,
         "amount":           0,
@@ -63,7 +62,7 @@ def get_transaction_id(unique_id):
         "transactionCode":  "Phone",
         "authNumber":       1234567, # used only for testing
         "validationType":   "Normal",
-        "langID":           "EN",
+        "langID":           (lang_code or settings.LANGUAGE_CODE).upper(),
         "timestamp":        datetime.now().replace(microsecond=0).isoformat() #"2011-10-22T15:44:53" #default_tz_now().isoformat()
     })
 
@@ -81,8 +80,15 @@ def get_transaction_id(unique_id):
 
 def get_token_url(request, order=None):
     unique_id = get_unique_id()
+    lang_code = get_language_from_request(request)
+
+    if hasattr(request, "mobile") and request.mobile:
+        mpi_data = settings.BILLING_MPI_MOBILE
+    else:
+        mpi_data = settings.BILLING_MPI
+
     if order:
         request.session[unique_id] = order
 
-    trx_id = get_transaction_id(unique_id)
+    trx_id = get_transaction_id(unique_id, lang_code, mpi_data)
     return settings.BILLING["token_url"] % trx_id
