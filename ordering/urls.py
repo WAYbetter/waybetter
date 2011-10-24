@@ -3,8 +3,10 @@ from django.conf.urls.defaults import url
 from django.views.generic.simple import direct_to_template
 
 urlpatterns = patterns('',
-    (r'^$', 'ordering.passenger_controller.landing_page'),
-    (r'^pickmeapp/$', 'ordering.passenger_controller.pickmeapp_home'),
+    # TODO_WB: extract pickmeapp urls out of here
+    url(r'^pickmeapp/$', 'ordering.passenger_controller.pickmeapp_home', name="pickmeapp"),
+    (r'^pickmeapp/$', 'ordering.passenger_controller.passenger_home'),
+    (r'^dl/$', 'ordering.passenger_controller.pickmeapp_home'),
     (r'^info$', 'ordering.passenger_controller.info_pages'),
     (r'^workstation/(?P<workstation_id>\d+)$', 'ordering.station_controller.workstation_home'),
     (r'^orders/(?P<order_id>\d+)$', 'ordering.order_manager.order_status'),
