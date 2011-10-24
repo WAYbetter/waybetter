@@ -168,24 +168,28 @@
                         var val = $(this).val();
                         if (val && val.length == 4) {
                             var data = $("#validation").serialize();
-                            $("#verification_code").disable();
-                            $("#verification_status").removeClass("error success").addClass("sending");
+                            var $status = $("#verification_status");
+                            var $code = $("#verification_code");
+                            $code.disable();
 
                             $.ajax({
                                 url: "{% url validate_phone %}",
                                 type: "POST",
                                 data: data,
+                                beforeSend: function(){
+                                    $status.removeClass("error success").addClass("sending");
+                                },
+                                complete: function(){
+                                    $status.removeClass("sending");
+                                },
                                 success: function() {
-                                    $("#verification_status").addClass("success");
+                                    $status.addClass("success");
                                     $("#validation input").disable();
                                     setPassengerFormStatus(true);
                                 },
                                 error: function() {
-                                    $("#verification_status").addClass("error");
-                                    $("#verification_code").enable();
-                                },
-                                complete: function() {
-                                    $("#verification_status").removeClass("sending");
+                                    $status.addClass("error");
+                                    $code.enable();
                                 }
 
                             })

@@ -4,8 +4,17 @@ from django.utils.safestring import mark_safe
 from django.conf import settings
 from django.utils.encoding import smart_unicode
 from django.forms import models
+from django.forms.widgets import Input
 from django import forms
 from django.db import models as db_models
+
+class EmailInput(Input):
+    input_type = 'email'
+    def __init__(self, attrs=None):
+        default_attrs = {'autocorrect': 'off', 'autocapitalize': 'off'}
+        if attrs:
+            default_attrs.update(attrs)
+        super(EmailInput, self).__init__(default_attrs)
 
 class ColorPickerWidget(forms.TextInput):
     # required jquery and jquery colorPicker present in the page

@@ -894,6 +894,9 @@
         $("#feedback").click(function() {
             Registrator.openFeedbackDialog();
         });
+
+        $("#sitemap a[href='{% url join %}']").parent()
+                .after('<li><a href="#" onclick="Registrator.openPilotInterestDialog()">{% trans "Join the private Beta" %}</a></li>');
     });
 
     </script>

@@ -1,3 +1,4 @@
+# This Python file uses the following encoding: utf-8
 from common.models import BaseModel
 from common.tz_support import UTCDateTimeField
 from django.db import models
@@ -71,12 +72,23 @@ class PilotInterest(BaseModel):
     location = models.CharField(max_length=20, null=True, blank=True)
 
     def notify(self):
-        subject = "Thanks for your interest in WAYbetter"
-        msg = """
-We will contact you soon.
+        subject = u"WAYbetter - מוניות חכמות בחצי מחיר"
+        msg = u"""
+אנו שמחים על הרשמתך לפיילוט של שירות המוניות החכם שלנו.
+השירות מאפשר לנסוע במונית ספיישל משותפת בין רמת החייל ותל- אביב ולשלם רק חצי ממחיר הנסיעה.
+בימים אלה אנו מבצעים בדיקות אחרונות בגרסת אלפא, ונעדכן אותך ברגע שנעבור לשלב הבטא הפרטית.
 
+בינתיים, אפשר להציץ:
 
-WAYbetter Team
-waybetter.com
+לאתר WAYbetter:
+www.waybetter.com
+
+עלינו:
+www.waybetter.com/about_us
+
+על השירות:
+www.waybetter.com/the_service
+
+נתראה במונית!
 """
         send_mail_as_noreply(self.email, subject, msg)

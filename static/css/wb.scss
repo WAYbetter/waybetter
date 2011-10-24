@@ -50,7 +50,7 @@ body{
     margin: 0;
 }
 
-input[type=text], input[type=password]{
+input[type=text], input[type=email], input[type=password]{
     border: 1px solid $light-gray;
     height: 28px;
 }
@@ -1786,8 +1786,9 @@ Info pages
     #the_team{
         width: $site-width;
         margin: 0 auto 50px auto;
+        direction: ltr;
         .members-row{
-            width: 730px;
+            width: $site-width;
             padding: 0 35px;
         }
         .member{

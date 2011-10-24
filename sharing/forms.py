@@ -3,6 +3,7 @@ from django.forms.util import ErrorList
 from django import forms
 from django.core.exceptions import ValidationError
 from common.forms import _clean_address
+from common.widgets import EmailInput
 from sharing.models import HotSpot, ProducerPassenger
 from django.utils.translation import ugettext_lazy as _
 
@@ -49,7 +50,7 @@ class PassengerRegistrationForm(forms.Form):
     order = None
 
     name = forms.CharField(label=_("Full Name"), required=True)
-    email = forms.EmailField(label=_("Your Email"), required=True)
+    email = forms.EmailField(label=_("Your Email"), required=True, widget=EmailInput)
     password = forms.CharField(label=_("Password"), widget=forms.PasswordInput(), required=True)
     re_password = forms.CharField(label=_("Re-Password"), widget=forms.PasswordInput(), required=True)
     agree_to_terms = forms.BooleanField(label=_("I agree to the Terms Of Use and Privacy Statement"), required=True)
