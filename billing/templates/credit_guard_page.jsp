@@ -18,12 +18,11 @@
     <script src="merchantPages/WebSources/js/<%=lang%>.js"></script>
     <script src="merchantPages/WebSources/js/main.js"></script>
     <%
-    if(lang.equals("EN")){
-        langdir="ltr";
-        abs-vert-pos="right: 0";
-    } else {
+	String langdir="ltr";
+	String absvertpos="right: 0";
+    if(lang.equals("HE")){
         langdir="rtl";
-        abs-vert-pos="left: 0";
+        absvertpos="left: 0";
     }
     %>
 {% endblock %}
@@ -124,7 +123,7 @@
         #submitBtn {
             position: absolute;
             bottom: 0;
-            <%=abs-vert-pos%>;
+            <%=absvertpos%>;
         }
 
         #site-footer {
