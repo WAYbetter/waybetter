@@ -84,11 +84,11 @@ def bill_order(request, trx_id, passenger):
     return custom_render_to_response("transaction_page.html", locals(), context_instance=RequestContext(request))
 
 def transaction_error(request):
+    if request.GET.get("lang") == u"HE":
+        request.encoding = "cp1255"
 
-    #TODO: report error
-    logging.info(request)
-
-    return HttpResponse("\n".join([ "%s = %s" % t for t in request.GET.items()]))
+    error_text = request.GET.get("ErrorText")
+    return custom_render_to_response("error_page.html", locals(), context_instance=RequestContext(request))
 
 @passenger_required
 def get_trx_status(request, passenger):

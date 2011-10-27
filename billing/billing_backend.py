@@ -113,6 +113,7 @@ def do_credit_guard_trx(params):
     logging.info("CREDIT GUARD TRX - payload: %s" % rendered_payload)
 
     payload = str("user=%s&password=%s&int_in=%s" % (settings.BILLING["username"], settings.BILLING["password"], urlquote_plus(rendered_payload)))
+
     result = fetch(provider_url, method="POST", payload=payload, deadline=50)
 
     logging.info("CREDIT GUARD TRX - response: %s" % result.content)
