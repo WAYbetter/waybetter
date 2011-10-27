@@ -1,22 +1,19 @@
 {% load i18n %}
+{% get_current_language_bidi as LANGUAGE_BIDI %}
 <html>
-	<body style="font-family:Arial, sans-serif; font-size:13px">
+	<body style="font-family:Arial, sans-serif; font-size:13px" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 		<p>
-            {% blocktrans %}
-                Hi {{ passenger_name }},
-            {% endblocktrans %}
+            {% blocktrans %}Hi {{ passenger_name }},{% endblocktrans %}
 		</p>
 		<p>
-            {% trans "Thank you for using WAYbetter" %}
+            {% trans "Thank you for using WAYbetter's smart taxi service" %}
 		</p>
 		<p>
 			<b>
-                {% blocktrans %}
-                    Order details (ID: {{ order_id }})
-                {% endblocktrans %}
+                {% blocktrans %}Order details (ID: {{ order_id }}){% endblocktrans %}
 			</b>
 		</p>
-		<table cellpadding="10" cellspacing="0" style="border:none;border-collapse:collapse;font-size:13px;text-align:left;" width="600px">
+		<table cellpadding="10" cellspacing="0" style="border:none;border-collapse:collapse;font-size:13px;text-align:{{ LANGUAGE_BIDI|yesno:"right,left" }};" width="600px" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 			<tr style="background:#CCC">
 				<th style="border:1px dotted #aaa">{% trans "Pickup" %}</th>
 				<th style="border:1px dotted #aaa">{% trans "Dropoff" %}</th>
@@ -28,15 +25,15 @@
 				<td style="border:1px dotted #aaa">{{ order_type }}</td>
 			</tr>
 		</table>
-
-        <table cellpadding="10" cellspacing="0" style="border:none;border-collapse:collapse;font-size:13px;text-align:left;" width="600px">
+        <br>
+        <table cellpadding="10" cellspacing="0" style="border:none;border-collapse:collapse;font-size:13px;text-align:{{ LANGUAGE_BIDI|yesno:"right,left" }};" width="600px" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
             <tr style="background:#CCC">
-                <th style="border:1px dotted #aaa">{% trans "Depart Time" %}</th>
+                <th style="border:1px dotted #aaa">{% trans "Estimated Pickup Time" %}</th>
                 <th style="border:1px dotted #aaa">{% trans "Price" %}</th>
             </tr>
             <tr>
-                <td style="border:1px dotted #aaa">{{ depart_time }}</td>
-                <td style="border:1px dotted #aaa; font-weight: bold">{{ price }}</td>
+                <td style="border:1px dotted #aaa; direction:ltr">{{ depart_time }}</td>
+                <td style="border:1px dotted #aaa; font-weight: bold">{{ price }} &#8362;</td>
             </tr>
         </table>
 
@@ -52,7 +49,7 @@
 
         <p>{% trans 'The <a href="http://www.waybetter.com">WAYbetter</a> team' %}</p>
 
-        <p><a href="{% url my_rides %}">-{% trans "View your order on our website" %}-</a></p>
+        <p><a href="http://www.waybetter.com/{% url my_rides %}">-{% trans "View your order on our website" %}-</a></p>
 
     </body>
 </html>

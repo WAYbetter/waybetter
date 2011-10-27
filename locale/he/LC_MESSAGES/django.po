@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-24 12:31+0200\n"
-"PO-Revision-Date: 2011-10-24 12:32+0200\n"
-"Last-Translator: amir <amir@waybetter.com>\n"
+"POT-Creation-Date: 2011-10-27 17:38+0200\n"
+"PO-Revision-Date: 2011-10-27 17:39+0200\n"
+"Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "X-Translated-Using: django-rosetta 0.5.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -241,7 +241,7 @@ msgstr "פעיל"
 msgid "phone validation required"
 msgstr "יש לאשר את מספר הטלפון"
 
-#: billing/billing_backend.py:130
+#: billing/billing_backend.py:131
 msgid "Ride Summary"
 msgstr "סיכום נסיעות"
 
@@ -380,11 +380,11 @@ msgstr "יום שישי"
 msgid "Saturday"
 msgstr "יום שבת"
 
-#: common/util.py:349
+#: common/util.py:353
 msgid "Value must consists of digits only."
 msgstr "הערך חייב להיות מורכב מספרות בלבד."
 
-#: common/util.py:350
+#: common/util.py:354
 #, fuzzy
 msgid "Value must consists of exactly ten digits."
 msgstr "הערך חייב להיות מורכב מספרות בלבד."
@@ -485,6 +485,10 @@ msgstr "הסיסמה שלך"
 #: ordering/templates/passenger_profile.html:64
 msgid "OK"
 msgstr "אישור"
+
+#: common/templates/error_page.html:3
+msgid "Something Went Wrong"
+msgstr "משהו השתבש..."
 
 #: common/templates/feedback_form.html:5
 msgid "Please Let Us Know How You Feel"
@@ -814,7 +818,7 @@ msgstr "אנא מלא את הפרטים הבאים ואנו ניצור עמך ק
 
 #: interests/templates/business_interest_form.html:37
 #: interests/templates/mobile_interest_form.html:52
-#: interests/templates/pilot_interest_form.html:93
+#: interests/templates/pilot_interest_form.html:92
 #: interests/templates/station_interest_form.html:36
 #: ordering/templates/business_registration.html:137
 #: ordering/templates/workstation_home.html:754
@@ -850,15 +854,15 @@ msgstr "אשמח אם תידעו אותי כשהאפליקציה זמינה לה
 msgid "Close"
 msgstr "סגירה"
 
-#: interests/templates/pilot_interest_form.html:6
+#: interests/templates/pilot_interest_form.html:5
 msgid "We are currently running a private alpha"
 msgstr "אנחנו מפעילים כרגע גרסת Alpha פרטית"
 
-#: interests/templates/pilot_interest_form.html:75
+#: interests/templates/pilot_interest_form.html:74
 msgid "If you would like to be one of the first to use the service please leave your email."
 msgstr "אם בא לך להיות בין הראשונים להשתמש בשירות ולקבל עדכונים אפשר להשאיר מייל:"
 
-#: interests/templates/pilot_interest_form.html:83
+#: interests/templates/pilot_interest_form.html:82
 msgid "Thanks. We'll contact you soon."
 msgstr "תודה. ניצור אתך קשר בקרוב."
 
@@ -2242,12 +2246,17 @@ msgstr "אודות"
 msgid "Press"
 msgstr "תקשורת"
 
-#: ordering/templates/info.html:34
-#: templates/base.html:145
+#: ordering/templates/info.html:31
+#: templates/base.html:142
+msgid "Help"
+msgstr "עזרה"
+
+#: ordering/templates/info.html:33
+#: templates/base.html:144
 msgid "Terms"
 msgstr "תנאי שימוש"
 
-#: ordering/templates/info.html:35
+#: ordering/templates/info.html:34
 #: ordering/templates/passenger_home.html:67
 msgid "TAXI"
 msgstr "TAXI"
@@ -2603,7 +2612,7 @@ msgid "Station Manager?"
 msgstr "מנהל תחנה?"
 
 #: ordering/templates/stations.html:31
-#: templates/base.html:146
+#: templates/base.html:145
 msgid "Station Entrance"
 msgstr "כניסת תחנות"
 
@@ -2981,10 +2990,22 @@ msgstr "מרווח זמן"
 msgid "tag"
 msgstr "תג"
 
-#: sharing/passenger_controller.py:71
-#: sharing/passenger_controller.py:73
+#: sharing/passenger_controller.py:72
+#: sharing/passenger_controller.py:74
 msgid "Not found"
 msgstr "לא קיים"
+
+#: sharing/passenger_controller.py:527
+msgid "WAYbetter ride"
+msgstr "נסיעת מונית WAYbetter"
+
+#: sharing/passenger_controller.py:527
+msgid "Private ride"
+msgstr "נסיעת מונית פרטית"
+
+#: sharing/passenger_controller.py:546
+msgid "WAYbetter Order Confirmation"
+msgstr "אישור הזמנת נסיעה "
 
 #: sharing/templates/about_us.html:5
 #: sharing/templates/wb_info.html:7
@@ -3147,6 +3168,7 @@ msgid "When (est. pickup time)"
 msgstr "זמן איסוף משוער"
 
 #: sharing/templates/myrides_table.html:8
+#: sharing/templates/passenger_ride_email.html:32
 msgid "Price"
 msgstr "מחיר"
 
@@ -3225,6 +3247,7 @@ msgid "Taxi is on the way!"
 msgstr "המונית בדרך!"
 
 #: sharing/templates/passenger_notification_msg.html:3
+#: sharing/templates/passenger_ride_email.html:18
 #: sharing/templates/producer_ordering_page.html:53
 #: sharing/templates/station_history.html:37
 #: sharing/templates/voucher_email.html:19
@@ -3318,15 +3341,66 @@ msgstr "המשך"
 msgid "Sending"
 msgstr "שולח"
 
-#: sharing/templates/producer_ordering_page.html:37
-msgid "Is Sharing"
-msgstr "נוסע בSharing"
+#: sharing/templates/passenger_ride_email.html:6
+#, python-format
+msgid "Hi %(passenger_name)s,"
+msgstr "הי %(passenger_name)s,"
 
+#: sharing/templates/passenger_ride_email.html:9
+msgid "Thank you for using WAYbetter's smart taxi service"
+msgstr "אנו מודים לך על השימוש בשירות המוניות החכמות של WAYbetter"
+
+#: sharing/templates/passenger_ride_email.html:13
+#, python-format
+msgid "Order details (ID: %(order_id)s)"
+msgstr "להלן פרטי הזמנתך (מספר %(order_id)s):"
+
+#: sharing/templates/passenger_ride_email.html:19
 #: sharing/templates/producer_ordering_page.html:70
 #: sharing/templates/station_history.html:45
 #: sharing/templates/voucher_email.html:31
 msgid "Dropoff"
 msgstr "יעד"
+
+#: sharing/templates/passenger_ride_email.html:20
+msgid "Ride Type"
+msgstr "סוג נסיעה"
+
+#: sharing/templates/passenger_ride_email.html:31
+msgid "Estimated Pickup Time"
+msgstr "זמן איסוף משוער"
+
+#: sharing/templates/passenger_ride_email.html:40
+msgid "Please note"
+msgstr "לתשומת לבך"
+
+#: sharing/templates/passenger_ride_email.html:41
+msgid "A free SMS will remind you a few minutes before your taxi arrives"
+msgstr "הודעת תזכורת מדויקת תישלח חינם ב-SMS מספר דקות לפני הגעת המונית"
+
+#: sharing/templates/passenger_ride_email.html:42
+msgid "A detailed invoice will be sent on the 1st of next month"
+msgstr "חשבונית מס חודשית מפורטת תישלח למייל זה ב-1 לחודש הבא"
+
+#: sharing/templates/passenger_ride_email.html:43
+msgid "You can cancel this ride at no cost in out website up to one hour before the pickup time"
+msgstr "ניתן לבטל נסיעה זו באתר ללא תשלום עד לשעה לפני שעת האיסוף "
+
+#: sharing/templates/passenger_ride_email.html:47
+msgid "Have a great ride"
+msgstr "נסיעה טובה"
+
+#: sharing/templates/passenger_ride_email.html:50
+msgid "The <a href=\"http://www.waybetter.com\">WAYbetter</a> team"
+msgstr "החברים מ <a href=\"http://www.waybetter.com\">WAYbetter</a>"
+
+#: sharing/templates/passenger_ride_email.html:52
+msgid "View your order on our website"
+msgstr "לצפייה בהזמנה באתר"
+
+#: sharing/templates/producer_ordering_page.html:37
+msgid "Is Sharing"
+msgstr "נוסע בSharing"
 
 #: sharing/templates/producer_ordering_page.html:82
 msgid "Add existing passenger"
@@ -3899,7 +3973,7 @@ msgstr "פשוט להזמין מונית (חינם)"
 msgid "Passengers home"
 msgstr "דף-בית נוסעים"
 
-#: templates/base.html:167
+#: templates/base.html:166
 msgid "2010 WAYbetter"
 msgstr "2010-2011 <span class=waybetter></span>"
 
@@ -4100,11 +4174,12 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
 
+#, fuzzy
+#~ msgid "Depart Time"
+#~ msgstr "שעת יציאה"
+
 #~ msgid "Invite"
 #~ msgstr "הזמן"
-
-#~ msgid "Help"
-#~ msgstr "עזרה"
 
 #~ msgid "Choose From History"
 #~ msgstr "בחר מהיסטוריה"
@@ -4717,10 +4792,6 @@ msgstr "שגיאה בבודק האיות"
 #~ msgstr "איפוס סיסמה נכשל"
 
 #, fuzzy
-#~ msgid "New password confirmation"
-#~ msgstr "אין התאמה בין הסיסמאות"
-
-#, fuzzy
 #~ msgid "codename"
 #~ msgstr "שם"
 
@@ -4875,10 +4946,6 @@ msgstr "שגיאה בבודק האיות"
 
 #, fuzzy
 #~ msgid "Thanks for commenting"
-#~ msgstr "תודה שהצטרפת ל WAYbetter"
-
-#, fuzzy
-#~ msgid "Thank you for your comment"
 #~ msgstr "תודה שהצטרפת ל WAYbetter"
 
 #, fuzzy
@@ -5746,9 +5813,6 @@ msgstr "שגיאה בבודק האיות"
 #~ msgstr ""
 #~ "דף אינטרנט ייעודי לתחנה באתר www.waybetter.com + אפשרות להזמנת מונית "
 #~ "מיידית מהתחנה (חינם)."
-
-#~ msgid "Your own ordering tool at your website (FREE)"
-#~ msgstr "ממשק נוח להזמנת מוניות באתר הבית של התחנה שלך (חינם)"
 
 #~ msgid ""
 #~ "Web application for smart-phone users (FREE)<br>Users will be able to "
