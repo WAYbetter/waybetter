@@ -1,5 +1,5 @@
 # Create your views here.
-from datetime import  date, datetime
+from datetime import  date, datetime, timedelta
 import logging
 import csv
 from billing import billing_backend
@@ -128,6 +128,7 @@ def send_invoices(request, month=None):
     return HttpResponse("OK")
 
 def get_csv(request):
+    delta = int(request.GET.get("days", 30))
     if request.GET.get("format") == "screen":
         response = HttpResponse()
         writer = csv.writer(response, delimiter=" ", lineterminator="<br>")
@@ -150,8 +151,7 @@ def get_csv(request):
             ]
 
     writer.writerow(cols)
-
-    for ride in SharedRide.objects.filter(status__in=[ACCEPTED, COMPLETED]):
+    for ride in SharedRide.objects.filter(status__in=[ACCEPTED, COMPLETED], create_date__gt=datetime.now() - timedelta(days=delta)):
         station = ride.station
         price_rules = station.get_ride_price(ride, rules_only=True)
         max_rule = None
@@ -168,8 +168,8 @@ def get_csv(request):
             ride.depart_time.date(),
             ride.depart_time.timetz(),
             ride.station.name,
-            ride.taxi.number,
-            ride.driver.name,
+            ride.taxi.number if ride.taxi else "N/A",
+            ride.driver.name if ride.driver else "N/A",
             max_rule.city_area_1.name if max_rule else "",
             max_rule.city_area_2.name if max_rule else ""
         ]
