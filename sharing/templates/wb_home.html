@@ -154,21 +154,25 @@
         <div id="hotspot_input_helper" class="tooltip-content">
             <div class="header"></div>
             <div class="content">
-                <label class="city">
-                    <div>{% trans "Select City" %}:</div>
-                    <select id="id_hotspot_city" name="hotspot_city">
-                        {% for city in cities %}
-                            <option value="{{ city.id }}">{{ city.name }}</option>
-                        {% endfor %}
-                    </select>
-                </label>
+                <div id="hotspot_help">
+                    {% trans "Hotspots are centers of activity from which & to which we offer WAYbetter service" %}
+                </div>
+{#                <label class="city">#}
+{#                    <div>{% trans "Select City" %}:</div>#}
+{#                    <select id="id_hotspot_city" name="hotspot_city">#}
+{#                        {% for city in cities %}#}
+{#                            <option value="{{ city.id }}">{{ city.name }}</option>#}
+{#                        {% endfor %}#}
+{#                    </select>#}
+{#                </label>#}
                 <label class="hotspot">
                     <div>{% trans "Select HotSpot" %}:</div>
                     <select id="id_hotspot_select" name="hotspot_id"></select>
                 </label>
             </div>
             <div class="footer">
-                <div class="help wb_link" id="switch2address">{% trans 'Switch to "Enter Address"' %}</div>
+{#                <div class="help wb_link" id="switch2address">{% trans 'Switch to "Enter Address"' %}</div>#}
+                <div class="help wb_link switch_dir">{% trans 'Switch direction' %}</div>
                 <button class="next_btn wb_button"></button>
             </div>
         </div>
@@ -205,36 +209,45 @@
             </div>
 
             <div class="footer">
-                <div class="help wb_link" id="switch2hotspot">{% trans 'Switch to "Select HotSpot"' %}</div>
+{#                <div class="help wb_link" id="switch2hotspot">{% trans 'Switch to "Select HotSpot"' %}</div>#}
+                <div class="help wb_link switch_dir">{% trans 'Switch direction' %}</div>
                 <button class="next_btn wb_button"></button>
                 <div class="tooltip_loader"></div>
             </div>
         </div>
 
         <div id="datetime_input_helper" class="tooltip-content">
-            <div class="header datetime">>{% trans "Set Time" %}</div>
+            <div class="header datetime">{% trans "When" %}?</div>
             <div class="content">
-                <div id="time_radio">
-                    <label>
-                        <input id="pickup_time" type="radio" name="datetime_type" checked="checked"/>
-                        {% trans "Pickup Time" %}
-                    </label>
-                    <label>
-                        <input id="dropoff_time" type="radio" name="datetime_type"/>
-                        {% trans "Dropoff Time" %}
-                    </label>
-                </div>
-                <div id="time_tools" class="depart">
-                    <div class="img depart"></div>
-                    <input type="text" id="id_hotspot_datepicker" name="hotspot_date" class="depart"> @
+                <div id="pickup_time_container">
+                    <span id="pickup_time">{% trans "Choose Pickup Time" %}:</span>
+                    <input type="text" id="id_hotspot_datepicker" name="hotspot_date" class="depart">
+                    <span class="at">{% trans "at" %}</span>
                     <select id="id_hotspot_time" name="hotspot_time"></select>
                 </div>
 
-                <div class="clear"></div>
+{#                <div id="time_radio">#}
+{#                    <label>#}
+{#                        <input id="pickup_time" type="radio" name="datetime_type" checked="checked"/>#}
+{#                        {% trans "Pickup Time" %}#}
+{#                    </label>#}
+{#                    <label>#}
+{#                        <input id="dropoff_time" type="radio" name="datetime_type"/>#}
+{#                        {% trans "Dropoff Time" %}#}
+{#                    </label>#}
+{#                </div>#}
+{#                <div id="time_tools" class="depart">#}
+{#                    <div class="img depart"></div>#}
+{#                    <input type="text" id="id_hotspot_datepicker" name="hotspot_date" class="depart"> {% trans "at" %} #}
+{#                    <select id="id_hotspot_time" name="hotspot_time"></select>#}
+{#                </div>#}
+{##}
+{#                <div class="clear"></div>#}
             </div>
             <div class="footer">
                 <div class="help">{% trans "*Times may vary due to traffic and stuff..." %}</div>
                 <button class="next_btn wb_button"></button>
+                <div class="tooltip_loader"></div>
             </div>
         </div>
     </div>
@@ -351,7 +364,6 @@
 
         // helper specific stuff
         if (helper_type == "datetime") {
-            $helper.find(".header").text("{% trans "Define Time" %}");
             getHotspotTimes();
         } else {
             var address_type = getAddressType(trigger);
@@ -387,7 +399,9 @@
         if (helper_type == "address") {
             $("#id_street_address").focus();
         }
-
+        else{
+            $helper.find(".next_btn").focus();
+        }
     }
 
     function openNextTooltip(here, there) {
@@ -395,13 +409,12 @@
             openTooltipHelper(here, "select");
         }
         else {
-            $(here).addClass("resolved");
-            if (! address_resolved) {
-                openTooltipHelper(there, "address");
+            if (! hotspot_resolved) {
+                openTooltipHelper(there, "hotspot");
             }
             else {
-                if (! hotspot_resolved) {
-                    openTooltipHelper(there, "hotspot");
+                if (! address_resolved) {
+                    openTooltipHelper(there, "address");
                 }
                 else {
                     if (! datetime_resolved) {
@@ -409,7 +422,7 @@
                     }
                     else { // all resolved
                         closeTooltips();
-                        showRideDetails();
+                        showRideDetails({});
                     }
                 }
             }
@@ -423,7 +436,8 @@
 
     function getHotspotTimes() {
         if (hotspot_resolved && address_resolved) {
-            var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF;
+            var time_type = PICKUP;
+//            var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF;
             HotspotHelper.refreshHotspotSelector({
                 refresh_intervals: true,
                 get_intervals_data: {
@@ -438,7 +452,7 @@
         }
     }
 
-    function showRideDetails() {
+    function showRideDetails(options) {
         $.ajax({
             url: "{% url sharing.passenger_controller.get_hotspot_price %}",
             dataType: "json",
@@ -448,6 +462,11 @@
                 'hotspot_id': $("#id_hotspot_select").val(),
                 'day': $("#id_hotspot_datepicker").val(),
                 'time': $("#id_hotspot_time").val()
+            },
+            beforeSend: function(){
+                if (options.beforeSend){
+                    options.beforeSend();
+                }
             },
             success: function(response) {
                 if (response.sharing_price && response.sharing_time && response.private_price && response.private_time) {
@@ -465,6 +484,11 @@
             },
             error: function() {
                 orderingError("{% trans "We have encountered an error. Please try again." %}");
+            },
+            complete: function(){
+                if (options.complete){
+                    options.complete();
+                }
             }
         });
     }
@@ -486,7 +510,8 @@
 
         var hidden_inputs = {
             is_private: is_private,
-            time_type: ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF,
+            time_type: PICKUP,
+//            time_type: ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF,
             ride_duration: $("#id_hotspot_time").data("ride_duration"),
             hotspot_type: hotspot_type,
             lat: address_lat,
@@ -525,7 +550,7 @@
         });
     }
 
-    function copy_input_data(source, target) {
+    function clone_input(source, target) {
         $(target).data("resolved_as", $(source).data("resolved_as"));
         $(target).text($(source).text());
     }
@@ -696,22 +721,43 @@
         });
 
 
-        $("#switch").click(function() {
-            if (hotspot_resolved && address_resolved) {
-                hotspot_type = (hotspot_type == PICKUP) ? DROPOFF : PICKUP;
+        $("#switch, .switch_dir").click(function() {
+            // clone existing data
+            var $pickup_clone = $("#pickup_input").clone(true);
+            var $dropoff_clone = $("#dropoff_input").clone(true);
+
+            // reset inputs
+            $("#pickup_input, #dropoff_input").removeClass("resolved").data("resolved_as", false);
+            $("#pickup_input").text("{% trans 'From' %}");
+            $("#dropoff_input").text("{% trans 'To' %}");
+
+            // swap contents
+            if ($pickup_clone.data("resolved_as")) {
+                clone_input($pickup_clone, "#dropoff_input");
+                $("#dropoff_input").addClass("resolved");
+            }
+            if ($dropoff_clone.data("resolved_as")) {
+                clone_input($dropoff_clone, "#pickup_input");
+                $("#pickup_input").addClass("resolved");
+            }
+
+            // swap markers
+            hotspot_type = (hotspot_type == PICKUP) ? DROPOFF : PICKUP;
+            if (hotspot_resolved) {
                 HotspotHelper.refreshHotspotMarker(hotspot_type);
+            }
+            if (address_resolved) {
                 if (hotspot_type == PICKUP){
                     CMHelper.addBMarker(address_lat, address_lon, {title: address_name});
                 }
                 else{
                     CMHelper.addAMarker(address_lat, address_lon, {title: address_name});
                 }
-
-                var $clone = $("#pickup_input").clone(true);
-                copy_input_data("#dropoff_input", "#pickup_input");
-                copy_input_data($clone, "#dropoff_input");
-                openTooltipHelper("#datetime_input", "datetime");
             }
+
+            var $input = getAddressInput($(".input.tooltip-visible"));
+            var $other_input = (getAddressType($input) == PICKUP) ? $("#" + DROPOFF + "_input") : $("#" + PICKUP + "_input");
+            openNextTooltip($input, $other_input);
         });
 
         $("#sel_hotspot, #sel_address").click(function(e) {
@@ -721,30 +767,30 @@
             openTooltipHelper(getAddressInput(this), sel_type);
         });
 
-        $("#switch2hotspot, #switch2address").click(function(e) {
-            e.stopPropagation();
+{#        $("#switch2hotspot, #switch2address").click(function(e) {#}
+{#            e.stopPropagation();#}
+{##}
+{#            hotspot_resolved = address_resolved = datetime_resolved = select_input_resolved = false;#}
+{#            address_lat = address_lon = undefined;#}
+{#            $("[type='address_input']").data("resolved_as", false).each(function() {#}
+{#                $(this).text($(this).hasClass("from") ? "{% trans "From" %}" : "{% trans "To" %}");#}
+{#            });#}
+{#            $("#datetime_value").text("");#}
+{#            CMHelper.removeMarker("all");#}
+{#            var helper_type = this.id.split("2")[1];#}
+{#            openTooltipHelper(getAddressInput(this), helper_type);#}
+{#        });#}
 
-            hotspot_resolved = address_resolved = datetime_resolved = select_input_resolved = false;
-            address_lat = address_lon = undefined;
-            $("[type='address_input']").data("resolved_as", false).each(function() {
-                $(this).text($(this).hasClass("from") ? "{% trans "From" %}" : "{% trans "To" %}");
-            });
-            $("#datetime_value").text("");
-            CMHelper.removeMarker("all");
-            var helper_type = this.id.split("2")[1];
-            openTooltipHelper(getAddressInput(this), helper_type);
-        });
-
-        $("#pickup_time, #dropoff_time").change(function() {
-            getHotspotTimes();
-            var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF;
-            if (time_type == PICKUP) {
-                $("#time_tools, #time_tools .img").removeClass("arrive").addClass("depart");
-            }
-            else {
-                $("#time_tools, #time_tools .img").removeClass("depart").addClass("arrive");
-            }
-        });
+//        $("#pickup_time, #dropoff_time").change(function() {
+//            getHotspotTimes();
+//            var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF;
+//            if (time_type == PICKUP) {
+//                $("#time_tools, #time_tools .img").removeClass("arrive").addClass("depart");
+//            }
+//            else {
+//                $("#time_tools, #time_tools .img").removeClass("depart").addClass("arrive");
+//            }
+//        });
 
         $("#hotspot_input_helper .next_btn, #address_input_helper .next_btn").click(function(e) {
             e.stopPropagation();
@@ -755,6 +801,8 @@
             var address_type = getAddressType(this);
             var $input = getAddressInput(this);
             var $other_input = (getAddressType(this) == PICKUP) ? $("#" + DROPOFF + "_input") : $("#" + PICKUP + "_input");
+
+            $input.addClass("resolved");
 
             var $helper = $(this).parents(".tooltip-content");
             var helper_type = $helper.attr("id").split("_")[0]; // what was clicked?
@@ -821,19 +869,26 @@
                 $(el).data("saved_val", $(el).val());
             });
 
-            var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF;
-            if (time_type == PICKUP) {
-                $("#datetime_input").removeClass("arrive").addClass("depart");
-                $("#datetime_input .type").text("{% trans "Departure" %}");
-            }
-            else {
-                $("#datetime_input").removeClass("depart").addClass("arrive");
-                $("#datetime_input .type").text("{% trans "Arrival" %}");
-            }
+{#            var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF;#}
+{#            if (time_type == PICKUP) {#}
+{#                $("#datetime_input").removeClass("arrive").addClass("depart");#}
+{#                $("#datetime_input .type").text("{% trans "Departure" %}");#}
+{#            }#}
+{#            else {#}
+{#                $("#datetime_input").removeClass("depart").addClass("arrive");#}
+{#                $("#datetime_input .type").text("{% trans "Arrival" %}");#}
+{#            }#}
             $("#datetime_value").text($("#id_hotspot_datepicker").val() + " " + $("#id_hotspot_time").val());
 
-            closeTooltips();
-            showRideDetails();
+            showRideDetails({
+                beforeSend: function(){
+                    $("#datetime_input_helper .tooltip_loader").show();
+                },
+                complete: function() {
+                    $("#datetime_input_helper .tooltip_loader").hide();
+                    closeTooltips();
+                }
+            });
         });
 
         /**

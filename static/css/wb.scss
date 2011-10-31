@@ -1016,6 +1016,7 @@ Home
         background: url(/static/images/wb_site/save_stamp.png) -3px bottom no-repeat;
         .container{
             position: absolute;
+            left: 0;
             top: 22px;
             width: 100%;
             height: 40px;
@@ -1068,7 +1069,7 @@ Home
             background: url(/static/images/wb_site/field_icons.png) 0 -136px no-repeat;
         }
         .header.datetime{
-            background: url(/static/images/wb_site/field_icons.png) 0 -176px no-repeat;
+            background: url(/static/images/wb_site/field_icons.png) 0 -179px no-repeat;
         }
         .content{
             height: 75px;
@@ -1094,23 +1095,32 @@ Home
             }
             .ui-button-text{ padding: 5px; }
         }
-    }
-
-    #select_input_helper{
-        #sel_address {float: left; position: relative; left: 50px;}
-        #sel_hotspot {float: right; border-left: 1px solid $light-gray ; padding-left: 35px; position: relative; right: 62px; height: 76px;}
-        .img { display: block; height:42px; width: 42px; position: relative; left: 20px; top: 8px;}
-        #sel_address .img{ background: transparent url(/static/images/wb_site/addresshotsopt_42.png) left 5px no-repeat; }
-        #sel_hotspot .img{ background: transparent url(/static/images/wb_site/addresshotsopt_42.png) 1px -43px no-repeat; }
-        .wb_link{position: relative; top: 21px; left: -1px;}
-        .help{
-            color: $color-gray;
-            left: 8px;
-            top: 3px;
-            height: 22px;
-            line-height: 15px;
+        .tooltip_loader {
+            display: none;
+            background: url(../images/wb_site/loader16.gif) left 0 no-repeat;
+            height: 16px;
+            width: 16px;
+            position: relative;
+            left: 236px;
+            bottom: -2px;
         }
     }
+
+    /*#select_input_helper{*/
+        /*#sel_address {float: left; position: relative; left: 50px;}*/
+        /*#sel_hotspot {float: right; border-left: 1px solid $light-gray ; padding-left: 35px; position: relative; right: 62px; height: 76px;}*/
+        /*.img { display: block; height:42px; width: 42px; position: relative; left: 20px; top: 8px;}*/
+        /*#sel_address .img{ background: transparent url(/static/images/wb_site/addresshotsopt_42.png) left 5px no-repeat; }*/
+        /*#sel_hotspot .img{ background: transparent url(/static/images/wb_site/addresshotsopt_42.png) 1px -43px no-repeat; }*/
+        /*.wb_link{position: relative; top: 21px; left: -1px;}*/
+        /*.help{*/
+            /*color: $color-gray;*/
+            /*left: 8px;*/
+            /*top: 3px;*/
+            /*height: 22px;*/
+            /*line-height: 15px;*/
+        /*}*/
+    /*}*/
 
     #hotspot_input_helper, #address_input_helper{
         label div{ float: left;}
@@ -1119,9 +1129,19 @@ Home
             top: 5px;
         }
         select{ float: right; }
+        .footer{
+            .switch_dir{
+                padding-left: 25px;
+                line-height: 32px;
+                background: transparent url(/static/images/wb_site/switch_small.png) left 0 no-repeat;
+            }
+        }
     }
 
     #hotspot_input_helper{
+        #hotspot_help{
+            color: $color-pink;
+        }
         label.hotspot{
             display: block;
             position: relative;
@@ -1129,16 +1149,10 @@ Home
         }
         label.hotspot div{
             position: relative;
-            top: 23px;
+            top: 7px;
         }
         select{
             width: 240px;
-        }
-        .footer{
-            .help{
-                padding-left: 25px;
-                background: transparent url(/static/images/wb_site/addresshotsopt_25.png) -3px -2px no-repeat;
-            }
         }
     }
 
@@ -1158,34 +1172,22 @@ Home
         #id_street_address{ width: 181px;}
         .err { color: red }
         .hn_error{ margin-left: 8px;}
-        .footer{
-            .help{
-                padding-left: 32px;
-                background: transparent url(/static/images/wb_site/addresshotsopt_25.png) 0 -35px no-repeat;
-            }
-        }
-
-        .tooltip_loader {
-            display: none;
-            background: url(../images/wb_site/loader16.gif) left 0 no-repeat;
-            height: 16px;
-            width: 16px;
-            position: relative;
-            left: 236px;
-            bottom: -2px;
-        }
     }
 
     #datetime_input_helper{
-        #time_radio{ float: left; position: relative; left: -7px; top: 3px;}
-        #time_tools{ float: right; position: relative;}
-        #time_tools.depart { top: -7px; }
-        #time_tools.arrive { top: 43px; }
-        label {display: block; margin-bottom: 30px;}
-        #id_hotspot_datepicker{ width: 80px; }
-        .img{ height: 28px; width: 30px; display: inline-block; position: relative; top: 5px;}
-        .img.depart{ background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat; }
-        .img.arrive{ background: url(/static/images/wb_site/field_icons.png) 6px -254px no-repeat; }
+        #pickup_time_container{ position: relative; top: 25px;}
+        #pickup_time{ margin-right: 5px; }
+        #id_hotspot_datepicker{ width: 100px; }
+        .at {margin:0 5px}
+        /*#time_radio{ float: left; position: relative; left: -7px; top: 23px;}*/
+        /*#time_tools{ float: right; position: relative;}*/
+        /*#time_tools.depart { top: -7px; }*/
+        /*#time_tools.arrive { top: 43px; }*/
+        /*label {display: block; margin-bottom: 30px;}*/
+        /*#id_hotspot_datepicker{ width: 80px; }*/
+        /*.img{ height: 28px; width: 30px; display: inline-block; position: relative; top: 5px;}*/
+        /*.img.depart{ background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat; }*/
+        /*.img.arrive{ background: url(/static/images/wb_site/field_icons.png) 6px -254px no-repeat; }*/
     }
 
     #partners{
@@ -1342,7 +1344,7 @@ Home
             background-position: right -136px;
         }
         .header.datetime{
-            background-position: right -176px;
+            background-position: right -179px;
         }
         .footer{
             .help{
@@ -1354,32 +1356,34 @@ Home
                 left: -2px;
             }
         }
-    }
-
-    #select_input_helper{
-        #sel_address {float: right; left: auto; right: 50px;}
-        #sel_hotspot {float: left; border-left: none; border-right: 1px solid $light-gray ; padding-left: 0; padding-right: 35px; right: auto; left: 62px; }
-        .img { left: auto; right: 20px; }
-        #sel_address .img{ background-position: right 5px; }
-        #sel_hotspot .img{ background-position: right -43px; }
-        .wb_link{left: auto; right: -1px;}
-        .help{
+        .tooltip_loader {
+            background-position: right 0;
             left: auto;
-            right: 8px;
+            right: 236px;
         }
     }
+
+    /*#select_input_helper{*/
+        /*#sel_address {float: right; left: auto; right: 50px;}*/
+        /*#sel_hotspot {float: left; border-left: none; border-right: 1px solid $light-gray ; padding-left: 0; padding-right: 35px; right: auto; left: 62px; }*/
+        /*.img { left: auto; right: 20px; }*/
+        /*#sel_address .img{ background-position: right 5px; }*/
+        /*#sel_hotspot .img{ background-position: right -43px; }*/
+        /*.wb_link{left: auto; right: -1px;}*/
+        /*.help{*/
+            /*left: auto;*/
+            /*right: 8px;*/
+        /*}*/
+    /*}*/
 
     #hotspot_input_helper, #address_input_helper{
         label div{ float: right;}
         select{ float: left; }
-    }
-
-    #hotspot_input_helper{
         .footer{
-            .help{
+            .switch_dir{
                 padding-left: 0;
                 padding-right: 25px;
-                background-position: right -2px;
+                background: transparent url(/static/images/wb_site/switch_small_rtl.png) right 0 no-repeat;
             }
         }
     }
@@ -1389,26 +1393,14 @@ Home
         .container {float: left; div {float: right;} }
         #id_house_number{ margin-left: auto; margin-right: 12px}
         .hn_error{ margin-left: auto; margin-right: 8px;}
-        .footer{
-            .help{
-                padding-left: 0;
-                padding-right: 32px;
-                background-position: right -35px;
-            }
-        }
-
-        .tooltip_loader {
-            background-position: right 0;
-            left: auto;
-            right: 236px;
-        }
     }
 
     #datetime_input_helper{
-        #time_radio{ float: right; left: auto; right: -7px; }
-        #time_tools{ float: left; }
-        .img.depart{ background: url(/static/images/wb_site/field_icons_rtl.png) 6px -212px no-repeat; }
-        .img.arrive{ background: url(/static/images/wb_site/field_icons_rtl.png) 6px -254px no-repeat; }
+        #pickup_time{ margin-right: 0; margin-left: 15px; }
+        /*#time_radio{ float: right; left: auto; right: -7px; }*/
+        /*#time_tools{ float: left; }*/
+        /*.img.depart{ background: url(/static/images/wb_site/field_icons_rtl.png) 6px -212px no-repeat; }*/
+        /*.img.arrive{ background: url(/static/images/wb_site/field_icons_rtl.png) 6px -254px no-repeat; }*/
     }
 
 } // rtl HOME
