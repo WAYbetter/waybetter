@@ -405,7 +405,8 @@
     }
 
     function openNextTooltip(here, there) {
-        if (false && ! select_input_resolved) { // don't open "select" tooltip until we decide otherwise
+        // don't open "select" tooltip until we decide otherwise
+        if (false && ! select_input_resolved) {
             openTooltipHelper(here, "select");
         }
         else {
@@ -417,21 +418,18 @@
                     openTooltipHelper(there, "address");
                 }
                 else {
-                    if (! datetime_resolved) {
-                        openTooltipHelper("#datetime_input", "datetime");
-                    }
-                    else { // all resolved
-                        closeTooltips();
-                        showRideDetails({});
-                    }
+                    openTooltipHelper("#datetime_input", "datetime");
+//                    if (! datetime_resolved) {
+//                        openTooltipHelper("#datetime_input", "datetime");
+//                    }
+//                    else { // all resolved
+//                        closeTooltips();
+//                        showRideDetails({});
+//                    }
                 }
             }
 
         }
-    }
-
-    function showMap() {
-        $("#banner").hide();
     }
 
     function getHotspotTimes() {
@@ -479,11 +477,11 @@
                     $("#save_stamp").fadeIn("fast");
                     $(".order_button").enable();
                 } else {
-                    orderingError("{% trans "Currently, there is no service to this address." %}");
+                    showError("{% trans "Currently, there is no service to this address." %}", undefined);
                 }
             },
             error: function() {
-                orderingError("{% trans "We have encountered an error. Please try again." %}");
+                showError("{% trans "We have encountered an error. Please try again." %}", undefined);
             },
             complete: function(){
                 if (options.complete){
@@ -491,15 +489,6 @@
                 }
             }
         });
-    }
-
-    function orderingError(msg) {
-        $("#save_stamp").hide();
-        showError(msg);
-    }
-
-    function showError(msg) {
-        alert(msg);
     }
 
     function bookRide(is_private) {
@@ -527,6 +516,7 @@
             $form.append($('<input type="hidden" name="is_debug" value="true"/>'));
         {% endif %}
 
+        var err_msg = "{% trans "We have encountered an error. Please try again." %}";
         $form.ajaxSubmit({
             url: "{% url sharing.passenger_controller.book_ride %}",
             type: "POST",
@@ -540,22 +530,43 @@
                     if (response.status == "booked" && response.redirect)
                         window.location.href = response.redirect;
                     if (response.status == "failed") {
-                        if (response.message) {
-                            openDialog('{% trans "Oops, something went wrong" %}', response.message, function() {
-                                if (response.redirect) {
-                                    window.location.href = response.redirect;
-                                }
-                            });
-                        }
-                        $(".order_button").enable();
+                        showError(response.message || err_msg, function() {
+                            if (response.redirect) {
+                                window.location.href = response.redirect;
+                            }
+                        });
                     }
                 }
             },
             error:  function() {
-                openDialog('{% trans "Oops, something went wrong" %}', "{% trans "We have encountered an error. Please try again." %}");
-                $(".order_button").enable();
+                showError(err_msg, undefined);
             }
         });
+    }
+
+    function showMap() {
+        $("#banner").hide();
+    }
+
+    function showError(msg, onClose) {
+        Registrator.openWBErrorDialog("{% trans 'OOPS...' %}", msg, onClose);
+        clear_values();
+        $(".order_button").disable();
+        $("#save_stamp").hide();
+        openNextTooltip("#pickup_input", "#dropoff_input");
+    }
+
+    function clear_values(){
+        $("#sharing_price .value").text(0);
+        $("#sharing_time .value").text(0);
+        $("#private_price .value").text(0);
+        $("#private_time .value").text(0);
+    }
+
+    function clear_inputs(){
+        $("#pickup_input, #dropoff_input").removeClass("resolved").data("resolved_as", false);
+        $("#pickup_input").text("{% trans 'From' %}");
+        $("#dropoff_input").text("{% trans 'To' %}");
     }
 
     function clone_input(source, target) {
@@ -612,7 +623,7 @@
                             if (has_next) $("#myrides_container").fadeIn("fast");
                         },
                         error: function() {
-                            showError("{% trans "Error getting rides data" %}")
+                            flashError("{% trans "Error getting rides data" %}")
                         }
                     });
         {% endif %}
@@ -641,6 +652,11 @@
             }
         });
         HotspotHelper.makeHotSpotSelector();
+        $("#id_hotspot_datepicker").datepicker("option", {
+            onSelect: function(dateText, inst) {
+                getHotspotTimes();
+            }
+        });
 
         AddressHelper.init({
             urls:{
@@ -719,9 +735,7 @@
                 openTooltipHelper($(this), "datetime");
             }
             else {
-                if (hotspot_resolved && address_resolved) {
-                    openNextTooltip("#pickup_input", "#dropoff_input");
-                }
+                openNextTooltip("#pickup_input", "#dropoff_input");
             }
         });
 
@@ -729,16 +743,12 @@
             openNextTooltip("#pickup_input", "#dropoff_input");
         });
 
-
         $("#switch, .switch_dir").click(function() {
             // clone existing data
             var $pickup_clone = $("#pickup_input").clone(true);
             var $dropoff_clone = $("#dropoff_input").clone(true);
 
-            // reset inputs
-            $("#pickup_input, #dropoff_input").removeClass("resolved").data("resolved_as", false);
-            $("#pickup_input").text("{% trans 'From' %}");
-            $("#dropoff_input").text("{% trans 'To' %}");
+            clear_inputs();
 
             // swap contents
             if ($pickup_clone.data("resolved_as")) {
@@ -769,12 +779,12 @@
             openNextTooltip($input, $other_input);
         });
 
-        $("#sel_hotspot, #sel_address").click(function(e) {
-            e.stopPropagation();
-
-            var sel_type = $(this).attr("id").split("_")[1];
-            openTooltipHelper(getAddressInput(this), sel_type);
-        });
+//        $("#sel_hotspot, #sel_address").click(function(e) {
+//            e.stopPropagation();
+//
+//            var sel_type = $(this).attr("id").split("_")[1];
+//            openTooltipHelper(getAddressInput(this), sel_type);
+//        });
 
 {#        $("#switch2hotspot, #switch2address").click(function(e) {#}
 {#            e.stopPropagation();#}
