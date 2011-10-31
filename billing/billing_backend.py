@@ -49,6 +49,9 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
     transaction_id = get_text_from_element(xml, "tranId")
     billing_transaction.transaction_id = transaction_id
 
+    #TODO_WB: remove once J5 is approved
+    status_code = 0
+    
     if int(status_code):
         message = get_text_from_element(xml, "message")
         billing_transaction.comments = message
