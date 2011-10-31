@@ -209,6 +209,17 @@ var Registrator = Object.create({
             that.openDialog.call(that, {}, { "title": title });
         });
     },
+    openWBErrorDialog        : function(title, message, onClose) {
+        var that = this;
+        this.getTemplate.call(this, 'error', function (dialog_content) {
+            $(".header .title", dialog_content).text(title);
+            $(".content .error-desc", dialog_content).html(message);
+            $(".close", dialog_content).click(function () {
+                $("#dialog").dialog("close");
+            });
+            that.openDialog.call(that, {}, { title: "", dialogClass: 'wb-error-dialog', close: onClose });
+        });
+    },
     openFeedbackDialog      : function (callback) {
         var that = this;
         that.setCallback(callback);

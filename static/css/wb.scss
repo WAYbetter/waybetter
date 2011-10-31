@@ -1638,7 +1638,6 @@ Registration
     #status_help{ font-size: $font-size-medium; margin-top: 10px;}
 
     #home{
-        float: right;
         position: absolute;
         right: 0;
         bottom: 0;
@@ -1656,7 +1655,6 @@ Registration
     }
 
     #home{
-        float: left;
         right: auto;
         left: 0;
     }
@@ -1850,6 +1848,47 @@ Info pages
     }
 }
 
+.error-page{
+    .header{
+        .img, .title { display: inline-block; }
+        .img{
+            width: 100px;
+            height: 100px;
+            background: url(/static/images/wb_site/processing_icons.png) 7px 10px no-repeat;
+        }
+        .title{
+            position: relative;
+            bottom: 35px;
+            font-size: $font-size-huge;
+            font-weight: bold;
+        }
+    }
+    .content{
+        margin-left: 30px;
+        .error-desc{
+            font-size: $font-size-header2;
+        }
+    }
+    #button_container{
+        position: relative;
+        margin-top: 50px;
+    }
+    #home{
+        position: absolute;
+        right: 0;
+        bottom: 0;
+    }
+}
+.rtl.error-page{
+    .content{
+        margin-left: auto;
+        margin-right: 30px;
+    }
+    #home{
+        right: auto;
+        left: 0;
+    }
+}
 /*
 Dialogs
 ****************************************************/
@@ -1871,6 +1910,38 @@ Dialogs
         float:left;
     }
 }
+/*
+Error dialog
+****************************************************/
+.wb-error-dialog{
+    .header{
+        .img, .title { display: inline-block; }
+        .img{
+            width: 42px;
+            height: 38px;
+            background: url(/static/images/wb_site/error_icon.png) left top no-repeat;
+        }
+        .title{
+            position: relative;
+            bottom: 5px;
+            font-size: $font-size-huge;
+            font-weight: bold;
+        }
+    }
+    .content{
+        margin-left: 30px;
+        .error-desc{
+            font-size: $font-size-header2;
+        }
+    }
+}
+.rtl .wb-error-dialog{
+    .content{
+        margin-left: auto;
+        margin-right: 30px;
+    }
+}
+
 /*
 Feedback dialog
 ****************************************************/

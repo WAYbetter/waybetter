@@ -203,6 +203,10 @@
 {% block scripts %}
     <script type="text/javascript"
             src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
+    {% if LANGUAGE_CODE == 'he' %}
+        <script type="text/javascript" src="/static/js/mylibs/jquery.ui.datepicker-he.js"></script>
+    {% endif %}
+
     {{ block.super }}
 
     <!-- when not dev these scripts are already included in the concatenated js -->
