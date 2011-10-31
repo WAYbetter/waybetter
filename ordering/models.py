@@ -533,8 +533,9 @@ class Passenger(BaseModel):
     @property
     def name(self):
         try:
-            if self.user and self.user.username:
-                return self.user.username
+            if self.user:
+                name = self.user.first_name or self.user.get_full_name() or self.user.username
+                return name
         except User.DoesNotExist:
             pass
 

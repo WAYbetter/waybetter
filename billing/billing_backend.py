@@ -116,7 +116,7 @@ def do_credit_guard_trx(params):
 
     params.update(settings.BILLING)
     params.update({
-        'language'						: "Eng",
+        'language'						: "Eng", #TODO_WB: pass the correct lang code here
         'may_be_duplicate'				: "0",
         'currency'						: "ILS",
         'request_id'					: get_unique_id(),

@@ -1,6 +1,6 @@
 import logging
+from google.appengine.api.urlfetch_errors import DeadlineExceededError
 from common.util import split_to_chunks
-from google.appengine.runtime import DeadlineExceededError
 from django.conf import settings
 from settings import SMS_PROVIDER_URL, SMS_CALLBACK_URL
 from django.template.loader import get_template
@@ -75,7 +75,7 @@ def send_sms_cellact(destination, text, sms_config):
     payload = str("XMLString=" + urlquote_plus(rendered_payload))
 
     try:
-        result = fetch(provider_url, method="POST", payload=payload, deadline=10)
+        result = fetch(provider_url, method="POST", payload=payload, deadline=50)
 
         if result.content.find("<RESULTCODE>0</RESULTCODE>") == -1:
             logging.error("error sending sms: %s" % result.content)
