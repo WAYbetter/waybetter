@@ -20,6 +20,7 @@ import types
 def do_J5(token, amount, card_expiration, billing_transaction_id):
     billing_transaction = BillingTransaction.by_id(billing_transaction_id)
     billing_transaction.change_status(BillingStatus.PENDING, BillingStatus.PROCESSING)
+    lang_code = get_language_code_for_credit_guard(billing_transaction.order.language_code)
 
     params = {
         'card_id'						: token,
@@ -28,6 +29,7 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
         'billing_transaction_id'		: billing_transaction_id,
         'request_id'					: get_unique_id(),
         'validation'					: "Verify",
+        'language'                      : lang_code
         }
 
     # only for test terminals (who start with 096)
@@ -43,6 +45,9 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
         billing_failed_signal.send(sender="do_J5", obj=billing_transaction)
         return HttpResponse("OK")
 
+    if lang_code == "Heb":
+        result = result.decode("utf-8").encode("hebrew")
+        
     xml = minidom.parseString(result)
     status_code = get_text_from_element(xml, "status")
     auth_number = get_text_from_element(xml, "authNumber")
@@ -73,6 +78,7 @@ def do_J4(token, amount, card_expiration, billing_transaction_id):
 
     billing_transaction.change_status(BillingStatus.APPROVED, BillingStatus.PROCESSING)
 
+    lang_code = get_language_code_for_credit_guard(billing_transaction.order.language_code)
     params = {
         'card_id'						: token,
         'card_expiration'				: card_expiration,
@@ -80,7 +86,8 @@ def do_J4(token, amount, card_expiration, billing_transaction_id):
         'billing_transaction_id'		: billing_transaction_id,
         'request_id'					: get_unique_id(),
         'validation'					: "AutoComm",
-        'auth_number'                   : billing_transaction.auth_number
+        'auth_number'                   : billing_transaction.auth_number,
+        'language'                      : lang_code
         }
 
     result = do_credit_guard_trx(params)
@@ -116,7 +123,6 @@ def do_credit_guard_trx(params):
 
     params.update(settings.BILLING)
     params.update({
-        'language'						: "Eng", #TODO_WB: pass the correct lang code here
         'may_be_duplicate'				: "0",
         'currency'						: "ILS",
         'request_id'					: get_unique_id(),
@@ -205,3 +211,8 @@ def create_invoice_passenger(passenger):
     return result
 
 
+def get_language_code_for_credit_guard(lang_code):
+    if lang_code == "en":
+        return "Eng"
+    else:
+        return "Heb"
