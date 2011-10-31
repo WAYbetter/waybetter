@@ -12,7 +12,7 @@ from common.tz_support import  default_tz_now, set_default_tz_time
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
-from ordering.models import StopType, RideComputation, RideComputationSet, OrderType
+from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus
 from sharing.forms import ConstraintsForm
 from sharing.models import HotSpot
 from sharing.passenger_controller import HIDDEN_FIELDS
@@ -130,7 +130,7 @@ def ride_computation_stat(request, computation_set_id):
         computations = [{'id': c.id,
                          'stat': simplejson.loads(c.statistics),
                          'toleration_factor': c.toleration_factor,
-                         'toleration_factor_minutes': c.toleration_factor_minutes} for c in computation_set.members.filter(completed=True)]
+                         'toleration_factor_minutes': c.toleration_factor_minutes} for c in computation_set.members.filter(status=RideComputationStatus.COMPLETED)]
 
         return render_to_response('ride_computation_stat.html', locals(), context_instance=RequestContext(request))
 
@@ -208,7 +208,8 @@ def submit_test_computation(orders, params, computation_set_name=None, computati
     algo_key = submit_orders_for_ride_calculation(orders, key=key, params=params)
 
     if algo_key:
-        computation = RideComputation(algo_key=algo_key, debug=True, submitted=True)
+        computation = RideComputation(algo_key=algo_key, debug=True)
+        computation.change_status(new_status=RideComputationStatus.SUBMITTED)
         computation.toleration_factor = params.get('toleration_factor')
         computation.toleration_factor_minutes = params.get('toleration_factor_minutes')
         order = orders[0]
