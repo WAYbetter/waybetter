@@ -70,6 +70,7 @@ class BillingTransaction(BaseModel):
         return self._change_attr_in_transaction("status", old_value=old_value, new_value=new_value, safe=False)
 
     def _setup_charge_date(self):
+        #TODO_WB: decide on the correct way to do this - relative to j5
 #        self.charge_date = self.dn_pickup_time + timedelta(days=1)
         self.charge_date = self.dn_pickup_time + timedelta(minutes=15)
 
