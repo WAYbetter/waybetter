@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-10-31 11:33+0200\n"
-"PO-Revision-Date: 2011-10-31 11:42+0200\n"
+"POT-Creation-Date: 2011-10-31 18:06+0200\n"
+"PO-Revision-Date: 2011-10-31 18:07+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -276,6 +276,7 @@ msgstr "זמן איסוף"
 
 #: billing/templates/transaction_page.html:11
 #: billing/templates/mobile/transaction_page.html:16
+#: common/templates/error_page.html:16
 #: templates/wb_base_site.html:134
 #: templates/admin/billing/billingtransaction/change_form.html:18
 msgid "Home"
@@ -388,6 +389,10 @@ msgstr "הערך חייב להיות מורכב מספרות בלבד."
 msgid "Value must consists of exactly ten digits."
 msgstr "עשר ספרות בלבד."
 
+#: common/views.py:74
+msgid "All we know is that there was an error. Please try again whatever you did."
+msgstr "כנראה שהתרחשה שגיאה. בבקשה נסו שוב."
+
 #: common/templates/cant_login_form.html:6
 msgid "Phone authentication"
 msgstr "זיהוי טלפון"
@@ -460,6 +465,18 @@ msgstr "וידוא סיסמה (עוד פעם)"
 msgid "Login"
 msgstr "כניסה"
 
+#: common/templates/error_dialog.html:5
+#: common/templates/error_page.html:8
+msgid "OOPS..."
+msgstr "אופס..."
+
+#: common/templates/error_dialog.html:11
+#: interests/templates/mobile_interest_form.html:53
+#: interests/templates/station_interest_form.html:37
+#: ordering/templates/base_passenger.html:69
+msgid "Close"
+msgstr "סגירה"
+
 #: common/templates/error_form.html:12
 #: common/templates/feedback_form.html:12
 #: common/templates/terms_form.html:12
@@ -484,10 +501,6 @@ msgstr "הסיסמה שלך"
 #: ordering/templates/passenger_profile.html:64
 msgid "OK"
 msgstr "אישור"
-
-#: common/templates/error_page.html:3
-msgid "Something Went Wrong"
-msgstr "משהו השתבש..."
 
 #: common/templates/feedback_form.html:5
 msgid "Please Let Us Know How You Feel"
@@ -846,12 +859,6 @@ msgstr "נראה לי מגניב!"
 #: interests/templates/mobile_interest_form.html:44
 msgid "Please notify me when the app is ready for download"
 msgstr "אשמח אם תידעו אותי כשהאפליקציה זמינה להורדה"
-
-#: interests/templates/mobile_interest_form.html:53
-#: interests/templates/station_interest_form.html:37
-#: ordering/templates/base_passenger.html:69
-msgid "Close"
-msgstr "סגירה"
 
 #: interests/templates/pilot_interest_form.html:5
 msgid "We are currently running a private alpha"
@@ -1752,7 +1759,7 @@ msgstr "תאריך"
 #: sharing/templates/myrides_table.html:5
 #: sharing/templates/station_accounting.html:32
 #: sharing/templates/wb_home.html:48
-#: sharing/templates/wb_home.html.py:731
+#: sharing/templates/wb_home.html.py:732
 #: sharing/templates/mobile/wb_home.html:350
 msgid "From"
 msgstr "מוצא"
@@ -1765,7 +1772,7 @@ msgstr "מוצא"
 #: sharing/templates/myrides_table.html:6
 #: sharing/templates/station_accounting.html:32
 #: sharing/templates/wb_home.html:53
-#: sharing/templates/wb_home.html.py:732
+#: sharing/templates/wb_home.html.py:733
 #: sharing/templates/mobile/wb_home.html:357
 msgid "To"
 msgstr "יעד"
@@ -3768,7 +3775,7 @@ msgstr "אופס, התרחשה שגיאה. אנא נסו שוב."
 msgid "Error getting rides data"
 msgstr ""
 
-#: sharing/templates/wb_home.html:954
+#: sharing/templates/wb_home.html:955
 msgid "Join the private Beta"
 msgstr "הרשמה לBeta פרטית"
 
@@ -4155,6 +4162,9 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 #: tinymce/views.py:68
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
+
+#~ msgid "Something Went Wrong"
+#~ msgstr "משהו השתבש..."
 
 #~ msgid "Help"
 #~ msgstr "עזרה"

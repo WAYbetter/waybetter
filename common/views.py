@@ -1,3 +1,4 @@
+from django.utils.translation import ugettext as _
 from common.tz_support import to_js_date, default_tz_now_max, default_tz_now_min
 from common.models import Country
 from common.forms import DatePickerForm
@@ -63,7 +64,12 @@ def reset_password(request):
 
     return HttpResponse("OK")
 
+def error_dialog(request):
+    return render_to_response('error_dialog.html')
+
 def error_page(request, error_text=None):
+    page_specific_class = "error-page"
+    
     if not error_text:
         error_text = request.session.get(ERROR_PAGE_TEXT, _("All we know is that there was an error. Please try again whatever you did."))
 

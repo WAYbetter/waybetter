@@ -1,7 +1,31 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
-{% block top_left %}{% trans "Something Went Wrong" %}{% endblock %}
 
 {% block content %}
-{{ error_text }}
+    <div id="error_container">
+        <div class="header">
+            <div class="img"></div>
+            <div class="title">{% trans "OOPS..." %}</div>
+        </div>
+        <div class="content">
+            <p class="error-desc">
+                {{ error_text }}
+            </p>
+        </div>
+        <div id="button_container">
+            <button id="home" class="wb_button">{% trans "Home" %}</button>
+        </div>
+    </div>
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script>
+        $(document).ready(function() {
+            $("#home").click(function() {
+                window.location.href = "{% url wb_home %}";
+            });
+        });
+    </script>
+
 {% endblock %}

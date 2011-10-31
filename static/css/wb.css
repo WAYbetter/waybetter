@@ -1433,7 +1433,6 @@ Registration
   font-size: 13px;
   margin-top: 10px; }
 .transaction_page #home {
-  float: right;
   position: absolute;
   right: 0;
   bottom: 0; }
@@ -1445,7 +1444,6 @@ Registration
   left: auto;
   right: 50px; }
 .rtl.transaction_page #home {
-  float: left;
   right: auto;
   left: 0; }
 
@@ -1601,6 +1599,36 @@ Info pages
   font-size: 13px;
   line-height: 22px; }
 
+.error-page .header .img, .error-page .header .title {
+  display: inline-block; }
+.error-page .header .img {
+  width: 100px;
+  height: 100px;
+  background: url(/static/images/wb_site/processing_icons.png) 7px 10px no-repeat; }
+.error-page .header .title {
+  position: relative;
+  bottom: 35px;
+  font-size: 35px;
+  font-weight: bold; }
+.error-page .content {
+  margin-left: 30px; }
+  .error-page .content .error-desc {
+    font-size: 16px; }
+.error-page #button_container {
+  position: relative;
+  margin-top: 50px; }
+.error-page #home {
+  position: absolute;
+  right: 0;
+  bottom: 0; }
+
+.rtl.error-page .content {
+  margin-left: auto;
+  margin-right: 30px; }
+.rtl.error-page #home {
+  right: auto;
+  left: 0; }
+
 /*
 Dialogs
 ****************************************************/
@@ -1613,6 +1641,29 @@ Dialogs
 
 .rtl .dialog #button_container {
   float: left; }
+
+/*
+Error dialog
+****************************************************/
+.wb-error-dialog .header .img, .wb-error-dialog .header .title {
+  display: inline-block; }
+.wb-error-dialog .header .img {
+  width: 42px;
+  height: 38px;
+  background: url(/static/images/wb_site/error_icon.png) left top no-repeat; }
+.wb-error-dialog .header .title {
+  position: relative;
+  bottom: 5px;
+  font-size: 35px;
+  font-weight: bold; }
+.wb-error-dialog .content {
+  margin-left: 30px; }
+  .wb-error-dialog .content .error-desc {
+    font-size: 16px; }
+
+.rtl .wb-error-dialog .content {
+  margin-left: auto;
+  margin-right: 30px; }
 
 /*
 Feedback dialog
