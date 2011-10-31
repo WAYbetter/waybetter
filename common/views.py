@@ -1,3 +1,4 @@
+from django.utils.translation import ugettext as _
 from common.tz_support import to_js_date, default_tz_now_max, default_tz_now_min
 from common.models import Country
 from common.forms import DatePickerForm
@@ -9,6 +10,7 @@ from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.utils import simplejson
 from google.appengine.api import xmpp
+from common.util import custom_render_to_response
 from djangotoolbox.http import JSONResponse
 from ordering.models import WorkStation
 from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
@@ -24,6 +26,8 @@ except ImportError:
     # In the development server
 
 from google.appengine.ext import deferred
+
+ERROR_PAGE_TEXT = "error_page_text"
 
 def base_datepicker_page(request, f_data, template_name, wrapper_locals, init_start_date=None, init_end_date=None):
     if request.method == 'POST': # date picker form submitted
@@ -60,6 +64,16 @@ def reset_password(request):
 
     return HttpResponse("OK")
 
+def error_dialog(request):
+    return render_to_response('error_dialog.html')
+
+def error_page(request, error_text=None):
+    page_specific_class = "error-page"
+    
+    if not error_text:
+        error_text = request.session.get(ERROR_PAGE_TEXT, _("All we know is that there was an error. Please try again whatever you did."))
+
+    return custom_render_to_response("error_page.html", locals(), context_instance=RequestContext(request))
 
 def setup(request):
     if "token" in request.GET:
