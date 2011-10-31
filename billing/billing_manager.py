@@ -1,9 +1,11 @@
 from datetime import datetime
 import logging
+from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request
 from google.appengine.api.urlfetch import fetch
-from common.util import get_unique_id
+from common.util import get_unique_id, custom_render_to_response, safe_fetch
 from django.conf import settings
+from common.views import ERROR_PAGE_TEXT, error_page
 
 ALL_QUERY_FIELDS = {
     "MID"					:               "",
@@ -69,12 +71,15 @@ def get_transaction_id(unique_id, lang_code, mpi_data):
     data = "&".join(["%s=%s" % i for i in data.items()])
     
     logging.info(data)
-    res = fetch(settings.BILLING["transaction_url"], method='POST', payload=data, deadline=10)
-    if res.content.startswith("--"):
+
+    res = safe_fetch(settings.BILLING["transaction_url"], method='POST', payload=data, deadline=10)
+    if not res:
+        return None
+    elif res.content.startswith("--"):
         logging.error("No transaction ID received: %s" % res.content)
         return None
-
-    return res.content
+    else:
+        return res.content
 
 
 def get_token_url(request, order=None):
@@ -90,4 +95,8 @@ def get_token_url(request, order=None):
         request.session[unique_id] = order
 
     trx_id = get_transaction_id(unique_id, lang_code, mpi_data)
-    return settings.BILLING["token_url"] % trx_id
+    if trx_id:
+        return settings.BILLING["token_url"] % trx_id
+    else:
+        request.session[ERROR_PAGE_TEXT] = _("Could not complete your registration. Please try again.")
+        return reverse(error_page)

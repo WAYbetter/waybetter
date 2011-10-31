@@ -80,6 +80,13 @@ LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGE
 MAX_STATION_DISTANCE_KM = 10
 CURRENT_PASSENGER_KEY = "current_passenger"
 
+class RideComputationStatus(Enum):
+    PENDING     = 1
+    SUBMITTED   = 2
+    COMPLETED   = 3
+    ABORTED     = 4
+    PROCESSING  = 5
+
 class StopType(Enum):
     PICKUP  = 0
     DROPOFF = 1
@@ -334,7 +341,7 @@ class RideComputationSet(BaseModel):
 
     @property
     def orders(self):
-        computations = self.members.filter(completed=True)
+        computations = self.members.filter(status=RideComputationStatus.COMPLETED)
         computation = filter(lambda c: c.orders.count(), computations)[0]
         return computation.orders.all()
 
@@ -345,8 +352,7 @@ class RideComputation(BaseModel):
     algo_key = models.CharField(max_length=150, null=True, blank=True, editable=False)
 
     debug = models.BooleanField(default=False, editable=False)
-    submitted = models.BooleanField(default=False, editable=False)
-    completed = models.BooleanField(default=False, editable=False)
+    status = StatusField(_("status"), choices=RideComputationStatus.choices(), default=RideComputationStatus.PENDING)
 
     hotspot_depart_time = UTCDateTimeField(null=True, blank=True, editable=False)
     hotspot_arrive_time = UTCDateTimeField(null=True, blank=True, editable=False)
@@ -355,7 +361,9 @@ class RideComputation(BaseModel):
     toleration_factor_minutes = models.FloatField(null=True, blank=True)
     statistics = models.TextField(null=True, blank=True)
 
-    
+    def change_status(self, old_status=None, new_status=None, safe=True):
+        return self._change_attr_in_transaction("status", old_value=old_status, new_value=new_status, safe=safe)
+
 class SharedRide(BaseModel):
 
     depart_time = UTCDateTimeField(_("depart time"))

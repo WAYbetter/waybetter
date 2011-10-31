@@ -6,6 +6,7 @@ from google.appengine.api.mail import EmailMessage
 from google.appengine.ext.db import is_in_transaction
 from google.appengine.api import taskqueue
 from google.appengine.api.images import BadImageError, NotImageError
+from google.appengine.api.urlfetch import fetch, GET
 from django.utils.translation import ugettext as _
 from django.shortcuts import render_to_response
 from django.db.models.fields import related
@@ -493,3 +494,22 @@ def add_formatted_date_fields(classes):
                 setattr(model, f.name + "_format", format_datefield(f))
 
 
+def safe_fetch(url, payload=None, method=GET, headers={},
+               allow_truncated=False, follow_redirects=True,
+               deadline=None, validate_certificate=None):
+    res = None
+    try:
+        res = fetch(url, payload, method, headers, allow_truncated, follow_redirects, deadline, validate_certificate)
+    except Exception, e:
+        trace = traceback.format_exc()
+        body = u"url: %s\npayload: %s\ntrace: %s" % (url, payload, trace)
+
+        logging.error(u"Exception caught by safe_fetch:\n %s" % trace)
+        notify_by_email(u"Exception caught by safe_fetch", body)
+
+    if res and res.status_code != 200:
+        logging.error(u"safe_fetch returned %s" % res.status)
+        notify_by_email(u"safe_fetch failed", u"safe_fetch returned %s for\nurl: %s\npayload: %s" %(res.status, url, payload))
+        res = None
+
+    return res

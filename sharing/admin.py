@@ -1,8 +1,10 @@
+from datetime import datetime
 from django.utils.translation import ugettext as _
 from django.contrib import admin
 from common.forms import MandatoryInlineFormset
 from django.core.urlresolvers import reverse
-from ordering.models import RideComputation, RideComputationSet, Order
+from ordering.models import RideComputation, RideComputationSet, Order, RideComputationStatus
+from sharing.algo_api import submit_computations
 from sharing.models import HotSpot, HotSpotTag, HotSpotServiceRule, HotSpotCustomPriceRule, HotSpotTariffRule, Producer, ProducerPassenger
 from sharing.forms import HotSpotAdminForm, HotSpotServiceRuleAdminForm
 
@@ -48,9 +50,16 @@ class RideComputationInlineAdmin(admin.TabularInline):
     extra = 0
 
 
+def send_computation(modeladmin, request, queryset):
+    for ride_computation in queryset:
+        submit_computations(ride_computation.key, datetime.now())
+
+send_computation.short_description = "Send computation to algo"
+
 class RideComputationAdmin(admin.ModelAdmin):
-    list_display = ["create_date", "id", "debug", "submitted", "completed", "num_orders", "key", "algo_key", "set_name"]
+    list_display = ["create_date", "id", "debug", "status", "num_orders", "key", "algo_key", "set_name"]
     inlines = [OrderInlineAdmin,]
+    actions = [send_computation]
     
     def num_orders(self, obj):
         return obj.orders.count()

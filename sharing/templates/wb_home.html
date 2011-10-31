@@ -494,7 +494,6 @@
     }
 
     function orderingError(msg) {
-        //TODO_WB: redirect to error page
         $("#save_stamp").hide();
         showError(msg);
     }
@@ -540,12 +539,21 @@
                         Registrator.openPilotInterestDialog();
                     if (response.status == "booked" && response.redirect)
                         window.location.href = response.redirect;
+                    if (response.status == "failed") {
+                        if (response.message) {
+                            openDialog('{% trans "Oops, something went wrong" %}', response.message, function() {
+                                if (response.redirect) {
+                                    window.location.href = response.redirect;
+                                }
+                            });
+                        }
+                        $(".order_button").enable();
+                    }
                 }
-                else {
-                    //TODO_WB: redirect to error page
-                    alert("{% trans "We have encountered an error. Please try again." %}");
-                    $(".order_button").enable();
-                }
+            },
+            error:  function() {
+                openDialog('{% trans "Oops, something went wrong" %}', "{% trans "We have encountered an error. Please try again." %}");
+                $(".order_button").enable();
             }
         });
     }

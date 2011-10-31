@@ -50,7 +50,8 @@ def transaction_ok(request, passenger):
         "passenger"				: passenger,
         "token"					: request.GET.get("cardToken"),
         "expiration_date"		: exp_date,
-        "card_repr"				: request.GET.get("cardMask")
+        "card_repr"				: request.GET.get("cardMask"),
+        "personal_id"          : request.GET.get("personalId")
     }
     # clean up old billing info objects
     BillingInfo.objects.filter(passenger=passenger).delete()

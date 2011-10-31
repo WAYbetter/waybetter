@@ -42,6 +42,27 @@ def catch_view_exceptions(function=None):
 
     return wrapper
 
+def catch_view_exceptions_retry(function=None):
+    def wrapper(*args, **kwargs):
+        try:
+            return function(*args, **kwargs)
+        except Exception, e:
+            trace = traceback.format_exc()
+            logging.error("Exception caught by decorator:\n %s" % trace)
+            notify_by_email("Exception caught by decorator (will retry)", trace)
+
+            try:
+                return function(*args, **kwargs)
+            except Exception, e2:
+                trace = traceback.format_exc()
+                logging.error("Exception caught by decorator:\n %s" % trace)
+                notify_by_email("Exception caught by decorator", trace)
+
+            return HttpResponse("Exception caught by decorator")
+
+    return wrapper
+
+
 def internal_task_on_queue(queue_name):
     """
     Ensures request has the matching HTTP_X_APPENGINE_QUEUENAME header
