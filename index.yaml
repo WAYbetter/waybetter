@@ -821,6 +821,12 @@ indexes:
   - name: __key__
     direction: desc
 
+- kind: ordering_ridecomputation
+  properties:
+  - name: key
+  - name: status
+  - name: create_date
+
 - kind: ordering_ridecomputationset
   properties:
   - name: __key__
@@ -1091,26 +1097,6 @@ indexes:
   properties:
   - name: producer_id
   - name: name
-
-- kind: sharing_ridecomputation
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: sharing_ridecomputationset
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: sharing_ridepoint
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: sharing_sharedride
-  properties:
-  - name: __key__
-    direction: desc
 
 - kind: socialauth_authmeta
   properties:

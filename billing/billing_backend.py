@@ -3,7 +3,7 @@ from billing.models import BillingTransaction
 from billing.signals import billing_failed_signal, billing_approved_signal, billing_charged_signal
 from common.models import Counter
 from common.urllib_adaptor import urlencode
-from common.util import get_text_from_element, get_unique_id
+from common.util import get_text_from_element, get_unique_id, safe_fetch
 from ordering.models import CANCELLED, PENDING, APPROVED, CHARGED
 from django.conf import settings
 from django.http import HttpResponse
@@ -30,13 +30,19 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
         'validation'					: "Verify",
         }
 
-    # TODO: only for dev
+    # only for test terminals (who start with 096)
     if settings.BILLING["terminal_number"].startswith("096"):
         params.update({
             "auth_number": "0000000"
         })
 
     result = do_credit_guard_trx(params)
+    if not result:
+        billing_transaction.comments = "CreditGuard transaction failed"
+        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
+        billing_failed_signal.send(sender="do_J5", obj=billing_transaction)
+        return HttpResponse("OK")
+
     xml = minidom.parseString(result)
     status_code = get_text_from_element(xml, "status")
     auth_number = get_text_from_element(xml, "authNumber")
@@ -75,6 +81,12 @@ def do_J4(token, amount, card_expiration, billing_transaction_id):
         }
 
     result = do_credit_guard_trx(params)
+    if not result:
+        billing_transaction.comments = "CreditGuard transaction failed"
+        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
+        billing_failed_signal.send(sender="do_J4", obj=billing_transaction)
+        return HttpResponse("OK")
+
     xml = minidom.parseString(result)
     status_code = get_text_from_element(xml, "status")
     auth_number = get_text_from_element(xml, "authNumber")
@@ -99,13 +111,15 @@ def do_J4(token, amount, card_expiration, billing_transaction_id):
 def do_credit_guard_trx(params):
     provider_url = settings.BILLING['url']
 
+    params.update(settings.BILLING)
     params.update({
         'language'						: "Eng",
         'may_be_duplicate'				: "0",
         'currency'						: "ILS",
         'request_id'					: get_unique_id(),
+        'terminal_number'               : settings.BILLING["terminal_number_no_CVV"]
     })
-    params.update(settings.BILLING)
+
     c = Context(params)
     t = get_template("credit_guard_transaction.xml")
     rendered_payload = t.render(c)
@@ -114,11 +128,11 @@ def do_credit_guard_trx(params):
 
     payload = str("user=%s&password=%s&int_in=%s" % (settings.BILLING["username"], settings.BILLING["password"], urlquote_plus(rendered_payload)))
 
-    result = fetch(provider_url, method="POST", payload=payload, deadline=50)
+    result = safe_fetch(provider_url, method="POST", payload=payload, deadline=50)
 
-    logging.info("CREDIT GUARD TRX - response: %s" % result.content)
+    logging.info("CREDIT GUARD TRX - response: %s" % result.content if result else "fetch failed")
 
-    return result.content
+    return result.content if result else None
 
 def create_invoices(billing_transactions):
     trx = billing_transactions[0]

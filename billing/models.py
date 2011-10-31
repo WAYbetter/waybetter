@@ -20,6 +20,7 @@ class InvalidOperationError(RuntimeError):
 
 class BillingInfo(BaseModel):
     passenger = models.OneToOneField(Passenger, related_name="billing_info")
+    personal_id = models.CharField(_("id number"), max_length=15, blank=True, null=True)
     token = models.CharField(max_length=20)
     expiration_date = models.DateField(_("expiration date"))
     card_repr = models.CharField(max_length=20)
