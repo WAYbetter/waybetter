@@ -127,7 +127,7 @@ def notify_aborted_computation(orders, computation):
 
     translation.activate(current_lang)
 
-    email_body = _("The following computation was aborted because it did not complete after at least %d minutes:\n%s") % (COMPUTATION_ABORT_TIMEOUT + COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT, str(computation))
+    email_body = "The following computation was aborted because it did not complete after at least %d minutes:\n%s" % (COMPUTATION_ABORT_TIMEOUT + COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT, str(computation))
 
     notify_by_email("Computations Aborted", email_body)
 

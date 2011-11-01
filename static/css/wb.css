@@ -203,7 +203,7 @@ ul.hz > li, #top-right ul.content_links > li {
 
 .order_button:disabled, .order_button.disabled {
   cursor: default;
-  opacity: 0.5;
+  opacity: 0.25;
   text-shadow: none; }
 
 .order_button.blue {
@@ -779,13 +779,25 @@ Home
     .wb_home #order_form #switch:hover {
       background-position: left -49px; }
     .wb_home #order_form .input {
+      position: relative;
       height: 35px;
       width: 214px;
       padding-left: 33px;
       line-height: 34px;
       margin-bottom: 21px;
-      font-size: 11px;
-      color: #6c6c6a; }
+      font-size: 11px; }
+      .wb_home #order_form .input .desc, .wb_home #order_form .input .text, .wb_home #order_form .input .resolved_as {
+        color: #6c6c6a; }
+      .wb_home #order_form .input .loader {
+        display: none;
+        background: url(../images/wb_site/loader16.gif) left 0 no-repeat;
+        height: 16px;
+        width: 16px;
+        position: absolute;
+        right: 5px;
+        bottom: 10px; }
+    .wb_home #order_form .input.resolved .desc, .wb_home #order_form .input.resolved .text, .wb_home #order_form .input.resolved .resolved_as {
+      font-weight: bold; }
     .wb_home #order_form .input:hover {
       -webkit-box-shadow: inset 0 0 0 1px #3d3d3d;
       -moz-box-shadow: inset 0 0 0 1px #3d3d3d;
@@ -898,15 +910,15 @@ Home
     .wb_home #save_stamp .container {
       position: absolute;
       left: 0;
-      top: 22px;
+      top: 19px;
       width: 100%;
       height: 40px;
       line-height: 21px; }
     .wb_home #save_stamp .txt, .wb_home #save_stamp .value {
       display: block;
       text-align: center;
-      color: #313131;
-      text-shadow: 0 1px 0 white;
+      color: white;
+      text-shadow: 0 -1px 0 gray;
       font-weight: bold; }
     .wb_home #save_stamp .txt {
       font-size: 18px; }
@@ -1122,20 +1134,23 @@ Home
     .rtl.wb_home #order_form .input {
       padding-left: 0;
       padding-right: 33px; }
+      .rtl.wb_home #order_form .input .loader {
+        right: auto;
+        left: 5px; }
     .rtl.wb_home #order_form .input.from {
-      background-position: right -10px; }
+      background-position: 220px -10px; }
     .rtl.wb_home #order_form .input.from.resolved {
-      background-position: right -90px; }
+      background-position: 220px -90px; }
     .rtl.wb_home #order_form .input.to {
-      background-position: right -51px; }
+      background-position: 220px -51px; }
     .rtl.wb_home #order_form .input.to.resolved {
-      background-position: right -131px; }
+      background-position: 220px -131px; }
     .rtl.wb_home #order_form .input.datetime {
-      background-position: right -171px; }
+      background-position: 220px -171px; }
     .rtl.wb_home #order_form .input.datetime.depart {
-      background-position: right -212px; }
+      background-position: 220px -212px; }
     .rtl.wb_home #order_form .input.datetime.arrive {
-      background-position: right -251px; }
+      background-position: 220px -251px; }
   .rtl.wb_home #ride_data_container {
     position: absolute;
     right: auto;

@@ -11,6 +11,7 @@ var MyRidesHelper = Object.create({
         },
         order_types: {},
         next_rides_table: undefined,
+        next_rides_container: undefined,
         previous_rides_table: undefined,
         tip: "#myrides_tooltip",
         tip_content: {
@@ -181,7 +182,13 @@ var MyRidesHelper = Object.create({
                 $link.removeClass("wb_link").text(that.config.messages.ride_cancelled);
                 $tip.find(".close").click(function() {
                     $(info_el).data("tooltip").hide();
-                    $(info_el).parent("tr").fadeOut("fast");
+                    var num_rides = $(that.config.next_rides_table).find("tr[data-order_id]").length;
+                    if (num_rides === 1){ // this is the only ride
+                        $(that.config.next_rides_container).fadeOut("fast");
+                    }
+                    else{
+                        $(info_el).parent("tr").fadeOut("fast");
+                    }
                 });
             }
         });
@@ -253,7 +260,8 @@ var HotspotHelper = Object.create({
             data: options.data,
             beforeSend: options.beforeSend,
             success: options.success,
-            error: options.error
+            error: options.error,
+            complete: options.complete || function(){}
         });
     },
 
@@ -337,6 +345,7 @@ var HotspotHelper = Object.create({
         var $timepicker = $(this.config.selectors.timepicker);
 
         if (options.refresh_intervals) {
+            var got_times = false;
             this.getIntervals({
                 data: $.extend(true, {'day': $datepicker.val(), 'hotspot_id': $hotspotpicker.val()},
                         options.get_intervals_data),
@@ -345,9 +354,13 @@ var HotspotHelper = Object.create({
                     if (!$datepicker.val()) {
                         $datepicker.datepicker("setDate", new Date());
                     }
+                    if (options.beforeSend) {
+                        options.beforeSend();
+                    }
                 },
                 success: function(response) {
                     if (response.times) {
+                        got_times = true;
                         $timepicker.empty();
                         $.each(response.times, function(i, t) {
                             $timepicker.append("<option>" + t + "</option>");
@@ -359,9 +372,23 @@ var HotspotHelper = Object.create({
                     }
                 },
                 error: function() {
-                    flashError("Error loading hotspot times data");
+                    if (options.error) {
+                        options.error();
+                    }
+                    else{
+                        flashError("Error loading hotspot times data");
+                    }
+                },
+                complete: function(){
+                    if (options.complete) {
+                        options.complete();
+                    }
+                    if (got_times && options.onGotTimes) {
+                        options.onGotTimes();
+                    }
                 }
             });
+
         }
     },
 
