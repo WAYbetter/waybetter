@@ -45,17 +45,22 @@
                 {% csrf_token %}
 
                 <div id="pickup_input" class="input from" type="address_input">
-                    {% trans "From" %}
+                    <span class="desc"></span>
+                    <span class="text"></span>
+                    <span class="resolved_as"></span>
                 </div>
 
 
                 <div id="dropoff_input" class="input to" type="address_input">
-                    {% trans "To" %}
+                    <span class="desc"></span>
+                    <span class="text"></span>
+                    <span class="resolved_as"></span>
                 </div>
 
                 <div id="datetime_input" class="input datetime disabled" type="datetime_input">
-                    <span class="type">{% trans "When" %}</span>
-                    <span id="datetime_value"></span>
+{#                    <span class="type">{% trans "When" %}</span>#}
+                    <span class="desc">{% trans "When" %}</span>
+                    <div class="loader"></div>
                 </div>
 
                 <div id="switch" class="clickable"></div>
@@ -133,29 +138,29 @@
     <!-- hidden container to hold tooltips content -->
     <div id="tooltip_helpers_container" class="hidden">
 
-        <div id="select_input_helper" class="tooltip-content">
-            <div class="header"></div>
-            <div class="content">
-                <div id="sel_address" class="clickable">
-                    <span class="img"></span>
-                    <span class="wb_link">{% trans "Enter Address" %}</span>
-                </div>
-                <div id="sel_hotspot" class="clickable">
-                    <span class="img"></span>
-                    <span class="wb_link">{% trans "Select Hotspot" %}</span>
-                </div>
-                <div class="clear"></div>
-            </div>
-            <div class="footer">
-                <div class="help">{% trans "Note: Orders are only possible between TLV and Ramat Hachail." %}</div>
-            </div>
-        </div>
+{#        <div id="select_input_helper" class="tooltip-content">#}
+{#            <div class="header"></div>#}
+{#            <div class="content">#}
+{#                <div id="sel_address" class="clickable">#}
+{#                    <span class="img"></span>#}
+{#                    <span class="wb_link">{% trans "Enter Address" %}</span>#}
+{#                </div>#}
+{#                <div id="sel_hotspot" class="clickable">#}
+{#                    <span class="img"></span>#}
+{#                    <span class="wb_link">{% trans "Select Hotspot" %}</span>#}
+{#                </div>#}
+{#                <div class="clear"></div>#}
+{#            </div>#}
+{#            <div class="footer">#}
+{#                <div class="help">{% trans "Note: Orders are only possible between TLV and Ramat Hachail." %}</div>#}
+{#            </div>#}
+{#        </div>#}
 
         <div id="hotspot_input_helper" class="tooltip-content">
             <div class="header"></div>
             <div class="content">
                 <div id="hotspot_help">
-                    {% trans "Hotspots are centers of activity from which & to which we offer WAYbetter service" %}
+                    {% trans "Hotspots are centers of activity from which & to which we offer WAYbetter service." %}
                 </div>
 {#                <label class="city">#}
 {#                    <div>{% trans "Select City" %}:</div>#}
@@ -363,7 +368,7 @@
 
         // helper specific stuff
         if (helper_type == "datetime") {
-            getHotspotTimes();
+            getHotspotTimes(false);
         } else {
             var address_type = getAddressType(trigger);
             var hdr_txt = (address_type == PICKUP) ? "{% trans "Your Pickup" %}" : "{% trans "Your Dropoff" %}";
@@ -371,10 +376,11 @@
         }
 
         // set button text
-        var predicates = [hotspot_resolved, address_resolved, datetime_resolved];
-        var resolved_count = predicates.sum() - window[helper_type + "_resolved"];
-        var btn_txt = (resolved_count === predicates.length - 1) ? "{% trans "Finish" %}" : "{% trans "Next" %}";
-        $helper.find(".next_btn").text(btn_txt);
+{#        var predicates = [hotspot_resolved, address_resolved, datetime_resolved];#}
+{#        var resolved_count = predicates.sum() - window[helper_type + "_resolved"];#}
+{#        var btn_txt = (resolved_count === predicates.length - 1) ? "{% trans "Calculate" %}" : "{% trans "Next" %}";#}
+//        $helper.find(".next_btn").text(btn_txt);
+        $helper.find(".next_btn").text('{% trans "Next" %}');
 
         // show the damn thing
         closeTooltips(trigger);
@@ -417,7 +423,9 @@
                     openTooltipHelper(there, "address");
                 }
                 else {
-                    openTooltipHelper("#datetime_input", "datetime");
+                    getHotspotTimes(true);
+                    closeTooltips();
+//                    openTooltipHelper("#datetime_input", "datetime");
 //                    if (! datetime_resolved) {
 //                        openTooltipHelper("#datetime_input", "datetime");
 //                    }
@@ -431,7 +439,18 @@
         }
     }
 
-    function getHotspotTimes() {
+    function toggleLoaders(mode){
+        if (mode){
+            $("#datetime_input .loader, #datetime_input_helper .tooltip_loader").show();
+        }
+        else{
+            $("#datetime_input .loader, #datetime_input_helper .tooltip_loader").hide();
+        }
+    }
+
+    function getHotspotTimes(select_first) {
+        datetime_resolved = false;
+        clearDetails();
         if (hotspot_resolved && address_resolved) {
             var time_type = PICKUP;
 //            var time_type = ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF;
@@ -441,7 +460,25 @@
                     hotspot_type: hotspot_type,
                     time_type: time_type,
                     lat: address_lat,
-                    lon: address_lon}
+                    lon: address_lon
+                },
+                beforeSend: function(){
+                    toggleLoaders(true);
+                },
+                onGotTimes: function(){
+                    if (select_first){
+                        $("#datetime_input").removeClass("disabled");
+                        $("#datetime_input_helper .next_btn").click();
+                    }
+                },
+                complete: function(){
+                    toggleLoaders(false);
+                },
+                error: function(){
+                    showError("{% trans 'We had a problem getting available intervals. Will try again.' %}", function(){
+                        getHotspotTimes(select_first);
+                    })
+                }
             });
         }
         else {
@@ -450,6 +487,7 @@
     }
 
     function showRideDetails(options) {
+        clearDetails();
         $.ajax({
             url: "{% url sharing.passenger_controller.get_hotspot_price %}",
             dataType: "json",
@@ -461,6 +499,7 @@
                 'time': $("#id_hotspot_time").val()
             },
             beforeSend: function(){
+                toggleLoaders(true);
                 if (options.beforeSend){
                     options.beforeSend();
                 }
@@ -483,6 +522,8 @@
                 showError("{% trans "We have encountered an error. Please try again." %}", undefined);
             },
             complete: function(){
+                toggleLoaders(false);
+                closeTooltips();
                 if (options.complete){
                     options.complete();
                 }
@@ -549,28 +590,43 @@
 
     function showError(msg, onClose) {
         Registrator.openWBErrorDialog("{% trans 'OOPS...' %}", msg, onClose);
-        clear_values();
-        $(".order_button").disable();
-        $("#save_stamp").hide();
-        openNextTooltip("#pickup_input", "#dropoff_input");
+        clearDetails();
     }
 
-    function clear_values(){
+    function clearDetails(){
+        $(".order_button").disable();
+        $("#save_stamp").hide();
         $("#sharing_price .value").text(0);
         $("#sharing_time .value").text(0);
         $("#private_price .value").text(0);
         $("#private_time .value").text(0);
     }
 
-    function clear_inputs(){
-        $("#pickup_input, #dropoff_input").removeClass("resolved").data("resolved_as", false);
-        $("#pickup_input").text("{% trans 'From' %}");
-        $("#dropoff_input").text("{% trans 'To' %}");
+    function init_inputs(){
+        $("#pickup_input").data("resolved_as", "hotspot");
+        $("#dropoff_input").data("resolved_as", "address");
+        $("#pickup_input .desc").text("{% trans 'From' %}");
+        $("#dropoff_input .desc").text("{% trans 'To' %}");
+        $("#pickup_input .text").text("");
+        $("#dropoff_input .text").text("");
+        $("#pickup_input .resolved_as").text("({% trans 'HotSpot' %})");
+        $("#dropoff_input .resolved_as").text("({% trans 'Address' %})");
     }
 
     function clone_input(source, target) {
         $(target).data("resolved_as", $(source).data("resolved_as"));
-        $(target).text($(source).text());
+        $.each([".text", ".resolved_as"], function(i, el) {
+            $(target).find(el).replaceWith($(source).find(el));
+        });
+
+        if ($(source).find(".desc").text() == "") {
+            $(target).find(".desc").text("");
+        } else {
+            var type = getAddressType(target);
+            var text = (type == PICKUP) ? "{% trans 'From' %}" : "{% trans 'To' %}";
+            $(target).find(".desc").text(text);
+        }
+
     }
 
     function addressValidator() {
@@ -607,6 +663,7 @@
                 {% endif %}
                 order_types: order_types,
                 next_rides_table: "#my_next_rides",
+                next_rides_container: "#myrides_container",
                 urls: {
                     get_myrides_data: "{% url sharing.passenger_controller.get_myrides_data %}",
                     get_order_status: "{% url sharing.passenger_controller.get_order_status %}",
@@ -653,7 +710,7 @@
         HotspotHelper.makeHotSpotSelector();
         $("#id_hotspot_datepicker").datepicker("option", {
             onSelect: function(dateText, inst) {
-                getHotspotTimes();
+                getHotspotTimes(false);
             }
         });
 
@@ -677,10 +734,10 @@
             effect: 'fade',
             {% if LANGUAGE_BIDI %}
                 position: 'top left',
-                offset: [91, 650],
+                offset: [94, 620],
             {% else %}
                 position: 'top right',
-                offset: [91, -190],
+                offset: [94, -160],
             {% endif %}
             events: {
                 // "" is supposedly better for oldIE
@@ -694,6 +751,7 @@
         $("#dropoff_input").tooltip($.extend({}, tooltip_conf, {tip: "#dropoff_input_tip"}));
         $("#datetime_input").tooltip($.extend({}, tooltip_conf, {tip: "#datetime_input_tip"}));
 
+        init_inputs();
         $(".order_button").disable();
 
         $("html").click(function(e) {
@@ -705,6 +763,7 @@
             if (close) {
                 // maybe clicked inside tooltip?
                 var inside_tooltip = $target.hasClass("tooltip") || $target.parents(".tooltip").length ||
+                        $target.parents(".tooltip-content").length ||
                         $target.hasClass("ui-datepicker") || $target.parents(".ui-datepicker").length ||
                         $target.hasClass("ui-datepicker-header") || $target.parents(".ui-datepicker-header").length ||
                         $target.hasClass("ui-autocomplete") || $target.parents(".ui-autocomplete").length;
@@ -747,17 +806,17 @@
             var $pickup_clone = $("#pickup_input").clone(true);
             var $dropoff_clone = $("#dropoff_input").clone(true);
 
-            clear_inputs();
-
             // swap contents
-            if ($pickup_clone.data("resolved_as")) {
-                clone_input($pickup_clone, "#dropoff_input");
-                $("#dropoff_input").addClass("resolved");
-            }
-            if ($dropoff_clone.data("resolved_as")) {
-                clone_input($dropoff_clone, "#pickup_input");
-                $("#pickup_input").addClass("resolved");
-            }
+            clone_input($pickup_clone, "#dropoff_input");
+            clone_input($dropoff_clone, "#pickup_input");
+
+            $.each(["pickup", "dropoff"], function(i, name) {
+                var $input = $("#" + name + "_input");
+                $input.removeClass("resolved");
+                if (window[$input.data("resolved_as") + "_resolved"]) {
+                    $input.addClass("resolved");
+                }
+            });
 
             // swap markers
             hotspot_type = (hotspot_type == PICKUP) ? DROPOFF : PICKUP;
@@ -821,6 +880,8 @@
             var $other_input = (getAddressType(this) == PICKUP) ? $("#" + DROPOFF + "_input") : $("#" + PICKUP + "_input");
 
             $input.addClass("resolved");
+            $input.find(".desc").text("");
+            $input.find(".resolved_as").text("");
 
             var $helper = $(this).parents(".tooltip-content");
             var helper_type = $helper.attr("id").split("_")[0]; // what was clicked?
@@ -830,7 +891,7 @@
             if (helper_type == "hotspot") {
                 hotspot_resolved = true;
                 hotspot_type = address_type;
-                $input.text($("#id_hotspot_select :selected").text());
+                $input.find(".text").text($("#id_hotspot_select :selected").text());
                 $input.data("resolved_as", "hotspot");
                 HotspotHelper.refreshHotspotMarker(hotspot_type);
                 openNextTooltip($input, $other_input);
@@ -856,7 +917,7 @@
                             address_lat = result.lat;
                             address_lon = result.lon;
                             address_name = result.name;
-                            $input.text($sa_input.val() + " " + $hn_input.val() + " " + $("#id_city :selected").text());
+                            $input.find(".text").text($sa_input.val() + " " + $hn_input.val() + " " + $("#id_city :selected").text());
                             $input.data("resolved_as", "address");
                             if (address_type == PICKUP){
                                 CMHelper.addAMarker(address_lat, address_lon, {title: address_name})
@@ -896,17 +957,11 @@
 {#                $("#datetime_input").removeClass("depart").addClass("arrive");#}
 {#                $("#datetime_input .type").text("{% trans "Arrival" %}");#}
 {#            }#}
-            $("#datetime_value").text($("#id_hotspot_datepicker").val() + " " + $("#id_hotspot_time").val());
+            $("#datetime_input").addClass("resolved");
+            $("#datetime_input .desc").text("{% trans 'Pickup Time' %} " + $("#id_hotspot_datepicker").val() +
+                    " {% trans 'at' %} " + $("#id_hotspot_time").val());
 
-            showRideDetails({
-                beforeSend: function(){
-                    $("#datetime_input_helper .tooltip_loader").show();
-                },
-                complete: function() {
-                    $("#datetime_input_helper .tooltip_loader").hide();
-                    closeTooltips();
-                }
-            });
+            showRideDetails({});
         });
 
         /**
