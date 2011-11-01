@@ -88,7 +88,9 @@ def transaction_error(request):
     if request.GET.get("lang") == u"HE":
         request.encoding = "cp1255"
 
+    page_specific_class = "error-page"
     error_text = request.GET.get("ErrorText")
+    error_code = request.GET.get("ErrorCode") 
     return custom_render_to_response("error_page.html", locals(), context_instance=RequestContext(request))
 
 @passenger_required
