@@ -134,7 +134,11 @@
                 }
                 else {
                     //TODO_WB: redirect to error page
-                    alert("{% trans "We have encountered an error. Please try again." %}");
+                    var message = "{% trans "We have encountered an error. Please try again." %}";
+                    if (response.message) {
+                        message = response.message;
+                    }
+                    alert(message);
                     $(".order_button").enable();
                 }
             },
