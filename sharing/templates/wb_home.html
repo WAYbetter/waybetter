@@ -281,7 +281,6 @@
 
 {% block scripts %}
     {{ block.super }}
-    <script type="text/javascript" src="/static/js/registration.js"></script>
     <script type="text/javascript" src="http://tile.cloudmade.com/wml/latest/web-maps-lite.js"></script>
     <script type="text/javascript" src="/static/js/mylibs/slides.js"></script>
 {% endblock %}
@@ -969,8 +968,7 @@
             Registrator.openFeedbackDialog();
         });
 
-        $("#sitemap a[href='{% url join %}']").parent()
-                .after('<li><a href="#" onclick="Registrator.openPilotInterestDialog()">{% trans "Join the private Beta" %}</a></li>');
+        $("#sitemap ul:last").append('<li><a href="#" onclick="Registrator.openPilotInterestDialog()">{% trans "Join the private Beta" %}</a></li>');
     });
 
     </script>
