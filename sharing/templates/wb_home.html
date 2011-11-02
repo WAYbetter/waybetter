@@ -307,7 +307,8 @@
             select_input_resolved = false,
             hotspot_resolved = false,
             address_resolved = false,
-            datetime_resolved = false;
+            datetime_resolved = false,
+            HOTSPOT_TEXT_MAX_LENGTH = 34;
 
 
     function getAddressType(element) {
@@ -891,7 +892,11 @@
             if (helper_type == "hotspot") {
                 hotspot_resolved = true;
                 hotspot_type = address_type;
-                $input.find(".text").text($("#id_hotspot_select :selected").text());
+                var hotspot_text = $("#id_hotspot_select :selected").text();
+                if (hotspot_text.length > HOTSPOT_TEXT_MAX_LENGTH) {
+                    hotspot_text = hotspot_text.substr(0,HOTSPOT_TEXT_MAX_LENGTH) + "...";
+                }
+                $input.find(".text").text(hotspot_text);
                 $input.data("resolved_as", "hotspot");
                 HotspotHelper.refreshHotspotMarker(hotspot_type);
                 openNextTooltip($input, $other_input);
