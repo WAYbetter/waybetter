@@ -902,7 +902,8 @@ class Order(BaseModel):
         2. send signal if update was successful,
         3. notify when needed
         """
-        if self._change_attr_in_transaction("status", old_status, new_status):
+        success = self._change_attr_in_transaction("status", old_status, new_status)
+        if success:
             sig_args = {
                 'sender': 'order_status_changed_signal',
                 'obj': self,
@@ -912,6 +913,8 @@ class Order(BaseModel):
 
             if new_status in [TIMED_OUT, FAILED, ERROR]:
                 self.notify()
+
+            return success
 
         else:
             raise UpdateStatusError("update order status failed: %s to %s" % (old_status, new_status))

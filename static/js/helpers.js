@@ -7,7 +7,8 @@ var MyRidesHelper = Object.create({
             cancel_order: ""
         },
         messages: {
-            ride_cancelled: ""
+            ride_cancelled: "",
+            cancel_link: ""
         },
         order_types: {},
         next_rides_table: undefined,
@@ -86,7 +87,9 @@ var MyRidesHelper = Object.create({
         $row.append('<td>' + order.when + '</td>');
         $row.append('<td>' + order.price + '</td>');
 
-        var $info = $('<td class="info' + ((is_next) ? '"' : ' report"') + '></td>').tooltip({
+        var $info = $('<td class="info' + ((is_next) ? '"' : ' report"') + '></td>')
+                .append('<a class="wb_link">' + this.config.messages.cancel_link + '</a>');
+        $info.tooltip({
             tip: this.config.tip,
             position: (this.config.rtl) ? 'center right' : 'center left',
             relative: true,
@@ -94,10 +97,11 @@ var MyRidesHelper = Object.create({
             events: {
                 def: ","
             }
-        }).click(function() {
+        });
+        $info.click(function() {
             (is_next) ? that._showStatusTooltip(this, order.id) : that._showReportTooltip(this, order.id);
-        }).appendTo($row);
-
+        });
+        $row.append($info);
         return $row;
     },
 
@@ -118,7 +122,9 @@ var MyRidesHelper = Object.create({
                     tip.find("#station_name_val").text(details.station_name + " " + details.station_phone);
                 }
                 if (status == "pending"){
-                    $(that.config.tip_content.pending).find("#cancel_ride_link").click(function() {
+                    var $cancel_link = $(that.config.tip_content.pending).find("#cancel_ride_link");
+                    // since we are re-using the tooltips it is IMPORTANT to unbind old event handlers
+                    $cancel_link.unbind("click").click(function() {
                         that._cancelOrder(info_el, order_id);
                     });
                 }
@@ -149,7 +155,7 @@ var MyRidesHelper = Object.create({
                 tip = api.getTip();
             }
 
-            tip.find(".close").click(function(){
+            tip.find(".close").unbind("click").click(function(){
                 api.hide();
             });
 
@@ -178,18 +184,27 @@ var MyRidesHelper = Object.create({
                 $loader.hide();
                 $link.removeClass("disabled");
             },
-            success: function(){
-                $link.removeClass("wb_link").text(that.config.messages.ride_cancelled);
-                $tip.find(".close").click(function() {
-                    $(info_el).data("tooltip").hide();
-                    var num_rides = $(that.config.next_rides_table).find("tr[data-order_id]").length;
-                    if (num_rides === 1){ // this is the only ride
-                        $(that.config.next_rides_container).fadeOut("fast");
-                    }
-                    else{
-                        $(info_el).parent("tr").fadeOut("fast");
-                    }
-                });
+            success: function(response){
+                if (response.status == 'cancelled') {
+                    $link.removeClass("wb_link").text(that.config.messages.ride_cancelled);
+
+                    // since we are re-using the tooltips it is IMPORTANT to unbind old event handlers
+                    $tip.find(".close").unbind("click").click(function() {
+                        $(info_el).data("tooltip").hide();
+                        var num_rides = $(that.config.next_rides_table).find("tr[data-order_id]").length;
+                        if (num_rides === 1) { // this is the only ride
+                            $(that.config.next_rides_container).fadeOut("fast");
+                        }
+                        else {
+                            $(info_el).parent("tr").fadeOut("fast");
+                        }
+                    });
+                }else{
+                that._showTooltip(info_el, "error");
+                }
+            },
+            error: function(){
+                that._showTooltip(info_el, "error");
             }
         });
     }
