@@ -86,6 +86,7 @@ class RideComputationStatus(Enum):
     COMPLETED   = 3
     ABORTED     = 4
     PROCESSING  = 5
+    IGNORED     = 6
 
 class StopType(Enum):
     PICKUP  = 0

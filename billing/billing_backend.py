@@ -45,17 +45,13 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
         billing_failed_signal.send(sender="do_J5", obj=billing_transaction)
         return HttpResponse("OK")
 
-    if lang_code == "Heb":
-        result = result.decode("utf-8").encode("hebrew")
-        
-    xml = minidom.parseString(result)
-    status_code = get_text_from_element(xml, "status")
-    auth_number = get_text_from_element(xml, "authNumber")
-    transaction_id = get_text_from_element(xml, "tranId")
+    status_code = get_text_from_element(result, "status")
+    auth_number = get_text_from_element(result, "authNumber")
+    transaction_id = get_text_from_element(result, "tranId")
     billing_transaction.transaction_id = transaction_id
 
     if int(status_code):
-        message = get_text_from_element(xml, "message")
+        message = get_text_from_element(result, "message")
         billing_transaction.comments = message
         billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
         billing_failed_signal.send(sender="do_J5", obj=billing_transaction)
@@ -94,14 +90,13 @@ def do_J4(token, amount, card_expiration, billing_transaction_id):
         billing_failed_signal.send(sender="do_J4", obj=billing_transaction)
         return HttpResponse("OK")
 
-    xml = minidom.parseString(result)
-    status_code = get_text_from_element(xml, "status")
-    auth_number = get_text_from_element(xml, "authNumber")
-    transaction_id = get_text_from_element(xml, "tranId")
+    status_code = get_text_from_element(result, "status")
+    auth_number = get_text_from_element(result, "authNumber")
+    transaction_id = get_text_from_element(result, "tranId")
     billing_transaction.transaction_id = transaction_id
 
     if int(status_code):
-        message = get_text_from_element(xml, "message")
+        message = get_text_from_element(result, "message")
         billing_transaction.comments = message
         billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
         billing_failed_signal.send(sender="do_J4", obj=billing_transaction)
@@ -138,7 +133,17 @@ def do_credit_guard_trx(params):
 
     logging.info("CREDIT GUARD TRX - response: %s" % result.content if result else "fetch failed")
 
-    return result.content if result else None
+    if not result:
+        return None
+    else:
+        result = result.content
+
+    if params["language"] == "Heb":
+        result = result.decode("utf-8").encode("hebrew")
+
+    xml = minidom.parseString(result)
+    return xml
+
 
 def create_invoices(billing_transactions):
     trx = billing_transactions[0]

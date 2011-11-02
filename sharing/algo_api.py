@@ -153,7 +153,12 @@ def submit_computations_task(request):
 
     # first lets get rid of the duplicate ride_computations we might have
     if submit_step == COMPUTATION_FIRST_SUBMIT:
-        computation = RideComputation.objects.filter(key=key, status=RideComputationStatus.PENDING).order_by("create_date")[0]
+        pending_computations = RideComputation.objects.filter(key=key, status=RideComputationStatus.PENDING).order_by("-create_date")
+        if pending_computations:
+            computation = pending_computations[0]
+        else:
+            return HttpResponse("OK") # nothing to do, no pending computations
+        
         if computation.change_status(old_status=RideComputationStatus.PENDING, new_status=RideComputationStatus.PROCESSING):
             computations = RideComputation.objects.filter(key=key, status=RideComputationStatus.PENDING)
             orders = [order for c in computations for order in c.orders.all()]
@@ -188,7 +193,7 @@ def submit_computations_task(request):
         approved_orders = list(computation.orders.filter(status=APPROVED))
 
         if not approved_orders:
-            computation.change_status(old_status=RideComputationStatus.PROCESSING, new_status=RideComputationStatus.SUBMITTED) # saves
+            computation.change_status(old_status=RideComputationStatus.PROCESSING, new_status=RideComputationStatus.IGNORED) # saves
             return HttpResponse("NO APPROVED ORDERS")
 
         algo_key = submit_orders_for_ride_calculation(approved_orders, key, params=params, use_secondary=bool(submit_step==COMPUTATION_SUBMIT_TO_SECONDARY))
