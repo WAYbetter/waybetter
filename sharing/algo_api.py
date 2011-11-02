@@ -153,7 +153,10 @@ def submit_computations_task(request):
 
     # first lets get rid of the duplicate ride_computations we might have
     if submit_step == COMPUTATION_FIRST_SUBMIT:
-        pending_computations = RideComputation.objects.filter(key=key, status=RideComputationStatus.PENDING).order_by("-create_date")
+#        pending_computations = RideComputation.objects.filter(key=key, status=RideComputationStatus.PENDING).order_by("-create_date")
+        pending_computations = RideComputation.objects.filter(key=key)
+        pending_computations = filter(lambda c: c.status == RideComputationStatus.PENDING, pending_computations)
+        pending_computations = sorted(pending_computations, key = lambda c: c.create_date, reverse=True)
         if pending_computations:
             computation = pending_computations[0]
         else:
