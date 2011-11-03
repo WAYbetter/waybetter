@@ -478,13 +478,14 @@
                         $("#datetime_input_helper .next_btn").click();
                     }
                 },
+                onNoTimes: function(){
+                    showError("{% trans 'Please choose another date' %}", undefined);
+                },
                 complete: function(){
                     toggleLoaders(false);
                 },
                 error: function(){
-                    showError("{% trans 'We had a problem getting available intervals. Will try again.' %}", function(){
-                        getHotspotTimes(select_first);
-                    })
+                    showError("{% trans 'We had a problem getting available intervals. Please try again.' %}", undefined);
                 }
             });
         }

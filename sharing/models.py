@@ -1,6 +1,6 @@
 import re
 from common.decorators import order_relative_to_field
-from common.tz_support import default_tz_now, to_task_name_safe
+from common.tz_support import default_tz_now, to_task_name_safe, ceil_datetime
 from common.util import phone_validator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -71,13 +71,13 @@ class HotSpot(BaseModel):
         t1 = base_time.time()
 
         next = None
-        times = self.get_times(day=d, start_time=t1)
+        times = self.get_times_for_day(day=d, start_time=t1)
         if times:
             next = datetime.combine(d, times[0])
         if not next:
             itr = datetimeIterator(d + timedelta(days=1), d + timeframe)
             for day in itr:
-                times = self.get_times(day=day)
+                times = self.get_times_for_day(day=day)
                 if times:
                     next = datetime.combine(day, times[0])
                     break
@@ -88,14 +88,14 @@ class HotSpot(BaseModel):
         return next
 
 
-    def get_times(self, day=None, start_time=None, end_time=None, offset=0):
+    def get_times_for_day(self, day=None, start_time=None, end_time=None, offset=0, ceil=True):
         """
         Get active times for hotspot on day, within given time frame (if given)
         @param day: datetime.date instance
         @param start_time: datetime.time
         @param end_time: datetime.time
         @param offset: number
-        @return: list of datetimes
+        @return: list of datetime.time
         """
         d = day or date.today()
 
@@ -104,7 +104,18 @@ class HotSpot(BaseModel):
             if rule.is_active(day=d, t=None): # rule is active on day
                 times.update(rule.get_times(start_time, end_time, offset))
 
-        return sorted(times)
+        times = sorted(times)
+
+        if ceil:
+            ceiled_times = []
+            for t in times:
+                # we need a datetime to ceil. then check it didn't ceil to next day
+                dt = ceil_datetime(datetime.combine(d, t))
+                if dt.date() == d:
+                    ceiled_times.append(dt.time())
+            return ceiled_times
+        else:
+            return times
 
     def get_dates_for_month(self, year, month):
         start_date = date(year, month, 1)

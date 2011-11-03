@@ -398,8 +398,13 @@ var HotspotHelper = Object.create({
                     if (options.complete) {
                         options.complete();
                     }
-                    if (got_times && options.onGotTimes) {
-                        options.onGotTimes();
+                    if (got_times) {
+                        if (options.onGotTimes)
+                            options.onGotTimes();
+                    }
+                    else{
+                        if (options.onNoTimes)
+                            options.onNoTimes();
                     }
                 }
             });

@@ -123,3 +123,10 @@ def total_seconds(td):
 
 def to_task_name_safe(t):
     return t.ctime().replace(":","_").replace(" ","_")
+
+def ceil_datetime(dt, minutes=5):
+    if dt.minute % minutes: # if not already rounded
+        dt += datetime.timedelta(minutes=minutes)
+        dt -= datetime.timedelta(minutes=dt.minute % minutes)
+
+    return dt
