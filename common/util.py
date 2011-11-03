@@ -248,9 +248,6 @@ def custom_render_to_response(template, dictionary=None, context_instance=None, 
     if request.mobile = True then change template name to 'mobile/' + template
     """
 
-    # TODO_WB: bypass mobile template detection
-    return render_to_response(template, dictionary=dictionary, context_instance=context_instance, mimetype=mimetype)
-
     if not context_instance:
         raise RuntimeError("context_instance must be passed")
 
