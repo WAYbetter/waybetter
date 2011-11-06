@@ -1983,6 +1983,39 @@ Error dialog
 }
 
 /*
+Browsers dialog
+****************************************************/
+#gcf_dialog{
+    text-align: center;
+    color: $dark-gray;
+    font-size: $font-size-medium;
+    button.get_gcf{
+        margin: 20px 0;
+    }
+    .or{
+        margin-bottom: 15px;
+    }
+    .dl-browser{
+        display: inline-block;
+        width: 105px;
+        .img{
+            @extend .clickable;
+            width: 63px;
+            height: 71px;
+            margin: 0 auto;
+        }
+        .wb_link{
+            font-size: $font-size-small;
+        }
+
+    }
+    $offset: -64px;
+    .dl-browser.chrome .img{ background: url(/static/images/wb_site/browsers.png) $offset*0 top no-repeat; }
+    .dl-browser.safari .img{ background: url(/static/images/wb_site/browsers.png) $offset*1 top no-repeat; }
+    .dl-browser.firefox .img{ background: url(/static/images/wb_site/browsers.png) $offset*2 top no-repeat; }
+}
+
+/*
 Feedback dialog
 ****************************************************/
 #feedback_form{

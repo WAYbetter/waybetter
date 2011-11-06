@@ -100,7 +100,7 @@ ul.hz > li, #top-right ul.content_links > li {
 .hidden {
   display: none; }
 
-.clickable {
+.clickable, #gcf_dialog .dl-browser .img {
   cursor: pointer; }
 
 .wb_link {
@@ -1691,6 +1691,33 @@ Error dialog
 .rtl .wb-error-dialog .content {
   margin-left: auto;
   margin-right: 30px; }
+
+/*
+Browsers dialog
+****************************************************/
+#gcf_dialog {
+  text-align: center;
+  color: #3d3d3d;
+  font-size: 13px; }
+  #gcf_dialog button.get_gcf {
+    margin: 20px 0; }
+  #gcf_dialog .or {
+    margin-bottom: 15px; }
+  #gcf_dialog .dl-browser {
+    display: inline-block;
+    width: 105px; }
+    #gcf_dialog .dl-browser .img {
+      width: 63px;
+      height: 71px;
+      margin: 0 auto; }
+    #gcf_dialog .dl-browser .wb_link {
+      font-size: 11px; }
+  #gcf_dialog .dl-browser.chrome .img {
+    background: url(/static/images/wb_site/browsers.png) 0px top no-repeat; }
+  #gcf_dialog .dl-browser.safari .img {
+    background: url(/static/images/wb_site/browsers.png) -64px top no-repeat; }
+  #gcf_dialog .dl-browser.firefox .img {
+    background: url(/static/images/wb_site/browsers.png) -128px top no-repeat; }
 
 /*
 Feedback dialog
