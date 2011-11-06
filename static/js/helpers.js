@@ -345,6 +345,23 @@ var HotspotHelper = Object.create({
                     $("<option>" + hotspot.name + "</option>").attr("value", hotspot.id).data(data).appendTo($hotspotpicker);
                 });
                 $hotspotpicker.change();
+
+                var month = (new Date).getMonth() + 1;
+                var year = (new Date).getFullYear();
+                that.getDates({
+                    data: {'month': month, 'year': year, 'hotspot_id': $(that.config.selectors.hotspotpicker).val()},
+                    success: function(response) {
+                        var new_dates = $.map(response.dates, function(date, i) {
+                            return (new Date(date)).toDateString();
+                        });
+                        that.cache.dates = that.cache.dates.concat(new_dates);
+                        that.cache.months[that.cache.months.length] = month;
+                        $datepicker.datepicker("refresh");
+                    },
+                    error: function() {
+                        flashError("Error loading hotspot dates data");
+                    }
+                });
             },
             error:function() {
                 flashError("Error getting hotspot data");
