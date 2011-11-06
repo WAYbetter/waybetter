@@ -14,6 +14,7 @@ import settings
 
 class HotSpot(BaseModel):
     name = models.CharField(_("hotspot name"), max_length=50)
+    description = models.CharField(_("hotspot description"), max_length=100, null=True, blank=True)
 
     station = models.ForeignKey(Station, related_name="hotspots", null=True, blank=True)
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="hotspots")

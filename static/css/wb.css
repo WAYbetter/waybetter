@@ -1001,15 +1001,22 @@ Home
   .wb_home #hotspot_input_helper #hotspot_help {
     color: #3d3d3d;
     font-weight: bold; }
-  .wb_home #hotspot_input_helper label.hotspot {
-    display: block;
+  .wb_home #hotspot_input_helper .select-hotspot-container {
     position: relative;
-    top: 17px; }
-  .wb_home #hotspot_input_helper label.hotspot div {
-    position: relative;
-    top: 7px; }
+    top: 11px; }
+    .wb_home #hotspot_input_helper .select-hotspot-container .label {
+      position: relative;
+      top: 7px;
+      float: left; }
+    .wb_home #hotspot_input_helper .select-hotspot-container .select {
+      float: right; }
   .wb_home #hotspot_input_helper select {
     width: 240px; }
+  .wb_home #hotspot_input_helper #id_hotspot_description {
+    position: relative;
+    left: 5px;
+    top: 2px;
+    color: #bcbcbc; }
   .wb_home #address_input_helper label {
     display: block; }
   .wb_home #address_input_helper .label {
@@ -1213,6 +1220,13 @@ Home
     padding-left: 0;
     padding-right: 25px;
     background: transparent url(/static/images/wb_site/switch_small_rtl.png) right 0 no-repeat; }
+  .rtl.wb_home #hotspot_input_helper .select-hotspot-container .label {
+    float: right; }
+  .rtl.wb_home #hotspot_input_helper .select-hotspot-container .select {
+    float: left; }
+  .rtl.wb_home #hotspot_input_helper #id_hotspot_description {
+    left: auto;
+    right: 5px; }
   .rtl.wb_home #address_input_helper .label {
     left: auto;
     right: -5px; }

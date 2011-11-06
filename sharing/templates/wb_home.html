@@ -170,10 +170,13 @@
 {#                        {% endfor %}#}
 {#                    </select>#}
 {#                </label>#}
-                <label class="hotspot">
-                    <div>{% trans "Select HotSpot" %}:</div>
-                    <select id="id_hotspot_select" name="hotspot_id"></select>
-                </label>
+                <div class="select-hotspot-container">
+                    <div class="label">{% trans "Select HotSpot" %}:</div>
+                    <div class="select">
+                        <select id="id_hotspot_select" name="hotspot_id"></select>
+                        <div id="id_hotspot_description"></div>
+                    </div>
+                </div>
             </div>
             <div class="footer">
 {#                <div class="help wb_link" id="switch2address">{% trans 'Switch to "Enter Address"' %}</div>#}
@@ -715,7 +718,8 @@
             selectors: {
                     hotspotpicker: "#id_hotspot_select",
                     datepicker: "#id_hotspot_datepicker",
-                    timepicker: "#id_hotspot_time"
+                    timepicker: "#id_hotspot_time",
+                    hs_description: "#id_hotspot_description"
             },
             labels: {
                 choose_date: "{% trans "Choose Date" %}",

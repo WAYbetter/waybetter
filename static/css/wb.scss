@@ -1156,17 +1156,27 @@ Home
             color: $dark-gray;
             font-weight: bold;
         }
-        label.hotspot{
-            display: block;
+
+        .select-hotspot-container{
             position: relative;
-            top: 17px;
-        }
-        label.hotspot div{
-            position: relative;
-            top: 7px;
+            top: 11px;
+            .label {
+                position: relative;
+                top: 7px;
+                float: left;
+            }
+            .select {
+                float: right;
+            }
         }
         select{
             width: 240px;
+        }
+        #id_hotspot_description{
+            position: relative;
+            left: 5px;
+            top: 2px;
+            color: $light-gray;
         }
     }
 
@@ -1406,6 +1416,18 @@ Home
         }
     }
 
+    #hotspot_input_helper{
+        .select-hotspot-container{
+            .label {float: right}
+            .select {
+                float: left;
+            }
+        }
+        #id_hotspot_description{
+            left: auto;
+            right: 5px;
+        }
+    }
     #address_input_helper{
         .label{left: auto; right: -5px}
         .container {float: left; div {float: right;} }

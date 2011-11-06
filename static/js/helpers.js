@@ -215,7 +215,8 @@ var HotspotHelper = Object.create({
         selectors: {
             hotspotpicker: undefined,
             datepicker: undefined,
-            timepicker: undefined
+            timepicker: undefined,
+            hs_description: undefined
         },
         urls: {
             get_hotspot_data: "",
@@ -308,6 +309,7 @@ var HotspotHelper = Object.create({
         var $hotspotpicker = $(this.config.selectors.hotspotpicker);
         var $datepicker = $(this.config.selectors.datepicker);
         var $timepicker = $(this.config.selectors.timepicker);
+        var $hs_description = $(this.config.selectors.hs_description);
         this.cache.dates = [];
         this.cache.months = [];
 
@@ -326,6 +328,7 @@ var HotspotHelper = Object.create({
         $hotspotpicker.empty().change(function() {
             var $selected = $hotspotpicker.find(":selected").eq(0);
             if ($selected) {
+                $hs_description.text("").text($selected.data("description"));
                 var date = getFullDate($selected.data("next_datetime") || new Date());
                 $datepicker.datepicker("setDate", date);
                 that.refreshHotspotSelector({
@@ -341,7 +344,7 @@ var HotspotHelper = Object.create({
             success: function(response) {
                 $hotspotpicker.empty().enable();
                 $.each(response.data, function(i, hotspot) {
-                    var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, next_datetime: new Date(hotspot.next_datetime)};
+                    var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, description: hotspot.description, next_datetime: new Date(hotspot.next_datetime)};
                     $("<option>" + hotspot.name + "</option>").attr("value", hotspot.id).data(data).appendTo($hotspotpicker);
                 });
                 $hotspotpicker.change();
