@@ -15,7 +15,7 @@ from sharing import signals
 from datetime import timedelta, datetime
 import urllib
 import logging
-import settings
+from django.conf import settings
 from sharing.errors import BookRideError
 
 TELMAP = 4
@@ -26,8 +26,6 @@ SHARING_ENGINE_URL = "/".join([SHARING_ENGINE_DOMAIN, "routeservicega1"])
 SEC_SHARING_ENGINE_URL = "http://waybetter-route-service-backup.appspot.com/routeservicega1"
 
 PRE_FETCHING_URL = "/".join([SHARING_ENGINE_DOMAIN, "prefetch"])
-WEB_APP_URL = "http://dev.latest.waybetter-app.appspot.com/"
-
 
 COMPUTATION_FIRST_SUBMIT = 1
 COMPUTATION_SUBMIT_TO_SECONDARY = 2
@@ -77,7 +75,7 @@ def submit_orders_for_ride_calculation(orders, key=None, params=None, use_second
     callback = ride_calculation_complete_noop if settings.DEV else ride_calculation_complete
     payload = {
         "orders": [o.serialize_for_sharing() for o in orders],
-        "callback_url": reverse(callback, prefix=WEB_APP_URL),
+        "callback_url": reverse(callback, prefix=settings.WEB_APP_URL),
         "hotspot_id": key,
         "parameters": params
     }
@@ -87,14 +85,18 @@ def submit_orders_for_ride_calculation(orders, key=None, params=None, use_second
 
     server = SEC_SHARING_ENGINE_URL if use_secondary else SHARING_ENGINE_URL
 
-    response = fetch(server, payload="submit=%s" % payload, method=POST, deadline=50)
-    data = simplejson.loads(response.content) or {}
-    error = data.get("m_Error") if data else "EMPTY RESPONSE"
-    if response.status_code != 200 or error:
-        logging.error("error submitting orders for ride calculation (status=%s): %s" % (response.status_code, error))
-        return None
-    else:
-        return data.get("m_Key").strip()
+    key = None
+    response = safe_fetch(server, payload="submit=%s" % payload, method=POST, deadline=50)
+    if response:
+        data = simplejson.loads(response.content)
+        error = data.get("m_Error")
+        raw_key = data.get("m_Key")
+        if error:
+            notify_by_email(u"Error submitting orders to algorithm", u"error was: %s\npayload: %s" % (error, payload))
+        elif raw_key:
+            key = raw_key.strip()
+
+    return key
 
 def submit_computations(computation_key, submit_time, submit_step=COMPUTATION_FIRST_SUBMIT):
     """
@@ -151,17 +153,17 @@ def submit_computations_task(request):
     logging.info("submit_computations_task: submit_step=%d" % submit_step)
     computation = None
 
-    # first lets get rid of the duplicate ride_computations we might have
     if submit_step == COMPUTATION_FIRST_SUBMIT:
-#        pending_computations = RideComputation.objects.filter(key=key, status=RideComputationStatus.PENDING).order_by("-create_date")
         pending_computations = RideComputation.objects.filter(key=key)
         pending_computations = filter(lambda c: c.status == RideComputationStatus.PENDING, pending_computations)
         pending_computations = sorted(pending_computations, key = lambda c: c.create_date, reverse=True)
         if pending_computations:
             computation = pending_computations[0]
         else:
+            logging.info("skipping: no pending computations with key %s" % key)
             return HttpResponse("OK") # nothing to do, no pending computations
         
+        # first lets get rid of the duplicate ride_computations we might have
         if computation.change_status(old_status=RideComputationStatus.PENDING, new_status=RideComputationStatus.PROCESSING):
             computations = RideComputation.objects.filter(key=key, status=RideComputationStatus.PENDING)
             orders = [order for c in computations for order in c.orders.all()]
@@ -171,9 +173,10 @@ def submit_computations_task(request):
             for c in computations: # delete old, emptied computations
                 c.delete()
         else: # abort
+            logging.info("aborting: changing status PENDING->PROCESSING failed")
             return HttpResponse("ABORTED")
 
-        if not computation: # maybe an exception interrupted the first run
+        if not computation: # maybe an exception interrupted the first try after status was changed to PROCESSING
             try:
                 computation = RideComputation.objects.get(key=key, status=RideComputationStatus.PROCESSING)
             except RideComputation.DoesNotExist:
@@ -197,6 +200,7 @@ def submit_computations_task(request):
 
         if not approved_orders:
             computation.change_status(old_status=RideComputationStatus.PROCESSING, new_status=RideComputationStatus.IGNORED) # saves
+            logging.info("ignoring: no approved orders")
             return HttpResponse("NO APPROVED ORDERS")
 
         algo_key = submit_orders_for_ride_calculation(approved_orders, key, params=params, use_secondary=bool(submit_step==COMPUTATION_SUBMIT_TO_SECONDARY))
@@ -244,13 +248,17 @@ def ride_calculation_complete(request):
 @internal_task_on_queue("orders")
 def fetch_ride_results_task(request):
     result_id = request.POST["result_id"]
-    result = fetch(SHARING_ENGINE_URL, payload="get=%s" % result_id, method=POST, deadline=30)
-    content = result.content.strip()
-    if result.status_code == 200 and content:
+    try:
+        computation = RideComputation.objects.get(algo_key=result_id, status=RideComputationStatus.SUBMITTED)
+    except RideComputation.DoesNotExist:
+        logging.info("can not find computation with status SUBMITTED and algo_key:%s" % result_id)
+        return HttpResponse("OK")
+
+    result = safe_fetch(SHARING_ENGINE_URL, payload="get=%s" % result_id, method=POST, deadline=30)
+    content = result.content.strip() if result else None
+    if result and content:
         data = simplejson.loads(content.decode("utf-8"))
         logging.info("data = %s" % data)
-
-        computation = RideComputation.objects.get(algo_key=result_id)
 
         debug = bool(data.get("m_Debug"))
         for ride_data in data["m_Rides"]:
@@ -290,5 +298,9 @@ def fetch_ride_results_task(request):
 
         computation.statistics = simplejson.dumps(data.get("m_OutputStat"))
         computation.change_status(new_status=RideComputationStatus.COMPLETED) # saves
+
+    else:
+        logging.error("aborting computation [%s]: fetch results task failed" % computation.id)
+        abort_computation(computation)
 
     return HttpResponse("OK")

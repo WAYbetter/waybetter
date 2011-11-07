@@ -506,7 +506,7 @@ def safe_fetch(url, payload=None, method=GET, headers={},
         notify_by_email(u"Exception caught by safe_fetch", body)
 
     if res and res.status_code != 200:
-        logging.error(u"safe_fetch returned %s" % res.status)
+        logging.error(u"safe_fetch returned %s" % res.status_code)
         notify_by_email(u"safe_fetch failed", u"safe_fetch returned %s for\nurl: %s\npayload: %s" %(res.status, url, payload))
         res = None
 
