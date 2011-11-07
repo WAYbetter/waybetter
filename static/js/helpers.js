@@ -394,7 +394,7 @@ var HotspotHelper = Object.create({
                     }
                 },
                 success: function(response) {
-                    if (response.times) {
+                    if (response.times && response.times.length) {
                         got_times = true;
                         $timepicker.empty();
                         $.each(response.times, function(i, t) {

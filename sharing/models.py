@@ -1,6 +1,6 @@
 import re
 from common.decorators import order_relative_to_field
-from common.tz_support import default_tz_now, to_task_name_safe, ceil_datetime
+from common.tz_support import default_tz_now, to_task_name_safe, ceil_datetime, floor_datetime
 from common.util import phone_validator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -89,7 +89,7 @@ class HotSpot(BaseModel):
         return next
 
 
-    def get_times_for_day(self, day=None, start_time=None, end_time=None, offset=0, ceil=True):
+    def get_times_for_day(self, day=None, start_time=None, end_time=None, offset=0, ceil=False, floor=False):
         """
         Get active times for hotspot on day, within given time frame (if given)
         @param day: datetime.date instance
@@ -110,11 +110,19 @@ class HotSpot(BaseModel):
         if ceil:
             ceiled_times = []
             for t in times:
-                # we need a datetime to ceil. then check it didn't ceil to next day
+                # use datetime to ceil and check it didn't ceil to next day
                 dt = ceil_datetime(datetime.combine(d, t))
                 if dt.date() == d:
                     ceiled_times.append(dt.time())
             return ceiled_times
+        elif floor:
+            floored_times = []
+            for t in times:
+                # use datetime to floor and check it didn't ceil to previous day
+                dt = floor_datetime(datetime.combine(d, t))
+                if dt.date() == d:
+                    floored_times.append(dt.time())
+            return floored_times
         else:
             return times
 
