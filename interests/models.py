@@ -1,6 +1,7 @@
 # This Python file uses the following encoding: utf-8
+from django.template.context import Context
+from django.template.loader import  render_to_string, get_template
 from common.models import BaseModel
-from common.tz_support import UTCDateTimeField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
 from common.util import phone_validator, notify_by_email, send_mail_as_noreply
@@ -67,28 +68,13 @@ class BusinessInterest(models.Model):
 
         notify_by_email(subject, msg)
 
+
 class PilotInterest(BaseModel):
     email = models.EmailField(_("Your Email"))
     location = models.CharField(max_length=20, null=True, blank=True)
 
     def notify(self):
-        subject = u"WAYbetter - מוניות חכמות בחצי מחיר"
-        msg = u"""
-אנו שמחים על הרשמתך לפיילוט של שירות המוניות החכם שלנו.
-השירות מאפשר לנסוע במונית ספיישל משותפת בין רמת החייל ותל- אביב ולשלם רק חצי ממחיר הנסיעה.
-בימים אלה אנו מבצעים בדיקות אחרונות בגרסת אלפא, ונעדכן אותך ברגע שנעבור לשלב הבטא הפרטית.
-
-בינתיים, אפשר להציץ:
-
-לאתר WAYbetter:
-www.waybetter.com
-
-עלינו:
-www.waybetter.com/about_us
-
-על השירות:
-www.waybetter.com/the_service
-
-נתראה במונית!
-"""
-        send_mail_as_noreply(self.email, subject, msg)
+        subject = u"הצטרפו לפיילוט, קחו מונית, שלמו רק חצי - WAYbetter"
+        t = get_template("pilot_interest_email.html")
+        html = t.render(Context({}))
+        send_mail_as_noreply(self.email, subject, html=html)

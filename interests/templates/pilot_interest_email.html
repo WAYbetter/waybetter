@@ -1,0 +1,75 @@
+{% load value_from_settings %}
+<html>
+<head>
+    <title></title>
+</head>
+<body style="direction:rtl">
+<p style="font-weight:bold;">יצאנו לדרך ואתם מוזמנים להצטרף!</p>
+
+<p style="font-weight:bold;">מעכשיו גם אתם יכולים להשתתף בפיילוט של WAYbetter ולנסוע במונית ספיישל בחצי המחיר.</p>
+
+<p>
+    בשלב זה אפשר לנסוע מכל מקום בתל אביב לרמת החייל, ומרמת החייל לכל מקום בתל אביב.
+    <br/>
+    אנחנו קוראים לזה "הוט-ספוט" - מקום מרכזי שממנו ואליו נוסעים המון אנשים מדי יום.
+</p>
+
+<p>
+    כפי שכבר סיפרנו לכם, השירות מאפשר ללקוחות WAYbetter לשתף נסיעת מונית באותו כיוון הנסיעה וליהנות מחווית שימוש טובה
+    יותר - תוך חיסכון של עשרות שקלים בכל נסיעה, וכמובן עזרה בהפחתת זיהום האוויר והתייעלות התחבורה הציבורית.
+</p>
+
+<p>
+    <a href="{% value_from_settings DEFAULT_DOMAIN %}{% url wb_home %}">www.waybetter.com</a>
+</p>
+
+<a href="{% value_from_settings DEFAULT_DOMAIN %}{% url faq %}" style="text-decoration: underline; font-weight: bold;">איך זה עובד?</a>
+<ol>
+    <li>
+        מזינים את מסלול הנסיעה הרצוי (נקודת המוצא, יעד הנסיעה ושעת האיסוף).
+    </li>
+    <li>
+        מקבלים הצעת מחיר על המסך המפוצל שלנו - עלות הנסיעה הרגילה במונית מול עלות הנסיעה בפורמט WAYbetter.
+    </li>
+    <li>
+        לוחצים על כפתור ההזמנה, וזהו. המונית תגיע בשעה היעודה.
+    </li>
+</ol>
+
+<p>
+    כ-10 דקות לפני הגעת המונית, תקבלו SMS שיזכיר לכם להגיע לנקודה שאליה הזמנתם את המונית. כן, גם הסמס חינם.
+</p>
+
+<img src="{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/WAYbetter_offer.png">
+
+<p>חשוב לציין:</p>
+<ol>
+    <li>אנו מתחייבים שתשלמו חצי מחיר גם אם נסעתם ב WAYbetter במונית לבד.</li>
+    <li> יש לכם יום שיער רע או שסתם לא בא לכם לפגוש אף אחד? אתם יכולים להזמין נסיעת מונית פרטית רגילה, ועדיין ליהנות
+        מהליך הזמנה פשוט וקל, נסיעה ללא תשלום במזומן, ושאר הטבות הניתנות לחברים.
+    </li>
+    <li>בשלב הפיילוט הסגור בו אתם משתתפים, השירות מאפשר נסיעה מכל כתובת בתל אביב אל רמת החייל ("הוט-ספוט") ולכל כתובת
+        בחזרה. אנחנו מתחילים במקום שהכי חשוב לכסות וממש בקרוב נוסיף "הוט-ספוטס" נוספים במקומות ואירועים מרכזיים שתבקשו.
+    </li>
+</ol>
+
+<p>
+    יש לכם שאלות נוספות? תעשו REPLY ונענה לכם בשמחה.
+    <br/>
+    ובינתיים, עד שניפגש במונית, יאללה ביי.
+</p>
+
+<p>
+    חברי <a href="{% value_from_settings DEFAULT_DOMAIN %}{% url wb_home %}">WAYbetter</a>
+</p>
+
+<p>
+    <a href="{% value_from_settings DEFAULT_DOMAIN %}{% url about_us %}">עלינו</a>
+    <br/>
+    <a href="{% value_from_settings DEFAULT_DOMAIN %}{% url the_service %}">אודות השירות</a>
+</p>
+
+<img src="{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/logo_header.png" style="margin-right: 350px;">
+
+</body>
+</html>
