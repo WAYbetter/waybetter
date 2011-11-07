@@ -245,6 +245,11 @@ var HotspotHelper = Object.create({
         this.MapHelper = config.MapHelper || CMHelper;
     },
 
+    clearCache: function(){
+        this.cache.dates = [];
+        this.cache.months = [];
+    },
+
     getHotspotData: function(options){
         var that = this;
         $.ajax({
@@ -310,30 +315,29 @@ var HotspotHelper = Object.create({
         var $datepicker = $(this.config.selectors.datepicker);
         var $timepicker = $(this.config.selectors.timepicker);
         var $hs_description = $(this.config.selectors.hs_description);
-        this.cache.dates = [];
-        this.cache.months = [];
-
-        $datepicker.datepicker("destroy").datepicker({
-            dateFormat: 'dd/mm/yy',
-            firstDay: 0,
-            minDate: new Date(),
-            isRTL: true,
-            beforeShowDay: function(date) {
-                return ($.inArray(date.toDateString(), that.cache.dates) !== -1) ? [true, "", ""] : [false, "", ""];
-            },
-            onChangeMonthYear: that._onChangeMonthYear
-        });
 
         $timepicker.empty().disable();
         $hotspotpicker.empty().change(function() {
             var $selected = $hotspotpicker.find(":selected").eq(0);
             if ($selected) {
                 $hs_description.text("").text($selected.data("description"));
-                var date = getFullDate($selected.data("next_datetime") || new Date());
-                $datepicker.datepicker("setDate", date);
+                var now = new Date();
+                var human_date = getFullDate($selected.data("next_datetime") || now);
+                $datepicker.datepicker("destroy").datepicker({
+                    dateFormat: 'dd/mm/yy',
+                    firstDay: 0,
+                    minDate: new Date(),
+                    isRTL: true,
+                    beforeShowDay: function(date) {
+                        return ($.inArray(date.toDateString(), that.cache.dates) !== -1) ? [true, "", ""] : [false, "", ""];
+                    },
+                    onChangeMonthYear: that._onChangeMonthYear
+                }).datepicker("setDate", human_date);
                 that.refreshHotspotSelector({
                     refresh_intervals: true
                 });
+                that.clearCache();
+                that._getDatesForMonthYear(now.getFullYear(), now.getMonth() + 1, $datepicker);
             }
         });
 
@@ -351,20 +355,7 @@ var HotspotHelper = Object.create({
 
                 var month = (new Date).getMonth() + 1;
                 var year = (new Date).getFullYear();
-                that.getDates({
-                    data: {'month': month, 'year': year, 'hotspot_id': $(that.config.selectors.hotspotpicker).val()},
-                    success: function(response) {
-                        var new_dates = $.map(response.dates, function(date, i) {
-                            return (new Date(date)).toDateString();
-                        });
-                        that.cache.dates = that.cache.dates.concat(new_dates);
-                        that.cache.months[that.cache.months.length] = month;
-                        $datepicker.datepicker("refresh");
-                    },
-                    error: function() {
-                        flashError("Error loading hotspot dates data");
-                    }
-                });
+                that._getDatesForMonthYear(year, month, $datepicker);
             },
             error:function() {
                 flashError("Error getting hotspot data");
@@ -433,24 +424,28 @@ var HotspotHelper = Object.create({
     },
 
     _onChangeMonthYear: function(year, month, inst) {
-        var that = HotspotHelper;
-        if ($.inArray(month, that.cache.months) < 0) {
+        if ($.inArray(month, HotspotHelper.cache.months) < 0) {
             // get dates for this month
-            that.getDates({
-                data: {'month': month, 'year': year, 'hotspot_id': $(that.config.selectors.hotspotpicker).val()},
-                success: function(response) {
-                    var new_dates = $.map(response.dates, function(date, i) {
-                        return (new Date(date)).toDateString();
-                    });
-                    that.cache.dates = that.cache.dates.concat(new_dates);
-                    that.cache.months[that.cache.months.length] = month;
-                    inst.input.datepicker("refresh");
-                },
-                error: function() {
-                    flashError("Error loading hotspot dates data");
-                }
-            });
+            HotspotHelper._getDatesForMonthYear(year, month, inst.input);
         }
+    },
+
+    _getDatesForMonthYear: function(year, month, $datepicker){
+        var that = this;
+        that.getDates({
+            data: {'month': month, 'year': year, 'hotspot_id': $(that.config.selectors.hotspotpicker).val()},
+            success: function(response) {
+                var new_dates = $.map(response.dates, function(date, i) {
+                    return (new Date(date)).toDateString();
+                });
+                that.cache.dates = that.cache.dates.concat(new_dates);
+                that.cache.months[that.cache.months.length] = month;
+                $datepicker.datepicker("refresh");
+            },
+            error: function() {
+                flashError("Error loading hotspot dates data");
+            }
+        });
     }
 });
 
