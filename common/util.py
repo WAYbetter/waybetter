@@ -494,7 +494,7 @@ def add_formatted_date_fields(classes):
 
 def safe_fetch(url, payload=None, method=GET, headers={},
                allow_truncated=False, follow_redirects=True,
-               deadline=None, validate_certificate=None):
+               deadline=None, validate_certificate=None, notify=True):
     res = None
     try:
         res = fetch(url, payload, method, headers, allow_truncated, follow_redirects, deadline, validate_certificate)
@@ -507,7 +507,8 @@ def safe_fetch(url, payload=None, method=GET, headers={},
 
     if res and res.status_code != 200:
         logging.error(u"safe_fetch returned %s" % res.status_code)
-        notify_by_email(u"safe_fetch failed", u"safe_fetch returned %s for\nurl: %s\npayload: %s" %(res.status, url, payload))
+        if notify:
+            notify_by_email(u"safe_fetch failed", u"safe_fetch returned %s for\nurl: %s\npayload: %s" %(res.status, url, payload))
         res = None
 
     return res

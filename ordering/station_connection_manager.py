@@ -88,7 +88,7 @@ def _set_workstation_online_status(channel_id, status):
 
 
 
-@receive_signal(workstation_offline_signal, workstation_online_signal)
+#@receive_signal(workstation_offline_signal, workstation_online_signal)
 def log_connection_events(sender, signal_type, obj, **kwargs):
     last_event_qs = AnalyticsEvent.objects.filter(work_station=obj, type__in=[EventType.WORKSTATION_UP, EventType.WORKSTATION_DOWN]).order_by('-create_date')[:1]
     station = obj.station
