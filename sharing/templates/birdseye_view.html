@@ -1,0 +1,164 @@
+{% extends "wb_base.html" %}
+{% load i18n %}
+{% load value_from_settings %}
+
+{% block body %}
+    <form id="datepicker">
+        <div id="loader" class="loader"></div>
+        {{ form.as_p }}
+    </form>
+    <div id="computations_container"></div>
+{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        body {
+            padding: 15px;
+        }
+
+        label {
+            display: inline-block;
+            width: 110px;
+        }
+
+        input {
+            width: 90px;
+            padding-right: 5px;
+        }
+
+        #datepicker {
+            position: relative;
+        }
+
+        #loader {
+            display: none;
+            background: url(/static/images/wb_site/loader24.gif) left 0 no-repeat;
+            height: 24px;
+            width: 24px;
+            position: absolute;
+            left: 0;
+            top: 0;
+        }
+
+        #computations_container {
+            direction: ltr;
+        }
+
+        .c_header {
+            position: relative;
+            border: 1px solid black;
+            font-weight: bold;
+            background: #e1e1e1;
+            padding: 8px;
+            margin-bottom: 10px;
+        }
+
+        .c_desc {
+            position: absolute;
+            right: 10px;
+        }
+
+        .c_table {
+            width: 100%;
+            border: 2px solid #a8d5fd;
+            border-spacing: 0 3px;
+            margin-bottom: 50px;
+            text-align: left;
+        }
+
+        .c_table tr:nth-child(odd) {
+            background-color: white;
+        }
+
+        .c_table tr:nth-child(even) {
+            background-color: #e7f1fa;
+        }
+
+        .c_table th {
+            background-color: #e1e1e1;
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+
+{% block doc_ready %}
+    <script type="text/javascript" src="/static/js/mylibs/jquery.ui.datepicker-he.js"></script>
+
+    <script type="text/javascript">
+        var fields = ["from", "to", "passenger_name", "passenger_phone", "type", "status"];
+
+        {% autoescape off %}
+            var data = {{ data }};
+        {% endautoescape %}
+
+        function renderOrderRow(order) {
+            var $tr = $('<tr></tr>');
+            $.each(fields, function(i, field_name) {
+                var $td = $('<td></td>').text(order[field_name]).appendTo($tr);
+            });
+            return $tr;
+        }
+
+        function renderComputation(computation) {
+            var admin_link = '<a href="{% value_from_settings DEFAULT_DOMAIN %}/admin/ordering/ridecomputation/' + computation.id + '">' + computation.id + '</a>';
+            var $div = $('<div class="c_header" id="c_' + computation.id + '">' + computation.time + ' ' + computation.dir + '</div>')
+                    .append('<span class="c_desc">' + admin_link + ' [' + computation.status + ']' + '</span>');
+            var $table = $('<table></table>').addClass("c_table");
+            var $thead = $('<thead></thead>').append('<tr></tr>').appendTo($table);
+            $.each(fields, function(i, field_name) {
+                $thead.find("tr").append('<th>' + field_name + '</th>');
+            });
+            $.each(computation.orders, function(i, order) {
+                $table.append(renderOrderRow(order));
+            });
+
+            $div.appendTo("#computations_container");
+            $table.appendTo("#computations_container");
+        }
+
+        $(function() {
+            var date_options = $.extend({}, $.datepicker.regional["he"], {dateFormat: 'dd/mm/yy'});
+            var start_date = new Date({{ start_date }});
+            var end_date = new Date({{ end_date }});
+            $("#id_start_date").datepicker($.extend({}, date_options, {defaultDate: start_date})).datepicker("setDate", start_date);
+            $("#id_end_date").datepicker($.extend({}, date_options, {defaultDate: end_date})).datepicker("setDate", end_date);
+
+            $.each(data, function(i, computation) {
+                renderComputation(computation);
+            });
+
+            $("#datepicker input").change(function() {
+                $.ajax({
+                    url: "{% url sharing.staff_controller.birdseye_view %}",
+                    type: "POST",
+                    dataType: 'json',
+                    data: $("#datepicker").serialize(),
+                    beforeSend: function() {
+                        $("#computations_container").empty();
+                        $("#loader").show();
+                    },
+                    success: function(response) {
+                        if (response.data && response.data.length) {
+                            $.each(response.data, function(i, computation) {
+                                renderComputation(computation);
+                            });
+                        }
+                        else{
+                            $("#computations_container").text("No data received");
+                        }
+                    },
+                    complete: function() {
+                        $("#loader").hide();
+                    }
+
+                });
+            });
+        });
+    </script>
+
+{% endblock %}
+
+
+
+
