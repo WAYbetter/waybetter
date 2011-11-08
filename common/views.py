@@ -47,7 +47,7 @@ def base_datepicker_page(request, f_data, template_name, wrapper_locals, init_st
 
         start_date, end_date = to_js_date(init_start_date), to_js_date(init_end_date)
 
-        extended_locals = wrapper_locals
+        extended_locals = wrapper_locals.copy()
         extended_locals.update(locals())
 
         return render_to_response(template_name, extended_locals, context_instance=RequestContext(request))
