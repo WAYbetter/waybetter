@@ -186,6 +186,8 @@
                                     $status.addClass("success");
                                     $("#validation input").disable();
                                     setPassengerFormStatus(true);
+
+                                    gaHitPage("phone_verified.html")
                                 },
                                 error: function() {
                                     $status.addClass("error");
@@ -256,6 +258,8 @@
                             });
                         }
                         else {
+                            gaHitPage("user_registered.html");
+
                             if (response.redirect) {
                                 window.location.href = response.redirect;
                             }

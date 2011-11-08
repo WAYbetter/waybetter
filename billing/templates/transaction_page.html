@@ -47,12 +47,16 @@
                 data: {trx_id: "{{ billing_trx.id }}"},
                 success:    function(response) {
                     if (response.hasOwnProperty("status")) {
+                        if (response.status == approved) {
+                            gaHitPage("order_approved.html")
+                        }
+
                         var status = response.status;
-                        renderStatus(status, response.error_message);
                         if (status == processing || status == pending) {
                             $(document).oneTime(5e3, function(){getStatus();});
                         }
                         else {
+                            renderStatus(status, response.error_message);
                             $("#home").enable();
                         }
                     }

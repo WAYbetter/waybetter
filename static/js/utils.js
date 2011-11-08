@@ -481,4 +481,25 @@ Array.prototype.sum = function(){
 function getRandomInt(min, max)
 {
   return Math.floor(Math.random() * (max - min + 1)) + min;
-}  
+}
+
+window.log = function(){
+  log.history = log.history || [];   // store logs to an array for reference
+  log.history.push(arguments);
+  if(this.console){
+    console.log( Array.prototype.slice.call(arguments) );
+  }
+};
+
+window.logargs = function(context){
+  // grab the calling functions arguments
+  log(context,arguments.callee.caller.arguments);
+}
+
+function gaHitPage(url) {
+    try {
+        _gaq.push(['_trackPageview', '/' + url]);
+    } catch(e){
+        log(e);
+    }
+}

@@ -526,6 +526,8 @@
                     $("#save_stamp .value").text(Math.round(saved) + "%");
                     $("#save_stamp").fadeIn("fast");
                     $(".order_button").enable();
+
+                    gaHitPage("order_ready.html");
                 } else {
                     showError("{% trans "Currently, there is no service to this address." %}", undefined);
                 }
