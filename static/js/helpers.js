@@ -453,6 +453,9 @@ var AddressHelper = Object.create({
     config: {
         urls:{
             structured_resolve_url: ""
+        },
+        messages:{
+            choose_from_list: ""
         }
     },
 
@@ -460,7 +463,7 @@ var AddressHelper = Object.create({
         this.config = $.extend(true, {}, this.config, config);
     },
 
-    makeStructuredAddressInput: function(city_selector, street_input, hn_input, loader) {
+    makeStructuredAddressInput: function(city_selector, street_input, hn_input, loader, callbacks) {
         var that = this,
             $street_input = $(street_input),
             $hn_input = $(hn_input),
@@ -496,9 +499,11 @@ var AddressHelper = Object.create({
                 });
             },
             select: function(event, ui){
-                $(this).data({resolved: true, lat: ui.item.lat, lon: ui.item.lon});
-                $(this).autocomplete("disable").blur();
+                $(this).data("resolved", true);
+                $(this).blur().autocomplete("disable");
                 $hn_input.focus();
+                if (callbacks.success)
+                    callbacks.success();
             }
 
         });
@@ -516,7 +521,6 @@ var AddressHelper = Object.create({
     },
 
     resolveStructured: function(options) {
-//        city_selector, street_input, hn_input, callbacks
         var that = this,
             $city_selector = $(options.city_selector),
             $street_input = $(options.street_input),
@@ -536,28 +540,19 @@ var AddressHelper = Object.create({
             $.each([$city_selector, $street_input, $hn_input], function(){
                 $(this).enable();
             });
-
-            if (callbacks && callbacks.complete) {
-                callbacks.complete();
-            }
+            if (callbacks && callbacks.complete) callbacks.complete();
         }
 
         function _resolved(result) {
-            if (callbacks && callbacks.resolved) {
-                callbacks.resolved(result);
-            }
+            if (callbacks && callbacks.resolved) callbacks.resolved(result);
         }
 
         function _unresolved(errors) {
-            if (callbacks && callbacks.unresolved) {
-                callbacks.unresolved(errors);
-            }
+            if (callbacks && callbacks.unresolved) callbacks.unresolved(errors);
         }
 
         function _error(){
-            if (callbacks && callbacks.error) {
-                callbacks.error();
-            }
+            if (callbacks && callbacks.error) callbacks.error();
         }
 
         var query = {"city_id": $city_selector.val(), "street": $street_input.val(), "house_number": $hn_input.val()};
@@ -572,18 +567,29 @@ var AddressHelper = Object.create({
                     _unresolved(data.errors);
                 }
                 else {
-                    var geocode_result = [];
+                    var match = undefined;
+                    var suggestions = [];
                     $.each(data.geocoding_results, function(i, result) {
                         if (result.lat && result.lon && result.street_address && result.house_number) { // this is a valid result
-                            if (options.return_multiple) {
-                                geocode_result.push(result);
-                            } else if (result.street_address == query.street && result.house_number == query.house_number) {
-                                geocode_result = result;
+                            suggestions.push(result);
+                            if (result.street_address == query.street && result.house_number == query.house_number) {
+                                match = result;
                                 return false; // break;
                             }
                         }
                     });
-                    _resolved(geocode_result);
+                    if (options.return_multiple) {
+                        if (suggestions.length)
+                            _resolved(suggestions);
+                    } else {
+                        if (match){
+                            $street_input.autocomplete("close");
+                            _resolved(match);
+                        }
+                        else
+                            _unresolved({street: that.config.messages.choose_from_list});
+                    }
+
                 }
             },
             error: _error

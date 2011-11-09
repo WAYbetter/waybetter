@@ -205,7 +205,7 @@
                             <input type="text" id="id_street_address" name="street_address"
                                    placeholder="{% trans "Enter Address" %}"/>
 
-                            <div class="err address_error"></div>
+                            <div class="err street_error"></div>
                         </div>
                         <div>
                             <input type="text" id="id_house_number" name="house_number"
@@ -661,7 +661,7 @@
         var only_digits = $("#id_house_number").val().split(/\D+/).join("");
         $("#id_house_number").val(only_digits);
 
-        var is_valid = Boolean($("#id_street_address").data("resolved")) && Boolean($("#id_house_number").val());
+        var is_valid = Boolean($("#id_street_address").val()) && Boolean($("#id_house_number").val());
         if (is_valid) {
             $address_helper.find(".next_btn").enable();
         }
@@ -744,9 +744,18 @@
         AddressHelper.init({
             urls:{
                 structured_resolve_url: "{% url sharing.passenger_controller.resolve_structured_address %}"
+            },
+            messages:{
+                choose_from_list: "{% trans "Please choose from list" %}"
             }
         });
-        AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number", "#address_input_helper .tooltip_loader");
+        AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number", "#address_input_helper .tooltip_loader",
+                {
+                    success: function(){
+                        $("#id_street_address").siblings(".err").text("");
+                    }
+                }
+        );
 
         Registrator.init({
             urls            : {
