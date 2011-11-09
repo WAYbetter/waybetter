@@ -12,6 +12,10 @@ cron:
   url: /common/maintenance/routing_service_test
   schedule: every 5 minutes
 
+- description: test billing service
+  url: /common/maintenance/billing_service_test
+  schedule: every 5 minutes
+
 - description: send workstation heartbeat
   url: /services/ws_heartbeat/
   schedule: every 1 minutes

@@ -16,8 +16,11 @@ urlpatterns = patterns('',
     (r'init_(?P<model_name>\w+)_order/$', 'common.services.init_model_order'),
     (r'run_task/$', 'common.maintenance.run_maintenance_task'),
     (r'run_task_on_queue/$', 'common.maintenance.maintenance_task'),
+
+    (r'maintenance/billing_service_test$', 'common.maintenance.run_billing_service_test'),
     (r'maintenance/routing_service_test$', 'common.maintenance.run_routing_service_test'),
     (r'maintenance/routing_service_test_task$', 'common.maintenance.test_routing_service_task'),
+
     (r'registration/get_login_form/$', 'common.registration.get_login_form'),
     (r'registration/get_error_form/$', 'common.registration.get_error_form'),
     (r'registration/get_registration_form/$', 'common.registration.get_registration_form'),

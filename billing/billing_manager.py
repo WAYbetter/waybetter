@@ -1,9 +1,8 @@
 from datetime import datetime
 import logging
 from django.core.urlresolvers import reverse
-from django.utils.translation import get_language_from_request
-from google.appengine.api.urlfetch import fetch
-from common.util import get_unique_id, custom_render_to_response, safe_fetch
+from django.utils.translation import get_language_from_request, ugettext as _
+from common.util import get_unique_id, safe_fetch
 from django.conf import settings
 from common.views import ERROR_PAGE_TEXT, error_page
 

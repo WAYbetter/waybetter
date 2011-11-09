@@ -1,10 +1,13 @@
+from google.appengine.api import memcache
 from google.appengine.api.taskqueue import taskqueue, DuplicateTaskNameError, TaskAlreadyExistsError, TombstonedTaskError
+from google.appengine.api.urlfetch import fetch
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
-from django.http import  HttpResponseRedirect
+from django.http import  HttpResponseRedirect, HttpRequest
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+from billing.billing_manager import get_token_url
 from common.util import has_related_objects, url_with_querystring, get_unique_id
 from common.decorators import catch_view_exceptions, internal_task_on_queue
 from common.util import notify_by_email
@@ -41,6 +44,32 @@ TEL_AVIV_POINTS = [
 
 
 @catch_view_exceptions
+def run_billing_service_test(request):
+    #TODO_WB: test mobile page as well
+
+    success = True
+    err_msg = ""
+    r = HttpRequest()
+    r.mobile = False
+
+    try:
+        url = get_token_url(r)
+        result = fetch(url)
+        if result.status_code != 200:
+            success = False
+            err_msg = "status_code: %s" % result.status_code
+
+    except Exception, e:
+        err_msg = "There was an exception: %s\nTraceback:%s" % (e, traceback.format_exc())
+        success = False
+
+    if not success:
+        notify_by_email("billing service appears to be down", err_msg)
+
+    return HttpResponse("OK")
+
+
+@catch_view_exceptions
 def run_routing_service_test(request):
     task = taskqueue.Task(url=reverse(test_routing_service_task))
     q = taskqueue.Queue('maintenance')
@@ -53,6 +82,9 @@ def run_routing_service_test(request):
 @catch_view_exceptions
 @internal_task_on_queue('maintenance')
 def test_routing_service_task(request):
+    failures_counter = "routing_test_failures"
+    num_strikes = 3
+
     l = len(TEL_AVIV_POINTS)
 
     success = True
@@ -68,8 +100,12 @@ def test_routing_service_task(request):
         success = False
         err_msg = "%s\n There was an exception: %s\nTraceback:%s" % (err_msg, e, traceback.format_exc())
 
-    if not success:
-        notify_by_email("uh oh, routing service may be down", err_msg)
+    if success:
+        memcache.set(key=failures_counter, value=0)
+    else:
+        memcache.incr(failures_counter, initial_value=0)
+        if memcache.get(failures_counter) == num_strikes:
+            notify_by_email("routing service appears to be down (strike #%s)" % num_strikes , err_msg)
 
     return HttpResponse("OK")
 
