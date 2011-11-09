@@ -8,18 +8,7 @@ Object.create = Object.create || function (p) {
 };
 
 (function($) {
-	$.fn.extend({
-        toggleVisibile: function(){
-            return this.each(function() {
-                if ($(this).is(":visible")) {
-                    $(this).hide();
-                }
-                else {
-                    $(this).show();
-                }
-            });
-        },
-
+    $.fn.extend({
         disable: function() {
 			return this.each(function() {
                 if ($(this).hasClass("ui-button")) {
@@ -27,7 +16,7 @@ Object.create = Object.create || function (p) {
                 } else {
 				    $(this).attr({disabled: true});
                 }
-                if ($.mobile){
+                if ($.mobile && $(this).is(":button")){
                     $(this).button().button("refresh");
                 }
 			});
@@ -39,7 +28,7 @@ Object.create = Object.create || function (p) {
                 } else {
 				    $(this).removeAttr('disabled');
                 }
-                if ($.mobile){
+                if ($.mobile && $(this).is(":button")){
                     $(this).button().button("refresh");
                 }
 			});
@@ -52,6 +41,19 @@ Object.create = Object.create || function (p) {
                     $(this).parent().find(".ui-btn-text").text(text);
                 }
             })
+        },
+        swap: function(b) {
+            b = jQuery(b)[0];
+            var a = this[0],
+                    a2 = a.cloneNode(true),
+                    b2 = b.cloneNode(true),
+                    stack = this;
+
+            a.parentNode.replaceChild(b2, a);
+            b.parentNode.replaceChild(a2, b);
+
+            stack[0] = a2;
+            return this.pushStack(stack);
         }
 	});
 })(jQuery);

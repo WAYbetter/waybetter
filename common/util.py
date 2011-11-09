@@ -1,4 +1,5 @@
 # This Python file uses the following encoding: utf-8
+import traceback
 import urllib
 import os
 import uuid
@@ -249,8 +250,8 @@ def custom_render_to_response(template, dictionary=None, context_instance=None, 
     """
 
     # TODO_WB: bypass mobile template detection
-    return render_to_response(template, dictionary=dictionary, context_instance=context_instance, mimetype=mimetype)
-
+#    return render_to_response(template, dictionary=dictionary, context_instance=context_instance, mimetype=mimetype)
+    
     if not context_instance:
         raise RuntimeError("context_instance must be passed")
 

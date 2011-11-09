@@ -1,17 +1,45 @@
 {% extends "wb_base_mobile.html" %}
 {% load i18n %}
 
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        .ride_summary {
+            background: white;
+            padding: 15px;
+            border: 1px solid black;
+        }
+
+        .ride_summary h3 {
+            text-align: center;
+            margin: 0;
+        }
+
+        .address_type_indicator {
+            font-style: italic;
+            font-weight: normal;
+            font-size: 12px;
+            margin: 0 5px;
+        }
+    </style>
+{% endblock %}
+
 {% block doc_ready %}
     {{ block.super }}
 
     <script defer="defer">
-    var init_complete = false;
+    var hotspots = [];
+    var current_hotspot = undefined;
 
     function showError(msg) {
         alert(msg);
     }
 
-    function getIntervals() {
+    function getIntervals(select_nearest_interval) {
+        if (! (MobileHelper.hotspot && MobileHelper.address)) {
+            return; // do nothing if hotspot and address are not defined yet
+        }
+
         console.log("get intervals");
         var day = $("#ride-date").val();
         var $time_sel = $("#ride-time");
@@ -22,7 +50,7 @@
                 hotspot_type: MobileHelper.hotspot_type,
                 time_type: MobileHelper.time_type,
                 lat: MobileHelper.address.lat,
-                lon: MobileHelper.address.lon},
+                lon: MobileHelper.address.lon },
             success: function(response) {
                 if (response.times) {
                     $time_sel.empty();
@@ -33,27 +61,32 @@
                         $time_sel.data("ride_duration", response.ride_duration);
                     }
                     $time_sel.selectmenu().selectmenu('refresh', true);
-                    getRideDetails();
-                    if (!init_complete) {
-                        init_complete = true;
-                        // select the closest interval
+                    if (select_nearest_interval) {
                         $("#select-interval-form").submit();
-                        console.log("init complete");
                     }
                 }
             }
         });
     }
 
+    // TODO_WB: check hotspot_type to decide where the updated text should go
     function selectAddress(address) {
+        $.each(hotspots, function(i, hs) {
+            if (MobileHelper.distance(address.lat, address.lon, hs.lat, hs.lon) <= 0.4) {
+                console.log("IN HOTSPOT");
+                console.log(hs);
+                current_hotspot = hs;
+            }
+        });
         if (!(MobileHelper.address && MobileHelper.address.description == address.description)) {
             console.log("select address");
             MobileHelper.address = address;
             $("#pickup_name").text(address.description);
-            getIntervals();
+            getIntervals(true);
         }
     }
 
+    // TODO_WB: check hotspot_type to decide where the updated text should go
     function selectHotspot(hotspot) {
         if (hotspot !== MobileHelper.hotspot) {
             console.log("select hotspot");
@@ -67,6 +100,9 @@
                 var $option = $('<option value="' + d + '">' + d + '</option>');
                 $date_sel.append($option);
             });
+
+            // update intervals
+            getIntervals(true);
         }
     }
 
@@ -89,6 +125,7 @@
                     $("#private_price .value").text(response.private_price);
                     $("#private_time .value").text(response.private_time);
                     $(".order_button").enable();
+                    $.mobile.changePage("#choose_ride_page");
                 } else {
                     showError("{% trans "Currently, there is no service to this address." %}");
                 }
@@ -97,6 +134,40 @@
                 showError("{% trans "We have encountered an error. Please try again." %}");
             }
         });
+    }
+
+    function getCurrentLocation() {
+        MobileHelper.getCurrentLocation();
+        $("#pickup_name").text('{% trans "Finding your location" %}');
+    }
+
+    function locationError() {
+        $("#pickup_name").text("{% trans 'Could not find your current location' %}");
+        MobileHelper.address = undefined;
+    }
+
+    function switchOrderingDirection(direction) {
+        if (direction && MobileHelper.hotspot_type==direction) {
+            return; // do nothing
+        }
+        
+        var $ul_list = $("#booking_page div[data-role=content] ul");
+        var $first_ul = $ul_list.first();
+        var $second_ul = $($ul_list[1]);
+        var $first_address_type = $first_ul.find("h1 .address_type_indicator");
+        var $second_address_type = $second_ul.find("h1 .address_type_indicator");
+        
+        $first_ul.find("h1").text("{% trans 'To' %}").prepend($first_address_type);
+        $second_ul.find("h1").text("{% trans 'From' %}").prepend($second_address_type);
+
+        $first_ul.swap($second_ul);
+
+        if (MobileHelper.hotspot_type == "pickup") {
+            MobileHelper.hotspot_type = "dropoff";
+        } else {
+            MobileHelper.hotspot_type = "pickup";
+        }
+        getIntervals(true);
     }
 
     function bookRide(is_private) {
@@ -143,25 +214,27 @@
                 }
             },
             error: function() {
+                // TODO_WB: show error message/redirect to error page
                 $(".order_button").enable();
             }
         });
     }
-
-    $(document).ready(function() {
+    $(function() {
         $(document).ajaxSend(function() {
             $.mobile.showPageLoadingMsg();
         });
         $(document).ajaxComplete(function() {
             $.mobile.hidePageLoadingMsg();
         });
+        $.mobile.changePage("#home", { transition: "none"});
 
         MobileHelper.init({
             urls:{
                 resolve_coordinates: "{% url ordering.passenger_controller.resolve_coordinates %}"
             },
             callbacks:{
-                onNewAddress: selectAddress
+                onNewAddress: selectAddress,
+                locationError: locationError
             }
         });
 
@@ -177,6 +250,15 @@
             }
         });
 
+        AddressHelper.init({
+            urls:{
+                structured_resolve_url: "{% url sharing.passenger_controller.resolve_structured_address %}"
+            }
+        });
+
+        // try and find the current location
+        getCurrentLocation();
+        
         HotspotHelper.getHotspotData({
             data: {numdays: 7},
             beforeSend: function() {
@@ -185,6 +267,7 @@
                 var $hotspot_list = $("#hotspot_list");
                 var hs_by_city_name = {};
                 $.each(response.data, function(i, hotspot) {
+                    hotspots.push(hotspot);
                     if (hs_by_city_name[hotspot.city_name]) {
                         hs_by_city_name[hotspot.city_name].push(hotspot);
                     }
@@ -195,36 +278,24 @@
                 $.each(hs_by_city_name, function(city_name, hotspots) {
                     $hotspot_list.append('<li data-role="list-divider">' + city_name + '</li>');
                     $.each(hotspots, function(i, hotspot) {
-                        var $li = $('<li><h1>' + hotspot.name + '</h1><p>' + hotspot.address + '</p></li>');
-                        $li.click(function() {
-                            selectHotspot(hotspot);
+                        var $a = $('<a href="#"><h1>' + hotspot.name + '</h1><p>' + hotspot.address + '</p></a>');
+                        var $li = $('<li></li>').prepend($a);
+                        $a.click(function() {
                             $.mobile.changePage("#booking_page");
+                            selectHotspot(hotspot);
                         });
-                        $hotspot_list.append($li)
+                        $hotspot_list.append($li);
                     });
-
-                    console.log("got hotspot data, getting location");
-                    MobileHelper.getCurrentLocation();
-
-                    // we only have one hotspot for now. choose it.
-                    selectHotspot(hotspots[0]);
                 });
             }
         });
-
-        AddressHelper.init({
-            urls:{
-                structured_resolve_url: "{% url sharing.passenger_controller.resolve_structured_address %}"
-            }
-        });
-
 
         $("#ride-date").change(function() {
             getIntervals();
         });
 
         $("#gps").click(function() {
-            MobileHelper.getCurrentLocation();
+            getCurrentLocation();
             $.mobile.changePage("#booking_page");
         });
 
@@ -236,7 +307,8 @@
             bookRide(true);
         });
 
-        $("#interval_page").bind("pagebeforeshow",function(e, data) {
+        // TODO_WB: remove jqmData usage from here
+        $("#interval_page").bind("pagebeforeshow", function(e, data) {
             $("#ride-date").val($("#ride-date").jqmData("saved_val")).selectmenu("refresh");
             $("#ride-time").val($("#ride-time").jqmData("saved_val")).selectmenu("refresh");
         });
@@ -245,15 +317,34 @@
             $("#ride-date").jqmData("saved_val", $("#ride-date").val());
             $("#ride-time").jqmData("saved_val", $("#ride-time").val());
             $("#when").text($("#ride-date").val() + " " + $("#ride-time").val());
-            getRideDetails();
             return false;
         });
-        $("#select-interval-form button").click(function(){
-           $("#select-interval-form").submit();
+        $("#select-interval-form button").click(function() {
+            $("#select-interval-form").submit();
             $.mobile.changePage("#booking_page");
             return false;
         });
+        $("#calculate_ride_btn").click(function() {
+            getRideDetails();
+        });
 
+        $("#switch_direction_btn").click(function() {
+            switchOrderingDirection()
+        });
+
+        $("#home_book_order_btn").click(function() {
+            if (current_hotspot) { // user is very close to a hotspot
+                selectHotspot(current_hotspot);
+                MobileHelper.address = undefined;
+                $("#pickup_name").text('');
+                switchOrderingDirection("pickup");
+            } else if (MobileHelper.address) {
+                switchOrderingDirection("dropoff");
+            }
+
+            $.mobile.changePage("#booking_page");
+
+        });
 
         $("#address-form").submit(function() {
             var that = this;
@@ -272,19 +363,20 @@
                             $addresss_list.empty();
 
                             $.each(results, function (i, result) {
-                                var $li = $("<li>" + result.name + "</li>");
-                                $li.click(function() {
-                                    selectAddress(result);
+                                var $a = $("<a href='#'>" + result.name + "</a>");
+                                $a.click(function() {
                                     $.mobile.changePage("#booking_page");
+                                    selectAddress(result);
                                 });
-                                $addresss_list.append($li);
+                                $addresss_list.append($a);
+                                $a.wrap("<li/>")
                             });
                             $.mobile.changePage("#address_list_page");
                             $addresss_list.listview("refresh");
 
                         } else {
-                            selectAddress(results[0]);
                             $.mobile.changePage("#booking_page");
+                            selectAddress(results[0]);
                         }
                     },
                     unresolved:function(errors) {
@@ -301,20 +393,20 @@
 
 {% block body %}
 
-    <div id="home" data-role="page">
+    <div id="home" data-role="page" data-theme="a">
         <div data-role="header">
             <h1>WAYbetter</h1>
         </div>
         <div data-role="content">
             <div class="ui-grid-a"> {#  2-column grid #}
                 <div class="ui-block-a">
-                    <a href="#booking_page" data-role="button" data-iconpos="top" data-icon="check">
+                    <a href="#" id="home_book_order_btn" data-role="button" data-iconpos="top" data-icon="check">
                         {% trans 'Order a Ride' %}
                     </a>
                 </div>
                 <div class="ui-block-b">
-                    <a href="#" data-role="button" data-iconpos="top" data-icon="check">
-                        {% trans 'My Account' %}
+                    <a href="{% url mobile_auth_login %}" data-role="button" data-iconpos="top" data-icon="check">
+                        {% trans 'Login' %}
                     </a>
                 </div>
                 <div class="ui-block-a">
@@ -340,29 +432,34 @@
         </div>
     </div>
 
-    <div id="booking_page" data-role="page">
-        <div data-role="header" data-theme="b">
-            <a href="#home" data-icon="grid" data-iconpos="notext"></a>
+    <div id="booking_page" data-role="page" data-theme="a">
+        <div data-role="header">
+            <a href="#home" data-icon="grid" data-iconpos="notext" data-transition="pop"></a>
 
             <h1>{% trans 'Your WAY' %}</h1>
             <a href="#">{% trans 'Map' %}</a>
         </div>
         <div data-role="content">
-            <ul data-role="listview" data-inset="true">
+            <ul data-role="listview" data-inset="true" data-theme="a">
                 <li>
                     <a href="#address_page">
-                        <h1>{% trans "From" %}</h1>
+                        <h1><span id="first_address_type" class="address_type_indicator">{% trans 'Enter Address' %}</span>{% trans "From" %}</h1>
 
-                        <p id="pickup_name">{% trans "Finding your location" %}</p>
+                        <p id="pickup_name"></p>
                     </a>
                 </li>
+            </ul>
+            <button id="switch_direction_btn" type="button" data-role="none">&#8645;</button>
+            <ul data-role="listview" data-inset="true" data-theme="a">
                 <li>
                     <a href="#hotspot_page">
-                        <h1>{% trans "To" %}</h1>
-
-                        <p id="dropoff_name">HotSpot</p>
+                        <h1><span id="second_address_type" class="address_type_indicator">{% trans 'Choose Hotspot' %}</span>{% trans "To" %}</h1>
+                        <p id="dropoff_name"></p>
                     </a>
                 </li>
+            </ul>
+            <hr/>
+            <ul data-role="listview" data-inset="true" data-theme="a">
                 <li>
                     <a href="#interval_page">
                         <h1>{% trans "When" %}</h1>
@@ -371,54 +468,68 @@
                     </a>
                 </li>
             </ul>
-            <form id="order_form">
-                {% csrf_token %}
-
-                <ul data-role="listview" data-inset="true">
-
-                    <li>
-                        <h3>{% trans "WAYbetter Taxi Ride" %}</h3>
-
-                        <div class="ui-li-aside">
-                            <p id="sharing_price">Ride price: <span class="value">0</span>₪</p>
-
-                            <p id="sharing_time">Estimated time: <span class="value">0</span>min</p>
-                        </div>
-                        <button id="book_sharing" class="order_button">{% trans "Book" %}</button>
-                    </li>
-
-                    <li>
-                        <h3>{% trans "Private Taxi Ride" %}</h3>
-
-                        <div class="ui-li-aside">
-                            <p id="private_price">Ride price: <span class="value">0</span>₪</p>
-
-                            <p id="private_time">Estimated time: <span class="value">0</span>min</p>
-                        </div>
-                        <button id="book_private" class="order_button">{% trans "Book" %}</button>
-                    </li>
-                </ul>
-            </form>
+            <hr/>
+            <button type="button" id="calculate_ride_btn" data-theme="b">{% trans "Calculate Ride" %}</button>
         </div>
     </div>
 
-    <div id="hotspot_page" data-role="page">
-        <div data-role="header" data-theme="b">
+
+    <div id="choose_ride_page" data-role="page" data-theme="a">
+        <div data-role="header">
+            <a href="#" data-rel="back">{% trans "Back" %}</a>
+
+            <h1>{% trans 'Your WAY' %}</h1>
+            <a href="#">{% trans 'Map' %}</a>
+        </div>
+        <div data-role="content">
+            <form id="order_form">
+                {% csrf_token %}
+                <div class="ride_summary">
+                    <h3>{% trans "WAYbetter Taxi Ride" %}</h3>
+
+                    <div>
+                        <p id="sharing_price">{% trans "Ride Price" %}: <span class="value">0</span> ₪</p>
+
+                        <p id="sharing_time">{% trans "Est. Ride Duration" %}: <span
+                                class="value">0</span> {% trans "min" %}</p>
+                    </div>
+                    <button id="book_sharing" data-theme="d">{% trans 'Book WAYbetter' %}</button>
+
+                </div>
+                <p/>
+
+                <div class="ride_summary">
+                    <h3>{% trans "Private Taxi Ride" %}</h3>
+
+                    <div>
+                        <p id="private_price">{% trans "Ride Price" %}: <span class="value">0</span> ₪</p>
+
+                        <p id="private_time">{% trans "Est. Ride Duration" %}: <span
+                                class="value">0</span> {% trans "min" %}</p>
+                    </div>
+                    <button id="book_private" data-theme="c">{% trans 'Book Private' %}</button>
+
+                </div>
+            </form>
+        </div>
+    </div>
+    <div id="hotspot_page" data-role="page" data-theme="a">
+        <div data-role="header">
             <a href="#" data-rel="back">{% trans 'Cancel' %}</a>
 
             <h1>{% trans 'Select HotSpot' %}</h1>
         </div>
         <div data-role="content">
-            <ul id="hotspot_list" data-role="listview">
-                <li>
+            <ul id="hotspot_list" data-role="listview" data-theme="a">
+                <li data-theme="d">
                     {% trans 'Hotspots are areas where WAYbetter offers cheap taxis' %}
                 </li>
             </ul>
         </div>
     </div>
 
-    <div id="address_page" data-role="page">
-        <div data-role="header" data-theme="b">
+    <div id="address_page" data-role="page" data-theme="a">
+        <div data-role="header">
             <a href="#" data-rel="back">{% trans 'Cancel' %}</a>
 
             <h1>{% trans 'Enter Address' %}</h1>
@@ -441,20 +552,20 @@
         </div>
     </div>
 
-    <div id="address_list_page" data-role="page">
-        <div data-role="header" data-theme="b">
+    <div id="address_list_page" data-role="page" data-theme="a">
+        <div data-role="header">
             <a href="#" data-rel="back">{% trans 'Back' %}</a>
 
             <h1>{% trans 'Select Address' %}</h1>
         </div>
         <div data-role="content">
-            <ul data-role="listview" id="address_list"></ul>
+            <ul data-role="listview" id="address_list" data-theme="a"></ul>
         </div>
     </div>
 
-    <div id="interval_page" data-role="page">
-        <div data-role="header" data-theme="b">
-            <a href="#booking_page" data-icon="grid" data-rel="back" data-iconpos="notext"></a>
+    <div id="interval_page" data-role="page" data-theme="a">
+        <div data-role="header">
+            <a href="#booking_page" data-rel="back">{% trans "Cancel" %}</a>
 
             <h1>{% trans 'Pickup Time' %}</h1>
         </div>
@@ -462,9 +573,9 @@
         <div data-role="content">
             <form action="" id="select-interval-form">
                 <label for="ride-date">{% trans "Choose day" %}</label>
-                <select name="ride-date" id="ride-date"></select>
+                <select name="ride-date" id="ride-date" data-theme="a"></select>
                 <label for="ride-time">{% trans "Choose time" %}</label>
-                <select name="ride-time" id="ride-time"></select>
+                <select name="ride-time" id="ride-time" data-theme="a"></select>
                 <button>{% trans 'Next' %}</button>
             </form>
         </div>
