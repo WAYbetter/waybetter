@@ -63,6 +63,9 @@
 
             $(function() {
                 init();
+                $("#id_username").blur(function() {
+                    $(this).val($(this).val().toLowerCase());
+                });
             });
 
             function readToken() {
