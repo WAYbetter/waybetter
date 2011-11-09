@@ -3,6 +3,23 @@
 {% load value_from_settings %}
 {% load ajax_form_utils %}
 
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        label.ui-input-text {
+            margin-top: 20px;
+        }
+        label[for=id_agree_to_terms] .ui-btn-text {
+            font-size: 11px;
+            text-align: center;
+        }
+        label[for=id_agree_to_terms].ui-btn {
+            margin-top: 20px;
+            margin-bottom: 20px;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div id="validation_page" data-role="page">
         <div data-role="header">
@@ -17,22 +34,17 @@
                     <li>
                         {% trans "Ride details are sent by free SMS" %}
                     </li>
-                    <li>
-                        <div data-role="fieldcontain">
-                            <input id="local_phone" name="local_phone" placeholder="{% trans "Mobile Phone" %}"
-                                   type="text"/>
-                            <button id="validate_phone">{% trans "Get Code" %}</button>
-                        </div>
-                    </li>
-                    <li>
-                        <div data-role="fieldcontain">
-                            <input id="verification_code" name="verification_code"
-                                   placeholder="{% trans "Enter Code" %}"
-                                   type="text"/>
-                            <button id="validate_code">{% trans "Next" %}</button>
-                        </div>
-                    </li>
                 </ul>
+                <div data-role="fieldcontain">
+                    <label for="local_phone">{% trans "Mobile Phone" %}</label>
+                    <input id="local_phone" name="local_phone" placeholder="" type="tel"  data-theme="d"/>
+                    <button id="validate_phone" data-theme="a">{% trans "Get Code" %}</button>
+                </div>
+                <div data-role="fieldcontain">
+                    <label for="verification_code">{% trans "Enter Code" %}</label>
+                    <input id="verification_code" name="verification_code" type="tel"  data-theme="d"/>
+                    <button id="validate_code"  data-theme="a">{% trans "Next" %}</button>
+                </div>
             </form>
 
         </div>
@@ -44,43 +56,42 @@
             <a href="#" data-rel="back">{% trans 'Back' %}</a>
         </div>
         <div data-role="content">
+            <ul data-role="listview">
+                <li>
+                    <div id="fb_connect">
+                        <div id="fb-root"></div>
+                        <fb:login-button perms="email,user_checkins"></fb:login-button>
+                    </div>
+                </li>
+                <li data-role="list-divider">{% trans "OR" %}</li>
+            </ul>
+            <div>
             <form id="passenger_form" action="{% url register %}" method="POST">
                 {% csrf_token %}
                 {% for hidden in form.hidden_fields %}
                     {{ hidden }}
                 {% endfor %}
 
-                <ul data-role="listview">
-                    <li>
-                        <div id="fb_connect">
-                            <div id="fb-root"></div>
-                            <fb:login-button perms="email,user_checkins"></fb:login-button>
-                        </div>
-                    </li>
-                    <li data-role="list-divider">{% trans "OR" %}</li>
-                    <li>
-                        {% for field in form.visible_fields %}
-                            <!-- separate the fields for .siblings, see below -->
-                            <div data-role="fieldcontain">
-                                {% if field.html_name != "agree_to_terms" %}
-                                    <label>{{ field.label_tag }}</label>
-                                    {{ field }}
-                                    <div class="errorlist-placeholder"></div>
-                                {% endif %}
-                            </div>
-                        {% endfor %}
-                        <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
-                        <label for="id_agree_to_terms">{% trans "I agree to the" %}
-                            <a href="{% url terms %}">{% trans "Terms Of Use" %} </a>{% trans "and" %}
-                            <a href="{% url privacy %}"> {% trans "Privacy Statement" %}.</a>
-                        </label>
-                    </li>
-                    <li>
-                        <button id="finish_registration">{% trans "Next" %}</button>
-                    </li>
-                </ul>
-
+                {% for field in form.visible_fields %}
+                    <!-- separate the fields for .siblings, see below -->
+                    {% if field.html_name != "agree_to_terms" %}
+                        {{ field.label_tag }}
+                        {{ field }}
+                        <div class="errorlist-placeholder"></div>
+                    {% endif %}
+                {% endfor %}
+                <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
+                <label for="id_agree_to_terms">{% trans "I agree to the" %}
+                    <a href="{% url terms %}">{% trans "Terms Of Use" %} </a>{% trans "and" %}
+                    <a href="{% url privacy %}"> {% trans "Privacy Statement" %}.</a>
+                </label>
             </form>
+            </div>
+
+
+            <button id="finish_registration" data-theme="a">{% trans "Next" %}</button>
+
+
         </div>
     </div>
 
@@ -108,10 +119,6 @@
                 $("#fb_connect *").show();
             });
         }
-
-        $(function() {
-            $("[href='{% url auth_login %}']").attr("href", "{{ login_link }}");
-        });
 
         $("#validation_page").bind("pageinit", function(e) {
             $("#validate_phone, #validate_code").button("disable");

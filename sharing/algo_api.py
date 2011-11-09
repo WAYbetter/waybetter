@@ -129,7 +129,9 @@ def notify_aborted_computation(orders, computation):
 
     translation.activate(current_lang)
 
-    email_body = "The following computation was aborted because it did not complete after at least %d minutes:\n%s" % (COMPUTATION_ABORT_TIMEOUT + COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT, str(computation))
+    email_body = _("The following computation was aborted because it did not complete after at least %(minutes)d minutes:\n%(computation)s") % \
+    {"minutes": COMPUTATION_ABORT_TIMEOUT + COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT,
+     "computation": str(computation)}
 
     notify_by_email("Computations Aborted", email_body)
 
@@ -163,7 +165,7 @@ def submit_computations_task(request):
             logging.info("skipping: no pending computations with key %s" % key)
             return HttpResponse("OK") # nothing to do, no pending computations
         
-        # first lets get rid of the duplicate ride_computations we might have
+    # first lets get rid of the duplicate ride_computations we might have
         if computation.change_status(old_status=RideComputationStatus.PENDING, new_status=RideComputationStatus.PROCESSING):
             computations = RideComputation.objects.filter(key=key, status=RideComputationStatus.PENDING)
             orders = [order for c in computations for order in c.orders.all()]
