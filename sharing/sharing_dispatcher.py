@@ -46,10 +46,10 @@ def assign_ride(ride):
             # ride.change_status(old_status=PENDING, new_status=ASSIGNED) # calls save()
             ride.change_status(old_status=PENDING, new_status=ACCEPTED) # calls save()
 
-            if work_station.is_online:
-                notify_by_email(u"Ride [%s] assigned successfully to workstation %s" % (ride.id, work_station), msg=get_ride_log(ride))
-            else:
-                notify_by_email(u"Ride [%s] assigned to offline workstation %s" % (ride.id, work_station), msg=get_ride_log(ride))
+#            if work_station.is_online:
+#                notify_by_email(u"Ride [%s] assigned successfully to workstation %s" % (ride.id, work_station), msg=get_ride_log(ride))
+#            else:
+#                notify_by_email(u"Ride [%s] assigned to offline workstation %s" % (ride.id, work_station), msg=get_ride_log(ride))
 
             return work_station
 
