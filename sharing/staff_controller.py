@@ -2,13 +2,14 @@
 from billing.models import BillingTransaction
 from common.models import City
 from common.util import custom_render_to_response
+from common.views import base_datepicker_page
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
 from django.utils import simplejson, translation
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
-from common.tz_support import  default_tz_now, set_default_tz_time
+from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_now_min, default_tz_now_max
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
@@ -17,13 +18,49 @@ from sharing.forms import ConstraintsForm
 from sharing.models import HotSpot
 from sharing.passenger_controller import HIDDEN_FIELDS
 from sharing.algo_api import submit_orders_for_ride_calculation
-from datetime import  datetime, date
+from datetime import  datetime, date, timedelta
 import time
 import settings
 import re
 
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 LANG_CODE="he"
+
+@staff_member_required
+def birdseye_view(request):
+    na = "N/A"
+    init_start_date = default_tz_now_min()
+    init_end_date = default_tz_now_max() + timedelta(days=7)
+
+    def f(start_date, end_date):
+        departing = RideComputation.objects.filter(hotspot_depart_time__gte=start_date, hotspot_depart_time__lte=end_date)
+        arriving = RideComputation.objects.filter(hotspot_arrive_time__gte=start_date, hotspot_arrive_time__lte=end_date)
+        data = []
+
+        for c in sorted(list(departing) + list(arriving), key=lambda c: c.hotspot_depart_time or c.hotspot_arrive_time, reverse=True):
+            time = c.hotspot_depart_time or c.hotspot_arrive_time
+            orders_data = [{'id': o.id,
+                            'from': o.from_raw,
+                            'to': o.to_raw,
+                            'passenger_name': "%s %s" % (o.passenger.user.first_name, o.passenger.user.last_name) if o.passenger and o.passenger.user else na,
+                            'passenger_phone': o.passenger.phone if o.passenger else na,
+                            'type': OrderType.get_name(o.type),
+                            'status': o.get_status_label(),
+                            }
+            for o in c.orders.all()]
+
+            c_data = {'id': c.id,
+                    'status': RideComputationStatus.get_name(c.status),
+                    'time': time.strftime("%d/%m/%y, %H:%M"),
+                    'dir': 'Hotspot->' if c.hotspot_depart_time else '->Hotspot' if c.hotspot_arrive_time else na,
+                    'orders': orders_data,
+                    }
+
+            data.append(c_data)
+        return data
+
+    return base_datepicker_page(request, f, 'birdseye_view.html', locals(), init_start_date, init_end_date)
+
 
 @staff_member_required
 def staff_home(request):
