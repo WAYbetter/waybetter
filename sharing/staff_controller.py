@@ -13,7 +13,7 @@ from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_n
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
-from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus
+from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS
 from sharing.forms import ConstraintsForm
 from sharing.models import HotSpot
 from sharing.passenger_controller import HIDDEN_FIELDS
@@ -31,6 +31,7 @@ def birdseye_view(request):
     na = "N/A"
     init_start_date = default_tz_now_min()
     init_end_date = default_tz_now_max() + timedelta(days=7)
+    order_status_labels = [label for (key, label) in ORDER_STATUS]
 
     def f(start_date, end_date):
         departing = RideComputation.objects.filter(hotspot_depart_time__gte=start_date, hotspot_depart_time__lte=end_date)
