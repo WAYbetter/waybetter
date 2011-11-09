@@ -3,33 +3,64 @@
 {% load value_from_settings %}
 
 {% block body %}
-    <form id="datepicker">
-        <div id="loader" class="loader"></div>
-        {{ form.as_p }}
-    </form>
+    <div id="toolbar">
+        <form id="datepicker">
+            <div id="loader" class="loader"></div>
+            {{ form.as_p }}
+        </form>
+
+        <ul class="hz">
+            <li id="collapse_all" class="wb_link">Collapse all</li>
+            <li id="expand_all" class="wb_link">Expand all</li>
+            <li id="status_filter" class="wb_link">Filter by status</li>
+        </ul>
+        <ul id="order_status_list" class="hidden">
+            {% for label in order_status_labels %}
+                <li>
+                    <label>
+                        <input type="checkbox" checked="checked">{{ label }}
+                    </label>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
     <div id="computations_container"></div>
 {% endblock %}
 
 {% block extrastyle %}
     {{ block.super }}
     <style>
+        html {
+            direction: ltr;
+        }
+
         body {
             padding: 15px;
         }
 
-        label {
-            display: inline-block;
-            width: 110px;
+        #order_status_list{
+            position: relative;
+            left: 268px;
+            list-style: none;
         }
-
-        input {
-            width: 90px;
-            padding-right: 5px;
+        #order_status_list label{
+            display: inline;
         }
 
         #datepicker {
             position: relative;
         }
+
+        #datepicker label {
+            display: inline-block;
+            width: 110px;
+        }
+
+        #datepicker input {
+            width: 90px;
+            padding-right: 5px;
+        }
+
 
         #loader {
             display: none;
@@ -39,10 +70,6 @@
             position: absolute;
             left: 0;
             top: 0;
-        }
-
-        #computations_container {
-            direction: ltr;
         }
 
         .c_header {
@@ -65,6 +92,10 @@
             border-spacing: 0 3px;
             margin-bottom: 50px;
             text-align: left;
+        }
+
+        .c_table.collapsed {
+            display: none;
         }
 
         .c_table tr:nth-child(odd) {
@@ -92,8 +123,18 @@
             var data = {{ data }};
         {% endautoescape %}
 
+        function toggleOrdersByStatus(status) {
+            var orders = $("td:contains(" + status + ")").parent(".order");
+            $.each(orders, function(i, order) {
+                var $order = $(order);
+                $order.toggleVisibile();
+                if ($order.siblings(".order:visible").length == 0)
+                    $order.parents(".c_container").toggleVisibile();
+            });
+        }
+
         function renderOrderRow(order) {
-            var $tr = $('<tr></tr>');
+            var $tr = $('<tr class="order"></tr>');
             $.each(fields, function(i, field_name) {
                 var $td = $('<td></td>').text(order[field_name]).appendTo($tr);
             });
@@ -101,10 +142,10 @@
         }
 
         function renderComputation(computation) {
-            var admin_link = '<a href="{% value_from_settings DEFAULT_DOMAIN %}/admin/ordering/ridecomputation/' + computation.id + '">' + computation.id + '</a>';
-            var $div = $('<div class="c_header" id="c_' + computation.id + '">' + computation.time + ' ' + computation.dir + '</div>')
+            var admin_link = '<a class="wb_link" href="{% value_from_settings DEFAULT_DOMAIN %}/admin/ordering/ridecomputation/' + computation.id + '">' + computation.id + '</a>';
+            var $div = $('<div class="c_header clickable" id="c_header_' + computation.id + '">' + computation.time + ' ' + computation.dir + '</div>')
                     .append('<span class="c_desc">' + admin_link + ' [' + computation.status + ']' + '</span>');
-            var $table = $('<table></table>').addClass("c_table");
+            var $table = $('<table class="c_table collapsed" id="c_table_' + computation.id + '"></table>');
             var $thead = $('<thead></thead>').append('<tr></tr>').appendTo($table);
             $.each(fields, function(i, field_name) {
                 $thead.find("tr").append('<th>' + field_name + '</th>');
@@ -113,11 +154,35 @@
                 $table.append(renderOrderRow(order));
             });
 
-            $div.appendTo("#computations_container");
-            $table.appendTo("#computations_container");
+            var $container = $('<div class="c_container"></div>').append($div, $table).appendTo("#computations_container");
         }
 
         $(function() {
+
+            $("#expand_all").click(function() {
+                $(".c_table").removeClass("collapsed");
+            });
+            $("#collapse_all").click(function() {
+                $(".c_table").addClass("collapsed");
+            });
+
+            $("#status_filter").click(function() {
+                $("#order_status_list").toggleVisibile();
+            });
+            $("#order_status_list [type=checkbox]").change(function(){
+                var status_label = $(this).parent().text().trim();
+                toggleOrdersByStatus(status_label);
+            });
+
+            $(".c_header").live('click', function() {
+                var $table = $("#c_table_" + $(this).attr("id").split("_")[2]);
+                if ($table.hasClass("collapsed"))
+                    $table.removeClass("collapsed");
+                else
+                    $table.addClass("collapsed");
+
+            });
+
             var date_options = $.extend({}, $.datepicker.regional["he"], {dateFormat: 'dd/mm/yy'});
             var start_date = new Date({{ start_date }});
             var end_date = new Date({{ end_date }});
@@ -144,7 +209,7 @@
                                 renderComputation(computation);
                             });
                         }
-                        else{
+                        else {
                             $("#computations_container").text("No data received");
                         }
                     },
