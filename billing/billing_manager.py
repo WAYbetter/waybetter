@@ -1,8 +1,9 @@
 from datetime import datetime
 import logging
+from xml.dom import minidom
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request, ugettext as _
-from common.util import get_unique_id, safe_fetch
+from common.util import get_unique_id, safe_fetch, get_text_from_element
 from django.conf import settings
 from common.views import ERROR_PAGE_TEXT, error_page
 
@@ -53,7 +54,7 @@ def get_transaction_id(unique_id, lang_code, mpi_data):
     
     data.update(mpi_data)
     data.update({
-        "terminal":         settings.BILLING["terminal_number"],
+        "terminal":         settings.BILLING["terminal_number"] + "s",
         "uniqueID":         unique_id,
         "amount":           0,
         "currency":         "ILS",
@@ -74,11 +75,11 @@ def get_transaction_id(unique_id, lang_code, mpi_data):
     res = safe_fetch(settings.BILLING["transaction_url"], method='POST', payload=data, deadline=10)
     if not res:
         return None
-    elif res.content.startswith("--"):
-        logging.error("No transaction ID received: %s" % res.content)
-        return None
-    else:
-        return res.content
+    elif res.content:
+        logging.info(res.content)
+        xml = minidom.parseString(res.content)
+        txId = get_text_from_element(xml, "txId")
+        return txId
 
 
 def get_token_url(request, order=None):
