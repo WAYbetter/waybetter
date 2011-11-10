@@ -254,21 +254,23 @@ jQuery UI override
 .ui-dialog {
   border: 5px solid;
   border-color: rgba(235, 31, 121, 0.5); }
-
-.ui-dialog-titlebar {
-  font-size: 18px;
-  font-weight: bold;
-  background: none;
-  border: none; }
+  .ui-dialog .ui-dialog-titlebar {
+    font-size: 18px;
+    font-weight: bold;
+    background: none;
+    border: none; }
+  .ui-dialog .ui-dialog-title {
+    color: #6C6C6A; }
 
 .ui-datepicker {
   font-size: 13px; }
 
-.ui-dialog-title {
-  color: #6C6C6A; }
-
-.rtl .ui-dialog-title {
-  float: right; }
+.rtl .ui-dialog .ui-dialog-titlebar-close {
+  right: auto;
+  left: .3em; }
+.rtl .ui-dialog .ui-dialog-title {
+  float: right;
+  margin: .1em 0 .1em 16px; }
 
 /*
 Base site
@@ -564,6 +566,7 @@ body.base-site {
     background: url("/static/images/wb_site/ride_type.png") 2px 1px no-repeat; }
   .myrides-table td.info {
     width: 65px;
+    text-align: center;
     /*height: 10px;*/
     /*background: url("/static/images/wb_site/info_icons.png") 0 -5px no-repeat;*/
     /*cursor: pointer;*/ }
@@ -1012,7 +1015,7 @@ Home
     position: relative;
     left: 5px;
     top: 2px;
-    color: #bcbcbc; }
+    color: #3d3d3d; }
   .wb_home #address_input_helper label div {
     float: left; }
   .wb_home #address_input_helper select {
@@ -1614,17 +1617,20 @@ Info pages
 
 .faq #site-content {
   width: 500px; }
-.faq .h, .faq .q, .faq .a {
-  margin-bottom: 20px; }
 .faq .h {
   font-size: 18px;
-  font-weight: bold; }
+  font-weight: bold;
+  margin-bottom: 20px; }
 .faq .q {
   font-size: 13px;
-  font-weight: bold; }
+  font-weight: bold;
+  margin-top: 20px;
+  margin-bottom: 5px; }
 .faq .a {
   font-size: 13px;
   line-height: 22px; }
+.faq p {
+  margin: 0; }
 
 .error-page .header .img, .error-page .header .title {
   display: inline-block; }

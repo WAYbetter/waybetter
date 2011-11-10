@@ -8,7 +8,8 @@ var MyRidesHelper = Object.create({
         },
         messages: {
             ride_cancelled: "",
-            cancel_link: ""
+            cancel_text: "",
+            report_text: ""
         },
         order_types: {},
         next_rides_table: undefined,
@@ -87,8 +88,12 @@ var MyRidesHelper = Object.create({
         $row.append('<td>' + order.when + '</td>');
         $row.append('<td>' + order.price + '</td>');
 
-        var $info = $('<td class="info' + ((is_next) ? '"' : ' report"') + '></td>')
-                .append('<a class="wb_link">' + this.config.messages.cancel_link + '</a>');
+        var $info = $('<td class="info' + ((is_next) ? '"' : ' report"') + '></td>');
+        if (is_next)
+                $info.append('<a class="wb_link">' + this.config.messages.cancel_text + '</a>');
+        else
+            $info.append('<a class="wb_link">' + this.config.messages.report_text + '</a>');
+
         $info.tooltip({
             tip: this.config.tip,
             position: (this.config.rtl) ? 'center right' : 'center left',
@@ -138,7 +143,7 @@ var MyRidesHelper = Object.create({
     },
 
     _showReportTooltip: function(info_el, order_id){
-        $(this.config.tip_content.report_ride).find("#report_ride_link").attr("href", "mailto:rides@waybetter.com?subject=Report Ride " + order_id);
+        $(this.config.tip_content.report_ride).find("#report_ride_link").attr("href", "mailto:" + $("#report_ride_link").text() + "?subject=Report Ride " + order_id);
         this._showTooltip(info_el, "report_ride");
     },
 
