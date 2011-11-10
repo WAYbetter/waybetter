@@ -315,23 +315,31 @@ jQuery UI override
 .ui-dialog{
     border: 5px solid;
     border-color: rgba($color-community, 0.5);
-}
-.ui-dialog-titlebar{
-    font-size: $font-size-header1;
-    font-weight: bold;
-    background: none;
-    border: none;
+    .ui-dialog-titlebar{
+        font-size: $font-size-header1;
+        font-weight: bold;
+        background: none;
+        border: none;
+    }
+    .ui-dialog-title{
+        color: #6C6C6A;
+    }
 }
 .ui-datepicker{
     font-size: $font-size-medium;
 }
-.ui-dialog-title{
-    color: #6C6C6A;
+
+.rtl .ui-dialog{
+    .ui-dialog-titlebar-close{
+        right: auto;
+        left: .3em;
+    }
+    .ui-dialog-title{
+        float: right;
+        margin: .1em 0 .1em 16px;
+    }
 }
 
-.rtl .ui-dialog-title{
-    float: right;
-}
 /*
 Base site
 ****************************************************/
@@ -651,6 +659,7 @@ body.base-site{
     }
     td.info{
         width: 65px;
+        text-align: center;
         /*height: 10px;*/
         /*background: url("/static/images/wb_site/info_icons.png") 0 -5px no-repeat;*/
         /*cursor: pointer;*/
@@ -1174,7 +1183,7 @@ Home
             position: relative;
             left: 5px;
             top: 2px;
-            color: $light-gray;
+            color: $dark-gray;
         }
     }
 
