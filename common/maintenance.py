@@ -49,11 +49,10 @@ def run_billing_service_test(request):
 
     success = True
     err_msg = ""
-    r = HttpRequest()
-    r.mobile = False
+    request.mobile = False
 
     try:
-        url = get_token_url(r)
+        url = get_token_url(request)
         result = fetch(url)
         if result.status_code != 200:
             success = False

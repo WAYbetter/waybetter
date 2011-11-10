@@ -71,8 +71,8 @@ class BillingTransaction(BaseModel):
 
     def _setup_charge_date(self):
         #TODO_WB: decide on the correct way to do this - relative to j5
-#        self.charge_date = self.dn_pickup_time + timedelta(days=1)
-        self.charge_date = self.dn_pickup_time + timedelta(minutes=15)
+        self.charge_date = self.dn_pickup_time + timedelta(days=1)
+#        self.charge_date = self.dn_pickup_time + timedelta(minutes=15)
 
     def commit(self):
         """
