@@ -63,7 +63,7 @@
 
             $(function() {
                 init();
-                $("#id_username").blur(function() {
+                $("#id_username").bind("keypress blur",function() {
                     $(this).val($(this).val().toLowerCase());
                 });
             });

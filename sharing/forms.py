@@ -72,7 +72,7 @@ class PassengerRegistrationForm(forms.Form):
         return self.cleaned_data
         
     def clean_email(self):
-        email = self.cleaned_data.get("email", "").lower()
+        email = self.cleaned_data.get("email", "").lower().strip()
         self.cleaned_data["email"] = email
 
         try:
