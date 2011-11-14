@@ -54,7 +54,7 @@ def get_transaction_id(unique_id, lang_code, mpi_data):
     
     data.update(mpi_data)
     data.update({
-        "terminal":         settings.BILLING["terminal_number"],
+        "terminal":         settings.BILLING["terminal_number"] + "s",
         "uniqueID":         unique_id,
         "amount":           0,
         "currency":         "ILS",
