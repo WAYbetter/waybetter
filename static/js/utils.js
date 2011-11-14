@@ -8,18 +8,7 @@ Object.create = Object.create || function (p) {
 };
 
 (function($) {
-	$.fn.extend({
-        toggleVisibile: function(){
-            return this.each(function() {
-                if ($(this).is(":visible")) {
-                    $(this).hide();
-                }
-                else {
-                    $(this).show();
-                }
-            });
-        },
-
+    $.fn.extend({
         disable: function() {
 			return this.each(function() {
                 if ($(this).hasClass("ui-button")) {
@@ -27,7 +16,7 @@ Object.create = Object.create || function (p) {
                 } else {
 				    $(this).attr({disabled: true});
                 }
-                if ($.mobile){
+                if ($.mobile && $(this).is(":button")){
                     $(this).button().button("refresh");
                 }
 			});
@@ -39,7 +28,7 @@ Object.create = Object.create || function (p) {
                 } else {
 				    $(this).removeAttr('disabled');
                 }
-                if ($.mobile){
+                if ($.mobile && $(this).is(":button")){
                     $(this).button().button("refresh");
                 }
 			});
@@ -49,9 +38,44 @@ Object.create = Object.create || function (p) {
                 if ($(this).hasClass("ui-button")) {
                     $(this).button("option", "label", text);
                 } else {
-                    $(this).parent().find(".ui-btn-text").text(text);
+                    $(this).text(text).parent().find(".ui-btn-text").text(text);
                 }
             })
+        },
+        set_button_theme: function(theme_swatch) {
+            var swatch_re = /-(\w)$/;
+            return this.each(function() {
+                // for jq-mobile
+                var parent_element = $(this).closest(".ui-btn");
+                if (parent_element.length) {
+                    var class_list = parent_element.attr("class").split(/\s+/);
+                    var new_class_list = [];
+                    $(this).attr("data-theme", theme_swatch);
+                    $.each(class_list, function(i, cls) {
+                        var matches = cls.match(swatch_re);
+                        if (matches && matches[1] != theme_swatch) {
+                            new_class_list.push(cls.replace(swatch_re, "-" + theme_swatch));
+                        } else {
+                            new_class_list.push(cls);
+                        }
+                    });
+                    parent_element.attr("data-theme", theme_swatch).attr("class", new_class_list.join(" "));
+                    $(this).button("refresh");
+                }
+            })
+        },
+        swap: function(b) {
+            b = jQuery(b)[0];
+            var a = this[0],
+                    a2 = a.cloneNode(true),
+                    b2 = b.cloneNode(true),
+                    stack = this;
+
+            a.parentNode.replaceChild(b2, a);
+            b.parentNode.replaceChild(a2, b);
+
+            stack[0] = a2;
+            return this.pushStack(stack);
         }
 	});
 })(jQuery);

@@ -67,9 +67,9 @@ class Middleware(object):
            depending on whether the request should be considered to come from a
            small-screen device such as a phone or a PDA"""
 
-#        # temporary hack to prevent mobile sniffing
-#        request.mobile = True
-#        return None
+        # temporary hack to prevent mobile sniffing
+        request.mobile = True
+        return None
 
         # do not consider iPads as mobile
         if request.META.get("HTTP_USER_AGENT", "").lower().find("ipad") > -1:

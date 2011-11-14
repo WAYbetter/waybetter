@@ -1,0 +1,27 @@
+{% extends "wb_base_mobile.html" %}
+{% load i18n %}
+
+{% block body %}
+    <div id="login_page" data-role="page">
+        <div data-role="header">
+            <h1>{% trans "Login" %}</h1>
+            <a href="#" data-rel="back">{% trans 'Back' %}</a>
+            <a href="#">{% trans 'Join' %}</a>
+        </div>
+        <div data-role="content">
+            {{ form.non_field_errors }}
+            <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
+                <input type="hidden" name="this_is_the_login_form" value="1"/>
+                <input type="hidden" name="next" value="{{ next }}"/>
+                <input type="hidden" name="token" id="id_token">
+
+                <label for="id_username">{% trans 'Email' %}:</label>
+                <input type="text" name="username" id="id_username"/>
+                <label for="id_password">{% trans 'Password' %}:</label>
+                <input type="password" name="password" id="id_password"/>
+
+                <input type="submit" data-theme="a" value="{% trans 'Log in' %}"/>
+            </form>
+        </div>
+    </div>
+{% endblock %}

@@ -18,6 +18,13 @@
             margin-top: 35px;
             margin-bottom: 20px;
         }
+        .errorlist {
+            list-style: none;
+        }
+        .errorlist li {
+            color: red;
+        }
+
     </style>
 {% endblock %}
 
@@ -31,13 +38,11 @@
 {% endblock %}
 
 {% block content %}
-    {% if error_message %}
-        <p class="errornote">{{ error_message }}</p>
-    {% endif %}
+    <p>{{ form.non_field_errors }}</p>
     <div id="content-main">
         <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
             <div class="form-row">
-                <label for="id_username">{% trans 'Email' %}:</label> <input type="text" name="username"
+                <label for="id_username">{% trans 'Email' %}:</label> <input type="email" name="username"
                                                                              id="id_username"/>
             </div>
             <div class="form-row">

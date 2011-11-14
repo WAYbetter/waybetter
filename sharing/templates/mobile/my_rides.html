@@ -1,0 +1,49 @@
+{% extends "wb_base_mobile.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+{% endblock %}
+
+{% block body %}
+    <div id="myrides_page" data-role="page">
+        <div data-role="header">
+            <a href="#home" data-icon="grid" data-iconpos="notext" data-transition="pop"></a>
+            <h1>{% trans "My Rides" %}</h1>
+            <div data-role="navbar">
+                <ul>
+                    <li><a id="upcoming_rides_btn" href="#" class="ui-btn-active">{% trans 'Upcoming Rides' %}</a></li>
+                    <li><a id="ride_history_btn" href="#">{% trans 'Ride History' %}</a></li>
+                </ul>
+            </div>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview"  data-theme="a">
+            </ul>
+        </div>
+    </div>
+
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(function() {
+            $(document).ajaxSend(function() {
+                $.mobile.showPageLoadingMsg();
+            });
+            $(document).ajaxComplete(function() {
+                $.mobile.hidePageLoadingMsg();
+            });
+
+            $("#upcoming_rides_btn").click(function() {
+                
+            });
+
+            $("#ride_history_btn").click(function() {
+
+            });
+
+        });
+    </script>
+{% endblock %}
