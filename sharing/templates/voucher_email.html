@@ -1,46 +1,69 @@
 {% load i18n %}
 {% get_current_language_bidi as LANGUAGE_BIDI %}
-<html>
+<html dir="rtl">
 <head>
     <title></title>
 </head>
 <body {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
 
-<div width="100%" style="text-align: center;">WAYbetter LTD. {% trans "Voucher Ride Order"%}</div>
+<div>WAYbetter LTD. {% trans "Voucher Ride Order"%}</div>
+<div>{% trans "Ride Date" %}: {{ ride_date }}</div>
+<div>{% trans "Ride ID" %}: {{ ride.id }}</div>
 
-<table cellspacing="0" cellpadding="5" width="100%">
-    <tr>
-        <td>{% trans "Ride ID" %}: {{ ride.id }}</td>
-        <td>{% trans "Ride Date" %}: {{ ride_date }}</td>
-        <td>{% trans "Fax Sent" %}: {{ now_time }}</td>
-    </tr>
-</table>
+<h1>שעת איסוף: {{ ride_time }}</h1>
 
-<div width="100%">{% trans "Pickup" %}</div>
+<h3 width="100%">{% trans "Pickup" %}</h3>
 <table border="1" cellspacing="0" cellpadding="5" width="100%">
     {% for stop in pickups %}
     <tr>
+        <td>{{ stop.count }} {% trans "Passengers" %}</td>
+        <td>{{ stop.address }}</td>
         <td>{{ stop.phones|join:"<BR/>" }}</td>
-        <td><b>{{ stop.count }} {% trans "Passengers" %}</b></td>
-        <td><b>{{ stop.address }}</b></td>
-        <td>{{ stop.pickup_time }}</td>
     </tr>
     {% endfor %}
 </table>
 
-<div width="100%">{% trans "Dropoff" %}</div>
+<h3 width="100%">{% trans "Dropoff" %}</h3>
 <table border="1" cellspacing="0" cellpadding="5" width="100%">
     {% for stop in dropoffs %}
     <tr>
-        <td>{{ stop.phones|join:"<BR/>" }}</td>
         <td>{{ stop.count }} {% trans "Passengers" %}</td>
-        <td><b>{{ stop.address }}</b></td>
-        <td>{{ stop.pickup_time }}</td>
+        <td>{{ stop.address }}</td>
+        <td>{{ stop.phones|join:"<BR/>" }}</td>
     </tr>
     {% endfor %}
 </table>
 
-<div width="100%" style="text-align: center;">{% trans 'Please make sure drivers are <b>On Time</b>' %}</div>
+<h2>{% trans 'Please Tell The Driver' %}</h2>
+<ol>
+    <li><h3>{% trans "Voucher is in the office - don't ask the passenger" %}</h3></li>
+    <li><h3>{% trans "Ride route and destination - the passenger does not know the route" %}</h3></li>
+</ol>
+
+<div>.</div>
+<div>.</div>
+<h3>{% trans "Driver Name" %}__________________</h3>
+<h3>{% trans "Radio Number" %}__________________</h3>
+<div>.</div>
+<div>.</div>
+<div>.</div>
+<div>.</div>
+<div>.</div>
+
+<table border="1" cellspacing="0" cellpadding="5" width="100%">
+    <tr>
+        <td>{% trans "City Area" %} 1</td>
+        <td>{% trans "City Area" %} 2</td>
+        <td>{% trans "Points" %}</td>
+        <td>{% trans "Tariff" %}</td>
+    </tr>
+    <tr>
+        <td>{{ city_area_1 }}</td>
+        <td>{{ city_area_2 }}</td>
+        <td>{{ points }}</td>
+        <td>{{ tariff }}</td>
+    </tr>
+</table>
 
 </body>
 </html>
