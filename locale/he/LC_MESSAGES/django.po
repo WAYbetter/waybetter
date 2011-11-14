@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-10 14:24+0200\n"
-"PO-Revision-Date: 2011-11-10 14:35+0200\n"
+"POT-Creation-Date: 2011-11-10 18:41+0200\n"
+"PO-Revision-Date: 2011-11-10 18:42+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -245,7 +245,7 @@ msgstr "יש לאשר את מספר הטלפון"
 msgid "Ride Summary"
 msgstr "סיכום נסיעות"
 
-#: billing/billing_manager.py:100
+#: billing/billing_manager.py:101
 msgid "Could not complete your registration. Please try again."
 msgstr ""
 
@@ -3445,6 +3445,7 @@ msgid "Your WAY Details"
 msgstr "פרטי הנסיעה שלך"
 
 #: sharing/templates/myrides_tooltips.html:50
+#: sharing/templates/voucher_email.html:13
 #: sharing/templates/wb_home.html:1014
 #: sharing/templates/mobile/wb_home.html:459
 msgid "Pickup Time"
@@ -3478,7 +3479,7 @@ msgstr "המונית בדרך!"
 #: sharing/templates/passenger_ride_email.html:18
 #: sharing/templates/producer_ordering_page.html:53
 #: sharing/templates/station_history.html:37
-#: sharing/templates/voucher_email.html:19
+#: sharing/templates/voucher_email.html:15
 msgid "Pickup"
 msgstr "מוצא"
 
@@ -3587,7 +3588,7 @@ msgstr "להלן פרטי הזמנתך (מספר %(order_id)s):"
 #: sharing/templates/passenger_ride_email.html:19
 #: sharing/templates/producer_ordering_page.html:70
 #: sharing/templates/station_history.html:45
-#: sharing/templates/voucher_email.html:31
+#: sharing/templates/voucher_email.html:27
 msgid "Dropoff"
 msgstr "יעד"
 
@@ -3720,6 +3721,7 @@ msgid "Value"
 msgstr "שווי נסיעה"
 
 #: sharing/templates/station_accounting.html:32
+#: sharing/templates/voucher_email.html:53
 msgid "Tariff"
 msgstr "תעריף"
 
@@ -3866,26 +3868,47 @@ msgstr "             <p class=\"header\">                WAYbetter מציעה א
 msgid "Voucher Ride Order"
 msgstr "נסיעת אשראי"
 
-#: sharing/templates/voucher_email.html:13
-msgid "Ride ID"
-msgstr "   נסיעה מספר"
-
-#: sharing/templates/voucher_email.html:14
+#: sharing/templates/voucher_email.html:10
 msgid "Ride Date"
 msgstr "תאריך נסיעה"
 
-#: sharing/templates/voucher_email.html:15
-msgid "Fax Sent"
-msgstr "פקס נשלח"
+#: sharing/templates/voucher_email.html:11
+msgid "Ride ID"
+msgstr "   נסיעה מספר"
 
-#: sharing/templates/voucher_email.html:24
-#: sharing/templates/voucher_email.html:36
+#: sharing/templates/voucher_email.html:20
+#: sharing/templates/voucher_email.html:32
 msgid "Passengers"
 msgstr "נוסעים"
 
-#: sharing/templates/voucher_email.html:43
-msgid "Please make sure drivers are <b>On Time</b>"
-msgstr "בבקשה שים לב שהנהג מקפיד על <b>זמני איסוף</b>"
+#: sharing/templates/voucher_email.html:39
+msgid "Please Tell The Driver"
+msgstr "חשוב להזכיר לנהג"
+
+#: sharing/templates/voucher_email.html:41
+msgid "Voucher is in the office - don't ask the passenger"
+msgstr "הפתק במשרד - לא לשאול את הנוסע"
+
+#: sharing/templates/voucher_email.html:42
+msgid "Ride route and destination - the passenger does not know the route"
+msgstr "מסלול הנסיעה והיעד - הנוסע לא יודע מה המסלול"
+
+#: sharing/templates/voucher_email.html:45
+msgid "Driver Name"
+msgstr "שם הנהג"
+
+#: sharing/templates/voucher_email.html:46
+msgid "Radio Number"
+msgstr "מספר קשר"
+
+#: sharing/templates/voucher_email.html:50
+#: sharing/templates/voucher_email.html:51
+msgid "City Area"
+msgstr "איזור"
+
+#: sharing/templates/voucher_email.html:52
+msgid "Points"
+msgstr "נקודות"
 
 #: sharing/templates/wb_home.html:23
 msgid "Try It Now"
@@ -4285,6 +4308,12 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
 
+#~ msgid "Fax Sent"
+#~ msgstr "פקס נשלח"
+
+#~ msgid "Please make sure drivers are <b>On Time</b>"
+#~ msgstr "בבקשה שים לב שהנהג מקפיד על <b>זמני איסוף</b>"
+
 #~ msgid "rides@waybetter.com"
 #~ msgstr "rides@waybetter.com"
 
@@ -4366,12 +4395,6 @@ msgstr "שגיאה בבודק האיות"
 
 #~ msgid "Stop Time"
 #~ msgstr "זמן עצירה"
-
-#~ msgid "Radio Number"
-#~ msgstr "מספר קשר"
-
-#~ msgid "Driver Name"
-#~ msgstr "שם הנהג"
 
 #~ msgid "Ride Cost"
 #~ msgstr "שווי נסיעה"
