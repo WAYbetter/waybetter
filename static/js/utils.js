@@ -38,7 +38,12 @@ Object.create = Object.create || function (p) {
                 if ($(this).hasClass("ui-button")) {
                     $(this).button("option", "label", text);
                 } else {
-                    $(this).text(text).parent().find(".ui-btn-text").text(text);
+                    var $inner_span = $(this).parent().find(".ui-btn-text");
+                    if ($inner_span.length) {
+                        $inner_span.text(text)
+                    } else {
+                        $(this).text(text);
+                    }
                 }
             })
         },

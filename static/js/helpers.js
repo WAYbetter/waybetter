@@ -832,8 +832,11 @@ var TelmapHelper = Object.create({
 var MobileHelper = Object.create({
     config: {
         urls:{
-            resolve_coordinates: "",
-            get_hotspot_dates: ""
+            resolve_coordinates     : "",
+            get_hotspot_dates       : "",
+            get_myrides_data        : "",
+            cancel_order            : ""
+
         },
         callbacks:{
             onNewAddress: function(address){
@@ -921,6 +924,122 @@ var MobileHelper = Object.create({
         var p2 = new LatLon(lat2, lon2);
 
         return p1.distanceTo(p2);
+    },
+
+    
+    getMyRidesData: function(options, list_selector, ride_page_selector) {
+        var that = this;
+
+        $.ajax({
+            url: that.config.urls.get_myrides_data,
+            dataType: "json",
+            data: options,
+            success: function(data) {
+                //data.previous_rides || []);
+                var $list = $(list_selector);
+                var ride_data = [];
+                if (data.previous_rides) {
+                    ride_data = data.previous_rides;
+                } else if (data.next_rides) {
+                    ride_data = data.next_rides;
+                }
+
+                if (ride_data.length) {
+                    $list.empty();
+                    $.each(ride_data, function(i, ride) {
+                        var $li_header = $('<li data-role="list-divider"></li>').text(ride.when).attr("id", "ride_header_" + ride.id);
+                        var $li_a = $('<a href="#"></a>');
+                        $li_a.append("<p>" + ride.from + "</p>");
+                        $li_a.append("<p>" + ride.to + "</p>");
+                        $li_a.append("<p>" + ride.price + " &#8362;</p>");
+                        $li_a.click(function() {
+                            that.showRideStatus(ride, ride_page_selector);
+                        });
+
+                        var $li_ride = $('<li></li>').attr("id", "ride_li_" + ride.id).append($li_a);
+
+                        $list.append($li_header);
+                        $list.append($li_ride);
+                        $list.listview("refresh");
+
+                        
+                    })
+                }
+            }
+        })
+    },
+    showRideStatus  : function(ride_data) {
+        var that = this;
+
+        var $ride_page = $(that.config.selectors.ride_details_page);
+        var $details_list = $(that.config.selectors.ride_details_list);
+        var $details_btn = $(that.config.selectors.ride_details_btn);
+
+        $details_list.empty();
+
+        $.each(["from", "to", "when", "price"], function(i, e) {
+            var $li = $("<li></li>").text(ride_data[e]);
+            var $label = $("<span>" + e + ": </span>");
+            $li.prepend($label);
+            $details_list.append($li);
+        });
+
+
+        $.ajax({
+            url: that.config.urls.get_order_status,
+            data: {order_id: ride_data.id},
+            dataType: "json",
+            success: function(response){
+                var status = response.status;
+                var details = response.details;
+                
+                if (status == "pending"){
+                    $details_btn.set_button_text(that.config.labels.cancel_ride);
+                    $details_btn.attr("href", "#").unbind("click").click(function () {
+                        that.cancelOrder(ride_data.id);
+                        return false;
+                    });
+                    $ride_page.find(".ride_details_comment").text(that.config.labels.sms_sent);
+                } else {
+                    $details_btn.attr("href", "mailto:support@waybetter.com?subject=Regarding order " + ride_data.id);
+                    $details_btn.set_button_text(that.config.labels.report_ride);
+                    $details_btn.unbind("click"); // default behavior is report via mailto: link
+
+                    var comment = "";
+                    if (details.pickup_time) {
+                        comment += "<p>"+ that.config.labels.final_pickup + ": " + details.pickup_time +"</p>";
+//                        comment += "<p>"+ that.config.labels.taxi_number + ": " + details.taxi_number +"</p>";
+                        comment += "<p>"+ that.config.labels.taxi_station + ": " + details.station_name + " " + details.station_phone +"</p>";
+                    }
+
+                    $ride_page.find(".ride_details_comment").empty().append(comment);
+
+                }
+                $.mobile.changePage($ride_page);
+            }
+        });
+
+
+
+    },
+    cancelOrder: function(order_id) {
+        var that = this;
+        var $details_btn = $(that.config.selectors.ride_details_btn);
+
+         $.ajax({
+            url: that.config.urls.cancel_order,
+            type: "POST",
+            data: {order_id: order_id},
+            dataType: "json",
+            success: function(response) {
+                if (response.status == 'cancelled') {
+                    $("#ride_li_" + order_id + "," + "#ride_header_" + order_id).remove();
+                    $(that.config.selectors.ride_details_list).listview("refresh");
+                    alert(that.config.labels.order_cancelled);
+                    $.changePage(that.config.selectors.my_rides_page);
+                }
+            }
+         });
     }
 });
 

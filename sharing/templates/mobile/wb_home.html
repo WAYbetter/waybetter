@@ -250,7 +250,10 @@
 
         MobileHelper.init({
             urls:{
-                resolve_coordinates: "{% url ordering.passenger_controller.resolve_coordinates %}"
+                resolve_coordinates: "{% url ordering.passenger_controller.resolve_coordinates %}",
+                get_myrides_data: "{% url sharing.passenger_controller.get_myrides_data %}",
+                cancel_order: "{% url sharing.passenger_controller.cancel_order %}",
+                get_order_status: "{% url sharing.passenger_controller.get_order_status %}"
             },
             callbacks:{
                 onNewAddress: selectAddress,
@@ -450,7 +453,7 @@
                 </div>
                 <div class="ui-block-b">
                     {% if user.is_authenticated %}
-                        <a href="{% url my_rides %}" data-role="button" data-iconpos="top" data-icon="check">
+                        <a href="{% url my_rides %}" rel="external" data-role="button" data-iconpos="top" data-icon="check">
                             {% trans 'My Rides' %}
                         </a>
                     {% else %}
