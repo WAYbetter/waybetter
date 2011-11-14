@@ -24,8 +24,8 @@ def send_sms(destination, text, **kwargs):
     if destination.endswith(settings.APPLE_TESTER_PHONE_NUMBER):
         logging.info("Skipping SMS for test user")
         return True
-    
-#    return
+ 
+    return
     sms_config = settings.SMS
     if kwargs is not None:
         sms_config.update(kwargs)

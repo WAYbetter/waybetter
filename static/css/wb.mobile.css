@@ -1,40 +1,77 @@
+#home .ui-header {
+  background: white;
+  border: none;
+  box-shadow: 0 0 5px black; }
+#home h1 {
+  height: 42px;
+  width: 242px;
+  background: url(/static/images/mobile/header.png) center 0 no-repeat;
+  margin: 0 auto; }
+#home .ui-icon {
+  background: url(/static/images/mobile/home_icons.png) center 0;
+  width: 43px;
+  height: 43px;
+  margin-left: -21.5px; }
+#home .ui-btn-inner {
+  padding-top: 50px; }
+#home #myrides_btn .ui-icon {
+  background-position: center -50px; }
+#home #share_btn .ui-icon {
+  background-position: center -100px; }
+#home #settings_btn .ui-icon {
+  background-position: center -150px; }
+#home #feedback_btn .ui-icon {
+  background-position: center -200px; }
+
+a[href="/"] .ui-icon, a[href="#home"] .ui-icon {
+  background: url(/static/images/mobile/wb_logo_18px.png) left 0 no-repeat;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none; }
+
 #address-form input {
-    display: inline-block;
-}
+  display: inline-block; }
 
 #address-form input[type=text] {
-    width: 68%;
-}
+  width: 68%; }
 
 #address-form input[type=tel] {
-    width: 20%;
-}
+  width: 20%; }
 
 /* transaction page */
 #status_icon {
-    width: 80px;
-    height: 80px;
-}
+  width: 80px;
+  height: 80px; }
 
 #status_icon.processing {
-    background: url(/static/images/wb_site/loading_large.gif) left 0 no-repeat;
-}
+  background: url(/static/images/wb_site/loading_large.gif) left 0 no-repeat; }
 
 #status_icon.approved {
-    background: url(/static/images/wb_site/processing_icons.png) left -84px no-repeat;
-}
+  background: url(/static/images/wb_site/processing_icons.png) left -84px no-repeat; }
 
 #status_icon.failed {
-    background: url(/static/images/wb_site/processing_icons.png) left 10px no-repeat;
-}
+  background: url(/static/images/wb_site/processing_icons.png) left 10px no-repeat; }
 
 /* registration */
-#fb_connect{
-    background: url("/static/images/wb_site/fb_disabled.jpeg") -1px 0 no-repeat;
-    width: 170px;
-    height: 28px;
-}
+#fb_connect {
+  background: url("/static/images/wb_site/fb_disabled.jpeg") -1px 0 no-repeat;
+  width: 170px;
+  height: 28px; }
 
-.errorlist li{
-    list-style: none;
-}
+.errorlist li {
+  list-style: none; }
+
+/* RTL */
+.rtl .rtl-listview .ui-listview li {
+  text-align: right; }
+.rtl .rtl-listview .ui-btn-text {
+  text-align: right; }
+.rtl .rtl-listview .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
+  padding-right: 15px;
+  padding-left: 30px; }
+.rtl .rtl-listview .ui-btn-icon-right .ui-icon {
+  right: auto;
+  left: 10px; }
