@@ -5,8 +5,8 @@
     <div id="login_page" data-role="page">
         <div data-role="header">
             <h1>{% trans "Login" %}</h1>
-            <a href="#" data-rel="back">{% trans 'Back' %}</a>
-            <a href="#">{% trans 'Join' %}</a>
+            <a href="{% url wb_home %}" data-icon="wb_custom" data-rel="back" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
+            <a href="{% url join %}" class="ui-btn-left">{% trans 'Join' %}</a>
         </div>
         <div data-role="content">
             {{ form.non_field_errors }}

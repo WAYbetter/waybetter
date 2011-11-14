@@ -300,7 +300,7 @@
                     $hotspot_list.append('<li data-role="list-divider">' + city_name + '</li>');
                     $.each(hotspots, function(i, hotspot) {
                         var $a = $('<a href="#"><h1>' + hotspot.name + '</h1><p>' + hotspot.address + '</p></a>');
-                        var $li = $('<li></li>').prepend($a);
+                        var $li = $('<li data-icon="arrow-l"></li>').prepend($a);
                         $a.click(function() {
                             $.mobile.changePage("#booking_page");
                             selectHotspot(hotspot);
@@ -430,6 +430,14 @@
             });
             return false;
         });
+
+        $("#share_fb").click(function() {
+            window.shareByFB();
+        });
+        $("#share_email").click(function() {
+            window.shareByEmail();
+        });
+
     });
     </script>
 
@@ -439,33 +447,44 @@
 
     <div id="home" data-role="page" data-theme="a">
         <div data-role="header">
-            <h1>WAYbetter</h1>
+            <h1></h1>
         </div>
         <div data-role="content">
             <div class="ui-grid-a"> {#  2-column grid #}
                 <div class="ui-block-a">
-                    <a href="#" id="home_book_order_btn" data-role="button" data-iconpos="top" data-icon="check">
+                    <a href="#booking_page" id="home_book_order_btn" data-role="button" data-theme="g" data-iconpos="top" data-icon="wb_custom">
                         {% trans 'Order a Ride' %}
                     </a>
                 </div>
                 <div class="ui-block-b">
-                    {% if user.is_authenticated %}
-                        <a href="{% url my_rides %}" data-role="button" data-iconpos="top" data-icon="check">
-                            {% trans 'My Rides' %}
-                        </a>
-                    {% else %}
-                    <a href="{% url mobile_auth_login %}" data-role="button" data-iconpos="top" data-icon="check">
-                        {% trans 'Login' %}
+                    <a href="{% if user.is_authenticated %}{% url my_rides %}{% else %}{% url mobile_auth_login %}{% endif %}"
+                       id="myrides_btn" data-role="button" data-theme="g" data-iconpos="top" data-icon="wb_custom">
+                        {% trans 'My Rides' %}
                     </a>
-                    {% endif %}
                 </div>
             </div>
+            <div class="ui-grid-a">
+                <div class="ui-block-a">
+                    <a href="#share_page" id="share_btn" data-role="button" data-theme="g" data-iconpos="top" data-icon="wb_custom">{% trans 'Share' %}</a>
+                </div>
+                <div class="ui-block-b">
+                    <a href="#settings_page" id="settings_btn" data-role="button" data-theme="g" data-iconpos="top" data-icon="wb_custom">{% trans 'Settings' %}</a>
+                </div>
+            </div>
+            <div class="ui-grid-b"> {#  3-column grid #}
+                <div class="ui-block-a"></div>
+                <div class="ui-block-b">
+                    <a href="mailto:support@waybetter.com" id="feedback_btn" data-role="button" data-theme="g" data-iconpos="top" data-icon="wb_custom">{% trans 'Feedback' %}</a>
+                </div>
+                <div class="ui-block-c"></div>
+            </div>
+
         </div>
     </div>
 
     <div id="booking_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#home" data-icon="grid" data-iconpos="notext" data-transition="pop"></a>
+            <a href="#home" data-icon="wb_custom" data-rel="back" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
 
             <h1>{% trans 'Your WAY' %}</h1>
 {#            <a href="#">{% trans 'Map' %}</a>#}
@@ -509,7 +528,7 @@
 
     <div id="choose_ride_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#" data-rel="back">{% trans "Back" %}</a>
+            <a href="#" data-rel="back" class="ui-btn-right">{% trans "Back" %}</a>
 
             <h1>{% trans 'Your WAY' %}</h1>
 {#            <a href="#">{% trans 'Map' %}</a>#}
@@ -546,14 +565,15 @@
             </form>
         </div>
     </div>
+
     <div id="hotspot_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#" data-rel="back">{% trans 'Cancel' %}</a>
+            <a href="#" data-rel="back" class="ui-btn-right">{% trans 'Cancel' %}</a>
 
             <h1>{% trans 'Select HotSpot' %}</h1>
         </div>
         <div data-role="content">
-            <ul id="hotspot_list" data-role="listview" data-theme="a">
+            <ul id="hotspot_list" class="rtl-listview" data-role="listview" data-theme="a">
                 <li data-theme="d">
                     {% trans 'Hotspots are areas where WAYbetter offers cheap taxis' %}
                 </li>
@@ -611,6 +631,32 @@
                 <select name="ride-time" id="ride-time" data-theme="a"></select>
                 <button data-theme="b">{% trans 'Next' %}</button>
             </form>
+        </div>
+    </div>
+
+    <div id="share_page" data-role="page" data-theme="a">
+        <div data-role="header">
+            <a href="#home" data-icon="wb_custom" data-rel="back" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
+            <h1>{% trans "Feedback" %}</h1>
+        </div>
+        <div data-role="content">
+            <ul class="rtl-listview" data-role="listview">
+                <li data-icon="arrow-l"><a id="share_fb" href="#">{% trans "Share on Facebook" %}</a></li>
+                <li data-icon="arrow-l"><a id="share_email" href="#">{% trans "Tell a Friend (email)" %}</a></li>
+            </ul>
+        </div>
+    </div>
+
+    <div id="settings_page" data-role="page" data-theme="a">
+        <div data-role="header">
+            <a href="#home" data-icon="wb_custom" data-rel="back" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
+            <h1>{% trans "Settings" %}</h1>
+        </div>
+        <div data-role="content">
+            <ul class="rtl-listview" data-role="listview">
+                <li data-icon="arrow-l"><a href="#">{% trans "Setting 1" %}</a></li>
+                <li data-icon="arrow-l"><a href="#">{% trans "Setting 2" %}</a></li>
+            </ul>
         </div>
     </div>
 

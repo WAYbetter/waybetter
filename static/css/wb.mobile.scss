@@ -1,0 +1,106 @@
+@mixin border-radius($r){
+    -webkit-border-radius: $r;
+    -moz-border-radius: $r;
+    border-radius: $r;
+}
+@mixin box-shadow($r){
+    -webkit-box-shadow: $r;
+    -moz-box-shadow: $r;
+    box-shadow: $r;
+}
+
+#home{
+    .ui-header{
+        background: white;
+        border: none;
+        box-shadow: 0 0 5px black;
+    }
+    h1{
+        height: 42px;
+        width: 242px;
+        background: url(/static/images/mobile/header.png) center 0 no-repeat;
+        margin: 0 auto;
+    }
+    .ui-icon{
+        background: url(/static/images/mobile/home_icons.png) center 0;
+        width: 43px;
+        height: 43px;
+        margin-left: -21.5px;
+    }
+        .ui-btn-inner{
+        padding-top: 50px;
+    }
+
+    $offset: -50px;
+    #myrides_btn .ui-icon{ background-position: center 1*$offset; }
+    #share_btn .ui-icon{ background-position: center 2*$offset; }
+    #settings_btn .ui-icon{ background-position: center 3*$offset; }
+    #feedback_btn .ui-icon{ background-position: center 4*$offset; }
+}
+
+a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
+    background: url(/static/images/mobile/wb_logo_18px.png) left 0 no-repeat;
+    @include border-radius(0);
+    @include box-shadow(none);
+}
+
+#address-form input {
+    display: inline-block;
+}
+
+#address-form input[type=text] {
+    width: 68%;
+}
+
+#address-form input[type=tel] {
+    width: 20%;
+}
+
+/* transaction page */
+#status_icon {
+    width: 80px;
+    height: 80px;
+}
+
+#status_icon.processing {
+    background: url(/static/images/wb_site/loading_large.gif) left 0 no-repeat;
+}
+
+#status_icon.approved {
+    background: url(/static/images/wb_site/processing_icons.png) left -84px no-repeat;
+}
+
+#status_icon.failed {
+    background: url(/static/images/wb_site/processing_icons.png) left 10px no-repeat;
+}
+
+/* registration */
+#fb_connect{
+    background: url("/static/images/wb_site/fb_disabled.jpeg") -1px 0 no-repeat;
+    width: 170px;
+    height: 28px;
+}
+
+.errorlist li{
+    list-style: none;
+}
+
+/* RTL */
+.rtl{
+    .rtl-listview{
+        .ui-listview li{
+            text-align: right;
+        }
+        .ui-btn-text{
+            text-align: right;
+        }
+        .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit{
+            padding-right: 15px;
+            padding-left: 30px;
+        }
+        .ui-btn-icon-right .ui-icon{
+            right: auto;
+            left: 10px;
+        }
+    }
+}

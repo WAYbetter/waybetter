@@ -24,14 +24,14 @@
     <div id="validation_page" data-role="page">
         <div data-role="header">
             <h1>{% trans "Phone Verification" %}</h1>
-            <a href="{% url wb_home %}">{% trans 'Back' %}</a>
-            <a href="{{ login_link }}">{% trans 'Login' %}</a>
+            <a href="{% url wb_home %}" data-icon="wb_custom" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
+            <a href="{{ login_link }}" class="ui-btn-left">{% trans 'Login' %}</a>
         </div>
         <div data-role="content">
             <form id="validation">
-                <ul data-role="listview">
+                <ul class="rtl-listview" data-role="listview">
                     <input name="country_code" type="hidden" value="{{ country_code }}"/>
-                    <li>
+                    <li data-theme="d">
                         {% trans "Ride details are sent by free SMS" %}
                     </li>
                 </ul>
