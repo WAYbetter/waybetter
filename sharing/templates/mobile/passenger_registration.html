@@ -80,7 +80,7 @@
                         <div class="errorlist-placeholder"></div>
                     {% endif %}
                 {% endfor %}
-                <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
+                <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms" data-theme="b"/>
                 <label for="id_agree_to_terms">{% trans "I agree to the" %}
                     <a href="{% url terms %}">{% trans "Terms Of Use" %} </a>{% trans "and" %}
                     <a href="{% url privacy %}"> {% trans "Privacy Statement" %}.</a>

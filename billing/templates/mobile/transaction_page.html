@@ -1,22 +1,38 @@
 {% extends "wb_base_mobile.html" %}
 {% load i18n %}
 
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        #order_status {
+            background: white;
+            border: 1px solid black;
+            padding: 10px;
+        }
+        #order_status h3 {
+            text-align: center;
+        }
+        #order_status .status_details {
+            text-align: center;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
-    <div id="trx_status" data-role="page" data-fullscreen="true">
-        <div data-role="header" data-theme="b">
-            <h1 id="status_header"></h1>
+    <div id="trx_status" data-role="page" data-theme="a">
+        <div data-role="header">
+            <h1>{% trans "Processing Your Order" %}</h1>
         </div>
         <div data-role="content">
-            <ul data-role="listview">
-                <li>
-                    <img id="status_icon"/>
+            <div id="order_status">
+                <h3 id="status_header"></h3>
+                <div class="status_details">
+                    <div id="status_icon"></div>
                     <div id="status_help"></div>
-                </li>
-                <li>
-                    <button id="home" class="wb_button">{% trans "Home" %}</button>
-                </li>
-            </ul>
+                </div>
 
+                <button id="home" data-theme="b">{% trans "Home" %}</button>
+            </div>
         </div>
     </div>
 {% endblock %}
@@ -45,7 +61,7 @@
                     break;
                 default: // processing or pending
                     $("#status_icon").addClass("processing");
-                    $("#status_header").html("{% trans "Processing Your Order" %}");
+                    $("#status_header").html("");
                     $("#status_help").html("{% trans "Please wait, this may take a few seconds" %}...");
             }
         }

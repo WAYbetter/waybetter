@@ -74,7 +74,7 @@ def transaction_ok(request, passenger):
 @passenger_required
 def bill_order(request, trx_id, passenger):
     billing_trx = BillingTransaction.by_id(trx_id)
-    billing_trx.commit()
+#    billing_trx.commit()
 
     page_specific_class = "transaction_page"
     pending = BillingStatus.PENDING
