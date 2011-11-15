@@ -68,8 +68,8 @@ class Middleware(object):
            small-screen device such as a phone or a PDA"""
 
         # temporary hack to prevent mobile sniffing
-        request.mobile = True
-        return None
+#        request.mobile = True
+#        return None
 
         # do not consider iPads as mobile
         if request.META.get("HTTP_USER_AGENT", "").lower().find("ipad") > -1:
