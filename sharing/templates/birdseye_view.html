@@ -127,9 +127,9 @@
             var orders = $("td:contains(" + status + ")").parent(".order");
             $.each(orders, function(i, order) {
                 var $order = $(order);
-                $order.toggleVisibile();
+                $order.toggle();
                 if ($order.siblings(".order:visible").length == 0)
-                    $order.parents(".c_container").toggleVisibile();
+                    $order.parents(".c_container").toggle();
             });
         }
 
@@ -167,7 +167,7 @@
             });
 
             $("#status_filter").click(function() {
-                $("#order_status_list").toggleVisibile();
+                $("#order_status_list").toggle();
             });
             $("#order_status_list [type=checkbox]").change(function(){
                 var status_label = $(this).parent().text().trim();
