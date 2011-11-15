@@ -250,7 +250,10 @@
 
         MobileHelper.init({
             urls:{
-                resolve_coordinates: "{% url ordering.passenger_controller.resolve_coordinates %}"
+                resolve_coordinates: "{% url ordering.passenger_controller.resolve_coordinates %}",
+                get_myrides_data: "{% url sharing.passenger_controller.get_myrides_data %}",
+                cancel_order: "{% url sharing.passenger_controller.cancel_order %}",
+                get_order_status: "{% url sharing.passenger_controller.get_order_status %}"
             },
             callbacks:{
                 onNewAddress: selectAddress,
@@ -433,7 +436,7 @@
 
         $("#share_fb").click(function() {
             window.shareByFB();
-        });
+    });
         $("#share_email").click(function() {
             window.shareByEmail();
         });
@@ -458,18 +461,18 @@
                 </div>
                 <div class="ui-block-b">
                     <a href="{% if user.is_authenticated %}{% url my_rides %}{% else %}{% url mobile_auth_login %}{% endif %}"
-                       id="myrides_btn" data-role="button" data-theme="g" data-iconpos="top" data-icon="wb_custom">
-                        {% trans 'My Rides' %}
-                    </a>
+                       id="myrides_btn" data-role="button" data-theme="g" data-iconpos="top" data-icon="wb_custom" rel="external">
+                            {% trans 'My Rides' %}
+                        </a>
                 </div>
             </div>
             <div class="ui-grid-a">
                 <div class="ui-block-a">
                     <a href="#share_page" id="share_btn" data-role="button" data-theme="g" data-iconpos="top" data-icon="wb_custom">{% trans 'Share' %}</a>
-                </div>
+        </div>
                 <div class="ui-block-b">
                     <a href="#settings_page" id="settings_btn" data-role="button" data-theme="g" data-iconpos="top" data-icon="wb_custom">{% trans 'Settings' %}</a>
-                </div>
+    </div>
             </div>
             <div class="ui-grid-b"> {#  3-column grid #}
                 <div class="ui-block-a"></div>
@@ -484,7 +487,7 @@
 
     <div id="booking_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#home" data-icon="wb_custom" data-rel="back" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
+            <a href="#home" data-icon="wb_custom" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
 
             <h1>{% trans 'Your WAY' %}</h1>
 {#            <a href="#">{% trans 'Map' %}</a>#}
@@ -517,6 +520,7 @@
                 <div class="button_cell">
                     <button id="choose_time_btn" type="button" data-iconpos="left" data-icon="arrow-l"
                             data-theme="f">{% trans 'Select Time' %}</button>
+                    <h1>boo</h1><h2>ba</h2>
                 </div>
             </div>
 
@@ -636,7 +640,7 @@
 
     <div id="share_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#home" data-icon="wb_custom" data-rel="back" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
+            <a href="#home" data-icon="wb_custom" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
             <h1>{% trans "Feedback" %}</h1>
         </div>
         <div data-role="content">
@@ -649,7 +653,7 @@
 
     <div id="settings_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#home" data-icon="wb_custom" data-rel="back" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
+            <a href="#home" data-icon="wb_custom" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
             <h1>{% trans "Settings" %}</h1>
         </div>
         <div data-role="content">
