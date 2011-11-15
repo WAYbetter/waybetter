@@ -18,6 +18,10 @@ def send_sms(destination, text, **kwargs):
     TODO_WB: take back-end function name from settings
     """
 
+    if settings.DEV:
+        logging.info("skipping SMS in DEV environment")
+        return True
+
     logging.info(u"Sending SMS to [%s]: '%s'" % (destination, text))
 
     # don't send SMS to test account
@@ -25,7 +29,6 @@ def send_sms(destination, text, **kwargs):
         logging.info("Skipping SMS for test user")
         return True
  
-#    return
     sms_config = settings.SMS
     if kwargs is not None:
         sms_config.update(kwargs)
