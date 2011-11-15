@@ -14,7 +14,7 @@
 {% block body %}
     <div id="myrides_page" data-role="page">
         <div data-role="header">
-            <a href="/" data-icon="grid" data-iconpos="notext" data-transition="pop"></a>
+            <a href="{% url wb_home %}" data-icon="wb_custom" rel="external" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
             <h1>{% trans "My Rides" %}</h1>
             <div data-role="navbar">
                 <ul>
@@ -24,7 +24,7 @@
             </div>
         </div>
         <div data-role="content">
-            <ul id="rides_list" data-role="listview" data-theme="a">
+            <ul id="rides_list" data-role="listview" class="rtl-listview" data-theme="a">
             </ul>
         </div>
     </div>
@@ -34,7 +34,7 @@
             <h1>{% trans "My Rides" %}</h1>
         </div>
         <div data-role="content">
-            <ul id="ride_details_list" data-inset="true">
+            <ul id="ride_details_list" data-inset="true" class="rtl-listview">
             </ul>
             <div class="ride_details_comment">
             </div>

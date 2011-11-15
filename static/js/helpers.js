@@ -956,7 +956,7 @@ var MobileHelper = Object.create({
                             that.showRideStatus(ride, ride_page_selector);
                         });
 
-                        var $li_ride = $('<li></li>').attr("id", "ride_li_" + ride.id).append($li_a);
+                        var $li_ride = $('<li data-icon="arrow-l"></li>').attr("id", "ride_li_" + ride.id).append($li_a);
 
                         $list.append($li_header);
                         $list.append($li_ride);
