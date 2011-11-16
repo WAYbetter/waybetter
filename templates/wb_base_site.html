@@ -194,6 +194,29 @@
     </div>
     <!-- END Container -->
 
+    <div id="gcf_dialog" class="hidden">
+        <div class="intro">
+            <div>{% trans "To view WAYbetter in Internet Explorer you need to install" %}</div>
+            <div><span class="get_gcf wb_link">Google Chrome Frame Plugin</span> ({% trans "Free" %})</div>
+        </div>
+        <button class="get_gcf">{% trans "Install Google Chrome Frame" %}</button>
+        <div class="or">{% trans "Or, use one of these browsers" %}:</div>
+        <div class="broswers">
+            <div class="dl-browser chrome">
+                <div class="img"></div>
+                <div class="wb_link">Chrome</div>
+            </div>
+            <div class="dl-browser safari">
+                <div class="img"></div>
+                <div class="wb_link">Safari</div>
+            </div>
+            <div class="dl-browser firefox">
+                <div class="img"></div>
+                <div class="wb_link">Firefox</div>
+            </div>
+        </div>
+    </div>
+
 {% endblock body %}
 
 {% block extrastyle %}
@@ -225,7 +248,7 @@
 
         <script type="text/javascript" src="/static/js/helpers.js"></script>
         <script type="text/javascript" src="/static/js/registration.js"></script>
-    
+
         <!-- end scripts-->
     {% endif %}
 
@@ -233,6 +256,45 @@
 
 {% block doc_ready %}
     {{ block.super }}
+
+    <script>
+        function getGCF(popup) {
+            // no admin privileges needed version
+            var gcf_url = 'http://www.google.com/chromeframe/eula.html?user=true';
+            if (popup)
+                window.open(gcf_url, '_getGCF');
+            else
+                window.location.href = gcf_url;
+        }
+        function getChrome() { window.location.href = 'http://www.mozilla.com/firefox/'; }
+        function getSafari() { window.location.href = 'http://www.apple.com/safari/'; }
+        function getFirefox() { window.location.href = 'http://www.google.com/chrome/'; }
+    </script>
+    <!--[if IE ]>
+        <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.2/CFInstall.min.js"></script>
+        <script>
+        window.attachEvent("onload",function(){
+            CFInstall.check({
+                destination: '{% url wb_home %}',
+                onmissing:function(){
+                    $(".get_gcf").click(function() { getGCF(true); });
+                    $(".dl-browser.firefox").click(function(){getChrome()});
+                    $(".dl-browser.chrome").click(function(){getFirefox()});
+                    $(".dl-browser.safari").click(function(){getSafari()});
+                    $("#gcf_dialog").dialog({
+                        title: '{% trans "Get yourself a modern browser" %}',
+                        width: 500,
+                        modal: true,
+                        resizable: false,
+                        close: function() {
+                            getGCF(false);
+                        }
+                    });
+                }
+            })
+        })
+        </script>
+    <![endif]-->
     <script type="text/javascript">
         $(document).ready(function() {
             $("html").click(function(e) {
