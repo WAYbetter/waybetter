@@ -7,9 +7,19 @@
 <%@ include file="/merchantPages/WebSources/includes/main.jsp" %>
 -->
 
+    <%
+	String langdir="ltr";
+	String absvertpos="right: 0";
+    String secure_payment_msg = "Secured Payment"
+    if(lang.equals("HE")){
+        langdir="rtl";
+        absvertpos="left: 0";
+    }
+    %>
+
 {% extends "wb_base_site.html" %}
 {% load i18n %}
-
+{% block bodyclass %}{{ block.super }} <%=langdir%>{% endblock %}
 {% block extrahead %}
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <meta http-equiv="cache-control" content="no-cache">
@@ -17,14 +27,7 @@
     <meta http-equiv="expires" content="-1">
     <script src="merchantPages/WebSources/js/<%=lang%>.js"></script>
     <script src="merchantPages/WebSources/js/main.js"></script>
-    <%
-	String langdir="ltr";
-	String absvertpos="right: 0";
-    if(lang.equals("HE")){
-        langdir="rtl";
-        absvertpos="left: 0";
-    }
-    %>
+
 {% endblock %}
 {% block extrastyle %}
     {{ block.super }}
@@ -107,7 +110,7 @@
         #wb_cards {
             display: inline-block;
             width: 218px;
-            height: 34px;
+            height: 40px;
             background: url("/static/images/wb_site/card_types.png") left 0 no-repeat;
         }
 
@@ -137,14 +140,19 @@
             background: url("/static/images/wb_site/ssl.png") left 0 no-repeat;
             display: inline-block;
         }
-
         #wb_ssl_text {
             position: absolute;
             top: 20px;
             display: inline-block;
+        <% if (langdir == "ltr") { %>
             margin-left: 20px;
+        <% } else { %>
+            margin-right: 20px;
+        <% } %>
             color: white;
         }
+
+
     </style>
 
 {% endblock %}
@@ -155,7 +163,11 @@
 {% endblock %}
 
 {% block top_right %}
-    {% trans "Secured Payment" %}
+    <% if (lang == "HE") { %>
+    תשלום מאובטח
+    <% } else { %>
+Secured Payment
+    <% } %>
     <div id="wb_lock"></div>
 {% endblock %}
 
@@ -233,13 +245,23 @@
 {% block footer %}
     <div id="wb_ssl"></div>
     <div id="wb_ssl_text">
-        {% trans "In this page you can pay for the order you placed on" %} WAYbetter.com
+        <% if (lang == "HE") { %>
+בדף זה אתה יכול לשלם על הזמנותיך מהאתר WAYbetter.com
         <br/>
-        {% trans "The payment process is fully secure and complies with the highest standards of data protection" %}.
+הליך התשלום מאובטח ועומד בסטנדרטים הגבוהים ביותר של אבטחת מידע.
         <br/>
-        {% trans "Please insert your credit card details as required above" %}.
+נא למלא את פרטי כרטיס האשראי בטופס לעיל.
         <br/>
-        {% trans "Payment for the order will only be auctioned after you click on the 'Finish' button at the bottom on the screen" %}.
+התשלום עבור ההזמנה יגבה רק לאחר שליחת המונית.
+        <% } else { %>
+In this page you can pay for the order you placed on WAYbetter.com
+        <br/>
+The payment process is fully secure and complies with the highest standards of data protection.
+        <br/>
+Please insert your credit card details as required above.
+        <br/>
+Payment for the order will only be auctioned the taxi has been dispatched.
+        <% } %>
     </div>
 {% endblock %}
 
