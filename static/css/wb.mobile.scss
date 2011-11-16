@@ -9,6 +9,11 @@
     box-shadow: $r;
 }
 
+/* custom button icons */
+.ui-icon-wb-switchdir {
+	background-image: url(/static/images/mobile/switch-direction.png);
+}
+/* home sweet home */
 #home{
     .ui-header{
         background: white;
@@ -45,6 +50,19 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
     @include box-shadow(none);
 }
 
+
+/* booking page */
+#booking_page{
+    #switch_direction_container{
+        width: 80%;
+        margin: 20px auto;
+    }
+    #switch_direction_btn{
+        background: gray;
+    }
+}
+
+/* address page */
 #address-form input {
     display: inline-block;
 }

@@ -839,12 +839,8 @@ var MobileHelper = Object.create({
 
         },
         callbacks:{
-            onNewAddress: function(address){
-                if (console){
-                    console.log(address);
-                }
-            },
             noGeolocation: function(){},
+            locationSuccess: function(){},
             locationError: function(watch_id){
                 navigator.geolocation.clearWatch(watch_id); // remove watch
             }
@@ -863,7 +859,6 @@ var MobileHelper = Object.create({
     address: undefined,
     hotspot: undefined,
     hotspot_type: "dropoff",
-    time_type: "pickup",
 
     // METHODS
     // -------
@@ -871,9 +866,14 @@ var MobileHelper = Object.create({
         this.config = $.extend(true, {}, this.config, config);
     },
     
-    getCurrentLocation: function() {
+    getCurrentLocation: function(options) {
         var that = this;
-        var options = {
+        options = $.extend({}, {
+                    locationSuccess: that.config.callbacks.locationSuccess,
+                    locationError: that.config.callbacks.locationError
+                }, options);
+
+        var config = {
             timeout: 5000, // 5 second
             enableHighAccuracy: true,
             maximumAge: 0 // always get new location
@@ -881,40 +881,39 @@ var MobileHelper = Object.create({
 
         if (navigator.geolocation) {
             var watch_id = navigator.geolocation.watchPosition(function(p) {
-                        that.locationSuccess.call(that, p, watch_id);
+                        log("new position: " + p.coords.longitude + ", " + p.coords.latitude + " (" + p.coords.accuracy + ")");
+                        that.last_position = p.coords;
+                        if (p.coords.accuracy < that.ACCURACY_THRESHOLD) {
+                            navigator.geolocation.clearWatch(watch_id); // we have an accurate enough location
+
+                            options.locationSuccess(p);
+                        }
                     }, function() {
-                        that.config.callbacks.locationError(watch_id);
-                    }, options);
+                        options.locationError(watch_id);
+                    }, config);
         } else {
             this.config.callbacks.noGeolocation();
         }
     },
-    locationSuccess: function(position, watch_id) {
-        if (console) {
-            console.log("new position: " + position.coords.longitude + ", " + position.coords.latitude + " (" + position.coords.accuracy + ")");
-        }
 
-        this.last_position = position.coords;
-        if (position.coords.accuracy < this.ACCURACY_THRESHOLD) {
-            navigator.geolocation.clearWatch(watch_id); // we have an accurate enough location
-            this.resolveLonLat(position.coords.longitude, position.coords.latitude);
-            if (this.MapHelper) {
-                this.MapHelper.addMarker(position.coords.latitude, position.coords.longitude);
-            }
-        }
-    },
-    resolveLonLat: function(lon, lat) {
+    resolveLonLat: function(lon, lat, options) {
         var that = this;
+        options = $.extend({}, {
+                    onNewAddress: function(){},
+                    noAddressFound: function() {
+                        log("resolve to address failed")
+                    }
+                }, options);
         $.ajax({
             url:that.config.urls.resolve_coordinates,
             type:"GET",
             data:{ lat:lat, lon:lon },
             dataType:"json",
             success:function(address) {
-                if (address && address.street_address) {
-                    that.config.callbacks.onNewAddress(address);
+                if (address && address.street_address && address.house_number) {
+                    options.onNewAddress(address);
                 } else {
-                    that.config.callbacks.locationError();
+                    options.noAddressFound();
                 }
             },
             complete:function() {
@@ -1008,7 +1007,7 @@ var MobileHelper = Object.create({
                     $details_btn.unbind("click"); // default behavior is report via mailto: link
 
                     var comment = "";
-                    if (details.pickup_time) {
+                    if (details && details.pickup_time) {
                         comment += "<p>"+ that.config.labels.final_pickup + ": " + details.pickup_time +"</p>";
 //                        comment += "<p>"+ that.config.labels.taxi_number + ": " + details.taxi_number +"</p>";
                         comment += "<p>"+ that.config.labels.taxi_station + ": " + details.station_name + " " + details.station_phone +"</p>";
