@@ -455,13 +455,13 @@
         <div data-role="content">
             <div class="ui-grid-a"> {#  2-column grid #}
                 <div class="ui-block-a">
-                    <a href="#booking_page" id="home_book_order_btn" data-role="button" data-theme="g" data-iconpos="top" data-icon="wb_custom">
-                        {% trans 'Order a Ride' %}
+                    <a href="#" id="home_book_order_btn" data-role="button" data-theme="g" data-iconpos="top" data-icon="wb_custom">
+                        {% trans 'Order Now' %}
                     </a>
                 </div>
                 <div class="ui-block-b">
                     <a href="{% if user.is_authenticated %}{% url my_rides %}{% else %}{% url mobile_auth_login %}{% endif %}"
-                       id="myrides_btn" data-role="button" data-theme="g" data-iconpos="top" data-icon="wb_custom" rel="external">
+                       id="myrides_btn" data-role="button" data-theme="g" data-iconpos="top" data-icon="wb_custom">
                             {% trans 'My Rides' %}
                         </a>
                 </div>
@@ -520,7 +520,6 @@
                 <div class="button_cell">
                     <button id="choose_time_btn" type="button" data-iconpos="left" data-icon="arrow-l"
                             data-theme="f">{% trans 'Select Time' %}</button>
-                    <h1>boo</h1><h2>ba</h2>
                 </div>
             </div>
 
@@ -538,7 +537,7 @@
 {#            <a href="#">{% trans 'Map' %}</a>#}
         </div>
         <div data-role="content">
-            <form id="order_form">
+            <form id="order_form" method="post">
                 {% csrf_token %}
                 <div class="ride_summary">
                     <h3>{% trans "WAYbetter Taxi Ride" %}</h3>

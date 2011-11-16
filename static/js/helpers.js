@@ -913,6 +913,8 @@ var MobileHelper = Object.create({
             success:function(address) {
                 if (address && address.street_address) {
                     that.config.callbacks.onNewAddress(address);
+                } else {
+                    that.config.callbacks.locationError();
                 }
             },
             complete:function() {
