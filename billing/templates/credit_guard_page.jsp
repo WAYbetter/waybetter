@@ -128,7 +128,7 @@
             <%=absvertpos%>;
         }
 
-        #site-footer {
+        #footer-container #site-footer {
             position: relative;
             padding-top: 20px;
             direction: <%=langdir%>;
