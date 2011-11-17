@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-16 16:58+0200\n"
+"POT-Creation-Date: 2011-11-17 14:41+0200\n"
 "PO-Revision-Date: 2011-03-29 23:26+0200\n"
 "Last-Translator: Yulia <yulia1il@yahoo.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -37,10 +37,14 @@ msgid "Expected Django Form"
 msgstr "Ожидаемая форма Django "
 
 #: analytics/forms.py:41 common/forms.py:32
+#: sharing/templates/station_accounting.html:8
+#: sharing/templates/station_history.html:8
 msgid "Start Date"
 msgstr "Дата начала"
 
 #: analytics/forms.py:42 common/forms.py:33
+#: sharing/templates/station_accounting.html:12
+#: sharing/templates/station_history.html:12
 msgid "End Date"
 msgstr "Дата окончания"
 
@@ -57,6 +61,8 @@ msgid "City"
 msgstr "Город"
 
 #: analytics/forms.py:48 ordering/order_history.py:10
+#: ordering/templates/order_status.html:82
+#: sharing/templates/myrides_tooltips.html:58
 msgid "Station"
 msgstr "Служба такси"
 
@@ -124,6 +130,8 @@ msgid "Rating"
 msgstr "Оценка"
 
 #: analytics/views.py:300 analytics/views.py:377
+#: ordering/templates/station_analytics.html:124
+#: sharing/templates/station_accounting.html:57
 msgid "Total"
 msgstr "Всего"
 
@@ -155,6 +163,19 @@ msgstr "Оценки - по часам"
 #: analytics/views.py:380
 msgid "Orders - by Hour"
 msgstr "Заказы - по часам"
+
+#: analytics/templates/analytics.html:87
+#: common/templates/feedback_form.html:65
+#: ordering/templates/business_registration.html:21
+#: ordering/templates/flat_rate_rules_setup.html:11
+#: templates/registration/password_change_form.html:9
+#: templates/registration/password_reset_confirm.html:11
+#: templates/registration/password_reset_form.html:8
+#: templates/registration/registration_complete.html:11
+#: templates/registration/registration_complete.html:20
+#: templates/registration/registration_form.html:11
+msgid "Submit"
+msgstr "Отослать"
 
 #: api/models.py:7 common/models.py:98 common/models.py:146
 #: common/models.py:192 interests/models.py:26 ordering/models.py:258
@@ -207,12 +228,14 @@ msgstr "дата создания"
 msgid "passenger name"
 msgstr "ном. телефона пассажира"
 
-#: billing/models.py:47
+#: billing/models.py:47 ordering/templates/workstation_home.html:780
+#: ordering/templates/workstation_home.html:835
 #, fuzzy
 msgid "pickup"
 msgstr "время посадки"
 
-#: billing/models.py:48
+#: billing/models.py:48 ordering/templates/workstation_home.html:783
+#: ordering/templates/workstation_home.html:838
 msgid "dropoff"
 msgstr ""
 
@@ -220,44 +243,50 @@ msgstr ""
 msgid "pickup time"
 msgstr "время посадки"
 
-#: billing/templates/credit_guard_page.jsp:158
-msgid "Secured Payment"
+#: billing/templates/transaction_page.html:11
+msgid "Back to Home Page"
 msgstr ""
 
-#: billing/templates/credit_guard_page.jsp:236
-msgid "In this page you can pay for the order you placed on"
-msgstr ""
+#: billing/templates/transaction_page.html:29
+#: billing/templates/mobile/transaction_page.html:54
+#, fuzzy
+msgid "Order Approved"
+msgstr "Страница заказа"
 
-#: billing/templates/credit_guard_page.jsp:238
+#: billing/templates/transaction_page.html:30
+#: billing/templates/mobile/transaction_page.html:55
+#: sharing/templates/myrides_tooltips.html:18
 msgid ""
-"The payment process is fully secure and complies with the highest standards "
-"of data protection"
+"A detailed SMS reminder will be sent 5-10 minutes prior to the taxi's "
+"arrival."
 msgstr ""
 
-#: billing/templates/credit_guard_page.jsp:240
-msgid "Please insert your credit card details as required above"
+#: billing/templates/transaction_page.html:34
+#: billing/templates/mobile/transaction_page.html:59
+msgid "Oops... Order Failed"
 msgstr ""
 
-#: billing/templates/credit_guard_page.jsp:242
-msgid ""
-"Payment for the order will only be auctioned the taxi has been dispatched"
+#: billing/templates/transaction_page.html:35
+#: billing/templates/mobile/transaction_page.html:60
+#, fuzzy
+msgid "There was an error processing your order. Please try again soon."
+msgstr "Во время обработки Вашего запроса произошла ошибка."
+
+#: billing/templates/transaction_page.html:39
+#: billing/templates/mobile/transaction_page.html:24
+msgid "Processing Your Order"
 msgstr ""
 
-#: billing/templates/mobile/credit_guard_page.jsp:92
-msgid "Back"
-msgstr "Назад"
-
-#: billing/templates/mobile/credit_guard_page.jsp:93
-msgid "Payment Method"
+#: billing/templates/transaction_page.html:40
+#: billing/templates/mobile/transaction_page.html:65
+msgid "Please wait, this may take a few seconds"
 msgstr ""
 
-#: billing/templates/mobile/credit_guard_page.jsp:97
-msgid "SSL Secured Payment"
+#: billing/templates/mobile/transaction_page.html:34
+#: common/templates/error_page.html:16 templates/wb_base_site.html:134
+#: templates/admin/billing/billingtransaction/change_form.html:18
+msgid "Home"
 msgstr ""
-
-#: billing/templates/mobile/credit_guard_page.jsp:153
-msgid "Close"
-msgstr "Закрыть"
 
 #: common/models.py:15 interests/models.py:13 interests/models.py:31
 #: interests/models.py:52
@@ -336,6 +365,429 @@ msgid ""
 "All we know is that there was an error. Please try again whatever you did."
 msgstr ""
 
+#: common/templates/cant_login_form.html:6
+msgid "Phone authentication"
+msgstr "Проверка подлинности номера"
+
+#: common/templates/cant_login_form.html:8
+msgid "Phone you registered with"
+msgstr "Телефон, указанный при регистрации"
+
+#: common/templates/cant_login_form.html:9
+msgid "Phone not registered. <a href=# class=join_link>Join</a>"
+msgstr "Номер не опознан. <a href=# class=login_link>Присоединиться</a>"
+
+#: common/templates/code_form.html:8
+msgid "Fill in to finish registration"
+msgstr "Заполните для завершения регистрации"
+
+#: common/templates/code_form.html:15
+msgid ""
+"An SMS verification code was sent to you. Please fill it to confirm your "
+"details."
+msgstr ""
+"Вам выслано SMS с проверочным кодом. Введите код для подтверждения своих "
+"данных."
+
+#: common/templates/code_form.html:18
+#: common/templates/phone_verification_form.html:85
+msgid "Enter SMS code"
+msgstr "Введите SMS-код"
+
+#: common/templates/code_form.html:20
+#: ordering/templates/mobile/passenger_home.html:194
+#: sharing/templates/ws_home.html:313 templates/mobile/base.html:91
+msgid "Finish"
+msgstr "Завершить"
+
+#: common/templates/credentials_form.html:6
+msgid "Reset account credentials"
+msgstr "Сброс данных аккаунта"
+
+#: common/templates/credentials_form.html:24
+msgid "Change email address"
+msgstr "изменить email "
+
+#: common/templates/credentials_form.html:26
+#: common/templates/registration_form.html:14
+msgid "Enter your email"
+msgstr "Введите ваш email"
+
+#: common/templates/credentials_form.html:34
+msgid "(Optional)"
+msgstr "(Необязательно)"
+
+#: common/templates/credentials_form.html:37
+#: common/templates/registration_form.html:129
+msgid "Choose Password"
+msgstr "Выбрать пароль"
+
+#: common/templates/credentials_form.html:39
+#: common/templates/registration_form.html:131
+msgid "Re-enter Password"
+msgstr "Подтвердить пароль"
+
+#: common/templates/credentials_form.html:43
+#: common/templates/login_form.html:5 common/templates/login_form.html:49
+#: common/templates/phone_verification_form.html:90
+#: ordering/templates/base_passenger.html:164
+#: ordering/templates/base_station.html:50
+#: ordering/templates/business_tab.html:17
+#: ordering/templates/station_page.html:79
+#: sharing/templates/mobile/login.html:7
+#: sharing/templates/mobile/passenger_registration.html:28
+msgid "Login"
+msgstr "Войти"
+
+#: common/templates/error_dialog.html:5 common/templates/error_page.html:8
+#: sharing/templates/wb_home.html:615
+msgid "OOPS..."
+msgstr ""
+
+#: common/templates/error_dialog.html:11
+#: interests/templates/mobile_interest_form.html:53
+#: interests/templates/station_interest_form.html:37
+#: ordering/templates/base_passenger.html:69
+msgid "Close"
+msgstr "Закрыть"
+
+#: common/templates/error_form.html:12 common/templates/feedback_form.html:12
+#: common/templates/terms_form.html:12
+msgid "Please enter your email"
+msgstr "Введите Ваш email"
+
+#: common/templates/error_form.html:13 common/templates/feedback_form.html:13
+#: common/templates/login_form.html:13 common/templates/terms_form.html:13
+msgid "Please enter your password"
+msgstr "Введите пароль"
+
+#: common/templates/error_form.html:14 common/templates/error_form.html:27
+#: common/templates/feedback_form.html:14 common/templates/login_form.html:14
+#: common/templates/registration_form.html:21
+#: common/templates/registration_form.html:109
+#: common/templates/terms_form.html:14 common/templates/terms_form.html:32
+#: ordering/templates/passenger_profile.html:64
+msgid "OK"
+msgstr "OK"
+
+#: common/templates/feedback_form.html:5
+#, fuzzy
+msgid "Please Let Us Know How You Feel"
+msgstr "С нетерпением ждем Ваших отзывов о нашей работе!"
+
+#: common/templates/feedback_form.html:34
+msgid "I'm Happy :)"
+msgstr "Что порадовало :)"
+
+#: common/templates/feedback_form.html:48
+#, fuzzy
+msgid "I'm Sad :("
+msgstr "Что огорчило :("
+
+#: common/templates/feedback_form.html:66
+msgid "Thanks, your feedback has been sent"
+msgstr "Спасибо, Ваш отзыв отправлен"
+
+#: common/templates/login_form.html:12
+#, fuzzy
+msgid "Your email"
+msgstr "Ваш Email"
+
+#: common/templates/login_form.html:18
+#: common/templates/registration_form.html:25
+msgid "Invalid email address"
+msgstr "Неверный email "
+
+#: common/templates/login_form.html:32
+msgid "Don't have an account?"
+msgstr "Еще не зарегистрировались?"
+
+#: common/templates/login_form.html:32
+msgid "Join Now!"
+msgstr "Присоединяйтесь!"
+
+#: common/templates/login_form.html:36 interests/models.py:11
+#: interests/models.py:49 ordering/forms.py:231 ordering/forms.py:303
+#: ordering/templates/passenger_profile.html:24
+#: sharing/templates/contact.html:15 sharing/templates/contact.html.py:41
+#: sharing/templates/mobile/login.html:18 templates/registration/login.html:45
+msgid "Email"
+msgstr "Email"
+
+#: common/templates/login_form.html:38 sharing/forms.py:54
+#: sharing/templates/mobile/login.html:20 templates/registration/login.html:49
+msgid "Password"
+msgstr "Пароль"
+
+#: common/templates/login_form.html:44
+msgid "Can't access your account? <a href='#'> Click here</a>"
+msgstr "Не можете войти в аккаунт? <a href='#'> Нажать здесь</a>"
+
+#: common/templates/phone_verification_form.html:9
+msgid "Activate Your Phone (Free)"
+msgstr "Активировать телефон (бесплатно)"
+
+#: common/templates/phone_verification_form.html:17
+msgid "Phone already in use. <a href=# class=login_link>Login</a>"
+msgstr "Номер уже занят. <a href=# class=login_link>Войти</a>"
+
+#: common/templates/phone_verification_form.html:18
+msgid "PRESS TO SEND SMS CODE"
+msgstr "Нажать для получения SMS c кодом"
+
+#: common/templates/phone_verification_form.html:19
+msgid "CODE SENT"
+msgstr "Код отправлен"
+
+#: common/templates/phone_verification_form.html:20
+msgid "FINISH"
+msgstr "Завершить"
+
+#: common/templates/phone_verification_form.html:21
+#: ordering/templates/base_passenger.html:120
+#: ordering/templates/business_registration.html:134
+#: ordering/templates/workstation_home.html:818
+#: ordering/templates/mobile/passenger_home.html:77
+msgid "Sending..."
+msgstr "Отправка..."
+
+#: common/templates/phone_verification_form.html:22
+msgid "Enter your mobile phone #"
+msgstr "Ввести № моб. телефона #"
+
+#: common/templates/phone_verification_form.html:23
+msgid "Enter SMS Ver. Code"
+msgstr "Ввести код из SMS"
+
+#: common/templates/phone_verification_form.html:24
+msgid "Number too short"
+msgstr "Слишком короткий номер"
+
+#: common/templates/phone_verification_form.html:27
+msgid "Number too long"
+msgstr "Очень длинный номер"
+
+#: common/templates/phone_verification_form.html:28
+msgid "Only digits please"
+msgstr "Только цифры, пожалуйста"
+
+#: common/templates/phone_verification_form.html:83
+msgid "Local Mobile Phone Number"
+msgstr "Местный № моб. телефона"
+
+#: common/templates/phone_verification_form.html:90
+msgid "Already Registered?"
+msgstr "Уже зарегистрированы?"
+
+#: common/templates/registration_form.html:6
+#: common/templates/registration_form.html:18
+msgid "YOUR ORDER HAS BEEN RECEIVED"
+msgstr "Ваш заказ принят!"
+
+#: common/templates/registration_form.html:15
+msgid "Choose a password"
+msgstr "Выбрать пароль"
+
+#: common/templates/registration_form.html:16
+msgid "Re-enter your password"
+msgstr "Подтвердить пароль"
+
+#: common/templates/registration_form.html:17
+msgid "Checking..."
+msgstr "Проверка..."
+
+#: common/templates/registration_form.html:19
+msgid "Join Us For a WAYbetter Experience"
+msgstr "Присоединяйтесь к WAYbetter!"
+
+#: common/templates/registration_form.html:20
+msgid "An SMS with ride details will be sent soon"
+msgstr "Вскоре Вы получите SMS с данными заказа"
+
+#: common/templates/registration_form.html:24 ordering/forms.py:254
+#: ordering/passenger_controller.py:485
+#: ordering/templates/business_registration.html:58
+msgid "Email already registered"
+msgstr "Этот Email занят"
+
+#: common/templates/registration_form.html:26
+msgid "Passwords do not match"
+msgstr "Пароли неидентичны"
+
+#: common/templates/registration_form.html:71
+msgid "I’ve just ordered a taxi from"
+msgstr ""
+
+#: common/templates/registration_form.html:73
+#: sharing/templates/driver_notification_msg.html:1
+msgid "to"
+msgstr ""
+
+#: common/templates/registration_form.html:90
+msgid "Pick Me App by WAYbetter"
+msgstr ""
+
+#: common/templates/registration_form.html:91
+#, fuzzy
+msgid "The easiest way to get a taxi"
+msgstr "הדרך הטובה ביותר להשיג מונית (חינם)"
+
+#: common/templates/registration_form.html:114
+msgid "Share On Facebook"
+msgstr ""
+
+#: common/templates/registration_form.html:118
+#, fuzzy
+msgid "Tweet Your Ride"
+msgstr "Оценить эту поездку"
+
+#: common/templates/registration_form.html:123
+msgid "In the meantime, join for better experience (free)"
+msgstr ""
+"А пока присоединяйтесь к нам (бесплатно) <span class=waybetter></span> !"
+
+#: common/templates/registration_form.html:127 interests/models.py:73
+#: sharing/forms.py:53
+msgid "Your Email"
+msgstr "Ваш Email"
+
+#: common/templates/registration_form.html:135
+msgid "Get emails from waybetter (we promise not to spam)"
+msgstr "Получать эл. почту от Waybetter (рассылка спама исключена)  "
+
+#: common/templates/registration_form.html:139
+msgid "JOIN"
+msgstr "Регистрация"
+
+#: common/templates/sending_form.html:5
+msgid "Sign up using the following details"
+msgstr "Регистрация со следующими данными"
+
+#: common/templates/sending_form.html:8
+msgid "Let Us Take It From Here..."
+msgstr "Продолжим отсюда..."
+
+#: common/templates/social_login.html:46
+msgid "(Or)"
+msgstr "(Или)"
+
+#: common/templates/social_login.html:48
+msgid "login using your account at:"
+msgstr "войти через Ваш аккаунт в:"
+
+#: common/templates/terms_form.html:5
+#: ordering/templates/workstation_download.html:113
+#: ordering/templates/mobile/passenger_home.html:228
+#: ordering/templates/mobile/passenger_home.html:260
+#: sharing/templates/passenger_registration.html:90
+#: sharing/templates/mobile/passenger_registration.html:85
+msgid "Terms Of Use"
+msgstr "Условия использования"
+
+#: common/templates/terms_form.html:29
+msgid "actual_terms"
+msgstr ""
+"Условия использования Приложения <span class=waybetter></span>\n"
+"\n"
+"Мы (далее – Служба) заинтересованы в сотрудничестве с компанией «Вей-беттер» "
+"LTD № 51-442591-7 (далее - Компания) в целях предоставления "
+"высококачественного и эффективного сервиса клиентам, заказывающим услуги по "
+"перевозке пассажиров с использованием приложения WAYbetter (далее – "
+"Приложение), которое было разработано Компанией на базе веб-сайта www."
+"waybetter.com (далее – Сайт).\n"
+"\n"
+"Устанавливая Приложение, Служба тем самым заявляет, что прочитала настоящие "
+"Условия использования и согласна с их содержанием, в соответствии с "
+"нижеизложенным:\n"
+"\n"
+"Компания предоставляет Службе неисключительное право использования "
+"Приложения (далее – Право использования), в соответствии с изложенным в "
+"настоящем соглашении; предоставление Права использования или подписание "
+"данного соглашения никоим образом не означают предоставления Службе "
+"разрешения, лицензии или права переуступать, делегировать, продавать либо "
+"передавать в аренду Приложение третьим лицам, как возмездно, так и "
+"безвозмездно;\n"
+"\n"
+"Право использования предоставляется сроком на один (1) месяц и автоматически "
+"продлевается ежемесячно до момента уведомления Компанией Службы об истечении "
+"срока действия Права использования. Данное уведомление Компания может "
+"направить в любое время и по собственному усмотрению;\n"
+"\n"
+" В обмен на предоставление Права использования Служба обязуется выплачивать "
+"Компании денежные суммы в размере, указанном  в настоящих Условиях "
+"использования. Поясняется, что выплата указанных денежных сумм начинает "
+"производиться только после отправления Компанией сообщения по электронной "
+"почте на электронный адрес Службы. Последний передается Компании в момент "
+"регистрации на Сайте и используется при запуске Приложения;\n"
+"\n"
+"Условия оплаты\n"
+"За каждый заказ, выполняемый Службой (после нажатия кнопки «Отправить» в "
+"Приложении), Служба выплачивает комиссионное вознаграждение в размере одного "
+"(1) шекеля. Исключением являются заказы, предоставляемые со скидкой и/или в  "
+"рамках акции, проводимой Компанией, и о которых она извещает. Оплата таких "
+"заказов не производится Службой, либо производится в уменьшенном размере, "
+"согласно условиям предоставляемой скидки и/или акции, о которых извещает "
+"Компания, и по ее собственному усмотрению; \n"
+"Оплата взимается один (1) раз в месяц посредством кредитной карты, номер "
+"которой передается Службой в момент регистрации на Сайте (либо посредством "
+"другой кредитной карты, о чем Служба оповещает Компанию в письменной форме "
+"до наступления соответствующего срока оплаты); Службе направляется подробный "
+"ежемесячный отчет по кредитной карте.\n"
+"\n"
+"Приложение распространяется по принципу \"AS IS\" (\"как есть\") без "
+"предоставления каких-либо гарантий, явных, скрытых либо прописанных законом. "
+"На основании вышеизложенного Служба заявляет и соглашается, что Компания и/"
+"или любая организация или лицо, связанные с Компанией, а также владельцы "
+"такси и/или лица, имеющие отношение к созданию, выпуску либо распространению "
+"Приложения не несут какой-либо ответственности и обязательств за любые вред, "
+"ущерб, убытки либо расходы, носящие прямой, косвенный, второстепенный, "
+"особый или результативный характер. Служба также заявляет и согласна с тем, "
+"что берет на себя всю ответственность за использование Приложения, Сайта "
+"либо услуг Компании;\n"
+"\n"
+"Служба заявляет, что в случае неудовлетворенности качеством Приложения, его "
+"части или каким-либо пунктом Условий использования, единственным и "
+"исключительным решением вопроса может быть прекращение использования Службой "
+"Приложения/Сайта;\n"
+"\n"
+"Компания оставляет за собой право периодически изменять Условия "
+"использования по собственному усмотрению. Компания уведомляет Службу о новых "
+"Условиях использования за семь (7) дней до их вступления в силу, отправляя "
+"сообщение на адрес электронной почты, указанный Службой в момент регистрации "
+"на Сайте;\n"
+"\n"
+"Приложение является объектом интеллектуальной собственности и исключительных "
+"авторских прав Компании. Все права, включая право интеллектуальной "
+"собственности, в настоящем и будущем  всецело и исключительно принадлежат "
+"Компании. Данные Условия использования и предоставление Права использования "
+"не передают Службе каких-либо прав на Приложение, за исключением права "
+"ограниченного использования, как ясно изложено в настоящих Условиях "
+"использования и вышеприведенных условиях. Компания вправе в любое время и "
+"без предварительного извещения прекратить предоставление услуг посредством "
+"Приложения, частично или полностью. Служба не может выдвигать претензии или "
+"требования Компании в связи с прекращением предоставляемых ею услуг и Права "
+"использования;\n"
+"\n"
+" Служба не может предпринимать каких-либо действий с целью раскрытия "
+"технологии Приложения, включая методы реверсивной технологии (reverse "
+"engineering) и декомпиляцию (decompilation). Служба также не может,  "
+"частично либо полностью, вносить обновления или изменения в Приложение, и/"
+"или комбинировать его с другими программами. Служба не может, частично либо "
+"полностью, пытаться копировать, копировать, распространять либо передавать "
+"Приложение в каких-либо целях и какими-либо путями;\n"
+"\n"
+"Компания не гарантирует отсутствия помех, перерывов и сбоев при "
+"использовании Приложения, а также его исправной работы в случаях незаконного "
+"доступа к компьютерам Компании, либо повреждений, поломок, неисправностей в "
+"аппаратном/программном обеспечении, на линиях связи Компании/ее провайдера, "
+"либо в связи с другой причиной. Компания не несет ответственности за любой "
+"ущерб, прямой или косвенный, а также за моральный ущерб и т.д., причиненные "
+"Службе либо ее имуществу в результате таких событий;\n"
+"\n"
+"תНастоящие Условия использования подчиняются законам Государства Израиль. "
+"Рассмотрение любых споров, касающихся настоящего договора, подлежит "
+"исключительной юрисдикции соответствующего суда в г. Тель-Авиве."
+
 #: flatpages2/admin.py:10 flatpages2/models.py:6
 msgid "URL"
 msgstr "URL"
@@ -401,11 +853,6 @@ msgstr "статическая страница"
 msgid "flat pages"
 msgstr "статические страницы"
 
-#: interests/models.py:11 interests/models.py:49 ordering/forms.py:231
-#: ordering/forms.py:303
-msgid "Email"
-msgstr "Email"
-
 #: interests/models.py:28 interests/models.py:47 ordering/forms.py:378
 #: ordering/models.py:605
 msgid "contact person"
@@ -415,9 +862,61 @@ msgstr "контактное лицо"
 msgid "phone"
 msgstr "телефон"
 
-#: interests/models.py:73 sharing/forms.py:53
-msgid "Your Email"
-msgstr "Ваш Email"
+#: interests/templates/business_interest_form.html:6
+#: interests/templates/station_interest_form.html:6
+msgid "Join WAYbetter"
+msgstr "Присоединяйтесь к <span class=waybetter></span>"
+
+#: interests/templates/business_interest_form.html:29
+#: interests/templates/station_interest_form.html:28
+msgid "Please fill the following details and we will contact you"
+msgstr "Пожалуйста, заполните следующие данные, и мы с Вами свяжемся "
+
+#: interests/templates/business_interest_form.html:37
+#: interests/templates/mobile_interest_form.html:52
+#: interests/templates/pilot_interest_form.html:80
+#: interests/templates/station_interest_form.html:36
+#: ordering/templates/business_registration.html:137
+#: ordering/templates/workstation_home.html:754
+#: sharing/templates/producer_ordering_page.html:87
+msgid "Send"
+msgstr "Отослать"
+
+#: interests/templates/business_interest_form.html:38
+#: ordering/templates/mobile/passenger_home.html:133
+#: ordering/templates/mobile/passenger_home.html:138
+#: ordering/templates/mobile/passenger_home.html:216
+#: sharing/templates/producer_ordering_page.html:145
+#: sharing/templates/station_taxidrivers.html:234
+#: sharing/templates/station_taxidrivers.html:266
+#: sharing/templates/station_taxidrivers.html:383
+#: sharing/templates/mobile/wb_home.html:583
+#: sharing/templates/mobile/wb_home.html:598
+#: sharing/templates/mobile/wb_home.html:635 templates/mobile/base.html:69
+msgid "Cancel"
+msgstr "Отменить"
+
+#: interests/templates/mobile_interest_form.html:7
+msgid "Looks Cool!"
+msgstr "Хорошая идея!"
+
+#: interests/templates/mobile_interest_form.html:44
+msgid "Please notify me when the app is ready for download"
+msgstr "Сообщить мне, когда приложение будет доступно для скачивания"
+
+#: interests/templates/pilot_interest_form.html:5
+msgid "We are currently running a private alpha"
+msgstr ""
+
+#: interests/templates/pilot_interest_form.html:62
+msgid ""
+"If you would like to be one of the first to use the service please leave "
+"your email."
+msgstr ""
+
+#: interests/templates/pilot_interest_form.html:70
+msgid "Thanks. We'll contact you soon."
+msgstr ""
 
 #: openid_consumer/views.py:96
 msgid "i-names are not supported"
@@ -434,6 +933,22 @@ msgstr "Запрос отменен"
 #: openid_consumer/views.py:172
 msgid "Setup needed"
 msgstr "Требуется установка"
+
+#: openid_consumer/templates/openid_consumer/failure.html:7
+#: openid_consumer/templates/openid_consumer/failure.html:13
+#: openid_consumer/templates/openid_consumer/failure.html:28
+#: openid_consumer/templates/openid_consumer/failure.html:33
+msgid "OpenID failed"
+msgstr "OpenID не подтвержден"
+
+#: openid_consumer/templates/openid_consumer/signin.html:12
+#: openid_consumer/templates/openid_consumer/signin.html:27
+msgid "Sign in with your OpenID"
+msgstr "Вход со своим OpenID"
+
+#: openid_consumer/templates/openid_consumer/signin.html:15
+msgid "Sign in"
+msgstr "Вход"
 
 #: ordering/admin.py:53
 msgid "Dispatch ride"
@@ -508,6 +1023,9 @@ msgstr ""
 "<span class=waybetter></span>:)"
 
 #: ordering/forms.py:221 ordering/forms.py:341 ordering/forms.py:382
+#: ordering/templates/station_page.html:193
+#: sharing/templates/producer_ordering_page.html:26
+#: sharing/templates/station_taxidrivers.html:188
 msgid "Phone"
 msgstr "Телефон"
 
@@ -517,6 +1035,12 @@ msgid "The value must contain only numbers."
 msgstr "Значение должно содержать только цифры."
 
 #: ordering/forms.py:223 ordering/forms.py:294
+#: ordering/templates/station_page.html:192
+#: sharing/templates/producer_ordering_page.html:31
+#: sharing/templates/producer_rides_summary.html:18
+#: sharing/templates/station_history.html:32
+#: sharing/templates/wb_home.html:202 sharing/templates/wb_home.html.py:634
+#: sharing/templates/mobile/wb_home.html:497
 msgid "Address"
 msgstr "Адрес"
 
@@ -547,10 +1071,6 @@ msgstr "Подтвердить пароль"
 #: sharing/forms.py:68
 msgid "The two password fields didn't match."
 msgstr "Два поля ввода пароля неидентичны."
-
-#: ordering/forms.py:254 ordering/passenger_controller.py:485
-msgid "Email already registered"
-msgstr "Этот Email занят"
 
 #: ordering/forms.py:289
 msgid "Station name"
@@ -616,7 +1136,8 @@ msgstr ""
 msgid "failed"
 msgstr "не удалось"
 
-#: ordering/models.py:66
+#: ordering/models.py:66 ordering/templates/base_station.html:22
+#: ordering/templates/passenger_profile.html:67
 msgid "error"
 msgstr "ошибка"
 
@@ -723,8 +1244,9 @@ msgid "postal code"
 msgstr "почтовый индекс"
 
 #: ordering/models.py:125 ordering/models.py:501 ordering/models.py:608
-#: ordering/models.py:611 registration/forms.py:80 sharing/models.py:22
-#: sharing/models.py:251 sharing/models.py:252
+#: ordering/models.py:611 ordering/templates/passenger_profile.html:13
+#: registration/forms.py:80 sharing/models.py:22 sharing/models.py:251
+#: sharing/models.py:252
 msgid "address"
 msgstr "адрес"
 
@@ -891,6 +1413,7 @@ msgid "invoice id"
 msgstr ""
 
 #: ordering/models.py:604 ordering/models.py:1018
+#: ordering/templates/passenger_profile.html:9
 #, fuzzy
 msgid "business name"
 msgstr "имя пользователя"
@@ -1216,6 +1739,7 @@ msgid "Booking"
 msgstr "Процедура заказа"
 
 #: ordering/models.py:1158
+#: sharing/templates/mobile/passenger_registration.html:55
 msgid "Registration"
 msgstr "Регистрация"
 
@@ -1228,17 +1752,29 @@ msgid "Other"
 msgstr "Другое"
 
 #: ordering/order_history.py:10 ordering/order_history.py:14
-#: ordering/order_history.py:18
+#: ordering/order_history.py:18 sharing/templates/station_accounting.html:32
 msgid "Date"
 msgstr "Дата"
 
 #: ordering/order_history.py:10 ordering/order_history.py:14
 #: ordering/order_history.py:18
+#: sharing/templates/hotspot_ordering_page.html:26
+#: sharing/templates/hotspot_ordering_page_textinput.html:28
+#: sharing/templates/myrides_table.html:5
+#: sharing/templates/station_accounting.html:32
+#: sharing/templates/wb_home.html:630 sharing/templates/wb_home.html.py:655
+#: sharing/templates/mobile/wb_home.html:496
 msgid "From"
 msgstr "Откуда"
 
 #: ordering/order_history.py:10 ordering/order_history.py:14
 #: ordering/order_history.py:18
+#: sharing/templates/hotspot_ordering_page.html:38
+#: sharing/templates/hotspot_ordering_page_textinput.html:40
+#: sharing/templates/myrides_table.html:6
+#: sharing/templates/station_accounting.html:32
+#: sharing/templates/wb_home.html:631 sharing/templates/wb_home.html.py:655
+#: sharing/templates/mobile/wb_home.html:515
 msgid "To"
 msgstr "Куда"
 
@@ -1330,7 +1866,10 @@ msgstr "Приблизительная стоимость поездки"
 msgid "Flat rate"
 msgstr "Примерная стоимость"
 
-#: ordering/passenger_controller.py:237
+#: ordering/passenger_controller.py:237 sharing/templates/wb_home.html:87
+#: sharing/templates/wb_home.html.py:112 sharing/templates/ws_home.html:486
+#: sharing/templates/mobile/wb_home.html:558
+#: sharing/templates/mobile/wb_home.html:572
 msgid "min"
 msgstr "мин"
 
@@ -1396,6 +1935,1029 @@ msgstr "без ответа"
 msgid "%s Taxi station"
 msgstr "Службы такси"
 
+#: ordering/templates/about.html:5 sharing/templates/contact.html:5
+msgid "Contact WAYbetter"
+msgstr "Контакты WAYbetter"
+
+#: ordering/templates/about.html:8
+msgid "General Issues:"
+msgstr "Для общих вопросов:"
+
+#: ordering/templates/about.html:12
+msgid "Office Address:"
+msgstr "Адрес:"
+
+#: ordering/templates/about.html:14
+msgid "WAYbetter LTD"
+msgstr "<span class=waybetter></span>LTD"
+
+#: ordering/templates/about.html:17
+msgid "(Peregrine Ventures)"
+msgstr "(Peregrine Ventures)"
+
+#: ordering/templates/about.html:20
+msgid "6 Yoni Netanyahu Street"
+msgstr "Yoni Netanyahu Street, 6"
+
+#: ordering/templates/about.html:23
+msgid "Or Yehuda, 60376, Israel"
+msgstr "Or Yehuda, 60376, Israel"
+
+#: ordering/templates/about.html:27
+msgid "Phone: 03-9085008"
+msgstr "Телефон: 03-9085008"
+
+#: ordering/templates/about.html:28
+msgid "Fax: 03-9366873"
+msgstr "Факс: 03-9366873"
+
+#: ordering/templates/about.html:35 ordering/templates/stations.html:63
+msgid "Book a Taxi Now"
+msgstr "Закажите такси сейчас"
+
+#: ordering/templates/about.html:36
+msgid "Stations Entrance"
+msgstr "Вход для служб такси"
+
+#: ordering/templates/about.html:38
+msgid ""
+"WAYbetter connects you - internet and smartphone users to advanced taxi "
+"stations who are ready to serve you"
+msgstr ""
+"<span class=waybetter></span> предлагает простой и удобный способ заказа "
+"такси через Интернет и смартфоны."
+
+#: ordering/templates/about.html:40
+msgid ""
+"Instead of looking for a local station, calling, waiting on the line, "
+"ordering a cab and hoping the station you found can serve you "
+msgstr ""
+"Вам больше не нужно разыскивать ближайшую службу такси, звонить, ждать на "
+"линии, договариваться и надеяться, что Вас обслужат. Теперь мы и местные "
+"предприятия такси всегда к Вашим услугам. Просто закажите такси через наш "
+"сайт и вскоре Вы получите подтверждающее SMS-сообщение (бесплатно) cо всеми "
+"данными поездки. "
+
+#: ordering/templates/base_passenger.html:32
+#: ordering/templates/business_tab.html:38
+#: ordering/templates/station_home.html:14
+msgid "Thank you"
+msgstr ""
+
+#: ordering/templates/base_passenger.html:33
+#: ordering/templates/business_tab.html:39
+#: ordering/templates/station_home.html:15
+msgid "We will contact you"
+msgstr ""
+
+#: ordering/templates/base_passenger.html:46
+msgid "Full Pickup Address: (Street Number City)"
+msgstr "Адрес отправления (улица, № дома, город)"
+
+#: ordering/templates/base_passenger.html:47
+msgid "Full Drop-off Address: (Street Number City)"
+msgstr "Адрес доставки (необязательно)"
+
+#: ordering/templates/base_passenger.html:48
+msgid "(Street Number City) and Select:"
+msgstr "(улица, № дома, город), выбрать из списка:"
+
+#: ordering/templates/base_passenger.html:49
+#: ordering/templates/business_registration.html:61
+msgid "The address is not resolved"
+msgstr "Адрес неизвестен"
+
+#: ordering/templates/base_passenger.html:50
+#: ordering/templates/station_page.html:187
+#: ordering/templates/mobile/passenger_home.html:159
+#: ordering/templates/mobile/passenger_home.html:223
+msgid "More"
+msgstr "Показать больше"
+
+#: ordering/templates/base_passenger.html:51
+msgid "Less"
+msgstr "Показать меньше"
+
+#: ordering/templates/base_passenger.html:52
+#: ordering/templates/mobile/passenger_home.html:67
+msgid "Fill pickup and dropoff for price and time estimation "
+msgstr "Для оценки времени и стоимости поездки укажите адрес (откуда и куда) "
+
+#: ordering/templates/base_passenger.html:53
+#: ordering/templates/passenger_home.html:86
+#: ordering/templates/station_page.html:111
+#: ordering/templates/mobile/passenger_home.html:131
+#: sharing/templates/hotspot_ordering_page_textinput.html:32
+msgid "Enter pickup address"
+msgstr "Введите адрес отправления"
+
+#: ordering/templates/base_passenger.html:54
+#: ordering/templates/passenger_home.html:89
+#: ordering/templates/station_page.html:115
+#: ordering/templates/mobile/passenger_home.html:136
+#: sharing/templates/hotspot_ordering_page.html:42
+#: sharing/templates/hotspot_ordering_page_textinput.html:44
+msgid "Enter drop-off address"
+msgstr "Введите адрес доставки"
+
+#: ordering/templates/base_passenger.html:70
+#, fuzzy
+msgid "For changes call: "
+msgstr "Сохранить"
+
+#: ordering/templates/base_passenger.html:71
+#, fuzzy
+msgid "minute"
+msgstr "минуты"
+
+#: ordering/templates/base_passenger.html:72
+#: ordering/templates/workstation_home.html:744
+msgid "minutes"
+msgstr "минуты"
+
+#: ordering/templates/base_passenger.html:73
+#, fuzzy
+msgid "Please wait"
+msgstr "пассажир"
+
+#: ordering/templates/base_passenger.html:74
+#, fuzzy
+msgid "Pickup in"
+msgstr "время посадки"
+
+#: ordering/templates/base_passenger.html:75
+#, fuzzy
+msgid "Order finished!"
+msgstr "Отменить"
+
+#: ordering/templates/base_passenger.html:76
+msgid "Re-connecting to server, please wait (your order is being processed)"
+msgstr ""
+
+#: ordering/templates/base_passenger.html:77
+#, fuzzy
+msgid "Have a pleasant ride"
+msgstr "Этот Email занят"
+
+#: ordering/templates/base_passenger.html:83
+#: sharing/templates/hotspot_ordering_page.html:144
+#: sharing/templates/wb_home.html:733
+#: sharing/templates/mobile/wb_home.html:257
+#, fuzzy
+msgid "Choose Date"
+msgstr "Выбрать пароль"
+
+#: ordering/templates/base_passenger.html:84
+#: sharing/templates/hotspot_ordering_page.html:121
+#: sharing/templates/hotspot_ordering_page.html:145
+#: sharing/templates/station_taxidrivers.html:329
+#: sharing/templates/wb_home.html:734 sharing/templates/ws_home.html:215
+#: sharing/templates/mobile/wb_home.html:258
+#, fuzzy
+msgid "Updating..."
+msgstr "Отправка..."
+
+#: ordering/templates/base_passenger.html:125
+#: ordering/templates/passenger_home.html:92
+#: ordering/templates/station_page.html:118
+#: ordering/templates/mobile/passenger_home.html:81
+#: sharing/templates/hotspot_ordering_page.html:54
+#: sharing/templates/hotspot_ordering_page_textinput.html:48
+msgid "Pick Me Up"
+msgstr "Прислать такси"
+
+#: ordering/templates/base_passenger.html:164
+#: templates/registration/login.html:37
+msgid "Join!"
+msgstr "Присоединяйтесь!"
+
+#: ordering/templates/base_station.html:28 registration/forms.py:59
+msgid "username"
+msgstr "имя пользователя"
+
+#: ordering/templates/base_station.html:34 registration/forms.py:63
+msgid "password"
+msgstr "пароль"
+
+#: ordering/templates/base_station.html:39
+msgid "Username:"
+msgstr "Имя пользователя:"
+
+#: ordering/templates/base_station.html:45
+msgid "Password:"
+msgstr "Пароль:"
+
+#: ordering/templates/base_station.html:56
+msgid "Smart Tools for Smart Taxi Stations"
+msgstr "Умные решения для бизнеса"
+
+#: ordering/templates/business_registration.html:11
+#, fuzzy
+msgid "Business registration"
+msgstr "Регистрация"
+
+#: ordering/templates/business_registration.html:14
+#, fuzzy
+msgid "Interest from station "
+msgstr "рабочая станция"
+
+#: ordering/templates/business_registration.html:28
+#, fuzzy
+msgid "Business registered"
+msgstr "Этот Email занят"
+
+#: ordering/templates/business_registration.html:29
+msgid "An email was sent to the business"
+msgstr ""
+
+#: ordering/templates/business_registration.html:160
+#, fuzzy
+msgid "There was an error saving your data"
+msgstr "Во время обработки Вашего запроса произошла ошибка."
+
+#: ordering/templates/business_registration.html:187
+#: ordering/templates/business_tab.html:40
+#: ordering/templates/passenger_profile.html:84
+#: sharing/templates/myrides_tooltips.html:4
+#: sharing/templates/producer_ordering_page.html:175
+#: sharing/templates/producer_ordering_page.html:186
+#: sharing/templates/station_taxidrivers.html:84
+#: sharing/templates/station_taxidrivers.html:100
+#: sharing/templates/station_taxidrivers.html:140
+#: sharing/templates/station_taxidrivers.html:182
+#, fuzzy
+msgid "Error"
+msgstr "ошибка"
+
+#: ordering/templates/business_registration.html:187
+#: ordering/templates/passenger_profile.html:84
+#, fuzzy
+msgid "Please choose a default station"
+msgstr "Служба по умолчанию"
+
+#: ordering/templates/business_tab.html:6
+msgid "Book your taxi with WAYbetter and save time and money"
+msgstr ""
+
+#: ordering/templates/business_tab.html:8
+#, fuzzy
+msgid "Advantages"
+msgstr "статические страницы"
+
+#: ordering/templates/business_tab.html:10
+msgid "One click order"
+msgstr ""
+
+#: ordering/templates/business_tab.html:11
+msgid "No holding on the phone while searching for a taxi"
+msgstr ""
+
+#: ordering/templates/business_tab.html:12
+msgid "We partner with the best taxi stations in your area"
+msgstr ""
+
+#: ordering/templates/business_tab.html:13
+msgid "Track and manage your orders"
+msgstr ""
+
+#: ordering/templates/business_tab.html:14
+msgid "Choose a preffered station to receive your orders first or exclusively"
+msgstr ""
+
+#: ordering/templates/business_tab.html:15
+msgid "Suggest our service to your station"
+msgstr ""
+
+#: ordering/templates/business_tab.html:20
+msgid "Fill in your details to join us"
+msgstr ""
+
+#: ordering/templates/business_tab.html:24
+#: ordering/templates/station_home.html:59
+#: sharing/templates/mobile/login.html:9 templates/wb_base_site.html:165
+msgid "Join"
+msgstr "Присоединяйтесь"
+
+#: ordering/templates/business_tab.html:41
+#, fuzzy
+msgid "There was an error saving your details"
+msgstr "Во время обработки Вашего запроса произошла ошибка."
+
+#: ordering/templates/business_welcome_email.html:10
+#, python-format
+msgid ""
+"\n"
+"        Hi %(name)s!<br><br>\n"
+"        Thank you for joining <b>WAYbetter</b>.<br>\n"
+"\n"
+"        <b>Your password is: %(password)s</b>\n"
+"        You can change it from the 'Profile' tab.<br><br>\n"
+"\n"
+"        To start using our service please visit <a href=\"%(link)s/?"
+"show_login=true\">%(pretty_link)s</a><br>\n"
+"    "
+msgstr ""
+
+#: ordering/templates/flat_rate_rules_setup.html:6
+msgid "Upload specific pricing rules (inter-city taarif in CSV format)"
+msgstr ""
+"Загрузить правила установки расценок (междугородний тариф в формате CSV)"
+
+#: ordering/templates/info.html:28
+#: ordering/templates/mobile/passenger_home.html:229
+#: ordering/templates/mobile/passenger_home.html:272
+#: sharing/templates/wb_info.html:4 templates/base.html:139
+#: templates/wb_base_site.html:141
+msgid "About"
+msgstr "О нас"
+
+#: ordering/templates/info.html:29 sharing/templates/wb_info.html:10
+#: templates/base.html:140 templates/wb_base_site.html:145
+msgid "Press"
+msgstr "СМИ"
+
+#: ordering/templates/info.html:31 templates/base.html:142
+msgid "Help"
+msgstr "Помощь"
+
+#: ordering/templates/info.html:33 templates/base.html:144
+msgid "Terms"
+msgstr "Условия "
+
+#: ordering/templates/info.html:34 ordering/templates/passenger_home.html:67
+msgid "TAXI"
+msgstr "TAXI"
+
+#: ordering/templates/landing_page.html:11 templates/base.html:20
+msgid ""
+"Order a taxi online, no phone call! A large selection of taxi stations in "
+"every city. One click and the taxi is on the way "
+msgstr ""
+
+#: ordering/templates/landing_page.html:12 templates/base.html:21
+msgid "Taxi,iPhone,Android,WAYbetter,get taxi,order taxi,order taxi online"
+msgstr ""
+
+#: ordering/templates/mobile_tab.html:8
+msgid "The best taxi booking iPhone app"
+msgstr ""
+
+#: ordering/templates/mobile_tab.html:11
+msgid "Downdload Now"
+msgstr ""
+
+#: ordering/templates/order_status.html:5
+msgid "Order page"
+msgstr "Страница заказа"
+
+#: ordering/templates/order_status.html:83
+msgid "Status"
+msgstr "Статус"
+
+#: ordering/templates/order_status.html:84
+msgid "Last update"
+msgstr "Последнее обновление"
+
+#: ordering/templates/order_status.html:129
+msgid "Rate this ride"
+msgstr "Оценить эту поездку"
+
+#: ordering/templates/orders_history.html:30
+msgid "To open station analytics in a new page click here"
+msgstr ""
+
+#: ordering/templates/orders_history.html:41
+msgid "Search"
+msgstr "Поиск"
+
+#: ordering/templates/orders_history.html:42
+msgid "Reset"
+msgstr "Сброс"
+
+#: ordering/templates/orders_history.html:57
+#: ordering/templates/station_analytics.html:200
+msgid "Page"
+msgstr "Страница"
+
+#: ordering/templates/orders_history.html:58
+#: ordering/templates/station_analytics.html:201
+msgid "of"
+msgstr "из"
+
+#: ordering/templates/passenger_home.html:5
+msgid "Free Online Taxi Booking - WAYbetter"
+msgstr ""
+
+#: ordering/templates/passenger_home.html:27
+#: ordering/templates/station_page.html:47
+msgid "We're sorry, but an error occurred while loading this page."
+msgstr "Извините, при загрузке этой страницы произошла ошибка"
+
+#: ordering/templates/passenger_home.html:63
+msgid "Order a taxi with a click"
+msgstr ""
+
+#: ordering/templates/passenger_home.html:63
+#, python-format
+msgid "Service is currently available in: %(service_cities)s"
+msgstr ""
+
+#: ordering/templates/passenger_home.html:63
+msgid "Enjoy your ride!"
+msgstr "Счастливого пути!"
+
+#: ordering/templates/passenger_home.html:70
+msgid "Book Now (FREE)"
+msgstr "Заказать сейчас (бесплатно)"
+
+#: ordering/templates/passenger_home.html:110
+#: ordering/templates/station_page.html:139
+#: sharing/templates/mobile/my_rides.html:22
+msgid "Ride History"
+msgstr "История заказов"
+
+#: ordering/templates/passenger_home.html:111
+#: ordering/templates/station_page.html:142 sharing/templates/my_rides.html:8
+msgid "My Profile"
+msgstr "Мой профиль"
+
+#: ordering/templates/passenger_home.html:112
+#: ordering/templates/passenger_home.html:119
+msgid "Taxi Stations"
+msgstr "Службы такси"
+
+#: ordering/templates/passenger_home.html:113
+#: ordering/templates/passenger_home.html:120 templates/wb_base_site.html:135
+msgid "Mobile"
+msgstr "Моб. телефоны"
+
+#: ordering/templates/passenger_home.html:118
+#, fuzzy
+msgid "Businesses"
+msgstr "имя пользователя"
+
+#: ordering/templates/passenger_home.html:121
+msgid "What's This?"
+msgstr "Что это такое?"
+
+#: ordering/templates/passenger_home.html:126
+msgid "WAYbetter offers the fastest and easiest way to get a taxi!"
+msgstr ""
+"<span class=waybetter></span> - это самый простой и быстрый способ заказать "
+"такси! "
+
+#: ordering/templates/passenger_home.html:128
+msgid ""
+"We are partnering with the best taxi stations in your city, so all you have "
+"to do is push the yellow button. We'll do the rest"
+msgstr ""
+"Мы сотрудничаем с лучшими службами такси Вашего города. Все что Вам нужно "
+"сделать - это нажать на желтую кнопку. Остальное - наша забота."
+
+#: ordering/templates/passenger_home.html:137
+msgid "New!! iPhone Application - Download Now"
+msgstr ""
+
+#: ordering/templates/passenger_profile.html:18
+#: sharing/templates/station_taxidrivers.html:38
+msgid "Phone number"
+msgstr "Номер телефона"
+
+#: ordering/templates/passenger_profile.html:20
+msgid "Change"
+msgstr "Изменить"
+
+#: ordering/templates/passenger_profile.html:28
+#: ordering/templates/station_profile.html:22
+msgid "Save Changes"
+msgstr "Сохранить"
+
+#: ordering/templates/passenger_profile.html:35
+#, fuzzy
+msgid "Changes saved successfully"
+msgstr "Пароль успешно сброшен"
+
+#: ordering/templates/passenger_profile.html:36
+msgid "Error while saving changes"
+msgstr "Ошибка при сохранении изменений"
+
+#: ordering/templates/press.html:4
+msgid "Press Materials"
+msgstr "Материалы для СМИ"
+
+#: ordering/templates/press.html:8
+msgid "Image Catalog"
+msgstr "Каталог изображений"
+
+#: ordering/templates/press.html:9
+msgid "Smaller images and download links"
+msgstr "Уменьшенные изображения и ссылки для скачивания"
+
+#: ordering/templates/press.html:12
+msgid "Founders Images"
+msgstr "Фотографии учредителей"
+
+#: ordering/templates/press.html:13
+msgid "Print and web resolutions"
+msgstr "Разрешения для печати и мониторов"
+
+#: ordering/templates/press.html:16
+msgid "Founders Images with Hamshuhrar Station"
+msgstr "Фото учредителей с коллективом \"Hameshuhrar\""
+
+#: ordering/templates/press.html:17
+msgid "The founders together with the first station to join"
+msgstr "Учредители WAYbetter со своим первым партнером"
+
+#: ordering/templates/press.html:20
+msgid "Cool Photos"
+msgstr "Интересные фотографии"
+
+#: ordering/templates/press.html:21
+msgid "A colletion of cool and useful photos"
+msgstr "Подборка любопытных фото"
+
+#: ordering/templates/press.html:24
+msgid "WAYbetter Logo"
+msgstr "Логотип <span class=waybetter></span>"
+
+#: ordering/templates/press.html:25
+msgid "Logos on B&W background"
+msgstr "Логотипы на черно-белом фоне"
+
+#: ordering/templates/press.html:28
+msgid "Screenshots"
+msgstr "Скриншоты"
+
+#: ordering/templates/press.html:29
+msgid "Screenshots of our website and iPhone app"
+msgstr "Скриншоты нашего сайта и приложения iPhone "
+
+#: ordering/templates/press.html:35
+msgid "Embed video code:"
+msgstr "Код для добавления видео:"
+
+#: ordering/templates/station_analytics.html:31
+msgid "analytics report"
+msgstr ""
+
+#: ordering/templates/station_analytics.html:50
+#: sharing/templates/station_taxidrivers.html:6
+#: sharing/templates/ws_home.html:49
+#, fuzzy
+msgid "Show"
+msgstr "Показать больше"
+
+#: ordering/templates/station_analytics.html:55
+#, fuzzy
+msgid "Accepted rides"
+msgstr "принятие заказов"
+
+#: ordering/templates/station_analytics.html:61
+#, fuzzy
+msgid "Ignored rides"
+msgstr "без ответа"
+
+#: ordering/templates/station_analytics.html:67
+#, fuzzy
+msgid "Rejected rides"
+msgstr "Отклонен"
+
+#: ordering/templates/station_analytics.html:119
+#, fuzzy
+msgid "Ride summary"
+msgstr "История заказов"
+
+#: ordering/templates/station_analytics.html:121
+#, fuzzy
+msgid "rides"
+msgstr "заказ"
+
+#: ordering/templates/station_analytics.html:157
+#: templates/wb_base_site.html:158
+#, fuzzy
+msgid "Rides"
+msgstr "История заказов"
+
+#: ordering/templates/station_analytics.html:229
+#: sharing/templates/station_accounting.html:98
+#: sharing/templates/station_history.html:106
+#, fuzzy
+msgid "There was an error loading the data."
+msgstr "Во время обработки Вашего запроса произошла ошибка."
+
+#: ordering/templates/station_analytics.html:238
+#: sharing/templates/station_accounting.html:110
+#: sharing/templates/station_history.html:115
+#, fuzzy
+msgid "No data"
+msgstr "дата модификации"
+
+#: ordering/templates/station_home.html:42
+msgid "Rides history"
+msgstr "История заказов"
+
+#: ordering/templates/station_home.html:45
+#, fuzzy
+msgid "Station analytics"
+msgstr "Название службы такси"
+
+#: ordering/templates/station_home.html:48 templates/wb_base_site.html:159
+msgid "Profile"
+msgstr "Профиль"
+
+#: ordering/templates/station_home.html:51
+msgid "Workstations"
+msgstr "Рабочие станции"
+
+#: ordering/templates/station_page.html:67
+msgid "Pick Me App for Businesses, with instant feedback and no phone calls "
+msgstr ""
+
+#: ordering/templates/station_page.html:69
+#, fuzzy
+msgid "Book A Taxi Application. Immediate Response via SMS"
+msgstr "Приложение для заказа такси. Немедленный ответ через SMS"
+
+#: ordering/templates/station_page.html:76 templates/base.html:84
+#: templates/wb_base_site.html:31
+msgid "Hi"
+msgstr "Приветствуем"
+
+#: ordering/templates/station_page.html:77 templates/base.html:90
+msgid "Log out"
+msgstr "Выход"
+
+#: ordering/templates/station_page.html:150
+msgid "for your business - free!"
+msgstr ""
+
+#: ordering/templates/station_page.html:152
+msgid "Easy and friendly ordering"
+msgstr ""
+
+#: ordering/templates/station_page.html:153
+msgid "No phone calls"
+msgstr ""
+
+#: ordering/templates/station_page.html:154
+msgid "Get instant feedback on your computer"
+msgstr ""
+
+#: ordering/templates/station_page.html:155
+msgid "Track and manage orders"
+msgstr ""
+
+#: ordering/templates/station_page.html:159
+#, fuzzy
+msgid "Join now"
+msgstr "Присоединяйтесь!"
+
+#: ordering/templates/station_page.html:166
+#, fuzzy
+msgid "for your smartphone"
+msgstr "С любого смартфона"
+
+#: ordering/templates/station_page.html:171
+#, fuzzy
+msgid "Visit"
+msgstr "сайт"
+
+#: ordering/templates/station_page.html:172
+#, fuzzy
+msgid "from your smartphone"
+msgstr "С любого смартфона"
+
+#: ordering/templates/station_page.html:174
+#, fuzzy
+msgid "Tap \"Pick me up\""
+msgstr "Прислать такси"
+
+#: ordering/templates/station_page.html:175
+#, fuzzy
+msgid "Enjoy the ride!"
+msgstr "Счастливого пути!"
+
+#: ordering/templates/station_page.html:190
+msgid "Contact Info"
+msgstr "Данные контакта"
+
+#: ordering/templates/station_page.html:194
+msgid "Station's website"
+msgstr "Сайт службы такси"
+
+#: ordering/templates/stations.html:16
+msgid "Less details"
+msgstr "Показать меньше"
+
+#: ordering/templates/stations.html:20 ordering/templates/stations.html:60
+msgid "More details"
+msgstr "Показать больше"
+
+#: ordering/templates/stations.html:30
+msgid "Station Manager?"
+msgstr "Руководитель службы?"
+
+#: ordering/templates/stations.html:31 templates/base.html:145
+msgid "Station Entrance"
+msgstr "Вход для служб такси"
+
+#: ordering/templates/terms.html:4
+msgid "Subjects"
+msgstr "Темы"
+
+#: ordering/templates/terms.html:8
+msgid "Terms of service"
+msgstr "Условия использования"
+
+#: ordering/templates/terms.html:11
+msgid "Privacy policy"
+msgstr "Политика конфиденциальности"
+
+#: ordering/templates/terms.html:16
+msgid "WAYbetter Terms Of Service"
+msgstr "Условия использования <span class=waybetter></span>"
+
+#: ordering/templates/terms.html:17
+#: ordering/templates/mobile/passenger_home.html:264
+msgid "web_actual_terms"
+msgstr ""
+"Настоящие условия использования сайта http://www.waybetter.com (далее Сайт) "
+"являются юридическим соглашением между Пользователем Сайта и компанией "
+"«WAYbetter LTD». Соблюдение данных условий обязательно при доступе к Сайту и/"
+"или к его содержимому, услугам, приложениям, информации. Используя Сайт и/"
+"или его содержимое, услуги, приложения, информацию, Пользователь принимает и "
+"обязуется соблюдать условия данного соглашения, а также его будущие поправки "
+"и дополнения, периодически публикуемые на сайте http://www.waybetter.com/"
+"info#terms. Компания «WAYbetter LTD» не оказывает услуги пассажирских "
+"перевозок. Транспортные услуги предоставляются в службах такси, а также "
+"владельцами частного такси. Компания «WAYbetter LTD» обеспечивает "
+"Пользователя информацией и средствами для заказа услуг пассажирских "
+"перевозок. Однако непосредственная реализация данного сервиса осуществляется "
+"третьими лицами – поставщиками в сфере транспортных услуг и "
+"пассажироперевозок.  Компания «WAYbetter LTD» не оказывает и не намерена "
+"оказывать услуги пассажирских перевозок или каким-либо образом выступать в "
+"качестве поставщика транспортных услуг, а также не несет никакой "
+"ответственности за услуги пассажирских перевозок, предоставленные "
+"Пользователю какими-либо третьими лицами. Компания «WAYbetter LTD» не несет "
+"ответственности за любые возможные потери, расходы, ущерб, понесенные "
+"пассажиром в результате использования Сайта и/или его содержимого, услуг, "
+"приложений, информации. Компания «WAYbetter LTD» прилагает все усилия для "
+"предоставления точной информации и сведений о времени и стоимости проезда. "
+"Однако в случае возникновения определенных дорожных условий и иных "
+"непредвиденных обстоятельств  возможны расхождения или несоответствие между "
+"предоставленной информацией и действительностью. Компания «WAYbetter LTD» не "
+"несет ответственности за любые неточности, ошибки или несоответствие в "
+"предоставленных данных и/или информации. «WAYbetter LTD» также не несет "
+"ответственности за любой ущерб и/или расходы, ставшие результатом "
+"вышеупомянутых действий или бездействия. Пользователь услуг обязуется не "
+"злоупотреблять ресурсами Сайта или не использовать его в целях, не "
+"предназначенных для заказа такси. Компания «WAYbetter LTD» вправе по "
+"собственному усмотрению вносить изменения в предоставление своих услуг либо "
+"прекратить их реализацию. «WAYbetter LTD» оставляет за собой право в любое "
+"время изменять условия настоящего соглашения либо пересматривать правила "
+"компании, действующие в отношении предоставляемых услуг или программного "
+"обеспечения. Пользователь берет на себя полную ответственность за "
+"ознакомление с вышеуказанными возможными изменениями. Используя сервисы "
+"Сайта либо его программное обеспечение после изменений в пользовательском "
+"соглашении, Пользователь тем самым выражает согласие с данными "
+"изменениями.   Компания  «WAYbetter LTD» является обладателем исключительных "
+"авторских прав на Сайт."
+
+#: ordering/templates/terms.html:18 templates/wb_base_site.html:138
+msgid "Privacy Policy"
+msgstr "Политика конфиденциальности"
+
+#: ordering/templates/terms.html:19
+msgid "web_actual_privacy_policy"
+msgstr ""
+"В рамках предоставления услуг компания «WAYbetter LTD» передает Службе такси "
+"сведения о маршруте следования Пользователя и его номер телефона. «WAYbetter "
+"LTD» обязуется не передавать личные данные Пользователя каким-либо третьим "
+"лицам. «WAYbetter LTD» оставляет за собой право использовать полученную "
+"информацию, не разглашая личных данных клиента. "
+
+#: ordering/templates/workstation_download.html:83
+msgid "Download workstations"
+msgstr "Загрузить рабочие станции"
+
+#: ordering/templates/workstation_download.html:105
+#: sharing/templates/station_taxidrivers.html:229
+#: sharing/templates/station_taxidrivers.html:237
+#: sharing/templates/station_taxidrivers.html:261
+#: sharing/templates/station_taxidrivers.html:269
+msgid "Delete"
+msgstr "Удалить"
+
+#: ordering/templates/workstation_download.html:113
+msgid ""
+"By downloading the workstation software I declare that I have read and agree "
+"to the "
+msgstr ""
+"Скачивая данное программное обеспечение, я тем самым заявляю, что "
+"ознакомился и согласен "
+
+#: ordering/templates/workstation_home.html:5
+msgid "Workstation page"
+msgstr "Страница рабочей станции"
+
+#: ordering/templates/workstation_home.html:536
+msgid "Connecting WAYbetter..."
+msgstr "Подключение к WAYbetter..."
+
+#: ordering/templates/workstation_home.html:625
+msgid "Click Here"
+msgstr ""
+
+#: ordering/templates/workstation_home.html:630
+#, fuzzy
+msgid "Connection Check"
+msgstr "Загрузка..."
+
+#: ordering/templates/workstation_home.html:676
+#, fuzzy
+msgid "Show details"
+msgstr "Показать больше"
+
+#: ordering/templates/workstation_home.html:681
+#, fuzzy
+msgid "Incoming order"
+msgstr "принятие заказов"
+
+#: ordering/templates/workstation_home.html:742
+msgid "Define time"
+msgstr "Задать время"
+
+#: ordering/templates/workstation_home.html:754
+msgid "Send message to passenger"
+msgstr "Отослать сообщение пассажиру"
+
+#: ordering/templates/workstation_home.html:761
+#, fuzzy
+msgid "Reject"
+msgstr "Отклонен"
+
+#: ordering/templates/workstation_home.html:826
+msgid "End"
+msgstr "Завершить"
+
+#: ordering/templates/wrong_user_type_message.html:5
+msgid "Wrong user type"
+msgstr "Неверный тип пользователя"
+
+#: ordering/templates/wrong_user_type_message.html:28
+msgid "You are not a workstation, please"
+msgstr "Извините, вы - не рабочая станция"
+
+#: ordering/templates/wrong_user_type_message.html:28
+msgid "logout"
+msgstr "выйдите из системы"
+
+#: ordering/templates/wrong_user_type_message.html:28
+msgid "and try again"
+msgstr "и повторите попытку"
+
+#: ordering/templates/mobile/passenger_home.html:37
+#: templates/wb_base_mobile.html:24
+msgid "Loading..."
+msgstr "Загрузка..."
+
+#: ordering/templates/mobile/passenger_home.html:39
+#: sharing/templates/mobile/my_rides.html:33
+#: sharing/templates/mobile/passenger_registration.html:56
+#: sharing/templates/mobile/wb_home.html:543
+#: sharing/templates/mobile/wb_home.html:624 templates/wb_base_mobile.html:27
+#: templates/mobile/base.html:77
+msgid "Back"
+msgstr "Назад"
+
+#: ordering/templates/mobile/passenger_home.html:68
+msgid "Finding Your Location..."
+msgstr "Идет поиск Вашего местонахождения..."
+
+#: ordering/templates/mobile/passenger_home.html:69
+msgid "No Location Found"
+msgstr "Местонахождение не определено"
+
+#: ordering/templates/mobile/passenger_home.html:70
+msgid "Unable to locate your position"
+msgstr "Невозможно определить Ваше местонахождение"
+
+#: ordering/templates/mobile/passenger_home.html:71
+msgid "Order Sent!\\n\\nAn SMS with ride details will be sent soon"
+msgstr "Заказ отправлен!\\n\\nВскоре Вы получите SMS с данными заказа"
+
+#: ordering/templates/mobile/passenger_home.html:72
+#: sharing/templates/wb_home.html:206 sharing/templates/mobile/wb_home.html:83
+#: sharing/templates/mobile/wb_home.html:504
+#: sharing/templates/mobile/wb_home.html:600
+msgid "Enter Address"
+msgstr "Введите адрес"
+
+#: ordering/templates/mobile/passenger_home.html:73
+msgid "Are you sure you want to order a taxi now?"
+msgstr "Вы уверены, что хотите заказать такси сейчас?"
+
+#: ordering/templates/mobile/passenger_home.html:74
+msgid "In order that you may enjoy this service you must first register"
+msgstr ""
+
+#: ordering/templates/mobile/passenger_home.html:75
+msgid "Try Again"
+msgstr "Повторите попытку"
+
+#: ordering/templates/mobile/passenger_home.html:76
+#: ordering/templates/mobile/passenger_home.html:189
+#: templates/mobile/base.html:87
+msgid "Send Verification Code"
+msgstr "Отослать проверочный код"
+
+#: ordering/templates/mobile/passenger_home.html:78
+#: sharing/templates/passenger_registration.html:217
+#: sharing/templates/mobile/passenger_registration.html:156
+msgid "Code Sent"
+msgstr "Код выслан"
+
+#: ordering/templates/mobile/passenger_home.html:79
+#: sharing/templates/mobile/wb_home.html:393
+msgid "Could not resolve address"
+msgstr "Адрес неизвестен"
+
+#: ordering/templates/mobile/passenger_home.html:80
+msgid "Looking for address"
+msgstr "Идет поиск адреса..."
+
+#: ordering/templates/mobile/passenger_home.html:82
+msgid "Address Incomplete: please enter a house number"
+msgstr "Адрес неточный: введите номер дома"
+
+#: ordering/templates/mobile/passenger_home.html:83
+msgid "No rides to show"
+msgstr ""
+
+#: ordering/templates/mobile/passenger_home.html:141
+#: sharing/templates/mobile/wb_home.html:601
+msgid "GPS"
+msgstr "GPS"
+
+#: ordering/templates/mobile/passenger_home.html:157
+#: ordering/templates/mobile/passenger_home.html:203
+#: sharing/templates/my_rides.html:7 sharing/templates/mobile/my_rides.html:18
+#: sharing/templates/mobile/my_rides.html:34
+#: sharing/templates/mobile/wb_home.html:464
+#, fuzzy
+msgid "My Rides"
+msgstr "поездка в такси"
+
+#: ordering/templates/mobile/passenger_home.html:168
+#: sharing/templates/mobile/wb_home.html:626 templates/mobile/base.html:68
+msgid "Select Address"
+msgstr "Выбрать адрес"
+
+#: ordering/templates/mobile/passenger_home.html:179
+#, fuzzy
+msgid "Service Registration"
+msgstr "Регистрация"
+
+#: ordering/templates/mobile/passenger_home.html:182
+msgid "Ride details are send via free SMS"
+msgstr ""
+
+#: ordering/templates/mobile/passenger_home.html:187
+#: templates/mobile/base.html:82
+msgid "Enter your mobile number"
+msgstr "Введите № моб. телефона"
+
+#: ordering/templates/mobile/passenger_home.html:192
+#: templates/mobile/base.html:88
+msgid "Enter verification code"
+msgstr "Введите проверочный код"
+
+#: ordering/templates/mobile/passenger_home.html:214
+#, fuzzy
+msgid "Set as Pickup"
+msgstr "время посадки"
+
+#: ordering/templates/mobile/passenger_home.html:215
+#, fuzzy
+msgid "Set as Destination"
+msgstr "Служба по умолчанию"
+
+#: ordering/templates/mobile/passenger_home.html:227
+#: ordering/templates/mobile/passenger_home.html:237
+#, fuzzy
+msgid "Language"
+msgstr "язык"
+
+#: ordering/templates/mobile/passenger_home.html:246
+msgid "Choose your preferred language"
+msgstr ""
+
+#: ordering/templates/mobile/passenger_home.html:281
+#, fuzzy
+msgid "Version"
+msgstr "Проверка"
+
 #: pricing/models.py:14
 msgid "priority"
 msgstr ""
@@ -1426,17 +2988,9 @@ msgstr "имя"
 msgid "last name"
 msgstr "фамилия"
 
-#: registration/forms.py:59
-msgid "username"
-msgstr "имя пользователя"
-
 #: registration/forms.py:60
 msgid "This value must contain only letters, numbers and underscores."
 msgstr "Это значение должно содержать буквы, цифры и нижнее подчеркивание"
-
-#: registration/forms.py:63
-msgid "password"
-msgstr "пароль"
 
 #: registration/forms.py:66
 msgid "password (again)"
@@ -1518,10 +3072,6 @@ msgstr ""
 msgid "Full Name"
 msgstr "имя"
 
-#: sharing/forms.py:54
-msgid "Password"
-msgstr "Пароль"
-
 #: sharing/forms.py:55
 #, fuzzy
 msgid "Re-Password"
@@ -1564,1554 +3114,1482 @@ msgstr ""
 msgid "Not found"
 msgstr "не так уж плохо"
 
-#: sharing/passenger_controller.py:95
+#: sharing/passenger_controller.py:96 sharing/templates/wb_home.html:540
+#: sharing/templates/wb_home.html.py:577
+#: sharing/templates/mobile/wb_home.html:156
+#: sharing/templates/mobile/wb_home.html:213
 msgid "We have encountered an error. Please try again."
 msgstr ""
 
-#: sharing/passenger_controller.py:134
+#: sharing/passenger_controller.py:135
 msgid "This interval is closed for booking now. Please choose a later time"
 msgstr ""
 
-#: sharing/passenger_controller.py:527
+#: sharing/passenger_controller.py:528
 #, fuzzy
 msgid "WAYbetter ride"
 msgstr "<span class=waybetter></span>LTD"
 
-#: sharing/passenger_controller.py:527
+#: sharing/passenger_controller.py:528
 #, fuzzy
 msgid "Private ride"
 msgstr "поездка в такси"
 
-#: sharing/passenger_controller.py:546
+#: sharing/passenger_controller.py:547
 msgid "WAYbetter Order Confirmation"
 msgstr ""
+
+#: sharing/templates/about_us.html:5 sharing/templates/wb_info.html:7
+#: templates/wb_base_site.html:142
+#, fuzzy
+msgid "About Us"
+msgstr "О нас"
+
+#: sharing/templates/about_us.html:7
+#, fuzzy
+msgid "about_us_content"
+msgstr "содержание"
+
+#: sharing/templates/about_us.html:16
+msgid "Zeev Zohar"
+msgstr ""
+
+#: sharing/templates/about_us.html:17
+msgid "CEO"
+msgstr ""
+
+#: sharing/templates/about_us.html:27
+msgid "Shay Shafranek"
+msgstr ""
+
+#: sharing/templates/about_us.html:28
+msgid "CMO"
+msgstr ""
+
+#: sharing/templates/about_us.html:38
+msgid "Guy Kremitzer"
+msgstr ""
+
+#: sharing/templates/about_us.html:39
+msgid "CTO"
+msgstr ""
+
+#: sharing/templates/about_us.html:47
+msgid "Yonatan Aumann"
+msgstr ""
+
+#: sharing/templates/about_us.html:48
+msgid "Algorithms"
+msgstr ""
+
+#: sharing/templates/about_us.html:59
+msgid "Amir Nissim"
+msgstr ""
+
+#: sharing/templates/about_us.html:60 sharing/templates/about_us.html.py:74
+msgid "Engineer"
+msgstr ""
+
+#: sharing/templates/about_us.html:73
+msgid "Orly Lipshtat"
+msgstr ""
+
+#: sharing/templates/about_us.html:84
+msgid "Micky Tal"
+msgstr ""
+
+#: sharing/templates/about_us.html:85
+#, fuzzy
+msgid "Sales"
+msgstr "активен"
+
+#: sharing/templates/contact.html:12
+msgid "Support and Customer Relations"
+msgstr ""
+
+#: sharing/templates/contact.html:19 sharing/templates/contact.html.py:45
+#: sharing/templates/ws_home.html:264
+#, fuzzy
+msgid "Tel"
+msgstr "вторник"
+
+#: sharing/templates/contact.html:32
+msgid "Our Offices"
+msgstr ""
+
+#: sharing/templates/contact.html:35
+#, fuzzy
+msgid "Yoni Netanyahu 6."
+msgstr "Yoni Netanyahu Street, 6"
+
+#: sharing/templates/contact.html:38
+#, fuzzy
+msgid "Or Yehuda 60376, Israel"
+msgstr "Or Yehuda, 60376, Israel"
+
+#: sharing/templates/contact.html:49
+msgid "Fax"
+msgstr ""
+
+#: sharing/templates/faq.html:6
+msgid "Frequently Asked Questions"
+msgstr ""
+
+#: sharing/templates/faq.html:10
+#, fuzzy
+msgid "faq_content"
+msgstr "содержание"
+
+#: sharing/templates/hotspot_ordering_page.html:47
+#, fuzzy
+msgid "More (optional)"
+msgstr "(Необязательно)"
+
+#: sharing/templates/hotspot_ordering_page.html:49
+#: sharing/templates/producer_ordering_page.html:21
+#: sharing/templates/station_taxidrivers.html:37
+#: sharing/templates/station_taxidrivers.html:188
+#, fuzzy
+msgid "Name"
+msgstr "имя"
+
+#: sharing/templates/hotspot_ordering_page.html:58
+#: sharing/templates/hotspot_ordering_page_textinput.html:51
+msgid "Add point"
+msgstr ""
+
+#: sharing/templates/hotspot_ordering_page.html:59
+#: sharing/templates/hotspot_ordering_page_textinput.html:52
+#: sharing/templates/producer_ordering_page.html:68
+#, fuzzy
+msgid "Switch Direction"
+msgstr "Регистрация"
+
+#: sharing/templates/hotspot_ordering_page_textinput.html:33
+#, fuzzy
+msgid "Select time"
+msgstr "Выбрать адрес"
+
+#: sharing/templates/my_rides.html:4 templates/wb_base_site.html:157
+#, fuzzy
+msgid "My Account"
+msgstr "страны"
+
+#: sharing/templates/my_rides.html:9 templates/wb_base_site.html:38
+#: templates/wb_base_site.html.py:160
+#, fuzzy
+msgid "Log Out"
+msgstr "Выход"
+
+#: sharing/templates/my_rides.html:59 sharing/templates/wb_home.html:702
+#, fuzzy
+msgid "Ride cancelled."
+msgstr "Отменить"
+
+#: sharing/templates/my_rides.html:60 sharing/templates/wb_home.html:703
+#, fuzzy
+msgid "Info/Cancel"
+msgstr "Отменить"
+
+#: sharing/templates/my_rides.html:61 sharing/templates/wb_home.html:704
+#: sharing/templates/mobile/my_rides.html:70
+#, fuzzy
+msgid "Report Ride"
+msgstr "Оценить эту поездку"
+
+#: sharing/templates/my_rides.html:67
+#, fuzzy
+msgid "Next Rides"
+msgstr "поездка в такси"
+
+#: sharing/templates/my_rides.html:67
+#, fuzzy
+msgid "No Next Rides"
+msgstr "поездка в такси"
+
+#: sharing/templates/my_rides.html:68
+msgid "Previous Rides"
+msgstr ""
+
+#: sharing/templates/my_rides.html:68
+msgid "No Previous Rides"
+msgstr ""
+
+#: sharing/templates/myrides_table.html:7
+#, fuzzy
+msgid "When (est. pickup time)"
+msgstr "время посадки"
+
+#: sharing/templates/myrides_table.html:8
+#: sharing/templates/passenger_ride_email.html:32
+#, fuzzy
+msgid "Price"
+msgstr "заказ"
+
+#: sharing/templates/myrides_tooltips.html:7
+#, fuzzy
+msgid "An error has occurred, Please try again."
+msgstr "Во время обработки Вашего запроса произошла ошибка."
+
+#: sharing/templates/myrides_tooltips.html:15
+#, fuzzy
+msgid "Your WAY is Booked"
+msgstr "Ваш Email"
+
+#: sharing/templates/myrides_tooltips.html:22
+#, fuzzy
+msgid "*This ride can be canceled."
+msgstr "Запрос отменен"
+
+#: sharing/templates/myrides_tooltips.html:23
+#, fuzzy
+msgid "Cancel ride"
+msgstr "Отменить"
+
+#: sharing/templates/myrides_tooltips.html:30
+msgid "Optimizing your WAY"
+msgstr ""
+
+#: sharing/templates/myrides_tooltips.html:33
+msgid "Your ride is being calculated..."
+msgstr ""
+
+#: sharing/templates/myrides_tooltips.html:35
+msgid "This takes a few minutes"
+msgstr ""
+
+#: sharing/templates/myrides_tooltips.html:40
+#, fuzzy
+msgid "*This ride can not be canceled."
+msgstr "Запрос отменен"
+
+#: sharing/templates/myrides_tooltips.html:40
+msgid "Why?"
+msgstr ""
+
+#: sharing/templates/myrides_tooltips.html:46
+#, fuzzy
+msgid "Your WAY Details"
+msgstr "Ваш Email"
+
+#: sharing/templates/myrides_tooltips.html:50
+#: sharing/templates/wb_home.html:392 sharing/templates/wb_home.html:1018
+#: sharing/templates/mobile/wb_home.html:637
+#, fuzzy
+msgid "Pickup Time"
+msgstr "время посадки"
+
+#: sharing/templates/myrides_tooltips.html:54
+#: sharing/templates/mobile/my_rides.html:73
+#, fuzzy
+msgid "Taxi Number"
+msgstr "к дому №"
+
+#: sharing/templates/myrides_tooltips.html:64
+#, fuzzy
+msgid "Have a pleasant ride."
+msgstr "Этот Email занят"
+
+#: sharing/templates/myrides_tooltips.html:70
+#, fuzzy
+msgid "Report This Ride"
+msgstr "Оценить эту поездку"
+
+#: sharing/templates/myrides_tooltips.html:73
+msgid ""
+"If you have any comments regarding this ride, please do not hesitate and "
+"write us an email."
+msgstr ""
+
+#: sharing/templates/myrides_tooltips.html:77
+#, fuzzy
+msgid "Contact us"
+msgstr "Данные контакта"
+
+#: sharing/templates/passenger_notification_msg.html:2
+#, fuzzy
+msgid "Taxi is on the way!"
+msgstr "одно нажатие кнопки - и такси уже в пути"
+
+#: sharing/templates/passenger_notification_msg.html:3
+#: sharing/templates/passenger_ride_email.html:18
+#: sharing/templates/producer_ordering_page.html:53
+#: sharing/templates/station_history.html:37
+#: sharing/templates/voucher_email.html:15
+#, fuzzy
+msgid "Pickup"
+msgstr "время посадки"
+
+#: sharing/templates/passenger_notification_msg.html:6
+msgid "Tell the driver you're a WAYbetter passenger."
+msgstr ""
+
+#: sharing/templates/passenger_registration.html:6
+msgid "First Time? Join the Movement...  "
+msgstr ""
+
+#: sharing/templates/passenger_registration.html:10
+#: sharing/templates/passenger_registration.html:102
+#, fuzzy
+msgid "Already a member?"
+msgstr "Уже зарегистрированы?"
+
+#: sharing/templates/passenger_registration.html:10
+#: sharing/templates/passenger_registration.html:102
+#, fuzzy
+msgid "Sign In"
+msgstr "היכנס"
+
+#: sharing/templates/passenger_registration.html:22
+#: sharing/templates/mobile/passenger_registration.html:35
+msgid "Ride details are sent by free SMS"
+msgstr ""
+
+#: sharing/templates/passenger_registration.html:27
+#: sharing/templates/mobile/passenger_registration.html:39
+#, fuzzy
+msgid "Mobile Phone"
+msgstr "Моб. телефоны"
+
+#: sharing/templates/passenger_registration.html:30
+#: sharing/templates/mobile/passenger_registration.html:41
+#, fuzzy
+msgid "Get Code"
+msgstr "Введите SMS-код"
+
+#: sharing/templates/passenger_registration.html:34
+#: sharing/templates/mobile/passenger_registration.html:44
+#, fuzzy
+msgid "Enter Code"
+msgstr "Введите SMS-код"
+
+#: sharing/templates/passenger_registration.html:48
+#, fuzzy
+msgid "Setup your account:"
+msgstr "войти через Ваш аккаунт в:"
+
+#: sharing/templates/passenger_registration.html:55
+msgid "Use your Facebook account for fast registration:"
+msgstr ""
+
+#: sharing/templates/passenger_registration.html:59
+msgid "Login with Facebook"
+msgstr ""
+
+#: sharing/templates/passenger_registration.html:65
+#: sharing/templates/mobile/passenger_registration.html:66
+msgid "OR"
+msgstr ""
+
+#: sharing/templates/passenger_registration.html:89
+#: sharing/templates/mobile/passenger_registration.html:84
+msgid "I agree to the"
+msgstr ""
+
+#: sharing/templates/passenger_registration.html:91
+#: sharing/templates/mobile/passenger_registration.html:85
+#, fuzzy
+msgid "and"
+msgstr "Завершить"
+
+#: sharing/templates/passenger_registration.html:92
+#: sharing/templates/mobile/passenger_registration.html:86
+msgid "Privacy Statement"
+msgstr ""
+
+#: sharing/templates/passenger_registration.html:104
+#: sharing/templates/wb_home.html:406
+#: sharing/templates/mobile/passenger_registration.html:46
+#: sharing/templates/mobile/passenger_registration.html:92
+#: sharing/templates/mobile/passenger_registration.html:172
+#: sharing/templates/mobile/wb_home.html:617
+#: sharing/templates/mobile/wb_home.html:646
+msgid "Next"
+msgstr ""
+
+#: sharing/templates/passenger_registration.html:214
+#: sharing/templates/passenger_registration.html:247
+#: sharing/templates/wb_home.html:584
+#: sharing/templates/mobile/passenger_registration.html:153
+#: sharing/templates/mobile/passenger_registration.html:208
+#, fuzzy
+msgid "Sending"
+msgstr "в режиме ожидания"
+
+#: sharing/templates/passenger_ride_email.html:6
+#, fuzzy, python-format
+msgid "Hi %(passenger_name)s,"
+msgstr "ном. телефона пассажира"
+
+#: sharing/templates/passenger_ride_email.html:9
+#, fuzzy
+msgid "Thank you for using WAYbetter's smart taxi service"
+msgstr "Присоединяйтесь к <span class=waybetter></span>"
+
+#: sharing/templates/passenger_ride_email.html:13
+#, python-format
+msgid "Order details (ID: %(order_id)s)"
+msgstr ""
+
+#: sharing/templates/passenger_ride_email.html:19
+#: sharing/templates/producer_ordering_page.html:70
+#: sharing/templates/station_history.html:45
+#: sharing/templates/voucher_email.html:26
+#, fuzzy
+msgid "Dropoff"
+msgstr "Выбрать адрес"
+
+#: sharing/templates/passenger_ride_email.html:20
+#, fuzzy
+msgid "Ride Type"
+msgstr "История заказов"
+
+#: sharing/templates/passenger_ride_email.html:31
+#, fuzzy
+msgid "Estimated Pickup Time"
+msgstr "Приблизительная стоимость поездки"
+
+#: sharing/templates/passenger_ride_email.html:40
+#, fuzzy
+msgid "Please note"
+msgstr "пассажир"
+
+#: sharing/templates/passenger_ride_email.html:41
+msgid "A free SMS will remind you a few minutes before your taxi arrives"
+msgstr ""
+
+#: sharing/templates/passenger_ride_email.html:42
+msgid "A detailed invoice will be sent on the 1st of next month"
+msgstr ""
+
+#: sharing/templates/passenger_ride_email.html:43
+msgid ""
+"You can cancel this ride at no cost in out website up to one hour before the "
+"pickup time"
+msgstr ""
+
+#: sharing/templates/passenger_ride_email.html:47
+#, fuzzy
+msgid "Have a great ride"
+msgstr "Этот Email занят"
+
+#: sharing/templates/passenger_ride_email.html:50
+msgid "The <a href=\"http://www.waybetter.com\">WAYbetter</a> team"
+msgstr ""
+
+#: sharing/templates/passenger_ride_email.html:52
+#, fuzzy
+msgid "View your order on our website"
+msgstr "Программный инструмент для заказа такси на Вашем сайте (бесплатно) "
+
+#: sharing/templates/producer_ordering_page.html:37
+#, fuzzy
+msgid "Is Sharing"
+msgstr "Оценка"
+
+#: sharing/templates/producer_ordering_page.html:82
+#, fuzzy
+msgid "Add existing passenger"
+msgstr "Отослать сообщение пассажиру"
+
+#: sharing/templates/producer_ordering_page.html:84
+#, fuzzy
+msgid "Create new passenger"
+msgstr "Подтвердить пароль"
+
+#: sharing/templates/producer_ordering_page.html:112
+#: sharing/templates/station_taxidrivers.html:154
+#: sharing/templates/station_taxidrivers.html:205
+msgid "Remove"
+msgstr ""
+
+#: sharing/templates/producer_ordering_page.html:135
+#, fuzzy
+msgid "New Passenger"
+msgstr "пассажир"
+
+#: sharing/templates/producer_ordering_page.html:149
+#: sharing/templates/producer_ordering_page.html:171
+#: sharing/templates/station_taxidrivers.html:171
+#: sharing/templates/station_taxidrivers.html:386
+#, fuzzy
+msgid "Save"
+msgstr "активен"
+
+#: sharing/templates/producer_ordering_page.html:155
+msgid "Please fill all fields"
+msgstr ""
+
+#: sharing/templates/producer_ordering_page.html:168
+#, fuzzy
+msgid "Saving"
+msgstr "Оценка"
+
+#: sharing/templates/producer_ordering_page.html:178
+#, fuzzy
+msgid "Passenger Created"
+msgstr "оценка пассажира"
+
+#: sharing/templates/producer_ordering_page.html:231
+#, fuzzy
+msgid "No Passengers"
+msgstr "пассажир"
+
+#: sharing/templates/producer_ordering_page.html:235
+#, fuzzy
+msgid "Error updating passengers"
+msgstr "Ошибка при сохранении изменений"
+
+#: sharing/templates/producer_ordering_page.html:270
+msgid "Not sharing"
+msgstr ""
+
+#: sharing/templates/producer_rides_summary.html:18
+#: sharing/templates/station_history.html:32
+#, fuzzy
+msgid "Time"
+msgstr "Тайминг"
+
+#: sharing/templates/producer_rides_summary.html:18
+#: sharing/templates/station_history.html:32
+#: sharing/templates/ws_home.html:245
+#, fuzzy
+msgid "# of Passengers"
+msgstr "пассажир"
+
+#: sharing/templates/producer_rides_summary.html:21
+#: sharing/templates/ws_home.html:245
+#, fuzzy
+msgid "Pickups"
+msgstr "время посадки"
+
+#: sharing/templates/producer_rides_summary.html:29
+#: sharing/templates/ws_home.html:252
+#, fuzzy
+msgid "Dropoffs"
+msgstr "Выбрать адрес"
+
+#: sharing/templates/station_accounting.html:32
+#, fuzzy
+msgid "Ride"
+msgstr "История заказов"
+
+#: sharing/templates/station_accounting.html:32
+#: sharing/templates/station_history.html:72
+#, fuzzy
+msgid "Taxi"
+msgstr "поездка в такси"
+
+#: sharing/templates/station_accounting.html:32
+msgid "#Stops"
+msgstr ""
+
+#: sharing/templates/station_accounting.html:32
+#: sharing/templates/ws_home.html:287
+msgid "Value"
+msgstr ""
+
+#: sharing/templates/station_accounting.html:32
+#: sharing/templates/voucher_email.html:58
+#, fuzzy
+msgid "Tariff"
+msgstr "поездка в такси"
+
+#: sharing/templates/station_accounting.html:32
+msgid "Payday"
+msgstr ""
+
+#: sharing/templates/station_accounting.html:68
+#, fuzzy
+msgid "No Rides"
+msgstr "поездка в такси"
+
+#: sharing/templates/station_history.html:54
+#: sharing/templates/ws_home.html:272
+msgid "Show Points On Map"
+msgstr ""
+
+#: sharing/templates/station_history.html:76
+#: sharing/templates/ws_home.html:364
+#, fuzzy
+msgid "Today"
+msgstr "воскресенье"
+
+#: sharing/templates/station_taxidrivers.html:7
+#, fuzzy
+msgid "Drivers"
+msgstr "Заказы"
+
+#: sharing/templates/station_taxidrivers.html:8
+#, fuzzy
+msgid "Taxis"
+msgstr "поездка в такси"
+
+#: sharing/templates/station_taxidrivers.html:13
+#: sharing/templates/station_taxidrivers.html:303
+#, fuzzy
+msgid "New Driver/Taxi"
+msgstr "Заказы"
+
+#: sharing/templates/station_taxidrivers.html:27
+#, fuzzy
+msgid "Driver Details"
+msgstr "Показать больше"
+
+#: sharing/templates/station_taxidrivers.html:30
+#: sharing/templates/station_taxidrivers.html:49
+#, fuzzy
+msgid "Choose Existing"
+msgstr "Выбрать пароль"
+
+#: sharing/templates/station_taxidrivers.html:36
+#: sharing/templates/station_taxidrivers.html:55
+#, fuzzy
+msgid "Add New"
+msgstr "Адрес"
+
+#: sharing/templates/station_taxidrivers.html:46
+#, fuzzy
+msgid "Taxi Details"
+msgstr "Службы такси"
+
+#: sharing/templates/station_taxidrivers.html:56
+#, fuzzy
+msgid "Taxi number"
+msgstr "к дому №"
+
+#: sharing/templates/station_taxidrivers.html:137
+msgid "Operation Successful"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:148
+#, fuzzy
+msgid "Add Taxi"
+msgstr "Адрес"
+
+#: sharing/templates/station_taxidrivers.html:157
+#: sharing/templates/station_taxidrivers.html:284
+#, fuzzy
+msgid "Taxi #"
+msgstr "поездка в такси"
+
+#: sharing/templates/station_taxidrivers.html:179
+#, fuzzy
+msgid "Changes Saved"
+msgstr "Изменить пароль"
+
+#: sharing/templates/station_taxidrivers.html:199
+#, fuzzy
+msgid "No Drivers"
+msgstr "Заказы"
+
+#: sharing/templates/station_taxidrivers.html:220
+#, fuzzy
+msgid "Add Driver"
+msgstr "Заказы"
+
+#: sharing/templates/station_taxidrivers.html:230
+#, fuzzy
+msgid "Are you sure you want to delete driver"
+msgstr "Вы уверены, что хотите заказать такси сейчас?"
+
+#: sharing/templates/station_taxidrivers.html:232
+msgid "Confirm driver deletion"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:242
+#, fuzzy
+msgid "Driver deleted"
+msgstr "Удалить"
+
+#: sharing/templates/station_taxidrivers.html:262
+#, fuzzy
+msgid "Are you sure you want to delete taxi"
+msgstr "Вы уверены, что хотите заказать такси сейчас?"
+
+#: sharing/templates/station_taxidrivers.html:264
+msgid "Confirm taxi deletion"
+msgstr ""
+
+#: sharing/templates/station_taxidrivers.html:275
+#, fuzzy
+msgid "Taxi deleted"
+msgstr "Удалить"
+
+#: sharing/templates/station_taxidrivers.html:310
+#, fuzzy
+msgid "Assign Taxi to Driver"
+msgstr "назначен"
+
+#: sharing/templates/station_taxidrivers.html:320
+#, fuzzy
+msgid "Assign Driver to Taxi"
+msgstr "назначен"
+
+#: sharing/templates/station_taxidrivers.html:395
+#, fuzzy
+msgid "Invalid driver/taxi"
+msgstr "Неверный адрес"
+
+#: sharing/templates/station_taxidrivers.html:420
+#, fuzzy
+msgid "Drivers List"
+msgstr "Заказы"
+
+#: sharing/templates/station_taxidrivers.html:437
+#, fuzzy
+msgid "Taxi List"
+msgstr "поездка в такси"
+
+#: sharing/templates/station_tools.html:12
+#: templates/admin/billing/billingtransaction/change_form.html:28
+msgid "History"
+msgstr "נסיעות קודמות"
+
+#: sharing/templates/station_tools.html:13
+#, fuzzy
+msgid "Accounting"
+msgstr "страны"
+
+#: sharing/templates/station_tools.html:14
+#, fuzzy
+msgid "Drivers and Taxis"
+msgstr "Заказы"
+
+#: sharing/templates/the_service.html:8
+#, fuzzy
+msgid "the_service_content"
+msgstr "содержание"
+
+#: sharing/templates/voucher_email.html:9
+msgid "Voucher Ride Order"
+msgstr ""
+
+#: sharing/templates/voucher_email.html:10
+#, fuzzy
+msgid "Ride Date"
+msgstr "История заказов"
+
+#: sharing/templates/voucher_email.html:11
+#, fuzzy
+msgid "Ride ID"
+msgstr "История заказов"
+
+#: sharing/templates/voucher_email.html:19
+#: sharing/templates/voucher_email.html:30
+#, fuzzy
+msgid "Passengers"
+msgstr "пассажир"
+
+#: sharing/templates/voucher_email.html:37
+msgid "Please Tell The Driver"
+msgstr ""
+
+#: sharing/templates/voucher_email.html:39
+msgid "Voucher is in the office - don't ask the passenger"
+msgstr ""
+
+#: sharing/templates/voucher_email.html:40
+msgid "Ride route and destination - the passenger does not know the route"
+msgstr ""
+
+#: sharing/templates/voucher_email.html:45
+#, fuzzy
+msgid "Driver Name"
+msgstr "Заказы"
+
+#: sharing/templates/voucher_email.html:46
+#, fuzzy
+msgid "Radio Number"
+msgstr "к дому №"
+
+#: sharing/templates/voucher_email.html:55
+#: sharing/templates/voucher_email.html:56
+#, fuzzy
+msgid "City Area"
+msgstr "район города"
+
+#: sharing/templates/voucher_email.html:57
+#, fuzzy
+msgid "Points"
+msgstr "Английский"
+
+#: sharing/templates/wb_home.html:23
+msgid "Try It Now"
+msgstr ""
+
+#: sharing/templates/wb_home.html:36
+msgid "SAVE"
+msgstr ""
+
+#: sharing/templates/wb_home.html:42
+#, fuzzy
+msgid "Enter Your WAY"
+msgstr "Введите ваш email"
+
+#: sharing/templates/wb_home.html:62 sharing/templates/wb_home.html.py:229
+#: sharing/templates/wb_home.html:450
+msgid "When"
+msgstr ""
+
+#: sharing/templates/wb_home.html:73 sharing/templates/mobile/wb_home.html:566
+#, fuzzy
+msgid "Private Taxi Ride"
+msgstr "поездка в такси"
+
+#: sharing/templates/wb_home.html:77 sharing/templates/wb_home.html.py:102
+#: sharing/templates/mobile/wb_home.html:555
+#: sharing/templates/mobile/wb_home.html:569
+#, fuzzy
+msgid "Ride Price"
+msgstr "История заказов"
+
+#: sharing/templates/wb_home.html:84 sharing/templates/wb_home.html.py:109
+#: sharing/templates/mobile/wb_home.html:557
+#: sharing/templates/mobile/wb_home.html:571
+#, fuzzy
+msgid "Est. Ride Duration"
+msgstr "до продолжительности (сек)"
+
+#: sharing/templates/wb_home.html:98 sharing/templates/mobile/wb_home.html:552
+#, fuzzy
+msgid "WAYbetter Taxi Ride"
+msgstr "<span class=waybetter></span>LTD"
+
+#: sharing/templates/wb_home.html:123
+#, fuzzy
+msgid "My Next Rides"
+msgstr "поездка в такси"
+
+#: sharing/templates/wb_home.html:163
+msgid ""
+"Hotspots are centers of activity from which & to which we offer WAYbetter "
+"service."
+msgstr ""
+
+#: sharing/templates/wb_home.html:174
+#: sharing/templates/mobile/wb_home.html:585
+#, fuzzy
+msgid "Select HotSpot"
+msgstr "Выбрать адрес"
+
+#: sharing/templates/wb_home.html:184 sharing/templates/wb_home.html.py:222
+#, fuzzy
+msgid "Switch direction"
+msgstr "Регистрация"
+
+#: sharing/templates/wb_home.html:193
+#, fuzzy
+msgid "Select City"
+msgstr "Выбрать адрес"
+
+#: sharing/templates/wb_home.html:212
+#: sharing/templates/mobile/wb_home.html:614
+msgid "House #"
+msgstr ""
+
+#: sharing/templates/wb_home.html:232
+#, fuzzy
+msgid "Choose Pickup Time"
+msgstr "время посадки"
+
+#: sharing/templates/wb_home.html:234 sharing/templates/wb_home.html:1020
+#, fuzzy
+msgid "at"
+msgstr "Статус"
+
+#: sharing/templates/wb_home.html:257
+msgid "*Times may vary due to traffic and stuff..."
+msgstr ""
+
+#: sharing/templates/wb_home.html:392 sharing/templates/wb_home.html:1018
+#, fuzzy
+msgid "Dropoff Time"
+msgstr "Выбрать адрес"
+
+#: sharing/templates/wb_home.html:397
+#, fuzzy
+msgid "Your Pickup"
+msgstr "время посадки"
+
+#: sharing/templates/wb_home.html:397
+msgid "Your Dropoff"
+msgstr ""
+
+#: sharing/templates/wb_home.html:460
+#, fuzzy
+msgid "Calculating"
+msgstr "Отменить"
+
+#: sharing/templates/wb_home.html:490
+#, fuzzy
+msgid "Please choose another date"
+msgstr "Служба по умолчанию"
+
+#: sharing/templates/wb_home.html:496
+msgid "We had a problem getting available intervals. Please try again."
+msgstr ""
+
+#: sharing/templates/wb_home.html:536
+#: sharing/templates/mobile/wb_home.html:152
+#, fuzzy
+msgid "Currently, there is no service to this address."
+msgstr "На данный момент в этой стране сервис не предоставляется"
+
+#: sharing/templates/wb_home.html:635
+#, fuzzy
+msgid "HotSpot"
+msgstr "Выбрать адрес"
+
+#: sharing/templates/wb_home.html:641
+#: sharing/templates/mobile/wb_home.html:574
+#, fuzzy
+msgid "Book Private"
+msgstr "Процедура заказа"
+
+#: sharing/templates/wb_home.html:642
+#: sharing/templates/mobile/wb_home.html:560
+#, fuzzy
+msgid "Book WAYbetter"
+msgstr "Присоединяйтесь к <span class=waybetter></span>"
+
+#: sharing/templates/wb_home.html:713
+msgid "Error getting rides data"
+msgstr ""
+
+#: sharing/templates/wb_home.html:754
+#, fuzzy
+msgid "Please choose from list"
+msgstr "Служба по умолчанию"
+
+#: sharing/templates/wb_home.html:1084
+msgid "Join the private Beta"
+msgstr ""
+
+#: sharing/templates/wb_info.html:8 templates/wb_base_site.html:28
+#: templates/wb_base_site.html.py:143
+#, fuzzy
+msgid "The Service"
+msgstr "заказ"
+
+#: sharing/templates/wb_info.html:9 templates/wb_base_site.html:144
+msgid "FAQ"
+msgstr ""
+
+#: sharing/templates/wb_info.html:11 templates/wb_base_site.html:146
+#, fuzzy
+msgid "Contact Us"
+msgstr "Данные контакта"
+
+#: sharing/templates/ws_home.html:10
+msgid "Please wait, connecting"
+msgstr ""
+
+#: sharing/templates/ws_home.html:13
+#, fuzzy
+msgid "Hide List"
+msgstr "История заказов"
+
+#: sharing/templates/ws_home.html:16
+#, fuzzy
+msgid "Pending"
+msgstr "в режиме ожидания"
+
+#: sharing/templates/ws_home.html:19
+msgid "Ready to go"
+msgstr ""
+
+#: sharing/templates/ws_home.html:21
+#, fuzzy
+msgid "Manage"
+msgstr "язык"
+
+#: sharing/templates/ws_home.html:28
+#, fuzzy
+msgid "Connecting"
+msgstr "Загрузка..."
+
+#: sharing/templates/ws_home.html:34
+msgid "Snap to right corner"
+msgstr ""
+
+#: sharing/templates/ws_home.html:35
+msgid "Snap to left corner"
+msgstr ""
+
+#: sharing/templates/ws_home.html:46
+#, fuzzy
+msgid "Not Assigned Yet"
+msgstr "назначен"
+
+#: sharing/templates/ws_home.html:47
+#, fuzzy
+msgid "Missed"
+msgstr "Моб. телефоны"
+
+#: sharing/templates/ws_home.html:48
+#, fuzzy
+msgid "Hide"
+msgstr "заказ"
+
+#: sharing/templates/ws_home.html:50
+msgid "Online Status: OK"
+msgstr ""
+
+#: sharing/templates/ws_home.html:51
+msgid "Online Status: ERROR"
+msgstr ""
+
+#: sharing/templates/ws_home.html:77 templates/connected_page.html:13
+msgid "No connection to server"
+msgstr "Нет соединения с сервером"
+
+#: sharing/templates/ws_home.html:278
+#, fuzzy
+msgid "Copy Info"
+msgstr "Данные контакта"
+
+#: sharing/templates/ws_home.html:280
+#, fuzzy
+msgid "Ride Copied"
+msgstr "История заказов"
+
+#: sharing/templates/ws_home.html:282
+msgid "Failed Copying"
+msgstr ""
+
+#: sharing/templates/ws_home.html:293
+#, fuzzy
+msgid "Driver"
+msgstr "Заказы"
+
+#: sharing/templates/ws_home.html:296 sharing/templates/ws_home.html.py:451
+#, fuzzy
+msgid "Taxi No."
+msgstr "поездка в такси"
+
+#: sharing/templates/ws_home.html:309
+#, fuzzy
+msgid "+ Add"
+msgstr "Адрес"
+
+#: sharing/templates/ws_home.html:343
+#, fuzzy
+msgid "Please choose taxi and driver"
+msgstr "Служба по умолчанию"
+
+#: sharing/templates/ws_home.html:457
+#, fuzzy
+msgid "Ride Started"
+msgstr "История заказов"
+
+#: sharing/templates/ws_home.html:486
+#, fuzzy
+msgid "Ride in"
+msgstr "История заказов"
+
+#: sharing/templates/mobile/login.html:23
+#: templates/registration/activate.html:10
+#: templates/registration/activation_complete.html:8
+#: templates/registration/login.html:58
+#: templates/registration/login_reg.html:8
+#: templates/registration/password_reset_complete.html:8
+msgid "Log in"
+msgstr "Войти"
+
+#: sharing/templates/mobile/my_rides.html:21
+msgid "Upcoming Rides"
+msgstr ""
+
+#: sharing/templates/mobile/my_rides.html:69
+#, fuzzy
+msgid "Cancel Ride"
+msgstr "Отменить"
+
+#: sharing/templates/mobile/my_rides.html:71
+#, fuzzy
+msgid ""
+"An SMS reminder with ride details will be sent a few minutes before your "
+"pickup"
+msgstr "Вскоре Вы получите SMS с данными заказа"
+
+#: sharing/templates/mobile/my_rides.html:72
+#, fuzzy
+msgid "Final Pickup Time"
+msgstr "время посадки"
+
+#: sharing/templates/mobile/my_rides.html:74
+#, fuzzy
+msgid "Taxi Station"
+msgstr "Службы такси"
+
+#: sharing/templates/mobile/my_rides.html:75
+#, fuzzy
+msgid "Order Cancelled"
+msgstr "Отменить"
+
+#: sharing/templates/mobile/passenger_registration.html:26
+#, fuzzy
+msgid "Phone Verification"
+msgstr "Проверка"
+
+#: sharing/templates/mobile/passenger_registration.html:188
+#, fuzzy
+msgid "Wrong Code"
+msgstr "Введите SMS-код"
+
+#: sharing/templates/mobile/wb_home.html:105
+#, fuzzy
+msgid "Choose Hotspot"
+msgstr "Фамилия"
+
+#: sharing/templates/mobile/wb_home.html:249
+msgid "Could not find your current location"
+msgstr ""
+
+#: sharing/templates/mobile/wb_home.html:458
+#, fuzzy
+msgid "Order Now"
+msgstr "Заказы"
+
+#: sharing/templates/mobile/wb_home.html:470
+#, fuzzy
+msgid "Share"
+msgstr "Оценка"
+
+#: sharing/templates/mobile/wb_home.html:473
+#: sharing/templates/mobile/wb_home.html:667
+#, fuzzy
+msgid "Settings"
+msgstr "Служба такси"
+
+#: sharing/templates/mobile/wb_home.html:479
+#: sharing/templates/mobile/wb_home.html:654
+msgid "Feedback"
+msgstr ""
+
+#: sharing/templates/mobile/wb_home.html:491
+#: sharing/templates/mobile/wb_home.html:545
+#, fuzzy
+msgid "Your WAY"
+msgstr "Введите ваш email"
+
+#: sharing/templates/mobile/wb_home.html:511
+#, fuzzy
+msgid "Switch Ride Direction"
+msgstr "Регистрация"
+
+#: sharing/templates/mobile/wb_home.html:516
+#, fuzzy
+msgid "Central Location"
+msgstr "средняя оценка"
+
+#: sharing/templates/mobile/wb_home.html:523
+#, fuzzy
+msgid "Choose Central Location"
+msgstr "Проверка подлинности номера"
+
+#: sharing/templates/mobile/wb_home.html:529
+#, fuzzy
+msgid "Choose Time"
+msgstr "Выбрать пароль"
+
+#: sharing/templates/mobile/wb_home.html:536
+#, fuzzy
+msgid "Calculate Ride"
+msgstr "Отменить"
+
+#: sharing/templates/mobile/wb_home.html:590
+msgid "Hotspots are areas where WAYbetter offers cheap taxis"
+msgstr ""
+
+#: sharing/templates/mobile/wb_home.html:612
+msgid "Street"
+msgstr ""
+
+#: sharing/templates/mobile/wb_home.html:642
+#, fuzzy
+msgid "Choose day"
+msgstr "Выбрать пароль"
+
+#: sharing/templates/mobile/wb_home.html:644
+#, fuzzy
+msgid "Choose time"
+msgstr "Выбрать пароль"
+
+#: sharing/templates/mobile/wb_home.html:658
+msgid "Share on Facebook"
+msgstr ""
+
+#: sharing/templates/mobile/wb_home.html:659
+msgid "Tell a Friend (email)"
+msgstr ""
+
+#: sharing/templates/mobile/wb_home.html:671
+#, fuzzy
+msgid "Setting 1"
+msgstr "Служба такси"
+
+#: sharing/templates/mobile/wb_home.html:672
+#, fuzzy
+msgid "Setting 2"
+msgstr "Служба такси"
+
+#: socialauth/templates/socialauth/login_done.html:14
+msgid "Signing you in..."
+msgstr "Вы входите..."
+
+#: templates/404.html:7
+msgid "The page you requested could not be found."
+msgstr "Запрашиваемая страница не найдена."
+
+#: templates/500.html:7
+msgid "There was an error while handling your request."
+msgstr "Во время обработки Вашего запроса произошла ошибка."
+
+#: templates/base.html:78
+msgid "Get Your Taxis Online (FREE)"
+msgstr "Заказ такси он-лайн (бесплатно)"
+
+#: templates/base.html:138
+msgid "Passengers home"
+msgstr "Вход для пассажиров"
+
+#: templates/base.html:166
+msgid "2010 WAYbetter"
+msgstr "<span class=waybetter></span> 2010-2011 "
+
+#: templates/base_site.html:10
+msgid "WAYbetter: the best way to get a taxi!"
+msgstr "WAYbetter: Лучший способ заказать такси (бесплатно)"
+
+#: templates/base_site.html:13
+msgid "WAYbetter"
+msgstr "<span class=waybetter></span>"
+
+#: templates/wb_base.html:18 templates/wb_base.html.py:26
+#, fuzzy
+msgid "Half Price Taxi Rides"
+msgstr "поездка в такси"
+
+#: templates/wb_base.html:21 templates/wb_base.html.py:28
+msgid ""
+"Revolution in Transportation: Half-priced taxi rides. Book a shared taxi "
+"online: comfortable, hassle free ride, save tens of dollars."
+msgstr ""
+
+#: templates/wb_base.html:22
+msgid "smart,iPhone,way better,order taxi,online"
+msgstr ""
+
+#: templates/wb_base_site.html:40
+#, fuzzy
+msgid "Log-in"
+msgstr "Войти"
+
+#: templates/wb_base_site.html:86 templates/wb_base_site.html.py:105
+#, fuzzy
+msgid "Service"
+msgstr "заказ"
+
+#: templates/wb_base_site.html:87
+msgid "learnmore_service_content"
+msgstr ""
+
+#: templates/wb_base_site.html:90 templates/wb_base_site.html.py:109
+#: templates/wb_base_site.html:149
+#, fuzzy
+msgid "Community"
+msgstr "Страна"
+
+#: templates/wb_base_site.html:91
+msgid "learnmore_community_content"
+msgstr ""
+
+#: templates/wb_base_site.html:94 templates/wb_base_site.html.py:113
+msgid "Environment"
+msgstr ""
+
+#: templates/wb_base_site.html:95
+msgid "learnmore_environment_content"
+msgstr ""
+
+#: templates/wb_base_site.html:98 templates/wb_base_site.html.py:117
+msgid "Efficiency"
+msgstr ""
+
+#: templates/wb_base_site.html:99
+msgid "learnmore_efficiency_content"
+msgstr ""
+
+#: templates/wb_base_site.html:106
+#, fuzzy
+msgid "gist_service_content"
+msgstr "содержание"
+
+#: templates/wb_base_site.html:110
+msgid "gist_community_content"
+msgstr ""
+
+#: templates/wb_base_site.html:114
+msgid "gist_environment_content"
+msgstr ""
+
+#: templates/wb_base_site.html:118
+msgid "gist_efficiency_content"
+msgstr ""
+
+#: templates/wb_base_site.html:136
+#, fuzzy
+msgid "PickMeApp"
+msgstr "Прислать такси"
+
+#: templates/wb_base_site.html:137
+#, fuzzy
+msgid "Terms of Use"
+msgstr "Условия использования"
+
+#: templates/wb_base_site.html:150
+msgid "Facebook"
+msgstr ""
+
+#: templates/wb_base_site.html:151
+msgid "Twitter"
+msgstr ""
+
+#: templates/wb_base_site.html:152
+#, fuzzy
+msgid "Stations"
+msgstr "Служба такси"
+
+#: templates/wb_base_site.html:162
+#, fuzzy
+msgid "Account"
+msgstr "страны"
+
+#: templates/wb_base_site.html:163
+#, fuzzy
+msgid "Log In"
+msgstr "Войти"
+
+#: templates/wb_base_site.html:199
+msgid "To view WAYbetter in Internet Explorer you need to install"
+msgstr ""
+
+#: templates/wb_base_site.html:200
+msgid "Free"
+msgstr ""
+
+#: templates/wb_base_site.html:202
+msgid "Install Google Chrome Frame"
+msgstr ""
+
+#: templates/wb_base_site.html:203
+msgid "Or, use one of these browsers"
+msgstr ""
+
+#: templates/wb_base_site.html:285
+msgid "Get yourself a modern browser"
+msgstr ""
+
+#: templates/admin/billing/billingtransaction/change_form.html:21
+#, fuzzy
+msgid "Add"
+msgstr "Адрес"
+
+#: templates/admin/billing/billingtransaction/change_form.html:29
+msgid "View on site"
+msgstr ""
+
+#: templates/admin/billing/billingtransaction/change_form.html:39
+msgid "Please correct the error below."
+msgid_plural "Please correct the errors below."
+msgstr[0] ""
+msgstr[1] ""
+
+#: templates/mobile/base.html:76
+msgid "Verification"
+msgstr "Проверка"
+
+#: templates/registration/activate.html:8
+#: templates/registration/activation_complete.html:6
+msgid "Account successfully activated"
+msgstr "Аккаунт успешно активирован"
+
+#: templates/registration/activate.html:14
+msgid "Account activation failed"
+msgstr "Не удалось активировать аккаунт"
+
+#: templates/registration/login.html:32
+#, fuzzy
+msgid "Log-in To Your Account"
+msgstr "войти через Ваш аккаунт в:"
+
+#: templates/registration/login.html:36
+#, fuzzy
+msgid "New to WAYbetter?"
+msgstr "Присоединяйтесь к <span class=waybetter></span>"
+
+#: templates/registration/login_reg.html:12
+msgid "Forgot password"
+msgstr "Забыли пароль?"
+
+#: templates/registration/login_reg.html:12
+msgid "Reset it"
+msgstr "Сбросить"
+
+#: templates/registration/login_reg.html:13
+msgid "Not member"
+msgstr "Не зарегистрированы?"
+
+#: templates/registration/login_reg.html:13
+msgid "Register"
+msgstr "Регистрация"
+
+#: templates/registration/logout.html:5
+msgid "Logged out"
+msgstr "Вышли"
+
+#: templates/registration/password_change_done.html:5
+msgid "Password changed"
+msgstr "Пароль изменен"
+
+#: templates/registration/password_reset_complete.html:6
+msgid "Password reset successfully"
+msgstr "Пароль успешно сброшен"
+
+#: templates/registration/password_reset_confirm.html:16
+msgid "Password reset failed"
+msgstr "Не удалось сбросить пароль"
+
+#: templates/registration/password_reset_done.html:5
+msgid "Email with password reset instructions has been sent."
+msgstr "Вам выслан E-mail с указаниями по сбросу пароля."
+
+#: templates/registration/password_reset_email.html:2
+#, python-format
+msgid "Reset password at %(site_name)s"
+msgstr "Сброс пароля на %(site_name)s"
+
+#: templates/registration/registration_complete.html:13
+msgid ""
+"You are now registered. An SMS verification code was sent to you, please "
+"fill it in to activate your account."
+msgstr ""
+"Вы прошли регистрацию. Вам выслано SMS с проверочным кодом. Пожалуйста, "
+"введите код для активации аккаунта."
 
 #: tinymce/views.py:68
 msgid "Error running spellchecker"
 msgstr "Ошибка при  проверке орфографии"
-
-#~ msgid "Submit"
-#~ msgstr "Отослать"
-
-#, fuzzy
-#~ msgid "Order Approved"
-#~ msgstr "Страница заказа"
-
-#, fuzzy
-#~ msgid "There was an error processing your order. Please try again soon."
-#~ msgstr "Во время обработки Вашего запроса произошла ошибка."
-
-#~ msgid "Phone authentication"
-#~ msgstr "Проверка подлинности номера"
-
-#~ msgid "Phone you registered with"
-#~ msgstr "Телефон, указанный при регистрации"
-
-#~ msgid "Phone not registered. <a href=# class=join_link>Join</a>"
-#~ msgstr "Номер не опознан. <a href=# class=login_link>Присоединиться</a>"
-
-#~ msgid "Fill in to finish registration"
-#~ msgstr "Заполните для завершения регистрации"
-
-#~ msgid ""
-#~ "An SMS verification code was sent to you. Please fill it to confirm your "
-#~ "details."
-#~ msgstr ""
-#~ "Вам выслано SMS с проверочным кодом. Введите код для подтверждения своих "
-#~ "данных."
-
-#~ msgid "Enter SMS code"
-#~ msgstr "Введите SMS-код"
-
-#~ msgid "Finish"
-#~ msgstr "Завершить"
-
-#~ msgid "Reset account credentials"
-#~ msgstr "Сброс данных аккаунта"
-
-#~ msgid "Change email address"
-#~ msgstr "изменить email "
-
-#~ msgid "Enter your email"
-#~ msgstr "Введите ваш email"
-
-#~ msgid "(Optional)"
-#~ msgstr "(Необязательно)"
-
-#~ msgid "Choose Password"
-#~ msgstr "Выбрать пароль"
-
-#~ msgid "Re-enter Password"
-#~ msgstr "Подтвердить пароль"
-
-#~ msgid "Login"
-#~ msgstr "Войти"
-
-#~ msgid "Please enter your email"
-#~ msgstr "Введите Ваш email"
-
-#~ msgid "Please enter your password"
-#~ msgstr "Введите пароль"
-
-#~ msgid "OK"
-#~ msgstr "OK"
-
-#, fuzzy
-#~ msgid "Please Let Us Know How You Feel"
-#~ msgstr "С нетерпением ждем Ваших отзывов о нашей работе!"
-
-#~ msgid "I'm Happy :)"
-#~ msgstr "Что порадовало :)"
-
-#, fuzzy
-#~ msgid "I'm Sad :("
-#~ msgstr "Что огорчило :("
-
-#~ msgid "Thanks, your feedback has been sent"
-#~ msgstr "Спасибо, Ваш отзыв отправлен"
-
-#, fuzzy
-#~ msgid "Your email"
-#~ msgstr "Ваш Email"
-
-#~ msgid "Invalid email address"
-#~ msgstr "Неверный email "
-
-#~ msgid "Don't have an account?"
-#~ msgstr "Еще не зарегистрировались?"
-
-#~ msgid "Join Now!"
-#~ msgstr "Присоединяйтесь!"
-
-#~ msgid "Can't access your account? <a href='#'> Click here</a>"
-#~ msgstr "Не можете войти в аккаунт? <a href='#'> Нажать здесь</a>"
-
-#~ msgid "Activate Your Phone (Free)"
-#~ msgstr "Активировать телефон (бесплатно)"
-
-#~ msgid "Phone already in use. <a href=# class=login_link>Login</a>"
-#~ msgstr "Номер уже занят. <a href=# class=login_link>Войти</a>"
-
-#~ msgid "PRESS TO SEND SMS CODE"
-#~ msgstr "Нажать для получения SMS c кодом"
-
-#~ msgid "CODE SENT"
-#~ msgstr "Код отправлен"
-
-#~ msgid "FINISH"
-#~ msgstr "Завершить"
-
-#~ msgid "Sending..."
-#~ msgstr "Отправка..."
-
-#~ msgid "Enter your mobile phone #"
-#~ msgstr "Ввести № моб. телефона #"
-
-#~ msgid "Enter SMS Ver. Code"
-#~ msgstr "Ввести код из SMS"
-
-#~ msgid "Number too short"
-#~ msgstr "Слишком короткий номер"
-
-#~ msgid "Number too long"
-#~ msgstr "Очень длинный номер"
-
-#~ msgid "Only digits please"
-#~ msgstr "Только цифры, пожалуйста"
-
-#~ msgid "Local Mobile Phone Number"
-#~ msgstr "Местный № моб. телефона"
-
-#~ msgid "Already Registered?"
-#~ msgstr "Уже зарегистрированы?"
-
-#~ msgid "YOUR ORDER HAS BEEN RECEIVED"
-#~ msgstr "Ваш заказ принят!"
-
-#~ msgid "Choose a password"
-#~ msgstr "Выбрать пароль"
-
-#~ msgid "Re-enter your password"
-#~ msgstr "Подтвердить пароль"
-
-#~ msgid "Checking..."
-#~ msgstr "Проверка..."
-
-#~ msgid "Join Us For a WAYbetter Experience"
-#~ msgstr "Присоединяйтесь к WAYbetter!"
-
-#~ msgid "An SMS with ride details will be sent soon"
-#~ msgstr "Вскоре Вы получите SMS с данными заказа"
-
-#~ msgid "Passwords do not match"
-#~ msgstr "Пароли неидентичны"
-
-#, fuzzy
-#~ msgid "The easiest way to get a taxi"
-#~ msgstr "הדרך הטובה ביותר להשיג מונית (חינם)"
-
-#~ msgid "In the meantime, join for better experience (free)"
-#~ msgstr ""
-#~ "А пока присоединяйтесь к нам (бесплатно) <span class=waybetter></span> !"
-
-#~ msgid "Get emails from waybetter (we promise not to spam)"
-#~ msgstr "Получать эл. почту от Waybetter (рассылка спама исключена)  "
-
-#~ msgid "JOIN"
-#~ msgstr "Регистрация"
-
-#~ msgid "Sign up using the following details"
-#~ msgstr "Регистрация со следующими данными"
-
-#~ msgid "Let Us Take It From Here..."
-#~ msgstr "Продолжим отсюда..."
-
-#~ msgid "(Or)"
-#~ msgstr "(Или)"
-
-#~ msgid "login using your account at:"
-#~ msgstr "войти через Ваш аккаунт в:"
-
-#~ msgid "Terms Of Use"
-#~ msgstr "Условия использования"
-
-#~ msgid "actual_terms"
-#~ msgstr ""
-#~ "Условия использования Приложения <span class=waybetter></span>\n"
-#~ "\n"
-#~ "Мы (далее – Служба) заинтересованы в сотрудничестве с компанией «Вей-"
-#~ "беттер» LTD № 51-442591-7 (далее - Компания) в целях предоставления "
-#~ "высококачественного и эффективного сервиса клиентам, заказывающим услуги "
-#~ "по перевозке пассажиров с использованием приложения WAYbetter (далее – "
-#~ "Приложение), которое было разработано Компанией на базе веб-сайта www."
-#~ "waybetter.com (далее – Сайт).\n"
-#~ "\n"
-#~ "Устанавливая Приложение, Служба тем самым заявляет, что прочитала "
-#~ "настоящие Условия использования и согласна с их содержанием, в "
-#~ "соответствии с нижеизложенным:\n"
-#~ "\n"
-#~ "Компания предоставляет Службе неисключительное право использования "
-#~ "Приложения (далее – Право использования), в соответствии с изложенным в "
-#~ "настоящем соглашении; предоставление Права использования или подписание "
-#~ "данного соглашения никоим образом не означают предоставления Службе "
-#~ "разрешения, лицензии или права переуступать, делегировать, продавать либо "
-#~ "передавать в аренду Приложение третьим лицам, как возмездно, так и "
-#~ "безвозмездно;\n"
-#~ "\n"
-#~ "Право использования предоставляется сроком на один (1) месяц и "
-#~ "автоматически продлевается ежемесячно до момента уведомления Компанией "
-#~ "Службы об истечении срока действия Права использования. Данное "
-#~ "уведомление Компания может направить в любое время и по собственному "
-#~ "усмотрению;\n"
-#~ "\n"
-#~ " В обмен на предоставление Права использования Служба обязуется "
-#~ "выплачивать Компании денежные суммы в размере, указанном  в настоящих "
-#~ "Условиях использования. Поясняется, что выплата указанных денежных сумм "
-#~ "начинает производиться только после отправления Компанией сообщения по "
-#~ "электронной почте на электронный адрес Службы. Последний передается "
-#~ "Компании в момент регистрации на Сайте и используется при запуске "
-#~ "Приложения;\n"
-#~ "\n"
-#~ "Условия оплаты\n"
-#~ "За каждый заказ, выполняемый Службой (после нажатия кнопки «Отправить» в "
-#~ "Приложении), Служба выплачивает комиссионное вознаграждение в размере "
-#~ "одного (1) шекеля. Исключением являются заказы, предоставляемые со "
-#~ "скидкой и/или в  рамках акции, проводимой Компанией, и о которых она "
-#~ "извещает. Оплата таких заказов не производится Службой, либо производится "
-#~ "в уменьшенном размере, согласно условиям предоставляемой скидки и/или "
-#~ "акции, о которых извещает Компания, и по ее собственному усмотрению; \n"
-#~ "Оплата взимается один (1) раз в месяц посредством кредитной карты, номер "
-#~ "которой передается Службой в момент регистрации на Сайте (либо "
-#~ "посредством другой кредитной карты, о чем Служба оповещает Компанию в "
-#~ "письменной форме до наступления соответствующего срока оплаты); Службе "
-#~ "направляется подробный ежемесячный отчет по кредитной карте.\n"
-#~ "\n"
-#~ "Приложение распространяется по принципу \"AS IS\" (\"как есть\") без "
-#~ "предоставления каких-либо гарантий, явных, скрытых либо прописанных "
-#~ "законом. На основании вышеизложенного Служба заявляет и соглашается, что "
-#~ "Компания и/или любая организация или лицо, связанные с Компанией, а также "
-#~ "владельцы такси и/или лица, имеющие отношение к созданию, выпуску либо "
-#~ "распространению Приложения не несут какой-либо ответственности и "
-#~ "обязательств за любые вред, ущерб, убытки либо расходы, носящие прямой, "
-#~ "косвенный, второстепенный, особый или результативный характер. Служба "
-#~ "также заявляет и согласна с тем, что берет на себя всю ответственность за "
-#~ "использование Приложения, Сайта либо услуг Компании;\n"
-#~ "\n"
-#~ "Служба заявляет, что в случае неудовлетворенности качеством Приложения, "
-#~ "его части или каким-либо пунктом Условий использования, единственным и "
-#~ "исключительным решением вопроса может быть прекращение использования "
-#~ "Службой Приложения/Сайта;\n"
-#~ "\n"
-#~ "Компания оставляет за собой право периодически изменять Условия "
-#~ "использования по собственному усмотрению. Компания уведомляет Службу о "
-#~ "новых Условиях использования за семь (7) дней до их вступления в силу, "
-#~ "отправляя сообщение на адрес электронной почты, указанный Службой в "
-#~ "момент регистрации на Сайте;\n"
-#~ "\n"
-#~ "Приложение является объектом интеллектуальной собственности и "
-#~ "исключительных авторских прав Компании. Все права, включая право "
-#~ "интеллектуальной собственности, в настоящем и будущем  всецело и "
-#~ "исключительно принадлежат Компании. Данные Условия использования и "
-#~ "предоставление Права использования не передают Службе каких-либо прав на "
-#~ "Приложение, за исключением права ограниченного использования, как ясно "
-#~ "изложено в настоящих Условиях использования и вышеприведенных условиях. "
-#~ "Компания вправе в любое время и без предварительного извещения прекратить "
-#~ "предоставление услуг посредством Приложения, частично или полностью. "
-#~ "Служба не может выдвигать претензии или требования Компании в связи с "
-#~ "прекращением предоставляемых ею услуг и Права использования;\n"
-#~ "\n"
-#~ " Служба не может предпринимать каких-либо действий с целью раскрытия "
-#~ "технологии Приложения, включая методы реверсивной технологии (reverse "
-#~ "engineering) и декомпиляцию (decompilation). Служба также не может,  "
-#~ "частично либо полностью, вносить обновления или изменения в Приложение, и/"
-#~ "или комбинировать его с другими программами. Служба не может, частично "
-#~ "либо полностью, пытаться копировать, копировать, распространять либо "
-#~ "передавать Приложение в каких-либо целях и какими-либо путями;\n"
-#~ "\n"
-#~ "Компания не гарантирует отсутствия помех, перерывов и сбоев при "
-#~ "использовании Приложения, а также его исправной работы в случаях "
-#~ "незаконного доступа к компьютерам Компании, либо повреждений, поломок, "
-#~ "неисправностей в аппаратном/программном обеспечении, на линиях связи "
-#~ "Компании/ее провайдера, либо в связи с другой причиной. Компания не несет "
-#~ "ответственности за любой ущерб, прямой или косвенный, а также за "
-#~ "моральный ущерб и т.д., причиненные Службе либо ее имуществу в результате "
-#~ "таких событий;\n"
-#~ "\n"
-#~ "תНастоящие Условия использования подчиняются законам Государства Израиль. "
-#~ "Рассмотрение любых споров, касающихся настоящего договора, подлежит "
-#~ "исключительной юрисдикции соответствующего суда в г. Тель-Авиве."
-
-#~ msgid "Join WAYbetter"
-#~ msgstr "Присоединяйтесь к <span class=waybetter></span>"
-
-#~ msgid "Please fill the following details and we will contact you"
-#~ msgstr "Пожалуйста, заполните следующие данные, и мы с Вами свяжемся "
-
-#~ msgid "Send"
-#~ msgstr "Отослать"
-
-#~ msgid "Cancel"
-#~ msgstr "Отменить"
-
-#~ msgid "Looks Cool!"
-#~ msgstr "Хорошая идея!"
-
-#~ msgid "Please notify me when the app is ready for download"
-#~ msgstr "Сообщить мне, когда приложение будет доступно для скачивания"
-
-#~ msgid "OpenID failed"
-#~ msgstr "OpenID не подтвержден"
-
-#~ msgid "Sign in with your OpenID"
-#~ msgstr "Вход со своим OpenID"
-
-#~ msgid "Sign in"
-#~ msgstr "Вход"
-
-#~ msgid "Contact WAYbetter"
-#~ msgstr "Контакты WAYbetter"
-
-#~ msgid "General Issues:"
-#~ msgstr "Для общих вопросов:"
-
-#~ msgid "Office Address:"
-#~ msgstr "Адрес:"
-
-#~ msgid "WAYbetter LTD"
-#~ msgstr "<span class=waybetter></span>LTD"
-
-#~ msgid "(Peregrine Ventures)"
-#~ msgstr "(Peregrine Ventures)"
-
-#~ msgid "6 Yoni Netanyahu Street"
-#~ msgstr "Yoni Netanyahu Street, 6"
-
-#~ msgid "Or Yehuda, 60376, Israel"
-#~ msgstr "Or Yehuda, 60376, Israel"
-
-#~ msgid "Phone: 03-9085008"
-#~ msgstr "Телефон: 03-9085008"
-
-#~ msgid "Fax: 03-9366873"
-#~ msgstr "Факс: 03-9366873"
-
-#~ msgid "Book a Taxi Now"
-#~ msgstr "Закажите такси сейчас"
-
-#~ msgid "Stations Entrance"
-#~ msgstr "Вход для служб такси"
-
-#~ msgid ""
-#~ "WAYbetter connects you - internet and smartphone users to advanced taxi "
-#~ "stations who are ready to serve you"
-#~ msgstr ""
-#~ "<span class=waybetter></span> предлагает простой и удобный способ заказа "
-#~ "такси через Интернет и смартфоны."
-
-#~ msgid ""
-#~ "Instead of looking for a local station, calling, waiting on the line, "
-#~ "ordering a cab and hoping the station you found can serve you "
-#~ msgstr ""
-#~ "Вам больше не нужно разыскивать ближайшую службу такси, звонить, ждать на "
-#~ "линии, договариваться и надеяться, что Вас обслужат. Теперь мы и местные "
-#~ "предприятия такси всегда к Вашим услугам. Просто закажите такси через наш "
-#~ "сайт и вскоре Вы получите подтверждающее SMS-сообщение (бесплатно) cо "
-#~ "всеми данными поездки. "
-
-#~ msgid "Full Pickup Address: (Street Number City)"
-#~ msgstr "Адрес отправления (улица, № дома, город)"
-
-#~ msgid "Full Drop-off Address: (Street Number City)"
-#~ msgstr "Адрес доставки (необязательно)"
-
-#~ msgid "(Street Number City) and Select:"
-#~ msgstr "(улица, № дома, город), выбрать из списка:"
-
-#~ msgid "The address is not resolved"
-#~ msgstr "Адрес неизвестен"
-
-#~ msgid "More"
-#~ msgstr "Показать больше"
-
-#~ msgid "Less"
-#~ msgstr "Показать меньше"
-
-#~ msgid "Fill pickup and dropoff for price and time estimation "
-#~ msgstr ""
-#~ "Для оценки времени и стоимости поездки укажите адрес (откуда и куда) "
-
-#~ msgid "Enter pickup address"
-#~ msgstr "Введите адрес отправления"
-
-#~ msgid "Enter drop-off address"
-#~ msgstr "Введите адрес доставки"
-
-#, fuzzy
-#~ msgid "minute"
-#~ msgstr "минуты"
-
-#~ msgid "minutes"
-#~ msgstr "минуты"
-
-#, fuzzy
-#~ msgid "Pickup in"
-#~ msgstr "время посадки"
-
-#, fuzzy
-#~ msgid "Choose Date"
-#~ msgstr "Выбрать пароль"
-
-#, fuzzy
-#~ msgid "Updating..."
-#~ msgstr "Отправка..."
-
-#~ msgid "Pick Me Up"
-#~ msgstr "Прислать такси"
-
-#~ msgid "Join!"
-#~ msgstr "Присоединяйтесь!"
-
-#~ msgid "Username:"
-#~ msgstr "Имя пользователя:"
-
-#~ msgid "Password:"
-#~ msgstr "Пароль:"
-
-#~ msgid "Smart Tools for Smart Taxi Stations"
-#~ msgstr "Умные решения для бизнеса"
-
-#, fuzzy
-#~ msgid "Business registration"
-#~ msgstr "Регистрация"
-
-#, fuzzy
-#~ msgid "Business registered"
-#~ msgstr "Этот Email занят"
-
-#, fuzzy
-#~ msgid "There was an error saving your data"
-#~ msgstr "Во время обработки Вашего запроса произошла ошибка."
-
-#, fuzzy
-#~ msgid "Error"
-#~ msgstr "ошибка"
-
-#, fuzzy
-#~ msgid "Please choose a default station"
-#~ msgstr "Служба по умолчанию"
-
-#, fuzzy
-#~ msgid "Advantages"
-#~ msgstr "статические страницы"
-
-#~ msgid "Join"
-#~ msgstr "Присоединяйтесь"
-
-#, fuzzy
-#~ msgid "There was an error saving your details"
-#~ msgstr "Во время обработки Вашего запроса произошла ошибка."
-
-#~ msgid "Upload specific pricing rules (inter-city taarif in CSV format)"
-#~ msgstr ""
-#~ "Загрузить правила установки расценок (междугородний тариф в формате CSV)"
-
-#~ msgid "About"
-#~ msgstr "О нас"
-
-#~ msgid "Press"
-#~ msgstr "СМИ"
-
-#~ msgid "Help"
-#~ msgstr "Помощь"
-
-#~ msgid "Terms"
-#~ msgstr "Условия "
-
-#~ msgid "TAXI"
-#~ msgstr "TAXI"
-
-#~ msgid "Order page"
-#~ msgstr "Страница заказа"
-
-#~ msgid "Status"
-#~ msgstr "Статус"
-
-#~ msgid "Last update"
-#~ msgstr "Последнее обновление"
-
-#~ msgid "Rate this ride"
-#~ msgstr "Оценить эту поездку"
-
-#~ msgid "Search"
-#~ msgstr "Поиск"
-
-#~ msgid "Reset"
-#~ msgstr "Сброс"
-
-#~ msgid "Page"
-#~ msgstr "Страница"
-
-#~ msgid "of"
-#~ msgstr "из"
-
-#~ msgid "We're sorry, but an error occurred while loading this page."
-#~ msgstr "Извините, при загрузке этой страницы произошла ошибка"
-
-#~ msgid "Enjoy your ride!"
-#~ msgstr "Счастливого пути!"
-
-#~ msgid "Book Now (FREE)"
-#~ msgstr "Заказать сейчас (бесплатно)"
-
-#~ msgid "Ride History"
-#~ msgstr "История заказов"
-
-#~ msgid "My Profile"
-#~ msgstr "Мой профиль"
-
-#~ msgid "Taxi Stations"
-#~ msgstr "Службы такси"
-
-#~ msgid "Mobile"
-#~ msgstr "Моб. телефоны"
-
-#~ msgid "What's This?"
-#~ msgstr "Что это такое?"
-
-#~ msgid "WAYbetter offers the fastest and easiest way to get a taxi!"
-#~ msgstr ""
-#~ "<span class=waybetter></span> - это самый простой и быстрый способ "
-#~ "заказать такси! "
-
-#~ msgid ""
-#~ "We are partnering with the best taxi stations in your city, so all you "
-#~ "have to do is push the yellow button. We'll do the rest"
-#~ msgstr ""
-#~ "Мы сотрудничаем с лучшими службами такси Вашего города. Все что Вам нужно "
-#~ "сделать - это нажать на желтую кнопку. Остальное - наша забота."
-
-#~ msgid "Phone number"
-#~ msgstr "Номер телефона"
-
-#~ msgid "Change"
-#~ msgstr "Изменить"
-
-#~ msgid "Save Changes"
-#~ msgstr "Сохранить"
-
-#, fuzzy
-#~ msgid "Changes saved successfully"
-#~ msgstr "Пароль успешно сброшен"
-
-#~ msgid "Error while saving changes"
-#~ msgstr "Ошибка при сохранении изменений"
-
-#~ msgid "Press Materials"
-#~ msgstr "Материалы для СМИ"
-
-#~ msgid "Image Catalog"
-#~ msgstr "Каталог изображений"
-
-#~ msgid "Smaller images and download links"
-#~ msgstr "Уменьшенные изображения и ссылки для скачивания"
-
-#~ msgid "Founders Images"
-#~ msgstr "Фотографии учредителей"
-
-#~ msgid "Print and web resolutions"
-#~ msgstr "Разрешения для печати и мониторов"
-
-#~ msgid "Founders Images with Hamshuhrar Station"
-#~ msgstr "Фото учредителей с коллективом \"Hameshuhrar\""
-
-#~ msgid "The founders together with the first station to join"
-#~ msgstr "Учредители WAYbetter со своим первым партнером"
-
-#~ msgid "Cool Photos"
-#~ msgstr "Интересные фотографии"
-
-#~ msgid "A colletion of cool and useful photos"
-#~ msgstr "Подборка любопытных фото"
-
-#~ msgid "WAYbetter Logo"
-#~ msgstr "Логотип <span class=waybetter></span>"
-
-#~ msgid "Logos on B&W background"
-#~ msgstr "Логотипы на черно-белом фоне"
-
-#~ msgid "Screenshots"
-#~ msgstr "Скриншоты"
-
-#~ msgid "Screenshots of our website and iPhone app"
-#~ msgstr "Скриншоты нашего сайта и приложения iPhone "
-
-#~ msgid "Embed video code:"
-#~ msgstr "Код для добавления видео:"
-
-#, fuzzy
-#~ msgid "Accepted rides"
-#~ msgstr "принятие заказов"
-
-#, fuzzy
-#~ msgid "Ignored rides"
-#~ msgstr "без ответа"
-
-#, fuzzy
-#~ msgid "Rejected rides"
-#~ msgstr "Отклонен"
-
-#, fuzzy
-#~ msgid "Ride summary"
-#~ msgstr "История заказов"
-
-#, fuzzy
-#~ msgid "There was an error loading the data."
-#~ msgstr "Во время обработки Вашего запроса произошла ошибка."
-
-#, fuzzy
-#~ msgid "No data"
-#~ msgstr "дата модификации"
-
-#~ msgid "Rides history"
-#~ msgstr "История заказов"
-
-#, fuzzy
-#~ msgid "Station analytics"
-#~ msgstr "Название службы такси"
-
-#~ msgid "Profile"
-#~ msgstr "Профиль"
-
-#~ msgid "Workstations"
-#~ msgstr "Рабочие станции"
-
-#, fuzzy
-#~ msgid "Book A Taxi Application. Immediate Response via SMS"
-#~ msgstr "Приложение для заказа такси. Немедленный ответ через SMS"
-
-#~ msgid "Hi"
-#~ msgstr "Приветствуем"
-
-#~ msgid "Log out"
-#~ msgstr "Выход"
-
-#, fuzzy
-#~ msgid "Join now"
-#~ msgstr "Присоединяйтесь!"
-
-#, fuzzy
-#~ msgid "for your smartphone"
-#~ msgstr "С любого смартфона"
-
-#, fuzzy
-#~ msgid "from your smartphone"
-#~ msgstr "С любого смартфона"
-
-#, fuzzy
-#~ msgid "Tap \"Pick me up\""
-#~ msgstr "Прислать такси"
-
-#, fuzzy
-#~ msgid "Enjoy the ride!"
-#~ msgstr "Счастливого пути!"
-
-#~ msgid "Contact Info"
-#~ msgstr "Данные контакта"
-
-#~ msgid "Station's website"
-#~ msgstr "Сайт службы такси"
-
-#~ msgid "Less details"
-#~ msgstr "Показать меньше"
-
-#~ msgid "More details"
-#~ msgstr "Показать больше"
-
-#~ msgid "Station Manager?"
-#~ msgstr "Руководитель службы?"
-
-#~ msgid "Station Entrance"
-#~ msgstr "Вход для служб такси"
-
-#~ msgid "Subjects"
-#~ msgstr "Темы"
-
-#~ msgid "Terms of service"
-#~ msgstr "Условия использования"
-
-#~ msgid "Privacy policy"
-#~ msgstr "Политика конфиденциальности"
-
-#~ msgid "WAYbetter Terms Of Service"
-#~ msgstr "Условия использования <span class=waybetter></span>"
-
-#~ msgid "web_actual_terms"
-#~ msgstr ""
-#~ "Настоящие условия использования сайта http://www.waybetter.com (далее "
-#~ "Сайт) являются юридическим соглашением между Пользователем Сайта и "
-#~ "компанией «WAYbetter LTD». Соблюдение данных условий обязательно при "
-#~ "доступе к Сайту и/или к его содержимому, услугам, приложениям, "
-#~ "информации. Используя Сайт и/или его содержимое, услуги, приложения, "
-#~ "информацию, Пользователь принимает и обязуется соблюдать условия данного "
-#~ "соглашения, а также его будущие поправки и дополнения, периодически "
-#~ "публикуемые на сайте http://www.waybetter.com/info#terms. Компания "
-#~ "«WAYbetter LTD» не оказывает услуги пассажирских перевозок. Транспортные "
-#~ "услуги предоставляются в службах такси, а также владельцами частного "
-#~ "такси. Компания «WAYbetter LTD» обеспечивает Пользователя информацией и "
-#~ "средствами для заказа услуг пассажирских перевозок. Однако "
-#~ "непосредственная реализация данного сервиса осуществляется третьими "
-#~ "лицами – поставщиками в сфере транспортных услуг и пассажироперевозок.  "
-#~ "Компания «WAYbetter LTD» не оказывает и не намерена оказывать услуги "
-#~ "пассажирских перевозок или каким-либо образом выступать в качестве "
-#~ "поставщика транспортных услуг, а также не несет никакой ответственности "
-#~ "за услуги пассажирских перевозок, предоставленные Пользователю какими-"
-#~ "либо третьими лицами. Компания «WAYbetter LTD» не несет ответственности за "
-#~ "любые возможные потери, расходы, ущерб, понесенные пассажиром в "
-#~ "результате использования Сайта и/или его содержимого, услуг, приложений, "
-#~ "информации. Компания «WAYbetter LTD» прилагает все усилия для "
-#~ "предоставления точной информации и сведений о времени и стоимости "
-#~ "проезда. Однако в случае возникновения определенных дорожных условий и "
-#~ "иных непредвиденных обстоятельств  возможны расхождения или "
-#~ "несоответствие между предоставленной информацией и действительностью. "
-#~ "Компания «WAYbetter LTD» не несет ответственности за любые неточности, "
-#~ "ошибки или несоответствие в предоставленных данных и/или информации. "
-#~ "«WAYbetter LTD» также не несет ответственности за любой ущерб и/или "
-#~ "расходы, ставшие результатом вышеупомянутых действий или бездействия. "
-#~ "Пользователь услуг обязуется не злоупотреблять ресурсами Сайта или не "
-#~ "использовать его в целях, не предназначенных для заказа такси. Компания "
-#~ "«WAYbetter LTD» вправе по собственному усмотрению вносить изменения в "
-#~ "предоставление своих услуг либо прекратить их реализацию. «WAYbetter LTD» "
-#~ "оставляет за собой право в любое время изменять условия настоящего "
-#~ "соглашения либо пересматривать правила компании, действующие в отношении "
-#~ "предоставляемых услуг или программного обеспечения. Пользователь берет на "
-#~ "себя полную ответственность за ознакомление с вышеуказанными возможными "
-#~ "изменениями. Используя сервисы Сайта либо его программное обеспечение "
-#~ "после изменений в пользовательском соглашении, Пользователь тем самым "
-#~ "выражает согласие с данными изменениями.   Компания  «WAYbetter LTD» "
-#~ "является обладателем исключительных авторских прав на Сайт."
-
-#~ msgid "Privacy Policy"
-#~ msgstr "Политика конфиденциальности"
-
-#~ msgid "web_actual_privacy_policy"
-#~ msgstr ""
-#~ "В рамках предоставления услуг компания «WAYbetter LTD» передает Службе "
-#~ "такси сведения о маршруте следования Пользователя и его номер телефона. "
-#~ "«WAYbetter LTD» обязуется не передавать личные данные Пользователя каким-"
-#~ "либо третьим лицам. «WAYbetter LTD» оставляет за собой право использовать "
-#~ "полученную информацию, не разглашая личных данных клиента. "
-
-#~ msgid "Download workstations"
-#~ msgstr "Загрузить рабочие станции"
-
-#~ msgid "Delete"
-#~ msgstr "Удалить"
-
-#~ msgid ""
-#~ "By downloading the workstation software I declare that I have read and "
-#~ "agree to the "
-#~ msgstr ""
-#~ "Скачивая данное программное обеспечение, я тем самым заявляю, что "
-#~ "ознакомился и согласен "
-
-#~ msgid "Workstation page"
-#~ msgstr "Страница рабочей станции"
-
-#~ msgid "Connecting WAYbetter..."
-#~ msgstr "Подключение к WAYbetter..."
-
-#, fuzzy
-#~ msgid "Show details"
-#~ msgstr "Показать больше"
-
-#~ msgid "Define time"
-#~ msgstr "Задать время"
-
-#~ msgid "Send message to passenger"
-#~ msgstr "Отослать сообщение пассажиру"
-
-#, fuzzy
-#~ msgid "Reject"
-#~ msgstr "Отклонен"
-
-#~ msgid "End"
-#~ msgstr "Завершить"
-
-#~ msgid "Wrong user type"
-#~ msgstr "Неверный тип пользователя"
-
-#~ msgid "You are not a workstation, please"
-#~ msgstr "Извините, вы - не рабочая станция"
-
-#~ msgid "logout"
-#~ msgstr "выйдите из системы"
-
-#~ msgid "and try again"
-#~ msgstr "и повторите попытку"
-
-#~ msgid "Loading..."
-#~ msgstr "Загрузка..."
-
-#~ msgid "Finding Your Location..."
-#~ msgstr "Идет поиск Вашего местонахождения..."
-
-#~ msgid "No Location Found"
-#~ msgstr "Местонахождение не определено"
-
-#~ msgid "Unable to locate your position"
-#~ msgstr "Невозможно определить Ваше местонахождение"
-
-#~ msgid "Order Sent!\\n\\nAn SMS with ride details will be sent soon"
-#~ msgstr "Заказ отправлен!\\n\\nВскоре Вы получите SMS с данными заказа"
-
-#~ msgid "Enter Address"
-#~ msgstr "Введите адрес"
-
-#~ msgid "Are you sure you want to order a taxi now?"
-#~ msgstr "Вы уверены, что хотите заказать такси сейчас?"
-
-#~ msgid "Try Again"
-#~ msgstr "Повторите попытку"
-
-#~ msgid "Send Verification Code"
-#~ msgstr "Отослать проверочный код"
-
-#~ msgid "Code Sent"
-#~ msgstr "Код выслан"
-
-#~ msgid "Could not resolve address"
-#~ msgstr "Адрес неизвестен"
-
-#~ msgid "Looking for address"
-#~ msgstr "Идет поиск адреса..."
-
-#~ msgid "Address Incomplete: please enter a house number"
-#~ msgstr "Адрес неточный: введите номер дома"
-
-#~ msgid "GPS"
-#~ msgstr "GPS"
-
-#~ msgid "Select Address"
-#~ msgstr "Выбрать адрес"
-
-#, fuzzy
-#~ msgid "Service Registration"
-#~ msgstr "Регистрация"
-
-#~ msgid "Enter your mobile number"
-#~ msgstr "Введите № моб. телефона"
-
-#~ msgid "Enter verification code"
-#~ msgstr "Введите проверочный код"
-
-#, fuzzy
-#~ msgid "Set as Destination"
-#~ msgstr "Служба по умолчанию"
-
-#, fuzzy
-#~ msgid "Language"
-#~ msgstr "язык"
-
-#, fuzzy
-#~ msgid "Version"
-#~ msgstr "Проверка"
-
-#, fuzzy
-#~ msgid "About Us"
-#~ msgstr "О нас"
-
-#, fuzzy
-#~ msgid "about_us_content"
-#~ msgstr "содержание"
-
-#, fuzzy
-#~ msgid "Tel"
-#~ msgstr "вторник"
-
-#, fuzzy
-#~ msgid "Yoni Netanyahu 6."
-#~ msgstr "Yoni Netanyahu Street, 6"
-
-#, fuzzy
-#~ msgid "Or Yehuda 60376, Israel"
-#~ msgstr "Or Yehuda, 60376, Israel"
-
-#, fuzzy
-#~ msgid "faq_content"
-#~ msgstr "содержание"
-
-#, fuzzy
-#~ msgid "More (optional)"
-#~ msgstr "(Необязательно)"
-
-#, fuzzy
-#~ msgid "Name"
-#~ msgstr "имя"
-
-#, fuzzy
-#~ msgid "Select time"
-#~ msgstr "Выбрать адрес"
-
-#, fuzzy
-#~ msgid "My Account"
-#~ msgstr "страны"
-
-#, fuzzy
-#~ msgid "Log Out"
-#~ msgstr "Выход"
-
-#, fuzzy
-#~ msgid "Info/Cancel"
-#~ msgstr "Отменить"
-
-#, fuzzy
-#~ msgid "Report Ride"
-#~ msgstr "Оценить эту поездку"
-
-#, fuzzy
-#~ msgid "Next Rides"
-#~ msgstr "поездка в такси"
-
-#, fuzzy
-#~ msgid "When (est. pickup time)"
-#~ msgstr "время посадки"
-
-#, fuzzy
-#~ msgid "Price"
-#~ msgstr "заказ"
-
-#, fuzzy
-#~ msgid "*This ride can be canceled."
-#~ msgstr "Запрос отменен"
-
-#, fuzzy
-#~ msgid "Cancel ride"
-#~ msgstr "Отменить"
-
-#, fuzzy
-#~ msgid "Your WAY Details"
-#~ msgstr "Ваш Email"
-
-#, fuzzy
-#~ msgid "Pickup Time"
-#~ msgstr "время посадки"
-
-#, fuzzy
-#~ msgid "Taxi Number"
-#~ msgstr "к дому №"
-
-#, fuzzy
-#~ msgid "Report This Ride"
-#~ msgstr "Оценить эту поездку"
-
-#, fuzzy
-#~ msgid "Contact us"
-#~ msgstr "Данные контакта"
-
-#, fuzzy
-#~ msgid "Taxi is on the way!"
-#~ msgstr "одно нажатие кнопки - и такси уже в пути"
-
-#, fuzzy
-#~ msgid "Pickup"
-#~ msgstr "время посадки"
-
-#, fuzzy
-#~ msgid "Already a member?"
-#~ msgstr "Уже зарегистрированы?"
-
-#, fuzzy
-#~ msgid "Sign In"
-#~ msgstr "היכנס"
-
-#, fuzzy
-#~ msgid "Mobile Phone"
-#~ msgstr "Моб. телефоны"
-
-#, fuzzy
-#~ msgid "Enter Code"
-#~ msgstr "Введите SMS-код"
-
-#, fuzzy
-#~ msgid "Setup your account:"
-#~ msgstr "войти через Ваш аккаунт в:"
-
-#, fuzzy
-#~ msgid "and"
-#~ msgstr "Завершить"
-
-#, fuzzy
-#~ msgid "Sending"
-#~ msgstr "в режиме ожидания"
-
-#, fuzzy
-#~ msgid "Hi %(passenger_name)s,"
-#~ msgstr "ном. телефона пассажира"
-
-#, fuzzy
-#~ msgid "Thank you for using WAYbetter's smart taxi service"
-#~ msgstr "Присоединяйтесь к <span class=waybetter></span>"
-
-#, fuzzy
-#~ msgid "Ride Type"
-#~ msgstr "История заказов"
-
-#, fuzzy
-#~ msgid "Estimated Pickup Time"
-#~ msgstr "Приблизительная стоимость поездки"
-
-#, fuzzy
-#~ msgid "Please note"
-#~ msgstr "пассажир"
-
-#, fuzzy
-#~ msgid "Have a great ride"
-#~ msgstr "Этот Email занят"
-
-#, fuzzy
-#~ msgid "View your order on our website"
-#~ msgstr "Программный инструмент для заказа такси на Вашем сайте (бесплатно) "
-
-#, fuzzy
-#~ msgid "Add existing passenger"
-#~ msgstr "Отослать сообщение пассажиру"
-
-#, fuzzy
-#~ msgid "Create new passenger"
-#~ msgstr "Подтвердить пароль"
-
-#, fuzzy
-#~ msgid "New Passenger"
-#~ msgstr "пассажир"
-
-#, fuzzy
-#~ msgid "Save"
-#~ msgstr "активен"
-
-#, fuzzy
-#~ msgid "Saving"
-#~ msgstr "Оценка"
-
-#, fuzzy
-#~ msgid "Passenger Created"
-#~ msgstr "оценка пассажира"
-
-#, fuzzy
-#~ msgid "No Passengers"
-#~ msgstr "пассажир"
-
-#, fuzzy
-#~ msgid "Error updating passengers"
-#~ msgstr "Ошибка при сохранении изменений"
-
-#, fuzzy
-#~ msgid "Time"
-#~ msgstr "Тайминг"
-
-#, fuzzy
-#~ msgid "# of Passengers"
-#~ msgstr "пассажир"
-
-#, fuzzy
-#~ msgid "Pickups"
-#~ msgstr "время посадки"
-
-#, fuzzy
-#~ msgid "Ride"
-#~ msgstr "История заказов"
-
-#, fuzzy
-#~ msgid "Taxi"
-#~ msgstr "поездка в такси"
-
-#, fuzzy
-#~ msgid "Tariff"
-#~ msgstr "поездка в такси"
-
-#, fuzzy
-#~ msgid "Today"
-#~ msgstr "воскресенье"
-
-#, fuzzy
-#~ msgid "Drivers"
-#~ msgstr "Заказы"
-
-#, fuzzy
-#~ msgid "Taxis"
-#~ msgstr "поездка в такси"
-
-#, fuzzy
-#~ msgid "Driver Details"
-#~ msgstr "Показать больше"
-
-#, fuzzy
-#~ msgid "Taxi Details"
-#~ msgstr "Службы такси"
-
-#, fuzzy
-#~ msgid "Taxi number"
-#~ msgstr "к дому №"
-
-#, fuzzy
-#~ msgid "Add Taxi"
-#~ msgstr "Адрес"
-
-#, fuzzy
-#~ msgid "Taxi #"
-#~ msgstr "поездка в такси"
-
-#, fuzzy
-#~ msgid "Changes Saved"
-#~ msgstr "Изменить пароль"
-
-#, fuzzy
-#~ msgid "No Drivers"
-#~ msgstr "Заказы"
-
-#, fuzzy
-#~ msgid "Add Driver"
-#~ msgstr "Заказы"
-
-#, fuzzy
-#~ msgid "Are you sure you want to delete driver"
-#~ msgstr "Вы уверены, что хотите заказать такси сейчас?"
-
-#, fuzzy
-#~ msgid "Driver deleted"
-#~ msgstr "Удалить"
-
-#, fuzzy
-#~ msgid "Are you sure you want to delete taxi"
-#~ msgstr "Вы уверены, что хотите заказать такси сейчас?"
-
-#, fuzzy
-#~ msgid "Taxi deleted"
-#~ msgstr "Удалить"
-
-#, fuzzy
-#~ msgid "Assign Taxi to Driver"
-#~ msgstr "назначен"
-
-#, fuzzy
-#~ msgid "Assign Driver to Taxi"
-#~ msgstr "назначен"
-
-#, fuzzy
-#~ msgid "Invalid driver/taxi"
-#~ msgstr "Неверный адрес"
-
-#, fuzzy
-#~ msgid "Drivers List"
-#~ msgstr "Заказы"
-
-#, fuzzy
-#~ msgid "Taxi List"
-#~ msgstr "поездка в такси"
-
-#~ msgid "History"
-#~ msgstr "נסיעות קודמות"
-
-#, fuzzy
-#~ msgid "Accounting"
-#~ msgstr "страны"
-
-#, fuzzy
-#~ msgid "Ride Date"
-#~ msgstr "История заказов"
-
-#, fuzzy
-#~ msgid "Ride ID"
-#~ msgstr "История заказов"
-
-#, fuzzy
-#~ msgid "Passengers"
-#~ msgstr "пассажир"
-
-#, fuzzy
-#~ msgid "Driver Name"
-#~ msgstr "Заказы"
-
-#, fuzzy
-#~ msgid "Radio Number"
-#~ msgstr "к дому №"
-
-#, fuzzy
-#~ msgid "City Area"
-#~ msgstr "район города"
-
-#, fuzzy
-#~ msgid "Points"
-#~ msgstr "Английский"
-
-#, fuzzy
-#~ msgid "Enter Your WAY"
-#~ msgstr "Введите ваш email"
-
-#, fuzzy
-#~ msgid "Private Taxi Ride"
-#~ msgstr "поездка в такси"
-
-#, fuzzy
-#~ msgid "Ride Price"
-#~ msgstr "История заказов"
-
-#, fuzzy
-#~ msgid "Est. Ride Duration"
-#~ msgstr "до продолжительности (сек)"
-
-#, fuzzy
-#~ msgid "WAYbetter Taxi Ride"
-#~ msgstr "<span class=waybetter></span>LTD"
-
-#, fuzzy
-#~ msgid "Select HotSpot"
-#~ msgstr "Выбрать адрес"
-
-#, fuzzy
-#~ msgid "Switch direction"
-#~ msgstr "Регистрация"
-
-#, fuzzy
-#~ msgid "Select City"
-#~ msgstr "Выбрать адрес"
-
-#, fuzzy
-#~ msgid "Choose Pickup Time"
-#~ msgstr "время посадки"
-
-#, fuzzy
-#~ msgid "at"
-#~ msgstr "Статус"
-
-#, fuzzy
-#~ msgid "Dropoff Time"
-#~ msgstr "Выбрать адрес"
-
-#, fuzzy
-#~ msgid "Your Pickup"
-#~ msgstr "время посадки"
-
-#, fuzzy
-#~ msgid "Calculating"
-#~ msgstr "Отменить"
-
-#, fuzzy
-#~ msgid "Please choose another date"
-#~ msgstr "Служба по умолчанию"
-
-#, fuzzy
-#~ msgid "Currently, there is no service to this address."
-#~ msgstr "На данный момент в этой стране сервис не предоставляется"
-
-#, fuzzy
-#~ msgid "HotSpot"
-#~ msgstr "Выбрать адрес"
-
-#, fuzzy
-#~ msgid "Book Private"
-#~ msgstr "Процедура заказа"
-
-#, fuzzy
-#~ msgid "Book WAYbetter"
-#~ msgstr "Присоединяйтесь к <span class=waybetter></span>"
-
-#, fuzzy
-#~ msgid "Please choose from list"
-#~ msgstr "Служба по умолчанию"
-
-#, fuzzy
-#~ msgid "The Service"
-#~ msgstr "заказ"
-
-#, fuzzy
-#~ msgid "Contact Us"
-#~ msgstr "Данные контакта"
-
-#, fuzzy
-#~ msgid "Hide List"
-#~ msgstr "История заказов"
-
-#, fuzzy
-#~ msgid "Pending"
-#~ msgstr "в режиме ожидания"
-
-#, fuzzy
-#~ msgid "Manage"
-#~ msgstr "язык"
-
-#, fuzzy
-#~ msgid "Connecting"
-#~ msgstr "Загрузка..."
-
-#, fuzzy
-#~ msgid "Missed"
-#~ msgstr "Моб. телефоны"
-
-#, fuzzy
-#~ msgid "Hide"
-#~ msgstr "заказ"
-
-#~ msgid "No connection to server"
-#~ msgstr "Нет соединения с сервером"
-
-#, fuzzy
-#~ msgid "Copy Info"
-#~ msgstr "Данные контакта"
-
-#, fuzzy
-#~ msgid "Ride Copied"
-#~ msgstr "История заказов"
-
-#, fuzzy
-#~ msgid "Taxi No."
-#~ msgstr "поездка в такси"
-
-#, fuzzy
-#~ msgid "+ Add"
-#~ msgstr "Адрес"
-
-#, fuzzy
-#~ msgid "Please choose taxi and driver"
-#~ msgstr "Служба по умолчанию"
-
-#, fuzzy
-#~ msgid "Ride in"
-#~ msgstr "История заказов"
-
-#~ msgid "Log in"
-#~ msgstr "Войти"
-
-#, fuzzy
-#~ msgid "Cancel Ride"
-#~ msgstr "Отменить"
-
-#, fuzzy
-#~ msgid ""
-#~ "An SMS reminder with ride details will be sent a few minutes before your "
-#~ "pickup"
-#~ msgstr "Вскоре Вы получите SMS с данными заказа"
-
-#, fuzzy
-#~ msgid "Final Pickup Time"
-#~ msgstr "время посадки"
-
-#, fuzzy
-#~ msgid "Taxi Station"
-#~ msgstr "Службы такси"
-
-#, fuzzy
-#~ msgid "Order Cancelled"
-#~ msgstr "Отменить"
-
-#, fuzzy
-#~ msgid "Phone Verification"
-#~ msgstr "Проверка"
 
 #, fuzzy
 #~ msgid "Finding your location"
 #~ msgstr "Идет поиск Вашего местонахождения..."
 
 #, fuzzy
-#~ msgid "Order Now"
-#~ msgstr "Заказы"
-
-#, fuzzy
-#~ msgid "Share"
-#~ msgstr "Оценка"
-
-#, fuzzy
-#~ msgid "Settings"
-#~ msgstr "Служба такси"
-
-#, fuzzy
-#~ msgid "Your WAY"
-#~ msgstr "Введите ваш email"
-
-#, fuzzy
-#~ msgid "Choose Hotspot"
-#~ msgstr "Фамилия"
-
-#, fuzzy
 #~ msgid "Select Time"
 #~ msgstr "Выбрать адрес"
-
-#, fuzzy
-#~ msgid "Calculate Ride"
-#~ msgstr "Отменить"
-
-#, fuzzy
-#~ msgid "Choose day"
-#~ msgstr "Выбрать пароль"
-
-#, fuzzy
-#~ msgid "Choose time"
-#~ msgstr "Выбрать пароль"
-
-#, fuzzy
-#~ msgid "Setting 1"
-#~ msgstr "Служба такси"
-
-#, fuzzy
-#~ msgid "Setting 2"
-#~ msgstr "Служба такси"
-
-#~ msgid "Signing you in..."
-#~ msgstr "Вы входите..."
-
-#~ msgid "The page you requested could not be found."
-#~ msgstr "Запрашиваемая страница не найдена."
-
-#~ msgid "There was an error while handling your request."
-#~ msgstr "Во время обработки Вашего запроса произошла ошибка."
-
-#~ msgid "Get Your Taxis Online (FREE)"
-#~ msgstr "Заказ такси он-лайн (бесплатно)"
-
-#~ msgid "Passengers home"
-#~ msgstr "Вход для пассажиров"
-
-#~ msgid "2010 WAYbetter"
-#~ msgstr "<span class=waybetter></span> 2010-2011 "
-
-#~ msgid "WAYbetter: the best way to get a taxi!"
-#~ msgstr "WAYbetter: Лучший способ заказать такси (бесплатно)"
-
-#~ msgid "WAYbetter"
-#~ msgstr "<span class=waybetter></span>"
-
-#, fuzzy
-#~ msgid "Half Price Taxi Rides"
-#~ msgstr "поездка в такси"
-
-#, fuzzy
-#~ msgid "Log-in"
-#~ msgstr "Войти"
-
-#, fuzzy
-#~ msgid "Service"
-#~ msgstr "заказ"
-
-#, fuzzy
-#~ msgid "Community"
-#~ msgstr "Страна"
-
-#, fuzzy
-#~ msgid "PickMeApp"
-#~ msgstr "Прислать такси"
-
-#, fuzzy
-#~ msgid "Terms of Use"
-#~ msgstr "Условия использования"
-
-#, fuzzy
-#~ msgid "Stations"
-#~ msgstr "Служба такси"
-
-#, fuzzy
-#~ msgid "Account"
-#~ msgstr "страны"
-
-#, fuzzy
-#~ msgid "Log In"
-#~ msgstr "Войти"
-
-#, fuzzy
-#~ msgid "Add"
-#~ msgstr "Адрес"
-
-#~ msgid "Verification"
-#~ msgstr "Проверка"
-
-#~ msgid "Account successfully activated"
-#~ msgstr "Аккаунт успешно активирован"
-
-#~ msgid "Account activation failed"
-#~ msgstr "Не удалось активировать аккаунт"
-
-#, fuzzy
-#~ msgid "Log-in To Your Account"
-#~ msgstr "войти через Ваш аккаунт в:"
-
-#, fuzzy
-#~ msgid "New to WAYbetter?"
-#~ msgstr "Присоединяйтесь к <span class=waybetter></span>"
-
-#~ msgid "Forgot password"
-#~ msgstr "Забыли пароль?"
-
-#~ msgid "Reset it"
-#~ msgstr "Сбросить"
-
-#~ msgid "Not member"
-#~ msgstr "Не зарегистрированы?"
-
-#~ msgid "Register"
-#~ msgstr "Регистрация"
-
-#~ msgid "Logged out"
-#~ msgstr "Вышли"
-
-#~ msgid "Password changed"
-#~ msgstr "Пароль изменен"
-
-#~ msgid "Password reset successfully"
-#~ msgstr "Пароль успешно сброшен"
-
-#~ msgid "Password reset failed"
-#~ msgstr "Не удалось сбросить пароль"
-
-#~ msgid "Email with password reset instructions has been sent."
-#~ msgstr "Вам выслан E-mail с указаниями по сбросу пароля."
-
-#~ msgid "Reset password at %(site_name)s"
-#~ msgstr "Сброс пароля на %(site_name)s"
-
-#~ msgid ""
-#~ "You are now registered. An SMS verification code was sent to you, please "
-#~ "fill it in to activate your account."
-#~ msgstr ""
-#~ "Вы прошли регистрацию. Вам выслано SMS с проверочным кодом. Пожалуйста, "
-#~ "введите код для активации аккаунта."
 
 #, fuzzy
 #~ msgid "Order a Ride"
@@ -3156,10 +4634,6 @@ msgstr "Ошибка при  проверке орфографии"
 #, fuzzy
 #~ msgid "Contact"
 #~ msgstr "Данные контакта"
-
-#, fuzzy
-#~ msgid "Information"
-#~ msgstr "рабочая станция"
 
 #, fuzzy
 #~ msgid "Code"
@@ -3411,10 +4885,6 @@ msgstr "Ошибка при  проверке орфографии"
 #~ msgstr "Служба такси"
 
 #, fuzzy
-#~ msgid "Show all"
-#~ msgstr "Показать больше"
-
-#, fuzzy
 #~ msgid "Save as new"
 #~ msgstr "Сохранить"
 
@@ -3493,10 +4963,6 @@ msgstr "Ошибка при  проверке орфографии"
 #, fuzzy
 #~ msgid "Reset my password"
 #~ msgstr "Подтвердить пароль"
-
-#, fuzzy
-#~ msgid "site"
-#~ msgstr "сайт"
 
 #, fuzzy
 #~ msgid "template"
@@ -3639,10 +5105,6 @@ msgstr "Ошибка при  проверке орфографии"
 #, fuzzy
 #~ msgid "Remove a comment"
 #~ msgstr "разрешить комментарии"
-
-#, fuzzy
-#~ msgid "or make changes"
-#~ msgstr "Сохранить"
 
 #, fuzzy
 #~ msgid "content types"
