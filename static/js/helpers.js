@@ -244,6 +244,7 @@ var HotspotHelper = Object.create({
     },
 
     MapHelper: undefined,
+    ride_duration: undefined,
 
     init: function(config) {
         this.config = $.extend(true, {}, this.config, config);
@@ -284,8 +285,17 @@ var HotspotHelper = Object.create({
             url: that.config.urls.get_hotspot_times,
             dataType: "json",
             data: options.data,
-            beforeSend: options.beforeSend,
-            success: options.success,
+            beforeSend: function(){
+                that.ride_duration = undefined;
+                options.beforeSend();
+            },
+            success: function(response){
+                if (response.ride_duration) {
+                    that.ride_duration = response.ride_duration;
+                }
+                options.success(response);
+
+            },
             error: options.error,
             complete: options.complete || function(){}
         });
@@ -314,37 +324,18 @@ var HotspotHelper = Object.create({
         }
     },
 
-    makeHotSpotSelector: function() {
+    makeHotSpotSelector: function(options) {
+        options = $.extend(true, {
+            onSelectDate: function(dateText, inst){},
+            onSelectTime: function(){}
+        }, options);
         var that = this;
         var $hotspotpicker = $(this.config.selectors.hotspotpicker);
         var $datepicker = $(this.config.selectors.datepicker);
         var $timepicker = $(this.config.selectors.timepicker);
         var $hs_description = $(this.config.selectors.hs_description);
 
-        $timepicker.empty().disable();
-        $hotspotpicker.empty().change(function() {
-            var $selected = $hotspotpicker.find(":selected").eq(0);
-            if ($selected) {
-                $hs_description.text("").text($selected.data("description"));
-                var now = new Date();
-                var human_date = getFullDate($selected.data("next_datetime") || now);
-                $datepicker.datepicker("destroy").datepicker({
-                    dateFormat: 'dd/mm/yy',
-                    firstDay: 0,
-                    minDate: new Date(),
-                    isRTL: true,
-                    beforeShowDay: function(date) {
-                        return ($.inArray(date.toDateString(), that.cache.dates) !== -1) ? [true, "", ""] : [false, "", ""];
-                    },
-                    onChangeMonthYear: that._onChangeMonthYear
-                }).datepicker("setDate", human_date);
-                that.refreshHotspotSelector({
-                    refresh_intervals: true
-                });
-                that.clearCache();
-                that._getDatesForMonthYear(now.getFullYear(), now.getMonth() + 1, $datepicker);
-            }
-        });
+
 
         this.getHotspotData({
             beforeSend: function() {
@@ -356,11 +347,36 @@ var HotspotHelper = Object.create({
                     var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, description: hotspot.description, next_datetime: new Date(hotspot.next_datetime)};
                     $("<option>" + hotspot.name + "</option>").attr("value", hotspot.id).data(data).appendTo($hotspotpicker);
                 });
+
+                $hotspotpicker.change(function() {
+                    var $selected = $hotspotpicker.find(":selected").eq(0);
+                    if ($selected) {
+                        $hs_description.text("").text($selected.data("description"));
+                        var now = new Date();
+                        var first_interval = getFullDate($selected.data("next_datetime") || now);
+                        $datepicker.datepicker("destroy").datepicker({
+                            dateFormat: 'dd/mm/yy',
+                            firstDay: first_interval,
+                            minDate: new Date(),
+                            isRTL: true,
+                            beforeShowDay: function(date) {
+                                return ($.inArray(date.toDateString(), that.cache.dates) !== -1) ? [true, "", ""] : [false, "", ""];
+                            },
+                            onSelect: options.onSelectDate,
+                            onChangeMonthYear: that._onChangeMonthYear
+                        }).datepicker("setDate", first_interval);
+                        that.refreshHotspotSelector({
+                            refresh_intervals: true
+                        });
+                        that.clearCache();
+                    }
+                });
+
                 $hotspotpicker.change();
 
-                var month = (new Date).getMonth() + 1;
-                var year = (new Date).getFullYear();
-                that._getDatesForMonthYear(year, month, $datepicker);
+                $timepicker.empty().disable().change(function(){
+                    options.onSelectTime();
+                });
             },
             error:function() {
                 flashError("Error getting hotspot data");
@@ -383,7 +399,7 @@ var HotspotHelper = Object.create({
                 beforeSend: function() {
                     $timepicker.empty().disable().append("<option>" + that.config.labels.updating + "</option>");
                     if (!$datepicker.val()) {
-                        $datepicker.datepicker("setDate", new Date());
+                        $datepicker.datepicker("setDate", getFullDate($("#id_hotspot_select option:selected").data("next_datetime")));
                     }
                     if (options.beforeSend) {
                         options.beforeSend();
@@ -397,9 +413,6 @@ var HotspotHelper = Object.create({
                             $timepicker.append("<option>" + t + "</option>");
                         });
                         $timepicker.enable().change();
-                        if (response.ride_duration) {
-                            $timepicker.data("ride_duration", response.ride_duration);
-                        }
                     }
                 },
                 error: function() {
@@ -901,7 +914,7 @@ var MobileHelper = Object.create({
         options = $.extend({}, {
                     onNewAddress: function(){},
                     noAddressFound: function() {
-                        log("resolve to address failed")
+                        log("resolve to address failed");
                     }
                 }, options);
         $.ajax({

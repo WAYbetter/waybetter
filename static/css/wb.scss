@@ -749,7 +749,7 @@ Home
 
     #site-content{
         position: relative;
-        top: -33px;
+        top: -13px;
         margin-bottom: 0;
         width: $site-width;
         padding: 0;
@@ -819,18 +819,32 @@ Home
             margin: 0 auto;
         }
     }
-    
-    #tryitnow{
-        position: absolute;
-        bottom: 45px;
-        right: 10px;
-        padding-right: 10px;
-        font-size: $font-size-header2;
-        color: black;
-        background: url("/static/images/wb_site/tri_it_now.png") right 6px no-repeat;
-    }
-    #tryitnow:hover{
-        text-decoration: underline;
+
+    /* Pagination */
+    .slidesPagination {
+        position: relative;
+        width:42px;
+        top: -35px;
+        margin: 0 auto;
+        padding: 0;
+        li {
+            float:left;
+            margin:0 1px;
+            list-style:none;
+        }
+        li a {
+            display:block;
+            width:12px;
+            height:0;
+            padding-top:12px;
+            background-image:url("/static/images/wb_site/pagination.png");
+            background-position:0 0;
+            float:left;
+            overflow:hidden;
+        }
+        li.slidesCurrent a {
+            background-position:0 -12px;
+        }
     }
 
     #feedback{
@@ -1208,10 +1222,15 @@ Home
     }
 
     #datetime_input_helper{
-        #pickup_time_container{ position: relative; top: 25px;}
         #pickup_time{ margin-right: 5px; font-weight: bold;}
         #id_hotspot_datepicker{ width: 100px; }
         .at {margin:0 5px}
+        #id_estimated_pickup{
+            margin-top: 20px;
+            width: 100%;
+            text-align: center;
+        }
+
         /*#time_radio{ float: left; position: relative; left: -7px; top: 23px;}*/
         /*#time_tools{ float: right; position: relative;}*/
         /*#time_tools.depart { top: -7px; }*/

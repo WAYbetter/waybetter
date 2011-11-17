@@ -635,6 +635,7 @@ body.base-site {
 Home
 /*******************************************************/
 .wb_home {
+  /* Pagination */
   /*#select_input_helper{*/
   /*#sel_address {float: left; position: relative; left: 50px;}*/
   /*#sel_hotspot {float: right; border-left: 1px solid $light-gray ; padding-left: 35px; position: relative; right: 62px; height: 76px;}*/
@@ -655,7 +656,7 @@ Home
     min-height: 700px; }
   .wb_home #site-content {
     position: relative;
-    top: -33px;
+    top: -13px;
     margin-bottom: 0;
     width: 800px;
     padding: 0;
@@ -725,16 +726,27 @@ Home
     .wb_home #banner_content .slidesContainer {
       z-index: 0;
       margin: 0 auto; }
-  .wb_home #tryitnow {
-    position: absolute;
-    bottom: 45px;
-    right: 10px;
-    padding-right: 10px;
-    font-size: 16px;
-    color: black;
-    background: url("/static/images/wb_site/tri_it_now.png") right 6px no-repeat; }
-  .wb_home #tryitnow:hover {
-    text-decoration: underline; }
+  .wb_home .slidesPagination {
+    position: relative;
+    width: 42px;
+    top: -35px;
+    margin: 0 auto;
+    padding: 0; }
+    .wb_home .slidesPagination li {
+      float: left;
+      margin: 0 1px;
+      list-style: none; }
+    .wb_home .slidesPagination li a {
+      display: block;
+      width: 12px;
+      height: 0;
+      padding-top: 12px;
+      background-image: url("/static/images/wb_site/pagination.png");
+      background-position: 0 0;
+      float: left;
+      overflow: hidden; }
+    .wb_home .slidesPagination li.slidesCurrent a {
+      background-position: 0 -12px; }
   .wb_home #feedback {
     position: absolute;
     left: 0;
@@ -1056,9 +1068,6 @@ Home
     /*.img{ height: 28px; width: 30px; display: inline-block; position: relative; top: 5px;}*/
     /*.img.depart{ background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat; }*/
     /*.img.arrive{ background: url(/static/images/wb_site/field_icons.png) 6px -254px no-repeat; }*/ }
-    .wb_home #datetime_input_helper #pickup_time_container {
-      position: relative;
-      top: 25px; }
     .wb_home #datetime_input_helper #pickup_time {
       margin-right: 5px;
       font-weight: bold; }
@@ -1066,6 +1075,10 @@ Home
       width: 100px; }
     .wb_home #datetime_input_helper .at {
       margin: 0 5px; }
+    .wb_home #datetime_input_helper #id_estimated_pickup {
+      margin-top: 20px;
+      width: 100%;
+      text-align: center; }
   .wb_home #partners table {
     margin: 0 auto;
     border-spacing: 17px 17px;
