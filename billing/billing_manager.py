@@ -43,6 +43,15 @@ ALL_QUERY_FIELDS = {
     "saleDetailsMAC"		:				""
 }
 
+if settings.DEV:
+    BILLING_INFO = settings.TEST_BILLING
+    BILLING_MPI = settings.TEST_BILLING_MPI
+    BILLING_MPI_MOBILE = settings.TEST_BILLING_MPI_MOBILE
+else:
+    BILLING_INFO = settings.BILLING
+    BILLING_MPI = settings.BILLING_MPI
+    BILLING_MPI_MOBILE = settings.BILLING_MPI_MOBILE
+
 
 def get_transaction_id(unique_id, lang_code, mpi_data):
     data = ALL_QUERY_FIELDS.copy()
@@ -53,7 +62,7 @@ def get_transaction_id(unique_id, lang_code, mpi_data):
     
     data.update(mpi_data)
     data.update({
-        "terminal":         settings.BILLING["terminal_number"],
+        "terminal":         BILLING_INFO["terminal_number"],
         "uniqueID":         unique_id,
         "amount":           0,
         "currency":         "ILS",
@@ -71,7 +80,7 @@ def get_transaction_id(unique_id, lang_code, mpi_data):
     
     logging.info(data)
 
-    res = safe_fetch(settings.BILLING["transaction_url"], method='POST', payload=data, deadline=10)
+    res = safe_fetch(BILLING_INFO["transaction_url"], method='POST', payload=data, deadline=10)
     if not res:
         return None
     elif res.content.startswith("--"):
@@ -86,16 +95,16 @@ def get_token_url(request, order=None):
     lang_code = get_language_from_request(request)
 
     if hasattr(request, "mobile") and request.mobile:
-        mpi_data = settings.BILLING_MPI_MOBILE
+        mpi_data = BILLING_MPI_MOBILE
     else:
-        mpi_data = settings.BILLING_MPI
+        mpi_data = BILLING_MPI
 
     if order:
         request.session[unique_id] = order
 
     trx_id = get_transaction_id(unique_id, lang_code, mpi_data)
     if trx_id:
-        return settings.BILLING["token_url"] % trx_id
+        return BILLING_INFO["token_url"] % trx_id
     else:
         request.session[ERROR_PAGE_TEXT] = _("Could not complete your registration. Please try again.")
         return reverse(error_page)

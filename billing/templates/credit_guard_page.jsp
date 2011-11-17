@@ -10,7 +10,6 @@
     <%
 	String langdir="ltr";
 	String absvertpos="right: 0";
-    String secure_payment_msg = "Secured Payment"
     if(lang.equals("HE")){
         langdir="rtl";
         absvertpos="left: 0";
