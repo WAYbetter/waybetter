@@ -131,6 +131,8 @@
         #site-footer {
             position: relative;
             padding-top: 20px;
+            direction: <%=langdir%>;
+            width: 500px;
         }
 
         #wb_ssl {

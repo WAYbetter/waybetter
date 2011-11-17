@@ -8,6 +8,7 @@ from billing.enums import BillingStatus, BillingAction
 from common.tz_support import default_tz_now
 from common.util import custom_render_to_response
 from django.core.urlresolvers import reverse
+from django.utils import translation
 from django.views.decorators.csrf import csrf_exempt
 from billing.models import BillingForm, InvalidOperationError, BillingTransaction, BillingInfo
 from common.decorators import require_parameters, internal_task_on_queue, catch_view_exceptions
@@ -225,5 +226,11 @@ def utf_8_encoder(unicode_csv_data):
 
 
 def credit_guard_page(request):
+    current_lang = translation.get_language()
+    translation.activate("en") # make sure we are in english
+
     page_specific_class = "credit_guard_page"
-    return custom_render_to_response("credit_guard_page.jsp", locals(), context_instance=RequestContext(request))
+    response = custom_render_to_response("credit_guard_page.jsp", locals(), context_instance=RequestContext(request))
+
+    translation.activate(current_lang)
+    return response
