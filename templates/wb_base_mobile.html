@@ -31,6 +31,10 @@
             // PhoneGap support
             $.mobile.allowCrossDomainPages = true;
 //            $.mobile.page.prototype.options.addBackBtn = true;
+
+            {% if LANGUAGE_BIDI %}
+                $.mobile.changePage.defaults.reverse = true;
+            {% endif %}
         });
     </script>
     <script src="//code.jquery.com/mobile/1.0rc2/jquery.mobile-1.0rc2.js"></script>
