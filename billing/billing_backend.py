@@ -17,6 +17,11 @@ import logging
 import re
 import types
 
+if settings.DEV:
+    BILLING_INFO = settings.TEST_BILLING
+else:
+    BILLING_INFO = settings.BILLING
+
 def do_J5(token, amount, card_expiration, billing_transaction_id):
     billing_transaction = BillingTransaction.by_id(billing_transaction_id)
     billing_transaction.change_status(BillingStatus.PENDING, BillingStatus.PROCESSING)
@@ -32,11 +37,8 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
         'language'                      : lang_code
         }
 
-    # only for test terminals (who start with 096)
-    if settings.BILLING["terminal_number"].startswith("096"):
-        params.update({
-            "auth_number": "0000000"
-        })
+    if settings.DEV: # bypass authorization if running on test server
+        params.update({"auth_number": "0000000"})
 
     result = do_credit_guard_trx(params)
     if not result:
@@ -111,14 +113,14 @@ def do_J4(token, amount, card_expiration, billing_transaction_id):
     return HttpResponse("OK")
 
 def do_credit_guard_trx(params):
-    provider_url = settings.BILLING['url']
+    provider_url = BILLING_INFO['url']
 
-    params.update(settings.BILLING)
+    params.update(BILLING_INFO)
     params.update({
         'may_be_duplicate'				: "0",
         'currency'						: "ILS",
         'request_id'					: get_unique_id(),
-        'terminal_number'               : settings.BILLING["terminal_number_no_CVV"]
+        'terminal_number'               : BILLING_INFO["terminal_number_no_CVV"]
     })
 
     c = Context(params)
@@ -127,7 +129,7 @@ def do_credit_guard_trx(params):
 
     logging.info("CREDIT GUARD TRX - payload: %s" % rendered_payload)
 
-    payload = str("user=%s&password=%s&int_in=%s" % (settings.BILLING["username"], settings.BILLING["password"], urlquote_plus(rendered_payload)))
+    payload = str("user=%s&password=%s&int_in=%s" % (BILLING_INFO["username"], BILLING_INFO["password"], urlquote_plus(rendered_payload)))
 
     result = safe_fetch(provider_url, method="POST", payload=payload, deadline=50)
 
@@ -152,7 +154,7 @@ def create_invoices(billing_transactions):
 
     payload = {
         "TransType"						: "IR:CREATE101",
-        "Username"						: settings.BILLING["invoice_username"],
+        "Username"						: BILLING_INFO["invoice_username"],
         "InvoiceSubject"				: _("Ride Summary"),
         "InvoiceItemCode"				: "|".join([str(trx.id) for trx in billing_transactions]),
         "InvoiceItemDescription"		: "|".join([trx.order.invoice_description for trx in billing_transactions]),
@@ -163,7 +165,7 @@ def create_invoices(billing_transactions):
         "ItemPriceIsWithTax"			: 1,
         }
 
-    url = settings.BILLING["invoice_url"]
+    url = BILLING_INFO["invoice_url"]
 
     payload = dict([(k,v.encode('iso8859_8') if type(v) is types.UnicodeType else v) for (k,v) in payload.items()])
     payload = urlencode(payload)
@@ -181,8 +183,8 @@ def create_invoice_passenger(passenger):
     payload = {
 #        "ReplyURL": "ReturnPage.asp",
         "TransType"						: "C:INSERT",
-        "Username"						: settings.BILLING["invoice_username"],
-        "CompanyCode"                   : Counter.get_next(name=settings.BILLING["invoice_counter"]),
+        "Username"						: BILLING_INFO["invoice_username"],
+        "CompanyCode"                   : Counter.get_next(name=BILLING_INFO["invoice_counter"]),
         "CompanyName"                   : passenger.name,
         "CompanyAddress"                : "",
         "CompanyCity"                   : "",
@@ -197,7 +199,7 @@ def create_invoice_passenger(passenger):
         "CompanyComments"               : "",
         }
 
-    url = settings.BILLING["invoice_url"]
+    url = BILLING_INFO["invoice_url"]
     payload = urlencode(payload)
     result = fetch(url, method="POST", payload=payload, deadline=50, headers={'Content-Type': 'application/x-www-form-urlencoded'})
 

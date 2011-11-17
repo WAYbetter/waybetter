@@ -10,7 +10,6 @@
     <%
 	String langdir="ltr";
 	String absvertpos="right: 0";
-    String secure_payment_msg = "Secured Payment"
     if(lang.equals("HE")){
         langdir="rtl";
         absvertpos="left: 0";
@@ -129,9 +128,11 @@
             <%=absvertpos%>;
         }
 
-        #site-footer {
+        #footer-container #site-footer {
             position: relative;
             padding-top: 20px;
+            direction: <%=langdir%>;
+            width: 500px;
         }
 
         #wb_ssl {
@@ -144,7 +145,7 @@
             position: absolute;
             top: 20px;
             display: inline-block;
-        <% if (langdir == "ltr") { %>
+        <% if (langdir.equals("ltr")) { %>
             margin-left: 20px;
         <% } else { %>
             margin-right: 20px;
@@ -163,7 +164,7 @@
 {% endblock %}
 
 {% block top_right %}
-    <% if (lang == "HE") { %>
+    <% if (lang.equals("HE")) { %>
     תשלום מאובטח
     <% } else { %>
 Secured Payment
@@ -245,7 +246,7 @@ Secured Payment
 {% block footer %}
     <div id="wb_ssl"></div>
     <div id="wb_ssl_text">
-        <% if (lang == "HE") { %>
+        <% if (lang.equals("HE")) { %>
 בדף זה אתה יכול לשלם על הזמנותיך מהאתר WAYbetter.com
         <br/>
 הליך התשלום מאובטח ועומד בסטנדרטים הגבוהים ביותר של אבטחת מידע.
