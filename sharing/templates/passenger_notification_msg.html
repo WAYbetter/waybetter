@@ -1,6 +1,7 @@
 {% load i18n %}
 {% autoescape off %}{% trans "Taxi is on the way!" %}
-    {% for order in orders_data %} {% trans "Pickup" %}: {{ order.pickup_time }} {{ order.pickup_address }}
+    {% for order in orders_data %} {% trans "_pickupat" %}: {{ order.pickup_time }} {{ order.pickup_address }}
 {% endfor %}{% endautoescape %}
 {{ station_name }}: {{ station_phone }}
 *{% trans "Tell the driver you're a WAYbetter passenger." %}*
+{% trans "Voucher is at the station" %}
