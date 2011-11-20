@@ -64,7 +64,6 @@ def get_transaction_id(unique_id, lang_code, mpi_data):
         "transactionType":  "Debit",
         "creditType":       "RegularCredit",
         "transactionCode":  "Phone",
-#        "authNumber":       1234567, # used only for testing
         "validationType":   "Normal",
         "langID":           (lang_code or settings.LANGUAGE_CODE).upper(),
         "timestamp":        datetime.now().replace(microsecond=0).isoformat() #"2011-10-22T15:44:53" #default_tz_now().isoformat()
