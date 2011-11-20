@@ -18,7 +18,7 @@ from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea, CityAreaField
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, add_formatted_date_fields
-from common.tz_support import UTCDateTimeField, utc_now, to_js_date
+from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
 from sharing.signals import ride_status_changed_signal
@@ -31,6 +31,7 @@ import logging
 import datetime
 import common.urllib_adaptor as urllib2
 
+SHARING_TIME_FACTOR = 1.2
 
 ORDER_HANDLE_TIMEOUT =                      80 # seconds
 ORDER_TEASER_TIMEOUT =                      19 # seconds
@@ -795,6 +796,7 @@ class Order(BaseModel):
     confining_station = models.ForeignKey(Station, verbose_name=(_("confining station")),
                                             related_name="confined_orders", null=True, blank=True, default=None)
 
+    debug = models.BooleanField(default=False, editable=False)
     mobile = models.BooleanField(_("mobile"), default=False)
     user_agent = models.CharField(_("user agent"), max_length=250, null=True, blank=True, default=False)
 
@@ -921,6 +923,7 @@ class Order(BaseModel):
 
     def get_pickup_time(self):
         """
+        This is used for pickmeapp
         Return the time remaingin until pickup (in seconds), or -1 if pickup time passed already
         """
         if self.future_pickup:
@@ -928,6 +931,22 @@ class Order(BaseModel):
         else:
             return -1
 
+    def get_pickup_str(self):
+        if self.pickup_point:
+            pickup_str = self.pickup_point.stop_time.strftime("%d/%m/%y, %H:%M")
+
+        elif self.computation.hotspot_arrive_time: # to Hotspot, pickup time is estimated
+            ride_duration_sec = (self.arrive_time - self.depart_time).seconds
+            sharing_dprt = self.arrive_time - datetime.timedelta(seconds=ride_duration_sec * SHARING_TIME_FACTOR)
+
+            d = _("Today") if self.depart_time.date() == default_tz_now().date() else self.depart_time.strftime("%d/%m/%Y")
+            pickup_str = u"%s, %s-%s" % (d, sharing_dprt.strftime("%H:%M"), self.depart_time.strftime("%H:%M"))
+
+        else: # from hotspot
+            pickup_str = self.depart_time_format()
+
+        return pickup_str
+    
     def get_status_label(self):
         for key, label in ORDER_STATUS:
             if key == self.status:
@@ -999,8 +1018,7 @@ class Order(BaseModel):
 
     def serialize_for_myrides(self):
         return {'id': self.id, 'type': self.type, 'from': self.from_raw, 'to': self.to_raw,
-                'when': (self.pickup_point.stop_time if self.pickup_point else self.depart_time).strftime("%d/%m/%y, %H:%M"),
-                'price': self.price}
+                'when': self.get_pickup_str(), 'price': self.price}
 
 class OrderAssignment(BaseModel):
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")

@@ -13,11 +13,11 @@
                     {% if LANGUAGE_CODE == "he" %}
                         <img src="/static/images/wb_site/banner01_he.png">
                         <img src="/static/images/wb_site/banner02_he.png">
-                        <img id="order_now" src="/static/images/wb_site/banner03_he.png">
+                        <img id="order_now" class="clickable" src="/static/images/wb_site/banner03_he.png">
                     {% else %}
                         <img src="/static/images/wb_site/banner01.png">
                         <img src="/static/images/wb_site/banner02.png">
-                        <img id="order_now" src="/static/images/wb_site/banner03.png">
+                        <img id="order_now" class="clickable" src="/static/images/wb_site/banner03.png">
                     {% endif %}
                 </div>
             </div>
@@ -94,7 +94,7 @@
 
             <div id="sharing_data_container" class="ride_data">
                 <span class="header_img"></span>
-                <span class="header">{% trans "WAYbetter Taxi Ride" %}</span>
+                <span class="header">{% trans "Shared Taxi Ride" %}</span>
 
                 <div class="ride_details">
                     <div class="price_row">
@@ -158,9 +158,9 @@
         <div id="hotspot_input_helper" class="tooltip-content">
             <div class="header"></div>
             <div class="content">
-                <div id="hotspot_help">
-                    {% trans "Hotspots are centers of activity from which & to which we offer WAYbetter service." %}
-                </div>
+{#                <div id="hotspot_help">#}
+{#                    {% trans "Hotspots are centers of activity from which & to which we offer WAYbetter service." %}#}
+{#                </div>#}
 {#                <label class="city">#}
 {#                    <div>{% trans "Select City" %}:</div>#}
 {#                    <select id="id_hotspot_city" name="hotspot_city">#}
@@ -235,7 +235,7 @@
                 </div>
                 <div id="id_estimated_pickup">
                     (
-                    <span class="text bold">{% trans "Pickup Time" %}: </span>
+                    <span class="text bold">{% trans "_pickup" %}: </span>
                     <span class="value"></span>
                     )
                 </div>
@@ -650,7 +650,7 @@
 
     function initOrderingButtonsText(){
         $("#book_private").text("{% trans 'Book Private' %}");
-        $("#book_sharing").text("{% trans 'Book WAYbetter' %}");
+        $("#book_sharing").text("{% trans 'Book Shared' %}");
     }
 
     function cloneAddressInput(source, target) {
@@ -1052,7 +1052,7 @@
 {#                $("#datetime_input .type").text("{% trans "Arrival" %}");#}
 {#            }#}
             $("#datetime_input").addClass("resolved");
-            var txt = (hotspot_type == PICKUP) ? "{% trans "_pickupat" %}" : "{% trans "_dropoffat" %}";
+            var txt = (hotspot_type == PICKUP) ? "{% trans "_pickupat" %}" : "{% trans "Dropoff time" %}";
             $("#datetime_input .desc").text(txt + ": " + $("#id_hotspot_datepicker").val() + " " + $("#id_hotspot_time").val());
 
             showRideDetails({});

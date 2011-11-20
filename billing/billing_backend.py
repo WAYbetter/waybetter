@@ -17,10 +17,7 @@ import logging
 import re
 import types
 
-if settings.DEV:
-    BILLING_INFO = settings.TEST_BILLING
-else:
-    BILLING_INFO = settings.BILLING
+BILLING_INFO = settings.BILLING
 
 def do_J5(token, amount, card_expiration, billing_transaction_id):
     billing_transaction = BillingTransaction.by_id(billing_transaction_id)
