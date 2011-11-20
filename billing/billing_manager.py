@@ -43,14 +43,9 @@ ALL_QUERY_FIELDS = {
     "saleDetailsMAC"		:				""
 }
 
-if settings.DEV:
-    BILLING_INFO = settings.TEST_BILLING
-    BILLING_MPI = settings.TEST_BILLING_MPI
-    BILLING_MPI_MOBILE = settings.TEST_BILLING_MPI_MOBILE
-else:
-    BILLING_INFO = settings.BILLING
-    BILLING_MPI = settings.BILLING_MPI
-    BILLING_MPI_MOBILE = settings.BILLING_MPI_MOBILE
+BILLING_INFO = settings.BILLING
+BILLING_MPI = settings.BILLING_MPI
+BILLING_MPI_MOBILE = settings.BILLING_MPI_MOBILE
 
 
 def get_transaction_id(unique_id, lang_code, mpi_data):

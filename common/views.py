@@ -2,6 +2,7 @@ from django.utils.translation import ugettext as _
 from common.tz_support import to_js_date, default_tz_now_max, default_tz_now_min
 from common.models import Country
 from common.forms import DatePickerForm
+from django.conf import settings
 from django.template.context import RequestContext
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
@@ -16,6 +17,7 @@ from ordering.models import WorkStation
 from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
 from datetime import  datetime, time
 import logging
+import os
 
 # DeadlineExceededError can live in two different places
 try:
@@ -28,6 +30,13 @@ except ImportError:
 from google.appengine.ext import deferred
 
 ERROR_PAGE_TEXT = "error_page_text"
+
+def is_dev(request):
+    response = "SERVER_SOFTWARE: %s<br/>" % os.environ.get('SERVER_SOFTWARE')
+    response += "CURRENT_VERSION_ID: %s<br/>" % os.environ.get('CURRENT_VERSION_ID')
+    for attr in ['LOCAL', 'DEV_VERSION', 'DEV', 'DEBUG']:
+        response += "%s: %s <br/>" % (attr, getattr(settings, attr))
+    return HttpResponse(response)
 
 def base_datepicker_page(request, f_data, template_name, wrapper_locals, init_start_date=None, init_end_date=None):
     if request.method == 'POST': # date picker form submitted
