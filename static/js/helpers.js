@@ -244,6 +244,7 @@ var HotspotHelper = Object.create({
     },
 
     MapHelper: undefined,
+    ride_duration: undefined,
 
     init: function(config) {
         this.config = $.extend(true, {}, this.config, config);
@@ -284,8 +285,17 @@ var HotspotHelper = Object.create({
             url: that.config.urls.get_hotspot_times,
             dataType: "json",
             data: options.data,
-            beforeSend: options.beforeSend,
-            success: options.success,
+            beforeSend: function(){
+                that.ride_duration = undefined;
+                options.beforeSend();
+            },
+            success: function(response){
+                if (response.ride_duration) {
+                    that.ride_duration = response.ride_duration;
+                }
+                options.success(response);
+
+            },
             error: options.error,
             complete: options.complete || function(){}
         });
@@ -314,37 +324,18 @@ var HotspotHelper = Object.create({
         }
     },
 
-    makeHotSpotSelector: function() {
+    makeHotSpotSelector: function(options) {
+        options = $.extend(true, {
+            onSelectDate: function(dateText, inst){},
+            onSelectTime: function(){}
+        }, options);
         var that = this;
         var $hotspotpicker = $(this.config.selectors.hotspotpicker);
         var $datepicker = $(this.config.selectors.datepicker);
         var $timepicker = $(this.config.selectors.timepicker);
         var $hs_description = $(this.config.selectors.hs_description);
 
-        $timepicker.empty().disable();
-        $hotspotpicker.empty().change(function() {
-            var $selected = $hotspotpicker.find(":selected").eq(0);
-            if ($selected) {
-                $hs_description.text("").text($selected.data("description"));
-                var now = new Date();
-                var human_date = getFullDate($selected.data("next_datetime") || now);
-                $datepicker.datepicker("destroy").datepicker({
-                    dateFormat: 'dd/mm/yy',
-                    firstDay: 0,
-                    minDate: new Date(),
-                    isRTL: true,
-                    beforeShowDay: function(date) {
-                        return ($.inArray(date.toDateString(), that.cache.dates) !== -1) ? [true, "", ""] : [false, "", ""];
-                    },
-                    onChangeMonthYear: that._onChangeMonthYear
-                }).datepicker("setDate", human_date);
-                that.refreshHotspotSelector({
-                    refresh_intervals: true
-                });
-                that.clearCache();
-                that._getDatesForMonthYear(now.getFullYear(), now.getMonth() + 1, $datepicker);
-            }
-        });
+
 
         this.getHotspotData({
             beforeSend: function() {
@@ -356,11 +347,36 @@ var HotspotHelper = Object.create({
                     var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, description: hotspot.description, next_datetime: new Date(hotspot.next_datetime)};
                     $("<option>" + hotspot.name + "</option>").attr("value", hotspot.id).data(data).appendTo($hotspotpicker);
                 });
+
+                $hotspotpicker.change(function() {
+                    var $selected = $hotspotpicker.find(":selected").eq(0);
+                    if ($selected) {
+                        $hs_description.text("").text($selected.data("description"));
+                        var now = new Date();
+                        var first_interval = getFullDate($selected.data("next_datetime") || now);
+                        $datepicker.datepicker("destroy").datepicker({
+                            dateFormat: 'dd/mm/yy',
+                            firstDay: first_interval,
+                            minDate: new Date(),
+                            isRTL: true,
+                            beforeShowDay: function(date) {
+                                return ($.inArray(date.toDateString(), that.cache.dates) !== -1) ? [true, "", ""] : [false, "", ""];
+                            },
+                            onSelect: options.onSelectDate,
+                            onChangeMonthYear: that._onChangeMonthYear
+                        }).datepicker("setDate", first_interval);
+                        that.refreshHotspotSelector({
+                            refresh_intervals: true
+                        });
+                        that.clearCache();
+                    }
+                });
+
                 $hotspotpicker.change();
 
-                var month = (new Date).getMonth() + 1;
-                var year = (new Date).getFullYear();
-                that._getDatesForMonthYear(year, month, $datepicker);
+                $timepicker.empty().disable().change(function(){
+                    options.onSelectTime();
+                });
             },
             error:function() {
                 flashError("Error getting hotspot data");
@@ -383,7 +399,7 @@ var HotspotHelper = Object.create({
                 beforeSend: function() {
                     $timepicker.empty().disable().append("<option>" + that.config.labels.updating + "</option>");
                     if (!$datepicker.val()) {
-                        $datepicker.datepicker("setDate", new Date());
+                        $datepicker.datepicker("setDate", getFullDate($("#id_hotspot_select option:selected").data("next_datetime")));
                     }
                     if (options.beforeSend) {
                         options.beforeSend();
@@ -397,9 +413,6 @@ var HotspotHelper = Object.create({
                             $timepicker.append("<option>" + t + "</option>");
                         });
                         $timepicker.enable().change();
-                        if (response.ride_duration) {
-                            $timepicker.data("ride_duration", response.ride_duration);
-                        }
                     }
                 },
                 error: function() {
@@ -832,16 +845,15 @@ var TelmapHelper = Object.create({
 var MobileHelper = Object.create({
     config: {
         urls:{
-            resolve_coordinates: "",
-            get_hotspot_dates: ""
+            resolve_coordinates     : "",
+            get_hotspot_dates       : "",
+            get_myrides_data        : "",
+            cancel_order            : ""
+
         },
         callbacks:{
-            onNewAddress: function(address){
-                if (console){
-                    console.log(address);
-                }
-            },
             noGeolocation: function(){},
+            locationSuccess: function(){},
             locationError: function(watch_id){
                 navigator.geolocation.clearWatch(watch_id); // remove watch
             }
@@ -860,7 +872,6 @@ var MobileHelper = Object.create({
     address: undefined,
     hotspot: undefined,
     hotspot_type: "dropoff",
-    time_type: "pickup",
 
     // METHODS
     // -------
@@ -868,9 +879,14 @@ var MobileHelper = Object.create({
         this.config = $.extend(true, {}, this.config, config);
     },
     
-    getCurrentLocation: function() {
+    getCurrentLocation: function(options) {
         var that = this;
-        var options = {
+        options = $.extend({}, {
+                    locationSuccess: that.config.callbacks.locationSuccess,
+                    locationError: that.config.callbacks.locationError
+                }, options);
+
+        var config = {
             timeout: 5000, // 5 second
             enableHighAccuracy: true,
             maximumAge: 0 // always get new location
@@ -878,38 +894,39 @@ var MobileHelper = Object.create({
 
         if (navigator.geolocation) {
             var watch_id = navigator.geolocation.watchPosition(function(p) {
-                        that.locationSuccess.call(that, p, watch_id);
+                        log("new position: " + p.coords.longitude + ", " + p.coords.latitude + " (" + p.coords.accuracy + ")");
+                        that.last_position = p.coords;
+                        if (p.coords.accuracy < that.ACCURACY_THRESHOLD) {
+                            navigator.geolocation.clearWatch(watch_id); // we have an accurate enough location
+
+                            options.locationSuccess(p);
+                        }
                     }, function() {
-                        that.config.callbacks.locationError(watch_id);
-                    }, options);
+                        options.locationError(watch_id);
+                    }, config);
         } else {
             this.config.callbacks.noGeolocation();
         }
     },
-    locationSuccess: function(position, watch_id) {
-        if (console) {
-            console.log("new position: " + position.coords.longitude + ", " + position.coords.latitude + " (" + position.coords.accuracy + ")");
-        }
 
-        this.last_position = position.coords;
-        if (position.coords.accuracy < this.ACCURACY_THRESHOLD) {
-            navigator.geolocation.clearWatch(watch_id); // we have an accurate enough location
-            this.resolveLonLat(position.coords.longitude, position.coords.latitude);
-            if (this.MapHelper) {
-                this.MapHelper.addMarker(position.coords.latitude, position.coords.longitude);
-            }
-        }
-    },
-    resolveLonLat: function(lon, lat) {
+    resolveLonLat: function(lon, lat, options) {
         var that = this;
+        options = $.extend({}, {
+                    onNewAddress: function(){},
+                    noAddressFound: function() {
+                        log("resolve to address failed");
+                    }
+                }, options);
         $.ajax({
             url:that.config.urls.resolve_coordinates,
             type:"GET",
             data:{ lat:lat, lon:lon },
             dataType:"json",
             success:function(address) {
-                if (address && address.street_address) {
-                    that.config.callbacks.onNewAddress(address);
+                if (address && address.street_address && address.house_number) {
+                    options.onNewAddress(address);
+                } else {
+                    options.noAddressFound();
                 }
             },
             complete:function() {
@@ -921,6 +938,122 @@ var MobileHelper = Object.create({
         var p2 = new LatLon(lat2, lon2);
 
         return p1.distanceTo(p2);
+    },
+
+    
+    getMyRidesData: function(options, list_selector, ride_page_selector) {
+        var that = this;
+
+        $.ajax({
+            url: that.config.urls.get_myrides_data,
+            dataType: "json",
+            data: options,
+            success: function(data) {
+                //data.previous_rides || []);
+                var $list = $(list_selector);
+                var ride_data = [];
+                if (data.previous_rides) {
+                    ride_data = data.previous_rides;
+                } else if (data.next_rides) {
+                    ride_data = data.next_rides;
+                }
+
+                if (ride_data.length) {
+                    $list.empty();
+                    $.each(ride_data, function(i, ride) {
+                        var $li_header = $('<li data-role="list-divider"></li>').text(ride.when).attr("id", "ride_header_" + ride.id);
+                        var $li_a = $('<a href="#"></a>');
+                        $li_a.append("<p>" + ride.from + "</p>");
+                        $li_a.append("<p>" + ride.to + "</p>");
+                        $li_a.append("<p>" + ride.price + " &#8362;</p>");
+                        $li_a.click(function() {
+                            that.showRideStatus(ride, ride_page_selector);
+                        });
+
+                        var $li_ride = $('<li data-icon="arrow-l"></li>').attr("id", "ride_li_" + ride.id).append($li_a);
+
+                        $list.append($li_header);
+                        $list.append($li_ride);
+                        $list.listview("refresh");
+
+                        
+                    })
+                }
+            }
+        })
+    },
+    showRideStatus  : function(ride_data) {
+        var that = this;
+
+        var $ride_page = $(that.config.selectors.ride_details_page);
+        var $details_list = $(that.config.selectors.ride_details_list);
+        var $details_btn = $(that.config.selectors.ride_details_btn);
+
+        $details_list.empty();
+
+        $.each(["from", "to", "when", "price"], function(i, e) {
+            var $li = $("<li></li>").text(ride_data[e]);
+            var $label = $("<span>" + e + ": </span>");
+            $li.prepend($label);
+            $details_list.append($li);
+        });
+
+
+        $.ajax({
+            url: that.config.urls.get_order_status,
+            data: {order_id: ride_data.id},
+            dataType: "json",
+            success: function(response){
+                var status = response.status;
+                var details = response.details;
+                
+                if (status == "pending"){
+                    $details_btn.set_button_text(that.config.labels.cancel_ride);
+                    $details_btn.attr("href", "#").unbind("click").click(function () {
+                        that.cancelOrder(ride_data.id);
+                        return false;
+                    });
+                    $ride_page.find(".ride_details_comment").text(that.config.labels.sms_sent);
+                } else {
+                    $details_btn.attr("href", "mailto:support@waybetter.com?subject=Regarding order " + ride_data.id);
+                    $details_btn.set_button_text(that.config.labels.report_ride);
+                    $details_btn.unbind("click"); // default behavior is report via mailto: link
+
+                    var comment = "";
+                    if (details && details.pickup_time) {
+                        comment += "<p>"+ that.config.labels.final_pickup + ": " + details.pickup_time +"</p>";
+//                        comment += "<p>"+ that.config.labels.taxi_number + ": " + details.taxi_number +"</p>";
+                        comment += "<p>"+ that.config.labels.taxi_station + ": " + details.station_name + " " + details.station_phone +"</p>";
+                    }
+
+                    $ride_page.find(".ride_details_comment").empty().append(comment);
+
+                }
+                $.mobile.changePage($ride_page);
+            }
+        });
+
+
+
+    },
+    cancelOrder: function(order_id) {
+        var that = this;
+        var $details_btn = $(that.config.selectors.ride_details_btn);
+
+         $.ajax({
+            url: that.config.urls.cancel_order,
+            type: "POST",
+            data: {order_id: order_id},
+            dataType: "json",
+            success: function(response) {
+                if (response.status == 'cancelled') {
+                    $("#ride_li_" + order_id + "," + "#ride_header_" + order_id).remove();
+                    $(that.config.selectors.ride_details_list).listview("refresh");
+                    alert(that.config.labels.order_cancelled);
+                    $.changePage(that.config.selectors.my_rides_page);
+                }
+            }
+         });
     }
 });
 

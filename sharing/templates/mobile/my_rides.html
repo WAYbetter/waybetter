@@ -3,12 +3,18 @@
 
 {% block extrastyle %}
     {{ block.super }}
+    <style type="text/css">
+        .ride_details_comment {
+            text-align: center;
+            color: black;
+        }
+    </style>
 {% endblock %}
 
 {% block body %}
     <div id="myrides_page" data-role="page">
         <div data-role="header">
-            <a href="#home" data-icon="grid" data-iconpos="notext" data-transition="pop"></a>
+            <a href="{% url wb_home %}" data-icon="wb_custom" rel="external" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
             <h1>{% trans "My Rides" %}</h1>
             <div data-role="navbar">
                 <ul>
@@ -18,17 +24,33 @@
             </div>
         </div>
         <div data-role="content">
-            <ul data-role="listview"  data-theme="a">
+            <ul id="rides_list" data-role="listview" class="rtl-listview" data-theme="a">
             </ul>
         </div>
     </div>
-
+    <div id="ride_details_page" data-role="page">
+        <div data-role="header">
+            <a href="#" data-rel="back">{% trans 'Back' %}</a>
+            <h1>{% trans "My Rides" %}</h1>
+        </div>
+        <div data-role="content">
+            <ul id="ride_details_list" data-inset="true" class="rtl-listview">
+            </ul>
+            <div class="ride_details_comment">
+            </div>
+            <a id="ride_details_btn" data-role="button" href="#"></a>
+        </div>
+    </div>
 {% endblock %}
 
 {% block doc_ready %}
     {{ block.super }}
     <script type="text/javascript">
-        $(function() {
+        $("#ride_details_page").live("pagebeforeshow", function() {
+            $("#ride_details_list").listview().listview("refresh");
+        });
+        
+        $("#myrides_page").live("pageinit", function() {
             $(document).ajaxSend(function() {
                 $.mobile.showPageLoadingMsg();
             });
@@ -36,14 +58,44 @@
                 $.mobile.hidePageLoadingMsg();
             });
 
+            MobileHelper.init({
+                urls:{
+                    resolve_coordinates: "{% url ordering.passenger_controller.resolve_coordinates %}",
+                    get_myrides_data: "{% url sharing.passenger_controller.get_myrides_data %}",
+                    cancel_order: "{% url sharing.passenger_controller.cancel_order %}",
+                    get_order_status: "{% url sharing.passenger_controller.get_order_status %}"
+                },
+                labels: {
+                    cancel_ride : "{% trans 'Cancel Ride' %}",
+                    report_ride : "{% trans 'Report Ride' %}",
+                    sms_sent    : "{% trans 'An SMS reminder with ride details will be sent a few minutes before your pickup' %}",
+                    final_pickup: "{% trans 'Final Pickup Time' %}",
+                    taxi_number : "{% trans 'Taxi Number' %}",
+                    taxi_station: "{% trans 'Taxi Station' %}",
+                    order_cancelled: "{% trans 'Order Cancelled' %}"
+                    
+                },
+                selectors: {
+                    ride_details_page   : "#ride_details_page",
+                    my_rides_page       : "#myrides_page",
+                    ride_details_list   : "#ride_details_list",
+                    ride_details_btn    : "#ride_details_btn"
+                }
+            });
+
+            MobileHelper.getMyRidesData({get_next_rides: true}, "#rides_list", "#ride_details_page");
+
             $("#upcoming_rides_btn").click(function() {
-                
+                MobileHelper.getMyRidesData({get_next_rides: true}, "#rides_list", "#ride_details_page");
             });
 
             $("#ride_history_btn").click(function() {
-
+                MobileHelper.getMyRidesData({get_previous_rides: true}, "#rides_list", "#ride_details_page");
             });
 
         });
+
     </script>
+
+    
 {% endblock %}

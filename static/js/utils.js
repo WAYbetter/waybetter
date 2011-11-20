@@ -38,7 +38,12 @@ Object.create = Object.create || function (p) {
                 if ($(this).hasClass("ui-button")) {
                     $(this).button("option", "label", text);
                 } else {
-                    $(this).text(text).parent().find(".ui-btn-text").text(text);
+                    var $inner_span = $(this).parent().find(".ui-btn-text");
+                    if ($inner_span.length) {
+                        $inner_span.text(text)
+                    } else {
+                        $(this).text(text);
+                    }
                 }
             })
         },
@@ -460,13 +465,7 @@ function getFullDate(date_obj){
 function getFullTime(date_obj){
     var minutes = date_obj.getMinutes();
     var hours = date_obj.getHours();
-    var s = hours + ":";
-    if (minutes < 10) {
-        s += "0" + minutes
-    } else {
-        s += minutes
-    }
-    return s;
+    return ((hours < 10) ? "0" + hours : hours) + ":" + ((minutes < 10) ? "0" + minutes : minutes);
 }
 
 function getAccordionPosition(elements, key, val) {
