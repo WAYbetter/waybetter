@@ -87,10 +87,11 @@
                     <div id="terms_container">
                         <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
                         <label for="id_agree_to_terms">{% trans "I agree to the" %}
-                            <a class="wb_link" href="{% url terms %}">{% trans "Terms Of Use" %} </a>
-                            {% trans "and" %} <a class="wb_link"
+                            <a class="wb_link" target="_blank" href="{% url terms %}">{% trans "Terms Of Use" %} </a>
+                            {% trans "and" %} <a class="wb_link" target="_blank"
                                                  href="{% url privacy %}">{% trans "Privacy Statement" %}.</a>
                         </label>
+                        <ul class="errorlist"></ul>
                     </div>
                 </form>
             </td>
@@ -120,12 +121,13 @@
         }
 
         function setPassengerFormStatus(enable) {
-            var sel = "#passenger_form input, #passenger_form button";
+            var sel = "#passenger_form input, #passenger_form button, #finish_registration";
             if (enable) {
                 $(sel).enable();
                 $("#registration_details").removeClass("disabled");
 //                initFbAsync();
 //                $("#fb_connect").removeClass("disabled");
+                $("#id_name").focus();
             } else {
                 $("#registration_details").addClass("disabled");
                 $("#fb_connect *").hide();
@@ -152,10 +154,14 @@
 
         $(function() {
             $("[href='{% url auth_login %}']").attr("href", "{{ login_link }}");
-
+            $("#verification_code").disable();
 
             var validations = {% render_ajax_fields form %};
-            $('#passenger_form').validation(validations);
+            $('#passenger_form').validation(validations, {
+                on_form_valid: function(event, form){
+                    $("#finish_registration").enable();
+                }
+            });
 
             updateValidatePhoneButtonState();
             setPassengerFormStatus(false);
@@ -218,7 +224,8 @@
                         $("#local_phone").one("keydown", function(){
                             $that.text($that.data("old_text")).enable();
 
-                        })
+                        });
+                        $("#verification_code").enable().focus();
                     },
                     error: function() {
                         alert("error");
@@ -228,13 +235,7 @@
             });
 
             $("#id_agree_to_terms").change(function() {
-                var valid = $('#passenger_form').valid();
-                if (valid && $(this).attr("checked") == "checked") {
-                    $("#finish_registration").enable();
-                }
-                else {
-                    $("#finish_registration").disable();
-                }
+                $("#passenger_form")[0].validate();
             });
 
             $("#finish_registration").disable().click(function() {

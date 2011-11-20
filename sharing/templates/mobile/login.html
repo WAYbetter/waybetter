@@ -1,27 +1,69 @@
 {% extends "wb_base_mobile.html" %}
 {% load i18n %}
 
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        input {
+            margin-top: 20px;
+        }
+        hr {
+            margin: 20px auto;
+        }
+
+        #advtgs {
+            text-align: center;
+        }
+        #advtgs div {
+            margin-top: 25px;
+        }
+        #advtgs ul {
+            line-height: 35px;
+        }
+    </style>
+{% endblock %}
+
 {% block body %}
     <div id="login_page" data-role="page">
         <div data-role="header">
-            <h1>{% trans "Login" %}</h1>
-            <a href="{% url wb_home %}" data-icon="wb_custom" data-rel="back" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
-            <a href="{% url join %}" class="ui-btn-left">{% trans 'Join' %}</a>
+            <h1>{% trans "Login To Your Account" %}</h1>
+            <a href="{% url wb_home %}" data-icon="wb_custom" data-rel="back" data-theme="b" data-iconpos="notext"
+               data-transition="pop" class="ui-btn-right"></a>
         </div>
         <div data-role="content">
+            <div class="bold">{% trans "Login and enjoy a WAYbetter Taxi experience" %}</div>
+
             {{ form.non_field_errors }}
+
             <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
                 <input type="hidden" name="this_is_the_login_form" value="1"/>
                 <input type="hidden" name="next" value="{{ next }}"/>
                 <input type="hidden" name="token" id="id_token">
 
-                <label for="id_username">{% trans 'Email' %}:</label>
-                <input type="text" name="username" id="id_username"/>
-                <label for="id_password">{% trans 'Password' %}:</label>
-                <input type="password" name="password" id="id_password"/>
+                <input type="email" name="username" id="id_username" placeholder="{% trans 'Email' %}"/>
+{#                {{ form.username.errors }}#}
+                <input type="password" name="password" id="id_password" placeholder="{% trans 'Password' %}"/>
+{#                {{ form.password.errors }}#}
 
-                <input type="submit" data-theme="a" value="{% trans 'Log in' %}"/>
+                <input type="submit" data-theme="d" value="{% trans 'Log in' %}"/>
             </form>
+
+            <hr/>
+
+            <a href="{% url join %}" data-role="button" data-theme="d">{% trans 'New Member? Join Now' %}</a>
+
+            <div id="advtgs">
+                <div class="bold">יתרונות השירות:</div>
+                <ul>
+                    <li>אין דמי מנוי. אתה חוסך, כולם מרוויחים.</li>
+                    <li>סע בלי מזומן! תשלום באשראי מהאפליקציה</li>
+                    <li>תזכורת חינם ב-SMS בטרם הגעת המונית</li>
+                    <li>חסכון מובטח של עשרות שקלים בכל נסיעה</li>
+                    <li>ניהול נסיעות, חשבונית מס חודשית מפורטת</li>
+                    <li>שירות יעיל, ירוק וידידותי לסביבה ולאדם</li>
+                </ul>
+            </div>
+
         </div>
     </div>
 {% endblock %}
