@@ -203,6 +203,7 @@
 {% block doc_ready %}
 {% endblock doc_ready %}
 
+{% block site_scripts %}
 {% if not is_popup %}
     <script type="text/javascript">
         $(function() {
@@ -245,6 +246,7 @@
         s.parentNode.insertBefore(g, s)
     }(document, 'script'));
 </script>
+{% endblock %}
 
 {% block extra-body %}{% endblock %}
 </body>
