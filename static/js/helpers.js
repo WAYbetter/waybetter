@@ -880,6 +880,7 @@ var MobileHelper = Object.create({
         };
 
         if (navigator.geolocation) {
+
             var watch_id = navigator.geolocation.watchPosition(function(p) {
                         log("new position: " + p.coords.longitude + ", " + p.coords.latitude + " (" + p.coords.accuracy + ")");
                         that.last_position = p.coords;
@@ -888,7 +889,8 @@ var MobileHelper = Object.create({
 
                             options.locationSuccess(p);
                         }
-                    }, function() {
+                    }, function(e) {
+                        log("location error: " + e.message);
                         options.locationError(watch_id);
                     }, config);
         } else {

@@ -1,3 +1,6 @@
+.rtl .ui-page {
+  direction: rtl; }
+
 /* custom button icons */
 .ui-icon-wb-switchdir {
   background-image: url(/static/images/mobile/switch-direction.png); }
@@ -42,11 +45,13 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon {
 #booking_page #switch_direction_container {
   width: 80%;
   margin: 20px auto; }
-#booking_page #switch_direction_btn {
-  background: gray; }
 #booking_page .desc {
   color: #7c7c7c;
   font-size: 13px; }
+#booking_page .from_label {
+  color: #48a43e; }
+#booking_page .to_label {
+  color: #bb218a; }
 
 /* address page */
 #address-form input {
@@ -83,6 +88,13 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon {
 
 .ui-loader {
   background: darkGray; }
+
+.ui-btn-hidden {
+  line-height: inherit; }
+
+.ui-icon-none {
+  background: transparent;
+  background-image: none; }
 
 /* RTL */
 .rtl .rtl-listview li {

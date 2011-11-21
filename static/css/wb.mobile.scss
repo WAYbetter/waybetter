@@ -1,3 +1,6 @@
+$from_color: #48a43e;
+$to_color: #bb218a;
+
 @mixin border-radius($r){
     -webkit-border-radius: $r;
     -moz-border-radius: $r;
@@ -7,6 +10,10 @@
     -webkit-box-shadow: $r;
     -moz-box-shadow: $r;
     box-shadow: $r;
+}
+
+.rtl .ui-page {
+    direction: rtl;
 }
 
 /* custom button icons */
@@ -57,13 +64,18 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
         width: 80%;
         margin: 20px auto;
     }
-    #switch_direction_btn{
-        background: gray;
-    }
     .desc {
         color: #7c7c7c;
         font-size: 13px;
     }
+    .from_label {
+        color: $from_color;
+    }
+    .to_label {
+        color: $to_color;
+    }
+
+
 }
 
 /* address page */
@@ -111,7 +123,13 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
 .ui-loader {
     background: darkGray;
 }
-
+.ui-btn-hidden {
+    line-height: inherit;
+}
+.ui-icon-none {
+    background: transparent;
+    background-image: none;
+}
 /* RTL */
 .rtl{
     .rtl-listview{
