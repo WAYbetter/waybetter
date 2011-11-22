@@ -4,8 +4,7 @@
 
 {% block extrastyle %}
     <link rel="stylesheet" href="/static/css/themes/wb.min.css">
-{#    <link rel="stylesheet" href="/static/css/jquery.mobile.structure-1.0.css">#}
-    <link rel="stylesheet" href="//code.jquery.com/mobile/1.0/jquery.mobile.structure-1.0.css" />
+    <link rel="stylesheet" href="/static/css/themes/jquery.mobile.structure-1.0.min.css" />
     <link rel="stylesheet" href="/static/css/wb.mobile.css"/>
 {% endblock extrastyle %}
 
@@ -22,10 +21,11 @@
     <script>
         $(document).bind("mobileinit", function() {
             $.extend($.mobile, {
-                loadingMessage              : "{% trans 'Loading...' %}",
-                touchOverflowEnabled        : true,
+                loadingMessage              : "{% trans 'Thinking...' %}",
+                touchOverflowEnabled        : true
 //                defaultPageTransition       : "fade"
             });
+            $.mobile.page.prototype.options.contentTheme = "a";
             $.mobile.page.prototype.options.backBtnText = "{% trans 'Back' %}";
             $.mobile.listview.prototype.options.dividerTheme = "a";
             $.mobile.listview.prototype.options.theme = "a";
@@ -38,8 +38,6 @@
         });
     </script>
     <script type="text/javascript" src="/static/js/libs/jquery.mobile-1.0.min.js"></script>
-    <script type="text/javascript" src="/static/js/libs/jquery-mobile-1.0.js"></script>
-
     <script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
     <script type="text/javascript" src="/static/js/mylibs/jquery.timers-1.2.min.js"></script>
     <script type="text/javascript" src="/static/js/utils.js"></script>

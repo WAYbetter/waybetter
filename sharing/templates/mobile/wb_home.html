@@ -524,33 +524,34 @@
         <div data-role="content">
             <div class="ui-grid-a"> {#  2-column grid #}
                 <div class="ui-block-a">
-                    <a href="#" id="home_book_order_btn" data-role="button" data-theme="g" data-iconpos="top"
+                    <a href="#" id="home_book_order_btn" data-role="button"  data-iconpos="top"
                        data-icon="wb_custom">
                         {% trans 'Order Now' %}
                     </a>
                 </div>
                 <div class="ui-block-b">
                     <a href="{% if user.is_authenticated %}{% url my_rides %}{% else %}{% url mobile_auth_login %}{% endif %}"
-                       id="myrides_btn" data-role="button" data-theme="g" data-iconpos="top" data-icon="wb_custom">
+                       id="myrides_btn" data-role="button"  data-iconpos="top" data-icon="wb_custom">
                         {% trans 'My Rides' %}
                     </a>
                 </div>
             </div>
             <div class="ui-grid-a">
                 <div class="ui-block-a">
-                    <a href="#share_page" id="share_btn" data-role="button" data-theme="g" data-iconpos="top"
-                       data-icon="wb_custom">{% trans 'Share' %}</a>
+                    <a href="mailto:support@waybetter.com" id="feedback_btn" data-role="button"
+                       data-iconpos="top" data-icon="wb_custom">{% trans 'Feedback' %}</a>
                 </div>
+
                 <div class="ui-block-b">
-                    <a href="#settings_page" id="settings_btn" data-role="button" data-theme="g" data-iconpos="top"
+                    <a href="#settings_page" id="settings_btn" data-role="button"  data-iconpos="top"
                        data-icon="wb_custom">{% trans 'More' %}</a>
                 </div>
             </div>
             <div class="ui-grid-b"> {#  3-column grid #}
                 <div class="ui-block-a"></div>
                 <div class="ui-block-b">
-                    <a href="mailto:support@waybetter.com" id="feedback_btn" data-role="button" data-theme="g"
-                       data-iconpos="top" data-icon="wb_custom">{% trans 'Feedback' %}</a>
+                    <a href="#share_page" id="share_btn" data-role="button"  data-iconpos="top"
+                       data-icon="wb_custom">{% trans 'Share' %}</a>
                 </div>
                 <div class="ui-block-c"></div>
             </div>
@@ -583,8 +584,7 @@
             </div>
 
             <div id="switch_direction_container">
-                <button type="button" id="switch_direction_btn" data-role="button" data-icon="wb-switchdir"
-                        data-theme="f">{% trans "Switch Ride Direction" %}</button>
+                <button type="button" id="switch_direction_btn" data-theme="f">{% trans "Switch Ride Direction" %}</button>
             </div>
 
             <div class="booking_label to_label">

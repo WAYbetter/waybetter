@@ -27,8 +27,32 @@ $hotspot_color: #ed2489;
     background-size: $s;
 }
 
-.rtl .ui-page {
-    direction: rtl;
+.ui-loader{
+    background: white;
+    @include box-shadow(0 0 25px gray);
+    width: 120px;
+    margin-left: -90px;
+}
+.ui-icon-loading{
+    background-image: url(/static/images/mobile/loader_normal.png);
+}
+
+.errorlist li{
+    list-style: none;
+}
+
+.ui-btn-hidden {
+    line-height: inherit;
+}
+.ui-icon-none {
+    background: transparent;
+    background-image: none;
+}
+ul.narrow {
+    .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
+        padding-top: .2em;
+        padding-bottom: .2em;
+    }
 }
 
 .hidden{
@@ -43,19 +67,18 @@ $hotspot_color: #ed2489;
     text-align: center !important;
 }
 
-li.suggest_hotspot {
-    a {
-        h1 {
-            text-align: center;
-            color: $hotspot_color;
-        }
-    }
+.top_tri{
+    background-image: url(/static/images/mobile/top_tri_normal.png);
+    background-position: center top;
+    background-repeat: no-repeat;
+    @include background-size(15px 9px);
 }
-/* custom button icons */
-.ui-icon-wb-switchdir {
-	background-image: url(/static/images/mobile/switch-direction.png);
+
+a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
+    background: url(/static/images/mobile/wb_logo_18px.png) left 0 no-repeat;
+    @include border-radius(0);
+    @include box-shadow(none);
 }
-/* home sweet home */
 
 .wb-header {
     background: white;
@@ -69,13 +92,33 @@ li.suggest_hotspot {
     @include box-shadow(0 0 5px black);
 }
 
+/* home sweet home */
 #home{
     .ui-icon{
-        background: url(/static/images/mobile/home_icons.png) center 0;
+        background: url(/static/images/mobile/home_icons.png) center 0 no-repeat;
         width: 43px;
         height: 43px;
         margin-left: -21.5px;
+        @include border-radius(0);
     }
+    .ui-btn-active{
+        .ui-icon{
+            background: url(/static/images/mobile/home_icons_white.png) center 0 no-repeat;
+            width: 43px;
+            height: 43px;
+            margin-left: -21.5px;
+            @include border-radius(0);
+        }
+        .ui-icon-shadow{
+            @include box-shadow(none);
+        }
+    }
+    $offset: -50px;
+    #myrides_btn .ui-icon{ background-position: center 1*$offset; }
+    #share_btn .ui-icon{ background-position: center 2*$offset - 4 ; }
+    #settings_btn .ui-icon{ background-position: center 3*$offset - 4; }
+    #feedback_btn .ui-icon{ background-position: center 4*$offset - 4; }
+
     .ui-btn-inner{
         padding-top: 50px;
     }
@@ -87,28 +130,19 @@ li.suggest_hotspot {
         font-weight: bold;
         background-color: #4bacc4;
         padding: .7em 0;
-        @include box-shadow(inset 0 0 5px black);
+        border-bottom: 1px solid rgba(0,0,0,0.5);
     }
-
-    $offset: -50px;
-    #myrides_btn .ui-icon{ background-position: center 1*$offset; }
-    #share_btn .ui-icon{ background-position: center 2*$offset; }
-    #settings_btn .ui-icon{ background-position: center 3*$offset; }
-    #feedback_btn .ui-icon{ background-position: center 4*$offset; }
 }
-
-a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
-    background: url(/static/images/mobile/wb_logo_18px.png) left 0 no-repeat;
-    @include border-radius(0);
-    @include box-shadow(none);
-}
-
 
 /* booking page */
 #booking_page{
     #switch_direction_container{
         width: 80%;
         margin: 20px auto;
+    }
+    #switch_direction_btn{
+        background: url(/static/images/mobile/switch_dir.png) 80% center no-repeat;
+        opacity: 1;
     }
     .desc {
         color: #7c7c7c;
@@ -131,42 +165,30 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
 
 }
 
-.ride_summary {
-    h3 {
-        text-align: center;
-        margin: 0;
+#choose_ride_page{
+    .ride_summary {
+        h3 {
+            text-align: center;
+            margin: 0;
+        }
+        .ride_discount {
+            background-image: url(/static/images/mobile/ribbon_normal.png);
+            height: 69px;
+            width: 65px;
+            float: left;
+            position: relative;
+            color: white;
+            text-align: center;
+            padding-top: 0.3em;
+            left: -28px;
+        }
+        background: white;
+        padding: 15px;
+        color: $details_text_color;
+        text-shadow: none;
+        @include box-shadow(0px 0px 3px black);
     }
-    .ride_discount {
-        background-image: url(/static/images/mobile/ribbon_normal.png);
-        height: 69px;
-        width: 65px;
-        float: left;
-        position: relative;
-        color: white;
-        text-align: center;
-        padding-top: 0.3em;
-        left: -28px;
-    }
-    background: white;
-    padding: 15px;
-    color: $details_text_color;
-    text-shadow: none;
-    @include box-shadow(0px 0px 3px black);
 }
-
-@media only screen and (-webkit-min-device-pixel-ratio: 1.5),
-       only screen and (min--moz-device-pixel-ratio: 1.5),
-       only screen and (min-resolution: 240dpi) {
-           .ride_summary {
-                .ride_discount {
-                    background-image: url(/static/images/mobile/ribbon_retina.png);
-                    background-repeat: no-repeat;
-                    @include background-size(65px 69px);
-                }
-           }
-}
-
-
 
 /* address page */
 #address-form input {
@@ -179,6 +201,16 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
 
 #address-form input[type=tel] {
     width: 20%;
+}
+
+/* hotspot page */
+li.suggest_hotspot {
+    a {
+        h1 {
+            text-align: center;
+            color: $hotspot_color;
+        }
+    }
 }
 
 /* Ride details page */
@@ -220,51 +252,67 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
 }
 
 /* registration */
+.registration .ui-bar-a{
+    border-bottom: 1px solid white;
+}
+
 table.registration-progress-bar {
     width: 100%;
-    border-spacing: 0;
-}
-table.registration-progress-bar td{
-    background: #DFDDDD;
-    color: black;
-    text-align: center;
-    text-shadow: none;
-}
-table.registration-progress-bar td.current{
-    background: white;
-}
-table.registration-progress-bar td.done{
-    background: #919191;
-}
+    height: 2em;
+    border: none;
+    border-spacing: 1px;
+    border-collapse: collapse;
 
-#fb_connect{
-    background: url("/static/images/wb_site/fb_disabled.jpeg") -1px 0 no-repeat;
-    width: 170px;
-    height: 28px;
-}
-
-.errorlist li{
-    list-style: none;
-}
-
-.ui-loader {
-    background: darkGray;
-}
-.ui-btn-hidden {
-    line-height: inherit;
-}
-.ui-icon-none {
-    background: transparent;
-    background-image: none;
-}
-ul.narrow {
-    .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
-        padding-top: .2em;
-        padding-bottom: .2em;
+    td{
+        border-left: 1px solid white;
+        background-color: #DFDDDD;
+        color: #9C9C9C;
+        text-align: center;
+        text-shadow: none;
+        font-weight: normal;
     }
+    td.current{
+        color: white;
+        font-weight: bold;
+        background-color: #919191;
+        @extend .top_tri;
+    }
+    td.done{
+        color: #DFDDDD;
+        background: #919191;
+    }
+    #fb_connect{
+        background: url("/static/images/wb_site/fb_disabled.jpeg") -1px 0 no-repeat;
+        width: 170px;
+        height: 28px;
+    }
+
 }
+
+/* for HD devices (iPhone retina, etc.) */
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5),
+       only screen and (min--moz-device-pixel-ratio: 1.5),
+       only screen and (min-resolution: 240dpi) {
+           .ride_summary {
+                .ride_discount {
+                    background-image: url(/static/images/mobile/ribbon_retina.png);
+                    background-repeat: no-repeat;
+                    @include background-size(65px 69px);
+                }
+           }
+           .top_tri{
+                    background-image: url(/static/images/mobile/top_tri__retina.png);
+                    background-repeat: no-repeat;
+                    @include background-size(15px 9px);
+           }
+}
+
+
 /* RTL */
 .rtl{
+    .ui-page, .ui-loader {
+        direction: rtl;
+    }
     .rtl-listview{
         li{
             text-align: right;

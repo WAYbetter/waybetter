@@ -26,6 +26,10 @@ if(lang.equals("HE")){
             direction: <%=langdir%>;
         }
 
+        .ui-bar-a{
+            border-bottom: 1px solid white;
+        }
+
         #wb_lock {
             width: 33px;
             height: 52px;
@@ -92,14 +96,6 @@ if(lang.equals("HE")){
     <meta http-equiv="expires" content="-1">
     <script src="merchantPages/WebSources/js/<%=lang%>.js"></script>
     <script src="merchantPages/WebSources/js/main.js"></script>
-    <%
-    String langdir="ltr";
-    String absvertpos="right: 0";
-    if(lang.equals("HE")){
-        langdir="rtl";
-        absvertpos="left: 0";
-    }
-    %>
 {% endblock %}
 
 {% block body %}
@@ -121,14 +117,14 @@ if(lang.equals("HE")){
                             Details
                         <% } %>
                     </td>
-                    <td class="done">1.
+                    <td class="done">2.
                         <% if (lang.equals("HE")) { %>
                             טלפון
                         <% } else { %>
                             Phone
                         <% } %>
                     </td>
-                    <td class="current">1.
+                    <td class="current">3.
                         <% if (lang.equals("HE")) { %>
                             פרטי חיוב
                         <% } else { %>
