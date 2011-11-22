@@ -80,6 +80,7 @@ LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGE
 
 MAX_STATION_DISTANCE_KM = 10
 CURRENT_PASSENGER_KEY = "current_passenger"
+CURRENT_ORDER_KEY = "current_order"
 
 class RideComputationStatus(Enum):
     PENDING     = 1
@@ -579,7 +580,9 @@ class Passenger(BaseModel):
 
     @classmethod
     def from_request(cls, request):
+        # try to get the passenger of the authenticated user
         passenger = get_model_from_request(cls, request)
+
         # try to get passenger from the session
         if not passenger:
             passenger = request.session.get(CURRENT_PASSENGER_KEY, None)

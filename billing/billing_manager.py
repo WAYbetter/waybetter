@@ -1,5 +1,6 @@
 from datetime import datetime
 import logging
+from billing.models import BillingTransaction
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request, ugettext as _
 from common.util import get_unique_id, safe_fetch
@@ -48,7 +49,7 @@ BILLING_MPI = settings.BILLING_MPI
 BILLING_MPI_MOBILE = settings.BILLING_MPI_MOBILE
 
 
-def get_transaction_id(unique_id, lang_code, mpi_data):
+def get_transaction_id(lang_code, mpi_data):
     data = ALL_QUERY_FIELDS.copy()
 #    unique_id = get_unique_id()
 
@@ -58,7 +59,7 @@ def get_transaction_id(unique_id, lang_code, mpi_data):
     data.update(mpi_data)
     data.update({
         "terminal":         BILLING_INFO["terminal_number"],
-        "uniqueID":         unique_id,
+        "uniqueID":         get_unique_id(), # this must be passed, although currently not used
         "amount":           0,
         "currency":         "ILS",
         "transactionType":  "Debit",
@@ -84,8 +85,7 @@ def get_transaction_id(unique_id, lang_code, mpi_data):
         return res.content
 
 
-def get_token_url(request, order=None):
-    unique_id = get_unique_id()
+def get_token_url(request):
     lang_code = get_language_from_request(request)
 
     if hasattr(request, "mobile") and request.mobile:
@@ -93,12 +93,22 @@ def get_token_url(request, order=None):
     else:
         mpi_data = BILLING_MPI
 
-    if order:
-        request.session[unique_id] = order
-
-    trx_id = get_transaction_id(unique_id, lang_code, mpi_data)
+    trx_id = get_transaction_id(lang_code, mpi_data)
     if trx_id:
         return BILLING_INFO["token_url"] % trx_id
     else:
         request.session[ERROR_PAGE_TEXT] = _("Could not complete your registration. Please try again.")
         return reverse(error_page)
+
+
+def get_billing_redirect_url(request, order, passenger):
+    """
+    returns a url: redirect to credit guard if no passenger has no billing info, else to bill order
+    """
+    if hasattr(passenger, "billing_info"): # redirect to billing
+        billing_trx = BillingTransaction(order=order, amount=order.price)
+        billing_trx.save()
+        return reverse("bill_order", args=[billing_trx.id])
+
+    else: # redirect to credit guard
+        return get_token_url(request)

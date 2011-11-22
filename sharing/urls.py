@@ -53,12 +53,14 @@ urlpatterns = patterns('',
     (r'^price_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_price'),
 
     (r'^resolve_structured_address/$', 'sharing.passenger_controller.resolve_structured_address'),
-    (r'^registration/(?P<order_id>\d+)/$', 'sharing.passenger_controller.registration'),
+    (r'^registration/(?P<step>\w+)/$', 'sharing.passenger_controller.registration'),
     url(r'^registration/$', 'sharing.passenger_controller.registration', name="join"),
-    (r'^login_redirect/(?P<order_id>\d+)/$', 'sharing.passenger_controller.login_redirect'),
+    (r'^login_redirect/$', 'sharing.passenger_controller.post_login_redirect'),
     url(r'^send_verification_code/$', 'sharing.passenger_controller.send_sms_verification', name="send_verification_code"),
     url(r'^validate_phone/$', 'sharing.passenger_controller.validate_phone', name="validate_phone"),
     url(r'^register/$', 'sharing.passenger_controller.do_register', name="register"),
+    url(r'^register_user/$', 'sharing.passenger_controller.do_register_user', name="register_user"),
+    url(r'^register_passenger/$', 'sharing.passenger_controller.do_register_passenger', name="register_passenger"),
 
 
     url(r'^info/$', 'sharing.content_controller.info', name="info"),
