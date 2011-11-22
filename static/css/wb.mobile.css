@@ -1,6 +1,9 @@
 .rtl .ui-page {
   direction: rtl; }
 
+.hidden {
+  display: none; }
+
 .bold {
   font-weight: bold; }
 
@@ -115,6 +118,7 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon {
     -o-background-size: 65px 69px;
     -webkit-background-size: 65px 69px;
     background-size: 65px 69px; } }
+
 /* address page */
 #address-form input {
   display: inline-block; }
@@ -154,6 +158,22 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon {
   background: url(/static/images/wb_site/processing_icons.png) left 10px no-repeat; }
 
 /* registration */
+table.registration-progress-bar {
+  width: 100%;
+  border-spacing: 0; }
+
+table.registration-progress-bar td {
+  background: #DFDDDD;
+  color: black;
+  text-align: center;
+  text-shadow: none; }
+
+table.registration-progress-bar td.current {
+  background: white; }
+
+table.registration-progress-bar td.done {
+  background: #919191; }
+
 #fb_connect {
   background: url("/static/images/wb_site/fb_disabled.jpeg") -1px 0 no-repeat;
   width: 170px;

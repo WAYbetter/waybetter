@@ -7,6 +7,15 @@
 <%@ include file="/merchantPages/WebSources/includes/main.jsp" %>
 -->
 
+<%
+String langdir="ltr";
+String absvertpos="right: 0";
+if(lang.equals("HE")){
+    langdir="rtl";
+    absvertpos="left: 0";
+}
+%>
+
 {% extends "wb_base_mobile.html" %}
 {% load i18n %}
 
@@ -38,9 +47,14 @@
             width: 18px;
             position: relative;
             top: 3px;
-            margin-right: 10px;
             cursor: pointer;
             background: url("/static/images/wb_site/question_mark.png") left 0 no-repeat;
+            <% if (langdir.equals("ltr")) { %>
+                margin-left: 30px;
+            <% } else { %>
+                margin-right: 30px;
+            <% } %>
+
         }
 
         #cvv {
@@ -91,18 +105,47 @@
 {% block body %}
     <div id="credit_guard_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <h1>{% trans "Billing Details" %}</h1>
-            <table class="progress-bar">
+            <h1>
+                <% if (lang.equals("HE")) { %>
+                    הצטרף לWAYbetter
+                <% } else { %>
+                    Join WAYbetter
+                <% } %>
+            </h1>
+            <table class="registration-progress-bar">
                 <tr>
-                    <td class="current">1. {% trans "Registration" %}</td>
-                    <td>2. {% trans "Phone Verification" %}</td>
-                    <td>3. {% trans "Billing Details" %}</td>
+                    <td class="done">1.
+                        <% if (lang.equals("HE")) { %>
+                            פרטים
+                        <% } else { %>
+                            Details
+                        <% } %>
+                    </td>
+                    <td class="done">1.
+                        <% if (lang.equals("HE")) { %>
+                            טלפון
+                        <% } else { %>
+                            Phone
+                        <% } %>
+                    </td>
+                    <td class="current">1.
+                        <% if (lang.equals("HE")) { %>
+                            פרטי חיוב
+                        <% } else { %>
+                            Billing
+                        <% } %>
+                    </td>
                 </tr>
             </table>
         </div>
         <div data-role="content">
             <div id="payment-header">
-                {% trans "SSL Secured Payment" %}
+                <% if (lang.equals("HE")) { %>
+                    דף תשלום מאובטח SSL
+                <% } else { %>
+                    SSL Secured Payment
+                <% } %>
+
             </div>
             <form id="creditForm" onsubmit="return formValidator(0);" method="POST" action="ProcessCreditCard">
                 <input type="hidden" name="txId" value="<%=mpiTxnId%>"/>
@@ -144,7 +187,7 @@
 
                 <label for="cvv">CVV</label>
                 <input type="text" name="cvv" id="cvv" maxlength="4" autocomplete="off"/>
-                <a href="#cvv_dialog" data-transition="pop">
+                <a href="#cvv_dialog" data-rel="dialog">
                     <span id="qm" src="merchantPages/WebSources/images/qm.png"></span>
                 </a>
 
@@ -153,14 +196,16 @@
                 <input type="text" id="personalId" name="personalId" maxlength="9" autocomplete="off"/>
 
                 <input type="submit" id="submitBtn" data-theme="d" value="<%=formSend%>"/>
-{#                <input id="resetBtn" data-theme="d" value="<%=formReset%>"/>#}
+                <div class="hidden">
+                    {# need this to avoid js errors from CreditGuard's scripts #}
+                    <input id="resetBtn" type="reset" value="<%=formReset%>"/>
+                </div>
             </form>
         </div>
     </div>
 
-    <div id="cvv_dialog" data-role="page" data-theme="d">
+    <div id="cvv_dialog" data-role="page">
         <div data-role="header">
-            <a href="#" data-rel="back" data-theme="h">{% trans "Close" %}</a>
             <h1>CVV</h1>
         </div>
         <div data-role="content">
