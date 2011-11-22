@@ -518,9 +518,8 @@
 {% block body %}
 
     <div id="home" data-role="page" data-theme="a">
-        <div data-role="header">
-            <h1></h1>
-        </div>
+        <div data-role="header" class="wb-header"></div>
+        <div class="sub-header">{% trans 'Shared Taxis to Central Locations' %}</div>
         <div data-role="content">
             <div class="ui-grid-a"> {#  2-column grid #}
                 <div class="ui-block-a">
@@ -816,6 +815,20 @@
             <p>{% trans "All rights reserved to WAYbetter" %} &copy;2011</p>
             <div class="telmap_logo"></div>
             <div class="mapa_logo"></div>
+        </div>
+    </div>
+
+    <div id="welcome_page" data-role="page" data-theme="a">
+        <div data-role="header" class="wb-header"></div>
+        <div data-role="content" class="center">
+            <strong>{% trans 'Welcome' %}!</strong>
+            <p>This app is so great you will call your next child after it!</p>
+            <strong>{% trans 'The use of this app is free' %}.</strong>
+
+            <hr/>
+
+            <a href="{% url mobile_auth_login %}" data-role="button" data-theme="d">{% trans 'Login/Join' %}</a>
+            <a href="#home" data-role="button" data-transition="fade" data-theme="f">{% trans 'Not Now' %}</a>
         </div>
     </div>
 
