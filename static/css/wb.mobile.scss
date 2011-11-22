@@ -31,6 +31,10 @@ $hotspot_color: #ed2489;
     direction: rtl;
 }
 
+.hidden{
+    display:none;
+}
+
 .bold{
     font-weight:bold
 }
@@ -205,6 +209,23 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
 }
 
 /* registration */
+table.registration-progress-bar {
+    width: 100%;
+    border-spacing: 0;
+}
+table.registration-progress-bar td{
+    background: #DFDDDD;
+    color: black;
+    text-align: center;
+    text-shadow: none;
+}
+table.registration-progress-bar td.current{
+    background: white;
+}
+table.registration-progress-bar td.done{
+    background: #919191;
+}
+
 #fb_connect{
     background: url("/static/images/wb_site/fb_disabled.jpeg") -1px 0 no-repeat;
     width: 170px;

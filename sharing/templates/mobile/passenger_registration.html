@@ -12,16 +12,6 @@
         table {
             width: 100%;
         }
-        table.progress-bar td{
-            background: gray;
-            color: black;
-            text-align: center;
-            text-shadow: none;
-        }
-        table.progress-bar td.current{
-            background: white;
-        }
-
         td.or {
             width: 50px;
             text-align: center;
@@ -47,11 +37,11 @@
     <div id="registration_page" data-role="page">
         <div data-role="header">
             <h1>{% trans "Join WAYbetter" %}</h1>
-            <table class="progress-bar">
+            <table class="registration-progress-bar">
                 <tr>
-                    <td class="current">1. {% trans "Registration" %}</td>
-                    <td>2. {% trans "Phone Verification" %}</td>
-                    <td>3. {% trans "Billing Details" %}</td>
+                    <td class="current">1. {% trans "Details" %}</td>
+                    <td>2. {% trans "Phone" %}</td>
+                    <td>3. {% trans "Billing" %}</td>
                 </tr>
             </table>
         </div>
@@ -108,11 +98,11 @@
     <div id="validation_page" data-role="page">
         <div data-role="header">
             <h1>{% trans "Join WAYbetter" %}</h1>
-            <table class="progress-bar">
+            <table class="registration-progress-bar">
                 <tr>
-                    <td>1. {% trans "Registration" %}</td>
-                    <td class="current">2. {% trans "Phone Verification" %}</td>
-                    <td>3. {% trans "Billing Details" %}</td>
+                    <td class="done">1. {% trans "Details" %}</td>
+                    <td class="current">2. {% trans "Phone" %}</td>
+                    <td>3. {% trans "Billing" %}</td>
                 </tr>
             </table>
         </div>
