@@ -1,0 +1,22 @@
+{% extends "wb_base_mobile.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+    .terms .header {
+        font-weight: bold;
+    }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div id="terms_page" data-role="page" data-theme="a">
+        <div data-role="header">
+            <h1>{% trans "Terms of Service" %}</h1>
+        </div>
+        <div data-role="content" class="terms">
+            {% trans "terms_content" %}
+        </div>
+    </div>
+{% endblock %}

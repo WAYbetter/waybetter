@@ -1,3 +1,4 @@
+from common.decorators import force_lang
 from django.template.context import RequestContext
 from common.util import custom_render_to_response
 from django.utils import simplejson
@@ -18,13 +19,15 @@ def contact(request):
     page_name = page_specific_class = "contact"
     return custom_render_to_response("contact.html", locals(), context_instance=RequestContext(request))
 
+@force_lang("he") # for now show this page only in hebrew
 def privacy(request):
     page_name = page_specific_class = "privacy"
-    return custom_render_to_response("privacy_he.html", locals(), context_instance=RequestContext(request))
+    return custom_render_to_response("privacy.html", locals(), context_instance=RequestContext(request))
 
+@force_lang("he") # for now show this page only in hebrew
 def terms(request):
     page_name = page_specific_class = "terms"
-    return custom_render_to_response("terms_he.html", locals(), context_instance=RequestContext(request))
+    return custom_render_to_response("terms.html", locals(), context_instance=RequestContext(request))
 
 def faq(request):
     page_name = page_specific_class = "faq"
