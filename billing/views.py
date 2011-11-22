@@ -4,6 +4,7 @@ import logging
 import csv
 from billing import billing_backend
 from billing.billing_backend import create_invoices
+from billing.billing_manager import get_billing_redirect_url
 from billing.enums import BillingStatus, BillingAction
 from common.tz_support import default_tz_now
 from common.util import custom_render_to_response
@@ -16,7 +17,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, passenger_required
-from ordering.models import SharedRide, COMPLETED, ACCEPTED, CANCELLED
+from ordering.models import SharedRide, COMPLETED, ACCEPTED, CANCELLED, CURRENT_ORDER_KEY
 
 def bill_passenger(request):
     form = BillingForm(data=request.POST)
@@ -61,21 +62,20 @@ def transaction_ok(request, passenger):
     billing_info = BillingInfo(**kwargs)
     billing_info.save()
 
-    logging.info("looking for order via: %s" % request.GET.get("uniqueID"))
-    order = request.session.get(request.GET.get("uniqueID"))
+    order = request.session.get(CURRENT_ORDER_KEY)
     if order and order.price and order.passenger == passenger:
         logging.info("Billing order: %s" % order)
-        billing_trx = BillingTransaction(order=order, amount=order.price)
-        billing_trx.save()
-        return HttpResponseRedirect(reverse("bill_order", args=[billing_trx.id]))
+        # redirect to bill order
+        return HttpResponseRedirect(get_billing_redirect_url(request, order, passenger))
     else:
-        return HttpResponseRedirect("/")
+        return HttpResponseRedirect(reverse("wb_home"))
 
 
 @passenger_required
 def bill_order(request, trx_id, passenger):
     billing_trx = BillingTransaction.by_id(trx_id)
     billing_trx.commit()
+    request.session[CURRENT_ORDER_KEY] = None
 
     page_specific_class = "transaction_page"
     pending = BillingStatus.PENDING

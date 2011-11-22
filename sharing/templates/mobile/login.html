@@ -35,7 +35,7 @@
 
             {{ form.non_field_errors }}
 
-            <form action="{{ app_path }}" method="post" id="login-form">{% csrf_token %}
+            <form data-ajax="false" method="post" id="login-form">{% csrf_token %}
                 <input type="hidden" name="this_is_the_login_form" value="1"/>
                 <input type="hidden" name="next" value="{{ next }}"/>
                 <input type="hidden" name="token" id="id_token">
@@ -50,7 +50,7 @@
 
             <hr/>
 
-            <a href="{% url join %}" data-role="button" data-theme="d">{% trans 'New Member? Join Now' %}</a>
+            <a data-ajax="false" href="{% url join %}" data-role="button" data-theme="d">{% trans 'New Member? Join Now' %}</a>
 
             <div id="advtgs">
                 <div class="bold">יתרונות השירות:</div>

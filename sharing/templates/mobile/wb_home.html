@@ -198,8 +198,9 @@
             $form.append($('<input type="hidden"/>').attr("name", k).attr("value", v));
         });
 
-        $form.ajaxSubmit({
+        $.ajax({
             url: "{% url sharing.passenger_controller.book_ride %}",
+            data: $form.serialize(),
             type: "POST",
             beforeSend: function() {
                 $(".order_button").disable();
@@ -546,7 +547,7 @@
 {#            <a href="#">{% trans 'Map' %}</a>#}
         </div>
         <div data-role="content">
-            <form id="order_form" method="post">
+            <form id="order_form">
                 {% csrf_token %}
                 <div class="ride_summary">
                     <h3>{% trans "WAYbetter Taxi Ride" %}</h3>
@@ -557,10 +558,9 @@
                         <p id="sharing_time">{% trans "Est. Ride Duration" %}: <span
                                 class="value">0</span> {% trans "min" %}</p>
                     </div>
-                    <button id="book_sharing" data-theme="d">{% trans 'Book WAYbetter' %}</button>
+                    <button id="book_sharing" class="order_button" data-theme="d">{% trans 'Book WAYbetter' %}</button>
 
                 </div>
-                <p/>
 
                 <div class="ride_summary">
                     <h3>{% trans "Private Taxi Ride" %}</h3>
@@ -571,7 +571,7 @@
                         <p id="private_time">{% trans "Est. Ride Duration" %}: <span
                                 class="value">0</span> {% trans "min" %}</p>
                     </div>
-                    <button id="book_private" data-theme="c">{% trans 'Book Private' %}</button>
+                    <button id="book_private" class="order_button" data-theme="c">{% trans 'Book Private' %}</button>
 
                 </div>
             </form>

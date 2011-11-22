@@ -46,7 +46,7 @@ class ProducerPassengerForm(forms.ModelForm):
         exclude = ["producer", "country", "geohash", "passenger"]
         model = ProducerPassenger
 
-class PassengerRegistrationForm(forms.Form):
+class UserRegistrationForm(forms.Form):
     order = None
 
     name = forms.CharField(label=_("Full Name"), required=True)
