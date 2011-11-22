@@ -543,7 +543,7 @@
                 </div>
                 <div class="ui-block-b">
                     <a href="#settings_page" id="settings_btn" data-role="button" data-theme="g" data-iconpos="top"
-                       data-icon="wb_custom">{% trans 'Settings' %}</a>
+                       data-icon="wb_custom">{% trans 'More' %}</a>
                 </div>
             </div>
             <div class="ui-grid-b"> {#  3-column grid #}
@@ -573,7 +573,7 @@
             </div>
 
             <div class="booking_widget">
-                <ul data-role="listview" class="rtl-listview" data-inset="true">
+                <ul data-role="listview" class="rtl-listview narrow" data-inset="true">
                     <li data-icon="arrow-l">
                         <a href="#address_page" id="choose_address_btn">
                             <h1 class="header">{% trans "Enter Address" %}</h1>
@@ -593,7 +593,7 @@
             </div>
 
             <div class="booking_widget">
-                <ul data-role="listview" class="rtl-listview" data-inset="true">
+                <ul data-role="listview" class="rtl-listview narrow" data-inset="true">
                     <li data-icon="arrow-l">
                         <a href="#hotspot_page" id="choose_hotspot_btn">
                             <h1 class="header">{% trans "Choose Hotspot" %}</h1>
@@ -786,15 +786,38 @@
         <div data-role="header">
             <a href="#home" data-icon="wb_custom" data-theme="b" data-iconpos="notext" data-transition="pop"
                class="ui-btn-right"></a>
-
-            <h1>{% trans "Settings" %}</h1>
+            <h1>{% trans "More" %}</h1>
         </div>
         <div data-role="content">
             <ul class="rtl-listview" data-role="listview">
-                <li data-icon="arrow-l"><a href="#">{% trans "Setting 1" %}</a></li>
-                <li data-icon="arrow-l"><a href="#">{% trans "Setting 2" %}</a></li>
+                <li data-icon="arrow-l"><a href="#about_page">{% trans "About" %}</a></li>
+                <li data-icon="arrow-l"><a href="{% url faq %}">{% trans "FAQ" %}</a></li>
+                <li data-icon="arrow-l"><a href="{% url privacy %}">{% trans "Privacy Policy" %}</a></li>
+                <li data-icon="arrow-l"><a href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
             </ul>
         </div>
     </div>
+
+    <div id="about_page" data-role="page" data-theme="a">
+        <div data-role="header">
+            <a href="#" data-rel="back" data-theme="h" class="ui-btn-right">{% trans 'Back' %}</a>
+            <h1>{% trans "About" %}</h1>
+        </div>
+        <div data-role="content">
+            <fieldset class="ui-grid-a">
+                <div class="about_icon ui-block-a">
+
+                </div>
+                <div class="about_header ui-block-b">
+                    <h1>Shared Taxi</h1>
+                    <p>{% trans "Version" %} 1.0</p>
+                </div>
+            </fieldset>
+            <p>{% trans "All rights reserved to WAYbetter" %} &copy;2011</p>
+            <div class="telmap_logo"></div>
+            <div class="mapa_logo"></div>
+        </div>
+    </div>
+
 
 {% endblock body %}

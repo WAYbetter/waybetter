@@ -9,6 +9,8 @@ import logging
 import traceback
 
 #TODO_WB: methods using this decorator should declare the require parameters as args. commented out its usages.
+from django.utils import translation
+
 def require_parameters(method='GET', required_params=()):
     """
     Ensure the given parameters where passed to the request, otherwise respond with HttpResponseBadRequest
@@ -29,6 +31,22 @@ def require_parameters(method='GET', required_params=()):
         return wrapper
 
     return actual_decorator
+
+def force_lang(lang_code):
+    def actual_decorator(function):
+        def wrapper(request, **kwargs):
+            current_lang = translation.get_language()
+            translation.activate(lang_code)
+
+            response = function(request, **kwargs)
+
+            translation.activate(current_lang)
+            return response
+
+        return wrapper
+
+    return actual_decorator
+
 
 def catch_view_exceptions(function=None):
     def wrapper(*args, **kwargs):

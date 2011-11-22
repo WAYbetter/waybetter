@@ -225,6 +225,12 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
     background: transparent;
     background-image: none;
 }
+ul.narrow {
+    .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
+        padding-top: .2em;
+        padding-bottom: .2em;
+    }
+}
 /* RTL */
 .rtl{
     .rtl-listview{
@@ -237,8 +243,6 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
         .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit{
             padding-right: 15px;
             padding-left: 30px;
-            padding-top: .2em;
-            padding-bottom: .2em;
         }
         .ui-btn-icon-right .ui-icon{
             right: auto;
