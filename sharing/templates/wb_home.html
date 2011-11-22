@@ -533,12 +533,11 @@
             },
             success: function(response) {
                 if (response.sharing_price && response.sharing_time && response.private_price && response.private_time) {
-                    var saved = (response.private_price - response.sharing_price) / response.private_price * 100;
                     $("#sharing_price .value").text(response.sharing_price);
                     $("#sharing_time .value").text(response.sharing_time);
                     $("#private_price .value").text(response.private_price);
                     $("#private_time .value").text(response.private_time);
-                    $("#save_stamp .value").text(Math.round(saved) + "%");
+                    $("#save_stamp .value").text(response.savings + "%");
                     $("#save_stamp").fadeIn("fast");
                     $(".order_button").enable();
 

@@ -4,17 +4,6 @@
 {% block extrastyle %}
     {{ block.super }}
     <style>
-        .ride_summary {
-            background: white;
-            padding: 15px;
-            border: 1px solid black;
-        }
-
-        .ride_summary h3 {
-            text-align: center;
-            margin: 0;
-        }
-
         .address_type_indicator {
             font-style: italic;
             font-weight: normal;
@@ -38,8 +27,12 @@
         city_ids.push({{ city.id }});
     {% endfor %}
 
-    var pickup_time_msg = "{% trans 'Choose Pickup Time' %}";
-    var dropoff_time_msg = "{% trans 'Choose Dropoff Time' %}";
+    var choose_pickup_time_msg = "{% trans 'Choose Pickup Time' %}";
+    var choose_dropoff_time_msg = "{% trans 'Choose Dropoff Time' %}";
+    var pickup_time_msg = "{% trans 'Pickup Time' %}";
+    var dropoff_time_msg = "{% trans 'Dropoff Time' %}";
+    var pickup_msg = "{% trans 'Pickup' %}";
+    var dropoff_msg = "{% trans 'Dropoff' %}";
 
     function showDialog(dialog_name) {
         alert(dialog_name);
@@ -162,6 +155,7 @@
                     $("#sharing_time .value").text(response.sharing_time);
                     $("#private_price .value").text(response.private_price);
                     $("#private_time .value").text(response.private_time);
+                    $(".ride_summary .ride_discount").text("{% trans 'SAVE' %} " + response.savings + "%");
                     $(".order_button").enable();
                     $.mobile.changePage("#choose_ride_page");
                 } else {
@@ -182,15 +176,22 @@
         $(".booking_widget").eq(0).swap($(".booking_widget").eq(1));
         $(".booking_label .type").eq(0).swap($(".booking_label .type").eq(1));
 
+        $("#ride_details_page .dropoff .details_label").swap($("#ride_details_page .pickup .details_label"));
+//        $("#ride_details_page .dropoff .details_label_type").swap($("#ride_details_page .pickup .details_label_type"));
+        $("#ride_details_page .dropoff").swap($("#ride_details_page .pickup"));
+
         if (MobileHelper.hotspot_type == "pickup") {
             MobileHelper.hotspot_type = "dropoff";
-            $("#interval_page").find("[data-role=header] h1").text(dropoff_time_msg);
-            $("#choose_time_btn").find(".header").text(dropoff_time_msg);
+            $("#interval_page").find("[data-role=header] h1").text(choose_dropoff_time_msg);
+            $("#choose_time_btn").find(".header").text(choose_dropoff_time_msg);
         } else {
             MobileHelper.hotspot_type = "pickup";
-            $("#interval_page").find("[data-role=header] h1").text(pickup_time_msg);
-            $("#choose_time_btn").find(".header").text(pickup_time_msg);
+            $("#interval_page").find("[data-role=header] h1").text(choose_pickup_time_msg);
+            $("#choose_time_btn").find(".header").text(choose_pickup_time_msg);
         }
+
+
+        
         getIntervals(false);
     }
 
@@ -342,6 +343,11 @@
                     });
                 });
 
+                var $suggest_li = $("<li data-icon='arrow-l'></li>").addClass("suggest_hotspot");
+                var $suggest_link = $("<a><h1>"+"{% trans 'Suggest a new hotspot' %}"+"</h1></a>").attr("href", "mailto:support@waybetter.com?subject=My suggested hotspot");
+                $suggest_li.append($suggest_link);
+                $hotspot_list.append($suggest_li);
+
                 MobileHelper.getCurrentLocation({
                     locationSuccess: function(p) {
                         $.each(hotspots, function(i, hs) {
@@ -463,13 +469,13 @@
         // update booking_page button
         $("#select-interval-form").submit(function() {
 
-            var ride_date = $("#ride-date").val();
-            var ride_time = $("#ride-time").val();
+            MobileHelper.ride_date = $("#ride-date").val();
+            MobileHelper.ride_time = $("#ride-time").val();
 
-            if (ride_date && ride_time) {
-                $("#ride-date").jqmData("saved_val", ride_date);
-                $("#ride-time").jqmData("saved_val", ride_time);
-                $("#choose_time_btn").find(".desc").text(ride_date + " " + ride_time);
+            if (MobileHelper.ride_date && MobileHelper.ride_time) {
+                $("#ride-date").jqmData("saved_val", MobileHelper.ride_date);
+                $("#ride-time").jqmData("saved_val", MobileHelper.ride_time);
+                $("#choose_time_btn").find(".desc").text(MobileHelper.ride_date + " " + MobileHelper.ride_time);
                 $("#calculate_ride_btn").button("enable");
             } else {
                 $("#calculate_ride_btn").button("disable");
@@ -489,6 +495,19 @@
         });
         $("#share_email").click(function() {
             window.shareByEmail();
+        });
+
+
+        // ride details page
+        $("#ride_details_page").live("pagebeforeshow", function() {
+            $("#ride_details_page .address p").text(MobileHelper.address.name);
+            $("#ride_details_page .hotspot p").text(MobileHelper.hotspot.name);
+            $("#ride_details_page .when p").text(MobileHelper.ride_date + " " + MobileHelper.ride_time);
+            if (MobileHelper.hotspot_type == "pickup") {
+                $("#ride_details_page .when .details_label_type").text(pickup_time_msg);
+            } else {
+                $("#ride_details_page .when .details_label_type").text(dropoff_time_msg);
+            }
         });
 
     });
@@ -549,7 +568,7 @@
         </div>
         <div data-role="content">
             <div class="booking_label from_label">
-                <span>{% trans "From" %}:</span>
+                <span class="label_box">{% trans "From" %}</span>
                 <span class="type">{% trans "Address" %}</span>
             </div>
 
@@ -569,7 +588,7 @@
             </div>
 
             <div class="booking_label to_label">
-                <span>{% trans "To" %}:</span>
+                <span class="label_box">{% trans "To" %}</span>
                 <span class="type">{% trans "Central Location" %}</span>
             </div>
 
@@ -577,7 +596,7 @@
                 <ul data-role="listview" class="rtl-listview" data-inset="true">
                     <li data-icon="arrow-l">
                         <a href="#hotspot_page" id="choose_hotspot_btn">
-                            <h1 class="header">{% trans "Choose Central Location" %}</h1>
+                            <h1 class="header">{% trans "Choose Hotspot" %}</h1>
 
                             <p class="desc"></p>
                         </a>
@@ -598,16 +617,20 @@
 
     <div id="choose_ride_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#" data-rel="back" class="ui-btn-right">{% trans "Back" %}</a>
+            <a href="#" data-rel="back" class="ui-btn-right" data-theme="h">{% trans "Back" %}</a>
 
             <h1>{% trans 'Your WAY' %}</h1>
             {#            <a href="#">{% trans 'Map' %}</a>#}
         </div>
         <div data-role="content">
+            <a href="#ride_details_page" data-role="button" data-theme="g" data-icon="info" data-transition="flip">{% trans 'View Ride Details' %}</a>
             <form id="order_form" method="post">
                 {% csrf_token %}
                 <div class="ride_summary">
-                    <h3>{% trans "WAYbetter Taxi Ride" %}</h3>
+                    <div class="ride_discount">
+                        
+                    </div>
+                    <h3>{% trans "Shared Taxi Ride" %}</h3>
 
                     <div>
                         <p id="sharing_price">{% trans "Ride Price" %}: <span class="value">0</span> ₪</p>
@@ -615,12 +638,9 @@
                         <p id="sharing_time">{% trans "Est. Ride Duration" %}: <span
                                 class="value">0</span> {% trans "min" %}</p>
                     </div>
-                    <button id="book_sharing" data-theme="d">{% trans 'Book WAYbetter' %}</button>
+                    <button id="book_sharing" data-theme="d">{% trans 'Book Shared' %}</button>
 
-                </div>
-                <p/>
-
-                <div class="ride_summary">
+                    <hr/>
                     <h3>{% trans "Private Taxi Ride" %}</h3>
 
                     <div>
@@ -636,15 +656,56 @@
         </div>
     </div>
 
+    <div id="ride_details_page" data-role="page">
+        <div data-role="header">
+            <a href="#" data-rel="back" data-theme="h" class="ui-btn-right">{% trans "Back" %}</a>
+            <h1>{% trans 'Ride Details' %}</h1>
+            <a href="#booking_page" data-theme="h" class="ui-btn-left">{% trans "Edit" %}</a>
+        </div>
+        <div data-role="content">
+            <a href="#" data-rel="back" data-role="button" data-theme="g" data-icon="back">{% trans 'Back To Ride Order' %}</a>
+
+            <div class="ride_summary">
+                <div class="pickup">
+                    <div class="address">
+                        <span class="details_label">{% trans "Pickup" %}</span>
+                        <span class="details_label_type">
+                            {% trans 'Address' %}
+                        </span>
+
+                        <p>bla bla </p>
+                    </div>
+                </div>
+                <hr/>
+                <div class="dropoff">
+                    <div class="hotspot">
+                        <span class="details_label">{% trans "Dropoff" %}</span>
+                        <span class="details_label_type">
+                            {% trans 'Hotspot' %}
+                        </span>
+                        <p>bla bla </p>
+                    </div>
+                    <hr/>
+                    <div class="when">
+                        <span class="details_label_type">
+
+                        </span>
+                        <p>bla bla </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
     <div id="hotspot_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#" data-rel="back" class="ui-btn-right">{% trans 'Cancel' %}</a>
+            <a href="#" data-rel="back" class="ui-btn-right" data-theme="h">{% trans 'Cancel' %}</a>
 
-            <h1>{% trans 'Select HotSpot' %}</h1>
+            <h1>{% trans 'Choose Hotspot' %}</h1>
         </div>
         <div data-role="content">
             <ul id="hotspot_list" class="rtl-listview" data-role="listview" data-theme="a">
-                <li data-theme="d">
+                <li data-theme="d" class="center">
                     {% trans 'Hotspots are areas where WAYbetter offers cheap taxis' %}
                 </li>
             </ul>
@@ -690,7 +751,7 @@
 
     <div id="interval_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#booking_page" data-rel="back">{% trans "Cancel" %}</a>
+            <a href="#" data-rel="back" class="ui-btn-right" data-theme="h">{% trans 'Cancel' %}</a>
 
             <h1>{% trans 'Pickup Time' %}</h1>
         </div>

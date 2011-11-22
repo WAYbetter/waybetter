@@ -4,6 +4,13 @@
 .bold {
   font-weight: bold; }
 
+.center {
+  text-align: center !important; }
+
+li.suggest_hotspot a h1 {
+  text-align: center;
+  color: #ed2489; }
+
 /* custom button icons */
 .ui-icon-wb-switchdir {
   background-image: url(/static/images/mobile/switch-direction.png); }
@@ -53,9 +60,49 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon {
   font-size: 13px; }
 #booking_page .from_label {
   color: #48a43e; }
+  #booking_page .from_label .label_box {
+    background-color: #48a43e;
+    color: white;
+    padding: .1em .2em; }
 #booking_page .to_label {
   color: #bb218a; }
+  #booking_page .to_label .label_box {
+    background-color: #bb218a;
+    color: white;
+    padding: .1em .2em; }
 
+.ride_summary {
+  background: white;
+  padding: 15px;
+  color: #666666;
+  text-shadow: none;
+  -webkit-box-shadow: 0px 0px 3px black;
+  -moz-box-shadow: 0px 0px 3px black;
+  box-shadow: 0px 0px 3px black; }
+  .ride_summary h3 {
+    text-align: center;
+    margin: 0; }
+  .ride_summary .ride_discount {
+    background-image: url(/static/images/mobile/ribbon_normal.png);
+    height: 69px;
+    width: 65px;
+    float: left;
+    position: relative;
+    color: white;
+    text-align: center;
+    padding-top: 0.3em;
+    left: -28px; }
+
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5),
+       only screen and (min--moz-device-pixel-ratio: 1.5),
+       only screen and (min-resolution: 240dpi) {
+  .ride_summary .ride_discount {
+    background-image: url(/static/images/mobile/ribbon_retina.png);
+    background-repeat: no-repeat;
+    -moz-background-size: 65px 69px;
+    -o-background-size: 65px 69px;
+    -webkit-background-size: 65px 69px;
+    background-size: 65px 69px; } }
 /* address page */
 #address-form input {
   display: inline-block; }
@@ -65,6 +112,20 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon {
 
 #address-form input[type=tel] {
   width: 20%; }
+
+/* Ride details page */
+#ride_details_page .pickup .details_label {
+  background-color: #48a43e;
+  color: white;
+  padding: .1em .2em; }
+#ride_details_page .pickup .details_label_type {
+  color: #48a43e; }
+#ride_details_page .dropoff .details_label {
+  background-color: #bb218a;
+  color: white;
+  padding: .1em .2em; }
+#ride_details_page .dropoff .details_label_type {
+  color: #bb218a; }
 
 /* transaction page */
 #status_icon {
@@ -106,7 +167,9 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon {
   text-align: right; }
 .rtl .rtl-listview .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
   padding-right: 15px;
-  padding-left: 30px; }
+  padding-left: 30px;
+  padding-top: .2em;
+  padding-bottom: .2em; }
 .rtl .rtl-listview .ui-btn-icon-right .ui-icon {
   right: auto;
   left: 10px; }

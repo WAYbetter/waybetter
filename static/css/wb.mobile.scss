@@ -1,5 +1,7 @@
-$from_color: #48a43e;
-$to_color: #bb218a;
+$pickup_color: #48a43e;
+$dropoff_color: #bb218a;
+$details_text_color: #666666;
+$hotspot_color: #ed2489;
 
 @mixin border-radius($r){
     -webkit-border-radius: $r;
@@ -12,6 +14,19 @@ $to_color: #bb218a;
     box-shadow: $r;
 }
 
+@mixin box-color($color) {
+    background-color: $color;
+    color: white;
+    padding: .1em .2em;
+}
+
+@mixin background-size($s) {
+    -moz-background-size: $s;
+    -o-background-size: $s;
+    -webkit-background-size: $s;
+    background-size: $s;
+}
+
 .rtl .ui-page {
     direction: rtl;
 }
@@ -20,6 +35,18 @@ $to_color: #bb218a;
     font-weight:bold
 }
 
+.center {
+    text-align: center !important;
+}
+
+li.suggest_hotspot {
+    a {
+        h1 {
+            text-align: center;
+            color: $hotspot_color;
+        }
+    }
+}
 /* custom button icons */
 .ui-icon-wb-switchdir {
 	background-image: url(/static/images/mobile/switch-direction.png);
@@ -73,14 +100,58 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
         font-size: 13px;
     }
     .from_label {
-        color: $from_color;
+        .label_box {
+            @include box-color($pickup_color);
+        }
+        color: $pickup_color;
+
     }
     .to_label {
-        color: $to_color;
+        .label_box {
+            @include box-color($dropoff_color);
+        } 
+        color: $dropoff_color;
     }
 
 
 }
+
+.ride_summary {
+    h3 {
+        text-align: center;
+        margin: 0;
+    }
+    .ride_discount {
+        background-image: url(/static/images/mobile/ribbon_normal.png);
+        height: 69px;
+        width: 65px;
+        float: left;
+        position: relative;
+        color: white;
+        text-align: center;
+        padding-top: 0.3em;
+        left: -28px;
+    }
+    background: white;
+    padding: 15px;
+    color: $details_text_color;
+    text-shadow: none;
+    @include box-shadow(0px 0px 3px black);
+}
+
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5),
+       only screen and (min--moz-device-pixel-ratio: 1.5),
+       only screen and (min-resolution: 240dpi) {
+           .ride_summary {
+                .ride_discount {
+                    background-image: url(/static/images/mobile/ribbon_retina.png);
+                    background-repeat: no-repeat;
+                    @include background-size(65px 69px);
+                }
+           }
+}
+
+
 
 /* address page */
 #address-form input {
@@ -93,6 +164,26 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
 
 #address-form input[type=tel] {
     width: 20%;
+}
+
+/* Ride details page */
+#ride_details_page {
+    .pickup {
+        .details_label {
+            @include box-color($pickup_color);
+        }
+        .details_label_type {
+            color: $pickup_color;
+        }
+    }
+    .dropoff {
+        .details_label {
+            @include box-color($dropoff_color);
+        }
+        .details_label_type {
+            color: $dropoff_color;
+        }
+    }
 }
 
 /* transaction page */
@@ -146,6 +237,8 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
         .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit{
             padding-right: 15px;
             padding-left: 30px;
+            padding-top: .2em;
+            padding-bottom: .2em;
         }
         .ui-btn-icon-right .ui-icon{
             right: auto;

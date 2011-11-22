@@ -287,7 +287,9 @@ var HotspotHelper = Object.create({
             data: options.data,
             beforeSend: function(){
                 that.ride_duration = undefined;
-                options.beforeSend();
+                if (options.beforeSend) {
+                    options.beforeSend();
+                }
             },
             success: function(response){
                 if (response.ride_duration) {
@@ -872,6 +874,8 @@ var MobileHelper = Object.create({
     address: undefined,
     hotspot: undefined,
     hotspot_type: "dropoff",
+    ride_date: undefined,
+    ride_time: undefined,
 
     // METHODS
     // -------
