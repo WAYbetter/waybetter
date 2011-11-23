@@ -850,7 +850,8 @@ var MobileHelper = Object.create({
             resolve_coordinates     : "",
             get_hotspot_dates       : "",
             get_myrides_data        : "",
-            cancel_order            : ""
+            cancel_order            : "",
+            get_sharing_cities      : ""
 
         },
         callbacks:{
@@ -876,13 +877,23 @@ var MobileHelper = Object.create({
     hotspot_type: "dropoff",
     ride_date: undefined,
     ride_time: undefined,
+    sharing_cities: [],
 
     // METHODS
     // -------
     init: function(config){
         this.config = $.extend(true, {}, this.config, config);
+        this._getSharingCities();
     },
-    
+    _getSharingCities: function() {
+        var that = this;
+        $.ajax({
+            url: that.config.urls.get_sharing_cities,
+            success: function(data) {
+                that.sharing_cities = data;
+            }
+        })
+    },
     getCurrentLocation: function(options) {
         var that = this;
         options = $.extend({}, {

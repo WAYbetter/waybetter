@@ -52,6 +52,7 @@ urlpatterns = patterns('',
     (r'^times_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_times'),
     (r'^price_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_price'),
 
+
     (r'^resolve_structured_address/$', 'sharing.passenger_controller.resolve_structured_address'),
     (r'^registration/(?P<step>\w+)/$', 'sharing.passenger_controller.registration'),
     url(r'^registration/$', 'sharing.passenger_controller.registration', name="join"),
@@ -71,5 +72,6 @@ urlpatterns = patterns('',
     url(r'^the_service/$', 'sharing.content_controller.the_service', name="the_service"),
     url(r'^about_us/$', 'sharing.content_controller.about_us', name="about_us"),
     url(r'^my_rides/$', 'sharing.content_controller.my_rides', name="my_rides"),
+    url(r'^services/get_sharing_cities/$', 'sharing.content_controller.get_sharing_cities', name="get_sharing_cities"),
 
 )

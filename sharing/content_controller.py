@@ -1,7 +1,10 @@
+# This Python file uses the following encoding: utf-8
 from common.decorators import force_lang
+from common.models import City
 from django.template.context import RequestContext
 from common.util import custom_render_to_response
 from django.utils import simplejson
+from djangotoolbox.http import JSONResponse
 from ordering.models import OrderType
 
 def info(request):
@@ -39,3 +42,7 @@ def my_rides(request):
                                     'shared': OrderType.SHARED})
 
     return custom_render_to_response("my_rides.html", locals(), context_instance=RequestContext(request))
+
+def get_sharing_cities(request):
+    cities = [{'id': city.id, 'name': city.name} for city in City.objects.filter(name="תל אביב יפו")]
+    return JSONResponse(cities)
