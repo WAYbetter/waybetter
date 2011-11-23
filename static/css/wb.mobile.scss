@@ -27,6 +27,13 @@ $hotspot_color: #ed2489;
     background-size: $s;
 }
 
+hr {
+    border: none;
+    border-top: 1px solid #9A9A9A;
+    border-image: initial;
+    @include box-shadow(0 1px white);
+}
+
 .ui-loader{
     background: white;
     @include box-shadow(0 0 25px gray);
@@ -74,10 +81,17 @@ ul.narrow {
     @include background-size(15px 9px);
 }
 
-a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
-    background: url(/static/images/mobile/wb_logo_18px.png) left 0 no-repeat;
-    @include border-radius(0);
-    @include box-shadow(none);
+.ui-header{
+    a[href="/"], a[href="#home"]{
+        width: 45px;
+    }
+
+    a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
+        background: url(/static/images/mobile/wb_logo_18px.png) left 0 no-repeat;
+        @include border-radius(0);
+        @include box-shadow(none);
+        margin: 0 auto;
+    }
 }
 
 .wb-header {
@@ -92,7 +106,36 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
     @include box-shadow(0 0 5px black);
 }
 
-/* home sweet home */
+/* theme hacks */
+.ui-body-a{
+    text-shadow: none;
+}
+/* end hacks */
+#welcome_page{
+    p{
+        color: #656565;
+        text-shadow: 0 0.15em 0 white;
+        font-size: 0.9em;
+    }
+    .text{
+        position: relative;
+        top: -0.8em;
+    }
+    .buttons{
+        margin-top: 1.4em;
+        .first{
+            margin-bottom: 1.2em;
+        }
+    }
+    .welcome-img{
+        width: 178px;
+        height: 82px;
+        background: url(/static/images/mobile/welcome.png) left top no-repeat;
+        margin: 0 auto;
+        margin-top: 35px;
+    }
+}
+
 #home{
     .ui-icon{
         background: url(/static/images/mobile/home_icons.png) center 0 no-repeat;
@@ -134,19 +177,28 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
     }
 }
 
-/* booking page */
 #booking_page{
     #switch_direction_container{
-        width: 80%;
-        margin: 20px auto;
+        position: relative;
+        width: 95%;
+        margin: 0 auto;
+        top: -0.8em;
     }
-    #switch_direction_btn{
-        background: url(/static/images/mobile/switch_dir.png) 80% center no-repeat;
+    #switch-dir-img{
+        position: absolute;
+        background: url(/static/images/mobile/switch_dir.png) right center no-repeat;
         opacity: 1;
+        width: 20px;
+        height: 27px;
+        top: 0.6em;
+        right: 3em;
     }
     .desc {
         color: #7c7c7c;
         font-size: 13px;
+    }
+    .type, .label_box{
+        @extend .bold;
     }
     .from_label {
         .label_box {
@@ -161,8 +213,18 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
         } 
         color: $dropoff_color;
     }
-
-
+    .booking_widget{
+        position: relative;
+        top: -0.7em;
+        a{
+            padding-top: 0.2em;
+            padding-bottom: 0.6em;
+        }
+    }
+    hr{
+        position: relative;
+        top: -0.5em;
+    }
 }
 
 #choose_ride_page{
@@ -190,8 +252,21 @@ a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
     }
 }
 
-/* address page */
 #address_page{
+    .street-hn-cntr{
+        position: relative;
+        height: 3.3em;
+        div {
+            float: right;
+        }
+    }
+    .street-cntr{
+        width: 11em;
+        margin-left: 1em;
+    }
+    .hn-cntr{
+        width: 5em;
+    }
     /*#address-form input {*/
         /*display: inline-block;*/
     /*}*/

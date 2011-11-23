@@ -36,7 +36,7 @@
     }
 
     function showNoServiceDialog(address){
-        showDialog("{% trans "Currently we can't offer service in " %}: " + address.name);
+        showDialog("{% trans "Currently we can't offer service in " %} " + address.name);
     }
 
     function showError(msg) {
@@ -126,10 +126,10 @@
             MobileHelper.hotspot = hotspot;
 
             $("#choose_hotspot_btn").find(".header").text(hotspot.name);
-            $("#choose_hotspot_btn").find(".desc").text(hotspot.description + ", " + hotspot.address);
+            $("#choose_hotspot_btn").find(".desc").text(hotspot.description);
 
             var msg = window["choose_" + MobileHelper.hotspot_type + "_time_msg"];
-            $("#interval_page").find("[data-role=header] h1").text(msg);
+            $("#interval_page").find("[data-role=header] h1, label[for='ride-time']").text(msg);
             $("#choose_time_btn").find(".header").text(msg);
 
             var $date_sel = $("#ride-date").empty();
@@ -203,7 +203,7 @@
             MobileHelper.hotspot_type = "pickup";
         }
         var msg = window["choose_" + MobileHelper.hotspot_type + "_time_msg"];
-        $("#interval_page").find("[data-role=header] h1").text(msg);
+        $("#interval_page").find("[data-role=header] h1, label[for='ride-time']").text(msg);
         $("#choose_time_btn").find(".header").text(msg);
 
         getIntervals(false);
@@ -361,7 +361,7 @@
                 $.each(hs_by_city_name, function(city_name, hotspots) {
                     $hotspot_list.append('<li data-role="list-divider">' + city_name + '</li>');
                     $.each(hotspots, function(i, hotspot) {
-                        var $a = $('<a href="#"><h1>' + hotspot.name + '</h1><p>' + hotspot.address + '</p></a>');
+                        var $a = $('<a href="#"><h1>' + hotspot.name + '</h1><p>' + hotspot.description + '</p></a>');
                         var $li = $('<li data-icon="arrow-l"></li>').prepend($a);
                         $a.click(function() {
 //                            $.mobile.changePage("#booking_page");
@@ -397,9 +397,6 @@
         });
 
         // home
-        $("#home_book_order_btn").click(function() {
-            $.mobile.changePage("#booking_page");
-        });
 
         // booking page
         $("#switch_direction_btn").click(function() {
@@ -576,15 +573,18 @@
         <div id="welcome_page" data-role="page" data-theme="a">
             <div data-role="header" class="wb-header"></div>
             <div data-role="content" class="center">
-                <strong>{% trans 'Welcome' %}!</strong>
-
-                <p>This app is so great you will call your next child after it!</p>
-                <strong>{% trans 'The use of this app is free' %}.</strong>
-
+                <div class="text">
+                    <p><strong>{% trans 'Welcome' %}</strong></p>
+                    <p>{% trans "mobile_app_welcome_txt" %}</p>
+                    <p><strong>{% trans 'This app is free (as in free beer)' %}</strong></p>
+                </div>
                 <hr/>
+                <div class="buttons">
+                    <a href="{% url mobile_auth_login %}" data-role="button" data-theme="d" class="first">{% trans 'Login/Join Now' %}</a>
+                    <a href="#home" data-role="button" data-transition="fade" data-theme="f">{% trans 'Later' %}</a>
+                </div>
 
-                <a href="{% url mobile_auth_login %}" data-role="button" data-theme="d">{% trans 'Login/Join' %}</a>
-                <a href="#home" data-role="button" data-transition="fade" data-theme="f">{% trans 'Not Now' %}</a>
+                <div class="welcome-img"></div>
             </div>
         </div>
     {% endif %}
@@ -595,7 +595,7 @@
         <div data-role="content">
             <div class="ui-grid-a"> {#  2-column grid #}
                 <div class="ui-block-a">
-                    <a href="#" id="home_book_order_btn" data-role="button"  data-iconpos="top"
+                    <a href="#booking_page" id="home_book_order_btn" data-role="button"  data-iconpos="top"
                        data-icon="wb_custom">
                         {% trans 'Order Now' %}
                     </a>
@@ -632,7 +632,7 @@
 
     <div id="booking_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#home" data-icon="wb_custom" data-theme="b" data-iconpos="notext" data-transition="pop"
+            <a href="#home" data-icon="wb_custom" data-theme="h" data-iconpos="notext" data-transition="pop"
                class="ui-btn-right"></a>
 
             <h1>{% trans 'Your WAY' %}</h1>
@@ -649,6 +649,7 @@
                     <li data-icon="arrow-l">
                         <a href="#address_page" id="choose_address_btn">
                             <h1 class="header">{% trans "Enter Address" %}</h1>
+                            <p></p>
                         </a>
                     </li>
                 </ul>
@@ -656,6 +657,7 @@
 
             <div id="switch_direction_container">
                 <button type="button" id="switch_direction_btn" data-theme="f">{% trans "Switch Ride Direction" %}</button>
+                <div id="switch-dir-img"></div>
             </div>
 
             <div class="booking_label to_label">
@@ -668,7 +670,6 @@
                     <li data-icon="arrow-l">
                         <a href="#hotspot_page" id="choose_hotspot_btn">
                             <h1 class="header">{% trans "Choose Hotspot" %}</h1>
-
                             <p class="desc"></p>
                         </a>
                     </li>
@@ -789,14 +790,15 @@
         <div data-role="content">
             <form id="address-form">
                 <select id="id_city" name="id_city"></select>
-                <div data-role="fieldcontain">
-                    <input type="text" name="street" id="id_street" placeholder="{% trans 'Street' %}"/>
-                    <span id="street_error" class="err_msg"></span>
-                </div>
-
-                <div data-role="fieldcontain">
-                    <input type="tel" name="house_number" id="id_house_number" placeholder="{% trans 'House #' %}"/>
-                    <span id="hn_error" class="err_msg"></span>
+                <div class="street-hn-cntr">
+                    <div class="street-cntr">
+                        <input type="text" name="street" id="id_street" placeholder="{% trans 'Street' %}"/>
+                        <span id="street_error" class="err_msg"></span>
+                    </div>
+                    <div class="hn-cntr">
+                        <input type="tel" name="house_number" id="id_house_number" placeholder="{% trans 'House #' %}"/>
+                        <span id="hn_error" class="err_msg"></span>
+                    </div>
                 </div>
 
                 <button data-theme="b">{% trans 'Next' %}</button>
@@ -835,7 +837,7 @@
 
     <div id="share_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#home" data-icon="wb_custom" data-theme="b" data-iconpos="notext" data-transition="pop"
+            <a href="#home" data-icon="wb_custom" data-theme="h" data-iconpos="notext" data-transition="pop"
                class="ui-btn-right"></a>
 
             <h1>{% trans "Feedback" %}</h1>
@@ -850,7 +852,7 @@
 
     <div id="settings_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#home" data-icon="wb_custom" data-theme="b" data-iconpos="notext" data-transition="pop"
+            <a href="#home" data-icon="wb_custom" data-theme="h" data-iconpos="notext" data-transition="pop"
                class="ui-btn-right"></a>
             <h1>{% trans "More" %}</h1>
         </div>
