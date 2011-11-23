@@ -30,11 +30,12 @@
 {% block extrastyle %}
     {{ block.super }}
     <style>
-        html {
+        .rtl html {
             direction: ltr;
         }
 
-        body {
+        .rtl body {
+            direction: ltr;
             padding: 15px;
         }
 
@@ -117,7 +118,7 @@
     <script type="text/javascript" src="/static/js/mylibs/jquery.ui.datepicker-he.js"></script>
 
     <script type="text/javascript">
-        var fields = ["from", "to", "passenger_name", "passenger_phone", "type", "status"];
+        var fields = ["id", "from", "to", "passenger_name", "passenger_phone", "type", "status", "debug"];
 
         {% autoescape off %}
             var data = {{ data }};
