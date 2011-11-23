@@ -47,6 +47,16 @@ Object.create = Object.create || function (p) {
                 }
             })
         },
+        redraw:         function() {
+            return this.each(function() {
+                var element = $(this)[0];
+                var current_display = element.style.display;
+                element.style.display = 'none';
+                element.offsetHeight; // no need to store this anywhere, the reference is enough
+                element.style.display = current_display;
+                return $(element);
+            });
+        },
         set_button_theme: function(theme_swatch) {
             var swatch_re = /-(\w)$/;
             return this.each(function() {
@@ -69,7 +79,7 @@ Object.create = Object.create || function (p) {
                 }
             })
         },
-        swap: function(b) {
+        swapElement: function(b) {
             b = jQuery(b)[0];
             var a = this[0],
                     a2 = a.cloneNode(true),
@@ -78,10 +88,11 @@ Object.create = Object.create || function (p) {
 
             a.parentNode.replaceChild(b2, a);
             b.parentNode.replaceChild(a2, b);
-
+            
             stack[0] = a2;
             return this.pushStack(stack);
         }
+
 	});
 })(jQuery);
 

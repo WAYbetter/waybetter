@@ -37,6 +37,11 @@
     function showDialog(dialog_name) {
         alert(dialog_name);
     }
+
+    function showNoServiceDialog(address){
+        showDialog("{% trans "Currently we can't offer service in " %}: " + address.name);
+    }
+
     function showError(msg) {
         alert(msg);
     }
@@ -89,7 +94,7 @@
     // TODO_WB: check hotspot_type to decide where the updated text should go
     function selectAddress(address) {
         if ($.inArray(address.city, city_ids) < 0) {
-            showDialog("{% trans "Currently we can't offer service in " %}: " + address.name);
+{#            showDialog("{% trans "Currently we can't offer service in " %}: " + address.name);#}
             return false;
         }
 
@@ -103,7 +108,7 @@
         $("#id_street").val(address.street_address);
         $("#id_house_number").val(address.house_number);
         if (!(MobileHelper.address && MobileHelper.address.description == address.description)) {
-            console.log("select address");
+            log("select address");
             MobileHelper.address = address;
             getIntervals(false);
         }
@@ -117,11 +122,15 @@
     // TODO_WB: check hotspot_type to decide where the updated text should go
     function selectHotspot(hotspot) {
         if (hotspot !== MobileHelper.hotspot) {
-            console.log("select hotspot");
+            log("select hotspot");
             MobileHelper.hotspot = hotspot;
 
             $("#choose_hotspot_btn").find(".header").text(hotspot.name);
             $("#choose_hotspot_btn").find(".desc").text(hotspot.description + ", " + hotspot.address);
+
+            var msg = window["choose_" + MobileHelper.hotspot_type + "_time_msg"];
+            $("#interval_page").find("[data-role=header] h1").text(msg);
+            $("#choose_time_btn").find(".header").text(msg);
 
             var $date_sel = $("#ride-date").empty();
 
@@ -132,13 +141,17 @@
                 $date_sel.append($option);
             });
 
-            // update intervals
-            getIntervals(false);
+            if (MobileHelper.address){
+                getIntervals(false);
+            }
+            else{
+                $.mobile.changePage("#booking_page");
+            }
         }
     }
 
     function getRideDetails() {
-        console.log("ride details");
+        log("ride details");
         $.ajax({
             url: "{% url sharing.passenger_controller.get_hotspot_price %}",
             dataType: "json",
@@ -173,24 +186,25 @@
             return; // do nothing
         }
 
-        $(".booking_widget").eq(0).swap($(".booking_widget").eq(1));
-        $(".booking_label .type").eq(0).swap($(".booking_label .type").eq(1));
+        $(".booking_widget").eq(0).swapElement($(".booking_widget").eq(1));
 
-        $("#ride_details_page .dropoff .details_label").swap($("#ride_details_page .pickup .details_label"));
-//        $("#ride_details_page .dropoff .details_label_type").swap($("#ride_details_page .pickup .details_label_type"));
-        $("#ride_details_page .dropoff").swap($("#ride_details_page .pickup"));
+        var typ1 = $(".booking_label .type").eq(0);
+        var typ2 = $(".booking_label .type").eq(1);
+        typ1.swapElement(typ2);
+        typ1.redraw();
+        typ2.redraw();
+
+        $("#ride_details_page .dropoff .details_label").swapElement($("#ride_details_page .pickup .details_label"));
+        $("#ride_details_page .dropoff").swapElement($("#ride_details_page .pickup"));
 
         if (MobileHelper.hotspot_type == "pickup") {
             MobileHelper.hotspot_type = "dropoff";
-            $("#interval_page").find("[data-role=header] h1").text(choose_dropoff_time_msg);
-            $("#choose_time_btn").find(".header").text(choose_dropoff_time_msg);
         } else {
             MobileHelper.hotspot_type = "pickup";
-            $("#interval_page").find("[data-role=header] h1").text(choose_pickup_time_msg);
-            $("#choose_time_btn").find(".header").text(choose_pickup_time_msg);
         }
-
-
+        var msg = window["choose_" + MobileHelper.hotspot_type + "_time_msg"];
+        $("#interval_page").find("[data-role=header] h1").text(msg);
+        $("#choose_time_btn").find(".header").text(msg);
         
         getIntervals(false);
     }
@@ -220,7 +234,7 @@
     }
 
     function bookRide(is_private) {
-        var $form = $("#order_form");
+        var $form = $("<form></form>");
 
         var hidden_inputs = {
             is_private: is_private,
@@ -279,6 +293,10 @@
         });
 //        $.mobile.changePage("#home", { transition: "none"});
 
+//        $(document).bind("pagebeforechange", function(event, data) {
+//            if (data.toPage == "#booking_page"){
+//            }
+//        });
         MobileHelper.init({
             urls:{
                 resolve_coordinates: "{% url ordering.passenger_controller.resolve_coordinates %}",
@@ -288,7 +306,14 @@
             },
             callbacks:{
                 locationSuccess: function (position) {
-                    MobileHelper.resolveLonLat(position.coords.longitude, position.coords.latitude, {onNewAddress: selectAddress});
+                    MobileHelper.resolveLonLat(position.coords.longitude, position.coords.latitude,{
+                        onNewAddress: function(address) {
+                            selectAddress(address);
+                            if (address && $.inArray(address.city, city_ids) < 0) {
+                                showNoServiceDialog(address);
+                            }
+                        }
+                    });
                 },
                 locationError: function() {
                     $("#choose_address_btn").find(".header").text("{% trans 'Could not find your current location' %}");
@@ -353,8 +378,8 @@
                     locationSuccess: function(p) {
                         $.each(hotspots, function(i, hs) {
                             if (MobileHelper.distance(p.coords.latitude, p.coords.longitude, hs.lat, hs.lon) <= 0.4) {
-                                console.log("IN HOTSPOT");
-                                console.log(hs);
+                                log("IN HOTSPOT");
+                                log(hs);
                                 selectHotspot(hs);
                                 resetAddress();
                                 switchOrderingDirection("pickup");
@@ -401,6 +426,16 @@
         });
 
         // address page
+        $("#address_page input").keyup(function() {
+            var valid = Boolean($("#id_house_number").val() && $("#id_street").val());
+            if (valid) {
+                $("#address_page button").button().button("enable");
+            }
+            else{
+                $("#address_page button").button().button("disable");
+            }
+        }).trigger("keyup");
+        
         $("#gps").click(function() {
             MobileHelper.getCurrentLocation();
         });
@@ -518,6 +553,23 @@
 
 {% block body %}
 
+    {% if not request.user.is_authenticated %}
+        <div id="welcome_page" data-role="page" data-theme="a">
+            <div data-role="header" class="wb-header"></div>
+            <div data-role="content" class="center">
+                <strong>{% trans 'Welcome' %}!</strong>
+
+                <p>This app is so great you will call your next child after it!</p>
+                <strong>{% trans 'The use of this app is free' %}.</strong>
+
+                <hr/>
+
+                <a href="{% url mobile_auth_login %}" data-role="button" data-theme="d">{% trans 'Login/Join' %}</a>
+                <a href="#home" data-role="button" data-transition="fade" data-theme="f">{% trans 'Not Now' %}</a>
+            </div>
+        </div>
+    {% endif %}
+    
     <div id="home" data-role="page" data-theme="a">
         <div data-role="header" class="wb-header"></div>
         <div class="sub-header">{% trans 'Shared Taxis to Central Locations' %}</div>
@@ -721,17 +773,22 @@
         </div>
         <div data-role="content">
             <form action="" id="address-form">
+                <select id="id_city" name="id_city">
+                    {% for city in cities %}
+                        <option value="{{ city.id }}">{{ city.name }}</option>
+                    {% endfor %}
+                </select>
+
                 <div data-role="fieldcontain">
-                    <select id="id_city" name="id_city">
-                        {% for city in cities %}
-                            <option value="{{ city.id }}">{{ city.name }}</option>
-                        {% endfor %}
-                    </select>
                     <input type="text" name="street" id="id_street" placeholder="{% trans 'Street' %}"/>
                     <span id="street_error" class="err_msg"></span>
+                </div>
+
+                <div data-role="fieldcontain">
                     <input type="tel" name="house_number" id="id_house_number" placeholder="{% trans 'House #' %}"/>
                     <span id="hn_error" class="err_msg"></span>
                 </div>
+
                 <button data-theme="b">{% trans 'Next' %}</button>
             </form>
         </div>
@@ -752,7 +809,7 @@
         <div data-role="header">
             <a href="#" data-rel="back" class="ui-btn-right" data-theme="h">{% trans 'Cancel' %}</a>
 
-            <h1>{% trans 'Pickup Time' %}</h1>
+            <h1></h1>
         </div>
 
         <div data-role="content">
@@ -817,20 +874,5 @@
             <div class="mapa_logo"></div>
         </div>
     </div>
-
-    <div id="welcome_page" data-role="page" data-theme="a">
-        <div data-role="header" class="wb-header"></div>
-        <div data-role="content" class="center">
-            <strong>{% trans 'Welcome' %}!</strong>
-            <p>This app is so great you will call your next child after it!</p>
-            <strong>{% trans 'The use of this app is free' %}.</strong>
-
-            <hr/>
-
-            <a href="{% url mobile_auth_login %}" data-role="button" data-theme="d">{% trans 'Login/Join' %}</a>
-            <a href="#home" data-role="button" data-transition="fade" data-theme="f">{% trans 'Not Now' %}</a>
-        </div>
-    </div>
-
 
 {% endblock body %}

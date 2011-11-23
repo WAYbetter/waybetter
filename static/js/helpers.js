@@ -900,7 +900,7 @@ var MobileHelper = Object.create({
 
             var watch_id = navigator.geolocation.watchPosition(function(p) {
                         log("new position: " + p.coords.longitude + ", " + p.coords.latitude + " (" + p.coords.accuracy + ")");
-                        that.last_position = p.coords;
+                        that.last_position = p;
                         if (p.coords.accuracy < that.ACCURACY_THRESHOLD) {
                             navigator.geolocation.clearWatch(watch_id); // we have an accurate enough location
 
@@ -918,7 +918,7 @@ var MobileHelper = Object.create({
     resolveLonLat: function(lon, lat, options) {
         var that = this;
         options = $.extend({}, {
-                    onNewAddress: function(){},
+                    onNewAddress: function(address){},
                     noAddressFound: function() {
                         log("resolve to address failed");
                     }
