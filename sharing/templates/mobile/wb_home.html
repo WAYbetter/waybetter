@@ -21,6 +21,7 @@
     {{ block.super }}
 
     <script defer="defer">
+    //<![CDATA[
     var hotspots = [];
     var city_ids = [];
     {% for city in cities %}
@@ -51,8 +52,6 @@
             return; // do nothing if hotspot and address are not defined yet
         }
 
-        $.mobile.changePage("#interval_page");
-        
         console.log("get intervals");
         var day = $("#ride-date").val();
         var $time_sel = $("#ride-time");
@@ -76,8 +75,10 @@
                     $time_sel.selectmenu().selectmenu('refresh', true);
                     if (select_nearest_interval) {
                         $("#select-interval-form").submit();
+                    } else if (MobileHelper.ride_time && response.times.indexOf(MobileHelper.ride_time) > -1) {
+                        $.mobile.changePage("#booking_page", {reverse: true});
                     } else {
-//                        $.mobile.changePage("#interval_page");
+                        $.mobile.changePage("#interval_page");
                     }
                 }
             },
@@ -145,11 +146,11 @@
             });
 
             if (MobileHelper.address){
-                getIntervals(false);
-            }
+            getIntervals(false);
+        }
             else{
                 $.mobile.changePage("#booking_page");
-            }
+    }
         }
     }
 
@@ -208,7 +209,7 @@
         var msg = window["choose_" + MobileHelper.hotspot_type + "_time_msg"];
         $("#interval_page").find("[data-role=header] h1").text(msg);
         $("#choose_time_btn").find(".header").text(msg);
-        
+
         getIntervals(false);
     }
 
@@ -287,7 +288,8 @@
         });
     }
 
-    $(function() {
+
+    function init() {
         $(document).ajaxSend(function() {
             $.mobile.showPageLoadingMsg();
         });
@@ -406,7 +408,7 @@
         $("#switch_direction_btn").click(function() {
             switchOrderingDirection()
         });
-        
+
         $("#choose_time_btn").live("click", function() {
             if (MobileHelper.address && MobileHelper.hotspot) {
                 $.mobile.changePage("#interval_page");
@@ -476,8 +478,8 @@
                         } else {
                             selectAddress(results[0]);
                             if (!MobileHelper.hotspot){
-                                $.mobile.changePage("#booking_page");
-                            }
+                            $.mobile.changePage("#booking_page");
+                        }
                         }
                     },
                     unresolved:function(errors) {
@@ -551,7 +553,9 @@
             }
         });
 
-    });
+    }
+    $(init);
+    //]]>
     </script>
 
 {% endblock doc_ready %}
@@ -682,33 +686,29 @@
         <div data-role="content">
             <a href="#ride_details_page" data-role="button" data-theme="g" data-icon="info" data-transition="flip">{% trans 'View Ride Details' %}</a>
                 {% csrf_token %}
-                <div class="ride_summary">
-                    <div class="ride_discount">
-                        
-                    </div>
-                    <h3>{% trans "Shared Taxi Ride" %}</h3>
+            <div class="ride_summary">
+                <div class="ride_discount"></div>
+                <h3>{% trans "Shared Taxi Ride" %}</h3>
 
-                    <div>
-                        <p id="sharing_price">{% trans "Ride Price" %}: <span class="value">0</span> ₪</p>
+                <div>
+                    <p id="sharing_price">{% trans "Ride Price" %}: <span class="value">0</span> ₪</p>
 
-                        <p id="sharing_time">{% trans "Est. Ride Duration" %}: <span
-                                class="value">0</span> {% trans "min" %}</p>
-                    </div>
-                    <button id="book_sharing" class="order_button" data-theme="d">{% trans 'Book Shared' %}</button>
-
-                    <hr/>
-                    <h3>{% trans "Private Taxi Ride" %}</h3>
-
-                    <div>
-                        <p id="private_price">{% trans "Ride Price" %}: <span class="value">0</span> ₪</p>
-
-                        <p id="private_time">{% trans "Est. Ride Duration" %}: <span
-                                class="value">0</span> {% trans "min" %}</p>
-                    </div>
-                    <button id="book_private" class="order_button" data-theme="c">{% trans 'Book Private' %}</button>
-
+                    <p id="sharing_time">{% trans "Est. Ride Duration" %}: <span
+                            class="value">0</span> {% trans "min" %}</p>
                 </div>
-            </form>
+                <button id="book_sharing" class="order_button" data-theme="d">{% trans 'Book Shared' %}</button>
+
+                <hr/>
+                <h3>{% trans "Private Taxi Ride" %}</h3>
+
+                <div>
+                    <p id="private_price">{% trans "Ride Price" %}: <span class="value">0</span> ₪</p>
+
+                    <p id="private_time">{% trans "Est. Ride Duration" %}: <span
+                            class="value">0</span> {% trans "min" %}</p>
+                </div>
+                <button id="book_private" class="order_button" data-theme="c">{% trans 'Book Private' %}</button>
+            </div>
         </div>
     </div>
 
@@ -778,11 +778,11 @@
         </div>
         <div data-role="content">
             <form action="" id="address-form">
-                <select id="id_city" name="id_city">
-                    {% for city in cities %}
-                        <option value="{{ city.id }}">{{ city.name }}</option>
-                    {% endfor %}
-                </select>
+                    <select id="id_city" name="id_city">
+                        {% for city in cities %}
+                            <option value="{{ city.id }}">{{ city.name }}</option>
+                        {% endfor %}
+                    </select>
 
                 <div data-role="fieldcontain">
                     <input type="text" name="street" id="id_street" placeholder="{% trans 'Street' %}"/>

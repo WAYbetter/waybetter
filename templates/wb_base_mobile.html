@@ -4,7 +4,7 @@
 
 {% block extrastyle %}
     <link rel="stylesheet" href="/static/css/themes/wb.min.css">
-    <link rel="stylesheet" href="/static/css/themes/jquery.mobile.structure-1.0.min.css" />
+    <link rel="stylesheet" href="/static/css/jquery.mobile.structure-1.0.css" />
     <link rel="stylesheet" href="/static/css/wb.mobile.css"/>
 {% endblock extrastyle %}
 
@@ -19,6 +19,7 @@
     <!-- Because the mobileinit event is triggered immediately upon execution,
          you'll need to bind your event handler before jQuery Mobile is loaded -->
     <script>
+    //<![CDATA[
         $(document).bind("mobileinit", function() {
             $.extend($.mobile, {
                 loadingMessage              : "{% trans 'Thinking...' %}",
@@ -36,6 +37,7 @@
 //            $.mobile.page.prototype.options.addBackBtn = true;
 
         });
+    //]]>
     </script>
     <script type="text/javascript" src="/static/js/libs/jquery.mobile-1.0.min.js"></script>
     <script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
@@ -44,23 +46,6 @@
     <script type="text/javascript" src="/static/js/helpers.js"></script>
 {% endblock scripts %}
 
-{# TODO_WB: which analytics to use? #}
+
 {% block doc_ready %}
-    {{ block.super }}
 {% endblock doc_ready %}
-{#{% block doc_ready %}#}
-{#    <script>#}
-{#        var _gaq = _gaq || [];#}
-{#        _gaq.push(['_setAccount', 'UA-18077675-1']);#}
-{#        _gaq.push(['_trackPageview']);#}
-{##}
-{#        (function() {#}
-{#            var ga = document.createElement('script');#}
-{#            ga.type = 'text/javascript';#}
-{#            ga.async = true;#}
-{#            ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';#}
-{#            var s = document.getElementsByTagName('script')[0];#}
-{#            s.parentNode.insertBefore(ga, s);#}
-{#        })();#}
-{#    </script>#}
-{#{% endblock %}#}
