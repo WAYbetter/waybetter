@@ -34,7 +34,7 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
 .hidden {
   display: none; }
 
-.bold, #booking_page .type, #booking_page .label_box {
+.bold, #booking_page .type, #booking_page .label_box, #choose_ride_page .ride_summary .price .value, #choose_ride_page .ride_summary .price .label, #ride_details_page .ride_summary .price .value, #ride_details_page .ride_summary .price .label, #choose_ride_page .ride_summary .ride_discount, #ride_details_page .ride_summary .ride_discount, #ride_details_page .details_label, #ride_details_page .details_label_type {
   font-weight: bold; }
 
 .center {
@@ -173,55 +173,50 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
   position: relative;
   top: -0.5em; }
 
-#choose_ride_page .ride_summary {
+#choose_ride_page .ui-content, #ride_details_page .ui-content {
+  padding-top: 0.1em; }
+#choose_ride_page a[href="#ride_details_page"], #choose_ride_page a[href="#choose_ride_page"], #ride_details_page a[href="#ride_details_page"], #ride_details_page a[href="#choose_ride_page"] {
+  margin-bottom: 0.7em;
+  margin-left: 0;
+  margin-right: 0; }
+#choose_ride_page .ride_summary, #ride_details_page .ride_summary {
   background: white;
-  padding: 15px;
+  padding: 0.7em 1.3em;
   color: #666666;
   text-shadow: none;
-  -webkit-box-shadow: 0px 0px 3px black;
-  -moz-box-shadow: 0px 0px 3px black;
-  box-shadow: 0px 0px 3px black; }
-  #choose_ride_page .ride_summary h3 {
-    text-align: center;
+  -webkit-box-shadow: 0 0 0.4em 0.01em #404040;
+  -moz-box-shadow: 0 0 0.4em 0.01em #404040;
+  box-shadow: 0 0 0.4em 0.01em #404040; }
+  #choose_ride_page .ride_summary hr, #ride_details_page .ride_summary hr {
+    margin-top: 0.8em; }
+  #choose_ride_page .ride_summary h3, #ride_details_page .ride_summary h3 {
+    text-align: right;
     margin: 0; }
-  #choose_ride_page .ride_summary .ride_discount {
-    background-image: url(/static/images/mobile/ribbon_normal.png);
-    height: 69px;
-    width: 65px;
+  #choose_ride_page .ride_summary h3.shared, #ride_details_page .ride_summary h3.shared {
+    color: #31A1D0; }
+  #choose_ride_page .ride_summary h3.private, #ride_details_page .ride_summary h3.private {
+    color: #D07619; }
+  #choose_ride_page .ride_summary .ui-btn, #ride_details_page .ride_summary .ui-btn {
+    margin: 0; }
+  #choose_ride_page .ride_summary .details, #ride_details_page .ride_summary .details {
+    line-height: 1em; }
+  #choose_ride_page .ride_summary .price .value, #choose_ride_page .ride_summary .price .label, #ride_details_page .ride_summary .price .value, #ride_details_page .ride_summary .price .label {
+    font-size: 1.7em; }
+  #choose_ride_page .ride_summary .ride_discount, #ride_details_page .ride_summary .ride_discount {
     float: left;
     position: relative;
+    padding-top: 0.3em;
+    left: -2em;
+    top: 2.5em;
+    height: 69px;
+    width: 65px;
     color: white;
     text-align: center;
-    padding-top: 0.3em;
-    left: -28px; }
+    background-image: url(/static/images/mobile/ribbon_normal.png);
+    background-repeat: no-repeat; }
 
-#address_page {
-  /*#address-form input {*/
-  /*display: inline-block;*/
-  /*}*/
-  /*#address-form input[type=text] {*/
-  /*width: 68%;*/
-  /*}*/
-  /*#address-form input[type=tel] {*/
-  /*width: 20%;*/
-  /*}*/ }
-  #address_page .street-hn-cntr {
-    position: relative;
-    height: 3.3em; }
-    #address_page .street-hn-cntr div {
-      float: right; }
-  #address_page .street-cntr {
-    width: 11em;
-    margin-left: 1em; }
-  #address_page .hn-cntr {
-    width: 5em; }
-
-/* hotspot page */
-li.suggest_hotspot a h1 {
-  text-align: center;
-  color: #ed2489; }
-
-/* Ride details page */
+#ride_details_page hr {
+  margin-bottom: 1.3em; }
 #ride_details_page .pickup .details_label {
   background-color: #48a43e;
   color: white;
@@ -234,6 +229,23 @@ li.suggest_hotspot a h1 {
   padding: .1em .2em; }
 #ride_details_page .dropoff .details_label_type {
   color: #bb218a; }
+
+#address_page .street-hn-cntr {
+  position: relative;
+  height: 3.3em; }
+  #address_page .street-hn-cntr div {
+    float: right; }
+#address_page .street-cntr {
+  width: 11em;
+  margin-left: 1em; }
+#address_page .hn-cntr {
+  width: 5em; }
+
+#hotspot_page #hotspot_list {
+  line-height: 1.3em; }
+#hotspot_page li.suggest_hotspot a h1 {
+  text-align: center;
+  color: #ed2489; }
 
 /* transaction page */
 #status_icon {

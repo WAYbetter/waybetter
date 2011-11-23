@@ -537,13 +537,15 @@
 
         // ride details page
         $("#ride_details_page").live("pagebeforeshow", function() {
-            $("#ride_details_page .address p").text(MobileHelper.address.name);
-            $("#ride_details_page .hotspot p").text(MobileHelper.hotspot.name);
-            $("#ride_details_page .when p").text(MobileHelper.ride_date + " " + MobileHelper.ride_time);
-            if (MobileHelper.hotspot_type == "pickup") {
-                $("#ride_details_page .when .details_label_type").text(pickup_time_msg);
-            } else {
-                $("#ride_details_page .when .details_label_type").text(dropoff_time_msg);
+            if (MobileHelper.address && MobileHelper.hotspot && MobileHelper.ride_date && MobileHelper.ride_time){
+                $("#ride_details_page .address p").text(MobileHelper.address.name);
+                $("#ride_details_page .hotspot p").text(MobileHelper.hotspot.name);
+                $("#ride_details_page .when p").text(MobileHelper.ride_date + " " + MobileHelper.ride_time);
+                if (MobileHelper.hotspot_type == "pickup") {
+                    $("#ride_details_page .when .details_label_type").text(pickup_time_msg);
+                } else {
+                    $("#ride_details_page .when .details_label_type").text(dropoff_time_msg);
+                }
             }
         });
 
@@ -695,30 +697,28 @@
             {#            <a href="#">{% trans 'Map' %}</a>#}
         </div>
         <div data-role="content">
-            <a href="#ride_details_page" data-role="button" data-theme="g" data-icon="info" data-transition="flip">{% trans 'View Ride Details' %}</a>
+            <a href="#ride_details_page" data-role="button" data-theme="g" data-icon="info" data-transition="flip">
+                {% trans 'View Ride Details' %}
+            </a>
                 {% csrf_token %}
+
             <div class="ride_summary">
                 <div class="ride_discount"></div>
-                <h3>{% trans "Shared Taxi Ride" %}</h3>
-
-                <div>
-                    <p id="sharing_price">{% trans "Ride Price" %}: <span class="value">0</span> ₪</p>
-
-                    <p id="sharing_time">{% trans "Est. Ride Duration" %}: <span
-                            class="value">0</span> {% trans "min" %}</p>
+                <h3 class="shared">{% trans "Shared Taxi Ride" %}</h3>
+                <div class="details">
+                    <p id="sharing_price" class="price">{% trans "Fixed Ride Price" %}: <span class="value">0</span>  <span class="label"> ₪</span></p>
+                    <p id="sharing_time" class="time">{% trans "Est. Ride Duration" %}: <span class="value">0</span> {% trans "min" %}</p>
                 </div>
-                <button id="book_sharing" class="order_button" data-theme="d">{% trans 'Book Shared' %}</button>
+                <button id="book_sharing" class="order_button" data-theme="d">{% trans 'Book Shared Taxi' %}</button>
 
                 <hr/>
-                <h3>{% trans "Private Taxi Ride" %}</h3>
 
-                <div>
-                    <p id="private_price">{% trans "Ride Price" %}: <span class="value">0</span> ₪</p>
-
-                    <p id="private_time">{% trans "Est. Ride Duration" %}: <span
-                            class="value">0</span> {% trans "min" %}</p>
+                <h3 class="private">{% trans "Private Taxi Ride" %}</h3>
+                <div class="details">
+                    <p id="private_price" class="price">{% trans "Fixed Ride Price" %}: <span class="value">0</span> <span class="label"> ₪</span></p>
+                    <p id="private_time" class="time">{% trans "Est. Ride Duration" %}: <span class="value">0</span> {% trans "min" %}</p>
                 </div>
-                <button id="book_private" class="order_button" data-theme="c">{% trans 'Book Private' %}</button>
+                <button id="book_private" class="order_button" data-theme="c">{% trans 'Book Private Taxi' %}</button>
             </div>
         </div>
     </div>
@@ -730,34 +730,27 @@
             <a href="#booking_page" data-theme="h" class="ui-btn-left">{% trans "Edit" %}</a>
         </div>
         <div data-role="content">
-            <a href="#" data-rel="back" data-role="button" data-theme="g" data-icon="back">{% trans 'Back To Ride Order' %}</a>
+            <a href="#choose_ride_page" data-rel="back" data-role="button" data-theme="g" data-icon="back">{% trans 'Back To Ride Order' %}</a>
 
             <div class="ride_summary">
                 <div class="pickup">
                     <div class="address">
                         <span class="details_label">{% trans "Pickup" %}</span>
-                        <span class="details_label_type">
-                            {% trans 'Address' %}
-                        </span>
-
-                        <p>bla bla </p>
+                        <span class="details_label_type"> {% trans 'Address' %} </span>
+                        <p></p>
                     </div>
                 </div>
                 <hr/>
                 <div class="dropoff">
                     <div class="hotspot">
                         <span class="details_label">{% trans "Dropoff" %}</span>
-                        <span class="details_label_type">
-                            {% trans 'Hotspot' %}
-                        </span>
-                        <p>bla bla </p>
+                        <span class="details_label_type"> {% trans 'Hotspot' %} </span>
+                        <p></p>
                     </div>
                     <hr/>
                     <div class="when">
-                        <span class="details_label_type">
-
-                        </span>
-                        <p>bla bla </p>
+                        <span class="details_label_type"></span>
+                        <p></p>
                     </div>
                 </div>
             </div>
@@ -772,7 +765,7 @@
         </div>
         <div data-role="content">
             <ul id="hotspot_list" class="rtl-listview" data-role="listview" data-theme="a">
-                <li data-theme="d" class="center">
+                <li class="center">
                     {% trans 'Choose a Hotspot to/from which you want to go' %}
                 </li>
             </ul>

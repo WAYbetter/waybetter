@@ -227,28 +227,75 @@ ul.narrow {
     }
 }
 
-#choose_ride_page{
+#choose_ride_page, #ride_details_page{
+    .ui-content{
+        padding-top: 0.1em;
+    }
+    a[href="#ride_details_page"], a[href="#choose_ride_page"]{
+        margin-bottom: 0.7em;
+        margin-left: 0;
+        margin-right: 0;
+    }
     .ride_summary {
-        h3 {
-            text-align: center;
-            margin: 0;
-        }
-        .ride_discount {
-            background-image: url(/static/images/mobile/ribbon_normal.png);
-            height: 69px;
-            width: 65px;
-            float: left;
-            position: relative;
-            color: white;
-            text-align: center;
-            padding-top: 0.3em;
-            left: -28px;
-        }
         background: white;
-        padding: 15px;
+        padding: 0.7em 1.3em;
         color: $details_text_color;
         text-shadow: none;
-        @include box-shadow(0px 0px 3px black);
+        @include box-shadow(0 0 0.4em 0.01em #404040);
+        hr {margin-top: 0.8em;}
+        h3 {
+            text-align: right;
+            margin: 0;
+        }
+        h3.shared{ color: #31A1D0; }
+        h3.private{ color: #D07619; }
+        .ui-btn{
+            margin: 0;
+        }
+        .details{ line-height: 1em; }
+        .price .value, .price .label {
+            font-size: 1.7em;
+            @extend .bold;
+        }
+        .ride_discount {
+            float: left;
+            position: relative;
+            padding-top: 0.3em;
+            left: -2em;
+            top: 2.5em;
+            height: 69px;
+            width: 65px;
+            color: white;
+            @extend .bold;
+            text-align: center;
+            background-image: url(/static/images/mobile/ribbon_normal.png);
+            background-repeat: no-repeat;
+        }
+    }
+}
+
+#ride_details_page {
+    hr{
+        margin-bottom: 1.3em;
+    }
+    .details_label, .details_label_type{
+        @extend .bold;
+    }
+    .pickup {
+        .details_label {
+            @include box-color($pickup_color);
+        }
+        .details_label_type {
+            color: $pickup_color;
+        }
+    }
+    .dropoff {
+        .details_label {
+            @include box-color($dropoff_color);
+        }
+        .details_label_type {
+            color: $dropoff_color;
+        }
     }
 }
 
@@ -267,45 +314,18 @@ ul.narrow {
     .hn-cntr{
         width: 5em;
     }
-    /*#address-form input {*/
-        /*display: inline-block;*/
-    /*}*/
-
-    /*#address-form input[type=text] {*/
-        /*width: 68%;*/
-    /*}*/
-
-    /*#address-form input[type=tel] {*/
-        /*width: 20%;*/
-    /*}*/
 }
 
-/* hotspot page */
-li.suggest_hotspot {
-    a {
-        h1 {
-            text-align: center;
-            color: $hotspot_color;
-        }
+#hotspot_page{
+    #hotspot_list{
+        line-height: 1.3em;
     }
-}
-
-/* Ride details page */
-#ride_details_page {
-    .pickup {
-        .details_label {
-            @include box-color($pickup_color);
-        }
-        .details_label_type {
-            color: $pickup_color;
-        }
-    }
-    .dropoff {
-        .details_label {
-            @include box-color($dropoff_color);
-        }
-        .details_label_type {
-            color: $dropoff_color;
+    li.suggest_hotspot {
+        a {
+            h1 {
+                text-align: center;
+                color: $hotspot_color;
+            }
         }
     }
 }
