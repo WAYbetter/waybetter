@@ -153,7 +153,7 @@ if(lang.equals("HE")){
                 <input type="hidden" name="transactionCode" value="Phone" autocomplete="off"/>
 
                 <label for="cardNumber"><%=CCNumber%></label>
-                <input type="text" id="cardNumber" name="cardNumber" maxlength="19" autocomplete="off"/>
+                <input type="tel" id="cardNumber" name="cardNumber" maxlength="19" autocomplete="off"/>
 
                 <label for="expYear"><%=CCExp%></label>
 
@@ -182,14 +182,14 @@ if(lang.equals("HE")){
                 </div>
 
                 <label for="cvv">CVV</label>
-                <input type="text" name="cvv" id="cvv" maxlength="4" autocomplete="off"/>
+                <input type="tel" name="cvv" id="cvv" maxlength="4" autocomplete="off"/>
                 <a href="#cvv_dialog" data-rel="dialog">
                     <span id="qm" src="merchantPages/WebSources/images/qm.png"></span>
                 </a>
 
 
                 <label for="personalId"><%=CCPId%></label>
-                <input type="text" id="personalId" name="personalId" maxlength="9" autocomplete="off"/>
+                <input type="tel" id="personalId" name="personalId" maxlength="9" autocomplete="off"/>
 
                 <input type="submit" id="submitBtn" data-theme="d" value="<%=formSend%>"/>
                 <div class="hidden">
@@ -209,3 +209,29 @@ if(lang.equals("HE")){
         </div>
     </div>
 {% endblock body %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $.mobile.ajaxEnabled = false;
+
+            var month = String((new Date).getMonth() + 1);
+            if (month < 10){
+                month = "0" + month;
+            }
+            $("#expMonth").val(month).selectmenu().selectmenu("refresh");
+
+            $("#cardNumber, #cvv, #personalId").keyup(function() {
+                var valid = Boolean($("#cardNumber").val() && $("#cvv").val() && $("#personalId").val());
+                if (valid){
+                    $("#submitBtn").button().button("enable");
+                }
+                else{
+                    $("#submitBtn").button().button("disable");
+                }
+            }).trigger("keyup");
+        });
+
+    </script>
+{% endblock %}

@@ -957,6 +957,7 @@ var MobileHelper = Object.create({
             success: function(data) {
                 //data.previous_rides || []);
                 var $list = $(list_selector);
+                $list.empty().listview("refresh");
                 var ride_data = [];
                 if (data.previous_rides) {
                     ride_data = data.previous_rides;
@@ -965,7 +966,6 @@ var MobileHelper = Object.create({
                 }
 
                 if (ride_data.length) {
-                    $list.empty();
                     $.each(ride_data, function(i, ride) {
                         var $li_header = $('<li data-role="list-divider"></li>').text(ride.when).attr("id", "ride_header_" + ride.id);
                         var $li_a = $('<a href="#"></a>');
@@ -980,10 +980,8 @@ var MobileHelper = Object.create({
 
                         $list.append($li_header);
                         $list.append($li_ride);
-                        $list.listview("refresh");
-
-                        
-                    })
+                    });
+                    $list.listview("refresh");
                 }
             }
         })

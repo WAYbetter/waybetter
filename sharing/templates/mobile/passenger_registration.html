@@ -125,7 +125,14 @@
 {% block doc_ready %}
     {{ block.super }}
     <script type="text/javascript">
+        var step = "{{ step }}";
 
+        $(document).ready(function() {
+            $.mobile.ajaxEnabled = false;
+            if (step == "phone")
+                document.location.href = "#validation_page";
+        });
+        
         $("#registration_page").bind("pageinit", function(e) {
             $("#finish_registration").click(function() {
                 var $that = $("#finish_registration");

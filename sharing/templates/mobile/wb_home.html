@@ -121,7 +121,10 @@
     }
     // TODO_WB: check hotspot_type to decide where the updated text should go
     function selectHotspot(hotspot) {
-        if (hotspot !== MobileHelper.hotspot) {
+        if (hotspot == MobileHelper.hotspot) {
+            $.mobile.changePage("#booking_page");
+        }
+        else {
             log("select hotspot");
             MobileHelper.hotspot = hotspot;
 
@@ -471,8 +474,10 @@
                             $addresss_list.listview("refresh");
 
                         } else {
-                            $.mobile.changePage("#booking_page");
                             selectAddress(results[0]);
+                            if (!MobileHelper.hotspot){
+                                $.mobile.changePage("#booking_page");
+                            }
                         }
                     },
                     unresolved:function(errors) {
@@ -582,7 +587,7 @@
                     </a>
                 </div>
                 <div class="ui-block-b">
-                    <a href="{% if user.is_authenticated %}{% url my_rides %}{% else %}{% url mobile_auth_login %}{% endif %}"
+                    <a data-ajax="false" href="{% if user.is_authenticated %}{% url my_rides %}{% else %}{% url mobile_auth_login %}{% endif %}"
                        id="myrides_btn" data-role="button"  data-iconpos="top" data-icon="wb_custom">
                         {% trans 'My Rides' %}
                     </a>
@@ -757,7 +762,7 @@
         <div data-role="content">
             <ul id="hotspot_list" class="rtl-listview" data-role="listview" data-theme="a">
                 <li data-theme="d" class="center">
-                    {% trans 'Hotspots are areas where WAYbetter offers cheap taxis' %}
+                    {% trans 'Choose a Hotspot to/from which you want to go' %}
                 </li>
             </ul>
         </div>
@@ -850,6 +855,9 @@
                 <li data-icon="arrow-l"><a href="{% url faq %}">{% trans "FAQ" %}</a></li>
                 <li data-icon="arrow-l"><a href="{% url privacy %}">{% trans "Privacy Policy" %}</a></li>
                 <li data-icon="arrow-l"><a href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
+                {% if request.user.is_authenticated %}
+                <li data-icon="arrow-l"><a data-ajax="false" href="{% url auth_logout %}">{% trans "Logout" %} ({{ request.user.username }})</a></li>
+                {% endif %}
             </ul>
         </div>
     </div>
