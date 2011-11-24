@@ -236,6 +236,23 @@
 
     }
 
+    function updateAuthStatus() {
+        MobileHelper.isUserAuthenticated(
+            function(username){
+                $("#myrides_btn").show();
+                $("#myrides_login_btn").hide();
+            },
+            function() {
+                $("#myrides_btn").hide();
+                $("#myrides_login_btn").show();
+                if (!welcome_screen_shown) {
+                    welcome_screen_shown = true;
+                    $.mobile.changePage("#welcome_page");
+                }
+            }
+        )
+    }
+
     function bookRide(is_private) {
         var $form = $("<form></form>");
 
@@ -614,20 +631,7 @@
     }
     $("#home").live("pagebeforeshow", function() {
         log("home pagebeforeshow");
-        MobileHelper.isUserAuthenticated(
-                function(username) {
-                    $("#myrides_btn").show();
-                    $("#myrides_login_btn").hide();
-                },
-                function () {
-                    $("#myrides_btn").hide();
-                    $("#myrides_login_btn").show();
-                    if (!welcome_screen_shown) {
-                        welcome_screen_shown = true;
-                        $.mobile.changePage("#welcome_page");
-                    }
-                });
-
+        updateAuthStatus();
     });
 
     $(document).live("pageinit", init);
