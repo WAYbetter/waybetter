@@ -36,7 +36,7 @@
         alert(dialog_name);
     }
 
-    function showNoServiceDialog(address){
+    function showNoServiceDialog(address) {
         showDialog("{% trans "Currently we can't offer service in " %} " + address.name);
     }
 
@@ -91,8 +91,10 @@
     }
     // TODO_WB: check hotspot_type to decide where the updated text should go
     function selectAddress(address) {
-        if ($.inArray(address.city, $.map(MobileHelper.sharing_cities, function(el, i) { return el.id })) < 0) {
-{#            showDialog("{% trans "Currently we can't offer service in " %}: " + address.name);#}
+        if ($.inArray(address.city, $.map(MobileHelper.sharing_cities, function(el, i) {
+            return el.id
+        })) < 0) {
+        {#            showDialog("{% trans "Currently we can't offer service in " %}: " + address.name);#}
             return false;
         }
 
@@ -142,12 +144,12 @@
                 $date_sel.append($option);
             });
 
-            if (MobileHelper.address){
-            getIntervals(false);
-        }
-            else{
+            if (MobileHelper.address) {
+                getIntervals(false);
+            }
+            else {
                 $.mobile.changePage("#booking_page");
-    }
+            }
         }
     }
 
@@ -320,10 +322,12 @@
             },
             callbacks:{
                 locationSuccess: function (position) {
-                    MobileHelper.resolveLonLat(position.coords.longitude, position.coords.latitude,{
+                    MobileHelper.resolveLonLat(position.coords.longitude, position.coords.latitude, {
                         onNewAddress: function(address) {
                             selectAddress(address);
-                            if (address && $.inArray(address.city, $.map(MobileHelper.sharing_cities, function(el, i) { return el.id })) < 0) {
+                            if (address && $.inArray(address.city, $.map(MobileHelper.sharing_cities, function(el, i) {
+                                return el.id
+                            })) < 0) {
                                 showNoServiceDialog(address);
                             }
                         }
@@ -384,7 +388,7 @@
                 });
 
                 var $suggest_li = $("<li data-icon='arrow-l'></li>").addClass("suggest_hotspot");
-                var $suggest_link = $("<a><h1>"+"{% trans 'Suggest a new hotspot' %}"+"</h1></a>").attr("href", "mailto:support@waybetter.com?subject=My suggested hotspot");
+                var $suggest_link = $("<a><h1>" + "{% trans 'Suggest a new hotspot' %}" + "</h1></a>").attr("href", "mailto:support@waybetter.com?subject=My suggested hotspot");
                 $suggest_li.append($suggest_link);
                 $hotspot_list.append($suggest_li);
 
@@ -407,24 +411,7 @@
 
             }
         });
-
-        // home
-        MobileHelper.isUserAuthenticated(
-                function(username) {
-                    $("#myrides_btn").show();
-                    $("#myrides_login_btn").hide();
-                },
-                function () {
-                    $("#myrides_btn").hide();
-                    $("#myrides_login_btn").show();
-                    if (!welcome_screen_shown) {
-                        welcome_screen_shown = true;
-                        $.mobile.changePage("#welcome_page");
-                    }
-                }
-        );
-
-
+        $("#myrides_btn").hide();
         $("#myrides_page").live("#pagebeforeshow", function() {
             MobileHelper.getMyRidesData({get_next_rides: true}, "#rides_list", "#ride_details_page");
         });
@@ -467,16 +454,17 @@
         });
 
         // address page
-        $("#address_page input").keyup(function() {
-            var valid = Boolean($("#id_house_number").val() && $("#id_street").val());
-            if (valid) {
-                $("#address_page button").button().button("enable");
-            }
-            else{
-                $("#address_page button").button().button("disable");
-            }
-        }).trigger("keyup");
-        
+        $("#address_page input").keyup(
+                function() {
+                    var valid = Boolean($("#id_house_number").val() && $("#id_street").val());
+                    if (valid) {
+                        $("#address_page button").button().button("enable");
+                    }
+                    else {
+                        $("#address_page button").button().button("disable");
+                    }
+                }).trigger("keyup");
+
         $("#gps").click(function() {
             MobileHelper.getCurrentLocation();
         });
@@ -513,9 +501,9 @@
 
                         } else {
                             selectAddress(results[0]);
-                            if (!MobileHelper.hotspot){
-                            $.mobile.changePage("#booking_page");
-                        }
+                            if (!MobileHelper.hotspot) {
+                                $.mobile.changePage("#booking_page");
+                            }
                         }
                     },
                     unresolved:function(errors) {
@@ -538,18 +526,18 @@
         $("#settings_page").live("pagebeforeshow", function() {
             var $settings_list = $("#settings_list");
             MobileHelper.isUserAuthenticated(
-                function(username) {
-                    if ($settings_list.find("#logout_item").length == 0) {
-                        var $li = $('<li id="logout_item" data-icon="arrow-l"><a data-ajax="false" href="{% url auth_logout %}">{% trans "Logout" %} (' + username + ')</a></li>');
-                        $settings_list.append($li);
-                        $settings_list.listview("refresh");
+                    function(username) {
+                        if ($settings_list.find("#logout_item").length == 0) {
+                            var $li = $('<li id="logout_item" data-icon="arrow-l"><a data-ajax="false" href="{% url auth_logout %}">{% trans "Logout" %} (' + username + ')</a></li>');
+                            $settings_list.append($li);
+                            $settings_list.listview("refresh");
+                        }
+                    },
+                    function() {
+                        if ($settings_list.find("#logout_item").length) {
+                            $("#logout_item").remove();
+                        }
                     }
-                },
-                function() {
-                    if ($settings_list.find("#logout_item").length) {
-                        $("#logout_item").remove();
-                    }
-                }
             )
         });
 
@@ -598,7 +586,7 @@
 
         // ride details page
         $("#ride_details_page").live("pagebeforeshow", function() {
-            if (MobileHelper.address && MobileHelper.hotspot && MobileHelper.ride_date && MobileHelper.ride_time){
+            if (MobileHelper.address && MobileHelper.hotspot && MobileHelper.ride_date && MobileHelper.ride_time) {
                 $("#ride_details_page .address p").text(MobileHelper.address.name);
                 $("#ride_details_page .hotspot p").text(MobileHelper.hotspot.name);
                 $("#ride_details_page .when p").text(MobileHelper.ride_date + " " + MobileHelper.ride_time);
@@ -624,7 +612,25 @@
             });
         });
     }
-    $(init);
+    $("#home").live("pagebeforeshow", function() {
+        log("home pagebeforeshow");
+        MobileHelper.isUserAuthenticated(
+                function(username) {
+                    $("#myrides_btn").show();
+                    $("#myrides_login_btn").hide();
+                },
+                function () {
+                    $("#myrides_btn").hide();
+                    $("#myrides_login_btn").show();
+                    if (!welcome_screen_shown) {
+                        welcome_screen_shown = true;
+                        $.mobile.changePage("#welcome_page");
+                    }
+                });
+
+    });
+
+    $(document).live("pageinit", init);
     //]]>
     </script>
 
@@ -639,16 +645,18 @@
         <div data-role="content">
             <div class="ui-grid-a"> {#  2-column grid #}
                 <div class="ui-block-a">
-                    <a href="#booking_page" id="home_book_order_btn" data-role="button"  data-iconpos="top"
+                    <a href="#booking_page" id="home_book_order_btn" data-role="button" data-iconpos="top"
                        data-icon="wb_custom">
                         {% trans 'Order Now' %}
                     </a>
                 </div>
                 <div class="ui-block-b">
-                    <a href="#myrides_page" id="myrides_btn" data-role="button" data-iconpos="top" data-icon="wb_custom">
+                    <a href="#myrides_page" id="myrides_btn" data-role="button" data-iconpos="top"
+                       data-icon="wb_custom">
                         {% trans 'My Rides' %}
                     </a>
-                    <a data-ajax="false" href="{% url mobile_auth_login %}" id="myrides_login_btn" data-role="button"  data-iconpos="top" data-icon="wb_custom">
+                    <a data-ajax="false" href="{% url mobile_auth_login %}" id="myrides_login_btn" data-role="button"
+                       data-iconpos="top" data-icon="wb_custom">
                         {% trans 'My Rides' %}
                     </a>
 
@@ -661,14 +669,14 @@
                 </div>
 
                 <div class="ui-block-b">
-                    <a href="#settings_page" id="settings_btn" data-role="button"  data-iconpos="top"
+                    <a href="#settings_page" id="settings_btn" data-role="button" data-iconpos="top"
                        data-icon="wb_custom">{% trans 'More' %}</a>
                 </div>
             </div>
             <div class="ui-grid-b"> {#  3-column grid #}
                 <div class="ui-block-a"></div>
                 <div class="ui-block-b">
-                    <a href="#share_page" id="share_btn" data-role="button"  data-iconpos="top"
+                    <a href="#share_page" id="share_btn" data-role="button" data-iconpos="top"
                        data-icon="wb_custom">{% trans 'Share' %}</a>
                 </div>
                 <div class="ui-block-c"></div>
@@ -682,12 +690,15 @@
         <div data-role="content" class="center">
             <div class="text">
                 <p><strong>{% trans 'Welcome' %}</strong></p>
+
                 <p>{% trans "mobile_app_welcome_txt" %}</p>
+
                 <p><strong>{% trans 'This app is free (as in free beer)' %}</strong></p>
             </div>
             <hr/>
             <div class="buttons">
-                <a href="{% url mobile_auth_login %}" data-role="button" data-theme="d" class="first">{% trans 'Login/Join Now' %}</a>
+                <a href="{% url mobile_auth_login %}" data-role="button" data-theme="d"
+                   class="first">{% trans 'Login/Join Now' %}</a>
                 <a href="#home" data-role="button" data-transition="fade" data-theme="f">{% trans 'Later' %}</a>
             </div>
 
@@ -714,6 +725,7 @@
                     <li data-icon="arrow-l">
                         <a href="#address_page" id="choose_address_btn">
                             <h1 class="header">{% trans "Enter Address" %}</h1>
+
                             <p></p>
                         </a>
                     </li>
@@ -721,7 +733,8 @@
             </div>
 
             <div id="switch_direction_container">
-                <button type="button" id="switch_direction_btn" data-theme="f">{% trans "Switch Ride Direction" %}</button>
+                <button type="button" id="switch_direction_btn"
+                        data-theme="f">{% trans "Switch Ride Direction" %}</button>
                 <div id="switch-dir-img"></div>
             </div>
 
@@ -735,12 +748,14 @@
                     <li data-icon="arrow-l">
                         <a href="#hotspot_page" id="choose_hotspot_btn">
                             <h1 class="header">{% trans "Choose Hotspot" %}</h1>
+
                             <p class="desc"></p>
                         </a>
                     </li>
                     <li data-icon="none" data-theme="e">
                         <a href="#" id="choose_time_btn">
                             <h1 class="header">{% trans "Choose Dropoff Time" %}</h1>
+
                             <p class="desc"></p>
                         </a>
                     </li>
@@ -763,23 +778,31 @@
             <a href="#ride_details_page" data-role="button" data-theme="g" data-icon="info" data-transition="flip">
                 {% trans 'View Ride Details' %}
             </a>
-                {% csrf_token %}
+            {% csrf_token %}
 
             <div class="ride_summary">
                 <div class="ride_discount"></div>
                 <h3 class="shared">{% trans "Shared Taxi Ride" %}</h3>
+
                 <div class="details">
-                    <p id="sharing_price" class="price">{% trans "Fixed Ride Price" %}: <span class="value">0</span>  <span class="label"> ₪</span></p>
-                    <p id="sharing_time" class="time">{% trans "Est. Ride Duration" %}: <span class="value">0</span> {% trans "min" %}</p>
+                    <p id="sharing_price" class="price">{% trans "Fixed Ride Price" %}: <span class="value">0</span>
+                        <span class="label"> ₪</span></p>
+
+                    <p id="sharing_time" class="time">{% trans "Est. Ride Duration" %}: <span
+                            class="value">0</span> {% trans "min" %}</p>
                 </div>
                 <button id="book_sharing" class="order_button" data-theme="d">{% trans 'Book Shared Taxi' %}</button>
 
                 <hr/>
 
                 <h3 class="private">{% trans "Private Taxi Ride" %}</h3>
+
                 <div class="details">
-                    <p id="private_price" class="price">{% trans "Fixed Ride Price" %}: <span class="value">0</span> <span class="label"> ₪</span></p>
-                    <p id="private_time" class="time">{% trans "Est. Ride Duration" %}: <span class="value">0</span> {% trans "min" %}</p>
+                    <p id="private_price" class="price">{% trans "Fixed Ride Price" %}: <span class="value">0</span>
+                        <span class="label"> ₪</span></p>
+
+                    <p id="private_time" class="time">{% trans "Est. Ride Duration" %}: <span
+                            class="value">0</span> {% trans "min" %}</p>
                 </div>
                 <button id="book_private" class="order_button" data-theme="c">{% trans 'Book Private Taxi' %}</button>
             </div>
@@ -788,8 +811,11 @@
 
     <div id="myrides_page" data-role="page">
         <div data-role="header">
-            <a href="{% url wb_home %}" data-icon="wb_custom" rel="external" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
+            <a href="#home" data-icon="wb_custom" data-theme="h" data-iconpos="notext" data-transition="pop"
+               class="ui-btn-right"></a>
+
             <h1>{% trans "My Rides" %}</h1>
+
             <div data-role="navbar">
                 <ul>
                     <li><a id="upcoming_rides_btn" href="#" class="ui-btn-active">{% trans 'Upcoming Rides' %}</a></li>
@@ -806,13 +832,13 @@
     <div id="myride_details_page" data-role="page">
         <div data-role="header">
             <a href="#" data-rel="back">{% trans 'Back' %}</a>
+
             <h1>{% trans "My Rides" %}</h1>
         </div>
         <div data-role="content">
             <ul id="ride_details_list" data-inset="true" class="rtl-listview">
             </ul>
-            <div class="ride_details_comment">
-            </div>
+            <div class="ride_details_comment"></div>
             <a id="ride_details_btn" data-role="button" href="#"></a>
         </div>
     </div>
@@ -820,17 +846,20 @@
     <div id="ride_details_page" data-role="page">
         <div data-role="header">
             <a href="#" data-rel="back" data-theme="h" class="ui-btn-right">{% trans "Back" %}</a>
+
             <h1>{% trans 'Ride Details' %}</h1>
             <a href="#booking_page" data-theme="h" class="ui-btn-left">{% trans "Edit" %}</a>
         </div>
         <div data-role="content">
-            <a href="#choose_ride_page" data-rel="back" data-role="button" data-theme="g" data-icon="back">{% trans 'Back To Ride Order' %}</a>
+            <a href="#choose_ride_page" data-rel="back" data-role="button" data-theme="g"
+               data-icon="back">{% trans 'Back To Ride Order' %}</a>
 
             <div class="ride_summary">
                 <div class="pickup">
                     <div class="address">
                         <span class="details_label">{% trans "Pickup" %}</span>
                         <span class="details_label_type"> {% trans 'Address' %} </span>
+
                         <p></p>
                     </div>
                 </div>
@@ -839,11 +868,13 @@
                     <div class="hotspot">
                         <span class="details_label">{% trans "Dropoff" %}</span>
                         <span class="details_label_type"> {% trans 'Hotspot' %} </span>
+
                         <p></p>
                     </div>
                     <hr/>
                     <div class="when">
                         <span class="details_label_type"></span>
+
                         <p></p>
                     </div>
                 </div>
@@ -877,6 +908,7 @@
         <div data-role="content">
             <form id="address-form">
                 <select id="id_city" name="id_city"></select>
+
                 <div class="street-hn-cntr">
                     <div class="street-cntr">
                         <input type="text" name="street" id="id_street" placeholder="{% trans 'Street' %}"/>
@@ -941,6 +973,7 @@
         <div data-role="header">
             <a href="#home" data-icon="wb_custom" data-theme="h" data-iconpos="notext" data-transition="pop"
                class="ui-btn-right"></a>
+
             <h1>{% trans "More" %}</h1>
         </div>
         <div data-role="content">
@@ -956,6 +989,7 @@
     <div id="about_page" data-role="page" data-theme="a">
         <div data-role="header">
             <a href="#" data-rel="back" data-theme="h" class="ui-btn-right">{% trans 'Back' %}</a>
+
             <h1>{% trans "About" %}</h1>
         </div>
         <div data-role="content">
@@ -965,10 +999,12 @@
                 </div>
                 <div class="about_header ui-block-b">
                     <h1>Shared Taxi</h1>
+
                     <p>{% trans "Version" %} 1.0</p>
                 </div>
             </fieldset>
             <p>{% trans "All rights reserved to WAYbetter" %} &copy;2011</p>
+
             <div class="telmap_logo"></div>
             <div class="mapa_logo"></div>
         </div>

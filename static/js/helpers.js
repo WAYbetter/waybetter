@@ -25,17 +25,17 @@ var MyRidesHelper = Object.create({
         }
     },
 
-    init: function(config){
+    init: function(config) {
         this.config = $.extend(true, {}, this.config, config);
     },
 
-    getData: function(data, callbacks){
+    getData: function(data, callbacks) {
         var that = this;
         $.ajax({
             url: that.config.urls.get_myrides_data,
             dataType: "json",
             data: data,
-            success: function(data){
+            success: function(data) {
                 var has_next = (data.next_rides || []).length > 0;
                 var has_previous = (data.previous_rides || []).length > 0;
                 var $next_table = $(that.config.next_rides_table).eq(0);
@@ -48,32 +48,33 @@ var MyRidesHelper = Object.create({
                     });
                     $next_table.show();
                 }
-                else{
+                else {
                     $next_table.hide();
                 }
 
-                if ($previous_table && has_previous){
+                if ($previous_table && has_previous) {
                     $.each(data.previous_rides, function(i, order) {
                         var row = that._renderRideRow(order, false);
                         $previous_table.find("tbody").append(row);
                     });
                     $previous_table.show();
                 }
-                else{
+                else {
                     $previous_table.hide();
                 }
 
                 if (callbacks.success) callbacks.success.call(undefined, has_next, has_previous);
             },
-            error: (callbacks.error || function(){})
+            error: (callbacks.error || function() {
+            })
         });
     },
 
-    _renderRideRow: function(order, is_next){
+    _renderRideRow: function(order, is_next) {
         var that = this;
 
         var $row = $('<tr data-order_id="' + order.id + '"></tr>');
-        switch (order.type){
+        switch (order.type) {
             case this.config.order_types['private']:
                 $row.append('<td class="private-img"></td>');
                 break;
@@ -90,7 +91,7 @@ var MyRidesHelper = Object.create({
 
         var $info = $('<td class="info' + ((is_next) ? '"' : ' report"') + '></td>');
         if (is_next)
-                $info.append('<a class="wb_link">' + this.config.messages.cancel_text + '</a>');
+            $info.append('<a class="wb_link">' + this.config.messages.cancel_text + '</a>');
         else
             $info.append('<a class="wb_link">' + this.config.messages.report_text + '</a>');
 
@@ -110,23 +111,23 @@ var MyRidesHelper = Object.create({
         return $row;
     },
 
-    _showStatusTooltip: function(info_el, order_id){
+    _showStatusTooltip: function(info_el, order_id) {
         var that = this;
         $.ajax({
             url: that.config.urls.get_order_status,
             data: {order_id: order_id},
             dataType: "json",
-            success: function(response){
+            success: function(response) {
                 var status = response.status;
 
-                if (status == "completed"){
+                if (status == "completed") {
                     var details = response.details;
                     var tip = $(that.config.tip_content.completed);
                     tip.find("#pickup_time_val").text(details.pickup_time);
                     tip.find("#taxi_number_val").text(details.taxi_number);
                     tip.find("#station_name_val").text(details.station_name + " " + details.station_phone);
                 }
-                if (status == "pending"){
+                if (status == "pending") {
                     var $cancel_link = $(that.config.tip_content.pending).find("#cancel_ride_link");
                     // since we are re-using the tooltips it is IMPORTANT to unbind old event handlers
                     $cancel_link.unbind("click").click(function() {
@@ -136,19 +137,19 @@ var MyRidesHelper = Object.create({
 
                 that._showTooltip(info_el, status);
             },
-            error: function(){
+            error: function() {
                 that._showTooltip(info_el, "error");
             }
         });
     },
 
-    _showReportTooltip: function(info_el, order_id){
+    _showReportTooltip: function(info_el, order_id) {
         $(this.config.tip_content.report_ride).find("#report_ride_link").attr("href", "mailto:" + $("#report_ride_link").text() + "?subject=Report Ride " + order_id);
         this._showTooltip(info_el, "report_ride");
     },
 
     _showTooltip: function(info_el, content) {
-        $.each(this.config.tip_content, function(status, content){
+        $.each(this.config.tip_content, function(status, content) {
             $(content).hide();
         });
 
@@ -160,7 +161,7 @@ var MyRidesHelper = Object.create({
                 tip = api.getTip();
             }
 
-            tip.find(".close").unbind("click").click(function(){
+            tip.find(".close").unbind("click").click(function() {
                 api.hide();
             });
 
@@ -171,7 +172,7 @@ var MyRidesHelper = Object.create({
         $(this.config.tip_content[content]).show();
     },
 
-    _cancelOrder: function(info_el, order_id){
+    _cancelOrder: function(info_el, order_id) {
         var that = this;
         var $tip = $(that.config.tip_content.pending);
         var $loader = $tip.find(".tooltip_loader");
@@ -181,15 +182,15 @@ var MyRidesHelper = Object.create({
             type: "POST",
             data: {order_id: order_id},
             dataType: "json",
-            beforeSend: function(){
+            beforeSend: function() {
                 $loader.show();
                 $link.addClass("disabled");
             },
-            complete: function(){
+            complete: function() {
                 $loader.hide();
                 $link.removeClass("disabled");
             },
-            success: function(response){
+            success: function(response) {
                 if (response.status == 'cancelled') {
                     $link.removeClass("wb_link").text(that.config.messages.ride_cancelled);
 
@@ -204,11 +205,11 @@ var MyRidesHelper = Object.create({
                             $(info_el).parent("tr").fadeOut("fast");
                         }
                     });
-                }else{
-                that._showTooltip(info_el, "error");
+                } else {
+                    that._showTooltip(info_el, "error");
                 }
             },
-            error: function(){
+            error: function() {
                 that._showTooltip(info_el, "error");
             }
         });
@@ -251,12 +252,12 @@ var HotspotHelper = Object.create({
         this.MapHelper = config.MapHelper || CMHelper;
     },
 
-    clearCache: function(){
+    clearCache: function() {
         this.cache.dates = [];
         this.cache.months = [];
     },
 
-    getHotspotData: function(options){
+    getHotspotData: function(options) {
         var that = this;
         $.ajax({
             url: that.config.urls.get_hotspot_data,
@@ -279,19 +280,19 @@ var HotspotHelper = Object.create({
         });
     },
 
-    getIntervals: function(options){
+    getIntervals: function(options) {
         var that = this;
         $.ajax({
             url: that.config.urls.get_hotspot_times,
             dataType: "json",
             data: options.data,
-            beforeSend: function(){
+            beforeSend: function() {
                 that.ride_duration = undefined;
                 if (options.beforeSend) {
                     options.beforeSend();
                 }
             },
-            success: function(response){
+            success: function(response) {
                 if (response.ride_duration) {
                     that.ride_duration = response.ride_duration;
                 }
@@ -299,7 +300,8 @@ var HotspotHelper = Object.create({
 
             },
             error: options.error,
-            complete: options.complete || function(){}
+            complete: options.complete || function() {
+            }
         });
     },
 
@@ -308,7 +310,7 @@ var HotspotHelper = Object.create({
         if (this.MapHelper.mapready) {
             this._refreshHotspotMarker(marker_type);
         }
-        else{
+        else {
             // wait for it..
             $(window).one("mapready", function() {
                 that._refreshHotspotMarker(marker_type);
@@ -328,15 +330,16 @@ var HotspotHelper = Object.create({
 
     makeHotSpotSelector: function(options) {
         options = $.extend(true, {
-            onSelectDate: function(dateText, inst){},
-            onSelectTime: function(){}
+            onSelectDate: function(dateText, inst) {
+            },
+            onSelectTime: function() {
+            }
         }, options);
         var that = this;
         var $hotspotpicker = $(this.config.selectors.hotspotpicker);
         var $datepicker = $(this.config.selectors.datepicker);
         var $timepicker = $(this.config.selectors.timepicker);
         var $hs_description = $(this.config.selectors.hs_description);
-
 
 
         this.getHotspotData({
@@ -376,7 +379,7 @@ var HotspotHelper = Object.create({
 
                 $hotspotpicker.change();
 
-                $timepicker.empty().disable().change(function(){
+                $timepicker.empty().disable().change(function() {
                     options.onSelectTime();
                 });
             },
@@ -421,11 +424,11 @@ var HotspotHelper = Object.create({
                     if (options.error) {
                         options.error();
                     }
-                    else{
+                    else {
                         flashError("Error loading hotspot times data");
                     }
                 },
-                complete: function(){
+                complete: function() {
                     if (options.complete) {
                         options.complete();
                     }
@@ -433,7 +436,7 @@ var HotspotHelper = Object.create({
                         if (options.onGotTimes)
                             options.onGotTimes();
                     }
-                    else{
+                    else {
                         if (options.onNoTimes)
                             options.onNoTimes();
                     }
@@ -450,7 +453,7 @@ var HotspotHelper = Object.create({
         }
     },
 
-    _getDatesForMonthYear: function(year, month, $datepicker){
+    _getDatesForMonthYear: function(year, month, $datepicker) {
         var that = this;
         that.getDates({
             data: {'month': month, 'year': year, 'hotspot_id': $(that.config.selectors.hotspotpicker).val()},
@@ -485,21 +488,23 @@ var AddressHelper = Object.create({
 
     makeStructuredAddressInput: function(city_selector, street_input, hn_input, loader, callbacks) {
         var that = this,
-            $street_input = $(street_input),
-            $hn_input = $(hn_input),
-            $loader = $(loader);
+                $street_input = $(street_input),
+                $hn_input = $(hn_input),
+                $loader = $(loader);
 
-        function _beforeSend(){
+        function _beforeSend() {
             $loader.show();
         }
-        function _complete(){
+
+        function _complete() {
             $loader.hide();
         }
+
         $street_input.data("resolved", false);
         $street_input.autocomplete({
             autoFocus: true,
             minLength: 2,
-            source: function(request, response){
+            source: function(request, response) {
                 $.ajax({
                     url: that.config.urls.structured_resolve_url,
                     data: {"city_id": $(city_selector).val(), "street": $street_input.val(), "house_number": $hn_input.val()},
@@ -513,12 +518,12 @@ var AddressHelper = Object.create({
                             }
                         }));
                     },
-                    error: function(){
+                    error: function() {
                         response([]);
                     }
                 });
             },
-            select: function(event, ui){
+            select: function(event, ui) {
                 $(this).data("resolved", true);
                 $(this).blur().autocomplete("disable");
                 $hn_input.focus();
@@ -542,13 +547,13 @@ var AddressHelper = Object.create({
 
     resolveStructured: function(options) {
         var that = this,
-            $city_selector = $(options.city_selector),
-            $street_input = $(options.street_input),
-            $hn_input = $(options.hn_input),
-            callbacks = options.callbacks;
+                $city_selector = $(options.city_selector),
+                $street_input = $(options.street_input),
+                $hn_input = $(options.hn_input),
+                callbacks = options.callbacks;
 
         function _beforeSend() {
-            $.each([$city_selector, $street_input, $hn_input], function(){
+            $.each([$city_selector, $street_input, $hn_input], function() {
                 $(this).disable();
             });
             if (callbacks && callbacks.beforeSend) {
@@ -557,7 +562,7 @@ var AddressHelper = Object.create({
         }
 
         function _complete() {
-            $.each([$city_selector, $street_input, $hn_input], function(){
+            $.each([$city_selector, $street_input, $hn_input], function() {
                 $(this).enable();
             });
             if (callbacks && callbacks.complete) callbacks.complete();
@@ -571,7 +576,7 @@ var AddressHelper = Object.create({
             if (callbacks && callbacks.unresolved) callbacks.unresolved(errors);
         }
 
-        function _error(){
+        function _error() {
             if (callbacks && callbacks.error) callbacks.error();
         }
 
@@ -583,7 +588,7 @@ var AddressHelper = Object.create({
             beforeSend: _beforeSend,
             complete: _complete,
             success: function(data) {
-                if (data.errors){
+                if (data.errors) {
                     _unresolved(data.errors);
                 }
                 else {
@@ -602,7 +607,7 @@ var AddressHelper = Object.create({
                         if (suggestions.length)
                             _resolved(suggestions);
                     } else {
-                        if (match){
+                        if (match) {
                             $street_input.autocomplete("close");
                             _resolved(match);
                         }
@@ -635,7 +640,7 @@ var CMHelper = Object.create({
     icon: undefined,
     mapready: false,
 
-    init: function(config){
+    init: function(config) {
         var that = this;
         this.config = $.extend(true, {}, this.config, config);
 
@@ -655,11 +660,11 @@ var CMHelper = Object.create({
         // TODO_WB: why load event is not fired?
         //CM.Event.addListener(this.map, 'load', function() {alert("foo")});
         $(window).oneTime(1e3, function mapLoaded() {
-            if (that.map.isLoaded()){
+            if (that.map.isLoaded()) {
                 that.mapready = true;
                 $(window).trigger("mapready");
             }
-            else{
+            else {
                 mapLoaded();
             }
         });
@@ -669,7 +674,7 @@ var CMHelper = Object.create({
         };
     },
 
-    addMarker: function(lat, lon, options){
+    addMarker: function(lat, lon, options) {
         options = $.extend(true, {}, options);
         var title = options.title || "";
         var zoom = options.zoom || 14;
@@ -698,20 +703,20 @@ var CMHelper = Object.create({
             bounds.push(marker.getLatLng());
         });
 
-        if (bounds.length > 1){
+        if (bounds.length > 1) {
             var _bounds = new CM.LatLngBounds(bounds);
             this.map.zoomToBounds(_bounds);
         }
-        else{
+        else {
             this.map.setCenter(myMarkerLatLng, zoom);
         }
     },
 
-    addAMarker: function(lat, lon, options){
+    addAMarker: function(lat, lon, options) {
         options = $.extend(true, {}, options, {icon_image: "/static/images/wb_site/map_pin_A.png", marker_name: "A"});
         this.addMarker(lat, lon, options);
     },
-    addBMarker: function(lat, lon, options){
+    addBMarker: function(lat, lon, options) {
         options = $.extend(true, {}, options, {icon_image: "/static/images/wb_site/map_pin_B.png", marker_name: "B"});
         this.addMarker(lat, lon, options);
     },
@@ -773,9 +778,9 @@ var TelmapHelper = Object.create({
         window.onresize = function() {
             telmap.maps.event.trigger(this.map, "resize");
         };
-       telmap.maps.event.addListener(this.map, 'tilesloaded', function() {
-           that.mapready = true;
-           $(window).trigger("mapready");
+        telmap.maps.event.addListener(this.map, 'tilesloaded', function() {
+            that.mapready = true;
+            $(window).trigger("mapready");
         });
         return this;
     },
@@ -788,7 +793,7 @@ var TelmapHelper = Object.create({
             });
         }
     },
-    addMarker: function(lat, lon){
+    addMarker: function(lat, lon) {
         var hotsport_marker_image = '/static/images/hotspot_red_marker.png';
         var hotsport_marker_offset = {x:32, y:63};
 
@@ -811,9 +816,9 @@ var TelmapHelper = Object.create({
     },
     renderMapMarkers:           function () {
         var that = this,
-            map = this.map,
-            markers = 0,
-            bounds = new telmap.maps.LatLngBounds();
+                map = this.map,
+                markers = 0,
+                bounds = new telmap.maps.LatLngBounds();
 
         $.each(this.map_markers, function (i, point) {
             markers++;
@@ -856,9 +861,11 @@ var MobileHelper = Object.create({
 
         },
         callbacks:{
-            noGeolocation: function(){},
-            locationSuccess: function(){},
-            locationError: function(watch_id){
+            noGeolocation: function() {
+            },
+            locationSuccess: function() {
+            },
+            locationError: function(watch_id) {
                 navigator.geolocation.clearWatch(watch_id); // remove watch
             }
         }
@@ -882,7 +889,7 @@ var MobileHelper = Object.create({
 
     // METHODS
     // -------
-    init: function(config){
+    init: function(config) {
         this.config = $.extend(true, {}, this.config, config);
         this._getSharingCities();
     },
@@ -929,6 +936,7 @@ var MobileHelper = Object.create({
 
     isUserAuthenticated: function(is_callback, isnt_callback) {
         var that = this;
+        log("checking user auth");
         $.ajax({
             url: that.config.urls.is_user_authenticated,
             dataType: "json",
@@ -953,7 +961,8 @@ var MobileHelper = Object.create({
     resolveLonLat: function(lon, lat, options) {
         var that = this;
         options = $.extend({}, {
-                    onNewAddress: function(address){},
+                    onNewAddress: function(address) {
+                    },
                     noAddressFound: function() {
                         log("resolve to address failed");
                     }
@@ -981,7 +990,7 @@ var MobileHelper = Object.create({
         return p1.distanceTo(p2);
     },
 
-    
+
     getMyRidesData: function(options, list_selector, ride_page_selector) {
         var that = this;
         var $list = $(list_selector);
@@ -1049,11 +1058,11 @@ var MobileHelper = Object.create({
             url: that.config.urls.get_order_status,
             data: {order_id: ride_data.id},
             dataType: "json",
-            success: function(response){
+            success: function(response) {
                 var status = response.status;
                 var details = response.details;
-                
-                if (status == "pending"){
+
+                if (status == "pending") {
                     $details_btn.set_button_text(that.config.labels.cancel_ride);
                     $details_btn.attr("href", "#").unbind("click").click(function () {
                         that.cancelOrder(ride_data.id);
@@ -1067,9 +1076,9 @@ var MobileHelper = Object.create({
 
                     var comment = "";
                     if (details && details.pickup_time) {
-                        comment += "<p>"+ that.config.labels.final_pickup + ": " + details.pickup_time +"</p>";
+                        comment += "<p>" + that.config.labels.final_pickup + ": " + details.pickup_time + "</p>";
 //                        comment += "<p>"+ that.config.labels.taxi_number + ": " + details.taxi_number +"</p>";
-                        comment += "<p>"+ that.config.labels.taxi_station + ": " + details.station_name + " " + details.station_phone +"</p>";
+                        comment += "<p>" + that.config.labels.taxi_station + ": " + details.station_name + " " + details.station_phone + "</p>";
                     }
 
                     $ride_page.find(".ride_details_comment").empty().append(comment);
@@ -1080,13 +1089,12 @@ var MobileHelper = Object.create({
         });
 
 
-
     },
     cancelOrder: function(order_id) {
         var that = this;
         var $details_btn = $(that.config.selectors.ride_details_btn);
 
-         $.ajax({
+        $.ajax({
             url: that.config.urls.cancel_order,
             type: "POST",
             data: {order_id: order_id},
@@ -1099,7 +1107,7 @@ var MobileHelper = Object.create({
                     $.changePage(that.config.selectors.my_rides_page);
                 }
             }
-         });
+        });
     }
 });
 
@@ -1129,11 +1137,11 @@ var MobileHelper = Object.create({
  * @param {Number} [rad=6371]: radius of earth if different value is required from standard 6,371km
  */
 function LatLon(lat, lon, rad) {
-  if (typeof(rad) == 'undefined') rad = 6371;  // earth's mean radius in km
-  // only accept numbers or valid numeric strings
-  this._lat = typeof(lat)=='number' ? lat : typeof(lat)=='string' && lat.trim()!='' ? +lat : NaN;
-  this._lon = typeof(lon)=='number' ? lon : typeof(lon)=='string' && lon.trim()!='' ? +lon : NaN;
-  this._radius = typeof(rad)=='number' ? rad : typeof(rad)=='string' && trim(lon)!='' ? +rad : NaN;
+    if (typeof(rad) == 'undefined') rad = 6371;  // earth's mean radius in km
+    // only accept numbers or valid numeric strings
+    this._lat = typeof(lat) == 'number' ? lat : typeof(lat) == 'string' && lat.trim() != '' ? +lat : NaN;
+    this._lon = typeof(lon) == 'number' ? lon : typeof(lon) == 'string' && lon.trim() != '' ? +lon : NaN;
+    this._radius = typeof(rad) == 'number' ? rad : typeof(rad) == 'string' && trim(lon) != '' ? +rad : NaN;
 }
 
 
@@ -1149,23 +1157,22 @@ function LatLon(lat, lon, rad) {
  * @returns {Number} Distance in km between this point and destination point
  */
 LatLon.prototype.distanceTo = function(point, precision) {
-  // default 4 sig figs reflects typical 0.3% accuracy of spherical model
-  if (typeof precision == 'undefined') precision = 4;
+    // default 4 sig figs reflects typical 0.3% accuracy of spherical model
+    if (typeof precision == 'undefined') precision = 4;
 
-  var R = this._radius;
-  var lat1 = this._lat.toRad(), lon1 = this._lon.toRad();
-  var lat2 = point._lat.toRad(), lon2 = point._lon.toRad();
-  var dLat = lat2 - lat1;
-  var dLon = lon2 - lon1;
+    var R = this._radius;
+    var lat1 = this._lat.toRad(), lon1 = this._lon.toRad();
+    var lat2 = point._lat.toRad(), lon2 = point._lon.toRad();
+    var dLat = lat2 - lat1;
+    var dLon = lon2 - lon1;
 
-  var a = Math.sin(dLat/2) * Math.sin(dLat/2) +
-          Math.cos(lat1) * Math.cos(lat2) *
-          Math.sin(dLon/2) * Math.sin(dLon/2);
-  var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-  var d = R * c;
-  return d.toPrecisionFixed(precision);
+    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos(lat1) * Math.cos(lat2) *
+                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
+    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+    var d = R * c;
+    return d.toPrecisionFixed(precision);
 };
-
 
 
 /* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
