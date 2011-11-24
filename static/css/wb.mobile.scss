@@ -157,7 +157,7 @@ ul.narrow {
         }
     }
     $offset: -50px;
-    #myrides_btn .ui-icon{ background-position: center 1*$offset; }
+    #myrides_btn .ui-icon, #myrides_login_btn .ui-icon{ background-position: center 1*$offset; }
     #share_btn .ui-icon{ background-position: center 2*$offset - 4 ; }
     #settings_btn .ui-icon{ background-position: center 3*$offset - 4; }
     #feedback_btn .ui-icon{ background-position: center 4*$offset - 4; }
@@ -227,7 +227,7 @@ ul.narrow {
     }
 }
 
-#choose_ride_page, #ride_details_page{
+#choose_ride_page, #ride_details_page, #myride_details_page{
     .ui-content{
         padding-top: 0.1em;
     }
@@ -274,7 +274,7 @@ ul.narrow {
     }
 }
 
-#ride_details_page {
+#ride_details_page, #myride_details_page {
     .ride_summary{
         font-weight: bold;
         line-height: 1.2em;
@@ -314,6 +314,27 @@ ul.narrow {
     }
     .when p{
         margin-bottom: 0;
+    }
+}
+
+#myride_details_page{
+    .ui-content{
+        padding-top: 15px;
+    }
+    .ride_summary{
+        padding: 1em;
+        hr{
+            margin: 1.5em 0;
+        }
+    }
+    .details_label{
+        line-height: 1.8em;
+    }
+    .when{
+        margin-bottom: 1em;
+    }
+    .ride_details_comment{
+        margin: 1em;
     }
 }
 
@@ -379,6 +400,7 @@ ul.narrow {
         color: #666;
     }
 }
+
 #login_page{
     .ui-content{
         color: #424242;
@@ -414,6 +436,19 @@ ul.narrow {
         content: "* ";
     }
 
+
+}
+
+#myrides_page{
+    .ui-li-divider{
+        font-size: 0.85em;
+    }
+    p.ui-li-desc{
+        font-size: 0.85em;;
+        font-weight: bold;
+        line-height: 1.5em;
+        color: #666;
+    }
 
 }
 

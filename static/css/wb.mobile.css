@@ -34,7 +34,7 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
 .hidden {
   display: none; }
 
-.bold, #booking_page .type, #booking_page .label_box, #choose_ride_page .ride_summary .price .value, #choose_ride_page .ride_summary .price .label, #ride_details_page .ride_summary .price .value, #ride_details_page .ride_summary .price .label, #choose_ride_page .ride_summary .ride_discount, #ride_details_page .ride_summary .ride_discount, #ride_details_page .details_label, #ride_details_page .details_label_type {
+.bold, #booking_page .type, #booking_page .label_box, #choose_ride_page .ride_summary .price .value, #choose_ride_page .ride_summary .price .label, #ride_details_page .ride_summary .price .value, #ride_details_page .ride_summary .price .label, #myride_details_page .ride_summary .price .value, #myride_details_page .ride_summary .price .label, #choose_ride_page .ride_summary .ride_discount, #ride_details_page .ride_summary .ride_discount, #myride_details_page .ride_summary .ride_discount, #ride_details_page .details_label, #ride_details_page .details_label_type, #myride_details_page .details_label, #myride_details_page .details_label_type {
   font-weight: bold; }
 
 .center {
@@ -115,7 +115,7 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none; }
-#home #myrides_btn .ui-icon {
+#home #myrides_btn .ui-icon, #home #myrides_login_btn .ui-icon {
   background-position: center -50px; }
 #home #share_btn .ui-icon {
   background-position: center -104px; }
@@ -173,13 +173,13 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
   position: relative;
   top: -0.5em; }
 
-#choose_ride_page .ui-content, #ride_details_page .ui-content {
+#choose_ride_page .ui-content, #ride_details_page .ui-content, #myride_details_page .ui-content {
   padding-top: 0.1em; }
-#choose_ride_page a[href="#ride_details_page"], #choose_ride_page a[href="#choose_ride_page"], #ride_details_page a[href="#ride_details_page"], #ride_details_page a[href="#choose_ride_page"] {
+#choose_ride_page a[href="#ride_details_page"], #choose_ride_page a[href="#choose_ride_page"], #ride_details_page a[href="#ride_details_page"], #ride_details_page a[href="#choose_ride_page"], #myride_details_page a[href="#ride_details_page"], #myride_details_page a[href="#choose_ride_page"] {
   margin-bottom: 0.7em;
   margin-left: 0;
   margin-right: 0; }
-#choose_ride_page .ride_summary, #ride_details_page .ride_summary {
+#choose_ride_page .ride_summary, #ride_details_page .ride_summary, #myride_details_page .ride_summary {
   background: white;
   padding: 0.7em 1.3em;
   color: #666666;
@@ -187,22 +187,22 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
   -webkit-box-shadow: 0 0 0.4em 0.01em #404040;
   -moz-box-shadow: 0 0 0.4em 0.01em #404040;
   box-shadow: 0 0 0.4em 0.01em #404040; }
-  #choose_ride_page .ride_summary hr, #ride_details_page .ride_summary hr {
+  #choose_ride_page .ride_summary hr, #ride_details_page .ride_summary hr, #myride_details_page .ride_summary hr {
     margin-top: 0.8em; }
-  #choose_ride_page .ride_summary h3, #ride_details_page .ride_summary h3 {
+  #choose_ride_page .ride_summary h3, #ride_details_page .ride_summary h3, #myride_details_page .ride_summary h3 {
     text-align: right;
     margin: 0; }
-  #choose_ride_page .ride_summary h3.shared, #ride_details_page .ride_summary h3.shared {
+  #choose_ride_page .ride_summary h3.shared, #ride_details_page .ride_summary h3.shared, #myride_details_page .ride_summary h3.shared {
     color: #31A1D0; }
-  #choose_ride_page .ride_summary h3.private, #ride_details_page .ride_summary h3.private {
+  #choose_ride_page .ride_summary h3.private, #ride_details_page .ride_summary h3.private, #myride_details_page .ride_summary h3.private {
     color: #D07619; }
-  #choose_ride_page .ride_summary .ui-btn, #ride_details_page .ride_summary .ui-btn {
+  #choose_ride_page .ride_summary .ui-btn, #ride_details_page .ride_summary .ui-btn, #myride_details_page .ride_summary .ui-btn {
     margin: 0; }
-  #choose_ride_page .ride_summary .details, #ride_details_page .ride_summary .details {
+  #choose_ride_page .ride_summary .details, #ride_details_page .ride_summary .details, #myride_details_page .ride_summary .details {
     line-height: 1em; }
-  #choose_ride_page .ride_summary .price .value, #choose_ride_page .ride_summary .price .label, #ride_details_page .ride_summary .price .value, #ride_details_page .ride_summary .price .label {
+  #choose_ride_page .ride_summary .price .value, #choose_ride_page .ride_summary .price .label, #ride_details_page .ride_summary .price .value, #ride_details_page .ride_summary .price .label, #myride_details_page .ride_summary .price .value, #myride_details_page .ride_summary .price .label {
     font-size: 1.7em; }
-  #choose_ride_page .ride_summary .ride_discount, #ride_details_page .ride_summary .ride_discount {
+  #choose_ride_page .ride_summary .ride_discount, #ride_details_page .ride_summary .ride_discount, #myride_details_page .ride_summary .ride_discount {
     float: left;
     position: relative;
     padding-top: 0.3em;
@@ -215,34 +215,47 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
     background-image: url(/static/images/mobile/ribbon_normal.png);
     background-repeat: no-repeat; }
 
-#ride_details_page .ride_summary {
+#ride_details_page .ride_summary, #myride_details_page .ride_summary {
   font-weight: bold;
   line-height: 1.2em;
   padding: 1.5em 1.3em; }
-#ride_details_page hr {
+#ride_details_page hr, #myride_details_page hr {
   margin-bottom: 1.3em; }
-#ride_details_page .pickup .details_label {
+#ride_details_page .pickup .details_label, #myride_details_page .pickup .details_label {
   background-color: #48a43e;
   color: white;
   padding: .1em .2em; }
-#ride_details_page .pickup .details_label_type {
+#ride_details_page .pickup .details_label_type, #myride_details_page .pickup .details_label_type {
   color: #48a43e; }
-#ride_details_page .dropoff .details_label {
+#ride_details_page .dropoff .details_label, #myride_details_page .dropoff .details_label {
   background-color: #bb218a;
   color: white;
   padding: .1em .2em; }
-#ride_details_page .dropoff .details_label_type {
+#ride_details_page .dropoff .details_label_type, #myride_details_page .dropoff .details_label_type {
   color: #bb218a; }
-#ride_details_page .desc {
+#ride_details_page .desc, #myride_details_page .desc {
   color: #7c7c7c;
   font-size: 13px;
   font-weight: normal; }
-#ride_details_page .hotspot .name {
+#ride_details_page .hotspot .name, #myride_details_page .hotspot .name {
   margin-bottom: 0; }
-#ride_details_page .hotspot .desc {
+#ride_details_page .hotspot .desc, #myride_details_page .hotspot .desc {
   margin-top: 0; }
-#ride_details_page .when p {
+#ride_details_page .when p, #myride_details_page .when p {
   margin-bottom: 0; }
+
+#myride_details_page .ui-content {
+  padding-top: 15px; }
+#myride_details_page .ride_summary {
+  padding: 1em; }
+  #myride_details_page .ride_summary hr {
+    margin: 1.5em 0; }
+#myride_details_page .details_label {
+  line-height: 1.8em; }
+#myride_details_page .when {
+  margin-bottom: 1em; }
+#myride_details_page .ride_details_comment {
+  margin: 1em; }
 
 #address_page .street-hn-cntr {
   position: relative;
@@ -307,6 +320,14 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
   padding: 0; }
 #login_page li:before {
   content: "* "; }
+
+#myrides_page .ui-li-divider {
+  font-size: 0.85em; }
+#myrides_page p.ui-li-desc {
+  font-size: 0.85em;
+  font-weight: bold;
+  line-height: 1.5em;
+  color: #666; }
 
 #registration_page .ui-header h1, #validation_page .ui-header h1, #credit_guard_page .ui-header h1 {
   margin-right: 80px; }
