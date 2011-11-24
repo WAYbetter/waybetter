@@ -1011,11 +1011,11 @@ var MobileHelper = Object.create({
 
                 if (ride_data.length) {
                     $.each(ride_data, function(i, ride) {
-                        var $li_header = $('<li data-role="list-divider"></li>').text(ride.when).attr("id", "ride_header_" + ride.id);
+                        var $li_header = $('<li data-role="list-divider"></li>').text(that.config.labels.pickupat + ": " + ride.when).attr("id", "ride_header_" + ride.id);
                         var $li_a = $('<a href="#"></a>');
-                        $li_a.append("<p>" + ride.from + "</p>");
-                        $li_a.append("<p>" + ride.to + "</p>");
-                        $li_a.append("<p>" + ride.price + " &#8362;</p>");
+                        $li_a.append("<p>" + that.config.labels.pickup + ": " + ride.from + "</p>");
+                        $li_a.append("<p>" + that.config.labels.dropoff + ": "+ ride.to + "</p>");
+                        $li_a.append("<p>" + that.config.labels.price + ": "+ ride.price + " &#8362;</p>");
                         $li_a.click(function() {
                             that.showRideStatus(ride, ride_page_selector);
                         });
@@ -1041,18 +1041,13 @@ var MobileHelper = Object.create({
         var that = this;
 
         var $ride_page = $(that.config.selectors.ride_details_page);
-        var $details_list = $(that.config.selectors.ride_details_list);
+        var $ride_details = $(that.config.selectors.ride_details);
         var $details_btn = $(that.config.selectors.ride_details_btn);
 
-        $details_list.empty();
-
-        $.each(["from", "to", "when", "price"], function(i, e) {
-            var $li = $("<li></li>").text(ride_data[e]);
-            var $label = $("<span>" + e + ": </span>");
-            $li.prepend($label);
-            $details_list.append($li);
-        });
-
+        $ride_details.find(".pickup .text").text(ride_data['from']);
+        $ride_details.find(".dropoff .text").text(ride_data['to']);
+        $ride_details.find(".when .text").text(ride_data['when']);
+        $ride_details.find(".price .text").text(ride_data['price'] + " ₪");
 
         $.ajax({
             url: that.config.urls.get_order_status,
@@ -1104,7 +1099,7 @@ var MobileHelper = Object.create({
                     $("#ride_li_" + order_id + "," + "#ride_header_" + order_id).remove();
                     $(that.config.selectors.ride_details_list).listview("refresh");
                     alert(that.config.labels.order_cancelled);
-                    $.changePage(that.config.selectors.my_rides_page);
+                    $.mobile.changePage(that.config.selectors.my_rides_page);
                 }
             }
         });

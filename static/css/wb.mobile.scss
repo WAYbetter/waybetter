@@ -157,7 +157,7 @@ ul.narrow {
         }
     }
     $offset: -50px;
-    #myrides_btn .ui-icon{ background-position: center 1*$offset; }
+    #myrides_btn .ui-icon, #myrides_login_btn .ui-icon{ background-position: center 1*$offset; }
     #share_btn .ui-icon{ background-position: center 2*$offset - 4 ; }
     #settings_btn .ui-icon{ background-position: center 3*$offset - 4; }
     #feedback_btn .ui-icon{ background-position: center 4*$offset - 4; }
@@ -227,7 +227,7 @@ ul.narrow {
     }
 }
 
-#choose_ride_page, #ride_details_page{
+#choose_ride_page, #ride_details_page, #myride_details_page{
     .ui-content{
         padding-top: 0.1em;
     }
@@ -274,7 +274,13 @@ ul.narrow {
     }
 }
 
-#ride_details_page {
+#ride_details_page, #myride_details_page {
+    .ride_summary{
+        font-weight: bold;
+        line-height: 1.2em;
+        padding: 1.5em 1.3em;
+    }
+
     hr{
         margin-bottom: 1.3em;
     }
@@ -296,6 +302,39 @@ ul.narrow {
         .details_label_type {
             color: $dropoff_color;
         }
+    }
+    .desc {
+        color: #7c7c7c;
+        font-size: 13px;
+        font-weight: normal;
+    }
+    .hotspot{
+        .name {margin-bottom: 0;}
+        .desc {margin-top: 0;}
+    }
+    .when p{
+        margin-bottom: 0;
+    }
+}
+
+#myride_details_page{
+    .ui-content{
+        padding-top: 15px;
+    }
+    .ride_summary{
+        padding: 1em;
+        hr{
+            margin: 1.5em 0;
+        }
+    }
+    .details_label{
+        line-height: 1.8em;
+    }
+    .when{
+        margin-bottom: 1em;
+    }
+    .ride_details_comment{
+        margin: 1em;
     }
 }
 
@@ -330,62 +369,231 @@ ul.narrow {
     }
 }
 
-/* transaction page */
-#status_icon {
-    width: 80px;
-    height: 80px;
-}
-
-#status_icon.processing {
-    background: url(/static/images/wb_site/loading_large.gif) left 0 no-repeat;
-}
-
-#status_icon.approved {
-    background: url(/static/images/wb_site/processing_icons.png) left -84px no-repeat;
-}
-
-#status_icon.failed {
-    background: url(/static/images/wb_site/processing_icons.png) left 10px no-repeat;
-}
-
-/* registration */
-.registration .ui-bar-a{
-    border-bottom: 1px solid white;
-}
-
-table.registration-progress-bar {
-    width: 100%;
-    height: 2em;
-    border: none;
-    border-spacing: 1px;
-    border-collapse: collapse;
-
-    td{
-        border-left: 1px solid white;
-        background-color: #DFDDDD;
-        color: #9C9C9C;
+#about_page{
+    .about_icon{
+        width: 124px;
+        height: 124px;
+        background: url(/static/images/mobile/about_logo.png) left top no-repeat;
+        margin: 0 auto;
+    }
+    .about_header{
+        /*font-size: 1em;*/
+        text-align: left;
+    }
+    .copyright{
+        margin: 2em auto 3em auto;
+        font-size: 1em;
         text-align: center;
-        text-shadow: none;
-        font-weight: normal;
+        direction: ltr;
     }
-    td.current{
-        color: white;
+    #partners_logos{
+        width: 275px;
+        height: 180px;
+        background: url(/static/images/mobile/Mapa_Telmap.png) left top no-repeat;
+        margin: 0 auto;
+    }
+}
+
+#share_page{
+    .note{
+        font-size: 0.85em;
+        color: #666;
+    }
+}
+
+#login_page{
+    .ui-content{
+        color: #424242;
+        input {
+            margin-top: 20px;
+        }
+        .ui-btn{
+           margin: auto 0;
+        }
+    }
+    #login-form{
+        position: relative;
+        top: -0.5em;
+    }
+    #id_password{
+        margin-bottom: 1.1em;
+    }
+    hr{
+        margin-bottom: 1em;
+    }
+
+    #advtgs {
+        text-align: center;
+        margin-top: 1em;
+    }
+    #advtgs ul {
+        line-height: 2em;
+        list-style: none;
+        margin-top: 0;
+        padding: 0;
+    }
+    li:before{
+        content: "* ";
+    }
+
+
+}
+
+#myrides_page{
+    .ui-li-divider{
+        font-size: 0.85em;
+    }
+    p.ui-li-desc{
+        font-size: 0.85em;;
         font-weight: bold;
-        background-color: #919191;
-        @extend .top_tri;
+        line-height: 1.5em;
+        color: #666;
     }
-    td.done{
-        color: #DFDDDD;
-        background: #919191;
+
+}
+
+#registration_page ,#validation_page, #credit_guard_page{
+    .ui-header{
+        h1{
+            margin-right: 80px;
+        }
     }
+    .ui-bar-a{
+        border-bottom: 1px solid white;
+    }
+    table.registration-progress-bar {
+        width: 100%;
+        height: 2em;
+        border: none;
+        border-spacing: 1px;
+        border-collapse: collapse;
+
+        td{
+            border-left: 1px solid white;
+            background-color: #DFDDDD;
+            color: #9C9C9C;
+            text-align: center;
+            text-shadow: none;
+            font-weight: normal;
+            width: 33%;
+        }
+        td.current{
+            color: white;
+            font-weight: bold;
+            background-color: #919191;
+            @extend .top_tri;
+        }
+        td.done{
+            color: #DFDDDD;
+            background: #919191;
+        }
+    }
+}
+
+#registration_page{
+    label {
+        color: #404040;
+        line-height: 1em;
+        margin-top: 0.5em;
+    }
+    label[for="id_name"]{
+        margin-top: 0;
+    }
+    label[for="id_agree_to_terms"]{
+        margin-bottom: 0;
+        .ui-btn-inner{
+            padding-right: 0;
+            padding-left: 43px;
+            height: 1em;
+        }
+    }
+    .ui-checkbox{
+        width: 2.5em;
+        margin-left: 0;
+    }
+    .ui-block-a{
+        width: 85%;
+        font-size: 0.79em;
+        span{
+            line-height: 4em;
+        }
+    }
+    .ui-block-b{ width: 15%; }
+    ul.errorlist{
+        padding: 0;
+        margin: 0;
+        font-size: 0.8em;
+        color: red;
+    }
+
     #fb_connect{
         background: url("/static/images/wb_site/fb_disabled.jpeg") -1px 0 no-repeat;
         width: 170px;
         height: 28px;
     }
-
 }
 
+#validation_page{
+    .ui-content{
+        color: #424242;
+        input{
+           position: relative;
+           right: 0.3em;
+           width: 93%;
+        }
+    }
+}
+
+#trx_page{
+    color: #666666;
+    #order_status {
+        background: white;
+        padding: 0.7em 1.3em;
+        @include box-shadow(0 0 0.4em 0.01em #404040);
+    }
+    #order_status h3 {
+        text-align: center;
+    }
+    #order_status .status_details {
+        text-align: center;
+    }
+    #status_help{
+        font-size: 0.8em;
+        margin-bottom: 1.8em;
+    }
+    #status_icon {
+        width: 85px;
+        height: 100px;
+        margin: 0 auto;
+    }
+    #status_icon.processing {
+        width: 100px;
+        background: url(/static/images/wb_site/loading_large.gif) left 0 no-repeat;
+        margin-bottom: 1em;
+    }
+
+    #status_icon.approved {
+        background: url(/static/images/wb_site/processing_icons.png) left -84px no-repeat;
+    }
+
+    #status_icon.failed {
+        background: url(/static/images/wb_site/processing_icons.png) left 10px no-repeat;
+    }
+    #note{
+        font-size: 0.8em;
+        margin-top: 3em;
+        color: #555555;
+    }
+}
+
+.faq{
+    .q{
+        font-weight: bold;
+    }
+    .a{
+        color: #3B3B3B;
+    }
+}
 /* for HD devices (iPhone retina, etc.) */
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5),
        only screen and (min--moz-device-pixel-ratio: 1.5),

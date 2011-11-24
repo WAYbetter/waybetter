@@ -1,25 +1,8 @@
 {% extends "wb_base_mobile.html" %}
 {% load i18n %}
 
-{% block extrastyle %}
-    {{ block.super }}
-    <style>
-        #order_status {
-            background: white;
-            border: 1px solid black;
-            padding: 10px;
-        }
-        #order_status h3 {
-            text-align: center;
-        }
-        #order_status .status_details {
-            text-align: center;
-        }
-    </style>
-{% endblock %}
-
 {% block body %}
-    <div id="trx_status" data-role="page" data-theme="a">
+    <div id="trx_page" data-role="page" data-theme="a">
         <div data-role="header">
             <h1>{% trans "Processing Your Order" %}</h1>
         </div>
@@ -31,7 +14,12 @@
                     <div id="status_help"></div>
                 </div>
 
-                <button id="home" data-theme="b">{% trans "Home" %}</button>
+                <button id="home" data-theme="d">{% trans "Back to Home Page" %}</button>
+            </div>
+            <div id="note" class="center">
+                <p>{% trans "A confirmation email was sent to you" %}.</p>
+                <p>{% trans "You can cancell this ride at no charge up to one hour before pickup" %}.</p>
+                <p>{% trans 'To cancel this ride go to "My Rides" page' %}.</p>
             </div>
         </div>
     </div>
@@ -52,7 +40,7 @@
                 case approved:
                     $("#status_icon").addClass("approved");
                     $("#status_header").html("{% trans "Order Approved" %}");
-                    $("#status_help").html("{% trans "A detailed SMS reminder will be sent 5-10 minutes prior to the taxi's arrival." %}");
+                    $("#status_help").html("{% trans "An SMS notification will be sent (at no charge) prior to your pickup" %}.");
                     break;
                 case failed:
                     $("#status_icon").addClass("failed");
