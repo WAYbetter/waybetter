@@ -30,6 +30,7 @@
     var dropoff_time_msg = "{% trans 'Dropoff Time' %}";
     var pickup_msg = "{% trans 'Pickup' %}";
     var dropoff_msg = "{% trans 'Dropoff' %}";
+    var welcome_screen_shown = false;
 
     function showDialog(dialog_name) {
         alert(dialog_name);
@@ -284,7 +285,6 @@
         });
     }
 
-
     function init() {
         $(document).ajaxSend(function() {
             $.mobile.showPageLoadingMsg();
@@ -292,19 +292,31 @@
         $(document).ajaxComplete(function() {
             $.mobile.hidePageLoadingMsg();
         });
-//        $.mobile.changePage("#home", { transition: "none"});
 
-//        $(document).bind("pagebeforechange", function(event, data) {
-//            if (data.toPage == "#booking_page"){
-//            }
-//        });
         MobileHelper.init({
             urls:{
-                resolve_coordinates: "{% url ordering.passenger_controller.resolve_coordinates %}",
-                get_myrides_data: "{% url sharing.passenger_controller.get_myrides_data %}",
-                cancel_order: "{% url sharing.passenger_controller.cancel_order %}",
-                get_order_status: "{% url sharing.passenger_controller.get_order_status %}",
-                get_sharing_cities: "{% url get_sharing_cities %}"
+                resolve_coordinates     : "{% url ordering.passenger_controller.resolve_coordinates %}",
+                get_myrides_data        : "{% url sharing.passenger_controller.get_myrides_data %}",
+                cancel_order            : "{% url sharing.passenger_controller.cancel_order %}",
+                get_order_status        : "{% url sharing.passenger_controller.get_order_status %}",
+                get_sharing_cities      : "{% url get_sharing_cities %}",
+                is_user_authenticated   : "{% url is_user_authenticated %}"
+            },
+            labels: {
+                cancel_ride : "{% trans 'Cancel Ride' %}",
+                report_ride : "{% trans 'Report Ride' %}",
+                sms_sent    : "{% trans 'An SMS reminder with ride details will be sent a few minutes before your pickup' %}",
+                final_pickup: "{% trans 'Final Pickup Time' %}",
+                taxi_number : "{% trans 'Taxi Number' %}",
+                taxi_station: "{% trans 'Taxi Station' %}",
+                order_cancelled: "{% trans 'Order Cancelled' %}"
+
+            },
+            selectors: {
+                ride_details_page   : "#myrides_details_page",
+                my_rides_page       : "#myrides_page",
+                ride_details_list   : "#ride_details_list",
+                ride_details_btn    : "#ride_details_btn"
             },
             callbacks:{
                 locationSuccess: function (position) {
@@ -397,6 +409,36 @@
         });
 
         // home
+        MobileHelper.isUserAuthenticated(
+                function(username) {
+                    $("#myrides_btn").show();
+                    $("#myrides_login_btn").hide();
+                },
+                function () {
+                    $("#myrides_btn").hide();
+                    $("#myrides_login_btn").show();
+                    if (!welcome_screen_shown) {
+                        welcome_screen_shown = true;
+                        $.mobile.changePage("#welcome_page");
+                    }
+                }
+        );
+
+
+        $("#myrides_page").live("#pagebeforeshow", function() {
+            MobileHelper.getMyRidesData({get_next_rides: true}, "#rides_list", "#ride_details_page");
+        });
+
+        $("#upcoming_rides_btn").click(function() {
+            MobileHelper.getMyRidesData({get_next_rides: true}, "#rides_list", "#ride_details_page");
+        });
+
+        $("#ride_history_btn").click(function() {
+            MobileHelper.getMyRidesData({get_previous_rides: true}, "#rides_list", "#ride_details_page");
+        });
+        $("#myride_details_page").live("pagebeforeshow", function() {
+            $("#ride_details_list").listview().listview("refresh");
+        });
 
         // booking page
         $("#switch_direction_btn").click(function() {
@@ -492,6 +534,25 @@
             return false;
         });
 
+        // setting page
+        $("#settings_page").live("pagebeforeshow", function() {
+            var $settings_list = $("#settings_list");
+            MobileHelper.isUserAuthenticated(
+                function(username) {
+                    if ($settings_list.find("#logout_item").length == 0) {
+                        var $li = $('<li id="logout_item" data-icon="arrow-l"><a data-ajax="false" href="{% url auth_logout %}">{% trans "Logout" %} (' + username + ')</a></li>');
+                        $settings_list.append($li);
+                        $settings_list.listview("refresh");
+                    }
+                },
+                function() {
+                    if ($settings_list.find("#logout_item").length) {
+                        $("#logout_item").remove();
+                    }
+                }
+            )
+        });
+
         // intervals page
         $("#ride-date").change(function() {
             getIntervals(false);
@@ -569,26 +630,7 @@
 
 {% block body %}
 
-    {% if not request.user.is_authenticated %}
-        <div id="welcome_page" data-role="page" data-theme="a">
-            <div data-role="header" class="wb-header"></div>
-            <div data-role="content" class="center">
-                <div class="text">
-                    <p><strong>{% trans 'Welcome' %}</strong></p>
-                    <p>{% trans "mobile_app_welcome_txt" %}</p>
-                    <p><strong>{% trans 'This app is free (as in free beer)' %}</strong></p>
-                </div>
-                <hr/>
-                <div class="buttons">
-                    <a href="{% url mobile_auth_login %}" data-role="button" data-theme="d" class="first">{% trans 'Login/Join Now' %}</a>
-                    <a href="#home" data-role="button" data-transition="fade" data-theme="f">{% trans 'Later' %}</a>
-                </div>
 
-                <div class="welcome-img"></div>
-            </div>
-        </div>
-    {% endif %}
-    
     <div id="home" data-role="page" data-theme="a">
         <div data-role="header" class="wb-header"></div>
         <div class="sub-header">{% trans 'Shared Taxis to Central Locations' %}</div>
@@ -601,10 +643,13 @@
                     </a>
                 </div>
                 <div class="ui-block-b">
-                    <a data-ajax="false" href="{% if user.is_authenticated %}{% url my_rides %}{% else %}{% url mobile_auth_login %}{% endif %}"
-                       id="myrides_btn" data-role="button"  data-iconpos="top" data-icon="wb_custom">
+                    <a href="#myrides_page" id="myrides_btn" data-role="button" data-iconpos="top" data-icon="wb_custom">
                         {% trans 'My Rides' %}
                     </a>
+                    <a data-ajax="false" href="{% url mobile_auth_login %}" id="myrides_login_btn" data-role="button"  data-iconpos="top" data-icon="wb_custom">
+                        {% trans 'My Rides' %}
+                    </a>
+
                 </div>
             </div>
             <div class="ui-grid-a">
@@ -627,6 +672,24 @@
                 <div class="ui-block-c"></div>
             </div>
 
+        </div>
+    </div>
+
+    <div id="welcome_page" data-role="page" data-theme="a">
+        <div data-role="header" class="wb-header"></div>
+        <div data-role="content" class="center">
+            <div class="text">
+                <p><strong>{% trans 'Welcome' %}</strong></p>
+                <p>{% trans "mobile_app_welcome_txt" %}</p>
+                <p><strong>{% trans 'This app is free (as in free beer)' %}</strong></p>
+            </div>
+            <hr/>
+            <div class="buttons">
+                <a href="{% url mobile_auth_login %}" data-role="button" data-theme="d" class="first">{% trans 'Login/Join Now' %}</a>
+                <a href="#home" data-role="button" data-transition="fade" data-theme="f">{% trans 'Later' %}</a>
+            </div>
+
+            <div class="welcome-img"></div>
         </div>
     </div>
 
@@ -720,6 +783,37 @@
                 </div>
                 <button id="book_private" class="order_button" data-theme="c">{% trans 'Book Private' %}</button>
             </div>
+        </div>
+    </div>
+
+    <div id="myrides_page" data-role="page">
+        <div data-role="header">
+            <a href="{% url wb_home %}" data-icon="wb_custom" rel="external" data-theme="b" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
+            <h1>{% trans "My Rides" %}</h1>
+            <div data-role="navbar">
+                <ul>
+                    <li><a id="upcoming_rides_btn" href="#" class="ui-btn-active">{% trans 'Upcoming Rides' %}</a></li>
+                    <li><a id="ride_history_btn" href="#">{% trans 'Ride History' %}</a></li>
+                </ul>
+            </div>
+        </div>
+        <div data-role="content">
+            <ul id="rides_list" data-role="listview" class="rtl-listview" data-theme="a">
+            </ul>
+        </div>
+    </div>
+
+    <div id="myride_details_page" data-role="page">
+        <div data-role="header">
+            <a href="#" data-rel="back">{% trans 'Back' %}</a>
+            <h1>{% trans "My Rides" %}</h1>
+        </div>
+        <div data-role="content">
+            <ul id="ride_details_list" data-inset="true" class="rtl-listview">
+            </ul>
+            <div class="ride_details_comment">
+            </div>
+            <a id="ride_details_btn" data-role="button" href="#"></a>
         </div>
     </div>
 
@@ -857,14 +951,11 @@
             <h1>{% trans "More" %}</h1>
         </div>
         <div data-role="content">
-            <ul class="rtl-listview" data-role="listview">
+            <ul class="rtl-listview" data-role="listview" id="settings_list">
                 <li data-icon="arrow-l"><a href="#about_page">{% trans "About" %}</a></li>
                 <li data-icon="arrow-l"><a href="{% url faq %}">{% trans "FAQ" %}</a></li>
                 <li data-icon="arrow-l"><a href="{% url privacy %}">{% trans "Privacy Policy" %}</a></li>
                 <li data-icon="arrow-l"><a href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
-                {% if request.user.is_authenticated %}
-                <li data-icon="arrow-l"><a data-ajax="false" href="{% url auth_logout %}">{% trans "Logout" %} ({{ request.user.username }})</a></li>
-                {% endif %}
             </ul>
         </div>
     </div>

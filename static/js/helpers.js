@@ -851,7 +851,8 @@ var MobileHelper = Object.create({
             get_hotspot_dates       : "",
             get_myrides_data        : "",
             cancel_order            : "",
-            get_sharing_cities      : ""
+            get_sharing_cities      : "",
+            is_user_authenticated   : ""
 
         },
         callbacks:{
@@ -926,6 +927,29 @@ var MobileHelper = Object.create({
         }
     },
 
+    isUserAuthenticated: function(is_callback, isnt_callback) {
+        var that = this;
+        $.ajax({
+            url: that.config.urls.is_user_authenticated,
+            dataType: "json",
+            success: function(result) {
+                if (result && result[0] === true) {
+                    if (is_callback)
+                        is_callback(result[1]);
+                } else {
+                    if (isnt_callback)
+                        isnt_callback()
+                }
+            },
+            error: function() {
+                log("error checking user auth");
+                if (isnt_callback) {
+                    isnt_callback()
+                }
+            }
+
+        })
+    },
     resolveLonLat: function(lon, lat, options) {
         var that = this;
         options = $.extend({}, {
@@ -960,6 +984,7 @@ var MobileHelper = Object.create({
     
     getMyRidesData: function(options, list_selector, ride_page_selector) {
         var that = this;
+        var $list = $(list_selector);
 
         $.ajax({
             url: that.config.urls.get_myrides_data,
@@ -967,8 +992,7 @@ var MobileHelper = Object.create({
             data: options,
             success: function(data) {
                 //data.previous_rides || []);
-                var $list = $(list_selector);
-                $list.empty().listview("refresh");
+                $list.empty();
                 var ride_data = [];
                 if (data.previous_rides) {
                     ride_data = data.previous_rides;
@@ -993,6 +1017,13 @@ var MobileHelper = Object.create({
                         $list.append($li_ride);
                     });
                     $list.listview("refresh");
+                }
+            },
+            complete: function() {
+                try {
+                    $list.listview("refresh");
+                } catch(e) {
+                    $list.listview();
                 }
             }
         })
