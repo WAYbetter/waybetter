@@ -524,19 +524,28 @@
 
         // setting page
         $("#settings_page").live("pagebeforeshow", function() {
-            var $settings_list = $("#settings_list");
+            var $auth_list = $("#auth_list");
             MobileHelper.isUserAuthenticated(
                     function(username) {
-                        if ($settings_list.find("#logout_item").length == 0) {
-                            var $li = $('<li id="logout_item" data-icon="arrow-l"><a data-ajax="false" href="{% url auth_logout %}">{% trans "Logout" %} (' + username + ')</a></li>');
-                            $settings_list.append($li);
-                            $settings_list.listview("refresh");
+                        if ($auth_list.find("#login_item").length) {
+                            $("#login_item").remove();
                         }
+                        if ($auth_list.find("#logout_item").length == 0) {
+                            var $li = $('<li id="logout_item" data-icon="arrow-l"><a data-ajax="false" href="{% url auth_logout %}">{% trans "Logout" %} (' + username + ')</a></li>');
+                            $auth_list.append($li);
+                        }
+                        $auth_list.listview("refresh");
+
                     },
                     function() {
-                        if ($settings_list.find("#logout_item").length) {
+                        if ($auth_list.find("#logout_item").length) {
                             $("#logout_item").remove();
                         }
+                        if ($auth_list.find("#login_item").length == 0) {
+                            var $li = $('<li id="login_item" data-icon="arrow-l"><a data-ajax="false" href="{% url mobile_auth_login %}">{% trans "Login" %}</a></li>');
+                            $auth_list.append($li);
+                        }
+                        $auth_list.listview("refresh");
                     }
             )
         });
@@ -634,7 +643,7 @@
 
     });
 
-    $(document).live("pageinit", init);
+    $(document).bind("pageinit", init);
     //]]>
     </script>
 
@@ -987,7 +996,7 @@
             <h1>{% trans "More" %}...</h1>
         </div>
         <div data-role="content">
-            <ul id="settings_list" class="rtl-listview" data-role="listview" data-inset="true">
+            <ul class="rtl-listview" data-role="listview" data-inset="true">
                 <li data-icon="arrow-l"><a href="#about_page">{% trans "About" %}</a></li>
                 <li data-icon="arrow-l"><a href="{% url faq %}">{% trans "FAQ" %}</a></li>
             </ul>
@@ -996,6 +1005,8 @@
                 <li data-icon="arrow-l"><a href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
             </ul>
 
+            <ul id="auth_list" class="rtl-listview" data-role="listview" data-inset="true">
+            </ul>
 
         </div>
     </div>
