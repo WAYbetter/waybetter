@@ -11,6 +11,12 @@ def is_email_available(request):
     return is_user_property_available(request, "email")
 
 
+def is_user_authenticated(request):
+    if request.user.is_authenticated():
+        return JSONResponse([True, request.user.username])
+    else:
+        return JSONResponse([False])
+
 def is_email_available_for_user(request):
     passenger = Passenger.from_request(request)
     if passenger and passenger.user:
