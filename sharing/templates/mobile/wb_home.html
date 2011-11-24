@@ -195,7 +195,7 @@
         typ2.redraw();
 
         $("#ride_details_page .dropoff .details_label").swapElement($("#ride_details_page .pickup .details_label"));
-        $("#ride_details_page .dropoff").swapElement($("#ride_details_page .pickup"));
+        $("#ride_details_page .dt_cntr").eq(0).swapElement($("#ride_details_page .dt_cntr").eq(1));
 
         if (MobileHelper.hotspot_type == "pickup") {
             MobileHelper.hotspot_type = "dropoff";
@@ -472,8 +472,8 @@
                         } else {
                             selectAddress(results[0]);
                             if (!MobileHelper.hotspot){
-                            $.mobile.changePage("#booking_page");
-                        }
+                                $.mobile.changePage("#booking_page");
+                            } // otherwise selectAddress calls getIntervals which redirects to interval page
                         }
                     },
                     unresolved:function(errors) {
@@ -530,16 +530,20 @@
         $("#share_fb").click(function() {
             window.shareByFB();
         });
+        $("#like_fb").click(function() {
+            window.likeOnFB();
+        });
         $("#share_email").click(function() {
             window.shareByEmail();
         });
 
-
         // ride details page
         $("#ride_details_page").live("pagebeforeshow", function() {
             if (MobileHelper.address && MobileHelper.hotspot && MobileHelper.ride_date && MobileHelper.ride_time){
-                $("#ride_details_page .address p").text(MobileHelper.address.name);
-                $("#ride_details_page .hotspot p").text(MobileHelper.hotspot.name);
+                $("#ride_details_page .address .name").text(MobileHelper.address.name);
+                $("#ride_details_page .address .desc").text("");
+                $("#ride_details_page .hotspot .name").text(MobileHelper.hotspot.name);
+                $("#ride_details_page .hotspot .desc").text(MobileHelper.hotspot.description);
                 $("#ride_details_page .when p").text(MobileHelper.ride_date + " " + MobileHelper.ride_time);
                 if (MobileHelper.hotspot_type == "pickup") {
                     $("#ride_details_page .when .details_label_type").text(pickup_time_msg);
@@ -734,23 +738,30 @@
 
             <div class="ride_summary">
                 <div class="pickup">
-                    <div class="address">
-                        <span class="details_label">{% trans "Pickup" %}</span>
-                        <span class="details_label_type"> {% trans 'Address' %} </span>
-                        <p></p>
+                    <div class="dt_cntr">
+                        <div class="address">
+                            <span class="details_label">{% trans "Pickup" %}</span>
+                            <span class="details_label_type"> {% trans 'Address' %} </span>
+                            <p class="name"></p>
+                            <p class="desc"></p>
+                        </div>
                     </div>
+
                 </div>
                 <hr/>
                 <div class="dropoff">
-                    <div class="hotspot">
-                        <span class="details_label">{% trans "Dropoff" %}</span>
-                        <span class="details_label_type"> {% trans 'Hotspot' %} </span>
-                        <p></p>
-                    </div>
-                    <hr/>
-                    <div class="when">
-                        <span class="details_label_type"></span>
-                        <p></p>
+                    <div class="dt_cntr">
+                        <div class="hotspot">
+                            <span class="details_label">{% trans "Dropoff" %}</span>
+                            <span class="details_label_type"> {% trans 'Hotspot' %} </span>
+                            <p class="name"></p>
+                            <p class="desc"></p>
+                        </div>
+                        <hr/>
+                        <div class="when">
+                            <span class="details_label_type"></span>
+                            <p></p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -833,13 +844,15 @@
             <a href="#home" data-icon="wb_custom" data-theme="h" data-iconpos="notext" data-transition="pop"
                class="ui-btn-right"></a>
 
-            <h1>{% trans "Feedback" %}</h1>
+            <h1>{% trans "Share" %}</h1>
         </div>
         <div data-role="content">
-            <ul class="rtl-listview" data-role="listview">
-                <li data-icon="arrow-l"><a id="share_fb" href="#">{% trans "Share on Facebook" %}</a></li>
+            <ul class="rtl-listview" data-role="listview" data-inset="true">
+                <li data-icon="arrow-l"><a id="share_fb" href="#" data-ajax="false">{% trans "Share on Facebook" %}</a></li>
+                <li data-icon="arrow-l"><a id="like_fb" href="#" data-ajax="false">{% trans "Like us" %}</a></li>
                 <li data-icon="arrow-l"><a id="share_email" href="#">{% trans "Tell a Friend (email)" %}</a></li>
             </ul>
+            <div class="note">{% trans "Remember, the more passengers using this app the better it becomes (higher efficiency, cheaper rides and better availablity). <br/><br/>Thanks :)" %}</div>
         </div>
     </div>
 
@@ -847,16 +860,22 @@
         <div data-role="header">
             <a href="#home" data-icon="wb_custom" data-theme="h" data-iconpos="notext" data-transition="pop"
                class="ui-btn-right"></a>
-            <h1>{% trans "More" %}</h1>
+            <h1>{% trans "More" %}...</h1>
         </div>
         <div data-role="content">
-            <ul class="rtl-listview" data-role="listview">
+            <ul class="rtl-listview" data-role="listview" data-inset="true">
                 <li data-icon="arrow-l"><a href="#about_page">{% trans "About" %}</a></li>
                 <li data-icon="arrow-l"><a href="{% url faq %}">{% trans "FAQ" %}</a></li>
+            </ul>
+            <ul class="rtl-listview" data-role="listview" data-inset="true">
                 <li data-icon="arrow-l"><a href="{% url privacy %}">{% trans "Privacy Policy" %}</a></li>
                 <li data-icon="arrow-l"><a href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
+            </ul>
+            <ul class="rtl-listview" data-role="listview" data-inset="true">
                 {% if request.user.is_authenticated %}
-                <li data-icon="arrow-l"><a data-ajax="false" href="{% url auth_logout %}">{% trans "Logout" %} ({{ request.user.username }})</a></li>
+                    <li data-icon="arrow-l"><a data-ajax="false" href="{% url auth_logout %}">{% trans "Logout" %} ({{ request.user.username }})</a></li>
+                {% else %}
+                <li data-icon="arrow-l"><a data-ajax="false" href="{% url mobile_auth_login %}">{% trans "Login" %}</a></li>
                 {% endif %}
             </ul>
         </div>
@@ -868,18 +887,17 @@
             <h1>{% trans "About" %}</h1>
         </div>
         <div data-role="content">
-            <fieldset class="ui-grid-a">
-                <div class="about_icon ui-block-a">
-
+            <div class="ui-grid-a">
+                <div class="ui-block-a">
+                    <div class="about_icon"></div>
                 </div>
                 <div class="about_header ui-block-b">
-                    <h1>Shared Taxi</h1>
-                    <p>{% trans "Version" %} 1.0</p>
+                    <h1>WAYbetter</h1>
+                    <p>Beta 1.0</p>
                 </div>
-            </fieldset>
-            <p>{% trans "All rights reserved to WAYbetter" %} &copy;2011</p>
-            <div class="telmap_logo"></div>
-            <div class="mapa_logo"></div>
+            </div>
+            <div class="copyright" class="ltr">© 2011 WAYbetter™ LTD. All rights reserved.<br/><span class="bold">Patent pending.</span></div>
+            <div id="partners_logos"></div>
         </div>
     </div>
 
