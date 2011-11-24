@@ -36,6 +36,7 @@
 {% block body %}
     <div id="registration_page" data-role="page">
         <div data-role="header">
+            <a href="#" data-theme="h" data-rel="back" class="ui-btn-right">{% trans "Close" %}</a>
             <h1>{% trans "Join WAYbetter" %}</h1>
             <table class="registration-progress-bar">
                 <tr>
@@ -82,12 +83,21 @@
                 {% endfor %}
 
                 <!-- render "agree_to_terms" explicitly -->
-                <label for="id_agree_to_terms">{% trans "I agree to the" %}
-                    <a href="{% url terms %}">{% trans "Terms Of Use" %} </a>{% trans "and" %}
-                    <a href="{% url privacy %}"> {% trans "Privacy Statement" %}.</a>
-                </label>
-                <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms" data-theme="g"/>
-                <ul class="errorlist-placeholder"></ul>
+                <div class="ui-grid-a">
+                    <div class="ui-block-a">
+                        <span>{% trans "I agree to the" %}
+                            <a href="#terms_page" data-transition="slideup">{% trans "Terms Of Use" %} </a>{% trans "and" %}
+                            <a href="#privacy_page" data-transition="slideup"> {% trans "Privacy Statement" %}.</a>
+                        </span>
+                    </div>
+                    <div class="ui-block-b">
+                        <label for="id_agree_to_terms"></label>
+                        <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms" data-theme="a"/>
+                    </div>
+                </div>
+                <div id="terms_error">
+                    <ul class="errorlist-placeholder"></ul>
+                </div>
 
                 <button id="finish_registration" data-theme="d">{% trans "Next" %}</button>
             </form>
@@ -107,7 +117,7 @@
             </table>
         </div>
         <div data-role="content">
-            {% trans "Ride details are sent by free SMS" %}
+            <div class="center bold">{% trans "A text notification will be sent prior to your pickup (at no charge)" %}</div>
             <form id="validation">
                 <input name="country_code" type="hidden" value="{{ country_code }}"/>
                 <label for="local_phone">{% trans "Enter phone number" %}</label>
@@ -120,6 +130,27 @@
             </form>
         </div>
     </div>
+
+    <div id="terms_page" data-role="page" data-theme="a">
+        <div data-role="header">
+            <a href="#" data-theme="h" data-rel="back" class="ui-btn-right" data-transition="slidedown">{% trans "Close" %}</a>
+            <h1>{% trans "Terms of Service" %}</h1>
+        </div>
+        <div data-role="content" class="terms">
+            {% trans "terms_content" %}
+        </div>
+    </div>
+
+    <div id="privacy_page" data-role="page" data-theme="a">
+        <div data-role="header">
+            <a href="#" data-theme="h" data-rel="back" class="ui-btn-right" data-transition="slidedown">{% trans "Close" %}</a>
+            <h1>{% trans "Privacy Policy" %}</h1>
+        </div>
+        <div data-role="content" class="privacy">
+            {% trans "privacy_content" %}
+        </div>
+    </div>
+
 {% endblock %}
 
 {% block doc_ready %}
@@ -154,7 +185,7 @@
                                 var $ul;
                                 // terms is special case cause of jquerymobile checkbox rendering
                                 if (e.field_name == "agree_to_terms")
-                                    $ul = $("#id_" + e.field_name).parent().next(selector);
+                                    $ul = $("#terms_error").find(selector);
                                 else
                                     $ul = $("#id_" + e.field_name).next(selector);
 

@@ -528,7 +528,7 @@ window.log = function(){
 window.logargs = function(context){
   // grab the calling functions arguments
   log(context,arguments.callee.caller.arguments);
-}
+};
 
 function gaHitPage(url) {
     try {
@@ -549,8 +549,8 @@ $(function() {
     window.shareByTwitter = function(){
         window.location.href = "http://twitter.com/share?text=" + social_msg + "&url=http://www.WAYbetter.com";
     };
-    window.shareByFB = function(){
-        window.location.href = "http://www.facebook.com/dialog/feed?" +
+    window.shareByFB = function(mobile){
+        window.location.href = "http://" + ((mobile) ? "m" : "www") + ".facebook.com/dialog/feed?" +
                 "&app_id=280509678631025" +
                 "&link=http://www.WAYbetter.com" +
                 "&picture=http://www.waybetter.com/static/images/wb_site/wb_beta_logo.png" +
@@ -558,6 +558,9 @@ $(function() {
 //                    "&caption=" +
                 "&description=" + social_msg +
                 "&redirect_uri=http://www.waybetter.com";
+    };
+    window.likeOnFB = function(mobile){
+        window.location.href = "http://" + ((mobile) ? "m" : "www") + ".facebook.com/pages/WAYbetter/131114610286539";
     };
 }());
 

@@ -1,28 +1,6 @@
 {% extends "wb_base_mobile.html" %}
 {% load i18n %}
 
-{% block extrastyle %}
-    {{ block.super }}
-    <style>
-        input {
-            margin-top: 20px;
-        }
-        hr {
-            margin: 20px auto;
-        }
-
-        #advtgs {
-            text-align: center;
-        }
-        #advtgs div {
-            margin-top: 25px;
-        }
-        #advtgs ul {
-            line-height: 35px;
-        }
-    </style>
-{% endblock %}
-
 {% block body %}
     <div id="login_page" data-role="page">
         <div data-role="header">
@@ -31,7 +9,7 @@
                data-transition="pop" class="ui-btn-right"></a>
         </div>
         <div data-role="content">
-            <div class="bold">{% trans "Login and enjoy a WAYbetter Taxi experience" %}</div>
+            <div class="bold center">{% trans "Login and enjoy a WAYbetter Taxi experience" %}</div>
 
             {{ form.non_field_errors }}
 
@@ -45,7 +23,7 @@
                 <input type="password" name="password" id="id_password" placeholder="{% trans 'Password' %}"/>
 {#                {{ form.password.errors }}#}
 
-                <input type="submit" data-theme="d" value="{% trans 'Log in' %}"/>
+                <input  id="submit" type="submit" data-theme="d" value="{% trans 'Log in' %}"/>
             </form>
 
             <hr/>
@@ -55,7 +33,7 @@
             <div id="advtgs">
                 <div class="bold">יתרונות השירות:</div>
                 <ul>
-                    <li>אין דמי מנוי. אתה חוסך, כולם מרוויחים.</li>
+                    <li>אין דמי מנוי. אתה חוסך, כולם מרוויחים</li>
                     <li>סע בלי מזומן! תשלום באשראי מהאפליקציה</li>
                     <li>תזכורת חינם ב-SMS בטרם הגעת המונית</li>
                     <li>חסכון מובטח של עשרות שקלים בכל נסיעה</li>
@@ -66,4 +44,23 @@
 
         </div>
     </div>
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+
+            $("#id_username, #id_password").keyup(function() {
+                var valid = Boolean($("#id_username").val() && $("#id_password").val());
+                if (valid){
+                    $("#submit").button().button("enable");
+                }
+                else{
+                    $("#submit").button().button("disable");
+                }
+            }).trigger("keyup");
+        });
+
+    </script>
 {% endblock %}
