@@ -237,6 +237,23 @@
 
     }
 
+    function updateAuthStatus() {
+        MobileHelper.isUserAuthenticated(
+            function(username){
+                $("#myrides_btn").show();
+                $("#myrides_login_btn").hide();
+            },
+            function() {
+                $("#myrides_btn").hide();
+                $("#myrides_login_btn").show();
+                if (!welcome_screen_shown) {
+                    welcome_screen_shown = true;
+                    $.mobile.changePage("#welcome_page");
+                }
+            }
+        )
+    }
+
     function bookRide(is_private) {
         var $form = $("<form></form>");
 
@@ -289,7 +306,6 @@
     }
 
     function init() {
-        log("init");
         $(document).ajaxSend(function() {
             $.mobile.showPageLoadingMsg();
         });
@@ -303,7 +319,8 @@
                 get_myrides_data        : "{% url sharing.passenger_controller.get_myrides_data %}",
                 cancel_order            : "{% url sharing.passenger_controller.cancel_order %}",
                 get_order_status        : "{% url sharing.passenger_controller.get_order_status %}",
-                get_sharing_cities      : "{% url get_sharing_cities %}"
+                get_sharing_cities      : "{% url get_sharing_cities %}",
+                is_user_authenticated   : "{% url is_user_authenticated %}"
             },
             labels: {
                 pickup      : "{% trans 'From' %}",
@@ -317,6 +334,7 @@
                 taxi_number : "{% trans 'Taxi Number' %}",
                 taxi_station: "{% trans 'Taxi Station' %}",
                 order_cancelled: "{% trans 'Order Cancelled' %}"
+
             },
             selectors: {
                 ride_details_page   : "#myride_details_page",
@@ -341,17 +359,6 @@
                     $("#choose_address_btn").find(".header").text("{% trans 'Could not find your current location' %}");
                     MobileHelper.address = undefined;
                 }
-            }
-        });
-
-        MobileHelper.getSharingCities({
-            success: function(){
-                var $city_sel = $("#id_city");
-                $.each(MobileHelper.sharing_cities, function(i, city){
-                    var $opt = $('<option></option>').val(city.id).text(city.name);
-                    $city_sel.append($opt);
-                });
-                $city_sel.selectmenu().selectmenu("refresh");
             }
         });
 
@@ -426,10 +433,8 @@
 
             }
         });
-
-        // my rides page
+        $("#myrides_btn").hide();
         $("#myrides_page").bind("pagebeforeshow", function() {
-            //TODO_WB: only if next rides navbar is clicked
             if (do_my_rides_init) {
                 MobileHelper.getMyRidesData({get_next_rides: true}, "#rides_list", "#ride_details_page");
                 do_my_rides_init = false;
@@ -539,6 +544,34 @@
             return false;
         });
 
+        // setting page
+        $("#settings_page").live("pagebeforeshow", function() {
+            var $auth_list = $("#auth_list");
+            MobileHelper.isUserAuthenticated(
+                    function(username) {
+                        if ($auth_list.find("#login_item").length) {
+                            $("#login_item").remove();
+                        }
+                        if ($auth_list.find("#logout_item").length == 0) {
+                            var $li = $('<li id="logout_item" data-icon="arrow-l"><a data-ajax="false" href="{% url auth_logout %}">{% trans "Logout" %} (' + username + ')</a></li>');
+                            $auth_list.append($li);
+                        }
+                        $auth_list.listview("refresh");
+
+                    },
+                    function() {
+                        if ($auth_list.find("#logout_item").length) {
+                            $("#logout_item").remove();
+                        }
+                        if ($auth_list.find("#login_item").length == 0) {
+                            var $li = $('<li id="login_item" data-icon="arrow-l"><a data-ajax="false" href="{% url mobile_auth_login %}">{% trans "Login" %}</a></li>');
+                            $auth_list.append($li);
+                        }
+                        $auth_list.listview("refresh");
+                    }
+            )
+        });
+
         // intervals page
         $("#ride-date").change(function() {
             getIntervals(false);
@@ -599,15 +632,35 @@
                 }
             }
         });
-    }
 
-    $(document).one("pageinit", init);
+        // address page
+        $("#address_page").live("pagebeforeshow", function() {
+            // load up cities into select
+            $.each(MobileHelper.sharing_cities, function(i, e) {
+                var $select = $("#address-form #id_city");
+                $select.append($("<option value='" + e.id + "'>" + e.name + "</option>"))
+                try {
+                    $select.selectmenu("refresh");
+                } catch (e) {
+                    $select.selectmenu();
+                }
+            });
+        });
+    }
+    $("#home").live("pagebeforeshow", function() {
+        log("home pagebeforeshow");
+        updateAuthStatus();
+    });
+
+    $(document).bind("pageinit", init);
     //]]>
     </script>
 
 {% endblock doc_ready %}
 
 {% block body %}
+
+
     <div id="home" data-role="page" data-theme="a">
         <div data-role="header" class="wb-header"></div>
         <div class="sub-header">{% trans 'Shared Taxis to Central Locations' %}</div>
@@ -619,16 +672,16 @@
                         {% trans 'Order Now' %}
                     </a>
                 </div>
-
                 <div class="ui-block-b">
-                    <a id="myrides_btn" data-role="button" data-iconpos="top" data-icon="wb_custom"
-                            {% if request.user.is_authenticated %}
-                            href="#myrides_page">
-                            {% else %}
-                            href="{% url mobile_auth_login %}">
-                            {% endif %}
+                    <a href="#myrides_page" id="myrides_btn" data-role="button" data-iconpos="top"
+                       data-icon="wb_custom">
                         {% trans 'My Rides' %}
                     </a>
+                    <a data-ajax="false" href="{% url mobile_auth_login %}" id="myrides_login_btn" data-role="button"
+                       data-iconpos="top" data-icon="wb_custom">
+                        {% trans 'My Rides' %}
+                    </a>
+
                 </div>
             </div>
             <div class="ui-grid-a">
@@ -899,7 +952,7 @@
         </div>
         <div data-role="content">
             <form id="address-form">
-                <select id="id_city" name="id_city" data-theme="a"></select>
+                <select id="id_city" name="id_city"></select>
 
                 <div class="street-hn-cntr">
                     <div class="street-cntr">
@@ -980,11 +1033,6 @@
             </ul>
 
             <ul id="auth_list" class="rtl-listview" data-role="listview" data-inset="true">
-                {% if request.user.is_authenticated %}
-                <li data-icon="arrow-l"><a href="{% url auth_logout %}">{% trans "Logout" %} ({{ request.user.username }})</a></li>
-                {% else %}
-                <li data-icon="arrow-l"><a href="{% url mobile_auth_login %}">{% trans "Login" %}</a></li>
-                {% endif %}
             </ul>
 
         </div>
