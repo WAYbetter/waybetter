@@ -5,11 +5,10 @@
     <div id="login_page" data-role="page">
         <div data-role="header">
             <h1>{% trans "Login To Your Account" %}</h1>
-            <a href="{% url wb_home %}" data-icon="wb_custom" data-rel="back" data-theme="b" data-iconpos="notext"
-               data-transition="pop" class="ui-btn-right"></a>
+            <a href="{% url wb_home %}" data-ajax="false" data-icon="wb_custom" data-theme="h" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
         </div>
         <div data-role="content">
-            <div class="bold center">{% trans "Login and enjoy a WAYbetter Taxi experience" %}</div>
+            <div class="bold center">{% trans "Registered Users" %}:</div>
 
             {{ form.non_field_errors }}
 
@@ -23,12 +22,18 @@
                 <input type="password" name="password" id="id_password" placeholder="{% trans 'Password' %}"/>
 {#                {{ form.password.errors }}#}
 
-                <input  id="submit" type="submit" data-theme="d" value="{% trans 'Log in' %}"/>
+                <input  id="submit" type="submit" data-theme="f" value="{% trans 'Log in' %}"/>
             </form>
 
-            <hr/>
+            <table class="center">
+                <tr>
+                    <td><hr/></td>
+                    <td>{% trans "New Member" %}?</td>
+                    <td><hr/></td>
+                </tr>
+            </table>
 
-            <a data-ajax="false" href="{% url join %}" data-role="button" data-theme="d">{% trans 'New Member? Join Now' %}</a>
+            <a data-ajax="false" href="{% url join %}" data-role="button" data-theme="d">{% trans 'Join Now' %}</a>
 
             <div id="advtgs">
                 <div class="bold">יתרונות השירות:</div>
@@ -49,7 +54,7 @@
 {% block doc_ready %}
     {{ block.super }}
     <script type="text/javascript">
-        $(document).ready(function() {
+        $("#login_page").bind("pageinit", function() {
 
             $("#id_username, #id_password").keyup(function() {
                 var valid = Boolean($("#id_username").val() && $("#id_password").val());

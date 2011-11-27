@@ -164,9 +164,6 @@
             if (MobileHelper.address) {
                 getIntervals(false);
             }
-            else {
-                $.mobile.changePage("#booking_page");
-            }
         }
     }
 
@@ -388,8 +385,12 @@
                         var $a = $('<a href="#"><h1>' + hotspot.name + '</h1><p>' + hotspot.description + '</p></a>');
                         var $li = $('<li data-icon="arrow-l"></li>').prepend($a);
                         $a.click(function() {
-//                            $.mobile.changePage("#booking_page");
                             selectHotspot(hotspot);
+                            if (MobileHelper.address){
+                                // selectHotspot will navigate to interval page
+                            }else{
+                                $.mobile.changePage("#booking_page");
+                            }
                         });
                         $hotspot_list.append($li);
                     });
@@ -431,7 +432,7 @@
             switchOrderingDirection()
         });
 
-        $("#choose_time_btn").click(function() {
+        $("#choose_time_btn").live("click", function() { // use live, see updateChooseTimesButton
             if (MobileHelper.address && MobileHelper.hotspot) {
                 $.mobile.changePage("#interval_page");
             }
@@ -527,7 +528,7 @@
             if (MobileHelper.ride_date && MobileHelper.ride_time) {
                 $("#ride-date").jqmData("saved_val", MobileHelper.ride_date);
                 $("#ride-time").jqmData("saved_val", MobileHelper.ride_time);
-                $("#choose_time_btn").find(".desc").text(MobileHelper.ride_date + " " + MobileHelper.ride_time);
+                $("#choose_time_btn").find(".desc").text($("#ride-date :selected").text() + " " + MobileHelper.ride_time);
                 $("#calculate_ride_btn").button("enable");
             } else {
                 $("#calculate_ride_btn").button("disable");
@@ -617,9 +618,8 @@
                 </div>
                 <hr/>
                 <div class="buttons">
-                    <a href="{% url mobile_auth_login %}" data-role="button" data-theme="d"
-                       class="first">{% trans 'Login/Join Now' %}</a>
-                    <a href="#home" data-role="button" data-transition="fade" data-theme="f">{% trans 'Later' %}</a>
+                    <a href="#home" data-role="button" data-transition="fade" data-theme="d" class="first">{% trans 'Enter App' %}</a>
+                    <a href="{% url mobile_auth_login %}" data-ajax="false" data-role="button" data-theme="f">{% trans 'Login/Join Now' %}</a>
                 </div>
 
                 <div class="welcome-img"></div>
@@ -979,9 +979,9 @@
 
             <ul id="auth_list" class="rtl-listview" data-role="listview" data-inset="true">
                 {% if request.user.is_authenticated %}
-                <li data-icon="arrow-l"><a href="{% url auth_logout %}">{% trans "Logout" %} ({{ request.user.username }})</a></li>
+                <li data-icon="arrow-l"><a data-ajax="false" href="{% url auth_logout %}">{% trans "Logout" %} ({{ request.user.username }})</a></li>
                 {% else %}
-                <li data-icon="arrow-l"><a href="{% url mobile_auth_login %}">{% trans "Login" %}</a></li>
+                <li data-icon="arrow-l"><a data-ajax="false" href="{% url mobile_auth_login %}">{% trans "Login" %}</a></li>
                 {% endif %}
             </ul>
 

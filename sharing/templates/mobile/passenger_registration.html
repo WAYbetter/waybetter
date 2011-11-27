@@ -268,7 +268,8 @@
                                 $("#local_phone, #verification_code").textinput("disable");
                                 $("#validate_code").set_button_text("{% trans "Next" %}").button("enable");
                                 if (response.redirect) {
-                                    $("#validate_code").unbind("click").bind("click", function() {
+                                    $("#validate_code").unbind("click").bind("click", function(e) {
+                                        e.preventDefault();
                                         window.location.href = response.redirect;
                                     });
                                 }
