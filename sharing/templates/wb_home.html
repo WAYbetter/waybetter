@@ -522,6 +522,7 @@
                 'lon': address_lon,
                 'lat': address_lat,
                 'hotspot_id': $("#id_hotspot_select").val(),
+                'hotspot_type': hotspot_type,
                 'day': $("#id_hotspot_datepicker").val(),
                 'time': $("#id_hotspot_time").val()
             },
@@ -543,7 +544,7 @@
 
                     gaHitPage("order_ready.html");
                 } else {
-                    showError("{% trans "Currently, there is no service to this address." %}", undefined);
+                    showError("{% trans "Currently, there is no service to this address at the selected hour." %}", undefined);
                 }
             },
             error: function() {
