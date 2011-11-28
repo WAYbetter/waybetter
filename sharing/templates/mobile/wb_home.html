@@ -258,6 +258,7 @@
                 $(".order_button").disable();
             },
             success: function(response) {
+                {% block book_ride_success %}
                 if (response.status && response.status == "booked" && response.redirect) {
                     window.location.href = response.redirect;
                 }
@@ -270,6 +271,8 @@
                     showError(message);
                     $(".order_button").enable();
                 }
+                {% endblock book_ride_success %}
+
             },
             error: function() {
                 // TODO_WB: show error message/redirect to error page
@@ -334,7 +337,7 @@
                     });
                 },
                 locationError: function() {
-                    MobileHelper.address = undefined;
+
                 }
             }
         });

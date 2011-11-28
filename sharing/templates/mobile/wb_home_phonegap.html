@@ -1,28 +1,37 @@
 {% extends "mobile/wb_home.html" %}
 {% load i18n %}
 {% load custom_tags %}
+{% load value_from_settings %}
 
 {% block jquery %}
     <script src="http://localhost:8080/target/target-script-min.js#anonymous"></script>
-    {# TODO_WB: <-- remove this, used for debug #}
+    {# TODO_WB: ^-- remove this, used for debug #}
 
     <script src="/static/js/libs/jquery-1.6.4.min.js"></script>
     <script type="text/javascript" charset="utf-8" src="phonegap-1.2.0.js"></script>
     <script type="text/javascript" charset="utf-8" src="ChildBrowser.js"></script>
     <script type="text/javascript">
         var url_handlers = {
-            "/faq/":function () {
+            "{% url faq %}":function () {
                 closeOnNavigate.apply(arguments)
             },
-            "/privacy/":function () {
+            "{% url privacy %}":function () {
                 closeOnNavigate.apply(arguments)
             },
-            "/terms/":function () {
+            "{% url terms %}":function () {
                 closeOnNavigate.apply(arguments)
             },
-            "/accounts/mobile_login/":function (key, current_url) {
-                console.log("url handler callback: " + current_url);
-                closeOnNavigate(key, current_url);
+            "{% url mobile_auth_login %}":function (key, current_url) {
+                console.log("login callback");
+                if (current_url.indexOf("bill_order") !== -1 ||
+                    current_url.indexOf("{% url login_redirect %}") !== -1 ||
+                    current_url.indexOf("{% url trx_ok %}") !== -1 ||
+                    current_url.indexOf("{% url trx_notok %}") !== -1 ||
+                    current_url.indexOf("creditguard.co.il") !== -1) { // moved to bill order
+                    console.log("moved in ordering flow");
+                } else {
+                    closeOnNavigate(key, current_url);
+                }
                 PhoneGapHelper.isUserAuthenticated(
                         function (username) {
                             if ($.mobile.activePage.attr("id") == "welcome_page") {
@@ -30,10 +39,25 @@
                             }
                         }
                         , undefined)
+            },
+            "/billing/bill_order/": function (key, current_url) {
+                console.log("bill order callback");
+                closeOnNavigate(key, current_url);
+            },
+            "creditguard.co.il": function (key, current_url) {
+                console.log("creditguard callback");
+                if (current_url.indexOf("bill_order") === -1 &&
+                    current_url.indexOf("{% url trx_ok %}") === -1 &&
+                    current_url.indexOf("{% url trx_notok %}") === -1) {
+
+                    closeOnNavigate(key, current_url);
+                }
             }
+
         },
         current_cb_url = undefined,
         cb = undefined,
+        domain_name = "{% value_from_settings "DEFAULT_DOMAIN" %}",
         cb_is_open = false,
         welcome_screen_shown = false;
 
@@ -85,32 +109,17 @@
                 return k
             });
             $.each(keys, function (i, e) {
-                if (current_cb_url.endsWith(e)) {
+                if (current_cb_url.indexOf(e) !== -1) {
                     var callback = url_handlers[e];
                     if ($.isFunction(callback)) {
-                        callback(e, new_location); // call callback
+                        console.log("about to call callback");
+                        callback.call(this, e, new_location); // call callback
                     }
                     return false;
                 }
             });
+            console.log("exiting cbLocationChange");
 
-//        console.log("url_settings: " + JSON.stringify(url_settings));
-//        if ((! url_settings ) || new_location == current_cb_url) {
-//            return; // do nothing.. this is the correct page
-//        }
-
-//        console.log("after if");
-//        $.each(url_settings.urls, function(i, url) {
-//            console.log("url = " + url);
-//            if (url == "*" || new_location.endsWith(url)) {
-//                current_cb_url = undefined;
-//                cb.close();
-//                if (urls_settings.callback) {
-//                   window[url_settings.callback]();
-//                }
-//                return false;
-//            }
-//        });
         }
     </script>
 {% endblock %}
@@ -180,8 +189,10 @@
         }
 
         function closeOnNavigate(key, current_url) {
-            if (!current_url.endsWith(key)) {
+            console.log("closeOnNavigate: " + current_url);
+            if (current_url.indexOf(key) === -1) {
                 cbClose();
+                console.log("closed cb via closeOnNavigate");
             }
         }
 
@@ -205,6 +216,8 @@
                     function (username) {
                         if ($settings_list.find("#logout_item").length == 0) {
                             $li = $('<li id="logout_item" data-icon="arrow-l"><a id="logout_link" data-ajax="false" href="#">{% trans "Logout" %} (' + username + ')</a></li>');
+                            $settings_list.append($li);
+                            $settings_list.listview("refresh");
                         }
                         if ($settings_list.find("#login_item").length) {
                             $("#login_item").remove();
@@ -213,73 +226,40 @@
                     function () {
                         if ($settings_list.find("#login_item").length == 0) {
                             $li = $('<li id="login_item" data-icon="arrow-l"><a id="login_link" data-ajax="false" href="#">{% trans "Login" %}</a></li>');
+                            $settings_list.append($li);
+                            $settings_list.listview("refresh");
                         }
                         if ($settings_list.find("#logout_item").length) {
                             $("#logout_item").remove();
                         }
-                    }, false // makes this call synchronous
+                    }
             );
-            if ($li) {
-                $settings_list.append($li);
-                $settings_list.listview("refresh");
-            }
         }
 
-        function bookRide(is_private) {
-            var $form = $("<form></form>");
-
-            var hidden_inputs = {
-                is_private:is_private,
-                time_type:MobileHelper.hotspot_type,
-                ride_duration:$("#ride-time").data("ride_duration"),
-                hotspot_id:MobileHelper.hotspot.id,
-                hotspot_type:MobileHelper.hotspot_type,
-                hotspot_time:$("#ride-time").val(),
-                hotspot_date:$("#ride-date").val(),
-                id_city:$("#id_city").val(),
-                street_address:MobileHelper.address.street_address,
-                house_number:MobileHelper.address.house_number,
-                lat:MobileHelper.address.lat,
-                lon:MobileHelper.address.lon
-            };
-
-            $.each(hidden_inputs, function (k, v) {
-                $form.find("input[name='" + k + "']").remove();
-                $form.append($('<input type="hidden"/>').attr("name", k).attr("value", v));
-            });
-
-            $.ajax({
-                url:"{% absurl sharing.passenger_controller.book_ride %}",
-                data:$form.serialize(),
-                type:"POST",
-                beforeSend:function () {
-                    $(".order_button").disable();
-                },
-                success:function (response) {
-                    if (response.status && response.status == "booked" && response.redirect) {
-                        window.location.href = response.redirect;
-                    }
-                    else {
-                        //TODO_WB: redirect to error page
-                        var message = "{% trans "We have encountered an error. Please try again." %}";
-                        if (response.message) {
-                            message = response.message;
-                        }
-                        showError(message);
-                        $(".order_button").enable();
-                    }
-                },
-                error:function () {
-                    // TODO_WB: show error message/redirect to error page
-                    $(".order_button").enable();
-                }
-            });
-        }
-
-
-    </script>
+   </script>
 
 {% endblock doc_ready %}
+<script type="text/javascript">
+{% block book_ride_success %}
+    if (response.status && response.status == "booked" && response.redirect) {
+        if (response.redirect.startsWith("http")) {
+            cbOpen(response.redirect)
+        } else {
+            cbOpen("http://" + domain_name + response.redirect)
+        }
+        $.mobile.changePage("#home");
+    }
+    else {
+        //TODO_WB: redirect to error page
+        var message = "{% trans "We have encountered an error. Please try again." %}";
+        if (response.message) {
+            message = response.message;
+        }
+        showError(message);
+        $(".order_button").enable();
+    }
+{% endblock book_ride_success %}
+</script>
 
 {% block init %}
     PG_init();

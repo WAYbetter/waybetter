@@ -44,5 +44,8 @@ def my_rides(request):
     return custom_render_to_response("my_rides.html", locals(), context_instance=RequestContext(request))
 
 def get_sharing_cities(request):
-    cities = [{'id': city.id, 'name': city.name} for city in City.objects.filter(name="תל אביב יפו")]
+    cities = get_sharing_cities_data()
     return JSONResponse(cities)
+
+def get_sharing_cities_data():
+    return [{'id': city.id, 'name': city.name} for city in City.objects.filter(name="תל אביב יפו")]
