@@ -164,8 +164,8 @@
             if (MobileHelper.address) {
                 getIntervals(false);
             }
+            }
         }
-    }
 
     function getRideDetails() {
         log("ride details");
@@ -427,6 +427,8 @@
             }
         });
 
+        {% block init %}{% endblock %}
+
         // booking page
         $("#switch_direction_btn").click(function() {
             switchOrderingDirection()
@@ -595,6 +597,12 @@
             window.shareByEmail();
         });
 
+        {% block welcome_page %}
+        {% if not request.user.is_authenticated %}
+            $.mobile.changePage("#welcome_page");
+        {% endif %}
+        {% endblock welcome_page %}
+
     }
 
     $(document).one("pageinit", init);
@@ -605,27 +613,6 @@
 
 {% block body %}
 
-    {% if not request.user.is_authenticated %}
-        <div id="welcome_page" data-role="page" data-theme="a">
-            <div data-role="header" class="wb-header"></div>
-            <div data-role="content" class="center">
-                <div class="text">
-                    <p><strong>{% trans 'Welcome' %}</strong></p>
-
-                    <p>{% trans "mobile_app_welcome_txt" %}</p>
-
-                    <p><strong>{% trans 'This app is free (as in free beer)' %}</strong></p>
-                </div>
-                <hr/>
-                <div class="buttons">
-                    <a href="#home" data-role="button" data-transition="fade" data-theme="d" class="first">{% trans 'Enter App' %}</a>
-                    <a href="{% url mobile_auth_login %}" data-ajax="false" data-role="button" data-theme="f">{% trans 'Login/Join Now' %}</a>
-                </div>
-
-                <div class="welcome-img"></div>
-            </div>
-        </div>
-    {% endif %}
 
     <div id="home" data-role="page" data-theme="a">
         <div data-role="header" class="wb-header"></div>
@@ -640,6 +627,7 @@
                 </div>
 
                 <div class="ui-block-b">
+                    {% block myrides_btn %}
                     <a id="myrides_btn" data-role="button" data-iconpos="top" data-icon="wb_custom"
                             {% if request.user.is_authenticated %}
                             href="#myrides_page"
@@ -648,6 +636,7 @@
                             {% endif %}
                         >{% trans 'My Rides' %}
                     </a>
+                    {% endblock myrides_btn %}
                 </div>
             </div>
             <div class="ui-grid-a">
@@ -672,6 +661,26 @@
 
         </div>
     </div>
+
+   <div id="welcome_page" data-role="page" data-theme="a">
+            <div data-role="header" class="wb-header"></div>
+            <div data-role="content" class="center">
+                <div class="text">
+                    <p><strong>{% trans 'Welcome' %}</strong></p>
+
+                    <p>{% trans "mobile_app_welcome_txt" %}</p>
+
+                    <p><strong>{% trans 'This app is free (as in free beer)' %}</strong></p>
+                </div>
+                <hr/>
+                <div class="buttons">
+                    <a href="#home" data-role="button" data-transition="fade" data-theme="d" class="first">{% trans 'Enter App' %}</a>
+                    <a href="{% url mobile_auth_login %}" data-ajax="false" data-role="button" data-theme="f">{% trans 'Login/Join Now' %}</a>
+                </div>
+
+                <div class="welcome-img"></div>
+            </div>
+        </div>
 
     <div id="booking_page" data-role="page" data-theme="a">
         <div data-role="header">
@@ -968,7 +977,7 @@
             <h1>{% trans "More" %}...</h1>
         </div>
         <div data-role="content">
-            <ul class="rtl-listview" data-role="listview" data-inset="true">
+            <ul id="settings_list" class="rtl-listview" data-role="listview" data-inset="true">
                 <li data-icon="arrow-l"><a href="#about_page">{% trans "About" %}</a></li>
                 <li data-icon="arrow-l"><a href="{% url faq %}" data-ajax="false">{% trans "FAQ" %}</a></li>
             </ul>
@@ -978,11 +987,13 @@
             </ul>
 
             <ul id="auth_list" class="rtl-listview" data-role="listview" data-inset="true">
+                {% block settings_list %}
                 {% if request.user.is_authenticated %}
                 <li data-icon="arrow-l"><a data-ajax="false" href="{% url auth_logout %}">{% trans "Logout" %} ({{ request.user.username }})</a></li>
                 {% else %}
                 <li data-icon="arrow-l"><a data-ajax="false" href="{% url mobile_auth_login %}">{% trans "Login" %}</a></li>
                 {% endif %}
+                {% endblock settings_list %}
             </ul>
 
         </div>

@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     (r'^computation_statistics/(?P<computation_set_id>\d+)$', 'sharing.staff_controller.ride_computation_stat'),
 
     (r'^passenger/home/$', 'sharing.passenger_controller.passenger_home'),
+    (r'^pg_home/$', 'sharing.passenger_controller.pg_home'),
     (r'^book_ride/$', 'sharing.passenger_controller.book_ride'),
     (r'^producer/ordering/$', 'sharing.producer_controller.producer_ordering_page'),
     (r'^producer/new_producer_passenger/$', 'sharing.producer_controller.new_producer_passenger'),

@@ -856,15 +856,11 @@ var MobileHelper = Object.create({
             get_hotspot_dates       : "",
             get_myrides_data        : "",
             cancel_order            : "",
-            get_sharing_cities      : "",
-            is_user_authenticated   : ""
-
+            get_sharing_cities      : ""
         },
         callbacks:{
-            noGeolocation: function() {
-            },
-            locationSuccess: function() {
-            },
+            noGeolocation: function() { },
+            locationSuccess: function() { },
             locationError: function(watch_id) {
                 navigator.geolocation.clearWatch(watch_id); // remove watch
             }
