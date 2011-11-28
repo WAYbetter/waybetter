@@ -280,7 +280,7 @@
 
     function init() {
 
-        log("init");
+        console.log("init");
         $(document).ajaxSend(function() {
             $.mobile.showPageLoadingMsg();
         });
@@ -334,7 +334,6 @@
                     });
                 },
                 locationError: function() {
-                    showError("{% trans 'Could not find your current location' %}");
                     MobileHelper.address = undefined;
                 }
             }
@@ -662,25 +661,27 @@
         </div>
     </div>
 
-   <div id="welcome_page" data-role="page" data-theme="a">
-            <div data-role="header" class="wb-header"></div>
-            <div data-role="content" class="center">
-                <div class="text">
-                    <p><strong>{% trans 'Welcome' %}</strong></p>
+    <div id="welcome_page" data-role="page" data-theme="a">
+        <div data-role="header" class="wb-header"></div>
+        <div data-role="content" class="center">
+            <div class="text">
+                <p><strong>{% trans 'Welcome' %}</strong></p>
 
-                    <p>{% trans "mobile_app_welcome_txt" %}</p>
+                <p>{% trans "mobile_app_welcome_txt" %}</p>
 
-                    <p><strong>{% trans 'This app is free (as in free beer)' %}</strong></p>
-                </div>
-                <hr/>
-                <div class="buttons">
-                    <a href="#home" data-role="button" data-transition="fade" data-theme="d" class="first">{% trans 'Enter App' %}</a>
-                    <a href="{% url mobile_auth_login %}" data-ajax="false" data-role="button" data-theme="f">{% trans 'Login/Join Now' %}</a>
-                </div>
-
-                <div class="welcome-img"></div>
+                <p><strong>{% trans 'This app is free (as in free beer)' %}</strong></p>
             </div>
+            <hr/>
+            <div class="buttons">
+                <a href="#home" data-role="button" data-transition="fade" data-theme="d"
+                   class="first">{% trans 'Enter App' %}</a>
+                <a href="{% url mobile_auth_login %}" data-ajax="false" data-role="button"
+                   data-theme="f">{% trans 'Login/Join Now' %}</a>
+            </div>
+
+            <div class="welcome-img"></div>
         </div>
+    </div>
 
     <div id="booking_page" data-role="page" data-theme="a">
         <div data-role="header">
