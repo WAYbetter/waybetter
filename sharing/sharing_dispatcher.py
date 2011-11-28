@@ -81,7 +81,8 @@ def choose_workstation(ride):
 
     else:
         logging.error(u"No sharing stations found %s" % log)
-        notify_by_email(u"Ride [%s] ERROR - No sharing stations found" % ride.id, msg=log)
+        if not ride.debug:
+            notify_by_email(u"Ride [%s] ERROR - No sharing stations found" % ride.id, msg=log)
 
         return None
 

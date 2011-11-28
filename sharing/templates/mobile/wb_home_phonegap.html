@@ -156,6 +156,7 @@
             });
 
             $("#myrides_btn").click(function () {
+                updateSettingsWithAuthStatus();
                 PhoneGapHelper.isUserAuthenticated(
                         function (username) {
                             $.mobile.changePage("#myrides_page");
