@@ -20,6 +20,10 @@ cron:
   url: /services/ws_heartbeat/
   schedule: every 1 minutes
 
+- description: create invoices ids for passengers
+  url: /billing/create_invoice_ids/
+  schedule: 1 of month 06:00
+
 - description: send invoices to passengers
   url: /billing/send_invoices/
   schedule: 1 of month 08:00

@@ -2,11 +2,14 @@
 from datetime import  date, datetime, timedelta
 import logging
 import csv
+import calendar
+import itertools
+from google.appengine.api.taskqueue import taskqueue
 from billing import billing_backend
-from billing.billing_backend import create_invoices
+from billing.billing_backend import send_invoices_passenger, create_invoice_passenger
 from billing.enums import BillingStatus, BillingAction
-from common.tz_support import default_tz_now
-from common.util import custom_render_to_response
+from common.tz_support import default_tz_now, default_tz_time_max, default_tz_time_min
+from common.util import custom_render_to_response, notify_by_email, Enum
 from django.core.urlresolvers import reverse
 from django.utils import translation
 from django.views.decorators.csrf import csrf_exempt
@@ -16,7 +19,11 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, passenger_required
-from ordering.models import SharedRide, COMPLETED, ACCEPTED, CANCELLED
+from ordering.models import SharedRide, COMPLETED, ACCEPTED
+
+class InvoiceActions(Enum):
+    CREATE_ID	= 0
+    SEND		= 1
 
 def bill_passenger(request):
     form = BillingForm(data=request.POST)
@@ -30,7 +37,8 @@ def bill_passenger(request):
 @csrf_exempt
 @catch_view_exceptions
 @internal_task_on_queue("orders")
-@require_parameters(method="POST", required_params=("token", "amount", "card_expiration", "billing_transaction_id", "action"))
+@require_parameters(method="POST",
+                    required_params=("token", "amount", "card_expiration", "billing_transaction_id", "action"))
 def billing_task(request, token, amount, card_expiration, billing_transaction_id, action):
     logging.info("billing task: transaction_id=%s" % billing_transaction_id)
     action = int(action)
@@ -40,7 +48,8 @@ def billing_task(request, token, amount, card_expiration, billing_transaction_id
         return billing_backend.do_J4(token, amount, card_expiration, billing_transaction_id)
     else:
         raise InvalidOperationError("Unknown action for billing: %s" % action)
-    
+
+
 @passenger_required_no_redirect
 def transaction_ok(request, passenger):
     #TODO: handle errors
@@ -48,7 +57,7 @@ def transaction_ok(request, passenger):
     date_string = request.GET.get("cardExp")
     exp_date = date(year=int(date_string[2:]) + 2000, month=int(date_string[:2]), day=1)
     kwargs = {
-        "passenger"				: passenger,
+        "passenger"			: passenger,
         "token"					: request.GET.get("cardToken"),
         "expiration_date"		: exp_date,
         "card_repr"				: request.GET.get("cardMask"),
@@ -107,29 +116,97 @@ def get_trx_status(request, passenger):
 
     return JSONResponse("")
 
-def send_invoices(request, month=None):
-    import calendar
-    import itertools
+def create_invoice_ids(request):
+    try:
+        task = taskqueue.Task(url=reverse(invoices_task), params={"action": InvoiceActions.CREATE_ID})
+        q = taskqueue.Queue("billing")
+        q.add(task)
+        return HttpResponse("Task Added")
+    except Exception, e:
+        return HttpResponse("FAILED: %s" % e.message)
+
+
+def send_invoices(request):
+    try:
+        task = taskqueue.Task(url=reverse(invoices_task), params={"action": InvoiceActions.SEND})
+        q = taskqueue.Queue("billing")
+        q.add(task)
+        return HttpResponse("Task Added")
+    except Exception, e:
+        return HttpResponse("FAILED: %s" % e.message)
+
+
+@csrf_exempt
+@catch_view_exceptions
+@internal_task_on_queue("billing")
+def invoices_task(request):
+    action = int(request.POST.get("action", -1))
+
     now = default_tz_now()
-    month = month or now.month - 1
-    start_date = datetime(year=now.year, month=month, day=1, hour=0, minute=0, second=0, microsecond=0, tzinfo=now.tzinfo)
-    end_date = datetime(year=now.year,
-                        month=month,
-                        day=calendar.monthrange(now.year, month)[1],
-                        hour=23,
-                        minute=59,
-                        second=59,
-                        microsecond=9999,
-                        tzinfo=now.tzinfo)
+    last_month_date = (now - timedelta(days=now.day))
+    month = last_month_date.month
+    year = last_month_date.year
 
-    qs = BillingTransaction.objects.filter(create_date__gte=start_date, create_date__lte=end_date, status=BillingStatus.CHARGED)
-    data = sorted(qs, key=lambda trx: trx.passenger_id) # in memory sort since DataStore can only sort on filtering property
+    start_date = datetime.combine(date(year=year, month=month, day=1), default_tz_time_min())
+    end_date = datetime.combine(date(year=year, month=month, day=calendar.monthrange(year, month)[1]), default_tz_time_max())
 
-    for p, g in itertools.groupby(data, lambda trx: trx.passenger_id):
-        logging.info("Creating invoices for %d for month %d" % (p, month))
-        create_invoices(sorted(list(g), key=lambda trx: trx.order.create_date))
+    trx_qs = BillingTransaction.objects.filter(create_date__gte=start_date, create_date__lte=end_date, status=BillingStatus.CHARGED)
+
+    failed_ids = []
+    if action == InvoiceActions.CREATE_ID:
+        logging.info("Creating invoice ids: %s - %s" % (start_date, end_date))
+        do_create_invoice_ids(trx_qs)
+    elif action == InvoiceActions.SEND:
+        logging.info("Sending invoices: %s - %s" % (start_date, end_date))
+        do_send_invoices(trx_qs)
+    else:
+        raise RuntimeError("NOT A VALID INVOICE ACTION")
+
+    action_name = InvoiceActions.get_name(action)
+    if failed_ids:
+        notify_by_email("Error %s invoices for month %s/%s" % (action_name, month, year), "failed with following passenger ids %s" % failed_ids)
+    else:
+        notify_by_email("Success %s invoices for month %s/%s" % (action_name, month, year))
 
     return HttpResponse("OK")
+
+
+def do_create_invoice_ids(trx_qs):
+    failed_ids = []
+    passengers = set([trx.passenger for trx in trx_qs])
+    for passenger in passengers:
+        invoice_id = passenger.invoice_id
+        if invoice_id:
+            logging.info("skipping passenger_id %s: already has invoice_id=%s" % (passenger.id, invoice_id))
+        else:
+            try:
+                invoice_id = create_invoice_passenger(passenger)
+                logging.info("successfully created invoice_id=%s for passenger_id %s" % (invoice_id, passenger.id))
+            except Exception, e:
+                logging.error("caught exception when creating invoices id for passenger_id %s: %s" % (passenger.id, e.message))
+
+            if not invoice_id:
+                failed_ids.append(passenger.id)
+
+    return failed_ids
+
+def do_send_invoices(trx_qs):
+    failed_ids = []
+    
+    data = sorted(trx_qs, key=lambda trx: trx.passenger_id) # in memory sort since DataStore can only sort on filtering property
+
+    for p_id, g in itertools.groupby(data, lambda trx: trx.passenger_id):
+        ok = False
+        try:
+            ok = send_invoices_passenger(sorted(list(g), key=lambda trx: trx.order.create_date))
+        except Exception, e:
+            logging.error("caught exception when sending invoices for passenger_id %s: %s" % (p_id, e.message))
+
+        if not ok:
+            failed_ids.append(p_id)
+
+    return failed_ids
+
 
 def get_csv(request):
     delta = int(request.GET.get("days", 30))

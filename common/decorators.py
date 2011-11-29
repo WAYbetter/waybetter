@@ -2,7 +2,7 @@ import sys
 from django.db.models.fields.related import ForeignKey
 from django.http import HttpResponseForbidden, HttpResponse, HttpResponseBadRequest
 from django.db import models
-
+from django.utils import translation
 from google.appengine.ext import db
 from common.util import notify_by_email
 import logging
@@ -29,6 +29,23 @@ def require_parameters(method='GET', required_params=()):
         return wrapper
 
     return actual_decorator
+
+
+def force_lang(lang_code):
+    def actual_decorator(function):
+        def wrapper(request, **kwargs):
+            current_lang = translation.get_language()
+            translation.activate(lang_code)
+
+            response = function(request, **kwargs)
+
+            translation.activate(current_lang)
+            return response
+
+        return wrapper
+
+    return actual_decorator
+
 
 def catch_view_exceptions(function=None):
     def wrapper(*args, **kwargs):
