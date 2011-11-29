@@ -74,7 +74,7 @@ def transaction_ok(request, passenger):
     order = request.session.get(request.GET.get("uniqueID"))
     if order and order.price and order.passenger == passenger:
         logging.info("Billing order: %s" % order)
-        billing_trx = BillingTransaction(order=order, amount=order.price)
+        billing_trx = BillingTransaction(order=order, amount=order.price, debug=order.debug)
         billing_trx.save()
         return HttpResponseRedirect(reverse("bill_order", args=[billing_trx.id]))
     else:
@@ -150,7 +150,7 @@ def invoices_task(request):
     start_date = datetime.combine(date(year=year, month=month, day=1), default_tz_time_min())
     end_date = datetime.combine(date(year=year, month=month, day=calendar.monthrange(year, month)[1]), default_tz_time_max())
 
-    trx_qs = BillingTransaction.objects.filter(create_date__gte=start_date, create_date__lte=end_date, status=BillingStatus.CHARGED)
+    trx_qs = BillingTransaction.objects.filter(debug=False, status=BillingStatus.CHARGED, create_date__gte=start_date, create_date__lte=end_date)
 
     failed_ids = []
     if action == InvoiceActions.CREATE_ID:

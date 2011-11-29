@@ -230,7 +230,7 @@ def create_orders_from_hotspot(data, hotspot_type, point_type, is_textinput):
                 order.save()
 
                 if price and hasattr(passenger, "billing_info"):
-                    billing_trx = BillingTransaction(order=order, amount=price)
+                    billing_trx = BillingTransaction(order=order, amount=price, debug=order.debug)
                     billing_trx.save()
                     billing_trx.commit()
                     
