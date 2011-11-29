@@ -75,6 +75,7 @@
         function postLoginRegistrationHandler(key, current_url) {
             if (current_url.indexOf("bill_order") !== -1 ||
                 current_url.indexOf("{% url login_redirect %}") !== -1 ||
+                current_url.indexOf("{% url join %}") !== -1 ||
                 current_url.indexOf("{% url trx_ok %}") !== -1 ||
                 current_url.indexOf("{% url trx_notok %}") !== -1 ||
                 current_url.indexOf("creditguard.co.il") !== -1) { // moved to bill order
