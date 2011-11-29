@@ -61,6 +61,10 @@ class UserRegistrationForm(forms.Form):
         messages = [('re_password', {'equal_to_field': _("The two password fields didn't match.")})]
 
     def clean(self):
+        agree = self.cleaned_data.get("agree_to_terms")
+        if not agree:
+            self._errors["agree_to_terms"] = self.error_class([_("Please agree to our terms of service")])
+
         password = self.cleaned_data.get("password")
         re_password = self.cleaned_data.get("re_password")
 

@@ -631,11 +631,13 @@
 
         {% block sharing_link %}
         // share page
-        $("#share_fb").click(function() {
+        $("#share_fb").click(function(e) {
             window.location.href = window.shareByFB(true);
+            e.preventDefault();
         });
-        $("#like_fb").click(function() {
+        $("#like_fb").click(function(e) {
             window.location.href = window.likeOnFB(true);
+            e.preventDefault();
         });
         {% endblock sharing_link %}
 
