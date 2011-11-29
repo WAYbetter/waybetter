@@ -56,6 +56,9 @@
     <script type="text/javascript">
         $("#login_page").bind("pageinit", function() {
 
+            $("#id_username").bind("keypress blur", function() {
+                $(this).val($(this).val().toLowerCase());
+            });
             $("#id_username, #id_password").keyup(function() {
                 var valid = Boolean($("#id_username").val() && $("#id_password").val());
                 if (valid){

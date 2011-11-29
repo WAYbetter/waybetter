@@ -16,7 +16,7 @@
 
                 <button id="home" data-theme="d">{% trans "Back to Home Page" %}</button>
             </div>
-            <div id="note" class="center">
+            <div id="note" class="center hidden">
                 <p>{% trans "A confirmation email was sent to you" %}.</p>
                 <p>{% trans "You can cancell this ride at no charge up to one hour before pickup" %}.</p>
                 <p>{% trans 'To cancel this ride go to "My Rides" page' %}.</p>
@@ -41,6 +41,7 @@
                     $("#status_icon").addClass("approved");
                     $("#status_header").html("{% trans "Order Approved" %}");
                     $("#status_help").html("{% trans "An SMS notification will be sent (at no charge) prior to your pickup" %}.");
+                    $("#note").show();
                     break;
                 case failed:
                     $("#status_icon").addClass("failed");

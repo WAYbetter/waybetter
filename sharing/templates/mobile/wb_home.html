@@ -586,6 +586,11 @@
         $("#book_private").click(function() {
             bookRide(true);
         });
+        $("#choose_ride_page").bind("pagebeforeshow", function(e, data) {
+            if ((data.prevPage.attr("id") == "login_or_register_page")) {
+                $(".order_button").enable();
+            }
+        });
 
         // ride details page
         $("#ride_details_page").bind("pagebeforeshow", function() {
