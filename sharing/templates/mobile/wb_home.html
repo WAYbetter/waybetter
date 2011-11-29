@@ -619,13 +619,16 @@
             MobileHelper.getMyRidesData({get_previous_rides: true}, "#rides_list", "#ride_details_page");
         });
 
+        {% block sharing_link %}
         // share page
         $("#share_fb").click(function() {
-            window.shareByFB(true);
+            window.location.href = window.shareByFB(true);
         });
         $("#like_fb").click(function() {
-            window.likeOnFB(true);
+            window.location.href = window.likeOnFB(true);
         });
+        {% endblock sharing_link %}
+
         $("#share_email").click(function() {
             window.shareByEmail();
         });

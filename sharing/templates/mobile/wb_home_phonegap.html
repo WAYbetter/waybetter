@@ -279,6 +279,15 @@
         $(".order_button").enable();
     }
 {% endblock book_ride_success %}
+{% block sharing_link %}
+    $("#share_fb").click(function() {
+        cbOpen(window.shareByFB(true));
+    });
+    $("#like_fb").click(function() {
+        cbOpen(window.likeOnFB(true));
+    });
+{% endblock sharing_link %}
+
 </script>
 
 {% block init %}
