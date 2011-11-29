@@ -4,8 +4,6 @@
 {% load value_from_settings %}
 
 {% block jquery %}
-    <script src="http://localhost:8080/target/target-script-min.js#anonymous"></script>
-    {# TODO_WB: ^-- remove this, used for debug #}
 
     <script src="/static/js/libs/jquery-1.6.4.min.js"></script>
     <script type="text/javascript" charset="utf-8" src="phonegap-1.2.0.js"></script>
@@ -74,13 +72,14 @@
             } else {
                 closeOnNavigate(key, current_url);
             }
-            PhoneGapHelper.isUserAuthenticated(
-                    function (username) {
-                        if ($.mobile.activePage.attr("id") == "welcome_page" || $.mobile.activePage.attr("id") == "login_or_register_page") {
-                            $.mobile.changePage("#home");
-                        }
+
+            PhoneGapHelper.isUserAuthenticated([updateSettingsWithAuthStatus, function(is_auth) {
+                if (is_auth) {
+                    if ($.mobile.activePage.attr("id") == "welcome_page" || $.mobile.activePage.attr("id") == "login_or_register_page") {
+                        $.mobile.changePage("#home");
                     }
-                    , undefined)
+                }
+            }]);
         }
 
         function onBodyLoad() {
@@ -165,26 +164,25 @@
                 }
             });
 
-            updateAuthStatus();
+            PhoneGapHelper.isUserAuthenticated([updateAuthStatus]);
+            MobileHelper.updateMyRidesBubble("#myrides_btn");
             $("#home").bind("pagebeforeshow", function () {
-                updateAuthStatus();
+                PhoneGapHelper.isUserAuthenticated([updateAuthStatus]);
             });
 
             $("#myrides_btn").click(function () {
-                updateSettingsWithAuthStatus();
-                PhoneGapHelper.isUserAuthenticated(
-                        function (username) {
-                            $.mobile.changePage("#myrides_page");
-                        },
-                        function () {
-                            cbOpen("{% absurl mobile_auth_login %}");
-                        }
-                );
+                PhoneGapHelper.isUserAuthenticated([updateSettingsWithAuthStatus, function(is_auth, username) {
+                    if (is_auth) {
+                        $.mobile.changePage("#myrides_page");
+                    } else {
+                        cbOpen("{% absurl mobile_auth_login %}");
+                    }
+                }]);
             });
 
             // setting page
             $("#settings_page").bind("pagebeforeshow", function () {
-                updateSettingsWithAuthStatus()
+                PhoneGapHelper.isUserAuthenticated([updateSettingsWithAuthStatus]);
             });
 
             $("#login_link").live("click", function () {
@@ -198,7 +196,7 @@
                         alert("{% trans "Error while logging out" %}");
                     },
                     success:function () {
-                        updateSettingsWithAuthStatus();
+                        PhoneGapHelper.isUserAuthenticated([updateSettingsWithAuthStatus]);
                     }
                 });
             });
@@ -212,44 +210,37 @@
             }
         }
 
-        function updateAuthStatus() {
-            PhoneGapHelper.isUserAuthenticated(
-                    function (username) {
-                    },
-                    function () {
-                        if (!welcome_screen_shown) {
-                            welcome_screen_shown = true;
-                            $.mobile.changePage("#welcome_page");
-                        }
-                    }
-            )
+        function updateAuthStatus(is_auth) {
+            if (! is_auth) {
+                if (!welcome_screen_shown) {
+                    welcome_screen_shown = true;
+                    $.mobile.changePage("#welcome_page");
+                }
+            }
         }
 
-        function updateSettingsWithAuthStatus() {
+        function updateSettingsWithAuthStatus(is_auth, username) {
             var $settings_list = $("#auth_list");
             var $li = undefined;
-            PhoneGapHelper.isUserAuthenticated(
-                    function (username) {
-                        if ($settings_list.find("#logout_item").length == 0) {
-                            $li = $('<li id="logout_item" data-icon="arrow-l"><a id="logout_link" data-ajax="false" href="#">{% trans "Logout" %} (' + username + ')</a></li>');
-                            $settings_list.append($li);
-                            $settings_list.listview("refresh");
-                        }
-                        if ($settings_list.find("#login_item").length) {
-                            $("#login_item").remove();
-                        }
-                    },
-                    function () {
-                        if ($settings_list.find("#login_item").length == 0) {
-                            $li = $('<li id="login_item" data-icon="arrow-l"><a id="login_link" data-ajax="false" href="#">{% trans "Login" %}</a></li>');
-                            $settings_list.append($li);
-                            $settings_list.listview("refresh");
-                        }
-                        if ($settings_list.find("#logout_item").length) {
-                            $("#logout_item").remove();
-                        }
-                    }
-            );
+            if (is_auth) {
+                if ($settings_list.find("#logout_item").length == 0) {
+                    $li = $('<li id="logout_item" data-icon="arrow-l"><a id="logout_link" data-ajax="false" href="#">{% trans "Logout" %} (' + username + ')</a></li>');
+                    $settings_list.append($li);
+                    $settings_list.listview("refresh");
+                }
+                if ($settings_list.find("#login_item").length) {
+                    $("#login_item").remove();
+                }
+            } else {
+                if ($settings_list.find("#login_item").length == 0) {
+                    $li = $('<li id="login_item" data-icon="arrow-l"><a id="login_link" data-ajax="false" href="#">{% trans "Login" %}</a></li>');
+                    $settings_list.append($li);
+                    $settings_list.listview("refresh");
+                }
+                if ($settings_list.find("#logout_item").length) {
+                    $("#logout_item").remove();
+                }
+            }
         }
 
    </script>

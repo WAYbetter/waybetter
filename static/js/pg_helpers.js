@@ -8,9 +8,12 @@ var PhoneGapHelper = Object.create({
         this.config = $.extend(true, {}, this.config, config);
     },
 
-    isUserAuthenticated: function(is_callback, isnt_callback, async) {
+    isUserAuthenticated: function(callbacks, async) {
         if (typeof async === undefined) {
             async = true;
+        }
+        if (! callbacks ) {
+            return;
         }
         var that = this;
         log("checking user auth");
@@ -20,22 +23,23 @@ var PhoneGapHelper = Object.create({
             async:async,
             success:function (result) {
                 if (result && result[0] === true) {
-                    if (is_callback)
-                        is_callback(result[1]);
+                    $.each(callbacks, function(i, callback) {
+                        callback(true, result[1]);
+                    });
                 } else {
-                    if (isnt_callback)
-                        isnt_callback()
+                    $.each(callbacks, function(i, callback) {
+                        callback(false);
+                    });
                 }
             },
             error:function () {
                 log("error checking user auth");
-                if (isnt_callback) {
-                    isnt_callback()
-                }
+                $.each(callbacks, function(i, callback) {
+                    callback(false);
+                });
             }
 
         })
      }
-
 });
 

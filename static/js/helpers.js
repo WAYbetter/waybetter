@@ -985,11 +985,16 @@ var MobileHelper = Object.create({
                         } else {
                             $bubble = $btn.find(".bubble");
                         }
-                        $bubble.text(num);
+                        $bubble.text(num).show();
                     } else {
                         $btn.find(".bubble").hide();
                     }
+                } else {
+                    $btn.find(".bubble").hide();
                 }
+            },
+            error: function() {
+                $btn.find(".bubble").hide();
             }
         })
 
