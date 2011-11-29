@@ -756,9 +756,11 @@
             {#            <a href="#">{% trans 'Map' %}</a>#}
         </div>
         <div data-role="content">
-            <a href="#ride_details_page" data-role="button" data-theme="g" data-icon="info" data-transition="flip">
-                {% trans 'View Ride Details' %}
-            </a>
+            <div class="order-details-link">
+                <a href="#ride_details_page" data-transition="flip">
+                    {% trans 'View Order Details' %}
+                </a>
+            </div>
             {% csrf_token %}
 
             <div class="ride_summary">
@@ -851,8 +853,11 @@
             <a href="#booking_page" data-theme="h" class="ui-btn-left">{% trans "Edit" %}</a>
         </div>
         <div data-role="content">
-            <a href="#choose_ride_page" data-rel="back" data-role="button" data-theme="g"
-               data-icon="back">{% trans 'Back To Ride Order' %}</a>
+            <div class="order-details-link">
+                <a href="#" data-rel="back" data-transition="flip">
+                    {% trans 'Back To Ride Order' %}
+                </a>
+            </div>
 
             <div class="ride_summary">
                 <div class="pickup">
