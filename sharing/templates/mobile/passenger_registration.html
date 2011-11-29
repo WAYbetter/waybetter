@@ -193,11 +193,11 @@
                             });
                         }
                         else { // success
-                            $.mobile.changePage("#validation_page");
+                            window.location.href = response.redirect;
                         }
                     },
                     error: function() {
-                        alert("Error");
+                        alert("{% trans "Error" %}");
                     }
                 });
 
