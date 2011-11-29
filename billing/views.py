@@ -114,7 +114,7 @@ def get_trx_status(request, passenger):
             response.update({'error_message': trx.comments})
         return JSONResponse(response)
 
-    return JSONResponse("")
+    return JSONResponse({'status': BillingStatus.FAILED})
 
 def create_invoice_ids(request):
     try:
