@@ -24,6 +24,16 @@
                 postLoginRegistrationHandler(key, current_url);
                 MobileHelper.updateMyRidesBubble("#myrides_btn");
             },
+            "{% url mobile_auth_login %}?next_page=myrides":function (key, current_url) {
+                console.log("login callback");
+                postLoginRegistrationHandler(key, current_url);
+                MobileHelper.updateMyRidesBubble("#myrides_btn");
+                PhoneGapHelper.isUserAuthenticated([function (is_auth) {
+                    if (is_auth) {
+                        $.mobile.changePage("#myrides_page")
+                    }
+                }]);
+            },
             "{% url join %}": function (key, current_url) {
                 console.log("register callback");
                 postLoginRegistrationHandler(key, current_url);
@@ -120,18 +130,40 @@
             var keys = $.map(url_handlers, function (v, k) {
                 return k
             });
+
+            var callback = undefined;
+            var matched_key = undefined;
             $.each(keys, function (i, e) {
-                if (current_cb_url.indexOf(e) !== -1) {
-                    var callback = url_handlers[e];
-                    if ($.isFunction(callback)) {
-                        console.log("about to call callback");
-                        callback.call(this, e, new_location); // call callback
-                    }
+                if (current_cb_url == e) {
+                    callback = url_handlers[e];
+                    matched_key = e;
                     return false;
                 }
             });
-            console.log("exiting cbLocationChange");
+            if (!callback) {
+                $.each(keys, function (i, e) {
+                    if (current_cb_url.endsWith(e)) {
+                        callback = url_handlers[e];
+                        matched_key = e;
+                        return false;
+                    }
+                });
+            }
+            if (!callback) {
+                $.each(keys, function (i, e) {
+                    if (current_cb_url.indexOf(e) !== -1) {
+                        callback = url_handlers[e];
+                        matched_key = e;
+                        return false;
+                    }
+                })
+            }
 
+            if ($.isFunction(callback)) {
+                console.log("about to call callback");
+                callback.call(this, matched_key, new_location); // call callback
+            }
+            console.log("exiting cbLocationChange");
         }
     </script>
 {% endblock %}
@@ -171,13 +203,13 @@
             });
 
             $("#myrides_btn").click(function () {
-                PhoneGapHelper.isUserAuthenticated([updateSettingsWithAuthStatus, function(is_auth, username) {
+                PhoneGapHelper.isUserAuthenticated([function(is_auth, username) {
                     if (is_auth) {
                         $.mobile.changePage("#myrides_page");
                     } else {
-                        cbOpen("{% absurl mobile_auth_login %}");
+                        cbOpen("{% absurl mobile_auth_login %}?next_page=myrides");
                     }
-                }]);
+                }, updateSettingsWithAuthStatus]);
             });
 
             // setting page
