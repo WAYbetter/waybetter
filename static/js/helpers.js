@@ -966,8 +966,33 @@ var MobileHelper = Object.create({
 
         return p1.distanceTo(p2);
     },
+    updateMyRidesBubble:    function(button_selector) {
+        var that = this;
+        var $btn = $(button_selector);
+        $.ajax({
+            url: that.config.urls.get_myrides_data,
+            dataType: "json",
+            data: {get_next_rides: true},
+            success: function(data) {
+                if (data && data.next_rides) {
+                    var num = data.next_rides.length;
+                    var $bubble = undefined;
+                    if (num > 0) {
+                        if ($btn.find(".bubble").length === 0) {
+                            $bubble = $("<span class='bubble'></span>");
+                            $btn.append($bubble);
+                        } else {
+                            $bubble = $btn.find(".bubble");
+                        }
+                        $bubble.text(num);
+                    } else {
+                        $btn.find(".bubble").hide();
+                    }
+                }
+            }
+        })
 
-
+    },
     getMyRidesData: function(options, list_selector, ride_page_selector) {
         var that = this;
         var $list = $(list_selector);

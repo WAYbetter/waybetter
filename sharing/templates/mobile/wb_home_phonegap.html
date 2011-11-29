@@ -24,14 +24,17 @@
             "{% url mobile_auth_login %}":function (key, current_url) {
                 console.log("login callback");
                 postLoginRegistrationHandler(key, current_url);
+                MobileHelper.updateMyRidesBubble("#myrides_btn");
             },
             "{% url join %}": function (key, current_url) {
                 console.log("register callback");
                 postLoginRegistrationHandler(key, current_url);
+                MobileHelper.updateMyRidesBubble("#myrides_btn");
             },
             "/billing/bill_order/": function (key, current_url) {
                 console.log("bill order callback");
                 closeOnNavigate(key, current_url);
+                MobileHelper.updateMyRidesBubble("#myrides_btn");
             },
             "creditguard.co.il": function (key, current_url) {
                 console.log("creditguard callback");
@@ -40,6 +43,8 @@
                     current_url.indexOf("{% url trx_notok %}") === -1) {
 
                     closeOnNavigate(key, current_url);
+                    MobileHelper.updateMyRidesBubble("#myrides_btn");
+
                 }
             }
 

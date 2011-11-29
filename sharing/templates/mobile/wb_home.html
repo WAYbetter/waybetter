@@ -520,6 +520,10 @@
             return false;
         });
 
+        $("#home").bind("pagebeforeshow", function() {
+            MobileHelper.updateMyRidesBubble("#myrides_btn");
+        });
+
         // intervals page
         $("#ride-date").change(function() {
             getIntervals(false);
@@ -970,7 +974,7 @@
 
     <div id="address_list_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#" data-rel="back">{% trans 'Back' %}</a>
+            <a href="#" data-theme="h" data-rel="back">{% trans 'Back' %}</a>
 
             <h1>{% trans 'Select Address' %}</h1>
         </div>

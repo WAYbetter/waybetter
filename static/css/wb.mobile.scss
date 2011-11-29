@@ -156,6 +156,28 @@ ul.narrow {
             @include box-shadow(none);
         }
     }
+    .bubble {
+        position: absolute;
+        top:-.3em;
+        right: -.3em;
+        color:white;
+        border-radius: 15px;
+        padding: 0.2em .5em;
+        border: 0.15em solid;
+
+        @include box-shadow(0px 2px 4px 0px #666666);
+
+        text-shadow: 0px -1px 0px black;
+        filter: dropshadow(color=#690000, offx=0, offy=-1);
+
+        background: #d60419; /* Old browsers */
+        background: -moz-linear-gradient(top,  #d60419 0%, #a80002 100%); /* FF3.6+ */
+        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d60419), color-stop(100%,#a80002)); /* Chrome,Safari4+ */
+        background: -webkit-linear-gradient(top,  #d60419 0%,#a80002 100%); /* Chrome10+,Safari5.1+ */
+        background: -o-linear-gradient(top,  #d60419 0%,#a80002 100%); /* Opera 11.10+ */
+        background: -ms-linear-gradient(top,  #d60419 0%,#a80002 100%); /* IE10+ */
+        background: linear-gradient(top,  #d60419 0%,#a80002 100%); /* W3C */
+    }
     $offset: -50px;
     #myrides_btn .ui-icon, #myrides_login_btn .ui-icon{ background-position: center 1*$offset; }
     #share_btn .ui-icon{ background-position: center 2*$offset - 4 ; }
