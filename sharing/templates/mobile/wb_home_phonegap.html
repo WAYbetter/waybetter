@@ -85,7 +85,7 @@
             cb.onClose = function() {
                 cb_is_open = false;
             };
-//            init();
+            init();
         }
         function cbOpen(url) {
             current_cb_url = url;
@@ -133,6 +133,7 @@
 
 {% block settings_list %}{% endblock settings_list %}
 
+{% block init_call %}{% endblock init_call %}
 
 {% block myrides_btn %}
     <a id="myrides_btn" href="#" id="myrides_btn" data-role="button" data-iconpos="top" data-icon="wb_custom">

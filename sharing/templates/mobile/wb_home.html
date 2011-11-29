@@ -607,7 +607,9 @@
 
     }
 
+    {% block init_call %}
     $(document).one("pageinit", init);
+    {% endblock init_call %}
     //]]>
     </script>
 

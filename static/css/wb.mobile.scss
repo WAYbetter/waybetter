@@ -603,18 +603,57 @@ ul.narrow {
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5),
        only screen and (min--moz-device-pixel-ratio: 1.5),
        only screen and (min-resolution: 240dpi) {
-           .ride_summary {
+            .ride_summary {
                 .ride_discount {
                     background-image: url(/static/images/mobile/ribbon_retina.png);
                     background-repeat: no-repeat;
                     @include background-size(65px 69px);
                 }
-           }
-           .top_tri{
+            }
+            .top_tri{
                     background-image: url(/static/images/mobile/top_tri__retina.png);
                     background-repeat: no-repeat;
                     @include background-size(15px 9px);
-           }
+            }
+            .wb-header {
+                background-image: url(/static/images/mobile/header_retina.png);
+                @include background-size(242px 42px);
+            }
+            .ui-icon-loading {
+                background-image: url(/static/images/mobile/loader_retina.png);
+                @include background-size(35px 35px);
+            }
+            .ui-header {
+                a[href="/"] .ui-icon, a[href="#home"] .ui-icon{
+                    background-image: url(/static/images/mobile/wb_logo_retina.png);
+                    @include background-size(18px 18px);
+                }
+            }
+            #welcome_page {
+                .welcome-img {
+                    background-image: url(/static/images/mobile/welcome_retina.png);
+                    @include background-size(178px 82px);
+                }
+            }
+            #home {
+                .ui-icon {
+                    @include background-size(43px 242px);
+                    background-image: url(/static/images/mobile/home_icons_retina.png);
+                }
+                .ui-btn-active {
+                    .ui-icon {
+                        background-image: url(/static/images/mobile/home_icons_white_retina.png);
+                        @include background-size(43px 242px);
+                    }
+                }
+
+            }
+            #booking_page {
+                #switch-dir-img {
+                    background-image: url(/static/images/mobile/switch_dir_retina.png);
+                    @include background-size(20px 27px);
+                }
+            }
 }
 
 
