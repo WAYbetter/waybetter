@@ -143,6 +143,8 @@
         else {
             log("select hotspot");
             MobileHelper.hotspot = hotspot;
+            MobileHelper.ride_date = undefined;
+            MobileHelper.ride_time = undefined;
 
             $("#choose_hotspot_btn").find(".header").text(hotspot.name);
             $("#choose_hotspot_btn").find(".desc").text(hotspot.description);
@@ -260,7 +262,11 @@
             success: function(response) {
                 {% block book_ride_success %}
                 if (response.status && response.status == "booked" && response.redirect) {
-                    window.location.href = response.redirect;
+                    if (! response.authenticated ) {
+                        $.mobile.changePage("#login_or_register_page");
+                    } else {
+                        window.location.href = response.redirect;
+                    }
                 }
                 else {
                     //TODO_WB: redirect to error page
@@ -516,15 +522,24 @@
             return false;
         });
 
+        $("#home").bind("pagebeforeshow", function() {
+            MobileHelper.updateMyRidesBubble("#myrides_btn");
+        });
+
         // intervals page
         $("#ride-date").change(function() {
             getIntervals(false);
         });
 
         $("#interval_page").bind("pagebeforeshow", function(e, data) {
-            // TODO_WB: remove jqmData usage from here
-            $("#ride-date").val($("#ride-date").jqmData("saved_val")).selectmenu("refresh");
-            $("#ride-time").val($("#ride-time").jqmData("saved_val")).selectmenu("refresh");
+            if (MobileHelper.ride_date) {
+                $("#ride-date").val(MobileHelper.ride_date);
+            }
+            if (MobileHelper.ride_time) {
+                $("#ride-time").val(MobileHelper.ride_time);
+            }
+            $("#ride-date").selectmenu("refresh");
+            $("#ride-time").selectmenu("refresh");
         });
         $("#select-interval-form").submit(function() {
             MobileHelper.ride_date = $("#ride-date").val();
@@ -680,11 +695,40 @@
             <div class="buttons">
                 <a href="#home" data-role="button" data-transition="fade" data-theme="d"
                    class="first">{% trans 'Enter App' %}</a>
-                <a href="{% url mobile_auth_login %}" data-ajax="false" data-role="button"
+                <a href="#login_or_register_page" data-ajax="false" data-role="button"
                    data-theme="f">{% trans 'Login/Join Now' %}</a>
             </div>
 
             <div class="welcome-img"></div>
+        </div>
+    </div>
+
+    <div id="login_or_register_page" data-role="page" data-theme="a">
+        <div data-role="header">
+            <h1>{% trans "Login To Your Account" %}</h1>
+            <a href="#" data-rel="back" data-theme="h" class="ui-btn-right">{% trans 'Back' %}</a>
+        </div>
+        <div data-role="content" class="center">
+            <div class="bold center">{% trans "Login to enjoy WAYbetter taxi service" %}</div>
+
+            <p></p>
+            <a data-ajax="false" href="{% url join %}" data-role="button" data-theme="d">{% trans 'New Member? Join Now!' %}</a>
+            <p></p>
+            <a data-ajax="false" href="{% url mobile_auth_login %}?next={% url login_redirect %}" data-role="button" data-theme="d">{% trans 'Memebers Entrance' %}</a>
+
+            <hr/>
+
+            <div id="advtgs">
+                <div class="bold">יתרונות השירות:</div>
+                <ul>
+                    <li>אין דמי מנוי. אתה חוסך, כולם מרוויחים</li>
+                    <li>סע בלי מזומן! תשלום באשראי מהאפליקציה</li>
+                    <li>תזכורת חינם ב-SMS בטרם הגעת המונית</li>
+                    <li>חסכון מובטח של עשרות שקלים בכל נסיעה</li>
+                    <li>ניהול נסיעות, חשבונית מס חודשית מפורטת</li>
+                    <li>שירות יעיל, ירוק וידידותי לסביבה ולאדם</li>
+                </ul>
+            </div>
         </div>
     </div>
 
@@ -937,7 +981,7 @@
 
     <div id="address_list_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#" data-rel="back">{% trans 'Back' %}</a>
+            <a href="#" data-theme="h" data-rel="back">{% trans 'Back' %}</a>
 
             <h1>{% trans 'Select Address' %}</h1>
         </div>
