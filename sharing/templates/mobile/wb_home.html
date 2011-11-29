@@ -106,8 +106,13 @@
     }
 
     function renderNumseats(){
-        var label = (MobileHelper.num_seats == 1) ? "{% trans 'Seat' %}" : "{% trans 'Seats' %}";
-        var text = MobileHelper.num_seats + " " + label;
+        var text = undefined, label = undefined;
+        if (MobileHelper.num_seats == 1) {
+            text = "{% trans 'One seat' %}";
+        } else {
+            label = "{% trans 'Seats' %}";
+            text = MobileHelper.num_seats + " " + label;
+        }
         $("#numseats_btn h1").text(text);
         $("#ride_details_page .more_details .numseats").text(text);
     }
@@ -614,7 +619,7 @@
                 // if we get here from a ride details page dont get new data
             }
             else{
-                MobileHelper.getMyRidesData({get_next_rides: true}, "#rides_list", "#ride_details_page");
+                $("#upcoming_rides_btn").click();
             }
         });
         $("#upcoming_rides_btn").click(function() {
@@ -773,8 +778,7 @@
                     <li data-icon="arrow-l">
                         <a href="#address_page" id="choose_address_btn">
                             <h1 class="header">{% trans "Enter Address" %}</h1>
-
-                            <p></p>
+                            <p class="desc"></p>
                         </a>
                     </li>
                 </ul>
@@ -807,17 +811,16 @@
                     </li>
                 </ul>
             </div>
-            <hr/>
-
-            <ul data-role="listview" class="rtl-listview narrow" data-inset="true">
-                <li data-icon="arrow-l">
-                    <a href="#numseats_page" id="numseats_btn">
-                        <h1 class="header">1 {% trans "Seat" %}</h1>
-                        <p class="desc"></p>
-                    </a>
-                </li>
-            </ul>
-
+            <div class="booking_widget" id="seat_selector_wrapper" >
+                <ul data-role="listview" class="rtl-listview narrow" data-inset="true">
+                    <li data-icon="arrow-l">
+                        <a href="#numseats_page" id="numseats_btn">
+                            <h1 class="header">{% trans "One seat" %}</h1>
+                            <p class="desc"></p>
+                        </a>
+                    </li>
+                </ul>
+            </div>
             <button type="button" id="calculate_ride_btn" data-theme="d">{% trans "Calculate Ride" %}</button>
         </div>
     </div>
@@ -830,13 +833,15 @@
         <div data-role="content">
             <ul data-role="listview" class="rtl-listview" data-inset="true">
                 <li data-icon="arrow-l">
-                    <a href="#" class="choose-numseats" data-numseats="1" data-rel="back">1 {% trans "Seat" %}</a>
+                    <a href="#" class="choose-numseats" data-numseats="1" data-rel="back">{% trans "Order 1 seat" %}</a>
                 </li>
                 {% for i in "234" %}
                     <li data-icon="arrow-l">
-                        <a href="#" class="choose-numseats" data-numseats="{{ i }}" data-rel="back">{{ i }} {% trans "Seats" %}</a>
+                        <a href="#" class="choose-numseats" data-numseats="{{ i }}" data-rel="back">{% blocktrans %}Order {{ i }} seats{% endblocktrans %}</a>
                     </li>
                 {% endfor %}
+
+
             </ul>
         </div>
     </div>
