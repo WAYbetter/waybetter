@@ -23,22 +23,11 @@
             },
             "{% url mobile_auth_login %}":function (key, current_url) {
                 console.log("login callback");
-                if (current_url.indexOf("bill_order") !== -1 ||
-                    current_url.indexOf("{% url login_redirect %}") !== -1 ||
-                    current_url.indexOf("{% url trx_ok %}") !== -1 ||
-                    current_url.indexOf("{% url trx_notok %}") !== -1 ||
-                    current_url.indexOf("creditguard.co.il") !== -1) { // moved to bill order
-                    console.log("moved in ordering flow");
-                } else {
-                    closeOnNavigate(key, current_url);
-                }
-                PhoneGapHelper.isUserAuthenticated(
-                        function (username) {
-                            if ($.mobile.activePage.attr("id") == "welcome_page") {
-                                $.mobile.changePage("#home");
-                            }
-                        }
-                        , undefined)
+                postLoginRegistrationHandler(key, current_url);
+            },
+            "{% url join %}": function (key, current_url) {
+                console.log("register callback");
+                postLoginRegistrationHandler(key, current_url);
             },
             "/billing/bill_order/": function (key, current_url) {
                 console.log("bill order callback");
@@ -69,6 +58,25 @@
          };
          document.addEventListener("touchmove", preventBehavior, false);
          */
+
+        function postLoginRegistrationHandler(key, current_url) {
+            if (current_url.indexOf("bill_order") !== -1 ||
+                current_url.indexOf("{% url login_redirect %}") !== -1 ||
+                current_url.indexOf("{% url trx_ok %}") !== -1 ||
+                current_url.indexOf("{% url trx_notok %}") !== -1 ||
+                current_url.indexOf("creditguard.co.il") !== -1) { // moved to bill order
+                console.log("moved in ordering flow");
+            } else {
+                closeOnNavigate(key, current_url);
+            }
+            PhoneGapHelper.isUserAuthenticated(
+                    function (username) {
+                        if ($.mobile.activePage.attr("id") == "welcome_page" || $.mobile.activePage.attr("id") == "login_or_register_page") {
+                            $.mobile.changePage("#home");
+                        }
+                    }
+                    , undefined)
+        }
 
         function onBodyLoad() {
             document.addEventListener("deviceready", onDeviceReady, false);
@@ -152,6 +160,7 @@
                 }
             });
 
+            updateAuthStatus();
             $("#home").bind("pagebeforeshow", function () {
                 updateAuthStatus();
             });
@@ -244,12 +253,16 @@
 <script type="text/javascript">
 {% block book_ride_success %}
     if (response.status && response.status == "booked" && response.redirect) {
-        if (response.redirect.startsWith("http")) {
-            cbOpen(response.redirect)
+        if (! response.authenticated ) {
+            $.mobile.changePage("#login_or_register_page");
         } else {
-            cbOpen("http://" + domain_name + response.redirect)
+            if (response.redirect.startsWith("http")) {
+                cbOpen(response.redirect)
+            } else {
+                cbOpen("http://" + domain_name + response.redirect)
+            }
+            $.mobile.changePage("#home");
         }
-        $.mobile.changePage("#home");
     }
     else {
         //TODO_WB: redirect to error page
