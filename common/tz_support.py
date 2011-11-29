@@ -91,6 +91,12 @@ def utc_now():
 def default_tz_now():
     return datetime.datetime.now(TZ_INFO["Asia/Jerusalem"])
 
+def default_tz_time_min():
+    return set_default_tz_time(datetime.time.min)
+
+def default_tz_time_max():
+    return set_default_tz_time(datetime.time.max)
+
 def default_tz_now_min():
     return datetime.datetime.combine(default_tz_now(), set_default_tz_time(datetime.time.min))
 

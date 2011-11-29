@@ -106,7 +106,7 @@ def get_billing_redirect_url(request, order, passenger):
     returns a url: redirect to credit guard if no passenger has no billing info, else to bill order
     """
     if hasattr(passenger, "billing_info"): # redirect to billing
-        billing_trx = BillingTransaction(order=order, amount=order.price)
+        billing_trx = BillingTransaction(order=order, amount=order.price, debug=order.debug)
         billing_trx.save()
         return reverse("bill_order", args=[billing_trx.id])
 

@@ -37,6 +37,8 @@ class BillingTransaction(BaseModel):
     committed = models.BooleanField(default=False)
     charge_date = UTCDateTimeField(_("charge date"), blank=True, null=True)
 
+    debug = models.BooleanField(default=False, editable=False)
+
     transaction_id = models.CharField(max_length=36)
 
     comments = models.CharField(max_length=255, blank=True, default="")

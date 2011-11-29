@@ -243,22 +243,25 @@ def get_international_phone(country, local_phone):
     return "%s%s" % (country.dial_code, local_phone)
 
 
-def custom_render_to_response(template, dictionary=None, context_instance=None, mimetype=None):
+def custom_render_to_response(template_name, dictionary=None, context_instance=None, mimetype=None):
     """
     a wrapper around render_to_reponse
 
-    if request.mobile = True then change template name to 'mobile/' + template
+    if request.mobile = True then prepend 'mobile/' + template_name to the template list.
     """
+
+    template_name_list = [template_name]
 
     if not context_instance:
         raise RuntimeError("context_instance must be passed")
 
     for d in context_instance.dicts:
         if "mobile" in d and d["mobile"]:
-            template = "%s/%s" % ('mobile', template)
+            mobile_template_name = "%s/%s" % ('mobile', template_name)
+            template_name_list.insert(0, mobile_template_name)
             break
 
-    return render_to_response(template, dictionary=dictionary, context_instance=context_instance, mimetype=mimetype)
+    return render_to_response(template_name_list, dictionary=dictionary, context_instance=context_instance, mimetype=mimetype)
 
 
 def url_with_querystring(path, **kwargs):
@@ -508,9 +511,9 @@ def safe_fetch(url, payload=None, method=GET, headers={},
             notify_by_email(u"Exception caught by safe_fetch", body)
 
     if res and res.status_code != 200:
-        logging.error(u"safe_fetch returned %s" % res.status_code)
+        logging.error(u"safe_fetch returned %s: content=%s" % (res.status_code, res.content))
         if notify:
-            notify_by_email(u"safe_fetch failed", u"safe_fetch returned %s for\nurl: %s\npayload: %s" %(res.status_code, url, payload))
+            notify_by_email(u"safe_fetch failed", u"safe_fetch returned %s for\nurl: %s\npayload: %s\n content:%s" %(res.status_code, url, payload, res.content))
         res = None
 
     return res

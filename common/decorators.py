@@ -1,16 +1,13 @@
-import sys
 from django.db.models.fields.related import ForeignKey
 from django.http import HttpResponseForbidden, HttpResponse, HttpResponseBadRequest
 from django.db import models
-
+from django.utils import translation
 from google.appengine.ext import db
 from common.util import notify_by_email
 import logging
 import traceback
 
 #TODO_WB: methods using this decorator should declare the require parameters as args. commented out its usages.
-from django.utils import translation
-
 def require_parameters(method='GET', required_params=()):
     """
     Ensure the given parameters where passed to the request, otherwise respond with HttpResponseBadRequest

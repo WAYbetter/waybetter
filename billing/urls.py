@@ -12,7 +12,9 @@ urlpatterns = patterns('',
 
 
 
+    (r'create_invoice_ids/$', 'billing.views.create_invoice_ids'),
     (r'send_invoices/$', 'billing.views.send_invoices'),
+    (r'invoices_task/$', 'billing.views.invoices_task'),
 
 )
 

@@ -1,6 +1,7 @@
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction
 from billing.signals import billing_failed_signal, billing_approved_signal, billing_charged_signal
+from common.decorators import force_lang
 from common.models import Counter
 from common.urllib_adaptor import urlencode
 from common.util import get_text_from_element, get_unique_id, safe_fetch
@@ -11,7 +12,6 @@ from django.template.context import Context
 from django.template.loader import get_template
 from django.utils.http import urlquote_plus
 from django.utils.translation import ugettext as _
-from google.appengine.api.urlfetch import fetch
 from xml.dom import minidom
 import logging
 import re
@@ -144,16 +144,23 @@ def do_credit_guard_trx(params):
     return xml
 
 
-def create_invoices(billing_transactions):
+@force_lang("he")
+def send_invoices_passenger(billing_transactions):
     trx = billing_transactions[0]
+
+    if not all([_trx.passenger.id == trx.passenger.id for _trx in billing_transactions]):
+        logging.error("all transactions should belong to the same passenger")
+        return False
+
     if not trx.passenger.invoice_id:
-        create_invoice_passenger(trx.passenger)
+        logging.error("failed sending invoices to passenger_id %s: passenger has no invoice_id" % trx.passenger_id)
+        return False
 
     payload = {
         "TransType"						: "IR:CREATE101",
         "Username"						: BILLING_INFO["invoice_username"],
-        "InvoiceSubject"				: _("Ride Summary"),
-        "InvoiceItemCode"				: "|".join([str(trx.id) for trx in billing_transactions]),
+        "InvoiceSubject"				: "%s %s" %(_("Ride Summary for month"), trx.create_date.strftime("%m/%Y")),
+        "InvoiceItemCode"				: "|".join([str(trx.order.id) for trx in billing_transactions]),
         "InvoiceItemDescription"		: "|".join([trx.order.invoice_description for trx in billing_transactions]),
         "InvoiceItemQuantity"			: "|".join(["1" for trx in billing_transactions]),
         "InvoiceItemPrice"				: "|".join([str(trx.amount) for trx in billing_transactions]),
@@ -167,14 +174,15 @@ def create_invoices(billing_transactions):
     payload = dict([(k,v.encode('iso8859_8') if type(v) is types.UnicodeType else v) for (k,v) in payload.items()])
     payload = urlencode(payload)
 
-    result = fetch(url, method="POST", payload=payload, deadline=50, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+    result = safe_fetch(url, method="POST", payload=payload, deadline=50, headers={'Content-Type': 'application/x-www-form-urlencoded'})
     response_code = re.findall(r"ResponseCode:(\d+)", result.content)
-    if not response_code or not response_code[0] == "100":
-        logging.error("Could not send invoices: %s" % response_code)
-        raise RuntimeError("Could not send invoices: %s" % response_code)
+    if response_code and response_code[0] == "100":
+        logging.info("invoices sent to passenger %s" % trx.passenger_id)
+        return True
+    else:
+        logging.error("failed sending invoices to passenger_id %s: response_code=%s" % (trx.passenger_id, response_code))
+        return False
 
-
-    return result
 
 def create_invoice_passenger(passenger):
     payload = {
@@ -182,7 +190,7 @@ def create_invoice_passenger(passenger):
         "TransType"						: "C:INSERT",
         "Username"						: BILLING_INFO["invoice_username"],
         "CompanyCode"                   : Counter.get_next(name=BILLING_INFO["invoice_counter"]),
-        "CompanyName"                   : passenger.name,
+        "CompanyName"                   : passenger.full_name,
         "CompanyAddress"                : "",
         "CompanyCity"                   : "",
         "CompanyState"                  : "",
@@ -197,19 +205,23 @@ def create_invoice_passenger(passenger):
         }
 
     url = BILLING_INFO["invoice_url"]
+    payload = dict([(k,v.encode('iso8859_8') if type(v) is types.UnicodeType else v) for (k,v) in payload.items()])
     payload = urlencode(payload)
-    result = fetch(url, method="POST", payload=payload, deadline=50, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+    result = safe_fetch(url, method="POST", payload=payload, deadline=50, headers={'Content-Type': 'application/x-www-form-urlencoded'})
 
-    response_code = re.findall(r"ResponseCode:(\d+)", result.content)
-    company_code = re.findall(r"CompanyCode:(\d+)", result.content)
-    if not response_code or not response_code[0] == "100" or not company_code:
-        logging.error("Could not create invoice passenger: %s" % response_code)
-        raise RuntimeError("Could not create invoice passenger: %s" % response_code)
+    response_code = None
+    if result and result.content:
+        response_code = re.findall(r"ResponseCode:(\d+)", result.content)
+        company_code = re.findall(r"CompanyCode:(\d+)", result.content)
+        if response_code and response_code[0] == "100" and company_code:
+            passenger.invoice_id = company_code[0]
+            passenger.save()
+            logging.info("successfully created invoice_id %s for passenger_id %s" % (passenger.invoice_id, passenger.id))
 
-    passenger.invoice_id = company_code[0]
-    passenger.save()
+            return passenger.invoice_id
 
-    return result
+    logging.error("failed creating invoice_id for passenger_id %s: response_code=%s" % (passenger.id, response_code))
+    return None
 
 
 def get_language_code_for_credit_guard(lang_code):

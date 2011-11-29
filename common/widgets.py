@@ -27,7 +27,7 @@ class ColorPickerWidget(forms.TextInput):
 #        }
 #        js = (
 #            'http://ajax.googleapis.com/ajax/libs/jquery/1.2.6/jquery.min.js',
-#            settings.MEDIA_URL + 'cssjs/jquery.colorPicker.js',
+#            settings.MEDIA_URL + 'cssjs/jquery.colorPicker.min.js',
 #            )
 
     def __init__(self, language=None, attrs=None):

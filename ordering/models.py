@@ -544,6 +544,17 @@ class Passenger(BaseModel):
 
         return UNKNOWN_USER
 
+    @property
+    def full_name(self):
+        try:
+            if self.user:
+                name = self.user.get_full_name() or self.user.username
+                return name
+        except User.DoesNotExist:
+            pass
+
+        return UNKNOWN_USER
+
     def _get_business(self):
         try:
             return self._business
@@ -869,8 +880,7 @@ class Order(BaseModel):
         else:
             type = _("shared")
 
-        return _('%(date)s: %(type)s ride from %(pickup)s to %(dropoff)s') % {
-            "type"      : type,
+        return _('%(date)s: Taxi ride from %(pickup)s to %(dropoff)s') % {
             "pickup"    : self.from_raw,
             "dropoff"   : self.to_raw,
             "date"      : self.depart_time_format()
