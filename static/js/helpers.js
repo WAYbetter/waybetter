@@ -876,6 +876,7 @@ var MobileHelper = Object.create({
     // VARIABLES
     // ---------
     last_position: undefined,
+    num_seats: 1,
     address: undefined,
     hotspot: undefined,
     hotspot_type: "dropoff",

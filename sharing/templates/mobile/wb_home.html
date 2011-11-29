@@ -105,6 +105,13 @@
 
     }
 
+    function renderNumseats(){
+        var label = (MobileHelper.num_seats == 1) ? "{% trans 'Seat' %}" : "{% trans 'Seats' %}";
+        var text = MobileHelper.num_seats + " " + label;
+        $("#numseats_btn h1").text(text);
+        $("#ride_details_page .more_details .numseats").text(text);
+    }
+
     function resetAddress() {
         MobileHelper.address = undefined;
         $("#choose_address_btn").find(".header").text("{% trans 'Enter Address' %}");
@@ -173,6 +180,7 @@
             url: "{% url sharing.passenger_controller.get_hotspot_price %}",
             dataType: "json",
             data: {
+                'num_seats': MobileHelper.num_seats,
                 'lat': MobileHelper.address.lat,
                 'lon': MobileHelper.address.lon,
                 'hotspot_id': MobileHelper.hotspot.id,
@@ -190,7 +198,8 @@
                     $(".order_button").enable();
                     $.mobile.changePage("#choose_ride_page");
                 } else {
-                    showError("{% trans "Currently, there is no service to this address at the selected hour." %}");
+                    var error = response.error || "{% trans "Currently, there is no service to this address at the selected hour." %}";
+                    showError(error);
                 }
             },
             error: function() {
@@ -232,6 +241,7 @@
 
         var hidden_inputs = {
             is_private: is_private,
+            num_seats: MobileHelper.num_seats,
             time_type: MobileHelper.hotspot_type,
             ride_duration: HotspotHelper.ride_duration,
             hotspot_id: MobileHelper.hotspot.id,
@@ -447,6 +457,12 @@
             getRideDetails();
         });
 
+        // numseats page
+        $(".choose-numseats").click(function(){
+            MobileHelper.num_seats = $(this).data("numseats");
+            renderNumseats();
+        });
+
         // address page
         $("#address_page input").keyup(
                 function() {
@@ -616,8 +632,6 @@
 {% endblock doc_ready %}
 
 {% block body %}
-
-
     <div id="home" data-role="page" data-theme="a">
         <div data-role="header" class="wb-header"></div>
         <div class="sub-header">{% trans 'Shared Taxis to Central Locations' %}</div>
@@ -730,21 +744,48 @@
                     <li data-icon="arrow-l">
                         <a href="#hotspot_page" id="choose_hotspot_btn">
                             <h1 class="header">{% trans "Choose Hotspot" %}</h1>
-
                             <p class="desc"></p>
                         </a>
                     </li>
                     <li data-icon="none" data-theme="e">
                         <a href="#" id="choose_time_btn">
                             <h1 class="header">{% trans "Choose Dropoff Time" %}</h1>
-
                             <p class="desc"></p>
                         </a>
                     </li>
                 </ul>
             </div>
             <hr/>
+
+            <ul data-role="listview" class="rtl-listview narrow" data-inset="true">
+                <li data-icon="arrow-l">
+                    <a href="#numseats_page" id="numseats_btn">
+                        <h1 class="header">1 {% trans "Seat" %}</h1>
+                        <p class="desc"></p>
+                    </a>
+                </li>
+            </ul>
+
             <button type="button" id="calculate_ride_btn" data-theme="d">{% trans "Calculate Ride" %}</button>
+        </div>
+    </div>
+
+    <div id="numseats_page" data-role="page">
+        <div data-role="header">
+            <a href="#" data-rel="back" class="ui-btn-right" data-theme="h">{% trans "Back" %}</a>
+            <h1>{% trans 'Number of Seats' %}</h1>
+        </div>
+        <div data-role="content">
+            <ul data-role="listview" class="rtl-listview" data-inset="true">
+                <li data-icon="arrow-l">
+                    <a href="#" class="choose-numseats" data-numseats="1" data-rel="back">1 {% trans "Seat" %}</a>
+                </li>
+                {% for i in "234" %}
+                    <li data-icon="arrow-l">
+                        <a href="#" class="choose-numseats" data-numseats="{{ i }}" data-rel="back">{{ i }} {% trans "Seats" %}</a>
+                    </li>
+                {% endfor %}
+            </ul>
         </div>
     </div>
 
@@ -883,10 +924,12 @@
                         <hr/>
                         <div class="when">
                             <span class="details_label_type"></span>
-
                             <p></p>
                         </div>
                     </div>
+                </div>
+                <div class="more_details">
+                    <div class="numseats"></div>
                 </div>
             </div>
         </div>
@@ -900,9 +943,6 @@
         </div>
         <div data-role="content">
             <ul id="hotspot_list" class="rtl-listview" data-role="listview" data-theme="a">
-                <li class="center">
-                    {% trans 'Choose a Hotspot to/from which you want to go' %}
-                </li>
             </ul>
         </div>
     </div>
