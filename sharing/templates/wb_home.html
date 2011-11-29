@@ -309,6 +309,7 @@
     var PICKUP = "pickup",
             DROPOFF = "dropoff",
             SHARING_TIME_FACTOR = 1.2,
+            num_seats = 1,
             hotspot_type = PICKUP,
             address_lat = undefined,
             address_lon = undefined,
@@ -521,6 +522,7 @@
             data: {
                 'lon': address_lon,
                 'lat': address_lat,
+                'num_seats': num_seats,
                 'hotspot_id': $("#id_hotspot_select").val(),
                 'hotspot_type': hotspot_type,
                 'day': $("#id_hotspot_datepicker").val(),
@@ -567,6 +569,7 @@
 
         var hidden_inputs = {
             is_private: is_private,
+            num_seats: num_seats,
             time_type: hotspot_type,
 //            time_type: ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF,
             ride_duration: HotspotHelper.ride_duration,
