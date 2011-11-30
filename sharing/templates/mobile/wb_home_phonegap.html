@@ -126,7 +126,7 @@
         }
         function checkNetworkConnect() {
             var networkState = navigator.network.connection.type;
-            if (networkState == Connection.NONE || networkState == Connection.UNKNOWN) {
+            if (networkState == Connection.NONE) {
                 alert("{% trans "Your network connectivity appear to be down. This application uses internet connectivity and will not work properly without a working connection." %}");
                 return false;
 

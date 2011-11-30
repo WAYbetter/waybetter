@@ -72,13 +72,16 @@ def transaction_ok(request, passenger):
     billing_info.save()
 
     order = request.session.get(CURRENT_ORDER_KEY)
-    order = order.fresh_copy() # update the order
-    if order and order.price and order.passenger == passenger:
-        logging.info("Billing order: %s" % order)
-        # redirect to bill order
-        return HttpResponseRedirect(get_billing_redirect_url(request, order, passenger))
-    else:
-        return HttpResponseRedirect(reverse("wb_home"))
+    logging.info("order = %s" % order)
+    logging.info("order.passenger = %s" % order.passenger)
+    if order:
+        order = order.fresh_copy() # update the order
+        if order.price and order.passenger == passenger:
+            logging.info("Billing order: %s" % order)
+            # redirect to bill order
+            return HttpResponseRedirect(get_billing_redirect_url(request, order, passenger))
+        
+    return HttpResponseRedirect(reverse("wb_home"))
 
 
 @passenger_required
