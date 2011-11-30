@@ -152,19 +152,18 @@ def invoices_task(request):
 
     trx_qs = BillingTransaction.objects.filter(debug=False, status=BillingStatus.CHARGED, create_date__gte=start_date, create_date__lte=end_date)
 
-    failed_ids = []
     if action == InvoiceActions.CREATE_ID:
         logging.info("Creating invoice ids: %s - %s" % (start_date, end_date))
-        do_create_invoice_ids(trx_qs)
+        failed = do_create_invoice_ids(trx_qs)
     elif action == InvoiceActions.SEND:
         logging.info("Sending invoices: %s - %s" % (start_date, end_date))
-        do_send_invoices(trx_qs)
+        failed = do_send_invoices(trx_qs)
     else:
         raise RuntimeError("NOT A VALID INVOICE ACTION")
 
     action_name = InvoiceActions.get_name(action)
-    if failed_ids:
-        notify_by_email("Error %s invoices for month %s/%s" % (action_name, month, year), "failed with following passenger ids %s" % failed_ids)
+    if failed:
+        notify_by_email("Error %s invoices for month %s/%s" % (action_name, month, year), "failed with following passenger ids %s" % failed)
     else:
         notify_by_email("Success %s invoices for month %s/%s" % (action_name, month, year))
 
