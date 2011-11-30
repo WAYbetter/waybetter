@@ -19,7 +19,7 @@ def send_sms(destination, text, **kwargs):
     """
 
     if settings.DEV:
-        logging.info("skipping SMS in DEV environment")
+        logging.info("DEV environment: skipping SMS to %s" % destination)
         return True
 
     logging.info(u"Sending SMS to [%s]: '%s'" % (destination, text))

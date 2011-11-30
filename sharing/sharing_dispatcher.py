@@ -24,6 +24,7 @@ def dispatch_ride(ride):
 #        task = taskqueue.Task(url=reverse(push_ride_task), countdown=MSG_DELIVERY_GRACE, params={"ride_id": ride.id, "ws_id": work_station.id})
 #        taskqueue.Queue('orders').add(task)
         
+        # TODO_WB: change ride status to ACCEPTED? it doesn't show up as accepted in my rides
         if work_station.station.vouchers_emails:
             q = taskqueue.Queue('ride-notifications')
             task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
@@ -80,7 +81,8 @@ def choose_workstation(ride):
 
     else:
         logging.error(u"No sharing stations found %s" % log)
-        notify_by_email(u"Ride [%s] ERROR - No sharing stations found" % ride.id, msg=log)
+        if not ride.debug:
+            notify_by_email(u"Ride [%s] ERROR - No sharing stations found" % ride.id, msg=log)
 
         return None
 

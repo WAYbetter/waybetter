@@ -47,6 +47,7 @@ def birdseye_view(request):
                             'passenger_phone': o.passenger.phone if o.passenger else na,
                             'type': OrderType.get_name(o.type),
                             'status': o.get_status_label(),
+                            'debug': 'debug' if o.debug else ''
                             }
             for o in c.orders.all()]
 

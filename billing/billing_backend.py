@@ -12,7 +12,6 @@ from django.template.context import Context
 from django.template.loader import get_template
 from django.utils.http import urlquote_plus
 from django.utils.translation import ugettext as _
-from google.appengine.api.urlfetch import fetch
 from xml.dom import minidom
 import logging
 import re

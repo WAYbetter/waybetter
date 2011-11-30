@@ -47,6 +47,16 @@ Object.create = Object.create || function (p) {
                 }
             })
         },
+        redraw:         function() {
+            return this.each(function() {
+                var element = $(this)[0];
+                var current_display = element.style.display;
+                element.style.display = 'none';
+                element.offsetHeight; // no need to store this anywhere, the reference is enough
+                element.style.display = current_display;
+                return $(element);
+            });
+        },
         set_button_theme: function(theme_swatch) {
             var swatch_re = /-(\w)$/;
             return this.each(function() {
@@ -69,7 +79,7 @@ Object.create = Object.create || function (p) {
                 }
             })
         },
-        swap: function(b) {
+        swapElement: function(b) {
             b = jQuery(b)[0];
             var a = this[0],
                     a2 = a.cloneNode(true),
@@ -78,10 +88,11 @@ Object.create = Object.create || function (p) {
 
             a.parentNode.replaceChild(b2, a);
             b.parentNode.replaceChild(a2, b);
-
+            
             stack[0] = a2;
             return this.pushStack(stack);
         }
+
 	});
 })(jQuery);
 
@@ -501,11 +512,17 @@ Array.prototype.sum = function(){
     return sum;
 };
 
-function getRandomInt(min, max)
-{
+String.prototype.endsWith = function(suffix) {
+    return this.indexOf(suffix, this.length - suffix.length) !== -1;
+};
+
+String.prototype.startsWith = function(prefix) {
+    return this.indexOf(prefix, 0) !== -1;
+};
+
+function getRandomInt(min, max) {
   return Math.floor(Math.random() * (max - min + 1)) + min;
 }
-
 window.log = function(){
   log.history = log.history || [];   // store logs to an array for reference
   log.history.push(arguments);
@@ -517,7 +534,7 @@ window.log = function(){
 window.logargs = function(context){
   // grab the calling functions arguments
   log(context,arguments.callee.caller.arguments);
-}
+};
 
 function gaHitPage(url) {
     try {
@@ -530,23 +547,31 @@ function gaHitPage(url) {
 $(function() {
     var subject = "WAYbetter - מוניות לכולם, בחצי מחיר";
     var body = "בשבועות הקרובים תשיק חברת WAYbetter שירות מוניות מהפכני ברמת החייל.%0Aהשירות יאפשר להזמין חינם מונית בסמארטפון או באינטרנט ולשלם על הנסיעה חצי מחיר (!).%0Aבאמצעות מערכת WAYbetter ניתן להזמין נסיעה המשפרת את יעילות המונית באמצעות חיבור ביניכם לבין משתמשים אחרים הנוסעים לאותו הכיוון. כך אתם יכולים ליהנות משירות תחבורה ברמה הגבוהה ביותר, במחיר שווה לכל כיס.%0A%0Aרוצה לקחת חלק?%0Awww.waybetter.com";
-    var social_msg = "WAYbetter משיקה מערכת שתוזיל נסיעות מונית בתל אביב לחצי מחיר!%0Aקחו חלק בניסוי הפרטי www.waybetter.com";
+    var social_msg = "האפליקציה שעושה מהפכה בתחבורה. שתפו מוניות ספיישל למקומות מרכזיים. אלטרנטיבה חדשה ומשתלמת לתנועה בעיר";
 
     window.shareByEmail = function(){
         window.location.href = "mailto:?subject=" + subject + "&body=" + body;
     };
     window.shareByTwitter = function(){
-        window.location.href = "http://twitter.com/share?text=" + social_msg + "&url=http://www.WAYbetter.com";
+        return "http://twitter.com/share?text=" + social_msg + "&url=http://www.WAYbetter.com";
     };
-    window.shareByFB = function(){
-        window.location.href = "http://www.facebook.com/dialog/feed?" +
+    window.shareByFB = function(mobile){
+        var url = "http://" + ((mobile) ? "m" : "www") + ".facebook.com/dialog/feed?" +
                 "&app_id=280509678631025" +
                 "&link=http://www.WAYbetter.com" +
                 "&picture=http://www.waybetter.com/static/images/wb_site/wb_beta_logo.png" +
                 "&name=" + "WAYbetter" +
 //                    "&caption=" +
-                "&description=" + social_msg +
+                "&description=" + encodeURIComponent(social_msg) +
                 "&redirect_uri=http://www.waybetter.com";
+        if (mobile) {
+            url += "&display=touch"
+        }
+
+        return url;
+    };
+    window.likeOnFB = function(mobile){
+        return "http://" + ((mobile) ? "m" : "www") + ".facebook.com/pages/WAYbetter/131114610286539";
     };
 }());
 

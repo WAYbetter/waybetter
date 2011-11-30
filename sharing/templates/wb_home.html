@@ -309,6 +309,7 @@
     var PICKUP = "pickup",
             DROPOFF = "dropoff",
             SHARING_TIME_FACTOR = 1.2,
+            num_seats = 1,
             hotspot_type = PICKUP,
             address_lat = undefined,
             address_lon = undefined,
@@ -521,7 +522,9 @@
             data: {
                 'lon': address_lon,
                 'lat': address_lat,
+                'num_seats': num_seats,
                 'hotspot_id': $("#id_hotspot_select").val(),
+                'hotspot_type': hotspot_type,
                 'day': $("#id_hotspot_datepicker").val(),
                 'time': $("#id_hotspot_time").val()
             },
@@ -533,18 +536,17 @@
             },
             success: function(response) {
                 if (response.sharing_price && response.sharing_time && response.private_price && response.private_time) {
-                    var saved = (response.private_price - response.sharing_price) / response.private_price * 100;
                     $("#sharing_price .value").text(response.sharing_price);
                     $("#sharing_time .value").text(response.sharing_time);
                     $("#private_price .value").text(response.private_price);
                     $("#private_time .value").text(response.private_time);
-                    $("#save_stamp .value").text(Math.round(saved) + "%");
+                    $("#save_stamp .value").text(response.savings + "%");
                     $("#save_stamp").fadeIn("fast");
                     $(".order_button").enable();
 
                     gaHitPage("order_ready.html");
                 } else {
-                    showError("{% trans "Currently, there is no service to this address." %}", undefined);
+                    showError("{% trans "Currently, there is no service to this address at the selected hour." %}", undefined);
                 }
             },
             error: function() {
@@ -567,6 +569,7 @@
 
         var hidden_inputs = {
             is_private: is_private,
+            num_seats: num_seats,
             time_type: hotspot_type,
 //            time_type: ($("#pickup_time").attr("checked")) ? PICKUP : DROPOFF,
             ride_duration: HotspotHelper.ride_duration,

@@ -1,6 +1,6 @@
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}"
-      {% if LANGUAGE_BIDI %}dir="rtl"{% endif %} class="{{ page_specific_class }} {% if LANGUAGE_BIDI %}rtl{% endif %}">
+      class="{{ page_specific_class }} {% if LANGUAGE_BIDI %}rtl{% endif %}">
 <head>
     {% load i18n %}
 
@@ -41,10 +41,11 @@
         <!-- end css-->
     {% endblock %}
 
-    <!-- Grab Google CDN's jQuery, with a protocol relative URL; fall back to local if offline -->
 
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.2/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="/static/js/libs/jquery-1.6.1.min.js">\x3C/script>')</script>
+    {% block jquery %}
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/static/js/libs/jquery-1.6.4.min.js">\x3C/script>')</script>
+    {% endblock jquery %}
 </head>
 
 <body class="{% block bodyclass %}{% endblock %}">
@@ -73,15 +74,18 @@
     {# more IE7 fixes #}
     <!--[if IE 7]>
     <script type="text/javascript">
+    //<![CDATA[
          $(document).ready(function(){
             $(".waybetter").html("WAYbetter")
         });
+    //]]>
     </script>
     <![endif]-->
 
     <!-- Google Analytics -->
     <!-- mathiasbynens.be/notes/async-analytics-snippet Change UA-XXXXX-X to be your site's ID -->
     <script>
+    //<![CDATA[
         var _gaq = [
             ['_setAccount','UA-18077675-1'],
             ['_trackPageview'],
@@ -93,6 +97,7 @@
             g.src = ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
             s.parentNode.insertBefore(g, s)
         }(document, 'script'));
+    //]]>
     </script>
 
 {% endblock doc_ready %}

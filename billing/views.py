@@ -7,6 +7,7 @@ import itertools
 from google.appengine.api.taskqueue import taskqueue
 from billing import billing_backend
 from billing.billing_backend import send_invoices_passenger, create_invoice_passenger
+from billing.billing_manager import get_billing_redirect_url
 from billing.enums import BillingStatus, BillingAction
 from common.tz_support import default_tz_now, default_tz_time_max, default_tz_time_min
 from common.util import custom_render_to_response, notify_by_email, Enum
@@ -19,7 +20,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, passenger_required
-from ordering.models import SharedRide, COMPLETED, ACCEPTED
+from ordering.models import SharedRide, COMPLETED, ACCEPTED, CURRENT_ORDER_KEY
 
 class InvoiceActions(Enum):
     CREATE_ID	= 0
@@ -70,21 +71,20 @@ def transaction_ok(request, passenger):
     billing_info = BillingInfo(**kwargs)
     billing_info.save()
 
-    logging.info("looking for order via: %s" % request.GET.get("uniqueID"))
-    order = request.session.get(request.GET.get("uniqueID"))
+    order = request.session.get(CURRENT_ORDER_KEY)
     if order and order.price and order.passenger == passenger:
         logging.info("Billing order: %s" % order)
-        billing_trx = BillingTransaction(order=order, amount=order.price, debug=order.debug)
-        billing_trx.save()
-        return HttpResponseRedirect(reverse("bill_order", args=[billing_trx.id]))
+        # redirect to bill order
+        return HttpResponseRedirect(get_billing_redirect_url(request, order, passenger))
     else:
-        return HttpResponseRedirect("/")
+        return HttpResponseRedirect(reverse("wb_home"))
 
 
 @passenger_required
 def bill_order(request, trx_id, passenger):
     billing_trx = BillingTransaction.by_id(trx_id)
     billing_trx.commit()
+    request.session[CURRENT_ORDER_KEY] = None
 
     page_specific_class = "transaction_page"
     pending = BillingStatus.PENDING
@@ -114,7 +114,7 @@ def get_trx_status(request, passenger):
             response.update({'error_message': trx.comments})
         return JSONResponse(response)
 
-    return JSONResponse("")
+    return JSONResponse({'status': BillingStatus.FAILED})
 
 def create_invoice_ids(request):
     try:

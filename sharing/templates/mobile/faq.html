@@ -1,0 +1,24 @@
+{% extends "wb_base_mobile.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+    .q {
+        font-weight: bold;
+        margin: 1em 0;
+    }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div id="faq_page" data-role="page" data-theme="a">
+        <div data-role="header">
+            <h1>{% trans "FAQ" %}</h1>
+            <a href="#" data-rel="back" class="ui-btn-right" data-theme="h">{% trans 'Back' %}</a>
+        </div>
+        <div data-role="content">
+            {% trans "faq_content" %}
+        </div>
+    </div>
+{% endblock %}

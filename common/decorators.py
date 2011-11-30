@@ -1,4 +1,3 @@
-import sys
 from django.db.models.fields.related import ForeignKey
 from django.http import HttpResponseForbidden, HttpResponse, HttpResponseBadRequest
 from django.db import models
@@ -29,7 +28,6 @@ def require_parameters(method='GET', required_params=()):
         return wrapper
 
     return actual_decorator
-
 
 def force_lang(lang_code):
     def actual_decorator(function):

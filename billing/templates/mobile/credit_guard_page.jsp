@@ -7,6 +7,15 @@
 <%@ include file="/merchantPages/WebSources/includes/main.jsp" %>
 -->
 
+<%
+String langdir="ltr";
+String absvertpos="right: 0";
+if(lang.equals("HE")){
+    langdir="rtl";
+    absvertpos="left: 0";
+}
+%>
+
 {% extends "wb_base_mobile.html" %}
 {% load i18n %}
 
@@ -16,6 +25,11 @@
         body {
             direction: <%=langdir%>;
         }
+
+        .ui-bar-a{
+            border-bottom: 1px solid white;
+        }
+
         #wb_lock {
             width: 33px;
             height: 52px;
@@ -37,9 +51,14 @@
             width: 18px;
             position: relative;
             top: 3px;
-            margin-right: 10px;
             cursor: pointer;
             background: url("/static/images/wb_site/question_mark.png") left 0 no-repeat;
+            <% if (langdir.equals("ltr")) { %>
+                margin-left: 30px;
+            <% } else { %>
+                margin-right: 30px;
+            <% } %>
+
         }
 
         #cvv {
@@ -60,6 +79,7 @@
         label.ui-input-text, label.ui-select {
             margin-top: 10px;
         }
+
         #personalId {
             margin-bottom: 40px;
         }
@@ -76,25 +96,52 @@
     <meta http-equiv="expires" content="-1">
     <script src="merchantPages/WebSources/js/<%=lang%>.js"></script>
     <script src="merchantPages/WebSources/js/main.js"></script>
-    <%
-	String langdir="ltr";
-	String absvertpos="right: 0";
-    if(lang.equals("HE")){
-        langdir="rtl";
-        absvertpos="left: 0";
-    }
-    %>
 {% endblock %}
 
 {% block body %}
-     <div id="home" data-role="page">
+    <div id="credit_guard_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="http://www.google.com" data-icon="back">{% trans "Back" %}</a>
-            <h1>{% trans "Payment Method" %}</h1>
+            <h1>
+                <% if (lang.equals("HE")) { %>
+                    הצטרף לWAYbetter
+                <% } else { %>
+                    Join WAYbetter
+                <% } %>
+            </h1>
+            <table class="registration-progress-bar">
+                <tr>
+                    <td class="done">1.
+                        <% if (lang.equals("HE")) { %>
+                            פרטים
+                        <% } else { %>
+                            Details
+                        <% } %>
+                    </td>
+                    <td class="done">2.
+                        <% if (lang.equals("HE")) { %>
+                            טלפון
+                        <% } else { %>
+                            Phone
+                        <% } %>
+                    </td>
+                    <td class="current">3.
+                        <% if (lang.equals("HE")) { %>
+                            פרטי חיוב
+                        <% } else { %>
+                            Billing
+                        <% } %>
+                    </td>
+                </tr>
+            </table>
         </div>
         <div data-role="content">
             <div id="payment-header">
-                {% trans "SSL Secured Payment" %}
+                <% if (lang.equals("HE")) { %>
+                    דף תשלום מאובטח SSL
+                <% } else { %>
+                    SSL Secured Payment
+                <% } %>
+
             </div>
             <form id="creditForm" onsubmit="return formValidator(0);" method="POST" action="ProcessCreditCard">
                 <input type="hidden" name="txId" value="<%=mpiTxnId%>"/>
@@ -106,9 +153,10 @@
                 <input type="hidden" name="transactionCode" value="Phone" autocomplete="off"/>
 
                 <label for="cardNumber"><%=CCNumber%></label>
-                <input type="text" id="cardNumber" name="cardNumber" maxlength="19" autocomplete="off"/>
+                <input type="tel" id="cardNumber" name="cardNumber" maxlength="19" autocomplete="off"/>
 
                 <label for="expYear"><%=CCExp%></label>
+
                 <div class="ui-grid-a">
                     <div class="ui-block-a">
                         <select id="expYear" name="expYear">
@@ -117,44 +165,73 @@
                     </div>
                     <div class="ui-block-b">
                         <select id="expMonth" name="expMonth">
-                                <option value="01">01</option>
-                                <option value="02">02</option>
-                                <option value="03">03</option>
-                                <option value="04">04</option>
-                                <option value="05">05</option>
-                                <option value="06">06</option>
-                                <option value="07">07</option>
-                                <option value="08">08</option>
-                                <option value="09">09</option>
-                                <option value="10">10</option>
-                                <option value="11">11</option>
-                                <option value="12">12</option>
+                            <option value="01">01</option>
+                            <option value="02">02</option>
+                            <option value="03">03</option>
+                            <option value="04">04</option>
+                            <option value="05">05</option>
+                            <option value="06">06</option>
+                            <option value="07">07</option>
+                            <option value="08">08</option>
+                            <option value="09">09</option>
+                            <option value="10">10</option>
+                            <option value="11">11</option>
+                            <option value="12">12</option>
                         </select>
                     </div>
                 </div>
 
                 <label for="cvv">CVV</label>
-                <input type="text" name="cvv" id="cvv" maxlength="4" autocomplete="off"/>
-                <a href="#cvv_dialog" data-transition="pop"><span id="qm" src="merchantPages/WebSources/images/qm.png"></span></a>
-
+                <input type="tel" name="cvv" id="cvv" maxlength="4" autocomplete="off"/>
+                <a href="#cvv_dialog" data-rel="dialog">
+                    <span id="qm" src="merchantPages/WebSources/images/qm.png"></span>
+                </a>
 
 
                 <label for="personalId"><%=CCPId%></label>
-                <input type="text" id="personalId" name="personalId" maxlength="9" autocomplete="off"/>
+                <input type="tel" id="personalId" name="personalId" maxlength="9" autocomplete="off"/>
 
-                <input type="submit" class="wb_button" id="submitBtn" value="<%=formSend%>" data-theme="a"/>
-
+                <input type="submit" id="submitBtn" data-theme="d" value="<%=formSend%>"/>
+                <div class="hidden">
+                    {# need this to avoid js errors from CreditGuard's scripts #}
+                    <input id="resetBtn" type="reset" value="<%=formReset%>"/>
+                </div>
             </form>
         </div>
     </div>
 
-    <div id="cvv_dialog" data-role="page" data-theme="d">
+    <div id="cvv_dialog" data-role="page">
         <div data-role="header">
-            <a href="#home" data-rel="back">{% trans "Close" %}</a>
             <h1>CVV</h1>
         </div>
         <div data-role="content">
             <span id="wb_CVVhelp"></span>
         </div>
     </div>
-    {% endblock body %}
+{% endblock body %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        $(document).ready(function() {
+            $.mobile.ajaxEnabled = false;
+
+            var month = String((new Date).getMonth() + 1);
+            if (month < 10){
+                month = "0" + month;
+            }
+            $("#expMonth").val(month).selectmenu().selectmenu("refresh");
+
+            $("#cardNumber, #cvv, #personalId").keyup(function() {
+                var valid = Boolean($("#cardNumber").val() && $("#cvv").val() && $("#personalId").val());
+                if (valid){
+                    $("#submitBtn").button().button("enable");
+                }
+                else{
+                    $("#submitBtn").button().button("disable");
+                }
+            }).trigger("keyup");
+        });
+
+    </script>
+{% endblock %}

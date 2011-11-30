@@ -232,7 +232,7 @@
 
     {{ block.super }}
 
-    <!-- when not dev these scripts are already included in the concatenated js -->
+    <!-- when not dev these scripts should be included in the concatenated js by build script-->
     {% if DEV %}
         <!-- scripts concatenated and minified via ant build script-->
         <script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>

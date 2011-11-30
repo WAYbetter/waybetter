@@ -1,0 +1,320 @@
+{% extends "mobile/wb_home.html" %}
+{% load i18n %}
+{% load custom_tags %}
+{% load value_from_settings %}
+
+{% block jquery %}
+
+    <script src="/static/js/libs/jquery-1.6.4.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="phonegap-1.2.0.js"></script>
+    <script type="text/javascript" charset="utf-8" src="ChildBrowser.js"></script>
+    <script type="text/javascript">
+        var url_handlers = {
+            "{% url faq %}":function () {
+                closeOnNavigate.apply(arguments)
+            },
+            "{% url privacy %}":function () {
+                closeOnNavigate.apply(arguments)
+            },
+            "{% url terms %}":function () {
+                closeOnNavigate.apply(arguments)
+            },
+            "{% url mobile_auth_login %}":function (key, current_url) {
+                console.log("login callback");
+                postLoginRegistrationHandler(key, current_url);
+                MobileHelper.updateMyRidesBubble("#myrides_btn");
+            },
+            "{% url mobile_auth_login %}?next_page=myrides":function (key, current_url) {
+                console.log("login callback");
+                postLoginRegistrationHandler(key, current_url);
+                MobileHelper.updateMyRidesBubble("#myrides_btn");
+                PhoneGapHelper.isUserAuthenticated([function (is_auth) {
+                    if (is_auth) {
+                        $.mobile.changePage("#myrides_page")
+                    }
+                }]);
+            },
+            "{% url join %}": function (key, current_url) {
+                console.log("register callback");
+                postLoginRegistrationHandler(key, current_url);
+                MobileHelper.updateMyRidesBubble("#myrides_btn");
+            },
+            "/billing/bill_order/": function (key, current_url) {
+                console.log("bill order callback");
+                closeOnNavigate(key, current_url);
+                MobileHelper.updateMyRidesBubble("#myrides_btn");
+            },
+            "creditguard.co.il": function (key, current_url) {
+                console.log("creditguard callback");
+                if (current_url.indexOf("bill_order") === -1 &&
+                    current_url.indexOf("{% url trx_ok %}") === -1 &&
+                    current_url.indexOf("{% url trx_notok %}") === -1) {
+
+                    closeOnNavigate(key, current_url);
+                    MobileHelper.updateMyRidesBubble("#myrides_btn");
+
+                }
+            }
+
+        },
+        current_cb_url = undefined,
+        cb = undefined,
+        domain_name = "{% value_from_settings "DEFAULT_DOMAIN" %}",
+        cb_is_open = false,
+        welcome_screen_shown = false;
+
+        // If you want to prevent dragging, uncomment this section
+        /*
+         function preventBehavior(e)
+         {
+         e.preventDefault();
+         };
+         document.addEventListener("touchmove", preventBehavior, false);
+         */
+
+        function postLoginRegistrationHandler(key, current_url) {
+            if (current_url.indexOf("bill_order") !== -1 ||
+                current_url.indexOf("{% url login_redirect %}") !== -1 ||
+                current_url.indexOf("{% url join %}") !== -1 ||
+                current_url.indexOf("{% url trx_ok %}") !== -1 ||
+                current_url.indexOf("{% url trx_notok %}") !== -1 ||
+                current_url.indexOf("creditguard.co.il") !== -1) { // moved to bill order
+                console.log("moved in ordering flow");
+            } else {
+                closeOnNavigate(key, current_url);
+            }
+
+            PhoneGapHelper.isUserAuthenticated([updateSettingsWithAuthStatus, function(is_auth) {
+                if (is_auth) {
+                    if ($.mobile.activePage.attr("id") == "welcome_page" || $.mobile.activePage.attr("id") == "login_or_register_page") {
+                        $.mobile.changePage("#home");
+                    }
+                }
+            }]);
+        }
+
+        function onBodyLoad() {
+            document.addEventListener("deviceready", onDeviceReady, false);
+        }
+
+
+        /* When this function is called, PhoneGap has been initialized and is ready to roll */
+        /* If you are supporting your own protocol, the var invokeString will contain any arguments to the app launch.
+         see http://iphonedevelopertips.com/cocoa/launching-your-own-application-via-a-custom-url-scheme.html
+         for more details -jm */
+        function onDeviceReady() {
+            cb = ChildBrowser.install();
+            cb.beforeLocationChange = cbLocationChange;
+            cb.onClose = function() {
+                cb_is_open = false;
+            };
+            init();
+        }
+        function cbOpen(url) {
+            current_cb_url = url;
+            if (! cb_is_open) { // prevent double opening of cb
+                cb_is_open = true;
+                cb.showWebPage(url);
+            }
+        }
+
+        function cbClose() {
+            cb.close();
+            cb_is_open = false;
+        }
+
+        function cbLocationChange(new_location) {
+            console.log("new_location: " + new_location);
+            console.log("current_cb_url: " + current_cb_url);
+            console.log("url_handlers: " + JSON.stringify(url_handlers));
+
+            var keys = $.map(url_handlers, function (v, k) {
+                return k
+            });
+
+            var callback = undefined;
+            var matched_key = undefined;
+            $.each(keys, function (i, e) {
+                if (current_cb_url == e) {
+                    callback = url_handlers[e];
+                    matched_key = e;
+                    return false;
+                }
+            });
+            if (!callback) {
+                $.each(keys, function (i, e) {
+                    if (current_cb_url.endsWith(e)) {
+                        callback = url_handlers[e];
+                        matched_key = e;
+                        return false;
+                    }
+                });
+            }
+            if (!callback) {
+                $.each(keys, function (i, e) {
+                    if (current_cb_url.indexOf(e) !== -1) {
+                        callback = url_handlers[e];
+                        matched_key = e;
+                        return false;
+                    }
+                })
+            }
+
+            if ($.isFunction(callback)) {
+                console.log("about to call callback");
+                callback.call(this, matched_key, new_location); // call callback
+            }
+            console.log("exiting cbLocationChange");
+        }
+    </script>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="/static/js/pg_helpers.js"></script>
+{% endblock %}
+
+{% block welcome_page %}{% endblock %}
+
+{% block settings_list %}{% endblock settings_list %}
+
+{% block init_call %}{% endblock init_call %}
+
+{% block myrides_btn %}
+    <a id="myrides_btn" href="#" id="myrides_btn" data-role="button" data-iconpos="top" data-icon="wb_custom">
+        {% trans 'My Rides' %}
+    </a>
+{% endblock myrides_btn %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script defer="defer">
+
+        function PG_init() {
+            PhoneGapHelper.init({
+                urls:{
+                    is_user_authenticated:"{% absurl is_user_authenticated %}"
+                }
+            });
+
+            PhoneGapHelper.isUserAuthenticated([updateAuthStatus]);
+            MobileHelper.updateMyRidesBubble("#myrides_btn");
+            $("#home").bind("pagebeforeshow", function () {
+                PhoneGapHelper.isUserAuthenticated([updateAuthStatus]);
+            });
+
+            $("#myrides_btn").click(function () {
+                PhoneGapHelper.isUserAuthenticated([function(is_auth, username) {
+                    if (is_auth) {
+                        $.mobile.changePage("#myrides_page");
+                    } else {
+                        cbOpen("{% absurl mobile_auth_login %}?next_page=myrides");
+                    }
+                }, updateSettingsWithAuthStatus]);
+            });
+
+            // setting page
+            $("#settings_page").bind("pagebeforeshow", function () {
+                PhoneGapHelper.isUserAuthenticated([updateSettingsWithAuthStatus]);
+            });
+
+            $("#login_link").live("click", function () {
+                cbOpen("{% absurl mobile_auth_login %}");
+            });
+
+            $("#logout_link").live("click", function () {
+                $.ajax({
+                    url:"{% absurl auth_logout %}",
+                    error:function (e) {
+                        alert("{% trans "Error while logging out" %}");
+                    },
+                    success:function () {
+                        PhoneGapHelper.isUserAuthenticated([updateSettingsWithAuthStatus]);
+                    }
+                });
+            });
+        }
+
+        function closeOnNavigate(key, current_url) {
+            console.log("closeOnNavigate: " + current_url);
+            if (current_url.indexOf(key) === -1) {
+                cbClose();
+                console.log("closed cb via closeOnNavigate");
+            }
+        }
+
+        function updateAuthStatus(is_auth) {
+            if (! is_auth) {
+                if (!welcome_screen_shown) {
+                    welcome_screen_shown = true;
+                    $.mobile.changePage("#welcome_page");
+                }
+            }
+        }
+
+        function updateSettingsWithAuthStatus(is_auth, username) {
+            var $settings_list = $("#auth_list");
+            var $li = undefined;
+            if (is_auth) {
+                if ($settings_list.find("#logout_item").length == 0) {
+                    $li = $('<li id="logout_item" data-icon="arrow-l"><a id="logout_link" data-ajax="false" href="#">{% trans "Logout" %} (' + username + ')</a></li>');
+                    $settings_list.append($li);
+                    $settings_list.listview("refresh");
+                }
+                if ($settings_list.find("#login_item").length) {
+                    $("#login_item").remove();
+                }
+            } else {
+                if ($settings_list.find("#login_item").length == 0) {
+                    $li = $('<li id="login_item" data-icon="arrow-l"><a id="login_link" data-ajax="false" href="#">{% trans "Login" %}</a></li>');
+                    $settings_list.append($li);
+                    $settings_list.listview("refresh");
+                }
+                if ($settings_list.find("#logout_item").length) {
+                    $("#logout_item").remove();
+                }
+            }
+        }
+
+   </script>
+
+{% endblock doc_ready %}
+<script type="text/javascript">
+{% block book_ride_success %}
+    if (response.status && response.status == "booked" && response.redirect) {
+        if (! response.authenticated ) {
+            $.mobile.changePage("#login_or_register_page");
+        } else {
+            if (response.redirect.startsWith("http")) {
+                cbOpen(response.redirect)
+            } else {
+                cbOpen("http://" + domain_name + response.redirect)
+            }
+            $.mobile.changePage("#home");
+        }
+    }
+    else {
+        //TODO_WB: redirect to error page
+        var message = "{% trans "We have encountered an error. Please try again." %}";
+        if (response.message) {
+            message = response.message;
+        }
+        showError(message);
+        $(".order_button").enable();
+    }
+{% endblock book_ride_success %}
+{% block sharing_link %}
+    $("#share_fb").click(function() {
+        cbOpen(window.shareByFB(true));
+    });
+    $("#like_fb").click(function() {
+        cbOpen(window.likeOnFB(true));
+    });
+{% endblock sharing_link %}
+
+</script>
+
+{% block init %}
+    PG_init();
+{% endblock init %}
+

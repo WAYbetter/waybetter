@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     (r'^computation_statistics/(?P<computation_set_id>\d+)$', 'sharing.staff_controller.ride_computation_stat'),
 
     (r'^passenger/home/$', 'sharing.passenger_controller.passenger_home'),
+    (r'^pg_home/$', 'sharing.passenger_controller.pg_home'),
     (r'^book_ride/$', 'sharing.passenger_controller.book_ride'),
     (r'^producer/ordering/$', 'sharing.producer_controller.producer_ordering_page'),
     (r'^producer/new_producer_passenger/$', 'sharing.producer_controller.new_producer_passenger'),
@@ -52,13 +53,16 @@ urlpatterns = patterns('',
     (r'^times_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_times'),
     (r'^price_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_price'),
 
+
     (r'^resolve_structured_address/$', 'sharing.passenger_controller.resolve_structured_address'),
-    (r'^registration/(?P<order_id>\d+)/$', 'sharing.passenger_controller.registration'),
+    (r'^registration/(?P<step>\w+)/$', 'sharing.passenger_controller.registration'),
     url(r'^registration/$', 'sharing.passenger_controller.registration', name="join"),
-    (r'^login_redirect/(?P<order_id>\d+)/$', 'sharing.passenger_controller.login_redirect'),
+    url(r'^login_redirect/$', 'sharing.passenger_controller.post_login_redirect', name="login_redirect"),
     url(r'^send_verification_code/$', 'sharing.passenger_controller.send_sms_verification', name="send_verification_code"),
     url(r'^validate_phone/$', 'sharing.passenger_controller.validate_phone', name="validate_phone"),
     url(r'^register/$', 'sharing.passenger_controller.do_register', name="register"),
+    url(r'^register_user/$', 'sharing.passenger_controller.do_register_user', name="register_user"),
+    url(r'^register_passenger/$', 'sharing.passenger_controller.do_register_passenger', name="register_passenger"),
 
 
     url(r'^info/$', 'sharing.content_controller.info', name="info"),
@@ -69,5 +73,6 @@ urlpatterns = patterns('',
     url(r'^the_service/$', 'sharing.content_controller.the_service', name="the_service"),
     url(r'^about_us/$', 'sharing.content_controller.about_us', name="about_us"),
     url(r'^my_rides/$', 'sharing.content_controller.my_rides', name="my_rides"),
+    url(r'^services/get_sharing_cities/$', 'sharing.content_controller.get_sharing_cities', name="get_sharing_cities"),
 
 )

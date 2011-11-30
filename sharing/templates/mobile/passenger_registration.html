@@ -12,7 +12,6 @@
         table {
             width: 100%;
         }
-
         td.or {
             width: 50px;
             text-align: center;
@@ -37,114 +36,252 @@
 {% block body %}
     <div id="registration_page" data-role="page">
         <div data-role="header">
-            <h1>{% trans "Registration" %}</h1>
-            <a href="#" data-rel="back">{% trans 'Back' %}</a>
+            <a href="#" data-theme="h" data-rel="back" class="ui-btn-right">{% trans "Close" %}</a>
+            <h1>{% trans "Join WAYbetter" %}</h1>
+            <table class="registration-progress-bar">
+                <tr>
+                    <td class="current">1. {% trans "Details" %}</td>
+                    <td>2. {% trans "Phone" %}</td>
+                    <td>3. {% trans "Billing" %}</td>
+                </tr>
+            </table>
         </div>
         <div data-role="content">
-            <div id="fb_cntr">
-                <div id="fb_connect">
-                    <div id="fb-root"></div>
-                    <fb:login-button perms="email,user_checkins"></fb:login-button>
+            {#            <div id="fb_cntr">#}
+            {#                <div id="fb_connect">#}
+            {#                    <div id="fb-root"></div>#}
+            {#                    <fb:login-button perms="email,user_checkins"></fb:login-button>#}
+            {#                </div>#}
+            {#            </div>#}
+            {##}
+            {#            <table class="separator">#}
+            {#                <tbody>#}
+            {#                <tr>#}
+            {#                    <td>#}
+            {#                        <hr/>#}
+            {#                    </td>#}
+            {#                    <td class="or">{% trans "OR" %}</td>#}
+            {#                    <td>#}
+            {#                        <hr/>#}
+            {#                    </td>#}
+            {#                </tr>#}
+            {#                </tbody>#}
+            {#            </table>#}
+
+            <form id="passenger_form">
+                {% csrf_token %}
+                {% for hidden in form.hidden_fields %}
+                    {{ hidden }}
+                {% endfor %}
+
+                {% for field in form.visible_fields %}
+                    {% if field.html_name != "agree_to_terms" %}
+                        {{ field.label_tag }}
+                        {{ field }}
+                        <ul class="errorlist-placeholder"></ul>
+                    {% endif %}
+                {% endfor %}
+
+                <!-- render "agree_to_terms" explicitly -->
+                <div class="ui-grid-a">
+                    <div class="ui-block-a">
+                        <span>{% trans "I agree to the" %}
+                            <a href="#terms_page" data-transition="slideup">{% trans "Terms Of Use" %} </a>{% trans "and" %}
+                            <a href="#privacy_page" data-transition="slideup"> {% trans "Privacy Statement" %}.</a>
+                        </span>
+                    </div>
+                    <div class="ui-block-b">
+                        <label for="id_agree_to_terms"></label>
+                        <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms" data-theme="a"/>
+                    </div>
                 </div>
-            </div>
+                <div id="terms_error">
+                    <ul class="errorlist-placeholder"></ul>
+                </div>
 
-            <table>
-                <tbody>
-                <tr>
-                    <td>
-                        <hr/>
-                    </td>
-                    <td class="or">{% trans "OR" %}</td>
-                    <td>
-                        <hr/>
-                    </td>
-                </tr>
-                </tbody>
-            </table>
+                <button id="finish_registration" data-theme="d">{% trans "Next" %}</button>
+            </form>
 
-            <div>
-                {% load ajax_form_utils %}
-                <form id="passenger_form" action="{% url register %}" method="POST">
-                    {% csrf_token %}
-                    {% for hidden in form.hidden_fields %}
-                        {{ hidden }}
-                    {% endfor %}
-
-                    {% for field in form.visible_fields %}
-                        <!-- separate the fields for .siblings, see below -->
-                        {% if field.html_name != "agree_to_terms" %}
-                            {{ field.label_tag }}
-                            {{ field }}
-                            <div class="errorlist-placeholder"></div>
-                        {% endif %}
-                    {% endfor %}
-                    <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms" data-theme="b"/>
-                    <label for="id_agree_to_terms">{% trans "I agree to the" %}
-                        <a href="{% url terms %}">{% trans "Terms Of Use" %} </a>{% trans "and" %}
-                        <a href="{% url privacy %}"> {% trans "Privacy Statement" %}.</a>
-                    </label>
-                </form>
-            </div>
-
-            <button id="finish_registration" data-theme="d">{% trans "Next" %}</button>
         </div>
     </div>
 
+    <div id="validation_page" data-role="page">
+        <div data-role="header">
+            <h1>{% trans "Join WAYbetter" %}</h1>
+            <table class="registration-progress-bar">
+                <tr>
+                    <td class="done">1. {% trans "Details" %}</td>
+                    <td class="current">2. {% trans "Phone" %}</td>
+                    <td>3. {% trans "Billing" %}</td>
+                </tr>
+            </table>
+        </div>
+        <div data-role="content">
+            <div class="center bold">{% trans "We send a text notification prior to the taxi's arrival at pickup (at no charge)" %}.</div>
+            <form id="validation">
+                <input name="country_code" type="hidden" value="{{ country_code }}"/>
+                <label for="local_phone">{% trans "Enter phone number" %}</label>
+                <input id="local_phone" name="local_phone" placeholder="" type="tel" data-theme="d"/>
+                <button id="validate_phone" data-theme="d">{% trans "Get verfication code (free)" %}</button>
 
+                <label for="verification_code">{% trans "Enter verification code" %}</label>
+                <input id="verification_code" name="verification_code" type="tel" data-theme="d"/>
+                <button id="validate_code" data-theme="d">{% trans "Next" %}</button>
+            </form>
+        </div>
+    </div>
+
+    <div id="terms_page" data-role="page" data-theme="a">
+        <div data-role="header">
+            <a href="#" data-theme="h" data-rel="back" class="ui-btn-right" data-transition="slidedown">{% trans "Close" %}</a>
+            <h1>{% trans "Terms of Service" %}</h1>
+        </div>
+        <div data-role="content" class="terms">
+            {% trans "terms_content" %}
+        </div>
+    </div>
+
+    <div id="privacy_page" data-role="page" data-theme="a">
+        <div data-role="header">
+            <a href="#" data-theme="h" data-rel="back" class="ui-btn-right" data-transition="slidedown">{% trans "Close" %}</a>
+            <h1>{% trans "Privacy Policy" %}</h1>
+        </div>
+        <div data-role="content" class="privacy">
+            {% trans "privacy_content" %}
+        </div>
+    </div>
 
 {% endblock %}
 
 {% block doc_ready %}
-    <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.js"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.validation.js"></script>
-
     {{ block.super }}
-
     <script type="text/javascript">
+        var step = "{{ step }}";
 
-        $(document).ready(function(){
-//        $("#registration_page").bind("pageinit", function(e) {
-
-            $('#passenger_form').validation({% render_ajax_fields form %});
-
-            $("#finish_registration").button("disable").click(function() {
+        $(document).ready(function() {
+            $.mobile.ajaxEnabled = false;
+            if (step == "phone")
+                document.location.href = "#validation_page";
+        });
+        
+        $("#registration_page").bind("pageinit", function(e) {
+            $("#finish_registration").click(function() {
                 var $that = $("#finish_registration");
                 $.ajax({
-                    url: "{% url register %}",
+                    url: "{% url register_user %}",
                     type: "POST",
                     data: $("#passenger_form").serialize(),
                     beforeSend: function() {
-                        $that.disable().data("old_text", $that.text()).text("{% trans "Sending" %}");
+                        $that.disable().data("default_text", $that.text()).text("{% trans "Sending" %}");
                     },
                     complete: function() {
-                        $that.text($that.data("old_text")).enable();
+                        $that.text($that.data("default_text")).enable();
                     },
                     success: function(response) {
                         $(".errorlist-placeholder, .errorlist").empty();
                         if (response.errors) {
                             $.each(response.errors, function(i, e) {
-                                $("#id_" + e.field_name).siblings(".errorlist-placeholder, .errorlist").replaceWith(e.errors_ul);
+                                var selector = ".errorlist-placeholder, .errorlist";
+                                var $ul;
+                                // terms is special case cause of jquerymobile checkbox rendering
+                                if (e.field_name == "agree_to_terms")
+                                    $ul = $("#terms_error").find(selector);
+                                else
+                                    $ul = $("#id_" + e.field_name).next(selector);
+
+                                $ul.replaceWith(e.errors_ul);
                             });
                         }
-                        else {
-                            if (response.redirect) {
-                                window.location.href = response.redirect;
-                            }
+                        else { // success
+                            window.location.href = response.redirect;
                         }
                     },
                     error: function() {
-                        alert("Error");
+                        alert("{% trans "Error" %}");
                     }
+                });
+
+                return false;
+            });
+        });
+
+        $("#validation_page").bind("pageinit", function(e) {
+            $("#validate_phone, #validate_code").button("disable");
+            $("#verification_code").textinput("disable");
+
+            $("#local_phone").keyup(function(e) {
+                if (e.keyCode == 13) {
+                    e.preventDefault();
+                }
+
+                var $local_phone = $(this);
+                $local_phone.val($local_phone.val().split(/\D+/).join(""));
+
+                if ($local_phone.val().length > 9) {
+                    $("#validate_phone").button("enable");
+                } else {
+                    $("#validate_phone").button("disable");
+                }
+            });
+
+            $("#validate_phone").click(function() {
+                var $validate_phone = $(this);
+                var default_text = $validate_phone.text();
+                $.ajax({
+                    url: "{% url send_verification_code %}",
+                    data: $("#validation").serialize(),
+                    type: "POST",
+                    beforeSend: function() {
+                        $validate_phone.button("disable").set_button_text("{% trans "Sending" %}...");
+                    },
+                    success: function() {
+                        $validate_phone.set_button_text("{% trans 'Code Sent' %}").button("disable");
+
+                        $("#verification_code").val("").textinput("enable").focus();
+                    },
+                    error: function() {
+                        $validate_phone.set_button_text(default_text).button("enable");
+                    },
+                    complete: function() {
+                        $("#local_phone").one("keydown", function() {
+                            $validate_phone.set_button_text(default_text).button("enable");
+                        });
+                    }
+
                 });
             });
 
-            $("#id_agree_to_terms").change(function() {
-                if ($(this).attr("checked") == "checked") {
-                    $("#finish_registration").button("enable");
+            $("#verification_code").keyup(function(e) {
+                if (96 <= e.which <= 105) { // 0 to 9
+                    var val = $(this).val();
+                    if (val && val.length == 4) {
+                        var data = $("#validation").serialize();
+                        $.ajax({
+                            url: "{% url register_passenger %}",
+                            type: "POST",
+                            data: data,
+                            beforeSend: function() {
+                                $("#verification_code").textinput("disable");
+                                $("#validate_code").set_button_text("{% trans "Checking" %}...");
+                            },
+                            success: function(response) {
+                                $("#local_phone, #verification_code").textinput("disable");
+                                $("#validate_code").set_button_text("{% trans "Next" %}").button("enable");
+                                if (response.redirect) {
+                                    $("#validate_code").unbind("click").bind("click", function(e) {
+                                        e.preventDefault();
+                                        window.location.href = response.redirect;
+                                    });
+                                }
+                            },
+                            error: function() {
+                                $("#verification_code").textinput("enable");
+                                $("#validate_code").set_button_text("{% trans "Wrong Code" %}").button("disable");
+                            }
+                        })
+                    }
                 }
-                else {
-                    $("#finish_registration").button("disable");
-                }
+
             });
         });
     </script>

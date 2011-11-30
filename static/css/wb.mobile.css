@@ -1,93 +1,549 @@
-.bold {
+hr {
+  border: none;
+  border-top: 1px solid #9A9A9A;
+  border-image: initial;
+  -webkit-box-shadow: 0 1px white;
+  -moz-box-shadow: 0 1px white;
+  box-shadow: 0 1px white; }
+
+.ui-loader {
+  background: white;
+  -webkit-box-shadow: 0 0 25px gray;
+  -moz-box-shadow: 0 0 25px gray;
+  box-shadow: 0 0 25px gray;
+  width: 120px;
+  margin-left: -90px; }
+
+.ui-icon-loading {
+  background-image: url(/static/images/mobile/loader_normal.png); }
+
+.errorlist li {
+  list-style: none; }
+
+.ui-btn-hidden {
+  line-height: inherit; }
+
+.ui-icon-none {
+  background: transparent;
+  background-image: none; }
+
+ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
+  padding-top: .2em;
+  padding-bottom: .2em; }
+
+.hidden {
+  display: none; }
+
+.bold, #booking_page .type, #booking_page .label_box, #choose_ride_page .ride_summary .price .value, #choose_ride_page .ride_summary .price .label, #ride_details_page .ride_summary .price .value, #ride_details_page .ride_summary .price .label, #myride_details_page .ride_summary .price .value, #myride_details_page .ride_summary .price .label, #choose_ride_page .ride_summary .ride_discount, #ride_details_page .ride_summary .ride_discount, #myride_details_page .ride_summary .ride_discount, #ride_details_page .details_label, #ride_details_page .details_label_type, #myride_details_page .details_label, #myride_details_page .details_label_type {
   font-weight: bold; }
 
-/* custom button icons */
-.ui-icon-wb-switchdir {
-  background-image: url(/static/images/mobile/switch-direction.png); }
+.center {
+  text-align: center !important; }
 
-/* home sweet home */
-#home .ui-header {
-  background: white;
-  border: none;
-  -webkit-box-shadow: 0 0 5px black;
-  box-shadow: 0 0 5px black; }
-#home h1 {
-  height: 42px;
-  width: 242px;
-  background: url(/static/images/mobile/header.png) center 0 no-repeat;
-  margin: 0 auto; }
-#home .ui-icon {
-  background: url(/static/images/mobile/home_icons.png) center 0;
-  width: 43px;
-  height: 43px;
-  margin-left: -21.5px; }
-#home .ui-btn-inner {
-  padding-top: 50px; }
-#home #myrides_btn .ui-icon {
-  background-position: center -50px; }
-#home #share_btn .ui-icon {
-  background-position: center -100px; }
-#home #settings_btn .ui-icon {
-  background-position: center -150px; }
-#home #feedback_btn .ui-icon {
-  background-position: center -200px; }
+.top_tri, #registration_page table.registration-progress-bar td.current, #validation_page table.registration-progress-bar td.current, #credit_guard_page table.registration-progress-bar td.current {
+  background-image: url(/static/images/mobile/top_tri_normal.png);
+  background-position: center top;
+  background-repeat: no-repeat;
+  -moz-background-size: 15px 9px;
+  -o-background-size: 15px 9px;
+  -webkit-background-size: 15px 9px;
+  background-size: 15px 9px; }
 
-a[href="/"] .ui-icon, a[href="#home"] .ui-icon {
+.ui-header a[href="/"], .ui-header a[href="#home"] {
+  width: 45px; }
+.ui-header a[href="/"] .ui-icon, .ui-header a[href="#home"] .ui-icon {
   background: url(/static/images/mobile/wb_logo_18px.png) left 0 no-repeat;
   -webkit-border-radius: 0;
   -moz-border-radius: 0;
   border-radius: 0;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
-  box-shadow: none; }
+  box-shadow: none;
+  margin: 0 auto; }
 
-/* booking page */
+.wb-header {
+  background: white;
+  border: none;
+  height: 42px;
+  background: url(/static/images/mobile/header.png) center 0 no-repeat;
+  background-color: white;
+  margin: 0 auto;
+  -webkit-box-shadow: 0 0 5px black;
+  -moz-box-shadow: 0 0 5px black;
+  box-shadow: 0 0 5px black; }
+
+/* theme hacks */
+.ui-body-a {
+  text-shadow: none; }
+
+/* end hacks */
+#welcome_page p {
+  color: #656565;
+  text-shadow: 0 0.15em 0 white;
+  font-size: 0.9em; }
+#welcome_page .text {
+  position: relative;
+  top: -0.8em; }
+#welcome_page .buttons {
+  margin-top: 1.4em; }
+  #welcome_page .buttons .first {
+    margin-bottom: 1.2em; }
+#welcome_page .welcome-img {
+  width: 178px;
+  height: 82px;
+  background: url(/static/images/mobile/welcome.png) left top no-repeat;
+  margin: 0 auto;
+  margin-top: 35px; }
+
+#home .ui-icon {
+  background: url(/static/images/mobile/home_icons.png) center 0 no-repeat;
+  width: 43px;
+  height: 43px;
+  margin-left: -21.5px;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0; }
+#home .ui-btn-active .ui-icon {
+  background: url(/static/images/mobile/home_icons_white.png) center 0 no-repeat;
+  width: 43px;
+  height: 43px;
+  margin-left: -21.5px;
+  -webkit-border-radius: 0;
+  -moz-border-radius: 0;
+  border-radius: 0; }
+#home .ui-btn-active .ui-icon-shadow {
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none; }
+#home .bubble {
+  position: absolute;
+  top: -0.3em;
+  right: -0.3em;
+  color: white;
+  border-radius: 15px;
+  padding: 0.2em .5em;
+  border: 0.15em solid;
+  -webkit-box-shadow: 0px 2px 4px 0px #666666;
+  -moz-box-shadow: 0px 2px 4px 0px #666666;
+  box-shadow: 0px 2px 4px 0px #666666;
+  text-shadow: 0px -1px 0px black;
+  filter: dropshadow(color=#690000, offx=0, offy=-1);
+  background: #d60419;
+  /* Old browsers */
+  background: -moz-linear-gradient(top, #d60419 0%, #a80002 100%);
+  /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #d60419), color-stop(100%, #a80002));
+  /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, #d60419 0%, #a80002 100%);
+  /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, #d60419 0%, #a80002 100%);
+  /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, #d60419 0%, #a80002 100%);
+  /* IE10+ */
+  background: linear-gradient(top, #d60419 0%, #a80002 100%);
+  /* W3C */ }
+#home #myrides_btn .ui-icon, #home #myrides_login_btn .ui-icon {
+  background-position: center -50px; }
+#home #share_btn .ui-icon {
+  background-position: center -104px; }
+#home #settings_btn .ui-icon {
+  background-position: center -154px; }
+#home #feedback_btn .ui-icon {
+  background-position: center -204px; }
+#home .ui-btn-inner {
+  padding-top: 50px; }
+#home .sub-header {
+  color: white;
+  text-shadow: none;
+  text-align: center;
+  font-size: 1.2em;
+  font-weight: bold;
+  background-color: #4bacc4;
+  padding: .7em 0;
+  border-bottom: 1px solid rgba(0, 0, 0, 0.5); }
+
 #booking_page #switch_direction_container {
-  width: 80%;
-  margin: 20px auto; }
-#booking_page #switch_direction_btn {
-  background: gray; }
+  position: relative;
+  width: 95%;
+  margin: 0 auto;
+  top: -0.8em; }
+#booking_page #switch-dir-img {
+  position: absolute;
+  background: url(/static/images/mobile/switch_dir.png) right center no-repeat;
+  opacity: 1;
+  width: 20px;
+  height: 27px;
+  top: 0.6em;
+  right: 3em; }
 #booking_page .desc {
   color: #7c7c7c;
   font-size: 13px; }
+#booking_page .from_label {
+  color: #48a43e; }
+  #booking_page .from_label .label_box {
+    background-color: #48a43e;
+    color: white;
+    padding: .1em .2em; }
+#booking_page .to_label {
+  color: #bb218a; }
+  #booking_page .to_label .label_box {
+    background-color: #bb218a;
+    color: white;
+    padding: .1em .2em; }
+#booking_page .booking_widget {
+  position: relative;
+  top: -0.7em; }
+  #booking_page .booking_widget a {
+    padding-top: 0.2em;
+    padding-bottom: 0.6em; }
+#booking_page hr {
+  position: relative;
+  top: -0.9em; }
+#booking_page #calculate_ride_btn {
+  top: -0.5em; }
+#booking_page #seat_selector_wrapper {
+  top: -1em; }
+#booking_page .ui-content > .ui-btn {
+  top: -1em; }
 
-/* address page */
-#address-form input {
-  display: inline-block; }
+#choose_ride_page .ui-content, #ride_details_page .ui-content, #myride_details_page .ui-content {
+  padding-top: 0.1em; }
+#choose_ride_page a[href="#ride_details_page"], #choose_ride_page a[href="#choose_ride_page"], #ride_details_page a[href="#ride_details_page"], #ride_details_page a[href="#choose_ride_page"], #myride_details_page a[href="#ride_details_page"], #myride_details_page a[href="#choose_ride_page"] {
+  margin-bottom: 0.7em;
+  margin-left: 0;
+  margin-right: 0; }
+#choose_ride_page .order-details-link, #ride_details_page .order-details-link, #myride_details_page .order-details-link {
+  text-align: center;
+  color: #666;
+  padding: 1em 0; }
+  #choose_ride_page .order-details-link a, #ride_details_page .order-details-link a, #myride_details_page .order-details-link a {
+    font-weight: normal; }
+#choose_ride_page .ride_summary, #ride_details_page .ride_summary, #myride_details_page .ride_summary {
+  background: white;
+  padding: 0.7em 1.3em;
+  color: #666666;
+  text-shadow: none;
+  -webkit-box-shadow: 0 0 0.4em 0.01em #404040;
+  -moz-box-shadow: 0 0 0.4em 0.01em #404040;
+  box-shadow: 0 0 0.4em 0.01em #404040; }
+  #choose_ride_page .ride_summary hr, #ride_details_page .ride_summary hr, #myride_details_page .ride_summary hr {
+    margin-top: 0.8em; }
+  #choose_ride_page .ride_summary h3, #ride_details_page .ride_summary h3, #myride_details_page .ride_summary h3 {
+    text-align: right;
+    margin: 0; }
+  #choose_ride_page .ride_summary h3.shared, #ride_details_page .ride_summary h3.shared, #myride_details_page .ride_summary h3.shared {
+    color: #31A1D0; }
+  #choose_ride_page .ride_summary h3.private, #ride_details_page .ride_summary h3.private, #myride_details_page .ride_summary h3.private {
+    color: #D07619; }
+  #choose_ride_page .ride_summary .ui-btn, #ride_details_page .ride_summary .ui-btn, #myride_details_page .ride_summary .ui-btn {
+    margin: 0; }
+  #choose_ride_page .ride_summary .details, #ride_details_page .ride_summary .details, #myride_details_page .ride_summary .details {
+    line-height: 1em; }
+  #choose_ride_page .ride_summary .price .value, #choose_ride_page .ride_summary .price .label, #ride_details_page .ride_summary .price .value, #ride_details_page .ride_summary .price .label, #myride_details_page .ride_summary .price .value, #myride_details_page .ride_summary .price .label {
+    font-size: 1.7em; }
+  #choose_ride_page .ride_summary .ride_discount, #ride_details_page .ride_summary .ride_discount, #myride_details_page .ride_summary .ride_discount {
+    float: left;
+    position: relative;
+    padding-top: 0.3em;
+    left: -2em;
+    top: 2.5em;
+    height: 69px;
+    width: 65px;
+    color: white;
+    text-align: center;
+    background-image: url(/static/images/mobile/ribbon_normal.png);
+    background-repeat: no-repeat; }
 
-#address-form input[type=text] {
-  width: 68%; }
+#ride_details_page .ride_summary, #myride_details_page .ride_summary {
+  font-weight: bold;
+  line-height: 1.2em;
+  padding: 1.5em 1.3em; }
+#ride_details_page hr, #myride_details_page hr {
+  margin-bottom: 1.3em; }
+#ride_details_page .pickup .details_label, #myride_details_page .pickup .details_label {
+  background-color: #48a43e;
+  color: white;
+  padding: .1em .2em; }
+#ride_details_page .pickup .details_label_type, #myride_details_page .pickup .details_label_type {
+  color: #48a43e; }
+#ride_details_page .dropoff .details_label, #myride_details_page .dropoff .details_label {
+  background-color: #bb218a;
+  color: white;
+  padding: .1em .2em; }
+#ride_details_page .dropoff .details_label_type, #myride_details_page .dropoff .details_label_type {
+  color: #bb218a; }
+#ride_details_page .desc, #myride_details_page .desc {
+  color: #7c7c7c;
+  font-size: 13px;
+  font-weight: normal; }
+#ride_details_page .hotspot .name, #myride_details_page .hotspot .name {
+  margin-bottom: 0; }
+#ride_details_page .hotspot .desc, #myride_details_page .hotspot .desc {
+  margin-top: 0; }
+#ride_details_page .when p, #myride_details_page .when p {
+  margin-bottom: 0; }
 
-#address-form input[type=tel] {
-  width: 20%; }
+#myride_details_page .ui-content {
+  padding-top: 15px; }
+#myride_details_page .ride_summary {
+  padding: 1em; }
+  #myride_details_page .ride_summary hr {
+    margin: 1.5em 0; }
+#myride_details_page .details_label {
+  line-height: 1.8em; }
+#myride_details_page .when {
+  margin-bottom: 1em; }
+#myride_details_page .ride_details_comment {
+  margin: 1em; }
 
-/* transaction page */
-#status_icon {
-  width: 80px;
-  height: 80px; }
+#address_page .street-hn-cntr {
+  position: relative;
+  height: 3.3em;
+  padding: 0 .4em 0 .8em; }
+#address_page .street-cntr {
+  width: 60%;
+  margin-left: 1em;
+  float: right; }
+#address_page .hn-cntr {
+  width: 30%;
+  float: left; }
 
-#status_icon.processing {
-  background: url(/static/images/wb_site/loading_large.gif) left 0 no-repeat; }
+#hotspot_page #hotspot_list {
+  line-height: 1.3em; }
+#hotspot_page li.suggest_hotspot a h1 {
+  text-align: center;
+  color: #BBBBBB; }
 
-#status_icon.approved {
-  background: url(/static/images/wb_site/processing_icons.png) left -84px no-repeat; }
+#about_page .about_icon {
+  width: 124px;
+  height: 124px;
+  background: url(/static/images/mobile/about_logo.png) left top no-repeat;
+  margin: 0 auto; }
+#about_page .about_header {
+  /*font-size: 1em;*/
+  text-align: left; }
+#about_page .copyright {
+  margin: 2em auto 3em auto;
+  font-size: 1em;
+  text-align: center;
+  direction: ltr; }
+#about_page #partners_logos {
+  width: 275px;
+  height: 180px;
+  background: url(/static/images/mobile/Mapa_Telmap.png) left top no-repeat;
+  margin: 0 auto; }
 
-#status_icon.failed {
-  background: url(/static/images/wb_site/processing_icons.png) left 10px no-repeat; }
+#share_page .note {
+  font-size: 0.85em;
+  color: #666; }
 
-/* registration */
-#fb_connect {
+#login_page .ui-content, #login_or_register_page .ui-content {
+  color: #424242; }
+  #login_page .ui-content input, #login_or_register_page .ui-content input {
+    margin-top: 20px; }
+  #login_page .ui-content .ui-btn, #login_or_register_page .ui-content .ui-btn {
+    margin: auto 0; }
+#login_page #login-form, #login_or_register_page #login-form {
+  position: relative;
+  top: -0.5em; }
+#login_page #id_password, #login_or_register_page #id_password {
+  margin-bottom: 1.1em; }
+#login_page table, #login_or_register_page table {
+  width: 100%;
+  margin: 0.5em auto; }
+#login_page td, #login_or_register_page td {
+  width: 33%; }
+#login_page #advtgs, #login_or_register_page #advtgs {
+  text-align: center;
+  margin-top: 1em; }
+#login_page #advtgs ul, #login_or_register_page #advtgs ul {
+  line-height: 2em;
+  list-style: none;
+  margin-top: 0;
+  padding: 0; }
+#login_page li:before, #login_or_register_page li:before {
+  content: "* "; }
+
+#myrides_page .ui-li-divider {
+  font-size: 0.85em; }
+#myrides_page p.ui-li-desc {
+  font-size: 0.85em;
+  font-weight: bold;
+  line-height: 1.5em;
+  color: #666; }
+
+#registration_page .ui-header h1, #validation_page .ui-header h1, #credit_guard_page .ui-header h1 {
+  margin-right: 80px; }
+#registration_page .ui-bar-a, #validation_page .ui-bar-a, #credit_guard_page .ui-bar-a {
+  border-bottom: 1px solid white; }
+#registration_page table.registration-progress-bar, #validation_page table.registration-progress-bar, #credit_guard_page table.registration-progress-bar {
+  width: 100%;
+  height: 2em;
+  border: none;
+  border-spacing: 1px;
+  border-collapse: collapse; }
+  #registration_page table.registration-progress-bar td, #validation_page table.registration-progress-bar td, #credit_guard_page table.registration-progress-bar td {
+    border-left: 1px solid white;
+    background-color: #DFDDDD;
+    color: #9C9C9C;
+    text-align: center;
+    text-shadow: none;
+    font-weight: normal;
+    width: 33%; }
+  #registration_page table.registration-progress-bar td.current, #validation_page table.registration-progress-bar td.current, #credit_guard_page table.registration-progress-bar td.current {
+    color: white;
+    font-weight: bold;
+    background-color: #919191; }
+  #registration_page table.registration-progress-bar td.done, #validation_page table.registration-progress-bar td.done, #credit_guard_page table.registration-progress-bar td.done {
+    color: #DFDDDD;
+    background: #919191; }
+
+#registration_page label {
+  color: #404040;
+  line-height: 1em;
+  margin-top: 0.5em; }
+#registration_page label[for="id_name"] {
+  margin-top: 0; }
+#registration_page label[for="id_agree_to_terms"] {
+  margin-bottom: 0; }
+  #registration_page label[for="id_agree_to_terms"] .ui-btn-inner {
+    padding-right: 0;
+    padding-left: 43px;
+    height: 1em; }
+#registration_page .ui-checkbox {
+  width: 2.5em;
+  margin-left: 0; }
+#registration_page .ui-block-a {
+  width: 85%;
+  font-size: 0.79em; }
+  #registration_page .ui-block-a span {
+    line-height: 4em; }
+#registration_page .ui-block-b {
+  width: 15%; }
+#registration_page ul.errorlist {
+  padding: 0;
+  margin: 0;
+  font-size: 0.8em;
+  color: red; }
+#registration_page #fb_connect {
   background: url("/static/images/wb_site/fb_disabled.jpeg") -1px 0 no-repeat;
   width: 170px;
   height: 28px; }
 
-.errorlist li {
-  list-style: none; }
+#validation_page .ui-content {
+  color: #424242; }
+  #validation_page .ui-content input {
+    position: relative;
+    right: 0.3em;
+    width: 93%; }
 
-.ui-loader {
-  background: darkGray; }
+#trx_page {
+  color: #666666; }
+  #trx_page #order_status {
+    background: white;
+    padding: 0.7em 1.3em;
+    -webkit-box-shadow: 0 0 0.4em 0.01em #404040;
+    -moz-box-shadow: 0 0 0.4em 0.01em #404040;
+    box-shadow: 0 0 0.4em 0.01em #404040; }
+  #trx_page #order_status h3 {
+    text-align: center; }
+  #trx_page #order_status .status_details {
+    text-align: center; }
+  #trx_page #status_help {
+    font-size: 0.8em;
+    margin-bottom: 1.8em; }
+  #trx_page #status_icon {
+    width: 85px;
+    height: 100px;
+    margin: 0 auto; }
+  #trx_page #status_icon.processing {
+    width: 100px;
+    background: url(/static/images/wb_site/loading_large.gif) left 0 no-repeat;
+    margin-bottom: 1em; }
+  #trx_page #status_icon.approved {
+    background: url(/static/images/wb_site/processing_icons.png) left -84px no-repeat; }
+  #trx_page #status_icon.failed {
+    background: url(/static/images/wb_site/processing_icons.png) left 10px no-repeat; }
+  #trx_page #note {
+    font-size: 0.8em;
+    margin-top: 3em;
+    color: #555555; }
 
+.faq .q, #faq_page .q {
+  font-weight: bold; }
+.faq .a, #faq_page .a {
+  color: #3B3B3B; }
+
+/* for HD devices (iPhone retina, etc.) */
+@media only screen and (-webkit-min-device-pixel-ratio: 1.5),
+       only screen and (min--moz-device-pixel-ratio: 1.5),
+       only screen and (min-resolution: 240dpi) {
+  .ride_summary .ride_discount {
+    background-image: url(/static/images/mobile/ribbon_retina.png);
+    background-repeat: no-repeat;
+    -moz-background-size: 65px 69px;
+    -o-background-size: 65px 69px;
+    -webkit-background-size: 65px 69px;
+    background-size: 65px 69px; }
+
+  .top_tri, #registration_page table.registration-progress-bar td.current, #validation_page table.registration-progress-bar td.current, #credit_guard_page table.registration-progress-bar td.current {
+    background-image: url(/static/images/mobile/top_tri__retina.png);
+    background-repeat: no-repeat;
+    -moz-background-size: 15px 9px;
+    -o-background-size: 15px 9px;
+    -webkit-background-size: 15px 9px;
+    background-size: 15px 9px; }
+
+  .wb-header {
+    background-image: url(/static/images/mobile/header_retina.png);
+    -moz-background-size: 242px 42px;
+    -o-background-size: 242px 42px;
+    -webkit-background-size: 242px 42px;
+    background-size: 242px 42px; }
+
+  .ui-icon-loading {
+    background-image: url(/static/images/mobile/loader_retina.png);
+    -moz-background-size: 35px 35px;
+    -o-background-size: 35px 35px;
+    -webkit-background-size: 35px 35px;
+    background-size: 35px 35px; }
+
+  .ui-header a[href="/"] .ui-icon, .ui-header a[href="#home"] .ui-icon {
+    background-image: url(/static/images/mobile/wb_logo_retina.png);
+    -moz-background-size: 18px 18px;
+    -o-background-size: 18px 18px;
+    -webkit-background-size: 18px 18px;
+    background-size: 18px 18px; }
+
+  #welcome_page .welcome-img {
+    background-image: url(/static/images/mobile/welcome_retina.png);
+    -moz-background-size: 178px 82px;
+    -o-background-size: 178px 82px;
+    -webkit-background-size: 178px 82px;
+    background-size: 178px 82px; }
+
+  #home .ui-icon {
+    -moz-background-size: 43px 242px;
+    -o-background-size: 43px 242px;
+    -webkit-background-size: 43px 242px;
+    background-size: 43px 242px;
+    background-image: url(/static/images/mobile/home_icons_retina.png); }
+  #home .ui-btn-active .ui-icon {
+    background-image: url(/static/images/mobile/home_icons_white_retina.png);
+    -moz-background-size: 43px 242px;
+    -o-background-size: 43px 242px;
+    -webkit-background-size: 43px 242px;
+    background-size: 43px 242px; }
+
+  #booking_page #switch-dir-img {
+    background-image: url(/static/images/mobile/switch_dir_retina.png);
+    -moz-background-size: 20px 27px;
+    -o-background-size: 20px 27px;
+    -webkit-background-size: 20px 27px;
+    background-size: 20px 27px; } }
 /* RTL */
+.rtl .ui-page, .rtl .ui-loader {
+  direction: rtl; }
 .rtl .rtl-listview li {
   text-align: right; }
 .rtl .rtl-listview .ui-btn-text {

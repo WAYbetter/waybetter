@@ -1,6 +1,10 @@
+# This Python file uses the following encoding: utf-8
+from common.decorators import force_lang
+from common.models import City
 from django.template.context import RequestContext
 from common.util import custom_render_to_response
 from django.utils import simplejson
+from djangotoolbox.http import JSONResponse
 from ordering.models import OrderType
 
 def info(request):
@@ -18,13 +22,15 @@ def contact(request):
     page_name = page_specific_class = "contact"
     return custom_render_to_response("contact.html", locals(), context_instance=RequestContext(request))
 
+@force_lang("he") # for now show this page only in hebrew
 def privacy(request):
     page_name = page_specific_class = "privacy"
-    return custom_render_to_response("privacy_he.html", locals(), context_instance=RequestContext(request))
+    return custom_render_to_response("privacy.html", locals(), context_instance=RequestContext(request))
 
+@force_lang("he") # for now show this page only in hebrew
 def terms(request):
     page_name = page_specific_class = "terms"
-    return custom_render_to_response("terms_he.html", locals(), context_instance=RequestContext(request))
+    return custom_render_to_response("terms.html", locals(), context_instance=RequestContext(request))
 
 def faq(request):
     page_name = page_specific_class = "faq"
@@ -36,3 +42,10 @@ def my_rides(request):
                                     'shared': OrderType.SHARED})
 
     return custom_render_to_response("my_rides.html", locals(), context_instance=RequestContext(request))
+
+def get_sharing_cities(request):
+    cities = get_sharing_cities_data()
+    return JSONResponse(cities)
+
+def get_sharing_cities_data():
+    return [{'id': city.id, 'name': city.name} for city in City.objects.filter(name="תל אביב יפו")]
