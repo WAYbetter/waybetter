@@ -17,13 +17,9 @@
                         <ul class="links hz">
                             <li class="first">
                                 <span id="lang_top" class="change-lang-top menu_link clickable">
-                                    {% for lang in LANGUAGES %}
-                                        {% if lang.0 == LANGUAGE_CODE %}
-                                            {{ lang.1 }}
-                                        {% endif %}
-                                    {% endfor %}
+                                    <span class="change-lang-top dropdown-trigger"></span>
+                                    Language
                                 </span>
-                                <span class="change-lang-top dropdown-trigger"></span>
                             </li>
                             <li><a class="menu_link" href="{% url the_service %}">{% trans "The Service" %}</a></li>
                             <li>
