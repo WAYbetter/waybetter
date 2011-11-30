@@ -108,7 +108,9 @@
             cb.onClose = function() {
                 cb_is_open = false;
             };
+            checkNetworkConnect();
             init();
+
         }
         function cbOpen(url) {
             current_cb_url = url;
@@ -122,7 +124,15 @@
             cb.close();
             cb_is_open = false;
         }
+        function checkNetworkConnect() {
+            var networkState = navigator.network.connection.type;
+            if (networkState == Connection.NONE || networkState == Connection.UNKNOWN) {
+                alert("{% trans "Your network connectivity appear to be down. This application uses internet connectivity and will not work properly without a working connection." %}");
+                return false;
 
+            }
+            return true;
+        }
         function cbLocationChange(new_location) {
             console.log("new_location: " + new_location);
             console.log("current_cb_url: " + current_cb_url);

@@ -72,6 +72,7 @@ def transaction_ok(request, passenger):
     billing_info.save()
 
     order = request.session.get(CURRENT_ORDER_KEY)
+    order = order.fresh_copy() # update the order
     if order and order.price and order.passenger == passenger:
         logging.info("Billing order: %s" % order)
         # redirect to bill order
