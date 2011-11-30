@@ -361,7 +361,6 @@ var HotspotHelper = Object.create({
                         var first_interval = getFullDate($selected.data("next_datetime") || now);
                         $datepicker.datepicker("destroy").datepicker({
                             dateFormat: 'dd/mm/yy',
-                            firstDay: first_interval,
                             minDate: new Date(),
                             isRTL: true,
                             beforeShowDay: function(date) {
