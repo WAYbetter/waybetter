@@ -1,5 +1,6 @@
 {% extends "wb_base_mobile.html" %}
 {% load i18n %}
+{% load value_from_settings %}
 
 {% block extrastyle %}
     {{ block.super }}
@@ -656,10 +657,10 @@
 
         {% block sharing_link %}
         // share page
-        $("#share_fb").click(function(e) {
-            window.location.href = window.shareByFB(true);
-            e.preventDefault();
-        });
+//        $("#share_fb").click(function(e) {
+//            window.location.href = window.shareByFB(true);
+//            e.preventDefault();
+//        });
         $("#like_fb").click(function(e) {
             window.location.href = window.likeOnFB(true);
             e.preventDefault();
@@ -1097,10 +1098,10 @@
         </div>
         <div data-role="content">
             <ul class="rtl-listview" data-role="listview" data-inset="true">
-                <li data-icon="arrow-l"><a id="share_fb" href="#" data-ajax="false">{% trans "Share on Facebook" %}</a></li>
+{#                <li data-icon="arrow-l"><a id="share_fb" href="#" data-ajax="false">{% trans "Share on Facebook" %}</a></li>#}
                 <li data-icon="arrow-l"><a id="like_fb" href="#" data-ajax="false">{% trans "Like us" %}</a></li>
                 <li data-icon="arrow-l"><a id="share_email" href="#">{% trans "Tell a Friend (email)" %}</a></li>
-                <li data-icon="arrow-l"><a target="_blank" rel="external" id="rate_on_itunes" href="http://www.google.com">{% trans "Rate our application" %}</a></li>
+                <li data-icon="arrow-l"><a target="_blank" rel="external" id="rate_on_itunes" href="http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id={% value_from_settings "APPLE_WAYBETTER_APP_ID" %}&pageNumber=0&sortOrdering=1&type=Purple+Software&mt=8"">{% trans "Rate Us" %}</a></li>
             </ul>
             <div class="note">{% trans "Remember, the more passengers using this app the better it becomes (higher efficiency, cheaper rides and better availablity). <br/><br/>Thanks :)" %}</div>
         </div>
