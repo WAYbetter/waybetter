@@ -68,7 +68,8 @@
                     $time_sel.selectmenu().selectmenu('refresh', true);
                     if (select_nearest_interval) {
                         $("#select-interval-form").submit();
-                    } else if (MobileHelper.ride_time && response.times.indexOf(MobileHelper.ride_time) > -1) {
+                    } else if (MobileHelper.ride_time && response.times.indexOf(MobileHelper.ride_time) > -1 &&
+                            ($.mobile.activePage.attr("id") == "hotspot_page" || $.mobile.activePage.attr("id") == "booking_page")) {
                         $.mobile.changePage("#booking_page", {reverse: true});
                     } else {
                         $.mobile.changePage("#interval_page");
@@ -1092,6 +1093,7 @@
                 <li data-icon="arrow-l"><a id="share_fb" href="#" data-ajax="false">{% trans "Share on Facebook" %}</a></li>
                 <li data-icon="arrow-l"><a id="like_fb" href="#" data-ajax="false">{% trans "Like us" %}</a></li>
                 <li data-icon="arrow-l"><a id="share_email" href="#">{% trans "Tell a Friend (email)" %}</a></li>
+                <li data-icon="arrow-l"><a rel="external" id="rate_on_itunes" href="http://www.google.com">{% trans "Rate our application" %}</a></li>
             </ul>
             <div class="note">{% trans "Remember, the more passengers using this app the better it becomes (higher efficiency, cheaper rides and better availablity). <br/><br/>Thanks :)" %}</div>
         </div>
