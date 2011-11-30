@@ -18,6 +18,7 @@ import logging
 import re
 import types
 
+INVOICE_INFO = settings.INVOICE_INFO
 BILLING_INFO = settings.BILLING
 
 def do_J5(token, amount, card_expiration, billing_transaction_id):
@@ -159,7 +160,8 @@ def send_invoices_passenger(billing_transactions):
 
     payload = {
         "TransType"						: "IR:CREATE101",
-        "Username"						: BILLING_INFO["invoice_username"],
+        "Username"						: INVOICE_INFO["invoice_username"],
+        "Key"	    					: INVOICE_INFO["invoice_key"],
         "InvoiceSubject"				: "%s %s" %(_("Ride Summary for month"), trx.create_date.strftime("%m/%Y")),
         "InvoiceItemCode"				: "|".join([str(trx.order.id) for trx in billing_transactions]),
         "InvoiceItemDescription"		: "|".join([trx.order.invoice_description for trx in billing_transactions]),
@@ -170,7 +172,7 @@ def send_invoices_passenger(billing_transactions):
         "ItemPriceIsWithTax"			: 1,
         }
 
-    url = BILLING_INFO["invoice_url"]
+    url = INVOICE_INFO["invoice_url"]
 
     payload = dict([(k,v.encode('iso8859_8') if type(v) is types.UnicodeType else v) for (k,v) in payload.items()])
     payload = urlencode(payload)
@@ -189,8 +191,8 @@ def create_invoice_passenger(passenger):
     payload = {
 #        "ReplyURL": "ReturnPage.asp",
         "TransType"						: "C:INSERT",
-        "Username"						: BILLING_INFO["invoice_username"],
-        "CompanyCode"                   : Counter.get_next(name=BILLING_INFO["invoice_counter"]),
+        "Username"						: INVOICE_INFO["invoice_username"],
+        "CompanyCode"                   : Counter.get_next(name=INVOICE_INFO["invoice_counter"]),
         "CompanyName"                   : passenger.full_name,
         "CompanyAddress"                : "",
         "CompanyCity"                   : "",
@@ -205,7 +207,7 @@ def create_invoice_passenger(passenger):
         "CompanyComments"               : "",
         }
 
-    url = BILLING_INFO["invoice_url"]
+    url = INVOICE_INFO["invoice_url"]
     payload = dict([(k,v.encode('iso8859_8') if type(v) is types.UnicodeType else v) for (k,v) in payload.items()])
     payload = urlencode(payload)
     result = safe_fetch(url, method="POST", payload=payload, deadline=50, headers={'Content-Type': 'application/x-www-form-urlencoded'})
