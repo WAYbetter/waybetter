@@ -30,7 +30,7 @@ def privacy(request):
 @force_lang("he") # for now show this page only in hebrew
 def terms(request):
     page_name = page_specific_class = "terms"
-    return custom_render_to_response("terms.html", locals(), context_instance=RequestContext(request))
+    return custom_render_to_response("terms_of_service.html", locals(), context_instance=RequestContext(request))
 
 def faq(request):
     page_name = page_specific_class = "faq"
