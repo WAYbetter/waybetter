@@ -242,7 +242,11 @@
         }
         var msg = window["choose_" + MobileHelper.hotspot_type + "_time_msg"];
         $("#interval_page").find("[data-role=header] h1, label[for='ride-time']").text(msg);
-        $("#choose_time_btn").find(".header").text(msg);
+
+        if (MobileHelper.ride_date && MobileHelper.ride_time) {
+            msg = window[MobileHelper.hotspot_type + "_time_msg"];
+        }
+        $("#choose_time_btn").find(".header").text(msg + ": ");
 
         getIntervals(false);
     }
@@ -579,7 +583,9 @@
             if (MobileHelper.ride_date && MobileHelper.ride_time) {
                 $("#ride-date").jqmData("saved_val", MobileHelper.ride_date);
                 $("#ride-time").jqmData("saved_val", MobileHelper.ride_time);
+                var msg = window[MobileHelper.hotspot_type + "_time_msg"];
                 $("#choose_time_btn").find(".desc").text($("#ride-date :selected").text() + " " + MobileHelper.ride_time);
+                $("#choose_time_btn").find(".header").text(msg + ": ");
                 $("#calculate_ride_btn").button("enable");
             } else {
                 $("#calculate_ride_btn").button("disable");
