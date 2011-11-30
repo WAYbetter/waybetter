@@ -121,6 +121,12 @@
         MobileHelper.address = undefined;
         $("#choose_address_btn").find(".header").text("{% trans 'Enter Address' %}");
     }
+    function populateAddressFields(address){
+        $("#id_city").val(address.city).selectmenu().selectmenu('refresh');
+        $("#id_street").val(address.street_address);
+        $("#id_house_number").val(address.house_number);
+        $("#address_page button").button().button("enable");
+    }
     // TODO_WB: check hotspot_type to decide where the updated text should go
     function selectAddress(address) {
         var city_ids = $.map(MobileHelper.sharing_cities, function(el, i) {
@@ -131,14 +137,12 @@
             return; // no service in this city
         }
 
-        if (!(MobileHelper.address && MobileHelper.address.description == address.description)) {
-            log("select address");
-            MobileHelper.address = address;
-            $("#choose_address_btn").find(".header").text(address.name);
-            $("#id_city").val(address.city).selectmenu().selectmenu('refresh');
-            $("#id_street").val(address.street_address);
-            $("#id_house_number").val(address.house_number);
+        log("select address");
+        MobileHelper.address = address;
+        $("#choose_address_btn").find(".header").text(address.name);
+        populateAddressFields(address);
 
+        if (!(MobileHelper.address && MobileHelper.address.description == address.description)) {
             getIntervals(false);
         }
     }
@@ -352,7 +356,7 @@
                                 showNoServiceDialog(address);
                             }
                             else{
-                                selectAddress(address);
+                                populateAddressFields(address);
                             }
                         }
                     });
@@ -475,6 +479,13 @@
         });
 
         // address page
+        $("#address_page").bind("pagebeforeshow", function(e, data) {
+            if (MobileHelper.address) {
+                $("#id_street").val(MobileHelper.address.street_address);
+                $("#id_house_number").val(MobileHelper.address.house_number);
+            }
+            $("#address_page button").button().button("enable");
+        });
         $("#address_page input").keyup(
                 function() {
                     var valid = Boolean($("#id_house_number").val() && $("#id_street").val());
