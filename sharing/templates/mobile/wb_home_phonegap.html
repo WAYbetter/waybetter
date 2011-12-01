@@ -60,6 +60,7 @@
         current_cb_url = undefined,
         cb = undefined,
         domain_name = "{% value_from_settings "DEFAULT_DOMAIN" %}",
+        protocol = "{% value_from_settings "DEFAULT_PROTOCOL" %}",
         cb_is_open = false,
         welcome_screen_shown = false;
 
@@ -306,7 +307,7 @@
             if (response.redirect.startsWith("http")) {
                 cbOpen(response.redirect)
             } else {
-                cbOpen("http://" + domain_name + response.redirect)
+                cbOpen(protocol + "://" + domain_name + response.redirect)
             }
             $.mobile.changePage("#home");
         }
