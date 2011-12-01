@@ -1,3 +1,11 @@
+var BookingHelper = Object.create({
+    num_seats: 1,
+    address: undefined,
+    hotspot_type: undefined,
+    ride_date: undefined,
+    ride_time: undefined
+});
+
 var MyRidesHelper = Object.create({
     config: {
         rtl: false,
@@ -349,8 +357,10 @@ var HotspotHelper = Object.create({
             success: function(response) {
                 $hotspotpicker.empty().enable();
                 $.each(response.data, function(i, hotspot) {
-                    var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, description: hotspot.description, next_datetime: new Date(hotspot.next_datetime)};
-                    $("<option>" + hotspot.name + "</option>").attr("value", hotspot.id).data(data).appendTo($hotspotpicker);
+                    var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, name: hotspot.name,
+                        description: hotspot.description, next_datetime: new Date(hotspot.next_datetime)};
+                    var text = (hotspot.description) ? hotspot.name + " - " + hotspot.description : hotspot.name;
+                    $("<option>" + text + "</option>").attr("value", hotspot.id).data(data).appendTo($hotspotpicker);
                 });
 
                 $hotspotpicker.change(function() {
@@ -532,16 +542,18 @@ var AddressHelper = Object.create({
 
         });
 
-        $street_input.focus(
-                function() {
-                    $(this).autocomplete("enable");
-                    $(this).autocomplete("search");
-                    $(this).data("old_val", $(this).val());
-                }).keyup(function(e) {
-                    if ($(this).data("old_val") !== $(this).val()) {
-                        $(this).data("resolved", false);
-                    }
-                });
+        $street_input.blur(function() {
+            $loader.hide();
+            $(this).autocomplete("disable");
+        }).focus(function() {
+            $(this).autocomplete("enable");
+            $(this).autocomplete("search");
+            $(this).data("old_val", $(this).val());
+        }).keyup(function(e) {
+            if ($(this).data("old_val") !== $(this).val()) {
+                $(this).data("resolved", false);
+            }
+        });
     },
 
     resolveStructured: function(options) {
