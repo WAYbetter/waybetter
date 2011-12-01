@@ -179,6 +179,8 @@ def send_invoices_passenger(billing_transactions):
     result = safe_fetch(url, method="POST", payload=payload, deadline=50, headers={'Content-Type': 'application/x-www-form-urlencoded'})
     response_code = re.findall(r"ResponseCode:(\d+)", result.content)
     if response_code and response_code[0] == "100":
+        trx.invoice_sent = True
+        trx.save()
         logging.info("invoices sent to passenger %s" % trx.passenger_id)
         return True
     else:
