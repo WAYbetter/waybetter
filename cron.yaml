@@ -20,10 +20,13 @@ cron:
   url: /services/ws_heartbeat/
   schedule: every 1 minutes
 
-- description: create invoices ids for passengers
-  url: /billing/create_invoice_ids/
-  schedule: 1 of month 06:00
-
-- description: send invoices to passengers
-  url: /billing/send_invoices/
-  schedule: 1 of month 08:00
+# send invoices FYI:
+# transaction are charged 24 hours after creation, so orders created on 31th are charged on the 1st of the following month
+# create invoices task should be run prior to sending the invoices in order for all passenger to have an invoice_id.
+#- description: create invoices ids for passengers
+#  url: /billing/create_invoice_ids/
+#  schedule: 5 of month 06:00
+#
+#- description: send invoices to passengers
+#  url: /billing/send_invoices/
+#  schedule: 5 of month 08:00
