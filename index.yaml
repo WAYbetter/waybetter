@@ -102,8 +102,29 @@ indexes:
 - kind: billing_billingtransaction
   properties:
   - name: debug
+  - name: __key__
+    direction: desc
+
+- kind: billing_billingtransaction
+  properties:
+  - name: debug
+  - name: invoice_sent
+  - name: status
+  - name: charge_date
+
+- kind: billing_billingtransaction
+  properties:
+  - name: debug
+  - name: invoice_sent
   - name: status
   - name: create_date
+
+- kind: billing_billingtransaction
+  properties:
+  - name: debug
+  - name: status
+  - name: __key__
+    direction: desc
 
 - kind: billing_billingtransaction
   properties:

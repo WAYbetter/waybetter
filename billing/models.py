@@ -39,6 +39,8 @@ class BillingTransaction(BaseModel):
 
     debug = models.BooleanField(default=False, editable=False)
 
+    invoice_sent = models.BooleanField(default=False, editable=False)
+
     transaction_id = models.CharField(max_length=36)
 
     comments = models.CharField(max_length=255, blank=True, default="")
