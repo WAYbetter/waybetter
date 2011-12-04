@@ -89,6 +89,7 @@ def internal_task_on_queue(queue_name):
                 return function(request)
 
             if request.META.get('HTTP_X_APPENGINE_QUEUENAME', "") != queue_name:
+                logging.warning("internal_task_on_queue rejected this request: %s" % request)
                 return HttpResponseForbidden("Invalid call to internal task")
 
             return function(request)
