@@ -50,11 +50,11 @@
             </div>
 
             <div id="address_content" class="booking_step hidden">
-                <div class="title">2. {% trans "Enter Address" %}</div>
+                <div class="title"></div>
 
                 <table>
                     <tr>
-                        <td>
+                        <td class="cntr city">
                             <label for="id_city">{% trans "City" %}:</label>
                             <select id="id_city" name="id_city">
                                 {% for city in cities %}
@@ -63,20 +63,19 @@
                             </select>
 
                         </td>
-                        <td>
+                        <td class="cntr street">
                             <label for="id_street_address">{% trans "Street" %}:</label>
                             <input type="text" id="id_street_address" name="street_address"/>
+                            <div id="street_loader" class="small-loader"></div>
                             <div id="street_error" class="error"></div>
                         </td>
-                        <td>
+                        <td class="cntr hn">
                             <label for="id_house_number">{% trans "House No" %}:</label>
                             <input type="text" id="id_house_number" name="house_number"/>
                             <div id="house_number_error" class="error"></div>
                         </td>
-                        <td>
+                        <td class="cntr btn">
                             <button id="set_address" class="wb_button">{% trans "Next" %} >></button>
-                        </td>
-                        <td>
                             <div id="address_loader" class="small-loader"></div>
                         </td>
                     </tr>
@@ -85,17 +84,19 @@
             </div>
 
             <div id="datetime_content" class="booking_step hidden">
-                <div class="title">3. {% trans "Define Time" %}</div>
+                <div class="title"></div>
 
                 <table>
                     <tr>
-                        <td>
+                        <td class="cntr date">
                             <label for="id_hotspot_datepicker">{% trans "Date" %}:</label>
-                            <input type="text" id="id_hotspot_datepicker" name="hotspot_date" class="depart">
+                            <input type="text" id="id_hotspot_datepicker" name="hotspot_date">
                         </td>
-                        <td>
+                        <td class="cntr time">
                             <label for="id_hotspot_time">{% trans "Time" %}:</label>
                             <select id="id_hotspot_time" name="hotspot_time"></select>
+                            <div id="intervals_loader" class="small-loader"></div>
+
                             <div id="id_estimated_pickup">
                                 (
                                 <span class="text bold">{% trans "_pickup" %}: </span>
@@ -103,10 +104,8 @@
                                 )
                             </div>
                         </td>
-                        <td>
+                        <td class="cntr btn">
                             <button id="set_datetime" class="wb_button">{% trans "Next" %} >></button>
-                        </td>
-                        <td>
                             <div id="datetime_loader" class="small-loader"></div>
                         </td>
                     </tr>
@@ -114,34 +113,75 @@
             </div>
 
             <div id="details_content" class="booking_step hidden">
-                <div class="title">4. {% trans "Get Offer" %}</div>
+                <div id="ride_summary">
+                    <div class="pickup">
+                        <div class="dt_cntr">
+                            <div class="address">
+                                <span class="details_label">{% trans "Pickup" %}: </span>
+                                <span class="details_label_type">({% trans 'Address' %})</span>
+                                <div class="border">
+                                    <p class="name"></p>
+                                    <p class="desc"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-                <div class="ride_details">
-                    <div id="save_stamp" class="hidden">
-                <span class="container">
-                    <span class="txt">{% trans "SAVE" %}</span>
-                    <span class="value"></span>
-                </span>
+                    <div class="dropoff">
+                        <div class="dt_cntr">
+                            <div class="hotspot">
+                                <span class="details_label">{% trans "Dropoff" %}: </span>
+                                <span class="details_label_type">({% trans 'Hotspot' %})</span>
+                                <span id="switch_direction" class="wb_link">
+                                    <span id="details_loader" class="small-loader"></span>
+                                    {% trans "switch direction" %}
+                                </span>
+                                <div class="border">
+                                    <p class="name"></p>
+                                    <p class="desc"></p>
+                                </div>
+                            </div>
+                            <div class="when">
+                                <span class="details_label"></span>
+                                <div class="border">
+                                    <p class="desc"></p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="num_seats">
+                        <span class="details_label">{% trans "Number of Seats" %}</span>
+                        <span class="radio">
+                            <input type="radio" name="num_seats"/>1
+                            <input type="radio" name="num_seats"/>2
+                            <input type="radio" name="num_seats"/>3
+                            <input type="radio" name="num_seats"/>4
+                        </span>
+                    </div>
+                </div>
+                <div id="ride_details">
+                    <div id="save_stamp">
+                        <span class="txt">{% trans "SAVE" %}</span>
+                        <span class="value"></span>
                     </div>
                     <span class="price" id="sharing_price">
-                            <span class="value">0</span>
-                            <span class="label">₪</span>
-                        </span>
-                        <span class="time" id="sharing_time">
-                            <span class="value">0</span>
-                            <span class="label">{% trans "min" %}</span>
-                        </span>
-                        <span class="price" id="private_price">
-                            <span class="value">0</span>
-                            <span class="label">₪</span>
-                        </span>
-                        <span class="time" id="private_time">
-                            <span class="value">0</span>
-                            <span class="label">{% trans "min" %}</span>
-                        </span>
+                        <span class="value">0</span>
+                        <span class="label">₪</span>
+                    </span>
+                    <span class="time" id="sharing_time">
+                        <span class="value">0</span>
+                        <span class="label">{% trans "min" %}</span>
+                    </span>
+                    <span class="price" id="private_price">
+                        <span class="value">0</span>
+                        <span class="label">₪</span>
+                    </span>
+                    <span class="time" id="private_time">
+                        <span class="value">0</span>
+                        <span class="label">{% trans "min" %}</span>
+                    </span>
+                    <button class="order_button blue" id="book_ride"></button>
                 </div>
-                <button class="order_button blue" id="book_ride">{% trans "Book a Shared Taxi Ride" %}</button>
-
             </div>
         </div>
 
@@ -213,60 +253,71 @@
 
     var PICKUP = "pickup",
             DROPOFF = "dropoff",
-            SHARING_TIME_FACTOR = 1.2
+            SHARING_TIME_FACTOR = 1.2;
 
-    function showMap() {
+    function startBooking() {
+        $("#booking_teaser").fadeOut("fast", function(){
+            $("#booking_content, #booking_progress").fadeIn("fast");
+        });
         $("#banner").hide();
-    }
-
-    function toggleLoaders(state) {
-        $("#address_loader, #datetime_loader").toggle(state);
-    }
-
-    function setDirectionButtonsText(){
-        var hs_name = $("#id_hotspot_select option:selected").data("name");
-        hs_name = " " + (hs_name || "Hotspot");
-        $("#leave_hotspot").text("{% trans "Leave" %}" + hs_name);
-        $("#goto_hotspot").text("{% trans "Goto" %}" + hs_name);
-    }
-
-    function clearRideDetails() {
-        log("clearRideDetails");
-
-        $(".order_button").disable();
-        $("#save_stamp").hide();
-        $("#sharing_price .value").text(0);
-        $("#sharing_time .value").text(0);
-        $("#private_price .value").text(0);
-        $("#private_time .value").text(0);
     }
 
     function showError(msg, onClose) {
         Registrator.openWBErrorDialog("{% trans 'OOPS...' %}", msg, onClose);
     }
 
-    function showBookingStep(step_name) {
-        var steps = ["hotspot", "address", "datetime", "offer"];
-        var index = $.inArray(step_name, steps);
-        if (index > -1){
-            log("showBookingStep: " + step_name);
-            $("#booking_content .booking_step").hide("slide", { direction: "right" });
-            $("#" + step_name + "_content").trigger("beforeshow").show("slide", { direction: "left" });
+    function selectHotspot(){
+        var hotspot = HotspotHelper.getHotspotByID($("#id_hotspot_select").val());
+        BookingHelper.hotspot = hotspot;
+        var hs_name = " " + (hotspot.name || "{% trans "Hotspot" %}");
+        $("#leave_hotspot").text("{% trans "Leave" %}" + hs_name);
+        $("#goto_hotspot").text("{% trans "Goto" %}" + hs_name);
+    }
 
-            // mark this step as current
+    function showBookingStep(step_name) {
+        var booking_steps = ["hotspot", "address", "datetime", "details"];
+        var current_step_name = $("#booking_progress .step.current").data("name");
+
+        var from_index = $.inArray(current_step_name, booking_steps);
+        var to_index = $.inArray(step_name, booking_steps);
+
+        if (to_index > -1 && from_index > -1){
+            // mark step as current
             $("#booking_progress .step").removeClass("current");
             $("#booking_progress .step." + step_name).removeClass("disabled").addClass("current");
 
-            for (var i=0; i<index; i++){
-                // mark all previous steps as completed
-                $("#booking_progress .step." + steps[i]).addClass("completed");
-            }
+            // trigger beforeshow on content
+            var $old_content = $("#" + current_step_name + "_content");
+            var $new_content = $("#" + step_name + "_content");
+            $new_content.trigger("beforeshow");
+
+            // show
+            var forward = "right", backword = "left";
+            {% if LANGUAGE_BIDI %}
+                forward = "left", backword = "right";
+            {% endif %}
+
+            var transition_dir = (from_index < to_index) ? forward : backword;
+            $old_content.hide();
+            $new_content.show("slide", { direction: transition_dir }, 350);
+
+            log("showBookingStep: " + step_name + "(" + from_index + "->" + to_index + ")");
         }
+    }
+
+    function stepCompleted(step_name) {
+        $("#booking_progress .step." + step_name).addClass("completed");
     }
 
     function getHotspotTimes(options) {
         log("getHotspotTimes");
-        if (BookingHelper.address) {
+        if (! (BookingHelper.hotspot && BookingHelper.hotspot_type)){
+            showError("{% trans 'Please choose a hotspot' %}", undefined);
+            if (options.onNoTimes){
+                options.onNoTimes();
+            }
+        }
+        else if (BookingHelper.address) {
             HotspotHelper.refreshHotspotSelector({
                 refresh_intervals: true,
                 get_intervals_data: {
@@ -276,23 +327,24 @@
                     lon: BookingHelper.address.lon
                 },
                 beforeSend: function() {
-                    toggleLoaders(true);
+                    $("#intervals_loader").show();
+                    $("#set_datetime").disable();
                     $("#id_estimated_pickup").toggle(false);
                 },
-                onGotTimes: function() {
+                onGotTimes: function(times) {
                     log("onGotTimes");
-                    if (options.select_first) {
-                        // do something
-                    }
+                    $("#set_datetime").enable();
                     if (options.onGotTimes){
-                        options.onGotTimes();
+                        options.onGotTimes(times);
                     }
                 },
                 onNoTimes: function() {
-                    showError("{% trans 'Please choose another date' %}", undefined);
+                    if (options.onNoTimes){
+                        options.onNoTimes();
+                    }
                 },
                 complete: function() {
-                    toggleLoaders(false);
+                    $("#intervals_loader").hide();
                     $("#id_estimated_pickup").toggle(BookingHelper.hotspot_type == DROPOFF);
                 },
                 error: function() {
@@ -306,6 +358,10 @@
     }
 
     function getRideDetails(options) {
+        if (!(BookingHelper.hotspot && BookingHelper.address && BookingHelper.ride_date && BookingHelper.ride_time)) {
+            showError("{% trans "Please fill all ride details" %}", undefined);
+            return;
+        }
         clearRideDetails();
         $.ajax({
             url: "{% url sharing.passenger_controller.get_hotspot_price %}",
@@ -314,13 +370,13 @@
                 'lon': BookingHelper.address.lon,
                 'lat': BookingHelper.address.lat,
                 'num_seats': BookingHelper.num_seats,
-                'hotspot_id': $("#id_hotspot_select").val(),
+                'hotspot_id': BookingHelper.hotspot.id,
                 'hotspot_type': BookingHelper.hotspot_type,
-                'day': $("#id_hotspot_datepicker").val(),
-                'time': $("#id_hotspot_time").val()
+                'day': BookingHelper.ride_date,
+                'time': BookingHelper.ride_time
             },
             beforeSend: function() {
-                toggleLoaders(true);
+                $("#datetime_loader").show();
             },
             success: function(response) {
                 if (response.sharing_price && response.sharing_time && response.private_price && response.private_time) {
@@ -330,30 +386,117 @@
                     $("#private_time .value").text(response.private_time);
                     $("#save_stamp .value").text(response.savings + "%");
                     $("#save_stamp").fadeIn("fast");
-                    $(".order_button").enable();
+                    $("#book_ride").enable();
 
                     gaHitPage("order_ready.html");
+
+                    if (options.onGotDetails){
+                        options.onGotDetails()
+                    }
                 } else {
                     showError("{% trans "Currently, there is no service to this address at the selected hour." %}", undefined);
-                }
-                if (options.success){
-                    options.success();
                 }
             },
             error: function() {
                 showError("{% trans "We have encountered an error. Please try again." %}", undefined);
             },
             complete: function() {
-                toggleLoaders(false);
+                $("#datetime_loader").hide();
             }
         });
     }
 
-    function bookRide(){
+    function clearRideDetails() {
+        log("clearRideDetails");
 
+        $("#book_ride").disable();
+        $("#save_stamp").hide();
+        $("#sharing_price .value").text(0);
+        $("#sharing_time .value").text(0);
+        $("#private_price .value").text(0);
+        $("#private_time .value").text(0);
     }
 
+    function switchDirection(direction) {
+        if (direction && BookingHelper.hotspot_type == direction) {
+            return; // do nothing
+        }
+
+        if (direction){
+            BookingHelper.hotspot_type = direction;
+        }
+        else{
+            BookingHelper.hotspot_type = (BookingHelper.hotspot_type == PICKUP) ? DROPOFF : PICKUP;
+        }
+
+        if (BookingHelper.hotspot_type) {
+            HotspotHelper.refreshHotspotMarker(BookingHelper.hotspot_type);
+        }
+        if (BookingHelper.address) {
+            var add_marker_method = (BookingHelper.hotspot_type == PICKUP) ? "addBMarker" : "addAMarker";
+            CMHelper[add_marker_method](BookingHelper.address.lat, BookingHelper.address.lon, {title: BookingHelper.address.name});
+        }
+
+        $("#ride_summary .dropoff .details_label").swapElement($("#ride_summary .pickup .details_label"));
+        $("#ride_summary .dt_cntr").eq(0).swapElement($("#ride_summary .dt_cntr").eq(1));
+        $("#ride_summary .when .details_label").text(BookingHelper.messages[BookingHelper.hotspot_type + "_time"] + ":");
+
+        var $el = $("#switch_direction").remove();
+        $("#ride_summary .dropoff .details_label_type").eq(0).after($el);
+    }
+
+    function bookRide() {
+        var data = {
+            num_seats: BookingHelper.num_seats,
+            time_type: BookingHelper.hotspot_type,
+            ride_duration: HotspotHelper.ride_duration,
+            hotspot_id: BookingHelper.hotspot.id,
+            hotspot_type: BookingHelper.hotspot_type,
+            hotspot_date: BookingHelper.ride_date,
+            hotspot_time: BookingHelper.ride_time,
+            id_city: $("#id_city").val(),
+            street_address: BookingHelper.address.street_address,
+            house_number: BookingHelper.address.house_number,
+            lat: BookingHelper.address.lat,
+            lon: BookingHelper.address.lon
+        };
+
+        var err_msg = "{% trans "We have encountered an error. Please try again." %}";
+
+        $.ajax({
+            url: "{% url sharing.passenger_controller.book_ride %}",
+            data: data,
+            type: "POST",
+            beforeSend: function() {
+                $("#book_ride").disable().text("{% trans 'Sending' %}...");
+            },
+            success: function(response) {
+                if (response.status == "booked" && response.redirect)
+                    window.location.href = response.redirect;
+                else {
+                    showError(response.message || err_msg, function() {
+                        $("#book_ride").enable().text(BookingHelper.messages.book_ride);
+                        if (response.redirect) {
+                            window.location.href = response.redirect;
+                        }
+                    });
+                }
+            },
+            error:  function() {
+                $("#book_ride").enable().text(BookingHelper.messages.book_ride);
+                showError(err_msg, undefined);
+            }
+        });
+    }
+
+
     $(function() {
+
+        BookingHelper.messages = {
+            book_ride: "{% trans "Book a Shared Taxi Ride" %}",
+            pickup_time:"{% trans 'Pickup Time' %}",
+            dropoff_time:"{% trans 'Dropoff Time' %}"
+        };
 
         {% if request.user.passenger %}
             MyRidesHelper.init({
@@ -440,7 +583,7 @@
                 choose_from_list: "{% trans "Please choose from list" %}"
             }
         });
-        AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number", "#address_loader",
+        AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number", "#street_loader",
                 {
                     success: function() {
                         $("#street_error").text("");
@@ -456,29 +599,34 @@
             }
         });
 
+        // init
+        $(".small-loader").hide();
+
         // teaser
         $("#booking_teaser button").click(function() {
-            $("#booking_teaser").fadeOut("fast", function(){
-                $("#booking_content, #booking_progress").fadeIn("fast");
-            });
+            startBooking();
         });
 
         // hotspot
         $("#hotspot_content").bind("beforeshow", function() {
-            setDirectionButtonsText();
+            selectHotspot();
         });
 
         $("#id_hotspot_select").change(function() {
-            setDirectionButtonsText();
+            selectHotspot();
         });
 
         $("#leave_hotspot").click(function() {
-            BookingHelper.hotspot_type = PICKUP;
+            switchDirection(PICKUP);
+            stepCompleted("hotspot");
             showBookingStep("address");
+            getHotspotTimes({});
         });
         $("#goto_hotspot").click(function() {
-            BookingHelper.hotspot_type = DROPOFF;
+            switchDirection(DROPOFF);
+            stepCompleted("hotspot");
             showBookingStep("address");
+            getHotspotTimes({});
         });
 
         // address
@@ -522,24 +670,23 @@
             if (e.keyCode == 9 && !e.shiftKey && $("#set_address").is(":disabled")) {
                 e.preventDefault();
             }
+            // submit on return
+            if (e.keyCode == 13) {
+                $("#set_address").trigger("click");
+            }
         });
 
         $("#set_address").click(function() {
-            var $sa_input = $("#id_street_address");
-            var $hn_input = $("#id_house_number");
             AddressHelper.resolveStructured({
                 city_selector       : "#id_city",
-                street_input        : $sa_input,
-                hn_input            : $hn_input,
+                street_input        : $("#id_street_address"),
+                hn_input            : $("#id_house_number"),
                 callbacks           :{
                     beforeSend:function() {
-                        toggleLoaders(true);
+                        $("#address_loader").show();
                         $("#set_address").disable();
-                        $sa_input.siblings("#street_error").text("");
-                        $hn_input.siblings("#house_number_error").text("");
-                    },
-                    complete:function() {
-                        toggleLoaders(false);
+                        $("#street_error").text("");
+                        $("#house_number_error").text("");
                     },
                     resolved: function(address) {
                         BookingHelper.address = address;
@@ -550,14 +697,21 @@
                             CMHelper.addAMarker(address.lat, address.lon, {title: address.name})
                         }
                         getHotspotTimes({
-                            select_first: false,
                             onGotTimes: function() {
+                                $("#address_loader").hide();
+                                stepCompleted("address");
                                 showBookingStep("datetime");
+                            },
+                            onNoTimes: function(){
+                                $("#address_loader").hide();
+                                $("#set_address").enable();
                             }
                         });
                     },
                     unresolved:function(errors) {
                         $(".ui-autocomplete").hide();
+                        $("#address_loader").hide();
+                        $("#set_address").enable();
                         if (errors.house_number) {
                             $("#house_number_error").text(errors.house_number);
                         }
@@ -571,15 +725,73 @@
         });
 
         // datetime
+        $("#datetime_content").bind("beforeshow", function() {
+            if (BookingHelper.ride_date) {
+                $("#id_hotspot_datepicker").val(BookingHelper.ride_date);
+            }
+            if (BookingHelper.ride_time) {
+                $("#id_hotspot_time").val(BookingHelper.ride_time);
+            }
+
+            var title_text = "{% trans "Define Time" %}";
+
+            if (BookingHelper.hotspot && BookingHelper.hotspot_type == PICKUP) {
+                title_text = "{% trans "When are you leaving" %} " + BookingHelper.hotspot.name + " ?";
+            }
+            else if (BookingHelper.hotspot && BookingHelper.hotspot_type == DROPOFF) {
+                title_text = "{% trans "When do you want to be at" %} " + BookingHelper.hotspot.name + " ?";
+            }
+
+            $("#datetime_content .title").text("3. " + title_text);
+
+        });
         $("#set_datetime").click(function() {
+            BookingHelper.ride_date = $("#id_hotspot_datepicker").val();
+            BookingHelper.ride_time = $("#id_hotspot_time").val();
             getRideDetails({
-                success: function() {
+                onGotDetails: function() {
+                    stepCompleted("datetime");
                     showBookingStep("details");
                 }
             });
         });
 
         // details
+        $("#details_content").bind("beforeshow", function() {
+            if (BookingHelper.address && BookingHelper.hotspot && BookingHelper.ride_date && BookingHelper.ride_time) {
+                var $summary = $("#ride_summary");
+                $summary.find(".address .name").text(BookingHelper.address.name);
+                $summary.find(".address .desc").text("");
+                $summary.find(".hotspot .name").text(BookingHelper.hotspot.name);
+                $summary.find(".hotspot .desc").text(BookingHelper.hotspot.description);
+                $summary.find(".when .desc").text(BookingHelper.ride_date + " " + BookingHelper.ride_time);
+                if (BookingHelper.hotspot_type == PICKUP) {
+                    $summary.find(".when .details_label").text(BookingHelper.messages.pickup_time + ":");
+                } else {
+                    $summary.find(".when .details_label").text(BookingHelper.messages.dropoff_time + ":");
+                }
+                $("#book_ride").enable().text(BookingHelper.messages.book_ride);
+            }
+            else{
+                clearRideDetails();
+            }
+        });
+        $("#book_ride").click(function() {
+            bookRide();
+        });
+        $("#switch_direction").live("click", function(){
+            switchDirection();
+            $("#details_loader").show();
+            getHotspotTimes({
+                onGotTimes: function(times) {
+                    $("#details_loader").hide();
+                    if (!(BookingHelper.ride_time && times.indexOf(MobileHelper.ride_time) > -1)) {
+                        showBookingStep("datetime");
+                    }
+                }
+            });
+        });
+
 
         // progress
         $("#booking_progress .step").not(".details").click(function() {
@@ -587,9 +799,6 @@
                 showBookingStep($(this).data("name"));
             }
         });
-
-
-
 
         var colors = ["rgb(22, 172, 211)"];
 //        $("#wb_values .header").each(function() {
@@ -621,9 +830,8 @@
     });
 
     // debug
-//    $("#booking_teaser").hide();
-//    $("#booking_content").show();
-//    showBookingStep("address");
+//    startBooking();
+//    showBookingStep("details");
     </script>
 
 {% endblock %}

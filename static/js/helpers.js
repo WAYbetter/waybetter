@@ -1,9 +1,11 @@
 var BookingHelper = Object.create({
     num_seats: 1,
+    hotspot: undefined,
     address: undefined,
     hotspot_type: undefined,
     ride_date: undefined,
-    ride_time: undefined
+    ride_time: undefined,
+    messages: {}
 });
 
 var MyRidesHelper = Object.create({
@@ -252,6 +254,7 @@ var HotspotHelper = Object.create({
         months: []
     },
 
+    hotspots: [],
     MapHelper: undefined,
     ride_duration: undefined,
 
@@ -263,6 +266,17 @@ var HotspotHelper = Object.create({
     clearCache: function() {
         this.cache.dates = [];
         this.cache.months = [];
+    },
+
+    getHotspotByID: function(hotspot_id){
+        var hotspot = undefined;
+        $.each(this.hotspots, function(i, hs) {
+            if (hs.id == hotspot_id) {
+                hotspot = hs;
+                return false;
+            }
+        });
+        return hotspot;
     },
 
     getHotspotData: function(options) {
@@ -357,6 +371,7 @@ var HotspotHelper = Object.create({
             success: function(response) {
                 $hotspotpicker.empty().enable();
                 $.each(response.data, function(i, hotspot) {
+                    that.hotspots.push(hotspot);
                     var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, name: hotspot.name,
                         description: hotspot.description, next_datetime: new Date(hotspot.next_datetime)};
                     var text = (hotspot.description) ? hotspot.name + " - " + hotspot.description : hotspot.name;
@@ -406,7 +421,7 @@ var HotspotHelper = Object.create({
         var $timepicker = $(this.config.selectors.timepicker);
 
         if (options.refresh_intervals) {
-            var got_times = false;
+            var times = [];
             this.getIntervals({
                 data: $.extend(true, {'day': $datepicker.val(), 'hotspot_id': $hotspotpicker.val()},
                         options.get_intervals_data),
@@ -421,7 +436,7 @@ var HotspotHelper = Object.create({
                 },
                 success: function(response) {
                     if (response.times && response.times.length) {
-                        got_times = true;
+                        times = response.times;
                         $timepicker.empty();
                         $.each(response.times, function(i, t) {
                             $timepicker.append("<option>" + t + "</option>");
@@ -433,17 +448,14 @@ var HotspotHelper = Object.create({
                     if (options.error) {
                         options.error();
                     }
-                    else {
-                        flashError("Error loading hotspot times data");
-                    }
                 },
                 complete: function() {
                     if (options.complete) {
                         options.complete();
                     }
-                    if (got_times) {
+                    if (times.length) {
                         if (options.onGotTimes)
-                            options.onGotTimes();
+                            options.onGotTimes(times);
                     }
                     else {
                         if (options.onNoTimes)

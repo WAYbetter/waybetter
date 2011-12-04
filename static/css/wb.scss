@@ -61,7 +61,6 @@ input[disabled]{
 }
 
 select{
-    background: white;
     border: 1px solid $light-gray;
 }
 select:focus{
@@ -162,6 +161,10 @@ ul.hz{
     display: none;
 }
 
+.error{
+    color: red;
+}
+
 .clickable{
     cursor: pointer;
 }
@@ -230,7 +233,6 @@ ul.hz{
 }
 
 .small-loader{
-    display: none;
     background: url(../images/wb_site/loader16.gif) left 0 no-repeat;
     height: 16px;
     width: 16px;
@@ -773,15 +775,6 @@ Home
         margin-bottom: 0;
     }
 
-    #booking_container{
-        position: relative;
-        @include site-container();
-        @include border-radius(6px);
-        padding: 0;
-        height: 240px;
-        margin-bottom: 40px;
-    }
-
     #myrides_container{
         @include site-container();
         width: $site-width - 15 * 2;
@@ -869,19 +862,27 @@ Home
     }
 
     #booking_container{
+        $booking_container_height: 240px;
+        $el_height: 40px;
+
         position: relative;
         overflow: hidden;
-        $content-height: 80%;
+        @include site-container();
+        @include border-radius(6px);
+        padding: 0;
+        height: $booking_container_height;
+        margin-bottom: 40px;
+
         #booking_content{
             width: 100%;
-            height: $content-height;
+            height: $booking_container_height * 0.9;
         }
         
         #booking_progress{
             position: absolute;
             bottom: 0;
             width: 100%;
-            height: 100-$content-height;
+            height: $booking_container_height * 0.1;
             table{
                 width: 80%;
                 margin: 0 auto;
@@ -929,26 +930,37 @@ Home
         }
 
         .booking_step{
-            padding: 50px;
+            padding-top: 40px;
+            padding-bottom: 35px;
+            position: relative;
             table{
                 margin: 0 auto;
                 width: 100%;
+                border-spacing: 20px 10px;
+                .wb_button, .small-loader {
+                    display: inline-block;
+                }
             }
+            .cntr.btn{ width: 110px; padding-top: 14px;}
             label{
                 display: block;
             }
+            tr{
+                vertical-align: top;
+            }
             .title{
-                height: 40px;
+                height: 20px;
+                margin-bottom: 20px;
                 font-weight: bold;
                 font-size: $font-size-header1;
                 text-align: center;
             }
-            input, select{
-                height: 40px;
-            }
+            input{ height: $el_height; }
+            select, .wb_button{ height: $el_height + 4; }
         }
         #hotspot_content{
-            padding: 50px 170px;
+            padding-right: 130px;
+            padding-left: 130px;
             #id_hotspot_select{
                 width: 100%;
                 margin: 0 auto;
@@ -956,7 +968,7 @@ Home
             .btn_cntr{
                 position: relative;
                 margin: 0 auto;
-                margin-top: 15px;
+                margin-top: 20px;
                 #leave_hotspot{
                     position: absolute;
                     left: 0;
@@ -970,23 +982,78 @@ Home
             }
         }
         #address_content{
-            #id_city{
-                height: 34px;
-                width: 150px;
-            }
-            #id_street_address{
-                height: 30px;
-                width: 150px;
-            }
-            #id_house_number{
-                height: 30px;
-                width: 60px;
-            }
+            padding-right: 45px;
+            padding-left: 45px;
 
+            #id_city, #id_street_address, #id_house_number{
+                width: 100%;
+            }
+            .cntr.city{ width: 25%; }
+            .cntr.hn{ width: 10%; }
+            .cntr.street{
+                position: relative;
+                /* no set width -> scales nicely */
+            }
+            #street_loader{
+                z-index: 3;
+                position: absolute;
+                right: 4px;
+                top: 50%;
+            }
+        }
+        #datetime_content{
+            padding-right: 120px;
+            padding-left: 120px;
+            .cntr.time, .cntr.date{
+                width: 160px;
+            }
+            #id_hotspot_time, #id_hotspot_datepicker{
+                width: 100%;
+            }
 
         }
-        .error{
-            color: red;
+        #details_content{
+            padding: 10px;
+            #ride_summary{
+                position: absolute;
+                left: 10px;
+                width: 250px;
+                font-size: $font-size-medium;
+            }
+            #ride_details{
+                 position: absolute;
+                 right: 10px;
+            }
+            .border{
+                border: 1px solid $light-gray;
+                padding: 1px;
+                margin: 0 0 14px 0;
+                p{
+                    margin: 2px;
+                }
+            }
+            .details_label, .details_label_type{
+                @extend .bold;
+            }
+            #details_loader{
+                display: inline-block;
+                background-position: 0 1px;
+            }
+            #switch_direction{
+                position: relative;
+                bottom: 3px;
+                float: right;
+            }
+            #num_seats{
+                position: relative;
+                bottom: 8px;
+            }
+            #num_seats input{
+                height: 10px;
+            }
+            #num_seats .radio{
+                float: right;
+            }
         }
     }
 
