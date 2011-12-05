@@ -13,7 +13,6 @@ def is_email_available(request):
 
 
 def is_user_authenticated(request):
-    logging.info("Session Key = '%s'" % request.session.session_key)
     if request.user.is_authenticated():
         logging.info("User is authenticated: %s" % request.user.username)
         return JSONResponse([True, request.user.username])
