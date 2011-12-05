@@ -38,7 +38,7 @@
             </div>
         </div>
 
-        <div id="booking_teaser" class="booking_step">
+        <div id="booking_teaser" class="booking_step hidden">
             <table>
                 <tr>
                     <td class="text">{% trans "The Best Transport Service<br/>to Cenral Locations" %}</td>
@@ -47,7 +47,7 @@
             </table>
         </div>
 
-        <div id="booking_content" class="hidden">
+        <div id="booking_content">
 
             <div id="hotspot_content" class="booking_step">
                 <div class="title">1. {% trans "Choose a Central Location" %}</div>
@@ -215,7 +215,7 @@
             </div>
         </div>
 
-        <div id="booking_progress" class="hidden">
+        <div id="booking_progress">
             <table>
                 <tr>
                     <td><a class="hotspot step current" data-name="hotspot">1. {% trans "Central Location" %}</a></td>
@@ -294,6 +294,7 @@
     var SLIDE_DIR = (RTL) ? "right" : "left";
 
     function startBooking() {
+        return;
         $("#booking_teaser").fadeOut("fast", function(){
             $("#booking_content, #booking_progress").fadeIn("fast");
             showMap();
@@ -668,6 +669,8 @@
             setHotspot(DROPOFF);
         });
 
+        $("#leave_hotspot, #goto_hotspot").one("click", function(){showMap()});
+
         // address
         $("#set_address").disable();
         $("#address_content").bind("beforeshow", function() {
@@ -874,8 +877,8 @@
                 active: true,
                 image: "../static/images/wb_site/loading_large.gif"
             },
-            playInterval: 15000,
-            pauseInterval: 7500,
+            playInterval: 30000,
+            pauseInterval: 30000,
             navigation: false,
             pagination: true
         });
@@ -884,7 +887,7 @@
         // for some strange reason first slide is '1' for booking content (not 0)
         $('#booking_content').slides({
             slide: {
-                interval: 800
+                interval: 600
             },
             width: 800,
             startAtSlide: 1,
