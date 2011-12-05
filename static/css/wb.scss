@@ -60,8 +60,21 @@ input[disabled]{
     opacity: 0.5;
 }
 
+.wb-menulist{
+    -moz-appearance: menulist;
+    -webkit-appearance: menulist;
+    background: #ffffff; /* Old browsers */
+    background: -moz-linear-gradient(top, #ffffff 0%, #cfcfcf 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#cfcfcf)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #ffffff 0%,#cfcfcf 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #ffffff 0%,#cfcfcf 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #ffffff 0%,#cfcfcf 100%); /* IE10+ */
+    background: linear-gradient(top, #ffffff 0%,#cfcfcf 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#cfcfcf',GradientType=0 ); /* IE6-9 */
+}
 select{
     border: 1px solid $light-gray;
+    @extend .wb-menulist;
 }
 select:focus{
      border: none;
@@ -944,7 +957,7 @@ Home
                     display: inline-block;
                 }
             }
-            .cntr.btn{ width: 110px; padding-top: 14px;}
+            .cntr.btn{ width: 115px; padding-top: 14px;}
             label{
                 display: block;
             }
@@ -1048,7 +1061,7 @@ Home
             left: $padding;
             width: 250px;
             font-size: $font-size-medium;
-            padding-right: 10px;
+            padding-right: 20px;
             border-right: 1px solid gray;
             .data{
                 border: 1px solid $light-gray;
@@ -1118,7 +1131,7 @@ Home
             }
             #book_ride{
                 display: block;
-                margin: 0 auto;
+                margin-top: 20px;
                 width: 1.2 * $width;
             }
         }
@@ -1165,6 +1178,82 @@ Home
         direction: ltr; // fixes a loading issue: map loads to the left
     }
 
+    // hack for sliding
+    .slidesContainer{ direction: ltr; }
+    .booking_step{ direction: rtl; }
+
+    #booking_container{
+            #savings{
+                right: auto;
+                left: -22px;
+                background: url("/static/images/wb_site/ribbon_rtl.png") right 0 no-repeat;
+                .content{
+                    padding-left: 0;
+                    padding-right: 5px;
+                }
+            }
+
+            #booking_progress{
+                td{
+                    padding-right: 0;
+                    padding-left: 70px;
+                }
+                td:last-child{
+                    padding-left: 0;
+                }
+            }
+
+            #booking_teaser{
+                padding-right: 140px;
+                padding-left: 140px;
+                .text{width: 220px;}
+            }
+            #hotspot_content{
+                #leave_hotspot, #goto_hotspot{ padding-right: 35px;}
+                #leave_hotspot{
+                    position: absolute;
+                    left: auto;
+                    right: 0;
+                    background-position: 195px 8px;
+                }
+                #goto_hotspot{
+                    position: absolute;
+                    right: auto;
+                    left: 0;
+                    background-position: 195px -46px;
+                }
+            }
+            #address_content{
+                #street_loader{
+                    right: auto;
+                    left: 4px;
+                }
+            }
+            $padding: 10px;
+            #ride_summary{
+                left: auto;
+                right: $padding;
+                padding-right: 0;
+                padding-left: 20px;
+                border-right: none;
+                border-left: 1px solid gray;
+                #switch_direction{
+                    float: left;
+                }
+                #num_seats .radio{
+                    float: left;
+                }
+            }
+            #ride_details{
+                right: auto;
+                left: 55px;
+                $width: 330px;
+                #offer{
+                    .offer-pre{ text-align: left; }
+                    .offer-post{ text-align: right; }
+                }
+            }
+    }
 
 } // rtl HOME
 

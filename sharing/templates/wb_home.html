@@ -42,7 +42,7 @@
             <table>
                 <tr>
                     <td class="text">{% trans "The Best Transport Service<br/>to Cenral Locations" %}</td>
-                    <td><button class="order_button blue">{% trans "Book a Shared Taxi Ride" %}</button></td>
+                    <td><button class="order_button blue hidden">{% trans "Book a Shared Taxi Ride" %}</button></td>
                 </tr>
             </table>
         </div>
@@ -101,7 +101,7 @@
                     <tr>
                         <td class="cntr date">
                             <label for="id_hotspot_datepicker">{% trans "Date" %}:</label>
-                            <input type="text" id="id_hotspot_datepicker" name="hotspot_date">
+                            <input type="text" id="id_hotspot_datepicker" name="hotspot_date" class="wb-menulist">
                         </td>
                         <td class="cntr time">
                             <label for="id_hotspot_time">{% trans "Time" %}:</label>
@@ -285,6 +285,13 @@
         DROPOFF = "dropoff",
         SHARING_TIME_FACTOR = 1.2,
         BOOKING_STEPS = ["hotspot", "address", "datetime", "details"];
+
+    var RTL = false;
+
+    {% if LANGUAGE_BIDI %}
+        RTL = true;
+    {% endif %}
+    var SLIDE_DIR = (RTL) ? "right" : "left";
 
     function startBooking() {
         $("#booking_teaser").fadeOut("fast", function(){
@@ -540,9 +547,7 @@
 
         {% if request.user.passenger %}
             MyRidesHelper.init({
-                {% if LANGUAGE_BIDI %}
-                    rtl: true,
-                {% endif %}
+                rtl: RTL,
                 order_types: order_types,
                 next_rides_table: "#my_next_rides",
                 next_rides_container: "#myrides_container",
@@ -772,7 +777,7 @@
             var title_text = "{% trans "Define Time" %}";
 
             if (BookingHelper.hotspot && BookingHelper.hotspot_type == PICKUP) {
-                title_text = "{% trans "When are you leaving" %} " + BookingHelper.hotspot.name + " ?";
+                title_text = "{% trans "When are you leaving " %}" + BookingHelper.hotspot.name + "?";
             }
             else if (BookingHelper.hotspot && BookingHelper.hotspot_type == DROPOFF) {
                 title_text = "{% trans "When do you want to be at" %} " + BookingHelper.hotspot.name + "?";
@@ -837,7 +842,7 @@
             getHotspotTimes({
                 onGotTimes: function(times) {
                     $("#details_loader").hide();
-                    if (!(BookingHelper.ride_time && times.indexOf(MobileHelper.ride_time) > -1)) {
+                    if (!(BookingHelper.ride_time && times.indexOf(BookingHelper.ride_time) > -1)) {
                         showBookingStep("datetime");
                     }
                 }
@@ -864,7 +869,7 @@
         $('#banner_slides').slides({
             width: 800,
             startAtSlide: 0,
-            direction: "left",
+            direction: SLIDE_DIR,
             preload: {
                 active: true,
                 image: "../static/images/wb_site/loading_large.gif"
@@ -883,7 +888,7 @@
             },
             width: 800,
             startAtSlide: 1,
-            direction: "left",
+            direction: SLIDE_DIR,
             navigation: false,
             pagination: false
         }).bind("navigateEnd", function(e, current) {

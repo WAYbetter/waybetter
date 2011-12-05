@@ -14,6 +14,26 @@ input[disabled] {
   background: white;
   opacity: 0.5; }
 
+.wb-menulist, select {
+  -moz-appearance: menulist;
+  -webkit-appearance: menulist;
+  background: #ffffff;
+  /* Old browsers */
+  background: -moz-linear-gradient(top, white 0%, #cfcfcf 100%);
+  /* FF3.6+ */
+  background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, white), color-stop(100%, #cfcfcf));
+  /* Chrome,Safari4+ */
+  background: -webkit-linear-gradient(top, white 0%, #cfcfcf 100%);
+  /* Chrome10+,Safari5.1+ */
+  background: -o-linear-gradient(top, white 0%, #cfcfcf 100%);
+  /* Opera 11.10+ */
+  background: -ms-linear-gradient(top, white 0%, #cfcfcf 100%);
+  /* IE10+ */
+  background: linear-gradient(top, white 0%, #cfcfcf 100%);
+  /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#cfcfcf',GradientType=0 );
+  /* IE6-9 */ }
+
 select {
   border: 1px solid #bcbcbc; }
 
@@ -799,7 +819,7 @@ Home
         .wb_home #booking_container .booking_step table .wb_button, .wb_home #booking_container .booking_step table .small-loader, .wb_home #booking_container .booking_step table .myrides-tip-content .tooltip_loader, .myrides-tip-content .wb_home #booking_container .booking_step table .tooltip_loader {
           display: inline-block; }
       .wb_home #booking_container .booking_step .cntr.btn {
-        width: 110px;
+        width: 115px;
         padding-top: 14px; }
       .wb_home #booking_container .booking_step label {
         display: block; }
@@ -887,7 +907,7 @@ Home
       left: 10px;
       width: 250px;
       font-size: 13px;
-      padding-right: 10px;
+      padding-right: 20px;
       border-right: 1px solid gray; }
       .wb_home #booking_container #ride_summary .data {
         border: 1px solid #bcbcbc;
@@ -949,7 +969,7 @@ Home
         font-weight: bold; }
       .wb_home #booking_container #ride_details #book_ride {
         display: block;
-        margin: 0 auto;
+        margin-top: 20px;
         width: 396px; }
   .wb_home #partners table {
     margin: 0 auto;
@@ -984,6 +1004,60 @@ Home
 
 .rtl.wb_home #cm-map {
   direction: ltr; }
+.rtl.wb_home .slidesContainer {
+  direction: ltr; }
+.rtl.wb_home .booking_step {
+  direction: rtl; }
+.rtl.wb_home #booking_container #savings {
+  right: auto;
+  left: -22px;
+  background: url("/static/images/wb_site/ribbon_rtl.png") right 0 no-repeat; }
+  .rtl.wb_home #booking_container #savings .content {
+    padding-left: 0;
+    padding-right: 5px; }
+.rtl.wb_home #booking_container #booking_progress td {
+  padding-right: 0;
+  padding-left: 70px; }
+.rtl.wb_home #booking_container #booking_progress td:last-child {
+  padding-left: 0; }
+.rtl.wb_home #booking_container #booking_teaser {
+  padding-right: 140px;
+  padding-left: 140px; }
+  .rtl.wb_home #booking_container #booking_teaser .text {
+    width: 220px; }
+.rtl.wb_home #booking_container #hotspot_content #leave_hotspot, .rtl.wb_home #booking_container #hotspot_content #goto_hotspot {
+  padding-right: 35px; }
+.rtl.wb_home #booking_container #hotspot_content #leave_hotspot {
+  position: absolute;
+  left: auto;
+  right: 0;
+  background-position: 195px 8px; }
+.rtl.wb_home #booking_container #hotspot_content #goto_hotspot {
+  position: absolute;
+  right: auto;
+  left: 0;
+  background-position: 195px -46px; }
+.rtl.wb_home #booking_container #address_content #street_loader {
+  right: auto;
+  left: 4px; }
+.rtl.wb_home #booking_container #ride_summary {
+  left: auto;
+  right: 10px;
+  padding-right: 0;
+  padding-left: 20px;
+  border-right: none;
+  border-left: 1px solid gray; }
+  .rtl.wb_home #booking_container #ride_summary #switch_direction {
+    float: left; }
+  .rtl.wb_home #booking_container #ride_summary #num_seats .radio {
+    float: left; }
+.rtl.wb_home #booking_container #ride_details {
+  right: auto;
+  left: 55px; }
+  .rtl.wb_home #booking_container #ride_details #offer .offer-pre {
+    text-align: left; }
+  .rtl.wb_home #booking_container #ride_details #offer .offer-post {
+    text-align: right; }
 
 .staff_home #content-container, .staff_home #header-container {
   background: #FF9CA6; }
