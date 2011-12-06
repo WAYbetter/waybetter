@@ -60,6 +60,7 @@
         current_cb_url = undefined,
         cb = undefined,
         domain_name = "{% value_from_settings "DEFAULT_DOMAIN" %}",
+        protocol = "{% value_from_settings "DEFAULT_PROTOCOL" %}",
         cb_is_open = false,
         welcome_screen_shown = false;
 
@@ -125,9 +126,8 @@
             cb_is_open = false;
         }
         function checkNetworkConnect() {
-            var networkState = navigator.network.connection.type;
-            if (networkState == Connection.NONE) {
-                alert("{% trans "Your network connectivity appear to be down. This application uses internet connectivity and will not work properly without a working connection." %}");
+            if (! navigator.onLine) {
+                showError("{% trans "Your network connectivity appear to be down. This application uses internet connectivity and will not work properly without a working connection." %}");
                 return false;
 
             }
@@ -190,6 +190,15 @@
 
 {% block init_call %}{% endblock init_call %}
 
+{% block show_error %}
+    navigator.notification.alert(msg, undefined,  "{% trans 'Error' %}");
+{% endblock show_error %}
+
+{% block show_notification %}
+    navigator.notification.alert(msg, undefined, title);
+{% endblock show_notification %}
+
+
 {% block myrides_btn %}
     <a id="myrides_btn" href="#" id="myrides_btn" data-role="button" data-iconpos="top" data-icon="wb_custom">
         {% trans 'My Rides' %}
@@ -236,7 +245,7 @@
                 $.ajax({
                     url:"{% absurl auth_logout %}",
                     error:function (e) {
-                        alert("{% trans "Error while logging out" %}");
+                        showError("{% trans "Error while logging out" %}");
                     },
                     success:function () {
                         PhoneGapHelper.isUserAuthenticated([updateSettingsWithAuthStatus]);
@@ -298,7 +307,7 @@
             if (response.redirect.startsWith("http")) {
                 cbOpen(response.redirect)
             } else {
-                cbOpen("http://" + domain_name + response.redirect)
+                cbOpen(protocol + "://" + domain_name + response.redirect)
             }
             $.mobile.changePage("#home");
         }
