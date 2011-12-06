@@ -17,6 +17,7 @@ input[disabled] {
 .wb-menulist, select {
   -moz-appearance: menulist;
   -webkit-appearance: menulist;
+  font-size: 16px;
   background: #ffffff;
   /* Old browsers */
   background: -moz-linear-gradient(top, white 0%, #cfcfcf 100%);
@@ -122,8 +123,14 @@ ul.hz > li, #top-right ul.content_links > li {
 .hidden {
   display: none; }
 
-.error {
+.centered {
+  margin: 0 auto; }
+
+.error, .errorlist li {
   color: red; }
+
+.errorlist li {
+  list-style: none; }
 
 .clickable, .wb_button, .wb_home #booking_container #booking_progress .step, .wb_home #booking_container #ride_summary .data, #gcf_dialog .dl-browser .img {
   cursor: pointer; }
@@ -177,7 +184,7 @@ ul.hz > li, #top-right ul.content_links > li {
   opacity: 0;
   z-index: 1000; }
 
-#flash.error {
+#flash.error, .errorlist li#flash {
   color: white;
   background-color: #8b0000;
   border: 1px solid red; }
@@ -276,10 +283,10 @@ ul.hz > li, #top-right ul.content_links > li {
 jQuery UI override
 ****************************************************/
 .ui-autocomplete {
-  font-size: 11px; }
+  font-size: 16px; }
 
 .ui-datepicker {
-  font-size: 13px; }
+  font-size: 16px; }
 
 .ui-widget-overlay {
   background-color: black; }
@@ -490,7 +497,7 @@ body.base-site {
 
 #wb_values {
   width: 800px;
-  margin: 0 auto 50px auto;
+  margin: 0 auto 40px auto;
   position: relative;
   left: 10px;
   height: 70px; }
@@ -682,6 +689,8 @@ Home
     height: 600px; }
   .wb_home #site-footer #sitemap {
     margin-bottom: 0; }
+  .wb_home #myrides_container, .wb_home #mobile_apps {
+    margin-bottom: 27px; }
   .wb_home #myrides_container {
     width: 800px;
     background: white;
@@ -700,6 +709,41 @@ Home
       color: #6c6c6a; }
     .wb_home #myrides_container hr {
       color: #bcbcbc; }
+  .wb_home #mobile_apps {
+    width: 800px;
+    background: white;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 0 6px 0 #747474;
+    -moz-box-shadow: 0 0 6px 0 #747474;
+    box-shadow: 0 0 6px 0 #747474;
+    padding: 1px;
+    width: 798px; }
+    .wb_home #mobile_apps .container {
+      width: 100%; }
+    .wb_home #mobile_apps .img {
+      width: 183px;
+      height: 111px;
+      background: url("/static/images/wb_site/mobile_banner.png") left top no-repeat;
+      padding: 5px 65px; }
+    .wb_home #mobile_apps .title {
+      font-size: 16px; }
+    .wb_home #mobile_apps .content {
+      color: #6c6c6a; }
+    .wb_home #mobile_apps .vendor {
+      text-align: center;
+      padding-top: 5px; }
+    .wb_home #mobile_apps .app-icon {
+      width: 52px;
+      height: 50px; }
+    .wb_home #mobile_apps .iphone .app-icon {
+      background: url("/static/images/wb_site/app_store_icons.png") center 0 no-repeat; }
+    .wb_home #mobile_apps .android .app-icon {
+      background: url("/static/images/wb_site/app_store_icons.png") center -91px no-repeat; }
+    .wb_home #mobile_apps .vr {
+      height: 70px;
+      border-left: 1px solid #bcbcbc; }
   .wb_home #map_container {
     position: relative;
     width: 100%;
@@ -819,7 +863,7 @@ Home
         .wb_home #booking_container .booking_step table .wb_button, .wb_home #booking_container .booking_step table .small-loader, .wb_home #booking_container .booking_step table .myrides-tip-content .tooltip_loader, .myrides-tip-content .wb_home #booking_container .booking_step table .tooltip_loader {
           display: inline-block; }
       .wb_home #booking_container .booking_step .cntr.btn {
-        width: 115px;
+        width: 135px;
         padding-top: 14px; }
       .wb_home #booking_container .booking_step label {
         display: block; }
@@ -833,9 +877,11 @@ Home
         text-align: center;
         color: #ef2c8c; }
       .wb_home #booking_container .booking_step input {
-        height: 40px; }
+        height: 40px;
+        font-size: 16px; }
       .wb_home #booking_container .booking_step select, .wb_home #booking_container .booking_step .wb_button {
-        height: 44px; }
+        height: 44px;
+        font-size: 16px; }
     .wb_home #booking_container #booking_teaser {
       padding: 74px; }
       .wb_home #booking_container #booking_teaser .text {
@@ -860,7 +906,8 @@ Home
         height: 44px; }
       .wb_home #booking_container #hotspot_content #leave_hotspot, .wb_home #booking_container #hotspot_content #goto_hotspot {
         background-image: url("/static/images/wb_site/field_icons.png");
-        background-repeat: no-repeat; }
+        background-repeat: no-repeat;
+        padding-left: 40px; }
       .wb_home #booking_container #hotspot_content #leave_hotspot {
         position: absolute;
         left: 0;
@@ -884,11 +931,13 @@ Home
       .wb_home #booking_container #address_content .cntr.street {
         position: relative;
         /* no set width -> scales nicely */ }
+        .wb_home #booking_container #address_content .cntr.street .input-cntr {
+          position: relative; }
       .wb_home #booking_container #address_content #street_loader {
         z-index: 3;
         position: absolute;
         right: 4px;
-        top: 50%; }
+        top: 30%; }
     .wb_home #booking_container #datetime_content {
       padding-right: 120px;
       padding-left: 120px;
@@ -1004,6 +1053,8 @@ Home
 
 .rtl.wb_home #cm-map {
   direction: ltr; }
+.rtl.wb_home #mobile_apps .img {
+  background: url("/static/images/wb_site/mobile_banner_rtl.png") right top no-repeat; }
 .rtl.wb_home .slidesContainer {
   direction: ltr; }
 .rtl.wb_home .booking_step {
@@ -1026,17 +1077,18 @@ Home
   .rtl.wb_home #booking_container #booking_teaser .text {
     width: 220px; }
 .rtl.wb_home #booking_container #hotspot_content #leave_hotspot, .rtl.wb_home #booking_container #hotspot_content #goto_hotspot {
-  padding-right: 35px; }
+  padding-left: 0;
+  padding-right: 31px; }
 .rtl.wb_home #booking_container #hotspot_content #leave_hotspot {
   position: absolute;
   left: auto;
   right: 0;
-  background-position: 195px 8px; }
+  background-position: 205px 8px; }
 .rtl.wb_home #booking_container #hotspot_content #goto_hotspot {
   position: absolute;
   right: auto;
   left: 0;
-  background-position: 195px -46px; }
+  background-position: 205px -46px; }
 .rtl.wb_home #booking_container #address_content #street_loader {
   right: auto;
   left: 4px; }
@@ -1136,7 +1188,7 @@ Registration
   right: 23px; }
 .registration #verification_status.success {
   background: url("/static/images/wb_site/verification_status.png") left 0 no-repeat; }
-.registration #verification_status.error {
+.registration #verification_status.error, .registration .errorlist li#verification_status, .errorlist .registration li#verification_status {
   background: url("/static/images/wb_site/verification_status.png") left -30px no-repeat; }
 .registration #verification_status.sending {
   background: url("/static/images/wb_site/loader24.gif") left 0 no-repeat; }

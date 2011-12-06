@@ -15,6 +15,7 @@ var Registrator = Object.create({
             station_interest_form_template  : '/',
             business_interest_form_template : '/',
             pilot_interest_form_template    : '/',
+            hotspot_interest_form_template  : '/',
             check_email                     : '/',
             login                           : '/',
             send_sms                        : '/',
@@ -254,6 +255,9 @@ var Registrator = Object.create({
     },
     openPilotInterestDialog: function (callback) {
         this._openInterestDialog.call(this, "pilot", callback);
+    },
+    openHotspotInterestDialog: function (callback) {
+        this._openInterestDialog.call(this, "hotspot", callback);
     },
     openStationInterestDialog: function (callback) {
         this._openInterestDialog.call(this, "station", callback);

@@ -1,0 +1,92 @@
+{% load i18n %}
+<script>
+    var form_config = {
+        dialog_config:{
+            title:"למה מקומות מרכזיים?",
+            width:"400px"
+        }
+    };
+    $(function () {
+        $(".small-loader").hide();
+        $("#submit_hs_interest").click(function (e) {
+            var form = $("#hotspot_interest_form");
+            var $loader = $("#button_container .small-loader");
+            $.ajax({
+                url:'{% url interests.views.hotspot_interest %}',
+                type:'POST',
+                data:form.serialize(),
+                dataType:"json",
+                beforeSend:function () {
+                    $loader.show();
+                },
+                success:function (response) {
+                    if (!response.errors) {   // no errors!
+                        $("#hotspot_interest_form, #submit_hs_interest, .ui-dialog-title").hide();
+                        $("#thank_you, #close").show();
+                    } else {                    // we got errors
+                        $(".errorlist").remove();
+                        $.each(response.errors, function (i, error) {
+                            for (var field_name in error) {
+                                var $errors = $("<ul class='errorlist'></ul>").hide();
+                                $.each(error[field_name], function (i, val) {
+                                    $errors.append($("<li></li>").text(val));
+                                });
+                                $("input[name=" + field_name + "]").after($errors);
+                                $errors.fadeIn('fast');
+                            }
+                        });
+                    }
+                },
+                complete:function () {
+                    $loader.hide();
+                }
+
+            });
+            return false;
+
+        });
+    });
+
+</script>
+<style type="text/css">
+    .small-loader {
+        display: inline-block;
+    }
+
+    .errorlist {
+        font-size: 13px;
+    }
+</style>
+
+<div id="pilot_interest_dialog" class="dialog">
+    <div id="content" class="content">
+        <form id="hotspot_interest_form">
+            <p>
+                אנו מציעים את השירות במקומות מרכזיים מכיוון שבהם ישנו הצורך המשותף הגדול ביותר (להגיע או לחזור), כמו גם
+                בעיות של עומסים וחניה.
+                במקומות אלה אנו מצליחים לחסוך כסף לנוסעי WAYbetter כבר מהרגע הראשון!
+            </p>
+
+            <p>
+                אנו רוצים להוסיף מקומות מרכזיים נוספים ממש בקרוב...
+            </p>
+
+            <hr>
+
+            <p>אתם יותר ממוזמנים להציע מקום מרכזי משלכם.</p>
+
+            <p>מלאו את שם וכתובת המקום שברצונכם להציע ואת האימייל שלכם. כשיהיו מספיק נוסעים לאזור זה, נכלול אותו בשירות
+                ונודיע לכם.</p>
+            <table class="field_container">
+                {{ form.as_table }}
+            </table>
+        </form>
+        <div id="thank_you" class="hidden">{% trans "Thank You" %}</div>
+    </div>
+    <div id="button_container">
+        <button id="submit_hs_interest" class="wb_button purple">{% trans 'Send' %}</button>
+        <div class="small-loader hidden"></div>
+        <button id="close" class="wb_button purple hidden">{% trans 'Close' %}</button>
+    </div>
+</div>
+

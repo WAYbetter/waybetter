@@ -55,8 +55,8 @@
                 <select id="id_hotspot_select" name="hotspot_id"></select>
 
                 <div class="btn_cntr">
-                    <button id="leave_hotspot" class="wb_button"></button>
-                    <button id="goto_hotspot" class="wb_button"></button>
+                    <button id="leave_hotspot" class="wb_button hidden"></button>
+                    <button id="goto_hotspot" class="wb_button hidden"></button>
                 </div>
             </div>
 
@@ -76,8 +76,10 @@
                         </td>
                         <td class="cntr street">
                             <label for="id_street_address">{% trans "Street" %}:</label>
-                            <input type="text" id="id_street_address" name="street_address"/>
-                            <div id="street_loader" class="small-loader"></div>
+                            <div class="input-cntr">
+                                <input type="text" id="id_street_address" name="street_address"/>
+                                <div id="street_loader" class="small-loader"></div>
+                            </div>
                             <div id="street_error" class="error"></div>
                         </td>
                         <td class="cntr hn">
@@ -228,15 +230,39 @@
         </div>
     </div>
 
-    <div id="myrides_container">
-        <h1>{% trans "My Next Rides" %}</h1>
-        <hr>
-        <table id="my_next_rides" class="myrides-table">
-            {% include "myrides_table.html" %}
-        </table>
-        <div id="myrides_tooltip" class="hidden tooltip">
-            {% include "myrides_tooltips.html" %}
+    {% if request.user.passenger %}
+        <div id="myrides_container">
+            <h1>{% trans "My Next Rides" %}</h1>
+            <hr>
+            <table id="my_next_rides" class="myrides-table">
+                {% include "myrides_table.html" %}
+            </table>
+            <div id="myrides_tooltip" class="hidden tooltip">
+                {% include "myrides_tooltips.html" %}
+            </div>
         </div>
+    {% endif %}
+
+    <div id="mobile_apps">
+        <table class="container">
+            <tr>
+                <td class="img">
+                    <span class="title bold">{% trans "Wherever You Are" %}!</span>
+                    <br/>
+                    <span class="content">{% trans "Download the new WAYbetter app for your mobile now (free)" %}</span>
+                </td>
+                <td class="iphone vendor">
+                    <div class="app-icon clickable centered"></div>
+                    <a href="{% value_from_settings "APPLE_WAYBETTER_ITUNES_URL" %}" class="wb_link">{% trans "Get the iPhone App" %} ></a>
+                </td>
+                <td>
+                    <div class="vr"></div></td>
+                <td class="android vendor">
+                    <div class="app-icon clickable centered"></div>
+                    <a href="{% value_from_settings "ANDROID_MARKET_APP_URL" %}" class="wb_link">{% trans "Get the Android App" %} ></a>
+                </td>
+            </tr>
+        </table>
     </div>
 
 {% endblock %}
@@ -303,6 +329,7 @@
 
     function showMap(){
         $("#banner").hide();
+        $("#banner_slides").slides("stop");
     }
     
     function showError(msg, onClose) {
@@ -618,6 +645,11 @@
 
                     $("#id_estimated_pickup .value").text(text);
                 }
+            },
+            successCallback: function(){
+                var $option = $("<option id='votespot'>{% trans "Other" %}</option>");
+                $("#id_hotspot_select").append($option);
+                $("#leave_hotspot, #goto_hotspot").fadeIn("fast");
             }
         });
 
@@ -641,6 +673,7 @@
             urls            : {
                 feedback_form_template: '{% url common.registration.feedback %}',
                 pilot_interest_form_template: '{% url interests.views.pilot_interest %}',
+                hotspot_interest_form_template: '{% url interests.views.hotspot_interest %}',
                 error_form_template: '{% url common.views.error_dialog %}'
             }
         });
@@ -649,7 +682,7 @@
         $(".small-loader").hide();
 
         // teaser
-        $("#booking_teaser button").click(function() {
+        $("#booking_teaser button, #order_now").click(function() {
             startBooking();
         });
 
@@ -658,8 +691,15 @@
             selectHotspot();
         });
 
-        $("#id_hotspot_select").change(function() {
-            selectHotspot();
+        $("#id_hotspot_select").change(function(e) {
+            if ($(this).find("option:selected").attr("id") == "votespot"){
+                e.preventDefault();
+                Registrator.openHotspotInterestDialog();
+                $(this).val(""); // select the first option
+            }
+            else{
+                selectHotspot();
+            }
         });
 
         $("#leave_hotspot").click(function() {

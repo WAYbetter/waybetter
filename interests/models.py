@@ -78,3 +78,10 @@ class PilotInterest(BaseModel):
         t = get_template("pilot_interest_email.html")
         html = t.render(Context({}))
         send_mail_as_noreply(self.email, subject, html=html)
+
+class HotspotInterest(BaseModel):
+    suggestion = models.CharField(_("Your Suggestion"), max_length=500)
+    email = models.EmailField(_("My Email"))
+
+    def notify(self):
+        notify_by_email("New Votespot from %s" % self.email, msg=self.suggestion)

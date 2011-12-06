@@ -406,6 +406,10 @@ var HotspotHelper = Object.create({
                 $timepicker.empty().disable().change(function() {
                     options.onSelectTime();
                 });
+
+                if (options.successCallback){
+                    options.successCallback();
+                }
             },
             error:function() {
                 flashError("Error getting hotspot data");
@@ -656,7 +660,8 @@ var CMHelper = Object.create({
         center_lon: 34.781051985221,
         icon_image: "/static/images/wb_site/map_pin_A.png",
         icon_size_x: 61,
-        icon_size_y: 154
+        icon_size_y: 154,
+        controls: true
     },
     map: undefined,
     markers: {},
@@ -675,6 +680,11 @@ var CMHelper = Object.create({
 
         this.map = new CM.Map(this.config.map_element, cloudmade);
         this.map.setCenter(new CM.LatLng(this.config.center_lat, this.config.center_lon), 15);
+
+        if (this.config.controls){
+            var myControl = new CM.SmallMapControl();
+            this.map.addControl(myControl);
+        }
 
         this.icon = new CM.Icon();
         this.icon.image = this.config.icon_image;

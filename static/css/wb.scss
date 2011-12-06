@@ -1,9 +1,9 @@
 $site-width: 800px;
 $site-width-thin: 500px;
 $font-size-header1: 18px;
-$font-size-header2: 16px;
 $font-size-small: 11px;
 $font-size-medium: 13px;
+$font-size-large: 16px;
 $font-size-big: 24px;
 $font-size-huge: 35px;
 
@@ -20,6 +20,11 @@ $color-community: #EB1F79;
 $color-environment: #16ACD3;
 $color-efficiency: #4CBA00;
 $color-error: #CC162A;
+
+@mixin size($w ,$h){
+    width: $w;
+    height: $h;
+}
 
 @mixin border-radius($r){
     -webkit-border-radius: $r;
@@ -63,6 +68,9 @@ input[disabled]{
 .wb-menulist{
     -moz-appearance: menulist;
     -webkit-appearance: menulist;
+
+    font-size: $font-size-large;
+
     background: #ffffff; /* Old browsers */
     background: -moz-linear-gradient(top, #ffffff 0%, #cfcfcf 100%); /* FF3.6+ */
     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#cfcfcf)); /* Chrome,Safari4+ */
@@ -174,8 +182,16 @@ ul.hz{
     display: none;
 }
 
+.centered{
+    margin: 0 auto;
+}
+
 .error{
     color: red;
+}
+.errorlist li{
+    list-style: none;
+    @extend .error;
 }
 
 .clickable{
@@ -279,7 +295,7 @@ ul.hz{
 }
 
 .order_button {
-    font-size: $font-size-header2;
+    font-size: $font-size-large;
     font-weight: bold;
     text-shadow: 0 -1px rgba(0,0,0,0.5);
     width: 215px;
@@ -333,10 +349,10 @@ ul.hz{
 jQuery UI override
 ****************************************************/
 .ui-autocomplete{
-        font-size: $font-size-small;
+        font-size: $font-size-large;
 }
 .ui-datepicker{
-    font-size: $font-size-medium;
+    font-size: $font-size-large;
 }
 .ui-widget-overlay{
     background-color: black;
@@ -573,7 +589,7 @@ body.base-site{
 
 #wb_values{
     width: $site-width;
-    margin: 0 auto 50px auto;
+    margin: 0 auto 40px auto;
     position: relative;
     left: 10px;
     height: 70px;
@@ -772,9 +788,10 @@ Home
         min-height: 700px;
     }
 
+    $site-content-offset: 13px;
     #site-content{
         position: relative;
-        top: -13px;
+        top: $site-content-offset * -1;
         margin-bottom: 0;
         width: $site-width;
         padding: 0;
@@ -789,6 +806,8 @@ Home
         margin-bottom: 0;
     }
 
+    #myrides_container, #mobile_apps { margin-bottom: 40px - $site-content-offset; }
+
     #myrides_container{
         @include site-container();
         width: $site-width - 15 * 2;
@@ -801,6 +820,35 @@ Home
         }
         hr{
             color: $light-gray;
+        }
+    }
+    #mobile_apps{
+        @include site-container();
+        padding: 1px;
+        width: $site-width - 1 * 2;
+        .container{
+            width: 100%;
+        }
+        .img{
+            @include size(183px, 111px);
+            background: url("/static/images/wb_site/mobile_banner.png") left top no-repeat;
+            padding: 5px 65px;
+        }
+        .title{
+            font-size: $font-size-large;
+        }
+        .content{
+            color: $color-gray;
+        }
+        .vendor {text-align: center; padding-top: 5px;}
+        .app-icon{
+            @include size(52px, 50px);
+        }
+        .iphone .app-icon{background: url("/static/images/wb_site/app_store_icons.png") center 0 no-repeat;}
+        .android .app-icon{background: url("/static/images/wb_site/app_store_icons.png") center -91px no-repeat;}
+        .vr{
+            height: 70px;
+            border-left: 1px solid $light-gray;
         }
     }
 
@@ -957,7 +1005,7 @@ Home
                     display: inline-block;
                 }
             }
-            .cntr.btn{ width: 115px; padding-top: 14px;}
+            .cntr.btn{ width: 135px; padding-top: 14px;}
             label{
                 display: block;
             }
@@ -972,8 +1020,8 @@ Home
                 text-align: center;
                 color: $color-pink;
             }
-            input{ height: $el_height; }
-            select, .wb_button{ height: $el_height + 4; }
+            input{ height: $el_height; font-size: $font-size-large}
+            select, .wb_button{ height: $el_height + 4; font-size: $font-size-large}
         }
         #booking_teaser{
             padding: 74px;
@@ -1005,6 +1053,7 @@ Home
             #leave_hotspot, #goto_hotspot{
                 background-image: url("/static/images/wb_site/field_icons.png");
                 background-repeat: no-repeat;
+                padding-left: 40px;
             }
             #leave_hotspot{
                 position: absolute;
@@ -1031,12 +1080,15 @@ Home
             .cntr.street{
                 position: relative;
                 /* no set width -> scales nicely */
+                .input-cntr{
+                    position: relative;
+                }
             }
             #street_loader{
                 z-index: 3;
                 position: absolute;
                 right: 4px;
-                top: 50%;
+                top: 30%;
             }
         }
         #datetime_content{
@@ -1178,6 +1230,12 @@ Home
         direction: ltr; // fixes a loading issue: map loads to the left
     }
 
+    #mobile_apps{
+        .img{
+            background: url("/static/images/wb_site/mobile_banner_rtl.png") right top no-repeat;
+        }
+    }
+
     // hack for sliding
     .slidesContainer{ direction: ltr; }
     .booking_step{ direction: rtl; }
@@ -1209,18 +1267,18 @@ Home
                 .text{width: 220px;}
             }
             #hotspot_content{
-                #leave_hotspot, #goto_hotspot{ padding-right: 35px;}
+                #leave_hotspot, #goto_hotspot{ padding-left:0; padding-right: 31px;}
                 #leave_hotspot{
                     position: absolute;
                     left: auto;
                     right: 0;
-                    background-position: 195px 8px;
+                    background-position: 205px 8px;
                 }
                 #goto_hotspot{
                     position: absolute;
                     right: auto;
                     left: 0;
-                    background-position: 195px -46px;
+                    background-position: 205px -46px;
                 }
             }
             #address_content{
@@ -1512,7 +1570,7 @@ Info pages
 ****************************************************/
 .contact{
     #contact_header{
-        font-size: $font-size-header2;
+        font-size: $font-size-large;
         font-weight: bold;
     }
     #contact_details{
@@ -1717,7 +1775,7 @@ Info pages
     .content{
         margin-left: 30px;
         .error-desc{
-            font-size: $font-size-header2;
+            font-size: $font-size-large;
         }
     }
     #button_container{
@@ -1782,7 +1840,7 @@ Error dialog
     .content{
         margin-left: 30px;
         .error-desc{
-            font-size: $font-size-header2;
+            font-size: $font-size-large;
         }
     }
 }
@@ -1849,7 +1907,7 @@ Feedback dialog
     }
     h1 {
         padding: 5px;
-        font-size: $font-size-header2;
+        font-size: $font-size-large;
     }
     #submit_feedback {
         margin-right: 15px;
