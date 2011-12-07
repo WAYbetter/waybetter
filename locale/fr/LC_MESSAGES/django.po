@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-30 19:51+0200\n"
+"POT-Creation-Date: 2011-12-07 14:37+0200\n"
 "PO-Revision-Date: 2011-06-21 16:06+0200\n"
 "Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "X-Translated-Using: django-rosetta 0.5.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -57,6 +57,7 @@ msgid "Scope"
 msgstr "Périmètre"
 
 #: analytics/forms.py:47 ordering/forms.py:293 registration/forms.py:76
+#: sharing/templates/wb_home.html:69
 msgid "City"
 msgstr "Ville"
 
@@ -224,23 +225,23 @@ msgstr "Créé le"
 msgid "charge date"
 msgstr "Créé le"
 
-#: billing/models.py:48
+#: billing/models.py:50
 #, fuzzy
 msgid "passenger name"
 msgstr "numéro de téléphone passager"
 
-#: billing/models.py:49 ordering/templates/workstation_home.html:782
+#: billing/models.py:51 ordering/templates/workstation_home.html:782
 #: ordering/templates/workstation_home.html:837
 #, fuzzy
 msgid "pickup"
 msgstr "heure de ramassage"
 
-#: billing/models.py:50 ordering/templates/workstation_home.html:785
+#: billing/models.py:52 ordering/templates/workstation_home.html:785
 #: ordering/templates/workstation_home.html:840
 msgid "dropoff"
 msgstr ""
 
-#: billing/models.py:51 ordering/models.py:852
+#: billing/models.py:53 ordering/models.py:852
 msgid "pickup time"
 msgstr "heure de ramassage"
 
@@ -453,16 +454,18 @@ msgstr "Saisissez à nouveau le mot de passe"
 #: ordering/templates/business_tab.html:17
 #: ordering/templates/station_page.html:79
 #: sharing/templates/mobile/wb_home.html:1131
-#: sharing/templates/mobile/wb_home_phonegap.html:287
+#: sharing/templates/mobile/wb_home_phonegap.html:288
 msgid "Login"
 msgstr "Login"
 
 #: common/templates/error_dialog.html:5 common/templates/error_page.html:8
-#: sharing/templates/wb_home.html:629
+#: sharing/templates/wb_home.html:336 sharing/templates/wb_home_2.html:629
+#: sharing/templates/wb_home_tooltips.html:629
 msgid "OOPS..."
 msgstr ""
 
 #: common/templates/error_dialog.html:11
+#: interests/templates/hotspot_interest_form.html:76
 #: interests/templates/mobile_interest_form.html:53
 #: interests/templates/station_interest_form.html:37
 #: ordering/templates/base_passenger.html:69
@@ -492,7 +495,9 @@ msgstr "Saisir votre mot de passe"
 msgid "OK"
 msgstr "OK"
 
-#: common/templates/error_page.html:16 templates/wb_base_site.html:134
+#: common/templates/error_page.html:16
+#: intermediate/templates/wb_base_site.html:130
+#: templates/wb_base_site.html:130
 #: templates/admin/billing/billingtransaction/change_form.html:18
 msgid "Home"
 msgstr ""
@@ -635,7 +640,7 @@ msgstr ""
 "sans délai."
 
 #: common/templates/registration_form.html:24 ordering/forms.py:254
-#: ordering/passenger_controller.py:485
+#: ordering/passenger_controller.py:486
 #: ordering/templates/business_registration.html:58
 #, fuzzy
 msgid "Email already registered"
@@ -677,7 +682,7 @@ msgid "In the meantime, join for better experience (free)"
 msgstr "En attendant, inscrivez-vous"
 
 #: common/templates/registration_form.html:127 interests/models.py:73
-#: sharing/forms.py:53
+#: interests/models.py:84 sharing/forms.py:53
 msgid "Your Email"
 msgstr "Votre e-mail"
 
@@ -793,6 +798,11 @@ msgstr "contact "
 msgid "phone"
 msgstr "téléphone"
 
+#: interests/models.py:83
+#, fuzzy
+msgid "Your Hotspot"
+msgstr "Sélectionnez une adresse"
+
 #: interests/templates/business_interest_form.html:6
 #: interests/templates/station_interest_form.html:6
 #: sharing/templates/mobile/passenger_registration.html:40
@@ -806,6 +816,7 @@ msgid "Please fill the following details and we will contact you"
 msgstr "Indiquez vos coordonnées et nous vous contacterons"
 
 #: interests/templates/business_interest_form.html:37
+#: interests/templates/hotspot_interest_form.html:74
 #: interests/templates/mobile_interest_form.html:52
 #: interests/templates/pilot_interest_form.html:80
 #: interests/templates/station_interest_form.html:36
@@ -829,6 +840,24 @@ msgstr "Envoi"
 msgid "Cancel"
 msgstr "Annulation"
 
+#: interests/templates/hotspot_interest_form.html:5
+msgid "What are HotSpots"
+msgstr ""
+
+#: interests/templates/hotspot_interest_form.html:64
+#, fuzzy
+msgid "hotspot_interest_content"
+msgstr "contenu"
+
+#: interests/templates/hotspot_interest_form.html:66
+#, fuzzy
+msgid "Where would you like WAYbetter service"
+msgstr "Inscrivez-vous gratuitement à WAYbetter"
+
+#: interests/templates/hotspot_interest_form.html:71
+msgid "Oh, tell your friends... Thanks!"
+msgstr ""
+
 #: interests/templates/mobile_interest_form.html:7
 msgid "Looks Cool!"
 msgstr "Super !"
@@ -849,6 +878,254 @@ msgstr ""
 
 #: interests/templates/pilot_interest_form.html:70
 msgid "Thanks. We'll contact you soon."
+msgstr ""
+
+#: intermediate/templates/wb_base.html:18
+#: intermediate/templates/wb_base.html:26 templates/wb_base.html:18
+#: templates/wb_base.html.py:26
+#, fuzzy
+msgid "Half Price Taxi Rides"
+msgstr "course"
+
+#: intermediate/templates/wb_base.html:21
+#: intermediate/templates/wb_base.html:28 templates/wb_base.html:21
+#: templates/wb_base.html.py:28
+msgid ""
+"Revolution in Transportation: Half-priced taxi rides. Book a shared taxi "
+"online: comfortable, hassle free ride, save tens of dollars."
+msgstr ""
+
+#: intermediate/templates/wb_base.html:22 templates/wb_base.html:22
+msgid "smart,iPhone,way better,order taxi,online"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:24
+#: intermediate/templates/wb_base_site.html:139
+#: sharing/templates/wb_info.html:8 templates/wb_base_site.html:24
+#: templates/wb_base_site.html.py:139
+#, fuzzy
+msgid "The Service"
+msgstr "Réservation"
+
+#: intermediate/templates/wb_base_site.html:27
+#: ordering/templates/station_page.html:76 templates/base.html:84
+#: templates/wb_base_site.html:27
+msgid "Hi"
+msgstr "Bonjour"
+
+#: intermediate/templates/wb_base_site.html:34
+#: intermediate/templates/wb_base_site.html:156
+#: sharing/templates/my_rides.html:9 templates/wb_base_site.html:34
+#: templates/wb_base_site.html.py:156
+#, fuzzy
+msgid "Log Out"
+msgstr "Déconnexion"
+
+#: intermediate/templates/wb_base_site.html:36 templates/wb_base_site.html:36
+#, fuzzy
+msgid "Log-in"
+msgstr "Login"
+
+#: intermediate/templates/wb_base_site.html:82
+#: intermediate/templates/wb_base_site.html:101 templates/wb_base_site.html:82
+#: templates/wb_base_site.html.py:101
+#, fuzzy
+msgid "Service"
+msgstr "Réservation"
+
+#: intermediate/templates/wb_base_site.html:83 templates/wb_base_site.html:83
+msgid "learnmore_service_content"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:86
+#: intermediate/templates/wb_base_site.html:105
+#: intermediate/templates/wb_base_site.html:145 templates/wb_base_site.html:86
+#: templates/wb_base_site.html.py:105 templates/wb_base_site.html:145
+#, fuzzy
+msgid "Community"
+msgstr "Pays"
+
+#: intermediate/templates/wb_base_site.html:87 templates/wb_base_site.html:87
+msgid "learnmore_community_content"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:90
+#: intermediate/templates/wb_base_site.html:109 templates/wb_base_site.html:90
+#: templates/wb_base_site.html.py:109
+msgid "Environment"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:91 templates/wb_base_site.html:91
+msgid "learnmore_environment_content"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:94
+#: intermediate/templates/wb_base_site.html:113 templates/wb_base_site.html:94
+#: templates/wb_base_site.html.py:113
+msgid "Efficiency"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:95 templates/wb_base_site.html:95
+msgid "learnmore_efficiency_content"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:102
+#: templates/wb_base_site.html:102
+#, fuzzy
+msgid "gist_service_content"
+msgstr "contenu"
+
+#: intermediate/templates/wb_base_site.html:106
+#: templates/wb_base_site.html:106
+msgid "gist_community_content"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:110
+#: templates/wb_base_site.html:110
+msgid "gist_environment_content"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:114
+#: templates/wb_base_site.html:114
+msgid "gist_efficiency_content"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:131
+#: ordering/templates/passenger_home.html:113
+#: ordering/templates/passenger_home.html:120 templates/wb_base_site.html:131
+msgid "Mobile"
+msgstr "Portable"
+
+#: intermediate/templates/wb_base_site.html:132
+#: templates/wb_base_site.html:132
+#, fuzzy
+msgid "PickMeApp"
+msgstr "Taxi !"
+
+#: intermediate/templates/wb_base_site.html:133
+#: sharing/templates/mobile/wb_home.html:1123 templates/wb_base_site.html:133
+#, fuzzy
+msgid "Terms of Use"
+msgstr "CGU"
+
+#: intermediate/templates/wb_base_site.html:134
+#: ordering/templates/terms.html:18
+#: sharing/templates/mobile/passenger_registration.html:147
+#: sharing/templates/mobile/privacy.html:16
+#: sharing/templates/mobile/wb_home.html:1122 templates/wb_base_site.html:134
+msgid "Privacy Policy"
+msgstr "Protection de la vie privée"
+
+#: intermediate/templates/wb_base_site.html:137
+#: ordering/templates/info.html:28
+#: ordering/templates/mobile/passenger_home.html:229
+#: ordering/templates/mobile/passenger_home.html:272
+#: sharing/templates/wb_info.html:4 sharing/templates/mobile/wb_home.html:1118
+#: sharing/templates/mobile/wb_home.html:1143 templates/base.html:139
+#: templates/wb_base_site.html:137
+msgid "About"
+msgstr "A  propos de"
+
+#: intermediate/templates/wb_base_site.html:138
+#: sharing/templates/about_us.html:5 sharing/templates/wb_info.html:7
+#: templates/wb_base_site.html:138
+#, fuzzy
+msgid "About Us"
+msgstr "A  propos de"
+
+#: intermediate/templates/wb_base_site.html:140
+#: sharing/templates/wb_info.html:9 sharing/templates/mobile/faq.html:17
+#: sharing/templates/mobile/wb_home.html:1119 templates/wb_base_site.html:140
+msgid "FAQ"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:141
+#: ordering/templates/info.html:29 sharing/templates/wb_info.html:10
+#: templates/base.html:140 templates/wb_base_site.html:141
+msgid "Press"
+msgstr "Médias"
+
+#: intermediate/templates/wb_base_site.html:142
+#: sharing/templates/wb_info.html:11 templates/wb_base_site.html:142
+#, fuzzy
+msgid "Contact Us"
+msgstr "Contact "
+
+#: intermediate/templates/wb_base_site.html:146
+#: templates/wb_base_site.html:146
+msgid "Facebook"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:147
+#: templates/wb_base_site.html:147
+msgid "Twitter"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:148
+#: templates/wb_base_site.html:148
+#, fuzzy
+msgid "Stations"
+msgstr "Station"
+
+#: intermediate/templates/wb_base_site.html:153
+#: sharing/templates/my_rides.html:4 templates/wb_base_site.html:153
+#, fuzzy
+msgid "My Account"
+msgstr "Pays"
+
+#: intermediate/templates/wb_base_site.html:154
+#: ordering/templates/station_analytics.html:157
+#: templates/wb_base_site.html:154
+#, fuzzy
+msgid "Rides"
+msgstr "Historique"
+
+#: intermediate/templates/wb_base_site.html:155
+#: ordering/templates/station_home.html:48 templates/wb_base_site.html:155
+msgid "Profile"
+msgstr "Profil"
+
+#: intermediate/templates/wb_base_site.html:158
+#: templates/wb_base_site.html:158
+#, fuzzy
+msgid "Account"
+msgstr "Pays"
+
+#: intermediate/templates/wb_base_site.html:159
+#: templates/wb_base_site.html:159
+#, fuzzy
+msgid "Log In"
+msgstr "Connexion"
+
+#: intermediate/templates/wb_base_site.html:161
+#: ordering/templates/business_tab.html:24
+#: ordering/templates/station_home.html:59 templates/wb_base_site.html:161
+msgid "Join"
+msgstr "S'inscrire !"
+
+#: intermediate/templates/wb_base_site.html:195
+#: templates/wb_base_site.html:195
+msgid "To view WAYbetter in Internet Explorer you need to install"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:196
+#: templates/wb_base_site.html:196
+msgid "Free"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:198
+#: templates/wb_base_site.html:198
+msgid "Install Google Chrome Frame"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:199
+#: templates/wb_base_site.html:199
+msgid "Or, use one of these browsers"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:266
+#: templates/wb_base_site.html:281
+msgid "Get yourself a modern browser"
 msgstr ""
 
 #: openid_consumer/views.py:96
@@ -973,7 +1250,10 @@ msgstr "La valeur ne peut contenir que des chiffres."
 #: sharing/templates/producer_ordering_page.html:31
 #: sharing/templates/producer_rides_summary.html:18
 #: sharing/templates/station_history.html:32
-#: sharing/templates/wb_home.html:201 sharing/templates/wb_home.html.py:648
+#: sharing/templates/wb_home.html:134 sharing/templates/wb_home.html.py:224
+#: sharing/templates/wb_home_2.html:201 sharing/templates/wb_home_2.html:648
+#: sharing/templates/wb_home_tooltips.html:201
+#: sharing/templates/wb_home_tooltips.html:648
 #: sharing/templates/mobile/wb_home.html:801
 #: sharing/templates/mobile/wb_home.html:993
 msgid "Address"
@@ -1689,12 +1969,13 @@ msgstr "Inscription"
 msgid "Taxi Ride"
 msgstr "course"
 
-#: ordering/models.py:1188
+#: ordering/models.py:1188 sharing/templates/wb_home.html:650
 msgid "Other"
 msgstr "Autre"
 
 #: ordering/order_history.py:10 ordering/order_history.py:14
 #: ordering/order_history.py:18 sharing/templates/station_accounting.html:32
+#: sharing/templates/wb_home.html:105
 msgid "Date"
 msgstr "Date"
 
@@ -1704,7 +1985,9 @@ msgstr "Date"
 #: sharing/templates/hotspot_ordering_page_textinput.html:28
 #: sharing/templates/myrides_table.html:5
 #: sharing/templates/station_accounting.html:32
-#: sharing/templates/wb_home.html:644 sharing/templates/wb_home.html.py:669
+#: sharing/templates/wb_home_2.html:644 sharing/templates/wb_home_2.html:669
+#: sharing/templates/wb_home_tooltips.html:644
+#: sharing/templates/wb_home_tooltips.html:669
 #: sharing/templates/mobile/wb_home.html:343
 #: sharing/templates/mobile/wb_home.html:800
 #: sharing/templates/mobile/wb_home.html:950
@@ -1717,7 +2000,9 @@ msgstr "Adresse de départ"
 #: sharing/templates/hotspot_ordering_page_textinput.html:40
 #: sharing/templates/myrides_table.html:6
 #: sharing/templates/station_accounting.html:32
-#: sharing/templates/wb_home.html:645 sharing/templates/wb_home.html.py:669
+#: sharing/templates/wb_home_2.html:645 sharing/templates/wb_home_2.html:669
+#: sharing/templates/wb_home_tooltips.html:645
+#: sharing/templates/wb_home_tooltips.html:669
 #: sharing/templates/mobile/wb_home.html:345
 #: sharing/templates/mobile/wb_home.html:822
 #: sharing/templates/mobile/wb_home.html:955
@@ -1814,8 +2099,12 @@ msgstr "Prix estimé de la course"
 msgid "Flat rate"
 msgstr "Barème"
 
-#: ordering/passenger_controller.py:237 sharing/templates/wb_home.html:86
-#: sharing/templates/wb_home.html.py:111 sharing/templates/ws_home.html:486
+#: ordering/passenger_controller.py:237 sharing/templates/wb_home.html:202
+#: sharing/templates/wb_home.html.py:209 sharing/templates/wb_home_2.html:86
+#: sharing/templates/wb_home_2.html:111
+#: sharing/templates/wb_home_tooltips.html:86
+#: sharing/templates/wb_home_tooltips.html:111
+#: sharing/templates/ws_home.html:486
 #: sharing/templates/mobile/wb_home.html:901
 #: sharing/templates/mobile/wb_home.html:914
 msgid "min"
@@ -1857,16 +2146,16 @@ msgstr ""
 msgid "Invalid verification code"
 msgstr "Code SMS erroné"
 
-#: ordering/passenger_controller.py:416
+#: ordering/passenger_controller.py:417
 msgid "Phone has multiple passengers"
 msgstr "Même téléphone pour plusieurs passagers"
 
-#: ordering/passenger_controller.py:447
+#: ordering/passenger_controller.py:448
 #, fuzzy
 msgid "wrong email/password"
 msgstr "nom d'utilisateur/mot de passe erroné"
 
-#: ordering/passenger_controller.py:456
+#: ordering/passenger_controller.py:457
 msgid "Must have a user to change credentials"
 msgstr "Vous devez avoir nom d'utilisateur pour modifier les identifiants"
 
@@ -2055,7 +2344,8 @@ msgstr "Déjà inscrit ?"
 
 #: ordering/templates/base_passenger.html:83
 #: sharing/templates/hotspot_ordering_page.html:144
-#: sharing/templates/wb_home.html:747
+#: sharing/templates/wb_home.html:618 sharing/templates/wb_home_2.html:747
+#: sharing/templates/wb_home_tooltips.html:747
 #: sharing/templates/mobile/wb_home.html:396
 #, fuzzy
 msgid "Choose Date"
@@ -2065,7 +2355,9 @@ msgstr "Saisissez un mot de passe "
 #: sharing/templates/hotspot_ordering_page.html:121
 #: sharing/templates/hotspot_ordering_page.html:145
 #: sharing/templates/station_taxidrivers.html:329
-#: sharing/templates/wb_home.html:748 sharing/templates/ws_home.html:215
+#: sharing/templates/wb_home.html:619 sharing/templates/wb_home_2.html:748
+#: sharing/templates/wb_home_tooltips.html:748
+#: sharing/templates/ws_home.html:215
 #: sharing/templates/mobile/wb_home.html:397
 #, fuzzy
 msgid "Updating..."
@@ -2140,7 +2432,7 @@ msgstr "Une erreur est survenue durant le traitement de votre requête."
 #: sharing/templates/station_taxidrivers.html:140
 #: sharing/templates/station_taxidrivers.html:182
 #: sharing/templates/mobile/passenger_registration.html:200
-#: sharing/templates/mobile/wb_home_phonegap.html:193
+#: sharing/templates/mobile/wb_home_phonegap.html:194
 #, fuzzy
 msgid "Error"
 msgstr "Erreur"
@@ -2188,11 +2480,6 @@ msgstr ""
 msgid "Fill in your details to join us"
 msgstr ""
 
-#: ordering/templates/business_tab.html:24
-#: ordering/templates/station_home.html:59 templates/wb_base_site.html:165
-msgid "Join"
-msgstr "S'inscrire !"
-
 #: ordering/templates/business_tab.html:41
 #, fuzzy
 msgid "There was an error saving your details"
@@ -2219,29 +2506,11 @@ msgstr ""
 "Téléchargement de règles tarifaires spécifiques (tarif interurbain en format "
 "CSV)"
 
-#: ordering/templates/info.html:28
-#: ordering/templates/mobile/passenger_home.html:229
-#: ordering/templates/mobile/passenger_home.html:272
-#: sharing/templates/wb_info.html:4 sharing/templates/mobile/wb_home.html:1118
-#: sharing/templates/mobile/wb_home.html:1143 templates/base.html:139
-#: templates/wb_base_site.html:141
-msgid "About"
-msgstr "A  propos de"
-
-#: ordering/templates/info.html:29 sharing/templates/wb_info.html:10
-#: templates/base.html:140 templates/wb_base_site.html:145
-msgid "Press"
-msgstr "Médias"
-
-#: ordering/templates/info.html:31 templates/base.html:142
-msgid "Help"
-msgstr "Aide"
-
-#: ordering/templates/info.html:33 templates/base.html:144
+#: ordering/templates/info.html:34 templates/base.html:145
 msgid "Terms"
 msgstr "Conditions d'utilisation"
 
-#: ordering/templates/info.html:34 ordering/templates/passenger_home.html:67
+#: ordering/templates/info.html:35 ordering/templates/passenger_home.html:67
 msgid "TAXI"
 msgstr "TAXI"
 
@@ -2343,11 +2612,6 @@ msgstr "Mon profil"
 #: ordering/templates/passenger_home.html:119
 msgid "Taxi Stations"
 msgstr "Stations de taxi"
-
-#: ordering/templates/passenger_home.html:113
-#: ordering/templates/passenger_home.html:120 templates/wb_base_site.html:135
-msgid "Mobile"
-msgstr "Portable"
 
 #: ordering/templates/passenger_home.html:118
 #, fuzzy
@@ -2491,12 +2755,6 @@ msgstr "Historique"
 msgid "rides"
 msgstr "Réservation"
 
-#: ordering/templates/station_analytics.html:157
-#: templates/wb_base_site.html:158
-#, fuzzy
-msgid "Rides"
-msgstr "Historique"
-
 #: ordering/templates/station_analytics.html:229
 #: sharing/templates/station_accounting.html:98
 #: sharing/templates/station_history.html:106
@@ -2520,10 +2778,6 @@ msgstr "Courses précédentes"
 msgid "Station analytics"
 msgstr "Nom de la station"
 
-#: ordering/templates/station_home.html:48 templates/wb_base_site.html:159
-msgid "Profile"
-msgstr "Profil"
-
 #: ordering/templates/station_home.html:51
 msgid "Workstations"
 msgstr "Poste de travail"
@@ -2536,11 +2790,6 @@ msgstr ""
 #, fuzzy
 msgid "Book A Taxi Application. Immediate Response via SMS"
 msgstr "Application pour commander un taxi. Réponse immédiate par SMS."
-
-#: ordering/templates/station_page.html:76 templates/base.html:84
-#: templates/wb_base_site.html:31
-msgid "Hi"
-msgstr "Bonjour"
 
 #: ordering/templates/station_page.html:77 templates/base.html:90
 msgid "Log out"
@@ -2615,7 +2864,7 @@ msgstr "Plus de détails"
 msgid "Station Manager?"
 msgstr "Directeur de station ?"
 
-#: ordering/templates/stations.html:31 templates/base.html:145
+#: ordering/templates/stations.html:31 templates/base.html:146
 msgid "Station Entrance"
 msgstr "Stations"
 
@@ -2676,13 +2925,6 @@ msgstr ""
 "logiciel à la suite de tout changement dans ce contrat sera considéré comme "
 "un consentement de votre part à ces changements.Les droits d’auteur relatifs "
 "au site appartiennent en exclusivité à WAYbetter LTD. "
-
-#: ordering/templates/terms.html:18
-#: sharing/templates/mobile/passenger_registration.html:147
-#: sharing/templates/mobile/privacy.html:16
-#: sharing/templates/mobile/wb_home.html:1122 templates/wb_base_site.html:138
-msgid "Privacy Policy"
-msgstr "Protection de la vie privée"
 
 #: ordering/templates/terms.html:19
 msgid "web_actual_privacy_policy"
@@ -2813,7 +3055,8 @@ msgstr ""
 "envoyé sous peu."
 
 #: ordering/templates/mobile/passenger_home.html:72
-#: sharing/templates/wb_home.html:205
+#: sharing/templates/wb_home_2.html:205
+#: sharing/templates/wb_home_tooltips.html:205
 #: sharing/templates/mobile/wb_home.html:131
 #: sharing/templates/mobile/wb_home.html:808
 #: sharing/templates/mobile/wb_home.html:1039
@@ -2872,7 +3115,7 @@ msgstr "GPS"
 #: sharing/templates/mobile/my_rides.html:34
 #: sharing/templates/mobile/wb_home.html:711
 #: sharing/templates/mobile/wb_home.html:926
-#: sharing/templates/mobile/wb_home_phonegap.html:203
+#: sharing/templates/mobile/wb_home_phonegap.html:204
 #, fuzzy
 msgid "My Rides"
 msgstr "course"
@@ -3090,41 +3333,38 @@ msgstr ""
 msgid "Not found"
 msgstr "Pas si mauvais"
 
-#: sharing/passenger_controller.py:115 sharing/templates/wb_home.html:553
-#: sharing/templates/wb_home.html.py:591
+#: sharing/passenger_controller.py:115 sharing/templates/wb_home.html:515
+#: sharing/templates/wb_home.html.py:539 sharing/templates/wb_home_2.html:553
+#: sharing/templates/wb_home_2.html:591
+#: sharing/templates/wb_home_tooltips.html:553
+#: sharing/templates/wb_home_tooltips.html:591
 #: sharing/templates/mobile/wb_home.html:226
 #: sharing/templates/mobile/wb_home.html:305
-#: sharing/templates/mobile/wb_home_phonegap.html:316
+#: sharing/templates/mobile/wb_home_phonegap.html:317
 msgid "We have encountered an error. Please try again."
 msgstr ""
 
-#: sharing/passenger_controller.py:143 sharing/passenger_controller.py:364
+#: sharing/passenger_controller.py:144 sharing/passenger_controller.py:365
 msgid "Currently it is not possible to book more than 1 seat"
 msgstr ""
 
-#: sharing/passenger_controller.py:157
+#: sharing/passenger_controller.py:158
 msgid "This interval is closed for booking now. Please choose a later time"
 msgstr ""
 
-#: sharing/passenger_controller.py:608
+#: sharing/passenger_controller.py:609
 #, fuzzy
 msgid "WAYbetter ride"
 msgstr "WAYbetter LTD"
 
-#: sharing/passenger_controller.py:608
+#: sharing/passenger_controller.py:609
 #, fuzzy
 msgid "Private ride"
 msgstr "course"
 
-#: sharing/passenger_controller.py:627
+#: sharing/passenger_controller.py:628
 msgid "WAYbetter Order Confirmation"
 msgstr ""
-
-#: sharing/templates/about_us.html:5 sharing/templates/wb_info.html:7
-#: templates/wb_base_site.html:142
-#, fuzzy
-msgid "About Us"
-msgstr "A  propos de"
 
 #: sharing/templates/about_us.html:7
 #, fuzzy
@@ -3251,28 +3491,23 @@ msgstr "Inscription"
 msgid "Select time"
 msgstr "Sélectionnez une adresse"
 
-#: sharing/templates/my_rides.html:4 templates/wb_base_site.html:157
-#, fuzzy
-msgid "My Account"
-msgstr "Pays"
-
-#: sharing/templates/my_rides.html:9 templates/wb_base_site.html:38
-#: templates/wb_base_site.html.py:160
-#, fuzzy
-msgid "Log Out"
-msgstr "Déconnexion"
-
-#: sharing/templates/my_rides.html:59 sharing/templates/wb_home.html:716
+#: sharing/templates/my_rides.html:59 sharing/templates/wb_home.html:588
+#: sharing/templates/wb_home_2.html:716
+#: sharing/templates/wb_home_tooltips.html:716
 #, fuzzy
 msgid "Ride cancelled."
 msgstr "Annulation"
 
-#: sharing/templates/my_rides.html:60 sharing/templates/wb_home.html:717
+#: sharing/templates/my_rides.html:60 sharing/templates/wb_home.html:589
+#: sharing/templates/wb_home_2.html:717
+#: sharing/templates/wb_home_tooltips.html:717
 #, fuzzy
 msgid "Info/Cancel"
 msgstr "Annulation"
 
-#: sharing/templates/my_rides.html:61 sharing/templates/wb_home.html:718
+#: sharing/templates/my_rides.html:61 sharing/templates/wb_home.html:590
+#: sharing/templates/wb_home_2.html:718
+#: sharing/templates/wb_home_tooltips.html:718
 #: sharing/templates/mobile/my_rides.html:70
 #: sharing/templates/mobile/wb_home.html:348
 #, fuzzy
@@ -3357,7 +3592,9 @@ msgid "Your WAY Details"
 msgstr "Votre e-mail"
 
 #: sharing/templates/myrides_tooltips.html:50
-#: sharing/templates/wb_home.html:401 sharing/templates/mobile/wb_home.html:30
+#: sharing/templates/wb_home.html:572 sharing/templates/wb_home_2.html:401
+#: sharing/templates/wb_home_tooltips.html:401
+#: sharing/templates/mobile/wb_home.html:30
 #, fuzzy
 msgid "Pickup Time"
 msgstr "heure de ramassage"
@@ -3396,7 +3633,9 @@ msgid "Taxi is on the way!"
 msgstr "un seul clic et le taxi est en route"
 
 #: sharing/templates/passenger_notification_msg.html:3
-#: sharing/templates/wb_home.html:402 sharing/templates/wb_home.html:1058
+#: sharing/templates/wb_home_2.html:402 sharing/templates/wb_home_2.html:1058
+#: sharing/templates/wb_home_tooltips.html:402
+#: sharing/templates/wb_home_tooltips.html:1058
 #: sharing/templates/mobile/wb_home.html:344
 #: sharing/templates/mobile/wb_home.html:960
 #, fuzzy
@@ -3475,12 +3714,15 @@ msgid "and"
 msgstr "Fin"
 
 #: sharing/templates/passenger_registration.html:92
+#: sharing/templates/privacy.html:4
 #: sharing/templates/mobile/passenger_registration.html:90
 msgid "Privacy Statement"
 msgstr ""
 
 #: sharing/templates/passenger_registration.html:105
-#: sharing/templates/wb_home.html:416
+#: sharing/templates/wb_home.html:91 sharing/templates/wb_home.html.py:121
+#: sharing/templates/wb_home_2.html:416
+#: sharing/templates/wb_home_tooltips.html:416
 #: sharing/templates/mobile/passenger_registration.html:102
 #: sharing/templates/mobile/passenger_registration.html:129
 #: sharing/templates/mobile/passenger_registration.html:269
@@ -3491,7 +3733,8 @@ msgstr ""
 
 #: sharing/templates/passenger_registration.html:220
 #: sharing/templates/passenger_registration.html:248
-#: sharing/templates/wb_home.html:598
+#: sharing/templates/wb_home.html:546 sharing/templates/wb_home_2.html:598
+#: sharing/templates/wb_home_tooltips.html:598
 #: sharing/templates/mobile/passenger_registration.html:175
 #: sharing/templates/mobile/passenger_registration.html:235
 #, fuzzy
@@ -3516,7 +3759,7 @@ msgstr ""
 #: sharing/templates/passenger_ride_email.html:18
 #: sharing/templates/producer_ordering_page.html:53
 #: sharing/templates/station_history.html:37
-#: sharing/templates/voucher_email.html:15
+#: sharing/templates/voucher_email.html:15 sharing/templates/wb_home.html:133
 #: sharing/templates/mobile/wb_home.html:32
 #: sharing/templates/mobile/wb_home.html:992
 #, fuzzy
@@ -3526,7 +3769,7 @@ msgstr "heure de ramassage"
 #: sharing/templates/passenger_ride_email.html:19
 #: sharing/templates/producer_ordering_page.html:70
 #: sharing/templates/station_history.html:45
-#: sharing/templates/voucher_email.html:26
+#: sharing/templates/voucher_email.html:26 sharing/templates/wb_home.html:146
 #: sharing/templates/mobile/wb_home.html:33
 #: sharing/templates/mobile/wb_home.html:1004
 #, fuzzy
@@ -3576,7 +3819,7 @@ msgstr ""
 msgid "View your order on our website"
 msgstr "Votre propre interface de réservation sur votre site (gratuit)"
 
-#: sharing/templates/privacy.html:5
+#: sharing/templates/privacy.html:7
 #: sharing/templates/mobile/passenger_registration.html:150
 #: sharing/templates/mobile/privacy.html:20
 #, fuzzy
@@ -3647,6 +3890,7 @@ msgstr ""
 
 #: sharing/templates/producer_rides_summary.html:18
 #: sharing/templates/station_history.html:32
+#: sharing/templates/wb_home.html:109 sharing/templates/wb_home.html.py:225
 #, fuzzy
 msgid "Time"
 msgstr "Timing"
@@ -3851,7 +4095,14 @@ msgstr "Pays"
 msgid "Drivers and Taxis"
 msgstr "Réservations"
 
-#: sharing/templates/terms_of_service.html:5
+#: sharing/templates/terms_of_service.html:4
+#: sharing/templates/mobile/passenger_registration.html:137
+#: sharing/templates/mobile/terms_of_service.html:16
+#, fuzzy
+msgid "Terms of Service"
+msgstr "Conditions d'utilisation"
+
+#: sharing/templates/terms_of_service.html:7
 #: sharing/templates/mobile/passenger_registration.html:140
 #: sharing/templates/mobile/terms_of_service.html:20
 #, fuzzy
@@ -3916,173 +4167,317 @@ msgstr "Zone d'activité principale"
 msgid "Points"
 msgstr "Anglais"
 
-#: sharing/templates/wb_home.html:35 sharing/templates/mobile/wb_home.html:217
+#: sharing/templates/wb_home.html:36 sharing/templates/wb_home_2.html:35
+#: sharing/templates/wb_home_tooltips.html:35
+#: sharing/templates/mobile/wb_home.html:217
 msgid "SAVE"
 msgstr ""
 
-#: sharing/templates/wb_home.html:41
+#: sharing/templates/wb_home.html:44
 #, fuzzy
-msgid "Enter Your WAY"
-msgstr "Saisissez votre e-mail"
+msgid "The Best Transport Service<br/>to Cenral Locations"
+msgstr "code de vérification du téléphone"
 
-#: sharing/templates/wb_home.html:61 sharing/templates/wb_home.html.py:228
-#: sharing/templates/wb_home.html:460
-msgid "When"
-msgstr ""
-
-#: sharing/templates/wb_home.html:72 sharing/templates/mobile/wb_home.html:907
+#: sharing/templates/wb_home.html:45 sharing/templates/wb_home.html.py:571
 #, fuzzy
-msgid "Private Taxi Ride"
+msgid "Book a Shared Taxi Ride"
 msgstr "course"
 
-#: sharing/templates/wb_home.html:76 sharing/templates/wb_home.html.py:101
+#: sharing/templates/wb_home.html:53
 #, fuzzy
-msgid "Ride Price"
+msgid "Choose a Hotspot"
+msgstr "Nom de famille"
+
+#: sharing/templates/wb_home.html:78
+#: sharing/templates/mobile/wb_home.html:1049
+msgid "Street"
+msgstr ""
+
+#: sharing/templates/wb_home.html:86
+msgid "House No"
+msgstr ""
+
+#: sharing/templates/wb_home.html:115 sharing/templates/wb_home_2.html:238
+#: sharing/templates/wb_home_tooltips.html:238
+#, fuzzy
+msgid "_pickup"
+msgstr "heure de ramassage"
+
+#: sharing/templates/wb_home.html:147 sharing/templates/wb_home.html.py:342
+#: sharing/templates/mobile/wb_home.html:1005
+#, fuzzy
+msgid "Hotspot"
+msgstr "Sélectionnez une adresse"
+
+#: sharing/templates/wb_home.html:150
+#, fuzzy
+msgid "switch direction"
+msgstr "Inscription"
+
+#: sharing/templates/wb_home.html:166
+#: sharing/templates/mobile/wb_home.html:859
+#, fuzzy
+msgid "Number of Seats"
+msgstr "Nombre de taxis"
+
+#: sharing/templates/wb_home.html:180
+#, fuzzy
+msgid "Fixed Price"
 msgstr "Historique"
 
-#: sharing/templates/wb_home.html:83 sharing/templates/wb_home.html.py:108
+#: sharing/templates/wb_home.html:188 sharing/templates/wb_home.html.py:206
+msgid "instead of"
+msgstr ""
+
+#: sharing/templates/wb_home.html:198 sharing/templates/wb_home_2.html:83
+#: sharing/templates/wb_home_2.html:108
+#: sharing/templates/wb_home_tooltips.html:83
+#: sharing/templates/wb_home_tooltips.html:108
 #: sharing/templates/mobile/wb_home.html:900
 #: sharing/templates/mobile/wb_home.html:913
 #, fuzzy
 msgid "Est. Ride Duration"
 msgstr "à"
 
-#: sharing/templates/wb_home.html:97 sharing/templates/mobile/wb_home.html:894
+#: sharing/templates/wb_home.html:223
+#: sharing/templates/mobile/wb_home.html:823
 #, fuzzy
-msgid "Shared Taxi Ride"
-msgstr "course"
+msgid "Central Location"
+msgstr "classement moyen"
 
-#: sharing/templates/wb_home.html:122
+#: sharing/templates/wb_home.html:226
+msgid "Get Offer"
+msgstr ""
+
+#: sharing/templates/wb_home.html:235 sharing/templates/wb_home_2.html:122
+#: sharing/templates/wb_home_tooltips.html:122
 #, fuzzy
 msgid "My Next Rides"
 msgstr "course"
 
-#: sharing/templates/wb_home.html:173
+#: sharing/templates/wb_home.html:250
 #, fuzzy
-msgid "Select HotSpot"
-msgstr "Sélectionnez une adresse"
+msgid "Wherever You Are"
+msgstr "מכל מקום, המונית בדרך אליך!"
 
-#: sharing/templates/wb_home.html:183 sharing/templates/wb_home.html.py:221
-#, fuzzy
-msgid "Switch direction"
-msgstr "Inscription"
-
-#: sharing/templates/wb_home.html:192
-#, fuzzy
-msgid "Select City"
-msgstr "Sélectionnez une adresse"
-
-#: sharing/templates/wb_home.html:211
-#: sharing/templates/mobile/wb_home.html:1053
-msgid "House #"
+#: sharing/templates/wb_home.html:252
+msgid "Download the new WAYbetter app for your mobile now (free)"
 msgstr ""
 
-#: sharing/templates/wb_home.html:231 sharing/templates/mobile/wb_home.html:28
-#, fuzzy
-msgid "Choose Pickup Time"
-msgstr "heure de ramassage"
-
-#: sharing/templates/wb_home.html:233 sharing/templates/wb_home.html.py:773
-#, fuzzy
-msgid "at"
-msgstr "Statut"
-
-#: sharing/templates/wb_home.html:238
-#, fuzzy
-msgid "_pickup"
-msgstr "heure de ramassage"
-
-#: sharing/templates/wb_home.html:261
-msgid "*Times may vary due to traffic and stuff..."
+#: sharing/templates/wb_home.html:256
+msgid "Get the iPhone App"
 msgstr ""
 
-#: sharing/templates/wb_home.html:401 sharing/templates/mobile/wb_home.html:31
-#, fuzzy
-msgid "Dropoff Time"
-msgstr "Sélectionnez une adresse"
-
-#: sharing/templates/wb_home.html:402
-#, fuzzy
-msgid "_dropoffat"
-msgstr "Sélectionnez une adresse"
-
-#: sharing/templates/wb_home.html:407
-#, fuzzy
-msgid "Your Pickup"
-msgstr "heure de ramassage"
-
-#: sharing/templates/wb_home.html:407
-msgid "Your Dropoff"
+#: sharing/templates/wb_home.html:262
+msgid "Get the Android App"
 msgstr ""
 
-#: sharing/templates/wb_home.html:470
-#, fuzzy
-msgid "Calculating"
-msgstr "Annulation"
+#: sharing/templates/wb_home.html:343
+msgid "Leave "
+msgstr ""
 
-#: sharing/templates/wb_home.html:501
+#: sharing/templates/wb_home.html:344
+msgid "Goto "
+msgstr ""
+
+#: sharing/templates/wb_home.html:416
 #, fuzzy
-msgid "Please choose another date"
+msgid "Please choose a hotspot"
 msgstr "Station préférée"
 
-#: sharing/templates/wb_home.html:508
+#: sharing/templates/wb_home.html:455 sharing/templates/wb_home_2.html:508
+#: sharing/templates/wb_home_tooltips.html:508
 msgid "We had a problem getting available intervals. Please try again."
 msgstr ""
 
-#: sharing/templates/wb_home.html:549
+#: sharing/templates/wb_home.html:477
+msgid "Please fill all ride details"
+msgstr ""
+
+#: sharing/templates/wb_home.html:511 sharing/templates/wb_home_2.html:549
+#: sharing/templates/wb_home_tooltips.html:549
 #: sharing/templates/mobile/wb_home.html:221
 #, fuzzy
 msgid "Currently, there is no service to this address at the selected hour."
 msgstr "Le service n'est pas présentement disponible dans le pays."
 
-#: sharing/templates/wb_home.html:649
+#: sharing/templates/wb_home.html:573 sharing/templates/wb_home_2.html:401
+#: sharing/templates/wb_home_tooltips.html:401
+#: sharing/templates/mobile/wb_home.html:31
 #, fuzzy
-msgid "HotSpot"
+msgid "Dropoff Time"
 msgstr "Sélectionnez une adresse"
 
-#: sharing/templates/wb_home.html:655
-#, fuzzy
-msgid "Book Private"
-msgstr "Réservation"
-
-#: sharing/templates/wb_home.html:656
-#, fuzzy
-msgid "Book Shared"
-msgstr "Classement"
-
-#: sharing/templates/wb_home.html:727
+#: sharing/templates/wb_home.html:599 sharing/templates/wb_home_2.html:727
+#: sharing/templates/wb_home_tooltips.html:727
 msgid "Error getting rides data"
 msgstr ""
 
-#: sharing/templates/wb_home.html:785
+#: sharing/templates/wb_home.html:644 sharing/templates/wb_home_2.html:233
+#: sharing/templates/wb_home_2.html:773
+#: sharing/templates/wb_home_tooltips.html:233
+#: sharing/templates/wb_home_tooltips.html:773
+#, fuzzy
+msgid "at"
+msgstr "Statut"
+
+#: sharing/templates/wb_home.html:661 sharing/templates/wb_home_2.html:785
+#: sharing/templates/wb_home_tooltips.html:785
 #, fuzzy
 msgid "Please choose from list"
 msgstr "Station préférée"
 
-#: sharing/templates/wb_home.html:1058
-#, fuzzy
-msgid "Dropoff time"
-msgstr "Sélectionnez une adresse"
+#: sharing/templates/wb_home.html:718
+msgid "Where are you going"
+msgstr ""
 
-#: sharing/templates/wb_home.html:1123
+#: sharing/templates/wb_home.html:718
+msgid "Where are you coming from"
+msgstr ""
+
+#: sharing/templates/wb_home.html:820
+#, fuzzy
+msgid "Define Time"
+msgstr "Définissez horaire"
+
+#: sharing/templates/wb_home.html:823
+msgid "When are you leaving "
+msgstr ""
+
+#: sharing/templates/wb_home.html:826
+#, fuzzy
+msgid "When do you want to be at"
+msgstr "Etes-vous sûr de vouloir commander un taxi maintenant ?"
+
+#: sharing/templates/wb_home.html:954 sharing/templates/wb_home_2.html:1123
+#: sharing/templates/wb_home_tooltips.html:1123
 msgid "Join the private Beta"
 msgstr ""
 
-#: sharing/templates/wb_info.html:8 templates/wb_base_site.html:28
-#: templates/wb_base_site.html.py:143
+#: sharing/templates/wb_home_2.html:41
+#: sharing/templates/wb_home_tooltips.html:41
 #, fuzzy
-msgid "The Service"
-msgstr "Réservation"
+msgid "Enter Your WAY"
+msgstr "Saisissez votre e-mail"
 
-#: sharing/templates/wb_info.html:9 sharing/templates/mobile/faq.html:17
-#: sharing/templates/mobile/wb_home.html:1119 templates/wb_base_site.html:144
-msgid "FAQ"
+#: sharing/templates/wb_home_2.html:61 sharing/templates/wb_home_2.html:228
+#: sharing/templates/wb_home_2.html:460
+#: sharing/templates/wb_home_tooltips.html:61
+#: sharing/templates/wb_home_tooltips.html:228
+#: sharing/templates/wb_home_tooltips.html:460
+msgid "When"
 msgstr ""
 
-#: sharing/templates/wb_info.html:11 templates/wb_base_site.html:146
+#: sharing/templates/wb_home_2.html:72
+#: sharing/templates/wb_home_tooltips.html:72
+#: sharing/templates/mobile/wb_home.html:907
 #, fuzzy
-msgid "Contact Us"
-msgstr "Contact "
+msgid "Private Taxi Ride"
+msgstr "course"
+
+#: sharing/templates/wb_home_2.html:76 sharing/templates/wb_home_2.html:101
+#: sharing/templates/wb_home_tooltips.html:76
+#: sharing/templates/wb_home_tooltips.html:101
+#, fuzzy
+msgid "Ride Price"
+msgstr "Historique"
+
+#: sharing/templates/wb_home_2.html:97
+#: sharing/templates/wb_home_tooltips.html:97
+#: sharing/templates/mobile/wb_home.html:894
+#, fuzzy
+msgid "Shared Taxi Ride"
+msgstr "course"
+
+#: sharing/templates/wb_home_2.html:173
+#: sharing/templates/wb_home_tooltips.html:173
+#, fuzzy
+msgid "Select HotSpot"
+msgstr "Sélectionnez une adresse"
+
+#: sharing/templates/wb_home_2.html:183 sharing/templates/wb_home_2.html:221
+#: sharing/templates/wb_home_tooltips.html:183
+#: sharing/templates/wb_home_tooltips.html:221
+#, fuzzy
+msgid "Switch direction"
+msgstr "Inscription"
+
+#: sharing/templates/wb_home_2.html:192
+#: sharing/templates/wb_home_tooltips.html:192
+#, fuzzy
+msgid "Select City"
+msgstr "Sélectionnez une adresse"
+
+#: sharing/templates/wb_home_2.html:211
+#: sharing/templates/wb_home_tooltips.html:211
+#: sharing/templates/mobile/wb_home.html:1053
+msgid "House #"
+msgstr ""
+
+#: sharing/templates/wb_home_2.html:231
+#: sharing/templates/wb_home_tooltips.html:231
+#: sharing/templates/mobile/wb_home.html:28
+#, fuzzy
+msgid "Choose Pickup Time"
+msgstr "heure de ramassage"
+
+#: sharing/templates/wb_home_2.html:261
+#: sharing/templates/wb_home_tooltips.html:261
+msgid "*Times may vary due to traffic and stuff..."
+msgstr ""
+
+#: sharing/templates/wb_home_2.html:402
+#: sharing/templates/wb_home_tooltips.html:402
+#, fuzzy
+msgid "_dropoffat"
+msgstr "Sélectionnez une adresse"
+
+#: sharing/templates/wb_home_2.html:407
+#: sharing/templates/wb_home_tooltips.html:407
+#, fuzzy
+msgid "Your Pickup"
+msgstr "heure de ramassage"
+
+#: sharing/templates/wb_home_2.html:407
+#: sharing/templates/wb_home_tooltips.html:407
+msgid "Your Dropoff"
+msgstr ""
+
+#: sharing/templates/wb_home_2.html:470
+#: sharing/templates/wb_home_tooltips.html:470
+#, fuzzy
+msgid "Calculating"
+msgstr "Annulation"
+
+#: sharing/templates/wb_home_2.html:501
+#: sharing/templates/wb_home_tooltips.html:501
+#, fuzzy
+msgid "Please choose another date"
+msgstr "Station préférée"
+
+#: sharing/templates/wb_home_2.html:649
+#: sharing/templates/wb_home_tooltips.html:649
+#, fuzzy
+msgid "HotSpot"
+msgstr "Sélectionnez une adresse"
+
+#: sharing/templates/wb_home_2.html:655
+#: sharing/templates/wb_home_tooltips.html:655
+#, fuzzy
+msgid "Book Private"
+msgstr "Réservation"
+
+#: sharing/templates/wb_home_2.html:656
+#: sharing/templates/wb_home_tooltips.html:656
+#, fuzzy
+msgid "Book Shared"
+msgstr "Classement"
+
+#: sharing/templates/wb_home_2.html:1058
+#: sharing/templates/wb_home_tooltips.html:1058
+#, fuzzy
+msgid "Dropoff time"
+msgstr "Sélectionnez une adresse"
 
 #: sharing/templates/ws_home.html:10
 msgid "Please wait, connecting"
@@ -4287,12 +4682,6 @@ msgstr "Votre numéro de téléphone"
 msgid "Get verfication code (free)"
 msgstr "Code de vérification téléphonique"
 
-#: sharing/templates/mobile/passenger_registration.html:137
-#: sharing/templates/mobile/terms_of_service.html:16
-#, fuzzy
-msgid "Terms of Service"
-msgstr "Conditions d'utilisation"
-
 #: sharing/templates/mobile/passenger_registration.html:265
 #, fuzzy
 msgid "Checking"
@@ -4404,20 +4793,10 @@ msgstr "Saisissez votre e-mail"
 msgid "Switch Ride Direction"
 msgstr "Inscription"
 
-#: sharing/templates/mobile/wb_home.html:823
-#, fuzzy
-msgid "Central Location"
-msgstr "classement moyen"
-
 #: sharing/templates/mobile/wb_home.html:852
 #, fuzzy
 msgid "Calculate Ride"
 msgstr "Annulation"
-
-#: sharing/templates/mobile/wb_home.html:859
-#, fuzzy
-msgid "Number of Seats"
-msgstr "Nombre de taxis"
 
 #: sharing/templates/mobile/wb_home.html:864
 #, fuzzy
@@ -4464,15 +4843,6 @@ msgstr ""
 msgid "Back To Ride Order"
 msgstr ""
 
-#: sharing/templates/mobile/wb_home.html:1005
-#, fuzzy
-msgid "Hotspot"
-msgstr "Sélectionnez une adresse"
-
-#: sharing/templates/mobile/wb_home.html:1049
-msgid "Street"
-msgstr ""
-
 #: sharing/templates/mobile/wb_home.html:1083
 #, fuzzy
 msgid "Choose day"
@@ -4482,10 +4852,6 @@ msgstr "Saisissez un mot de passe "
 #, fuzzy
 msgid "Choose time"
 msgstr "Saisissez un mot de passe "
-
-#: sharing/templates/mobile/wb_home.html:1101
-msgid "Share on Facebook"
-msgstr ""
 
 #: sharing/templates/mobile/wb_home.html:1102
 msgid "Like us"
@@ -4505,24 +4871,19 @@ msgid ""
 "efficiency, cheaper rides and better availablity). <br/><br/>Thanks :)"
 msgstr ""
 
-#: sharing/templates/mobile/wb_home.html:1123 templates/wb_base_site.html:137
-#, fuzzy
-msgid "Terms of Use"
-msgstr "CGU"
-
 #: sharing/templates/mobile/wb_home.html:1129
-#: sharing/templates/mobile/wb_home_phonegap.html:278
+#: sharing/templates/mobile/wb_home_phonegap.html:279
 #, fuzzy
 msgid "Logout"
 msgstr "Déconnexion"
 
-#: sharing/templates/mobile/wb_home_phonegap.html:129
+#: sharing/templates/mobile/wb_home_phonegap.html:130
 msgid ""
 "Your network connectivity appear to be down. This application uses internet "
 "connectivity and will not work properly without a working connection."
 msgstr ""
 
-#: sharing/templates/mobile/wb_home_phonegap.html:247
+#: sharing/templates/mobile/wb_home_phonegap.html:248
 #, fuzzy
 msgid "Error while logging out"
 msgstr "Erreur de sauvegarde"
@@ -4547,7 +4908,7 @@ msgstr "Commander un taxi, c'est un jeu d'enfant (et c'est gratuit)"
 msgid "Passengers home"
 msgstr "Page d'accueil Passagers"
 
-#: templates/base.html:166
+#: templates/base.html:167
 msgid "2010 WAYbetter"
 msgstr "2010-2011 <span class=waybetter></span>"
 
@@ -4559,130 +4920,10 @@ msgstr "WAYbetter: la meilleure façon de trouver un taxi !"
 msgid "WAYbetter"
 msgstr "<span class=waybetter></span>"
 
-#: templates/wb_base.html:18 templates/wb_base.html.py:26
-#, fuzzy
-msgid "Half Price Taxi Rides"
-msgstr "course"
-
-#: templates/wb_base.html:21 templates/wb_base.html.py:28
-msgid ""
-"Revolution in Transportation: Half-priced taxi rides. Book a shared taxi "
-"online: comfortable, hassle free ride, save tens of dollars."
-msgstr ""
-
-#: templates/wb_base.html:22
-msgid "smart,iPhone,way better,order taxi,online"
-msgstr ""
-
 #: templates/wb_base_mobile.html:25
 #, fuzzy
 msgid "Thinking..."
 msgstr "Vérification..."
-
-#: templates/wb_base_site.html:40
-#, fuzzy
-msgid "Log-in"
-msgstr "Login"
-
-#: templates/wb_base_site.html:86 templates/wb_base_site.html.py:105
-#, fuzzy
-msgid "Service"
-msgstr "Réservation"
-
-#: templates/wb_base_site.html:87
-msgid "learnmore_service_content"
-msgstr ""
-
-#: templates/wb_base_site.html:90 templates/wb_base_site.html.py:109
-#: templates/wb_base_site.html:149
-#, fuzzy
-msgid "Community"
-msgstr "Pays"
-
-#: templates/wb_base_site.html:91
-msgid "learnmore_community_content"
-msgstr ""
-
-#: templates/wb_base_site.html:94 templates/wb_base_site.html.py:113
-msgid "Environment"
-msgstr ""
-
-#: templates/wb_base_site.html:95
-msgid "learnmore_environment_content"
-msgstr ""
-
-#: templates/wb_base_site.html:98 templates/wb_base_site.html.py:117
-msgid "Efficiency"
-msgstr ""
-
-#: templates/wb_base_site.html:99
-msgid "learnmore_efficiency_content"
-msgstr ""
-
-#: templates/wb_base_site.html:106
-#, fuzzy
-msgid "gist_service_content"
-msgstr "contenu"
-
-#: templates/wb_base_site.html:110
-msgid "gist_community_content"
-msgstr ""
-
-#: templates/wb_base_site.html:114
-msgid "gist_environment_content"
-msgstr ""
-
-#: templates/wb_base_site.html:118
-msgid "gist_efficiency_content"
-msgstr ""
-
-#: templates/wb_base_site.html:136
-#, fuzzy
-msgid "PickMeApp"
-msgstr "Taxi !"
-
-#: templates/wb_base_site.html:150
-msgid "Facebook"
-msgstr ""
-
-#: templates/wb_base_site.html:151
-msgid "Twitter"
-msgstr ""
-
-#: templates/wb_base_site.html:152
-#, fuzzy
-msgid "Stations"
-msgstr "Station"
-
-#: templates/wb_base_site.html:162
-#, fuzzy
-msgid "Account"
-msgstr "Pays"
-
-#: templates/wb_base_site.html:163
-#, fuzzy
-msgid "Log In"
-msgstr "Connexion"
-
-#: templates/wb_base_site.html:199
-msgid "To view WAYbetter in Internet Explorer you need to install"
-msgstr ""
-
-#: templates/wb_base_site.html:200
-msgid "Free"
-msgstr ""
-
-#: templates/wb_base_site.html:202
-msgid "Install Google Chrome Frame"
-msgstr ""
-
-#: templates/wb_base_site.html:203
-msgid "Or, use one of these browsers"
-msgstr ""
-
-#: templates/wb_base_site.html:285
-msgid "Get yourself a modern browser"
-msgstr ""
 
 #: templates/admin/billing/billingtransaction/change_form.html:21
 #, fuzzy
@@ -4777,6 +5018,9 @@ msgstr ""
 msgid "Error running spellchecker"
 msgstr "Erreur du vérificateur d'orthographe"
 
+#~ msgid "Help"
+#~ msgstr "Aide"
+
 #, fuzzy
 #~ msgid "One Seat"
 #~ msgstr "Statut"
@@ -4843,10 +5087,6 @@ msgstr "Erreur du vérificateur d'orthographe"
 #, fuzzy
 #~ msgid "Set Time"
 #~ msgstr "Sélectionnez une adresse"
-
-#, fuzzy
-#~ msgid "Define Time"
-#~ msgstr "Définissez horaire"
 
 #, fuzzy
 #~ msgid "Departure"
@@ -5670,9 +5910,6 @@ msgstr "Erreur du vérificateur d'orthographe"
 
 #~ msgid "Local mobile phone #"
 #~ msgstr "Numéro de portable"
-
-#~ msgid "Get a Taxi. Wherever You Are!"
-#~ msgstr "מכל מקום, המונית בדרך אליך!"
 
 #~ msgid "Hi-resolution image of the founders"
 #~ msgstr "תמונה ברזולוציה גבוהה של המייסדים"

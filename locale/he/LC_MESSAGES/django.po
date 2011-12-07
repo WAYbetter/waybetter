@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-06 18:10+0200\n"
-"PO-Revision-Date: 2011-12-06 18:10+0200\n"
+"POT-Creation-Date: 2011-12-07 15:36+0200\n"
+"PO-Revision-Date: 2011-12-07 15:37+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -248,12 +248,11 @@ msgstr "פירוט נסיעות מונית לחודש"
 
 #: billing/billing_manager.py:100
 msgid "Could not complete your registration. Please try again."
-msgstr ""
+msgstr "התרחשה שגיאה בעת הרשמתך. אנא נסה שנית."
 
 #: billing/models.py:23
-#, fuzzy
 msgid "id number"
-msgstr "מספר מונית"
+msgstr "מספר זהות"
 
 #: billing/models.py:25
 msgid "expiration date"
@@ -497,7 +496,7 @@ msgid "OOPS..."
 msgstr "אופס..."
 
 #: common/templates/error_dialog.html:11
-#: interests/templates/hotspot_interest_form.html:89
+#: interests/templates/hotspot_interest_form.html:99
 #: interests/templates/mobile_interest_form.html:53
 #: interests/templates/station_interest_form.html:37
 #: ordering/templates/base_passenger.html:69
@@ -533,6 +532,7 @@ msgid "OK"
 msgstr "אישור"
 
 #: common/templates/error_page.html:16
+#: intermediate/templates/wb_base_site.html:130
 #: templates/wb_base_site.html:130
 #: templates/admin/billing/billingtransaction/change_form.html:18
 msgid "Home"
@@ -857,8 +857,8 @@ msgid "phone"
 msgstr "טלפון"
 
 #: interests/models.py:83
-msgid "Your Suggestion"
-msgstr "אני מציע/ה"
+msgid "My suggested Hotspot"
+msgstr "הנקודה שלי"
 
 #: interests/models.py:84
 msgid "My Email"
@@ -877,7 +877,7 @@ msgid "Please fill the following details and we will contact you"
 msgstr "אנא מלא את הפרטים הבאים ואנו ניצור עמך קשר"
 
 #: interests/templates/business_interest_form.html:37
-#: interests/templates/hotspot_interest_form.html:87
+#: interests/templates/hotspot_interest_form.html:97
 #: interests/templates/mobile_interest_form.html:52
 #: interests/templates/pilot_interest_form.html:80
 #: interests/templates/station_interest_form.html:36
@@ -902,9 +902,25 @@ msgstr "שליחה"
 msgid "Cancel"
 msgstr "ביטול"
 
-#: interests/templates/hotspot_interest_form.html:84
-msgid "Thank You"
-msgstr "תודה"
+#: interests/templates/hotspot_interest_form.html:5
+msgid "What are HotSpots"
+msgstr "מה זה נקודות מרכזיות"
+
+#: interests/templates/hotspot_interest_form.html:76
+msgid "Hotspots are places or events in-which WAYbetter operates and offers fixed low ride prices due to the high amounts of users who share taxi rides."
+msgstr "נקודות מרכזיות הן מקומות ואירועים בהם  WAYbetter פועלת <span class=\"bold\">ומתחייבת </span>למחיר נמוך בזכות כמות החברים הגבוהה שחולקים נסיעות במוניות."
+
+#: interests/templates/hotspot_interest_form.html:79
+msgid "You choose the HotSpots! <br/>Popular places will be added to the HotSpots list. Together we will spread across the city a  smart, efficient, green and affordable transportation network."
+msgstr "אתם בוחרים את הנקודות המרכזיות!<br/>המקומות הפופולריים יתווספו לרשימה, כך נרשת יחד את העיר עם תחבורה חכמה, יעילה, ירוקה ומשתלמת."
+
+#: interests/templates/hotspot_interest_form.html:82
+msgid "Where would you like WAYbetter service"
+msgstr "לאן את/ה רוצה לנסוע ב - WAYbetter"
+
+#: interests/templates/hotspot_interest_form.html:88
+msgid "Oh, tell your friends... Thanks!"
+msgstr "אה, וספרו לחברים, זה משמעותי... תודה!"
 
 #: interests/templates/mobile_interest_form.html:7
 msgid "Looks Cool!"
@@ -925,6 +941,266 @@ msgstr "אם בא לך להיות בין הראשונים להשתמש בשיר�
 #: interests/templates/pilot_interest_form.html:70
 msgid "Thanks. We'll contact you soon."
 msgstr "תודה. ניצור אתך קשר בקרוב."
+
+#: intermediate/templates/wb_base.html:18
+#: intermediate/templates/wb_base.html:26
+#: templates/wb_base.html:18
+#: templates/wb_base.html.py:26
+msgid "Half Price Taxi Rides"
+msgstr "מוניות לכולם, בחצי מחיר"
+
+#: intermediate/templates/wb_base.html:21
+#: intermediate/templates/wb_base.html:28
+#: templates/wb_base.html:21
+#: templates/wb_base.html.py:28
+msgid "Revolution in Transportation: Half-priced taxi rides. Book a shared taxi online: comfortable, hassle free ride, save tens of dollars."
+msgstr "מהפכה בתחבורה: מונית בחצי מחיר!הזמינו מונית בלחיצה וסעו בנוחות, בלי ארנק, בלי דאגות ותוך חסכון של עשרות שקלים לנסיעה."
+
+#: intermediate/templates/wb_base.html:22
+#: templates/wb_base.html:22
+msgid "smart,iPhone,way better,order taxi,online"
+msgstr "מונית,משותפת,ווי-בטר,הזמנת מונית,מונית תל אביב,רמת החייל,חינם,אפליקציה,חצי מחיר"
+
+#: intermediate/templates/wb_base_site.html:24
+#: intermediate/templates/wb_base_site.html:139
+#: sharing/templates/wb_info.html:8
+#: templates/wb_base_site.html:24
+#: templates/wb_base_site.html.py:139
+msgid "The Service"
+msgstr "על השירות"
+
+#: intermediate/templates/wb_base_site.html:27
+#: ordering/templates/station_page.html:76
+#: templates/base.html:84
+#: templates/wb_base_site.html:27
+msgid "Hi"
+msgstr "שלום"
+
+#: intermediate/templates/wb_base_site.html:34
+#: intermediate/templates/wb_base_site.html:156
+#: sharing/templates/my_rides.html:9
+#: templates/wb_base_site.html:34
+#: templates/wb_base_site.html.py:156
+msgid "Log Out"
+msgstr "יציאה"
+
+#: intermediate/templates/wb_base_site.html:36
+#: templates/wb_base_site.html:36
+msgid "Log-in"
+msgstr "כניסה"
+
+#: intermediate/templates/wb_base_site.html:82
+#: intermediate/templates/wb_base_site.html:101
+#: templates/wb_base_site.html:82
+#: templates/wb_base_site.html.py:101
+msgid "Service"
+msgstr "שירות"
+
+#: intermediate/templates/wb_base_site.html:83
+#: templates/wb_base_site.html:83
+msgid "learnmore_service_content"
+msgstr "<p>החברים ב-WAYbetter נהנים מחוויית משתמש מתקדמת.</p><p>כדי שיהיה קל וכיף, אנו מאפשרים הזמנת מונית בקליק, משחררים אתכם מהצורך להתעסק במזומן או בכלל לשלוף את הארנק. ובעיקר להינות משירות של מונית ספיישל תוך חסכון של עשרות שקלים בכל נסיעה.</p>"
+
+#: intermediate/templates/wb_base_site.html:86
+#: intermediate/templates/wb_base_site.html:105
+#: intermediate/templates/wb_base_site.html:145
+#: templates/wb_base_site.html:86
+#: templates/wb_base_site.html.py:105
+#: templates/wb_base_site.html:145
+msgid "Community"
+msgstr "קהילה"
+
+#: intermediate/templates/wb_base_site.html:87
+#: templates/wb_base_site.html:87
+msgid "learnmore_community_content"
+msgstr "<p>WAYbetter היא קהילה שנוצרה כדי לאפשר נסיעה משותפת במונית תוך הוזלה דרסטית של מחירי הנסיעה. מטרת הקהילה לעשות טוב לכולם: לשפר את שירות התחבורה הציבורית, לייעל את עבודת נהגי המוניות, לצמצם את זיהום האוויר בעיר, וכמובן לנסוע במחיר שווה לכל כיס.</p><p>אנו חולקים דרך משותפת, בואו נאחד כוחות כקהילה וניצור חופש תנועה מסוג חדש.</p>"
+
+#: intermediate/templates/wb_base_site.html:90
+#: intermediate/templates/wb_base_site.html:109
+#: templates/wb_base_site.html:90
+#: templates/wb_base_site.html.py:109
+msgid "Environment"
+msgstr "סביבה"
+
+#: intermediate/templates/wb_base_site.html:91
+#: templates/wb_base_site.html:91
+msgid "learnmore_environment_content"
+msgstr "<p>אנו מאמינים בתחבורה ציבורית.</p><p>השיעבוד לרכב הפרטי וחוסר היעילות בו מתנהלת התחבורה הציבורית הם הגורמים העיקריים להפיכת המרחב האורבאני לצפוף, רועש ומזוהם. אנו יודעים שסלילת כבישים נוספים או מכוניות חשמליות לא יפתרו את הבעיה. אלגוריתם התכנון החכם של WAYbetter מאפשר להסיע יותר אנשים בפחות רכבים ובכך למנוע זיהום מיותר ולמקסם את יעילותה של התחבורה הציבורית.</p><p>יחד נוכל לרתום את הצפיפות העירונית לטובתנו ולהפוך אותה מקושי ליתרון אמיתי.</p>"
+
+#: intermediate/templates/wb_base_site.html:94
+#: intermediate/templates/wb_base_site.html:113
+#: templates/wb_base_site.html:94
+#: templates/wb_base_site.html.py:113
+msgid "Efficiency"
+msgstr "יעילות"
+
+#: intermediate/templates/wb_base_site.html:95
+#: templates/wb_base_site.html:95
+msgid "learnmore_efficiency_content"
+msgstr "<p>WAYbetter הוקמה כדי לייעל את תחום התחבורה ולתקן כשל שוק: מוניות נוסעות ריקות כחצי מהזמן, או עם לקוח אחד בשאר המקרים. כתוצאה מכך עלות הנסיעה במונית יקרה ללקוח ולא רווחית לנהג.</p><p>תפיסת התחבורה שלנו מתאימה את ההיצע לביקוש ובכך מפחיתה את הבזבוז וממקסמת את יעילות ורווחיות השירות, לטובת כלל חברי הקהילה, הנוסעים, הנהגים והסביבה.</p>"
+
+#: intermediate/templates/wb_base_site.html:102
+#: templates/wb_base_site.html:102
+msgid "gist_service_content"
+msgstr "חווית מוניות חדשה, אישית ומתקדמת"
+
+#: intermediate/templates/wb_base_site.html:106
+#: templates/wb_base_site.html:106
+msgid "gist_community_content"
+msgstr "אנחנו חולקים עיר, בואו נחלוק גם דרך"
+
+#: intermediate/templates/wb_base_site.html:110
+#: templates/wb_base_site.html:110
+msgid "gist_environment_content"
+msgstr "יותר אנשים ברכב, פחות רכבים בכביש"
+
+#: intermediate/templates/wb_base_site.html:114
+#: templates/wb_base_site.html:114
+msgid "gist_efficiency_content"
+msgstr "פחות בזבוז, יותר התאמה אישית"
+
+#: intermediate/templates/wb_base_site.html:131
+#: ordering/templates/passenger_home.html:113
+#: ordering/templates/passenger_home.html:120
+#: templates/wb_base_site.html:131
+msgid "Mobile"
+msgstr "טלפונים ניידים"
+
+#: intermediate/templates/wb_base_site.html:132
+#: templates/wb_base_site.html:132
+msgid "PickMeApp"
+msgstr "נגעת נסעת"
+
+#: intermediate/templates/wb_base_site.html:133
+#: sharing/templates/mobile/wb_home.html:1123
+#: templates/wb_base_site.html:133
+msgid "Terms of Use"
+msgstr "תנאי שימוש"
+
+#: intermediate/templates/wb_base_site.html:134
+#: ordering/templates/terms.html:18
+#: sharing/templates/mobile/passenger_registration.html:147
+#: sharing/templates/mobile/privacy.html:16
+#: sharing/templates/mobile/wb_home.html:1122
+#: templates/wb_base_site.html:134
+msgid "Privacy Policy"
+msgstr "מדיניות פרטיות"
+
+#: intermediate/templates/wb_base_site.html:137
+#: ordering/templates/info.html:28
+#: ordering/templates/mobile/passenger_home.html:229
+#: ordering/templates/mobile/passenger_home.html:272
+#: sharing/templates/wb_info.html:4
+#: sharing/templates/mobile/wb_home.html:1118
+#: sharing/templates/mobile/wb_home.html:1143
+#: templates/base.html:139
+#: templates/wb_base_site.html:137
+msgid "About"
+msgstr "אודות"
+
+#: intermediate/templates/wb_base_site.html:138
+#: sharing/templates/about_us.html:5
+#: sharing/templates/wb_info.html:7
+#: templates/wb_base_site.html:138
+msgid "About Us"
+msgstr "מי אנחנו"
+
+#: intermediate/templates/wb_base_site.html:140
+#: sharing/templates/wb_info.html:9
+#: sharing/templates/mobile/faq.html:17
+#: sharing/templates/mobile/wb_home.html:1119
+#: templates/wb_base_site.html:140
+msgid "FAQ"
+msgstr "שאלות נפוצות"
+
+#: intermediate/templates/wb_base_site.html:141
+#: ordering/templates/info.html:29
+#: sharing/templates/wb_info.html:10
+#: templates/base.html:140
+#: templates/wb_base_site.html:141
+msgid "Press"
+msgstr "תקשורת"
+
+#: intermediate/templates/wb_base_site.html:142
+#: sharing/templates/wb_info.html:11
+#: templates/wb_base_site.html:142
+msgid "Contact Us"
+msgstr "צור קשר"
+
+#: intermediate/templates/wb_base_site.html:146
+#: templates/wb_base_site.html:146
+msgid "Facebook"
+msgstr "פייסבוק"
+
+#: intermediate/templates/wb_base_site.html:147
+#: templates/wb_base_site.html:147
+msgid "Twitter"
+msgstr "טוויטר"
+
+#: intermediate/templates/wb_base_site.html:148
+#: templates/wb_base_site.html:148
+msgid "Stations"
+msgstr "תחנות מוניות"
+
+#: intermediate/templates/wb_base_site.html:153
+#: sharing/templates/my_rides.html:4
+#: templates/wb_base_site.html:153
+msgid "My Account"
+msgstr "החשבון שלי"
+
+#: intermediate/templates/wb_base_site.html:154
+#: ordering/templates/station_analytics.html:157
+#: templates/wb_base_site.html:154
+msgid "Rides"
+msgstr "נסיעות"
+
+#: intermediate/templates/wb_base_site.html:155
+#: ordering/templates/station_home.html:48
+#: templates/wb_base_site.html:155
+msgid "Profile"
+msgstr "פרופיל"
+
+#: intermediate/templates/wb_base_site.html:158
+#: templates/wb_base_site.html:158
+msgid "Account"
+msgstr "חשבון"
+
+#: intermediate/templates/wb_base_site.html:159
+#: templates/wb_base_site.html:159
+msgid "Log In"
+msgstr "כניסה"
+
+#: intermediate/templates/wb_base_site.html:161
+#: ordering/templates/business_tab.html:24
+#: ordering/templates/station_home.html:59
+#: templates/wb_base_site.html:161
+msgid "Join"
+msgstr "הצטרפות!"
+
+#: intermediate/templates/wb_base_site.html:195
+#: templates/wb_base_site.html:195
+msgid "To view WAYbetter in Internet Explorer you need to install"
+msgstr "על-מנת לגלוש ב WAYbetter דרך מיקרוסופט אקספלורר עליך להשתמש "
+
+#: intermediate/templates/wb_base_site.html:196
+#: templates/wb_base_site.html:196
+msgid "Free"
+msgstr "חינם"
+
+#: intermediate/templates/wb_base_site.html:198
+#: templates/wb_base_site.html:198
+msgid "Install Google Chrome Frame"
+msgstr "הוסף Google Chrome Frame"
+
+#: intermediate/templates/wb_base_site.html:199
+#: templates/wb_base_site.html:199
+msgid "Or, use one of these browsers"
+msgstr "או, התקן את אחד מהדפדפנים הבאים"
+
+#: intermediate/templates/wb_base_site.html:266
+#: templates/wb_base_site.html:281
+msgid "Get yourself a modern browser"
+msgstr "שדרג את חוית הגלישה שלך, עבור לדפדפן מתקדם"
 
 #: openid_consumer/views.py:96
 msgid "i-names are not supported"
@@ -1511,7 +1787,7 @@ msgstr "זיהוי תחנה"
 
 #: ordering/models.py:796
 msgid "Unrated"
-msgstr ""
+msgstr "ללא דירוג"
 
 #: ordering/models.py:797
 msgid "Very poor"
@@ -2295,12 +2571,6 @@ msgstr "אפשרות המלצה להוספת תחנה למערכת"
 msgid "Fill in your details to join us"
 msgstr "להצטרפות יש למלא פרטי התקשרות:"
 
-#: ordering/templates/business_tab.html:24
-#: ordering/templates/station_home.html:59
-#: templates/wb_base_site.html:161
-msgid "Join"
-msgstr "הצטרפות!"
-
 #: ordering/templates/business_tab.html:41
 msgid "There was an error saving your details"
 msgstr "אנו מצטערים, אך נתקלנו בשגיאה בעת הטיפול בבקשה שלך. ניתן לנסות שנית מאוחר יותר..."
@@ -2324,24 +2594,6 @@ msgstr ""
 #: ordering/templates/flat_rate_rules_setup.html:6
 msgid "Upload specific pricing rules (inter-city taarif in CSV format)"
 msgstr "טען כללים תמחור ספציפי (בינעירוניים taarif בפורמט CSV)"
-
-#: ordering/templates/info.html:28
-#: ordering/templates/mobile/passenger_home.html:229
-#: ordering/templates/mobile/passenger_home.html:272
-#: sharing/templates/wb_info.html:4
-#: sharing/templates/mobile/wb_home.html:1118
-#: sharing/templates/mobile/wb_home.html:1143
-#: templates/base.html:139
-#: templates/wb_base_site.html:137
-msgid "About"
-msgstr "אודות"
-
-#: ordering/templates/info.html:29
-#: sharing/templates/wb_info.html:10
-#: templates/base.html:140
-#: templates/wb_base_site.html:141
-msgid "Press"
-msgstr "תקשורת"
 
 #: ordering/templates/info.html:34
 #: templates/base.html:145
@@ -2452,12 +2704,6 @@ msgstr "הפרופיל שלי"
 #: ordering/templates/passenger_home.html:119
 msgid "Taxi Stations"
 msgstr "תחנות מונית"
-
-#: ordering/templates/passenger_home.html:113
-#: ordering/templates/passenger_home.html:120
-#: templates/wb_base_site.html:131
-msgid "Mobile"
-msgstr "טלפונים ניידים"
 
 #: ordering/templates/passenger_home.html:118
 msgid "Businesses"
@@ -2587,11 +2833,6 @@ msgstr "סיכום נסיעות"
 msgid "rides"
 msgstr "נסיעות"
 
-#: ordering/templates/station_analytics.html:157
-#: templates/wb_base_site.html:154
-msgid "Rides"
-msgstr "נסיעות"
-
 #: ordering/templates/station_analytics.html:229
 #: sharing/templates/station_accounting.html:98
 #: sharing/templates/station_history.html:106
@@ -2612,11 +2853,6 @@ msgstr "נסיעות קודמות"
 msgid "Station analytics"
 msgstr "ביצועים"
 
-#: ordering/templates/station_home.html:48
-#: templates/wb_base_site.html:155
-msgid "Profile"
-msgstr "פרופיל"
-
 #: ordering/templates/station_home.html:51
 msgid "Workstations"
 msgstr "עמדת עבודה"
@@ -2628,12 +2864,6 @@ msgstr "הזמנת מונית לעסקים. ללא שיחה, מענה אוטומ
 #: ordering/templates/station_page.html:69
 msgid "Book A Taxi Application. Immediate Response via SMS"
 msgstr "הזמינו מונית בקליק עכשיו, מענה מיידי ב-SMS חינם!"
-
-#: ordering/templates/station_page.html:76
-#: templates/base.html:84
-#: templates/wb_base_site.html:27
-msgid "Hi"
-msgstr "שלום"
 
 #: ordering/templates/station_page.html:77
 #: templates/base.html:90
@@ -2737,14 +2967,6 @@ msgstr ""
 "נוכח אילוצים תנועתיים ואחרים, הגם ש  WAYbetter עושה כל מאמץ על מנת שהמידע והערכות מחיר וזמן יהיו מדויקות,תתכן סטייה או אי התאמה בין המידע שניתן לבין המציאות. WAYbetter לא תהא אחראית לכל טעות, שגיאה, או חוסר התאמה של המידע ו/או הנתונים שניתנו . כמו כן WAYbetter לא תישא בכל נזק ו/או הוצאה שיגרמו עקב מעשים או מחדלים כמפורט לעיל.\n"
 "המשתמש בשירות מתחייב שלא לבצע שימוש לרעה או כל שימוש שאינו לצורך הזמנת מונית ממשית.\n"
 "WAYbetter תהא רשאית, על פי שיקול דעתה הבלעדי, להפסיק את מתן השירות או לערוך בו שינויים.    "
-
-#: ordering/templates/terms.html:18
-#: sharing/templates/mobile/passenger_registration.html:147
-#: sharing/templates/mobile/privacy.html:16
-#: sharing/templates/mobile/wb_home.html:1122
-#: templates/wb_base_site.html:134
-msgid "Privacy Policy"
-msgstr "מדיניות פרטיות"
 
 #: ordering/templates/terms.html:19
 msgid "web_actual_privacy_policy"
@@ -3070,7 +3292,7 @@ msgstr "הצג"
 #: sharing/algo_api.py:127
 #, python-format
 msgid "We are sorry, but order #%s could not be completed"
-msgstr ""
+msgstr "אנו מצטערים אך הזמנה מס' %s נכשלה"
 
 #: sharing/algo_api.py:132
 #, python-format
@@ -3160,12 +3382,6 @@ msgstr "נסיעת מונית פרטית"
 #: sharing/passenger_controller.py:628
 msgid "WAYbetter Order Confirmation"
 msgstr "אישור הזמנת נסיעה "
-
-#: sharing/templates/about_us.html:5
-#: sharing/templates/wb_info.html:7
-#: templates/wb_base_site.html:138
-msgid "About Us"
-msgstr "מי אנחנו"
 
 #: sharing/templates/about_us.html:7
 msgid "about_us_content"
@@ -3285,17 +3501,6 @@ msgstr "הפוך כיוון נסיעה"
 #: sharing/templates/hotspot_ordering_page_textinput.html:33
 msgid "Select time"
 msgstr "בחר זמן"
-
-#: sharing/templates/my_rides.html:4
-#: templates/wb_base_site.html:153
-msgid "My Account"
-msgstr "החשבון שלי"
-
-#: sharing/templates/my_rides.html:9
-#: templates/wb_base_site.html:34
-#: templates/wb_base_site.html.py:156
-msgid "Log Out"
-msgstr "יציאה"
 
 #: sharing/templates/my_rides.html:59
 #: sharing/templates/wb_home.html:588
@@ -3908,8 +4113,8 @@ msgid "Book a Shared Taxi Ride"
 msgstr "הזמן נסיעת מונית משותפת"
 
 #: sharing/templates/wb_home.html:53
-msgid "Choose a Central Location"
-msgstr "בחר מקום מרכזי מהרשימה"
+msgid "Choose a Hotspot"
+msgstr "בחר נקודה מרכזית"
 
 #: sharing/templates/wb_home.html:78
 #: sharing/templates/mobile/wb_home.html:1049
@@ -4184,24 +4389,6 @@ msgstr "הזמן נסיעה משותפת"
 #: sharing/templates/wb_home_tooltips.html:1058
 msgid "Dropoff time"
 msgstr "שעת הגעה ליעד"
-
-#: sharing/templates/wb_info.html:8
-#: templates/wb_base_site.html:24
-#: templates/wb_base_site.html.py:139
-msgid "The Service"
-msgstr "על השירות"
-
-#: sharing/templates/wb_info.html:9
-#: sharing/templates/mobile/faq.html:17
-#: sharing/templates/mobile/wb_home.html:1119
-#: templates/wb_base_site.html:140
-msgid "FAQ"
-msgstr "שאלות נפוצות"
-
-#: sharing/templates/wb_info.html:11
-#: templates/wb_base_site.html:142
-msgid "Contact Us"
-msgstr "צור קשר"
 
 #: sharing/templates/ws_home.html:10
 msgid "Please wait, connecting"
@@ -4535,11 +4722,6 @@ msgstr ""
 msgid "Remember, the more passengers using this app the better it becomes (higher efficiency, cheaper rides and better availablity). <br/><br/>Thanks :)"
 msgstr "זכור, ככל שיותר נוסעים משתמשים באפליקציה זו כך היא משתפרת (היעילות עולה, המחיר יורד והזמינות גדלה).<br/><br/><span class=\"bold\">תודה :)</span>"
 
-#: sharing/templates/mobile/wb_home.html:1123
-#: templates/wb_base_site.html:133
-msgid "Terms of Use"
-msgstr "תנאי שימוש"
-
 #: sharing/templates/mobile/wb_home.html:1129
 #: sharing/templates/mobile/wb_home_phonegap.html:279
 msgid "Logout"
@@ -4585,124 +4767,13 @@ msgstr "הדרך הטובה ביותר להשיג מונית (חינם)"
 msgid "WAYbetter"
 msgstr "<span class=waybetter></span>"
 
-#: templates/wb_base.html:18
-#: templates/wb_base.html.py:26
-msgid "Half Price Taxi Rides"
-msgstr "מוניות לכולם, בחצי מחיר"
-
-#: templates/wb_base.html:21
-#: templates/wb_base.html.py:28
-msgid "Revolution in Transportation: Half-priced taxi rides. Book a shared taxi online: comfortable, hassle free ride, save tens of dollars."
-msgstr "מהפכה בתחבורה: מונית בחצי מחיר!הזמינו מונית בלחיצה וסעו בנוחות, בלי ארנק, בלי דאגות ותוך חסכון של עשרות שקלים לנסיעה."
-
-#: templates/wb_base.html:22
-msgid "smart,iPhone,way better,order taxi,online"
-msgstr "מונית,משותפת,ווי-בטר,הזמנת מונית,מונית תל אביב,רמת החייל,חינם,אפליקציה,חצי מחיר"
+#: templates/wb_base.html:89
+msgid "Social revolution in public transportation. WAYbetter allows you to order shared taxi rides , for a (very) low fixed price. It’s green, it’s fast and it’s cheap. Check it out: www.waybetter.com"
+msgstr "WAYbetter - אפליקציה חברתית חדשה שעושה מהפכה בתחבורה.באפליקציה ניתן להזמין נסיעות משותפות במונית ספיישל, תוך חסכון אדיר (ומובטח) של עשרות שקלים לנסיעה.זה משתלם, זה חברתי וזה ירוק.חייבים לנסות:www.waybetter.com"
 
 #: templates/wb_base_mobile.html:25
 msgid "Thinking..."
 msgstr "חושב..."
-
-#: templates/wb_base_site.html:36
-msgid "Log-in"
-msgstr "כניסה"
-
-#: templates/wb_base_site.html:82
-#: templates/wb_base_site.html.py:101
-msgid "Service"
-msgstr "שירות"
-
-#: templates/wb_base_site.html:83
-msgid "learnmore_service_content"
-msgstr "<p>החברים ב-WAYbetter נהנים מחוויית משתמש מתקדמת.</p><p>כדי שיהיה קל וכיף, אנו מאפשרים הזמנת מונית בקליק, משחררים אתכם מהצורך להתעסק במזומן או בכלל לשלוף את הארנק. ובעיקר להינות משירות של מונית ספיישל תוך חסכון של עשרות שקלים בכל נסיעה.</p>"
-
-#: templates/wb_base_site.html:86
-#: templates/wb_base_site.html.py:105
-#: templates/wb_base_site.html:145
-msgid "Community"
-msgstr "קהילה"
-
-#: templates/wb_base_site.html:87
-msgid "learnmore_community_content"
-msgstr "<p>WAYbetter היא קהילה שנוצרה כדי לאפשר נסיעה משותפת במונית תוך הוזלה דרסטית של מחירי הנסיעה. מטרת הקהילה לעשות טוב לכולם: לשפר את שירות התחבורה הציבורית, לייעל את עבודת נהגי המוניות, לצמצם את זיהום האוויר בעיר, וכמובן לנסוע במחיר שווה לכל כיס.</p><p>אנו חולקים דרך משותפת, בואו נאחד כוחות כקהילה וניצור חופש תנועה מסוג חדש.</p>"
-
-#: templates/wb_base_site.html:90
-#: templates/wb_base_site.html.py:109
-msgid "Environment"
-msgstr "סביבה"
-
-#: templates/wb_base_site.html:91
-msgid "learnmore_environment_content"
-msgstr "<p>אנו מאמינים בתחבורה ציבורית.</p><p>השיעבוד לרכב הפרטי וחוסר היעילות בו מתנהלת התחבורה הציבורית הם הגורמים העיקריים להפיכת המרחב האורבאני לצפוף, רועש ומזוהם. אנו יודעים שסלילת כבישים נוספים או מכוניות חשמליות לא יפתרו את הבעיה. אלגוריתם התכנון החכם של WAYbetter מאפשר להסיע יותר אנשים בפחות רכבים ובכך למנוע זיהום מיותר ולמקסם את יעילותה של התחבורה הציבורית.</p><p>יחד נוכל לרתום את הצפיפות העירונית לטובתנו ולהפוך אותה מקושי ליתרון אמיתי.</p>"
-
-#: templates/wb_base_site.html:94
-#: templates/wb_base_site.html.py:113
-msgid "Efficiency"
-msgstr "יעילות"
-
-#: templates/wb_base_site.html:95
-msgid "learnmore_efficiency_content"
-msgstr "<p>WAYbetter הוקמה כדי לייעל את תחום התחבורה ולתקן כשל שוק: מוניות נוסעות ריקות כחצי מהזמן, או עם לקוח אחד בשאר המקרים. כתוצאה מכך עלות הנסיעה במונית יקרה ללקוח ולא רווחית לנהג.</p><p>תפיסת התחבורה שלנו מתאימה את ההיצע לביקוש ובכך מפחיתה את הבזבוז וממקסמת את יעילות ורווחיות השירות, לטובת כלל חברי הקהילה, הנוסעים, הנהגים והסביבה.</p>"
-
-#: templates/wb_base_site.html:102
-msgid "gist_service_content"
-msgstr "חווית מוניות חדשה, אישית ומתקדמת"
-
-#: templates/wb_base_site.html:106
-msgid "gist_community_content"
-msgstr "אנחנו חולקים עיר, בואו נחלוק גם דרך"
-
-#: templates/wb_base_site.html:110
-msgid "gist_environment_content"
-msgstr "יותר אנשים ברכב, פחות רכבים בכביש"
-
-#: templates/wb_base_site.html:114
-msgid "gist_efficiency_content"
-msgstr "פחות בזבוז, יותר התאמה אישית"
-
-#: templates/wb_base_site.html:132
-msgid "PickMeApp"
-msgstr "נגעת נסעת"
-
-#: templates/wb_base_site.html:146
-msgid "Facebook"
-msgstr "פייסבוק"
-
-#: templates/wb_base_site.html:147
-msgid "Twitter"
-msgstr "טוויטר"
-
-#: templates/wb_base_site.html:148
-msgid "Stations"
-msgstr "תחנות מוניות"
-
-#: templates/wb_base_site.html:158
-msgid "Account"
-msgstr "חשבון"
-
-#: templates/wb_base_site.html:159
-msgid "Log In"
-msgstr "כניסה"
-
-#: templates/wb_base_site.html:195
-msgid "To view WAYbetter in Internet Explorer you need to install"
-msgstr "על-מנת לגלוש ב WAYbetter דרך מיקרוסופט אקספלורר עליך להשתמש "
-
-#: templates/wb_base_site.html:196
-msgid "Free"
-msgstr "חינם"
-
-#: templates/wb_base_site.html:198
-msgid "Install Google Chrome Frame"
-msgstr "הוסף Google Chrome Frame"
-
-#: templates/wb_base_site.html:199
-msgid "Or, use one of these browsers"
-msgstr "או, התקן את אחד מהדפדפנים הבאים"
-
-#: templates/wb_base_site.html:281
-msgid "Get yourself a modern browser"
-msgstr "שדרג את חוית הגלישה שלך, עבור לדפדפן מתקדם"
 
 #: templates/admin/billing/billingtransaction/change_form.html:21
 msgid "Add"
@@ -4788,9 +4859,326 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
 
+#~ msgid "Your Hotspot"
+#~ msgstr "הנקודה שלי"
+
 #, fuzzy
-#~ msgid "Suggest a hotspot"
-#~ msgstr "הצע מקום מרכזי נוסף"
+#~ msgid "hotspot_interest_content"
+#~ msgstr ""
+#~ "    <div class=\"header\"></div>    <p>תנאי השימוש המפורטים להלן (להלן – "
+#~ "\"תנאי השימוש\"), חלים על השימוש שלך באתר זה (www.waybetter.com) (להלן – "
+#~ "\"האתר\")        המופעל על ידי חברת וויי בטר בע\"מ (להלן – \"החברה\") וכן "
+#~ "על כל השירותים המוצעים באתר, לרבות באמצעות אפליקציה של        האתר (להלן "
+#~ "– \"אפליקציות\") אשר נועדה לשימוש באמצעים טכנולוגיים (כהגדרת מושג זה "
+#~ "להלן), שירותים אשר עשויים לכלול        בין היתר, לפי שיקול דעתה הבלעדי של "
+#~ "החברה וככל שהדבר יתאפשר, הזמנת מונית (כהגדרת מושג זה להלן) לטובת נסיעה "
+#~ "פרטית        רגילה ונסיעה משותפת (כהגדרת מושגים אלו להלן), קבלת פרטי מידע "
+#~ "משוערים על נסיעות כאמור, תשלום עבור נסיעות כאמור        ועבור שירותים "
+#~ "נוספים, צפייה בסטאטוס חשבון המשתמש (כהגדרת מושג זה להלן) אפשרות לדרג "
+#~ "נסיעות וכיוצא בזה (להלן –        \"השירותים\"). תנאי השימוש מנוסחים בלשון "
+#~ "זכר-יחיד מטעמי נוחות בלבד, וכל האמור בהם מתייחס, כמובן, גם לנקבה "
+#~ "וגם        לרבים. </p>    <p>        <span class=\"important\">אנא קרא את "
+#~ "תנאי השימוש בקפידה שכן הם מהווים הסכם מחייב בינך לבין החברה.</"
+#~ "span>        כל שימוש באתר, לרבות ומבלי לגרוע מכלליות האמור, גלישה בדפי "
+#~ "האתר השונים, צפייה במידע באתר, הורדת מידע מהאתר        והעלאת מידע לאתר, "
+#~ "שימוש במידע המפורסם באתר, התקנת אפליקציות ו/או תוכנות המוצעות באתר "
+#~ "והשימוש בהן, בקשה לקבלת        שירותים וקבלת שירותים כאמור, ותשלום עבור "
+#~ "השירותים (להלן – \"השימוש באתר\"), הינו כפוף לתנאי השימוש. בשימושך "
+#~ "באתר        הינך נותן את הסכמתך ואישורך כי קראת והבנת את תנאי השימוש ואת "
+#~ "מדיניות הפרטיות של החברה המפורטת בקישור        <a class=\"wb_link\" href="
+#~ "\"{% url privacy %}\">מדיניות פרטיות</a>        (להלן – \"מדיניות הפרטיות"
+#~ "\"), הנך מסכים לתנאי השימוש ולמדיניות הפרטיות, והנך מתחייב לפעול בהתאם "
+#~ "להם ולקיימם        וכן לפעול לפי כל דין החל בקשר עם האתר ו/או השירותים "
+#~ "בכל עת (להלן – \"הסכמת המשתמש\"). החברה רשאית, לפי שיקול דעתה        "
+#~ "הבלעדי, למנוע ממך את השימוש באתר, כולו או חלקו, בכל דרך שהיא, לרבות "
+#~ "באמצעים טכנולוגיים ומשפטיים. הפרה של תנאי        השימוש ו/או של מדיניות "
+#~ "הפרטיות ו/או של הוראה מהוראות הדין החל בקשר עם האתר ו/או השירותים, מעבר "
+#~ "להיותה עילה        למניעת גישה שלך לאתר ו/או לשירותים, עלולה לחשוף אותך "
+#~ "לאחריות אזרחית ו/או פלילית.        <span class=\"important\">אם אינך "
+#~ "מסכים לתנאי השימוש ולמדיניות הפרטיות, הימנע משימוש באתר ובשירותים.</"
+#~ "span>    </p>    <div class=\"header\">שינויים בתנאי השימוש</div>    "
+#~ "<p>החברה שומרת לעצמה את הזכות לשנות את תנאי השימוש ו/או מדיניות הפרטיות "
+#~ "בכל עת. שינויים כאמור ייכנסו לתוקף מרגע        העלתם על ידי החברה לאתר. "
+#~ "חלה עליך החובה להתעדכן בשינויים כאמור באופן סדיר, בטרם ביצוע כל שימוש "
+#~ "באתר. השימוש באתר        בכל רגע נתון כמוהו כהסכמת המשתמש לתנאי השימוש "
+#~ "ומדיניות הפרטיות, הנכונים לרגע השימוש באתר כאמור. </p>    <div class="
+#~ "\"header\">הצהרת המשתמש</div>    <p>        בשימושך באתר הינך מצהיר שהינך "
+#~ "רשאי לפי כל דין להתחייב לתנאי השימוש ולבצע שימוש באתר, לרבות הזמנת "
+#~ "השירותים        בתשלום. אם באזור השיפוט בו הינך נמצא ו/או לפי החוק החל "
+#~ "עליך ישנה מגבלת גיל או מגבלה אחרת על השימוש באתר ו/או        בשירותים "
+#~ "המוצעים בו, הנך מצהיר כי הינך עומד בכל המגבלות כאמור (למען הסר ספק, הינך "
+#~ "מצהיר בזאת כי גילך הוא מעל 18        שנים). מבלי לגרוע מכלליות האמור "
+#~ "לעיל, כי אתה עושה שימוש באתר לצרכיך הפרטיים למטרות שאינן מסחריות, ולא "
+#~ "לטובת כל        אדם או גוף אחר, אלא אם ניתנה לך הרשאה בכתב מהחברה לעשות "
+#~ "כן, ובכפוף לתנאי ההרשאה. ידוע לך כי החברה אינה מעניקה        לך, ושימושך "
+#~ "באתר ו/או בשירותים אינו מעניק לך, רישיון או זכויות כלשהן באתר ו/או "
+#~ "בשירותים, או באתרים ושירותים        הניתנים על ידי ספקים של החברה, לרבות "
+#~ "מבלי לגרוע מכלליות האמור, ספקי שירותי היסעים, חברות סליקת כרטיסי "
+#~ "אשראי,        חברת טלמפ (כהגדרתה להלן) וחברת מפה (כהגדרתה להלן), למעט "
+#~ "רישיון הניתן, ככל שניתן, באופן מפורש תחת תנאי שימוש אלו        ובכפוף "
+#~ "להם.    </p>    <p>בנוסף, הינך מצהיר כי שימושך באתר ו/או בשירותים: (א) "
+#~ "יעשה בהתאם לחוק, למטרות חוקיות, מוסריות ומורשות בלבד; (ב) לא        יעשה "
+#~ "באופן העלול לגרום נזק, מטרד או אי נוחות לצדדים שלישיים; (ג) לא יפגע או "
+#~ "יחבל באתר ו/או בשירותים; (ד) לא        יגרום להפרת זכותו של אדם ו/או גוף "
+#~ "אחר, לרבות זכויות החברה; (ד) יעשה תוך מסירת פרטים, לרבות פרטי זיהוי "
+#~ "ופרטי        אמצעי תשלום, נכונים ומדויקים; (ה) יעשה תוך שמירה על סודיות "
+#~ "פרטי הזיהוי ופרטי חשבון המשתמש (כהגדרת מושג זה להלן)        הנמסרים לך "
+#~ "באתר; (ו) ככל שנעשה באמצעי טכנולוגי, יעשה באמצעי טכנולוגי בו הינך רשאי "
+#~ "להשתמש למטרת השימוש באתר ו/או        בשירותים; (ז) יעשה באופן שאינו משבש "
+#~ "או מפריע למערכות מחשב ותקשורת כלשהן, לרבות האתר ושרתי החברה או מי מטעמה; "
+#~ "(ח)        במידה ונעשה תוך שימוש באמצעי תשלום, יעשה באמצעי תשלום אשר הינך "
+#~ "רשאי להשתמש בו על פי כל דין; (ט) יעשה מבלי להפעיל        יישום מחשב או "
+#~ "אמצעי אחר, לרבות תוכנות אוטומטיות, Robots, Spiders או Crawlers, לשם "
+#~ "חיפוש, סריקה, העתקה או אחזור        אוטומטי של מידע מהאתר (כהגדרת מושג זה "
+#~ "להלן) וללא יצירת מאגר, אוסף או לקט של מידע מהאתר.</p>    <p>כמו כן, הינך "
+#~ "מצהיר כי אתה מודע לכך שחלק מהשירותים המוצעים באתר הינם בתשלום, וככל "
+#~ "שיוזמנו שירותים אלו באמצעות        חשבון המשתמש שלך, תחויב בהתאם למחירון "
+#~ "החברה כפי שיימסר לך בעת ביצוע ההזמנה, הכל בהתאם ובכפוף לתנאי השימוש.</"
+#~ "p>    <div class=\"header\">אפליקציות ותוכנות</div>    <p>במידה ומוצעות "
+#~ "אפליקציות ו/או תוכנות לשימוש באתר או בשירותים המוצעים על ידי החברה "
+#~ "באמצעים טכנולוגיים כגון טלפון        סלולארי, טאבלטים, וכד' (להלן – "
+#~ "\"אמצעי טכנולוגי\"), הינך האחראי הבלעדי להורדת האפליקציה ו/או התוכנה "
+#~ "כאמור לאמצעי        הטכנולוגי שברשותך. החברה אינה אחראית להתאמת האפליקציה "
+#~ "ו/או התוכנה לאמצעי הטכנולוגי שברשותך, ואינה מתחייבת כי        תתאפשר לך "
+#~ "גישה לאתר ו/או לשירותים המוצעים על ידי החברה, כולם או מקצתם, בכל עת. </"
+#~ "p>    <p>תנאי השימוש יחולו גם על אפליקציות ועל השירותים הניתנים באמצעות "
+#~ "אפליקציות, וכל התייחסות בתנאי השימוש לאתר        ולשירותים תחול על "
+#~ "האפליקציות ועל השירותים המוצעים באפליקציות, בשינויים המחויבים. </p>    "
+#~ "<div class=\"header\">נגישות לאתר ולשירותים</div>    <p>השימוש באתר ו/או "
+#~ "בשירותים הינו באחריותך בלעדית. ידוע לך כי על מנת לבצע שימוש באתר ו/או "
+#~ "בשירותים, כולם או מקצתם,        ייתכן ותצטרך להשתמש באמצעים ושירותים "
+#~ "שונים, לרבות מחשבים, מכשירים סלולאריים, גישה לרשת האינטרנט, חיבור "
+#~ "לרשת        סלולארית, וכד', והינך מסכים ומבין כי עליך להשיגם בעצמך וכי "
+#~ "החברה אינה מספקת אמצעים ושירותים אלו. </p>    <p>ידוע לך כי האתר "
+#~ "והשירותים מבוססים על טכנולוגיה וצדדים שלישיים ותלויים בהם, לרבות ספק "
+#~ "שירותי ההיסעים, וכן בגורמים        נוספים אשר אינם בשליטת החברה (לרבות "
+#~ "מבלי לגרוע מכלליות האמור, פקקי תנועה ועומסי תנועה, סגירות כבישים, כוח "
+#~ "עליון,        ספק שירותי ההיסעים, וכד'). תיאורי השירותים, התכנים והמידע "
+#~ "מהאתר מוגשים \"כמות שהם\" וללא אחריות כלשהי והחברה אינה        מתחייבת "
+#~ "ואינה ערבה לכך כי תיאורי השירותים, התכנים והמידע מהאתר או כל מידע הנמסר "
+#~ "לך בקשר עם אלו, הינם מדויקים,        אמינים, נכונים, מלאים, עדכניים או "
+#~ "חפים משגיאות. כפועל יוצא מכך החברה אינה מתחייבת כי האתר ו/או השירותים "
+#~ "יפעלו        באופן רציף וללא תקלות. בנוסף, מטבע השירותים, ייתכן והשירותים "
+#~ "יהיו זמינים באזורים מסוימים בלבד, והחברה שומרת        לעצמה את הזכות לא "
+#~ "לספק את השירותים באזורים מסוימים. למען הסר ספק, החברה אינה מתחייבת "
+#~ "שהשירותים יהיו זמינים בכל        מקום ובכל עת. </p>    <p>החברה אינה "
+#~ "מתחייבת להמשיך להפעיל את האתר ו/או לספק את השירותים גם בעתיד, והיא רשאית "
+#~ "לפי שיקול דעתה הבלעדי, לחסום        את הגישה לאתר ו/או לשנות את האתר, "
+#~ "כולו או מקצתו, ו/או להפסיק לספק ו/או לשנות את השירותים, כולם או מקצתם, "
+#~ "לרבות        את תנאי השירותים (כולל בין היתר טיבם ומחירם), הכל בין אם "
+#~ "לצמיתות או לפרק זמן אחר, לפי שיקול דעתה הבלעדי וללא        צורך במתן "
+#~ "הודעה על כך.</p>    <div class=\"header\">חשבון משתמש</div>    <p>חלק "
+#~ "מהשירותים המוצעים באתר מצריכים רישום מוקדם לאתר, וקבלת חשבון משתמש מהנהלת "
+#~ "האתר, אליו ניתן להיכנס באמצעות שם        משתמש וסיסמה אישית (להלן – "
+#~ "\"חשבון המשתמש\"). במהלך הרישום ויצירת חשבון המשתמש תתבקש להזין לאתר "
+#~ "מידע, לרבות פרטים        מזהים, פרטי התקשרות ופרטי אמצעי תשלום. עם קבלת "
+#~ "כל הפרטים הנדרשים בהתאם להוראות שיופיעו באתר, תשלח אליך לכתובת        "
+#~ "הדואר האלקטרוני שהזנת במהלך פתיחת חשבון המשתמש, שם המשתמש והסיסמה האישית "
+#~ "שנבחרו ואושרו על ידי החברה. הינך מתחייב        כי הפרטים אותם תזין הינם "
+#~ "פרטים נכונים, מלאים ועדכניים, וכן הינך מתחייב לעדכן את האתר בכל שינוי "
+#~ "בפרטים אלו, לרבות        שינוי בכתובת הדואר האלקטרוני, טלפון נייד ופרטי "
+#~ "אמצעי התשלום בו בכוונתך לשלם עבור השירותים בהתאם לתנאי השימוש.        "
+#~ "עליך לשמור את שם המשתמש והסיסמה שיסופקו לך בסודיות מוחלטת ולא לגלותם לאף "
+#~ "אדם או גוף ובכל אופן אתה אחראי באופן        בלעדי ומלא, לשמור על סודיות "
+#~ "הסיסמה וחשבון המשתמש שלך ועל כל פעילות אשר תתבצע תחת הסיסמה שלך או במסגרת "
+#~ "חשבון        המשתמש שלך. </p>    <p>תשומת לבך כי אמצעי התשלום האחרון "
+#~ "שסיפקת לאתר יחויב בגין שירותים שהוזמנו תוך שימוש בחשבון המשתמש שלך (זאת "
+#~ "ללא צורך        בהזנה נוספת של פרטי אמצעי התשלום וללא צורך בזיהוי נוסף). "
+#~ "כל הודעה שתשלח לכתובת הדואר האלקטרוני שהזנת במהלך פתיחת        חשבון "
+#~ "המשתמש תיחשב כאילו נתקבלה ברגע המשלוח. </p>    <p>ידוע לך כי, בכפוף לחוק "
+#~ "החל ובהתאם למדיניות הפרטיות, החברה תשלח לך מעת לעת, לפי שיקול דעתה הבלעדי "
+#~ "של החברה, מידע        בדבר פעילותך באתר, לרבות הזמנת שירותים (ואישורי "
+#~ "הזמנת שירותים), ומידע הקשור בחברה, בספקים של החברה (לרבות ספקי        "
+#~ "שירותי היסעים וחברות סליקת כרטיסי אשראי), ובצדדים שלישיים. בשימוש באתר "
+#~ "הינך נותן הסכמתך לקבלת מידע כאמור        מהחברה. </p>    <div class="
+#~ "\"header\">תנאים כלליים להזמנת מונית דרך האתר</div>    <p>החברה מציעה "
+#~ "לבעלי חשבון משתמש אפשרות להזמין מונית מספק שירותי ההיסעים (כהגדרת מושג זה "
+#~ "להלן) לצורך נסיעה פרטית        רגילה ולצורך נסיעה משותפת (כהגדרת מושגים "
+#~ "אלו להלן, וביחד \"הנסיעות\"). בעת הזמנת המונית עליך לפעול במדויק "
+#~ "לפי        ההוראות שיופיעו בעת ביצוע הזמנת המונית (להלן – \"הזמנת המונית"
+#~ "\"). </p>    <p>בעת הזמנת המונית, הינך מתחייב כי תספק את המידע הנדרש לפי "
+#~ "הוראות האתר, לרבות נקודת האיסוף, מועד האיסוף או ההגעה        המבוקשים, , "
+#~ "כמות הנוסעים לנסיעה, , נקודת היעד, וכל מידע נוסף שיידרש, אם וככל שיידרש "
+#~ "(להלן – \"נתוני הנסיעה\"). הנך        מתחייב כי כל המידע שתספק לאתר, "
+#~ "לרבות נתוני הנסיעה, הינו נכון, מלא ועדכני. ידוע לך כי החברה מסתמכת על "
+#~ "המידע        שתספק, לרבות נתוני הנסיעה, לצורך הזמנת המונית, תמחור "
+#~ "השירותים, הערכת משך הנסיעה המשוער, זמינות המונית וביצוע        פעולות "
+#~ "נוספות הנדרשות לצורך מתן השירותים. </p>    <p>ידוע לך כי בנוסף להסתמכות "
+#~ "על נתוני הנסיעה לצורך תמחור השירותים, השירותים מתבססים על הנתונים הבאים: "
+#~ "(א) הנסיעה היא        נסיעה ישירה ולא תבקש מספק שירותי ההיסעים או מי "
+#~ "מטעמו לבצע עצירות ו/או לעמוד לרשותך מעבר לנסיעה כפי שיקבע על ידי        "
+#~ "האתר ו/או הנהג (ב) הנסיעה מתבצעת ללא פריטי מטען יד, מזוודות או כל כבודה "
+#~ "אחרת לנסיעה (להלן – \"נתוני הבסיס\"). ידוע        לך כל שינוי בנתוני "
+#~ "הנסיעה ובנתונים הנוספים המפורטים בפסקה זו, יגרור שינוי במחיר אותו תישא "
+#~ "בעצמך, ותשלמו ישירות        לנהג. </p>    <p>לאחר הזמנת המונית, לרבות "
+#~ "במהלך הנסיעה במונית, לא תתאפשר נסיעה שלא לפי נתוני הנסיעה. תשומת לבך, כי "
+#~ "במצב בו, לפי        בקשתך, המונית תבצע את הנסיעה שלא לפי נתוני הנסיעה "
+#~ "ונתוני הבסיס תחויב בגין כל תשלום מעבר למחיר ששולם באתר, ישירות        "
+#~ "לנהג המונית שנשלחה על ידי ספק שירותי ההיסעים, ולחברה לא תהיה כל אחריות "
+#~ "בקשר עם אותה נסיעה או כל תשלום בעקבות        השינוי. בנוסף תחויב בכל "
+#~ "הוצאה ו/או נזק לחברה בגין שינויים כאמור, לרבות תשלומים לספק שירותי "
+#~ "ההיסעים או כל צד        שלישי אחר ולרבות ביצוע פעולות כלפי משתמשים אחרים "
+#~ "של האתר.</p>    <p>        עליך להמתין למונית במקום האיסוף במועד האיסוף, "
+#~ "כפי שהוזנו על ידך במועד הזמנת המונית, ולהמתין למונית במקום זה במשך        "
+#~ "כעשר דקות ממועד האיסוף כאמור, ובמידה ולא תעשה כן, תחויב במחיר המלא אשר "
+#~ "נמסר לך בעת ביצוע הזמנת המונית. היה        והמונית לא תופיע במקום האיסוף "
+#~ "בפרק הזמן שבין מועד האיסוף כאמור ועשר הדקות שלאחר מועד האיסוף כאמור (להלן "
+#~ "– \"איחור        חריג\"), תהיה רשאי לבטל את הנסיעה בהתאם להוראות המופיעות "
+#~ "תחת תת-הפרק \"ביטול הזמנת מונית (ביטול עסקאות בכרטיס        אשראי)\".    "
+#~ "</p>    <p>        החברה מאפשרת לבעלי חשבון משתמש להזמין נסיעות כמפורט "
+#~ "בסעיף זה, לצורך נסיעה פרטית בודדת או לצורך מספר נסיעות. מרגע        "
+#~ "בחירתך בשירות להזמנת מספר נסיעות הינך נותן את אישורך לחברה להזמין עבורך "
+#~ "מוניות מספק שירותי היסעים כהגדרתו להלן        באמצעות הסכם בכתב עם ספק "
+#~ "שירותי היסעים לתקופה שלא תפחת משנה אחת.    </p>    <div class=\"header"
+#~ "\">התנאים המיוחדים החלים על נסיעה משותפת</div>    <p>בנוסף לנסיעה פרטית "
+#~ "רגילה, החברה מציעה לבעלי חשבון משתמש אפשרות להזמין מונית דרך האתר, לצורך "
+#~ "נסיעה משותפת, בשיתוף        נוסעים אחרים, לרבות משתמשים אחרים של האתר, "
+#~ "בדומה להזמנת מונית בטלפון מתחנת מוניות (להלן – \"נסיעה משותפת\"). "
+#~ "נסיעה        משותפת נועדה לאפשר לבעלי חשבון משתמש ליהנות מנסיעה במונית "
+#~ "במחיר מוזל ביחס לנסיעה פרטית רגילה, ככל שהדבר        מתאפשר.</p>    <p>על "
+#~ "נסיעה משותפת יחולו התנאים המפורטים תחת תת-כותרת \"התנאים המיוחדים החלים "
+#~ "על נסיעה משותפת\" וזאת בנוסף לתנאי        השימוש ומבלי לגרוע מכלליות תנאי "
+#~ "השימוש, אך לא יחולו על נסיעה משותפת התנאים המפורטים תחת תת-כותרת "
+#~ "\"התנאים        המיוחדים החלים על נסיעה פרטית רגילה\".</p>    <p>בהזמנת "
+#~ "מונית לטובת נסיעה משותפת הינך מאשר לנהג המונית לשתף נוסעים נוספים בנסיעה "
+#~ "המשותפת, על כל המשתמע מכך, לרבות        מבלי לגרוע מכלליות האמור לעיל, "
+#~ "העלאת והורדת נוסעים נוספים למונית, נסיעה בנתיב שאינו הנתיב הקצר ביותר בין "
+#~ "מקום        האיסוף לנקודת היעד, ביצוע עצירות הנדרשות לצורך העלאת והורדת "
+#~ "נוסעים נוספים והמתנה לנוסעים נוספים במקומות האיסוף        שהוזמנו על ידם. "
+#~ "ידוע לך כי, בכפוף להוראות החוק החל, בהזמנת מונית לטובת נסיעה משותפת לא "
+#~ "תהיה לך כל השפעה על נתיב        הנסיעה של המונית ועל כמות וזהות הנוסעים "
+#~ "הנוספים במונית.</p>    <div class=\"header\">חשבונית וסטאטוס חשבון משתמש</"
+#~ "div>    <p>מדי חודש, ביום שייקבע על ידי החברה, תישלח לכתובת הדואר "
+#~ "האלקטרוני של בעל חשבון משתמש חשבונית בגין החודש שחלף,        המפרטת את כל "
+#~ "השירותים אשר הוזמנו על ידי בעל חשבון המשתמש בחודש המדובר (להלן – \"חשבונית"
+#~ "\"). בנוסף, בעל חשבון משתמש        יוכל בכל עת, בכפוף לאפשרות החברה לספק "
+#~ "גישה לכך ובכפוף לתנאי השימוש, לצפות בפירוט הזמנת השירותים על ידו "
+#~ "בחודש        שחלף באמצעות האתר.</p>    <div class=\"header\">ביטול הזמנת "
+#~ "מונית (ביטול עסקאות בכרטיס אשראי)</div>    <p>        בכפוף להוראות החוק "
+#~ "החל, לרבות הוראות חוק הגנת הצרכן – התשמ\"א 1981, אינך רשאי לבטל הזמנת "
+#~ "מונית (ו/או לבטל עסקאות        בכרטיס האשראי) אלא בהתאם לתת-פרק \"ביטול "
+#~ "הזמנות מונית (ביטול עסקאות בכרטיס אשראי)\" זה.    </p>    <p>מרגע הזמנת "
+#~ "המונית ועד שעה לפני מועד האיסוף שהוזן על ידך כחלק מנתוני הנסיעה, תוכל "
+#~ "לבטל את הזמנת המונית באמצעות        מנגנון הביטול הקיים באתר ולא תחויב "
+#~ "בכל תשלום בגין הזמנת המונית ו/או ביטול הזמנת המונית כאמור. </p>    <p>החל "
+#~ "משעה לפני מועד האיסוף שהוזן על ידך כחלק מנתוני הנסיעה, לא תהא רשאי לבטל "
+#~ "את הזמנת המונית ובכל מקרה תחויב במחיר        המלא אשר נמסר לך בעת ביצוע "
+#~ "הזמנת המונית, הכל בכפוף להוראות בדבר איחור חריג, כמפורט להלן.</p>    "
+#~ "<p>במקרה של איחור חריג, תוכל לבטל את הזמנת המונית תוך 12 שעות ממועד "
+#~ "האיסוף שהוזן על ידך כחלק מנתוני הנסיעה, ובמקרה        זה לא תחויב בגין "
+#~ "הזמנת המונית ו/או ביטול הזמנת המונית כאמור. על אף האמור לעיל, במקרה בו "
+#~ "ספק שירותי ההיסעים יטען        כי הוא, או נהג מטעמו, המתין במקום האיסוף "
+#~ "במועד האיסוף או ברבע השעה שלאחר מועד האיסוף, תחויב במחיר המלא אשר "
+#~ "נמסר        לך בעת ביצוע הזמנת המונית. במצב זה, תהיה רשאי לפנות ישירות "
+#~ "לספק שירותי ההיסעים, להגיש תלונתך, ולפתור עמם את        המחלוקת בקשר עם "
+#~ "הזמנת המונית והעמידה בתנאי נתוני הנסיעה שהוזנו. בכל מקרה, החברה לא תהיה "
+#~ "אחראית כלפיך, כלפי ספק        שירותי ההיסעים, או כלפי כל צד שלישי, בקשר "
+#~ "עם הסכום שנגבה בהתאם לפסקה זו.</p>    <div class=\"header\">חיוב בגין "
+#~ "הזמנת המונית ושירותים אחרים</div>    <p>בעל חשבון אשר הזמין שירותים "
+#~ "באמצעות האתר, לרבות הזמנת מונית, יחויב בסכום שצוין בעת הזמנת השירותים, "
+#~ "בכפוף לאמור        בתנאי השימוש, לרבות עלות הנסיעה, סליקת מספר האשראי "
+#~ "וההזמנה האלקטרונית. מועד החיוב ייקבע על פי החברה, לפי שיקול        דעתה "
+#~ "הבלעדי. בנוסף, ידוע לך כי תישא בתשלומים נוספים, אם וככל שתידרש לכך על ידי "
+#~ "החברה ו/או על ידי ספק שירותי        ההיסעים או מי מטעמם, בקשר עם נסיעה "
+#~ "שתבוצע לבקשתך שלא לפי נתוני הנסיעה ונתוני הבסיס.    </p>    <div class="
+#~ "\"header\">קניין רוחני</div>    <p>ידוע לך כי האתר, הטכנולוגיה של האתר, "
+#~ "האפליקציות והשירותים והמידע המוצג באתר ובאפליקציות (להלן – \"המידע מהאתר"
+#~ "\"),        מכיל קניין רוחני, לרבות סימני מסחר, סודות מסחריים, תוכנות, "
+#~ "אפליקציות, תמונות, מוסיקה, תכני וידאו, כתבות, סמלים,        טקסטים "
+#~ "וגרפיקה (להלן – \"קניין רוחני\"), אשר הינם בבעלות החברה ו/או אשר ניתן "
+#~ "לחברה רשות לעשות בהם שימוש. הינך        מתחייב בזאת שלא להפר את זכויות "
+#~ "הקניין כאמור, ובכלל זה הינך מתחייב, בין היתר, שלא לפרסם את המידע מהאתר, "
+#~ "להעתיקו,        לשכפלו, לפתחו, להתאימו, להציגו בפומבי, להציגו באמצעות "
+#~ "טכנולוגיית framing, לסרוק אותו, לשתף אחרים בו, למוכרו,        להשכירו, "
+#~ "לבצע לו הנדסה לאחור ו/או דה-קומפילציה, או לעשות בו כל מעשה אשר הינו על פי "
+#~ "דין מעשה הדורש את אישור        הבעלים. כל זכויות הקניין והקניין הרוחני "
+#~ "באתר, באפליקציות ובשירותים, הינם בבעלותה המלאה של החברה, או של ספקיה "
+#~ "אשר        נתנו לה רשות לעשות בהם שימוש, לפי העניין. </p>    <div class="
+#~ "\"header\">הגבלת אחריות החברה</div>    <p>על אף כל האמור בתנאי השימוש, "
+#~ "באתר או בכל הודעה או חומר פרסומי של החברה, החברה אינה חברת תחבורה "
+#~ "ציבורית, היסעים או        מוניות, אינה בעלת רישיון להפעלת מוניות, אינה "
+#~ "מעסיקה בעלי רישיון לנהיגה במוניות לטובת מתן השירותים, ואינה מספקת        "
+#~ "שירותי תחבורה ציבורית מכל סוג שהוא או שירותי היסעים (כהגדרת מושג זה "
+#~ "להלן). החברה מאפשרת לך להזמין מונית מספק אשר        הינו בעל רישיון "
+#~ "להפעלת מוניות או אשר לו הסכמים עם בעלי רישיון להפעלת מוניות (להלן – \"ספק "
+#~ "שירותי היסעים\"), אשר        הינו האחראי הבלעדי להגעת המונית שהוזמנה על "
+#~ "ידך באמצעות האתר למקום האיסוף ובמועד שהוזן על ידך לאתר במועד הזמנת        "
+#~ "המונית, לביצוע הנסיעה בבטחה, לפי כל דין, ובהתאם לנתונים שהוזנו על ידך "
+#~ "לאתר במועד הזמנת המונית (להלן – \"שירותי        היסעים\"). החברה משמשת "
+#~ "כמתווך בינך לבין ספק שירותי ההיסעים, ומאפשרת להזמין שירותי היסעים באמצעות "
+#~ "האתר מספק שירותי        היסעים ולשלם עבורם באמצעות האתר, אך ידוע לך כי "
+#~ "החברה אינה מעורבת, במישרין או בעקיפין, בעסקה אשר מתבצעת בפועל        בינך "
+#~ "לבין ספק שירותי ההיסעים.</p>    <p>על אף כל האמור בתנאי השימוש, באתר או "
+#~ "בכל הודעה או חומר פרסומי של החברה, החברה אינה, ולא תהיה אחראית: (א) "
+#~ "לדיוק,        אמינות, נכונות או עדכניות המידע מהאתר והשירותים, ו/או לכל "
+#~ "נזק ו/או הפסד ו/או איחור ו/או עגמת נפש ו/או כל נזק אחר        שיגרם לך "
+#~ "בגין הסתמכות על המידע מהאתר ו/או השירותים, ו/או קישורים המופיעים באתר, ו/"
+#~ "או פרסומות המופיעות באתר,        לרבות אובדן רווחים ישירים או עקיפים, "
+#~ "אובדן חסכונות, או נזקים ישירים, אקראיים, מיוחדים או עקיפים, הנובעים "
+#~ "מהשימוש        באתר ו/או בשירותים, או מאי-יכולת לעשות שימוש בהם; (ב) לכל "
+#~ "שימוש, לרבות שימוש לרעה, שימוש שלא כדין, שימוש במרמה        או שימוש בלתי "
+#~ "מורשה, הנעשה באמצעי התשלום שלך ו/או בחשבון המשתמש שלך; (ג) לשירותי "
+#~ "ההיסעים, ביצועם ו/או איכותם;        (ד) למהלך הנסיעות, לרבות מעשיו ו/או "
+#~ "מחדליו של ספק שירותי ההיסעים או מי מטעמו או יתר הנוסעים (בין אם הינם "
+#~ "משתמשים        של האתר ובין אם אינם) ו/או לעמידה בלוחות זמנים בקשר עם "
+#~ "הזמנת המונית ו/או עם הנסיעות; (ה) לתכנים ושירותים        המסופקים על ידי "
+#~ "צדדים שלישיים הכלולים באתר ו/או בשירותים. </p>    <div class=\"header"
+#~ "\">תנאים נוספים</div>    <p>        הינך מצהיר כי ידוע לך שהשימוש באתר ו/"
+#~ "או בשירותים כרוך בקבלת שירותים של צדדים שלישיים. בין היתר ניתנים שירותים "
+#~ "על        ידי חברת טלמפ בע\"מ (להלן – \"טלמפ\" ו\"שירות טלמפ\", בהתאמה) "
+#~ "באיתור מיקומך ובהעברת נתוני המיקום לטלמפ ו/או צדדים        שלישיים אחרים "
+#~ "הקשורים במתן השירותים וכן שירותים הניתנים על ידי חברת CloudMade Ltd. "
+#~ "(להלן – \"CloudMade\" ו\"שירות        CloudMade\" בהתאמה) המעניקה את "
+#~ "הפלטפורמה המציגה את מפת ישראל וכבישיה.        הינך מצהיר שידוע לך שכל "
+#~ "הזכויות בשירותי טלמפ ו CloudMade (לרבות זכויות קניין רוחני) הינן בבעלות "
+#~ "טלמפ ומרשיה, ו        CloudMadeומרשיה, בהתאמה ולפי העניין, וכי השימוש "
+#~ "בשירותי טלמפ ו CloudMadeנעשה על-פי רישיון שניתן לחברות בהתאמה.    </p>    "
+#~ "<p>        כמו כן ידוע לך כי מאגר המידע הגיאוגרפי של מדינת ישראל המוצג "
+#~ "בשירות טלמפ (להלן – \"מאגר המידע\") הינו רכושה הבלעדי,        על כל "
+#~ "הזכויות בו, של חברת מפה - מיפוי והוצאה לאור בע\"מ (להלן – \"מפה\"). מאגר "
+#~ "המידע מיועד לשימושך הפרטי באמצעות        האתר והשירותים בלבד וכל העושה בו "
+#~ "שימוש אחר, לרבות מעתיק, משכפל, משנה או מפיץ מאגר מידע זה או את הנתונים "
+#~ "שבבסיסו        או כל חלק מהם, מסתכן בתביעות אזרחיות ופליליות ובעונשים "
+#~ "כבדים עד למקסימום הקבוע בחוק. המידע והנתונים הכלולים        במאגר המידע "
+#~ "מוגשים \"כמות שהם\" וללא אחריות כלשהי ולחברת מפה הרשות לערוך בהם תוספות "
+#~ "או שינויים לפי שיקול דעתה בכל        עת והיא אינה מתחייבת לעדכן מידע "
+#~ "ונתונים אלו.    </p>    <p>    בשל המורכבות הרבה של שירותי טלמפ "
+#~ "וCloudMade, המתבססים על רשתות תקשורת ושימוש בתוכנות ומערכות ניווט "
+#~ "לווייני, טלמפ    ו/או מרשיה, CloudMade ו/או מרשיה, החברה וכל הבאים מטעמם "
+#~ "אינם מתחייבים כי שירות טלמפ ו/או CloudMade והמידע המוצג בהם    יהיו "
+#~ "רציפים או חפים מטעויות, לרבות אי-התאמה למקום הימצאותו האמיתי של המשתמש ו/"
+#~ "או לדרך ותנאיה ו/או ביחס לנקודות    העניין והמידע האחר המופיע בשירותי "
+#~ "טלמפ ו/או CloudMade. הינך מודע לכך כי אין להסתמך על השירותים כאמצעי ניווט "
+#~ "או מידע    יחיד. טלמפ, מרשיה, CloudMade, מרשיה, החברה וכל הבאים מטעמם, לא "
+#~ "יישאו בכל אחריות בקשר עם השימוש בשירותי טלמפ ו/או    CloudMade והסתמכות "
+#~ "המשתמש עליהם.    תכנים ושירותים המסופקים על ידי צדדים שלישיים הכלולים "
+#~ "בשירות טלמפ הינם באחריותם של הספקים האמורים ומוגשים \"כמות שהם\".    "
+#~ "טלמפ, מרשיה, החברה וכל הבאים מטעמם אינם אחראיים לתכנים והשירותים כאמור.</"
+#~ "p>    <p>    בהצטרפות לשירות ו/או עשיית שימוש בו, אתה מצהיר ומסכים כי "
+#~ "להתחייב ל תנאים שלעיל ובנוסף לתנאים הבאים: תנאי השימוש    המלאים של טלמפ, "
+#~ "מפה וספקי תכנים ושירותים אחרים (לפי העניין) הניתנים לצפייה והורדה באתר "
+#~ "טלמפ בכתובת האינטרנט    www.telmap.com/legal; תנאי הרישיון של CloudMade "
+#~ "תחת רישיון ארגון Creative Commons, הניתנים לצפייה באתר CloudMade    "
+#~ "בכתובת האינטרנט: http://creativecommons.org/licenses/by-sa/3.0/.</p>    "
+#~ "<div class=\"header\">החוק החל (סמכות שיפוט)</div>    <p>החברה פועלת, "
+#~ "ובכוונתה להמשיך לפעול, בהתאם לחוק החל לפי דיני מדינת ישראל (להלן – \"החוק "
+#~ "החל\"). כל מחלוקת העולה        כתוצאה מהשימוש באתר ו/או השירותים, וכל "
+#~ "שאלה של פרשנות הוראה מתנאי השימוש ו/או מדיניות הפרטיות, ידונו לפי "
+#~ "החוק        הישראלי החל והסמכות הבלעדית לדיון כאמור תהיה לערכאה המוסמכת "
+#~ "בתל-אביב. במקרה שהוראה מהוראות תנאי השימוש, או        יישומה        בהתאם "
+#~ "לתנאי השימוש, הופך או מוצהר על ידי בית משפט מוסמך כבלתי חוקי, בטל או בלתי "
+#~ "ניתן לאכיפה, יתרת תנאי השימוש        יישארו בתוקף מלא ואותה הוראה כאמור "
+#~ "תפורש, תיושם ותהא תקפה ככל שהחוק מאפשר זאת, ובמידה המירבית שהחוק מאפשר "
+#~ "זאת,        בהתאם לתוכן אותה הוראה. </p>"
+
+#~ msgid "Your Suggestion"
+#~ msgstr "אני מציע/ה"
+
+#~ msgid "Thank You"
+#~ msgstr "תודה"
+
+#~ msgid "Choose a Central Location"
+#~ msgstr "בחר מקום מרכזי מהרשימה"
 
 #~ msgid "Share on Facebook"
 #~ msgstr "שתף בפייסבוק"

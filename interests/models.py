@@ -80,7 +80,7 @@ class PilotInterest(BaseModel):
         send_mail_as_noreply(self.email, subject, html=html)
 
 class HotspotInterest(BaseModel):
-    suggestion = models.CharField(_("Your Suggestion"), max_length=500)
+    suggestion = models.CharField(_("My suggested Hotspot"), max_length=500)
     email = models.EmailField(_("My Email"))
 
     def notify(self):

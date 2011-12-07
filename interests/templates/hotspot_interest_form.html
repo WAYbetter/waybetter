@@ -2,12 +2,23 @@
 <script>
     var form_config = {
         dialog_config:{
-            title:"למה מקומות מרכזיים?",
+            title:"{% trans "What are HotSpots" %}?",
             width:"400px"
         }
     };
     $(function () {
         $(".small-loader").hide();
+
+        $("#share_email").click(function() {
+            window.location.href = SocialHelper.getEmailShareLink();
+        });
+        $("#share_twiter").click(function() {
+            window.location.href = SocialHelper.getTwitterShareLink();
+        });
+        $("#share_facebook").click(function() {
+            window.location.href = SocialHelper.getFacebookShareLink();
+        });
+
         $("#submit_hs_interest").click(function (e) {
             var form = $("#hotspot_interest_form");
             var $loader = $("#button_container .small-loader");
@@ -58,30 +69,29 @@
     }
 </style>
 
-<div id="pilot_interest_dialog" class="dialog">
+<div id="pilot_interest_dialog" class="dialog interest_dialog">
     <div id="content" class="content">
         <form id="hotspot_interest_form">
             <p>
-                אנו מציעים את השירות במקומות מרכזיים מכיוון שבהם ישנו הצורך המשותף הגדול ביותר (להגיע או לחזור), כמו גם
-                בעיות של עומסים וחניה.
-                במקומות אלה אנו מצליחים לחסוך כסף לנוסעי WAYbetter כבר מהרגע הראשון!
+                {% trans "Hotspots are places or events in-which WAYbetter operates and offers fixed low ride prices due to the high amounts of users who share taxi rides." %}
             </p>
-
             <p>
-                אנו רוצים להוסיף מקומות מרכזיים נוספים ממש בקרוב...
+                {% trans "You choose the HotSpots! <br/>Popular places will be added to the HotSpots list. Together we will spread across the city a  smart, efficient, green and affordable transportation network." %}
             </p>
-
             <hr>
-
-            <p>אתם יותר ממוזמנים להציע מקום מרכזי משלכם.</p>
-
-            <p>מלאו את שם וכתובת המקום שברצונכם להציע ואת האימייל שלכם. כשיהיו מספיק נוסעים לאזור זה, נכלול אותו בשירות
-                ונודיע לכם.</p>
+            {% trans "Where would you like WAYbetter service" %}?
             <table class="field_container">
                 {{ form.as_table }}
             </table>
         </form>
-        <div id="thank_you" class="hidden">{% trans "Thank You" %}</div>
+        <div id="thank_you" class="hidden">
+            <p>{% trans "Oh, tell your friends... Thanks!" %}</p>
+            <div id="sharing_buttons">
+                <div id="share_facebook" class="share_button clickable"><span class="wb_link">Share</span></div>
+                <div id="share_twiter" class="share_button clickable"><span class="wb_link">Share</span></div>
+                <div id="share_email" class="share_button clickable"><span class="wb_link">Email</span></div>
+            </div>
+        </div>
     </div>
     <div id="button_container">
         <button id="submit_hs_interest" class="wb_button purple">{% trans 'Send' %}</button>
@@ -89,4 +99,3 @@
         <button id="close" class="wb_button purple hidden">{% trans 'Close' %}</button>
     </div>
 </div>
-

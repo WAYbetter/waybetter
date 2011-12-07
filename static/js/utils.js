@@ -544,34 +544,3 @@ function gaHitPage(url) {
     }
 }
 
-$(function() {
-    var subject = "WAYbetter - מוניות לכולם, בחצי מחיר";
-    var body = "בשבועות הקרובים תשיק חברת WAYbetter שירות מוניות מהפכני ברמת החייל.%0Aהשירות יאפשר להזמין חינם מונית בסמארטפון או באינטרנט ולשלם על הנסיעה חצי מחיר (!).%0Aבאמצעות מערכת WAYbetter ניתן להזמין נסיעה המשפרת את יעילות המונית באמצעות חיבור ביניכם לבין משתמשים אחרים הנוסעים לאותו הכיוון. כך אתם יכולים ליהנות משירות תחבורה ברמה הגבוהה ביותר, במחיר שווה לכל כיס.%0A%0Aרוצה לקחת חלק?%0Awww.waybetter.com";
-    var social_msg = "האפליקציה שעושה מהפכה בתחבורה. שתפו מוניות ספיישל למקומות מרכזיים. אלטרנטיבה חדשה ומשתלמת לתנועה בעיר";
-
-    window.shareByEmail = function(){
-        window.location.href = "mailto:?subject=" + subject + "&body=" + body;
-    };
-    window.shareByTwitter = function(){
-        return "http://twitter.com/share?text=" + social_msg + "&url=http://www.WAYbetter.com";
-    };
-    window.shareByFB = function(mobile){
-        var url = "http://" + ((mobile) ? "m" : "www") + ".facebook.com/dialog/feed?" +
-                "&app_id=280509678631025" +
-                "&link=http://www.WAYbetter.com" +
-                "&picture=http://www.waybetter.com/static/images/wb_site/wb_beta_logo.png" +
-                "&name=" + "WAYbetter" +
-//                    "&caption=" +
-                "&description=" + encodeURIComponent(social_msg) +
-                "&redirect_uri=http://www.waybetter.com";
-        if (mobile) {
-            url += "&display=touch"
-        }
-
-        return url;
-    };
-    window.likeOnFB = function(mobile){
-        return "http://" + ((mobile) ? "m" : "www") + ".facebook.com/pages/WAYbetter/131114610286539";
-    };
-}());
-

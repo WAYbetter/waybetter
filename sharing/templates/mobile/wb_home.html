@@ -658,17 +658,17 @@
         {% block sharing_link %}
         // share page
 //        $("#share_fb").click(function(e) {
-//            window.location.href = window.shareByFB(true);
+//            window.location.href = SocialHelper.getFacebookShareLink(true);
 //            e.preventDefault();
 //        });
         $("#like_fb").click(function(e) {
-            window.location.href = window.likeOnFB(true);
+            window.location.href = SocialHelper.getFacebookLikeLink(true);
             e.preventDefault();
         });
         {% endblock sharing_link %}
 
         $("#share_email").click(function() {
-            window.shareByEmail();
+            window.location.href = SocialHelper.getEmailShareLink();
         });
 
         {% block welcome_page %}

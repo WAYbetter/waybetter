@@ -739,9 +739,10 @@ var CMHelper = Object.create({
         if (bounds.length > 1) {
             var _bounds = new CM.LatLngBounds(bounds);
             this.map.zoomToBounds(_bounds);
+            this.map.setZoom(this.map.getZoom() - 1);
         }
         else {
-            this.map.setCenter(myMarkerLatLng, zoom);
+            this.map.setCenter(myMarkerLatLng, 17);
         }
     },
 
@@ -879,6 +880,54 @@ var TelmapHelper = Object.create({
         } else if (bounds.valid) {
             map.panTo(bounds.getCenter());
         }
+    }
+});
+
+var SocialHelper = Object.create({
+    config:{
+        messages:{
+            email:{
+                subject: "",
+                body: ""
+            },
+            facebook:{
+                share_msg: ""
+            },
+            twitter:{
+                share_msg: ""
+            }
+        }
+    },
+    init:function (config) {
+        this.config = $.extend(true, {}, this.config, config);
+    },
+    getEmailShareLink:function (options) {
+        options = $.extend(true, {
+            subject: this.config.messages.email.subject,
+            body: this.config.messages.email.body}, options);
+        return "mailto:?subject=" + options.subject + "&body=" + options.body;
+    },
+    getTwitterShareLink:function (msg) {
+        msg = msg || this.config.messages.twitter.share_msg;
+        return "http://twitter.com/share?text=" + msg + "&url=http://www.WAYbetter.com";
+    },
+    getFacebookShareLink:function (mobile) {
+        var url = "http://" + ((mobile) ? "m" : "www") + ".facebook.com/dialog/feed?" +
+            "&app_id=280509678631025" +
+            "&link=http://www.WAYbetter.com" +
+            "&picture=http://www.waybetter.com/static/images/wb_site/wb_beta_logo.png" +
+            "&name=" + "WAYbetter" +
+            //                    "&caption=" +
+            "&description=" + encodeURIComponent(this.config.messages.facebook.share_msg) +
+            "&redirect_uri=http://www.waybetter.com";
+        if (mobile) {
+            url += "&display=touch"
+        }
+
+        return url;
+    },
+    getFacebookLikeLink:function (mobile) {
+        return "http://" + ((mobile) ? "m" : "www") + ".facebook.com/pages/WAYbetter/131114610286539";
     }
 });
 

@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-11-30 19:51+0200\n"
+"POT-Creation-Date: 2011-12-07 14:37+0200\n"
 "PO-Revision-Date: 2011-03-29 23:26+0200\n"
 "Last-Translator: Yulia <yulia1il@yahoo.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"Language: \n"
 "X-Translated-Using: django-rosetta 0.5.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -57,6 +57,7 @@ msgid "Scope"
 msgstr "Объем"
 
 #: analytics/forms.py:47 ordering/forms.py:293 registration/forms.py:76
+#: sharing/templates/wb_home.html:69
 msgid "City"
 msgstr "Город"
 
@@ -223,23 +224,23 @@ msgstr "дата создания"
 msgid "charge date"
 msgstr "дата создания"
 
-#: billing/models.py:48
+#: billing/models.py:50
 #, fuzzy
 msgid "passenger name"
 msgstr "ном. телефона пассажира"
 
-#: billing/models.py:49 ordering/templates/workstation_home.html:782
+#: billing/models.py:51 ordering/templates/workstation_home.html:782
 #: ordering/templates/workstation_home.html:837
 #, fuzzy
 msgid "pickup"
 msgstr "время посадки"
 
-#: billing/models.py:50 ordering/templates/workstation_home.html:785
+#: billing/models.py:52 ordering/templates/workstation_home.html:785
 #: ordering/templates/workstation_home.html:840
 msgid "dropoff"
 msgstr ""
 
-#: billing/models.py:51 ordering/models.py:852
+#: billing/models.py:53 ordering/models.py:852
 msgid "pickup time"
 msgstr "время посадки"
 
@@ -447,16 +448,18 @@ msgstr "Подтвердить пароль"
 #: ordering/templates/business_tab.html:17
 #: ordering/templates/station_page.html:79
 #: sharing/templates/mobile/wb_home.html:1131
-#: sharing/templates/mobile/wb_home_phonegap.html:287
+#: sharing/templates/mobile/wb_home_phonegap.html:288
 msgid "Login"
 msgstr "Войти"
 
 #: common/templates/error_dialog.html:5 common/templates/error_page.html:8
-#: sharing/templates/wb_home.html:629
+#: sharing/templates/wb_home.html:336 sharing/templates/wb_home_2.html:629
+#: sharing/templates/wb_home_tooltips.html:629
 msgid "OOPS..."
 msgstr ""
 
 #: common/templates/error_dialog.html:11
+#: interests/templates/hotspot_interest_form.html:76
 #: interests/templates/mobile_interest_form.html:53
 #: interests/templates/station_interest_form.html:37
 #: ordering/templates/base_passenger.html:69
@@ -485,7 +488,9 @@ msgstr "Введите пароль"
 msgid "OK"
 msgstr "OK"
 
-#: common/templates/error_page.html:16 templates/wb_base_site.html:134
+#: common/templates/error_page.html:16
+#: intermediate/templates/wb_base_site.html:130
+#: templates/wb_base_site.html:130
 #: templates/admin/billing/billingtransaction/change_form.html:18
 msgid "Home"
 msgstr ""
@@ -625,7 +630,7 @@ msgid "An SMS with ride details will be sent soon"
 msgstr "Вскоре Вы получите SMS с данными заказа"
 
 #: common/templates/registration_form.html:24 ordering/forms.py:254
-#: ordering/passenger_controller.py:485
+#: ordering/passenger_controller.py:486
 #: ordering/templates/business_registration.html:58
 msgid "Email already registered"
 msgstr "Этот Email занят"
@@ -667,7 +672,7 @@ msgstr ""
 "А пока присоединяйтесь к нам (бесплатно) <span class=waybetter></span> !"
 
 #: common/templates/registration_form.html:127 interests/models.py:73
-#: sharing/forms.py:53
+#: interests/models.py:84 sharing/forms.py:53
 msgid "Your Email"
 msgstr "Ваш Email"
 
@@ -882,6 +887,11 @@ msgstr "контактное лицо"
 msgid "phone"
 msgstr "телефон"
 
+#: interests/models.py:83
+#, fuzzy
+msgid "Your Hotspot"
+msgstr "Выбрать адрес"
+
 #: interests/templates/business_interest_form.html:6
 #: interests/templates/station_interest_form.html:6
 #: sharing/templates/mobile/passenger_registration.html:40
@@ -895,6 +905,7 @@ msgid "Please fill the following details and we will contact you"
 msgstr "Пожалуйста, заполните следующие данные, и мы с Вами свяжемся "
 
 #: interests/templates/business_interest_form.html:37
+#: interests/templates/hotspot_interest_form.html:74
 #: interests/templates/mobile_interest_form.html:52
 #: interests/templates/pilot_interest_form.html:80
 #: interests/templates/station_interest_form.html:36
@@ -918,6 +929,24 @@ msgstr "Отослать"
 msgid "Cancel"
 msgstr "Отменить"
 
+#: interests/templates/hotspot_interest_form.html:5
+msgid "What are HotSpots"
+msgstr ""
+
+#: interests/templates/hotspot_interest_form.html:64
+#, fuzzy
+msgid "hotspot_interest_content"
+msgstr "содержание"
+
+#: interests/templates/hotspot_interest_form.html:66
+#, fuzzy
+msgid "Where would you like WAYbetter service"
+msgstr "Присоединяйтесь к WAYbetter!"
+
+#: interests/templates/hotspot_interest_form.html:71
+msgid "Oh, tell your friends... Thanks!"
+msgstr ""
+
 #: interests/templates/mobile_interest_form.html:7
 msgid "Looks Cool!"
 msgstr "Хорошая идея!"
@@ -938,6 +967,254 @@ msgstr ""
 
 #: interests/templates/pilot_interest_form.html:70
 msgid "Thanks. We'll contact you soon."
+msgstr ""
+
+#: intermediate/templates/wb_base.html:18
+#: intermediate/templates/wb_base.html:26 templates/wb_base.html:18
+#: templates/wb_base.html.py:26
+#, fuzzy
+msgid "Half Price Taxi Rides"
+msgstr "поездка в такси"
+
+#: intermediate/templates/wb_base.html:21
+#: intermediate/templates/wb_base.html:28 templates/wb_base.html:21
+#: templates/wb_base.html.py:28
+msgid ""
+"Revolution in Transportation: Half-priced taxi rides. Book a shared taxi "
+"online: comfortable, hassle free ride, save tens of dollars."
+msgstr ""
+
+#: intermediate/templates/wb_base.html:22 templates/wb_base.html:22
+msgid "smart,iPhone,way better,order taxi,online"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:24
+#: intermediate/templates/wb_base_site.html:139
+#: sharing/templates/wb_info.html:8 templates/wb_base_site.html:24
+#: templates/wb_base_site.html.py:139
+#, fuzzy
+msgid "The Service"
+msgstr "заказ"
+
+#: intermediate/templates/wb_base_site.html:27
+#: ordering/templates/station_page.html:76 templates/base.html:84
+#: templates/wb_base_site.html:27
+msgid "Hi"
+msgstr "Приветствуем"
+
+#: intermediate/templates/wb_base_site.html:34
+#: intermediate/templates/wb_base_site.html:156
+#: sharing/templates/my_rides.html:9 templates/wb_base_site.html:34
+#: templates/wb_base_site.html.py:156
+#, fuzzy
+msgid "Log Out"
+msgstr "Выход"
+
+#: intermediate/templates/wb_base_site.html:36 templates/wb_base_site.html:36
+#, fuzzy
+msgid "Log-in"
+msgstr "Войти"
+
+#: intermediate/templates/wb_base_site.html:82
+#: intermediate/templates/wb_base_site.html:101 templates/wb_base_site.html:82
+#: templates/wb_base_site.html.py:101
+#, fuzzy
+msgid "Service"
+msgstr "заказ"
+
+#: intermediate/templates/wb_base_site.html:83 templates/wb_base_site.html:83
+msgid "learnmore_service_content"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:86
+#: intermediate/templates/wb_base_site.html:105
+#: intermediate/templates/wb_base_site.html:145 templates/wb_base_site.html:86
+#: templates/wb_base_site.html.py:105 templates/wb_base_site.html:145
+#, fuzzy
+msgid "Community"
+msgstr "Страна"
+
+#: intermediate/templates/wb_base_site.html:87 templates/wb_base_site.html:87
+msgid "learnmore_community_content"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:90
+#: intermediate/templates/wb_base_site.html:109 templates/wb_base_site.html:90
+#: templates/wb_base_site.html.py:109
+msgid "Environment"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:91 templates/wb_base_site.html:91
+msgid "learnmore_environment_content"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:94
+#: intermediate/templates/wb_base_site.html:113 templates/wb_base_site.html:94
+#: templates/wb_base_site.html.py:113
+msgid "Efficiency"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:95 templates/wb_base_site.html:95
+msgid "learnmore_efficiency_content"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:102
+#: templates/wb_base_site.html:102
+#, fuzzy
+msgid "gist_service_content"
+msgstr "содержание"
+
+#: intermediate/templates/wb_base_site.html:106
+#: templates/wb_base_site.html:106
+msgid "gist_community_content"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:110
+#: templates/wb_base_site.html:110
+msgid "gist_environment_content"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:114
+#: templates/wb_base_site.html:114
+msgid "gist_efficiency_content"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:131
+#: ordering/templates/passenger_home.html:113
+#: ordering/templates/passenger_home.html:120 templates/wb_base_site.html:131
+msgid "Mobile"
+msgstr "Моб. телефоны"
+
+#: intermediate/templates/wb_base_site.html:132
+#: templates/wb_base_site.html:132
+#, fuzzy
+msgid "PickMeApp"
+msgstr "Прислать такси"
+
+#: intermediate/templates/wb_base_site.html:133
+#: sharing/templates/mobile/wb_home.html:1123 templates/wb_base_site.html:133
+#, fuzzy
+msgid "Terms of Use"
+msgstr "Условия использования"
+
+#: intermediate/templates/wb_base_site.html:134
+#: ordering/templates/terms.html:18
+#: sharing/templates/mobile/passenger_registration.html:147
+#: sharing/templates/mobile/privacy.html:16
+#: sharing/templates/mobile/wb_home.html:1122 templates/wb_base_site.html:134
+msgid "Privacy Policy"
+msgstr "Политика конфиденциальности"
+
+#: intermediate/templates/wb_base_site.html:137
+#: ordering/templates/info.html:28
+#: ordering/templates/mobile/passenger_home.html:229
+#: ordering/templates/mobile/passenger_home.html:272
+#: sharing/templates/wb_info.html:4 sharing/templates/mobile/wb_home.html:1118
+#: sharing/templates/mobile/wb_home.html:1143 templates/base.html:139
+#: templates/wb_base_site.html:137
+msgid "About"
+msgstr "О нас"
+
+#: intermediate/templates/wb_base_site.html:138
+#: sharing/templates/about_us.html:5 sharing/templates/wb_info.html:7
+#: templates/wb_base_site.html:138
+#, fuzzy
+msgid "About Us"
+msgstr "О нас"
+
+#: intermediate/templates/wb_base_site.html:140
+#: sharing/templates/wb_info.html:9 sharing/templates/mobile/faq.html:17
+#: sharing/templates/mobile/wb_home.html:1119 templates/wb_base_site.html:140
+msgid "FAQ"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:141
+#: ordering/templates/info.html:29 sharing/templates/wb_info.html:10
+#: templates/base.html:140 templates/wb_base_site.html:141
+msgid "Press"
+msgstr "СМИ"
+
+#: intermediate/templates/wb_base_site.html:142
+#: sharing/templates/wb_info.html:11 templates/wb_base_site.html:142
+#, fuzzy
+msgid "Contact Us"
+msgstr "Данные контакта"
+
+#: intermediate/templates/wb_base_site.html:146
+#: templates/wb_base_site.html:146
+msgid "Facebook"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:147
+#: templates/wb_base_site.html:147
+msgid "Twitter"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:148
+#: templates/wb_base_site.html:148
+#, fuzzy
+msgid "Stations"
+msgstr "Служба такси"
+
+#: intermediate/templates/wb_base_site.html:153
+#: sharing/templates/my_rides.html:4 templates/wb_base_site.html:153
+#, fuzzy
+msgid "My Account"
+msgstr "страны"
+
+#: intermediate/templates/wb_base_site.html:154
+#: ordering/templates/station_analytics.html:157
+#: templates/wb_base_site.html:154
+#, fuzzy
+msgid "Rides"
+msgstr "История заказов"
+
+#: intermediate/templates/wb_base_site.html:155
+#: ordering/templates/station_home.html:48 templates/wb_base_site.html:155
+msgid "Profile"
+msgstr "Профиль"
+
+#: intermediate/templates/wb_base_site.html:158
+#: templates/wb_base_site.html:158
+#, fuzzy
+msgid "Account"
+msgstr "страны"
+
+#: intermediate/templates/wb_base_site.html:159
+#: templates/wb_base_site.html:159
+#, fuzzy
+msgid "Log In"
+msgstr "Войти"
+
+#: intermediate/templates/wb_base_site.html:161
+#: ordering/templates/business_tab.html:24
+#: ordering/templates/station_home.html:59 templates/wb_base_site.html:161
+msgid "Join"
+msgstr "Присоединяйтесь"
+
+#: intermediate/templates/wb_base_site.html:195
+#: templates/wb_base_site.html:195
+msgid "To view WAYbetter in Internet Explorer you need to install"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:196
+#: templates/wb_base_site.html:196
+msgid "Free"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:198
+#: templates/wb_base_site.html:198
+msgid "Install Google Chrome Frame"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:199
+#: templates/wb_base_site.html:199
+msgid "Or, use one of these browsers"
+msgstr ""
+
+#: intermediate/templates/wb_base_site.html:266
+#: templates/wb_base_site.html:281
+msgid "Get yourself a modern browser"
 msgstr ""
 
 #: openid_consumer/views.py:96
@@ -1063,7 +1340,10 @@ msgstr "Значение должно содержать только цифры
 #: sharing/templates/producer_ordering_page.html:31
 #: sharing/templates/producer_rides_summary.html:18
 #: sharing/templates/station_history.html:32
-#: sharing/templates/wb_home.html:201 sharing/templates/wb_home.html.py:648
+#: sharing/templates/wb_home.html:134 sharing/templates/wb_home.html.py:224
+#: sharing/templates/wb_home_2.html:201 sharing/templates/wb_home_2.html:648
+#: sharing/templates/wb_home_tooltips.html:201
+#: sharing/templates/wb_home_tooltips.html:648
 #: sharing/templates/mobile/wb_home.html:801
 #: sharing/templates/mobile/wb_home.html:993
 msgid "Address"
@@ -1774,12 +2054,13 @@ msgstr "Регистрация"
 msgid "Taxi Ride"
 msgstr "поездка в такси"
 
-#: ordering/models.py:1188
+#: ordering/models.py:1188 sharing/templates/wb_home.html:650
 msgid "Other"
 msgstr "Другое"
 
 #: ordering/order_history.py:10 ordering/order_history.py:14
 #: ordering/order_history.py:18 sharing/templates/station_accounting.html:32
+#: sharing/templates/wb_home.html:105
 msgid "Date"
 msgstr "Дата"
 
@@ -1789,7 +2070,9 @@ msgstr "Дата"
 #: sharing/templates/hotspot_ordering_page_textinput.html:28
 #: sharing/templates/myrides_table.html:5
 #: sharing/templates/station_accounting.html:32
-#: sharing/templates/wb_home.html:644 sharing/templates/wb_home.html.py:669
+#: sharing/templates/wb_home_2.html:644 sharing/templates/wb_home_2.html:669
+#: sharing/templates/wb_home_tooltips.html:644
+#: sharing/templates/wb_home_tooltips.html:669
 #: sharing/templates/mobile/wb_home.html:343
 #: sharing/templates/mobile/wb_home.html:800
 #: sharing/templates/mobile/wb_home.html:950
@@ -1802,7 +2085,9 @@ msgstr "Откуда"
 #: sharing/templates/hotspot_ordering_page_textinput.html:40
 #: sharing/templates/myrides_table.html:6
 #: sharing/templates/station_accounting.html:32
-#: sharing/templates/wb_home.html:645 sharing/templates/wb_home.html.py:669
+#: sharing/templates/wb_home_2.html:645 sharing/templates/wb_home_2.html:669
+#: sharing/templates/wb_home_tooltips.html:645
+#: sharing/templates/wb_home_tooltips.html:669
 #: sharing/templates/mobile/wb_home.html:345
 #: sharing/templates/mobile/wb_home.html:822
 #: sharing/templates/mobile/wb_home.html:955
@@ -1897,8 +2182,12 @@ msgstr "Приблизительная стоимость поездки"
 msgid "Flat rate"
 msgstr "Примерная стоимость"
 
-#: ordering/passenger_controller.py:237 sharing/templates/wb_home.html:86
-#: sharing/templates/wb_home.html.py:111 sharing/templates/ws_home.html:486
+#: ordering/passenger_controller.py:237 sharing/templates/wb_home.html:202
+#: sharing/templates/wb_home.html.py:209 sharing/templates/wb_home_2.html:86
+#: sharing/templates/wb_home_2.html:111
+#: sharing/templates/wb_home_tooltips.html:86
+#: sharing/templates/wb_home_tooltips.html:111
+#: sharing/templates/ws_home.html:486
 #: sharing/templates/mobile/wb_home.html:901
 #: sharing/templates/mobile/wb_home.html:914
 msgid "min"
@@ -1936,15 +2225,15 @@ msgstr ""
 msgid "Invalid verification code"
 msgstr "Неверный проверочный код"
 
-#: ordering/passenger_controller.py:416
+#: ordering/passenger_controller.py:417
 msgid "Phone has multiple passengers"
 msgstr "Номер принадлежит многим пассажирам"
 
-#: ordering/passenger_controller.py:447
+#: ordering/passenger_controller.py:448
 msgid "wrong email/password"
 msgstr "неверные email или пароль"
 
-#: ordering/passenger_controller.py:456
+#: ordering/passenger_controller.py:457
 msgid "Must have a user to change credentials"
 msgstr "Только пользователь может изменять аккаунт"
 
@@ -2134,7 +2423,8 @@ msgstr "Этот Email занят"
 
 #: ordering/templates/base_passenger.html:83
 #: sharing/templates/hotspot_ordering_page.html:144
-#: sharing/templates/wb_home.html:747
+#: sharing/templates/wb_home.html:618 sharing/templates/wb_home_2.html:747
+#: sharing/templates/wb_home_tooltips.html:747
 #: sharing/templates/mobile/wb_home.html:396
 #, fuzzy
 msgid "Choose Date"
@@ -2144,7 +2434,9 @@ msgstr "Выбрать пароль"
 #: sharing/templates/hotspot_ordering_page.html:121
 #: sharing/templates/hotspot_ordering_page.html:145
 #: sharing/templates/station_taxidrivers.html:329
-#: sharing/templates/wb_home.html:748 sharing/templates/ws_home.html:215
+#: sharing/templates/wb_home.html:619 sharing/templates/wb_home_2.html:748
+#: sharing/templates/wb_home_tooltips.html:748
+#: sharing/templates/ws_home.html:215
 #: sharing/templates/mobile/wb_home.html:397
 #, fuzzy
 msgid "Updating..."
@@ -2219,7 +2511,7 @@ msgstr "Во время обработки Вашего запроса прои�
 #: sharing/templates/station_taxidrivers.html:140
 #: sharing/templates/station_taxidrivers.html:182
 #: sharing/templates/mobile/passenger_registration.html:200
-#: sharing/templates/mobile/wb_home_phonegap.html:193
+#: sharing/templates/mobile/wb_home_phonegap.html:194
 #, fuzzy
 msgid "Error"
 msgstr "ошибка"
@@ -2267,11 +2559,6 @@ msgstr ""
 msgid "Fill in your details to join us"
 msgstr ""
 
-#: ordering/templates/business_tab.html:24
-#: ordering/templates/station_home.html:59 templates/wb_base_site.html:165
-msgid "Join"
-msgstr "Присоединяйтесь"
-
 #: ordering/templates/business_tab.html:41
 #, fuzzy
 msgid "There was an error saving your details"
@@ -2297,29 +2584,11 @@ msgid "Upload specific pricing rules (inter-city taarif in CSV format)"
 msgstr ""
 "Загрузить правила установки расценок (междугородний тариф в формате CSV)"
 
-#: ordering/templates/info.html:28
-#: ordering/templates/mobile/passenger_home.html:229
-#: ordering/templates/mobile/passenger_home.html:272
-#: sharing/templates/wb_info.html:4 sharing/templates/mobile/wb_home.html:1118
-#: sharing/templates/mobile/wb_home.html:1143 templates/base.html:139
-#: templates/wb_base_site.html:141
-msgid "About"
-msgstr "О нас"
-
-#: ordering/templates/info.html:29 sharing/templates/wb_info.html:10
-#: templates/base.html:140 templates/wb_base_site.html:145
-msgid "Press"
-msgstr "СМИ"
-
-#: ordering/templates/info.html:31 templates/base.html:142
-msgid "Help"
-msgstr "Помощь"
-
-#: ordering/templates/info.html:33 templates/base.html:144
+#: ordering/templates/info.html:34 templates/base.html:145
 msgid "Terms"
 msgstr "Условия "
 
-#: ordering/templates/info.html:34 ordering/templates/passenger_home.html:67
+#: ordering/templates/info.html:35 ordering/templates/passenger_home.html:67
 msgid "TAXI"
 msgstr "TAXI"
 
@@ -2421,11 +2690,6 @@ msgstr "Мой профиль"
 #: ordering/templates/passenger_home.html:119
 msgid "Taxi Stations"
 msgstr "Службы такси"
-
-#: ordering/templates/passenger_home.html:113
-#: ordering/templates/passenger_home.html:120 templates/wb_base_site.html:135
-msgid "Mobile"
-msgstr "Моб. телефоны"
 
 #: ordering/templates/passenger_home.html:118
 #, fuzzy
@@ -2569,12 +2833,6 @@ msgstr "История заказов"
 msgid "rides"
 msgstr "заказ"
 
-#: ordering/templates/station_analytics.html:157
-#: templates/wb_base_site.html:158
-#, fuzzy
-msgid "Rides"
-msgstr "История заказов"
-
 #: ordering/templates/station_analytics.html:229
 #: sharing/templates/station_accounting.html:98
 #: sharing/templates/station_history.html:106
@@ -2598,10 +2856,6 @@ msgstr "История заказов"
 msgid "Station analytics"
 msgstr "Название службы такси"
 
-#: ordering/templates/station_home.html:48 templates/wb_base_site.html:159
-msgid "Profile"
-msgstr "Профиль"
-
 #: ordering/templates/station_home.html:51
 msgid "Workstations"
 msgstr "Рабочие станции"
@@ -2614,11 +2868,6 @@ msgstr ""
 #, fuzzy
 msgid "Book A Taxi Application. Immediate Response via SMS"
 msgstr "Приложение для заказа такси. Немедленный ответ через SMS"
-
-#: ordering/templates/station_page.html:76 templates/base.html:84
-#: templates/wb_base_site.html:31
-msgid "Hi"
-msgstr "Приветствуем"
 
 #: ordering/templates/station_page.html:77 templates/base.html:90
 msgid "Log out"
@@ -2694,7 +2943,7 @@ msgstr "Показать больше"
 msgid "Station Manager?"
 msgstr "Руководитель службы?"
 
-#: ordering/templates/stations.html:31 templates/base.html:145
+#: ordering/templates/stations.html:31 templates/base.html:146
 msgid "Station Entrance"
 msgstr "Вход для служб такси"
 
@@ -2759,13 +3008,6 @@ msgstr ""
 "соглашении, Пользователь тем самым выражает согласие с данными "
 "изменениями.   Компания  «WAYbetter LTD» является обладателем исключительных "
 "авторских прав на Сайт."
-
-#: ordering/templates/terms.html:18
-#: sharing/templates/mobile/passenger_registration.html:147
-#: sharing/templates/mobile/privacy.html:16
-#: sharing/templates/mobile/wb_home.html:1122 templates/wb_base_site.html:138
-msgid "Privacy Policy"
-msgstr "Политика конфиденциальности"
 
 #: ordering/templates/terms.html:19
 msgid "web_actual_privacy_policy"
@@ -2893,7 +3135,8 @@ msgid "Order Sent!\\n\\nAn SMS with ride details will be sent soon"
 msgstr "Заказ отправлен!\\n\\nВскоре Вы получите SMS с данными заказа"
 
 #: ordering/templates/mobile/passenger_home.html:72
-#: sharing/templates/wb_home.html:205
+#: sharing/templates/wb_home_2.html:205
+#: sharing/templates/wb_home_tooltips.html:205
 #: sharing/templates/mobile/wb_home.html:131
 #: sharing/templates/mobile/wb_home.html:808
 #: sharing/templates/mobile/wb_home.html:1039
@@ -2952,7 +3195,7 @@ msgstr "GPS"
 #: sharing/templates/mobile/my_rides.html:34
 #: sharing/templates/mobile/wb_home.html:711
 #: sharing/templates/mobile/wb_home.html:926
-#: sharing/templates/mobile/wb_home_phonegap.html:203
+#: sharing/templates/mobile/wb_home_phonegap.html:204
 #, fuzzy
 msgid "My Rides"
 msgstr "поездка в такси"
@@ -3168,41 +3411,38 @@ msgstr ""
 msgid "Not found"
 msgstr "не так уж плохо"
 
-#: sharing/passenger_controller.py:115 sharing/templates/wb_home.html:553
-#: sharing/templates/wb_home.html.py:591
+#: sharing/passenger_controller.py:115 sharing/templates/wb_home.html:515
+#: sharing/templates/wb_home.html.py:539 sharing/templates/wb_home_2.html:553
+#: sharing/templates/wb_home_2.html:591
+#: sharing/templates/wb_home_tooltips.html:553
+#: sharing/templates/wb_home_tooltips.html:591
 #: sharing/templates/mobile/wb_home.html:226
 #: sharing/templates/mobile/wb_home.html:305
-#: sharing/templates/mobile/wb_home_phonegap.html:316
+#: sharing/templates/mobile/wb_home_phonegap.html:317
 msgid "We have encountered an error. Please try again."
 msgstr ""
 
-#: sharing/passenger_controller.py:143 sharing/passenger_controller.py:364
+#: sharing/passenger_controller.py:144 sharing/passenger_controller.py:365
 msgid "Currently it is not possible to book more than 1 seat"
 msgstr ""
 
-#: sharing/passenger_controller.py:157
+#: sharing/passenger_controller.py:158
 msgid "This interval is closed for booking now. Please choose a later time"
 msgstr ""
 
-#: sharing/passenger_controller.py:608
+#: sharing/passenger_controller.py:609
 #, fuzzy
 msgid "WAYbetter ride"
 msgstr "<span class=waybetter></span>LTD"
 
-#: sharing/passenger_controller.py:608
+#: sharing/passenger_controller.py:609
 #, fuzzy
 msgid "Private ride"
 msgstr "поездка в такси"
 
-#: sharing/passenger_controller.py:627
+#: sharing/passenger_controller.py:628
 msgid "WAYbetter Order Confirmation"
 msgstr ""
-
-#: sharing/templates/about_us.html:5 sharing/templates/wb_info.html:7
-#: templates/wb_base_site.html:142
-#, fuzzy
-msgid "About Us"
-msgstr "О нас"
 
 #: sharing/templates/about_us.html:7
 #, fuzzy
@@ -3329,28 +3569,23 @@ msgstr "Регистрация"
 msgid "Select time"
 msgstr "Выбрать адрес"
 
-#: sharing/templates/my_rides.html:4 templates/wb_base_site.html:157
-#, fuzzy
-msgid "My Account"
-msgstr "страны"
-
-#: sharing/templates/my_rides.html:9 templates/wb_base_site.html:38
-#: templates/wb_base_site.html.py:160
-#, fuzzy
-msgid "Log Out"
-msgstr "Выход"
-
-#: sharing/templates/my_rides.html:59 sharing/templates/wb_home.html:716
+#: sharing/templates/my_rides.html:59 sharing/templates/wb_home.html:588
+#: sharing/templates/wb_home_2.html:716
+#: sharing/templates/wb_home_tooltips.html:716
 #, fuzzy
 msgid "Ride cancelled."
 msgstr "Отменить"
 
-#: sharing/templates/my_rides.html:60 sharing/templates/wb_home.html:717
+#: sharing/templates/my_rides.html:60 sharing/templates/wb_home.html:589
+#: sharing/templates/wb_home_2.html:717
+#: sharing/templates/wb_home_tooltips.html:717
 #, fuzzy
 msgid "Info/Cancel"
 msgstr "Отменить"
 
-#: sharing/templates/my_rides.html:61 sharing/templates/wb_home.html:718
+#: sharing/templates/my_rides.html:61 sharing/templates/wb_home.html:590
+#: sharing/templates/wb_home_2.html:718
+#: sharing/templates/wb_home_tooltips.html:718
 #: sharing/templates/mobile/my_rides.html:70
 #: sharing/templates/mobile/wb_home.html:348
 #, fuzzy
@@ -3435,7 +3670,9 @@ msgid "Your WAY Details"
 msgstr "Ваш Email"
 
 #: sharing/templates/myrides_tooltips.html:50
-#: sharing/templates/wb_home.html:401 sharing/templates/mobile/wb_home.html:30
+#: sharing/templates/wb_home.html:572 sharing/templates/wb_home_2.html:401
+#: sharing/templates/wb_home_tooltips.html:401
+#: sharing/templates/mobile/wb_home.html:30
 #, fuzzy
 msgid "Pickup Time"
 msgstr "время посадки"
@@ -3474,7 +3711,9 @@ msgid "Taxi is on the way!"
 msgstr "одно нажатие кнопки - и такси уже в пути"
 
 #: sharing/templates/passenger_notification_msg.html:3
-#: sharing/templates/wb_home.html:402 sharing/templates/wb_home.html:1058
+#: sharing/templates/wb_home_2.html:402 sharing/templates/wb_home_2.html:1058
+#: sharing/templates/wb_home_tooltips.html:402
+#: sharing/templates/wb_home_tooltips.html:1058
 #: sharing/templates/mobile/wb_home.html:344
 #: sharing/templates/mobile/wb_home.html:960
 #, fuzzy
@@ -3553,12 +3792,15 @@ msgid "and"
 msgstr "Завершить"
 
 #: sharing/templates/passenger_registration.html:92
+#: sharing/templates/privacy.html:4
 #: sharing/templates/mobile/passenger_registration.html:90
 msgid "Privacy Statement"
 msgstr ""
 
 #: sharing/templates/passenger_registration.html:105
-#: sharing/templates/wb_home.html:416
+#: sharing/templates/wb_home.html:91 sharing/templates/wb_home.html.py:121
+#: sharing/templates/wb_home_2.html:416
+#: sharing/templates/wb_home_tooltips.html:416
 #: sharing/templates/mobile/passenger_registration.html:102
 #: sharing/templates/mobile/passenger_registration.html:129
 #: sharing/templates/mobile/passenger_registration.html:269
@@ -3569,7 +3811,8 @@ msgstr ""
 
 #: sharing/templates/passenger_registration.html:220
 #: sharing/templates/passenger_registration.html:248
-#: sharing/templates/wb_home.html:598
+#: sharing/templates/wb_home.html:546 sharing/templates/wb_home_2.html:598
+#: sharing/templates/wb_home_tooltips.html:598
 #: sharing/templates/mobile/passenger_registration.html:175
 #: sharing/templates/mobile/passenger_registration.html:235
 #, fuzzy
@@ -3594,7 +3837,7 @@ msgstr ""
 #: sharing/templates/passenger_ride_email.html:18
 #: sharing/templates/producer_ordering_page.html:53
 #: sharing/templates/station_history.html:37
-#: sharing/templates/voucher_email.html:15
+#: sharing/templates/voucher_email.html:15 sharing/templates/wb_home.html:133
 #: sharing/templates/mobile/wb_home.html:32
 #: sharing/templates/mobile/wb_home.html:992
 #, fuzzy
@@ -3604,7 +3847,7 @@ msgstr "время посадки"
 #: sharing/templates/passenger_ride_email.html:19
 #: sharing/templates/producer_ordering_page.html:70
 #: sharing/templates/station_history.html:45
-#: sharing/templates/voucher_email.html:26
+#: sharing/templates/voucher_email.html:26 sharing/templates/wb_home.html:146
 #: sharing/templates/mobile/wb_home.html:33
 #: sharing/templates/mobile/wb_home.html:1004
 #, fuzzy
@@ -3654,7 +3897,7 @@ msgstr ""
 msgid "View your order on our website"
 msgstr "Программный инструмент для заказа такси на Вашем сайте (бесплатно) "
 
-#: sharing/templates/privacy.html:5
+#: sharing/templates/privacy.html:7
 #: sharing/templates/mobile/passenger_registration.html:150
 #: sharing/templates/mobile/privacy.html:20
 #, fuzzy
@@ -3725,6 +3968,7 @@ msgstr ""
 
 #: sharing/templates/producer_rides_summary.html:18
 #: sharing/templates/station_history.html:32
+#: sharing/templates/wb_home.html:109 sharing/templates/wb_home.html.py:225
 #, fuzzy
 msgid "Time"
 msgstr "Тайминг"
@@ -3929,7 +4173,14 @@ msgstr "страны"
 msgid "Drivers and Taxis"
 msgstr "Заказы"
 
-#: sharing/templates/terms_of_service.html:5
+#: sharing/templates/terms_of_service.html:4
+#: sharing/templates/mobile/passenger_registration.html:137
+#: sharing/templates/mobile/terms_of_service.html:16
+#, fuzzy
+msgid "Terms of Service"
+msgstr "Условия использования"
+
+#: sharing/templates/terms_of_service.html:7
 #: sharing/templates/mobile/passenger_registration.html:140
 #: sharing/templates/mobile/terms_of_service.html:20
 #, fuzzy
@@ -3994,173 +4245,317 @@ msgstr "район города"
 msgid "Points"
 msgstr "Английский"
 
-#: sharing/templates/wb_home.html:35 sharing/templates/mobile/wb_home.html:217
+#: sharing/templates/wb_home.html:36 sharing/templates/wb_home_2.html:35
+#: sharing/templates/wb_home_tooltips.html:35
+#: sharing/templates/mobile/wb_home.html:217
 msgid "SAVE"
 msgstr ""
 
-#: sharing/templates/wb_home.html:41
+#: sharing/templates/wb_home.html:44
 #, fuzzy
-msgid "Enter Your WAY"
-msgstr "Введите ваш email"
+msgid "The Best Transport Service<br/>to Cenral Locations"
+msgstr "Проверка подлинности номера"
 
-#: sharing/templates/wb_home.html:61 sharing/templates/wb_home.html.py:228
-#: sharing/templates/wb_home.html:460
-msgid "When"
-msgstr ""
-
-#: sharing/templates/wb_home.html:72 sharing/templates/mobile/wb_home.html:907
+#: sharing/templates/wb_home.html:45 sharing/templates/wb_home.html.py:571
 #, fuzzy
-msgid "Private Taxi Ride"
+msgid "Book a Shared Taxi Ride"
 msgstr "поездка в такси"
 
-#: sharing/templates/wb_home.html:76 sharing/templates/wb_home.html.py:101
+#: sharing/templates/wb_home.html:53
 #, fuzzy
-msgid "Ride Price"
+msgid "Choose a Hotspot"
+msgstr "Фамилия"
+
+#: sharing/templates/wb_home.html:78
+#: sharing/templates/mobile/wb_home.html:1049
+msgid "Street"
+msgstr ""
+
+#: sharing/templates/wb_home.html:86
+msgid "House No"
+msgstr ""
+
+#: sharing/templates/wb_home.html:115 sharing/templates/wb_home_2.html:238
+#: sharing/templates/wb_home_tooltips.html:238
+#, fuzzy
+msgid "_pickup"
+msgstr "время посадки"
+
+#: sharing/templates/wb_home.html:147 sharing/templates/wb_home.html.py:342
+#: sharing/templates/mobile/wb_home.html:1005
+#, fuzzy
+msgid "Hotspot"
+msgstr "Выбрать адрес"
+
+#: sharing/templates/wb_home.html:150
+#, fuzzy
+msgid "switch direction"
+msgstr "Регистрация"
+
+#: sharing/templates/wb_home.html:166
+#: sharing/templates/mobile/wb_home.html:859
+#, fuzzy
+msgid "Number of Seats"
+msgstr "Число такси"
+
+#: sharing/templates/wb_home.html:180
+#, fuzzy
+msgid "Fixed Price"
 msgstr "История заказов"
 
-#: sharing/templates/wb_home.html:83 sharing/templates/wb_home.html.py:108
+#: sharing/templates/wb_home.html:188 sharing/templates/wb_home.html.py:206
+msgid "instead of"
+msgstr ""
+
+#: sharing/templates/wb_home.html:198 sharing/templates/wb_home_2.html:83
+#: sharing/templates/wb_home_2.html:108
+#: sharing/templates/wb_home_tooltips.html:83
+#: sharing/templates/wb_home_tooltips.html:108
 #: sharing/templates/mobile/wb_home.html:900
 #: sharing/templates/mobile/wb_home.html:913
 #, fuzzy
 msgid "Est. Ride Duration"
 msgstr "до продолжительности (сек)"
 
-#: sharing/templates/wb_home.html:97 sharing/templates/mobile/wb_home.html:894
+#: sharing/templates/wb_home.html:223
+#: sharing/templates/mobile/wb_home.html:823
 #, fuzzy
-msgid "Shared Taxi Ride"
-msgstr "поездка в такси"
+msgid "Central Location"
+msgstr "средняя оценка"
 
-#: sharing/templates/wb_home.html:122
+#: sharing/templates/wb_home.html:226
+msgid "Get Offer"
+msgstr ""
+
+#: sharing/templates/wb_home.html:235 sharing/templates/wb_home_2.html:122
+#: sharing/templates/wb_home_tooltips.html:122
 #, fuzzy
 msgid "My Next Rides"
 msgstr "поездка в такси"
 
-#: sharing/templates/wb_home.html:173
+#: sharing/templates/wb_home.html:250
 #, fuzzy
-msgid "Select HotSpot"
-msgstr "Выбрать адрес"
+msgid "Wherever You Are"
+msgstr "מכל מקום, המונית בדרך אליך!"
 
-#: sharing/templates/wb_home.html:183 sharing/templates/wb_home.html.py:221
-#, fuzzy
-msgid "Switch direction"
-msgstr "Регистрация"
-
-#: sharing/templates/wb_home.html:192
-#, fuzzy
-msgid "Select City"
-msgstr "Выбрать адрес"
-
-#: sharing/templates/wb_home.html:211
-#: sharing/templates/mobile/wb_home.html:1053
-msgid "House #"
+#: sharing/templates/wb_home.html:252
+msgid "Download the new WAYbetter app for your mobile now (free)"
 msgstr ""
 
-#: sharing/templates/wb_home.html:231 sharing/templates/mobile/wb_home.html:28
-#, fuzzy
-msgid "Choose Pickup Time"
-msgstr "время посадки"
-
-#: sharing/templates/wb_home.html:233 sharing/templates/wb_home.html.py:773
-#, fuzzy
-msgid "at"
-msgstr "Статус"
-
-#: sharing/templates/wb_home.html:238
-#, fuzzy
-msgid "_pickup"
-msgstr "время посадки"
-
-#: sharing/templates/wb_home.html:261
-msgid "*Times may vary due to traffic and stuff..."
+#: sharing/templates/wb_home.html:256
+msgid "Get the iPhone App"
 msgstr ""
 
-#: sharing/templates/wb_home.html:401 sharing/templates/mobile/wb_home.html:31
-#, fuzzy
-msgid "Dropoff Time"
-msgstr "Выбрать адрес"
-
-#: sharing/templates/wb_home.html:402
-#, fuzzy
-msgid "_dropoffat"
-msgstr "Выбрать адрес"
-
-#: sharing/templates/wb_home.html:407
-#, fuzzy
-msgid "Your Pickup"
-msgstr "время посадки"
-
-#: sharing/templates/wb_home.html:407
-msgid "Your Dropoff"
+#: sharing/templates/wb_home.html:262
+msgid "Get the Android App"
 msgstr ""
 
-#: sharing/templates/wb_home.html:470
-#, fuzzy
-msgid "Calculating"
-msgstr "Отменить"
+#: sharing/templates/wb_home.html:343
+msgid "Leave "
+msgstr ""
 
-#: sharing/templates/wb_home.html:501
+#: sharing/templates/wb_home.html:344
+msgid "Goto "
+msgstr ""
+
+#: sharing/templates/wb_home.html:416
 #, fuzzy
-msgid "Please choose another date"
+msgid "Please choose a hotspot"
 msgstr "Служба по умолчанию"
 
-#: sharing/templates/wb_home.html:508
+#: sharing/templates/wb_home.html:455 sharing/templates/wb_home_2.html:508
+#: sharing/templates/wb_home_tooltips.html:508
 msgid "We had a problem getting available intervals. Please try again."
 msgstr ""
 
-#: sharing/templates/wb_home.html:549
+#: sharing/templates/wb_home.html:477
+msgid "Please fill all ride details"
+msgstr ""
+
+#: sharing/templates/wb_home.html:511 sharing/templates/wb_home_2.html:549
+#: sharing/templates/wb_home_tooltips.html:549
 #: sharing/templates/mobile/wb_home.html:221
 #, fuzzy
 msgid "Currently, there is no service to this address at the selected hour."
 msgstr "На данный момент в этой стране сервис не предоставляется"
 
-#: sharing/templates/wb_home.html:649
+#: sharing/templates/wb_home.html:573 sharing/templates/wb_home_2.html:401
+#: sharing/templates/wb_home_tooltips.html:401
+#: sharing/templates/mobile/wb_home.html:31
 #, fuzzy
-msgid "HotSpot"
+msgid "Dropoff Time"
 msgstr "Выбрать адрес"
 
-#: sharing/templates/wb_home.html:655
-#, fuzzy
-msgid "Book Private"
-msgstr "Процедура заказа"
-
-#: sharing/templates/wb_home.html:656
-#, fuzzy
-msgid "Book Shared"
-msgstr "Оценка"
-
-#: sharing/templates/wb_home.html:727
+#: sharing/templates/wb_home.html:599 sharing/templates/wb_home_2.html:727
+#: sharing/templates/wb_home_tooltips.html:727
 msgid "Error getting rides data"
 msgstr ""
 
-#: sharing/templates/wb_home.html:785
+#: sharing/templates/wb_home.html:644 sharing/templates/wb_home_2.html:233
+#: sharing/templates/wb_home_2.html:773
+#: sharing/templates/wb_home_tooltips.html:233
+#: sharing/templates/wb_home_tooltips.html:773
+#, fuzzy
+msgid "at"
+msgstr "Статус"
+
+#: sharing/templates/wb_home.html:661 sharing/templates/wb_home_2.html:785
+#: sharing/templates/wb_home_tooltips.html:785
 #, fuzzy
 msgid "Please choose from list"
 msgstr "Служба по умолчанию"
 
-#: sharing/templates/wb_home.html:1058
-#, fuzzy
-msgid "Dropoff time"
-msgstr "Выбрать адрес"
+#: sharing/templates/wb_home.html:718
+msgid "Where are you going"
+msgstr ""
 
-#: sharing/templates/wb_home.html:1123
+#: sharing/templates/wb_home.html:718
+msgid "Where are you coming from"
+msgstr ""
+
+#: sharing/templates/wb_home.html:820
+#, fuzzy
+msgid "Define Time"
+msgstr "Задать время"
+
+#: sharing/templates/wb_home.html:823
+msgid "When are you leaving "
+msgstr ""
+
+#: sharing/templates/wb_home.html:826
+#, fuzzy
+msgid "When do you want to be at"
+msgstr "Вы уверены, что хотите заказать такси сейчас?"
+
+#: sharing/templates/wb_home.html:954 sharing/templates/wb_home_2.html:1123
+#: sharing/templates/wb_home_tooltips.html:1123
 msgid "Join the private Beta"
 msgstr ""
 
-#: sharing/templates/wb_info.html:8 templates/wb_base_site.html:28
-#: templates/wb_base_site.html.py:143
+#: sharing/templates/wb_home_2.html:41
+#: sharing/templates/wb_home_tooltips.html:41
 #, fuzzy
-msgid "The Service"
-msgstr "заказ"
+msgid "Enter Your WAY"
+msgstr "Введите ваш email"
 
-#: sharing/templates/wb_info.html:9 sharing/templates/mobile/faq.html:17
-#: sharing/templates/mobile/wb_home.html:1119 templates/wb_base_site.html:144
-msgid "FAQ"
+#: sharing/templates/wb_home_2.html:61 sharing/templates/wb_home_2.html:228
+#: sharing/templates/wb_home_2.html:460
+#: sharing/templates/wb_home_tooltips.html:61
+#: sharing/templates/wb_home_tooltips.html:228
+#: sharing/templates/wb_home_tooltips.html:460
+msgid "When"
 msgstr ""
 
-#: sharing/templates/wb_info.html:11 templates/wb_base_site.html:146
+#: sharing/templates/wb_home_2.html:72
+#: sharing/templates/wb_home_tooltips.html:72
+#: sharing/templates/mobile/wb_home.html:907
 #, fuzzy
-msgid "Contact Us"
-msgstr "Данные контакта"
+msgid "Private Taxi Ride"
+msgstr "поездка в такси"
+
+#: sharing/templates/wb_home_2.html:76 sharing/templates/wb_home_2.html:101
+#: sharing/templates/wb_home_tooltips.html:76
+#: sharing/templates/wb_home_tooltips.html:101
+#, fuzzy
+msgid "Ride Price"
+msgstr "История заказов"
+
+#: sharing/templates/wb_home_2.html:97
+#: sharing/templates/wb_home_tooltips.html:97
+#: sharing/templates/mobile/wb_home.html:894
+#, fuzzy
+msgid "Shared Taxi Ride"
+msgstr "поездка в такси"
+
+#: sharing/templates/wb_home_2.html:173
+#: sharing/templates/wb_home_tooltips.html:173
+#, fuzzy
+msgid "Select HotSpot"
+msgstr "Выбрать адрес"
+
+#: sharing/templates/wb_home_2.html:183 sharing/templates/wb_home_2.html:221
+#: sharing/templates/wb_home_tooltips.html:183
+#: sharing/templates/wb_home_tooltips.html:221
+#, fuzzy
+msgid "Switch direction"
+msgstr "Регистрация"
+
+#: sharing/templates/wb_home_2.html:192
+#: sharing/templates/wb_home_tooltips.html:192
+#, fuzzy
+msgid "Select City"
+msgstr "Выбрать адрес"
+
+#: sharing/templates/wb_home_2.html:211
+#: sharing/templates/wb_home_tooltips.html:211
+#: sharing/templates/mobile/wb_home.html:1053
+msgid "House #"
+msgstr ""
+
+#: sharing/templates/wb_home_2.html:231
+#: sharing/templates/wb_home_tooltips.html:231
+#: sharing/templates/mobile/wb_home.html:28
+#, fuzzy
+msgid "Choose Pickup Time"
+msgstr "время посадки"
+
+#: sharing/templates/wb_home_2.html:261
+#: sharing/templates/wb_home_tooltips.html:261
+msgid "*Times may vary due to traffic and stuff..."
+msgstr ""
+
+#: sharing/templates/wb_home_2.html:402
+#: sharing/templates/wb_home_tooltips.html:402
+#, fuzzy
+msgid "_dropoffat"
+msgstr "Выбрать адрес"
+
+#: sharing/templates/wb_home_2.html:407
+#: sharing/templates/wb_home_tooltips.html:407
+#, fuzzy
+msgid "Your Pickup"
+msgstr "время посадки"
+
+#: sharing/templates/wb_home_2.html:407
+#: sharing/templates/wb_home_tooltips.html:407
+msgid "Your Dropoff"
+msgstr ""
+
+#: sharing/templates/wb_home_2.html:470
+#: sharing/templates/wb_home_tooltips.html:470
+#, fuzzy
+msgid "Calculating"
+msgstr "Отменить"
+
+#: sharing/templates/wb_home_2.html:501
+#: sharing/templates/wb_home_tooltips.html:501
+#, fuzzy
+msgid "Please choose another date"
+msgstr "Служба по умолчанию"
+
+#: sharing/templates/wb_home_2.html:649
+#: sharing/templates/wb_home_tooltips.html:649
+#, fuzzy
+msgid "HotSpot"
+msgstr "Выбрать адрес"
+
+#: sharing/templates/wb_home_2.html:655
+#: sharing/templates/wb_home_tooltips.html:655
+#, fuzzy
+msgid "Book Private"
+msgstr "Процедура заказа"
+
+#: sharing/templates/wb_home_2.html:656
+#: sharing/templates/wb_home_tooltips.html:656
+#, fuzzy
+msgid "Book Shared"
+msgstr "Оценка"
+
+#: sharing/templates/wb_home_2.html:1058
+#: sharing/templates/wb_home_tooltips.html:1058
+#, fuzzy
+msgid "Dropoff time"
+msgstr "Выбрать адрес"
 
 #: sharing/templates/ws_home.html:10
 msgid "Please wait, connecting"
@@ -4363,12 +4758,6 @@ msgstr "Введите № моб. телефона"
 msgid "Get verfication code (free)"
 msgstr "Введите проверочный код"
 
-#: sharing/templates/mobile/passenger_registration.html:137
-#: sharing/templates/mobile/terms_of_service.html:16
-#, fuzzy
-msgid "Terms of Service"
-msgstr "Условия использования"
-
 #: sharing/templates/mobile/passenger_registration.html:265
 #, fuzzy
 msgid "Checking"
@@ -4480,20 +4869,10 @@ msgstr "Введите ваш email"
 msgid "Switch Ride Direction"
 msgstr "Регистрация"
 
-#: sharing/templates/mobile/wb_home.html:823
-#, fuzzy
-msgid "Central Location"
-msgstr "средняя оценка"
-
 #: sharing/templates/mobile/wb_home.html:852
 #, fuzzy
 msgid "Calculate Ride"
 msgstr "Отменить"
-
-#: sharing/templates/mobile/wb_home.html:859
-#, fuzzy
-msgid "Number of Seats"
-msgstr "Число такси"
 
 #: sharing/templates/mobile/wb_home.html:864
 #, fuzzy
@@ -4540,15 +4919,6 @@ msgstr ""
 msgid "Back To Ride Order"
 msgstr ""
 
-#: sharing/templates/mobile/wb_home.html:1005
-#, fuzzy
-msgid "Hotspot"
-msgstr "Выбрать адрес"
-
-#: sharing/templates/mobile/wb_home.html:1049
-msgid "Street"
-msgstr ""
-
 #: sharing/templates/mobile/wb_home.html:1083
 #, fuzzy
 msgid "Choose day"
@@ -4558,10 +4928,6 @@ msgstr "Выбрать пароль"
 #, fuzzy
 msgid "Choose time"
 msgstr "Выбрать пароль"
-
-#: sharing/templates/mobile/wb_home.html:1101
-msgid "Share on Facebook"
-msgstr ""
 
 #: sharing/templates/mobile/wb_home.html:1102
 msgid "Like us"
@@ -4581,24 +4947,19 @@ msgid ""
 "efficiency, cheaper rides and better availablity). <br/><br/>Thanks :)"
 msgstr ""
 
-#: sharing/templates/mobile/wb_home.html:1123 templates/wb_base_site.html:137
-#, fuzzy
-msgid "Terms of Use"
-msgstr "Условия использования"
-
 #: sharing/templates/mobile/wb_home.html:1129
-#: sharing/templates/mobile/wb_home_phonegap.html:278
+#: sharing/templates/mobile/wb_home_phonegap.html:279
 #, fuzzy
 msgid "Logout"
 msgstr "Выход"
 
-#: sharing/templates/mobile/wb_home_phonegap.html:129
+#: sharing/templates/mobile/wb_home_phonegap.html:130
 msgid ""
 "Your network connectivity appear to be down. This application uses internet "
 "connectivity and will not work properly without a working connection."
 msgstr ""
 
-#: sharing/templates/mobile/wb_home_phonegap.html:247
+#: sharing/templates/mobile/wb_home_phonegap.html:248
 #, fuzzy
 msgid "Error while logging out"
 msgstr "Ошибка при сохранении изменений"
@@ -4623,7 +4984,7 @@ msgstr "Заказ такси он-лайн (бесплатно)"
 msgid "Passengers home"
 msgstr "Вход для пассажиров"
 
-#: templates/base.html:166
+#: templates/base.html:167
 msgid "2010 WAYbetter"
 msgstr "<span class=waybetter></span> 2010-2011 "
 
@@ -4635,130 +4996,10 @@ msgstr "WAYbetter: Лучший способ заказать такси (бес
 msgid "WAYbetter"
 msgstr "<span class=waybetter></span>"
 
-#: templates/wb_base.html:18 templates/wb_base.html.py:26
-#, fuzzy
-msgid "Half Price Taxi Rides"
-msgstr "поездка в такси"
-
-#: templates/wb_base.html:21 templates/wb_base.html.py:28
-msgid ""
-"Revolution in Transportation: Half-priced taxi rides. Book a shared taxi "
-"online: comfortable, hassle free ride, save tens of dollars."
-msgstr ""
-
-#: templates/wb_base.html:22
-msgid "smart,iPhone,way better,order taxi,online"
-msgstr ""
-
 #: templates/wb_base_mobile.html:25
 #, fuzzy
 msgid "Thinking..."
 msgstr "Проверка..."
-
-#: templates/wb_base_site.html:40
-#, fuzzy
-msgid "Log-in"
-msgstr "Войти"
-
-#: templates/wb_base_site.html:86 templates/wb_base_site.html.py:105
-#, fuzzy
-msgid "Service"
-msgstr "заказ"
-
-#: templates/wb_base_site.html:87
-msgid "learnmore_service_content"
-msgstr ""
-
-#: templates/wb_base_site.html:90 templates/wb_base_site.html.py:109
-#: templates/wb_base_site.html:149
-#, fuzzy
-msgid "Community"
-msgstr "Страна"
-
-#: templates/wb_base_site.html:91
-msgid "learnmore_community_content"
-msgstr ""
-
-#: templates/wb_base_site.html:94 templates/wb_base_site.html.py:113
-msgid "Environment"
-msgstr ""
-
-#: templates/wb_base_site.html:95
-msgid "learnmore_environment_content"
-msgstr ""
-
-#: templates/wb_base_site.html:98 templates/wb_base_site.html.py:117
-msgid "Efficiency"
-msgstr ""
-
-#: templates/wb_base_site.html:99
-msgid "learnmore_efficiency_content"
-msgstr ""
-
-#: templates/wb_base_site.html:106
-#, fuzzy
-msgid "gist_service_content"
-msgstr "содержание"
-
-#: templates/wb_base_site.html:110
-msgid "gist_community_content"
-msgstr ""
-
-#: templates/wb_base_site.html:114
-msgid "gist_environment_content"
-msgstr ""
-
-#: templates/wb_base_site.html:118
-msgid "gist_efficiency_content"
-msgstr ""
-
-#: templates/wb_base_site.html:136
-#, fuzzy
-msgid "PickMeApp"
-msgstr "Прислать такси"
-
-#: templates/wb_base_site.html:150
-msgid "Facebook"
-msgstr ""
-
-#: templates/wb_base_site.html:151
-msgid "Twitter"
-msgstr ""
-
-#: templates/wb_base_site.html:152
-#, fuzzy
-msgid "Stations"
-msgstr "Служба такси"
-
-#: templates/wb_base_site.html:162
-#, fuzzy
-msgid "Account"
-msgstr "страны"
-
-#: templates/wb_base_site.html:163
-#, fuzzy
-msgid "Log In"
-msgstr "Войти"
-
-#: templates/wb_base_site.html:199
-msgid "To view WAYbetter in Internet Explorer you need to install"
-msgstr ""
-
-#: templates/wb_base_site.html:200
-msgid "Free"
-msgstr ""
-
-#: templates/wb_base_site.html:202
-msgid "Install Google Chrome Frame"
-msgstr ""
-
-#: templates/wb_base_site.html:203
-msgid "Or, use one of these browsers"
-msgstr ""
-
-#: templates/wb_base_site.html:285
-msgid "Get yourself a modern browser"
-msgstr ""
 
 #: templates/admin/billing/billingtransaction/change_form.html:21
 #, fuzzy
@@ -4851,6 +5092,9 @@ msgstr ""
 msgid "Error running spellchecker"
 msgstr "Ошибка при  проверке орфографии"
 
+#~ msgid "Help"
+#~ msgstr "Помощь"
+
 #, fuzzy
 #~ msgid "One Seat"
 #~ msgstr "Статус"
@@ -4917,10 +5161,6 @@ msgstr "Ошибка при  проверке орфографии"
 #, fuzzy
 #~ msgid "Set Time"
 #~ msgstr "Выбрать адрес"
-
-#, fuzzy
-#~ msgid "Define Time"
-#~ msgstr "Задать время"
 
 #, fuzzy
 #~ msgid "Departure"
@@ -5730,9 +5970,6 @@ msgstr "Ошибка при  проверке орфографии"
 
 #~ msgid "Local mobile phone #"
 #~ msgstr "Местный № моб. телефона #"
-
-#~ msgid "Get a Taxi. Wherever You Are!"
-#~ msgstr "מכל מקום, המונית בדרך אליך!"
 
 #~ msgid "Hi-resolution image of the founders"
 #~ msgstr "תמונה ברזולוציה גבוהה של המייסדים"
