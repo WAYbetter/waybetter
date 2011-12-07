@@ -5,6 +5,7 @@ from common.models import CityArea
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
 from django.utils import simplejson
+from django.views.decorators.cache import never_cache
 from djangotoolbox.http import JSONResponse
 from ordering.models import Passenger
 
@@ -12,6 +13,7 @@ def is_email_available(request):
     return is_user_property_available(request, "email")
 
 
+@never_cache
 def is_user_authenticated(request):
     if request.user.is_authenticated():
         logging.info("User is authenticated: %s" % request.user.username)
