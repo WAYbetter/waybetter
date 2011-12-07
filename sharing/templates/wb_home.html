@@ -50,13 +50,19 @@
         <div id="booking_content">
 
             <div id="hotspot_content" class="booking_step">
-                <div class="title">1. {% trans "Choose a Hotspot" %}</div>
+                <div class="title">{% trans "Choose a Hotspot" %}</div>
 
-                <select id="id_hotspot_select" name="hotspot_id"></select>
+                <div class="cntr select">
+                    <select id="id_hotspot_select" name="hotspot_id"></select>
+                </div>
 
                 <div class="btn_cntr">
-                    <button id="leave_hotspot" class="wb_button hidden"></button>
-                    <button id="goto_hotspot" class="wb_button hidden"></button>
+                    <table>
+                        <tr>
+                            <td class="first"><button id="leave_hotspot" class="wb_button hidden"></button></td>
+                            <td class="second"><button id="goto_hotspot" class="wb_button hidden"></button></td>
+                        </tr>
+                    </table>
                 </div>
             </div>
 
@@ -66,7 +72,7 @@
                 <table>
                     <tr>
                         <td class="cntr city">
-                            <label for="id_city">{% trans "City" %}:</label>
+                            <label for="id_city">{% trans "City" %}</label>
                             <select id="id_city" name="id_city">
                                 {% for city in cities %}
                                     <option value="{{ city.id }}">{{ city.name }}</option>
@@ -75,15 +81,15 @@
 
                         </td>
                         <td class="cntr street">
-                            <label for="id_street_address">{% trans "Street" %}:</label>
-                            <div class="input-cntr">
+                            <label for="id_street_address">{% trans "Street" %}</label>
+                            <div class="cntr input">
                                 <input type="text" id="id_street_address" name="street_address"/>
                                 <div id="street_loader" class="small-loader"></div>
                             </div>
                             <div id="street_error" class="error"></div>
                         </td>
                         <td class="cntr hn">
-                            <label for="id_house_number">{% trans "House No" %}:</label>
+                            <label for="id_house_number">{% trans "House No" %}</label>
                             <input type="text" id="id_house_number" name="house_number"/>
                             <div id="house_number_error" class="error"></div>
                         </td>
@@ -102,19 +108,18 @@
                 <table>
                     <tr>
                         <td class="cntr date">
-                            <label for="id_hotspot_datepicker">{% trans "Date" %}:</label>
+                            <label for="id_hotspot_datepicker">{% trans "Date" %}</label>
                             <input type="text" id="id_hotspot_datepicker" name="hotspot_date" class="wb-menulist">
                         </td>
                         <td class="cntr time">
-                            <label for="id_hotspot_time">{% trans "Time" %}:</label>
-                            <select id="id_hotspot_time" name="hotspot_time"></select>
-                            <div id="intervals_loader" class="small-loader"></div>
-
-                            <div id="id_estimated_pickup">
-                                (
-                                <span class="text bold">{% trans "_pickup" %}: </span>
-                                <span class="value"></span>
-                                )
+                            <label for="id_hotspot_time"></label>
+                            <div class="cntr input">
+                                <select id="id_hotspot_time" name="hotspot_time"></select>
+                                <div id="intervals_loader" class="small-loader"></div>
+                            </div>
+                            <div id="id_estimated_pickup" class="bold">
+                                (<span class="text">{% trans "_pickup" %}: </span>
+                                <span class="value"></span>)
                             </div>
                         </td>
                         <td class="cntr btn">
@@ -220,9 +225,9 @@
         <div id="booking_progress">
             <table>
                 <tr>
-                    <td><a class="hotspot step current" data-name="hotspot">1. {% trans "Central Location" %}</a></td>
-                    <td><a class="address step disabled" data-name="address">2. {% trans "Address" %}</a></td>
-                    <td><a class="datetime step disabled" data-name="datetime">3. {% trans "Time" %}</a></td>
+                    <td><a class="hotspot step current" data-name="hotspot">1. {% trans "Choose Hotspot" %}</a></td>
+                    <td><a class="address step disabled" data-name="address">2. {% trans "Enter Address" %}</a></td>
+                    <td><a class="datetime step disabled" data-name="datetime">3. {% trans "Choose Time" %}</a></td>
                     <td><a class="details step disabled" data-name="details">4. {% trans "Get Offer" %}</a></td>
                 </tr>
             </table>
@@ -253,7 +258,8 @@
                 </td>
                 <td class="iphone vendor">
                     <div class="app-icon clickable centered"></div>
-                    <a href="{% value_from_settings "APPLE_WAYBETTER_ITUNES_URL" %}" class="wb_link">{% trans "Get the iPhone App" %} ></a>
+{#                    <a href="{% value_from_settings "APPLE_WAYBETTER_ITUNES_URL" %}" class="wb_link">{% trans "Get the iPhone App" %} ></a>#}
+                    <a>{% trans "iPhone App coming in a few days" %}</a>
                 </td>
                 <td>
                     <div class="vr"></div></td>
@@ -407,7 +413,9 @@
     }
 
     function stepCompleted(step_name) {
-        $("#booking_progress .step." + step_name).addClass("completed");
+        var $el = $("#booking_progress .step." + step_name);
+        $el.addClass("completed");
+        $el.parent().addClass("completed");
     }
 
     function getHotspotTimes(options) {
@@ -716,7 +724,7 @@
         $("#address_content").bind("beforeshow", function() {
             var address = BookingHelper.address;
             var title = (BookingHelper.hotspot_type == PICKUP) ? "{% trans "Where are you going" %}?" : "{% trans "Where are you coming from" %}?";
-            $(this).find(".title").text("2. " + title);
+            $(this).find(".title").text(title);
             if (address){
                 $("#id_street_address").val(address.street_address);
                 $("#id_house_number").val(address.house_number);
@@ -818,15 +826,19 @@
             }
 
             var title_text = "{% trans "Define Time" %}";
+            var label_text = "{% trans "Time" %}";
 
             if (BookingHelper.hotspot && BookingHelper.hotspot_type == PICKUP) {
-                title_text = "{% trans "When are you leaving " %}" + BookingHelper.hotspot.name + "?";
+                title_text = "{% trans "Pickup Time from " %}" + BookingHelper.hotspot.name;
+                label_text = "{% trans "_pickupat" %}";
             }
             else if (BookingHelper.hotspot && BookingHelper.hotspot_type == DROPOFF) {
-                title_text = "{% trans "When do you want to be at" %} " + BookingHelper.hotspot.name + "?";
+                title_text = "{% trans "Dropoff Time at " %}" + BookingHelper.hotspot.name;
+                label_text = "{% trans "_dropoffat" %}";
             }
 
-            $("#datetime_content .title").text("3. " + title_text);
+            $("#datetime_content .title").text(title_text);
+            $("label[for='id_hotspot_time']").text(label_text);
         });
         $("#id_hotspot_datepicker").keydown(function(e) {
             e.preventDefault(); // make it uneditable
@@ -849,7 +861,7 @@
                 $summary.find(".address .name").text(BookingHelper.address.name);
                 $summary.find(".address .desc").text("");
                 $summary.find(".hotspot .name").text(BookingHelper.hotspot.name);
-                $summary.find(".hotspot .desc").text(BookingHelper.hotspot.description);
+                $summary.find(".hotspot .desc").text("(" + BookingHelper.hotspot.description + ")");
                 $summary.find(".when .desc").text(BookingHelper.ride_date + " " + BookingHelper.ride_time);
                 if (BookingHelper.hotspot_type == PICKUP) {
                     $summary.find(".when .details_label").text(BookingHelper.messages.pickup_time + ":");
@@ -942,7 +954,6 @@
             }else if (step_name == "datetime"){
                 $("#set_datetime").focus();
             }else if (step_name == "details"){
-                $("#book_ride").focus();
                 $("#savings").fadeIn("fast");
             }
         });

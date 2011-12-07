@@ -69,7 +69,9 @@ input[disabled]{
     -moz-appearance: menulist;
     -webkit-appearance: menulist;
 
+    color: #262626;
     font-size: $font-size-large;
+    font-weight: bold;
 
     background: #ffffff; /* Old browsers */
     background: -moz-linear-gradient(top, #ffffff 0%, #cfcfcf 100%); /* FF3.6+ */
@@ -269,7 +271,7 @@ ul.hz{
 
 .wb_button{
     border: #454545;
-    background: #666666;
+    background: #4D4D4D;
     color: white;
     padding: 10px 15px 10px 15px;
     height: 31px;
@@ -901,7 +903,7 @@ Home
             width:12px;
             height:0;
             padding-top:12px;
-            background-image:url("/static/images/wb_site/pagination.png");
+            background-image:url("/static/images/wb_site/pagination_white.png");
             background-position:0 0;
             float:left;
             overflow:hidden;
@@ -925,7 +927,7 @@ Home
 
     #booking_container{
         $booking-container-width: 800px;
-        $booking-container-height: 240px;
+        $booking-container-height: 255px;
         $el_height: 40px;
 
         position: relative;
@@ -957,23 +959,24 @@ Home
 
         #booking_content{
             width: 100%;
-            height: $booking-container-height * 0.9;
+            height: $booking-container-height - 35px;
         }
         
         #booking_progress{
             position: absolute;
-            bottom: 10px;
+            bottom: 0;
+            height: 35px;
             width: 100%;
-            height: $booking-container-height * 0.1;
             table{
-                width: 80%;
+                width: 95%;
                 margin: 0 auto;
+                border-top: 1px solid #A2A2A2;
+                text-align: center;
+                font-size: $font-size-medium;
             }
             td{
-                padding-right: 70px;
-            }
-            td:last-child{
-                padding-right: 0;
+                width: 25%;
+                height: 25px;
             }
             .step{
                 @extend .clickable;
@@ -983,31 +986,49 @@ Home
             }
             .step.current{
                 @extend .bold;
+                color: $color-community;
             }
             .step.disabled{
-                opacity: 0.5;
                 cursor: default;
+                color: #707070;
             }
             .step.completed{
                 color: green;
             }
+            td.completed:hover{
+                background-color: #D6D6D6;
+            }
         }
 
         .booking_step{
-            padding-top: 40px;
+            padding-top: 30px;
             padding-bottom: 35px;
             /*height: $booking-container-height * 0.9;*/
             table{
                 margin: 0 auto;
                 width: 100%;
-                border-spacing: 20px 10px;
+                border-spacing: 20px 3px;
                 .wb_button, .small-loader {
                     display: inline-block;
                 }
             }
-            .cntr.btn{ width: 135px; padding-top: 14px;}
+            .cntr.btn{ width: 165px; padding-top: 22px;}
+            .cntr.input{
+                position: relative;
+                .small-loader{
+                    z-index: 3;
+                    position: absolute;
+                    right: 4px;
+                    top: 30%;
+                }
+
+            }
+
             label{
                 display: block;
+                color:  #393939;
+                font-size: $font-size-medium;
+                margin-bottom: 5px;
             }
             tr{
                 vertical-align: top;
@@ -1036,35 +1057,30 @@ Home
             }
         }
         #hotspot_content{
-            padding-right: 130px;
-            padding-left: 130px;
+            padding-right: 30px;
+            padding-left: 30px;
             padding-bottom: 10px;
-            width: $booking-container-width - 2 * 130;
-            #id_hotspot_select{
-                width: 100%;
-                margin: 0 auto;
-            }
+            width: $booking-container-width - 2 * 30;
+
+            .cntr.select{ width: 70%; margin: 0 auto;}
+            #id_hotspot_select{ width: 100%; }
             .btn_cntr{
                 position: relative;
                 margin: 0 auto;
                 margin-top: 20px;
                 height: $el_height + 4;
             }
+            td.first{text-align:right;}
+            td.second{text-align:left;}
             #leave_hotspot, #goto_hotspot{
                 background-image: url("/static/images/wb_site/field_icons.png");
                 background-repeat: no-repeat;
-                padding-left: 40px;
+                padding-left: 50px;
             }
             #leave_hotspot{
-                position: absolute;
-                left: 0;
-                width: 45%;
                 background-position: 10px 8px;
             }
             #goto_hotspot{
-                position: absolute;
-                right: 0;
-                width: 45%;
                 background-position: 10px -46px;
             }
         }
@@ -1076,19 +1092,10 @@ Home
                 width: 100%;
             }
             .cntr.city{ width: 25%; }
-            .cntr.hn{ width: 10%; }
+            .cntr.hn{ width: 13%; }
             .cntr.street{
                 position: relative;
                 /* no set width -> scales nicely */
-                .input-cntr{
-                    position: relative;
-                }
-            }
-            #street_loader{
-                z-index: 3;
-                position: absolute;
-                right: 4px;
-                top: 30%;
             }
         }
         #datetime_content{
@@ -1096,10 +1103,16 @@ Home
             padding-left: 120px;
             width: $booking-container-width - 2 * 120;
             .cntr.time, .cntr.date{
-                width: 160px;
+                width: 250px;
             }
-            #id_hotspot_datepicker{ width: 100%; }
-            #id_hotspot_time{ width: 80%;}
+            #id_hotspot_datepicker, #id_hotspot_time{ width: 100%; }
+            #id_estimated_pickup{
+                padding-top: 3px;
+                font-size: $font-size-large - 1;
+                color: #339A31;
+                text-align: center;
+                .text, .value{color: #339A31;}
+            }
 
         }
 
@@ -1115,17 +1128,18 @@ Home
             font-size: $font-size-medium;
             padding-right: 20px;
             border-right: 1px solid gray;
+            span, p, div{color: #4d4d4d;}
             .data{
-                border: 1px solid $light-gray;
+                border: 1px solid #dfdfdf;
                 padding: 1px;
-                margin: 0 0 14px 0;
+                margin: 2px 0 12px 0;
                 @extend .clickable;
                 p{
                     margin: 2px;
                 }
             }
             .data:hover{
-                border-color: $color-blue;
+                border-color: #838383;
             }
             .details_label, .details_label_type{
                 @extend .bold;
@@ -1135,16 +1149,12 @@ Home
                 background-position: 0 1px;
             }
             #switch_direction{
-                position: relative;
-                bottom: 3px;
                 float: right;
+                @extend .wb_link;
             }
-            #num_seats{
-                position: relative;
-                bottom: 8px;
-            }
+            .hotspot .desc{font-style: italic;}
             #num_seats input{
-                height: 10px;
+                height: auto;
             }
             #num_seats .radio{
                 float: right;
@@ -1160,31 +1170,30 @@ Home
                 .price, .time{
                     height: 35px;
                     border-bottom: 1px solid $light-gray;
+                    margin: 10px auto 22px auto;
                     border-spacing: 1px 1px;
                 }
                 .price{
                     width: 0.8 * $width;
-                    margin: 10px auto 10px auto;
                 }
                 .time{
                     width: $width;
-                    margin: 10px auto 10px auto
                 }
                 .offer-row{
                     vertical-align: bottom;
                 }
-                .offer-pre{ text-align: right; color: $dark-gray; }
+                .offer-pre{ text-align: right; color: #4d4d4d; }
                 .offer-val{ text-align: center; font-weight:bold; line-height: 12px;}
-                .price .offer-val .value{ font-size: $font-size-huge;  }
-                .price .offer-val .label{ font-size: $font-size-big;  }
-                .time .offer-val .value{ font-size: $font-size-huge - 5;  }
-                .time .offer-val .label{ font-size: $font-size-big - 5;  }
+                .offer-val .value{ font-size: 45px;  }
+                .price .offer-val .label{ font-size: 38px;  }
+                .time .offer-val .label{ font-size: 20px;  }
                 .offer-post{ text-align: left; color: $dark-gray; font-weight:bold; }
             }
             #book_ride{
                 display: block;
-                margin-top: 20px;
                 width: 1.2 * $width;
+                height: 50px;
+                font-size: 20px;
             }
         }
 
@@ -1251,40 +1260,28 @@ Home
                 }
             }
 
-            #booking_progress{
-                td{
-                    padding-right: 0;
-                    padding-left: 70px;
-                }
-                td:last-child{
-                    padding-left: 0;
+            .booking_step{
+                .cntr.input{
+                    .small-loader{
+                        right: auto;
+                        left: 4px;
+                    }
                 }
             }
-
             #booking_teaser{
                 padding-right: 140px;
                 padding-left: 140px;
                 .text{width: 220px;}
             }
             #hotspot_content{
-                #leave_hotspot, #goto_hotspot{ padding-left:0; padding-right: 31px;}
+                #leave_hotspot, #goto_hotspot{ padding-left: 15px; padding-right: 40px;}
+                td.first{text-align:left;}
+                td.second{text-align:right;}
                 #leave_hotspot{
-                    position: absolute;
-                    left: auto;
-                    right: 0;
-                    background-position: 205px 8px;
+                    background-position: right 8px;
                 }
                 #goto_hotspot{
-                    position: absolute;
-                    right: auto;
-                    left: 0;
-                    background-position: 205px -46px;
-                }
-            }
-            #address_content{
-                #street_loader{
-                    right: auto;
-                    left: 4px;
+                    background-position: right -46px;
                 }
             }
             $padding: 10px;
