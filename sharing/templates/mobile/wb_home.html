@@ -444,7 +444,7 @@
                 MobileHelper.getCurrentLocation({
                     locationSuccess: function(p) {
                         $.each(hotspots, function(i, hs) {
-                            if (MobileHelper.distance(p.coords.latitude, p.coords.longitude, hs.lat, hs.lon) <= 0.4) {
+                            if (MobileHelper.distance(p.coords.latitude, p.coords.longitude, hs.lat, hs.lon) <= 0.7) {
                                 log("IN HOTSPOT");
                                 log(hs);
                                 selectHotspot(hs);
@@ -1149,7 +1149,7 @@
                 </div>
                 <div class="about_header ui-block-b">
                     <h1>WAYbetter</h1>
-                    <p>Beta 1.0</p>
+                    <p>1.0</p>
                 </div>
             </div>
             <div class="copyright" class="ltr">© 2011 WAYbetter™ LTD. All rights reserved.<br/><span class="bold">Patent pending.</span></div>
