@@ -11,13 +11,13 @@
             <div id="banner_content" class="hidden">
                 <div id="banner_slides">
                     {% if LANGUAGE_CODE == "he" %}
-                        <img src="/static/images/wb_site/banner_01_he.png">
-                        <img src="/static/images/wb_site/banner_02_he.png">
-                        <img id="order_now" class="clickable" src="/static/images/wb_site/banner_03_he.png">
+                        <img src="/static/images/wb_site/banner01_he_a.png">
+                        <img src="/static/images/wb_site/banner02_he_a.png">
+                        <img src="/static/images/wb_site/banner03_he_a.png">
                     {% else %}
-                        <img src="/static/images/wb_site/banner01.png">
-                        <img src="/static/images/wb_site/banner02.png">
-                        <img id="order_now" class="clickable" src="/static/images/wb_site/banner03.png">
+                        <img src="/static/images/wb_site/banner01_en_a.png">
+                        <img src="/static/images/wb_site/banner02_en_a.png">
+                        <img src="/static/images/wb_site/banner03_en_a.png">
                     {% endif %}
                 </div>
             </div>
@@ -54,6 +54,7 @@
 
                 <div class="cntr select">
                     <select id="id_hotspot_select" name="hotspot_id"></select>
+                    <span id="qm_votespot" class="clickable"></span>
                 </div>
 
                 <div class="btn_cntr">
@@ -675,7 +676,7 @@
                 }
             },
             successCallback: function(){
-                var $option = $("<option id='votespot'>{% trans "Other" %}</option>");
+                var $option = $("<option id='opt_votespot'>{% trans "Other" %}</option>");
                 $("#id_hotspot_select").append($option);
                 $("#leave_hotspot, #goto_hotspot").fadeIn("fast");
             }
@@ -710,7 +711,7 @@
         $(".small-loader").hide();
 
         // teaser
-        $("#booking_teaser button, #order_now").click(function() {
+        $("#booking_teaser button").click(function() {
             logGAEvent("banner", "try it now");
             startBooking();
         });
@@ -721,7 +722,7 @@
         });
 
         $("#id_hotspot_select").change(function(e) {
-            if ($(this).find("option:selected").attr("id") == "votespot"){
+            if ($(this).find("option:selected").attr("id") == "opt_votespot"){
                 e.preventDefault();
                 Registrator.openHotspotInterestDialog();
                 $(this).val(""); // select the first option
@@ -729,6 +730,9 @@
             else{
                 selectHotspot();
             }
+        });
+        $("#qm_votespot").click(function () {
+            Registrator.openHotspotInterestDialog();
         });
 
         $("#leave_hotspot").click(function() {

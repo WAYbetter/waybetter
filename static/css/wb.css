@@ -138,7 +138,7 @@ ul.hz > li, #top-right ul.content_links > li {
   cursor: pointer; }
 
 .wb_link, .wb_home #booking_container #ride_summary #switch_direction {
-  color: #0088CC;
+  color: #0088CC !important;
   cursor: pointer;
   text-decoration: none; }
 
@@ -192,7 +192,7 @@ ul.hz > li, #top-right ul.content_links > li {
   border: 1px solid red; }
 
 .small-loader, .myrides-tip-content .tooltip_loader {
-  background: url(../images/wb_site/loader16.gif) left 0 no-repeat;
+  background: url(/static/images/wb_site/wb_loader16.gif) left 0 no-repeat;
   height: 16px;
   width: 16px; }
 
@@ -298,14 +298,15 @@ jQuery UI override
 
 .ui-dialog {
   border: 5px solid;
-  border-color: rgba(235, 31, 121, 0.5); }
+  border-color: rgba(235, 31, 121, 0.5);
+  padding: 0.6em; }
   .ui-dialog .ui-dialog-titlebar {
     font-size: 18px;
     font-weight: bold;
     background: none;
     border: none; }
   .ui-dialog .ui-dialog-title {
-    color: #6C6C6A; }
+    color: #3D3D3D; }
 
 .rtl .ui-dialog .ui-dialog-titlebar-close {
   right: auto;
@@ -915,10 +916,20 @@ Home
       padding-bottom: 10px;
       width: 740px; }
       .wb_home #booking_container #hotspot_content .cntr.select {
-        width: 70%;
-        margin: 0 auto; }
+        width: 600px;
+        margin: 0 auto;
+        padding-left: 30px; }
       .wb_home #booking_container #hotspot_content #id_hotspot_select {
-        width: 100%; }
+        width: 550px; }
+      .wb_home #booking_container #hotspot_content #qm_votespot {
+        display: inline-block;
+        width: 44px;
+        height: 24px;
+        background: url("/static/images/wb_site/qm_button.png") center top no-repeat;
+        position: relative;
+        top: 6px; }
+      .wb_home #booking_container #hotspot_content #qm_votespot:hover {
+        background-position: center -45px; }
       .wb_home #booking_container #hotspot_content .btn_cntr {
         position: relative;
         margin: 0 auto;
@@ -1087,6 +1098,9 @@ Home
   padding-left: 140px; }
   .rtl.wb_home #booking_container #booking_teaser .text {
     width: 220px; }
+.rtl.wb_home #booking_container #hotspot_content .cntr.select {
+  padding-left: 0;
+  padding-right: 30px; }
 .rtl.wb_home #booking_container #hotspot_content #leave_hotspot, .rtl.wb_home #booking_container #hotspot_content #goto_hotspot {
   padding-left: 15px;
   padding-right: 40px; }
@@ -1530,9 +1544,9 @@ Dialogs
 .dialog #button_container {
   float: right;
   margin-top: 25px; }
-.dialog .content p, .dialog .content label {
+.dialog .content p, .dialog .content label, .dialog .content span {
   font-size: 13px;
-  color: #6C6C6A; }
+  color: #3D3D3D; }
 
 .rtl .dialog #button_container {
   float: left; }
