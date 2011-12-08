@@ -554,6 +554,7 @@ var AddressHelper = Object.create({
                 $hn_input.focus();
                 if (callbacks.success)
                     callbacks.success();
+                $(this).trigger("change");
             }
 
         });

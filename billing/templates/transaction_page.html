@@ -48,7 +48,7 @@
                 success:    function(response) {
                     if (response.hasOwnProperty("status")) {
                         if (response.status == approved) {
-                            gaHitPage("order_approved.html")
+                            logGAEvent("order", "billing", "approved");
                         }
 
                         var status = response.status;
@@ -56,6 +56,7 @@
                             $(document).oneTime(5e3, function(){getStatus();});
                         }
                         else {
+                            logGAEvent("order", "billing", "failed");
                             renderStatus(status, response.error_message);
                             $("#home").enable();
                         }
@@ -71,6 +72,7 @@
             $("#home").disable().click(function(){
                 window.location.href = "{% url wb_home %}";
             });
+            logGAEvent("order", "billing", "waiting");
             renderStatus(processing);
             getStatus();
         });

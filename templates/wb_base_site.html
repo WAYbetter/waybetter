@@ -309,6 +309,8 @@
             });
             $("#lang_form li").click(function() {
                 var code = $(this).data("code");
+                logGAEvent("languages", "change language", code);
+
                 if (code != "{{ LANGUAGE_CODE }}" && !$(this).hasClass("disabled")) {
                     $("#lang_form #language").val(code);
                     $("#lang_form").submit();

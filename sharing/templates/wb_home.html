@@ -320,6 +320,11 @@
 
     var RTL = false;
 
+    // GA variables
+    var choose_hotspot_time = undefined,
+        get_offer_time = undefined,
+        street_address_logged = false;
+
     {% if LANGUAGE_BIDI %}
         RTL = true;
     {% endif %}
@@ -339,6 +344,7 @@
     }
     
     function showError(msg, onClose) {
+        logGAEvent("order", "error", msg);
         Registrator.openWBErrorDialog("{% trans 'OOPS...' %}", msg, onClose);
     }
 
@@ -348,12 +354,24 @@
         var hs_name = (hotspot.name || "{% trans "Hotspot" %}");
         $("#leave_hotspot").text("{% trans "Leave " %}" + hs_name + " >>");
         $("#goto_hotspot").text("{% trans "Goto " %}" + hs_name + " >>");
+
+        if (BookingHelper.hotspot) { // log Google Analytics event
+            logGAEvent("order", "choose hotspot", hotspot.name);
+        }
+
     }
 
     function setHotspot(hotspot_type){
+        choose_hotspot_time = new Date();
         selectHotspot();
         switchDirection(hotspot_type);
         stepCompleted("hotspot");
+        if (hotspot_type == PICKUP) {
+            logGAEvent("order", "set direction", "from hotspot");
+        } else {
+            logGAEvent("order", "set direction", "to hotspot");
+        }
+
         if (BookingHelper.address) {
             getHotspotTimes({});
             showBookingStep("datetime");
@@ -546,6 +564,8 @@
 
         var err_msg = "{% trans "We have encountered an error. Please try again." %}";
 
+        logGAEvent("order", "book", BookingHelper.hotspot.name, Math.round((new Date() - get_offer_time) / 1000));
+
         $.ajax({
             url: "{% url sharing.passenger_controller.book_ride %}",
             data: data,
@@ -691,6 +711,7 @@
 
         // teaser
         $("#booking_teaser button, #order_now").click(function() {
+            logGAEvent("banner", "try it now");
             startBooking();
         });
 
@@ -716,6 +737,10 @@
         $("#goto_hotspot").click(function() {
             setHotspot(DROPOFF);
         });
+
+        $("#id_city").change(function() {
+            logGAEvent("order", "set city", $(this).find("option:selected").text());
+        }).change();
 
         $("#leave_hotspot, #goto_hotspot").one("click", function(){showMap()});
 
@@ -746,7 +771,13 @@
         });
         $("#id_street_address").change(function(){
             $("#street_error").text("");
+            logGAEvent("order", "choose street", $(this).val());
+
         }).keydown(function(e) {
+            if (! street_address_logged) {
+                logGAEvent("order", "enter street");
+                street_address_logged = true;
+            }
             if (e.keyCode == 9 && !e.shiftKey) { // on tab
                 e.preventDefault();
                 $("#id_house_number").focus();
@@ -755,6 +786,7 @@
 
         $("#id_house_number").change(function(){
             $("#house_number_error").text("");
+            logGAEvent("order", "choose house number", $(this).val());
         }).keydown(function(e) {
             // prevent jumping from house number on 'tab' if next_btn is disabled
             if (e.keyCode == 9 && !e.shiftKey && $("#set_address").is(":disabled")) {
@@ -767,6 +799,8 @@
         });
 
         $("#set_address").click(function() {
+            logGAEvent("order", "next button", "address");
+
             AddressHelper.resolveStructured({
                 city_selector       : "#id_city",
                 street_input        : $("#id_street_address"),
@@ -839,11 +873,23 @@
 
             $("#datetime_content .title").text(title_text);
             $("label[for='id_hotspot_time']").text(label_text);
+            logGAEvent("order", "choose date", $("#id_hotspot_datepicker").val());
         });
         $("#id_hotspot_datepicker").keydown(function(e) {
             e.preventDefault(); // make it uneditable
-        });
+        }).blur(function() {
+            logGAEvent("order", "choose date", $(this).val());
+    }); 
+        $("#id_hotspot_time").change(function() {
+            if ($(this).val()) {
+                logGAEvent("order", "choose time", $(this).val());
+            }
+        }).change();
+    
         $("#set_datetime").click(function() {
+            logGAEvent("order", "get offer", "time", Math.round((new Date() - choose_hotspot_time) / 1000));
+            get_offer_time = new Date();
+
             BookingHelper.ride_date = $("#id_hotspot_datepicker").val();
             BookingHelper.ride_time = $("#id_hotspot_time").val();
             getRideDetails({

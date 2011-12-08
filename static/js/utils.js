@@ -544,3 +544,11 @@ function gaHitPage(url) {
     }
 }
 
+function logGAEvent(category, action, opt_label, opt_value, opt_noniteraction) {
+    try {
+        _gaq.push(['_trackEvent()'].concat(arguments));
+    } catch(e){
+        log(e);
+    }
+}
+
