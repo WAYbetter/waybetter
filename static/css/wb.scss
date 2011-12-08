@@ -201,7 +201,7 @@ ul.hz{
 }
 
 .wb_link{
-    color: #0088CC;
+    color: #0088CC !important;
     cursor: pointer;
     text-decoration: none;
 }
@@ -365,6 +365,7 @@ jQuery UI override
 .ui-dialog{
     border: 5px solid;
     border-color: rgba($color-community, 0.5);
+    padding: 0.6em;
     .ui-dialog-titlebar{
         font-size: $font-size-header1;
         font-weight: bold;
@@ -372,7 +373,7 @@ jQuery UI override
         border: none;
     }
     .ui-dialog-title{
-        color: #6C6C6A;
+        color: #3D3D3D;
     }
 }
 .rtl .ui-dialog{
@@ -1062,8 +1063,16 @@ Home
             padding-bottom: 10px;
             width: $booking-container-width - 2 * 30;
 
-            .cntr.select{ width: 70%; margin: 0 auto;}
-            #id_hotspot_select{ width: 100%; }
+            .cntr.select{ width: 600px; margin: 0 auto; padding-left: 30px;}
+            #id_hotspot_select{ width: 550px; }
+            #qm_votespot{
+                display: inline-block;
+                @include size(44px, 24px);
+                background: url("/static/images/wb_site/qm_button.png") center top no-repeat;
+                position: relative;
+                top: 6px;
+            }
+            #qm_votespot:hover {background-position: center -45px;}
             .btn_cntr{
                 position: relative;
                 margin: 0 auto;
@@ -1274,6 +1283,7 @@ Home
                 .text{width: 220px;}
             }
             #hotspot_content{
+                .cntr.select{ padding-left: 0; padding-right: 30px;}
                 #leave_hotspot, #goto_hotspot{ padding-left: 15px; padding-right: 40px;}
                 td.first{text-align:left;}
                 td.second{text-align:right;}
@@ -1804,9 +1814,9 @@ Dialogs
         margin-top: 25px;
     }
     .content{
-        p, label{
+        p, label, span{
             font-size: $font-size-medium;
-            color: #6C6C6A;
+            color: #3D3D3D;
         }
     }
 }

@@ -2,38 +2,33 @@
 <script>
     var form_config = {
         dialog_config:{
-            title:"{% trans "What are HotSpots" %}?",
+            title:"{% trans "What are Hotspots" %}?",
             width:"400px"
         }
     };
     $(function () {
-        $(".small-loader").hide();
 
-        $("#share_email").click(function() {
+        $("#share_email").click(function () {
             window.location.href = SocialHelper.getEmailShareLink();
         });
-        $("#share_twiter").click(function() {
+        $("#share_twiter").click(function () {
             window.location.href = SocialHelper.getTwitterShareLink();
         });
-        $("#share_facebook").click(function() {
+        $("#share_facebook").click(function () {
             window.location.href = SocialHelper.getFacebookShareLink();
         });
 
         $("#submit_hs_interest").click(function (e) {
             var form = $("#hotspot_interest_form");
-            var $loader = $("#button_container .small-loader");
             $.ajax({
                 url:'{% url interests.views.hotspot_interest %}',
                 type:'POST',
                 data:form.serialize(),
                 dataType:"json",
-                beforeSend:function () {
-                    $loader.show();
-                },
                 success:function (response) {
                     if (!response.errors) {   // no errors!
                         $("#hotspot_interest_form, #submit_hs_interest, .ui-dialog-title").hide();
-                        $("#thank_you, #close").show();
+                        $("#thank_you").after($("#pickmeapp_footer")).show();
                     } else {                    // we got errors
                         $(".errorlist").remove();
                         $.each(response.errors, function (i, error) {
@@ -47,11 +42,7 @@
                             }
                         });
                     }
-                },
-                complete:function () {
-                    $loader.hide();
                 }
-
             });
             return false;
 
@@ -60,13 +51,49 @@
 
 </script>
 <style type="text/css">
-    .small-loader {
-        display: inline-block;
-    }
-
-    .errorlist {
+    #pilot_interest_dialog * {
         font-size: 13px;
     }
+
+    #pickmeapp_footer {
+        margin-top: 15px;
+        background: url("/static/images/wb_site/pickmeapp_icon.png") left top no-repeat;
+        padding-left: 45px;
+        height: 40px;
+    }
+    .rtl #pickmeapp_footer {
+        background-position: right top;
+        padding-left: 0;
+        padding-right: 45px;
+    }
+
+    table{
+        width: 100%;
+        border-spacing: 0 6px;
+        position: relative;
+        bottom: 5px;
+        vertical-align: top;
+    }
+    input {
+        width: 100%;
+    }
+    #id_suggestion{
+        width: 275px;
+    }
+
+    p {
+        margin-top: 5px;
+    }
+
+    #sharing_buttons{
+        margin: 55px 0;
+    }
+
+    ul.errorlist{
+        margin: 0;
+        padding: 0;
+    }
+
 </style>
 
 <div id="pilot_interest_dialog" class="dialog interest_dialog">
@@ -75,27 +102,43 @@
             <p>
                 {% trans "Hotspots are places or events in-which WAYbetter operates and offers fixed low ride prices due to the high amounts of users who share taxi rides." %}
             </p>
-            <p>
-                {% trans "You choose the HotSpots! <br/>Popular places will be added to the HotSpots list. Together we will spread across the city a  smart, efficient, green and affordable transportation network." %}
-            </p>
             <hr>
-            {% trans "Where would you like WAYbetter service" %}?
+            <p><span class="bold">{% trans "You choose the Hotspots" %}!</span></p>
+
+            <p>
+                {% trans "Popular places will be added to the HotSpots list. Together we will spread across the city a  smart, efficient, green and affordable transportation network." %}
+            </p>
             <table class="field_container">
-                {{ form.as_table }}
+                <tbody>
+                <tr>
+                    <td><label for="id_suggestion">{% trans "My Hotspot" %}:</label></td>
+                    <td colspan="2"><input id="id_suggestion" type="text" name="suggestion" maxlength="500"></td>
+                </tr>
+                <tr>
+                    <td><label for="id_email">{% trans "My Email" %}:</label></td>
+                    <td><input id="id_email" type="text" name="email" maxlength="75"></td>
+                    <td>
+                        <button id="submit_hs_interest" class="wb_button purple">{% trans 'Send' %}</button>
+                    </td>
+                </tr>
+                </tbody>
             </table>
         </form>
+        <div id="pickmeapp_footer">
+            <hr>
+            <p>{% trans "In the meantime, you can order a private taxi with a single click using" %}
+                <a class="wb_link" href="{% url pickmeapp %}">PickMeApp.co.il</a>
+            </p>
+        </div>
+
         <div id="thank_you" class="hidden">
             <p>{% trans "Oh, tell your friends... Thanks!" %}</p>
+
             <div id="sharing_buttons">
                 <div id="share_facebook" class="share_button clickable"><span class="wb_link">Share</span></div>
                 <div id="share_twiter" class="share_button clickable"><span class="wb_link">Share</span></div>
                 <div id="share_email" class="share_button clickable"><span class="wb_link">Email</span></div>
             </div>
         </div>
-    </div>
-    <div id="button_container">
-        <button id="submit_hs_interest" class="wb_button purple">{% trans 'Send' %}</button>
-        <div class="small-loader hidden"></div>
-        <button id="close" class="wb_button purple hidden">{% trans 'Close' %}</button>
     </div>
 </div>

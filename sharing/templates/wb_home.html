@@ -54,6 +54,7 @@
 
                 <div class="cntr select">
                     <select id="id_hotspot_select" name="hotspot_id"></select>
+                    <span id="qm_votespot" class="clickable"></span>
                 </div>
 
                 <div class="btn_cntr">
@@ -655,7 +656,7 @@
                 }
             },
             successCallback: function(){
-                var $option = $("<option id='votespot'>{% trans "Other" %}</option>");
+                var $option = $("<option id='opt_votespot'>{% trans "Other" %}</option>");
                 $("#id_hotspot_select").append($option);
                 $("#leave_hotspot, #goto_hotspot").fadeIn("fast");
             }
@@ -700,7 +701,7 @@
         });
 
         $("#id_hotspot_select").change(function(e) {
-            if ($(this).find("option:selected").attr("id") == "votespot"){
+            if ($(this).find("option:selected").attr("id") == "opt_votespot"){
                 e.preventDefault();
                 Registrator.openHotspotInterestDialog();
                 $(this).val(""); // select the first option
@@ -708,6 +709,9 @@
             else{
                 selectHotspot();
             }
+        });
+        $("#qm_votespot").click(function () {
+            Registrator.openHotspotInterestDialog();
         });
 
         $("#leave_hotspot").click(function() {
