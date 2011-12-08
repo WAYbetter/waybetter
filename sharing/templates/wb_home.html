@@ -11,13 +11,13 @@
             <div id="banner_content" class="hidden">
                 <div id="banner_slides">
                     {% if LANGUAGE_CODE == "he" %}
-                        <img src="/static/images/wb_site/banner_01_he.png">
-                        <img src="/static/images/wb_site/banner_02_he.png">
-                        <img id="order_now" class="clickable" src="/static/images/wb_site/banner_03_he.png">
+                        <img src="/static/images/wb_site/banner01_he_a.png">
+                        <img src="/static/images/wb_site/banner02_he_a.png">
+                        <img src="/static/images/wb_site/banner03_he_a.png">
                     {% else %}
-                        <img src="/static/images/wb_site/banner01.png">
-                        <img src="/static/images/wb_site/banner02.png">
-                        <img id="order_now" class="clickable" src="/static/images/wb_site/banner03.png">
+                        <img src="/static/images/wb_site/banner01_en_a.png">
+                        <img src="/static/images/wb_site/banner02_en_a.png">
+                        <img src="/static/images/wb_site/banner03_en_a.png">
                     {% endif %}
                 </div>
             </div>
@@ -691,7 +691,7 @@
         $(".small-loader").hide();
 
         // teaser
-        $("#booking_teaser button, #order_now").click(function() {
+        $("#booking_teaser button").click(function() {
             startBooking();
         });
 
