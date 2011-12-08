@@ -70,6 +70,28 @@
     <!-- end scripts-->
 {% endblock scripts %}
 
+{% block helpers_init %}
+    <script>
+        if (window.SocialHelper) {
+            var social_msg = "{% trans 'Social revolution in public transportation. WAYbetter allows you to order shared taxi rides , for a (very) low fixed price. It’s green, it’s fast and it’s cheap. Check it out: www.waybetter.com' %}";
+            SocialHelper.init({
+                messages:{
+                    email:{
+                        subject:"WAYbetter אלטרנטיבה חדשה ומשתלמת לתנועה בעיר!",
+                        body:"רציתי לספר לך על WAYbetter - אפליקציה חברתית חדשה שעושה מהפכה בתחבורה.%0Aבאפליקציה ניתן להזמין נסיעות משותפות במונית ספיישל, תוך חסכון אדיר (ומובטח!) של עשרות שקלים לנסיעה.%0Aזה משתלם, זה חברתי וזה ירוק.%0A%0Aשווה להיות חלק:%0Awww.waybetter.com"
+                    },
+                    facebook:{
+                        share_msg:social_msg
+                    },
+                    twitter:{
+                        share_msg:social_msg
+                    }
+                }
+            });
+        }
+    </script>
+{% endblock helpers_init %}
+
 {% block doc_ready %}
     {# more IE7 fixes #}
     <!--[if IE 7]>
@@ -86,22 +108,6 @@
     <!-- mathiasbynens.be/notes/async-analytics-snippet Change UA-XXXXX-X to be your site's ID -->
     <script>
     //<![CDATA[
-        var social_msg = "{% trans "Social revolution in public transportation. WAYbetter allows you to order shared taxi rides , for a (very) low fixed price. It’s green, it’s fast and it’s cheap. Check it out: www.waybetter.com" %}";
-        SocialHelper.init({
-            messages:{
-                email:{
-                    subject:"WAYbetter אלטרנטיבה חדשה ומשתלמת לתנועה בעיר!",
-                    body:"רציתי לספר לך על WAYbetter - אפליקציה חברתית חדשה שעושה מהפכה בתחבורה.%0Aבאפליקציה ניתן להזמין נסיעות משותפות במונית ספיישל, תוך חסכון אדיר (ומובטח!) של עשרות שקלים לנסיעה.%0Aזה משתלם, זה חברתי וזה ירוק.%0A%0Aשווה להיות חלק:%0Awww.waybetter.com"
-                },
-                facebook:{
-                    share_msg:social_msg
-                },
-                twitter:{
-                    share_msg:social_msg
-                }
-            }
-        });
-
         var _gaq = [
             ['_setAccount','UA-18077675-1'],
             ['_trackPageview'],
