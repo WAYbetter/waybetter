@@ -1,9 +1,9 @@
 /*
+    !!! NOT THE ORIGINAL FILE !!!- Some hacks made by Amir Nissim (search for wb_hack)
+*/
+
+/*
 	===========================================================
-	
-    NOT AN ORIGINAL - HACKED BY AMIR
-
-
 	Note: SlidesJS version 2.0 beta 1 is not meant
 	for production deployment. Please download the latest
 	version at https://github.com/nathansearles/Slides.
@@ -419,9 +419,9 @@
       this.options[key] = value;
       if (key === "disabled") {
         this.widget().toggleClass(this.widgetBaseClass + "-disabled ui-state-disabled", !! value).attr("aria-disabled", value);
-        if (this.hoverable !== undefined) // add this line
+        if (this.hoverable !== undefined) // wb_hack
             this.hoverable.removeClass("ui-state-hover");
-        if (this.focusable !== undefined) // and this one too
+        if (this.focusable !== undefined) // wb_hack
             this.focusable.removeClass("ui-state-focus");
       }
       return this;
@@ -1051,6 +1051,7 @@
 			}
 			if (event === "navigateEnd") {
 				this.element.data("animated",false);
+				this.element.trigger("navigateEnd", current); // wb_hack
 			}
 			if (event === "loaded") {
 				this._loaded();

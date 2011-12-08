@@ -40,13 +40,13 @@
         });
 
         $("#share_email").click(function() {
-            window.shareByEmail();
+            window.location.href = SocialHelper.getEmailShareLink();
         });
         $("#share_twiter").click(function() {
-            window.location.href = window.shareByTwitter();
+            window.location.href = SocialHelper.getTwitterShareLink();
         });
         $("#share_facebook").click(function() {
-            window.location.href = window.shareByFB();
+            window.location.href = SocialHelper.getFacebookShareLink();
         });
     });
 
@@ -55,7 +55,7 @@
 
 </style>
 
-<div id="pilot_interest_dialog" class="dialog">
+<div id="pilot_interest_dialog" class="dialog interest_dialog">
     <div id="content" class="content">
         <form id="pilot_interest_form">
             <p>

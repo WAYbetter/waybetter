@@ -1,9 +1,9 @@
 $site-width: 800px;
 $site-width-thin: 500px;
 $font-size-header1: 18px;
-$font-size-header2: 16px;
 $font-size-small: 11px;
 $font-size-medium: 13px;
+$font-size-large: 16px;
 $font-size-big: 24px;
 $font-size-huge: 35px;
 
@@ -20,6 +20,11 @@ $color-community: #EB1F79;
 $color-environment: #16ACD3;
 $color-efficiency: #4CBA00;
 $color-error: #CC162A;
+
+@mixin size($w ,$h){
+    width: $w;
+    height: $h;
+}
 
 @mixin border-radius($r){
     -webkit-border-radius: $r;
@@ -60,9 +65,26 @@ input[disabled]{
     opacity: 0.5;
 }
 
+.wb-menulist{
+    -moz-appearance: menulist;
+    -webkit-appearance: menulist;
+
+    color: #262626;
+    font-size: $font-size-large;
+    font-weight: bold;
+
+    background: #ffffff; /* Old browsers */
+    background: -moz-linear-gradient(top, #ffffff 0%, #cfcfcf 100%); /* FF3.6+ */
+    background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#ffffff), color-stop(100%,#cfcfcf)); /* Chrome,Safari4+ */
+    background: -webkit-linear-gradient(top, #ffffff 0%,#cfcfcf 100%); /* Chrome10+,Safari5.1+ */
+    background: -o-linear-gradient(top, #ffffff 0%,#cfcfcf 100%); /* Opera 11.10+ */
+    background: -ms-linear-gradient(top, #ffffff 0%,#cfcfcf 100%); /* IE10+ */
+    background: linear-gradient(top, #ffffff 0%,#cfcfcf 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#cfcfcf',GradientType=0 ); /* IE6-9 */
+}
 select{
-    background: white;
     border: 1px solid $light-gray;
+    @extend .wb-menulist;
 }
 select:focus{
      border: none;
@@ -162,12 +184,24 @@ ul.hz{
     display: none;
 }
 
+.centered{
+    margin: 0 auto;
+}
+
+.error{
+    color: red;
+}
+.errorlist li{
+    list-style: none;
+    @extend .error;
+}
+
 .clickable{
     cursor: pointer;
 }
 
 .wb_link{
-    color: #0088CC;
+    color: #0088CC !important;
     cursor: pointer;
     text-decoration: none;
 }
@@ -229,15 +263,22 @@ ul.hz{
     border: 1px solid red;
 }
 
+.small-loader{
+    background: url(/static/images/wb_site/wb_loader16.gif) left 0 no-repeat;
+    height: 16px;
+    width: 16px;
+}
+
 .wb_button{
     border: #454545;
-    background: #666666;
+    background: #4D4D4D;
     color: white;
     padding: 10px 15px 10px 15px;
     height: 31px;
     line-height: 0;
     font-weight: bold;
     font-size: $font-size-medium;
+    @extend .clickable;
 }
 
 .wb_button:hover, .wb_button.hover {
@@ -256,7 +297,7 @@ ul.hz{
 }
 
 .order_button {
-    font-size: $font-size-header2;
+    font-size: $font-size-large;
     font-weight: bold;
     text-shadow: 0 -1px rgba(0,0,0,0.5);
     width: 215px;
@@ -309,6 +350,12 @@ ul.hz{
 /*
 jQuery UI override
 ****************************************************/
+.ui-autocomplete{
+        font-size: $font-size-large;
+}
+.ui-datepicker{
+    font-size: $font-size-large;
+}
 .ui-widget-overlay{
     background-color: black;
 }
@@ -318,6 +365,7 @@ jQuery UI override
 .ui-dialog{
     border: 5px solid;
     border-color: rgba($color-community, 0.5);
+    padding: 0.6em;
     .ui-dialog-titlebar{
         font-size: $font-size-header1;
         font-weight: bold;
@@ -325,13 +373,9 @@ jQuery UI override
         border: none;
     }
     .ui-dialog-title{
-        color: #6C6C6A;
+        color: #3D3D3D;
     }
 }
-.ui-datepicker{
-    font-size: $font-size-medium;
-}
-
 .rtl .ui-dialog{
     .ui-dialog-titlebar-close{
         right: auto;
@@ -548,7 +592,7 @@ body.base-site{
 
 #wb_values{
     width: $site-width;
-    margin: 0 auto 50px auto;
+    margin: 0 auto 40px auto;
     position: relative;
     left: 10px;
     height: 70px;
@@ -714,10 +758,7 @@ body.base-site{
        bottom: 3px;
     }
     .tooltip_loader {
-        display: none;
-        background: url(../images/wb_site/loader16.gif) left 0 no-repeat;
-        height: 16px;
-        width: 16px;
+        @extend .small-loader;
         position: absolute;
         right: 0;
         bottom: -2px;
@@ -750,9 +791,10 @@ Home
         min-height: 700px;
     }
 
+    $site-content-offset: 13px;
     #site-content{
         position: relative;
-        top: -13px;
+        top: $site-content-offset * -1;
         margin-bottom: 0;
         width: $site-width;
         padding: 0;
@@ -767,14 +809,7 @@ Home
         margin-bottom: 0;
     }
 
-    #booking_container{
-        position: relative;
-        @include site-container();
-        @include border-radius(6px);
-        padding: 0;
-        height: 240px;
-        margin-bottom: 40px;
-    }
+    #myrides_container, #mobile_apps { margin-bottom: 40px - $site-content-offset; }
 
     #myrides_container{
         @include site-container();
@@ -788,6 +823,35 @@ Home
         }
         hr{
             color: $light-gray;
+        }
+    }
+    #mobile_apps{
+        @include site-container();
+        padding: 1px;
+        width: $site-width - 1 * 2;
+        .container{
+            width: 100%;
+        }
+        .img{
+            @include size(183px, 111px);
+            background: url("/static/images/wb_site/mobile_banner.png") left top no-repeat;
+            padding: 5px 65px;
+        }
+        .title{
+            font-size: $font-size-large;
+        }
+        .content{
+            color: $color-gray;
+        }
+        .vendor {text-align: center; padding-top: 5px;}
+        .app-icon{
+            @include size(52px, 50px);
+        }
+        .iphone .app-icon{background: url("/static/images/wb_site/app_store_icons.png") center 0 no-repeat;}
+        .android .app-icon{background: url("/static/images/wb_site/app_store_icons.png") center -91px no-repeat;}
+        .vr{
+            height: 70px;
+            border-left: 1px solid $light-gray;
         }
     }
 
@@ -840,7 +904,7 @@ Home
             width:12px;
             height:0;
             padding-top:12px;
-            background-image:url("/static/images/wb_site/pagination.png");
+            background-image:url("/static/images/wb_site/pagination_white.png");
             background-position:0 0;
             float:left;
             overflow:hidden;
@@ -862,383 +926,288 @@ Home
         width: 43px;
     }
 
-    #order_form_container{
-         position: absolute;
-         left: 0;
-         width: 300px;
-         height: 234px;
-         margin-left: 3px;
-         margin-top: 3px;
-         background-color: #DADADA;
+    #booking_container{
+        $booking-container-width: 800px;
+        $booking-container-height: 255px;
+        $el_height: 40px;
 
-        @include border-radius(5px 0 0 5px);
-        .ribbon{
-            font-size: $font-size-header1;
-            font-weight: bold;
-            padding-left: 31px;
-            line-height: 39px;
-            color: white;
-            background: url(/static/images/wb_site/ribbon.png) 6px 0 no-repeat;
-            width: 167px;
-            height: 56px;
-            position: relative;
-            left: -32px;
-            margin-top: 17px;
-        }
-    }
+        position: relative;
+        @include site-container();
+        @include border-radius(6px);
+        padding: 0;
+        height: $booking-container-height;
+        margin-bottom: 40px;
 
-    #order_form{
-        margin: -6px 0 0 28px;
-        #switch{
-            width: 15px;
-            height: 40px;
-            position: relative;
-            bottom: 143px;
-            left: -20px;
-            background: url(/static/images/wb_site/switch.png) left 0 no-repeat;
+        #savings{
+            position: absolute;
+            right: -22px;
+            top: 20px;
+            width: 158px;
+            height: 74px;
+            background: url("/static/images/wb_site/ribbon.png") 0 0 no-repeat;
+            .content{
+                margin: 0 auto;
+                padding-left: 5px;
+                text-align: center;
+                line-height: 45px;
+            }
+            .label, .value{
+                color: white;
+                font-weight: bold;
+                font-size: $font-size-header1;
+            }
+        }
 
+        #booking_content{
+            width: 100%;
+            height: $booking-container-height - 35px;
         }
-        #switch:hover{
-            background-position: left -49px;
-        }
-        .input{
-            position: relative;
+        
+        #booking_progress{
+            position: absolute;
+            bottom: 0;
             height: 35px;
-            width: 214px;
-            padding-left: 33px;
-            line-height: 34px;
-            margin-bottom: 21px;
-            font-size: $font-size-small;
-            .desc, .text, .resolved_as {color: $color-gray;}
-            .loader {
-                display: none;
-                background: url(../images/wb_site/loader16.gif) left 0 no-repeat;
-                height: 16px;
-                width: 16px;
-                position: absolute;
-                right: 5px;
-                bottom: 10px;
+            width: 100%;
+            table{
+                width: 95%;
+                margin: 0 auto;
+                border-top: 1px solid #A2A2A2;
+                text-align: center;
+                font-size: $font-size-medium;
+            }
+            td{
+                width: 25%;
+                height: 25px;
+            }
+            .step{
+                @extend .clickable;
+            }
+            .step.details{
+                cursor: default;
+            }
+            .step.current{
+                @extend .bold;
+                color: $color-community;
+            }
+            .step.disabled{
+                cursor: default;
+                color: #707070;
+            }
+            .step.completed{
+                color: green;
+            }
+            td.completed:hover{
+                background-color: #D6D6D6;
             }
         }
-        .input.resolved{
-            .desc, .text, .resolved_as { font-weight: bold; }
-        }
-        .input:hover{
-            @include box-shadow(inset 0 0 0 1px $dark-gray);
-        }
-        .input.disabled:hover{
-            @include box-shadow(none);
-        }
-        .input.from{
-            background: url(/static/images/wb_site/field_icons.png) 6px -10px no-repeat white;
-        }
-        .input.from.resolved{
-            background: url(/static/images/wb_site/field_icons.png) 6px -90px no-repeat white;
-        }
-        .input.to{
-            background: url(/static/images/wb_site/field_icons.png) 6px -51px no-repeat white;
-        }
-        .input.to.resolved{
-            background: url(/static/images/wb_site/field_icons.png) 6px -131px no-repeat white;
-        }
-        .input.datetime{
-            background: url(/static/images/wb_site/field_icons.png) 6px -171px no-repeat white;
-        }
-        .input.datetime.depart{
-            background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat white;
-        }
-        .input.datetime.arrive{
-            background: url(/static/images/wb_site/field_icons.png) 6px -251px no-repeat white;
-        }
-        .input.datetime.disabled{
-            opacity: 0.4;
-        }
-        .input.tooltip-visible{
-            @include box-shadow(inset 0 0 0 2px #00B0F1);
-        }
-    }
 
-    #ride_data_container{
-        position: absolute;
-        right: 0;
-        height: 100%;
-        width: 495px;
-        border-left: 1px solid #BEBEBB;
-    }
+        .booking_step{
+            padding-top: 30px;
+            padding-bottom: 35px;
+            /*height: $booking-container-height * 0.9;*/
+            table{
+                margin: 0 auto;
+                width: 100%;
+                border-spacing: 20px 3px;
+                .wb_button, .small-loader {
+                    display: inline-block;
+                }
+            }
+            .cntr.btn{ width: 165px; padding-top: 22px;}
+            .cntr.input{
+                position: relative;
+                .small-loader{
+                    z-index: 3;
+                    position: absolute;
+                    right: 4px;
+                    top: 30%;
+                }
 
-    #sharing_data_container, #private_data_container, #ticket-perforation{
-        float:left;
-        position: relative;
-        height: 100%;
-    }
+            }
 
-    #ticket-perforation{
-        background-image: url(/static/images/wb_site/ticket-perforation.png);
-        width: 11px;
-    }
+            label{
+                display: block;
+                color:  #393939;
+                font-size: $font-size-medium;
+                margin-bottom: 5px;
+            }
+            tr{
+                vertical-align: top;
+            }
+            .title{
+                height: 20px;
+                margin-bottom: 20px;
+                font-weight: bold;
+                font-size: $font-size-header1;
+                text-align: center;
+                color: $color-pink;
+            }
+            input{ height: $el_height; font-size: $font-size-large}
+            select, .wb_button{ height: $el_height + 4; font-size: $font-size-large}
+        }
+        #booking_teaser{
+            padding: 74px;
+            .text{
+                display: inline-block;
+                font-size: $font-size-big;
+                width: 350px;
+            }
+            button{
+                height: 70px;
+                width: 250px;
+            }
+        }
+        #hotspot_content{
+            padding-right: 30px;
+            padding-left: 30px;
+            padding-bottom: 10px;
+            width: $booking-container-width - 2 * 30;
 
-    .ride_data{
-        width: 239px;
-        .header_img{
-            display: inline-block;
-            height: 52px;
-            width: 50px;
-            position: relative;
-            top: 11px;
-            left: 23px;
+            .cntr.select{ width: 600px; margin: 0 auto; padding-left: 30px;}
+            #id_hotspot_select{ width: 550px; }
+            #qm_votespot{
+                display: inline-block;
+                @include size(44px, 24px);
+                background: url("/static/images/wb_site/qm_button.png") center top no-repeat;
+                position: relative;
+                top: 6px;
+            }
+            #qm_votespot:hover {background-position: center -45px;}
+            .btn_cntr{
+                position: relative;
+                margin: 0 auto;
+                margin-top: 20px;
+                height: $el_height + 4;
+            }
+            td.first{text-align:right;}
+            td.second{text-align:left;}
+            #leave_hotspot, #goto_hotspot{
+                background-image: url("/static/images/wb_site/field_icons.png");
+                background-repeat: no-repeat;
+                padding-left: 50px;
+            }
+            #leave_hotspot{
+                background-position: 10px 8px;
+            }
+            #goto_hotspot{
+                background-position: 10px -46px;
+            }
         }
-        .header{
-           display: inline-block;
-            height: 52px;
-            line-height: 19px;
-            margin-left: 17px;
-            margin-top: 17px;
-            font-size: 18px;
-            font-weight: bold;
-            width: 100px;
+        #address_content{
+            padding-right: 45px;
+            padding-left: 45px;
+            width: $booking-container-width - 2 * 45;
+            #id_city, #id_street_address, #id_house_number{
+                width: 100%;
+            }
+            .cntr.city{ width: 25%; }
+            .cntr.hn{ width: 13%; }
+            .cntr.street{
+                position: relative;
+                /* no set width -> scales nicely */
+            }
+        }
+        #datetime_content{
+            padding-right: 120px;
+            padding-left: 120px;
+            width: $booking-container-width - 2 * 120;
+            .cntr.time, .cntr.date{
+                width: 250px;
+            }
+            #id_hotspot_datepicker, #id_hotspot_time{ width: 100%; }
+            #id_estimated_pickup{
+                padding-top: 3px;
+                font-size: $font-size-large - 1;
+                color: #339A31;
+                text-align: center;
+                .text, .value{color: #339A31;}
+            }
+
         }
 
-        .ride_details{
-            height: 90px;
-            width: 203px;
-            margin: 0 auto;
+        $padding: 10px;
+        #details_content{
+            padding: $padding $padding 0 $padding;
+            width: $booking-container-width - 2 * $padding;
         }
-        .time_row, .price_row { position: relative; height: 50%;}
-        .desc, .value, .label {color: $color-gray;}
-        .desc { position: absolute; left: 5px; bottom: 1px}
-        .price, .time { position: absolute; right: 5px; bottom: -2px; font-weight: bold; }
-        .price{
-            .value{ font-size: $font-size-huge; }
-            .label{ font-size: 29.3px; }
-        }
-        .time{
-            .value{ font-size: $font-size-big; }
-            .label{ font-size: $font-size-medium; }
-        }
-
-        .order_button{
+        #ride_summary{
             position: absolute;
-            bottom: 20px;
-            left: 10px;
-        }
-    }
-
-    #sharing_data_container{
-        .header_img{
-            background: url(/static/images/wb_site/shared_icon.png) left 0 no-repeat;
-        }
-        .header{
-            color: $color-blue;
-        }
-        .price_row, .time_row{
-            background: url(/static/images/wb_site/blue_bracket.png) left bottom no-repeat;
-        }
-    }
-    #private_data_container{
-        .header_img{
-            background: url(/static/images/wb_site/private_icon.png) left 0 no-repeat;
-        }
-        .header{
-            color: $color-orange;
-        }
-        .price_row, .time_row{
-            background: url(/static/images/wb_site/orange_bracket.png) left bottom no-repeat;
-        }
-    }
-    #save_stamp{
-        position: absolute;
-        z-index: 3;
-        top: -35px;
-        right: -35px;
-        width: 90px;
-        height: 90px;
-        background: url(/static/images/wb_site/save_stamp.png) -3px bottom no-repeat;
-        .container{
-            position: absolute;
-            left: 0;
-            top: 19px;
-            width: 100%;
-            height: 40px;
-            line-height: 21px;
-        }
-        .txt, .value {
-            display: block;
-            text-align: center;
-            color: white;
-            text-shadow: 0 -1px 0 gray;
-            font-weight: bold;
-        }
-        .txt { font-size: $font-size-header1; }
-        .value{ font-size: $font-size-big; }
-    }
-
-    .tooltip {
-        display: none;
-        background: transparent url(/static/images/wb_site/tooltip_big_ltr.png);
-        height: 238px;
-        width: 434px;
-    }
-
-    .ui-autocomplete{
-        font-size: $font-size-small;
-    }
-    
-    .tooltip-content {
-        label, .label, select, .header {color: $dark-gray;}
-        position: relative;
-        top: 16px;
-        left: 32px;
-        height: 158px;
-        width: 339px;
-        padding: 20px;
-        .header{
-            position: relative;
-            top: -6px;
-            left: -7px;
-            padding-left: 27px;
-            height: 24px;
-            line-height: 20px;
+            left: $padding;
+            width: 250px;
             font-size: $font-size-medium;
-            /*font-weight: bold;*/
-        }
-        .header.pickup{
-            background: url(/static/images/wb_site/field_icons.png) 0 -96px no-repeat;
-        }
-        .header.dropoff{
-            background: url(/static/images/wb_site/field_icons.png) 0 -136px no-repeat;
-        }
-        .header.datetime{
-            background: url(/static/images/wb_site/field_icons.png) 0 -179px no-repeat;
-        }
-        .content{
-            height: 75px;
-            width: 339px;
-            margin-top: 9px;
-            margin-bottom: 18px;
-            select{ height: 30px; }
-            * {font-size: $font-size-small;}
-        }
-        .footer{
-            border-top: 1px solid $light-gray;
-            padding-top: 13px;
-            .help{
-                font-size: $font-size-small;
-                position: relative;
-                float: left;
-                line-height: 25px;
-                height: 33px;
+            padding-right: 20px;
+            border-right: 1px solid gray;
+            span, p, div{color: #4d4d4d;}
+            .data{
+                border: 1px solid #dfdfdf;
+                padding: 1px;
+                margin: 2px 0 12px 0;
+                @extend .clickable;
+                p{
+                    margin: 2px;
+                }
             }
-            .next_btn{
-                float: right; width: 79px; height: 29px;
-                position: relative; bottom: 2px; right: -2px;
+            .data:hover{
+                border-color: #838383;
             }
-            .ui-button-text{ padding: 5px; }
-        }
-        .tooltip_loader {
-            display: none;
-            background: url(../images/wb_site/loader16.gif) left 0 no-repeat;
-            height: 16px;
-            width: 16px;
-            position: relative;
-            left: 236px;
-            bottom: -2px;
-        }
-    }
-
-    /*#select_input_helper{*/
-        /*#sel_address {float: left; position: relative; left: 50px;}*/
-        /*#sel_hotspot {float: right; border-left: 1px solid $light-gray ; padding-left: 35px; position: relative; right: 62px; height: 76px;}*/
-        /*.img { display: block; height:42px; width: 42px; position: relative; left: 20px; top: 8px;}*/
-        /*#sel_address .img{ background: transparent url(/static/images/wb_site/addresshotsopt_42.png) left 5px no-repeat; }*/
-        /*#sel_hotspot .img{ background: transparent url(/static/images/wb_site/addresshotsopt_42.png) 1px -43px no-repeat; }*/
-        /*.wb_link{position: relative; top: 21px; left: -1px;}*/
-        /*.help{*/
-            /*color: $color-gray;*/
-            /*left: 8px;*/
-            /*top: 3px;*/
-            /*height: 22px;*/
-            /*line-height: 15px;*/
-        /*}*/
-    /*}*/
-
-    #hotspot_input_helper, #address_input_helper{
-        label.city div{
-            position: relative;
-            top: 5px;
-        }
-        .footer{
-            .switch_dir{
-                padding-left: 25px;
-                line-height: 32px;
-                background: transparent url(/static/images/wb_site/switch_small.png) left 0 no-repeat;
+            .details_label, .details_label_type{
+                @extend .bold;
+            }
+            #details_loader{
+                display: inline-block;
+                background-position: 0 1px;
+            }
+            #switch_direction{
+                float: right;
+                @extend .wb_link;
+            }
+            .hotspot .desc{font-style: italic;}
+            #num_seats input{
+                height: auto;
+            }
+            #num_seats .radio{
+                float: right;
             }
         }
-    }
-
-    #hotspot_input_helper{
-        #hotspot_help{
-            color: $dark-gray;
-            font-weight: bold;
-        }
-
-        .select-hotspot-container{
-            position: relative;
-            top: 11px;
-            .label {
-                position: relative;
-                top: -10px;
+        #ride_details{
+            position: absolute;
+            right: 55px;
+            top: 30px;
+            width: 410px;
+            $width: 330px;
+            #offer{
+                .price, .time{
+                    height: 35px;
+                    border-bottom: 1px solid $light-gray;
+                    margin: 10px auto 22px auto;
+                    border-spacing: 1px 1px;
+                }
+                .price{
+                    width: 0.8 * $width;
+                }
+                .time{
+                    width: $width;
+                }
+                .offer-row{
+                    vertical-align: bottom;
+                }
+                .offer-pre{ text-align: right; color: #4d4d4d; }
+                .offer-val{ text-align: center; font-weight:bold; line-height: 12px;}
+                .offer-val .value{ font-size: 45px;  }
+                .price .offer-val .label{ font-size: 38px;  }
+                .time .offer-val .label{ font-size: 20px;  }
+                .offer-post{ text-align: left; color: $dark-gray; font-weight:bold; }
+            }
+            #book_ride{
+                display: block;
+                width: 1.2 * $width;
+                height: 50px;
+                font-size: 20px;
             }
         }
-        select{
-            width: 75%;
-        }
-        #id_hotspot_description{
-            position: relative;
-            top: 5px;
-            color: $dark-gray;
-        }
+
     }
 
-    #address_input_helper{
-        label div{ float: left;}
-        select{ float: right; }
-        label {display: block}
-        .label{position: relative; left: -5px}
-        #id_city{
-            width: 263px;
-        }
-        .street_address{
-            .label{ top: 21px; width: 70px;}
-        }
-
-        .container {float: right; div {float: left;} }
-        input{ display: block; height: 24px; }
-        #id_house_number{ width: 66px; margin-left: 12px}
-        #id_street_address{ width: 181px;}
-        .err { color: red }
-        .hn_error{ margin-left: 8px;}
-    }
-
-    #datetime_input_helper{
-        #pickup_time{ margin-right: 5px; font-weight: bold;}
-        #id_hotspot_datepicker{ width: 100px; }
-        .at {margin:0 5px}
-        #id_estimated_pickup{
-            margin-top: 20px;
-            width: 100%;
-            text-align: center;
-        }
-
-        /*#time_radio{ float: left; position: relative; left: -7px; top: 23px;}*/
-        /*#time_tools{ float: right; position: relative;}*/
-        /*#time_tools.depart { top: -7px; }*/
-        /*#time_tools.arrive { top: 43px; }*/
-        /*label {display: block; margin-bottom: 30px;}*/
-        /*#id_hotspot_datepicker{ width: 80px; }*/
-        /*.img{ height: 28px; width: 30px; display: inline-block; position: relative; top: 5px;}*/
-        /*.img.depart{ background: url(/static/images/wb_site/field_icons.png) 6px -212px no-repeat; }*/
-        /*.img.arrive{ background: url(/static/images/wb_site/field_icons.png) 6px -254px no-repeat; }*/
-    }
 
     #partners{
         table{
@@ -1278,183 +1247,77 @@ Home
     #cm-map{
         direction: ltr; // fixes a loading issue: map loads to the left
     }
-    #tryitnow{
-        right: auto;
-        left: 10px;
-        padding-right: 0;
-        padding-left: 10px;
-        background-position: left -9px;
-    }
 
-    #order_form_container{
-         left: auto;
-         right: 0;
-         margin-left: auto;
-         margin-right: 3px;
-        @include border-radius(0 5px 5px 0);
-
-        .ribbon{
-            padding-left: 0;
-            padding-right: 31px;
-            background: url(/static/images/wb_site/ribbon_rtl.png) right 0 no-repeat;
-            left: auto;
-            right: -27px;
+    #mobile_apps{
+        .img{
+            background: url("/static/images/wb_site/mobile_banner_rtl.png") right top no-repeat;
         }
     }
 
-    #order_form{
-        margin: -6px 28px 0 0;
-        #switch{
-            left: -auto;
-            right: -20px;
-            background: url(/static/images/wb_site/switch_rtl.png) right 0 no-repeat;
-        }
-        #switch:hover{
-            background-position: right -49px;
-        }
-        .input{
-            padding-left: 0;
-            padding-right: 33px;
-            .loader{
+    // hack for sliding
+    .slidesContainer{ direction: ltr; }
+    .booking_step{ direction: rtl; }
+
+    #booking_container{
+            #savings{
                 right: auto;
-                left: 5px;
+                left: -22px;
+                background: url("/static/images/wb_site/ribbon_rtl.png") right 0 no-repeat;
+                .content{
+                    padding-left: 0;
+                    padding-right: 5px;
+                }
             }
-        }
-        .input.from{
-            background-position: 220px -10px;
-        }
-        .input.from.resolved{
-            background-position: 220px -90px;
-        }
-        .input.to{
-            background-position: 220px -51px;
-        }
-        .input.to.resolved{
-            background-position: 220px -131px;
-        }
-        .input.datetime{
-            background-position: 220px -171px;
-        }
-        .input.datetime.depart{
-            background-position: 220px -212px;
-        }
-        .input.datetime.arrive{
-            background-position: 220px -251px;
-        }
-    }
 
-    #ride_data_container{
-        position: absolute;
-        right: auto;
-        left: 0;
-        border-left: none;
-        border-right: 1px solid #BEBEBB;
-    }
-
-    #sharing_data_container, #private_data_container, #ticket-perforation{
-        float:right;
-    }
-
-    .ride_data{
-        .header_img{
-            left: auto;
-            right: 23px;
-        }
-        .header{
-            margin-left: auto;
-            margin-right: 25px;
-            width: 105px;
-        }
-
-        .desc { left: auto; right: 5px; }
-        .price, .time { right: auto; left: 5px; }
-        .order_button{ left: auto; right: 10px; }
-    }
-
-    #save_stamp{
-        right: auto;
-        left: -35px;
-    }
-
-    .tooltip {
-        background: transparent url(/static/images/wb_site/tooltip_big_rtl.png);
-        width: 426px;
-    }
-
-    .tooltip-content {
-        label, .label, select, .header {color: $dark-gray;}
-        left: auto;
-        right: 32px;
-        .header{
-            left: auto;
-            right: -7px;
-            padding-left: 0;
-            padding-right: 27px;
-        }
-        .header.pickup{
-            background-position: right -96px;
-        }
-        .header.dropoff{
-            background-position: right -136px;
-        }
-        .header.datetime{
-            background-position: right -179px;
-        }
-        .footer{
-            .help{
-                float: right;
+            .booking_step{
+                .cntr.input{
+                    .small-loader{
+                        right: auto;
+                        left: 4px;
+                    }
+                }
             }
-            .next_btn{
-                float: left;
+            #booking_teaser{
+                padding-right: 140px;
+                padding-left: 140px;
+                .text{width: 220px;}
+            }
+            #hotspot_content{
+                .cntr.select{ padding-left: 0; padding-right: 30px;}
+                #leave_hotspot, #goto_hotspot{ padding-left: 15px; padding-right: 40px;}
+                td.first{text-align:left;}
+                td.second{text-align:right;}
+                #leave_hotspot{
+                    background-position: right 8px;
+                }
+                #goto_hotspot{
+                    background-position: right -46px;
+                }
+            }
+            $padding: 10px;
+            #ride_summary{
+                left: auto;
+                right: $padding;
+                padding-right: 0;
+                padding-left: 20px;
+                border-right: none;
+                border-left: 1px solid gray;
+                #switch_direction{
+                    float: left;
+                }
+                #num_seats .radio{
+                    float: left;
+                }
+            }
+            #ride_details{
                 right: auto;
-                left: -2px;
+                left: 55px;
+                $width: 330px;
+                #offer{
+                    .offer-pre{ text-align: left; }
+                    .offer-post{ text-align: right; }
+                }
             }
-        }
-        .tooltip_loader {
-            background-position: right 0;
-            left: auto;
-            right: 236px;
-        }
-    }
-
-    /*#select_input_helper{*/
-        /*#sel_address {float: right; left: auto; right: 50px;}*/
-        /*#sel_hotspot {float: left; border-left: none; border-right: 1px solid $light-gray ; padding-left: 0; padding-right: 35px; right: auto; left: 62px; }*/
-        /*.img { left: auto; right: 20px; }*/
-        /*#sel_address .img{ background-position: right 5px; }*/
-        /*#sel_hotspot .img{ background-position: right -43px; }*/
-        /*.wb_link{left: auto; right: -1px;}*/
-        /*.help{*/
-            /*left: auto;*/
-            /*right: 8px;*/
-        /*}*/
-    /*}*/
-
-    #hotspot_input_helper, #address_input_helper{
-        .footer{
-            .switch_dir{
-                padding-left: 0;
-                padding-right: 25px;
-                background: transparent url(/static/images/wb_site/switch_small_rtl.png) right 0 no-repeat;
-            }
-        }
-    }
-
-    #address_input_helper{
-        label div{ float: right;}
-        select{ float: left; }
-        .label{left: auto; right: -5px}
-        .container {float: left; div {float: right;} }
-        #id_house_number{ margin-left: auto; margin-right: 12px}
-        .hn_error{ margin-left: auto; margin-right: 8px;}
-    }
-
-    #datetime_input_helper{
-        #pickup_time{ margin-right: 0; margin-left: 15px; }
-        /*#time_radio{ float: right; left: auto; right: -7px; }*/
-        /*#time_tools{ float: left; }*/
-        /*.img.depart{ background: url(/static/images/wb_site/field_icons_rtl.png) 6px -212px no-repeat; }*/
-        /*.img.arrive{ background: url(/static/images/wb_site/field_icons_rtl.png) 6px -254px no-repeat; }*/
     }
 
 } // rtl HOME
@@ -1714,7 +1577,7 @@ Info pages
 ****************************************************/
 .contact{
     #contact_header{
-        font-size: $font-size-header2;
+        font-size: $font-size-large;
         font-weight: bold;
     }
     #contact_details{
@@ -1919,7 +1782,7 @@ Info pages
     .content{
         margin-left: 30px;
         .error-desc{
-            font-size: $font-size-header2;
+            font-size: $font-size-large;
         }
     }
     #button_container{
@@ -1951,9 +1814,9 @@ Dialogs
         margin-top: 25px;
     }
     .content{
-        p, label{
+        p, label, span{
             font-size: $font-size-medium;
-            color: #6C6C6A;
+            color: #3D3D3D;
         }
     }
 }
@@ -1984,7 +1847,7 @@ Error dialog
     .content{
         margin-left: 30px;
         .error-desc{
-            font-size: $font-size-header2;
+            font-size: $font-size-large;
         }
     }
 }
@@ -2051,7 +1914,7 @@ Feedback dialog
     }
     h1 {
         padding: 5px;
-        font-size: $font-size-header2;
+        font-size: $font-size-large;
     }
     #submit_feedback {
         margin-right: 15px;
@@ -2097,9 +1960,9 @@ Feedback dialog
 }
 
 /*
-Pilot interest dialog
+Interest dialog (hotspot, pilot)
 ****************************************************/
-#pilot_interest_dialog{
+.interest_dialog{
     #thank_you {
         text-align: center;
         margin-top: 35px;
@@ -2140,7 +2003,7 @@ Pilot interest dialog
     }
 }
 
-.rtl #pilot_interest_dialog{
+.rtl .interest_dialog{
     .share_button span {
         left: auto;
         right: -4px;

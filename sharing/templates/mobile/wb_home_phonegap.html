@@ -324,10 +324,10 @@
 {% endblock book_ride_success %}
 {% block sharing_link %}
     $("#share_fb").click(function() {
-        cbOpen(window.shareByFB(true));
+        cbOpen(SocialHelper.getFacebookShareLink(true));
     });
     $("#like_fb").click(function() {
-        cbOpen(window.likeOnFB(true));
+        cbOpen(SocialHelper.getFacebookLikeLink(true));
     });
 {% endblock sharing_link %}
 

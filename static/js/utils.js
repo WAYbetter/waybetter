@@ -544,34 +544,11 @@ function gaHitPage(url) {
     }
 }
 
-$(function() {
-    var subject = "אלטרנטיבה חדשה ומשתלמת לתנועה בעיר";
-    var body = "רציתי לספר לך על WAYbetter - אפליקציה חברתית חדשה שעושה\nמהפכה בתחבורה.\nבאפליקציה ניתן להזמין נסיעות משותפות במונית ספיישל, תוך חסכון אדיר (ומובטח) של עשרות \nשקלים לנסיעה.זה משתלם, זה חברתי וזה ירוק.";
-    var social_msg = "האפליקציה שעושה מהפכה בתחבורה. שתפו מוניות ספיישל לנקודות מרכזיות. אלטרנטיבה חדשה ומשתלמת לתנועה בעיר";
-
-    window.shareByEmail = function(){
-        window.location.href = "mailto:?subject=" + subject + "&body=" + body;
-    };
-    window.shareByTwitter = function(){
-        return "http://twitter.com/share?text=" + social_msg + "&url=http://www.WAYbetter.com";
-    };
-    window.shareByFB = function(mobile){
-        var url = "http://" + ((mobile) ? "m" : "www") + ".facebook.com/dialog/feed?" +
-                "&app_id=280509678631025" +
-                "&link=http://www.WAYbetter.com" +
-                "&picture=http://www.waybetter.com/static/images/wb_site/wb_beta_logo.png" +
-                "&name=" + "WAYbetter" +
-//                    "&caption=" +
-                "&description=" + encodeURIComponent(social_msg) +
-                "&redirect_uri=http://www.waybetter.com";
-        if (mobile) {
-            url += "&display=touch"
-        }
-
-        return url;
-    };
-    window.likeOnFB = function(mobile){
-        return "http://" + ((mobile) ? "m" : "www") + ".facebook.com/pages/WAYbetter/131114610286539";
-    };
-}());
+function logGAEvent(category, action, opt_label, opt_value, opt_noniteraction) {
+    try {
+        _gaq.push(['_trackEvent()'].concat(arguments));
+    } catch(e){
+        log(e);
+    }
+}
 

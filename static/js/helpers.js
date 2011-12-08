@@ -1,3 +1,13 @@
+var BookingHelper = Object.create({
+    num_seats: 1,
+    hotspot: undefined,
+    address: undefined,
+    hotspot_type: undefined,
+    ride_date: undefined,
+    ride_time: undefined,
+    messages: {}
+});
+
 var MyRidesHelper = Object.create({
     config: {
         rtl: false,
@@ -244,6 +254,7 @@ var HotspotHelper = Object.create({
         months: []
     },
 
+    hotspots: [],
     MapHelper: undefined,
     ride_duration: undefined,
 
@@ -255,6 +266,17 @@ var HotspotHelper = Object.create({
     clearCache: function() {
         this.cache.dates = [];
         this.cache.months = [];
+    },
+
+    getHotspotByID: function(hotspot_id){
+        var hotspot = undefined;
+        $.each(this.hotspots, function(i, hs) {
+            if (hs.id == hotspot_id) {
+                hotspot = hs;
+                return false;
+            }
+        });
+        return hotspot;
     },
 
     getHotspotData: function(options) {
@@ -349,8 +371,11 @@ var HotspotHelper = Object.create({
             success: function(response) {
                 $hotspotpicker.empty().enable();
                 $.each(response.data, function(i, hotspot) {
-                    var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, description: hotspot.description, next_datetime: new Date(hotspot.next_datetime)};
-                    $("<option>" + hotspot.name + "</option>").attr("value", hotspot.id).data(data).appendTo($hotspotpicker);
+                    that.hotspots.push(hotspot);
+                    var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, name: hotspot.name,
+                        description: hotspot.description, next_datetime: new Date(hotspot.next_datetime)};
+                    var text = (hotspot.description) ? hotspot.name + " - " + hotspot.description : hotspot.name;
+                    $("<option>" + text + "</option>").attr("value", hotspot.id).data(data).appendTo($hotspotpicker);
                 });
 
                 $hotspotpicker.change(function() {
@@ -381,6 +406,10 @@ var HotspotHelper = Object.create({
                 $timepicker.empty().disable().change(function() {
                     options.onSelectTime();
                 });
+
+                if (options.successCallback){
+                    options.successCallback();
+                }
             },
             error:function() {
                 flashError("Error getting hotspot data");
@@ -396,7 +425,7 @@ var HotspotHelper = Object.create({
         var $timepicker = $(this.config.selectors.timepicker);
 
         if (options.refresh_intervals) {
-            var got_times = false;
+            var times = [];
             this.getIntervals({
                 data: $.extend(true, {'day': $datepicker.val(), 'hotspot_id': $hotspotpicker.val()},
                         options.get_intervals_data),
@@ -411,7 +440,7 @@ var HotspotHelper = Object.create({
                 },
                 success: function(response) {
                     if (response.times && response.times.length) {
-                        got_times = true;
+                        times = response.times;
                         $timepicker.empty();
                         $.each(response.times, function(i, t) {
                             $timepicker.append("<option>" + t + "</option>");
@@ -423,17 +452,14 @@ var HotspotHelper = Object.create({
                     if (options.error) {
                         options.error();
                     }
-                    else {
-                        flashError("Error loading hotspot times data");
-                    }
                 },
                 complete: function() {
                     if (options.complete) {
                         options.complete();
                     }
-                    if (got_times) {
+                    if (times.length) {
                         if (options.onGotTimes)
-                            options.onGotTimes();
+                            options.onGotTimes(times);
                     }
                     else {
                         if (options.onNoTimes)
@@ -528,20 +554,23 @@ var AddressHelper = Object.create({
                 $hn_input.focus();
                 if (callbacks.success)
                     callbacks.success();
+                $(this).trigger("change");
             }
 
         });
 
-        $street_input.focus(
-                function() {
-                    $(this).autocomplete("enable");
-                    $(this).autocomplete("search");
-                    $(this).data("old_val", $(this).val());
-                }).keyup(function(e) {
-                    if ($(this).data("old_val") !== $(this).val()) {
-                        $(this).data("resolved", false);
-                    }
-                });
+        $street_input.blur(function() {
+            $loader.hide();
+            $(this).autocomplete("disable");
+        }).focus(function() {
+            $(this).autocomplete("enable");
+            $(this).autocomplete("search");
+            $(this).data("old_val", $(this).val());
+        }).keyup(function(e) {
+            if ($(this).data("old_val") !== $(this).val()) {
+                $(this).data("resolved", false);
+            }
+        });
     },
 
     resolveStructured: function(options) {
@@ -632,7 +661,8 @@ var CMHelper = Object.create({
         center_lon: 34.781051985221,
         icon_image: "/static/images/wb_site/map_pin_A.png",
         icon_size_x: 61,
-        icon_size_y: 154
+        icon_size_y: 154,
+        controls: true
     },
     map: undefined,
     markers: {},
@@ -651,6 +681,11 @@ var CMHelper = Object.create({
 
         this.map = new CM.Map(this.config.map_element, cloudmade);
         this.map.setCenter(new CM.LatLng(this.config.center_lat, this.config.center_lon), 15);
+
+        if (this.config.controls){
+            var myControl = new CM.SmallMapControl();
+            this.map.addControl(myControl);
+        }
 
         this.icon = new CM.Icon();
         this.icon.image = this.config.icon_image;
@@ -705,9 +740,10 @@ var CMHelper = Object.create({
         if (bounds.length > 1) {
             var _bounds = new CM.LatLngBounds(bounds);
             this.map.zoomToBounds(_bounds);
+            this.map.setZoom(this.map.getZoom() - 1);
         }
         else {
-            this.map.setCenter(myMarkerLatLng, zoom);
+            this.map.setCenter(myMarkerLatLng, 17);
         }
     },
 
@@ -845,6 +881,54 @@ var TelmapHelper = Object.create({
         } else if (bounds.valid) {
             map.panTo(bounds.getCenter());
         }
+    }
+});
+
+var SocialHelper = Object.create({
+    config:{
+        messages:{
+            email:{
+                subject: "",
+                body: ""
+            },
+            facebook:{
+                share_msg: ""
+            },
+            twitter:{
+                share_msg: ""
+            }
+        }
+    },
+    init:function (config) {
+        this.config = $.extend(true, {}, this.config, config);
+    },
+    getEmailShareLink:function (options) {
+        options = $.extend(true, {
+            subject: this.config.messages.email.subject,
+            body: this.config.messages.email.body}, options);
+        return "mailto:?subject=" + options.subject + "&body=" + options.body;
+    },
+    getTwitterShareLink:function (msg) {
+        msg = msg || this.config.messages.twitter.share_msg;
+        return "http://twitter.com/share?text=" + msg + "&url=http://www.WAYbetter.com";
+    },
+    getFacebookShareLink:function (mobile) {
+        var url = "http://" + ((mobile) ? "m" : "www") + ".facebook.com/dialog/feed?" +
+            "&app_id=280509678631025" +
+            "&link=http://www.WAYbetter.com" +
+            "&picture=http://www.waybetter.com/static/images/wb_site/wb_beta_logo.png" +
+            "&name=" + "WAYbetter" +
+            //                    "&caption=" +
+            "&description=" + encodeURIComponent(this.config.messages.facebook.share_msg) +
+            "&redirect_uri=http://www.waybetter.com";
+        if (mobile) {
+            url += "&display=touch"
+        }
+
+        return url;
+    },
+    getFacebookLikeLink:function (mobile) {
+        return "http://" + ((mobile) ? "m" : "www") + ".facebook.com/pages/WAYbetter/131114610286539";
     }
 });
 

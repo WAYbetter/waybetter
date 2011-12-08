@@ -658,17 +658,17 @@
         {% block sharing_link %}
         // share page
 //        $("#share_fb").click(function(e) {
-//            window.location.href = window.shareByFB(true);
+//            window.location.href = SocialHelper.getFacebookShareLink(true);
 //            e.preventDefault();
 //        });
         $("#like_fb").click(function(e) {
-            window.location.href = window.likeOnFB(true);
+            window.location.href = SocialHelper.getFacebookLikeLink(true);
             e.preventDefault();
         });
         {% endblock sharing_link %}
 
         $("#share_email").click(function() {
-            window.shareByEmail();
+            window.location.href = SocialHelper.getEmailShareLink();
         });
 
         {% block welcome_page %}
@@ -1101,7 +1101,7 @@
 {#                <li data-icon="arrow-l"><a id="share_fb" href="#" data-ajax="false">{% trans "Share on Facebook" %}</a></li>#}
                 <li data-icon="arrow-l"><a id="like_fb" href="#" data-ajax="false">{% trans "Like us" %}</a></li>
                 <li data-icon="arrow-l"><a id="share_email" href="#">{% trans "Tell a Friend (email)" %}</a></li>
-                <li data-icon="arrow-l"><a target="_blank" rel="external" id="rate_on_itunes" href="http://itunes.apple.com/WebObjects/MZStore.woa/wa/viewContentsUserReviews?id={% value_from_settings "APPLE_WAYBETTER_APP_ID" %}&pageNumber=0&sortOrdering=1&type=Purple+Software&mt=8"">{% trans "Rate Us" %}</a></li>
+                <li data-icon="arrow-l"><a target="_blank" rel="external" id="rate_on_itunes" href="{% value_from_settings "APPLE_WAYBETTER_ITUNES_URL" %}">{% trans "Rate Us" %}</a></li>
             </ul>
             <div class="note">{% trans "Remember, the more passengers using this app the better it becomes (higher efficiency, cheaper rides and better availablity). <br/><br/>Thanks :)" %}</div>
         </div>
