@@ -12,11 +12,24 @@ from datetime import datetime, date, timedelta, time
 import calendar
 import settings
 
+ALGO_COMPUTATION_DELTA = timedelta(minutes=5)
+FAX_HANDLING_DELTA = timedelta(minutes=2)
+TOTAL_HANDLING_DELTA = ALGO_COMPUTATION_DELTA + FAX_HANDLING_DELTA
+
+ORDERING_ALLOWED_PICKUP_DELTA = TOTAL_HANDLING_DELTA # + hotspot's dispatching time
+ORDERING_ALLOWED_DROPOFF_DELTA = timedelta(minutes=60)
+
+PRIVATE_RIDE_HANDLING_FEE = 5 #NIS
+
+PICKUP = "pickup"
+DROPOFF = "dropoff"
+
 class HotSpot(BaseModel):
     name = models.CharField(_("hotspot name"), max_length=50)
     description = models.CharField(_("hotspot description"), max_length=100, null=True, blank=True)
 
     station = models.ForeignKey(Station, related_name="hotspots", null=True, blank=True)
+    dispatching_time = models.PositiveIntegerField(verbose_name=_("Dispatching Time"), help_text=_("In minutes"), default=7)
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="hotspots")
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="hotspots")
     address = models.CharField(_("address"), max_length=80)
@@ -57,6 +70,15 @@ class HotSpot(BaseModel):
                     return rule.price
 
         return None
+
+    def get_allowed_ordering_time(self, hotspot_type):
+        allowed_time = None
+        if hotspot_type == PICKUP:
+            allowed_time = default_tz_now() + ORDERING_ALLOWED_PICKUP_DELTA + timedelta(minutes=self.dispatching_time)
+        elif hotspot_type == DROPOFF:
+            allowed_time = default_tz_now() + ORDERING_ALLOWED_DROPOFF_DELTA
+
+        return allowed_time
 
     def get_next_active_datetime(self, base_time=None, timeframe=timedelta(weeks=1)):
         """
