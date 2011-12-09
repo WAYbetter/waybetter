@@ -556,7 +556,7 @@ var Registrator = Object.create({
         if (! $dialog.dialog('isOpen') ) {
             $dialog.dialog('open');
         }
-        $dialog.find("input:first").focus();
+        $dialog.find("input:first").blur();
 
     },
     sendSMS                 : function (form) {

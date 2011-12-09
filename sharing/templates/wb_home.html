@@ -601,6 +601,7 @@
             pickup_time:"{% trans 'Pickup Time' %}",
             dropoff_time:"{% trans 'Dropoff Time' %}"
         };
+        BookingHelper.hotspot_type = "dropoff";
 
         {% if request.user.passenger %}
             MyRidesHelper.init({
@@ -676,7 +677,7 @@
                 }
             },
             successCallback: function(){
-                var $option = $("<option id='opt_votespot'>{% trans "Other" %}</option>");
+                var $option = $("<option id='opt_votespot'>{% trans "Suggest a Hotspot" %}</option>");
                 $("#id_hotspot_select").append($option);
                 $("#leave_hotspot, #goto_hotspot").fadeIn("fast");
             }
