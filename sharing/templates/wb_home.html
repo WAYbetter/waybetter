@@ -356,6 +356,9 @@
         $("#leave_hotspot").text("{% trans "Leave " %}" + hs_name + " >>");
         $("#goto_hotspot").text("{% trans "Goto " %}" + hs_name + " >>");
 
+        if (BookingHelper.hotspot_type) {
+            HotspotHelper.refreshHotspotMarker(BookingHelper.hotspot_type);
+        }
         if (BookingHelper.hotspot) { // log Google Analytics event
             logGAEvent("order", "choose hotspot", hotspot.name);
         }
@@ -367,6 +370,7 @@
         selectHotspot();
         switchDirection(hotspot_type);
         stepCompleted("hotspot");
+        HotspotHelper.refreshHotspotMarker(hotspot_type);
         if (hotspot_type == PICKUP) {
             logGAEvent("order", "set direction", "from hotspot");
         } else {
