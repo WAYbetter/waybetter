@@ -374,7 +374,7 @@ var HotspotHelper = Object.create({
                     that.hotspots.push(hotspot);
                     var data = {id: hotspot.id, lon: hotspot.lon, lat: hotspot.lat, name: hotspot.name,
                         description: hotspot.description, next_datetime: new Date(hotspot.next_datetime)};
-                    var text = (hotspot.description) ? hotspot.name + " - " + hotspot.description : hotspot.name;
+                    var text = (hotspot.description) ? hotspot.name + " (" + hotspot.description + ")" : hotspot.name;
                     $("<option>" + text + "</option>").attr("value", hotspot.id).data(data).appendTo($hotspotpicker);
                 });
 
@@ -681,6 +681,7 @@ var CMHelper = Object.create({
 
         this.map = new CM.Map(this.config.map_element, cloudmade);
         this.map.setCenter(new CM.LatLng(this.config.center_lat, this.config.center_lon), 15);
+        this.map.disableScrollWheelZoom();
 
         if (this.config.controls){
             var myControl = new CM.SmallMapControl();

@@ -19,8 +19,8 @@ class HotSpotAdminForm(forms.ModelForm):
     class Meta:
         model = HotSpot
 
-    def clean_address(self):
-        return _clean_address(self)
+#    def clean_address(self):
+#        return _clean_address(self)
 
 
 class ConstraintsForm(forms.Form):
