@@ -545,10 +545,16 @@ function gaHitPage(url) {
 }
 
 function logGAEvent(category, action, opt_label, opt_value, opt_noniteraction) {
+    var ga_args = ['_trackEvent'];
+    $.each(arguments, function(i, e) {
+        ga_args.push(e)
+    });
+
     try {
-        _gaq.push(['_trackEvent()'].concat(arguments));
+        return _gaq.push(ga_args);
     } catch(e){
         log(e);
+        return 3;
     }
 }
 
