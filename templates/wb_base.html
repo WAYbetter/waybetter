@@ -3,7 +3,6 @@
       class="{{ page_specific_class }} {% if LANGUAGE_BIDI %}rtl{% endif %}">
 <head>
     {% load i18n %}
-    {% load value_from_settings %}
 
     <meta charset="utf-8">
     <meta name="google-site-verification" content="6M7E60YhxlrZR6e8sXaMr2_9hy-TwfdXM-orIbAlwXA"/>
@@ -111,7 +110,6 @@
     //<![CDATA[
         var _gaq = [
             ['_setAccount','UA-18077675-1'],
-            ['_setDomainName', '{% value_from_settings "DEFAULT_DOMAIN" %}'],
             ['_setAllowLinker', true],
             ['_trackPageview'],
             ['_trackPageLoadTime']
