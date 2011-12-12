@@ -49,17 +49,7 @@
             order_types: order_types,
             next_rides_table: "#next_rides",
             next_rides_container: "#next_rides_container",
-            previous_rides_table: "#previous_rides",
-            urls: {
-                get_myrides_data: "{% url sharing.passenger_controller.get_myrides_data %}",
-                get_order_status: "{% url sharing.passenger_controller.get_order_status %}",
-                cancel_order: "{% url sharing.passenger_controller.cancel_order %}"
-            },
-            messages: {
-                ride_cancelled: "{% trans "Ride cancelled." %}",
-                cancel_text: "{% trans "Info/Cancel" %}",
-                report_text: "{% trans "Report Ride" %}"
-            }
+            previous_rides_table: "#previous_rides"
         });
 
         MyRidesHelper.getData({'get_next_rides': true, 'get_previous_rides': true}, {

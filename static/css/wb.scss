@@ -762,6 +762,7 @@ body.base-site{
     }
     .tooltip_loader {
         @extend .small-loader;
+        display: none;
         position: absolute;
         right: 0;
         bottom: -2px;
@@ -1048,18 +1049,6 @@ Home
             input{ height: $el_height; font-size: $font-size-large}
             select, .wb_button{ height: $el_height + 4; font-size: $font-size-large}
         }
-        #booking_teaser{
-            padding: 74px;
-            .text{
-                display: inline-block;
-                font-size: $font-size-big;
-                width: 350px;
-            }
-            button{
-                height: 70px;
-                width: 250px;
-            }
-        }
         #hotspot_content{
             padding-right: 30px;
             padding-left: 30px;
@@ -1279,11 +1268,6 @@ Home
                         left: 4px;
                     }
                 }
-            }
-            #booking_teaser{
-                padding-right: 140px;
-                padding-left: 140px;
-                .text{width: 220px;}
             }
             #hotspot_content{
                 .cntr.select{ padding-left: 0; padding-right: 30px;}
