@@ -25,18 +25,15 @@ def contact(request):
 @force_lang("he") # for now show this page only in hebrew
 def privacy(request):
     page_name = page_specific_class = "privacy"
-    hide_back_buttons = hasattr(request, "wb_app") and request.wb_app
     return custom_render_to_response("privacy.html", locals(), context_instance=RequestContext(request))
 
 @force_lang("he") # for now show this page only in hebrew
 def terms(request):
     page_name = page_specific_class = "terms"
-    hide_back_buttons = hasattr(request, "wb_app") and request.wb_app
     return custom_render_to_response("terms_of_service.html", locals(), context_instance=RequestContext(request))
 
 def faq(request):
     page_name = page_specific_class = "faq"
-    hide_back_buttons = hasattr(request, "wb_app") and request.wb_app
     return custom_render_to_response("faq.html", locals(), context_instance=RequestContext(request))
 
 def my_rides(request):

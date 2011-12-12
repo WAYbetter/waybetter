@@ -5,7 +5,9 @@
     <div id="login_page" data-role="page">
         <div data-role="header">
             <h1>{% trans "Login To Your Account" %}</h1>
+            {% if not request.wb_app %}
             <a href="{% url wb_home %}" data-ajax="false" data-icon="wb_custom" data-theme="h" data-iconpos="notext" data-transition="pop" class="ui-btn-right"></a>
+            {% endif %}
         </div>
         <div data-role="content">
             <div class="bold center">{% trans "Registered Users" %}:</div>
