@@ -14,5 +14,6 @@ class URLRouting(object):
                 logging.info("using alternate urlconf: %s" % user_agent_parts)
                 request.urlconf = "api_urls"
                 request.mobile = True
+                request.wb_app = True
 
 

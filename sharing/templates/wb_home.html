@@ -38,18 +38,9 @@
             </div>
         </div>
 
-        <div id="booking_teaser" class="booking_step hidden">
-            <table>
-                <tr>
-                    <td class="text">{% trans "The Best Transport Service<br/>to Cenral Locations" %}</td>
-                    <td><button class="order_button blue hidden">{% trans "Book a Shared Taxi Ride" %}</button></td>
-                </tr>
-            </table>
-        </div>
-
         <div id="booking_content">
 
-            <div id="hotspot_content" class="booking_step">
+            <div id="hotspot_content" class="booking_step hidden">
                 <div class="title">{% trans "Choose a Hotspot" %}</div>
 
                 <div class="cntr select">
@@ -331,12 +322,28 @@
     {% endif %}
     var SLIDE_DIR = (RTL) ? "right" : "left";
 
-    function startBooking() {
-        return;
-        $("#booking_teaser").fadeOut("fast", function(){
-            $("#booking_content, #booking_progress").fadeIn("fast");
-            showMap();
-        });
+    function initBookingContent() {
+        // for some strange reason first slide is '1' for booking content (not 0)
+        $('#booking_content').slides({
+            slide:{
+                interval:500
+            },
+            width:800,
+            startAtSlide:1,
+            direction:SLIDE_DIR,
+            navigation:false,
+            pagination:false
+        }).bind("navigateEnd", function (e, current) {
+                    var step_name = BOOKING_STEPS[current - 1];
+                    log("navigateEnd:" + step_name);
+                    if (step_name == "address") {
+                        $("#id_street_address").focus();
+                    } else if (step_name == "datetime") {
+                        $("#set_datetime").focus();
+                    } else if (step_name == "details") {
+                        $("#savings").fadeIn("fast");
+                    }
+                });
     }
 
     function showMap(){
@@ -612,17 +619,7 @@
                 rtl: RTL,
                 order_types: order_types,
                 next_rides_table: "#my_next_rides",
-                next_rides_container: "#myrides_container",
-                urls: {
-                    get_myrides_data: "{% url sharing.passenger_controller.get_myrides_data %}",
-                    get_order_status: "{% url sharing.passenger_controller.get_order_status %}",
-                    cancel_order: "{% url sharing.passenger_controller.cancel_order %}"
-                },
-                messages: {
-                    ride_cancelled: "{% trans "Ride cancelled." %}",
-                    cancel_text: "{% trans "Info/Cancel" %}",
-                    report_text: "{% trans "Report Ride" %}"
-                }
+                next_rides_container: "#myrides_container"
             });
 
             MyRidesHelper.getData({'get_next_rides': true}, {
@@ -683,7 +680,7 @@
             successCallback: function(){
                 var $option = $("<option id='opt_votespot'>{% trans "Suggest a Hotspot" %}</option>");
                 $("#id_hotspot_select").append($option);
-                $("#leave_hotspot, #goto_hotspot").fadeIn("fast");
+                initBookingContent();
             }
         });
 
@@ -715,12 +712,6 @@
         // init
         $(".small-loader").hide();
 
-        // teaser
-        $("#booking_teaser button").click(function() {
-            logGAEvent("banner", "try it now");
-            startBooking();
-        });
-
         // hotspot
         $("#hotspot_content").bind("beforeshow", function() {
             selectHotspot();
@@ -737,6 +728,7 @@
             }
         });
         $("#qm_votespot").click(function () {
+            logGAEvent("help", "ordering help button", "choose hotspot");
             Registrator.openHotspotInterestDialog();
         });
 
@@ -991,28 +983,6 @@
         });
         $("#banner_slides").slides("play");
 
-        // for some strange reason first slide is '1' for booking content (not 0)
-        $('#booking_content').slides({
-            slide: {
-                interval: 500
-            },
-            width: 800,
-            startAtSlide: 1,
-            direction: SLIDE_DIR,
-            navigation: false,
-            pagination: false
-        }).bind("navigateEnd", function(e, current) {
-            var step_name = BOOKING_STEPS[current - 1];
-            log("navigateEnd:" + step_name);
-            if (step_name == "address") {
-                $("#id_street_address").focus();
-            }else if (step_name == "datetime"){
-                $("#set_datetime").focus();
-            }else if (step_name == "details"){
-                $("#savings").fadeIn("fast");
-            }
-        });
-
         $("#feedback").click(function() {
             Registrator.openFeedbackDialog();
         });
@@ -1021,7 +991,6 @@
     });
 
     // debug
-//    startBooking();
 //    setTimeout(function() {
 //        $("#booking_content").slides("slide", 4);
 //    }, 1e3);
