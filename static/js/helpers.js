@@ -17,6 +17,7 @@ var MyRidesHelper = Object.create({
             cancel_order: ""
         },
         messages: {
+            cancel_ride_link: "",
             ride_cancelled: "",
             cancel_text: "",
             report_text: ""
@@ -138,11 +139,11 @@ var MyRidesHelper = Object.create({
                     tip.find("#station_name_val").text(details.station_name + " " + details.station_phone);
                 }
                 if (status == "pending") {
-                    var $cancel_link = $(that.config.tip_content.pending).find("#cancel_ride_link");
-                    // since we are re-using the tooltips it is IMPORTANT to unbind old event handlers
-                    $cancel_link.unbind("click").click(function() {
+                    var $old_link = $(that.config.tip_content.pending).find("#cancel_ride_link");
+                    var $new_link = $('<div id="cancel_ride_link" class="wb_link">' + that.config.messages.cancel_ride_link + '</div>').click(function () {
                         that._cancelOrder(info_el, order_id);
                     });
+                    $old_link.replaceWith($new_link);
                 }
 
                 that._showTooltip(info_el, status);
@@ -159,6 +160,9 @@ var MyRidesHelper = Object.create({
     },
 
     _showTooltip: function(info_el, content) {
+        var that = this;
+        this._removeCancelledOrders();
+
         $.each(this.config.tip_content, function(status, content) {
             $(content).hide();
         });
@@ -172,6 +176,7 @@ var MyRidesHelper = Object.create({
             }
 
             tip.find(".close").unbind("click").click(function() {
+                that._removeCancelledOrders();
                 api.hide();
             });
 
@@ -203,18 +208,7 @@ var MyRidesHelper = Object.create({
             success: function(response) {
                 if (response.status == 'cancelled') {
                     $link.removeClass("wb_link").text(that.config.messages.ride_cancelled);
-
-                    // since we are re-using the tooltips it is IMPORTANT to unbind old event handlers
-                    $tip.find(".close").unbind("click").click(function() {
-                        $(info_el).data("tooltip").hide();
-                        var num_rides = $(that.config.next_rides_table).find("tr[data-order_id]").length;
-                        if (num_rides === 1) { // this is the only ride
-                            $(that.config.next_rides_container).fadeOut("fast");
-                        }
-                        else {
-                            $(info_el).parent("tr").fadeOut("fast");
-                        }
-                    });
+                    $(info_el).parent("tr").addClass("cancelled");
                 } else {
                     that._showTooltip(info_el, "error");
                 }
@@ -222,6 +216,22 @@ var MyRidesHelper = Object.create({
             error: function() {
                 that._showTooltip(info_el, "error");
             }
+        });
+    },
+
+    _removeCancelledOrders: function(){
+        var that = this;
+        var cancelled = $(this.config.next_rides_table).find("tr.cancelled");
+
+        $.each(cancelled, function () {
+            $(this).fadeOut("fast", function () {
+                $(this).remove();
+                var num_rides = $(that.config.next_rides_table).find("tr[data-order_id]").length;
+                if (num_rides === 0) { // this is the only ride
+                    $(that.config.next_rides_container).fadeOut("fast");
+                }
+            });
+
         });
     }
 });
