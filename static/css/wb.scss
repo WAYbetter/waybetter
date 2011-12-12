@@ -1163,28 +1163,24 @@ Home
         }
         #ride_details{
             position: absolute;
-            right: 55px;
+            right: 75px;
             top: 30px;
             width: 410px;
             $width: 330px;
             #offer{
                 .price, .time{
                     height: 35px;
-                    border-bottom: 1px solid $light-gray;
+                    width: auto;
                     margin: 10px auto 22px auto;
+                    padding: 0 15px;
+                    border-bottom: 1px solid $light-gray;
                     border-spacing: 1px 1px;
-                }
-                .price{
-                    width: 0.8 * $width;
-                }
-                .time{
-                    width: $width;
                 }
                 .offer-row{
                     vertical-align: bottom;
                 }
                 .offer-pre{ text-align: right; color: #4d4d4d; }
-                .offer-val{ text-align: center; font-weight:bold; line-height: 12px;}
+                .offer-val{ text-align: center; font-weight:bold; line-height: 12px; padding: 0 3px;}
                 .offer-val .value{ font-size: 45px;  }
                 .price .offer-val .label{ font-size: 38px;  }
                 .time .offer-val .label{ font-size: 20px;  }
@@ -1298,7 +1294,7 @@ Home
             }
             #ride_details{
                 right: auto;
-                left: 55px;
+                left: 75px;
                 $width: 330px;
                 #offer{
                     .offer-pre{ text-align: left; }
