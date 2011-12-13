@@ -1,4 +1,5 @@
 # This Python file uses the following encoding: utf-8
+from django.shortcuts import render_to_response
 from common.decorators import force_lang
 from common.models import City
 from django.template.context import RequestContext
@@ -49,3 +50,6 @@ def get_sharing_cities(request):
 
 def get_sharing_cities_data():
     return [{'id': city.id, 'name': city.name} for city in City.objects.filter(name="תל אביב יפו")]
+
+def welcome_email(request):
+    return render_to_response("welcome_email.html")
