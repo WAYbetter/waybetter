@@ -350,8 +350,8 @@
             locationSuccess: function(p) {
                 var current_location_hotspot = undefined;
                 $.each(hotspots, function(i, hs) {
-                    if (MobileHelper.distance(p.coords.latitude, p.coords.longitude, hs.lat, hs.lon) <= 0.7) {
-                        log("IN HOTSPOT", hs);
+                    if (MobileHelper.distance(p.coords.latitude, p.coords.longitude, hs.lat, hs.lon) <= hs.radius) {
+                        log("IN HOTSPOT", hs, hs.radius);
                         current_location_hotspot = hs;
                         return false; //break
                     }
