@@ -37,3 +37,6 @@ def pilot_interest(request):
 
 def hotspot_interest(request):
     return interest_view(request, HotspotInterestForm, "hotspot_interest_form.html")
+
+def pilot_interest_email(request):
+    return render_to_response("pilot_interest_email.html")

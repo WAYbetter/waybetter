@@ -72,6 +72,8 @@ urlpatterns = patterns('',
     url(r'^faq/$', 'sharing.content_controller.faq', name="faq"),
     url(r'^the_service/$', 'sharing.content_controller.the_service', name="the_service"),
     url(r'^about_us/$', 'sharing.content_controller.about_us', name="about_us"),
+    url(r'^welcome_email/$', 'sharing.content_controller.welcome_email'),
+
     url(r'^my_rides/$', 'sharing.content_controller.my_rides', name="my_rides"),
     url(r'^services/get_sharing_cities/$', 'sharing.content_controller.get_sharing_cities', name="get_sharing_cities"),
 

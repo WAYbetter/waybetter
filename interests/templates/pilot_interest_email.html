@@ -3,73 +3,61 @@
 <head>
     <title></title>
 </head>
-<body style="direction:rtl">
-<p style="font-weight:bold;">יצאנו לדרך ואתם מוזמנים להצטרף!</p>
-
-<p style="font-weight:bold;">מעכשיו גם אתם יכולים להשתתף בפיילוט של WAYbetter ולנסוע במונית ספיישל בחצי המחיר.</p>
-
-<p>
-    בשלב זה אפשר לנסוע מכל מקום בתל אביב לרמת החייל, ומרמת החייל לכל מקום בתל אביב.
-    <br/>
-    אנחנו קוראים לזה "הוט-ספוט" - מקום מרכזי שממנו ואליו נוסעים המון אנשים מדי יום.
+<body style="direction:rtl;">
+<p style="text-align: center;">
+    <img width="207" height="207" src="http://{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/email_logo.jpg"/>
+    <br>
+    <span style="font-weight:bold">הצטרפו לדרכינו המשותפת!</span>
+    <br>
+    מעכשיו אפשר לנסוע במונית ספיישל משותפת ולחסוך עד 80% ממחיר הנסיעה.
 </p>
 
 <p>
-    כפי שכבר סיפרנו לכם, השירות מאפשר ללקוחות WAYbetter לשתף נסיעת מונית באותו כיוון הנסיעה וליהנות מחווית שימוש טובה
-    יותר - תוך חיסכון של עשרות שקלים בכל נסיעה, וכמובן עזרה בהפחתת זיהום האוויר והתייעלות התחבורה הציבורית.
+    היתרון הגדול של WAYbetter הוא שאתם לא צריכים לחפש שותפים לנסיעה ולא צריכים לעשות כלום כדי לשלם פחות, רק להזמין
+    נסיעה,
+    <span style="font-weight:bold">ולשלם את המחיר המופחת, אפילו אם נסעתם לבד.</span>
+    <br>
+    בנוסף אנו מתחייבים לשמור על רמת שירות גבוהה ולא להוסיף יותר מדקות בודדות למסלול הנסיעה שלכם.
 </p>
 
 <p>
-    <a href="{% value_from_settings DEFAULT_DOMAIN %}{% url wb_home %}">www.waybetter.com</a>
+    <span style="font-weight:bold">איך זה מתאפשר?</span>
+    <br>
+    בשלב זה אנו מאפשרים להזמין נסיעה מפתח הבית שלכם למגוון "נקודות-מרכזיות" בעיר: שכונות מגורים, אירועים, מרכזי עסקים
+    וכו'... (וחזרה). לנקודות אלו אנו יודעים כי יש די ביקוש כדי לייעל את צי המוניות ולהבטיח חסכון משמעותי.
 </p>
 
-<a href="{% value_from_settings DEFAULT_DOMAIN %}{% url faq %}" style="text-decoration: underline; font-weight: bold;">איך זה עובד?</a>
+<p>זכרו, WAYbetter היא בשביל ובזכות משתמשיה.
+    אתם אלה המאפשרים לייעל את המוניות וכך להוזיל את מחירן. ככל שיותר אנשים יזמינו ב-WAYbetter כך מחירי הנסיעה יצנחו,
+    הזמינות תגדל, ואיזורי הכיסוי יתרחבו, עד שנרשת את העיר כולה.
+</p>
+
+<p style="font-weight:bold;">איך אתם יכולים לעזור?</p>
 <ol>
-    <li>
-        מזינים את מסלול הנסיעה הרצוי (נקודת המוצא, יעד הנסיעה ושעת האיסוף).
-    </li>
-    <li>
-        מקבלים הצעת מחיר על המסך המפוצל שלנו - עלות הנסיעה הרגילה במונית מול עלות הנסיעה בפורמט WAYbetter.
-    </li>
-    <li>
-        לוחצים על כפתור ההזמנה, וזהו. המונית תגיע בשעה היעודה.
-    </li>
+    <li>סעו. כל נסיעה מאפשרת לייעל ולהוזיל, לכם ולשאר החברים ב WAYbetter.</li>
+    <li>ספרו לחברים- המליצו להם לנסות את השירות (זה חכם, נוח, מהיר, סביבתי ועוד...)</li>
+    <li>ספרו לנו מה הנקודות המרכזיות שלכם (כאן). כך נוכל להוסיף איזורי כיסוי נוספים ולרשת את העיר כולה.</li>
 </ol>
 
-<p>
-    כ-10 דקות לפני הגעת המונית, תקבלו SMS שיזכיר לכם להגיע לנקודה שאליה הזמנתם את המונית. כן, גם הסמס חינם.
+<p style="text-align: center;">
+    <a href="http://{% value_from_settings DEFAULT_DOMAIN %}" style="font-weight:bold">הזמינו עכשיו</a>
+    ונתראה במונית...
+    <br>
+    חברי WAYbetter
 </p>
-
-<img src="{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/WAYbetter_offer.png">
-
-<p>חשוב לציין:</p>
-<ol>
-    <li>אנו מתחייבים שתשלמו חצי מחיר גם אם נסעתם ב WAYbetter במונית לבד.</li>
-    <li> יש לכם יום שיער רע או שסתם לא בא לכם לפגוש אף אחד? אתם יכולים להזמין נסיעת מונית פרטית רגילה, ועדיין ליהנות
-        מהליך הזמנה פשוט וקל, נסיעה ללא תשלום במזומן, ושאר הטבות הניתנות לחברים.
-    </li>
-    <li>בשלב הפיילוט הסגור בו אתם משתתפים, השירות מאפשר נסיעה מכל כתובת בתל אביב אל רמת החייל ("הוט-ספוט") ולכל כתובת
-        בחזרה. אנחנו מתחילים במקום שהכי חשוב לכסות וממש בקרוב נוסיף "הוט-ספוטס" נוספים במקומות ואירועים מרכזיים שתבקשו.
-    </li>
-</ol>
-
-<p>
-    יש לכם שאלות נוספות? תעשו REPLY ונענה לכם בשמחה.
-    <br/>
-    ובינתיים, עד שניפגש במונית, יאללה ביי.
-</p>
-
-<p>
-    חברי <a href="{% value_from_settings DEFAULT_DOMAIN %}{% url wb_home %}">WAYbetter</a>
-</p>
-
-<p>
-    <a href="{% value_from_settings DEFAULT_DOMAIN %}{% url about_us %}">עלינו</a>
-    <br/>
-    <a href="{% value_from_settings DEFAULT_DOMAIN %}{% url the_service %}">אודות השירות</a>
-</p>
-
-<img src="{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/logo_header.png" style="margin-right: 350px;">
+<br>
+<br>
+<table style="width: 100%; text-align: center; direction: ltr;">
+    <tr>
+        <td><a href="http://{% value_from_settings DEFAULT_DOMAIN %}">Home</a></td>
+        <td>|</td>
+        <td><a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL  %}">iPhone App</a></td>
+        <td>|</td>
+        <td><a href="{% value_from_settings ANDROID_MARKET_APP_URL  %}">Android App</a></td>
+        <td>|</td>
+        <td><a href="{% value_from_settings FACEBOOK_APP_URL  %}">Our Facebook</a></td>
+    </tr>
+</table>
 
 </body>
 </html>
