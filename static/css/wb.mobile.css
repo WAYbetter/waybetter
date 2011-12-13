@@ -27,6 +27,43 @@ hr {
   background: transparent;
   background-image: none; }
 
+/* make theme-e look and feel disabled - remove hover and up states */
+.ui-btn-down-e {
+  border: 1px solid #bfbfbf;
+  background: #eeeeee;
+  font-weight: bold;
+  color: #ababab;
+  text-shadow: 0 1px 1px #f6f6f6;
+  background-image: -webkit-linear-gradient(top, white, white);
+  /* Chrome 10 , Saf5.1  */
+  background-image: -moz-linear-gradient(top, white, white);
+  /* FF3.6 */
+  background-image: -ms-linear-gradient(top, white, white);
+  /* IE10 */
+  background-image: -o-linear-gradient(top, white, white);
+  /* Opera 11.10  */
+  background-image: linear-gradient(top, white, white); }
+  .ui-btn-down-e a.ui-link-inherit {
+    color: #ababab; }
+
+.ui-btn-hover-e {
+  border: 1px solid #bfbfbf;
+  background: #eeeeee;
+  font-weight: bold;
+  color: #ababab;
+  text-shadow: 0 1px 1px #f6f6f6;
+  background-image: -webkit-linear-gradient(top, white, white);
+  /* Chrome 10 , Saf5.1  */
+  background-image: -moz-linear-gradient(top, white, white);
+  /* FF3.6 */
+  background-image: -ms-linear-gradient(top, white, white);
+  /* IE10 */
+  background-image: -o-linear-gradient(top, white, white);
+  /* Opera 11.10  */
+  background-image: linear-gradient(top, white, white); }
+  .ui-btn-hover-e a.ui-link-inherit {
+    color: #ababab; }
+
 ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
   padding-top: .2em;
   padding-bottom: .2em; }
@@ -49,7 +86,7 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
   -webkit-background-size: 15px 9px;
   background-size: 15px 9px; }
 
-.ui-header a[href="/"], .ui-header a[href="#home"] {
+.ui-header a[href="/"], .ui-header a[href="#home"], .ui-header #reset_booking_page {
   width: 45px; }
 .ui-header a[href="/"] .ui-icon, .ui-header a[href="#home"] .ui-icon {
   background: url(/static/images/mobile/wb_logo_18px.png) left 0 no-repeat;
@@ -59,6 +96,9 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none;
+  margin: 0 auto; }
+.ui-header .ui-icon-wb_reset {
+  background: url(/static/images/mobile/refresh.png) left 0 no-repeat;
   margin: 0 auto; }
 
 .wb-header {
@@ -522,6 +562,12 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
 
   .ui-header a[href="/"] .ui-icon, .ui-header a[href="#home"] .ui-icon {
     background-image: url(/static/images/mobile/wb_logo_retina.png);
+    -moz-background-size: 18px 18px;
+    -o-background-size: 18px 18px;
+    -webkit-background-size: 18px 18px;
+    background-size: 18px 18px; }
+  .ui-header .ui-icon-wb_reset {
+    background: url(/static/images/mobile/refresh_retina.png) left 0 no-repeat;
     -moz-background-size: 18px 18px;
     -o-background-size: 18px 18px;
     -webkit-background-size: 18px 18px;

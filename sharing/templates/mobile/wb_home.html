@@ -52,21 +52,26 @@
     }
 
     function getIntervals(select_nearest_interval) {
-        if (! (MobileHelper.hotspot && MobileHelper.address)) {
-            return; // do nothing if hotspot and address are not defined yet
+        if (! (MobileHelper.hotspot && (MobileHelper.hotspot_type == "pickup" || MobileHelper.address)) ) {
+            return; // do nothing if hotspot_type is not pickup or address and hotspot are not defined yet
         }
-
         log("get intervals");
         var day = $("#ride-date").val();
         var $time_sel = $("#ride-time");
-        HotspotHelper.getIntervals({
-            data: {
-                hotspot_id: MobileHelper.hotspot.id,
-                day: day,
-                hotspot_type: MobileHelper.hotspot_type,
-                time_type: MobileHelper.hotspot_type,
+        var data = {
+            hotspot_id: MobileHelper.hotspot.id,
+            day: day,
+            hotspot_type: MobileHelper.hotspot_type,
+            time_type: MobileHelper.hotspot_type
+        };
+        if (MobileHelper.address) {
+            $.extend(data, {
                 lat: MobileHelper.address.lat,
-                lon: MobileHelper.address.lon },
+                lon: MobileHelper.address.lon
+            })
+        }
+        HotspotHelper.getIntervals({
+            data: data,
             success: function(response) {
                 if (response.times) {
                     $time_sel.empty();
@@ -77,9 +82,9 @@
                     if (select_nearest_interval) {
                         $("#select-interval-form").submit();
                     } else if (MobileHelper.ride_time && response.times.indexOf(MobileHelper.ride_time) > -1 &&
-                            ($.mobile.activePage.attr("id") == "hotspot_page" || $.mobile.activePage.attr("id") == "booking_page")) {
+                            ($.mobile.activePage.attr("id") == "hotspot_page" || $.mobile.activePage.attr("id") == "booking_page" || $.mobile.activePage.attr("id") == "address_page")) {
                         $.mobile.changePage("#booking_page", {reverse: true});
-                    } else {
+                    } else if ($.mobile.activePage.attr("id") != "welcome_page") { 
                         $.mobile.changePage("#interval_page");
                     }
                 }
@@ -98,7 +103,7 @@
         $.each($links, function(i, e) {
             var $new_li = $("<li></li>").attr("data-theme", "a").attr("data-icon", "arrow-l");
             $new_li.append(e);
-            if ($(e).attr("id") == "choose_time_btn" && ! (MobileHelper.address && MobileHelper.hotspot)) {
+            if ($(e).attr("id") == "choose_time_btn" && ! MobileHelper.hotspot) {
                 $new_li.attr("data-theme", "e").attr("data-icon", "none");
             }
 
@@ -109,7 +114,9 @@
             $parent_ul.listview("refresh");
         } catch (e) {
             log("listview refresh failed");
-            $parent_ul.listview();
+            if ($parent_ul.closest(".ui-page").length > 0) { // safely call listview()
+                $parent_ul.listview();
+            }
         }
 
     }
@@ -129,6 +136,7 @@
     function resetAddress() {
         MobileHelper.address = undefined;
         $("#choose_address_btn").find(".header").text("{% trans 'Enter Address' %}");
+        $("#address-form")[0].reset();
     }
     function populateAddressFields(address){
         $("#id_city").val(address.city).selectmenu().selectmenu('refresh');
@@ -151,12 +159,13 @@
         $("#choose_address_btn").find(".header").text(address.name);
         populateAddressFields(address);
 
-        if (!(MobileHelper.address && MobileHelper.address.description == address.description)) {
-            getIntervals(false);
-        }
+        getIntervals(false);
+
+
     }
 
     function resetHotspot() {
+        MobileHelper.hotspot = undefined;
         $("#choose_hotspot_btn").find(".header").text("{% trans 'Choose Hotspot' %}");
         $("#choose_hotspot_btn").find(".desc").text("");
     }
@@ -188,11 +197,24 @@
                 $date_sel.append($option);
             });
 
-            if (MobileHelper.address) {
+            if (MobileHelper.hotspot_type == "pickup" || MobileHelper.address) {
                 getIntervals(false);
             }
-            }
         }
+    }
+
+    function resetIntervals() {
+        MobileHelper.ride_time = MobileHelper.ride_date = undefined ;
+        $("#ride-time").empty().selectmenu().selectmenu("refresh");
+        $("#ride-date").empty().selectmenu().selectmenu("refresh");
+        $("#choose_time_btn").find(".desc").text("");
+        updateChooseTimesButton();
+    }
+
+    function resetSeats() {
+        MobileHelper.num_seats = 1;
+        renderNumseats();
+    }
 
     function getRideDetails() {
         log("ride details");
@@ -228,6 +250,17 @@
         });
     }
 
+    function renderHotspotType() {
+        var msg = window["choose_" + MobileHelper.hotspot_type + "_time_msg"];
+        $("#interval_page").find("[data-role=header] h1, label[for='ride-time']").text(msg);
+
+        if (MobileHelper.ride_date && MobileHelper.ride_time) {
+            msg = window[MobileHelper.hotspot_type + "_time_msg"] + ": ";
+        }
+        $("#choose_time_btn").find(".header").text(msg);
+
+    }
+
     function switchOrderingDirection(direction) {
         if (direction && MobileHelper.hotspot_type == direction) {
             return; // do nothing
@@ -249,14 +282,7 @@
         } else {
             MobileHelper.hotspot_type = "pickup";
         }
-        var msg = window["choose_" + MobileHelper.hotspot_type + "_time_msg"];
-        $("#interval_page").find("[data-role=header] h1, label[for='ride-time']").text(msg);
-
-        if (MobileHelper.ride_date && MobileHelper.ride_time) {
-            msg = window[MobileHelper.hotspot_type + "_time_msg"];
-        }
-        $("#choose_time_btn").find(".header").text(msg + ": ");
-
+        renderHotspotType();
         getIntervals(false);
     }
 
@@ -270,8 +296,8 @@
             ride_duration: HotspotHelper.ride_duration,
             hotspot_id: MobileHelper.hotspot.id,
             hotspot_type: MobileHelper.hotspot_type,
-            hotspot_time: $("#ride-time").val(),
-            hotspot_date: $("#ride-date").val(),
+            hotspot_time: MobileHelper.ride_time,
+            hotspot_date: MobileHelper.ride_date,
             id_city: $("#id_city").val(),
             street_address: MobileHelper.address.street_address,
             house_number: MobileHelper.address.house_number,
@@ -319,13 +345,39 @@
         });
     }
 
+    function chooseHotspotViaCurrentLocation() {
+        MobileHelper.getCurrentLocation({
+            locationSuccess: function(p) {
+                var current_location_hotspot = undefined;
+                $.each(hotspots, function(i, hs) {
+                    if (MobileHelper.distance(p.coords.latitude, p.coords.longitude, hs.lat, hs.lon) <= 0.7) {
+                        log("IN HOTSPOT", hs);
+                        current_location_hotspot = hs;
+                        return false; //break
+                    }
+                });
+
+                if (current_location_hotspot) {
+                    selectHotspot(current_location_hotspot);
+                    resetAddress();
+                    switchOrderingDirection("pickup");
+                } else {
+                    MobileHelper.resolveLonLat(p.coords.longitude, p.coords.latitude, {onNewAddress: selectAddress});
+                }
+            }
+        });
+    }
+
+
     function init() {
 
-        console.log("init");
-        $(document).ajaxSend(function() {
+        log("init");
+        $(document).ajaxStart(function() {
+            log("ajaxStart");
             $.mobile.showPageLoadingMsg();
         });
-        $(document).ajaxComplete(function() {
+        $(document).ajaxStop(function() {
+            log("ajaxStop");
             $.mobile.hidePageLoadingMsg();
         });
 
@@ -426,11 +478,6 @@
                         var $li = $('<li data-icon="arrow-l"></li>').prepend($a);
                         $a.click(function() {
                             selectHotspot(hotspot);
-                            if (MobileHelper.address){
-                                // selectHotspot will navigate to interval page
-                            }else{
-                                $.mobile.changePage("#booking_page");
-                            }
                         });
                         $hotspot_list.append($li);
                     });
@@ -441,23 +488,7 @@
                 $suggest_li.append($suggest_link);
                 $hotspot_list.append($suggest_li);
 
-                MobileHelper.getCurrentLocation({
-                    locationSuccess: function(p) {
-                        $.each(hotspots, function(i, hs) {
-                            if (MobileHelper.distance(p.coords.latitude, p.coords.longitude, hs.lat, hs.lon) <= 0.7) {
-                                log("IN HOTSPOT");
-                                log(hs);
-                                selectHotspot(hs);
-                                resetAddress();
-                                switchOrderingDirection("pickup");
-                                return false; //break
-                            } else {
-                                MobileHelper.resolveLonLat(p.coords.longitude, p.coords.latitude, {onNewAddress: selectAddress});
-                            }
-                        });
-                    }
-                });
-
+                chooseHotspotViaCurrentLocation();
             }
         });
 
@@ -475,7 +506,7 @@
         });
 
         $("#choose_time_btn").live("click", function() { // use live, see updateChooseTimesButton
-            if (MobileHelper.address && MobileHelper.hotspot) {
+            if ($(this).closest("li").attr("data-theme") != "e") {
                 $.mobile.changePage("#interval_page");
             }
         });
@@ -483,6 +514,17 @@
         $("#calculate_ride_btn").button().button("disable");
         $("#calculate_ride_btn").click(function() {
             getRideDetails();
+        });
+
+        $("#reset_booking_page").click(function() {
+            resetAddress();
+            resetHotspot();
+            resetIntervals();
+            switchOrderingDirection("dropoff");
+            renderHotspotType();
+            resetSeats();
+            $("#calculate_ride_btn").button("disable");
+            chooseHotspotViaCurrentLocation();
         });
 
         // numseats page
@@ -789,11 +831,10 @@
 
     <div id="booking_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#home" data-icon="wb_custom" data-theme="h" data-iconpos="notext" data-transition="pop"
-               class="ui-btn-right"></a>
-
+            <a href="#" id="reset_booking_page" data-icon="wb_reset" data-theme="h" data-iconpos="notext" data-transition="pop"></a>
             <h1>{% trans 'Your WAY' %}</h1>
-            {#            <a href="#">{% trans 'Map' %}</a>#}
+            <a href="#home" data-icon="wb_custom" data-theme="h" data-iconpos="notext" data-transition="pop"></a>
+
         </div>
         <div data-role="content">
             <div class="booking_label from_label">
@@ -833,7 +874,7 @@
                     </li>
                     <li data-icon="none" data-theme="e">
                         <a href="#" id="choose_time_btn">
-                            <h1 class="header">{% trans "Choose Dropoff Time" %}</h1>
+                            <h1 class="header">{% trans 'Choose Dropoff Time' %}</h1>
                             <p class="desc"></p>
                         </a>
                     </li>
