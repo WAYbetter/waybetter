@@ -880,10 +880,11 @@ class Order(BaseModel):
         else:
             type = _("shared")
 
-        return _('%(date)s: Taxi ride from %(pickup)s to %(dropoff)s') % {
+        return _('%(date)s: Taxi ride from %(pickup)s to %(dropoff)s %(seats)s') % {
             "pickup"    : self.from_raw,
             "dropoff"   : self.to_raw,
-            "date"      : self.depart_time_format()
+            "date"      : self.depart_time_format(),
+            "seats"     : "(%s %s)" % (self.num_seats, ugettext("seats")) if self.num_seats > 1 else ""
         }
 
     def save(self, *args, **kwargs):
