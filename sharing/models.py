@@ -36,6 +36,7 @@ class HotSpot(BaseModel):
     geohash = models.CharField(_("goehash"), max_length=13)
     lon = models.FloatField(_("longtitude"), null=True)
     lat = models.FloatField(_("latitude"), null=True)
+    radius = models.FloatField(_("radius"), default=0.7) # radius in which GPS aware devices will decide they are inside this hotspot, in KM
     is_public = models.BooleanField(default=False)
 
     def get_computation_key(self, hotspot_direction, hotspot_datetime):
