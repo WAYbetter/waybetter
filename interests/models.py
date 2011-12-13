@@ -74,7 +74,7 @@ class PilotInterest(BaseModel):
     location = models.CharField(max_length=20, null=True, blank=True)
 
     def notify(self):
-        subject = u"הצטרפו לפיילוט, קחו מונית, שלמו רק חצי - WAYbetter"
+        subject = u"WAYbetter - מהפכה בתחבורה, מוניות ספיישל לכולם!"
         t = get_template("pilot_interest_email.html")
         html = t.render(Context({}))
         send_mail_as_noreply(self.email, subject, html=html)

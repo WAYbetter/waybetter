@@ -1,0 +1,52 @@
+{% load value_from_settings %}
+<html>
+<head>
+    <title></title>
+</head>
+<body style="direction:rtl">
+
+<p style="text-align: center;">
+    <img width="207" height="207"
+         src="http://{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/email_logo.jpg"/>
+</p>
+
+<p>
+    אנו שמחים על הצטרפותך ל-WAYbetter
+    השירות מאפשר לנסוע במונית ספיישל משותפת ולחסוך עד 80% ממחיר הנסיעה, אפילו אם נסעתם לבד!
+</p>
+
+<p>
+    בנוסף WAYbetter מאפשרת להנות מחוויה שירות מתקדמת:
+</p>
+<ul>
+    <li>הזמנה מהירה וקלה באתר ובאפליקציות לטלפונים חכמים</li>
+    <li>סעו בלי ארנק: שלמו על הנסיעות באשראי ובחשבונית חודשית מרוכזת</li>
+    <li>קבלו תזכורת ב SMS חינם כ10 דקות לפני הגעת המונית</li>
+    <li>תחנות מוניות מורשות ומובילות</li>
+    <li>ועוד...</li>
+</ul>
+
+<p>
+    בשלב זה, אנו מרשתים את העיר ב"נקודות מרכזיות" שאפשר לנסוע מהן או אליהן מכל מקום בעיר.
+    <br>
+    סעו לנקודות המוצעות, ספרו לנו לאן אתם צריכים את השירות וספרו לחברים.
+    <br>
+    יחד נרשת את העיר בתחבורה יעילה, ירוקה, מפנקת ומשתלמת.
+</p>
+
+<p>
+    <a href="http://{% value_from_settings DEFAULT_DOMAIN %}{% url wb_home %}">www.waybetter.com</a>
+    <br>
+    <br>
+    <a href="http://{% value_from_settings DEFAULT_DOMAIN %}{% url about_us %}">עלינו</a>
+    <br>
+    <br>
+    <a href="http://{% value_from_settings DEFAULT_DOMAIN %}{% url the_service %}">אודות השירות</a>
+</p>
+
+<p style="font-weight: bold;">
+    נתראה במונית!
+</p>
+
+</body>
+</html>
