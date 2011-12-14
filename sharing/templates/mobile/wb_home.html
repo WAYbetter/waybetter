@@ -51,8 +51,8 @@
     {% endblock show_notification %}
     }
 
-    function getIntervals(select_nearest_interval) {
-        if (! (MobileHelper.hotspot && (MobileHelper.hotspot_type == "pickup" || MobileHelper.address)) ) {
+    function getIntervals(select_nearest_interval, allow_page_change) {
+        if (! isTimePickingAllowed() ) {
             return; // do nothing if hotspot_type is not pickup or address and hotspot are not defined yet
         }
         log("get intervals");
@@ -81,12 +81,15 @@
                     $time_sel.selectmenu().selectmenu('refresh', true);
                     if (select_nearest_interval) {
                         $("#select-interval-form").submit();
-                    } else if (MobileHelper.ride_time && response.times.indexOf(MobileHelper.ride_time) > -1 &&
-                            ($.mobile.activePage.attr("id") == "hotspot_page" || $.mobile.activePage.attr("id") == "booking_page" || $.mobile.activePage.attr("id") == "address_page")) {
-                        $.mobile.changePage("#booking_page", {reverse: true});
-                    } else if ($.mobile.activePage.attr("id") != "welcome_page") { 
-                        $.mobile.changePage("#interval_page");
                     }
+                    if (allow_page_change) {
+                        if (MobileHelper.ride_time && response.times.indexOf(MobileHelper.ride_time) == -1 && ($.mobile.activePage.attr("id") != "welcome_page")) {
+                            $.mobile.changePage("#interval_page");
+                        } else if ($.mobile.activePage.attr("id") == "hotspot_page" || $.mobile.activePage.attr("id") == "booking_page" || $.mobile.activePage.attr("id") == "address_page") {
+                            $.mobile.changePage("#booking_page", {reverse: true});
+                        }
+                    }
+
                 }
             },
             complete: function() {
@@ -95,6 +98,9 @@
         });
     }
 
+    function isTimePickingAllowed() {
+        return (MobileHelper.hotspot && (MobileHelper.hotspot_type == "pickup" || MobileHelper.address));
+    }
     function updateChooseTimesButton() {
         var $parent_ul = $("#choose_time_btn").closest("ul");
         var $links = $parent_ul.find("a");
@@ -103,8 +109,9 @@
         $.each($links, function(i, e) {
             var $new_li = $("<li></li>").attr("data-theme", "a").attr("data-icon", "arrow-l");
             $new_li.append(e);
-            if ($(e).attr("id") == "choose_time_btn" && ! MobileHelper.hotspot) {
+            if ($(e).attr("id") == "choose_time_btn" && ! isTimePickingAllowed() ) {
                 $new_li.attr("data-theme", "e").attr("data-icon", "none");
+                renderHotspotType();
             }
 
             $parent_ul.append($new_li);
@@ -159,7 +166,7 @@
         $("#choose_address_btn").find(".header").text(address.name);
         populateAddressFields(address);
 
-        getIntervals(false);
+        getIntervals(false, true);
 
 
     }
@@ -197,9 +204,7 @@
                 $date_sel.append($option);
             });
 
-            if (MobileHelper.hotspot_type == "pickup" || MobileHelper.address) {
-                getIntervals(false);
-            }
+            getIntervals(false, true);
         }
     }
 
@@ -252,11 +257,16 @@
 
     function renderHotspotType() {
         var msg = window["choose_" + MobileHelper.hotspot_type + "_time_msg"];
+        var desc_text = "";
         $("#interval_page").find("[data-role=header] h1, label[for='ride-time']").text(msg);
 
         if (MobileHelper.ride_date && MobileHelper.ride_time) {
-            msg = window[MobileHelper.hotspot_type + "_time_msg"] + ": ";
+            if (isTimePickingAllowed()) {
+                msg = window[MobileHelper.hotspot_type + "_time_msg"] + ": ";
+                desc_text = MobileHelper.ride_time;
+            }
         }
+        $("#choose_time_btn").find(".desc").text(desc_text);
         $("#choose_time_btn").find(".header").text(msg);
 
     }
@@ -283,7 +293,11 @@
             MobileHelper.hotspot_type = "pickup";
         }
         renderHotspotType();
-        getIntervals(false);
+        if (isTimePickingAllowed()) {
+            getIntervals(false, MobileHelper.ride_date && MobileHelper.ride_time);
+        } else {
+            updateChooseTimesButton();
+        }
     }
 
     function bookRide(is_private) {
@@ -524,7 +538,7 @@
             renderHotspotType();
             resetSeats();
             $("#calculate_ride_btn").button("disable");
-            chooseHotspotViaCurrentLocation();
+//            chooseHotspotViaCurrentLocation();
         });
 
         // numseats page
