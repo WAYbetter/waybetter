@@ -41,13 +41,16 @@
                     <div class="clear"></div>
                 </div>
 
+                <ul class="wbdropdown-list hidden" name="lang" id="lang_dropdown">
+                    <li data-code="he" class="clickable"><a>עברית</a></li>
+                    <li data-code="en" class="clickable"><a>English</a></li>
+                </ul>
                 <ul class="wbdropdown-list hidden" name="about">
                     <li><a href="{% url the_service %}">{% trans "The Service" %}</a></li>
                     <li><a href="{% url about_us %}">{% trans "About Us" %}</a></li>
                     <li><a href="{% url faq %}">{% trans "FAQ" %}</a></li>
                     <li><a href="{% url contact %}">{% trans "Contact Us" %}</a></li>
                 </ul>
-
                 <ul class="wbdropdown-list hidden" name="account">
                     {% if request.user.is_authenticated %}
                         <li><a href="{% url my_rides %}">{% trans "Rides" %}</a></li>
@@ -180,7 +183,7 @@
                                 </div>
                             </div>
                             <div class="footer-icon fb clickable"></div>
-                            <div class="footer-icon tt"></div>
+{#                            <div class="footer-icon tt"></div>#}
                         </div>
                         <div class="clear"></div>
                     {% endblock %}
@@ -311,8 +314,9 @@
             $("html").click(function(e) {
                 var $target = $(e.target);
                 $(".wbdropdown-list").hide();
-                if ($target.hasClass("dropdown-trigger")){ //trigger clicked
-                    var name = $target.attr("name");
+                var $trigger = ($target.hasClass("dropdown-trigger")) ? $target : $target.parents(".dropdown-trigger").eq(0);
+                if ($trigger){
+                    var name = $trigger.attr("name");
                     $(".wbdropdown-list[name='" + name + "']").show();
                 }
             });
@@ -329,7 +333,7 @@
             });
 
             // language
-            $("#change_lang").click(function() {
+            $("#change_lang, #lang_dropdown li").click(function() {
                 var code = $(this).data("code");
                 logGAEvent("languages", "change language", code);
 
