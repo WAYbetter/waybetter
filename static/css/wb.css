@@ -94,27 +94,30 @@ ul.hz > li, #top-right ul.content_links > li {
   z-index: 3;
   font-size: 11px; }
   .wbdropdown-list li {
-    padding: 8px; }
+    padding: 8px 0; }
   .wbdropdown-list li:hover {
     background: #DEDEDE; }
   .wbdropdown-list li.disabled:hover {
     background: none; }
+  .wbdropdown-list a {
+    display: block;
+    padding: 0 8px;
+    text-decoration: none; }
 
 .dropdown-trigger {
-  display: inline-block;
-  width: 8px;
-  height: 8px;
-  background: url("/static/images/wb_site/dropdown.png") right 0 no-repeat;
-  cursor: pointer; }
-
-.dropdown-trigger.white {
-  background-position: right -10px; }
+  background: url("/static/images/wb_site/dropdown.png") right 3px no-repeat;
+  padding-right: 13px; }
 
 .rtl .dropdown-trigger {
-  background-position: left 0; }
+  background-position: left 3px;
+  padding-right: 0;
+  padding-left: 13px; }
+
+.dropdown-trigger.white {
+  background-position: right -7px; }
 
 .rtl .dropdown-trigger.white {
-  background-position: left -10px; }
+  background-position: left -7px; }
 
 .disabled {
   color: #bcbcbc;
@@ -134,7 +137,7 @@ ul.hz > li, #top-right ul.content_links > li {
 .errorlist li {
   list-style: none; }
 
-.clickable, .wb_button, .wb_home #booking_container #booking_progress .step, .wb_home #booking_container #ride_summary .data, #gcf_dialog .dl-browser .img {
+.clickable, .dropdown-trigger, .wb_button, .wb_home #booking_container #booking_progress .step, .wb_home #booking_container #ride_summary .data, #gcf_dialog .dl-browser .img {
   cursor: pointer; }
 
 .wb_link, .wb_home #booking_container #ride_summary #switch_direction {
@@ -198,21 +201,72 @@ ul.hz > li, #top-right ul.content_links > li {
 
 .wb_button {
   border: #454545;
-  background: #4D4D4D;
   color: white;
   padding: 10px 15px 10px 15px;
   height: 31px;
   line-height: 0;
   font-weight: bold;
-  font-size: 13px; }
+  font-size: 13px;
+  -webkit-border-radius: 3px;
+  -moz-border-radius: 3px;
+  border-radius: 3px;
+  -webkit-box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.7);
+  -moz-box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.7);
+  box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.7);
+  background-color: #727272;
+  /* Old browsers */
+  background-color: -moz-linear-gradient(top, #727272 0%, #454545 100%);
+  /* FF3.6+ */
+  background-color: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #727272), color-stop(100%, #454545));
+  /* Chrome,Safari4+ */
+  background-color: -webkit-linear-gradient(top, #727272 0%, #454545 100%);
+  /* Chrome10+,Safari5.1+ */
+  background-color: -o-linear-gradient(top, #727272 0%, #454545 100%);
+  /* Opera 11.10+ */
+  background-color: -ms-linear-gradient(top, #727272 0%, #454545 100%);
+  /* IE10+ */
+  background-color: linear-gradient(top, #727272 0%, #454545 100%);
+  /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#727272', endColorstr='#454545',GradientType=0 );
+  /* IE6-9 */ }
 
 .wb_button:hover, .wb_button.hover {
   border: #454545;
-  background: #eb1f79; }
+  background-color: #d42979;
+  /* Old browsers */
+  background-color: -moz-linear-gradient(top, #d42979 0%, #9c1e59 100%);
+  /* FF3.6+ */
+  background-color: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #d42979), color-stop(100%, #9c1e59));
+  /* Chrome,Safari4+ */
+  background-color: -webkit-linear-gradient(top, #d42979 0%, #9c1e59 100%);
+  /* Chrome10+,Safari5.1+ */
+  background-color: -o-linear-gradient(top, #d42979 0%, #9c1e59 100%);
+  /* Opera 11.10+ */
+  background-color: -ms-linear-gradient(top, #d42979 0%, #9c1e59 100%);
+  /* IE10+ */
+  background-color: linear-gradient(top, #d42979 0%, #9c1e59 100%);
+  /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d42979', endColorstr='#9c1e59',GradientType=0 );
+  /* IE6-9 */ }
 
 .wb_button:active, .wb_button.active {
   border: #323232;
-  background: #FF4C96; }
+  background-color: #d34e8c;
+  /* Old browsers */
+  background-color: -moz-linear-gradient(top, #d34e8c 0%, #9b3163 100%);
+  /* FF3.6+ */
+  background-color: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #d34e8c), color-stop(100%, #9b3163));
+  /* Chrome,Safari4+ */
+  background-color: -webkit-linear-gradient(top, #d34e8c 0%, #9b3163 100%);
+  /* Chrome10+,Safari5.1+ */
+  background-color: -o-linear-gradient(top, #d34e8c 0%, #9b3163 100%);
+  /* Opera 11.10+ */
+  background-color: -ms-linear-gradient(top, #d34e8c 0%, #9b3163 100%);
+  /* IE10+ */
+  background-color: linear-gradient(top, #d34e8c 0%, #9b3163 100%);
+  /* W3C */
+  filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d34e8c', endColorstr='#9b3163',GradientType=0 );
+  /* IE6-9 */ }
 
 .wb_button:disabled, .wb_button.disabled {
   border: none;
@@ -323,9 +377,6 @@ Base site
 body.base-site {
   background: url("/static/images/wb_site/body_texture.png"); }
 
-#lang_form {
-  width: 50px; }
-
 #header-container {
   background: white;
   background-repeat: repeat-x;
@@ -343,7 +394,7 @@ body.base-site {
     #header-container #site-header #wb_logo {
       background-image: url(/static/images/wb_site/logo_header.png);
       height: 75px;
-      width: 300px;
+      width: 315px;
       position: absolute;
       left: 0; }
     #header-container #site-header .links {
@@ -474,7 +525,8 @@ body.base-site {
         margin-left: 10px;
         background: url("/static/images/wb_site/footer_icons.png") no-repeat; }
       #footer-container #site-footer #footer_tools .footer-icon.lang {
-        background-position: left 0; }
+        background-position: left 0;
+        margin-left: 0; }
       #footer-container #site-footer #footer_tools .footer-icon.fb {
         background-position: left -32px; }
       #footer-container #site-footer #footer_tools .footer-icon.tt {
@@ -912,7 +964,7 @@ Home
       .wb_home #booking_container #hotspot_content .cntr.select {
         width: 600px;
         margin: 0 auto;
-        padding-left: 30px; }
+        padding-left: 45px; }
       .wb_home #booking_container #hotspot_content #id_hotspot_select {
         width: 550px; }
       .wb_home #booking_container #hotspot_content #qm_votespot {
@@ -1092,7 +1144,7 @@ Home
   left: 4px; }
 .rtl.wb_home #booking_container #hotspot_content .cntr.select {
   padding-left: 0;
-  padding-right: 30px; }
+  padding-right: 45px; }
 .rtl.wb_home #booking_container #hotspot_content #leave_hotspot, .rtl.wb_home #booking_container #hotspot_content #goto_hotspot {
   padding-left: 15px;
   padding-right: 40px; }
