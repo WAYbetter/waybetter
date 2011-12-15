@@ -3,6 +3,7 @@ from django.conf.urls.defaults import *
 urlpatterns = patterns('',
     (r'credit_guard_page/$', 'billing.views.credit_guard_page'),
     (r'ride_csv_report/$', 'billing.views.get_csv'),
+    (r'ride_csv_report_task/$', 'billing.views.get_csv_task'),
     (r'bill_passenger/$', 'billing.views.bill_passenger'),
     url(r'tx_ok/$', 'billing.views.transaction_ok', name="trx_ok"),
     url(r'tx_notok/$', 'billing.views.transaction_error', name="trx_notok"),

@@ -51,8 +51,10 @@ def base_datepicker_page(request, f_data, template_name, wrapper_locals, init_st
         form = DatePickerForm()
         init_end_date = init_end_date or default_tz_now_max()
         init_start_date = init_start_date or default_tz_now_min()
-
-        data = simplejson.dumps(f_data(init_start_date, init_end_date))
+        if f_data:
+            data = simplejson.dumps(f_data(init_start_date, init_end_date))
+        else:
+            data = None
 
         start_date, end_date = to_js_date(init_start_date), to_js_date(init_end_date)
 

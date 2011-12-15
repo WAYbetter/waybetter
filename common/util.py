@@ -294,13 +294,17 @@ def get_unique_id():
 def notify_by_email(subject, msg=None, html=None):
     send_mail_as_noreply("notify@waybetter.com", "WAYbetter notification: %s" % subject, msg=msg, html=html)
 
-def send_mail_as_noreply(address, subject, msg=None, html=None):
+def send_mail_as_noreply(address, subject, msg=None, html=None, attachments=None):
     logging.info(u"Sending email to %s: [%s] %s" % (address, subject, msg))
     try:
         mail = EmailMessage()
         mail.sender = NO_REPLY_SENDER
         mail.to = address
         mail.subject = subject
+
+        if attachments:
+            mail.attachments = attachments
+
         if html:
             mail.html = html
         elif msg:
