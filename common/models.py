@@ -85,6 +85,8 @@ class BaseModel(models.Model):
                 logging.warning(msg)
             else:
                 raise TransactionError(msg)
+        else:
+            logging.info("%s.%s : update in transaction (%s --> %s)" % (self.__class__.__name__, attname, str(old_value), str(new_value)))
 
         return result
 
