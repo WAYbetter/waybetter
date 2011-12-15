@@ -31,8 +31,8 @@ COMPUTATION_FIRST_SUBMIT = 1
 COMPUTATION_SUBMIT_TO_SECONDARY = 2
 COMPUTATION_ABORT = 3
 
-COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT = 5 # minutes
-COMPUTATION_ABORT_TIMEOUT = 5 # minutes
+COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT = 3 # minutes
+COMPUTATION_ABORT_TIMEOUT = 3 # minutes
 
 def submit_to_prefetch(order, key, address_type):
     address = getattr(order, "%s_raw" % address_type).encode("utf-8")
@@ -165,7 +165,7 @@ def submit_computations_task(request):
             logging.info("skipping: no pending computations with key %s" % key)
             return HttpResponse("OK") # nothing to do, no pending computations
         
-    # first lets get rid of the duplicate ride_computations we might have
+        # first lets get rid of the duplicate ride_computations we might have
         if computation.change_status(old_status=RideComputationStatus.PENDING, new_status=RideComputationStatus.PROCESSING):
             computations = RideComputation.objects.filter(key=key, status=RideComputationStatus.PENDING)
             orders = [order for c in computations for order in c.orders.all()]
@@ -184,15 +184,19 @@ def submit_computations_task(request):
             except RideComputation.DoesNotExist:
                 pass
 
-
-    else:
+    else: # second or third step
         try:
-            computation = RideComputation.objects.get(key=key, status=RideComputationStatus.SUBMITTED)
+            computation = RideComputation.objects.get(key=key)
+            if computation.status in [RideComputationStatus.ABORTED, RideComputationStatus.IGNORED, RideComputationStatus.COMPLETED]:
+                return HttpResponse("Done")
+
         except RideComputation.DoesNotExist:
             pass
         
+
+    # applies to all steps
     if computation:
-        if submit_step == COMPUTATION_ABORT: # this is the second verification cycle
+        if submit_step == COMPUTATION_ABORT:
             abort_computation(computation)
             return HttpResponse("ABORTED") # abort task
 
@@ -206,9 +210,10 @@ def submit_computations_task(request):
             return HttpResponse("NO APPROVED ORDERS")
 
         algo_key = submit_orders_for_ride_calculation(approved_orders, key, params=params, use_secondary=bool(submit_step==COMPUTATION_SUBMIT_TO_SECONDARY))
+        logging.info("got algo key=%s" % algo_key)
         computation.algo_key = algo_key
         computation.change_status(old_status=RideComputationStatus.PROCESSING, new_status=RideComputationStatus.SUBMITTED) # saves
-        
+
         if submit_step == COMPUTATION_FIRST_SUBMIT:
             submit_computations(key, datetime.now() + timedelta(minutes=COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT), submit_step=COMPUTATION_SUBMIT_TO_SECONDARY)
         elif submit_step == COMPUTATION_SUBMIT_TO_SECONDARY:
@@ -238,7 +243,9 @@ def ride_calculation_complete(request):
     logging.info("ride_calculation_complete: %s" % request)
     result_id = request.POST.get('id')
     if result_id:
-        task = taskqueue.Task(url=reverse(fetch_ride_results_task), params={"result_id": result_id})
+        # submit_computations_task may take some time to save the algo key and SUMBITTED status
+        # so we set a countdown timer in case the algo. called calculation_complete too early
+        task = taskqueue.Task(url=reverse(fetch_ride_results_task), params={"result_id": result_id}, countdown=10)
         q = taskqueue.Queue('orders')
         q.add(task)
 
