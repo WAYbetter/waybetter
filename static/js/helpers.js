@@ -97,6 +97,7 @@ var MyRidesHelper = Object.create({
         }
         $row.append('<td>' + order.from + '</td>');
         $row.append('<td>' + order.to + '</td>');
+        $row.append('<td>' + order.num_seats + '</td>');
         $row.append('<td>' + order.when + '</td>');
         $row.append('<td>' + order.price + '</td>');
 

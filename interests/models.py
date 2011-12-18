@@ -83,5 +83,5 @@ class HotspotInterest(BaseModel):
     suggestion = models.CharField(_("My Suggestion"), max_length=500)
     email = models.EmailField(_("My Email"))
 
-    def notify(self):
-        notify_by_email("New Votespot from %s" % self.email, msg=self.suggestion)
+#    def notify(self):
+#        notify_by_email("New Votespot from %s" % self.email, msg=self.suggestion)

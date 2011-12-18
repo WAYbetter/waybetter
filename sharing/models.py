@@ -4,13 +4,13 @@ from common.tz_support import default_tz_now, to_task_name_safe, ceil_datetime, 
 from common.util import phone_validator
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
+from django.conf import settings
 from common.util import convert_python_weekday, datetimeIterator
 from common.models import BaseModel, Country, City, CityAreaField, CityArea
 from ordering.models import Passenger, Station
 from pricing.models import RuleSet, AbstractTemporalRule
 from datetime import datetime, date, timedelta, time
 import calendar
-import settings
 
 ALGO_COMPUTATION_DELTA = timedelta(minutes=5)
 FAX_HANDLING_DELTA = timedelta(minutes=2)
@@ -28,7 +28,7 @@ class HotSpot(BaseModel):
     name = models.CharField(_("hotspot name"), max_length=50)
     description = models.CharField(_("hotspot description"), max_length=100, null=True, blank=True)
 
-    station = models.ForeignKey(Station, related_name="hotspots", null=True, blank=True)
+    station = models.ForeignKey(Station, related_name="hotspots")
     dispatching_time = models.PositiveIntegerField(verbose_name=_("Dispatching Time"), help_text=_("In minutes"), default=7)
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="hotspots")
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="hotspots")
@@ -48,29 +48,64 @@ class HotSpot(BaseModel):
         """
         return "_".join([str(self.id), hotspot_direction, to_task_name_safe(hotspot_datetime)])
 
-    def get_price(self, lat, lon, day, t):
+    def get_cost(self, lat, lon, day, t, num_seats=1):
+        cost = None
+
+        active_rules = filter(lambda r: r.is_active(lat, lon, self.lat, self.lon, day, t), self.station.fixed_prices.all())
+        if active_rules:
+            cost = min([r.price for r in active_rules])
+
+        return cost
+
+    def get_private_price(self, lat, lon, day, t, num_seats=1):
+        cost = self.get_cost(lat, lon, day, t)
+        return round(cost + PRIVATE_RIDE_HANDLING_FEE, 2) if cost else None
+
+    def get_sharing_price(self, lat, lon, day, t, num_seats=1):
         """
         @param lat:
         @param lon:
         @param day: date of ride
         @param t: time of ride
-        @return: price as float if any price found, otherwise returns None
+        @param num_seats: number of seats
+        @return: price (float) or None
         """
-        #noinspection PyUnresolvedReferences
-        for rule_id in self.get_hotspotcustompricerule_order():
-            rule = HotSpotCustomPriceRule.by_id(rule_id)
+        price = None
+        cost = self.get_cost(lat, lon, day, t, num_seats)
 
-            if rule.is_active(lat, lon, day, t):
-                return rule.price
+        if num_seats > 2:
+            price = cost
+        else:
+            base_sharing_price = None
 
-        active_rule_set = RuleSet.get_active_set(day, t)
-        if active_rule_set:
-            active_tariff_rules = self.tariff_rules.filter(rule_set=active_rule_set)
-            for rule in CityArea.relative_sort_models(active_tariff_rules):
-                if rule.is_active(lat, lon):
-                    return rule.price
+            # 1. first check for a custom price rules
+            #noinspection PyUnresolvedReferences
+            for rule_id in self.get_hotspotcustompricerule_order():
+                rule = HotSpotCustomPriceRule.by_id(rule_id)
 
-        return None
+                if rule.is_active(lat, lon, day, t):
+                    base_sharing_price = rule.price
+
+            # 2. tariff price rules
+            if not base_sharing_price:
+                active_rule_set = RuleSet.get_active_set(day, t)
+                if active_rule_set:
+                    active_tariff_rules = self.tariff_rules.filter(rule_set=active_rule_set)
+                    for rule in CityArea.relative_sort_models(active_tariff_rules):
+                        if rule.is_active(lat, lon):
+                            base_sharing_price = rule.price
+
+            # 3. fallback to half the cost
+            if not base_sharing_price:
+                base_sharing_price = 0.5 * cost if cost else None
+
+            if num_seats == 1:
+                price = base_sharing_price
+            elif num_seats == 2:
+                delta = max([cost - base_sharing_price, 0])
+                price = base_sharing_price + 0.5 * delta
+
+        return round(price, 2) if price else None
 
     def get_allowed_ordering_time(self, hotspot_type):
         allowed_time = None
@@ -180,7 +215,7 @@ class HotSpot(BaseModel):
     def serialize_for_order(self, address_type):
         # TODO_WB: add house number field to hotspot model
         hn = re.search("(\d+)", self.address)
-        hn = hn.groups()[0] if hn else 0
+        hn = str(hn.groups()[0] if hn else 0)
 
         return {'%s_raw' % address_type: '%s, %s' % (self.address, self.city),
                 '%s_street_address' % address_type: self.address.replace(hn, ""),
@@ -208,7 +243,7 @@ class HotSpotServiceRule(AbstractTemporalRule):
         t1 = start_time or time.min
         t2 = end_time or time.max
         today = date.today()
-        
+
         times = []
         itr = datetimeIterator(datetime.combine(today, self.from_hour), datetime.combine(today, self.to_hour), delta=timedelta(minutes=self.interval))
         for d in itr:

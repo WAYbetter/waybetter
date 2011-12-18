@@ -162,11 +162,11 @@
                     <div id="num_seats">
                         <span class="details_label">{% trans "Number of Seats" %}</span>
                         <span class="radio">
-                            <input type="radio" name="num_seats" value="1"/>1
-                            <input type="radio" name="num_seats" disabled="disabled" value="2"/>2
-                            <input type="radio" name="num_seats" disabled="disabled" value="3"/>3
-                            <input type="radio" name="num_seats" disabled="disabled" value="4"/>4
+                            <input type="radio" name="num_seats" value="1" checked="checked"/>1
+                            <input type="radio" name="num_seats" value="2"/>2
+                            <input type="radio" name="num_seats" value="3"/>3
                         </span>
+                        <span id="num_seats_loader" class="small-loader"></span>
                     </div>
                 </div>
 
@@ -503,6 +503,7 @@
         log("clearRideDetails");
 
         $("#book_ride").disable();
+        $("#savings .label").text("{% trans "Updating..." %}");
         $("#savings .value").text("");
         $("#sharing_price .value").text(0);
         $("#sharing_time .value").text(0);
@@ -530,6 +531,7 @@
             },
             beforeSend: function() {
                 $("#datetime_loader").show();
+                $("#num_seats_loader").show();
             },
             success: function(response) {
                 if (response.sharing_price && response.sharing_time && response.private_price && response.private_time) {
@@ -537,6 +539,7 @@
                     $("#sharing_time .value").text(response.sharing_time);
                     $("#private_price .value").text(response.private_price);
                     $("#private_time .value").text(response.private_time);
+                    $("#savings .label").text("{% trans "SAVE" %}");
                     $("#savings .value").text(response.savings + "%");
                     $("#book_ride").enable();
 
@@ -554,6 +557,7 @@
             },
             complete: function() {
                 $("#datetime_loader").hide();
+                $("#num_seats_loader").hide();
             }
         });
     }
@@ -613,6 +617,7 @@
             dropoff_time:"{% trans 'Dropoff Time' %}"
         };
         BookingHelper.hotspot_type = "dropoff";
+        BookingHelper.num_seats = 1;
 
         {% if request.user.passenger %}
             MyRidesHelper.init({
@@ -670,7 +675,7 @@
                     var ride_duration_ms = HotspotHelper.ride_duration * 1000;
                     var est_pickup_private = new Date(d - ride_duration_ms);
                     var est_pickup_shared = new Date(d - ride_duration_ms * SHARING_TIME_FACTOR);
-                    var time_txt = getFullTime(est_pickup_shared) + " - " + getFullTime(est_pickup_private);
+                    var time_txt = getFullTime(est_pickup_shared) + "-" + getFullTime(est_pickup_private);
                     var text = (d.getDate() == est_pickup_shared.getDate()) ?
                             time_txt : getFullDate(est_pickup_shared) + " {% trans 'at' %} " + time_txt;
 
@@ -933,8 +938,8 @@
         });
         $("#num_seats input:radio").change(function() {
             BookingHelper.num_seats = $(this).val();
+            getRideDetails({});
         });
-        $("#num_seats input:radio").eq(0).change().attr("checked", "checked");
         $("#book_ride").click(function() {
             bookRide();
         });

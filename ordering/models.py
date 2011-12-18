@@ -860,6 +860,7 @@ class Order(BaseModel):
     depart_time = UTCDateTimeField(_("depart time"), null=True, blank=True)
     arrive_time = UTCDateTimeField(_("arrive time"), null=True, blank=True)
     price = models.FloatField(null=True, blank=True, editable=False)
+    num_seats = models.PositiveIntegerField(default=1)
 
     # ratings
     passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)
@@ -879,10 +880,11 @@ class Order(BaseModel):
         else:
             type = _("shared")
 
-        return _('%(date)s: Taxi ride from %(pickup)s to %(dropoff)s') % {
+        return _('%(date)s: Taxi ride from %(pickup)s to %(dropoff)s %(seats)s') % {
             "pickup"    : self.from_raw,
             "dropoff"   : self.to_raw,
-            "date"      : self.depart_time_format()
+            "date"      : self.depart_time_format(),
+            "seats"     : "(%s %s)" % (self.num_seats, ugettext("seats")) if self.num_seats > 1 else ""
         }
 
     def save(self, *args, **kwargs):
@@ -1026,10 +1028,11 @@ class Order(BaseModel):
                  "passenger_id": self.passenger_id,
                  "to_address": self.to_raw,
                  "to_lat": self.to_lat,
-                 "to_lon": self.to_lon }
+                 "to_lon": self.to_lon,
+                 "num_seats": self.num_seats}
 
     def serialize_for_myrides(self):
-        return {'id': self.id, 'type': self.type, 'from': self.from_raw, 'to': self.to_raw,
+        return {'id': self.id, 'type': self.type, 'from': self.from_raw, 'to': self.to_raw, 'num_seats': self.num_seats,
                 'when': self.get_pickup_str(), 'price': self.price}
 
 class OrderAssignment(BaseModel):
