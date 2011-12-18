@@ -31,6 +31,8 @@
 
     <div id="booking_container">
 
+        <div id="booking_loader" class="medium-loader"></div>
+
         <div id="savings" class="hidden">
             <div class="content">
                 <span class="label">{% trans "SAVE" %} </span>
@@ -38,7 +40,7 @@
             </div>
         </div>
 
-        <div id="booking_content">
+        <div id="booking_content" class="hidden">
 
             <div id="hotspot_content" class="booking_step hidden">
                 <div class="title">{% trans "Choose a Hotspot" %}</div>
@@ -322,7 +324,8 @@
     var SLIDE_DIR = (RTL) ? "right" : "left";
 
     function initBookingContent() {
-        $("#booking_progress").fadeIn("fast");
+        $("#booking_loader").hide();
+        $("#booking_content, #booking_progress").fadeIn("fast");
         // for some strange reason first slide is '1' for booking content (not 0)
         $('#booking_content').slides({
             slide:{
@@ -405,10 +408,9 @@
             BookingHelper.hotspot_type = (BookingHelper.hotspot_type == PICKUP) ? DROPOFF : PICKUP;
         }
 
-        if (BookingHelper.hotspot_type) {
-            HotspotHelper.refreshHotspotMarker(BookingHelper.hotspot_type);
-        }
+        HotspotHelper.refreshHotspotMarker(BookingHelper.hotspot_type);
         if (BookingHelper.address) {
+            CMHelper.removeMarker("A, B");
             var add_marker_method = (BookingHelper.hotspot_type == PICKUP) ? "addBMarker" : "addAMarker";
             CMHelper[add_marker_method](BookingHelper.address.lat, BookingHelper.address.lon, {title: BookingHelper.address.name});
         }
@@ -683,7 +685,7 @@
                 }
             },
             successCallback: function(){
-                var $option = $("<option id='opt_votespot'>{% trans "Suggest a Hotspot" %}</option>");
+                var $option = $("<option id='opt_votespot'>** {% trans "Suggest a Hotspot" %} **</option>");
                 $("#id_hotspot_select").append($option);
                 initBookingContent();
             }
@@ -820,6 +822,7 @@
                     },
                     resolved: function(address) {
                         BookingHelper.address = address;
+                        CMHelper.removeMarker("A, B");
                         if (BookingHelper.hotspot_type == PICKUP) {
                             CMHelper.addBMarker(address.lat, address.lon, {title: address.name})
                         }
@@ -992,7 +995,7 @@
             Registrator.openFeedbackDialog();
         });
 
-        $("#sitemap ul:last").append('<li><a href="#" onclick="Registrator.openPilotInterestDialog()">{% trans "Join the private Beta" %}</a></li>');
+        $("#sitemap ul:last").append('<li><a href="#" onclick="Registrator.openPilotInterestDialog()">{% trans "Send me info" %}</a></li>');
     });
 
     // debug

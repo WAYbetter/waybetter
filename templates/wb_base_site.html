@@ -23,6 +23,7 @@
                                 {% endif %}
                             </li>
                             <li><a name="about" class="menu_link dropdown-trigger">{% trans "About" %}</a></li>
+                            <li><a href="{% value_from_settings FACEBOOK_APP_URL%}" target="_blank" class="menu_link">{% trans "Facebook" %}</a></li>
                             <li>
                                 {% if request.user.is_authenticated %}
                                     <a name="account" class="menu_link dropdown-trigger bold">{% trans "Hi" %}
