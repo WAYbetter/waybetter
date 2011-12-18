@@ -165,8 +165,8 @@
                             <input type="radio" name="num_seats" value="1" checked="checked"/>1
                             <input type="radio" name="num_seats" value="2"/>2
                             <input type="radio" name="num_seats" value="3"/>3
-                            <input type="radio" name="num_seats" value="4"/>4
                         </span>
+                        <span id="num_seats_loader" class="small-loader"></span>
                     </div>
                 </div>
 
@@ -531,6 +531,7 @@
             },
             beforeSend: function() {
                 $("#datetime_loader").show();
+                $("#num_seats_loader").show();
             },
             success: function(response) {
                 if (response.sharing_price && response.sharing_time && response.private_price && response.private_time) {
@@ -556,6 +557,7 @@
             },
             complete: function() {
                 $("#datetime_loader").hide();
+                $("#num_seats_loader").hide();
             }
         });
     }
@@ -673,7 +675,7 @@
                     var ride_duration_ms = HotspotHelper.ride_duration * 1000;
                     var est_pickup_private = new Date(d - ride_duration_ms);
                     var est_pickup_shared = new Date(d - ride_duration_ms * SHARING_TIME_FACTOR);
-                    var time_txt = getFullTime(est_pickup_shared) + " - " + getFullTime(est_pickup_private);
+                    var time_txt = getFullTime(est_pickup_shared) + "-" + getFullTime(est_pickup_private);
                     var text = (d.getDate() == est_pickup_shared.getDate()) ?
                             time_txt : getFullDate(est_pickup_shared) + " {% trans 'at' %} " + time_txt;
 

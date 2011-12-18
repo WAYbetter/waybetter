@@ -1147,9 +1147,9 @@ Home
         #ride_summary{
             position: absolute;
             left: $padding;
-            width: 250px;
+            width: 260px;
             font-size: $font-size-medium;
-            padding-right: 20px;
+            padding-right: 15px;
             border-right: 1px solid gray;
             span, p, div{color: #4d4d4d;}
             .data{
@@ -1176,11 +1176,18 @@ Home
                 @extend .wb_link;
             }
             .hotspot .desc{font-style: italic;}
-            #num_seats input{
-                height: auto;
-            }
+            #num_seats { position: relative; }
+            #num_seats input{ height: auto; }
             #num_seats .radio{
                 float: right;
+                position: relative;
+                right: 10px;
+                bottom: 2px;
+            }
+            #num_seats_loader{
+                position: absolute;
+                right: -10px;
+                top: 0;
             }
         }
         #ride_details{
@@ -1313,7 +1320,14 @@ Home
                 }
                 #num_seats .radio{
                     float: left;
+                    right: auto;
+                    left: 10px;
                 }
+                #num_seats_loader{
+                    right: auto;
+                    left: -10px;
+                }
+
             }
             #ride_details{
                 right: auto;

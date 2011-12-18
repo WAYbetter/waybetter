@@ -1028,9 +1028,9 @@ Home
     .wb_home #booking_container #ride_summary {
       position: absolute;
       left: 10px;
-      width: 250px;
+      width: 260px;
       font-size: 13px;
-      padding-right: 20px;
+      padding-right: 15px;
       border-right: 1px solid gray; }
       .wb_home #booking_container #ride_summary span, .wb_home #booking_container #ride_summary p, .wb_home #booking_container #ride_summary div {
         color: #4d4d4d; }
@@ -1049,10 +1049,19 @@ Home
         float: right; }
       .wb_home #booking_container #ride_summary .hotspot .desc {
         font-style: italic; }
+      .wb_home #booking_container #ride_summary #num_seats {
+        position: relative; }
       .wb_home #booking_container #ride_summary #num_seats input {
         height: auto; }
       .wb_home #booking_container #ride_summary #num_seats .radio {
-        float: right; }
+        float: right;
+        position: relative;
+        right: 10px;
+        bottom: 2px; }
+      .wb_home #booking_container #ride_summary #num_seats_loader {
+        position: absolute;
+        right: -10px;
+        top: 0; }
     .wb_home #booking_container #ride_details {
       position: absolute;
       right: 75px;
@@ -1167,7 +1176,12 @@ Home
   .rtl.wb_home #booking_container #ride_summary #switch_direction {
     float: left; }
   .rtl.wb_home #booking_container #ride_summary #num_seats .radio {
-    float: left; }
+    float: left;
+    right: auto;
+    left: 10px; }
+  .rtl.wb_home #booking_container #ride_summary #num_seats_loader {
+    right: auto;
+    left: -10px; }
 .rtl.wb_home #booking_container #ride_details {
   right: auto;
   left: 75px; }
