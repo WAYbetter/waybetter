@@ -214,7 +214,7 @@
             </div>
         </div>
 
-        <div id="booking_progress">
+        <div id="booking_progress" class="hidden">
             <table>
                 <tr>
                     <td><a class="hotspot step current" data-name="hotspot">1. {% trans "Choose Hotspot" %}</a></td>
@@ -250,8 +250,7 @@
                 </td>
                 <td class="iphone vendor">
                     <div class="app-icon clickable centered"></div>
-{#                    <a href="{% value_from_settings "APPLE_WAYBETTER_ITUNES_URL" %}" class="wb_link">{% trans "Get the iPhone App" %} ></a>#}
-                    <a>{% trans "iPhone App coming in a few days" %}</a>
+                    <a href="{% value_from_settings "APPLE_WAYBETTER_ITUNES_URL" %}" class="wb_link">{% trans "Get the iPhone App" %} ></a>
                 </td>
                 <td>
                     <div class="vr"></div></td>
@@ -323,6 +322,7 @@
     var SLIDE_DIR = (RTL) ? "right" : "left";
 
     function initBookingContent() {
+        $("#booking_progress").fadeIn("fast");
         // for some strange reason first slide is '1' for booking content (not 0)
         $('#booking_content').slides({
             slide:{
