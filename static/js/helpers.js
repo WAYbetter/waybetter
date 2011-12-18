@@ -767,20 +767,23 @@ var CMHelper = Object.create({
         options = $.extend(true, {}, options, {icon_image: "/static/images/wb_site/map_pin_B.png", marker_name: "B"});
         this.addMarker(lat, lon, options);
     },
-    removeMarker: function(marker_name) {
+    removeMarker: function(names) {
         var that = this;
-        if (marker_name == "all") {
+        if (names == "all") {
             $.each(this.markers, function(i, marker) {
                 that.map.removeOverlay(marker);
             });
             that.markers = {};
         }
         else {
-            var marker = this.markers[marker_name];
-            if (marker) {
-                this.map.removeOverlay(marker);
-                delete this.markers.marker_name;
-            }
+            $.each(names.split(","), function(i, name){
+                name = name.trim();
+                var marker = that.markers[name];
+                if (marker) {
+                    that.map.removeOverlay(marker);
+                    delete that.markers[name];
+                }
+            })
         }
     }
 });

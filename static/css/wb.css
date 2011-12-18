@@ -43,7 +43,7 @@ select {
 select:focus {
   border: none; }
 
-.bold, .wb_home #booking_container #booking_progress .step.current, .wb_home #booking_container #ride_summary .details_label, .wb_home #booking_container #ride_summary .details_label_type {
+.bold, .wb_home #booking_container #booking_progress .step.current, .wb_home #booking_container #booking_progress .step.completed.current, .wb_home #booking_container #ride_summary .details_label, .wb_home #booking_container #ride_summary .details_label_type {
   font-weight: bold; }
 
 .transparent {
@@ -213,64 +213,67 @@ ul.hz > li, #top-right ul.content_links > li {
   -webkit-box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.7);
   -moz-box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.7);
   box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.7);
-  background-color: #727272;
+  background-image: #727272;
   /* Old browsers */
-  background-color: -moz-linear-gradient(top, #727272 0%, #454545 100%);
+  background-image: -moz-linear-gradient(top, #727272 0%, #454545 100%);
   /* FF3.6+ */
-  background-color: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #727272), color-stop(100%, #454545));
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #727272), color-stop(100%, #454545));
   /* Chrome,Safari4+ */
-  background-color: -webkit-linear-gradient(top, #727272 0%, #454545 100%);
+  background-image: -webkit-linear-gradient(top, #727272 0%, #454545 100%);
   /* Chrome10+,Safari5.1+ */
-  background-color: -o-linear-gradient(top, #727272 0%, #454545 100%);
+  background-image: -o-linear-gradient(top, #727272 0%, #454545 100%);
   /* Opera 11.10+ */
-  background-color: -ms-linear-gradient(top, #727272 0%, #454545 100%);
+  background-image: -ms-linear-gradient(top, #727272 0%, #454545 100%);
   /* IE10+ */
-  background-color: linear-gradient(top, #727272 0%, #454545 100%);
+  background-image: linear-gradient(top, #727272 0%, #454545 100%);
   /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#727272', endColorstr='#454545',GradientType=0 );
   /* IE6-9 */ }
 
 .wb_button:hover, .wb_button.hover {
   border: #454545;
-  background-color: #d42979;
+  background-image: #d42979;
   /* Old browsers */
-  background-color: -moz-linear-gradient(top, #d42979 0%, #9c1e59 100%);
+  background-image: -moz-linear-gradient(top, #d42979 0%, #9c1e59 100%);
   /* FF3.6+ */
-  background-color: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #d42979), color-stop(100%, #9c1e59));
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #d42979), color-stop(100%, #9c1e59));
   /* Chrome,Safari4+ */
-  background-color: -webkit-linear-gradient(top, #d42979 0%, #9c1e59 100%);
+  background-image: -webkit-linear-gradient(top, #d42979 0%, #9c1e59 100%);
   /* Chrome10+,Safari5.1+ */
-  background-color: -o-linear-gradient(top, #d42979 0%, #9c1e59 100%);
+  background-image: -o-linear-gradient(top, #d42979 0%, #9c1e59 100%);
   /* Opera 11.10+ */
-  background-color: -ms-linear-gradient(top, #d42979 0%, #9c1e59 100%);
+  background-image: -ms-linear-gradient(top, #d42979 0%, #9c1e59 100%);
   /* IE10+ */
-  background-color: linear-gradient(top, #d42979 0%, #9c1e59 100%);
+  background-image: linear-gradient(top, #d42979 0%, #9c1e59 100%);
   /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d42979', endColorstr='#9c1e59',GradientType=0 );
   /* IE6-9 */ }
 
 .wb_button:active, .wb_button.active {
   border: #323232;
-  background-color: #d34e8c;
+  background-image: #d34e8c;
   /* Old browsers */
-  background-color: -moz-linear-gradient(top, #d34e8c 0%, #9b3163 100%);
+  background-image: -moz-linear-gradient(top, #d34e8c 0%, #9b3163 100%);
   /* FF3.6+ */
-  background-color: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #d34e8c), color-stop(100%, #9b3163));
+  background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #d34e8c), color-stop(100%, #9b3163));
   /* Chrome,Safari4+ */
-  background-color: -webkit-linear-gradient(top, #d34e8c 0%, #9b3163 100%);
+  background-image: -webkit-linear-gradient(top, #d34e8c 0%, #9b3163 100%);
   /* Chrome10+,Safari5.1+ */
-  background-color: -o-linear-gradient(top, #d34e8c 0%, #9b3163 100%);
+  background-image: -o-linear-gradient(top, #d34e8c 0%, #9b3163 100%);
   /* Opera 11.10+ */
-  background-color: -ms-linear-gradient(top, #d34e8c 0%, #9b3163 100%);
+  background-image: -ms-linear-gradient(top, #d34e8c 0%, #9b3163 100%);
   /* IE10+ */
-  background-color: linear-gradient(top, #d34e8c 0%, #9b3163 100%);
+  background-image: linear-gradient(top, #d34e8c 0%, #9b3163 100%);
   /* W3C */
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#d34e8c', endColorstr='#9b3163',GradientType=0 );
   /* IE6-9 */ }
 
 .wb_button:disabled, .wb_button.disabled {
   border: none;
-  background: #C7C7C7; }
+  background: #C7C7C7;
+  -webkit-box-shadow: none;
+  -moz-box-shadow: none;
+  box-shadow: none; }
 
 .order_button {
   font-size: 16px;
@@ -392,7 +395,7 @@ body.base-site {
     margin: 0 auto;
     position: relative; }
     #header-container #site-header #wb_logo {
-      background-image: url(/static/images/wb_site/logo_header_alpha.png);
+      background-image: url(/static/images/wb_site/logo_header_beta.png);
       background-repeat: no-repeat;
       height: 75px;
       width: 330px;
@@ -873,11 +876,15 @@ Home
     padding: 0;
     height: 255px;
     margin-bottom: 40px; }
+    .wb_home #booking_container #booking_loader {
+      background: url(/static/images/wb_site/wb_loader30.gif) center center no-repeat;
+      height: 100%;
+      width: 100%; }
     .wb_home #booking_container #savings {
       position: absolute;
       right: -22px;
       top: 20px;
-      width: 158px;
+      width: 135px;
       height: 74px;
       background: url("/static/images/wb_site/ribbon.png") 0 0 no-repeat; }
       .wb_home #booking_container #savings .content {
@@ -908,7 +915,7 @@ Home
         height: 25px; }
       .wb_home #booking_container #booking_progress .step.details {
         cursor: default; }
-      .wb_home #booking_container #booking_progress .step.current {
+      .wb_home #booking_container #booking_progress .step.current, .wb_home #booking_container #booking_progress .step.completed.current {
         color: #eb1f79; }
       .wb_home #booking_container #booking_progress .step.disabled {
         cursor: default;
@@ -986,14 +993,6 @@ Home
         text-align: right; }
       .wb_home #booking_container #hotspot_content td.second {
         text-align: left; }
-      .wb_home #booking_container #hotspot_content #leave_hotspot, .wb_home #booking_container #hotspot_content #goto_hotspot {
-        background-image: url("/static/images/wb_site/field_icons.png");
-        background-repeat: no-repeat;
-        padding-left: 50px; }
-      .wb_home #booking_container #hotspot_content #leave_hotspot {
-        background-position: 10px 8px; }
-      .wb_home #booking_container #hotspot_content #goto_hotspot {
-        background-position: 10px -46px; }
     .wb_home #booking_container #address_content {
       padding-right: 45px;
       padding-left: 45px;
@@ -1064,7 +1063,7 @@ Home
         top: 0; }
     .wb_home #booking_container #ride_details {
       position: absolute;
-      right: 75px;
+      right: 41px;
       top: 30px;
       width: 435px; }
       .wb_home #booking_container #ride_details #offer .price, .wb_home #booking_container #ride_details #offer .time {
@@ -1155,17 +1154,10 @@ Home
 .rtl.wb_home #booking_container #hotspot_content .cntr.select {
   padding-left: 0;
   padding-right: 45px; }
-.rtl.wb_home #booking_container #hotspot_content #leave_hotspot, .rtl.wb_home #booking_container #hotspot_content #goto_hotspot {
-  padding-left: 15px;
-  padding-right: 40px; }
 .rtl.wb_home #booking_container #hotspot_content td.first {
   text-align: left; }
 .rtl.wb_home #booking_container #hotspot_content td.second {
   text-align: right; }
-.rtl.wb_home #booking_container #hotspot_content #leave_hotspot {
-  background-position: right 8px; }
-.rtl.wb_home #booking_container #hotspot_content #goto_hotspot {
-  background-position: right -46px; }
 .rtl.wb_home #booking_container #ride_summary {
   left: auto;
   right: 10px;
@@ -1184,7 +1176,7 @@ Home
     left: -10px; }
 .rtl.wb_home #booking_container #ride_details {
   right: auto;
-  left: 75px; }
+  left: 41px; }
   .rtl.wb_home #booking_container #ride_details #offer .offer-pre {
     text-align: left; }
   .rtl.wb_home #booking_container #ride_details #offer .offer-post {

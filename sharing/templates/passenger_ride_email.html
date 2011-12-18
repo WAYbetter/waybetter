@@ -3,7 +3,11 @@
 {% get_current_language_bidi as LANGUAGE_BIDI %}
 <html>
 	<body style="font-family:Arial, sans-serif; font-size:13px" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
-		<p>
+        <p style="text-align: center;">
+            <img width="207" height="207" src="http://{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/email_logo.jpg"/>
+        </p>
+
+        <p>
             {% blocktrans %}Hi {{ passenger_name }},{% endblocktrans %}
 		</p>
 		<p>
@@ -55,7 +59,7 @@
         <p><a href="http://www.waybetter.com/{% url my_rides %}">-{% trans "View your order on our website" %}-</a></p>
 
         <p style="text-align: center;">
-            <img width="800" height="349" src="http://{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/ny_taxi.png"/>
+            <img width="508" height="349" src="http://{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/ny_taxi.png"/>
         </p>
 
 
