@@ -16,22 +16,22 @@
                     {% block header_links %}
                         <ul class="links hz">
                             <li class="first">
-                                <span id="lang_top" class="change-lang-top menu_link clickable">
-                                    <span class="change-lang-top dropdown-trigger"></span>
-                                    Language
-                                </span>
+                                {% if LANGUAGE_CODE == "he" %}
+                                    <a id="change_lang" class="menu_link clickable" data-code="en">English</a>
+                                {% else %}
+                                    <a id="change_lang" class="menu_link clickable" data-code="he">עברית</a>
+                                {% endif %}
                             </li>
-                            <li><a class="menu_link" href="{% url the_service %}">{% trans "The Service" %}</a></li>
+                            <li><a name="about" class="menu_link dropdown-trigger">{% trans "About" %}</a></li>
                             <li>
                                 {% if request.user.is_authenticated %}
-                                    <span class="menu_link bold">{% trans "Hi" %}
+                                    <a name="account" class="menu_link dropdown-trigger bold">{% trans "Hi" %}
                                         {% if request.user.first_name %}
                                             {{ request.user.first_name }}
                                         {% else %}
                                             {{ request.user.username }}
                                         {% endif %}
-                                    </span>
-                                    <a class="menu_link" href="{% url auth_logout %}">({% trans "Log Out" %})</a>
+                                    </a>
                                 {% else %}
                                     <a class="menu_link" href="{% url auth_login %}">{% trans "Log-in" %}</a>
                                 {% endif %}
@@ -39,17 +39,33 @@
                         </ul>
                     {% endblock %}
                     <div class="clear"></div>
-                    <form action="/i18n/setlang/" method="post" id="lang_form" class="hidden">
-                        {% csrf_token %}
-                        <input type="hidden" name="language" id="language"/>
-                        <ul class="wbdropdown-list">
-                            <li data-code="he" class="clickable">עברית</li>
-                            <li data-code="en" class="clickable">English</li>
-{#                            <li data-code="" class="disabled">Русский</li>#}
-{#                            <li data-code="" class="disabled">français</li>#}
-                        </ul>
-                    </form>
                 </div>
+
+                <ul class="wbdropdown-list hidden" name="lang" id="lang_dropdown">
+                    <li data-code="he" class="clickable"><a>עברית</a></li>
+                    <li data-code="en" class="clickable"><a>English</a></li>
+                </ul>
+                <ul class="wbdropdown-list hidden" name="about">
+                    <li><a href="{% url the_service %}">{% trans "The Service" %}</a></li>
+                    <li><a href="{% url about_us %}">{% trans "About Us" %}</a></li>
+                    <li><a href="{% url faq %}">{% trans "FAQ" %}</a></li>
+                    <li><a href="{% url contact %}">{% trans "Contact Us" %}</a></li>
+                </ul>
+                <ul class="wbdropdown-list hidden" name="account">
+                    {% if request.user.is_authenticated %}
+                        <li><a href="{% url my_rides %}">{% trans "Rides" %}</a></li>
+                        <li><a href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
+                    {% else %}
+                        <li><a href="{% url auth_login %}">{% trans "Log In" %}</a></li>
+                        <li><a href="{% url join %}">{% trans "Join" %}</a></li>
+                    {% endif %}
+                </ul>
+
+                <form action="/i18n/setlang/" method="post" id="lang_form" class="hidden">
+                    {% csrf_token %}
+                    <input type="hidden" name="language" id="language"/>
+                </form>
+
             </div>
             <!-- END Header -->
         {% endif %}
@@ -128,34 +144,29 @@
                             <ul>
                                 <li>WAYbetter</li>
                                 <li><a href="{% url wb_home %}">{% trans "Home" %}</a></li>
-                                <li><a>{% trans "Mobile" %}</a></li>
                                 <li><a href="{% url pickmeapp %}">{% trans "PickMeApp" %}</a></li>
                                 <li><a href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
                                 <li><a href="{% url privacy %}">{% trans "Privacy Policy" %}</a></li>
                             </ul>
                             <ul>
                                 <li><a>{% trans "About" %}</a></li>
-                                <li><a href="{% url about_us %}">{% trans "About Us" %}</a></li>
                                 <li><a href="{% url the_service %}">{% trans "The Service" %}</a></li>
+                                <li><a href="{% url about_us %}">{% trans "About Us" %}</a></li>
                                 <li><a href="{% url faq %}">{% trans "FAQ" %}</a></li>
-                                <li><a>{% trans "Press" %}</a></li>
                                 <li><a href="{% url contact %}">{% trans "Contact Us" %}</a></li>
                             </ul>
                             <ul>
                                 <li><a>{% trans "Community" %}</a></li>
-                                <li><a href="{% value_from_settings FACEBOOK_APP_URL%}">{% trans "Facebook" %}</a></li>
-                                <li><a>{% trans "Twitter" %}</a></li>
-                                <li><a>{% trans "Stations" %}</a></li>
+                                <li><a href="{% value_from_settings FACEBOOK_APP_URL%}" target="_blank">{% trans "Facebook" %}</a></li>
                             </ul>
 
                             <ul>
                                 {% if request.user.is_authenticated %}
                                     <li><a>{% trans "My Account" %}</a></li>
                                     <li><a href="{% url my_rides %}">{% trans "Rides" %}</a></li>
-                                    <li><a>{% trans "Profile" %}</a></li>
+{#                                    <li><a>{% trans "Profile" %}</a></li>#}
                                     <li><a href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
                                 {% else %}
-                                    <li><a>{% trans "Account" %}</a></li>
                                     <li><a href="{% url auth_login %}">{% trans "Log In" %}</a></li>
                                     <li>
                                         <a href="{% url join %}">{% trans "Join" %}</a>
@@ -165,15 +176,14 @@
                             </ul>
                         </div>
                         <div id="footer_tools">
-                            <div class="clickable ltr">
-                                <div class="footer-icon lang change-lang-footer"></div>
-                                <div class="lang-code change-lang-footer ">
+                            <div class="ltr dropdown-trigger white" name="lang">
+                                <div class="footer-icon lang"></div>
+                                <div class="lang-code">
                                     {{ LANGUAGE_CODE|capfirst }}
-                                    <span class="dropdown-trigger white change-lang-footer"></span>
                                 </div>
                             </div>
                             <div class="footer-icon fb clickable"></div>
-                            <div class="footer-icon tt"></div>
+{#                            <div class="footer-icon tt"></div>#}
                         </div>
                         <div class="clear"></div>
                     {% endblock %}
@@ -293,21 +303,37 @@
     <![endif]-->
     <script type="text/javascript">
         $(document).ready(function() {
-            $("html").click(function(e) {
-                var $target = $(e.target);
-                if (!($target.hasClass("change-lang-top") || $target.hasClass("change-lang-footer")))
-                    $("#lang_form").hide();
-            });
             $("#wb_logo").click(function() {
                 window.location.href = "{% url wb_home %}";
             });
-            $(".change-lang-top, .change-lang-footer").click(function() {
-                var $anchor = ($(this).hasClass("change-lang-top")) ? $("#lang_top") : $(".footer-icon.lang");
-                var offset = $anchor.offset();
-                offset.top = offset.top + 20;
-                $("#lang_form").show().offset(offset);
+            $(".footer-icon.fb").click(function () {
+                window.location.href = "{% value_from_settings FACEBOOK_APP_URL%}";
             });
-            $("#lang_form li").click(function() {
+
+            // dropdown triggers and lists
+            $("html").click(function(e) {
+                var $target = $(e.target);
+                $(".wbdropdown-list").hide();
+                var $trigger = ($target.hasClass("dropdown-trigger")) ? $target : $target.parents(".dropdown-trigger").eq(0);
+                if ($trigger){
+                    var name = $trigger.attr("name");
+                    $(".wbdropdown-list[name='" + name + "']").show();
+                }
+            });
+            $(".dropdown-trigger").click(function() {
+                var offset = $(this).offset();
+                offset.top = offset.top + $(this).height() + 5;
+
+                var name = $(this).attr("name");
+                var $list = $(".wbdropdown-list[name='" + name + "']");
+                if ($("html").hasClass("rtl")) {
+                    offset.left = offset.left - ($list.outerWidth() - $(this).outerWidth()) + 1;
+                }
+                $list.show().offset(offset);
+            });
+
+            // language
+            $("#change_lang, #lang_dropdown li").click(function() {
                 var code = $(this).data("code");
                 logGAEvent("languages", "change language", code);
 
@@ -316,9 +342,8 @@
                     $("#lang_form").submit();
                 }
             });
-            $(".footer-icon.fb").click(function() {
-                window.location.href = "{% value_from_settings FACEBOOK_APP_URL%}";
-            });
+
+            // values tooltips
             $("#wb_values .value").each(function() {
                 var name = $(this).data("value-name");
                 var position, left;

@@ -1,7 +1,7 @@
 from django.conf.urls.defaults import *
 # manual loading so signal receivers code is evaluated
 from sharing.sharing_dispatcher import ride_created
-from sharing.passenger_controller import send_ride_notifications
+from sharing.passenger_controller import send_ride_notifications, on_billing_trx_approved
 
 urlpatterns = patterns('',
     (r'^birdseye/$', 'sharing.staff_controller.birdseye_view'),

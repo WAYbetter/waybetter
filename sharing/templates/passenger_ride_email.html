@@ -30,10 +30,12 @@
         <table cellpadding="10" cellspacing="0" style="border:none;border-collapse:collapse;font-size:13px;text-align:{{ LANGUAGE_BIDI|yesno:"right,left" }};" width="600px" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
             <tr style="background:#CCC">
                 <th style="border:1px dotted #aaa">{% trans "Estimated Pickup Time" %}</th>
+                <th style="border:1px dotted #aaa">{% trans "Seats" %}</th>
                 <th style="border:1px dotted #aaa">{% trans "Price" %}</th>
             </tr>
             <tr>
                 <td style="border:1px dotted #aaa; direction:ltr">{{ depart_time }}</td>
+                <td style="border:1px dotted #aaa">{{ num_seats }}</td>
                 <td style="border:1px dotted #aaa; font-weight: bold">{{ price }} &#8362;</td>
             </tr>
         </table>
