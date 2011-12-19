@@ -6,10 +6,6 @@ api_version: 1
 default_expiration: '365d'
 
 handlers:
-- url: /remote_api
-  script: $PYTHON_LIB/google/appengine/ext/remote_api/handler.py
-  login: admin
-
 - url: /_ah/queue/deferred
   script: $PYTHON_LIB/google/appengine/ext/deferred/deferred.py
   login: admin
@@ -52,6 +48,9 @@ skip_files:
 
 inbound_services:
 - channel_presence
+
+builtins:
+- remote_api: on
 
 #builtins:
 #- appstats: on # uncomment to activate app stats

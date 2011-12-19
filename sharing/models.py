@@ -215,7 +215,7 @@ class HotSpot(BaseModel):
     def serialize_for_order(self, address_type):
         # TODO_WB: add house number field to hotspot model
         hn = re.search("(\d+)", self.address)
-        hn = hn.groups()[0] if hn else 0
+        hn = str(hn.groups()[0] if hn else 0)
 
         return {'%s_raw' % address_type: '%s, %s' % (self.address, self.city),
                 '%s_street_address' % address_type: self.address.replace(hn, ""),
