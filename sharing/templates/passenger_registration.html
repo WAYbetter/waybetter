@@ -18,6 +18,11 @@
     {#    {% endif %}#}
 
     <form id="validation">
+{#        <a href="https://www.facebook.com/dialog/oauth?client_id={% value_from_settings FACEBOOK_APP_ID %}&scope=email&redirect_uri=http://www.waybetter.com">FB Registration</a>#}
+{#        <div id="fb-root">#}
+{#            <div class="fb-login-button" scope="email,user_checkins">{% trans "Login with Facebook" %}</div>#}
+{#        </div>#}
+
         <div class="header">
             1. {% trans "Ride details are sent by free SMS" %}:
         </div>
@@ -53,11 +58,6 @@
         <tr>
             <td class="padded first">
                 {% trans "Use your Facebook account for fast registration:" %}
-
-                <div id="fb_connect">
-                    <div id="fb-root"></div>
-                    <fb:login-button perms="email,user_checkins">{% trans "Login with Facebook" %}</fb:login-button>
-                </div>
 
             </td>
             <td>
@@ -125,34 +125,34 @@
             if (enable) {
                 $(sel).enable();
                 $("#registration_details").removeClass("disabled");
-//                initFbAsync();
-//                $("#fb_connect").removeClass("disabled");
                 $("#id_name").focus();
             } else {
                 $("#registration_details").addClass("disabled");
-                $("#fb_connect *").hide();
-                $("#fb_connect").addClass("disabled");
                 $(sel).disable();
             }
         }
 
         function initFbAsync() {
             window.fbAsyncInit = function() {
-                var appId = {% value_from_settings "FACEBOOK" %}.appId;
                 FB.init({
-                    appId: appId,
-                    cookie:true,
+                    appId: '{% value_from_settings "FACEBOOK_APP_ID" %}',
                     status:true,
-                    xfbml:true
+                    cookie:true,
+                    xfbml:true,
+                    oauth:true
                 });
             };
 
-            $.getScript('http://connect.facebook.net/en_US/all.js', function() {
+            $.getScript('//connect.facebook.net/en_US/all.js', function() {
                 $("#fb_connect *").show();
             });
         }
 
         $(function() {
+//            initFbAsync();
+//            $("#fb_connect").removeClass("disabled");
+
+
             $("[href='{% url auth_login %}']").attr("href", "{{ login_link }}");
             $("#verification_code").disable();
 
