@@ -151,27 +151,29 @@ ul.hz{
     position: absolute;
     z-index: 3;
     font-size: $font-size-small;
-    li{
-        padding: 8px;
-    }
-    li:hover{
-        background: #DEDEDE;
-    }
-    li.disabled:hover{
-        background: none;
+    li{ padding: 8px 0; }
+    li:hover{ background: #DEDEDE; }
+    li.disabled:hover{ background: none; }
+    a {
+        display: block;
+        padding: 0 8px;
+        text-decoration: none;
     }
 }
 
 .dropdown-trigger{
-    display: inline-block;
-    width: 8px;
-    height: 8px;
-    background: url("/static/images/wb_site/dropdown.png") right 0 no-repeat;
-    cursor: pointer;
+    background: url("/static/images/wb_site/dropdown.png") right 3px no-repeat;
+    padding-right: 13px;
+    @extend .clickable;
 }
-.dropdown-trigger.white{ background-position: right -10px; }
-.rtl .dropdown-trigger{ background-position: left 0; }
-.rtl .dropdown-trigger.white{ background-position: left -10px; }
+.rtl .dropdown-trigger{
+    background-position: left 3px;
+    padding-right: 0;
+    padding-left: 13px;
+}
+
+.dropdown-trigger.white{ background-position: right -7px; }
+.rtl .dropdown-trigger.white{ background-position: left -7px; }
 
 .disabled{
     color: $color-disabled;
@@ -271,7 +273,6 @@ ul.hz{
 
 .wb_button{
     border: #454545;
-    background: #4D4D4D;
     color: white;
     padding: 10px 15px 10px 15px;
     height: 31px;
@@ -279,21 +280,46 @@ ul.hz{
     font-weight: bold;
     font-size: $font-size-medium;
     @extend .clickable;
+    @include border-radius(3px);
+    @include box-shadow(0px 2px 3px 1px rgba(0, 0, 0, 0.7));
+    background-image: #727272; /* Old browsers */
+    background-image: -moz-linear-gradient(top, #727272 0%, #454545 100%); /* FF3.6+ */
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#727272), color-stop(100%,#454545)); /* Chrome,Safari4+ */
+    background-image: -webkit-linear-gradient(top, #727272 0%,#454545 100%); /* Chrome10+,Safari5.1+ */
+    background-image: -o-linear-gradient(top, #727272 0%,#454545 100%); /* Opera 11.10+ */
+    background-image: -ms-linear-gradient(top, #727272 0%,#454545 100%); /* IE10+ */
+    background-image: linear-gradient(top, #727272 0%,#454545 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#727272', endColorstr='#454545',GradientType=0 ); /* IE6-9 */
 }
 
 .wb_button:hover, .wb_button.hover {
     border: #454545;
-    background: $color-community;
+    background-image: #d42979; /* Old browsers */
+    background-image: -moz-linear-gradient(top, #d42979 0%, #9c1e59 100%); /* FF3.6+ */
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d42979), color-stop(100%,#9c1e59)); /* Chrome,Safari4+ */
+    background-image: -webkit-linear-gradient(top, #d42979 0%,#9c1e59 100%); /* Chrome10+,Safari5.1+ */
+    background-image: -o-linear-gradient(top, #d42979 0%,#9c1e59 100%); /* Opera 11.10+ */
+    background-image: -ms-linear-gradient(top, #d42979 0%,#9c1e59 100%); /* IE10+ */
+    background-image: linear-gradient(top, #d42979 0%,#9c1e59 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d42979', endColorstr='#9c1e59',GradientType=0 ); /* IE6-9 */
 }
 
 .wb_button:active, .wb_button.active {
     border: #323232;
-    background: #FF4C96;
+    background-image: #d34e8c; /* Old browsers */
+    background-image: -moz-linear-gradient(top, #d34e8c 0%, #9b3163 100%); /* FF3.6+ */
+    background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d34e8c), color-stop(100%,#9b3163)); /* Chrome,Safari4+ */
+    background-image: -webkit-linear-gradient(top, #d34e8c 0%,#9b3163 100%); /* Chrome10+,Safari5.1+ */
+    background-image: -o-linear-gradient(top, #d34e8c 0%,#9b3163 100%); /* Opera 11.10+ */
+    background-image: -ms-linear-gradient(top, #d34e8c 0%,#9b3163 100%); /* IE10+ */
+    background-image: linear-gradient(top, #d34e8c 0%,#9b3163 100%); /* W3C */
+    filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#d34e8c', endColorstr='#9b3163',GradientType=0 ); /* IE6-9 */
 }
 
 .wb_button:disabled, .wb_button.disabled {
     border: none;
     background: #C7C7C7;
+    @include box-shadow(none);
 }
 
 .order_button {
@@ -397,10 +423,6 @@ body.base-site{
     background: url("/static/images/wb_site/body_texture.png");
 }
 
-#lang_form{
-    width: 50px;
-}
-
 #header-container{
     background: white;
     background-repeat: repeat-x;
@@ -414,7 +436,7 @@ body.base-site{
         margin: 0 auto;
         position: relative;
         #wb_logo{
-            background-image: url(/static/images/wb_site/logo_header_alpha.png);
+            background-image: url(/static/images/wb_site/logo_header_beta.png);
             background-repeat: no-repeat;
             height: 75px;
             width: 330px;
@@ -562,7 +584,7 @@ body.base-site{
                 margin-left: 10px;
                 background: url("/static/images/wb_site/footer_icons.png") no-repeat;
             }
-            .footer-icon.lang {background-position: left 0; }
+            .footer-icon.lang {background-position: left 0; margin-left: 0;}
             .footer-icon.fb {background-position: left -32px;}
             .footer-icon.tt {background-position: left -63px;}
         }
@@ -943,11 +965,17 @@ Home
         height: $booking-container-height;
         margin-bottom: 40px;
 
+        #booking_loader{
+            background: url(/static/images/wb_site/wb_loader30.gif) center center no-repeat;
+            height: 100%;
+            width: 100%;
+        }
+
         #savings{
             position: absolute;
             right: -22px;
             top: 20px;
-            width: 158px;
+            width: 135px;
             height: 74px;
             background: url("/static/images/wb_site/ribbon.png") 0 0 no-repeat;
             .content{
@@ -990,7 +1018,7 @@ Home
             .step.details{
                 cursor: default;
             }
-            .step.current{
+            .step.current, .step.completed.current{
                 @extend .bold;
                 color: $color-community;
             }
@@ -1056,7 +1084,7 @@ Home
             padding-bottom: 10px;
             width: $booking-container-width - 2 * 30;
 
-            .cntr.select{ width: 600px; margin: 0 auto; padding-left: 30px;}
+            .cntr.select{ width: 600px; margin: 0 auto; padding-left: 45px;}
             #id_hotspot_select{ width: 550px; }
             #qm_votespot{
                 display: inline-block;
@@ -1074,17 +1102,6 @@ Home
             }
             td.first{text-align:right;}
             td.second{text-align:left;}
-            #leave_hotspot, #goto_hotspot{
-                background-image: url("/static/images/wb_site/field_icons.png");
-                background-repeat: no-repeat;
-                padding-left: 50px;
-            }
-            #leave_hotspot{
-                background-position: 10px 8px;
-            }
-            #goto_hotspot{
-                background-position: 10px -46px;
-            }
         }
         #address_content{
             padding-right: 45px;
@@ -1126,9 +1143,9 @@ Home
         #ride_summary{
             position: absolute;
             left: $padding;
-            width: 250px;
+            width: 260px;
             font-size: $font-size-medium;
-            padding-right: 20px;
+            padding-right: 15px;
             border-right: 1px solid gray;
             span, p, div{color: #4d4d4d;}
             .data{
@@ -1155,37 +1172,40 @@ Home
                 @extend .wb_link;
             }
             .hotspot .desc{font-style: italic;}
-            #num_seats input{
-                height: auto;
-            }
+            #num_seats { position: relative; }
+            #num_seats input{ height: auto; }
             #num_seats .radio{
                 float: right;
+                position: relative;
+                right: 10px;
+                bottom: 2px;
+            }
+            #num_seats_loader{
+                position: absolute;
+                right: -10px;
+                top: 0;
             }
         }
         #ride_details{
             position: absolute;
-            right: 55px;
+            right: 41px;
             top: 30px;
-            width: 410px;
-            $width: 330px;
+            width: 435px;
             #offer{
                 .price, .time{
                     height: 35px;
-                    border-bottom: 1px solid $light-gray;
+                    width: auto;
                     margin: 10px auto 22px auto;
+                    border-bottom: 1px solid $light-gray;
                     border-spacing: 1px 1px;
                 }
-                .price{
-                    width: 0.8 * $width;
-                }
-                .time{
-                    width: $width;
-                }
+                .price{padding: 0 15px;}
+                .time{padding: 0 30px;}
                 .offer-row{
                     vertical-align: bottom;
                 }
                 .offer-pre{ text-align: right; color: #4d4d4d; }
-                .offer-val{ text-align: center; font-weight:bold; line-height: 12px;}
+                .offer-val{ text-align: center; font-weight:bold; line-height: 12px; padding: 0 3px;}
                 .offer-val .value{ font-size: 45px;  }
                 .price .offer-val .label{ font-size: 38px;  }
                 .time .offer-val .label{ font-size: 20px;  }
@@ -1193,9 +1213,10 @@ Home
             }
             #book_ride{
                 display: block;
-                width: 1.2 * $width;
+                width: 400px;
                 height: 50px;
                 font-size: 20px;
+                margin: 0 auto;
             }
         }
 
@@ -1271,16 +1292,9 @@ Home
                 }
             }
             #hotspot_content{
-                .cntr.select{ padding-left: 0; padding-right: 30px;}
-                #leave_hotspot, #goto_hotspot{ padding-left: 15px; padding-right: 40px;}
+                .cntr.select{ padding-left: 0; padding-right: 45px;}
                 td.first{text-align:left;}
                 td.second{text-align:right;}
-                #leave_hotspot{
-                    background-position: right 8px;
-                }
-                #goto_hotspot{
-                    background-position: right -46px;
-                }
             }
             $padding: 10px;
             #ride_summary{
@@ -1295,11 +1309,18 @@ Home
                 }
                 #num_seats .radio{
                     float: left;
+                    right: auto;
+                    left: 10px;
                 }
+                #num_seats_loader{
+                    right: auto;
+                    left: -10px;
+                }
+
             }
             #ride_details{
                 right: auto;
-                left: 55px;
+                left: 41px;
                 $width: 330px;
                 #offer{
                     .offer-pre{ text-align: left; }

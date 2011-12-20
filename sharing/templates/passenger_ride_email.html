@@ -3,7 +3,11 @@
 {% get_current_language_bidi as LANGUAGE_BIDI %}
 <html>
 	<body style="font-family:Arial, sans-serif; font-size:13px" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
-		<p>
+        <p style="text-align: center;">
+            <img width="207" height="207" src="http://{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/email_logo.jpg"/>
+        </p>
+
+        <p>
             {% blocktrans %}Hi {{ passenger_name }},{% endblocktrans %}
 		</p>
 		<p>
@@ -30,10 +34,12 @@
         <table cellpadding="10" cellspacing="0" style="border:none;border-collapse:collapse;font-size:13px;text-align:{{ LANGUAGE_BIDI|yesno:"right,left" }};" width="600px" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}>
             <tr style="background:#CCC">
                 <th style="border:1px dotted #aaa">{% trans "Estimated Pickup Time" %}</th>
+                <th style="border:1px dotted #aaa">{% trans "Seats" %}</th>
                 <th style="border:1px dotted #aaa">{% trans "Price" %}</th>
             </tr>
             <tr>
                 <td style="border:1px dotted #aaa; direction:ltr">{{ depart_time }}</td>
+                <td style="border:1px dotted #aaa">{{ num_seats }}</td>
                 <td style="border:1px dotted #aaa; font-weight: bold">{{ price }} &#8362;</td>
             </tr>
         </table>
@@ -53,7 +59,7 @@
         <p><a href="http://www.waybetter.com/{% url my_rides %}">-{% trans "View your order on our website" %}-</a></p>
 
         <p style="text-align: center;">
-            <img width="800" height="349" src="http://{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/ny_taxi.png"/>
+            <img width="508" height="349" src="http://{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/ny_taxi.png"/>
         </p>
 
 

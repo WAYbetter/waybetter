@@ -24,6 +24,8 @@ urlpatterns = patterns('',
     # TODO_WB: prefix with pickmeapp - WILL BREAK WORKSTATION LOGIN
     (r'^%s/' % api_prefix, include('ordering.urls')),
     (r'^%s/' % api_prefix, include('sharing.urls')),
+    # hard code login_redirect url
+    url(r'^login_redirect/$', 'sharing.passenger_controller.post_login_redirect', name="login_redirect"),
     (r'^', include('analytics.urls')),
     (r'^interests/', include('interests.urls')),
     (r'^', include('socialauth.urls')),
