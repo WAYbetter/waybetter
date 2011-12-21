@@ -3,7 +3,7 @@ bookTestRide = function () {
     var data = {
         hotspot_date:getFullDate(now),
         hotspot_id:4008,
-        hotspot_time:getFullTime(new Date(now.setHours(now.getHours() + 5))),
+        hotspot_time:getFullTime(new Date(now.setHours(now.getHours() + 1))),
         hotspot_type:"pickup",
         house_number:"1",
         id_city:"485",

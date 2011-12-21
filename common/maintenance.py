@@ -147,6 +147,22 @@ def do_task():
 
 
 # maintenance methods
+def create_passenger_dup_phones():
+    phones_counter = {}
+    for p in Passenger.objects.all():
+        phone = p.phone
+        if phone in phones_counter:
+            phones_counter[phone] += 1
+        else:
+            phones_counter[phone] = 1
+
+    dup_phones = []
+    for phone, val in phones_counter.iteritems():
+        if val > 1:
+            dup_phones.append(phone)
+
+    notify_by_email("Dup phones list", str(dup_phones))
+
 def fix_driver_taxi():
     for relation in TaxiDriverRelation.objects.all():
         try:

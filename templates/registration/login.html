@@ -1,5 +1,6 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
+{% load value_from_settings %}
 
 {% block extrastyle %}
     {{ block.super }}
@@ -24,7 +25,14 @@
         .errorlist li {
             color: red;
         }
-
+        hr{
+            border: 0;
+            height: 1px;
+            background-image: -webkit-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.75), rgba(0,0,0,0));
+            background-image:    -moz-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.75), rgba(0,0,0,0));
+            background-image:     -ms-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.75), rgba(0,0,0,0));
+            background-image:      -o-linear-gradient(left, rgba(0,0,0,0), rgba(0,0,0,0.75), rgba(0,0,0,0));
+        }
     </style>
 {% endblock %}
 
@@ -52,14 +60,15 @@
                 <input type="hidden" name="next" value="{{ next }}"/>
             </div>
 
-            <hr>
-
             <div class="submit-row">
                 <label>&nbsp;</label><input type="submit" class="wb_button" value="{% trans 'Log in' %}"/>
             </div>
 
             <input type="hidden" name="token" id="id_token">
         </form>
+
+        <hr>
+        <a id="fb_login_button" href="{% value_from_settings FACEBOOK_LOGIN_LINK %}"></a>
 
 {#        <p>{% trans "Forgot password" %}? <a href="{% url auth_password_reset %}">{% trans "Reset it" %}</a>!</p>#}
 {##}
