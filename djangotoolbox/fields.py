@@ -146,6 +146,9 @@ class ListField(AbstractIterableField):
             values.sort(key=self.ordering)
         return super(ListField, self).pre_save(model_instance, add)
 
+    def formfield(self, **kwargs):
+        return None
+
 class SetField(AbstractIterableField):
     """
     Field representing a Python ``set``.
