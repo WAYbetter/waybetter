@@ -109,7 +109,7 @@ def setup_logging():
     logging.logMultiprocessing = 0
 
     # Enable logging
-    level = logging.DEBUG
+    level = logging.INFO
     from .utils import have_appserver
     if have_appserver:
         # We can't import settings at this point when running a normal
