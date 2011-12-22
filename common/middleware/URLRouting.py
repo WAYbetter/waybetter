@@ -8,8 +8,8 @@ class URLRouting(object):
     @staticmethod
     def process_request(request):
         user_agent_parts = request.META.get("HTTP_USER_AGENT", "").split("/")
-        # TODO_WB: handle different platforms (iphone/android)
-        if request.path.startswith("/api/"): # or (user_agent_parts and user_agent_parts[0] == "WAYbetter" and user_agent_parts[1] == "iPhone"):
+        if request.path.startswith("/api/") or \
+           (user_agent_parts and user_agent_parts[0] == "WAYbetter" and user_agent_parts[1] == "iPhone"):
                 logging.info("using alternate urlconf: %s" % user_agent_parts)
                 request.urlconf = "api_urls"
                 request.mobile = True
