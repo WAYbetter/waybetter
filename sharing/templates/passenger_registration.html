@@ -2,14 +2,6 @@
 {% load i18n %}
 {% load value_from_settings %}
 
-{% block top_left %}
-    {% trans "First Time? Join the Movement...  " %}
-{% endblock %}
-
-{% block top_right %}
-    {% trans "Already a member?" %} <a href="{{ login_link }}" class="wb_link">{% trans "Sign In" %}</a>
-{% endblock %}
-
 {% block content %}
     {#    {% if order %}#}
     {#        <div>#}
@@ -17,263 +9,292 @@
     {#        </div>#}
     {#    {% endif %}#}
 
-    <form id="validation">
-        <div class="header">
-            1. {% trans "Ride details are sent by free SMS" %}:
-        </div>
-        <div class="container">
-            <div id="phone_container">
-                <label for="local_phone">
-                    {% trans "Mobile Phone" %}
-                </label>
-                <input id="local_phone" name="local_phone" type="text"/>
-                <button type="button" class="wb_button" id="validate_phone">{% trans "Get Code" %}</button>
-            </div>
-            <div id="code_container">
-                <label for="verification_code">
-                    {% trans "Enter Code" %}
-                </label>
-                <input id="verification_code" name="verification_code" type="text"/>
-                <input name="country_code" type="hidden" value="{{ country_code }}"/>
-                <span id="verification_status"></span>
-            </div>
-            <div class="clear"></div>
-        </div>
-    </form>
-
-    <table id="registration_details">
+    <table id="progress">
         <tr>
-            <td colspan="3">
-                <span class="header">
-                    2. {% trans "Setup your account:" %}
-                </span>
-            </td>
-        </tr>
-
-        <tr>
-            <td class="padded first">
-                {% trans "Use your Facebook account for fast registration:" %}
-
-                <div id="fb_connect">
-                    <div id="fb-root"></div>
-                    <fb:login-button perms="email,user_checkins">{% trans "Login with Facebook" %}</fb:login-button>
-                </div>
-
-            </td>
-            <td>
-                <div class="vrule"></div>
-                <div>{% trans "OR" %}</div>
-                <div class="vrule"></div>
-            </td>
-            <td class="padded">
-                {% load ajax_form_utils %}
-                <form id="passenger_form" action="{% url register %}" method="POST">
-                    {% csrf_token %}
-                    <table id="user_details">
-                        {% for hidden in form.hidden_fields %}
-                            {{ hidden }}
-                        {% endfor %}
-                        {% for field in form.visible_fields %}
-                            {% if field.html_name != "agree_to_terms" %}
-                                <tr>
-                                    <th>{{ field.label_tag }}</th>
-                                    <td>{{ field }}
-                                        <ul class="errorlist">{{ field.errors }}</ul>
-                                    </td>
-                                </tr>
-                            {% endif %}
-                        {% endfor %}
-                    </table>
-                    <div id="terms_container">
-                        <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
-                        <label for="id_agree_to_terms">{% trans "I agree to the" %}
-                            <a class="wb_link" target="_blank" href="{% url terms %}">{% trans "Terms Of Use" %} </a>
-                            {% trans "and" %} <a class="wb_link" target="_blank"
-                                                 href="{% url privacy %}">{% trans "Privacy Statement" %}.</a>
-                        </label>
-                        <ul class="errorlist"></ul>
-                    </div>
-                </form>
-            </td>
+            <td class="step {% if step == "auth" %}current{% endif %}">1. {% trans "Account Information" %}</td>
+            <td class="step {% if step == "phone" %}current{% endif %}">2. {% trans "Phone Verification" %}</td>
+            <td class="step">3. {% trans "Billing Information" %}</td>
         </tr>
     </table>
 
+    <div class="spacer top"></div>
+
+    {% if step == "auth" %}
+        <table id="auth_step">
+            <tr class="header-row">
+                <td colspan="2">
+                    <span class="step-header">{% trans "Account Information" %}</span>
+                </td>
+                <td class="login">
+                    <span class="bold">{% trans "Already a member?" %}</span> <a href="{{ login_link }}"
+                                                                                 class="wb_link">{% trans "Sign In" %}</a>
+                </td>
+            </tr>
+
+            <tr>
+                <td class="fb">
+                    {% trans "Use your Facebook account for fast registration:" %}
+                    <a id="fb_login_button" href="{% value_from_settings FACEBOOK_LOGIN_LINK %}"></a>
+                </td>
+                <td class="vrule-cntr">
+                    <div class="vrule"></div>
+                    <div class="or">{% trans "OR" %}</div>
+                    <div class="vrule"></div>
+                </td>
+                <td>
+                    {% load ajax_form_utils %}
+                    <form id="auth_form">
+                        {% csrf_token %}
+                        <table id="user_details">
+                            {% for hidden in form.hidden_fields %}
+                                {{ hidden }}
+                            {% endfor %}
+                            {% for field in form.visible_fields %}
+                                {% if field.html_name != "agree_to_terms" %}
+                                    <tr>
+                                        <th>{{ field.label_tag }}</th>
+                                        <td>{{ field }}
+                                            <ul class="errorlist hidden">{{ field.errors }}</ul>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            {% endfor %}
+                        </table>
+                        <div id="terms_container">
+                            <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
+                            <label for="id_agree_to_terms">{% trans "I agree to the" %}
+                                <a class="wb_link" target="_blank"
+                                   href="{% url terms %}">{% trans "Terms Of Use" %} </a>
+                                {% trans "and" %} <a class="wb_link" target="_blank"
+                                                     href="{% url privacy %}">{% trans "Privacy Statement" %}.</a>
+                            </label>
+                            <ul class="errorlist hidden"></ul>
+                        </div>
+                    </form>
+                </td>
+            </tr>
+        </table>
+
+    {% else %}
+
+        <table id="phone_step">
+            <tr class="header-raw">
+                <td colspan="2">
+                    <span class="step-header">{% trans "Phone Verification" %}</span>
+                </td>
+            </tr>
+            <tr>
+                <td class="form cntr">
+                    <form id="phone_form">
+                        <input name="country_code" type="hidden" value="{{ country_code }}"/>
+                        <table>
+                            <tr class="phone cntr">
+                                <td>
+                                    <label for="local_phone">{% trans "Mobile Phone" %}</label>
+                                </td>
+                                <td>
+                                    <input id="local_phone" name="local_phone" type="text"/>
+                                </td>
+                            </tr>
+                            <tr class="btn cntr">
+                                <td></td>
+                                <td>
+                                    <button id="validate_phone" type="button" class="wb_button"
+                                            disabled="disabled">{% trans "Send SMS Code" %}</button>
+                                </td>
+                            </tr>
+                            <tr class="code cntr">
+                                <td>
+                                    <label for="verification_code">{% trans "Enter Code" %}</label>
+                                </td>
+                                <td>
+                                    <input id="verification_code" name="verification_code" type="text"/>
+                                    <span id="verification_status"></span>
+                                </td>
+                            </tr>
+                        </table>
+
+                    </form>
+                </td>
+                <td class="img cntr">
+                    <div class="sms-img"></div>
+                </td>
+            </tr>
+        </table>
+    {% endif %}
+
+    <div class="spacer bottom"></div>
+
     <div id="next_container">
-        <div id="bottom_login">
-            {% trans "Already a member?" %} <a href="{{ login_link }}" class="wb_link">{% trans "Sign In" %}</a>
-        </div>
-        <button id="finish_registration" class="wb_button">{% trans "Next" %} ></button>
+        {% if step == "auth" %}
+            <span id="bottom_login">
+                {% trans "Already a member?" %} <a href="{{ login_link }}" class="wb_link">{% trans "Sign In" %}</a>
+            </span>
+            <button id="finish_auth" class="wb_button" disabled="disabled">{% trans "Next" %} ></button>
+        {% else %}
+            <button id="finish_phone" class="wb_button" disabled="disabled">{% trans "Next" %} ></button>
+        {% endif %}
     </div>
 
 {% endblock %}
 
 {% block doc_ready %}
     {{ block.super }}
+
     <script type="text/javascript">
-        function updateValidatePhoneButtonState() {
-            var $local_phone = $("#local_phone");
-            $local_phone.val($local_phone.val().split(/\D+/).join(""));
-            if ($local_phone.val().length > 9) {
-                $("#validate_phone").enable();
-            } else {
-                $("#validate_phone").disable();
-            }
-        }
-
-        function setPassengerFormStatus(enable) {
-            var sel = "#passenger_form input, #passenger_form button, #finish_registration";
-            if (enable) {
-                $(sel).enable();
-                $("#registration_details").removeClass("disabled");
-//                initFbAsync();
-//                $("#fb_connect").removeClass("disabled");
-                $("#id_name").focus();
-            } else {
-                $("#registration_details").addClass("disabled");
-                $("#fb_connect *").hide();
-                $("#fb_connect").addClass("disabled");
-                $(sel).disable();
-            }
-        }
-
-        function initFbAsync() {
-            window.fbAsyncInit = function() {
-                var appId = {% value_from_settings "FACEBOOK" %}.appId;
-                FB.init({
-                    appId: appId,
-                    cookie:true,
-                    status:true,
-                    xfbml:true
-                });
-            };
-
-            $.getScript('http://connect.facebook.net/en_US/all.js', function() {
-                $("#fb_connect *").show();
-            });
-        }
-
-        $(function() {
+        $(function () {
+            // set login links from base template
             $("[href='{% url auth_login %}']").attr("href", "{{ login_link }}");
-            $("#verification_code").disable();
+        });
+    </script>
 
-            var validations = {% render_ajax_fields form %};
-            $('#passenger_form').validation(validations, {
-                on_form_valid: function(event, form){
-                    $("#finish_registration").enable();
-                }
-            });
+    {% if step == "auth" %}
+        <script type="text/javascript">
+            $(function () {
+                var validations = {% render_ajax_fields form %};
+                $('#auth_form').validation(validations, {
+                    on_form_valid:function (event, form) {
+                        $("#finish_auth").enable();
+                    }
+                });
 
-            updateValidatePhoneButtonState();
-            setPassengerFormStatus(false);
+                $("#id_agree_to_terms, #user_details input").change(function () {
+                    $("#auth_form")[0].validate();
+                });
 
-            $("#local_phone").keyup(function() {
-                updateValidatePhoneButtonState();
-            });
-            $("#verification_code").keyup(
-                    function() {
-                        var val = $(this).val();
-                        if (val && val.length == 4) {
-                            var data = $("#validation").serialize();
-                            var $status = $("#verification_status");
-                            var $code = $("#verification_code");
-                            $code.disable();
-
-                            $.ajax({
-                                url: "{% url validate_phone %}",
-                                type: "POST",
-                                data: data,
-                                beforeSend: function(){
-                                    $status.removeClass("error success").addClass("sending");
-                                },
-                                complete: function(){
-                                    $status.removeClass("sending");
-                                },
-                                success: function() {
-                                    $status.addClass("success");
-                                    $("#validation input").disable();
-                                    setPassengerFormStatus(true);
-
-                                    gaHitPage("phone_verified.html")
-                                },
-                                error: function() {
-                                    $status.addClass("error");
-                                    $code.enable();
+                $("#finish_auth").disable().click(function () {
+                    $.ajax({
+                        url:"{% url register_user %}",
+                        type:"POST",
+                        data:$("#auth_form").serialize(),
+                        beforeSend:function () {
+                            var $that = $("#finish_auth");
+                            $that.disable().data("old_text", $that.text()).text("{% trans "Sending" %}");
+                        },
+                        success:function (response) {
+                            $(".errorlist").empty();
+                            if (response.errors) {
+                                $("#finish_auth").text($("#finish_auth").data("old_text")).enable();
+                                $.each(response.errors, function (i, e) {
+                                    $("#id_" + e.field_name).siblings(".errorlist").replaceWith(e.errors_ul);
+                                });
+                            }
+                            else {
+                                gaHitPage("user_registered.html");
+                                if (response.redirect) {
+                                    window.location.href = response.redirect;
                                 }
-
-                            })
-                        }
-                    }).keydown(function(event) {
-                        var permittedKeys = [8,37,38,39,40,46];
-
-                        if ($(this).val().length >= 4 && $.inArray(event.which, permittedKeys) < 0) {
-                            return false;
+                                else {
+                                    window.location.href = "{% url wb_home %}";
+                                }
+                            }
+                        },
+                        error:function () {
+                            $("#finish_auth").text($("#finish_auth").data("old_text")).enable();
+                            alert("{% trans "An error occurred, please try again" %}.");
                         }
                     });
+                });
+            });
+        </script>
 
-            $("#validate_phone").click(function() {
-                var $that = $(this);
+    {% else %}
+        <script type="text/javascript">
+            function updateValidatePhoneButtonState() {
+                var $local_phone = $("#local_phone");
+                $local_phone.val($local_phone.val().split(/\D+/).join(""));
+                if ($local_phone.val().length > 9) {
+                    $("#validate_phone").enable();
+                } else {
+                    $("#validate_phone").disable();
+                }
+            }
+
+            function sendCode() {
+                var $that = $("#validate_phone");
                 $.ajax({
-                    url: "{% url send_verification_code %}",
-                    data: $("#validation").serialize(),
-                    type: "POST",
-                    beforeSend: function() {
+                    url:"{% url send_verification_code %}",
+                    data:$("#phone_form").serialize(),
+                    type:"POST",
+                    beforeSend:function () {
                         $that.disable().data("old_text", $that.text()).text("{% trans "Sending" %}");
                     },
-                    success: function(d) {
+                    success:function (d) {
                         $that.text("{% trans "Code Sent" %}");
-                        $("#local_phone").one("keydown", function(){
+                        $("#local_phone").one("keydown", function () {
                             $that.text($that.data("old_text")).enable();
 
                         });
                         $("#verification_code").enable().focus();
                     },
-                    error: function() {
+                    error:function () {
                         alert("error");
                         $that.text($that.data("old_text")).enable();
                     }
                 })
-            });
+            }
 
-            $("#id_agree_to_terms").change(function() {
-                $("#passenger_form")[0].validate();
-            });
-
-            $("#finish_registration").disable().click(function() {
-                $.ajax({
-                    url: "{% url register %}",
-                    type: "POST",
-                    data: $("#passenger_form").serialize(),
-                    beforeSend: function() {
-                        var $that = $("#finish_registration");
-                        $that.disable().data("old_text", $that.text()).text("{% trans "Sending" %}");
-                    },
-                    complete: function() {
-                        var $that = $("#finish_registration");
-                        $that.text($that.data("old_text")).enable();
-                    },
-                    success: function(response) {
-                        $(".errorlist").empty();
-                        if (response.errors) {
-                            $.each(response.errors, function(i, e) {
-                                $("#id_" + e.field_name).siblings(".errorlist").replaceWith(e.errors_ul);
-                            });
-                        }
-                        else {
-                            gaHitPage("user_registered.html");
-
-                            if (response.redirect) {
-                                window.location.href = response.redirect;
-                            }
-                            else {
-                                alert("Error");
-                            }
-                        }
-                    },
-                    error: function() {
-                        alert("Error");
+            $(function () {
+                $("#finish_phone").disable();
+                updateValidatePhoneButtonState();
+                $("#local_phone").keyup(function (e) {
+                    updateValidatePhoneButtonState();
+                    if (e.which == 13) {
+                        sendCode();
                     }
                 });
+
+                $("#validate_phone").click(function () {
+                    sendCode();
+                });
+
+                $("#verification_code").keyup(
+                        function () {
+                            var val = $(this).val();
+                            if (val && val.length == 4) {
+                                var data = $("#phone_form").serialize();
+                                var $status = $("#verification_status");
+                                var $code = $("#verification_code");
+                                $code.disable();
+
+                                $.ajax({
+                                    url:"{% url register_passenger %}",
+                                    type:"POST",
+                                    data:data,
+                                    beforeSend:function () {
+                                        $("#finish_phone").disable();
+                                        $status.removeClass("error success").addClass("sending");
+                                    },
+                                    complete:function () {
+                                        $status.removeClass("sending");
+                                    },
+                                    success:function (response) {
+                                        $status.addClass("success");
+                                        $("#phone_form input").disable();
+                                        $("#finish_phone").enable().unbind("click").bind("click", function (e) {
+                                            e.preventDefault();
+                                            window.location.href = response.redirect;
+                                        });
+
+                                        gaHitPage("phone_verified.html")
+                                    },
+                                    error:function (response) {
+                                        Registrator.openWBErrorDialog("{% trans 'OOPS...' %}", response.responseText, undefined);
+                                        $status.addClass("error");
+                                        $code.enable();
+                                    }
+
+                                })
+                            }
+                        }).keydown(function (event) {
+                            var permittedKeys = [8, 37, 38, 39, 40, 46];
+
+                            if ($(this).val().length >= 4 && $.inArray(event.which, permittedKeys) < 0) {
+                                return false;
+                            }
+                        });
             });
-        });
-    </script>
+        </script>
+    {% endif %}
+
 {% endblock %}

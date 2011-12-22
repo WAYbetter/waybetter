@@ -3,7 +3,7 @@ from google.appengine.api.taskqueue import taskqueue, DuplicateTaskNameError, Ta
 from google.appengine.api.urlfetch import fetch
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
-from django.http import  HttpResponseRedirect, HttpRequest
+from django.http import  HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
@@ -11,6 +11,7 @@ from billing.billing_manager import get_token_url
 from common.util import has_related_objects, url_with_querystring, get_unique_id
 from common.decorators import catch_view_exceptions, internal_task_on_queue
 from common.util import notify_by_email
+from common.db_tools import merge_passenger
 from common.route import calculate_time_and_distance
 from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation
 import logging
@@ -145,8 +146,29 @@ def do_task():
     # maintenance method goes here
     pass
 
+def merge_to_master_passenger():
+    phones = [u'0544835959', u'0546658598', u'0547660440', u'0506931234', u'0547374754', u'1234', u'012301230123', u'0544476515', u'0547550125', u'123', u'123456', u'0542889664', u'0528613146', u'0526347347', u'0542022444', u'0508894431', u'0545787202', u'1111111111', u'0546632007', u'0', u'1234567890', u'0528646909', u'0545991975', u'0545669811', u'0546201271', u'0528535838', u'0547607118', u'0526342974', u'0505947026', u'0507605047', u'0505948486', u'0524485070']
+    for phone in phones:
+        merge_passenger(Passenger.objects.filter(phone=phone)[0])
+
 
 # maintenance methods
+def create_passenger_dup_phones():
+    phones_counter = {}
+    for p in Passenger.objects.all():
+        phone = p.phone
+        if phone in phones_counter:
+            phones_counter[phone] += 1
+        else:
+            phones_counter[phone] = 1
+
+    dup_phones = []
+    for phone, val in phones_counter.iteritems():
+        if val > 1:
+            dup_phones.append(phone)
+
+    notify_by_email("Dup phones list", str(dup_phones))
+
 def fix_driver_taxi():
     for relation in TaxiDriverRelation.objects.all():
         try:

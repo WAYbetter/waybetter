@@ -1,11 +1,16 @@
+# This Python file uses the following encoding: utf-8
 from django.db import models
+from django.template.loader import get_template
+from django.template.context import  Context
+from django.utils.translation import ugettext
 from google.appengine.api import channel
 from django.db.models.loading import get_model
 from django.contrib.auth.models import User
 from django.utils import simplejson
 from ordering.models import Passenger
-from common.util import log_event, EventType, get_channel_key, notify_by_email
+from common.util import log_event, EventType, get_channel_key, notify_by_email, send_mail_as_noreply
 from common.sms_notification import send_sms
+from oauth2.models import FacebookSession
 import logging
 
 def send_msg_to_passenger(passenger, msg):
@@ -40,19 +45,23 @@ def send_channel_msg_to_passenger(passenger, msg):
 
 
 
-def create_user(username, password, email, first_name=None, save=True):
-    user = User()
-    user.username = username
-    user.set_password(password)
-    user.email = email
-    if email and not first_name:
-        first_name = email.split("@")[0]
+def create_user(username, password="", email="", first_name="", last_name="", save=True):
+    user = User.objects.create_user(username, email, password)
     user.first_name = first_name
-    user.is_active = True
+    user.last_name = last_name
+
+    if email and not user.first_name:
+        user.first_name = email.split("@")[0]
 
     if save:
         user.save()
 
+    # welcome the new user
+    if user.email:
+        t = get_template("welcome_email.html")
+        send_mail_as_noreply(user.email, u"WAYbetter - %s" % ugettext("Shared Taxi Rides"), html=t.render(Context()))
+
+    logging.info("welcome new user: %s" % user)
     return user
 
 
@@ -67,9 +76,15 @@ def create_passenger(user, country, phone, save=True):
         passenger.save()
         log_event(EventType.PASSENGER_REGISTERED, passenger=passenger)
 
+    logging.info("welcome new passenger %s" % passenger)
     return passenger
 
 def safe_delete_user(user, remove_from_db=False):
+    # delete facebook session
+    for fb_session in FacebookSession.objects.filter(user=user):
+        fb_session.delete()
+    logging.info("deleted facebook sessions")
+
     # delete social account associated with the user
     social_model_names = ["AuthMeta", "FacebookUserProfile", "OpenidProfile", "TwitterUserProfile",
                           "LinkedInUserProfile"]
@@ -80,13 +95,21 @@ def safe_delete_user(user, remove_from_db=False):
         except model.DoesNotExist:
             pass
 
-#    don't use user.delete(), mark user as inactive instead
+#    by default don't use user.delete(), mark user as inactive instead
     user.is_active = False
     user.save()
     logging.info("safe delete user [%d, %s]: marked as inactive" % (user.id, user.username))
+
     if remove_from_db:
-        logging.warn("delete user [%d, %s]: " % (user.id, user.username))
+        try:
+            passenger = user.passenger
+            passenger.user = None
+            passenger.save()
+        except Passenger.DoesNotExist:
+            pass
+
         user.delete()
+        logging.warn("delete user [%d, %s]: " % (user.id, user.username))
 
 
 # notify us when users/passengers are deleted

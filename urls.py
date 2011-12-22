@@ -14,6 +14,7 @@ urlpatterns = patterns('',
     url(r'^$', 'sharing.passenger_controller.passenger_home', name='wb_home'),
 
     (r'^accounts/', include('registration.backends.station.urls')),
+    (r'^oauth2/', include('oauth2.urls')),
     (r'^api/v%d/' % CURRENT_VERSION, include('api.urls')),
     (r'^common/', include('common.urls')),
     (r'^billing/', include('billing.urls')),

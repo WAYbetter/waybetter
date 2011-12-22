@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-18 17:28+0200\n"
-"PO-Revision-Date: 2011-12-18 17:28+0200\n"
+"POT-Creation-Date: 2011-12-21 18:27+0200\n"
+"PO-Revision-Date: 2011-12-21 18:29+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -489,6 +489,7 @@ msgstr "כניסה"
 
 #: common/templates/error_dialog.html:5
 #: common/templates/error_page.html:8
+#: sharing/templates/passenger_registration.html:282
 #: sharing/templates/wb_home.html:359
 #: sharing/templates/wb_home_tooltips.html:629
 msgid "OOPS..."
@@ -530,7 +531,7 @@ msgid "OK"
 msgstr "אישור"
 
 #: common/templates/error_page.html:16
-#: intermediate/templates/wb_base_site.html:146
+#: intermediate/templates/wb_base_site.html:147
 #: templates/wb_base_site.html:147
 #: templates/admin/billing/billingtransaction/change_form.html:18
 msgid "Home"
@@ -578,14 +579,14 @@ msgstr "להצטרפות!"
 #: sharing/templates/contact.html:15
 #: sharing/templates/contact.html.py:41
 #: sharing/templates/mobile/login.html:22
-#: templates/registration/login.html:45
+#: templates/registration/login.html:53
 msgid "Email"
 msgstr "אימייל"
 
 #: common/templates/login_form.html:38
 #: sharing/forms.py:54
 #: sharing/templates/mobile/login.html:24
-#: templates/registration/login.html:49
+#: templates/registration/login.html:57
 msgid "Password"
 msgstr "סיסמה"
 
@@ -748,7 +749,7 @@ msgstr "כניסה באמצעות החשבון שלך ב:"
 #: ordering/templates/workstation_download.html:113
 #: ordering/templates/mobile/passenger_home.html:228
 #: ordering/templates/mobile/passenger_home.html:260
-#: sharing/templates/passenger_registration.html:90
+#: sharing/templates/passenger_registration.html:67
 #: sharing/templates/mobile/passenger_registration.html:91
 msgid "Terms Of Use"
 msgstr "תנאי השימוש"
@@ -935,7 +936,7 @@ msgid "Please notify me when the app is ready for download"
 msgstr "אשמח אם תידעו אותי כשהאפליקציה זמינה להורדה"
 
 #: interests/templates/pilot_interest_form.html:5
-#: sharing/templates/wb_home.html:998
+#: sharing/templates/wb_home.html:989
 msgid "Send me info"
 msgstr "שלחו לי מידע"
 
@@ -948,6 +949,7 @@ msgid "Thanks. We'll contact you soon."
 msgstr "תודה. ניצור אתך קשר בקרוב."
 
 #: intermediate/templates/wb_base.html:18
+#: ordering/util.py:62
 #: templates/wb_base.html:18
 msgid "Shared Taxi Rides"
 msgstr "מוניות ספיישל משותפות"
@@ -972,8 +974,8 @@ msgstr "מוניות לכולם, בחצי מחיר"
 msgid "Revolution in Transportation: Half-priced taxi rides. Book a shared taxi online: comfortable, hassle free ride, save tens of dollars."
 msgstr "מהפכה בתחבורה: מונית בחצי מחיר!הזמינו מונית בלחיצה וסעו בנוחות, בלי ארנק, בלי דאגות ותוך חסכון של עשרות שקלים לנסיעה."
 
-#: intermediate/templates/wb_base.html:68
-#: templates/wb_base.html:76
+#: intermediate/templates/wb_base.html:78
+#: templates/wb_base.html:86
 msgid "Social revolution in public transportation. WAYbetter allows you to order shared taxi rides , for a (very) low fixed price. It’s green, it’s fast and it’s cheap. Check it out: www.waybetter.com"
 msgstr ""
 "WAYbetter - אפליקציה חברתית חדשה שעושה מהפכה בתחבורה.\\n"
@@ -983,35 +985,35 @@ msgstr ""
 "חייבים לנסות:\\n"
 "www.waybetter.com"
 
-#: intermediate/templates/wb_base.html:92
+#: intermediate/templates/wb_base.html:102
 #: sharing/templates/mobile/my_rides.html:69
 #: sharing/templates/mobile/wb_home.html:413
-#: templates/wb_base.html:100
+#: templates/wb_base.html:110
 msgid "Cancel Ride"
 msgstr "בטל נסיעה"
 
-#: intermediate/templates/wb_base.html:93
+#: intermediate/templates/wb_base.html:103
 #: sharing/templates/wb_home_tooltips.html:716
-#: templates/wb_base.html:101
+#: templates/wb_base.html:111
 msgid "Ride cancelled."
 msgstr "הנסיעה בוטלה."
 
-#: intermediate/templates/wb_base.html:94
+#: intermediate/templates/wb_base.html:104
 #: sharing/templates/wb_home_tooltips.html:717
-#: templates/wb_base.html:102
+#: templates/wb_base.html:112
 msgid "Info/Cancel"
 msgstr "מידע/ביטול"
 
-#: intermediate/templates/wb_base.html:95
+#: intermediate/templates/wb_base.html:105
 #: sharing/templates/wb_home_tooltips.html:718
 #: sharing/templates/mobile/my_rides.html:70
 #: sharing/templates/mobile/wb_home.html:414
-#: templates/wb_base.html:103
+#: templates/wb_base.html:113
 msgid "Report Ride"
 msgstr "דווח"
 
 #: intermediate/templates/wb_base_site.html:25
-#: intermediate/templates/wb_base_site.html:152
+#: intermediate/templates/wb_base_site.html:153
 #: ordering/templates/info.html:28
 #: ordering/templates/mobile/passenger_home.html:229
 #: ordering/templates/mobile/passenger_home.html:272
@@ -1024,28 +1026,35 @@ msgstr "דווח"
 msgid "About"
 msgstr "אודות"
 
-#: intermediate/templates/wb_base_site.html:28
+#: intermediate/templates/wb_base_site.html:26
+#: intermediate/templates/wb_base_site.html:161
+#: templates/wb_base_site.html:26
+#: templates/wb_base_site.html.py:161
+msgid "Facebook"
+msgstr "פייסבוק"
+
+#: intermediate/templates/wb_base_site.html:29
 #: ordering/templates/station_page.html:76
 #: templates/base.html:84
 #: templates/wb_base_site.html:29
 msgid "Hi"
 msgstr "שלום"
 
-#: intermediate/templates/wb_base_site.html:36
+#: intermediate/templates/wb_base_site.html:37
 #: templates/wb_base_site.html:37
 msgid "Log-in"
 msgstr "כניסה"
 
-#: intermediate/templates/wb_base_site.html:49
-#: intermediate/templates/wb_base_site.html:153
+#: intermediate/templates/wb_base_site.html:50
+#: intermediate/templates/wb_base_site.html:154
 #: sharing/templates/wb_info.html:8
 #: templates/wb_base_site.html:50
 #: templates/wb_base_site.html.py:154
 msgid "The Service"
 msgstr "על השירות"
 
-#: intermediate/templates/wb_base_site.html:50
-#: intermediate/templates/wb_base_site.html:154
+#: intermediate/templates/wb_base_site.html:51
+#: intermediate/templates/wb_base_site.html:155
 #: sharing/templates/about_us.html:5
 #: sharing/templates/wb_info.html:7
 #: templates/wb_base_site.html:51
@@ -1053,8 +1062,8 @@ msgstr "על השירות"
 msgid "About Us"
 msgstr "מי אנחנו"
 
-#: intermediate/templates/wb_base_site.html:51
-#: intermediate/templates/wb_base_site.html:155
+#: intermediate/templates/wb_base_site.html:52
+#: intermediate/templates/wb_base_site.html:156
 #: sharing/templates/wb_info.html:9
 #: sharing/templates/mobile/faq.html:17
 #: sharing/templates/mobile/wb_home.html:1174
@@ -1063,39 +1072,39 @@ msgstr "מי אנחנו"
 msgid "FAQ"
 msgstr "שאלות נפוצות"
 
-#: intermediate/templates/wb_base_site.html:52
-#: intermediate/templates/wb_base_site.html:156
+#: intermediate/templates/wb_base_site.html:53
+#: intermediate/templates/wb_base_site.html:157
 #: sharing/templates/wb_info.html:10
 #: templates/wb_base_site.html:53
 #: templates/wb_base_site.html.py:157
 msgid "Contact Us"
 msgstr "צור קשר"
 
-#: intermediate/templates/wb_base_site.html:56
-#: intermediate/templates/wb_base_site.html:166
+#: intermediate/templates/wb_base_site.html:57
+#: intermediate/templates/wb_base_site.html:167
 #: ordering/templates/station_analytics.html:157
 #: templates/wb_base_site.html:57
 #: templates/wb_base_site.html.py:167
 msgid "Rides"
 msgstr "נסיעות"
 
-#: intermediate/templates/wb_base_site.html:57
-#: intermediate/templates/wb_base_site.html:168
+#: intermediate/templates/wb_base_site.html:58
+#: intermediate/templates/wb_base_site.html:169
 #: sharing/templates/my_rides.html:9
 #: templates/wb_base_site.html:58
 #: templates/wb_base_site.html.py:169
 msgid "Log Out"
 msgstr "יציאה"
 
-#: intermediate/templates/wb_base_site.html:59
-#: intermediate/templates/wb_base_site.html:170
+#: intermediate/templates/wb_base_site.html:60
+#: intermediate/templates/wb_base_site.html:171
 #: templates/wb_base_site.html:60
 #: templates/wb_base_site.html.py:171
 msgid "Log In"
 msgstr "כניסה"
 
-#: intermediate/templates/wb_base_site.html:60
-#: intermediate/templates/wb_base_site.html:172
+#: intermediate/templates/wb_base_site.html:61
+#: intermediate/templates/wb_base_site.html:173
 #: ordering/templates/business_tab.html:24
 #: ordering/templates/station_home.html:59
 #: templates/wb_base_site.html:61
@@ -1103,88 +1112,88 @@ msgstr "כניסה"
 msgid "Join"
 msgstr "הצטרפות!"
 
-#: intermediate/templates/wb_base_site.html:98
-#: intermediate/templates/wb_base_site.html:117
+#: intermediate/templates/wb_base_site.html:99
+#: intermediate/templates/wb_base_site.html:118
 #: templates/wb_base_site.html:99
 #: templates/wb_base_site.html.py:118
 msgid "Service"
 msgstr "שירות"
 
-#: intermediate/templates/wb_base_site.html:99
+#: intermediate/templates/wb_base_site.html:100
 #: templates/wb_base_site.html:100
 msgid "learnmore_service_content"
 msgstr "<p>החברים ב-WAYbetter נהנים מחוויית משתמש מתקדמת.</p><p>כדי שיהיה קל וכיף, אנו מאפשרים הזמנת מונית בקליק, משחררים אתכם מהצורך להתעסק במזומן או בכלל לשלוף את הארנק. ובעיקר להינות משירות של מונית ספיישל תוך חסכון של עשרות שקלים בכל נסיעה.</p>"
 
-#: intermediate/templates/wb_base_site.html:102
-#: intermediate/templates/wb_base_site.html:121
-#: intermediate/templates/wb_base_site.html:159
+#: intermediate/templates/wb_base_site.html:103
+#: intermediate/templates/wb_base_site.html:122
+#: intermediate/templates/wb_base_site.html:160
 #: templates/wb_base_site.html:103
 #: templates/wb_base_site.html.py:122
 #: templates/wb_base_site.html:160
 msgid "Community"
 msgstr "קהילה"
 
-#: intermediate/templates/wb_base_site.html:103
+#: intermediate/templates/wb_base_site.html:104
 #: templates/wb_base_site.html:104
 msgid "learnmore_community_content"
 msgstr "<p>WAYbetter היא קהילה שנוצרה כדי לאפשר נסיעה משותפת במונית תוך הוזלה דרסטית של מחירי הנסיעה. מטרת הקהילה לעשות טוב לכולם: לשפר את שירות התחבורה הציבורית, לייעל את עבודת נהגי המוניות, לצמצם את זיהום האוויר בעיר, וכמובן לנסוע במחיר שווה לכל כיס.</p><p>אנו חולקים דרך משותפת, בואו נאחד כוחות כקהילה וניצור חופש תנועה מסוג חדש.</p>"
 
-#: intermediate/templates/wb_base_site.html:106
-#: intermediate/templates/wb_base_site.html:125
+#: intermediate/templates/wb_base_site.html:107
+#: intermediate/templates/wb_base_site.html:126
 #: templates/wb_base_site.html:107
 #: templates/wb_base_site.html.py:126
 msgid "Environment"
 msgstr "סביבה"
 
-#: intermediate/templates/wb_base_site.html:107
+#: intermediate/templates/wb_base_site.html:108
 #: templates/wb_base_site.html:108
 msgid "learnmore_environment_content"
 msgstr "<p>אנו מאמינים בתחבורה ציבורית.</p><p>השיעבוד לרכב הפרטי וחוסר היעילות בו מתנהלת התחבורה הציבורית הם הגורמים העיקריים להפיכת המרחב האורבאני לצפוף, רועש ומזוהם. אנו יודעים שסלילת כבישים נוספים או מכוניות חשמליות לא יפתרו את הבעיה. אלגוריתם התכנון החכם של WAYbetter מאפשר להסיע יותר אנשים בפחות רכבים ובכך למנוע זיהום מיותר ולמקסם את יעילותה של התחבורה הציבורית.</p><p>יחד נוכל לרתום את הצפיפות העירונית לטובתנו ולהפוך אותה מקושי ליתרון אמיתי.</p>"
 
-#: intermediate/templates/wb_base_site.html:110
-#: intermediate/templates/wb_base_site.html:129
+#: intermediate/templates/wb_base_site.html:111
+#: intermediate/templates/wb_base_site.html:130
 #: templates/wb_base_site.html:111
 #: templates/wb_base_site.html.py:130
 msgid "Efficiency"
 msgstr "יעילות"
 
-#: intermediate/templates/wb_base_site.html:111
+#: intermediate/templates/wb_base_site.html:112
 #: templates/wb_base_site.html:112
 msgid "learnmore_efficiency_content"
 msgstr "<p>WAYbetter הוקמה כדי לייעל את תחום התחבורה ולתקן כשל שוק: מוניות נוסעות ריקות כחצי מהזמן, או עם לקוח אחד בשאר המקרים. כתוצאה מכך עלות הנסיעה במונית יקרה ללקוח ולא רווחית לנהג.</p><p>תפיסת התחבורה שלנו מתאימה את ההיצע לביקוש ובכך מפחיתה את הבזבוז וממקסמת את יעילות ורווחיות השירות, לטובת כלל חברי הקהילה, הנוסעים, הנהגים והסביבה.</p>"
 
-#: intermediate/templates/wb_base_site.html:118
+#: intermediate/templates/wb_base_site.html:119
 #: templates/wb_base_site.html:119
 msgid "gist_service_content"
 msgstr "חווית מוניות חדשה, אישית ומתקדמת"
 
-#: intermediate/templates/wb_base_site.html:122
+#: intermediate/templates/wb_base_site.html:123
 #: templates/wb_base_site.html:123
 msgid "gist_community_content"
 msgstr "אנחנו חולקים עיר, בואו נחלוק גם דרך"
 
-#: intermediate/templates/wb_base_site.html:126
+#: intermediate/templates/wb_base_site.html:127
 #: templates/wb_base_site.html:127
 msgid "gist_environment_content"
 msgstr "יותר אנשים ברכב, פחות רכבים בכביש"
 
-#: intermediate/templates/wb_base_site.html:130
+#: intermediate/templates/wb_base_site.html:131
 #: templates/wb_base_site.html:131
 msgid "gist_efficiency_content"
 msgstr "פחות בזבוז, יותר התאמה אישית"
 
-#: intermediate/templates/wb_base_site.html:147
+#: intermediate/templates/wb_base_site.html:148
 #: templates/wb_base_site.html:148
 msgid "PickMeApp"
 msgstr "נגעת נסעת"
 
-#: intermediate/templates/wb_base_site.html:148
+#: intermediate/templates/wb_base_site.html:149
 #: sharing/templates/mobile/wb_home.html:1178
 #: templates/wb_base_site.html:149
 msgid "Terms of Use"
 msgstr "תנאי שימוש"
 
-#: intermediate/templates/wb_base_site.html:149
+#: intermediate/templates/wb_base_site.html:150
 #: ordering/templates/terms.html:18
 #: sharing/templates/mobile/passenger_registration.html:149
 #: sharing/templates/mobile/privacy.html:16
@@ -1193,39 +1202,33 @@ msgstr "תנאי שימוש"
 msgid "Privacy Policy"
 msgstr "מדיניות פרטיות"
 
-#: intermediate/templates/wb_base_site.html:160
-#: templates/wb_base_site.html:26
-#: templates/wb_base_site.html.py:161
-msgid "Facebook"
-msgstr "פייסבוק"
-
-#: intermediate/templates/wb_base_site.html:165
+#: intermediate/templates/wb_base_site.html:166
 #: sharing/templates/my_rides.html:4
 #: templates/wb_base_site.html:166
 msgid "My Account"
 msgstr "החשבון שלי"
 
-#: intermediate/templates/wb_base_site.html:205
+#: intermediate/templates/wb_base_site.html:206
 #: templates/wb_base_site.html:206
 msgid "To view WAYbetter in Internet Explorer you need to install"
 msgstr "על-מנת לגלוש ב WAYbetter דרך מיקרוסופט אקספלורר עליך להשתמש "
 
-#: intermediate/templates/wb_base_site.html:206
+#: intermediate/templates/wb_base_site.html:207
 #: templates/wb_base_site.html:207
 msgid "Free"
 msgstr "חינם"
 
-#: intermediate/templates/wb_base_site.html:208
+#: intermediate/templates/wb_base_site.html:209
 #: templates/wb_base_site.html:209
 msgid "Install Google Chrome Frame"
 msgstr "הוסף Google Chrome Frame"
 
-#: intermediate/templates/wb_base_site.html:209
+#: intermediate/templates/wb_base_site.html:210
 #: templates/wb_base_site.html:210
 msgid "Or, use one of these browsers"
 msgstr "או, התקן את אחד מהדפדפנים הבאים"
 
-#: intermediate/templates/wb_base_site.html:276
+#: intermediate/templates/wb_base_site.html:277
 #: templates/wb_base_site.html:292
 msgid "Get yourself a modern browser"
 msgstr "שדרג את חוית הגלישה שלך, עבור לדפדפן מתקדם"
@@ -2275,10 +2278,12 @@ msgstr ""
 " %s"
 
 #: ordering/passenger_controller.py:387
+#: sharing/passenger_controller.py:525
 msgid "Error validating phone (check that your browser accepts cookies)"
 msgstr "אימות טלפון נכשל: יש לאפשרקבלת עוגיות (cookies) בדפדפן"
 
 #: ordering/passenger_controller.py:390
+#: sharing/passenger_controller.py:528
 msgid "Invalid verification code"
 msgstr "קוד SMS שגוי"
 
@@ -2492,7 +2497,7 @@ msgid "Pick Me Up"
 msgstr "שלח לי מונית"
 
 #: ordering/templates/base_passenger.html:164
-#: templates/registration/login.html:37
+#: templates/registration/login.html:45
 msgid "Join!"
 msgstr "הצטרפות!"
 
@@ -3386,12 +3391,15 @@ msgstr "מרווח זמן"
 msgid "tag"
 msgstr "תג"
 
-#: sharing/passenger_controller.py:61
-#: sharing/passenger_controller.py:63
+#: sharing/passenger_controller.bak.py:63
+#: sharing/passenger_controller.bak.py:65
+#: sharing/passenger_controller.py:62
+#: sharing/passenger_controller.py:64
 msgid "Not found"
 msgstr "לא קיים"
 
-#: sharing/passenger_controller.py:107
+#: sharing/passenger_controller.bak.py:109
+#: sharing/passenger_controller.py:108
 #: sharing/templates/wb_home.html:558
 #: sharing/templates/wb_home.html.py:583
 #: sharing/templates/wb_home_tooltips.html:553
@@ -3402,26 +3410,42 @@ msgstr "לא קיים"
 msgid "We have encountered an error. Please try again."
 msgstr "אופס, התרחשה שגיאה. אנא נסו שוב."
 
-#: sharing/passenger_controller.py:143
-#: sharing/passenger_controller.py:370
-msgid "Book 3 seats and the forth is free"
-msgstr "הזמן שלושה מושבים והרביעי חינם!"
+#: sharing/passenger_controller.bak.py:145
+msgid "Currently it is not possible to book more than 1 seat"
+msgstr "כרגע לא ניתן להזמין יותר ממושב אחד"
 
-#: sharing/passenger_controller.py:156
+#: sharing/passenger_controller.bak.py:158
+#: sharing/passenger_controller.py:157
 msgid "This interval is closed for booking now. Please choose a later time"
 msgstr "לא ניתן להזמין לשעה שנבחרה. אנא בחר שעה אחרת ונסה שנית"
 
-#: sharing/passenger_controller.py:616
+#: sharing/passenger_controller.bak.py:668
+#: sharing/passenger_controller.py:597
 msgid "WAYbetter ride"
 msgstr "נסיעת מונית WAYbetter"
 
-#: sharing/passenger_controller.py:616
+#: sharing/passenger_controller.bak.py:668
+#: sharing/passenger_controller.py:597
 msgid "Private ride"
 msgstr "נסיעת מונית פרטית"
 
-#: sharing/passenger_controller.py:635
+#: sharing/passenger_controller.bak.py:687
+#: sharing/passenger_controller.py:616
 msgid "WAYbetter Order Confirmation"
 msgstr "אישור הזמנת נסיעה "
+
+#: sharing/passenger_controller.py:144
+#: sharing/passenger_controller.py:369
+msgid "Book 3 seats and the forth is free"
+msgstr "הזמן שלושה מושבים והרביעי חינם!"
+
+#: sharing/passenger_controller.py:516
+msgid "You must be logged in to validate your phone."
+msgstr "עלייך להכנס לחשבונך לפני ביצוע אימות טלפון."
+
+#: sharing/passenger_controller.py:538
+msgid "We're sorry but your phone appears to used by multiple users. Please contact support@waybetter.com to resolve this issue."
+msgstr "הטלפון שלך נמצא בשימוש על ידי כמה נוסעים. אנא פנה אל contact@waybetter.com לקבלת עזרה."
 
 #: sharing/templates/about_us.html:7
 msgid "about_us_content"
@@ -3595,7 +3619,7 @@ msgid "Taxi is on the way!"
 msgstr "המונית בדרך!"
 
 #: sharing/templates/passenger_notification_msg.html:3
-#: sharing/templates/wb_home.html:876
+#: sharing/templates/wb_home.html:867
 #: sharing/templates/wb_home_tooltips.html:402
 #: sharing/templates/wb_home_tooltips.html:1058
 #: sharing/templates/mobile/wb_home.html:410
@@ -3607,69 +3631,68 @@ msgstr "איסוף ב"
 msgid "Tell the driver you’re with WAYbetter and the paper is at the station"
 msgstr "אמרו לנהג שאתם WAYbetter ושהפתק בתחנה"
 
-#: sharing/templates/passenger_registration.html:6
-msgid "First Time? Join the Movement...  "
-msgstr "פעם ראשונה? הצטרף..."
+#: sharing/templates/passenger_registration.html:14
+#: sharing/templates/passenger_registration.html:26
+msgid "Account Information"
+msgstr "פרטי חשבון"
 
-#: sharing/templates/passenger_registration.html:10
-#: sharing/templates/passenger_registration.html:103
+#: sharing/templates/passenger_registration.html:15
+#: sharing/templates/passenger_registration.html:83
+msgid "Phone Verification"
+msgstr "אימות טלפון"
+
+#: sharing/templates/passenger_registration.html:16
+msgid "Billing Information"
+msgstr "פרטי חיוב"
+
+#: sharing/templates/passenger_registration.html:29
+#: sharing/templates/passenger_registration.html:131
 msgid "Already a member?"
 msgstr "כבר הצטרפת?"
 
-#: sharing/templates/passenger_registration.html:10
-#: sharing/templates/passenger_registration.html:103
+#: sharing/templates/passenger_registration.html:30
+#: sharing/templates/passenger_registration.html:131
 msgid "Sign In"
 msgstr "כניסה"
 
-#: sharing/templates/passenger_registration.html:22
-msgid "Ride details are sent by free SMS"
-msgstr "פרטי הנסיעה נשלחים ב SMS חינם"
-
-#: sharing/templates/passenger_registration.html:27
-msgid "Mobile Phone"
-msgstr "טלפון"
-
-#: sharing/templates/passenger_registration.html:30
-msgid "Get Code"
-msgstr "שלח קוד"
-
-#: sharing/templates/passenger_registration.html:34
-msgid "Enter Code"
-msgstr "הכנס קוד"
-
-#: sharing/templates/passenger_registration.html:48
-msgid "Setup your account:"
-msgstr "פרטי החשבון שלך ב:"
-
-#: sharing/templates/passenger_registration.html:55
+#: sharing/templates/passenger_registration.html:36
 msgid "Use your Facebook account for fast registration:"
 msgstr "הרשמה מהירה באמצעות פייסבוק:"
 
-#: sharing/templates/passenger_registration.html:59
-msgid "Login with Facebook"
-msgstr "Login with Facebook"
-
-#: sharing/templates/passenger_registration.html:65
+#: sharing/templates/passenger_registration.html:41
 msgid "OR"
 msgstr "או"
 
-#: sharing/templates/passenger_registration.html:89
+#: sharing/templates/passenger_registration.html:65
 #: sharing/templates/mobile/passenger_registration.html:90
 msgid "I agree to the"
 msgstr "אני מסכימ/ה ל"
 
-#: sharing/templates/passenger_registration.html:91
+#: sharing/templates/passenger_registration.html:68
 #: sharing/templates/mobile/passenger_registration.html:91
 msgid "and"
 msgstr "ו"
 
-#: sharing/templates/passenger_registration.html:92
+#: sharing/templates/passenger_registration.html:69
 #: sharing/templates/privacy.html:4
 #: sharing/templates/mobile/passenger_registration.html:92
 msgid "Privacy Statement"
 msgstr "הצהרת פרטיות"
 
-#: sharing/templates/passenger_registration.html:105
+#: sharing/templates/passenger_registration.html:93
+msgid "Mobile Phone"
+msgstr "טלפון"
+
+#: sharing/templates/passenger_registration.html:103
+msgid "Send SMS Code"
+msgstr "שלח קוד ב-SMS"
+
+#: sharing/templates/passenger_registration.html:108
+msgid "Enter Code"
+msgstr "הכנס קוד"
+
+#: sharing/templates/passenger_registration.html:133
+#: sharing/templates/passenger_registration.html:135
 #: sharing/templates/wb_home.html:91
 #: sharing/templates/wb_home.html.py:120
 #: sharing/templates/wb_home_tooltips.html:416
@@ -3681,14 +3704,18 @@ msgstr "הצהרת פרטיות"
 msgid "Next"
 msgstr "המשך"
 
+#: sharing/templates/passenger_registration.html:172
 #: sharing/templates/passenger_registration.html:220
-#: sharing/templates/passenger_registration.html:248
 #: sharing/templates/wb_home.html:592
 #: sharing/templates/wb_home_tooltips.html:598
 #: sharing/templates/mobile/passenger_registration.html:177
 #: sharing/templates/mobile/passenger_registration.html:237
 msgid "Sending"
 msgstr "שולח"
+
+#: sharing/templates/passenger_registration.html:194
+msgid "An error occurred, please try again"
+msgstr "התרחשה שגיאה. אנא נסו שוב."
 
 #: sharing/templates/passenger_ride_email.html:11
 #, python-format
@@ -3821,7 +3848,7 @@ msgstr "נוסע לבד"
 
 #: sharing/templates/producer_rides_summary.html:18
 #: sharing/templates/station_history.html:32
-#: sharing/templates/wb_home.html:872
+#: sharing/templates/wb_home.html:863
 msgid "Time"
 msgstr "זמן"
 
@@ -4139,7 +4166,7 @@ msgstr "הורידו את האפליקציה החדשה של WAYbetter לסמא�
 
 #: sharing/templates/wb_home.html:255
 msgid "Get the iPhone App"
-msgstr "הורד אפליקציית iPhone"
+msgstr "להורדת אפליקציה ל iPhone"
 
 #: sharing/templates/wb_home.html:261
 msgid "Get the Android App"
@@ -4202,27 +4229,27 @@ msgstr "הצע נקודה מרכזית"
 msgid "Please choose from list"
 msgstr "בבקשה בחר מהרשימה"
 
-#: sharing/templates/wb_home.html:759
+#: sharing/templates/wb_home.html:750
 msgid "Where are you going"
 msgstr "לאן אתה נוסע"
 
-#: sharing/templates/wb_home.html:759
+#: sharing/templates/wb_home.html:750
 msgid "Where are you coming from"
 msgstr "מהיכן אתה מגיע"
 
-#: sharing/templates/wb_home.html:871
+#: sharing/templates/wb_home.html:862
 msgid "Define Time"
 msgstr "הגדר זמן"
 
-#: sharing/templates/wb_home.html:875
+#: sharing/templates/wb_home.html:866
 msgid "Pickup Time from "
 msgstr "שעת יציאה מ"
 
-#: sharing/templates/wb_home.html:879
+#: sharing/templates/wb_home.html:870
 msgid "Dropoff Time at "
 msgstr "שעת הגעה ל"
 
-#: sharing/templates/wb_home.html:880
+#: sharing/templates/wb_home.html:871
 #: sharing/templates/wb_home_tooltips.html:402
 msgid "_dropoffat"
 msgstr "הגעה ליעד ב"
@@ -4421,7 +4448,7 @@ msgstr "חברים רשומים"
 #: sharing/templates/mobile/login.html:27
 #: templates/registration/activate.html:10
 #: templates/registration/activation_complete.html:8
-#: templates/registration/login.html:58
+#: templates/registration/login.html:64
 #: templates/registration/login_reg.html:8
 #: templates/registration/password_reset_complete.html:8
 msgid "Log in"
@@ -4712,11 +4739,11 @@ msgstr "החשבון הופעל בהצלחה"
 msgid "Account activation failed"
 msgstr "הפעלת חשבון נכשלה"
 
-#: templates/registration/login.html:32
+#: templates/registration/login.html:40
 msgid "Log-in To Your Account"
 msgstr "כניסה לחשבונך"
 
-#: templates/registration/login.html:36
+#: templates/registration/login.html:44
 msgid "New to WAYbetter?"
 msgstr "פעם ראשונה?"
 
@@ -4769,6 +4796,21 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
 
+#~ msgid "First Time? Join the Movement...  "
+#~ msgstr "פעם ראשונה? הצטרף..."
+
+#~ msgid "Ride details are sent by free SMS"
+#~ msgstr "פרטי הנסיעה נשלחים ב SMS חינם"
+
+#~ msgid "Get Code"
+#~ msgstr "שלח קוד"
+
+#~ msgid "Setup your account:"
+#~ msgstr "פרטי החשבון שלך ב:"
+
+#~ msgid "Login with Facebook"
+#~ msgstr "Login with Facebook"
+
 #~ msgid "We are currently running a private alpha"
 #~ msgstr "אנחנו מפעילים כרגע גרסת Alpha פרטית"
 
@@ -4783,9 +4825,6 @@ msgstr "שגיאה בבודק האיות"
 
 #~ msgid "Account"
 #~ msgstr "חשבון"
-
-#~ msgid "Currently it is not possible to book more than 1 seat"
-#~ msgstr "כרגע לא ניתן להזמין יותר ממושב אחד"
 
 #~ msgid "smart,iPhone,way better,order taxi,online"
 #~ msgstr ""
@@ -5169,9 +5208,6 @@ msgstr "שגיאה בבודק האיות"
 #~ msgid "All rights reserved to WAYbetter"
 #~ msgstr "כל הזכויות שמורות לWAYbetter"
 
-#~ msgid "Phone Verification"
-#~ msgstr "אימות טלפון"
-
 #~ msgid "Hotspots are areas where WAYbetter offers cheap taxis"
 #~ msgstr "'הוט-ספוט' היא נקודה בעיר אשר ניתן לנסוע אליה וממנה ב-WAYbetter."
 
@@ -5306,9 +5342,6 @@ msgstr "שגיאה בבודק האיות"
 
 #~ msgid "Contact"
 #~ msgstr "צור קשר"
-
-#~ msgid "Information"
-#~ msgstr "מידע"
 
 #~ msgid "Date and Time"
 #~ msgstr "תאריך ושעה"
