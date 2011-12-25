@@ -103,12 +103,17 @@ def get_token_url(request):
 
 def get_billing_redirect_url(request, order, passenger):
     """
-    returns a url: redirect to credit guard if no passenger has no billing info, else to bill order
+    returns a url the passenger should be redirected to continue registration/billing process
     """
-    if hasattr(passenger, "billing_info"): # redirect to billing
-        billing_trx = BillingTransaction(order=order, amount=order.price, debug=order.debug)
-        billing_trx.save()
-        return reverse("bill_order", args=[billing_trx.id])
+    if hasattr(passenger, "billing_info"):
+        if order:
+            billing_trx = BillingTransaction(order=order, amount=order.price, debug=order.debug)
+            billing_trx.save()
+            return reverse("bill_order", args=[billing_trx.id])
+        else:
+            return reverse("wb_home")
 
-    else: # redirect to credit guard
+    else:
+        # redirect to credit guard
+        # if there is an order we'll get here again by tx_ok with passenger.billing_info ('if' condition will be met)
         return get_token_url(request)

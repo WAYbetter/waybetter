@@ -362,11 +362,11 @@
     function selectHotspot(){
         var hotspot = HotspotHelper.getHotspotByID($("#id_hotspot_select").val());
         BookingHelper.hotspot = hotspot;
-        var hs_name = (hotspot.name || "{% trans "Hotspot" %}");
+        var hs_name = (hotspot) ? hotspot.name : "{% trans "Hotspot" %}";
         $("#leave_hotspot").text("{% trans "Leave " %}" + hs_name + " >>");
         $("#goto_hotspot").text("{% trans "Goto " %}" + hs_name + " >>");
 
-        if (BookingHelper.hotspot_type) {
+        if (BookingHelper.hotspot && BookingHelper.hotspot_type) {
             HotspotHelper.refreshHotspotMarker(BookingHelper.hotspot_type);
         }
         if (BookingHelper.hotspot) { // log Google Analytics event
