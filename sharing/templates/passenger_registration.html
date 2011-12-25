@@ -86,6 +86,7 @@
             <tr>
                 <td class="form cntr">
                     <form id="phone_form">
+                        {% csrf_token %}
                         <input name="country_code" type="hidden" value="{{ country_code }}"/>
                         <table>
                             <tr class="phone cntr">
