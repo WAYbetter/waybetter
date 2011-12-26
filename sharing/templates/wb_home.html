@@ -308,7 +308,7 @@
 
     var PICKUP = "pickup",
         DROPOFF = "dropoff",
-        SHARING_TIME_FACTOR = 1.2,
+        SHARING_TIME_FACTOR = {{ sharing_time_factor }},
         BOOKING_STEPS = ["hotspot", "address", "datetime", "details"];
 
     var RTL = false;
@@ -529,7 +529,8 @@
                 'hotspot_id': BookingHelper.hotspot.id,
                 'hotspot_type': BookingHelper.hotspot_type,
                 'day': BookingHelper.ride_date,
-                'time': BookingHelper.ride_time
+                'time': BookingHelper.ride_time,
+                'ride_duration': HotspotHelper.ride_duration
             },
             beforeSend: function() {
                 $("#datetime_loader").show();

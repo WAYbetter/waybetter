@@ -9,7 +9,7 @@ from django.utils import simplejson, translation
 from django.utils.translation import ugettext as _
 from common.decorators import internal_task_on_queue, catch_view_exceptions, catch_view_exceptions_retry
 from common.util import safe_fetch, notify_by_email
-from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation, APPROVED, RideComputationStatus, FAILED
+from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation, APPROVED, RideComputationStatus, FAILED, SHARING_TIME_FACTOR
 from ordering.util import send_msg_to_passenger
 from sharing import signals
 from datetime import timedelta, datetime
@@ -18,14 +18,17 @@ import logging
 from django.conf import settings
 from sharing.errors import BookRideError
 
-TELMAP = 4
+DEBUG = 1
 WAZE = 3
+TELMAP = 4
 
 SHARING_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % TELMAP
-SHARING_ENGINE_URL = "/".join([SHARING_ENGINE_DOMAIN, "routeservicega1"])
-SEC_SHARING_ENGINE_URL = "http://waybetter-route-service-backup.appspot.com/routeservicega1"
+SEC_SHARING_ENGINE_DOMAIN = "http://waybetter-route-service-backup.appspot.com"
 
+SHARING_ENGINE_URL = "/".join([SHARING_ENGINE_DOMAIN, "routeservicega1"])
+SEC_SHARING_ENGINE_URL = "/".join([SEC_SHARING_ENGINE_DOMAIN, "routeservicega1"])
 PRE_FETCHING_URL = "/".join([SHARING_ENGINE_DOMAIN, "prefetch"])
+ROUTING_URL = "/".join([SHARING_ENGINE_DOMAIN, "routes"])
 
 COMPUTATION_FIRST_SUBMIT = 1
 COMPUTATION_SUBMIT_TO_SECONDARY = 2
@@ -33,6 +36,38 @@ COMPUTATION_ABORT = 3
 
 COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT = 3 # minutes
 COMPUTATION_ABORT_TIMEOUT = 3 # minutes
+
+def calculate_route(start_lat, start_lon, end_lat, end_lon):
+    payload = urllib.urlencode({
+        "start_latitude": start_lat,
+        "start_longitude": start_lon,
+        "end_latitude": end_lat,
+        "end_longitude": end_lon
+    })
+
+    url = "%s?%s" % (ROUTING_URL, payload)
+    logging.info("algo route: %s" % url)
+
+    response = safe_fetch(url, deadline=15, notify=False)
+    content = response.content.strip() if response else None
+
+    result = {
+        "estimated_distance": 0.0,
+        "estimated_duration": 0.0
+    }
+
+    if content:
+        route = simplejson.loads(content)
+        if "Error" in route:
+            logging.error(route["Error"])
+        else:
+            result = {
+                "estimated_distance": float(route["m_Distance"]),
+                "estimated_duration": float(route["m_TimeSeconds"])
+            }
+
+    return result
+
 
 def submit_to_prefetch(order, key, address_type):
     address = getattr(order, "%s_raw" % address_type).encode("utf-8")
@@ -188,6 +223,7 @@ def submit_computations_task(request):
         try:
             computation = RideComputation.objects.get(key=key)
             if computation.status in [RideComputationStatus.ABORTED, RideComputationStatus.IGNORED, RideComputationStatus.COMPLETED]:
+                logging.info("nothing to do")
                 return HttpResponse("Done")
 
         except RideComputation.DoesNotExist:
@@ -200,7 +236,9 @@ def submit_computations_task(request):
             abort_computation(computation)
             return HttpResponse("ABORTED") # abort task
 
-        params = {'debug': computation.debug}
+        params = {'debug': computation.debug,
+                  'toleration_factor': SHARING_TIME_FACTOR
+                  }
 
         approved_orders = list(computation.orders.filter(status=APPROVED))
 

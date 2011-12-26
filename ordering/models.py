@@ -31,7 +31,7 @@ import logging
 import datetime
 import common.urllib_adaptor as urllib2
 
-SHARING_TIME_FACTOR = 1.2
+SHARING_TIME_FACTOR = 1.25
 
 ORDER_HANDLE_TIMEOUT =                      80 # seconds
 ORDER_TEASER_TIMEOUT =                      19 # seconds
