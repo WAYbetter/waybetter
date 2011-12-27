@@ -9,7 +9,7 @@ from django.utils import simplejson, translation
 from django.utils.translation import ugettext as _
 from common.decorators import internal_task_on_queue, catch_view_exceptions, catch_view_exceptions_retry
 from common.util import safe_fetch, notify_by_email
-from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation, APPROVED, RideComputationStatus, FAILED, SHARING_TIME_FACTOR
+from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation, APPROVED, RideComputationStatus, FAILED, SHARING_TIME_FACTOR, IGNORED
 from ordering.util import send_msg_to_passenger
 from sharing import signals
 from datetime import timedelta, datetime
@@ -240,7 +240,14 @@ def submit_computations_task(request):
                   'toleration_factor': SHARING_TIME_FACTOR
                   }
 
-        approved_orders = list(computation.orders.filter(status=APPROVED))
+        approved_orders = []
+        for order in computation.orders.all():
+            if order.status == APPROVED:
+                approved_orders.append(order)
+                logging.info("order [%s] APPROVED" % order.id)
+            else:
+                order.change_status(new_status=IGNORED)
+                logging.info("order [%s] IGNORED" % order.id)
 
         if not approved_orders:
             computation.change_status(old_status=RideComputationStatus.PROCESSING, new_status=RideComputationStatus.IGNORED) # saves
