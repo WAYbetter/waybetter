@@ -361,6 +361,8 @@
 
     function selectHotspot(){
         var hotspot = HotspotHelper.getHotspotByID($("#id_hotspot_select").val());
+        BookingHelper.ride_date = undefined;
+        BookingHelper.ride_time = undefined;
         BookingHelper.hotspot = hotspot;
         var hs_name = (hotspot.name || "{% trans "Hotspot" %}");
         $("#leave_hotspot").text("{% trans "Leave " %}" + hs_name + " >>");
@@ -668,7 +670,8 @@
                 getHotspotTimes({});
             },
             onSelectTime: function() {
-                if (BookingHelper.hotspot_type == DROPOFF) {
+                $("#id_estimated_pickup .value").text("");
+                if (BookingHelper.hotspot_type == DROPOFF && HotspotHelper.ride_duration) {
                     var d = new Date($("#id_hotspot_datepicker").datepicker("getDate"));
                     var hh = $("#id_hotspot_time option:selected").text().split(":")[0];
                     var mm = $("#id_hotspot_time option:selected").text().split(":")[1];
