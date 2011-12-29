@@ -80,7 +80,7 @@ class BaseModel(models.Model):
             result = False
 
         if not result:
-            msg = "%s.%s : update in transaction failed (%s --> %s)" % (self.__class__.__name__, attname, str(old_value), str(new_value))
+            msg = "%s.%s : update in transaction failed (%s --> %s) current=%s" % (self.__class__.__name__, attname, str(old_value), str(new_value), str(getattr(self, attname)))
             if safe:
                 logging.warning(msg)
             else:
