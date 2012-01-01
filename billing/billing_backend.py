@@ -5,7 +5,7 @@ from common.decorators import force_lang
 from common.models import Counter
 from common.urllib_adaptor import urlencode
 from common.util import get_text_from_element, get_unique_id, safe_fetch
-from ordering.models import CANCELLED, PENDING, APPROVED, CHARGED, FAILED, RideComputationStatus
+from ordering.models import CANCELLED, PENDING, APPROVED, CHARGED, FAILED, RideComputationStatus, IGNORED
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.context import Context
@@ -70,7 +70,7 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
 
 def do_J4(token, amount, card_expiration, billing_transaction_id):
     billing_transaction = BillingTransaction.by_id(billing_transaction_id)
-    if billing_transaction.status == BillingStatus.CANCELLED or billing_transaction.order.status in [CANCELLED, FAILED]:
+    if billing_transaction.status == BillingStatus.CANCELLED or billing_transaction.order.status in [IGNORED, CANCELLED, FAILED]:
         return HttpResponse("Cancelled")
 
     billing_transaction.change_status(BillingStatus.APPROVED, BillingStatus.PROCESSING)
