@@ -23,6 +23,12 @@
     {{ block.super }}
     <script>
         $(document).ready(function() {
+            $("#order_button").click(function (e) {
+                if ($("#id_comments").val().length > 30){
+                    alert("{% trans "Comments field must be shorter than 30 characters" %}.");
+                    return false; // don't book the order
+                }
+            });
             $(".toggle_info_height").click(function() {
                 var $p = $(this).parent().children("p");
                 if ($(this).text() == OrderingHelper.config.less_msg) {
@@ -114,6 +120,15 @@
                     <input type=text class="big_text b_marker marker_disabled address_ac_to" id="id_to_raw" name="to_raw"
                            placeholder="{% trans 'Enter drop-off address' %}"/>
                 </li>
+                {% if request.user.passenger.business %}
+                    <li>
+                        <input type=text class="big_text" id="id_taxi_is_for" name="taxi_is_for" placeholder="{% trans 'Taxi is for' %} ({% trans "optional" %})"/>
+                    </li>
+                    <li>
+                        <input type=text class="big_text" id="id_comments" name="comments" placeholder="{% trans 'Comments' %} ({% trans "30 chars max" %} - {% trans "optional" %})"/>
+                    </li>
+
+                {% endif %}
             </ul>
             <button type=submit class="order_button" id="order_button">{% trans 'Pick Me Up' %}</button>
         </form>
