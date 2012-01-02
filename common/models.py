@@ -222,3 +222,10 @@ class Counter(BaseModel):
             return c.value
 
         return db.run_in_transaction(increment, counter.id)
+
+class Message(BaseModel):
+    key = models.CharField(help_text="A unique name for this chunk of content", blank=False, max_length=255, unique=True)
+    content = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return u"%s" % (self.key,)
