@@ -851,6 +851,8 @@ class Order(BaseModel):
     # pickmeapp fields
     pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)
     future_pickup = models.BooleanField(_("future pickup"), default=False)
+    taxi_is_for = models.CharField(max_length=128, null=True, blank=True, default="")
+    comments = models.CharField(max_length=128, null=True, blank=True, default="")
 
     # sharing fields
     ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="orders", null=True, blank=True)
@@ -1077,15 +1079,22 @@ class OrderAssignment(BaseModel):
             if not base_time:
                 base_time = order_assignment.create_date
 
-            result.append({
-                "pk": order_assignment.order.id,
-                "status": order_assignment.status,
-                "from_raw": order_assignment.pickup_address_in_ws_lang or order_assignment.dn_from_raw,
-                "to_raw": order_assignment.dropoff_address_in_ws_lang or order_assignment.dn_to_raw,
-                "seconds_passed": (utc_now() - base_time).seconds,
-                "business": order_assignment.dn_business_name,
-                "current_rating": order_assignment.station.average_rating
-            })
+            oa_data = {"pk": order_assignment.order.id, "status": order_assignment.status,
+                       "from_raw": order_assignment.pickup_address_in_ws_lang or order_assignment.dn_from_raw,
+                       "to_raw": order_assignment.dropoff_address_in_ws_lang or order_assignment.dn_to_raw,
+                       "seconds_passed": (utc_now() - base_time).seconds,
+                       "current_rating": order_assignment.station.average_rating
+            }
+
+            if order_assignment.dn_business_name: # assigning a business order
+                order = order_assignment.order
+                oa_data.update({
+                    "business": order_assignment.dn_business_name,
+                    'taxi_is_for': order.taxi_is_for,
+                    'comments': order.comments
+                })
+
+            result.append(oa_data)
 
         return result
 
