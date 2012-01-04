@@ -66,6 +66,7 @@
     top: 18px;
     z-index: 1;
     right: 20px;
+    min-height: 50px;
 }
 
 .station_page.rtl #station_logo {
@@ -134,6 +135,7 @@
     margin-top: -26px;
     margin-left: 90px;
     text-align: left;
+    padding-bottom: 5px;
 }
 
 .station_page.rtl #banner > h1 {
@@ -306,4 +308,18 @@
 .station_page.rtl .tracker_order{
     margin-left: 0;
     margin-right: 3px;
+}
+
+
+/* business version of the page*/
+.station_page.business .big_text{
+    margin-bottom: 25px;
+}
+.station_page.business #id_comments, .station_page.business #id_taxi_is_for{
+    width: 275px;
+    background-image: none;
+}
+
+.station_page.business #map_container, .station_page.business #map, .station_page.business #map_overlay_left{
+        height: 333px;
 }

@@ -250,7 +250,7 @@
     }
     #orders .addresses {
         width: 100%;
-        height: 50px;
+        min-height: 50px;
         font-weight: normal;
         text-align: center;
         padding: 3px 0;
@@ -279,6 +279,13 @@
         color: gray;
         display: block;
         font-weight: normal;
+    }
+
+    #orders .comments{
+        color: #9acd32;
+        display: block;
+        font-weight: bold;
+        padding-bottom: 1px;
     }
 
    	#orders .pb-row {
@@ -682,7 +689,12 @@
 
                 var incoming_text = "{% trans 'Incoming order' %}";
                 if (order.business) {
-                    incoming_text += " (<i>" + order.business + "</i>)";
+                    if (order.taxi_is_for){
+                        incoming_text = order.business + " - " + order.taxi_is_for;
+                    }
+                    else{
+                        incoming_text = order.business;
+                    }
                 }
                 
                 var rendered_order = $("<div class='order teaser'></div>").attr('id', order.pk).data("state", ORDER_IS_SHOWING)
@@ -783,6 +795,10 @@
 
             if (order.to_raw) {
                 addresses_div.append($("<div class='to_address'></div>").append("(" + "{% trans 'dropoff' %}: " + order.to_raw + ")"));
+            }
+
+            if (order.comments){
+                addresses_div.append($("<div class='comments'>"+ order.comments + "</div>"));
             }
 
             var rendered_order = $("#" + order.pk).empty().addClass("details")

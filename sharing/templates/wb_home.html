@@ -308,7 +308,7 @@
 
     var PICKUP = "pickup",
         DROPOFF = "dropoff",
-        SHARING_TIME_FACTOR = 1.2,
+        SHARING_TIME_FACTOR = {{ sharing_time_factor }},
         BOOKING_STEPS = ["hotspot", "address", "datetime", "details"];
 
     var RTL = false;
@@ -361,6 +361,8 @@
 
     function selectHotspot(){
         var hotspot = HotspotHelper.getHotspotByID($("#id_hotspot_select").val());
+        BookingHelper.ride_date = undefined;
+        BookingHelper.ride_time = undefined;
         BookingHelper.hotspot = hotspot;
         var hs_name = (hotspot) ? hotspot.name : "{% trans "Hotspot" %}";
         $("#leave_hotspot").text("{% trans "Leave " %}" + hs_name + " >>");
@@ -529,7 +531,8 @@
                 'hotspot_id': BookingHelper.hotspot.id,
                 'hotspot_type': BookingHelper.hotspot_type,
                 'day': BookingHelper.ride_date,
-                'time': BookingHelper.ride_time
+                'time': BookingHelper.ride_time,
+                'ride_duration': HotspotHelper.ride_duration
             },
             beforeSend: function() {
                 $("#datetime_loader").show();
@@ -667,7 +670,8 @@
                 getHotspotTimes({});
             },
             onSelectTime: function() {
-                if (BookingHelper.hotspot_type == DROPOFF) {
+                $("#id_estimated_pickup .value").text("");
+                if (BookingHelper.hotspot_type == DROPOFF && HotspotHelper.ride_duration) {
                     var d = new Date($("#id_hotspot_datepicker").datepicker("getDate"));
                     var hh = $("#id_hotspot_time option:selected").text().split(":")[0];
                     var mm = $("#id_hotspot_time option:selected").text().split(":")[1];

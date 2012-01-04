@@ -33,45 +33,13 @@ indexes:
 
 - kind: analytics_analyticsevent
   properties:
-  - name: city_id
-  - name: type
-  - name: create_date
-
-- kind: analytics_analyticsevent
-  properties:
   - name: station_id
   - name: create_date
 
 - kind: analytics_analyticsevent
   properties:
-  - name: station_id
   - name: type
   - name: create_date
-
-- kind: analytics_analyticsevent
-  properties:
-  - name: station_id
-  - name: type
-  - name: work_station_id
-  - name: create_date
-
-- kind: analytics_analyticsevent
-  properties:
-  - name: type
-  - name: create_date
-
-- kind: analytics_analyticsevent
-  properties:
-  - name: type
-  - name: work_station_id
-  - name: create_date
-
-- kind: analytics_analyticsevent
-  properties:
-  - name: type
-  - name: work_station_id
-  - name: create_date
-    direction: desc
 
 - kind: analytics_analyticsevent
   properties:
@@ -269,6 +237,11 @@ indexes:
   properties:
   - name: code
   - name: name
+
+- kind: common_message
+  properties:
+  - name: __key__
+    direction: desc
 
 - kind: common_signalstore
   properties:
@@ -980,6 +953,11 @@ indexes:
   properties:
   - name: __key__
     direction: desc
+
+- kind: sharing_hotspot
+  properties:
+  - name: is_public
+  - name: name
 
 - kind: sharing_hotspotcustompricerule
   properties:

@@ -50,9 +50,9 @@ var OrderingHelper = Object.create({
             cache = this.cache,
             digits_re = new RegExp(/\d+/);
 
-        cache.$from_raw_input       = $("#id_from_raw"),
-        cache.$to_raw_input         = $("#id_to_raw"),
-        cache.$order_form           = $("#order_form"),
+        cache.$from_raw_input       = $("#id_from_raw");
+        cache.$to_raw_input         = $("#id_to_raw");
+        cache.$order_form           = $("#order_form");
         cache.$order_button         = $("#order_button");
         cache.$finish_verification  = $("#finish_verification");
         cache.$rides_button         = $("#rides_button");

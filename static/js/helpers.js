@@ -393,8 +393,8 @@ var HotspotHelper = Object.create({
                     var $selected = $hotspotpicker.find(":selected").eq(0);
                     if ($selected) {
                         $hs_description.text("").text($selected.data("description"));
-                        var now = new Date();
-                        var first_interval = getFullDate($selected.data("next_datetime") || now);
+                        var first_interval = $selected.data("next_datetime") || new Date();
+
                         $datepicker.datepicker("destroy").datepicker({
                             dateFormat: 'dd/mm/yy',
                             minDate: new Date(),
@@ -404,11 +404,16 @@ var HotspotHelper = Object.create({
                             },
                             onSelect: options.onSelectDate,
                             onChangeMonthYear: that._onChangeMonthYear
-                        }).datepicker("setDate", first_interval);
+                        }).datepicker("setDate", getFullDate(first_interval));
+
+                        // get dates
+                        that.clearCache();
+                        that._getDatesForMonthYear(first_interval.getFullYear(), first_interval.getMonth()+1, $datepicker);
+
+                        // get times
                         that.refreshHotspotSelector({
                             refresh_intervals: true
                         });
-                        that.clearCache();
                     }
                 });
 

@@ -1,7 +1,7 @@
 from django.forms.models import ModelForm
 from common.signals import SignalStore
 from django.contrib import admin
-from common.models import  City, CityArea
+from common.models import  City, CityArea, Message
 
 class CountryAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "code", "dial_code"]
@@ -26,6 +26,11 @@ class CityAdmin(admin.ModelAdmin):
 class SignalStoreAdmin(admin.ModelAdmin):
     pass
 
+class MessageAdmin(admin.ModelAdmin):
+  list_display = ('key','content',)
+  search_fields = ('key', 'content')
+
+admin.site.register(Message, MessageAdmin)
 #admin.site.register(Country,CountryAdmin)
 admin.site.register(City, CityAdmin)
 #admin.site.register(CityArea, CityAreaAdmin)

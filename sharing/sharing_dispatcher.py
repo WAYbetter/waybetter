@@ -1,5 +1,7 @@
 from common.tz_support import utc_now
 from common.util import notify_by_email
+from django.utils import translation
+from django.utils.translation import ugettext as _
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api.taskqueue import taskqueue
@@ -9,6 +11,7 @@ from ordering import station_connection_manager
 from ordering.errors import UpdateStatusError
 from ordering.models import WorkStation, PENDING, ASSIGNED, SharedRide, NOT_TAKEN, ACCEPTED
 from datetime import timedelta
+from ordering.util import send_msg_to_passenger
 from sharing.passenger_controller import send_ride_notifications
 from sharing.station_controller import send_ride_voucher
 import signals
@@ -17,6 +20,13 @@ import logging
 MSG_DELIVERY_GRACE = 10 # seconds
 NOTIFY_STATION_DELTA = timedelta(minutes=10)
 
+@receive_signal(signals.ride_created_signal)
+def ride_created(sender, signal_type, obj, **kwargs):
+    logging.info("ride_created_signal: %s" % obj)
+    ride = obj
+    dispatch_ride(ride)
+
+
 def dispatch_ride(ride):
     work_station = assign_ride(ride)
     if work_station:
@@ -24,7 +34,6 @@ def dispatch_ride(ride):
 #        task = taskqueue.Task(url=reverse(push_ride_task), countdown=MSG_DELIVERY_GRACE, params={"ride_id": ride.id, "ws_id": work_station.id})
 #        taskqueue.Queue('orders').add(task)
         
-        # TODO_WB: change ride status to ACCEPTED? it doesn't show up as accepted in my rides
         if work_station.station.vouchers_emails:
             q = taskqueue.Queue('ride-notifications')
             task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
@@ -34,6 +43,9 @@ def dispatch_ride(ride):
 #    task = taskqueue.Task(url=reverse(mark_ride_not_taken_task), eta=ride.depart_time, params={"ride_id": ride.id})
 #    q = taskqueue.Queue('orders')
 #    q.add(task)
+    else:
+        #TODO_WB: how do we handle this? cancel the orders?
+        notify_dispatching_failed(ride)
 
 
 def assign_ride(ride):
@@ -43,6 +55,7 @@ def assign_ride(ride):
         try:
             ride.station = work_station.station
 
+            # TODO_WB
             # in fax sending mode we assume all dispatched rides will be accepted
             # ride.change_status(old_status=PENDING, new_status=ASSIGNED) # calls save()
             ride.change_status(old_status=PENDING, new_status=ACCEPTED) # calls save()
@@ -81,17 +94,7 @@ def choose_workstation(ride):
 
     else:
         logging.error(u"No sharing stations found %s" % log)
-        if not ride.debug:
-            notify_by_email(u"Ride [%s] ERROR - No sharing stations found" % ride.id, msg=log)
-
         return None
-
-
-@receive_signal(signals.ride_created_signal)
-def ride_created(sender, signal_type, obj, **kwargs):
-    logging.info("ride_created_signal: %s" % obj)
-    ride = obj
-    dispatch_ride(ride)
 
 
 @csrf_exempt
@@ -139,6 +142,18 @@ def mark_ride_not_taken_task(request):
         logging.warning("UpdateStatusError: Error changing ride [%s] status to not taken" % ride_id)
 
     return HttpResponse("OK")
+
+
+def notify_dispatching_failed(ride):
+    current_lang = translation.get_language()
+    for order in ride.orders.all():
+        translation.activate(order.language_code)
+        msg = _("We are sorry, but order #%s could not be completed") % order.id
+        send_msg_to_passenger(order.passenger, msg)
+
+    translation.activate(current_lang)
+
+    notify_by_email(u"Ride [%s] Dispatching failed" % ride.id, msg=get_ride_log(ride))
 
 
 def get_ride_log(ride):
