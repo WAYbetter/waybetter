@@ -16,7 +16,7 @@ Object.create = Object.create || function (p) {
                 } else {
 				    $(this).attr({disabled: true});
                 }
-                if ($.mobile && $(this).is(":button")){
+                if ($.mobile && $(this).is(":button") && !$(this).data("role") === "none"){
                     $(this).button().button("refresh");
                 }
 			});
@@ -28,7 +28,7 @@ Object.create = Object.create || function (p) {
                 } else {
 				    $(this).removeAttr('disabled');
                 }
-                if ($.mobile && $(this).is(":button")){
+                if ($.mobile && $(this).is(":button") && !$(this).data("role") === "none"){
                     $(this).button().button("refresh");
                 }
 			});

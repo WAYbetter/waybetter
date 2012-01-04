@@ -7,6 +7,7 @@ class URLRouting(object):
     """
     @staticmethod
     def process_request(request):
+        logging.info("Session ID = %s" % request.session.session_key)
         user_agent_parts = request.META.get("HTTP_USER_AGENT", "").split("/")
         if request.path.startswith("/api/") or \
            (user_agent_parts and user_agent_parts[0] == "WAYbetter" and user_agent_parts[1] == "iPhone"):

@@ -80,7 +80,7 @@ class BaseModel(models.Model):
             result = False
 
         if not result:
-            msg = "%s.%s : update in transaction failed (%s --> %s)" % (self.__class__.__name__, attname, str(old_value), str(new_value))
+            msg = "%s.%s : update in transaction failed (%s --> %s) current=%s" % (self.__class__.__name__, attname, str(old_value), str(new_value), str(getattr(self, attname)))
             if safe:
                 logging.warning(msg)
             else:
@@ -222,3 +222,10 @@ class Counter(BaseModel):
             return c.value
 
         return db.run_in_transaction(increment, counter.id)
+
+class Message(BaseModel):
+    key = models.CharField(help_text="A unique name for this chunk of content", blank=False, max_length=255, unique=True)
+    content = models.TextField(blank=True)
+
+    def __unicode__(self):
+        return u"%s" % (self.key,)

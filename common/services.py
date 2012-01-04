@@ -1,7 +1,7 @@
 import logging
 from django.conf import settings
 from django.http import HttpResponse
-from common.models import CityArea
+from common.models import CityArea, Message
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
 from django.utils import simplejson
@@ -46,6 +46,14 @@ def is_user_property_available(request, prop_name):
 
     return JSONResponse(result)
 
+def get_messages(request):
+    messages = Message.objects.all()
+    res = {}
+    for m in messages:
+        res[m.key] = m.content
+
+    return JSONResponse(res)
+
 @staff_member_required
 def get_polygons(request):
     city_areas_ids = simplejson.loads(request.POST['data'])
@@ -79,3 +87,4 @@ def init_model_order(request, model_name):
             return HttpResponse("OK")
 
     return HttpResponse("No model found for: %s" % model_name)
+

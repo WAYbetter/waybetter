@@ -232,8 +232,9 @@
                 'lon': MobileHelper.address.lon,
                 'hotspot_id': MobileHelper.hotspot.id,
                 'hotspot_type': MobileHelper.hotspot_type,
-                'day': $("#ride-date").val(),
-                'time': $("#ride-time").val()
+                'day': MobileHelper.ride_date,
+                'time': MobileHelper.ride_time,
+                'ride_duration': HotspotHelper.ride_duration
             },
             success: function(response) {
                 if (response.sharing_price && response.sharing_time && response.private_price && response.private_time) {

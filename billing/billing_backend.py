@@ -5,7 +5,7 @@ from common.decorators import force_lang
 from common.models import Counter
 from common.urllib_adaptor import urlencode
 from common.util import get_text_from_element, get_unique_id, safe_fetch
-from ordering.models import CANCELLED, PENDING, APPROVED, CHARGED, FAILED
+from ordering.models import CANCELLED, PENDING, APPROVED, CHARGED, FAILED, RideComputationStatus, IGNORED
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.context import Context
@@ -55,18 +55,22 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
         billing_transaction.comments = message
         billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
         billing_failed_signal.send(sender="do_J5", obj=billing_transaction)
-    else:
+    elif billing_transaction.order.status == PENDING:
         billing_transaction.auth_number = auth_number
         billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.APPROVED) #calls save
         billing_transaction.order.change_status(old_status=PENDING, new_status=APPROVED)
         billing_approved_signal.send(sender="do_J5", obj=billing_transaction)
         billing_transaction.charge() # setup J4
+    else: # order is not PENDING (it can be marked as IGNORED when submitting to algorithm)
+        billing_transaction.comments = _("We are sorry but booking for the selected time is closed, please choose a different time.<br/>Your billing information was saved, you will not be asked to provide it again.")
+        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
+        logging.info("J5 FAILED: order status is %s (expected PENDING)" % billing_transaction.order.get_status_label())
 
     return HttpResponse("OK")
 
 def do_J4(token, amount, card_expiration, billing_transaction_id):
     billing_transaction = BillingTransaction.by_id(billing_transaction_id)
-    if billing_transaction.status == BillingStatus.CANCELLED or billing_transaction.order.status in [CANCELLED, FAILED]:
+    if billing_transaction.status == BillingStatus.CANCELLED or billing_transaction.order.status in [IGNORED, CANCELLED, FAILED]:
         return HttpResponse("Cancelled")
 
     billing_transaction.change_status(BillingStatus.APPROVED, BillingStatus.PROCESSING)
@@ -179,8 +183,9 @@ def send_invoices_passenger(billing_transactions):
     result = safe_fetch(url, method="POST", payload=payload, deadline=50, headers={'Content-Type': 'application/x-www-form-urlencoded'})
     response_code = re.findall(r"ResponseCode:(\d+)", result.content)
     if response_code and response_code[0] == "100":
-        trx.invoice_sent = True
-        trx.save()
+        for tx in billing_transactions:
+            tx.invoice_sent = True
+            tx.save()
         logging.info("invoices sent to passenger %s" % trx.passenger_id)
         return True
     else:
