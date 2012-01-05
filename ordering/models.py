@@ -606,6 +606,8 @@ class Passenger(BaseModel):
                 try:
                     passenger = cls.objects.get(login_token=token)
                     if passenger.user: # authenticate this passenger also using a session cookie
+                        if not hasattr(passenger.user, "backend"):
+                            passenger.user.backend = 'django.contrib.auth.backends.ModelBackend'
                         login(request, passenger.user)
                 except cls.DoesNotExist:
                     pass
