@@ -19,7 +19,7 @@ def is_user_authenticated(request):
         logging.info("User is authenticated: %s" % request.user.username)
         response_data = [True, request.user.username]
         passenger = Passenger.from_request(request)
-        if passenger and request.is_secure(): # send token only over secure connection
+        if passenger and (request.is_secure() or settings.DEV): # send token only over secure connection
             response_data.append(passenger.login_token)
 
         return JSONResponse(response_data)

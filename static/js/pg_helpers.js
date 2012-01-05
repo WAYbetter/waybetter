@@ -87,13 +87,16 @@ var PhoneGapHelper = Object.create({
         that._saveToken();
     },
     logout:function () {
-        this.passenger_token = "";
-        this.passenger_name = "";
-        this._saveToken();
+        this.setPassengerToken("", "");
     },
     addPassengerToken:function (options) {
+        console.log("addPassengerToken options: " + JSON.stringify(options));
         if (this.passenger_token) {
-            return($.extend(options, {passenger_token:this.passenger_token}));
+            if (typeof options === 'string') { // this is a string
+                return options + "&passenger_token=" + this.passenger_token
+            } else { // this is an object
+                return($.extend({}, options, {passenger_token:this.passenger_token}));
+            }
         } else {
             return options;
         }

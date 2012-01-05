@@ -14,6 +14,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.utils import  translation
+from django.contrib.auth import login
 from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea, CityAreaField
 from common.geo_calculations import distance_between_points
@@ -604,6 +605,10 @@ class Passenger(BaseModel):
             if token:
                 try:
                     passenger = cls.objects.get(login_token=token)
+                    if passenger.user: # authenticate this passenger also using a session cookie
+                        if not hasattr(passenger.user, "backend"):
+                            passenger.user.backend = 'django.contrib.auth.backends.ModelBackend'
+                        login(request, passenger.user)
                 except cls.DoesNotExist:
                     pass
         return passenger
