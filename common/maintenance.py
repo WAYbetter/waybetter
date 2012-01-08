@@ -1,3 +1,4 @@
+# This Python file uses the following encoding: utf-8
 from google.appengine.api import memcache
 from google.appengine.api.taskqueue import taskqueue, DuplicateTaskNameError, TaskAlreadyExistsError, TombstonedTaskError
 from google.appengine.api.urlfetch import fetch
