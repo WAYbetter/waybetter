@@ -12,6 +12,7 @@ urlpatterns = patterns('',
     (r'^computation_statistics/(?P<computation_set_id>\d+)$', 'sharing.staff_controller.ride_computation_stat'),
 
     (r'^passenger/home/$', 'sharing.passenger_controller.passenger_home'),
+    (r'^qr/\w+/$', 'sharing.passenger_controller.passenger_home'),
     (r'^arlozrovBridge/$', 'sharing.passenger_controller.passenger_home'),
     (r'^arlozrovCards/$', 'sharing.passenger_controller.passenger_home'),
     (r'^pg_home/$', 'sharing.passenger_controller.pg_home'),
