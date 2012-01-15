@@ -1,0 +1,66 @@
+{% load i18n %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html dir="rtl">
+<head>
+    <title></title>
+    <style type="text/css">
+        * {
+            direction: rtl;
+            font-family: "Lucida Grande", Arial, sans-serif;
+            color: #3d3d3d;
+            font-size: 13px;
+        }
+        label{
+            width: 300px;
+        }
+        .align-left{
+            text-align: left;
+        }
+        #app_icon {
+            background-image: url(/static/images/station_page/app_large_icon.png);
+        {#            background-image: "{{ station.app_icon_url }}";#} width: 105px;
+            height: 104px;
+        }
+    </style>
+</head>
+<body>
+
+<table>
+    <tr>
+        <td id="app_icon"></td>
+        <td>WAYbetter לעסקים</td>
+    </tr>
+</table>
+
+<form action="" method="post" id="login-form">{% csrf_token %}
+    <input type="hidden" name="next" value="{{ request.path }}"/>
+
+    <ul>{{ form.non_field_errors }}</ul>
+
+    <table>
+        <tr>
+            <td>
+                <label for="id_username">{% trans 'Email' %}:</label>
+            </td>
+            <td>
+                <input type="text" name="username" id="id_username"/>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <label for="id_password">{% trans 'Password' %}:</label>
+            </td>
+            <td>
+                <input type="password" name="password" id="id_password"/>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2" class="align-left">
+                <input type="submit" class="wb_button" value="{% trans 'Log in' %}"/>
+            </td>
+        </tr>
+    </table>
+</form>
+</body>
+</html>

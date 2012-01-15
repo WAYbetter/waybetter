@@ -126,7 +126,7 @@ class OrderForm(ModelForm):
 
     class Meta:
         model = Order
-        fields = ["from_raw", "to_raw", "originating_station"]
+        fields = ["from_raw", "to_raw", "originating_station", "confining_station", "taxi_is_for", "comments"]
         fields.extend(HIDDEN_FIELDS)
 
     def __init__(self, data=None, passenger=None):
@@ -164,31 +164,36 @@ class OrderForm(ModelForm):
             raise forms.ValidationError(_("Currently, there is no service in the country"),
                                         code=ErrorCodes.NO_SERVICE_IN_COUNTRY)
 
-        # TODO_WB: move this check to the DB?
-        close_enough_station_found = False
-        stations = Station.objects.filter(country=from_country)
-
-        user = self.passenger.user if self.passenger else None
-        if user and user.is_staff:
-            pass
+        # orders with originating station are confined to this station
+        if self.cleaned_data["originating_station"]:
+            self.cleaned_data["confining_station"] = self.cleaned_data["originating_station"]
+        # otherwise check if there is a nearby station
         else:
-            stations = stations.filter(show_on_list=True)
+            # TODO_WB: move this check to the DB?
+            close_enough_station_found = False
+            stations = Station.objects.filter(country=from_country)
 
-        for station in stations:
-            if station.is_in_valid_distance(from_lon=from_lon, from_lat=from_lat, to_lon=to_lon, to_lat=to_lat):
-                close_enough_station_found = True
-                break
+            user = self.passenger.user if self.passenger else None
+            if user and user.is_staff:
+                pass
+            else:
+                stations = stations.filter(show_on_list=True)
 
-        if not close_enough_station_found:
-            log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=from_city, lat=from_lat,
-                      lon=from_lon)
-            if to_city and from_city != to_city:
-                log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=to_city, lat=to_lat, lon=to_lon)
+            for station in stations:
+                if station.is_in_valid_distance(from_lon=from_lon, from_lat=from_lat, to_lon=to_lon, to_lat=to_lat):
+                    close_enough_station_found = True
+                    break
 
-            raise forms.ValidationError(
-                _(
-                    "Service is not available in %(city)s yet.\nPlease try again soon.\nTHANKS!\nWAYbetter team :)") %
-                {'city': from_city.name}, code=ErrorCodes.NO_SERVICE_IN_CITY)
+            if not close_enough_station_found:
+                log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=from_city, lat=from_lat,
+                          lon=from_lon)
+                if to_city and from_city != to_city:
+                    log_event(EventType.NO_SERVICE_IN_CITY, passenger=self.passenger, city=to_city, lat=to_lat, lon=to_lon)
+
+                raise forms.ValidationError(
+                    _(
+                        "Service is not available in %(city)s yet.\nPlease try again soon.\nTHANKS!\nWAYbetter team :)") %
+                    {'city': from_city.name}, code=ErrorCodes.NO_SERVICE_IN_CITY)
 
         return self.cleaned_data
 

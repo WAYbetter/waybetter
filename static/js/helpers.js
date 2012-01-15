@@ -528,6 +528,7 @@ var AddressHelper = Object.create({
     },
 
     makeStructuredAddressInput: function(city_selector, street_input, hn_input, loader, callbacks) {
+        callbacks = $.extend(true, {}, callbacks);
         var that = this,
                 $street_input = $(street_input),
                 $hn_input = $(hn_input),
