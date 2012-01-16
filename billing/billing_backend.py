@@ -165,7 +165,7 @@ def send_invoices_passenger(billing_transactions):
         "TransType"						: "IR:CREATE101",
         "Username"						: INVOICE_INFO["invoice_username"],
         "Key"	    					: INVOICE_INFO["invoice_key"],
-        "InvoiceSubject"				: "%s %s" %(_("Ride Summary for month"), trx.create_date.strftime("%m/%Y")),
+        "InvoiceSubject"				: "%s %s" %(_("Ride Summary for month"), trx.charge_date.strftime("%m/%Y")),
         "InvoiceItemCode"				: "|".join([str(trx.order.id) for trx in billing_transactions]),
         "InvoiceItemDescription"		: "|".join([trx.order.invoice_description for trx in billing_transactions]),
         "InvoiceItemQuantity"			: "|".join(["1" for trx in billing_transactions]),
