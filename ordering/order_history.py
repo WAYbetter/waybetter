@@ -10,6 +10,10 @@ ORDER_HISTORY_COLUMNS =         ["Date", "From", "To", "Station", "Passenger Rat
 ORDER_HISTORY_COLUMN_NAMES =    [ugettext_lazy("Date"), ugettext_lazy("From"), ugettext_lazy("To"), ugettext_lazy("Station"), ugettext_lazy("Passenger Rating")]
 ORDER_HISTORY_FIELDS =          ["create_date", "from_raw", "to_raw", "station_name", "passenger_rating"]
 
+BUSINESS_ORDER_HISTORY_COLUMNS =         ["Date", "From", "To", "Station", "Passenger Details" ,"Comments"]
+BUSINESS_ORDER_HISTORY_COLUMN_NAMES =    [ugettext_lazy("Date"), ugettext_lazy("From"), ugettext_lazy("To"), ugettext_lazy("Station"), ugettext_lazy("Passenger Details"), ugettext_lazy("Comments")]
+BUSINESS_ORDER_HISTORY_FIELDS =          ["create_date", "from_raw", "to_raw", "station_name", "taxi_is_for", "comments"]
+
 STATION_ORDER_HISTORY_COLUMNS =         ["Date", "From", "To", "Passenger Phone"]
 STATION_ORDER_HISTORY_COLUMN_NAMES =    [ugettext_lazy("Date"), ugettext_lazy("From"), ugettext_lazy("To"), ugettext_lazy("Passenger Phone")]
 STATION_ORDER_HISTORY_FIELDS =          ["create_date", "from_raw", "to_raw", "passenger_phone"]
@@ -20,7 +24,13 @@ STATION_ASSIGNMENT_HISTORY_FIELDS =          ["create_date", "dn_from_raw", "dn_
 
 def get_orders_history(passenger, page=1, keywords=None, sort_by=None, sort_dir=None):
     query = Order.objects.filter(passenger=passenger).filter(status=ACCEPTED)
-    return get_orders_history_data(query, ORDER_HISTORY_COLUMNS, ORDER_HISTORY_FIELDS,
+    if passenger.business:
+        columns = BUSINESS_ORDER_HISTORY_COLUMNS
+        fields = BUSINESS_ORDER_HISTORY_FIELDS
+    else:
+        columns = ORDER_HISTORY_COLUMNS
+        fields = ORDER_HISTORY_FIELDS
+    return get_orders_history_data(query, columns, fields,
                                    page, keywords, sort_by, sort_dir)
 
 def get_stations_orders_history_data(station, page=1, keywords=None, sort_by=None, sort_dir=None):

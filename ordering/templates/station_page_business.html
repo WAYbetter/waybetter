@@ -280,7 +280,7 @@
             <td id="toolbar">
                 <ul>
                     <li><a class="active" href="#">{% trans "Book Order" %}</a></li>
-                    <li><a href="">{% trans "Orders History" %}</a></li>
+                    <li><a target="_blank" href="{% url ordering.passenger_controller.get_passenger_orders_history %}">{% trans "Orders History" %}</a></li>
                 </ul>
             </td>
             <td id="order_form_container">
