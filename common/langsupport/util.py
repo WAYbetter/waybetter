@@ -49,7 +49,7 @@ def transliterate_english_order_to_hebrew(order, address_type):
     """
 
     street_address = getattr(order, "%s_street_address" % address_type)
-    house_number = getattr(order, "%s_house_number" % address_type) or int(re.search("\d+", getattr(order, "%s_raw" % address_type)).group(0))
+    house_number = getattr(order, "%s_house_number" % address_type) # or int(re.search("\d+", getattr(order, "%s_raw" % address_type)).group(0))
     city = getattr(order, "%s_city" % address_type)
     lat = getattr(order, "%s_lat" % address_type)
     lon = getattr(order, "%s_lon" % address_type)

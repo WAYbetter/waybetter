@@ -1,3 +1,4 @@
+# This Python file uses the following encoding: utf-8
 from google.appengine.api import memcache
 from google.appengine.api.taskqueue import taskqueue, DuplicateTaskNameError, TaskAlreadyExistsError, TombstonedTaskError
 from google.appengine.api.urlfetch import fetch
@@ -146,11 +147,18 @@ def do_task():
     # maintenance method goes here
     pass
 
-def merge_to_master_passenger():
-    phones = [u'0544835959', u'0546658598', u'0547660440', u'0506931234', u'0547374754', u'1234', u'012301230123', u'0544476515', u'0547550125', u'123', u'123456', u'0542889664', u'0528613146', u'0526347347', u'0542022444', u'0508894431', u'0545787202', u'1111111111', u'0546632007', u'0', u'1234567890', u'0528646909', u'0545991975', u'0545669811', u'0546201271', u'0528535838', u'0547607118', u'0526342974', u'0505947026', u'0507605047', u'0505948486', u'0524485070']
-    for phone in phones:
-        merge_passenger(Passenger.objects.filter(phone=phone)[0])
+def measure_count():
+    logging.info("Passenger.objects.count()")
+    logging.info(Passenger.objects.count())
+    logging.info("Passenger.objects.all().count()")
+    logging.info(Passenger.objects.all().count())
 
+
+def update_shared_rides():
+    for sr in SharedRide.objects.filter(debug=False):
+        logging.info("SharedRide[%s]" % sr.id)
+        logging.info("value: %s" % sr.value)
+        logging.info("stops: %s" % sr.stops)
 
 # maintenance methods
 def create_passenger_dup_phones():
