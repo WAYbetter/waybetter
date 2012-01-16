@@ -5,8 +5,11 @@
 {% block body %}
     <div id="toolbar">
         <form id="datepicker">
-            <div id="loader" class="loader"></div>
             {{ form.as_p }}
+            <div id="loader" class="loader">
+                <span id="loader-msg"></span>
+            </div>
+            
         </form>
 
     </div>
@@ -18,37 +21,48 @@
 
             <div>
                 Sharing rides: <span id="sharging_rides">?</span>
-                
+
                 <div>
                     Site: <span id="sharing_site_rides">?</span> (<span id="sharing_site_rides_percent">?</span> %)
                 </div>
                 <div>
-                    Mobile: <span id="sharing_mobile_rides">?</span> (<span id="sharing_mobile_rides_percent">?</span> %)
+                    Mobile: <span id="sharing_mobile_rides">?</span> (<span id="sharing_mobile_rides_percent">?</span>
+                    %)
                 </div>
                 <div>
-                    Native: <span id="sharing_native_rides">?</span> (<span id="sharing_native_rides_percent">?</span> %)
+                    Native: <span id="sharing_native_rides">?</span> (<span id="sharing_native_rides_percent">?</span>
+                    %)
                 </div>
-                
+                <div>
+                    Average Sharing: <span id="average_sharing">?</span> %
+                </div>
+
             </div>
             <div>
-                PickMeApp rides: <span id="pickmeapp_rides">?</span> (Accepted: <span id="accepted_pickmeapp_rides">?</span> %)
+                PickMeApp rides: <span id="pickmeapp_rides">?</span> (Accepted: <span
+                    id="accepted_pickmeapp_rides">?</span> %)
 
                 <div>
                     Site: <span id="pickmeapp_site_rides">?</span> (<span id="pickmeapp_site_rides_percent">?</span> %)
                 </div>
                 <div>
-                    Mobile: <span id="pickmeapp_mobile_rides">?</span> (<span id="pickmeapp_mobile_rides_percent">?</span> %)
+                    Mobile: <span id="pickmeapp_mobile_rides">?</span> (<span
+                        id="pickmeapp_mobile_rides_percent">?</span> %)
                 </div>
                 <div>
-                    Native: <span id="pickmeapp_native_rides">?</span> (<span id="pickmeapp_native_rides_percent">?</span> %)
+                    Native: <span id="pickmeapp_native_rides">?</span> (<span
+                        id="pickmeapp_native_rides_percent">?</span> %)
                 </div>
             </div>
 
         </div>
-        <h1>Users</h1>
+        <h1>Passengers</h1>
 
         <div>
             All: <span id="all_users">?</span>
+            <div>
+                With Credit Card: <span id="all_credit_card_users">?</span>
+            </div>
         </div>
         <div>
             New: <span id="new_users">?</span>
@@ -58,11 +72,8 @@
             </div>
         </div>
 
-        <h1>Sharing</h1>
-        <div>
-            Average: <span id="average_sharing">?</span> %
-        </div>
         <h1>Money</h1>
+
         <div>
             Income: <span id="income">?</span> ₪
         </div>
@@ -87,7 +98,7 @@
         #kpi_container div {
             margin: 5px 10px;
             font-size: 15px;
-            color:gray;
+            color: gray;
         }
 
         #kpi_container div span {
@@ -113,19 +124,25 @@
         }
 
         #datepicker input {
-            width: 90px;
+            width: 120px;
             padding-right: 5px;
+            text-align: center;
+            font-size: 1em;
         }
 
         #loader {
-            display: none;
+            display: inline-block;
             background: url(/static/images/wb_site/loader24_e1e1e1.gif) left 0 no-repeat;
             height: 24px;
-            width: 24px;
-            position: absolute;
-            right: 20px;
-            top: 15px;
+            position: relative;
+            margin-left: 15px;
         }
+        #loader-msg {
+            font-size: 12px;
+            padding-left: 39px;
+            font-style: italic;
+            display: block;
+            margin-top: 6px;        }
 
         #toolbar {
             /*padding: 1px 10px;*/
@@ -145,7 +162,7 @@
     <script type="text/javascript" src="/static/js/mylibs/jquery.ui.datepicker-he.js"></script>
 
     <script type="text/javascript">
-
+            var loader_messages = ["Loading", "Still loading", "Enhancing experience", "Watering the plants", "Patience is a virtue", "Good things come to those who wait"];
         {% autoescape off %}
             var data = {{ data }};
         {% endautoescape %}
@@ -154,7 +171,6 @@
             $.each(data, function (key, val) {
                 $("#" + key).text(val);
             });
-
         }
 
         $(function () {
@@ -164,9 +180,10 @@
             var end_date = new Date({{ end_date }});
             $("#id_start_date").datepicker($.extend({}, date_options, {defaultDate:start_date})).datepicker("setDate", start_date);
             $("#id_end_date").datepicker($.extend({}, date_options, {defaultDate:end_date})).datepicker("setDate", end_date);
-
+            $(document).everyTime(3000, function() {
+                $("#loader-msg").text(loader_messages[Math.floor(Math.random() * loader_messages.length)] + "...");
+            });
             renderKPIs(data);
-
             $("#datepicker input").change(function () {
                 $.ajax({
                     url:"{% url sharing.staff_controller.kpi %}",
@@ -191,6 +208,7 @@
 
                 });
             });
+            $("#loader").hide();
         });
     </script>
 
