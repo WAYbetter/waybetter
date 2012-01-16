@@ -202,6 +202,9 @@
                             $("#kpi_container").text("No data received");
                         }
                     },
+                    error: function() {
+                        alert("Hmmm.... Something went wrong.\nPlease try again and if that doesn't work try using a narrower date range, it usually helps.");
+                    },
                     complete:function () {
                         $("#loader").hide();
                     }
