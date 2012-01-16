@@ -1,0 +1,521 @@
+{% load i18n %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html dir="rtl">
+<head>
+<title></title>
+<link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
+<style type="text/css">
+    * {
+        direction: rtl;
+        font-family: Arial, sans-serif;
+        color: #3d3d3d;
+        font-size: 15px;
+    }
+
+    a {
+        color: blue;
+        text-decoration: none;
+    }
+
+    a:hover {
+        text-decoration: underline;
+    }
+
+    a.active {
+        font-weight: bold;
+    }
+
+    a.active:hover {
+        text-decoration: none;
+    }
+
+    .full-width {
+        width: 100%;
+    }
+
+    .required {
+        color: red;
+    }
+
+    .align-left {
+        text-align: left;
+    }
+
+    tr.spacer {
+        height: 40px;
+    }
+
+    label {
+        display: block;
+    }
+
+    #header {
+    }
+
+    #station_logo {
+        width: 60px;
+    }
+
+    #station_details {
+        padding-right: 20px;
+        text-align: right;
+    }
+
+    #business_name, #business_name a, #station_name {
+        font-weight: bold;
+        font-size: 24px;
+        color: #3d3d3d;
+    }
+
+    #station_phone {
+
+    }
+
+    #main-container {
+        padding: 20px 50px;
+    }
+
+    #content {
+        padding: 20px;
+        border: 2px solid gray;
+        margin: 15px 0;
+    }
+
+    #toolbar {
+        vertical-align: top;
+        border-left: 1px solid gray;
+    }
+
+    #toolbar ul {
+        padding-right: 0;
+        list-style: none;
+    }
+
+    #toolbar ul li {
+        margin-top: 10px;
+    }
+
+    #order_form_container {
+        padding-right: 30px;
+    }
+
+    #order_form {
+    }
+
+    #order_details td {
+        padding-left: 30px;
+    }
+
+    #order_details input {
+        width: 250px;
+    }
+
+    .row-label {
+        font-weight: bold;
+    }
+
+    #powered_by {
+        text-align: center;
+    }
+
+    #order_button {
+        width: 294px;
+        height: 53px;
+        border: none;
+        background: url("/static/images/order_button.png") left top no-repeat;
+        color: black;
+        font-size: 26px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+
+    #order_button.disabled, #order_button:disabled {
+        background-position: 0 -159px;
+        cursor: default;
+        color: gray;
+    }
+</style>
+
+<style type="text/css">
+    #order_tracker {
+    }
+
+    .tracker_order {
+        border: 2px solid gray;
+        margin-bottom: 15px;
+    }
+
+    .tracker_order.error {
+        border-color: yellow;
+    }
+
+    .tracker_order.failed {
+        border-color: red;
+    }
+
+    .tracker_order.pending {
+        border-color: #00CCFE;
+    }
+
+    .tracker_order.assigned {
+        border-color: #FFAE00;
+    }
+
+    .tracker_order.accepted {
+        border-color: #15B300;
+    }
+
+    .content_container {
+        padding: 8px;
+    }
+
+    .content_container table {
+        width: 100%;
+    }
+
+    .content_container table td {
+        width: 30%;
+    }
+
+    .content_container.connection_error {
+    }
+
+    .connection_error_label {
+        background: yellow;
+    }
+
+    .tracker_address_list {
+        display: inline-block;
+    }
+
+    .tracker_address_list.from_only {
+    }
+
+    .tracker_address_list > li {
+    }
+
+    .tracker_from {
+    }
+
+    .tracker_to {
+    }
+
+    .tracker_info_container {
+        text-align: center;
+    }
+
+    .tracker_station {
+        margin-left: 30px;
+    }
+
+    .tracker_info {
+    }
+
+    .tracker_info.searching {
+    }
+
+    .tracker_info.accepted {
+    }
+
+    .tracker_info.failed {
+    }
+
+    .tracker_info.finished {
+    }
+
+    .tracker_details_container {
+        text-align: left;
+    }
+
+    .tracker_indicator {
+        height: 30px;
+    }
+
+    .tracker_indicator.searching {
+        background: url(/static/images/loader5.gif) left 0 no-repeat;
+        padding-left: 30px;
+    }
+
+    .tracker_indicator.accepted {
+        color: #15B300;
+    }
+
+    .tracker_station_phone {
+    }
+
+    .tracker_station_phone.button_present {
+    }
+
+    .tracker_button {
+    }
+
+</style>
+</head>
+<body>
+
+<div id="main-container">
+    <table id="header" class="full-width">
+        <tr>
+            <td id="station_logo">
+                <img src="{{ station.app_icon_url }}" alt="">
+            </td>
+            <td id="station_details">
+                <div id="station_name">{{ station.name }}</div>
+                <div id="station_phone">{{ station.phone }}</div>
+            </td>
+            <td id="business_name" class="align-left">
+                {% if business %}
+                    {% trans "Connected" %} - {{ business.name }} (<a href="/logout/?next={{ request.path }}"
+                                                                      id="logout_link">{% trans 'Disconnect' %}</a>)
+                {% else %}
+                    {% trans "Disconnected" %}
+                {% endif %}
+            </td>
+        </tr>
+    </table>
+
+    <table id="content" class="full-width">
+        <tr>
+            <td id="toolbar">
+                <ul>
+                    <li><a class="active" href="#">{% trans "Book Order" %}</a></li>
+                    <li><a href="">{% trans "Orders History" %}</a></li>
+                </ul>
+            </td>
+            <td id="order_form_container">
+                <form id="order_form">
+                    {% csrf_token %}
+                    <input type="hidden" name="business_order" value="true"/>
+                    <input type="hidden" name="originating_station" id="id_originating_station"
+                           value="{{ station.id }}"/>
+                    <input type="hidden" name="confining_station" id="id_confining_station" value="{{ station.id }}"/>
+                    <table id="order_details">
+                        <tr>
+                            <td class="row-label">{% trans "Pickup" %}:</td>
+                            <td class="city">
+                                <label for="id_from_city">{% trans "City" %} <span
+                                        class="required">({% trans "Required" %})</span></label>
+                                <select id="id_from_city" name="from_city">
+                                    {% for city in cities %}
+                                        <option value="{{ city.id }}"
+                                                {% if city.id == business.city.id %}selected="selected"{% endif %}>{{ city.name }}</option>
+                                    {% endfor %}
+                                </select>
+
+                            </td>
+                            <td class="street">
+                                <label for="id_from_street_address">{% trans "Address" %}/{% trans "Location" %} <span
+                                        class="required">({% trans "Required" %})</span></label>
+                                <input type="text" id="id_from_street_address" name="from_street_address"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">{% trans "Dropoff" %}:</td>
+                            <td class="city">
+                                <label for="id_to_city">{% trans "City" %}</label>
+                                <select id="id_to_city" name="to_city">
+                                    <option value="" disabled="disabled"
+                                            selected="selected">{% trans "Choose City" %}</option>
+                                    {% for city in cities %}
+                                        <option value="{{ city.id }}">{{ city.name }}</option>
+                                    {% endfor %}
+                                </select>
+
+                            </td>
+                            <td class="street">
+                                <label for="id_to_street_address">{% trans "Address" %}/{% trans "Location" %}</label>
+                                <input type="text" id="id_to_street_address" name="to_street_address"/>
+                            </td>
+                        </tr>
+                        <tr class="spacer">
+                            <td colspan="3">
+                                <hr>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">{% trans "Passenger Details" %}:</td>
+                            <td colspan="3">
+                                <label for="id_taxi_is_for">{% trans 'Name/Title/Phone number etc.' %}</label>
+                                <input type="text" id="id_taxi_is_for" name="taxi_is_for"/>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td class="row-label">{% trans "Comments" %}:</td>
+                            <td colspan="4">
+                                <label for="id_comments">{% trans "30 chars max" %}</label>
+                                <input type="text" id="id_comments" name="comments"/>
+                            </td>
+                        </tr>
+                        <tr class="spacer">
+                            <td colspan="3">
+                                <hr>
+                            </td>
+                        </tr>
+                        <tr>
+                            <td colspan="3">
+                                <button type="submit" id="order_button">{% trans 'Pick Me Up' %}</button>
+                            </td>
+                        </tr>
+                    </table>
+                </form>
+            </td>
+        </tr>
+
+    </table>
+
+
+    <div id="order_tracker"></div>
+
+    <div id="powered_by">
+        &copy; 2012 Powered by <a href="http://www.waybetter.com">WAYbetter</a>
+    </div>
+</div>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.timers-1.2.min.js"></script>
+<script type="text/javascript" src="/static/js/utils.js"></script>
+<script type="text/javascript" src="/static/js/order_tracker.js"></script>
+<script type="text/javascript" src="/_ah/channel/jsapi"></script>
+
+<script>
+    function makeStructuredAddressInput(city_selector, street_input) {
+        var $street_input = $(street_input),
+                $city_selector = $(city_selector);
+
+        $street_input.autocomplete({
+            autoFocus:true,
+            minLength:2,
+            source:function (request, response) {
+                var street = $street_input.val();
+                var hn = "";
+                var re = /\d+/;
+                var match = re.exec($street_input);
+                if (match) {
+                    hn = match[0];
+                    street = street.replace(hn, "");
+                }
+                $.ajax({
+                    url:"{% url sharing.passenger_controller.resolve_structured_address %}",
+                    data:{"city_id":$city_selector.val(), "street":street, "house_number":hn},
+                    dataType:"json",
+                    success:function (data) {
+                        response($.map(data.geocoding_results, function (item) {
+                            return {
+                                label:item.street_address + " " + item.house_number
+                            }
+                        }));
+                    },
+                    error:function () {
+                        response([]);
+                    }
+                });
+            },
+            select:function (event, ui) {
+                $(this).blur().autocomplete("disable");
+            }
+
+        });
+
+        $street_input.blur(
+                function () {
+                    $(this).autocomplete("disable");
+                }).focus(
+                function () {
+                    $(this).autocomplete("enable");
+                    $(this).autocomplete("search");
+                    $(this).data("old_val", $(this).val());
+                }).keyup(function (e) {
+                    if ($(this).data("old_val") !== $(this).val()) {
+                        $(this).data("resolved", false);
+                    }
+                });
+    }
+
+    function bookOrder() {
+        var $order_button = $("#order_button");
+        var valid = true;
+        var msg = "";
+        if (!($("#id_from_street_address").val() && $("#id_from_city").val())) {
+            msg = "{% trans "Please enter pickup address and city" %}";
+            valid = false;
+        }
+        else if ($("#id_comments").val().length > 30) {
+            msg = "{% trans "Comments field must be shorter than 30 characters" %}.";
+            valid = false;
+        }
+
+        if (valid) {
+            $order_button.addClass("disabled").text("{% trans 'Sending...' %}");
+
+            $.ajax({
+                url:"{% url ordering.passenger_controller.book_order %}",
+                type:"POST",
+                dataType:"json",
+                data:$("#order_form").serialize(),
+                complete:function () {
+                    $order_button.text("{% trans 'Pick Me Up' %}").removeClass("disabled");
+                },
+                success:function (order_status) {
+                    if (order_status.status != "booked") {
+                        alert(order_status.errors.title + ": " + order_status.errors.message);
+                    } else {
+                        OrderTracker.processOrder(order_status.tracker_msg);
+                    }
+                },
+                error:function (XMLHttpRequest, textStatus, errorThrown) {
+                    alert("{% trans "There was an error, please try again" %}");
+                }
+            });
+        }
+        else {
+            alert(msg);
+        }
+    }
+
+    $(document).ready(function () {
+        OrderTracker.init({
+            ASSIGNED: {{ ASSIGNED }},
+            PENDING: {{ PENDING }},
+            ACCEPTED: {{ ACCEPTED }},
+            ORDER_FAILED: {{ ORDER_FAILED }},
+            ORDER_MAX_WAIT_TIME: {{ ORDER_MAX_WAIT_TIME }},
+            FAILED_MSG:"{{ FAILED_MSG }}",
+            init_token:"{{ init_token }}",
+            init_tracker_history: {{ init_tracker_history|safe }},
+            get_tracker_init_url:"{% url ordering.passenger_controller.get_tracker_init %}",
+            close_msg:"{% trans 'Close' %}",
+            changes_msg:"{% trans 'For changes call: '%}",
+            minute_label:"{% trans 'minute' %}",
+            minutes_label:"{% trans 'minutes' %}",
+            please_wait_msg:"{% trans 'Please wait' %}",
+            pickup_in_msg:"{% trans 'Pickup in' %}",
+            order_finished_msg:"{% trans 'Order finished!' %}",
+            connection_error_msg:"{% trans 'Re-connecting to server, please wait (your order is being processed)' %} ",
+            countdown_finished_msg:"{% trans 'Have a pleasant ride' %}",
+            render_order_as_table:true
+        });
+
+        makeStructuredAddressInput("#id_from_city", "#id_from_street_address");
+        makeStructuredAddressInput("#id_to_city", "#id_to_street_address");
+
+        $("#order_form").submit(function () {
+            bookOrder();
+            return false;
+        });
+
+        $.each(["from", "to"], function (i, dir) {
+            $("#id_" + dir + "_street_address").keypress(function (e) {
+                if (!($("#id_" + dir + "_city").val())) {
+                    e.preventDefault();
+                    alert("{% trans "Please chooose city" %}");
+                    return false;
+                }
+            });
+        });
+
+        $("#id_from_street_address").focus();
+    });
+</script>
+</body>
+</html>
