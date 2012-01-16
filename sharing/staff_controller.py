@@ -1,7 +1,7 @@
 # This Python file uses the following encoding: utf-8
 import logging
 from billing.enums import BillingStatus
-from billing.models import BillingTransaction
+from billing.models import BillingTransaction, BillingInfo
 from common.decorators import force_lang
 from common.models import City
 from common.util import custom_render_to_response
@@ -45,7 +45,7 @@ def kpi(request):
         logging.info("shared_rides (%d): %s" % (len(shared_rides), shared_rides))
         logging.info("shared_rides_with_sharing (%d): %s" % (len(shared_rides_with_sharing), shared_rides_with_sharing))
 
-        all_trx = BillingTransaction.objects.filter(status=BillingStatus.APPROVED, create_date__gte=start_date, create_date__lte=end_date)
+        all_trx = filter(lambda bt: not bt.debug, BillingTransaction.objects.filter(status=BillingStatus.CHARGED, charge_date__gte=start_date, charge_date__lte=end_date))
 
         pickmeapp_orders = filter(lambda o: not bool(o.price), all_orders)
         sharing_orders = filter(lambda o: bool(o.price), all_orders)
@@ -78,10 +78,10 @@ def kpi(request):
             "all_users": Passenger.objects.count(),
             "new_users": len(new_passengers),
             "new_credit_card_users": len(filter(lambda p: hasattr(p, "billing_info"), new_passengers)),
+            "all_credit_card_users": BillingInfo.objects.count(),
             "average_sharing": round(float(len(shared_rides_with_sharing)) / len(shared_rides) * 100, 2) if shared_rides else "No Shared Rides",
             "income": round(sum([bt.amount for bt in all_trx]), 2),
             "expenses": sum([sr.value for sr in shared_rides])
-
         }
 
         return data
