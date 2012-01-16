@@ -5,6 +5,7 @@ from sharing.passenger_controller import send_ride_notifications, on_billing_trx
 
 urlpatterns = patterns('',
     (r'^birdseye/$', 'sharing.staff_controller.birdseye_view'),
+    (r'^kpi/$', 'sharing.staff_controller.kpi'),
     (r'^debug/$', 'sharing.staff_controller.staff_home'),
     url(r'^hotspot/$', 'sharing.staff_controller.hotspot_ordering_page',  kwargs={'is_textinput': False}, name='hotspot_select'),
     url(r'^hotspot/textinput/$', 'sharing.staff_controller.hotspot_ordering_page', kwargs={'is_textinput': True}, name='hotspot_textinput'),

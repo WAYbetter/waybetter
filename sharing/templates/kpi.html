@@ -1,0 +1,201 @@
+{% extends "wb_base.html" %}
+{% load i18n %}
+{% load value_from_settings %}
+
+{% block body %}
+    <div id="toolbar">
+        <form id="datepicker">
+            <div id="loader" class="loader"></div>
+            {{ form.as_p }}
+        </form>
+
+    </div>
+    <div id="kpi_container">
+        <h1>Orders</h1>
+
+        <div>
+            Rides Booked: <span id="rides_booked">?</span>
+
+            <div>
+                Sharing rides: <span id="sharging_rides">?</span>
+                
+                <div>
+                    Site: <span id="sharing_site_rides">?</span> (<span id="sharing_site_rides_percent">?</span> %)
+                </div>
+                <div>
+                    Mobile: <span id="sharing_mobile_rides">?</span> (<span id="sharing_mobile_rides_percent">?</span> %)
+                </div>
+                <div>
+                    Native: <span id="sharing_native_rides">?</span> (<span id="sharing_native_rides_percent">?</span> %)
+                </div>
+                
+            </div>
+            <div>
+                PickMeApp rides: <span id="pickmeapp_rides">?</span> (Accepted: <span id="accepted_pickmeapp_rides">?</span> %)
+
+                <div>
+                    Site: <span id="pickmeapp_site_rides">?</span> (<span id="pickmeapp_site_rides_percent">?</span> %)
+                </div>
+                <div>
+                    Mobile: <span id="pickmeapp_mobile_rides">?</span> (<span id="pickmeapp_mobile_rides_percent">?</span> %)
+                </div>
+                <div>
+                    Native: <span id="pickmeapp_native_rides">?</span> (<span id="pickmeapp_native_rides_percent">?</span> %)
+                </div>
+            </div>
+
+        </div>
+        <h1>Users</h1>
+
+        <div>
+            All: <span id="all_users">?</span>
+        </div>
+        <div>
+            New: <span id="new_users">?</span>
+
+            <div>
+                With Credit Card: <span id="new_credit_card_users">?</span>
+            </div>
+        </div>
+
+        <h1>Sharing</h1>
+        <div>
+            Average: <span id="average_sharing">?</span> %
+        </div>
+        <h1>Money</h1>
+        <div>
+            Income: <span id="income">?</span> ₪
+        </div>
+        <div>
+            Expenses: <span id="expenses">?</span> ₪
+        </div>
+
+
+    </div>
+{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+        #kpi_container {
+            padding: 10px;
+            background-image: url(/static/images/wb_site/email_logo.jpg);
+            background-repeat: no-repeat;
+            background-position: 100% 0;
+        }
+
+        #kpi_container div {
+            margin: 5px 10px;
+            font-size: 15px;
+            color:gray;
+        }
+
+        #kpi_container div span {
+            font-size: 18px;
+        }
+
+        #kpi_container h1 {
+            color: #a8d5fd;
+            font-size: 1.1em;
+        }
+
+        #order_status_list label {
+            display: inline;
+        }
+
+        #datepicker {
+            position: relative;
+        }
+
+        #datepicker label {
+            display: inline-block;
+            width: 110px;
+        }
+
+        #datepicker input {
+            width: 90px;
+            padding-right: 5px;
+        }
+
+        #loader {
+            display: none;
+            background: url(/static/images/wb_site/loader24_e1e1e1.gif) left 0 no-repeat;
+            height: 24px;
+            width: 24px;
+            position: absolute;
+            right: 20px;
+            top: 15px;
+        }
+
+        #toolbar {
+            /*padding: 1px 10px;*/
+            background: #e1e1e1;
+            border-bottom: black 1px solid;
+        }
+
+        #toolbar p {
+            display: inline-block;
+            margin-left: 20px;
+        }
+
+    </style>
+{% endblock %}
+
+{% block doc_ready %}
+    <script type="text/javascript" src="/static/js/mylibs/jquery.ui.datepicker-he.js"></script>
+
+    <script type="text/javascript">
+
+        {% autoescape off %}
+            var data = {{ data }};
+        {% endautoescape %}
+
+        function renderKPIs(data) {
+            $.each(data, function (key, val) {
+                $("#" + key).text(val);
+            });
+
+        }
+
+        $(function () {
+
+            var date_options = $.extend({}, $.datepicker.regional["he"], {dateFormat:'dd/mm/yy'});
+            var start_date = new Date({{ start_date }});
+            var end_date = new Date({{ end_date }});
+            $("#id_start_date").datepicker($.extend({}, date_options, {defaultDate:start_date})).datepicker("setDate", start_date);
+            $("#id_end_date").datepicker($.extend({}, date_options, {defaultDate:end_date})).datepicker("setDate", end_date);
+
+            renderKPIs(data);
+
+            $("#datepicker input").change(function () {
+                $.ajax({
+                    url:"{% url sharing.staff_controller.kpi %}",
+                    type:"POST",
+                    dataType:'json',
+                    data:$("#datepicker").serialize(),
+                    beforeSend:function () {
+                        $("#kpi_container div span").text("?");
+                        $("#loader").show();
+                    },
+                    success:function (response) {
+                        if (response.data) {
+                            renderKPIs(response.data);
+                        }
+                        else {
+                            $("#kpi_container").text("No data received");
+                        }
+                    },
+                    complete:function () {
+                        $("#loader").hide();
+                    }
+
+                });
+            });
+        });
+    </script>
+
+{% endblock %}
+
+
+
+
