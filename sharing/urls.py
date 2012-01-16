@@ -5,6 +5,7 @@ from sharing.passenger_controller import send_ride_notifications, on_billing_trx
 
 urlpatterns = patterns('',
     (r'^birdseye/$', 'sharing.staff_controller.birdseye_view'),
+    (r'^kpi/$', 'sharing.staff_controller.kpi'),
     (r'^debug/$', 'sharing.staff_controller.staff_home'),
     url(r'^hotspot/$', 'sharing.staff_controller.hotspot_ordering_page',  kwargs={'is_textinput': False}, name='hotspot_select'),
     url(r'^hotspot/textinput/$', 'sharing.staff_controller.hotspot_ordering_page', kwargs={'is_textinput': True}, name='hotspot_textinput'),
@@ -12,6 +13,9 @@ urlpatterns = patterns('',
     (r'^computation_statistics/(?P<computation_set_id>\d+)$', 'sharing.staff_controller.ride_computation_stat'),
 
     (r'^passenger/home/$', 'sharing.passenger_controller.passenger_home'),
+    (r'^qr/\w+/$', 'sharing.passenger_controller.passenger_home'),
+    (r'^arlozrovBridge/$', 'sharing.passenger_controller.passenger_home'),
+    (r'^arlozrovCards/$', 'sharing.passenger_controller.passenger_home'),
     (r'^pg_home/$', 'sharing.passenger_controller.pg_home'),
     (r'^book_ride/$', 'sharing.passenger_controller.book_ride'),
     (r'^producer/ordering/$', 'sharing.producer_controller.producer_ordering_page'),

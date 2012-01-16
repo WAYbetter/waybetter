@@ -27,7 +27,7 @@ class BaseModel(models.Model):
 
     @classmethod
     def by_id(cls, id, safe=True):
-        if safe and id is None:
+        if safe and not id:
             return None
 
         try:

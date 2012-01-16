@@ -1,0 +1,114 @@
+{% load i18n %}
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html dir="rtl" class="rtl">
+<head>
+    <title></title>
+    <style type="text/css">
+        .orders_history_grid table {
+            width: 100%;
+            border-top: 2px solid #a8d5fd;
+            border-bottom: 2px solid #a8d5fd;
+            border-spacing: 0 3px;
+
+        }
+        .orders_history_grid table tr:nth-child(odd) {
+            background-color: white;
+        }
+
+        .orders_history_grid table tr:nth-child(even) {
+            background-color: #e7f1fa;
+        }
+        .orders_history_grid table th, .orders_history_grid table td {
+            padding: 6px 2px 2px;
+            color: #5b5b5b;
+            font-size: 14px;
+        }
+        .orders_history_grid table th {
+            text-align: right;
+            font-weight: bold;
+        }
+        .orders_history_grid table th a {
+            text-decoration: none;
+        }
+
+        #keywords{
+        	font-size: 15px;
+        	height: 30px;
+        	width: 200px;
+        }
+
+        .orders_history_pager button{
+        	width: 35px;
+        	height:30px;
+        }
+
+        #orders_history_controls{
+            width: 100%;
+        }
+        .align-left{
+            text-align: left;
+        }
+    </style>
+</head>
+<body>
+
+<div id="orders_history_grid" class="orders_history_grid"></div>
+<table id="orders_history_controls">
+    <tr>
+        <td>
+            <div id="orders_history_search">
+                <table>
+                    <tr>
+                        <td>
+                            <input type="text" id="keywords"/>
+                        </td>
+                        <td>
+                            <input type="button" id='search_button' class="wb_button blue"
+                                   value="{% trans 'Search' %}"/>
+                            <input type="button" id='reset_button' class="wb_button blue" value="{% trans 'Reset' %}"/>
+                        </td>
+                    </tr>
+                </table>
+            </div>
+
+        </td>
+        <td class="align-left">
+            <div id="orders_history_pager" class="orders_history_pager"></div>
+        </td>
+    </tr>
+</table>
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>
+<script type="text/javascript" src="/static/js/utils.js"></script>
+<script type="text/javascript" src="/static/js/ordering.js"></script>
+<script>
+
+    {% autoescape off %}
+        $(function () {
+            OrderHistoryHelper.init({
+                id_history_grid:"orders_history_grid",
+                id_history_pager:"orders_history_pager",
+                order_history_url:"{{ history_data_url }}",
+                order_history_columns:      {{ order_history_columns }},
+                order_history_column_names: {{ order_history_column_names }},
+                order_history_fields:       {{ order_history_fields }},
+                page_label:"{% trans 'Page' %}",
+                of_label:"{% trans 'of' %}",
+                load_history_on_init:true,
+                sorting_disabled: true,
+                rating_disabled:true
+            });
+
+            $("#station_analytics_link").click(function (e) {
+                e.preventDefault();
+                window.open($(this).attr("href"), 'analytics', 'width=850,height=700,resizable');
+            });
+        });
+    {% endautoescape %}
+</script>
+
+</body>
+</html>

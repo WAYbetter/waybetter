@@ -14,6 +14,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.utils import  translation
+from django.contrib.auth import login
 from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea, CityAreaField
 from common.geo_calculations import distance_between_points
@@ -390,6 +391,7 @@ class SharedRide(BaseModel):
     @property
     def value(self):
         if not self._value and self.station:
+            logging.info("updating value for SharedRide[%s]" % self.id)
             self._value = self.station.get_ride_price(self)
             self.save()
 
@@ -418,6 +420,7 @@ class SharedRide(BaseModel):
         @return: number of stops
         """
         if not self._stops:
+            logging.info("updating stops for SharedRide[%s]" % self.id)
             self._stops = len(set([(p.lat, p.lon) for p in self.points.all()])) - 1 # don't count the starting point
             self.save()
 
@@ -604,6 +607,10 @@ class Passenger(BaseModel):
             if token:
                 try:
                     passenger = cls.objects.get(login_token=token)
+                    if passenger.user: # authenticate this passenger also using a session cookie
+                        if not hasattr(passenger.user, "backend"):
+                            passenger.user.backend = 'django.contrib.auth.backends.ModelBackend'
+                        login(request, passenger.user)
                 except cls.DoesNotExist:
                     pass
         return passenger
