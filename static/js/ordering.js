@@ -125,6 +125,7 @@ var OrderingHelper = Object.create({
         var address = Address.fromFields(address_type);
         var address_helper = $(element).siblings(".address-helper");
         if (! address.isResolved()) {
+            // TODO_WB: there is bug when logged in as a business, it might be related to the history columns
             $(element).catcomplete("search");
             $(element).removeClass("not_resolved").addClass("marker_disabled");
 
