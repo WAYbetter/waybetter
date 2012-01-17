@@ -533,7 +533,7 @@ class Passenger(BaseModel):
     # disallow ordering
     is_banned = models.BooleanField(_("banned"), default=False)
 
-    invoice_id = models.IntegerField(_("invoice id"), null=True, blank=True, unique=True)
+    invoice_id = models.IntegerField(_("invoice id"), null=True, blank=True, unique=True, editable=False)
 
     @property
     def name(self):
