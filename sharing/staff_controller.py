@@ -33,17 +33,18 @@ LANG_CODE = "he"
 @force_lang("en")
 def kpi(request):
     na = "N/A"
-    init_start_date = default_tz_now_max() - timedelta(days=7)
+    init_start_date = default_tz_now_max() - timedelta(days=1)
     init_end_date = default_tz_now_min()
 
     def f(start_date, end_date):
         all_orders = list(Order.objects.filter(create_date__gte=start_date, create_date__lte=end_date))
         all_orders = filter(lambda o: not o.debug and o.status in [APPROVED, CHARGED, ACCEPTED, REJECTED, TIMED_OUT, FAILED], all_orders)
-        new_passengers = list(Passenger.objects.filter(create_date__gte=start_date, create_date__lte=end_date))
+        new_passengers = Passenger.objects.filter(create_date__gte=start_date, create_date__lte=end_date).count()
+        new_billing_info = BillingInfo.objects.filter(create_date__gte=start_date, create_date__lte=end_date).count()
         shared_rides = filter(lambda sr: not sr.debug, SharedRide.objects.filter(create_date__gte=start_date, create_date__lte=end_date))
         shared_rides_with_sharing = filter(lambda sr: sr.stops > 1, shared_rides)
-        logging.info("shared_rides (%d): %s" % (len(shared_rides), shared_rides))
-        logging.info("shared_rides_with_sharing (%d): %s" % (len(shared_rides_with_sharing), shared_rides_with_sharing))
+        logging.info("shared_rides (%d)" % (len(shared_rides)))
+        logging.info("shared_rides_with_sharing (%d)" % (len(shared_rides_with_sharing)))
 
         all_trx = filter(lambda bt: not bt.debug, BillingTransaction.objects.filter(status=BillingStatus.CHARGED, charge_date__gte=start_date, charge_date__lte=end_date))
 
@@ -57,6 +58,7 @@ def kpi(request):
         sharing_site = filter(lambda o: not o.mobile, sharing_orders)
         sharing_mobile = filter(lambda o: o.mobile, sharing_orders)
         sharing_native = filter(lambda o: o.user_agent.startswith("WAYbetter"), sharing_orders)
+
 
         data = {
             "rides_booked": len(all_orders),
@@ -76,8 +78,9 @@ def kpi(request):
             "pickmeapp_mobile_rides_percent": round(float(len(pickmeapp_mobile))/len(pickmeapp_orders) * 100, 2) if pickmeapp_orders else "NA",
             "pickmeapp_native_rides_percent": round(float(len(pickmeapp_native))/len(pickmeapp_orders) * 100, 2) if pickmeapp_orders else "NA",
             "all_users": Passenger.objects.count(),
-            "new_users": len(new_passengers),
-            "new_credit_card_users": len(filter(lambda p: hasattr(p, "billing_info"), new_passengers)),
+            "new_users": new_passengers,
+            "new_credit_card_users": new_billing_info,
+#            "new_credit_card_users": len(filter(lambda p: hasattr(p, "billing_info"), new_passengers)),
             "all_credit_card_users": BillingInfo.objects.count(),
             "average_sharing": round(float(len(shared_rides_with_sharing)) / len(shared_rides) * 100, 2) if shared_rides else "No Shared Rides",
             "income": round(sum([bt.amount for bt in all_trx]), 2),
