@@ -20,12 +20,6 @@
     {{ block.super }}
     <script>
         $(document).ready(function() {
-            $("#order_button").click(function (e) {
-                if ($("#id_comments").val().length > 30){
-                    alert("{% trans "Comments field must be shorter than 30 characters" %}.");
-                    return false; // don't book the order
-                }
-            });
             $(".toggle_info_height").click(function() {
                 var $p = $(this).parent().children("p");
                 if ($(this).text() == OrderingHelper.config.less_msg) {

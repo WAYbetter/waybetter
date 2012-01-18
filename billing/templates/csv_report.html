@@ -1,0 +1,38 @@
+{% extends "wb_base.html" %}
+{% load i18n %}
+{% load value_from_settings %}
+
+{% block body %}
+    <div id="toolbar">
+        <form id="datepicker" method="POST">
+            <p>
+                <label for="email">Email</label>
+                <input type="email" name="email" id="email">
+            </p>
+
+            {{ form.as_p }}
+
+            <input type="submit">
+        </form>
+
+    </div>
+{% endblock %}
+
+{% block doc_ready %}
+    <script type="text/javascript" src="/static/js/mylibs/jquery.ui.datepicker-he.js"></script>
+
+    <script type="text/javascript">
+
+        $(function() {
+
+            var date_options = $.extend({}, $.datepicker.regional["he"], {dateFormat: 'dd/mm/yy'});
+            var start_date = new Date({{ start_date }});
+            var end_date = new Date({{ end_date }});
+            $("#id_start_date").datepicker($.extend({}, date_options, {defaultDate: start_date})).datepicker("setDate", start_date);
+            $("#id_end_date").datepicker($.extend({}, date_options, {defaultDate: end_date})).datepicker("setDate", end_date);
+
+        });
+    </script>
+
+{% endblock %}
+
