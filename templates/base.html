@@ -87,7 +87,7 @@
                                         {% else %}
                                             {{ request.user.username }}
                                         {% endif %}
-                                        ! | <a href="/logout?next=/" id="logout_link">{% trans 'Log out' %}</a></strong>
+                                        ! | <a href="/logout?next={% url pickmeapp %}" id="logout_link">{% trans 'Log out' %}</a></strong>
                                 {% else %}
                                     {% block join_or_login %}{% endblock join_or_login %}
                                 {% endif %}

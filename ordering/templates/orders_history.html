@@ -2,7 +2,6 @@
 
 {% if not is_popup %}
     {% block extrastyle %}
-        {{ block.super }}
         {% if use_external_css %}
             <link rel="stylesheet" type="text/css" href="/static/css/order_history.css"/>
         {% endif %}
