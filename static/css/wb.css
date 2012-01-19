@@ -432,7 +432,8 @@ body.base-site {
 
 #top-right {
   font-size: 13px;
-  float: right; }
+  float: right;
+  padding-top: 6px; }
   #top-right ul.content_links {
     margin: 0;
     padding-top: 7px;
@@ -1219,22 +1220,6 @@ Account
 /*
 Registration
 /*********************************************/
-#login-form label {
-  width: 80px;
-  display: inline-block; }
-#login-form .form-row {
-  margin-bottom: 10px; }
-#login-form .submit-row {
-  position: relative; }
-#login-form input[type=submit] {
-  position: absolute;
-  right: 0; }
-
-.rtl #login-form input[type=submit] {
-  position: absolute;
-  right: auto;
-  left: 0; }
-
 .registration #site-content {
   padding: 10px 25px; }
 .registration #progress {
@@ -1317,6 +1302,10 @@ Registration
   label-width: 100px; }
 .registration #local_phone {
   width: 245px; }
+.registration #validate_phone, .registration #didnt_get_code {
+  width: 132px; }
+.registration #didnt_get_code {
+  padding-top: 6px; }
 .registration #verification_status {
   width: 30px;
   height: 30px;

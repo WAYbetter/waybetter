@@ -102,6 +102,10 @@
                                 <td>
                                     <button id="validate_phone" type="button" class="wb_button"
                                             disabled="disabled">{% trans "Send SMS Code" %}</button>
+                                    <div id="didnt_get_code">
+                                        <a class="wb_link"
+                                           href="mailto:support@waybetter.com?subject={% trans "I didn't get the SMS code" %}">{% trans "I didn't get the SMS code" %}</a>
+                                    </div>
                                 </td>
                             </tr>
                             <tr class="code cntr">
@@ -159,8 +163,11 @@
                     }
                 });
 
-                $("#id_agree_to_terms, #user_details input").change(function () {
-                    $("#auth_form")[0].validate();
+                $("#id_agree_to_terms").change(function () {
+                    var valid = $("#auth_form")[0].validate();
+                    if (!valid){
+                        $("#finish_auth").disable();
+                    }
                 });
 
                 $("#finish_auth").disable().click(function () {
@@ -200,6 +207,7 @@
         </script>
 
     {% else %}
+
         <script type="text/javascript">
             function updateValidatePhoneButtonState() {
                 var $local_phone = $("#local_phone");
