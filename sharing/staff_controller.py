@@ -33,8 +33,8 @@ LANG_CODE = "he"
 @force_lang("en")
 def kpi(request):
     na = "N/A"
-    init_start_date = default_tz_now_max() - timedelta(days=1)
-    init_end_date = default_tz_now_min()
+    init_start_date = default_tz_now_min() - timedelta(days=1)
+    init_end_date = default_tz_now_max()
 
     def f(start_date, end_date):
         all_orders = list(Order.objects.filter(create_date__gte=start_date, create_date__lte=end_date))
