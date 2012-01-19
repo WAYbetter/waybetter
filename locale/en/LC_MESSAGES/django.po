@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2011-12-26 14:01+0200\n"
+"POT-Creation-Date: 2012-01-19 16:39+0200\n"
 "PO-Revision-Date: 2011-11-20 12:40+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 
 #: ajax_forms/ajax_fields.py:20
 #, python-format
@@ -54,23 +54,25 @@ msgstr ""
 msgid "Scope"
 msgstr ""
 
-#: analytics/forms.py:47 ordering/forms.py:293 registration/forms.py:76
+#: analytics/forms.py:47 ordering/forms.py:298
+#: ordering/templates/station_page_business.html:297
+#: ordering/templates/station_page_business.html:316 registration/forms.py:76
 #: sharing/templates/wb_home.html:69
 msgid "City"
 msgstr ""
 
 #: analytics/forms.py:48 ordering/order_history.py:10
-#: ordering/templates/order_status.html:82
+#: ordering/order_history.py:14 ordering/templates/order_status.html:82
 #: sharing/templates/myrides_tooltips.html:58
 msgid "Station"
 msgstr ""
 
-#: analytics/models.py:10 ordering/models.py:499
+#: analytics/models.py:10 ordering/models.py:502
 msgid "type"
 msgstr ""
 
-#: analytics/models.py:12 ordering/models.py:911 ordering/models.py:913
-#: ordering/models.py:1039 ordering/models.py:1127
+#: analytics/models.py:12 ordering/models.py:920 ordering/models.py:922
+#: ordering/models.py:1048 ordering/models.py:1143
 msgid "order"
 msgstr ""
 
@@ -78,29 +80,29 @@ msgstr ""
 msgid "order assignment"
 msgstr ""
 
-#: analytics/models.py:14 ordering/models.py:1040
+#: analytics/models.py:14 ordering/models.py:1049
 msgid "work station"
 msgstr ""
 
-#: analytics/models.py:15 ordering/models.py:246 ordering/models.py:259
-#: ordering/models.py:292 ordering/models.py:378 ordering/models.py:664
-#: ordering/models.py:682 ordering/models.py:806 ordering/models.py:1041
+#: analytics/models.py:15 ordering/models.py:247 ordering/models.py:260
+#: ordering/models.py:293 ordering/models.py:379 ordering/models.py:671
+#: ordering/models.py:689 ordering/models.py:813 ordering/models.py:1050
 msgid "station"
 msgstr ""
 
-#: analytics/models.py:16 ordering/models.py:616 ordering/models.py:805
-#: ordering/models.py:1195
+#: analytics/models.py:16 ordering/models.py:623 ordering/models.py:812
+#: ordering/models.py:1211
 msgid "passenger"
 msgstr ""
 
-#: analytics/models.py:17 common/models.py:149 ordering/models.py:123
-#: ordering/models.py:515 ordering/models.py:1136 ordering/models.py:1164
-#: ordering/models.py:1183 registration/forms.py:72 sharing/models.py:33
+#: analytics/models.py:17 common/models.py:149 ordering/models.py:124
+#: ordering/models.py:518 ordering/models.py:1152 ordering/models.py:1180
+#: ordering/models.py:1199 registration/forms.py:72 sharing/models.py:37
 msgid "country"
 msgstr ""
 
 #: analytics/models.py:18 common/models.py:197 interests/models.py:27
-#: ordering/models.py:124 ordering/models.py:624 sharing/models.py:34
+#: ordering/models.py:125 ordering/models.py:631 sharing/models.py:38
 msgid "city"
 msgstr ""
 
@@ -108,11 +110,11 @@ msgstr ""
 msgid "ratings"
 msgstr ""
 
-#: analytics/views.py:182 ordering/station_controller.py:388
+#: analytics/views.py:182 ordering/station_controller.py:391
 msgid "Accepted"
 msgstr ""
 
-#: analytics/views.py:187 ordering/station_controller.py:390
+#: analytics/views.py:187 ordering/station_controller.py:393
 msgid "Rejected"
 msgstr ""
 
@@ -176,10 +178,10 @@ msgid "Submit"
 msgstr ""
 
 #: api/models.py:7 common/models.py:100 common/models.py:148
-#: common/models.py:194 interests/models.py:26 ordering/models.py:260
-#: ordering/models.py:343 ordering/models.py:1134 ordering/models.py:1162
-#: ordering/models.py:1181 pricing/models.py:12 pricing/models.py:44
-#: sharing/models.py:293 sharing/models.py:303
+#: common/models.py:194 interests/models.py:26 ordering/models.py:261
+#: ordering/models.py:344 ordering/models.py:1150 ordering/models.py:1178
+#: ordering/models.py:1197 pricing/models.py:12 pricing/models.py:44
+#: sharing/models.py:305 sharing/models.py:315
 msgid "name"
 msgstr ""
 
@@ -187,7 +189,7 @@ msgstr ""
 msgid "api user key"
 msgstr ""
 
-#: api/models.py:9 ordering/models.py:262 ordering/models.py:294
+#: api/models.py:9 ordering/models.py:263 ordering/models.py:295
 msgid "active"
 msgstr ""
 
@@ -195,7 +197,14 @@ msgstr ""
 msgid "phone validation required"
 msgstr ""
 
-#: billing/billing_backend.py:164
+#: billing/billing_backend.py:65
+msgid ""
+"We are sorry but booking for the selected time is closed, please choose a "
+"different time.<br/>Your billing information was saved, you will not be "
+"asked to provide it again."
+msgstr ""
+
+#: billing/billing_backend.py:168
 msgid "Ride Summary for month"
 msgstr ""
 
@@ -220,17 +229,15 @@ msgstr ""
 msgid "passenger name"
 msgstr "Passenger home"
 
-#: billing/models.py:51 ordering/templates/workstation_home.html:782
-#: ordering/templates/workstation_home.html:837
+#: billing/models.py:51 ordering/templates/workstation_home.html:850
 msgid "pickup"
 msgstr ""
 
-#: billing/models.py:52 ordering/templates/workstation_home.html:785
-#: ordering/templates/workstation_home.html:840
+#: billing/models.py:52 ordering/templates/workstation_home.html:853
 msgid "dropoff"
 msgstr ""
 
-#: billing/models.py:53 ordering/models.py:852
+#: billing/models.py:53 ordering/models.py:859
 msgid "pickup time"
 msgstr ""
 
@@ -351,11 +358,11 @@ msgstr ""
 msgid "Saturday"
 msgstr ""
 
-#: common/util.py:356
+#: common/util.py:381
 msgid "Value must consists of digits only."
 msgstr ""
 
-#: common/util.py:357
+#: common/util.py:382
 msgid "Value must consists of exactly ten digits."
 msgstr ""
 
@@ -436,7 +443,7 @@ msgstr "Pickup address (number, street, city)"
 #: ordering/templates/base_passenger.html:164
 #: ordering/templates/base_station.html:50
 #: ordering/templates/business_tab.html:17
-#: ordering/templates/station_page.html:79
+#: ordering/templates/station_page.html:72
 #: sharing/templates/mobile/wb_home.html:1187
 #: sharing/templates/mobile/wb_home_phonegap.html:288
 msgid "Login"
@@ -452,6 +459,7 @@ msgstr ""
 #: interests/templates/mobile_interest_form.html:53
 #: interests/templates/station_interest_form.html:37
 #: ordering/templates/base_passenger.html:69
+#: ordering/templates/station_page_business.html:487
 #: sharing/templates/mobile/passenger_registration.html:40
 #: sharing/templates/mobile/passenger_registration.html:138
 #: sharing/templates/mobile/passenger_registration.html:148
@@ -478,9 +486,7 @@ msgstr "Pickup address (number, street, city)"
 msgid "OK"
 msgstr ""
 
-#: common/templates/error_page.html:16
-#: intermediate/templates/wb_base_site.html:147
-#: templates/wb_base_site.html:147
+#: common/templates/error_page.html:16 templates/wb_base_site.html:147
 #: templates/admin/billing/billingtransaction/change_form.html:18
 msgid "Home"
 msgstr ""
@@ -520,14 +526,16 @@ msgid "Join Now!"
 msgstr ""
 
 #: common/templates/login_form.html:36 interests/models.py:11
-#: interests/models.py:49 ordering/forms.py:231 ordering/forms.py:303
+#: interests/models.py:49 ordering/forms.py:236 ordering/forms.py:308
+#: ordering/templates/business_login.html:85
 #: ordering/templates/passenger_profile.html:24
 #: sharing/templates/contact.html:15 sharing/templates/contact.html.py:41
 #: sharing/templates/mobile/login.html:22 templates/registration/login.html:45
 msgid "Email"
 msgstr ""
 
-#: common/templates/login_form.html:38 sharing/forms.py:54
+#: common/templates/login_form.html:38
+#: ordering/templates/business_login.html:93 sharing/forms.py:55
 #: sharing/templates/mobile/login.html:24 templates/registration/login.html:49
 msgid "Password"
 msgstr ""
@@ -559,7 +567,8 @@ msgstr ""
 #: common/templates/phone_verification_form.html:21
 #: ordering/templates/base_passenger.html:120
 #: ordering/templates/business_registration.html:134
-#: ordering/templates/workstation_home.html:820
+#: ordering/templates/station_page_business.html:449
+#: ordering/templates/workstation_home.html:833
 #: ordering/templates/mobile/passenger_home.html:77
 msgid "Sending..."
 msgstr ""
@@ -622,8 +631,8 @@ msgstr ""
 msgid "An SMS with ride details will be sent soon"
 msgstr ""
 
-#: common/templates/registration_form.html:24 ordering/forms.py:254
-#: ordering/passenger_controller.py:486
+#: common/templates/registration_form.html:24 ordering/forms.py:259
+#: ordering/passenger_controller.py:494
 #: ordering/templates/business_registration.html:58
 msgid "Email already registered"
 msgstr ""
@@ -663,7 +672,7 @@ msgid "In the meantime, join for better experience (free)"
 msgstr ""
 
 #: common/templates/registration_form.html:127 interests/models.py:73
-#: sharing/forms.py:53
+#: sharing/forms.py:54
 msgid "Your Email"
 msgstr ""
 
@@ -797,8 +806,8 @@ msgstr ""
 msgid "flat pages"
 msgstr ""
 
-#: interests/models.py:28 interests/models.py:47 ordering/forms.py:378
-#: ordering/models.py:619
+#: interests/models.py:28 interests/models.py:47 ordering/forms.py:383
+#: ordering/models.py:626
 msgid "contact person"
 msgstr ""
 
@@ -893,7 +902,7 @@ msgid "Please notify me when the app is ready for download"
 msgstr ""
 
 #: interests/templates/pilot_interest_form.html:5
-#: sharing/templates/wb_home.html:999
+#: sharing/templates/wb_home.html:1002
 #, fuzzy
 msgid "Send me info"
 msgstr "Station Entrance"
@@ -906,288 +915,6 @@ msgstr ""
 
 #: interests/templates/pilot_interest_form.html:70
 msgid "Thanks. We'll contact you soon."
-msgstr ""
-
-#: intermediate/templates/wb_base.html:18 templates/wb_base.html:18
-#, fuzzy
-msgid "Shared Taxi Rides"
-msgstr "2010-2011 WAYbetter"
-
-#: intermediate/templates/wb_base.html:21 templates/wb_base.html:21
-msgid ""
-"Revolution in Transportation: Shared taxi rides to Hotspots. Book a shared "
-"taxi online: comfortable, hassle free ride, save tens of dollars."
-msgstr ""
-
-#: intermediate/templates/wb_base.html:22 templates/wb_base.html:22
-msgid "smart,iPhone,way better,order taxi, share"
-msgstr ""
-
-#: intermediate/templates/wb_base.html:26 templates/wb_base.html:26
-msgid "Half Price Taxi Rides"
-msgstr ""
-
-#: intermediate/templates/wb_base.html:28 templates/wb_base.html:28
-msgid ""
-"Revolution in Transportation: Half-priced taxi rides. Book a shared taxi "
-"online: comfortable, hassle free ride, save tens of dollars."
-msgstr ""
-
-#: intermediate/templates/wb_base.html:68 templates/wb_base.html:76
-msgid ""
-"Social revolution in public transportation. WAYbetter allows you to order "
-"shared taxi rides , for a (very) low fixed price. It’s green, it’s fast and "
-"it’s cheap. Check it out: www.waybetter.com"
-msgstr ""
-
-#: intermediate/templates/wb_base.html:92
-#: sharing/templates/mobile/my_rides.html:69
-#: sharing/templates/mobile/wb_home.html:414 templates/wb_base.html:100
-msgid "Cancel Ride"
-msgstr ""
-
-#: intermediate/templates/wb_base.html:93
-#: sharing/templates/wb_home_tooltips.html:716 templates/wb_base.html:101
-msgid "Ride cancelled."
-msgstr ""
-
-#: intermediate/templates/wb_base.html:94
-#: sharing/templates/wb_home_tooltips.html:717 templates/wb_base.html:102
-msgid "Info/Cancel"
-msgstr ""
-
-#: intermediate/templates/wb_base.html:95
-#: sharing/templates/wb_home_tooltips.html:718
-#: sharing/templates/mobile/my_rides.html:70
-#: sharing/templates/mobile/wb_home.html:415 templates/wb_base.html:103
-msgid "Report Ride"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:25
-#: intermediate/templates/wb_base_site.html:153
-#: ordering/templates/info.html:28
-#: ordering/templates/mobile/passenger_home.html:229
-#: ordering/templates/mobile/passenger_home.html:272
-#: sharing/templates/wb_info.html:4 sharing/templates/mobile/wb_home.html:1174
-#: sharing/templates/mobile/wb_home.html:1199 templates/base.html:139
-#: templates/wb_base_site.html:25 templates/wb_base_site.html.py:153
-#, fuzzy
-msgid "About"
-msgstr "Station Entrance"
-
-#: intermediate/templates/wb_base_site.html:26
-#: intermediate/templates/wb_base_site.html:161 templates/wb_base_site.html:26
-#: templates/wb_base_site.html.py:161
-msgid "Facebook"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:29
-#: ordering/templates/station_page.html:76 templates/base.html:84
-#: templates/wb_base_site.html:29
-msgid "Hi"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:37 templates/wb_base_site.html:37
-msgid "Log-in"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:50
-#: intermediate/templates/wb_base_site.html:154
-#: sharing/templates/wb_info.html:8 templates/wb_base_site.html:50
-#: templates/wb_base_site.html.py:154
-msgid "The Service"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:51
-#: intermediate/templates/wb_base_site.html:155
-#: sharing/templates/about_us.html:5 sharing/templates/wb_info.html:7
-#: templates/wb_base_site.html:51 templates/wb_base_site.html.py:155
-msgid "About Us"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:52
-#: intermediate/templates/wb_base_site.html:156
-#: sharing/templates/wb_info.html:9 sharing/templates/mobile/faq.html:17
-#: sharing/templates/mobile/wb_home.html:1175 templates/wb_base_site.html:52
-#: templates/wb_base_site.html.py:156
-msgid "FAQ"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:53
-#: intermediate/templates/wb_base_site.html:157
-#: sharing/templates/wb_info.html:10 templates/wb_base_site.html:53
-#: templates/wb_base_site.html.py:157
-msgid "Contact Us"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:57
-#: intermediate/templates/wb_base_site.html:167
-#: ordering/templates/station_analytics.html:157
-#: templates/wb_base_site.html:57 templates/wb_base_site.html.py:167
-msgid "Rides"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:58
-#: intermediate/templates/wb_base_site.html:169
-#: sharing/templates/my_rides.html:9 templates/wb_base_site.html:58
-#: templates/wb_base_site.html.py:169
-msgid "Log Out"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:60
-#: intermediate/templates/wb_base_site.html:171 templates/wb_base_site.html:60
-#: templates/wb_base_site.html.py:171
-msgid "Log In"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:61
-#: intermediate/templates/wb_base_site.html:173
-#: ordering/templates/business_tab.html:24
-#: ordering/templates/station_home.html:59 templates/wb_base_site.html:61
-#: templates/wb_base_site.html.py:173
-msgid "Join"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:99
-#: intermediate/templates/wb_base_site.html:118 templates/wb_base_site.html:99
-#: templates/wb_base_site.html.py:118
-msgid "Service"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:100
-#: templates/wb_base_site.html:100
-msgid "learnmore_service_content"
-msgstr ""
-"<p>Members of WAYbetter enjoy an advanced user experience. To make it easy "
-"and fun, we allow you to book a taxi ride in one click, leave your wallet at "
-"home, and enjoy a door-to-door taxi ride with significant savings in each "
-"ride.</p>"
-
-#: intermediate/templates/wb_base_site.html:103
-#: intermediate/templates/wb_base_site.html:122
-#: intermediate/templates/wb_base_site.html:160
-#: templates/wb_base_site.html:103 templates/wb_base_site.html.py:122
-#: templates/wb_base_site.html:160
-msgid "Community"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:104
-#: templates/wb_base_site.html:104
-msgid "learnmore_community_content"
-msgstr ""
-"<p>WAYbetter is a community created to allow shared cab rides while "
-"drastically decreasing ride prices. The community's goal is, in one word, "
-"improvement: improving the public transportation system, improve taxi "
-"drivers' work, decrease air pollution, and allow cab rides at a reasonable "
-"price.</p><p>We share a way – let's maximize our power as a community and "
-"create a new form of free movement.</p>"
-
-#: intermediate/templates/wb_base_site.html:107
-#: intermediate/templates/wb_base_site.html:126
-#: templates/wb_base_site.html:107 templates/wb_base_site.html.py:126
-msgid "Environment"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:108
-#: templates/wb_base_site.html:108
-msgid "learnmore_environment_content"
-msgstr ""
-"<p>We believe in public transportation.</p><p>We have all become slaves to "
-"our cars, and the inefficiency by which the public transportation system "
-"works are the main cause of transforming the urban landscape to a crowded, "
-"loud and polluted one. We know that paving new roads, or making more "
-"electric cars, won't solve the problem. WAYbetter's smart planning algorithm "
-"allows more people to ride in less vehicles, minimizing their carbon "
-"footprint and maximize the public transportation system's efficiency.</"
-"p><p>Together we can change the urban density from a problem into a real "
-"advantage.</p>"
-
-#: intermediate/templates/wb_base_site.html:111
-#: intermediate/templates/wb_base_site.html:130
-#: templates/wb_base_site.html:111 templates/wb_base_site.html.py:130
-msgid "Efficiency"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:112
-#: templates/wb_base_site.html:112
-msgid "learnmore_efficiency_content"
-msgstr ""
-"<p>WAYbetter was founded in order to improve the public transportation "
-"system by fixing an inheret error: taxis drive around empty <span class="
-"\"bold\">half of the time</span>, or with <span class=\"bold\">only one "
-"passenger</span> in most cases. That is why a taxi ride is expensive for the "
-"customer, and not profitable for the driver.</p><p>Our transportation "
-"solution matches supply and demand, minimizing the waste and maximizing "
-"efficiency and profitability, for all of the community members, the "
-"passengers, the drivers and the environment.</p>"
-
-#: intermediate/templates/wb_base_site.html:119
-#: templates/wb_base_site.html:119
-msgid "gist_service_content"
-msgstr "WAYbetter taxi experience"
-
-#: intermediate/templates/wb_base_site.html:123
-#: templates/wb_base_site.html:123
-msgid "gist_community_content"
-msgstr "We share our city, let's share our WAY"
-
-#: intermediate/templates/wb_base_site.html:127
-#: templates/wb_base_site.html:127
-msgid "gist_environment_content"
-msgstr "Higher car occupancy, less traffic"
-
-#: intermediate/templates/wb_base_site.html:131
-#: templates/wb_base_site.html:131
-msgid "gist_efficiency_content"
-msgstr "Efficiency, personalized"
-
-#: intermediate/templates/wb_base_site.html:148
-#: templates/wb_base_site.html:148
-msgid "PickMeApp"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:149
-#: sharing/templates/mobile/wb_home.html:1179 templates/wb_base_site.html:149
-msgid "Terms of Use"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:150
-#: ordering/templates/terms.html:18
-#: sharing/templates/mobile/passenger_registration.html:149
-#: sharing/templates/mobile/privacy.html:16
-#: sharing/templates/mobile/wb_home.html:1178 templates/wb_base_site.html:150
-msgid "Privacy Policy"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:166
-#: sharing/templates/my_rides.html:4 templates/wb_base_site.html:166
-#, fuzzy
-msgid "My Account"
-msgstr "Station Entrance"
-
-#: intermediate/templates/wb_base_site.html:206
-#: templates/wb_base_site.html:206
-msgid "To view WAYbetter in Internet Explorer you need to install"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:207
-#: templates/wb_base_site.html:207
-msgid "Free"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:209
-#: templates/wb_base_site.html:209
-msgid "Install Google Chrome Frame"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:210
-#: templates/wb_base_site.html:210
-msgid "Or, use one of these browsers"
-msgstr ""
-
-#: intermediate/templates/wb_base_site.html:277
-#: templates/wb_base_site.html:292
-msgid "Get yourself a modern browser"
 msgstr ""
 
 #: openid_consumer/views.py:96
@@ -1279,7 +1006,7 @@ msgstr ""
 msgid "Currently, there is no service in the country"
 msgstr ""
 
-#: ordering/forms.py:190
+#: ordering/forms.py:195
 #, python-format
 msgid ""
 "Service is not available in %(city)s yet.\n"
@@ -1288,8 +1015,8 @@ msgid ""
 "WAYbetter team :)"
 msgstr ""
 
-#: ordering/forms.py:221 ordering/forms.py:341 ordering/forms.py:382
-#: ordering/templates/station_page.html:193
+#: ordering/forms.py:226 ordering/forms.py:346 ordering/forms.py:387
+#: ordering/templates/station_page.html:182
 #: sharing/templates/producer_ordering_page.html:26
 #: sharing/templates/station_taxidrivers.html:188
 #: sharing/templates/mobile/passenger_registration.html:46
@@ -1297,13 +1024,15 @@ msgstr ""
 msgid "Phone"
 msgstr ""
 
-#: ordering/forms.py:222 ordering/forms.py:299 ordering/forms.py:342
-#: ordering/forms.py:383 registration/forms.py:92
+#: ordering/forms.py:227 ordering/forms.py:304 ordering/forms.py:347
+#: ordering/forms.py:388 registration/forms.py:92
 msgid "The value must contain only numbers."
 msgstr ""
 
-#: ordering/forms.py:223 ordering/forms.py:294
-#: ordering/templates/station_page.html:192
+#: ordering/forms.py:228 ordering/forms.py:299
+#: ordering/templates/station_page.html:181
+#: ordering/templates/station_page_business.html:308
+#: ordering/templates/station_page_business.html:327
 #: sharing/templates/producer_ordering_page.html:31
 #: sharing/templates/producer_rides_summary.html:18
 #: sharing/templates/station_history.html:32
@@ -1315,691 +1044,692 @@ msgstr ""
 msgid "Address"
 msgstr ""
 
-#: ordering/forms.py:226 ordering/forms.py:350 ordering/models.py:516
+#: ordering/forms.py:231 ordering/forms.py:355 ordering/models.py:519
 msgid "Default station"
 msgstr ""
 
-#: ordering/forms.py:226 ordering/forms.py:350
+#: ordering/forms.py:231 ordering/forms.py:355
 msgid "(No station selected)"
 msgstr ""
 
-#: ordering/forms.py:228 ordering/forms.py:376
+#: ordering/forms.py:233 ordering/forms.py:381
 msgid "Confine my orders to my default station"
 msgstr ""
 
-#: ordering/forms.py:232
+#: ordering/forms.py:237
 #, fuzzy
 msgid "Enter password"
 msgstr "Pickup address (number, street, city)"
 
-#: ordering/forms.py:233 ordering/forms.py:291 ordering/forms.py:363
-#: ordering/forms.py:385
+#: ordering/forms.py:238 ordering/forms.py:296 ordering/forms.py:368
+#: ordering/forms.py:390
 msgid "Re-enter password"
 msgstr ""
 
-#: ordering/forms.py:248 ordering/forms.py:314 ordering/forms.py:371
-#: ordering/forms.py:393 registration/forms.py:136 sharing/forms.py:61
-#: sharing/forms.py:72
+#: ordering/forms.py:253 ordering/forms.py:319 ordering/forms.py:376
+#: ordering/forms.py:398 registration/forms.py:136 sharing/forms.py:62
+#: sharing/forms.py:73
 msgid "The two password fields didn't match."
 msgstr ""
 
-#: ordering/forms.py:289
+#: ordering/forms.py:294
 msgid "Station name"
 msgstr ""
 
-#: ordering/forms.py:290 ordering/forms.py:361 ordering/forms.py:384
+#: ordering/forms.py:295 ordering/forms.py:366 ordering/forms.py:389
 msgid "Change password"
 msgstr ""
 
-#: ordering/forms.py:292
+#: ordering/forms.py:297
 msgid "Country"
 msgstr ""
 
-#: ordering/forms.py:298
+#: ordering/forms.py:303
 msgid "Number of taxis"
 msgstr ""
 
-#: ordering/forms.py:301
+#: ordering/forms.py:306
 msgid "Website URL"
 msgstr ""
 
-#: ordering/forms.py:305
+#: ordering/forms.py:310
 msgid "Description"
 msgstr ""
 
-#: ordering/forms.py:320
+#: ordering/forms.py:325
 msgid "Invalid address"
 msgstr ""
 
-#: ordering/forms.py:358
+#: ordering/forms.py:363
 msgid "First name"
 msgstr ""
 
-#: ordering/forms.py:359
+#: ordering/forms.py:364
 msgid "Last name"
 msgstr ""
 
-#: ordering/models.py:59 ordering/models.py:73
+#: ordering/models.py:60 ordering/models.py:74
 msgid "pending"
 msgstr ""
 
-#: ordering/models.py:60 ordering/models.py:74
+#: ordering/models.py:61 ordering/models.py:75
 msgid "assigned"
 msgstr ""
 
-#: ordering/models.py:61 ordering/models.py:76
+#: ordering/models.py:62 ordering/models.py:77
 msgid "accepted"
 msgstr ""
 
-#: ordering/models.py:62
+#: ordering/models.py:63
 msgid "ignored"
 msgstr ""
 
-#: ordering/models.py:63
+#: ordering/models.py:64
 msgid "rejected"
 msgstr ""
 
-#: ordering/models.py:64 ordering/models.py:77
+#: ordering/models.py:65 ordering/models.py:78
 msgid "not_taken"
 msgstr ""
 
-#: ordering/models.py:66
+#: ordering/models.py:67
 msgid "failed"
 msgstr ""
 
-#: ordering/models.py:67 ordering/templates/base_station.html:22
+#: ordering/models.py:68 ordering/templates/base_station.html:22
 #: ordering/templates/passenger_profile.html:67
 msgid "error"
 msgstr ""
 
-#: ordering/models.py:68
+#: ordering/models.py:69
 msgid "timed_out"
 msgstr ""
 
-#: ordering/models.py:69
+#: ordering/models.py:70
 msgid "cancelled"
 msgstr ""
 
-#: ordering/models.py:70
+#: ordering/models.py:71
 msgid "approved"
 msgstr ""
 
-#: ordering/models.py:71
+#: ordering/models.py:72
 msgid "charged"
 msgstr ""
 
-#: ordering/models.py:75
+#: ordering/models.py:76
 msgid "completed"
 msgstr ""
 
-#: ordering/models.py:102 ordering/models.py:513 ordering/models.py:680
+#: ordering/models.py:103 ordering/models.py:516 ordering/models.py:687
 #: registration/models.py:170
 msgid "user"
 msgstr ""
 
-#: ordering/models.py:103 ordering/models.py:264 ordering/models.py:296
-#: ordering/models.py:326 ordering/models.py:698 ordering/models.py:869
+#: ordering/models.py:104 ordering/models.py:265 ordering/models.py:297
+#: ordering/models.py:327 ordering/models.py:705 ordering/models.py:878
 #: registration/forms.py:50
 msgid "station name"
 msgstr ""
 
-#: ordering/models.py:104 registration/forms.py:54
+#: ordering/models.py:105 registration/forms.py:54
 msgid "license number"
 msgstr ""
 
-#: ordering/models.py:105
+#: ordering/models.py:106
 msgid "website"
 msgstr ""
 
-#: ordering/models.py:106 registration/forms.py:100
+#: ordering/models.py:107 registration/forms.py:100
 msgid "number of taxis"
 msgstr ""
 
-#: ordering/models.py:107 registration/forms.py:104
+#: ordering/models.py:108 registration/forms.py:104
 msgid "description"
 msgstr ""
 
-#: ordering/models.py:108 registration/forms.py:96
+#: ordering/models.py:109 registration/forms.py:96
 msgid "logo"
 msgstr ""
 
-#: ordering/models.py:109 registration/forms.py:82
+#: ordering/models.py:110 registration/forms.py:82
 msgid "language"
 msgstr ""
 
-#: ordering/models.py:110
+#: ordering/models.py:111
 msgid "show on list"
 msgstr ""
 
-#: ordering/models.py:111
+#: ordering/models.py:112
 msgid "subdomain name"
 msgstr ""
 
-#: ordering/models.py:112 ordering/models.py:132
+#: ordering/models.py:113 ordering/models.py:133
 msgid "app icon"
 msgstr ""
 
-#: ordering/models.py:113 ordering/models.py:133
+#: ordering/models.py:114 ordering/models.py:134
 msgid "app splash"
 msgstr ""
 
-#: ordering/models.py:115 ordering/models.py:690
+#: ordering/models.py:116 ordering/models.py:697
 msgid "last order date"
 msgstr ""
 
-#: ordering/models.py:118 ordering/models.py:630
+#: ordering/models.py:119 ordering/models.py:637
 msgid "confine orders"
 msgstr ""
 
-#: ordering/models.py:119
+#: ordering/models.py:120
 msgid "send sms to drivers"
 msgstr ""
 
-#: ordering/models.py:120
+#: ordering/models.py:121
 msgid "voucher emails"
 msgstr ""
 
-#: ordering/models.py:125 sharing/models.py:258 sharing/models.py:272
+#: ordering/models.py:126 sharing/models.py:270 sharing/models.py:284
 msgid "city area"
 msgstr ""
 
-#: ordering/models.py:126
+#: ordering/models.py:127
 msgid "postal code"
 msgstr ""
 
-#: ordering/models.py:127 ordering/models.py:503 ordering/models.py:622
-#: ordering/models.py:625 ordering/templates/passenger_profile.html:13
-#: registration/forms.py:80 sharing/models.py:35 sharing/models.py:309
-#: sharing/models.py:310
+#: ordering/models.py:128 ordering/models.py:506 ordering/models.py:629
+#: ordering/models.py:632 ordering/templates/passenger_profile.html:13
+#: registration/forms.py:80 sharing/models.py:39 sharing/models.py:321
+#: sharing/models.py:322
 msgid "address"
 msgstr ""
 
-#: ordering/models.py:128 sharing/models.py:36 sharing/models.py:314
+#: ordering/models.py:129 sharing/models.py:40 sharing/models.py:326
 msgid "goehash"
 msgstr ""
 
-#: ordering/models.py:129 ordering/models.py:501 ordering/models.py:627
-#: sharing/models.py:37 sharing/models.py:312
+#: ordering/models.py:130 ordering/models.py:504 ordering/models.py:634
+#: sharing/models.py:41 sharing/models.py:324
 msgid "longtitude"
 msgstr ""
 
-#: ordering/models.py:130 ordering/models.py:502 ordering/models.py:628
-#: sharing/models.py:38 sharing/models.py:313
+#: ordering/models.py:131 ordering/models.py:505 ordering/models.py:635
+#: sharing/models.py:42 sharing/models.py:325
 msgid "latitude"
 msgstr ""
 
-#: ordering/models.py:135
+#: ordering/models.py:136
 msgid "number of ratings"
 msgstr ""
 
-#: ordering/models.py:136
+#: ordering/models.py:137
 msgid "average rating"
 msgstr ""
 
-#: ordering/models.py:137
+#: ordering/models.py:138
 msgid "internal rating"
 msgstr ""
 
-#: ordering/models.py:139
+#: ordering/models.py:140
 msgid "stop price"
 msgstr ""
 
-#: ordering/models.py:140
+#: ordering/models.py:141
 msgid "payday"
 msgstr ""
 
-#: ordering/models.py:142
+#: ordering/models.py:143
 msgid "page description"
 msgstr ""
 
-#: ordering/models.py:143
+#: ordering/models.py:144
 msgid "page keywords"
 msgstr ""
 
-#: ordering/models.py:247 pricing/models.py:126 sharing/models.py:271
+#: ordering/models.py:248 pricing/models.py:126 sharing/models.py:283
 msgid "rule set"
 msgstr ""
 
-#: ordering/models.py:248
+#: ordering/models.py:249
 msgid "city area 1"
 msgstr ""
 
-#: ordering/models.py:249
+#: ordering/models.py:250
 msgid "city area 2"
 msgstr ""
 
-#: ordering/models.py:250 sharing/models.py:259 sharing/models.py:273
+#: ordering/models.py:251 sharing/models.py:271 sharing/models.py:285
 msgid "price"
 msgstr ""
 
-#: ordering/models.py:261 ordering/models.py:520 ordering/models.py:662
-#: sharing/models.py:304
+#: ordering/models.py:262 ordering/models.py:523 ordering/models.py:669
+#: sharing/models.py:316
 msgid "phone number"
 msgstr ""
 
-#: ordering/models.py:293
+#: ordering/models.py:294
 msgid "taxi_number"
 msgstr ""
 
-#: ordering/models.py:323
+#: ordering/models.py:324
 msgid "driver"
 msgstr ""
 
-#: ordering/models.py:324
+#: ordering/models.py:325
 msgid "taxi"
 msgstr ""
 
-#: ordering/models.py:353
+#: ordering/models.py:354
 msgid "Computation set"
 msgstr ""
 
-#: ordering/models.py:358 ordering/models.py:375 ordering/models.py:816
-#: ordering/models.py:1043
+#: ordering/models.py:359 ordering/models.py:376 ordering/models.py:823
+#: ordering/models.py:1052
 msgid "status"
 msgstr ""
 
-#: ordering/models.py:372 ordering/models.py:860
+#: ordering/models.py:373 ordering/models.py:869
 msgid "depart time"
 msgstr ""
 
-#: ordering/models.py:373 ordering/models.py:861
+#: ordering/models.py:374 ordering/models.py:870
 msgid "arrive time"
 msgstr ""
 
-#: ordering/models.py:376
+#: ordering/models.py:377
 #, fuzzy
 msgid "computation"
 msgstr "Station Entrance"
 
-#: ordering/models.py:379
+#: ordering/models.py:380
 msgid "assigned driver"
 msgstr ""
 
-#: ordering/models.py:380
+#: ordering/models.py:381
 msgid "assigned taxi"
 msgstr ""
 
-#: ordering/models.py:496 ordering/models.py:856
+#: ordering/models.py:499 ordering/models.py:865
 msgid "ride"
 msgstr ""
 
-#: ordering/models.py:498
+#: ordering/models.py:501
 msgid "stop time"
 msgstr ""
 
-#: ordering/models.py:517 sharing/models.py:295
+#: ordering/models.py:520 sharing/models.py:307
 msgid "Default sharing station"
 msgstr ""
 
-#: ordering/models.py:518 ordering/models.py:807
+#: ordering/models.py:521 ordering/models.py:814
 msgid "originating station"
 msgstr ""
 
-#: ordering/models.py:521
+#: ordering/models.py:524
 msgid "phone verified"
 msgstr ""
 
-#: ordering/models.py:523
+#: ordering/models.py:526
 msgid "accept mailing"
 msgstr ""
 
-#: ordering/models.py:526
+#: ordering/models.py:529
 msgid "login token"
 msgstr ""
 
-#: ordering/models.py:531
+#: ordering/models.py:534
 msgid "banned"
 msgstr ""
 
-#: ordering/models.py:533
+#: ordering/models.py:536
 msgid "invoice id"
 msgstr ""
 
-#: ordering/models.py:618 ordering/models.py:1051
+#: ordering/models.py:625 ordering/models.py:1060
 #: ordering/templates/passenger_profile.html:9
 msgid "business name"
 msgstr ""
 
-#: ordering/models.py:626 sharing/models.py:311
+#: ordering/models.py:633 sharing/models.py:323
 msgid "house_number"
 msgstr ""
 
-#: ordering/models.py:639
+#: ordering/models.py:646
 msgid "business welcome mail subject"
 msgstr "Thank you for joining WAYbetter"
 
-#: ordering/models.py:683
+#: ordering/models.py:690
 msgid "token"
 msgstr ""
 
-#: ordering/models.py:684
+#: ordering/models.py:691
 msgid "installer URL"
 msgstr ""
 
-#: ordering/models.py:685
+#: ordering/models.py:692
 msgid "was installed"
 msgstr ""
 
-#: ordering/models.py:686
+#: ordering/models.py:693
 msgid "Accept orders"
 msgstr ""
 
-#: ordering/models.py:687
+#: ordering/models.py:694
 msgid "Accept Shared Rides"
 msgstr ""
 
-#: ordering/models.py:688
+#: ordering/models.py:695
 msgid "Accept debug"
 msgstr ""
 
-#: ordering/models.py:693
+#: ordering/models.py:700
 msgid "channel_id"
 msgstr ""
 
-#: ordering/models.py:694
+#: ordering/models.py:701
 msgid "is online"
 msgstr ""
 
-#: ordering/models.py:697 ordering/models.py:870
+#: ordering/models.py:704 ordering/models.py:879
 msgid "station id"
 msgstr ""
 
-#: ordering/models.py:796
+#: ordering/models.py:803
 msgid "Unrated"
 msgstr ""
 
-#: ordering/models.py:797
+#: ordering/models.py:804
 msgid "Very poor"
 msgstr ""
 
-#: ordering/models.py:798
+#: ordering/models.py:805
 msgid "Not so bad"
 msgstr ""
 
-#: ordering/models.py:799
+#: ordering/models.py:806
 msgid "Average"
 msgstr ""
 
-#: ordering/models.py:800
+#: ordering/models.py:807
 msgid "Good"
 msgstr ""
 
-#: ordering/models.py:801
+#: ordering/models.py:808
 msgid "Perfect"
 msgstr ""
 
-#: ordering/models.py:809
+#: ordering/models.py:816
 msgid "confining station"
 msgstr ""
 
-#: ordering/models.py:813
+#: ordering/models.py:820
 msgid "mobile"
 msgstr ""
 
-#: ordering/models.py:814
+#: ordering/models.py:821
 msgid "user agent"
 msgstr ""
 
-#: ordering/models.py:817
+#: ordering/models.py:824
 msgid "order language"
 msgstr ""
 
-#: ordering/models.py:819
+#: ordering/models.py:826
 msgid "from country"
 msgstr ""
 
-#: ordering/models.py:820
+#: ordering/models.py:827
 msgid "from city"
 msgstr ""
 
-#: ordering/models.py:821
+#: ordering/models.py:828
 msgid "from city area"
 msgstr ""
 
-#: ordering/models.py:823
+#: ordering/models.py:830
 msgid "from postal code"
 msgstr ""
 
-#: ordering/models.py:824
+#: ordering/models.py:831
 msgid "from street address"
 msgstr ""
 
-#: ordering/models.py:825
+#: ordering/models.py:832
 msgid "from_house_number"
 msgstr ""
 
-#: ordering/models.py:828
+#: ordering/models.py:835
 msgid "from goehash"
 msgstr ""
 
-#: ordering/models.py:829
+#: ordering/models.py:836
 msgid "from_lon"
 msgstr ""
 
-#: ordering/models.py:830
+#: ordering/models.py:837
 msgid "from_lat"
 msgstr ""
 
-#: ordering/models.py:832 ordering/models.py:1052
+#: ordering/models.py:839 ordering/models.py:1061
 msgid "from address"
 msgstr ""
 
-#: ordering/models.py:834
+#: ordering/models.py:841
 msgid "to country"
 msgstr ""
 
-#: ordering/models.py:836
+#: ordering/models.py:843
 msgid "to city"
 msgstr ""
 
-#: ordering/models.py:837
+#: ordering/models.py:844
 msgid "to city area"
 msgstr ""
 
-#: ordering/models.py:839
+#: ordering/models.py:846
 msgid "to postal code"
 msgstr ""
 
-#: ordering/models.py:840
+#: ordering/models.py:847
 msgid "to street address"
 msgstr ""
 
-#: ordering/models.py:841
+#: ordering/models.py:848
 msgid "to_house_number"
 msgstr ""
 
-#: ordering/models.py:843
+#: ordering/models.py:850
 msgid "to goehash"
 msgstr ""
 
-#: ordering/models.py:844
+#: ordering/models.py:851
 msgid "to_lon"
 msgstr ""
 
-#: ordering/models.py:845
+#: ordering/models.py:852
 msgid "to_lat"
 msgstr ""
 
-#: ordering/models.py:847 ordering/models.py:1053
+#: ordering/models.py:854 ordering/models.py:1062
 msgid "to address"
 msgstr ""
 
-#: ordering/models.py:853
+#: ordering/models.py:860
 msgid "future pickup"
 msgstr ""
 
-#: ordering/models.py:858
+#: ordering/models.py:867
 msgid "pickup point"
 msgstr ""
 
-#: ordering/models.py:859
+#: ordering/models.py:868
 msgid "dropoff point"
 msgstr ""
 
-#: ordering/models.py:866
+#: ordering/models.py:875
 msgid "passenger rating"
 msgstr ""
 
-#: ordering/models.py:871
+#: ordering/models.py:880
 msgid "passenger phone"
 msgstr ""
 
-#: ordering/models.py:872
+#: ordering/models.py:881
 msgid "passenger id"
 msgstr ""
 
-#: ordering/models.py:874
+#: ordering/models.py:883
 msgid "api user"
 msgstr ""
 
-#: ordering/models.py:879
+#: ordering/models.py:888
 msgid "private"
 msgstr ""
 
-#: ordering/models.py:881
+#: ordering/models.py:890
 msgid "shared"
 msgstr ""
 
-#: ordering/models.py:883
+#: ordering/models.py:892
 #, python-format
 msgid "%(date)s: Taxi ride from %(pickup)s to %(dropoff)s %(seats)s"
 msgstr ""
 
-#: ordering/models.py:887
+#: ordering/models.py:896
 #, fuzzy
 msgid "seats"
 msgstr "Station Entrance"
 
-#: ordering/models.py:956 sharing/templates/station_history.html:76
+#: ordering/models.py:965 sharing/templates/station_history.html:76
 #: sharing/templates/ws_home.html:364
 #: sharing/templates/mobile/wb_home.html:203
 msgid "Today"
 msgstr ""
 
-#: ordering/models.py:1045
+#: ordering/models.py:1054
 msgid "show date"
 msgstr ""
 
-#: ordering/models.py:1047
+#: ordering/models.py:1056
 msgid "pickup_address_in_ws_lang"
 msgstr ""
 
-#: ordering/models.py:1048
+#: ordering/models.py:1057
 msgid "dropoff_address_in_ws_lang"
 msgstr ""
 
-#: ordering/models.py:1127
+#: ordering/models.py:1143
 msgid "assigned to station:"
 msgstr ""
 
-#: ordering/models.py:1130
+#: ordering/models.py:1146
 msgid "Standard cab"
 msgstr ""
 
-#: ordering/models.py:1135 ordering/models.py:1163 ordering/models.py:1182
+#: ordering/models.py:1151 ordering/models.py:1179 ordering/models.py:1198
 msgid "is active"
 msgstr ""
 
-#: ordering/models.py:1139 pricing/models.py:49
+#: ordering/models.py:1155 pricing/models.py:49
 msgid "from day"
 msgstr ""
 
-#: ordering/models.py:1140 pricing/models.py:50
+#: ordering/models.py:1156 pricing/models.py:50
 msgid "to day"
 msgstr ""
 
-#: ordering/models.py:1141 ordering/models.py:1169 pricing/models.py:52
+#: ordering/models.py:1157 ordering/models.py:1185 pricing/models.py:52
 msgid "from hour"
 msgstr ""
 
-#: ordering/models.py:1142 ordering/models.py:1170 pricing/models.py:53
+#: ordering/models.py:1158 ordering/models.py:1186 pricing/models.py:53
 msgid "to hour"
 msgstr ""
 
-#: ordering/models.py:1144
+#: ordering/models.py:1160
 msgid "from duration (s)"
 msgstr ""
 
-#: ordering/models.py:1144 ordering/models.py:1145 ordering/models.py:1153
+#: ordering/models.py:1160 ordering/models.py:1161 ordering/models.py:1169
 msgid "In seconds"
 msgstr ""
 
-#: ordering/models.py:1145
+#: ordering/models.py:1161
 msgid "to duration (s)"
 msgstr ""
 
-#: ordering/models.py:1148
+#: ordering/models.py:1164
 msgid "from distance (m)"
 msgstr ""
 
-#: ordering/models.py:1148 ordering/models.py:1149 ordering/models.py:1152
+#: ordering/models.py:1164 ordering/models.py:1165 ordering/models.py:1168
 msgid "In meters"
 msgstr ""
 
-#: ordering/models.py:1149
+#: ordering/models.py:1165
 msgid "to distance (m)"
 msgstr ""
 
-#: ordering/models.py:1152
+#: ordering/models.py:1168
 msgid "tick distance (m)"
 msgstr ""
 
-#: ordering/models.py:1153
+#: ordering/models.py:1169
 msgid "tick time (s)"
 msgstr ""
 
-#: ordering/models.py:1154
+#: ordering/models.py:1170
 msgid "cost per tick"
 msgstr ""
 
-#: ordering/models.py:1155 ordering/models.py:1174 ordering/models.py:1185
+#: ordering/models.py:1171 ordering/models.py:1190 ordering/models.py:1201
 msgid "fixed cost"
 msgstr ""
 
-#: ordering/models.py:1166
+#: ordering/models.py:1182
 msgid "city 1"
 msgstr ""
 
-#: ordering/models.py:1167
+#: ordering/models.py:1183
 msgid "city 2"
 msgstr ""
 
-#: ordering/models.py:1171
+#: ordering/models.py:1187
 msgid "from day-of-week"
 msgstr ""
 
-#: ordering/models.py:1172
+#: ordering/models.py:1188
 msgid "to day-of-week"
 msgstr ""
 
-#: ordering/models.py:1191
+#: ordering/models.py:1207
 msgid "Website"
 msgstr ""
 
-#: ordering/models.py:1191
+#: ordering/models.py:1207
 msgid "Booking"
 msgstr ""
 
-#: ordering/models.py:1191
+#: ordering/models.py:1207
 msgid "Registration"
 msgstr ""
 
-#: ordering/models.py:1191
+#: ordering/models.py:1207
 msgid "Taxi Ride"
 msgstr ""
 
-#: ordering/models.py:1191
+#: ordering/models.py:1207
 msgid "Other"
 msgstr ""
 
 #: ordering/order_history.py:10 ordering/order_history.py:14
-#: ordering/order_history.py:18 sharing/templates/station_accounting.html:32
+#: ordering/order_history.py:18 ordering/order_history.py:22
+#: sharing/templates/station_accounting.html:32
 #: sharing/templates/wb_home.html:105
 msgid "Date"
 msgstr ""
 
 #: ordering/order_history.py:10 ordering/order_history.py:14
-#: ordering/order_history.py:18
+#: ordering/order_history.py:18 ordering/order_history.py:22
 #: sharing/templates/hotspot_ordering_page.html:26
 #: sharing/templates/hotspot_ordering_page_textinput.html:28
 #: sharing/templates/myrides_table.html:5
@@ -2013,7 +1743,7 @@ msgid "From"
 msgstr ""
 
 #: ordering/order_history.py:10 ordering/order_history.py:14
-#: ordering/order_history.py:18
+#: ordering/order_history.py:18 ordering/order_history.py:22
 #: sharing/templates/hotspot_ordering_page.html:38
 #: sharing/templates/hotspot_ordering_page_textinput.html:40
 #: sharing/templates/myrides_table.html:6
@@ -2031,23 +1761,34 @@ msgid "Passenger Rating"
 msgstr ""
 
 #: ordering/order_history.py:14
-msgid "Passenger Phone"
+#: ordering/templates/station_page_business.html:337
+#, fuzzy
+msgid "Passenger Details"
+msgstr "Passenger home"
+
+#: ordering/order_history.py:14
+#: ordering/templates/station_page_business.html:344
+msgid "Comments"
 msgstr ""
 
 #: ordering/order_history.py:18
+msgid "Passenger Phone"
+msgstr ""
+
+#: ordering/order_history.py:22
 #, fuzzy
 msgid "Passenger"
 msgstr "Passenger home"
 
-#: ordering/order_history.py:18
+#: ordering/order_history.py:22
 msgid "Status Label"
 msgstr ""
 
-#: ordering/order_history.py:48
+#: ordering/order_history.py:58
 msgid "Business"
 msgstr ""
 
-#: ordering/order_history.py:48
+#: ordering/order_history.py:58
 msgid "Private"
 msgstr ""
 
@@ -2118,47 +1859,47 @@ msgstr ""
 msgid "min"
 msgstr ""
 
-#: ordering/passenger_controller.py:258 ordering/passenger_controller.py:317
+#: ordering/passenger_controller.py:263 ordering/passenger_controller.py:314
 msgid "Your Ride Could Not Be Ordered"
 msgstr ""
 
-#: ordering/passenger_controller.py:259
+#: ordering/passenger_controller.py:264
 msgid "Ordering is not allowed so soon after another order"
 msgstr ""
 
-#: ordering/passenger_controller.py:292
+#: ordering/passenger_controller.py:288
 msgid "An SMS with ride details will arrive shortly..."
 msgstr ""
 
-#: ordering/passenger_controller.py:295
+#: ordering/passenger_controller.py:291
 #, python-format
 msgid ""
 "%s is looking for a free taxi. An SMS with ride details will arrive "
 "shortly..."
 msgstr ""
 
-#: ordering/passenger_controller.py:372
+#: ordering/passenger_controller.py:380
 #, python-format
 msgid "Verification code: %s"
 msgstr "Thanks you for registering. Verification code: %s"
 
-#: ordering/passenger_controller.py:387
+#: ordering/passenger_controller.py:395
 msgid "Error validating phone (check that your browser accepts cookies)"
 msgstr ""
 
-#: ordering/passenger_controller.py:390
+#: ordering/passenger_controller.py:398
 msgid "Invalid verification code"
 msgstr ""
 
-#: ordering/passenger_controller.py:417
+#: ordering/passenger_controller.py:425
 msgid "Phone has multiple passengers"
 msgstr ""
 
-#: ordering/passenger_controller.py:448
+#: ordering/passenger_controller.py:456
 msgid "wrong email/password"
 msgstr ""
 
-#: ordering/passenger_controller.py:457
+#: ordering/passenger_controller.py:465
 msgid "Must have a user to change credentials"
 msgstr ""
 
@@ -2166,15 +1907,15 @@ msgstr ""
 msgid "This is a test order"
 msgstr ""
 
-#: ordering/station_controller.py:76
+#: ordering/station_controller.py:79
 msgid "Invalid city"
 msgstr ""
 
-#: ordering/station_controller.py:389
+#: ordering/station_controller.py:392
 msgid "Ignored"
 msgstr ""
 
-#: ordering/station_controller.py:464
+#: ordering/station_controller.py:471
 #, python-format
 msgid "%s Taxi station"
 msgstr ""
@@ -2272,7 +2013,7 @@ msgid "The address is not resolved"
 msgstr ""
 
 #: ordering/templates/base_passenger.html:50
-#: ordering/templates/station_page.html:187
+#: ordering/templates/station_page.html:176
 #: ordering/templates/mobile/passenger_home.html:159
 #: ordering/templates/mobile/passenger_home.html:223
 #: sharing/templates/mobile/wb_home.html:781
@@ -2291,7 +2032,7 @@ msgstr "Fill in pick-up & drop-off fields to get price/time estimates"
 
 #: ordering/templates/base_passenger.html:53
 #: ordering/templates/passenger_home.html:86
-#: ordering/templates/station_page.html:111
+#: ordering/templates/station_page.html:105
 #: ordering/templates/mobile/passenger_home.html:131
 #: sharing/templates/hotspot_ordering_page_textinput.html:32
 msgid "Enter pickup address"
@@ -2299,7 +2040,7 @@ msgstr "Pickup address (number, street, city)"
 
 #: ordering/templates/base_passenger.html:54
 #: ordering/templates/passenger_home.html:89
-#: ordering/templates/station_page.html:115
+#: ordering/templates/station_page.html:109
 #: ordering/templates/mobile/passenger_home.html:136
 #: sharing/templates/hotspot_ordering_page.html:42
 #: sharing/templates/hotspot_ordering_page_textinput.html:44
@@ -2307,43 +2048,51 @@ msgid "Enter drop-off address"
 msgstr "Drop-off address (optional)"
 
 #: ordering/templates/base_passenger.html:70
+#: ordering/templates/station_page_business.html:488
 msgid "For changes call: "
 msgstr ""
 
 #: ordering/templates/base_passenger.html:71
+#: ordering/templates/station_page_business.html:489
 msgid "minute"
 msgstr ""
 
 #: ordering/templates/base_passenger.html:72
+#: ordering/templates/station_page_business.html:490
 #: ordering/templates/workstation_home.html:746
 msgid "minutes"
 msgstr ""
 
 #: ordering/templates/base_passenger.html:73
+#: ordering/templates/station_page_business.html:491
 #, fuzzy
 msgid "Please wait"
 msgstr "Passenger home"
 
 #: ordering/templates/base_passenger.html:74
+#: ordering/templates/station_page_business.html:492
 #, fuzzy
 msgid "Pickup in"
 msgstr "Pickup address (number, street, city)"
 
 #: ordering/templates/base_passenger.html:75
+#: ordering/templates/station_page_business.html:493
 msgid "Order finished!"
 msgstr ""
 
 #: ordering/templates/base_passenger.html:76
+#: ordering/templates/station_page_business.html:494
 msgid "Re-connecting to server, please wait (your order is being processed)"
 msgstr ""
 
 #: ordering/templates/base_passenger.html:77
+#: ordering/templates/station_page_business.html:495
 msgid "Have a pleasant ride"
 msgstr ""
 
 #: ordering/templates/base_passenger.html:83
 #: sharing/templates/hotspot_ordering_page.html:144
-#: sharing/templates/wb_home.html:657
+#: sharing/templates/wb_home.html:659
 #: sharing/templates/wb_home_tooltips.html:747
 #: sharing/templates/mobile/wb_home.html:463
 #, fuzzy
@@ -2354,7 +2103,7 @@ msgstr "Pickup address (number, street, city)"
 #: sharing/templates/hotspot_ordering_page.html:121
 #: sharing/templates/hotspot_ordering_page.html:145
 #: sharing/templates/station_taxidrivers.html:329
-#: sharing/templates/wb_home.html:508 sharing/templates/wb_home.html.py:658
+#: sharing/templates/wb_home.html:510 sharing/templates/wb_home.html.py:660
 #: sharing/templates/wb_home_tooltips.html:748
 #: sharing/templates/ws_home.html:215
 #: sharing/templates/mobile/wb_home.html:464
@@ -2363,7 +2112,9 @@ msgstr ""
 
 #: ordering/templates/base_passenger.html:125
 #: ordering/templates/passenger_home.html:92
-#: ordering/templates/station_page.html:118
+#: ordering/templates/station_page.html:112
+#: ordering/templates/station_page_business.html:357
+#: ordering/templates/station_page_business.html:457
 #: ordering/templates/mobile/passenger_home.html:81
 #: sharing/templates/hotspot_ordering_page.html:54
 #: sharing/templates/hotspot_ordering_page_textinput.html:48
@@ -2395,6 +2146,39 @@ msgstr "Pickup address (number, street, city)"
 
 #: ordering/templates/base_station.html:56
 msgid "Smart Tools for Smart Taxi Stations"
+msgstr ""
+
+#: ordering/templates/business_login.html:101
+#: sharing/templates/mobile/login.html:27
+#: templates/registration/activate.html:10
+#: templates/registration/activation_complete.html:8
+#: templates/registration/login.html:58
+#: templates/registration/login_reg.html:8
+#: templates/registration/password_reset_complete.html:8
+msgid "Log in"
+msgstr ""
+
+#: ordering/templates/business_orders_history.html:68
+#: ordering/templates/orders_history.html:41
+msgid "Search"
+msgstr ""
+
+#: ordering/templates/business_orders_history.html:69
+#: ordering/templates/orders_history.html:42
+msgid "Reset"
+msgstr ""
+
+#: ordering/templates/business_orders_history.html:98
+#: ordering/templates/orders_history.html:57
+#: ordering/templates/station_analytics.html:200
+#, fuzzy
+msgid "Page"
+msgstr "Passenger home"
+
+#: ordering/templates/business_orders_history.html:99
+#: ordering/templates/orders_history.html:58
+#: ordering/templates/station_analytics.html:201
+msgid "of"
 msgstr ""
 
 #: ordering/templates/business_registration.html:11
@@ -2473,6 +2257,12 @@ msgstr ""
 msgid "Fill in your details to join us"
 msgstr ""
 
+#: ordering/templates/business_tab.html:24
+#: ordering/templates/station_home.html:59 templates/wb_base_site.html:61
+#: templates/wb_base_site.html.py:173
+msgid "Join"
+msgstr ""
+
 #: ordering/templates/business_tab.html:41
 msgid "There was an error saving your details"
 msgstr ""
@@ -2496,16 +2286,30 @@ msgstr ""
 msgid "Upload specific pricing rules (inter-city taarif in CSV format)"
 msgstr ""
 
+#: ordering/templates/info.html:28
+#: ordering/templates/mobile/passenger_home.html:229
+#: ordering/templates/mobile/passenger_home.html:272
+#: sharing/templates/wb_info.html:4 sharing/templates/mobile/wb_home.html:1174
+#: sharing/templates/mobile/wb_home.html:1199 templates/base.html:139
+#: templates/wb_base_site.html:25 templates/wb_base_site.html.py:153
+#, fuzzy
+msgid "About"
+msgstr "Station Entrance"
+
 #: ordering/templates/info.html:29 templates/base.html:140
 #, fuzzy
 msgid "Press"
 msgstr "Pickup address (number, street, city)"
 
-#: ordering/templates/info.html:34 templates/base.html:145
+#: ordering/templates/info.html:31 templates/base.html:142
+msgid "Help"
+msgstr ""
+
+#: ordering/templates/info.html:33 templates/base.html:144
 msgid "Terms"
 msgstr "Terms and Conditions"
 
-#: ordering/templates/info.html:35 ordering/templates/passenger_home.html:67
+#: ordering/templates/info.html:34 ordering/templates/passenger_home.html:67
 msgid "TAXI"
 msgstr ""
 
@@ -2548,31 +2352,12 @@ msgstr ""
 msgid "To open station analytics in a new page click here"
 msgstr ""
 
-#: ordering/templates/orders_history.html:41
-msgid "Search"
-msgstr ""
-
-#: ordering/templates/orders_history.html:42
-msgid "Reset"
-msgstr ""
-
-#: ordering/templates/orders_history.html:57
-#: ordering/templates/station_analytics.html:200
-#, fuzzy
-msgid "Page"
-msgstr "Passenger home"
-
-#: ordering/templates/orders_history.html:58
-#: ordering/templates/station_analytics.html:201
-msgid "of"
-msgstr ""
-
 #: ordering/templates/passenger_home.html:5
 msgid "Free Online Taxi Booking - WAYbetter"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:27
-#: ordering/templates/station_page.html:47
+#: ordering/templates/station_page.html:44
 msgid "We're sorry, but an error occurred while loading this page."
 msgstr ""
 
@@ -2594,14 +2379,14 @@ msgid "Book Now (FREE)"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:110
-#: ordering/templates/station_page.html:139
+#: ordering/templates/station_page.html:128
 #: sharing/templates/mobile/my_rides.html:22
 #: sharing/templates/mobile/wb_home.html:987
 msgid "Ride History"
 msgstr ""
 
 #: ordering/templates/passenger_home.html:111
-#: ordering/templates/station_page.html:142 sharing/templates/my_rides.html:8
+#: ordering/templates/station_page.html:131 sharing/templates/my_rides.html:8
 msgid "My Profile"
 msgstr ""
 
@@ -2752,6 +2537,11 @@ msgstr ""
 msgid "rides"
 msgstr ""
 
+#: ordering/templates/station_analytics.html:157
+#: templates/wb_base_site.html:57 templates/wb_base_site.html.py:167
+msgid "Rides"
+msgstr ""
+
 #: ordering/templates/station_analytics.html:229
 #: sharing/templates/station_accounting.html:98
 #: sharing/templates/station_history.html:106
@@ -2782,70 +2572,153 @@ msgstr ""
 msgid "Workstations"
 msgstr "Station Entrance"
 
-#: ordering/templates/station_page.html:67
-msgid "Pick Me App for Businesses, with instant feedback and no phone calls "
-msgstr ""
-
-#: ordering/templates/station_page.html:69
+#: ordering/templates/station_page.html:63
 msgid "Book A Taxi Application. Immediate Response via SMS"
 msgstr ""
 
-#: ordering/templates/station_page.html:77 templates/base.html:90
+#: ordering/templates/station_page.html:69 templates/base.html:84
+#: templates/wb_base_site.html:29
+msgid "Hi"
+msgstr ""
+
+#: ordering/templates/station_page.html:70 templates/base.html:90
 msgid "Log out"
 msgstr ""
 
-#: ordering/templates/station_page.html:150
+#: ordering/templates/station_page.html:139
 msgid "for your business - free!"
 msgstr ""
 
-#: ordering/templates/station_page.html:152
+#: ordering/templates/station_page.html:141
 msgid "Easy and friendly ordering"
 msgstr ""
 
-#: ordering/templates/station_page.html:153
+#: ordering/templates/station_page.html:142
 msgid "No phone calls"
 msgstr ""
 
-#: ordering/templates/station_page.html:154
+#: ordering/templates/station_page.html:143
 msgid "Get instant feedback on your computer"
 msgstr ""
 
-#: ordering/templates/station_page.html:155
+#: ordering/templates/station_page.html:144
 msgid "Track and manage orders"
 msgstr ""
 
-#: ordering/templates/station_page.html:159
+#: ordering/templates/station_page.html:148
 msgid "Join now"
 msgstr ""
 
-#: ordering/templates/station_page.html:166
+#: ordering/templates/station_page.html:155
 msgid "for your smartphone"
 msgstr ""
 
-#: ordering/templates/station_page.html:171
+#: ordering/templates/station_page.html:160
 msgid "Visit"
 msgstr ""
 
-#: ordering/templates/station_page.html:172
+#: ordering/templates/station_page.html:161
 msgid "from your smartphone"
 msgstr ""
 
-#: ordering/templates/station_page.html:174
+#: ordering/templates/station_page.html:163
 msgid "Tap \"Pick me up\""
 msgstr ""
 
-#: ordering/templates/station_page.html:175
+#: ordering/templates/station_page.html:164
 msgid "Enjoy the ride!"
 msgstr ""
 
-#: ordering/templates/station_page.html:190
+#: ordering/templates/station_page.html:179
 msgid "Contact Info"
 msgstr ""
 
-#: ordering/templates/station_page.html:194
+#: ordering/templates/station_page.html:183
 #, fuzzy
 msgid "Station's website"
 msgstr "Station Entrance"
+
+#: ordering/templates/station_page_business.html:269
+msgid "Connected"
+msgstr ""
+
+#: ordering/templates/station_page_business.html:270
+msgid "Disconnect"
+msgstr ""
+
+#: ordering/templates/station_page_business.html:272
+msgid "Disconnected"
+msgstr ""
+
+#: ordering/templates/station_page_business.html:282
+msgid "Book Order"
+msgstr ""
+
+#: ordering/templates/station_page_business.html:283
+msgid "Orders History"
+msgstr ""
+
+#: ordering/templates/station_page_business.html:295
+#: sharing/templates/passenger_ride_email.html:23
+#: sharing/templates/producer_ordering_page.html:53
+#: sharing/templates/station_history.html:37
+#: sharing/templates/voucher_email.html:18 sharing/templates/wb_home.html:132
+#: sharing/templates/mobile/wb_home.html:32
+#: sharing/templates/mobile/wb_home.html:1048
+msgid "Pickup"
+msgstr ""
+
+#: ordering/templates/station_page_business.html:298
+#: ordering/templates/station_page_business.html:309
+msgid "Required"
+msgstr ""
+
+#: ordering/templates/station_page_business.html:308
+#: ordering/templates/station_page_business.html:327
+#, fuzzy
+msgid "Location"
+msgstr "Station Entrance"
+
+#: ordering/templates/station_page_business.html:314
+#: sharing/templates/passenger_ride_email.html:24
+#: sharing/templates/producer_ordering_page.html:70
+#: sharing/templates/station_history.html:45
+#: sharing/templates/voucher_email.html:29 sharing/templates/wb_home.html:145
+#: sharing/templates/mobile/wb_home.html:33
+#: sharing/templates/mobile/wb_home.html:1060
+msgid "Dropoff"
+msgstr ""
+
+#: ordering/templates/station_page_business.html:319
+#, fuzzy
+msgid "Choose City"
+msgstr "Pickup address (number, street, city)"
+
+#: ordering/templates/station_page_business.html:339
+msgid "Name/Title/Phone number etc."
+msgstr ""
+
+#: ordering/templates/station_page_business.html:346
+msgid "30 chars max"
+msgstr ""
+
+#: ordering/templates/station_page_business.html:440
+#, fuzzy
+msgid "Please enter pickup address and city"
+msgstr "Pickup address (number, street, city)"
+
+#: ordering/templates/station_page_business.html:444
+msgid "Comments field must be shorter than 30 characters"
+msgstr ""
+
+#: ordering/templates/station_page_business.html:467
+msgid "There was an error, please try again"
+msgstr ""
+
+#: ordering/templates/station_page_business.html:511
+#, fuzzy
+msgid "Please chooose city"
+msgstr "Pickup address (number, street, city)"
 
 #: ordering/templates/stations.html:16
 msgid "Less details"
@@ -2860,7 +2733,7 @@ msgstr ""
 msgid "Station Manager?"
 msgstr "Station Entrance"
 
-#: ordering/templates/stations.html:31 templates/base.html:146
+#: ordering/templates/stations.html:31 templates/base.html:145
 #, fuzzy
 msgid "Station Entrance"
 msgstr "Station Entrance"
@@ -2928,6 +2801,13 @@ msgstr ""
 "the Agreement being made will constitute your acceptance of anychanges."
 "Copyright of this site is the exclusive property of WAYbetter Ltd."
 
+#: ordering/templates/terms.html:18
+#: sharing/templates/mobile/passenger_registration.html:149
+#: sharing/templates/mobile/privacy.html:16
+#: sharing/templates/mobile/wb_home.html:1178 templates/wb_base_site.html:150
+msgid "Privacy Policy"
+msgstr ""
+
 #: ordering/templates/terms.html:19
 msgid "web_actual_privacy_policy"
 msgstr ""
@@ -2993,7 +2873,15 @@ msgstr "Pickup address (number, street, city)"
 msgid "Reject"
 msgstr ""
 
-#: ordering/templates/workstation_home.html:828
+#: ordering/templates/workstation_home.html:794
+msgid "client"
+msgstr ""
+
+#: ordering/templates/workstation_home.html:798
+msgid "comments"
+msgstr ""
+
+#: ordering/templates/workstation_home.html:841
 msgid "End"
 msgstr ""
 
@@ -3256,62 +3144,62 @@ msgstr ""
 msgid "View"
 msgstr ""
 
-#: sharing/algo_api.py:164 sharing/sharing_dispatcher.py:151
+#: sharing/algo_api.py:162 sharing/sharing_dispatcher.py:151
 #, python-format
 msgid "We are sorry, but order #%s could not be completed"
 msgstr ""
 
-#: sharing/forms.py:52
+#: sharing/forms.py:53
 msgid "Full Name"
 msgstr ""
 
-#: sharing/forms.py:55
+#: sharing/forms.py:56
 #, fuzzy
 msgid "Re-Password"
 msgstr "Pickup address (number, street, city)"
 
-#: sharing/forms.py:56
+#: sharing/forms.py:57
 msgid "I agree to the Terms Of Use and Privacy Statement"
 msgstr ""
 
-#: sharing/forms.py:66
+#: sharing/forms.py:67
 msgid "Please agree to our terms of service"
 msgstr ""
 
-#: sharing/forms.py:88
+#: sharing/forms.py:89
 msgid "Email already registered."
 msgstr ""
 
-#: sharing/models.py:28
+#: sharing/models.py:32
 msgid "hotspot name"
 msgstr ""
 
-#: sharing/models.py:29
+#: sharing/models.py:33
 msgid "hotspot description"
 msgstr ""
 
-#: sharing/models.py:32
+#: sharing/models.py:36
 msgid "Dispatching Time"
 msgstr ""
 
-#: sharing/models.py:32
+#: sharing/models.py:36
 msgid "In minutes"
 msgstr ""
 
-#: sharing/models.py:39
+#: sharing/models.py:43
 msgid "radius"
 msgstr ""
 
-#: sharing/models.py:232 sharing/models.py:257 sharing/models.py:270
-#: sharing/models.py:289
+#: sharing/models.py:244 sharing/models.py:269 sharing/models.py:282
+#: sharing/models.py:301
 msgid "hotspot"
 msgstr ""
 
-#: sharing/models.py:233
+#: sharing/models.py:245
 msgid "time interval"
 msgstr ""
 
-#: sharing/models.py:288
+#: sharing/models.py:300
 msgid "tag"
 msgstr ""
 
@@ -3319,8 +3207,8 @@ msgstr ""
 msgid "Not found"
 msgstr ""
 
-#: sharing/passenger_controller.py:107 sharing/templates/wb_home.html:559
-#: sharing/templates/wb_home.html.py:584
+#: sharing/passenger_controller.py:115 sharing/templates/wb_home.html:561
+#: sharing/templates/wb_home.html.py:586
 #: sharing/templates/wb_home_tooltips.html:553
 #: sharing/templates/wb_home_tooltips.html:591
 #: sharing/templates/mobile/wb_home.html:254
@@ -3329,25 +3217,30 @@ msgstr ""
 msgid "We have encountered an error. Please try again."
 msgstr ""
 
-#: sharing/passenger_controller.py:143 sharing/passenger_controller.py:373
+#: sharing/passenger_controller.py:159 sharing/passenger_controller.py:391
 msgid "Book 3 seats and the forth is free"
 msgstr ""
 
-#: sharing/passenger_controller.py:156
+#: sharing/passenger_controller.py:172
 msgid "This interval is closed for booking now. Please choose a later time"
 msgstr ""
 
-#: sharing/passenger_controller.py:621
+#: sharing/passenger_controller.py:639
 #, fuzzy
 msgid "WAYbetter ride"
 msgstr "2010-2011 WAYbetter"
 
-#: sharing/passenger_controller.py:621
+#: sharing/passenger_controller.py:639
 msgid "Private ride"
 msgstr ""
 
-#: sharing/passenger_controller.py:640
+#: sharing/passenger_controller.py:658
 msgid "WAYbetter Order Confirmation"
+msgstr ""
+
+#: sharing/templates/about_us.html:5 sharing/templates/wb_info.html:7
+#: templates/wb_base_site.html:51 templates/wb_base_site.html.py:155
+msgid "About Us"
 msgstr ""
 
 #: sharing/templates/about_us.html:7
@@ -3488,6 +3381,16 @@ msgstr ""
 msgid "Select time"
 msgstr ""
 
+#: sharing/templates/my_rides.html:4 templates/wb_base_site.html:166
+#, fuzzy
+msgid "My Account"
+msgstr "Station Entrance"
+
+#: sharing/templates/my_rides.html:9 templates/wb_base_site.html:58
+#: templates/wb_base_site.html.py:169
+msgid "Log Out"
+msgstr ""
+
 #: sharing/templates/my_rides.html:57
 msgid "Next Rides"
 msgstr ""
@@ -3563,7 +3466,7 @@ msgid "Your WAY Details"
 msgstr ""
 
 #: sharing/templates/myrides_tooltips.html:50
-#: sharing/templates/wb_home.html:619
+#: sharing/templates/wb_home.html:621
 #: sharing/templates/wb_home_tooltips.html:401
 #: sharing/templates/mobile/wb_home.html:30
 #, fuzzy
@@ -3600,7 +3503,7 @@ msgid "Taxi is on the way!"
 msgstr "one click and a taxi is on its way"
 
 #: sharing/templates/passenger_notification_msg.html:3
-#: sharing/templates/wb_home.html:877
+#: sharing/templates/wb_home.html:880
 #: sharing/templates/wb_home_tooltips.html:402
 #: sharing/templates/wb_home_tooltips.html:1058
 #: sharing/templates/mobile/wb_home.html:411
@@ -3689,7 +3592,7 @@ msgstr ""
 
 #: sharing/templates/passenger_registration.html:220
 #: sharing/templates/passenger_registration.html:248
-#: sharing/templates/wb_home.html:593
+#: sharing/templates/wb_home.html:595
 #: sharing/templates/wb_home_tooltips.html:598
 #: sharing/templates/mobile/passenger_registration.html:177
 #: sharing/templates/mobile/passenger_registration.html:237
@@ -3709,24 +3612,6 @@ msgstr ""
 #: sharing/templates/passenger_ride_email.html:18
 #, python-format
 msgid "Order details (ID: %(order_id)s)"
-msgstr ""
-
-#: sharing/templates/passenger_ride_email.html:23
-#: sharing/templates/producer_ordering_page.html:53
-#: sharing/templates/station_history.html:37
-#: sharing/templates/voucher_email.html:18 sharing/templates/wb_home.html:132
-#: sharing/templates/mobile/wb_home.html:32
-#: sharing/templates/mobile/wb_home.html:1048
-msgid "Pickup"
-msgstr ""
-
-#: sharing/templates/passenger_ride_email.html:24
-#: sharing/templates/producer_ordering_page.html:70
-#: sharing/templates/station_history.html:45
-#: sharing/templates/voucher_email.html:29 sharing/templates/wb_home.html:145
-#: sharing/templates/mobile/wb_home.html:33
-#: sharing/templates/mobile/wb_home.html:1060
-msgid "Dropoff"
 msgstr ""
 
 #: sharing/templates/passenger_ride_email.html:25
@@ -3892,7 +3777,7 @@ msgstr ""
 
 #: sharing/templates/producer_rides_summary.html:18
 #: sharing/templates/station_history.html:32
-#: sharing/templates/wb_home.html:873
+#: sharing/templates/wb_home.html:876
 msgid "Time"
 msgstr ""
 
@@ -4164,7 +4049,7 @@ msgstr ""
 msgid "Points"
 msgstr ""
 
-#: sharing/templates/wb_home.html:38 sharing/templates/wb_home.html.py:545
+#: sharing/templates/wb_home.html:38 sharing/templates/wb_home.html.py:547
 #: sharing/templates/wb_home_tooltips.html:35
 #: sharing/templates/mobile/wb_home.html:245
 msgid "SAVE"
@@ -4189,7 +4074,7 @@ msgstr ""
 msgid "_pickup"
 msgstr "Pickup"
 
-#: sharing/templates/wb_home.html:146 sharing/templates/wb_home.html.py:365
+#: sharing/templates/wb_home.html:146 sharing/templates/wb_home.html.py:367
 #: sharing/templates/mobile/wb_home.html:1061
 #, fuzzy
 msgid "Hotspot"
@@ -4210,8 +4095,8 @@ msgstr "Passenger home"
 msgid "Fixed Price"
 msgstr "Pickup address (number, street, city)"
 
-#: sharing/templates/wb_home.html:187 sharing/templates/wb_home.html.py:205
-msgid "instead of"
+#: sharing/templates/wb_home.html:187
+msgid "instead of about"
 msgstr ""
 
 #: sharing/templates/wb_home.html:197
@@ -4220,6 +4105,10 @@ msgstr ""
 #: sharing/templates/mobile/wb_home.html:956
 #: sharing/templates/mobile/wb_home.html:969
 msgid "Est. Ride Duration"
+msgstr ""
+
+#: sharing/templates/wb_home.html:205
+msgid "instead of"
 msgstr ""
 
 #: sharing/templates/wb_home.html:222
@@ -4260,89 +4149,89 @@ msgstr ""
 msgid "Get the Android App"
 msgstr ""
 
-#: sharing/templates/wb_home.html:366
+#: sharing/templates/wb_home.html:368
 msgid "Leave "
 msgstr ""
 
-#: sharing/templates/wb_home.html:367
+#: sharing/templates/wb_home.html:369
 msgid "Goto "
 msgstr ""
 
-#: sharing/templates/wb_home.html:456
+#: sharing/templates/wb_home.html:458
 #, fuzzy
 msgid "Please choose a hotspot"
 msgstr "Pickup address (number, street, city)"
 
-#: sharing/templates/wb_home.html:495
+#: sharing/templates/wb_home.html:497
 #: sharing/templates/wb_home_tooltips.html:508
 msgid "We had a problem getting available intervals. Please try again."
 msgstr ""
 
-#: sharing/templates/wb_home.html:518
+#: sharing/templates/wb_home.html:520
 msgid "Please fill all ride details"
 msgstr ""
 
-#: sharing/templates/wb_home.html:555
+#: sharing/templates/wb_home.html:557
 #: sharing/templates/wb_home_tooltips.html:549
 #: sharing/templates/mobile/wb_home.html:249
 msgid "Currently, there is no service to this address at the selected hour."
 msgstr ""
 
-#: sharing/templates/wb_home.html:618
+#: sharing/templates/wb_home.html:620
 #, fuzzy
 msgid "Book a Shared Taxi Ride"
 msgstr "2010-2011 WAYbetter"
 
-#: sharing/templates/wb_home.html:620
+#: sharing/templates/wb_home.html:622
 #: sharing/templates/wb_home_tooltips.html:401
 #: sharing/templates/mobile/wb_home.html:31
 msgid "Dropoff Time"
 msgstr ""
 
-#: sharing/templates/wb_home.html:638
+#: sharing/templates/wb_home.html:640
 #: sharing/templates/wb_home_tooltips.html:727
 msgid "Error getting rides data"
 msgstr ""
 
-#: sharing/templates/wb_home.html:683
+#: sharing/templates/wb_home.html:686
 #: sharing/templates/wb_home_tooltips.html:233
 #: sharing/templates/wb_home_tooltips.html:773
 msgid "at"
 msgstr ""
 
-#: sharing/templates/wb_home.html:689
+#: sharing/templates/wb_home.html:692
 #, fuzzy
 msgid "Suggest a Hotspot"
 msgstr "Pickup address (number, street, city)"
 
-#: sharing/templates/wb_home.html:700
+#: sharing/templates/wb_home.html:703
 #: sharing/templates/wb_home_tooltips.html:785
 msgid "Please choose from list"
 msgstr ""
 
-#: sharing/templates/wb_home.html:760
+#: sharing/templates/wb_home.html:763
 msgid "Where are you going"
 msgstr ""
 
-#: sharing/templates/wb_home.html:760
+#: sharing/templates/wb_home.html:763
 msgid "Where are you coming from"
 msgstr ""
 
-#: sharing/templates/wb_home.html:872
+#: sharing/templates/wb_home.html:875
 msgid "Define Time"
 msgstr ""
 
-#: sharing/templates/wb_home.html:876
+#: sharing/templates/wb_home.html:879
 #, fuzzy
 msgid "Pickup Time from "
 msgstr "Pickup address (number, street, city)"
 
-#: sharing/templates/wb_home.html:880
+#: sharing/templates/wb_home.html:883
 #, fuzzy
 msgid "Dropoff Time at "
 msgstr "Dropoff"
 
-#: sharing/templates/wb_home.html:881
+#: sharing/templates/wb_home.html:884
 #: sharing/templates/wb_home_tooltips.html:402
 msgid "_dropoffat"
 msgstr "Dropoff"
@@ -4431,6 +4320,20 @@ msgstr ""
 msgid "Book Shared"
 msgstr ""
 
+#: sharing/templates/wb_home_tooltips.html:716 templates/wb_base.html:102
+msgid "Ride cancelled."
+msgstr ""
+
+#: sharing/templates/wb_home_tooltips.html:717 templates/wb_base.html:103
+msgid "Info/Cancel"
+msgstr ""
+
+#: sharing/templates/wb_home_tooltips.html:718
+#: sharing/templates/mobile/my_rides.html:70
+#: sharing/templates/mobile/wb_home.html:415 templates/wb_base.html:104
+msgid "Report Ride"
+msgstr ""
+
 #: sharing/templates/wb_home_tooltips.html:1058
 #, fuzzy
 msgid "Dropoff time"
@@ -4438,6 +4341,22 @@ msgstr "Dropoff"
 
 #: sharing/templates/wb_home_tooltips.html:1123
 msgid "Join the private Beta"
+msgstr ""
+
+#: sharing/templates/wb_info.html:8 templates/wb_base_site.html:50
+#: templates/wb_base_site.html.py:154
+msgid "The Service"
+msgstr ""
+
+#: sharing/templates/wb_info.html:9 sharing/templates/mobile/faq.html:17
+#: sharing/templates/mobile/wb_home.html:1175 templates/wb_base_site.html:52
+#: templates/wb_base_site.html.py:156
+msgid "FAQ"
+msgstr ""
+
+#: sharing/templates/wb_info.html:10 templates/wb_base_site.html:53
+#: templates/wb_base_site.html.py:157
+msgid "Contact Us"
 msgstr ""
 
 #: sharing/templates/ws_home.html:10
@@ -4545,15 +4464,6 @@ msgstr ""
 msgid "Registered Users"
 msgstr ""
 
-#: sharing/templates/mobile/login.html:27
-#: templates/registration/activate.html:10
-#: templates/registration/activation_complete.html:8
-#: templates/registration/login.html:58
-#: templates/registration/login_reg.html:8
-#: templates/registration/password_reset_complete.html:8
-msgid "Log in"
-msgstr ""
-
 #: sharing/templates/mobile/login.html:33
 #, fuzzy
 msgid "New Member"
@@ -4566,6 +4476,11 @@ msgstr ""
 #: sharing/templates/mobile/my_rides.html:21
 #: sharing/templates/mobile/wb_home.html:986
 msgid "Upcoming Rides"
+msgstr ""
+
+#: sharing/templates/mobile/my_rides.html:69
+#: sharing/templates/mobile/wb_home.html:414 templates/wb_base.html:101
+msgid "Cancel Ride"
 msgstr ""
 
 #: sharing/templates/mobile/my_rides.html:71
@@ -4786,6 +4701,10 @@ msgid ""
 "efficiency, cheaper rides and better availablity). <br/><br/>Thanks :)"
 msgstr ""
 
+#: sharing/templates/mobile/wb_home.html:1179 templates/wb_base_site.html:149
+msgid "Terms of Use"
+msgstr ""
+
 #: sharing/templates/mobile/wb_home.html:1185
 #: sharing/templates/mobile/wb_home_phonegap.html:279
 msgid "Logout"
@@ -4821,10 +4740,6 @@ msgstr ""
 msgid "Passengers home"
 msgstr "Passenger home"
 
-#: templates/base.html:167
-msgid "2010 WAYbetter"
-msgstr "2010-2011 WAYbetter"
-
 #: templates/base_site.html:10
 #, fuzzy
 msgid "WAYbetter: the best way to get a taxi!"
@@ -4835,8 +4750,152 @@ msgstr "WAYbetter is the fastest and easiest way to get a taxi!"
 msgid "WAYbetter"
 msgstr "2010-2011 WAYbetter"
 
+#: templates/wb_base.html:19
+#, fuzzy
+msgid "Shared Taxi Rides"
+msgstr "2010-2011 WAYbetter"
+
+#: templates/wb_base.html:22
+msgid ""
+"Revolution in Transportation: Shared taxi rides to Hotspots. Book a shared "
+"taxi online: comfortable, hassle free ride, save tens of dollars."
+msgstr ""
+
+#: templates/wb_base.html:23
+msgid "smart,iPhone,way better,order taxi, share"
+msgstr ""
+
+#: templates/wb_base.html:27
+msgid "Half Price Taxi Rides"
+msgstr ""
+
+#: templates/wb_base.html:29
+msgid ""
+"Revolution in Transportation: Half-priced taxi rides. Book a shared taxi "
+"online: comfortable, hassle free ride, save tens of dollars."
+msgstr ""
+
+#: templates/wb_base.html:77
+msgid ""
+"Social revolution in public transportation. WAYbetter allows you to order "
+"shared taxi rides , for a (very) low fixed price. It’s green, it’s fast and "
+"it’s cheap. Check it out: www.waybetter.com"
+msgstr ""
+
 #: templates/wb_base_mobile.html:25
 msgid "Thinking..."
+msgstr ""
+
+#: templates/wb_base_site.html:26 templates/wb_base_site.html.py:161
+msgid "Facebook"
+msgstr ""
+
+#: templates/wb_base_site.html:37
+msgid "Log-in"
+msgstr ""
+
+#: templates/wb_base_site.html:60 templates/wb_base_site.html.py:171
+msgid "Log In"
+msgstr ""
+
+#: templates/wb_base_site.html:99 templates/wb_base_site.html.py:118
+msgid "Service"
+msgstr ""
+
+#: templates/wb_base_site.html:100
+msgid "learnmore_service_content"
+msgstr ""
+"<p>Members of WAYbetter enjoy an advanced user experience. To make it easy "
+"and fun, we allow you to book a taxi ride in one click, leave your wallet at "
+"home, and enjoy a door-to-door taxi ride with significant savings in each "
+"ride.</p>"
+
+#: templates/wb_base_site.html:103 templates/wb_base_site.html.py:122
+#: templates/wb_base_site.html:160
+msgid "Community"
+msgstr ""
+
+#: templates/wb_base_site.html:104
+msgid "learnmore_community_content"
+msgstr ""
+"<p>WAYbetter is a community created to allow shared cab rides while "
+"drastically decreasing ride prices. The community's goal is, in one word, "
+"improvement: improving the public transportation system, improve taxi "
+"drivers' work, decrease air pollution, and allow cab rides at a reasonable "
+"price.</p><p>We share a way – let's maximize our power as a community and "
+"create a new form of free movement.</p>"
+
+#: templates/wb_base_site.html:107 templates/wb_base_site.html.py:126
+msgid "Environment"
+msgstr ""
+
+#: templates/wb_base_site.html:108
+msgid "learnmore_environment_content"
+msgstr ""
+"<p>We believe in public transportation.</p><p>We have all become slaves to "
+"our cars, and the inefficiency by which the public transportation system "
+"works are the main cause of transforming the urban landscape to a crowded, "
+"loud and polluted one. We know that paving new roads, or making more "
+"electric cars, won't solve the problem. WAYbetter's smart planning algorithm "
+"allows more people to ride in less vehicles, minimizing their carbon "
+"footprint and maximize the public transportation system's efficiency.</"
+"p><p>Together we can change the urban density from a problem into a real "
+"advantage.</p>"
+
+#: templates/wb_base_site.html:111 templates/wb_base_site.html.py:130
+msgid "Efficiency"
+msgstr ""
+
+#: templates/wb_base_site.html:112
+msgid "learnmore_efficiency_content"
+msgstr ""
+"<p>WAYbetter was founded in order to improve the public transportation "
+"system by fixing an inheret error: taxis drive around empty <span class="
+"\"bold\">half of the time</span>, or with <span class=\"bold\">only one "
+"passenger</span> in most cases. That is why a taxi ride is expensive for the "
+"customer, and not profitable for the driver.</p><p>Our transportation "
+"solution matches supply and demand, minimizing the waste and maximizing "
+"efficiency and profitability, for all of the community members, the "
+"passengers, the drivers and the environment.</p>"
+
+#: templates/wb_base_site.html:119
+msgid "gist_service_content"
+msgstr "WAYbetter taxi experience"
+
+#: templates/wb_base_site.html:123
+msgid "gist_community_content"
+msgstr "We share our city, let's share our WAY"
+
+#: templates/wb_base_site.html:127
+msgid "gist_environment_content"
+msgstr "Higher car occupancy, less traffic"
+
+#: templates/wb_base_site.html:131
+msgid "gist_efficiency_content"
+msgstr "Efficiency, personalized"
+
+#: templates/wb_base_site.html:148
+msgid "PickMeApp"
+msgstr ""
+
+#: templates/wb_base_site.html:206
+msgid "To view WAYbetter in Internet Explorer you need to install"
+msgstr ""
+
+#: templates/wb_base_site.html:207
+msgid "Free"
+msgstr ""
+
+#: templates/wb_base_site.html:209
+msgid "Install Google Chrome Frame"
+msgstr ""
+
+#: templates/wb_base_site.html:210
+msgid "Or, use one of these browsers"
+msgstr ""
+
+#: templates/wb_base_site.html:292
+msgid "Get yourself a modern browser"
 msgstr ""
 
 #: templates/admin/billing/billingtransaction/change_form.html:21
@@ -4927,6 +4986,9 @@ msgstr ""
 #: tinymce/views.py:68
 msgid "Error running spellchecker"
 msgstr ""
+
+#~ msgid "2010 WAYbetter"
+#~ msgstr "2010-2011 WAYbetter"
 
 #, fuzzy
 #~ msgid "Stations"

@@ -1,5 +1,7 @@
+import logging
 import re
 from common.decorators import order_relative_to_field
+from common.route import calculate_time_and_distance
 from common.tz_support import default_tz_now, to_task_name_safe, ceil_datetime, floor_datetime
 from common.util import phone_validator
 from django.db import models
@@ -8,9 +10,11 @@ from django.conf import settings
 from common.util import convert_python_weekday, datetimeIterator
 from common.models import BaseModel, Country, City, CityAreaField, CityArea
 from ordering.models import Passenger, Station
+from ordering.pricing import estimate_cost
 from pricing.models import RuleSet, AbstractTemporalRule
 from datetime import datetime, date, timedelta, time
 import calendar
+from sharing.algo_api import calculate_route
 
 ALGO_COMPUTATION_DELTA = timedelta(minutes=5)
 FAX_HANDLING_DELTA = timedelta(minutes=2)
@@ -60,6 +64,14 @@ class HotSpot(BaseModel):
     def get_private_price(self, lat, lon, day, t, num_seats=1):
         cost = self.get_cost(lat, lon, day, t)
         return round(cost + PRIVATE_RIDE_HANDLING_FEE, 2) if cost else None
+
+
+    def get_meter_price(self, lat, lon, day, t, num_seats=1):
+        result = calculate_route(self.lat, self.lon, lat, lon)
+        estimated_duration, estimated_distance = result["estimated_duration"], result["estimated_distance"]
+
+        cost, ride_type = estimate_cost(estimated_duration, estimated_distance, day=convert_python_weekday(day.weekday()), time=t)
+        return round(cost + PRIVATE_RIDE_HANDLING_FEE) if cost else None
 
     def get_sharing_price(self, lat, lon, day, t, num_seats=1):
         """
