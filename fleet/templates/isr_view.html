@@ -1,0 +1,53 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>ISR Testing Page</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
+    <style type="text/css">
+        .header{
+            font-weight: bold;
+            font-size: 22px;
+        }
+    </style>
+</head>
+<body>
+{% for m in methods %}
+    <div id="{{ m.name }}">
+        <span class="header">{{ m.name }}</span>: {{ m.doc }}
+        <form id="form_{{ m.name }}" action="" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="method_name" value="{{ m.name }}">
+            {% for arg in m.args %}
+                <label for="id_{{ arg }}">{{ arg }}</label>
+                <input id="id_{{ arg }}" type="text" name="{{ arg }}">
+            {% endfor %}
+            <input type="submit" value="Run">
+        </form>
+        <textarea name="" id="result_{{ m.name }}" cols="30" rows="10"></textarea>
+    </div>
+
+    <br>
+{% endfor %}
+</body>
+<script type="text/javascript">
+    $(function () {
+        $.each($("form"), function (i, form) {
+            var $target = $(form).next("textarea");
+            $(form).ajaxForm({
+                dataType: "json",
+                beforeSubmit: function(formData, jqForm, options){
+                    $target.val("Sending...");
+                },
+                success: function(responseText, statusText, xhr, $form){
+                    $target.val(responseText.result || "no data received");
+                },
+                error: function(jqXHR, textStatus, errorThrown){
+                    $target.val(errorThrown);
+                }
+            });
+        });
+    });
+</script>
+</html>
