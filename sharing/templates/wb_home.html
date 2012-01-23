@@ -30,204 +30,212 @@
 {% block content %}
 
     <div id="booking_container">
+        <div id="booking_content_container">
 
-        <div id="booking_loader" class="medium-loader"></div>
+            <div id="booking_loader" class="medium-loader"></div>
 
-        <div id="savings" class="hidden">
-            <div class="content">
-                <span class="label">{% trans "SAVE" %} </span>
-                <span class="value"></span>
+            <div id="savings" class="hidden">
+                <div class="content">
+                    <span class="label">{% trans "SAVE" %} </span>
+                    <span class="value"></span>
+                </div>
             </div>
-        </div>
 
-        <div id="booking_content" class="hidden">
+            <div id="booking_content" class="hidden">
 
-            <div id="hotspot_content" class="booking_step hidden">
-                <div class="title">{% trans "Choose a Hotspot" %}</div>
+                <div id="hotspot_content" class="booking_step hidden">
+                    <div class="title">{% trans "Choose a Hotspot" %}</div>
 
-                <div class="cntr select">
-                    <select id="id_hotspot_select" name="hotspot_id"></select>
-                    <span id="qm_votespot" class="clickable"></span>
+                    <div class="cntr select">
+                        <select id="id_hotspot_select" name="hotspot_id"></select>
+                        <span id="qm_votespot" class="clickable"></span>
+                    </div>
+
+                    <div class="btn_cntr">
+                        <table>
+                            <tr>
+                                <td class="first"><button id="leave_hotspot" class="wb_button hidden"></button></td>
+                                <td class="second"><button id="goto_hotspot" class="wb_button hidden"></button></td>
+                            </tr>
+                        </table>
+                    </div>
                 </div>
 
-                <div class="btn_cntr">
+                <div id="address_content" class="booking_step hidden">
+                    <div class="title"></div>
+
                     <table>
                         <tr>
-                            <td class="first"><button id="leave_hotspot" class="wb_button hidden"></button></td>
-                            <td class="second"><button id="goto_hotspot" class="wb_button hidden"></button></td>
+                            <td class="cntr city">
+                                <label for="id_city">{% trans "City" %}</label>
+                                <select id="id_city" name="id_city">
+                                    {% for city in cities %}
+                                        <option value="{{ city.id }}">{{ city.name }}</option>
+                                    {% endfor %}
+                                </select>
+
+                            </td>
+                            <td class="cntr street">
+                                <label for="id_street_address">{% trans "Street" %}</label>
+                                <div class="cntr input">
+                                    <input type="text" id="id_street_address" name="street_address"/>
+                                    <div id="street_loader" class="small-loader"></div>
+                                </div>
+                                <div id="street_error" class="error"></div>
+                            </td>
+                            <td class="cntr hn">
+                                <label for="id_house_number">{% trans "House No" %}</label>
+                                <input type="text" id="id_house_number" name="house_number"/>
+                                <div id="house_number_error" class="error"></div>
+                            </td>
+                            <td class="cntr btn">
+                                <button id="set_address" class="wb_button">{% trans "Next" %} >></button>
+                                <div id="address_loader" class="small-loader"></div>
+                            </td>
+                        </tr>
+                    </table>
+
+                </div>
+
+                <div id="datetime_content" class="booking_step hidden">
+                    <div class="title"></div>
+
+                    <table>
+                        <tr>
+                            <td class="cntr date">
+                                <label for="id_hotspot_datepicker">{% trans "Date" %}</label>
+                                <input type="text" id="id_hotspot_datepicker" name="hotspot_date" class="wb-menulist">
+                            </td>
+                            <td class="cntr time">
+                                <label for="id_hotspot_time"></label>
+                                <div class="cntr input">
+                                    <select id="id_hotspot_time" name="hotspot_time"></select>
+                                    <div id="intervals_loader" class="small-loader"></div>
+                                </div>
+                                <div id="id_estimated_pickup" class="bold">
+                                    (<span class="text">{% trans "_pickup" %}: </span>
+                                    <span class="value"></span>)
+                                </div>
+                            </td>
+                            <td class="cntr btn">
+                                <button id="set_datetime" class="wb_button">{% trans "Next" %} >></button>
+                                <div id="datetime_loader" class="small-loader"></div>
+                            </td>
                         </tr>
                     </table>
                 </div>
+
+                <div id="details_content" class="booking_step hidden">
+                    <div id="ride_summary">
+                        <div class="pickup">
+                            <div class="dt_cntr">
+                                <div class="address">
+                                    <span class="details_label">{% trans "Pickup" %}: </span>
+                                    <span class="details_label_type">({% trans 'Address' %})</span>
+                                    <div class="data">
+                                        <p class="name"></p>
+                                        <p class="desc"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="dropoff">
+                            <div class="dt_cntr">
+                                <div class="hotspot">
+                                    <span class="details_label">{% trans "Dropoff" %}: </span>
+                                    <span class="details_label_type">({% trans 'Hotspot' %})</span>
+                                    <span id="switch_direction" class="wb_link">
+                                        <span id="details_loader" class="small-loader"></span>
+                                        {% trans "switch direction" %}
+                                    </span>
+                                    <div class="data">
+                                        <p class="name"></p>
+                                        <p class="desc"></p>
+                                    </div>
+                                </div>
+                                <div class="when">
+                                    <span class="details_label"></span>
+                                    <div class="data">
+                                        <p class="desc"></p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div id="num_seats">
+                            <span class="details_label">{% trans "Number of Seats" %}</span>
+                            <span class="radio">
+                                <input type="radio" name="num_seats" value="1" checked="checked"/>1
+                                <input type="radio" name="num_seats" value="2"/>2
+                                <input type="radio" name="num_seats" value="3"/>3
+                            </span>
+                            <span id="num_seats_loader" class="small-loader"></span>
+                        </div>
+                    </div>
+
+                    <div id="ride_details">
+                        <div id="offer">
+                            <table class="price">
+                                <tr class="offer-row">
+                                    <td class="offer-pre">{% trans "Fixed Price" %}</td>
+                                    <td class="offer-val">
+                                        <span id="sharing_price">
+                                            <span class="value">0</span>
+                                            <span class="label">₪</span>
+                                        </span>
+                                    </td>
+                                    <td class="offer-post">
+                                        ({% trans "instead of about" %}
+                                        <span id="private_price">
+                                            <span class="value">0</span>
+                                            <span class="label">₪)</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                            <table class="time">
+                                <tr class="offer-row">
+                                    <td class="offer-pre">{% trans "Est. Ride Duration" %}</td>
+                                    <td class="offer-val">
+                                        <span id="sharing_time">
+                                            <span class="value">0</span>
+                                            <span class="label">{% trans "min" %}</span>
+                                        </span>
+                                    </td>
+                                    <td class="offer-post">
+                                        ({% trans "instead of about" %}
+                                        <span id="private_time">
+                                            <span class="value">0</span>
+                                            <span class="label">{% trans "min" %})</span>
+                                        </span>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
+                        <button class="order_button blue" id="book_ride"></button>
+                    </div>
+                </div>
             </div>
 
-            <div id="address_content" class="booking_step hidden">
-                <div class="title"></div>
-
+            <div id="booking_progress" class="hidden">
                 <table>
                     <tr>
-                        <td class="cntr city">
-                            <label for="id_city">{% trans "City" %}</label>
-                            <select id="id_city" name="id_city">
-                                {% for city in cities %}
-                                    <option value="{{ city.id }}">{{ city.name }}</option>
-                                {% endfor %}
-                            </select>
-
-                        </td>
-                        <td class="cntr street">
-                            <label for="id_street_address">{% trans "Street" %}</label>
-                            <div class="cntr input">
-                                <input type="text" id="id_street_address" name="street_address"/>
-                                <div id="street_loader" class="small-loader"></div>
-                            </div>
-                            <div id="street_error" class="error"></div>
-                        </td>
-                        <td class="cntr hn">
-                            <label for="id_house_number">{% trans "House No" %}</label>
-                            <input type="text" id="id_house_number" name="house_number"/>
-                            <div id="house_number_error" class="error"></div>
-                        </td>
-                        <td class="cntr btn">
-                            <button id="set_address" class="wb_button">{% trans "Next" %} >></button>
-                            <div id="address_loader" class="small-loader"></div>
-                        </td>
+                        <td><a class="hotspot step current" data-name="hotspot">1. {% trans "Choose Hotspot" %}</a></td>
+                        <td><a class="address step disabled" data-name="address">2. {% trans "Enter Address" %}</a></td>
+                        <td><a class="datetime step disabled" data-name="datetime">3. {% trans "Choose Time" %}</a></td>
+                        <td><a class="details step disabled" data-name="details">4. {% trans "Get Offer" %}</a></td>
                     </tr>
                 </table>
 
             </div>
-
-            <div id="datetime_content" class="booking_step hidden">
-                <div class="title"></div>
-
-                <table>
-                    <tr>
-                        <td class="cntr date">
-                            <label for="id_hotspot_datepicker">{% trans "Date" %}</label>
-                            <input type="text" id="id_hotspot_datepicker" name="hotspot_date" class="wb-menulist">
-                        </td>
-                        <td class="cntr time">
-                            <label for="id_hotspot_time"></label>
-                            <div class="cntr input">
-                                <select id="id_hotspot_time" name="hotspot_time"></select>
-                                <div id="intervals_loader" class="small-loader"></div>
-                            </div>
-                            <div id="id_estimated_pickup" class="bold">
-                                (<span class="text">{% trans "_pickup" %}: </span>
-                                <span class="value"></span>)
-                            </div>
-                        </td>
-                        <td class="cntr btn">
-                            <button id="set_datetime" class="wb_button">{% trans "Next" %} >></button>
-                            <div id="datetime_loader" class="small-loader"></div>
-                        </td>
-                    </tr>
-                </table>
-            </div>
-
-            <div id="details_content" class="booking_step hidden">
-                <div id="ride_summary">
-                    <div class="pickup">
-                        <div class="dt_cntr">
-                            <div class="address">
-                                <span class="details_label">{% trans "Pickup" %}: </span>
-                                <span class="details_label_type">({% trans 'Address' %})</span>
-                                <div class="data">
-                                    <p class="name"></p>
-                                    <p class="desc"></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <div class="dropoff">
-                        <div class="dt_cntr">
-                            <div class="hotspot">
-                                <span class="details_label">{% trans "Dropoff" %}: </span>
-                                <span class="details_label_type">({% trans 'Hotspot' %})</span>
-                                <span id="switch_direction" class="wb_link">
-                                    <span id="details_loader" class="small-loader"></span>
-                                    {% trans "switch direction" %}
-                                </span>
-                                <div class="data">
-                                    <p class="name"></p>
-                                    <p class="desc"></p>
-                                </div>
-                            </div>
-                            <div class="when">
-                                <span class="details_label"></span>
-                                <div class="data">
-                                    <p class="desc"></p>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="num_seats">
-                        <span class="details_label">{% trans "Number of Seats" %}</span>
-                        <span class="radio">
-                            <input type="radio" name="num_seats" value="1" checked="checked"/>1
-                            <input type="radio" name="num_seats" value="2"/>2
-                            <input type="radio" name="num_seats" value="3"/>3
-                        </span>
-                        <span id="num_seats_loader" class="small-loader"></span>
-                    </div>
-                </div>
-
-                <div id="ride_details">
-                    <div id="offer">
-                        <table class="price">
-                            <tr class="offer-row">
-                                <td class="offer-pre">{% trans "Fixed Price" %}</td>
-                                <td class="offer-val">
-                                    <span id="sharing_price">
-                                        <span class="value">0</span>
-                                        <span class="label">₪</span>
-                                    </span>
-                                </td>
-                                <td class="offer-post">
-                                    ({% trans "instead of about" %}
-                                    <span id="private_price">
-                                        <span class="value">0</span>
-                                        <span class="label">₪)</span>
-                                    </span>
-                                </td>
-                            </tr>
-                        </table>
-                        <table class="time">
-                            <tr class="offer-row">
-                                <td class="offer-pre">{% trans "Est. Ride Duration" %}</td>
-                                <td class="offer-val">
-                                    <span id="sharing_time">
-                                        <span class="value">0</span>
-                                        <span class="label">{% trans "min" %}</span>
-                                    </span>
-                                </td>
-                                <td class="offer-post">
-                                    ({% trans "instead of about" %}
-                                    <span id="private_time">
-                                        <span class="value">0</span>
-                                        <span class="label">{% trans "min" %})</span>
-                                    </span>
-                                </td>
-                            </tr>
-                        </table>
-                    </div>
-                    <button class="order_button blue" id="book_ride"></button>
-                </div>
-            </div>
         </div>
 
-        <div id="booking_progress" class="hidden">
-            <table>
-                <tr>
-                    <td><a class="hotspot step current" data-name="hotspot">1. {% trans "Choose Hotspot" %}</a></td>
-                    <td><a class="address step disabled" data-name="address">2. {% trans "Enter Address" %}</a></td>
-                    <td><a class="datetime step disabled" data-name="datetime">3. {% trans "Choose Time" %}</a></td>
-                    <td><a class="details step disabled" data-name="details">4. {% trans "Get Offer" %}</a></td>
-                </tr>
-            </table>
-
+        <div id="disclaimer_container">
+            <div id="disclaimer" class="hidden">*{% trans "Private price and duration are estimates calculated as detailed in our terms of service"%}.</div>
         </div>
+
     </div>
+
 
     {% if request.user.passenger %}
         <div id="myrides_container">
@@ -427,6 +435,8 @@
 
     function showBookingStep(step_name) {
         $("#savings").hide();
+        $("#disclaimer").toggle(step_name == "details");
+
         var current_step_name = $("#booking_progress .step.current").data("name");
 
         var from_index = $.inArray(current_step_name, BOOKING_STEPS);

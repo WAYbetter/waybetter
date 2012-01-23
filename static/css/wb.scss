@@ -954,6 +954,15 @@ Home
     }
 
     #booking_container{
+        margin-bottom: 30px;
+    }
+    #disclaimer_container{
+        min-height: 15px;
+        padding-top: 10px;
+    }
+    #disclaimer{
+    }
+    #booking_content_container{
         $booking-container-width: 800px;
         $booking-container-height: 255px;
         $el_height: 40px;
@@ -963,7 +972,6 @@ Home
         @include border-radius(6px);
         padding: 0;
         height: $booking-container-height;
-        margin-bottom: 40px;
 
         #booking_loader{
             background: url(/static/images/wb_site/wb_loader30.gif) center center no-repeat;
@@ -1272,7 +1280,7 @@ Home
     .slidesContainer{ direction: ltr; }
     .booking_step{ direction: rtl; }
 
-    #booking_container{
+    #booking_content_container{
             #savings{
                 right: auto;
                 left: -22px;
