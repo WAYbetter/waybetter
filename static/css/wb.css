@@ -1220,27 +1220,29 @@ Account
 /*
 Registration
 /*********************************************/
-.registration #site-content {
+.registration #site-content, .credit_guard_page #site-content {
   padding: 10px 25px; }
-.registration #progress {
+.registration #progress, .credit_guard_page #progress {
   width: 100%;
-  padding-bottom: 10px; }
-  .registration #progress .step {
+  padding-bottom: 10px;
+  font-size: 11px; }
+  .registration #progress .step, .credit_guard_page #progress .step {
     text-align: center;
     color: #bcbcbc; }
-  .registration #progress .step.current {
+  .registration #progress .step.current, .credit_guard_page #progress .step.current {
     font-weight: bold;
     color: black; }
-.registration .spacer {
+.registration .spacer, .credit_guard_page .spacer {
   width: 100%;
   border-top: 1px solid #bcbcbc; }
-.registration .spacer.top {
+.registration .spacer.top, .credit_guard_page .spacer.top {
   margin-bottom: 10px; }
-.registration .spacer.bottom {
+.registration .spacer.bottom, .credit_guard_page .spacer.bottom {
   margin: 20px 0; }
-.registration .step-header {
+.registration .step-header, .credit_guard_page .step-header {
   font-size: 16px;
   font-weight: bold; }
+
 .registration #auth_step {
   width: 100%; }
   .registration #auth_step .header-row td {
@@ -1337,6 +1339,66 @@ Registration
   margin-left: 20px; }
 .rtl.registration .sms-img {
   background: url("/static/images/wb_site/sms_heb.png") left 0 no-repeat;
+  float: left; }
+
+.credit_guard_page #wb_lock {
+  width: 33px;
+  height: 35px;
+  background: url("/static/images/wb_site/lock.png") left bottom no-repeat;
+  display: inline-block;
+  position: relative;
+  top: 5px; }
+.credit_guard_page #billing_step {
+  width: 100%; }
+  .credit_guard_page #billing_step .td_style_fieldName {
+    font-weight: bold;
+    font-size: 13px;
+    width: 150px;
+    height: 50px; }
+  .credit_guard_page #billing_step input[type="text"] {
+    height: 25px; }
+  .credit_guard_page #billing_step #cardNumber, .credit_guard_page #billing_step #personalId {
+    width: 210px; }
+  .credit_guard_page #billing_step #cvv {
+    width: 150px; }
+  .credit_guard_page #billing_step #qm {
+    display: inline-block;
+    height: 18px;
+    width: 18px;
+    position: relative;
+    top: 3px;
+    margin: 0 15px;
+    cursor: pointer;
+    background: url("/static/images/wb_site/question_mark.png") left 0 no-repeat; }
+  .credit_guard_page #billing_step #wb_CVVhelp {
+    display: none;
+    position: absolute;
+    width: 225px;
+    height: 125px;
+    z-index: 3;
+    background: url("/static/images/wb_site/cvv.png") left 0 no-repeat; }
+  .credit_guard_page #billing_step #invoice-img {
+    width: 353px;
+    height: 263px;
+    position: relative;
+    bottom: -23px;
+    background: url("/static/images/wb_site/invoice_eng.png") left 0 no-repeat; }
+  .credit_guard_page #billing_step #submit_row {
+    vertical-align: bottom;
+    font-size: 13px; }
+  .credit_guard_page #billing_step #button_container {
+    text-align: right; }
+.credit_guard_page #logos {
+  width: 610px;
+  height: 142px;
+  margin: 0 auto 150px auto;
+  background: url("/static/images/wb_site/certificates.png") left center no-repeat; }
+.credit_guard_page #footer-container {
+  height: 0; }
+
+.rtl.credit_guard_page #invoice-img {
+  background: url("/static/images/wb_site/invoice_heb.png") left 0 no-repeat; }
+.rtl.credit_guard_page #button_container {
   float: left; }
 
 .transaction_page #site-content {

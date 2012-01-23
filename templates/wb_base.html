@@ -1,7 +1,7 @@
 {% load value_from_settings %}
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}"
-      class="{{ page_specific_class }} {% if LANGUAGE_BIDI %}rtl{% endif %}">
+      class="{{ page_specific_class }} {% if LANGUAGE_BIDI %}rtl{% endif %} {% block htmlclass %}{% endblock %}">
 <head>
     {% load i18n %}
 
