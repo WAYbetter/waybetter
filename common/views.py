@@ -1,4 +1,8 @@
 from django.utils.translation import ugettext as _
+from google.appengine.api.channel import channel
+from google.appengine.api.channel.channel import InvalidChannelClientIdError
+from common.decorators import receive_signal
+from common.signals import async_computation_submitted_signal, async_computation_completed_signal, async_computation_failed_signal
 from common.tz_support import to_js_date, default_tz_now_max, default_tz_now_min
 from common.models import Country
 from common.forms import DatePickerForm
@@ -10,7 +14,7 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.utils import simplejson
-from google.appengine.api import xmpp
+from google.appengine.api import xmpp, memcache
 from common.util import custom_render_to_response
 from djangotoolbox.http import JSONResponse
 from ordering.models import WorkStation
@@ -19,7 +23,10 @@ from datetime import  datetime, time
 import logging
 import os
 
+
+
 # DeadlineExceededError can live in two different places
+ASYNC_MEMCACHE_KEY = "ASYNC-COMPUTATION-%s"
 try:
     # When deployed
     from google.appengine.runtime import DeadlineExceededError
@@ -38,21 +45,34 @@ def is_dev(request):
         response += "%s: %s <br/>" % (attr, getattr(settings, attr))
     return HttpResponse(response)
 
-def base_datepicker_page(request, f_data, template_name, wrapper_locals, init_start_date=None, init_end_date=None):
+def base_datepicker_page(request, f_data, template_name, wrapper_locals, init_start_date=None, init_end_date=None, async=False):
     if request.method == 'POST': # date picker form submitted
         form = DatePickerForm(request.POST)
         if form.is_valid():
             start_date = datetime.combine(form.cleaned_data["start_date"], time.min)
             end_date = datetime.combine(form.cleaned_data["end_date"], time.max)
-            return JSONResponse({'data': f_data(start_date, end_date)})
+            if async:
+                assert wrapper_locals.get('channel_id')
+                assert wrapper_locals.get('token')
+                async_computation_submitted_signal.send(sender="base_datepicker_page", channel_id=wrapper_locals.get('channel_id'))
+                deferred.defer(f_data, start_date, end_date, channel_id=wrapper_locals.get('channel_id'), token=wrapper_locals.get('token'))
+                return JSONResponse({'status': 'submitted', 'token': wrapper_locals.get('token')})
+            else:
+                return JSONResponse({'data': f_data(start_date, end_date)})
         else:
             return JSONResponse({'error': 'error'})
     else:
         form = DatePickerForm()
         init_end_date = init_end_date or default_tz_now_max()
         init_start_date = init_start_date or default_tz_now_min()
-
-        data = simplejson.dumps(f_data(init_start_date, init_end_date))
+        if async:
+            assert wrapper_locals.get('channel_id')
+            assert wrapper_locals.get('token')
+            async_computation_submitted_signal.send(sender="base_datepicker_page", channel_id=wrapper_locals.get('channel_id'))
+            deferred.defer(f_data, init_start_date, init_end_date, channel_id=wrapper_locals.get('channel_id'), token=wrapper_locals.get('token'))
+            data = simplejson.dumps({'status': 'submitted', 'token': wrapper_locals.get('token')})
+        else:
+            data = simplejson.dumps(f_data(init_start_date, init_end_date))
 
         start_date, end_date = to_js_date(init_start_date), to_js_date(init_end_date)
 
@@ -61,6 +81,24 @@ def base_datepicker_page(request, f_data, template_name, wrapper_locals, init_st
 
         return render_to_response(template_name, extended_locals, context_instance=RequestContext(request))
 
+@receive_signal(async_computation_completed_signal)
+def async_computation_complete_handler(sender, signal_type, **kwargs):
+    client_id = kwargs.get('channel_id')
+    token = kwargs.get('token')
+    logging.info("async_computation_complete_handler: channel_id: %s, data: %s" % (client_id, kwargs.get('data')))
+    json = simplejson.dumps(kwargs.get('data'))
+
+    # save data to memcache
+    memcache.set(ASYNC_MEMCACHE_KEY % token, json)
+
+    try:
+        channel.send_message(client_id, json)
+    except InvalidChannelClientIdError:
+        logging.error("InvalidChannelClientIdError: could not sent message '%s' with channel id: '%s'" % (json,
+                                                                                                          client_id))
+def get_async_computation_result(request):
+    data = memcache.get(ASYNC_MEMCACHE_KEY % request.GET.get("token"))
+    return JSONResponse(data)
 
 @staff_member_required
 def reset_password(request):

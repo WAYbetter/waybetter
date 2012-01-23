@@ -1,3 +1,5 @@
+from djangoappengine.main import main
+
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app
 from ordering.station_connection_manager import workstation_connected, workstation_disconnected
