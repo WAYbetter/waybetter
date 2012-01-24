@@ -1506,6 +1506,9 @@ Registration
 }
 
 .credit_guard_page{
+    .spacer.bottom{
+        margin-bottom: 10px;
+    }
     #wb_lock {
         width: 33px;
         height: 35px;
@@ -1556,13 +1559,16 @@ Registration
             bottom: -23px;
             background: url("/static/images/wb_site/invoice_eng.png") left 0 no-repeat;
         }
-        #submit_row{
-            vertical-align: bottom;
-            font-size: $font-size-medium;
-        }
-        #button_container {
-            text-align: right;
-        }
+    }
+    #submit_row{
+        vertical-align: bottom;
+        font-size: $font-size-medium;
+    }
+    #disclaimer{
+        padding: 1px 10px;
+    }
+    #button_container {
+        text-align: right;
     }
     #logos{
         width: 610px;
@@ -1575,11 +1581,13 @@ Registration
     }
 }
 .rtl.credit_guard_page{
-    #invoice-img {
-        background: url("/static/images/wb_site/invoice_heb.png") left 0 no-repeat;
+    #billing_step{
+        #invoice-img {
+            background: url("/static/images/wb_site/invoice_heb.png") left 0 no-repeat;
+        }
     }
     #button_container{
-        float: left;
+        text-align: left;
     }
 }
 

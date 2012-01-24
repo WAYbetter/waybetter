@@ -47,14 +47,6 @@
     <% } %>
 {% endblock %}
 
-{% block top_right %}
-    <% if (lang.equals("HE")) { %>
-    <div id="wb_lock"></div>
-    דף תשלום מאובטח
-    <% } else { %>
-    <% } %>
-{% endblock %}
-
 {% block content %}
     <table id="progress">
         <tr>
@@ -165,8 +157,10 @@
                     <div class="spacer bottom"></div>
                 </td>
             </tr>
+        </table>
+        <table>
             <tr id="submit_row">
-                <td>
+                <td id="disclaimer">
                     <span class="bold">
                         <% if (lang.equals("HE")) { %>
                         אתה בטוח:
@@ -176,14 +170,18 @@
                     </span>
                     <br>
                     <% if (lang.equals("HE")) { %>
-                    WAYbetter אינה שומרת או מחזיקה בפרטי האשראי שלך. פרטי האשראי נשמרים בצורה מאובטחת בחברת Credit Guard.
+                    WAYbetter אינה שומרת או מחזיקה בפרטי האשראי שלך. פרטי האשראי נשמרים בצורה מאובטחת בחברת Credit
+                    Guard.
                     <% } else { %>
-                    WAYbetter does not store nor hold any of your details. You are professionally secured with Credit Guard
+                    WAYbetter does not store nor hold any of your details. You are professionally secured with Credit
+                    Guard
                     <% } %>
                 </td>
-                <td id="button_container">
-                    <input type="submit" class="wb_button" id="submitBtn" value="<%=formSend%>"/>
-                    <input id="resetBtn" type="reset" style="display: none" value="<%=formReset%>"/>
+                <td>
+                    <div id="button_container">
+                        <input type="submit" class="wb_button" id="submitBtn" value="<%=formSend%>"/>
+                        <input id="resetBtn" type="reset" style="display: none" value="<%=formReset%>"/>
+                    </div>
                 </td>
             </tr>
         </table>
