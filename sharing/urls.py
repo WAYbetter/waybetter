@@ -48,6 +48,7 @@ urlpatterns = patterns('',
 #    (r'^station/delete_taxidriver/$', 'sharing.station_controller.delete_taxidriver_relation'),
 #    (r'^drivers_for_taxi/$', 'sharing.station_controller.get_drivers_for_taxi'),
 #    (r'^check_auth/$', 'sharing.station_controller.workstation_auth'),
+    (r'^get_pdf/$', 'sharing.station_controller.get_pdf'),
 
     (r'^myrides_data/$', 'sharing.passenger_controller.get_myrides_data'),
     (r'^order_status/$', 'sharing.passenger_controller.get_order_status'),
