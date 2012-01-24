@@ -23,8 +23,6 @@ from datetime import  datetime, time
 import logging
 import os
 
-
-
 # DeadlineExceededError can live in two different places
 ASYNC_MEMCACHE_KEY = "ASYNC-COMPUTATION-%s"
 try:

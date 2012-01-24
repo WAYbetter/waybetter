@@ -1,4 +1,6 @@
+from datetime import date, time, datetime
 from django.conf import settings
+from django.db.models.fields import NOT_PROVIDED
 from django.db.models.sql import aggregates as sqlaggregates
 from django.db.models.sql.compiler import SQLCompiler
 from django.db.models.sql.constants import LOOKUP_SEP, MULTI, SINGLE
@@ -124,11 +126,10 @@ class NonrelQuery(object):
         # not necessary with emulated negation handling code
         result = []
         for child in children:
-            if isinstance(child, Node) and child.negated and \
-                    len(child.children) == 1 and \
-                    isinstance(child.children[0], tuple):
-                node, lookup_type, annotation, value = child.children[0]
-                if lookup_type == 'isnull' and value == True and node.field is None:
+            if isinstance(child, tuple):
+                constraint = child[0]
+                lookup_type = child[1]
+                if lookup_type == 'isnull' and constraint.field is None:
                     continue
             result.append(child)
         return result
@@ -164,7 +165,16 @@ class NonrelQuery(object):
                     else:
                         value = value[0]
 
-                submatch = EMULATED_OPS[lookup_type](entity[column], value)
+                if entity[column] is None:
+                    if isinstance(value, (datetime, date, time)):
+                        submatch = lookup_type in ('lt', 'lte')
+                    elif lookup_type in ('startswith', 'contains', 'endswith', 'iexact',
+                                         'istartswith', 'icontains', 'iendswith'):
+                        submatch = False
+                    else:
+                        submatch = EMULATED_OPS[lookup_type](entity[column], value)
+                else:
+                    submatch = EMULATED_OPS[lookup_type](entity[column], value)
 
             if filters.connector == OR and submatch:
                 result = True
@@ -219,16 +229,6 @@ class NonrelCompiler(SQLCompiler):
         for entity in self.build_query(fields).fetch(low_mark, high_mark):
             yield self._make_result(entity, fields)
 
-    def _make_result(self, entity, fields):
-        result = []
-        for field in fields:
-            if not field.null and entity.get(field.column,
-                    field.get_default()) is None:
-                raise DatabaseError("Non-nullable field %s can't be None!" % field.name)
-            result.append(self.convert_value_from_db(field.db_type(
-                connection=self.connection), entity.get(field.column, field.get_default())))
-        return result
-
     def has_results(self):
         return self.get_count(check_exists=True)
 
@@ -254,6 +254,19 @@ class NonrelCompiler(SQLCompiler):
     # ----------------------------------------------
     # Additional NonrelCompiler API
     # ----------------------------------------------
+    def _make_result(self, entity, fields):
+        result = []
+        for field in fields:
+            value = entity.get(field.column, NOT_PROVIDED)
+            if value is NOT_PROVIDED:
+                value = field.get_default()
+            else:
+                value = self.convert_value_from_db(field.db_type(connection=self.connection), value)
+            if value is None and not field.null:
+                raise IntegrityError("Non-nullable field %s can't be None!" % field.name)
+            result.append(value)
+        return result
+
     def check_query(self):
         if (len([a for a in self.query.alias_map if self.query.alias_refcount[a]]) > 1
                 or self.query.distinct or self.query.extra or self.query.having):
@@ -297,10 +310,20 @@ class NonrelCompiler(SQLCompiler):
         only_load = self.deferred_to_columns()
         if only_load:
             db_table = self.query.model._meta.db_table
+            only_load = dict((k, v) for k, v in only_load.items()
+                             if v or k == db_table)
+            if len(only_load.keys()) > 1:
+                raise DatabaseError('Multi-table inheritance is not supported '
+                                    'by non-relational DBs.' + repr(only_load))
             fields = [f for f in fields if db_table in only_load and
                       f.column in only_load[db_table]]
+
+        query_model = self.query.model
+        if query_model._meta.proxy:
+            query_model = query_model._meta.proxy_for_model
+
         for field in fields:
-            if field.model._meta != self.query.model._meta:
+            if field.model._meta != query_model._meta:
                 raise DatabaseError('Multi-table inheritance is not supported '
                                     'by non-relational DBs.')
         return fields
@@ -340,17 +363,40 @@ class NonrelInsertCompiler(object):
         for (field, value), column in zip(self.query.values, self.query.columns):
             if field is not None:
                 if not field.null and value is None:
-                    raise DatabaseError("You can't set %s (a non-nullable "
+                    raise IntegrityError("You can't set %s (a non-nullable "
                                         "field) to None!" % field.name)
-                value = self.convert_value_for_db(field.db_type(connection=self.connection),
-                    value)
+                db_type = field.db_type(connection=self.connection)
+                value = self.convert_value_for_db(db_type, value)
             data[column] = value
         return self.insert(data, return_id=return_id)
 
+    def insert(self, values, return_id):
+        """
+        :param values: The model object as a list of (column, value) pairs
+        :param return_id: Whether to return the id of the newly created entity
+        """
+        raise NotImplementedError
+
 class NonrelUpdateCompiler(object):
-    def execute_sql(self, result_type=MULTI):
-        # TODO: We don't yet support QuerySet.update() in Django-nonrel
-        raise NotImplementedError('No updates')
+    def execute_sql(self, result_type):
+        values = []
+        for field, _, value in self.query.values:
+            if hasattr(value, 'prepare_database_save'):
+                value = value.prepare_database_save(field)
+            else:
+                value = field.get_db_prep_save(value, connection=self.connection)
+            value = self.convert_value_for_db(
+                field.db_type(connection=self.connection),
+                value
+            )
+            values.append((field, value))
+        return self.update(values)
+
+    def update(self, values):
+        """
+        :param values: A list of (field, new-value) pairs
+        """
+        raise NotImplementedError
 
 class NonrelDeleteCompiler(object):
     def execute_sql(self, result_type=MULTI):

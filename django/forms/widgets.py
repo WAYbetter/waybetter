@@ -1,24 +1,24 @@
 """
 HTML Widget classes
 """
+import datetime
+from itertools import chain
+import time
+from urlparse import urljoin
+from util import flatatt
 
 import django.utils.copycompat as copy
-from itertools import chain
 from django.conf import settings
 from django.utils.datastructures import MultiValueDict, MergeDict
 from django.utils.html import escape, conditional_escape
-from django.utils.translation import ugettext
+from django.utils.translation import ugettext, ugettext_lazy
 from django.utils.encoding import StrAndUnicode, force_unicode
 from django.utils.safestring import mark_safe
 from django.utils import datetime_safe, formats
-import time
-import datetime
-from util import flatatt
-from urlparse import urljoin
 
 __all__ = (
     'Media', 'MediaDefiningClass', 'Widget', 'TextInput', 'PasswordInput',
-    'HiddenInput', 'MultipleHiddenInput',
+    'HiddenInput', 'MultipleHiddenInput', 'ClearableFileInput',
     'FileInput', 'DateInput', 'DateTimeInput', 'TimeInput', 'Textarea', 'CheckboxInput',
     'Select', 'NullBooleanSelect', 'SelectMultiple', 'RadioSelect',
     'CheckboxSelectMultiple', 'MultiWidget',
@@ -63,10 +63,16 @@ class Media(StrAndUnicode):
                     for path in self._css[medium]]
                 for medium in media])
 
-    def absolute_path(self, path):
+    def absolute_path(self, path, prefix=None):
         if path.startswith(u'http://') or path.startswith(u'https://') or path.startswith(u'/'):
             return path
-        return urljoin(settings.MEDIA_URL,path)
+        if prefix is None:
+            if settings.STATIC_URL is None:
+                 # backwards compatibility
+                prefix = settings.MEDIA_URL
+            else:
+                prefix = settings.STATIC_URL
+        return urljoin(prefix, path)
 
     def __getitem__(self, name):
         "Returns a Media object that only contains media of the given type"
@@ -134,6 +140,7 @@ class Widget(object):
     is_hidden = False          # Determines whether this corresponds to an <input type="hidden">.
     needs_multipart_form = False # Determines does this widget need multipart-encrypted form
     is_localized = False
+    is_required = False
 
     def __init__(self, attrs=None):
         if attrs is not None:
@@ -229,7 +236,7 @@ class TextInput(Input):
 class PasswordInput(Input):
     input_type = 'password'
 
-    def __init__(self, attrs=None, render_value=True):
+    def __init__(self, attrs=None, render_value=False):
         super(PasswordInput, self).__init__(attrs)
         self.render_value = render_value
 
@@ -286,6 +293,68 @@ class FileInput(Input):
             return False
         return True
 
+FILE_INPUT_CONTRADICTION = object()
+
+class ClearableFileInput(FileInput):
+    initial_text = ugettext_lazy('Currently')
+    input_text = ugettext_lazy('Change')
+    clear_checkbox_label = ugettext_lazy('Clear')
+
+    template_with_initial = u'%(initial_text)s: %(initial)s %(clear_template)s<br />%(input_text)s: %(input)s'
+
+    template_with_clear = u'%(clear)s <label for="%(clear_checkbox_id)s">%(clear_checkbox_label)s</label>'
+
+    def clear_checkbox_name(self, name):
+        """
+        Given the name of the file input, return the name of the clear checkbox
+        input.
+        """
+        return name + '-clear'
+
+    def clear_checkbox_id(self, name):
+        """
+        Given the name of the clear checkbox input, return the HTML id for it.
+        """
+        return name + '_id'
+
+    def render(self, name, value, attrs=None):
+        substitutions = {
+            'initial_text': self.initial_text,
+            'input_text': self.input_text,
+            'clear_template': '',
+            'clear_checkbox_label': self.clear_checkbox_label,
+        }
+        template = u'%(input)s'
+        substitutions['input'] = super(ClearableFileInput, self).render(name, value, attrs)
+
+        if value and hasattr(value, "url"):
+            template = self.template_with_initial
+            substitutions['initial'] = (u'<a href="%s">%s</a>'
+                                        % (escape(value.url),
+                                           escape(force_unicode(value))))
+            if not self.is_required:
+                checkbox_name = self.clear_checkbox_name(name)
+                checkbox_id = self.clear_checkbox_id(checkbox_name)
+                substitutions['clear_checkbox_name'] = conditional_escape(checkbox_name)
+                substitutions['clear_checkbox_id'] = conditional_escape(checkbox_id)
+                substitutions['clear'] = CheckboxInput().render(checkbox_name, False, attrs={'id': checkbox_id})
+                substitutions['clear_template'] = self.template_with_clear % substitutions
+
+        return mark_safe(template % substitutions)
+
+    def value_from_datadict(self, data, files, name):
+        upload = super(ClearableFileInput, self).value_from_datadict(data, files, name)
+        if not self.is_required and CheckboxInput().value_from_datadict(
+            data, files, self.clear_checkbox_name(name)):
+            if upload:
+                # If the user contradicts themselves (uploads a new file AND
+                # checks the "clear" checkbox), we return a unique marker
+                # object that FileField will turn into a ValidationError.
+                return FILE_INPUT_CONTRADICTION
+            # False signals to clear any existing value, as opposed to just None
+            return False
+        return upload
+
 class Textarea(Widget):
     def __init__(self, attrs=None):
         # The 'rows' and 'cols' attributes are required for HTML correctness.
@@ -308,9 +377,13 @@ class DateInput(Input):
         super(DateInput, self).__init__(attrs)
         if format:
             self.format = format
+            self.manual_format = True
+        else:
+            self.format = formats.get_format('DATE_INPUT_FORMATS')[0]
+            self.manual_format = False
 
     def _format_value(self, value):
-        if self.is_localized:
+        if self.is_localized and not self.manual_format:
             return formats.localize_input(value)
         elif hasattr(value, 'strftime'):
             value = datetime_safe.new_date(value)
@@ -336,9 +409,13 @@ class DateTimeInput(Input):
         super(DateTimeInput, self).__init__(attrs)
         if format:
             self.format = format
+            self.manual_format = True
+        else:
+            self.format = formats.get_format('DATETIME_INPUT_FORMATS')[0]
+            self.manual_format = False
 
     def _format_value(self, value):
-        if self.is_localized:
+        if self.is_localized and not self.manual_format:
             return formats.localize_input(value)
         elif hasattr(value, 'strftime'):
             value = datetime_safe.new_datetime(value)
@@ -364,9 +441,13 @@ class TimeInput(Input):
         super(TimeInput, self).__init__(attrs)
         if format:
             self.format = format
+            self.manual_format = True
+        else:
+            self.format = formats.get_format('TIME_INPUT_FORMATS')[0]
+            self.manual_format = False
 
     def _format_value(self, value):
-        if self.is_localized:
+        if self.is_localized and not self.manual_format:
             return formats.localize_input(value)
         elif hasattr(value, 'strftime'):
             return value.strftime(self.format)
@@ -438,13 +519,14 @@ class Select(Widget):
         output.append(u'</select>')
         return mark_safe(u'\n'.join(output))
 
+    def render_option(self, selected_choices, option_value, option_label):
+        option_value = force_unicode(option_value)
+        selected_html = (option_value in selected_choices) and u' selected="selected"' or ''
+        return u'<option value="%s"%s>%s</option>' % (
+            escape(option_value), selected_html,
+            conditional_escape(force_unicode(option_label)))
+
     def render_options(self, choices, selected_choices):
-        def render_option(option_value, option_label):
-            option_value = force_unicode(option_value)
-            selected_html = (option_value in selected_choices) and u' selected="selected"' or ''
-            return u'<option value="%s"%s>%s</option>' % (
-                escape(option_value), selected_html,
-                conditional_escape(force_unicode(option_label)))
         # Normalize to strings.
         selected_choices = set([force_unicode(v) for v in selected_choices])
         output = []
@@ -452,10 +534,10 @@ class Select(Widget):
             if isinstance(option_label, (list, tuple)):
                 output.append(u'<optgroup label="%s">' % escape(force_unicode(option_value)))
                 for option in option_label:
-                    output.append(render_option(*option))
+                    output.append(self.render_option(selected_choices, *option))
                 output.append(u'</optgroup>')
             else:
-                output.append(render_option(option_value, option_label))
+                output.append(self.render_option(selected_choices, option_value, option_label))
         return u'\n'.join(output)
 
 class NullBooleanSelect(Select):
@@ -514,10 +596,9 @@ class SelectMultiple(Select):
             data = []
         if len(initial) != len(data):
             return True
-        for value1, value2 in zip(initial, data):
-            if force_unicode(value1) != force_unicode(value2):
-                return True
-        return False
+        initial_set = set([force_unicode(value) for value in initial])
+        data_set = set([force_unicode(value) for value in data])
+        return data_set != initial_set
 
 class RadioInput(StrAndUnicode):
     """
@@ -751,12 +832,8 @@ class SplitDateTimeWidget(MultiWidget):
     time_format = TimeInput.format
 
     def __init__(self, attrs=None, date_format=None, time_format=None):
-        if date_format:
-            self.date_format = date_format
-        if time_format:
-            self.time_format = time_format
-        widgets = (DateInput(attrs=attrs, format=self.date_format),
-                   TimeInput(attrs=attrs, format=self.time_format))
+        widgets = (DateInput(attrs=attrs, format=date_format),
+                   TimeInput(attrs=attrs, format=time_format))
         super(SplitDateTimeWidget, self).__init__(widgets, attrs)
 
     def decompress(self, value):

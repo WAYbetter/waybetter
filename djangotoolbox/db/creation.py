@@ -4,7 +4,6 @@ class NonrelDatabaseCreation(BaseDatabaseCreation):
     data_types = {
         'AutoField':         'integer',
         'BigIntegerField':   'long',
-        'BlobField':         'blob',
         'BooleanField':      'bool',
         'CharField':         'text',
         'CommaSeparatedIntegerField': 'text',
@@ -28,4 +27,13 @@ class NonrelDatabaseCreation(BaseDatabaseCreation):
         'TimeField':         'time',
         'URLField':          'text',
         'XMLField':          'longtext',
+
+        'BlobField':         'blob',
+        'RawField':          'raw',
     }
+
+    def sql_create_model(self, *args, **kwargs):
+        return [], {}
+
+    def sql_indexes_for_model(self, *args, **kwargs):
+        return []

@@ -373,6 +373,12 @@ ul.hz{
     background: linear-gradient(top, #ffa733 0%,#d47d1f 100%); /* W3C */
 }
 
+#fb_login_button{
+    display: block;
+    background: url("/static/images/wb_site/fb_login_button.png") center center no-repeat;
+    @include size(100%, 22px);
+}
+
 /*
 jQuery UI override
 ****************************************************/
@@ -463,44 +469,37 @@ body.base-site{
 
 #top-container{
     width: $site-width;
-    margin: 0 auto 15px auto;
+    margin: 13px auto;
     position: relative;
 }
 #top-left{
     font-size: $font-size-header1;
     font-weight: bold;
-    position: absolute;
-    left: 0;
-    bottom: 0;
+    float: left;
 }
-.rtl #top-left{left: auto; right: 0}
+.rtl #top-left{float: right;}
 
 #top-right{
      font-size: $font-size-medium;
-     position: absolute;
-     right: 0;
-     bottom: 0;
+     float: right;
+     padding-top: 6px;
      ul.content_links{
+         margin: 0;
+         padding-top: 7px;
          font-size: $font-size-small;
          @extend ul.hz;
-         position: relative;
-         top: 12px;
          a {text-decoration: none;}
-         .active{
-            opacity: 0.5;
-         }
-         .active:hover{
-            cursor: default;
-         }
+         .active{ opacity: 0.5; }
+         .active:hover{ cursor: default; }
      }
 }
-.rtl #top-right{ right: auto; left: 0; }
+.rtl #top-right{ float: left; }
 
 #content-container{
     background: url(/static/images/wb_site/BG_texture.png);
     min-height: 550px;
     position: relative;
-    padding-top: 70px;
+    padding-top: 30px;
     border-bottom: 1px solid #98988F;
 }
 
@@ -1374,167 +1373,229 @@ Account
 /*
 Registration
 /*********************************************/
-#login-form{
-    label {
-        width: 80px;
-        display: inline-block;
+.registration, .credit_guard_page{
+    $space: 10px;
+    #site-content { padding: $space 25px;}
+    #progress{
+        width: 100%;
+        padding-bottom: $space;
+        font-size: 11px;
+        .step{ text-align: center; color: $light-gray;}
+        .step.current{ font-weight: bold; color: black;}
     }
-    .form-row{
-        margin-bottom: 10px;
+    .spacer{
+        width: 100%;
+        border-top: 1px solid $light-gray;
     }
-    .submit-row{
-        position: relative;
-    }
-    input[type=submit]{
-        position: absolute;
-        right: 0;
-    }
-}
-.rtl #login-form{
-    input[type=submit]{
-        position: absolute;
-        right: auto;
-        left: 0;
-    }
+    .spacer.top {margin-bottom: $space;}
+    .spacer.bottom {margin: 2*$space 0;}
+    .step-header{font-size: $font-size-large; font-weight: bold;}
 }
 
 .registration{
-    #code_container{ float: right; position: relative; top: -10px; }
-    #phone_container{ float: left; }
-    #validation{
-        .container{
-            margin-top: 20px;
-            padding: 15px;
+    $space: 10px;
+
+    // auth step
+    #auth_step{
+        width: 100%;
+        .header-row td{ padding-bottom: 30px; }
+        .vrule-cntr{ padding: 0 2*$space;}
+        .login{text-align: right;}
+        .fb{
+            width: 40%;
+            vertical-align: middle;
+            text-align: center;
+        }
+        #fb_login_button{
+            @include size(100%, 22px);
+            margin-top: $space;
+        }
+        .vrule{
+            height: 115px;
+            width: 0;
+            border-left: 1px solid $light-gray;
+            margin: 0 auto;
+        }
+        .or{
+            padding: 10px 0;
+            text-align: center;
+        }
+        .errorlist{
+            margin: 0;
+            padding: 0;
+            list-style: none;
+            li{
+                color: $color-error;
+                display: inline;
+            }
+            li:before{
+                content: "*";
+            }
+        }
+        #user_details{
+            width: 100%;
+            th {text-align: left};
+            input { width: 100%; }
+            tr { height: 55px; }
+            th { width: 100px; padding-top: 10px;}
+            td, th { vertical-align: top; }
+        }
+        #terms_container{
+            text-align: right;
+        }
+    }
+    #next_container {
+        width: 100%;
+        text-align: right;
+    }
+    #bottom_login{
+        margin-right: 20px;
+    }
+
+    // phone step
+    #phone_step{ width: 100%; }
+    #phone_form .cntr{
+        height: 50px;
+        label: {
+            display: inline-block;
+            width: 100px;
         }
     }
     #local_phone{
         width: 245px;
     }
-    #verification_status, #verification_status_top {
+    #validate_phone, #didnt_get_code{
+        width: 132px;
+    }
+    #didnt_get_code{
+        padding-top: 6px;
+    }
+    #verification_status{
         width: 30px;
         height: 30px;
         display: inline-block;
         position: relative;
         top: 11px;
     }
-    #verification_status_top{
-        border: 1px solid;
-        background: white;
-        top: 5px;
-        right: 23px;
-    }
     #verification_status.success { background: url("/static/images/wb_site/verification_status.png") left 0 no-repeat; }
     #verification_status.error { background: url("/static/images/wb_site/verification_status.png") left -30px no-repeat; }
     #verification_status.sending { background: url("/static/images/wb_site/loader24.gif") left 0 no-repeat; }
-    #registration_details{
-        border-top: 1px solid $light-gray;
-        border-bottom: 1px solid $light-gray;
-        padding-top: 25px;
-        padding-bottom: 25px;
-        margin-top: 15px;
-        margin-bottom: 45px;
-        width: 100%;
-        label { font-weight: normal; width: 95px; margin-right: 30px;}
-        td{ vertical-align: top; }
-        td.padded{ padding: 20px 0 20px 20px;}
-        td.first{width: 310px;}
-    }
-    .errorlist{
-        padding: 0;
-        list-style: none;
-        li{
-            color: $color-error;
-            display: inline;
-        }
-        li:before{
-            content: "*";
-        }
-    }
-    .vrule{
-        border-left: 1px solid $light-gray;
-        height: 80px;
-        position: relative;
-        left: 7px;
-        margin: 15px 0 15px 0;
-    }
-    .header{
-        font-size: $font-size-medium;
-        font-weight: bold;
-    }
-    #passenger_form{
-        width: 100%;
-        position: relative;
-    }
-    #user_details{
-        width: 100%;
-        th {text-align: left};
-        input { width: 250px; }
-    }
-    #terms_container{
+
+    .sms-img{
+        @include size(320px, 245px);
+        background: url("/static/images/wb_site/sms_eng.png") left 0 no-repeat;
         float: right;
-        position: absolute;
-        right: 21px;
     }
-    #fb_connect{
-        position: relative;
-        top: 71px;
-        left: 71px;
-        width: 170px;
-        height: 28px;
-    }
-    #fb_connect.disabled{
-        background: url("/static/images/wb_site/fb_disabled.jpeg") -1px 0 no-repeat;
+}
+.rtl.registration{
+    $space: 10px;
+    #auth_step{
+        .login{text-align: left;}
+        #user_details{
+            th {text-align: right};
+        }
+        #terms_container{
+            text-align: left;
+        }
     }
     #next_container {
-        position: absolute;
-        bottom: 25px;
-        right: 25px;
-        vertical-align: bottom;
+        text-align: left;
     }
     #bottom_login{
-        display: inline-block;
-        position: relative;
-        top: 8px;
-        margin-right: 9px;
+        margin-right: 0;
+        margin-left: 20px;
+    }
+
+    // phone step
+    .sms-img{
+        background: url("/static/images/wb_site/sms_heb.png") left 0 no-repeat;
+        float: left;
     }
 }
 
-.rtl.registration{
-    #code_container{ float: left; }
-    #phone_container{ float: right; }
-    #verification_status_top{
-        right: auto;
-        left: 23px;
+.credit_guard_page{
+    .spacer.bottom{
+        margin-bottom: 10px;
     }
-    #registration_details{
-        label { margin-right: 0; margin-left: 30px;}
-        td.padded{ padding: 20px 20px 20px 0;}
+    #wb_lock {
+        width: 33px;
+        height: 35px;
+        background: url("/static/images/wb_site/lock.png") left bottom no-repeat;
+        display: inline-block;
+        position: relative;
+        top: 5px;
     }
-    .vrule{
-        border-left: none;
-        border-right: 1px solid $light-gray;
-        left: auto;
-        right: 7px;
+    #billing_step{
+        width: 100%;
+        .td_style_fieldName {
+            font-weight: bold;
+            font-size: 13px;
+            width: 150px;
+            height: 50px;
+        }
+        input[type="text"]{
+            height: 25px;
+        }
+        #cardNumber, #personalId {
+            width: 210px;
+        }
+        #cvv {
+            width: 150px;
+        }
+        #qm {
+            display: inline-block;
+            height: 18px;
+            width: 18px;
+            position: relative;
+            top: 3px;
+            margin: 0 15px;
+            cursor: pointer;
+            background: url("/static/images/wb_site/question_mark.png") left 0 no-repeat;
+        }
+        #wb_CVVhelp {
+            display: none;
+            position: absolute;
+            width: 225px;
+            height: 125px;
+            z-index: 3;
+            background: url("/static/images/wb_site/cvv.png") left 0 no-repeat;
+        }
+        #invoice-img {
+            width: 353px;
+            height: 263px;
+            position: relative;
+            bottom: -23px;
+            background: url("/static/images/wb_site/invoice_eng.png") left 0 no-repeat;
+        }
     }
-    #user_details{
-        th {text-align: right};
+    #submit_row{
+        vertical-align: bottom;
+        font-size: $font-size-medium;
     }
-    #terms_container{
-        float: left;
-        right: auto;
-        left: 21px;
+    #disclaimer{
+        padding: 1px 10px;
     }
-    #fb_connect{
-        left: auto;
-        right: 71px;
+    #button_container {
+        text-align: right;
     }
-    #next_container {
-        right: auto;
-        left: 25px;
+    #logos{
+        width: 610px;
+        height: 142px;
+        margin: 0 auto 150px auto;
+        background: url("/static/images/wb_site/certificates.png") left center no-repeat;
     }
-    #bottom_login{
-        margin-right: auto;
-        margin-left: 9px;
+    #footer-container{
+        height: 0;
+    }
+}
+.rtl.credit_guard_page{
+    #billing_step{
+        #invoice-img {
+            background: url("/static/images/wb_site/invoice_heb.png") left 0 no-repeat;
+        }
+    }
+    #button_container{
+        text-align: left;
     }
 }
 

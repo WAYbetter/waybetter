@@ -73,7 +73,7 @@ class AsyncSignal(TypedSignal):
         logging.info("sending signal: %s" % self.signal_type)
 
         for receiver in self._live_receivers(_make_id(sender)):
-            args = {"receiver": receiver, "signal": self, "sender": sender, "signal_type": self.signal_type}
+            args = {"receiver": receiver, "sender": sender, "signal_type": self.signal_type}
             args.update(named)
 
             # store the signal to the signal store

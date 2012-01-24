@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-23 10:45+0200\n"
-"PO-Revision-Date: 2012-01-23 10:45+0200\n"
+"POT-Creation-Date: 2012-01-24 11:36+0200\n"
+"PO-Revision-Date: 2012-01-24 11:53+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -201,7 +201,7 @@ msgstr "דירוגים - לפי שעה"
 msgid "Orders - by Hour"
 msgstr "הזמנות - לפי שעה"
 
-#: analytics/templates/analytics.html:87
+#: analytics/templates/analytics.html:88
 #: common/templates/feedback_form.html:65
 #: ordering/templates/business_registration.html:21
 #: ordering/templates/flat_rate_rules_setup.html:11
@@ -408,15 +408,15 @@ msgstr "יום שישי"
 msgid "Saturday"
 msgstr "יום שבת"
 
-#: common/util.py:381
+#: common/util.py:385
 msgid "Value must consists of digits only."
 msgstr "הערך חייב להיות מורכב מספרות בלבד."
 
-#: common/util.py:382
+#: common/util.py:386
 msgid "Value must consists of exactly ten digits."
 msgstr "עשר ספרות בלבד."
 
-#: common/views.py:83
+#: common/views.py:119
 msgid "All we know is that there was an error. Please try again whatever you did."
 msgstr "כנראה שהתרחשה שגיאה. בבקשה נסו שוב."
 
@@ -446,9 +446,9 @@ msgid "Enter SMS code"
 msgstr " קוד ה-SMS שקיבלת"
 
 #: common/templates/code_form.html:20
-#: ordering/templates/mobile/passenger_home.html:194
+#: ordering/templates/mobile/passenger_home.html:195
 #: sharing/templates/ws_home.html:313
-#: templates/mobile/base.html:91
+#: templates/mobile/base.html:92
 msgid "Finish"
 msgstr "סיום"
 
@@ -489,11 +489,13 @@ msgstr "וידוא סיסמה (עוד פעם)"
 #: ordering/templates/station_page.html:72
 #: sharing/templates/mobile/wb_home.html:1187
 #: sharing/templates/mobile/wb_home_phonegap.html:288
+#: templates/registration/login.html:149
 msgid "Login"
 msgstr "כניסה"
 
 #: common/templates/error_dialog.html:5
 #: common/templates/error_page.html:8
+#: sharing/templates/passenger_registration.html:291
 #: sharing/templates/wb_home.html:367
 #: sharing/templates/wb_home_tooltips.html:629
 msgid "OOPS..."
@@ -585,7 +587,7 @@ msgstr "להצטרפות!"
 #: sharing/templates/contact.html:15
 #: sharing/templates/contact.html.py:41
 #: sharing/templates/mobile/login.html:22
-#: templates/registration/login.html:45
+#: templates/registration/login.html:127
 msgid "Email"
 msgstr "אימייל"
 
@@ -593,7 +595,7 @@ msgstr "אימייל"
 #: ordering/templates/business_login.html:93
 #: sharing/forms.py:55
 #: sharing/templates/mobile/login.html:24
-#: templates/registration/login.html:49
+#: templates/registration/login.html:135
 msgid "Password"
 msgstr "סיסמה"
 
@@ -626,7 +628,7 @@ msgstr "סיום"
 #: ordering/templates/business_registration.html:134
 #: ordering/templates/station_page_business.html:449
 #: ordering/templates/workstation_home.html:833
-#: ordering/templates/mobile/passenger_home.html:77
+#: ordering/templates/mobile/passenger_home.html:78
 msgid "Sending..."
 msgstr "שולח..."
 
@@ -755,9 +757,9 @@ msgstr "כניסה באמצעות החשבון שלך ב:"
 
 #: common/templates/terms_form.html:5
 #: ordering/templates/workstation_download.html:113
-#: ordering/templates/mobile/passenger_home.html:228
-#: ordering/templates/mobile/passenger_home.html:260
-#: sharing/templates/passenger_registration.html:90
+#: ordering/templates/mobile/passenger_home.html:229
+#: ordering/templates/mobile/passenger_home.html:261
+#: sharing/templates/passenger_registration.html:67
 #: sharing/templates/mobile/passenger_registration.html:91
 msgid "Terms Of Use"
 msgstr "תנאי השימוש"
@@ -897,9 +899,9 @@ msgid "Send"
 msgstr "שליחה"
 
 #: interests/templates/business_interest_form.html:38
-#: ordering/templates/mobile/passenger_home.html:133
-#: ordering/templates/mobile/passenger_home.html:138
-#: ordering/templates/mobile/passenger_home.html:216
+#: ordering/templates/mobile/passenger_home.html:134
+#: ordering/templates/mobile/passenger_home.html:139
+#: ordering/templates/mobile/passenger_home.html:217
 #: sharing/templates/producer_ordering_page.html:145
 #: sharing/templates/station_taxidrivers.html:234
 #: sharing/templates/station_taxidrivers.html:266
@@ -907,7 +909,7 @@ msgstr "שליחה"
 #: sharing/templates/mobile/wb_home.html:1081
 #: sharing/templates/mobile/wb_home.html:1093
 #: sharing/templates/mobile/wb_home.html:1132
-#: templates/mobile/base.html:69
+#: templates/mobile/base.html:70
 msgid "Cancel"
 msgstr "ביטול"
 
@@ -944,7 +946,7 @@ msgid "Please notify me when the app is ready for download"
 msgstr "אשמח אם תידעו אותי כשהאפליקציה זמינה להורדה"
 
 #: interests/templates/pilot_interest_form.html:5
-#: sharing/templates/wb_home.html:1012
+#: sharing/templates/wb_home.html:1003
 msgid "Send me info"
 msgstr "שלחו לי מידע"
 
@@ -957,6 +959,7 @@ msgid "Thanks. We'll contact you soon."
 msgstr "תודה. ניצור אתך קשר בקרוב."
 
 #: intermediate/templates/wb_base.html:19
+#: ordering/util.py:62
 #: templates/wb_base.html:19
 msgid "Shared Taxi Rides"
 msgstr "מוניות ספיישל משותפות"
@@ -981,8 +984,8 @@ msgstr "מוניות לכולם, בחצי מחיר"
 msgid "Revolution in Transportation: Half-priced taxi rides. Book a shared taxi online: comfortable, hassle free ride, save tens of dollars."
 msgstr "מהפכה בתחבורה: מונית בחצי מחיר!הזמינו מונית בלחיצה וסעו בנוחות, בלי ארנק, בלי דאגות ותוך חסכון של עשרות שקלים לנסיעה."
 
-#: intermediate/templates/wb_base.html:69
-#: templates/wb_base.html:77
+#: intermediate/templates/wb_base.html:79
+#: templates/wb_base.html:88
 msgid "Social revolution in public transportation. WAYbetter allows you to order shared taxi rides , for a (very) low fixed price. It’s green, it’s fast and it’s cheap. Check it out: www.waybetter.com"
 msgstr ""
 "WAYbetter - אפליקציה חברתית חדשה שעושה מהפכה בתחבורה.\\n"
@@ -992,38 +995,38 @@ msgstr ""
 "חייבים לנסות:\\n"
 "www.waybetter.com"
 
-#: intermediate/templates/wb_base.html:93
+#: intermediate/templates/wb_base.html:103
 #: sharing/templates/mobile/my_rides.html:69
 #: sharing/templates/mobile/wb_home.html:414
-#: templates/wb_base.html:101
+#: templates/wb_base.html:112
 msgid "Cancel Ride"
 msgstr "בטל נסיעה"
 
-#: intermediate/templates/wb_base.html:94
+#: intermediate/templates/wb_base.html:104
 #: sharing/templates/wb_home_tooltips.html:716
-#: templates/wb_base.html:102
+#: templates/wb_base.html:113
 msgid "Ride cancelled."
 msgstr "הנסיעה בוטלה."
 
-#: intermediate/templates/wb_base.html:95
+#: intermediate/templates/wb_base.html:105
 #: sharing/templates/wb_home_tooltips.html:717
-#: templates/wb_base.html:103
+#: templates/wb_base.html:114
 msgid "Info/Cancel"
 msgstr "מידע/ביטול"
 
-#: intermediate/templates/wb_base.html:96
+#: intermediate/templates/wb_base.html:106
 #: sharing/templates/wb_home_tooltips.html:718
 #: sharing/templates/mobile/my_rides.html:70
 #: sharing/templates/mobile/wb_home.html:415
-#: templates/wb_base.html:104
+#: templates/wb_base.html:115
 msgid "Report Ride"
 msgstr "דווח"
 
 #: intermediate/templates/wb_base_site.html:25
 #: intermediate/templates/wb_base_site.html:153
 #: ordering/templates/info.html:28
-#: ordering/templates/mobile/passenger_home.html:229
-#: ordering/templates/mobile/passenger_home.html:272
+#: ordering/templates/mobile/passenger_home.html:230
+#: ordering/templates/mobile/passenger_home.html:273
 #: sharing/templates/wb_info.html:4
 #: sharing/templates/mobile/wb_home.html:1174
 #: sharing/templates/mobile/wb_home.html:1199
@@ -2295,15 +2298,15 @@ msgstr "%s מחפשת עבורך מונית פנויה.<BR>הודעת SMS עם �
 #: ordering/passenger_controller.py:380
 #, python-format
 msgid "Verification code: %s"
-msgstr ""
-" אנו מודים לך על הצטרפותך לשירות. קוד אימות לסיום ההרשמה:\n"
-" %s"
+msgstr "קוד אימות: %s"
 
 #: ordering/passenger_controller.py:395
+#: sharing/passenger_controller.py:546
 msgid "Error validating phone (check that your browser accepts cookies)"
 msgstr "אימות טלפון נכשל: יש לאפשרקבלת עוגיות (cookies) בדפדפן"
 
 #: ordering/passenger_controller.py:398
+#: sharing/passenger_controller.py:549
 msgid "Invalid verification code"
 msgstr "קוד SMS שגוי"
 
@@ -2421,8 +2424,8 @@ msgstr "כתובת לא ידועה. יש לבחור כתובת מהרשימה"
 
 #: ordering/templates/base_passenger.html:50
 #: ordering/templates/station_page.html:176
-#: ordering/templates/mobile/passenger_home.html:159
-#: ordering/templates/mobile/passenger_home.html:223
+#: ordering/templates/mobile/passenger_home.html:160
+#: ordering/templates/mobile/passenger_home.html:224
 #: sharing/templates/mobile/wb_home.html:781
 #: sharing/templates/mobile/wb_home.html:1170
 msgid "More"
@@ -2433,14 +2436,14 @@ msgid "Less"
 msgstr "צמצם"
 
 #: ordering/templates/base_passenger.html:52
-#: ordering/templates/mobile/passenger_home.html:67
+#: ordering/templates/mobile/passenger_home.html:68
 msgid "Fill pickup and dropoff for price and time estimation "
 msgstr "לחישוב מחיר וזמן נסיעה משוערים יש למלא מוצא ויעד"
 
 #: ordering/templates/base_passenger.html:53
 #: ordering/templates/passenger_home.html:86
 #: ordering/templates/station_page.html:105
-#: ordering/templates/mobile/passenger_home.html:131
+#: ordering/templates/mobile/passenger_home.html:132
 #: sharing/templates/hotspot_ordering_page_textinput.html:32
 msgid "Enter pickup address"
 msgstr "כתובת מוצא (רחוב מספר עיר)"
@@ -2448,7 +2451,7 @@ msgstr "כתובת מוצא (רחוב מספר עיר)"
 #: ordering/templates/base_passenger.html:54
 #: ordering/templates/passenger_home.html:89
 #: ordering/templates/station_page.html:109
-#: ordering/templates/mobile/passenger_home.html:136
+#: ordering/templates/mobile/passenger_home.html:137
 #: sharing/templates/hotspot_ordering_page.html:42
 #: sharing/templates/hotspot_ordering_page_textinput.html:44
 msgid "Enter drop-off address"
@@ -2520,14 +2523,14 @@ msgstr "מעדכן..."
 #: ordering/templates/station_page.html:112
 #: ordering/templates/station_page_business.html:357
 #: ordering/templates/station_page_business.html:457
-#: ordering/templates/mobile/passenger_home.html:81
+#: ordering/templates/mobile/passenger_home.html:82
 #: sharing/templates/hotspot_ordering_page.html:54
 #: sharing/templates/hotspot_ordering_page_textinput.html:48
 msgid "Pick Me Up"
 msgstr "שלח לי מונית"
 
 #: ordering/templates/base_passenger.html:164
-#: templates/registration/login.html:37
+#: templates/registration/login.html:110
 msgid "Join!"
 msgstr "הצטרפות!"
 
@@ -2557,7 +2560,6 @@ msgstr "כלים חכמים לתחנות חכמות"
 #: sharing/templates/mobile/login.html:27
 #: templates/registration/activate.html:10
 #: templates/registration/activation_complete.html:8
-#: templates/registration/login.html:58
 #: templates/registration/login_reg.html:8
 #: templates/registration/password_reset_complete.html:8
 msgid "Log in"
@@ -3119,7 +3121,7 @@ msgid "WAYbetter Terms Of Service"
 msgstr "תנאי שימוש ב <span class=waybetter></span>"
 
 #: ordering/templates/terms.html:17
-#: ordering/templates/mobile/passenger_home.html:264
+#: ordering/templates/mobile/passenger_home.html:265
 msgid "web_actual_terms"
 msgstr ""
 "זכויות היוצרים באתר, שייכות באופן  בלעדי ל WAYbetter LTD.\n"
@@ -3216,11 +3218,11 @@ msgstr "התנתק"
 msgid "and try again"
 msgstr "ונסה שוב"
 
-#: ordering/templates/mobile/passenger_home.html:37
+#: ordering/templates/mobile/passenger_home.html:38
 msgid "Loading..."
 msgstr "טוען..."
 
-#: ordering/templates/mobile/passenger_home.html:39
+#: ordering/templates/mobile/passenger_home.html:40
 #: sharing/templates/mobile/faq.html:19
 #: sharing/templates/mobile/my_rides.html:33
 #: sharing/templates/mobile/privacy.html:18
@@ -3233,23 +3235,23 @@ msgstr "טוען..."
 #: sharing/templates/mobile/wb_home.html:1121
 #: sharing/templates/mobile/wb_home.html:1197
 #: templates/wb_base_mobile.html:29
-#: templates/mobile/base.html:77
+#: templates/mobile/base.html:78
 msgid "Back"
 msgstr "חזרה"
 
-#: ordering/templates/mobile/passenger_home.html:68
+#: ordering/templates/mobile/passenger_home.html:69
 msgid "Finding Your Location..."
 msgstr "מחפש את מיקומך..."
 
-#: ordering/templates/mobile/passenger_home.html:69
+#: ordering/templates/mobile/passenger_home.html:70
 msgid "No Location Found"
 msgstr "לא נמצא מיקום"
 
-#: ordering/templates/mobile/passenger_home.html:70
+#: ordering/templates/mobile/passenger_home.html:71
 msgid "Unable to locate your position"
 msgstr "לא ניתן לאתר את מיקומך הנוכחי"
 
-#: ordering/templates/mobile/passenger_home.html:71
+#: ordering/templates/mobile/passenger_home.html:72
 msgid ""
 "Order Sent!\\n"
 "\\n"
@@ -3259,7 +3261,7 @@ msgstr ""
 "\\n"
 "התחנות הקרובות מחפשות עבורך מונית פנויה. הודעת SMS עם פרטי הנסיעה תשלח אליך מיד..."
 
-#: ordering/templates/mobile/passenger_home.html:72
+#: ordering/templates/mobile/passenger_home.html:73
 #: sharing/templates/wb_home.html:224
 #: sharing/templates/wb_home_tooltips.html:205
 #: sharing/templates/mobile/wb_home.html:145
@@ -3268,54 +3270,54 @@ msgstr ""
 msgid "Enter Address"
 msgstr "הכנס כתובת"
 
-#: ordering/templates/mobile/passenger_home.html:73
+#: ordering/templates/mobile/passenger_home.html:74
 msgid "Are you sure you want to order a taxi now?"
 msgstr "להזמין מונית עכשיו?"
 
-#: ordering/templates/mobile/passenger_home.html:74
+#: ordering/templates/mobile/passenger_home.html:75
 msgid "In order that you may enjoy this service you must first register"
 msgstr "כדי להנות מהשירות יש להרשם תחילה"
 
-#: ordering/templates/mobile/passenger_home.html:75
+#: ordering/templates/mobile/passenger_home.html:76
 msgid "Try Again"
 msgstr "נסה שוב"
 
-#: ordering/templates/mobile/passenger_home.html:76
-#: ordering/templates/mobile/passenger_home.html:189
-#: templates/mobile/base.html:87
+#: ordering/templates/mobile/passenger_home.html:77
+#: ordering/templates/mobile/passenger_home.html:190
+#: templates/mobile/base.html:88
 msgid "Send Verification Code"
 msgstr "שלח קוד אימות"
 
-#: ordering/templates/mobile/passenger_home.html:78
-#: sharing/templates/passenger_registration.html:223
+#: ordering/templates/mobile/passenger_home.html:79
+#: sharing/templates/passenger_registration.html:232
 #: sharing/templates/mobile/passenger_registration.html:240
 msgid "Code Sent"
 msgstr "קוד SMS נשלח"
 
-#: ordering/templates/mobile/passenger_home.html:79
+#: ordering/templates/mobile/passenger_home.html:80
 #: sharing/templates/mobile/wb_home.html:619
 msgid "Could not resolve address"
 msgstr "כתובת לא ידועה"
 
-#: ordering/templates/mobile/passenger_home.html:80
+#: ordering/templates/mobile/passenger_home.html:81
 msgid "Looking for address"
 msgstr "מאתר כתובת..."
 
-#: ordering/templates/mobile/passenger_home.html:82
+#: ordering/templates/mobile/passenger_home.html:83
 msgid "Address Incomplete: please enter a house number"
 msgstr "כתובת חסרה: נא להכניס מספר בית"
 
-#: ordering/templates/mobile/passenger_home.html:83
+#: ordering/templates/mobile/passenger_home.html:84
 msgid "No rides to show"
 msgstr "אין נסיעות"
 
-#: ordering/templates/mobile/passenger_home.html:141
+#: ordering/templates/mobile/passenger_home.html:142
 #: sharing/templates/mobile/wb_home.html:1096
 msgid "GPS"
 msgstr "GPS"
 
-#: ordering/templates/mobile/passenger_home.html:157
-#: ordering/templates/mobile/passenger_home.html:203
+#: ordering/templates/mobile/passenger_home.html:158
+#: ordering/templates/mobile/passenger_home.html:204
 #: sharing/templates/my_rides.html:7
 #: sharing/templates/mobile/my_rides.html:18
 #: sharing/templates/mobile/my_rides.html:34
@@ -3325,49 +3327,49 @@ msgstr "GPS"
 msgid "My Rides"
 msgstr "הנסיעות שלי"
 
-#: ordering/templates/mobile/passenger_home.html:168
+#: ordering/templates/mobile/passenger_home.html:169
 #: sharing/templates/mobile/wb_home.html:1123
-#: templates/mobile/base.html:68
+#: templates/mobile/base.html:69
 msgid "Select Address"
 msgstr "בחר כתובת"
 
-#: ordering/templates/mobile/passenger_home.html:179
+#: ordering/templates/mobile/passenger_home.html:180
 msgid "Service Registration"
 msgstr "הרשמה לשירות"
 
-#: ordering/templates/mobile/passenger_home.html:182
+#: ordering/templates/mobile/passenger_home.html:183
 msgid "Ride details are send via free SMS"
 msgstr "פרטי הנסיעה נשלחים ב SMS חינם"
 
-#: ordering/templates/mobile/passenger_home.html:187
-#: templates/mobile/base.html:82
+#: ordering/templates/mobile/passenger_home.html:188
+#: templates/mobile/base.html:83
 msgid "Enter your mobile number"
 msgstr " מספר הטלפון הנייד שלך"
 
-#: ordering/templates/mobile/passenger_home.html:192
+#: ordering/templates/mobile/passenger_home.html:193
 #: sharing/templates/mobile/passenger_registration.html:129
-#: templates/mobile/base.html:88
+#: templates/mobile/base.html:89
 msgid "Enter verification code"
 msgstr "קוד אימות טלפוני"
 
-#: ordering/templates/mobile/passenger_home.html:214
+#: ordering/templates/mobile/passenger_home.html:215
 msgid "Set as Pickup"
 msgstr "קבע כמוצא"
 
-#: ordering/templates/mobile/passenger_home.html:215
+#: ordering/templates/mobile/passenger_home.html:216
 msgid "Set as Destination"
 msgstr "קבע כיעד"
 
-#: ordering/templates/mobile/passenger_home.html:227
-#: ordering/templates/mobile/passenger_home.html:237
+#: ordering/templates/mobile/passenger_home.html:228
+#: ordering/templates/mobile/passenger_home.html:238
 msgid "Language"
 msgstr "שפה"
 
-#: ordering/templates/mobile/passenger_home.html:246
+#: ordering/templates/mobile/passenger_home.html:247
 msgid "Choose your preferred language"
 msgstr "בחר שפה"
 
-#: ordering/templates/mobile/passenger_home.html:281
+#: ordering/templates/mobile/passenger_home.html:282
 msgid "Version"
 msgstr "גירסה"
 
@@ -3537,7 +3539,7 @@ msgid "We have encountered an error. Please try again."
 msgstr "אופס, התרחשה שגיאה. אנא נסו שוב."
 
 #: sharing/passenger_controller.py:159
-#: sharing/passenger_controller.py:391
+#: sharing/passenger_controller.py:387
 msgid "Book 3 seats and the forth is free"
 msgstr "הזמן שלושה מושבים והרביעי חינם!"
 
@@ -3545,15 +3547,23 @@ msgstr "הזמן שלושה מושבים והרביעי חינם!"
 msgid "This interval is closed for booking now. Please choose a later time"
 msgstr "לא ניתן להזמין לשעה שנבחרה. אנא בחר שעה אחרת ונסה שנית"
 
-#: sharing/passenger_controller.py:640
+#: sharing/passenger_controller.py:537
+msgid "You must be logged in to validate your phone."
+msgstr "עלייך להכנס לחשבונך לפני ביצוע אימות טלפון."
+
+#: sharing/passenger_controller.py:559
+msgid "We're sorry but your phone appears to used by multiple users. Please contact support@waybetter.com to resolve this issue."
+msgstr "הטלפון שלך נמצא בשימוש על ידי כמה נוסעים. אנא פנה אל contact@waybetter.com לקבלת עזרה."
+
+#: sharing/passenger_controller.py:618
 msgid "WAYbetter ride"
 msgstr "נסיעת מונית WAYbetter"
 
-#: sharing/passenger_controller.py:640
+#: sharing/passenger_controller.py:618
 msgid "Private ride"
 msgstr "נסיעת מונית פרטית"
 
-#: sharing/passenger_controller.py:659
+#: sharing/passenger_controller.py:637
 msgid "WAYbetter Order Confirmation"
 msgstr "אישור הזמנת נסיעה "
 
@@ -3729,7 +3739,7 @@ msgid "Taxi is on the way!"
 msgstr "המונית בדרך!"
 
 #: sharing/templates/passenger_notification_msg.html:3
-#: sharing/templates/wb_home.html:890
+#: sharing/templates/wb_home.html:881
 #: sharing/templates/wb_home_tooltips.html:402
 #: sharing/templates/wb_home_tooltips.html:1058
 #: sharing/templates/mobile/wb_home.html:411
@@ -3741,69 +3751,73 @@ msgstr "איסוף ב"
 msgid "Tell the driver you’re with WAYbetter and the paper is at the station"
 msgstr "אמרו לנהג שאתם WAYbetter ושהפתק בתחנה"
 
-#: sharing/templates/passenger_registration.html:6
-msgid "First Time? Join the Movement...  "
-msgstr "פעם ראשונה? הצטרף..."
+#: sharing/templates/passenger_registration.html:14
+#: sharing/templates/passenger_registration.html:26
+msgid "Account Information"
+msgstr "פרטי חשבון"
 
-#: sharing/templates/passenger_registration.html:10
-#: sharing/templates/passenger_registration.html:103
+#: sharing/templates/passenger_registration.html:15
+#: sharing/templates/passenger_registration.html:83
+msgid "Phone Verification"
+msgstr "אימות טלפון"
+
+#: sharing/templates/passenger_registration.html:16
+msgid "Billing Information"
+msgstr "פרטי חיוב"
+
+#: sharing/templates/passenger_registration.html:29
+#: sharing/templates/passenger_registration.html:136
 msgid "Already a member?"
 msgstr "כבר הצטרפת?"
 
-#: sharing/templates/passenger_registration.html:10
-#: sharing/templates/passenger_registration.html:103
+#: sharing/templates/passenger_registration.html:30
+#: sharing/templates/passenger_registration.html:136
 msgid "Sign In"
 msgstr "כניסה"
 
-#: sharing/templates/passenger_registration.html:22
-msgid "Ride details are sent by free SMS"
-msgstr "פרטי הנסיעה נשלחים ב SMS חינם"
-
-#: sharing/templates/passenger_registration.html:27
-msgid "Mobile Phone"
-msgstr "טלפון"
-
-#: sharing/templates/passenger_registration.html:30
-msgid "Get Code"
-msgstr "שלח קוד"
-
-#: sharing/templates/passenger_registration.html:34
-msgid "Enter Code"
-msgstr "הכנס קוד"
-
-#: sharing/templates/passenger_registration.html:48
-msgid "Setup your account:"
-msgstr "פרטי החשבון שלך ב:"
-
-#: sharing/templates/passenger_registration.html:55
+#: sharing/templates/passenger_registration.html:36
 msgid "Use your Facebook account for fast registration:"
 msgstr "הרשמה מהירה באמצעות פייסבוק:"
 
-#: sharing/templates/passenger_registration.html:59
-msgid "Login with Facebook"
-msgstr "Login with Facebook"
-
-#: sharing/templates/passenger_registration.html:65
+#: sharing/templates/passenger_registration.html:41
+#: templates/registration/login.html:165
 msgid "OR"
 msgstr "או"
 
-#: sharing/templates/passenger_registration.html:89
+#: sharing/templates/passenger_registration.html:65
 #: sharing/templates/mobile/passenger_registration.html:90
 msgid "I agree to the"
 msgstr "אני מסכימ/ה ל"
 
-#: sharing/templates/passenger_registration.html:91
+#: sharing/templates/passenger_registration.html:68
 #: sharing/templates/mobile/passenger_registration.html:91
 msgid "and"
 msgstr "ו"
 
-#: sharing/templates/passenger_registration.html:92
+#: sharing/templates/passenger_registration.html:69
 #: sharing/templates/privacy.html:4
 #: sharing/templates/mobile/passenger_registration.html:92
 msgid "Privacy Statement"
 msgstr "הצהרת פרטיות"
 
-#: sharing/templates/passenger_registration.html:105
+#: sharing/templates/passenger_registration.html:94
+msgid "Mobile Phone"
+msgstr "טלפון נייד"
+
+#: sharing/templates/passenger_registration.html:104
+msgid "Send SMS Code"
+msgstr "שלח קוד ב-SMS"
+
+#: sharing/templates/passenger_registration.html:107
+msgid "I didn't get the SMS code"
+msgstr "לא קיבלתי את הקוד בSMS"
+
+#: sharing/templates/passenger_registration.html:113
+msgid "Enter Code"
+msgstr "הכנס קוד"
+
+#: sharing/templates/passenger_registration.html:138
+#: sharing/templates/passenger_registration.html:140
 #: sharing/templates/wb_home.html:92
 #: sharing/templates/wb_home.html.py:121
 #: sharing/templates/wb_home_tooltips.html:416
@@ -3815,14 +3829,18 @@ msgstr "הצהרת פרטיות"
 msgid "Next"
 msgstr "המשך"
 
-#: sharing/templates/passenger_registration.html:220
-#: sharing/templates/passenger_registration.html:248
+#: sharing/templates/passenger_registration.html:180
+#: sharing/templates/passenger_registration.html:229
 #: sharing/templates/wb_home.html:605
 #: sharing/templates/wb_home_tooltips.html:598
 #: sharing/templates/mobile/passenger_registration.html:177
 #: sharing/templates/mobile/passenger_registration.html:237
 msgid "Sending"
 msgstr "שולח"
+
+#: sharing/templates/passenger_registration.html:202
+msgid "An error occurred, please try again"
+msgstr "התרחשה שגיאה. אנא נסו שוב."
 
 #: sharing/templates/passenger_ride_email.html:11
 #, python-format
@@ -3935,7 +3953,7 @@ msgstr "נוסע לבד"
 
 #: sharing/templates/producer_rides_summary.html:18
 #: sharing/templates/station_history.html:32
-#: sharing/templates/wb_home.html:886
+#: sharing/templates/wb_home.html:877
 msgid "Time"
 msgstr "זמן"
 
@@ -4118,7 +4136,7 @@ msgstr "תנאי השימוש"
 #: sharing/templates/mobile/passenger_registration.html:142
 #: sharing/templates/mobile/terms_of_service.html:22
 msgid "terms_content"
-msgstr "    <div class=\"header\"></div>    <p>תנאי השימוש המפורטים להלן (להלן – \"תנאי השימוש\"), חלים על השימוש שלך באתר זה (www.waybetter.com) (להלן – \"האתר\")        המופעל על ידי חברת וויי בטר בע\"מ (להלן – \"החברה\") וכן על כל השירותים המוצעים באתר, לרבות באמצעות אפליקציה של        האתר (להלן – \"אפליקציות\") אשר נועדה לשימוש באמצעים טכנולוגיים (כהגדרת מושג זה להלן), שירותים אשר עשויים לכלול        בין היתר, לפי שיקול דעתה הבלעדי של החברה וככל שהדבר יתאפשר, הזמנת מונית (כהגדרת מושג זה להלן) לטובת נסיעה פרטית        רגילה ונסיעה משותפת (כהגדרת מושגים אלו להלן), קבלת פרטי מידע משוערים על נסיעות כאמור, תשלום עבור נסיעות כאמור        ועבור שירותים נוספים, צפייה בסטאטוס חשבון המשתמש (כהגדרת מושג זה להלן) אפשרות לדרג נסיעות וכיוצא בזה (להלן –        \"השירותים\"). תנאי השימוש מנוסחים בלשון זכר-יחיד מטעמי נוחות בלבד, וכל האמור בהם מתייחס, כמובן, גם לנקבה וגם        לרבים. </p>    <p>        <span class=\"important\">אנא קרא את תנאי השימוש בקפידה שכן הם מהווים הסכם מחייב בינך לבין החברה.</span>        כל שימוש באתר, לרבות ומבלי לגרוע מכלליות האמור, גלישה בדפי האתר השונים, צפייה במידע באתר, הורדת מידע מהאתר        והעלאת מידע לאתר, שימוש במידע המפורסם באתר, התקנת אפליקציות ו/או תוכנות המוצעות באתר והשימוש בהן, בקשה לקבלת        שירותים וקבלת שירותים כאמור, ותשלום עבור השירותים (להלן – \"השימוש באתר\"), הינו כפוף לתנאי השימוש. בשימושך באתר        הינך נותן את הסכמתך ואישורך כי קראת והבנת את תנאי השימוש ואת מדיניות הפרטיות של החברה המפורטת בקישור        <a class=\"wb_link\" href=\"/privacy\">מדיניות פרטיות</a>        (להלן – \"מדיניות הפרטיות\"), הנך מסכים לתנאי השימוש ולמדיניות הפרטיות, והנך מתחייב לפעול בהתאם להם ולקיימם        וכן לפעול לפי כל דין החל בקשר עם האתר ו/או השירותים בכל עת (להלן – \"הסכמת המשתמש\"). החברה רשאית, לפי שיקול דעתה        הבלעדי, למנוע ממך את השימוש באתר, כולו או חלקו, בכל דרך שהיא, לרבות באמצעים טכנולוגיים ומשפטיים. הפרה של תנאי        השימוש ו/או של מדיניות הפרטיות ו/או של הוראה מהוראות הדין החל בקשר עם האתר ו/או השירותים, מעבר להיותה עילה        למניעת גישה שלך לאתר ו/או לשירותים, עלולה לחשוף אותך לאחריות אזרחית ו/או פלילית.        <span class=\"important\">אם אינך מסכים לתנאי השימוש ולמדיניות הפרטיות, הימנע משימוש באתר ובשירותים.</span>    </p>    <div class=\"header\">שינויים בתנאי השימוש</div>    <p>החברה שומרת לעצמה את הזכות לשנות את תנאי השימוש ו/או מדיניות הפרטיות בכל עת. שינויים כאמור ייכנסו לתוקף מרגע        העלתם על ידי החברה לאתר. חלה עליך החובה להתעדכן בשינויים כאמור באופן סדיר, בטרם ביצוע כל שימוש באתר. השימוש באתר        בכל רגע נתון כמוהו כהסכמת המשתמש לתנאי השימוש ומדיניות הפרטיות, הנכונים לרגע השימוש באתר כאמור. </p>    <div class=\"header\">הצהרת המשתמש</div>    <p>        בשימושך באתר הינך מצהיר שהינך רשאי לפי כל דין להתחייב לתנאי השימוש ולבצע שימוש באתר, לרבות הזמנת השירותים        בתשלום. אם באזור השיפוט בו הינך נמצא ו/או לפי החוק החל עליך ישנה מגבלת גיל או מגבלה אחרת על השימוש באתר ו/או        בשירותים המוצעים בו, הנך מצהיר כי הינך עומד בכל המגבלות כאמור (למען הסר ספק, הינך מצהיר בזאת כי גילך הוא מעל 18        שנים). מבלי לגרוע מכלליות האמור לעיל, כי אתה עושה שימוש באתר לצרכיך הפרטיים למטרות שאינן מסחריות, ולא לטובת כל        אדם או גוף אחר, אלא אם ניתנה לך הרשאה בכתב מהחברה לעשות כן, ובכפוף לתנאי ההרשאה. ידוע לך כי החברה אינה מעניקה        לך, ושימושך באתר ו/או בשירותים אינו מעניק לך, רישיון או זכויות כלשהן באתר ו/או בשירותים, או באתרים ושירותים        הניתנים על ידי ספקים של החברה, לרבות מבלי לגרוע מכלליות האמור, ספקי שירותי היסעים, חברות סליקת כרטיסי אשראי,        חברת טלמפ (כהגדרתה להלן) וחברת מפה (כהגדרתה להלן), למעט רישיון הניתן, ככל שניתן, באופן מפורש תחת תנאי שימוש אלו        ובכפוף להם.    </p>    <p>בנוסף, הינך מצהיר כי שימושך באתר ו/או בשירותים: (א) יעשה בהתאם לחוק, למטרות חוקיות, מוסריות ומורשות בלבד; (ב) לא        יעשה באופן העלול לגרום נזק, מטרד או אי נוחות לצדדים שלישיים; (ג) לא יפגע או יחבל באתר ו/או בשירותים; (ד) לא        יגרום להפרת זכותו של אדם ו/או גוף אחר, לרבות זכויות החברה; (ד) יעשה תוך מסירת פרטים, לרבות פרטי זיהוי ופרטי        אמצעי תשלום, נכונים ומדויקים; (ה) יעשה תוך שמירה על סודיות פרטי הזיהוי ופרטי חשבון המשתמש (כהגדרת מושג זה להלן)        הנמסרים לך באתר; (ו) ככל שנעשה באמצעי טכנולוגי, יעשה באמצעי טכנולוגי בו הינך רשאי להשתמש למטרת השימוש באתר ו/או        בשירותים; (ז) יעשה באופן שאינו משבש או מפריע למערכות מחשב ותקשורת כלשהן, לרבות האתר ושרתי החברה או מי מטעמה; (ח)        במידה ונעשה תוך שימוש באמצעי תשלום, יעשה באמצעי תשלום אשר הינך רשאי להשתמש בו על פי כל דין; (ט) יעשה מבלי להפעיל        יישום מחשב או אמצעי אחר, לרבות תוכנות אוטומטיות, Robots, Spiders או Crawlers, לשם חיפוש, סריקה, העתקה או אחזור        אוטומטי של מידע מהאתר (כהגדרת מושג זה להלן) וללא יצירת מאגר, אוסף או לקט של מידע מהאתר.</p>    <p>כמו כן, הינך מצהיר כי אתה מודע לכך שחלק מהשירותים המוצעים באתר הינם בתשלום, וככל שיוזמנו שירותים אלו באמצעות        חשבון המשתמש שלך, תחויב בהתאם למחירון החברה כפי שיימסר לך בעת ביצוע ההזמנה, הכל בהתאם ובכפוף לתנאי השימוש.</p>    <div class=\"header\">אפליקציות ותוכנות</div>    <p>במידה ומוצעות אפליקציות ו/או תוכנות לשימוש באתר או בשירותים המוצעים על ידי החברה באמצעים טכנולוגיים כגון טלפון        סלולארי, טאבלטים, וכד' (להלן – \"אמצעי טכנולוגי\"), הינך האחראי הבלעדי להורדת האפליקציה ו/או התוכנה כאמור לאמצעי        הטכנולוגי שברשותך. החברה אינה אחראית להתאמת האפליקציה ו/או התוכנה לאמצעי הטכנולוגי שברשותך, ואינה מתחייבת כי        תתאפשר לך גישה לאתר ו/או לשירותים המוצעים על ידי החברה, כולם או מקצתם, בכל עת. </p>    <p>תנאי השימוש יחולו גם על אפליקציות ועל השירותים הניתנים באמצעות אפליקציות, וכל התייחסות בתנאי השימוש לאתר        ולשירותים תחול על האפליקציות ועל השירותים המוצעים באפליקציות, בשינויים המחויבים. </p>    <div class=\"header\">נגישות לאתר ולשירותים</div>    <p>השימוש באתר ו/או בשירותים הינו באחריותך בלעדית. ידוע לך כי על מנת לבצע שימוש באתר ו/או בשירותים, כולם או מקצתם,        ייתכן ותצטרך להשתמש באמצעים ושירותים שונים, לרבות מחשבים, מכשירים סלולאריים, גישה לרשת האינטרנט, חיבור לרשת        סלולארית, וכד', והינך מסכים ומבין כי עליך להשיגם בעצמך וכי החברה אינה מספקת אמצעים ושירותים אלו. </p>    <p>ידוע לך כי האתר והשירותים מבוססים על טכנולוגיה וצדדים שלישיים ותלויים בהם, לרבות ספק שירותי ההיסעים, וכן בגורמים        נוספים אשר אינם בשליטת החברה (לרבות מבלי לגרוע מכלליות האמור, פקקי תנועה ועומסי תנועה, סגירות כבישים, כוח עליון,        ספק שירותי ההיסעים, וכד'). תיאורי השירותים, התכנים והמידע מהאתר מוגשים \"כמות שהם\" וללא אחריות כלשהי והחברה אינה        מתחייבת ואינה ערבה לכך כי תיאורי השירותים, התכנים והמידע מהאתר או כל מידע הנמסר לך בקשר עם אלו, הינם מדויקים,        אמינים, נכונים, מלאים, עדכניים או חפים משגיאות. כפועל יוצא מכך החברה אינה מתחייבת כי האתר ו/או השירותים יפעלו        באופן רציף וללא תקלות. בנוסף, מטבע השירותים, ייתכן והשירותים יהיו זמינים באזורים מסוימים בלבד, והחברה שומרת        לעצמה את הזכות לא לספק את השירותים באזורים מסוימים. למען הסר ספק, החברה אינה מתחייבת שהשירותים יהיו זמינים בכל        מקום ובכל עת. </p>    <p>החברה אינה מתחייבת להמשיך להפעיל את האתר ו/או לספק את השירותים גם בעתיד, והיא רשאית לפי שיקול דעתה הבלעדי, לחסום        את הגישה לאתר ו/או לשנות את האתר, כולו או מקצתו, ו/או להפסיק לספק ו/או לשנות את השירותים, כולם או מקצתם, לרבות        את תנאי השירותים (כולל בין היתר טיבם ומחירם), הכל בין אם לצמיתות או לפרק זמן אחר, לפי שיקול דעתה הבלעדי וללא        צורך במתן הודעה על כך.</p>    <div class=\"header\">חשבון משתמש</div>    <p>חלק מהשירותים המוצעים באתר מצריכים רישום מוקדם לאתר, וקבלת חשבון משתמש מהנהלת האתר, אליו ניתן להיכנס באמצעות שם        משתמש וסיסמה אישית (להלן – \"חשבון המשתמש\"). במהלך הרישום ויצירת חשבון המשתמש תתבקש להזין לאתר מידע, לרבות פרטים        מזהים, פרטי התקשרות ופרטי אמצעי תשלום. עם קבלת כל הפרטים הנדרשים בהתאם להוראות שיופיעו באתר, תשלח אליך לכתובת        הדואר האלקטרוני שהזנת במהלך פתיחת חשבון המשתמש, שם המשתמש והסיסמה האישית שנבחרו ואושרו על ידי החברה. הינך מתחייב        כי הפרטים אותם תזין הינם פרטים נכונים, מלאים ועדכניים, וכן הינך מתחייב לעדכן את האתר בכל שינוי בפרטים אלו, לרבות        שינוי בכתובת הדואר האלקטרוני, טלפון נייד ופרטי אמצעי התשלום בו בכוונתך לשלם עבור השירותים בהתאם לתנאי השימוש.        עליך לשמור את שם המשתמש והסיסמה שיסופקו לך בסודיות מוחלטת ולא לגלותם לאף אדם או גוף ובכל אופן אתה אחראי באופן        בלעדי ומלא, לשמור על סודיות הסיסמה וחשבון המשתמש שלך ועל כל פעילות אשר תתבצע תחת הסיסמה שלך או במסגרת חשבון        המשתמש שלך. </p>    <p>תשומת לבך כי אמצעי התשלום האחרון שסיפקת לאתר יחויב בגין שירותים שהוזמנו תוך שימוש בחשבון המשתמש שלך (זאת ללא צורך        בהזנה נוספת של פרטי אמצעי התשלום וללא צורך בזיהוי נוסף). כל הודעה שתשלח לכתובת הדואר האלקטרוני שהזנת במהלך פתיחת        חשבון המשתמש תיחשב כאילו נתקבלה ברגע המשלוח. </p>    <p>ידוע לך כי, בכפוף לחוק החל ובהתאם למדיניות הפרטיות, החברה תשלח לך מעת לעת, לפי שיקול דעתה הבלעדי של החברה, מידע        בדבר פעילותך באתר, לרבות הזמנת שירותים (ואישורי הזמנת שירותים), ומידע הקשור בחברה, בספקים של החברה (לרבות ספקי        שירותי היסעים וחברות סליקת כרטיסי אשראי), ובצדדים שלישיים. בשימוש באתר הינך נותן הסכמתך לקבלת מידע כאמור        מהחברה. </p>    <div class=\"header\">תנאים כלליים להזמנת מונית דרך האתר</div>    <p>החברה מציעה לבעלי חשבון משתמש אפשרות להזמין מונית מספק שירותי ההיסעים (כהגדרת מושג זה להלן) לצורך נסיעה פרטית        רגילה ולצורך נסיעה משותפת (כהגדרת מושגים אלו להלן, וביחד \"הנסיעות\"). בעת הזמנת המונית עליך לפעול במדויק לפי        ההוראות שיופיעו בעת ביצוע הזמנת המונית (להלן – \"הזמנת המונית\"). </p>    <p>בעת הזמנת המונית, הינך מתחייב כי תספק את המידע הנדרש לפי הוראות האתר, לרבות נקודת האיסוף, מועד האיסוף או ההגעה        המבוקשים, , כמות הנוסעים לנסיעה, , נקודת היעד, וכל מידע נוסף שיידרש, אם וככל שיידרש (להלן – \"נתוני הנסיעה\"). הנך        מתחייב כי כל המידע שתספק לאתר, לרבות נתוני הנסיעה, הינו נכון, מלא ועדכני. ידוע לך כי החברה מסתמכת על המידע        שתספק, לרבות נתוני הנסיעה, לצורך הזמנת המונית, תמחור השירותים, הערכת משך הנסיעה המשוער, זמינות המונית וביצוע        פעולות נוספות הנדרשות לצורך מתן השירותים. </p>    <p>ידוע לך כי בנוסף להסתמכות על נתוני הנסיעה לצורך תמחור השירותים, השירותים מתבססים על הנתונים הבאים: (א) הנסיעה היא        נסיעה ישירה ולא תבקש מספק שירותי ההיסעים או מי מטעמו לבצע עצירות ו/או לעמוד לרשותך מעבר לנסיעה כפי שיקבע על ידי        האתר ו/או הנהג (ב) הנסיעה מתבצעת ללא פריטי מטען יד, מזוודות או כל כבודה אחרת לנסיעה (להלן – \"נתוני הבסיס\"). ידוע        לך כל שינוי בנתוני הנסיעה ובנתונים הנוספים המפורטים בפסקה זו, יגרור שינוי במחיר אותו תישא בעצמך, ותשלמו ישירות        לנהג. </p>    <p>לאחר הזמנת המונית, לרבות במהלך הנסיעה במונית, לא תתאפשר נסיעה שלא לפי נתוני הנסיעה. תשומת לבך, כי במצב בו, לפי        בקשתך, המונית תבצע את הנסיעה שלא לפי נתוני הנסיעה ונתוני הבסיס תחויב בגין כל תשלום מעבר למחיר ששולם באתר, ישירות        לנהג המונית שנשלחה על ידי ספק שירותי ההיסעים, ולחברה לא תהיה כל אחריות בקשר עם אותה נסיעה או כל תשלום בעקבות        השינוי. בנוסף תחויב בכל הוצאה ו/או נזק לחברה בגין שינויים כאמור, לרבות תשלומים לספק שירותי ההיסעים או כל צד        שלישי אחר ולרבות ביצוע פעולות כלפי משתמשים אחרים של האתר.</p>    <p>        עליך להמתין למונית במקום האיסוף במועד האיסוף, כפי שהוזנו על ידך במועד הזמנת המונית, ולהמתין למונית במקום זה במשך        כעשר דקות ממועד האיסוף כאמור, ובמידה ולא תעשה כן, תחויב במחיר המלא אשר נמסר לך בעת ביצוע הזמנת המונית. היה        והמונית לא תופיע במקום האיסוף בפרק הזמן שבין מועד האיסוף כאמור ועשר הדקות שלאחר מועד האיסוף כאמור (להלן – \"איחור        חריג\"), תהיה רשאי לבטל את הנסיעה בהתאם להוראות המופיעות תחת תת-הפרק \"ביטול הזמנת מונית (ביטול עסקאות בכרטיס        אשראי)\".    </p>    <p>        החברה מאפשרת לבעלי חשבון משתמש להזמין נסיעות כמפורט בסעיף זה, לצורך נסיעה פרטית בודדת או לצורך מספר נסיעות. מרגע        בחירתך בשירות להזמנת מספר נסיעות הינך נותן את אישורך לחברה להזמין עבורך מוניות מספק שירותי היסעים כהגדרתו להלן        באמצעות הסכם בכתב עם ספק שירותי היסעים לתקופה שלא תפחת משנה אחת.    </p>    <div class=\"header\">התנאים המיוחדים החלים על נסיעה משותפת</div>    <p>בנוסף לנסיעה פרטית רגילה, החברה מציעה לבעלי חשבון משתמש אפשרות להזמין מונית דרך האתר, לצורך נסיעה משותפת, בשיתוף        נוסעים אחרים, לרבות משתמשים אחרים של האתר, בדומה להזמנת מונית בטלפון מתחנת מוניות (להלן – \"נסיעה משותפת\"). נסיעה        משותפת נועדה לאפשר לבעלי חשבון משתמש ליהנות מנסיעה במונית במחיר מוזל ביחס לנסיעה פרטית רגילה, ככל שהדבר        מתאפשר.</p>    <p>על נסיעה משותפת יחולו התנאים המפורטים תחת תת-כותרת \"התנאים המיוחדים החלים על נסיעה משותפת\" וזאת בנוסף לתנאי        השימוש ומבלי לגרוע מכלליות תנאי השימוש, אך לא יחולו על נסיעה משותפת התנאים המפורטים תחת תת-כותרת \"התנאים        המיוחדים החלים על נסיעה פרטית רגילה\".</p>    <p>בהזמנת מונית לטובת נסיעה משותפת הינך מאשר לנהג המונית לשתף נוסעים נוספים בנסיעה המשותפת, על כל המשתמע מכך, לרבות        מבלי לגרוע מכלליות האמור לעיל, העלאת והורדת נוסעים נוספים למונית, נסיעה בנתיב שאינו הנתיב הקצר ביותר בין מקום        האיסוף לנקודת היעד, ביצוע עצירות הנדרשות לצורך העלאת והורדת נוסעים נוספים והמתנה לנוסעים נוספים במקומות האיסוף        שהוזמנו על ידם. ידוע לך כי, בכפוף להוראות החוק החל, בהזמנת מונית לטובת נסיעה משותפת לא תהיה לך כל השפעה על נתיב        הנסיעה של המונית ועל כמות וזהות הנוסעים הנוספים במונית.</p>    <div class=\"header\">חשבונית וסטאטוס חשבון משתמש</div>    <p>מדי חודש, ביום שייקבע על ידי החברה, תישלח לכתובת הדואר האלקטרוני של בעל חשבון משתמש חשבונית בגין החודש שחלף,        המפרטת את כל השירותים אשר הוזמנו על ידי בעל חשבון המשתמש בחודש המדובר (להלן – \"חשבונית\"). בנוסף, בעל חשבון משתמש        יוכל בכל עת, בכפוף לאפשרות החברה לספק גישה לכך ובכפוף לתנאי השימוש, לצפות בפירוט הזמנת השירותים על ידו בחודש        שחלף באמצעות האתר.</p>    <div class=\"header\">ביטול הזמנת מונית (ביטול עסקאות בכרטיס אשראי)</div>    <p>        בכפוף להוראות החוק החל, לרבות הוראות חוק הגנת הצרכן – התשמ\"א 1981, אינך רשאי לבטל הזמנת מונית (ו/או לבטל עסקאות        בכרטיס האשראי) אלא בהתאם לתת-פרק \"ביטול הזמנות מונית (ביטול עסקאות בכרטיס אשראי)\" זה.    </p>    <p>מרגע הזמנת המונית ועד שעה לפני מועד האיסוף שהוזן על ידך כחלק מנתוני הנסיעה, תוכל לבטל את הזמנת המונית באמצעות        מנגנון הביטול הקיים באתר ולא תחויב בכל תשלום בגין הזמנת המונית ו/או ביטול הזמנת המונית כאמור. </p>    <p>החל משעה לפני מועד האיסוף שהוזן על ידך כחלק מנתוני הנסיעה, לא תהא רשאי לבטל את הזמנת המונית ובכל מקרה תחויב במחיר        המלא אשר נמסר לך בעת ביצוע הזמנת המונית, הכל בכפוף להוראות בדבר איחור חריג, כמפורט להלן.</p>    <p>במקרה של איחור חריג, תוכל לבטל את הזמנת המונית תוך 12 שעות ממועד האיסוף שהוזן על ידך כחלק מנתוני הנסיעה, ובמקרה        זה לא תחויב בגין הזמנת המונית ו/או ביטול הזמנת המונית כאמור. על אף האמור לעיל, במקרה בו ספק שירותי ההיסעים יטען        כי הוא, או נהג מטעמו, המתין במקום האיסוף במועד האיסוף או ברבע השעה שלאחר מועד האיסוף, תחויב במחיר המלא אשר נמסר        לך בעת ביצוע הזמנת המונית. במצב זה, תהיה רשאי לפנות ישירות לספק שירותי ההיסעים, להגיש תלונתך, ולפתור עמם את        המחלוקת בקשר עם הזמנת המונית והעמידה בתנאי נתוני הנסיעה שהוזנו. בכל מקרה, החברה לא תהיה אחראית כלפיך, כלפי ספק        שירותי ההיסעים, או כלפי כל צד שלישי, בקשר עם הסכום שנגבה בהתאם לפסקה זו.</p>    <div class=\"header\">חיוב בגין הזמנת המונית ושירותים אחרים</div>    <p>בעל חשבון אשר הזמין שירותים באמצעות האתר, לרבות הזמנת מונית, יחויב בסכום שצוין בעת הזמנת השירותים, בכפוף לאמור        בתנאי השימוש, לרבות עלות הנסיעה, סליקת מספר האשראי וההזמנה האלקטרונית. מועד החיוב ייקבע על פי החברה, לפי שיקול        דעתה הבלעדי. בנוסף, ידוע לך כי תישא בתשלומים נוספים, אם וככל שתידרש לכך על ידי החברה ו/או על ידי ספק שירותי        ההיסעים או מי מטעמם, בקשר עם נסיעה שתבוצע לבקשתך שלא לפי נתוני הנסיעה ונתוני הבסיס.    </p>    <div class=\"header\">קניין רוחני</div>    <p>ידוע לך כי האתר, הטכנולוגיה של האתר, האפליקציות והשירותים והמידע המוצג באתר ובאפליקציות (להלן – \"המידע מהאתר\"),        מכיל קניין רוחני, לרבות סימני מסחר, סודות מסחריים, תוכנות, אפליקציות, תמונות, מוסיקה, תכני וידאו, כתבות, סמלים,        טקסטים וגרפיקה (להלן – \"קניין רוחני\"), אשר הינם בבעלות החברה ו/או אשר ניתן לחברה רשות לעשות בהם שימוש. הינך        מתחייב בזאת שלא להפר את זכויות הקניין כאמור, ובכלל זה הינך מתחייב, בין היתר, שלא לפרסם את המידע מהאתר, להעתיקו,        לשכפלו, לפתחו, להתאימו, להציגו בפומבי, להציגו באמצעות טכנולוגיית framing, לסרוק אותו, לשתף אחרים בו, למוכרו,        להשכירו, לבצע לו הנדסה לאחור ו/או דה-קומפילציה, או לעשות בו כל מעשה אשר הינו על פי דין מעשה הדורש את אישור        הבעלים. כל זכויות הקניין והקניין הרוחני באתר, באפליקציות ובשירותים, הינם בבעלותה המלאה של החברה, או של ספקיה אשר        נתנו לה רשות לעשות בהם שימוש, לפי העניין. </p>    <div class=\"header\">הגבלת אחריות החברה</div>    <p>על אף כל האמור בתנאי השימוש, באתר או בכל הודעה או חומר פרסומי של החברה, החברה אינה חברת תחבורה ציבורית, היסעים או        מוניות, אינה בעלת רישיון להפעלת מוניות, אינה מעסיקה בעלי רישיון לנהיגה במוניות לטובת מתן השירותים, ואינה מספקת        שירותי תחבורה ציבורית מכל סוג שהוא או שירותי היסעים (כהגדרת מושג זה להלן). החברה מאפשרת לך להזמין מונית מספק אשר        הינו בעל רישיון להפעלת מוניות או אשר לו הסכמים עם בעלי רישיון להפעלת מוניות (להלן – \"ספק שירותי היסעים\"), אשר        הינו האחראי הבלעדי להגעת המונית שהוזמנה על ידך באמצעות האתר למקום האיסוף ובמועד שהוזן על ידך לאתר במועד הזמנת        המונית, לביצוע הנסיעה בבטחה, לפי כל דין, ובהתאם לנתונים שהוזנו על ידך לאתר במועד הזמנת המונית (להלן – \"שירותי        היסעים\"). החברה משמשת כמתווך בינך לבין ספק שירותי ההיסעים, ומאפשרת להזמין שירותי היסעים באמצעות האתר מספק שירותי        היסעים ולשלם עבורם באמצעות האתר, אך ידוע לך כי החברה אינה מעורבת, במישרין או בעקיפין, בעסקה אשר מתבצעת בפועל        בינך לבין ספק שירותי ההיסעים.</p>    <p>על אף כל האמור בתנאי השימוש, באתר או בכל הודעה או חומר פרסומי של החברה, החברה אינה, ולא תהיה אחראית: (א) לדיוק,        אמינות, נכונות או עדכניות המידע מהאתר והשירותים, ו/או לכל נזק ו/או הפסד ו/או איחור ו/או עגמת נפש ו/או כל נזק אחר        שיגרם לך בגין הסתמכות על המידע מהאתר ו/או השירותים, ו/או קישורים המופיעים באתר, ו/או פרסומות המופיעות באתר,        לרבות אובדן רווחים ישירים או עקיפים, אובדן חסכונות, או נזקים ישירים, אקראיים, מיוחדים או עקיפים, הנובעים מהשימוש        באתר ו/או בשירותים, או מאי-יכולת לעשות שימוש בהם; (ב) לכל שימוש, לרבות שימוש לרעה, שימוש שלא כדין, שימוש במרמה        או שימוש בלתי מורשה, הנעשה באמצעי התשלום שלך ו/או בחשבון המשתמש שלך; (ג) לשירותי ההיסעים, ביצועם ו/או איכותם;        (ד) למהלך הנסיעות, לרבות מעשיו ו/או מחדליו של ספק שירותי ההיסעים או מי מטעמו או יתר הנוסעים (בין אם הינם משתמשים        של האתר ובין אם אינם) ו/או לעמידה בלוחות זמנים בקשר עם הזמנת המונית ו/או עם הנסיעות; (ה) לתכנים ושירותים        המסופקים על ידי צדדים שלישיים הכלולים באתר ו/או בשירותים. </p>    <div class=\"header\">תנאים נוספים</div>    <p>        הינך מצהיר כי ידוע לך שהשימוש באתר ו/או בשירותים כרוך בקבלת שירותים של צדדים שלישיים. בין היתר ניתנים שירותים על        ידי חברת טלמפ בע\"מ (להלן – \"טלמפ\" ו\"שירות טלמפ\", בהתאמה) באיתור מיקומך ובהעברת נתוני המיקום לטלמפ ו/או צדדים        שלישיים אחרים הקשורים במתן השירותים וכן שירותים הניתנים על ידי חברת CloudMade Ltd. (להלן – \"CloudMade\" ו\"שירות        CloudMade\" בהתאמה) המעניקה את הפלטפורמה המציגה את מפת ישראל וכבישיה.        הינך מצהיר שידוע לך שכל הזכויות בשירותי טלמפ ו CloudMade (לרבות זכויות קניין רוחני) הינן בבעלות טלמפ ומרשיה, ו        CloudMadeומרשיה, בהתאמה ולפי העניין, וכי השימוש בשירותי טלמפ ו CloudMadeנעשה על-פי רישיון שניתן לחברות בהתאמה.    </p>    <p>        כמו כן ידוע לך כי מאגר המידע הגיאוגרפי של מדינת ישראל המוצג בשירות טלמפ (להלן – \"מאגר המידע\") הינו רכושה הבלעדי,        על כל הזכויות בו, של חברת מפה - מיפוי והוצאה לאור בע\"מ (להלן – \"מפה\"). מאגר המידע מיועד לשימושך הפרטי באמצעות        האתר והשירותים בלבד וכל העושה בו שימוש אחר, לרבות מעתיק, משכפל, משנה או מפיץ מאגר מידע זה או את הנתונים שבבסיסו        או כל חלק מהם, מסתכן בתביעות אזרחיות ופליליות ובעונשים כבדים עד למקסימום הקבוע בחוק. המידע והנתונים הכלולים        במאגר המידע מוגשים \"כמות שהם\" וללא אחריות כלשהי ולחברת מפה הרשות לערוך בהם תוספות או שינויים לפי שיקול דעתה בכל        עת והיא אינה מתחייבת לעדכן מידע ונתונים אלו.    </p>    <p>    בשל המורכבות הרבה של שירותי טלמפ וCloudMade, המתבססים על רשתות תקשורת ושימוש בתוכנות ומערכות ניווט לווייני, טלמפ    ו/או מרשיה, CloudMade ו/או מרשיה, החברה וכל הבאים מטעמם אינם מתחייבים כי שירות טלמפ ו/או CloudMade והמידע המוצג בהם    יהיו רציפים או חפים מטעויות, לרבות אי-התאמה למקום הימצאותו האמיתי של המשתמש ו/או לדרך ותנאיה ו/או ביחס לנקודות    העניין והמידע האחר המופיע בשירותי טלמפ ו/או CloudMade. הינך מודע לכך כי אין להסתמך על השירותים כאמצעי ניווט או מידע    יחיד. טלמפ, מרשיה, CloudMade, מרשיה, החברה וכל הבאים מטעמם, לא יישאו בכל אחריות בקשר עם השימוש בשירותי טלמפ ו/או    CloudMade והסתמכות המשתמש עליהם.    תכנים ושירותים המסופקים על ידי צדדים שלישיים הכלולים בשירות טלמפ הינם באחריותם של הספקים האמורים ומוגשים \"כמות שהם\".    טלמפ, מרשיה, החברה וכל הבאים מטעמם אינם אחראיים לתכנים והשירותים כאמור.</p>    <p>    בהצטרפות לשירות ו/או עשיית שימוש בו, אתה מצהיר ומסכים כי להתחייב ל תנאים שלעיל ובנוסף לתנאים הבאים: תנאי השימוש    המלאים של טלמפ, מפה וספקי תכנים ושירותים אחרים (לפי העניין) הניתנים לצפייה והורדה באתר טלמפ בכתובת האינטרנט    www.telmap.com/legal; תנאי הרישיון של CloudMade תחת רישיון ארגון Creative Commons, הניתנים לצפייה באתר CloudMade    בכתובת האינטרנט: http://creativecommons.org/licenses/by-sa/3.0/.</p>    <div class=\"header\">החוק החל (סמכות שיפוט)</div>    <p>החברה פועלת, ובכוונתה להמשיך לפעול, בהתאם לחוק החל לפי דיני מדינת ישראל (להלן – \"החוק החל\"). כל מחלוקת העולה        כתוצאה מהשימוש באתר ו/או השירותים, וכל שאלה של פרשנות הוראה מתנאי השימוש ו/או מדיניות הפרטיות, ידונו לפי החוק        הישראלי החל והסמכות הבלעדית לדיון כאמור תהיה לערכאה המוסמכת בתל-אביב. במקרה שהוראה מהוראות תנאי השימוש, או        יישומה        בהתאם לתנאי השימוש, הופך או מוצהר על ידי בית משפט מוסמך כבלתי חוקי, בטל או בלתי ניתן לאכיפה, יתרת תנאי השימוש        יישארו בתוקף מלא ואותה הוראה כאמור תפורש, תיושם ותהא תקפה ככל שהחוק מאפשר זאת, ובמידה המירבית שהחוק מאפשר זאת,        בהתאם לתוכן אותה הוראה. </p>"
+msgstr "    <div class=\"header\"></div>    <p>תנאי השימוש המפורטים להלן (להלן – \"תנאי השימוש\"), חלים על השימוש שלך באתר זה (www.waybetter.com) (להלן – \"האתר\")        המופעל על ידי חברת וויי בטר בע\"מ (להלן – \"החברה\") וכן על כל השירותים המוצעים באתר, לרבות באמצעות אפליקציה של        האתר (להלן – \"אפליקציות\") אשר נועדה לשימוש באמצעים טכנולוגיים (כהגדרת מושג זה להלן), שירותים אשר עשויים לכלול        בין היתר, לפי שיקול דעתה הבלעדי של החברה וככל שהדבר יתאפשר, הזמנת מונית (כהגדרת מושג זה להלן) לטובת נסיעה פרטית        רגילה ונסיעה משותפת (כהגדרת מושגים אלו להלן), קבלת פרטי מידע משוערים על נסיעות כאמור, תשלום עבור נסיעות כאמור        ועבור שירותים נוספים, צפייה בסטאטוס חשבון המשתמש (כהגדרת מושג זה להלן) אפשרות לדרג נסיעות וכיוצא בזה (להלן –        \"השירותים\"). תנאי השימוש מנוסחים בלשון זכר-יחיד מטעמי נוחות בלבד, וכל האמור בהם מתייחס, כמובן, גם לנקבה וגם        לרבים. </p>    <p>        <span class=\"important\">אנא קרא את תנאי השימוש בקפידה שכן הם מהווים הסכם מחייב בינך לבין החברה.</span>        כל שימוש באתר, לרבות ומבלי לגרוע מכלליות האמור, גלישה בדפי האתר השונים, צפייה במידע באתר, הורדת מידע מהאתר        והעלאת מידע לאתר, שימוש במידע המפורסם באתר, התקנת אפליקציות ו/או תוכנות המוצעות באתר והשימוש בהן, בקשה לקבלת        שירותים וקבלת שירותים כאמור, ותשלום עבור השירותים (להלן – \"השימוש באתר\"), הינו כפוף לתנאי השימוש. בשימושך באתר        הינך נותן את הסכמתך ואישורך כי קראת והבנת את תנאי השימוש ואת מדיניות הפרטיות של החברה המפורטת בקישור        <a class=\"wb_link\" href=\"/privacy\">מדיניות פרטיות</a>        (להלן – \"מדיניות הפרטיות\"), הנך מסכים לתנאי השימוש ולמדיניות הפרטיות, והנך מתחייב לפעול בהתאם להם ולקיימם        וכן לפעול לפי כל דין החל בקשר עם האתר ו/או השירותים בכל עת (להלן – \"הסכמת המשתמש\"). החברה רשאית, לפי שיקול דעתה        הבלעדי, למנוע ממך את השימוש באתר, כולו או חלקו, בכל דרך שהיא, לרבות באמצעים טכנולוגיים ומשפטיים. הפרה של תנאי        השימוש ו/או של מדיניות הפרטיות ו/או של הוראה מהוראות הדין החל בקשר עם האתר ו/או השירותים, מעבר להיותה עילה        למניעת גישה שלך לאתר ו/או לשירותים, עלולה לחשוף אותך לאחריות אזרחית ו/או פלילית.        <span class=\"important\">אם אינך מסכים לתנאי השימוש ולמדיניות הפרטיות, הימנע משימוש באתר ובשירותים.</span>    </p>    <div class=\"header\">שינויים בתנאי השימוש</div>    <p>החברה שומרת לעצמה את הזכות לשנות את תנאי השימוש ו/או מדיניות הפרטיות בכל עת. שינויים כאמור ייכנסו לתוקף מרגע        העלתם על ידי החברה לאתר. חלה עליך החובה להתעדכן בשינויים כאמור באופן סדיר, בטרם ביצוע כל שימוש באתר. השימוש באתר        בכל רגע נתון כמוהו כהסכמת המשתמש לתנאי השימוש ומדיניות הפרטיות, הנכונים לרגע השימוש באתר כאמור. </p>    <div class=\"header\">הצהרת המשתמש</div>    <p>בשימושך באתר הינך מצהיר שהינך רשאי לפי כל דין להתחייב לתנאי השימוש ולבצע שימוש באתר, לרבות הזמנת השירותים בתשלום. אם באזור השיפוט בו הינך נמצא ו/או לפי החוק החל עליך ישנה מגבלת גיל או מגבלה אחרת על השימוש באתר ו/או בשירותים המוצעים בו, הנך מצהיר כי הינך עומד בכל המגבלות כאמור (למען הסר ספק, הינך מצהיר בזאת כי גילך הוא מעל 18 שנים). מבלי לגרוע מכלליות האמור לעיל, כי אתה עושה שימוש באתר לצרכיך הפרטיים למטרות שאינן מסחריות, ולא לטובת כל אדם או גוף אחר, אלא אם ניתנה לך הרשאה בכתב מהחברה לעשות כן, ובכפוף לתנאי ההרשאה. ידוע לך כי החברה אינה מעניקה לך, ושימושך באתר ו/או בשירותים אינו מעניק לך, רישיון או זכויות כלשהן באתר ו/או בשירותים, או באתרים ושירותים הניתנים על ידי ספקים של החברה, לרבות מבלי לגרוע מכלליות האמור, ספקי שירותי היסעים, חברות סליקת כרטיסי אשראי, חברת טלמפ (כהגדרתה להלן) וחברת מפה (כהגדרתה להלן), למעט רישיון הניתן, ככל שניתן, באופן מפורש תחת תנאי שימוש אלו ובכפוף להם.</p>    <p>בנוסף, הינך מצהיר כי שימושך באתר ו/או בשירותים: (א) יעשה בהתאם לחוק, למטרות חוקיות, מוסריות ומורשות בלבד; (ב) לא        יעשה באופן העלול לגרום נזק, מטרד או אי נוחות לצדדים שלישיים; (ג) לא יפגע או יחבל באתר ו/או בשירותים; (ד) לא        יגרום להפרת זכותו של אדם ו/או גוף אחר, לרבות זכויות החברה; (ד) יעשה תוך מסירת פרטים, לרבות פרטי זיהוי ופרטי        אמצעי תשלום, נכונים ומדויקים; (ה) יעשה תוך שמירה על סודיות פרטי הזיהוי ופרטי חשבון המשתמש (כהגדרת מושג זה להלן)        הנמסרים לך באתר; (ו) ככל שנעשה באמצעי טכנולוגי, יעשה באמצעי טכנולוגי בו הינך רשאי להשתמש למטרת השימוש באתר ו/או        בשירותים; (ז) יעשה באופן שאינו משבש או מפריע למערכות מחשב ותקשורת כלשהן, לרבות האתר ושרתי החברה או מי מטעמה; (ח)        במידה ונעשה תוך שימוש באמצעי תשלום, יעשה באמצעי תשלום אשר הינך רשאי להשתמש בו על פי כל דין; (ט) יעשה מבלי להפעיל        יישום מחשב או אמצעי אחר, לרבות תוכנות אוטומטיות, Robots, Spiders או Crawlers, לשם חיפוש, סריקה, העתקה או אחזור        אוטומטי של מידע מהאתר (כהגדרת מושג זה להלן) וללא יצירת מאגר, אוסף או לקט של מידע מהאתר.</p>    <p>כמו כן, הינך מצהיר כי אתה מודע לכך שחלק מהשירותים המוצעים באתר הינם בתשלום, וככל שיוזמנו שירותים אלו באמצעות        חשבון המשתמש שלך, תחויב בהתאם למחירון החברה כפי שיימסר לך בעת ביצוע ההזמנה, הכל בהתאם ובכפוף לתנאי השימוש.</p>    <div class=\"header\">אפליקציות ותוכנות</div>    <p>במידה ומוצעות אפליקציות ו/או תוכנות לשימוש באתר או בשירותים המוצעים על ידי החברה באמצעים טכנולוגיים כגון טלפון        סלולארי, טאבלטים, וכד' (להלן – \"אמצעי טכנולוגי\"), הינך האחראי הבלעדי להורדת האפליקציה ו/או התוכנה כאמור לאמצעי        הטכנולוגי שברשותך. החברה אינה אחראית להתאמת האפליקציה ו/או התוכנה לאמצעי הטכנולוגי שברשותך, ואינה מתחייבת כי        תתאפשר לך גישה לאתר ו/או לשירותים המוצעים על ידי החברה, כולם או מקצתם, בכל עת. </p>    <p>תנאי השימוש יחולו גם על אפליקציות ועל השירותים הניתנים באמצעות אפליקציות, וכל התייחסות בתנאי השימוש לאתר        ולשירותים תחול על האפליקציות ועל השירותים המוצעים באפליקציות, בשינויים המחויבים. </p>    <div class=\"header\">נגישות לאתר ולשירותים</div>    <p>השימוש באתר ו/או בשירותים הינו באחריותך בלעדית. ידוע לך כי על מנת לבצע שימוש באתר ו/או בשירותים, כולם או מקצתם,        ייתכן ותצטרך להשתמש באמצעים ושירותים שונים, לרבות מחשבים, מכשירים סלולאריים, גישה לרשת האינטרנט, חיבור לרשת        סלולארית, וכד', והינך מסכים ומבין כי עליך להשיגם בעצמך וכי החברה אינה מספקת אמצעים ושירותים אלו. </p>    <p>ידוע לך כי האתר והשירותים מבוססים על טכנולוגיה וצדדים שלישיים ותלויים בהם, לרבות ספק שירותי ההיסעים, וכן בגורמים        נוספים אשר אינם בשליטת החברה (לרבות מבלי לגרוע מכלליות האמור, פקקי תנועה ועומסי תנועה, סגירות כבישים, כוח עליון,        ספק שירותי ההיסעים, וכד'). תיאורי השירותים, התכנים והמידע מהאתר מוגשים \"כמות שהם\" וללא אחריות כלשהי והחברה אינה        מתחייבת ואינה ערבה לכך כי תיאורי השירותים, התכנים והמידע מהאתר או כל מידע הנמסר לך בקשר עם אלו, הינם מדויקים,        אמינים, נכונים, מלאים, עדכניים או חפים משגיאות. כפועל יוצא מכך החברה אינה מתחייבת כי האתר ו/או השירותים יפעלו        באופן רציף וללא תקלות. בנוסף, מטבע השירותים, ייתכן והשירותים יהיו זמינים באזורים מסוימים בלבד, והחברה שומרת        לעצמה את הזכות לא לספק את השירותים באזורים מסוימים. למען הסר ספק, החברה אינה מתחייבת שהשירותים יהיו זמינים בכל        מקום ובכל עת. </p>    <p>החברה אינה מתחייבת להמשיך להפעיל את האתר ו/או לספק את השירותים גם בעתיד, והיא רשאית לפי שיקול דעתה הבלעדי, לחסום        את הגישה לאתר ו/או לשנות את האתר, כולו או מקצתו, ו/או להפסיק לספק ו/או לשנות את השירותים, כולם או מקצתם, לרבות        את תנאי השירותים (כולל בין היתר טיבם ומחירם), הכל בין אם לצמיתות או לפרק זמן אחר, לפי שיקול דעתה הבלעדי וללא        צורך במתן הודעה על כך.</p>    <div class=\"header\">חשבון משתמש</div>    <p>חלק מהשירותים המוצעים באתר מצריכים רישום מוקדם לאתר, וקבלת חשבון משתמש מהנהלת האתר, אליו ניתן להיכנס באמצעות שם        משתמש וסיסמה אישית (להלן – \"חשבון המשתמש\"). במהלך הרישום ויצירת חשבון המשתמש תתבקש להזין לאתר מידע, לרבות פרטים        מזהים, פרטי התקשרות ופרטי אמצעי תשלום. עם קבלת כל הפרטים הנדרשים בהתאם להוראות שיופיעו באתר, תשלח אליך לכתובת        הדואר האלקטרוני שהזנת במהלך פתיחת חשבון המשתמש, שם המשתמש והסיסמה האישית שנבחרו ואושרו על ידי החברה. הינך מתחייב        כי הפרטים אותם תזין הינם פרטים נכונים, מלאים ועדכניים, וכן הינך מתחייב לעדכן את האתר בכל שינוי בפרטים אלו, לרבות        שינוי בכתובת הדואר האלקטרוני, טלפון נייד ופרטי אמצעי התשלום בו בכוונתך לשלם עבור השירותים בהתאם לתנאי השימוש.        עליך לשמור את שם המשתמש והסיסמה שיסופקו לך בסודיות מוחלטת ולא לגלותם לאף אדם או גוף ובכל אופן אתה אחראי באופן        בלעדי ומלא, לשמור על סודיות הסיסמה וחשבון המשתמש שלך ועל כל פעילות אשר תתבצע תחת הסיסמה שלך או במסגרת חשבון        המשתמש שלך. </p>    <p>תשומת לבך כי אמצעי התשלום האחרון שסיפקת לאתר יחויב בגין שירותים שהוזמנו תוך שימוש בחשבון המשתמש שלך (זאת ללא צורך        בהזנה נוספת של פרטי אמצעי התשלום וללא צורך בזיהוי נוסף). כל הודעה שתשלח לכתובת הדואר האלקטרוני שהזנת במהלך פתיחת        חשבון המשתמש תיחשב כאילו נתקבלה ברגע המשלוח. </p>    <p>ידוע לך כי, בכפוף לחוק החל ובהתאם למדיניות הפרטיות, החברה תשלח לך מעת לעת, לפי שיקול דעתה הבלעדי של החברה, מידע        בדבר פעילותך באתר, לרבות הזמנת שירותים (ואישורי הזמנת שירותים), ומידע הקשור בחברה, בספקים של החברה (לרבות ספקי        שירותי היסעים וחברות סליקת כרטיסי אשראי), ובצדדים שלישיים. בשימוש באתר הינך נותן הסכמתך לקבלת מידע כאמור        מהחברה. </p>    <div class=\"header\">תנאים כלליים להזמנת מונית דרך האתר</div>    <p>החברה מציעה לבעלי חשבון משתמש אפשרות להזמין מונית מספק שירותי ההיסעים (כהגדרת מושג זה להלן) לצורך נסיעה פרטית        רגילה ולצורך נסיעה משותפת (כהגדרת מושגים אלו להלן, וביחד \"הנסיעות\"). בעת הזמנת המונית עליך לפעול במדויק לפי        ההוראות שיופיעו בעת ביצוע הזמנת המונית (להלן – \"הזמנת המונית\"). </p>    <p>בעת הזמנת המונית, הינך מתחייב כי תספק את המידע הנדרש לפי הוראות האתר, לרבות נקודת האיסוף, מועד האיסוף או ההגעה        המבוקשים, , כמות הנוסעים לנסיעה, , נקודת היעד, וכל מידע נוסף שיידרש, אם וככל שיידרש (להלן – \"נתוני הנסיעה\"). הנך        מתחייב כי כל המידע שתספק לאתר, לרבות נתוני הנסיעה, הינו נכון, מלא ועדכני. ידוע לך כי החברה מסתמכת על המידע        שתספק, לרבות נתוני הנסיעה, לצורך הזמנת המונית, תמחור השירותים, הערכת משך הנסיעה המשוער, זמינות המונית וביצוע        פעולות נוספות הנדרשות לצורך מתן השירותים. </p>    <p>ידוע לך כי בנוסף להסתמכות על נתוני הנסיעה לצורך תמחור השירותים, השירותים מתבססים על הנתונים הבאים: (א) הנסיעה היא        נסיעה ישירה ולא תבקש מספק שירותי ההיסעים או מי מטעמו לבצע עצירות ו/או לעמוד לרשותך מעבר לנסיעה כפי שיקבע על ידי        האתר ו/או הנהג (ב) הנסיעה מתבצעת ללא פריטי מטען יד, מזוודות או כל כבודה אחרת לנסיעה (להלן – \"נתוני הבסיס\"). ידוע        לך כל שינוי בנתוני הנסיעה ובנתונים הנוספים המפורטים בפסקה זו, יגרור שינוי במחיר אותו תישא בעצמך, ותשלמו ישירות        לנהג. </p>    <p>לאחר הזמנת המונית, לרבות במהלך הנסיעה במונית, לא תתאפשר נסיעה שלא לפי נתוני הנסיעה. תשומת לבך, כי במצב בו, לפי        בקשתך, המונית תבצע את הנסיעה שלא לפי נתוני הנסיעה ונתוני הבסיס תחויב בגין כל תשלום מעבר למחיר ששולם באתר, ישירות        לנהג המונית שנשלחה על ידי ספק שירותי ההיסעים, ולחברה לא תהיה כל אחריות בקשר עם אותה נסיעה או כל תשלום בעקבות        השינוי. בנוסף תחויב בכל הוצאה ו/או נזק לחברה בגין שינויים כאמור, לרבות תשלומים לספק שירותי ההיסעים או כל צד        שלישי אחר ולרבות ביצוע פעולות כלפי משתמשים אחרים של האתר.</p>    <p>עליך להמתין למונית במקום האיסוף במועד האיסוף, כפי שהוזנו על ידך במועד הזמנת המונית, ולהמתין למונית במקום זה במשך        כעשר דקות ממועד האיסוף כאמור, ובמידה ולא תעשה כן, תחויב במחיר המלא אשר נמסר לך בעת ביצוע הזמנת המונית. היה        והמונית לא תופיע במקום האיסוף בפרק הזמן שבין מועד האיסוף כאמור ועשר הדקות שלאחר מועד האיסוף כאמור (להלן – \"איחור        חריג\"), תהיה רשאי לבטל את הנסיעה בהתאם להוראות המופיעות תחת תת-הפרק \"ביטול הזמנת מונית (ביטול עסקאות בכרטיס אשראי)\".</p><p>החברה מאפשרת לבעלי חשבון משתמש להזמין נסיעות כמפורט בסעיף זה, לצורך נסיעה פרטית בודדת או לצורך מספר נסיעות. מרגע בחירתך בשירות להזמנת מספר נסיעות הינך נותן את אישורך לחברה להזמין עבורך מוניות מספק שירותי היסעים כהגדרתו להלן באמצעות הסכם בכתב עם ספק שירותי היסעים לתקופה שלא תפחת משנה אחת.</p>    <div class=\"header\">אופן חישוב זמנים ומחיר מקורי לנסיעה</div><p>על מנת להעריך ולחשב את מחיר הנסיעה הפרטית ואת זמני הנסיעות, אנו משתמשים בחישוב מסלולים המתקבלים מספק שירותי המיפוי, חברת טלמפ בע\"מ. את המסלולים המתקבלים אנו מכפילים בנתוני מרחק וזמן (לפי תקן מוני מוניות משרד התחבורה) ומציגים את התוצאה המתקבלת. מכיוון שקיים פער בין החישוב הווירטואלי לבין המציאות ייתכנו אי דיוקים במחיר הנסיעה הפרטית ובזמנים המוצגים.</p>    <div class=\"header\">התנאים המיוחדים החלים על נסיעה משותפת</div>    <p>בנוסף לנסיעה פרטית רגילה, החברה מציעה לבעלי חשבון משתמש אפשרות להזמין מונית דרך האתר, לצורך נסיעה משותפת, בשיתוף        נוסעים אחרים, לרבות משתמשים אחרים של האתר, בדומה להזמנת מונית בטלפון מתחנת מוניות (להלן – \"נסיעה משותפת\"). נסיעה        משותפת נועדה לאפשר לבעלי חשבון משתמש ליהנות מנסיעה במונית במחיר מוזל ביחס לנסיעה פרטית רגילה, ככל שהדבר        מתאפשר.</p>    <p>על נסיעה משותפת יחולו התנאים המפורטים תחת תת-כותרת \"התנאים המיוחדים החלים על נסיעה משותפת\" וזאת בנוסף לתנאי        השימוש ומבלי לגרוע מכלליות תנאי השימוש, אך לא יחולו על נסיעה משותפת התנאים המפורטים תחת תת-כותרת \"התנאים        המיוחדים החלים על נסיעה פרטית רגילה\".</p>    <p>בהזמנת מונית לטובת נסיעה משותפת הינך מאשר לנהג המונית לשתף נוסעים נוספים בנסיעה המשותפת, על כל המשתמע מכך, לרבות        מבלי לגרוע מכלליות האמור לעיל, העלאת והורדת נוסעים נוספים למונית, נסיעה בנתיב שאינו הנתיב הקצר ביותר בין מקום        האיסוף לנקודת היעד, ביצוע עצירות הנדרשות לצורך העלאת והורדת נוסעים נוספים והמתנה לנוסעים נוספים במקומות האיסוף        שהוזמנו על ידם. ידוע לך כי, בכפוף להוראות החוק החל, בהזמנת מונית לטובת נסיעה משותפת לא תהיה לך כל השפעה על נתיב        הנסיעה של המונית ועל כמות וזהות הנוסעים הנוספים במונית.</p>    <div class=\"header\">חשבונית וסטאטוס חשבון משתמש</div>    <p>מדי חודש, ביום שייקבע על ידי החברה, תישלח לכתובת הדואר האלקטרוני של בעל חשבון משתמש חשבונית בגין החודש שחלף,        המפרטת את כל השירותים אשר הוזמנו על ידי בעל חשבון המשתמש בחודש המדובר (להלן – \"חשבונית\"). בנוסף, בעל חשבון משתמש        יוכל בכל עת, בכפוף לאפשרות החברה לספק גישה לכך ובכפוף לתנאי השימוש, לצפות בפירוט הזמנת השירותים על ידו בחודש        שחלף באמצעות האתר.</p>    <div class=\"header\">ביטול הזמנת מונית (ביטול עסקאות בכרטיס אשראי)</div><p>בכפוף להוראות החוק החל, לרבות הוראות חוק הגנת הצרכן – התשמ\"א 1981, אינך רשאי לבטל הזמנת מונית (ו/או לבטל עסקאות בכרטיס האשראי) אלא בהתאם לתת-פרק \"ביטול הזמנות מונית (ביטול עסקאות בכרטיס אשראי)\" זה.</p>    <p>מרגע הזמנת המונית ועד שעה לפני מועד האיסוף שהוזן על ידך כחלק מנתוני הנסיעה, תוכל לבטל את הזמנת המונית באמצעות        מנגנון הביטול הקיים באתר ולא תחויב בכל תשלום בגין הזמנת המונית ו/או ביטול הזמנת המונית כאמור. </p>    <p>החל משעה לפני מועד האיסוף שהוזן על ידך כחלק מנתוני הנסיעה, לא תהא רשאי לבטל את הזמנת המונית ובכל מקרה תחויב במחיר        המלא אשר נמסר לך בעת ביצוע הזמנת המונית, הכל בכפוף להוראות בדבר איחור חריג, כמפורט להלן.</p>    <p>במקרה של איחור חריג, תוכל לבטל את הזמנת המונית תוך 12 שעות ממועד האיסוף שהוזן על ידך כחלק מנתוני הנסיעה, ובמקרה        זה לא תחויב בגין הזמנת המונית ו/או ביטול הזמנת המונית כאמור. על אף האמור לעיל, במקרה בו ספק שירותי ההיסעים יטען        כי הוא, או נהג מטעמו, המתין במקום האיסוף במועד האיסוף או ברבע השעה שלאחר מועד האיסוף, תחויב במחיר המלא אשר נמסר        לך בעת ביצוע הזמנת המונית. במצב זה, תהיה רשאי לפנות ישירות לספק שירותי ההיסעים, להגיש תלונתך, ולפתור עמם את        המחלוקת בקשר עם הזמנת המונית והעמידה בתנאי נתוני הנסיעה שהוזנו. בכל מקרה, החברה לא תהיה אחראית כלפיך, כלפי ספק        שירותי ההיסעים, או כלפי כל צד שלישי, בקשר עם הסכום שנגבה בהתאם לפסקה זו.</p>    <div class=\"header\">חיוב בגין הזמנת המונית ושירותים אחרים</div>    <p>בעל חשבון אשר הזמין שירותים באמצעות האתר, לרבות הזמנת מונית, יחויב בסכום שצוין בעת הזמנת השירותים, בכפוף לאמור בתנאי השימוש, לרבות עלות הנסיעה, סליקת מספר האשראי וההזמנה האלקטרונית. מועד החיוב ייקבע על פי החברה, לפי שיקול דעתה הבלעדי. בנוסף, ידוע לך כי תישא בתשלומים נוספים, אם וככל שתידרש לכך על ידי החברה ו/או על ידי ספק שירותי ההיסעים או מי מטעמם, בקשר עם נסיעה שתבוצע לבקשתך שלא לפי נתוני הנסיעה ונתוני הבסיס.</p><p>בנוסף מאפשרת החברה לבעלי חשבון משתמש לשלם באמצעות עסקת קרדיט בתשלומים, דהיינו בקשת וקבלת אשראי מהבנק לצורך תשלום בכמה פעימות בגין ההזמנה (להלן – \"עסקת קרדיט\"). בבחירה בהזמנת שירות באמצעות עסקת קרדיט, הינך מצהיר בזאת כי ידוע לך כי עסקת קרדיט נושאת ריבית כקבוע בין מחזיק כרטיס האשראי לבין חברת כרטיסי האשראי ו/או הבנק וכי אתה מתחייב לשלם ומתיר לחברה לגבות כל תשלום נלווה, לרבות ריבית כאמור, בקשר עם הזמנת השירותים על ידי חברת האשראי ו/או הבנק.</p><p>הינך מודע כי במידה ולא תימצא במקום האיסוף במועד האיסוף אשר הוזן על ידך במועד הזמנת המונית, תחויב במחיר המלא אשר נמסר לך בעת ביצוע הזמנת המונית.</p>    <div class=\"header\">קניין רוחני</div>    <p>ידוע לך כי האתר, הטכנולוגיה של האתר, האפליקציות והשירותים והמידע המוצג באתר ובאפליקציות (להלן – \"המידע מהאתר\"),        מכיל קניין רוחני, לרבות סימני מסחר, סודות מסחריים, תוכנות, אפליקציות, תמונות, מוסיקה, תכני וידאו, כתבות, סמלים,        טקסטים וגרפיקה (להלן – \"קניין רוחני\"), אשר הינם בבעלות החברה ו/או אשר ניתן לחברה רשות לעשות בהם שימוש. הינך        מתחייב בזאת שלא להפר את זכויות הקניין כאמור, ובכלל זה הינך מתחייב, בין היתר, שלא לפרסם את המידע מהאתר, להעתיקו,        לשכפלו, לפתחו, להתאימו, להציגו בפומבי, להציגו באמצעות טכנולוגיית framing, לסרוק אותו, לשתף אחרים בו, למוכרו,        להשכירו, לבצע לו הנדסה לאחור ו/או דה-קומפילציה, או לעשות בו כל מעשה אשר הינו על פי דין מעשה הדורש את אישור        הבעלים. כל זכויות הקניין והקניין הרוחני באתר, באפליקציות ובשירותים, הינם בבעלותה המלאה של החברה, או של ספקיה אשר        נתנו לה רשות לעשות בהם שימוש, לפי העניין. </p>    <div class=\"header\">הגבלת אחריות החברה</div>    <p>על אף כל האמור בתנאי השימוש, באתר או בכל הודעה או חומר פרסומי של החברה, החברה אינה חברת תחבורה ציבורית, היסעים או        מוניות, אינה בעלת רישיון להפעלת מוניות, אינה מעסיקה בעלי רישיון לנהיגה במוניות לטובת מתן השירותים, ואינה מספקת        שירותי תחבורה ציבורית מכל סוג שהוא או שירותי היסעים (כהגדרת מושג זה להלן). החברה מאפשרת לך להזמין מונית מספק אשר        הינו בעל רישיון להפעלת מוניות או אשר לו הסכמים עם בעלי רישיון להפעלת מוניות (להלן – \"ספק שירותי היסעים\"), אשר        הינו האחראי הבלעדי להגעת המונית שהוזמנה על ידך באמצעות האתר למקום האיסוף ובמועד שהוזן על ידך לאתר במועד הזמנת        המונית, לביצוע הנסיעה בבטחה, לפי כל דין, ובהתאם לנתונים שהוזנו על ידך לאתר במועד הזמנת המונית (להלן – \"שירותי        היסעים\"). החברה משמשת כמתווך בינך לבין ספק שירותי ההיסעים, ומאפשרת להזמין שירותי היסעים באמצעות האתר מספק שירותי        היסעים ולשלם עבורם באמצעות האתר, אך ידוע לך כי החברה אינה מעורבת, במישרין או בעקיפין, בעסקה אשר מתבצעת בפועל        בינך לבין ספק שירותי ההיסעים.</p>    <p>על אף כל האמור בתנאי השימוש, באתר או בכל הודעה או חומר פרסומי של החברה, החברה אינה, ולא תהיה אחראית: (א) לדיוק,        אמינות, נכונות או עדכניות המידע מהאתר והשירותים, ו/או לכל נזק ו/או הפסד ו/או איחור ו/או עגמת נפש ו/או כל נזק אחר        שיגרם לך בגין הסתמכות על המידע מהאתר ו/או השירותים, ו/או קישורים המופיעים באתר, ו/או פרסומות המופיעות באתר,        לרבות אובדן רווחים ישירים או עקיפים, אובדן חסכונות, או נזקים ישירים, אקראיים, מיוחדים או עקיפים, הנובעים מהשימוש        באתר ו/או בשירותים, או מאי-יכולת לעשות שימוש בהם וכן לרבות אי דיוק בזמנים המוצגים באתר; (ב) לכל שימוש, לרבות שימוש לרעה, שימוש שלא כדין, שימוש במרמה        או שימוש בלתי מורשה, הנעשה באמצעי התשלום שלך ו/או בחשבון המשתמש שלך; (ג) לשירותי ההיסעים, ביצועם ו/או איכותם;        (ד) למהלך הנסיעות, לרבות מעשיו ו/או מחדליו של ספק שירותי ההיסעים או מי מטעמו או יתר הנוסעים (בין אם הינם משתמשים        של האתר ובין אם אינם) ו/או לעמידה בלוחות זמנים בקשר עם הזמנת המונית ו/או עם הנסיעות; (ה) לתכנים ושירותים        המסופקים על ידי צדדים שלישיים הכלולים באתר ו/או בשירותים. </p>    <div class=\"header\">תנאים נוספים</div><p>  הינך מצהיר כי ידוע לך שהשימוש באתר ו/או בשירותים כרוך בקבלת שירותים של צדדים שלישיים. בין היתר ניתנים שירותים על ידי חברת טלמפ בע\"מ (להלן – \"טלמפ\" ו\"שירות טלמפ\", בהתאמה) באיתור מיקומך ובהעברת נתוני המיקום לטלמפ ו/או צדדים שלישיים אחרים הקשורים במתן השירותים וכן שירותים הניתנים על ידי חברת CloudMade Ltd. (להלן – \"CloudMade\" ו\"שירות CloudMade\" בהתאמה) המעניקה את הפלטפורמה המציגה את מפת ישראל וכבישיה.הינך מצהיר שידוע לך שכל הזכויות בשירותי טלמפ ו CloudMade (לרבות זכויות קניין רוחני) הינן בבעלות טלמפ ומרשיה, ו CloudMadeומרשיה, בהתאמה ולפי העניין, וכי השימוש בשירותי טלמפ ו CloudMadeנעשה על-פי רישיון שניתן לחברות בהתאמה.</p><p>כמו כן ידוע לך כי מאגר המידע הגיאוגרפי של מדינת ישראל המוצג בשירות טלמפ (להלן – \"מאגר המידע\") הינו רכושה הבלעדי, על כל הזכויות בו, של חברת מפה - מיפוי והוצאה לאור בע\"מ (להלן – \"מפה\"). מאגר המידע מיועד לשימושך הפרטי באמצעות האתר והשירותים בלבד וכל העושה בו שימוש אחר, לרבות מעתיק, משכפל, משנה או מפיץ מאגר מידע זה או את הנתונים שבבסיסו או כל חלק מהם, מסתכן בתביעות אזרחיות ופליליות ובעונשים כבדים עד למקסימום הקבוע בחוק. המידע והנתונים הכלולים במאגר המידע מוגשים \"כמות שהם\" וללא אחריות כלשהי ולחברת מפה הרשות לערוך בהם תוספות או שינויים לפי שיקול דעתה בכל עת והיא אינה מתחייבת לעדכן מידע ונתונים אלו.</p><p>בשל המורכבות הרבה של שירותי טלמפ וCloudMade, המתבססים על רשתות תקשורת ושימוש בתוכנות ומערכות ניווט לווייני, טלמפ ו/או מרשיה, CloudMade ו/או מרשיה, החברה וכל הבאים מטעמם אינם מתחייבים כי שירות טלמפ ו/או CloudMade והמידע המוצג בהם יהיו רציפים או חפים מטעויות, לרבות אי-התאמה למקום הימצאותו האמיתי של המשתמש ו/או לדרך ותנאיה ו/או ביחס לנקודות העניין והמידע האחר המופיע בשירותי טלמפ ו/או CloudMade. הינך מודע לכך כי אין להסתמך על השירותים כאמצעי ניווט או מידע יחיד. טלמפ, מרשיה, CloudMade, מרשיה, החברה וכל הבאים מטעמם, לא יישאו בכל אחריות בקשר עם השימוש בשירותי טלמפ ו/או CloudMade והסתמכות המשתמש עליהם.תכנים ושירותים המסופקים על ידי צדדים שלישיים הכלולים בשירות טלמפ הינם באחריותם של הספקים האמורים ומוגשים \"כמות שהם\". טלמפ, מרשיה, החברה וכל הבאים מטעמם אינם אחראיים לתכנים והשירותים כאמור.   </p><p>בהצטרפות לשירות ו/או עשיית שימוש בו, אתה מצהיר ומסכים כי להתחייב ל תנאים שלעיל ובנוסף לתנאים הבאים: תנאי השימוש המלאים של טלמפ, מפה וספקי תכנים ושירותים אחרים (לפי העניין) הניתנים לצפייה והורדה באתר טלמפ בכתובת האינטרנט  www.telmap.com/legal; תנאי הרישיון של CloudMade תחת רישיון ארגון Creative Commons, הניתנים לצפייה באתר CloudMade בכתובת האינטרנט: http://creativecommons.org/licenses/by-sa/3.0.</p>    <div class=\"header\">החוק החל (סמכות שיפוט)</div>    <p>החברה פועלת, ובכוונתה להמשיך לפעול, בהתאם לחוק החל לפי דיני מדינת ישראל (להלן – \"החוק החל\"). כל מחלוקת העולה        כתוצאה מהשימוש באתר ו/או השירותים, וכל שאלה של פרשנות הוראה מתנאי השימוש ו/או מדיניות הפרטיות, ידונו לפי החוק הישראלי החל והסמכות הבלעדית לדיון כאמור תהיה לערכאה המוסמכת בתל-אביב. במקרה שהוראה מהוראות תנאי השימוש, או יישומה        בהתאם לתנאי השימוש, הופך או מוצהר על ידי בית משפט מוסמך כבלתי חוקי, בטל או בלתי ניתן לאכיפה, יתרת תנאי השימוש        יישארו בתוקף מלא ואותה הוראה כאמור תפורש, תיושם ותהא תקפה ככל שהחוק מאפשר זאת, ובמידה המירבית שהחוק מאפשר זאת,        בהתאם לתוכן אותה הוראה. </p>"
 
 #: sharing/templates/the_service.html:8
 msgid "the_service_content"
@@ -4320,27 +4338,27 @@ msgstr "הצע נקודה מרכזית"
 msgid "Please choose from list"
 msgstr "בבקשה בחר מהרשימה"
 
-#: sharing/templates/wb_home.html:773
+#: sharing/templates/wb_home.html:764
 msgid "Where are you going"
 msgstr "לאן אתה נוסע"
 
-#: sharing/templates/wb_home.html:773
+#: sharing/templates/wb_home.html:764
 msgid "Where are you coming from"
 msgstr "מהיכן אתה מגיע"
 
-#: sharing/templates/wb_home.html:885
+#: sharing/templates/wb_home.html:876
 msgid "Define Time"
 msgstr "הגדר זמן"
 
-#: sharing/templates/wb_home.html:889
+#: sharing/templates/wb_home.html:880
 msgid "Pickup Time from "
 msgstr "שעת יציאה מ"
 
-#: sharing/templates/wb_home.html:893
+#: sharing/templates/wb_home.html:884
 msgid "Dropoff Time at "
 msgstr "שעת הגעה ל"
 
-#: sharing/templates/wb_home.html:894
+#: sharing/templates/wb_home.html:885
 #: sharing/templates/wb_home_tooltips.html:402
 msgid "_dropoffat"
 msgstr "הגעה ליעד ב"
@@ -4529,6 +4547,7 @@ msgstr "עוד"
 
 #: sharing/templates/mobile/login.html:7
 #: sharing/templates/mobile/wb_home.html:820
+#: templates/registration/login.html:104
 msgid "Login To Your Account"
 msgstr "הכנס לחשבונך"
 
@@ -4541,6 +4560,7 @@ msgid "New Member"
 msgstr "חבר חדש"
 
 #: sharing/templates/mobile/login.html:38
+#: templates/registration/login.html:158
 msgid "Join Now"
 msgstr "הצטרף עכשיו"
 
@@ -4804,7 +4824,7 @@ msgid_plural "Please correct the errors below."
 msgstr[0] "נא לתקן את השגיאה המסומנת"
 msgstr[1] "נא לתקן את השגיאות המסומנות"
 
-#: templates/mobile/base.html:76
+#: templates/mobile/base.html:77
 msgid "Verification"
 msgstr "אימות טלפון"
 
@@ -4817,13 +4837,17 @@ msgstr "החשבון הופעל בהצלחה"
 msgid "Account activation failed"
 msgstr "הפעלת חשבון נכשלה"
 
-#: templates/registration/login.html:32
-msgid "Log-in To Your Account"
-msgstr "כניסה לחשבונך"
+#: templates/registration/login.html:102
+msgid "Login to Complete Your Order"
+msgstr "הכנס כדי להשלים הזמנתך"
 
-#: templates/registration/login.html:36
+#: templates/registration/login.html:109
 msgid "New to WAYbetter?"
 msgstr "פעם ראשונה?"
+
+#: templates/registration/login.html:157
+msgid "Not a WAYbetter member"
+msgstr "אינך חבר בWAYbetter"
 
 #: templates/registration/login_reg.html:12
 msgid "Forgot password"
@@ -4874,14 +4898,21 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
 
-#~ msgid "Help"
-#~ msgstr "עזרה"
+#~ msgid "Verification code: %s Thank you for registering."
+#~ msgstr ""
+#~ "קוד אימות:\n"
+#~ " %s\n"
+#~ " אנו מודים לך על הצטרפותך לשירות."
 
-#~ msgid "instead of"
-#~ msgstr "במקום"
+#, fuzzy
+#~ msgid "Didn't get the code"
+#~ msgstr " קוד ה-SMS שקיבלת"
 
 #~ msgid "2010 WAYbetter"
 #~ msgstr "2010-2011 <span class=waybetter></span>"
+
+#~ msgid "Log-in To Your Account"
+#~ msgstr "כניסה לחשבונך"
 
 #~ msgid ""
 #~ "Pick Me App for Businesses, with instant feedback and no phone calls "
@@ -4892,6 +4923,9 @@ msgstr "שגיאה בבודק האיות"
 
 #~ msgid "optional"
 #~ msgstr "לא חובה"
+
+#~ msgid "Login with Facebook"
+#~ msgstr "Login with Facebook"
 
 #~ msgid "We are currently running a private alpha"
 #~ msgstr "אנחנו מפעילים כרגע גרסת Alpha פרטית"
@@ -5268,6 +5302,9 @@ msgstr "שגיאה בבודק האיות"
 #~ msgid "Share on Facebook"
 #~ msgstr "שתף בפייסבוק"
 
+#~ msgid "Help"
+#~ msgstr "עזרה"
+
 #, fuzzy
 #~ msgid "One Seat"
 #~ msgstr "מושב"
@@ -5289,9 +5326,6 @@ msgstr "שגיאה בבודק האיות"
 
 #~ msgid "All rights reserved to WAYbetter"
 #~ msgstr "כל הזכויות שמורות לWAYbetter"
-
-#~ msgid "Phone Verification"
-#~ msgstr "אימות טלפון"
 
 #~ msgid "Hotspots are areas where WAYbetter offers cheap taxis"
 #~ msgstr "'הוט-ספוט' היא נקודה בעיר אשר ניתן לנסוע אליה וממנה ב-WAYbetter."
@@ -5425,9 +5459,6 @@ msgstr "שגיאה בבודק האיות"
 #~ msgid "Contact"
 #~ msgstr "צור קשר"
 
-#~ msgid "Information"
-#~ msgstr "מידע"
-
 #~ msgid "Date and Time"
 #~ msgstr "תאריך ושעה"
 
@@ -5560,10 +5591,6 @@ msgstr "שגיאה בבודק האיות"
 
 #~ msgid "Assign Ride"
 #~ msgstr "תיאום נסיעה"
-
-#, fuzzy
-#~ msgid "Verification Code"
-#~ msgstr "שלח קוד אימות"
 
 #, fuzzy
 #~ msgid "Order WAYbetter Ride"

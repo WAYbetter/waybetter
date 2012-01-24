@@ -4,7 +4,7 @@ from google.appengine.api.taskqueue import taskqueue, DuplicateTaskNameError, Ta
 from google.appengine.api.urlfetch import fetch
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
-from django.http import  HttpResponseRedirect, HttpRequest
+from django.http import  HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
@@ -12,6 +12,7 @@ from billing.billing_manager import get_token_url
 from common.util import has_related_objects, url_with_querystring, get_unique_id
 from common.decorators import catch_view_exceptions, internal_task_on_queue
 from common.util import notify_by_email
+from common.db_tools import merge_passenger
 from common.route import calculate_time_and_distance
 from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation
 import logging
@@ -160,6 +161,22 @@ def update_shared_rides():
         logging.info("stops: %s" % sr.stops)
 
 # maintenance methods
+def create_passenger_dup_phones():
+    phones_counter = {}
+    for p in Passenger.objects.all():
+        phone = p.phone
+        if phone in phones_counter:
+            phones_counter[phone] += 1
+        else:
+            phones_counter[phone] = 1
+
+    dup_phones = []
+    for phone, val in phones_counter.iteritems():
+        if val > 1:
+            dup_phones.append(phone)
+
+    notify_by_email("Dup phones list", str(dup_phones))
+
 def fix_driver_taxi():
     for relation in TaxiDriverRelation.objects.all():
         try:

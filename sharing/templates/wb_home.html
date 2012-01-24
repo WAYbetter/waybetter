@@ -372,11 +372,11 @@
         BookingHelper.ride_date = undefined;
         BookingHelper.ride_time = undefined;
         BookingHelper.hotspot = hotspot;
-        var hs_name = (hotspot.name || "{% trans "Hotspot" %}");
+        var hs_name = (hotspot) ? hotspot.name : "{% trans "Hotspot" %}";
         $("#leave_hotspot").text("{% trans "Leave " %}" + hs_name + " >>");
         $("#goto_hotspot").text("{% trans "Goto " %}" + hs_name + " >>");
 
-        if (BookingHelper.hotspot_type) {
+        if (BookingHelper.hotspot && BookingHelper.hotspot_type) {
             HotspotHelper.refreshHotspotMarker(BookingHelper.hotspot_type);
         }
         if (BookingHelper.hotspot) { // log Google Analytics event
@@ -720,15 +720,6 @@
                     }
                 }
         );
-
-        Registrator.init({
-            urls            : {
-                feedback_form_template: '{% url common.registration.feedback %}',
-                pilot_interest_form_template: '{% url interests.views.pilot_interest %}',
-                hotspot_interest_form_template: '{% url interests.views.hotspot_interest %}',
-                error_form_template: '{% url common.views.error_dialog %}'
-            }
-        });
 
         // init
         $(".small-loader").hide();
