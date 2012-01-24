@@ -41,6 +41,8 @@
 {% block header_links %}{% endblock %}
 {% block top_left %}
     <% if (lang.equals("HE")) { %>
+    <div id="wb_lock"></div>
+    דף תשלום מאובטח
     <% } else { %>
     Secured Payment Page
     <div id="wb_lock"></div>
@@ -158,8 +160,8 @@
                 </td>
             </tr>
         </table>
-        <table>
-            <tr id="submit_row">
+        <table id="submit">
+            <tr>
                 <td id="disclaimer">
                     <span class="bold">
                         <% if (lang.equals("HE")) { %>
