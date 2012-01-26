@@ -4,6 +4,10 @@ from oauth2.models import FacebookSession
 from ordering.util import create_user
 
 class FacebookBackend:
+    supports_inactive_user = False
+    supports_object_permissions = False
+    supports_anonymous_user = False
+
     def authenticate(self, token=None):
         facebook_session = FacebookSession.objects.get(access_token=token)
 

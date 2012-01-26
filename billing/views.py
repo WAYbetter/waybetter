@@ -1,16 +1,20 @@
 # Create your views here.
-from datetime import  date, datetime, timedelta
+from StringIO import StringIO
+from datetime import  date, datetime, timedelta, time
 import logging
 import csv
 import calendar
 import itertools
+import pickle
+from django.contrib.admin.views.decorators import staff_member_required
 from google.appengine.api.taskqueue import taskqueue
 from billing import billing_backend
 from billing.billing_backend import send_invoices_passenger, create_invoice_passenger
 from billing.billing_manager import get_billing_redirect_url
 from billing.enums import BillingStatus, BillingAction
-from common.tz_support import default_tz_now, default_tz_time_max, default_tz_time_min
-from common.util import custom_render_to_response, notify_by_email, Enum
+from common.forms import DatePickerForm
+from common.tz_support import default_tz_now, default_tz_time_max, default_tz_time_min, default_tz_now_max
+from common.util import custom_render_to_response, notify_by_email, Enum, send_mail_as_noreply
 from django.core.urlresolvers import reverse
 from django.utils import translation
 from django.views.decorators.csrf import csrf_exempt
@@ -18,6 +22,7 @@ from billing.models import BillingForm, InvalidOperationError, BillingTransactio
 from common.decorators import require_parameters, internal_task_on_queue, catch_view_exceptions
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
+from common.views import base_datepicker_page
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, passenger_required
 from ordering.models import SharedRide, COMPLETED, ACCEPTED, CURRENT_ORDER_KEY
@@ -73,9 +78,9 @@ def transaction_ok(request, passenger):
 
     order = request.session.get(CURRENT_ORDER_KEY)
     logging.info("order = %s" % order)
-    logging.info("order.passenger = %s" % order.passenger)
     if order:
         order = order.fresh_copy() # update the order
+        logging.info("order.passenger = %s" % order.passenger)
         if order.price and order.passenger == passenger:
             logging.info("Billing order: %s" % order)
             # redirect to bill order
@@ -211,14 +216,50 @@ def do_send_invoices(trx_qs):
     return failed_ids
 
 
+@csrf_exempt
+@staff_member_required
 def get_csv(request):
-    delta = int(request.GET.get("days", 30))
+    msg = "NOT OK"
+    start_date = None
+    end_date = None
+    email = None
+    if request.method == 'POST':
+        form = DatePickerForm(request.POST)
+        email = request.POST.get("email")
+        if form.is_valid():
+            start_date = datetime.combine(form.cleaned_data["start_date"], time.min)
+            end_date = datetime.combine(form.cleaned_data["end_date"], time.max)
+            start_date = pickle.dumps(start_date)
+            end_date = pickle.dumps(end_date)
+
+        if all([email, start_date, end_date]):
+            task = taskqueue.Task(url=reverse(get_csv_task), params={'email': email, 'start_date': start_date, 'end_date': end_date })
+            try:
+                taskqueue.Queue('billing').add(task)
+                msg = "OK"
+            except Exception, e:
+                logging.error(e)
+        else:
+            msg = "Missing Parameters"
+
+        return HttpResponse(msg)
+
+    return base_datepicker_page(request, None, "csv_report.html", locals(), init_start_date=default_tz_now_max() - timedelta(days=7), init_end_date=default_tz_now_max())
+
+@csrf_exempt
+@catch_view_exceptions
+@internal_task_on_queue("billing")
+def get_csv_task(request):
+    start_date = pickle.loads(request.POST.get("start_date").encode("utf-8"))
+    end_date = pickle.loads(request.POST.get("end_date").encode("utf-8"))
+    email = request.POST.get("email")
+
     if request.GET.get("format") == "screen":
         response = HttpResponse()
         writer = csv.writer(response, delimiter=" ", lineterminator="<br>")
     else:
-        response = HttpResponse(mimetype='text/csv')
-        response['Content-Disposition'] = 'attachment; filename=invoices.csv'
+        response = StringIO()
+#        response['Content-Disposition'] = 'attachment; filename=invoices.csv'
         writer = csv.writer(response)
 
     cols = ["Ride ID", "Date", "Time", "Station", "Taxi", "Driver Name", "From (area)", "To (area)",
@@ -235,7 +276,7 @@ def get_csv(request):
             ]
 
     writer.writerow(cols)
-    for ride in SharedRide.objects.filter(status__in=[ACCEPTED, COMPLETED], create_date__gt=datetime.now() - timedelta(days=delta)):
+    for ride in SharedRide.objects.filter(status__in=[ACCEPTED, COMPLETED], debug=False, create_date__gte=start_date, create_date__lte=end_date):
         station = ride.station
         price_rules = station.get_ride_price(ride, rules_only=True)
         max_rule = None
@@ -285,11 +326,22 @@ def get_csv(request):
             total_cost,
             total_price - total_cost
         ]
+#        logging.info("row = %s" % row)
+        encoded_row = []
+        for s in row:
+            try:
+                new_s = unicode(s).encode("utf-8")
+            except UnicodeDecodeError:
+                new_s = s.decode("utf-8").encode("utf-8")
+            encoded_row.append(new_s)
 
-        encoded_row = [unicode(s).encode("utf-8") for s in row]
+#        encoded_row = [unicode(s).encode("utf-8") for s in row]
         writer.writerow(encoded_row)
 
-    return response
+    logging.info("csv = \n%s" % response.getvalue())
+    send_mail_as_noreply(email, "CSV Report", "See attachment", attachments=[("report.csv", response.getvalue())])
+
+    return HttpResponse("OK")
 
 
 def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):

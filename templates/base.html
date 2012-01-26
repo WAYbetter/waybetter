@@ -87,7 +87,7 @@
                                         {% else %}
                                             {{ request.user.username }}
                                         {% endif %}
-                                        ! | <a href="/logout?next=/" id="logout_link">{% trans 'Log out' %}</a></strong>
+                                        ! | <a href="/logout?next={% url pickmeapp %}" id="logout_link">{% trans 'Log out' %}</a></strong>
                                 {% else %}
                                     {% block join_or_login %}{% endblock join_or_login %}
                                 {% endif %}
@@ -163,7 +163,7 @@
 {#                    </div>#}
                 </span>
                 <div id="footer-copyright">
-                    &copy; {% trans '2010 WAYbetter' %}
+                    &copy; 2012 WAYbetter
                 </div>
             {% endblock %}
         </div>
@@ -194,6 +194,7 @@
 <script type="text/javascript" src="/static/js/mylibs/tooltip.slide.js"></script>
 
 <script type="text/javascript" src="/static/js/utils.js"></script>
+<script type="text/javascript" src="/static/js/wb_init.js"></script>
 <script type="text/javascript" src="/static/js/registration.js"></script>
 <script type="text/javascript" src="/static/js/ordering.js"></script>
 <script type="text/javascript" src="/static/js/helpers.js"></script>

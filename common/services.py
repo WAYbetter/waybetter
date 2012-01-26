@@ -1,7 +1,7 @@
 import logging
 from django.conf import settings
 from django.http import HttpResponse
-from common.models import CityArea
+from common.models import CityArea, Message
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
 from django.utils import simplejson
@@ -17,7 +17,12 @@ def is_email_available(request):
 def is_user_authenticated(request):
     if request.user.is_authenticated():
         logging.info("User is authenticated: %s" % request.user.username)
-        return JSONResponse([True, request.user.username])
+        response_data = [True, request.user.username]
+        passenger = Passenger.from_request(request)
+        if passenger and (request.is_secure() or settings.DEV): # send token only over secure connection
+            response_data.append(passenger.login_token)
+
+        return JSONResponse(response_data)
     else:
         logging.info("User is not authenticated")
         return JSONResponse([False])
@@ -45,6 +50,14 @@ def is_user_property_available(request, prop_name):
         result = User.objects.filter(**{prop_name: prop_value}).count() == 0
 
     return JSONResponse(result)
+
+def get_messages(request):
+    messages = Message.objects.all()
+    res = {}
+    for m in messages:
+        res[m.key] = m.content
+
+    return JSONResponse(res)
 
 @staff_member_required
 def get_polygons(request):
@@ -79,3 +92,4 @@ def init_model_order(request, model_name):
             return HttpResponse("OK")
 
     return HttpResponse("No model found for: %s" % model_name)
+

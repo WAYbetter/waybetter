@@ -21,7 +21,8 @@ var OrderTracker = Object.create({
                 pickup_in_msg: "",
                 order_finished_msg: "",
                 connection_error_msg: "",
-                countdown_finished_msg: ""
+                countdown_finished_msg: "",
+                render_order_as_table: false // used for ie compatibility
             },
 
             init: function(config) {
@@ -128,8 +129,9 @@ var OrderTracker = Object.create({
                     case  this.config.ACCEPTED :
                         $order.removeClass("pending assigned").addClass("accepted").data("status", order.status);
 
-                        if (! order.pickup_time_sec) {
+                        if (order.pickup_time_sec <= 0) {
                             $info.text(this.config.order_finished_msg);
+                            this.orderFinished(order);
                         }
                         // future order, show pickup mode
                         else {
@@ -179,9 +181,20 @@ var OrderTracker = Object.create({
                                 .append($("<div class='tracker_indicator'></div>").attr('id', 'indicator_' + order.pk))
                                 .append($("<div class='tracker_station_phone'></div>").attr('id', 'station_phone_' + order.pk).hide());
 
-                var $content_container = $("<div class='content_container'></div>").append($address_list).append($info_container).append($details_container),
-                        $error_label = $("<div class='connection_error_label'></div>").text(this.config.connection_error_msg).hide(),
-                        $order = $("<div class='tracker_order'></div>").attr('id', 'order_' + order.pk).append($content_container).append($error_label);
+                var $content_container = $("<div class='content_container'></div>");
+                if (this.config.render_order_as_table){
+                    var $tr = $("<tr></tr>").append($("<td></td>").append($address_list))
+                        .append($("<td></td>").append($info_container))
+                        .append($("<td></td>").append($details_container));
+                    var $table = $("<table></table>").append($tr);
+                    $content_container.append($table);
+                }
+                else{
+                    $content_container.append($address_list).append($info_container).append($details_container);
+                }
+
+                var $error_label = $("<div class='connection_error_label'></div>").text(this.config.connection_error_msg).hide(),
+                    $order = $("<div class='tracker_order'></div>").attr('id', 'order_' + order.pk).append($content_container).append($error_label);
 
                 if (order.to_raw == "") {
                     $address_list.find(".tracker_to").hide();
@@ -201,22 +214,11 @@ var OrderTracker = Object.create({
             },
 
             updateTimer: function(order) {
-                var $order = this.getOrder(order),
-                        $station = $("#station_" + order.pk),
-                        $station_phone = $("#station_phone_" + order.pk),
-                        $info = $("#info_" + order.pk),
-                        $indicator = $("#indicator_" + order.pk),
-                        $close_btn = $("#close_btn_" + order.pk);
+                var $indicator = $("#indicator_" + order.pk);
 
                 var new_val = Math.max(0, $indicator.val() - 1);
                 if (new_val == 0) {
-                    $info.removeClass("accepted").addClass("finished").text(this.config.countdown_finished_msg).effect("highlight", 1000);
-                    $station.fadeOut();
-                    $indicator.fadeOut();
-                    $close_btn.fadeIn().click(function() {
-                        $order.slideUp();
-                    });
-                    $station_phone.addClass("button_present");
+                    this.orderFinished(order);
                 }
                 else {
                     var that = this,
@@ -230,6 +232,23 @@ var OrderTracker = Object.create({
                 $indicator.val(new_val);
             },
 
+
+            orderFinished: function(order){
+                var $order = this.getOrder(order),
+                    $station = $("#station_" + order.pk),
+                    $station_phone = $("#station_phone_" + order.pk),
+                    $info = $("#info_" + order.pk),
+                    $indicator = $("#indicator_" + order.pk),
+                    $close_btn = $("#close_btn_" + order.pk);
+
+                $info.removeClass("accepted searching").addClass("finished").text(this.config.countdown_finished_msg).effect("highlight", 1000);
+                $station.fadeOut();
+                $indicator.fadeOut();
+                $close_btn.fadeIn().click(function () {
+                    $order.slideUp();
+                });
+                $station_phone.addClass("button_present");
+            },
 
             processOrder: function(msg) {
                 try {

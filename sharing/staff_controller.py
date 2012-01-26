@@ -1,7 +1,16 @@
 # This Python file uses the following encoding: utf-8
-from billing.models import BillingTransaction
+try:
+    from djangoappengine.main import main
+except:
+    pass
+
+from common.signals import async_computation_failed_signal, async_computation_completed_signal
+from google.appengine.api.channel import channel
+from billing.enums import BillingStatus
+from billing.models import BillingTransaction, BillingInfo
+from common.decorators import force_lang
 from common.models import City
-from common.util import custom_render_to_response
+from common.util import custom_render_to_response, get_uuid
 from common.views import base_datepicker_page
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
@@ -13,18 +22,168 @@ from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_n
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
-from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS
+from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS, Order, CHARGED, ACCEPTED, APPROVED, REJECTED, TIMED_OUT, FAILED, Passenger, SharedRide
 from sharing.forms import ConstraintsForm
 from sharing.models import HotSpot
 from sharing.passenger_controller import HIDDEN_FIELDS
 from sharing.algo_api import submit_orders_for_ride_calculation
 from datetime import  datetime, date, timedelta
+import logging
 import time
 import settings
 import re
 
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
-LANG_CODE="he"
+LANG_CODE = "he"
+
+@staff_member_required
+@force_lang("en")
+def kpi(request):
+    na = "N/A"
+    init_start_date = default_tz_now_min() - timedelta(days=1)
+    init_end_date = default_tz_now_max()
+    channel_id = get_uuid()
+    token = channel.create_channel(channel_id)
+
+    return base_datepicker_page(request, calc_kpi_data, 'kpi.html', locals(), init_start_date, init_end_date,
+                                async=True)
+
+
+def calc_kpi_data(start_date, end_date, channel_id, token):
+    def format_number(value, places=2, curr='', sep=',', dp='.',
+                      pos='', neg='-', trailneg=''):
+        """Convert Decimal to a money formatted string.
+
+        places:  required number of places after the decimal point
+        curr:    optional currency symbol before the sign (may be blank)
+        sep:     optional grouping separator (comma, period, space, or blank)
+        dp:      decimal point indicator (comma or period)
+                 only specify as blank when places is zero
+        pos:     optional sign for positive numbers: '+', space or blank
+        neg:     optional sign for negative numbers: '-', '(', space or blank
+        trailneg:optional trailing minus indicator:  '-', ')', space or blank
+
+        >>> d = Decimal('-1234567.8901')
+        >>> moneyfmt(d, curr='$')
+        '-$1,234,567.89'
+        >>> moneyfmt(d, places=0, sep='.', dp='', neg='', trailneg='-')
+        '1.234.568-'
+        >>> moneyfmt(d, curr='$', neg='(', trailneg=')')
+        '($1,234,567.89)'
+        >>> moneyfmt(Decimal(123456789), sep=' ')
+        '123 456 789.00'
+        >>> moneyfmt(Decimal('-0.02'), neg='<', trailneg='>')
+        '<0.02>'
+
+        """
+        from decimal import Decimal
+
+        value = Decimal(value)
+        q = Decimal(10) ** -places      # 2 places --> '0.01'
+        sign, digits, exp = value.quantize(q).as_tuple()
+        result = []
+        digits = map(str, digits)
+        build, next = result.append, digits.pop
+        if sign:
+            build(trailneg)
+        for i in range(places):
+            build(next() if digits else '0')
+        build(dp)
+        if not digits:
+            build('0')
+        i = 0
+        while digits:
+            build(next())
+            i += 1
+            if i == 3 and digits:
+                i = 0
+                build(sep)
+        build(curr)
+        build(neg if sign else pos)
+        return ''.join(reversed(result))
+
+    def f():
+        all_orders = list(Order.objects.filter(create_date__gte=start_date, create_date__lte=end_date))
+        all_orders = filter(
+            lambda o: not o.debug and o.status in [APPROVED, CHARGED, ACCEPTED, REJECTED, TIMED_OUT, FAILED],
+            all_orders)
+        new_passengers = Passenger.objects.filter(create_date__gte=start_date, create_date__lte=end_date).count()
+        new_billing_info = BillingInfo.objects.filter(create_date__gte=start_date, create_date__lte=end_date).count()
+        shared_rides = filter(lambda sr: not sr.debug,
+                              SharedRide.objects.filter(create_date__gte=start_date, create_date__lte=end_date))
+        shared_rides_with_sharing = filter(lambda sr: sr.stops > 1, shared_rides)
+        logging.info("shared_rides (%d)" % (len(shared_rides)))
+        logging.info("shared_rides_with_sharing (%d)" % (len(shared_rides_with_sharing)))
+
+        all_trx = filter(lambda bt: not bt.debug,
+                         BillingTransaction.objects.filter(status=BillingStatus.CHARGED, charge_date__gte=start_date,
+                                                           charge_date__lte=end_date))
+
+        pickmeapp_orders = filter(lambda o: not bool(o.price), all_orders)
+        sharing_orders = filter(lambda o: bool(o.price), all_orders)
+        accepted_orders = filter(lambda o: o.status == ACCEPTED, pickmeapp_orders)
+        pickmeapp_site = filter(lambda o: not o.mobile, pickmeapp_orders)
+        pickmeapp_mobile = filter(lambda o: o.mobile, pickmeapp_orders)
+        pickmeapp_native = filter(lambda o: o.user_agent.startswith("PickMeApp"), pickmeapp_orders)
+
+        sharing_site = filter(lambda o: not o.mobile, sharing_orders)
+        sharing_mobile = filter(lambda o: o.mobile, sharing_orders)
+        sharing_native = filter(lambda o: o.user_agent.startswith("WAYbetter"), sharing_orders)
+
+        data = {
+            "rides_booked": len(all_orders),
+            "sharging_rides": len(sharing_orders),
+            "sharing_site_rides": len(sharing_site),
+            "sharing_mobile_rides": len(sharing_mobile),
+            "sharing_native_rides": len(sharing_native),
+            "sharing_site_rides_percent": round(float(len(sharing_site)) / len(sharing_orders) * 100,
+                                                2) if sharing_orders else "NA",
+            "sharing_mobile_rides_percent": round(float(len(sharing_mobile)) / len(sharing_orders) * 100,
+                                                  2) if sharing_orders else "NA",
+            "sharing_native_rides_percent": round(float(len(sharing_native)) / len(sharing_orders) * 100,
+                                                  2) if sharing_orders else "NA",
+            "pickmeapp_rides": len(pickmeapp_orders),
+            "accepted_pickmeapp_rides": round(float(len(accepted_orders)) / len(pickmeapp_orders) * 100,
+                                              2) if pickmeapp_orders else "NA",
+            "pickmeapp_site_rides": len(pickmeapp_site),
+            "pickmeapp_mobile_rides": len(pickmeapp_mobile),
+            "pickmeapp_native_rides": len(pickmeapp_native),
+            "pickmeapp_site_rides_percent": round(float(len(pickmeapp_site)) / len(pickmeapp_orders) * 100,
+                                                  2) if pickmeapp_orders else "NA",
+            "pickmeapp_mobile_rides_percent": round(float(len(pickmeapp_mobile)) / len(pickmeapp_orders) * 100,
+                                                    2) if pickmeapp_orders else "NA",
+            "pickmeapp_native_rides_percent": round(float(len(pickmeapp_native)) / len(pickmeapp_orders) * 100,
+                                                    2) if pickmeapp_orders else "NA",
+            "all_users": Passenger.objects.count(),
+            "new_users": new_passengers,
+            "new_credit_card_users": new_billing_info,
+            #            "new_credit_card_users": len(filter(lambda p: hasattr(p, "billing_info"), new_passengers)),
+            "all_credit_card_users": BillingInfo.objects.count(),
+            "average_sharing": round(float(len(shared_rides_with_sharing)) / len(shared_rides) * 100,
+                                     2) if shared_rides else "No Shared Rides",
+            "income": round(sum([bt.amount for bt in all_trx]), 2),
+            "expenses": sum([sr.value for sr in shared_rides])
+        }
+
+        for key, val in data.iteritems():
+            try:
+                if type(val) == int:
+                    data[key] = format_number(value=val, places=0, dp='')
+                elif type(val) == float:
+                    data[key] = format_number(value=str(val))
+            except Exception, e:
+                logging.error("format error: %s" % e)
+
+        return data
+
+    data = None
+    try:
+        data = f()
+    except:
+        async_computation_failed_signal.send(sender="kpi", channel_id=channel_id)
+
+    async_computation_completed_signal.send(sender="kpi", channel_id=channel_id, data=data, token=token)
+
 
 @staff_member_required
 def birdseye_view(request):
@@ -34,29 +193,34 @@ def birdseye_view(request):
     order_status_labels = [label for (key, label) in ORDER_STATUS]
 
     def f(start_date, end_date):
-        departing = RideComputation.objects.filter(hotspot_depart_time__gte=start_date, hotspot_depart_time__lte=end_date)
-        arriving = RideComputation.objects.filter(hotspot_arrive_time__gte=start_date, hotspot_arrive_time__lte=end_date)
+        departing = RideComputation.objects.filter(hotspot_depart_time__gte=start_date,
+                                                   hotspot_depart_time__lte=end_date)
+        arriving = RideComputation.objects.filter(hotspot_arrive_time__gte=start_date,
+                                                  hotspot_arrive_time__lte=end_date)
         data = []
 
-        for c in sorted(list(departing) + list(arriving), key=lambda c: c.hotspot_depart_time or c.hotspot_arrive_time, reverse=True):
+        for c in sorted(list(departing) + list(arriving), key=lambda c: c.hotspot_depart_time or c.hotspot_arrive_time,
+                        reverse=True):
             time = c.hotspot_depart_time or c.hotspot_arrive_time
             orders_data = [{'id': o.id,
                             'from': o.from_raw,
                             'to': o.to_raw,
-                            'passenger_name': "%s %s" % (o.passenger.user.first_name, o.passenger.user.last_name) if o.passenger and o.passenger.user else na,
+                            'passenger_name': "%s %s" % (o.passenger.user.first_name,
+                                                         o.passenger.user.last_name) if o.passenger and o.passenger.user else na
+                ,
                             'passenger_phone': o.passenger.phone if o.passenger else na,
                             'type': OrderType.get_name(o.type),
                             'status': o.get_status_label(),
                             'debug': 'debug' if o.debug else ''
-                            }
+            }
             for o in c.orders.all()]
 
             c_data = {'id': c.id,
-                    'status': RideComputationStatus.get_name(c.status),
-                    'time': time.strftime("%d/%m/%y, %H:%M"),
-                    'dir': 'Hotspot->' if c.hotspot_depart_time else '->Hotspot' if c.hotspot_arrive_time else na,
-                    'orders': orders_data,
-                    }
+                      'status': RideComputationStatus.get_name(c.status),
+                      'time': time.strftime("%d/%m/%y, %H:%M"),
+                      'dir': 'Hotspot->' if c.hotspot_depart_time else '->Hotspot' if c.hotspot_arrive_time else na,
+                      'orders': orders_data,
+                      }
 
             data.append(c_data)
         return data
@@ -164,12 +328,14 @@ def ride_computation_stat(request, computation_set_id):
 
         points = set([order.pickup_point for order in orders] + [order.dropoff_point for order in orders])
         points = simplejson.dumps([{'id': p.id, 'lat': p.lat, 'lon': p.lon, 'address': p.address, 'type': p.type}
-            for p in sorted(points, key=lambda p: p.stop_time)])
+        for p in sorted(points, key=lambda p: p.stop_time)])
 
         computations = [{'id': c.id,
                          'stat': simplejson.loads(c.statistics),
                          'toleration_factor': c.toleration_factor,
-                         'toleration_factor_minutes': c.toleration_factor_minutes} for c in computation_set.members.filter(status=RideComputationStatus.COMPLETED)]
+                         'toleration_factor_minutes': c.toleration_factor_minutes} for c in
+                                                                                   computation_set.members.filter(
+                                                                                       status=RideComputationStatus.COMPLETED)]
 
         return render_to_response('ride_computation_stat.html', locals(), context_instance=RequestContext(request))
 
@@ -218,11 +384,13 @@ def create_orders_from_hotspot(data, hotspot_type, point_type, is_textinput):
                 price = None
                 if hotspot_type == "from":
                     order.depart_time = hotspot_datetime
-                    price = hotspot.get_sharing_price(order.to_lat, order.to_lon, hotspot_datetime.date(), hotspot_datetime.time())
+                    price = hotspot.get_sharing_price(order.to_lat, order.to_lon, hotspot_datetime.date(),
+                                                      hotspot_datetime.time())
                 else:
                     order.arrive_time = hotspot_datetime
                     order.depart_time = hotspot_datetime
-                    price = hotspot.get_sharing_price(order.from_lat, order.from_lon, hotspot_datetime.date(), hotspot_datetime.time())
+                    price = hotspot.get_sharing_price(order.from_lat, order.from_lon, hotspot_datetime.date(),
+                                                      hotspot_datetime.time())
 
                 passenger = data['passenger']
                 order.passenger = passenger
@@ -234,14 +402,13 @@ def create_orders_from_hotspot(data, hotspot_type, point_type, is_textinput):
                     billing_trx = BillingTransaction(order=order, amount=price, debug=order.debug)
                     billing_trx.save()
                     billing_trx.commit()
-                    
+
                 orders.append(order)
 
     return orders
 
 
 def submit_test_computation(orders, params, computation_set_name=None, computation_set_id=None):
-
     key = "test_%s" % str(default_tz_now())
     params.update({'debug': True})
     algo_key = submit_orders_for_ride_calculation(orders, key=key, params=params)

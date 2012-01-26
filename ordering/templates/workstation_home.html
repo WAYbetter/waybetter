@@ -250,16 +250,16 @@
     }
     #orders .addresses {
         width: 100%;
-        height: 50px;
+        height: 60px;
         font-weight: normal;
         text-align: center;
         padding: 3px 0;
-        margin-top: 5px;
-        line-height: 20px;
+        /*margin-top: 5px;*/
+        /*line-height: 20px;*/
     }
 
 
-	#orders .from_address{
+	#orders .from_address, #orders .comments, #orders .client{
 		color: #ffde00;
         display: block;
         font-weight: bold;
@@ -270,14 +270,14 @@
 		cursor: pointer;
 	}
 
-    #orders .from_address .pickup {
+    #orders .label {
         color: white;
         font-weight: normal;
     }
 
     #orders .to_address {
-        color: gray;
-        display: block;
+        color: #c7c7c7;
+        /*display: block;*/
         font-weight: normal;
     }
 
@@ -682,7 +682,7 @@
 
                 var incoming_text = "{% trans 'Incoming order' %}";
                 if (order.business) {
-                    incoming_text += " (<i>" + order.business + "</i>)";
+                    incoming_text = order.business;
                 }
                 
                 var rendered_order = $("<div class='order teaser'></div>").attr('id', order.pk).data("state", ORDER_IS_SHOWING)
@@ -778,15 +778,28 @@
                     .append(send_button)
                     .append(select);
 
-            var addresses_div= $("<div class='addresses'></div>")
-                    .append($("<div class='from_address'></div>").append($("<span class='pickup'>{% trans 'pickup' %}: </span>")).append(order.from_raw));
+            var address_text = order.from_raw;
+            if (order.to_raw){
+                address_text = order.from_raw + "<span class='to_address'> >> " + order.to_raw + "</span>";
+            }
 
-            if (order.to_raw) {
-                addresses_div.append($("<div class='to_address'></div>").append("(" + "{% trans 'dropoff' %}: " + order.to_raw + ")"));
+            var info_div = $("<div class='addresses'></div>")
+                    .append($("<div class='from_address'></div>").append(address_text));
+
+            if (order.business) {
+                var client_name = order.business;
+                if (order.taxi_is_for) {
+                    client_name = order.business + " - " + order.taxi_is_for;
+                }
+                info_div.append($("<div class='client'></div>").append('<span class="label">{% trans "client" %}: </span>').append(client_name));
+            }
+
+            if (order.comments){
+                info_div.append($("<div class='comments'></div>").append('<span class="label">{% trans "comments" %}: </span>').append(order.comments));
             }
 
             var rendered_order = $("#" + order.pk).empty().addClass("details")
-                    .append(addresses_div)
+                    .append(info_div)
                     .append(buttons_div);
 
             var progress_bar = $("#pb_"+order.pk).empty().append(progress_indicator);

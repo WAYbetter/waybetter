@@ -1,6 +1,7 @@
+{% load value_from_settings %}
 <!doctype html>
 <html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}"
-      class="{{ page_specific_class }} {% if LANGUAGE_BIDI %}rtl{% endif %}">
+      class="{{ page_specific_class }} {% if LANGUAGE_BIDI %}rtl{% endif %} {% block htmlclass %}{% endblock %}">
 <head>
     {% load i18n %}
 
@@ -67,6 +68,7 @@
     <script type="text/javascript" src="/static/js/mylibs/jquery.timers-1.2.min.js"></script>
 
     <script type="text/javascript" src="/static/js/utils.js"></script>
+    <script type="text/javascript" src="/static/js/wb_init.js"></script>
     <!-- end scripts-->
 {% endblock scripts %}
 
@@ -134,7 +136,7 @@
     <script>
     //<![CDATA[
         var _gaq = [
-            ['_setAccount','UA-18077675-1'],
+            ['_setAccount', '{% value_from_settings "GA_ACCOUNT_ID" %}'],
             ['_setAllowLinker', true],
             ['_trackPageview'],
             ['_trackPageLoadTime']

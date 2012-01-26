@@ -1,34 +1,14 @@
-import os, sys
+# Python 2.5 CGI handler
+import os
+import sys
 
-# Add parent folder to sys.path, so we can import boot.
-# App Engine causes main.py to be reloaded if an exception gets raised
-# on the first request of a main.py instance, so don't add parent_dir multiple
-# times.
-parent_dir = os.path.abspath(os.path.dirname(os.path.dirname(os.path.dirname(__file__))))
-if parent_dir not in sys.path:
-    sys.path.insert(0, parent_dir)
+from djangoappengine.main import application
+from google.appengine.ext.webapp.util import run_wsgi_app
 
-# Remove the standard version of Django
-if 'django' in sys.modules and sys.modules['django'].VERSION < (1, 2):
-    for k in [k for k in sys.modules
-              if k.startswith('django\.') or k == 'django']:
-        del sys.modules[k]
-
-from djangoappengine import boot
-boot.setup_project()
-boot.setup_threading()
-boot.setup_logging()
-
-import django.core.handlers.wsgi
-from google.appengine.ext.webapp import util
+from djangoappengine.boot import setup_logging, env_ext
 from django.conf import settings
 
-def log_traceback(*args, **kwargs):
-    import logging
-    logging.exception('Exception in request:')
-
-from django.core import signals
-signals.got_request_exception.connect(log_traceback)
+path_backup = None
 
 def real_main():
     # Reset path and environment variables
@@ -37,28 +17,29 @@ def real_main():
         sys.path = path_backup[:]
     except:
         path_backup = sys.path[:]
-    os.environ.update(boot.env_ext)
-    boot.setup_logging()
-
-    # Create a Django application for WSGI.
-    application = django.core.handlers.wsgi.WSGIHandler()
+    os.environ.update(env_ext)
+    setup_logging()
 
     # Run the WSGI CGI handler with that application.
-    util.run_wsgi_app(application)
+    run_wsgi_app(application)
 
-def profile_main():
-    import logging, cProfile, pstats, random, StringIO
+def profile_main(func):
+    from cStringIO import StringIO
+    import cProfile
+    import logging
+    import pstats
+    import random
     only_forced_profile = getattr(settings, 'ONLY_FORCED_PROFILE', False)
     profile_percentage = getattr(settings, 'PROFILE_PERCENTAGE', None)
     if (only_forced_profile and
                 'profile=forced' not in os.environ.get('QUERY_STRING')) or \
             (not only_forced_profile and profile_percentage and
                 float(profile_percentage) / 100.0 <= random.random()):
-        return real_main()
+        return func()
 
     prof = cProfile.Profile()
-    prof = prof.runctx('real_main()', globals(), locals())
-    stream = StringIO.StringIO()
+    prof = prof.runctx('func()', globals(), locals())
+    stream = StringIO()
     stats = pstats.Stats(prof, stream=stream)
     sort_by = getattr(settings, 'SORT_PROFILE_RESULTS_BY', 'time')
     if not isinstance(sort_by, (list, tuple)):
@@ -82,7 +63,12 @@ def profile_main():
         stats.print_callers()
     logging.info('Profile data:\n%s', stream.getvalue())
 
-main = getattr(settings, 'ENABLE_PROFILER', False) and profile_main or real_main
+def make_profileable(func):
+    if getattr(settings, 'ENABLE_PROFILER', False):
+        return lambda: profile_main(func)
+    return func
+
+main = make_profileable(real_main)
 
 if __name__ == '__main__':
     main()

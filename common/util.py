@@ -235,6 +235,31 @@ def log_event(event_type, order=None, order_assignment=None, station=None, work_
     q = taskqueue.Queue('log-events')
     q.add(task)
 
+def ga_hit_page(request):
+    # for a full list of args see: http://code.google.com/apis/analytics/docs/tracking/gaTrackingTroubleshooting.html
+    referrer = request.META.get("HTTP_REFERER", "")
+    path = request.path
+    query = request.META.get("QUERY_STRING", "")
+    if query:
+        path = "%s?%s" % (path, query)
+
+    cookie = '__utma=50755388.2119250209.1316347680.1326000987.1326015806.191;+__utmz=50755388.1316347680.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none);'
+    args ={
+        'utmwv': '5.2.2',
+        'utmn': random.randint(1000000000, 9999999999),
+        'utmp': path,
+        'utmac': settings.GA_ACCOUNT_ID,
+        'utmhn': settings.WEB_APP_URL,
+        'utmr': referrer,
+        'utmcc': cookie,
+    }
+
+    logging.info(args)
+
+    url = "http://www.google-analytics.com/__utm.gif?%s" % urllib.urlencode(args)
+    logging.info("ga hit: url=%s" % url)
+
+    return safe_fetch(url)
 
 def get_international_phone(country, local_phone):
     if local_phone.startswith("0"):
@@ -294,13 +319,17 @@ def get_unique_id():
 def notify_by_email(subject, msg=None, html=None):
     send_mail_as_noreply("notify@waybetter.com", "WAYbetter notification: %s" % subject, msg=msg, html=html)
 
-def send_mail_as_noreply(address, subject, msg=None, html=None):
+def send_mail_as_noreply(address, subject, msg=None, html=None, attachments=None):
     logging.info(u"Sending email to %s: [%s] %s" % (address, subject, msg))
     try:
         mail = EmailMessage()
         mail.sender = NO_REPLY_SENDER
         mail.to = address
         mail.subject = subject
+
+        if attachments:
+            mail.attachments = attachments
+
         if html:
             mail.html = html
         elif msg:

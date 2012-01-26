@@ -14,6 +14,7 @@ from django.conf import settings
 from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.utils import  translation
+from django.contrib.auth import login
 from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea, CityAreaField
 from common.geo_calculations import distance_between_points
@@ -31,7 +32,7 @@ import logging
 import datetime
 import common.urllib_adaptor as urllib2
 
-SHARING_TIME_FACTOR = 1.2
+SHARING_TIME_FACTOR = 1.25
 
 ORDER_HANDLE_TIMEOUT =                      80 # seconds
 ORDER_TEASER_TIMEOUT =                      19 # seconds
@@ -390,6 +391,7 @@ class SharedRide(BaseModel):
     @property
     def value(self):
         if not self._value and self.station:
+            logging.info("updating value for SharedRide[%s]" % self.id)
             self._value = self.station.get_ride_price(self)
             self.save()
 
@@ -418,6 +420,7 @@ class SharedRide(BaseModel):
         @return: number of stops
         """
         if not self._stops:
+            logging.info("updating stops for SharedRide[%s]" % self.id)
             self._stops = len(set([(p.lat, p.lon) for p in self.points.all()])) - 1 # don't count the starting point
             self.save()
 
@@ -530,7 +533,7 @@ class Passenger(BaseModel):
     # disallow ordering
     is_banned = models.BooleanField(_("banned"), default=False)
 
-    invoice_id = models.IntegerField(_("invoice id"), null=True, blank=True, unique=True)
+    invoice_id = models.IntegerField(_("invoice id"), null=True, blank=True, unique=True, editable=False)
 
     @property
     def name(self):
@@ -604,6 +607,10 @@ class Passenger(BaseModel):
             if token:
                 try:
                     passenger = cls.objects.get(login_token=token)
+                    if passenger.user: # authenticate this passenger also using a session cookie
+                        if not hasattr(passenger.user, "backend"):
+                            passenger.user.backend = 'django.contrib.auth.backends.ModelBackend'
+                        login(request, passenger.user)
                 except cls.DoesNotExist:
                     pass
         return passenger
@@ -851,6 +858,8 @@ class Order(BaseModel):
     # pickmeapp fields
     pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)
     future_pickup = models.BooleanField(_("future pickup"), default=False)
+    taxi_is_for = models.CharField(max_length=128, null=True, blank=True, default="")
+    comments = models.CharField(max_length=128, null=True, blank=True, default="")
 
     # sharing fields
     ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="orders", null=True, blank=True)
@@ -1077,15 +1086,22 @@ class OrderAssignment(BaseModel):
             if not base_time:
                 base_time = order_assignment.create_date
 
-            result.append({
-                "pk": order_assignment.order.id,
-                "status": order_assignment.status,
-                "from_raw": order_assignment.pickup_address_in_ws_lang or order_assignment.dn_from_raw,
-                "to_raw": order_assignment.dropoff_address_in_ws_lang or order_assignment.dn_to_raw,
-                "seconds_passed": (utc_now() - base_time).seconds,
-                "business": order_assignment.dn_business_name,
-                "current_rating": order_assignment.station.average_rating
-            })
+            oa_data = {"pk": order_assignment.order.id, "status": order_assignment.status,
+                       "from_raw": order_assignment.pickup_address_in_ws_lang or order_assignment.dn_from_raw,
+                       "to_raw": order_assignment.dropoff_address_in_ws_lang or order_assignment.dn_to_raw,
+                       "seconds_passed": (utc_now() - base_time).seconds,
+                       "current_rating": order_assignment.station.average_rating
+            }
+
+            if order_assignment.dn_business_name: # assigning a business order
+                order = order_assignment.order
+                oa_data.update({
+                    "business": order_assignment.dn_business_name,
+                    'taxi_is_for': order.taxi_is_for,
+                    'comments': order.comments
+                })
+
+            result.append(oa_data)
 
         return result
 

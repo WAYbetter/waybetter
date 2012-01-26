@@ -10,9 +10,10 @@ class UserForm(forms.ModelForm):
                   'is_staff', 'is_superuser')
 
 class CustomUserAdmin(UserAdmin):
-  fieldsets = None
-  form = UserForm
+    fieldsets = None
+    form = UserForm
+    search_fields = ('=username',)
 
 admin.site.unregister(User)
 admin.site.unregister(Group)
-admin.site.register(User, CustomUserAdmin) 
+admin.site.register(User, CustomUserAdmin)

@@ -8,6 +8,7 @@ from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api import taskqueue
 import logging
 import pickle
+from common.util import Enum
 
 class SignalStore(BaseModel):
     '''
@@ -72,7 +73,7 @@ class AsyncSignal(TypedSignal):
         logging.info("sending signal: %s" % self.signal_type)
 
         for receiver in self._live_receivers(_make_id(sender)):
-            args = {"receiver": receiver, "signal": self, "sender": sender, "signal_type": self.signal_type}
+            args = {"receiver": receiver, "sender": sender, "signal_type": self.signal_type}
             args.update(named)
 
             # store the signal to the signal store
@@ -102,4 +103,11 @@ def send_async(request):
         logging.error("Error dispatching signal: %s: %s: %s" % (id, type(e).__name__, e.message))
 
     return HttpResponse("OK")
+class AsyncComputationSignalType(Enum):
+    SUBMITTED                   = 1
+    COMPLETED                   = 2
+    FAILED                      = 3
 
+async_computation_submitted_signal = AsyncSignal(AsyncComputationSignalType.SUBMITTED, providing_args=["channel_id"])
+async_computation_completed_signal = AsyncSignal(AsyncComputationSignalType.COMPLETED, providing_args=["channel_id", "data", "token"])
+async_computation_failed_signal = AsyncSignal(AsyncComputationSignalType.FAILED, providing_args=["channel_id"])

@@ -89,7 +89,7 @@ var Registrator = Object.create({
         $("#dialog").dialog(this.config.dialog_config);
         if (open_login_dialog){
             this.openLoginDialog(function(){
-                        window.location.href = "/";
+                        window.location.href = "/pickmeapp";
                     });
         }
         return this;
@@ -410,7 +410,7 @@ var Registrator = Object.create({
             $(".login_link").live("mouseup", function() {
                 if (!while_ordering){
                     that.setCallback(function(){
-                        window.location.href = "/";
+                        window.location.href = "/pickmeapp";
                     });
                 }
                 that.openLoginDialog();
@@ -534,7 +534,7 @@ var Registrator = Object.create({
         var that = this;
         that.openPhoneDialog(function() {
             that.openRegistrationDialog(function() {
-                window.location.href = "/";
+                window.location.href = "/pickmeapp";
             }, true, true)
         });
     },
@@ -542,7 +542,7 @@ var Registrator = Object.create({
         var that = this;
         that.openCantLoginDialog(function(){
             that.openCredentialsDialog(function(){
-                window.location.href = "/";
+                window.location.href = "/pickmeapp";
             });
         });
     },

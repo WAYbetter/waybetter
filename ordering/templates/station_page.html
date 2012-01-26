@@ -15,9 +15,6 @@
 {% block extrahead %}
     {{ block.super }}
     <script src="http://api.telmap.com/maps/api/js?sensor=false"></script>
-    {% if request.user.passenger.business %}
-        <script type="text/javascript" src="/_ah/channel/jsapi"></script>
-    {% endif %}
 {% endblock extrahead %}
 {% block doc_ready %}
     {{ block.super }}
@@ -63,11 +60,7 @@
             {{ station_logo }}
             {% endautoescape %}
         </div>
-        {% if request.user.passenger.business %}
-            <h1>{% trans 'Pick Me App for Businesses, with instant feedback and no phone calls ' %}</h1>
-        {% else %}
-            <h1>{% trans 'Book A Taxi Application. Immediate Response via SMS' %}</h1>
-        {% endif %}
+        <h1>{% trans 'Book A Taxi Application. Immediate Response via SMS' %}</h1>
     </div>
     <div id="tools">
         <div id="user_tools">
@@ -96,6 +89,7 @@
     <div class="gray_header">
         <form id="order_form" method="post" action="{% url ordering.passenger_controller.book_order %}">
             <input type="hidden" name="originating_station" id="id_originating_station" value="{{ station.id }}"/>
+            <input type="hidden" name="confining_station" id="id_confining_station" value="{{ station.id }}"/>
 
             {% csrf_token %}
             {% for field in form %}
@@ -125,11 +119,6 @@
         </div>
         <div class="clear"></div>
     </div>
-
-
-    {% if request.user.passenger.business %}
-        <div id="order_tracker"></div>
-    {% endif %}
 
 
     {% if request.user.passenger %}

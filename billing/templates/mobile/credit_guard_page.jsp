@@ -26,16 +26,12 @@ if(lang.equals("HE")){
             direction: <%=langdir%>;
         }
 
+        .ui-icon, .ui-icon-searchfield::after {
+            background-image: url("/static/css/themes/images/icons-18-white.png");
+
+        }
         .ui-bar-a{
             border-bottom: 1px solid white;
-        }
-
-        #wb_lock {
-            width: 33px;
-            height: 52px;
-            background: url("/static/images/wb_site/lock.png") left 0 no-repeat;
-            display: inline-block;
-            position: relative;
         }
 
         #wb_CVVhelp {
@@ -66,14 +62,10 @@ if(lang.equals("HE")){
             width: 50%;
         }
 
-        #payment-header {
-            text-align: center;
-            vertical-align: top;
-            height: 40px;
-            font-weight: bold;
-            background: url("/static/images/wb_site/lock.png") 20px 0px no-repeat;
-            padding-top: 8px;
-
+        #lock {
+            width: 90px;
+            height: 90px;
+            background: url("/static/images/wb_site/pci_lock.png") left center no-repeat;
         }
 
         label.ui-input-text, label.ui-select {
@@ -135,14 +127,41 @@ if(lang.equals("HE")){
             </table>
         </div>
         <div data-role="content">
-            <div id="payment-header">
-                <% if (lang.equals("HE")) { %>
-                    דף תשלום מאובטח SSL
-                <% } else { %>
-                    SSL Secured Payment
-                <% } %>
+            <table id="payment-header">
+                <tr>
+                    <td id="lock"></td>
+                    <td>
+                        <span class="bold">
+                            <% if (lang.equals("HE")) { %>
+                                תשלום מאובטח
+                            <% } else { %>
+                                Secured Payment
+                            <% } %>
+                        </span>
+                        <br>
+                        <% if (lang.equals("HE")) { %>
+                            התשלום עבור הנסיעות בלבד
+                        <% } else { %>
+                            Payments are for rides only
+                        <% } %>
+                        <br>
+                        <% if (lang.equals("HE")) { %>
+                            החיוב מתבצע לאחר ביצוע הנסיעות
+                        <% } else { %>
+                            Charging is only after your pickup
+                        <% } %>
+                        <br>
+                        <% if (lang.equals("HE")) { %>
+                            חשבונית חודשית מפורטת נשלחת במייל
+                        <% } else { %>
+                            Monthly invoice will be sent by email
+                        <% } %>
+                    </td>
+                </tr>
+            </table>
 
-            </div>
+            <hr>
+
             <form id="creditForm" onsubmit="return formValidator(0);" method="POST" action="ProcessCreditCard">
                 <input type="hidden" name="txId" value="<%=mpiTxnId%>"/>
                 <input type="hidden" name="lang" value="EN"/>

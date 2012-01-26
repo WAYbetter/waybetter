@@ -1,8 +1,7 @@
 from django.contrib.auth.models import User
-from django.forms.util import ErrorList
 from django import forms
 from django.core.exceptions import ValidationError
-from common.forms import _clean_address
+from common.geocode import geohash_encode
 from common.widgets import EmailInput
 from sharing.models import HotSpot, ProducerPassenger
 from django.utils.translation import ugettext_lazy as _
@@ -19,9 +18,11 @@ class HotSpotAdminForm(forms.ModelForm):
     class Meta:
         model = HotSpot
 
-#    def clean_address(self):
-#        return _clean_address(self)
+    def clean(self):
+        if self.cleaned_data.get("lon") and self.cleaned_data.get("lat"):
+            self.instance.geohash = geohash_encode(self.cleaned_data["lon"], self.cleaned_data["lat"])
 
+        return self.cleaned_data
 
 class ConstraintsForm(forms.Form):
     time_const_min = forms.IntegerField(label="Time constraint in minutes")
