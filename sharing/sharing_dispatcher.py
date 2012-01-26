@@ -1,3 +1,4 @@
+from google.appengine.ext import deferred
 from common.tz_support import utc_now
 from common.util import notify_by_email
 from django.utils import translation
@@ -9,11 +10,11 @@ from common.decorators import receive_signal, internal_task_on_queue, catch_view
 from django.core.urlresolvers import reverse
 from ordering import station_connection_manager
 from ordering.errors import UpdateStatusError
-from ordering.models import WorkStation, PENDING, ASSIGNED, SharedRide, NOT_TAKEN, ACCEPTED
+from ordering.models import WorkStation, PENDING, ASSIGNED, SharedRide
 from datetime import timedelta
 from ordering.util import send_msg_to_passenger
 from sharing.passenger_controller import send_ride_notifications
-from sharing.station_controller import send_ride_voucher
+from sharing.station_controller import send_ride_voucher, mark_ride_not_taken_task
 import signals
 import logging
 
@@ -40,6 +41,8 @@ def dispatch_ride(ride):
             q.add(task)
 
         send_ride_notifications(ride)
+        deferred.defer(mark_ride_not_taken_task, ride_id=ride.id, _eta=ride.depart_time)
+
 #    task = taskqueue.Task(url=reverse(mark_ride_not_taken_task), eta=ride.depart_time, params={"ride_id": ride.id})
 #    q = taskqueue.Queue('orders')
 #    q.add(task)
@@ -57,8 +60,8 @@ def assign_ride(ride):
 
             # TODO_WB
             # in fax sending mode we assume all dispatched rides will be accepted
-            # ride.change_status(old_status=PENDING, new_status=ASSIGNED) # calls save()
-            ride.change_status(old_status=PENDING, new_status=ACCEPTED) # calls save()
+            ride.change_status(old_status=PENDING, new_status=ASSIGNED) # calls save()
+#            ride.change_status(old_status=PENDING, new_status=ACCEPTED) # calls save()
 
 #            if work_station.is_online:
 #                notify_by_email(u"Ride [%s] assigned successfully to workstation %s" % (ride.id, work_station), msg=get_ride_log(ride))
@@ -68,7 +71,7 @@ def assign_ride(ride):
             return work_station
 
         except UpdateStatusError:
-            notify_by_email(u"UpdateStatusError: Cannot assign ride [%s]" % ride.id, msg=get_ride_log(ride))
+            notify_by_email(u"UpdateStatusError: Cannot assign ride [%s]" % ride.id, msg=ride.get_log())
 
     return None
 
@@ -77,7 +80,7 @@ def choose_workstation(ride):
     confining_stations = [order.confining_station for order in ride.orders.all()]
     confining_station = confining_stations[0] if confining_stations and all(map(lambda s: s==confining_stations[0], confining_stations)) else None
 
-    log = u"Choose Workstation:\nconfining_stations=[%s]\n%s" % (",".join([unicode(s) for s in confining_stations]), get_ride_log(ride))
+    log = u"Choose Workstation:\nconfining_stations=[%s]\n%s" % (",".join([unicode(s) for s in confining_stations]), ride.get_log())
 
     logging.info(log)
 
@@ -114,32 +117,11 @@ def push_ride_task(request):
                 task = taskqueue.Task(url=reverse(push_ride_task), countdown=MSG_DELIVERY_GRACE, params={"ride_id": ride_id, "ws_id": ws_id})
                 taskqueue.Queue('orders').add(task)
             elif not ride.debug:
-                msg = u"work station: %s\n%s" % (work_station, get_ride_log(ride))
+                msg = u"work station: %s\n%s" % (work_station, ride.get_log())
                 notify_by_email(u"Ride [%s]: Not delivered to station %s" % (ride.id, ride.station.name), msg=msg)
 
     except (SharedRide.DoesNotExist, WorkStation.DoesNotExist):
         logging.error(u"push ride task error (model.DoesNotExist): ride_id=%s, ws_id=%s" % (ride_id, ws_id))
-
-    return HttpResponse("OK")
-
-
-@csrf_exempt
-@catch_view_exceptions
-@internal_task_on_queue("orders")
-def mark_ride_not_taken_task(request):
-    ride_id = request.POST.get("ride_id", None)
-    try:
-        ride = SharedRide.by_id(ride_id, safe=False)
-        if ride.status in [PENDING, ASSIGNED]:
-            ride.change_status(new_status=NOT_TAKEN)
-            logging.info("Marked ride [%s] as not taken" % ride_id)
-            if not ride.debug:
-                notify_by_email(u"Ride [%s] : Not accepted by station, marked NOT_TAKEN" % ride_id, msg=get_ride_log(ride))
-
-    except SharedRide.DoesNotExist:
-        logging.error("Error marking ride [%s] as not taken: SharedRide.DoesNotExist" % ride_id)
-    except UpdateStatusError:
-        logging.warning("UpdateStatusError: Error changing ride [%s] status to not taken" % ride_id)
 
     return HttpResponse("OK")
 
@@ -153,28 +135,4 @@ def notify_dispatching_failed(ride):
 
     translation.activate(current_lang)
 
-    notify_by_email(u"Ride [%s] Dispatching failed" % ride.id, msg=get_ride_log(ride))
-
-
-def get_ride_log(ride):
-    orders = list(ride.orders.all())
-    return u"""
-
-ride.id: %s
-ride.debug: %s
-
-station: %s
-
-depart_time: %s
-
-orders:
-%s
-
-passengers:
-%s
-""" % (ride.id,
-       ride.debug,
-       ride.station,
-       ride.depart_time,
-       "\n".join([unicode(order) for order in orders]),
-       "\n".join([unicode(order.passenger) for order in orders]))
+    notify_by_email(u"Ride [%s] Dispatching failed" % ride.id, msg=ride.get_log())

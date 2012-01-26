@@ -14,7 +14,7 @@ from billing.billing_manager import get_billing_redirect_url
 from billing.enums import BillingStatus, BillingAction
 from common.forms import DatePickerForm
 from common.tz_support import default_tz_now, default_tz_time_max, default_tz_time_min, default_tz_now_max
-from common.util import custom_render_to_response, notify_by_email, Enum, send_mail_as_noreply
+from common.util import custom_render_to_response, notify_by_email, Enum, send_mail_as_noreply, base_datepicker_page
 from django.core.urlresolvers import reverse
 from django.utils import translation
 from django.views.decorators.csrf import csrf_exempt
@@ -22,7 +22,6 @@ from billing.models import BillingForm, InvalidOperationError, BillingTransactio
 from common.decorators import require_parameters, internal_task_on_queue, catch_view_exceptions
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
-from common.views import base_datepicker_page
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, passenger_required
 from ordering.models import SharedRide, COMPLETED, ACCEPTED, CURRENT_ORDER_KEY

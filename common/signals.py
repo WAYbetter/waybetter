@@ -1,3 +1,4 @@
+import traceback
 from common.decorators import internal_task_on_queue, catch_view_exceptions
 from common.models import BaseModel
 from django.core.urlresolvers import reverse
@@ -31,8 +32,13 @@ class SignalStore(BaseModel):
             o = data.pop("obj")
             data["obj_id"] = o.id
             data["obj_type"] = type(o)
-            
-        self.pickled_value = pickle.dumps(data)
+
+        try:
+            self.pickled_value = pickle.dumps(data)
+        except pickle.PicklingError, e:
+            trace = traceback.format_exc()
+            logging.error("PicklingError caught:\n %s" % trace)
+            raise
 
 #    define signal_data property
     signal_data = property(get_signal_data, set_signal_data)
@@ -91,6 +97,7 @@ class AsyncSignal(TypedSignal):
 @internal_task_on_queue("signals")
 def send_async(request):
     id = request.POST.get("id")
+    logging.info("broadcasting signal: %s" % id)
     try:
         stored_signal = SignalStore.by_id(id)
         d = stored_signal.signal_data
