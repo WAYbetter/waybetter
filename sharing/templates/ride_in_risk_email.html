@@ -1,0 +1,45 @@
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
+    <title></title>
+    <style type="text/css">
+        body div {
+            padding: 10px;
+            margin-bottom: 20px;
+            border-bottom: 1px gray dashed;
+        }
+
+        body {
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+<h1>Ride In Risk: {{ ride_id }}</h1>
+<div>
+    <b>
+        Reason:
+    </b>
+    {{ msg }}
+</div>
+
+<div>
+    <b>Passengers:</b>
+    <ul>
+        {% for p in passengers %}
+            <li>{{ p }}</li>
+        {% endfor %}
+    </ul>
+</div>
+
+<div>
+    <b>Station: </b>
+    {{ station_name }}
+    <ul>
+        {% for p in station_phones %}
+            <li>{{ p }}</li>
+        {% endfor %}
+    </ul>
+</div>
+</body>
+</html>

@@ -1,4 +1,4 @@
-from djangoappengine.main import main
+from common import init_environment
 
 from google.appengine.ext import webapp
 from google.appengine.ext.webapp.util import run_wsgi_app

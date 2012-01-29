@@ -1,17 +1,11 @@
 # This Python file uses the following encoding: utf-8
-try:
-    from djangoappengine.main import main
-except:
-    pass
-
 from common.signals import async_computation_failed_signal, async_computation_completed_signal
 from google.appengine.api.channel import channel
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction, BillingInfo
 from common.decorators import force_lang
 from common.models import City
-from common.util import custom_render_to_response, get_uuid
-from common.views import base_datepicker_page
+from common.util import custom_render_to_response, get_uuid, base_datepicker_page
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
 from django.utils import simplejson, translation

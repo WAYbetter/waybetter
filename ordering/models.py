@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-from billing.enums import BillingStatus
 from django.core.exceptions import ValidationError
 from django.template.loader import get_template
 from django.template.context import Context
@@ -38,6 +37,7 @@ ORDER_HANDLE_TIMEOUT =                      80 # seconds
 ORDER_TEASER_TIMEOUT =                      19 # seconds
 ORDER_ASSIGNMENT_TIMEOUT =                  80 # seconds
 WORKSTATION_HEARTBEAT_TIMEOUT_INTERVAL =    60 # seconds
+RIDE_SENTINEL_GRACE = datetime.timedelta(minutes=7)
 
 ORDER_MAX_WAIT_TIME = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
 UNKNOWN_USER = "[UNKNOWN USER]"
@@ -430,6 +430,29 @@ class SharedRide(BaseModel):
     def charged_stops(self):
         return self.stops - 1
 
+    def get_log(self):
+        orders = list(self.orders.all())
+        return u"""
+
+    ride.id: %s
+    ride.debug: %s
+
+    station: %s
+
+    depart_time: %s
+
+    orders:
+    %s
+
+    passengers:
+    %s
+    """ % (self.id,
+           self.debug,
+           self.station,
+           self.depart_time,
+           "\n".join([unicode(order) for order in orders]),
+           "\n".join([unicode(order.passenger) for order in orders]))
+
     def serialize_for_ws(self):
         return {'pickups': [ { 'num_passengers': p.pickup_orders.count(),
                                'passenger_phones': [order.passenger.phone for order in p.pickup_orders.all()],
@@ -449,7 +472,13 @@ class SharedRide(BaseModel):
                 'debug': self.debug,
                 'driver_jist': self.driver_jist()
         }
-
+    def serialize_for_fax(self):
+        return {
+            "names"             : ", ".join([order.passenger.user.first_name for order in self.orders.all()]),
+            "pickup_address"    : self.first_pickup.address,
+            "timeout"           : (self.depart_time - RIDE_SENTINEL_GRACE - utc_now()).seconds,
+            "id"                : self.id
+        }
     def change_status(self, old_status=None, new_status=None):
         if self._change_attr_in_transaction("status", old_status, new_status):
             sig_args = {

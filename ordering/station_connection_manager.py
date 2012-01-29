@@ -7,13 +7,13 @@ from django.core.urlresolvers import reverse
 from google.appengine.api import channel
 from google.appengine.api.taskqueue import taskqueue
 from analytics.models import AnalyticsEvent
-from common.decorators import receive_signal, internal_task_on_queue, catch_view_exceptions
+from common.decorators import  internal_task_on_queue, catch_view_exceptions
 from common.util import  log_event, EventType, notify_by_email, get_current_version
 from django.utils import simplejson
 from datetime import timedelta
 from ordering.models import OrderAssignment, PENDING, WorkStation
 from common.langsupport.util import translate_to_ws_lang
-from ordering.signals import workstation_online_signal, workstation_offline_signal, SignalType
+from ordering.signals import   SignalType
 
 ugettext =                      lambda s: s
 DUMMY_ADDRESS =                 ugettext("This is a test order")
@@ -32,6 +32,11 @@ def check_connection(ws):
     }]
 
     _do_push(ws, orders)
+
+def push_fax(ws, fax_data):
+    logging.info("push_fax: %s" % fax_data)
+    fax_data.update({'message_type': 'fax'})
+    _do_push(ws, fax_data)
 
 def push_ride(ws, ride):
     ride.sent_time = utc_now()
