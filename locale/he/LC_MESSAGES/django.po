@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-01-24 11:36+0200\n"
-"PO-Revision-Date: 2012-01-24 11:53+0200\n"
+"POT-Creation-Date: 2012-01-29 12:01+0200\n"
+"PO-Revision-Date: 2012-01-29 12:02+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -253,7 +253,7 @@ msgstr "אנו מצטערים אך כבר לא ניתן להזמין לשעה ש
 msgid "Ride Summary for month"
 msgstr "פירוט נסיעות מונית לחודש"
 
-#: billing/billing_manager.py:100
+#: billing/billing_manager.py:111
 msgid "Could not complete your registration. Please try again."
 msgstr "התרחשה שגיאה בעת הרשמתך. אנא נסה שנית."
 
@@ -495,7 +495,7 @@ msgstr "כניסה"
 
 #: common/templates/error_dialog.html:5
 #: common/templates/error_page.html:8
-#: sharing/templates/passenger_registration.html:291
+#: sharing/templates/passenger_registration.html:293
 #: sharing/templates/wb_home.html:367
 #: sharing/templates/wb_home_tooltips.html:629
 msgid "OOPS..."
@@ -759,7 +759,7 @@ msgstr "כניסה באמצעות החשבון שלך ב:"
 #: ordering/templates/workstation_download.html:113
 #: ordering/templates/mobile/passenger_home.html:229
 #: ordering/templates/mobile/passenger_home.html:261
-#: sharing/templates/passenger_registration.html:67
+#: sharing/templates/passenger_registration.html:69
 #: sharing/templates/mobile/passenger_registration.html:91
 msgid "Terms Of Use"
 msgstr "תנאי השימוש"
@@ -3289,7 +3289,7 @@ msgid "Send Verification Code"
 msgstr "שלח קוד אימות"
 
 #: ordering/templates/mobile/passenger_home.html:79
-#: sharing/templates/passenger_registration.html:232
+#: sharing/templates/passenger_registration.html:234
 #: sharing/templates/mobile/passenger_registration.html:240
 msgid "Code Sent"
 msgstr "קוד SMS נשלח"
@@ -3757,7 +3757,7 @@ msgid "Account Information"
 msgstr "פרטי חשבון"
 
 #: sharing/templates/passenger_registration.html:15
-#: sharing/templates/passenger_registration.html:83
+#: sharing/templates/passenger_registration.html:85
 msgid "Phone Verification"
 msgstr "אימות טלפון"
 
@@ -3766,12 +3766,12 @@ msgid "Billing Information"
 msgstr "פרטי חיוב"
 
 #: sharing/templates/passenger_registration.html:29
-#: sharing/templates/passenger_registration.html:136
+#: sharing/templates/passenger_registration.html:138
 msgid "Already a member?"
 msgstr "כבר הצטרפת?"
 
 #: sharing/templates/passenger_registration.html:30
-#: sharing/templates/passenger_registration.html:136
+#: sharing/templates/passenger_registration.html:138
 msgid "Sign In"
 msgstr "כניסה"
 
@@ -3779,45 +3779,50 @@ msgstr "כניסה"
 msgid "Use your Facebook account for fast registration:"
 msgstr "הרשמה מהירה באמצעות פייסבוק:"
 
-#: sharing/templates/passenger_registration.html:41
+#: sharing/templates/passenger_registration.html:39
+#: templates/registration/login.html:171
+msgid "Coming Soon"
+msgstr "בקרוב"
+
+#: sharing/templates/passenger_registration.html:43
 #: templates/registration/login.html:165
 msgid "OR"
 msgstr "או"
 
-#: sharing/templates/passenger_registration.html:65
+#: sharing/templates/passenger_registration.html:67
 #: sharing/templates/mobile/passenger_registration.html:90
 msgid "I agree to the"
 msgstr "אני מסכימ/ה ל"
 
-#: sharing/templates/passenger_registration.html:68
+#: sharing/templates/passenger_registration.html:70
 #: sharing/templates/mobile/passenger_registration.html:91
 msgid "and"
 msgstr "ו"
 
-#: sharing/templates/passenger_registration.html:69
+#: sharing/templates/passenger_registration.html:71
 #: sharing/templates/privacy.html:4
 #: sharing/templates/mobile/passenger_registration.html:92
 msgid "Privacy Statement"
 msgstr "הצהרת פרטיות"
 
-#: sharing/templates/passenger_registration.html:94
+#: sharing/templates/passenger_registration.html:96
 msgid "Mobile Phone"
 msgstr "טלפון נייד"
 
-#: sharing/templates/passenger_registration.html:104
+#: sharing/templates/passenger_registration.html:106
 msgid "Send SMS Code"
 msgstr "שלח קוד ב-SMS"
 
-#: sharing/templates/passenger_registration.html:107
+#: sharing/templates/passenger_registration.html:109
 msgid "I didn't get the SMS code"
 msgstr "לא קיבלתי את הקוד בSMS"
 
-#: sharing/templates/passenger_registration.html:113
+#: sharing/templates/passenger_registration.html:115
 msgid "Enter Code"
 msgstr "הכנס קוד"
 
-#: sharing/templates/passenger_registration.html:138
 #: sharing/templates/passenger_registration.html:140
+#: sharing/templates/passenger_registration.html:142
 #: sharing/templates/wb_home.html:92
 #: sharing/templates/wb_home.html.py:121
 #: sharing/templates/wb_home_tooltips.html:416
@@ -3829,8 +3834,8 @@ msgstr "הכנס קוד"
 msgid "Next"
 msgstr "המשך"
 
-#: sharing/templates/passenger_registration.html:180
-#: sharing/templates/passenger_registration.html:229
+#: sharing/templates/passenger_registration.html:182
+#: sharing/templates/passenger_registration.html:231
 #: sharing/templates/wb_home.html:605
 #: sharing/templates/wb_home_tooltips.html:598
 #: sharing/templates/mobile/passenger_registration.html:177
@@ -3838,7 +3843,7 @@ msgstr "המשך"
 msgid "Sending"
 msgstr "שולח"
 
-#: sharing/templates/passenger_registration.html:202
+#: sharing/templates/passenger_registration.html:204
 msgid "An error occurred, please try again"
 msgstr "התרחשה שגיאה. אנא נסו שוב."
 
