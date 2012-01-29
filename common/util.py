@@ -297,16 +297,18 @@ def url_with_querystring(path, **kwargs):
     return path + '?' + urllib.urlencode(kwargs)
 
 
-def generate_random_token(length=random.randint(10, 20), alpha_only=False, alpha_or_digit_only=False):
+def generate_random_token(length=random.randint(10, 20), digits_only=False, alpha_only=False, alpha_or_digit_only=False):
     s = ""
     while len(s) <= length:
         j = random.randint(33, 126)
         c = str(chr(j))
         if alpha_or_digit_only and (c.isalpha() or c.isdigit()):
             s += c
+        elif digits_only and c.isdigit():
+            s += c
         elif alpha_only and c.isalpha():
             s += c
-        elif not (alpha_only or alpha_or_digit_only):
+        elif not (alpha_only or alpha_or_digit_only or digits_only):
             s += c
     return s
 

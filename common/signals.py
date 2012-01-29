@@ -107,7 +107,8 @@ def send_async(request):
 
         stored_signal.delete() # delete the signal unless there was an exception
     except Exception, e: # prevent this signal from being re-dispatched in case of error
-        logging.error("Error dispatching signal: %s: %s: %s" % (id, type(e).__name__, e.message))
+        trace = traceback.format_exc()
+        logging.error("Error dispatching signal: %s: %s: %s\n%s" % (id, type(e).__name__, e.message, trace))
 
     return HttpResponse("OK")
 class AsyncComputationSignalType(Enum):

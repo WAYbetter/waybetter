@@ -37,6 +37,7 @@ ORDER_HANDLE_TIMEOUT =                      80 # seconds
 ORDER_TEASER_TIMEOUT =                      19 # seconds
 ORDER_ASSIGNMENT_TIMEOUT =                  80 # seconds
 WORKSTATION_HEARTBEAT_TIMEOUT_INTERVAL =    60 # seconds
+RIDE_SENTINEL_GRACE = datetime.timedelta(minutes=7)
 
 ORDER_MAX_WAIT_TIME = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
 UNKNOWN_USER = "[UNKNOWN USER]"
@@ -475,6 +476,7 @@ class SharedRide(BaseModel):
         return {
             "names"             : ", ".join([order.passenger.user.first_name for order in self.orders.all()]),
             "pickup_address"    : self.first_pickup.address,
+            "timeout"           : (self.depart_time - RIDE_SENTINEL_GRACE - utc_now()).seconds,
             "id"                : self.id
         }
     def change_status(self, old_status=None, new_status=None):

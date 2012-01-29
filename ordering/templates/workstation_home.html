@@ -12,6 +12,7 @@
 		font-family: Arial, Calibri, sans-serif;
 		font-weight: Bold;
         margin: 0;
+        -webkit-user-select: none;
 	}
     #orders {
         /*position: absolute;*/
@@ -35,6 +36,9 @@
         padding-left: 5px;
 
 	}
+    #orders .fax.order {
+        background: #d5d5d5;
+    }
     #orders .details {
         height: 100px;
         text-align: center;
@@ -51,6 +55,14 @@
 
     #orders .show_button_container:hover {
         background-color: transparent;
+    }
+    @-webkit-keyframes blue-flash {
+        from {
+            background-color: #0fb3ff;
+        }
+        to {
+            background-color: transparent;
+        }
     }
     @-webkit-keyframes flash {
         from {
@@ -86,6 +98,9 @@
     #orders .show_button_container.connection-check {
         -webkit-animation-name: connection-check-flash;
     }
+    #orders .fax .show_button_container {
+        -webkit-animation-name: blue-flash;
+    }
 
     #orders div div, #connection_status div {
         display: inline-block;
@@ -106,6 +121,10 @@
         margin-bottom: 5px;
         height: 29px;
     }
+    #orders .fax .teaser_txt {
+        color: black;
+    }
+
     #orders .teaser_txt:hover{
         text-decoration:underline;
         cursor: pointer;
@@ -165,7 +184,12 @@
         text-align: left;
         float:left;
         margin-right: 8px;
+        border: 1px solid black;
 	}
+
+    #orders .fax .accept_button_bg {
+        float: none;
+    }
     #orders .accept_button_bg:hover{
         background-image:url(/static/images/sent.png), -webkit-gradient(linear, left top, left bottom, from(#ffffff), to(#b9b9b9));
         cursor: pointer;
@@ -240,6 +264,9 @@
         width: 100%;
         text-align: right;
     }
+    #orders .fax .controls{
+        text-align: center;
+    }
     #orders .addresses {
         width: 100%;
         height: 60px;
@@ -255,11 +282,21 @@
         color: white;
         margin-bottom: 10px;
     }
+
+    #orders .fax .names {
+        color: black;
+    }
+
 	#orders .from_address, #orders .comments, #orders .client{
 		color: #ffde00;
         display: block;
         font-weight: bold;
 	}
+
+    #orders .fax .client, #orders .fax .label {
+        color: #525252;
+    }
+
 	#orders .from_address:hover{
 		color: yellow;
 		text-decoration:underline;
@@ -282,6 +319,9 @@
         padding-right: 2.5%;
         background: black;
 	}
+    #orders .fax.pb-row {
+        background: #d5d5d5;
+    }
 	#orders .pb-row > td {
 		padding-bottom: 4px;
 		padding-top: 1px;
@@ -592,6 +632,16 @@
                 success: onOrder,
                 error: onError
             });
+            $.ajax({
+                url: "{% url get_pending_faxes %}",
+                dataType: "json",
+                success: function(faxes) {
+                    $.each(faxes, function(i,e) {
+                        faxTeaser(e);
+                    })
+                },
+                error: onError
+            })
         }
 
         function onOrder(data) {
@@ -651,22 +701,30 @@
             handleOrder();
         }
         function renderFaxDetails(fax_data) {
-            var send_button = $('<div class="accept_button_bg button_txt fax_button" title="{% trans 'Fax Received' %}"></div>').text('{% trans 'Fax Received' %}').click(function () {
-                handleRemoveRow();
-            });
-            var reject_button = $("<div class='reject_button_bg button_txt fax_button'>{% trans 'Fax Not Found' %}</div>").click(function () {
-                handleRemoveRow();
+            var send_button = $('<div class="accept_button_bg button_txt fax_button" title="{% trans 'Fax Received - Sending Taxi' %}"></div>').text('{% trans 'Fax Received - Sending Taxi' %}').click(function () {
+                trace("fax received");
+                $("#" + fax_data.id).remove();
+                $('#pb_' + fax_data.id).remove();
+                setStateSending(fax_data.id);
+                $.ajax({
+                    url: "{% url fax_received %}",
+                    type: 'POST',
+                    data: {ride_id: fax_data.id},
+                    error: onError,
+                    complete: function() {
+                        handleRemoveRow();
+                        handleRemoveRow();
+                    }
+                });
             });
 
-            var timeout_interval = {{ timeout_interval }};
-//            var initial_val = (timeout_interval - order.seconds_passed) / timeout_interval * 100;
+            var timeout_interval = fax_data.timeout;
+//            var initial_val = (timeout_interval - fax_data.seconds_passed) / timeout_interval * 100;
             var initial_val = 100;
             var progress_indicator = getProgressIndicator(fax_data.id, timeout_interval, initial_val, function () {
-                handleRemoveRow();
+                trace("fax timeout reached");
             });
-            var buttons_div = $("<div class='controls'></div>")
-                    .append(reject_button)
-                    .append(send_button);
+            var buttons_div = $("<div class='controls'></div>").append(send_button);
 
             var names = fax_data.names;
 
@@ -675,7 +733,6 @@
 
             var client_name = fax_data.pickup_address;
             info_div.append($("<div class='client'></div>").append('<span class="label">{% trans "Pickup" %}: </span>').append(client_name));
-
 
             $("#pb_" + fax_data.id).empty().append(progress_indicator);
             var rendered_order = $("#" + fax_data.id).empty().addClass("details")
@@ -686,7 +743,6 @@
 
             // fix icon location
             send_button.css({'background-position':send_button.outerWidth() - 25 +"px, center"});
-            reject_button.css({'background-position':reject_button.outerWidth() - 22 +"px, center"});
         }
         function faxTeaser(fax_data) {
             var show_button_container = $('<div class="show_button_container"></div>');
@@ -696,22 +752,22 @@
 
 
             var incoming_text = "{% trans 'A Fax Was Sent To The Station' %}";
-            var rendered_order = $("<div class='order teaser'></div>").attr('id', fax_data.id).data("state", ORDER_IS_SHOWING)
+            var rendered_order = $("<div class='order teaser fax'></div>").attr('id', fax_data.id).data("state", ORDER_IS_SHOWING)
                     .append($("<div class='teaser_txt'></div>").append(incoming_text))
                     .append(show_button_container);
 
             $(rendered_order).click(function(){
+                rendered_order.data("state", "");
                 stopFussing();
                 renderFaxDetails(fax_data);
            });
 
-            var progress_bar = $("<div class='pb-row'></div>").attr('id', 'pb_' + fax_data.id);
+            var progress_bar = $("<div class='pb-row fax'></div>").attr('id', 'pb_' + fax_data.id);
             $("#orders").append(rendered_order).append(progress_bar);
             rendered_order.show();
             handleAddRow();
             handleAddRow();
             handleOrder();
-
         }
         function checkVersion() {
             $.ajax({
