@@ -181,6 +181,7 @@
 		height: 23px;
 		padding-top: 5px;
         padding-left: 8px;
+        padding-right: 26px;
         text-align: left;
         float:left;
         margin-right: 8px;
@@ -219,6 +220,7 @@
 		height: 23px;
 		padding-top: 5px;
         padding-left: 8px;
+        padding-right: 26px;
         text-align: left;
 	}
 	#orders .reject_button_bg:hover{
@@ -247,6 +249,7 @@
 		/*text-align: right;*/
 		padding-top: 2px;
         padding-left: 21px;
+        padding-right: 4px;
 		font-size: 16px;
 		width: 85px;
 		height: 29px;
@@ -977,6 +980,7 @@
                     .append(buttons_div);
 
             order_row.next().empty();
+            finish_button.css({'background-position':finish_button.outerWidth() - 25 +"px, center"});
         }
 
         function removeOrderRow(order_id) {
