@@ -3,9 +3,20 @@ import logging
 from billing.models import BillingTransaction
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request, ugettext as _
-from common.util import get_unique_id, safe_fetch
+from billing.signals import billing_failed_signal
+from common.decorators import receive_signal
+from common.util import get_unique_id, safe_fetch, notify_by_email, send_mail_as_noreply
 from django.conf import settings
 from common.views import ERROR_PAGE_TEXT, error_page
+
+@receive_signal(billing_failed_signal)
+def on_billing_trx_failed(sender, signal_type, obj, **kwargs):
+    trx = obj
+    sbj = "Billing Failed [%s]" % sender
+    msg = u"trx.id: %s\ntrx.comments: %s" % (trx.id, trx.comments)
+    logging.error(u"%s\n%s" % (sbj, msg))
+    notify_by_email(sbj, msg=msg)
+
 
 ALL_QUERY_FIELDS = {
     "MID"					:               "",
