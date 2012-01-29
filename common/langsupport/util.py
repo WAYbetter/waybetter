@@ -31,6 +31,9 @@ def translate_address_for_ws(ws, order, address_type):
     
     address = getattr(order, "%s_raw" % address_type)
 
+    # transliteration is broken for now, nothing to do
+    return address
+
     order_lang_code = 'en' if is_in_english(address) else 'he'
     ws_lang_code = settings.LANGUAGES[ws.station.language][0]
 
@@ -73,7 +76,7 @@ def transliterate_english_order_to_hebrew(order, address_type):
             return u"%s %s, %s" % (result["street_address"], result["house_number"], result["city"])
 
     # try again without constrain to city
-    hebrew_address = u"%s, %s" % (hebrew_address, city.name)
+    hebrew_address = u"%s, %s" % (hebrew_address, city.name if city else "")
     results = geocode(hebrew_address)
 
     for result in results:

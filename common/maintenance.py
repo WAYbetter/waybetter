@@ -47,25 +47,31 @@ TEL_AVIV_POINTS = [
 
 @catch_view_exceptions
 def run_billing_service_test(request):
-    #TODO_WB: test mobile page as well
+    failures_counter = "billing_test_failures"
+    max_strikes = 3
 
     success = True
     err_msg = ""
-    request.mobile = False
 
     try:
-        url = get_token_url(request)
-        result = fetch(url)
-        if result.status_code != 200:
-            success = False
-            err_msg = "status_code: %s" % result.status_code
+        for val in [False, True]:
+            request.mobile = val
+            url = get_token_url(request)
+            result = fetch(url)
+            if result.status_code != 200:
+                success = False
+                err_msg = "status_code: %s" % result.status_code
 
     except Exception, e:
         err_msg = "There was an exception: %s\nTraceback:%s" % (e, traceback.format_exc())
         success = False
 
-    if not success:
-        notify_by_email("billing service appears to be down", err_msg)
+    if success:
+        memcache.set(key=failures_counter, value=0)
+    else:
+        memcache.incr(failures_counter, initial_value=0)
+        if memcache.get(failures_counter) == max_strikes:
+            notify_by_email("billing service appears to be down (strike #%s)" % max_strikes , err_msg)
 
     return HttpResponse("OK")
 
