@@ -13,7 +13,7 @@ from common.views import ERROR_PAGE_TEXT, error_page
 def on_billing_trx_failed(sender, signal_type, obj, **kwargs):
     trx = obj
     sbj = "Billing Failed [%s]" % sender
-    msg = u"trx.id: %s\ntrx.comments: %s" % (trx.id, trx.comments)
+    msg = u"trx.id: %s\ntrx.comments: %s\norder: %s\npassenger: %s\ndebug: %s" % (trx.id, trx.comments, trx.order, trx.passenger, trx.debug)
     logging.error(u"%s\n%s" % (sbj, msg))
     notify_by_email(sbj, msg=msg)
 
