@@ -509,6 +509,7 @@ def get_text_from_element(node, *elements):
             return node.firstChild.data
 
 
+# TODO_WB: this code is not currently used, consider removing
 def add_formatted_date_fields(classes):
     """
     For each DateTime in given model classes field add a methods to print the formatted date time according to

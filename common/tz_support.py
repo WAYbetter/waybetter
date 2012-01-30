@@ -6,7 +6,9 @@ A utility module to handle timezone requirements
 
 import datetime
 import time
+from django.conf import settings
 from django.db import models
+from django.utils.dateformat import format as date_format
 
 class UTC(datetime.tzinfo):
     """UTC"""
@@ -105,6 +107,9 @@ def default_tz_now_max():
 
 def set_default_tz_time(time):
     return time.replace(tzinfo=TZ_INFO["Asia/Jerusalem"])
+
+def format_dt(dt):
+    return date_format(dt, settings.DATETIME_FORMAT)
 
 def to_js_date(dt):
     """

@@ -12,7 +12,7 @@ def enable(modeladmin, request, queryset):
 enable.short_description = "Enable"
 
 class BillingTransactionAdmin(admin.ModelAdmin):
-    list_display = ["id", "dn_passenger_name", "dn_pickup_time_format", "dn_pickup", "dn_dropoff", "amount", "charge_date_format", "status", "debug", "invoice_sent", "comments", "transaction_id"]
+    list_display = ["id", "dn_passenger_name", "dn_pickup_time", "dn_pickup", "dn_dropoff", "amount", "charge_date", "status", "debug", "invoice_sent", "comments", "transaction_id"]
     list_filter = ["status", "debug", "invoice_sent"]
     exclude = ["passenger", "order"]
     actions = [disable, enable]
