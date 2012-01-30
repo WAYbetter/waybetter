@@ -17,8 +17,8 @@ from django.contrib.auth import login
 from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea, CityAreaField
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, add_formatted_date_fields
-from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now
+from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES
+from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now, format_dt
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
 from sharing.signals import ride_status_changed_signal
@@ -921,7 +921,7 @@ class Order(BaseModel):
         return _('%(date)s: Taxi ride from %(pickup)s to %(dropoff)s %(seats)s') % {
             "pickup"    : self.from_raw,
             "dropoff"   : self.to_raw,
-            "date"      : self.depart_time_format(),
+            "date"      : format_dt(self.depart_time),
             "seats"     : "(%s %s)" % (self.num_seats, ugettext("seats")) if self.num_seats > 1 else ""
         }
 
@@ -995,7 +995,7 @@ class Order(BaseModel):
             pickup_str = u"%s, %s-%s" % (d, sharing_dprt.strftime("%H:%M"), self.depart_time.strftime("%H:%M"))
 
         else: # from hotspot
-            pickup_str = self.depart_time_format()
+            pickup_str = format_dt(self.depart_time)
 
         return pickup_str
     
@@ -1264,8 +1264,6 @@ for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
             Feedback, "%s_%s_msg" % (type.lower(), category.lower().replace(" ", "_")))
         models.BooleanField(default=False).contribute_to_class(Feedback, "%s_%s" % (
         type.lower(), category.lower().replace(" ", "_")))
-
-add_formatted_date_fields([Order, OrderAssignment, Passenger, Station, WorkStation, RidePoint, SharedRide])
 
 # TODO_WB: check if created arg has been fixed and reports False on second save of instance
 #def order_init_handler(sender, **kwargs):

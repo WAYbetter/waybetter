@@ -13,7 +13,7 @@ from billing.billing_backend import send_invoices_passenger, create_invoice_pass
 from billing.billing_manager import get_billing_redirect_url
 from billing.enums import BillingStatus, BillingAction
 from common.forms import DatePickerForm
-from common.tz_support import default_tz_now, default_tz_time_max, default_tz_time_min, default_tz_now_max
+from common.tz_support import default_tz_now, default_tz_time_max, default_tz_time_min, default_tz_now_max, format_dt
 from common.util import custom_render_to_response, notify_by_email, Enum, send_mail_as_noreply, base_datepicker_page
 from django.core.urlresolvers import reverse
 from django.utils import translation
@@ -242,8 +242,10 @@ def get_csv(request):
             msg = "Missing Parameters"
 
         return HttpResponse(msg)
+    def f(x,y):
+        pass
 
-    return base_datepicker_page(request, None, "csv_report.html", locals(), init_start_date=default_tz_now_max() - timedelta(days=7), init_end_date=default_tz_now_max())
+    return base_datepicker_page(request, f, "csv_report.html", locals(), init_start_date=default_tz_now_max() - timedelta(days=7), init_end_date=default_tz_now_max())
 
 @csrf_exempt
 @catch_view_exceptions
@@ -310,7 +312,7 @@ def get_csv_task(request):
                 order.to_raw,
                 str(order.passenger),
                 billing_trx.amount if billing_trx else "NA",
-                billing_trx.charge_date_format() if billing_trx else "NA"
+                format_dt(billing_trx.charge_date) if billing_trx else "NA"
             ]
 
         for i in xrange(3 - order_count):

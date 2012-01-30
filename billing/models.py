@@ -3,7 +3,7 @@ from google.appengine.ext.db import is_in_transaction
 from billing.enums import BillingStatus, BillingAction
 from common.models import BaseModel
 from common.tz_support import UTCDateTimeField
-from common.util import StatusField, add_formatted_date_fields
+from common.util import StatusField
 from django.core.urlresolvers import reverse
 from ordering.models import Passenger, Order
 from django.db import models
@@ -128,10 +128,6 @@ class BillingTransaction(BaseModel):
 
         q = taskqueue.Queue('orders')
         q.add(task)
-
-
-add_formatted_date_fields([BillingTransaction])
-
 
 
 # TODO: only for dev time
