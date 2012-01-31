@@ -1,11 +1,12 @@
 # This Python file uses the following encoding: utf-8
+from common.geocode import gmaps_geocode
 from common.signals import async_computation_failed_signal, async_computation_completed_signal
 from google.appengine.api.channel import channel
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction, BillingInfo
 from common.decorators import force_lang
 from common.models import City
-from common.util import custom_render_to_response, get_uuid, base_datepicker_page
+from common.util import custom_render_to_response, get_uuid, base_datepicker_page, is_in_hebrew
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
 from django.utils import simplejson, translation
@@ -29,6 +30,22 @@ import re
 
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 LANG_CODE = "he"
+
+@staff_member_required
+def gmaps(request):
+    return render_to_response("gmaps_testpage.html", locals(), context_instance=RequestContext(request))
+
+def gmaps_resolve_address(request):
+    address = request.GET.get("address")
+    lang_code = 'iw' if is_in_hebrew(address) else 'en'
+    geocoding_results =  gmaps_geocode(address=address, lang_code=lang_code)
+    results = []
+    for result in geocoding_results:
+        results.append({
+            'description': '%s (%s)' % (result['formatted_address'], ", ".join(result['types'])),
+            'raw_data': simplejson.dumps(result)
+        })
+    return JSONResponse({'results': results})
 
 @staff_member_required
 @force_lang("en")

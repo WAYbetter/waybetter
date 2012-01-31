@@ -1,0 +1,201 @@
+{% extends "wb_base_site.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        table {
+            width: 100%;
+        }
+
+        table td {
+            width: 50%;
+        }
+
+        input {
+            width: 100%;
+            margin-bottom: 15px;
+        }
+
+        .align-top {
+            vertical-align: top;
+        }
+
+        .result_data {
+            border: 1px solid #778899;
+            direction: ltr;
+            min-height: 100px;
+            max-height: 250px;
+            overflow-y: scroll;
+            white-space: pre;
+        }
+
+        #map_canvas {
+            height: 300px;
+            width: 100%;
+        }
+    </style>
+
+{% endblock %}
+{% block content %}
+    <table>
+        <tr class="align-top">
+            <td>
+                <input type="text" id="pickup" placeholder="{% trans "Enter Pickup address" %}">
+
+                <div class="result_data">Choose Pickup</div>
+            </td>
+
+            <td>
+                <input type="text" id="dropoff" placeholder="{% trans "Enter Dropoff Address" %}">
+
+                <div class="result_data">Choose Dropoff</div>
+            </td>
+        </tr>
+        <tr>
+            <td colspan="2">
+                <div id="map_canvas"></div>
+            </td>
+        </tr>
+    </table>
+
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+
+    {# see Places autocomplete API - http://code.google.com/apis/maps/documentation/javascript/places.html#places_autocomplete #}
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false"></script>
+
+    <script type="text/javascript">
+
+        function initGmap() {
+            var mapOptions = {
+                center:new google.maps.LatLng(32.058536, 34.79059),
+                zoom:13,
+                mapTypeId:google.maps.MapTypeId.ROADMAP
+            };
+            map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+
+            makeAddressACPlaces("pickup");
+            makeAddressACPlaces("dropoff");
+
+        }
+
+        function makeAddressACPlaces(input_id) {
+            var input = document.getElementById(input_id);
+
+            var autocomplete = new google.maps.places.Autocomplete(input, {});
+
+            var marker = new google.maps.Marker({
+                map:map
+            });
+            google.maps.event.addListener(autocomplete, 'place_changed', function () {
+                var place = autocomplete.getPlace();
+                if (place.geometry.viewport) {
+                    map.fitBounds(place.geometry.viewport);
+                } else {
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(17);
+                }
+
+                var image = new google.maps.MarkerImage(
+                        place.icon,
+                        new google.maps.Size(71, 71),
+                        new google.maps.Point(0, 0),
+                        new google.maps.Point(17, 34),
+                        new google.maps.Size(35, 35));
+                marker.setIcon(image);
+                marker.setPosition(place.geometry.location);
+
+                // get geocoding data from server
+                $.ajax({
+                    url:"{% url sharing.staff_controller.gmaps_resolve_address %}",
+                    data:{
+                        address:$(input).val()
+                    },
+                    dataType:"json",
+                    success:function (response) {
+                        var o = JSON.parse(response.results[0].raw_data);
+                        $(input).next(".result_data").text(JSON.stringify(o, null, 4));
+                    },
+                    error:function () {
+                    }
+                });
+            })
+        }
+
+        function toggleMapStyle() {
+            var pinkParksStyles = [
+                {
+                    featureType:"all",
+                    stylers:[
+                        { saturation:-80 }
+                    ]
+                },
+                {
+                    featureType:"poi.park",
+                    stylers:[
+                        { hue:"#ff0023" },
+                        { saturation:40 }
+                    ]
+                }
+            ];
+
+            map.setOptions({styles: pinkParksStyles});
+        }
+        function makeAddressACServer(input) {
+            var $input = $(input);
+
+            $input.autocomplete({
+                autoFocus:true,
+                minLength:2,
+                source:function (request, response) {
+                    $.ajax({
+                        url:"{% url sharing.staff_controller.gmaps_resolve_address %}",
+                        data:{address:$input.val()},
+                        dataType:"json",
+                        success:function (data) {
+                            response($.map(data.results, function (item) {
+                                return {
+                                    label:item.description,
+                                    raw_data:item.raw_data
+                                }
+                            }));
+                        },
+                        error:function () {
+                            response([]);
+                        }
+                    });
+                },
+                select:function (event, ui) {
+                    var o = JSON.parse(ui.item.raw_data);
+                    $input.next(".result_data").text(JSON.stringify(o, null, 4));
+                    $(this).blur().autocomplete("disable");
+                }
+
+            });
+
+            $input.blur(
+                    function () {
+                        $(this).autocomplete("disable");
+                    }).focus(
+                    function () {
+                        $(this).autocomplete("enable");
+                        $(this).autocomplete("search");
+                        $(this).data("old_val", $(this).val());
+                    }).keyup(function (e) {
+                        if ($(this).data("old_val") !== $(this).val()) {
+                            $(this).data("resolved", false);
+                        }
+                    });
+        }
+
+
+        $(document).ready(function () {
+            initGmap();
+//            makeAddressACServer("#pickup");
+//            makeAddressACServer("#dropoff");
+        })
+    </script>
+{% endblock %}
