@@ -322,8 +322,8 @@ def get_unique_id():
     return s.hexdigest()
 
 
-def notify_by_email(subject, msg=None, html=None):
-    send_mail_as_noreply("notify@waybetter.com", "WAYbetter notification: %s" % subject, msg=msg, html=html)
+def notify_by_email(subject, msg=None, html=None, attachments=None):
+    send_mail_as_noreply("notify@waybetter.com", "WAYbetter notification: %s" % subject, msg=msg, html=html, attachments=attachments)
 
 def send_mail_as_noreply(address, subject, msg=None, html=None, attachments=None):
     logging.info(u"Sending email to %s: [%s] %s" % (address, subject, msg))
