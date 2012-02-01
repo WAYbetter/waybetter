@@ -322,8 +322,8 @@ def get_unique_id():
     return s.hexdigest()
 
 
-def notify_by_email(subject, msg=None, html=None):
-    send_mail_as_noreply("notify@waybetter.com", "WAYbetter notification: %s" % subject, msg=msg, html=html)
+def notify_by_email(subject, msg=None, html=None, attachments=None):
+    send_mail_as_noreply("notify@waybetter.com", "WAYbetter notification: %s" % subject, msg=msg, html=html, attachments=attachments)
 
 def send_mail_as_noreply(address, subject, msg=None, html=None, attachments=None):
     logging.info(u"Sending email to %s: [%s] %s" % (address, subject, msg))
@@ -562,8 +562,8 @@ def base_datepicker_page(request, f_data, template_name, wrapper_locals, init_st
     if request.method == 'POST': # date picker form submitted
         form = DatePickerForm(request.POST)
         if form.is_valid():
-            start_date = datetime.combine(form.cleaned_data["start_date"], datetime.time.min)
-            end_date = datetime.combine(form.cleaned_data["end_date"], datetime.time.max)
+            start_date = datetime.datetime.combine(form.cleaned_data["start_date"], datetime.time.min)
+            end_date = datetime.datetime.combine(form.cleaned_data["end_date"], datetime.time.max)
             if async:
                 assert wrapper_locals.get('channel_id')
                 assert wrapper_locals.get('token')

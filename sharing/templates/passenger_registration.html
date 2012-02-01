@@ -102,11 +102,13 @@
                             <tr class="btn cntr">
                                 <td></td>
                                 <td>
-                                    <button id="validate_phone" type="button" class="wb_button"
-                                            disabled="disabled">{% trans "Send SMS Code" %}</button>
-                                    <div id="didnt_get_code">
-                                        <a class="wb_link"
-                                           href="mailto:support@waybetter.com?subject={% trans "I didn't get the SMS code" %}">{% trans "I didn't get the SMS code" %}</a>
+                                    <div id="sms_button_container">
+                                        <button id="validate_phone" type="button" class="wb_button"
+                                                disabled="disabled">{% trans "Send SMS Code" %}</button>
+                                        <div id="didnt_get_code">
+                                            <a class="wb_link"
+                                               href="mailto:support@waybetter.com?subject={% trans "I didn't get the SMS code" %}">{% trans "I didn't get the SMS code" %}</a>
+                                        </div>
                                     </div>
                                 </td>
                             </tr>
@@ -137,7 +139,7 @@
             <span id="bottom_login">
                 {% trans "Already a member?" %} <a href="{{ login_link }}" class="wb_link">{% trans "Sign In" %}</a>
             </span>
-            <button id="finish_auth" class="wb_button" disabled="disabled">{% trans "Next" %} ></button>
+            <button id="finish_auth" class="wb_button">{% trans "Next" %} ></button>
         {% else %}
             <button id="finish_phone" class="wb_button" disabled="disabled">{% trans "Next" %} ></button>
         {% endif %}
@@ -165,14 +167,7 @@
                     }
                 });
 
-                $("#id_agree_to_terms").change(function () {
-                    var valid = $("#auth_form")[0].validate();
-                    if (!valid){
-                        $("#finish_auth").disable();
-                    }
-                });
-
-                $("#finish_auth").disable().click(function () {
+                $("#finish_auth").click(function () {
                     $.ajax({
                         url:"{% url register_user %}",
                         type:"POST",

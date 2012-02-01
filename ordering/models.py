@@ -720,6 +720,7 @@ class WorkStation(BaseModel):
     installer_url = models.URLField(_("installer URL"), verify_exists=False, max_length=500, null=True, blank=True)
     was_installed = models.BooleanField(_("was installed"), default=False)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
+    accept_unconfined_orders = models.BooleanField(default=True, help_text="Accept orders not confined to a station e.g., booked from PickMeApp")
     accept_shared_rides = models.BooleanField(_("Accept Shared Rides"), default=False)
     accept_debug = models.BooleanField(_("Accept debug"), default=False)
 

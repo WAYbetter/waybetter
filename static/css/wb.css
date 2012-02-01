@@ -202,9 +202,8 @@ ul.hz > li, #top-right ul.content_links > li {
 .wb_button {
   border: #454545;
   color: white;
-  padding: 10px 15px 10px 15px;
+  padding: 0 15px;
   height: 31px;
-  line-height: 0;
   font-weight: bold;
   font-size: 13px;
   -webkit-border-radius: 3px;
@@ -274,6 +273,21 @@ ul.hz > li, #top-right ul.content_links > li {
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
   box-shadow: none; }
+
+.wb_button.blue {
+  background: #49aad7;
+  background: -webkit-gradient(linear, left top, left bottom, from(#49aad7), to(#2c83c1));
+  background: -moz-linear-gradient(-90deg, #49aad7, #2c83c1);
+  text-shadow: #2a6b8e 0px -1px; }
+
+.wb_button.blue:hover {
+  background: #50b9ea;
+  background: -webkit-gradient(linear, left top, left bottom, from(#50b9ea), to(#298acf));
+  background: -moz-linear-gradient(-90deg, #50b9ea, #298acf);
+  -pie-background: linear-gradient(-90deg, #50b9ea, #298acf); }
+
+.wb_button.blue:active, .wb_button.blue:disabled {
+  background: #3199df; }
 
 .order_button {
   font-size: 16px;
@@ -1251,7 +1265,7 @@ Registration
 .registration #auth_step {
   width: 100%; }
   .registration #auth_step .header-row td {
-    padding-bottom: 30px; }
+    padding-bottom: 38px; }
   .registration #auth_step .vrule-cntr {
     padding: 0 20px; }
   .registration #auth_step .login {
@@ -1295,10 +1309,12 @@ Registration
     .registration #auth_step #user_details td, .registration #auth_step #user_details th {
       vertical-align: top; }
   .registration #auth_step #terms_container {
-    text-align: right; }
+    text-align: right;
+    padding-top: 8px; }
 .registration #next_container {
   width: 100%;
-  text-align: right; }
+  text-align: right;
+  padding-bottom: 10px; }
 .registration #bottom_login {
   margin-right: 20px; }
 .registration #phone_step {
@@ -1309,10 +1325,11 @@ Registration
   label-width: 100px; }
 .registration #local_phone {
   width: 245px; }
-.registration #validate_phone, .registration #didnt_get_code {
-  width: 132px; }
+.registration #sms_button_container {
+  display: inline-block; }
 .registration #didnt_get_code {
-  padding-top: 6px; }
+  padding-top: 6px;
+  text-align: center; }
 .registration #verification_status {
   width: 30px;
   height: 30px;
@@ -1391,7 +1408,8 @@ Registration
     bottom: -23px;
     background: url("/static/images/wb_site/invoice_eng.png") left 0 no-repeat; }
 .credit_guard_page #submit {
-  font-size: 13px; }
+  font-size: 13px;
+  padding-bottom: 8px; }
 .credit_guard_page #disclaimer {
   padding: 1px 10px; }
 .credit_guard_page #button_container {

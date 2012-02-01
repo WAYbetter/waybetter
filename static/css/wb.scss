@@ -274,9 +274,8 @@ ul.hz{
 .wb_button{
     border: #454545;
     color: white;
-    padding: 10px 15px 10px 15px;
+    padding: 0 15px;;
     height: 31px;
-    line-height: 0;
     font-weight: bold;
     font-size: $font-size-medium;
     @extend .clickable;
@@ -320,6 +319,25 @@ ul.hz{
     border: none;
     background: #C7C7C7;
     @include box-shadow(none);
+}
+
+.wb_button.blue {
+    background: #49aad7;
+    background: -webkit-gradient(linear, left top, left bottom, from(#49aad7), to(#2c83c1));
+    background: -moz-linear-gradient(-90deg, #49aad7, #2c83c1);
+
+    text-shadow: #2a6b8e 0px -1px;
+}
+
+.wb_button.blue:hover {
+    background: #50b9ea;
+    background: -webkit-gradient(linear, left top, left bottom, from(#50b9ea), to(#298acf));
+    background: -moz-linear-gradient(-90deg, #50b9ea, #298acf);
+    -pie-background: linear-gradient(-90deg, #50b9ea, #298acf);
+}
+
+.wb_button.blue:active, .wb_button.blue:disabled {
+    background: #3199df;
 }
 
 .order_button {
@@ -1399,7 +1417,7 @@ Registration
     // auth step
     #auth_step{
         width: 100%;
-        .header-row td{ padding-bottom: 30px; }
+        .header-row td{ padding-bottom: 38px; }
         .vrule-cntr{ padding: 0 2*$space;}
         .login{text-align: right;}
         .fb{
@@ -1443,11 +1461,13 @@ Registration
         }
         #terms_container{
             text-align: right;
+            padding-top: 8px;
         }
     }
     #next_container {
         width: 100%;
         text-align: right;
+        padding-bottom: 10px;
     }
     #bottom_login{
         margin-right: 20px;
@@ -1465,11 +1485,12 @@ Registration
     #local_phone{
         width: 245px;
     }
-    #validate_phone, #didnt_get_code{
-        width: 132px;
+    #sms_button_container{
+        display: inline-block;
     }
     #didnt_get_code{
         padding-top: 6px;
+        text-align: center;
     }
     #verification_status{
         width: 30px;
@@ -1571,6 +1592,7 @@ Registration
     }
     #submit{
         font-size: $font-size-medium;
+        padding-bottom: 8px;
     }
     #disclaimer{
         padding: 1px 10px;

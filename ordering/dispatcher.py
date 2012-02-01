@@ -97,7 +97,7 @@ def compute_ws_list(order):
     if order.confining_station:
         ws_qs = order.confining_station.work_stations.all()
     else:
-        ws_qs = WorkStation.objects.filter(accept_shared_rides=False)
+        ws_qs = WorkStation.objects.filter(accept_unconfined_orders=True)
 
 
     # exclude work station whose station rejected/ignored this order

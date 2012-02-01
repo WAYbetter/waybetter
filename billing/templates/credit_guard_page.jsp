@@ -172,7 +172,7 @@
                     </span>
                     <br>
                     <% if (lang.equals("HE")) { %>
-                    WAYbetter אינה שומרת או מחזיקה בפרטי האשראי שלך. פרטי האשראי נשמרים בצורה מאובטחת בחברת Credit
+                    WAYbetter אינה מחזיקה בפרטי האשראי שלך. פרטי האשראי נשמרים בצורה מאובטחת בחברת Credit
                     Guard.
                     <% } else { %>
                     WAYbetter does not store nor hold any of your details. You are professionally secured with Credit
