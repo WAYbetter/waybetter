@@ -177,7 +177,7 @@ def send_invoices_passenger(billing_transactions):
 
     url = INVOICE_INFO["invoice_url"]
 
-    payload = dict([(k,v.encode('iso8859_8') if type(v) is types.UnicodeType else v) for (k,v) in payload.items()])
+    payload = dict([(k,v.encode('iso8859_8', errors='ignore') if type(v) is types.UnicodeType else v) for (k,v) in payload.items()])
     payload = urlencode(payload)
 
     result = safe_fetch(url, method="POST", payload=payload, deadline=50, headers={'Content-Type': 'application/x-www-form-urlencoded'})
@@ -214,7 +214,7 @@ def create_invoice_passenger(passenger):
         }
 
     url = INVOICE_INFO["invoice_url"]
-    payload = dict([(k,v.encode('iso8859_8') if type(v) is types.UnicodeType else v) for (k,v) in payload.items()])
+    payload = dict([(k,v.encode('iso8859_8', errors='ignore') if type(v) is types.UnicodeType else v) for (k,v) in payload.items()])
     payload = urlencode(payload)
     result = safe_fetch(url, method="POST", payload=payload, deadline=50, headers={'Content-Type': 'application/x-www-form-urlencoded'})
 
