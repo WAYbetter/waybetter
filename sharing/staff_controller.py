@@ -1,5 +1,5 @@
 # This Python file uses the following encoding: utf-8
-from common.geocode import gmaps_geocode
+from common.geocode import gmaps_geocode, Bounds
 from common.signals import async_computation_failed_signal, async_computation_completed_signal
 from google.appengine.api.channel import channel
 from billing.enums import BillingStatus
@@ -38,7 +38,13 @@ def gmaps(request):
 def gmaps_resolve_address(request):
     address = request.GET.get("address")
     lang_code = 'iw' if is_in_hebrew(address) else 'en'
-    geocoding_results =  gmaps_geocode(address=address, lang_code=lang_code)
+    tel_aviv_bounds = Bounds({
+        "sw_lat": "32.032819",
+        "sw_lon": "34.741859",
+        "ne_lat": "32.132594",
+        "ne_lon": "34.83284"
+    })
+    geocoding_results =  gmaps_geocode(address=address, lang_code=lang_code, bounds=tel_aviv_bounds)
     results = []
     for result in geocoding_results:
         results.append({

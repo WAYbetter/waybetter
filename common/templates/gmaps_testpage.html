@@ -24,15 +24,36 @@
         .result_data {
             border: 1px solid #778899;
             direction: ltr;
-            min-height: 100px;
+            min-height: 250px;
             max-height: 250px;
-            overflow-y: scroll;
+            overflow-y: auto;
+            font-family: courier;
             white-space: pre;
+            border-radius: 5px;
         }
 
         #map_canvas {
             height: 300px;
             width: 100%;
+        }
+
+        #totals {
+            min-height: 30px;
+            position: absolute;
+            left: -135px;
+            background: white;
+            white-space: pre;
+            width: 130px;
+            top: 0;
+            text-align: center;
+            font-family: sans-serif;
+        }
+
+        #directions {
+            display: none;
+        }
+        #more {
+            color: #87ceeb;
         }
     </style>
 
@@ -53,22 +74,30 @@
             </td>
         </tr>
         <tr>
-            <td colspan="2">
+            <td colspan="2" style="position: relative;">
                 <div id="map_canvas"></div>
+                <div id="totals" class="result_data">
+                    <div id="text"></div>
+                    <div id="more">click for more</div>
+                </div>
+
             </td>
         </tr>
     </table>
-
+    <div id="directions" class="result_data"></div>
 {% endblock %}
 
 {% block doc_ready %}
     {{ block.super }}
 
     {# see Places autocomplete API - http://code.google.com/apis/maps/documentation/javascript/places.html#places_autocomplete #}
-    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false"></script>
+    <script type="text/javascript"
+            src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
 
     <script type="text/javascript">
-
+        var directionsDisplay;
+        var directionsService = new google.maps.DirectionsService();
+        var map;
         function initGmap() {
             var mapOptions = {
                 center:new google.maps.LatLng(32.058536, 34.79059),
@@ -76,6 +105,13 @@
                 mapTypeId:google.maps.MapTypeId.ROADMAP
             };
             map = new google.maps.Map(document.getElementById("map_canvas"), mapOptions);
+
+            directionsDisplay = new google.maps.DirectionsRenderer();
+            directionsDisplay.setMap(map);
+
+            $("#totals").hide().click(function () {
+                $("#directions").toggle()
+            });
 
             makeAddressACPlaces("pickup");
             makeAddressACPlaces("dropoff");
@@ -85,13 +121,26 @@
         function makeAddressACPlaces(input_id) {
             var input = document.getElementById(input_id);
 
-            var autocomplete = new google.maps.places.Autocomplete(input, {});
+            var defaultBounds = new google.maps.LatLngBounds(
+                    new google.maps.LatLng(32.032819, 34.741859),
+                    new google.maps.LatLng(32.132594, 34.83284));
+
+            var autocomplete = new google.maps.places.Autocomplete(input,
+                    {
+                        bounds:defaultBounds,
+//                        types:['geocode']
+                    });
 
             var marker = new google.maps.Marker({
                 map:map
             });
             google.maps.event.addListener(autocomplete, 'place_changed', function () {
+                $("#directions, #totals").hide();
+
                 var place = autocomplete.getPlace();
+
+                $(input).data("address", place);
+
                 if (place.geometry.viewport) {
                     map.fitBounds(place.geometry.viewport);
                 } else {
@@ -122,6 +171,32 @@
                     error:function () {
                     }
                 });
+
+                var pickup_address = $("#pickup").data("address");
+                var dropoff_address = $("#dropoff").data("address");
+
+                if (pickup_address && dropoff_address) {
+                    var request = {
+                        origin:pickup_address.geometry.location.lat() + "," + pickup_address.geometry.location.lng(),
+                        destination:dropoff_address.geometry.location.lat() + "," + dropoff_address.geometry.location.lng(),
+                        travelMode:google.maps.TravelMode.DRIVING
+                    };
+                    directionsService.route(request, function (result, status) {
+                        if (status == google.maps.DirectionsStatus.OK) {
+                            var total_distance = 0;
+                            var total_duration = 0;
+                            $.each(result.routes[0].legs, function (i, leg) {
+                                total_distance += leg.distance.value;
+                                total_duration += leg.duration.value;
+                            });
+
+                            $("#directions").text(JSON.stringify(result, null, 4));
+                            $("#totals #text").text("Duration = " + (total_duration / 60).toFixed(2) + " min\nDistance = " + (total_distance / 1000).toFixed(2) + " km");
+                            $("#totals").show();
+                            directionsDisplay.setDirections(result);
+                        }
+                    })
+                }
             })
         }
 
@@ -142,7 +217,7 @@
                 }
             ];
 
-            map.setOptions({styles: pinkParksStyles});
+            map.setOptions({styles:pinkParksStyles});
         }
         function makeAddressACServer(input) {
             var $input = $(input);
