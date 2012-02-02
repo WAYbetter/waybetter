@@ -49,7 +49,22 @@ def get_sharing_cities(request):
     return JSONResponse(cities)
 
 def get_sharing_cities_data():
-    return [{'id': city.id, 'name': city.name} for city in City.objects.filter(name__in=["תל אביב יפו", "רמת גן", "גבעתיים"])]
+    default_city_name = u"תל אביב יפו"
+    city_names = [u"גבעתיים", u"רמת גן", default_city_name]
+    cities = sorted(City.objects.filter(name__in=city_names), key=lambda city: city.name)
+
+    # put the default city first
+    idx = None
+    for i, city in enumerate(cities):
+        if city.name == default_city_name:
+            idx = i
+            break
+
+    if idx:
+        default_city = cities.pop(idx)
+        cities.insert(0, default_city)
+
+    return [{'id': city.id, 'name': city.name} for city in cities]
 
 def welcome_email(request):
     return render_to_response("welcome_email.html")
