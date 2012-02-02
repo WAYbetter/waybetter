@@ -6,7 +6,7 @@ from django.template.context import RequestContext
 from common.util import custom_render_to_response
 from django.utils import simplejson
 from djangotoolbox.http import JSONResponse
-from ordering.models import OrderType
+from ordering.models import OrderType, StationFixedPriceRule
 
 def info(request):
     return custom_render_to_response("wb_info.html", locals(), context_instance=RequestContext(request))
@@ -49,7 +49,7 @@ def get_sharing_cities(request):
     return JSONResponse(cities)
 
 def get_sharing_cities_data():
-    return [{'id': city.id, 'name': city.name} for city in City.objects.filter(name="תל אביב יפו")]
+    return [{'id': city.id, 'name': city.name} for city in City.objects.filter(name__in=["תל אביב יפו", "רמת גן", "גבעתיים"])]
 
 def welcome_email(request):
     return render_to_response("welcome_email.html")
