@@ -43,7 +43,7 @@ select {
 select:focus {
   border: none; }
 
-.bold, .wb_home #booking_content_container #booking_progress .step.current, .wb_home #booking_content_container #booking_progress .step.completed.current, .wb_home #booking_content_container #ride_summary .details_label, .wb_home #booking_content_container #ride_summary .details_label_type {
+.bold, .wb_home #booking_content_container #booking_progress .step.current, .wb_home #booking_content_container #booking_progress .step.completed.current, .wb_home #booking_content_container #ride_summary .details_label, .wb_home #booking_content_container #ride_summary .details_label_type, .user_profile .label-cntr, .user_profile .initial-value, .user_profile .new-value {
   font-weight: bold; }
 
 .transparent {
@@ -1468,6 +1468,43 @@ Registration
 .rtl.transaction_page #home {
   right: auto;
   left: 0; }
+
+.user_profile #header {
+  font-size: 18px;
+  font-weight: bold;
+  margin-bottom: 30px; }
+.user_profile #error {
+  color: red;
+  margin-bottom: 30px; }
+.user_profile #details {
+  border-collapse: collapse;
+  width: 100%; }
+.user_profile .details-row, .user_profile .button-row {
+  height: 50px;
+  border-top: 1px solid #bcbcbc; }
+.user_profile .button-row {
+  text-align: right;
+  vertical-align: bottom; }
+.user_profile .label-cntr {
+  width: 100px;
+  padding: 0 15px 0 25px;
+  color: gray; }
+.user_profile .initial-value, .user_profile .new-value {
+  font-size: 11px; }
+.user_profile input {
+  width: 200px; }
+.user_profile .action-cntr {
+  text-align: right;
+  padding-right: 25px; }
+.user_profile input {
+  padding: 0 8px; }
+
+.rtl.user_profile .button-row {
+  text-align: left; }
+.rtl.user_profile .action-cntr {
+  text-align: left;
+  padding-right: auto;
+  padding-left: 25px; }
 
 /*
 Info pages

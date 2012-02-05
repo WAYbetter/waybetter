@@ -105,10 +105,10 @@
                                     <div id="sms_button_container">
                                         <button id="validate_phone" type="button" class="wb_button"
                                                 disabled="disabled">{% trans "Send SMS Code" %}</button>
-                                        <div id="didnt_get_code">
-                                            <a class="wb_link"
-                                               href="mailto:support@waybetter.com?subject={% trans "I didn't get the SMS code" %}">{% trans "I didn't get the SMS code" %}</a>
-                                        </div>
+{#                                        <div id="didnt_get_code">#}
+{#                                            <a class="wb_link"#}
+{#                                               href="mailto:support@waybetter.com?subject={% trans "I didn't get the SMS code" %}">{% trans "I didn't get the SMS code" %}</a>#}
+{#                                        </div>#}
                                     </div>
                                 </td>
                             </tr>
@@ -200,6 +200,8 @@
                         }
                     });
                 });
+
+                $("#auth_form input").not(":hidden").first().focus();
             });
         </script>
 
@@ -298,7 +300,9 @@
                             if ($(this).val().length >= 4 && $.inArray(event.which, permittedKeys) < 0) {
                                 return false;
                             }
-                        });
+                });
+
+                $("#local_phone").focus();
             });
         </script>
     {% endif %}

@@ -1,4 +1,5 @@
 # This Python file uses the following encoding: utf-8
+import re
 from django.db import models
 from django.template.loader import get_template
 from django.template.context import  Context
@@ -44,11 +45,21 @@ def send_channel_msg_to_passenger(passenger, msg):
                 "KeyError: Failed sending channel message to passenger[%d]: %s" % (passenger.id, msg))
 
 
+def get_name_parts(full_name):
+    if full_name is None:
+        return None, None
+
+    name_parts = re.split("\s+", full_name)
+    first_name = name_parts[0]
+    last_name = name_parts[1] if len(name_parts) > 1 else ""
+
+    return first_name, last_name
+
 
 def create_user(username, password="", email="", first_name="", last_name="", save=True):
     user = User.objects.create_user(username, email, password)
-    user.first_name = first_name
-    user.last_name = last_name
+    user.first_name = (first_name or "").strip()
+    user.last_name = (last_name or "").strip()
 
     if email and not user.first_name:
         user.first_name = email.split("@")[0]
@@ -64,6 +75,49 @@ def create_user(username, password="", email="", first_name="", last_name="", sa
     logging.info("welcome new user: %s" % user)
     return user
 
+
+def update_user_details(user, **kwargs):
+    new_email = kwargs.get("email")
+    new_username = kwargs.get("username")
+
+    taken_error_msg = ugettext("Email/Username already registered")
+
+    if new_email and new_username:
+        # if both username and email passed, they must be the same
+        if new_email != new_username:
+            raise ValueError(ugettext("Username and email must match"))
+    elif new_username:
+        # make sure username is not taken
+        try:
+            existing_user_username = User.objects.get(username=new_username)
+        except User.DoesNotExist:
+            existing_user_username = None
+        if existing_user_username and existing_user_username != user:
+            raise ValueError(taken_error_msg)
+    elif new_email:
+        # updating email incurs updating the username
+        kwargs["username"] = new_email
+
+        # make sure email is not taken
+        try:
+            existing_user_email = User.objects.get(email=new_email)
+        except User.DoesNotExist:
+            existing_user_email = None
+        if existing_user_email and existing_user_email != user:
+            raise ValueError(taken_error_msg)
+
+    save = False
+    for k,v in kwargs.items():
+        if v and getattr(user, k) != v:
+            setattr(user, k, v)
+            save = True
+
+    # TODO_WB: update invoice name
+
+    if save:
+        user.save()
+
+    return user
 
 def create_passenger(user, country, phone, save=True):
     passenger = Passenger()
@@ -101,6 +155,7 @@ def safe_delete_user(user, remove_from_db=False):
     logging.info("safe delete user [%d, %s]: marked as inactive" % (user.id, user.username))
 
     if remove_from_db:
+        user_id = user.id
         try:
             passenger = user.passenger
             passenger.user = None
@@ -109,7 +164,7 @@ def safe_delete_user(user, remove_from_db=False):
             pass
 
         user.delete()
-        logging.warn("delete user [%d, %s]: " % (user.id, user.username))
+        logging.warn("delete user [%d, %s]: " % (user_id, user.username))
 
 
 # notify us when users/passengers are deleted
