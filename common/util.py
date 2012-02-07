@@ -296,6 +296,8 @@ def custom_render_to_response(template_name, dictionary=None, context_instance=N
 def url_with_querystring(path, **kwargs):
     return path + '?' + urllib.urlencode(kwargs)
 
+def generate_random_token_64():
+    return generate_random_token(length=64, alpha_or_digit_only=True)
 
 def generate_random_token(length=random.randint(10, 20), digits_only=False, alpha_only=False, alpha_or_digit_only=False):
     s = ""
