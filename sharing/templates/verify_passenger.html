@@ -1,0 +1,164 @@
+{% extends "wb_base_site.html" %}
+{% load i18n %}
+{% block htmlclass %}verify-passenger{% endblock %}
+
+{% block top_left %}
+    {% trans "Restore Your Account" %}
+{% endblock %}
+
+{% block content %}
+    <form id="phone_form">
+        {% csrf_token %}
+        <input name="country_code" type="hidden" value="{{ country_code }}"/>
+        <table class="full-width">
+
+            <tr class="input-row">
+                <td class="td-label">{% trans "Mobile Phone" %}:</td>
+                <td><input id="local_phone" name="local_phone" type="text"/></td>
+                <td class="align-farend">
+                    <button id="send_code" type="button" class="wb_button"
+                            disabled="disabled">{% trans "Send SMS Code" %}</button>
+                </td>
+            </tr>
+            <tr class="message-row">
+                <td></td>
+                <td class="message" colspan="2">
+                    <div id="phone_status" class="hidden"></div>
+                    <div id="phone_error" class="error hidden">{% trans "Unknown Phone" %}.&nbsp;
+                        <a class="wb_link"
+                           href="{% url sharing.passenger_controller.registration%}">{% trans "Join WAYbetter now" %}! </a>
+                    </div>
+                </td>
+            </tr>
+
+            <tr class="spacer-row"></tr>
+
+            <tr class="input-row">
+                <td class="td-label">{% trans "SMS code" %}:</td>
+                <td>
+                    <input id="verification_code" name="verification_code" type="text"/>
+                </td>
+                <td></td>
+            </tr>
+            <tr class="message-row">
+                <td></td>
+                <td class="message" colspan="2">
+                    <div id="code_error" class="error hidden"></div>
+                </td>
+            </tr>
+        </table>
+    </form>
+
+    <hr>
+    <div id="next_container" class="align-farend">
+        <button id="next" class="wb_button blue" disabled="disabled">{% trans "Next" %} ></button>
+    </div>
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        function checkPhone() {
+            var $status = $("#phone_status");
+            var $error = $("#phone_error");
+
+            $.ajax({
+                url:"{% url ordering.passenger_controller.check_phone_registered %}",
+                data:{ local_phone:$("#local_phone").val() },
+                beforeSend:function () {
+                    clearCode();
+                    $error.hide();
+                    $status.text("{% trans 'Checking' %}...").show();
+                },
+                success:function (response) {
+                    var valid = Boolean(response);
+                    $status.hide();
+
+                    if (valid) {
+                        $("#send_code").enable();
+                    } else {
+                        $error.show();
+                        $("#send_code").disable();
+                    }
+                },
+                error: function(){
+                    $error.text("{% trans "There was an error, please try again" %}.").show();
+                }
+            })
+
+        }
+
+        function sendCode() {
+            var $that = $("#send_code");
+            $.ajax({
+                url:"{% url send_verification_code %}",
+                data:$("#phone_form").serialize(),
+                type:"POST",
+                beforeSend:function () {
+                    clearCode();
+                    $that.disable().data("old_text", $that.text()).text("{% trans "Sending" %}");
+                },
+                success:function (d) {
+                    $that.text("{% trans "Code Sent" %}");
+                    $("#verification_code").enable().focus();
+                },
+                error:function () {
+                    $that.text($that.data("old_text")).enable();
+                }
+            })
+        }
+
+        function clearCode() {
+            $("#verification_code").val("");
+            $("#code_error").hide();
+        }
+
+        function checkCode() {
+            var data = $("#phone_form").serialize();
+            var $code = $("#verification_code");
+            var $error = $("#code_error");
+            var $next = $("#next");
+
+            $.ajax({
+                url:"{% url sharing.passenger_controller.verify_passenger %}",
+                type:"POST",
+                data:data,
+                beforeSend:function () {
+                    $error.hide();
+                    $code.disable();
+                    $next.disable().text("{% trans "Sending" %}");
+                },
+                success:function (response) {
+                    window.location.href = "{% url sharing.passenger_controller.change_credentials %}";
+                },
+                error:function (response) {
+                    $error.text(response.responseText || "{% trans "Wrong Code" %}");
+                    $error.show();
+                    $code.enable();
+                    $next.enable().text("{% trans "Next" %} >");
+                }
+
+            })
+        }
+        $(function () {
+
+            $("#local_phone").focus().keyup(function () {
+                clearCode();
+                if ($(this).val().length > 9) {
+                    checkPhone();
+                }
+            });
+            $("#send_code").click(function () {
+                sendCode();
+            });
+            $("#verification_code").bind("change keyup", function () {
+                var valid = $(this).val() && $(this).val().length > 3;
+                $("#next").enabled(valid);
+            });
+            $("#next").click(function () {
+                checkCode();
+            })
+        })
+
+    </script>
+{% endblock %}
