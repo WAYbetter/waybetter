@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-05 12:13+0200\n"
-"PO-Revision-Date: 2012-02-05 12:14+0200\n"
+"POT-Creation-Date: 2012-02-07 13:50+0200\n"
+"PO-Revision-Date: 2012-02-07 13:51+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -245,15 +245,31 @@ msgstr "פעיל"
 msgid "phone validation required"
 msgstr "יש לאשר את מספר הטלפון"
 
-#: billing/billing_backend.py:65
+#: billing/billing_backend.py:67
 msgid "We are sorry but booking for the selected time is closed, please choose a different time.<br/>Your billing information was saved, you will not be asked to provide it again."
 msgstr "אנו מצטערים אך כבר לא ניתן להזמין לשעה שנבחרה בעת ההזמנה, אנא נסה להזמין שנית.<br/>פרטיך נשמרו במערכת, לא תתבקש להרשם שוב בהזמנתך הבאה."
 
-#: billing/billing_backend.py:168
+#: billing/billing_backend.py:155
+#: sharing/templates/user_profile.html:6
+#: templates/wb_base_site.html:58
+#: templates/wb_base_site.html.py:169
+msgid "Account Details"
+msgstr "פרטי משתמש"
+
+#: billing/billing_backend.py:158
+#, python-format
+msgid "We are sorry but your card type is currently not supported. You can change it from %s."
+msgstr "לצערנו אנחנו לא תומכים בסוג הכרטיס שהוכנס, ניתן להחליף את פרטי הכרטיס בעמוד %s."
+
+#: billing/billing_backend.py:159
+msgid "Invalid card number."
+msgstr "מספר כרטיס לא תקין."
+
+#: billing/billing_backend.py:181
 msgid "Ride Summary for month"
 msgstr "פירוט נסיעות מונית לחודש"
 
-#: billing/billing_manager.py:111
+#: billing/billing_manager.py:114
 msgid "Could not complete your registration. Please try again."
 msgstr "התרחשה שגיאה בעת הרשמתך. אנא נסה שנית."
 
@@ -269,21 +285,21 @@ msgstr "תוקף"
 msgid "charge date"
 msgstr "תאריך חיוב"
 
-#: billing/models.py:50
+#: billing/models.py:51
 msgid "passenger name"
 msgstr "שם נוסע"
 
-#: billing/models.py:51
+#: billing/models.py:52
 #: ordering/templates/workstation_home.html:972
 msgid "pickup"
 msgstr "מוצא"
 
-#: billing/models.py:52
+#: billing/models.py:53
 #: ordering/templates/workstation_home.html:975
 msgid "dropoff"
 msgstr "יעד"
 
-#: billing/models.py:53
+#: billing/models.py:54
 #: ordering/models.py:889
 msgid "pickup time"
 msgstr "שעת איסוף"
@@ -495,7 +511,7 @@ msgstr "כניסה"
 
 #: common/templates/error_dialog.html:5
 #: common/templates/error_page.html:8
-#: sharing/templates/passenger_registration.html:288
+#: sharing/templates/passenger_registration.html:290
 #: sharing/templates/wb_home.html:367
 #: sharing/templates/wb_home_tooltips.html:629
 msgid "OOPS..."
@@ -2300,12 +2316,12 @@ msgid "Verification code: %s"
 msgstr "קוד אימות: %s"
 
 #: ordering/passenger_controller.py:395
-#: sharing/passenger_controller.py:582
+#: sharing/passenger_controller.py:585
 msgid "Error validating phone (check that your browser accepts cookies)"
 msgstr "אימות טלפון נכשל: יש לאפשרקבלת עוגיות (cookies) בדפדפן"
 
 #: ordering/passenger_controller.py:398
-#: sharing/passenger_controller.py:585
+#: sharing/passenger_controller.py:588
 msgid "Invalid verification code"
 msgstr "קוד SMS שגוי"
 
@@ -3311,7 +3327,7 @@ msgid "Send Verification Code"
 msgstr "שלח קוד אימות"
 
 #: ordering/templates/mobile/passenger_home.html:79
-#: sharing/templates/passenger_registration.html:229
+#: sharing/templates/passenger_registration.html:231
 #: sharing/templates/mobile/passenger_registration.html:240
 msgid "Code Sent"
 msgstr "קוד SMS נשלח"
@@ -3586,7 +3602,7 @@ msgid "We have encountered an error. Please try again."
 msgstr "אופס, התרחשה שגיאה. אנא נסו שוב."
 
 #: sharing/passenger_controller.py:195
-#: sharing/passenger_controller.py:424
+#: sharing/passenger_controller.py:427
 msgid "Book 3 seats and the forth is free"
 msgstr "הזמן שלושה מושבים והרביעי חינם!"
 
@@ -3594,23 +3610,23 @@ msgstr "הזמן שלושה מושבים והרביעי חינם!"
 msgid "This interval is closed for booking now. Please choose a later time"
 msgstr "לא ניתן להזמין לשעה שנבחרה. אנא בחר שעה אחרת ונסה שנית"
 
-#: sharing/passenger_controller.py:573
+#: sharing/passenger_controller.py:576
 msgid "You must be logged in to validate your phone."
 msgstr "עלייך להכנס לחשבונך לפני ביצוע אימות טלפון."
 
-#: sharing/passenger_controller.py:595
+#: sharing/passenger_controller.py:598
 msgid "We're sorry but your phone appears to used by multiple users. Please contact support@waybetter.com to resolve this issue."
 msgstr "הטלפון שלך נמצא בשימוש על ידי כמה נוסעים. אנא פנה אל contact@waybetter.com לקבלת עזרה."
 
-#: sharing/passenger_controller.py:654
+#: sharing/passenger_controller.py:657
 msgid "WAYbetter ride"
 msgstr "נסיעת מונית WAYbetter"
 
-#: sharing/passenger_controller.py:654
+#: sharing/passenger_controller.py:657
 msgid "Private ride"
 msgstr "נסיעת מונית פרטית"
 
-#: sharing/passenger_controller.py:674
+#: sharing/passenger_controller.py:677
 msgid "WAYbetter Order Confirmation"
 msgstr "אישור הזמנת נסיעה "
 
@@ -3856,10 +3872,6 @@ msgstr "הצהרת פרטיות"
 msgid "Send SMS Code"
 msgstr "שלח קוד ב-SMS"
 
-#: sharing/templates/passenger_registration.html:110
-msgid "I didn't get the SMS code"
-msgstr "לא קיבלתי את הקוד בSMS"
-
 #: sharing/templates/passenger_registration.html:117
 msgid "Enter Code"
 msgstr "הכנס קוד"
@@ -3878,7 +3890,7 @@ msgid "Next"
 msgstr "המשך"
 
 #: sharing/templates/passenger_registration.html:177
-#: sharing/templates/passenger_registration.html:226
+#: sharing/templates/passenger_registration.html:228
 #: sharing/templates/wb_home.html:605
 #: sharing/templates/wb_home_tooltips.html:598
 #: sharing/templates/mobile/passenger_registration.html:177
@@ -4189,10 +4201,6 @@ msgstr "    <div class=\"header\"></div>    <p>תנאי השימוש המפור�
 #: sharing/templates/the_service.html:8
 msgid "the_service_content"
 msgstr "<p class=\"header\"> WAYbetter מציעה אלטרנטיבה תחבורתית חדשה ומשתלמת, נסיעה שיתופית במונית ספיישל תוך חסכון של עשרות שקלים ושמירה על איכות הסביבה.</p><div class=\"content\"><p>היתרון  הגדול של WAYbetter הוא שאתם לא צריכים למצוא שותפים לנסיעה ולא צריכים לעשות כלום כדי לשלם פחות, רק להזמין נסיעה, ולשלם את המחיר המופחת <span class=\"bold\">(אפילו אם נסעתם לבד!)</span>.</p><p>איך זה מתאפשר? <br>אנו מאפשרים לנסוע מכל מקום בעיר ל\"נקודות-מרכזיות\": שכונות מגורים, אירועים, מרכזי עסקים וכו'... (וחזור) בהן אנו יודעים כי יש די ביקוש כדי לייעל את צי המוניות ולאפשר חסכון משמעותי.</p><p><span class=\"remember\">זכרו</span>, WAYbetter היא בשביל ובזכות משתמשיה. אתם אלה המאפשרים לייעל את המוניות וכך להוזיל את מחירן. ככל שיותר אנשים יזמינו ב-WAYbetter כך מחירי הנסיעה יצנחו, הזמינות תגדל, ואיזורי הכיסוי יתרחבו, עד שנרשת את העיר כולה.</p><p>איך אתם יכולים לעזור?<ol><li>סעו. כל נסיעה מאפשרת לייעל ולהוזיל, לכם ולשאר החברים ב WAYbetter.</li><li>ספרו לחברים- המליצו להם לנסות את השירות (זה מגניב, נוח, מהיר, סביבתי ועוד...)</li><li>ספרו לנו מה הנקודות המרכזיות שלכם (כאן). כך נוכל להוסיף איזורי כיסוי נוספים ולרשת את העיר כולה.</li></p></div>"
-
-#: sharing/templates/user_profile.html:6
-msgid "Your Profile"
-msgstr "פרופיל"
 
 #: sharing/templates/voucher_email.html:27
 msgid "Ride Date"
@@ -4862,11 +4870,6 @@ msgstr "<span class=waybetter></span>"
 msgid "Thinking..."
 msgstr "חושב..."
 
-#: templates/wb_base_site.html:58
-#: templates/wb_base_site.html.py:169
-msgid "Account Details"
-msgstr "פרטי משתמש"
-
 #: templates/admin/billing/billingtransaction/change_form.html:21
 msgid "Add"
 msgstr "הוספה"
@@ -4954,6 +4957,15 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 #: tinymce/views.py:68
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
+
+#~ msgid "Invalid card number. Please try again."
+#~ msgstr "מספר כרטיס לא תקין."
+
+#~ msgid "I didn't get the SMS code"
+#~ msgstr "לא קיבלתי את הקוד בSMS"
+
+#~ msgid "Your Profile"
+#~ msgstr "פרופיל"
 
 #~ msgid "Help"
 #~ msgstr "עזרה"
@@ -6306,10 +6318,6 @@ msgstr "שגיאה בבודק האיות"
 #, fuzzy
 #~ msgid "Enter a zip code in the format XXXXX-XXX."
 #~ msgstr "ל-מיקוד"
-
-#, fuzzy
-#~ msgid "Invalid CPF number."
-#~ msgstr " מספר הטלפון הנייד שלך"
 
 #, fuzzy
 #~ msgid "This field requires at most 11 digits or 14 characters."

@@ -44,6 +44,7 @@ class BillingTransaction(BaseModel):
     transaction_id = models.CharField(max_length=36)
 
     comments = models.CharField(max_length=255, blank=True, default="")
+    provider_status = models.CharField(max_length=50, blank=True, null=True)
     auth_number = models.CharField(max_length=50, blank=True, null=True)
 
     # Denormalized fields

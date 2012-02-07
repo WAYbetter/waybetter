@@ -6,6 +6,7 @@ from common.models import Counter
 from common.urllib_adaptor import urlencode
 from common.util import get_text_from_element, get_unique_id, safe_fetch
 from ordering.models import CANCELLED, PENDING, APPROVED, CHARGED, FAILED, RideComputationStatus, IGNORED
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.context import Context
@@ -46,6 +47,7 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
         return HttpResponse("OK")
 
     status_code = get_text_from_element(result, "status")
+    billing_transaction.provider_status = status_code
     auth_number = get_text_from_element(result, "authNumber")
     transaction_id = get_text_from_element(result, "tranId")
     billing_transaction.transaction_id = transaction_id
@@ -95,6 +97,7 @@ def do_J4(token, amount, card_expiration, billing_transaction_id):
         return HttpResponse("OK")
 
     status_code = get_text_from_element(result, "status")
+    billing_transaction.provider_status = status_code
     auth_number = get_text_from_element(result, "authNumber")
     transaction_id = get_text_from_element(result, "tranId")
     billing_transaction.transaction_id = transaction_id
@@ -147,6 +150,17 @@ def do_credit_guard_trx(params):
 
     xml = minidom.parseString(result)
     return xml
+
+
+def get_custom_message(trx):
+    profile_link = '<a href="%s" class="wb_link">%s</a>' % (reverse('user_profile'), _("Account Details"))
+
+    cg_custom_error_msg = {
+        '004': _('We are sorry but your card type is currently not supported. You can change it from %s.') % profile_link,
+        '101': _('Invalid card number.')
+    }
+
+    return cg_custom_error_msg.get(trx.provider_status, trx.comments)
 
 
 @force_lang("he")

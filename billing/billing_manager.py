@@ -1,5 +1,6 @@
 from datetime import datetime
 import logging
+from billing.billing_backend import get_custom_message
 from billing.models import BillingTransaction
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request, ugettext as _
@@ -12,8 +13,10 @@ from common.views import ERROR_PAGE_TEXT, error_page
 @receive_signal(billing_failed_signal)
 def on_billing_trx_failed(sender, signal_type, obj, **kwargs):
     trx = obj
-    sbj = "Billing Failed [%s]" % sender
-    msg = u"trx.id: %s\ntrx.comments: %s\norder: %s\npassenger: %s\ndebug: %s" % (trx.id, trx.comments, trx.order, trx.passenger, trx.debug)
+    sbj, msg = "Billing Failed [%s]" % sender, u""
+    for att_name in ["id", "provider_status", "comments", "order", "passenger", "debug"]:
+        msg += u"trx.%s: %s\n" % (att_name, getattr(trx, att_name))
+    msg += u"custom msg: %s" % get_custom_message(trx)
     logging.error(u"%s\n%s" % (sbj, msg))
     notify_by_email(sbj, msg=msg)
 
