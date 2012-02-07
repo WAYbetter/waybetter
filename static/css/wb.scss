@@ -1673,6 +1673,61 @@ Registration
         left: 0;
     }
 }
+
+.user_profile{
+    #header{
+        font-size: $font-size-header1;
+        font-weight: bold;
+        margin-bottom: 30px;
+    }
+    #error{
+        color: red;
+        margin-bottom: 30px;
+    }
+    #details{
+        border-collapse: collapse;
+        width: 100%;
+    }
+    .details-row{
+        height: 50px;
+        border-top: 1px solid $light-gray;
+    }
+    .button-row{
+        @extend .details-row;
+        text-align: right;
+        vertical-align: bottom;
+    }
+    .label-cntr{
+        width: 100px;
+        padding: 0 15px 0 25px;
+        @extend .bold;
+        color: gray;
+    }
+    .initial-value, .new-value{
+        font-size: 11px;
+        @extend .bold;
+    }
+    input{
+        width: 200px;
+    }
+    .action-cntr{
+        text-align: right;
+        padding-right: 25px;
+    }
+    input{
+        padding: 0 8px;
+    }
+}
+.rtl.user_profile{
+    .button-row{
+        text-align: left;
+    }
+    .action-cntr{
+        text-align: left;
+        padding-right: auto;
+        padding-left: 25px;
+    }
+}
 /*
 Info pages
 ****************************************************/
