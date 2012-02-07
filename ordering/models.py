@@ -17,7 +17,7 @@ from django.contrib.auth import login
 from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea, CityAreaField
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES
+from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now, format_dt
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
@@ -112,6 +112,8 @@ class Station(BaseModel):
     subdomain_name = models.CharField(_("subdomain name"), max_length=50, blank=True, null=True, unique=True)
     app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True, verify_exists=False)
     app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True, verify_exists=False)
+
+    unique_id = models.CharField(_("unique id"), max_length=64, default=generate_random_token_64, editable=False)
 
     last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
                                             default=datetime.datetime(1, 1, 1))
