@@ -145,6 +145,8 @@ class Station(BaseModel):
     page_description = models.CharField(_("page description"), null=True, blank=True, max_length=255)
     page_keywords = models.CharField(_("page keywords"), null=True, blank=True, max_length=255)
 
+    application_terms = models.TextField(_("application terms"), max_length=5000, null=True, blank=True)
+
 
     @property
     def phone(self):
