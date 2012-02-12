@@ -1,6 +1,7 @@
 from datetime import datetime
 import logging
-from billing.billing_backend import get_custom_message
+from google.appengine.ext.deferred import deferred
+from billing.billing_backend import get_custom_message, update_invoice_passenger
 from billing.models import BillingTransaction
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request, ugettext as _
@@ -131,3 +132,10 @@ def get_billing_redirect_url(request, order, passenger):
         # redirect to credit guard
         # if there is an order we'll get here again by tx_ok with passenger.billing_info ('if' condition will be met)
         return get_token_url(request)
+
+def update_invoice_info(user):
+    logging.info("update invoice info user [%s]" % user.id)
+
+    if user.passenger:
+        # passenger will not be saved so it is ok to pickle the entity and not pass its id
+        deferred.defer(update_invoice_passenger, user.passenger)

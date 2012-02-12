@@ -1,11 +1,9 @@
 # This Python file uses the following encoding: utf-8
 import re
-from billing.billing_backend import update_invoice_passenger
 from django.db import models
 from django.template.loader import get_template
 from django.template.context import  Context
 from django.utils.translation import ugettext
-from google.appengine.ext import deferred
 from google.appengine.api import channel
 from django.db.models.loading import get_model
 from django.contrib.auth.models import User
@@ -125,9 +123,9 @@ def update_user_details(user, **kwargs):
     if save:
         user.save()
 
-        if user.passenger:
-            # update invoice info (passenger will not be saved so it is ok to pickle the entity)
-            deferred.defer(update_invoice_passenger, user.passenger)
+        # local import to avoid import issues
+        from billing.billing_manager import update_invoice_info
+        update_invoice_info(user)
 
     return user
 
