@@ -9,7 +9,8 @@ from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from billing.billing_manager import get_token_url
-from common.util import has_related_objects, url_with_querystring, get_unique_id
+from common.tz_support import default_tz_time_min
+from common.util import has_related_objects, url_with_querystring, get_unique_id, send_mail_as_noreply
 from common.decorators import catch_view_exceptions, internal_task_on_queue
 from common.util import notify_by_email
 from common.db_tools import merge_passenger
@@ -17,6 +18,7 @@ from common.route import calculate_time_and_distance
 from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation
 import logging
 import traceback
+import datetime
 
 
 TEL_AVIV_POINTS = [
@@ -152,6 +154,28 @@ def maintenance_task(request):
 def do_task():
     # maintenance method goes here
     pass
+
+def generate_passengers_list():
+    jan_first = datetime.datetime.combine(datetime.date(2012,1,1), default_tz_time_min())
+    rides = SharedRide.objects.filter(depart_time__gte=jan_first)
+
+    passengers = []
+    for ride in rides:
+        if ride.debug:
+            continue
+        for o in ride.orders.all():
+            if o.passenger.create_date > jan_first:
+                passengers.append(o.passenger)
+
+    passengers = set(passengers)
+
+    csv = u""
+    for p in passengers:
+        user = p.user
+        csv += u",".join([user.email, user.get_full_name()])
+        csv += u"\n"
+
+    send_mail_as_noreply("amir@waybetter.com", "passengers list", attachments=[("passengers.csv", csv.encode("utf-8"))])
 
 def measure_count():
     logging.info("Passenger.objects.count()")

@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-02-07 18:51+0200\n"
-"PO-Revision-Date: 2012-02-07 18:53+0200\n"
+"POT-Creation-Date: 2012-02-12 13:31+0200\n"
+"PO-Revision-Date: 2012-02-12 13:31+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -968,7 +968,7 @@ msgid "Thanks. We'll contact you soon."
 msgstr "תודה. ניצור אתך קשר בקרוב."
 
 #: intermediate/templates/wb_base.html:19
-#: ordering/util.py:73
+#: ordering/util.py:76
 #: templates/wb_base.html:19
 msgid "Shared Taxi Rides"
 msgstr "מוניות ספיישל משותפות"
@@ -2335,12 +2335,12 @@ msgid "Verification code: %s"
 msgstr "קוד אימות: %s"
 
 #: ordering/passenger_controller.py:410
-#: sharing/passenger_controller.py:585
+#: sharing/passenger_controller.py:586
 msgid "Error validating phone (check that your browser accepts cookies)"
 msgstr "אימות טלפון נכשל: יש לאפשרקבלת עוגיות (cookies) בדפדפן"
 
 #: ordering/passenger_controller.py:413
-#: sharing/passenger_controller.py:588
+#: sharing/passenger_controller.py:589
 msgid "Invalid verification code"
 msgstr "קוד SMS שגוי"
 
@@ -2373,13 +2373,31 @@ msgstr "ללא התייחסות"
 msgid "%s Taxi station"
 msgstr "מונית %s"
 
-#: ordering/util.py:83
-msgid "Email/Username already registered"
-msgstr "אימייל/שם משתמש כבר רשום"
+#: ordering/util.py:89
+#, python-format
+msgid "%s already registered"
+msgstr "%s כבר רשום"
 
-#: ordering/util.py:88
+#: ordering/util.py:90
+#, python-format
+msgid "We're sorry but your %s appears to used by multiple users. Please contact support@waybetter.com to resolve this issue."
+msgstr "%s נמצא בשימוש על ידי כמה נוסעים. אנא פנה אל contact@waybetter.com לקבלת עזרה."
+
+#: ordering/util.py:94
 msgid "Username and email must match"
 msgstr "שם המשתמש וכתובת אימייל חייבים להיות זהים"
+
+#: ordering/util.py:101
+#: ordering/util.py:104
+#: ordering/templates/base_station.html:28
+#: registration/forms.py:59
+msgid "username"
+msgstr "שם משתמש"
+
+#: ordering/util.py:111
+#: ordering/util.py:114
+msgid "email"
+msgstr "אימייל"
 
 #: ordering/templates/about.html:5
 #: sharing/templates/contact.html:5
@@ -2575,11 +2593,6 @@ msgstr "שלח לי מונית"
 #: templates/registration/login.html:110
 msgid "Join!"
 msgstr "הצטרפות!"
-
-#: ordering/templates/base_station.html:28
-#: registration/forms.py:59
-msgid "username"
-msgstr "שם משתמש"
 
 #: ordering/templates/base_station.html:34
 #: registration/forms.py:63
@@ -3518,7 +3531,7 @@ msgid "We are sorry, but order #%s could not be completed"
 msgstr "אנו מצטערים אך הזמנה מס' %s נכשלה"
 
 #: sharing/forms.py:53
-#: sharing/passenger_controller.py:137
+#: sharing/passenger_controller.py:138
 msgid "Full Name"
 msgstr "שם מלא"
 
@@ -3573,34 +3586,34 @@ msgstr "מרווח זמן"
 msgid "tag"
 msgstr "תג"
 
-#: sharing/passenger_controller.py:59
-#: sharing/passenger_controller.py:61
+#: sharing/passenger_controller.py:60
+#: sharing/passenger_controller.py:62
 msgid "Not found"
 msgstr "לא קיים"
 
-#: sharing/passenger_controller.py:115
 #: sharing/passenger_controller.py:116
+#: sharing/passenger_controller.py:117
 msgid "Not Entered"
 msgstr "לא קיים"
 
-#: sharing/passenger_controller.py:134
+#: sharing/passenger_controller.py:135
 msgid "Exp"
 msgstr "תוקף"
 
-#: sharing/passenger_controller.py:138
+#: sharing/passenger_controller.py:139
 msgid "Email Address"
 msgstr "כתובת אימייל"
 
-#: sharing/passenger_controller.py:139
+#: sharing/passenger_controller.py:140
 #: sharing/templates/passenger_registration.html:96
 msgid "Mobile Phone"
 msgstr "טלפון נייד"
 
-#: sharing/passenger_controller.py:140
+#: sharing/passenger_controller.py:141
 msgid "Billing Info"
 msgstr "פרטי חיוב"
 
-#: sharing/passenger_controller.py:151
+#: sharing/passenger_controller.py:152
 #: sharing/templates/wb_home.html:571
 #: sharing/templates/wb_home.html.py:596
 #: sharing/templates/wb_home_tooltips.html:553
@@ -3611,32 +3624,32 @@ msgstr "פרטי חיוב"
 msgid "We have encountered an error. Please try again."
 msgstr "אופס, התרחשה שגיאה. אנא נסו שוב."
 
-#: sharing/passenger_controller.py:195
-#: sharing/passenger_controller.py:427
+#: sharing/passenger_controller.py:196
+#: sharing/passenger_controller.py:428
 msgid "Book 3 seats and the forth is free"
 msgstr "הזמן שלושה מושבים והרביעי חינם!"
 
-#: sharing/passenger_controller.py:208
+#: sharing/passenger_controller.py:209
 msgid "This interval is closed for booking now. Please choose a later time"
 msgstr "לא ניתן להזמין לשעה שנבחרה. אנא בחר שעה אחרת ונסה שנית"
 
-#: sharing/passenger_controller.py:576
+#: sharing/passenger_controller.py:577
 msgid "You must be logged in to validate your phone."
 msgstr "עלייך להכנס לחשבונך לפני ביצוע אימות טלפון."
 
-#: sharing/passenger_controller.py:598
+#: sharing/passenger_controller.py:599
 msgid "We're sorry but your phone appears to used by multiple users. Please contact support@waybetter.com to resolve this issue."
 msgstr "הטלפון שלך נמצא בשימוש על ידי כמה נוסעים. אנא פנה אל contact@waybetter.com לקבלת עזרה."
 
-#: sharing/passenger_controller.py:657
+#: sharing/passenger_controller.py:658
 msgid "WAYbetter ride"
 msgstr "נסיעת מונית WAYbetter"
 
-#: sharing/passenger_controller.py:657
+#: sharing/passenger_controller.py:658
 msgid "Private ride"
 msgstr "נסיעת מונית פרטית"
 
-#: sharing/passenger_controller.py:677
+#: sharing/passenger_controller.py:678
 msgid "WAYbetter Order Confirmation"
 msgstr "אישור הזמנת נסיעה "
 
@@ -4967,6 +4980,9 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 #: tinymce/views.py:68
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
+
+#~ msgid "Email/Username already registered"
+#~ msgstr "אימייל/שם משתמש כבר רשום"
 
 #~ msgid "Help"
 #~ msgstr "עזרה"
