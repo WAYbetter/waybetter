@@ -8,13 +8,15 @@ from django.http import  HttpResponseRedirect
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
+from google.appengine.ext.deferred import deferred
 from billing.billing_manager import get_token_url
-from common.tz_support import default_tz_time_min
+from common.tz_support import default_tz_time_min, default_tz_now
 from common.util import has_related_objects, url_with_querystring, get_unique_id, send_mail_as_noreply
 from common.decorators import catch_view_exceptions, internal_task_on_queue
 from common.util import notify_by_email
 from common.db_tools import merge_passenger
 from common.route import calculate_time_and_distance
+from django.contrib.sessions.models import Session
 from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation
 import logging
 import traceback
@@ -73,7 +75,7 @@ def run_billing_service_test(request):
     else:
         memcache.incr(failures_counter, initial_value=0)
         if memcache.get(failures_counter) == max_strikes:
-            notify_by_email("billing service appears to be down (strike #%s)" % max_strikes , err_msg)
+            notify_by_email("billing service appears to be down (strike #%s)" % max_strikes, err_msg)
 
     return HttpResponse("OK")
 
@@ -103,7 +105,8 @@ def test_routing_service_task(request):
             q = TEL_AVIV_POINTS[(i + 1) % l]
             result = calculate_time_and_distance(p["lon"], p["lat"], q["lon"], q["lat"])
             if not (result["estimated_distance"] and result["estimated_duration"]):
-                err_msg += "calculate_time_and_distance failed for: p=(%s, %s), q=(%s, %s)\n" % (p["lon"], p["lat"], q["lon"], q["lat"])
+                err_msg += "calculate_time_and_distance failed for: p=(%s, %s), q=(%s, %s)\n" % (
+                    p["lon"], p["lat"], q["lon"], q["lat"])
                 success = False
     except Exception, e:
         success = False
@@ -114,10 +117,16 @@ def test_routing_service_task(request):
     else:
         memcache.incr(failures_counter, initial_value=0)
         if memcache.get(failures_counter) == num_strikes:
-            notify_by_email("routing service appears to be down (strike #%s)" % num_strikes , err_msg)
+            notify_by_email("routing service appears to be down (strike #%s)" % num_strikes, err_msg)
 
     return HttpResponse("OK")
 
+@catch_view_exceptions
+def weekly(request):
+    logging.info("setup deletion of expired sessions")
+    deferred.defer(delete_expired_sessions, _queue="maintenance")
+
+    return HttpResponse("OK")
 
 @staff_member_required
 def run_maintenance_task(request):
@@ -155,8 +164,28 @@ def do_task():
     # maintenance method goes here
     pass
 
+
+def delete_expired_sessions(start_at=0):
+    now = default_tz_now()
+    expired = Session.objects.filter(expire_date__lte=now)
+
+    logging.info("start_at: %s" % start_at)
+    stop_at = start_at
+    try:
+        for session in expired:
+            session.delete()
+            stop_at += 1
+
+    except Exception, e:
+        logging.info("stop_at: %s (%s deleted this run)" % (stop_at, (stop_at - start_at)))
+        deferred.defer(delete_expired_sessions, stop_at, _queue="maintenance")
+        return
+
+    logging.info("total deleted: %s" % stop_at)
+
+
 def generate_passengers_list():
-    jan_first = datetime.datetime.combine(datetime.date(2012,1,1), default_tz_time_min())
+    jan_first = datetime.datetime.combine(datetime.date(2012, 1, 1), default_tz_time_min())
     rides = SharedRide.objects.filter(depart_time__gte=jan_first)
 
     passengers = []
@@ -176,6 +205,7 @@ def generate_passengers_list():
         csv += u"\n"
 
     send_mail_as_noreply("amir@waybetter.com", "passengers list", attachments=[("passengers.csv", csv.encode("utf-8"))])
+
 
 def measure_count():
     logging.info("Passenger.objects.count()")
@@ -206,6 +236,7 @@ def create_passenger_dup_phones():
             dup_phones.append(phone)
 
     notify_by_email("Dup phones list", str(dup_phones))
+
 
 def fix_driver_taxi():
     for relation in TaxiDriverRelation.objects.all():
