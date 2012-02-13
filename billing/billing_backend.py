@@ -6,6 +6,7 @@ from common.models import Counter
 from common.urllib_adaptor import urlencode
 from common.util import get_text_from_element, get_unique_id, safe_fetch
 from ordering.models import CANCELLED, PENDING, APPROVED, CHARGED, FAILED, RideComputationStatus, IGNORED
+from django.core.urlresolvers import reverse
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.context import Context
@@ -46,6 +47,7 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
         return HttpResponse("OK")
 
     status_code = get_text_from_element(result, "status")
+    billing_transaction.provider_status = status_code
     auth_number = get_text_from_element(result, "authNumber")
     transaction_id = get_text_from_element(result, "tranId")
     billing_transaction.transaction_id = transaction_id
@@ -95,6 +97,7 @@ def do_J4(token, amount, card_expiration, billing_transaction_id):
         return HttpResponse("OK")
 
     status_code = get_text_from_element(result, "status")
+    billing_transaction.provider_status = status_code
     auth_number = get_text_from_element(result, "authNumber")
     transaction_id = get_text_from_element(result, "tranId")
     billing_transaction.transaction_id = transaction_id
@@ -149,6 +152,18 @@ def do_credit_guard_trx(params):
     return xml
 
 
+def get_custom_message(trx):
+#    profile_link = '<a href="%s" class="wb_link">%s</a>' % (reverse('user_profile'), _("Account Details"))
+
+    cg_custom_error_msg = {
+#        '004': _('We are sorry but your card type is currently not supported. You can change it from %s.') % profile_link,
+        '004': _('We are sorry but your card type is currently not supported.'),
+        '101': _('Invalid card number.')
+    }
+
+    return cg_custom_error_msg.get(trx.provider_status, trx.comments)
+
+
 @force_lang("he")
 def send_invoices_passenger(billing_transactions):
     trx = billing_transactions[0]
@@ -177,7 +192,7 @@ def send_invoices_passenger(billing_transactions):
 
     url = INVOICE_INFO["invoice_url"]
 
-    payload = dict([(k,v.encode('iso8859_8', errors='ignore') if type(v) is types.UnicodeType else v) for (k,v) in payload.items()])
+    payload = dict([(k,v.encode('iso8859_8', 'ignore') if type(v) is types.UnicodeType else v) for (k,v) in payload.items()])
     payload = urlencode(payload)
 
     result = safe_fetch(url, method="POST", payload=payload, deadline=50, headers={'Content-Type': 'application/x-www-form-urlencoded'})
@@ -192,31 +207,12 @@ def send_invoices_passenger(billing_transactions):
         logging.error("failed sending invoices to passenger_id %s: response_code=%s" % (trx.passenger_id, response_code))
         return False
 
-
 def create_invoice_passenger(passenger):
-    payload = {
-#        "ReplyURL": "ReturnPage.asp",
-        "TransType"						: "C:INSERT",
-        "Username"						: INVOICE_INFO["invoice_username"],
-        "CompanyCode"                   : Counter.get_next(name=INVOICE_INFO["invoice_counter"]),
-        "CompanyName"                   : passenger.full_name,
-        "CompanyAddress"                : "",
-        "CompanyCity"                   : "",
-        "CompanyState"                  : "",
-        "CompanyZipcode"                : "",
-        "CompanyTel1"                   : passenger.phone,
-        "CompanyTel2"                   : "",
-        "CompanyCell"                   : "",
-        "CompanyFax"                    : "",
-        "CompanyEmail"                  : passenger.user.email,
-        "CompanyWebsite"                : "",
-        "CompanyComments"               : "",
+    action_payload = {
+        "TransType": "C:INSERT",
+        "CompanyCode": Counter.get_next(name=INVOICE_INFO["invoice_counter"]),
         }
-
-    url = INVOICE_INFO["invoice_url"]
-    payload = dict([(k,v.encode('iso8859_8', errors='ignore') if type(v) is types.UnicodeType else v) for (k,v) in payload.items()])
-    payload = urlencode(payload)
-    result = safe_fetch(url, method="POST", payload=payload, deadline=50, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+    result = do_invoice_passenger_action(passenger, action_payload)
 
     response_code = None
     if result and result.content:
@@ -232,6 +228,56 @@ def create_invoice_passenger(passenger):
     logging.error("failed creating invoice_id for passenger_id %s: response_code=%s" % (passenger.id, response_code))
     return None
 
+def update_invoice_passenger(passenger):
+    if not passenger.invoice_id:
+        logging.error("skipping update of invoice info, no invoice_id for passenger %s" % passenger.id)
+        return False
+
+    action_payload = {
+        "TransType": "C:UPDATE",
+        "CompanyCode": passenger.invoice_id,
+        }
+
+    result = do_invoice_passenger_action(passenger, action_payload)
+
+    if result and result.content:
+        matches = re.findall(r"ResponseCode:(\d+)", result.content)
+        response_code = matches[0] if len(matches) else "NO_CODE"
+        if response_code == "100":
+            logging.info("passenger %s invoice info update success" % passenger.id)
+            return True
+        else:
+            logging.error("passenger %s invoice info update error [code=%s]" % (passenger.id, response_code))
+    return False
+
+
+def do_invoice_passenger_action(passenger, action_payload):
+    payload = {
+#        "ReplyURL": "ReturnPage.asp",
+        "TransType"						: "",
+        "Username"						: INVOICE_INFO["invoice_username"],
+        "CompanyCode"                   : "",
+        "CompanyName"                   : passenger.full_name,
+        "CompanyAddress"                : "",
+        "CompanyCity"                   : "",
+        "CompanyState"                  : "",
+        "CompanyZipcode"                : "",
+        "CompanyTel1"                   : passenger.phone,
+        "CompanyTel2"                   : "",
+        "CompanyCell"                   : "",
+        "CompanyFax"                    : "",
+        "CompanyEmail"                  : passenger.user.email,
+        "CompanyWebsite"                : "",
+        "CompanyComments"               : "",
+        }
+
+    payload.update(action_payload)
+    url = INVOICE_INFO["invoice_url"]
+    payload = dict([(k,v.encode('iso8859_8', 'ignore') if type(v) is types.UnicodeType else v) for (k,v) in payload.items()])
+    payload = urlencode(payload)
+    result = safe_fetch(url, method="POST", payload=payload, deadline=50, headers={'Content-Type': 'application/x-www-form-urlencoded'})
+
+    return result
 
 def get_language_code_for_credit_guard(lang_code):
     if lang_code == "en":

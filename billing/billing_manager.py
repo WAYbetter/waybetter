@@ -1,5 +1,7 @@
 from datetime import datetime
 import logging
+from google.appengine.ext.deferred import deferred
+from billing.billing_backend import get_custom_message, update_invoice_passenger
 from billing.models import BillingTransaction
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request, ugettext as _
@@ -12,8 +14,10 @@ from common.views import ERROR_PAGE_TEXT, error_page
 @receive_signal(billing_failed_signal)
 def on_billing_trx_failed(sender, signal_type, obj, **kwargs):
     trx = obj
-    sbj = "Billing Failed [%s]" % sender
-    msg = u"trx.id: %s\ntrx.comments: %s\norder: %s\npassenger: %s\ndebug: %s" % (trx.id, trx.comments, trx.order, trx.passenger, trx.debug)
+    sbj, msg = "Billing Failed [%s]" % sender, u""
+    for att_name in ["id", "provider_status", "comments", "order", "passenger", "debug"]:
+        msg += u"trx.%s: %s\n" % (att_name, getattr(trx, att_name))
+    msg += u"custom msg: %s" % get_custom_message(trx)
     logging.error(u"%s\n%s" % (sbj, msg))
     notify_by_email(sbj, msg=msg)
 
@@ -128,3 +132,10 @@ def get_billing_redirect_url(request, order, passenger):
         # redirect to credit guard
         # if there is an order we'll get here again by tx_ok with passenger.billing_info ('if' condition will be met)
         return get_token_url(request)
+
+def update_invoice_info(user):
+    logging.info("update invoice info user [%s]" % user.id)
+
+    if user.passenger:
+        # passenger will not be saved so it is ok to pickle the entity and not pass its id
+        deferred.defer(update_invoice_passenger, user.passenger)

@@ -9,7 +9,7 @@ import pickle
 from django.contrib.admin.views.decorators import staff_member_required
 from google.appengine.api.taskqueue import taskqueue
 from billing import billing_backend
-from billing.billing_backend import send_invoices_passenger, create_invoice_passenger
+from billing.billing_backend import send_invoices_passenger, create_invoice_passenger, get_custom_message
 from billing.billing_manager import get_billing_redirect_url
 from billing.enums import BillingStatus, BillingAction
 from common.forms import DatePickerForm
@@ -118,8 +118,10 @@ def get_trx_status(request, passenger):
 
     if trx and trx.passenger == passenger:
         response = {'status': trx.status}
-        if trx.status == BillingStatus.FAILED and trx.comments:
-            response.update({'error_message': trx.comments})
+        if trx.status == BillingStatus.FAILED:
+            msg = get_custom_message(trx)
+            if msg:
+                response.update({'error_message': msg})
         return JSONResponse(response)
 
     return JSONResponse({'status': BillingStatus.FAILED})
