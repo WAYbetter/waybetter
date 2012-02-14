@@ -107,8 +107,8 @@ def transaction_error(request):
         request.encoding = "cp1255"
 
     page_specific_class = "error-page"
-    error_text = request.GET.get("ErrorText")
-    error_code = request.GET.get("ErrorCode") 
+    error_code = request.GET.get("ErrorCode")
+    error_text = get_custom_message(error_code, request.GET.get("ErrorText"))
     return custom_render_to_response("error_page.html", locals(), context_instance=RequestContext(request))
 
 @passenger_required
@@ -119,7 +119,7 @@ def get_trx_status(request, passenger):
     if trx and trx.passenger == passenger:
         response = {'status': trx.status}
         if trx.status == BillingStatus.FAILED:
-            msg = get_custom_message(trx)
+            msg = get_custom_message(trx.provider_status, trx.comments)
             if msg:
                 response.update({'error_message': msg})
         return JSONResponse(response)

@@ -17,7 +17,7 @@ def on_billing_trx_failed(sender, signal_type, obj, **kwargs):
     sbj, msg = "Billing Failed [%s]" % sender, u""
     for att_name in ["id", "provider_status", "comments", "order", "passenger", "debug"]:
         msg += u"trx.%s: %s\n" % (att_name, getattr(trx, att_name))
-    msg += u"custom msg: %s" % get_custom_message(trx)
+    msg += u"custom msg: %s" % get_custom_message(trx.provider_status, trx.comments)
     logging.error(u"%s\n%s" % (sbj, msg))
     notify_by_email(sbj, msg=msg)
 
@@ -80,7 +80,7 @@ def get_transaction_id(lang_code, mpi_data):
         "transactionType":  "Debit",
         "creditType":       "RegularCredit",
         "transactionCode":  "Phone",
-        "validationType":   "Normal",
+        "validationType":   "Verify",
         "langID":           (lang_code or settings.LANGUAGE_CODE).upper(),
         "timestamp":        datetime.now().replace(microsecond=0).isoformat() #"2011-10-22T15:44:53" #default_tz_now().isoformat()
     })
