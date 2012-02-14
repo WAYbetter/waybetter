@@ -239,25 +239,77 @@ def log_event(event_type, order=None, order_assignment=None, station=None, work_
     q = taskqueue.Queue('log-events')
     q.add(task)
 
-def ga_hit_page(request):
-    # for a full list of args see: http://code.google.com/apis/analytics/docs/tracking/gaTrackingTroubleshooting.html
-    referrer = request.META.get("HTTP_REFERER", "")
-    path = request.path
-    query = request.META.get("QUERY_STRING", "")
-    if query:
-        path = "%s?%s" % (path, query)
+def ga_hit_page(request, path=None):
+    """
+    Log a new page hit on Google Analytics
 
-    cookie = '__utma=50755388.2119250209.1316347680.1326000987.1326015806.191;+__utmz=50755388.1316347680.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none);'
+    @param request: incoming C{HttpRequest}
+    @param path: use the supplied path instead of request.path (optional)
+    @return:
+    """
+    if not path:
+        path = request.path
+        query = request.META.get("QUERY_STRING", "")
+        if query:
+            path = "%s?%s" % (path, query)
+
+    args = {
+        'utmp': path
+    }
+
+    return _do_ga_request(request, extra_args=args)
+
+def ga_track_event(request, category, action, opt_label=None, opt_value=None):
+    """
+    Log a new event on Google Analytics
+
+    @param request: incoming C{HttpRequest}
+    @param category: Event category
+    @param action: Event action
+    @param opt_label: Event label (optional)
+    @param opt_value: Event value, must be numeric (optional)
+    @return:
+    """
+    event_string = '5(%s*%s' % (category, action)
+
+    if opt_label:
+        event_string += '*%s' % opt_label
+
+    event_string += ')'
+
+    if opt_value:
+        event_string += '(%s)' % opt_value
+
+    args = {
+        'utmt': 'event',
+        'utme': event_string
+    }
+
+    return _do_ga_request(request, extra_args=args)
+
+
+def _do_ga_request(request, extra_args=None):
+    # for a full list of args see: http://code.google.com/apis/analytics/docs/tracking/gaTrackingTroubleshooting.html
+    if extra_args is None: extra_args = {}
+
+    referrer = request.META.get("HTTP_REFERER", "")
+
+    c_cookie = random.randint(100000000, 999999999)     # cookie identifier
+    c_random = random.randint(1000000000, 2147483647)   # random number under 2147483647
+    c_today = datetime.datetime.now().strftime("%s")    # today
+
+    cookie_string = '__utma=%s.%s.%s.%s.%s.1;+__utmz=%s.%s.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none);' % (c_cookie, c_random, c_today, c_today, c_today, c_cookie, c_today)
+
     args ={
         'utmwv': '5.2.2',
         'utmn': random.randint(1000000000, 9999999999),
-        'utmp': path,
         'utmac': settings.GA_ACCOUNT_ID,
         'utmhn': settings.WEB_APP_URL,
         'utmr': referrer,
-        'utmcc': cookie,
+        'utmcc': cookie_string,
     }
 
+    args.update(extra_args)
     logging.info(args)
 
     url = "http://www.google-analytics.com/__utm.gif?%s" % urllib.urlencode(args)
