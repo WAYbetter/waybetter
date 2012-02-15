@@ -115,6 +115,12 @@ def update_user_details(user, **kwargs):
         kwargs["username"] = new_email
 
     save = False
+
+    new_password = kwargs.pop('password', None)
+    if new_password:
+        user.set_password(new_password)
+        save = True
+
     for k,v in kwargs.items():
         if v and getattr(user, k) != v:
             setattr(user, k, v)

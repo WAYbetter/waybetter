@@ -50,14 +50,99 @@ $color-error: #CC162A;
     color: $dark-gray;
 }
 
+.ltr{
+    direction: ltr;
+}
+.rtl body {
+    direction: rtl;
+}
+
 body{
     padding: 0;
     margin: 0;
 }
 
+// wb custom classes
+.bold {
+    font-weight: bold;
+}
+
+.transparent {
+    zoom: 1;
+    filter: alpha(opacity=50);
+    opacity: 0.5;
+}
+
+.clear {
+    clear: both;
+    height: 0;
+    overflow: hidden;
+}
+
+.disabled{
+    color: $color-disabled;
+    cursor: default;
+    opacity: 0.5;
+    text-decoration: none;
+}
+
+.hidden{
+    display: none;
+}
+
+.error{
+    color: red;
+}
+
+.clickable{
+    cursor: pointer;
+}
+
+.td-label {
+    padding-right: 15px;
+    font-weight: bold;
+    font-size: $font-size-medium;
+}
+.rtl .td-label{
+    padding-right: 0;
+    padding-left: 15px;
+}
+
+.wb-tooltip{
+    z-index: 1000;
+}
+
+.small-loader{
+    background: url(/static/images/wb_site/wb_loader16.gif) left 0 no-repeat;
+    height: 16px;
+    width: 16px;
+}
+
+// aligning made easy
+.centered{
+    margin: 0 auto;
+}
+.full-width{
+    width: 100%;
+}
+.align-farend{
+    text-align: right;
+}
+.rtl .align-farend{
+    text-align: left;
+}
+.align-closend{
+    text-align: left;
+}
+.rtl .align-closend{
+    text-align: right;
+}
+
+// inputs
 input[type=text], input[type=email], input[type=password]{
     border: 1px solid $light-gray;
     height: 28px;
+    padding: 0 8px;
 }
 
 input[disabled]{
@@ -65,6 +150,17 @@ input[disabled]{
     opacity: 0.5;
 }
 
+.placeheld {
+    color: $color-gray;
+}
+input::-webkit-input-placeholder {
+    color: $color-gray;
+}
+input:-moz-placeholder {
+    color: $color-gray;
+}
+
+// select
 .wb-menulist{
     -moz-appearance: menulist;
     -webkit-appearance: menulist;
@@ -90,43 +186,7 @@ select:focus{
      border: none;
 }
 
-.bold {
-    font-weight: bold;
-}
-
-.transparent {
-        zoom: 1;
-        filter: alpha(opacity=50);
-        opacity: 0.5;
-}
-
-.placeheld {
-    color: $color-gray;
-}
-input::-webkit-input-placeholder {
-    color: $color-gray;
-}
-input:-moz-placeholder {
-    color: $color-gray;
-}
-
-a:hover{
-    text-decoration: none;
-}
-
-.ltr{
-    direction: ltr;
-}
-.rtl body {
-    direction: rtl;
-}
-
-.clear {
-    clear: both;
-    height: 0;
-    overflow: hidden;
-}
-
+// horizontal list
 ul.hz{
     > li{
         list-style: none;
@@ -141,8 +201,8 @@ ul.hz{
     }
 }
 
+// dropdown list
 .wbdropdown-list{
-    display: block;
     list-style: none;
     background: #FFFFFF;
     border: 1px solid #AAAAAA;
@@ -160,7 +220,6 @@ ul.hz{
         text-decoration: none;
     }
 }
-
 .dropdown-trigger{
     background: url("/static/images/wb_site/dropdown.png") right 3px no-repeat;
     padding-right: 13px;
@@ -175,31 +234,9 @@ ul.hz{
 .dropdown-trigger.white{ background-position: right -7px; }
 .rtl .dropdown-trigger.white{ background-position: left -7px; }
 
-.disabled{
-    color: $color-disabled;
-    cursor: default;
-    opacity: 0.5;
+// links
+a:hover{
     text-decoration: none;
-}
-
-.hidden{
-    display: none;
-}
-
-.centered{
-    margin: 0 auto;
-}
-
-.error{
-    color: red;
-}
-.errorlist li{
-    list-style: none;
-    @extend .error;
-}
-
-.clickable{
-    cursor: pointer;
 }
 
 .wb_link{
@@ -219,59 +256,11 @@ ul.hz{
 .menu_link:hover{
     text-decoration: underline;
 }
-.wb-tooltip{
-    z-index: 1000;
-}
 
-@-webkit-keyframes flash_fade {
-    0%, 100% {
-        opacity: 0;
-    }
-    10% {
-        opacity: 1.0;
-    }
-}
-
-
-#flash {
-    display: none;
-}
-
-#flash.show {
-    display: block;
-    position: fixed;
-    top: 10px;
-    left: 50%;
-    color: black;
-    background-color: #fafad2;
-    text-align: center;
-    padding: 10px 25px;
-    border-radius: 7px;
-    -webkit-border-radius: 7px;
-    border: 1px solid #b8860b;
-
-    /*margin-left: -halfthewidthofcontainer*/
-    -webkit-animation-name: flash_fade;
-    -webkit-animation-iteration-count: 1;
-    -webkit-animation-timing-function: ease-in-out;
-    -webkit-animation-duration: 5s;
-    opacity: 0;
-    z-index: 1000;
-
-}
-#flash.error {
-    color: white;
-    background-color: #8b0000;
-    border: 1px solid red;
-}
-
-.small-loader{
-    background: url(/static/images/wb_site/wb_loader16.gif) left 0 no-repeat;
-    height: 16px;
-    width: 16px;
-}
-
+// buttons
 .wb_button{
+    position: relative;
+    bottom: 1px; // the box shadow makes the button look higher
     border: #454545;
     color: white;
     padding: 0 15px;;
@@ -316,9 +305,12 @@ ul.hz{
 }
 
 .wb_button:disabled, .wb_button.disabled {
+    bottom: 0;
     border: none;
     background: #C7C7C7;
     @include box-shadow(none);
+    cursor: default;
+    opacity: 0.4;
 }
 
 .wb_button.blue {
@@ -336,7 +328,7 @@ ul.hz{
     -pie-background: linear-gradient(-90deg, #50b9ea, #298acf);
 }
 
-.wb_button.blue:active, .wb_button.blue:disabled {
+.wb_button.blue:active, .wb_button.blue:disabled, .wb_button.blue.disabled {
     background: #3199df;
 }
 
@@ -396,6 +388,59 @@ ul.hz{
     background: url("/static/images/wb_site/fb_login_button.png") center center no-repeat;
     @include size(100%, 22px);
     opacity: 0.5;
+}
+
+// wb flash message
+@-webkit-keyframes flash_fade {
+    0%, 100% {
+        opacity: 0;
+    }
+    10% {
+        opacity: 1.0;
+    }
+}
+
+
+#flash {
+    display: none;
+}
+
+#flash.show {
+    display: block;
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    color: black;
+    background-color: #fafad2;
+    text-align: center;
+    padding: 10px 25px;
+    border-radius: 7px;
+    -webkit-border-radius: 7px;
+    border: 1px solid #b8860b;
+
+    /*margin-left: -halfthewidthofcontainer*/
+    -webkit-animation-name: flash_fade;
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-timing-function: ease-in-out;
+    -webkit-animation-duration: 5s;
+    opacity: 0;
+    z-index: 1000;
+
+}
+#flash.error {
+    color: white;
+    background-color: #8b0000;
+    border: 1px solid red;
+}
+
+// django forms errorlist
+.errorlist{
+    margin: 0;
+    padding: 0;
+}
+.errorlist li{
+    list-style: none;
+    @extend .error;
 }
 
 /*
@@ -529,6 +574,16 @@ body.base-site{
     margin: 0 auto 50px auto;
     position: relative;
     font-size: $font-size-small;
+}
+
+.small-site-content{
+    #site-content {
+        width: 480px;
+        padding: 25px 15px;
+    }
+    #top-container {
+        width: 500px;
+    }
 }
 
 #footer-container{
@@ -1714,9 +1769,6 @@ Registration
         text-align: right;
         padding-right: 25px;
     }
-    input{
-        padding: 0 8px;
-    }
 }
 .rtl.user_profile{
     .button-row{
@@ -1728,6 +1780,44 @@ Registration
         padding-left: 25px;
     }
 }
+
+.verify-passenger{
+    @extend .small-site-content;
+    .message-row {
+        height: 15px;
+    }
+    .spacer-row {
+        height: 10px;
+    }
+    #local_phone {
+        width: 180px;
+    }
+    #send_code {
+        min-width: 140px;
+    }
+    #next_container {
+        padding-top: 15px;
+    }
+}
+
+.change-credentials{
+    @extend .small-site-content;
+    #credentials{
+        input{
+            width: 200px;
+        }
+        .error-row{
+            height: 20px;
+        }
+        .spacer-row{
+            height: 10px;
+        }
+    }
+    #btn_cntr{
+        padding-top: 15px;
+    }
+}
+
 /*
 Info pages
 ****************************************************/

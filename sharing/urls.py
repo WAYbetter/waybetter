@@ -63,6 +63,10 @@ urlpatterns = patterns('',
 
 
     (r'^resolve_structured_address/$', 'sharing.passenger_controller.resolve_structured_address'),
+
+    (r'^forgot_password/$', 'sharing.passenger_controller.verify_passenger'),
+    (r'^change_credentials/$', 'sharing.passenger_controller.change_credentials'),
+
     (r'^registration/(?P<step>\w+)/$', 'sharing.passenger_controller.registration'),
     url(r'^registration/$', 'sharing.passenger_controller.registration', name="join"),
     url(r'^login_redirect/$', 'sharing.passenger_controller.post_login_redirect', name="login_redirect"),
