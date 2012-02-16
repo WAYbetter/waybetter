@@ -294,11 +294,17 @@ def _do_ga_request(request, extra_args=None):
 
     referrer = request.META.get("HTTP_REFERER", "")
 
-    c_cookie = random.randint(100000000, 999999999)     # cookie identifier
-    c_random = random.randint(1000000000, 2147483647)   # random number under 2147483647
-    c_today = datetime.datetime.now().strftime("%s")    # today
+    utma = request.COOKIES.get("__utma")
+    utmz = request.COOKIES.get("__utmz")
 
-    cookie_string = '__utma=%s.%s.%s.%s.%s.1;+__utmz=%s.%s.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none);' % (c_cookie, c_random, c_today, c_today, c_today, c_cookie, c_today)
+    if utma and utmz:
+        cookie_string = '__utma=%s;+__utmz=%s;' % (utma, utmz)
+    else: # we don't have a real GA cookie, so let's create one.
+        c_cookie = random.randint(100000000, 999999999)     # cookie identifier
+        c_random = random.randint(1000000000, 2147483647)   # random number under 2147483647
+        c_today = datetime.datetime.now().strftime("%s")    # today
+
+        cookie_string = '__utma=%s.%s.%s.%s.%s.1;+__utmz=%s.%s.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none);' % (c_cookie, c_random, c_today, c_today, c_today, c_cookie, c_today)
 
     args ={
         'utmwv': '5.2.2',

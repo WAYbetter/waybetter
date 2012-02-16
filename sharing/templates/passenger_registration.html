@@ -34,8 +34,9 @@
             <tr>
                 <td class="fb">
                     {% trans "Use your Facebook account for fast registration:" %}
-{#                    <a id="fb_login_button" href="{% value_from_settings FACEBOOK_LOGIN_LINK %}"></a>#}
+                    {#                    <a id="fb_login_button" href="{% value_from_settings FACEBOOK_LOGIN_LINK %}"></a>#}
                     <a id="fb_login_button"></a>
+
                     <div style="text-align: center">{% trans "Coming Soon" %}...</div>
                 </td>
                 <td class="vrule-cntr">
@@ -105,10 +106,10 @@
                                     <div id="sms_button_container">
                                         <button id="validate_phone" type="button" class="wb_button"
                                                 disabled="disabled">{% trans "Send SMS Code" %}</button>
-{#                                        <div id="didnt_get_code">#}
-{#                                            <a class="wb_link"#}
-{#                                               href="mailto:support@waybetter.com?subject={% trans "I didn't get the SMS code" %}">{% trans "I didn't get the SMS code" %}</a>#}
-{#                                        </div>#}
+                                        {#                                        <div id="didnt_get_code">#}
+                                        {#                                            <a class="wb_link"#}
+                                        {#                                               href="mailto:support@waybetter.com?subject={% trans "I didn't get the SMS code" %}">{% trans "I didn't get the SMS code" %}</a>#}
+                                        {#                                        </div>#}
                                     </div>
                                 </td>
                             </tr>
@@ -156,9 +157,11 @@
             $("[href='{% url auth_login %}']").attr("href", "{{ login_link }}");
         });
     </script>
+    <script type="text/javascript">
+        var GA_EVENT_CATEGORY = "registration";
 
-    {% if step == "auth" %}
-        <script type="text/javascript">
+        {% if step == "auth" %}
+
             $(function () {
                 var validations = {% render_ajax_fields form %};
                 $('#auth_form').validation(validations, {
@@ -202,12 +205,32 @@
                 });
 
                 $("#auth_form input").not(":hidden").first().focus();
+
+                // Google Analytics
+                $("#id_name").one("keyup", function () {
+                    logGAEvent(GA_EVENT_CATEGORY, "full name");
+                });
+                $("#id_email").one("keyup", function () {
+                    logGAEvent(GA_EVENT_CATEGORY, "your email");
+                });
+                $("#id_password").one("keyup", function () {
+                    logGAEvent(GA_EVENT_CATEGORY, "password");
+                });
+                $("#id_re_password").one("keyup", function () {
+                    logGAEvent(GA_EVENT_CATEGORY, "password again");
+                });
+                $("#id_agree_to_terms").one("click", function () {
+                    logGAEvent(GA_EVENT_CATEGORY, "i agree");
+                });
+                $("#finish_auth").bind("click", function () {
+                    logGAEvent(GA_EVENT_CATEGORY, "next", "details");
+                });
+
+
             });
-        </script>
 
-    {% else %}
+        {% else %}
 
-        <script type="text/javascript">
             function updateValidatePhoneButtonState() {
                 var $local_phone = $("#local_phone");
                 $local_phone.val($local_phone.val().split(/\D+/).join(""));
@@ -300,11 +323,26 @@
                             if ($(this).val().length >= 4 && $.inArray(event.which, permittedKeys) < 0) {
                                 return false;
                             }
-                });
+                        });
 
                 $("#local_phone").focus();
+
+                // Google Analytics
+                $("#finish_phone").bind("click", function () {
+                    logGAEvent(GA_EVENT_CATEGORY, "next", "phone");
+                });
+                $("#validate_phone").bind("click", function () {
+                    logGAEvent(GA_EVENT_CATEGORY, "send validation code");
+                });
+                $("#local_phone").one("keyup", function () {
+                    logGAEvent(GA_EVENT_CATEGORY, "insert phone number");
+                });
+                $("#verification_code").one("keyup", function () {
+                    logGAEvent(GA_EVENT_CATEGORY, "insert validation code");
+                });
             });
-        </script>
-    {% endif %}
+
+        {% endif %}
+    </script>
 
 {% endblock %}

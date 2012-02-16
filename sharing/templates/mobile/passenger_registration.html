@@ -156,16 +156,53 @@
 {% endblock %}
 
 {% block doc_ready %}
-    {{ block.super }}
     <script type="text/javascript">
         var step = "{{ step }}";
+        var GA_EVENT_CATEGORY = "registration";
+
+        function setupGA() {
+            // Google Analytics
+            $("#id_name").one("change", function () {
+                alert("id_name change");
+                logGAEvent(GA_EVENT_CATEGORY, "full name");
+            });
+            $("#id_email").one("change", function () {
+                logGAEvent(GA_EVENT_CATEGORY, "your email");
+            });
+            $("#id_password").one("change", function () {
+                logGAEvent(GA_EVENT_CATEGORY, "password");
+            });
+            $("#id_re_password").one("change", function () {
+                logGAEvent(GA_EVENT_CATEGORY, "password again");
+            });
+            $("#id_agree_to_terms").one("click", function () {
+                logGAEvent(GA_EVENT_CATEGORY, "i agree");
+            });
+            $("#finish_registration").bind("click", function () {
+                logGAEvent(GA_EVENT_CATEGORY, "next", "details");
+            });
+
+            $("#validate_code").bind("click", function () {
+                logGAEvent(GA_EVENT_CATEGORY, "next", "phone");
+            });
+            $("#validate_phone").bind("click", function () {
+                logGAEvent(GA_EVENT_CATEGORY, "send validation code");
+            });
+            $("#local_phone").one("change", function () {
+                logGAEvent(GA_EVENT_CATEGORY, "insert phone number");
+            });
+            $("#verification_code").one("change", function () {
+                logGAEvent(GA_EVENT_CATEGORY, "insert validation code");
+            });
+        }
 
         $(document).ready(function() {
             $.mobile.ajaxEnabled = false;
+            setupGA();
             if (step == "phone")
                 document.location.href = "#validation_page";
         });
-        
+
         $("#registration_page").bind("pageinit", function(e) {
             $("#finish_registration").click(function() {
                 var $that = $("#finish_registration");
@@ -287,4 +324,6 @@
             });
         });
     </script>
+
+    {{ block.super }}
 {% endblock %}

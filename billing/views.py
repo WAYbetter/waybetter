@@ -14,7 +14,7 @@ from billing.billing_manager import get_billing_redirect_url
 from billing.enums import BillingStatus, BillingAction
 from common.forms import DatePickerForm
 from common.tz_support import default_tz_now, default_tz_time_max, default_tz_time_min, default_tz_now_max, format_dt
-from common.util import custom_render_to_response, notify_by_email, Enum, send_mail_as_noreply, base_datepicker_page
+from common.util import custom_render_to_response, notify_by_email, Enum, send_mail_as_noreply, base_datepicker_page, ga_track_event
 from django.core.urlresolvers import reverse
 from django.utils import translation
 from django.views.decorators.csrf import csrf_exempt
@@ -59,6 +59,7 @@ def billing_task(request, token, amount, card_expiration, billing_transaction_id
 def transaction_ok(request, passenger):
     #TODO: handle errors
     #TODO: makesure referrer is creditguard
+    ga_track_event(request, "registration", "credit card validation", "approved")
     date_string = request.GET.get("cardExp")
     exp_date = date(year=int(date_string[2:]) + 2000, month=int(date_string[:2]), day=1)
     kwargs = {
@@ -109,6 +110,9 @@ def transaction_error(request):
     page_specific_class = "error-page"
     error_code = request.GET.get("ErrorCode")
     error_text = get_custom_message(error_code, request.GET.get("ErrorText"))
+
+    ga_track_event(request, "registration", "credit card validation", "not approved", int(error_code))
+
     return custom_render_to_response("error_page.html", locals(), context_instance=RequestContext(request))
 
 @passenger_required

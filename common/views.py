@@ -14,7 +14,7 @@ from google.appengine.api.channel.channel import InvalidChannelClientIdError
 from common.decorators import receive_signal
 from common.models import Country
 from common.signals import  async_computation_completed_signal
-from common.util import custom_render_to_response
+from common.util import custom_render_to_response, ga_track_event
 from ordering.models import WorkStation
 from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
 import logging
@@ -122,6 +122,9 @@ def test_channel(request):
     c = channel.create_channel(request.user.username)
     return HttpResponse("channel created")
 
+def test_ga(request):
+    ga_track_event(request, "test_cat", "test_action")
+    return HttpResponse("GA test OK")
 
 def init_countries(request, start=0):
     countries_created = do_init(start)
