@@ -59,7 +59,7 @@ def billing_task(request, token, amount, card_expiration, billing_transaction_id
 def transaction_ok(request, passenger):
     #TODO: handle errors
     #TODO: makesure referrer is creditguard
-    ga_track_event(request, "registration", "credit card validation", "approved")
+    ga_track_event(request, "registration", "credit_card_validation", "approved")
     date_string = request.GET.get("cardExp")
     exp_date = date(year=int(date_string[2:]) + 2000, month=int(date_string[:2]), day=1)
     kwargs = {
@@ -111,7 +111,7 @@ def transaction_error(request):
     error_code = request.GET.get("ErrorCode")
     error_text = get_custom_message(error_code, request.GET.get("ErrorText"))
 
-    ga_track_event(request, "registration", "credit card validation", "not approved", int(error_code))
+    ga_track_event(request, "registration", "credit_card_validation", "not_approved", int(error_code))
 
     return custom_render_to_response("error_page.html", locals(), context_instance=RequestContext(request))
 

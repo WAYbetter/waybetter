@@ -247,6 +247,7 @@ def ga_hit_page(request, path=None):
     @param path: use the supplied path instead of request.path (optional)
     @return:
     """
+    logging.info("ga_hit_page: %s" % path)
     if not path:
         path = request.path
         query = request.META.get("QUERY_STRING", "")
@@ -270,6 +271,7 @@ def ga_track_event(request, category, action, opt_label=None, opt_value=None):
     @param opt_value: Event value, must be numeric (optional)
     @return:
     """
+    logging.info("ga_track_event: %s, %s" % (category, action))
     event_string = '5(%s*%s' % (category, action)
 
     if opt_label:
@@ -285,6 +287,7 @@ def ga_track_event(request, category, action, opt_label=None, opt_value=None):
         'utme': event_string
     }
 
+    ga_hit_page(request, path="/ga_events/%s/%s" % (category, action))
     return _do_ga_request(request, extra_args=args)
 
 
