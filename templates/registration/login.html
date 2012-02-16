@@ -7,11 +7,11 @@
     {{ block.super }}
     <style>
         #site-content{
-            width: 650px;
-            padding: 35px 25px;
+            width: 350px;
+            padding: 25px 15px;
         }
         #top-container{
-            width: 680px;
+            width: 380px;
         }
         label {
             padding-right: 15px;
@@ -37,19 +37,11 @@
         }
 
         #id_username, #id_password {
-            width: 280px;
+            width: 200px;
         }
 
         .spacer-row {
-            height: 15px;
-        }
-
-        .forgot-password-row {
-            text-align: right;
-        }
-
-        .rtl .forgot-password-row {
-            text-align: left;
+            height: 25px;
         }
 
         #buttons{
@@ -57,12 +49,15 @@
         }
 
         .login-button-row {
-            padding: 10px 0;
             text-align: right;
         }
 
         .rtl .login-button-row {
             text-align: left;
+        }
+
+        .login-button-row.join, .hr-spacer{
+            padding-top: 20px;
         }
 
         #not_member_text {
@@ -124,7 +119,7 @@
             <td>
                 {{ form.non_field_errors }}
                 <form method="post" id="login-form">{% csrf_token %}
-                    <table>
+                    <table class="full-width">
                         <input type="hidden" name="next" value="{{ next }}"/>
                         <input type="hidden" name="token" id="id_token">
 
@@ -146,7 +141,8 @@
                             </td>
                         </tr>
                         <tr class="forgot-password-row">
-                            <td colspan="2">
+                            <td></td>
+                            <td>
                                 {% trans "Forgot password" %}
                                 <a class="wb_link" href="{% url sharing.passenger_controller.verify_passenger %}">{% trans "Click Here" %}</a>
                             </td>
@@ -155,27 +151,30 @@
 
                     <div id="buttons">
                         <div class="login-button-row">
-                            <input type="submit" class="wb_button" value="{% trans 'Login' %}"/>
+                            <input type="submit" class="wb_button blue" value="{% trans 'Login' %}"/>
                         </div>
-                        <div class="login-button-row">
+
+                        <div class="hr-spacer"></div>
+
+                        <div class="login-button-row join">
                             <span id="not_member_text" class="bold">{% trans "Not a WAYbetter member" %}?</span>
-                            <button id="join_btn" class="wb_button blue">{% trans "Join Now" %}</button>
+                            <button id="join_btn" class="wb_button">{% trans "Join Now" %}</button>
                         </div>
                     </div>
                 </form>
 
             </td>
-            <td class="vrule-cntr">
-                <div class="vrule"></div>
-                <div class="or centered">{% trans "OR" %}</div>
-                <div class="vrule"></div>
-            </td>
-            <td>
+{#            <td class="vrule-cntr">#}
+{#                <div class="vrule"></div>#}
+{#                <div class="or centered">{% trans "OR" %}</div>#}
+{#                <div class="vrule"></div>#}
+{#            </td>#}
+{#            <td>#}
                 {#                <a id="fb_login_button" href="{% value_from_settings FACEBOOK_LOGIN_LINK %}"></a>#}
-                <a id="fb_login_button"></a>
-
-                <div style="text-align: center">{% trans "Coming Soon" %}...</div>
-            </td>
+{#                <a style="color: #BCBCBC" id="fb_login_button"></a>#}
+{##}
+{#                <div style="text-align: center; color: #BCBCBC">{% trans "Coming Soon" %}...</div>#}
+{#            </td>#}
         </tr>
 
     </table>
@@ -211,3 +210,5 @@
 
     </script>
 {% endblock %}
+
+{% block post_content %}{% endblock %}

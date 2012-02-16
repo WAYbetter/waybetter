@@ -57,6 +57,9 @@ body {
   height: 16px;
   width: 16px; }
 
+.hr-spacer {
+  border-bottom: 1px solid #bcbcbc; }
+
 .centered {
   margin: 0 auto; }
 
@@ -74,6 +77,12 @@ body {
 
 .rtl .align-closend {
   text-align: right; }
+
+.float-farend {
+  float: right; }
+
+.rtl .float-farend {
+  float: left; }
 
 input[type=text], input[type=email], input[type=password] {
   border: 1px solid #bcbcbc;
@@ -197,9 +206,9 @@ a:hover {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
-  -webkit-box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.7);
-  -moz-box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.7);
-  box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.7);
+  -webkit-box-shadow: 0px 1px 2px 0 rgba(0, 0, 0, 0.9);
+  -moz-box-shadow: 0px 1px 2px 0 rgba(0, 0, 0, 0.9);
+  box-shadow: 0px 1px 2px 0 rgba(0, 0, 0, 0.9);
   background-image: #727272;
   /* Old browsers */
   background-image: -moz-linear-gradient(top, #727272 0%, #454545 100%);
@@ -520,7 +529,7 @@ body.base-site {
 
 .small-site-content #site-content, .verify-passenger #site-content, .change-credentials #site-content {
   width: 480px;
-  padding: 25px 15px; }
+  padding: 25px; }
 .small-site-content #top-container, .verify-passenger #top-container, .change-credentials #top-container {
   width: 500px; }
 
@@ -1278,11 +1287,23 @@ Account
 /*
 Registration
 /*********************************************/
-.registration #site-content, .credit_guard_page #site-content {
-  padding: 10px 25px; }
+.registration #verification_status, .verify-passenger #verification_status {
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+  position: relative;
+  top: 10px; }
+.registration #verification_status.success, .verify-passenger #verification_status.success {
+  background: url("/static/images/wb_site/verification_status.png") left 0 no-repeat; }
+.registration #verification_status.error, .registration .errorlist li#verification_status, .errorlist .registration li#verification_status, .verify-passenger #verification_status.error, .verify-passenger .errorlist li#verification_status, .errorlist .verify-passenger li#verification_status {
+  background: url("/static/images/wb_site/verification_status.png") left -30px no-repeat; }
+.registration #verification_status.sending, .verify-passenger #verification_status.sending {
+  background: url("/static/images/wb_site/loader24.gif") left 0 no-repeat; }
+
 .registration #progress, .credit_guard_page #progress {
   width: 100%;
-  padding-bottom: 10px;
+  padding-top: 5px;
+  padding-bottom: 15px;
   font-size: 11px; }
   .registration #progress .step, .credit_guard_page #progress .step {
     text-align: center;
@@ -1301,10 +1322,13 @@ Registration
   font-size: 16px;
   font-weight: bold; }
 
+.registration #site-content {
+  width: 600px;
+  padding: 10px 25px; }
+.registration .header-row {
+  padding-bottom: 20px; }
 .registration #auth_step {
   width: 100%; }
-  .registration #auth_step .header-row td {
-    padding-bottom: 38px; }
   .registration #auth_step .vrule-cntr {
     padding: 0 20px; }
   .registration #auth_step .login {
@@ -1312,7 +1336,8 @@ Registration
   .registration #auth_step .fb {
     width: 40%;
     vertical-align: middle;
-    text-align: center; }
+    text-align: center;
+    color: #bcbcbc; }
   .registration #auth_step #fb_login_button {
     width: 100%;
     height: 22px;
@@ -1339,17 +1364,19 @@ Registration
     .registration #auth_step #user_details th {
       text-align: left; }
     .registration #auth_step #user_details input {
-      width: 100%; }
-    .registration #auth_step #user_details tr {
-      height: 55px; }
+      width: 266px; }
+    .registration #auth_step #user_details .input-row {
+      height: 60px; }
     .registration #auth_step #user_details th {
       width: 100px;
       padding-top: 10px; }
     .registration #auth_step #user_details td, .registration #auth_step #user_details th {
       vertical-align: top; }
   .registration #auth_step #terms_container {
-    text-align: right;
-    padding-top: 8px; }
+    position: relative;
+    bottom: 9px; }
+    .registration #auth_step #terms_container input {
+      width: auto; }
 .registration #next_container {
   width: 100%;
   text-align: right;
@@ -1358,29 +1385,17 @@ Registration
   margin-right: 20px; }
 .registration #phone_step {
   width: 100%; }
+.registration #phone_form label {
+  font-weight: bold; }
 .registration #phone_form .cntr {
-  height: 50px;
+  height: 60px;
   label-display: inline-block;
   label-width: 100px; }
-.registration #local_phone {
-  width: 245px; }
 .registration #sms_button_container {
   display: inline-block; }
 .registration #didnt_get_code {
   padding-top: 6px;
   text-align: center; }
-.registration #verification_status {
-  width: 30px;
-  height: 30px;
-  display: inline-block;
-  position: relative;
-  top: 11px; }
-.registration #verification_status.success {
-  background: url("/static/images/wb_site/verification_status.png") left 0 no-repeat; }
-.registration #verification_status.error, .registration .errorlist li#verification_status, .errorlist .registration li#verification_status {
-  background: url("/static/images/wb_site/verification_status.png") left -30px no-repeat; }
-.registration #verification_status.sending {
-  background: url("/static/images/wb_site/loader24.gif") left 0 no-repeat; }
 .registration .sms-img {
   width: 320px;
   height: 245px;
@@ -1391,8 +1406,6 @@ Registration
   text-align: left; }
 .rtl.registration #auth_step #user_details th {
   text-align: right; }
-.rtl.registration #auth_step #terms_container {
-  text-align: left; }
 .rtl.registration #next_container {
   text-align: left; }
 .rtl.registration #bottom_login {
@@ -1402,6 +1415,8 @@ Registration
   background: url("/static/images/wb_site/sms_heb.png") left 0 no-repeat;
   float: left; }
 
+.credit_guard_page #site-content {
+  padding: 10px 25px; }
 .credit_guard_page .spacer.bottom {
   margin-bottom: 10px; }
 .credit_guard_page #wb_lock {
@@ -1547,8 +1562,6 @@ Registration
   height: 15px; }
 .verify-passenger .spacer-row {
   height: 10px; }
-.verify-passenger #local_phone {
-  width: 180px; }
 .verify-passenger #send_code {
   min-width: 140px; }
 .verify-passenger #next_container {
