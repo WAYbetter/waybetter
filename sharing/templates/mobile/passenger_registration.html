@@ -163,7 +163,6 @@
         function setupGA() {
             // Google Analytics
             $("#id_name").one("change", function () {
-                alert("id_name change");
                 logGAEvent(GA_EVENT_CATEGORY, "full name");
             });
             $("#id_email").one("change", function () {
