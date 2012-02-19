@@ -49,12 +49,12 @@ def view_user_orders(request, user_id):
 def calc_users_data_csv(recipient ,offset=0, csv_bytestring=u""):
     batch_size = 500
     datetime_format = "%d/%m/%y"
-    link_domain = "http://dev.latest.waybetter-app.appspot.com"
+    link_domain = "www.waybetter.com"
 
     logging.info("querying users %s->%s" % (offset, offset + batch_size))
     users = User.objects.order_by("-last_login")[offset: offset + batch_size]
     for user in users:
-        link = "%s/%s" % (link_domain , reverse(view_user_orders, args=[user.id]))
+        link = "http://%s/%s" % (link_domain , reverse(view_user_orders, args=[user.id]))
         last_login = user.last_login.strftime(datetime_format)
         date_joined = user.date_joined.strftime(datetime_format)
         full_name = user.get_full_name()
