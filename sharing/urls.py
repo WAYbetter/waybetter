@@ -7,6 +7,8 @@ urlpatterns = patterns('',
     (r'^birdseye/$', 'sharing.staff_controller.birdseye_view'),
     (r'^kpi/$', 'sharing.staff_controller.kpi'),
     (r'^debug/$', 'sharing.staff_controller.staff_home'),
+    (r'^send_users_data_csv/$', 'sharing.staff_controller.send_users_data_csv'),
+    (r'^view_user_orders/(?P<user_id>\d+)/$', 'sharing.staff_controller.view_user_orders'),
     url(r'^hotspot/$', 'sharing.staff_controller.hotspot_ordering_page',  kwargs={'is_textinput': False}, name='hotspot_select'),
     url(r'^hotspot/textinput/$', 'sharing.staff_controller.hotspot_ordering_page', kwargs={'is_textinput': True}, name='hotspot_textinput'),
     (r'^computation_statistics/$', 'sharing.staff_controller.ride_computation_stat'),
@@ -63,6 +65,10 @@ urlpatterns = patterns('',
 
 
     (r'^resolve_structured_address/$', 'sharing.passenger_controller.resolve_structured_address'),
+
+    (r'^forgot_password/$', 'sharing.passenger_controller.verify_passenger'),
+    (r'^change_credentials/$', 'sharing.passenger_controller.change_credentials'),
+
     (r'^registration/(?P<step>\w+)/$', 'sharing.passenger_controller.registration'),
     url(r'^registration/$', 'sharing.passenger_controller.registration', name="join"),
     url(r'^login_redirect/$', 'sharing.passenger_controller.post_login_redirect', name="login_redirect"),

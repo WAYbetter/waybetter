@@ -1,0 +1,59 @@
+{% extends "wb_base_site.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        .orders_history_table {
+            border-spacing: 0 3px;
+        }
+
+        .orders_history_table tr:nth-child(odd) {
+            background-color: white;
+        }
+
+        .orders_history_table tr:nth-child(even) {
+            background-color: #e7f1fa;
+        }
+
+        tr {
+            height: 40px;
+        }
+
+        .th {
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+
+{% block top_left %}
+    <span dir="ltr">
+        {{ title }}
+    </span>
+{% endblock %}
+
+{% block content %}
+    <h1>{% trans "Phone" %}: {{ passenger.phone }}</h1>
+    <table class="orders_history_table full-width">
+        <thead>
+        <tr>
+            <td class="th">{% trans "Date" %}</td>
+            <td class="th">{% trans "From" %}</td>
+            <td class="th">{% trans "To" %}</td>
+            <td class="th">{% trans "Status" %}</td>
+            <td class="th">{% trans "Order From" %}</td>
+        </tr>
+        </thead>
+
+        {% for order in orders %}
+            <tr>
+                <td>{{ order.create_date }}</td>
+                <td>{{ order.from_raw }}</td>
+                <td>{{ order.to_raw }}</td>
+                <td>{{ order.get_status_display }}</td>
+                <td>{{ order.mobile|yesno:"Mobile,Website" }}</td>
+            </tr>
+        {% endfor %}
+    </table>
+
+{% endblock %}

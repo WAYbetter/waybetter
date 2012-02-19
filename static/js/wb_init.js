@@ -30,6 +30,15 @@
                 }
             });
         },
+        enabled:function (bool) {
+            return this.each(function () {
+                if (bool){
+                    $(this).enable();
+                } else{
+                    $(this).disable();
+                }
+            });
+        },
         set_button_text:function (text) {
             return this.each(function () {
                 if ($(this).hasClass("ui-button")) {

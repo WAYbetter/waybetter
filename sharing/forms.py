@@ -1,10 +1,12 @@
 from django.contrib.auth.models import User
 from django import forms
 from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
 from common.geocode import geohash_encode
 from common.widgets import EmailInput
+from django.utils.safestring import mark_safe
 from sharing.models import HotSpot, ProducerPassenger
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext_lazy as _, ugettext
 
 
 class HotSpotServiceRuleAdminForm(forms.ModelForm):
@@ -86,6 +88,8 @@ class UserRegistrationForm(forms.Form):
             user = None
 
         if user:
-            raise ValidationError(_("Email already registered."))
+            link = "<a href=%s class='wb_link'>%s</a>" % (reverse('sharing.passenger_controller.verify_passenger'), ugettext("Forgot password?"))
+            error_msg = "%s. %s" % (ugettext("Email already registered"), link)
+            raise ValidationError(mark_safe(error_msg))
 
         return self.cleaned_data["email"]

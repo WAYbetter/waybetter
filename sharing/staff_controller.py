@@ -1,11 +1,14 @@
 # This Python file uses the following encoding: utf-8
+from django.contrib.auth.models import User
+from django.core.urlresolvers import reverse
+from google.appengine.ext.deferred import deferred
 from common.signals import async_computation_failed_signal, async_computation_completed_signal
 from google.appengine.api.channel import channel
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction, BillingInfo
 from common.decorators import force_lang
 from common.models import City
-from common.util import custom_render_to_response, get_uuid, base_datepicker_page
+from common.util import custom_render_to_response, get_uuid, base_datepicker_page, send_mail_as_noreply
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
 from django.utils import simplejson, translation
@@ -29,6 +32,80 @@ import re
 
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 LANG_CODE = "he"
+
+@staff_member_required
+def view_user_orders(request, user_id):
+    user = User.objects.get(id=user_id)
+    try:
+        passenger = user.passenger
+        orders = sorted(passenger.orders.filter(type=OrderType.SHARED, debug=False), key=lambda order: order.create_date)
+        title = "View sharing order for user: %s [%s]" % (user.get_full_name(), user.email)
+
+    except Passenger.DoesNotExist:
+        title = "User is not a passenger"
+
+    return custom_render_to_response("staff_user_orders.html", locals(), context_instance=RequestContext(request))
+
+def calc_users_data_csv(recipient ,offset=0, csv_bytestring=u""):
+    batch_size = 500
+    datetime_format = "%d/%m/%y"
+    link_domain = "http://dev.latest.waybetter-app.appspot.com"
+
+    logging.info("querying users %s->%s" % (offset, offset + batch_size))
+    users = User.objects.order_by("-last_login")[offset: offset + batch_size]
+    for user in users:
+        link = "%s/%s" % (link_domain , reverse(view_user_orders, args=[user.id]))
+        last_login = user.last_login.strftime(datetime_format)
+        date_joined = user.date_joined.strftime(datetime_format)
+        full_name = user.get_full_name()
+        email = user.email
+        phone = ""
+        billing_info = ""
+        last_order_date = ""
+        num_orders_mobile = ""
+        num_orders_website = ""
+        num_rides = ""
+        total_payment = ""
+        try:
+            passenger = user.passenger
+            phone = passenger.phone
+            if hasattr(passenger, "billing_info"):
+                billing_info = "yes"
+            orders = sorted(passenger.orders.filter(type=OrderType.SHARED, debug=False), key=lambda order: order.create_date)
+
+            num_orders = len(orders)
+            if num_orders:
+                last_order_date = orders[0].create_date.strftime(datetime_format)
+                dispatched_orders = filter(lambda o: o.ride, orders)
+                total_payment = sum([order.price for order in dispatched_orders])
+                num_rides = len(dispatched_orders)
+                num_orders_mobile = len(filter(lambda o: o.mobile, orders))
+                num_orders_website = num_orders - num_orders_mobile
+        except Passenger.DoesNotExist:
+            pass
+        except Passenger.MultipleObjectsReturned:
+            pass
+
+        user_data = [last_login, last_order_date, date_joined, full_name, email, phone, num_orders_mobile, num_orders_website, num_rides, billing_info, total_payment, link]
+        csv_bytestring += u",".join([unicode(i) for i in user_data])
+        csv_bytestring += u"\n"
+
+    if users:
+        deferred.defer(calc_users_data_csv, recipient, offset=offset + batch_size + 1, csv_bytestring=csv_bytestring)
+    else:
+        logging.info("all done, sending data...")
+        timestamp = date.today()
+        send_mail_as_noreply(recipient, "Users data %s" % timestamp, attachments=[("users_data_%s.csv" % timestamp, csv_bytestring)])
+
+
+@staff_member_required
+def send_users_data_csv(request):
+    recipient = ["amir@waybetter.com", "shay@waybetter.com"]
+    col_names = ["Last Seen", "Last Ordered", "Joined", "Name", "email", "Phone", "#mobile orders", "#website orders", "#rides", "billing", "total payment", "view orders"]
+    deferred.defer(calc_users_data_csv, recipient, offset=0, csv_bytestring=u"%s\n" % u",".join(col_names))
+
+    return HttpResponse("An email will be sent to %s in a couple of minutes" % recipient)
+
 
 @staff_member_required
 @force_lang("en")

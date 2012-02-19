@@ -20,30 +20,28 @@
     <div class="spacer top"></div>
 
     {% if step == "auth" %}
+        <div class="header-row">
+            <span class="step-header">{% trans "Account Information" %}</span>
+
+            <span class="login float-farend">
+                <span class="bold">{% trans "Already a member?" %}</span>
+                <a href="{{ login_link }}" class="wb_link">{% trans "Sign In" %}</a>
+            </span>
+        </div>
+
         <table id="auth_step">
-            <tr class="header-row">
-                <td colspan="2">
-                    <span class="step-header">{% trans "Account Information" %}</span>
-                </td>
-                <td class="login">
-                    <span class="bold">{% trans "Already a member?" %}</span> <a href="{{ login_link }}"
-                                                                                 class="wb_link">{% trans "Sign In" %}</a>
-                </td>
-            </tr>
-
             <tr>
-                <td class="fb">
-                    {% trans "Use your Facebook account for fast registration:" %}
+{#                <td class="fb">#}
+{#                    {% trans "Use your Facebook account for fast registration:" %}#}
                     {#                    <a id="fb_login_button" href="{% value_from_settings FACEBOOK_LOGIN_LINK %}"></a>#}
-                    <a id="fb_login_button"></a>
-
-                    <div style="text-align: center">{% trans "Coming Soon" %}...</div>
-                </td>
-                <td class="vrule-cntr">
-                    <div class="vrule"></div>
-                    <div class="or">{% trans "OR" %}</div>
-                    <div class="vrule"></div>
-                </td>
+{#                    <a id="fb_login_button"></a>#}
+{#                    <div style="text-align: center; color: #BCBCBC">{% trans "Coming Soon" %}...</div>#}
+{#                </td>#}
+{#                <td class="vrule-cntr">#}
+{#                    <div class="vrule"></div>#}
+{#                    <div class="or">{% trans "OR" %}</div>#}
+{#                    <div class="vrule"></div>#}
+{#                </td>#}
                 <td>
                     {% load ajax_form_utils %}
                     <form id="auth_form">
@@ -54,7 +52,7 @@
                             {% endfor %}
                             {% for field in form.visible_fields %}
                                 {% if field.html_name != "agree_to_terms" %}
-                                    <tr>
+                                    <tr class="input-row">
                                         <th>{{ field.label_tag }}</th>
                                         <td>{{ field }}
                                             <ul class="errorlist hidden">{{ field.errors }}</ul>
@@ -62,17 +60,20 @@
                                     </tr>
                                 {% endif %}
                             {% endfor %}
+                            <tr>
+                                <td></td>
+                                <td id="terms_container">
+                                        <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
+                                        <label for="id_agree_to_terms">{% trans "I agree to the" %}
+                                            <a class="wb_link" target="_blank"
+                                               href="{% url terms %}">{% trans "Terms Of Use" %} </a>
+                                            {% trans "and" %} <a class="wb_link" target="_blank"
+                                                                 href="{% url privacy %}">{% trans "Privacy Statement" %}.</a>
+                                        </label>
+                                        <ul class="errorlist hidden"></ul>
+                                </td>
+                            </tr>
                         </table>
-                        <div id="terms_container">
-                            <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
-                            <label for="id_agree_to_terms">{% trans "I agree to the" %}
-                                <a class="wb_link" target="_blank"
-                                   href="{% url terms %}">{% trans "Terms Of Use" %} </a>
-                                {% trans "and" %} <a class="wb_link" target="_blank"
-                                                     href="{% url privacy %}">{% trans "Privacy Statement" %}.</a>
-                            </label>
-                            <ul class="errorlist hidden"></ul>
-                        </div>
                     </form>
                 </td>
             </tr>
@@ -147,6 +148,8 @@
     </div>
 
 {% endblock %}
+
+{% block post_content %}{% endblock %}
 
 {% block doc_ready %}
     {{ block.super }}
