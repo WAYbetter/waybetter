@@ -103,17 +103,19 @@ class Station(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
     name = models.CharField(_("station name"), max_length=50)
     license_number = models.CharField(_("license number"), max_length=30)
-    website_url = models.URLField(_("website"), max_length=255, null=True, blank=True, verify_exists=False)
+    website_url = models.URLField(_("website"), max_length=255, null=True, blank=True)
     number_of_taxis = models.IntegerField(_("number of taxis"), max_length=4)
     description = models.TextField(_("description"), max_length=5000, null=True, blank=True)
     logo = BlobField(_("logo"), null=True, blank=True)
     language = models.IntegerField(_("language"), choices=LANGUAGE_CHOICES, default=0)
     show_on_list = models.BooleanField(_("show on list"), default=False)
     subdomain_name = models.CharField(_("subdomain name"), max_length=50, blank=True, null=True, unique=True)
-    app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True, verify_exists=False)
-    app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True, verify_exists=False)
+    app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True)
+    app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True)
 
     unique_id = models.CharField(_("unique id"), max_length=64, default=generate_random_token_64, editable=False)
+    itunes_app_url = models.URLField(max_length=255, null=True, blank=True)
+    market_app_url = models.URLField(max_length=255, null=True, blank=True)
 
     last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
                                             default=datetime.datetime(1, 1, 1))
@@ -132,8 +134,8 @@ class Station(BaseModel):
     lon = models.FloatField(_("longtitude"), null=True)
     lat = models.FloatField(_("latitude"), null=True)
 
-    app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True, verify_exists=False)
-    app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True, verify_exists=False)
+    app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True)
+    app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True)
 
     number_of_ratings = models.IntegerField(_("number of ratings"), default=0)
     average_rating = models.FloatField(_("average rating"), default=0.0)
@@ -721,7 +723,7 @@ class WorkStation(BaseModel):
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="work_stations")
     token = models.CharField(_("token"), max_length=50, null=True, blank=True)
-    installer_url = models.URLField(_("installer URL"), verify_exists=False, max_length=500, null=True, blank=True)
+    installer_url = models.URLField(_("installer URL"), max_length=500, null=True, blank=True)
     was_installed = models.BooleanField(_("was installed"), default=False)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
     accept_unconfined_orders = models.BooleanField(default=True, help_text="Accept orders not confined to a station e.g., booked from PickMeApp")
