@@ -88,7 +88,18 @@
                 window.location.href = "{% url sharing.passenger_controller.registration step='phone'%}";
             });
             $("#change_billing").click(function () {
-                window.location.href = "{{ billing_url }}";
+
+                $(this).text("{% trans "Sending" %}...").removeClass("wb_link");
+                $.ajax({
+                    url: "{% url sharing.passenger_controller.get_billing_url %}",
+                    dataType: "json",
+                    success: function(response){
+                        window.location.href = response.billing_url;
+                    },
+                    error: function(){
+                        $("#change_billing").text("{% trans "Error" %}").removeClass("wb_link").addClass("error");
+                    }
+                });
             });
         })
     </script>
