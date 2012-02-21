@@ -815,7 +815,7 @@ Home
     height: 600px; }
   .wb_home #site-footer #sitemap {
     margin-bottom: 0; }
-  .wb_home #myrides_container, .wb_home #mobile_apps {
+  .wb_home #myrides_container, .wb_home #mobile_apps, .wb_home #media_banner {
     margin-bottom: 27px; }
   .wb_home #myrides_container {
     width: 800px;
@@ -849,10 +849,10 @@ Home
     .wb_home #mobile_apps .container {
       width: 100%; }
     .wb_home #mobile_apps .img {
-      width: 183px;
+      width: 210px;
       height: 111px;
       background: url("/static/images/wb_site/mobile_banner.png") left top no-repeat;
-      padding: 5px 65px; }
+      padding: 5px 25px; }
     .wb_home #mobile_apps .title {
       font-size: 16px; }
     .wb_home #mobile_apps .content {
@@ -870,6 +870,52 @@ Home
     .wb_home #mobile_apps .vr {
       height: 70px;
       border-left: 1px solid #bcbcbc; }
+  .wb_home #media_banner {
+    width: 800px;
+    background: white;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 0 6px 0 #747474;
+    -moz-box-shadow: 0 0 6px 0 #747474;
+    box-shadow: 0 0 6px 0 #747474;
+    width: 750px;
+    padding: 15px 25px 20px; }
+    .wb_home #media_banner .title {
+      font-size: 18px;
+      height: 30px; }
+    .wb_home #media_banner .media-link {
+      display: inline-block;
+      width: 130px;
+      height: 60px;
+      background: url("/static/images/wb_site/media_logos.png") top left no-repeat;
+      opacity: 0.7;
+      padding-right: 23px;
+      -webkit-transition: opacity 0.3s ease-in;
+      -moz-transition: opacity 0.3s ease-in;
+      -o-transition: opacity 0.3s ease-in;
+      -ms-transition: opacity 0.3s ease-in;
+      transition: opacity 0.3s ease-in; }
+    .wb_home #media_banner .media-link:hover {
+      opacity: 1; }
+    .wb_home #media_banner .media-link.timeout {
+      width: 75px;
+      background-position: center 0px; }
+    .wb_home #media_banner .media-link.themarker {
+      width: 121px;
+      background-position: center -95px; }
+    .wb_home #media_banner .media-link.mako {
+      width: 136px;
+      background-position: center -190px; }
+    .wb_home #media_banner .media-link.channel10 {
+      width: 57px;
+      background-position: center -285px; }
+    .wb_home #media_banner .media-link.nrg {
+      width: 109px;
+      background-position: center -380px; }
+    .wb_home #media_banner .media-link.globes {
+      width: 96px;
+      background-position: center -475px; }
   .wb_home #map_container {
     position: relative;
     width: 100%;
