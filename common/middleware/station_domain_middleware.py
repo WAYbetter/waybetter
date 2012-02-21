@@ -1,7 +1,7 @@
 from ordering.station_controller import station_page, get_station_domain
 import re
 
-qr_regexp = re.compile("/qr/\w+/*")
+qr_regexp = re.compile("/qr/\w*/*")
 
 class StationDomainMiddleware(object):
     def process_request(self, request):

@@ -38,6 +38,14 @@ $color-error: #CC162A;
     box-shadow: $r;
 }
 
+@mixin transition($r){
+    -webkit-transition: $r;
+    -moz-transition: $r;
+    -o-transition: $r;
+    -ms-transition: $r;
+    transition: $r;
+}
+
 @mixin site-container(){
     width: $site-width;
     background: white;
@@ -919,7 +927,7 @@ Home
         margin-bottom: 0;
     }
 
-    #myrides_container, #mobile_apps { margin-bottom: 40px - $site-content-offset; }
+    #myrides_container, #mobile_apps, #media_banner { margin-bottom: 40px - $site-content-offset; }
 
     #myrides_container{
         @include site-container();
@@ -943,9 +951,9 @@ Home
             width: 100%;
         }
         .img{
-            @include size(183px, 111px);
+            @include size(210px, 111px);
             background: url("/static/images/wb_site/mobile_banner.png") left top no-repeat;
-            padding: 5px 65px;
+            padding: 5px 25px;
         }
         .title{
             font-size: $font-size-large;
@@ -963,6 +971,33 @@ Home
             height: 70px;
             border-left: 1px solid $light-gray;
         }
+    }
+    #media_banner{
+        @include site-container();
+        width: 750px;
+        padding: 15px 25px 20px;
+        .title{
+            font-size: $font-size-header1;
+            height: 30px;
+        }
+        $offset: -95px;
+        .media-link{
+            display: inline-block;
+            @include size(130px, 60px);
+            background: url("/static/images/wb_site/media_logos.png") top left no-repeat;
+            opacity: 0.7;
+            padding-right: 23px;
+            @include transition(opacity 0.3s ease-in);
+        }
+        .media-link:hover{
+            opacity: 1;
+        }
+        .media-link.timeout{ width: 75px; background-position: center 0*$offset }
+        .media-link.themarker{ width: 121px; background-position: center 1*$offset }
+        .media-link.mako{ width: 136px; background-position: center 2*$offset }
+        .media-link.channel10{ width: 57px; background-position: center 3*$offset }
+        .media-link.nrg{ width: 109px; background-position: center 4*$offset }
+        .media-link.globes{ width: 96px; background-position: center 5*$offset }
     }
 
     #map_container {
