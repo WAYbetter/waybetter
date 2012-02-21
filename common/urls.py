@@ -42,7 +42,11 @@ urlpatterns = patterns('',
     (r'get_async_computation_result/$', 'common.views.get_async_computation_result'),
     url(r'get_terms/$', direct_to_template, {'template': "terms_form.html"} ,name="terms_dialog"),
     url(r'map_provider_loader\.js/$', direct_to_template, { 'template': "map_provider_loader.js", 
-                                                            'extra_context': { "map_provider_url": settings.MAP_PROVIDER_LIB_URL },
+                                                            'extra_context': {
+                                                                "map_provider_url": settings.MAP_PROVIDER_LIB_URL,
+                                                                "map_password":     settings.TELMAP_API_PASSWORD,
+                                                                "map_username":     settings.TELMAP_API_USER
+                                                            },
                                                             'mimetype': 'text/javascript' }),
 
 )
