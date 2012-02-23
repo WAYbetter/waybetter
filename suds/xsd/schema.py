@@ -37,6 +37,9 @@ from logging import getLogger
 
 log = getLogger(__name__)
 
+PROCESSED_IMPORTS = []
+PROCESSED_IMPORT_DEPTH = []
+MAX_IMPORT_DEPTH = 3
 
 class SchemaCollection:
     """
@@ -49,7 +52,7 @@ class SchemaCollection:
     @ivar namespaces: A dictionary of contained schemas by namespace.
     @type namespaces: {str:L{Schema}}
     """
-    
+
     def __init__(self, wsdl):
         """
         @param wsdl: A wsdl object.
@@ -58,7 +61,7 @@ class SchemaCollection:
         self.wsdl = wsdl
         self.children = []
         self.namespaces = {}
-        
+
     def add(self, schema):
         """
         Add a schema node to the collection.  Schema(s) within the same target
@@ -74,7 +77,7 @@ class SchemaCollection:
         else:
             existing.root.children += schema.root.children
             existing.root.nsprefixes.update(schema.root.nsprefixes)
-        
+
     def load(self, options):
         """
         Load the schema objects for the root nodes.
@@ -97,7 +100,7 @@ class SchemaCollection:
         merged = self.merge()
         log.debug('MERGED:\n%s', merged)
         return merged
-        
+
     def autoblend(self):
         """
         Ensure that all schemas within the collection
@@ -118,7 +121,7 @@ class SchemaCollection:
                 imp.set('namespace', ns)
                 s.root.append(imp)
         return self
-        
+
     def locate(self, ns):
         """
         Find a schema by namespace.  Only the URI portion of
@@ -129,7 +132,7 @@ class SchemaCollection:
         @rtype: L{Schema}
         """
         return self.namespaces.get(ns[1])
-    
+
     def merge(self):
         """
         Merge the contained schemas into one.
@@ -143,13 +146,13 @@ class SchemaCollection:
             return schema
         else:
             return None
-    
+
     def __len__(self):
         return len(self.children)
-    
+
     def __str__(self):
         return unicode(self).encode('utf-8')
-    
+
     def __unicode__(self):
         result = ['\nschema collection']
         for s in self.children:
@@ -187,9 +190,9 @@ class Schema:
         (@elementFormDefault).
     @type form_qualified: bool
     """
-    
+
     Tag = 'schema'
-    
+
     def __init__(self, root, baseurl, options, container=None):
         """
         @param root: The xml root.
@@ -227,7 +230,7 @@ class Schema:
             log.debug('built:\n%s', self)
             self.dereference()
             log.debug('dereferenced:\n%s', self)
-                
+
     def mktns(self):
         """
         Make the schema's target namespace.
@@ -239,7 +242,7 @@ class Schema:
         if tns[1] is not None:
             tns[0] = self.root.findPrefix(tns[1])
         return tuple(tns)
-                
+
     def build(self):
         """
         Build the schema (object graph) using the root node
@@ -256,7 +259,7 @@ class Schema:
         self.types = collated[4]
         self.groups = collated[5]
         self.agrps = collated[6]
-        
+
     def merge(self, schema):
         """
         Merge the contents from the schema.  Only objects not already contained
@@ -292,7 +295,7 @@ class Schema:
             self.agrps[item[0]] = item[1]
         schema.merged = True
         return self
-        
+
     def open_imports(self, options):
         """
         Instruct all contained L{sxbasic.Import} children to import
@@ -308,7 +311,7 @@ class Schema:
             imported.open_imports(options)
             log.debug('imported:\n%s', imported)
             self.merge(imported)
-            
+
     def dereference(self):
         """
         Instruct all children to perform dereferencing.
@@ -330,7 +333,7 @@ class Schema:
             d = deps[midx]
             log.debug('(%s) merging %s <== %s', self.tns[1], Repr(x), Repr(d))
             x.merge(d)
-        
+
     def locate(self, ns):
         """
         Find a schema by namespace.  Only the URI portion of
@@ -358,7 +361,7 @@ class Schema:
             return True
         else:
             return ( not self.builtin(ref, context) )
-    
+
     def builtin(self, ref, context=None):
         """
         Get whether the specified reference is an (xs) builtin.
@@ -373,13 +376,13 @@ class Schema:
                 ns = ref[1]
                 return ( ref[0] in Factory.tags and ns.startswith(w3) )
             if context is None:
-                context = self.root    
+                context = self.root
             prefix = splitPrefix(ref)[0]
             prefixes = context.findPrefixes(w3, 'startswith')
             return ( prefix in prefixes and ref[0] in Factory.tags )
         except:
             return False
-        
+
     def instance(self, root, baseurl, options):
         """
         Create and return an new schema object using the
@@ -394,6 +397,21 @@ class Schema:
         @rtype: L{Schema}
         @note: This is only used by Import children.
         """
+        #patch: handle circular imports
+        global PROCESSED_IMPORTS, PROCESSED_IMPORT_DEPTH, MAX_IMPORT_DEPTH
+        if baseurl in PROCESSED_IMPORTS:
+            ind = PROCESSED_IMPORTS.index(baseurl)
+            if PROCESSED_IMPORT_DEPTH[ind] < MAX_IMPORT_DEPTH:
+                PROCESSED_IMPORT_DEPTH[ind] += 1
+                log.debug('Increasing import count for: {0}'.format(baseurl))
+            else:
+                log.debug('Skipping processed import: {0}'.format(baseurl))
+                return None
+        else:
+            PROCESSED_IMPORTS.append(baseurl)
+            log.debug('Appending new import: {0}'.format(baseurl))
+            PROCESSED_IMPORT_DEPTH.append(1)
+
         return Schema(root, baseurl, options)
 
     def str(self, indent=0):
@@ -407,14 +425,14 @@ class Schema:
             result.append(c.str(indent+1))
         result.append('')
         return '\n'.join(result)
-        
+
     def __repr__(self):
         myrep = '<%s tns="%s"/>' % (self.id, self.tns[1])
         return myrep.encode('utf-8')
-    
+
     def __str__(self):
         return unicode(self).encode('utf-8')
-    
+
     def __unicode__(self):
         return self.str()
 
