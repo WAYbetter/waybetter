@@ -1,7 +1,4 @@
-from ordering.station_controller import station_page, get_station_domain
-import re
-
-qr_regexp = re.compile("/qr/\w*/*")
+from ordering.station_controller import station_page, get_station_domain, qr_regexp
 
 class StationDomainMiddleware(object):
     def process_request(self, request):
