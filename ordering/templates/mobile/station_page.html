@@ -1,1 +1,4 @@
-{% include "mobile/passenger_home.html" %}
+{% extends "passenger_home.html" %}
+{% block title %}
+    {{ station.name }}
+{% endblock %}
