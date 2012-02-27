@@ -1,9 +1,10 @@
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
+from django.utils import simplejson
 from djangotoolbox.http import JSONResponse
 from suds.client import Client
-from backends import isr as isr_backend
+from backends import isr_v2 as isr_backend
 import inspect
 import logging
 
@@ -31,6 +32,11 @@ def isr_view(request):
 
         except Exception, e:
             result = e.message
+
+        try:
+            result = simplejson.dumps(result)
+        except TypeError: # not json serializable
+            result = str(result)
 
         return JSONResponse({'result': result})
     else:
