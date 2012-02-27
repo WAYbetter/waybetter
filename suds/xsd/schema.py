@@ -403,13 +403,13 @@ class Schema:
             ind = PROCESSED_IMPORTS.index(baseurl)
             if PROCESSED_IMPORT_DEPTH[ind] < MAX_IMPORT_DEPTH:
                 PROCESSED_IMPORT_DEPTH[ind] += 1
-                log.debug('Increasing import count for: {0}'.format(baseurl))
+                log.debug('Increasing import count for: %s' % baseurl)
             else:
-                log.debug('Skipping processed import: {0}'.format(baseurl))
+                log.debug('Skipping processed import: %s' % baseurl)
                 return None
         else:
             PROCESSED_IMPORTS.append(baseurl)
-            log.debug('Appending new import: {0}'.format(baseurl))
+            log.debug('Appending new import: %s' % baseurl)
             PROCESSED_IMPORT_DEPTH.append(1)
 
         return Schema(root, baseurl, options)
