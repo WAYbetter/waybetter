@@ -1,26 +1,30 @@
 # This Python file uses the following encoding: utf-8
-import traceback
-import urllib
-import os
-import uuid
-from google.appengine.api.mail import EmailMessage
-from google.appengine.ext.db import is_in_transaction
+from common.errors import TransactionError
+from django.conf import settings
+from django.core.validators import RegexValidator
+from django.db import models
+from django.db.models.fields import related
+from django.shortcuts import render_to_response
+from django.template.context import RequestContext
+from django.utils import simplejson
+from django.utils.translation import ugettext as _
+from djangotoolbox.http import JSONResponse
 from google.appengine.api import taskqueue
 from google.appengine.api.images import BadImageError, NotImageError
+from google.appengine.api.mail import EmailMessage
 from google.appengine.api.urlfetch import fetch, GET
-from django.utils.translation import ugettext as _
-from django.shortcuts import render_to_response
-from django.db.models.fields import related
-from django.db import models
-from django.core.validators import RegexValidator
-from django.conf import settings
-from common.errors import TransactionError
+from google.appengine.ext import deferred
+from google.appengine.ext.db import is_in_transaction
 from settings import NO_REPLY_SENDER
-import hashlib
 import datetime
+import hashlib
 import logging
+import os
 import random
 import re
+import traceback
+import urllib
+import uuid
 
 MINUTE_DELTA = 60
 HOUR_DELTA = MINUTE_DELTA * 60
@@ -235,25 +239,86 @@ def log_event(event_type, order=None, order_assignment=None, station=None, work_
     q = taskqueue.Queue('log-events')
     q.add(task)
 
-def ga_hit_page(request):
-    # for a full list of args see: http://code.google.com/apis/analytics/docs/tracking/gaTrackingTroubleshooting.html
-    referrer = request.META.get("HTTP_REFERER", "")
-    path = request.path
-    query = request.META.get("QUERY_STRING", "")
-    if query:
-        path = "%s?%s" % (path, query)
+def ga_hit_page(request, path=None):
+    """
+    Log a new page hit on Google Analytics
 
-    cookie = '__utma=50755388.2119250209.1316347680.1326000987.1326015806.191;+__utmz=50755388.1316347680.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none);'
+    @param request: incoming C{HttpRequest}
+    @param path: use the supplied path instead of request.path (optional)
+    @return:
+    """
+    logging.info("ga_hit_page: %s" % path)
+    if not path:
+        path = request.path
+        query = request.META.get("QUERY_STRING", "")
+        if query:
+            path = "%s?%s" % (path, query)
+
+    args = {
+        'utmp': path
+    }
+
+    return _do_ga_request(request, extra_args=args)
+
+def ga_track_event(request, category, action, opt_label=None, opt_value=None):
+    """
+    Log a new event on Google Analytics
+
+    @param request: incoming C{HttpRequest}
+    @param category: Event category
+    @param action: Event action
+    @param opt_label: Event label (optional)
+    @param opt_value: Event value, must be numeric (optional)
+    @return:
+    """
+    logging.info("ga_track_event: %s, %s" % (category, action))
+    event_string = '5(%s*%s' % (category, action)
+
+    if opt_label:
+        event_string += '*%s' % opt_label
+
+    event_string += ')'
+
+    if opt_value:
+        event_string += '(%s)' % opt_value
+
+    args = {
+        'utmt': 'event',
+        'utme': event_string
+    }
+
+    ga_hit_page(request, path="/ga_events/%s/%s" % (category, action))
+    return _do_ga_request(request, extra_args=args)
+
+
+def _do_ga_request(request, extra_args=None):
+    # for a full list of args see: http://code.google.com/apis/analytics/docs/tracking/gaTrackingTroubleshooting.html
+    if extra_args is None: extra_args = {}
+
+    referrer = request.META.get("HTTP_REFERER", "")
+
+    utma = request.COOKIES.get("__utma")
+    utmz = request.COOKIES.get("__utmz")
+
+    if utma and utmz:
+        cookie_string = '__utma=%s;+__utmz=%s;' % (utma, utmz)
+    else: # we don't have a real GA cookie, so let's create one.
+        c_cookie = random.randint(100000000, 999999999)     # cookie identifier
+        c_random = random.randint(1000000000, 2147483647)   # random number under 2147483647
+        c_today = datetime.datetime.now().strftime("%s")    # today
+
+        cookie_string = '__utma=%s.%s.%s.%s.%s.1;+__utmz=%s.%s.1.1.utmcsr=(direct)|utmccn=(direct)|utmcmd=(none);' % (c_cookie, c_random, c_today, c_today, c_today, c_cookie, c_today)
+
     args ={
         'utmwv': '5.2.2',
         'utmn': random.randint(1000000000, 9999999999),
-        'utmp': path,
         'utmac': settings.GA_ACCOUNT_ID,
         'utmhn': settings.WEB_APP_URL,
         'utmr': referrer,
-        'utmcc': cookie,
+        'utmcc': cookie_string,
     }
 
+    args.update(extra_args)
     logging.info(args)
 
     url = "http://www.google-analytics.com/__utm.gif?%s" % urllib.urlencode(args)
@@ -292,17 +357,21 @@ def custom_render_to_response(template_name, dictionary=None, context_instance=N
 def url_with_querystring(path, **kwargs):
     return path + '?' + urllib.urlencode(kwargs)
 
+def generate_random_token_64():
+    return generate_random_token(length=64, alpha_or_digit_only=True)
 
-def generate_random_token(length=random.randint(10, 20), alpha_only=False, alpha_or_digit_only=False):
+def generate_random_token(length=random.randint(10, 20), digits_only=False, alpha_only=False, alpha_or_digit_only=False):
     s = ""
     while len(s) <= length:
         j = random.randint(33, 126)
         c = str(chr(j))
         if alpha_or_digit_only and (c.isalpha() or c.isdigit()):
             s += c
+        elif digits_only and c.isdigit():
+            s += c
         elif alpha_only and c.isalpha():
             s += c
-        elif not (alpha_only or alpha_or_digit_only):
+        elif not (alpha_only or alpha_or_digit_only or digits_only):
             s += c
     return s
 
@@ -316,8 +385,8 @@ def get_unique_id():
     return s.hexdigest()
 
 
-def notify_by_email(subject, msg=None, html=None):
-    send_mail_as_noreply("notify@waybetter.com", "WAYbetter notification: %s" % subject, msg=msg, html=html)
+def notify_by_email(subject, msg=None, html=None, attachments=None):
+    send_mail_as_noreply("notify@waybetter.com", "WAYbetter notification: %s" % subject, msg=msg, html=html, attachments=attachments)
 
 def send_mail_as_noreply(address, subject, msg=None, html=None, attachments=None):
     logging.info(u"Sending email to %s: [%s] %s" % (address, subject, msg))
@@ -503,6 +572,7 @@ def get_text_from_element(node, *elements):
             return node.firstChild.data
 
 
+# TODO_WB: this code is not currently used, consider removing
 def add_formatted_date_fields(classes):
     """
     For each DateTime in given model classes field add a methods to print the formatted date time according to
@@ -546,3 +616,43 @@ def safe_fetch(url, payload=None, method=GET, headers={},
         res = None
 
     return res
+
+def base_datepicker_page(request, f_data, template_name, wrapper_locals, init_start_date=None, init_end_date=None, async=False):
+    from common.forms import DatePickerForm
+    from common.signals import async_computation_submitted_signal
+    from common.tz_support import default_tz_now_max, default_tz_now_min, to_js_date
+
+    if request.method == 'POST': # date picker form submitted
+        form = DatePickerForm(request.POST)
+        if form.is_valid():
+            start_date = datetime.datetime.combine(form.cleaned_data["start_date"], datetime.time.min)
+            end_date = datetime.datetime.combine(form.cleaned_data["end_date"], datetime.time.max)
+            if async:
+                assert wrapper_locals.get('channel_id')
+                assert wrapper_locals.get('token')
+                async_computation_submitted_signal.send(sender="base_datepicker_page", channel_id=wrapper_locals.get('channel_id'))
+                deferred.defer(f_data, start_date, end_date, channel_id=wrapper_locals.get('channel_id'), token=wrapper_locals.get('token'))
+                return JSONResponse({'status': 'submitted', 'token': wrapper_locals.get('token')})
+            else:
+                return JSONResponse({'data': f_data(start_date, end_date)})
+        else:
+            return JSONResponse({'error': 'error'})
+    else:
+        form = DatePickerForm()
+        init_end_date = init_end_date or default_tz_now_max()
+        init_start_date = init_start_date or default_tz_now_min()
+        if async:
+            assert wrapper_locals.get('channel_id')
+            assert wrapper_locals.get('token')
+            async_computation_submitted_signal.send(sender="base_datepicker_page", channel_id=wrapper_locals.get('channel_id'))
+            deferred.defer(f_data, init_start_date, init_end_date, channel_id=wrapper_locals.get('channel_id'), token=wrapper_locals.get('token'))
+            data = simplejson.dumps({'status': 'submitted', 'token': wrapper_locals.get('token')})
+        else:
+            data = simplejson.dumps(f_data(init_start_date, init_end_date))
+
+        start_date, end_date = to_js_date(init_start_date), to_js_date(init_end_date)
+
+        extended_locals = wrapper_locals.copy()
+        extended_locals.update(locals())
+
+        return render_to_response(template_name, extended_locals, context_instance=RequestContext(request))

@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 
 from __future__ import absolute_import
-from billing.enums import BillingStatus
 from django.core.exceptions import ValidationError
 from django.template.loader import get_template
 from django.template.context import Context
@@ -18,8 +17,8 @@ from django.contrib.auth import login
 from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea, CityAreaField
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, add_formatted_date_fields
-from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now
+from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64
+from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now, format_dt
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
 from sharing.signals import ride_status_changed_signal
@@ -38,6 +37,7 @@ ORDER_HANDLE_TIMEOUT =                      80 # seconds
 ORDER_TEASER_TIMEOUT =                      19 # seconds
 ORDER_ASSIGNMENT_TIMEOUT =                  80 # seconds
 WORKSTATION_HEARTBEAT_TIMEOUT_INTERVAL =    60 # seconds
+RIDE_SENTINEL_GRACE = datetime.timedelta(minutes=7)
 
 ORDER_MAX_WAIT_TIME = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
 UNKNOWN_USER = "[UNKNOWN USER]"
@@ -113,6 +113,8 @@ class Station(BaseModel):
     app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True, verify_exists=False)
     app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True, verify_exists=False)
 
+    unique_id = models.CharField(_("unique id"), max_length=64, default=generate_random_token_64, editable=False)
+
     last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
                                             default=datetime.datetime(1, 1, 1))
 
@@ -142,6 +144,8 @@ class Station(BaseModel):
 
     page_description = models.CharField(_("page description"), null=True, blank=True, max_length=255)
     page_keywords = models.CharField(_("page keywords"), null=True, blank=True, max_length=255)
+
+    application_terms = models.TextField(_("application terms"), max_length=5000, null=True, blank=True)
 
 
     @property
@@ -430,6 +434,29 @@ class SharedRide(BaseModel):
     def charged_stops(self):
         return self.stops - 1
 
+    def get_log(self):
+        orders = list(self.orders.all())
+        return u"""
+
+    ride.id: %s
+    ride.debug: %s
+
+    station: %s
+
+    depart_time: %s
+
+    orders:
+    %s
+
+    passengers:
+    %s
+    """ % (self.id,
+           self.debug,
+           self.station,
+           self.depart_time,
+           "\n".join([unicode(order) for order in orders]),
+           "\n".join([unicode(order.passenger) for order in orders]))
+
     def serialize_for_ws(self):
         return {'pickups': [ { 'num_passengers': p.pickup_orders.count(),
                                'passenger_phones': [order.passenger.phone for order in p.pickup_orders.all()],
@@ -449,7 +476,13 @@ class SharedRide(BaseModel):
                 'debug': self.debug,
                 'driver_jist': self.driver_jist()
         }
-
+    def serialize_for_fax(self):
+        return {
+            "names"             : ", ".join([order.passenger.user.first_name for order in self.orders.all()]),
+            "pickup_address"    : self.first_pickup.address,
+            "timeout"           : (self.depart_time - RIDE_SENTINEL_GRACE - utc_now()).seconds,
+            "id"                : self.id
+        }
     def change_status(self, old_status=None, new_status=None):
         if self._change_attr_in_transaction("status", old_status, new_status):
             sig_args = {
@@ -691,6 +724,7 @@ class WorkStation(BaseModel):
     installer_url = models.URLField(_("installer URL"), verify_exists=False, max_length=500, null=True, blank=True)
     was_installed = models.BooleanField(_("was installed"), default=False)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
+    accept_unconfined_orders = models.BooleanField(default=True, help_text="Accept orders not confined to a station e.g., booked from PickMeApp")
     accept_shared_rides = models.BooleanField(_("Accept Shared Rides"), default=False)
     accept_debug = models.BooleanField(_("Accept debug"), default=False)
 
@@ -892,7 +926,7 @@ class Order(BaseModel):
         return _('%(date)s: Taxi ride from %(pickup)s to %(dropoff)s %(seats)s') % {
             "pickup"    : self.from_raw,
             "dropoff"   : self.to_raw,
-            "date"      : self.depart_time_format(),
+            "date"      : format_dt(self.depart_time),
             "seats"     : "(%s %s)" % (self.num_seats, ugettext("seats")) if self.num_seats > 1 else ""
         }
 
@@ -966,7 +1000,7 @@ class Order(BaseModel):
             pickup_str = u"%s, %s-%s" % (d, sharing_dprt.strftime("%H:%M"), self.depart_time.strftime("%H:%M"))
 
         else: # from hotspot
-            pickup_str = self.depart_time_format()
+            pickup_str = format_dt(self.depart_time)
 
         return pickup_str
     
@@ -1235,8 +1269,6 @@ for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
             Feedback, "%s_%s_msg" % (type.lower(), category.lower().replace(" ", "_")))
         models.BooleanField(default=False).contribute_to_class(Feedback, "%s_%s" % (
         type.lower(), category.lower().replace(" ", "_")))
-
-add_formatted_date_fields([Order, OrderAssignment, Passenger, Station, WorkStation, RidePoint, SharedRide])
 
 # TODO_WB: check if created arg has been fixed and reports False on second save of instance
 #def order_init_handler(sender, **kwargs):

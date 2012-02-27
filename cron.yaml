@@ -3,10 +3,15 @@ cron:
   url: /
   schedule: every 2 minutes
 
-- description: keep alive dev
-  url: /
-  schedule: every 2 minutes
-  target: dev
+#- description: keep alive dev
+#  url: /
+#  schedule: every 2 minutes
+#  target: dev
+
+# maintenance
+- description: weekly maintenance
+  url: /common/maintenance/weekly
+  schedule: every sunday 09:00
 
 - description: test routing service
   url: /common/maintenance/routing_service_test
@@ -16,11 +21,13 @@ cron:
   url: /common/maintenance/billing_service_test
   schedule: every 5 minutes
 
+# services
 - description: send workstation heartbeat
   url: /services/ws_heartbeat/
   schedule: every 1 minutes
 
-# create invoices task should be run prior to sending invoices in order for all passenger to have an invoice_id.
+# monthly invoices
+# create invoices should run prior to send invoices for passengers to have invoice_id
 - description: create invoices ids for passengers
   url: /billing/create_invoice_ids/
   schedule: 1 of month 06:00

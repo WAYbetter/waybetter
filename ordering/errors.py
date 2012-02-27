@@ -1,3 +1,6 @@
+class UpdateUserError(Exception):
+    pass
+
 # Order errors
 class OrderError(Exception):
     pass

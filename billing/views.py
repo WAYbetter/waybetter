@@ -9,12 +9,12 @@ import pickle
 from django.contrib.admin.views.decorators import staff_member_required
 from google.appengine.api.taskqueue import taskqueue
 from billing import billing_backend
-from billing.billing_backend import send_invoices_passenger, create_invoice_passenger
+from billing.billing_backend import send_invoices_passenger, create_invoice_passenger, get_custom_message
 from billing.billing_manager import get_billing_redirect_url
 from billing.enums import BillingStatus, BillingAction
 from common.forms import DatePickerForm
-from common.tz_support import default_tz_now, default_tz_time_max, default_tz_time_min, default_tz_now_max
-from common.util import custom_render_to_response, notify_by_email, Enum, send_mail_as_noreply
+from common.tz_support import default_tz_now, default_tz_time_max, default_tz_time_min, default_tz_now_max, format_dt
+from common.util import custom_render_to_response, notify_by_email, Enum, send_mail_as_noreply, base_datepicker_page, ga_track_event
 from django.core.urlresolvers import reverse
 from django.utils import translation
 from django.views.decorators.csrf import csrf_exempt
@@ -22,7 +22,6 @@ from billing.models import BillingForm, InvalidOperationError, BillingTransactio
 from common.decorators import require_parameters, internal_task_on_queue, catch_view_exceptions
 from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
-from common.views import base_datepicker_page
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, passenger_required
 from ordering.models import SharedRide, COMPLETED, ACCEPTED, CURRENT_ORDER_KEY
@@ -60,6 +59,7 @@ def billing_task(request, token, amount, card_expiration, billing_transaction_id
 def transaction_ok(request, passenger):
     #TODO: handle errors
     #TODO: makesure referrer is creditguard
+    ga_track_event(request, "registration", "credit_card_validation", "approved")
     date_string = request.GET.get("cardExp")
     exp_date = date(year=int(date_string[2:]) + 2000, month=int(date_string[:2]), day=1)
     kwargs = {
@@ -108,8 +108,11 @@ def transaction_error(request):
         request.encoding = "cp1255"
 
     page_specific_class = "error-page"
-    error_text = request.GET.get("ErrorText")
-    error_code = request.GET.get("ErrorCode") 
+    error_code = request.GET.get("ErrorCode")
+    error_text = get_custom_message(error_code, request.GET.get("ErrorText"))
+
+    ga_track_event(request, "registration", "credit_card_validation", "not_approved", int(error_code))
+
     return custom_render_to_response("error_page.html", locals(), context_instance=RequestContext(request))
 
 @passenger_required
@@ -119,8 +122,10 @@ def get_trx_status(request, passenger):
 
     if trx and trx.passenger == passenger:
         response = {'status': trx.status}
-        if trx.status == BillingStatus.FAILED and trx.comments:
-            response.update({'error_message': trx.comments})
+        if trx.status == BillingStatus.FAILED:
+            msg = get_custom_message(trx.provider_status, trx.comments)
+            if msg:
+                response.update({'error_message': msg})
         return JSONResponse(response)
 
     return JSONResponse({'status': BillingStatus.FAILED})
@@ -243,8 +248,10 @@ def get_csv(request):
             msg = "Missing Parameters"
 
         return HttpResponse(msg)
+    def f(x,y):
+        pass
 
-    return base_datepicker_page(request, None, "csv_report.html", locals(), init_start_date=default_tz_now_max() - timedelta(days=7), init_end_date=default_tz_now_max())
+    return base_datepicker_page(request, f, "csv_report.html", locals(), init_start_date=default_tz_now_max() - timedelta(days=7), init_end_date=default_tz_now_max())
 
 @csrf_exempt
 @catch_view_exceptions
@@ -311,7 +318,7 @@ def get_csv_task(request):
                 order.to_raw,
                 str(order.passenger),
                 billing_trx.amount if billing_trx else "NA",
-                billing_trx.charge_date_format() if billing_trx else "NA"
+                format_dt(billing_trx.charge_date) if billing_trx else "NA"
             ]
 
         for i in xrange(3 - order_count):

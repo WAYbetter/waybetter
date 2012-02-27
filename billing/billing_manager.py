@@ -1,11 +1,26 @@
 from datetime import datetime
 import logging
+from google.appengine.ext.deferred import deferred
+from billing.billing_backend import get_custom_message, update_invoice_passenger
 from billing.models import BillingTransaction
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request, ugettext as _
-from common.util import get_unique_id, safe_fetch
+from billing.signals import billing_failed_signal
+from common.decorators import receive_signal
+from common.util import get_unique_id, safe_fetch, notify_by_email, send_mail_as_noreply
 from django.conf import settings
 from common.views import ERROR_PAGE_TEXT, error_page
+
+@receive_signal(billing_failed_signal)
+def on_billing_trx_failed(sender, signal_type, obj, **kwargs):
+    trx = obj
+    sbj, msg = "Billing Failed [%s]" % sender, u""
+    for att_name in ["id", "provider_status", "comments", "order", "passenger", "debug"]:
+        msg += u"trx.%s: %s\n" % (att_name, getattr(trx, att_name))
+    msg += u"custom msg: %s" % get_custom_message(trx.provider_status, trx.comments)
+    logging.error(u"%s\n%s" % (sbj, msg))
+    notify_by_email(sbj, msg=msg)
+
 
 ALL_QUERY_FIELDS = {
     "MID"					:               "",
@@ -65,7 +80,7 @@ def get_transaction_id(lang_code, mpi_data):
         "transactionType":  "Debit",
         "creditType":       "RegularCredit",
         "transactionCode":  "Phone",
-        "validationType":   "Normal",
+        "validationType":   "Verify",
         "langID":           (lang_code or settings.LANGUAGE_CODE).upper(),
         "timestamp":        datetime.now().replace(microsecond=0).isoformat() #"2011-10-22T15:44:53" #default_tz_now().isoformat()
     })
@@ -117,3 +132,10 @@ def get_billing_redirect_url(request, order, passenger):
         # redirect to credit guard
         # if there is an order we'll get here again by tx_ok with passenger.billing_info ('if' condition will be met)
         return get_token_url(request)
+
+def update_invoice_info(user):
+    logging.info("update invoice info user [%s]" % user.id)
+
+    if user.passenger:
+        # passenger will not be saved so it is ok to pickle the entity and not pass its id
+        deferred.defer(update_invoice_passenger, user.passenger)

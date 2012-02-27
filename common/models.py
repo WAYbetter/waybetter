@@ -50,9 +50,9 @@ class BaseModel(models.Model):
         @param cls:
         @return: the first instance of this class
         """
-        if cls.objects.count():
+        try:
             return cls.objects.all()[0]
-        else:
+        except:
             return None
 
     @run_in_transaction

@@ -62,6 +62,10 @@
                 success:    function(response) {
                     if (response.hasOwnProperty("status")) {
                         var status = response.status;
+                        if (status == approved) {
+                            logGAEvent("order", "billing", "approved");
+                        }
+
                         renderStatus(status, response.error_message);
                         if (status == processing || status == pending) {
                             $(document).oneTime(5e3, function() {
@@ -69,6 +73,7 @@
                             });
                         }
                         else {
+                            logGAEvent("order", "billing", "failed");
                             $("#home").enable();
                         }
                     }
@@ -85,6 +90,7 @@
             $("#home").disable().click(function() {
                 window.location.href = "{% url wb_home %}";
             });
+            logGAEvent("order", "billing", "waiting");
             renderStatus(processing);
             getStatus();
         });

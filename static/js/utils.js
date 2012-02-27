@@ -418,6 +418,7 @@ function logGAEvent(category, action, opt_label, opt_value, opt_noniteraction) {
     });
 
     try {
+        gaHitPage("ga_events/" + category.replace(/\s/g, '_') + "/" + action.replace(/\s/g, '_'));
         return _gaq.push(ga_args);
     } catch(e){
         log(e);

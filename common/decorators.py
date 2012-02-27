@@ -46,7 +46,7 @@ def force_lang(lang_code):
 
 
 def catch_view_exceptions(function=None):
-    def wrapper(*args, **kwargs):
+    def wrapper_catch_view_exceptions(*args, **kwargs):
         try:
             return function(*args, **kwargs)
         except Exception, e:
@@ -55,10 +55,10 @@ def catch_view_exceptions(function=None):
             notify_by_email("Exception caught by decorator", trace)
             return HttpResponse("Exception caught by decorator")
 
-    return wrapper
+    return wrapper_catch_view_exceptions
 
 def catch_view_exceptions_retry(function=None):
-    def wrapper(*args, **kwargs):
+    def wrapper_catch_view_exceptions_retry(*args, **kwargs):
         try:
             return function(*args, **kwargs)
         except Exception, e:
@@ -75,7 +75,7 @@ def catch_view_exceptions_retry(function=None):
 
             return HttpResponse("Exception caught by decorator")
 
-    return wrapper
+    return wrapper_catch_view_exceptions_retry
 
 
 def internal_task_on_queue(queue_name):
@@ -102,10 +102,10 @@ def run_in_transaction(function=None):
     """
     Decorator for running transactions
     """
-    def wrapper(*args, **kwargs):
+    def wrapper_run_in_transaction(*args, **kwargs):
         return db.run_in_transaction(function, *args, **kwargs)
 
-    return wrapper
+    return wrapper_run_in_transaction
 
 def receive_signal(*signals, **kwargs):
     '''
@@ -167,6 +167,10 @@ def order_relative_to_field(model, field_name):
     """
 
     MAX_COUNT_SUPPORTED = 1000000
+
+    # do nothing if was already patched
+    if hasattr(model, "relative_order_set"):
+        return model
 
     # check that given field_name is a ForeignKey
     if not isinstance(model._meta.get_field_by_name(field_name)[0], ForeignKey):
@@ -252,5 +256,6 @@ def order_relative_to_field(model, field_name):
     setattr(model, "relative_sort_ids",  _sort_ids_by_order)
     setattr(model, "relative_sort_models",  _sort_models)
     setattr(model, "init_order",  _init_order)
+    setattr(model, "relative_order_set",  True)
 
     return model

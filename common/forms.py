@@ -2,7 +2,6 @@ from django import forms
 from django.core.exceptions import ValidationError
 from django.forms.models import BaseInlineFormSet
 from django.utils.translation import ugettext_lazy as _
-from common.geocode import geocode
 
 class MandatoryInlineFormset(BaseInlineFormSet):
     """
@@ -39,6 +38,8 @@ class DatePickerForm(forms.Form):
 # common clean functions
 
 def _clean_address(self):
+    from common.geocode import geocode
+
     if "address" in self.initial and self.cleaned_data["address"] == self.initial["address"]:
         return self.initial["address"]
 
