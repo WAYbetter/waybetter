@@ -1,5 +1,6 @@
 # This Python file uses the following encoding: utf-8
 from django.contrib.auth.models import User
+from common.geocode import gmaps_geocode, Bounds
 from django.core.urlresolvers import reverse
 from google.appengine.ext.deferred import deferred
 from common.signals import async_computation_failed_signal, async_computation_completed_signal
@@ -8,7 +9,7 @@ from billing.enums import BillingStatus
 from billing.models import BillingTransaction, BillingInfo
 from common.decorators import force_lang
 from common.models import City
-from common.util import custom_render_to_response, get_uuid, base_datepicker_page, send_mail_as_noreply
+from common.util import custom_render_to_response, get_uuid, base_datepicker_page, send_mail_as_noreply, is_in_hebrew
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
 from django.utils import simplejson, translation
@@ -33,6 +34,28 @@ import re
 
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 LANG_CODE = "he"
+
+@staff_member_required
+def gmaps(request):
+    return render_to_response("gmaps_testpage.html", locals(), context_instance=RequestContext(request))
+
+def gmaps_resolve_address(request):
+    address = request.GET.get("address")
+    lang_code = 'iw' if is_in_hebrew(address) else 'en'
+    tel_aviv_bounds = Bounds({
+        "sw_lat": "32.032819",
+        "sw_lon": "34.741859",
+        "ne_lat": "32.132594",
+        "ne_lon": "34.83284"
+    })
+    geocoding_results =  gmaps_geocode(address=address, lang_code=lang_code, bounds=tel_aviv_bounds)
+    results = []
+    for result in geocoding_results:
+        results.append({
+            'description': '%s (%s)' % (result['formatted_address'], ", ".join(result['types'])),
+            'raw_data': simplejson.dumps(result)
+        })
+    return JSONResponse({'results': results})
 
 @staff_member_required
 def view_user_orders(request, user_id):

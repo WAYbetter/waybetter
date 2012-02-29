@@ -4,6 +4,9 @@ from sharing.sharing_dispatcher import ride_created
 from sharing.passenger_controller import send_ride_notifications, on_billing_trx_approved
 
 urlpatterns = patterns('',
+    (r'^gmaps/$', 'sharing.staff_controller.gmaps'),
+    (r'^gmaps_resolve_address/$', 'sharing.staff_controller.gmaps_resolve_address'),
+
     (r'^birdseye/$', 'sharing.staff_controller.birdseye_view'),
     (r'^kpi/$', 'sharing.staff_controller.kpi'),
     (r'^debug/$', 'sharing.staff_controller.staff_home'),
