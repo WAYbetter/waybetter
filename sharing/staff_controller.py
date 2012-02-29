@@ -23,6 +23,7 @@ from ordering.models import StopType, RideComputation, RideComputationSet, Order
 from sharing.forms import ConstraintsForm
 from sharing.models import HotSpot
 from sharing.passenger_controller import HIDDEN_FIELDS
+from sharing.station_controller import show_ride
 from sharing.algo_api import submit_orders_for_ride_calculation
 from datetime import  datetime, date, timedelta
 import logging
@@ -87,7 +88,7 @@ def calc_users_data_csv(recipient ,offset=0, csv_bytestring=u""):
             pass
 
         user_data = [last_login, last_order_date, date_joined, full_name, email, phone, num_orders_mobile, num_orders_website, num_rides, billing_info, total_payment, link]
-        csv_bytestring += u",".join([unicode(i) for i in user_data])
+        csv_bytestring += u",".join([unicode(i).replace(",", "") for i in user_data])
         csv_bytestring += u"\n"
 
     if users:
@@ -106,6 +107,60 @@ def send_users_data_csv(request):
 
     return HttpResponse("An email will be sent to %s in a couple of minutes" % recipient)
 
+def calc_orders_data_csv(recipient ,offset=0, csv_bytestring=u""):
+    batch_size = 1000
+    link_domain = "www.waybetter.com"
+
+    logging.info("querying computations %s->%s" % (offset, offset + batch_size))
+
+    sharing_launched = set_default_tz_time(datetime(2011, 10, 1, 0, 0, 0))
+
+    computations = RideComputation.objects.filter(create_date__gte=sharing_launched)[offset: offset + batch_size]
+    for computation in computations:
+        if computation.debug:
+            continue
+
+        rides = computation.rides.all()
+        total_interval_orders = sum([ride.orders.count() for ride in rides])
+
+        for ride in rides:
+            orders = ride.orders.all()
+            count_orders = len(orders)
+            for order in orders:
+                depart_day = order.depart_time.date().isoformat() if order.depart_time else ""
+                depart_time = order.depart_time.time().strftime("%H:%M") if order.depart_time else ""
+                arrive_day = order.arrive_time.date().isoformat() if order.arrive_time else ""
+                arrive_time = order.arrive_time.time().strftime("%H:%M") if order.arrive_time else ""
+
+                ordering_td = (order.depart_time or order.arrive_time) - order.create_date
+                ordering_td_format = str(ordering_td).split(".")[0] # trim microseconds
+
+                passenger_name = order.passenger.full_name
+                shared = "yes" if count_orders > 1 else ""
+                link = "http://%s/%s" % (link_domain , reverse(show_ride, args=[ride.id]))
+
+                order_data = [depart_day, depart_time, arrive_day, arrive_time, ordering_td_format, passenger_name,
+                              order.from_raw, order.from_lat, order.from_lon, order.to_raw, order.to_lat, order.to_lon,
+                              shared, order.computation_id, total_interval_orders, link]
+                csv_bytestring += u",".join([unicode(i).replace(",", "") for i in order_data])
+                csv_bytestring += u"\n"
+
+    if computations:
+        deferred.defer(calc_orders_data_csv, recipient, offset=offset + batch_size + 1, csv_bytestring=csv_bytestring)
+    else:
+        logging.info("all done, sending data...")
+        timestamp = date.today()
+        send_mail_as_noreply(recipient, "Orders data %s" % timestamp, attachments=[("orders_data_%s.csv" % timestamp, csv_bytestring)])
+
+@staff_member_required
+def send_orders_data_csv(request):
+    recipient = ["amir@waybetter.com"]
+    col_names = ["depart day", "depart time", "arrive day", "arrive time", "ordered before pickup", "passenger",
+                 "from", "from lat", "from lon", "to", "to lat", "to lon",
+                 "sharing?", "interval id", "#interval orders", "ride map"]
+    deferred.defer(calc_orders_data_csv, recipient, offset=0, csv_bytestring=u"%s\n" % u",".join(col_names))
+
+    return HttpResponse("An email will be sent to %s in a couple of minutes" % ",".join(recipient))
 
 @staff_member_required
 @force_lang("en")
