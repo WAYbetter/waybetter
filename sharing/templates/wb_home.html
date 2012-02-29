@@ -5,7 +5,7 @@
 {% block pre_content %}
     <div id="map_container">
 
-        <div id="cm-map"></div>
+        <div id="map_canvas"></div>
 
         <div id="banner">
             <div id="banner_content" class="hidden">
@@ -313,8 +313,14 @@
 {% endblock %}
 
 {% block scripts %}
+    {% if DEV %}
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
+    {% else %}
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key={% value_from_settings GOOGLE_API_BROWSER_KEY %}?libraries=places&sensor=false&language=he"></script>
+    {% endif %}
+
     {{ block.super }}
-    <script type="text/javascript" src="http://tile.cloudmade.com/wml/latest/web-maps-lite.js"></script>
+
     <script type="text/javascript" src="/static/js/mylibs/slides.js"></script>
 {% endblock %}
 
@@ -432,9 +438,9 @@
 
         HotspotHelper.refreshHotspotMarker(BookingHelper.hotspot_type);
         if (BookingHelper.address) {
-            CMHelper.removeMarker("A, B");
+            GoogleMapHelper.removeMarker("A, B");
             var add_marker_method = (BookingHelper.hotspot_type == PICKUP) ? "addBMarker" : "addAMarker";
-            CMHelper[add_marker_method](BookingHelper.address.lat, BookingHelper.address.lon, {title: BookingHelper.address.name});
+            GoogleMapHelper[add_marker_method](BookingHelper.address.lat, BookingHelper.address.lon, {title: BookingHelper.address.name});
         }
 
         $("#ride_summary .dropoff .details_label").swapElement($("#ride_summary .pickup .details_label"));
@@ -665,13 +671,19 @@
         {% endif %}
 
 
-        CMHelper.init({
-            api_key: "{% value_from_settings "CLOUDMADE_API_KEY" %}",
-            center_lat: 32.115985,
-            center_lon: 34.835441
+        GoogleMapHelper.init({
+            map_element: 'map_canvas',
+            map_options:{
+                center:new google.maps.LatLng(32.115985, 34.835441),
+                scrollwheel: false,
+                streetViewControl: false,
+                keyboardShortcuts: false,
+                mapTypeId:google.maps.MapTypeId.ROADMAP
+            }
         });
 
         HotspotHelper.init({
+            MapHelper: GoogleMapHelper,
             selectors: {
                 hotspotpicker: "#id_hotspot_select",
                 datepicker: "#id_hotspot_datepicker",
@@ -839,12 +851,12 @@
                     },
                     resolved: function(address) {
                         BookingHelper.address = address;
-                        CMHelper.removeMarker("A, B");
+                        GoogleMapHelper.removeMarker("A, B");
                         if (BookingHelper.hotspot_type == PICKUP) {
-                            CMHelper.addBMarker(address.lat, address.lon, {title: address.name})
+                            GoogleMapHelper.addBMarker(address.lat, address.lon, {title: address.name})
                         }
                         else {
-                            CMHelper.addAMarker(address.lat, address.lon, {title: address.name})
+                            GoogleMapHelper.addAMarker(address.lat, address.lon, {title: address.name})
                         }
                         getHotspotTimes({
                             onGotTimes: function() {

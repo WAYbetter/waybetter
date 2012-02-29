@@ -921,7 +921,7 @@ Home
     width: 100%;
     height: 300px;
     border-bottom: 4px solid white; }
-  .wb_home #cm-map {
+  .wb_home #map_canvas {
     position: absolute;
     top: 0;
     height: 100%;
@@ -1247,54 +1247,56 @@ Home
   .wb_home #partners #partner_logos td.cloudmade-logo {
     background-position: left -594px; }
 
-.rtl.wb_home #cm-map {
-  direction: ltr; }
-.rtl.wb_home #mobile_apps .img {
-  background: url("/static/images/wb_site/mobile_banner_rtl_bg.png") right top no-repeat; }
-.rtl.wb_home .slidesContainer {
-  direction: ltr; }
-.rtl.wb_home .booking_step {
-  direction: rtl; }
-.rtl.wb_home #booking_content_container #savings {
-  right: auto;
-  left: -22px;
-  background: url("/static/images/wb_site/ribbon_rtl.png") right 0 no-repeat; }
-  .rtl.wb_home #booking_content_container #savings .content {
+.rtl.wb_home {
+  /*#cm-map{*/
+  /*direction: ltr; // fixes a loading issue: map loads to the left*/
+  /*}*/ }
+  .rtl.wb_home #mobile_apps .img {
+    background: url("/static/images/wb_site/mobile_banner_rtl_bg.png") right top no-repeat; }
+  .rtl.wb_home .slidesContainer {
+    direction: ltr; }
+  .rtl.wb_home .booking_step {
+    direction: rtl; }
+  .rtl.wb_home #booking_content_container #savings {
+    right: auto;
+    left: -22px;
+    background: url("/static/images/wb_site/ribbon_rtl.png") right 0 no-repeat; }
+    .rtl.wb_home #booking_content_container #savings .content {
+      padding-left: 0;
+      padding-right: 5px; }
+  .rtl.wb_home #booking_content_container .booking_step .cntr.input .small-loader, .rtl.wb_home #booking_content_container .booking_step .cntr.input .myrides-tip-content .tooltip_loader, .myrides-tip-content .rtl.wb_home #booking_content_container .booking_step .cntr.input .tooltip_loader {
+    right: auto;
+    left: 4px; }
+  .rtl.wb_home #booking_content_container #hotspot_content .cntr.select {
     padding-left: 0;
-    padding-right: 5px; }
-.rtl.wb_home #booking_content_container .booking_step .cntr.input .small-loader, .rtl.wb_home #booking_content_container .booking_step .cntr.input .myrides-tip-content .tooltip_loader, .myrides-tip-content .rtl.wb_home #booking_content_container .booking_step .cntr.input .tooltip_loader {
-  right: auto;
-  left: 4px; }
-.rtl.wb_home #booking_content_container #hotspot_content .cntr.select {
-  padding-left: 0;
-  padding-right: 45px; }
-.rtl.wb_home #booking_content_container #hotspot_content td.first {
-  text-align: left; }
-.rtl.wb_home #booking_content_container #hotspot_content td.second {
-  text-align: right; }
-.rtl.wb_home #booking_content_container #ride_summary {
-  left: auto;
-  right: 10px;
-  padding-right: 0;
-  padding-left: 20px;
-  border-right: none;
-  border-left: 1px solid gray; }
-  .rtl.wb_home #booking_content_container #ride_summary #switch_direction {
-    float: left; }
-  .rtl.wb_home #booking_content_container #ride_summary #num_seats .radio {
-    float: left;
-    right: auto;
-    left: 10px; }
-  .rtl.wb_home #booking_content_container #ride_summary #num_seats_loader {
-    right: auto;
-    left: -10px; }
-.rtl.wb_home #booking_content_container #ride_details {
-  right: auto;
-  left: 41px; }
-  .rtl.wb_home #booking_content_container #ride_details #offer .offer-pre {
+    padding-right: 45px; }
+  .rtl.wb_home #booking_content_container #hotspot_content td.first {
     text-align: left; }
-  .rtl.wb_home #booking_content_container #ride_details #offer .offer-post {
+  .rtl.wb_home #booking_content_container #hotspot_content td.second {
     text-align: right; }
+  .rtl.wb_home #booking_content_container #ride_summary {
+    left: auto;
+    right: 10px;
+    padding-right: 0;
+    padding-left: 20px;
+    border-right: none;
+    border-left: 1px solid gray; }
+    .rtl.wb_home #booking_content_container #ride_summary #switch_direction {
+      float: left; }
+    .rtl.wb_home #booking_content_container #ride_summary #num_seats .radio {
+      float: left;
+      right: auto;
+      left: 10px; }
+    .rtl.wb_home #booking_content_container #ride_summary #num_seats_loader {
+      right: auto;
+      left: -10px; }
+  .rtl.wb_home #booking_content_container #ride_details {
+    right: auto;
+    left: 41px; }
+    .rtl.wb_home #booking_content_container #ride_details #offer .offer-pre {
+      text-align: left; }
+    .rtl.wb_home #booking_content_container #ride_details #offer .offer-post {
+      text-align: right; }
 
 .staff_home #content-container, .staff_home #header-container {
   background: #FF9CA6; }

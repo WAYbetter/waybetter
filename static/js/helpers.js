@@ -256,8 +256,8 @@ var HotspotHelper = Object.create({
         },
         hotspot_markers: {
             generic: "/static/images/hotspot_red_marker.png",
-            pickup: "/static/images/wb_site/map_pin_A.png",
-            dropoff: "/static/images/wb_site/map_pin_B.png"
+            pickup: "/static/images/wb_site/map_marker_A.png",
+            dropoff: "/static/images/wb_site/map_marker_B.png"
         }
     },
     cache: {
@@ -668,6 +668,100 @@ var AddressHelper = Object.create({
 
 });
 
+var GoogleMapHelper = Object.create({
+    config:{
+        map_element:undefined,
+        map:undefined,
+        map_options:{
+            zoom:14
+        }
+    },
+    mapready:false,
+    markers: {},
+    bounds: undefined,
+
+    init: function(config){
+        var that = this;
+        this.config = $.extend(true, {}, this.config, config);
+        this.map = new google.maps.Map(document.getElementById(this.config.map_element), this.config.map_options);
+
+        google.maps.event.addListener(this.map, 'tilesloaded', function () {
+            that.mapready = true;
+            $(window).trigger("mapready");
+        });
+    },
+    addMarker:function (lat, lon, options) {
+        var that = this;
+        options = $.extend(true, {}, options);
+        // remove old marker with the same name or position
+        var marker_name = options.marker_name || lat + "_" + lon;
+        marker_name = marker_name.split(".").join("_"); // replace . with _
+        var old_marker = this.markers[marker_name];
+        if (old_marker){
+            old_marker.setMap(null);
+        }
+
+        // add the new marker
+        var latLng = new google.maps.LatLng(lat, lon);
+        var markerOptions = {
+            map: this.map,
+            position:latLng,
+            title: "",
+            clickable: false
+//            animation:google.maps.Animation.DROP
+        };
+        markerOptions = $.extend(true, markerOptions, options);
+        if (options.icon_image){
+            markerOptions.icon = new google.maps.MarkerImage(options.icon_image);
+        }
+
+        this.markers[marker_name] = new google.maps.Marker(markerOptions);
+
+        // scale the map
+        this.bounds = new google.maps.LatLngBounds();
+
+        var num_markers = 0;
+        $.each(this.markers, function(i, marker) {
+            num_markers ++;
+            that.bounds = that.bounds.extend(marker.getPosition());
+        });
+
+        if (num_markers > 1){
+            this.map.fitBounds(this.bounds);
+        }
+        else{
+            this.map.setCenter(latLng);
+            this.map.setZoom(17);
+        }
+    },
+    addAMarker:function (lat, lon, options) {
+        options = $.extend(true, {}, {icon_image: "/static/images/wb_site/map_marker_A.png", marker_name:"A"}, options);
+        this.addMarker(lat, lon, options);
+    },
+    addBMarker:function (lat, lon, options) {
+        options = $.extend(true, {}, {icon_image:"/static/images/wb_site/map_marker_B.png", marker_name:"B"}, options);
+        this.addMarker(lat, lon, options);
+    },
+    removeMarker:function (names) {
+        var that = this;
+        if (names == "all") {
+            $.each(this.markers, function (i, marker) {
+                marker.setMap(null);
+            });
+            that.markers = {};
+        }
+        else {
+            $.each(names.split(","), function (i, name) {
+                name = name.trim();
+                var marker = that.markers[name];
+                if (marker) {
+                    marker.setMap(null);
+                    delete that.markers[name];
+                }
+            })
+        }
+    }
+});
 
 var CMHelper = Object.create({
     config: {
@@ -676,7 +770,7 @@ var CMHelper = Object.create({
         styleId: 45836,
         center_lat: 32.09279909028302,
         center_lon: 34.781051985221,
-        icon_image: "/static/images/wb_site/map_pin_A.png",
+        icon_image: "/static/images/wb_site/map_marker_A_centerfix.png",
         icon_size_x: 61,
         icon_size_y: 154,
         controls: true
@@ -766,11 +860,11 @@ var CMHelper = Object.create({
     },
 
     addAMarker: function(lat, lon, options) {
-        options = $.extend(true, {}, options, {icon_image: "/static/images/wb_site/map_pin_A.png", marker_name: "A"});
+        options = $.extend(true, {}, options, {icon_image: "/static/images/wb_site/map_marker_A_centerfix.png", marker_name: "A"});
         this.addMarker(lat, lon, options);
     },
     addBMarker: function(lat, lon, options) {
-        options = $.extend(true, {}, options, {icon_image: "/static/images/wb_site/map_pin_B.png", marker_name: "B"});
+        options = $.extend(true, {}, options, {icon_image: "/static/images/wb_site/map_marker_B_centerfix.png", marker_name: "B"});
         this.addMarker(lat, lon, options);
     },
     removeMarker: function(names) {
@@ -1007,7 +1101,7 @@ var MobileHelper = Object.create({
             }
         })
     },
-    
+
     getCurrentLocation: function(options) {
         var that = this;
         options = $.extend({}, {
