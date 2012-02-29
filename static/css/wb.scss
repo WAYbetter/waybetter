@@ -38,6 +38,14 @@ $color-error: #CC162A;
     box-shadow: $r;
 }
 
+@mixin transition($r){
+    -webkit-transition: $r;
+    -moz-transition: $r;
+    -o-transition: $r;
+    -ms-transition: $r;
+    transition: $r;
+}
+
 @mixin site-container(){
     width: $site-width;
     background: white;
@@ -118,6 +126,10 @@ body{
     width: 16px;
 }
 
+.hr-spacer{
+    border-bottom: 1px solid $light-gray;
+}
+
 // aligning made easy
 .centered{
     margin: 0 auto;
@@ -136,6 +148,12 @@ body{
 }
 .rtl .align-closend{
     text-align: right;
+}
+.float-farend{
+    float: right;
+}
+.rtl .float-farend{
+    float: left;
 }
 
 // inputs
@@ -269,7 +287,7 @@ a:hover{
     font-size: $font-size-medium;
     @extend .clickable;
     @include border-radius(3px);
-    @include box-shadow(0px 2px 3px 1px rgba(0, 0, 0, 0.7));
+    @include box-shadow(0px 1px 2px 0 rgba(0, 0, 0, 0.9));
     background-image: #727272; /* Old browsers */
     background-image: -moz-linear-gradient(top, #727272 0%, #454545 100%); /* FF3.6+ */
     background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#727272), color-stop(100%,#454545)); /* Chrome,Safari4+ */
@@ -579,7 +597,7 @@ body.base-site{
 .small-site-content{
     #site-content {
         width: 480px;
-        padding: 25px 15px;
+        padding: 25px;
     }
     #top-container {
         width: 500px;
@@ -909,7 +927,7 @@ Home
         margin-bottom: 0;
     }
 
-    #myrides_container, #mobile_apps { margin-bottom: 40px - $site-content-offset; }
+    #myrides_container, #mobile_apps, #media_banner { margin-bottom: 40px - $site-content-offset; }
 
     #myrides_container{
         @include site-container();
@@ -933,9 +951,9 @@ Home
             width: 100%;
         }
         .img{
-            @include size(183px, 111px);
-            background: url("/static/images/wb_site/mobile_banner.png") left top no-repeat;
-            padding: 5px 65px;
+            @include size(210px, 111px);
+            background: url("/static/images/wb_site/mobile_banner_bg.png") left top no-repeat;
+            padding: 5px 25px;
         }
         .title{
             font-size: $font-size-large;
@@ -953,6 +971,33 @@ Home
             height: 70px;
             border-left: 1px solid $light-gray;
         }
+    }
+    #media_banner{
+        @include site-container();
+        width: 750px;
+        padding: 15px 25px 20px;
+        .title{
+            font-size: $font-size-header1;
+            height: 30px;
+        }
+        $offset: -95px;
+        .media-link{
+            display: inline-block;
+            @include size(130px, 60px);
+            background: url("/static/images/wb_site/media_logos.png") top left no-repeat;
+            opacity: 0.7;
+            padding-right: 23px;
+            @include transition(opacity 0.3s ease-in);
+        }
+        .media-link:hover{
+            opacity: 1;
+        }
+        .media-link.timeout{ width: 75px; background-position: center 0*$offset }
+        .media-link.themarker{ width: 121px; background-position: center 1*$offset }
+        .media-link.mako{ width: 136px; background-position: center 2*$offset }
+        .media-link.channel10{ width: 57px; background-position: center 3*$offset }
+        .media-link.nrg{ width: 109px; background-position: center 4*$offset }
+        .media-link.globes{ width: 96px; background-position: center 5*$offset }
     }
 
     #map_container {
@@ -1345,7 +1390,7 @@ Home
 
     #mobile_apps{
         .img{
-            background: url("/static/images/wb_site/mobile_banner_rtl.png") right top no-repeat;
+            background: url("/static/images/wb_site/mobile_banner_rtl_bg.png") right top no-repeat;
         }
     }
 
@@ -1447,12 +1492,25 @@ Account
 /*
 Registration
 /*********************************************/
+.registration, .verify-passenger{
+    #verification_status{
+        width: 30px;
+        height: 30px;
+        display: inline-block;
+        position: relative;
+        top: 10px;
+    }
+    #verification_status.success { background: url("/static/images/wb_site/verification_status.png") left 0 no-repeat; }
+    #verification_status.error { background: url("/static/images/wb_site/verification_status.png") left -30px no-repeat; }
+    #verification_status.sending { background: url("/static/images/wb_site/loader24.gif") left 0 no-repeat; }
+}
+
 .registration, .credit_guard_page{
     $space: 10px;
-    #site-content { padding: $space 25px;}
     #progress{
         width: 100%;
-        padding-bottom: $space;
+        padding-top: 5px;
+        padding-bottom: 15px;
         font-size: 11px;
         .step{ text-align: center; color: $light-gray;}
         .step.current{ font-weight: bold; color: black;}
@@ -1468,17 +1526,24 @@ Registration
 
 .registration{
     $space: 10px;
+    #site-content {
+        width: 600px;
+        padding: $space 25px;
+    }
 
     // auth step
+    .header-row{
+        padding-bottom: 20px;
+    }
     #auth_step{
         width: 100%;
-        .header-row td{ padding-bottom: 38px; }
         .vrule-cntr{ padding: 0 2*$space;}
         .login{text-align: right;}
         .fb{
             width: 40%;
             vertical-align: middle;
             text-align: center;
+            color: $light-gray;
         }
         #fb_login_button{
             @include size(100%, 22px);
@@ -1509,14 +1574,17 @@ Registration
         #user_details{
             width: 100%;
             th {text-align: left};
-            input { width: 100%; }
-            tr { height: 55px; }
+            input { width: 266px; }
+            .input-row { height: 60px; }
             th { width: 100px; padding-top: 10px;}
             td, th { vertical-align: top; }
         }
         #terms_container{
-            text-align: right;
-            padding-top: 8px;
+            position: relative;
+            bottom: 9px;
+            input{
+                width: auto;
+            }
         }
     }
     #next_container {
@@ -1530,15 +1598,15 @@ Registration
 
     // phone step
     #phone_step{ width: 100%; }
+    #phone_form label{
+        font-weight: bold;
+    }
     #phone_form .cntr{
-        height: 50px;
+        height: 60px;
         label: {
             display: inline-block;
             width: 100px;
         }
-    }
-    #local_phone{
-        width: 245px;
     }
     #sms_button_container{
         display: inline-block;
@@ -1547,17 +1615,6 @@ Registration
         padding-top: 6px;
         text-align: center;
     }
-    #verification_status{
-        width: 30px;
-        height: 30px;
-        display: inline-block;
-        position: relative;
-        top: 11px;
-    }
-    #verification_status.success { background: url("/static/images/wb_site/verification_status.png") left 0 no-repeat; }
-    #verification_status.error { background: url("/static/images/wb_site/verification_status.png") left -30px no-repeat; }
-    #verification_status.sending { background: url("/static/images/wb_site/loader24.gif") left 0 no-repeat; }
-
     .sms-img{
         @include size(320px, 245px);
         background: url("/static/images/wb_site/sms_eng.png") left 0 no-repeat;
@@ -1570,9 +1627,6 @@ Registration
         .login{text-align: left;}
         #user_details{
             th {text-align: right};
-        }
-        #terms_container{
-            text-align: left;
         }
     }
     #next_container {
@@ -1591,6 +1645,7 @@ Registration
 }
 
 .credit_guard_page{
+    #site-content { padding: 10px 25px;}
     .spacer.bottom{
         margin-bottom: 10px;
     }
@@ -1788,9 +1843,6 @@ Registration
     }
     .spacer-row {
         height: 10px;
-    }
-    #local_phone {
-        width: 180px;
     }
     #send_code {
         min-width: 140px;

@@ -14,7 +14,7 @@ from billing.billing_manager import get_billing_redirect_url
 from billing.enums import BillingStatus, BillingAction
 from common.forms import DatePickerForm
 from common.tz_support import default_tz_now, default_tz_time_max, default_tz_time_min, default_tz_now_max, format_dt
-from common.util import custom_render_to_response, notify_by_email, Enum, send_mail_as_noreply, base_datepicker_page
+from common.util import custom_render_to_response, notify_by_email, Enum, send_mail_as_noreply, base_datepicker_page, ga_track_event
 from django.core.urlresolvers import reverse
 from django.utils import translation
 from django.views.decorators.csrf import csrf_exempt
@@ -59,6 +59,7 @@ def billing_task(request, token, amount, card_expiration, billing_transaction_id
 def transaction_ok(request, passenger):
     #TODO: handle errors
     #TODO: makesure referrer is creditguard
+    ga_track_event(request, "registration", "credit_card_validation", "approved")
     date_string = request.GET.get("cardExp")
     exp_date = date(year=int(date_string[2:]) + 2000, month=int(date_string[:2]), day=1)
     kwargs = {
@@ -107,8 +108,11 @@ def transaction_error(request):
         request.encoding = "cp1255"
 
     page_specific_class = "error-page"
-    error_text = request.GET.get("ErrorText")
-    error_code = request.GET.get("ErrorCode") 
+    error_code = request.GET.get("ErrorCode")
+    error_text = get_custom_message(error_code, request.GET.get("ErrorText"))
+
+    ga_track_event(request, "registration", "credit_card_validation", "not_approved", int(error_code))
+
     return custom_render_to_response("error_page.html", locals(), context_instance=RequestContext(request))
 
 @passenger_required
@@ -119,7 +123,7 @@ def get_trx_status(request, passenger):
     if trx and trx.passenger == passenger:
         response = {'status': trx.status}
         if trx.status == BillingStatus.FAILED:
-            msg = get_custom_message(trx)
+            msg = get_custom_message(trx.provider_status, trx.comments)
             if msg:
                 response.update({'error_message': msg})
         return JSONResponse(response)

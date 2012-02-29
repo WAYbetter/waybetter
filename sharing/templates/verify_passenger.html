@@ -14,8 +14,10 @@
 
             <tr class="input-row">
                 <td class="td-label">{% trans "Mobile Phone" %}:</td>
-                <td><input id="local_phone" name="local_phone" type="text"/></td>
-                <td class="align-farend">
+                <td>
+                    <input id="local_phone" name="local_phone" type="text"/>
+                </td>
+                <td>
                     <button id="send_code" type="button" class="wb_button"
                             disabled="disabled">{% trans "Send SMS Code" %}</button>
                 </td>
@@ -35,10 +37,10 @@
 
             <tr class="input-row">
                 <td class="td-label">{% trans "SMS code" %}:</td>
-                <td>
+                <td colspan="2">
                     <input id="verification_code" name="verification_code" type="text"/>
+                    <span id="verification_status"></span>
                 </td>
-                <td></td>
             </tr>
             <tr class="message-row">
                 <td></td>
@@ -49,11 +51,14 @@
         </table>
     </form>
 
-    <hr>
+    <div class="hr-spacer"></div>
+
     <div id="next_container" class="align-farend">
         <button id="next" class="wb_button blue" disabled="disabled">{% trans "Next" %} ></button>
     </div>
 {% endblock %}
+
+{% block post_content %}{% endblock %}
 
 {% block doc_ready %}
     {{ block.super }}
@@ -75,13 +80,13 @@
                     $status.hide();
 
                     if (valid) {
-                        $("#send_code").enable();
+                        $("#send_code").enable().focus();
                     } else {
                         $error.show();
                         $("#send_code").disable();
                     }
                 },
-                error: function(){
+                error:function () {
                     $error.text("{% trans "There was an error, please try again" %}.").show();
                 }
             })
@@ -116,6 +121,7 @@
         function checkCode() {
             var data = $("#phone_form").serialize();
             var $code = $("#verification_code");
+            var $status = $("#verification_status");
             var $error = $("#code_error");
             var $next = $("#next");
 
@@ -126,16 +132,21 @@
                 beforeSend:function () {
                     $error.hide();
                     $code.disable();
-                    $next.disable().text("{% trans "Sending" %}");
+                    $next.disable();
+                    $status.removeClass("error success").addClass("sending");
+                },
+                complete:function () {
+                    $status.removeClass("sending");
                 },
                 success:function (response) {
-                    window.location.href = "{% url sharing.passenger_controller.change_credentials %}";
+                    $status.addClass("success");
+                    $next.enable().focus();
                 },
                 error:function (response) {
-                    $error.text(response.responseText || "{% trans "Wrong Code" %}");
-                    $error.show();
+                    $error.text(response.responseText || "{% trans "Wrong Code" %}").show();
+                    $status.addClass("error");
                     $code.enable();
-                    $next.enable().text("{% trans "Next" %} >");
+
                 }
 
             })
@@ -151,14 +162,24 @@
             $("#send_code").click(function () {
                 sendCode();
             });
-            $("#verification_code").bind("change keyup", function () {
-                var valid = $(this).val() && $(this).val().length > 3;
-                $("#next").enabled(valid);
-            });
             $("#next").click(function () {
-                checkCode();
-            })
-        })
+                window.location.href = "{% url sharing.passenger_controller.change_credentials %}";
+            });
+
+            $("#verification_code").keyup(
+                    function () {
+                        $("#code_error").hide();
+                        var val = $(this).val();
+                        if (val && val.length == 4) {
+                            checkCode();
+                        }
+                    }).keydown(function (event) {
+                        var permittedKeys = [8, 37, 38, 39, 40, 46];
+                        if ($(this).val().length >= 4 && $.inArray(event.which, permittedKeys) < 0) {
+                            return false;
+                        }
+                    });
+        });
 
     </script>
 {% endblock %}

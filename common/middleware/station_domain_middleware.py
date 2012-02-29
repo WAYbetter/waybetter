@@ -1,9 +1,8 @@
-from ordering.station_controller import station_page, get_station_domain
-
+from ordering.station_controller import station_page, get_station_domain, qr_regexp
 
 class StationDomainMiddleware(object):
     def process_request(self, request):
-        if request.path == "/": # only affect requests to root
+        if request.path == "/" or qr_regexp.match(request.path): # only affect requests to root and qr urls
             subdomain_name = get_station_domain(request)
 
             if subdomain_name and subdomain_name != 'taxiapp':

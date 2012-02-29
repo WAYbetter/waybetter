@@ -1,10 +1,11 @@
 from google.appengine.api.taskqueue import taskqueue
+from billing.enums import BillingStatus
 from common.util import blob_to_image_tag
 from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 from django.forms.models import BaseInlineFormSet
-from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, Feedback, Business, SharedRide, RidePoint, Driver, Taxi, TaxiDriverRelation, StationFixedPriceRule
+from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, Feedback, Business, SharedRide, RidePoint, Driver, Taxi, TaxiDriverRelation, StationFixedPriceRule, CHARGED, CANCELLED
 from sharing.admin import OrderInlineAdmin
 import station_connection_manager
 from common.models import Country
@@ -118,10 +119,29 @@ class BusinessAdmin(admin.ModelAdmin):
     actions = [send_welcome_email]
 
 
+def cancel_order(modeladmin, request, queryset):
+    for order in queryset:
+        if order.status == CHARGED:
+            messages.error(request, "%s: order was already charged" % order.id)
+        else:
+            for tx in order.billing_transactions.all():
+                if tx.status == BillingStatus.CHARGED:
+                    messages.error(request, "%s: billing already charged" % order.id)
+                    break
+
+                tx.disable()
+
+            else: # no charged transactions, cancel order
+                order.change_status(new_status=CANCELLED)
+                messages.info(request, "%s: order cancelled" % order.id)
+
+cancel_order.short_description = _("Cancel")
+
 class OrderAdmin(admin.ModelAdmin):
     list_display = ["create_date", "from_raw", "to_raw", "debug", "station_name", "status", "pickup_time", "passenger", "passenger_rating"]
     list_filter = ["status", "station"]
     ordering = ['-create_date']
+    actions = [cancel_order]
 
     def station_name(self, obj):
         if obj.station:

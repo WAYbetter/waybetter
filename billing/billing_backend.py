@@ -152,16 +152,25 @@ def do_credit_guard_trx(params):
     return xml
 
 
-def get_custom_message(trx):
+def get_custom_message(provider_status, default_message=None):
+    """
+    Returns a custom message for the given error code (C{provider_status})
+
+    @param provider_status: error code
+    @param default_message: default message to return of no custom message is available for given C{provider_status}
+    @return:
+    """
+
 #    profile_link = '<a href="%s" class="wb_link">%s</a>' % (reverse('user_profile'), _("Account Details"))
 
     cg_custom_error_msg = {
 #        '004': _('We are sorry but your card type is currently not supported. You can change it from %s.') % profile_link,
         '004': _('We are sorry but your card type is currently not supported.'),
-        '101': _('Invalid card number.')
+        '039': _('Invalid card number.'),
+        '101': _('We are sorry but your card type is currently not supported.')
     }
 
-    return cg_custom_error_msg.get(trx.provider_status, trx.comments)
+    return cg_custom_error_msg.get(provider_status, default_message)
 
 
 @force_lang("he")
@@ -230,7 +239,7 @@ def create_invoice_passenger(passenger):
 
 def update_invoice_passenger(passenger):
     if not passenger.invoice_id:
-        logging.error("skipping update of invoice info, no invoice_id for passenger %s" % passenger.id)
+        logging.info("skipping update of invoice info, no invoice_id for passenger %s" % passenger.id)
         return False
 
     action_payload = {
