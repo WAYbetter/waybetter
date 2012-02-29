@@ -87,6 +87,7 @@ urlpatterns = patterns('',
 
     (r'^queue/handle_dead_workstations/$', 'ordering.station_connection_manager.handle_dead_workstations'),
     (r'^services/ws_heartbeat/$', 'ordering.station_connection_manager.send_heartbeat'),
+    (r'^ads/(?P<campaign_id>\w+)/', 'ordering.station_controller.campaign_handler'),
 
 )
 

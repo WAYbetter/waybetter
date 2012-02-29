@@ -1126,7 +1126,9 @@ class OrderAssignment(BaseModel):
                        "from_raw": order_assignment.pickup_address_in_ws_lang or order_assignment.dn_from_raw,
                        "to_raw": order_assignment.dropoff_address_in_ws_lang or order_assignment.dn_to_raw,
                        "seconds_passed": (utc_now() - base_time).seconds,
-                       "current_rating": order_assignment.station.average_rating
+                       "current_rating": order_assignment.station.average_rating,
+                       "passenger_phone": order_assignment.order.passenger_phone
+
             }
 
             if order_assignment.dn_business_name: # assigning a business order
