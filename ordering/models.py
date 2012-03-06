@@ -32,6 +32,7 @@ import datetime
 import common.urllib_adaptor as urllib2
 
 SHARING_TIME_FACTOR = 1.25
+SHARING_TIME_MINUTES = 7
 
 ORDER_HANDLE_TIMEOUT =                      80 # seconds
 ORDER_TEASER_TIMEOUT =                      19 # seconds
@@ -96,8 +97,9 @@ class StopType(Enum):
     DROPOFF = 1
 
 class OrderType(Enum):
-    PRIVATE     = 1
-    SHARED      = 2
+    PICKMEAPP     = 0
+    PRIVATE       = 1
+    SHARED        = 2
 
 class Station(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
@@ -889,7 +891,7 @@ class Order(BaseModel):
     # this field holds the data as typed by the user
     to_raw = models.CharField(_("to address"), max_length=50, null=True, blank=True)
 
-    type = models.IntegerField(choices=OrderType.choices() ,default=OrderType.PRIVATE)
+    type = models.IntegerField(choices=OrderType.choices(), default=OrderType.PICKMEAPP)
 
     # pickmeapp fields
     pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)

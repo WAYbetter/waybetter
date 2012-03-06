@@ -492,6 +492,14 @@ indexes:
 - kind: ordering_order
   properties:
   - name: passenger_id
+  - name: status
+  - name: type
+  - name: depart_time
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
   - name: to_raw
 
 - kind: ordering_order
