@@ -15,7 +15,7 @@ from django.contrib.sessions.models import Session
 from django.utils import  translation
 from django.contrib.auth import login
 from djangotoolbox.fields import BlobField, ListField
-from common.models import BaseModel, Country, City, CityArea, CityAreaField
+from common.models import BaseModel, Country, City, CityArea, CityAreaField, obj_by_attr
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now, format_dt
@@ -845,6 +845,45 @@ RATING_CHOICES = ((0, ugettext("Unrated")),
                   (4, ugettext("Good")),
                   (5, ugettext("Perfect")))
 
+class Device(BaseModel):
+    """
+    A Device: identified by a udid (generated using uniqueIdentifier)
+    """
+    udid = models.CharField(_("udid"), max_length=64)
+    gudid = models.CharField(_("gudid"), max_length=64, null=True, blank=True)
+
+    origin = models.CharField(_("origin"), max_length=64, default="organic")
+
+    @classmethod
+    def by_udid(cls, udid):
+        return obj_by_attr(cls, "udid", udid)
+
+    def __unicode__(self):
+        return u"[%d] %s" % (self.id or 0, self.udid)
+
+class InstalledApp(BaseModel):
+    """
+    An application on a specific device. The app_udid is unique for a device and bundle ID
+    """
+    app_udid = models.CharField(_("app udid"), max_length=64)
+    name = models.CharField(_("name"), max_length=100)
+    user_agent = models.CharField(_("user agent"), max_length=250, null=True, blank=True)
+
+    blocked = models.BooleanField(_("blocked"), default=False)
+
+    install_count = models.IntegerField(_("install count"), default=1)
+
+    passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="installed_apps", null=True, blank=True)
+    device = models.ForeignKey(Device, verbose_name=_("device"), related_name="installed_apps", null=True, blank=True)
+
+    @classmethod
+    def by_app_udid(cls, app_udid):
+        return obj_by_attr(cls, "app_udid", app_udid)
+
+    def __unicode__(self):
+        return u"[%d] %s" % (self.id or 0, self.app_udid)
+
+
 
 class Order(BaseModel):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
@@ -892,6 +931,9 @@ class Order(BaseModel):
     to_raw = models.CharField(_("to address"), max_length=50, null=True, blank=True)
 
     type = models.IntegerField(choices=OrderType.choices(), default=OrderType.PICKMEAPP)
+
+    installed_app = models.ForeignKey(InstalledApp, verbose_name=_("installed_app"), related_name="orders", null=True,
+                                      blank=True)
 
     # pickmeapp fields
     pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)

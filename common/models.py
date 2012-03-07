@@ -11,6 +11,21 @@ from common.decorators import run_in_transaction, order_relative_to_field
 import logging
 from common.widgets import ListFieldWithUI, ColorField, CityAreaFormField
 
+def obj_by_attr(cls, attr_name, attr_val, safe=True):
+    if safe and not attr_val:
+        return None
+
+    try:
+        filter_dict = {attr_name: attr_val}
+        obj = cls.objects.get(**filter_dict)
+    except cls.DoesNotExist, e:
+        if safe:
+            obj = None
+        else:
+            raise e
+
+    return obj
+
 class BaseModel(models.Model):
     create_date = UTCDateTimeField(_("create date"), auto_now_add=True, null=True, blank=True)
     modify_date = UTCDateTimeField(_("modify date"), auto_now=True, null=True, blank=True)
@@ -27,18 +42,7 @@ class BaseModel(models.Model):
 
     @classmethod
     def by_id(cls, id, safe=True):
-        if safe and not id:
-            return None
-
-        try:
-            obj = cls.objects.get(id=id)
-        except cls.DoesNotExist, e:
-            if safe:
-                obj = None
-            else:
-                raise e
-
-        return obj
+        return obj_by_attr(cls, "id", id, safe=safe)
 
     @classmethod
     def get_one(cls):

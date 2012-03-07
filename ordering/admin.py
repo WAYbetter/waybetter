@@ -5,7 +5,7 @@ from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
 from django.forms.models import BaseInlineFormSet
-from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, Feedback, Business, SharedRide, RidePoint, Driver, Taxi, TaxiDriverRelation, StationFixedPriceRule, CHARGED, CANCELLED
+from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, Feedback, Business, SharedRide, RidePoint, Driver, Taxi, TaxiDriverRelation, StationFixedPriceRule, CHARGED, CANCELLED, Device, InstalledApp
 from sharing.admin import OrderInlineAdmin
 import station_connection_manager
 from common.models import Country
@@ -292,6 +292,8 @@ class FeedbackAdmin(admin.ModelAdmin):
 
     feedback.allow_tags = True
 
+class InstalledAppAdmin(admin.ModelAdmin):
+    list_display = ["name", "blocked", "passenger"]
 
 admin.site.register(SharedRide, SharedRideAdmin)
 admin.site.register(RidePoint, RidePointAdmin)
@@ -307,3 +309,4 @@ admin.site.register(WorkStation, WorkStationAdmin)
 admin.site.register(Country, CountryPricingRulesAdmin)
 admin.site.register(FlatRateRule, FlatRateRuleAdmin)
 admin.site.register(Feedback, FeedbackAdmin)
+admin.site.register(InstalledApp, InstalledAppAdmin)
