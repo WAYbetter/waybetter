@@ -1,0 +1,92 @@
+{% load i18n %}
+<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl" class="rtl"{% endif %}>
+<head>
+<title>{% block title %}Phone Activation{% endblock %}</title>
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="black" />
+    <meta name="viewport" content="width=device-width, minimum-scale=1, maximum-scale=1" />
+
+    <style type="text/css">
+        #msg {
+            padding: 5pt 0 20pt 0;
+        }
+        #msg span {
+            font-size: 1.2em;
+        }
+        #response {
+            color: green;
+        }
+        #response.error {
+            color:red;
+        }
+    </style>
+
+    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.0b2/jquery.mobile-1.0b2.min.css" />
+    <link rel="stylesheet" type="text/css" href="/static/css/waybetter.mobile.css" />
+    <script src="http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js"></script>
+    <script src="/static/js/utils.js"></script>
+    <script type="text/javascript" src="/static/js/wb_init.js"></script>
+    <script>
+        $(document).bind("mobileinit", function(){
+            $.extend($.mobile, {
+                loadingMessage: "{% trans 'Loading...' %}"
+            });
+            $.mobile.page.prototype.options.backBtnText = "{% trans 'Back' %}";
+            $.mobile.page.prototype.options.addBackBtn = true;
+        })
+    </script>
+    <script src="http://code.jquery.com/mobile/1.0b2/jquery.mobile-1.0b2.min.js"></script>
+    <script type="text/javascript">
+        $(function() {
+            $("#contact_me").click(function() {
+                $.ajax({
+                    url: "{% url ordering.passenger_controller.request_phone_activation %}",
+                    type: 'post',
+                    data: {
+                        phone: "{{ phone }}",
+                        APP_UDID: "{{ app_udid }}"
+                    },
+                    success: function() {
+                        $("#response").text("{% trans 'Your request was accepted and we will contact you shortly to complete the activation process' %}")
+                    },
+                    error: function() {
+                        $("#response").text("{% trans 'There was an error handling your request, please try again later.' %}").addClass("error")
+                    }
+                });
+            })
+        })
+    </script>
+
+</head>
+{% load i18n %}
+
+<body>
+    {# HOME PAGE #}
+    {% block content %}
+    <div id="home" data-role="page" data-fullscreen="true">
+        <div id="header" data-role="header">
+            <h1>{% trans 'Phone Activation' %}</h1>
+        </div>
+        <div id="content" data-role="content">
+            <p id="msg">{% blocktrans %}The phone number your entered, <span>{{ phone }}</span>, has already been activated in our system.<br><br>
+                If this is the correct number, click the button and we will contact you shortly to fix this{% endblocktrans %}</p>
+            <button id="contact_me">{% trans 'Contact Me' %}</button>
+            <p id="response"></p>
+        </div>
+        <!-- END Content -->
+    </div>
+    {% endblock content %}
+<script>
+  var _gaq = _gaq || [];
+  _gaq.push(['_setAccount', 'UA-18077675-1']);
+  _gaq.push(['_trackPageview']);
+
+  (function() {
+    var ga = document.createElement('script'); ga.type = 'text/javascript'; ga.async = true;
+    ga.src = ('https:' == document.location.protocol ? 'https://ssl' : 'http://www') + '.google-analytics.com/ga.js';
+    var s = document.getElementsByTagName('script')[0]; s.parentNode.insertBefore(ga, s);
+  })();
+</script>
+</body>
+</html>
