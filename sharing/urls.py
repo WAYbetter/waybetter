@@ -6,6 +6,7 @@ from sharing.passenger_controller import send_ride_notifications, on_billing_trx
 urlpatterns = patterns('',
     (r'^gmaps/$', 'sharing.staff_controller.gmaps'),
     (r'^gmaps_resolve_address/$', 'sharing.staff_controller.gmaps_resolve_address'),
+    (r'^gmaps_reverse_gecode/$', 'sharing.staff_controller.reverse_geocode'),
 
     (r'^birdseye/$', 'sharing.staff_controller.birdseye_view'),
     (r'^kpi/$', 'sharing.staff_controller.kpi'),

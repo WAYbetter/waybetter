@@ -4,6 +4,10 @@
 {% block extrastyle %}
     {{ block.super }}
     <style type="text/css">
+        #site-content {
+            width: 90%;
+        }
+
         table {
             width: 100%;
         }
@@ -17,21 +21,31 @@
             margin-bottom: 15px;
         }
 
+        input[type="checkbox"]{
+            width: auto;
+        }
         .align-top {
             vertical-align: top;
         }
 
-        .result_data {
+        .street_info, .street_error{
+            min-height: 20px;
+        }
+        #search_results, .result_data, .server_result_data {
             border: 1px solid #778899;
             direction: ltr;
-            min-height: 250px;
-            max-height: 250px;
+            min-height: 350px;
+            max-height: 350px;
             overflow-y: auto;
             font-family: courier;
             white-space: pre;
             border-radius: 5px;
         }
 
+        .request{
+            font-weight: bold;
+            direction: ltr;
+        }
         #map_canvas {
             height: 300px;
             width: 100%;
@@ -52,25 +66,57 @@
         #directions {
             display: none;
         }
+
         #more {
             color: #87ceeb;
         }
     </style>
 
 {% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
+    {{ block.super }}
+{% endblock %}
 {% block content %}
+    <h1>Places Search</h1>
+    <label for="search_input">Search string</label>
+    <input id="search_input" type="text">
+    <button id="search" onclick="placesSearch()">Search</button>
+    <div id="search_results">Results</div>
+    <div id="search_attrContainer"></div>
+
+    <h1>Places Autocomplete</h1>
     <table>
         <tr class="align-top">
             <td>
+                <div class="street_error error"></div>
+                <div class="street_info"></div>
+
                 <input type="text" id="pickup" placeholder="{% trans "Enter Pickup address" %}">
 
-                <div class="result_data">Choose Pickup</div>
+                <div class="result_data">result</div>
+                <button id="geocode_pickup">Geocode</button>
+                <button id="reverse_geocode_pickup">Reverse Geocode</button>
+                <input type="checkbox" class="vicinity-chk">Use vicinity</input>
+
+                <div class="request"></div>
+                <div class="server_result_data">server result</div>
             </td>
 
             <td>
+                <div class="street_error error"></div>
+                <div class="street_info"></div>
+
                 <input type="text" id="dropoff" placeholder="{% trans "Enter Dropoff Address" %}">
 
-                <div class="result_data">Choose Dropoff</div>
+                <div class="result_data">result</div>
+                <button id="geocode_dropoff">Geocode</button>
+                <button id="reverse_geocode_dropoff">Reverse Geocode</button>
+                <input type="checkbox" class="vicinity-chk">Use vicinity</input>
+
+                <div class="request"></div>
+                <div class="server_result_data">server result</div>
             </td>
         </tr>
         <tr>
@@ -87,17 +133,42 @@
     <div id="directions" class="result_data"></div>
 {% endblock %}
 
+
 {% block doc_ready %}
     {{ block.super }}
 
     {# see Places autocomplete API - http://code.google.com/apis/maps/documentation/javascript/places.html#places_autocomplete #}
-    <script type="text/javascript"
-            src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
 
     <script type="text/javascript">
         var directionsDisplay;
         var directionsService = new google.maps.DirectionsService();
         var map;
+
+        function placesSearch(){
+            var ne = new google.maps.LatLng(32.248813,34.976349);
+            var sw = new google.maps.LatLng(31.879307,34.628906);
+            var center = new google.maps.LatLng(32.06541, 34.773445);
+            var radius = 20000;
+            var bounds = new google.maps.LatLngBounds(sw, ne);
+            var request = {
+//                location: center,
+//                radius: radius,
+//                types: ["geocode", "route", "street_address"],
+                bounds: bounds,
+//                name: $("#search_input").val()
+                keyword: $("#search_input").val()
+            };
+            var placesService = new google.maps.places.PlacesService(document.getElementById("search_attrContainer"));
+            placesService.search(request, function(results, status){
+                var json = "";
+                for (var i=0; i < results.length; i++){
+                    json += JSON.stringify(results[i], null, 4);
+                    json += "----------------------\n";
+                }
+                $("#search_results").text(json || "No results");
+            });
+        }
+
         function initGmap() {
             var mapOptions = {
                 center:new google.maps.LatLng(32.058536, 34.79059),
@@ -120,16 +191,34 @@
 
         function makeAddressACPlaces(input_id) {
             var input = document.getElementById(input_id);
+            var $input = $(input);
 
             var defaultBounds = new google.maps.LatLngBounds(
                     new google.maps.LatLng(32.032819, 34.741859),
                     new google.maps.LatLng(32.132594, 34.83284));
 
-            var autocomplete = new google.maps.places.Autocomplete(input,
-                    {
-                        bounds:defaultBounds,
-//                        types:['geocode']
-                    });
+
+            var autocomplete = GoogleGeocodingHelper.newPlacesAutocomplete({
+//                types: ["geocode"],
+                id_textinput: input_id,
+                map:GoogleMapHelper.map,
+                bounds:defaultBounds,
+                onValidAddress:function (address) {
+                    log("onValidPlace");
+                    $input.siblings(".street_info").text("pickup at: " + address.name);
+                    $input.siblings(".street_error").text("");
+                },
+                onMissingStreetNumber:function () {
+                    log("onMissingStreetNumber");
+                    $input.siblings(".street_info").text("");
+                    $input.siblings(".street_error").text("Please enter house number");
+                },
+                onNoValidPlace:function () {
+                    log("onNoValidPlace");
+                    $input.siblings(".street_info").text("");
+                    $input.siblings(".street_error").text("Please enter valid address");
+                }
+            });
 
             var marker = new google.maps.Marker({
                 map:map
@@ -157,20 +246,8 @@
                 marker.setIcon(image);
                 marker.setPosition(place.geometry.location);
 
-                // get geocoding data from server
-                $.ajax({
-                    url:"{% url sharing.staff_controller.gmaps_resolve_address %}",
-                    data:{
-                        address:$(input).val()
-                    },
-                    dataType:"json",
-                    success:function (response) {
-                        var o = JSON.parse(response.results[0].raw_data);
-                        $(input).next(".result_data").text(JSON.stringify(o, null, 4));
-                    },
-                    error:function () {
-                    }
-                });
+                place.reference = place.reference.substr(0, 10);
+                $(input).siblings(".result_data").text(JSON.stringify(place, null, 4));
 
                 var pickup_address = $("#pickup").data("address");
                 var dropoff_address = $("#dropoff").data("address");
@@ -200,6 +277,71 @@
             })
         }
 
+        function serverGeocode(id_input) {
+            var $target = $("#" + id_input).siblings(".server_result_data");
+            var $vicinity = $("#" + id_input).siblings(".vicinity-chk");
+            var use_vicinity = $vicinity.is(":checked");
+
+            var address = $("#" + id_input).val();
+            if (use_vicinity){
+                var place = $("#" + id_input).data("address");
+                if (place){
+                    address = place.vicinity;
+                }
+                else{
+                    $target.text("no place selected");
+                    $target.siblings(".request").text("");
+                    return;
+                }
+            }
+            $target.siblings(".request").text("server geocode:" + address);
+            $target.text("sending");
+            $.ajax({
+                url:"{% url sharing.staff_controller.gmaps_resolve_address %}",
+                data:{
+                    address: address
+                },
+                dataType:"json",
+                success:function (response) {
+                    var results = "";
+                    $.each(response.results, function (i, result) {
+                        var o = JSON.parse(result.raw_data);
+                        results = results + JSON.stringify(o, null, 4) + "-----------------------------";
+                    });
+                    $target.text(results);
+                },
+                error:function () {
+                }
+            });
+        }
+        function serverReverseGeocode(id_input){
+            var place = $("#" + id_input).data("address");
+            var $target = $("#" + id_input).siblings(".server_result_data");
+            if (!place){
+                $target.text("no place chosen");
+                return;
+            }
+            $target.text("sending");
+            $.ajax({
+                url:"{% url sharing.staff_controller.reverse_geocode %}",
+                data:{
+                    lat: place.geometry.location.Sa,
+                    lon: place.geometry.location.Ta
+                },
+                dataType:"json",
+                success:function (response) {
+                    var results = "";
+                    $.each(response.results, function(i, result){
+//                        var o = JSON.parse(result);
+                        results = results + JSON.stringify(result, null, 4) + "-----------------------------";
+                    });
+                    $target.text(results);
+                },
+                error:function () {
+                }
+            });
+
+        }
         function toggleMapStyle() {
             var pinkParksStyles = [
                 {
@@ -269,6 +411,20 @@
 
         $(document).ready(function () {
             initGmap();
+            $("#pickup").focus();
+            $("#geocode_pickup").click(function () {
+                serverGeocode("pickup");
+            });
+            $("#geocode_dropoff").click(function () {
+                serverGeocode("dropoff");
+            });
+            $("#reverse_geocode_pickup").click(function () {
+                serverReverseGeocode("pickup");
+            });
+            $("#reverse_geocode_dropoff").click(function () {
+                serverReverseGeocode("dropoff");
+            });
+
 //            makeAddressACServer("#pickup");
 //            makeAddressACServer("#dropoff");
         })

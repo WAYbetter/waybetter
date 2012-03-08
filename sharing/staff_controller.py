@@ -1,6 +1,6 @@
 # This Python file uses the following encoding: utf-8
 from django.contrib.auth.models import User
-from common.geocode import gmaps_geocode, Bounds
+from common.geocode import gmaps_geocode, Bounds, gmaps_reverse_geocode
 from django.core.urlresolvers import reverse
 from google.appengine.ext.deferred import deferred
 from common.signals import async_computation_failed_signal, async_computation_completed_signal
@@ -55,6 +55,14 @@ def gmaps_resolve_address(request):
             'description': '%s (%s)' % (result['formatted_address'], ", ".join(result['types'])),
             'raw_data': simplejson.dumps(result)
         })
+    return JSONResponse({'results': results})
+
+def reverse_geocode(request):
+    lat = request.GET.get("lat")
+    lon = request.GET.get("lon")
+    lang_code = 'iw'
+
+    results = gmaps_reverse_geocode(lat, lon, lang_code=lang_code)
     return JSONResponse({'results': results})
 
 @staff_member_required
