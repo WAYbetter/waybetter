@@ -778,6 +778,18 @@
             }
         });
 
+        var address_input_value;
+        $address_input.keydown(function (e) {
+            address_input_value = $(this).val();
+        }).keyup(function (e) {
+            if (address_input_value != $(this).val()){
+                $set_address.disable();
+                if (e.which != 13){ // ignore 'return' hits that trigger select first behavior
+                    GoogleGeocodingHelper.showAutocomplete();
+                    $help_text.text("").removeClass("error");
+                }
+            }
+        });
         var address_ac = GoogleGeocodingHelper.newPlacesAutocomplete({
             id_textinput: id_address_input,
             map: GoogleMapHelper.map,
@@ -792,19 +804,23 @@
                 $set_address.enable().focus();
             },
             onMissingStreetNumber:function () {
-                // add space and place the caret after the street name
                 var val = $address_input.val();
-                var street_name = val.substr(0, val.search(","));
-                if (street_name){
-                    val = val.replace(street_name, street_name + " ");
+                var street_text = val.substr(0, val.search(","));
+                var street_parts = street_text.split(" ");
+                var street_number = street_parts[1];
+                if (street_number == undefined){
+                    // add space and place the caret after the street name
+                    val = val.replace(street_text, street_text + " ");
                     $address_input.blur().val(val);
                     var pos = val.search(",");
                     document.getElementById(id_address_input).setSelectionRange(pos, pos);
+                    GoogleGeocodingHelper.hideAutocomplete();
                 }
+                // show error also when entered house number does not exist in street
                 $help_text.text("{% trans "Please enter a valid house number" %}.").addClass("error");
             },
             onNoValidPlace:function () {
-                $help_text.text("{% trans "I don't know where that is" %}.").addClass("error");
+                $help_text.text("{% trans "We don't know where that is" %}.").addClass("error");
             }
         });
 

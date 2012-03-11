@@ -717,7 +717,7 @@ var GoogleGeocodingHelper = Object.create({
                 log("nothing selected, geocoding suggestion: " + first_suggestion);
 
                 var $input = $("#" + options.id_textinput);
-                // blur hides the suggestions box
+                // blur before entering text to prevent new suggestions from showing up
                 $input.blur().val(first_suggestion);
                 that.geocode(first_suggestion, function (results, status) {
                     if (status == google.maps.GeocoderStatus.OK && results.length) {
@@ -728,7 +728,12 @@ var GoogleGeocodingHelper = Object.create({
         });
 
         return autocomplete;
-
+    },
+    showAutocomplete: function(){
+        $(".pac-container").css("visibility", "visible");
+    },
+    hideAutocomplete: function(){
+        $(".pac-container").css("visibility", "hidden");
     },
     _onNewPlace:function (place, options) {
         var result = this._checkValidPickupAddress(place, options.id_textinput);
