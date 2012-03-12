@@ -10,14 +10,15 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from google.appengine.ext.deferred import deferred
 from billing.billing_manager import get_token_url
-from common.tz_support import default_tz_time_min, default_tz_now
+from billing.models import BillingInfo
+from common.tz_support import default_tz_time_min, default_tz_now, set_default_tz_time
 from common.util import has_related_objects, url_with_querystring, get_unique_id, send_mail_as_noreply
 from common.decorators import catch_view_exceptions, internal_task_on_queue
 from common.util import notify_by_email
 from common.db_tools import merge_passenger
 from common.route import calculate_time_and_distance
 from django.contrib.sessions.models import Session
-from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation
+from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation, OrderType, APPROVED, ACCEPTED, CHARGED
 import logging
 import traceback
 import datetime
@@ -121,12 +122,14 @@ def test_routing_service_task(request):
 
     return HttpResponse("OK")
 
+
 @catch_view_exceptions
 def weekly(request):
     logging.info("setup deletion of expired sessions")
     deferred.defer(delete_expired_sessions, _queue="maintenance")
 
     return HttpResponse("OK")
+
 
 @staff_member_required
 def run_maintenance_task(request):
@@ -163,6 +166,57 @@ def maintenance_task(request):
 def do_task():
     # maintenance method goes here
     pass
+
+
+def first_ride_stats():
+    csv = u""
+    sharing_launched = set_default_tz_time(datetime.datetime(2011, 10, 1, 0, 0, 0))
+    rides = filter(lambda ride: ride.debug == False, SharedRide.objects.filter(create_date__gte=sharing_launched))
+    orders = [order for ride in rides for order in ride.orders.all()]
+    sharing_passengers = set([order.passenger for order in orders])
+
+    for passenger in sharing_passengers:
+        my_orders = filter(lambda o: o.passenger == passenger, orders)
+        if my_orders:
+            my_first_order = sorted(my_orders, key=lambda o: o.create_date)[0]
+            try:
+                csv += u",".join([unicode(v) for v in
+                [my_first_order.depart_time.date().isoformat(), passenger.full_name, passenger.phone]])
+                csv += u"\n"
+            except Exception, e:
+                logging.error("order[%s]: %s" % (my_first_order.id, e.message))
+
+    send_mail_as_noreply("amir@waybetter.com", "first rides data", attachments=[("first_ride_stats.csv", csv)])
+
+
+def feb_statistics():
+    sharing_launched = set_default_tz_time(datetime.datetime(2011, 10, 1, 0, 0, 0))
+    feb_start = datetime.date(2012, 2, 1)
+    feb_end = datetime.date(2012, 3, 1) - datetime.timedelta(days=1)
+
+    rides = filter(lambda ride: ride.debug == False, SharedRide.objects.filter(create_date__gte=sharing_launched))
+    orders = [order for ride in rides for order in ride.orders.all()]
+    sharing_passengers = set([order.passenger for order in orders])
+
+    feb_rides = []
+    pre_feb_sharing_passengers = set()
+
+    for ride in rides:
+        if feb_start <= ride.create_date.date() <= feb_end:
+            feb_rides.append(ride)
+
+    feb_orders = [order for ride in feb_rides for order in ride.orders.all()]
+    for order in feb_orders:
+        if order.passenger.create_date.date() < feb_start:
+            pre_feb_sharing_passengers.add(order.passenger)
+
+    msg = """
+    total sharing passengers: %s
+    total orders: %s
+    orders in february: %s
+    passengers registered before feb 1st and ordered in feb: %s
+    """ % (len(sharing_passengers), len(orders), len(feb_orders), len(pre_feb_sharing_passengers))
+    send_mail_as_noreply("amir@waybetter.com", "feb stats", msg)
 
 
 def delete_expired_sessions(start_at=0):
@@ -317,7 +371,7 @@ def generate_passengers_with_non_existing_users():
     notify_by_email("Passengers linked to users which do not exist", html=passengers_list)
 
 
-def fix_orders():
+def fix_orders_house_number():
     import re
 
     for order in Order.objects.all():
@@ -331,3 +385,27 @@ def fix_orders():
             except Exception, e:
                 logging.error("Could not save order: %d: %s" % (order.id, e.message))
 
+
+def fix_orders_type(offset=0):
+    batch_size = 1000
+    logging.info("*** starting at: %s ***" % offset)
+    orders = Order.objects.all()[offset:offset + batch_size]
+    for order in orders:
+        try:
+            if order.price or order.computation_id:
+                logging.info("%s: order[%s] skipped. type is %s" % (offset, order.id, order.get_type_display()))
+            else:
+                order.type = OrderType.PICKMEAPP
+                order.save()
+                logging.info("%s: order[%s] saved" % (offset, order.id))
+
+        except Exception, e:
+            logging.info("%s order[%s] exception: %s" % (offset, order.id, e.message))
+
+        offset += 1
+
+    if orders:
+        logging.info("setting deferred task [offset=%s]" % offset)
+        deferred.defer(fix_orders_type, offset=offset, _queue="maintenance")
+    else:
+        logging.info("done at %s" % offset)

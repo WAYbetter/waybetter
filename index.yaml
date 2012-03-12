@@ -337,6 +337,11 @@ indexes:
   - name: __key__
     direction: desc
 
+- kind: ordering_installedapp
+  properties:
+  - name: __key__
+    direction: desc
+
 - kind: ordering_order
   properties:
   - name: __key__
@@ -487,6 +492,14 @@ indexes:
   - name: passenger_id
   - name: status
   - name: to_raw
+    direction: desc
+
+- kind: ordering_order
+  properties:
+  - name: passenger_id
+  - name: status
+  - name: type
+  - name: depart_time
     direction: desc
 
 - kind: ordering_order
