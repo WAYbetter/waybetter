@@ -329,6 +329,8 @@
     var PICKUP = "pickup",
         DROPOFF = "dropoff",
         SHARING_TIME_FACTOR = {{ sharing_time_factor }},
+        SHARING_TIME_MINUTES = {{ sharing_time_minutes }},
+        SHARING_CONSTRAINT = "{{ sharing_constraint }}",
         BOOKING_STEPS = ["hotspot", "address", "datetime", "details"];
 
     var RTL = false;
@@ -702,7 +704,13 @@
 
                     var ride_duration_ms = HotspotHelper.ride_duration * 1000;
                     var est_pickup_private = new Date(d - ride_duration_ms);
-                    var est_pickup_shared = new Date(d - ride_duration_ms * SHARING_TIME_FACTOR);
+                    var est_pickup_shared;
+                    if (SHARING_CONSTRAINT == "factor") {
+                        est_pickup_shared = new Date(d - ride_duration_ms * SHARING_TIME_FACTOR)
+                    }
+                    else if (SHARING_CONSTRAINT == "minutes") {
+                        est_pickup_shared = new Date(d - (ride_duration_ms + SHARING_TIME_MINUTES * 60 * 1000))
+                    }
                     var time_txt = getFullTime(est_pickup_shared) + "-" + getFullTime(est_pickup_private);
                     var text = (d.getDate() == est_pickup_shared.getDate()) ?
                             time_txt : getFullDate(est_pickup_shared) + " {% trans 'at' %} " + time_txt;

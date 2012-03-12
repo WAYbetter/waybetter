@@ -32,7 +32,7 @@ import datetime
 import common.urllib_adaptor as urllib2
 
 SHARING_TIME_FACTOR = 1.25
-SHARING_TIME_MINUTES = 7
+SHARING_TIME_MINUTES = 8
 
 ORDER_HANDLE_TIMEOUT =                      80 # seconds
 ORDER_TEASER_TIMEOUT =                      19 # seconds
@@ -1040,7 +1040,7 @@ class Order(BaseModel):
 
         elif self.computation.hotspot_arrive_time: # to Hotspot, pickup time is estimated
             ride_duration_sec = (self.arrive_time - self.depart_time).seconds
-            sharing_dprt = self.arrive_time - datetime.timedelta(seconds=ride_duration_sec * SHARING_TIME_FACTOR)
+            sharing_dprt = self.arrive_time - datetime.timedelta(seconds=ride_duration_sec + SHARING_TIME_MINUTES * 60)
 
             d = _("Today") if self.depart_time.date() == default_tz_now().date() else self.depart_time.strftime("%d/%m/%Y")
             pickup_str = u"%s, %s-%s" % (d, sharing_dprt.strftime("%H:%M"), self.depart_time.strftime("%H:%M"))
