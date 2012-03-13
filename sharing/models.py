@@ -9,6 +9,7 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from common.util import convert_python_weekday, datetimeIterator
 from common.models import BaseModel, Country, City, CityAreaField, CityArea
+from django.core.validators import MaxValueValidator, MinValueValidator
 from ordering.models import Passenger, Station
 from ordering.pricing import estimate_cost
 from pricing.models import RuleSet, AbstractTemporalRule
@@ -265,6 +266,17 @@ class HotSpotServiceRule(AbstractTemporalRule):
         return times
 
 
+class HotSpotPopularityRule(AbstractTemporalRule):
+    hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="popularity_rules")
+    city_area = CityAreaField(verbose_name=_("city area"))
+    popularity = models.IntegerField(verbose_name=_("popularity"), validators=[MinValueValidator(0),MaxValueValidator(100)])
+    fuzziness = models.IntegerField(verbose_name=_("fuzziness"), validators=[MinValueValidator(0),MaxValueValidator(100)])
+
+    def is_active(self, lat, lon, day, t):
+        in_city_area = self.city_area.contains(lat, lon)
+        return in_city_area and super(HotSpotPopularityRule, self).is_active(day, t)
+
+
 class HotSpotCustomPriceRule(AbstractTemporalRule):
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="custom_rules")
     city_area = CityAreaField(verbose_name=_("city area"))
@@ -274,8 +286,8 @@ class HotSpotCustomPriceRule(AbstractTemporalRule):
         order_with_respect_to = 'hotspot'
 
     def is_active(self, lat, lon, day, t):
-        # using super does not work for some reason: super(AbstractTemporalRule, self).is_active(day, t)
-        return self.city_area.contains(lat, lon) and getattr(AbstractTemporalRule, "is_active")(self, day, t)
+        in_city_area = self.city_area.contains(lat, lon)
+        return in_city_area and super(HotSpotCustomPriceRule, self).is_active(day, t)
 
 
 class HotSpotTariffRule(BaseModel):

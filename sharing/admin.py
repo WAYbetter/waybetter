@@ -5,7 +5,7 @@ from common.forms import MandatoryInlineFormset
 from django.core.urlresolvers import reverse
 from ordering.models import RideComputation, RideComputationSet, Order, RideComputationStatus
 from sharing.algo_api import submit_computations
-from sharing.models import HotSpot, HotSpotTag, HotSpotServiceRule, HotSpotCustomPriceRule, HotSpotTariffRule, Producer, ProducerPassenger
+from sharing.models import HotSpot, HotSpotTag, HotSpotServiceRule, HotSpotCustomPriceRule, HotSpotTariffRule, Producer, ProducerPassenger, HotSpotPopularityRule
 from sharing.forms import HotSpotAdminForm, HotSpotServiceRuleAdminForm
 
 class InlineHotSpotTagAdmin(admin.TabularInline):
@@ -19,6 +19,10 @@ class InlineHotSpotServiceRuleAdmin(admin.TabularInline):
     formset = MandatoryInlineFormset
     extra = 1
 
+
+class InlineHotSpotPopularityRuleAdmin(admin.TabularInline):
+    model = HotSpotPopularityRule
+    extra = 1
 
 class InlineHotSpotCustomPriceRuleAdmin(admin.TabularInline):
     model = HotSpotCustomPriceRule
@@ -35,7 +39,7 @@ class InlineHotSpotTariffRuleAdmin(admin.TabularInline):
 class HotSpotAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "address", "is_public"]
     exclude = ["geohash"]
-    inlines = [InlineHotSpotTagAdmin, InlineHotSpotServiceRuleAdmin, InlineHotSpotCustomPriceRuleAdmin,
+    inlines = [InlineHotSpotTagAdmin, InlineHotSpotServiceRuleAdmin, InlineHotSpotPopularityRuleAdmin, InlineHotSpotCustomPriceRuleAdmin,
                InlineHotSpotTariffRuleAdmin]
     form = HotSpotAdminForm
 
