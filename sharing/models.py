@@ -1,5 +1,6 @@
 import logging
 import re
+import math
 from common.decorators import order_relative_to_field
 from common.route import calculate_time_and_distance
 from common.tz_support import default_tz_now, to_task_name_safe, ceil_datetime, floor_datetime
@@ -110,7 +111,7 @@ class HotSpot(BaseModel):
 
             # 3. fallback to half the cost
             if not base_sharing_price:
-                base_sharing_price = 0.5 * cost if cost else None
+                base_sharing_price = 0.59 * cost if cost else None
 
             if num_seats == 1:
                 price = base_sharing_price
@@ -118,7 +119,7 @@ class HotSpot(BaseModel):
                 delta = max([cost - base_sharing_price, 0])
                 price = base_sharing_price + 0.5 * delta
 
-        return round(price, 2) if price else None
+        return int(math.ceil(price)) if price else None
 
     def get_allowed_ordering_time(self, hotspot_type):
         allowed_time = None
