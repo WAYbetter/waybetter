@@ -298,6 +298,45 @@
 {% endblock %}
 
 {% block scripts %}
+    <script>
+    (function placesAutoCompletePatch(){
+        var input = document.getElementById("id_street_address");
+
+        // store the original binding function
+        var _addEventListener = (input.addEventListener) ? input.addEventListener : input.attachEvent;
+
+        function addEventWrapper() {
+            var type = arguments[0];
+            var listener = arguments[1];
+
+            // if binding a keydown event, replace the passed listener with a wrapped listener
+            if (type == "keydown") {
+                arguments[1] = function wrappedListener() {
+                    var event = arguments[0];
+
+                    // when hitting 'return' trigger a 'down arrow' first
+                    if (event.which == 13) {
+                        arguments[0] = $.Event("keydown", {keyCode:40, which:40});
+                        listener.apply(input, arguments);
+                    }
+
+                    // trigger the original event
+                    arguments[0] = event;
+                    listener.apply(input, arguments);
+                };
+            }
+
+            // add the (wrapped) listener
+            _addEventListener.apply(input, arguments);
+        }
+
+        if (input.addEventListener)
+            input.addEventListener = addEventWrapper;
+        else if (input.attachEvent)
+            input.attachEvent = addEventWrapper;
+    })();
+    </script>
+
     {% if DEV %}
         <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
     {% else %}
@@ -809,14 +848,15 @@
                 BookingHelper.address = address;
                 var marker_name = refreshAddressMarker();
                 GoogleMapHelper.zoomMarker(marker_name);
+                $address_input.blur().val(address.name);
                 $set_address.enable().focus();
             },
             onMissingStreetNumber:function () {
                 var val = $address_input.val();
                 var street_text = val.substr(0, val.search(","));
                 var street_parts = street_text.split(" ");
-                var street_number = street_parts[1];
-                if (street_number == undefined){
+                var street_number = street_parts[street_parts.length -1];
+                if (street_number == undefined || street_number.search(/\d+/) == -1){
                     // add space and place the caret after the street name
                     val = val.replace(street_text, street_text + " ");
                     $address_input.blur().val(val);

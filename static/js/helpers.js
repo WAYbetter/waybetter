@@ -687,7 +687,7 @@ var GoogleGeocodingHelper = Object.create({
         options = $.extend(true, {
             id_textinput: "",
             beforePlaceChange: function(){},
-            onValidAddress: function(place){},
+            onValidAddress: function(address){},
             onMissingStreetNumber: function(){},
             onNoValidPlace: function(){}
         }, options);
@@ -705,26 +705,8 @@ var GoogleGeocodingHelper = Object.create({
         var that = this;
         google.maps.event.addListener(autocomplete, 'place_changed', function () {
             var place = this.getPlace();
-
             options.beforePlaceChange();
-
-            if (place.address_components) {
-                // triggered by choosing a suggestion
-                that._onNewPlace.call(that, place, options);
-            } else {
-                // triggered by hitting 'return' on input. try to geocode the first suggestion and select it.
-                var first_suggestion = $(".pac-container .pac-item:first").addClass("pac-selected").text();
-                log("nothing selected, geocoding suggestion: " + first_suggestion);
-
-                var $input = $("#" + options.id_textinput);
-                // blur before entering text to prevent new suggestions from showing up
-                $input.blur().val(first_suggestion);
-                that.geocode(first_suggestion, function (results, status) {
-                    if (status == google.maps.GeocoderStatus.OK && results.length) {
-                        that._onNewPlace.call(that, results[0], options);
-                    }
-                });
-            }
+            that._onNewPlace.call(that, place, options);
         });
 
         return autocomplete;
@@ -749,8 +731,7 @@ var GoogleGeocodingHelper = Object.create({
             this.reverseGeocode(place.geometry.location.lat(), place.geometry.location.lng(), function (results, status) {
                 var rev_result;
                 if (status == google.maps.GeocoderStatus.OK && results.length) {
-                    log("reverse geocode results: ");
-                    log(results);
+                    log("reverse geocode results:", results, "for place:", place);
                     rev_result = GoogleGeocodingHelper._checkValidPickupAddress(results[0], options.id_textinput);
                 } else {
                     log("Geocoder failed due to: " + status);
@@ -854,7 +835,7 @@ var GoogleGeocodingHelper = Object.create({
             else if (type == "route")
                 street_address = component.long_name;
             else if (type == 'street_number')
-                house_number = component.long_name;
+                house_number = component.short_name; // normalized field
         });
 
         if (place.geometry && place.geometry.location){
@@ -885,7 +866,12 @@ var GoogleGeocodingHelper = Object.create({
                 $.each(place.address_components, function (i, component) {
                         if (component.types && $.inArray('street_number', component.types) > -1) {
                             // get the lower street number of the range
-                            component.short_name = component.long_name.split("-")[0];
+                            var range = component.long_name.split("-");
+                            if (range.length == 2){
+                                var low = range[0];
+                                var high = range[1];
+                                component.short_name = parseInt((high-low)/2); // take the middle house number
+                            }
                             place.formatted_address = place.formatted_address.replace(component.long_name, component.short_name);
                         }
                     }
@@ -948,7 +934,7 @@ var GoogleMapHelper = Object.create({
         }
         else {
             this.map.setCenter(latLng);
-            this.map.setZoom(17);
+            this.map.setZoom(15);
         }
 
     },
