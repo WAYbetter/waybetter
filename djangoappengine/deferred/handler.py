@@ -1,5 +1,8 @@
 # Initialize Django
-from djangoappengine import main
+try:
+    from djangoappengine import main
+except ImportError, e:
+    pass
 
 from django.utils.importlib import import_module
 from django.conf import settings
