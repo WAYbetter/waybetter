@@ -205,10 +205,10 @@
             <div id="booking_progress" class="hidden">
                 <table>
                     <tr>
-                        <td><a class="hotspot step current" data-name="hotspot">1. {% trans "Choose Hotspot" %}</a></td>
-                        <td><a class="address step disabled" data-name="address">2. {% trans "Enter Address" %}</a></td>
-                        <td><a class="datetime step disabled" data-name="datetime">3. {% trans "Choose Time" %}</a></td>
-                        <td><a class="details step disabled" data-name="details">4. {% trans "Get Offer" %}</a></td>
+                        <td><a href="#" class="hotspot step current" data-name="hotspot">1. {% trans "Choose Hotspot" %}</a></td>
+                        <td><a href="#" class="address step disabled" data-name="address">2. {% trans "Enter Address" %}</a></td>
+                        <td><a href="#" class="datetime step disabled" data-name="datetime">3. {% trans "Choose Time" %}</a></td>
+                        <td><a href="#" class="details step disabled" data-name="details">4. {% trans "Get Offer" %}</a></td>
                     </tr>
                 </table>
 
@@ -952,7 +952,9 @@
                 $summary.find(".address .name").text(BookingHelper.address.name);
                 $summary.find(".address .desc").text("");
                 $summary.find(".hotspot .name").text(BookingHelper.hotspot.name);
-                $summary.find(".hotspot .desc").text("(" + BookingHelper.hotspot.description + ")");
+                if (BookingHelper.hotspot.description) {
+                    $summary.find(".hotspot .desc").text("(" + BookingHelper.hotspot.description + ")");
+                }
                 $summary.find(".when .desc").text(BookingHelper.ride_date + " " + BookingHelper.ride_time);
                 if (BookingHelper.hotspot_type == PICKUP) {
                     $summary.find(".when .details_label").text(BookingHelper.messages.pickup_time + ":");
