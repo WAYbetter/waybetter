@@ -1,3 +1,4 @@
+import random
 from django.contrib.auth.models import User
 from ordering.models import Order
 from suds.client import Client
@@ -105,15 +106,18 @@ def _create_order_stop(order):
     order_stop = _create_ISR_object("Order_Stop")
     order_stop.Address = _create_stop_address(order)
 
+    # the pickup order, same as Order_Stop.Stop_Order, change when ISR supports more than 1 stop
+    stop_number = 0
+
     key_value_string_passenger = _create_array_object("KeyValueOfstringPassanger8pH_SfiQv")
-    key_value_string_passenger.Key = 1 # the pickup order, same as Order_Stop.Stop_Order
+    key_value_string_passenger.Key = stop_number
     key_value_string_passenger.Value = _create_passenger(order.passenger)
 
     array_of_string_passenger = _create_array_object("ArrayOfKeyValueOfstringPassanger8pH_SfiQv")
     array_of_string_passenger.KeyValueOfstringPassanger8pH_SfiQv.append(key_value_string_passenger)
 
     order_stop.Passangers = array_of_string_passenger
-    order_stop.Stop_Order = 1 # change when ISR supports more than 1 stop
+    order_stop.Stop_Order = stop_number
     order_stop.Stop_Time = datetime.datetime.now().isoformat() # TODO: set order pickup time
 
     return order_stop
@@ -127,13 +131,15 @@ def _create_external_order(order):
     ex_order.Contact_Phone = "1234"
     ex_order.Customer = _create_customer_data(order.passenger)
     ex_order.External_Order_ID = _get_external_id(order)
+    ex_order.Prefered_Operator_ID = 8 # waybetter operator id
+#    ex_order.Prefered_Vehicle_ID = -1
 
     ex_order.Start_Time = (datetime.datetime.now() + datetime.timedelta(hours=1)).isoformat() # TODO: set order pickup time
     ex_order.Finish_Time = (datetime.datetime.now() + datetime.timedelta(hours=2)).isoformat() # TODO: set order dropoff time
 
     order_stop = _create_order_stop(order)
     key_value_string_order_stop = _create_array_object("KeyValueOfstringOrder_Stop8pH_SfiQv")
-    key_value_string_order_stop.Key = 1 # the pickup order, same as Order_Stop.Stop_Order
+    key_value_string_order_stop.Key = 0 # the pickup order, same as Order_Stop.Stop_Order
     key_value_string_order_stop.Value = order_stop
 
     array_of_string_order_stop = _create_array_object("ArrayOfKeyValueOfstringOrder_Stop8pH_SfiQv")
@@ -152,10 +158,9 @@ def _insert_external_order(order):
     return client.service.Insert_External_Order(_get_login_token(), ex_order)
 
 def insert_external_order():
-    order = None
-    for order in Order.objects.filter(debug=True):
-        if order.passenger:
-            break
+    idx = random.randrange(1, 30)
+    logging.info("random idx: %s" % idx)
+    order = Order.objects.filter(debug=True)[idx]
 
     return _insert_external_order(order)
 
