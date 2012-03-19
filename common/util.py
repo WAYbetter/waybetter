@@ -601,10 +601,12 @@ def add_formatted_date_fields(classes):
                 setattr(model, f.name + "_format", format_datefield(f))
 
 
-def safe_fetch(url, payload=None, method=GET, headers={},
+def safe_fetch(url, payload=None, method=GET, headers=None,
                allow_truncated=False, follow_redirects=True,
                deadline=None, validate_certificate=None, notify=True):
     res = None
+    if not headers: headers = {}
+
     try:
         res = fetch(url, payload, method, headers, allow_truncated, follow_redirects, deadline, validate_certificate)
     except Exception, e:

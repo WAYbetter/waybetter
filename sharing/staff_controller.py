@@ -287,6 +287,7 @@ def calc_kpi_data(start_date, end_date, channel_id, token):
             "all_credit_card_users": BillingInfo.objects.count(),
             "average_sharing": round(float(len(shared_rides_with_sharing)) / len(shared_rides) * 100,
                                      2) if shared_rides else "No Shared Rides",
+            "shared_rides": len(shared_rides) if shared_rides else "No Shared Rides",
             "income": round(sum([bt.amount for bt in all_trx]), 2),
             "expenses": sum([sr.value for sr in shared_rides])
         }
