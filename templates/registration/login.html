@@ -1,16 +1,22 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
 {% load value_from_settings %}
+{% block htmlclass %}login_page{% endblock %}
 
 {% block extrastyle %}
     {{ block.super }}
     <style>
-        #top-container, #site-content {
-            width: 650px;
+        #site-content{
+            width: 350px;
+            padding: 25px 15px;
         }
-
-        #site-content {
-            padding: 35px 25px;
+        #top-container{
+            width: 380px;
+        }
+        label {
+            padding-right: 15px;
+            font-weight: bold;
+            font-size: 13px;
         }
 
         .centered {
@@ -25,20 +31,21 @@
             margin: 0 auto;
         }
 
-        label {
-            padding-right: 15px;
-            font-weight: bold;
-            font-size: 13px;
-        }
-
         .rtl label {
             padding-right: 0;
             padding-left: 15px;
         }
 
         #id_username, #id_password {
-            width: 100%;
-            /*width: 250px;*/
+            width: 200px;
+        }
+
+        .spacer-row {
+            height: 25px;
+        }
+
+        #buttons{
+            padding-top: 15px;
         }
 
         .login-button-row {
@@ -49,12 +56,8 @@
             text-align: left;
         }
 
-        .login-input-row td, .login-button-row td {
-            padding: 10px 0;
-        }
-
-        #join_btn_cntr td {
-            padding: 25px 0;
+        .login-button-row.join, .hr-spacer{
+            padding-top: 20px;
         }
 
         #not_member_text {
@@ -115,10 +118,8 @@
         <tr>
             <td>
                 {{ form.non_field_errors }}
-
-
-                <table>
-                    <form method="post" id="login-form">{% csrf_token %}
+                <form method="post" id="login-form">{% csrf_token %}
+                    <table class="full-width">
                         <input type="hidden" name="next" value="{{ next }}"/>
                         <input type="hidden" name="token" id="id_token">
 
@@ -130,46 +131,50 @@
                                 <input type="email" name="username" id="id_username"/>
                             </td>
                         </tr>
+                        <tr class="spacer-row"></tr>
                         <tr class="login-input-row">
                             <td>
                                 <label for="id_password">{% trans 'Password' %}:</label>
                             </td>
                             <td>
                                 <input type="password" name="password" id="id_password"/>
-
-{#                                <p>{% trans "Forgot password" %}#}
-{#                                    <a class="wb_link" href="{% url auth_password_reset %}">{% trans "Click Here" %}</a>#}
-{#                                </p>#}
-
                             </td>
                         </tr>
-                        <tr class="login-button-row">
+                        <tr class="forgot-password-row">
                             <td></td>
                             <td>
-                                <input type="submit" class="wb_button" value="{% trans 'Login' %}"/>
+                                {% trans "Forgot password" %}
+                                <a class="wb_link" href="{% url sharing.passenger_controller.verify_passenger %}">{% trans "Click Here" %}</a>
                             </td>
                         </tr>
-                    </form>
+                    </table>
 
-                    <tr id="join_btn_cntr" class="login-button-row">
-                        <td></td>
-                        <td>
+                    <div id="buttons">
+                        <div class="login-button-row">
+                            <input type="submit" class="wb_button blue" value="{% trans 'Login' %}"/>
+                        </div>
+
+                        <div class="hr-spacer"></div>
+
+                        <div class="login-button-row join">
                             <span id="not_member_text" class="bold">{% trans "Not a WAYbetter member" %}?</span>
-                            <button id="join_btn" class="wb_button blue">{% trans "Join Now" %}</button>
-                        </td>
-                    </tr>
-                </table>
+                            <button id="join_btn" class="wb_button">{% trans "Join Now" %}</button>
+                        </div>
+                    </div>
+                </form>
+
             </td>
-            <td class="vrule-cntr">
-                <div class="vrule"></div>
-                <div class="or centered">{% trans "OR" %}</div>
-                <div class="vrule"></div>
-            </td>
-            <td>
-{#                <a id="fb_login_button" href="{% value_from_settings FACEBOOK_LOGIN_LINK %}"></a>#}
-                <a id="fb_login_button"></a>
-                <div style="text-align: center">{% trans "Coming Soon" %}...</div>
-            </td>
+{#            <td class="vrule-cntr">#}
+{#                <div class="vrule"></div>#}
+{#                <div class="or centered">{% trans "OR" %}</div>#}
+{#                <div class="vrule"></div>#}
+{#            </td>#}
+{#            <td>#}
+                {#                <a id="fb_login_button" href="{% value_from_settings FACEBOOK_LOGIN_LINK %}"></a>#}
+{#                <a style="color: #BCBCBC" id="fb_login_button"></a>#}
+{##}
+{#                <div style="text-align: center; color: #BCBCBC">{% trans "Coming Soon" %}...</div>#}
+{#            </td>#}
         </tr>
 
     </table>
@@ -182,6 +187,7 @@
             });
 
             $("#join_btn").click(function (e) {
+                e.preventDefault();
                 window.location.href = "{% url join %}";
             });
         });
@@ -204,3 +210,5 @@
 
     </script>
 {% endblock %}
+
+{% block post_content %}{% endblock %}

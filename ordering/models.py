@@ -15,7 +15,7 @@ from django.contrib.sessions.models import Session
 from django.utils import  translation
 from django.contrib.auth import login
 from djangotoolbox.fields import BlobField, ListField
-from common.models import BaseModel, Country, City, CityArea, CityAreaField
+from common.models import BaseModel, Country, City, CityArea, CityAreaField, obj_by_attr
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now, format_dt
@@ -32,6 +32,7 @@ import datetime
 import common.urllib_adaptor as urllib2
 
 SHARING_TIME_FACTOR = 1.25
+SHARING_TIME_MINUTES = 8
 
 ORDER_HANDLE_TIMEOUT =                      80 # seconds
 ORDER_TEASER_TIMEOUT =                      19 # seconds
@@ -96,24 +97,30 @@ class StopType(Enum):
     DROPOFF = 1
 
 class OrderType(Enum):
-    PRIVATE     = 1
-    SHARED      = 2
+    PICKMEAPP     = 0
+    PRIVATE       = 1
+    SHARED        = 2
 
 class Station(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
     name = models.CharField(_("station name"), max_length=50)
     license_number = models.CharField(_("license number"), max_length=30)
-    website_url = models.URLField(_("website"), max_length=255, null=True, blank=True, verify_exists=False)
+    website_url = models.URLField(_("website"), max_length=255, null=True, blank=True)
     number_of_taxis = models.IntegerField(_("number of taxis"), max_length=4)
     description = models.TextField(_("description"), max_length=5000, null=True, blank=True)
     logo = BlobField(_("logo"), null=True, blank=True)
     language = models.IntegerField(_("language"), choices=LANGUAGE_CHOICES, default=0)
     show_on_list = models.BooleanField(_("show on list"), default=False)
     subdomain_name = models.CharField(_("subdomain name"), max_length=50, blank=True, null=True, unique=True)
-    app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True, verify_exists=False)
-    app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True, verify_exists=False)
+    app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True)
+    app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True)
 
     unique_id = models.CharField(_("unique id"), max_length=64, default=generate_random_token_64, editable=False)
+    itunes_app_url = models.URLField(max_length=255, null=True, blank=True)
+    market_app_url = models.URLField(max_length=255, null=True, blank=True)
+
+    # google cloud print integration
+    printer_id = models.CharField(_("printer id"), max_length=64, null=True, blank=True)
 
     last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
                                             default=datetime.datetime(1, 1, 1))
@@ -132,8 +139,8 @@ class Station(BaseModel):
     lon = models.FloatField(_("longtitude"), null=True)
     lat = models.FloatField(_("latitude"), null=True)
 
-    app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True, verify_exists=False)
-    app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True, verify_exists=False)
+    app_icon_url = models.URLField(_("app icon"), max_length=255, null=True, blank=True)
+    app_splash_url = models.URLField(_("app splash"), max_length=255, null=True, blank=True)
 
     number_of_ratings = models.IntegerField(_("number of ratings"), default=0)
     average_rating = models.FloatField(_("average rating"), default=0.0)
@@ -721,7 +728,7 @@ class WorkStation(BaseModel):
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="work_stations")
     token = models.CharField(_("token"), max_length=50, null=True, blank=True)
-    installer_url = models.URLField(_("installer URL"), verify_exists=False, max_length=500, null=True, blank=True)
+    installer_url = models.URLField(_("installer URL"), max_length=500, null=True, blank=True)
     was_installed = models.BooleanField(_("was installed"), default=False)
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
     accept_unconfined_orders = models.BooleanField(default=True, help_text="Accept orders not confined to a station e.g., booked from PickMeApp")
@@ -841,6 +848,45 @@ RATING_CHOICES = ((0, ugettext("Unrated")),
                   (4, ugettext("Good")),
                   (5, ugettext("Perfect")))
 
+class Device(BaseModel):
+    """
+    A Device: identified by a udid (generated using uniqueIdentifier)
+    """
+    udid = models.CharField(_("udid"), max_length=64)
+    gudid = models.CharField(_("gudid"), max_length=64, null=True, blank=True)
+
+    origin = models.CharField(_("origin"), max_length=64, default="organic")
+
+    @classmethod
+    def by_udid(cls, udid):
+        return obj_by_attr(cls, "udid", udid)
+
+    def __unicode__(self):
+        return u"[%d] %s" % (self.id or 0, self.udid)
+
+class InstalledApp(BaseModel):
+    """
+    An application on a specific device. The app_udid is unique for a device and bundle ID
+    """
+    app_udid = models.CharField(_("app udid"), max_length=64)
+    name = models.CharField(_("name"), max_length=100)
+    user_agent = models.CharField(_("user agent"), max_length=250, null=True, blank=True)
+
+    blocked = models.BooleanField(_("blocked"), default=False)
+
+    install_count = models.IntegerField(_("install count"), default=1)
+
+    passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="installed_apps", null=True, blank=True)
+    device = models.ForeignKey(Device, verbose_name=_("device"), related_name="installed_apps", null=True, blank=True)
+
+    @classmethod
+    def by_app_udid(cls, app_udid):
+        return obj_by_attr(cls, "app_udid", app_udid)
+
+    def __unicode__(self):
+        return u"[%d] %s" % (self.id or 0, self.app_udid)
+
+
 
 class Order(BaseModel):
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="orders", null=True, blank=True)
@@ -887,7 +933,10 @@ class Order(BaseModel):
     # this field holds the data as typed by the user
     to_raw = models.CharField(_("to address"), max_length=50, null=True, blank=True)
 
-    type = models.IntegerField(choices=OrderType.choices() ,default=OrderType.PRIVATE)
+    type = models.IntegerField(choices=OrderType.choices(), default=OrderType.PICKMEAPP)
+
+    installed_app = models.ForeignKey(InstalledApp, verbose_name=_("installed_app"), related_name="orders", null=True,
+                                      blank=True)
 
     # pickmeapp fields
     pickup_time = models.IntegerField(_("pickup time"), null=True, blank=True)
@@ -994,7 +1043,7 @@ class Order(BaseModel):
 
         elif self.computation.hotspot_arrive_time: # to Hotspot, pickup time is estimated
             ride_duration_sec = (self.arrive_time - self.depart_time).seconds
-            sharing_dprt = self.arrive_time - datetime.timedelta(seconds=ride_duration_sec * SHARING_TIME_FACTOR)
+            sharing_dprt = self.arrive_time - datetime.timedelta(seconds=ride_duration_sec + SHARING_TIME_MINUTES * 60)
 
             d = _("Today") if self.depart_time.date() == default_tz_now().date() else self.depart_time.strftime("%d/%m/%Y")
             pickup_str = u"%s, %s-%s" % (d, sharing_dprt.strftime("%H:%M"), self.depart_time.strftime("%H:%M"))
@@ -1124,7 +1173,9 @@ class OrderAssignment(BaseModel):
                        "from_raw": order_assignment.pickup_address_in_ws_lang or order_assignment.dn_from_raw,
                        "to_raw": order_assignment.dropoff_address_in_ws_lang or order_assignment.dn_to_raw,
                        "seconds_passed": (utc_now() - base_time).seconds,
-                       "current_rating": order_assignment.station.average_rating
+                       "current_rating": order_assignment.station.average_rating,
+                       "passenger_phone": order_assignment.order.passenger_phone
+
             }
 
             if order_assignment.dn_business_name: # assigning a business order

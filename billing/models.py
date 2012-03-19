@@ -53,6 +53,9 @@ class BillingTransaction(BaseModel):
     dn_dropoff = models.CharField(_("dropoff"), max_length=255)
     dn_pickup_time = UTCDateTimeField(_("pickup time"))
 
+    def __unicode__(self):
+        return "BillingTransaction [%s] %s" % (self.id, self.get_status_display())
+
     @property
     def amount_in_cents(self):
         return int(self.amount * 100)

@@ -1,6 +1,5 @@
 {% extends "wb_base.html" %}
 {% load i18n %}
-{% load value_from_settings %}
 
 {% block body %}
     <div id="toolbar">
@@ -143,7 +142,7 @@
         }
 
         function renderComputation(computation) {
-            var admin_link = '<a class="wb_link" href="{% value_from_settings DEFAULT_DOMAIN %}/admin/ordering/ridecomputation/' + computation.id + '">' + computation.id + '</a>';
+            var admin_link = '<a class="wb_link" href="/admin/ordering/ridecomputation/' + computation.id + '">' + computation.id + '</a>';
             var $div = $('<div class="c_header clickable" id="c_header_' + computation.id + '">' + computation.time + ' ' + computation.dir + '</div>')
                     .append('<span class="c_desc">' + admin_link + ' [' + computation.status + ']' + '</span>');
             var $table = $('<table class="c_table collapsed" id="c_table_' + computation.id + '"></table>');

@@ -2,17 +2,105 @@
   font-family: "Lucida Grande", Arial, sans-serif;
   color: #3d3d3d; }
 
+.ltr {
+  direction: ltr; }
+
+.rtl body {
+  direction: rtl; }
+
 body {
   padding: 0;
   margin: 0; }
 
+.bold, .wb_home #booking_content_container #booking_progress .step.current, .wb_home #booking_content_container #booking_progress .step.completed.current, .wb_home #booking_content_container #ride_summary .details_label, .wb_home #booking_content_container #ride_summary .details_label_type, .user_profile .label-cntr, .user_profile .initial-value, .user_profile .new-value {
+  font-weight: bold; }
+
+.transparent {
+  zoom: 1;
+  filter: alpha(opacity=50);
+  opacity: 0.5; }
+
+.clear {
+  clear: both;
+  height: 0;
+  overflow: hidden; }
+
+.disabled {
+  color: #bcbcbc;
+  cursor: default;
+  opacity: 0.5;
+  text-decoration: none; }
+
+.hidden {
+  display: none; }
+
+.error, .errorlist li {
+  color: red; }
+
+.clickable, .dropdown-trigger, .wb_button, .wb_home #booking_content_container #booking_progress .step, .wb_home #booking_content_container #ride_summary .data, #gcf_dialog .dl-browser .img {
+  cursor: pointer; }
+
+.td-label {
+  padding-right: 15px;
+  font-weight: bold;
+  font-size: 13px; }
+
+.rtl .td-label {
+  padding-right: 0;
+  padding-left: 15px; }
+
+.wb-tooltip {
+  z-index: 1000; }
+
+.small-loader, .myrides-tip-content .tooltip_loader {
+  background: url(/static/images/wb_site/wb_loader16.gif) left 0 no-repeat;
+  height: 16px;
+  width: 16px; }
+
+.hr-spacer {
+  border-bottom: 1px solid #bcbcbc; }
+
+.centered {
+  margin: 0 auto; }
+
+.full-width {
+  width: 100%; }
+
+.align-farend {
+  text-align: right; }
+
+.rtl .align-farend {
+  text-align: left; }
+
+.align-closend {
+  text-align: left; }
+
+.rtl .align-closend {
+  text-align: right; }
+
+.float-farend {
+  float: right; }
+
+.rtl .float-farend {
+  float: left; }
+
 input[type=text], input[type=email], input[type=password] {
   border: 1px solid #bcbcbc;
-  height: 28px; }
+  height: 28px;
+  padding: 0 8px; }
 
 input[disabled] {
   background: white;
   opacity: 0.5; }
+
+.placeheld {
+  color: #6c6c6a; }
+
+input::-webkit-input-placeholder {
+  color: #6c6c6a; }
+
+input:-moz-placeholder {
+  color: #6c6c6a; }
 
 .wb-menulist, select {
   -moz-appearance: menulist;
@@ -37,42 +125,14 @@ input[disabled] {
   filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#ffffff', endColorstr='#cfcfcf',GradientType=0 );
   /* IE6-9 */ }
 
+input.wb-menulist {
+  text-align: center; }
+
 select {
   border: 1px solid #bcbcbc; }
 
 select:focus {
   border: none; }
-
-.bold, .wb_home #booking_content_container #booking_progress .step.current, .wb_home #booking_content_container #booking_progress .step.completed.current, .wb_home #booking_content_container #ride_summary .details_label, .wb_home #booking_content_container #ride_summary .details_label_type, .user_profile .label-cntr, .user_profile .initial-value, .user_profile .new-value {
-  font-weight: bold; }
-
-.transparent {
-  zoom: 1;
-  filter: alpha(opacity=50);
-  opacity: 0.5; }
-
-.placeheld {
-  color: #6c6c6a; }
-
-input::-webkit-input-placeholder {
-  color: #6c6c6a; }
-
-input:-moz-placeholder {
-  color: #6c6c6a; }
-
-a:hover {
-  text-decoration: none; }
-
-.ltr {
-  direction: ltr; }
-
-.rtl body {
-  direction: rtl; }
-
-.clear {
-  clear: both;
-  height: 0;
-  overflow: hidden; }
 
 ul.hz > li, #top-right ul.content_links > li {
   list-style: none;
@@ -84,7 +144,6 @@ ul.hz > li, #top-right ul.content_links > li {
   margin-right: 45px; }
 
 .wbdropdown-list {
-  display: block;
   list-style: none;
   background: #FFFFFF;
   border: 1px solid #AAAAAA;
@@ -119,26 +178,8 @@ ul.hz > li, #top-right ul.content_links > li {
 .rtl .dropdown-trigger.white {
   background-position: left -7px; }
 
-.disabled {
-  color: #bcbcbc;
-  cursor: default;
-  opacity: 0.5;
+a:hover {
   text-decoration: none; }
-
-.hidden {
-  display: none; }
-
-.centered {
-  margin: 0 auto; }
-
-.error, .errorlist li {
-  color: red; }
-
-.errorlist li {
-  list-style: none; }
-
-.clickable, .dropdown-trigger, .wb_button, .wb_home #booking_content_container #booking_progress .step, .wb_home #booking_content_container #ride_summary .data, #gcf_dialog .dl-browser .img {
-  cursor: pointer; }
 
 .wb_link, .wb_home #booking_content_container #ride_summary #switch_direction {
   color: #0088CC !important;
@@ -156,50 +197,9 @@ ul.hz > li, #top-right ul.content_links > li {
 .menu_link:hover {
   text-decoration: underline; }
 
-.wb-tooltip {
-  z-index: 1000; }
-
-@-webkit-keyframes flash_fade {
-  0%, 100% {
-    opacity: 0; }
-
-  10% {
-    opacity: 1.0; } }
-
-#flash {
-  display: none; }
-
-#flash.show {
-  display: block;
-  position: fixed;
-  top: 10px;
-  left: 50%;
-  color: black;
-  background-color: #fafad2;
-  text-align: center;
-  padding: 10px 25px;
-  border-radius: 7px;
-  -webkit-border-radius: 7px;
-  border: 1px solid #b8860b;
-  /*margin-left: -halfthewidthofcontainer*/
-  -webkit-animation-name: flash_fade;
-  -webkit-animation-iteration-count: 1;
-  -webkit-animation-timing-function: ease-in-out;
-  -webkit-animation-duration: 5s;
-  opacity: 0;
-  z-index: 1000; }
-
-#flash.error, .errorlist li#flash {
-  color: white;
-  background-color: #8b0000;
-  border: 1px solid red; }
-
-.small-loader, .myrides-tip-content .tooltip_loader {
-  background: url(/static/images/wb_site/wb_loader16.gif) left 0 no-repeat;
-  height: 16px;
-  width: 16px; }
-
 .wb_button {
+  position: relative;
+  bottom: 1px;
   border: #454545;
   color: white;
   padding: 0 15px;
@@ -209,9 +209,9 @@ ul.hz > li, #top-right ul.content_links > li {
   -webkit-border-radius: 3px;
   -moz-border-radius: 3px;
   border-radius: 3px;
-  -webkit-box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.7);
-  -moz-box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.7);
-  box-shadow: 0px 2px 3px 1px rgba(0, 0, 0, 0.7);
+  -webkit-box-shadow: 0px 1px 2px 0 rgba(0, 0, 0, 0.9);
+  -moz-box-shadow: 0px 1px 2px 0 rgba(0, 0, 0, 0.9);
+  box-shadow: 0px 1px 2px 0 rgba(0, 0, 0, 0.9);
   background-image: #727272;
   /* Old browsers */
   background-image: -moz-linear-gradient(top, #727272 0%, #454545 100%);
@@ -268,11 +268,14 @@ ul.hz > li, #top-right ul.content_links > li {
   /* IE6-9 */ }
 
 .wb_button:disabled, .wb_button.disabled {
+  bottom: 0;
   border: none;
   background: #C7C7C7;
   -webkit-box-shadow: none;
   -moz-box-shadow: none;
-  box-shadow: none; }
+  box-shadow: none;
+  cursor: default;
+  opacity: 0.4; }
 
 .wb_button.blue {
   background: #49aad7;
@@ -286,7 +289,7 @@ ul.hz > li, #top-right ul.content_links > li {
   background: -moz-linear-gradient(-90deg, #50b9ea, #298acf);
   -pie-background: linear-gradient(-90deg, #50b9ea, #298acf); }
 
-.wb_button.blue:active, .wb_button.blue:disabled {
+.wb_button.blue:active, .wb_button.blue:disabled, .wb_button.blue.disabled {
   background: #3199df; }
 
 .order_button {
@@ -358,6 +361,48 @@ ul.hz > li, #top-right ul.content_links > li {
   width: 100%;
   height: 22px;
   opacity: 0.5; }
+
+@-webkit-keyframes flash_fade {
+  0%, 100% {
+    opacity: 0; }
+
+  10% {
+    opacity: 1.0; } }
+
+#flash {
+  display: none; }
+
+#flash.show {
+  display: block;
+  position: fixed;
+  top: 10px;
+  left: 50%;
+  color: black;
+  background-color: #fafad2;
+  text-align: center;
+  padding: 10px 25px;
+  border-radius: 7px;
+  -webkit-border-radius: 7px;
+  border: 1px solid #b8860b;
+  /*margin-left: -halfthewidthofcontainer*/
+  -webkit-animation-name: flash_fade;
+  -webkit-animation-iteration-count: 1;
+  -webkit-animation-timing-function: ease-in-out;
+  -webkit-animation-duration: 5s;
+  opacity: 0;
+  z-index: 1000; }
+
+#flash.error, .errorlist li#flash {
+  color: white;
+  background-color: #8b0000;
+  border: 1px solid red; }
+
+.errorlist {
+  margin: 0;
+  padding: 0; }
+
+.errorlist li {
+  list-style: none; }
 
 /*
 jQuery UI override
@@ -484,6 +529,12 @@ body.base-site {
   margin: 0 auto 50px auto;
   position: relative;
   font-size: 11px; }
+
+.small-site-content #site-content, .verify-passenger #site-content, .change-credentials #site-content {
+  width: 480px;
+  padding: 25px; }
+.small-site-content #top-container, .verify-passenger #top-container, .change-credentials #top-container {
+  width: 500px; }
 
 #footer-container {
   position: relative;
@@ -767,7 +818,7 @@ Home
     height: 600px; }
   .wb_home #site-footer #sitemap {
     margin-bottom: 0; }
-  .wb_home #myrides_container, .wb_home #mobile_apps {
+  .wb_home #myrides_container, .wb_home #mobile_apps, .wb_home #media_banner {
     margin-bottom: 27px; }
   .wb_home #myrides_container {
     width: 800px;
@@ -801,10 +852,10 @@ Home
     .wb_home #mobile_apps .container {
       width: 100%; }
     .wb_home #mobile_apps .img {
-      width: 183px;
+      width: 210px;
       height: 111px;
-      background: url("/static/images/wb_site/mobile_banner.png") left top no-repeat;
-      padding: 5px 65px; }
+      background: url("/static/images/wb_site/mobile_banner_bg.png") left top no-repeat;
+      padding: 5px 25px; }
     .wb_home #mobile_apps .title {
       font-size: 16px; }
     .wb_home #mobile_apps .content {
@@ -822,6 +873,52 @@ Home
     .wb_home #mobile_apps .vr {
       height: 70px;
       border-left: 1px solid #bcbcbc; }
+  .wb_home #media_banner {
+    width: 800px;
+    background: white;
+    -webkit-border-radius: 6px;
+    -moz-border-radius: 6px;
+    border-radius: 6px;
+    -webkit-box-shadow: 0 0 6px 0 #747474;
+    -moz-box-shadow: 0 0 6px 0 #747474;
+    box-shadow: 0 0 6px 0 #747474;
+    width: 750px;
+    padding: 15px 25px 20px; }
+    .wb_home #media_banner .title {
+      font-size: 18px;
+      height: 30px; }
+    .wb_home #media_banner .media-link {
+      display: inline-block;
+      width: 130px;
+      height: 60px;
+      background: url("/static/images/wb_site/media_logos.png") top left no-repeat;
+      opacity: 0.7;
+      padding-right: 23px;
+      -webkit-transition: opacity 0.3s ease-in;
+      -moz-transition: opacity 0.3s ease-in;
+      -o-transition: opacity 0.3s ease-in;
+      -ms-transition: opacity 0.3s ease-in;
+      transition: opacity 0.3s ease-in; }
+    .wb_home #media_banner .media-link:hover {
+      opacity: 1; }
+    .wb_home #media_banner .media-link.timeout {
+      width: 75px;
+      background-position: center 0px; }
+    .wb_home #media_banner .media-link.themarker {
+      width: 121px;
+      background-position: center -95px; }
+    .wb_home #media_banner .media-link.mako {
+      width: 136px;
+      background-position: center -190px; }
+    .wb_home #media_banner .media-link.channel10 {
+      width: 57px;
+      background-position: center -285px; }
+    .wb_home #media_banner .media-link.nrg {
+      width: 109px;
+      background-position: center -380px; }
+    .wb_home #media_banner .media-link.globes {
+      width: 96px;
+      background-position: center -475px; }
   .wb_home #map_container {
     position: relative;
     width: 100%;
@@ -1156,7 +1253,7 @@ Home
 .rtl.wb_home #cm-map {
   direction: ltr; }
 .rtl.wb_home #mobile_apps .img {
-  background: url("/static/images/wb_site/mobile_banner_rtl.png") right top no-repeat; }
+  background: url("/static/images/wb_site/mobile_banner_rtl_bg.png") right top no-repeat; }
 .rtl.wb_home .slidesContainer {
   direction: ltr; }
 .rtl.wb_home .booking_step {
@@ -1239,11 +1336,23 @@ Account
 /*
 Registration
 /*********************************************/
-.registration #site-content, .credit_guard_page #site-content {
-  padding: 10px 25px; }
+.registration #verification_status, .verify-passenger #verification_status {
+  width: 30px;
+  height: 30px;
+  display: inline-block;
+  position: relative;
+  top: 10px; }
+.registration #verification_status.success, .verify-passenger #verification_status.success {
+  background: url("/static/images/wb_site/verification_status.png") left 0 no-repeat; }
+.registration #verification_status.error, .registration .errorlist li#verification_status, .errorlist .registration li#verification_status, .verify-passenger #verification_status.error, .verify-passenger .errorlist li#verification_status, .errorlist .verify-passenger li#verification_status {
+  background: url("/static/images/wb_site/verification_status.png") left -30px no-repeat; }
+.registration #verification_status.sending, .verify-passenger #verification_status.sending {
+  background: url("/static/images/wb_site/loader24.gif") left 0 no-repeat; }
+
 .registration #progress, .credit_guard_page #progress {
   width: 100%;
-  padding-bottom: 10px;
+  padding-top: 5px;
+  padding-bottom: 15px;
   font-size: 11px; }
   .registration #progress .step, .credit_guard_page #progress .step {
     text-align: center;
@@ -1262,10 +1371,13 @@ Registration
   font-size: 16px;
   font-weight: bold; }
 
+.registration #site-content {
+  width: 600px;
+  padding: 10px 25px; }
+.registration .header-row {
+  padding-bottom: 20px; }
 .registration #auth_step {
   width: 100%; }
-  .registration #auth_step .header-row td {
-    padding-bottom: 38px; }
   .registration #auth_step .vrule-cntr {
     padding: 0 20px; }
   .registration #auth_step .login {
@@ -1273,7 +1385,8 @@ Registration
   .registration #auth_step .fb {
     width: 40%;
     vertical-align: middle;
-    text-align: center; }
+    text-align: center;
+    color: #bcbcbc; }
   .registration #auth_step #fb_login_button {
     width: 100%;
     height: 22px;
@@ -1300,17 +1413,19 @@ Registration
     .registration #auth_step #user_details th {
       text-align: left; }
     .registration #auth_step #user_details input {
-      width: 100%; }
-    .registration #auth_step #user_details tr {
-      height: 55px; }
+      width: 266px; }
+    .registration #auth_step #user_details .input-row {
+      height: 60px; }
     .registration #auth_step #user_details th {
       width: 100px;
       padding-top: 10px; }
     .registration #auth_step #user_details td, .registration #auth_step #user_details th {
       vertical-align: top; }
   .registration #auth_step #terms_container {
-    text-align: right;
-    padding-top: 8px; }
+    position: relative;
+    bottom: 9px; }
+    .registration #auth_step #terms_container input {
+      width: auto; }
 .registration #next_container {
   width: 100%;
   text-align: right;
@@ -1319,29 +1434,17 @@ Registration
   margin-right: 20px; }
 .registration #phone_step {
   width: 100%; }
+.registration #phone_form label {
+  font-weight: bold; }
 .registration #phone_form .cntr {
-  height: 50px;
+  height: 60px;
   label-display: inline-block;
   label-width: 100px; }
-.registration #local_phone {
-  width: 245px; }
 .registration #sms_button_container {
   display: inline-block; }
 .registration #didnt_get_code {
   padding-top: 6px;
   text-align: center; }
-.registration #verification_status {
-  width: 30px;
-  height: 30px;
-  display: inline-block;
-  position: relative;
-  top: 11px; }
-.registration #verification_status.success {
-  background: url("/static/images/wb_site/verification_status.png") left 0 no-repeat; }
-.registration #verification_status.error, .registration .errorlist li#verification_status, .errorlist .registration li#verification_status {
-  background: url("/static/images/wb_site/verification_status.png") left -30px no-repeat; }
-.registration #verification_status.sending {
-  background: url("/static/images/wb_site/loader24.gif") left 0 no-repeat; }
 .registration .sms-img {
   width: 320px;
   height: 245px;
@@ -1352,8 +1455,6 @@ Registration
   text-align: left; }
 .rtl.registration #auth_step #user_details th {
   text-align: right; }
-.rtl.registration #auth_step #terms_container {
-  text-align: left; }
 .rtl.registration #next_container {
   text-align: left; }
 .rtl.registration #bottom_login {
@@ -1363,6 +1464,8 @@ Registration
   background: url("/static/images/wb_site/sms_heb.png") left 0 no-repeat;
   float: left; }
 
+.credit_guard_page #site-content {
+  padding: 10px 25px; }
 .credit_guard_page .spacer.bottom {
   margin-bottom: 10px; }
 .credit_guard_page #wb_lock {
@@ -1496,8 +1599,6 @@ Registration
 .user_profile .action-cntr {
   text-align: right;
   padding-right: 25px; }
-.user_profile input {
-  padding: 0 8px; }
 
 .rtl.user_profile .button-row {
   text-align: left; }
@@ -1505,6 +1606,24 @@ Registration
   text-align: left;
   padding-right: auto;
   padding-left: 25px; }
+
+.verify-passenger .message-row {
+  height: 15px; }
+.verify-passenger .spacer-row {
+  height: 10px; }
+.verify-passenger #send_code {
+  min-width: 140px; }
+.verify-passenger #next_container {
+  padding-top: 15px; }
+
+.change-credentials #credentials input {
+  width: 200px; }
+.change-credentials #credentials .error-row {
+  height: 20px; }
+.change-credentials #credentials .spacer-row {
+  height: 10px; }
+.change-credentials #btn_cntr {
+  padding-top: 15px; }
 
 /*
 Info pages

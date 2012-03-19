@@ -68,6 +68,12 @@ class Enum(object):
     def get_name(cls, value):
         return cls._item_names()[cls._items().index(value)]
 
+    @classmethod
+    def from_string(cls, str):
+        for item_name in cls._item_names():
+            if item_name == str:
+                return getattr(cls, item_name)
+
 class Polygon(object):
     def __init__(self, points):
         self.polygon = list(split_to_tuples(points, 2))
@@ -386,7 +392,7 @@ def get_unique_id():
 
 
 def notify_by_email(subject, msg=None, html=None, attachments=None):
-    send_mail_as_noreply("notify@waybetter.com", "WAYbetter notification: %s" % subject, msg=msg, html=html, attachments=attachments)
+    send_mail_as_noreply("notify@waybetter.com", "WB notify: %s" % subject, msg=msg, html=html, attachments=attachments)
 
 def send_mail_as_noreply(address, subject, msg=None, html=None, attachments=None):
     logging.info(u"Sending email to %s: [%s] %s" % (address, subject, msg))

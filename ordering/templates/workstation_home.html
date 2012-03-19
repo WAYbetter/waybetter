@@ -317,6 +317,12 @@
         font-weight: normal;
     }
 
+    #orders .phone {
+        color: white;
+        font-weight: normal;
+        padding: 0 10px;
+    }
+
    	#orders .pb-row {
         height: 14px;
         padding-right: 2.5%;
@@ -903,6 +909,9 @@
             var address_text = order.from_raw;
             if (order.to_raw){
                 address_text = order.from_raw + "<span class='to_address'> >> " + order.to_raw + "</span>";
+            }
+            if (order.passenger_phone) {
+                address_text += "<span class='phone'>(" + order.passenger_phone + ")</span>" ;
             }
 
             var info_div = $("<div class='addresses'></div>")

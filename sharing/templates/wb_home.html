@@ -248,6 +248,18 @@
                 {% include "myrides_tooltips.html" %}
             </div>
         </div>
+    {% else %}
+        <div id="media_banner">
+            <div class="title bold">{% trans "WAYbetter on the news" %}</div>
+            <div class="ltr centered">
+                <a class="media-link timeout"></a>
+                <a class="media-link themarker" href="http://www.themarker.com/smartphones/applications/1.1610397" target="_blank"></a>
+                <a class="media-link mako" href="http://www.mako.co.il/digital-magazine/Article-c1e7ee20983c431006.htm" target="_blank"></a>
+                <a class="media-link channel10" href="http://net.nana10.co.il/Article/?ArticleID=854004" target="_blank"></a>
+                <a class="media-link nrg" href="http://www.nrg.co.il/online/1/ART2/320/004.html?hp=1&cat=459" target="_blank"></a>
+                <a class="media-link globes" href="http://www.globes.co.il/news/article.aspx?did=1000621642" target="_blank"></a>
+            </div>
+        </div>
     {% endif %}
 
     <div id="mobile_apps">
@@ -317,6 +329,8 @@
     var PICKUP = "pickup",
         DROPOFF = "dropoff",
         SHARING_TIME_FACTOR = {{ sharing_time_factor }},
+        SHARING_TIME_MINUTES = {{ sharing_time_minutes }},
+        SHARING_CONSTRAINT = "{{ sharing_constraint }}",
         BOOKING_STEPS = ["hotspot", "address", "datetime", "details"];
 
     var RTL = false;
@@ -690,7 +704,13 @@
 
                     var ride_duration_ms = HotspotHelper.ride_duration * 1000;
                     var est_pickup_private = new Date(d - ride_duration_ms);
-                    var est_pickup_shared = new Date(d - ride_duration_ms * SHARING_TIME_FACTOR);
+                    var est_pickup_shared;
+                    if (SHARING_CONSTRAINT == "factor") {
+                        est_pickup_shared = new Date(d - ride_duration_ms * SHARING_TIME_FACTOR)
+                    }
+                    else if (SHARING_CONSTRAINT == "minutes") {
+                        est_pickup_shared = new Date(d - (ride_duration_ms + SHARING_TIME_MINUTES * 60 * 1000))
+                    }
                     var time_txt = getFullTime(est_pickup_shared) + "-" + getFullTime(est_pickup_private);
                     var text = (d.getDate() == est_pickup_shared.getDate()) ?
                             time_txt : getFullDate(est_pickup_shared) + " {% trans 'at' %} " + time_txt;

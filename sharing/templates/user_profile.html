@@ -19,7 +19,12 @@
                     <tr class="details-row">
                     <td class="label-cntr">{{ entry.label }}:</td>
                     <td class="value-cntr">
-                        <span id="value_{{ entry.name }}" class="initial-value">{{ entry.value }}</span>
+                        <span id="value_{{ entry.name }}" class="initial-value">
+                        {% if entry.name == 'billing' %}
+                            &#x200E; {# force LTR for card repr #}
+                        {% endif %}
+                            {{ entry.value }}
+                        </span>
                         <input id="input_{{ entry.name }}" type="text" name="{{ entry.name }}" class="new-value hidden">
                     </td>
 
@@ -32,12 +37,12 @@
                 {% endif %}
             </tr>
             {% endfor %}
-{#            <tr class="details-row">#}
-{#                <td class="label">{% trans "Password" %}:</td>#}
-{#                <td colspan="2">#}
-{#                    <a class="wb_link disabled">{% trans "Reset Password" %}</a>#}
-{#                </td>#}
-{#            </tr>#}
+            <tr class="details-row">
+                <td class="label-cntr">{% trans "Password" %}:</td>
+                <td colspan="2">
+                    <a href="{% url sharing.passenger_controller.change_credentials %}" class="wb_link">{% trans "Reset Password" %}</a>
+                </td>
+            </tr>
 
             <tr class="button-row">
                 <td colspan="3">
@@ -83,7 +88,18 @@
                 window.location.href = "{% url sharing.passenger_controller.registration step='phone'%}";
             });
             $("#change_billing").click(function () {
-                window.location.href = "{{ billing_url }}";
+
+                $(this).text("{% trans "Sending" %}...").removeClass("wb_link");
+                $.ajax({
+                    url: "{% url sharing.passenger_controller.get_billing_url %}",
+                    dataType: "json",
+                    success: function(response){
+                        window.location.href = response.billing_url;
+                    },
+                    error: function(){
+                        $("#change_billing").text("{% trans "Error" %}").removeClass("wb_link").addClass("error");
+                    }
+                });
             });
         })
     </script>

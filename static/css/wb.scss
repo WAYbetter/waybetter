@@ -38,6 +38,14 @@ $color-error: #CC162A;
     box-shadow: $r;
 }
 
+@mixin transition($r){
+    -webkit-transition: $r;
+    -moz-transition: $r;
+    -o-transition: $r;
+    -ms-transition: $r;
+    transition: $r;
+}
+
 @mixin site-container(){
     width: $site-width;
     background: white;
@@ -50,14 +58,109 @@ $color-error: #CC162A;
     color: $dark-gray;
 }
 
+.ltr{
+    direction: ltr;
+}
+.rtl body {
+    direction: rtl;
+}
+
 body{
     padding: 0;
     margin: 0;
 }
 
+// wb custom classes
+.bold {
+    font-weight: bold;
+}
+
+.transparent {
+    zoom: 1;
+    filter: alpha(opacity=50);
+    opacity: 0.5;
+}
+
+.clear {
+    clear: both;
+    height: 0;
+    overflow: hidden;
+}
+
+.disabled{
+    color: $color-disabled;
+    cursor: default;
+    opacity: 0.5;
+    text-decoration: none;
+}
+
+.hidden{
+    display: none;
+}
+
+.error{
+    color: red;
+}
+
+.clickable{
+    cursor: pointer;
+}
+
+.td-label {
+    padding-right: 15px;
+    font-weight: bold;
+    font-size: $font-size-medium;
+}
+.rtl .td-label{
+    padding-right: 0;
+    padding-left: 15px;
+}
+
+.wb-tooltip{
+    z-index: 1000;
+}
+
+.small-loader{
+    background: url(/static/images/wb_site/wb_loader16.gif) left 0 no-repeat;
+    height: 16px;
+    width: 16px;
+}
+
+.hr-spacer{
+    border-bottom: 1px solid $light-gray;
+}
+
+// aligning made easy
+.centered{
+    margin: 0 auto;
+}
+.full-width{
+    width: 100%;
+}
+.align-farend{
+    text-align: right;
+}
+.rtl .align-farend{
+    text-align: left;
+}
+.align-closend{
+    text-align: left;
+}
+.rtl .align-closend{
+    text-align: right;
+}
+.float-farend{
+    float: right;
+}
+.rtl .float-farend{
+    float: left;
+}
+
+// inputs
 input[type=text], input[type=email], input[type=password]{
     border: 1px solid $light-gray;
     height: 28px;
+    padding: 0 8px;
 }
 
 input[disabled]{
@@ -65,6 +168,17 @@ input[disabled]{
     opacity: 0.5;
 }
 
+.placeheld {
+    color: $color-gray;
+}
+input::-webkit-input-placeholder {
+    color: $color-gray;
+}
+input:-moz-placeholder {
+    color: $color-gray;
+}
+
+// select
 .wb-menulist{
     -moz-appearance: menulist;
     -webkit-appearance: menulist;
@@ -82,6 +196,9 @@ input[disabled]{
     background: linear-gradient(top, #ffffff 0%,#cfcfcf 100%); /* W3C */
     filter: progid:DXImageTransform.Microsoft.gradient( startColorstr='#ffffff', endColorstr='#cfcfcf',GradientType=0 ); /* IE6-9 */
 }
+input.wb-menulist{
+    text-align: center;
+}
 select{
     border: 1px solid $light-gray;
     @extend .wb-menulist;
@@ -90,43 +207,7 @@ select:focus{
      border: none;
 }
 
-.bold {
-    font-weight: bold;
-}
-
-.transparent {
-        zoom: 1;
-        filter: alpha(opacity=50);
-        opacity: 0.5;
-}
-
-.placeheld {
-    color: $color-gray;
-}
-input::-webkit-input-placeholder {
-    color: $color-gray;
-}
-input:-moz-placeholder {
-    color: $color-gray;
-}
-
-a:hover{
-    text-decoration: none;
-}
-
-.ltr{
-    direction: ltr;
-}
-.rtl body {
-    direction: rtl;
-}
-
-.clear {
-    clear: both;
-    height: 0;
-    overflow: hidden;
-}
-
+// horizontal list
 ul.hz{
     > li{
         list-style: none;
@@ -141,8 +222,8 @@ ul.hz{
     }
 }
 
+// dropdown list
 .wbdropdown-list{
-    display: block;
     list-style: none;
     background: #FFFFFF;
     border: 1px solid #AAAAAA;
@@ -160,7 +241,6 @@ ul.hz{
         text-decoration: none;
     }
 }
-
 .dropdown-trigger{
     background: url("/static/images/wb_site/dropdown.png") right 3px no-repeat;
     padding-right: 13px;
@@ -175,31 +255,9 @@ ul.hz{
 .dropdown-trigger.white{ background-position: right -7px; }
 .rtl .dropdown-trigger.white{ background-position: left -7px; }
 
-.disabled{
-    color: $color-disabled;
-    cursor: default;
-    opacity: 0.5;
+// links
+a:hover{
     text-decoration: none;
-}
-
-.hidden{
-    display: none;
-}
-
-.centered{
-    margin: 0 auto;
-}
-
-.error{
-    color: red;
-}
-.errorlist li{
-    list-style: none;
-    @extend .error;
-}
-
-.clickable{
-    cursor: pointer;
 }
 
 .wb_link{
@@ -219,59 +277,11 @@ ul.hz{
 .menu_link:hover{
     text-decoration: underline;
 }
-.wb-tooltip{
-    z-index: 1000;
-}
 
-@-webkit-keyframes flash_fade {
-    0%, 100% {
-        opacity: 0;
-    }
-    10% {
-        opacity: 1.0;
-    }
-}
-
-
-#flash {
-    display: none;
-}
-
-#flash.show {
-    display: block;
-    position: fixed;
-    top: 10px;
-    left: 50%;
-    color: black;
-    background-color: #fafad2;
-    text-align: center;
-    padding: 10px 25px;
-    border-radius: 7px;
-    -webkit-border-radius: 7px;
-    border: 1px solid #b8860b;
-
-    /*margin-left: -halfthewidthofcontainer*/
-    -webkit-animation-name: flash_fade;
-    -webkit-animation-iteration-count: 1;
-    -webkit-animation-timing-function: ease-in-out;
-    -webkit-animation-duration: 5s;
-    opacity: 0;
-    z-index: 1000;
-
-}
-#flash.error {
-    color: white;
-    background-color: #8b0000;
-    border: 1px solid red;
-}
-
-.small-loader{
-    background: url(/static/images/wb_site/wb_loader16.gif) left 0 no-repeat;
-    height: 16px;
-    width: 16px;
-}
-
+// buttons
 .wb_button{
+    position: relative;
+    bottom: 1px; // the box shadow makes the button look higher
     border: #454545;
     color: white;
     padding: 0 15px;;
@@ -280,7 +290,7 @@ ul.hz{
     font-size: $font-size-medium;
     @extend .clickable;
     @include border-radius(3px);
-    @include box-shadow(0px 2px 3px 1px rgba(0, 0, 0, 0.7));
+    @include box-shadow(0px 1px 2px 0 rgba(0, 0, 0, 0.9));
     background-image: #727272; /* Old browsers */
     background-image: -moz-linear-gradient(top, #727272 0%, #454545 100%); /* FF3.6+ */
     background-image: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#727272), color-stop(100%,#454545)); /* Chrome,Safari4+ */
@@ -316,9 +326,12 @@ ul.hz{
 }
 
 .wb_button:disabled, .wb_button.disabled {
+    bottom: 0;
     border: none;
     background: #C7C7C7;
     @include box-shadow(none);
+    cursor: default;
+    opacity: 0.4;
 }
 
 .wb_button.blue {
@@ -336,7 +349,7 @@ ul.hz{
     -pie-background: linear-gradient(-90deg, #50b9ea, #298acf);
 }
 
-.wb_button.blue:active, .wb_button.blue:disabled {
+.wb_button.blue:active, .wb_button.blue:disabled, .wb_button.blue.disabled {
     background: #3199df;
 }
 
@@ -396,6 +409,59 @@ ul.hz{
     background: url("/static/images/wb_site/fb_login_button.png") center center no-repeat;
     @include size(100%, 22px);
     opacity: 0.5;
+}
+
+// wb flash message
+@-webkit-keyframes flash_fade {
+    0%, 100% {
+        opacity: 0;
+    }
+    10% {
+        opacity: 1.0;
+    }
+}
+
+
+#flash {
+    display: none;
+}
+
+#flash.show {
+    display: block;
+    position: fixed;
+    top: 10px;
+    left: 50%;
+    color: black;
+    background-color: #fafad2;
+    text-align: center;
+    padding: 10px 25px;
+    border-radius: 7px;
+    -webkit-border-radius: 7px;
+    border: 1px solid #b8860b;
+
+    /*margin-left: -halfthewidthofcontainer*/
+    -webkit-animation-name: flash_fade;
+    -webkit-animation-iteration-count: 1;
+    -webkit-animation-timing-function: ease-in-out;
+    -webkit-animation-duration: 5s;
+    opacity: 0;
+    z-index: 1000;
+
+}
+#flash.error {
+    color: white;
+    background-color: #8b0000;
+    border: 1px solid red;
+}
+
+// django forms errorlist
+.errorlist{
+    margin: 0;
+    padding: 0;
+}
+.errorlist li{
+    list-style: none;
+    @extend .error;
 }
 
 /*
@@ -529,6 +595,16 @@ body.base-site{
     margin: 0 auto 50px auto;
     position: relative;
     font-size: $font-size-small;
+}
+
+.small-site-content{
+    #site-content {
+        width: 480px;
+        padding: 25px;
+    }
+    #top-container {
+        width: 500px;
+    }
 }
 
 #footer-container{
@@ -854,7 +930,7 @@ Home
         margin-bottom: 0;
     }
 
-    #myrides_container, #mobile_apps { margin-bottom: 40px - $site-content-offset; }
+    #myrides_container, #mobile_apps, #media_banner { margin-bottom: 40px - $site-content-offset; }
 
     #myrides_container{
         @include site-container();
@@ -878,9 +954,9 @@ Home
             width: 100%;
         }
         .img{
-            @include size(183px, 111px);
-            background: url("/static/images/wb_site/mobile_banner.png") left top no-repeat;
-            padding: 5px 65px;
+            @include size(210px, 111px);
+            background: url("/static/images/wb_site/mobile_banner_bg.png") left top no-repeat;
+            padding: 5px 25px;
         }
         .title{
             font-size: $font-size-large;
@@ -898,6 +974,33 @@ Home
             height: 70px;
             border-left: 1px solid $light-gray;
         }
+    }
+    #media_banner{
+        @include site-container();
+        width: 750px;
+        padding: 15px 25px 20px;
+        .title{
+            font-size: $font-size-header1;
+            height: 30px;
+        }
+        $offset: -95px;
+        .media-link{
+            display: inline-block;
+            @include size(130px, 60px);
+            background: url("/static/images/wb_site/media_logos.png") top left no-repeat;
+            opacity: 0.7;
+            padding-right: 23px;
+            @include transition(opacity 0.3s ease-in);
+        }
+        .media-link:hover{
+            opacity: 1;
+        }
+        .media-link.timeout{ width: 75px; background-position: center 0*$offset }
+        .media-link.themarker{ width: 121px; background-position: center 1*$offset }
+        .media-link.mako{ width: 136px; background-position: center 2*$offset }
+        .media-link.channel10{ width: 57px; background-position: center 3*$offset }
+        .media-link.nrg{ width: 109px; background-position: center 4*$offset }
+        .media-link.globes{ width: 96px; background-position: center 5*$offset }
     }
 
     #map_container {
@@ -1290,7 +1393,7 @@ Home
 
     #mobile_apps{
         .img{
-            background: url("/static/images/wb_site/mobile_banner_rtl.png") right top no-repeat;
+            background: url("/static/images/wb_site/mobile_banner_rtl_bg.png") right top no-repeat;
         }
     }
 
@@ -1392,12 +1495,25 @@ Account
 /*
 Registration
 /*********************************************/
+.registration, .verify-passenger{
+    #verification_status{
+        width: 30px;
+        height: 30px;
+        display: inline-block;
+        position: relative;
+        top: 10px;
+    }
+    #verification_status.success { background: url("/static/images/wb_site/verification_status.png") left 0 no-repeat; }
+    #verification_status.error { background: url("/static/images/wb_site/verification_status.png") left -30px no-repeat; }
+    #verification_status.sending { background: url("/static/images/wb_site/loader24.gif") left 0 no-repeat; }
+}
+
 .registration, .credit_guard_page{
     $space: 10px;
-    #site-content { padding: $space 25px;}
     #progress{
         width: 100%;
-        padding-bottom: $space;
+        padding-top: 5px;
+        padding-bottom: 15px;
         font-size: 11px;
         .step{ text-align: center; color: $light-gray;}
         .step.current{ font-weight: bold; color: black;}
@@ -1413,17 +1529,24 @@ Registration
 
 .registration{
     $space: 10px;
+    #site-content {
+        width: 600px;
+        padding: $space 25px;
+    }
 
     // auth step
+    .header-row{
+        padding-bottom: 20px;
+    }
     #auth_step{
         width: 100%;
-        .header-row td{ padding-bottom: 38px; }
         .vrule-cntr{ padding: 0 2*$space;}
         .login{text-align: right;}
         .fb{
             width: 40%;
             vertical-align: middle;
             text-align: center;
+            color: $light-gray;
         }
         #fb_login_button{
             @include size(100%, 22px);
@@ -1454,14 +1577,17 @@ Registration
         #user_details{
             width: 100%;
             th {text-align: left};
-            input { width: 100%; }
-            tr { height: 55px; }
+            input { width: 266px; }
+            .input-row { height: 60px; }
             th { width: 100px; padding-top: 10px;}
             td, th { vertical-align: top; }
         }
         #terms_container{
-            text-align: right;
-            padding-top: 8px;
+            position: relative;
+            bottom: 9px;
+            input{
+                width: auto;
+            }
         }
     }
     #next_container {
@@ -1475,15 +1601,15 @@ Registration
 
     // phone step
     #phone_step{ width: 100%; }
+    #phone_form label{
+        font-weight: bold;
+    }
     #phone_form .cntr{
-        height: 50px;
+        height: 60px;
         label: {
             display: inline-block;
             width: 100px;
         }
-    }
-    #local_phone{
-        width: 245px;
     }
     #sms_button_container{
         display: inline-block;
@@ -1492,17 +1618,6 @@ Registration
         padding-top: 6px;
         text-align: center;
     }
-    #verification_status{
-        width: 30px;
-        height: 30px;
-        display: inline-block;
-        position: relative;
-        top: 11px;
-    }
-    #verification_status.success { background: url("/static/images/wb_site/verification_status.png") left 0 no-repeat; }
-    #verification_status.error { background: url("/static/images/wb_site/verification_status.png") left -30px no-repeat; }
-    #verification_status.sending { background: url("/static/images/wb_site/loader24.gif") left 0 no-repeat; }
-
     .sms-img{
         @include size(320px, 245px);
         background: url("/static/images/wb_site/sms_eng.png") left 0 no-repeat;
@@ -1515,9 +1630,6 @@ Registration
         .login{text-align: left;}
         #user_details{
             th {text-align: right};
-        }
-        #terms_container{
-            text-align: left;
         }
     }
     #next_container {
@@ -1536,6 +1648,7 @@ Registration
 }
 
 .credit_guard_page{
+    #site-content { padding: 10px 25px;}
     .spacer.bottom{
         margin-bottom: 10px;
     }
@@ -1714,9 +1827,6 @@ Registration
         text-align: right;
         padding-right: 25px;
     }
-    input{
-        padding: 0 8px;
-    }
 }
 .rtl.user_profile{
     .button-row{
@@ -1728,6 +1838,41 @@ Registration
         padding-left: 25px;
     }
 }
+
+.verify-passenger{
+    @extend .small-site-content;
+    .message-row {
+        height: 15px;
+    }
+    .spacer-row {
+        height: 10px;
+    }
+    #send_code {
+        min-width: 140px;
+    }
+    #next_container {
+        padding-top: 15px;
+    }
+}
+
+.change-credentials{
+    @extend .small-site-content;
+    #credentials{
+        input{
+            width: 200px;
+        }
+        .error-row{
+            height: 20px;
+        }
+        .spacer-row{
+            height: 10px;
+        }
+    }
+    #btn_cntr{
+        padding-top: 15px;
+    }
+}
+
 /*
 Info pages
 ****************************************************/

@@ -239,7 +239,7 @@ def create_invoice_passenger(passenger):
 
 def update_invoice_passenger(passenger):
     if not passenger.invoice_id:
-        logging.error("skipping update of invoice info, no invoice_id for passenger %s" % passenger.id)
+        logging.info("skipping update of invoice info, no invoice_id for passenger %s" % passenger.id)
         return False
 
     action_payload = {
