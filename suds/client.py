@@ -107,8 +107,7 @@ class Client(object):
         options.transport = HttpAuthenticated()
         self.options = options
 
-        options.cache = NoCache() #patch: appengine
-        # options.cache = ObjectCache(days=1)
+        options.cache = ObjectCache(days=1)
 
         self.set_options(**kwargs)
         reader = DefinitionsReader(options, Definitions)
