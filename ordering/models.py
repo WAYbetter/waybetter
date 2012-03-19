@@ -19,6 +19,7 @@ from common.models import BaseModel, Country, City, CityArea, CityAreaField, obj
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now, format_dt
+from fleet.models import FleetManager
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
 from sharing.signals import ride_status_changed_signal
@@ -128,6 +129,11 @@ class Station(BaseModel):
     confine_orders = models.BooleanField(_("confine orders"), default=False)
     sms_drivers = models.BooleanField(_("send sms to drivers"), default=False)
     vouchers_emails = models.CharField(_("voucher emails"), max_length=255, null=True, blank=True)
+
+    _fleet_manager = models.ForeignKey(FleetManager, verbose_name=_("fleet manager"), related_name="stations", null=True, blank=True)
+    @property
+    def fleet_manager(self):
+        return self._fleet_manager.backend
 
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")

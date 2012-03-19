@@ -4,7 +4,7 @@ from django.template.context import RequestContext
 from django.utils import simplejson
 from djangotoolbox.http import JSONResponse
 from suds.client import Client
-from backends import isr_v2 as isr_backend
+from fleet import isr_tests
 import inspect
 import logging
 
@@ -25,7 +25,7 @@ def isr_view(request):
         result = ""
         method_name = request.POST.get("method_name")
         try:
-            method = getattr(isr_backend, method_name)
+            method = getattr(isr_tests, method_name)
             args = inspect.getargspec(method)[0]
             values = [request.POST.get(arg) for arg in args]
             result = method(*values)
@@ -42,10 +42,10 @@ def isr_view(request):
     else:
         methods = []
         method_type = type(lambda x: x)
-        for attr_name in dir(isr_backend):
+        for attr_name in dir(isr_tests):
             if attr_name.startswith("_"):
                 continue
-            attr = getattr(isr_backend, attr_name)
+            attr = getattr(isr_tests, attr_name)
             if type(attr) == method_type:
                 args = inspect.getargspec(attr)[0]
                 methods.append({'name': attr.func_name, 'args': args, 'doc': attr.func_doc or ""})
