@@ -5,7 +5,7 @@
 {% block pre_content %}
     <div id="map_container">
 
-        <div id="cm-map"></div>
+        <div id="map_canvas"></div>
 
         <div id="banner">
             <div id="banner_content" class="hidden">
@@ -66,27 +66,12 @@
 
                     <table>
                         <tr>
-                            <td class="cntr city">
-                                <label for="id_city">{% trans "City" %}</label>
-                                <select id="id_city" name="id_city">
-                                    {% for city in cities %}
-                                        <option value="{{ city.id }}">{{ city.name }}</option>
-                                    {% endfor %}
-                                </select>
-
-                            </td>
                             <td class="cntr street">
-                                <label for="id_street_address">{% trans "Street" %}</label>
+                                <label for="id_street_address">{% trans "Address or Point of Interest" %}</label>
                                 <div class="cntr input">
-                                    <input type="text" id="id_street_address" name="street_address"/>
-                                    <div id="street_loader" class="small-loader"></div>
+                                    <input type="text" id="id_street_address" name="street_address" placeholder=""/>
                                 </div>
-                                <div id="street_error" class="error"></div>
-                            </td>
-                            <td class="cntr hn">
-                                <label for="id_house_number">{% trans "House No" %}</label>
-                                <input type="text" id="id_house_number" name="house_number"/>
-                                <div id="house_number_error" class="error"></div>
+                                <div id="street_help_text"></div>
                             </td>
                             <td class="cntr btn">
                                 <button id="set_address" class="wb_button">{% trans "Next" %} >></button>
@@ -220,10 +205,10 @@
             <div id="booking_progress" class="hidden">
                 <table>
                     <tr>
-                        <td><a class="hotspot step current" data-name="hotspot">1. {% trans "Choose Hotspot" %}</a></td>
-                        <td><a class="address step disabled" data-name="address">2. {% trans "Enter Address" %}</a></td>
-                        <td><a class="datetime step disabled" data-name="datetime">3. {% trans "Choose Time" %}</a></td>
-                        <td><a class="details step disabled" data-name="details">4. {% trans "Get Offer" %}</a></td>
+                        <td><a href="#" class="hotspot step current" data-name="hotspot">1. {% trans "Choose Hotspot" %}</a></td>
+                        <td><a href="#" class="address step disabled" data-name="address">2. {% trans "Enter Address" %}</a></td>
+                        <td><a href="#" class="datetime step disabled" data-name="datetime">3. {% trans "Choose Time" %}</a></td>
+                        <td><a href="#" class="details step disabled" data-name="details">4. {% trans "Get Offer" %}</a></td>
                     </tr>
                 </table>
 
@@ -313,8 +298,53 @@
 {% endblock %}
 
 {% block scripts %}
+    <script>
+    (function placesAutoCompletePatch(){
+        var input = document.getElementById("id_street_address");
+
+        // store the original binding function
+        var _addEventListener = (input.addEventListener) ? input.addEventListener : input.attachEvent;
+
+        function addEventWrapper() {
+            var type = arguments[0];
+            var listener = arguments[1];
+
+            // if binding a keydown event, replace the passed listener with a wrapped listener
+            if (type == "keydown") {
+                arguments[1] = function wrappedListener() {
+                    var event = arguments[0];
+
+                    // when hitting 'return' trigger a 'down arrow' first
+                    if (event.which == 13) {
+                        arguments[0] = $.Event("keydown", {keyCode:40, which:40});
+                        listener.apply(input, arguments);
+                    }
+
+                    // trigger the original event
+                    arguments[0] = event;
+                    listener.apply(input, arguments);
+                };
+            }
+
+            // add the (wrapped) listener
+            _addEventListener.apply(input, arguments);
+        }
+
+        if (input.addEventListener)
+            input.addEventListener = addEventWrapper;
+        else if (input.attachEvent)
+            input.attachEvent = addEventWrapper;
+    })();
+    </script>
+
+    {% if DEV %}
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
+    {% else %}
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key={% value_from_settings GOOGLE_API_BROWSER_KEY %}?libraries=places&sensor=false&language=he"></script>
+    {% endif %}
+
     {{ block.super }}
-    <script type="text/javascript" src="http://tile.cloudmade.com/wml/latest/web-maps-lite.js"></script>
+
     <script type="text/javascript" src="/static/js/mylibs/slides.js"></script>
 {% endblock %}
 
@@ -404,7 +434,7 @@
         selectHotspot();
         switchDirection(hotspot_type);
         stepCompleted("hotspot");
-        HotspotHelper.refreshHotspotMarker(hotspot_type);
+        HotspotHelper.refreshHotspotMarker(hotspot_type, true);
         if (hotspot_type == PICKUP) {
             logGAEvent("order", "set direction", "from hotspot");
         } else {
@@ -418,6 +448,14 @@
         else{
             showBookingStep("address");
         }
+    }
+
+    function refreshAddressMarker(){
+        GoogleMapHelper.removeMarker("A, B");
+        var marker_name = (BookingHelper.hotspot_type == PICKUP) ? "B" : "A";
+        var add_marker_method = "add" + marker_name + "Marker"; // addAMarker, addBMarker
+        GoogleMapHelper[add_marker_method](BookingHelper.address.lat, BookingHelper.address.lon, {title:BookingHelper.address.name});
+        return marker_name;
     }
 
     function switchDirection(direction) {
@@ -434,9 +472,8 @@
 
         HotspotHelper.refreshHotspotMarker(BookingHelper.hotspot_type);
         if (BookingHelper.address) {
-            CMHelper.removeMarker("A, B");
-            var add_marker_method = (BookingHelper.hotspot_type == PICKUP) ? "addBMarker" : "addAMarker";
-            CMHelper[add_marker_method](BookingHelper.address.lat, BookingHelper.address.lon, {title: BookingHelper.address.name});
+            refreshAddressMarker();
+            GoogleMapHelper.fitMarkers();
         }
 
         $("#ride_summary .dropoff .details_label").swapElement($("#ride_summary .pickup .details_label"));
@@ -600,7 +637,8 @@
             hotspot_type: BookingHelper.hotspot_type,
             hotspot_date: BookingHelper.ride_date,
             hotspot_time: BookingHelper.ride_time,
-            id_city: $("#id_city").val(),
+            id_city: "",
+            city_name: BookingHelper.address.city,
             street_address: BookingHelper.address.street_address,
             house_number: BookingHelper.address.house_number,
             lat: BookingHelper.address.lat,
@@ -667,13 +705,23 @@
         {% endif %}
 
 
-        CMHelper.init({
-            api_key: "{% value_from_settings "CLOUDMADE_API_KEY" %}",
-            center_lat: 32.115985,
-            center_lon: 34.835441
+        GoogleMapHelper.init({
+            map_element: 'map_canvas',
+            map_options:{
+                center:new google.maps.LatLng(32.115985, 34.835441),
+                scrollwheel: false,
+                streetViewControl: false,
+                keyboardShortcuts: false,
+                mapTypeId:google.maps.MapTypeId.ROADMAP
+            }
         });
 
+        // add bike layer to get a pretty map
+        var bikeLayer = new google.maps.BicyclingLayer();
+        bikeLayer.setMap(GoogleMapHelper.map);
+
         HotspotHelper.init({
+            MapHelper: GoogleMapHelper,
             selectors: {
                 hotspotpicker: "#id_hotspot_select",
                 datepicker: "#id_hotspot_datepicker",
@@ -725,22 +773,6 @@
             }
         });
 
-        AddressHelper.init({
-            urls:{
-                structured_resolve_url: "{% url sharing.passenger_controller.resolve_structured_address %}"
-            },
-            messages:{
-                choose_from_list: "{% trans "Please choose from list" %}"
-            }
-        });
-        AddressHelper.makeStructuredAddressInput("#id_city", "#id_street_address", "#id_house_number", "#street_loader",
-                {
-                    success: function() {
-                        $("#street_error").text("");
-                    }
-                }
-        );
-
         // init
         $(".small-loader").hide();
 
@@ -771,115 +803,92 @@
             setHotspot(DROPOFF);
         });
 
-        $("#id_city").change(function() {
-            logGAEvent("order", "set city", $(this).find("option:selected").text());
-        }).change();
-
         $("#leave_hotspot, #goto_hotspot").one("click", function(){showMap()});
 
         // address
-        $("#set_address").disable();
+        var id_address_input = "id_street_address";
+        var $address_input = $("#" + id_address_input);
+        var $help_text = $("#street_help_text");
+        var $set_address = $("#set_address");
+
         $("#address_content").bind("beforeshow", function() {
             var address = BookingHelper.address;
             var title = (BookingHelper.hotspot_type == PICKUP) ? "{% trans "Where are you going" %}?" : "{% trans "Where are you coming from" %}?";
             $(this).find(".title").text(title);
+            $address_input.focus();
             if (address){
-                $("#id_street_address").val(address.street_address);
-                $("#id_house_number").val(address.house_number);
-                $("#id_city").val(address.city);
-                $("#set_address").enable();
+                $address_input.val(address.name);
+                $set_address.enable();
             }
             else{
-                $("#set_address").disable();
-            }
-        });
-        $("#address_content input").keyup(function() {
-            var valid = Boolean($("#id_house_number").val() && $("#id_street_address").val());
-            if (valid) {
-                $("#set_address").enable();
-            }
-            else {
-                $("#set_address").disable();
-            }
-        });
-        $("#id_street_address").change(function(){
-            $("#street_error").text("");
-            logGAEvent("order", "choose street", $(this).val());
-
-        }).keydown(function(e) {
-            if (! street_address_logged) {
-                logGAEvent("order", "enter street");
-                street_address_logged = true;
-            }
-            if (e.keyCode == 9 && !e.shiftKey) { // on tab
-                e.preventDefault();
-                $("#id_house_number").focus();
+                $set_address.disable();
             }
         });
 
-        $("#id_house_number").change(function(){
-            $("#house_number_error").text("");
-            logGAEvent("order", "choose house number", $(this).val());
-        }).keydown(function(e) {
-            // prevent jumping from house number on 'tab' if next_btn is disabled
-            if (e.keyCode == 9 && !e.shiftKey && $("#set_address").is(":disabled")) {
-                e.preventDefault();
+        var address_input_value;
+        $address_input.keydown(function (e) {
+            address_input_value = $(this).val();
+        }).keyup(function (e) {
+            if (address_input_value != $(this).val()){
+                $set_address.disable();
+                if (e.which != 13){ // ignore 'return' hits that trigger select first behavior
+                    GoogleGeocodingHelper.showAutocomplete();
+                    $help_text.text("").removeClass("error");
+                }
             }
-            // submit on return
-            if (e.keyCode == 13) {
-                $("#set_address").trigger("click");
+        });
+        var address_ac = GoogleGeocodingHelper.newPlacesAutocomplete({
+            id_textinput: id_address_input,
+            map: GoogleMapHelper.map,
+            beforePlaceChange: function(){
+                $help_text.text("").removeClass("error");
+                $set_address.disable();
+            },
+            onValidAddress:function (address) {
+                BookingHelper.address = address;
+                var marker_name = refreshAddressMarker();
+                GoogleMapHelper.zoomMarker(marker_name);
+                $address_input.blur().val(address.name);
+                $set_address.enable().focus();
+            },
+            onMissingStreetNumber:function () {
+                var val = $address_input.val();
+                var street_text = val.substr(0, val.search(","));
+                var street_parts = street_text.split(" ");
+                var street_number = street_parts[street_parts.length -1];
+                if (street_number == undefined || street_number.search(/\d+/) == -1){
+                    // add space and place the caret after the street name
+                    val = val.replace(street_text, street_text + " ");
+                    $address_input.blur().val(val);
+                    var pos = val.search(",");
+                    document.getElementById(id_address_input).setSelectionRange(pos, pos);
+                    GoogleGeocodingHelper.hideAutocomplete();
+                }
+                // show error also when entered house number does not exist in street
+                $help_text.text("{% trans "Please enter a valid house number" %}.").addClass("error");
+            },
+            onNoValidPlace:function () {
+                $help_text.text("{% trans "We don't know where that is" %}.").addClass("error");
             }
         });
 
-        $("#set_address").click(function() {
+        $set_address.disable().click(function() {
             logGAEvent("order", "next button", "address");
+            $("#address_loader").show();
+            $("#set_address").disable();
 
-            AddressHelper.resolveStructured({
-                city_selector       : "#id_city",
-                street_input        : $("#id_street_address"),
-                hn_input            : $("#id_house_number"),
-                callbacks           :{
-                    beforeSend:function() {
-                        $("#address_loader").show();
-                        $("#set_address").disable();
-                        $("#street_error").text("");
-                        $("#house_number_error").text("");
-                    },
-                    resolved: function(address) {
-                        BookingHelper.address = address;
-                        CMHelper.removeMarker("A, B");
-                        if (BookingHelper.hotspot_type == PICKUP) {
-                            CMHelper.addBMarker(address.lat, address.lon, {title: address.name})
-                        }
-                        else {
-                            CMHelper.addAMarker(address.lat, address.lon, {title: address.name})
-                        }
-                        getHotspotTimes({
-                            onGotTimes: function() {
-                                $("#address_loader").hide();
-                                stepCompleted("address");
-                                showBookingStep("datetime");
-                                if ($("#set_datetime").is(":visible")) {
-                                    $("#set_datetime").focus();
-                                }
-                            },
-                            onNoTimes: function(){
-                                $("#address_loader").hide();
-                                $("#set_address").enable();
-                            }
-                        });
-                    },
-                    unresolved:function(errors) {
-                        $(".ui-autocomplete").hide();
-                        $("#address_loader").hide();
-                        $("#set_address").enable();
-                        if (errors.house_number) {
-                            $("#house_number_error").text(errors.house_number);
-                        }
-                        if (errors.street) {
-                            $("#street_error").text(errors.street);
-                        }
+            getHotspotTimes({
+                onGotTimes:function () {
+                    $("#address_loader").hide();
+                    stepCompleted("address");
+                    showBookingStep("datetime");
+                    if ($("#set_datetime").is(":visible")) {
+                        $("#set_datetime").focus();
                     }
+                },
+                onNoTimes:function () {
+                    $("#address_loader").hide();
+                    $("#set_address").enable();
                 }
             });
         });
@@ -907,6 +916,8 @@
 
             $("#datetime_content .title").text(title_text);
             $("label[for='id_hotspot_time']").text(label_text);
+
+            GoogleMapHelper.fitMarkers();
             logGAEvent("order", "choose date", $("#id_hotspot_datepicker").val());
         });
         $("#id_hotspot_datepicker").keydown(function(e) {
@@ -941,7 +952,9 @@
                 $summary.find(".address .name").text(BookingHelper.address.name);
                 $summary.find(".address .desc").text("");
                 $summary.find(".hotspot .name").text(BookingHelper.hotspot.name);
-                $summary.find(".hotspot .desc").text("(" + BookingHelper.hotspot.description + ")");
+                if (BookingHelper.hotspot.description) {
+                    $summary.find(".hotspot .desc").text("(" + BookingHelper.hotspot.description + ")");
+                }
                 $summary.find(".when .desc").text(BookingHelper.ride_date + " " + BookingHelper.ride_time);
                 if (BookingHelper.hotspot_type == PICKUP) {
                     $summary.find(".when .details_label").text(BookingHelper.messages.pickup_time + ":");
@@ -1026,7 +1039,8 @@
     // debug
 //    setTimeout(function() {
 //        $("#booking_content").slides("slide", 4);
-//    }, 1e3);
+//        $("#leave_hotspot").click();
+//    }, 2e3);
     </script>
 
 {% endblock %}

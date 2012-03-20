@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from common.util import DAY_OF_WEEK_CHOICES, FIRST_WEEKDAY, LAST_WEEKDAY, convert_python_weekday, datetimeIterator
 from common.models import BaseModel
 
+PRIVATE_RIDE_HANDLING_FEE = 0 #NIS
 
 class RuleSet(BaseModel):
     """
