@@ -24,23 +24,23 @@ def get_order_status(order_id):
 
 
 def server_server_timestamp():
-    return ISR.client.service.Server_Server_TimeStamp()
+    return ISR._get_client().service.Server_Server_TimeStamp()
 
 
 def server_server_version():
-    return ISR.client.service.Server_Server_Version()
+    return ISR._get_client().service.Server_Server_Version()
 
 
 def server_session_id():
-    return ISR.client.service.Server_Session_ID()
+    return ISR._get_client().service.Server_Session_ID()
 
 
 def server_test():
-    return ISR.client.service.Server_Test()
+    return ISR._get_client().service.Server_Test()
 
 
 def login():
-    return ISR.client.service.Login(ISR.USERNAME, ISR.PASSWORD)
+    return ISR._get_client().service.Login(ISR.USERNAME, ISR.PASSWORD)
 
 
 def get_taxi_recommendation():
@@ -50,9 +50,9 @@ def get_taxi_recommendation():
     order = Order.get_one()
     max_radius = 1000
     max_vehicles = 2
-    return ISR.client.service.Get_Taxi_Recommendation(ISR._get_login_token(), float(order.from_lat),
+    return ISR._get_client().service.Get_Taxi_Recommendation(ISR._get_login_token(), float(order.from_lat),
         float(order.from_lon), max_radius, max_vehicles)
 
 
 def get_available_operators():
-    return ISR.client.service.Get_Available_Operators(ISR._get_login_token())
+    return ISR._get_client().service.Get_Available_Operators(ISR._get_login_token())
