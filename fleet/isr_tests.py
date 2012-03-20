@@ -1,15 +1,51 @@
 import random
+from django.contrib.auth.models import User
+from django.conf import settings
+from common.geocode import gmaps_geocode as _geocode
+from common.models import City
 from ordering.models import Order
 import logging
 from fleet.backends.isr import ISR
 
-def create_order():
-    idx = random.randrange(1, 30)
-    logging.info("random idx: %s" % idx)
-    order = Order.objects.filter(debug=True)[idx]
+def create_order(address):
+    if not address:
+        return "Please choose a valid street address: street, house number and city"
 
-#    order = Order.by_id(5224)
-#    order.id = 646224
+    lat, lon, city, street, house_number = None, None, None, None, None
+    results = _geocode(address, lang_code="he")
+    if results:
+        result = results[0]
+        if "street_address" in result["types"]:
+            lat = result["geometry"]["location"]["lat"]
+            lon = result["geometry"]["location"]["lng"]
+
+            for component in result["address_components"]:
+                if "street_number" in component["types"]:
+                    house_number = component["short_name"]
+                if "route" in component["types"]:
+                    street = component["short_name"]
+                if "locality" in component["types"]:
+                    city_name = component["short_name"]
+                    city = City.objects.get(name=city_name)
+
+    if not all([lat, lon, city, street, house_number]):
+        return "Please choose a valid street address: street, house number and city"
+
+    if settings.LOCAL:
+        user = User.objects.get(username="waybetter_admin")
+    else:
+        user = User.objects.get(username="isr_tester@waybetter.com")
+
+    order = Order()
+    order.id = random.randrange(1, 999999)
+    order.from_raw = address
+    order.from_city = city
+    order.from_street_address = street
+    order.from_house_number = house_number
+    order.from_lat = lat
+    order.from_lon = lon
+    order.passenger = user.passenger
+
     return ISR.create_order(order)
 
 
@@ -19,8 +55,9 @@ def cancel_order(order_id):
 
 
 def get_order_status(order_id):
-    order = Order.by_id(order_id)
-    return ISR.get_order_status(order)
+    reply = ISR._get_client().service.Get_External_Order(ISR._get_login_token(), order_id)
+    status = reply.Get_External_OrderResult.Status
+    return status
 
 
 def server_server_timestamp():

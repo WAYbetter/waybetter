@@ -5,13 +5,20 @@
     <title>ISR Testing Page</title>
     <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
     <script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
     <style type="text/css">
-        .header{
+        .header {
             font-weight: bold;
             font-size: 22px;
         }
-        textarea{
-            width: 400px;
+
+        textarea {
+            width: 650px;
+            height: 300px;
+
+        }
+        #id_address{
+            width: 250px;
         }
     </style>
 </head>
@@ -36,17 +43,21 @@
 </body>
 <script type="text/javascript">
     $(function () {
+        var autocomplete = new google.maps.places.Autocomplete(document.getElementById("id_address"), {
+            types: ["geocode"]
+        });
+
         $.each($("form"), function (i, form) {
             var $target = $(form).next("textarea");
             $(form).ajaxForm({
-                dataType: "json",
-                beforeSubmit: function(formData, jqForm, options){
+                dataType:"json",
+                beforeSubmit:function (formData, jqForm, options) {
                     $target.val("Sending...");
                 },
-                success: function(responseText, statusText, xhr, $form){
+                success:function (responseText, statusText, xhr, $form) {
                     $target.val(responseText.result || "no data received");
                 },
-                error: function(jqXHR, textStatus, errorThrown){
+                error:function (jqXHR, textStatus, errorThrown) {
                     $target.val(errorThrown);
                 }
             });
