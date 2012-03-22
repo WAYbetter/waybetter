@@ -32,7 +32,7 @@ import datetime
 import common.urllib_adaptor as urllib2
 
 SHARING_TIME_FACTOR = 1.25
-SHARING_TIME_MINUTES = 8
+SHARING_TIME_MINUTES = 10
 
 ORDER_HANDLE_TIMEOUT =                      80 # seconds
 ORDER_TEASER_TIMEOUT =                      19 # seconds
