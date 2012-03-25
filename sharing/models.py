@@ -56,9 +56,38 @@ class HotSpot(BaseModel):
     def get_cost(self, lat, lon, day, t, num_seats=1):
         cost = None
 
-        active_rules = filter(lambda r: r.is_active(lat, lon, self.lat, self.lon, day, t), self.station.fixed_prices.all())
-        if active_rules:
-            cost = min([r.price for r in active_rules])
+        tarriff = None
+        for ruleset in RuleSet.objects.all():
+            if ruleset.is_active(day, t):
+                tarriff = ruleset
+                break
+
+        ca1, ca2 = None, None
+        if tarriff:
+            for area in CityArea.objects.all():
+                if area.contains(lat, lon):
+                    ca1 = area
+                if area.contains(self.lat, self.lon):
+                    ca2 = area
+                if ca1 and ca2:
+                    break
+
+
+        if ca1 and ca2:
+            cost_rules = self.station.fixed_prices.filter(rule_set=tarriff)
+            rules1 = cost_rules.filter(city_area_1=ca1, city_area_2=ca2)
+            if rules1:
+                return rules1[0].price
+            else:
+                rules2 = cost_rules.filter(city_area_1=ca2, city_area_2=ca1)
+                if rules2:
+                    return rules2[0].price
+
+
+        # simpler but much slower implementation
+#        active_rules = filter(lambda r: r.is_active(lat, lon, self.lat, self.lon, day, t), self.station.fixed_prices.all())
+#        if active_rules:
+#            cost = min([r.price for r in active_rules])
 
         return cost
 
@@ -82,7 +111,7 @@ class HotSpot(BaseModel):
 
         cost = self.get_cost(lat, lon, day, t, num_seats)
         if not cost:
-            logging.error("no cost defined")
+            logging.warning("no cost defined")
             return None
 
         if num_seats > 2:
