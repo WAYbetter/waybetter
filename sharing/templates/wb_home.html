@@ -309,8 +309,8 @@
                 arguments[1] = function wrappedListener() {
                     var event = arguments[0];
 
-                    // when hitting 'return' trigger a 'down arrow' first
-                    if (event.which == 13) {
+                    // when hitting 'return' trigger a 'down arrow' first if no suggestion is selected
+                    if (event.which == 13 && $(".pac-item.pac-selected").length == 0) {
                         arguments[0] = $.Event("keydown", {keyCode:40, which:40});
                         listener.apply(input, arguments);
                     }
