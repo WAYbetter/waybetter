@@ -105,6 +105,9 @@ body{
 .clickable{
     cursor: pointer;
 }
+.clickable.disabled{
+    cursor: default;
+}
 
 .td-label {
     padding-right: 15px;
@@ -128,6 +131,11 @@ body{
 
 .hr-spacer{
     border-bottom: 1px solid $light-gray;
+}
+
+// display
+.inline-block{
+    display: inline-block;
 }
 
 // aligning made easy
@@ -1164,9 +1172,9 @@ Home
         }
 
         .booking_step{
+            width: 100%;
             padding-top: 30px;
             padding-bottom: 35px;
-            /*height: $booking-container-height * 0.9;*/
             table{
                 margin: 0 auto;
                 width: 100%;
@@ -1176,17 +1184,6 @@ Home
                 }
             }
             .cntr.btn{ width: 165px; padding-top: 22px;}
-            .cntr.input{
-                position: relative;
-                .small-loader{
-                    z-index: 3;
-                    position: absolute;
-                    right: 4px;
-                    top: 30%;
-                }
-
-            }
-
             label{
                 display: block;
                 color:  #393939;
@@ -1245,13 +1242,33 @@ Home
             }
         }
         #datetime_content{
-            padding-right: 120px;
-            padding-left: 120px;
-            width: $booking-container-width - 2 * 120;
-            .cntr.time, .cntr.date{
-                width: 250px;
+            padding-bottom: 10px;
+            .title{
+                text-align: inherit;
+                margin-bottom: 5px;
             }
-            #id_hotspot_datepicker, #id_hotspot_time{ width: 100%; }
+            .sms-info{ margin-bottom: 20px; }
+            .cntr.date{ width: 220px; }
+            .cntr.btn{ padding-top: 40px; }
+            #id_hotspot_datepicker{ width: 150px; }
+            #intervals_list{
+                height: 170px;
+                overflow-y: scroll;
+                border: 1px solid gray;
+                .interval{
+                    height: 30px;
+                    padding: 3px;
+                    border-bottom: 1px solid $light-gray;
+                }
+                .interval.selected, .interval:hover{ background: #add8e6; }
+                .interval.disabled:hover{ background: none; }
+
+                .interval .price{display: block; text-align: center;}
+                .popularity-bar, .popularity-fill{ height: 10px; }
+                .popularity-label{ padding: 5px; }
+                .popularity-bar{ background: $light-gray; }
+                .popularity-fill{ background: $color-efficiency; position: relative; bottom: 1px; }
+            }
             #id_estimated_pickup{
                 padding-top: 3px;
                 font-size: $font-size-large - 1;
@@ -1410,14 +1427,6 @@ Home
                 }
             }
 
-            .booking_step{
-                .cntr.input{
-                    .small-loader{
-                        right: auto;
-                        left: 4px;
-                    }
-                }
-            }
             #hotspot_content{
                 .cntr.select{ padding-left: 0; padding-right: 45px;}
                 td.first{text-align:left;}

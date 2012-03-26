@@ -98,7 +98,7 @@ class HotSpot(BaseModel):
         cost, ride_type = estimate_cost(estimated_duration, estimated_distance, day=convert_python_weekday(day.weekday()), time=t)
         return round(cost + PRIVATE_RIDE_HANDLING_FEE) if cost else None
 
-    def get_sharing_price(self, lat, lon, day, t, num_seats=1):
+    def get_sharing_price(self, lat, lon, day, t, num_seats=1, with_popularity=False):
         """
         @param lat:
         @param lon:
@@ -112,7 +112,7 @@ class HotSpot(BaseModel):
         cost = self.get_cost(lat, lon, day, t, num_seats)
         if not cost:
             logging.warning("no cost defined")
-            return None
+            return None, None if with_popularity else None
 
         if num_seats > 2:
             price = cost
@@ -155,16 +155,22 @@ class HotSpot(BaseModel):
         if pop_rule:
             logging.info("found popularity rule %s" % pop_rule.name)
             price = pop_rule.apply(price, day, t)
+            popularity = pop_rule.popularity
         else:
             logging.info("  --> using default popularity")
             price = HotSpotPopularityRule.apply_default(price, day, t)
+            popularity = HotSpotPopularityRule.get_default_popularity()
 
         # normalize
         if price:
             price = int(math.ceil(price))
 
         logging.info("sharing price: %s (cost: %s)" % (price, cost))
-        return price
+
+        if with_popularity:
+            return price, popularity
+        else:
+            return price
 
 
     def get_popularity_rule(self, lat, lon, day, t):
@@ -321,7 +327,7 @@ class HotSpotServiceRule(AbstractTemporalRule):
 
 
 class HotSpotPopularityRule(AbstractTemporalRule):
-    DEFAULT_POPULARITY = 0
+    DEFAULT_POPULARITY = 10
     DEFAULT_NOISELIMIT = 20
 
     MaxPopularity = 100
@@ -329,10 +335,18 @@ class HotSpotPopularityRule(AbstractTemporalRule):
 
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="popularity_rules")
     city_area = CityAreaField(verbose_name=_("city area"))
-    popularity = models.IntegerField(verbose_name=_("popularity"), default=DEFAULT_POPULARITY,
+    _popularity = models.IntegerField(verbose_name=_("popularity"), default=DEFAULT_POPULARITY,
         validators=[MinValueValidator(0), MaxValueValidator(MaxPopularity)])
     noise_limit = models.IntegerField(verbose_name=_("noise limit"), default=DEFAULT_NOISELIMIT,
         validators=[MinValueValidator(0), MaxValueValidator(MaxNoiseLimit)])
+
+    @property
+    def popularity(self):
+        return self._popularity / float(self.MaxPopularity)
+
+    @classmethod
+    def get_default_popularity(cls):
+        return cls.DEFAULT_POPULARITY / float(cls.MaxPopularity)
 
     def is_active(self, lat, lon, day, t):
         in_city_area = self.city_area.contains(lat, lon)
