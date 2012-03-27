@@ -32,7 +32,7 @@ import datetime
 import common.urllib_adaptor as urllib2
 
 SHARING_TIME_FACTOR = 1.25
-SHARING_TIME_MINUTES = 8
+SHARING_TIME_MINUTES = 10
 
 ORDER_HANDLE_TIMEOUT =                      80 # seconds
 ORDER_TEASER_TIMEOUT =                      19 # seconds
@@ -118,6 +118,9 @@ class Station(BaseModel):
     unique_id = models.CharField(_("unique id"), max_length=64, default=generate_random_token_64, editable=False)
     itunes_app_url = models.URLField(max_length=255, null=True, blank=True)
     market_app_url = models.URLField(max_length=255, null=True, blank=True)
+
+    # google cloud print integration
+    printer_id = models.CharField(_("printer id"), max_length=64, null=True, blank=True)
 
     last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
                                             default=datetime.datetime(1, 1, 1))

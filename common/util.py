@@ -68,6 +68,12 @@ class Enum(object):
     def get_name(cls, value):
         return cls._item_names()[cls._items().index(value)]
 
+    @classmethod
+    def from_string(cls, str):
+        for item_name in cls._item_names():
+            if item_name == str:
+                return getattr(cls, item_name)
+
 class Polygon(object):
     def __init__(self, points):
         self.polygon = list(split_to_tuples(points, 2))
@@ -595,10 +601,12 @@ def add_formatted_date_fields(classes):
                 setattr(model, f.name + "_format", format_datefield(f))
 
 
-def safe_fetch(url, payload=None, method=GET, headers={},
+def safe_fetch(url, payload=None, method=GET, headers=None,
                allow_truncated=False, follow_redirects=True,
                deadline=None, validate_certificate=None, notify=True):
     res = None
+    if not headers: headers = {}
+
     try:
         res = fetch(url, payload, method, headers, allow_truncated, follow_redirects, deadline, validate_certificate)
     except Exception, e:
