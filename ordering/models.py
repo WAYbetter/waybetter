@@ -869,6 +869,7 @@ class InstalledApp(BaseModel):
     An application on a specific device. The app_udid is unique for a device and bundle ID
     """
     app_udid = models.CharField(_("app udid"), max_length=64)
+    cid = models.CharField(_("conversion id"), max_length=64, null=True, blank=True)
     name = models.CharField(_("name"), max_length=100)
     user_agent = models.CharField(_("user agent"), max_length=250, null=True, blank=True)
 
