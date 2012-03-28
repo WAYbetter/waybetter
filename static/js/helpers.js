@@ -671,15 +671,21 @@ var AddressHelper = Object.create({
 });
 
 var GoogleGeocodingHelper = Object.create({
-    geocoder: new google.maps.Geocoder(),
+    _geocoder: undefined,
+    getGeocoder: function() {
+        if (! this._geocoder) {
+            this._geocoder =  new google.maps.Geocoder();
+        }
+        return this._geocoder;
+    },
     geocode: function(address, callback){
-        this.geocoder.geocode({"address":address}, function (results, status) {
+        this.getGeocoder().geocode({"address":address}, function (results, status) {
             callback(results, status);
         });
     },
     reverseGeocode:function (lat, lon, callback) {
         var latlng = new google.maps.LatLng(lat, lon);
-        this.geocoder.geocode({'latLng':latlng}, function (results, status) {
+        this.getGeocoder().geocode({'latLng':latlng}, function (results, status) {
             callback(results, status);
         });
     },
@@ -964,14 +970,15 @@ var GoogleMapHelper = Object.create({
         }
 
         this.markers[marker_name] = new google.maps.Marker(markerOptions);
+        return this.markers[marker_name];
     },
     addAMarker:function (lat, lon, options) {
         options = $.extend(true, {}, {icon_image: "/static/images/wb_site/map_marker_A.png", marker_name:"A"}, options);
-        this.addMarker(lat, lon, options);
+        return this.addMarker(lat, lon, options);
     },
     addBMarker:function (lat, lon, options) {
         options = $.extend(true, {}, {icon_image:"/static/images/wb_site/map_marker_B.png", marker_name:"B"}, options);
-        this.addMarker(lat, lon, options);
+        return this.addMarker(lat, lon, options);
     },
     removeMarker:function (names) {
         var that = this;
@@ -991,6 +998,13 @@ var GoogleMapHelper = Object.create({
                 }
             })
         }
+    },
+    showInfo: function(content, anchor) {
+        var info = new google.maps.InfoWindow({
+            content: content
+        });
+
+        info.open(this.map);
     }
 });
 
