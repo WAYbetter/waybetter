@@ -4,9 +4,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
-from django.template.context import RequestContext
+from django.template.context import RequestContext, Context
 from django.utils import simplejson
 from django.utils.translation import ugettext as _
+from common.fax.backends.google_cloud_print import GoogleCloudPrintBackend
+from django.template.loader import get_template
 from djangotoolbox.http import JSONResponse
 from google.appengine.api import xmpp, memcache
 from google.appengine.api.channel import channel
@@ -15,12 +17,14 @@ from common.decorators import receive_signal
 from common.models import Country
 from common.signals import  async_computation_completed_signal
 from common.util import custom_render_to_response, ga_track_event
-from ordering.models import WorkStation
+from ordering.models import WorkStation, SharedRide, StopType
 from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
 import logging
 import os
 
 # DeadlineExceededError can live in two different places
+from sharing.station_controller import send_ride_fax, STATION_PICKUP_OFFSET
+
 ASYNC_MEMCACHE_KEY = "ASYNC-COMPUTATION-%s"
 try:
     # When deployed
@@ -394,4 +398,76 @@ def do_init(start=0):
     return countries_created
 
 
+def test_gcp(request):
+    ride_id = request.GET.get("ride_id")
+    use_real = bool(request.GET.get("use_real"))
+    deferred.defer(do_test_gcp, ride_id, use_real)
+#    import pprint
+#    list = GetPrinters()
+#
+#    res = pprint.pformat(list)
+    res = "OK"
+    return HttpResponse(res)
 
+
+def do_test_gcp(ride_id, use_real):
+    ride = SharedRide.by_id(ride_id)
+#    t = get_template("voucher_email.html")
+#    html = t.render(Context({}))
+
+    price_rules = ride.station.get_ride_price(ride, rules_only=True)
+    max_rule = None
+    if price_rules:
+        max_rule = max(price_rules, key=lambda rule: rule.price)
+
+#    pickups = [{'count': 1L, 'phones': [u'waybetter_admin - 123'], 'address': u'\u05e2\u05d5\u05d1\u05d3\u05d9\u05d4 \u05de\u05d1\u05e8\u05d8\u05e0\u05d5\u05e8\u05d4 21, \u05ea\u05dc \u05d0\u05d1\u05d9\u05d1 \u05d9\u05e4\u05d5'}]
+#    dropoffs = [{'count': 1L, 'phones': [u'waybetter_admin - 123'], 'address': u'\u05d3\u05d9\u05d6\u05e0\u05d2\u05d5\u05e3 100, \u05ea\u05dc \u05d0\u05d1\u05d9\u05d1 \u05d9\u05e4\u05d5'}]
+
+    pickups = []
+    dropoffs = []
+
+    for p in sorted(ride.points.all(), key=lambda point: point.stop_time):
+        orders = p.pickup_orders.all() if p.type == StopType.PICKUP else p.dropoff_orders.all()
+        stop = {
+            "count": sum([order.num_seats for order in orders]),
+            "address": p.address
+        }
+
+        phones = ["%s - %s" % (o.passenger.name, o.passenger.phone) for o in orders]
+        if len(phones) == 1:
+            stop["phones"] = phones
+
+        if p.type == StopType.PICKUP:
+            pickups.append(stop)
+        if p.type == StopType.DROPOFF:
+            dropoffs.append(stop)
+
+    template_args = {
+        "ride": ride,
+        "ride_date": ride.depart_time.strftime("%d/%m/%y"),
+        "ride_time": (ride.first_pickup.stop_time - STATION_PICKUP_OFFSET).strftime("%H:%M"),
+        "from_address": ride.first_pickup.address,
+        "to_address": ride.last_dropoff.address,
+        "pickups": pickups,
+        "dropoffs": dropoffs,
+        "city_area_1": max_rule.city_area_1.name if max_rule else "",
+        "city_area_2": max_rule.city_area_2.name if max_rule else "",
+        "points": ride.charged_stops,
+        "tariff": max_rule.rule_set.name if max_rule else ""
+    }
+    t = get_template("voucher_email.html")
+    html = t.render(Context(template_args))
+
+    subject = "WAYBetter Ride: %s" % ride.id
+
+    backend = GoogleCloudPrintBackend()
+    printer_id = "7ae90a1c-9700-1b65-8c18-fc0e7604c275" if use_real else "__google__docs"
+
+#    xx = "<p>x</p>" * 600 # failed 68081
+#    xx = "<p>x</p>" * 449 # failed 68065
+#
+#    html = """<html><head></head><body><h1>Hello Google Cloud Print</h1>%s</body></html>""" % xx
+
+    send_ride_fax(printer_id, html, subject, ride.id, backend=backend)
+
+    return HttpResponse("OK")

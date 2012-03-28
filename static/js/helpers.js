@@ -315,10 +315,13 @@ var HotspotHelper = Object.create({
 
     getIntervals: function(options) {
         var that = this;
+        var $hotspotpicker = $(this.config.selectors.hotspotpicker);
+        var $datepicker = $(this.config.selectors.datepicker);
+
         $.ajax({
             url: that.config.urls.get_hotspot_times,
             dataType: "json",
-            data: options.data,
+            data: $.extend(true, {'day': $datepicker.val(), 'hotspot_id': $hotspotpicker.val()}, options.data),
             beforeSend: function() {
                 that.ride_duration = undefined;
                 if (options.beforeSend) {
@@ -445,8 +448,7 @@ var HotspotHelper = Object.create({
         if (options.refresh_intervals) {
             var times = [];
             this.getIntervals({
-                data: $.extend(true, {'day': $datepicker.val(), 'hotspot_id': $hotspotpicker.val()},
-                        options.get_intervals_data),
+                data: options.get_intervals_data,
                 beforeSend: function() {
                     $timepicker.empty().disable().append("<option>" + that.config.labels.updating + "</option>");
                     if (!$datepicker.val()) {

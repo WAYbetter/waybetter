@@ -1,7 +1,7 @@
 import logging
 import re
-from common.decorators import order_relative_to_field
-from common.route import calculate_time_and_distance
+import math
+from common.decorators import order_relative_to_field, mute_logs
 from common.tz_support import default_tz_now, to_task_name_safe, ceil_datetime, floor_datetime
 from common.util import phone_validator
 from django.db import models
@@ -9,9 +9,11 @@ from django.utils.translation import ugettext_lazy as _
 from django.conf import settings
 from common.util import convert_python_weekday, datetimeIterator
 from common.models import BaseModel, Country, City, CityAreaField, CityArea
+from django.core.validators import MaxValueValidator, MinValueValidator
 from ordering.models import Passenger, Station
 from ordering.pricing import estimate_cost
-from pricing.models import RuleSet, AbstractTemporalRule
+from pricing.models import RuleSet, AbstractTemporalRule, PRIVATE_RIDE_HANDLING_FEE
+from pricing.functions import get_base_sharing_price, get_popularity_price, get_noisy_number_for_day_time
 from datetime import datetime, date, timedelta, time
 import calendar
 from sharing.algo_api import calculate_route
@@ -22,8 +24,6 @@ TOTAL_HANDLING_DELTA = ALGO_COMPUTATION_DELTA + FAX_HANDLING_DELTA
 
 ORDERING_ALLOWED_PICKUP_DELTA = TOTAL_HANDLING_DELTA # + hotspot's dispatching time
 ORDERING_ALLOWED_DROPOFF_DELTA = timedelta(minutes=60)
-
-PRIVATE_RIDE_HANDLING_FEE = 0 #NIS
 
 PICKUP = "pickup"
 DROPOFF = "dropoff"
@@ -52,19 +52,49 @@ class HotSpot(BaseModel):
         """
         return "_".join([str(self.id), hotspot_direction, to_task_name_safe(hotspot_datetime)])
 
-    def get_cost(self, lat, lon, day, t, num_seats=1):
-        cost = None
+    def get_cost(self, lat, lon, day, t, num_seats=1, tariff_rules=None, cost_rules=None):
+        tarriff = None
+        if tariff_rules is None:
+            tariff_rules = RuleSet.objects.all()
 
-        active_rules = filter(lambda r: r.is_active(lat, lon, self.lat, self.lon, day, t), self.station.fixed_prices.all())
-        if active_rules:
-            cost = min([r.price for r in active_rules])
+        for ruleset in tariff_rules:
+            if ruleset.is_active(day, t):
+                tarriff = ruleset
+                break
 
-        return cost
+        if not tarriff:
+            logging.error("no tariff found day=%s, t=%s" % (day, t))
+            return None
 
-    def get_private_price(self, lat, lon, day, t, num_seats=1):
-        cost = self.get_cost(lat, lon, day, t)
-        return round(cost + PRIVATE_RIDE_HANDLING_FEE, 2) if cost else None
+        active_cost_rule = None
+        if cost_rules is not None:
+            active_rules = filter(lambda r: r.rule_set == tarriff, cost_rules)
+            if active_rules:
+                active_cost_rule = active_rules[0]
+        else:
+            ca1, ca2 = None, None
+            for area in CityArea.objects.all():
+                if area.contains(lat, lon):
+                    ca1 = area
+                if area.contains(self.lat, self.lon):
+                    ca2 = area
+                if ca1 and ca2:
+                    break
 
+            if ca1 and ca2:
+                cost_rules = self.station.fixed_prices.filter(rule_set=tarriff)
+                rules1 = cost_rules.filter(city_area_1=ca1, city_area_2=ca2)
+                if rules1:
+                    active_cost_rule = rules1[0]
+                else:
+                    rules2 = cost_rules.filter(city_area_1=ca2, city_area_2=ca1)
+                    if rules2:
+                        active_cost_rule = rules2[0]
+
+        if active_cost_rule:
+            return active_cost_rule.price
+        else:
+            return None
 
     def get_meter_price(self, lat, lon, day, t, num_seats=1):
         result = calculate_route(self.lat, self.lon, lat, lon)
@@ -73,51 +103,90 @@ class HotSpot(BaseModel):
         cost, ride_type = estimate_cost(estimated_duration, estimated_distance, day=convert_python_weekday(day.weekday()), time=t)
         return round(cost + PRIVATE_RIDE_HANDLING_FEE) if cost else None
 
-    def get_sharing_price(self, lat, lon, day, t, num_seats=1):
+    def get_sharing_price(self, lat, lon, day, t, num_seats=1, with_popularity=False, tariff_rules=None, cost_rules=None):
         """
         @param lat:
         @param lon:
         @param day: date of ride
         @param t: time of ride
         @param num_seats: number of seats
-        @return: price (float) or None
+        @param tariff_rules: a list of rules to check against
+        @param cost_rules: a list of rules to check against
+        @return: price or (price, popularity)
         """
-        price = None
-        cost = self.get_cost(lat, lon, day, t, num_seats)
+        logging.info("calc sharing price for %s (lat=%s, lon=%s, day=%s, t=%s, seats=%s)" % (self.name, lat, lon, day, t, num_seats))
+
+        cost = self.get_cost(lat, lon, day, t, num_seats, tariff_rules, cost_rules)
+        if not cost:
+            logging.warning("no cost defined")
+            return None, None if with_popularity else None
 
         if num_seats > 2:
             price = cost
         else:
-            base_sharing_price = None
+            base_sharing_price = get_base_sharing_price(cost)
 
-            # 1. first check for a custom price rules
-            #noinspection PyUnresolvedReferences
-            for rule_id in self.get_hotspotcustompricerule_order():
-                rule = HotSpotCustomPriceRule.by_id(rule_id)
-
-                if rule.is_active(lat, lon, day, t):
-                    base_sharing_price = rule.price
-
-            # 2. tariff price rules
-            if not base_sharing_price:
-                active_rule_set = RuleSet.get_active_set(day, t)
-                if active_rule_set:
-                    active_tariff_rules = self.tariff_rules.filter(rule_set=active_rule_set)
-                    for rule in CityArea.relative_sort_models(active_tariff_rules):
-                        if rule.is_active(lat, lon):
-                            base_sharing_price = rule.price
-
-            # 3. fallback to half the cost
-            if not base_sharing_price:
-                base_sharing_price = 0.5 * cost if cost else None
-
-            if num_seats == 1:
-                price = base_sharing_price
-            elif num_seats == 2:
+            if num_seats == 2:
                 delta = max([cost - base_sharing_price, 0])
                 price = base_sharing_price + 0.5 * delta
+            else:
+                price = base_sharing_price
 
-        return round(price, 2) if price else None
+        # popularity
+        pop_rule = self.get_popularity_rule(lat, lon, day, t)
+        if pop_rule:
+            logging.info("found popularity rule %s" % pop_rule.name)
+            price = pop_rule.apply(price, day, t)
+            popularity = pop_rule.popularity
+        else:
+            logging.info("  --> using default popularity")
+            price = HotSpotPopularityRule.apply_default(price, day, t)
+            popularity = HotSpotPopularityRule.get_default_popularity()
+
+        # normalize
+        if price:
+            price = int(math.ceil(price))
+
+        logging.info("sharing price: %s (cost: %s)" % (price, cost))
+
+        if with_popularity:
+            return price, popularity
+        else:
+            return price
+
+
+    @mute_logs()
+    def get_offers(self, lat, lon, day, num_seats=1):
+        start_time = default_tz_now().time() if day == default_tz_now().date() else None
+        times = self.get_times_for_day(day, start_time=start_time)
+
+        offers = []
+        ca1, ca2 = None, None
+        for area in CityArea.objects.all():
+            if area.contains(lat, lon):
+                ca1 = area
+            if area.contains(self.lat, self.lon):
+                ca2 = area
+
+        tariffs = list(RuleSet.objects.all())
+        cost_rules1 = list(self.station.fixed_prices.filter(city_area_1=ca1, city_area_2=ca2))
+        cost_rules2 = list(self.station.fixed_prices.filter(city_area_1=ca2, city_area_2=ca1))
+        cost_rules = cost_rules1 + cost_rules2
+
+        for t in times:
+            price, popularity = self.get_sharing_price(lat, lon, day, t, num_seats, True, tariffs, cost_rules)
+            if price is not None:
+                offers.append({'time': t, 'price': price, 'popularity': popularity})
+
+        return offers
+
+
+    def get_popularity_rule(self, lat, lon, day, t):
+        for pop_rule in self.popularity_rules.all():
+            if pop_rule.is_active(lat, lon, day, t):
+                return pop_rule
+
+        return None
 
     def get_allowed_ordering_time(self, hotspot_type):
         allowed_time = None
@@ -265,6 +334,55 @@ class HotSpotServiceRule(AbstractTemporalRule):
         return times
 
 
+class HotSpotPopularityRule(AbstractTemporalRule):
+    DEFAULT_POPULARITY = 10
+    DEFAULT_NOISELIMIT = 20
+
+    MaxPopularity = 100
+    MaxNoiseLimit = 100
+
+    hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="popularity_rules")
+    city_area = CityAreaField(verbose_name=_("city area"))
+    _popularity = models.IntegerField(verbose_name=_("popularity"), default=DEFAULT_POPULARITY,
+        validators=[MinValueValidator(0), MaxValueValidator(MaxPopularity)])
+    noise_limit = models.IntegerField(verbose_name=_("noise limit"), default=DEFAULT_NOISELIMIT,
+        validators=[MinValueValidator(0), MaxValueValidator(MaxNoiseLimit)])
+
+    @property
+    def popularity(self):
+        return self._popularity / float(self.MaxPopularity)
+
+    @classmethod
+    def get_default_popularity(cls):
+        return cls.DEFAULT_POPULARITY / float(cls.MaxPopularity)
+
+    def is_active(self, lat, lon, day, t):
+        in_city_area = self.city_area.contains(lat, lon)
+        return in_city_area and super(HotSpotPopularityRule, self).is_active(day, t)
+
+    def apply(self, price, day, t):
+        return self.__class__._apply_popularity(price, day, t, self.popularity, self.noise_limit)
+
+    @classmethod
+    def apply_default(cls, price, day, t):
+        return cls._apply_popularity(price, day, t, cls.DEFAULT_POPULARITY, cls.DEFAULT_NOISELIMIT)
+
+    @classmethod
+    def _apply_popularity(cls, price, day, t, popularity, noise_limit):
+        popularity /= float(cls.MaxPopularity)
+        noise_limit /= float(cls.MaxNoiseLimit)
+
+        noisy_popularity = cls._noisify_popularity(popularity, noise_limit, day, t)
+        logging.info("popularity=%s, noise limit=%s --> noisy popularity=%s" % (popularity, noise_limit, noisy_popularity))
+
+        price = get_popularity_price(noisy_popularity, price)
+        return price
+
+    @classmethod
+    def _noisify_popularity(cls, popularity, noise_limit, day, t):
+        return get_noisy_number_for_day_time(popularity, noise_limit, day, t)
+
+
 class HotSpotCustomPriceRule(AbstractTemporalRule):
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="custom_rules")
     city_area = CityAreaField(verbose_name=_("city area"))
@@ -274,8 +392,8 @@ class HotSpotCustomPriceRule(AbstractTemporalRule):
         order_with_respect_to = 'hotspot'
 
     def is_active(self, lat, lon, day, t):
-        # using super does not work for some reason: super(AbstractTemporalRule, self).is_active(day, t)
-        return self.city_area.contains(lat, lon) and getattr(AbstractTemporalRule, "is_active")(self, day, t)
+        in_city_area = self.city_area.contains(lat, lon)
+        return in_city_area and super(HotSpotCustomPriceRule, self).is_active(day, t)
 
 
 class HotSpotTariffRule(BaseModel):

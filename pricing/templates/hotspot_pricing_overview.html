@@ -1,0 +1,146 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>Pricing - {{ hotspot.name }}</title>
+    <style type="text/css">
+        body {
+            padding: 50px;
+        }
+
+        #header{
+            margin: auto;
+            font-size: 24px;
+            font-weight: bold;
+            text-align: center;
+
+        }
+        #loading {
+            margin: auto;
+        }
+
+        #plots_container {
+        }
+
+        .float-title {
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            text-align: center;
+        }
+
+        .flot-container {
+            width: 800px;
+            height: 300px;
+            margin: 0 auto;
+        }
+    </style>
+</head>
+
+<body>
+
+<div id="header">Pricing {{ hotspot.name }}</div>
+<div id="loading">Loading...
+    <div id="processing_message"></div>
+</div>
+<div id="plots_container"></div>
+
+<script type="text/javascript" src="/_ah/channel/jsapi"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script src="http://cdnjs.cloudflare.com/ajax/libs/flot/0.7/jquery.flot.min.js"></script>
+<script type="text/javascript" src="/static/js/utils.js"></script>
+<script type="text/javascript">
+    function showTooltip(x, y, contents) {
+        $('<div id="tooltip">' + contents + '</div>').css({
+            position:'absolute',
+            display:'none',
+            top:y + 5,
+            left:x + 5,
+            border:'1px solid #fdd',
+            padding:'2px',
+            'background-color':'#fee',
+            opacity:0.80
+        }).appendTo("body").fadeIn(200);
+    }
+
+
+    function renderData(data) {
+        $("#loading").remove();
+        $.each(data, function (i, day_series) {
+            var $header = $('<div></div>').text(day_series.title).addClass("float-title");
+            var $canvas = $('<div></div>').attr("id", "flot_container_" + day_series.id).addClass("flot-container");
+            $("#plots_container").append($header, $canvas);
+            $.plot($canvas, day_series.data, {
+                xaxis:{ mode:"time" },
+                yaxis:{ tickFormatter:function (val, axis) {
+                    return "₪" + val
+                } },
+                grid:{ hoverable:true, clickable:true },
+                legend: {position: 'nw'}
+            });
+
+            var previousPoint = null;
+            $canvas.bind("plothover", function (event, pos, item) {
+                if (item) {
+                    if (previousPoint != item.dataIndex) {
+                        previousPoint = item.dataIndex;
+
+                        $("#tooltip").remove();
+                        var x = item.datapoint[0].toFixed(2),
+                                y = item.datapoint[1].toFixed(2);
+
+                        x = new Date(parseInt(x));
+                        x = new Date(x.getUTCFullYear(), x.getUTCMonth(), x.getUTCDate(), x.getUTCHours(), x.getUTCMinutes(), x.getUTCSeconds());
+                        x = getFullTime(x);
+
+                        showTooltip(item.pageX, item.pageY,
+                                item.series.label + " of " + x + " = ₪" + y);
+                    }
+                }
+                else {
+                    $("#tooltip").remove();
+                    previousPoint = null;
+                }
+            });
+        });
+    }
+
+
+    $(function () {
+        var channel_opened = false;
+        var channel;
+        var socket;
+        var token = "{{ token }}";
+
+        channel = new goog.appengine.Channel(token);
+        socket = channel.open();
+        socket.onerror = function () {
+            log("socket: onerror");
+        };
+        socket.onclose = function () {
+            log("socket: onclose");
+        };
+        socket.onopen = function () {
+            log("socket: onopen", token);
+            channel_opened = true;
+        };
+        socket.onmessage = function (msg) {
+            log("socket: onmessage", msg);
+            try {
+                var data = $.parseJSON(msg.data);
+                if (data.status && data.status == 'processing') {
+                    $("#processing_message").text(data.text);
+                }
+                else { // this is the plot data
+                    renderData(data);
+                    socket.close();
+                }
+            } catch (e) {
+                log("error parsing: " + JSON.stringify(e), e)
+            }
+        };
+
+    });
+</script>
+</body>
+</html>
