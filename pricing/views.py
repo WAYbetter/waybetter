@@ -7,8 +7,9 @@ from common.models import CityArea
 from django.contrib.admin.views.decorators import staff_member_required
 from common.signals import  async_computation_failed_signal, async_computation_completed_signal
 from common.tz_support import to_js_date
-from common.util import split_to_tuples, get_uuid
+from common.util import split_to_tuples, get_uuid, notify_by_email
 from django.template.context import RequestContext
+from pricing.models import RuleSet
 from sharing.models import HotSpot
 import datetime
 import logging
@@ -41,6 +42,7 @@ def _calc_hotspot_pricing_overview(hotspot, client_id):
     # day_series = { title: str, data: [ {ca1_series}, {ca2_series}, ... ] }
     # ca_series = { label: str, data: [ [x1,y1], [x2,y2], ... ]} - a flot series object
     data = []
+    issues =[]
 
     days_ahead = 1
     dates = [datetime.date.today() + datetime.timedelta(days=i) for i in range(0, days_ahead)]
@@ -48,8 +50,16 @@ def _calc_hotspot_pricing_overview(hotspot, client_id):
     num_seats = 1
     city_areas = CityArea.objects.all()
 
+    tariff_rules = list(RuleSet.objects.all())
+
+    hotspot_ca = None
+    for ca in city_areas:
+        if ca.contains(hotspot.lat, hotspot.lon):
+            hotspot_ca = ca
+
     for day in dates:
         day_strftime = day.strftime("%A %d/%m/%y")
+        logging.info("calculating day: %s" % day_strftime)
 
         times = hotspot.get_times_for_day(day=day)
         if not times:
@@ -60,6 +70,8 @@ def _calc_hotspot_pricing_overview(hotspot, client_id):
         ca_count = city_areas.count()
         ca_idx = 0
         for ca in city_areas:
+            logging.info("calculating area: %s" % ca.name)
+
             ca_idx +=1
             channel.send_message(client_id, simplejson.dumps(
                     {'status': 'processing', 'text': '%s: %s processing %s of %s' % (day_strftime, ca.name, ca_idx, ca_count)}))
@@ -74,9 +86,16 @@ def _calc_hotspot_pricing_overview(hotspot, client_id):
                     logging.error("could not find a point inside %s" % ca.name)
                     break
 
+            cost_rules1 = list(hotspot.station.fixed_prices.filter(city_area_1=hotspot_ca, city_area_2=ca))
+            cost_rules2 = list(hotspot.station.fixed_prices.filter(city_area_1=ca, city_area_2=hotspot_ca))
+            cost_rules = cost_rules1 + cost_rules2
+
+            if not cost_rules:
+                issues.append(u"missing cost rules %s <-> %s" % (hotspot_ca.name, ca.name))
+
             points = []
             for t in times:
-                price = hotspot.get_sharing_price(lat, lon, day, t, num_seats=num_seats)
+                price = hotspot.get_sharing_price(lat, lon, day, t, num_seats, False, tariff_rules, cost_rules)
                 if price:
                     dt = datetime.datetime.combine(day, t)
                     points.append([int(to_js_date(dt)), price])
@@ -96,5 +115,8 @@ def _calc_hotspot_pricing_overview(hotspot, client_id):
                 'data': ca_series_list
             }
             data.append(day_series)
+
+    if issues:
+        notify_by_email("pricing issues", u"\n".join(issues))
 
     return data
