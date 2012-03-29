@@ -39,8 +39,7 @@ class InlineHotSpotTariffRuleAdmin(admin.TabularInline):
 class HotSpotAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "address", "is_public"]
     exclude = ["geohash"]
-    inlines = [InlineHotSpotTagAdmin, InlineHotSpotServiceRuleAdmin, InlineHotSpotPopularityRuleAdmin, InlineHotSpotCustomPriceRuleAdmin,
-               InlineHotSpotTariffRuleAdmin]
+    inlines = [InlineHotSpotTagAdmin, InlineHotSpotServiceRuleAdmin, InlineHotSpotPopularityRuleAdmin]
     form = HotSpotAdminForm
 
 
