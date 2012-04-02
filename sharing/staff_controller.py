@@ -351,15 +351,13 @@ def birdseye_view(request):
     order_status_labels = [label for (key, label) in ORDER_STATUS]
 
     def f(start_date, end_date):
-        departing = RideComputation.objects.filter(hotspot_depart_time__gte=start_date,
-                                                   hotspot_depart_time__lte=end_date)
-        arriving = RideComputation.objects.filter(hotspot_arrive_time__gte=start_date,
-                                                  hotspot_arrive_time__lte=end_date)
+        computations = RideComputation.objects.filter(hotspot_datetime__gte=start_date, hotspot_datetime__lte=end_date)
+        departing = filter(lambda rc: rc.hotspot_type == StopType.PICKUP, computations)
+        arriving = filter(lambda rc: rc.hotspot_type == StopType.DROPOFF, computations)
         data = []
 
-        for c in sorted(list(departing) + list(arriving), key=lambda c: c.hotspot_depart_time or c.hotspot_arrive_time,
-                        reverse=True):
-            time = c.hotspot_depart_time or c.hotspot_arrive_time
+        for c in sorted(computations, key=lambda c: c.hotspot_datetime, reverse=True):
+            time = c.hotspot_datetime
             orders_data = [{'id': o.id,
                             'from': o.from_raw,
                             'to': o.to_raw,
@@ -373,10 +371,13 @@ def birdseye_view(request):
             }
             for o in c.orders.all()]
 
+            status = RideComputationStatus.get_name(c.status)
+            if c.status == RideComputationStatus.PENDING and c.submit_datetime:
+                status = "%s@%s" % (status, c.submit_datetime.strftime("%H:%M"))
             c_data = {'id': c.id,
-                      'status': RideComputationStatus.get_name(c.status),
+                      'status': status,
                       'time': time.strftime("%d/%m/%y, %H:%M"),
-                      'dir': 'Hotspot->' if c.hotspot_depart_time else '->Hotspot' if c.hotspot_arrive_time else na,
+                      'dir': 'Hotspot->' if c.hotspot_type == StopType.PICKUP else '->Hotspot' if c.hotspot_type == StopType.DROPOFF else na,
                       'orders': orders_data,
                       }
 

@@ -39,7 +39,7 @@ class HotSpot(BaseModel):
 
     @property
     def order_processing_time(self):
-        return TOTAL_HANDLING_DELTA + datetime.timedelta(minutes=self.dispatching_time)
+        return TOTAL_HANDLING_DELTA + timedelta(minutes=self.dispatching_time)
 
     def get_cost(self, lat, lon, day, t, num_seats=1, tariff_rules=None, cost_rules=None):
         tarriff = None

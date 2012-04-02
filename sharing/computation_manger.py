@@ -1,42 +1,55 @@
 import logging
 from common.tz_support import to_task_name_safe
-from ordering.models import RideComputation
+from ordering.models import RideComputation, StopType
 from sharing.algo_api import submit_computations
 
-def get_hotspot_computation_key(hotspot, hotspot_direction, hotspot_datetime):
+def get_hotspot_computation_key(hotspot, hotspot_type, hotspot_datetime):
     """
 
-    @param hotspot_direction: "from" if the ride starts at hotspot, otherwise "to"
+    @param hotspot_type: StopType.PICKUP or StopType.DROPOFF
     @param hotspot_datetime: the time and date of the ride
     @return: unique key representing the hotspot at given time and direction. Should match task name expression "^[a-zA-Z0-9_-]{1,500}$"
     """
-    return "_".join([str(hotspot.id), hotspot_direction, to_task_name_safe(hotspot_datetime)])
+    return "_".join([str(hotspot.id), StopType.get_name(hotspot_type), to_task_name_safe(hotspot_datetime)])
 
-def get_hotspot_computation(hotspot, hotspot_type, depart_datetime, is_debug=False):
+def get_hotspot_computation(hotspot, hotspot_type, depart_datetime, arrive_datetime, is_debug=False):
     """
 
-    @param hotspot:
     @param hotspot_type: StopType.PICKUP or StopType.DROPOFF
-    @param depart_datetime:
-    @param is_debug:
-    @return:
+    @return: RideComputation
     """
-    key = get_hotspot_computation_key(hotspot, hotspot_type, depart_datetime)
+    if hotspot_type == StopType.PICKUP:
+        hotspot_datetime = hotspot.get_next_active_datetime(depart_datetime)
+    else:
+        hotspot_datetime = hotspot.get_next_active_datetime(arrive_datetime)
+
+    key = get_hotspot_computation_key(hotspot, hotspot_type, hotspot_datetime)
     if is_debug:
-        key = "__DEBUG__%s" % key
+        key = "DEBUG__%s" % key
 
+    submit_datetime = depart_datetime - hotspot.order_processing_time
+    submit = False
     try:
-        computation = RideComputation.objects.get(key=key)
-    except RideComputation.DoesNotExist:
-        computation = RideComputation(key=key, debug=is_debug)
-        computation.hotspot_type = hotspot_type
-
-        computation.save()
-        logging.info("new computation created: id=%s key=%s" % (computation.id, key))
-    except RideComputation.MultipleObjectsReturned:
         computation = RideComputation.objects.filter(key=key)[0]
+        if submit_datetime < computation.submit_datetime:
+            logging.info("updated computation [%s] submit time -> %s" % (computation.id, submit_datetime.strftime("%H:%M")))
+            computation.submit_datetime = submit_datetime
+            computation.save()
+            submit = True
+    except IndexError:
+        kwargs = {
+            'key': key,
+            'hotspot_type': hotspot_type,
+            'hotspot_datetime': hotspot_datetime,
+            'submit_datetime': submit_datetime,
+            'debug': is_debug
+        }
+        computation = RideComputation(**kwargs)
+        computation.save()
+        submit = True
+        logging.info("new computation created: id=%s key=%s" % (computation.id, key))
 
-    submit_time = depart_datetime - hotspot.order_processing_time
-    submit_computations(computation.key, submit_time)
+    if submit:
+        submit_computations(computation.key, computation.submit_datetime)
 
     return computation

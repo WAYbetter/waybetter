@@ -369,12 +369,13 @@ class RideComputation(BaseModel):
     debug = models.BooleanField(default=False, editable=False)
     status = StatusField(_("status"), choices=RideComputationStatus.choices(), default=RideComputationStatus.PENDING)
 
-    hotspot_type = models.IntegerField(_("hotspot type"), choices=StopType.choices())
-    hotspot_datetime = UTCDateTimeField(null=True, blank=True, editable=False)
-
-    # TODO_WB: deprecate these fields, and replace with hotspot_type and hotspot_datetime
+    # TODO_WB: replace hotspot_depart_time, hotspot_arrive_time with hotspot_type and hotspot_datetime
+    hotspot_type = models.IntegerField(choices=StopType.choices(), null=True, blank=True)
+    hotspot_datetime = UTCDateTimeField(null=True, blank=True)
     hotspot_depart_time = UTCDateTimeField(null=True, blank=True, editable=False)
     hotspot_arrive_time = UTCDateTimeField(null=True, blank=True, editable=False)
+
+    submit_datetime = UTCDateTimeField(editable=False, null=True, blank=True)
 
     toleration_factor = models.FloatField(null=True, blank=True)
     toleration_factor_minutes = models.FloatField(null=True, blank=True)
