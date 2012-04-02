@@ -22,12 +22,6 @@ ALGO_COMPUTATION_DELTA = timedelta(minutes=5)
 FAX_HANDLING_DELTA = timedelta(minutes=2)
 TOTAL_HANDLING_DELTA = ALGO_COMPUTATION_DELTA + FAX_HANDLING_DELTA
 
-ORDERING_ALLOWED_PICKUP_DELTA = TOTAL_HANDLING_DELTA # + hotspot's dispatching time
-ORDERING_ALLOWED_DROPOFF_DELTA = timedelta(minutes=60)
-
-PICKUP = "pickup"
-DROPOFF = "dropoff"
-
 class HotSpot(BaseModel):
     name = models.CharField(_("hotspot name"), max_length=50)
     description = models.CharField(_("hotspot description"), max_length=100, null=True, blank=True)
@@ -43,14 +37,9 @@ class HotSpot(BaseModel):
     radius = models.FloatField(_("radius"), default=0.7) # radius in which GPS aware devices will decide they are inside this hotspot, in KM
     is_public = models.BooleanField(default=False)
 
-    def get_computation_key(self, hotspot_direction, hotspot_datetime):
-        """
-
-        @param hotspot_direction: "from" if the ride starts at hotspot, otherwise "to"
-        @param hotspot_datetime: the time and date of the ride
-        @return: unique key representing the hotspot at given time and direction. Should match task name expression "^[a-zA-Z0-9_-]{1,500}$"
-        """
-        return "_".join([str(self.id), hotspot_direction, to_task_name_safe(hotspot_datetime)])
+    @property
+    def order_processing_time(self):
+        return TOTAL_HANDLING_DELTA + datetime.timedelta(minutes=self.dispatching_time)
 
     def get_cost(self, lat, lon, day, t, num_seats=1, tariff_rules=None, cost_rules=None):
         tarriff = None
@@ -119,7 +108,7 @@ class HotSpot(BaseModel):
         cost = self.get_cost(lat, lon, day, t, num_seats, tariff_rules, cost_rules)
         if not cost:
             logging.warning("no cost defined")
-            return None, None if with_popularity else None
+            return (None, None) if with_popularity else None
 
         if num_seats > 2:
             price = cost
@@ -157,7 +146,8 @@ class HotSpot(BaseModel):
 
     @mute_logs()
     def get_offers(self, lat, lon, day, num_seats=1):
-        start_time = default_tz_now().time() if day == default_tz_now().date() else None
+        start_time = self.get_next_orderable_datetime().time() if day == default_tz_now().date() else None
+
         times = self.get_times_for_day(day, start_time=start_time)
 
         offers = []
@@ -188,14 +178,8 @@ class HotSpot(BaseModel):
 
         return None
 
-    def get_allowed_ordering_time(self, hotspot_type):
-        allowed_time = None
-        if hotspot_type == PICKUP:
-            allowed_time = default_tz_now() + ORDERING_ALLOWED_PICKUP_DELTA + timedelta(minutes=self.dispatching_time)
-        elif hotspot_type == DROPOFF:
-            allowed_time = default_tz_now() + ORDERING_ALLOWED_DROPOFF_DELTA
-
-        return allowed_time
+    def get_next_orderable_datetime(self):
+        return self.get_next_active_datetime(base_time=default_tz_now() + self.order_processing_time)
 
     def get_next_active_datetime(self, base_time=None, timeframe=timedelta(weeks=1)):
         """
@@ -294,7 +278,6 @@ class HotSpot(BaseModel):
 
 
     def serialize_for_order(self, address_type):
-        # TODO_WB: add house number field to hotspot model
         hn = re.search("(\d+)", self.address)
         hn = str(hn.groups()[0] if hn else 0)
 

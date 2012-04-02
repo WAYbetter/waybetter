@@ -425,7 +425,7 @@ def hotspot_ordering_page(request, passenger, is_textinput):
                 if int(request.POST.get("time_const_min") or 0):
                     params["toleration_factor_minutes"] = request.POST["time_const_min"]
                 name = request.POST.get("computation_set_name")
-                key = submit_test_computation(orders, params=params, computation_set_name=name)
+                key = submit_test_computation(orders, hotspot_type_raw, params=params, computation_set_name=name)
                 response = u"Orders submitted for calculation: %s" % key
             else:
                 response = "Hotspot data corrupt: no orders created"
@@ -472,7 +472,7 @@ def ride_computation_stat(request, computation_set_id):
         if int(request.POST.get("time_const_min") or 0):
             params["toleration_factor_minutes"] = request.POST["time_const_min"]
 
-        key = submit_test_computation(orders, params=params, computation_set_id=computation_set.id)
+        key = submit_test_computation(orders, "pickup", params=params, computation_set_id=computation_set.id)
         return JSONResponse({'content': u"Orders submitted for calculation: %s" % key})
 
     else:
@@ -566,7 +566,7 @@ def create_orders_from_hotspot(data, hotspot_type, point_type, is_textinput):
     return orders
 
 
-def submit_test_computation(orders, params, computation_set_name=None, computation_set_id=None):
+def submit_test_computation(orders, hotspot_type_raw, params, computation_set_name=None, computation_set_id=None):
     key = "test_%s" % str(default_tz_now())
     params.update({'debug': True})
     algo_key = submit_orders_for_ride_calculation(orders, key=key, params=params)
@@ -577,8 +577,12 @@ def submit_test_computation(orders, params, computation_set_name=None, computati
         computation.toleration_factor = params.get('toleration_factor')
         computation.toleration_factor_minutes = params.get('toleration_factor_minutes')
         order = orders[0]
-        computation.hotspot_depart_time = order.depart_time
-        computation.hotspot_arrive_time = order.arrive_time
+        if hotspot_type_raw == "pickup":
+            computation.hotspot_type = StopType.PICKUP
+            computation.hotspot_datetime = order.depart_time
+        else:
+            computation.hotspot_type = StopType.DROPOFF
+            computation.hotspot_datetime = order.arrive_time
 
         if computation_set_id: # add to existing set
             computation_set = RideComputationSet.by_id(computation_set_id)

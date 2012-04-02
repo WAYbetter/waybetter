@@ -96,10 +96,6 @@
                             <td class="cntr btn">
                                 <button id="set_datetime" class="wb_button">{% trans "Next" %} >></button>
                                 <div id="datetime_loader" class="small-loader"></div>
-                                <div id="id_estimated_pickup" class="bold">
-                                    (<span class="text">{% trans "_pickup" %}: </span>
-                                    <span class="value"></span>)
-                                </div>
                             </td>
                         </tr>
                     </table>
@@ -126,7 +122,6 @@
                                     <span class="details_label">{% trans "Dropoff" %}: </span>
                                     <span class="details_label_type">({% trans 'Hotspot' %})</span>
                                     <span id="switch_direction" class="wb_link">
-                                        <span id="details_loader" class="small-loader"></span>
                                         {% trans "switch direction" %}
                                     </span>
                                     <div class="data">
@@ -134,14 +129,16 @@
                                         <p class="desc"></p>
                                     </div>
                                 </div>
-                                <div class="when">
-                                    <span class="details_label"></span>
-                                    <div class="data">
-                                        <p class="desc"></p>
-                                    </div>
-                                </div>
                             </div>
                         </div>
+
+                        <div class="when">
+                            <span class="details_label">{% trans 'Pickup Time' %}</span>
+                            <div class="data">
+                                <p class="desc"></p>
+                            </div>
+                        </div>
+
                         <div id="num_seats">
                             <span class="details_label">{% trans "Number of Seats" %}</span>
                             <span class="radio">
@@ -473,7 +470,6 @@
 
         $("#ride_summary .dropoff .details_label").swapElement($("#ride_summary .pickup .details_label"));
         $("#ride_summary .dt_cntr").eq(0).swapElement($("#ride_summary .dt_cntr").eq(1));
-        $("#ride_summary .when .details_label").text(BookingHelper.messages[BookingHelper.hotspot_type + "_time"] + ":");
 
         var $el = $("#switch_direction").remove();
         $("#ride_summary .dropoff .details_label_type").eq(0).after($el);
@@ -519,9 +515,7 @@
         else if (BookingHelper.address) {
             HotspotHelper.getIntervals({
                 data: {
-                    as_offers: true,
                     hotspot_type: BookingHelper.hotspot_type,
-                    time_type: BookingHelper.hotspot_type,
                     lat: BookingHelper.address.lat,
                     lon: BookingHelper.address.lon
                 },
@@ -604,30 +598,6 @@
         $("#set_datetime").enable();
 
         logGAEvent("order", "choose time", time);
-        
-        $("#id_estimated_pickup .value").text("");
-        if (BookingHelper.hotspot_type == DROPOFF && HotspotHelper.ride_duration) {
-            var d = new Date($("#id_hotspot_datepicker").datepicker("getDate"));
-            var hh = time.split(":")[0];
-            var mm = time.split(":")[1];
-            d.setHours(hh);
-            d.setMinutes(mm);
-
-            var ride_duration_ms = HotspotHelper.ride_duration * 1000;
-            var est_pickup_private = new Date(d - ride_duration_ms);
-            var est_pickup_shared;
-            if (SHARING_CONSTRAINT == "factor") {
-                est_pickup_shared = new Date(d - ride_duration_ms * SHARING_TIME_FACTOR)
-            }
-            else if (SHARING_CONSTRAINT == "minutes") {
-                est_pickup_shared = new Date(d - (ride_duration_ms + SHARING_TIME_MINUTES * 60 * 1000))
-            }
-            var time_txt = getFullTime(est_pickup_shared) + "-" + getFullTime(est_pickup_private);
-            var text = (d.getDate() == est_pickup_shared.getDate()) ?
-                    time_txt : getFullDate(est_pickup_shared) + " {% trans 'at' %} " + time_txt;
-
-            $("#id_estimated_pickup .value").text(text);
-        }
     }
 
     function clearRideDetails() {
@@ -697,13 +667,11 @@
     function bookRide() {
         var data = {
             num_seats: BookingHelper.num_seats,
-            time_type: BookingHelper.hotspot_type,
             ride_duration: HotspotHelper.ride_duration,
             hotspot_id: BookingHelper.hotspot.id,
             hotspot_type: BookingHelper.hotspot_type,
             hotspot_date: BookingHelper.ride_date,
             hotspot_time: BookingHelper.ride_time,
-            id_city: "",
             city_name: BookingHelper.address.city,
             street_address: BookingHelper.address.street_address,
             house_number: BookingHelper.address.house_number,
@@ -791,7 +759,6 @@
             selectors: {
                 hotspotpicker: "#id_hotspot_select",
                 datepicker: "#id_hotspot_datepicker"
-//                timepicker: "#id_hotspot_time"
             },
             labels: {
                 choose_date: "{% trans "Choose Date" %}",
@@ -800,7 +767,7 @@
             urls: {
                 get_hotspot_data: "{% url sharing.passenger_controller.get_hotspots_data %}",
                 get_hotspot_dates: "{% url sharing.passenger_controller.get_hotspot_dates %}",
-                get_hotspot_times: "{% url sharing.passenger_controller.get_hotspot_times %}"
+                get_hotspot_offers: "{% url sharing.passenger_controller.get_hotspot_offers %}"
             }
         });
         HotspotHelper.makeHotSpotSelector({
@@ -940,24 +907,12 @@
                 $("#id_hotspot_datepicker").val(BookingHelper.ride_date);
             }
             if (BookingHelper.ride_time) {
-//                $("#id_hotspot_time").val(BookingHelper.ride_time);
+                $(".interval.selected").removeClass("selected");
+                $(".interval .time:contains(" + BookingHelper.ride_time + ")").parents(".interval").addClass("selected");
             }
 
-            var title_text = "{% trans "Define Time" %}";
-            var label_text = "{% trans "Time" %}";
-
-            if (BookingHelper.hotspot && BookingHelper.hotspot_type == PICKUP) {
-                title_text = "{% trans "Pickup Time from " %}" + BookingHelper.hotspot.name;
-                label_text = "{% trans "_pickupat" %}";
-            }
-            else if (BookingHelper.hotspot && BookingHelper.hotspot_type == DROPOFF) {
-                title_text = "{% trans "Dropoff Time at " %}" + BookingHelper.hotspot.name;
-                label_text = "{% trans "_dropoffat" %}";
-            }
-
-            $("#datetime_content .title").text(title_text);
-//            $("label[for='id_hotspot_time']").text(label_text);
-
+            var pickup_desc = (BookingHelper.hotspot_type == PICKUP) ? BookingHelper.hotspot.name : BookingHelper.address.name;
+            $("#datetime_content .title").text("{% trans "Pickup Time from " %}" + pickup_desc);
             GoogleMapHelper.fitMarkers();
             logGAEvent("order", "choose date", $("#id_hotspot_datepicker").val());
         });
@@ -997,11 +952,6 @@
                     $summary.find(".hotspot .desc").text("(" + BookingHelper.hotspot.description + ")");
                 }
                 $summary.find(".when .desc").text(BookingHelper.ride_date + " " + BookingHelper.ride_time);
-                if (BookingHelper.hotspot_type == PICKUP) {
-                    $summary.find(".when .details_label").text(BookingHelper.messages.pickup_time + ":");
-                } else {
-                    $summary.find(".when .details_label").text(BookingHelper.messages.dropoff_time + ":");
-                }
                 $("#num_seats input:radio[value=" + BookingHelper.num_seats + "]").attr("checked", "checked");
                 $("#book_ride").enable().text(BookingHelper.messages.book_ride);
             }
@@ -1027,13 +977,6 @@
         });
         $("#switch_direction").live("click", function() {
             switchDirection();
-            $("#details_loader").show();
-            getIntervals({
-                onGotIntervals: function() {
-                    $("#details_loader").hide();
-                    showBookingStep("datetime");
-                }
-            });
         });
 
 

@@ -369,6 +369,10 @@ class RideComputation(BaseModel):
     debug = models.BooleanField(default=False, editable=False)
     status = StatusField(_("status"), choices=RideComputationStatus.choices(), default=RideComputationStatus.PENDING)
 
+    hotspot_type = models.IntegerField(_("hotspot type"), choices=StopType.choices())
+    hotspot_datetime = UTCDateTimeField(null=True, blank=True, editable=False)
+
+    # TODO_WB: deprecate these fields, and replace with hotspot_type and hotspot_datetime
     hotspot_depart_time = UTCDateTimeField(null=True, blank=True, editable=False)
     hotspot_arrive_time = UTCDateTimeField(null=True, blank=True, editable=False)
 
@@ -1042,7 +1046,7 @@ class Order(BaseModel):
         if self.pickup_point:
             pickup_str = self.pickup_point.stop_time.strftime("%d/%m/%y, %H:%M")
 
-        elif self.computation.hotspot_arrive_time: # to Hotspot, pickup time is estimated
+        elif self.computation.hotspot_type == StopType.DROPOFF: # to Hotspot, pickup time is estimated
             ride_duration_sec = (self.arrive_time - self.depart_time).seconds
             sharing_dprt = self.arrive_time - datetime.timedelta(seconds=ride_duration_sec + SHARING_TIME_MINUTES * 60)
 

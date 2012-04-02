@@ -65,7 +65,7 @@ urlpatterns = patterns('',
     (r'^cancel_order/$', 'sharing.passenger_controller.cancel_order'),
     (r'^hotspots_data/$', 'sharing.passenger_controller.get_hotspots_data'),
     (r'^dates_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_dates'),
-    (r'^times_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_times'),
+    (r'^offers_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_offers'),
     (r'^price_for_hotspot/$', 'sharing.passenger_controller.get_hotspot_price'),
 
 

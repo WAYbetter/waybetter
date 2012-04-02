@@ -55,7 +55,7 @@ var MyRidesHelper = Object.create({
                 if ($next_table && has_next) {
                     $.each(data.next_rides, function(i, order) {
                         var row = that._renderRideRow(order, true);
-                        $next_table.find("tbody").append(row);
+                        $next_table.find("tbody").prepend(row);
                     });
                     $next_table.show();
                 }
@@ -66,7 +66,7 @@ var MyRidesHelper = Object.create({
                 if ($previous_table && has_previous) {
                     $.each(data.previous_rides, function(i, order) {
                         var row = that._renderRideRow(order, false);
-                        $previous_table.find("tbody").append(row);
+                        $previous_table.find("tbody").prepend(row);
                     });
                     $previous_table.show();
                 }
@@ -248,7 +248,7 @@ var HotspotHelper = Object.create({
         urls: {
             get_hotspot_data: "",
             get_hotspot_dates: "",
-            get_hotspot_times: ""
+            get_hotspot_offers: ""
         },
         labels: {
             choose_date: "",
@@ -319,7 +319,7 @@ var HotspotHelper = Object.create({
         var $datepicker = $(this.config.selectors.datepicker);
 
         $.ajax({
-            url: that.config.urls.get_hotspot_times,
+            url: that.config.urls.get_hotspot_offers,
             dataType: "json",
             data: $.extend(true, {'day': $datepicker.val(), 'hotspot_id': $hotspotpicker.val()}, options.data),
             beforeSend: function() {
@@ -414,11 +414,6 @@ var HotspotHelper = Object.create({
                         // get dates
                         that.clearCache();
                         that._getDatesForMonthYear(first_interval.getFullYear(), first_interval.getMonth()+1, $datepicker);
-
-                        // get times
-                        that.refreshHotspotSelector({
-                            refresh_intervals: true
-                        });
                     }
                 });
 
