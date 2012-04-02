@@ -5,7 +5,9 @@ A utility module to handle timezone requirements
 '''
 
 import datetime
+import logging
 import time
+import traceback
 from django.conf import settings
 from django.db import models
 from django.utils.dateformat import format as date_format
@@ -22,6 +24,13 @@ class UTC(datetime.tzinfo):
     def dst(self, dt):
         return datetime.timedelta(0)
 
+ISRAEL_DST_SCHEDULE = {
+    2010: (datetime.datetime(2010, 3, 26, 2), datetime.datetime(2010, 9, 12, 2)),
+    2011: (datetime.datetime(2011, 4, 1, 2), datetime.datetime(2011, 10, 2, 2)),
+    2012: (datetime.datetime(2012, 3, 30, 2), datetime.datetime(2012, 9, 23, 2)),
+    2013: (datetime.datetime(2013, 3, 29, 2), datetime.datetime(2013, 9, 8, 2)),
+    2014: (datetime.datetime(2014, 3, 28, 2), datetime.datetime(2014, 9, 28, 2)),
+}
 
 class IsraelTimeZone(datetime.tzinfo):
     """
@@ -34,10 +43,17 @@ class IsraelTimeZone(datetime.tzinfo):
     def tzname(self, dt):
         return "UTC+2"
 
-    # update this when DST is on/off
     def dst(self, dt):
-#        return datetime.timedelta(hours=1) # DST on
-        return datetime.timedelta(0)     # DST off
+        _dt = dt.replace(tzinfo=None)
+        dst_start, dst_end = ISRAEL_DST_SCHEDULE.get(_dt.year, (None, None))
+        if dst_start and dst_end:
+            if dst_start <= _dt < dst_end:
+                return datetime.timedelta(hours=1)
+            else:
+                return datetime.timedelta(0)
+        else:
+            logging.warning("DST not defined for year %s:\n%s" % (dt.year, "".join(traceback.format_stack())))
+            return datetime.timedelta(0)
 
 TZ_INFO = {
     "UTC": UTC(),
@@ -105,8 +121,8 @@ def default_tz_now_min():
 def default_tz_now_max():
     return datetime.datetime.combine(default_tz_now(), set_default_tz_time(datetime.time.max))
 
-def set_default_tz_time(time):
-    return time.replace(tzinfo=TZ_INFO["Asia/Jerusalem"])
+def set_default_tz_time(dt):
+    return dt.replace(tzinfo=TZ_INFO["Asia/Jerusalem"])
 
 def format_dt(dt):
     return date_format(dt, settings.DATETIME_FORMAT)

@@ -5,7 +5,7 @@
 {% block top_right %}
     <ul class="content_links">
         <li><a id="li_my_rides" href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
-        <li><a id="li_my_profile">{% trans "My Profile" %}</a></li>
+        <li><a id="li_my_profile" href="{% url user_profile %}">{% trans "My Profile" %}</a></li>
         <li><a id="li_logout" href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
     </ul>
 {% endblock %}
