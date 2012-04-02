@@ -358,29 +358,47 @@
     {{ block.super }}
     <style>
         #map_canvas {
-            height: 800px;
-            width: 800px;
+            min-height: 600px;
+            /*min-width: 600px;*/
+            max-width: 66%;
             margin-right: auto;
-            margin-left: auto;
+            margin-left: 10px;
         }
-
-        #content {
+        body {
             padding: 10px;
-            width: 100%;
+        }
+        #content {
+            float: right;
+            width: 80%;
             direction: ltr;
         }
-        #content h2 {
-            text-align: center;
-        }
 
-        #controls {
-            text-align: center;
-            padding: 20px;
-        }
+        /*#controls {*/
+            /*text-align: center;*/
+            /*padding: 20px;*/
+        /*}*/
 
         #progress {
             height: 50px;
             text-align: center;
+            padding-top: 15px;
+        }
+
+        #sidebar {
+            float: left;
+            text-align: left;
+            width: 20%;
+            direction: ltr;
+        }
+        #sidebar h2 {
+            text-transform: capitalize;
+        }
+        #sidebar p {
+            white-space: pre-line;
+        }
+        .divider {
+            border-bottom: 1px solid lightgray;
+            padding-bottom: 20px;
         }
 
     </style>
@@ -397,18 +415,31 @@
 {#        var total_pickmeapp = {{ total_pickmeapp }};#}
 {#        var total_sharing = {{ total_sharing }};#}
         var total_orders = undefined;
-        var use_clustering = true;
+        var type = "{{ type }}";
+        var use_clustering = false;
+        var unique_per_passenger = true;
         var all_points = [];
         var markers = [];
         var loaders_num = 6; // most modern browsers allow up to 6 concurrent requests
         var chunk_size = 200;
         var active_loaders = [];
         var chunks = [];
+        var used_location_ids = {};
 
         var map, mc;
 
         function addMarker(lat, lon) {
             var position = new google.maps.LatLng(lat, lon);
+
+            if (unique_per_passenger) {
+                var id = [lat, lon].join("_");
+                if (used_location_ids[id]) {
+                    return undefined;
+                } else {
+                    used_location_ids[id] = true;
+                }
+            }
+
             var marker = new google.maps.Marker({
                 map:map,
                 position:position
@@ -438,7 +469,7 @@
                 $("#progress").show();
 
                 $("#p_msg").text("Loading Data: ");
-                $("#p_val").text([all_points.length, " / ", total_orders, " (", (all_points.length / total_orders * 100).toFixed(1), " %)"].join(''));
+                $("#p_val").text([(all_points.length / total_orders * 100).toFixed(1), " %"].join(''));
             } else {
                 $("#p_msg").text("Loading complete!");
                 $("select, input, button").enable();
@@ -456,15 +487,15 @@
                 dataType:"json",
                 data:{
                     offset:offset,
-                    batch_size:batch_size,
-                    type: $("#type").val(),
-                    status: $("#status").val()
+                    type: type,
+//                    status: $("#status").val()
+                    batch_size:batch_size
                 },
                 success:function (data) {
                     if (data && data.length) {
                         $.each(data, function (i, e) {
                             var marker = addMarker(e[0], e[1]);
-                            if (use_clustering) {
+                            if (use_clustering && marker) {
                                 mc.addMarker(marker);
                             }
                         });
@@ -513,7 +544,7 @@
         }
         function submitRequest() {
             $("select, input, button").disable();
-            $("#unique_per_passenger_chk").selected(false);
+//            $("#unique_per_passenger_chk").selected(false);
             clearData();
             loadData();
         }
@@ -524,8 +555,8 @@
                 dataType:"json",
                 async: false,
                 data:{
-                    type: $("#type").val(),
-                    status: $("#status").val(),
+                    type: type,
+//                    status: $("#status").val(),
                     count_only: true
                 },
                 success:function (data) {
@@ -540,11 +571,10 @@
 
             $("#clustering_chk").change(function () {
                 use_clustering = $(this).is(":checked");
+                mc.removeMarkers(markers);
                 if (use_clustering) {
-                    mc.removeMarkers(markers);
                     mc.addMarkers(markers);
                 } else {
-                    mc.removeMarkers(markers);
                     $.each(markers, function (i, m) {
                         m.setMap(map)
                     });
@@ -572,41 +602,48 @@
                 });
             });
 
-            $("#ok").click(submitRequest);
-
+//            $("#ok").click(submitRequest);
+            submitRequest();
         })
     </script>
 {% endblock %}
 
 {% block body %}
-    <div id="content">
-        <h2>Orders View</h2>
+    <div id="sidebar">
+        <h2 class='divider'>{{ type }} Orders</h2>
+
+        {% for msg in msgs %}
+            <p class='divider'>{{ msg }}</p>
+        {% endfor %}
+
         <div id="controls">
-            <label for="type">Type</label>
-            <select id="type" name="type">
-                <option value="{{ pickmeapp }}">PickMeApp</option>
-                <option value="sharing">Sharing</option>
-            </select>
-            <label for="status">Order Status</label>
-            <select id="status" name="status">
-                <option value="">All</option>
-                {% for i, v in status_options %}
-                    <option value="{{ i }}">{{ v }}</option>
-                {% endfor %}
-            </select>
-            <button id="ok">OK</button>
+{#            <label for="type">Type</label>#}
+{#            <select id="type" name="type">#}
+{#                <option value="{{ pickmeapp }}">PickMeApp</option>#}
+{#                <option value="sharing">Sharing</option>#}
+{#            </select>#}
+{#            <label for="status">Order Status</label>#}
+{#            <select id="status" name="status">#}
+{#                <option value="">All</option>#}
+{#                {% for i, v in status_options %}#}
+{#                    <option value="{{ i }}">{{ v }}</option>#}
+{#                {% endfor %}#}
+{#            </select>#}
+{#            <button id="ok">OK</button>#}
             <div>
-                <input type="checkbox" id="clustering_chk" checked>
+                <input type="checkbox" id="clustering_chk">
                 <label for="clustering_chk">Clustering</label>
-                <input type="checkbox" id="unique_per_passenger_chk">
-                <label for="unique_per_passenger_chk">Per Passenger</label>
+{#                <input type="checkbox" id="unique_per_passenger_chk">#}
+{#                <label for="unique_per_passenger_chk">Per Passenger</label>#}
             </div>
+        </div>
+    </div>
+    <div id="content">
+        <div id="map_container">
+            <div id="map_canvas"></div>
         </div>
         <div id="progress">
             <span id="p_msg"></span><span id="p_val"></span>
-        </div>
-        <div id="map_container">
-            <div id="map_canvas"></div>
         </div>
     </div>
     <div id="points"></div>

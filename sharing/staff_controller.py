@@ -36,7 +36,7 @@ import re
 
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 LANG_CODE = "he"
-PICKMEAPP = "pickmeapp"
+PICKMEAPP = "PickMeApp"
 
 @staff_member_required
 def view_user_orders(request, user_id):
@@ -460,21 +460,30 @@ def passenger_csv(request):
 
 
 @staff_member_required
-def orders_map(request):
+def sharing_orders_map(request):
+    return order_map(request, "sharing")
+
+@staff_member_required
+def pickmeapp_orders_map(request):
+    return order_map(request, PICKMEAPP, msgs=["# Orders = 4405", "Avg. Freq = 1 order / 4.5 days"])
+
+def order_map(request, type, msgs=None):
     pickmeapp = PICKMEAPP
+
 #    total_pickmeapp = Order.objects.filter(type=OrderType.PICKMEAPP, debug=False).count()
 #    total_sharing = Order.objects.filter(type=OrderType.SHARED, debug=False).count()
-    status_options = ORDER_STATUS
+#    status_options = ORDER_STATUS
     return render_to_response("orders_map.html", RequestContext(request, locals()))
 
 def get_orders_map_data(request):
     offset = int(request.GET.get("offset", 0))
     batch_size = int(request.GET.get("batch_size", 500))
     request_type = request.GET.get("type", PICKMEAPP)
-    try:
-        status = int(request.GET.get("status"))
-    except ValueError, e:
-        status = None
+    status = None
+#    try:
+#        status = int(request.GET.get("status"))
+#    except ValueError, e:
+#        pass
 
     count_only = request.GET.get("count_only", False)
     if count_only: count_only = simplejson.loads(count_only)
