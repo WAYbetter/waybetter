@@ -11,11 +11,16 @@ def enable(modeladmin, request, queryset):
         billing_trx.enable()
 enable.short_description = "Enable"
 
+def retry(modeladmin, request, queryset):
+    for billing_trx in queryset:
+        billing_trx.retry_J4()
+retry.short_description = "Retry J4"
+
 class BillingTransactionAdmin(admin.ModelAdmin):
     list_display = ["id", "dn_passenger_name", "dn_pickup_time", "dn_pickup", "dn_dropoff", "amount", "charge_date", "status", "debug", "invoice_sent", "comments", "transaction_id"]
     list_filter = ["status", "debug", "invoice_sent"]
     exclude = ["passenger", "order"]
-    actions = [disable, enable]
+    actions = [disable, enable, retry]
 
     # prevent deletion via admin
     def get_actions(self, request):

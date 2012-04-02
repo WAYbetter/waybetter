@@ -118,6 +118,10 @@ class BillingTransaction(BaseModel):
         self.save()
         self.charge(immediately=True)
 
+    def retry_J4(self):
+        self.change_status(BillingStatus.FAILED, BillingStatus.APPROVED) # simulate a successful j5
+        self.charge(immediately=True)
+
     def charge(self, immediately=False):
         eta = datetime.now() if immediately else self.charge_date
         self._commit_transaction(token=self.passenger.billing_info.token,
