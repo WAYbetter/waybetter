@@ -19,9 +19,9 @@ def get_hotspot_computation(hotspot, hotspot_type, depart_datetime, arrive_datet
     @return: RideComputation
     """
     if hotspot_type == StopType.PICKUP:
-        hotspot_datetime = hotspot.get_next_active_datetime(depart_datetime)
+        hotspot_datetime = hotspot.get_next_interval(depart_datetime)
     else:
-        hotspot_datetime = hotspot.get_next_active_datetime(arrive_datetime)
+        hotspot_datetime = hotspot.get_next_interval(arrive_datetime)
 
     key = get_hotspot_computation_key(hotspot, hotspot_type, hotspot_datetime)
     if is_debug:

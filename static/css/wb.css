@@ -1152,11 +1152,29 @@ Home
         .wb_home #booking_content_container #datetime_content #intervals_list .popularity-label {
           padding: 5px; }
         .wb_home #booking_content_container #datetime_content #intervals_list .popularity-bar {
-          background: #bcbcbc; }
+          background: #bcbcbc;
+          -webkit-box-shadow: inset 0px 2px 4px 0px rgba(0, 0, 0, 0.55);
+          -moz-box-shadow: inset 0px 2px 4px 0px rgba(0, 0, 0, 0.55);
+          box-shadow: inset 0px 2px 4px 0px rgba(0, 0, 0, 0.55); }
         .wb_home #booking_content_container #datetime_content #intervals_list .popularity-fill {
-          background: #4cba00;
           position: relative;
-          bottom: 1px; }
+          bottom: 1px;
+          background: #196338;
+          /* Old browsers */
+          background: -moz-linear-gradient(top, #196338 0%, #2aa338 12%, #22843d 100%);
+          /* FF3.6+ */
+          background: -webkit-gradient(linear, left top, left bottom, color-stop(0%, #196338), color-stop(12%, #2aa338), color-stop(100%, #22843d));
+          /* Chrome,Safari4+ */
+          background: -webkit-linear-gradient(top, #196338 0%, #2aa338 12%, #22843d 100%);
+          /* Chrome10+,Safari5.1+ */
+          background: -o-linear-gradient(top, #196338 0%, #2aa338 12%, #22843d 100%);
+          /* Opera 11.10+ */
+          background: -ms-linear-gradient(top, #196338 0%, #2aa338 12%, #22843d 100%);
+          /* IE10+ */
+          background: linear-gradient(top, #196338 0%, #2aa338 12%, #22843d 100%);
+          /* W3C */
+          filter: progid:DXImageTransform.Microsoft.gradient(startColorstr='#196338', endColorstr='#22843d',GradientType=0 );
+          /* IE6-9 */ }
     .wb_home #booking_content_container #details_content {
       padding: 10px 10px 0 10px;
       width: 780px; }

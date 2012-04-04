@@ -10,7 +10,7 @@ from django.conf import settings
 from common.util import convert_python_weekday, datetimeIterator
 from common.models import BaseModel, Country, City, CityAreaField, CityArea
 from django.core.validators import MaxValueValidator, MinValueValidator
-from ordering.models import Passenger, Station
+from ordering.models import Passenger, Station, OrderType
 from ordering.pricing import estimate_cost
 from pricing.models import RuleSet, AbstractTemporalRule, PRIVATE_RIDE_HANDLING_FEE
 from pricing.functions import get_base_sharing_price, get_popularity_price, get_noisy_number_for_day_time
@@ -146,11 +146,9 @@ class HotSpot(BaseModel):
 
     @mute_logs()
     def get_offers(self, lat, lon, day, num_seats=1):
-        start_time = self.get_next_orderable_datetime().time() if day == default_tz_now().date() else None
+        now = default_tz_now()
+        start_time = self.get_next_orderable_interval().time() if day == now.date() else None
 
-        times = self.get_times_for_day(day, start_time=start_time)
-
-        offers = []
         ca1, ca2 = None, None
         for area in CityArea.objects.all():
             if area.contains(lat, lon):
@@ -159,14 +157,23 @@ class HotSpot(BaseModel):
                 ca2 = area
 
         tariffs = list(RuleSet.objects.all())
-        cost_rules1 = list(self.station.fixed_prices.filter(city_area_1=ca1, city_area_2=ca2))
-        cost_rules2 = list(self.station.fixed_prices.filter(city_area_1=ca2, city_area_2=ca1))
-        cost_rules = cost_rules1 + cost_rules2
+        costs1 = list(self.station.fixed_prices.filter(city_area_1=ca1, city_area_2=ca2))
+        costs2 = list(self.station.fixed_prices.filter(city_area_1=ca2, city_area_2=ca1))
+        costs = costs1 + costs2
 
-        for t in times:
-            price, popularity = self.get_sharing_price(lat, lon, day, t, num_seats, True, tariffs, cost_rules)
+        offers = []
+
+        if day == now.date():
+            asap_interval = ceil_datetime(now + self.order_processing_time + timedelta(minutes=2)) # spare time to complete booking
+            if self.get_next_orderable_interval() > asap_interval:
+                t = asap_interval.time()
+                asap_price = self.get_cost(lat, lon, day, t, num_seats, tariffs, costs)
+                offers.append({'time': t, 'price': asap_price, 'popularity': 0, 'type': OrderType.PRIVATE})
+
+        for t in self.get_times_for_day(day, start_time=start_time):
+            price, popularity = self.get_sharing_price(lat, lon, day, t, num_seats, True, tariffs, costs)
             if price is not None:
-                offers.append({'time': t, 'price': price, 'popularity': popularity})
+                offers.append({'time': t, 'price': price, 'popularity': popularity, 'type': OrderType.SHARED})
 
         return offers
 
@@ -178,10 +185,10 @@ class HotSpot(BaseModel):
 
         return None
 
-    def get_next_orderable_datetime(self):
-        return self.get_next_active_datetime(base_time=default_tz_now() + self.order_processing_time)
+    def get_next_orderable_interval(self):
+        return self.get_next_interval(base_time=default_tz_now() + self.order_processing_time)
 
-    def get_next_active_datetime(self, base_time=None, timeframe=timedelta(weeks=1)):
+    def get_next_interval(self, base_time=None, timeframe=timedelta(weeks=1)):
         """
         Return the next datetime the hotspot is active in given range, or None
         @param base_time: the datetime searching starts at
@@ -292,7 +299,7 @@ class HotSpot(BaseModel):
 
 
 class HotSpotServiceRule(AbstractTemporalRule):
-    TIME_INTERVAL_CHOICES = [(5, "5 min"), (10, "10 min"), (15, "15 min"), (30, "30 min"), (60, "1 hour")]
+    TIME_INTERVAL_CHOICES = [(5, "5 min"), (10, "10 min"), (15, "15 min"), (20, "20 min"), (30, "30 min"), (60, "1 hour")]
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="service_rules")
     interval = models.IntegerField(_("time interval"), choices=TIME_INTERVAL_CHOICES) # minutes
 
@@ -328,16 +335,24 @@ class HotSpotPopularityRule(AbstractTemporalRule):
     city_area = CityAreaField(verbose_name=_("city area"))
     _popularity = models.IntegerField(verbose_name=_("popularity"), default=DEFAULT_POPULARITY,
         validators=[MinValueValidator(0), MaxValueValidator(MaxPopularity)])
-    noise_limit = models.IntegerField(verbose_name=_("noise limit"), default=DEFAULT_NOISELIMIT,
+    _noise_limit = models.IntegerField(verbose_name=_("noise limit"), default=DEFAULT_NOISELIMIT,
         validators=[MinValueValidator(0), MaxValueValidator(MaxNoiseLimit)])
 
     @property
     def popularity(self):
         return self._popularity / float(self.MaxPopularity)
 
+    @property
+    def noise_limit(self):
+        return self._noise_limit / float(self.MaxNoiseLimit)
+
     @classmethod
     def get_default_popularity(cls):
         return cls.DEFAULT_POPULARITY / float(cls.MaxPopularity)
+
+    @classmethod
+    def get_default_noise_limit(cls):
+        return cls.DEFAULT_NOISELIMIT / float(cls.MaxNoiseLimit)
 
     def is_active(self, lat, lon, day, t):
         in_city_area = self.city_area.contains(lat, lon)
@@ -348,13 +363,10 @@ class HotSpotPopularityRule(AbstractTemporalRule):
 
     @classmethod
     def apply_default(cls, price, day, t):
-        return cls._apply_popularity(price, day, t, cls.DEFAULT_POPULARITY, cls.DEFAULT_NOISELIMIT)
+        return cls._apply_popularity(price, day, t, cls.get_default_popularity(), cls.get_default_noise_limit())
 
     @classmethod
     def _apply_popularity(cls, price, day, t, popularity, noise_limit):
-        popularity /= float(cls.MaxPopularity)
-        noise_limit /= float(cls.MaxNoiseLimit)
-
         noisy_popularity = cls._noisify_popularity(popularity, noise_limit, day, t)
         logging.info("popularity=%s, noise limit=%s --> noisy popularity=%s" % (popularity, noise_limit, noisy_popularity))
 

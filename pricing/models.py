@@ -60,7 +60,10 @@ class AbstractTemporalRule(BaseModel):
         by_date = bool(self.from_date or self.to_date)
         by_weekday = bool(self.from_weekday or self.to_weekday)
 
-        if by_date and by_weekday:
+        if not (by_date or by_weekday):
+            raise ValidationError("Please enter either date or weekday range")
+
+        elif by_date and by_weekday:
             raise ValidationError("Can not define time frame by both date and weekday.")
 
         elif by_date and not (self.from_date and self.to_date):
