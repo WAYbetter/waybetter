@@ -3,24 +3,21 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils import simplejson
 from djangotoolbox.http import JSONResponse
-from suds.client import Client
+from fleet.backends.isr import ISR
 from fleet import isr_tests
 import inspect
-import logging
 
-def authenticate(request):
-    logging.getLogger('suds').setLevel(logging.ERROR)
+def get_order_status(request, order_id):
+    fm_order = ISR.get_order(order_id)
+    result = str(fm_order)
 
-    url = "http://81.218.41.97/xmlp_service/Taxi_Orders.asmx?wsdl"
-    client = Client(url)
-    logging.info(client)
-
-    auth_number = client.service.Authenticate("waybetter", "l3mMbXbWNy7cHfHNHCG1SOpEI62b58Tv")
-    logging.info(auth_number)
-    return HttpResponse(auth_number)
+    if request.is_ajax():
+        return JSONResponse({'result': result})
+    else:
+        return HttpResponse(result)
 
 
-def isr_view(request):
+def isr_testpage(request):
     if request.method == "POST":
         result = ""
         method_name = request.POST.get("method_name")
@@ -50,4 +47,4 @@ def isr_view(request):
                 args = inspect.getargspec(attr)[0]
                 methods.append({'name': attr.func_name, 'args': args, 'doc': attr.func_doc or ""})
 
-        return render_to_response("isr_view.html", locals(), RequestContext(request))
+        return render_to_response("isr_testpage.html", locals(), RequestContext(request))
