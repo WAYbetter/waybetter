@@ -130,10 +130,11 @@ class Station(BaseModel):
     sms_drivers = models.BooleanField(_("send sms to drivers"), default=False)
     vouchers_emails = models.CharField(_("voucher emails"), max_length=255, null=True, blank=True)
 
+    fleet_station_id = models.CharField(help_text="The id used by the fleet manager to reference this station", max_length=64, null=True, blank=True)
     _fleet_manager = models.ForeignKey(FleetManager, verbose_name=_("fleet manager"), related_name="stations", null=True, blank=True)
     @property
     def fleet_manager(self):
-        return self._fleet_manager.backend
+        return self._fleet_manager.backend if self._fleet_manager else None
 
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")

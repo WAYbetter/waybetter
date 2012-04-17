@@ -1,3 +1,4 @@
+import traceback
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
@@ -8,7 +9,7 @@ from fleet import isr_tests
 import inspect
 
 def get_order_status(request, order_id):
-    fm_order = ISR.get_order(order_id)
+    fm_order = ISR.get_ride(order_id)
     result = str(fm_order)
 
     if request.is_ajax():
@@ -28,7 +29,8 @@ def isr_testpage(request):
             result = method(*values)
 
         except Exception, e:
-            result = e.message
+            trace = traceback.format_exc()
+            result = trace
 
         try:
             result = simplejson.dumps(result)

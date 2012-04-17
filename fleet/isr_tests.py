@@ -2,10 +2,11 @@ import random
 import datetime
 from django.contrib.auth.models import User
 from common.models import City
-from ordering.models import Order, Passenger
+from fleet.models import FleetManager
+from ordering.models import Order, Passenger, Station
 from fleet.backends.isr import ISR
 
-def create_order(address, comments, passenger_phone, first_name, last_name, start_time, finish_time, as_raw_output):
+def create_ride(address, comments, passenger_phone, first_name, last_name, start_time, finish_time, as_raw_output):
     from common.tz_support import set_default_tz_time
     from common.geocode import gmaps_geocode
 
@@ -55,28 +56,47 @@ def create_order(address, comments, passenger_phone, first_name, last_name, star
 
     order.passenger = passenger
 
+    class FakeOrdersManager(object):
+        def all(self):
+            return [order]
+
+    class FakeSharedRide(object):
+        def __init__(self):
+            self.orders = FakeOrdersManager()
+
+    ride = FakeSharedRide()
+    ride.id = random.randrange(1, 999999)
+
+    fm = FleetManager(backend_path="fleet.backends.isr.ISR")
+    station = Station()
+    station._fleet_manager = fm
+    station.fleet_station_id = 8 # waybetter station operator id
+
     if as_raw_output:
-        ex_order = ISR._create_external_order(order)
+        ex_order = ISR._create_external_order(order, station)
         reply = ISR._get_client().service.Insert_External_Order(ISR._get_login_token(), ex_order)
         return reply
 
-    return ISR.create_order(order)
+    return ISR.create_ride(ride, station)
 
-def cancel_order(order_id):
-    return ISR.cancel_order(order_id)
+def cancel_ride(ride_id):
+    return ISR.cancel_ride(ride_id)
 
-def get_order(order_id, as_raw_output):
+def get_ride(ride_id, as_raw_output):
     if as_raw_output:
-        return ISR._get_client().service.Get_External_Order(ISR._get_login_token(), order_id)
+        return ISR._get_client().service.Get_External_Order(ISR._get_login_token(), ride_id)
 
-    return ISR.get_order(order_id)
+    return ISR.get_ride(ride_id)
 
-def get_ongoing_orders():
+def get_ongoing_rides():
     """
     with status in [1, 2, 3, 4, 6, 7, 14]
     """
-    orders = ISR.get_ongoing_orders()
-    return [o.wb_id for o in orders]
+    fmrs = ISR.get_ongoing_rides()
+    if fmrs:
+        return [fmr.wb_id for fmr in fmrs]
+    else:
+        return "No ongoing rides"
 
 def get_var_supplier_orders(status_list):
     """
@@ -94,10 +114,9 @@ def get_var_supplier_orders(status_list):
 #    return ISR._get_client().service.Server_Server_Version()
 #
 #
-#def server_session_id():
-#    return ISR._get_client().service.Server_Session_ID()
-#
-#
+def server_session_id():
+    return ISR._get_client().service.Server_Session_ID()
+
 def server_test():
     return ISR._get_client().service.Server_Test()
 #

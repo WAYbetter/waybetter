@@ -59,7 +59,7 @@
             {% endfor %}
             <input type="submit" value="Run">
         </form>
-        {% if m.name != "create_order" %}
+        {% if m.name != "create_ride" %}
             <textarea name="" id="result_{{ m.name }}" cols="30" rows="10"></textarea>
         {% else %}
             <table>
@@ -128,9 +128,14 @@
                     $target.val("Sending...");
                 },
                 success:function (responseText, statusText, xhr, $form) {
-                    $target.val(responseText.result || "no data received");
+                    var s = responseText.result;
+                    try {
+                        s = JSON.parse(responseText.result);
+                    } catch (e) {}
 
-                    if ($(form).attr("id") == "form_create_order") {
+                    $target.val(s || "no data received");
+
+                    if ($(form).attr("id") == "form_create_ride") {
                         var match = responseText.result.match(/\d+/);
                         if (match && match.length) {
                             order_id = match[0];
@@ -139,7 +144,7 @@
                     }
                 },
                 error:function (jqXHR, textStatus, errorThrown) {
-                    $target.val(errorThrown);
+                    $target.val(textStatus);
                 }
             });
         });

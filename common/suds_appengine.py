@@ -13,6 +13,7 @@ class GAEClient(Client):
         self.options = options
 
         options.cache = NoCache() #patch: appengine
+        #TODO_WB: optimization suggestion: create a Memcache Cache class instead of NoCache
 #        options.cache = ObjectCache(days=1)
 
         self.set_options(**kwargs)
