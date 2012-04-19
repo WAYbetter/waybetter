@@ -11,6 +11,7 @@ from django.http import HttpResponse
 from google.appengine.ext.deferred import deferred
 from billing.billing_manager import get_token_url
 from billing.models import BillingInfo
+from common.fax.backends.google_cloud_print import GoogleCloudPrintBackend
 from common.tz_support import default_tz_time_min, default_tz_now, set_default_tz_time
 from common.util import has_related_objects, url_with_querystring, get_unique_id, send_mail_as_noreply
 from common.decorators import catch_view_exceptions, internal_task_on_queue
@@ -88,6 +89,27 @@ def run_routing_service_test(request):
     q.add(task)
 
     return HttpResponse("Task Added")
+
+def run_gcp_service_test(request):
+    task = taskqueue.Task(url=reverse(test_gcp_service_task))
+    q = taskqueue.Queue('maintenance')
+    q.add(task)
+
+    return HttpResponse("Task Added")
+
+
+@csrf_exempt
+@catch_view_exceptions
+@internal_task_on_queue('maintenance')
+def test_gcp_service_task(request):
+    gcp_backend = GoogleCloudPrintBackend()
+    result = gcp_backend.get_printers()
+    logging.info("test_gcp_service_task: %s" % result)
+    if not result or not result.get("success"):
+        notify_by_email("Google Cloud Print service appears to be down")
+
+
+    return HttpResponse("OK")
 
 
 @csrf_exempt

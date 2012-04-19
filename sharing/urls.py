@@ -47,7 +47,6 @@ urlpatterns = patterns('',
     url(r'^get_pending_faxes/$', 'sharing.station_controller.get_pending_faxes', name="get_pending_faxes"),
     (r'^send_dummy_fax/$', 'sharing.station_controller.send_dummy_fax_to_station'),
     (r'^push_ride_task/$', 'sharing.sharing_dispatcher.push_ride_task'),
-#    (r'^mark_ride_not_taken_task/$', 'sharing.sharing_dispatcher.mark_ride_not_taken_task'),
 #    TODO_WB: resolve conflicts with ordering.urls
 #    (r'^workstation/(?P<workstation_id>\d+)/$', 'sharing.station_controller.sharing_workstation_home'),
 #    (r'^station/tools/$', 'sharing.station_controller.station_tools'),

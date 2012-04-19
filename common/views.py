@@ -23,7 +23,7 @@ import logging
 import os
 
 # DeadlineExceededError can live in two different places
-from sharing.station_controller import send_ride_fax, STATION_PICKUP_OFFSET
+from sharing.station_controller import print_voucher, STATION_PICKUP_OFFSET
 
 ASYNC_MEMCACHE_KEY = "ASYNC-COMPUTATION-%s"
 try:
@@ -468,6 +468,6 @@ def do_test_gcp(ride_id, use_real):
 #
 #    html = """<html><head></head><body><h1>Hello Google Cloud Print</h1>%s</body></html>""" % xx
 
-    send_ride_fax(printer_id, html, subject, ride.id, backend=backend)
+    print_voucher(printer_id, html, subject, ride.id, backend=backend)
 
     return HttpResponse("OK")

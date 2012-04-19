@@ -66,7 +66,10 @@ class Enum(object):
 
     @classmethod
     def get_name(cls, value):
-        return cls._item_names()[cls._items().index(value)]
+        try:
+            return cls._item_names()[cls._items().index(value)]
+        except ValueError:
+            return None
 
     @classmethod
     def from_string(cls, str):
