@@ -4,16 +4,15 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils import simplejson
 from djangotoolbox.http import JSONResponse
-from fleet.backends.isr import ISR
 from fleet import isr_tests
+from fleet import fleet_manager
 import inspect
 
-def get_order_status(request, order_id):
-    fm_order = ISR.get_ride(order_id)
-    result = str(fm_order)
-
+def get_ride_status(request, ride_id):
+    fleet_manager.query_backends()
+    result = fleet_manager.get_ride_data(ride_id)
     if request.is_ajax():
-        return JSONResponse({'result': result})
+        return JSONResponse({'result': str(result)})
     else:
         return HttpResponse(result)
 

@@ -15,6 +15,7 @@ from datetime import timedelta
 from ordering.util import send_msg_to_passenger
 from sharing.passenger_controller import send_ride_notifications
 from sharing.station_controller import send_ride_voucher, mark_ride_not_taken_task
+from fleet import fleet_manager
 import signals
 import logging
 
@@ -40,8 +41,14 @@ def dispatch_ride(ride):
             task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
             q.add(task)
 
+        if ride.dn_fleet_manager_id:
+            fleet_manager.create_ride(ride)
+
         send_ride_notifications(ride)
         deferred.defer(mark_ride_not_taken_task, ride_id=ride.id, _eta=ride.depart_time)
+
+        if not work_station.is_online:
+            notify_by_email(u"Ride [%s] dispatched to offline workstation %s" % (ride.id, work_station), msg=ride.get_log())
 
 #    task = taskqueue.Task(url=reverse(mark_ride_not_taken_task), eta=ride.depart_time, params={"ride_id": ride.id})
 #    q = taskqueue.Queue('orders')
@@ -56,18 +63,10 @@ def assign_ride(ride):
 
     if work_station:
         try:
-            ride.station = work_station.station
-
-            # TODO_WB
-            # in fax sending mode we assume all dispatched rides will be accepted
+            station = work_station.station
+            ride.station = station
+            ride.dn_fleet_manager_id = station.fleet_manager_id
             ride.change_status(old_status=PENDING, new_status=ASSIGNED) # calls save()
-#            ride.change_status(old_status=PENDING, new_status=ACCEPTED) # calls save()
-
-#            if work_station.is_online:
-#                notify_by_email(u"Ride [%s] assigned successfully to workstation %s" % (ride.id, work_station), msg=get_ride_log(ride))
-#            else:
-#                notify_by_email(u"Ride [%s] assigned to offline workstation %s" % (ride.id, work_station), msg=get_ride_log(ride))
-
             return work_station
 
         except UpdateStatusError:

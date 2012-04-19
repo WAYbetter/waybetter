@@ -1,5 +1,6 @@
 import datetime
 from common.models import BaseModel
+from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.importlib import import_module
 from common.util import Enum
@@ -15,6 +16,46 @@ class FleetManagerRideStatus(Enum):
     COMPLETED = 7
     CANCELLED = 8
 
+ONGOING_STATUS_LIST = [FleetManagerRideStatus.ASSIGNED_TO_TAXI,
+                       FleetManagerRideStatus.DRIVER_ACCEPTED,
+                       FleetManagerRideStatus.WAITING_FOR_PASSENGER,
+                       FleetManagerRideStatus.PASSENGER_PICKUP,
+                       FleetManagerRideStatus.PASSENGER_DROPOFF]
+
+class FleetManagerRide(object):
+    def __init__(self, id, status, taxi_id, lat, lon, timestamp, raw_status=None):
+        """Constructor.
+        @param id: Long representing the id of the ride as recorded in our db.
+        @param status: Number representing the status as one of C{FleetManagerRideStatus}.
+        @param taxi_id: Number of the taxi assigned to this ride or None.
+        @param lat: latitude of the taxi captured on C{timestamp} or None.
+        @param lon: longitude of the taxi captured on C{timestamp} or None.
+        @param timestamp: A datetime.datetime instance or None.
+        @param raw_status: The original status as returned by the backend.
+        """
+        assert id
+        assert timestamp is None or isinstance(timestamp, datetime.datetime)
+        assert FleetManagerRideStatus.contains(status)
+
+        self.id = long(id)
+        self.status = status
+        self.taxi_id = long(taxi_id) if taxi_id else None
+        self.lat = float(lat) if lat else None
+        self.lon = float(lon) if lon else None
+        self.timestamp = timestamp
+        self.raw_status = raw_status
+
+    def __str__(self):
+        s = "%s %s" % (self.id, FleetManagerRideStatus.get_name(self.status))
+        if self.raw_status:
+            s += " [%s]" % self.raw_status
+        if self.taxi_id:
+            s += ": assigned to taxi %s" % self.taxi_id
+        if self.lat and self.lon:
+            s += " located at %s,%s" % (self.lat, self.lon)
+        if self.timestamp:
+            s += " [%s]" % self.timestamp
+        return s
 
 class AbstractFleetManagerBackend(object):
     @classmethod
@@ -42,59 +83,50 @@ class AbstractFleetManagerBackend(object):
         """
         raise NotImplementedError()
 
-
-class FleetManagerRide(object):
-    def __init__(self, wb_id, status, taxi_id, lat, lon, timestamp, raw_status=None):
-        """Constructor.
-        @param wb_id: Long representing the id of the ride as recorded in our db.
-        @param status: Number representing the status as one of C{FleetManagerRideStatus}.
-        @param taxi_id: Number of the taxi assigned to this ride or None.
-        @param lat: latitude of the taxi captured on C{timestamp} or None.
-        @param lon: longitude of the taxi captured on C{timestamp} or None.
-        @param timestamp: A datetime.datetime instance or None.
-        @param raw_status: The original status as returned by the backend.
+    @classmethod
+    def get_ongoing_rides(cls):
+        """Query the fleet manager for all rides with status in C{ONGOING_STATUS_LIST}.
+        @return: A list of C{FleetManagerRide}.
         """
-        assert wb_id
-        assert timestamp is None or isinstance(timestamp, datetime.datetime)
-        assert FleetManagerRideStatus.contains(status)
-
-        self.wb_id = long(wb_id)
-        self.status = status
-        self.taxi_id = int(taxi_id) if taxi_id else None
-        self.lat = float(lat) if lat else None
-        self.lon = float(lon) if lon else None
-        self.timestamp = timestamp
-        self.raw_status = raw_status
-
-    def __str__(self):
-        s = "%s %s" % (self.wb_id, FleetManagerRideStatus.get_name(self.status))
-        if self.raw_status:
-            s += " [%s]" % self.raw_status
-        if self.taxi_id:
-            s += ": assigned to taxi %s" % self.taxi_id
-        if self.lat and self.lon:
-            s += " located at %s,%s" % (self.lat, self.lon)
-        if self.timestamp:
-            s += " [%s]" % self.timestamp
-        return s
+        raise NotImplementedError()
 
 
-class FleetManager(BaseModel):
+class FleetManager(BaseModel, AbstractFleetManagerBackend):
     name = models.CharField(max_length=50)
-    backend_path = models.CharField(max_length=50, blank=True, null=True) # e.g., fleet.backends.isr.ISR
+    backend_path = models.CharField(max_length=50) # e.g., fleet.backends.isr.ISR
 
-    backend = None
-    def __init__(self, *args, **kwargs):
-        """Constructor.
-        Sets the backend class as defined by the backend path.
-        """
-        super(FleetManager, self).__init__(*args, **kwargs)
+    def clean(self):
+        backend = None
+        try:
+            backend = self._get_backend()
+        except Exception:
+            pass
 
+        if not backend:
+            raise ValidationError("Invalid backend path")
+
+    @property
+    def backend(self):
+        return self._get_backend()
+
+    def _get_backend(self):
         i = self.backend_path.rfind('.')
         module, attr = self.backend_path[:i], self.backend_path[i + 1:]
 
         mod = import_module(module)
-        self.backend = getattr(mod, attr)
+        return getattr(mod, attr)
 
     def __unicode__(self):
         return self.name
+
+    def create_ride(self, ride, station):
+        return self.backend.create_ride(ride, station)
+
+    def cancel_ride(self, ride_id):
+        return self.backend.cancel_ride(ride_id)
+
+    def get_ride(self, ride_id):
+        return self.backend.get_ride(ride_id)
+
+    def get_ongoing_rides(self):
+        return self.backend.get_ongoing_rides()
