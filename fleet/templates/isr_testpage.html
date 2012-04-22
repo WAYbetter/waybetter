@@ -1,0 +1,153 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN"
+        "http://www.w3.org/TR/html4/loose.dtd">
+<html>
+<head>
+    <title>ISR Testing Page</title>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+    <script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
+    <script type="text/javascript"
+            src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
+    <style type="text/css">
+        body {
+            padding: 0 20px;
+        }
+
+        .header {
+            font-weight: bold;
+            font-size: 22px;
+        }
+
+        textarea {
+            width: 500px;
+            height: 300px;
+
+        }
+
+        #id_address {
+            width: 250px;
+        }
+
+        input[type="text"] {
+            display: block;
+        }
+        hr{
+
+            margin: 30px 0;
+        }
+    </style>
+</head>
+
+<body>
+<h1>ISR Testing Page</h1>
+<h2>Notes:</h2>
+<ul>
+    <li>if <code> as_raw_output </code> field is not blank, ISR response is returned without any processing.</li>
+</ul>
+<hr>
+<h2>
+    Methods:
+</h2>
+{% for m in methods %}
+    <div id="{{ m.name }}">
+        <span class="header">{{ m.name }}</span>: {{ m.doc }}
+        <form id="form_{{ m.name }}" action="" method="POST">
+            {% csrf_token %}
+            <input type="hidden" name="method_name" value="{{ m.name }}">
+            {% for arg in m.args %}
+                <label for="id_{{ arg }}">{{ arg }}</label>
+                <input id="id_{{ arg }}" type="text" name="{{ arg }}">
+            {% endfor %}
+            <input type="submit" value="Run">
+        </form>
+        {% if m.name != "create_ride" %}
+            <textarea name="" id="result_{{ m.name }}" cols="30" rows="10"></textarea>
+        {% else %}
+            <table>
+                <tr>
+                    <th></th>
+                    <th>
+                        <input type="button" id="get_status" value="Get Status">
+                    </th>
+                </tr>
+                <tr>
+                    <td>
+                        <textarea name="" id="result_{{ m.name }}" cols="30" rows="10"></textarea>
+                    </td>
+                    <td>
+                        <textarea name="" id="track_order" cols="30" rows="10"></textarea>
+                    </td>
+                </tr>
+            </table>
+        {% endif %}
+    </div>
+    <br>
+{% endfor %}
+</body>
+<script type="text/javascript">
+    var order_id = undefined;
+
+    function getStatus() {
+        var $target = $("#track_order");
+        if (order_id) {
+            $.ajax({
+                url:"{% url fleet.views.get_ride_status %}" + order_id,
+                beforeSend:function () {
+                    $target.val("Sending...");
+                },
+                success:function (responseText, statusText, xhr) {
+                    $target.val(responseText.result);
+                },
+                error:function () {
+                    $target.val("error");
+                }
+            });
+        }
+        else {
+            $target.val("no order_id defined");
+        }
+    }
+
+    $(function () {
+        var autocomplete = new google.maps.places.Autocomplete(document.getElementById("id_address"), {
+            types:["geocode"]
+        });
+
+        $("#get_status").click(function () {
+            getStatus();
+        });
+
+        $("#id_address").keydown(function(e){
+            if (e.which == 13) {
+                e.preventDefault(); // don't submit
+            }
+        });
+        $.each($("form"), function (i, form) {
+            var $target = $("#" + $(form).attr("id").replace("form", "result"));
+            $(form).ajaxForm({
+                beforeSubmit:function (formData, jqForm, options) {
+                    $target.val("Sending...");
+                },
+                success:function (responseText, statusText, xhr, $form) {
+                    var s = responseText.result;
+                    try {
+                        s = JSON.parse(responseText.result);
+                    } catch (e) {}
+
+                    $target.val(s || "no data received");
+
+                    if ($(form).attr("id") == "form_create_ride") {
+                        var match = responseText.result.match(/\d+/);
+                        if (match && match.length) {
+                            order_id = match[0];
+                            $("#track_order").val("");
+                        }
+                    }
+                },
+                error:function (jqXHR, textStatus, errorThrown) {
+                    $target.val(textStatus);
+                }
+            });
+        });
+    });
+</script>
+</html>
