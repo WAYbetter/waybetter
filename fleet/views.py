@@ -10,7 +10,7 @@ import inspect
 
 def get_ride_status(request, ride_id):
     fleet_manager.query_backends()
-    result = fleet_manager.get_ride_data(ride_id)
+    result = fleet_manager.get_fmr(ride_id)
     if request.is_ajax():
         return JSONResponse({'result': str(result)})
     else:

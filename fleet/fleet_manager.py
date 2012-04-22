@@ -41,7 +41,7 @@ def query_backends():
     logging.info("waybetter ongoing rides: %s" % wb_ongoing_rides)
     logging.info("fleet manager ongoing rides: %s" % fm_ongoing_rides)
 
-    set_ride_data(fmrs=fm_ongoing_rides)
+    set_fmr(fmrs=fm_ongoing_rides)
 
     for fmr in fm_ongoing_rides:
         wb_ride = wb_ongoing_rides_map.pop(fmr.id, None)
@@ -57,7 +57,7 @@ def query_backends():
             fm_backend = filter(lambda fm: fm.id == wb_ride.dn_fleet_manager_id, fm_backends)[0]
             fmr = fm_backend.get_ride(wb_ride.id)
             update_from_fmr(wb_ride, fmr)
-            set_ride_data(fmr=fmr)
+            set_fmr(fmr=fmr)
         except IndexError, e:
             logging.error("fm backend not in backends list")
         except BaseException, e:
@@ -66,8 +66,9 @@ def query_backends():
 
 
 def update_from_fmr(wb_ride, fmr):
-    """ Update a WAYbetter ride details from corresponding C{FleetManagerRide}
+    """ Update a WAYbetter C{SharedRide} from a C{FleetManagerRide}.
     """
+    assert wb_ride.id == fmr.id, "update from fmr failed: ids do not match (%s != %s)" % (wb_ride.id, fmr.id)
     if fmr.status == FleetManagerRideStatus.COMPLETED:
         wb_ride.change_status(new_status=COMPLETED)
         logging.info("ride [%s] completed" % wb_ride.id)
@@ -78,7 +79,7 @@ def update_from_fmr(wb_ride, fmr):
         logging.info("ride [%s] not updated: %s [%s]" % (wb_ride.id, fmr.status, fmr.raw_status))
 
 
-def set_ride_data(fmr=None, fmrs=None):
+def set_fmr(fmr=None, fmrs=None):
     _get_key = lambda fmr: 'fmr_%s' % fmr.id
     _get_val = lambda fmr: pickle.dumps(fmr)
 
@@ -88,7 +89,11 @@ def set_ride_data(fmr=None, fmrs=None):
         mapping = dict([(_get_key(fmr), _get_val(fmr)) for fmr in fmrs])
         memcache.set_multi(mapping, namespace=MEMCACHE_NAMESPACE)
 
-def get_ride_data(ride_id):
+def get_fmr(ride_id):
+    """ Return C{FleetManagerRide} containing info about the ride.
+    @param ride_id:
+    @return: C{FleetManagerRide} or None
+    """
     fmr_data = memcache.get('fmr_%s' % ride_id, namespace=MEMCACHE_NAMESPACE)
     fmr = pickle.loads(fmr_data) if fmr_data else None
     return fmr
