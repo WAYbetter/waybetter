@@ -3,7 +3,7 @@ import traceback
 import pickle
 from django.conf import settings
 from google.appengine.api import memcache
-from fleet.models import FleetManager, FleetManagerRideStatus
+from fleet.models import FleetManager, FleetManagerRideStatus, FleetManagerRide
 from ordering.models import SharedRide, ASSIGNED, COMPLETED, CANCELLED
 
 MEMCACHE_NAMESPACE = "fleet_manager"
@@ -20,10 +20,18 @@ def create_ride(ride):
     except Exception, e:
         logging.error(traceback.format_exc())
 
+def update_ride(ride_id, fmr):
+    wb_ride = SharedRide.by_id(ride_id)
+    update_from_fmr(wb_ride, fmr)
+
+
 def get_wb_ongoing_rides():
     return SharedRide.objects.filter(status=ASSIGNED)
 
 def query_backends():
+    """
+    Query fleet management backends that do not update us via callback.
+    """
     wb_ongoing_rides = get_wb_ongoing_rides()
     wb_ongoing_rides_map = dict([(ride.id, ride) for ride in wb_ongoing_rides])
 

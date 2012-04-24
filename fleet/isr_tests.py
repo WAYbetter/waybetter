@@ -6,8 +6,12 @@ from fleet import fleet_manager
 from fleet.models import FleetManager
 from ordering.models import Order, Passenger, Station, ASSIGNED
 from fleet.backends.isr import ISR
+from fleet.backends.isr_proxy import ISRProxy
 
-def create_ride(address, comments, passenger_phone, first_name, last_name, start_time, finish_time, as_raw_output):
+#BACKEND = ISRProxy
+BACKEND = ISR
+
+def create_ride(address, comments, passenger_phone, first_name, last_name, start_time, finish_time, station_id, as_raw_output):
     from common.tz_support import set_default_tz_time
     from common.geocode import gmaps_geocode
 
@@ -60,7 +64,7 @@ def create_ride(address, comments, passenger_phone, first_name, last_name, start
 
     station = Station()
     station.fleet_manager = isr_fm
-    station.fleet_station_id = 8 # waybetter station operator id
+    station.fleet_station_id = station_id or 8 # waybetter station operator id
 
     class FakeOrdersManager(object):
         def __init__(self, orders):
@@ -86,16 +90,16 @@ def create_ride(address, comments, passenger_phone, first_name, last_name, start
         reply = ISR._get_client().service.Insert_External_Order(ISR._get_login_token(), ex_order)
         return reply
 
-    return fleet_manager.create_ride(ride)
+#    return fleet_manager.create_ride(ride)
+    return BACKEND.create_ride(ride, station)
 
 def cancel_ride(ride_id):
-    return ISR.cancel_ride(ride_id)
+    return BACKEND.cancel_ride(ride_id)
 
 def get_ride(ride_id, as_raw_output):
     if as_raw_output:
         return ISR._get_client().service.Get_External_Order(ISR._get_login_token(), ride_id)
-
-    return ISR.get_ride(ride_id)
+    return BACKEND.get_ride(ride_id)
 
 def get_ongoing_rides():
     fmrs = ISR.get_ongoing_rides()
@@ -142,5 +146,5 @@ def server_session_id():
 #        float(order.from_lon), max_radius, max_vehicles)
 #
 #
-#def get_available_operators():
-#    return ISR._get_client().service.Get_Available_Operators(ISR._get_login_token())
+def get_available_operators():
+    return ISR._get_client().service.Get_Available_Operators(ISR._get_login_token())
