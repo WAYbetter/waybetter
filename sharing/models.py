@@ -32,6 +32,7 @@ DROPOFF = "dropoff"
 class HotSpot(BaseModel):
     name = models.CharField(_("hotspot name"), max_length=50)
     description = models.CharField(_("hotspot description"), max_length=100, null=True, blank=True)
+    priority = models.FloatField(_("priority"), unique=True, default=0)
 
     station = models.ForeignKey(Station, related_name="hotspots")
     dispatching_time = models.PositiveIntegerField(verbose_name=_("Dispatching Time"), help_text=_("In minutes"), default=7)
@@ -118,7 +119,7 @@ class HotSpot(BaseModel):
                 delta = max([cost - base_sharing_price, 0])
                 price = base_sharing_price + 0.5 * delta
 
-        return int(math.ceil(price)) if price else None
+        return int(math.floor(price)) if price else None
 
     def get_allowed_ordering_time(self, hotspot_type):
         allowed_time = None
