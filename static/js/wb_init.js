@@ -2,7 +2,7 @@
  *
  * jQuery config
  *
-*/
+ */
 
 (function ($) {
     $.fn.extend({
@@ -32,9 +32,9 @@
         },
         enabled:function (bool) {
             return this.each(function () {
-                if (bool){
+                if (bool) {
                     $(this).enable();
-                } else{
+                } else {
                     $(this).disable();
                 }
             });
@@ -97,8 +97,33 @@
 
             stack[0] = a2;
             return this.pushStack(stack);
-        }
+        },
+        setCaretPosition:function (caretPos) {
+            var elem = $(this)[0];
 
+            if (elem) {
+                elem.selectionStart = caretPos;
+                elem.selectionEnd = caretPos;
+//                elem.focus();
+//                var sel = window.getSelection();
+//                sel.collapse(elem, caretPos);
+//                elem.focus();
+
+//                if (elem.createTextRange) {
+//                    var range = elem.createTextRange();
+//                    range.move('character', caretPos);
+//                    range.select();
+//                }
+//                else {
+//                    if (elem.selectionStart) {
+//                        elem.focus();
+//                        elem.setSelectionRange(caretPos, caretPos);
+//                    }
+//                    else
+//                        elem.focus();
+//                }
+            }
+        }
     });
 })(jQuery);
 
@@ -153,7 +178,7 @@ $(document).ajaxSend(function (event, xhr, settings) {
  *
  * more config
  *
-*/
+ */
 
 var easydate_config = {
     locale:{

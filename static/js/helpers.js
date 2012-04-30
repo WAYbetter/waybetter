@@ -672,21 +672,42 @@ var AddressHelper = Object.create({
 
 var GoogleGeocodingHelper = Object.create({
     _geocoder: undefined,
+    _pendingReverseGeocodeCallback: undefined,
     getGeocoder: function() {
         if (! this._geocoder) {
             this._geocoder =  new google.maps.Geocoder();
         }
         return this._geocoder;
     },
-    geocode: function(address, callback){
+    geocode: function(address, callback, callback_arg) {
         this.getGeocoder().geocode({"address":address}, function (results, status) {
-            callback(results, status);
+            callback(results, status, callback_arg);
         });
     },
     reverseGeocode:function (lat, lon, callback) {
         var latlng = new google.maps.LatLng(lat, lon);
         this.getGeocoder().geocode({'latLng':latlng}, function (results, status) {
             callback(results, status);
+        });
+    },
+    reverseGeocodeToPickupAddress: function(lat, lon, id_textinput, callback) {
+        var that = this;
+        that._pendingReverseGeocodeCallback = callback;
+        that.reverseGeocode(lat, lon, function(results, status) {
+            var res = null;
+            if (status == google.maps.GeocoderStatus.OK && results.length) {
+                res = that._checkValidPickupAddress(results[0], id_textinput);
+//                that._pendingReverseGeocodeCallback = undefined;
+            }
+
+            if (res) {
+                if (res.valid) {
+                    callback(res.address);
+                }
+            } else {
+                callback(null, lat, lon);
+            }
+
         });
     },
     newPlacesAutocomplete: function (options) {
@@ -730,7 +751,7 @@ var GoogleGeocodingHelper = Object.create({
             options.onValidAddress(result.address);
         }
         else if (result.is_route) {
-            options.onMissingStreetNumber();
+            options.onMissingStreetNumber(result);
         }
         else if (place.geometry && place.geometry.location) {
             // try to get a valid point by reverse geocoding
@@ -825,6 +846,9 @@ var GoogleGeocodingHelper = Object.create({
         }
 
         result.address = this._addressFromPlace(place);
+        if (! result.address.house_number || result.address.house_number.indexOf("-") > -1) { // this is a range of houses, a reverse geocode is underway...
+            result.valid = false;
+        }
         return result;
     },
     _addressFromPlace: function(place){
@@ -866,29 +890,96 @@ var GoogleGeocodingHelper = Object.create({
         };
     },
     _normalizePlace: function(place){
-        try {
+        var that = this;
+//        try {
             // fix interpolated street number component
             if (place.geometry.location_type == google.maps.GeocoderLocationType.RANGE_INTERPOLATED) {
-                $.each(place.address_components, function (i, component) {
-                        if (component.types && $.inArray('street_number', component.types) > -1) {
-                            // get the lower street number of the range
-                            var range = component.long_name.split("-");
-                            if (range.length == 2){
-                                var low = range[0];
-                                var high = range[1];
-                                component.short_name = parseInt((high-low)/2); // take the middle house number
+                var component = that._getAddressComponent(place, 'street_number');
+                if (component) {
+                    // get the lower street number of the range
+                    var range = component.long_name.split("-");
+                    if (range.length == 2) {
+                        var low = parseInt(range[0]);
+                        var high = parseInt(range[1]);
+                        if (that._pendingReverseGeocodeCallback) {
+                            range = [];
+                            for (var i = low; i <= high; i += 2) { range.push(i) }
+                            var original_location = place.geometry.location;
+                            var addresses = [];
+                            var returned_geocode_calls = 0;
+                            for (var j = 0; j < range.length; j++) {
+                                var address = [that._getAddressComponent(place, 'route').long_name + " " + range[j],
+                                    that._getAddressComponent(place, 'locality').long_name ].join(", ");
+
+                                addresses.push({name: address, callback_index: j});
+
+                                that.geocode(address, function(result, status, original_address) {
+                                    if (! that._pendingReverseGeocodeCallback) return;
+
+                                    log("geocode for house range returned", result, status);
+                                    returned_geocode_calls++;
+                                    if (result) {
+                                        original_address.lat = result[0].geometry.location.lat();
+                                        original_address.lon = result[0].geometry.location.lng();
+                                    } else {
+                                        original_address.lat = 0
+                                        original_address.lon = 0;
+                                    }
+
+                                    if (returned_geocode_calls == range.length) { // this is the last call
+                                        var min_distance = undefined;
+                                        var min_distance_index = undefined;
+                                        var address_location = new LatLon(original_location.lat(), original_location.lng());
+                                        for (var i = 0; i < addresses.length; i++) {
+                                            if (!(original_address.lat && original_address.lon)) {
+                                                continue;
+                                            }
+                                            var candidate_location = new LatLon(addresses[i].lat, addresses[i].lon);
+                                            var distance = address_location.distanceTo(candidate_location);
+                                            if (min_distance == undefined || distance < min_distance) {
+                                                min_distance = distance;
+                                                min_distance_index = i;
+                                            }
+                                        }
+                                        var res;
+                                        if (min_distance_index == undefined) {
+                                            res = null;
+                                        } else {
+                                            res = addresses[min_distance_index];
+                                        }
+                                        var callback = that._pendingReverseGeocodeCallback;
+                                        that._pendingReverseGeocodeCallback = undefined;
+                                        callback(res, original_location.lat(), original_location.lng());
+                                    }
+                                }, addresses[j]);
                             }
+
+
+                        } else {
+                            var avg = parseInt((high + low) / 2);
+                            component.short_name = avg; // take the middle house number
                             place.formatted_address = place.formatted_address.replace(component.long_name, component.short_name);
                         }
                     }
-                );
+                }
             }
-        }
-        catch (e) {
-            log(e);
-        }
+//        }
+//        catch (e) {
+//            log(e);
+//        }
 
         return place;
+    },
+    _getAddressComponent: function(place, type) {
+        var res = undefined;
+        $.each(place.address_components, function (i, component) {
+            if (component.types && $.inArray(type, component.types) > -1) {
+                res = component;
+                return; // break
+            }
+        });
+
+        return res;
     }
 });
 
@@ -903,6 +994,7 @@ var GoogleMapHelper = Object.create({
     },
     mapready:false,
     markers: {},
+    info_bubbles: [],
 
     init: function(config){
         var that = this;
@@ -1000,11 +1092,41 @@ var GoogleMapHelper = Object.create({
         }
     },
     showInfo: function(content, anchor) {
-        var info = new google.maps.InfoWindow({
-            content: content
+        var info = new InfoBubble({
+            content: content,
+            hideCloseButton: true,
+            borderRadius: 5,
+            padding: 5,
+            arrowSize: 10
         });
-
-        info.open(this.map);
+        this.info_bubbles.push(info);
+        info.open(this.map, anchor);
+        return info;
+    },
+    setCenter: function(lat, lon) {
+        this.map.setCenter(new google.maps.LatLng(lat, lon));
+    },
+    clearMarkers: function() {
+        $.each(this.markers, function(i, marker) {
+            marker.setMap(null);
+        });
+        $.each(this.info_bubbles, function(i, info_bubble) {
+            info_bubble.close();
+        });
+    },
+    setMarkersVisibility: function(visible) {
+        $.each(this.markers, function(i, marker) {
+            marker.setVisible(visible);
+        });
+        if (!visible) {
+            $.each(this.info_bubbles, function(i, info_bubble) {
+                info_bubble.close();
+            });
+        } else {
+            $.each(this.info_bubbles, function(i, info_bubble) {
+                info_bubble.open();
+            });
+        }
     }
 });
 
