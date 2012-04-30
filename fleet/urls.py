@@ -1,9 +1,11 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
-    (r'^track/ride/$', 'fleet.views.get_ride_status'),
-    (r'^track/ride/(?P<ride_id>\d+)/$', 'fleet.views.get_ride_status'),
+    (r'^track/ride/$', 'fleet.views.track_ride'),
+    (r'^track/ride/(?P<ride_id>\d+)/$', 'fleet.views.track_ride'),
 
-    (r'^isrproxy/update/ride/(?P<ride_id>\d+)/$', 'fleet.backends.isr_proxy.update_ride'),
     (r'^isr/tests$', 'fleet.views.isr_testpage'),
+    (r'^isrproxy/get_ongoing_rides/$', 'fleet.backends.isr_proxy.get_ongoing_rides'),
+    (r'^isrproxy/update/status/(?P<ride_id>\d+)/$', 'fleet.backends.isr_proxy.update_status'),
+    (r'^isrproxy/update/positions/$', 'fleet.backends.isr_proxy.update_positions'),
 )

@@ -7,11 +7,10 @@ from django.utils import simplejson
 from djangotoolbox.http import JSONResponse
 from fleet import fleet_manager
 
-def get_ride_status(request, ride_id):
-    fleet_manager.query_backends()
-    result = fleet_manager.get_fmr(ride_id)
+def track_ride(request, ride_id):
+    result = str(fleet_manager.get_ride_position(ride_id))
     if request.is_ajax():
-        return JSONResponse({'result': str(result)})
+        return JSONResponse({'result': result})
     else:
         return HttpResponse(result)
 

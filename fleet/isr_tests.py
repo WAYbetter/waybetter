@@ -8,8 +8,21 @@ from ordering.models import Order, Passenger, Station, ASSIGNED
 from fleet.backends.isr import ISR
 from fleet.backends.isr_proxy import ISRProxy
 
-#BACKEND = ISRProxy
-BACKEND = ISR
+BACKEND = ISRProxy
+#BACKEND = ISR
+
+isrproxy_fm = FleetManager.objects.get(name="isrproxy")
+class FakeOrdersManager(object):
+    def __init__(self, orders):
+        self.orders = list(orders)
+
+    def all(self):
+        return self.orders
+
+class FakeSharedRide(object):
+    def __init__(self, orders):
+        self.orders = FakeOrdersManager(orders)
+
 
 def create_ride(address, comments, passenger_phone, first_name, last_name, start_time, finish_time, station_id, as_raw_output):
     from common.tz_support import set_default_tz_time
@@ -60,27 +73,14 @@ def create_ride(address, comments, passenger_phone, first_name, last_name, start
     order.arrive_time = set_default_tz_time(datetime.datetime.strptime(finish_time, "%Y-%m-%dT%H:%M:%S")) if finish_time else None
     order.passenger = passenger
 
-    isr_fm = FleetManager.objects.get(name="isr")
-
     station = Station()
-    station.fleet_manager = isr_fm
+    station.fleet_manager = isrproxy_fm
     station.fleet_station_id = station_id or 8 # waybetter station operator id
-
-    class FakeOrdersManager(object):
-        def __init__(self, orders):
-            self.orders = list(orders)
-
-        def all(self):
-            return self.orders
-
-    class FakeSharedRide(object):
-        def __init__(self, orders):
-            self.orders = FakeOrdersManager(orders)
 
     ride = FakeSharedRide([order])
     ride.id = random.randrange(1, 999999)
     ride.station = station
-    ride.dn_fleet_manager_id = isr_fm.id
+    ride.dn_fleet_manager_id = isrproxy_fm.id
     ride.status = ASSIGNED
 
     fleet_manager.DEV_WB_ONGOING_RIDES.append(ride)
@@ -90,11 +90,16 @@ def create_ride(address, comments, passenger_phone, first_name, last_name, start
         reply = ISR._get_client().service.Insert_External_Order(ISR._get_login_token(), ex_order)
         return reply
 
-#    return fleet_manager.create_ride(ride)
-    return BACKEND.create_ride(ride, station)
+    return fleet_manager.create_ride(ride)
+#    return BACKEND.create_ride(ride, station)
 
 def cancel_ride(ride_id):
-    return BACKEND.cancel_ride(ride_id)
+    ride = FakeSharedRide([])
+    ride.id = ride_id
+    ride.dn_fleet_manager_id = isrproxy_fm.id
+
+    return fleet_manager.cancel_ride(ride_id)
+#    return BACKEND.cancel_ride(ride_id)
 
 def get_ride(ride_id, as_raw_output):
     if as_raw_output:
