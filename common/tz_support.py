@@ -51,9 +51,11 @@ class IsraelTimeZone(datetime.tzinfo):
                 return datetime.timedelta(hours=1)
             else:
                 return datetime.timedelta(0)
-        elif dt.year > 1: # mute warnings for year=1
+
+        if dt.year > 1:
             logging.warning("DST not defined for year %s" % dt.year)
-            return datetime.timedelta(0)
+
+        return datetime.timedelta(0)
 
 TZ_INFO = {
     "UTC": UTC(),
