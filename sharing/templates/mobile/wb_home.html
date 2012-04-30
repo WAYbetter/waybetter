@@ -15,11 +15,225 @@
         .err_msg {
             color: red;
         }
+        #select_hotspot {
+
+        }
+        #select_hotspot_help {
+            display: inline-block;
+            width: 30px;
+            height: 30px;
+            background: blue;
+        }
+        #gac {
+            display: inline-block;
+            width: 60%;
+            padding-left: 30px;
+            margin-left: 5px;
+        }
+
+        .upper_toolbar_container {
+            height: 45px;
+            border-bottom: 2px solid gray;
+            box-shadow: 0 3px 4px 0 rgba(0, 0, 0, 0.8);
+            margin: -15px -15px 0 -15px;
+            padding: 5px 15px 0 15px;
+            position: relative;
+            /*z-index: 100;*/
+        }
+        .upper_toolbar_container .ui-select {
+            display: inline-block;
+            width: 80%;
+        }
+
+        #clear_input {
+            height: 20px;
+            width: 20px;
+            background-image: url(/static/images/mobile/clear_icon.gif);
+            position: relative;
+            top: 4px;
+            margin-right: -32px;
+            margin-left: 7px;
+            display: inline-block;
+        }
+        #clear_input:active {
+            opacity: 0.5;
+        }
+        .map_container {
+            width: auto;
+            margin: 0 -15px;
+            border-bottom: 1px solid gray  ;
+            position: relative;
+        }
+        #select_hotspot_page .map_container {
+            height: 260px;
+        }
+
+        #address_input_page .map_container {
+            height: 305px;
+        }
+
+        #map_canvas {
+            width: 100%;
+            height: 100%;
+        }
+        #map_canvas img {
+            max-width: none;
+        }
+        #house_number_bubble {
+            background-color: darkRed;
+            border: 1px solid white;
+            position: absolute;
+            padding: 5px;
+            z-index: 1000;
+            color: white;
+            border-radius: 5px;
+            display: none;
+        }
+        #house_number_bubble:after {
+            content: "";
+            position: absolute;
+            top: -10px;
+            right: 10px;
+            border-width: 0 10px 10px;
+            border-style: solid;
+            border-color: darkRed transparent;
+            display: block;
+            width: 0;
+        }
+        #center_target {
+            position: absolute;
+            width: 26px;
+            height: 26px;
+            background-image: url(/static/images/mobile/map_target.png);
+            margin-top: -13px;
+            margin-left: -13px;
+            display: none;
+            left: 50%;
+            top: 50%;
+            z-index: 1000;
+        }
+
+        /* TODO_WB: these should always come from the server in case google change their markup */
+        .pac-container {
+            width: 100% !important;
+            left: 0 !important;
+            overflow-y: auto;
+            height: 6.9em;
+            top: 6.8em !important;
+        }
+        .pac-item {
+            border-bottom: 1px solid gray;
+            padding: 0.6em;
+            font-family: sans-serif;
+        }
+        #address_controls {
+            display: inline-block;
+            height: 1em;
+        }
+        .toolbar-divider {
+            width: 0;
+            height: 22px;
+            display: inline-block;
+            border-left: 1px solid gray;
+            /*margin: 0 3px 0 2px;*/
+        }
+        .address-control {
+            display: inline-block;
+            width: 22px;
+            background-image: url(/static/images/mobile/history_gps.png);
+            height: 22px;
+            margin: 0 3px;
+        }
+        #gps_btn:active {
+            background-position: 0 -58px;
+        }
+        #history_btn {
+            background-position: 0 -29px;
+        }
+        #history_btn:active {
+            background-position: 0 -87px;
+        }
+
+     /*for HD devices (iPhone retina, etc.)*/
+    @media only screen and (-webkit-min-device-pixel-ratio: 1.5),
+           only screen and (min--moz-device-pixel-ratio: 1.5),
+           only screen and (min-resolution: 240dpi) {
+        .address-control {
+            background-image: url(/static/images/mobile/history_gps_retina.png);
+            background-size: 22px;
+        }
+
+        #gps_btn:active {
+            background-position: 0 -64px;
+        }
+
+        #history_btn {
+            background-position: 0 -31px;
+        }
+
+        #history_btn:active {
+            background-position: 0 -95px;
+        }
+    }
+
     </style>
+{% endblock %}
+
+{% block scripts %}
+    <script type="text/javascript" src="/static/js/infobubble.js"></script>
+    {{ block.super }}
+    <script>
+        (function placesAutoCompletePatch() {
+            var input = document.getElementById("gac");
+
+            // store the original binding function
+            var _addEventListener = (input.addEventListener) ? input.addEventListener : input.attachEvent;
+
+            function addEventWrapper() {
+                var type = arguments[0];
+                var listener = arguments[1];
+
+                // if binding a keydown event, replace the passed listener with a wrapped listener
+                if (type == "keydown") {
+                    arguments[1] = function wrappedListener() {
+                        var event = arguments[0];
+                        var trigger_blur = false;
+                        // when hitting 'return' trigger a 'down arrow' first
+                        if (event.which == 13) {
+                            arguments[0] = $.Event("keydown", {keyCode:40, which:40});
+                            listener.apply(input, arguments);
+                            trigger_blur = true;
+                        }
+
+                        // trigger the original event
+                        arguments[0] = event;
+                        listener.apply(input, arguments);
+
+                        if (trigger_blur) {
+                            $(input).blur();
+                        }
+                    };
+                }
+
+                // add the (wrapped) listener
+                _addEventListener.apply(input, arguments);
+            }
+
+            if (input.addEventListener)
+                input.addEventListener = addEventWrapper;
+            else if (input.attachEvent)
+                input.attachEvent = addEventWrapper;
+        })();
+    </script>
 {% endblock %}
 
 {% block doc_ready %}
     {{ block.super }}
+    {% if DEV %}
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
+    {% else %}
+        <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key={% value_from_settings GOOGLE_API_BROWSER_KEY %}?libraries=places&sensor=false&language=he"></script>
+    {% endif %}
 
     <script defer="defer">
     //<![CDATA[
@@ -178,34 +392,30 @@
     }
     // TODO_WB: check hotspot_type to decide where the updated text should go
     function selectHotspot(hotspot) {
-        if (hotspot == MobileHelper.hotspot) {
-            $.mobile.changePage("#booking_page");
-        }
-        else {
-            log("select hotspot");
-            MobileHelper.hotspot = hotspot;
-            MobileHelper.ride_date = undefined;
-            MobileHelper.ride_time = undefined;
+        log("select hotspot");
+        MobileHelper.hotspot = hotspot;
+        MobileHelper.ride_date = undefined;
+        MobileHelper.ride_time = undefined;
 
-            $("#choose_hotspot_btn").find(".header").text(hotspot.name);
-            $("#choose_hotspot_btn").find(".desc").text(hotspot.description);
+        addMarker({
+            name: hotspot.address,
+            lat: hotspot.lat,
+            lon: hotspot.lon
+        });
 
-            var msg = window["choose_" + MobileHelper.hotspot_type + "_time_msg"];
-            $("#interval_page").find("[data-role=header] h1, label[for='ride-time']").text(msg);
-            $("#choose_time_btn").find(".header").text(msg);
+        $("#leave_hs_btn").text("לצאת מ" + hotspot.name).button("refresh");
+        $("#get_to_hs_btn").text("להגיע אל " + hotspot.name).button("refresh");
 
-            var $date_sel = $("#ride-date").empty();
 
-            // set hotspot dates
-            $.each(hotspot.next_dates, function(i, date) {
-                var d = getFullDate(new Date(date));
-                var today = getFullDate(new Date());
-                var $option = $('<option value="' + d + '">' + ((d == today) ? "{% trans "Today" %}" : d ) + '</option>');
-                $date_sel.append($option);
-            });
-
-            getIntervals(false, true);
-        }
+{#        // set hotspot dates#}
+{#        $.each(hotspot.next_dates, function (i, date) {#}
+{#            var d = getFullDate(new Date(date));#}
+{#            var today = getFullDate(new Date());#}
+{#            var $option = $('<option value="' + d + '">' + ((d == today) ? "{% trans "Today" %}" : d ) + '</option>');#}
+{#            $date_sel.append($option);#}
+{#        });#}
+{##}
+{#        getIntervals(false, true);#}
     }
 
     function resetIntervals() {
@@ -383,10 +593,109 @@
         });
     }
 
+    function clearAddressInput() {
+        $("#gac").val("");
+        $("#clear_input").hide();
+        $("#house_number_bubble").hide();
+        GoogleMapHelper.clearMarkers();
+    }
 
+    function handleMissingHouseNumber(result) {
+        if (result.address) {
+            GoogleMapHelper.setCenter(result.address.lat, result.address.lon);
+            var street_name = result.address.street_address;
+            var $gac = $("#gac");
+            var input_value = $gac.val();
+            if (input_value.indexOf(street_name) > -1) {
+                var house_number_start_index = input_value.indexOf(street_name) + street_name.length;
+                $gac.val([input_value.substr(0, house_number_start_index), " ", input_value.substr(house_number_start_index, input_value.length)].join(""));
+                var size = getRenderedSize(street_name + "I", $gac[0]);
+                $("#house_number_bubble").css({right: size.width}).fadeIn("fast");
+                $gac.one("keydown", function () {
+                    $("#house_number_bubble").hide();
+                });
+//                $gac.setCaretPosition(house_number_start_index + 1); // this triggers the autocomplete again
+            }
+
+        }
+    }
+    function addMarker(address, zoom) {
+        var image_url = "/static/images/mobile/red_marker.png";
+        var size = new google.maps.Size(10, 10);
+        var scaled_size  = new google.maps.Size(10, 10);
+        if (window.devicePixelRatio && window.devicePixelRatio >= 2) {
+            log("using retina image");
+            image_url = "/static/images/mobile/red_marker_retina.png";
+            size = new google.maps.Size(20, 20)
+        }
+        var markerImage = new google.maps.MarkerImage(image_url, size, undefined, new google.maps.Point(5, 5), scaled_size);
+        var marker = GoogleMapHelper.addMarker(address.lat, address.lon, {icon: markerImage});
+        GoogleMapHelper.showInfo(address.name, marker);
+        if (zoom) {
+            GoogleMapHelper.setCenter(address.lat, address.lon);
+            GoogleMapHelper.map.setZoom(17);
+        }
+        return marker;
+    }
+
+    function updateAddress(valid_address, lat, lon) {
+        clearAddressInput();
+        if (valid_address) {
+            $("#gac").val(valid_address.name);
+            $("#clear_input").show();
+            addMarker(valid_address, true);
+        } else {
+            addMarker({ // fake, unknown address
+                lat: lat,
+                lon: lon,
+                name: "כתובת לא ידועה"
+            })
+        }
+    }
+
+    function getStartupMessage() {
+        $.ajax({
+            url:"{% url startup_message %}",
+            dataType:"json",
+            success:function (data) {
+                if (data && data.show_message) {
+                    var $message = $(data.page);
+                    var $page = $("#" + $message.attr("id"));
+                    $page.html($message.html());
+                    $page.page();
+                    $.mobile.changePage($page);
+                }
+            }
+        });
+    }
     function init() {
+        var gac_dirty = false;
+        var gac_clean_value = undefined;
+        var do_drag = false; // check if user is using or dragging
+
+        $("#gac").keydown(function(e) {
+            log("gac keydown event", gac_dirty, gac_clean_value);
+            if (! gac_dirty) {
+                gac_clean_value = $(this).val();
+                gac_dirty = true;
+            }
+        });
+
+        $("#gac").blur(function(e) { // done button might have been pressed
+            log("gac blur event", gac_dirty, gac_clean_value);
+            if (gac_dirty && gac_clean_value) {
+                setTimeout(function() {
+                    $("#gac").val(gac_clean_value);
+                    log("gac val after change", $("#gac").val());
+                    gac_dirty = false;
+                }, 1);
+            }
+        });
 
         log("init");
+
+
+
         $(document).ajaxStart(function() {
             log("ajaxStart");
             $.mobile.showPageLoadingMsg();
@@ -395,6 +704,9 @@
             log("ajaxStop");
             $.mobile.hidePageLoadingMsg();
         });
+
+        // check for startup message
+//        getStartupMessage();
 
         // helpers init
 
@@ -427,19 +739,22 @@
             },
             callbacks:{
                 locationSuccess: function (position) {
-                    MobileHelper.resolveLonLat(position.coords.longitude, position.coords.latitude, {
-                        onNewAddress: function(address) {
-                            var city_ids = $.map(MobileHelper.sharing_cities, function(el, i) {
-                                return el.id;
-                            });
-                            if (address && $.inArray(address.city, city_ids) < 0) {
-                                showNoServiceDialog(address);
-                            }
-                            else{
-                                populateAddressFields(address);
-                            }
-                        }
-                    });
+                    GoogleMapHelper.setCenter(position.coords.latitude, position.coords.longitude);
+                    GoogleGeocodingHelper.reverseGeocodeToPickupAddress(position.coords.latitude, position.coords.longitude, "#gac", updateAddress);
+
+//                    MobileHelper.resolveLonLat(position.coords.longitude, position.coords.latitude, {
+//                        onNewAddress: function(address) {
+//                            var city_ids = $.map(MobileHelper.sharing_cities, function(el, i) {
+//                                return el.id;
+//                            });
+//                            if (address && $.inArray(address.city, city_ids) < 0) {
+//                                showNoServiceDialog(address);
+//                            }
+//                            else{
+//                                populateAddressFields(address);
+//                            }
+//                        }
+//                    });
                 },
                 locationError: function() {
 
@@ -475,35 +790,19 @@
             beforeSend: function() {
             },
             success: function(response) {
-                var $hotspot_list = $("#hotspot_list");
-                var hs_by_city_name = {};
-                $.each(response.data, function(i, hotspot) {
-                    hotspots.push(hotspot);
-                    if (hs_by_city_name[hotspot.city_name]) {
-                        hs_by_city_name[hotspot.city_name].push(hotspot);
-                    }
-                    else {
-                        hs_by_city_name[hotspot.city_name] = [hotspot];
+                var $hotspot_list = $("#select_hotspot");
+                $hotspot_list.empty();
+                $.each(response.data, function(i, hs) {
+                    hotspots.push(hs);
+                    var option = $("<option value='" + hs.id + "'>" + hs.name + "</option>").data(hs);
+                    $hotspot_list.append(option);
+
+                    if (hotspots.length == response.data.length) {
+                        $hotspot_list.selectmenu("refresh", true);
+                        selectHotspot(hotspots[0]);
                     }
                 });
-                $.each(hs_by_city_name, function(city_name, hotspots) {
-                    $hotspot_list.append('<li data-role="list-divider">' + city_name + '</li>');
-                    $.each(hotspots, function(i, hotspot) {
-                        var $a = $('<a href="#"><h1>' + hotspot.name + '</h1><p>' + hotspot.description + '</p></a>');
-                        var $li = $('<li data-icon="arrow-l"></li>').prepend($a);
-                        $a.click(function() {
-                            selectHotspot(hotspot);
-                        });
-                        $hotspot_list.append($li);
-                    });
-                });
-
-                var $suggest_li = $("<li data-icon='arrow-l'></li>").addClass("suggest_hotspot");
-                var $suggest_link = $("<a><h1>" + "{% trans 'Suggest a new hotspot' %}" + "</h1></a>").attr("href", "mailto:support@waybetter.com?subject=My suggested hotspot");
-                $suggest_li.append($suggest_link);
-                $hotspot_list.append($suggest_li);
-
-                chooseHotspotViaCurrentLocation();
+//                chooseHotspotViaCurrentLocation();
             }
         });
 
@@ -511,6 +810,85 @@
             urls:{
                 structured_resolve_url: "{% url sharing.passenger_controller.resolve_structured_address %}"
             }
+        });
+
+        GoogleMapHelper.init({
+            map_element: 'map_canvas',
+            map_options:{
+                center:new google.maps.LatLng(32.115985, 34.835441),
+                scrollwheel: false,
+                streetViewControl: false,
+                keyboardShortcuts: false,
+                mapTypeControl: false,
+                zoomControl: true,
+                mapTypeId:google.maps.MapTypeId.ROADMAP
+            }
+        });
+
+        var id_address_input = "gac";
+        var address_ac = GoogleGeocodingHelper.newPlacesAutocomplete({
+            id_textinput: id_address_input,
+            map: GoogleMapHelper.map,
+//            beforePlaceChange: function(){
+//            },
+            onValidAddress:function (address) {
+                gac_dirty = false;
+                clearAddressInput();
+                $("#gac").val(address.name);
+                var marker = addMarker(address, true);
+            },
+            onMissingStreetNumber: handleMissingHouseNumber,
+
+            onNoValidPlace:function () {
+                log("onNoValidPlace");
+            }
+        });
+
+        google.maps.event.addListener(GoogleMapHelper.map, 'dragstart', function() {
+            if ($.mobile.activePage.attr("id") != "address_input_page") return; // work only on address_input_page
+
+            log("drag start");
+            GoogleMapHelper.setMarkersVisibility(false);
+            $("#center_target").show();
+
+            do_drag = true;
+        });
+
+        google.maps.event.addListener(GoogleMapHelper.map, 'dragend', function() {
+            if ($.mobile.activePage.attr("id") != "address_input_page") return; // work only on address_input_page
+
+            log("drag end");
+            $("#center_target").hide();
+            if (do_drag) {
+                clearAddressInput();
+                var center = GoogleMapHelper.map.getCenter();
+                var input_id = "#" + id_address_input;
+                GoogleGeocodingHelper.reverseGeocodeToPickupAddress(center.lat(), center.lng(), input_id, updateAddress);
+            } else {
+                GoogleMapHelper.setMarkersVisibility(true);
+            }
+        });
+
+        google.maps.event.addListener(GoogleMapHelper.map, 'zoom_changed', function() {
+            if ($.mobile.activePage.attr("id") != "address_input_page") return; // work only on address_input_page
+
+            log("zooom_changed");
+            do_drag = false; // this was a zoom operation
+        });
+
+        $("#address_input_page").bind("pagebeforeshow", function() {
+            var map_div = GoogleMapHelper.map.getDiv();
+            $(".map_container", $(this)).append(map_div);
+        });
+
+        $("#select_hotspot_page").bind("pagebeforeshow", function() {
+            var map_div = GoogleMapHelper.map.getDiv();
+            $(".map_container", $(this)).append(map_div);
+        });
+
+
+        $("#hotspot_chosen_btn").click(function( ) {
+            $.mobile.changePage("#address_input_page");
         });
 
         {% block init %}{% endblock %}
@@ -525,6 +903,16 @@
                 $.mobile.changePage("#interval_page");
             }
         });
+
+        $("#gac").bind("keyup", function() {
+            if ($(this).val()) {
+                $("#clear_input").show();
+            } else {
+                $("#clear_input").hide()
+            }
+        });
+
+        $("#clear_input").hide().click(clearAddressInput);
 
         $("#calculate_ride_btn").button().button("disable");
         $("#calculate_ride_btn").click(function() {
@@ -567,7 +955,7 @@
                     }
                 }).trigger("keyup");
 
-        $("#gps").click(function() {
+        $("#gps_btn").click(function() {
             MobileHelper.getCurrentLocation();
         });
         $("#address-form").submit(function() {
@@ -680,6 +1068,10 @@
             }
         });
 
+        $("#select_hotspot_help").click(function() {
+            $.mobile.changePage("#select_hotspot_help_page");
+        });
+
         // ride details page
         $("#ride_details_page").bind("pagebeforeshow", function() {
             if (MobileHelper.address && MobileHelper.hotspot && MobileHelper.ride_date && MobileHelper.ride_time) {
@@ -730,7 +1122,7 @@
 
         {% block welcome_page %}
         {% if not request.user.is_authenticated %}
-            $.mobile.changePage("#welcome_page");
+//            $.mobile.changePage("#welcome_page");
         {% endif %}
         {% endblock welcome_page %}
 
@@ -745,6 +1137,61 @@
 {% endblock doc_ready %}
 
 {% block body %}
+    <div id="select_hotspot_page" data-role="page">
+        <div data-role="header">
+            <h1>Select HotSpot</h1>
+        </div>
+        <div data-role="content">
+            <div class="upper_toolbar_container">
+                <select id="select_hotspot"></select>
+                <div id="select_hotspot_help"></div>
+            </div>
+            <div class="map_container">
+                <div id="map_canvas"></div>
+            </div>
+            <button data-theme="d" id="leave_hs_btn">Leave</button>
+            <button data-theme="d" id="get_to_hs_btn">Get To</button>
+        </div>
+    </div>
+    <div id='select_hotspot_help_page' data-role="dialog" data-overlay-theme="a">
+        <div data-role="header">
+            <h1>מה זה HotSpot?</h1>
+        </div>
+        <div data-role="content">
+            <p>
+                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis facilisis blandit massa. Nullam in lectus sit amet orci tempor adipiscing. Sed aliquet, lacus at auctor placerat, nibh nisi convallis ante, sed dictum orci nisl quis tellus. Mauris leo nunc, rhoncus in tempor euismod, pharetra sed elit. In et porttitor nibh. Vivamus mollis dictum fermentum. Nunc a turpis id turpis cursus gravida eget sit amet justo. Duis sit amet auctor nisl. Cras dapibus sapien nec eros sodales at hendrerit erat eleifend. Fusce posuere rhoncus neque mattis tincidunt. Curabitur malesuada porta justo eget tempor. Proin ullamcorper facilisis dolor a venenatis. In eleifend purus sit amet lorem feugiat vitae faucibus est varius. Vivamus tincidunt nibh nec magna consequat ac congue augue sollicitudin. Morbi bibendum, enim non accumsan ultricies, massa leo sagittis sem, eu luctus urna velit sit amet erat.
+                Aliquam eget adipiscing orci. Nulla dignissim tortor eget ipsum iaculis varius. Sed ultricies eleifend tincidunt. Nullam nec quam quis ante vulputate accumsan. Nam imperdiet est vulputate est consequat sed malesuada dolor blandit. Pellentesque ligula lacus, pellentesque ut dictum quis, pellentesque quis enim. Pellentesque euismod neque sed quam scelerisque eget lobortis nibh egestas. Aenean eros mauris, commodo vitae feugiat et, convallis nec ipsum. Praesent nec odio mauris, a hendrerit tellus. Cras pretium ipsum non ante suscipit vitae tempus lectus commodo. In pharetra sodales eros non tempor. Mauris fringilla sodales nulla. Aliquam vulputate, turpis sit amet bibendum euismod, elit felis hendrerit purus, ut ultrices tortor nisi in enim. Etiam in purus ac dolor cursus rutrum.
+            </p>
+
+            <a href="#" data-theme="d" data-rel="back" data-role="button">Close</a>
+
+        </div>
+    </div>
+
+    <div id="address_input_page" data-role="page">
+        <div data-role="header">
+            <h1>Dropoff Address</h1>
+        </div>
+        <div data-role="content">
+            <div class="upper_toolbar_container">
+                <input id="gac" type="text">
+                <span id="clear_input"></span>
+                <div id="address_controls">
+                    <div id="history_btn" class="address-control"></div>
+                    <span class="toolbar-divider"></span>
+                    <div id="gps_btn" class="address-control"></div>
+                </div>
+                <div id="house_number_bubble">השלם מספר בית</div>
+            </div>
+            <div class="map_container">
+                <span id="center_target"></span>
+            </div>
+            <button data-theme="d">Next</button>
+        </div>
+    </div>
+
+    <div id="startup_message" data-role="page"></div>
+
     <div id="home" data-role="page" data-theme="a">
         <div data-role="header" class="wb-header"></div>
         <div class="sub-header">{% trans 'Shared Taxis to Central Locations' %}</div>
