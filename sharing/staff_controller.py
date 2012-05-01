@@ -1,6 +1,7 @@
 # This Python file uses the following encoding: utf-8
 import calendar
 import gzip
+import os
 import pickle
 from django.contrib.auth.models import User
 from common.geocode import gmaps_geocode, Bounds, gmaps_reverse_geocode
@@ -21,9 +22,12 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_now_min, default_tz_now_max
 from djangotoolbox.http import JSONResponse
+import ordering
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
 from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS, Order, CHARGED, ACCEPTED, APPROVED, REJECTED, TIMED_OUT, FAILED, Passenger, SharedRide, Station
+from pricing.views import hotspot_pricing_overview
+import sharing
 from sharing.forms import ConstraintsForm
 from sharing.models import HotSpot
 from sharing.passenger_controller import HIDDEN_FIELDS
@@ -38,6 +42,50 @@ import re
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 LANG_CODE = "he"
 PICKMEAPP = "PickMeApp"
+
+@staff_member_required
+@force_lang("en")
+def control_panel(request):
+    admin_links = [
+            {'name': 'Kpi', 'url': reverse(kpi)},
+            {'name': 'Birdseye', 'url': reverse(birdseye_view)},
+            {'name': 'Hotspot pricing', 'url': reverse(hotspot_pricing_overview)},
+            {'name': 'Sharing orders map', 'url': reverse(sharing_orders_map)},
+            {'name': 'PickMeApp orders map', 'url': reverse(pickmeapp_orders_map)},
+            {'name': 'Staff home', 'url': reverse(staff_home)},
+            {'name': 'Google maps testing page', 'url': reverse(gmaps)},
+    ]
+    data_generators = [
+            {'name': 'Send users data', 'url': reverse(send_users_data_csv)},
+            {'name': 'Send orders data', 'url': reverse(send_orders_data_csv)},
+    ]
+    external_services = [
+            {'name': 'Google cloud print', 'description': 'Login as printer@waybetter.com', 'url': 'http://www.google.com/cloudprint/'},
+            {'name': 'invoice4U', 'url': 'https://account.invoice4u.co.il/login.aspx?ReturnUrl=/User/Default.aspx'},
+            {'name': 'freefax', 'url': 'http://www.freefax.co.il/login.php'},
+            {'name': 'myfax', 'url': 'https://myfax.co.il/action/faxLogs.do?listType=outbox'},
+    ]
+
+    catagories = [
+            {'title': 'Admin Links', 'data': admin_links},
+            {'title': 'Data Generation', 'data': data_generators},
+            {'title': 'External Services', 'data': external_services},
+    ]
+
+    sys_consts = [
+            {'name': 'Sharing factor (Minutes)', 'value': ordering.models.SHARING_TIME_MINUTES},
+            {'name': 'Ride handling time (Minutes)', 'value': int(sharing.models.TOTAL_HANDLING_DELTA.seconds)/60},
+    ]
+
+    env_vars = [
+            {'name': 'SERVER_SOFTWARE', 'value': os.environ.get('SERVER_SOFTWARE')},
+            {'name': 'CURRENT_VERSION_ID', 'value': os.environ.get('CURRENT_VERSION_ID')},
+    ]
+    for attr in ['LOCAL', 'DEV_VERSION', 'DEV', 'DEBUG']:
+        env_vars.append({'name': attr, 'value': getattr(settings, attr)})
+
+    return render_to_response("staff_cpanel.html", locals(), context_instance=RequestContext(request))
+
 
 @staff_member_required
 def gmaps(request):

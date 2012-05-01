@@ -1,3 +1,4 @@
+from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response
 from django.utils import simplejson
 from google.appengine.api.channel import channel
@@ -17,11 +18,14 @@ import logging
 @staff_member_required
 def hotspot_pricing_overview(request, hotspot_id):
     hotspot = HotSpot.by_id(hotspot_id)
-    channel_id = get_uuid()
-    token = channel.create_channel(channel_id)
+    if hotspot:
+        channel_id = get_uuid()
+        token = channel.create_channel(channel_id)
 
-#    async_computation_submitted_signal.send(sender="hotspot_pricing_overview", channel_id=channel_id)
-    deferred.defer(_async_calc_hotspot_pricing_overview, hotspot, channel_id=channel_id, token=token)
+    #    async_computation_submitted_signal.send(sender="hotspot_pricing_overview", channel_id=channel_id)
+        deferred.defer(_async_calc_hotspot_pricing_overview, hotspot, channel_id=channel_id, token=token)
+    else:
+        hotspot_list = [{'name': hs.name, 'pricing_url': reverse(hotspot_pricing_overview, args=[hs.id]) }for hs in HotSpot.objects.all()]
 
     return render_to_response("hotspot_pricing_overview.html", locals(), context_instance=RequestContext(request))
 

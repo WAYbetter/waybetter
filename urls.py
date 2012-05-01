@@ -22,6 +22,8 @@ urlpatterns = patterns('',
     (r'^fleet/', include('fleet.urls')),
     (r'^testing/', include('testing.urls')),
     (r'^admin/analytics/', 'analytics.views.analytics'),
+    (r'^admin/cpanel/$', 'sharing.staff_controller.control_panel'),
+
     (r'^admin/', include(admin.site.urls)),
     # TODO_WB: prefix with pickmeapp - WILL BREAK WORKSTATION LOGIN
     (r'^', include('ordering.urls')),

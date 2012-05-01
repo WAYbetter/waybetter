@@ -37,13 +37,6 @@ from google.appengine.ext import deferred
 
 ERROR_PAGE_TEXT = "error_page_text"
 
-def is_dev(request):
-    response = "SERVER_SOFTWARE: %s<br/>" % os.environ.get('SERVER_SOFTWARE')
-    response += "CURRENT_VERSION_ID: %s<br/>" % os.environ.get('CURRENT_VERSION_ID')
-    for attr in ['LOCAL', 'DEV_VERSION', 'DEV', 'DEBUG']:
-        response += "%s: %s <br/>" % (attr, getattr(settings, attr))
-    return HttpResponse(response)
-
 @receive_signal(async_computation_completed_signal)
 def async_computation_complete_handler(sender, signal_type, **kwargs):
     client_id = kwargs.get('channel_id')
