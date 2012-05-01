@@ -122,6 +122,8 @@ class Station(BaseModel):
 
     # google cloud print integration
     printer_id = models.CharField(_("printer id"), max_length=64, null=True, blank=True)
+    # fax number
+    fax_number = models.CharField(_("fax number"), max_length=64, null=True, blank=True)
 
     last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
                                             default=datetime.datetime(1, 1, 1))

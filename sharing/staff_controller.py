@@ -254,6 +254,7 @@ def calc_ny_sharing(offset=0, count=0, value=0):
 
 @staff_member_required
 def count_query(request):
+    # e.g. /count_query?model=SharedRide&q={status:1}
     from django.db.models.loading import get_model
     def _decode_dict(data):
         rv = {}

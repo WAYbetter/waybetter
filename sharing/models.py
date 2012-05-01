@@ -25,6 +25,7 @@ TOTAL_HANDLING_DELTA = ALGO_COMPUTATION_DELTA + FAX_HANDLING_DELTA
 class HotSpot(BaseModel):
     name = models.CharField(_("hotspot name"), max_length=50)
     description = models.CharField(_("hotspot description"), max_length=100, null=True, blank=True)
+    priority = models.FloatField(_("priority"), unique=True, default=0)
 
     station = models.ForeignKey(Station, related_name="hotspots")
     dispatching_time = models.PositiveIntegerField(verbose_name=_("Dispatching Time"), help_text=_("In minutes"), default=7)

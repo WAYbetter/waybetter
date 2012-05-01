@@ -710,7 +710,7 @@
             handleOrder();
         }
         function renderFaxDetails(fax_data) {
-            var send_button = $('<div class="accept_button_bg button_txt fax_button" title="{% trans 'Fax Received - Sending Taxi' %}"></div>').text('{% trans 'Fax Received - Sending Taxi' %}').click(function () {
+            var send_button = $('<div class="accept_button_bg button_txt fax_button" title="{% trans 'Voucher Received - Sending Taxi' %}"></div>').text('{% trans 'Voucher Received - Sending Taxi' %}').click(function () {
                 trace("fax received");
                 $("#" + fax_data.id).remove();
                 $('#pb_' + fax_data.id).remove();
@@ -760,7 +760,7 @@
             show_button_container.append($('<div></div>').append(show_button));
 
 
-            var incoming_text = "{% trans 'A Fax Was Sent To The Station' %}";
+            var incoming_text = "{% trans 'A Voucher Was Sent To The Station' %}";
             var rendered_order = $("<div class='order teaser fax'></div>").attr('id', fax_data.id).data("state", ORDER_IS_SHOWING)
                     .append($("<div class='teaser_txt'></div>").append(incoming_text))
                     .append(show_button_container);

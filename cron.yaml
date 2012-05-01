@@ -21,6 +21,11 @@ cron:
   url: /common/maintenance/billing_service_test
   schedule: every 5 minutes
 
+- description: test google cloud print
+  url: /common/maintenance/gcp_service_test
+  schedule: every 60 minutes
+
+
 # services
 - description: send workstation heartbeat
   url: /services/ws_heartbeat/
