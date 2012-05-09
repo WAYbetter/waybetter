@@ -3,6 +3,7 @@ from common.models import BaseModel
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.importlib import import_module
+from common.tz_support import to_js_date
 from common.util import Enum
 
 class FleetManagerRideStatus(Enum):
@@ -16,13 +17,8 @@ class FleetManagerRideStatus(Enum):
     COMPLETED = 7
     CANCELLED = 8
 
-ONGOING_STATUS_LIST = [FleetManagerRideStatus.ASSIGNED_TO_TAXI,
-                       FleetManagerRideStatus.DRIVER_ACCEPTED,
-                       FleetManagerRideStatus.WAITING_FOR_PASSENGER,
-                       FleetManagerRideStatus.PASSENGER_PICKUP,
-                       FleetManagerRideStatus.PASSENGER_DROPOFF]
-
 class FleetManagerRide(object):
+    """ An object representing a ride by a fleet manager backend. """
     def __init__(self, id, status, taxi_id, lat, lon, timestamp, raw_status=None):
         """Constructor.
         @param id: Long representing the id of the ride as recorded in our db.
@@ -35,7 +31,7 @@ class FleetManagerRide(object):
         """
         assert id
         assert timestamp is None or isinstance(timestamp, datetime.datetime)
-        assert FleetManagerRideStatus.contains(status)
+        assert FleetManagerRideStatus.contains(status), "Unknown FleetManagerRideStatus: %s" % raw_status
 
         self.id = long(id)
         self.status = status
@@ -46,16 +42,52 @@ class FleetManagerRide(object):
         self.raw_status = raw_status
 
     def __str__(self):
-        s = "%s %s" % (self.id, FleetManagerRideStatus.get_name(self.status))
+        s = "%s: ride %s %s" % (self.timestamp, self.id, FleetManagerRideStatus.get_name(self.status))
         if self.raw_status:
             s += " [%s]" % self.raw_status
         if self.taxi_id:
             s += ": assigned to taxi %s" % self.taxi_id
         if self.lat and self.lon:
             s += " located at %s,%s" % (self.lat, self.lon)
-        if self.timestamp:
-            s += " [%s]" % self.timestamp
         return s
+
+    def serialize(self):
+        d = {}
+        for attr in ["id", "status", "taxi_id", "lat", "lon", "raw_status"]:
+            d[attr] = getattr(self, attr)
+        d["timestamp"] = to_js_date(self.timestamp)
+        return d
+
+class TaxiRidePosition(object):
+    """ An object representing the position of a taxi assigned to a ride by a fleet manager backend """
+    def __init__(self, taxi_id, ride_id, lat, lon, timestamp):
+        """ Constructor.
+        @param taxi_id: Number
+        @param ride_id: Number
+        @param lat: Float
+        @param lon: Float
+        @param timestamp: datetime.datetime
+        """
+        assert all([taxi_id, ride_id, lat, lon])
+        assert timestamp is None or isinstance(timestamp, datetime.datetime)
+
+        #TODO_WB: add station_id
+        self.taxi_id = long(taxi_id)
+        self.ride_id = long(ride_id)
+        self.lat = float(lat)
+        self.lon = float(lon)
+        self.timestamp = timestamp
+
+    def __str__(self):
+        return "%s: ride %s taxi %s at (%s,%s)" % (self.timestamp, self.ride_id, self.taxi_id, self.lat, self.lon)
+
+    def serialize(self):
+        d = {}
+        for attr in ["taxi_id", "ride_id", "lat", "lon"]:
+            d[attr] = getattr(self, attr)
+        d["timestamp"] = to_js_date(self.timestamp)
+        return d
+
 
 class AbstractFleetManagerBackend(object):
     @classmethod
@@ -80,13 +112,6 @@ class AbstractFleetManagerBackend(object):
         """Query the fleet manager for a ride.
         @param ride_id: the id of the wb ride to query
         @return: C{FleetManagerRide} or None
-        """
-        raise NotImplementedError()
-
-    @classmethod
-    def get_ongoing_rides(cls):
-        """Query the fleet manager for all rides with status in C{ONGOING_STATUS_LIST}.
-        @return: A list of C{FleetManagerRide}.
         """
         raise NotImplementedError()
 
@@ -127,6 +152,3 @@ class FleetManager(BaseModel, AbstractFleetManagerBackend):
 
     def get_ride(self, ride_id):
         return self.backend.get_ride(ride_id)
-
-    def get_ongoing_rides(self):
-        return self.backend.get_ongoing_rides()

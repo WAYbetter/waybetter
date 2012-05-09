@@ -1,5 +1,6 @@
 # This Python file uses the following encoding: utf-8
 from django.contrib.auth.models import User
+from google.appengine.api.channel.channel import InvalidChannelClientIdError
 from common.geocode import gmaps_geocode, Bounds, gmaps_reverse_geocode
 from django.core.urlresolvers import reverse
 from google.appengine.ext.deferred import deferred
@@ -7,7 +8,7 @@ from common.signals import async_computation_failed_signal, async_computation_co
 from google.appengine.api.channel import channel
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction, BillingInfo
-from common.decorators import force_lang
+from common.decorators import force_lang, receive_signal
 from common.models import City
 from common.util import custom_render_to_response, get_uuid, base_datepicker_page, send_mail_as_noreply, is_in_hebrew
 from django.contrib.admin.views.decorators import staff_member_required
@@ -18,6 +19,8 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_now_min, default_tz_now_max
 from djangotoolbox.http import JSONResponse
+import fleet.signals as fleet_signals
+import sharing.signals as sharing_signals
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
 from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS, Order, CHARGED, ACCEPTED, APPROVED, REJECTED, TIMED_OUT, FAILED, Passenger, SharedRide
@@ -594,3 +597,53 @@ def submit_test_computation(orders, params, computation_set_name=None, computati
             order.save()
 
     return algo_key
+
+TRACK_RIDES_CHANNEL_IDS = [] #TODO_WB: use memecache?
+@staff_member_required
+@force_lang("en")
+def track_rides(request):
+    lib_channel = True
+    lib_map = True
+
+    channel_id = get_uuid()
+    global TRACK_RIDES_CHANNEL_IDS
+    TRACK_RIDES_CHANNEL_IDS.append(channel_id)
+    token = channel.create_channel(channel_id)
+
+#    ongoing_rides = fleet_manager.get_ongoing_rides()
+#    fmr = FleetManagerRide(1234, 5, 123, 32.1, 34.1, datetime.now(), "raw_status")
+#    ongoing_rides = [fmr]
+    return render_to_response("staff_track_rides.html", locals(), context_instance=RequestContext(request))
+
+
+@receive_signal(sharing_signals.ride_status_changed_signal)
+def log_ride_status_update(sender, signal_type, obj, status, **kwargs):
+    ride = obj
+    str_status = ride.get_status_display()
+    log = "ride %s status changed -> %s" % (ride.id, str_status)
+    json = simplejson.dumps({'ride': {'id': ride.id, 'status': str_status}, 'logs': [log]})
+    _log_fleet_update(json)
+
+@receive_signal(fleet_signals.fmr_update_signal)
+def log_fmr_update(sender, signal_type, fmr, **kwargs):
+    json = simplejson.dumps({'fmr': fmr.serialize(), 'logs': [str(fmr)]})
+    _log_fleet_update(json)
+
+@receive_signal(fleet_signals.positions_update_signal)
+def log_positions_update(sender, signal_type, positions, **kwargs):
+    szd_positions = []
+    logs = []
+    for p in sorted(positions, key=lambda p: p.timestamp):
+        szd_positions.append(p.serialize())
+        logs.append(str(p))
+
+    json = simplejson.dumps({'positions': szd_positions, 'logs': logs})
+    _log_fleet_update(json)
+
+def _log_fleet_update(json):
+    logging.debug("fleet update: %s" % json)
+    for cid in TRACK_RIDES_CHANNEL_IDS:
+        try:
+            channel.send_message(cid, json)
+        except InvalidChannelClientIdError, e:
+            logging.warning(e.message)
