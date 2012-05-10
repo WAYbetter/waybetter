@@ -75,6 +75,9 @@ class AbstractTemporalRule(BaseModel):
         elif by_weekday and not (self.from_weekday and self.to_weekday):
             raise ValidationError("Please enter both From and To fields")
 
+        elif self.from_hour > self.to_hour:
+            raise ValidationError("Invalid hour range")
+
     def is_active(self, day, t=None):
         """
         Check if the rule is active on day, or on day and time.
@@ -83,9 +86,9 @@ class AbstractTemporalRule(BaseModel):
         @return: True if rule is active, else False
         """
         if self.from_date and self.to_date and self.from_date <= day <= self.to_date:
-            return self.from_hour <= t <= self.to_hour if t else True
+            return True if t is None else self.from_hour <= t <= self.to_hour
         elif convert_python_weekday(day.weekday()) in self.get_weekdays():
-            return self.from_hour <= t <= self.to_hour if t else True
+            return True if t is None else self.from_hour <= t <= self.to_hour
 
         return False
 

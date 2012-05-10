@@ -54,6 +54,7 @@ def _calc_hotspot_pricing_overview(hotspot, client_id):
     num_seats = 1
     city_areas = CityArea.objects.all()
 
+    pop_rules = list(hotspot.popularity_rules.all())
     tariff_rules = list(RuleSet.objects.all())
 
     hotspot_ca = None
@@ -99,7 +100,7 @@ def _calc_hotspot_pricing_overview(hotspot, client_id):
 
             points = []
             for t in times:
-                price = hotspot.get_sharing_price(lat, lon, day, t, num_seats, False, tariff_rules, cost_rules)
+                price = hotspot.get_sharing_price(lat, lon, day, t, num_seats, False, tariff_rules, cost_rules, pop_rules)
                 if price:
                     dt = datetime.datetime.combine(day, t)
                     points.append([int(to_js_date(dt)), price])

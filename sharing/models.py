@@ -93,7 +93,7 @@ class HotSpot(BaseModel):
         cost, ride_type = estimate_cost(estimated_duration, estimated_distance, day=convert_python_weekday(day.weekday()), time=t)
         return round(cost + PRIVATE_RIDE_HANDLING_FEE) if cost else None
 
-    def get_sharing_price(self, lat, lon, day, t, num_seats=1, with_popularity=False, tariff_rules=None, cost_rules=None):
+    def get_sharing_price(self, lat, lon, day, t, num_seats=1, with_popularity=False, tariff_rules=None, cost_rules=None, pop_rules=None):
         """
         @param lat:
         @param lon:
@@ -102,7 +102,7 @@ class HotSpot(BaseModel):
         @param num_seats: number of seats
         @param tariff_rules: a list of rules to check against
         @param cost_rules: a list of rules to check against
-        @return: price or (price, popularity)
+        @return: price or (price, popularity). both may be None
         """
         logging.info("calc sharing price for %s (lat=%s, lon=%s, day=%s, t=%s, seats=%s)" % (self.name, lat, lon, day, t, num_seats))
 
@@ -111,27 +111,25 @@ class HotSpot(BaseModel):
             logging.warning("no cost defined")
             return (None, None) if with_popularity else None
 
-        if num_seats > 2:
-            price = cost
-        else:
-            base_sharing_price = get_base_sharing_price(cost)
+        base_sharing_price = get_base_sharing_price(cost)
 
-            if num_seats == 2:
-                delta = max([cost - base_sharing_price, 0])
-                price = base_sharing_price + 0.5 * delta
-            else:
-                price = base_sharing_price
-
-        # popularity
-        pop_rule = self.get_popularity_rule(lat, lon, day, t)
+        pop_rule = self.get_popularity_rule(day, t, pop_rules=pop_rules)
         if pop_rule:
             logging.info("found popularity rule %s" % pop_rule.name)
-            price = pop_rule.apply(price, day, t)
+            pop_price = pop_rule.apply(base_sharing_price, day, t)
             popularity = pop_rule.popularity
         else:
             logging.info("  --> using default popularity")
-            price = HotSpotPopularityRule.apply_default(price, day, t)
+            pop_price = HotSpotPopularityRule.apply_default(base_sharing_price, day, t)
             popularity = HotSpotPopularityRule.get_default_popularity()
+
+        if num_seats > 2:
+            price = base_sharing_price
+        elif num_seats == 2:
+            delta = max([base_sharing_price - pop_price, 0])
+            price = pop_price + 0.4 * delta
+        else:
+            price = pop_price
 
         # normalize
         if price:
@@ -157,6 +155,7 @@ class HotSpot(BaseModel):
             if area.contains(self.lat, self.lon):
                 ca2 = area
 
+        pop_rules = list(self.popularity_rules.all())
         tariffs = list(RuleSet.objects.all())
         costs1 = list(self.station.fixed_prices.filter(city_area_1=ca1, city_area_2=ca2))
         costs2 = list(self.station.fixed_prices.filter(city_area_1=ca2, city_area_2=ca1))
@@ -168,20 +167,23 @@ class HotSpot(BaseModel):
             asap_interval = ceil_datetime(now + self.order_processing_time + timedelta(minutes=2)) # spare time to complete booking
             if self.get_next_orderable_interval() > asap_interval:
                 t = asap_interval.time()
-                asap_price = self.get_cost(lat, lon, day, t, num_seats, tariffs, costs)
+                cost = self.get_cost(lat, lon, day, t, num_seats, tariffs, costs)
+                asap_price = get_base_sharing_price(cost)
                 offers.append({'time': t, 'price': asap_price, 'popularity': 0, 'type': OrderType.PRIVATE})
 
         for t in self.get_times_for_day(day, start_time=start_time):
-            price, popularity = self.get_sharing_price(lat, lon, day, t, num_seats, True, tariffs, costs)
+            price, popularity = self.get_sharing_price(lat, lon, day, t, num_seats, True, tariffs, costs, pop_rules)
             if price is not None:
                 offers.append({'time': t, 'price': price, 'popularity': popularity, 'type': OrderType.SHARED})
 
         return offers
 
 
-    def get_popularity_rule(self, lat, lon, day, t):
-        for pop_rule in self.popularity_rules.all():
-            if pop_rule.is_active(lat, lon, day, t):
+    def get_popularity_rule(self, day, t, pop_rules=None):
+        if pop_rules is None:
+            pop_rules = self.popularity_rules.all()
+        for pop_rule in pop_rules:
+            if pop_rule.is_active(day, t):
                 return pop_rule
 
         return None
@@ -326,14 +328,13 @@ class HotSpotServiceRule(AbstractTemporalRule):
 
 
 class HotSpotPopularityRule(AbstractTemporalRule):
-    DEFAULT_POPULARITY = 10
-    DEFAULT_NOISELIMIT = 20
+    DEFAULT_POPULARITY = 0
+    DEFAULT_NOISELIMIT = 10
 
     MaxPopularity = 100
     MaxNoiseLimit = 100
 
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="popularity_rules")
-    city_area = CityAreaField(verbose_name=_("city area"))
     _popularity = models.IntegerField(verbose_name=_("popularity"), default=DEFAULT_POPULARITY,
         validators=[MinValueValidator(0), MaxValueValidator(MaxPopularity)])
     _noise_limit = models.IntegerField(verbose_name=_("noise limit"), default=DEFAULT_NOISELIMIT,
@@ -355,23 +356,19 @@ class HotSpotPopularityRule(AbstractTemporalRule):
     def get_default_noise_limit(cls):
         return cls.DEFAULT_NOISELIMIT / float(cls.MaxNoiseLimit)
 
-    def is_active(self, lat, lon, day, t):
-        in_city_area = self.city_area.contains(lat, lon)
-        return in_city_area and super(HotSpotPopularityRule, self).is_active(day, t)
-
-    def apply(self, price, day, t):
-        return self.__class__._apply_popularity(price, day, t, self.popularity, self.noise_limit)
+    def apply(self, base_price, day, t):
+        return self.__class__._apply_popularity(base_price, day, t, self.popularity, self.noise_limit)
 
     @classmethod
-    def apply_default(cls, price, day, t):
-        return cls._apply_popularity(price, day, t, cls.get_default_popularity(), cls.get_default_noise_limit())
+    def apply_default(cls, base_price, day, t):
+        return cls._apply_popularity(base_price, day, t, cls.get_default_popularity(), cls.get_default_noise_limit())
 
     @classmethod
-    def _apply_popularity(cls, price, day, t, popularity, noise_limit):
+    def _apply_popularity(cls, base_price, day, t, popularity, noise_limit):
         noisy_popularity = cls._noisify_popularity(popularity, noise_limit, day, t)
         logging.info("popularity=%s, noise limit=%s --> noisy popularity=%s" % (popularity, noise_limit, noisy_popularity))
 
-        price = get_popularity_price(noisy_popularity, price)
+        price = get_popularity_price(noisy_popularity, base_price)
         return price
 
     @classmethod

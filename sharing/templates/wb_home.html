@@ -536,6 +536,10 @@
                             var $interval = renderInterval(interval);
                             $list.append($interval);
                         });
+                        var $scrollTo = $(".interval .time:contains('07:00')").parents(".interval");
+                        if ($scrollTo.length){
+                            $list.scrollTop($scrollTo.offset().top - $list.offset().top + $list.scrollTop());
+                        }
                         if (options.onGotIntervals) {
                             options.onGotIntervals(intervals);
                         }

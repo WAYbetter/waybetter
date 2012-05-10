@@ -1,9 +1,11 @@
 import logging
 import random
 
+HANDLING_FEE = 2 # NIS
+
 def get_base_sharing_price(cost):
 #    return 0.59 * cost
-    return cost
+    return cost + HANDLING_FEE
 
 
 def get_noisy_number_for_day_time(number, limit, day, t):
@@ -16,7 +18,7 @@ def get_noisy_number_for_day_time(number, limit, day, t):
     @return:
     """
 
-    noises = [day.weekday() / 6.0, t.hour / 24.0, t.minute / 60.0]
+    noises = [day.month / 12.0, day.weekday() / 6.0, t.hour / 24.0, t.minute / 60.0]
     noises = [round(n, 2) for n in noises]
     r = random.Random(t.hour + t.minute)
     sign = r.choice([-1, 1])
@@ -42,26 +44,26 @@ def get_noisy_number(number, signed_limit, noises):
     return noisy_number
 
 
-def get_popularity_price(popularity, price):
+def get_popularity_price(popularity, base_price):
     """
 
     @param popularity: floating point number in the range [0.0, 1.0]
-    @param price:
+    @param base_price:
     @return:
     """
     popularity = round(popularity, 2)
 
     if not popularity:
-        return price
+        return base_price
 
-    max_price = price
-    min_price = 0.3 * price
+    max_price = base_price
+    min_price = 0.4 * base_price
 
     new_price = max_price - (max_price - min_price) * popularity
 
-    assert new_price <= price
-    logging.info("computing popularity %s: max price=%s, new price=%s, discount=%s" %
-                 (popularity, price, new_price, price - new_price))
+    assert new_price <= base_price
+    logging.info("computing popularity %s: base_price=%s, new price=%s, discount=%s NIS" %
+                 (popularity, base_price, new_price, base_price - new_price))
 
     return new_price
 
