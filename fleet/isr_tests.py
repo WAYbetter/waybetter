@@ -6,8 +6,38 @@ from fleet import fleet_manager
 from fleet.models import FleetManager
 from ordering.models import Order, Passenger, Station, ASSIGNED
 from fleet.backends.isr import ISR
+from fleet.backends.isr_proxy import ISRProxy
 
-def create_ride(address, comments, passenger_phone, first_name, last_name, start_time, finish_time, as_raw_output):
+BACKEND = ISRProxy
+#BACKEND = ISR
+
+DEV_WB_ONGOING_RIDES = []
+DEV_WB_COMPLETED_RIDES = []
+
+isr_fm = filter(lambda fm: fm.backend == BACKEND, FleetManager.objects.all()).pop()
+
+class FakeObjectsManager(object):
+    def get(self, id):
+        for i, r in enumerate(DEV_WB_ONGOING_RIDES + DEV_WB_COMPLETED_RIDES):
+            if r.id == id:
+                return r
+        return None
+
+class FakeOrdersManager(object):
+    def __init__(self, orders):
+        self.orders = list(orders)
+
+    def all(self):
+        return self.orders
+class FakeSharedRide(object):
+    objects = FakeObjectsManager()
+    def __init__(self, orders):
+        self.orders = FakeOrdersManager(orders)
+        self.status = 0
+    def get_status_display(self):
+        return self.status
+
+def create_ride(address, comments, passenger_phone, first_name, last_name, start_time, finish_time, station_id, as_raw_output):
     from common.tz_support import set_default_tz_time
     from common.geocode import gmaps_geocode
 
@@ -56,22 +86,9 @@ def create_ride(address, comments, passenger_phone, first_name, last_name, start
     order.arrive_time = set_default_tz_time(datetime.datetime.strptime(finish_time, "%Y-%m-%dT%H:%M:%S")) if finish_time else None
     order.passenger = passenger
 
-    isr_fm = FleetManager.objects.get(name="isr")
-
     station = Station()
     station.fleet_manager = isr_fm
-    station.fleet_station_id = 8 # waybetter station operator id
-
-    class FakeOrdersManager(object):
-        def __init__(self, orders):
-            self.orders = list(orders)
-
-        def all(self):
-            return self.orders
-
-    class FakeSharedRide(object):
-        def __init__(self, orders):
-            self.orders = FakeOrdersManager(orders)
+    station.fleet_station_id = station_id or 8 # waybetter station operator id
 
     ride = FakeSharedRide([order])
     ride.id = random.randrange(1, 999999)
@@ -79,30 +96,28 @@ def create_ride(address, comments, passenger_phone, first_name, last_name, start
     ride.dn_fleet_manager_id = isr_fm.id
     ride.status = ASSIGNED
 
-    fleet_manager.DEV_WB_ONGOING_RIDES.append(ride)
+    DEV_WB_ONGOING_RIDES.append(ride)
 
     if as_raw_output:
-        ex_order = ISR._create_external_order(order, station)
+        ex_order = ISR._create_external_order(order, station.fleet_station_id)
         reply = ISR._get_client().service.Insert_External_Order(ISR._get_login_token(), ex_order)
         return reply
 
-    return fleet_manager.create_ride(ride)
+    return "%s ride id=%s" % (fleet_manager.create_ride(ride), ride.id)
+#    return BACKEND.create_ride(ride, station)
 
 def cancel_ride(ride_id):
-    return ISR.cancel_ride(ride_id)
+    ride = FakeSharedRide([])
+    ride.id = ride_id
+    ride.dn_fleet_manager_id = isr_fm.id
+
+    return fleet_manager.cancel_ride(ride_id)
+#    return BACKEND.cancel_ride(ride_id)
 
 def get_ride(ride_id, as_raw_output):
     if as_raw_output:
         return ISR._get_client().service.Get_External_Order(ISR._get_login_token(), ride_id)
-
-    return ISR.get_ride(ride_id)
-
-def get_ongoing_rides():
-    fmrs = ISR.get_ongoing_rides()
-    if fmrs:
-        return [fmr.id for fmr in fmrs]
-    else:
-        return "No ongoing rides"
+    return BACKEND.get_ride(ride_id)
 
 def get_var_supplier_orders(status_list):
     """
@@ -142,5 +157,5 @@ def server_session_id():
 #        float(order.from_lon), max_radius, max_vehicles)
 #
 #
-#def get_available_operators():
-#    return ISR._get_client().service.Get_Available_Operators(ISR._get_login_token())
+def get_available_operators():
+    return ISR._get_client().service.Get_Available_Operators(ISR._get_login_token())

@@ -1,0 +1,224 @@
+{% extends "wb_base_site.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        #top-container, #site-content{
+            width: 1000px;
+        }
+        #map_canvas{
+            height: 600px;
+        }
+        #map_tools{
+            padding: 10px 2px;
+        }
+        #log {
+            height: 200px;
+            padding-left: 5px;
+            overflow-y: scroll;
+            background: black;
+            list-style: none;
+        }
+
+        .log-entry {
+            color: white;
+            font-weight: bold;
+            font-family: "Courier New";
+        }
+    </style>
+{% endblock %}
+
+{% block top_left %}
+    Track Ongoing Rides
+{% endblock %}
+
+{% block content %}
+    <div id="rides_container">
+{#        <ul id="rides">#}
+{#            <li class="ride"></li>#}
+{#        </ul>#}
+    </div>
+    <div id="map_container">
+        <div id="map_canvas"></div>
+        <div id="map_tools">
+            <input class="zoom_taxi" type="text" placeholder="Taxi #">
+            <button class="zoom_taxi">Zoom</button>
+            <input type="checkbox" id="get_all_chkbx">Show All Taxis
+        </div>
+    </div>
+    <div id="log_console">
+        <ul id="log">
+            <li class="log-entry">Logging Started</li>
+        </ul>
+    </div>
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        var map, infowindow, markers = {}, positions_data = {}, active_taxi, getall_ajax_active = false;
+
+        function getNowTimestamp(){
+            var now = new Date();
+            var minutes = now.getMinutes(), hours = now.getHours(), secondes = now.getSeconds();
+            return ((hours < 10) ? "0" + hours : hours) + ":" + ((minutes < 10) ? "0" + minutes : minutes) + ":" +
+                    ((secondes < 10) ? "0" + secondes : secondes);
+        }
+
+        function renderLogs(logs) {
+            var $log = $("#log");
+            $.each(logs, function (i, entry) {
+                var $li = $("<li></li>").addClass("log-entry").text(getNowTimestamp() + ": " + entry);
+                $log.append($li);
+            });
+            var $scrollTo = $(".log-entry:last");
+            if ($scrollTo.length){
+                $log.scrollTop($scrollTo.offset().top - $log.offset().top + $log.scrollTop());
+            }
+        }
+        function updatePositions(pp){
+            $.each(pp, function (i, p) {
+                if (positions_data[p.taxi_id] && (positions_data[p.taxi_id].lat != p.lat || positions_data[p.taxi_id].lon != p.lon) ){
+                    renderLogs(["taxi moved: " + p.taxi_id]);
+                }
+                positions_data[p.taxi_id] = p;
+                var latLng = new google.maps.LatLng(p.lat, p.lon);
+                var marker = markers[p.taxi_id];
+                if (marker){
+                    marker.setPosition(latLng);
+                }
+                else{
+                    marker = new google.maps.Marker({
+                        flat: true,
+//                        'icon': '',
+                        map: map,
+                        position: latLng,
+                        title: "#" + p.taxi_id,
+                        icon: "/static/images/wb_site/taxi_marker.png"
+                    });
+                    google.maps.event.addListener(marker, 'click', function () {
+                        console.log("click");
+                        openInfoWindow(p.taxi_id);
+                    });
+
+                    markers[p.taxi_id] = marker;
+                }
+
+                if (active_taxi == p.taxi_id){
+                    openInfoWindow(p.taxi_id); // update info window with new content
+                }
+            });
+        }
+        function openInfoWindow(taxi_id){
+            var position = positions_data[taxi_id];
+            var contentString = 'taxi #' + position.taxi_id;
+            if (position.ride_id) {
+                contentString += '\nassigned to ride #' + position.ride_id;
+            }
+            active_taxi = taxi_id;
+            infowindow.setContent(contentString);
+            infowindow.open(map, markers[taxi_id]);
+        }
+        function updateRide(fmr){
+
+        }
+        function zoomTaxi(taxi_id){
+            var marker = markers[taxi_id];
+            if (marker) {
+                map.setCenter(marker.getPosition());
+                map.setZoom(17);
+            }
+            else {
+                alert("Can't find Taxi #" + taxi_id);
+            }
+        }
+        function getAllPositions(){
+            if (getall_ajax_active){
+                return;
+            }
+            getall_ajax_active = true;
+            $.ajax({
+                url: '{% url fleet.backends.isr_proxy.get_all_positions %}',
+                success: function(response){
+                    getall_ajax_active = false;
+                    if ($("#get_all_chkbx").is(":checked")){
+                        updatePositions(response.positions);
+                        setTimeout(function () {
+                            getAllPositions();
+                        }, 5e3);
+                    }
+                }
+            })
+        }
+        $(function () {
+            map = new google.maps.Map(document.getElementById("map_canvas"), {
+                        center:new google.maps.LatLng(32.054026720778126, 34.790465719238234),
+                        zoom:12,
+                        mapTypeId:google.maps.MapTypeId.ROADMAP
+                    }
+            );
+
+            infowindow = new google.maps.InfoWindow();
+            google.maps.event.addListener(infowindow, 'closeclick', function () {
+                active_taxi = undefined;
+            });
+
+            // map tools
+            $("button.zoom_taxi").click(function () {
+                var taxi_id = parseInt($("input.zoom_taxi").val(), 10);
+                zoomTaxi(taxi_id);
+            });
+            $("#get_all_chkbx").change(function () {
+                if ($(this).is(":checked")) {
+                    renderLogs(["getAllpositions: Started"]);
+                    getAllPositions();
+                }
+                else{
+                    renderLogs(["getAllpositions: Stopped"]);
+                    $.each(markers, function (i, marker) {
+                        marker.setMap(null);
+                    });
+                    markers = {};
+                }
+            });
+            var channel_opened = false;
+            var channel;
+            var socket;
+            var token = "{{ token }}";
+
+            channel = new goog.appengine.Channel(token);
+            socket = channel.open();
+            socket.onerror = function () {
+                log("socket: onerror");
+            };
+            socket.onclose = function () {
+                log("socket: onclose");
+            };
+            socket.onopen = function () {
+                log("socket: onopen", token);
+                channel_opened = true;
+            };
+            socket.onmessage = function (msg) {
+                log("socket: onmessage", msg);
+                try {
+                    var data = $.parseJSON(msg.data);
+                    if (data.logs) {
+                        renderLogs(data.logs);
+                    }
+                    if (data.positions){
+                        updatePositions(data.positions);
+                    }
+                    if (data.ride){
+                        // todo
+                    }
+                    if (data.fmr){
+                        // todo
+                    }
+                } catch (e) {
+                    log("error parsing: " + JSON.stringify(e), e)
+                }
+            };
+        });
+    </script>
+{% endblock %}

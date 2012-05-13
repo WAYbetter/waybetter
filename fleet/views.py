@@ -1,23 +1,23 @@
 import traceback
+import inspect
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils import simplejson
 from djangotoolbox.http import JSONResponse
-from fleet import isr_tests
 from fleet import fleet_manager
-import inspect
 
-def get_ride_status(request, ride_id):
-    fleet_manager.query_backends()
-    result = fleet_manager.get_fmr(ride_id)
+def track_ride(request, ride_id):
+    result = str(fleet_manager.get_ride_position(ride_id))
     if request.is_ajax():
-        return JSONResponse({'result': str(result)})
+        return JSONResponse({'result': result})
     else:
         return HttpResponse(result)
 
 
 def isr_testpage(request):
+    from fleet import isr_tests
+
     if request.method == "POST":
         result = ""
         method_name = request.POST.get("method_name")

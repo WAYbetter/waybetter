@@ -4,99 +4,79 @@ import pickle
 from django.conf import settings
 from google.appengine.api import memcache
 from fleet.models import FleetManager, FleetManagerRideStatus
-from ordering.models import SharedRide, ASSIGNED, COMPLETED, CANCELLED
-
-MEMCACHE_NAMESPACE = "fleet_manager"
+from ordering.models import SharedRide, ASSIGNED, COMPLETED
+import signals as fleet_signals
 
 def create_ride(ride):
-    station = ride.station
-    assert station, "ride [%s] is not assigned to a station" % ride.id
-    assert station.fleet_station_id, "station %s has no fleet_station_id" % ride.station.name
-    assert ride.dn_fleet_manager_id, "ride [%s] is not associated with a fleet manager" % ride.id
-
     try:
+        station = ride.station
+        assert station, "ride [%s] is not assigned to a station" % ride.id
+        assert station.fleet_station_id, "station %s has no fleet_station_id" % ride.station.name
+        assert ride.dn_fleet_manager_id, "ride [%s] is not associated with a fleet manager" % ride.id
+
         ride_fm = FleetManager.by_id(ride.dn_fleet_manager_id)
-        return ride_fm.create_ride(ride, ride.station)
+        result = ride_fm.create_ride(ride, ride.station)
+        return bool(result)
     except Exception, e:
         logging.error(traceback.format_exc())
+        return False
 
-def get_wb_ongoing_rides():
-    return SharedRide.objects.filter(status=ASSIGNED)
+def cancel_ride(ride):
+    try:
+        assert ride.dn_fleet_manager_id, "ride [%s] is not associated with a fleet manager" % ride.id
+        ride_fm = FleetManager.by_id(ride.dn_fleet_manager_id)
+        result = ride_fm.cancel_ride(ride.id)
+        return bool(result)
+    except Exception, e:
+        logging.error(traceback.format_exc())
+        return False
 
-def query_backends():
-    wb_ongoing_rides = get_wb_ongoing_rides()
-    wb_ongoing_rides_map = dict([(ride.id, ride) for ride in wb_ongoing_rides])
+def get_ongoing_rides(backend=None):
+    rides = SharedRide.objects.filter(status=ASSIGNED)
+    if backend:
+        rides = filter(lambda r: r.dn_fleet_manager_id == backend.id, rides)
 
-    fm_ids = set([ride.dn_fleet_manager_id for ride in wb_ongoing_rides])
-    fm_backends = FleetManager.objects.filter(id__in=fm_ids)
+    logging.info("get ongoing rides for fleet %s: %s" % (backend.name if backend else "ALL", rides))
+    return rides
 
-    fm_ongoing_rides = []
-    for fm_backend in fm_backends:
-        try:
-            logging.info("querying fleet manager backend %s" % fm_backend.name)
-            fm_ongoing_rides += fm_backend.get_ongoing_rides()
-        except Exception, e:
-            logging.error("failed querying backend %s: %s" % (fm_backend.name, traceback.format_exc()))
-
-    logging.info("waybetter ongoing rides: %s" % wb_ongoing_rides)
-    logging.info("fleet manager ongoing rides: %s" % fm_ongoing_rides)
-
-    set_fmr(fmrs=fm_ongoing_rides)
-
-    for fmr in fm_ongoing_rides:
-        wb_ride = wb_ongoing_rides_map.pop(fmr.id, None)
-        if wb_ride:
-            update_from_fmr(wb_ride, fmr)
-        else:
-            logging.error("ride [%s] considered ongoing by fleet manager backend but not by us" % fmr.id)
-
-    # rides we consider ongoing but not returned by backends; query individually.
-    for wb_ride in wb_ongoing_rides_map.values():
-        logging.info("ride [%s] not returned by backends, querying individually..." % wb_ride.id)
-        try:
-            fm_backend = filter(lambda fm: fm.id == wb_ride.dn_fleet_manager_id, fm_backends)[0]
-            fmr = fm_backend.get_ride(wb_ride.id)
-            update_from_fmr(wb_ride, fmr)
-            set_fmr(fmr=fmr)
-        except IndexError, e:
-            logging.error("fm backend not in backends list")
-        except BaseException, e:
-            #noinspection PyUnboundLocalVariable
-            logging.error("failed querying backend %s for ride [%s]: %s" % (fm_backend.name, wb_ride.id, traceback.format_exc()))
-
-
-def update_from_fmr(wb_ride, fmr):
-    """ Update a WAYbetter C{SharedRide} from a C{FleetManagerRide}.
+def update_ride(fmr):
     """
-    assert wb_ride.id == fmr.id, "update from fmr failed: ids do not match (%s != %s)" % (wb_ride.id, fmr.id)
+    Update our db with ride data from a fleet manager.
+    @param fmr: A C{FleetMangerRide} containing updated data about the ride.
+    """
+    logging.info("fleet manager: ride update %s" % fmr)
+    fleet_signals.fmr_update_signal.send(sender="fleet_manager", obj=fmr)
+    wb_ride = SharedRide.by_id(fmr.id)
+    if not wb_ride:
+        logging.error("fleet manager: fmr update to non-existing ride")
+        return
     if fmr.status == FleetManagerRideStatus.COMPLETED:
         wb_ride.change_status(new_status=COMPLETED)
-        logging.info("ride [%s] completed" % wb_ride.id)
-    elif fmr.status == FleetManagerRideStatus.CANCELLED:
-        wb_ride.change_status(new_status=CANCELLED)
-        logging.info("ride [%s] cancelled" % wb_ride.id)
     else:
-        logging.info("ride [%s] not updated: %s [%s]" % (wb_ride.id, fmr.status, fmr.raw_status))
+        logging.info("fleet manager: ride [%s] not updated. fmr_status=%s raw_status=%s)" %
+                     (wb_ride.id, FleetManagerRideStatus.get_name(fmr.status), fmr.raw_status))
 
 
-def set_fmr(fmr=None, fmrs=None):
-    _get_key = lambda fmr: 'fmr_%s' % fmr.id
-    _get_val = lambda fmr: pickle.dumps(fmr)
-
-    if fmr:
-        memcache.set(_get_key(fmr), _get_val(fmr), namespace=MEMCACHE_NAMESPACE)
-    if fmrs:
-        mapping = dict([(_get_key(fmr), _get_val(fmr)) for fmr in fmrs])
-        memcache.set_multi(mapping, namespace=MEMCACHE_NAMESPACE)
-
-def get_fmr(ride_id):
-    """ Return C{FleetManagerRide} containing info about the ride.
-    @param ride_id:
-    @return: C{FleetManagerRide} or None
+MEMCACHE_NAMESPACE = "fleet_manager"
+_get_key = lambda rp: 'position_%s' % rp.ride_id
+_get_val = lambda rp: pickle.dumps(rp)
+def update_positions(ride_positions):
     """
-    fmr_data = memcache.get('fmr_%s' % ride_id, namespace=MEMCACHE_NAMESPACE)
-    fmr = pickle.loads(fmr_data) if fmr_data else None
-    return fmr
+    @param ride_positions: A list of C{TaxiRidePosition}
+    """
+    logging.info("fleet manager: positions update %s" % [rp.taxi_id for rp in ride_positions])
+    fleet_signals.positions_update_signal.send(sender="fleet_manager", positions=ride_positions)
+
+    mapping = dict([(_get_key(rp), _get_val(rp)) for rp in ride_positions])
+    memcache.set_multi(mapping, namespace=MEMCACHE_NAMESPACE)
+
+
+def get_ride_position(ride_id):
+    cached_position = memcache.get(_get_key(ride_id), namespace=MEMCACHE_NAMESPACE)
+    if cached_position:
+        cached_position = pickle.loads(cached_position)
+
+    return cached_position
 
 
 #########################################
@@ -105,20 +85,29 @@ def get_fmr(ride_id):
 
 if settings.DEV:
     # debug rides created by isr_tests.py are not stored in the db but in memory
-    DEV_WB_ONGOING_RIDES = []
-    DEV_WB_COMPLETED_RIDES = []
-
-    def get_wb_ongoing_rides():
+    def get_ongoing_rides(backend=None):
+        from isr_tests import DEV_WB_ONGOING_RIDES, DEV_WB_COMPLETED_RIDES
+        logging.info("get ongoing rides for fleet %s: %s" % (backend.name if backend else "ALL", DEV_WB_ONGOING_RIDES))
         return DEV_WB_ONGOING_RIDES
 
-    def update_from_fmr(wb_ride, fmr):
+    def update_ride(fmr):
+        from isr_tests import DEV_WB_ONGOING_RIDES, DEV_WB_COMPLETED_RIDES
+        from sharing.staff_controller import log_fmr_update, log_positions_update, log_ride_status_update
+
+        logging.info("fleet manager DEV: ride update %s" % fmr)
+        fleet_signals.fmr_update_signal.send(sender="fleet_manager", fmr=fmr)
+
+        wb_ride = None
+        wb_ride_idx = None
+        for i, r in enumerate(DEV_WB_ONGOING_RIDES):
+            if r.id == fmr.id:
+                wb_ride = DEV_WB_ONGOING_RIDES[i]
+                wb_ride_idx = i
+                break
+
         if fmr.status == FleetManagerRideStatus.COMPLETED:
-            DEV_WB_COMPLETED_RIDES.append(wb_ride)
-            # remove from DEV_WB_ONGOING_RIDES
-            for i, r in enumerate(DEV_WB_ONGOING_RIDES):
-                if r.id == wb_ride.id:
-                    DEV_WB_ONGOING_RIDES.pop(i)
-                    break
-            logging.info("ride [%s] completed" % wb_ride.id)
-        elif fmr.status == FleetManagerRideStatus.CANCELLED:
-            logging.info("ride [%s] cancelled" % wb_ride.id)
+            if wb_ride:
+                from sharing.signals import ride_status_changed_signal
+                ride_status_changed_signal.send(sender="fleet_manager", obj=wb_ride, status=COMPLETED)
+                DEV_WB_ONGOING_RIDES.pop(wb_ride_idx)
+                DEV_WB_COMPLETED_RIDES.append(wb_ride)
