@@ -92,7 +92,9 @@ if settings.DEV:
 
     def update_ride(fmr):
         from isr_tests import DEV_WB_ONGOING_RIDES, DEV_WB_COMPLETED_RIDES
-        logging.info("fleet manager: ride update %s" % fmr)
+        from sharing.staff_controller import log_fmr_update, log_positions_update, log_ride_status_update
+
+        logging.info("fleet manager DEV: ride update %s" % fmr)
         fleet_signals.fmr_update_signal.send(sender="fleet_manager", fmr=fmr)
 
         wb_ride = None
