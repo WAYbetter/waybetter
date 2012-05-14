@@ -599,7 +599,7 @@ def submit_test_computation(orders, params, computation_set_name=None, computati
     return algo_key
 
 TRACK_RIDES_CHANNEL_IDS = [] #TODO_WB: use memecache?
-@staff_member_required
+#@staff_member_required
 @force_lang("en")
 def track_rides(request):
     lib_channel = True
