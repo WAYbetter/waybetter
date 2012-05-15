@@ -8,7 +8,7 @@
     $.fn.extend({
         disable:function () {
             return this.each(function () {
-                if ($(this).hasClass("ui-button")) {
+                if ("button" in $(this).data()) {
                     $(this).button("disable");
                 } else {
                     $(this).attr({disabled:true});
@@ -20,7 +20,7 @@
         },
         enable:function () {
             return this.each(function () {
-                if ($(this).hasClass("ui-button")) {
+                if ("button" in $(this).data()) {
                     $(this).button("enable");
                 } else {
                     $(this).removeAttr('disabled');
@@ -41,16 +41,10 @@
         },
         set_button_text:function (text) {
             return this.each(function () {
-                if ($(this).hasClass("ui-button")) {
-                    $(this).button("option", "label", text);
-                } else {
-                    var $inner_span = $(this).parent().find(".ui-btn-text");
-                    if ($inner_span.length) {
-                        $inner_span.text(text)
-                    } else {
-                        $(this).text(text);
-                    }
-                }
+                $(this).text(text);
+                try {
+                    $(this).button("refresh")
+                } catch (e) {}
             })
         },
         redraw:function () {

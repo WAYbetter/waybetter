@@ -52,7 +52,7 @@ class IsraelTimeZone(datetime.tzinfo):
             else:
                 return datetime.timedelta(0)
         else:
-            logging.warning("DST not defined for year %s:\n%s" % (dt.year, "".join(traceback.format_stack())))
+            logging.warning("DST not defined for year %s" % dt.year)
             return datetime.timedelta(0)
 
 TZ_INFO = {

@@ -35,10 +35,10 @@ import common.urllib_adaptor as urllib2
 SHARING_TIME_FACTOR = 1.25
 SHARING_TIME_MINUTES = 10
 
-ORDER_HANDLE_TIMEOUT =                      80 # seconds
-ORDER_TEASER_TIMEOUT =                      19 # seconds
-ORDER_ASSIGNMENT_TIMEOUT =                  80 # seconds
-WORKSTATION_HEARTBEAT_TIMEOUT_INTERVAL =    60 # seconds
+ORDER_HANDLE_TIMEOUT =                      80  # seconds
+ORDER_TEASER_TIMEOUT =                      19  # seconds
+ORDER_ASSIGNMENT_TIMEOUT =                  80  # seconds
+WORKSTATION_HEARTBEAT_TIMEOUT_INTERVAL =    60  # seconds
 RIDE_SENTINEL_GRACE = datetime.timedelta(minutes=7)
 
 ORDER_MAX_WAIT_TIME = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
@@ -1140,8 +1140,19 @@ class Order(BaseModel):
                  "num_seats": self.num_seats}
 
     def serialize_for_myrides(self):
-        return {'id': self.id, 'type': self.type, 'from': self.from_raw, 'to': self.to_raw, 'num_seats': self.num_seats,
-                'when': self.get_pickup_str(), 'price': self.price}
+        return {
+            'id'        : self.id,
+            'type'      : self.type,
+            'from'      : self.from_raw,
+            'from_lon'  : self.from_lon,
+            'from_lat'  : self.from_lat,
+            'to'        : self.to_raw,
+            'to_lon'    : self.to_lon,
+            'to_lat'    : self.to_lat,
+            'num_seats' : self.num_seats,
+            'when'      : self.get_pickup_str(),
+            'price'     : self.price
+        }
 
 class OrderAssignment(BaseModel):
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")
