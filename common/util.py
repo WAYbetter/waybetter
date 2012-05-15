@@ -77,6 +77,14 @@ class Enum(object):
             if item_name == str:
                 return getattr(cls, item_name)
 
+    @classmethod
+    def from_value(cls, val):
+        if val in cls._items():
+            return val
+        else:
+            return None
+
+
 class Polygon(object):
     def __init__(self, points):
         self.polygon = list(split_to_tuples(points, 2))

@@ -446,7 +446,7 @@
         GoogleMapHelper.removeMarker("A, B");
         var marker_name = (BookingHelper.hotspot_type == PICKUP) ? "B" : "A";
         var add_marker_method = "add" + marker_name + "Marker"; // addAMarker, addBMarker
-        GoogleMapHelper[add_marker_method](BookingHelper.address.lat, BookingHelper.address.lon, {title:BookingHelper.address.name});
+        GoogleMapHelper[add_marker_method](BookingHelper.address, {title:BookingHelper.address.name});
         return marker_name;
     }
 
@@ -668,17 +668,17 @@
 
     function bookRide() {
         var data = {
-            num_seats: BookingHelper.num_seats,
-            ride_duration: HotspotHelper.ride_duration,
-            hotspot_id: BookingHelper.hotspot.id,
-            hotspot_type: BookingHelper.hotspot_type,
-            hotspot_date: BookingHelper.ride_date,
-            hotspot_time: BookingHelper.ride_time,
-            city_name: BookingHelper.address.city,
-            street_address: BookingHelper.address.street_address,
-            house_number: BookingHelper.address.house_number,
-            lat: BookingHelper.address.lat,
-            lon: BookingHelper.address.lon
+            city_name      : BookingHelper.address.city,
+            hotspot_date   : BookingHelper.ride_date,
+            hotspot_id     : BookingHelper.hotspot.id,
+            hotspot_time   : BookingHelper.ride_time,
+            hotspot_type   : BookingHelper.hotspot_type,
+            house_number   : BookingHelper.address.house_number,
+            lat            : BookingHelper.address.lat,
+            lon            : BookingHelper.address.lon,
+            num_seats      : BookingHelper.num_seats,
+            ride_duration  : HotspotHelper.ride_duration,
+            street_address : BookingHelper.address.street_address,
         };
 
         var err_msg = "{% trans "We have encountered an error. Please try again." %}";

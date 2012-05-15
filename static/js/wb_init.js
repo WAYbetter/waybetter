@@ -2,13 +2,13 @@
  *
  * jQuery config
  *
-*/
+ */
 
 (function ($) {
     $.fn.extend({
         disable:function () {
             return this.each(function () {
-                if ($(this).hasClass("ui-button")) {
+                if ("button" in $(this).data()) {
                     $(this).button("disable");
                 } else {
                     $(this).attr({disabled:true});
@@ -20,7 +20,7 @@
         },
         enable:function () {
             return this.each(function () {
-                if ($(this).hasClass("ui-button")) {
+                if ("button" in $(this).data()) {
                     $(this).button("enable");
                 } else {
                     $(this).removeAttr('disabled');
@@ -32,25 +32,19 @@
         },
         enabled:function (bool) {
             return this.each(function () {
-                if (bool){
+                if (bool) {
                     $(this).enable();
-                } else{
+                } else {
                     $(this).disable();
                 }
             });
         },
         set_button_text:function (text) {
             return this.each(function () {
-                if ($(this).hasClass("ui-button")) {
-                    $(this).button("option", "label", text);
-                } else {
-                    var $inner_span = $(this).parent().find(".ui-btn-text");
-                    if ($inner_span.length) {
-                        $inner_span.text(text)
-                    } else {
-                        $(this).text(text);
-                    }
-                }
+                $(this).text(text);
+                try {
+                    $(this).button("refresh")
+                } catch (e) {}
             })
         },
         redraw:function () {
@@ -97,8 +91,33 @@
 
             stack[0] = a2;
             return this.pushStack(stack);
-        }
+        },
+        setCaretPosition:function (caretPos) {
+            var elem = $(this)[0];
 
+            if (elem) {
+                elem.selectionStart = caretPos;
+                elem.selectionEnd = caretPos;
+//                elem.focus();
+//                var sel = window.getSelection();
+//                sel.collapse(elem, caretPos);
+//                elem.focus();
+
+//                if (elem.createTextRange) {
+//                    var range = elem.createTextRange();
+//                    range.move('character', caretPos);
+//                    range.select();
+//                }
+//                else {
+//                    if (elem.selectionStart) {
+//                        elem.focus();
+//                        elem.setSelectionRange(caretPos, caretPos);
+//                    }
+//                    else
+//                        elem.focus();
+//                }
+            }
+        }
     });
 })(jQuery);
 
@@ -153,7 +172,7 @@ $(document).ajaxSend(function (event, xhr, settings) {
  *
  * more config
  *
-*/
+ */
 
 var easydate_config = {
     locale:{
