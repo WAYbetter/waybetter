@@ -1,0 +1,91 @@
+{% extends "wb_base_site.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        .staff-section {
+            padding: 15px;
+        }
+
+        .links-cat {
+            padding: 10px 0;
+        }
+
+        .header {
+            font-size: 20px;
+            font-weight: bold;
+            padding-bottom: 10px;
+        }
+
+        .staff-link {
+            margin-bottom: 8px;
+        }
+
+        .staff-link a {
+            font-size: 16px;
+            text-decoration: none;
+        }
+
+        .staff-link a:hover {
+            color: #0088CC;
+        }
+
+        .staff-desc {
+            /*margin-left: 5px;*/
+        }
+
+        .staff-const-val {
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+
+{% block top_left %}
+    Admin Control Panel
+{% endblock %}
+
+{% block content %}
+    <div class="staff-section">
+        {% for catagory in catagories %}
+            <div class="links-cat">
+                <div class="header">{{ catagory.title }}</div>
+                {% for entry in catagory.data %}
+                    <div class="staff-link">
+                        <a href="{{entry.url}}" target="_blank">{{ entry.name }}</a>
+                        <br>
+                        <span class="staff-desc">{{ entry.description }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        {% endfor %}
+    </div>
+
+    <hr>
+
+    <div class="staff-section">
+        <div class="header">System Constants</div>
+        <table>
+            {% for const in sys_consts %}
+                <tr>
+                    <td>{{ const.name }}</td>
+                    <td class="staff-const-val"> = {{ const.value }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+
+    <hr>
+
+    <div class="staff-section">
+        <div class="header">Environment Variables</div>
+        <table>
+            {% for envar in env_vars %}
+                <tr>
+                    <td>{{ envar.name }}</td>
+                    <td class="staff-const-val"> = {{ envar.value }}</td>
+                </tr>
+            {% endfor %}
+        </table>
+    </div>
+{% endblock %}

@@ -66,7 +66,10 @@ class Enum(object):
 
     @classmethod
     def get_name(cls, value):
-        return cls._item_names()[cls._items().index(value)]
+        try:
+            return cls._item_names()[cls._items().index(value)]
+        except ValueError:
+            return None
 
     @classmethod
     def from_string(cls, str):
@@ -601,10 +604,12 @@ def add_formatted_date_fields(classes):
                 setattr(model, f.name + "_format", format_datefield(f))
 
 
-def safe_fetch(url, payload=None, method=GET, headers={},
+def safe_fetch(url, payload=None, method=GET, headers=None,
                allow_truncated=False, follow_redirects=True,
-               deadline=None, validate_certificate=None, notify=True):
+               deadline=None, validate_certificate=None, notify=True, debug=False):
     res = None
+    if not headers: headers = {}
+
     try:
         res = fetch(url, payload, method, headers, allow_truncated, follow_redirects, deadline, validate_certificate)
     except Exception, e:
@@ -615,11 +620,14 @@ def safe_fetch(url, payload=None, method=GET, headers={},
         if notify:
             notify_by_email(u"Exception caught by safe_fetch", body)
 
-    if res and res.status_code != 200:
-        logging.error(u"safe_fetch returned %s: content=%s" % (res.status_code, res.content))
-        if notify:
-            notify_by_email(u"safe_fetch failed", u"safe_fetch returned %s for\nurl: %s\npayload: %s\n content:%s" %(res.status_code, url, payload, res.content))
-        res = None
+    if res:
+        if debug: logging.info(u"safe_fetch returned %s: content = %s" % (res.status_code, res.content))
+
+        if res.status_code != 200:
+            logging.error(u"safe_fetch returned %s: content=%s" % (res.status_code, res.content))
+            if notify:
+                notify_by_email(u"safe_fetch failed", u"safe_fetch returned %s for\nurl: %s\npayload: %s\n content:%s" %(res.status_code, url, payload, res.content))
+            res = None
 
     return res
 

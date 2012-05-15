@@ -1,4 +1,8 @@
 # This Python file uses the following encoding: utf-8
+import calendar
+import gzip
+import os
+import pickle
 from django.contrib.auth.models import User
 from google.appengine.api.channel.channel import InvalidChannelClientIdError
 from common.geocode import gmaps_geocode, Bounds, gmaps_reverse_geocode
@@ -19,11 +23,14 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_now_min, default_tz_now_max
 from djangotoolbox.http import JSONResponse
+import ordering
 import fleet.signals as fleet_signals
 import sharing.signals as sharing_signals
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
-from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS, Order, CHARGED, ACCEPTED, APPROVED, REJECTED, TIMED_OUT, FAILED, Passenger, SharedRide
+from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS, Order, CHARGED, ACCEPTED, APPROVED, REJECTED, TIMED_OUT, FAILED, Passenger, SharedRide, Station
+from pricing.views import hotspot_pricing_overview
+import sharing
 from sharing.forms import ConstraintsForm
 from sharing.models import HotSpot
 from sharing.passenger_controller import HIDDEN_FIELDS
@@ -37,6 +44,51 @@ import re
 
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 LANG_CODE = "he"
+PICKMEAPP = "PickMeApp"
+
+@staff_member_required
+@force_lang("en")
+def control_panel(request):
+    admin_links = [
+            {'name': 'Kpi', 'url': reverse(kpi)},
+            {'name': 'Birdseye', 'url': reverse(birdseye_view)},
+            {'name': 'Hotspot pricing', 'url': reverse(hotspot_pricing_overview)},
+            {'name': 'Sharing orders map', 'url': reverse(sharing_orders_map)},
+            {'name': 'PickMeApp orders map', 'url': reverse(pickmeapp_orders_map)},
+            {'name': 'Staff home', 'url': reverse(staff_home)},
+            {'name': 'Google maps testing page', 'url': reverse(gmaps)},
+    ]
+    data_generators = [
+            {'name': 'Send users data', 'url': reverse(send_users_data_csv)},
+            {'name': 'Send orders data', 'url': reverse(send_orders_data_csv)},
+    ]
+    external_services = [
+            {'name': 'Google cloud print', 'description': 'Login as printer@waybetter.com', 'url': 'http://www.google.com/cloudprint/'},
+            {'name': 'invoice4U', 'url': 'https://account.invoice4u.co.il/login.aspx?ReturnUrl=/User/Default.aspx'},
+            {'name': 'freefax', 'url': 'http://www.freefax.co.il/login.php'},
+            {'name': 'myfax', 'url': 'https://myfax.co.il/action/faxLogs.do?listType=outbox'},
+    ]
+
+    catagories = [
+            {'title': 'Admin Links', 'data': admin_links},
+            {'title': 'Data Generation', 'data': data_generators},
+            {'title': 'External Services', 'data': external_services},
+    ]
+
+    sys_consts = [
+            {'name': 'Sharing factor (Minutes)', 'value': ordering.models.SHARING_TIME_MINUTES},
+            {'name': 'Ride handling time (Minutes)', 'value': int(sharing.models.TOTAL_HANDLING_DELTA.seconds)/60},
+    ]
+
+    env_vars = [
+            {'name': 'SERVER_SOFTWARE', 'value': os.environ.get('SERVER_SOFTWARE')},
+            {'name': 'CURRENT_VERSION_ID', 'value': os.environ.get('CURRENT_VERSION_ID')},
+    ]
+    for attr in ['LOCAL', 'DEV_VERSION', 'DEV', 'DEBUG']:
+        env_vars.append({'name': attr, 'value': getattr(settings, attr)})
+
+    return render_to_response("staff_cpanel.html", locals(), context_instance=RequestContext(request))
+
 
 @staff_member_required
 def gmaps(request):
@@ -186,6 +238,291 @@ def calc_orders_data_csv(recipient ,offset=0, csv_bytestring=u""):
         timestamp = date.today()
         send_mail_as_noreply(recipient, "Orders data %s" % timestamp, attachments=[("orders_data_%s.csv" % timestamp, csv_bytestring)])
 
+
+def calc_ny_sharing(offset=0, count=0, value=0):
+    batch_size = 500
+    logging.info("querying shared rides %s->%s" % (offset, offset + batch_size))
+    s = Station.by_id(1529226)
+    shared_rides = SharedRide.objects.filter(station=s)[offset: offset + batch_size]
+    for sr in shared_rides:
+        count += 1
+        value += sr.value
+
+    if shared_rides:
+        deferred.defer(calc_ny_sharing, offset=offset + batch_size + 1, count=count, value=value)
+    else:
+        logging.info("all done, sending report")
+        send_mail_as_noreply("guy@waybetter.com", "Shared rides data for NY", msg="count=%d, value=%f" % (count, value))
+
+
+@staff_member_required
+def count_query(request):
+    # e.g. /count_query?model=SharedRide&q={status:1}
+    from django.db.models.loading import get_model
+    def _decode_dict(data):
+        rv = {}
+        for key, value in data.iteritems():
+            if isinstance(key, unicode):
+               key = key.encode('utf-8')
+            if isinstance(value, unicode):
+               value = value.encode('utf-8')
+            elif isinstance(value, list):
+               value = _decode_list(value)
+            elif isinstance(value, dict):
+               value = _decode_dict(value)
+            rv[key] = value
+        return rv
+
+    count = "?"
+    m = request.GET.get("model")
+    q = request.GET.get("q", u"{}")
+    d = simplejson.loads(q.encode("utf-8"), object_hook=_decode_dict)
+    if m:
+        for app in settings.INSTALLED_APPS:
+            model = get_model(app, m)
+            if model:
+                qs = model.objects.filter(**d)
+                count = qs.count()
+                logging.info("model = %s" % model)
+
+    return HttpResponse("Count = %s" % count)
+
+def calc_passenger_rides(offset=0, data=None):
+    if not data: data = {"active":0, "non-active": 0}
+    batch_size = 500
+    logging.info("querying passengers %s->%s" % (offset, offset + batch_size))
+    passengers = Passenger.objects.all()[offset: offset + batch_size]
+
+    for p in passengers:
+        try:
+            bi = p.billing_info
+        except BillingInfo.DoesNotExist:
+            continue
+
+        orders = list(Order.objects.filter(passenger=p, type__in=[OrderType.SHARED, OrderType.PRIVATE]))
+        if not orders:
+            continue
+
+        active = False
+        for o in orders:
+            if o.ride:
+                active = True
+                break
+
+        if active:
+            data["active"] += 1
+        else:
+            data["non-active"] += 1
+
+
+    if passengers:
+        deferred.defer(calc_passenger_rides, offset=offset + batch_size + 1, data=data)
+    else:
+        logging.info("all done, sending report\n%s" % data)
+        send_mail_as_noreply("guy@waybetter.com", "passenger rides", msg="%s" % data)
+
+
+def calc_passenger_ride_freq(offset=0, data=None):
+    if not data:
+        data = [["id", "orders", "days"]]
+    else:
+        data = pickle.loads(gzip.zlib.decompress(data))
+
+    batch_size = 500
+    logging.info("querying passengers %s->%s" % (offset, offset + batch_size))
+    passengers = Passenger.objects.all()[offset: offset + batch_size]
+
+    for p in passengers:
+        try:
+            bi = p.billing_info
+        except BillingInfo.DoesNotExist:
+            continue
+
+        days = (default_tz_now() - bi.create_date).days
+        if days:
+            orders = list(Order.objects.filter(passenger=p, type__in=[OrderType.SHARED, OrderType.PRIVATE]))
+            orders = filter(lambda o: o.ride, orders)
+            data.append([p.id, len(orders), days])
+
+    if passengers:
+        data = gzip.zlib.compress(pickle.dumps(data), 9)
+        deferred.defer(calc_passenger_ride_freq, offset=offset + batch_size + 1, data=data)
+    else:
+        logging.info("all done, sending report\n%s" % data)
+        csv_string = ""
+        for line in data:
+            csv_string += ",".join([str(i) for i in line]) + "\n"
+
+        send_mail_as_noreply("guy@waybetter.com", "Passenger ride freq", attachments=[("passenger_freq.csv", csv_string)])
+
+
+def calc_passenger_order_freq(offset=0, data=None):
+    if not data: data = {"7": 0, "14":0, "30": 0, "longer": 0, "avg": 0, "count": 0}
+    batch_size = 500
+    logging.info("querying passengers %s->%s" % (offset, offset + batch_size))
+    passengers = Passenger.objects.all()[offset: offset + batch_size]
+
+    for p in passengers:
+        orders = list(Order.objects.filter(passenger=p, type__in=[OrderType.SHARED, OrderType.PRIVATE]))
+        orders = sorted(orders, key=lambda o: o.create_date)
+        orders = filter(lambda o: o.ride, orders)
+        for i, o in enumerate(orders):
+            if len(orders) > i + 1:
+                td = orders[i + 1].create_date - o.create_date
+                days = td.days
+                if not days:
+                    days = td.seconds / 60.0 / 60.0 / 24.0
+
+                data["avg"] = (data["avg"] * data["count"] + days) / float(data["count"] + 1)
+                data["count"] += 1
+
+                if days <= 7:
+                    data["7"] += 1
+                elif days <= 14:
+                    data["14"] += 1
+                elif days <= 30:
+                    data["30"] += 1
+                else:
+                    data["longer"] += 1
+
+    if passengers:
+        deferred.defer(calc_passenger_order_freq, offset=offset + batch_size + 1, data=data)
+    else:
+        logging.info("all done, sending report\n%s" % data)
+        send_mail_as_noreply("guy@waybetter.com", "Order freq", msg="%s" % data)
+
+def calc_station_rating(offset=0, data=None):
+    if not data: data = {}
+
+    batch_size = 500
+    logging.info("querying orders %s->%s" % (offset, offset + batch_size))
+    orders = Order.objects.filter(type=OrderType.PICKMEAPP)[offset: offset + batch_size]
+    for o in orders:
+        if not o.station: continue
+        if not o.passenger_rating: continue
+
+        station_name = o.station.name
+        if station_name in data:
+            count, avg = data[station_name]
+            avg = (count*avg + o.passenger_rating) / float(count+1)
+            count += 1
+            data[station_name] = (count, avg)
+        else:
+            data[station_name] = (1, o.passenger_rating)
+
+    if orders:
+        deferred.defer(calc_station_rating, offset=offset + batch_size + 1, data=data)
+    else:
+        logging.info("all done, sending report\n%s" % data)
+        csv = [["Station Name", "Ratings", "Avg"]]
+        for s in data.keys():
+            csv.append([s, data[s][0], data[s][1]])
+        csv_string = ""
+        logging.info("csv = %s" % csv)
+        for line in csv:
+            csv_string += ",".join(line) + "\n"
+
+        send_mail_as_noreply("guy@waybetter.com", "Shared rides data for NY", attachments=[("stations_ratings.csv", csv_string)])
+
+def calc_order_timing(offset=0, hours=None):
+    if not hours: hours = {}
+    batch_size = 500
+    logging.info("querying shared rides %s->%s" % (offset, offset + batch_size))
+    orders = Order.objects.filter(type=OrderType.PICKMEAPP)[offset: offset + batch_size]
+    for o in orders:
+        hour = str(o.create_date.hour)
+        if hour in hours:
+            hours[hour] += 1
+        else:
+            hours[hour] = 1
+
+    if orders:
+        deferred.defer(calc_order_timing, offset=offset + batch_size + 1, hours=hours)
+    else:
+        logging.info("all done, sending report\n%s" % hours)
+        csv = ",".join(hours.keys()) + "\n" + ",".join([str(v) for v in hours.values()])
+        send_mail_as_noreply("guy@waybetter.com", "Shared rides data for NY", attachments=[("order_timing.csv", csv)])
+
+def calc_order_per_day_pickmeapp(offset=0, data=None):
+    if not data: data = {"avg": 0, "count": 0}
+    batch_size = 500
+    days_threshold = 3
+    logging.info("querying passengers %s->%s" % (offset, offset + batch_size))
+    passengers = Passenger.objects.all()[offset: offset + batch_size]
+
+    for p in passengers:
+        skip_passenger = False
+        orders = list(Order.objects.filter(passenger=p, type=OrderType.PICKMEAPP))
+        orders = filter(lambda o: not o.debug, orders)
+        orders = sorted(orders, key=lambda o: o.create_date)
+        if len(p.phone) != 10 or (not p.phone.startswith("05")):
+            skip_passenger = True
+
+        if len(orders) < 2:
+#            logging.info("skipping passenger[%s]: not enough orders (%d)" % (p.id, len(orders)))
+            skip_passenger = True
+
+        if not skip_passenger:
+            used_days = {}
+            for o in orders:
+                day = o.create_date.strftime("%Y/%m/%d")
+                if day in used_days:
+                    if used_days[day] >= days_threshold:
+                        logging.info("skipping passenger[%s]: too many orders per day: %s" % (p.id, day))
+                        skip_passenger = True
+                        break
+                    else:
+                        used_days[day] += 1
+                else:
+                    used_days[day] = 1
+
+
+        if skip_passenger:
+            continue
+
+        first_order = orders[0]
+        last_order = orders[-1]
+
+        td = (last_order.create_date - first_order.create_date)
+        interval = td.days
+        if interval < 3: continue
+
+
+#        if not interval:
+#            if td.seconds >= 60 * 15:
+#                interval += td.seconds / 60.0 / 60.0 / 24.0
+
+        if interval:
+            avg = len(orders) / float(interval)
+            data["avg"] = (data["avg"] * data["count"] + avg) / float(data["count"] + 1)
+            data["count"] += 1
+            logging.info("avg for passenger: %s is %f (orders=%d, interval=%f)\ndata=%s" % (p, avg, len(orders), interval, data))
+        else:
+            logging.info("skipping passenger[%s]: interval=0 for orders[%s, %s]" % (p.id, first_order, last_order))
+
+    if passengers:
+        logging.info("continue to next batch: %s" % data)
+        deferred.defer(calc_order_per_day_pickmeapp, offset=offset + batch_size + 1, data=data)
+    else:
+        logging.info("all done, sending report\n%s" % data)
+        send_mail_as_noreply("guy@waybetter.com", "Order freq - pickmeapp", msg="%s" % data)
+
+def calc_pickmeapp_passenger_count(offset=0, count=0):
+    batch_size = 500
+    logging.info("querying passengers %s->%s" % (offset, offset + batch_size))
+    passengers = Passenger.objects.all()[offset: offset + batch_size]
+    for p in passengers:
+        pickemapp_orders = p.orders.filter(type=OrderType.PICKMEAPP)
+        if pickemapp_orders:
+            count +=1
+
+    if passengers:
+        logging.info("continue to next batch: %s" % count)
+        deferred.defer(calc_pickmeapp_passenger_count, offset=offset + batch_size + 1, count=count)
+    else:
+        logging.info("all done, sending report\n%s" % count)
+        send_mail_as_noreply("guy@waybetter.com", "Passenger count - pickmeapp", msg="count = %s" % count)
+
 @staff_member_required
 def send_orders_data_csv(request):
     recipient = ["amir@waybetter.com"]
@@ -195,6 +532,181 @@ def send_orders_data_csv(request):
     deferred.defer(calc_orders_data_csv, recipient, offset=0, csv_bytestring=u"%s\n" % u",".join(col_names))
 
     return HttpResponse("An email will be sent to %s in a couple of minutes" % ",".join(recipient))
+
+@staff_member_required
+def passenger_csv(request):
+    p_count = 0
+    o_count = 0
+    for p in Passenger.objects.all():
+        p_count += 1
+        o_count += p.orders.filter(debug=False).count()
+
+
+@staff_member_required
+def sharing_orders_map(request):
+    return order_map(request, "sharing")
+
+@staff_member_required
+def pickmeapp_orders_map(request):
+    return order_map(request, PICKMEAPP, msgs=["# Orders = 4405", "Avg. Freq = 1 order / 4.5 days"])
+
+def order_map(request, type, msgs=None):
+    pickmeapp = PICKMEAPP
+
+#    total_pickmeapp = Order.objects.filter(type=OrderType.PICKMEAPP, debug=False).count()
+#    total_sharing = Order.objects.filter(type=OrderType.SHARED, debug=False).count()
+#    status_options = ORDER_STATUS
+    return render_to_response("orders_map.html", RequestContext(request, locals()))
+
+def get_orders_map_data(request):
+    offset = int(request.GET.get("offset", 0))
+    batch_size = int(request.GET.get("batch_size", 500))
+    request_type = request.GET.get("type", PICKMEAPP)
+    status = None
+#    try:
+#        status = int(request.GET.get("status"))
+#    except ValueError, e:
+#        pass
+
+    count_only = request.GET.get("count_only", False)
+    if count_only: count_only = simplejson.loads(count_only)
+
+    if request_type == PICKMEAPP:
+        orders = Order.objects.filter(type=OrderType.PICKMEAPP, debug=False)
+    else:
+        orders = Order.objects.filter(type=OrderType.SHARED, debug=False)
+
+    if not status is None: orders = orders.filter(status=status)
+
+    if count_only:
+        return JSONResponse(orders.count())
+    else:
+        orders = orders[offset:offset + batch_size]
+
+    points = []
+    for o in orders:
+        if o.from_lat and o.from_lon:
+            points.append([o.from_lat, o.from_lon, o.passenger_id])
+
+    return JSONResponse(points)
+
+@staff_member_required
+def kpi_csv(request):
+    r = int(request.GET.get("range", 4))
+#    deferred.defer(calc_kpi2, r)
+#    deferred.defer(calc_kpi3)
+#    deferred.defer(calc_ny_sharing)
+#    deferred.defer(calc_order_timing)
+#    deferred.defer(calc_station_rating)
+#    deferred.defer(calc_passenger_ride_freq)
+#    deferred.defer(calc_passenger_rides)
+#    deferred.defer(calc_order_per_day_pickmeapp)
+    deferred.defer(calc_pickmeapp_passenger_count)
+    return HttpResponse("OK")
+
+def calc_kpi3(start_index=0, two_address=0, single_address=0, order_count=0):
+    logging.info("calc_kpi3: starting at: %d" % start_index)
+
+    orders = Order.objects.filter(type=OrderType.PICKMEAPP)[start_index:]
+    first = False
+    order = None
+    try:
+        for o in orders:
+            order = o
+            if not first:
+                logging.info("First order = %s" % o)
+                first = True
+
+            order_count += 1
+
+            if o.from_raw and o.to_raw:
+                two_address += 1
+            else:
+                single_address +=1
+    except :
+        logging.info("DB timeout raised after %d\nlast order = %s" % (order_count, order))
+        deferred.defer(calc_kpi3, start_index=order_count, two_address=two_address, single_address=single_address, order_count=order_count)
+
+    if orders:
+        deferred.defer(calc_kpi3, start_index=order_count, two_address=two_address, single_address=single_address, order_count=order_count)
+    else:
+#    send_mail_as_noreply("guy@waybetter.com", "KPIs", attachments=[("kpis.csv", csv_file)])
+        send_mail_as_noreply("guy@waybetter.com", "KPIs - Order Addresses", msg="count=%d, single=%d, double=%d" % (order_count, single_address, two_address))
+
+def calc_kpi2(r):
+    data = [["Month", "New Users", "Active Users", "Avg. Rides per User", "Avg. Occupancy", "Stickiness", "Income"]]
+    for month_offset in xrange(0,r):
+        logging.info("kpi for %s" % month_offset)
+        def get_query_date_range_by_month_offset(month_offset):
+            now = default_tz_now()
+            if now.month > month_offset:
+                d = now.replace(month=now.month - month_offset)
+            else:
+                d = now.replace(month=now.month - month_offset + 12, year=now.year -1)
+
+
+            start_day, end_day = calendar.monthrange(d.year, d.month)
+
+            start_date = default_tz_now_min().replace(day=1, month=d.month, year=d.year)
+            end_date = default_tz_now_max().replace(day=end_day, month=d.month, year=d.year)
+
+            return start_date, end_date
+
+        start_date, end_date = get_query_date_range_by_month_offset(month_offset)
+
+        rides = SharedRide.objects.filter(create_date__gte=start_date, create_date__lte=end_date, debug=False)
+        all_bi = BillingInfo.objects.filter(create_date__gte=start_date, create_date__lte=end_date)
+        new_passengers = set()
+        income  = 0
+
+        for bi in all_bi:
+            try:
+                p = bi.passenger
+                new_passengers.add(p)
+            except Passenger.DoesNotExist:
+                pass
+
+        active_passengers = set()
+        number_of_people_in_rides = 0
+        for ride in rides:
+            orders = ride.orders.all()
+            for o in orders:
+                try:
+                    p = o.passenger
+                    active_passengers.add(p)
+                except Passenger.DoesNotExist:
+                    pass
+
+                number_of_people_in_rides += o.num_seats
+
+                income += sum([bt.amount for bt in o.billing_transactions.all()])
+
+        sticky_passengers = set()
+        for a_p in active_passengers:
+            prev_orders = Order.objects.filter(passenger=a_p, depart_time__lte=start_date, type=OrderType.SHARED, status__in=[APPROVED, ACCEPTED, CHARGED]).order_by("-depart_time") # sorting to re-use existing index
+            if prev_orders:
+                sticky_passengers.add(a_p)
+
+        line = [
+            end_date.strftime("%m/%d/%Y"), # prepared for google docs trend chart
+            len(new_passengers),
+            len(active_passengers),
+            len(rides) / float(len(active_passengers)) if len(active_passengers) else "NA",
+            number_of_people_in_rides / float(len(rides)) if len(rides) else "NA",
+            len(sticky_passengers) / float(len(active_passengers)) * 100 if len(active_passengers) else "NA",
+            income / float(1000)
+        ]
+        data.append(line)
+
+    csv_file = ""
+    for line in data:
+        logging.info("line = %s" % line)
+
+        line = [round(i, 2) if isinstance(i, float) else i for i in line]
+        csv_file += u",".join([unicode(i) for i in line])
+        csv_file += "\n"
+
+    send_mail_as_noreply("guy@waybetter.com", "KPIs", attachments=[("kpis.csv", csv_file)])
 
 @staff_member_required
 @force_lang("en")
@@ -321,6 +833,7 @@ def calc_kpi_data(start_date, end_date, channel_id, token):
             "all_credit_card_users": BillingInfo.objects.count(),
             "average_sharing": round(float(len(shared_rides_with_sharing)) / len(shared_rides) * 100,
                                      2) if shared_rides else "No Shared Rides",
+            "shared_rides": len(shared_rides) if shared_rides else "No Shared Rides",
             "income": round(sum([bt.amount for bt in all_trx]), 2),
             "expenses": sum([sr.value for sr in shared_rides])
         }
@@ -352,38 +865,41 @@ def birdseye_view(request):
     init_end_date = default_tz_now_max() + timedelta(days=7)
     order_status_labels = [label for (key, label) in ORDER_STATUS]
 
+    def serialize(o):
+        return {'id': o.id,
+                'from': o.from_raw,
+                'to': o.to_raw,
+                'passenger_name': "%s %s" % (o.passenger.user.first_name,
+                                             o.passenger.user.last_name) if o.passenger and o.passenger.user else na,
+                'passenger_phone': o.passenger.phone if o.passenger else na,
+                'type': OrderType.get_name(o.type),
+                'status': o.get_status_label(),
+                'time': o.depart_time.strftime("%d/%m/%y, %H:%M"),
+                'price': o.price,
+                'debug': 'debug' if o.debug else ''
+        }
+
     def f(start_date, end_date):
-        departing = RideComputation.objects.filter(hotspot_depart_time__gte=start_date,
-                                                   hotspot_depart_time__lte=end_date)
-        arriving = RideComputation.objects.filter(hotspot_arrive_time__gte=start_date,
-                                                  hotspot_arrive_time__lte=end_date)
-        data = []
+        orders = Order.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date)
+        private_orders = filter(lambda o: o.type == OrderType.PRIVATE, orders)
+        private_orders_data = [serialize(o) for o in sorted(private_orders, key=lambda o: o.depart_time, reverse=True)]
 
-        for c in sorted(list(departing) + list(arriving), key=lambda c: c.hotspot_depart_time or c.hotspot_arrive_time,
-                        reverse=True):
-            time = c.hotspot_depart_time or c.hotspot_arrive_time
-            orders_data = [{'id': o.id,
-                            'from': o.from_raw,
-                            'to': o.to_raw,
-                            'passenger_name': "%s %s" % (o.passenger.user.first_name,
-                                                         o.passenger.user.last_name) if o.passenger and o.passenger.user else na
-                ,
-                            'passenger_phone': o.passenger.phone if o.passenger else na,
-                            'type': OrderType.get_name(o.type),
-                            'status': o.get_status_label(),
-                            'debug': 'debug' if o.debug else ''
-            }
-            for o in c.orders.all()]
-
+        computations = RideComputation.objects.filter(hotspot_datetime__gte=start_date, hotspot_datetime__lte=end_date)
+        computations_data = []
+        for c in sorted(computations, key=lambda c: c.hotspot_datetime, reverse=True):
+            time = c.hotspot_datetime
+            status = RideComputationStatus.get_name(c.status)
+            if c.status == RideComputationStatus.PENDING and c.submit_datetime:
+                status = "%s@%s" % (status, c.submit_datetime.strftime("%H:%M"))
             c_data = {'id': c.id,
-                      'status': RideComputationStatus.get_name(c.status),
+                      'status': status,
                       'time': time.strftime("%d/%m/%y, %H:%M"),
-                      'dir': 'Hotspot->' if c.hotspot_depart_time else '->Hotspot' if c.hotspot_arrive_time else na,
-                      'orders': orders_data,
+                      'dir': 'Hotspot->' if c.hotspot_type == StopType.PICKUP else '->Hotspot' if c.hotspot_type == StopType.DROPOFF else na,
+                      'orders': [serialize(o) for o in c.orders.all()],
                       }
+            computations_data.append(c_data)
 
-            data.append(c_data)
-        return data
+        return {'private_orders': private_orders_data, 'computations': computations_data}
 
     return base_datepicker_page(request, f, 'birdseye_view.html', locals(), init_start_date, init_end_date)
 
@@ -427,7 +943,7 @@ def hotspot_ordering_page(request, passenger, is_textinput):
                 if int(request.POST.get("time_const_min") or 0):
                     params["toleration_factor_minutes"] = request.POST["time_const_min"]
                 name = request.POST.get("computation_set_name")
-                key = submit_test_computation(orders, params=params, computation_set_name=name)
+                key = submit_test_computation(orders, hotspot_type_raw, params=params, computation_set_name=name)
                 response = u"Orders submitted for calculation: %s" % key
             else:
                 response = "Hotspot data corrupt: no orders created"
@@ -474,7 +990,7 @@ def ride_computation_stat(request, computation_set_id):
         if int(request.POST.get("time_const_min") or 0):
             params["toleration_factor_minutes"] = request.POST["time_const_min"]
 
-        key = submit_test_computation(orders, params=params, computation_set_id=computation_set.id)
+        key = submit_test_computation(orders, "pickup", params=params, computation_set_id=computation_set.id)
         return JSONResponse({'content': u"Orders submitted for calculation: %s" % key})
 
     else:
@@ -568,7 +1084,7 @@ def create_orders_from_hotspot(data, hotspot_type, point_type, is_textinput):
     return orders
 
 
-def submit_test_computation(orders, params, computation_set_name=None, computation_set_id=None):
+def submit_test_computation(orders, hotspot_type_raw, params, computation_set_name=None, computation_set_id=None):
     key = "test_%s" % str(default_tz_now())
     params.update({'debug': True})
     algo_key = submit_orders_for_ride_calculation(orders, key=key, params=params)
@@ -579,8 +1095,12 @@ def submit_test_computation(orders, params, computation_set_name=None, computati
         computation.toleration_factor = params.get('toleration_factor')
         computation.toleration_factor_minutes = params.get('toleration_factor_minutes')
         order = orders[0]
-        computation.hotspot_depart_time = order.depart_time
-        computation.hotspot_arrive_time = order.arrive_time
+        if hotspot_type_raw == "pickup":
+            computation.hotspot_type = StopType.PICKUP
+            computation.hotspot_datetime = order.depart_time
+        else:
+            computation.hotspot_type = StopType.DROPOFF
+            computation.hotspot_datetime = order.arrive_time
 
         if computation_set_id: # add to existing set
             computation_set = RideComputationSet.by_id(computation_set_id)
@@ -597,6 +1117,50 @@ def submit_test_computation(orders, params, computation_set_name=None, computati
             order.save()
 
     return algo_key
+
+#def orders_map():
+#    pass
+#def orders_reduce():
+#    pass
+#
+#def mapreduce_handler():
+#    pass
+
+#class DjangoEntityInputReader(AbstractDatastoreInputReader):
+#  """An input reader that takes a Django model ('app.models.Model') and yields Keys for that model"""
+#
+#  def _iter_key_range(self, k_range):
+#    query = Query(util.for_name(self._entity_kind)).get_compiler(using="default").build_query()
+#    raw_entity_kind = query.db_table
+#
+#    query = k_range.make_ascending_datastore_query(
+#        raw_entity_kind, keys_only=True)
+#    for key in query.Run(
+#        config=datastore_query.QueryOptions(batch_size=self._batch_size)):
+#      yield key, key
+#
+#class LogPipeline(base_handler.PipelineBase):
+#    def run(self, val):
+#        logging.info("Pipeline log: %s" % val)
+#
+#class OrdersPipeline(base_handler.PipelineBase):
+#    def run(self):
+#        output = yield mapreduce_pipeline.MapreducePipeline(
+#            "order_stats",
+#            "orders_map",
+#            "orders_reduce",
+#            "DjangoEntityInputReader",
+#            "mapreduce.output_writers.BlobstoreOutputWriter",
+##            mapper_params={
+##                "blob_key": blobkey,
+##                },
+##            reducer_params={
+##                "mime_type": "text/plain",
+##                },
+#            shards=4)
+#
+#        yield LogPipeline(output)
+##        yield StoreOutput("WordCount", filekey, output)
 
 TRACK_RIDES_CHANNEL_IDS = [] #TODO_WB: use memecache?
 #@staff_member_required

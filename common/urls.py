@@ -4,11 +4,11 @@ from django.views.generic.simple import direct_to_template
 
 
 urlpatterns = patterns('',
-    (r'is_dev/$', 'common.views.is_dev'),
     (r'setup/$', 'common.views.setup'),
     (r'reset_ws_passwords/$', 'common.views.reset_password'),
     (r'test_channel/$', 'common.views.test_channel'),
     (r'test_ga/$', 'common.views.test_ga'),
+    (r'test_gcp$', 'common.views.test_gcp'),
     (r' /$', 'common.views.init_countries'),
     (r'is_email_available/$', 'common.services.is_email_available'),
     (r'is_email_available_for_user/$', 'common.services.is_email_available_for_user'),
@@ -24,7 +24,9 @@ urlpatterns = patterns('',
     (r'maintenance/weekly$', 'common.maintenance.weekly'),
     (r'maintenance/billing_service_test$', 'common.maintenance.run_billing_service_test'),
     (r'maintenance/routing_service_test$', 'common.maintenance.run_routing_service_test'),
+    (r'maintenance/gcp_service_test$', 'common.maintenance.run_gcp_service_test'),
     (r'maintenance/routing_service_test_task$', 'common.maintenance.test_routing_service_task'),
+    (r'maintenance/gcp_service_test_task$', 'common.maintenance.test_gcp_service_task'),
 
     (r'registration/get_login_form/$', 'common.registration.get_login_form'),
     (r'registration/get_error_form/$', 'common.registration.get_error_form'),

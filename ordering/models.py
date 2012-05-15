@@ -33,7 +33,7 @@ import datetime
 import common.urllib_adaptor as urllib2
 
 SHARING_TIME_FACTOR = 1.25
-SHARING_TIME_MINUTES = 8
+SHARING_TIME_MINUTES = 10
 
 ORDER_HANDLE_TIMEOUT =                      80 # seconds
 ORDER_TEASER_TIMEOUT =                      19 # seconds
@@ -122,6 +122,8 @@ class Station(BaseModel):
 
     # google cloud print integration
     printer_id = models.CharField(_("printer id"), max_length=64, null=True, blank=True)
+    # fax number
+    fax_number = models.CharField(_("fax number"), max_length=64, null=True, blank=True)
 
     last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
                                             default=datetime.datetime(1, 1, 1))
@@ -376,8 +378,13 @@ class RideComputation(BaseModel):
     debug = models.BooleanField(default=False, editable=False)
     status = StatusField(_("status"), choices=RideComputationStatus.choices(), default=RideComputationStatus.PENDING)
 
+    # TODO_WB: replace hotspot_depart_time, hotspot_arrive_time with hotspot_type and hotspot_datetime
+    hotspot_type = models.IntegerField(choices=StopType.choices(), null=True, blank=True)
+    hotspot_datetime = UTCDateTimeField(null=True, blank=True)
     hotspot_depart_time = UTCDateTimeField(null=True, blank=True, editable=False)
     hotspot_arrive_time = UTCDateTimeField(null=True, blank=True, editable=False)
+
+    submit_datetime = UTCDateTimeField(editable=False, null=True, blank=True)
 
     toleration_factor = models.FloatField(null=True, blank=True)
     toleration_factor_minutes = models.FloatField(null=True, blank=True)
@@ -879,6 +886,7 @@ class InstalledApp(BaseModel):
     An application on a specific device. The app_udid is unique for a device and bundle ID
     """
     app_udid = models.CharField(_("app udid"), max_length=64)
+    cid = models.CharField(_("conversion id"), max_length=64, null=True, blank=True)
     name = models.CharField(_("name"), max_length=100)
     user_agent = models.CharField(_("user agent"), max_length=250, null=True, blank=True)
 
@@ -1051,7 +1059,7 @@ class Order(BaseModel):
         if self.pickup_point:
             pickup_str = self.pickup_point.stop_time.strftime("%d/%m/%y, %H:%M")
 
-        elif self.computation.hotspot_arrive_time: # to Hotspot, pickup time is estimated
+        elif self.computation.hotspot_type == StopType.DROPOFF: # to Hotspot, pickup time is estimated
             ride_duration_sec = (self.arrive_time - self.depart_time).seconds
             sharing_dprt = self.arrive_time - datetime.timedelta(seconds=ride_duration_sec + SHARING_TIME_MINUTES * 60)
 

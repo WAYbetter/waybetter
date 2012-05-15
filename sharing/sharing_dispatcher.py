@@ -14,7 +14,7 @@ from ordering.models import WorkStation, PENDING, ASSIGNED, SharedRide
 from datetime import timedelta
 from ordering.util import send_msg_to_passenger
 from sharing.passenger_controller import send_ride_notifications
-from sharing.station_controller import send_ride_voucher, mark_ride_not_taken_task
+from sharing.station_controller import send_ride_voucher
 from fleet import fleet_manager
 import signals
 import logging
@@ -45,14 +45,9 @@ def dispatch_ride(ride):
             fleet_manager.create_ride(ride)
 
         send_ride_notifications(ride)
-        deferred.defer(mark_ride_not_taken_task, ride_id=ride.id, _eta=ride.depart_time)
-
         if not work_station.is_online:
             notify_by_email(u"Ride [%s] dispatched to offline workstation %s" % (ride.id, work_station), msg=ride.get_log())
 
-#    task = taskqueue.Task(url=reverse(mark_ride_not_taken_task), eta=ride.depart_time, params={"ride_id": ride.id})
-#    q = taskqueue.Queue('orders')
-#    q.add(task)
     else:
         #TODO_WB: how do we handle this? cancel the orders?
         notify_dispatching_failed(ride)

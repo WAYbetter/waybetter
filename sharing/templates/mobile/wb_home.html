@@ -70,7 +70,7 @@
                 lon: MobileHelper.address.lon
             })
         }
-        HotspotHelper.getIntervals({
+        HotspotHelper.getTimes({
             data: data,
             success: function(response) {
                 if (response.times) {
@@ -465,8 +465,8 @@
             },
             urls: {
                 get_hotspot_data: "{% url sharing.passenger_controller.get_hotspots_data %}",
-                get_hotspot_dates: "{% url sharing.passenger_controller.get_hotspot_dates %}",
-                get_hotspot_times: "{% url sharing.passenger_controller.get_hotspot_times %}"
+                get_hotspot_dates: "{% url sharing.passenger_controller.get_hotspot_dates %}"
+                get_hotspot_offers: "{% url sharing.passenger_controller.get_hotspot_offers %}"
             }
         });
 

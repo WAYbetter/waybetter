@@ -183,27 +183,32 @@ TARIFF2_END = datetime.time(05,29,59,999999)
 MIDNIGHT = datetime.time(23,59,59,999999)
 SABBATH_START = datetime.time(17,00,00,000000)
 SABBATH_START_MINUS_EPSILON = datetime.time(16,59,59,999999)
+BASE_PRICE = 11.8 # in NIS
+BASE_TICK_COST = 0.3 # in NIS
+
+# don't forget to run setup_israel_meter_and_extra_charge_rules() after updating these constants
+# last update 29/4/12
 tariff1_dict = {
-    'BASE_PRICE'              : 11.1, # in NIS
+    'BASE_PRICE'              : BASE_PRICE, # in NIS
+    'TICK_COST_BELOW_15K'     : BASE_TICK_COST, # in NIS
+    'TICK_COST_OVER_15K'      : BASE_TICK_COST, # in NIS
     'BASE_TIME'               : 80, # in sec
+    'TICK_TIME_BELOW_15K'     : 11, # in sec
+    'TICK_TIME_OVER_15K'      : 11, # in sec
     'BASE_DISTANCE'           : 537.93, # in meter
-    'TICK_TIME_BELOW_15K'     : 12, # in sec
-    'TICK_DISTANCE_BELOW_15K' : 86.63, # in meter
-    'TICK_COST_BELOW_15K'     : 0.3, # in NIS
-    'TICK_TIME_OVER_15K'      : 12, # in sec
-    'TICK_DISTANCE_OVER_15K'  : 72.25, # in meter
-    'TICK_COST_OVER_15K'      : 0.3, # in NIS
+    'TICK_DISTANCE_BELOW_15K' : 81.73, # in meter
+    'TICK_DISTANCE_OVER_15K'  : 68.16, # in meter
     }
 tariff2_dict = {
-    'BASE_PRICE'              : 11.1, # in NIS
+    'BASE_PRICE'              : BASE_PRICE, # in NIS
+    'TICK_COST_BELOW_15K'     : BASE_TICK_COST, # in NIS
+    'TICK_COST_OVER_15K'      : BASE_TICK_COST, # in NIS
     'BASE_TIME'               : 35, # in sec
+    'TICK_TIME_BELOW_15K'     : 9, # in sec
+    'TICK_TIME_OVER_15K'      : 9, # in sec
     'BASE_DISTANCE'           : 147.89, # in meter
-    'TICK_TIME_BELOW_15K'     : 10, # in sec
-    'TICK_DISTANCE_BELOW_15K' : 69.38, # in meter
-    'TICK_COST_BELOW_15K'     : 0.3, # in NIS
-    'TICK_TIME_OVER_15K'      : 10, # in sec
-    'TICK_DISTANCE_OVER_15K'  : 57.72, # in meter
-    'TICK_COST_OVER_15K'      : 0.3, # in NIS
+    'TICK_DISTANCE_BELOW_15K' : 65.45, # in meter
+    'TICK_DISTANCE_OVER_15K'  : 54.45, # in meter
     }
 def setup_israel_meter_and_extra_charge_rules():
 
@@ -242,7 +247,7 @@ def setup_israel_meter_and_extra_charge_rules():
     # extra charge rules
     IL.extra_charge_rules.all().delete()
     extra_charge_rules=[
-            ExtraChargeRule(rule_name=IsraelExtraCosts.PHONE_ORDER,country=IL,cost=4.7),
+            ExtraChargeRule(rule_name=IsraelExtraCosts.PHONE_ORDER,country=IL,cost=5),
             ExtraChargeRule(rule_name=IsraelExtraCosts.NATBAG_AIRPORT,country=IL,cost=5),
             ExtraChargeRule(rule_name=IsraelExtraCosts.SDE_DOV_AIRPORT,country=IL,cost=2),
             ExtraChargeRule(rule_name=IsraelExtraCosts.HAIFA_PORT,country=IL,cost=2),

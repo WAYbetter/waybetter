@@ -2,7 +2,7 @@
 
 try:
     from djangoappengine import main
-except ImportError:
+except ImportError, e:
     pass
 
 from django.utils.importlib import import_module

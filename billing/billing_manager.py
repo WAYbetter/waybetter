@@ -90,7 +90,7 @@ def get_transaction_id(lang_code, mpi_data):
     
     logging.info(data)
 
-    res = safe_fetch(BILLING_INFO["transaction_url"], method='POST', payload=data, deadline=10)
+    res = safe_fetch(BILLING_INFO["transaction_url"], method='POST', payload=data, deadline=50)
     if not res:
         return None
     elif res.content.startswith("--"):
