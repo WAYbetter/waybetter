@@ -495,6 +495,8 @@
             // show
             $("#booking_content").slides("slide", to_index + 1);
             log("showBookingStep: " + step_name + "(" + from_index + "->" + to_index + ")");
+            $("#" + step_name + "_content").trigger("aftershow");
+
         }
     }
 
@@ -537,9 +539,7 @@
                             $list.append($interval);
                         });
                         var $scrollTo = $(".interval .time:contains('07:00')").parents(".interval");
-                        if ($scrollTo.length){
-                            $list.scrollTop($scrollTo.offset().top - $list.offset().top + $list.scrollTop());
-                        }
+                        scrollToInterval($scrollTo);
                         if (options.onGotIntervals) {
                             options.onGotIntervals(intervals);
                         }
@@ -580,26 +580,37 @@
         var $popularity_bar = $("<span></span>").addClass("inline-block popularity-bar").width(bar_width).append($popularity_fill);
         var $popularity = $("<span></span>").addClass("inline-block").append($price, $popularity_bar);
 
-        var label_text = (interval.type == order_types.private) ? "{% trans "Private" %}" : "{% trans "Popularity" %}";
-        var $label = $("<span></span>").text(label_text).addClass("popularity-label");
+        var $label = $("<span></span>").text("{% trans "Popularity" %}").addClass("popularity-label");
         var $popularity_cntr = $("<span></span>").addClass("inline-block float-farend").append($label, $popularity);
 
-        var $time = $("<span></span>").addClass("time bold float-closeend").text(interval.time);
-        return $("<div></div>").addClass("interval clickable").append($time, $popularity_cntr);
+        var time_text = (interval.type == order_types["private"]) ? "{% trans "ASAP" %}" : interval.time;
+        var $time = $("<span></span>").addClass("time bold float-closeend").text(time_text);
+        var $interval = $("<div></div>").addClass("interval clickable").append($time, $popularity_cntr);
+        $interval.data(interval);
+        return $interval;
     }
 
-    function selectInterval($interval){
+    function scrollToInterval($interval){
+        if ($interval.length){
+            var $list = $("#intervals_list");
+            $list.scrollTop($interval.offset().top - $list.offset().top + $list.scrollTop());
+        }
+
+    }
+    function chooseInterval($interval){
         if ($interval.hasClass("disabled")){
             return;
         }
 
         $(".interval.selected").removeClass("selected");
         $interval.addClass("selected");
-
-        var time = $interval.find(".time").text();
         $("#set_datetime").enable();
-
-        logGAEvent("order", "choose time", time);
+    }
+    function selectInterval($interval){
+        var interval = $interval.data();
+        BookingHelper.ride_time = interval.time;
+        BookingHelper.order_type = interval.type;
+        logGAEvent("order", "choose time", interval.time);
     }
 
     function clearRideDetails() {
@@ -679,6 +690,7 @@
             num_seats      : BookingHelper.num_seats,
             ride_duration  : HotspotHelper.ride_duration,
             street_address : BookingHelper.address.street_address,
+            order_type     : BookingHelper.order_type
         };
 
         var err_msg = "{% trans "We have encountered an error. Please try again." %}";
@@ -908,15 +920,22 @@
             if (BookingHelper.ride_date) {
                 $("#id_hotspot_datepicker").val(BookingHelper.ride_date);
             }
-            if (BookingHelper.ride_time) {
-                $(".interval.selected").removeClass("selected");
-                $(".interval .time:contains(" + BookingHelper.ride_time + ")").parents(".interval").addClass("selected");
-            }
 
             var pickup_desc = (BookingHelper.hotspot_type == PICKUP) ? BookingHelper.hotspot.name : BookingHelper.address.name;
             $("#datetime_content .title").text("{% trans "Pickup Time from " %}" + pickup_desc);
             GoogleMapHelper.fitMarkers();
             logGAEvent("order", "choose date", $("#id_hotspot_datepicker").val());
+        });
+
+        $("#datetime_content").bind("aftershow", function() {
+            $(".interval.selected").removeClass("selected");
+            if (BookingHelper.ride_time) {
+                var $interval = $(".interval .time:contains(" + BookingHelper.ride_time + ")").parents(".interval");
+                if ($interval.length) {
+                    $interval.addClass("selected");
+                    scrollToInterval($interval);
+                }
+            }
         });
 
         $("#id_hotspot_datepicker").keydown(function(e) {
@@ -926,7 +945,7 @@
         });
 
         $("#intervals_list .interval").live("click", function () {
-            selectInterval($(this));
+            chooseInterval($(this));
         });
 
         $("#set_datetime").click(function() {
@@ -934,7 +953,7 @@
             get_offer_time = new Date();
 
             BookingHelper.ride_date = $("#id_hotspot_datepicker").val();
-            BookingHelper.ride_time = $(".interval.selected .time").text();
+            selectInterval($(".interval.selected"));
             getRideDetails({
                 onGotDetails: function() {
                     stepCompleted("datetime");

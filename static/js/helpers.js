@@ -5,6 +5,7 @@ var BookingHelper = Object.create({
     hotspot_type: undefined,
     ride_date: undefined,
     ride_time: undefined,
+    order_type: undefined,
     messages: {}
 });
 
@@ -378,7 +379,8 @@ var HotspotHelper = Object.create({
         if (lat && lon && this.MapHelper) {
             var marker_name = "hotspot";
             var img = this.config.hotspot_markers[marker_type] || this.config.hotspot_markers.generic;
-            this.MapHelper.addMarker(lat, lon, {icon_image: img, title: $selected.text(), marker_name: marker_name});
+            var address = {lat:lat, lon:lon};
+            this.MapHelper.addMarker(address, {icon_image: img, title: $selected.text(), marker_name: marker_name});
             this.MapHelper.zoomMarker(marker_name);
         }
     },
