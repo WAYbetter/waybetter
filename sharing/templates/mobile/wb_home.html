@@ -14,6 +14,28 @@
         .err_msg {
             color: red;
         }
+        #error_dialog {
+            display: block;
+            position: absolute;
+            right: 50%;
+            margin-right: -135px;
+            top: 200px;
+            width: 250px;
+            background: -webkit-linear-gradient(top, #C47E7E 0%, #AE4E4E 100%);
+            border: 1px  white solid;
+            -webkit-box-shadow: 0px 0px 7px 0px rgba(30, 30, 30, 1);
+            color: white;
+            font-family: sans-serif;
+            font-weight: normal;
+            padding: 10px;
+            text-shadow: none;
+        }
+        #error_dialog .header {
+            font-weight: bold;
+            margin-bottom: 5px;
+            text-align: center;
+        }
+
         #select_hotspot {
 
         }
@@ -353,6 +375,21 @@
     {% endblock show_notification %}
     }
 
+    function showErrorDialog(error_msg, title) {
+        var $err_dialog_div = $("#error_dialog");
+        if ($err_dialog_div.length == 0) {
+            $err_dialog_div = $('<div id="error_dialog"><div class="header"></div><div class="body"></div><a href="#" id="focus_link"></a></div>').appendTo("body").hide();
+        }
+        $err_dialog_div.find(".header").text(title);
+        $err_dialog_div.find(".body").text(error_msg);
+
+        $err_dialog_div.fadeIn('slow');
+
+        $err_dialog_div.find("#focus_link").bind("blur", function() {
+            $err_dialog_div.fadeOut('fast');
+        }).focus();
+    }
+
     function renderNumseats(){
         var text = undefined, label = undefined;
         if (MobileHelper.num_seats == 1) {
@@ -401,14 +438,8 @@
         $("#choose_hotspot_btn").find(".desc").text("");
     }
 
-    function selectHotspot(hotspot) {
-        log("select hotspot");
-        MobileHelper.hotspot = hotspot;
-        MobileHelper.ride_date = undefined;
-        MobileHelper.ride_time = undefined;
-
+    function showHotspot(hotspot) {
         var $date_sel = $("#select_date");
-
         addMarker({
             name : hotspot.address,
             lat  : hotspot.lat,
@@ -427,6 +458,13 @@
             var $option = $('<option value="' + d + '">' + ((d == today) ? "{% trans "Today" %}" : d ) + '</option>');
             $date_sel.append($option);
         });
+    }
+
+    function selectHotspot(hotspot) {
+        log("select hotspot");
+        MobileHelper.hotspot = hotspot;
+        MobileHelper.ride_date = undefined;
+        MobileHelper.ride_time = undefined;
     }
 
     function resetSeats() {
@@ -535,8 +573,9 @@
                 {% endblock book_ride_success %}
 
             },
-            error: function() {
+            error: function(err) {
                 // TODO_WB: show error message/redirect to error page
+                showError("{% trans 'We have encountered an error handling your order. Please try again'%}");
                 $(".order_button").enable();
             }
         });
@@ -677,8 +716,13 @@
                 lon: MobileHelper.address.lon
             },
             success: function(data) {
-                renderIntervals(data);
-                if (change_page) $.mobile.changePage("#select_time_page");
+                if (! (data.intervals && data.intervals.length > 0)) {
+                    $.mobile.changePage("#address_input_page");
+                    showErrorDialog("{% trans "The service is not operating in your specified address yet. Please try again soon." %}", "{% trans "Address Not Covered" %}");
+                } else {
+                    renderIntervals(data);
+                    if (change_page) $.mobile.changePage("#select_time_page");
+                }
             }
         });
     }
@@ -803,8 +847,11 @@
                     $hotspot_list.append(option);
 
                     if (hotspots.length == response.data.length) {
-                        $hotspot_list.selectmenu("refresh", true);
-                        selectHotspot(hotspots[0]);
+                        try {
+                            $hotspot_list.selectmenu("refresh", true);
+                        } catch (e) {
+                            // do nothing
+                        }
                     }
                 });
 //                chooseHotspotViaCurrentLocation();
@@ -850,6 +897,11 @@
             onNoValidPlace:function () {
                 log("onNoValidPlace");
             }
+        });
+
+        // hide error dialog of it's visible
+        google.maps.event.addListener(GoogleMapHelper.map, 'mousedown', function() {
+            $("#error_dialog:visible").fadeOut('fast');
         });
 
         google.maps.event.addListener(GoogleMapHelper.map, 'dragstart', function() {
@@ -942,11 +994,15 @@
 
 
         $("#select_hotspot_page").bind("pagebeforeshow", function() {
-            if (! MobileHelper.hotspot) {
-                $(this).find("button").set_button_text("-").disable();
-            }
             var map_div = GoogleMapHelper.map.getDiv();
             $(".map_container", $(this)).append(map_div);
+
+            if (! MobileHelper.hotspot) {
+                $(this).find("button").set_button_text("-").disable();
+                showHotspot(hotspots[0]);
+            } else {
+                showHotspot(MobileHelper.hotspot);
+            }
 
         }).bind("pageaftershow", function() {
             GoogleMapHelper.showMarkersByName("hotspot");
@@ -958,16 +1014,17 @@
         });
 
         $("#select_hotspot").change(function() {
-            selectHotspot($(this).find("option:selected").jqmData("hotspot"));
+            showHotspot($("#select_hotspot").find("option:selected").jqmData("hotspot"));
         });
 
-
         $("#leave_hs_btn").click(function() {
+            selectHotspot($("#select_hotspot").find("option:selected").jqmData("hotspot"));
             MobileHelper.hotspot_type = "pickup";
             handleHotspotChange();
         });
 
         $("#get_to_hs_btn").click(function() {
+            selectHotspot($("#select_hotspot").find("option:selected").jqmData("hotspot"));
             MobileHelper.hotspot_type = "dropoff";
             handleHotspotChange();
         });
@@ -1170,7 +1227,53 @@
 {% endblock doc_ready %}
 
 {% block body %}
+    <div id="home" data-role="page" data-theme="a">
+        <div data-role="header" class="wb-header"></div>
+        <div class="sub-header">{% trans 'Shared Taxis to Central Locations' %}</div>
+        <div data-role="content">
+            <div class="ui-grid-a"> {#  2-column grid #}
+                <div class="ui-block-a">
+                    <a href="#select_hotspot_page" id="home_book_order_btn" data-role="button" data-iconpos="top"
+                       data-icon="wb_custom">
+                        {% trans 'Order Now' %}
+                    </a>
+                </div>
 
+                <div class="ui-block-b">
+                    {% block myrides_btn %}
+                    <a id="myrides_btn" data-role="button" data-iconpos="top" data-icon="wb_custom"
+                            {% if request.user.is_authenticated %}
+                            href="#myrides_page"
+                            {% else %}
+                            href="{% url mobile_auth_login %}" data-ajax="false"
+                            {% endif %}
+                        >{% trans 'My Rides' %}
+                    </a>
+                    {% endblock myrides_btn %}
+                </div>
+            </div>
+            <div class="ui-grid-a">
+                <div class="ui-block-a">
+                    <a href="mailto:support@waybetter.com" id="feedback_btn" data-role="button"
+                       data-iconpos="top" data-icon="wb_custom">{% trans 'Feedback' %}</a>
+                </div>
+
+                <div class="ui-block-b">
+                    <a href="#settings_page" id="settings_btn" data-role="button" data-iconpos="top"
+                       data-icon="wb_custom">{% trans 'More' %}</a>
+                </div>
+            </div>
+            <div class="ui-grid-b"> {#  3-column grid #}
+                <div class="ui-block-a quarter"></div>
+                <div class="ui-block-b half">
+                    <a href="#share_page" id="share_btn" data-role="button" data-iconpos="top"
+                       data-icon="wb_custom">{% trans 'Share' %}</a>
+                </div>
+                <div class="ui-block-c quarter"></div>
+            </div>
+
+        </div>
+    </div>
 
     <div id="select_hotspot_page" data-role="page">
         <div data-role="header">
@@ -1323,54 +1426,6 @@
         </div>
     </div>
     
-    <div id="home" data-role="page" data-theme="a">
-        <div data-role="header" class="wb-header"></div>
-        <div class="sub-header">{% trans 'Shared Taxis to Central Locations' %}</div>
-        <div data-role="content">
-            <div class="ui-grid-a"> {#  2-column grid #}
-                <div class="ui-block-a">
-                    <a href="#booking_page" id="home_book_order_btn" data-role="button" data-iconpos="top"
-                       data-icon="wb_custom">
-                        {% trans 'Order Now' %}
-                    </a>
-                </div>
-
-                <div class="ui-block-b">
-                    {% block myrides_btn %}
-                    <a id="myrides_btn" data-role="button" data-iconpos="top" data-icon="wb_custom"
-                            {% if request.user.is_authenticated %}
-                            href="#myrides_page"
-                            {% else %}
-                            href="{% url mobile_auth_login %}" data-ajax="false"
-                            {% endif %}
-                        >{% trans 'My Rides' %}
-                    </a>
-                    {% endblock myrides_btn %}
-                </div>
-            </div>
-            <div class="ui-grid-a">
-                <div class="ui-block-a">
-                    <a href="mailto:support@waybetter.com" id="feedback_btn" data-role="button"
-                       data-iconpos="top" data-icon="wb_custom">{% trans 'Feedback' %}</a>
-                </div>
-
-                <div class="ui-block-b">
-                    <a href="#settings_page" id="settings_btn" data-role="button" data-iconpos="top"
-                       data-icon="wb_custom">{% trans 'More' %}</a>
-                </div>
-            </div>
-            <div class="ui-grid-b"> {#  3-column grid #}
-                <div class="ui-block-a quarter"></div>
-                <div class="ui-block-b half">
-                    <a href="#share_page" id="share_btn" data-role="button" data-iconpos="top"
-                       data-icon="wb_custom">{% trans 'Share' %}</a>
-                </div>
-                <div class="ui-block-c quarter"></div>
-            </div>
-
-        </div>
-    </div>
-
     <div id="welcome_page" data-role="page" data-theme="a">
         <div data-role="header" class="wb-header"></div>
         <div data-role="content" class="center">

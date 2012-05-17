@@ -173,8 +173,9 @@ class HotSpot(BaseModel):
             if self.get_next_orderable_interval() > asap_interval:
                 t = asap_interval.time()
                 cost = self.get_cost(lat, lon, day, t, num_seats, tariffs, costs)
-                asap_price = get_base_sharing_price(cost)
-                offers.append({'time': t, 'price': asap_price, 'popularity': 0, 'type': OrderType.PRIVATE})
+                if cost:
+                    asap_price = get_base_sharing_price(cost)
+                    offers.append({'time': t, 'price': asap_price, 'popularity': 0, 'type': OrderType.PRIVATE})
 
         for t in self.get_times_for_day(day, start_time=start_time):
             price, popularity = self.get_sharing_price(lat, lon, day, t, num_seats, True, tariffs, costs, pop_rules)

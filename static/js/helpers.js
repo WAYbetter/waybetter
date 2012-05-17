@@ -932,7 +932,7 @@ var GoogleGeocodingHelper = Object.create({
                                 var address = [that._getAddressComponent(place, 'route').long_name + " " + range[j],
                                     that._getAddressComponent(place, 'locality').long_name ].join(", ");
 
-                                addresses.push({name: address, callback_index: j});
+                                addresses.push({name: address, city: that._getAddressComponent(place, 'locality').long_name, callback_index: j});
 
                                 that.geocode(address, function(result, status, original_address) {
                                     if (! that._pendingReverseGeocodeCallback) return;
