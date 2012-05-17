@@ -52,6 +52,7 @@ def control_panel(request):
     admin_links = [
             {'name': 'Kpi', 'url': reverse(kpi)},
             {'name': 'Birdseye', 'url': reverse(birdseye_view)},
+            {'name': 'Track rides and taxis', 'url': reverse(track_rides)},
             {'name': 'Hotspot pricing', 'url': reverse(hotspot_pricing_overview)},
             {'name': 'Sharing orders map', 'url': reverse(sharing_orders_map)},
             {'name': 'PickMeApp orders map', 'url': reverse(pickmeapp_orders_map)},
@@ -876,6 +877,7 @@ def birdseye_view(request):
                 'status': o.get_status_label(),
                 'time': o.depart_time.strftime("%d/%m/%y, %H:%M"),
                 'price': o.price,
+                'ride_id': o.ride_id if o.ride else na,
                 'debug': 'debug' if o.debug else ''
         }
 
