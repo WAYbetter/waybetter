@@ -971,6 +971,9 @@ class Order(BaseModel):
     arrive_time = UTCDateTimeField(_("arrive time"), null=True, blank=True)
     price = models.FloatField(null=True, blank=True, editable=False)
     num_seats = models.PositiveIntegerField(default=1)
+    from sharing.models import HotSpot
+    hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="orders", null=True, blank=True)
+    hotspot_type = models.IntegerField(choices=StopType.choices(), null=True, blank=True)
 
     # ratings
     passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)
@@ -1048,7 +1051,7 @@ class Order(BaseModel):
     def get_pickup_time(self):
         """
         This is used for pickmeapp
-        Return the time remaingin until pickup (in seconds), or -1 if pickup time passed already
+        Return the time remaining until pickup (in seconds), or -1 if pickup time passed already
         """
         if self.future_pickup:
             return ((self.modify_date + datetime.timedelta(minutes=self.pickup_time)) - utc_now()).seconds
@@ -1057,17 +1060,17 @@ class Order(BaseModel):
 
     def get_pickup_str(self):
         if self.pickup_point:
-            pickup_str = self.pickup_point.stop_time.strftime("%d/%m/%y, %H:%M")
+            pickup_datetime = self.pickup_point.stop_time
+            time_str = pickup_datetime.strftime("%H:%M")
+        else:
+            pickup_datetime = self.depart_time
+            time_str = pickup_datetime.strftime("%H:%M")
+            if self.type == OrderType.SHARED:
+                pickup_with_sharing = pickup_datetime + datetime.timedelta(seconds=SHARING_TIME_MINUTES * 60)
+                time_str = u"%s-%s" % (pickup_datetime.strftime("%H:%M"), pickup_with_sharing.strftime("%H:%M"))
 
-        elif self.computation.hotspot_type == StopType.DROPOFF: # to Hotspot, pickup time is estimated
-            ride_duration_sec = (self.arrive_time - self.depart_time).seconds
-            sharing_dprt = self.arrive_time - datetime.timedelta(seconds=ride_duration_sec + SHARING_TIME_MINUTES * 60)
-
-            d = _("Today") if self.depart_time.date() == default_tz_now().date() else self.depart_time.strftime("%d/%m/%Y")
-            pickup_str = u"%s, %s-%s" % (d, sharing_dprt.strftime("%H:%M"), self.depart_time.strftime("%H:%M"))
-
-        else: # from hotspot
-            pickup_str = format_dt(self.depart_time)
+        d = _("Today") if pickup_datetime.date() == default_tz_now().date() else pickup_datetime.strftime("%d/%m/%Y")
+        pickup_str = u"%s, %s" % (d, time_str)
 
         return pickup_str
     

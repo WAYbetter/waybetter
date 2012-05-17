@@ -8,12 +8,50 @@ from google.appengine.api import channel
 from django.db.models.loading import get_model
 from django.contrib.auth.models import User
 from django.utils import simplejson
-from ordering.models import Passenger
+from ordering.models import Passenger, SharedRide, RidePoint, StopType, APPROVED
 from ordering.errors import UpdateUserError
 from common.util import log_event, EventType, get_channel_key, notify_by_email, send_mail_as_noreply
 from common.sms_notification import send_sms
 from oauth2.models import FacebookSession
 import logging
+
+def create_single_order_ride(order):
+    if order.status != APPROVED:
+        logging.error("denied creating ride for unapproved order [%s]" % order.id)
+        return None
+
+    ride = SharedRide()
+    ride.debug = order.debug
+    ride.depart_time = order.depart_time
+    ride.arrive_time = order.arrive_time
+    ride.save()
+
+    pickup = RidePoint()
+    pickup.ride = ride
+    pickup.stop_time = order.depart_time
+    pickup.type = StopType.PICKUP
+    pickup.address = order.from_raw
+    pickup.lat = order.from_lat
+    pickup.lon = order.from_lon
+    pickup.save()
+
+    dropoff = RidePoint()
+    dropoff.ride = ride
+    dropoff.stop_time = order.arrive_time
+    dropoff.type = StopType.DROPOFF
+    dropoff.address = order.to_raw
+    dropoff.lat = order.from_lat
+    dropoff.lon = order.from_lon
+    dropoff.save()
+
+    order.ride = ride
+    order.pickup_point = pickup
+    order.dropoff_point = dropoff
+    order.save()
+
+    from sharing.signals import ride_created_signal
+    ride_created_signal.send(sender='create_single_order_ride', obj=ride)
+    return ride
 
 def send_msg_to_passenger(passenger, msg):
     if not msg:

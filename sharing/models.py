@@ -11,12 +11,10 @@ from common.util import convert_python_weekday, datetimeIterator
 from common.models import BaseModel, Country, City, CityAreaField, CityArea
 from django.core.validators import MaxValueValidator, MinValueValidator
 from ordering.models import Passenger, Station, OrderType
-from ordering.pricing import estimate_cost
 from pricing.models import RuleSet, AbstractTemporalRule, PRIVATE_RIDE_HANDLING_FEE
 from pricing.functions import get_base_sharing_price, get_popularity_price, get_noisy_number_for_day_time
 from datetime import datetime, date, timedelta, time
 import calendar
-from sharing.algo_api import calculate_route
 
 ALGO_COMPUTATION_DELTA = timedelta(minutes=5)
 FAX_HANDLING_DELTA = timedelta(minutes=2)
@@ -38,9 +36,12 @@ class HotSpot(BaseModel):
     radius = models.FloatField(_("radius"), default=0.7) # radius in which GPS aware devices will decide they are inside this hotspot, in KM
     is_public = models.BooleanField(default=False)
 
-    @property
-    def order_processing_time(self):
-        return TOTAL_HANDLING_DELTA + timedelta(minutes=self.dispatching_time)
+    def order_processing_time(self, order_type):
+        handling_time = TOTAL_HANDLING_DELTA
+        if order_type == OrderType.PRIVATE:
+            handling_time -= ALGO_COMPUTATION_DELTA
+
+        return handling_time + timedelta(minutes=self.dispatching_time)
 
     def get_cost(self, lat, lon, day, t, num_seats=1, tariff_rules=None, cost_rules=None):
         tarriff = None
@@ -87,9 +88,12 @@ class HotSpot(BaseModel):
             return None
 
     def get_meter_price(self, lat, lon, day, t, num_seats=1):
+        from sharing.algo_api import calculate_route
+
         result = calculate_route(self.lat, self.lon, lat, lon)
         estimated_duration, estimated_distance = result["estimated_duration"], result["estimated_distance"]
 
+        from ordering.pricing import estimate_cost
         cost, ride_type = estimate_cost(estimated_duration, estimated_distance, day=convert_python_weekday(day.weekday()), time=t)
         return round(cost + PRIVATE_RIDE_HANDLING_FEE) if cost else None
 
@@ -164,7 +168,8 @@ class HotSpot(BaseModel):
         offers = []
 
         if day == now.date():
-            asap_interval = ceil_datetime(now + self.order_processing_time + timedelta(minutes=2)) # spare time to complete booking
+            # order WILL NOT be sent to algo. add 2 min. spare time for booking process
+            asap_interval = ceil_datetime(now + self.order_processing_time(OrderType.PRIVATE) + timedelta(minutes=2))
             if self.get_next_orderable_interval() > asap_interval:
                 t = asap_interval.time()
                 cost = self.get_cost(lat, lon, day, t, num_seats, tariffs, costs)
@@ -189,7 +194,7 @@ class HotSpot(BaseModel):
         return None
 
     def get_next_orderable_interval(self):
-        return self.get_next_interval(base_time=default_tz_now() + self.order_processing_time)
+        return self.get_next_interval(base_time=default_tz_now() + self.order_processing_time(OrderType.SHARED))
 
     def get_next_interval(self, base_time=None, timeframe=timedelta(weeks=1)):
         """
