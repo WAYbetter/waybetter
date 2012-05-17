@@ -36,10 +36,9 @@ def dispatch_ride(ride):
 #        task = taskqueue.Task(url=reverse(push_ride_task), countdown=MSG_DELIVERY_GRACE, params={"ride_id": ride.id, "ws_id": work_station.id})
 #        taskqueue.Queue('orders').add(task)
         
-        if work_station.station.vouchers_emails:
-            q = taskqueue.Queue('ride-notifications')
-            task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
-            q.add(task)
+        q = taskqueue.Queue('ride-notifications')
+        task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
+        q.add(task)
 
         if ride.dn_fleet_manager_id:
             fleet_manager.create_ride(ride)
