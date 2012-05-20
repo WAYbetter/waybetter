@@ -31,6 +31,16 @@ def cancel_ride(ride):
         logging.error(traceback.format_exc())
         return False
 
+def get_ride(ride):
+    try:
+        assert ride.dn_fleet_manager_id, "ride [%s] is not associated with a fleet manager" % ride.id
+        ride_fm = FleetManager.by_id(ride.dn_fleet_manager_id)
+        fmr = ride_fm.get_ride(ride.id)
+        return fmr
+    except Exception, e:
+        logging.error(traceback.format_exc())
+        return None
+
 def get_ongoing_rides(backend=None):
     rides = SharedRide.objects.filter(status=ASSIGNED)
     if backend:
@@ -57,26 +67,34 @@ def update_ride(fmr):
                      (wb_ride.id, FleetManagerRideStatus.get_name(fmr.status), fmr.raw_status))
 
 
-MEMCACHE_NAMESPACE = "fleet_manager"
-_get_key = lambda rp: 'position_%s' % rp.ride_id
+FM_MEMCACHE_NAMESPACE = "fm_ns"
+_get_key = lambda ride_id: 'position_%s' % ride_id
+_get_key_rp = lambda rp: _get_key(rp.ride_id)
 _get_val = lambda rp: pickle.dumps(rp)
 def update_positions(ride_positions):
     """
+    Handler for fleet backends to call when taxi positions changes. Sends the signals and stores the data in memcache.
     @param ride_positions: A list of C{TaxiRidePosition}
     """
     logging.info("fleet manager: positions update %s" % [rp.taxi_id for rp in ride_positions])
     fleet_signals.positions_update_signal.send(sender="fleet_manager", positions=ride_positions)
 
-    mapping = dict([(_get_key(rp), _get_val(rp)) for rp in ride_positions])
-    memcache.set_multi(mapping, namespace=MEMCACHE_NAMESPACE)
+    mapping = dict([(_get_key_rp(rp), _get_val(rp)) for rp in ride_positions])
+    memcache.set_multi(mapping, namespace=FM_MEMCACHE_NAMESPACE)
 
 
 def get_ride_position(ride_id):
-    cached_position = memcache.get(_get_key(ride_id), namespace=MEMCACHE_NAMESPACE)
-    if cached_position:
-        cached_position = pickle.loads(cached_position)
+    """
+    Get the latest known taxi position for a ride.
+    @param ride_id:
+    @return: A C{TaxiRidePosition} or None
+    """
+    trp = None
+    cached_trp = memcache.get(_get_key(ride_id), namespace=FM_MEMCACHE_NAMESPACE)
+    if cached_trp:
+        trp = pickle.loads(cached_trp)
 
-    return cached_position
+    return trp
 
 
 #########################################

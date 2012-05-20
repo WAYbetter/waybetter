@@ -7,8 +7,9 @@ from django.utils import simplejson
 from djangotoolbox.http import JSONResponse
 from fleet import fleet_manager
 
-def track_ride(request, ride_id):
-    result = str(fleet_manager.get_ride_position(ride_id))
+def get_ride(request, ride_id):
+    from fleet import isr_tests
+    result = str(isr_tests.get_ride(ride_id, False))
     if request.is_ajax():
         return JSONResponse({'result': result})
     else:

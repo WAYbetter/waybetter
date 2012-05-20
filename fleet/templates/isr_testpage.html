@@ -90,7 +90,7 @@
         var $target = $("#track_order");
         if (order_id) {
             $.ajax({
-                url:"{% url fleet.views.track_ride %}" + order_id,
+                url:"{% url fleet.views.get_ride %}" + order_id,
                 beforeSend:function () {
                     $target.val("Sending...");
                 },
