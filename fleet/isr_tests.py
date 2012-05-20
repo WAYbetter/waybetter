@@ -111,13 +111,17 @@ def cancel_ride(ride_id):
     ride.id = ride_id
     ride.dn_fleet_manager_id = isr_fm.id
 
-    return fleet_manager.cancel_ride(ride_id)
+    return fleet_manager.cancel_ride(ride)
 #    return BACKEND.cancel_ride(ride_id)
 
 def get_ride(ride_id, as_raw_output):
     if as_raw_output:
         return ISR._get_client().service.Get_External_Order(ISR._get_login_token(), ride_id)
-    return BACKEND.get_ride(ride_id)
+
+    ride = FakeSharedRide([])
+    ride.id = ride_id
+    ride.dn_fleet_manager_id = isr_fm.id
+    return fleet_manager.get_ride(ride)
 
 def get_var_supplier_orders(status_list):
     """

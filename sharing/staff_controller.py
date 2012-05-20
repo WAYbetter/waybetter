@@ -1165,7 +1165,7 @@ def submit_test_computation(orders, hotspot_type_raw, params, computation_set_na
 ##        yield StoreOutput("WordCount", filekey, output)
 
 TRACK_RIDES_CHANNEL_IDS = [] #TODO_WB: use memecache?
-@staff_member_required
+#@staff_member_required
 @force_lang("en")
 def track_rides(request):
     lib_channel = True

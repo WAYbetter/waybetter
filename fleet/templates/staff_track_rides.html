@@ -11,7 +11,12 @@
             height: 600px;
         }
         #map_tools{
+            height: 30px;
             padding: 10px 2px;
+        }
+        .map-tool{
+            float: left;
+            margin-right: 25px;
         }
         #log {
             height: 200px;
@@ -42,9 +47,15 @@
     <div id="map_container">
         <div id="map_canvas"></div>
         <div id="map_tools">
-            <input class="zoom_taxi" type="text" placeholder="Taxi #">
-            <button class="zoom_taxi">Zoom</button>
-            <input type="checkbox" id="get_all_chkbx">Show All Taxis
+            <div class="map-tool">
+                <input type="radio" name="taxis2show" id="show_ongoing_taxis" checked="checked">Show Ongoing Rides
+                <br>
+                <input type="radio" name="taxis2show" id="show_all_taxis">Show All Taxis
+            </div>
+            <div class="map-tool">
+                <input class="zoom_taxi" type="text" placeholder="Taxi #">
+                <button class="zoom_taxi">Zoom</button>
+            </div>
         </div>
     </div>
     <div id="log_console">
@@ -56,6 +67,7 @@
 
 {% block doc_ready %}
     {{ block.super }}
+    <script type="text/javascript" src="/static/js/mylibs/jquery.easydate-0.2.4.js"></script>
     <script type="text/javascript">
         var map, infowindow, markers = {}, positions_data = {}, active_taxi, getall_ajax_active = false;
 
@@ -66,21 +78,30 @@
                     ((secondes < 10) ? "0" + secondes : secondes);
         }
 
-        function renderLogs(logs) {
+        function writeLogs(logs) {
             var $log = $("#log");
             $.each(logs, function (i, entry) {
                 var $li = $("<li></li>").addClass("log-entry").text(getNowTimestamp() + ": " + entry);
-                $log.append($li);
+                $log.prepend($li);
             });
-            var $scrollTo = $(".log-entry:last");
-            if ($scrollTo.length){
-                $log.scrollTop($scrollTo.offset().top - $log.offset().top + $log.scrollTop());
-            }
+//            var $scrollTo = $(".log-entry:last");
+//            if ($scrollTo.length){
+//                $log.scrollTop($scrollTo.offset().top - $log.offset().top + $log.scrollTop());
+//            }
         }
         function updatePositions(pp){
             $.each(pp, function (i, p) {
-                if (positions_data[p.taxi_id] && (positions_data[p.taxi_id].lat != p.lat || positions_data[p.taxi_id].lon != p.lon) ){
-                    renderLogs(["taxi moved: " + p.taxi_id]);
+                var oldpos, distance;
+                var newpos = new LatLon(p.lat, p.lon);
+                if (positions_data[p.taxi_id]){
+                    oldpos = new LatLon(positions_data[p.taxi_id].lat, positions_data[p.taxi_id].lon);
+                    distance = parseFloat(newpos.distanceTo(oldpos, 2));
+                    if (distance > 0) {
+                        var distr = (distance * 1000).toString();
+                        writeLogs(["taxi #" + p.taxi_id + " moved " + ' (' + distr + "m)"]);
+                    }
+                }else{
+                    writeLogs(["new taxi: " + p.taxi_id]);
                 }
                 positions_data[p.taxi_id] = p;
                 var latLng = new google.maps.LatLng(p.lat, p.lon);
@@ -94,18 +115,17 @@
 //                        'icon': '',
                         map: map,
                         position: latLng,
-                        title: "#" + p.taxi_id,
+                        title: "taxi #" + p.taxi_id,
                         icon: "/static/images/wb_site/taxi_marker.png"
                     });
                     google.maps.event.addListener(marker, 'click', function () {
-                        console.log("click");
                         openInfoWindow(p.taxi_id);
                     });
 
                     markers[p.taxi_id] = marker;
                 }
 
-                if (active_taxi == p.taxi_id){
+                if (active_taxi == p.taxi_id && distance && distance > 0){
                     openInfoWindow(p.taxi_id); // update info window with new content
                 }
             });
@@ -114,11 +134,16 @@
             var position = positions_data[taxi_id];
             var contentString = 'taxi #' + position.taxi_id;
             if (position.ride_id) {
-                contentString += '\nassigned to ride #' + position.ride_id;
+                contentString += '<br/>assigned to ride #' + position.ride_id;
+            }
+            if (position.timestamp){
+                var datestring = '<abbr class="easydate">' + position.timestamp + '</abbr>';
+                contentString += '<br/>last update: ' + position.timestamp + ' (' + datestring + ')' ;
             }
             active_taxi = taxi_id;
             infowindow.setContent(contentString);
             infowindow.open(map, markers[taxi_id]);
+            $(".easydate").easydate();
         }
         function updateRide(fmr){
 
@@ -141,12 +166,23 @@
             $.ajax({
                 url: '{% url fleet.backends.isr_proxy.get_all_positions %}',
                 success: function(response){
+                    if ($("#show_all_taxis").is(":checked")) {
+                        if (response.positions.length) {
+                            updatePositions(response.positions);
+                        } else {
+                            writeLogs(["getAllPositions: got nothing"])
+                        }
+                    }
+                },
+                error: function(){
+                    writeLogs(["getAllPositions: error"]);
+                },
+                complete: function(response){
                     getall_ajax_active = false;
-                    if ($("#get_all_chkbx").is(":checked")){
-                        updatePositions(response.positions);
+                    if ($("#show_all_taxis").is(":checked")){
                         setTimeout(function () {
                             getAllPositions();
-                        }, 5e3);
+                        }, 2e3);
                     }
                 }
             })
@@ -165,21 +201,29 @@
             });
 
             // map tools
-            $("button.zoom_taxi").click(function () {
-                var taxi_id = parseInt($("input.zoom_taxi").val(), 10);
+            $("input.zoom_taxi").keydown(function (e) {
+                if (e.which == 13) {
+                    var taxi_id = $(this).val();
+                    zoomTaxi(taxi_id);
+                }
+            });$("button.zoom_taxi").click(function () {
+                var taxi_id = $("input.zoom_taxi").val();
                 zoomTaxi(taxi_id);
             });
-            $("#get_all_chkbx").change(function () {
-                if ($(this).is(":checked")) {
-                    renderLogs(["getAllpositions: Started"]);
+            $("[name=taxis2show]").change(function () {
+                if ($("#show_all_taxis").is(":checked")) {
+                    writeLogs(["getAllpositions: Started"]);
                     getAllPositions();
                 }
                 else{
-                    renderLogs(["getAllpositions: Stopped"]);
-                    $.each(markers, function (i, marker) {
-                        marker.setMap(null);
+                    writeLogs(["getAllpositions: Stopped"]);
+                    $.each(markers, function (taxi_id, marker) {
+                        var pos_data = positions_data[taxi_id];
+                        if (!pos_data.ride_id){
+                            marker.setMap(null);
+                        }
+                        delete markers[taxi_id];
                     });
-                    markers = {};
                 }
             });
             var channel_opened = false;
@@ -190,21 +234,21 @@
             channel = new goog.appengine.Channel(token);
             socket = channel.open();
             socket.onerror = function () {
-                log("socket: onerror");
+                writeLogs(["socket: onerror"]);
             };
             socket.onclose = function () {
-                log("socket: onclose");
+                writeLogs(["socket: onclose"]);
             };
             socket.onopen = function () {
-                log("socket: onopen", token);
+                writeLogs(["socket: onopen " + token]);
                 channel_opened = true;
             };
             socket.onmessage = function (msg) {
-                log("socket: onmessage", msg);
+                writeLogs(["socket: onmessage " + msg]);
                 try {
                     var data = $.parseJSON(msg.data);
                     if (data.logs) {
-                        renderLogs(data.logs);
+                        writeLogs(data.logs);
                     }
                     if (data.positions){
                         updatePositions(data.positions);
@@ -216,7 +260,7 @@
                         // todo
                     }
                 } catch (e) {
-                    log("error parsing: " + JSON.stringify(e), e)
+                    writeLogs(["error parsing: " + JSON.stringify(e)]);
                 }
             };
         });

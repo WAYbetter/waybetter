@@ -60,18 +60,19 @@ class FleetManagerRide(object):
 
 class TaxiRidePosition(object):
     """ An object representing the position of a taxi assigned to a ride by a fleet manager backend """
-    def __init__(self, taxi_id, ride_id, lat, lon, timestamp):
+    def __init__(self, station_id, taxi_id, ride_id, lat, lon, timestamp):
         """ Constructor.
+        @param station_id: Number
         @param taxi_id: Number
         @param ride_id: Number
         @param lat: Float
         @param lon: Float
         @param timestamp: datetime.datetime
         """
-        assert all([taxi_id, ride_id, lat, lon])
+        assert all([station_id, taxi_id, ride_id, lat, lon])
         assert timestamp is None or isinstance(timestamp, datetime.datetime)
 
-        #TODO_WB: add station_id
+        self.station_id = long(station_id)
         self.taxi_id = long(taxi_id)
         self.ride_id = long(ride_id)
         self.lat = float(lat)
@@ -79,11 +80,11 @@ class TaxiRidePosition(object):
         self.timestamp = timestamp
 
     def __str__(self):
-        return "%s: ride %s taxi %s at (%s,%s)" % (self.timestamp, self.ride_id, self.taxi_id, self.lat, self.lon)
+        return "%s: ride %s taxi %s.%s at (%s,%s)" % (self.timestamp, self.ride_id, self.station_id, self.taxi_id, self.lat, self.lon)
 
     def serialize(self):
         d = {}
-        for attr in ["taxi_id", "ride_id", "lat", "lon"]:
+        for attr in ["station_id", "taxi_id", "ride_id", "lat", "lon"]:
             d[attr] = getattr(self, attr)
         d["timestamp"] = to_js_date(self.timestamp)
         return d
