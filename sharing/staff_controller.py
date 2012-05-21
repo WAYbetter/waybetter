@@ -872,14 +872,12 @@ def birdseye_view(request):
             if o.hotspot_type == StopType.PICKUP: _from = o.hotspot.name
             if o.hotspot_type == StopType.DROPOFF: _to = o.hotspot.name
         return {'id': o.id,
-                'from': _from,
-                'to': _to,
-                'passenger_name': "%s %s" % (o.passenger.user.first_name,
-                                             o.passenger.user.last_name) if o.passenger and o.passenger.user else na,
-                'passenger_phone': o.passenger.phone if o.passenger else na,
+                'date': o.depart_time.strftime("%d/%m/%y"),
+                'depart': "%s %s" % (_from, o.depart_time.strftime("%H:%M")),
+                'arrive': "%s %s" % (_to, o.arrive_time.strftime("%H:%M")),
+                'passenger': "%s %s" % (o.passenger.full_name, o.passenger.phone) if o.passenger else na,
                 'type': OrderType.get_name(o.type),
                 'status': o.get_status_label(),
-                'time': o.depart_time.strftime("%d/%m/%y, %H:%M"),
                 'price': o.price,
                 'ride_id': o.ride_id if o.ride else na,
                 'debug': 'Yes' if o.debug else 'No'

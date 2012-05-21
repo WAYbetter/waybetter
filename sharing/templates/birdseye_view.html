@@ -123,12 +123,24 @@
     <script type="text/javascript" src="/static/js/mylibs/jquery.ui.datepicker-he.js"></script>
 
     <script type="text/javascript">
-        var fields = ["id", "time", "from", "to", "passenger_name", "passenger_phone", "type", "price", "status", "ride_id", "debug"];
+        var fields = ["id", "date", "depart", "arrive", "passenger", "type", "price", "status", "ride_id", "debug"];
+        var labels = {
+            depart: "Departure",
+            arrive: "Arrival",
+            passenger: "Passenger Details",
+            type: "OrderType"
+        };
 
         {% autoescape off %}
             var data = {{ data }};
         {% endautoescape %}
 
+        function capCase(string){
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        function getLabel(field_name){
+            return labels[field_name] || capCase(field_name);
+        }
         function toggleOrdersByStatus(status) {
             var orders = $("td:contains(" + status + ")").parent(".order");
             $.each(orders, function(i, order) {
@@ -159,7 +171,7 @@
             var $table = $('<table class="c_table collapsed" id="c_table_' + computation.id + '"></table>');
             var $thead = $('<thead></thead>').append('<tr></tr>').appendTo($table);
             $.each(fields, function(i, field_name) {
-                $thead.find("tr").append('<th>' + field_name + '</th>');
+                $thead.find("tr").append('<th>' + getLabel(field_name) + '</th>');
             });
             $.each(computation.orders, function(i, order) {
                 $table.append(renderOrderRow(order));
@@ -178,7 +190,7 @@
             var $table = $("<table></table>").attr("id", "private_orders_table").addClass("c_table");
             var $thead = $("<thead></thead>").appendTo($table);
             $.each(fields, function (i, f) {
-                $thead.append($("<th></th>").text(f));
+                $thead.append($("<th></th>").text(getLabel(f)));
             });
 
             $("#private_orders_container").append($div, $table);

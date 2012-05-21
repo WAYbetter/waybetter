@@ -63,7 +63,7 @@ def assign_ride(ride):
             ride.change_status(old_status=PENDING, new_status=ASSIGNED) # calls save()
             return work_station
 
-        except UpdateStatusError:
+        except Exception:
             notify_by_email(u"UpdateStatusError: Cannot assign ride [%s]" % ride.id, msg=ride.get_log())
 
     return None
