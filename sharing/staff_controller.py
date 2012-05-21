@@ -4,6 +4,7 @@ import gzip
 import os
 import pickle
 from django.contrib.auth.models import User
+from google.appengine.api import memcache
 from google.appengine.api.channel.channel import InvalidChannelClientIdError
 from common.geocode import gmaps_geocode, Bounds, gmaps_reverse_geocode
 from django.core.urlresolvers import reverse
@@ -1164,7 +1165,7 @@ def submit_test_computation(orders, hotspot_type_raw, params, computation_set_na
 #        yield LogPipeline(output)
 ##        yield StoreOutput("WordCount", filekey, output)
 
-TRACK_RIDES_CHANNEL_IDS = [] #TODO_WB: use memecache?
+TRACK_RIDES_CHANNEL_MEMCACHE_KEY = "track_rides_channel_memcache_key"
 #@staff_member_required
 @force_lang("en")
 def track_rides(request):
@@ -1172,8 +1173,10 @@ def track_rides(request):
     lib_map = True
 
     channel_id = get_uuid()
-    global TRACK_RIDES_CHANNEL_IDS
-    TRACK_RIDES_CHANNEL_IDS.append(channel_id)
+    cids = memcache.get(TRACK_RIDES_CHANNEL_MEMCACHE_KEY) or []
+    cids.append(channel_id)
+    memcache.set(TRACK_RIDES_CHANNEL_MEMCACHE_KEY, cids)
+
     token = channel.create_channel(channel_id)
 
 #    ongoing_rides = fleet_manager.get_ongoing_rides()
@@ -1183,8 +1186,14 @@ def track_rides(request):
 
 def _log_fleet_update(json):
     logging.info("fleet update: %s" % json)
-    for cid in TRACK_RIDES_CHANNEL_IDS:
+    cids = memcache.get(TRACK_RIDES_CHANNEL_MEMCACHE_KEY) or []
+    live_cids = []
+
+    for cid in cids:
         try:
             channel.send_message(cid, json)
+            live_cids.append(cid)
         except InvalidChannelClientIdError, e:
-            logging.warning(e.message)
+            pass
+
+    memcache.set(TRACK_RIDES_CHANNEL_MEMCACHE_KEY, live_cids)
