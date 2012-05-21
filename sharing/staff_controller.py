@@ -867,9 +867,13 @@ def birdseye_view(request):
     order_status_labels = [label for (key, label) in ORDER_STATUS]
 
     def serialize(o):
+        _from, _to = o.from_raw, o.to_raw
+        if o.hotspot:
+            if o.hotspot_type == StopType.PICKUP: _from = o.hotspot.name
+            if o.hotspot_type == StopType.DROPOFF: _to = o.hotspot.name
         return {'id': o.id,
-                'from': o.from_raw,
-                'to': o.to_raw,
+                'from': _from,
+                'to': _to,
                 'passenger_name': "%s %s" % (o.passenger.user.first_name,
                                              o.passenger.user.last_name) if o.passenger and o.passenger.user else na,
                 'passenger_phone': o.passenger.phone if o.passenger else na,
@@ -878,7 +882,7 @@ def birdseye_view(request):
                 'time': o.depart_time.strftime("%d/%m/%y, %H:%M"),
                 'price': o.price,
                 'ride_id': o.ride_id if o.ride else na,
-                'debug': 'debug' if o.debug else ''
+                'debug': 'Yes' if o.debug else 'No'
         }
 
     def f(start_date, end_date):
