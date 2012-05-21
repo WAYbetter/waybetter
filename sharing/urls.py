@@ -1,8 +1,4 @@
 from django.conf.urls.defaults import *
-# manual loading so signal receivers code is evaluated
-from sharing.sharing_dispatcher import ride_created
-from sharing.passenger_controller import send_ride_notifications, on_billing_trx_approved
-from sharing.staff_controller import log_fmr_update, log_positions_update, log_ride_status_update
 
 urlpatterns = patterns('',
     (r'^gmaps/$', 'sharing.staff_controller.gmaps'),

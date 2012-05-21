@@ -37,7 +37,6 @@ def _async_calc_hotspot_pricing_overview(hotspot, channel_id, token):
     except Exception:
         async_computation_failed_signal.send(sender="hotspot_pricing_overview", channel_id=channel_id)
 
-    from common.views import async_computation_complete_handler
     async_computation_completed_signal.send(sender="hotspot_pricing_overview", channel_id=channel_id, data=data, token=token)
 
 @mute_logs(logging.ERROR)
