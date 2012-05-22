@@ -10,7 +10,6 @@ bookTestRide = function (time) {
         lat:32.058662,
         lon:34.78742,
         num_seats:"1",
-        ride_duration:735,
         street_address:"מרגולין",
         time_type:"pickup"
     };

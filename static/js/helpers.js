@@ -5,6 +5,7 @@ var BookingHelper = Object.create({
     hotspot_type: undefined,
     ride_date: undefined,
     ride_time: undefined,
+    ride_price: undefined,
     order_type: undefined,
     messages: {}
 });
@@ -268,7 +269,6 @@ var HotspotHelper = Object.create({
 
     hotspots: [],
     MapHelper: undefined,
-    ride_duration: undefined,
 
     init: function(config) {
         this.config = $.extend(true, {}, this.config, config);
@@ -341,15 +341,11 @@ var HotspotHelper = Object.create({
             dataType: "json",
             data: $.extend(true, {'day': $datepicker.val(), 'hotspot_id': $hotspotpicker.val()}, options.data),
             beforeSend: function() {
-                that.ride_duration = undefined;
                 if (options.beforeSend) {
                     options.beforeSend();
                 }
             },
             success: function(response) {
-                if (response.ride_duration) {
-                    that.ride_duration = response.ride_duration;
-                }
                 options.success(response);
 
             },
@@ -1011,7 +1007,7 @@ var GoogleMapHelper = Object.create({
         map_options:{
             zoom:14
         },
-        traffic: true
+        traffic: false
     },
     mapready:false,
     markers: {},

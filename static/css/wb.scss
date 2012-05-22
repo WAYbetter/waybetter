@@ -1091,6 +1091,9 @@ Home
     }
     #disclaimer{
     }
+    .pac-item{
+        padding: 5px inherit;
+    }
     #booking_content_container{
         $booking-container-width: 800px;
         $booking-container-height: 255px;
@@ -1106,26 +1109,6 @@ Home
             background: url(/static/images/wb_site/wb_loader30.gif) center center no-repeat;
             height: 100%;
             width: 100%;
-        }
-
-        #savings{
-            position: absolute;
-            right: -22px;
-            top: 20px;
-            width: 135px;
-            height: 74px;
-            background: url("/static/images/wb_site/ribbon.png") 0 0 no-repeat;
-            .content{
-                margin: 0 auto;
-                padding-left: 5px;
-                text-align: center;
-                line-height: 45px;
-            }
-            .label, .value{
-                color: white;
-                font-weight: bold;
-                font-size: $font-size-header1;
-            }
         }
 
         #booking_content{
@@ -1173,17 +1156,18 @@ Home
 
         .booking_step{
             width: 100%;
+            height: 180px;
             padding-top: 30px;
-            padding-bottom: 35px;
+            padding-bottom: 10px;
             table{
                 margin: 0 auto;
                 width: 100%;
-                border-spacing: 20px 3px;
+                border-spacing: 15px 3px;
                 .wb_button, .small-loader {
                     display: inline-block;
                 }
             }
-            .cntr.btn{ width: 165px; padding-top: 22px;}
+            .cntr.btn{ width: 165px; }
             label{
                 display: block;
                 color:  #393939;
@@ -1195,10 +1179,8 @@ Home
             }
             .title{
                 height: 20px;
-                margin-bottom: 20px;
                 font-weight: bold;
                 font-size: $font-size-header1;
-                text-align: center;
                 color: $color-pink;
             }
             input{ height: $el_height; font-size: $font-size-large}
@@ -1210,7 +1192,11 @@ Home
             padding-bottom: 10px;
             width: $booking-container-width - 2 * 30;
 
-            .cntr.select{ width: 600px; margin: 0 auto; padding-left: 45px;}
+            .cntr.select, .title{ width: 600px; margin: 0 auto; padding-left: 45px;}
+            .title{
+                margin-bottom: 10px;
+                margin-top: 12px;
+            }
             #id_hotspot_select{ width: 550px; }
             #qm_votespot{
                 display: inline-block;
@@ -1233,46 +1219,69 @@ Home
             padding-right: 45px;
             padding-left: 45px;
             width: $booking-container-width - 2 * 45;
-            #id_street_address{
-                width: 100%;
+            .title{
+                padding: 0 15px;
+                margin: 30px auto 7px auto;
             }
-            .cntr.street{
-                position: relative;
-                /* no set width -> scales nicely */
+            #id_street_address{
+                width: 501px;
+            }
+            #street_help_text{
+                padding-top: 6px;
+                font-size: $font-size-medium;
             }
         }
         #datetime_content{
-            padding-bottom: 10px;
+            padding-top: 15px;
             .title{
                 height: auto;
                 text-align: inherit;
                 margin-bottom: 5px;
             }
             .sms-info{ margin-bottom: 20px; }
-            .cntr.date{ width: 220px; }
-            .cntr.btn{ padding-top: 40px; }
-            #id_hotspot_datepicker{ width: 150px; }
-            #intervals_list{
-                height: 170px;
+            .cntr.date, .cntr.btn{ width: 33% }
+            .cntr.datepicker{ position: absolute; top: 90px; }
+            .cntr.btn{ vertical-align: middle; text-align: center;}
+            #id_hotspot_datepicker{ width: 170px; }
+            #set_datetime{ width: 135px; }
+            #intervals_container{
+                height: 180px;
                 overflow-y: scroll;
-                border: 1px solid gray;
+                border: 1px solid #d3d3d3;
+            }
+            #intervals_list{
+                height: inherit;
                 .interval{
-                    height: 30px;
-                    padding: 3px;
+                    position: relative;
+                    width: 290px;
+                    height: 41px;
+                    padding: 3px 11px;
                     border-bottom: 1px solid $light-gray;
                 }
-                .interval.selected, .interval:hover{ background: #add8e6; }
+                .interval:hover{ background: #E8E8E8; }
+                .interval.selected { background: #C9EEFA; }
                 .interval.disabled:hover{ background: none; }
 
-                .interval .price{display: block; text-align: center;}
-                .popularity-bar, .popularity-fill{ height: 10px; }
-                .popularity-label{ padding: 5px; }
+                .interval .time{
+                    position: relative;
+                    top: 10px;
+                    font-size: $font-size-large;
+                }
+                .interval .price{
+                    display: block; text-align: center;
+                    font-size: $font-size-large; color: $color-gray;
+                }
+                .pop-cntr{
+                    position: relative;
+                    top: 2px;
+                }
+                .popularity-bar, .popularity-fill{ height: 14px; }
+                .popularity-label{ padding: 5px; font-size: $font-size-medium; color: $color-gray; }
                 .popularity-bar{
                     background: $light-gray;
                     @include box-shadow(inset 0px 2px 4px 0px rgba(0, 0, 0, 0.55));
                 }
                 .popularity-fill{
-                    position: relative; bottom: 1px;
                     background: #196338; /* Old browsers */
                     background: -moz-linear-gradient(top, #196338 0%, #2aa338 12%, #22843d 100%); /* FF3.6+ */
                     background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#196338), color-stop(12%,#2aa338), color-stop(100%,#22843d)); /* Chrome,Safari4+ */
@@ -1303,9 +1312,7 @@ Home
                 padding: 1px;
                 margin: 2px 0 12px 0;
                 @extend .clickable;
-                p{
-                    margin: 2px;
-                }
+                p{ margin: 2px; }
             }
             .data:hover{
                 border-color: #838383;
@@ -1339,28 +1346,13 @@ Home
         #ride_details{
             position: absolute;
             right: 41px;
-            top: 30px;
+            top: 40px;
             width: 435px;
-            #offer{
-                .price, .time{
-                    height: 35px;
-                    width: auto;
-                    margin: 10px auto 22px auto;
-                    border-bottom: 1px solid $light-gray;
-                    border-spacing: 1px 1px;
-                }
-                .price{padding: 0 15px;}
-                .time{padding: 0 30px;}
-                .offer-row{
-                    vertical-align: bottom;
-                }
-                .offer-pre{ text-align: right; color: #4d4d4d; }
-                .offer-val{ text-align: center; font-weight:bold; line-height: 12px; padding: 0 3px;}
-                .offer-val .value{ font-size: 45px;  }
-                .price .offer-val .label{ font-size: 38px;  }
-                .time .offer-val .label{ font-size: 20px;  }
-                .offer-post{ text-align: left; color: $dark-gray; font-weight:bold; }
-            }
+            text-align: center;
+            #sharing_price .text{ font-size: 20px; }
+            #sharing_price .value{ font-size: 45px; }
+            #sharing_price .label{ font-size: 38px; }
+            #guarantee_text{ font-size: $font-size-medium; padding: 6px 0 20px 0;}
             #book_ride{
                 display: block;
                 width: 400px;
@@ -1423,18 +1415,11 @@ Home
     .booking_step{ direction: rtl; }
 
     #booking_content_container{
-            #savings{
-                right: auto;
-                left: -22px;
-                background: url("/static/images/wb_site/ribbon_rtl.png") right 0 no-repeat;
-                .content{
-                    padding-left: 0;
-                    padding-right: 5px;
-                }
-            }
+            #intervals_container{ direction: ltr; }
+            #intervals_list{ direction: rtl; }
 
             #hotspot_content{
-                .cntr.select{ padding-left: 0; padding-right: 45px;}
+                .cntr.select, .title{ padding-left: 0; padding-right: 45px;}
                 td.first{text-align:left;}
                 td.second{text-align:right;}
             }
@@ -1464,10 +1449,6 @@ Home
                 right: auto;
                 left: 41px;
                 $width: 330px;
-                #offer{
-                    .offer-pre{ text-align: left; }
-                    .offer-post{ text-align: right; }
-                }
             }
     }
 
