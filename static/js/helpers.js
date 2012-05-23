@@ -705,6 +705,7 @@ var GoogleGeocodingHelper = Object.create({
     reverseGeocodeToPickupAddress: function(lat, lon, id_textinput, callback) {
         var that = this;
         that._pendingReverseGeocodeCallback = callback;
+        $.mobile.showPageLoadingMsg();
         that.reverseGeocode(lat, lon, function(results, status) {
             var res = null;
             if (status == google.maps.GeocoderStatus.OK && results.length) {
@@ -712,6 +713,7 @@ var GoogleGeocodingHelper = Object.create({
 //                that._pendingReverseGeocodeCallback = undefined;
             }
 
+            $.mobile.hidePageLoadingMsg();
             if (res) {
                 if (res.valid) {
                     callback(res.address);
@@ -1010,6 +1012,7 @@ var GoogleMapHelper = Object.create({
         traffic: false
     },
     mapready:false,
+    do_drag: false,
     markers: {},
     info_bubbles: {},
 
@@ -1617,7 +1620,7 @@ var MobileHelper = Object.create({
 
     },
 
-    getMyRidesData: function(options, list_selector, ride_page_selector) {
+    getMyRidesData: function(options, list_selector) {
         var that = this;
         var $list = $(list_selector);
 
@@ -1643,7 +1646,7 @@ var MobileHelper = Object.create({
                         $li_a.append("<p>" + that.config.labels.dropoff + ": "+ ride.to + "</p>");
                         $li_a.append("<p>" + that.config.labels.price + ": "+ ride.price + " &#8362;</p>");
                         $li_a.click(function() {
-                            that.showRideStatus(ride, ride_page_selector);
+                            that.showRideStatus(ride);
                         });
 
                         var $li_ride = $('<li data-icon="arrow-l"></li>').attr("id", "ride_li_" + ride.id).append($li_a);

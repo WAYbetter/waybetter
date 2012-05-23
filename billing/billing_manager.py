@@ -112,6 +112,7 @@ def get_billing_redirect_url(request, order, passenger):
         if order:
             billing_trx = BillingTransaction(order=order, amount=order.price, debug=order.debug)
             billing_trx.save()
+            billing_trx.commit()
             return reverse("bill_order", args=[billing_trx.id])
         else:
             return reverse("wb_home")
