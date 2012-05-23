@@ -4,13 +4,6 @@
 {% block extrastyle %}
     {{ block.super }}
     <style>
-        .address_type_indicator {
-            font-style: italic;
-            font-weight: normal;
-            font-size: 12px;
-            margin: 0 5px;
-        }
-
         .err_msg {
             color: red;
         }
@@ -36,9 +29,6 @@
             text-align: center;
         }
 
-        #select_hotspot {
-
-        }
         #select_hotspot_help {
             background-position: 0 -117px;
         }
@@ -285,6 +275,40 @@
 
     }
 
+    /*  JQM scroll hack */
+        /**.ui-listview *.ui-btn-up-c,*/
+        /**.ui-listview *.ui-btn-down-c,*/
+        /**.ui-listview *.ui-btn-hover-c*/
+          /*{*/
+          /* Copy your .ui-btn-up styles here */
+          /*}*/
+        /**.ui-listview *.ui-btn-up-a,*/
+        /**.ui-listview *.ui-btn-down-a,*/
+        /**.ui-listview *.ui-btn-hover-a*/
+          /*{*/
+            /*border: 1px solid #bfbfbf;*/
+            /*background: #eee;*/
+            /*font-weight: bold;*/
+            /*color: #424242;*/
+            /*text-shadow: 0 1px 1px #f6f6f6;*/
+            /*background-image: -webkit-gradient(linear, left top, left bottom, from(#FFFFFF), to(#ffffff));*/
+            /*background-image: -webkit-linear-gradient(#FFFFFF, #ffffff);*/
+            /*background-image: -moz-linear-gradient(#FFFFFF, #ffffff);*/
+            /*background-image: -ms-linear-gradient(#FFFFFF, #ffffff);*/
+            /*background-image: -o-linear-gradient(#FFFFFF, #ffffff);*/
+            /*background-image: linear-gradient(#FFFFFF, #ffffff);*/
+        /*}*/
+
+        /*.ui-btn-up-a a.ui-link-inherit {*/
+            /*color: #424242;*/
+            /* Copy your .ui-btn-up styles here */
+          /*}*/
+        /**.ui-listview *.ui-btn-up-b,*/
+        /**.ui-listview *.ui-btn-down-b,*/
+        /**.ui-listview *.ui-btn-hover-b*/
+          /*{*/
+          /* Copy your .ui-btn-up styles here */
+          /*}*/
     </style>
 {% endblock %}
 
@@ -337,7 +361,7 @@
 {% endblock %}
 
 {% block doc_ready %}
-    {{ block.super }}
+{#    {{ block.super }}#}
     {% if DEV %}
         <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
     {% else %}
@@ -347,7 +371,7 @@
     <script defer="defer">
     //<![CDATA[
     var hotspots                = [];
-    
+
     var choose_pickup_time_msg  = "{% trans 'Choose Pickup Time' %}";
     var choose_dropoff_time_msg = "{% trans 'Choose Dropoff Time' %}";
     var pickup_time_msg         = "{% trans 'Pickup Time' %}";
@@ -399,38 +423,9 @@
             text = MobileHelper.num_seats + " " + label;
         }
         $("#numseats_btn h1").text(text);
-        $("#ride_details_page .more_details .numseats").text(text);
-    }
-
-    function resetAddress() {
-        MobileHelper.address = undefined;
-        $("#choose_address_btn").find(".header").text("{% trans 'Enter Address' %}");
-        $("#address-form")[0].reset();
-    }
-    function populateAddressFields(address){
-        $("#id_city").val(address.city).selectmenu().selectmenu('refresh');
-        $("#id_street").val(address.street_address);
-        $("#id_house_number").val(address.house_number);
-        $("#address_page button").button().button("enable");
     }
 
     // TODO_WB: check hotspot_type to decide where the updated text should go
-    function selectAddress(address) {
-        var city_ids = $.map(MobileHelper.sharing_cities, function(el, i) {
-            return el.id;
-        });
-
-        if ($.inArray(address.city, city_ids) < 0) {
-            return; // no service in this city
-        }
-
-        log("select address");
-        MobileHelper.address = address;
-        $("#choose_address_btn").find(".header").text(address.name);
-        populateAddressFields(address);
-
-        getIntervals(false, true);
-    }
 
     function resetHotspot() {
         MobileHelper.hotspot = undefined;
@@ -497,13 +492,13 @@
                 $.each(prev_rides, function(i, data) {
                     $.each(['from', 'to'], function(i, address_type) {
                         if (! (data[address_type] in used_addresses)) {
-                            used_addresses[data[address_type]] = true;    
+                            used_addresses[data[address_type]] = true;
                             addresses.push({
                                 name : data[address_type],
                                 lon  : data[address_type + "_lon"],
                                 lat  : data[address_type + "_lat"]
                             });
-                        }                        
+                        }
                     });
                 });
 
@@ -512,14 +507,14 @@
                     $item.click(function() {
                         dismissHistoryList();
                         updateAddress($(this).jqmData("address"));
-                    });     
+                    });
                 });
 
                 $history_list.show();
             });
         }
     }
-    
+
     function bookRide(is_private) {
         var $form = $("<form></form>");
 
@@ -537,7 +532,7 @@
             order_type     : MobileHelper.order_type,
             ride_duration  : HotspotHelper.ride_duration,
             street_address : MobileHelper.address.street_address,
-            time_type      : MobileHelper.hotspot_type,
+            time_type      : MobileHelper.hotspot_type
         };
 
         $.each(hidden_inputs, function(k, v) {
@@ -577,28 +572,6 @@
                 // TODO_WB: show error message/redirect to error page
                 showError("{% trans 'We have encountered an error handling your order. Please try again'%}");
                 $(".order_button").enable();
-            }
-        });
-    }
-
-    function chooseHotspotViaCurrentLocation() {
-        MobileHelper.getCurrentLocation({
-            locationSuccess: function(p) {
-                var current_location_hotspot = undefined;
-                $.each(hotspots, function(i, hs) {
-                    if (MobileHelper.distance(p.coords.latitude, p.coords.longitude, hs.lat, hs.lon) <= hs.radius) {
-                        log("IN HOTSPOT", hs, hs.radius);
-                        current_location_hotspot = hs;
-                        return false; //break
-                    }
-                });
-
-                if (current_location_hotspot) {
-                    selectHotspot(current_location_hotspot);
-                    resetAddress();
-                } else {
-                    MobileHelper.resolveLonLat(p.coords.longitude, p.coords.latitude, {onNewAddress: selectAddress});
-                }
             }
         });
     }
@@ -735,10 +708,77 @@
             $.mobile.changePage("#address_input_page");
         }
     }
+    function setupMapEvents() {
+        // hide error dialog of it's visible
+        google.maps.event.addListener(GoogleMapHelper.map, 'mousedown', function() {
+            $("#error_dialog:visible").fadeOut('fast');
+        });
+
+        google.maps.event.addListener(GoogleMapHelper.map, 'dragstart', function() {
+            if ($.mobile.activePage.attr("id") != "address_input_page") return; // work only on address_input_page
+            log("drag start");
+            GoogleMapHelper.setMarkersVisibility(false);
+            $("#center_target").show();
+
+            GoogleMapHelper.do_drag = true;
+        });
+
+        google.maps.event.addListener(GoogleMapHelper.map, 'dragend', function() {
+            if ($.mobile.activePage.attr("id") != "address_input_page") return; // work only on address_input_page
+
+            log("drag end");
+            $("#center_target").hide();
+            if (GoogleMapHelper.do_drag) {
+                clearAddressInput();
+                var center = GoogleMapHelper.map.getCenter();
+                var input_id = "#gac";
+                GoogleGeocodingHelper.reverseGeocodeToPickupAddress(center.lat(), center.lng(), input_id, updateAddress);
+            } else {
+                GoogleMapHelper.showMarkersByName("address");
+            }
+        });
+
+        google.maps.event.addListener(GoogleMapHelper.map, 'zoom_changed', function() {
+            if ($.mobile.activePage.attr("id") != "address_input_page") return; // work only on address_input_page
+
+            log("zooom_changed");
+            GoogleMapHelper.do_drag = false; // this was a zoom operation
+            $.mobile.hidePageLoadingMsg();
+        });
+    }
+    function initGoogle() {
+        GoogleMapHelper.init({
+            map_element: 'map_canvas',
+            map_options:{
+                center:new google.maps.LatLng(32.115985, 34.835441),
+                scrollwheel: false,
+                streetViewControl: false,
+                keyboardShortcuts: false,
+                mapTypeControl: false,
+                zoomControl: true,
+                mapTypeId:google.maps.MapTypeId.ROADMAP
+            }
+        });
+
+        GoogleGeocodingHelper.newPlacesAutocomplete({
+            id_textinput: "gac",
+            map: GoogleMapHelper.map,
+            onValidAddress:function (address) {
+                gac_dirty = false;
+                updateAddress(address);
+            },
+            onMissingStreetNumber: handleMissingHouseNumber,
+
+            onNoValidPlace:function () {
+                log("onNoValidPlace");
+            }
+        });
+
+        setupMapEvents();
+    }
     function init() {
         var gac_dirty = false;
         var gac_clean_value = undefined;
-        var do_drag = false; // check if user is using or dragging
 
         $("#gac").keydown(function(e) {
             log("gac keydown event", gac_dirty, gac_clean_value);
@@ -854,87 +894,10 @@
                         }
                     }
                 });
-//                chooseHotspotViaCurrentLocation();
             }
         });
 
-//        HotspotHelper.getIntervals({
-//            data: {
-//                hotspot_type: MobileHelper.hotspot_type,
-//                lat: MobileHelper.address.lat,
-//                lon: MobileHelper.address.lon
-//            },
-//            success: function(data) {
-//
-//            }
-//        });
-
-        GoogleMapHelper.init({
-            map_element: 'map_canvas',
-            map_options:{
-                center:new google.maps.LatLng(32.115985, 34.835441),
-                scrollwheel: false,
-                streetViewControl: false,
-                keyboardShortcuts: false,
-                mapTypeControl: false,
-                zoomControl: true,
-                mapTypeId:google.maps.MapTypeId.ROADMAP
-            }
-        });
-
-        var id_address_input = "gac";
-        var address_ac = GoogleGeocodingHelper.newPlacesAutocomplete({
-            id_textinput: id_address_input,
-            map: GoogleMapHelper.map,
-//            beforePlaceChange: function(){
-//            },
-            onValidAddress:function (address) {
-                gac_dirty = false;
-                updateAddress(address);
-            },
-            onMissingStreetNumber: handleMissingHouseNumber,
-
-            onNoValidPlace:function () {
-                log("onNoValidPlace");
-            }
-        });
-
-        // hide error dialog of it's visible
-        google.maps.event.addListener(GoogleMapHelper.map, 'mousedown', function() {
-            $("#error_dialog:visible").fadeOut('fast');
-        });
-
-        google.maps.event.addListener(GoogleMapHelper.map, 'dragstart', function() {
-            if ($.mobile.activePage.attr("id") != "address_input_page") return; // work only on address_input_page
-
-            log("drag start");
-            GoogleMapHelper.setMarkersVisibility(false);
-            $("#center_target").show();
-
-            do_drag = true;
-        });
-
-        google.maps.event.addListener(GoogleMapHelper.map, 'dragend', function() {
-            if ($.mobile.activePage.attr("id") != "address_input_page") return; // work only on address_input_page
-
-            log("drag end");
-            $("#center_target").hide();
-            if (do_drag) {
-                clearAddressInput();
-                var center = GoogleMapHelper.map.getCenter();
-                var input_id = "#" + id_address_input;
-                GoogleGeocodingHelper.reverseGeocodeToPickupAddress(center.lat(), center.lng(), input_id, updateAddress);
-            } else {
-                GoogleMapHelper.showMarkersByName("address");
-            }
-        });
-
-        google.maps.event.addListener(GoogleMapHelper.map, 'zoom_changed', function() {
-            if ($.mobile.activePage.attr("id") != "address_input_page") return; // work only on address_input_page
-
-            log("zooom_changed");
-            do_drag = false; // this was a zoom operation
-        });
+        initGoogle();
 
         $("#booking_page").bind("pagebeforeshow", function() {
             var first_selector, second_selector;
@@ -981,31 +944,47 @@
         });
 
         $("#address_input_page").bind("pagebeforeshow", function() { // page-before-show
+            var title;
             if (! MobileHelper.address) {
                 $(this).find("button").disable();
             }
+
+            if (MobileHelper.hotspot_type == "pickup") {
+                title = "כתובת מוצא";
+            } else {
+                title = "כתובת יעד";
+            }
+
+            $(this).find("h1").text(title);
+
+        }).bind("pageshow", function () {
             var map_div = GoogleMapHelper.map.getDiv();
             $(".map_container", $(this)).append(map_div);
+            $(map_div).show();
             GoogleMapHelper.showMarkersByName("address");
-
         }).bind("pagebeforehide", function() { // page-before-hide
+            var map_div = GoogleMapHelper.map.getDiv();
+            $(map_div).hide();
             dismissHistoryList();
         });
 
 
         $("#select_hotspot_page").bind("pagebeforeshow", function() {
-            var map_div = GoogleMapHelper.map.getDiv();
-            $(".map_container", $(this)).append(map_div);
-
             if (! MobileHelper.hotspot) {
                 $(this).find("button").set_button_text("-").disable();
                 showHotspot(hotspots[0]);
             } else {
                 showHotspot(MobileHelper.hotspot);
             }
-
-        }).bind("pageaftershow", function() {
+        }).bind("pageshow", function() {
+            var map_div = GoogleMapHelper.map.getDiv();
+            $(".map_container", $(this)).append(map_div);
+            $(map_div).show();
+            google.maps.event.trigger(GoogleMapHelper.map, 'resize');
             GoogleMapHelper.showMarkersByName("hotspot");
+        }).bind("pagebeforehide", function () {
+            var map_div = GoogleMapHelper.map.getDiv();
+            $(map_div).hide();
         });
 
         $("#select_time_page").bind("pagebeforeshow", function() {
@@ -1032,11 +1011,6 @@
         {% block init %}{% endblock %}
 
         // booking page
-        $("#choose_time_btn").live("click", function() { // use live, see updateChooseTimesButton
-            if ($(this).closest("li").attr("data-theme") != "e") {
-                $.mobile.changePage("#interval_page");
-            }
-        });
 
         $("#gac").bind("keyup", function() {
             if ($(this).val()) {
@@ -1060,39 +1034,11 @@
             bookRide();
         });
 
-        $("#reset_booking_page").click(function() {
-            resetAddress();
-            resetHotspot();
-            resetIntervals();
-            resetSeats();
-            $("#calculate_ride_btn").button("disable");
-//            chooseHotspotViaCurrentLocation();
-        });
-
         // numseats page
         $(".choose-numseats").click(function(){
             MobileHelper.num_seats = $(this).data("numseats");
             renderNumseats();
         });
-
-        // address page
-        $("#address_page").bind("pagebeforeshow", function(e, data) {
-            if (MobileHelper.address) {
-                $("#id_street").val(MobileHelper.address.street_address);
-                $("#id_house_number").val(MobileHelper.address.house_number);
-            }
-            $("#address_page button").button().button("enable");
-        });
-        $("#address_page input").keyup(
-                function() {
-                    var valid = Boolean($("#id_house_number").val() && $("#id_street").val());
-                    if (valid) {
-                        $("#address_page button").button().button("enable");
-                    }
-                    else {
-                        $("#address_page button").button().button("disable");
-                    }
-                }).trigger("keyup");
 
         $("#gps_btn").click(function() {
             $(this).addClass("active");
@@ -1106,76 +1052,11 @@
             MobileHelper.updateMyRidesBubble("#myrides_btn");
         });
 
-        // intervals page
-        $("#ride-date").change(function() {
-            getIntervals(false);
-        });
-
-        $("#interval_page").bind("pagebeforeshow", function(e, data) {
-            if (MobileHelper.ride_date) {
-                $("#ride-date").val(MobileHelper.ride_date);
-            }
-            if (MobileHelper.ride_time) {
-                $("#ride-time").val(MobileHelper.ride_time);
-            }
-            $("#ride-date").selectmenu("refresh");
-            $("#ride-time").selectmenu("refresh");
-        });
-        $("#select-interval-form").submit(function() {
-            MobileHelper.ride_date = $("#ride-date").val();
-            MobileHelper.ride_time = $("#ride-time").val();
-            if (MobileHelper.ride_date && MobileHelper.ride_time) {
-                $("#ride-date").jqmData("saved_val", MobileHelper.ride_date);
-                $("#ride-time").jqmData("saved_val", MobileHelper.ride_time);
-                var msg = window[MobileHelper.hotspot_type + "_time_msg"];
-                $("#choose_time_btn").find(".desc").text($("#ride-date :selected").text() + " " + MobileHelper.ride_time);
-                $("#choose_time_btn").find(".header").text(msg + ": ");
-                $("#calculate_ride_btn").button("enable");
-            } else {
-                $("#calculate_ride_btn").button("disable");
-            }
-
-            return false;
-        });
-        $("#select-interval-form button").click(function() {
-            $("#select-interval-form").submit();
-            $.mobile.changePage("#booking_page");
-            return false;
-        });
-
         // choose ride page
         $(".order_button").disable();
-        $("#book_sharing").click(function() {
-            bookRide(false);
-        });
-
-        $("#book_private").click(function() {
-            bookRide(true);
-        });
-        $("#choose_ride_page").bind("pagebeforeshow", function(e, data) {
-            if ((data.prevPage.attr("id") == "login_or_register_page")) {
-                $(".order_button").enable();
-            }
-        });
 
         $("#select_hotspot_help").click(function() {
             $.mobile.changePage("#select_hotspot_help_page");
-        });
-
-        // ride details page
-        $("#ride_details_page").bind("pagebeforeshow", function() {
-            if (MobileHelper.address && MobileHelper.hotspot && MobileHelper.ride_date && MobileHelper.ride_time) {
-                $("#ride_details_page .address .name").text(MobileHelper.address.name);
-                $("#ride_details_page .address .desc").text("");
-                $("#ride_details_page .hotspot .name").text(MobileHelper.hotspot.name);
-                $("#ride_details_page .hotspot .desc").text(MobileHelper.hotspot.description);
-                $("#ride_details_page .when p").text(MobileHelper.ride_date + " " + MobileHelper.ride_time);
-                if (MobileHelper.hotspot_type == "pickup") {
-                    $("#ride_details_page .when .details_label_type").text(pickup_time_msg);
-                } else {
-                    $("#ride_details_page .when .details_label_type").text(dropoff_time_msg);
-                }
-            }
         });
 
         // my rides page
@@ -1188,10 +1069,10 @@
             }
         });
         $("#upcoming_rides_btn").click(function() {
-            MobileHelper.getMyRidesData({get_next_rides: true}, "#rides_list", "#ride_details_page");
+            MobileHelper.getMyRidesData({get_next_rides: true}, "#rides_list");
         });
         $("#ride_history_btn").click(function() {
-            MobileHelper.getMyRidesData({get_previous_rides: true}, "#rides_list", "#ride_details_page");
+            MobileHelper.getMyRidesData({get_previous_rides: true}, "#rides_list");
         });
 
         {% block sharing_link %}
@@ -1294,17 +1175,17 @@
             <button data-theme="d" id="get_to_hs_btn">Get To</button>
         </div>
     </div>
+
     <div id='select_hotspot_help_page' data-role="dialog" data-overlay-theme="a">
         <div data-role="header">
             <h1>מה זה HotSpot?</h1>
         </div>
         <div data-role="content">
             <p>
-                Lorem ipsum dolor sit amet, consectetur adipiscing elit. Duis facilisis blandit massa. Nullam in lectus sit amet orci tempor adipiscing. Sed aliquet, lacus at auctor placerat, nibh nisi convallis ante, sed dictum orci nisl quis tellus. Mauris leo nunc, rhoncus in tempor euismod, pharetra sed elit. In et porttitor nibh. Vivamus mollis dictum fermentum. Nunc a turpis id turpis cursus gravida eget sit amet justo. Duis sit amet auctor nisl. Cras dapibus sapien nec eros sodales at hendrerit erat eleifend. Fusce posuere rhoncus neque mattis tincidunt. Curabitur malesuada porta justo eget tempor. Proin ullamcorper facilisis dolor a venenatis. In eleifend purus sit amet lorem feugiat vitae faucibus est varius. Vivamus tincidunt nibh nec magna consequat ac congue augue sollicitudin. Morbi bibendum, enim non accumsan ultricies, massa leo sagittis sem, eu luctus urna velit sit amet erat.
+                ‏‫HotSpots הם מקומות או אירועים בהם WAYbetter פועלת ומציעה נסיעות במחירים מוזלים בזכות הנוסעים הרבים החולקים מוניות‬
             </p>
-
-            <a href="#" data-theme="d" data-rel="back" data-role="button">Close</a>
-
+            <a href="mailto:support@waybetter.com" data-theme="d" data-rel="back" data-role="button">‫הצע HotSpot‬</a>
+            <a href="#" data-theme="b" data-rel="back" data-role="button">Close</a>
         </div>
     </div>
 
@@ -1330,6 +1211,7 @@
             <button id="select_address_btn" data-theme="d">המשך</button>
         </div>
     </div>
+
     <div id="select_time_page" data-role="page">
         <div data-role="header">
             <h1>זמן איסוף</h1>
@@ -1343,7 +1225,7 @@
                     בחר שעת איסוף
                 </h4>
             </div>
-            <div id="list_container">
+{#            <div id="list_container">#}
                 <ul data-role="listview" id="interval_list">
                     <li>
                         <div class="popularity_container">
@@ -1366,13 +1248,14 @@
                         <a href="#">08:20 - 08:40</a>
                     </li>
                 </ul>
-            </div>
+{#            </div>#}
         </div>
     </div>
+
     <div id="startup_message" data-role="page"></div>
+
     <div id="booking_page" data-role="page" data-theme="a">
         <div data-role="header">
-            <a href="#" id="reset_booking_page" data-icon="wb_reset" data-theme="h" data-iconpos="notext" data-transition="pop"></a>
             <h1>{% trans 'Your WAY' %}</h1>
             <a href="#home" data-icon="wb_custom" data-theme="h" data-iconpos="notext" data-transition="pop"></a>
 
@@ -1425,7 +1308,7 @@
             <button type="button" id="calculate_ride_btn" data-theme="d">הזמן נסיעה</button>
         </div>
     </div>
-    
+
     <div id="welcome_page" data-role="page" data-theme="a">
         <div data-role="header" class="wb-header"></div>
         <div data-role="content" class="center">
@@ -1498,50 +1381,6 @@
         </div>
     </div>
 
-    <div id="choose_ride_page" data-role="page" data-theme="a">
-        <div data-role="header">
-            <a href="#" data-rel="back" class="ui-btn-right" data-theme="h">{% trans "Back" %}</a>
-
-            <h1>{% trans 'Your WAY' %}</h1>
-            {#            <a href="#">{% trans 'Map' %}</a>#}
-        </div>
-        <div data-role="content">
-            <div class="order-details-link">
-                <a href="#ride_details_page" data-transition="flip">
-                    {% trans 'View Order Details' %}
-                </a>
-            </div>
-            {% csrf_token %}
-
-            <div class="ride_summary">
-                <div class="ride_discount"></div>
-                <h3 class="shared">{% trans "Shared Taxi Ride" %}</h3>
-
-                <div class="details">
-                    <p id="sharing_price" class="price">{% trans "Fixed Ride Price" %}: <span class="value">0</span>
-                        <span class="label"> ₪</span></p>
-
-                    <p id="sharing_time" class="time">{% trans "Est. Ride Duration" %}: <span
-                            class="value">0</span> {% trans "min" %}</p>
-                </div>
-                <button id="book_sharing" class="order_button" data-theme="d">{% trans 'Book Shared Taxi' %}</button>
-
-                <hr/>
-
-                <h3 class="private">{% trans "Private Taxi Ride" %}</h3>
-
-                <div class="details">
-                    <p id="private_price" class="price">{% trans "Fixed Ride Price" %}: <span class="value">0</span>
-                        <span class="label"> ₪</span></p>
-
-                    <p id="private_time" class="time">{% trans "Est. Ride Duration" %}: <span
-                            class="value">0</span> {% trans "min" %}</p>
-                </div>
-                <button id="book_private" class="order_button" data-theme="c">{% trans 'Book Private Taxi' %}</button>
-            </div>
-        </div>
-    </div>
-
     <div id="myrides_page" data-role="page">
         <div data-role="header">
             <a href="#home" data-icon="wb_custom" data-theme="h" data-iconpos="notext" data-transition="pop"
@@ -1592,124 +1431,6 @@
 
             <div class="ride_details_comment"></div>
             <a id="ride_details_btn" data-role="button" href="#" data-theme="f"></a>
-        </div>
-    </div>
-
-    <div id="ride_details_page" data-role="page">
-        <div data-role="header">
-            <a href="#" data-rel="back" data-theme="h" class="ui-btn-right">{% trans "Back" %}</a>
-
-            <h1>{% trans 'Ride Details' %}</h1>
-            <a href="#booking_page" data-theme="h" class="ui-btn-left">{% trans "Edit" %}</a>
-        </div>
-        <div data-role="content">
-            <div class="order-details-link">
-                <a href="#" data-rel="back" data-transition="flip">
-                    {% trans 'Back To Ride Order' %}
-                </a>
-            </div>
-
-            <div class="ride_summary">
-                <div class="pickup">
-                    <div class="dt_cntr">
-                        <div class="address">
-                            <span class="details_label">{% trans "Pickup" %}</span>
-                            <span class="details_label_type"> {% trans 'Address' %} </span>
-                            <p class="name"></p>
-                            <p class="desc"></p>
-                        </div>
-                    </div>
-
-                </div>
-                <hr/>
-                <div class="dropoff">
-                    <div class="dt_cntr">
-                        <div class="hotspot">
-                            <span class="details_label">{% trans "Dropoff" %}</span>
-                            <span class="details_label_type"> {% trans 'Hotspot' %} </span>
-                            <p class="name"></p>
-                            <p class="desc"></p>
-                        </div>
-                        <hr/>
-                        <div class="when">
-                            <span class="details_label_type"></span>
-                            <p></p>
-                        </div>
-                    </div>
-                </div>
-                <div class="more_details">
-                    <div class="numseats"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="hotspot_page" data-role="page" data-theme="a">
-        <div data-role="header">
-            <a href="#" data-rel="back" class="ui-btn-right" data-theme="h">{% trans 'Cancel' %}</a>
-
-            <h1>{% trans 'Choose Hotspot' %}</h1>
-        </div>
-        <div data-role="content">
-            <ul id="hotspot_list" class="rtl-listview" data-role="listview" data-theme="a">
-            </ul>
-        </div>
-    </div>
-
-    <div id="address_page" data-role="page" data-theme="a">
-        <div data-role="header">
-            <a href="#" data-rel="back" data-theme="h" class="ui-btn-right">{% trans 'Cancel' %}</a>
-
-            <h1>{% trans 'Enter Address' %}</h1>
-            <a id="gps" data-theme="h" class="ui-btn-left">{% trans 'GPS' %}</a>
-
-        </div>
-        <div data-role="content">
-            <form id="address-form">
-                <select id="id_city" name="id_city" data-theme="a"></select>
-
-                <div class="street-hn-cntr">
-                    <div class="street-cntr">
-                        <input type="text" name="street" id="id_street" placeholder="{% trans 'Street' %}"/>
-                        <span id="street_error" class="err_msg"></span>
-                    </div>
-                    <div class="hn-cntr">
-                        <input type="tel" name="house_number" id="id_house_number" placeholder="{% trans 'House #' %}"/>
-                        <span id="hn_error" class="err_msg"></span>
-                    </div>
-                </div>
-
-                <button data-theme="b">{% trans 'Next' %}</button>
-            </form>
-        </div>
-    </div>
-
-    <div id="address_list_page" data-role="page" data-theme="a">
-        <div data-role="header">
-            <a href="#" data-theme="h" data-rel="back">{% trans 'Back' %}</a>
-
-            <h1>{% trans 'Select Address' %}</h1>
-        </div>
-        <div data-role="content">
-            <ul data-role="listview" id="address_list" data-theme="a"></ul>
-        </div>
-    </div>
-
-    <div id="interval_page" data-role="page" data-theme="a">
-        <div data-role="header">
-            <a href="#" data-rel="back" class="ui-btn-right" data-theme="h">{% trans 'Cancel' %}</a>
-
-            <h1></h1>
-        </div>
-
-        <div data-role="content">
-            <form action="" id="select-interval-form">
-                <label for="ride-date">{% trans "Choose day" %}</label>
-                <select name="ride-date" id="ride-date" data-theme="a"></select>
-                <label for="ride-time">{% trans "Choose time" %}</label>
-                <select name="ride-time" id="ride-time" data-theme="a"></select>
-                <button data-theme="b">{% trans 'Next' %}</button>
-            </form>
         </div>
     </div>
 

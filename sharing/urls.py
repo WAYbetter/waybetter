@@ -91,6 +91,7 @@ urlpatterns = patterns('',
     url(r'^send_verification_code/$', 'sharing.passenger_controller.send_sms_verification', name="send_verification_code"),
     url(r'^register_user/$', 'sharing.passenger_controller.do_register_user', name="register_user"),
     url(r'^register_passenger/$', 'sharing.passenger_controller.do_register_passenger', name="register_passenger"),
+    url(r'^login_passenger/$', 'sharing.passenger_controller.passenger_login', name="login_passenger"),
 
 
     url(r'^info/$', 'sharing.content_controller.info', name="info"),
