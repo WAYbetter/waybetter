@@ -784,7 +784,7 @@ var GoogleGeocodingHelper = Object.create({
                     $("#" + options.id_textinput).val(results[0].formatted_address); // let the user see what we are validating
                     options.onValidAddress(rev_result.address);
                 }
-                else if (rev_result && rev_result.valid) {
+                else if (rev_result && rev_result.missing_hn) {
                     $("#" + options.id_textinput).val(results[0].formatted_address); // let the user see what we are validating
                     options.onMissingStreetNumber(rev_result);
                 }
