@@ -22,12 +22,12 @@ urlpatterns = patterns('',
     (r'run_task/$', 'common.maintenance.run_maintenance_task'),
     (r'run_task_on_queue/$', 'common.maintenance.maintenance_task'),
 
-    (r'maintenance/weekly$', 'common.maintenance.weekly'),
-    (r'maintenance/billing_service_test$', 'common.maintenance.run_billing_service_test'),
-    (r'maintenance/routing_service_test$', 'common.maintenance.run_routing_service_test'),
-    (r'maintenance/gcp_service_test$', 'common.maintenance.run_gcp_service_test'),
-    (r'maintenance/routing_service_test_task$', 'common.maintenance.test_routing_service_task'),
-    (r'maintenance/gcp_service_test_task$', 'common.maintenance.test_gcp_service_task'),
+    (r'maintenance/weekly/$', 'common.maintenance.weekly'),
+    (r'maintenance/billing_service_test/$', 'common.maintenance.run_billing_service_test'),
+    (r'maintenance/routing_service_test/$', 'common.maintenance.run_routing_service_test'),
+    (r'maintenance/routing_service_test_task/$', 'common.maintenance.test_routing_service_task'),
+    (r'maintenance/gcp_service_test/$', 'common.maintenance.run_gcp_service_test'),
+    (r'maintenance/gcp_service_test_task/$', 'common.maintenance.test_gcp_service_task'),
 
     (r'registration/get_login_form/$', 'common.registration.get_login_form'),
     (r'registration/get_error_form/$', 'common.registration.get_error_form'),
@@ -44,7 +44,7 @@ urlpatterns = patterns('',
     (r'flush_memcache/$', 'common.geocode.flush_memcache'),
     (r'get_async_computation_result/$', 'common.views.get_async_computation_result'),
     url(r'get_terms/$', direct_to_template, {'template': "terms_form.html"} ,name="terms_dialog"),
-    url(r'map_provider_loader\.js/$', direct_to_template, { 'template': "map_provider_loader.js", 
+    url(r'map_provider_loader\.js/$', direct_to_template, { 'template': "map_provider_loader.js",
                                                             'extra_context': {
                                                                 "map_provider_url": settings.MAP_PROVIDER_LIB_URL,
                                                                 "map_password":     settings.TELMAP_API_PASSWORD,
@@ -54,4 +54,3 @@ urlpatterns = patterns('',
 
 )
 
- 

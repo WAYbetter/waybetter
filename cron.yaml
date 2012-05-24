@@ -10,19 +10,19 @@ cron:
 
 # maintenance
 - description: weekly maintenance
-  url: /common/maintenance/weekly
+  url: /common/maintenance/weekly/
   schedule: every sunday 09:00
 
 - description: test routing service
-  url: /common/maintenance/routing_service_test
+  url: /common/maintenance/routing_service_test/
   schedule: every 5 minutes
 
 - description: test billing service
-  url: /common/maintenance/billing_service_test
+  url: /common/maintenance/billing_service_test/
   schedule: every 5 minutes
 
 - description: test google cloud print
-  url: /common/maintenance/gcp_service_test
+  url: /common/maintenance/gcp_service_test/
   schedule: every 60 minutes
 
 

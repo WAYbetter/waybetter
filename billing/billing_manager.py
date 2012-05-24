@@ -7,7 +7,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request, ugettext as _
 from billing.signals import billing_failed_signal
 from common.decorators import receive_signal
-from common.util import get_unique_id, safe_fetch, notify_by_email, send_mail_as_noreply
+from common.util import get_unique_id, safe_fetch, notify_by_email, has_caller
 from django.conf import settings
 from common.views import ERROR_PAGE_TEXT, error_page
 
@@ -87,10 +87,11 @@ def get_transaction_id(lang_code, mpi_data):
 
     # encode data without using urlencode
     data = "&".join(["%s=%s" % i for i in data.items()])
-    
+
     logging.info(data)
 
-    res = safe_fetch(BILLING_INFO["transaction_url"], method='POST', payload=data, deadline=50)
+    notify = not has_caller("run_billing_service_test")
+    res = safe_fetch(BILLING_INFO["transaction_url"], method='POST', payload=data, deadline=50, notify=notify)
     if not res:
         return None
     elif res.content.startswith("--"):
