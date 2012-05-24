@@ -762,7 +762,7 @@ var GoogleGeocodingHelper = Object.create({
         if (result.valid) {
             options.onValidAddress(result.address);
         }
-        else if (result.is_route) {
+        else if (result.missing_hn) {
             options.onMissingStreetNumber(result);
         }
         else if (place.geometry && place.geometry.location) {
@@ -780,13 +780,15 @@ var GoogleGeocodingHelper = Object.create({
                     log("Geocoder failed due to: " + status);
                 }
 
-                if (rev_result) {
+                if (rev_result && rev_result.valid) {
                     $("#" + options.id_textinput).val(results[0].formatted_address); // let the user see what we are validating
-                    if (rev_result.valid)
-                        options.onValidAddress(rev_result.address);
-                    else if (rev_result.is_route)
-                        options.onMissingStreetNumber(rev_result);
+                    options.onValidAddress(rev_result.address);
                 }
+                else if (rev_result && rev_result.valid) {
+                    $("#" + options.id_textinput).val(results[0].formatted_address); // let the user see what we are validating
+                    options.onMissingStreetNumber(rev_result);
+                }
+
                 else {
                     options.onNoValidPlace();
                 }
@@ -797,82 +799,51 @@ var GoogleGeocodingHelper = Object.create({
         }
     },
     _checkValidPickupAddress: function(place, id_textinput){
-        var is_route, is_establishment, is_of_valid_type, address_description;
-        var valid_types = ["street_address", "train_station", "transit_station"];
-
         var result = {
             valid: false,
-            is_route: false,
+            missing_hn: false,
             address: undefined
         };
 
-        if (place.types) {
-            $.each(place.types, function (i, type) {
-                if ($.inArray(type, valid_types) > -1)
-                    is_of_valid_type = type;
-                if (type == "route")
-                    is_route = true;
-                if (type == "establishment")
-                    is_establishment = true;
-            });
-        }
+        $.each(place.types || [], function (i, type) {
+            if (type == "street_address") result.valid = true; // a "street_address" is exempt from checking procedure
+            if (type == "route") result.missing_hn = true; // a "route" is assumed to be missing a house number
+        });
 
-        if (is_of_valid_type) {
-            result.valid = true;
-            log("valid type: " + is_of_valid_type);
-        }
-        else if (is_route){
-            // street with no house number, ask the user to enter it
-            result.valid = false;
-            result.is_route = true;
-            log("route: ask for house number");
-        }
-        else if (is_establishment) {
-            address_description = place.name;
-            if (place.address_components) {
-                // maybe address components contain some useful information
-                var street_number_component, route_component;
-                $.each(place.address_components, function (i, component) {
-                    if (component.types) {
-                        if ($.inArray('route', component.types) > -1) {
-                            route_component = component;
-                        }
-                        if ($.inArray('street_number', component.types) > -1) {
-                            street_number_component = component;
-                        }
-                    }
-                });
-                if (route_component && street_number_component) {
-                    var user_input = $("#" + id_textinput).val();
+        if (!result.valid) {
+            // check address components for a valid street + house number address
+            var street_number_component = this._getAddressComponent(place, "street_number"),
+                route_component = this._getAddressComponent(place, "route");
 
-                    if (user_input.startsWith(route_component.short_name) && user_input.search(street_number_component.short_name) < 0) {
-                        // the user entered a street with no number which resolves as establishment
-                        result.is_route = true;
-                        log("establishment: probably a route");
-                    }
-                    else{
-                        result.valid = true;
-                        log("establishment: street address found");
-                    }
-                }
-                else{
-                    log("establishment: no address found");
+            if (route_component && street_number_component) {
+                var user_input = $("#" + id_textinput).val();
+
+                // avoid cases where Google returns a house number although the user entered only a street name
+                if (user_input.startsWith(route_component.short_name) && user_input.search(street_number_component.short_name) < 0) {
+                    result.missing_hn = true;
+                    log("google generated house number");
+                } else {
+                    result.valid = true;
+                    log("valid pickup address");
                 }
             }
         }
 
         result.address = this._addressFromPlace(place);
-        result.address.description = address_description;
-        if (! result.address.house_number || (result.address.house_number.indexOf && result.address.house_number.indexOf("-") > -1)) { // this is a range of houses, a reverse geocode is underway...
+
+        // amir: guy - do we need this code? doesn't addressFromPlace calls normalizePlace that handles range of house numbers?
+        if ( !result.address.house_number || (result.address.house_number.indexOf && result.address.house_number.indexOf("-") > -1)) {
+            // this is a range of houses, a reverse geocode is underway...
             result.valid = false;
         }
+
         return result;
     },
     _addressFromPlace: function(place){
         place = this._normalizePlace(place);
 
         // address fields
-        var street_address, house_number, city, name, lat, lon;
+        var street_address, house_number, city, name, lat, lon, description;
 
         var address_components = place.address_components || [];
         $.each(address_components, function (i, component) {
@@ -897,10 +868,20 @@ var GoogleGeocodingHelper = Object.create({
             name = place.formatted_address;
         }
 
+        // add description field for POI
+        var poi_types = ["establishment", "train_station", "transit_station"];
+        $.each(place.types || [], function (i, type) {
+            if ($.inArray(type, poi_types) > -1){
+                description = place.name;
+                log("POI", type, description);
+            }
+        });
+
         return {
             city:city,
             street_address:street_address,
             house_number:house_number,
+            description: description,
             name:name,
             lat:lat,
             lon:lon

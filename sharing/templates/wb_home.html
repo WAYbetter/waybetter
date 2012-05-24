@@ -129,9 +129,9 @@
                         </div>
 
                         <div class="when">
-                            <span class="details_label">{% trans 'Pickup Time' %}</span>
                             <div class="data">
-                                <p class="desc"></p>
+                                <span class="details_label">{% trans 'Pickup Time' %}: </span>
+                                <p class="desc inline-block"></p>
                             </div>
                         </div>
 
@@ -838,7 +838,9 @@
                 BookingHelper.address = address;
                 var marker_name = refreshAddressMarker();
                 GoogleMapHelper.zoomMarker(marker_name);
-                $address_input.blur().val(address.name);
+                if (address.description) { // this is a POI
+                    $help_text.text("{% trans "Address" %}: " + address.name);
+                }
                 $set_address.enable().focus();
             },
             onMissingStreetNumber:function () {
@@ -858,7 +860,7 @@
                 $help_text.text("{% trans "Please enter a valid house number" %}.").addClass("error");
             },
             onNoValidPlace:function () {
-                $help_text.text("{% trans "We don't know where that is" %}.").addClass("error");
+                $help_text.text("{% trans "Please enter a valid pickup address" %}.").addClass("error");
             }
         });
 
@@ -943,8 +945,10 @@
         $("#details_content").bind("beforeshow", function() {
             if (BookingHelper.address && BookingHelper.hotspot && BookingHelper.ride_date && BookingHelper.ride_time) {
                 var $summary = $("#ride_summary");
-                $summary.find(".address .name").text(BookingHelper.address.name);
-                $summary.find(".address .desc").text("");
+                $summary.find(".address .name").text(BookingHelper.address.description || BookingHelper.address.name);
+                if (BookingHelper.address.description) { // POI
+                    $summary.find(".address .desc").text(BookingHelper.address.name);
+                }
                 $summary.find(".hotspot .name").text(BookingHelper.hotspot.name);
                 if (BookingHelper.hotspot.description) {
                     $summary.find(".hotspot .desc").text("(" + BookingHelper.hotspot.description + ")");
