@@ -25,6 +25,7 @@ def passenger_required_no_redirect(function=None):
 
 
         if not passenger:
+            logging.info("passenger_required_no_redirect rejected request")
             return HttpResponseForbidden(NOT_A_PASSENGER)
 
         kwargs["passenger"] = passenger
