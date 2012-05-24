@@ -54,7 +54,7 @@ def get_name_parts(full_name):
     first_name = name_parts[0]
     last_name = name_parts[1] if len(name_parts) > 1 else ""
 
-    return first_name, last_name
+    return first_name.strip(), last_name.strip()
 
 
 def create_user(username, password="", email="", first_name="", last_name="", save=True):
