@@ -865,8 +865,13 @@ def birdseye_view(request):
     init_end_date = default_tz_now_max() + timedelta(days=7)
     order_status_labels = [label for (key, label) in ORDER_STATUS]
 
-    def serialize(o):
+    def srz_o(o):
         _from, _to = o.from_raw, o.to_raw
+        passenger_details = None
+        if o.passenger:
+            passenger_details = [o.passenger.full_name, o.passenger.phone]
+            if o.passenger.user:
+                passenger_details.append(o.passenger.user.email)
         if o.hotspot:
             if o.hotspot_type == StopType.PICKUP: _from = o.hotspot.name
             if o.hotspot_type == StopType.DROPOFF: _to = o.hotspot.name
@@ -874,18 +879,23 @@ def birdseye_view(request):
                 'date': o.depart_time.strftime("%d/%m/%y"),
                 'depart': "%s %s" % (_from, o.depart_time.strftime("%H:%M")),
                 'arrive': "%s %s" % (_to, o.arrive_time.strftime("%H:%M")),
-                'passenger': "%s %s" % (o.passenger.full_name, o.passenger.phone) if o.passenger else na,
+                'passenger': " ".join(passenger_details) if passenger_details else na,
                 'type': OrderType.get_name(o.type),
                 'status': o.get_status_label(),
                 'price': o.price,
-                'ride_id': o.ride_id if o.ride else na,
                 'debug': 'Yes' if o.debug else 'No'
+        }
+
+    def srz_r(r):
+        return {'id': r.id,
+                'depart_time': r.depart_time.strftime("%H:%M"),
+                'orders': [srz_o(o) for o in r.orders.all()]
         }
 
     def f(start_date, end_date):
         orders = Order.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date)
         private_orders = filter(lambda o: o.type == OrderType.PRIVATE, orders)
-        private_orders_data = [serialize(o) for o in sorted(private_orders, key=lambda o: o.depart_time, reverse=True)]
+        private_orders_data = [srz_o(o) for o in sorted(private_orders, key=lambda o: o.depart_time, reverse=True)]
 
         computations = RideComputation.objects.filter(hotspot_datetime__gte=start_date, hotspot_datetime__lte=end_date)
         computations_data = []
@@ -898,7 +908,8 @@ def birdseye_view(request):
                       'status': status,
                       'time': time.strftime("%d/%m/%y, %H:%M"),
                       'dir': 'Hotspot->' if c.hotspot_type == StopType.PICKUP else '->Hotspot' if c.hotspot_type == StopType.DROPOFF else na,
-                      'orders': [serialize(o) for o in c.orders.all()],
+                      'orders': [srz_o(o) for o in c.orders.all()] if c.status != RideComputationStatus.COMPLETED else None,
+                      'rides': [srz_r(r) for r in c.rides.all()] if c.status == RideComputationStatus.COMPLETED else None
                       }
             computations_data.append(c_data)
 

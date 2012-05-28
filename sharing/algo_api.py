@@ -323,16 +323,14 @@ def fetch_ride_results_task(request):
         for ride_data in data["m_Rides"]:
             ride = SharedRide()
             ride.debug = debug
-
             ride.computation = computation
-            if computation.hotspot_type == StopType.PICKUP:
-                ride.depart_time = computation.hotspot_datetime
-                ride.arrive_time = ride.depart_time + timedelta(seconds=ride_data["m_Duration"])
-            elif computation.hotspot_type == StopType.DROPOFF:
-                ride.arrive_time = computation.hotspot_datetime
-                ride.depart_time = ride.arrive_time - timedelta(seconds=ride_data["m_Duration"])
-            else:
-                raise TypeError("Unknown StopType")
+
+            first_point = ride_data["m_RidePoints"][0]
+            first_order_id = int(first_point["m_OrderIDs"][0])
+            first_order = Order.by_id(first_order_id)
+            ride.depart_time = first_order.depart_time
+            ride.arrive_time = ride.depart_time + timedelta(seconds=ride_data["m_Duration"])
+
             ride.save()
 
             for point_data in ride_data["m_RidePoints"]:

@@ -1065,7 +1065,7 @@ class Order(BaseModel):
         else:
             pickup_datetime = self.depart_time
             time_str = pickup_datetime.strftime("%H:%M")
-            if self.type == OrderType.SHARED:
+            if self.type == OrderType.SHARED and self.hotspot_type == StopType.DROPOFF:
                 pickup_with_sharing = pickup_datetime + datetime.timedelta(seconds=SHARING_TIME_MINUTES * 60)
                 time_str = u"%s-%s" % (pickup_datetime.strftime("%H:%M"), pickup_with_sharing.strftime("%H:%M"))
 
