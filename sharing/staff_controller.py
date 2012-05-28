@@ -908,9 +908,11 @@ def birdseye_view(request):
                       'status': status,
                       'time': time.strftime("%d/%m/%y, %H:%M"),
                       'dir': 'Hotspot->' if c.hotspot_type == StopType.PICKUP else '->Hotspot' if c.hotspot_type == StopType.DROPOFF else na,
-                      'orders': [srz_o(o) for o in c.orders.all()] if c.status != RideComputationStatus.COMPLETED else None,
-                      'rides': [srz_r(r) for r in c.rides.all()] if c.status == RideComputationStatus.COMPLETED else None
                       }
+            if c.rides.count():
+                c_data['rides'] = [srz_r(r) for r in c.rides.all()]
+            else:
+                c_data['orders'] = [srz_o(o) for o in c.orders.all()]
             computations_data.append(c_data)
 
         return {'private_orders': private_orders_data, 'computations': computations_data}

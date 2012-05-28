@@ -49,6 +49,7 @@ def create_single_order_ride(order):
     order.dropoff_point = dropoff
     order.save()
 
+    logging.info("created ride[%s] for single order[%s]" % (ride.id, order.id))
     from sharing.signals import ride_created_signal
     ride_created_signal.send(sender='create_single_order_ride', obj=ride)
     return ride

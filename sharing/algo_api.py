@@ -1,3 +1,4 @@
+import traceback
 from google.appengine.api.taskqueue import taskqueue
 from google.appengine.api.taskqueue.taskqueue import TaskAlreadyExistsError
 from google.appengine.api.urlfetch import fetch, POST
@@ -5,12 +6,11 @@ from common.tz_support import to_task_name_safe
 from django.views.decorators.csrf import csrf_exempt
 from django.core.urlresolvers import reverse
 from django.http import HttpResponse
-from django.utils import simplejson, translation
-from django.utils.translation import ugettext as _
+from django.utils import simplejson
 from common.decorators import internal_task_on_queue, catch_view_exceptions, catch_view_exceptions_retry
 from common.util import safe_fetch, notify_by_email
 from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation, APPROVED, RideComputationStatus, FAILED, SHARING_TIME_FACTOR, IGNORED, CANCELLED, SHARING_TIME_MINUTES
-from ordering.util import send_msg_to_passenger
+from ordering.util import create_single_order_ride
 from sharing import signals
 from datetime import timedelta, datetime
 import urllib
@@ -151,34 +151,26 @@ def submit_computations(computation_key, submit_time, submit_step=COMPUTATION_FI
     except TaskAlreadyExistsError:
         logging.info("computation [key=%s] already scheduled for %s" % (computation_key, submit_time))
     except Exception, e:
-        logging.error(e)
-        raise BookRideError(e)
+        logging.error(traceback.format_exc())
+        raise BookRideError(e.message)
 
 
 def notify_aborted_computation(orders, computation):
-    current_lang = translation.get_language()
-    for order in orders:
-        translation.activate(order.language_code)
-        msg = _("We are sorry, but order #%s could not be completed") % order.id
-        send_msg_to_passenger(order.passenger, msg)
-
-    translation.activate(current_lang)
-
-    email_body = "The following computation was aborted because it did not complete after at least %(minutes)d minutes:\n%(computation)s" % \
+    email_body = u"The following computation was aborted because it did not complete after at least %(minutes)d minutes:\n%(computation)s" % \
     {"minutes": COMPUTATION_ABORT_TIMEOUT + COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT,
      "computation": str(computation)}
-
-    notify_by_email("Computations Aborted", email_body)
+    email_body += u"\nA voucher was created for the following orders and sent to station as single order ride:%s" % "\n".join([unicode(o) for o in orders])
+    notify_by_email("Computation Aborted", email_body)
 
 
 def abort_computation(computation):
-    orders = []
-    computation.change_status(new_status=RideComputationStatus.ABORTED)
-    for order in computation.orders.all():
-        order.change_status(new_status=FAILED)
-        orders.append(order)
+    orders = computation.orders.all()
+    for order in orders:
+        ride = create_single_order_ride(order)
+        ride.computation = computation
+        ride.save()
 
-    orders = set(orders)
+    computation.change_status(new_status=RideComputationStatus.ABORTED)
     notify_aborted_computation(orders, computation)
 
 @csrf_exempt
