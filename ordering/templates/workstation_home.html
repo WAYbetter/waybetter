@@ -535,7 +535,14 @@
             }
 
         });
-
+        function reportConnected() {
+            $.ajax({
+                url: "{% url ordering.station_controller.connected %}",
+                success: function() {
+                    trace("report connected");
+                }
+            })
+        }
         function setupChannel(token) {
             $("#wcs-iframe").remove();
 
@@ -552,6 +559,7 @@
             socket.onopen = function() {
                 trace("socket: onopen");
                 channel_opened = true;
+                reportConnected();
             };
             socket.onmessage = function(msg) {
                 trace("socket: onmessage");
