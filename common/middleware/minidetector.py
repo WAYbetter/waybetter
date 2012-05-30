@@ -8,6 +8,10 @@
 # Also include some games consoles, see below
 
 search_strings = [
+        # WAYbetter mobile user agents
+        "WAYbetter",
+        "waybetter",
+
         "sony",
         "symbian",
         "nokia",
