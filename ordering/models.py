@@ -1151,9 +1151,11 @@ class Order(BaseModel):
             'from'      : self.from_raw,
             'from_lon'  : self.from_lon,
             'from_lat'  : self.from_lat,
+            'from_city' : self.from_city.name,
             'to'        : self.to_raw,
             'to_lon'    : self.to_lon,
             'to_lat'    : self.to_lat,
+            'to_city'   : self.to_city.name,
             'num_seats' : self.num_seats,
             'when'      : self.get_pickup_str(),
             'price'     : self.price
