@@ -121,11 +121,9 @@ class HotSpot(BaseModel):
         if pop_rule:
             logging.info("found popularity rule %s" % pop_rule.name)
             pop_price = pop_rule.apply(base_sharing_price, day, t)
-            popularity = pop_rule.popularity
         else:
             logging.info("  --> using default popularity")
             pop_price = HotSpotPopularityRule.apply_default(base_sharing_price, day, t)
-            popularity = HotSpotPopularityRule.get_default_popularity()
 
         if num_seats > 2:
             price = base_sharing_price
@@ -142,7 +140,10 @@ class HotSpot(BaseModel):
         logging.info("sharing price: %s (cost: %s)" % (price, cost))
 
         if with_popularity:
-            return price, popularity
+            popularity = pop_rule.popularity if pop_rule else HotSpotPopularityRule.get_default_popularity()
+            noise_limit = pop_rule.noise_limit if pop_rule else HotSpotPopularityRule.get_default_noise_limit()
+            noisy_pop = HotSpotPopularityRule._noisify_popularity(popularity, noise_limit, day, t)
+            return price, noisy_pop
         else:
             return price
 
@@ -379,7 +380,19 @@ class HotSpotPopularityRule(AbstractTemporalRule):
 
     @classmethod
     def _noisify_popularity(cls, popularity, noise_limit, day, t):
-        return get_noisy_number_for_day_time(popularity, noise_limit, day, t)
+        """
+
+        @param cls:
+        @param popularity: floating point number in the range [0.0, 1.0]
+        @param noise_limit:
+        @param day:
+        @param t:
+        @return: floating point number in the range [0.0, 1.0]
+        """
+        noisy_pop = get_noisy_number_for_day_time(popularity, noise_limit, day, t)
+        noisy_pop = max(0.0, noisy_pop)
+        noisy_pop = min(1.0, noisy_pop)
+        return noisy_pop
 
 
 class HotSpotCustomPriceRule(AbstractTemporalRule):
