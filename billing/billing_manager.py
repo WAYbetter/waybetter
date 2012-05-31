@@ -1,25 +1,13 @@
 from datetime import datetime
 import logging
 from google.appengine.ext.deferred import deferred
-from billing.billing_backend import get_custom_message, update_invoice_passenger
+from billing.billing_backend import update_invoice_passenger
 from billing.models import BillingTransaction
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request, ugettext as _
-from billing.signals import billing_failed_signal
-from common.decorators import receive_signal
-from common.util import get_unique_id, safe_fetch, notify_by_email, send_mail_as_noreply
+from common.util import get_unique_id, safe_fetch, has_caller
 from django.conf import settings
 from common.views import ERROR_PAGE_TEXT, error_page
-
-@receive_signal(billing_failed_signal)
-def on_billing_trx_failed(sender, signal_type, obj, **kwargs):
-    trx = obj
-    sbj, msg = "Billing Failed [%s]" % sender, u""
-    for att_name in ["id", "provider_status", "comments", "order", "passenger", "debug"]:
-        msg += u"trx.%s: %s\n" % (att_name, getattr(trx, att_name))
-    msg += u"custom msg: %s" % get_custom_message(trx.provider_status, trx.comments)
-    logging.error(u"%s\n%s" % (sbj, msg))
-    notify_by_email(sbj, msg=msg)
 
 
 ALL_QUERY_FIELDS = {
@@ -87,10 +75,11 @@ def get_transaction_id(lang_code, mpi_data):
 
     # encode data without using urlencode
     data = "&".join(["%s=%s" % i for i in data.items()])
-    
+
     logging.info(data)
 
-    res = safe_fetch(BILLING_INFO["transaction_url"], method='POST', payload=data, deadline=50)
+    notify = not has_caller("run_billing_service_test")
+    res = safe_fetch(BILLING_INFO["transaction_url"], method='POST', payload=data, deadline=50, notify=notify)
     if not res:
         return None
     elif res.content.startswith("--"):
@@ -124,6 +113,7 @@ def get_billing_redirect_url(request, order, passenger):
         if order:
             billing_trx = BillingTransaction(order=order, amount=order.price, debug=order.debug)
             billing_trx.save()
+            billing_trx.commit()
             return reverse("bill_order", args=[billing_trx.id])
         else:
             return reverse("wb_home")

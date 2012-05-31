@@ -244,7 +244,7 @@
                 channel_opened = true;
             };
             socket.onmessage = function (msg) {
-                writeLogs(["socket: onmessage " + msg]);
+                log("socket: onmessage " + msg);
                 try {
                     var data = $.parseJSON(msg.data);
                     if (data.logs) {

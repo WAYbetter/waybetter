@@ -6,28 +6,19 @@ from django.utils.translation import ugettext as _
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api.taskqueue import taskqueue
-from common.decorators import receive_signal, internal_task_on_queue, catch_view_exceptions
+from common.decorators import internal_task_on_queue, catch_view_exceptions
 from django.core.urlresolvers import reverse
 from ordering import station_connection_manager
-from ordering.errors import UpdateStatusError
 from ordering.models import WorkStation, PENDING, ASSIGNED, SharedRide
 from datetime import timedelta
 from ordering.util import send_msg_to_passenger
 from sharing.passenger_controller import send_ride_notifications
 from sharing.station_controller import send_ride_voucher
 from fleet import fleet_manager
-import signals
 import logging
 
 MSG_DELIVERY_GRACE = 10 # seconds
 NOTIFY_STATION_DELTA = timedelta(minutes=10)
-
-@receive_signal(signals.ride_created_signal)
-def ride_created(sender, signal_type, obj, **kwargs):
-    logging.info("ride_created_signal: %s" % obj)
-    ride = obj
-    dispatch_ride(ride)
-
 
 def dispatch_ride(ride):
     work_station = assign_ride(ride)
@@ -36,10 +27,9 @@ def dispatch_ride(ride):
 #        task = taskqueue.Task(url=reverse(push_ride_task), countdown=MSG_DELIVERY_GRACE, params={"ride_id": ride.id, "ws_id": work_station.id})
 #        taskqueue.Queue('orders').add(task)
         
-        if work_station.station.vouchers_emails:
-            q = taskqueue.Queue('ride-notifications')
-            task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
-            q.add(task)
+        q = taskqueue.Queue('ride-notifications')
+        task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
+        q.add(task)
 
         if ride.dn_fleet_manager_id:
             fleet_manager.create_ride(ride)
@@ -64,7 +54,7 @@ def assign_ride(ride):
             ride.change_status(old_status=PENDING, new_status=ASSIGNED) # calls save()
             return work_station
 
-        except UpdateStatusError:
+        except Exception:
             notify_by_email(u"UpdateStatusError: Cannot assign ride [%s]" % ride.id, msg=ride.get_log())
 
     return None

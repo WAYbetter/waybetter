@@ -92,7 +92,7 @@ def transaction_ok(request, passenger):
 @passenger_required
 def bill_order(request, trx_id, passenger):
     billing_trx = BillingTransaction.by_id(trx_id)
-    billing_trx.commit()
+
     request.session[CURRENT_ORDER_KEY] = None
 
     page_specific_class = "transaction_page"
@@ -115,7 +115,7 @@ def transaction_error(request):
 
     return custom_render_to_response("error_page.html", locals(), context_instance=RequestContext(request))
 
-@passenger_required
+@passenger_required_no_redirect
 def get_trx_status(request, passenger):
     trx_id = request.GET.get("trx_id")
     trx = BillingTransaction.by_id(trx_id)

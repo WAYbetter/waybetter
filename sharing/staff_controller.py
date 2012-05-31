@@ -4,6 +4,7 @@ import gzip
 import os
 import pickle
 from django.contrib.auth.models import User
+from google.appengine.api import memcache
 from google.appengine.api.channel.channel import InvalidChannelClientIdError
 from common.geocode import gmaps_geocode, Bounds, gmaps_reverse_geocode
 from django.core.urlresolvers import reverse
@@ -12,7 +13,7 @@ from common.signals import async_computation_failed_signal, async_computation_co
 from google.appengine.api.channel import channel
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction, BillingInfo
-from common.decorators import force_lang, receive_signal
+from common.decorators import force_lang
 from common.models import City
 from common.util import custom_render_to_response, get_uuid, base_datepicker_page, send_mail_as_noreply, is_in_hebrew
 from django.contrib.admin.views.decorators import staff_member_required
@@ -24,8 +25,6 @@ from django.template.context import RequestContext
 from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_now_min, default_tz_now_max
 from djangotoolbox.http import JSONResponse
 import ordering
-import fleet.signals as fleet_signals
-import sharing.signals as sharing_signals
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
 from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS, Order, CHARGED, ACCEPTED, APPROVED, REJECTED, TIMED_OUT, FAILED, Passenger, SharedRide, Station
@@ -52,6 +51,7 @@ def control_panel(request):
     admin_links = [
             {'name': 'Kpi', 'url': reverse(kpi)},
             {'name': 'Birdseye', 'url': reverse(birdseye_view)},
+            {'name': 'Track rides and taxis', 'url': reverse(track_rides)},
             {'name': 'Hotspot pricing', 'url': reverse(hotspot_pricing_overview)},
             {'name': 'Sharing orders map', 'url': reverse(sharing_orders_map)},
             {'name': 'PickMeApp orders map', 'url': reverse(pickmeapp_orders_map)},
@@ -865,24 +865,37 @@ def birdseye_view(request):
     init_end_date = default_tz_now_max() + timedelta(days=7)
     order_status_labels = [label for (key, label) in ORDER_STATUS]
 
-    def serialize(o):
+    def srz_o(o):
+        _from, _to = o.from_raw, o.to_raw
+        passenger_details = None
+        if o.passenger:
+            passenger_details = [o.passenger.full_name, o.passenger.phone]
+            if o.passenger.user:
+                passenger_details.append(o.passenger.user.email)
+        if o.hotspot:
+            if o.hotspot_type == StopType.PICKUP: _from = o.hotspot.name
+            if o.hotspot_type == StopType.DROPOFF: _to = o.hotspot.name
         return {'id': o.id,
-                'from': o.from_raw,
-                'to': o.to_raw,
-                'passenger_name': "%s %s" % (o.passenger.user.first_name,
-                                             o.passenger.user.last_name) if o.passenger and o.passenger.user else na,
-                'passenger_phone': o.passenger.phone if o.passenger else na,
+                'date': o.depart_time.strftime("%d/%m/%y"),
+                'depart': "%s %s" % (_from, o.depart_time.strftime("%H:%M")),
+                'arrive': "%s %s" % (_to, o.arrive_time.strftime("%H:%M")),
+                'passenger': " ".join(passenger_details) if passenger_details else na,
                 'type': OrderType.get_name(o.type),
                 'status': o.get_status_label(),
-                'time': o.depart_time.strftime("%d/%m/%y, %H:%M"),
                 'price': o.price,
-                'debug': 'debug' if o.debug else ''
+                'debug': 'Yes' if o.debug else 'No'
+        }
+
+    def srz_r(r):
+        return {'id': r.id,
+                'depart_time': r.depart_time.strftime("%H:%M"),
+                'orders': [srz_o(o) for o in r.orders.all()]
         }
 
     def f(start_date, end_date):
         orders = Order.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date)
         private_orders = filter(lambda o: o.type == OrderType.PRIVATE, orders)
-        private_orders_data = [serialize(o) for o in sorted(private_orders, key=lambda o: o.depart_time, reverse=True)]
+        private_orders_data = [srz_o(o) for o in sorted(private_orders, key=lambda o: o.depart_time, reverse=True)]
 
         computations = RideComputation.objects.filter(hotspot_datetime__gte=start_date, hotspot_datetime__lte=end_date)
         computations_data = []
@@ -895,8 +908,11 @@ def birdseye_view(request):
                       'status': status,
                       'time': time.strftime("%d/%m/%y, %H:%M"),
                       'dir': 'Hotspot->' if c.hotspot_type == StopType.PICKUP else '->Hotspot' if c.hotspot_type == StopType.DROPOFF else na,
-                      'orders': [serialize(o) for o in c.orders.all()],
                       }
+            if c.rides.count():
+                c_data['rides'] = [srz_r(r) for r in c.rides.all()]
+            else:
+                c_data['orders'] = [srz_o(o) for o in c.orders.all()]
             computations_data.append(c_data)
 
         return {'private_orders': private_orders_data, 'computations': computations_data}
@@ -1162,7 +1178,7 @@ def submit_test_computation(orders, hotspot_type_raw, params, computation_set_na
 #        yield LogPipeline(output)
 ##        yield StoreOutput("WordCount", filekey, output)
 
-TRACK_RIDES_CHANNEL_IDS = [] #TODO_WB: use memecache?
+TRACK_RIDES_CHANNEL_MEMCACHE_KEY = "track_rides_channel_memcache_key"
 #@staff_member_required
 @force_lang("en")
 def track_rides(request):
@@ -1170,8 +1186,10 @@ def track_rides(request):
     lib_map = True
 
     channel_id = get_uuid()
-    global TRACK_RIDES_CHANNEL_IDS
-    TRACK_RIDES_CHANNEL_IDS.append(channel_id)
+    cids = memcache.get(TRACK_RIDES_CHANNEL_MEMCACHE_KEY) or []
+    cids.append(channel_id)
+    memcache.set(TRACK_RIDES_CHANNEL_MEMCACHE_KEY, cids)
+
     token = channel.create_channel(channel_id)
 
 #    ongoing_rides = fleet_manager.get_ongoing_rides()
@@ -1179,35 +1197,16 @@ def track_rides(request):
 #    ongoing_rides = [fmr]
     return render_to_response("staff_track_rides.html", locals(), context_instance=RequestContext(request))
 
-
-@receive_signal(sharing_signals.ride_status_changed_signal)
-def log_ride_status_update(sender, signal_type, obj, status, **kwargs):
-    ride = obj
-    str_status = ride.get_status_display()
-    log = "ride %s status changed -> %s" % (ride.id, str_status)
-    json = simplejson.dumps({'ride': {'id': ride.id, 'status': str_status}, 'logs': [log]})
-    _log_fleet_update(json)
-
-@receive_signal(fleet_signals.fmr_update_signal)
-def log_fmr_update(sender, signal_type, fmr, **kwargs):
-    json = simplejson.dumps({'fmr': fmr.serialize(), 'logs': [str(fmr)]})
-    _log_fleet_update(json)
-
-@receive_signal(fleet_signals.positions_update_signal)
-def log_positions_update(sender, signal_type, positions, **kwargs):
-    szd_positions = []
-    logs = []
-    for p in sorted(positions, key=lambda p: p.timestamp):
-        szd_positions.append(p.serialize())
-        logs.append(str(p))
-
-    json = simplejson.dumps({'positions': szd_positions, 'logs': logs})
-    _log_fleet_update(json)
-
 def _log_fleet_update(json):
-    logging.debug("fleet update: %s" % json)
-    for cid in TRACK_RIDES_CHANNEL_IDS:
+    logging.info("fleet update: %s" % json)
+    cids = memcache.get(TRACK_RIDES_CHANNEL_MEMCACHE_KEY) or []
+    live_cids = []
+
+    for cid in cids:
         try:
             channel.send_message(cid, json)
+            live_cids.append(cid)
         except InvalidChannelClientIdError, e:
-            logging.warning(e.message)
+            pass
+
+    memcache.set(TRACK_RIDES_CHANNEL_MEMCACHE_KEY, live_cids)

@@ -1,8 +1,4 @@
 from django.conf.urls.defaults import *
-# manual loading so signal receivers code is evaluated
-from sharing.sharing_dispatcher import ride_created
-from sharing.passenger_controller import send_ride_notifications, on_billing_trx_approved
-from sharing.staff_controller import log_fmr_update, log_positions_update, log_ride_status_update
 
 urlpatterns = patterns('',
     (r'^gmaps/$', 'sharing.staff_controller.gmaps'),
@@ -53,9 +49,10 @@ urlpatterns = patterns('',
     url(r'^get_pending_faxes/$', 'sharing.station_controller.get_pending_faxes', name="get_pending_faxes"),
     (r'^send_dummy_fax/$', 'sharing.station_controller.send_dummy_fax_to_station'),
     (r'^push_ride_task/$', 'sharing.sharing_dispatcher.push_ride_task'),
-
     (r'^services/resend_voucher/(?P<ride_id>\d+)/$', 'sharing.station_controller.resend_voucher'),
+    url(r'^startup_message/$', 'sharing.passenger_controller.startup_message', name="startup_message"),
 
+#    (r'^mark_ride_not_taken_task/$', 'sharing.sharing_dispatcher.mark_ride_not_taken_task'),
 #    TODO_WB: resolve conflicts with ordering.urls
 #    (r'^workstation/(?P<workstation_id>\d+)/$', 'sharing.station_controller.sharing_workstation_home'),
 #    (r'^station/tools/$', 'sharing.station_controller.station_tools'),
@@ -90,6 +87,7 @@ urlpatterns = patterns('',
     url(r'^send_verification_code/$', 'sharing.passenger_controller.send_sms_verification', name="send_verification_code"),
     url(r'^register_user/$', 'sharing.passenger_controller.do_register_user', name="register_user"),
     url(r'^register_passenger/$', 'sharing.passenger_controller.do_register_passenger', name="register_passenger"),
+    url(r'^login_passenger/$', 'sharing.passenger_controller.passenger_login', name="login_passenger"),
 
 
     url(r'^info/$', 'sharing.content_controller.info', name="info"),

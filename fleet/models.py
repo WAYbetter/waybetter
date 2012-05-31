@@ -42,13 +42,15 @@ class FleetManagerRide(object):
         self.raw_status = raw_status
 
     def __str__(self):
-        s = "%s: ride %s %s" % (self.timestamp, self.id, FleetManagerRideStatus.get_name(self.status))
+        s = "Ride %s %s" % (self.id, FleetManagerRideStatus.get_name(self.status))
         if self.raw_status:
             s += " [%s]" % self.raw_status
         if self.taxi_id:
-            s += ": assigned to taxi %s" % self.taxi_id
+            s += " TAXI %s" % self.taxi_id
         if self.lat and self.lon:
-            s += " located at %s,%s" % (self.lat, self.lon)
+            s += " AT %s,%s" % (self.lat, self.lon)
+        if self.timestamp:
+            s += " ON %s" % self.timestamp.strftime("%H:%M:%S")
         return s
 
     def serialize(self):
@@ -80,7 +82,10 @@ class TaxiRidePosition(object):
         self.timestamp = timestamp
 
     def __str__(self):
-        return "%s: ride %s taxi %s.%s at (%s,%s)" % (self.timestamp, self.ride_id, self.station_id, self.taxi_id, self.lat, self.lon)
+        s = "Taxi %s.%s Ride %s AT %s,%s" % (self.station_id, self.taxi_id, self.ride_id, self.lat, self.lon)
+        if self.timestamp:
+            s += " ON %s" % self.timestamp.strftime("%H:%M:%S")
+        return s
 
     def serialize(self):
         d = {}

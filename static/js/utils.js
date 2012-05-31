@@ -145,7 +145,26 @@ function defineClass(data) {
     // Finally, return the constructor function
     return constructor;
 }
+function getRenderedSize(text, referenceElement) {
+    var sizer = document.createElement('DIV');
+    sizer.id = 'sizer_id';
+    sizer.style['display'] = 'inline';
+    sizer.style['position'] = 'absolute';
+    var referenceStyle = document.defaultView.getComputedStyle(referenceElement, null);
+    sizer.style['fontFamily'] = referenceStyle['fontFamily'];
+    sizer.style['fontSize'] = referenceStyle['fontSize'];
+    sizer.style['visibility'] = 'hidden';
+    sizer.innerHTML = text;
 
+    document.body.appendChild(sizer);
+
+    var size = {width: sizer.offsetWidth, height: sizer.offsetHeight};
+
+    document.body.removeChild(sizer);
+    delete sizer;
+    return size;
+
+}
 function update_options(options) {
     var config = {
         parent_id_selector:     "",

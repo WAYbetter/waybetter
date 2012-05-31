@@ -1,4 +1,5 @@
 # This Python file uses the following encoding: utf-8
+import inspect
 from common.errors import TransactionError
 from django.conf import settings
 from django.core.validators import RegexValidator
@@ -77,13 +78,21 @@ class Enum(object):
             if item_name == str:
                 return getattr(cls, item_name)
 
+    @classmethod
+    def from_value(cls, val):
+        if val in cls._items():
+            return val
+        else:
+            return None
+
+
 class Polygon(object):
     def __init__(self, points):
         self.polygon = list(split_to_tuples(points, 2))
 
     def __repr__(self):
         return unicode(self.polygon)
-    
+
     def contains(self, lat, lon):
         return point_inside_polygon(lat, lon, self.polygon)
 
@@ -550,7 +559,7 @@ def point_inside_polygon_2(x, y, poly):
         valx, valy = t
         vertx.append(valx)
         verty.append(valy)
-        
+
     i = 0
     j = nvert - 1
     c = False
@@ -670,3 +679,17 @@ def base_datepicker_page(request, f_data, template_name, wrapper_locals, init_st
         extended_locals.update(locals())
 
         return render_to_response(template_name, extended_locals, context_instance=RequestContext(request))
+
+
+def has_caller(caller_name):
+    """
+    Check if the stack contains a caller with caller_name
+    returns: True if a caller with caller_name is in the stack, False otherwise.
+    """
+    result = False
+    try:
+        result = caller_name in [frame[3] for frame in inspect.getouterframes(inspect.currentframe())]
+    except Exception:
+        logging.error(traceback.format_exc())
+
+    return result

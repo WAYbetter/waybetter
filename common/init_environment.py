@@ -13,5 +13,9 @@ from django.conf import settings
 for app in settings.INSTALLED_APPS:
     try:
         import_module('%s.models' % app)
+
+        # WAYbetter: also load all signals.py to ensure loading of all signal receivers which reside there.
+        import_module('%s.signals' % app)
+
     except ImportError:
         pass

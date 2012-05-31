@@ -116,6 +116,10 @@
             background-color: #e1e1e1;
             font-weight: bold;
         }
+
+        .c_table .ridetitle{
+            background-color: #add8e6;
+        }
     </style>
 {% endblock %}
 
@@ -123,12 +127,24 @@
     <script type="text/javascript" src="/static/js/mylibs/jquery.ui.datepicker-he.js"></script>
 
     <script type="text/javascript">
-        var fields = ["id", "time", "from", "to", "passenger_name", "passenger_phone", "type", "price", "status", "debug"];
+        var fields = ["id", "date", "depart", "arrive", "passenger", "type", "price", "status", "debug"];
+        var labels = {
+            depart: "Departure",
+            arrive: "Arrival",
+            passenger: "Passenger Details",
+            type: "OrderType"
+        };
 
         {% autoescape off %}
             var data = {{ data }};
         {% endautoescape %}
 
+        function capCase(string){
+            return string.charAt(0).toUpperCase() + string.slice(1);
+        }
+        function getLabel(field_name){
+            return labels[field_name] || capCase(field_name);
+        }
         function toggleOrdersByStatus(status) {
             var orders = $("td:contains(" + status + ")").parent(".order");
             $.each(orders, function(i, order) {
@@ -139,6 +155,30 @@
             });
         }
 
+        function renderRideTable(ride){
+            // pass ride instance or undefined to render a table for a pending computation (no rides created yet)
+
+            var $table = $('<table class="c_table"></table>');
+            var $thead = $('<thead></thead>').append('<tr></tr>').appendTo($table);
+            $.each(fields, function(i, field_name) {
+                $thead.find("tr").append('<th>' + getLabel(field_name) + '</th>');
+            });
+
+            if (ride){
+                $table.attr("id", "ridetable_" + ride.id);
+                var $ridelink = $('<a>#' + ride.id + '</a>')
+                        .attr("href", "{% url sharing.station_controller.show_ride %}" + ride.id);
+
+                var $td = $('<td></td>').append('<span>ride </span>', $ridelink, '<span> departing at ' + ride.depart_time + ' </span>');
+                var $ridetitle = $('<th></th>').attr("colspan", fields.length).addClass("ridetitle").append($td);
+                $table.find("tr").before($ridetitle);
+                $.each(ride.orders, function (idx, order) {
+                    $table.append(renderOrderRow(order));
+                });
+            }
+
+            return $table;
+        }
         function renderOrderRow(order) {
             var $tr = $('<tr class="order"></tr>');
             $.each(fields, function(i, field_name) {
@@ -153,19 +193,30 @@
         }
 
         function renderComputation(computation) {
+            var $container = $('<div class="c_container"></div>').appendTo("#computations_container");
+
             var admin_link = '<a class="wb_link" href="/admin/ordering/ridecomputation/' + computation.id + '">' + computation.id + '</a>';
             var $div = $('<div class="c_header clickable" id="c_header_' + computation.id + '">' + computation.time + ' ' + computation.dir + '</div>')
-                    .append('<span class="c_desc">' + admin_link + ' [' + computation.status + ']' + '</span>');
-            var $table = $('<table class="c_table collapsed" id="c_table_' + computation.id + '"></table>');
-            var $thead = $('<thead></thead>').append('<tr></tr>').appendTo($table);
-            $.each(fields, function(i, field_name) {
-                $thead.find("tr").append('<th>' + field_name + '</th>');
-            });
-            $.each(computation.orders, function(i, order) {
-                $table.append(renderOrderRow(order));
-            });
+                    .append('<span class="c_desc">' + admin_link + ' [' + '<span class="c_status">' + computation.status + '</span>' + ']' + '</span>')
+                    .appendTo($container);
 
-            var $container = $('<div class="c_container"></div>').append($div, $table).appendTo("#computations_container");
+
+            if (computation.rides) {
+                $.each(computation.rides, function (idx, ride) {
+                    var $table = renderRideTable(ride);
+                    $table.appendTo($container);
+                });
+            }
+            else if (computation.orders) {
+                var $table = renderRideTable(null);
+                $.each(computation.orders, function (i, order) {
+                    $table.append(renderOrderRow(order)).appendTo($container);
+                });
+            }
+            if (computation.status.indexOf("PENDING") === -1 ){
+                $container.find(".c_table").addClass("collapsed");
+            }
+
         }
 
         function renderPrivateOrder(order){
@@ -178,7 +229,7 @@
             var $table = $("<table></table>").attr("id", "private_orders_table").addClass("c_table");
             var $thead = $("<thead></thead>").appendTo($table);
             $.each(fields, function (i, f) {
-                $thead.append($("<th></th>").text(f));
+                $thead.append($("<th></th>").text(getLabel(f)));
             });
 
             $("#private_orders_container").append($div, $table);
@@ -188,7 +239,6 @@
             $.each(data.computations, function(i, computation) {
                 renderComputation(computation);
             });
-            $(".c_table").first().removeClass("collapsed");
 
             renderPrivateOrdersContainer();
             $.each(data.private_orders, function(i, computation) {
@@ -214,12 +264,13 @@
             });
 
             $(".c_header").live('click', function() {
-                var $table = $("#c_table_" + $(this).attr("id").split("_")[2]);
-                if ($table.hasClass("collapsed"))
-                    $table.removeClass("collapsed");
-                else
-                    $table.addClass("collapsed");
-
+                $.each($(this).siblings("table"), function (idx, table) {
+                    var $table = $(table);
+                    if ($table.hasClass("collapsed"))
+                        $table.removeClass("collapsed");
+                    else
+                        $table.addClass("collapsed");
+                });
             });
 
             var date_options = $.extend({}, $.datepicker.regional["he"], {dateFormat: 'dd/mm/yy'});
