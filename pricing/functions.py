@@ -52,6 +52,7 @@ def get_popularity_price(popularity, base_price):
     @return:
     """
     popularity = round(popularity, 2)
+    assert 0.0 <= popularity <= 1.0, "popularity must be in range [0.0, 1.0]"
 
     if not popularity:
         return base_price

@@ -972,6 +972,7 @@ class Order(BaseModel):
     price = models.FloatField(null=True, blank=True, editable=False)
     num_seats = models.PositiveIntegerField(default=1)
     from sharing.models import HotSpot
+    # note: you must be aware that legacy orders do not have a .hotspot value
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="orders", null=True, blank=True)
     hotspot_type = models.IntegerField(choices=StopType.choices(), null=True, blank=True)
 
@@ -1059,10 +1060,11 @@ class Order(BaseModel):
             return -1
 
     def get_pickup_str(self):
-        if self.pickup_point:
+        if self.pickup_point:  # a ride was created and we know the exact pickup time
             pickup_datetime = self.pickup_point.stop_time
             time_str = pickup_datetime.strftime("%H:%M")
-        else:
+
+        else:  # estimated pickup time
             pickup_datetime = self.depart_time
             time_str = pickup_datetime.strftime("%H:%M")
             if self.type == OrderType.SHARED and self.hotspot_type == StopType.DROPOFF:
