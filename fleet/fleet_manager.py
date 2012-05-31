@@ -60,11 +60,9 @@ def update_ride(fmr):
     if not wb_ride:
         logging.error("fleet manager: fmr update to non-existing ride")
         return
-    if fmr.status == FleetManagerRideStatus.COMPLETED:
-        wb_ride.change_status(new_status=COMPLETED)
-    else:
-        logging.info("fleet manager: ride [%s] not updated. fmr_status=%s raw_status=%s)" %
-                     (wb_ride.id, FleetManagerRideStatus.get_name(fmr.status), fmr.raw_status))
+    # TODO_WB: update wb_ride
+    logging.info("fleet manager: ride [%s] not updated. fmr_status=%s raw_status=%s)" %
+                 (wb_ride.id, FleetManagerRideStatus.get_name(fmr.status), fmr.raw_status))
 
 
 FM_MEMCACHE_NAMESPACE = "fm_ns"

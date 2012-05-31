@@ -31,8 +31,16 @@ def dispatch_ride(ride):
         task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
         q.add(task)
 
-        if ride.dn_fleet_manager_id:
-            fleet_manager.create_ride(ride)
+
+#        if ride.dn_fleet_manager_id:
+#            fleet_manager.create_ride(ride)
+#        else:
+#            logging.info("ride %s has no fleet manager" % ride.id)
+        try:
+            from google.appengine.api.urlfetch import fetch
+            fetch("http://devisr.latest.waybetter-app.appspot.com/fleet/create/ride/%s/" % ride.id)
+        except Exception, e:
+            logging.error(e)
 
         send_ride_notifications(ride)
         if not work_station.is_online:

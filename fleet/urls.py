@@ -2,6 +2,7 @@ from django.conf.urls.defaults import *
 urlpatterns = patterns('',
     (r'^get/ride/$', 'fleet.views.get_ride'),
     (r'^get/ride/(?P<ride_id>\d+)/$', 'fleet.views.get_ride'),
+    (r'^create/ride/(?P<ride_id>\d+)/$', 'fleet.views.create_ny_isr_ride'),
 
     (r'^isr/tests$', 'fleet.views.isr_testpage'),
     (r'^isrproxy/get_all_positions/$', 'fleet.backends.isr_proxy.get_all_positions'),
