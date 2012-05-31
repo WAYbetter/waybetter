@@ -1146,19 +1146,23 @@ class Order(BaseModel):
 
     def serialize_for_myrides(self):
         return {
-            'id'        : self.id,
-            'type'      : self.type,
-            'from'      : self.from_raw,
-            'from_lon'  : self.from_lon,
-            'from_lat'  : self.from_lat,
-            'from_city' : self.from_city.name,
-            'to'        : self.to_raw,
-            'to_lon'    : self.to_lon,
-            'to_lat'    : self.to_lat,
-            'to_city'   : self.to_city.name,
-            'num_seats' : self.num_seats,
-            'when'      : self.get_pickup_str(),
-            'price'     : self.price
+            'id'                  : self.id,
+            'type'                : self.type,
+            'from'                : self.from_raw,
+            'from_lon'            : self.from_lon,
+            'from_lat'            : self.from_lat,
+            'from_city'           : self.from_city.name,
+            'from_street_address' : self.from_street_address,
+            'from_house_number'   : self.from_house_number,
+            'to'                  : self.to_raw,
+            'to_lon'              : self.to_lon,
+            'to_lat'              : self.to_lat,
+            'to_city'             : self.to_city.name,
+            'to_street_address'   : self.to_street_address,
+            'to_house_number'     : self.to_house_number,
+            'num_seats'           : self.num_seats,
+            'when'                : self.get_pickup_str(),
+            'price'               : self.price
         }
 
 class OrderAssignment(BaseModel):
