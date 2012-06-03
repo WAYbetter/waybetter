@@ -1,5 +1,6 @@
 # This Python file uses the following encoding: utf-8
 import inspect
+from django.http import HttpRequest
 from common.errors import TransactionError
 from django.conf import settings
 from django.core.validators import RegexValidator
@@ -261,10 +262,13 @@ def ga_hit_page(request, path=None):
     """
     Log a new page hit on Google Analytics
 
-    @param request: incoming C{HttpRequest}
+    @param request: incoming C{HttpRequest} or None
     @param path: use the supplied path instead of request.path (optional)
     @return:
     """
+    if not request:
+        request = HttpRequest()
+
     logging.info("ga_hit_page: %s" % path)
     if not path:
         path = request.path
@@ -282,13 +286,16 @@ def ga_track_event(request, category, action, opt_label=None, opt_value=None):
     """
     Log a new event on Google Analytics
 
-    @param request: incoming C{HttpRequest}
+    @param request: incoming C{HttpRequest} or None
     @param category: Event category
     @param action: Event action
     @param opt_label: Event label (optional)
     @param opt_value: Event value, must be numeric (optional)
     @return:
     """
+    if not request:
+        request = HttpRequest()
+
     logging.info("ga_track_event: %s, %s" % (category, action))
     event_string = '5(%s*%s' % (category, action)
 

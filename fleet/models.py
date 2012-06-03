@@ -1,10 +1,10 @@
 import datetime
 from common.models import BaseModel
+from common.tz_support import to_js_date
+from common.util import Enum
 from django.core.exceptions import ValidationError
 from django.db import models
 from django.utils.importlib import import_module
-from common.tz_support import to_js_date
-from common.util import Enum
 
 class FleetManagerRideStatus(Enum):
     PENDING = 0

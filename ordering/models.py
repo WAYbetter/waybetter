@@ -19,7 +19,7 @@ from common.models import BaseModel, Country, City, CityArea, CityAreaField, obj
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now, format_dt
-from fleet.models import FleetManager
+from fleet.models import FleetManager, FleetManagerRideStatus
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
 from sharing.signals import ride_status_changed_signal
@@ -568,6 +568,17 @@ class RidePoint(BaseModel):
     @property
     def clean_address(self):
         return re.sub(",?\s+תל אביב יפו".decode("utf-8"), "", self.address)
+
+
+class RideEvent(BaseModel):
+    shared_ride = models.ForeignKey(SharedRide, related_name="events")
+    status = models.IntegerField(choices=FleetManagerRideStatus.choices(), default=FleetManagerRideStatus.PENDING)
+    raw_status=  models.CharField(max_length=128, null=True, blank=True)
+    lat = models.FloatField(null=True, blank=True)
+    lon = models.FloatField(null=True, blank=True)
+    taxi_id = models.IntegerField(null=True, blank=True)
+    timestamp = UTCDateTimeField()
+
 
 class Passenger(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)

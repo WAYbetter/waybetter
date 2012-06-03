@@ -32,10 +32,13 @@ def dispatch_ride(ride):
         q.add(task)
 
 
+# TODO_WB:  uncomment #1 and remove #2 when merging with stable
+        #1
 #        if ride.dn_fleet_manager_id:
 #            fleet_manager.create_ride(ride)
 #        else:
 #            logging.info("ride %s has no fleet manager" % ride.id)
+        #2
         try:
             from google.appengine.api.urlfetch import fetch
             fetch("http://devisr.latest.waybetter-app.appspot.com/fleet/create/ride/%s/" % ride.id)
