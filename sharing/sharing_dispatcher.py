@@ -61,11 +61,11 @@ def assign_ride(ride):
     if work_station:
         try:
             ride.station = work_station.station
-
+            ride.save()
             # TODO_WB
             # in fax sending mode we assume all dispatched rides will be accepted
-            ride.change_status(old_status=PENDING, new_status=ASSIGNED) # calls save()
-#            ride.change_status(old_status=PENDING, new_status=ACCEPTED) # calls save()
+            ride.change_status(old_status=PENDING, new_status=ASSIGNED)
+#            ride.change_status(old_status=PENDING, new_status=ACCEPTED)
 
 #            if work_station.is_online:
 #                notify_by_email(u"Ride [%s] assigned successfully to workstation %s" % (ride.id, work_station), msg=get_ride_log(ride))

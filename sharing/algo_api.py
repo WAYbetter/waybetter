@@ -254,16 +254,17 @@ def submit_computations_task(request):
                 logging.info("changed status: order [%s] IGNORED" % order.id)
 
         if not approved_orders:
-            computation.change_status(old_status=RideComputationStatus.PROCESSING, new_status=RideComputationStatus.IGNORED) # saves
+            computation.change_status(old_status=RideComputationStatus.PROCESSING, new_status=RideComputationStatus.IGNORED)
             logging.info("ignoring: no approved orders")
             return HttpResponse("NO APPROVED ORDERS")
 
         algo_key = submit_orders_for_ride_calculation(approved_orders, key, params=params, use_secondary=bool(submit_step==COMPUTATION_SUBMIT_TO_SECONDARY))
         logging.info("got algo key=%s" % algo_key)
         computation.algo_key = algo_key
+        computation.save()
 
         # old status can be SUMBITTED or PROCESSING
-        computation.change_status(new_status=RideComputationStatus.SUBMITTED) # saves
+        computation.change_status(new_status=RideComputationStatus.SUBMITTED)
 
         if submit_step == COMPUTATION_FIRST_SUBMIT:
             submit_computations(key, datetime.now() + timedelta(minutes=COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT), submit_step=COMPUTATION_SUBMIT_TO_SECONDARY)
@@ -357,7 +358,8 @@ def fetch_ride_results_task(request):
 
 
         computation.statistics = simplejson.dumps(data.get("m_OutputStat"))
-        computation.change_status(new_status=RideComputationStatus.COMPLETED) # saves
+        computation.save()
+        computation.change_status(new_status=RideComputationStatus.COMPLETED)
 
     else:
         logging.error("aborting computation [%s]: fetch results task failed" % computation.id)
