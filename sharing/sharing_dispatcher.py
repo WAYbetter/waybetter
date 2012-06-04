@@ -40,6 +40,15 @@ def dispatch_ride(ride):
             task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
             q.add(task)
 
+        # TODO_WB: remove when merging isr->default->stable
+        try:
+            from google.appengine.api.urlfetch import fetch
+            fetch("http://devisr.latest.waybetter-app.appspot.com/fleet/isrproxy/create/nyride/%s/" % ride.id)
+            logging.info("fetched devisr create ny ride %s" % ride.id)
+        except Exception, e:
+            logging.error(e)
+        # end TODO
+
         send_ride_notifications(ride)
     else:
         #TODO_WB: how do we handle this? cancel the orders?
