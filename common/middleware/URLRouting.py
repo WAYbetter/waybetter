@@ -33,7 +33,7 @@ class URLRouting(object):
 
         # redirect app v1.1 users to VER_1_1_SERVER (unless if cuurent host is already the redirect)
         host = request.get_host()
-        if host not in VER_1_1_DOMAINS and user_agent_parts[:3] == ["WAYbetter", "iPhone", "1.1"]:
+        if host not in VER_1_1_DOMAINS and user_agent_parts[0] == "WAYbetter" and user_agent_parts[2] == "1.1":
             logging.info("redirecting v1.1: %s -> %s" % (host, VER_1_1_SERVER))
             new_uri = get_domain_uri(request, VER_1_1_SERVER, secure=False)
 
