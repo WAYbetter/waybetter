@@ -1006,7 +1006,6 @@ def submit_test_computation(orders, params, computation_set_name=None, computati
 
     if algo_key:
         computation = RideComputation(algo_key=algo_key, debug=True)
-        computation.change_status(new_status=RideComputationStatus.SUBMITTED)
         computation.toleration_factor = params.get('toleration_factor')
         computation.toleration_factor_minutes = params.get('toleration_factor_minutes')
         order = orders[0]
@@ -1022,6 +1021,7 @@ def submit_test_computation(orders, params, computation_set_name=None, computati
             computation.set = computation_set
 
         computation.save()
+        computation.change_status(new_status=RideComputationStatus.SUBMITTED)
 
         for order in orders:
             order.computation = computation
