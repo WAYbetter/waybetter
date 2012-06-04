@@ -176,7 +176,7 @@ def abort_computation(computation):
     computation.change_status(new_status=RideComputationStatus.ABORTED)
     for order in computation.orders.all():
         order.change_status(new_status=FAILED)
-        orders.append(order)
+        orders.append(order.fresh_copy())
 
     orders = set(orders)
     notify_aborted_computation(orders, computation)
