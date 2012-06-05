@@ -61,6 +61,7 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
         billing_transaction.auth_number = auth_number
         billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.APPROVED) #calls save
 
+        # TODO_WB: remove getting fresh copy after merging with new version of change_attr in default branch
         order = billing_transaction.order.fresh_copy()  # ensure we have the latest version of the order
         if order.change_status(old_status=PENDING, new_status=APPROVED):
             # TODO_WB: move email sending to handle_approved_orders

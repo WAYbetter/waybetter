@@ -69,23 +69,22 @@ class BaseModel(models.Model):
         @param new_value: the new value to set
         @return: True to signal success
         """
-        obj = self.fresh_copy()  # ensure we have the latest version of the object
         if old_value == new_value:
             logging.info("old == new")
             result =  False
         elif old_value is None:
-            setattr(obj, attname, new_value)
-            obj.save()
+            setattr(self, attname, new_value)
+            self.save()
             result = True
-        elif getattr(obj, attname) == old_value:
-            setattr(obj, attname, new_value)
-            obj.save()
+        elif getattr(self, attname) == old_value:
+            setattr(self, attname, new_value)
+            self.save()
             result = True
         else:
             result = False
 
         if not result:
-            msg = "%s.%s : update in transaction failed (%s --> %s) current=%s" % (self.__class__.__name__, attname, str(old_value), str(new_value), str(getattr(obj, attname)))
+            msg = "%s.%s : update in transaction failed (%s --> %s) current=%s" % (self.__class__.__name__, attname, str(old_value), str(new_value), str(getattr(self, attname)))
             if safe:
                 logging.warning(msg)
             else:
