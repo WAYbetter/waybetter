@@ -42,8 +42,7 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
     result = do_credit_guard_trx(params)
     if not result:
         billing_transaction.comments = "CreditGuard transaction failed"
-        billing_transaction.save()
-        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED)
+        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
         billing_failed_signal.send(sender="do_J5", obj=billing_transaction)
         return HttpResponse("OK")
 
@@ -56,13 +55,11 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
     if int(status_code):  # failed
         message = get_text_from_element(result, "message")
         billing_transaction.comments = message
-        billing_transaction.save()
-        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED)
+        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
         billing_failed_signal.send(sender="do_J5", obj=billing_transaction)
     else:
         billing_transaction.auth_number = auth_number
-        billing_transaction.save()
-        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.APPROVED)
+        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.APPROVED) #calls save
 
         order = billing_transaction.order.fresh_copy()  # ensure we have the latest version of the order
         if order.change_status(old_status=PENDING, new_status=APPROVED):
@@ -71,8 +68,7 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
             billing_transaction.charge() # setup J4
         else: # order is not PENDING (it can be marked as IGNORED when submitting to algorithm)
             billing_transaction.comments = _("We are sorry but booking for the selected time is closed, please choose a different time.<br/>Your billing information was saved, you will not be asked to provide it again.")
-            billing_transaction.save()
-            billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED)
+            billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
             logging.info("J5 FAILED: order status is %s (expected PENDING)" % order.get_status_label())
 
     return HttpResponse("OK")
@@ -99,8 +95,7 @@ def do_J4(token, amount, card_expiration, billing_transaction_id):
     result = do_credit_guard_trx(params)
     if not result:
         billing_transaction.comments = "CreditGuard transaction failed"
-        billing_transaction.save()
-        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED)
+        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
         billing_failed_signal.send(sender="do_J4", obj=billing_transaction)
         return HttpResponse("OK")
 
@@ -113,14 +108,12 @@ def do_J4(token, amount, card_expiration, billing_transaction_id):
     if int(status_code):
         message = get_text_from_element(result, "message")
         billing_transaction.comments = message
-        billing_transaction.save()
-        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED)
+        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
         billing_failed_signal.send(sender="do_J4", obj=billing_transaction)
 
     else:
         billing_transaction.auth_number = auth_number
-        billing_transaction.save()
-        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.CHARGED)
+        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.CHARGED) #calls save
         billing_transaction.order.change_status(new_status=CHARGED)
         billing_charged_signal.send(sender="do_J4", obj=billing_transaction)
 
