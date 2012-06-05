@@ -9,7 +9,7 @@ from django.http import HttpResponse
 from django.utils import simplejson
 from common.decorators import internal_task_on_queue, catch_view_exceptions, catch_view_exceptions_retry
 from common.util import safe_fetch, notify_by_email
-from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation, APPROVED, RideComputationStatus, FAILED, SHARING_TIME_FACTOR, IGNORED, CANCELLED, SHARING_TIME_MINUTES
+from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation, APPROVED, RideComputationStatus, FAILED, SHARING_TIME_FACTOR, IGNORED, CANCELLED, SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS
 from ordering.util import create_single_order_ride
 from sharing import signals
 from datetime import timedelta, datetime
@@ -230,7 +230,8 @@ def submit_computations_task(request):
 
         params = {'debug': computation.debug,
 #                  'toleration_factor': SHARING_TIME_FACTOR,
-                  'toleration_factor_minutes': SHARING_TIME_MINUTES
+                  'toleration_factor_minutes': SHARING_TIME_MINUTES,
+                  'toleration_factor_meters': SHARING_DISTANCE_METERS
                   }
 
         approved_orders = []
