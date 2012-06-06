@@ -12,7 +12,7 @@ from common.models import BaseModel, Country, City, CityAreaField, CityArea
 from django.core.validators import MaxValueValidator, MinValueValidator
 from ordering.models import Passenger, Station, OrderType
 from pricing.models import RuleSet, AbstractTemporalRule, PRIVATE_RIDE_HANDLING_FEE
-from pricing.functions import get_base_sharing_price, get_popularity_price, get_noisy_number_for_day_time
+from pricing.functions import get_base_sharing_price, get_popularity_price, get_noisy_number_for_day_time, TWO_SEATS_PRICE_FACTOR
 from datetime import datetime, date, timedelta, time
 import calendar
 
@@ -97,6 +97,17 @@ class HotSpot(BaseModel):
         cost, ride_type = estimate_cost(estimated_duration, estimated_distance, day=convert_python_weekday(day.weekday()), time=t)
         return round(cost + PRIVATE_RIDE_HANDLING_FEE) if cost else None
 
+    def get_private_price(self, lat, lon, day, t, num_seats=1, tariff_rules=None, cost_rules=None):
+        logging.info("calc private price for %s (lat=%s, lon=%s, day=%s, t=%s, seats=%s)" % (self.name, lat, lon, day, t, num_seats))
+
+        price = None
+        cost = self.get_cost(lat, lon, day, t, num_seats, tariff_rules, cost_rules)
+        if cost:
+            price = get_base_sharing_price(cost)
+
+        logging.info("private price = %s" % price)
+        return price
+
     def get_sharing_price(self, lat, lon, day, t, num_seats=1, with_popularity=False, tariff_rules=None, cost_rules=None, pop_rules=None):
         """
         @param lat:
@@ -125,11 +136,11 @@ class HotSpot(BaseModel):
             logging.info("  --> using default popularity")
             pop_price = HotSpotPopularityRule.apply_default(base_sharing_price, day, t)
 
-        if num_seats > 2:
+        if num_seats > 2: # TODO_WB: in this case we don't need to compute pop_price
             price = base_sharing_price
         elif num_seats == 2:
             delta = max([base_sharing_price - pop_price, 0])
-            price = pop_price + 0.4 * delta
+            price = pop_price + TWO_SEATS_PRICE_FACTOR * delta
         else:
             price = pop_price
 
@@ -173,9 +184,8 @@ class HotSpot(BaseModel):
             asap_interval = ceil_datetime(now + self.order_processing_time(OrderType.PRIVATE) + timedelta(minutes=2))
             if self.get_next_orderable_interval() > asap_interval:
                 t = asap_interval.time()
-                cost = self.get_cost(lat, lon, day, t, num_seats, tariffs, costs)
-                if cost:
-                    asap_price = get_base_sharing_price(cost)
+                asap_price = self.get_private_price(lat, lon, day, t, num_seats, tariffs, costs)
+                if asap_price:
                     offers.append({'time': t, 'price': asap_price, 'popularity': 0, 'type': OrderType.PRIVATE})
 
         for t in self.get_times_for_day(day, start_time=start_time):

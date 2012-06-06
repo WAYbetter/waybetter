@@ -32,12 +32,14 @@ def handle_approved_orders(sender, signal_type, obj, status, **kwargs):
     if status == APPROVED:
         order = obj
 
+        # send confirmation email
         passenger = order.passenger
         if passenger.user and passenger.user.email:
             msg = get_passenger_ride_email(order)
             send_mail_as_noreply(passenger.user.email, translate_to_lang("WAYbetter Order Confirmation", order.language_code), html=msg)
             notify_by_email("Order Confirmation [%s]%s" % (order.id, " (DEBUG)" if order.debug else ""), html=msg)
 
+        # create ride
         if order.type == OrderType.PRIVATE:
             ride = create_single_order_ride(order)
             logging.info("created private ride: order[%s] -> ride[%s]" % (order.id, ride.id))

@@ -400,7 +400,7 @@ def fix_computation_hotspot_fields(start=0):
     batch_size = 500
     end = start + batch_size
     logging.info("fix_computation_hotspot_fields: processing %s->%s" % (start, end))
-    computations = RideComputation.objects.all()[start:end]
+    computations = RideComputation.objects.order_by("create_date")[start:end]
     for rc in computations:
         if rc.hotspot_type is not None:  # nothing to fix
             continue
@@ -432,11 +432,11 @@ def fix_orders_hotspot_type(start=0):
 
     This DOES NOT fix the Order.hotspot field.
     """
-    batch_size = 1
+    batch_size = 500
     end = start + batch_size
 
     logging.info("fix_orders_hotspot_type: processing %s->%s" % (start, end))
-    orders = Order.objects.all()[start:end]
+    orders = Order.objects.order_by("create_date")[start:end]
     for order in orders:
         rc = order.computation
         if rc and rc.hotspot_type:
