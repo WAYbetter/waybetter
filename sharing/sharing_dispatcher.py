@@ -34,6 +34,8 @@ def dispatch_ride(ride):
 
         if ride.dn_fleet_manager_id:
             fleet_manager.create_ride(ride)
+        else:
+            logging.info("ride %s has no fleet manager" % ride.id)
 
         send_ride_notifications(ride)
         if not work_station.is_online:
