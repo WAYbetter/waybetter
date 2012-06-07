@@ -34,6 +34,7 @@ import common.urllib_adaptor as urllib2
 
 SHARING_TIME_FACTOR = 1.25
 SHARING_TIME_MINUTES = 10
+SHARING_DISTANCE_METERS = 3000
 
 ORDER_HANDLE_TIMEOUT =                      80  # seconds
 ORDER_TEASER_TIMEOUT =                      19  # seconds
@@ -582,11 +583,11 @@ class RideEvent(BaseModel):
     shared_ride = models.ForeignKey(SharedRide, related_name="events", blank=True, null=True)
     pickmeapp_ride = models.ForeignKey(PickMeAppRide, related_name="events", blank=True, null=True)
     status = models.IntegerField(choices=FleetManagerRideStatus.choices(), default=FleetManagerRideStatus.PENDING)
-    raw_status=  models.CharField(max_length=128, null=True, blank=True)
+    raw_status = models.CharField(max_length=128, null=True, blank=True)
     lat = models.FloatField(null=True, blank=True)
     lon = models.FloatField(null=True, blank=True)
     taxi_id = models.IntegerField(null=True, blank=True)
-    timestamp = UTCDateTimeField()
+    timestamp = UTCDateTimeField(null=True, blank=True) # timestamp from fleet event
 
     def clean(self):
         if not (bool(self.shared_ride) ^ bool(self.pickmeapp_ride)):
@@ -996,6 +997,7 @@ class Order(BaseModel):
     price = models.FloatField(null=True, blank=True, editable=False)
     num_seats = models.PositiveIntegerField(default=1)
     from sharing.models import HotSpot
+    # note: you must be aware that legacy orders do not have a .hotspot value
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="orders", null=True, blank=True)
     hotspot_type = models.IntegerField(choices=StopType.choices(), null=True, blank=True)
 
@@ -1083,10 +1085,11 @@ class Order(BaseModel):
             return -1
 
     def get_pickup_str(self):
-        if self.pickup_point:
+        if self.pickup_point:  # a ride was created and we know the exact pickup time
             pickup_datetime = self.pickup_point.stop_time
             time_str = pickup_datetime.strftime("%H:%M")
-        else:
+
+        else:  # estimated pickup time
             pickup_datetime = self.depart_time
             time_str = pickup_datetime.strftime("%H:%M")
             if self.type == OrderType.SHARED and self.hotspot_type == StopType.DROPOFF:

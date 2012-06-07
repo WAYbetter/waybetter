@@ -1,3 +1,4 @@
+import traceback
 from google.appengine.ext import deferred
 from common.tz_support import utc_now
 from common.util import notify_by_email
@@ -57,7 +58,7 @@ def assign_ride(ride):
             return work_station
 
         except Exception:
-            notify_by_email(u"UpdateStatusError: Cannot assign ride [%s]" % ride.id, msg=ride.get_log())
+            notify_by_email(u"Cannot assign ride [%s]" % ride.id, msg="%s\n%s" % (ride.get_log(), traceback.format_exc()))
 
     return None
 

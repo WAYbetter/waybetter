@@ -67,32 +67,36 @@ class BaseModel(models.Model):
         @param attname: the attribute name to change
         @param old_value: the old value - current value must equal old_value for change to happen
         @param new_value: the new value to set
-        @return: True to signal success
+        @return: True if the value was changed
         """
-        if old_value == new_value:
-            logging.info("old == new")
-            result =  False
-        elif old_value is None:
-            setattr(self, attname, new_value)
-            self.save()
-            result = True
-        elif getattr(self, attname) == old_value:
-            setattr(self, attname, new_value)
-            self.save()
-            result = True
-        else:
-            result = False
+        logging.info("%s[%s] : change %s in transaction (%s, %s)" % (self.__class__.__name__, self.id, attname, str(old_value), str(new_value)))
+        do_att_change = False
 
-        if not result:
-            msg = "%s.%s : update in transaction failed (%s --> %s) current=%s" % (self.__class__.__name__, attname, str(old_value), str(new_value), str(getattr(self, attname)))
+        current_value = getattr(self, attname)
+        if old_value:
+            try: # try and get the latest value from the db
+                current_value = getattr(self.__class__.objects.get(id=self.id), attname)
+            except self.__class__.DoesNotExist:
+                pass
+
+            # compare to actual value, change only if equals to old_value
+            do_att_change = bool(current_value == old_value)
+
+        else: # don't care about actual value - change value now
+            do_att_change = True
+
+        if do_att_change:
+            setattr(self, attname, new_value)
+            self.save()
+            logging.info("%s[%s] : updated %s in transaction (%s --> %s)" % (self.__class__.__name__, self.id, attname, str(current_value), str(new_value)))
+        else:
+            msg = "%s[%s] : update %s in transaction failed (%s --> %s)" % (self.__class__.__name__, self.id, attname, str(current_value), str(new_value))
             if safe:
                 logging.warning(msg)
             else:
                 raise TransactionError(msg)
-        else:
-            logging.info("%s.%s : update in transaction (%s --> %s)" % (self.__class__.__name__, attname, str(old_value), str(new_value)))
 
-        return result
+        return do_att_change
 
     def __unicode__(self):
         if self.id:

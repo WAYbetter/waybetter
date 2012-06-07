@@ -2,6 +2,8 @@ import logging
 import random
 
 HANDLING_FEE = 2 # NIS
+MAX_DISCOUNT_FACTOR = 0.6 # the discount for 100% popularity
+TWO_SEATS_PRICE_FACTOR = 0.4 # add this to the delta between base_price and popularity price
 
 def get_base_sharing_price(cost):
 #    return 0.59 * cost
@@ -52,12 +54,13 @@ def get_popularity_price(popularity, base_price):
     @return:
     """
     popularity = round(popularity, 2)
+    assert 0.0 <= popularity <= 1.0, "popularity must be in range [0.0, 1.0]"
 
     if not popularity:
         return base_price
 
     max_price = base_price
-    min_price = 0.4 * base_price
+    min_price = (1 - MAX_DISCOUNT_FACTOR) * base_price
 
     new_price = max_price - (max_price - min_price) * popularity
 

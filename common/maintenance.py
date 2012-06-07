@@ -10,16 +10,14 @@ from django.views.decorators.csrf import csrf_exempt
 from django.http import HttpResponse
 from google.appengine.ext.deferred import deferred
 from billing.billing_manager import get_token_url
-from billing.models import BillingInfo
 from common.fax.backends.google_cloud_print import GoogleCloudPrintBackend
 from common.tz_support import default_tz_time_min, default_tz_now, set_default_tz_time
 from common.util import has_related_objects, url_with_querystring, get_unique_id, send_mail_as_noreply
 from common.decorators import catch_view_exceptions, internal_task_on_queue
 from common.util import notify_by_email
-from common.db_tools import merge_passenger
 from common.route import calculate_time_and_distance
 from django.contrib.sessions.models import Session
-from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation, OrderType, APPROVED, ACCEPTED, CHARGED
+from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation, OrderType, StopType, RideComputation
 import logging
 import traceback
 import datetime
@@ -392,6 +390,63 @@ def generate_passengers_with_non_existing_users():
 
     notify_by_email("Passengers linked to users which do not exist", html=passengers_list)
 
+
+def fix_computation_hotspot_fields(start=0):
+    """
+    In 1.1 RideComputation.hotspot_type and RideComputation.hotspot_datetime fields were added to replace previous fields
+    RideComputation.hotspot_depart_time and RideComputation.hotspot_arrive_time.
+    This method fixes legacy computations to have values for the 1.1 fields.
+    """
+    batch_size = 500
+    end = start + batch_size
+    logging.info("fix_computation_hotspot_fields: processing %s->%s" % (start, end))
+    computations = RideComputation.objects.order_by("create_date")[start:end]
+    for rc in computations:
+        if rc.hotspot_type is not None:  # nothing to fix
+            continue
+        else:
+            if rc.hotspot_depart_time is not None:
+                rc.hotspot_datetime = rc.hotspot_depart_time
+                rc.hotspot_type = StopType.PICKUP
+            elif rc.hotspot_arrive_time is not None:
+                rc.hotspot_datetime = rc.hotspot_arrive_time
+                rc.hotspot_type = StopType.DROPOFF
+            else:
+                logging.error("error computation [%s] has no depart_time nor arrive_time" % rc.id)
+                continue
+
+            logging.info("fixed computation [%s]: %s %s" % (rc.id, StopType.get_name(rc.hotspot_type), rc.hotspot_datetime))
+            rc.save()
+
+    if computations:
+        deferred.defer(fix_computation_hotspot_fields, start=end, _queue="maintenance")
+    else:
+        logging.info("ALL DONE AT %s" % end)
+
+
+def fix_orders_hotspot_type(start=0):
+    """
+    In 1.1 Order.hotspot and Order.hotspot_type fields were added (finally).
+    This method fixes legacy orders to have a value for hotspot_type field derived from the order's computation,
+    so make sure you run fix_computation_hotspot_fields first.
+
+    This DOES NOT fix the Order.hotspot field.
+    """
+    batch_size = 500
+    end = start + batch_size
+
+    logging.info("fix_orders_hotspot_type: processing %s->%s" % (start, end))
+    orders = Order.objects.order_by("create_date")[start:end]
+    for order in orders:
+        rc = order.computation
+        if rc and rc.hotspot_type:
+            order.hotspot_type = rc.hotspot_type
+            logging.info("fixed order [%s]: %s" % (order.id, StopType.get_name(order.hotspot_type)))
+            order.save()
+    if orders:
+        deferred.defer(fix_orders_hotspot_type, start=end, _queue="maintenance")
+    else:
+        logging.info("ALL DONE AT %s" % end)
 
 def fix_orders_house_number():
     import re

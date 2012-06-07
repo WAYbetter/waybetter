@@ -8,8 +8,8 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils import simplejson
 from common.decorators import internal_task_on_queue, catch_view_exceptions, catch_view_exceptions_retry
-from common.util import safe_fetch, notify_by_email
-from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation, APPROVED, RideComputationStatus, FAILED, SHARING_TIME_FACTOR, IGNORED, CANCELLED, SHARING_TIME_MINUTES
+from common.util import safe_fetch, notify_by_email, get_uuid
+from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation, APPROVED, RideComputationStatus, FAILED, SHARING_TIME_FACTOR, IGNORED, CANCELLED, SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS
 from ordering.util import create_single_order_ride
 from sharing import signals
 from datetime import timedelta, datetime
@@ -23,7 +23,9 @@ WAZE = 3
 TELMAP = 4
 
 SHARING_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % TELMAP
-SEC_SHARING_ENGINE_DOMAIN = "http://waybetter-route-service-backup.appspot.com"
+#SEC_SHARING_ENGINE_DOMAIN = "http://waybetter-route-service-backup.appspot.com"
+# TODO_WB: use real secondary domain when calculation_complete gets the data as well
+SEC_SHARING_ENGINE_DOMAIN = SHARING_ENGINE_DOMAIN
 
 SHARING_ENGINE_URL = "/".join([SHARING_ENGINE_DOMAIN, "routeservicega1"])
 SEC_SHARING_ENGINE_URL = "/".join([SEC_SHARING_ENGINE_DOMAIN, "routeservicega1"])
@@ -133,7 +135,7 @@ def submit_orders_for_ride_calculation(orders, key=None, params=None, use_second
 
     return key
 
-def submit_computations(computation_key, submit_time, submit_step=COMPUTATION_FIRST_SUBMIT):
+def submit_computations(computation_key, submit_time, submit_step=COMPUTATION_FIRST_SUBMIT, computation_id=None):
     """
     Submit the computation to the algo engine
 
@@ -141,18 +143,18 @@ def submit_computations(computation_key, submit_time, submit_step=COMPUTATION_FI
     @param submit_time: eta for the task
     """
 
-    task_name = "key_%s_submit_on_%s" % (computation_key, to_task_name_safe(submit_time))
-    task = taskqueue.Task(url=reverse(submit_computations_task), params={'computation_key': computation_key, 'submit_step': submit_step},
-                                          eta=submit_time,
-                                          name=task_name)
+    task_name = "key_%s_submit_on_%s_%s" % (computation_key, to_task_name_safe(submit_time), get_uuid())
+    task = taskqueue.Task(url=reverse(submit_computations_task), eta=submit_time, name=task_name,
+                          params={'computation_key': computation_key,
+                                  'computation_id': computation_id,
+                                  'submit_step': submit_step})
     try:
         taskqueue.Queue('orders').add(task)
         logging.info("submit computation [key=%s]: on %s" % (computation_key, submit_time))
-    except TaskAlreadyExistsError:
-        logging.info("computation [key=%s] already scheduled for %s" % (computation_key, submit_time))
     except Exception, e:
-        logging.error(traceback.format_exc())
-        raise BookRideError(e.message)
+        trc = traceback.format_exc()
+        logging.error(trc)
+        notify_by_email("Important! submit computations task failed", msg="task_name=%s\n%s" % (task_name, trc))
 
 
 def notify_aborted_computation(orders, computation):
@@ -178,13 +180,13 @@ def abort_computation(computation):
 @internal_task_on_queue("orders")
 def submit_computations_task(request):
     key = request.POST.get("computation_key")
+    cid = request.POST.get("computation_id") # used in second and third steps for identifying the computation to process
     submit_step = int(request.POST.get("submit_step"))
     logging.info("submit_computations_task: submit_step=%d" % submit_step)
     computation = None
 
     if submit_step == COMPUTATION_FIRST_SUBMIT:
-        pending_computations = RideComputation.objects.filter(key=key)
-        pending_computations = filter(lambda c: c.status == RideComputationStatus.PENDING, pending_computations)
+        pending_computations = RideComputation.objects.filter(key=key, status=RideComputationStatus.PENDING)
         pending_computations = sorted(pending_computations, key = lambda c: c.create_date, reverse=True)
         if pending_computations:
             computation = pending_computations[0]
@@ -194,14 +196,14 @@ def submit_computations_task(request):
         
         # first lets get rid of the duplicate ride_computations we might have
         if computation.change_status(old_status=RideComputationStatus.PENDING, new_status=RideComputationStatus.PROCESSING):
-            computations = RideComputation.objects.filter(key=key, status=RideComputationStatus.PENDING)
+            computations = RideComputation.objects.filter(key=key, status=RideComputationStatus.PENDING) # TODO_WB: fix for HRD
             orders = [order for c in computations for order in c.orders.all()]
             for o in orders:
                 o.computation = computation
                 o.save()
             for c in computations: # delete old, emptied computations
                 c.delete()
-        else: # abort
+        else: # aborting  - another process changed the same computation. This is OK.
             logging.info("aborting: changing status PENDING->PROCESSING failed")
             return HttpResponse("ABORTED")
 
@@ -211,26 +213,24 @@ def submit_computations_task(request):
             except RideComputation.DoesNotExist:
                 pass
 
-    else: # second or third step
-        try:
-            computation = RideComputation.objects.get(key=key)
-            if computation.status in [RideComputationStatus.ABORTED, RideComputationStatus.IGNORED, RideComputationStatus.COMPLETED]:
-                logging.info("nothing to do")
-                return HttpResponse("Done")
+    else: # second or third step - get the computation we are responsible for
+        computation = RideComputation.by_id(cid)
 
-        except RideComputation.DoesNotExist:
-            pass
-        
-
-    # applies to all steps
     if computation:
-        if submit_step == COMPUTATION_ABORT:
+        # if computation is in final state do nothing
+        if computation.status in [RideComputationStatus.ABORTED, RideComputationStatus.IGNORED, RideComputationStatus.COMPLETED]:
+            logging.info("nothing to do")
+            return HttpResponse("Done")
+
+        elif submit_step == COMPUTATION_ABORT:
             abort_computation(computation)
             return HttpResponse("ABORTED") # abort task
 
+        # first or seconds steps - submit to algo
         params = {'debug': computation.debug,
 #                  'toleration_factor': SHARING_TIME_FACTOR,
-                  'toleration_factor_minutes': SHARING_TIME_MINUTES
+                  'toleration_factor_minutes': SHARING_TIME_MINUTES,
+                  'toleration_factor_meters': SHARING_DISTANCE_METERS
                   }
 
         approved_orders = []
@@ -257,9 +257,9 @@ def submit_computations_task(request):
         computation.change_status(new_status=RideComputationStatus.SUBMITTED) # saves
 
         if submit_step == COMPUTATION_FIRST_SUBMIT:
-            submit_computations(key, datetime.now() + timedelta(minutes=COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT), submit_step=COMPUTATION_SUBMIT_TO_SECONDARY)
+            submit_computations(key, datetime.now() + timedelta(minutes=COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT), submit_step=COMPUTATION_SUBMIT_TO_SECONDARY, computation_id=computation.id)
         elif submit_step == COMPUTATION_SUBMIT_TO_SECONDARY:
-            submit_computations(key, datetime.now() + timedelta(minutes=COMPUTATION_ABORT_TIMEOUT), submit_step=COMPUTATION_ABORT)
+            submit_computations(key, datetime.now() + timedelta(minutes=COMPUTATION_ABORT_TIMEOUT), submit_step=COMPUTATION_ABORT, computation_id=cid)
 
         logging.info(
             "submitted %s approved orders: computation_key=%s algo_key=%s params=%s." % (len(approved_orders), key, algo_key, params))
@@ -282,6 +282,7 @@ def ride_calculation_complete_noop(request):
 
 @csrf_exempt
 def ride_calculation_complete(request):
+    # TODO_WB: why doesn't Orly send us the data as well instead of us making another fetch
     logging.info("ride_calculation_complete: %s" % request)
     result_id = request.POST.get('id')
     if result_id:

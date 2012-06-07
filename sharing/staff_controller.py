@@ -187,7 +187,7 @@ def calc_users_data_csv(recipient ,offset=0, csv_bytestring=u""):
 
 @staff_member_required
 def send_users_data_csv(request):
-    recipient = ["amir@waybetter.com", "shay@waybetter.com"]
+    recipient = ["dev@waybetter.com"]
     col_names = ["Last Seen", "Last Ordered", "Joined", "Name", "email", "Phone", "#mobile orders", "#website orders", "#rides", "billing", "total payment", "view orders"]
     deferred.defer(calc_users_data_csv, recipient, offset=0, csv_bytestring=u"%s\n" % u",".join(col_names))
 
@@ -525,7 +525,7 @@ def calc_pickmeapp_passenger_count(offset=0, count=0):
 
 @staff_member_required
 def send_orders_data_csv(request):
-    recipient = ["amir@waybetter.com"]
+    recipient = ["dev@waybetter.com"]
     col_names = ["depart day", "depart time", "arrive day", "arrive time", "ordered before pickup", "passenger",
                  "from", "from lat", "from lon", "to", "to lat", "to lon",
                  "sharing?", "interval id", "#interval orders", "ride map"]

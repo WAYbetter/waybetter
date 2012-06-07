@@ -8,5 +8,7 @@ urlpatterns = patterns('',
     (r'^isrproxy/get_ongoing_rides/$', 'fleet.backends.isr_proxy.get_ongoing_rides'),
     (r'^isrproxy/update/status/$', 'fleet.backends.isr_proxy.update_status'),
     (r'^isrproxy/update/positions/$', 'fleet.backends.isr_proxy.update_positions'),
+
+    # TODO_WB: remove url and controller when ISR testing is done
     (r'^isrproxy/create/nyride/(?P<ride_id>\d+)/$', 'fleet.views.create_ny_isr_ride'),
 )

@@ -521,10 +521,10 @@
     }
 
     function renderInterval(interval){
-        var $price = $("<span></span>").addClass("price bold").text("₪" + interval.price);
+        var $price = $("<span class='align-farend'></span>").addClass("price bold").text("₪" + interval.price);
 
-        var bar_width = 60;
-        var fill_width = parseInt(interval.popularity * 100) + "%";
+        var bar_width = 80;
+        var fill_width = parseInt(interval.popularity * bar_width);
         var $popularity_fill = $("<span></span>").addClass("inline-block popularity-fill").width(fill_width);
         var $popularity_bar = $("<span></span>").addClass("inline-block popularity-bar").width(bar_width).append($popularity_fill);
         var $popularity = $("<span></span>").addClass("inline-block").append($price, $popularity_bar);
@@ -532,8 +532,7 @@
         var $label = $("<span></span>").text("{% trans "Popularity" %}").addClass("popularity-label");
         var $popularity_cntr = $("<span></span>").addClass("pop-cntr inline-block float-farend").append($label, $popularity);
 
-        var time_text = (interval.type == order_types["private"]) ? "{% trans "ASAP" %}" : interval.time;
-        var $time = $("<span></span>").addClass("time bold float-closeend").text(time_text);
+        var $time = $("<span></span>").addClass("time bold float-closeend").text(interval.time);
         var $interval = $("<div></div>").addClass("interval clickable").append($time, $popularity_cntr);
         $interval.data(interval);
         return $interval;

@@ -21,15 +21,25 @@ workstation_offline_signal              = AsyncSignal(SignalType.WORKSTATION_OFF
 
 @receive_signal(order_status_changed_signal)
 def handle_approved_orders(sender, signal_type, obj, status, **kwargs):
-    from common.util import notify_by_email
+    from common.util import notify_by_email, send_mail_as_noreply
+    from common.langsupport.util import translate_to_lang
     from ordering.models import StopType, OrderType, APPROVED
     from ordering.util import create_single_order_ride
     from sharing.algo_api import submit_to_prefetch
+    from sharing.passenger_controller import get_passenger_ride_email
     from sharing import computation_manger
 
     if status == APPROVED:
         order = obj
 
+        # send confirmation email
+        passenger = order.passenger
+        if passenger.user and passenger.user.email:
+            msg = get_passenger_ride_email(order)
+            send_mail_as_noreply(passenger.user.email, translate_to_lang("WAYbetter Order Confirmation", order.language_code), html=msg)
+            notify_by_email("Order Confirmation [%s]%s" % (order.id, " (DEBUG)" if order.debug else ""), html=msg)
+
+        # create ride
         if order.type == OrderType.PRIVATE:
             ride = create_single_order_ride(order)
 

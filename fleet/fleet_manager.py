@@ -75,7 +75,7 @@ def update_ride(fmr):
                   lat=fmr.lat, lon=fmr.lon, taxi_id=fmr.taxi_id, timestamp=fmr.timestamp)
     e.save()
 
-    # TODO_WB: update wb_ride
+    # TODO_WB: update wb_ride when we trust ISR data
     wb_ride = pickmeapp_ride or shared_ride
     logging.info("fleet manager: ride [%s] not updated. fmr_status=%s raw_status=%s)" %
                  (wb_ride.id, FleetManagerRideStatus.get_name(fmr.status), fmr.raw_status))

@@ -52,21 +52,22 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
     transaction_id = get_text_from_element(result, "tranId")
     billing_transaction.transaction_id = transaction_id
 
-    if int(status_code):
+    if int(status_code):  # failed
         message = get_text_from_element(result, "message")
         billing_transaction.comments = message
         billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
         billing_failed_signal.send(sender="do_J5", obj=billing_transaction)
-    elif billing_transaction.order.status == PENDING:
+    else:
         billing_transaction.auth_number = auth_number
         billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.APPROVED) #calls save
-        billing_transaction.order.change_status(old_status=PENDING, new_status=APPROVED)
-        billing_approved_signal.send(sender="do_J5", obj=billing_transaction)
-        billing_transaction.charge() # setup J4
-    else: # order is not PENDING (it can be marked as IGNORED when submitting to algorithm)
-        billing_transaction.comments = _("We are sorry but booking for the selected time is closed, please choose a different time.<br/>Your billing information was saved, you will not be asked to provide it again.")
-        billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
-        logging.info("J5 FAILED: order status is %s (expected PENDING)" % billing_transaction.order.get_status_label())
+
+        if billing_transaction.order.change_status(old_status=PENDING, new_status=APPROVED):
+            billing_approved_signal.send(sender="do_J5", obj=billing_transaction)
+            billing_transaction.charge() # setup J4
+        else: # order is not PENDING (it can be marked as IGNORED when submitting to algorithm)
+            billing_transaction.comments = _("We are sorry but booking for the selected time is closed, please choose a different time.<br/>Your billing information was saved, you will not be asked to provide it again.")
+            billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.FAILED) #calls save
+            logging.info("J5 FAILED: order status is %s (expected PENDING)" % billing_transaction.order.get_status_label())
 
     return HttpResponse("OK")
 
