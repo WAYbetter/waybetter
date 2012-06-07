@@ -11,6 +11,12 @@ from fleet import fleet_manager
 from ordering.models import SharedRide
 
 def create_ny_isr_ride(request, ride_id):
+    ride = SharedRide.by_id(ride_id)
+    if not ride:
+        msg = "no SharedRide found with id=%s" % ride_id
+        logging.error(msg)
+        return HttpResponseBadRequest(msg)
+
     if settings.LOCAL:
         isrproxy_id = 2738544
         test_station_id = 1008
@@ -18,25 +24,22 @@ def create_ny_isr_ride(request, ride_id):
         isrproxy_id = 3673085
         test_station_id = 1713061 # amir_station_1
 
-    test_station_isr_id = 8
-
-    ride = SharedRide.by_id(ride_id)
-    if ride and not ride.debug:  # real rides created from stable
-        # New York taxi station
+    if ride.debug:
+        target_station_id = test_station_id
+        target_station_isr_id = 8 # test station isr id
+    else:
+        # real rides created from stable - send to New York taxi station
         target_station_id = 1529226
         target_station_isr_id = 10
+
+    logging.info(u"create_ny_isr_ride: %s" % u", ".join([unicode(s) for s in [target_station_id, ride]]))
+
+    if not (ride.station and ride.station.id == target_station_id):
+        msg = "wrong station: ride.station=%s target_station=%s" % (ride.station, target_station_id)
+        logging.error(msg)
+        response = HttpResponseBadRequest(msg)
     else:
-        target_station_id = test_station_id
-        target_station_isr_id = test_station_isr_id
-
-
-    logging.info(u"create_ny_isr_ride: %s" % u"\n".join([unicode(s) for s in [target_station_id, ride]]))
-
-    if not all([ride, ride.station]):
-        response = HttpResponseBadRequest("no ride found or ride not assigned to station")
-    elif not ride.station.id == target_station_id:
-        response = HttpResponseBadRequest("wrong station: ride.station=%s target_station=%s" % (ride.station, target_station_id))
-    else:
+        # fix the station data since stable.Station does not have fleet field
         if not ride.station.fleet_station_id:
             ride.station.fleet_station_id = target_station_isr_id
             ride.station.save()

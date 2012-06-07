@@ -1,6 +1,7 @@
 from common.decorators import receive_signal
 from common.signals import AsyncSignal
 from common.util import  Enum
+import logging
 
 class SignalType(Enum):
     ORDER_CREATED               = 1
@@ -25,14 +26,12 @@ def handle_approved_orders(sender, signal_type, obj, status, **kwargs):
     from ordering.util import create_single_order_ride
     from sharing.algo_api import submit_to_prefetch
     from sharing import computation_manger
-    import logging
 
     if status == APPROVED:
         order = obj
 
         if order.type == OrderType.PRIVATE:
             ride = create_single_order_ride(order)
-            logging.info("created private ride: order[%s] -> ride[%s]" % (order.id, ride.id))
 
         elif order.type == OrderType.SHARED:
             computation = computation_manger.get_hotspot_computation(order)
@@ -48,6 +47,18 @@ def handle_approved_orders(sender, signal_type, obj, status, **kwargs):
                 logging.info("No matching computation found for order %s" % order.id)
                 ride = create_single_order_ride(order)
                 notify_by_email("No matching computation found", "Private ride voucher was sent for order [%s]" % order.id)
+
+
+@receive_signal(order_status_changed_signal)
+def handle_accepted_orders(sender, signal_type, obj, status, **kwargs):
+    from ordering.models import ACCEPTED, OrderType
+    from ordering.util import create_pickmeapp_ride
+
+    if status == ACCEPTED:
+        order = obj
+        if order.type == OrderType.PICKMEAPP:
+            pickmeapp_ride = create_pickmeapp_ride(order)
+
 
 #@receive_signal(workstation_offline_signal, workstation_online_signal)
 def log_connection_events(sender, signal_type, obj, **kwargs):
