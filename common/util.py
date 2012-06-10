@@ -619,6 +619,15 @@ def add_formatted_date_fields(classes):
 
                 setattr(model, f.name + "_format", format_datefield(f))
 
+def safe_json_loads(string):
+    res = None
+    try:
+        res = simplejson.loads(string)
+    except Exception, e:
+        logging.warning("safe_json_loads failed to load string '%s': %s" % (string, e.message))
+        pass
+
+    return res
 
 def safe_fetch(url, payload=None, method=GET, headers=None,
                allow_truncated=False, follow_redirects=True,
