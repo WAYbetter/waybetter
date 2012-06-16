@@ -1,7 +1,6 @@
 import traceback
 from google.appengine.api.taskqueue import taskqueue
-from google.appengine.api.taskqueue.taskqueue import TaskAlreadyExistsError
-from google.appengine.api.urlfetch import fetch, POST
+from google.appengine.api.urlfetch import  POST
 from google.appengine.ext.deferred import deferred
 from common.tz_support import to_task_name_safe
 from django.views.decorators.csrf import csrf_exempt
@@ -10,23 +9,20 @@ from django.http import HttpResponse
 from django.utils import simplejson
 from common.decorators import internal_task_on_queue, catch_view_exceptions, catch_view_exceptions_retry
 from common.util import safe_fetch, notify_by_email, get_uuid, safe_json_loads
-from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation, APPROVED, RideComputationStatus, FAILED, SHARING_TIME_FACTOR, IGNORED, CANCELLED, SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS
+from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation, APPROVED, RideComputationStatus, IGNORED, CANCELLED, SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS
 from ordering.util import create_single_order_ride
 from sharing import signals
 from datetime import timedelta, datetime
 import urllib
 import logging
 from django.conf import settings
-from sharing.errors import BookRideError
 
 DEBUG = 1
 WAZE = 3
 TELMAP = 4
 
 SHARING_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % TELMAP
-#SEC_SHARING_ENGINE_DOMAIN = "http://waybetter-route-service-backup.appspot.com"
-# TODO_WB: use real secondary domain when calculation_complete gets the data as well
-SEC_SHARING_ENGINE_DOMAIN = SHARING_ENGINE_DOMAIN
+SEC_SHARING_ENGINE_DOMAIN = "http://waybetter-route-service-backup.appspot.com"
 
 SHARING_ENGINE_URL = "/".join([SHARING_ENGINE_DOMAIN, "routeservicega1"])
 SEC_SHARING_ENGINE_URL = "/".join([SEC_SHARING_ENGINE_DOMAIN, "routeservicega1"])
