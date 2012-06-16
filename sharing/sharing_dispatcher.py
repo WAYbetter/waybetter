@@ -1,3 +1,4 @@
+import traceback
 from google.appengine.ext import deferred
 from common.tz_support import utc_now
 from common.util import notify_by_email
@@ -6,27 +7,19 @@ from django.utils.translation import ugettext as _
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api.taskqueue import taskqueue
-from common.decorators import receive_signal, internal_task_on_queue, catch_view_exceptions
+from common.decorators import internal_task_on_queue, catch_view_exceptions
 from django.core.urlresolvers import reverse
 from ordering import station_connection_manager
-from ordering.errors import UpdateStatusError
 from ordering.models import WorkStation, PENDING, ASSIGNED, SharedRide
 from datetime import timedelta
 from ordering.util import send_msg_to_passenger
 from sharing.passenger_controller import send_ride_notifications
 from sharing.station_controller import send_ride_voucher
-import signals
+from fleet import fleet_manager
 import logging
 
 MSG_DELIVERY_GRACE = 10 # seconds
 NOTIFY_STATION_DELTA = timedelta(minutes=10)
-
-@receive_signal(signals.ride_created_signal)
-def ride_created(sender, signal_type, obj, **kwargs):
-    logging.info("ride_created_signal: %s" % obj)
-    ride = obj
-    dispatch_ride(ride)
-
 
 def dispatch_ride(ride):
     work_station = assign_ride(ride)
@@ -35,21 +28,19 @@ def dispatch_ride(ride):
 #        task = taskqueue.Task(url=reverse(push_ride_task), countdown=MSG_DELIVERY_GRACE, params={"ride_id": ride.id, "ws_id": work_station.id})
 #        taskqueue.Queue('orders').add(task)
         
-        if work_station.station.vouchers_emails:
-            q = taskqueue.Queue('ride-notifications')
-            task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
-            q.add(task)
+        q = taskqueue.Queue('ride-notifications')
+        task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
+        q.add(task)
 
-        # TODO_WB: remove when merging isr->default->stable
-        try:
-            from google.appengine.api.urlfetch import fetch
-            fetch("http://devisr.latest.waybetter-app.appspot.com/fleet/isrproxy/create/nyride/%s/" % ride.id)
-            logging.info("fetched devisr create ny ride %s" % ride.id)
-        except Exception, e:
-            logging.error(e)
-        # end TODO
+        if ride.dn_fleet_manager_id:
+            fleet_manager.create_ride(ride)
+        else:
+            logging.info("ride %s has no fleet manager" % ride.id)
 
         send_ride_notifications(ride)
+        if not work_station.is_online:
+            notify_by_email(u"Ride [%s] dispatched to offline workstation %s" % (ride.id, work_station), msg=ride.get_log())
+
     else:
         #TODO_WB: how do we handle this? cancel the orders?
         notify_dispatching_failed(ride)
@@ -60,22 +51,14 @@ def assign_ride(ride):
 
     if work_station:
         try:
-            ride.station = work_station.station
-
-            # TODO_WB
-            # in fax sending mode we assume all dispatched rides will be accepted
+            station = work_station.station
+            ride.station = station
+            ride.dn_fleet_manager_id = station.fleet_manager_id
             ride.change_status(old_status=PENDING, new_status=ASSIGNED) # calls save()
-#            ride.change_status(old_status=PENDING, new_status=ACCEPTED) # calls save()
-
-#            if work_station.is_online:
-#                notify_by_email(u"Ride [%s] assigned successfully to workstation %s" % (ride.id, work_station), msg=get_ride_log(ride))
-#            else:
-#                notify_by_email(u"Ride [%s] assigned to offline workstation %s" % (ride.id, work_station), msg=get_ride_log(ride))
-
             return work_station
 
-        except UpdateStatusError:
-            notify_by_email(u"UpdateStatusError: Cannot assign ride [%s]" % ride.id, msg=ride.get_log())
+        except Exception:
+            notify_by_email(u"Cannot assign ride [%s]" % ride.id, msg="%s\n%s" % (ride.get_log(), traceback.format_exc()))
 
     return None
 

@@ -34,15 +34,15 @@ hr {
     @include box-shadow(0 1px white);
 }
 
-.ui-loader{
-    background: white;
-    @include box-shadow(0 0 25px gray);
-    width: 120px;
-    margin-left: -90px;
-}
-.ui-icon-loading{
-    background-image: url(/static/images/mobile/loader_normal.png);
-}
+//.ui-loader{
+//    background: white;
+//    @include box-shadow(0 0 25px gray);
+//    width: 120px;
+//    margin-left: -90px;
+//}
+//.ui-icon-loading{
+//    background-image: url(/static/images/mobile/loader_normal.png);
+//}
 
 .errorlist li{
     list-style: none;
@@ -243,15 +243,6 @@ ul.narrow {
         margin: 0 auto;
         top: -0.8em;
     }
-    #switch-dir-img{
-        position: absolute;
-        background: url(/static/images/mobile/switch_dir.png) right center no-repeat;
-        opacity: 1;
-        width: 20px;
-        height: 27px;
-        top: 0.6em;
-        right: 3em;
-    }
     .desc {
         color: #7c7c7c;
         font-size: 13px;
@@ -259,23 +250,11 @@ ul.narrow {
     .type, .label_box{
         @extend .bold;
     }
-    .from_label {
-        .label_box {
-            @include box-color($pickup_color);
-        }
-        color: $pickup_color;
 
-    }
-    .to_label {
-        .label_box {
-            @include box-color($dropoff_color);
-        } 
-        color: $dropoff_color;
-    }
-    .booking_widget{
+    .booking_widget {
         position: relative;
         top: -0.7em;
-        a{
+        a {
             padding-top: 0.2em;
             padding-bottom: 0.6em;
         }
@@ -286,12 +265,6 @@ ul.narrow {
     }
     #calculate_ride_btn {
         top: -0.5em;
-    }
-    #seat_selector_wrapper {
-        top: -1em;
-    }
-    .ui-content > .ui-btn {
-        top: -1em;
     }
 
     #choose_time_btn {
@@ -742,12 +715,6 @@ ul.narrow {
                     }
                 }
 
-            }
-            #booking_page {
-                #switch-dir-img {
-                    background-image: url(/static/images/mobile/switch_dir_retina.png);
-                    @include background-size(20px 27px);
-                }
             }
 }
 

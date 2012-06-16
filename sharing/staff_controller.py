@@ -1,8 +1,12 @@
 # This Python file uses the following encoding: utf-8
 import calendar
 import gzip
+import os
 import pickle
 from django.contrib.auth.models import User
+from google.appengine.api import memcache
+from google.appengine.api.channel.channel import InvalidChannelClientIdError
+from common.geocode import gmaps_geocode, Bounds, gmaps_reverse_geocode
 from django.core.urlresolvers import reverse
 from google.appengine.ext.deferred import deferred
 from common.signals import async_computation_failed_signal, async_computation_completed_signal
@@ -11,7 +15,7 @@ from billing.enums import BillingStatus
 from billing.models import BillingTransaction, BillingInfo
 from common.decorators import force_lang
 from common.models import City
-from common.util import custom_render_to_response, get_uuid, base_datepicker_page, send_mail_as_noreply
+from common.util import custom_render_to_response, get_uuid, base_datepicker_page, send_mail_as_noreply, is_in_hebrew
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponse
 from django.utils import simplejson, translation
@@ -20,9 +24,12 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_now_min, default_tz_now_max
 from djangotoolbox.http import JSONResponse
+import ordering
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
 from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS, Order, CHARGED, ACCEPTED, APPROVED, REJECTED, TIMED_OUT, FAILED, Passenger, SharedRide, Station
+from pricing.views import hotspot_pricing_overview
+import sharing
 from sharing.forms import ConstraintsForm
 from sharing.models import HotSpot
 from sharing.passenger_controller import HIDDEN_FIELDS
@@ -37,6 +44,81 @@ import re
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 LANG_CODE = "he"
 PICKMEAPP = "PickMeApp"
+
+@staff_member_required
+@force_lang("en")
+def control_panel(request):
+    admin_links = [
+            {'name': 'Kpi', 'url': reverse(kpi)},
+            {'name': 'Birdseye', 'url': reverse(birdseye_view)},
+            {'name': 'Track rides and taxis', 'url': reverse(track_rides)},
+            {'name': 'Hotspot pricing', 'url': reverse(hotspot_pricing_overview)},
+            {'name': 'Sharing orders map', 'url': reverse(sharing_orders_map)},
+            {'name': 'PickMeApp orders map', 'url': reverse(pickmeapp_orders_map)},
+            {'name': 'Staff home', 'url': reverse(staff_home)},
+            {'name': 'Google maps testing page', 'url': reverse(gmaps)},
+    ]
+    data_generators = [
+            {'name': 'Send users data', 'url': reverse(send_users_data_csv)},
+            {'name': 'Send orders data', 'url': reverse(send_orders_data_csv)},
+    ]
+    external_services = [
+            {'name': 'Google cloud print', 'description': 'Login as printer@waybetter.com', 'url': 'http://www.google.com/cloudprint/'},
+            {'name': 'invoice4U', 'url': 'https://account.invoice4u.co.il/login.aspx?ReturnUrl=/User/Default.aspx'},
+            {'name': 'freefax', 'url': 'http://www.freefax.co.il/login.php'},
+            {'name': 'myfax', 'url': 'https://myfax.co.il/action/faxLogs.do?listType=outbox'},
+    ]
+
+    catagories = [
+            {'title': 'Admin Links', 'data': admin_links},
+            {'title': 'Data Generation', 'data': data_generators},
+            {'title': 'External Services', 'data': external_services},
+    ]
+
+    sys_consts = [
+            {'name': 'Sharing factor (Minutes)', 'value': ordering.models.SHARING_TIME_MINUTES},
+            {'name': 'Ride handling time (Minutes)', 'value': int(sharing.models.TOTAL_HANDLING_DELTA.seconds)/60},
+    ]
+
+    env_vars = [
+            {'name': 'SERVER_SOFTWARE', 'value': os.environ.get('SERVER_SOFTWARE')},
+            {'name': 'CURRENT_VERSION_ID', 'value': os.environ.get('CURRENT_VERSION_ID')},
+    ]
+    for attr in ['LOCAL', 'DEV_VERSION', 'DEV', 'DEBUG']:
+        env_vars.append({'name': attr, 'value': getattr(settings, attr)})
+
+    return render_to_response("staff_cpanel.html", locals(), context_instance=RequestContext(request))
+
+
+@staff_member_required
+def gmaps(request):
+    return render_to_response("gmaps_testpage.html", locals(), context_instance=RequestContext(request))
+
+def gmaps_resolve_address(request):
+    address = request.GET.get("address")
+    lang_code = 'iw' if is_in_hebrew(address) else 'en'
+    tel_aviv_bounds = Bounds({
+        "sw_lat": "32.032819",
+        "sw_lon": "34.741859",
+        "ne_lat": "32.132594",
+        "ne_lon": "34.83284"
+    })
+    geocoding_results =  gmaps_geocode(address=address, lang_code=lang_code, bounds=tel_aviv_bounds)
+    results = []
+    for result in geocoding_results:
+        results.append({
+            'description': '%s (%s)' % (result['formatted_address'], ", ".join(result['types'])),
+            'raw_data': simplejson.dumps(result)
+        })
+    return JSONResponse({'results': results})
+
+def reverse_geocode(request):
+    lat = request.GET.get("lat")
+    lon = request.GET.get("lon")
+    lang_code = 'iw'
+
+    results = gmaps_reverse_geocode(lat, lon, lang_code=lang_code)
+    return JSONResponse({'results': results})
 
 @staff_member_required
 def view_user_orders(request, user_id):
@@ -105,7 +187,7 @@ def calc_users_data_csv(recipient ,offset=0, csv_bytestring=u""):
 
 @staff_member_required
 def send_users_data_csv(request):
-    recipient = ["amir@waybetter.com", "shay@waybetter.com"]
+    recipient = ["dev@waybetter.com"]
     col_names = ["Last Seen", "Last Ordered", "Joined", "Name", "email", "Phone", "#mobile orders", "#website orders", "#rides", "billing", "total payment", "view orders"]
     deferred.defer(calc_users_data_csv, recipient, offset=0, csv_bytestring=u"%s\n" % u",".join(col_names))
 
@@ -443,7 +525,7 @@ def calc_pickmeapp_passenger_count(offset=0, count=0):
 
 @staff_member_required
 def send_orders_data_csv(request):
-    recipient = ["amir@waybetter.com"]
+    recipient = ["dev@waybetter.com"]
     col_names = ["depart day", "depart time", "arrive day", "arrive time", "ordered before pickup", "passenger",
                  "from", "from lat", "from lon", "to", "to lat", "to lon",
                  "sharing?", "interval id", "#interval orders", "ride map"]
@@ -783,38 +865,57 @@ def birdseye_view(request):
     init_end_date = default_tz_now_max() + timedelta(days=7)
     order_status_labels = [label for (key, label) in ORDER_STATUS]
 
+    def srz_o(o):
+        _from, _to = o.from_raw, o.to_raw
+        passenger_details = None
+        if o.passenger:
+            passenger_details = [o.passenger.full_name, o.passenger.phone]
+            if o.passenger.user:
+                passenger_details.append(o.passenger.user.email)
+        if o.hotspot:
+            if o.hotspot_type == StopType.PICKUP: _from = o.hotspot.name
+            if o.hotspot_type == StopType.DROPOFF: _to = o.hotspot.name
+        return {'id': o.id,
+                'date': o.depart_time.strftime("%d/%m/%y"),
+                'depart': "%s %s" % (_from, o.depart_time.strftime("%H:%M")),
+                'arrive': "%s %s" % (_to, o.arrive_time.strftime("%H:%M")),
+                'passenger': " ".join(passenger_details) if passenger_details else na,
+                'type': OrderType.get_name(o.type),
+                'status': o.get_status_label(),
+                'price': o.price,
+                'debug': 'Yes' if o.debug else 'No'
+        }
+
+    def srz_r(r):
+        return {'id': r.id,
+                'depart_time': r.depart_time.strftime("%H:%M"),
+                'orders': [srz_o(o) for o in r.orders.all()]
+        }
+
     def f(start_date, end_date):
-        departing = RideComputation.objects.filter(hotspot_depart_time__gte=start_date,
-                                                   hotspot_depart_time__lte=end_date)
-        arriving = RideComputation.objects.filter(hotspot_arrive_time__gte=start_date,
-                                                  hotspot_arrive_time__lte=end_date)
-        data = []
+        orders = Order.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date)
+        private_orders = filter(lambda o: o.type == OrderType.PRIVATE, orders)
+        private_orders_data = [srz_o(o) for o in sorted(private_orders, key=lambda o: o.depart_time, reverse=True)]
 
-        for c in sorted(list(departing) + list(arriving), key=lambda c: c.hotspot_depart_time or c.hotspot_arrive_time,
-                        reverse=True):
-            time = c.hotspot_depart_time or c.hotspot_arrive_time
-            orders_data = [{'id': o.id,
-                            'from': o.from_raw,
-                            'to': o.to_raw,
-                            'passenger_name': "%s %s" % (o.passenger.user.first_name,
-                                                         o.passenger.user.last_name) if o.passenger and o.passenger.user else na
-                ,
-                            'passenger_phone': o.passenger.phone if o.passenger else na,
-                            'type': OrderType.get_name(o.type),
-                            'status': o.get_status_label(),
-                            'debug': 'debug' if o.debug else ''
-            }
-            for o in c.orders.all()]
-
+        computations = RideComputation.objects.filter(hotspot_datetime__gte=start_date, hotspot_datetime__lte=end_date)
+        computations_data = []
+        for c in sorted(computations, key=lambda c: c.hotspot_datetime, reverse=True):
+            time = c.hotspot_datetime
+            status = RideComputationStatus.get_name(c.status)
+            if c.status == RideComputationStatus.PENDING and c.submit_datetime:
+                status = "%s@%s" % (status, c.submit_datetime.strftime("%H:%M"))
             c_data = {'id': c.id,
-                      'status': RideComputationStatus.get_name(c.status),
+                      'status': status,
                       'time': time.strftime("%d/%m/%y, %H:%M"),
-                      'dir': 'Hotspot->' if c.hotspot_depart_time else '->Hotspot' if c.hotspot_arrive_time else na,
-                      'orders': orders_data,
+                      'dir': 'Hotspot->' if c.hotspot_type == StopType.PICKUP else '->Hotspot' if c.hotspot_type == StopType.DROPOFF else na,
                       }
+            if c.rides.count():
+                c_data['rides'] = [srz_r(r) for r in c.rides.all()]
+            else:
+                c_data['orders'] = [srz_o(o) for o in c.orders.all()]
+            computations_data.append(c_data)
 
-            data.append(c_data)
-        return data
+        return {'private_orders': private_orders_data, 'computations': computations_data}
 
     return base_datepicker_page(request, f, 'birdseye_view.html', locals(), init_start_date, init_end_date)
 
@@ -858,7 +959,7 @@ def hotspot_ordering_page(request, passenger, is_textinput):
                 if int(request.POST.get("time_const_min") or 0):
                     params["toleration_factor_minutes"] = request.POST["time_const_min"]
                 name = request.POST.get("computation_set_name")
-                key = submit_test_computation(orders, params=params, computation_set_name=name)
+                key = submit_test_computation(orders, hotspot_type_raw, params=params, computation_set_name=name)
                 response = u"Orders submitted for calculation: %s" % key
             else:
                 response = "Hotspot data corrupt: no orders created"
@@ -905,7 +1006,7 @@ def ride_computation_stat(request, computation_set_id):
         if int(request.POST.get("time_const_min") or 0):
             params["toleration_factor_minutes"] = request.POST["time_const_min"]
 
-        key = submit_test_computation(orders, params=params, computation_set_id=computation_set.id)
+        key = submit_test_computation(orders, "pickup", params=params, computation_set_id=computation_set.id)
         return JSONResponse({'content': u"Orders submitted for calculation: %s" % key})
 
     else:
@@ -999,7 +1100,7 @@ def create_orders_from_hotspot(data, hotspot_type, point_type, is_textinput):
     return orders
 
 
-def submit_test_computation(orders, params, computation_set_name=None, computation_set_id=None):
+def submit_test_computation(orders, hotspot_type_raw, params, computation_set_name=None, computation_set_id=None):
     key = "test_%s" % str(default_tz_now())
     params.update({'debug': True})
     algo_key = submit_orders_for_ride_calculation(orders, key=key, params=params)
@@ -1010,8 +1111,12 @@ def submit_test_computation(orders, params, computation_set_name=None, computati
         computation.toleration_factor = params.get('toleration_factor')
         computation.toleration_factor_minutes = params.get('toleration_factor_minutes')
         order = orders[0]
-        computation.hotspot_depart_time = order.depart_time
-        computation.hotspot_arrive_time = order.arrive_time
+        if hotspot_type_raw == "pickup":
+            computation.hotspot_type = StopType.PICKUP
+            computation.hotspot_datetime = order.depart_time
+        else:
+            computation.hotspot_type = StopType.DROPOFF
+            computation.hotspot_datetime = order.arrive_time
 
         if computation_set_id: # add to existing set
             computation_set = RideComputationSet.by_id(computation_set_id)
@@ -1072,3 +1177,36 @@ def submit_test_computation(orders, params, computation_set_name=None, computati
 #
 #        yield LogPipeline(output)
 ##        yield StoreOutput("WordCount", filekey, output)
+
+TRACK_RIDES_CHANNEL_MEMCACHE_KEY = "track_rides_channel_memcache_key"
+#@staff_member_required
+@force_lang("en")
+def track_rides(request):
+    lib_channel = True
+    lib_map = True
+
+    channel_id = get_uuid()
+    cids = memcache.get(TRACK_RIDES_CHANNEL_MEMCACHE_KEY) or []
+    cids.append(channel_id)
+    memcache.set(TRACK_RIDES_CHANNEL_MEMCACHE_KEY, cids)
+
+    token = channel.create_channel(channel_id)
+
+#    ongoing_rides = fleet_manager.get_ongoing_rides()
+#    fmr = FleetManagerRide(1234, 5, 123, 32.1, 34.1, datetime.now(), "raw_status")
+#    ongoing_rides = [fmr]
+    return render_to_response("staff_track_rides.html", locals(), context_instance=RequestContext(request))
+
+def _log_fleet_update(json):
+    logging.info("fleet update: %s" % json)
+    cids = memcache.get(TRACK_RIDES_CHANNEL_MEMCACHE_KEY) or []
+    live_cids = []
+
+    for cid in cids:
+        try:
+            channel.send_message(cid, json)
+            live_cids.append(cid)
+        except InvalidChannelClientIdError, e:
+            pass
+
+    memcache.set(TRACK_RIDES_CHANNEL_MEMCACHE_KEY, live_cids)

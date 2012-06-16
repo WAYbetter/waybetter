@@ -19,6 +19,7 @@ from common.models import BaseModel, Country, City, CityArea, CityAreaField, obj
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now, format_dt
+from fleet.models import FleetManager, FleetManagerRideStatus
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
 from sharing.signals import ride_status_changed_signal
@@ -35,10 +36,10 @@ SHARING_TIME_FACTOR = 1.25
 SHARING_TIME_MINUTES = 10
 SHARING_DISTANCE_METERS = 3000
 
-ORDER_HANDLE_TIMEOUT =                      80 # seconds
-ORDER_TEASER_TIMEOUT =                      19 # seconds
-ORDER_ASSIGNMENT_TIMEOUT =                  80 # seconds
-WORKSTATION_HEARTBEAT_TIMEOUT_INTERVAL =    60 # seconds
+ORDER_HANDLE_TIMEOUT =                      80  # seconds
+ORDER_TEASER_TIMEOUT =                      19  # seconds
+ORDER_ASSIGNMENT_TIMEOUT =                  80  # seconds
+WORKSTATION_HEARTBEAT_TIMEOUT_INTERVAL =    60  # seconds
 RIDE_SENTINEL_GRACE = datetime.timedelta(minutes=7)
 
 ORDER_MAX_WAIT_TIME = ORDER_HANDLE_TIMEOUT + ORDER_ASSIGNMENT_TIMEOUT
@@ -132,6 +133,9 @@ class Station(BaseModel):
     sms_drivers = models.BooleanField(_("send sms to drivers"), default=False)
     vouchers_emails = models.CharField(_("voucher emails"), max_length=255, null=True, blank=True)
 
+    fleet_manager = models.ForeignKey(FleetManager, verbose_name=_("fleet manager"), related_name="stations", null=True, blank=True)
+    fleet_station_id = models.CharField(help_text="The id used by the fleet manager to reference this station", max_length=64, null=True, blank=True)
+
     # validator must ensure city.country == country and city_area = city.city_area
     country = models.ForeignKey(Country, verbose_name=_("country"), related_name="stations")
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="stations")
@@ -157,6 +161,9 @@ class Station(BaseModel):
 
     application_terms = models.TextField(_("application terms"), max_length=5000, null=True, blank=True)
 
+    def clean(self):
+        if bool(self.fleet_manager) ^ bool(self.fleet_station_id):
+            raise ValidationError("Choose a fleet manager and enter a fleet station id")
 
     @property
     def phone(self):
@@ -372,8 +379,13 @@ class RideComputation(BaseModel):
     debug = models.BooleanField(default=False, editable=False)
     status = StatusField(_("status"), choices=RideComputationStatus.choices(), default=RideComputationStatus.PENDING)
 
+    # TODO_WB: replace hotspot_depart_time, hotspot_arrive_time with hotspot_type and hotspot_datetime
+    hotspot_type = models.IntegerField(choices=StopType.choices(), null=True, blank=True)
+    hotspot_datetime = UTCDateTimeField(null=True, blank=True)
     hotspot_depart_time = UTCDateTimeField(null=True, blank=True, editable=False)
     hotspot_arrive_time = UTCDateTimeField(null=True, blank=True, editable=False)
+
+    submit_datetime = UTCDateTimeField(editable=False, null=True, blank=True)
 
     toleration_factor = models.FloatField(null=True, blank=True)
     toleration_factor_minutes = models.FloatField(null=True, blank=True)
@@ -401,6 +413,9 @@ class SharedRide(BaseModel):
 
     _value = models.FloatField(null=True, blank=True, editable=False) # the value of this ride to the assigned station
     _stops = models.IntegerField(null=True, blank=True, editable=False)
+
+    # denormalized fields
+    dn_fleet_manager_id = models.IntegerField(blank=True, null=True)
 
     @property
     def value(self):
@@ -554,6 +569,17 @@ class RidePoint(BaseModel):
     @property
     def clean_address(self):
         return re.sub(",?\s+תל אביב יפו".decode("utf-8"), "", self.address)
+
+
+class RideEvent(BaseModel):
+    shared_ride = models.ForeignKey(SharedRide, related_name="events")
+    status = models.IntegerField(choices=FleetManagerRideStatus.choices(), default=FleetManagerRideStatus.PENDING)
+    raw_status = models.CharField(max_length=128, null=True, blank=True)
+    lat = models.FloatField(null=True, blank=True)
+    lon = models.FloatField(null=True, blank=True)
+    taxi_id = models.IntegerField(null=True, blank=True)
+    timestamp = UTCDateTimeField(null=True, blank=True) # timestamp from fleet event
+
 
 class Passenger(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
@@ -957,6 +983,10 @@ class Order(BaseModel):
     arrive_time = UTCDateTimeField(_("arrive time"), null=True, blank=True)
     price = models.FloatField(null=True, blank=True, editable=False)
     num_seats = models.PositiveIntegerField(default=1)
+    from sharing.models import HotSpot
+    # note: you must be aware that legacy orders do not have a .hotspot value
+    hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="orders", null=True, blank=True)
+    hotspot_type = models.IntegerField(choices=StopType.choices(), null=True, blank=True)
 
     # ratings
     passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)
@@ -1034,7 +1064,7 @@ class Order(BaseModel):
     def get_pickup_time(self):
         """
         This is used for pickmeapp
-        Return the time remaingin until pickup (in seconds), or -1 if pickup time passed already
+        Return the time remaining until pickup (in seconds), or -1 if pickup time passed already
         """
         if self.future_pickup:
             return ((self.modify_date + datetime.timedelta(minutes=self.pickup_time)) - utc_now()).seconds
@@ -1042,18 +1072,19 @@ class Order(BaseModel):
             return -1
 
     def get_pickup_str(self):
-        if self.pickup_point:
-            pickup_str = self.pickup_point.stop_time.strftime("%d/%m/%y, %H:%M")
+        if self.pickup_point:  # a ride was created and we know the exact pickup time
+            pickup_datetime = self.pickup_point.stop_time
+            time_str = pickup_datetime.strftime("%H:%M")
 
-        elif self.computation.hotspot_arrive_time: # to Hotspot, pickup time is estimated
-            ride_duration_sec = (self.arrive_time - self.depart_time).seconds
-            sharing_dprt = self.arrive_time - datetime.timedelta(seconds=ride_duration_sec + SHARING_TIME_MINUTES * 60)
+        else:  # estimated pickup time
+            pickup_datetime = self.depart_time
+            time_str = pickup_datetime.strftime("%H:%M")
+            if self.type == OrderType.SHARED and self.hotspot_type == StopType.DROPOFF:
+                pickup_with_sharing = pickup_datetime + datetime.timedelta(seconds=SHARING_TIME_MINUTES * 60)
+                time_str = u"%s-%s" % (pickup_datetime.strftime("%H:%M"), pickup_with_sharing.strftime("%H:%M"))
 
-            d = _("Today") if self.depart_time.date() == default_tz_now().date() else self.depart_time.strftime("%d/%m/%Y")
-            pickup_str = u"%s, %s-%s" % (d, sharing_dprt.strftime("%H:%M"), self.depart_time.strftime("%H:%M"))
-
-        else: # from hotspot
-            pickup_str = format_dt(self.depart_time)
+        d = _("Today") if pickup_datetime.date() == default_tz_now().date() else pickup_datetime.strftime("%d/%m/%Y")
+        pickup_str = u"%s, %s" % (d, time_str)
 
         return pickup_str
     
@@ -1128,8 +1159,25 @@ class Order(BaseModel):
                  "num_seats": self.num_seats}
 
     def serialize_for_myrides(self):
-        return {'id': self.id, 'type': self.type, 'from': self.from_raw, 'to': self.to_raw, 'num_seats': self.num_seats,
-                'when': self.get_pickup_str(), 'price': self.price}
+        return {
+            'id'                  : self.id,
+            'type'                : self.type,
+            'from'                : self.from_raw,
+            'from_lon'            : self.from_lon,
+            'from_lat'            : self.from_lat,
+            'from_city'           : self.from_city.name,
+            'from_street_address' : self.from_street_address,
+            'from_house_number'   : self.from_house_number,
+            'to'                  : self.to_raw,
+            'to_lon'              : self.to_lon,
+            'to_lat'              : self.to_lat,
+            'to_city'             : self.to_city.name,
+            'to_street_address'   : self.to_street_address,
+            'to_house_number'     : self.to_house_number,
+            'num_seats'           : self.num_seats,
+            'when'                : self.get_pickup_str(),
+            'price'               : self.price
+        }
 
 class OrderAssignment(BaseModel):
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")

@@ -5,22 +5,14 @@ from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext, Context
-from django.utils import simplejson
 from django.utils.translation import ugettext as _
-from common.fax.backends.google_cloud_print import GoogleCloudPrintBackend
 from django.template.loader import get_template
 from djangotoolbox.http import JSONResponse
 from google.appengine.api import xmpp, memcache
-from google.appengine.api.channel import channel
-from google.appengine.api.channel.channel import InvalidChannelClientIdError
-from common.decorators import receive_signal
 from common.models import Country
-from common.signals import  async_computation_completed_signal
 from common.util import custom_render_to_response, ga_track_event
 from ordering.models import WorkStation, SharedRide, StopType
-from settings import ADMIN_USERNAME, ADMIN_PASSWORD, ADMIN_EMAIL, INIT_TOKEN
 import logging
-import os
 
 # DeadlineExceededError can live in two different places
 from sharing.station_controller import print_voucher, STATION_PICKUP_OFFSET
@@ -37,28 +29,6 @@ from google.appengine.ext import deferred
 
 ERROR_PAGE_TEXT = "error_page_text"
 
-def is_dev(request):
-    response = "SERVER_SOFTWARE: %s<br/>" % os.environ.get('SERVER_SOFTWARE')
-    response += "CURRENT_VERSION_ID: %s<br/>" % os.environ.get('CURRENT_VERSION_ID')
-    for attr in ['LOCAL', 'DEV_VERSION', 'DEV', 'DEBUG']:
-        response += "%s: %s <br/>" % (attr, getattr(settings, attr))
-    return HttpResponse(response)
-
-@receive_signal(async_computation_completed_signal)
-def async_computation_complete_handler(sender, signal_type, **kwargs):
-    client_id = kwargs.get('channel_id')
-    token = kwargs.get('token')
-    logging.info("async_computation_complete_handler: channel_id: %s, data: %s" % (client_id, kwargs.get('data')))
-    json = simplejson.dumps(kwargs.get('data'))
-
-    # save data to memcache
-    memcache.set(ASYNC_MEMCACHE_KEY % token, json)
-
-    try:
-        channel.send_message(client_id, json)
-    except InvalidChannelClientIdError:
-        logging.error("InvalidChannelClientIdError: could not sent message '%s' with channel id: '%s'" % (json,
-                                                                                                          client_id))
 def get_async_computation_result(request):
     data = memcache.get(ASYNC_MEMCACHE_KEY % request.GET.get("token"))
     return JSONResponse(data)
@@ -87,18 +57,18 @@ def error_page(request, error_text=None):
 
 def setup(request):
     if "token" in request.GET:
-        if request.GET["token"] == INIT_TOKEN:
+        if request.GET["token"] == settings.INIT_TOKEN:
             try:
-                admin = User.objects.get(username=ADMIN_USERNAME)
-                admin.set_password(ADMIN_PASSWORD)
-                admin.email = ADMIN_EMAIL
+                admin = User.objects.get(username=settings.ADMIN_USERNAME)
+                admin.set_password(settings.ADMIN_PASSWORD)
+                admin.email = settings.ADMIN_EMAIL
                 admin.save()
                 return HttpResponse('Admin reset!')
             except User.DoesNotExist:
                 u = User()
-                u.username = ADMIN_USERNAME
-                u.set_password(ADMIN_PASSWORD)
-                u.email = ADMIN_EMAIL
+                u.username = settings.ADMIN_USERNAME
+                u.set_password(settings.ADMIN_PASSWORD)
+                u.email = settings.ADMIN_EMAIL
                 u.is_active = True
                 u.is_staff = True
                 u.is_superuser = True

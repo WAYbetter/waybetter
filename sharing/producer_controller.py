@@ -44,8 +44,13 @@ def producer_ordering_page(request, passenger):
                 key = submit_orders_for_ride_calculation(orders['shared_orders'], params=params)
                 order = shared_orders[0]
                 computation = RideComputation(algo_key=key)
-                computation.hotspot_depart_time = order.depart_time
-                computation.hotspot_arrive_time = order.arrive_time
+                if hotspot_type_raw == "pickup":
+                    computation.hotspot_type = StopType.PICKUP
+                    computation.hotspot_datetime = order.depart_time
+                else:
+                    computation.hotspot_type = StopType.DROPOFF
+                    computation.hotspot_datetime = order.arrive_time
+
                 computation.save()
 
                 for order in shared_orders:
@@ -59,8 +64,13 @@ def producer_ordering_page(request, passenger):
                 for order in not_shared_orders:
                     key = submit_orders_for_ride_calculation([order])
                     computation = RideComputation(algo_key=key)
-                    computation.hotspot_depart_time = order.depart_time
-                    computation.hotspot_arrive_time = order.arrive_time
+                    if hotspot_type_raw == "pickup":
+                        computation.hotspot_type = StopType.PICKUP
+                        computation.hotspot_datetime = order.depart_time
+                    else:
+                        computation.hotspot_type = StopType.DROPOFF
+                        computation.hotspot_datetime = order.arrive_time
+
                     computation.save()
                     order.computation = computation
                     order.save()

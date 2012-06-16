@@ -3,17 +3,14 @@ from google.appengine.api.channel.channel import InvalidChannelClientIdError
 from common.tz_support import utc_now
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from django.core.urlresolvers import reverse
 from google.appengine.api import channel
-from google.appengine.api.taskqueue import taskqueue
 from analytics.models import AnalyticsEvent
 from common.decorators import  internal_task_on_queue, catch_view_exceptions
-from common.util import  log_event, EventType, notify_by_email, get_current_version
+from common.util import  EventType, notify_by_email, get_current_version
 from django.utils import simplejson
 from datetime import timedelta
 from ordering.models import OrderAssignment, PENDING, WorkStation
 from common.langsupport.util import translate_to_ws_lang
-from ordering.signals import   SignalType
 
 ugettext =                      lambda s: s
 DUMMY_ADDRESS =                 ugettext("This is a test order")
@@ -90,38 +87,6 @@ def _set_workstation_online_status(channel_id, status):
             workstation.channel_id = None
 
         workstation.save()
-
-
-
-#@receive_signal(workstation_offline_signal, workstation_online_signal)
-def log_connection_events(sender, signal_type, obj, **kwargs):
-    last_event_qs = AnalyticsEvent.objects.filter(work_station=obj, type__in=[EventType.WORKSTATION_UP, EventType.WORKSTATION_DOWN]).order_by('-create_date')[:1]
-    station = obj.station
-
-    if signal_type == SignalType.WORKSTATION_ONLINE:
-        if last_event_qs:
-            # send workstation reconnect mail
-            last_event = last_event_qs[0]
-            if last_event.type == EventType.WORKSTATION_DOWN and (utc_now() - last_event.create_date) >= ALERT_DELTA and station.show_on_list:
-                msg = u"Workstation is up again:\n\tid = %d station = %s" % (obj.id, obj.dn_station_name)
-                notify_by_email(u"Workstation Reconnected", msg=msg)
-        elif station.show_on_list:
-            # send "new workstation" mail
-            msg = u"A new workstation just connected: id = %d station = %s" % (obj.id, obj.dn_station_name)
-            notify_by_email(u"New Workstation", msg=msg)
-
-        log_event(EventType.WORKSTATION_UP, station=station, work_station=obj)
-
-    elif signal_type == SignalType.WORKSTATION_OFFLINE:
-        log_event(EventType.WORKSTATION_DOWN, station=station, work_station=obj)
-
-        if station.show_on_list:
-            # add task to check if workstation is still dead after ALERT_DELTA
-            task = taskqueue.Task(url=reverse(handle_dead_workstations),
-                                  countdown=ALERT_DELTA.seconds + 1,
-                                  params={"workstation_id": obj.id})
-            taskqueue.Queue('log-events').add(task)
-
 
 
 @csrf_exempt

@@ -6,8 +6,16 @@ from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.models import User
 from django.utils import simplejson
 from django.views.decorators.cache import never_cache
+from django.views.decorators.csrf import csrf_exempt
 from djangotoolbox.http import JSONResponse
 from ordering.models import Passenger
+
+@csrf_exempt
+def is_token_valid(request):
+    p = Passenger.from_request(request)
+    is_valid = p is not None and p.login_token and p.login_token == request.POST.get("passenger_token")
+    logging.info("is_token_valid: %s: %s" % (p, is_valid))
+    return JSONResponse({'valid': is_valid})
 
 def is_email_available(request):
     return is_user_property_available(request, "email")

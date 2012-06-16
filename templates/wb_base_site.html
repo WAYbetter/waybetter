@@ -240,6 +240,19 @@
 
     {{ block.super }}
 
+    <!-- commonly used libraries -->
+    {% if lib_channel %}
+        <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+    {% endif %}
+
+    {% if lib_map %}
+        {% if DEV %}
+            <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
+        {% else %}
+            <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key={% value_from_settings GOOGLE_API_BROWSER_KEY %}?libraries=places&sensor=false&language=he"></script>
+        {% endif %}
+    {% endif %}
+
     <!-- when not dev these scripts should be included in the concatenated js by build script-->
     {% if DEV %}
         <!-- scripts concatenated and minified via ant build script-->

@@ -1,5 +1,6 @@
 # This Python file uses the following encoding: utf-8
 import inspect
+from django.http import HttpRequest
 from common.errors import TransactionError
 from django.conf import settings
 from django.core.validators import RegexValidator
@@ -77,6 +78,14 @@ class Enum(object):
         for item_name in cls._item_names():
             if item_name == str:
                 return getattr(cls, item_name)
+
+    @classmethod
+    def from_value(cls, val):
+        if val in cls._items():
+            return val
+        else:
+            return None
+
 
 class Polygon(object):
     def __init__(self, points):
@@ -253,10 +262,13 @@ def ga_hit_page(request, path=None):
     """
     Log a new page hit on Google Analytics
 
-    @param request: incoming C{HttpRequest}
+    @param request: incoming C{HttpRequest} or None
     @param path: use the supplied path instead of request.path (optional)
     @return:
     """
+    if not request:
+        request = HttpRequest()
+
     logging.info("ga_hit_page: %s" % path)
     if not path:
         path = request.path
@@ -274,13 +286,16 @@ def ga_track_event(request, category, action, opt_label=None, opt_value=None):
     """
     Log a new event on Google Analytics
 
-    @param request: incoming C{HttpRequest}
+    @param request: incoming C{HttpRequest} or None
     @param category: Event category
     @param action: Event action
     @param opt_label: Event label (optional)
     @param opt_value: Event value, must be numeric (optional)
     @return:
     """
+    if not request:
+        request = HttpRequest()
+
     logging.info("ga_track_event: %s, %s" % (category, action))
     event_string = '5(%s*%s' % (category, action)
 
@@ -604,6 +619,15 @@ def add_formatted_date_fields(classes):
 
                 setattr(model, f.name + "_format", format_datefield(f))
 
+def safe_json_loads(string):
+    res = None
+    try:
+        res = simplejson.loads(string)
+    except Exception, e:
+        logging.warning("safe_json_loads failed to load string '%s': %s" % (string, e.message))
+        pass
+
+    return res
 
 def safe_fetch(url, payload=None, method=GET, headers=None,
                allow_truncated=False, follow_redirects=True,

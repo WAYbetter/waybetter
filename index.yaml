@@ -253,6 +253,11 @@ indexes:
   - name: city_id
   - name: _city_order
 
+- kind: fleet_fleetmanager
+  properties:
+  - name: __key__
+    direction: desc
+
 - kind: interests_businessinterest
   properties:
   - name: __key__
@@ -991,6 +996,11 @@ indexes:
 - kind: sharing_hotspotcustompricerule
   properties:
   - name: rule_set_id
+  - name: _order
+
+- kind: sharing_hotspotpopularityrule
+  properties:
+  - name: hotspot_id
   - name: _order
 
 - kind: sharing_hotspotpricerule

@@ -5,6 +5,8 @@ var BookingHelper = Object.create({
     hotspot_type: undefined,
     ride_date: undefined,
     ride_time: undefined,
+    ride_price: undefined,
+    order_type: undefined,
     messages: {}
 });
 
@@ -55,7 +57,7 @@ var MyRidesHelper = Object.create({
                 if ($next_table && has_next) {
                     $.each(data.next_rides, function(i, order) {
                         var row = that._renderRideRow(order, true);
-                        $next_table.find("tbody").append(row);
+                        $next_table.find("tbody").prepend(row);
                     });
                     $next_table.show();
                 }
@@ -66,7 +68,7 @@ var MyRidesHelper = Object.create({
                 if ($previous_table && has_previous) {
                     $.each(data.previous_rides, function(i, order) {
                         var row = that._renderRideRow(order, false);
-                        $previous_table.find("tbody").append(row);
+                        $previous_table.find("tbody").prepend(row);
                     });
                     $previous_table.show();
                 }
@@ -248,7 +250,7 @@ var HotspotHelper = Object.create({
         urls: {
             get_hotspot_data: "",
             get_hotspot_dates: "",
-            get_hotspot_times: ""
+            get_hotspot_offers: ""
         },
         labels: {
             choose_date: "",
@@ -256,8 +258,8 @@ var HotspotHelper = Object.create({
         },
         hotspot_markers: {
             generic: "/static/images/hotspot_red_marker.png",
-            pickup: "/static/images/wb_site/map_pin_A.png",
-            dropoff: "/static/images/wb_site/map_pin_B.png"
+            pickup: "/static/images/wb_site/map_marker_A.png",
+            dropoff: "/static/images/wb_site/map_marker_B.png"
         }
     },
     cache: {
@@ -267,7 +269,6 @@ var HotspotHelper = Object.create({
 
     hotspots: [],
     MapHelper: undefined,
-    ride_duration: undefined,
 
     init: function(config) {
         this.config = $.extend(true, {}, this.config, config);
@@ -314,21 +315,37 @@ var HotspotHelper = Object.create({
     },
 
     getIntervals: function(options) {
+        /*
+        * get interval offers including max price and popularity
+        * options:
+        *   data:
+        *       hotspot_type: either "pickup" or "dropoff"
+        *       lat: lat of address
+        *       lon: lon of address
+        *
+        *   success: success callback receives
+        *
+        *   beforeSend: beforeSend callback
+        *
+        *   complete: complete callback
+        *
+        *   error: error callback
+        *
+        * */
         var that = this;
+        var $hotspotpicker = $(this.config.selectors.hotspotpicker);
+        var $datepicker = $(this.config.selectors.datepicker);
+
         $.ajax({
-            url: that.config.urls.get_hotspot_times,
+            url: that.config.urls.get_hotspot_offers,
             dataType: "json",
-            data: options.data,
+            data: $.extend(true, {'day': $datepicker.val(), 'hotspot_id': $hotspotpicker.val()}, options.data),
             beforeSend: function() {
-                that.ride_duration = undefined;
                 if (options.beforeSend) {
                     options.beforeSend();
                 }
             },
             success: function(response) {
-                if (response.ride_duration) {
-                    that.ride_duration = response.ride_duration;
-                }
                 options.success(response);
 
             },
@@ -338,7 +355,7 @@ var HotspotHelper = Object.create({
         });
     },
 
-    refreshHotspotMarker: function(marker_type) {
+    refreshHotspotMarker: function(marker_type, zoom) {
         var that = this;
         if (this.MapHelper.mapready) {
             this._refreshHotspotMarker(marker_type);
@@ -351,13 +368,16 @@ var HotspotHelper = Object.create({
         }
     },
 
-    _refreshHotspotMarker: function(marker_type) {
+    _refreshHotspotMarker: function(marker_type, zoom) {
         var $selected = $(this.config.selectors.hotspotpicker).find(":selected").eq(0);
         var lat = $selected.data("lat");
         var lon = $selected.data("lon");
         if (lat && lon && this.MapHelper) {
+            var marker_name = "hotspot";
             var img = this.config.hotspot_markers[marker_type] || this.config.hotspot_markers.generic;
-            this.MapHelper.addMarker(lat, lon, {icon_image: img, title: $selected.text(), marker_name: "hotspot"});
+            var address = {lat:lat, lon:lon};
+            this.MapHelper.addMarker(address, {icon_image: img, title: $selected.text(), marker_name: marker_name});
+            this.MapHelper.zoomMarker(marker_name);
         }
     },
 
@@ -409,11 +429,6 @@ var HotspotHelper = Object.create({
                         // get dates
                         that.clearCache();
                         that._getDatesForMonthYear(first_interval.getFullYear(), first_interval.getMonth()+1, $datepicker);
-
-                        // get times
-                        that.refreshHotspotSelector({
-                            refresh_intervals: true
-                        });
                     }
                 });
 
@@ -443,8 +458,7 @@ var HotspotHelper = Object.create({
         if (options.refresh_intervals) {
             var times = [];
             this.getIntervals({
-                data: $.extend(true, {'day': $datepicker.val(), 'hotspot_id': $hotspotpicker.val()},
-                        options.get_intervals_data),
+                data: options.get_intervals_data,
                 beforeSend: function() {
                     $timepicker.empty().disable().append("<option>" + that.config.labels.updating + "</option>");
                     if (!$datepicker.val()) {
@@ -557,7 +571,7 @@ var AddressHelper = Object.create({
                         response($.map(data.geocoding_results, function(item) {
                             return {
                                 label: item.street_address
-                            }
+                            };
                         }));
                     },
                     error: function() {
@@ -637,7 +651,7 @@ var AddressHelper = Object.create({
                     _unresolved(data.errors);
                 }
                 else {
-                    var match = undefined;
+                    var match;
                     var suggestions = [];
                     $.each(data.geocoding_results, function(i, result) {
                         if (result.lat && result.lon && result.street_address && result.house_number) { // this is a valid result
@@ -668,6 +682,485 @@ var AddressHelper = Object.create({
 
 });
 
+var GoogleGeocodingHelper = Object.create({
+    _geocoder: undefined,
+    _pendingReverseGeocodeCallback: undefined,
+    getGeocoder: function() {
+        if (! this._geocoder) {
+            this._geocoder =  new google.maps.Geocoder();
+        }
+        return this._geocoder;
+    },
+    geocode: function(address, callback, callback_arg) {
+        this.getGeocoder().geocode({"address":address}, function (results, status) {
+            callback(results, status, callback_arg);
+        });
+    },
+    reverseGeocode:function (lat, lon, callback) {
+        var latlng = new google.maps.LatLng(lat, lon);
+        this.getGeocoder().geocode({'latLng':latlng}, function (results, status) {
+            callback(results, status);
+        });
+    },
+    reverseGeocodeToPickupAddress: function(lat, lon, id_textinput, callback) {
+        var that = this;
+        that._pendingReverseGeocodeCallback = callback;
+        $.mobile.showPageLoadingMsg();
+        that.reverseGeocode(lat, lon, function(results, status) {
+            var res = null;
+            if (status == google.maps.GeocoderStatus.OK && results.length) {
+                res = that._checkValidPickupAddress(results[0], id_textinput);
+//                that._pendingReverseGeocodeCallback = undefined;
+            }
+
+            $.mobile.hidePageLoadingMsg();
+            if (res) {
+                if (res.valid) {
+                    callback(res.address);
+                }
+            } else {
+                callback(null, lat, lon);
+            }
+
+        });
+    },
+    newPlacesAutocomplete: function (options) {
+        options = $.extend(true, {
+            id_textinput: "",
+            beforePlaceChange: function(){},
+            onValidAddress: function(address){},
+            onMissingStreetNumber: function(){},
+            onNoValidPlace: function(){}
+        }, options);
+
+        var autocomplete = new google.maps.places.Autocomplete(document.getElementById(options.id_textinput),
+            {
+                bounds: options.bounds || undefined,
+                types: options.types || []
+            });
+
+        if (options.map){
+            autocomplete.bindTo('bounds', options.map);
+        }
+
+        var that = this;
+        google.maps.event.addListener(autocomplete, 'place_changed', function () {
+            var place = this.getPlace();
+            options.beforePlaceChange();
+            that._onNewPlace.call(that, place, options);
+        });
+
+        return autocomplete;
+    },
+    showAutocomplete: function(){
+        $(".pac-container").css("visibility", "visible");
+    },
+    hideAutocomplete: function(){
+        $(".pac-container").css("visibility", "hidden");
+    },
+    _onNewPlace:function (place, options) {
+        var result = this._checkValidPickupAddress(place, options.id_textinput);
+
+        if (result.valid) {
+            options.onValidAddress(result.address);
+        }
+        else if (result.missing_hn) {
+            options.onMissingStreetNumber(result);
+        }
+        else if (place.geometry && place.geometry.location) {
+            // try to get a valid point by reverse geocoding
+            this.reverseGeocode(place.geometry.location.lat(), place.geometry.location.lng(), function (results, status) {
+                var rev_result;
+                if (status == google.maps.GeocoderStatus.OK && results.length) {
+                    log("reverse geocode results:", results, "for place:", place);
+                    rev_result = GoogleGeocodingHelper._checkValidPickupAddress(results[0], options.id_textinput);
+                    rev_result.address.city = result.address.city;
+                    if (result.address.description) { // add establishment description to returned address
+                        rev_result.address.description = result.address.description;
+                    }
+                } else {
+                    log("Geocoder failed due to: " + status);
+                }
+
+                if (rev_result && rev_result.valid) {
+                    $("#" + options.id_textinput).val(results[0].formatted_address); // let the user see what we are validating
+                    options.onValidAddress(rev_result.address);
+                }
+                else if (rev_result && rev_result.missing_hn) {
+                    $("#" + options.id_textinput).val(results[0].formatted_address); // let the user see what we are validating
+                    options.onMissingStreetNumber(rev_result);
+                }
+
+                else {
+                    options.onNoValidPlace();
+                }
+            });
+        }
+        else {
+            options.onNoValidPlace();
+        }
+    },
+    _checkValidPickupAddress: function(place, id_textinput){
+        var result = {
+            valid: false,
+            missing_hn: false,
+            address: undefined
+        };
+
+        $.each(place.types || [], function (i, type) {
+            if (type == "street_address") result.valid = true; // a "street_address" is exempt from checking procedure
+            if (type == "route") result.missing_hn = true; // a "route" is assumed to be missing a house number
+        });
+
+        if (!result.valid) {
+            // check address components for a valid street + house number address
+            var street_number_component = this._getAddressComponent(place, "street_number"),
+                route_component = this._getAddressComponent(place, "route");
+
+            if (route_component && street_number_component) {
+                var user_input = $("#" + id_textinput).val();
+
+                // avoid cases where Google returns a house number although the user entered only a street name
+                if (user_input.startsWith(route_component.short_name) && user_input.search(street_number_component.short_name) < 0) {
+                    result.missing_hn = true;
+                    log("google generated house number");
+                } else {
+                    result.valid = true;
+                    log("valid pickup address");
+                }
+            }
+        }
+
+        result.address = this._addressFromPlace(place);
+
+        // amir: guy - do we need this code? doesn't addressFromPlace calls normalizePlace that handles range of house numbers?
+        if ( !result.address.house_number || (result.address.house_number.indexOf && result.address.house_number.indexOf("-") > -1)) {
+            // this is a range of houses, a reverse geocode is underway...
+            result.valid = false;
+        }
+
+        return result;
+    },
+    _addressFromPlace: function(place){
+        place = this._normalizePlace(place);
+
+        // address fields
+        var street_address, house_number, city, name, lat, lon, description;
+
+        var address_components = place.address_components || [];
+        $.each(address_components, function (i, component) {
+            var type = component.types[0];
+            if (type == 'locality')
+                city = component.long_name;
+            else if (type == "route")
+                street_address = component.long_name;
+            else if (type == 'street_number')
+                house_number = component.short_name; // normalized field
+        });
+
+        if (place.geometry && place.geometry.location){
+            lat = place.geometry.location.lat();
+            lon = place.geometry.location.lng();
+        }
+
+        if (street_address && house_number && city){
+            name = street_address + " " + house_number + ", " + city;
+        }
+        else if (place.formatted_address){
+            name = place.formatted_address;
+        }
+
+        // add description field for POI
+        var poi_types = ["establishment", "train_station", "transit_station"];
+        $.each(place.types || [], function (i, type) {
+            if ($.inArray(type, poi_types) > -1){
+                description = place.name;
+                log("POI", type, description);
+            }
+        });
+
+        return {
+            city:city,
+            street_address:street_address,
+            house_number:house_number,
+            description: description,
+            name:name,
+            lat:lat,
+            lon:lon
+        };
+    },
+    _normalizePlace: function(place){
+        var that = this;
+//        try {
+            // fix interpolated street number component
+            if (place.geometry.location_type == google.maps.GeocoderLocationType.RANGE_INTERPOLATED) {
+                var component = that._getAddressComponent(place, 'street_number');
+                if (component) {
+                    // get the lower street number of the range
+                    var range = component.long_name.split("-");
+                    if (range.length == 2) {
+                        var low = parseInt(range[0]);
+                        var high = parseInt(range[1]);
+                        if (that._pendingReverseGeocodeCallback) {
+                            range = [];
+                            for (var i = low; i <= high; i += 2) { range.push(i) }
+                            var original_location = place.geometry.location;
+                            var addresses = [];
+                            var returned_geocode_calls = 0;
+                            for (var j = 0; j < range.length; j++) {
+                                var address = [that._getAddressComponent(place, 'route').long_name + " " + range[j],
+                                    that._getAddressComponent(place, 'locality').long_name ].join(", ");
+
+                                addresses.push({name: address, city: that._getAddressComponent(place, 'locality').long_name, callback_index: j});
+
+                                that.geocode(address, function(result, status, original_address) {
+                                    if (! that._pendingReverseGeocodeCallback) return;
+
+                                    log("geocode for house range returned", result, status);
+                                    returned_geocode_calls++;
+                                    if (result) {
+                                        original_address.lat = result[0].geometry.location.lat();
+                                        original_address.lon = result[0].geometry.location.lng();
+                                    } else {
+                                        original_address.lat = 0
+                                        original_address.lon = 0;
+                                    }
+
+                                    if (returned_geocode_calls == range.length) { // this is the last call
+                                        var min_distance = undefined;
+                                        var min_distance_index = undefined;
+                                        var address_location = new LatLon(original_location.lat(), original_location.lng());
+                                        for (var i = 0; i < addresses.length; i++) {
+                                            if (!(original_address.lat && original_address.lon)) {
+                                                continue;
+                                            }
+                                            var candidate_location = new LatLon(addresses[i].lat, addresses[i].lon);
+                                            var distance = address_location.distanceTo(candidate_location);
+                                            if (min_distance == undefined || distance < min_distance) {
+                                                min_distance = distance;
+                                                min_distance_index = i;
+                                            }
+                                        }
+                                        var res;
+                                        if (min_distance_index == undefined) {
+                                            res = null;
+                                        } else {
+                                            res = addresses[min_distance_index];
+                                        }
+                                        var callback = that._pendingReverseGeocodeCallback;
+                                        that._pendingReverseGeocodeCallback = undefined;
+                                        callback(res, original_location.lat(), original_location.lng());
+                                    }
+                                }, addresses[j]);
+                            }
+
+
+                        } else {
+                            var avg = parseInt((high + low) / 2);
+                            component.short_name = avg; // take the middle house number
+                            place.formatted_address = place.formatted_address.replace(component.long_name, component.short_name);
+                        }
+                    }
+                }
+            }
+//        }
+//        catch (e) {
+//            log(e);
+//        }
+
+        return place;
+    },
+    _getAddressComponent: function(place, type) {
+        var res = undefined;
+        $.each(place.address_components, function (i, component) {
+            if (component.types && $.inArray(type, component.types) > -1) {
+                res = component;
+                return; // break
+            }
+        });
+
+        return res;
+    }
+});
+
+var GoogleMapHelper = Object.create({
+    config:{
+        map_element:undefined,
+        map:undefined,
+        map_options:{
+            zoom:14
+        },
+        traffic: false
+    },
+    mapready:false,
+    do_drag: false,
+    markers: {},
+    info_bubbles: {},
+
+    init: function(config){
+        var that = this;
+        this.config = $.extend(true, {}, this.config, config);
+        this.map = new google.maps.Map(document.getElementById(this.config.map_element), this.config.map_options);
+
+        google.maps.event.addListener(this.map, 'tilesloaded', function () {
+            that.mapready = true;
+            $(window).trigger("mapready");
+        });
+
+        if (this.config.traffic){
+            var trafficLayer = new google.maps.TrafficLayer();
+            trafficLayer.setMap(this.map)
+        }
+    },
+    zoomMarker: function(marker_name){
+        var marker = this.markers[marker_name];
+        if (marker){
+            this.map.setCenter(marker.getPosition());
+            this.map.setZoom(17);
+        }
+    },
+    fitMarkers: function(){
+        var bounds = new google.maps.LatLngBounds();
+
+        var num_markers = 0;
+        $.each(this.markers, function (i, marker) {
+            num_markers++;
+            bounds = bounds.extend(marker.getPosition());
+        });
+
+        if (num_markers > 1) {
+            this.map.fitBounds(bounds);
+        }
+        else {
+            this.map.setCenter(latLng);
+            this.map.setZoom(15);
+        }
+
+    },
+    addMarker: function (address, options) {
+        var that = this;
+        if (that.mapready) {
+            that._addMarker(address, options)
+        } else {
+            $(window).one("mapready", function() {
+                that._addMarker(address, options)
+            })
+        }
+    },
+    _addMarker:function (address, options) {
+        var that = this;
+        var lat = address.lat, lon = address.lon;
+        options = $.extend(true, {}, options);
+        // remove old marker with the same name or position
+        var marker_name = options.marker_name || lat + "_" + lon;
+        marker_name = marker_name.split(".").join("_"); // replace . with _
+        var old_marker = this.markers[marker_name];
+        if (old_marker){
+            old_marker.setMap(null);
+        }
+
+        // add the new marker
+        var latLng = new google.maps.LatLng(lat, lon);
+        var markerOptions = {
+            map: this.map,
+            position:latLng,
+            title: "",
+            clickable: false
+//            animation:google.maps.Animation.DROP
+        };
+        markerOptions = $.extend(true, markerOptions, options);
+        if (options.icon_image){
+            markerOptions.icon = new google.maps.MarkerImage(options.icon_image);
+        }
+
+        this.markers[marker_name] = new google.maps.Marker(markerOptions);
+        if (options.show_info) GoogleMapHelper.showInfo(address.name, this.markers[marker_name], address.type);
+        return this.markers[marker_name];
+    },
+    addAMarker:function (address, options) {
+        options = $.extend(true, {}, {icon_image: "/static/images/wb_site/map_marker_A.png", marker_name:"A"}, options);
+        return this.addMarker(address, options);
+    },
+    addBMarker:function (address, options) {
+        options = $.extend(true, {}, {icon_image:"/static/images/wb_site/map_marker_B.png", marker_name:"B"}, options);
+        return this.addMarker(address, options);
+    },
+    removeMarker:function (names) {
+        var that = this;
+        if (names == "all") {
+            $.each(this.markers, function (i, marker) {
+                marker.setMap(null);
+            });
+            that.markers = {};
+        }
+        else {
+            $.each(names.split(","), function (i, name) {
+                name = name.trim();
+                var marker = that.markers[name];
+                if (marker) {
+                    marker.setMap(null);
+                    delete that.markers[name];
+                }
+            })
+        }
+    },
+    showInfo: function(content, anchor, bubble_name) {
+        var info = new InfoBubble({
+            content: content,
+            hideCloseButton: true,
+            borderRadius: 5,
+            padding: 5,
+            arrowSize: 10
+        });
+        var old_bubble = this.info_bubbles[bubble_name];
+        if (old_bubble) {
+            old_bubble.setMap(null);
+        }
+        this.info_bubbles[bubble_name] = info;
+        info.open(this.map, anchor);
+        return info;
+    },
+    setCenter: function(lat, lon) {
+        this.map.setCenter(new google.maps.LatLng(lat, lon));
+    },
+    clearMarkers: function() {
+        $.each(this.markers, function(i, marker) {
+            marker.setVisible(false);
+        });
+        $.each(this.info_bubbles, function(i, info_bubble) {
+            info_bubble.close();
+        });
+    },
+    setMarkersVisibility: function(visible) {
+        $.each(this.markers, function(i, marker) {
+            marker.setVisible(visible);
+        });
+        if (!visible) {
+            $.each(this.info_bubbles, function(i, info_bubble) {
+                info_bubble.close();
+            });
+        } else {
+            $.each(this.info_bubbles, function(i, info_bubble) {
+                info_bubble.open();
+            });
+        }
+    },
+    showMarkersByName: function(name) {
+        var that = this;
+        $.each(this.markers, function(key, marker) {
+            marker.setVisible(key == name)
+        });
+
+        $.each(this.info_bubbles, function(key, bubble) {
+            if (key == name) {
+                bubble.open()
+            } else {
+                bubble.close()
+            }
+        });
+    }
+
+});
 
 var CMHelper = Object.create({
     config: {
@@ -676,7 +1169,7 @@ var CMHelper = Object.create({
         styleId: 45836,
         center_lat: 32.09279909028302,
         center_lon: 34.781051985221,
-        icon_image: "/static/images/wb_site/map_pin_A.png",
+        icon_image: "/static/images/wb_site/map_marker_A_centerfix.png",
         icon_size_x: 61,
         icon_size_y: 154,
         controls: true
@@ -766,11 +1259,11 @@ var CMHelper = Object.create({
     },
 
     addAMarker: function(lat, lon, options) {
-        options = $.extend(true, {}, options, {icon_image: "/static/images/wb_site/map_pin_A.png", marker_name: "A"});
+        options = $.extend(true, {}, options, {icon_image: "/static/images/wb_site/map_marker_A_centerfix.png", marker_name: "A"});
         this.addMarker(lat, lon, options);
     },
     addBMarker: function(lat, lon, options) {
-        options = $.extend(true, {}, options, {icon_image: "/static/images/wb_site/map_pin_B.png", marker_name: "B"});
+        options = $.extend(true, {}, options, {icon_image: "/static/images/wb_site/map_marker_B_centerfix.png", marker_name: "B"});
         this.addMarker(lat, lon, options);
     },
     removeMarker: function(names) {
@@ -963,30 +1456,32 @@ var MobileHelper = Object.create({
             get_sharing_cities      : ""
         },
         callbacks:{
-            noGeolocation: function() { },
-            locationSuccess: function() { },
-            locationError: function(watch_id) {
+            noGeolocation   : function() { },
+            locationSuccess : function() { },
+            locationError   : function(watch_id) {
                 navigator.geolocation.clearWatch(watch_id); // remove watch
             }
         }
     },
 
-    MapHelper: undefined,
-
+    MapHelper          : undefined,
+    
     // CONSTANTS
     // ---------
-    ACCURACY_THRESHOLD: 250, // meters,
-
+    ACCURACY_THRESHOLD : 250, // meters,
+    
     // VARIABLES
     // ---------
-    last_position: undefined,
-    num_seats: 1,
-    address: undefined,
-    hotspot: undefined,
-    hotspot_type: "dropoff",
-    ride_date: undefined,
-    ride_time: undefined,
-    sharing_cities: [],
+    last_position  : undefined,
+    num_seats      : 1,
+    address        : undefined,
+    hotspot        : undefined,
+    hotspot_type   : "dropoff",
+    ride_date      : undefined,
+    ride_time      : undefined,
+    ride_price     : undefined,
+    order_type     : undefined,
+    sharing_cities : [],
 
     // METHODS
     // -------
@@ -1005,9 +1500,9 @@ var MobileHelper = Object.create({
                     options.success();
                 }
             }
-        })
+        });
     },
-    
+
     getCurrentLocation: function(options) {
         var that = this;
         options = $.extend({}, {
@@ -1065,12 +1560,14 @@ var MobileHelper = Object.create({
             }
         });
     },
+
     distance    : function(lat1, lon1, lat2, lon2) {
         var p1 = new LatLon(lat1, lon1);
         var p2 = new LatLon(lat2, lon2);
 
         return p1.distanceTo(p2);
     },
+
     updateMyRidesBubble:    function(button_selector) {
         var that = this;
         var $btn = $(button_selector);
@@ -1081,7 +1578,7 @@ var MobileHelper = Object.create({
             success: function(data) {
                 if (data && data.next_rides) {
                     var num = data.next_rides.length;
-                    var $bubble = undefined;
+                    var $bubble;
                     if (num > 0) {
                         if ($btn.find(".bubble").length === 0) {
                             $bubble = $("<span class='bubble'></span>");
@@ -1100,10 +1597,11 @@ var MobileHelper = Object.create({
             error: function() {
                 $btn.find(".bubble").hide();
             }
-        })
+        });
 
     },
-    getMyRidesData: function(options, list_selector, ride_page_selector) {
+
+    getMyRidesData: function(options, list_selector) {
         var that = this;
         var $list = $(list_selector);
 
@@ -1129,7 +1627,7 @@ var MobileHelper = Object.create({
                         $li_a.append("<p>" + that.config.labels.dropoff + ": "+ ride.to + "</p>");
                         $li_a.append("<p>" + that.config.labels.price + ": "+ ride.price + " &#8362;</p>");
                         $li_a.click(function() {
-                            that.showRideStatus(ride, ride_page_selector);
+                            that.showRideStatus(ride);
                         });
 
                         var $li_ride = $('<li data-icon="arrow-l"></li>').attr("id", "ride_li_" + ride.id).append($li_a);
@@ -1147,8 +1645,21 @@ var MobileHelper = Object.create({
                     $list.listview();
                 }
             }
-        })
+        });
     },
+
+    getRideHistory: function(success_callback) {
+        var that = this;
+        $.ajax({
+            url:  that.config.urls.get_myrides_data,
+            dataType: "json",
+            data: { get_next_rides: false, get_previous_rides: true },
+            success: function(data) {
+                success_callback(data.previous_rides);
+            }
+        });
+    },
+
     showRideStatus  : function(ride_data) {
         var that = this;
 
@@ -1217,176 +1728,3 @@ var MobileHelper = Object.create({
         });
     }
 });
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-/*  Latitude/longitude spherical geodesy formulae & scripts (c) Chris Veness 2002-2011            */
-/*   - www.movable-type.co.uk/scripts/latlong.html                                                */
-/*                                                                                                */
-/*  Sample usage:                                                                                 */
-/*    var p1 = new LatLon(51.5136, -0.0983);                                                      */
-/*    var p2 = new LatLon(51.4778, -0.0015);                                                      */
-/*    var dist = p1.distanceTo(p2);          // in km                                             */
-/*    var brng = p1.bearingTo(p2);           // in degrees clockwise from north                   */
-/*    ... etc                                                                                     */
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-/*  Note that minimal error checking is performed in this example code!                           */
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-
-
-/**
- * Creates a point on the earth's surface at the supplied latitude / longitude
- *
- * @constructor
- * @param {Number} lat: latitude in numeric degrees
- * @param {Number} lon: longitude in numeric degrees
- * @param {Number} [rad=6371]: radius of earth if different value is required from standard 6,371km
- */
-function LatLon(lat, lon, rad) {
-    if (typeof(rad) == 'undefined') rad = 6371;  // earth's mean radius in km
-    // only accept numbers or valid numeric strings
-    this._lat = typeof(lat) == 'number' ? lat : typeof(lat) == 'string' && lat.trim() != '' ? +lat : NaN;
-    this._lon = typeof(lon) == 'number' ? lon : typeof(lon) == 'string' && lon.trim() != '' ? +lon : NaN;
-    this._radius = typeof(rad) == 'number' ? rad : typeof(rad) == 'string' && trim(lon) != '' ? +rad : NaN;
-}
-
-
-/**
- * Returns the distance from this point to the supplied point, in km
- * (using Haversine formula)
- *
- * from: Haversine formula - R. W. Sinnott, "Virtues of the Haversine",
- *       Sky and Telescope, vol 68, no 2, 1984
- *
- * @param   {LatLon} point: Latitude/longitude of destination point
- * @param   {Number} [precision=4]: no of significant digits to use for returned value
- * @returns {Number} Distance in km between this point and destination point
- */
-LatLon.prototype.distanceTo = function(point, precision) {
-    // default 4 sig figs reflects typical 0.3% accuracy of spherical model
-    if (typeof precision == 'undefined') precision = 4;
-
-    var R = this._radius;
-    var lat1 = this._lat.toRad(), lon1 = this._lon.toRad();
-    var lat2 = point._lat.toRad(), lon2 = point._lon.toRad();
-    var dLat = lat2 - lat1;
-    var dLon = lon2 - lon1;
-
-    var a = Math.sin(dLat / 2) * Math.sin(dLat / 2) +
-            Math.cos(lat1) * Math.cos(lat2) *
-                    Math.sin(dLon / 2) * Math.sin(dLon / 2);
-    var c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    var d = R * c;
-    return d.toPrecisionFixed(precision);
-};
-
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-
-
-/**
- * Returns the latitude of this point; signed numeric degrees if no format, otherwise format & dp
- * as per Geo.toLat()
- *
- * @param   {String} [format]: Return value as 'd', 'dm', 'dms'
- * @param   {Number} [dp=0|2|4]: No of decimal places to display
- * @returns {Number|String} Numeric degrees if no format specified, otherwise deg/min/sec
- *
- * @requires Geo
- */
-LatLon.prototype.lat = function(format, dp) {
-    if (typeof format == 'undefined') return this._lat;
-
-    return Geo.toLat(this._lat, format, dp);
-};
-
-/**
- * Returns the longitude of this point; signed numeric degrees if no format, otherwise format & dp
- * as per Geo.toLon()
- *
- * @param   {String} [format]: Return value as 'd', 'dm', 'dms'
- * @param   {Number} [dp=0|2|4]: No of decimal places to display
- * @returns {Number|String} Numeric degrees if no format specified, otherwise deg/min/sec
- *
- * @requires Geo
- */
-LatLon.prototype.lon = function(format, dp) {
-    if (typeof format == 'undefined') return this._lon;
-
-    return Geo.toLon(this._lon, format, dp);
-};
-
-/**
- * Returns a string representation of this point; format and dp as per lat()/lon()
- *
- * @param   {String} [format]: Return value as 'd', 'dm', 'dms'
- * @param   {Number} [dp=0|2|4]: No of decimal places to display
- * @returns {String} Comma-separated latitude/longitude
- *
- * @requires Geo
- */
-LatLon.prototype.toString = function(format, dp) {
-    if (typeof format == 'undefined') format = 'dms';
-
-    if (isNaN(this._lat) || isNaN(this._lon)) return '-,-';
-
-    return Geo.toLat(this._lat, format, dp) + ', ' + Geo.toLon(this._lon, format, dp);
-};
-
-/* - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -  */
-
-// ---- extend Number object with methods for converting degrees/radians
-
-/** Converts numeric degrees to radians */
-if (typeof(Number.prototype.toRad) === "undefined") {
-    Number.prototype.toRad = function() {
-        return this * Math.PI / 180;
-    }
-}
-
-/** Converts radians to numeric (signed) degrees */
-if (typeof(Number.prototype.toDeg) === "undefined") {
-    Number.prototype.toDeg = function() {
-        return this * 180 / Math.PI;
-    }
-}
-
-/**
- * Formats the significant digits of a number, using only fixed-point notation (no exponential)
- *
- * @param   {Number} precision: Number of significant digits to appear in the returned string
- * @returns {String} A string representation of number which contains precision significant digits
- */
-if (typeof(Number.prototype.toPrecisionFixed) === "undefined") {
-    Number.prototype.toPrecisionFixed = function(precision) {
-        if (isNaN(this)) return 'NaN';
-        var numb = this < 0 ? -this : this;  // can't take log of -ve number...
-        var sign = this < 0 ? '-' : '';
-
-        if (numb == 0) {  // can't take log of zero, just format with precision zeros
-            var n = '0.';
-            while (precision--) n += '0';
-            return n
-        }
-
-        var scale = Math.ceil(Math.log(numb) * Math.LOG10E);  // no of digits before decimal
-        var n = String(Math.round(numb * Math.pow(10, precision - scale)));
-        if (scale > 0) {  // add trailing zeros & insert decimal as required
-            l = scale - n.length;
-            while (l-- > 0) n = n + '0';
-            if (scale < n.length) n = n.slice(0, scale) + '.' + n.slice(scale);
-        } else {          // prefix decimal and leading zeros if required
-            while (scale++ < 0) n = '0' + n;
-            n = '0.' + n;
-        }
-        return sign + n;
-    }
-}
-
-/** Trims whitespace from string (q.v. blog.stevenlevithan.com/archives/faster-trim-javascript) */
-if (typeof(String.prototype.trim) === "undefined") {
-    String.prototype.trim = function() {
-        return String(this).replace(/^\s\s*/, '').replace(/\s\s*$/, '');
-    }
-}

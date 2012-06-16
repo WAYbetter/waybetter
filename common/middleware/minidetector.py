@@ -6,63 +6,64 @@
 # This list is public domain, please feel free to use it for your own projects
 # If HTTP_USER_AGENT.lower() contains any of these strings, it's a mobile
 # Also include some games consoles, see below
+import logging
 
 search_strings = [
-        # WAYbetter mobile user agents
-        "WAYbetter",
-        "waybetter",
+    # WAYbetter mobile user agents
+    "WAYbetter",
+    "waybetter",
 
-        "sony",
-        "symbian",
-        "nokia",
-        "samsung",
-        "mobile",
-        "windows ce",
-        "epoc",
-        "opera mini",
-        "nitro",
-        "j2me",
-        "midp-",
-        "cldc-",
-        "netfront",
-        "mot",
-        "up.browser",
-        "up.link",
-        "audiovox",
-        "blackberry",
-        "ericsson,",
-        "panasonic",
-        "philips",
-        "sanyo",
-        "sharp",
-        "sie-",
-        "portalmmm",
-        "blazer",
-        "avantgo",
-        "danger",
-        "palm",
-        "series60",
-        "palmsource",
-        "pocketpc",
-        "smartphone",
-        "rover",
-        "ipaq",
-        "au-mic,",
-        "alcatel",
-        "ericy",
-        "up.link",
-        "docomo",
-        "vodafone/",
-        "wap1.",
-        "wap2.",
-        "plucker",
-        "480x640",
-        "sec",
-        "google wireless transcoder",
-        "nintendo",
-        "webtv",
-        "playstation",
-]
+    "sony",
+    "symbian",
+    "nokia",
+    "samsung",
+    "mobile",
+    "windows ce",
+    "epoc",
+    "opera mini",
+    "nitro",
+    "j2me",
+    "midp-",
+    "cldc-",
+    "netfront",
+    "mot",
+    "up.browser",
+    "up.link",
+    "audiovox",
+    "blackberry",
+    "ericsson,",
+    "panasonic",
+    "philips",
+    "sanyo",
+    "sharp",
+    "sie-",
+    "portalmmm",
+    "blazer",
+    "avantgo",
+    "danger",
+    "palm",
+    "series60",
+    "palmsource",
+    "pocketpc",
+    "smartphone",
+    "rover",
+    "ipaq",
+    "au-mic,",
+    "alcatel",
+    "ericy",
+    "up.link",
+    "docomo",
+    "vodafone/",
+    "wap1.",
+    "wap2.",
+    "plucker",
+    "480x640",
+    "sec",
+    "google wireless transcoder",
+    "nintendo",
+    "webtv",
+    "playstation"]
+
 
 class Middleware(object):
     @staticmethod
@@ -76,6 +77,8 @@ class Middleware(object):
 #        return None
 
         # do not consider iPads as mobile
+        logging.info("Session ID = %s" % request.session.session_key)
+
         if request.META.get("HTTP_USER_AGENT", "").lower().find("ipad") > -1:
             request.mobile = False
             return None

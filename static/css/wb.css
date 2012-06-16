@@ -40,6 +40,9 @@ body {
 .clickable, .dropdown-trigger, .wb_button, .wb_home #booking_content_container #booking_progress .step, .wb_home #booking_content_container #ride_summary .data, #gcf_dialog .dl-browser .img {
   cursor: pointer; }
 
+.clickable.disabled, .disabled.dropdown-trigger, .disabled.wb_button, .wb_home #booking_content_container #booking_progress .disabled.step, .wb_home #booking_content_container #ride_summary .disabled.data, #gcf_dialog .dl-browser .disabled.img {
+  cursor: default; }
+
 .td-label {
   padding-right: 15px;
   font-weight: bold;
@@ -59,6 +62,9 @@ body {
 
 .hr-spacer {
   border-bottom: 1px solid #bcbcbc; }
+
+.inline-block {
+  display: inline-block; }
 
 .centered {
   margin: 0 auto; }
@@ -924,7 +930,7 @@ Home
     width: 100%;
     height: 300px;
     border-bottom: 4px solid white; }
-  .wb_home #cm-map {
+  .wb_home #map_canvas {
     position: absolute;
     top: 0;
     height: 100%;
@@ -978,6 +984,8 @@ Home
   .wb_home #disclaimer_container {
     min-height: 15px;
     padding-top: 10px; }
+  .wb_home .pac-item {
+    padding: 5px inherit; }
   .wb_home #booking_content_container {
     position: relative;
     width: 800px;
@@ -997,22 +1005,6 @@ Home
       background: url(/static/images/wb_site/wb_loader30.gif) center center no-repeat;
       height: 100%;
       width: 100%; }
-    .wb_home #booking_content_container #savings {
-      position: absolute;
-      right: -22px;
-      top: 20px;
-      width: 135px;
-      height: 74px;
-      background: url("/static/images/wb_site/ribbon.png") 0 0 no-repeat; }
-      .wb_home #booking_content_container #savings .content {
-        margin: 0 auto;
-        padding-left: 5px;
-        text-align: center;
-        line-height: 45px; }
-      .wb_home #booking_content_container #savings .label, .wb_home #booking_content_container #savings .value {
-        color: white;
-        font-weight: bold;
-        font-size: 18px; }
     .wb_home #booking_content_container #booking_content {
       width: 100%;
       height: 220px; }
@@ -1042,25 +1034,18 @@ Home
       .wb_home #booking_content_container #booking_progress td.completed:hover {
         background-color: #D6D6D6; }
     .wb_home #booking_content_container .booking_step {
+      width: 100%;
+      height: 180px;
       padding-top: 30px;
-      padding-bottom: 35px;
-      /*height: $booking-container-height * 0.9;*/ }
+      padding-bottom: 10px; }
       .wb_home #booking_content_container .booking_step table {
         margin: 0 auto;
         width: 100%;
-        border-spacing: 20px 3px; }
+        border-spacing: 15px 3px; }
         .wb_home #booking_content_container .booking_step table .wb_button, .wb_home #booking_content_container .booking_step table .small-loader, .wb_home #booking_content_container .booking_step table .myrides-tip-content .tooltip_loader, .myrides-tip-content .wb_home #booking_content_container .booking_step table .tooltip_loader {
           display: inline-block; }
       .wb_home #booking_content_container .booking_step .cntr.btn {
-        width: 165px;
-        padding-top: 22px; }
-      .wb_home #booking_content_container .booking_step .cntr.input {
-        position: relative; }
-        .wb_home #booking_content_container .booking_step .cntr.input .small-loader, .wb_home #booking_content_container .booking_step .cntr.input .myrides-tip-content .tooltip_loader, .myrides-tip-content .wb_home #booking_content_container .booking_step .cntr.input .tooltip_loader {
-          z-index: 3;
-          position: absolute;
-          right: 4px;
-          top: 30%; }
+        width: 165px; }
       .wb_home #booking_content_container .booking_step label {
         display: block;
         color: #393939;
@@ -1070,10 +1055,8 @@ Home
         vertical-align: top; }
       .wb_home #booking_content_container .booking_step .title {
         height: 20px;
-        margin-bottom: 20px;
         font-weight: bold;
         font-size: 18px;
-        text-align: center;
         color: #ef2c8c; }
       .wb_home #booking_content_container .booking_step input {
         height: 40px;
@@ -1086,10 +1069,13 @@ Home
       padding-left: 30px;
       padding-bottom: 10px;
       width: 740px; }
-      .wb_home #booking_content_container #hotspot_content .cntr.select {
+      .wb_home #booking_content_container #hotspot_content .cntr.select, .wb_home #booking_content_container #hotspot_content .title {
         width: 600px;
         margin: 0 auto;
         padding-left: 45px; }
+      .wb_home #booking_content_container #hotspot_content .title {
+        margin-bottom: 10px;
+        margin-top: 12px; }
       .wb_home #booking_content_container #hotspot_content #id_hotspot_select {
         width: 550px; }
       .wb_home #booking_content_container #hotspot_content #qm_votespot {
@@ -1114,30 +1100,77 @@ Home
       padding-right: 45px;
       padding-left: 45px;
       width: 710px; }
-      .wb_home #booking_content_container #address_content #id_city, .wb_home #booking_content_container #address_content #id_street_address, .wb_home #booking_content_container #address_content #id_house_number {
-        width: 100%; }
-      .wb_home #booking_content_container #address_content .cntr.city {
-        width: 25%; }
-      .wb_home #booking_content_container #address_content .cntr.hn {
-        width: 13%; }
-      .wb_home #booking_content_container #address_content .cntr.street {
-        position: relative;
-        /* no set width -> scales nicely */ }
+      .wb_home #booking_content_container #address_content .title {
+        padding: 0 15px;
+        margin: 30px auto 7px auto; }
+      .wb_home #booking_content_container #address_content #id_street_address {
+        width: 501px; }
+      .wb_home #booking_content_container #address_content #street_help_text {
+        padding-top: 6px;
+        font-size: 13px; }
     .wb_home #booking_content_container #datetime_content {
-      padding-right: 120px;
-      padding-left: 120px;
-      width: 560px; }
-      .wb_home #booking_content_container #datetime_content .cntr.time, .wb_home #booking_content_container #datetime_content .cntr.date {
-        width: 250px; }
-      .wb_home #booking_content_container #datetime_content #id_hotspot_datepicker, .wb_home #booking_content_container #datetime_content #id_hotspot_time {
-        width: 100%; }
-      .wb_home #booking_content_container #datetime_content #id_estimated_pickup {
-        padding-top: 3px;
-        font-size: 15px;
-        color: #339A31;
+      padding-top: 15px; }
+      .wb_home #booking_content_container #datetime_content .title {
+        height: auto;
+        text-align: inherit;
+        margin-bottom: 5px; }
+      .wb_home #booking_content_container #datetime_content .sms-info {
+        margin-bottom: 20px; }
+      .wb_home #booking_content_container #datetime_content .cntr.date, .wb_home #booking_content_container #datetime_content .cntr.btn {
+        width: 33%; }
+      .wb_home #booking_content_container #datetime_content .cntr.datepicker {
+        position: absolute;
+        top: 90px; }
+      .wb_home #booking_content_container #datetime_content .cntr.btn {
+        vertical-align: middle;
         text-align: center; }
-        .wb_home #booking_content_container #datetime_content #id_estimated_pickup .text, .wb_home #booking_content_container #datetime_content #id_estimated_pickup .value {
-          color: #339A31; }
+      .wb_home #booking_content_container #datetime_content #id_hotspot_datepicker {
+        width: 170px; }
+      .wb_home #booking_content_container #datetime_content #set_datetime {
+        width: 135px; }
+      .wb_home #booking_content_container #datetime_content #intervals_container {
+        height: 180px;
+        overflow-y: scroll;
+        border: 1px solid #d3d3d3; }
+      .wb_home #booking_content_container #datetime_content #intervals_list {
+        height: inherit; }
+        .wb_home #booking_content_container #datetime_content #intervals_list .interval {
+          position: relative;
+          width: 290px;
+          height: 41px;
+          padding: 3px 11px;
+          border-bottom: 1px solid #bcbcbc; }
+        .wb_home #booking_content_container #datetime_content #intervals_list .interval:hover {
+          background: #E8E8E8; }
+        .wb_home #booking_content_container #datetime_content #intervals_list .interval.selected {
+          background: #C9EEFA; }
+        .wb_home #booking_content_container #datetime_content #intervals_list .interval.disabled:hover {
+          background: none; }
+        .wb_home #booking_content_container #datetime_content #intervals_list .interval .time {
+          position: relative;
+          top: 10px; }
+        .wb_home #booking_content_container #datetime_content #intervals_list .interval .price {
+          display: block; }
+        .wb_home #booking_content_container #datetime_content #intervals_list .interval .price, .wb_home #booking_content_container #datetime_content #intervals_list .interval .time {
+          font-size: 16px;
+          color: #3d3d3d; }
+        .wb_home #booking_content_container #datetime_content #intervals_list .pop-cntr {
+          position: relative;
+          top: 2px; }
+        .wb_home #booking_content_container #datetime_content #intervals_list .popularity-label {
+          padding: 5px;
+          font-size: 13px;
+          color: #6c6c6a; }
+        .wb_home #booking_content_container #datetime_content #intervals_list .popularity-bar {
+          height: 13px;
+          padding: 2px;
+          background: #848484;
+          -webkit-box-shadow: inset 0px 2px 4px 0px rgba(0, 0, 0, 0.55);
+          -moz-box-shadow: inset 0px 2px 4px 0px rgba(0, 0, 0, 0.55);
+          box-shadow: inset 0px 2px 4px 0px rgba(0, 0, 0, 0.55); }
+        .wb_home #booking_content_container #datetime_content #intervals_list .popularity-fill {
+          height: 13px;
+          background: #6FBE6D; }
     .wb_home #booking_content_container #details_content {
       padding: 10px 10px 0 10px;
       width: 780px; }
@@ -1181,38 +1214,18 @@ Home
     .wb_home #booking_content_container #ride_details {
       position: absolute;
       right: 41px;
-      top: 30px;
-      width: 435px; }
-      .wb_home #booking_content_container #ride_details #offer .price, .wb_home #booking_content_container #ride_details #offer .time {
-        height: 35px;
-        width: auto;
-        margin: 10px auto 22px auto;
-        border-bottom: 1px solid #bcbcbc;
-        border-spacing: 1px 1px; }
-      .wb_home #booking_content_container #ride_details #offer .price {
-        padding: 0 15px; }
-      .wb_home #booking_content_container #ride_details #offer .time {
-        padding: 0 30px; }
-      .wb_home #booking_content_container #ride_details #offer .offer-row {
-        vertical-align: bottom; }
-      .wb_home #booking_content_container #ride_details #offer .offer-pre {
-        text-align: right;
-        color: #4d4d4d; }
-      .wb_home #booking_content_container #ride_details #offer .offer-val {
-        text-align: center;
-        font-weight: bold;
-        line-height: 12px;
-        padding: 0 3px; }
-      .wb_home #booking_content_container #ride_details #offer .offer-val .value {
-        font-size: 45px; }
-      .wb_home #booking_content_container #ride_details #offer .price .offer-val .label {
-        font-size: 38px; }
-      .wb_home #booking_content_container #ride_details #offer .time .offer-val .label {
+      top: 40px;
+      width: 435px;
+      text-align: center; }
+      .wb_home #booking_content_container #ride_details #sharing_price .text {
         font-size: 20px; }
-      .wb_home #booking_content_container #ride_details #offer .offer-post {
-        text-align: left;
-        color: #3d3d3d;
-        font-weight: bold; }
+      .wb_home #booking_content_container #ride_details #sharing_price .value {
+        font-size: 45px; }
+      .wb_home #booking_content_container #ride_details #sharing_price .label {
+        font-size: 38px; }
+      .wb_home #booking_content_container #ride_details #guarantee_text {
+        font-size: 13px;
+        padding: 6px 0 20px 0; }
       .wb_home #booking_content_container #ride_details #book_ride {
         display: block;
         width: 400px;
@@ -1250,54 +1263,46 @@ Home
   .wb_home #partners #partner_logos td.cloudmade-logo {
     background-position: left -594px; }
 
-.rtl.wb_home #cm-map {
-  direction: ltr; }
-.rtl.wb_home #mobile_apps .img {
-  background: url("/static/images/wb_site/mobile_banner_rtl_bg.png") right top no-repeat; }
-.rtl.wb_home .slidesContainer {
-  direction: ltr; }
-.rtl.wb_home .booking_step {
-  direction: rtl; }
-.rtl.wb_home #booking_content_container #savings {
-  right: auto;
-  left: -22px;
-  background: url("/static/images/wb_site/ribbon_rtl.png") right 0 no-repeat; }
-  .rtl.wb_home #booking_content_container #savings .content {
+.rtl.wb_home {
+  /*#cm-map{*/
+  /*direction: ltr; // fixes a loading issue: map loads to the left*/
+  /*}*/ }
+  .rtl.wb_home #mobile_apps .img {
+    background: url("/static/images/wb_site/mobile_banner_rtl_bg.png") right top no-repeat; }
+  .rtl.wb_home .slidesContainer {
+    direction: ltr; }
+  .rtl.wb_home .booking_step {
+    direction: rtl; }
+  .rtl.wb_home #booking_content_container #intervals_container {
+    direction: ltr; }
+  .rtl.wb_home #booking_content_container #intervals_list {
+    direction: rtl; }
+  .rtl.wb_home #booking_content_container #hotspot_content .cntr.select, .rtl.wb_home #booking_content_container #hotspot_content .title {
     padding-left: 0;
-    padding-right: 5px; }
-.rtl.wb_home #booking_content_container .booking_step .cntr.input .small-loader, .rtl.wb_home #booking_content_container .booking_step .cntr.input .myrides-tip-content .tooltip_loader, .myrides-tip-content .rtl.wb_home #booking_content_container .booking_step .cntr.input .tooltip_loader {
-  right: auto;
-  left: 4px; }
-.rtl.wb_home #booking_content_container #hotspot_content .cntr.select {
-  padding-left: 0;
-  padding-right: 45px; }
-.rtl.wb_home #booking_content_container #hotspot_content td.first {
-  text-align: left; }
-.rtl.wb_home #booking_content_container #hotspot_content td.second {
-  text-align: right; }
-.rtl.wb_home #booking_content_container #ride_summary {
-  left: auto;
-  right: 10px;
-  padding-right: 0;
-  padding-left: 20px;
-  border-right: none;
-  border-left: 1px solid gray; }
-  .rtl.wb_home #booking_content_container #ride_summary #switch_direction {
-    float: left; }
-  .rtl.wb_home #booking_content_container #ride_summary #num_seats .radio {
-    float: left;
-    right: auto;
-    left: 10px; }
-  .rtl.wb_home #booking_content_container #ride_summary #num_seats_loader {
-    right: auto;
-    left: -10px; }
-.rtl.wb_home #booking_content_container #ride_details {
-  right: auto;
-  left: 41px; }
-  .rtl.wb_home #booking_content_container #ride_details #offer .offer-pre {
+    padding-right: 45px; }
+  .rtl.wb_home #booking_content_container #hotspot_content td.first {
     text-align: left; }
-  .rtl.wb_home #booking_content_container #ride_details #offer .offer-post {
+  .rtl.wb_home #booking_content_container #hotspot_content td.second {
     text-align: right; }
+  .rtl.wb_home #booking_content_container #ride_summary {
+    left: auto;
+    right: 10px;
+    padding-right: 0;
+    padding-left: 20px;
+    border-right: none;
+    border-left: 1px solid gray; }
+    .rtl.wb_home #booking_content_container #ride_summary #switch_direction {
+      float: left; }
+    .rtl.wb_home #booking_content_container #ride_summary #num_seats .radio {
+      float: left;
+      right: auto;
+      left: 10px; }
+    .rtl.wb_home #booking_content_container #ride_summary #num_seats_loader {
+      right: auto;
+      left: -10px; }
+  .rtl.wb_home #booking_content_container #ride_details {
+    right: auto;
+    left: 41px; }
 
 .staff_home #content-container, .staff_home #header-container {
   background: #FF9CA6; }

@@ -29,6 +29,31 @@ def require_parameters(method='GET', required_params=()):
 
     return actual_decorator
 
+def mute_logs(level=logging.ERROR):
+    """
+    mute logs with severity lower @level
+    @param level: a logging.LEVEL
+    @return: a decorator
+    """
+    def actual_decorator(func):
+        def wrapper(*args, **kwargs):
+            logger = logging.getLogger()
+            _level = logger.level
+
+            logging.info("mute: logging level set to %s" % logging._levelNames.get(level, "?"))
+            logger.setLevel(level)
+
+            result = func(*args, **kwargs)
+
+            logger.setLevel(_level)
+            logging.info("unmute: logging level back to %s" % logging._levelNames.get(_level, "?"))
+
+            return result
+
+        return wrapper
+
+    return actual_decorator
+
 def force_lang(lang_code):
     def actual_decorator(function):
         def wrapper(request, **kwargs):

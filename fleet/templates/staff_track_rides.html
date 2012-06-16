@@ -1,0 +1,268 @@
+{% extends "wb_base_site.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        #top-container, #site-content{
+            width: 1000px;
+        }
+        #map_canvas{
+            height: 600px;
+        }
+        #map_tools{
+            height: 30px;
+            padding: 10px 2px;
+        }
+        .map-tool{
+            float: left;
+            margin-right: 25px;
+        }
+        #log {
+            height: 200px;
+            padding-left: 5px;
+            overflow-y: scroll;
+            background: black;
+            list-style: none;
+        }
+
+        .log-entry {
+            color: white;
+            font-weight: bold;
+            font-family: "Courier New";
+        }
+    </style>
+{% endblock %}
+
+{% block top_left %}
+    Track Ongoing Rides
+{% endblock %}
+
+{% block content %}
+    <div id="rides_container">
+{#        <ul id="rides">#}
+{#            <li class="ride"></li>#}
+{#        </ul>#}
+    </div>
+    <div id="map_container">
+        <div id="map_canvas"></div>
+        <div id="map_tools">
+            <div class="map-tool">
+                <input type="radio" name="taxis2show" id="show_ongoing_taxis" checked="checked">Show Ongoing Rides
+                <br>
+                <input type="radio" name="taxis2show" id="show_all_taxis">Show All Taxis
+            </div>
+            <div class="map-tool">
+                <input class="zoom_taxi" type="text" placeholder="Taxi #">
+                <button class="zoom_taxi">Zoom</button>
+            </div>
+        </div>
+    </div>
+    <div id="log_console">
+        <ul id="log">
+            <li class="log-entry">Logging Started</li>
+        </ul>
+    </div>
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript" src="/static/js/mylibs/jquery.easydate-0.2.4.js"></script>
+    <script type="text/javascript">
+        var map, infowindow, markers = {}, positions_data = {}, active_taxi, getall_ajax_active = false;
+
+        function getNowTimestamp(){
+            var now = new Date();
+            var minutes = now.getMinutes(), hours = now.getHours(), secondes = now.getSeconds();
+            return ((hours < 10) ? "0" + hours : hours) + ":" + ((minutes < 10) ? "0" + minutes : minutes) + ":" +
+                    ((secondes < 10) ? "0" + secondes : secondes);
+        }
+
+        function writeLogs(logs) {
+            var $log = $("#log");
+            $.each(logs, function (i, entry) {
+                var $li = $("<li></li>").addClass("log-entry").text(getNowTimestamp() + ": " + entry);
+                $log.prepend($li);
+            });
+//            var $scrollTo = $(".log-entry:last");
+//            if ($scrollTo.length){
+//                $log.scrollTop($scrollTo.offset().top - $log.offset().top + $log.scrollTop());
+//            }
+        }
+        function updatePositions(pp){
+            $.each(pp, function (i, p) {
+                var oldpos, distance;
+                var newpos = new LatLon(p.lat, p.lon);
+                if (positions_data[p.taxi_id]){
+                    oldpos = new LatLon(positions_data[p.taxi_id].lat, positions_data[p.taxi_id].lon);
+                    distance = parseFloat(newpos.distanceTo(oldpos, 2));
+                    if (distance > 0) {
+                        var distr = (distance * 1000).toString();
+                        writeLogs(["taxi #" + p.taxi_id + " moved " + ' (' + distr + "m)"]);
+                    }
+                }else{
+                    writeLogs(["new taxi: " + p.taxi_id]);
+                }
+                positions_data[p.taxi_id] = p;
+                var latLng = new google.maps.LatLng(p.lat, p.lon);
+                var marker = markers[p.taxi_id];
+                if (marker){
+                    marker.setPosition(latLng);
+                }
+                else{
+                    marker = new google.maps.Marker({
+                        flat: true,
+//                        'icon': '',
+                        map: map,
+                        position: latLng,
+                        title: "taxi #" + p.taxi_id,
+                        icon: "/static/images/wb_site/taxi_marker.png"
+                    });
+                    google.maps.event.addListener(marker, 'click', function () {
+                        openInfoWindow(p.taxi_id);
+                    });
+
+                    markers[p.taxi_id] = marker;
+                }
+
+                if (active_taxi == p.taxi_id && distance && distance > 0){
+                    openInfoWindow(p.taxi_id); // update info window with new content
+                }
+            });
+        }
+        function openInfoWindow(taxi_id){
+            var position = positions_data[taxi_id];
+            var contentString = 'taxi #' + position.taxi_id;
+            if (position.ride_id) {
+                contentString += '<br/>assigned to ride #' + position.ride_id;
+            }
+            if (position.timestamp){
+                var datestring = '<abbr class="easydate">' + position.timestamp + '</abbr>';
+                contentString += '<br/>last update: ' + position.timestamp + ' (' + datestring + ')' ;
+            }
+            active_taxi = taxi_id;
+            infowindow.setContent(contentString);
+            infowindow.open(map, markers[taxi_id]);
+            $(".easydate").easydate();
+        }
+        function updateRide(fmr){
+
+        }
+        function zoomTaxi(taxi_id){
+            var marker = markers[taxi_id];
+            if (marker) {
+                map.setCenter(marker.getPosition());
+                map.setZoom(17);
+            }
+            else {
+                alert("Can't find Taxi #" + taxi_id);
+            }
+        }
+        function getAllPositions(){
+            if (getall_ajax_active){
+                return;
+            }
+            getall_ajax_active = true;
+            $.ajax({
+                url: '{% url fleet.backends.isr_proxy.get_all_positions %}',
+                success: function(response){
+                    if ($("#show_all_taxis").is(":checked")) {
+                        if (response.positions.length) {
+                            updatePositions(response.positions);
+                        } else {
+                            writeLogs(["getAllPositions: got nothing"])
+                        }
+                    }
+                },
+                error: function(){
+                    writeLogs(["getAllPositions: error"]);
+                },
+                complete: function(response){
+                    getall_ajax_active = false;
+                    if ($("#show_all_taxis").is(":checked")){
+                        setTimeout(function () {
+                            getAllPositions();
+                        }, 2e3);
+                    }
+                }
+            })
+        }
+        $(function () {
+            map = new google.maps.Map(document.getElementById("map_canvas"), {
+                        center:new google.maps.LatLng(32.054026720778126, 34.790465719238234),
+                        zoom:12,
+                        mapTypeId:google.maps.MapTypeId.ROADMAP
+                    }
+            );
+
+            infowindow = new google.maps.InfoWindow();
+            google.maps.event.addListener(infowindow, 'closeclick', function () {
+                active_taxi = undefined;
+            });
+
+            // map tools
+            $("input.zoom_taxi").keydown(function (e) {
+                if (e.which == 13) {
+                    var taxi_id = $(this).val();
+                    zoomTaxi(taxi_id);
+                }
+            });$("button.zoom_taxi").click(function () {
+                var taxi_id = $("input.zoom_taxi").val();
+                zoomTaxi(taxi_id);
+            });
+            $("[name=taxis2show]").change(function () {
+                if ($("#show_all_taxis").is(":checked")) {
+                    writeLogs(["getAllpositions: Started"]);
+                    getAllPositions();
+                }
+                else{
+                    writeLogs(["getAllpositions: Stopped"]);
+                    $.each(markers, function (taxi_id, marker) {
+                        var pos_data = positions_data[taxi_id];
+                        if (!pos_data.ride_id){
+                            marker.setMap(null);
+                        }
+                        delete markers[taxi_id];
+                    });
+                }
+            });
+            var channel_opened = false;
+            var channel;
+            var socket;
+            var token = "{{ token }}";
+
+            channel = new goog.appengine.Channel(token);
+            socket = channel.open();
+            socket.onerror = function () {
+                writeLogs(["socket: onerror"]);
+            };
+            socket.onclose = function () {
+                writeLogs(["socket: onclose"]);
+            };
+            socket.onopen = function () {
+                writeLogs(["socket: onopen " + token]);
+                channel_opened = true;
+            };
+            socket.onmessage = function (msg) {
+                log("socket: onmessage " + msg);
+                try {
+                    var data = $.parseJSON(msg.data);
+                    if (data.logs) {
+                        writeLogs(data.logs);
+                    }
+                    if (data.positions){
+                        updatePositions(data.positions);
+                    }
+                    if (data.ride){
+                        // todo
+                    }
+                    if (data.fmr){
+                        // todo
+                    }
+                } catch (e) {
+                    writeLogs(["error parsing: " + JSON.stringify(e)]);
+                }
+            };
+        });
+    </script>
+{% endblock %}

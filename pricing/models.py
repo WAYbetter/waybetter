@@ -4,6 +4,7 @@ from django.utils.translation import ugettext_lazy as _
 from common.util import DAY_OF_WEEK_CHOICES, FIRST_WEEKDAY, LAST_WEEKDAY, convert_python_weekday, datetimeIterator
 from common.models import BaseModel
 
+PRIVATE_RIDE_HANDLING_FEE = 0 #NIS
 
 class RuleSet(BaseModel):
     """
@@ -59,7 +60,10 @@ class AbstractTemporalRule(BaseModel):
         by_date = bool(self.from_date or self.to_date)
         by_weekday = bool(self.from_weekday or self.to_weekday)
 
-        if by_date and by_weekday:
+        if not (by_date or by_weekday):
+            raise ValidationError("Please enter either date or weekday range")
+
+        elif by_date and by_weekday:
             raise ValidationError("Can not define time frame by both date and weekday.")
 
         elif by_date and not (self.from_date and self.to_date):
@@ -71,6 +75,9 @@ class AbstractTemporalRule(BaseModel):
         elif by_weekday and not (self.from_weekday and self.to_weekday):
             raise ValidationError("Please enter both From and To fields")
 
+        elif self.from_hour > self.to_hour:
+            raise ValidationError("Invalid hour range")
+
     def is_active(self, day, t=None):
         """
         Check if the rule is active on day, or on day and time.
@@ -79,9 +86,9 @@ class AbstractTemporalRule(BaseModel):
         @return: True if rule is active, else False
         """
         if self.from_date and self.to_date and self.from_date <= day <= self.to_date:
-            return self.from_hour <= t <= self.to_hour if t else True
+            return True if t is None else self.from_hour <= t <= self.to_hour
         elif convert_python_weekday(day.weekday()) in self.get_weekdays():
-            return self.from_hour <= t <= self.to_hour if t else True
+            return True if t is None else self.from_hour <= t <= self.to_hour
 
         return False
 

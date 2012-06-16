@@ -4,7 +4,6 @@ from django.views.generic.simple import direct_to_template
 
 
 urlpatterns = patterns('',
-    (r'is_dev/$', 'common.views.is_dev'),
     (r'setup/$', 'common.views.setup'),
     (r'reset_ws_passwords/$', 'common.views.reset_password'),
     (r'test_channel/$', 'common.views.test_channel'),
@@ -15,6 +14,7 @@ urlpatterns = patterns('',
     (r'is_email_available_for_user/$', 'common.services.is_email_available_for_user'),
     (r'is_username_available/$', 'common.services.is_username_available'),
     url(r'is_user_authenticated/$', 'common.services.is_user_authenticated', name="is_user_authenticated"),
+    url(r'is_token_valid/$', 'common.services.is_token_valid', name="is_token_valid"),
     url(r'get_messages/$', 'common.services.get_messages', name="get_messages"),
     (r'get_polygons/$', 'common.services.get_polygons'),
     (r'update_city_area_order/$', 'common.services.update_city_area_order'),

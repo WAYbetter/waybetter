@@ -1,12 +1,14 @@
 import traceback
-from common.decorators import internal_task_on_queue, catch_view_exceptions
+from common.decorators import internal_task_on_queue, catch_view_exceptions, receive_signal
 from common.models import BaseModel
 from django.core.urlresolvers import reverse
 from django.db import models
 from django.dispatch.dispatcher import Signal, _make_id
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from google.appengine.api import taskqueue
+from django.utils import simplejson
+from google.appengine.api.channel.channel import InvalidChannelClientIdError
+from google.appengine.api import taskqueue, memcache, channel
 import logging
 import pickle
 from common.util import Enum
@@ -119,3 +121,19 @@ class AsyncComputationSignalType(Enum):
 async_computation_submitted_signal = AsyncSignal(AsyncComputationSignalType.SUBMITTED, providing_args=["channel_id"])
 async_computation_completed_signal = AsyncSignal(AsyncComputationSignalType.COMPLETED, providing_args=["channel_id", "data", "token"])
 async_computation_failed_signal = AsyncSignal(AsyncComputationSignalType.FAILED, providing_args=["channel_id"])
+
+@receive_signal(async_computation_completed_signal)
+def async_computation_complete_handler(sender, signal_type, **kwargs):
+    from common.views import ASYNC_MEMCACHE_KEY
+    client_id = kwargs.get('channel_id')
+    token = kwargs.get('token')
+    logging.info("async_computation_complete_handler: channel_id: %s, data: %s" % (client_id, kwargs.get('data')))
+    json = simplejson.dumps(kwargs.get('data'))
+
+    # save data to memcache
+    memcache.set(ASYNC_MEMCACHE_KEY % token, json)
+
+    try:
+        channel.send_message(client_id, json)
+    except InvalidChannelClientIdError:
+        logging.error("InvalidChannelClientIdError: could not sent message '%s' with channel id: '%s'" % (json,client_id))
