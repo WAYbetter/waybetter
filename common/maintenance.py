@@ -438,11 +438,20 @@ def fix_orders_hotspot_type(start=0):
     logging.info("fix_orders_hotspot_type: processing %s->%s" % (start, end))
     orders = Order.objects.order_by("create_date")[start:end]
     for order in orders:
-        rc = order.computation
+        try:
+            rc = order.computation
+        except RideComputation.DoesNotExist:
+            logging.warning("order [%s] has no ride computation" % order)
+            rc = None
+
         if rc and rc.hotspot_type:
             order.hotspot_type = rc.hotspot_type
-            logging.info("fixed order [%s]: %s" % (order.id, StopType.get_name(order.hotspot_type)))
-            order.save()
+            try:
+                order.save()
+                logging.info("fixed order [%s]: %s" % (order.id, StopType.get_name(order.hotspot_type)))
+            except Passenger.DoesNotExist:
+                logging.warning("order [%s] has no passenger" % order)
+
     if orders:
         deferred.defer(fix_orders_hotspot_type, start=end, _queue="maintenance")
     else:

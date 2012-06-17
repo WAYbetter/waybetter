@@ -22,7 +22,7 @@ class IsraelExtraCosts(Enum):
     KVISH_6         = u"כביש 6"
 
 def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUNTRY_CODE, cities=None,
-                  day=None, time=None, extras=None):
+                  day=None, time=None, extras=None, meter_rules=None):
     """
     Calculate estimated cost for a taxi ride by meter (by estimated time and duration) or a flat rate.
     Returns a (cost, type) tuple.
@@ -72,7 +72,10 @@ def estimate_cost(est_duration, est_distance, country_code=settings.DEFAULT_COUN
         cost = flat_rate_rules.pop().fixed_cost
     else:
         type = CostType.METER
-        cost = calculate_meter_cost(country.metered_rules.all(), est_duration, est_distance, day, time)
+        if not meter_rules:
+            meter_rules = country.metered_rules.all()
+
+        cost = calculate_meter_cost(meter_rules, est_duration, est_distance, day, time)
 
     # Step 2: add extra costs (airport, etc.). Phone order is always added
     extra_charge_rules = [country.extra_charge_rules.filter(rule_name=extra).get() for extra in extras]
@@ -125,6 +128,7 @@ def calculate_meter_cost(rule_list, est_duration, est_distance, day, time):
     time     : datetime.time of ride
     """
     relevant_rules = filter_relevant_daytime_rules(rule_list, day, time)
+    logging.info("relevant rules: %s" % relevant_rules)
 
     total_fixed_cost = sum([rule.fixed_cost for rule in relevant_rules if rule.fixed_cost])
 

@@ -103,12 +103,16 @@ class HotSpot(BaseModel):
         price = None
         cost = self.get_cost(lat, lon, day, t, num_seats, tariff_rules, cost_rules)
         if cost:
-            price = get_base_sharing_price(cost)
+            price = get_base_sharing_price(lat, lon, self.lat, self.lon, day, t)
 
         logging.info("private price = %s" % price)
+
+        if price:
+            price = int(math.ceil(price))
+
         return price
 
-    def get_sharing_price(self, lat, lon, day, t, num_seats=1, with_popularity=False, tariff_rules=None, cost_rules=None, pop_rules=None):
+    def get_sharing_price(self, lat, lon, day, t, num_seats=1, with_popularity=False, tariff_rules=None, cost_rules=None, pop_rules=None, estimated_distance=None, estimated_duration=None, meter_rules=None):
         """
         @param lat:
         @param lon:
@@ -126,7 +130,7 @@ class HotSpot(BaseModel):
             logging.warning("no cost defined")
             return (None, None) if with_popularity else None
 
-        base_sharing_price = get_base_sharing_price(cost)
+        base_sharing_price = get_base_sharing_price(lat, lon, self.lat, self.lon, day, t, estimated_distance, estimated_duration, meter_rules=meter_rules)
 
         pop_rule = self.get_popularity_rule(day, t, pop_rules=pop_rules)
         if pop_rule:
@@ -159,8 +163,10 @@ class HotSpot(BaseModel):
             return price
 
 
-    @mute_logs()
+#    @mute_logs()
     def get_offers(self, lat, lon, day, num_seats=1):
+        from sharing.algo_api import calculate_route
+
         now = default_tz_now()
         start_time = self.get_next_orderable_interval().time() if day == now.date() else None
 
@@ -188,8 +194,14 @@ class HotSpot(BaseModel):
                 if asap_price:
                     offers.append({'time': t, 'price': asap_price, 'popularity': 0, 'type': OrderType.PRIVATE})
 
+        route_result = calculate_route(lat, lon, self.lat, self.lon)
+        estimated_duration, estimated_distance = route_result["estimated_duration"], route_result["estimated_distance"]
+        if estimated_duration == 0.0 and  estimated_distance == 0.0: # failed to calculate route
+            return offers
+
+        meter_rules = self.country.metered_rules.all()
         for t in self.get_times_for_day(day, start_time=start_time):
-            price, popularity = self.get_sharing_price(lat, lon, day, t, num_seats, True, tariffs, costs, pop_rules)
+            price, popularity = self.get_sharing_price(lat, lon, day, t, num_seats, True, tariffs, costs, pop_rules, estimated_distance, estimated_duration, meter_rules)
             if price is not None:
                 offers.append({'time': t, 'price': price, 'popularity': popularity, 'type': OrderType.SHARED})
 

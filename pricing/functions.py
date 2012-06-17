@@ -1,13 +1,29 @@
 import logging
 import random
+from common.util import convert_python_weekday
 
 HANDLING_FEE = 2 # NIS
 MAX_DISCOUNT_FACTOR = 0.6 # the discount for 100% popularity
 TWO_SEATS_PRICE_FACTOR = 0.4 # add this to the delta between base_price and popularity price
 
-def get_base_sharing_price(cost):
-#    return 0.59 * cost
-    return cost + HANDLING_FEE
+#def get_base_sharing_price(cost):
+#   return cost + HANDLING_FEE
+
+def get_base_sharing_price(start_lat, start_lon, end_lat, end_lon, d, t, estimated_distance=None, estimated_duration=None, meter_rules=None):
+    from ordering.pricing import estimate_cost, CostType
+    from sharing.algo_api import calculate_route
+
+    if not (estimated_distance and estimated_duration):
+        route_result = calculate_route(start_lat, start_lon, end_lat, end_lon)
+        estimated_duration, estimated_distance = route_result["estimated_duration"], route_result["estimated_distance"]
+        if estimated_duration == 0.0 and  estimated_distance == 0.0: # failed to calculate route
+            return None
+
+    
+    estimated_cost, price_type = estimate_cost(estimated_duration, estimated_distance, day=convert_python_weekday(d.weekday()), time=t, meter_rules=meter_rules)
+    assert price_type == CostType.METER
+
+    return estimated_cost + HANDLING_FEE
 
 
 def get_noisy_number_for_day_time(number, limit, day, t):
