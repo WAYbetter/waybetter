@@ -3,7 +3,7 @@ import traceback
 import pickle
 from google.appengine.api import memcache
 from fleet.models import FleetManager, FleetManagerRideStatus
-from ordering.models import SharedRide, ASSIGNED, RideEvent
+from ordering.models import SharedRide, ASSIGNED, RideEvent, Order, OrderType
 import signals as fleet_signals
 
 def create_ride(ride):
@@ -55,16 +55,28 @@ def update_ride(fmr):
     """
     logging.info("fleet manager: ride update %s" % fmr)
     fleet_signals.fmr_update_signal.send(sender="fleet_manager", obj=fmr)
-    wb_ride = SharedRide.by_id(fmr.id)
-    if not wb_ride:
+
+    order = Order.by_id(fmr.id)
+    if not order:
+        logging.error("fleet manager: fmr update to non-existing order id=%s" % fmr.id)
+        return
+
+    pickmeapp_ride, shared_ride = None, None
+    if order.type == OrderType.PICKMEAPP:
+        pickmeapp_ride = order.pickmeapp_ride
+    else:
+        shared_ride = order.ride
+
+    if not (pickmeapp_ride or shared_ride):
         logging.error("fleet manager: fmr update to non-existing ride")
         return
 
-    e = RideEvent(shared_ride=wb_ride, status=fmr.status, raw_status=fmr.raw_status,
+    e = RideEvent(pickmeapp_ride=pickmeapp_ride, shared_ride=shared_ride, status=fmr.status, raw_status=fmr.raw_status,
                   lat=fmr.lat, lon=fmr.lon, taxi_id=fmr.taxi_id, timestamp=fmr.timestamp)
     e.save()
 
     # TODO_WB: update wb_ride when we trust ISR data
+    wb_ride = pickmeapp_ride or shared_ride
     logging.info("fleet manager: ride [%s] not updated. fmr_status=%s raw_status=%s)" %
                  (wb_ride.id, FleetManagerRideStatus.get_name(fmr.status), fmr.raw_status))
 

@@ -8,14 +8,17 @@ from google.appengine.api import channel
 from django.db.models.loading import get_model
 from django.contrib.auth.models import User
 from django.utils import simplejson
-from ordering.models import Passenger, SharedRide, RidePoint, StopType, APPROVED
+from ordering.models import Passenger, SharedRide, RidePoint, StopType, APPROVED, ACCEPTED, PickMeAppRide
 from ordering.errors import UpdateUserError
-from common.util import log_event, EventType, get_channel_key, notify_by_email, send_mail_as_noreply
+from common.util import log_event, EventType, get_channel_key, send_mail_as_noreply
 from common.sms_notification import send_sms
 from oauth2.models import FacebookSession
 import logging
+import datetime
 
 def create_single_order_ride(order):
+    from sharing.signals import ride_created_signal
+
     if order.status != APPROVED:
         logging.error("denied creating ride for unapproved order [%s]" % order.id)
         return None
@@ -49,9 +52,30 @@ def create_single_order_ride(order):
     order.dropoff_point = dropoff
     order.save()
 
-    logging.info("created ride[%s] for single order[%s]" % (ride.id, order.id))
-    from sharing.signals import ride_created_signal
+    logging.info("created single order ride: order[%s] -> ride[%s]" % (order.id, ride.id))
     ride_created_signal.send(sender='create_single_order_ride', obj=ride)
+    return ride
+
+
+def create_pickmeapp_ride(order):
+    from sharing.signals import ride_created_signal
+
+    if order.status != ACCEPTED:
+        logging.error("denied creating pickmeapp ride for unaccepted order [%s]" % order.id)
+        return None
+
+    ride = PickMeAppRide()
+    ride.order = order
+    ride.debug = order.debug
+    ride.depart_time = order.assignments.get(status=ACCEPTED).create_date + datetime.timedelta(minutes=order.pickup_time)
+    ride.arrive_time = ride.depart_time + datetime.timedelta(minutes=10) # we don't know the arrive time for pickmeapp rides
+    ride.station = order.station
+    ride.dn_fleet_manager_id = order.station.fleet_manager_id
+    ride.save()
+
+    logging.info("created pickmeapp ride: order[%s] -> ride[%s]" % (order.id, ride.id))
+    ride_created_signal.send(sender='create_pickmeapp_ride', obj=ride)
+
     return ride
 
 def send_msg_to_passenger(passenger, msg):

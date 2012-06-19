@@ -74,7 +74,7 @@ ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED, ugettext("failed")),
                                     (APPROVED, ugettext("approved")),
                                     (CHARGED, ugettext("charged")))
 
-SHARED_RIDE_STATUS = ((PENDING, ugettext("pending")),
+RIDE_STATUS = ((PENDING, ugettext("pending")),
                      (ASSIGNED, ugettext("assigned")),
                      (COMPLETED, ugettext("completed")),
                      (ACCEPTED, ugettext("accepted")),
@@ -394,28 +394,36 @@ class RideComputation(BaseModel):
     def change_status(self, old_status=None, new_status=None, safe=True):
         return self._change_attr_in_transaction("status", old_value=old_status, new_value=new_status, safe=safe)
 
-class SharedRide(BaseModel):
+class Ride(BaseModel):
+    class Meta:
+        abstract = True
 
     depart_time = UTCDateTimeField(_("depart time"))
     arrive_time = UTCDateTimeField(_("arrive time"))
 
-    status = StatusField(_("status"), choices=SHARED_RIDE_STATUS, default=PENDING)
-    computation = models.ForeignKey(RideComputation, verbose_name=_("computation"), related_name="rides", null=True, blank=True)
+    status = StatusField(_("status"), choices=RIDE_STATUS, default=PENDING)
+    debug = models.BooleanField(default=False, editable=False)
 
+    # denormalized fields
+    dn_fleet_manager_id = models.IntegerField(blank=True, null=True)
+
+class PickMeAppRide(Ride):
+    order = models.OneToOneField('Order', related_name="pickmeapp_ride")
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="pickmeapp_rides", null=True, blank=True)
+
+
+class SharedRide(Ride):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
     driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
 
-    debug = models.BooleanField(default=False, editable=False)
+    computation = models.ForeignKey(RideComputation, verbose_name=_("computation"), related_name="rides", null=True, blank=True)
 
     sent_time = UTCDateTimeField("sent time", null=True, blank=True)
     received_time = UTCDateTimeField("received time", null=True, blank=True)
 
     _value = models.FloatField(null=True, blank=True, editable=False) # the value of this ride to the assigned station
     _stops = models.IntegerField(null=True, blank=True, editable=False)
-
-    # denormalized fields
-    dn_fleet_manager_id = models.IntegerField(blank=True, null=True)
 
     @property
     def value(self):
@@ -520,7 +528,7 @@ class SharedRide(BaseModel):
             raise UpdateStatusError("update shared ride status failed: %s to %s" % (old_status, new_status))
 
     def get_status_label(self):
-        for key, label in SHARED_RIDE_STATUS:
+        for key, label in RIDE_STATUS:
             if key == self.status:
                 return label
 
@@ -572,13 +580,28 @@ class RidePoint(BaseModel):
 
 
 class RideEvent(BaseModel):
-    shared_ride = models.ForeignKey(SharedRide, related_name="events")
+    shared_ride = models.ForeignKey(SharedRide, related_name="events", blank=True, null=True)
+    pickmeapp_ride = models.ForeignKey(PickMeAppRide, related_name="events", blank=True, null=True)
     status = models.IntegerField(choices=FleetManagerRideStatus.choices(), default=FleetManagerRideStatus.PENDING)
     raw_status = models.CharField(max_length=128, null=True, blank=True)
     lat = models.FloatField(null=True, blank=True)
     lon = models.FloatField(null=True, blank=True)
     taxi_id = models.IntegerField(null=True, blank=True)
     timestamp = UTCDateTimeField(null=True, blank=True) # timestamp from fleet event
+
+    def clean(self):
+        if not (bool(self.shared_ride) ^ bool(self.pickmeapp_ride)):
+            raise ValidationError("Must set PickMeAppRide or SharedRide but not both.")
+
+    def serialize_for_status_page(self):
+        return {
+            'status'        : self.raw_status,
+            'lat'           : self.lat,
+            'lon'           : self.lon,
+            'taxi_id'       : self.taxi_id,
+            'time'          : self.create_date,
+            'id'            : self.id
+        }
 
 
 class Passenger(BaseModel):

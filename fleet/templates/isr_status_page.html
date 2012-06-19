@@ -1,0 +1,230 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="RideEventsApp">
+<head>
+    <meta charset="utf-8">
+    <title>Ride Status Page</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="stylesheet" href="/static/css/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="/static/css/bootstrap/css/bootstrap-responsive.min.css">
+    <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
+    <style type="text/css">
+        .input-prepend .prepend-text {
+            min-width: 35px;
+        }
+        #map {
+            width: 100%;
+            min-height: 800px;
+            height: 100%;
+            margin-top: 4px;
+        }
+        .rides-table tr {
+            cursor: pointer;
+        }
+
+        .status-list > li {
+            font-weight: bold;
+        }
+
+        .status-list > li > span {
+            font-weight: normal;
+        }
+
+        .index {
+            position: absolute;
+            right: 10px;
+            top: 10px;
+        }
+
+    </style>
+
+</head>
+<body>
+<div class="container-fluid" ng-controller="RideEventsCtrl">
+    <div class="row-fluid">
+        <div class="span4">
+            <div class="page-header">
+                <h2>Ride Status Page</h2>
+            </div>
+            <form>
+                <resource-loading-notification></resource-loading-notification>
+
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="input-prepend">
+                            <span class="add-on prepend-text" id="">From</span><input type='text' ng-model='from_date' ui-date >
+                        </div>
+                    </div>
+                </div>
+                <div class="control-group">
+                    <div class="controls">
+                        <div class="input-prepend">
+                            <span class='add-on prepend-text'>To</span><input type='text' ng-model='to_date' ui-date >
+                        </div>
+                    </div>
+                </div>
+                <button ng-click="fetchRides()" class='btn btn-primary'><i class="icon-thumbs-up icon-white"></i> Load Rides</button>
+
+            </form>
+            <table class='table table-striped table-condensed rides-table' ng-cloak>
+                <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Time</th>
+                    <th>From</th>
+                    <th>To</th>
+                </tr>
+                </thead>
+                <tbody>
+                <tr ng-repeat="ride in rides" ng-click="showEvents(ride.id)" class="">
+                    <td>(( ride.id ))</td>
+                    <td>(( ride.time ))</td>
+                    <td>(( ride.from ))</td>
+                    <td>(( ride.to ))</td>
+                </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="span8">
+            <div id="map" class='thumbnail'></div>
+        </div>
+    </div>
+</div>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/static/js/libs/jquery-1.6.4.min.js">\x3C/script>')</script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script>window.jQuery.ui || document.write('<script src="/static/js/libs/jquery-ui-1.8.13.min.js">\x3C/script>')</script>
+<script type="text/javascript" src="/static/js/libs/angular-1.0.0.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/angular-ui.js"></script>
+<script type="text/javascript" src="/static/js/libs/underscore-min.js"></script>
+<script type="text/javascript"
+        src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
+
+<script type="text/javascript" src="/static/js/helpers.js"></script>
+
+<script type="text/javascript">
+    angular.module('ResourceLoadingNotification', [])
+        .directive('resourceLoadingNotification', function factory($http) {
+            var directiveDefinitionObject = {
+                template:
+                    '<div class="alert" ng-hide="isLoadingAlertHidden()">' +
+                            '<strong >Loading...</strong>' +
+                    '</div>',
+                replace: true,
+                restrict: 'E',
+                link: function postLink(scope, iElement, iAttrs) {
+                    scope.isLoadingAlertHidden = function () {
+                        return $http.pendingRequests.length === 0;
+                    };
+                    scope.$watch(scope.isLoadingAlertHidden, function (parameters) {
+                        if (scope.isLoadingAlertHidden()) {
+                            $("button").removeClass("disabled");
+                            $("input").removeAttr("disabled");
+                        } else {
+                            $("button").addClass("disabled");
+                            $("input").attr("disabled", "");
+                        }
+                        console.log("isLoadingAlertHidden" + scope.isLoadingAlertHidden());
+                    });
+
+
+                }
+            };
+            return directiveDefinitionObject;
+        });
+
+
+    var m = angular.module('RideEventsApp', ['ui', 'ResourceLoadingNotification']);
+    m.config(function ($interpolateProvider) {
+        $interpolateProvider.startSymbol('((');
+        $interpolateProvider.endSymbol('))');
+    });
+
+
+</script>
+
+<script type="text/javascript" src="/static/js/infobubble.js"></script>
+<script type="text/javascript">
+    var rides;
+    function initMap() {
+        GoogleMapHelper.init({
+            map_element:'map',
+            map_options:{
+                center:new google.maps.LatLng(32.115985, 34.835441),
+                streetViewControl:false,
+                keyboardShortcuts:false,
+                mapTypeId:google.maps.MapTypeId.ROADMAP
+            }
+        });
+    }
+
+    $(function () {
+        initMap();
+    });
+
+
+    // controller
+    function RideEventsCtrl($scope, $http) {
+        var a_week_ago = new Date();
+        a_week_ago.setDate(new Date().getDate() - 8);
+        $scope.rides = [];
+        $scope.from_date = a_week_ago;
+        $scope.to_date = new Date();
+
+
+        $scope.fetchRides = function () {
+            $http.get('{% url fleet.views.get_ride_events %}', {params:{from_date:$scope.from_date.toISOString(), to_date:$scope.to_date.toISOString() }}).success(
+                    function (data) {
+                        console.log(data);
+                        $scope.rides = data;
+                    }).error(function () {
+                        console.error("Error");
+                    });
+        };
+
+        $scope.showEvents = function (ride_id) {
+            GoogleMapHelper.clearMarkers();
+
+            var ride = _.find($scope.rides, function (r) {
+                return r.id == ride_id;
+            });
+
+            angular.forEach(ride.events, function (e, index) {
+                $scope.showEvent(index, e);
+            });
+            GoogleMapHelper.addAMarker({lat: ride.from_lat, lon:ride.from_lon});
+            GoogleMapHelper.addBMarker({lat: ride.to_lat, lon:ride.to_lon});
+            setTimeout(function() {
+                GoogleMapHelper.fitBubbles();
+            }, 600);
+
+        };
+
+        $scope.showEvent = function (index, event) {
+            console.debug("show event: ", event);
+            if (!(event.lat && event.lon)) {
+                console.log("skipping event: ", event);
+                return;
+            }
+
+            var content = $('<div><ul class="status-list unstyled"><li>Status: <span class="status"></span></li><li>Taxi: <span class="taxi"></span></li><li>Time: <span class="time"></span></li></ul><div class="index badge badge-info"></div></div>');
+            content.find(".status").text(event.status);
+            content.find(".taxi").text(event.taxi_id);
+            content.find(".time").text(event.time);
+            content.find(".index").text(index + 1);
+            var latLng = new google.maps.LatLng(event.lat, event.lon);
+            var marker = new google.maps.Marker({position:latLng});
+            GoogleMapHelper.showInfo(content.html(), marker, event.status);
+        };
+
+        $scope.fetchRides();
+
+    }
+</script>
+
+</body>
+</html>
+
