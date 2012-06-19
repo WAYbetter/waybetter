@@ -1037,6 +1037,24 @@ var GoogleMapHelper = Object.create({
         }
 
     },
+    fitBubbles: function(){
+        var bounds = new google.maps.LatLngBounds();
+
+        var num_markers = 0;
+        $.each(this.info_bubbles, function (i, info_bubble) {
+            num_markers++;
+            bounds = bounds.extend(info_bubble.getPosition());
+        });
+
+        if (num_markers > 1) {
+            this.map.fitBounds(bounds);
+        }
+        else {
+            this.map.setCenter(latLng);
+            this.map.setZoom(15);
+        }
+
+    },
     addMarker: function (address, options) {
         var that = this;
         if (that.mapready) {

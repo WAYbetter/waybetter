@@ -1,14 +1,19 @@
+from datetime import timedelta
 import logging
 import traceback
 import inspect
+import datetime
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.utils import simplejson
 from django.conf import settings
+from django.contrib.admin.views.decorators import staff_member_required
+from common.decorators import force_lang
+from common.tz_support import utc_now, default_tz_now, set_default_tz_time
 from djangotoolbox.http import JSONResponse
 from fleet import fleet_manager
-from ordering.models import SharedRide
+from ordering.models import SharedRide, RideEvent
 
 def create_ny_isr_ride(request, ride_id):
     ride = SharedRide.by_id(ride_id)
@@ -95,3 +100,44 @@ def isr_testpage(request):
                 methods.append({'name': attr.func_name, 'args': args, 'doc': attr.func_doc or ""})
 
         return render_to_response("isr_testpage.html", locals(), RequestContext(request))
+
+@staff_member_required
+@force_lang("en")
+def isr_status_page(request):
+    is_popup = True
+    lib_map = True
+    return render_to_response("isr_status_page.html", locals(), RequestContext(request))
+
+@staff_member_required
+def get_ride_events(request):
+    import dateutil.parser
+
+
+    from_date = dateutil.parser.parse(request.GET.get("from_date"))
+    to_date = dateutil.parser.parse(request.GET.get("to_date"))
+
+    from_date = datetime.datetime.combine(from_date, set_default_tz_time(datetime.time.min))
+    to_date = datetime.datetime.combine(to_date, set_default_tz_time(datetime.time.max))
+
+    logging.info("get_ride_events: %s, %s" % (from_date, to_date))
+
+    rides = SharedRide.objects.filter(create_date__gt=from_date, create_date__lt=to_date)
+    rides = filter(lambda r: len(r.events.all()), rides)
+    rides = sorted(rides, key=lambda r: r.first_pickup.stop_time, reverse=True)
+    result = []
+    for ride in rides:
+        ride_events = RideEvent.objects.filter(shared_ride=ride)
+        ride_events = sorted(ride_events, key=lambda e: e.create_date)
+        result.append({
+            "id"        : ride.id,
+            "from"      : ride.first_pickup.address,
+            "from_lat"  : ride.first_pickup.lat,
+            "from_lon"  : ride.first_pickup.lon,
+            "to"        : ride.last_dropoff.address,
+            "to_lat"    : ride.last_dropoff.lat,
+            "to_lon"    : ride.last_dropoff.lon,
+            "time"      : ride.first_pickup.stop_time.strftime("%d/%m/%y %H:%M"),
+            "events"    : [e.serialize_for_status_page() for e in ride_events]
+        })
+
+    return JSONResponse(result)

@@ -593,6 +593,16 @@ class RideEvent(BaseModel):
         if not (bool(self.shared_ride) ^ bool(self.pickmeapp_ride)):
             raise ValidationError("Must set PickMeAppRide or SharedRide but not both.")
 
+    def serialize_for_status_page(self):
+        return {
+            'status'        : self.raw_status,
+            'lat'           : self.lat,
+            'lon'           : self.lon,
+            'taxi_id'       : self.taxi_id,
+            'time'          : self.create_date,
+            'id'            : self.id
+        }
+
 
 class Passenger(BaseModel):
     user = models.OneToOneField(User, verbose_name=_("user"), related_name="passenger", null=True, blank=True)
