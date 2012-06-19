@@ -12,7 +12,7 @@ from common.decorators import force_lang
 from common.tz_support import set_default_tz_time
 from djangotoolbox.http import JSONResponse
 from fleet import fleet_manager
-from ordering.models import SharedRide, RideEvent
+from ordering.models import SharedRide, RideEvent, PickMeAppRide
 
 def create_ny_isr_ride(request, ride_id):
     ride = SharedRide.by_id(ride_id)
@@ -120,15 +120,24 @@ def get_ride_events(request):
 
     logging.info("get_ride_events: %s, %s" % (from_date, to_date))
 
+    events = RideEvent.objects.filter(create_date__gt=from_date, create_date__lt=to_date)
+
     rides = SharedRide.objects.filter(create_date__gt=from_date, create_date__lt=to_date)
     rides = filter(lambda r: len(r.events.all()), rides)
     rides = sorted(rides, key=lambda r: r.first_pickup.stop_time, reverse=True)
+
+    pickmeapp_rides = PickMeAppRide.objects.filter(create_date__gt=from_date, create_date__lt=to_date)
+    pickmeapp_rides = filter(lambda r: len(r.events.all()), pickmeapp_rides)
+    pickmeapp_rides = sorted(pickmeapp_rides, key=lambda r: r.create_date, reverse=True)
+
+
     result = []
     for ride in rides:
         ride_events = RideEvent.objects.filter(shared_ride=ride)
         ride_events = sorted(ride_events, key=lambda e: e.create_date)
         result.append({
             "id"        : ride.id,
+            "type"      : "sharing",
             "from"      : ride.first_pickup.address,
             "from_lat"  : ride.first_pickup.lat,
             "from_lon"  : ride.first_pickup.lon,
@@ -138,5 +147,22 @@ def get_ride_events(request):
             "time"      : ride.first_pickup.stop_time.strftime("%d/%m/%y %H:%M"),
             "events"    : [e.serialize_for_status_page() for e in ride_events]
         })
+
+    for ride in pickmeapp_rides:
+        ride_events = RideEvent.objects.filter(pickmeapp_ride=ride)
+        ride_events = sorted(ride_events, key=lambda e: e.create_date)
+        result.append({
+            "id"        : ride.id,
+            "type"      : "pickmeapp",
+            "from"      : ride.order.from_raw,
+            "from_lat"  : ride.order.from_lat,
+            "from_lon"  : ride.order.from_lon,
+            "to"        : ride.order.to_raw,
+            "to_lat"    : ride.order.to_lat,
+            "to_lon"    : ride.order.to_lon,
+            "time"      : ride.order.create_date.strftime("%d/%m/%y %H:%M"),
+            "events"    : [e.serialize_for_status_page() for e in ride_events]
+        })
+
 
     return JSONResponse(result)

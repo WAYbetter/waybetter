@@ -42,9 +42,9 @@ def create_single_order_ride(order):
     dropoff.ride = ride
     dropoff.stop_time = order.arrive_time
     dropoff.type = StopType.DROPOFF
-    dropoff.address = order.to_raw
-    dropoff.lat = order.from_lat
-    dropoff.lon = order.from_lon
+    dropoff.address = order.to_raw or order.from_raw
+    dropoff.lat = order.to_lat or order.from_lat
+    dropoff.lon = order.to_lon or order.from_lon
     dropoff.save()
 
     order.ride = ride
