@@ -2,23 +2,42 @@
 <html lang="en" ng-app="RideEventsApp">
 <head>
     <meta charset="utf-8">
-    <title>Ride Status Page</title>
+    <title>WAYbetter - Ride Events</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
     <link rel="stylesheet" href="/static/css/bootstrap/css/bootstrap.min.css">
+    <style type="text/css">
+        body {
+            padding-top: 50px;
+        }
+    </style>
     <link rel="stylesheet" href="/static/css/bootstrap/css/bootstrap-responsive.min.css">
     <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
     <style type="text/css">
         .input-prepend .prepend-text {
             min-width: 35px;
         }
+
+        .navbar .container {
+            margin-left: 20px;
+        }
+
+        form .input-prepend {
+            margin-right: 4px;
+        }
+
         #map {
             width: 100%;
             min-height: 800px;
             height: 100%;
             margin-top: 4px;
         }
+
+        #map img {
+            max-width: none;
+        }
+
         .rides-table tr {
             cursor: pointer;
         }
@@ -41,34 +60,37 @@
 
 </head>
 <body>
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a href="#" class="brand">Ride Events</a>
+
+        </div>
+    </div>
+</div>
 <div class="container-fluid" ng-controller="RideEventsCtrl">
     <div class="row-fluid">
         <div class="span4">
-            <div class="page-header">
-                <h2>Ride Status Page</h2>
-            </div>
-            <form>
-                <resource-loading-notification></resource-loading-notification>
+            <form class="form-inline">
+                <div class="input-prepend">
+                    <span class="add-on prepend-text" id="">From</span><input type='text' ng-model='from_date' ui-date
+                                                                              class="input-small">
+                </div>
+                <div class="input-prepend">
+                    <span class='add-on prepend-text'>To</span><input type='text' ng-model='to_date' ui-date
+                                                                      class="input-small">
+                </div>
 
-                <div class="control-group">
-                    <div class="controls">
-                        <div class="input-prepend">
-                            <span class="add-on prepend-text" id="">From</span><input type='text' ng-model='from_date' ui-date >
-                        </div>
-                    </div>
-                </div>
-                <div class="control-group">
-                    <div class="controls">
-                        <div class="input-prepend">
-                            <span class='add-on prepend-text'>To</span><input type='text' ng-model='to_date' ui-date >
-                        </div>
-                    </div>
-                </div>
-                <button ng-click="fetchRides()" class='btn btn-primary'><i class="icon-thumbs-up icon-white"></i> Load Rides</button>
+                <button ng-click="fetchRides()" class=' btn btn-primary btn-large'><i
+                        class="icon-thumbs-up icon-white"></i> Load Events
+                </button>
 
             </form>
-            <h3>Sharing Rides</h3>
-            <table class='table table-striped table-condensed rides-table' ng-cloak>
+
+            <resource-loading-notification></resource-loading-notification>
+
+            <p class="lead" ng-show="sharing_rides">Sharing Rides</p>
+            <table class='table table-striped table-condensed rides-table' ng-cloak ng-show="sharing_rides">
                 <thead>
                 <tr>
                     <th>ID</th>
@@ -78,7 +100,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="ride in sharing_rides" ng-click="showEvents(ride)" class="">
+                <tr ng-repeat="ride in sharing_rides" ng-click="showEvents(ride)">
                     <td>(( ride.id ))</td>
                     <td>(( ride.time ))</td>
                     <td>(( ride.from ))</td>
@@ -86,8 +108,8 @@
                 </tr>
                 </tbody>
             </table>
-            <h3>PickMeApp Rides</h3>
-            <table class='table table-striped table-condensed rides-table' ng-cloak>
+            <p class="lead" ng-show="pickmeapp_rides">PickMeApp Rides</p>
+            <table class='table table-striped table-condensed rides-table' ng-cloak ng-show="pickmeapp_rides">
                 <thead>
                 <tr>
                     <th>ID</th>
@@ -97,7 +119,7 @@
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="ride in pickmeapp_rides" ng-click="showEvents(ride)" class="">
+                <tr ng-repeat="ride in pickmeapp_rides" ng-click="showEvents(ride)">
                     <td>(( ride.id ))</td>
                     <td>(( ride.time ))</td>
                     <td>(( ride.from ))</td>
@@ -127,34 +149,33 @@
 
 <script type="text/javascript">
     angular.module('ResourceLoadingNotification', [])
-        .directive('resourceLoadingNotification', function factory($http) {
-            var directiveDefinitionObject = {
-                template:
-                    '<div class="alert" ng-hide="isLoadingAlertHidden()">' +
+            .directive('resourceLoadingNotification', function factory($http) {
+                var directiveDefinitionObject = {
+                    template:'<div class="alert" ng-hide="isLoadingAlertHidden()">' +
                             '<strong >Loading...</strong>' +
-                    '</div>',
-                replace: true,
-                restrict: 'E',
-                link: function postLink(scope, iElement, iAttrs) {
-                    scope.isLoadingAlertHidden = function () {
-                        return $http.pendingRequests.length === 0;
-                    };
-                    scope.$watch(scope.isLoadingAlertHidden, function (parameters) {
-                        if (scope.isLoadingAlertHidden()) {
-                            $("button").removeClass("disabled");
-                            $("input").removeAttr("disabled");
-                        } else {
-                            $("button").addClass("disabled");
-                            $("input").attr("disabled", "");
-                        }
-                        console.log("isLoadingAlertHidden" + scope.isLoadingAlertHidden());
-                    });
+                            '</div>',
+                    replace:true,
+                    restrict:'E',
+                    link:function postLink(scope, iElement, iAttrs) {
+                        scope.isLoadingAlertHidden = function () {
+                            return $http.pendingRequests.length === 0;
+                        };
+                        scope.$watch(scope.isLoadingAlertHidden, function (parameters) {
+                            if (scope.isLoadingAlertHidden()) {
+                                $("button").removeClass("disabled");
+                                $("input").removeAttr("disabled");
+                            } else {
+                                $("button").addClass("disabled");
+                                $("input").attr("disabled", "");
+                            }
+                            console.log("isLoadingAlertHidden" + scope.isLoadingAlertHidden());
+                        });
 
 
-                }
-            };
-            return directiveDefinitionObject;
-        });
+                    }
+                };
+                return directiveDefinitionObject;
+            });
 
 
     var m = angular.module('RideEventsApp', ['ui', 'ResourceLoadingNotification']);
@@ -200,8 +221,14 @@
             $http.get('{% url fleet.views.get_ride_events %}', {params:{from_date:$scope.from_date.toISOString(), to_date:$scope.to_date.toISOString() }}).success(
                     function (data) {
                         console.log(data);
-                        $scope.sharing_rides = _.filter(data, function(e) { return e.type === 'sharing' });
-                        $scope.pickmeapp_rides = _.filter(data, function(e) { return e.type === 'pickmeapp' });
+                        $scope.sharing_rides = _.filter(data, function (e) {
+                            return e.type === 'sharing'
+                        });
+                        $scope.sharing_rides = _.sortBy($scope.sharing_rides, "time").reverse();
+                        $scope.pickmeapp_rides = _.filter(data, function (e) {
+                            return e.type === 'pickmeapp'
+                        });
+                        $scope.pickmeapp_rides = _.sortBy($scope.pickmeapp_rides, "time").reverse();
                     }).error(function () {
                         console.error("Error");
                     });
@@ -213,9 +240,9 @@
             angular.forEach(ride.events, function (e, index) {
                 $scope.showEvent(index, e);
             });
-            GoogleMapHelper.addAMarker({lat: ride.from_lat, lon:ride.from_lon});
-            GoogleMapHelper.addBMarker({lat: ride.to_lat, lon:ride.to_lon});
-            setTimeout(function() {
+            GoogleMapHelper.addAMarker({lat:ride.from_lat, lon:ride.from_lon});
+            GoogleMapHelper.addBMarker({lat:ride.to_lat, lon:ride.to_lon});
+            setTimeout(function () {
                 GoogleMapHelper.fitBubbles();
             }, 600);
 

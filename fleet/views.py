@@ -119,50 +119,88 @@ def get_ride_events(request):
     to_date = datetime.datetime.combine(to_date, set_default_tz_time(datetime.time.max))
 
     logging.info("get_ride_events: %s, %s" % (from_date, to_date))
-
+    shared_rides = {}
+    pickmeapp_rides = {}
     events = RideEvent.objects.filter(create_date__gt=from_date, create_date__lt=to_date)
+    for e in events:
+        if e.shared_ride_id:
+            if e.shared_ride_id in shared_rides:
+                shared_rides[e.shared_ride_id]["events"].append(e.serialize_for_status_page())
+            else:
+                ride = SharedRide.by_id(e.shared_ride_id)
+                shared_rides[e.shared_ride_id] = {
+                    "id"        : ride.id,
+                    "type"      : "sharing",
+                    "from"      : ride.first_pickup.address,
+                    "from_lat"  : ride.first_pickup.lat,
+                    "from_lon"  : ride.first_pickup.lon,
+                    "to"        : ride.last_dropoff.address,
+                    "to_lat"    : ride.last_dropoff.lat,
+                    "to_lon"    : ride.last_dropoff.lon,
+                    "time"      : ride.first_pickup.stop_time.strftime("%d/%m/%y %H:%M"),
+                    "events"    : [e.serialize_for_status_page()]
+                }
+        elif e.pickmeapp_ride_id:
+            if e.pickmeapp_ride_id in pickmeapp_rides:
+                pickmeapp_rides[e.pickmeapp_ride_id]["events"].append(e.serialize_for_status_page())
+            else:
+                ride = PickMeAppRide.by_id(e.pickmeapp_ride_id)
+                pickmeapp_rides[e.pickmeapp_ride_id] = {
+                    "id"        : ride.id,
+                    "type"      : "pickmeapp",
+                    "from"      : ride.order.from_raw,
+                    "from_lat"  : ride.order.from_lat,
+                    "from_lon"  : ride.order.from_lon,
+                    "to"        : ride.order.to_raw,
+                    "to_lat"    : ride.order.to_lat,
+                    "to_lon"    : ride.order.to_lon,
+                    "time"      : ride.order.create_date.strftime("%d/%m/%y %H:%M"),
+                    "events"    : [e.serialize_for_status_page()]
 
-    rides = SharedRide.objects.filter(create_date__gt=from_date, create_date__lt=to_date)
-    rides = filter(lambda r: len(r.events.all()), rides)
-    rides = sorted(rides, key=lambda r: r.first_pickup.stop_time, reverse=True)
+                }
+    result = shared_rides.values() + pickmeapp_rides.values()
 
-    pickmeapp_rides = PickMeAppRide.objects.filter(create_date__gt=from_date, create_date__lt=to_date)
-    pickmeapp_rides = filter(lambda r: len(r.events.all()), pickmeapp_rides)
-    pickmeapp_rides = sorted(pickmeapp_rides, key=lambda r: r.create_date, reverse=True)
-
-
-    result = []
-    for ride in rides:
-        ride_events = RideEvent.objects.filter(shared_ride=ride)
-        ride_events = sorted(ride_events, key=lambda e: e.create_date)
-        result.append({
-            "id"        : ride.id,
-            "type"      : "sharing",
-            "from"      : ride.first_pickup.address,
-            "from_lat"  : ride.first_pickup.lat,
-            "from_lon"  : ride.first_pickup.lon,
-            "to"        : ride.last_dropoff.address,
-            "to_lat"    : ride.last_dropoff.lat,
-            "to_lon"    : ride.last_dropoff.lon,
-            "time"      : ride.first_pickup.stop_time.strftime("%d/%m/%y %H:%M"),
-            "events"    : [e.serialize_for_status_page() for e in ride_events]
-        })
-
-    for ride in pickmeapp_rides:
-        ride_events = RideEvent.objects.filter(pickmeapp_ride=ride)
-        ride_events = sorted(ride_events, key=lambda e: e.create_date)
-        result.append({
-            "id"        : ride.id,
-            "type"      : "pickmeapp",
-            "from"      : ride.order.from_raw,
-            "from_lat"  : ride.order.from_lat,
-            "from_lon"  : ride.order.from_lon,
-            "to"        : ride.order.to_raw,
-            "to_lat"    : ride.order.to_lat,
-            "to_lon"    : ride.order.to_lon,
-            "time"      : ride.order.create_date.strftime("%d/%m/%y %H:%M"),
-            "events"    : [e.serialize_for_status_page() for e in ride_events]
-        })
+#    rides = SharedRide.objects.filter(create_date__gt=from_date, create_date__lt=to_date)
+#    rides = filter(lambda r: len(r.events.all()), rides)
+#    rides = sorted(rides, key=lambda r: r.first_pickup.stop_time, reverse=True)
+#
+#    pickmeapp_rides = PickMeAppRide.objects.filter(create_date__gt=from_date, create_date__lt=to_date)
+#    pickmeapp_rides = filter(lambda r: len(r.events.all()), pickmeapp_rides)
+#    pickmeapp_rides = sorted(pickmeapp_rides, key=lambda r: r.create_date, reverse=True)
+#
+#
+#    result = []
+#    for ride in rides:
+#        ride_events = RideEvent.objects.filter(shared_ride=ride)
+#        ride_events = sorted(ride_events, key=lambda e: e.create_date)
+#        result.append({
+#            "id"        : ride.id,
+#            "type"      : "sharing",
+#            "from"      : ride.first_pickup.address,
+#            "from_lat"  : ride.first_pickup.lat,
+#            "from_lon"  : ride.first_pickup.lon,
+#            "to"        : ride.last_dropoff.address,
+#            "to_lat"    : ride.last_dropoff.lat,
+#            "to_lon"    : ride.last_dropoff.lon,
+#            "time"      : ride.first_pickup.stop_time.strftime("%d/%m/%y %H:%M"),
+#            "events"    : [e.serialize_for_status_page() for e in ride_events]
+#        })
+#
+#    for ride in pickmeapp_rides:
+#        ride_events = RideEvent.objects.filter(pickmeapp_ride=ride)
+#        ride_events = sorted(ride_events, key=lambda e: e.create_date)
+#        result.append({
+#            "id"        : ride.id,
+#            "type"      : "pickmeapp",
+#            "from"      : ride.order.from_raw,
+#            "from_lat"  : ride.order.from_lat,
+#            "from_lon"  : ride.order.from_lon,
+#            "to"        : ride.order.to_raw,
+#            "to_lat"    : ride.order.to_lat,
+#            "to_lon"    : ride.order.to_lon,
+#            "time"      : ride.order.create_date.strftime("%d/%m/%y %H:%M"),
+#            "events"    : [e.serialize_for_status_page() for e in ride_events]
+#        })
 
 
     return JSONResponse(result)
