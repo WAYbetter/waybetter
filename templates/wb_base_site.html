@@ -249,7 +249,7 @@
         {% if DEV %}
             <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
         {% else %}
-            <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key={% value_from_settings GOOGLE_API_BROWSER_KEY %}?libraries=places&sensor=false&language=he"></script>
+            <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key={% value_from_settings GOOGLE_API_BROWSER_KEY %}&libraries=places&sensor=false&language=he"></script>
         {% endif %}
     {% endif %}
 

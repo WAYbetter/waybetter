@@ -13,10 +13,19 @@ ride_status_changed_signal             = AsyncSignal(SignalType.RIDE_STATUS_CHAN
 
 @receive_signal(ride_created_signal)
 def ride_created(sender, signal_type, obj, **kwargs):
-    from sharing_dispatcher import dispatch_ride
-    logging.info("ride_created_signal: %s" % obj)
+    from ordering.models import SharedRide, PickMeAppRide
+    import sharing_dispatcher
+    from ordering import dispatcher as pickmeapp_dispatcher
+
     ride = obj
-    dispatch_ride(ride)
+    logging.info("ride_created_signal: %s" % ride)
+
+    if isinstance(ride, SharedRide):
+        ride = obj
+        sharing_dispatcher.dispatch_ride(ride)
+
+    elif isinstance(ride, PickMeAppRide):
+        pickmeapp_dispatcher.dispatch_ride(ride)
 
 @receive_signal(ride_status_changed_signal)
 def log_ride_status_update(sender, signal_type, obj, status, **kwargs):

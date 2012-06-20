@@ -10,7 +10,13 @@ from ordering.errors import  NoWorkStationFoundError, UpdateStatusError
 import models
 from common.util import log_event, EventType
 from common.langsupport.util import translate_address_for_ws
+from fleet import fleet_manager
 
+def dispatch_ride(pickmeapp_ride):
+    if pickmeapp_ride.dn_fleet_manager_id:
+        fleet_manager.create_ride(pickmeapp_ride)
+    else:
+        logging.info("pickmeapp ride %s has no fleet manager" % pickmeapp_ride.id)
 
 def assign_order(order):
     """
