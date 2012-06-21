@@ -15,6 +15,11 @@
     <link rel="stylesheet" href="/static/css/bootstrap/css/bootstrap-responsive.min.css">
     <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
     <style type="text/css">
+        .ui-widget {
+            font-family: inherit;
+            font-size: inherit;
+        }
+
         .input-prepend .prepend-text {
             min-width: 35px;
         }
@@ -25,6 +30,11 @@
 
         form .input-prepend {
             margin-right: 4px;
+        }
+
+        .table-striped tbody tr.selected td {
+            background-color: #0074CC;
+            color: white;
         }
 
         #map {
@@ -50,10 +60,9 @@
             font-weight: normal;
         }
 
-        .index {
-            position: absolute;
-            right: 10px;
-            top: 10px;
+        .time {
+            font-size: smaller;
+            color: #999;
         }
 
     </style>
@@ -89,39 +98,43 @@
 
             <resource-loading-notification></resource-loading-notification>
 
-            <p class="lead" ng-show="sharing_rides">Sharing Rides</p>
+            <p class="lead" ng-show="sharing_rides">(( sharing_rides.length )) Sharing Rides</p>
             <table class='table table-striped table-condensed rides-table' ng-cloak ng-show="sharing_rides">
                 <thead>
                 <tr>
                     <th>ID</th>
                     <th>Time</th>
+                    <th>Taxi</th>
                     <th>From</th>
                     <th>To</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="ride in sharing_rides" ng-click="showEvents(ride)">
+                <tr ng-repeat="ride in sharing_rides" ng-click="showEvents(ride)" ng-class="isSelected(ride)">
                     <td>(( ride.id ))</td>
                     <td>(( ride.time ))</td>
+                    <td>(( ride.taxi ))</td>
                     <td>(( ride.from ))</td>
                     <td>(( ride.to ))</td>
                 </tr>
                 </tbody>
             </table>
-            <p class="lead" ng-show="pickmeapp_rides">PickMeApp Rides</p>
+            <p class="lead" ng-show="pickmeapp_rides">(( pickmeapp_rides.length )) PickMeApp Rides</p>
             <table class='table table-striped table-condensed rides-table' ng-cloak ng-show="pickmeapp_rides">
                 <thead>
                 <tr>
                     <th>ID</th>
                     <th>Time</th>
+                    <th>Taxi</th>
                     <th>From</th>
                     <th>To</th>
                 </tr>
                 </thead>
                 <tbody>
-                <tr ng-repeat="ride in pickmeapp_rides" ng-click="showEvents(ride)">
+                <tr ng-repeat="ride in pickmeapp_rides" ng-click="showEvents(ride)" ng-class="isSelected(ride)">
                     <td>(( ride.id ))</td>
                     <td>(( ride.time ))</td>
+                    <td>(( ride.taxi ))</td>
                     <td>(( ride.from ))</td>
                     <td>(( ride.to ))</td>
                 </tr>
@@ -215,9 +228,20 @@
         $scope.pickmeapp_rides = [];
         $scope.from_date = a_week_ago;
         $scope.to_date = new Date();
+        $scope.selected_ride = undefined;
 
+        $scope.reset = function () {
+            selected_ride = undefined;
+            GoogleMapHelper.clearMarkers();
+            GoogleMapHelper.info_bubbles = {};
+        };
+
+        $scope.isSelected = function (ride) {
+            return $scope.selected_ride == ride ? "selected" : "";
+        };
 
         $scope.fetchRides = function () {
+            $scope.reset();
             $http.get('{% url fleet.views.get_ride_events %}', {params:{from_date:$scope.from_date.toISOString(), to_date:$scope.to_date.toISOString() }}).success(
                     function (data) {
                         console.log(data);
@@ -235,8 +259,8 @@
         };
 
         $scope.showEvents = function (ride) {
-            GoogleMapHelper.clearMarkers();
-
+            $scope.reset();
+            $scope.selected_ride = ride;
             angular.forEach(ride.events, function (e, index) {
                 $scope.showEvent(index, e);
             });
@@ -254,15 +278,23 @@
                 console.log("skipping event: ", event);
                 return;
             }
-
-            var content = $('<div><ul class="status-list unstyled"><li>Status: <span class="status"></span></li><li>Taxi: <span class="taxi"></span></li><li>Time: <span class="time"></span></li></ul><div class="index badge badge-info"></div></div>');
+            var event_id = event.lat + "_" + event.lon;
+            var info_bubble = GoogleMapHelper.info_bubbles[event_id];
+            var content, current_content;
+            if (!info_bubble) {
+                current_content = $('<ul class="status-list unstyled"></ul>');
+                var latLng = new google.maps.LatLng(event.lat, event.lon);
+                var marker = new google.maps.Marker({position:latLng});
+                info_bubble = GoogleMapHelper.showInfo("", marker, event_id);
+            } else {
+                current_content = $(info_bubble.getContent());
+            }
+            content = $('<li><span class="index badge badge-info"></span> <span class="status"></span></li><li><span class="time"></span></li>');
             content.find(".status").text(event.status);
-            content.find(".taxi").text(event.taxi_id);
             content.find(".time").text(event.time);
             content.find(".index").text(index + 1);
-            var latLng = new google.maps.LatLng(event.lat, event.lon);
-            var marker = new google.maps.Marker({position:latLng});
-            GoogleMapHelper.showInfo(content.html(), marker, event.status);
+            current_content.append(content);
+            info_bubble.setContent(current_content[0]);
         };
 
         $scope.fetchRides();

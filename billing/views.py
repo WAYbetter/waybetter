@@ -8,6 +8,7 @@ import itertools
 import pickle
 from django.contrib.admin.views.decorators import staff_member_required
 from google.appengine.api.taskqueue import taskqueue
+from google.appengine.ext.deferred import deferred
 from billing import billing_backend
 from billing.billing_backend import send_invoices_passenger, create_invoice_passenger, get_custom_message
 from billing.billing_manager import get_billing_redirect_url
@@ -234,16 +235,10 @@ def get_csv(request):
         if form.is_valid():
             start_date = datetime.combine(form.cleaned_data["start_date"], time.min)
             end_date = datetime.combine(form.cleaned_data["end_date"], time.max)
-            start_date = pickle.dumps(start_date)
-            end_date = pickle.dumps(end_date)
 
         if all([email, start_date, end_date]):
-            task = taskqueue.Task(url=reverse(get_csv_task), params={'email': email, 'start_date': start_date, 'end_date': end_date })
-            try:
-                taskqueue.Queue('billing').add(task)
-                msg = "OK"
-            except Exception, e:
-                logging.error(e)
+            deferred.defer(calc_billing_report_csv, email, start_date, end_date)
+            msg = "OK"
         else:
             msg = "Missing Parameters"
 
@@ -253,38 +248,37 @@ def get_csv(request):
 
     return base_datepicker_page(request, f, "csv_report.html", locals(), init_start_date=default_tz_now_max() - timedelta(days=7), init_end_date=default_tz_now_max())
 
-@csrf_exempt
-@catch_view_exceptions
-@internal_task_on_queue("billing")
-def get_csv_task(request):
-    start_date = pickle.loads(request.POST.get("start_date").encode("utf-8"))
-    end_date = pickle.loads(request.POST.get("end_date").encode("utf-8"))
-    email = request.POST.get("email")
+def calc_billing_report_csv(recipient, start_date, end_date, offset=0, csv_bytestring=u""):
+    batch_size = 100
 
-    if request.GET.get("format") == "screen":
-        response = HttpResponse()
-        writer = csv.writer(response, delimiter=" ", lineterminator="<br>")
-    else:
-        response = StringIO()
-#        response['Content-Disposition'] = 'attachment; filename=invoices.csv'
-        writer = csv.writer(response)
+    output = StringIO()
+    writer = csv.writer(output)
 
-    cols = ["Ride ID", "Date", "Time", "Station", "Taxi", "Driver Name", "From (area)", "To (area)",
-            "Address From 1", "Address To 1", "Passenger 1", "Price 1", "Billing Date 1",
-            "Address From 2", "Address To 2", "Passenger 2", "Price 2", "Billing Date 2",
-            "Address From 3", "Address To 3", "Passenger 3", "Price 3", "Billing Date 3",
-            "Tariff",
-            "Base Cost",
-            "Number of Stops",
-            "Stop Cost",
-            "Stops Cost",
-            "Total Costs",
-            "Revenue",
-            ]
+    if not offset:
+        cols = ["Ride ID", "Date", "Time", "Station", "Taxi", "Driver Name", "From (area)", "To (area)",
+                    "Address From 1", "Address To 1", "Passenger 1", "Price 1", "Billing Date 1",
+                    "Address From 2", "Address To 2", "Passenger 2", "Price 2", "Billing Date 2",
+                    "Address From 3", "Address To 3", "Passenger 3", "Price 3", "Billing Date 3",
+                    "Tariff",
+                    "Base Cost",
+                    "Number of Stops",
+                    "Stop Cost",
+                    "Stops Cost",
+                    "Total Costs",
+                    "Revenue",
+                    ]
 
-    writer.writerow(cols)
-    for ride in SharedRide.objects.filter(status__in=[ACCEPTED, COMPLETED], debug=False, create_date__gte=start_date, create_date__lte=end_date):
+        writer.writerow(cols)
+
+    logging.info("billing report %s->%s" % (offset, offset + batch_size))
+    rides = SharedRide.objects.filter(status__in=[ACCEPTED, COMPLETED], debug=False, create_date__gte=start_date, create_date__lte=end_date)[offset: offset +batch_size]
+#    rides = SharedRide.objects.filter(create_date__gte=start_date, create_date__lte=end_date)[offset: offset +batch_size]
+    for ride in rides:
         station = ride.station
+        if not ride.station:
+            logging.info("no station, skipping ride: %s" % ride)
+            continue
+
         price_rules = station.get_ride_price(ride, rules_only=True)
         max_rule = None
         if price_rules:
@@ -318,7 +312,7 @@ def get_csv_task(request):
                 order.to_raw,
                 str(order.passenger),
                 billing_trx.amount if billing_trx else "NA",
-                format_dt(billing_trx.charge_date) if billing_trx else "NA"
+                format_dt(billing_trx.charge_date) if (billing_trx and billing_trx.charge_date) else "NA"
             ]
 
         for i in xrange(3 - order_count):
@@ -333,7 +327,7 @@ def get_csv_task(request):
             total_cost,
             total_price - total_cost
         ]
-#        logging.info("row = %s" % row)
+        logging.info("row = %s" % row)
         encoded_row = []
         for s in row:
             try:
@@ -345,10 +339,14 @@ def get_csv_task(request):
 #        encoded_row = [unicode(s).encode("utf-8") for s in row]
         writer.writerow(encoded_row)
 
-    logging.info("csv = \n%s" % response.getvalue())
-    send_mail_as_noreply(email, "CSV Report", "See attachment", attachments=[("report.csv", response.getvalue())])
+    csv_bytestring += output.getvalue().decode("utf-8")
+    if rides: # not done yet
+        deferred.defer(calc_billing_report_csv, recipient, start_date, end_date, offset=offset + batch_size + 1, csv_bytestring=csv_bytestring)
+    else:
+        logging.info("billing report: %s" % csv_bytestring)
+        send_mail_as_noreply(recipient, "CSV Report", "See attachment", attachments=[("report.csv", csv_bytestring)])
 
-    return HttpResponse("OK")
+        pass # done - send mail
 
 
 def unicode_csv_reader(unicode_csv_data, dialect=csv.excel, **kwargs):
