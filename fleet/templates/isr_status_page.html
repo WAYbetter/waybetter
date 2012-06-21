@@ -31,6 +31,9 @@
         form .input-prepend {
             margin-right: 4px;
         }
+        button {
+            margin-top: 5px;
+        }
 
         .table-striped tbody tr.selected td {
             background-color: #0074CC;
@@ -65,10 +68,13 @@
             color: #999;
         }
 
+        [ng\:cloak], [ng-cloak], .ng-cloak {
+          display: none;
+        }
     </style>
 
 </head>
-<body>
+<body class="ng-cloak">
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
@@ -233,6 +239,7 @@
         $scope.reset = function () {
             selected_ride = undefined;
             GoogleMapHelper.clearMarkers();
+            GoogleMapHelper.removeMarker("all");
             GoogleMapHelper.info_bubbles = {};
         };
 
@@ -261,8 +268,18 @@
         $scope.showEvents = function (ride) {
             $scope.reset();
             $scope.selected_ride = ride;
-            angular.forEach(ride.events, function (e, index) {
+            var position_events = _.filter(ride.events, function (e) {
+                return e.status == "{{ position_changed }}"
+            });
+            var status_events = _.filter(ride.events, function (e) {
+                return e.status != "{{ position_changed }}"
+            });
+
+            angular.forEach(status_events, function (e, index) {
                 $scope.showEvent(index, e);
+            });
+            angular.forEach(position_events, function (e, index) {
+                $scope.showPositionEvent(index, e);
             });
             GoogleMapHelper.addAMarker({lat:ride.from_lat, lon:ride.from_lon});
             GoogleMapHelper.addBMarker({lat:ride.to_lat, lon:ride.to_lon});
@@ -271,7 +288,23 @@
             }, 600);
 
         };
+        $scope.showPositionEvent = function (index, event) {
+            console.debug("show position event: ", event);
+            if (!(event.lat && event.lon)) {
+                console.log("skipping event: ", event);
+                return;
+            }
+            var event_id = "position_" + event.lat + "_" + event.lon + "_" + event.time;
+            var markerOptions = {
+                map:GoogleMapHelper.map,
+                position:new google.maps.LatLng(event.lat, event.lon),
+                title:event.time,
+                clickable:true,
+                icon:new google.maps.MarkerImage("/static/images/dot.gif")
+            };
+            GoogleMapHelper.markers[event_id] = new google.maps.Marker(markerOptions);
 
+        };
         $scope.showEvent = function (index, event) {
             console.debug("show event: ", event);
             if (!(event.lat && event.lon)) {
@@ -279,6 +312,7 @@
                 return;
             }
             var event_id = event.lat + "_" + event.lon;
+
             var info_bubble = GoogleMapHelper.info_bubbles[event_id];
             var content, current_content;
             if (!info_bubble) {

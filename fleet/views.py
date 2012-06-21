@@ -12,6 +12,7 @@ from common.decorators import force_lang
 from common.tz_support import set_default_tz_time
 from djangotoolbox.http import JSONResponse
 from fleet import fleet_manager
+from fleet.fleet_manager import POSITION_CHANGED
 from ordering.models import SharedRide, RideEvent, PickMeAppRide
 
 def create_ny_isr_ride(request, ride_id):
@@ -103,8 +104,7 @@ def isr_testpage(request):
 @staff_member_required
 @force_lang("en")
 def isr_status_page(request):
-    is_popup = True
-    lib_map = True
+    position_changed = POSITION_CHANGED
     return render_to_response("isr_status_page.html", locals(), RequestContext(request))
 
 @staff_member_required

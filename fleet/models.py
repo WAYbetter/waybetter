@@ -16,6 +16,7 @@ class FleetManagerRideStatus(Enum):
     PASSENGER_NO_SHOW = 6
     COMPLETED = 7
     CANCELLED = 8
+    POSITION_CHANGED = 9
 
 class FleetManagerRide(object):
     """ An object representing a ride by a fleet manager backend. """
@@ -62,34 +63,34 @@ class FleetManagerRide(object):
 
 class TaxiRidePosition(object):
     """ An object representing the position of a taxi assigned to a ride by a fleet manager backend """
-    def __init__(self, station_id, taxi_id, ride_id, lat, lon, timestamp):
+    def __init__(self, station_id, taxi_id, order_id, lat, lon, timestamp):
         """ Constructor.
         @param station_id: Number
         @param taxi_id: Number
-        @param ride_id: Number
+        @param order_id: Number
         @param lat: Float
         @param lon: Float
         @param timestamp: datetime.datetime
         """
-        assert all([station_id, taxi_id, ride_id, lat, lon])
+        assert all([station_id, taxi_id, order_id, lat, lon])
         assert timestamp is None or isinstance(timestamp, datetime.datetime)
 
         self.station_id = long(station_id)
         self.taxi_id = long(taxi_id)
-        self.ride_id = long(ride_id)
+        self.order_id = long(order_id)
         self.lat = float(lat)
         self.lon = float(lon)
         self.timestamp = timestamp
 
     def __str__(self):
-        s = "Taxi %s.%s Ride %s AT %s,%s" % (self.station_id, self.taxi_id, self.ride_id, self.lat, self.lon)
+        s = "Taxi %s.%s Ride %s AT %s,%s" % (self.station_id, self.taxi_id, self.order_id, self.lat, self.lon)
         if self.timestamp:
             s += " ON %s" % self.timestamp.strftime("%H:%M:%S")
         return s
 
     def serialize(self):
         d = {}
-        for attr in ["station_id", "taxi_id", "ride_id", "lat", "lon"]:
+        for attr in ["station_id", "taxi_id", "order_id", "lat", "lon"]:
             d[attr] = getattr(self, attr)
         d["timestamp"] = to_js_date(self.timestamp)
         return d
