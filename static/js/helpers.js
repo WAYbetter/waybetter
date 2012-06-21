@@ -1049,10 +1049,6 @@ var GoogleMapHelper = Object.create({
         if (num_markers > 1) {
             this.map.fitBounds(bounds);
         }
-        else {
-            this.map.setCenter(latLng);
-            this.map.setZoom(15);
-        }
 
     },
     addMarker: function (address, options) {
