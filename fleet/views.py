@@ -123,9 +123,12 @@ def get_ride_events(request):
     pickmeapp_rides = {}
     events = RideEvent.objects.filter(create_date__gt=from_date, create_date__lt=to_date)
     for e in events:
+        taxi = e.taxi_id
         if e.shared_ride_id:
             if e.shared_ride_id in shared_rides:
                 shared_rides[e.shared_ride_id]["events"].append(e.serialize_for_status_page())
+                if taxi and not shared_rides[e.shared_ride_id]['taxi']:
+                    shared_rides[e.shared_ride_id]['taxi'] = taxi
             else:
                 ride = SharedRide.by_id(e.shared_ride_id)
                 shared_rides[e.shared_ride_id] = {
@@ -138,11 +141,14 @@ def get_ride_events(request):
                     "to_lat"    : ride.last_dropoff.lat,
                     "to_lon"    : ride.last_dropoff.lon,
                     "time"      : ride.first_pickup.stop_time.strftime("%d/%m/%y %H:%M"),
+                    "taxi"      : taxi,
                     "events"    : [e.serialize_for_status_page()]
                 }
         elif e.pickmeapp_ride_id:
             if e.pickmeapp_ride_id in pickmeapp_rides:
                 pickmeapp_rides[e.pickmeapp_ride_id]["events"].append(e.serialize_for_status_page())
+                if taxi and not pickmeapp_rides[e.pickmeapp_ride_id]['taxi']:
+                    pickmeapp_rides[e.pickmeapp_ride_id]['taxi'] = taxi
             else:
                 ride = PickMeAppRide.by_id(e.pickmeapp_ride_id)
                 pickmeapp_rides[e.pickmeapp_ride_id] = {
@@ -155,6 +161,7 @@ def get_ride_events(request):
                     "to_lat"    : ride.order.to_lat,
                     "to_lon"    : ride.order.to_lon,
                     "time"      : ride.order.create_date.strftime("%d/%m/%y %H:%M"),
+                    "taxi"      : taxi,
                     "events"    : [e.serialize_for_status_page()]
 
                 }

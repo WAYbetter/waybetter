@@ -38,6 +38,8 @@ class IsraelTimeZone(datetime.tzinfo):
     """
 
     def utcoffset(self, dt):
+        if not dt:
+            return None
         return datetime.timedelta(hours=2) + self.dst(dt)
 
     def tzname(self, dt):
