@@ -17,7 +17,7 @@ from common.decorators import catch_view_exceptions, internal_task_on_queue
 from common.util import notify_by_email
 from common.route import calculate_time_and_distance
 from django.contrib.sessions.models import Session
-from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation, OrderType, StopType, RideComputation
+from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation, OrderType, StopType, RideComputation, RideEvent
 import logging
 import traceback
 import datetime
@@ -185,7 +185,7 @@ def maintenance_task(request):
 
 def do_task():
     # maintenance method goes here
-    pass
+    remove_duplicate_ride_events()
 
 
 def first_ride_stats():
@@ -495,3 +495,40 @@ def fix_orders_type(offset=0):
         deferred.defer(fix_orders_type, offset=offset, _queue="maintenance")
     else:
         logging.info("done at %s" % offset)
+
+
+def remove_duplicate_ride_events(start=0):
+    def _get_key(event):
+        return "%s_%s_%s_%s" % (event.lon, event.lat, event.shared_ride_id, event.raw_status)
+
+    batch_size = 100
+    end = start + batch_size
+
+    logging.info("remove_duplicate_ride_events: processing %s->%s" % (start, end))
+
+    events = RideEvent.objects.all()[start: end]
+
+    for event in events:
+        d = {}
+        event_key = _get_key(event)
+        candidate_events = RideEvent.objects.filter(lat=event.lat)
+        for candidate in candidate_events:
+            candidate_key = _get_key(candidate)
+            if candidate_key in d:
+                d[candidate_key].append(candidate)
+            else:
+                d[candidate_key] = [candidate]
+
+
+        duplicate_events = sorted(d[event_key], key=lambda e: e.create_date)
+        if len(duplicate_events) > 1:
+            logging.info("deleting duplicated events of: %s" % duplicate_events[0])
+
+        for duplicate in duplicate_events[1:]:
+            logging.info("deleting: %s" % duplicate)
+            duplicate.delete()
+
+    if events:
+        deferred.defer(remove_duplicate_ride_events, start=end, _queue="maintenance")
+    else:
+        logging.info("ALL DONE AT %s" % end)

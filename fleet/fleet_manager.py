@@ -24,6 +24,7 @@ def create_ride(ride):
         logging.error(traceback.format_exc())
         return False
 
+
 def cancel_ride(ride):
     try:
         assert ride.dn_fleet_manager_id, "ride [%s] is not associated with a fleet manager" % ride.id
@@ -34,6 +35,7 @@ def cancel_ride(ride):
         logging.error(traceback.format_exc())
         return False
 
+
 def get_ride(ride):
     try:
         assert ride.dn_fleet_manager_id, "ride [%s] is not associated with a fleet manager" % ride.id
@@ -43,6 +45,7 @@ def get_ride(ride):
     except Exception, e:
         logging.error(traceback.format_exc())
         return None
+
 
 def get_ongoing_rides(backend=None):
     an_hour_ago = default_tz_now() - timedelta(hours=1)
@@ -56,6 +59,7 @@ def get_ongoing_rides(backend=None):
 
     logging.info("get ongoing rides for fleet %s: %s" % (backend.name if backend else "ALL", rides))
     return rides
+
 
 def update_ride(fmr):
     """
@@ -85,6 +89,7 @@ FM_MEMCACHE_NAMESPACE = "fm_ns"
 _get_key = lambda ride_id: 'position_%s' % ride_id
 _get_key_rp = lambda rp: _get_key(rp.order_id)
 _get_val = lambda rp: pickle.dumps(rp)
+
 def update_positions(ride_positions):
     """
     Handler for fleet backends to call when taxi positions changes. Sends the signals and stores the data in memcache.
@@ -94,16 +99,24 @@ def update_positions(ride_positions):
     fleet_signals.positions_update_signal.send(sender="fleet_manager", positions=ride_positions)
 
     for rp in ride_positions:
-        pickmeapp_ride, shared_ride = rides_from_order_id(rp.order_id)
+        rp_key = _get_key_rp(rp)
+        current_rp = memcache.get(rp_key, namespace=FM_MEMCACHE_NAMESPACE)
+        pickled_rp = _get_val(rp)
+        if current_rp != pickled_rp: # this is a new position
+            logging.info("new position received: %s[%s:%s]" % (rp.order_id, rp.lat, rp.lon))
+            memcache.set(rp_key, pickled_rp, namespace=FM_MEMCACHE_NAMESPACE)
 
-        if pickmeapp_ride or shared_ride:
-            e = RideEvent(pickmeapp_ride=pickmeapp_ride, shared_ride=shared_ride, status=FleetManagerRideStatus.POSITION_CHANGED, raw_status=POSITION_CHANGED
-                          ,
-                              lat=rp.lat, lon=rp.lon, taxi_id=rp.taxi_id, timestamp=rp.timestamp)
-            e.save()
+            pickmeapp_ride, shared_ride = rides_from_order_id(rp.order_id)
+            if pickmeapp_ride or shared_ride:
+                e = RideEvent(pickmeapp_ride=pickmeapp_ride, shared_ride=shared_ride,
+                              status=FleetManagerRideStatus.POSITION_CHANGED, raw_status=POSITION_CHANGED, lat=rp.lat,
+                              lon=rp.lon, taxi_id=rp.taxi_id, timestamp=rp.timestamp)
+                e.save()
+                logging.info("new ride event created: %s" % e)
+        else:
+            logging.info("old position received: %s[%s:%s]" % (rp.order_id, rp.lat, rp.lon))
 
-    mapping = dict([(_get_key_rp(rp), _get_val(rp)) for rp in ride_positions])
-    memcache.set_multi(mapping, namespace=FM_MEMCACHE_NAMESPACE)
+
 
 
 def get_ride_position(ride_id):
