@@ -357,8 +357,8 @@ class HotSpotServiceRule(AbstractTemporalRule):
 
 
 class HotSpotPopularityRule(AbstractTemporalRule):
-    DEFAULT_POPULARITY = 0
-    DEFAULT_NOISELIMIT = 10
+    DEFAULT_POPULARITY = 10
+    DEFAULT_NOISELIMIT = 80
 
     MaxPopularity = 100
     MaxNoiseLimit = 100
