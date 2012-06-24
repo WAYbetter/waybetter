@@ -67,7 +67,18 @@
             font-size: smaller;
             color: #999;
         }
-
+        .stop_marker {
+            position: absolute;
+            cursor: pointer;
+        }
+        .position_marker {
+            height: 7px;
+            width: 7px;
+            background: #8c0019;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+        }
         [ng\:cloak], [ng-cloak], .ng-cloak {
           display: none;
         }
@@ -118,10 +129,10 @@
                 <tbody>
                 <tr ng-repeat="ride in sharing_rides" ng-click="showEvents(ride)" ng-class="isSelected(ride)">
                     <td>(( ride.id ))</td>
-                    <td>(( ride.time ))</td>
+                    <td>(( ride.stops[0].time ))</td>
                     <td>(( ride.taxi ))</td>
-                    <td>(( ride.from ))</td>
-                    <td>(( ride.to ))</td>
+                    <td>(( ride.stops[0].address ))</td>
+                    <td>(( ride.stops[ride.stops.length - 1].address ))</td>
                 </tr>
                 </tbody>
             </table>
@@ -139,10 +150,10 @@
                 <tbody>
                 <tr ng-repeat="ride in pickmeapp_rides" ng-click="showEvents(ride)" ng-class="isSelected(ride)">
                     <td>(( ride.id ))</td>
-                    <td>(( ride.time ))</td>
+                    <td>(( ride.stops[0].time ))</td>
                     <td>(( ride.taxi ))</td>
-                    <td>(( ride.from ))</td>
-                    <td>(( ride.to ))</td>
+                    <td>(( ride.stops[0].address ))</td>
+                    <td>(( ride.stops[1].address ))</td>
                 </tr>
                 </tbody>
             </table>
@@ -154,13 +165,15 @@
 </div>
 
 
-<script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="/static/js/libs/jquery-1.6.4.min.js">\x3C/script>')</script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
 <script>window.jQuery.ui || document.write('<script src="/static/js/libs/jquery-ui-1.8.13.min.js">\x3C/script>')</script>
 <script type="text/javascript" src="/static/js/libs/angular-1.0.0.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/angular-ui.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/underscore.min.js"></script>
+<script type="text/javascript" src="/static/css/bootstrap/js/bootstrap-tooltip.js"></script>
+<script type="text/javascript" src="/static/css/bootstrap/js/bootstrap-popover.js"></script>
 <script type="text/javascript"
         src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
 
@@ -208,6 +221,136 @@
 
 <script type="text/javascript" src="/static/js/infobubble.js"></script>
 <script type="text/javascript">
+
+    // custom markers
+    function PositionMarker(latLng, tooltip, map) {
+        this.latlng_ = latLng;
+        this.tooltip_ = tooltip;
+        this.setMap(map);
+    }
+    PositionMarker.prototype = new google.maps.OverlayView();
+    PositionMarker.prototype.setVisible = function(visible) {
+      if (visible) {
+          this.div_.style.display = "none";
+      } else {
+          this.div_.style.display = "";
+      }
+    };
+    PositionMarker.prototype.draw = function() {
+      var me = this;
+
+      // Check if the div has been created.
+      var div = this.div_;
+      if (!div) {
+        // Create a overlay text DIV
+
+        div = this.div_ = document.createElement('DIV');
+        // Create the DIV representing our StopMarker
+        div.className = "position_marker";
+        $(div).tooltip({
+            title: me.tooltip_
+        });
+
+        google.maps.event.addDomListener(div, "click", function(event) {
+          google.maps.event.trigger(me, "click");
+        });
+
+        // Then add the overlay to the DOM
+        var panes = this.getPanes();
+        panes.overlayImage.appendChild(div);
+      }
+
+      // Position the overlay
+      var point = this.getProjection().fromLatLngToDivPixel(this.latlng_);
+      if (point) {
+        div.style.left = point.x + 'px';
+        div.style.top = point.y + 'px';
+      }
+    };
+    PositionMarker.prototype.remove = function() {
+      // Check if the overlay was on the map and needs to be removed.
+      if (this.div_) {
+        this.div_.parentNode.removeChild(this.div_);
+        this.div_ = null;
+      }
+    };
+    PositionMarker.prototype.getPosition = function() {
+        return this.latlng_;
+    };
+
+    function LabelMarker(label, popover_title, popover_content, latLng, map, class_name) {
+        this.latlng_ = latLng;
+        this.label_ = label;
+        this.popover_content_ = popover_content;
+        this.popover_title_ = popover_title;
+        this.class_name_ = class_name || "label-important";
+
+        this.setMap(map);
+    }
+    LabelMarker.prototype = new google.maps.OverlayView();
+    LabelMarker.prototype.setVisible = function(visible) {
+      if (visible) {
+          this.div_.style.display = "none";
+      } else {
+          this.div_.style.display = "";
+      }
+    };
+    LabelMarker.prototype.draw = function() {
+      var me = this;
+
+      // Check if the div has been created.
+      var div = this.div_;
+      if (!div) {
+        // Create a overlay text DIV
+
+        div = this.div_ = document.createElement('DIV');
+        // Create the DIV representing our StopMarker
+        div.className = "stop_marker label " + me.class_name_;
+        div.textContent = me.label_;
+
+        this.updatePopover();
+
+        google.maps.event.addDomListener(div, "click", function(event) {
+          google.maps.event.trigger(me, "click");
+        });
+
+        // Then add the overlay to the DOM
+        var panes = this.getPanes();
+        panes.overlayImage.appendChild(div);
+      }
+
+      // Position the overlay
+      var point = this.getProjection().fromLatLngToDivPixel(this.latlng_);
+      if (point) {
+        div.style.left = point.x + 'px';
+        div.style.top = point.y + 'px';
+      }
+    };
+    LabelMarker.prototype.remove = function() {
+      // Check if the overlay was on the map and needs to be removed.
+      if (this.div_) {
+        this.div_.parentNode.removeChild(this.div_);
+        this.div_ = null;
+      }
+    };
+    LabelMarker.prototype.getContent = function () {
+        return this.popover_content_;
+    };
+    LabelMarker.prototype.setContent = function (content) {
+        this.popover_content_ = content;
+        this.updatePopover();
+    };
+    LabelMarker.prototype.updatePopover = function() {
+        var me = this;
+        $(me.div_).popover({
+          title: me.popover_title_,
+          content: me.popover_content_
+        });
+    };
+    LabelMarker.prototype.getPosition = function() {
+        return this.latlng_;
+    };
+
     var rides;
     function initMap() {
         GoogleMapHelper.init({
@@ -255,11 +398,11 @@
                         $scope.sharing_rides = _.filter(data, function (e) {
                             return e.type === 'sharing'
                         });
-                        $scope.sharing_rides = _.sortBy($scope.sharing_rides, "time").reverse();
+                        $scope.sharing_rides = _.sortBy($scope.sharing_rides, function(r) { return r.stops[0].time }).reverse();
                         $scope.pickmeapp_rides = _.filter(data, function (e) {
                             return e.type === 'pickmeapp'
                         });
-                        $scope.pickmeapp_rides = _.sortBy($scope.pickmeapp_rides, "time").reverse();
+                        $scope.pickmeapp_rides = _.sortBy($scope.pickmeapp_rides, function(r) { return r.stops[0].time }).reverse();
                     }).error(function () {
                         console.error("Error");
                     });
@@ -281,11 +424,20 @@
             angular.forEach(position_events, function (e, index) {
                 $scope.showPositionEvent(index, e);
             });
-            GoogleMapHelper.addAMarker({lat:ride.from_lat, lon:ride.from_lon});
-            GoogleMapHelper.addBMarker({lat:ride.to_lat, lon:ride.to_lon});
+            angular.forEach(ride.stops, function(stop, index) {
+               $scope.showStop(index, stop);
+            });
+
             setTimeout(function () {
-                GoogleMapHelper.fitBubbles();
+                GoogleMapHelper.fitMarkers();
             }, 600);
+
+        };
+        $scope.showStop = function(index, stop) {
+            console.log(index, stop);
+            var marker_id = "stop_" + stop.lat + "_" + stop.lon;
+            var latLng = new google.maps.LatLng(stop.lat, stop.lon);
+            GoogleMapHelper.markers[marker_id] = new LabelMarker(index + 1, stop.address, "Estimated Time: " + stop.time, latLng, GoogleMapHelper.map);
 
         };
         $scope.showPositionEvent = function (index, event) {
@@ -295,14 +447,7 @@
                 return;
             }
             var event_id = "position_" + event.lat + "_" + event.lon + "_" + event.time;
-            var markerOptions = {
-                map:GoogleMapHelper.map,
-                position:new google.maps.LatLng(event.lat, event.lon),
-                title:event.time,
-                clickable:true,
-                icon:new google.maps.MarkerImage("/static/images/dot.gif")
-            };
-            GoogleMapHelper.markers[event_id] = new google.maps.Marker(markerOptions);
+            GoogleMapHelper.markers[event_id] = new PositionMarker(new google.maps.LatLng(event.lat, event.lon), event.time, GoogleMapHelper.map);
 
         };
         $scope.showEvent = function (index, event) {
@@ -311,24 +456,24 @@
                 console.log("skipping event: ", event);
                 return;
             }
-            var event_id = event.lat + "_" + event.lon;
+            var event_id = "status_" + event.lat + "_" + event.lon;
 
-            var info_bubble = GoogleMapHelper.info_bubbles[event_id];
+            var marker = GoogleMapHelper.markers[event_id];
             var content, current_content;
-            if (!info_bubble) {
+            if (!marker) {
                 current_content = $('<ul class="status-list unstyled"></ul>');
                 var latLng = new google.maps.LatLng(event.lat, event.lon);
-                var marker = new google.maps.Marker({position:latLng});
-                info_bubble = GoogleMapHelper.showInfo("", marker, event_id);
+                marker = new LabelMarker("E", "Ride Events", current_content, latLng, GoogleMapHelper.map, "label-info");
+                GoogleMapHelper.markers[event_id] = marker;
             } else {
-                current_content = $(info_bubble.getContent());
+                current_content = $(marker.getContent());
             }
-            content = $('<li><span class="index badge badge-info"></span> <span class="status"></span></li><li><span class="time"></span></li>');
+            content = $('<li><span class="index label label-info"></span> <span class="status"></span></li><li><span class="time"></span></li>');
             content.find(".status").text(event.status);
             content.find(".time").text(event.time);
             content.find(".index").text(index + 1);
             current_content.append(content);
-            info_bubble.setContent(current_content[0]);
+            marker.setContent(current_content[0]);
         };
 
         $scope.fetchRides();

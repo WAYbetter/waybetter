@@ -578,6 +578,13 @@ class RidePoint(BaseModel):
     def clean_address(self):
         return re.sub(",?\s+תל אביב יפו".decode("utf-8"), "", self.address)
 
+    def serialize_for_status_page(self):
+        return {
+            "lon"       : self.lon,
+            "lat"       : self.lat,
+            "address"   : self.address,
+            "time"      : self.stop_time.strftime("%d/%m/%y %H:%M")
+        }
 
 class RideEvent(BaseModel):
     shared_ride = models.ForeignKey(SharedRide, related_name="events", blank=True, null=True)

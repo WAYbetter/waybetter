@@ -5,7 +5,7 @@ import pickle
 from google.appengine.api import memcache
 from common.tz_support import default_tz_now
 from fleet.models import FleetManager, FleetManagerRideStatus
-from ordering.models import RideEvent, Order, OrderType, PickMeAppRide, RidePoint
+from ordering.models import RideEvent, Order, OrderType, PickMeAppRide, SharedRide
 import signals as fleet_signals
 
 POSITION_CHANGED = "Position Changed"
@@ -48,10 +48,9 @@ def get_ride(ride):
 
 
 def get_ongoing_rides(backend=None):
-    an_hour_ago = default_tz_now() - timedelta(hours=1)
-    pickmeapp_rides = list(PickMeAppRide.objects.filter(create_date__gt=an_hour_ago))
-    points = RidePoint.objects.filter(stop_time__gt=an_hour_ago)
-    shared_rides = list(set([p.ride for p in points]))
+    delta = default_tz_now() - timedelta(minutes=15)
+    pickmeapp_rides = list(PickMeAppRide.objects.filter(arrive_time__gt=delta))
+    shared_rides = list(SharedRide.objects.filter(arrive_time__gt=delta))
 
     rides = pickmeapp_rides + shared_rides
     if backend:
