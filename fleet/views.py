@@ -111,17 +111,22 @@ def isr_status_page(request):
 def get_ride_events(request):
     import dateutil.parser
 
-
+    ride_id = request.GET.get("ride_id")
     from_date = dateutil.parser.parse(request.GET.get("from_date"))
     to_date = dateutil.parser.parse(request.GET.get("to_date"))
-
-    from_date = datetime.datetime.combine(from_date, set_default_tz_time(datetime.time.min))
-    to_date = datetime.datetime.combine(to_date, set_default_tz_time(datetime.time.max))
-
-    logging.info("get_ride_events: %s, %s" % (from_date, to_date))
     shared_rides = {}
     pickmeapp_rides = {}
-    events = RideEvent.objects.filter(create_date__gt=from_date, create_date__lt=to_date)
+
+    if ride_id:
+        ride = SharedRide.by_id(ride_id) or PickMeAppRide.by_id(ride_id)
+        events = ride.events.all()
+    else:
+        from_date = datetime.datetime.combine(from_date, set_default_tz_time(datetime.time.min))
+        to_date = datetime.datetime.combine(to_date, set_default_tz_time(datetime.time.max))
+
+        logging.info("get_ride_events: %s, %s" % (from_date, to_date))
+        events = RideEvent.objects.filter(create_date__gt=from_date, create_date__lt=to_date)
+
     for e in events:
         taxi = e.taxi_id
         if e.shared_ride_id:

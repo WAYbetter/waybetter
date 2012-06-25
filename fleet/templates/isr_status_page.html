@@ -31,7 +31,7 @@
         form .input-prepend {
             margin-right: 4px;
         }
-        button {
+        form button {
             margin-top: 5px;
         }
 
@@ -49,6 +49,10 @@
 
         #map img {
             max-width: none;
+        }
+        .left-column {
+            overflow-y: auto;
+            max-height: 800px;
         }
 
         .rides-table tr {
@@ -96,7 +100,7 @@
 </div>
 <div class="container-fluid" ng-controller="RideEventsCtrl">
     <div class="row-fluid">
-        <div class="span4">
+        <div class="span4 left-column">
             <form class="form-inline">
                 <div class="input-prepend">
                     <span class="add-on prepend-text" id="">From</span><input type='text' ng-model='from_date' ui-date
@@ -124,6 +128,7 @@
                     <th>Taxi</th>
                     <th>From</th>
                     <th>To</th>
+                    <th></th>
                 </tr>
                 </thead>
                 <tbody>
@@ -133,6 +138,7 @@
                     <td>(( ride.taxi ))</td>
                     <td>(( ride.stops[0].address ))</td>
                     <td>(( ride.stops[ride.stops.length - 1].address ))</td>
+                    <td><button class="btn btn-mini" ng-click="refreshEvents(ride)"><i class="icon-refresh"></i></button></td>
                 </tr>
                 </tbody>
             </table>
@@ -154,6 +160,7 @@
                     <td>(( ride.taxi ))</td>
                     <td>(( ride.stops[0].address ))</td>
                     <td>(( ride.stops[1].address ))</td>
+                    <td><button class="btn btn-mini" ng-click="refreshEvents(ride)"><i class="icon-refresh"></i></button></td>
                 </tr>
                 </tbody>
             </table>
@@ -371,11 +378,11 @@
 
     // controller
     function RideEventsCtrl($scope, $http) {
-        var a_week_ago = new Date();
-        a_week_ago.setDate(new Date().getDate() - 8);
+        var yesterday = new Date();
+        yesterday.setDate(new Date().getDate() - 1);
         $scope.sharing_rides = [];
         $scope.pickmeapp_rides = [];
-        $scope.from_date = a_week_ago;
+        $scope.from_date = yesterday;
         $scope.to_date = new Date();
         $scope.selected_ride = undefined;
 
@@ -390,19 +397,35 @@
             return $scope.selected_ride == ride ? "selected" : "";
         };
 
-        $scope.fetchRides = function () {
+        $scope.fetchRides = function (ride_id) {
             $scope.reset();
-            $http.get('{% url fleet.views.get_ride_events %}', {params:{from_date:$scope.from_date.toISOString(), to_date:$scope.to_date.toISOString() }}).success(
+            $http.get('{% url fleet.views.get_ride_events %}', {params:{from_date:$scope.from_date.toISOString(), to_date:$scope.to_date.toISOString(), ride_id:ride_id }}).success(
                     function (data) {
                         console.log(data);
-                        $scope.sharing_rides = _.filter(data, function (e) {
-                            return e.type === 'sharing'
-                        });
-                        $scope.sharing_rides = _.sortBy($scope.sharing_rides, function(r) { return r.stops[0].time }).reverse();
-                        $scope.pickmeapp_rides = _.filter(data, function (e) {
-                            return e.type === 'pickmeapp'
-                        });
-                        $scope.pickmeapp_rides = _.sortBy($scope.pickmeapp_rides, function(r) { return r.stops[0].time }).reverse();
+                        if (ride_id) { // update only this ride
+                            var ride, index;
+                            if (data[0].type == "sharing") {
+                                ride = _.find($scope.sharing_rides, function(r) { return r.id == ride_id });
+                                index = _.indexOf($scope.sharing_rides, ride);
+                                $scope.sharing_rides[index] = data[0];
+                                $scope.showEvents($scope.sharing_rides[index]);
+                            } else {
+                                ride = _.find($scope.pickmeapp_rides, function(r) { return r.id == ride_id });
+                                index = _.indexOf($scope.pickmeapp_rides, ride);
+                                $scope.pickmeapp_rides[index] = data[0];
+                                $scope.showEvents($scope.pickmeapp_rides[index]);
+                            }
+                        } else {
+                            $scope.sharing_rides = _.filter(data, function (e) {
+                                return e.type === 'sharing'
+                            });
+                            $scope.sharing_rides = _.sortBy($scope.sharing_rides, function(r) { return r.stops[0].time }).reverse();
+                            $scope.pickmeapp_rides = _.filter(data, function (e) {
+                                return e.type === 'pickmeapp'
+                            });
+                            $scope.pickmeapp_rides = _.sortBy($scope.pickmeapp_rides, function(r) { return r.stops[0].time }).reverse();
+
+                        }
                     }).error(function () {
                         console.error("Error");
                     });
@@ -433,8 +456,11 @@
             }, 600);
 
         };
+        $scope.refreshEvents = function(ride) {
+            $scope.fetchRides(ride.id);
+
+        };
         $scope.showStop = function(index, stop) {
-            console.log(index, stop);
             var marker_id = "stop_" + stop.lat + "_" + stop.lon;
             var latLng = new google.maps.LatLng(stop.lat, stop.lon);
             GoogleMapHelper.markers[marker_id] = new LabelMarker(index + 1, stop.address, "Estimated Time: " + stop.time, latLng, GoogleMapHelper.map);
