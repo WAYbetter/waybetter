@@ -99,7 +99,11 @@ def update_positions(ride_positions):
 
     for rp in ride_positions:
         rp_key = _get_key_rp(rp)
+        logging.info("getting from memcache: %s, %s" % (rp_key, FM_MEMCACHE_NAMESPACE))
         current_rp = memcache.get(rp_key, namespace=FM_MEMCACHE_NAMESPACE)
+        if current_rp:
+            logging.info("memcache[%s] -> %s" % (rp_key, pickle.loads(current_rp).__dict__))
+
         pickled_rp = _get_val(rp)
         if current_rp != pickled_rp: # this is a new position
             logging.info("new position received: %s[%s:%s]" % (rp.order_id, rp.lat, rp.lon))

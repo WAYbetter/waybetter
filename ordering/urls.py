@@ -20,6 +20,8 @@ urlpatterns = patterns('',
     (r'^station/download_workstation/$', 'ordering.station_controller.download_workstation'),
     (r'^station/history/$', 'ordering.station_controller.get_station_orders_history'),
     (r'^station/analytics/$', 'ordering.station_controller.station_analytics'),
+    (r'^o/(?P<order_id>\d+)/$', 'ordering.passenger_controller.track_order'),
+    (r'^get_order_position/(?P<order_id>\d+)/$', 'ordering.passenger_controller.get_order_position'),
 
     (r'^passenger/logout/$', 'django.contrib.auth.views.logout'),
     (r'^workstation/logout/$', 'django.contrib.auth.views.logout'),

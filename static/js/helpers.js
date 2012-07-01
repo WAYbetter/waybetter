@@ -684,6 +684,7 @@ var AddressHelper = Object.create({
 
 var GoogleGeocodingHelper = Object.create({
     _geocoder: undefined,
+    _directionsService: undefined,
     _pendingReverseGeocodeCallback: undefined,
     getGeocoder: function() {
         if (! this._geocoder) {
@@ -691,14 +692,29 @@ var GoogleGeocodingHelper = Object.create({
         }
         return this._geocoder;
     },
+    getDirectionsService:function () {
+        if (!this._directionsService) {
+            this._directionsService = new google.maps.DirectionsService();
+        }
+        return this._directionsService;
+    },
+    getDirections: function(from_lat, from_lon, to_lat, to_lon, callback) {
+        var that = this;
+        var request = {
+            origin: new google.maps.LatLng(from_lat, from_lon),
+            destination: new google.maps.LatLng(to_lat, to_lon),
+            travelMode: google.maps.TravelMode.DRIVING
+        };
+        that.getDirectionsService().route(request, callback);
+    },
     geocode: function(address, callback, callback_arg) {
         this.getGeocoder().geocode({"address":address}, function (results, status) {
             callback(results, status, callback_arg);
         });
     },
     reverseGeocode:function (lat, lon, callback) {
-        var latlng = new google.maps.LatLng(lat, lon);
-        this.getGeocoder().geocode({'latLng':latlng}, function (results, status) {
+        var lat_lon = new google.maps.LatLng(lat, lon);
+        this.getGeocoder().geocode({'latLng':lat_lon}, function (results, status) {
             callback(results, status);
         });
     },
@@ -993,6 +1009,7 @@ var GoogleMapHelper = Object.create({
         traffic: false
     },
     mapready:false,
+    animation_id: 0,
     do_drag: false,
     markers: {},
     info_bubbles: {},
@@ -1019,15 +1036,73 @@ var GoogleMapHelper = Object.create({
             this.map.setZoom(17);
         }
     },
+    /*
+    animateMarker: animate a marker to a new position
+    options:
+        name: the name of the marker located in this.markers
+        lat: new lat value
+        lon: new lon value
+        duration: animation duration in seconds (default 2)
+        fps: frames per second (default 30)
+        callback: a callback to call at the end of the animation
+     */
+    animateMarker: function(options) {
+        var that = this;
+
+        if (! this.markers[options.name]) {
+            return false; // unknown marker
+        }
+        var animation_id = ++this.animation_id;
+        var fps = options.fps || 30;
+        var duration = options.duration || 2;
+        var initial_position = new LatLon(this.markers[options.name].getPosition().lat(), this.markers[options.name].getPosition().lng());
+        var final_position = new LatLon(options.lat, options.lon);
+        var bearing = initial_position.bearingTo(final_position);
+        var distance = initial_position.distanceTo(final_position);
+        var steps_count = duration * fps;
+        var step_distance = distance / steps_count;
+        var steps = [];
+        for (var i = 1; i <= steps_count; i++) {
+            steps.push(initial_position.destinationPoint(bearing, step_distance * i));
+        }
+
+        function animateToStep(step_index) {
+
+            if (animation_id < that.animation_id) { // a new animation has started
+                return;
+            }
+
+            var new_position = new google.maps.LatLng(steps[step_index].lat(), steps[step_index].lng());
+            that.markers[options.name].setPosition(new_position);
+
+            if (step_index % fps == 0) { // once a second, fitMarkers
+                that.fitMarkers();
+            }
+
+            if (step_index + 1 < steps.length) {
+                setTimeout(function() {
+                    animateToStep(step_index + 1)
+                }, 1000 / fps);
+            } else {
+                if (options.callback) {
+                    options.callback();
+                }
+            }
+        }
+
+        animateToStep(0); // start animation
+
+    },
     fitMarkers: function(){
         var bounds = new google.maps.LatLngBounds();
-
+        var latLng = this.map.getCenter();
         var num_markers = 0;
         $.each(this.markers, function (i, marker) {
+            latLng = marker.getPosition();
             num_markers++;
             bounds = bounds.extend(marker.getPosition());
-        });
 
+        });
         if (num_markers > 1) {
             this.map.fitBounds(bounds);
         }
@@ -1479,11 +1554,11 @@ var MobileHelper = Object.create({
     },
 
     MapHelper          : undefined,
-    
+
     // CONSTANTS
     // ---------
     ACCURACY_THRESHOLD : 250, // meters,
-    
+
     // VARIABLES
     // ---------
     last_position  : undefined,

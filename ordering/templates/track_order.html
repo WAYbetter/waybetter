@@ -1,0 +1,356 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="TrackOrderApp">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <title>WAYbetter - Show Order</title>
+    <link rel="stylesheet" href="/static/css/bootstrap/css/bootstrap.min.css">
+    <style type="text/css">
+        #map {
+            min-height: 290px;
+            height: 100%;
+            width: 100%;
+            background: #595959;
+        }
+
+        #map img {
+            max-width: none;
+        }
+        .map_container {
+            position: relative;
+        }
+        .footer {
+            height: 45px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+        .header {
+            height: 57px;
+            background-color: #f3f3ed;
+            padding-top:15px;
+            direction:rtl;
+            box-shadow: 0px 1px 1px rgba(50, 50, 50, 0.75);
+            z-index: 1000;
+            position: relative;
+        }
+        #ticker_text {
+            margin-left: auto;
+            margin-right: auto;
+            display: block;
+            font-size: larger;
+            font-weight: bold;
+            width: 163px;
+            margin-top: 5px;
+        }
+
+        #ticker_num {
+            background-image: url(/static/images/mobile/order_tracking/ticker.png);
+            background-repeat: no-repeat;
+            width: 40px;
+            height: 34px;
+            color: rgba(0, 0, 0, 0.8);
+            display: inline-block;
+            font-size: 24px;
+            line-height: 32px;
+            font-weight: bold;
+            letter-spacing: 6px;
+            padding-left: 3px;
+            text-align: right;
+            vertical-align: middle;
+            margin-left: 3px;
+        }
+        .station_icon {
+            background-image: url({{ station_icon_url }});
+            width:57px;
+            height: 57px;
+            vertical-align: middle;
+            display: inline-block;
+            margin: 5px;
+            float: right;
+            margin-top: -9px;
+
+        }
+        .taxi_number {
+            font-size: larger;
+            display: inline-block;
+            font-weight: bold;
+            width: 84px;
+            text-align: center;
+            height: 50px;
+            float:right;
+            margin: 0 5px;
+        }
+        .phone-icon {
+            background-image: url(/static/images/mobile/order_tracking/phone.png);
+            width:20px;
+            height: 23px;
+            float: right;
+            vertical-align: middle;
+        }
+        .call_station {
+            width: 146px;
+            height: 40px;
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .modal {
+            direction: rtl;
+            width: 250px;
+            margin: -100px 0 0 -125px;
+        }
+        .modal-footer {
+            text-align: left;
+        }
+
+        [ng\:cloak], [ng-cloak], .ng-cloak {
+            display: none;
+        }
+
+        /* Retina icons */
+        @media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (min-resolution: 240 dpi) {
+            #ticker_num {
+                background-image: url(/static/images/mobile/order_tracking/ticker_retina.png);
+                background-size: 40px 34px;
+            }
+            .phone-icon {
+                background-image: url(/static/images/mobile/order_tracking/phone_retina.png);
+                background-size: 20px 23px;
+            }
+        }
+
+
+    </style>
+</head>
+<body class="ng-cloak" ng-controller="TrackOrderController">
+<div class="header" ng-hide="error_message">
+    <div class="station_icon"></div>
+    <div class="taxi_number" ng-show="taxi_position">
+            מונית מספר (( taxi_position.taxi_id ))
+    </div>
+    <div class="taxi_number activity" ng-hide="taxi_position">
+מאתר מונית
+    </div>
+
+    <button class="btn btn-large call_station" ng-click="callStation('{{ station_phone }}')"><i class="phone-icon"></i> התקשר לתחנה</button>
+</div>
+<div class="map_container" ng-hide="error_message">
+    <div id="map">
+    </div>
+    <div class="footer">
+        <span id="ticker_text">
+איסוף בעוד
+            <span id="ticker_num">
+       (( estimated_time ))
+            </span>
+             דקות
+        </span>
+    </div>
+</div>
+<div class="modal hide">
+    <div class="modal-header">
+        <h4>
+(( error_message ))
+        </h4>
+    </div>
+    <div class="modal-footer">
+        <a href="/" class="btn btn-primary">חזור</a>
+    </div>
+</div>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/static/js/libs/jquery-1.6.4.min.js">\x3C/script>')</script>
+<script type="text/javascript" src="/static/js/libs/angular-1.0.0.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.activity-indicator-1.0.0.min.js"></script>
+<script type="text/javascript"
+        src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
+<script type="text/javascript" src="/static/js/utils.js"></script>
+<script type="text/javascript" src="/static/js/helpers.js"></script>
+<script type="text/javascript" src="/static/css/bootstrap/js/bootstrap-modal.js"></script>
+
+<script type="text/javascript">
+    var m = angular.module('TrackOrderApp', []);
+    m.config(function ($interpolateProvider) {
+        $interpolateProvider.startSymbol('((');
+        $interpolateProvider.endSymbol('))');
+    });
+
+    function TrackOrderController($scope, $http, $log) {
+        $scope.order_id = {{ order.id }};
+        $scope.current_position = undefined;
+        $scope.old_taxi_position = undefined;
+        $scope.taxi_position = undefined;
+        $scope.estimated_time = "??";
+        $scope.taxi_marker = undefined;
+        $scope.error_message = "{{ error_message }}";
+
+        $scope.callStation = function (phone) {
+            window.location = "tel://" + phone;
+        };
+        $scope.updateTaxiPosition = function () {
+            console.log("updatePosition");
+            GoogleMapHelper.animateMarker({
+                name:"taxi",
+                lat:$scope.taxi_position.lat,
+                lon:$scope.taxi_position.lon,
+                duration:20,
+                callback: function() {
+                    console.log("animation complete");
+                }
+            });
+            if ($scope.current_position) {
+                GoogleGeocodingHelper.getDirections($scope.old_taxi_position.lat, $scope.old_taxi_position.lon, $scope.current_position.lat, $scope.current_position.lon, function(result, status) {
+                    var route_duration = 0;
+                    console.log(result, status);
+                    if (status == google.maps.DirectionsStatus.OK) {
+                        $.each(result.routes[0].legs, function(i, leg) {
+                            route_duration += leg.duration.value;
+                        });
+                        console.log("estimated duration: " + route_duration);
+                        $scope.$apply(function (scope) {
+                            scope.estimated_time = Math.round(route_duration / 60);
+                            if (scope.estimated_time < 10) { // zero pad
+                                scope.estimated_time = "0" + scope.estimated_time;
+                            }
+                        });
+                    }
+                });
+            }
+        };
+
+        $scope.showTaxiMarker = function () {
+            var icon_size = new google.maps.Size(54, 55);
+            var hd_icon_size = new google.maps.Size(107, 109);
+            var icon = $scope.getMarkerImage("/static/images/mobile/order_tracking/taxi_pin.png", "/static/images/mobile/order_tracking/taxi_pin_retina.png", icon_size, hd_icon_size) ;
+            var lat_lng = new google.maps.LatLng($scope.taxi_position.lat, $scope.taxi_position.lon);
+            $scope.taxi_marker = new google.maps.Marker({
+                map:GoogleMapHelper.map,
+                position:lat_lng,
+                title:"",
+                clickable:false,
+                optimized: false,
+                flat: true,
+                icon:icon
+            });
+            GoogleMapHelper.markers["taxi"] = $scope.taxi_marker;
+        };
+
+        $scope.getLatestTaxiPosition = function () {
+            console.log("getLatestTaxiPosition");
+            $http.get('{% url ordering.passenger_controller.get_order_position order_id=order.id %}').
+                    success(
+                    function (data) {
+                        $log.log(data);
+                        if (!$scope.taxi_position || ($scope.taxi_position.lat != data.lat && $scope.taxi_position.lon != data.lon)) {
+                            $scope.old_taxi_position = $scope.taxi_position;
+                            $scope.taxi_position = data;
+                            if (!$scope.taxi_marker) {
+                                $scope.old_taxi_position = $scope.taxi_position;
+                                $scope.showTaxiMarker();
+                            }
+                            $scope.updateTaxiPosition();
+                        }
+                    }).
+                    error(function () {
+
+                    })
+        };
+
+        $scope.initMap = function () {
+            GoogleMapHelper.init({
+                map_element:'map',
+                map_options:{
+                    center:new google.maps.LatLng(32.115985, 34.835441),
+                    streetViewControl:false,
+                    scrollwheel: false,
+                    disableDoubleClickZoom: true,
+                    keyboardShortcuts:false,
+                    mapTypeId:google.maps.MapTypeId.ROADMAP,
+                    draggable: false,
+                    mapTypeControl: false,
+                    zoomControl: false
+                }
+            });
+        };
+        $scope.getMarkerImage = function (icon_url, hd_icon_url, icon_size, hd_icon_size, bottom) {
+            var anchor_point;
+            if (window.devicePixelRatio && window.devicePixelRatio >= 2) {
+                log("using retina image", window.devicePixelRatio, hd_icon_url);
+                if (bottom) {
+                    anchor_point = new google.maps.Point(icon_size.width / 2, icon_size.height);
+                } else {
+                    anchor_point = new google.maps.Point(icon_size.width / 2, icon_size.height / 2);
+                }
+
+                return new google.maps.MarkerImage(hd_icon_url, hd_icon_size, undefined, anchor_point, icon_size);
+            } else {
+                log("using normal image", icon_url);
+                return new google.maps.MarkerImage(icon_url, icon_size, undefined, undefined, icon_size);
+            }
+        };
+        $scope.updateCurrentPosition = function () {
+            var lat_lng = new google.maps.LatLng($scope.current_position.lat, $scope.current_position.lon);
+            var marker = GoogleMapHelper.markers["current_position"];
+            if (! marker) {
+                var icon_size = new google.maps.Size(51, 65);
+                var hd_icon_size = new google.maps.Size(101, 129);
+                var icon = $scope.getMarkerImage("/static/images/mobile/order_tracking/passenger_pin.png", "/static/images/mobile/order_tracking/passenger_pin_retina.png", icon_size, hd_icon_size, true);
+                var markerOptions = {
+                    map: GoogleMapHelper.map,
+                    position:lat_lng,
+                    title: "",
+                    clickable:false,
+                    optimized:false,
+                    flat:true,
+                    icon: icon
+                };
+                marker = new google.maps.Marker(markerOptions);
+                GoogleMapHelper.markers["current_position"] = marker;
+            }
+            marker.setPosition(lat_lng);
+        };
+
+        $scope.trackCurrentPosition = function () {
+            var config = {
+                timeout:5000, // 5 second
+                enableHighAccuracy:true,
+                maximumAge:0 // always get new location
+            };
+            if (navigator.geolocation) {
+                var watch_id = navigator.geolocation.watchPosition(function (p) {
+                    log("new position: " + p.coords.longitude + ", " + p.coords.latitude + " (" + p.coords.accuracy + ")");
+                    if (p.coords.accuracy < 250) {
+                        $scope.$apply(function (scope) {
+                            scope.current_position = {
+                                lat:p.coords.latitude,
+                                lon:p.coords.longitude
+                            };
+                            scope.updateCurrentPosition();
+                        });
+//                        navigator.geolocation.clearWatch(watch_id); // we have an accurate enough location
+                    }
+                }, function() {}, config)
+            }
+        };
+
+        if ($scope.error_message) {
+            $(".modal").modal({ keyboard: false, backdrop: "static"});
+        } else {
+            $scope.initMap();
+            $scope.trackCurrentPosition();
+            setInterval(function() {
+                $scope.getLatestTaxiPosition()
+            }, 5000);
+        }
+    }
+
+    $(function() {
+        $(".activity").activity({length: 4, space: 0.5, width:2, valign:"bottom"})
+    })
+</script>
+</body>
+</html>
