@@ -66,7 +66,7 @@ def update_ride(fmr):
     @param fmr: A C{FleetMangerRide} containing updated data about the ride.
     """
     logging.info("fleet manager: ride update %s" % fmr)
-    fleet_signals.fmr_update_signal.send(sender="fleet_manager", obj=fmr)
+    fleet_signals.fmr_update_signal.send(sender="fleet_manager", fmr=fmr)
 
     pickmeapp_ride, shared_ride = rides_from_order_id(fmr.id)
 
