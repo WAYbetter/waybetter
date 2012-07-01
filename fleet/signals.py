@@ -7,8 +7,6 @@ from django.utils import simplejson
 from django.core.urlresolvers import reverse
 from django.utils.translation import gettext_noop as _
 from fleet.models import FleetManagerRideStatus
-from ordering.models import Order
-from ordering.util import send_msg_to_passenger
 from django.conf import settings
 
 class SignalType(Enum):
@@ -29,9 +27,19 @@ def log_fmr_update(sender, signal_type, **kwargs):
 
 @receive_signal(fmr_update_signal)
 def notify_passenger(sender, signal_type, **kwargs):
+    from ordering.models import Order, PickMeAppRide
+    from ordering.util import send_msg_to_passenger
+
     fmr = kwargs["fmr"]
     order = Order.by_id(fmr.id)
-    if fmr.status == FleetManagerRideStatus.ASSIGNED_TO_TAXI and order:
+    ride = None
+    try:
+        ride = order.pickmeapp_ride
+    except PickMeAppRide.DoesNotExist:
+        pass
+
+    # TODO_WB: send tracking to shared ride passengers as well
+    if fmr.status == FleetManagerRideStatus.ASSIGNED_TO_TAXI and order and ride:
         logging.info("Ride status update: notifying passenger about taxi location for order: %s" % order)
         msg = translate_to_lang(_("To view your taxi: "), order.language_code)
         url = " http://%s%s" % (settings.DEFAULT_DOMAIN,
