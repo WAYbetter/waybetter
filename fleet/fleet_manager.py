@@ -85,7 +85,7 @@ def update_ride(fmr):
 
 
 FM_MEMCACHE_NAMESPACE = "fm_ns"
-_get_key = lambda ride_id: 'position_%s' % ride_id
+_get_key = lambda order_id: 'position_%s' % order_id
 _get_key_rp = lambda rp: _get_key(rp.order_id)
 _get_val = lambda rp: pickle.dumps(rp)
 
@@ -122,14 +122,14 @@ def update_positions(ride_positions):
 
 
 
-def get_ride_position(ride_id):
+def get_ride_position(order_id):
     """
     Get the latest known taxi position for a ride.
-    @param ride_id:
+    @param order_id:
     @return: A C{TaxiRidePosition} or None
     """
     trp = None
-    cached_trp = memcache.get(_get_key(ride_id), namespace=FM_MEMCACHE_NAMESPACE)
+    cached_trp = memcache.get(_get_key(order_id), namespace=FM_MEMCACHE_NAMESPACE)
     if cached_trp:
         trp = pickle.loads(cached_trp)
 

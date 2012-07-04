@@ -20,11 +20,12 @@ class FleetManagerRideStatus(Enum):
 
 class FleetManagerRide(object):
     """ An object representing a ride by a fleet manager backend. """
-    def __init__(self, id, status, taxi_id, lat, lon, timestamp, raw_status=None):
+    def __init__(self, id, status, taxi_id, station_id, lat, lon, timestamp, raw_status=None):
         """Constructor.
         @param id: Long representing the id of the ride as recorded in our db.
         @param status: Number representing the status as one of C{FleetManagerRideStatus}.
         @param taxi_id: Number of the taxi assigned to this ride or None.
+        @param station_id: Number of the station_id assigned to this ride or None.
         @param lat: latitude of the taxi captured on C{timestamp} or None.
         @param lon: longitude of the taxi captured on C{timestamp} or None.
         @param timestamp: A datetime.datetime instance or None.
@@ -37,6 +38,7 @@ class FleetManagerRide(object):
         self.id = long(id)
         self.status = status
         self.taxi_id = long(taxi_id) if taxi_id else None
+        self.station_id = long(station_id) if station_id else None
         self.lat = float(lat) if lat else None
         self.lon = float(lon) if lon else None
         self.timestamp = timestamp
@@ -56,7 +58,7 @@ class FleetManagerRide(object):
 
     def serialize(self):
         d = {}
-        for attr in ["id", "status", "taxi_id", "lat", "lon", "raw_status"]:
+        for attr in ["id", "status", "taxi_id", "station_id", "lat", "lon", "raw_status"]:
             d[attr] = getattr(self, attr)
         d["timestamp"] = to_js_date(self.timestamp)
         return d
