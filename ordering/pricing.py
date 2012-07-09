@@ -104,8 +104,8 @@ def filter_relevant_daytime_rules(rule_list, day, time):
         if rule.from_day and rule.to_day:
             if not (rule.from_day <= day <= rule.to_day):
                 continue
-                # if rule is time-dependent check if it applies at time
-        if rule.from_hour and rule.to_hour:
+        # if rule is time-dependent check if it applies at time
+        if rule.from_hour is not None and rule.to_hour is not None: # careful! datetime.time(0,0,0) evaluates as False
             start_time = rule.from_hour
             end_time = rule.to_hour
             if start_time < end_time:
@@ -114,7 +114,7 @@ def filter_relevant_daytime_rules(rule_list, day, time):
             else:
                 # end time is smaller than start time since it is the next day (night fare)
                 if not(
-                (start_time <= time <= MIDNIGHT) or (datetime.time(00, 00, 00) <= time <= end_time)):
+                (start_time <= time <= MIDNIGHT_MINUS_EPSILON) or (MIDNIGHT <= time <= end_time)):
                     continue
         result.append(rule)
     return result
@@ -181,10 +181,12 @@ def filter_relevant_duration_rules(rule_list, est_duration):
 
 
 TARIFF1_START = datetime.time(05,30,00)
+TARIFF1_START_MINUS_EPSILON = datetime.time(05,29,59,999999)
 TARIFF1_END = datetime.time(20,59,59, 999999)
 TARIFF2_START = datetime.time(21,00,00)
 TARIFF2_END = datetime.time(05,29,59,999999)
-MIDNIGHT = datetime.time(23,59,59,999999)
+MIDNIGHT = datetime.time(0,0,0)
+MIDNIGHT_MINUS_EPSILON = datetime.time(23,59,59,999999)
 SABBATH_START = datetime.time(17,00,00,000000)
 SABBATH_START_MINUS_EPSILON = datetime.time(16,59,59,999999)
 BASE_PRICE = 11.8 # in NIS
@@ -233,18 +235,21 @@ def setup_israel_meter_and_extra_charge_rules():
 
             # Friday is a special case of a week day because of SABBATH
             MeteredRateRule(rule_name="Friday Tariff 1 initial cost",country=IL,from_day=6, to_day=6, from_hour=TARIFF1_START, to_hour=SABBATH_START_MINUS_EPSILON, from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=tariff1_dict['BASE_PRICE']),
-            MeteredRateRule(rule_name="Friday Tariff 2 initial cost",country=IL,from_day=6, to_day=6, from_hour=SABBATH_START, to_hour=MIDNIGHT,                    from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=tariff2_dict['BASE_PRICE']),
+            MeteredRateRule(rule_name="Friday Tariff 2 initial cost midnight -> tariff1",country=IL,from_day=6, to_day=6, from_hour=MIDNIGHT, to_hour=TARIFF1_START_MINUS_EPSILON,                    from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=tariff2_dict['BASE_PRICE']),
+            MeteredRateRule(rule_name="Friday Tariff 2 initial cost sabbath -> midnight",country=IL,from_day=6, to_day=6, from_hour=SABBATH_START, to_hour=MIDNIGHT_MINUS_EPSILON,                    from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=tariff2_dict['BASE_PRICE']),
 
             MeteredRateRule(rule_name="Friday Tariff 1 first 15 km",country=IL,from_day=6, to_day=6, from_hour=TARIFF1_START, to_hour=SABBATH_START_MINUS_EPSILON, from_duration=tariff1_dict['BASE_TIME'], to_duration=None, from_distance=tariff1_dict['BASE_DISTANCE'], to_distance=15000, tick_distance=tariff1_dict['TICK_DISTANCE_BELOW_15K'], tick_time=tariff1_dict['TICK_TIME_BELOW_15K'], tick_cost=tariff1_dict['TICK_COST_BELOW_15K'], fixed_cost=None),
-            MeteredRateRule(rule_name="Friday Tariff 2 first 15 km",country=IL,from_day=6, to_day=6, from_hour=SABBATH_START, to_hour=MIDNIGHT,                    from_duration=tariff2_dict['BASE_TIME'], to_duration=None, from_distance=tariff2_dict['BASE_DISTANCE'], to_distance=15000, tick_distance=tariff2_dict['TICK_DISTANCE_BELOW_15K'], tick_time=tariff2_dict['TICK_TIME_BELOW_15K'], tick_cost=tariff2_dict['TICK_COST_BELOW_15K'], fixed_cost=None),
+            MeteredRateRule(rule_name="Friday Tariff 2 first 15 km midnight -> tariff1",country=IL,from_day=6, to_day=6, from_hour=MIDNIGHT, to_hour=TARIFF1_START_MINUS_EPSILON,                    from_duration=tariff2_dict['BASE_TIME'], to_duration=None, from_distance=tariff2_dict['BASE_DISTANCE'], to_distance=15000, tick_distance=tariff2_dict['TICK_DISTANCE_BELOW_15K'], tick_time=tariff2_dict['TICK_TIME_BELOW_15K'], tick_cost=tariff2_dict['TICK_COST_BELOW_15K'], fixed_cost=None),
+            MeteredRateRule(rule_name="Friday Tariff 2 first 15 km sabbath -> midnight",country=IL,from_day=6, to_day=6, from_hour=SABBATH_START, to_hour=MIDNIGHT_MINUS_EPSILON,                    from_duration=tariff2_dict['BASE_TIME'], to_duration=None, from_distance=tariff2_dict['BASE_DISTANCE'], to_distance=15000, tick_distance=tariff2_dict['TICK_DISTANCE_BELOW_15K'], tick_time=tariff2_dict['TICK_TIME_BELOW_15K'], tick_cost=tariff2_dict['TICK_COST_BELOW_15K'], fixed_cost=None),
 
             MeteredRateRule(rule_name="Friday Tariff 1 after 15 km",country=IL,from_day=6, to_day=6, from_hour=TARIFF1_START, to_hour=SABBATH_START_MINUS_EPSILON, from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=tariff1_dict['TICK_DISTANCE_OVER_15K'], tick_time=tariff1_dict['TICK_TIME_OVER_15K'], tick_cost=tariff1_dict['TICK_COST_OVER_15K'], fixed_cost=None),
-            MeteredRateRule(rule_name="Friday Tariff 2 after 15 km",country=IL,from_day=6, to_day=6, from_hour=SABBATH_START, to_hour=MIDNIGHT,                    from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=tariff2_dict['TICK_DISTANCE_OVER_15K'], tick_time=tariff2_dict['TICK_TIME_OVER_15K'], tick_cost=tariff2_dict['TICK_COST_OVER_15K'], fixed_cost=None),
+            MeteredRateRule(rule_name="Friday Tariff 2 after 15 km midnight -> tariff1",country=IL,from_day=6, to_day=6, from_hour=MIDNIGHT, to_hour=TARIFF1_START_MINUS_EPSILON,                    from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=tariff2_dict['TICK_DISTANCE_OVER_15K'], tick_time=tariff2_dict['TICK_TIME_OVER_15K'], tick_cost=tariff2_dict['TICK_COST_OVER_15K'], fixed_cost=None),
+            MeteredRateRule(rule_name="Friday Tariff 2 after 15 km sabbath -> midnight",country=IL,from_day=6, to_day=6, from_hour=SABBATH_START, to_hour=MIDNIGHT_MINUS_EPSILON,                    from_duration=None, to_duration=None, from_distance=15000, to_distance=None, tick_distance=tariff2_dict['TICK_DISTANCE_OVER_15K'], tick_time=tariff2_dict['TICK_TIME_OVER_15K'], tick_cost=tariff2_dict['TICK_COST_OVER_15K'], fixed_cost=None),
 
             # Saturday
-            MeteredRateRule(rule_name="Saturday initial cost",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00,00), to_hour=MIDNIGHT, from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=tariff2_dict['BASE_PRICE']),
-            MeteredRateRule(rule_name="Saturday first 15 km",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00,00), to_hour=MIDNIGHT, from_duration=tariff2_dict['BASE_TIME'], to_duration=None, from_distance=tariff2_dict['BASE_DISTANCE'], to_distance=15000, tick_distance=tariff2_dict['TICK_DISTANCE_BELOW_15K'], tick_time=tariff2_dict['TICK_TIME_BELOW_15K'], tick_cost=tariff2_dict['TICK_COST_BELOW_15K'], fixed_cost=None),
-            MeteredRateRule(rule_name="Saturday after 15 km",country=IL,from_day=7, to_day=7, from_hour=datetime.time(00,00,00), to_hour=MIDNIGHT, from_duration=None,                      to_duration=None, from_distance=15000,                         to_distance=None,  tick_distance=tariff2_dict['TICK_DISTANCE_OVER_15K'],  tick_time=tariff2_dict['TICK_TIME_OVER_15K'],  tick_cost=tariff2_dict['TICK_COST_OVER_15K'], fixed_cost=None),
+            MeteredRateRule(rule_name="Saturday initial cost",country=IL,from_day=7, to_day=7, from_hour=MIDNIGHT, to_hour=MIDNIGHT_MINUS_EPSILON, from_duration=0, to_duration=None, from_distance=0, to_distance=None, tick_distance=None, tick_time=None, tick_cost=None, fixed_cost=tariff2_dict['BASE_PRICE']),
+            MeteredRateRule(rule_name="Saturday first 15 km",country=IL,from_day=7, to_day=7, from_hour=MIDNIGHT, to_hour=MIDNIGHT_MINUS_EPSILON, from_duration=tariff2_dict['BASE_TIME'], to_duration=None, from_distance=tariff2_dict['BASE_DISTANCE'], to_distance=15000, tick_distance=tariff2_dict['TICK_DISTANCE_BELOW_15K'], tick_time=tariff2_dict['TICK_TIME_BELOW_15K'], tick_cost=tariff2_dict['TICK_COST_BELOW_15K'], fixed_cost=None),
+            MeteredRateRule(rule_name="Saturday after 15 km",country=IL,from_day=7, to_day=7, from_hour=MIDNIGHT, to_hour=MIDNIGHT_MINUS_EPSILON, from_duration=None,                      to_duration=None, from_distance=15000,                         to_distance=None,  tick_distance=tariff2_dict['TICK_DISTANCE_OVER_15K'],  tick_time=tariff2_dict['TICK_TIME_OVER_15K'],  tick_cost=tariff2_dict['TICK_COST_OVER_15K'], fixed_cost=None),
     ]
     for rule in meter_rules: rule.save()
 

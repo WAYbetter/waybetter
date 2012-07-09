@@ -152,7 +152,7 @@ def add_flat_rate_rule(country, from_city, to_city, fixed_cost_tariff_1, fixed_c
     rule.to_day = 6
     rule.fixed_cost = fixed_cost_tariff_2
     rule.from_hour = ordering.pricing.SABBATH_START
-    rule.to_hour = ordering.pricing.MIDNIGHT
+    rule.to_hour = ordering.pricing.MIDNIGHT_MINUS_EPSILON
     rule.save()
 
     # Saturday
@@ -161,5 +161,5 @@ def add_flat_rate_rule(country, from_city, to_city, fixed_cost_tariff_1, fixed_c
     rule.from_day = 7
     rule.to_day = 7
     rule.from_hour = datetime.time(00,00,00)
-    rule.to_hour = ordering.pricing.MIDNIGHT
+    rule.to_hour = ordering.pricing.MIDNIGHT_MINUS_EPSILON
     rule.save()

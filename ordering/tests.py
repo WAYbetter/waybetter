@@ -591,52 +591,61 @@ class PricingTest(TestCase):
         t, d = self.t, self.d
         
         expected_type = CostType.METER
+        expected_cost_tariff1 = calculate_tariff(t, d, tariff1_dict) + self.phone_order_price
+        expected_cost_tariff2 = calculate_tariff(t, d, tariff2_dict) + self.phone_order_price
         extras = [IsraelExtraCosts.NATBAG_AIRPORT, IsraelExtraCosts.KVISH_6]
         extras_cost = sum([IL.extra_charge_rules.get(rule_name=extra).cost for extra in extras])
 
         # tariff 1 test
-        expected_cost = calculate_tariff(t, d, tariff1_dict) + self.phone_order_price
-
         cost, type = estimate_cost(t, d, IL.code, day=1,time=datetime.time(05, 30, 00))
         self.assertEqual(type, expected_type)
-        self.assertAlmostEqual(cost, expected_cost, places=2, msg="tariff 1 estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertAlmostEqual(cost, expected_cost_tariff1, places=2, msg="tariff 1 estimation failed: %d (expected %d)" % (cost, expected_cost_tariff1))
 
         cost, type = estimate_cost(t, d, IL.code, day=1, time=datetime.time(20, 59, 59))
         self.assertEqual(type, expected_type)
-        self.assertAlmostEqual(cost, expected_cost, places=2, msg="tariff 1 estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertAlmostEqual(cost, expected_cost_tariff1, places=2, msg="tariff 1 estimation failed: %d (expected %d)" % (cost, expected_cost_tariff1))
 
         cost, type = estimate_cost(t, d, IL.code, day=6, time=datetime.time(16, 59, 59))
         self.assertEqual(type, expected_type)
-        self.assertAlmostEqual(cost, expected_cost, places=2, msg="Friday estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertAlmostEqual(cost, expected_cost_tariff1, places=2, msg="Friday estimation failed: %d (expected %d)" % (cost, expected_cost_tariff1))
 
-        expected_cost += extras_cost
         cost, type = estimate_cost(t, d, IL.code, time=datetime.time(12, 00), extras=extras)
         self.assertEqual(type, expected_type)
-        self.assertAlmostEqual(cost, expected_cost, places=2, msg="tariff 1 + extras' estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertAlmostEqual(cost, expected_cost_tariff1 + extras_cost, places=2, msg="tariff 1 + extras' estimation failed: %d (expected %d)" % (cost, expected_cost_tariff1 + extras_cost))
 
         # tariff2 test
-        expected_cost = calculate_tariff(t, d, tariff2_dict) + self.phone_order_price
-
         cost, type = estimate_cost(t, d, IL.code, day=1, time=datetime.time(21, 00, 00))
         self.assertEqual(type, expected_type)
-        self.assertAlmostEqual(cost, expected_cost, places=2, msg="tariff 2 estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertAlmostEqual(cost, expected_cost_tariff2, places=2, msg="tariff 2 estimation failed: %d (expected %d)" % (cost, expected_cost_tariff2))
 
         cost, type = estimate_cost(t, d, IL.code, day=1, time=datetime.time(05, 29, 59))
         self.assertEqual(type, expected_type)
-        self.assertAlmostEqual(cost, expected_cost, places=2, msg="tariff 2 estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertAlmostEqual(cost, expected_cost_tariff2, places=2, msg="tariff 2 estimation failed: %d (expected %d)" % (cost, expected_cost_tariff2))
 
         cost, type = estimate_cost(t, d, IL.code, day=6, time=datetime.time(17, 00, 00))
         self.assertEqual(type, expected_type)
-        self.assertAlmostEqual(cost, expected_cost, places=2, msg="Friday estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertAlmostEqual(cost, expected_cost_tariff2, places=2, msg="Friday estimation failed: %d (expected %d)" % (cost, expected_cost_tariff2))
 
         cost, type = estimate_cost(t, d, IL.code, day=7, time=datetime.time(23, 59, 59))
         self.assertEqual(type, expected_type)
-        self.assertAlmostEqual(cost, expected_cost, places=2, msg="Saturday estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertAlmostEqual(cost, expected_cost_tariff2, places=2, msg="Saturday estimation failed: %d (expected %d)" % (cost, expected_cost_tariff2))
 
-        expected_cost += extras_cost
         cost, type = estimate_cost(t, d, IL.code, time=datetime.time(22, 00), extras=extras)
         self.assertEqual(type, expected_type)
-        self.assertAlmostEqual(cost, expected_cost, places=2, msg="tariff 2 + extras' estimation failed: %d (expected %d)" % (cost, expected_cost))
+        self.assertAlmostEqual(cost, expected_cost_tariff2 + extras_cost, places=2, msg="tariff 2 + extras' estimation failed: %d (expected %d)" % (cost, expected_cost_tariff2 + extras_cost))
+
+        # friday
+        cost, type = estimate_cost(t, d, IL.code, day=6, time=datetime.time(01, 00, 00))
+        self.assertEqual(type, expected_type)
+        self.assertAlmostEqual(cost, expected_cost_tariff2, places=2, msg="Friday tariff2 failed: %d (expected %d)" % (cost, expected_cost_tariff2))
+
+        cost, type = estimate_cost(t, d, IL.code, day=6, time=datetime.time(06, 00, 00))
+        self.assertEqual(type, expected_type)
+        self.assertAlmostEqual(cost, expected_cost_tariff1, places=2, msg="Friday tariff1 failed: %d (expected %d)" % (cost, expected_cost_tariff1))
+
+        cost, type = estimate_cost(t, d, IL.code, day=6, time=datetime.time(17, 01, 00))
+        self.assertEqual(type, expected_type)
+        self.assertAlmostEqual(cost, expected_cost_tariff2, places=2, msg="Friday sabbath failed: %d (expected %d)" % (cost, expected_cost_tariff2))
 
     def test_flat_rate_cost(self):
         IL = self.IL
