@@ -271,7 +271,7 @@ def calc_billing_report_csv(recipient, start_date, end_date, offset=0, csv_bytes
         writer.writerow(cols)
 
     logging.info("billing report %s->%s" % (offset, offset + batch_size))
-    rides = SharedRide.objects.filter(status__in=[ACCEPTED, COMPLETED], debug=False, create_date__gte=start_date, create_date__lte=end_date)[offset: offset +batch_size]
+    rides = SharedRide.objects.filter(debug=False, create_date__gte=start_date, create_date__lte=end_date)[offset: offset +batch_size]
 #    rides = SharedRide.objects.filter(create_date__gte=start_date, create_date__lte=end_date)[offset: offset +batch_size]
     for ride in rides:
         station = ride.station

@@ -193,15 +193,16 @@ def send_users_data_csv(request):
 
     return HttpResponse("An email will be sent to %s in a couple of minutes" % recipient)
 
-def calc_orders_data_csv(recipient ,offset=0, csv_bytestring=u""):
-    batch_size = 1000
+def calc_orders_data_csv(recipient, batch_size, offset=0, csv_bytestring=u"", calc_cost=False):
     link_domain = "www.waybetter.com"
 
     logging.info("querying computations %s->%s" % (offset, offset + batch_size))
 
-    sharing_launched = set_default_tz_time(datetime(2011, 10, 1, 0, 0, 0))
+    start_dt = set_default_tz_time(datetime(2012, 1, 1))
+    end_dt = set_default_tz_time(datetime(2012, 6, 1))
+    station, station_cost_rules = None, []
 
-    computations = RideComputation.objects.filter(create_date__gte=sharing_launched)[offset: offset + batch_size]
+    computations = RideComputation.objects.filter(create_date__gte=start_dt, create_date__lte=end_dt).order_by("create_date")[offset: offset + batch_size]
     for computation in computations:
         if computation.debug:
             continue
@@ -223,21 +224,49 @@ def calc_orders_data_csv(recipient ,offset=0, csv_bytestring=u""):
 
                 passenger_name = order.passenger.full_name
                 shared = "yes" if count_orders > 1 else ""
+                price = order.price
+                cost = 0
+
+                if calc_cost:
+                    if ride.station and ride.station != station: # store the rules in memory to reduce queries
+                        station = ride.station
+                        station_cost_rules = list(ride.station.fixed_prices.all())
+                        logging.info("got new prices from station %s (was %s)" % (ride.station, station))
+                    for rule in station_cost_rules:
+                        if rule.is_active(order.from_lat, order.from_lon, order.to_lat, order.to_lon,ride.depart_time.date(), ride.depart_time.time()):
+                            cost = rule.price
+
                 link = "http://%s/%s" % (link_domain , reverse(show_ride, args=[ride.id]))
 
                 order_data = [depart_day, depart_time, arrive_day, arrive_time, ordering_td_format, passenger_name,
                               order.from_raw, order.from_lat, order.from_lon, order.to_raw, order.to_lat, order.to_lon,
-                              shared, order.computation_id, total_interval_orders, link]
-                csv_bytestring += u",".join([unicode(i).replace(",", "") for i in order_data])
+                              shared, order.computation_id, total_interval_orders, price, cost, link]
+                csv_bytestring += u";".join([unicode(i).replace(";", "") for i in order_data])
                 csv_bytestring += u"\n"
 
     if computations:
-        deferred.defer(calc_orders_data_csv, recipient, offset=offset + batch_size + 1, csv_bytestring=csv_bytestring)
+        deferred.defer(calc_orders_data_csv, recipient, batch_size, offset=offset + batch_size + 1, csv_bytestring=csv_bytestring, calc_cost=calc_cost)
     else:
         logging.info("all done, sending data...")
         timestamp = date.today()
         send_mail_as_noreply(recipient, "Orders data %s" % timestamp, attachments=[("orders_data_%s.csv" % timestamp, csv_bytestring)])
 
+@staff_member_required
+def send_orders_data_csv(request):
+    recipient = [request.GET.get("recipient", "dev@waybetter.com")]
+    batch_size = request.GET.get("batch_size")
+    if not batch_size:
+        batch_size = 500
+    else:
+        batch_size = int(batch_size)
+    calc_cost = bool(request.GET.get("calc_cost"))
+
+    col_names = ["depart day", "depart time", "arrive day", "arrive time", "ordered before pickup", "passenger",
+                 "from", "from lat", "from lon", "to", "to lat", "to lon",
+                 "sharing?", "interval id", "#interval orders", "price", "cost", "ride map"]
+
+    deferred.defer(calc_orders_data_csv, recipient, batch_size, offset=0, csv_bytestring=u"%s\n" % u";".join(col_names), calc_cost=calc_cost)
+    return HttpResponse("An email will be sent to %s in a couple of minutes" % ",".join(recipient))
 
 def calc_ny_sharing(offset=0, count=0, value=0):
     batch_size = 500
@@ -522,16 +551,6 @@ def calc_pickmeapp_passenger_count(offset=0, count=0):
     else:
         logging.info("all done, sending report\n%s" % count)
         send_mail_as_noreply("guy@waybetter.com", "Passenger count - pickmeapp", msg="count = %s" % count)
-
-@staff_member_required
-def send_orders_data_csv(request):
-    recipient = ["dev@waybetter.com"]
-    col_names = ["depart day", "depart time", "arrive day", "arrive time", "ordered before pickup", "passenger",
-                 "from", "from lat", "from lon", "to", "to lat", "to lon",
-                 "sharing?", "interval id", "#interval orders", "ride map"]
-    deferred.defer(calc_orders_data_csv, recipient, offset=0, csv_bytestring=u"%s\n" % u",".join(col_names))
-
-    return HttpResponse("An email will be sent to %s in a couple of minutes" % ",".join(recipient))
 
 @staff_member_required
 def passenger_csv(request):
