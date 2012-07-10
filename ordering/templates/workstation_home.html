@@ -531,6 +531,11 @@
                 clearError();
             } catch (e) {
                 trace(JSON.stringify(e));
+                if (e.name == "NO_MODIFICATION_ALLOWED_ERR") {
+                    if (window.parentSandboxBridge) {
+                        parentSandboxBridge.exit_app();
+                    }
+                }
                 onError();
             }
 
