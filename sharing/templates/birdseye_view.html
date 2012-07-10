@@ -236,14 +236,18 @@
         }
 
         function renderData(data){
-            $.each(data.computations, function(i, computation) {
-                renderComputation(computation);
-            });
+            if (data.computations && data.computations.length) {
+                $.each(data.computations, function (i, computation) {
+                    renderComputation(computation);
+                });
+            }
 
-            renderPrivateOrdersContainer();
-            $.each(data.private_orders, function(i, computation) {
-                renderPrivateOrder(computation);
-            });
+            if (data.private_orders && data.private_orders.length) {
+                renderPrivateOrdersContainer();
+                $.each(data.private_orders, function (i, computation) {
+                    renderPrivateOrder(computation);
+                });
+            }
         }
 
         $(function() {
@@ -293,7 +297,7 @@
                         $("#loader").show();
                     },
                     success: function(response) {
-                        if (response.data && response.data.length) {
+                        if (response.data) {
                             renderData(response.data);
                         }
                         else {
