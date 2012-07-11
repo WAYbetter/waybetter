@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-01 15:20+0300\n"
-"PO-Revision-Date: 2012-07-01 15:20+0200\n"
+"POT-Creation-Date: 2012-07-11 16:29+0300\n"
+"PO-Revision-Date: 2012-07-11 16:30+0200\n"
 "Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "MIME-Version: 1.0\n"
@@ -144,12 +144,12 @@ msgid "ratings"
 msgstr "דירוגים"
 
 #: analytics/views.py:182
-#: ordering/station_controller.py:396
+#: ordering/station_controller.py:402
 msgid "Accepted"
 msgstr "התקבלו"
 
 #: analytics/views.py:187
-#: ordering/station_controller.py:398
+#: ordering/station_controller.py:404
 msgid "Rejected"
 msgstr "נדחו"
 
@@ -285,12 +285,12 @@ msgid "passenger name"
 msgstr "שם נוסע"
 
 #: billing/models.py:52
-#: ordering/templates/workstation_home.html:989
+#: ordering/templates/workstation_home.html:997
 msgid "pickup"
 msgstr "מוצא"
 
 #: billing/models.py:53
-#: ordering/templates/workstation_home.html:992
+#: ordering/templates/workstation_home.html:1000
 msgid "dropoff"
 msgstr "יעד"
 
@@ -637,7 +637,7 @@ msgstr "סיום"
 #: ordering/templates/base_passenger.html:120
 #: ordering/templates/business_registration.html:134
 #: ordering/templates/station_page_business.html:449
-#: ordering/templates/workstation_home.html:972
+#: ordering/templates/workstation_home.html:980
 #: ordering/templates/mobile/passenger_home.html:78
 msgid "Sending..."
 msgstr "שולח..."
@@ -697,7 +697,7 @@ msgstr "התחנות הקרובות מחפשות עבורך מונית פנוי�
 
 #: common/templates/registration_form.html:24
 #: ordering/forms.py:259
-#: ordering/passenger_controller.py:608
+#: ordering/passenger_controller.py:628
 #: ordering/templates/business_registration.html:58
 #: sharing/forms.py:92
 msgid "Email already registered"
@@ -864,7 +864,7 @@ msgstr "שטוח הדף"
 msgid "flat pages"
 msgstr "שטוח עמודים"
 
-#: fleet/signals.py:31
+#: fleet/signals.py:39
 msgid "To view your taxi: "
 msgstr "לצפיה במונית:"
 
@@ -908,7 +908,7 @@ msgstr "אנא מלא את הפרטים הבאים ואנו ניצור עמך ק
 #: interests/templates/pilot_interest_form.html:80
 #: interests/templates/station_interest_form.html:36
 #: ordering/templates/business_registration.html:137
-#: ordering/templates/workstation_home.html:892
+#: ordering/templates/workstation_home.html:900
 #: sharing/templates/producer_ordering_page.html:87
 msgid "Send"
 msgstr "שליחה"
@@ -1052,7 +1052,7 @@ msgid "Upload a valid image. The file you uploaded was either not an image or wa
 msgstr "יש להעלות תמונה חוקית. הקובץ שהעלת פגום או שאינו תמונה."
 
 #: ordering/forms.py:155
-#: ordering/passenger_controller.py:281
+#: ordering/passenger_controller.py:295
 msgid "Your account has been suspended. Please contact support@waybetter.com"
 msgstr "חשבונך נחסם. ליצירת קשר support@waybetter.com"
 
@@ -2097,64 +2097,64 @@ msgstr "דקות"
 msgid "Your Ride Could Not Be Ordered"
 msgstr "לא ניתן להזמין נסיעה זו"
 
-#: ordering/passenger_controller.py:272
+#: ordering/passenger_controller.py:286
 msgid "Ordering is not allowed so soon after another order"
 msgstr "לא ניתן להזמין כמה נסיעות בסמיכות."
 
-#: ordering/passenger_controller.py:279
+#: ordering/passenger_controller.py:293
 msgid "Please register before attempting to order"
 msgstr "יש להרשם לפני ביצוע הזמנה"
 
-#: ordering/passenger_controller.py:299
+#: ordering/passenger_controller.py:319
 msgid "Could not send order to specified station"
 msgstr "לא ניתן לשלוח את ההזמנה לתחנה"
 
-#: ordering/passenger_controller.py:314
+#: ordering/passenger_controller.py:334
 msgid "An SMS with ride details will arrive shortly..."
 msgstr "התחנות הקרובות מחפשות עבורך מונית פנויה.<BR>הודעת SMS עם פרטי הנסיעה תשלח אליך מיד..."
 
-#: ordering/passenger_controller.py:317
+#: ordering/passenger_controller.py:337
 #, python-format
 msgid "%s is looking for a free taxi. An SMS with ride details will arrive shortly..."
 msgstr "%s מחפשת עבורך מונית פנויה.<BR>הודעת SMS עם פרטי הנסיעה תשלח אליך מיד..."
 
-#: ordering/passenger_controller.py:471
+#: ordering/passenger_controller.py:491
 msgid "The phone number is already registered."
 msgstr "מספר הטלפון כבר רשום"
 
-#: ordering/passenger_controller.py:493
+#: ordering/passenger_controller.py:513
 #, python-format
 msgid "Verification code: %s"
 msgstr "קוד אימות: %s"
 
-#: ordering/passenger_controller.py:508
-#: sharing/passenger_controller.py:613
+#: ordering/passenger_controller.py:528
+#: sharing/passenger_controller.py:617
 msgid "Error validating phone (check that your browser accepts cookies)"
 msgstr "אימות טלפון נכשל: יש לאפשרקבלת עוגיות (cookies) בדפדפן"
 
-#: ordering/passenger_controller.py:511
-#: sharing/passenger_controller.py:615
+#: ordering/passenger_controller.py:531
+#: sharing/passenger_controller.py:619
 msgid "Invalid verification code"
 msgstr "קוד SMS שגוי"
 
-#: ordering/passenger_controller.py:538
+#: ordering/passenger_controller.py:558
 msgid "Phone has multiple passengers"
 msgstr "טלפון שייך לכמה נוסעים"
 
-#: ordering/passenger_controller.py:570
+#: ordering/passenger_controller.py:590
 msgid "wrong email/password"
 msgstr "כתובת אימייל או הסיסמה אינם נכונים"
 
-#: ordering/passenger_controller.py:579
+#: ordering/passenger_controller.py:599
 msgid "Must have a user to change credentials"
 msgstr "משתמש אינו קיים"
 
-#: ordering/passenger_controller.py:859
-#: ordering/passenger_controller.py:862
+#: ordering/passenger_controller.py:879
+#: ordering/passenger_controller.py:882
 msgid "This ride is invalid"
 msgstr "לא ניתן להציג את פרטי נסיעה זו"
 
-#: ordering/passenger_controller.py:867
+#: ordering/passenger_controller.py:887
 msgid "This ride has expired"
 msgstr "נסיעה זו כבר הסתיימה"
 
@@ -2166,11 +2166,11 @@ msgstr "רחוב רחובי 1 רחובות"
 msgid "Invalid city"
 msgstr "עיר לא חוקית"
 
-#: ordering/station_controller.py:397
+#: ordering/station_controller.py:403
 msgid "Ignored"
 msgstr "ללא התייחסות"
 
-#: ordering/station_controller.py:486
+#: ordering/station_controller.py:492
 #, python-format
 msgid "%s Taxi station"
 msgstr "מונית %s"
@@ -2336,7 +2336,7 @@ msgstr "דקות"
 
 #: ordering/templates/base_passenger.html:72
 #: ordering/templates/station_page_business.html:490
-#: ordering/templates/workstation_home.html:882
+#: ordering/templates/workstation_home.html:890
 msgid "minutes"
 msgstr "דקות"
 
@@ -2924,7 +2924,7 @@ msgid "Orders History"
 msgstr "נסיעות קודמות"
 
 #: ordering/templates/station_page_business.html:295
-#: ordering/templates/workstation_home.html:752
+#: ordering/templates/workstation_home.html:760
 #: sharing/templates/passenger_ride_email.html:23
 #: sharing/templates/producer_ordering_page.html:53
 #: sharing/templates/station_history.html:37
@@ -3063,60 +3063,64 @@ msgstr "בהורדת התוכנה אני מצהיר בזאת כי קראתי ו�
 msgid "Workstation page"
 msgstr "דף עמדות עבודה"
 
-#: ordering/templates/workstation_home.html:595
+#: ordering/templates/workstation_home.html:526
+msgid "You must update Adobe Air version"
+msgstr "יש לעדכן את Adobe Air כדי להמשיך את העבודה בתכנה"
+
+#: ordering/templates/workstation_home.html:603
 msgid "Connecting WAYbetter..."
 msgstr "מתחבר אל WAYbetter..."
 
-#: ordering/templates/workstation_home.html:694
+#: ordering/templates/workstation_home.html:702
 #: templates/registration/login.html:147
 msgid "Click Here"
 msgstr "לחץ כאן"
 
-#: ordering/templates/workstation_home.html:699
+#: ordering/templates/workstation_home.html:707
 msgid "Connection Check"
 msgstr "בדיקת חיבור"
 
-#: ordering/templates/workstation_home.html:721
+#: ordering/templates/workstation_home.html:729
 msgid "Voucher Received - Sending Taxi"
 msgstr "הפתק התקבל - שולח מונית"
 
-#: ordering/templates/workstation_home.html:766
+#: ordering/templates/workstation_home.html:774
 msgid "Show Details"
 msgstr "הצג פרטים"
 
-#: ordering/templates/workstation_home.html:771
+#: ordering/templates/workstation_home.html:779
 msgid "A Voucher Was Sent To The Station"
 msgstr "פתק נשלח לתחנה"
 
-#: ordering/templates/workstation_home.html:814
+#: ordering/templates/workstation_home.html:822
 msgid "Show details"
 msgstr "הצג פרטים"
 
-#: ordering/templates/workstation_home.html:819
+#: ordering/templates/workstation_home.html:827
 msgid "Incoming order"
 msgstr "הזמנה נכנסת"
 
-#: ordering/templates/workstation_home.html:880
+#: ordering/templates/workstation_home.html:888
 msgid "Define time"
 msgstr "הגדר זמן"
 
-#: ordering/templates/workstation_home.html:892
+#: ordering/templates/workstation_home.html:900
 msgid "Send message to passenger"
 msgstr "שלח הודעה לנוסע"
 
-#: ordering/templates/workstation_home.html:899
+#: ordering/templates/workstation_home.html:907
 msgid "Reject"
 msgstr "דחייה"
 
-#: ordering/templates/workstation_home.html:933
+#: ordering/templates/workstation_home.html:941
 msgid "client"
 msgstr "לקוח"
 
-#: ordering/templates/workstation_home.html:937
+#: ordering/templates/workstation_home.html:945
 msgid "comments"
 msgstr "הערות"
 
-#: ordering/templates/workstation_home.html:980
+#: ordering/templates/workstation_home.html:988
 msgid "End"
 msgstr "סיום"
 
@@ -3500,23 +3504,23 @@ msgstr "התרחשה שגיאה. אנא נסו שוב."
 msgid "This interval is closed for booking now. Please choose a later time"
 msgstr "לא ניתן להזמין לשעה שנבחרה. אנא בחר שעה אחרת ונסה שנית"
 
-#: sharing/passenger_controller.py:550
+#: sharing/passenger_controller.py:554
 msgid "You must be logged in to validate your phone."
 msgstr "עלייך להכנס לחשבונך לפני ביצוע אימות טלפון."
 
-#: sharing/passenger_controller.py:569
+#: sharing/passenger_controller.py:573
 msgid "We are sorry but your phone cannot be changed now. We will contact you to resolve this issue as soon as possible"
 msgstr "אנו מצטערים אך לא ניתן לשנות את מספר הטלפון כרגע. ניצור איתך קשר בקרוב כדי לפתור זאת"
 
-#: sharing/passenger_controller.py:625
+#: sharing/passenger_controller.py:629
 msgid "We're sorry but your phone appears to used by multiple users. Please contact support@waybetter.com to resolve this issue."
 msgstr "הטלפון שלך נמצא בשימוש על ידי כמה נוסעים. אנא פנה אל contact@waybetter.com לקבלת עזרה."
 
-#: sharing/passenger_controller.py:666
+#: sharing/passenger_controller.py:670
 msgid "WAYbetter ride"
 msgstr "נסיעת מונית WAYbetter"
 
-#: sharing/passenger_controller.py:666
+#: sharing/passenger_controller.py:670
 msgid "Private ride"
 msgstr "נסיעת מונית פרטית"
 

@@ -521,6 +521,14 @@
                 },
                 pollOrders      : function() {} // do nothing
             };
+
+            {% if show_version_error %}
+                alert("{% trans 'You must update Adobe Air version' %}");
+                if (window.parentSandboxBridge) {
+                    window.parentSandboxBridge.exit_app();
+                }
+            {% endif %}
+
             try {
                 initConnection();
                 initAcceptOrders();

@@ -7,7 +7,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-07-01 15:20+0300\n"
+"POT-Creation-Date: 2012-07-11 16:29+0300\n"
 "PO-Revision-Date: 2011-06-21 16:06+0200\n"
 "Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -112,11 +112,11 @@ msgstr "Ville"
 msgid "ratings"
 msgstr "Classement"
 
-#: analytics/views.py:182 ordering/station_controller.py:396
+#: analytics/views.py:182 ordering/station_controller.py:402
 msgid "Accepted"
 msgstr "Acceptée"
 
-#: analytics/views.py:187 ordering/station_controller.py:398
+#: analytics/views.py:187 ordering/station_controller.py:404
 #, fuzzy
 msgid "Rejected"
 msgstr "Rejeté"
@@ -249,12 +249,12 @@ msgstr "Créé le"
 msgid "passenger name"
 msgstr "numéro de téléphone passager"
 
-#: billing/models.py:52 ordering/templates/workstation_home.html:989
+#: billing/models.py:52 ordering/templates/workstation_home.html:997
 #, fuzzy
 msgid "pickup"
 msgstr "heure de ramassage"
 
-#: billing/models.py:53 ordering/templates/workstation_home.html:992
+#: billing/models.py:53 ordering/templates/workstation_home.html:1000
 msgid "dropoff"
 msgstr ""
 
@@ -601,7 +601,7 @@ msgstr "Terminer"
 #: ordering/templates/base_passenger.html:120
 #: ordering/templates/business_registration.html:134
 #: ordering/templates/station_page_business.html:449
-#: ordering/templates/workstation_home.html:972
+#: ordering/templates/workstation_home.html:980
 #: ordering/templates/mobile/passenger_home.html:78
 msgid "Sending..."
 msgstr "Envoi..."
@@ -662,7 +662,7 @@ msgstr ""
 "sans délai."
 
 #: common/templates/registration_form.html:24 ordering/forms.py:259
-#: ordering/passenger_controller.py:608
+#: ordering/passenger_controller.py:628
 #: ordering/templates/business_registration.html:58 sharing/forms.py:92
 #, fuzzy
 msgid "Email already registered"
@@ -811,7 +811,7 @@ msgstr "page plane"
 msgid "flat pages"
 msgstr "pages planes"
 
-#: fleet/signals.py:31
+#: fleet/signals.py:39
 msgid "To view your taxi: "
 msgstr ""
 
@@ -852,7 +852,7 @@ msgstr "Indiquez vos coordonnées et nous vous contacterons"
 #: interests/templates/pilot_interest_form.html:80
 #: interests/templates/station_interest_form.html:36
 #: ordering/templates/business_registration.html:137
-#: ordering/templates/workstation_home.html:892
+#: ordering/templates/workstation_home.html:900
 #: sharing/templates/producer_ordering_page.html:87
 msgid "Send"
 msgstr "Envoi"
@@ -1008,7 +1008,7 @@ msgstr ""
 "Téléchargez une image valide. Le fichier téléchargé n'est pas un fichier "
 "image ou est corrompu."
 
-#: ordering/forms.py:155 ordering/passenger_controller.py:281
+#: ordering/forms.py:155 ordering/passenger_controller.py:295
 msgid "Your account has been suspended. Please contact support@waybetter.com"
 msgstr ""
 
@@ -2008,25 +2008,25 @@ msgstr "minutes"
 msgid "Your Ride Could Not Be Ordered"
 msgstr "Impossible de commander cette course"
 
-#: ordering/passenger_controller.py:272
+#: ordering/passenger_controller.py:286
 msgid "Ordering is not allowed so soon after another order"
 msgstr "Impossible de réserver des courses si rapprochées"
 
-#: ordering/passenger_controller.py:279
+#: ordering/passenger_controller.py:293
 msgid "Please register before attempting to order"
 msgstr ""
 
-#: ordering/passenger_controller.py:299
+#: ordering/passenger_controller.py:319
 msgid "Could not send order to specified station"
 msgstr ""
 
-#: ordering/passenger_controller.py:314
+#: ordering/passenger_controller.py:334
 msgid "An SMS with ride details will arrive shortly..."
 msgstr ""
 "La station la plus proche recherche un taxi libre. Un SMS vous sera envoyé "
 "sans délai."
 
-#: ordering/passenger_controller.py:317
+#: ordering/passenger_controller.py:337
 #, fuzzy, python-format
 msgid ""
 "%s is looking for a free taxi. An SMS with ride details will arrive "
@@ -2035,43 +2035,43 @@ msgstr ""
 "La station la plus proche recherche un taxi libre. Un SMS vous sera envoyé "
 "sans délai."
 
-#: ordering/passenger_controller.py:471
+#: ordering/passenger_controller.py:491
 #, fuzzy
 msgid "The phone number is already registered."
 msgstr "Déjà inscrit ?"
 
-#: ordering/passenger_controller.py:493
+#: ordering/passenger_controller.py:513
 #, fuzzy, python-format
 msgid "Verification code: %s"
 msgstr "Envoyez code de vérification"
 
-#: ordering/passenger_controller.py:508 sharing/passenger_controller.py:613
+#: ordering/passenger_controller.py:528 sharing/passenger_controller.py:617
 msgid "Error validating phone (check that your browser accepts cookies)"
 msgstr ""
 
-#: ordering/passenger_controller.py:511 sharing/passenger_controller.py:615
+#: ordering/passenger_controller.py:531 sharing/passenger_controller.py:619
 msgid "Invalid verification code"
 msgstr "Code SMS erroné"
 
-#: ordering/passenger_controller.py:538
+#: ordering/passenger_controller.py:558
 msgid "Phone has multiple passengers"
 msgstr "Même téléphone pour plusieurs passagers"
 
-#: ordering/passenger_controller.py:570
+#: ordering/passenger_controller.py:590
 #, fuzzy
 msgid "wrong email/password"
 msgstr "nom d'utilisateur/mot de passe erroné"
 
-#: ordering/passenger_controller.py:579
+#: ordering/passenger_controller.py:599
 msgid "Must have a user to change credentials"
 msgstr "Vous devez avoir nom d'utilisateur pour modifier les identifiants"
 
-#: ordering/passenger_controller.py:859 ordering/passenger_controller.py:862
+#: ordering/passenger_controller.py:879 ordering/passenger_controller.py:882
 #, fuzzy
 msgid "This ride is invalid"
 msgstr "OpenID non valide"
 
-#: ordering/passenger_controller.py:867
+#: ordering/passenger_controller.py:887
 #, fuzzy
 msgid "This ride has expired"
 msgstr "La requête a été annulée"
@@ -2084,12 +2084,12 @@ msgstr ""
 msgid "Invalid city"
 msgstr "Ville non valide"
 
-#: ordering/station_controller.py:397
+#: ordering/station_controller.py:403
 #, fuzzy
 msgid "Ignored"
 msgstr "Ignoré"
 
-#: ordering/station_controller.py:486
+#: ordering/station_controller.py:492
 #, fuzzy, python-format
 msgid "%s Taxi station"
 msgstr "Stations de taxi"
@@ -2265,7 +2265,7 @@ msgstr "minutes"
 
 #: ordering/templates/base_passenger.html:72
 #: ordering/templates/station_page_business.html:490
-#: ordering/templates/workstation_home.html:882
+#: ordering/templates/workstation_home.html:890
 msgid "minutes"
 msgstr "minutes"
 
@@ -2884,7 +2884,7 @@ msgid "Orders History"
 msgstr "Historique"
 
 #: ordering/templates/station_page_business.html:295
-#: ordering/templates/workstation_home.html:752
+#: ordering/templates/workstation_home.html:760
 #: sharing/templates/passenger_ride_email.html:23
 #: sharing/templates/producer_ordering_page.html:53
 #: sharing/templates/station_history.html:37
@@ -3063,66 +3063,70 @@ msgstr ""
 msgid "Workstation page"
 msgstr "Page Poste de travail"
 
-#: ordering/templates/workstation_home.html:595
+#: ordering/templates/workstation_home.html:526
+msgid "You must update Adobe Air version"
+msgstr ""
+
+#: ordering/templates/workstation_home.html:603
 msgid "Connecting WAYbetter..."
 msgstr "Connexion à WAYbetter..."
 
-#: ordering/templates/workstation_home.html:694
+#: ordering/templates/workstation_home.html:702
 #: templates/registration/login.html:147
 msgid "Click Here"
 msgstr ""
 
-#: ordering/templates/workstation_home.html:699
+#: ordering/templates/workstation_home.html:707
 #, fuzzy
 msgid "Connection Check"
 msgstr "Envoi..."
 
-#: ordering/templates/workstation_home.html:721
+#: ordering/templates/workstation_home.html:729
 msgid "Voucher Received - Sending Taxi"
 msgstr ""
 
-#: ordering/templates/workstation_home.html:766
+#: ordering/templates/workstation_home.html:774
 #, fuzzy
 msgid "Show Details"
 msgstr "Plus de détails"
 
-#: ordering/templates/workstation_home.html:771
+#: ordering/templates/workstation_home.html:779
 msgid "A Voucher Was Sent To The Station"
 msgstr ""
 
-#: ordering/templates/workstation_home.html:814
+#: ordering/templates/workstation_home.html:822
 #, fuzzy
 msgid "Show details"
 msgstr "Plus de détails"
 
-#: ordering/templates/workstation_home.html:819
+#: ordering/templates/workstation_home.html:827
 #, fuzzy
 msgid "Incoming order"
 msgstr "Accepte des réservations"
 
-#: ordering/templates/workstation_home.html:880
+#: ordering/templates/workstation_home.html:888
 msgid "Define time"
 msgstr "Définissez horaire"
 
-#: ordering/templates/workstation_home.html:892
+#: ordering/templates/workstation_home.html:900
 msgid "Send message to passenger"
 msgstr "Envoyer un message au passager"
 
-#: ordering/templates/workstation_home.html:899
+#: ordering/templates/workstation_home.html:907
 #, fuzzy
 msgid "Reject"
 msgstr "Rejeté"
 
-#: ordering/templates/workstation_home.html:933
+#: ordering/templates/workstation_home.html:941
 msgid "client"
 msgstr ""
 
-#: ordering/templates/workstation_home.html:937
+#: ordering/templates/workstation_home.html:945
 #, fuzzy
 msgid "comments"
 msgstr "autoriser commentaires"
 
-#: ordering/templates/workstation_home.html:980
+#: ordering/templates/workstation_home.html:988
 msgid "End"
 msgstr "Fin"
 
@@ -3532,28 +3536,28 @@ msgstr "Une erreur est survenue durant le traitement de votre requête."
 msgid "This interval is closed for booking now. Please choose a later time"
 msgstr ""
 
-#: sharing/passenger_controller.py:550
+#: sharing/passenger_controller.py:554
 msgid "You must be logged in to validate your phone."
 msgstr ""
 
-#: sharing/passenger_controller.py:569
+#: sharing/passenger_controller.py:573
 msgid ""
 "We are sorry but your phone cannot be changed now. We will contact you to "
 "resolve this issue as soon as possible"
 msgstr ""
 
-#: sharing/passenger_controller.py:625
+#: sharing/passenger_controller.py:629
 msgid ""
 "We're sorry but your phone appears to used by multiple users. Please contact "
 "support@waybetter.com to resolve this issue."
 msgstr ""
 
-#: sharing/passenger_controller.py:666
+#: sharing/passenger_controller.py:670
 #, fuzzy
 msgid "WAYbetter ride"
 msgstr "WAYbetter LTD"
 
-#: sharing/passenger_controller.py:666
+#: sharing/passenger_controller.py:670
 #, fuzzy
 msgid "Private ride"
 msgstr "course"
