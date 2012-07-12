@@ -1,4 +1,5 @@
 import logging
+from google.appengine.ext.deferred import deferred
 from common.decorators import receive_signal
 from common.langsupport.util import translate_to_lang
 from common.signals import AsyncSignal
@@ -28,19 +29,30 @@ def log_fmr_update(sender, signal_type, **kwargs):
 @receive_signal(fmr_update_signal)
 def notify_passenger(sender, signal_type, **kwargs):
     from ordering.models import Order
+    fmr = kwargs["fmr"]
+    if fmr.status == FleetManagerRideStatus.ASSIGNED_TO_TAXI:
+        logging.info("ASSIGNED_TO_TAXI received: notifying passengers: %s" % fmr.id)
+        order = Order.by_id(fmr.id)
+        deferred.defer(do_notify_passenger, order, _countdown=40) # wait 40 seconds and then notify passengers
+
+def do_notify_passenger(order):
     from ordering.util import send_msg_to_passenger
 
-    fmr = kwargs["fmr"]
-    order = Order.by_id(fmr.id)
-
-    if fmr.status == FleetManagerRideStatus.ASSIGNED_TO_TAXI and order:
-
+    def _notify_order_passenger(order):
         logging.info("Ride status update: notifying passenger about taxi location for order: %s" % order)
         msg = translate_to_lang(_("To view your taxi: "), order.language_code)
         url = " http://%s%s" % (settings.DEFAULT_DOMAIN,
                                reverse("ordering.passenger_controller.track_order", kwargs={"order_id": order.id}))
         msg += url
         send_msg_to_passenger(order.passenger, msg)
+
+    if order:
+        ride = order.ride
+        if ride:
+            for o in ride.orders.all(): _notify_order_passenger(o)
+        else:
+            _notify_order_passenger(order)
+
 
 @receive_signal(positions_update_signal)
 def log_positions_update(sender, signal_type, positions, **kwargs):
