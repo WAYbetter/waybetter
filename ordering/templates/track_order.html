@@ -187,6 +187,9 @@
         $scope.estimated_time = "??";
         $scope.taxi_marker = undefined;
         $scope.error_message = "{{ error_message }}";
+        {% if use_mock %}
+        $scope.use_mock = true;
+        {% endif %}
 
         $scope.callStation = function (phone) {
             window.location = "tel://" + phone;
@@ -241,7 +244,9 @@
 
         $scope.getLatestTaxiPosition = function () {
             console.log("getLatestTaxiPosition");
-            $http.get('{% url ordering.passenger_controller.get_order_position order_id=order.id %}').
+            var get_config = $scope.use_mock ? {params: {use_mock: $scope.use_mock}} : {};
+            
+            $http.get('{% url ordering.passenger_controller.get_order_position order_id=order.id %}', get_config).
                     success(
                     function (data) {
                         $log.log(data);
