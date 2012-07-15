@@ -5,16 +5,68 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
-    <title>WAYbetter - Show Order</title>
+    <title>WAYbetter - My Taxi</title>
     <link rel="stylesheet" href="/static/css/bootstrap/css/bootstrap.min.css">
     <style type="text/css">
+        .header {
+            height: 57px;
+            background-color: #f3f3ed;
+            padding-top:15px;
+            direction:rtl;
+            text-align: center;
+            box-shadow: 0px 1px 1px rgba(50, 50, 50, 0.75);
+            -webkit-box-shadow: 0px 1px 1px rgba(50, 50, 50, 0.75);
+            z-index: 1000;
+            position: relative;
+        }
+        .station_icon {
+            background-image: url({{ station_icon_url }});
+            width:57px;
+            height: 57px;
+            vertical-align: middle;
+            display: inline-block;
+            margin: 5px;
+            margin-top: -9px;
+
+        }
+        .taxi_number {
+            display: inline-block;
+            font-weight: bold;
+            vertical-align: middle;
+            text-align: center;
+            height: 50px;
+            margin: 0 5px;
+        }
+        .small-loader{
+            background: url(/static/images/wb_site/wb_loader16.gif) left 0 no-repeat;
+            height: 16px;
+            width: 16px;
+            margin: 0 auto;
+        }
+        .phone-icon {
+            background-image: url(/static/images/mobile/order_tracking/phone.png);
+            width:20px;
+            height: 23px;
+            float: right;
+            vertical-align: middle;
+        }
+        .call_station {
+            height: 40px;
+            padding: 9px;
+            vertical-align: top;
+            font-weight: bold;
+        }
+
+        .call_station, .taxi_number, .ticker-text{
+            font-family: Arial;
+            font-size: 14px;
+        }
+
         #map {
-            min-height: 290px;
             height: 100%;
             width: 100%;
             background: #595959;
         }
-
         #map img {
             max-width: none;
         }
@@ -23,31 +75,22 @@
         }
         .footer {
             height: 45px;
+            text-align: center;
             background: rgba(0, 0, 0, 0.7);
             color: white;
             position: fixed;
             bottom: 0;
             width: 100%;
         }
-        .header {
-            height: 57px;
-            background-color: #f3f3ed;
-            padding-top:15px;
-            direction:rtl;
-            box-shadow: 0px 1px 1px rgba(50, 50, 50, 0.75);
-            z-index: 1000;
-            position: relative;
-        }
-        #ticker_text {
-            margin-left: auto;
-            margin-right: auto;
+
+        #ticker {
             display: block;
             font-size: larger;
             font-weight: bold;
-            width: 163px;
             margin-top: 5px;
         }
-
+        .ticker-text{
+        }
         #ticker_num {
             background-image: url(/static/images/mobile/order_tracking/ticker.png);
             background-repeat: no-repeat;
@@ -63,40 +106,6 @@
             text-align: right;
             vertical-align: middle;
             margin-left: 3px;
-        }
-        .station_icon {
-            background-image: url({{ station_icon_url }});
-            width:57px;
-            height: 57px;
-            vertical-align: middle;
-            display: inline-block;
-            margin: 5px;
-            float: right;
-            margin-top: -9px;
-
-        }
-        .taxi_number {
-            font-size: larger;
-            display: inline-block;
-            font-weight: bold;
-            width: 84px;
-            text-align: center;
-            height: 50px;
-            float:right;
-            margin: 0 5px;
-        }
-        .phone-icon {
-            background-image: url(/static/images/mobile/order_tracking/phone.png);
-            width:20px;
-            height: 23px;
-            float: right;
-            vertical-align: middle;
-        }
-        .call_station {
-            width: 146px;
-            height: 40px;
-            font-weight: bold;
-            margin-right: 5px;
         }
 
         .modal {
@@ -131,25 +140,29 @@
 <div class="header" ng-hide="error_message">
     <div class="station_icon"></div>
     <div class="taxi_number" ng-show="taxi_position">
-            מונית מספר (( taxi_position.taxi_id ))
+        <div>מונית מספר</div>
+        <div>(( taxi_position.taxi_id ))</div>
     </div>
-    <div class="taxi_number activity" ng-hide="taxi_position">
-מאתר מונית
+    <div class="taxi_number" ng-hide="taxi_position">
+        מאתר מונית
+        <div class="small-loader"></div>
     </div>
+    <button class="btn btn-large call_station" ng-click="callStation('{{ station_phone }}')"><i
+            class="phone-icon"></i> התקשר לתחנה
+    </button>
 
-    <button class="btn btn-large call_station" ng-click="callStation('{{ station_phone }}')"><i class="phone-icon"></i> התקשר לתחנה</button>
 </div>
 <div class="map_container" ng-hide="error_message">
     <div id="map">
     </div>
     <div class="footer">
-        <span id="ticker_text">
-איסוף בעוד
+        <div id="ticker">
+        <span class="ticker-text">איסוף בעוד</span>
             <span id="ticker_num">
        (( estimated_time ))
             </span>
-             דקות
-        </span>
+             <span class="ticker-text">דקות</span>
+        </div>
     </div>
 </div>
 <div class="modal hide">
@@ -165,9 +178,7 @@
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
 <script>window.jQuery || document.write('<script src="/static/js/libs/jquery-1.6.4.min.js">\x3C/script>')</script>
 <script type="text/javascript" src="/static/js/libs/angular-1.0.0.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/jquery.activity-indicator-1.0.0.min.js"></script>
-<script type="text/javascript"
-        src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
+<script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
 <script type="text/javascript" src="/static/js/utils.js"></script>
 <script type="text/javascript" src="/static/js/helpers.js"></script>
 <script type="text/javascript" src="/static/css/bootstrap/js/bootstrap-modal.js"></script>
@@ -192,7 +203,7 @@
         {% endif %}
 
         $scope.callStation = function (phone) {
-            window.location = "tel://" + phone;
+            window.location = "tel:" + phone;
         };
         $scope.updateTaxiPosition = function () {
             console.log("updatePosition");
@@ -353,9 +364,10 @@
         }
     }
 
-    $(function() {
-        $(".activity").activity({length: 4, space: 0.5, width:2, valign:"bottom"})
-    })
+    $(function () {
+        var map_height = document.height - $(".header").height();
+        $(".map_container").height(map_height);
+    });
 </script>
 </body>
 </html>
