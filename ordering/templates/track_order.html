@@ -294,18 +294,18 @@
         };
         $scope.getMarkerImage = function (icon_url, hd_icon_url, icon_size, hd_icon_size, bottom) {
             var anchor_point;
+            if (bottom) {
+                anchor_point = new google.maps.Point(icon_size.width / 2, icon_size.height);
+            } else {
+                anchor_point = new google.maps.Point(icon_size.width / 2, icon_size.height / 2);
+            }
+
             if (window.devicePixelRatio && window.devicePixelRatio >= 2) {
                 log("using retina image", window.devicePixelRatio, hd_icon_url);
-                if (bottom) {
-                    anchor_point = new google.maps.Point(icon_size.width / 2, icon_size.height);
-                } else {
-                    anchor_point = new google.maps.Point(icon_size.width / 2, icon_size.height / 2);
-                }
-
                 return new google.maps.MarkerImage(hd_icon_url, hd_icon_size, undefined, anchor_point, icon_size);
             } else {
                 log("using normal image", icon_url);
-                return new google.maps.MarkerImage(icon_url, icon_size, undefined, undefined, icon_size);
+                return new google.maps.MarkerImage(icon_url, icon_size, undefined, anchor_point, icon_size);
             }
         };
         $scope.updateCurrentPosition = function () {
