@@ -409,6 +409,8 @@ def get_unique_id():
     s.update(str(datetime.datetime.now()) + generate_random_token(length=3))
     return s.hexdigest()
 
+def email_devs(subject, msg=None, html=None, attachments=None):
+    send_mail_as_noreply("dev@waybetter.com", "WB Dev Alert: %s" % subject, msg=msg, html=html, attachments=attachments)
 
 def notify_by_email(subject, msg=None, html=None, attachments=None):
     send_mail_as_noreply("notify@waybetter.com", "WB notify: %s" % subject, msg=msg, html=html, attachments=attachments)
