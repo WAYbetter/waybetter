@@ -35,8 +35,6 @@ class BaseModel(models.Model):
     """
     class Meta:
         abstract = True
-        ordering = ["id"]
-
 
     def fresh_copy(self):
         return type(self).by_id(self.id)

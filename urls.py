@@ -4,8 +4,16 @@ dbindexer.autodiscover()
 from django.conf.urls.defaults import *
 from django.contrib import admin
 from api.urls import CURRENT_VERSION
-admin.autodiscover()
 
+# override the default ordering of ModelAdmin to avoid creating indexes of the form:
+#- kind: myapp_mymodel
+#  properties:
+#  - name: __key__
+#    direction: desc
+from django.contrib.admin.options import BaseModelAdmin
+BaseModelAdmin.ordering = ("id", )
+
+admin.autodiscover()
 
 urlpatterns = patterns('',
 #    ('^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
