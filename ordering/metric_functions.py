@@ -42,7 +42,11 @@ def distance_from_pickup(stations, **kwargs):
             d[station] = distance
 
         logging.info("distance from pickup metric:\n%s" % log)
-        return dict([(station, 1 - d[station] / max_distance) for station in stations])
+        if max_distance > 0.0:
+            return dict([(station, 1 - d[station] / max_distance) for station in stations])
+        else:
+            return dict([(station, 0.0) for station in stations])
+
 
 def distance_from_pickup_ws(work_stations, **kwargs):
     station_rating = distance_from_pickup([ws.station for ws in work_stations], **kwargs)
