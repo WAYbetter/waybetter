@@ -35,6 +35,7 @@ class BaseModel(models.Model):
     """
     class Meta:
         abstract = True
+        ordering = ["id"]
 
 
     def fresh_copy(self):

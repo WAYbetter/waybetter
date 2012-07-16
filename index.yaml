@@ -23,11 +23,6 @@ indexes:
 
 - kind: analytics_analyticsevent
   properties:
-  - name: __key__
-    direction: desc
-
-- kind: analytics_analyticsevent
-  properties:
   - name: city_id
   - name: create_date
 
@@ -47,31 +42,10 @@ indexes:
   - name: create_date
     direction: desc
 
-- kind: api_apiuser
-  properties:
-  - name: __key__
-    direction: desc
-
 - kind: auth_user
   properties:
   - name: is_active
   - name: username
-
-- kind: billing_billinginfo
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: billing_billingtransaction
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: billing_billingtransaction
-  properties:
-  - name: debug
-  - name: __key__
-    direction: desc
 
 - kind: billing_billingtransaction
   properties:
@@ -86,13 +60,6 @@ indexes:
   - name: invoice_sent
   - name: status
   - name: create_date
-
-- kind: billing_billingtransaction
-  properties:
-  - name: debug
-  - name: status
-  - name: __key__
-    direction: desc
 
 - kind: billing_billingtransaction
   properties:
@@ -102,12 +69,6 @@ indexes:
 - kind: billing_billingtransaction
   properties:
   - name: status
-  - name: __key__
-    direction: desc
-
-- kind: billing_billingtransaction
-  properties:
-  - name: status
   - name: amount
 
 - kind: billing_billingtransaction
@@ -200,18 +161,8 @@ indexes:
 
 - kind: common_city
   properties:
-  - name: __key__
-    direction: desc
-
-- kind: common_city
-  properties:
   - name: country_id
   - name: name
-
-- kind: common_cityarea
-  properties:
-  - name: __key__
-    direction: desc
 
 - kind: common_cityarea
   properties:
@@ -230,83 +181,13 @@ indexes:
 
 - kind: common_country
   properties:
-  - name: __key__
-    direction: desc
-
-- kind: common_country
-  properties:
   - name: code
   - name: name
-
-- kind: common_message
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: common_signalstore
-  properties:
-  - name: __key__
-    direction: desc
 
 - kind: common_wrapper_class
   properties:
   - name: city_id
   - name: _city_order
-
-- kind: fleet_fleetmanager
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: interests_businessinterest
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: interests_hotspotinterest
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: interests_mobileinterest
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: interests_pilotinterest
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: interests_stationinterest
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: metrics_stationmetric
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: metrics_workstationmetric
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: ordering_business
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: ordering_dispatcher
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: ordering_driver
-  properties:
-  - name: __key__
-    direction: desc
 
 - kind: ordering_driver
   properties:
@@ -318,39 +199,6 @@ indexes:
   properties:
   - name: station_id
   - name: name
-
-- kind: ordering_feedback
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: ordering_feedback
-  properties:
-  - name: negative_website
-  - name: positive_website
-  - name: __key__
-    direction: desc
-
-- kind: ordering_feedback
-  properties:
-  - name: positive_website
-  - name: __key__
-    direction: desc
-
-- kind: ordering_flatraterule
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: ordering_installedapp
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: ordering_order
-  properties:
-  - name: __key__
-    direction: desc
 
 - kind: ordering_order
   properties:
@@ -647,12 +495,6 @@ indexes:
 - kind: ordering_order
   properties:
   - name: status
-  - name: __key__
-    direction: desc
-
-- kind: ordering_order
-  properties:
-  - name: status
   - name: create_date
     direction: desc
 
@@ -669,11 +511,6 @@ indexes:
 
 - kind: ordering_orderassignment
   properties:
-  - name: __key__
-    direction: desc
-
-- kind: ordering_orderassignment
-  properties:
   - name: order_id
   - name: create_date
 
@@ -762,23 +599,7 @@ indexes:
 - kind: ordering_orderassignment
   properties:
   - name: status
-  - name: __key__
-    direction: desc
-
-- kind: ordering_orderassignment
-  properties:
-  - name: status
   - name: create_date
-    direction: desc
-
-- kind: ordering_passenger
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: ordering_ridecomputation
-  properties:
-  - name: __key__
     direction: desc
 
 - kind: ordering_ridecomputation
@@ -788,16 +609,6 @@ indexes:
   - name: create_date
     direction: desc
 
-- kind: ordering_ridecomputationset
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: ordering_ridepoint
-  properties:
-  - name: __key__
-    direction: desc
-
 - kind: ordering_ridepoint
   properties:
   - name: ride_id
@@ -809,16 +620,15 @@ indexes:
   - name: ride_id
   - name: type
   - name: stop_time
-    direction: desc
-
-- kind: ordering_sharedride
-  properties:
-  - name: __key__
     direction: desc
 
 - kind: ordering_sharedride
   properties:
   - name: debug
+  - name: create_date
+
+- kind: ordering_sharedride
+  properties:
   - name: status
   - name: create_date
 
@@ -857,21 +667,6 @@ indexes:
   properties:
   - name: status
   - name: depart_time
-
-- kind: ordering_specificpricingrule
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: ordering_station
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: ordering_taxi
-  properties:
-  - name: __key__
-    direction: desc
 
 - kind: ordering_taxi
   properties:
@@ -886,17 +681,6 @@ indexes:
 
 - kind: ordering_taxidriverrelation
   properties:
-  - name: __key__
-    direction: desc
-
-- kind: ordering_taxidriverrelation
-  properties:
-  - name: driver_id
-  - name: __key__
-    direction: desc
-
-- kind: ordering_taxidriverrelation
-  properties:
   - name: driver_id
   - name: number
 
@@ -904,11 +688,6 @@ indexes:
   properties:
   - name: taxi_id
   - name: name
-
-- kind: ordering_workstation
-  properties:
-  - name: __key__
-    direction: desc
 
 - kind: ordering_workstation
   properties:
@@ -922,65 +701,18 @@ indexes:
 
 - kind: ordering_workstation
   properties:
-  - name: is_online
-  - name: __key__
-    direction: desc
-
-- kind: ordering_workstation
-  properties:
   - name: station_id
   - name: accept_orders
 
 - kind: ordering_workstation
   properties:
   - name: was_installed
-  - name: __key__
-    direction: desc
-
-- kind: ordering_workstation
-  properties:
-  - name: was_installed
   - name: dn_station_name
 
 - kind: ordering_workstation
   properties:
   - name: was_installed
   - name: dn_station_name
-    direction: desc
-
-- kind: pricing_fixedpricerule
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: pricing_fixedpriceruleset
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: pricing_ruleset
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: pricing_tariff
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: pricing_temporalrule
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: registration_registrationprofile
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: sharing_hotspot
-  properties:
-  - name: __key__
     direction: desc
 
 - kind: sharing_hotspot
@@ -1070,37 +802,7 @@ indexes:
   - name: hotspot_id
   - name: _order
 
-- kind: sharing_producer
-  properties:
-  - name: __key__
-    direction: desc
-
 - kind: sharing_producerpassenger
   properties:
   - name: producer_id
   - name: name
-
-- kind: socialauth_authmeta
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: socialauth_facebookuserprofile
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: socialauth_linkedinuserprofile
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: socialauth_openidprofile
-  properties:
-  - name: __key__
-    direction: desc
-
-- kind: socialauth_twitteruserprofile
-  properties:
-  - name: __key__
-    direction: desc

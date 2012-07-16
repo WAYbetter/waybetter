@@ -115,7 +115,7 @@ def compute_ws_list(order):
         ws_qs = ws_qs.exclude(id__in=rejected_ws_ids)
 
     # exclude work stations that don't accept orders
-    ws_qs = ws_qs.exclude(accept_orders=False)
+    ws_qs = ws_qs.exclude(accept_orders=False).order_by("accept_orders")
 
     # include only work stations within valid distance, or confining station
     ws_qs = filter(lambda ws: ws.station.is_in_valid_distance(order=order) or ws.station == order.confining_station, ws_qs)

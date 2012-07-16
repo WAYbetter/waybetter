@@ -165,7 +165,7 @@ def invoices_task(request):
     start_date = datetime.combine(date(year=year, month=month, day=1), default_tz_time_min())
     end_date = datetime.combine(date(year=year, month=month, day=calendar.monthrange(year, month)[1]), default_tz_time_max())
 
-    trx_qs = BillingTransaction.objects.filter(debug=False, invoice_sent=False, status=BillingStatus.CHARGED, charge_date__gte=start_date, charge_date__lte=end_date)
+    trx_qs = BillingTransaction.objects.filter(debug=False, invoice_sent=False, status=BillingStatus.CHARGED, charge_date__gte=start_date, charge_date__lte=end_date).order_by("charge_date")
 
     if action == InvoiceActions.CREATE_ID:
         logging.info("Creating invoice ids: %s - %s" % (start_date, end_date))
