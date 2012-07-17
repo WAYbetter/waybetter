@@ -379,11 +379,8 @@ class RideComputation(BaseModel):
     debug = models.BooleanField(default=False, editable=False)
     status = StatusField(_("status"), choices=RideComputationStatus.choices(), default=RideComputationStatus.PENDING)
 
-    # TODO_WB: replace hotspot_depart_time, hotspot_arrive_time with hotspot_type and hotspot_datetime
     hotspot_type = models.IntegerField(choices=StopType.choices(), null=True, blank=True)
     hotspot_datetime = UTCDateTimeField(null=True, blank=True)
-    hotspot_depart_time = UTCDateTimeField(null=True, blank=True, editable=False)
-    hotspot_arrive_time = UTCDateTimeField(null=True, blank=True, editable=False)
 
     submit_datetime = UTCDateTimeField(editable=False, null=True, blank=True)
 

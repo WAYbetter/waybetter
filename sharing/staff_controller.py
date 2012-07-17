@@ -199,7 +199,7 @@ def calc_orders_data_csv(recipient, batch_size, offset=0, csv_bytestring=u"", ca
     logging.info("querying computations %s->%s" % (offset, offset + batch_size))
 
     start_dt = set_default_tz_time(datetime(2012, 1, 1))
-    end_dt = set_default_tz_time(datetime(2012, 6, 1))
+    end_dt = set_default_tz_time(datetime.now())
     station, station_cost_rules = None, []
 
     computations = RideComputation.objects.filter(create_date__gte=start_dt, create_date__lte=end_dt).order_by("create_date")[offset: offset + batch_size]
@@ -218,6 +218,7 @@ def calc_orders_data_csv(recipient, batch_size, offset=0, csv_bytestring=u"", ca
                 depart_time = order.depart_time.time().strftime("%H:%M") if order.depart_time else ""
                 arrive_day = order.arrive_time.date().isoformat() if order.arrive_time else ""
                 arrive_time = order.arrive_time.time().strftime("%H:%M") if order.arrive_time else ""
+                hotspot_type = computation.get_hotspot_type_display()
 
                 ordering_td = (order.depart_time or order.arrive_time) - order.create_date
                 ordering_td_format = str(ordering_td).split(".")[0] # trim microseconds
@@ -240,8 +241,8 @@ def calc_orders_data_csv(recipient, batch_size, offset=0, csv_bytestring=u"", ca
 
                 order_data = [depart_day, depart_time, arrive_day, arrive_time, ordering_td_format, passenger_name,
                               order.from_raw, order.from_lat, order.from_lon, order.to_raw, order.to_lat, order.to_lon,
-                              shared, order.computation_id, total_interval_orders, price, cost, link]
-                csv_bytestring += u";".join([unicode(i).replace(";", "") for i in order_data])
+                              hotspot_type, shared, order.computation_id, total_interval_orders, price, cost, link]
+                csv_bytestring += u";".join([unicode(i).replace(";", "").replace('"', '') for i in order_data])
                 csv_bytestring += u"\n"
 
     if computations:
@@ -256,13 +257,13 @@ def send_orders_data_csv(request):
     recipient = [request.GET.get("recipient", "dev@waybetter.com")]
     batch_size = request.GET.get("batch_size")
     if not batch_size:
-        batch_size = 500
+        batch_size = 800
     else:
         batch_size = int(batch_size)
     calc_cost = bool(request.GET.get("calc_cost"))
 
     col_names = ["depart day", "depart time", "arrive day", "arrive time", "ordered before pickup", "passenger",
-                 "from", "from lat", "from lon", "to", "to lat", "to lon",
+                 "from", "from lat", "from lon", "to", "to lat", "to lon", "hotspot_type",
                  "sharing?", "interval id", "#interval orders", "price", "cost", "ride map"]
 
     deferred.defer(calc_orders_data_csv, recipient, batch_size, offset=0, csv_bytestring=u"%s\n" % u";".join(col_names), calc_cost=calc_cost)
