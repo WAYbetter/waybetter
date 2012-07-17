@@ -1,3 +1,5 @@
+{% load i18n %}
+
 <!DOCTYPE html>
 <html lang="en" ng-app="TrackOrderApp">
 <head>
@@ -198,6 +200,8 @@
         $scope.estimated_time = "??";
         $scope.taxi_marker = undefined;
         $scope.error_message = "{{ error_message }}";
+        $scope.expiration_date = new Date({{ expiration_date }});
+        $scope.interval_id = undefined;
         {% if use_mock %}
         $scope.use_mock = true;
         {% endif %}
@@ -254,6 +258,14 @@
         };
 
         $scope.getLatestTaxiPosition = function () {
+            if (new Date() > $scope.expiration_date) {
+                clearInterval($scope.interval_id);
+                $scope.error_message = "{% trans 'This ride has expired' %}";
+
+                $(".modal").modal({ keyboard: false, backdrop: "static"});
+                return;
+            } // do nothing
+
             console.log("getLatestTaxiPosition");
             var get_config = $scope.use_mock ? {params: {use_mock: $scope.use_mock}} : {};
             
@@ -358,8 +370,10 @@
         } else {
             $scope.initMap();
             $scope.trackCurrentPosition();
-            setInterval(function() {
-                $scope.getLatestTaxiPosition()
+            $scope.interval_id = setInterval(function() {
+                $scope.$apply(function (scope) {
+                    scope.getLatestTaxiPosition()
+                });
             }, 5000);
         }
     }
