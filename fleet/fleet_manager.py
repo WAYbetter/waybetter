@@ -86,28 +86,26 @@ def update_ride(fmr):
 
 FM_MEMCACHE_NAMESPACE = "fm_ns"
 _get_key = lambda order_id: 'position_%s' % order_id
-_get_key_rp = lambda rp: _get_key(rp.order_id)
-_get_val = lambda rp: pickle.dumps(rp)
 
 def update_positions(ride_positions):
     """
     Handler for fleet backends to call when taxi positions changes. Sends the signals and stores the data in memcache.
     @param ride_positions: A list of C{TaxiRidePosition}
     """
-    logging.info("fleet manager: positions update %s" % [rp.taxi_id for rp in ride_positions])
+    logging.info("fleet manager: positions update %s" % [rp.order_id for rp in ride_positions])
     fleet_signals.positions_update_signal.send(sender="fleet_manager", positions=ride_positions)
 
     for rp in ride_positions:
-        rp_key = _get_key_rp(rp)
-        logging.info("getting from memcache: %s, %s" % (rp_key, FM_MEMCACHE_NAMESPACE))
-        current_rp = memcache.get(rp_key, namespace=FM_MEMCACHE_NAMESPACE)
-        if current_rp:
-            logging.info("memcache[%s] -> %s" % (rp_key, pickle.loads(current_rp).__dict__))
+        key = _get_key(rp.order_id)
+        logging.info("getting from memcache: %s, %s" % (key, FM_MEMCACHE_NAMESPACE))
+        cached_rp = memcache.get(key, namespace=FM_MEMCACHE_NAMESPACE)
+        if cached_rp:
+            logging.info("memcache[%s] -> %s" % (key, pickle.loads(cached_rp).__dict__))
 
-        pickled_rp = _get_val(rp)
-        if current_rp != pickled_rp: # this is a new position
+        pickled_rp = pickle.dumps(rp)
+        if cached_rp != pickled_rp: # this is a new position
             logging.info("new position received: %s[%s:%s]" % (rp.order_id, rp.lat, rp.lon))
-            memcache.set(rp_key, pickled_rp, namespace=FM_MEMCACHE_NAMESPACE)
+            memcache.set(key, pickled_rp, namespace=FM_MEMCACHE_NAMESPACE)
 
             pickmeapp_ride, shared_ride = rides_from_order_id(rp.order_id)
             if pickmeapp_ride or shared_ride:
