@@ -260,9 +260,7 @@
         $scope.getLatestTaxiPosition = function () {
             if (new Date() > $scope.expiration_date) {
                 clearInterval($scope.interval_id);
-                $scope.$apply(function (scope) {
-                    scope.error_message = "{% trans 'This ride has expired' %}";
-                });
+                $scope.error_message = "{% trans 'This ride has expired' %}";
 
                 $(".modal").modal({ keyboard: false, backdrop: "static"});
                 return;
@@ -373,7 +371,9 @@
             $scope.initMap();
             $scope.trackCurrentPosition();
             $scope.interval_id = setInterval(function() {
-                $scope.getLatestTaxiPosition()
+                $scope.$apply(function (scope) {
+                    scope.getLatestTaxiPosition()
+                });
             }, 5000);
         }
     }
