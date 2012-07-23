@@ -83,6 +83,13 @@
             position: absolute;
             cursor: pointer;
         }
+        .speed-marker {
+            height: 7px;
+            width: 7px;
+            position: absolute;
+            cursor: crosshair;
+        }
+
         [ng\:cloak], [ng-cloak], .ng-cloak {
           display: none;
         }
@@ -114,6 +121,10 @@
                 <button ng-click="fetchRides()" class=' btn btn-primary btn-large'><i
                         class="icon-thumbs-up icon-white"></i> Load Events
                 </button>
+        
+                <label class="checkbox">
+                    <input type="checkbox" ng-model="show_route" ng-change="toggleRoute()">Show Route
+                </label>
 
             </form>
 
@@ -184,6 +195,7 @@
 <script type="text/javascript"
         src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
 
+<script type="text/javascript" src="/static/js/utils.js"></script>
 <script type="text/javascript" src="/static/js/helpers.js"></script>
 
 <script type="text/javascript">
@@ -230,9 +242,10 @@
 <script type="text/javascript">
 
     // custom markers
-    function PositionMarker(latLng, tooltip, map) {
+    function PositionMarker(latLng, tooltip, map, class_name) {
         this.latlng_ = latLng;
         this.tooltip_ = tooltip;
+        this.class_name = class_name || "position_marker";
         this.setMap(map);
     }
     PositionMarker.prototype = new google.maps.OverlayView();
@@ -253,7 +266,7 @@
 
         div = this.div_ = document.createElement('DIV');
         // Create the DIV representing our StopMarker
-        div.className = "position_marker";
+        div.className = this.class_name;
         $(div).tooltip({
             title: me.tooltip_
         });
@@ -285,6 +298,8 @@
         return this.latlng_;
     };
 
+    
+    // custom labels
     function LabelMarker(label, popover_title, popover_content, latLng, map, class_name) {
         this.latlng_ = latLng;
         this.label_ = label;
@@ -358,6 +373,56 @@
         return this.latlng_;
     };
 
+
+    // custom polylines
+    function Polyline(latLng1, latLng2, map, options){
+        var me = this;
+        this.speed = undefined;
+        this.color = undefined;
+        this.poly = new google.maps.Polyline({
+            path:[latLng1, latLng2],
+            visible: options.visible
+        });
+        this.poly.setMap(map);
+
+        var marker;
+        google.maps.event.addListener(this.poly, 'mouseover', function(e){
+            marker = new PositionMarker(new google.maps.LatLng(e.latLng.lat(), e.latLng.lng()), parseInt(me.speed) + " kph", map, "speed-marker");
+            marker.draw();
+        });
+        google.maps.event.addListener(this.poly, 'mouseout', function(e){
+            marker.remove();
+            // marker.setMap(null);
+        });
+    }
+    Polyline.prototype.destroy = function(){
+        this.poly.setMap(null);
+    };
+    Polyline.prototype.show = function(){
+        this.poly.setOptions({visible: true});
+    };
+    Polyline.prototype.hide = function(){
+        this.poly.setOptions({visible: false});
+    };
+    Polyline.prototype.setSpeed = function(speed){
+        this.speed = speed;
+        
+        var min_speed = 0, max_speed = 100;
+        var rel_speed = speed / (max_speed - min_speed);
+
+        var r = parseInt(255*(1-rel_speed));
+        var g = parseInt(255*rel_speed);
+        var b = 0;
+
+        var color = "rgb(" + r + "," + g + ", " + b + ")";
+        this.setColor(color);
+    };
+    Polyline.prototype.setColor = function(color){
+        this.color = color;
+        this.poly.setOptions({strokeColor:color});
+    };
+
+
     var rides;
     function initMap() {
         GoogleMapHelper.init({
@@ -385,14 +450,27 @@
         $scope.from_date = yesterday;
         $scope.to_date = new Date();
         $scope.selected_ride = undefined;
+        $scope.polylines = [];
+        $scope.show_route = true;
 
         $scope.reset = function () {
             selected_ride = undefined;
             GoogleMapHelper.clearMarkers();
             GoogleMapHelper.removeMarker("all");
             GoogleMapHelper.info_bubbles = {};
+            angular.forEach($scope.polylines, function (poly, idx) {
+                poly.destroy();
+            });
+            $scope.polylines = [];
         };
 
+        $scope.toggleRoute = function(){
+            var f = ($scope.show_route) ? "show" : "hide";
+            angular.forEach($scope.polylines, function(poly, idx){
+                poly[f].call(poly);
+            });
+
+        };
         $scope.isSelected = function (ride) {
             return $scope.selected_ride == ride ? "selected" : "";
         };
@@ -446,6 +524,10 @@
             });
             angular.forEach(position_events, function (e, index) {
                 $scope.showPositionEvent(index, e);
+                // draw polyline
+                if (index > 0) {
+                    $scope.drawPolyline(index, position_events[index - 1], e);
+                }
             });
             angular.forEach(ride.stops, function(stop, index) {
                $scope.showStop(index, stop);
@@ -475,6 +557,20 @@
             var event_id = "position_" + event.lat + "_" + event.lon + "_" + event.time;
             GoogleMapHelper.markers[event_id] = new PositionMarker(new google.maps.LatLng(event.lat, event.lon), event.time, GoogleMapHelper.map);
 
+        };
+        $scope.drawPolyline = function(index, event1, event2){
+            var p1 = new google.maps.LatLng(event1.lat, event1.lon),
+                p2 = new google.maps.LatLng(event2.lat, event2.lon);
+            var poly = new Polyline(p1, p2, GoogleMapHelper.map, {visible: $scope.show_route});
+            $scope.polylines.push(poly);
+
+            // calc speed
+            var q1 = new LatLon(event1.lat, event1.lon);
+            var q2 = new LatLon(event2.lat, event2.lon);
+            var distance = q1.distanceTo(q2, 2); // km
+            var duration = (new Date(event2.time) - new Date(event1.time)) / 1000; // seconds
+            var speed = 3600 * distance / duration;
+            poly.setSpeed(speed);
         };
         $scope.showEvent = function (index, event) {
             console.debug("show event: ", event);
