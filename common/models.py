@@ -212,7 +212,7 @@ class CityArea(BaseModel):
 
     def contains(self, lat, lon):
         return self.polygon.contains(lat, lon)
-    
+
 CityArea = order_relative_to_field(CityArea, 'city')
 
 class Counter(BaseModel):

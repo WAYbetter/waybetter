@@ -155,15 +155,13 @@ class HotSpot(BaseModel):
         logging.info("sharing price: %s (cost: %s)" % (price, cost))
 
         if with_popularity:
-            popularity = pop_rule.popularity if pop_rule else HotSpotPopularityRule.get_default_popularity()
-            noise_limit = pop_rule.noise_limit if pop_rule else HotSpotPopularityRule.get_default_noise_limit()
-            noisy_pop = HotSpotPopularityRule._noisify_popularity(popularity, noise_limit, day, t)
+            noisy_pop = self.get_popularity(day, t, pop_rules=pop_rules)
             return price, noisy_pop
         else:
             return price
 
 
-#    @mute_logs()
+    @mute_logs()
     def get_offers(self, lat, lon, day, num_seats=1):
         from sharing.algo_api import calculate_route
 
@@ -216,6 +214,12 @@ class HotSpot(BaseModel):
                 return pop_rule
 
         return None
+
+    def get_popularity(self, day, t, pop_rules=None):
+        pop_rule = self.get_popularity_rule(day, t, pop_rules=pop_rules)
+        popularity = pop_rule.popularity if pop_rule else HotSpotPopularityRule.get_default_popularity()
+        noise_limit = pop_rule.noise_limit if pop_rule else HotSpotPopularityRule.get_default_noise_limit()
+        return HotSpotPopularityRule._noisify_popularity(popularity, noise_limit, day, t)
 
     def get_next_orderable_interval(self):
         return self.get_next_interval(base_time=default_tz_now() + self.order_processing_time(OrderType.SHARED))

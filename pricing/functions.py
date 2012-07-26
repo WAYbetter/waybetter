@@ -55,9 +55,9 @@ def get_noisy_number(number, signed_limit, noises):
     noise = round(sum(noises) / non_zeros, 2)
 
     noisy_number = (1 + noise * signed_limit) * number
-    logging.info("adding noise: noises[%s] --> noise[%s] * limit[%s] = (1+%s) * number[%s] = %s" %
-                 (",".join([str(n) for n in noises]), noise, signed_limit, noise * signed_limit, number,
-                  noisy_number))
+#    logging.info("adding noise: noises[%s] --> noise[%s] * limit[%s] = (1+%s) * number[%s] = %s" %
+#                 (",".join([str(n) for n in noises]), noise, signed_limit, noise * signed_limit, number,
+#                  noisy_number))
 
     return noisy_number
 

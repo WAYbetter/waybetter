@@ -207,7 +207,7 @@
                     $table.appendTo($container);
                 });
             }
-            else if (computation.orders) {
+            if (computation.orders) {
                 var $table = renderRideTable(null);
                 $.each(computation.orders, function (i, order) {
                     $table.append(renderOrderRow(order)).appendTo($container);

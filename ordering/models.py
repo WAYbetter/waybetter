@@ -423,6 +423,10 @@ class SharedRide(Ride):
     _stops = models.IntegerField(null=True, blank=True, editable=False)
 
     @property
+    def cost(self):
+        return self.value
+
+    @property
     def value(self):
         if not self._value and self.station:
             logging.info("updating value for SharedRide[%s]" % self.id)
