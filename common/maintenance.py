@@ -88,6 +88,7 @@ def run_routing_service_test(request):
 
     return HttpResponse("Task Added")
 
+
 def run_gcp_service_test(request):
     task = taskqueue.Task(url=reverse(test_gcp_service_task))
     q = taskqueue.Queue('maintenance')
@@ -105,7 +106,6 @@ def test_gcp_service_task(request):
     logging.info("test_gcp_service_task: %s" % result)
     if not result or not result.get("success"):
         notify_by_email("Google Cloud Print service appears to be down")
-
 
     return HttpResponse("OK")
 
@@ -186,6 +186,34 @@ def maintenance_task(request):
 def do_task():
     # maintenance method goes here
     remove_duplicate_ride_events()
+
+
+def exec_src(src):
+    try:
+        code = compile(src, '', 'exec')
+        exec code
+    except Exception, e:
+        logging.error(traceback.format_exc())
+
+
+@staff_member_required
+def eval_src(request):
+    response = HttpResponse("Error fetching source file")
+
+    url = request.GET.get("url")
+    defer = request.GET.get("defer", False)
+    res = fetch(url)
+
+    if res and res.content:
+        src = res.content.strip()
+        if defer:
+            response = HttpResponse("ok, will run as deferred")
+            deferred.defer(exec_src, src)
+        else:
+            exec_src(src)
+            response = HttpResponse("ok, done")
+
+    return response
 
 
 def first_ride_stats():
@@ -452,7 +480,6 @@ def remove_duplicate_ride_events(start=0):
                 d[candidate_key].append(candidate)
             else:
                 d[candidate_key] = [candidate]
-
 
         duplicate_events = sorted(d[event_key], key=lambda e: e.create_date)
         if len(duplicate_events) > 1:

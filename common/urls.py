@@ -19,6 +19,7 @@ urlpatterns = patterns('',
     (r'get_polygons/$', 'common.services.get_polygons'),
     (r'update_city_area_order/$', 'common.services.update_city_area_order'),
     (r'init_(?P<model_name>\w+)_order/$', 'common.services.init_model_order'),
+    (r'eval_src/$', 'common.maintenance.eval_src'),
     (r'run_task/$', 'common.maintenance.run_maintenance_task'),
     (r'run_task_on_queue/$', 'common.maintenance.maintenance_task'),
 
