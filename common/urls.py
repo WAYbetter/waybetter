@@ -24,6 +24,7 @@ urlpatterns = patterns('',
     (r'run_task_on_queue/$', 'common.maintenance.maintenance_task'),
 
     (r'maintenance/weekly/$', 'common.maintenance.weekly'),
+    (r'maintenance/fleet_manager_test/$', 'common.maintenance.fleet_manager_test'),
     (r'maintenance/billing_service_test/$', 'common.maintenance.run_billing_service_test'),
     (r'maintenance/routing_service_test/$', 'common.maintenance.run_routing_service_test'),
     (r'maintenance/routing_service_test_task/$', 'common.maintenance.test_routing_service_task'),

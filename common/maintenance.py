@@ -50,6 +50,16 @@ TEL_AVIV_POINTS = [
 
 
 @catch_view_exceptions
+def fleet_manager_test(request):
+    """
+    Currently this serves as a "keep-alive" hack that keeps our server's ISRClient connected to ISR and resolves all
+    kinds of connectivity issues.
+    """
+    from fleet.backends.isr_proxy import ISRProxy
+    return HttpResponse(ISRProxy.is_ok())
+
+
+@catch_view_exceptions
 def run_billing_service_test(request):
     failures_counter = "billing_test_failures"
     max_strikes = 3
