@@ -54,5 +54,8 @@ urlpatterns = patterns('',
                                                             },
                                                             'mimetype': 'text/javascript' }),
 
+    # services
+    (r'^services/osrm_proxy/(?P<service_name>\w+)/$', 'common.geocode.osrm_proxy'),
+
 )
 
