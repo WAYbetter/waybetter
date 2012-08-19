@@ -1,3 +1,4 @@
+{% load value_from_settings %}
 {% load i18n %}
 
 <!DOCTYPE html>
@@ -381,6 +382,20 @@
     $(function () {
         var map_height = document.height - $(".header").height();
         $(".map_container").height(map_height);
+
+        var _gaq = [
+            ['_setAccount', '{% value_from_settings "GA_ACCOUNT_ID" %}'],
+            ['_setAllowLinker', true],
+            ['_trackPageview'],
+            ['_trackPageLoadTime']
+        ];
+        (function(d, t) {
+            var g = d.createElement(t),s = d.getElementsByTagName(t)[0];
+            g.async = 1;
+            g.src = ('https:' == location.protocol ? '//ssl' : '//www') + '.google-analytics.com/ga.js';
+            s.parentNode.insertBefore(g, s)
+        }(document, 'script'));
+
     });
 </script>
 </body>

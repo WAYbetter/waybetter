@@ -409,6 +409,7 @@ def birdseye_view(request):
                 'date': o.depart_time.strftime("%d/%m/%y"),
                 'depart': "%s %s" % (_from, o.depart_time.strftime("%H:%M")),
                 'arrive': "%s %s" % (_to, o.arrive_time.strftime("%H:%M")),
+                'booked': "%s min" % ((o.depart_time - o.create_date).seconds / 60),
                 'passenger': " ".join(passenger_details) if passenger_details else na,
                 'type': OrderType.get_name(o.type),
                 'status': o.get_status_label(),

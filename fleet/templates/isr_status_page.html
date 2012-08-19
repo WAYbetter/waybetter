@@ -83,7 +83,14 @@
             position: absolute;
             cursor: pointer;
         }
-        .speed-marker {
+        .stop-position-marker {
+            height: 12px;
+            width: 12px;
+            background: #2455AC;
+            position: absolute;
+            cursor: pointer;
+        }
+        .speed-marker{
             height: 7px;
             width: 7px;
             position: absolute;
@@ -138,7 +145,7 @@
                             <label class="checkbox">
                                 <input type="checkbox" ng-model="show_osrm" ng-change="toggleOSRM()">
                             </label>
-                            <span id="osrm_label" class="label">OSRM</span>
+                            <span id="osrm_label" class="label label-inverse">OSRM</span>
                             <span id="osrm_distance"></span>
                             <span id="osrm_time"></span>
                         </div>
@@ -471,6 +478,11 @@
     function RideEventsCtrl($scope, $http) {
         var yesterday = new Date();
         yesterday.setDate(new Date().getDate() - 1);
+        $scope.debug = false;
+        if ($scope.debug){
+            yesterday.setDate(new Date().getDate() - 10);
+        }
+
         $scope.sharing_rides = [];
         $scope.pickmeapp_rides = [];
         $scope.from_date = yesterday;
@@ -486,6 +498,8 @@
         $scope.show_google = true;
         
         $scope.isr_polylines = [];
+        $scope.isr_distance = 0;
+        $scope.isr_time = 0;
         $scope.osrm_route = undefined;
 
         $scope.directionsService = new google.maps.DirectionsService();
@@ -499,10 +513,6 @@
             GoogleMapHelper.clearMarkers();
             GoogleMapHelper.removeMarker("all");
             GoogleMapHelper.info_bubbles = {};
-            angular.forEach($scope.isr_polylines, function (poly, idx) {
-                poly.destroy();
-            });
-            $scope.isr_polylines = [];
         };
 
         $scope.isSelected = function (ride) {
@@ -543,6 +553,33 @@
                     });
         };
 
+        $scope.getOriginEvent = function(){
+            var stops = $scope.ride_stops;
+            var origin_event;
+
+            var origin = new LatLon(stops[0].lat, stops[0].lon);
+            origin_event = _.sortBy($scope.position_events, function(e){
+                return (new LatLon(e.lat, e.lon).distanceTo(origin));
+            })[0];
+            return origin_event;
+        };
+
+        $scope.getDestinationEvent = function(){
+            var stops = $scope.ride_stops;
+            var destination_event;
+            
+            if (stops.length > 1){
+                var destination = new LatLon(stops[stops.length-1].lat, stops[stops.length-1].lon);
+                destination_event = _.sortBy($scope.position_events, function(e){
+                    return (new LatLon(e.lat, e.lon).distanceTo(destination));
+                })[0];
+            }
+            
+            if ($scope.debug){
+                return $scope.position_events[$scope.position_events.length-1];
+            }
+            return destination_event;
+        };
         $scope.showEvents = function (ride) {
             $scope.reset();
             $scope.selected_ride = ride;
@@ -558,14 +595,20 @@
             angular.forEach(status_events, function (e, index) {
                 $scope.showEvent(index, e);
             });
-            angular.forEach(position_events, function (e, index) {
-                $scope.showPositionEvent(index, e);
-            });
             angular.forEach(ride.stops, function(stop, index) {
                $scope.showStop(index, stop);
             });
 
-            $scope.toggleRoutes();
+            var origin_event = $scope.getOriginEvent();
+            var destination_event = $scope.getDestinationEvent();
+
+            angular.forEach(position_events, function (e, index) {
+                var class_name = (e === origin_event || e === destination_event) ? "stop-position-marker" : undefined;
+                $scope.showPositionEvent(index, e, class_name);
+            });
+
+            $scope.plotRoutes();
+
             setTimeout(function () {
                 GoogleMapHelper.fitMarkers();
             }, 600);
@@ -581,14 +624,14 @@
             GoogleMapHelper.markers[marker_id] = new LabelMarker(index + 1, stop.address, "Estimated Time: " + stop.time, latLng, GoogleMapHelper.map);
 
         };
-        $scope.showPositionEvent = function (index, event) {
+        $scope.showPositionEvent = function (index, event, class_name) {
             // console.debug("show position event: ", event);
             if (!(event.lat && event.lon)) {
                 console.log("skipping event: ", event);
                 return;
             }
             var event_id = "position_" + event.lat + "_" + event.lon + "_" + event.time;
-            GoogleMapHelper.markers[event_id] = new PositionMarker(new google.maps.LatLng(event.lat, event.lon), event.time, GoogleMapHelper.map);
+            GoogleMapHelper.markers[event_id] = new PositionMarker(new google.maps.LatLng(event.lat, event.lon), event.time, GoogleMapHelper.map, class_name);
 
         };
         $scope.showEvent = function (index, event) {
@@ -618,51 +661,81 @@
         };
 
         // routes
+        $scope.plotRoutes = function(){
+            $scope.plotISRRoute();
+            $scope.plotOSRMRoute();
+            $scope.plotGoogleRoute();
+        };
+
         $scope.toggleRoutes = function(){
-            if ($scope.show_routes){
-                $scope.plotISRRoute();
-                $scope.plotOSRMRoute();
-                $scope.plotGoogleRoute();
-            }
-            else{
-                angular.forEach($scope.isr_polylines, function(poly, idx){
-                    poly.hide();
-                });
-                $scope.toggleISR(false);
-                $scope.toggleOSRM(false);
-                $scope.toggleGoogle(false);
-            }
+            $scope.toggleISR($scope.show_routes);
+            $scope.toggleOSRM($scope.show_routes);
+            $scope.toggleGoogle($scope.show_routes);
         };
         
         $scope.toggleISR = function(show){
-            if (show == undefined) { show = $scope.show_isr; }
+            show = (show !== undefined) ? show : $scope.show_isr;
             angular.forEach($scope.isr_polylines, function(poly, idx){
-                if (show) { poly.show(); }
-                else { poly.hide(); }
+                if (show) { 
+                    poly.show(); 
+                }
+                else { 
+                    poly.hide(); 
+                }
             });
         };
         $scope.toggleOSRM = function(show){
-            if ($scope.osrm_route) { $scope.osrm_route.setOptions({visible: (show !== undefined) ? show : $scope.show_osrm}) }
+            if ($scope.osrm_route === undefined){
+                return;
+            }
+            show = (show !== undefined) ? show : $scope.show_osrm;
+            $scope.osrm_route.setOptions({visible: show});
         };
         $scope.toggleGoogle = function(show){
-            var show = (show !== undefined) ? show : $scope.show_google;
+            show = (show !== undefined) ? show : $scope.show_google;
             var map = (show) ? GoogleMapHelper.map : null;
             $scope.directionsDisplay.setMap(map);
         };
 
         $scope.plotISRRoute = function(){
-            var position_events = _.sortBy($scope.position_events, function(e){ return e.time }).reverse();
-            
+            $("#isr_distance, #isr_time").text("");
+            $scope.isr_distance = 0;
+            $scope.isr_time = 0;
+
+            angular.forEach($scope.isr_polylines, function (poly, idx) {
+                poly.destroy();
+            });
+            $scope.isr_polylines = [];
+
+            var position_events = _.sortBy($scope.position_events, function(e){ return new Date(e.time) });           
+            var origin_event = $scope.getOriginEvent();
+            var destination_event = $scope.getDestinationEvent();
+            if (origin_event && destination_event){
+                $scope.isr_time = (new Date(destination_event.time) - new Date(origin_event.time)) / (1000 * 60);
+            }
+
+            var accumelate_distance = false;
             angular.forEach(position_events, function (e, index) {
+                if (e === origin_event){
+                    accumelate_distance = true;
+                }
+                if (e === destination_event){
+                    accumelate_distance = false;
+                }
                 if (index > 0) {
-                    $scope.drawISRPolyline(index, position_events[index - 1], e);
+                    var d = $scope.plotISRPolyline(index, position_events[index - 1], e);
+                    if (accumelate_distance){
+                        $scope.isr_distance += Number(d);
+                    }
                 }
             });
-
-            angular.forEach($scope.isr_polylines, function(poly, idx) { poly.show(); } )
+            
+            $("#isr_distance").text($scope.toUnitString($scope.isr_distance, "distance"));
+            $("#isr_time").text($scope.toUnitString($scope.isr_time, "time"));
+            $scope.toggleISR();
         };
         
-        $scope.drawISRPolyline = function(index, event1, event2){
+        $scope.plotISRPolyline = function(index, event1, event2){
             var p1 = new google.maps.LatLng(event1.lat, event1.lon),
                 p2 = new google.maps.LatLng(event2.lat, event2.lon);
             var poly = new ISRPolyline(p1, p2, GoogleMapHelper.map, {visible: false});
@@ -673,20 +746,39 @@
             var distance = q1.distanceTo(q2, 2); // km
             var duration = (new Date(event2.time) - new Date(event1.time)) / 1000; // seconds
             var speed = 3600 * distance / duration;
+
             poly.setSpeed(speed);
 
             $scope.isr_polylines.push(poly);
+            return distance;
         };
 
         $scope.plotOSRMRoute = function(){
-            if ($scope.osrm_route){ $scope.osrm_route.setMap(null); };
+            $("#osrm_distance, #osrm_time").text("");
+            if ($scope.osrm_route){ 
+                $scope.osrm_route.setMap(null); 
+            };
+
+            if (!($scope.ride_stops && $scope.ride_stops.length > 1)){
+                log("OSRM: cannot plot route for single ride stop", ride_stops);
+                return;
+            }
 
             var url = "{% url common.geocode.osrm_proxy service_name="viaroute" %}" + "?";
-            angular.forEach($scope.ride_stops, function(stop, i){
+            _.each($scope.ride_stops, function(stop){
                 url += "loc=" + stop.lat + "," + stop.lon + "&";
             });
-            log("querying OSRM", url);
+            if ($scope.debug){
+                url = "{% url common.geocode.osrm_proxy service_name="viaroute" %}" + "?loc=32.087296,34.794674&loc=32.056217,34.768875";
+            };
+                
+
             $http.get(url).success(function(json){
+                log("querying OSRM", url, json);
+                if (!(json && json.status === 0)){
+                    log("OSRM: error getting route");
+                    return;
+                }
                 var distance = json.route_summary.total_distance || 0,
                     time = json.route_summary.total_time || 0;
                 $("#osrm_distance").text($scope.toUnitString(distance/1000, "distance"));
@@ -694,50 +786,73 @@
                                 
                 // see https://developers.google.com/maps/documentation/utilities/polylineutility
                 var decodedPath = google.maps.geometry.encoding.decodePath(json.route_geometry);
-                // var decodedPath = google.maps.geometry.encoding.decodePath("q`zbEuyjsEENQ`D~BZzBd@qA|LOC{AHo@Te@\\iAjBQ`ACV@dAb@vB`ArA`Af@eAtLkCvVaGs@YpDIf@uAWVyDX@");
-                
-                var route = new google.maps.Polyline({
+
+                $scope.osrm_route = new google.maps.Polyline({
+                    map: GoogleMapHelper.map,
+                    visible: false,
                     path: decodedPath,
+                    strokeWeight: 4,
+                    strokeOpacity: 0.7,
                     strokeColor: $("#osrm_label").css("background-color")
                 });
-                route.setMap(GoogleMapHelper.map);
-                $scope.osrm_route = route;
+                $scope.toggleOSRM();
             });
         
         };
         $scope.plotGoogleRoute = function(){
+            $("#google_distance, #google_time").text("");
+
             var points = _.map($scope.ride_stops, function(stop){ return new google.maps.LatLng(stop.lat, stop.lon); });
-            
+            if (!(points && points.length > 1)){
+                log("Google: cannot plot route for single ride stop", points);
+                return;
+            }
+
+            if ($scope.debug){
+                points = [new google.maps.LatLng(32.061246,34.770223), new google.maps.LatLng(32.050389,34.77198), new google.maps.LatLng(32.048934,34.76374)]
+            }
             var q = {
               origin: points[0],
               destination: points[points.length-1],
               travelMode: google.maps.TravelMode.DRIVING,
               waypoints: _.map(points.slice(1, points.length-1), function(p){ return {location: p, stopover: false} })
             };
-            log("querying Google", q);
 
             $scope.directionsDisplay.setMap(GoogleMapHelper.map);       
             $scope.directionsService.route(q, function(result, status){
+                log("querying Google", q, result);
+
+                if (status !== "OK" || !result.routes.length){
+                    log("Google: error getting route");
+                    return;
+                }
+                
                 $scope.directionsDisplay.setDirections(result);
                 var distance = 0,
                     time = 0;
-                
-                if (result.routes.length){
-                    angular.forEach(result.routes[0].legs, function(leg, idx){
-                        distance += leg.distance.value;
-                        time += leg.duration.value;
-                    });
-                }
+                angular.forEach(result.routes[0].legs, function(leg, idx){
+                    distance += leg.distance.value;
+                    time += leg.duration.value;
+                });
                 $("#google_distance").text($scope.toUnitString(distance/1000, "distance"));
                 $("#google_time").text($scope.toUnitString(time/60, "time"));
+                $scope.toggleGoogle();
             });
 
         };
         $scope.toUnitString = function(num, unit_type){
+            if (num === undefined){
+                return "";
+            }
             var precision = 0,
                 label = "";
-            if (unit_type === "distance"){ precision =1, label = "km" }
-            if (unit_type === "time"){ label = "min" }
+            if (unit_type === "distance"){ 
+                precision =1; 
+                label = "km";
+            }
+            if (unit_type === "time"){ 
+                label = "min" ;
+            }
             return String(Number(num).toFixed(precision)) + label;
         };
 
