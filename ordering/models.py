@@ -517,6 +517,14 @@ class SharedRide(Ride):
             "timeout"           : (self.depart_time - RIDE_SENTINEL_GRACE - utc_now()).seconds,
             "id"                : self.id
         }
+
+    def serialize_for_algo(self):
+        from sharing.algo_api import AlgoField
+        return {
+            AlgoField.RIDE_ID      : self.id,
+            AlgoField.RIDE_POINTS  : [rp.serialize_for_algo() for rp in self.points.all()],
+            AlgoField.ORDER_INFOS  : dict([(o.id, { "num_seats": o.num_seats }) for o in self.orders.all()])
+        }
     def change_status(self, old_status=None, new_status=None):
         if self._change_attr_in_transaction("status", old_status, new_status):
             sig_args = {
@@ -579,12 +587,28 @@ class RidePoint(BaseModel):
     def clean_address(self):
         return re.sub(",?\s+תל אביב יפו".decode("utf-8"), "", self.address)
 
+    @property
+    def orders(self):
+        return self.pickup_orders.all() if self.type == StopType.PICKUP else self.dropoff_orders.all()
+
     def serialize_for_status_page(self):
         return {
             "lon"       : self.lon,
             "lat"       : self.lat,
             "address"   : self.address,
             "time"      : self.stop_time.strftime("%d/%m/%y %H:%M")
+        }
+
+    def serialize_for_algo(self):
+        from sharing.algo_api import AlgoField
+        return {
+            AlgoField.TYPE: "e%s" % StopType.get_name(self.type).title(),
+            AlgoField.POINT_ADDRESS: {
+                AlgoField.LAT: self.lat,
+                AlgoField.LNG: self.lon,
+                AlgoField.NAME: self.address
+            },
+            AlgoField.ORDER_IDS: [o.id for o in self.orders]
         }
 
 class RideEvent(BaseModel):

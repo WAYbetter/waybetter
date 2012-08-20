@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" ng-app="M2MApp">
+<head>
+    <meta charset="utf-8">
+    <title>WAYbetter - Staff M2M</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="">
+    <meta name="author" content="">
+    <link rel="stylesheet" href="/static/css/bootstrap/css/bootstrap.min.css">
+    <style type="text/css">
+        body {
+            padding-top: 50px;
+        }
+    </style>
+    <link rel="stylesheet" href="/static/css/bootstrap/css/bootstrap-responsive.min.css">
+    <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
+    <style type="text/css">
+        .ui-widget {
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        [ng\:cloak], [ng-cloak], .ng-cloak {
+          display: none;
+        }
+    </style>
+
+</head>
+<body class="ng-cloak">
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <div class="container">
+            <a href="#" class="brand">Staff M2M</a>
+        </div>
+    </div>
+</div>
+<div class="container">
+    <form action="" class="well">
+        <label for="pickup_address">Pickup</label>
+        <input type="text" id="pickup_address">
+        <label for="dropoff_address">Dropoff</label>
+        <input type="text" id="dropoff_address">
+        <label for="pickup_time">Time</label>
+        <select name="" id="pickup_time"></select>
+        <label>Num Seats</label>
+        <label class="radio">
+            <input type="radio" name="num_seats" checked>
+            1
+        </label>
+        <label class="radio">
+            <input type="radio" name="num_seats">
+        2
+        </label>
+        <label class="radio">
+            <input type="radio" name="num_seats">
+        3
+        </label>
+    </form>
+    <button class="btn btn-large">Get Offers</button>
+</div>
+
+
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
+<script>window.jQuery || document.write('<script src="/static/js/libs/jquery-1.6.4.min.js">\x3C/script>')</script>
+<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+<script>window.jQuery.ui || document.write('<script src="/static/js/libs/jquery-ui-1.8.13.min.js">\x3C/script>')</script>
+<script type="text/javascript" src="/static/js/libs/angular-1.0.0.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/angular-ui.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/underscore.min.js"></script>
+<script type="text/javascript" src="/static/css/bootstrap/js/bootstrap-tooltip.js"></script>
+<script type="text/javascript" src="/static/css/bootstrap/js/bootstrap-popover.js"></script>
+<script type="text/javascript">
+    var m = angular.module('M2MApp', [])
+    .config(function ($interpolateProvider) {
+        $interpolateProvider.startSymbol('((');
+        $interpolateProvider.endSymbol('))');
+    });
+</script>
+
+</body>
+</html>
+

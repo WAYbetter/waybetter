@@ -156,6 +156,12 @@ def is_empty(str):
     """
     return not str or len(str.strip()) == 0
 
+def first(func, iterable):
+    for item in iterable:
+        if func(item):
+            return item
+    return None
+
 def datetimeIterator(from_datetime=None, to_datetime=None, delta=datetime.timedelta(days=1)):
     """
     Return a generator iterating the dates between two datetime instances.

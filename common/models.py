@@ -27,6 +27,7 @@ def obj_by_attr(cls, attr_name, attr_val, safe=True):
     return obj
 
 class BaseModel(models.Model):
+    locked      = models.BooleanField(default=False, editable=False)
     create_date = UTCDateTimeField(_("create date"), auto_now_add=True, null=True, blank=True)
     modify_date = UTCDateTimeField(_("modify date"), auto_now=True, null=True, blank=True)
 
@@ -57,6 +58,12 @@ class BaseModel(models.Model):
             return cls.objects.all()[0]
         except:
             return None
+
+    def lock(self):
+        return self._change_attr_in_transaction('locked', False, True)
+
+    def unlock(self):
+        return self._change_attr_in_transaction('locked', new_value=False)
 
     @run_in_transaction
     def _change_attr_in_transaction(self, attname, old_value=None, new_value=None, safe=True):
