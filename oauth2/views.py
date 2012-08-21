@@ -1,8 +1,9 @@
 import cgi
+
 from common import urllib_adaptor as urllib
 from django.conf import settings
 from django.contrib import auth
-from django.http import HttpResponseRedirect
+from django.http import HttpResponseRedirect, HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from django.core.urlresolvers import reverse
@@ -60,3 +61,27 @@ def facebook_login(request):
     template_context = {'settings': settings, 'error': error}
     return render_to_response('facebook_login.html', template_context, context_instance=RequestContext(request))
 
+def cloudprint_login(request):
+    # To make this work again, copy oauth2client and httlib2 libs out of google's SDK to root directory
+
+    from oauth2client.client import OAuth2WebServerFlow
+
+    flow = OAuth2WebServerFlow(client_id='1033367127714.apps.googleusercontent.com',
+                               client_secret='t3EGg6LJGaRhkLBJR_yLeQCd',
+                               scope='https://www.googleapis.com/auth/cloudprint', approval_prompt='force')
+    auth_uri = flow.step1_get_authorize_url(redirect_uri='http://devguy.waybetter-app.appspot.com/oauth2/callback', )
+    return HttpResponseRedirect(auth_uri)
+
+def oauth2_callback(request):
+    from oauth2client.client import OAuth2WebServerFlow
+
+    flow = OAuth2WebServerFlow(client_id='1033367127714.apps.googleusercontent.com',
+                               client_secret='t3EGg6LJGaRhkLBJR_yLeQCd',
+                               scope='https://www.googleapis.com/auth/cloudprint')
+    flow.redirect_uri = 'http://devguy.waybetter-app.appspot.com/oauth2/callback'
+
+    code = request.GET.get("code")
+    logging.info("code = '%s'" % code)
+    credentials = flow.step2_exchange(code)
+    logging.info("credentials: %s, %s" % (credentials.refresh_token, credentials.access_token))
+    return HttpResponse(credentials.to_json())
