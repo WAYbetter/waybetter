@@ -1,6 +1,6 @@
 from datetime import timedelta
-import enum
 import simplejson
+from common.tz_support import to_js_date
 from common.util import first, Enum
 from django.shortcuts import render_to_response
 from djangotoolbox.http import JSONResponse
@@ -135,8 +135,8 @@ def get_offers(request):
     for ride in filtered_rides:
         pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride[AlgoField.RIDE_POINTS])
         offers.append({
-                "price": ride[AlgoField.ORDER_INFOS][NEW_ORDER_ID][AlgoField.PRICE_SHARING],
-                "time": order_settings.pickup_dt + timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])
+            "price": ride[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.PRICE_SHARING],
+            "time": to_js_date(order_settings.pickup_dt + timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME]))
         })
 
     return JSONResponse(offers)
@@ -178,9 +178,10 @@ class AddressType(Enum):
     POI = 1
 
 class OrderSettings:
-    num_seats = 1
     pickup_address = None
     dropoff_address = None
+
+    num_seats = 1
     pickup_dt = None # datetime
     luggage = False
     private = False
@@ -188,8 +189,21 @@ class OrderSettings:
 
     @classmethod
     def fromRequest(cls, request):
-        #TODO_WB: implement
-        pass
+        import dateutil.parser
+
+        pickup = simplejson.loads(request.GET.get("pickup"))
+        dropoff = simplejson.loads(request.GET.get("dropoff"))
+        settings = simplejson.loads(request.GET.get("settings"))
+
+        result = cls()
+        result.num_seats = int(settings["num_seats"])
+        result.debug = settings["debug"]
+        result.pickup_dt = dateutil.parser.parse(request.GET.get("pickup_dt"))
+        result.pickup_address = Address(**pickup)
+        result.dropoff_address = Address(**dropoff)
+
+        return result
+
 
     def __init__(self, num_seats=1, pickup_address=None, dropoff_address=None, pickup_dt=None, luggage=False, private=False, debug=False):
         self.num_seats = num_seats
@@ -202,10 +216,10 @@ class OrderSettings:
 
     def serialize(self):
         return {
-            "from_address": self.pickup_address.formatted_address(),
+            "from_address": self.pickup_address.formatted_address,
             "from_lat": self.pickup_address.lat,
             "from_lon": self.pickup_address.lng,
-            "to_address": self.dropoff_address.formatted_address(),
+            "to_address": self.dropoff_address.formatted_address,
             "to_lat": self.dropoff_address.lat,
             "to_lon": self.dropoff_address.lng,
             "num_seats": self.num_seats,
@@ -224,7 +238,7 @@ class Address:
     description = ""
     address_type = None
 
-    def __init__(self, lat, lng, house_number=None, street=None, city_name=None, description=None, country_code=None, address_type=AddressType.STREET_ADDRESS):
+    def __init__(self, lat, lng, house_number=None, street=None, city_name=None, description=None, country_code=None, address_type=AddressType.STREET_ADDRESS, **kwargs):
         self.lat = float(lat)
         self.lng = float(lng)
 

@@ -21,7 +21,11 @@
         }
 
         [ng\:cloak], [ng-cloak], .ng-cloak {
-          display: none;
+            display: none;
+        }
+
+        form input[type='text'] {
+            width: 300px;
         }
     </style>
 
@@ -34,47 +38,108 @@
         </div>
     </div>
 </div>
-<div class="container">
+
+<div class="container" ng-controller="M2MController">
     <form action="" class="well">
         <label for="pickup_address">Pickup</label>
-        <input type="text" id="pickup_address">
+        <input type="text" id="pickup_address" ng-model="pickup.formatted_address" wb-pac="pickup">
         <label for="dropoff_address">Dropoff</label>
-        <input type="text" id="dropoff_address">
+        <input type="text" id="dropoff_address" ng-model="dropoff.formatted_address" wb-pac="dropoff">
         <label for="pickup_time">Time</label>
-        <select name="" id="pickup_time"></select>
+        <input type="text" ng-model="pickup_time" id="pickup_time">
         <label>Num Seats</label>
-        <label class="radio">
-            <input type="radio" name="num_seats" checked>
-            1
-        </label>
-        <label class="radio">
-            <input type="radio" name="num_seats">
-        2
-        </label>
-        <label class="radio">
-            <input type="radio" name="num_seats">
-        3
+        <label class="radio" ng-repeat="val in [1,2,3]">
+            <input type="radio" name="num_seats" ng-model="order_settings.num_seats" value="(( val ))">
+            (( val ))
         </label>
     </form>
-    <button class="btn btn-large">Get Offers</button>
+    <button class="btn btn-large" ng-click="getOffers()">Get Offers</button>
 </div>
 
 
+<script src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-<script>window.jQuery || document.write('<script src="/static/js/libs/jquery-1.6.4.min.js">\x3C/script>')</script>
 <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
-<script>window.jQuery.ui || document.write('<script src="/static/js/libs/jquery-ui-1.8.13.min.js">\x3C/script>')</script>
+<script type="text/javascript" src="/static/js/libs/underscore.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/angular-1.0.0.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/angular-ui.min.js"></script>
-<script type="text/javascript" src="/static/js/libs/underscore.min.js"></script>
-<script type="text/javascript" src="/static/css/bootstrap/js/bootstrap-tooltip.js"></script>
-<script type="text/javascript" src="/static/css/bootstrap/js/bootstrap-popover.js"></script>
 <script type="text/javascript">
     var m = angular.module('M2MApp', [])
-    .config(function ($interpolateProvider) {
-        $interpolateProvider.startSymbol('((');
-        $interpolateProvider.endSymbol('))');
-    });
+            .directive("wbPac", function () {
+                return {
+                    restrict:'A',
+                    link:function (scope, element, attrs) {
+                        var pac_name = attrs.wbPac + '_pac';
+                        scope[pac_name] = new google.maps.places.Autocomplete(element[0], {});
+                        google.maps.event.addListener(scope[pac_name], 'place_changed', function () {
+                            var place = scope[pac_name].getPlace();
+                            scope[attrs.wbPac].fromPlace(place);
+                        });
+                    }
+                }
+            })
+            .config(function ($interpolateProvider) {
+                $interpolateProvider.startSymbol('((');
+                $interpolateProvider.endSymbol('))');
+            });
+
+
+    function Address() {
+        this.street = undefined;
+        this.house_number = undefined;
+        this.city_name = undefined;
+        this.country_code = undefined;
+        this.lat = undefined;
+        this.lng = undefined;
+        this.formatted_address = undefined;
+
+        this.fromPlace = function (place) {
+            function _getAddressComponent(type) {
+                var res = undefined;
+                $.each(place.address_components, function (i, component) {
+                    if (component.types && $.inArray(type, component.types) > -1) {
+                        res = component.short_name;
+                        return; // break
+                    }
+                });
+
+                return res;
+            }
+
+            this.street = _getAddressComponent("route");
+            this.house_number = _getAddressComponent("street_number");
+            this.city_name = _getAddressComponent("locality");
+            this.country_code = _getAddressComponent("country");
+            this.lat = place.geometry.location.lat();
+            this.lng = place.geometry.location.lng();
+            this.formatted_address = place.formatted_address;
+        };
+    }
+
+    function M2MController($scope, $http) {
+        $scope.times = ["8:00", "9:00"];
+        $scope.pickup = new Address();
+        $scope.dropoff = new Address();
+        $scope.pickup_time = new Date();
+        $scope.order_settings = {
+            num_seats:1,
+            debug:true
+        };
+
+        $scope.getOffers = function () {
+            $http.get("{% url ordering.ordering_controller.get_offers %}", { params:{
+                pickup:angular.toJson($scope.pickup),
+                dropoff:angular.toJson($scope.dropoff),
+                pickup_dt: new Date($scope.pickup_time).toUTCString(),
+                settings:angular.toJson($scope.order_settings)
+            }})
+            .success(function (data, status, headers, config) {
+                console.log(data);
+                console.log(new Date(data[0].time));
+            })
+        }
+    }
+
 </script>
 
 </body>
