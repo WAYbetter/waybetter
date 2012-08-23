@@ -1,28 +1,37 @@
-from datetime import timedelta
-import simplejson
 from common.tz_support import to_js_date
 from common.util import first, Enum
 from django.shortcuts import render_to_response
 from djangotoolbox.http import JSONResponse
-from ordering.models import SharedRide, SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS
+from django.conf import settings
+from ordering.models import SharedRide, NEW_ORDER_ID
 from sharing.algo_api import AlgoField
+import simplejson
+import datetime
+import dateutil.parser
 
-NEW_ORDER_ID = 0
+if settings.DEV:
+    import sharing.mock_algo_api as algo_api
+else:
+    import sharing.algo_api as algo_api
 
 def staff_m2m(request):
     return render_to_response("staff_m2m.html")
+
 
 def get_defaults(request):
     #TODO_WB:
     pass
 
+
 def get_history_suggestions(request):
     #TODO_WB:
     pass
 
+
 def get_times_for_ordering(request):
     #TODO_WB:
     pass
+
 
 def get_candidate_rides(order_settings):
     """
@@ -31,7 +40,8 @@ def get_candidate_rides(order_settings):
     @return:
     """
     #TODO_WB: implement
-    return SharedRide.objects.all()[0:3]
+    return SharedRide.objects.all()[:5]
+
 
 def get_matching_rides(candidate_rides, order_settings):
     """
@@ -42,78 +52,9 @@ def get_matching_rides(candidate_rides, order_settings):
     @return: A list of JSON objects representing modified SharedRides
     """
 
-    request_data = {
-        AlgoField.RIDES : [r.serialize_for_algo() for r in candidate_rides],
-        "order"         : order_settings.serialize(),
-        "parameters"    : {
-            "debug"                     : order_settings.debug,
-            'toleration_factor_minutes' : SHARING_TIME_MINUTES,
-            'toleration_factor_meters'  : SHARING_DISTANCE_METERS
-        }
-    }
-
-    json = simplejson.dumps(request_data)
-
-    response = """[
-      {
-        "m_RideID": 121312313,
-        "m_Price": 37.925,
-        "m_OrderInfos": {
-          "0": {
-            "m_TimeSharing": 1153.0,
-            "m_DistSharing": 0.0,
-            "m_SuggestedPriceWeight": 100.0,
-            "m_TimeAlone": 1153.0,
-            "m_TotalDuration": 0.0,
-            "m_DistanceAddition": 0.0,
-            "m_DistanceMultiplier": 1.0,
-            "m_DurationAddition": 0.0,
-            "m_DistAlone": 5989.0,
-            "m_PriceAlone": 37.925,
-            "m_DurationMultiplier": 1.0,
-            "m_EstimatedDuration": 1153.0,
-            "num_seats": 1,
-            "m_TotalDistance": 0.0,
-            "m_PriceSharing": 37.925
-          }
-        },
-        "m_CarType": {
-          "cost_multiplier": 1.0,
-          "max_passengers": 3
-        },
-        "m_Duration": 1153.0,
-        "m_RidePoints": [
-          {
-            "m_OrderIDs": [
-              0
-            ],
-            "m_offset_time": 0.0,
-            "m_PointAddress": {
-              "m_Latitude": 32.108737,
-              "m_Longitude": 34.83917,
-              "m_Name": "\\u05d4\\u05d1\\u05e8\\u05d6\\u05dc 21 -\\u05d1\'\\u05db\\u05d9\\u05db\\u05e8\', \\u05ea\\u05dc \\u05d0\\u05d1\\u05d9\\u05d1 \\u05d9\\u05e4\\u05d5"
-            },
-            "m_Type": "ePickup"
-          },
-          {
-            "m_OrderIDs": [
-              0
-            ],
-            "m_offset_time": 1153.0,
-            "m_PointAddress": {
-              "m_Latitude": 32.0983429,
-              "m_Longitude": 34.798402399999986,
-              "m_Name": "\\u05d4\\u05e8\\u05d1 \\u05e7\\u05d5\\u05e1\\u05d5\\u05d1\\u05e1\\u05e7\\u05d9 38, \\u05ea\\u05dc \\u05d0\\u05d1\\u05d9\\u05d1 \\u05d9\\u05e4\\u05d5"
-            },
-            "m_Type": "eDropoff"
-          }
-        ],
-        "m_TotalDistance": 5989.0
-      }
-    ]"""
-    #TODO_WB: do actual call
-
+    response = algo_api.find_matches(candidate_rides, order_settings)
     return simplejson.loads(response)
+
 
 def filter_matching_rides(matching_rides):
     """
@@ -124,6 +65,7 @@ def filter_matching_rides(matching_rides):
     #TODO_WB: implement, TBD
     return matching_rides
 
+
 def get_offers(request):
     order_settings = OrderSettings.fromRequest(request)
     candidate_rides = get_candidate_rides(order_settings)
@@ -133,17 +75,19 @@ def get_offers(request):
     offers = []
 
     for ride in filtered_rides:
-        pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride[AlgoField.RIDE_POINTS])
+        pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP,
+                             ride[AlgoField.RIDE_POINTS])
         offers.append({
             "price": ride[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.PRICE_SHARING],
-            "time": to_js_date(order_settings.pickup_dt + timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME]))
+            "time": to_js_date(order_settings.pickup_dt + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME]))
         })
 
     return JSONResponse(offers)
 
-def book_ride(request):
 
+def book_ride(request):
     def _do_book_ride(ride_id, modified_ride, order_settings):
+        #TODO_WB
         # create an Order from order_settings and save it
         # connect the order to the ride
         # create ride points and connect to ride
@@ -152,20 +96,22 @@ def book_ride(request):
         return False
 
     ride_id = request.POST.get("ride_id")
-    modify_date = request.POST.get("ride_modify_date")
     order_settings = OrderSettings.fromRequest(request)
 
     if ride_id:
         ride = SharedRide.by_id(ride_id)
-         # query algo for matches again to get the modified version of the ride the user wish to join
-        matching_rides = get_matching_rides([ride], order_settings)
+
+        matching_rides = get_matching_rides([ride], order_settings) # query algo again for safety
         modified_ride = first(lambda match: match.id == ride.id, matching_rides)
 
         if modified_ride and ride.lock():
-            _do_book_ride(ride_id, modified_ride, order_settings)
-            ride.unlock()
-            #TODO_WB: handle success
-            pass
+            try:
+                _do_book_ride(ride_id, modified_ride, order_settings)
+                ride.unlock()
+                #TODO_WB: handle success
+                pass
+            except Exception as e:
+                ride.unlock()
         else:
             #TODO_WB: handle failure - ride can NOT be joined
             pass
@@ -177,9 +123,10 @@ class AddressType(Enum):
     STREET_ADDRESS = 0
     POI = 1
 
+
 class OrderSettings:
-    pickup_address = None
-    dropoff_address = None
+    pickup_address = None # Address instance
+    dropoff_address = None # Address instance
 
     num_seats = 1
     pickup_dt = None # datetime
@@ -187,25 +134,8 @@ class OrderSettings:
     private = False
     debug = False
 
-    @classmethod
-    def fromRequest(cls, request):
-        import dateutil.parser
-
-        pickup = simplejson.loads(request.GET.get("pickup"))
-        dropoff = simplejson.loads(request.GET.get("dropoff"))
-        settings = simplejson.loads(request.GET.get("settings"))
-
-        result = cls()
-        result.num_seats = int(settings["num_seats"])
-        result.debug = settings["debug"]
-        result.pickup_dt = dateutil.parser.parse(request.GET.get("pickup_dt"))
-        result.pickup_address = Address(**pickup)
-        result.dropoff_address = Address(**dropoff)
-
-        return result
-
-
-    def __init__(self, num_seats=1, pickup_address=None, dropoff_address=None, pickup_dt=None, luggage=False, private=False, debug=False):
+    def __init__(self, num_seats=1, pickup_address=None, dropoff_address=None, pickup_dt=None, luggage=False,
+                 private=False, debug=False):
         self.num_seats = num_seats
         self.pickup_address = pickup_address
         self.dropoff_address = dropoff_address
@@ -213,6 +143,21 @@ class OrderSettings:
         self.luggage = luggage
         self.private = private
         self.debug = debug
+
+    @classmethod
+    def fromRequest(cls, request):
+        pickup = simplejson.loads(request.GET.get("pickup"))
+        dropoff = simplejson.loads(request.GET.get("dropoff"))
+        settings = simplejson.loads(request.GET.get("settings"))
+
+        inst = cls()
+        inst.num_seats = int(settings["num_seats"])
+        inst.debug = bool(settings["debug"])
+        inst.pickup_dt = dateutil.parser.parse(request.GET.get("pickup_dt"))
+        inst.pickup_address = Address(**pickup)
+        inst.dropoff_address = Address(**dropoff)
+
+        return inst
 
     def serialize(self):
         return {
@@ -238,13 +183,14 @@ class Address:
     description = ""
     address_type = None
 
-    def __init__(self, lat, lng, house_number=None, street=None, city_name=None, description=None, country_code=None, address_type=AddressType.STREET_ADDRESS, **kwargs):
+    def __init__(self, lat, lng, house_number=None, street=None, city_name=None, description=None, country_code=None,
+                 address_type=AddressType.STREET_ADDRESS, **kwargs):
         self.lat = float(lat)
         self.lng = float(lng)
 
         self.house_number = house_number
         self.street = street
-        self.city_name= city_name
+        self.city_name = city_name
         self.description = description
         self.country_code = country_code
         self.address_type = address_type

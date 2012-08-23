@@ -32,6 +32,8 @@ import logging
 import datetime
 import common.urllib_adaptor as urllib2
 
+NEW_ORDER_ID = 0
+
 SHARING_TIME_FACTOR = 1.25
 SHARING_TIME_MINUTES = 10
 SHARING_DISTANCE_METERS = 3000

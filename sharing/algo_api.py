@@ -39,6 +39,7 @@ COMPUTATION_ABORT_TIMEOUT = 3 # minutes
 class AlgoField(Enum):
     DEBUG = "m_Debug"
     DISTANCE = "m_Distance"
+    DROPOFF = "eDropoff"
     DURATION = "m_Duration"
     LAT = "m_Latitude"
     LNG = "m_Longitude"
@@ -55,6 +56,21 @@ class AlgoField(Enum):
     RIDE_POINTS = "m_RidePoints"
     TIME_SECONDS = "m_TimeSeconds"
     TYPE = "m_Type"
+
+
+def find_matches(candidate_rides, order_settings):
+    #TODO_WB: do actual call
+
+    request_data = {
+        AlgoField.RIDES : [r.serialize_for_algo() for r in candidate_rides],
+        "order"         : order_settings.serialize(),
+        "parameters"    : {
+            "debug"                     : order_settings.debug,
+            'toleration_factor_minutes' : SHARING_TIME_MINUTES,
+            'toleration_factor_meters'  : SHARING_DISTANCE_METERS
+        }
+    }
+    json = simplejson.dumps(request_data)
 
 
 def calculate_route(start_lat, start_lon, end_lat, end_lon):
