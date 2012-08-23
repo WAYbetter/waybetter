@@ -24,9 +24,13 @@
             display: none;
         }
 
-        form input[type='text'] {
-            width: 300px;
+        form .ng-invalid {
+            border-color: #E9322D;
+            -webkit-box-shadow: 0 0 6px #F8B9B7;
+            -moz-box-shadow: 0 0 6px #f8b9b7;
+            box-shadow: 0 0 6px #F8B9B7;
         }
+
     </style>
 
 </head>
@@ -40,20 +44,22 @@
 </div>
 
 <div class="container" ng-controller="M2MController">
-    <form action="" class="well">
+    <form name="form">
+        <div class="control-group well">
         <label for="pickup_address">Pickup</label>
-        <input type="text" id="pickup_address" ng-model="pickup.formatted_address" wb-pac="pickup">
+        <input type="text" id="pickup_address" ng-model="raw_pickup" wb-pac="pickup" class="span5" required>
         <label for="dropoff_address">Dropoff</label>
-        <input type="text" id="dropoff_address" ng-model="dropoff.formatted_address" wb-pac="dropoff">
+        <input type="text" id="dropoff_address" ng-model="raw_dropoff" wb-pac="dropoff" class="span5" required>
         <label for="pickup_time">Time</label>
-        <input type="text" ng-model="pickup_time" id="pickup_time">
+        <input type="text" ng-model="pickup_time" id="pickup_time" class="span5" required>
         <label>Num Seats</label>
-        <label class="radio" ng-repeat="val in [1,2,3]">
+        <label class="radio inline" ng-repeat="val in [1,2,3]">
             <input type="radio" name="num_seats" ng-model="order_settings.num_seats" value="(( val ))">
             (( val ))
         </label>
+        </div>
+        <button class="btn btn-large btn-primary" ng-click="getOffers()" ng-disabled="form.$invalid">Get Offers</button>
     </form>
-    <button class="btn btn-large" ng-click="getOffers()">Get Offers</button>
     <table class="table" ng-show="offers">
         <thead>
         <tr>
@@ -81,14 +87,31 @@
     var m = angular.module('M2MApp', [])
             .directive("wbPac", function () {
                 return {
+                    require:"ngModel",
                     restrict:'A',
-                    link:function (scope, element, attrs) {
+                    link:function (scope, element, attrs, ctrl) {
                         var pac_name = attrs.wbPac + '_pac';
+
+                        // setup autocomplete field
                         scope[pac_name] = new google.maps.places.Autocomplete(element[0], {});
+
+                        // setup event listener
                         google.maps.event.addListener(scope[pac_name], 'place_changed', function () {
                             var place = scope[pac_name].getPlace();
-                            scope[attrs.wbPac].fromPlace(place);
+
+                            // update scope via $apply
+                            scope.$apply(function(s) {  s[attrs.wbPac] = Address.fromPlace(place) });
                         });
+
+                        // invalidate on user input
+                        scope.$watch("raw_" + attrs.wbPac, function(newVal) {
+                            ctrl.$setValidity('address', false)
+                        });
+
+                        // validate of new address is valid
+                        scope.$watch(attrs.wbPac, function(newAddress) {
+                            ctrl.$setValidity('address', newAddress.isValid());
+                        })
                     }
                 }
             })
@@ -106,40 +129,49 @@
         this.lat = undefined;
         this.lng = undefined;
         this.formatted_address = undefined;
-
-        this.fromJSON = function(json){
-            var obj = angular.fromJson(json);
-            this.street = obj.street;
-            this.house_number = obj.house_number;
-            this.city_name = obj.city_name;
-            this.country_code = obj.country_code;
-            this.lat = obj.lat;
-            this.lng = obj.lng;
-            this.formatted_address = obj.formatted_address;
-        };
-
-        this.fromPlace = function (place) {
-            function _getAddressComponent(type) {
-                var res = undefined;
-                $.each(place.address_components, function (i, component) {
-                    if (component.types && $.inArray(type, component.types) > -1) {
-                        res = component.short_name;
-                        return; // break
-                    }
-                });
-
-                return res;
-            }
-
-            this.street = _getAddressComponent("route");
-            this.house_number = _getAddressComponent("street_number");
-            this.city_name = _getAddressComponent("locality");
-            this.country_code = _getAddressComponent("country");
-            this.lat = place.geometry.location.lat();
-            this.lng = place.geometry.location.lng();
-            this.formatted_address = place.formatted_address;
-        };
     }
+    Address.prototype.isValid = function() {
+                return !!(this.lat && this.lng && this.street)
+    };
+    Address.fromPlace = function(place) {
+        function _getAddressComponent(type) {
+            var res = undefined;
+            $.each(place.address_components, function (i, component) {
+                if (component.types && $.inArray(type, component.types) > -1) {
+                    res = component.short_name;
+                    return; // break
+                }
+            });
+
+            return res;
+        }
+        
+        var address = new Address();
+
+        address.street = _getAddressComponent("route");
+        address.house_number = _getAddressComponent("street_number");
+        address.city_name = _getAddressComponent("locality");
+        address.country_code = _getAddressComponent("country");
+        address.lat = place.geometry.location.lat();
+        address.lng = place.geometry.location.lng();
+        address.formatted_address = place.formatted_address;
+
+        return address
+    };
+    Address.fromJSON = function (json) {
+        var obj = angular.fromJson(json);
+        var address = new Address();
+
+        address.street = obj.street;
+        address.house_number = obj.house_number;
+        address.city_name = obj.city_name;
+        address.country_code = obj.country_code;
+        address.lat = obj.lat;
+        address.lng = obj.lng;
+        address.formatted_address = obj.formatted_address;
+
+        return address
+    };
 
     function M2MController($scope, $http) {
         $scope.init = function(){
@@ -153,9 +185,11 @@
             };
             $scope.offers = [];
 
-            $scope.pickup.fromJSON('{"street":"אלנבי","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0736683,"lng":34.76546570000005,"formatted_address":"אלנבי 1, תל אביב יפו, ישראל"}');
-            $scope.dropoff.fromJSON('{"street":"מרגולין","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0586624,"lng":34.78742,"formatted_address":"מרגולין 1, תל אביב יפו, ישראל"}')
-
+            $scope.pickup = Address.fromJSON('{"street":"אלנבי","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0736683,"lng":34.76546570000005,"formatted_address":"אלנבי 1, תל אביב יפו, ישראל"}');
+            $scope.dropoff = Address.fromJSON('{"street":"מרגולין","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0586624,"lng":34.78742,"formatted_address":"מרגולין 1, תל אביב יפו, ישראל"}');
+            
+            $scope.raw_pickup = $scope.pickup.formatted_address;
+            $scope.raw_dropoff = $scope.dropoff.formatted_address;
         };
 
 
