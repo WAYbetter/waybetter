@@ -19,9 +19,11 @@ from django.conf import settings
 
 DEBUG = 1
 WAZE = 3
-TELMAP = 4
+GOOGLE = 4
 
-SHARING_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % TELMAP
+M2M_ENGINE_DOMAIN = "http://waybetter-route-service3.appspot.com/m2malgo"
+
+SHARING_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % GOOGLE
 SEC_SHARING_ENGINE_DOMAIN = "http://waybetter-route-service-backup.appspot.com"
 
 SHARING_ENGINE_URL = "/".join([SHARING_ENGINE_DOMAIN, "routeservicega1"])
@@ -61,7 +63,7 @@ class AlgoField(Enum):
 def find_matches(candidate_rides, order_settings):
     #TODO_WB: do actual call
 
-    request_data = {
+    payload = {
         AlgoField.RIDES : [r.serialize_for_algo() for r in candidate_rides],
         "order"         : order_settings.serialize(),
         "parameters"    : {
@@ -70,7 +72,13 @@ def find_matches(candidate_rides, order_settings):
             'toleration_factor_meters'  : SHARING_DISTANCE_METERS
         }
     }
-    json = simplejson.dumps(request_data)
+
+    payload = simplejson.dumps(payload)
+    logging.info("payload=%s" % payload)
+    dt = datetime.now()
+    response = safe_fetch(M2M_ENGINE_DOMAIN, payload="submit=%s" % payload, method=POST, deadline=50)
+    logging.info("response=%s (took %s seconds)" % (response.content, (datetime.now() - dt).seconds))
+    return response
 
 
 def calculate_route(start_lat, start_lon, end_lat, end_lon):

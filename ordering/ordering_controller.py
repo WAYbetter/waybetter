@@ -1,6 +1,8 @@
-from common.tz_support import to_js_date
+from django.views.decorators.csrf import csrf_exempt
+from common.tz_support import to_js_date, default_tz_now
 from common.util import first, Enum
 from django.shortcuts import render_to_response
+from django.template.context import RequestContext
 from djangotoolbox.http import JSONResponse
 from django.conf import settings
 from ordering.models import SharedRide, NEW_ORDER_ID
@@ -8,14 +10,13 @@ from sharing.algo_api import AlgoField
 import simplejson
 import datetime
 import dateutil.parser
+import logging
 
-if settings.DEV:
-    import sharing.mock_algo_api as algo_api
-else:
-    import sharing.algo_api as algo_api
+#import sharing.mock_algo_api as algo_api
+import sharing.algo_api as algo_api
 
 def staff_m2m(request):
-    return render_to_response("staff_m2m.html")
+    return render_to_response("staff_m2m.html", RequestContext(request))
 
 
 def get_defaults(request):
@@ -40,7 +41,8 @@ def get_candidate_rides(order_settings):
     @return:
     """
     #TODO_WB: implement
-    return SharedRide.objects.all()[:5]
+    start_dt = default_tz_now() + datetime.timedelta(hours=1)
+    return SharedRide.objects.filter(create_date__gte=start_dt)
 
 
 def get_matching_rides(candidate_rides, order_settings):
@@ -53,7 +55,12 @@ def get_matching_rides(candidate_rides, order_settings):
     """
 
     response = algo_api.find_matches(candidate_rides, order_settings)
-    return simplejson.loads(response)
+    if response and response.content:
+        matches = simplejson.loads(response.content)[AlgoField.RIDES]
+        return matches
+
+    else:
+        return []
 
 
 def filter_matching_rides(matching_rides):
@@ -66,8 +73,10 @@ def filter_matching_rides(matching_rides):
     return matching_rides
 
 
+##TODO_WB: remove csrf?
+@csrf_exempt
 def get_offers(request):
-    order_settings = OrderSettings.fromRequest(request)
+    order_settings = OrderSettings.fromRequestData(simplejson.loads(request.raw_post_data))
     candidate_rides = get_candidate_rides(order_settings)
     matching_rides = get_matching_rides(candidate_rides, order_settings)
     filtered_rides = filter_matching_rides(matching_rides)
@@ -75,16 +84,19 @@ def get_offers(request):
     offers = []
 
     for ride in filtered_rides:
-        pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP,
-                             ride[AlgoField.RIDE_POINTS])
+        pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride[AlgoField.RIDE_POINTS])
         offers.append({
             "price": ride[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.PRICE_SHARING],
-            "time": to_js_date(order_settings.pickup_dt + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME]))
+            "time": to_js_date(order_settings.pickup_dt + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])),
+            "private": ride[AlgoField.RIDE_ID] == NEW_ORDER_ID,
+            "ride_id": ride[AlgoField.RIDE_ID]
         })
 
     return JSONResponse(offers)
 
 
+##TODO_WB: remove csrf?
+@csrf_exempt
 def book_ride(request):
     def _do_book_ride(ride_id, modified_ride, order_settings):
         #TODO_WB
@@ -95,26 +107,27 @@ def book_ride(request):
 
         return False
 
-    ride_id = request.POST.get("ride_id")
-    order_settings = OrderSettings.fromRequest(request)
+    post_data = simplejson.loads(request.raw_post_data)
+    ride_id = int(post_data.get("ride_id"))
+    order_settings = OrderSettings.fromRequestData(post_data)
 
-    if ride_id:
-        ride = SharedRide.by_id(ride_id)
+    ride = SharedRide.by_id(ride_id) # will be none when booking a private ride
+    candidates = [ride] if ride else []
 
-        matching_rides = get_matching_rides([ride], order_settings) # query algo again for safety
-        modified_ride = first(lambda match: match.id == ride.id, matching_rides)
+    matching_rides = get_matching_rides(candidates, order_settings) # query algo again for safety
+    modified_ride = first(lambda match: match[AlgoField.RIDE_ID] == ride_id, matching_rides)
 
-        if modified_ride and ride.lock():
-            try:
-                _do_book_ride(ride_id, modified_ride, order_settings)
-                ride.unlock()
-                #TODO_WB: handle success
-                pass
-            except Exception as e:
-                ride.unlock()
-        else:
-            #TODO_WB: handle failure - ride can NOT be joined
+    if modified_ride and ride.lock():
+        try:
+            _do_book_ride(ride_id, modified_ride, order_settings)
+            ride.unlock()
+            #TODO_WB: handle success
             pass
+        except Exception as e:
+            ride.unlock()
+    else:
+        #TODO_WB: handle failure - ride can NOT be joined
+        pass
 
 # ==============
 # HELPER CLASSES
@@ -145,15 +158,15 @@ class OrderSettings:
         self.debug = debug
 
     @classmethod
-    def fromRequest(cls, request):
-        pickup = simplejson.loads(request.GET.get("pickup"))
-        dropoff = simplejson.loads(request.GET.get("dropoff"))
-        settings = simplejson.loads(request.GET.get("settings"))
+    def fromRequestData(cls, request_data):
+        pickup = request_data.get("pickup")
+        dropoff = request_data.get("dropoff")
+        settings = request_data.get("settings")
 
         inst = cls()
         inst.num_seats = int(settings["num_seats"])
         inst.debug = bool(settings["debug"])
-        inst.pickup_dt = dateutil.parser.parse(request.GET.get("pickup_dt"))
+        inst.pickup_dt = dateutil.parser.parse(request_data.get("pickup_dt"))
         inst.pickup_address = Address(**pickup)
         inst.dropoff_address = Address(**dropoff)
 
@@ -168,7 +181,6 @@ class OrderSettings:
             "to_lat": self.dropoff_address.lat,
             "to_lon": self.dropoff_address.lng,
             "num_seats": self.num_seats,
-            "private": self.private,
             "id": NEW_ORDER_ID
         }
 
