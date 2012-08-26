@@ -38,7 +38,7 @@
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
-            <a href="#" class="brand">Staff M2M</a>
+            <a href="#" class="brand">Staff M2M: welcome {{ request.user.passenger.full_name }}</a>
         </div>
     </div>
 </div>
@@ -185,7 +185,8 @@
             $scope.pickup_time = new Date();
             $scope.order_settings = {
                 num_seats:1,
-                debug:true
+                debug:true,
+                private:false
             };
             $scope.offers = [];
 
@@ -217,8 +218,8 @@
                 settings:$scope.order_settings,
                 ride_id: ride_id
             }).success(function (data, status) {
-                        console.log(data);
-                    });
+                console.log(data.success);
+            });
         };
 
         $scope.init();

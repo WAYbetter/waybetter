@@ -4,13 +4,12 @@ from common.util import first, Enum
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from djangotoolbox.http import JSONResponse
-from django.conf import settings
-from ordering.models import SharedRide, NEW_ORDER_ID
+from ordering.decorators import passenger_required
+from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order
 from sharing.algo_api import AlgoField
 import simplejson
 import datetime
 import dateutil.parser
-import logging
 
 #import sharing.mock_algo_api as algo_api
 import sharing.algo_api as algo_api
@@ -41,8 +40,8 @@ def get_candidate_rides(order_settings):
     @return:
     """
     #TODO_WB: implement
-    start_dt = default_tz_now() + datetime.timedelta(hours=1)
-    return SharedRide.objects.filter(create_date__gte=start_dt)
+    start_dt = default_tz_now() - datetime.timedelta(hours=1)
+    return SharedRide.objects.filter(create_date__gte=start_dt).order_by("-create_date")[:3]
 
 
 def get_matching_rides(candidate_rides, order_settings):
@@ -54,13 +53,8 @@ def get_matching_rides(candidate_rides, order_settings):
     @return: A list of JSON objects representing modified SharedRides
     """
 
-    response = algo_api.find_matches(candidate_rides, order_settings)
-    if response and response.content:
-        matches = simplejson.loads(response.content)[AlgoField.RIDES]
-        return matches
-
-    else:
-        return []
+    matches = algo_api.find_matches(candidate_rides, order_settings)
+    return matches
 
 
 def filter_matching_rides(matching_rides):
@@ -97,37 +91,98 @@ def get_offers(request):
 
 ##TODO_WB: remove csrf?
 @csrf_exempt
-def book_ride(request):
-    def _do_book_ride(ride_id, modified_ride, order_settings):
+@passenger_required
+def book_ride(request, passenger):
+    booking_data = simplejson.loads(request.raw_post_data)
+    if booking_data["settings"]["private"]:
+        response = book_private_ride(booking_data, passenger)
+    else:
+        response = book_shared_ride(booking_data, passenger)
+
+    return response
+
+def book_private_ride(booking_data, passenger):
+    pass
+
+
+def book_shared_ride(booking_data, passenger):
+    ride_id = int(booking_data.get("ride_id"))  # NEW_ORDER_ID if booking a new ride
+    ride = SharedRide.by_id(ride_id)            # None if booking a new ride
+    is_new_ride = False if ride else True #TODO_WB: we don't need to get it from the page but from algo results
+
+    order_settings = OrderSettings.fromRequestData(booking_data)
+
+    candidates = [] if is_new_ride else [ride]
+    matching_rides = get_matching_rides(candidates, order_settings) # will create ride from algo response
+    ride_data = first(lambda match: match[AlgoField.RIDE_ID] == ride_id, matching_rides)
+
+    if not ride_data:
+        pass
         #TODO_WB
-        # create an Order from order_settings and save it
-        # connect the order to the ride
-        # create ride points and connect to ride
-        # save ride
 
-        return False
+    response = {'success': False}
+    if is_new_ride:
+        # TODO_WB: handle concurrent bookings of a new ride. there is no ride to lock
 
-    post_data = simplejson.loads(request.raw_post_data)
-    ride_id = int(post_data.get("ride_id"))
-    order_settings = OrderSettings.fromRequestData(post_data)
+        new_ride = create_shared_ride(ride_data, depart_time=order_settings.pickup_dt, debug=order_settings.debug)
+        order = Order.fromOrderSettings(order_settings, passenger, commit=False)
+        order.ride = new_ride
+        for p in new_ride.points.all():
+            if p.type == StopType.PICKUP:
+                order.pickup_point = p
+            else:
+                order.dropoff_point = p
+        order.save()
+        response['success'] = True
 
-    ride = SharedRide.by_id(ride_id) # will be none when booking a private ride
-    candidates = [ride] if ride else []
-
-    matching_rides = get_matching_rides(candidates, order_settings) # query algo again for safety
-    modified_ride = first(lambda match: match[AlgoField.RIDE_ID] == ride_id, matching_rides)
-
-    if modified_ride and ride.lock():
+    elif ride.lock(): # try to an join existing ride
         try:
-            _do_book_ride(ride_id, modified_ride, order_settings)
+            update_shared_ride(ride, ride_data)
             ride.unlock()
-            #TODO_WB: handle success
+            response['success'] = True
             pass
+
         except Exception as e:
             ride.unlock()
-    else:
-        #TODO_WB: handle failure - ride can NOT be joined
-        pass
+
+    return JSONResponse(response)
+
+def create_shared_ride(ride_data, depart_time, debug=False):
+    ride = SharedRide()
+    ride.depart_time = depart_time
+    ride.debug = debug
+    ride.arrive_time = ride.depart_time + datetime.timedelta(seconds=ride_data[AlgoField.REAL_DURATION])
+    ride.save()
+
+    for point_data in ride_data[AlgoField.RIDE_POINTS]:
+        create_ride_point(ride, point_data)
+
+    return ride
+
+def update_shared_ride(ride, ride_data, depart_time=None):
+    if depart_time:
+        pass  #TODO_WB: update depart_time
+        ride.save()
+
+    for p in ride.points.all():
+        p.delete()
+
+    for point_data in ride_data[AlgoField.RIDE_POINTS]:
+        create_ride_point(ride, point_data)
+
+    return ride
+
+def create_ride_point(ride, point_data):
+    point = RidePoint()
+    point.type = StopType.PICKUP if point_data[AlgoField.TYPE] == AlgoField.PICKUP else StopType.DROPOFF
+    point.lon = point_data[AlgoField.POINT_ADDRESS][AlgoField.LNG]
+    point.lat = point_data[AlgoField.POINT_ADDRESS][AlgoField.LAT]
+    point.address = point_data[AlgoField.POINT_ADDRESS][AlgoField.NAME]
+    point.stop_time = ride.depart_time + datetime.timedelta(seconds=point_data[AlgoField.OFFSET_TIME])
+    point.ride = ride
+    point.save()
+
+    return point
 
 # ==============
 # HELPER CLASSES
@@ -209,6 +264,6 @@ class Address:
 
     @property
     def formatted_address(self):
-        return u"%s %s" % (self.street, self.house_number)
+        return u"%s %s, %s" % (self.street, self.house_number, self.city_name)
 
 
