@@ -1056,6 +1056,32 @@ class Order(BaseModel):
 
     api_user = models.ForeignKey(APIUser, verbose_name=_("api user"), related_name="orders", null=True, blank=True)
 
+    @classmethod
+    def fromOrderSettings(cls, order_settings, passenger, commit=True):
+        def _populate_address_fields(order, order_type, address):
+            setattr(order, "%s_raw" % order_type, address.formatted_address)
+            setattr(order, "%s_lat" % order_type, address.lat)
+            setattr(order, "%s_lon" % order_type, address.lng)
+            setattr(order, "%s_house_number" % order_type, address.house_number)
+            setattr(order, "%s_street_address" % order_type, address.street)
+            setattr(order, "%s_city" % order_type, City.objects.get(name=address.city_name))
+            setattr(order, "%s_country" % order_type, Country.objects.get(code=address.country_code))
+
+        order = cls()
+        _populate_address_fields(order, "from", order_settings.pickup_address)
+        _populate_address_fields(order, "to", order_settings.dropoff_address)
+        order.num_seats = order_settings.num_seats
+        order.depart_time = order_settings.pickup_dt
+        order.debug = order_settings.debug
+        if order_settings.private:
+            order.type = OrderType.PRIVATE
+
+        order.passenger = passenger
+        if commit:
+            order.save()
+
+        return order
+
     @property
     def invoice_description(self):
         if self.type == OrderType.PRIVATE:

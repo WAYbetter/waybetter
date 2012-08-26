@@ -53,6 +53,7 @@ class AlgoField(Enum):
     PICKUP = "ePickup"
     POINT_ADDRESS = "m_PointAddress"
     PRICE_SHARING = "m_PriceSharing"
+    REAL_DURATION = "m_RealDuration"
     RIDES = "m_Rides"
     RIDE_ID = "m_RideID"
     RIDE_POINTS = "m_RidePoints"
@@ -61,8 +62,6 @@ class AlgoField(Enum):
 
 
 def find_matches(candidate_rides, order_settings):
-    #TODO_WB: do actual call
-
     payload = {
         AlgoField.RIDES : [r.serialize_for_algo() for r in candidate_rides],
         "order"         : order_settings.serialize(),
@@ -74,11 +73,16 @@ def find_matches(candidate_rides, order_settings):
     }
 
     payload = simplejson.dumps(payload)
-    logging.info("payload=%s" % payload)
+    logging.info(u"payload=%s" % unicode(payload, "unicode-escape"))
     dt = datetime.now()
     response = safe_fetch(M2M_ENGINE_DOMAIN, payload="submit=%s" % payload, method=POST, deadline=50)
     logging.info("response=%s (took %s seconds)" % (response.content, (datetime.now() - dt).seconds))
-    return response
+
+    matches = []
+    if response and response.content:
+        matches = simplejson.loads(response.content)[AlgoField.RIDES]
+        logging.info("found %s matches" % (len(matches) - 1))
+    return matches
 
 
 def calculate_route(start_lat, start_lon, end_lat, end_lon):
