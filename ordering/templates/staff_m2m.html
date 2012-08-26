@@ -65,12 +65,16 @@
         <tr>
             <th>Price</th>
             <th>Time</th>
+            <th>Private</th>
+            <th>ID</th>
         </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="offer in offers">
+            <tr ng-repeat="offer in offers" id="offer_(( offer.ride_id ))" ng-click="bookRide(offer.ride_id)">
                 <td>(( offer.price | number:1 ))</td>
                 <td>(( offer.time | date:'short' ))</td>
+                <td>(( offer.private ))</td>
+                <td>(( offer.ride_id ))</td>
             </tr>
         </tbody>
     </table>
@@ -194,15 +198,27 @@
 
 
         $scope.getOffers = function () {
-            $http.get("{% url ordering.ordering_controller.get_offers %}", { params:{
-                pickup:angular.toJson($scope.pickup),
-                dropoff:angular.toJson($scope.dropoff),
+            $http.post("{% url ordering.ordering_controller.get_offers %}", {
+                pickup:$scope.pickup,
+                dropoff:$scope.dropoff,
                 pickup_dt: new Date($scope.pickup_time).toUTCString(),
-                settings:angular.toJson($scope.order_settings)
-            }})
+                settings:$scope.order_settings
+            })
             .success(function (data, status, headers, config) {
                 $scope.offers = data;
             })
+        };
+
+        $scope.bookRide = function(ride_id){
+            $http.post("{% url ordering.ordering_controller.book_ride %}", {
+                pickup:$scope.pickup,
+                dropoff:$scope.dropoff,
+                pickup_dt:new Date($scope.pickup_time).toUTCString(),
+                settings:$scope.order_settings,
+                ride_id: ride_id
+            }).success(function (data, status) {
+                        console.log(data);
+                    });
         };
 
         $scope.init();
