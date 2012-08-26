@@ -196,29 +196,32 @@
             $scope.raw_dropoff = $scope.dropoff.formatted_address;
         };
 
+        $scope.getGist = function (extra) {
+            var gist = {
+                pickup:$scope.pickup,
+                dropoff:$scope.dropoff,
+                pickup_dt:new Date($scope.pickup_time).toUTCString(),
+                settings:$scope.order_settings
+            };
+
+            angular.extend(gist, extra);
+            return gist;
+        };
 
         $scope.getOffers = function () {
-            $http.get("{% url ordering.ordering_controller.get_offers %}", { params: { data: {
-                    pickup:$scope.pickup,
-                    dropoff:$scope.dropoff,
-                    pickup_dt: new Date($scope.pickup_time).toUTCString(),
-                    settings:$scope.order_settings
-            }}})
+            $http.get("{% url ordering.ordering_controller.get_offers %}", { params: { data: $scope.getGist() }})
             .success(function (data, status, headers, config) {
                 $scope.offers = data;
             })
         };
 
         $scope.bookRide = function(ride_id){
-            $http.post("{% url ordering.ordering_controller.book_ride %}", {
-                pickup:$scope.pickup,
-                dropoff:$scope.dropoff,
-                pickup_dt:new Date($scope.pickup_time).toUTCString(),
-                settings:$scope.order_settings,
+            $http.post("{% url ordering.ordering_controller.book_ride %}", $scope.getGist({
                 ride_id: ride_id
-            }).success(function (data, status) {
-                        console.log(data);
-                    });
+            }))
+            .success(function (data, status) {
+                console.log(data);
+            });
         };
 
         $scope.init();
