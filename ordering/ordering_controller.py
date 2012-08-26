@@ -76,7 +76,7 @@ def filter_matching_rides(matching_rides):
 ##TODO_WB: remove csrf?
 @csrf_exempt
 def get_offers(request):
-    order_settings = OrderSettings.fromRequestData(simplejson.loads(request.raw_post_data))
+    order_settings = OrderSettings.fromRequestData(simplejson.loads(request.GET.get("data")))
     candidate_rides = get_candidate_rides(order_settings)
     matching_rides = get_matching_rides(candidate_rides, order_settings)
     filtered_rides = filter_matching_rides(matching_rides)

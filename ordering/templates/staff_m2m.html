@@ -198,12 +198,12 @@
 
 
         $scope.getOffers = function () {
-            $http.post("{% url ordering.ordering_controller.get_offers %}", {
-                pickup:$scope.pickup,
-                dropoff:$scope.dropoff,
-                pickup_dt: new Date($scope.pickup_time).toUTCString(),
-                settings:$scope.order_settings
-            })
+            $http.get("{% url ordering.ordering_controller.get_offers %}", { params: { data: {
+                    pickup:$scope.pickup,
+                    dropoff:$scope.dropoff,
+                    pickup_dt: new Date($scope.pickup_time).toUTCString(),
+                    settings:$scope.order_settings
+            }}})
             .success(function (data, status, headers, config) {
                 $scope.offers = data;
             })
