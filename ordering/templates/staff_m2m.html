@@ -44,14 +44,14 @@
 </div>
 
 <div class="container" ng-controller="M2MController">
-    <form name="form">
+    <form name="form" class="span5">
         <div class="control-group well">
         <label for="pickup_address">Pickup</label>
-        <input type="text" id="pickup_address" ng-model="raw_pickup" wb-pac="pickup" class="span5" required>
+        <input type="text" id="pickup_address" ng-model="raw_pickup" wb-pac="pickup" class="input-large" required>
         <label for="dropoff_address">Dropoff</label>
-        <input type="text" id="dropoff_address" ng-model="raw_dropoff" wb-pac="dropoff" class="span5" required>
+        <input type="text" id="dropoff_address" ng-model="raw_dropoff" wb-pac="dropoff" class="input-large" required>
         <label for="pickup_time">Time</label>
-        <input type="text" ng-model="pickup_time" id="pickup_time" class="span5" required>
+        <input type="text" ng-model="pickup_time" id="pickup_time" class="input-medium" required>
         <label>Num Seats</label>
         <label class="radio inline" ng-repeat="val in [1,2,3]">
             <input type="radio" name="num_seats" ng-model="order_settings.num_seats" value="(( val ))">
@@ -60,7 +60,7 @@
         </div>
         <button class="btn btn-large btn-primary" ng-click="getOffers()" ng-disabled="form.$invalid">Get Offers</button>
     </form>
-    <table class="table" ng-show="offers">
+    <table class="table table-striped table-hover" ng-show="offers">
         <thead>
         <tr>
             <th>Price</th>
