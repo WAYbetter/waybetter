@@ -62,7 +62,7 @@
             (( val ))
         </label>
         </div>
-        <button class="btn btn-large btn-primary" ng-click="getOffers()" ng-disabled="form.$invalid || loading">Get Offers</button>
+        <button class="btn btn-large btn-primary btn-block" ng-click="getOffers()" ng-disabled="form.$invalid || loading">Get Offers</button>
     </form>
     <table class="table table-striped table-hover" ng-show="offers">
         <thead>
@@ -86,17 +86,40 @@
                     <ol><li ng-repeat="point in offer.points"> (( point )) </li></ol>
                 </td>
                 <td>
-                    <button class="btn btn-danger" ng-click="bookRide(offer.ride_id)">Book</button>
+                    <button class="btn btn-danger btn-small pull-right" ng-click="bookRide(offer.ride_id)" ng-disabled="booking">Book Ride</button>
                 </td>
             </tr>
         </tbody>
     </table>
+
     <div class="alert" ng-show="booking">
         Booking Order...
     </div>
     <div class="alert" ng-show="alert" ng-class="{true: 'alert-success', false: 'alert-error'}[booking_result]">
-        Order result: (( booking_result ))
         <button type="button" class="close" ng-click="alert=false">×</button>
+        <span ng-hide="booking_result">Booking Failed</span>
+        <table class="table" ng-show="ride">
+            <thead>
+            <tr>
+                <th>ID</th>
+                <th>Price</th>
+                <th>Stops</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr>
+                <td>(( ride.ride_id ))</td>
+                <td>(( ride.price | number:1 ))</td>
+                <td>
+                    <ol>
+                        <li ng-repeat="p in ride.stops">
+                            (( p ))
+                        </li>
+                    </ol>
+                </td>
+            </tr>
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -238,10 +261,14 @@
             $scope.loading = true;
             $scope.alert = false;
             $scope.offers = [];
+            var request_start = new Date();
             $http.get("{% url ordering.ordering_controller.get_offers %}", { params: { data: $scope.getGist() }})
             .success(function (data, status, headers, config) {
                 $scope.loading = false;
                 $scope.offers = data;
+
+                console.log("request round trip: " + new Date() - request_start);
+
             })
             .error(function() {
                 $scope.loading = false;
@@ -250,16 +277,21 @@
 
         $scope.bookRide = function(ride_id){
             $scope.booking = true;
+            $scope.alert = false;
+
             $http.post("{% url ordering.ordering_controller.book_ride %}", $scope.getGist({
                 ride_id: ride_id
             }))
             .success(function (data, status, headers, config) {
                 $scope.alert = true;
                 $scope.booking_result = data.success;
+                $scope.ride = data.ride;
                 $scope.booking = false;
             })
             .error(function() {
+                $scope.booking_result = false;
                 $scope.booking = false;
+                $scope.alert = true;
             })
         };
 

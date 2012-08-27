@@ -88,6 +88,7 @@ def get_offers(request):
         if ride_id == NEW_ORDER_ID:
             offer = {
                 "pickup_time": to_js_date(order_settings.pickup_dt),
+                "ride_depart_time": to_js_date(order_settings.pickup_dt),
                 "price": price,
                 "seats_taken": 0,
             }
@@ -113,6 +114,8 @@ def get_offers(request):
 @passenger_required
 def book_ride(request, passenger):
     booking_data = simplejson.loads(request.raw_post_data)
+    #TODO_WB: add missing order fields: language_code, mobile, user_agent, etc.
+
     if booking_data["settings"]["private"]:
         response = book_private_ride(booking_data, passenger)
     else:
@@ -138,12 +141,13 @@ def book_shared_ride(booking_data, passenger):
 
     response = {'success': False}
     order = Order.fromOrderSettings(order_settings, passenger, commit=False)
-    if ride_id == NEW_ORDER_ID:
-        # TODO_WB: handle concurrent bookings of a new ride. there is no ride to lock
+    order.price = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.PRICE_SHARING]
 
-        new_ride = create_shared_ride(ride_data, depart_time=order_settings.pickup_dt, debug=order_settings.debug)
-        order.ride = new_ride
-        for p in new_ride.points.all():
+
+    if ride_id == NEW_ORDER_ID:
+        ride = create_shared_ride(ride_data, depart_time=order_settings.pickup_dt, debug=order_settings.debug)
+        order.ride = ride
+        for p in ride.points.all():
             if p.type == StopType.PICKUP:
                 order.pickup_point = p
             else:
@@ -160,6 +164,13 @@ def book_shared_ride(booking_data, passenger):
         except Exception as e:
             logging.error(traceback.format_exec())
             ride.unlock()
+
+    if response['success']:
+        response['ride'] = {
+            'ride_id': ride.id,
+            'price': order.price,
+            'stops': ["%s %s" % (p.stop_time.strftime("%H:%M"), p.address) for p in ride.points.all()]
+        }
 
     return JSONResponse(response)
 
