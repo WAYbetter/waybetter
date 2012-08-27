@@ -403,6 +403,14 @@ class Ride(BaseModel):
     status = StatusField(_("status"), choices=RIDE_STATUS, default=PENDING)
     debug = models.BooleanField(default=False, editable=False)
 
+    @property
+    def pickup_points(self):
+        return filter(lambda p: p.type == StopType.PICKUP, self.points.all())
+
+    @property
+    def dropoff_points(self):
+        return filter(lambda p: p.type == StopType.DROPOFF, self.points.all())
+
     # denormalized fields
     dn_fleet_manager_id = models.IntegerField(blank=True, null=True)
 

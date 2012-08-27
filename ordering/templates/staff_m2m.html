@@ -51,7 +51,7 @@
         <label for="dropoff_address">Dropoff</label>
         <input type="text" id="dropoff_address" ng-model="raw_dropoff" wb-pac="dropoff" class="input-large" required>
         <label for="pickup_time">Time</label>
-        <input type="text" ng-model="pickup_time" id="pickup_time" class="input-medium" required>
+        <input type="text" ng-model="pickup_time" id="pickup_time" class="input-large" required>
         <label>Num Seats</label>
         <label class="radio inline" ng-repeat="val in [1,2,3]">
             <input type="radio" name="num_seats" ng-model="order_settings.num_seats" value="(( val ))">
@@ -63,18 +63,24 @@
     <table class="table table-striped table-hover" ng-show="offers">
         <thead>
         <tr>
-            <th>Price</th>
-            <th>Time</th>
-            <th>Private</th>
             <th>ID</th>
+            <th>Ride Departs</th>
+            <th>Pickup Time</th>
+            <th>Price</th>
+            <th>Seats Taken</th>
+            <th>Pickups</th>
+            <th>Dropoffs</th>
         </tr>
         </thead>
         <tbody>
             <tr ng-repeat="offer in offers" id="offer_(( offer.ride_id ))" ng-click="bookRide(offer.ride_id)">
-                <td>(( offer.price | number:1 ))</td>
-                <td>(( offer.time | date:'short' ))</td>
-                <td>(( offer.private ))</td>
                 <td>(( offer.ride_id ))</td>
+                <td>(( offer.ride_depart_time | date:'MMM d, H:m' ))</td>
+                <td>(( offer.pickup_time | date:'MMM d, H:m' ))</td>
+                <td>(( offer.price | number:1 ))</td>
+                <td>(( offer.seats_taken ))</td>
+                <td>(( offer.pickups ))</td>
+                <td>(( offer.dropoffs ))</td>
             </tr>
         </tbody>
     </table>
@@ -149,7 +155,7 @@
 
             return res;
         }
-        
+
         var address = new Address();
 
         address.street = _getAddressComponent("route");
@@ -192,7 +198,7 @@
 
             $scope.pickup = Address.fromJSON('{"street":"אלנבי","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0736683,"lng":34.76546570000005,"formatted_address":"אלנבי 1, תל אביב יפו, ישראל"}');
             $scope.dropoff = Address.fromJSON('{"street":"מרגולין","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0586624,"lng":34.78742,"formatted_address":"מרגולין 1, תל אביב יפו, ישראל"}');
-            
+
             $scope.raw_pickup = $scope.pickup.formatted_address;
             $scope.raw_dropoff = $scope.dropoff.formatted_address;
         };
@@ -217,12 +223,12 @@
         };
 
         $scope.bookRide = function(ride_id){
-            $http.post("{% url ordering.ordering_controller.book_ride %}", $scope.getGist({
-                ride_id: ride_id
-            }))
+            $http.post("{% url ordering.ordering_controller.book_ride %}", $scope.getGist({ ride_id: ride_id }))
+            .success(function (data) {
                 console.log(data.success);
             });
         };
+
 
         $scope.init();
 
