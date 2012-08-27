@@ -1,3 +1,4 @@
+from django.http import HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
 from common.tz_support import to_js_date, default_tz_now
 from common.util import first, Enum
@@ -41,7 +42,7 @@ def get_candidate_rides(order_settings):
     """
     #TODO_WB: implement
     start_dt = default_tz_now() - datetime.timedelta(hours=1)
-    return SharedRide.objects.filter(create_date__gte=start_dt).order_by("-create_date")[:3]
+    return SharedRide.objects.filter(create_date__gte=start_dt)
 
 
 def get_matching_rides(candidate_rides, order_settings):
@@ -77,14 +78,27 @@ def get_offers(request):
 
     offers = []
 
-    for ride in filtered_rides:
-        pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride[AlgoField.RIDE_POINTS])
-        offers.append({
-            "price": ride[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.PRICE_SHARING],
-            "time": to_js_date(order_settings.pickup_dt + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])),
-            "private": ride[AlgoField.RIDE_ID] == NEW_ORDER_ID,
-            "ride_id": ride[AlgoField.RIDE_ID]
-        })
+    for ride_data in filtered_rides:
+        pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride_data[AlgoField.RIDE_POINTS])
+        ride_id = ride_data[AlgoField.RIDE_ID]
+        ride = SharedRide.by_id(ride_id)
+
+        offer = {
+            "ride_id": ride_id,
+            "pickup_time": to_js_date(order_settings.pickup_dt + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])),
+            "price": ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.PRICE_SHARING],
+            "new": ride_id == NEW_ORDER_ID,
+            "seats_taken": sum([order.num_seats for order in ride.orders.all()]) if ride else 0
+        }
+
+        if ride:
+            offer.update({
+                "ride_depart_time": to_js_date(ride.depart_time),
+                "pickups": "\n".join([p.address for p in ride.pickup_points]),
+                "dropoffs": "\n".join([p.address for p in ride.dropoff_points])
+            })
+
+        offers.append(offer)
 
     return JSONResponse(offers)
 
@@ -108,20 +122,17 @@ def book_private_ride(booking_data, passenger):
 def book_shared_ride(booking_data, passenger):
     ride_id = int(booking_data.get("ride_id"))  # NEW_ORDER_ID if booking a new ride
     ride = SharedRide.by_id(ride_id)            # None if booking a new ride
-    is_new_ride = False if ride else True #TODO_WB: we don't need to get it from the page but from algo results
-
     order_settings = OrderSettings.fromRequestData(booking_data)
 
-    candidates = [] if is_new_ride else [ride]
+    candidates = [ride] if ride else []
     matching_rides = get_matching_rides(candidates, order_settings) # will create ride from algo response
     ride_data = first(lambda match: match[AlgoField.RIDE_ID] == ride_id, matching_rides)
 
     if not ride_data:
-        pass
-        #TODO_WB
+        return HttpResponseBadRequest() # TODO_WB
 
     response = {'success': False}
-    if is_new_ride:
+    if ride_id == NEW_ORDER_ID:
         # TODO_WB: handle concurrent bookings of a new ride. there is no ride to lock
 
         new_ride = create_shared_ride(ride_data, depart_time=order_settings.pickup_dt, debug=order_settings.debug)
@@ -135,7 +146,7 @@ def book_shared_ride(booking_data, passenger):
         order.save()
         response['success'] = True
 
-    elif ride.lock(): # try to an join existing ride
+    elif ride.lock(): # try joining existing ride
         try:
             update_shared_ride(ride, ride_data)
             ride.unlock()
