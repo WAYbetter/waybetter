@@ -34,16 +34,20 @@
     </style>
 
 </head>
-<body class="ng-cloak">
+<body class="ng-cloak"  ng-controller="M2MController">
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <div class="container">
-            <a href="#" class="brand">Staff M2M: welcome {{ request.user.passenger.full_name }}</a>
+            <a href="#" class="brand">Staff M2M</a>
+
+            <p class="navbar-text pull-right" ng-show="logged_in_user">
+                welcome (( logged_in_user ))
+            </p>
         </div>
     </div>
 </div>
 
-<div class="container" ng-controller="M2MController">
+<div class="container">
     <form name="form" class="span5">
         <div class="control-group well">
         <label for="pickup_address">Pickup</label>
@@ -58,7 +62,7 @@
             (( val ))
         </label>
         </div>
-        <button class="btn btn-large btn-primary" ng-click="getOffers()" ng-disabled="form.$invalid">Get Offers</button>
+        <button class="btn btn-large btn-primary" ng-click="getOffers()" ng-disabled="form.$invalid || loading">Get Offers</button>
     </form>
     <table class="table table-striped table-hover" ng-show="offers">
         <thead>
@@ -78,12 +82,18 @@
             </tr>
         </tbody>
     </table>
+    <div class="alert" ng-show="booking">
+        Booking Order...
+    </div>
+    <div class="alert alert-success" ng-show="alert">
+        Order result: (( booking_result ))
+        <button type="button" class="close" ng-click="alert=false">×</button>
+    </div>
 </div>
 
 
 <script src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.7.2/jquery.min.js"></script>
-<script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/underscore.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/angular-1.0.0.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/angular-ui.min.js"></script>
@@ -179,6 +189,12 @@
 
     function M2MController($scope, $http) {
         $scope.init = function(){
+            // UI
+            $scope.loading = false;
+            $scope.booking = false;
+            $scope.logged_in_user = "{{ request.user.passenger.full_name }}";
+            $scope.booking_result = "";
+
             $scope.times = ["8:00", "9:00"];
             $scope.pickup = new Address();
             $scope.dropoff = new Address();
@@ -210,18 +226,31 @@
         };
 
         $scope.getOffers = function () {
+            $scope.loading = true;
+            $scope.offers = [];
             $http.get("{% url ordering.ordering_controller.get_offers %}", { params: { data: $scope.getGist() }})
             .success(function (data, status, headers, config) {
+                $scope.loading = false;
                 $scope.offers = data;
+            })
+            .error(function() {
+                $scope.loading = false;
             })
         };
 
         $scope.bookRide = function(ride_id){
+            $scope.booking = true;
             $http.post("{% url ordering.ordering_controller.book_ride %}", $scope.getGist({
                 ride_id: ride_id
             }))
-                console.log(data.success);
-            });
+            .success(function (data, status, headers, config) {
+                $scope.alert = true;
+                $scope.booking_result = data.success;
+                $scope.booking = false;
+            })
+            .error(function() {
+                $scope.booking = false;
+            })
         };
 
         $scope.init();
