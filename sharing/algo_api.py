@@ -73,15 +73,17 @@ def find_matches(candidate_rides, order_settings):
     }
 
     payload = simplejson.dumps(payload)
-    logging.info(u"payload=%s" % unicode(payload, "unicode-escape"))
-    dt = datetime.now()
+    logging.info(u"submit=%s" % unicode(payload, "unicode-escape"))
+    dt1 = datetime.now()
     response = safe_fetch(M2M_ENGINE_DOMAIN, payload="submit=%s" % payload, method=POST, deadline=50)
-    logging.info("response=%s (took %s seconds)" % (response.content, (datetime.now() - dt).seconds))
+    dt2 = datetime.now()
+    logging.info("response=%s" % response.content)
 
     matches = []
     if response and response.content:
         matches = simplejson.loads(response.content)[AlgoField.RIDES]
-        logging.info("found %s matches" % (len(matches) - 1))
+        logging.info("%s candidates, %s matches, %s seconds" % (len(candidate_rides), len(matches) - 1, (dt2 - dt1).seconds))
+
     return matches
 
 

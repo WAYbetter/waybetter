@@ -72,26 +72,29 @@
             <th>Pickup Time</th>
             <th>Price</th>
             <th>Seats Taken</th>
-            <th>Pickups</th>
-            <th>Dropoffs</th>
+            <th>Points</th>
         </tr>
         </thead>
         <tbody>
-            <tr ng-repeat="offer in offers" id="offer_(( offer.ride_id ))" ng-click="bookRide(offer.ride_id)">
+            <tr ng-repeat="offer in offers" id="offer_(( offer.ride_id ))">
                 <td>(( offer.ride_id ))</td>
-                <td>(( offer.ride_depart_time | date:'MMM d, H:m' ))</td>
-                <td>(( offer.pickup_time | date:'MMM d, H:m' ))</td>
+                <td>(( offer.ride_depart_time | date:'MMM d, H:mm' ))</td>
+                <td>(( offer.pickup_time | date:'MMM d, H:mm' ))</td>
                 <td>(( offer.price | number:1 ))</td>
                 <td>(( offer.seats_taken ))</td>
-                <td>(( offer.pickups ))</td>
-                <td>(( offer.dropoffs ))</td>
+                <td>
+                    <ol><li ng-repeat="point in offer.points"> (( point )) </li></ol>
+                </td>
+                <td>
+                    <button class="btn btn-danger" ng-click="bookRide(offer.ride_id)">Book</button>
+                </td>
             </tr>
         </tbody>
     </table>
     <div class="alert" ng-show="booking">
         Booking Order...
     </div>
-    <div class="alert alert-success" ng-show="alert">
+    <div class="alert" ng-show="alert" ng-class="{true: 'alert-success', false: 'alert-error'}[booking_result]">
         Order result: (( booking_result ))
         <button type="button" class="close" ng-click="alert=false">×</button>
     </div>
@@ -233,6 +236,7 @@
 
         $scope.getOffers = function () {
             $scope.loading = true;
+            $scope.alert = false;
             $scope.offers = [];
             $http.get("{% url ordering.ordering_controller.get_offers %}", { params: { data: $scope.getGist() }})
             .success(function (data, status, headers, config) {

@@ -1,6 +1,8 @@
+import logging
+import traceback
 from django.http import HttpResponseBadRequest
 from django.views.decorators.csrf import csrf_exempt
-from common.tz_support import to_js_date, default_tz_now
+from common.tz_support import to_js_date, default_tz_now, set_default_tz_time
 from common.util import first, Enum
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
@@ -41,7 +43,7 @@ def get_candidate_rides(order_settings):
     @return:
     """
     #TODO_WB: implement
-    start_dt = default_tz_now() - datetime.timedelta(hours=1)
+    start_dt = set_default_tz_time(datetime.datetime(2012, 8, 27, 15, 15))
     return SharedRide.objects.filter(create_date__gte=start_dt)
 
 
@@ -79,24 +81,27 @@ def get_offers(request):
     offers = []
 
     for ride_data in filtered_rides:
-        pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride_data[AlgoField.RIDE_POINTS])
         ride_id = ride_data[AlgoField.RIDE_ID]
         ride = SharedRide.by_id(ride_id)
 
-        offer = {
-            "ride_id": ride_id,
-            "pickup_time": to_js_date(order_settings.pickup_dt + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])),
-            "price": ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.PRICE_SHARING],
-            "new": ride_id == NEW_ORDER_ID,
-            "seats_taken": sum([order.num_seats for order in ride.orders.all()]) if ride else 0
-        }
+        price = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.PRICE_SHARING]
+        if ride_id == NEW_ORDER_ID:
+            offer = {
+                "pickup_time": to_js_date(order_settings.pickup_dt),
+                "price": price,
+                "seats_taken": 0,
+            }
 
-        if ride:
-            offer.update({
+        else:
+            pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride_data[AlgoField.RIDE_POINTS])
+            offer = {
+                "ride_id": ride_id,
+                "pickup_time": to_js_date(order_settings.pickup_dt + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])),
                 "ride_depart_time": to_js_date(ride.depart_time),
-                "pickups": "\n".join([p.address for p in ride.pickup_points]),
-                "dropoffs": "\n".join([p.address for p in ride.dropoff_points])
-            })
+                "points": ["%s %s" % (p.stop_time.strftime("%H:%M"), p.address) for p in ride.points.all()],
+                "seats_taken": sum([order.num_seats for order in ride.orders.all()]),
+                "price": price,
+            }
 
         offers.append(offer)
 
@@ -120,8 +125,8 @@ def book_private_ride(booking_data, passenger):
 
 
 def book_shared_ride(booking_data, passenger):
-    ride_id = int(booking_data.get("ride_id"))  # NEW_ORDER_ID if booking a new ride
-    ride = SharedRide.by_id(ride_id)            # None if booking a new ride
+    ride_id = int(booking_data.get("ride_id", NEW_ORDER_ID))
+    ride = SharedRide.by_id(ride_id)
     order_settings = OrderSettings.fromRequestData(booking_data)
 
     candidates = [ride] if ride else []
@@ -132,11 +137,11 @@ def book_shared_ride(booking_data, passenger):
         return HttpResponseBadRequest() # TODO_WB
 
     response = {'success': False}
+    order = Order.fromOrderSettings(order_settings, passenger, commit=False)
     if ride_id == NEW_ORDER_ID:
         # TODO_WB: handle concurrent bookings of a new ride. there is no ride to lock
 
         new_ride = create_shared_ride(ride_data, depart_time=order_settings.pickup_dt, debug=order_settings.debug)
-        order = Order.fromOrderSettings(order_settings, passenger, commit=False)
         order.ride = new_ride
         for p in new_ride.points.all():
             if p.type == StopType.PICKUP:
@@ -148,12 +153,12 @@ def book_shared_ride(booking_data, passenger):
 
     elif ride.lock(): # try joining existing ride
         try:
-            update_shared_ride(ride, ride_data)
+            update_shared_ride(ride, ride_data, order)
             ride.unlock()
             response['success'] = True
-            pass
 
         except Exception as e:
+            logging.error(traceback.format_exec())
             ride.unlock()
 
     return JSONResponse(response)
@@ -170,18 +175,60 @@ def create_shared_ride(ride_data, depart_time, debug=False):
 
     return ride
 
-def update_shared_ride(ride, ride_data, depart_time=None):
-    if depart_time:
-        pass  #TODO_WB: update depart_time
-        ride.save()
+def update_shared_ride(ride, ride_data, new_order, depart_time=None):
+    if not depart_time:
+        #TODO_WB: decide what is the correct depart time
+        depart_time = ride.depart_time
 
-    for p in ride.points.all():
-        p.delete()
+    orders = ride.orders.all()
+    new_order_points = {
+        AlgoField.PICKUP: None,
+        AlgoField.DROPOFF: None
+    }
 
-    for point_data in ride_data[AlgoField.RIDE_POINTS]:
-        create_ride_point(ride, point_data)
+    ride_points_data = ride_data[AlgoField.RIDE_POINTS]
+    for order in orders:
+        pickup_point = order.pickup_point
+        dropoff_point = order.dropoff_point
 
-    return ride
+        for point_data in ride_points_data:
+            order_ids = point_data[AlgoField.ORDER_IDS]
+            ptype = point_data[AlgoField.TYPE]
+            offset = point_data[AlgoField.OFFSET_TIME]
+
+            if order.id in order_ids:
+                if ptype == AlgoField.PICKUP:
+                    p = pickup_point
+                else:
+                    p = dropoff_point
+
+                p.stop_time = depart_time + datetime.timedelta(seconds=offset)
+                p.save()
+
+                if NEW_ORDER_ID in order_ids:
+                    new_order_points[ptype] = p
+
+
+    for point_data in ride_points_data:
+        ptype = point_data[AlgoField.TYPE]
+        order_ids = point_data[AlgoField.ORDER_IDS]
+
+        if NEW_ORDER_ID in order_ids:
+            if len(order_ids) == 1:  # new point
+                p = create_ride_point(ride, point_data)
+            else:
+                p = new_order_points[ptype]
+
+            if p.type == StopType.PICKUP:
+                new_order.pickup_point = p
+            else:
+                new_order.dropoff_point = p
+
+    new_order.ride = ride
+    new_order.save()
+
+    logging.info('ride %s updated' % ride.id)
+
 
 def create_ride_point(ride, point_data):
     point = RidePoint()

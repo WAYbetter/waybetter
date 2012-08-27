@@ -532,7 +532,7 @@ class SharedRide(Ride):
         from sharing.algo_api import AlgoField
         return {
             AlgoField.RIDE_ID      : self.id,
-            AlgoField.RIDE_POINTS  : [rp.serialize_for_algo() for rp in self.points.all()],
+            AlgoField.RIDE_POINTS  : [rp.serialize_for_algo() for rp in sorted(self.points.all(), key=lambda p: p.stop_time)],
             AlgoField.ORDER_INFOS  : dict([(o.id, { "num_seats": o.num_seats }) for o in self.orders.all()])
         }
     def change_status(self, old_status=None, new_status=None):
@@ -581,6 +581,9 @@ class SharedRide(Ride):
 
 
 class RidePoint(BaseModel):
+    class Meta:
+        ordering = ('stop_time',)
+
     ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="points", null=True, blank=True)
 
     stop_time = UTCDateTimeField(_("stop time"))
