@@ -246,7 +246,6 @@
 
         $scope.bookRide = function(ride_id){
             $scope.booking = true;
-            .success(function (data) {
             $http.post("{% url ordering.ordering_controller.book_ride %}", $scope.getGist({
                 ride_id: ride_id
             }))
