@@ -130,7 +130,38 @@
 <script type="text/javascript" src="/static/js/libs/angular-1.0.0.min.js"></script>
 <script type="text/javascript" src="/static/js/libs/angular-ui.min.js"></script>
 <script type="text/javascript">
-    var m = angular.module('M2MApp', [])
+
+    function cookieMan() {
+        return {
+            getCookie : function (name) {
+                var cookieValue = null;
+                if (document.cookie && document.cookie != '') {
+                    var cookies = document.cookie.split(';');
+                    for (var i = 0; i < cookies.length; i++) {
+                        var cookie = jQuery.trim(cookies[i]);
+                        // Does this cookie string begin with the name we want?
+                        if (cookie.substring(0, name.length + 1) == (name + '=')) {
+                            cookieValue = decodeURIComponent(cookie.substring(name.length + 1));
+                            break;
+                        }
+                    }
+                }
+                return cookieValue;
+            }
+        }
+    }
+
+    var wb_config = angular.module('WBconfig', [])
+            .config(['$interpolateProvider', '$httpProvider', function ($interpolateProvider, $httpProvider) {
+                $interpolateProvider.startSymbol('((');
+                $interpolateProvider.endSymbol('))');
+                $httpProvider.defaults.headers.common['X-CSRFToken'] = cookieMan().getCookie('csrftoken');
+            }]);
+    var wb_providers = angular.module('WBproviders', [])
+            .factory('cookieMan', cookieMan);
+    var wb_defaults = angular.module('WBdefaults', ['WBconfig', 'WBproviders']);
+
+    var m = angular.module('M2MApp', ['WBdefaults'])
             .directive("wbPac", function () {
                 return {
                     require:"ngModel",
@@ -160,10 +191,6 @@
                         })
                     }
                 }
-            })
-            .config(function ($interpolateProvider) {
-                $interpolateProvider.startSymbol('((');
-                $interpolateProvider.endSymbol('))');
             });
 
 
@@ -219,7 +246,7 @@
         return address
     };
 
-    function M2MController($scope, $http) {
+    function M2MController($scope, $http, cookieMan) {
         $scope.init = function(){
             // UI
             $scope.loading = false;
@@ -243,6 +270,8 @@
 
             $scope.raw_pickup = $scope.pickup.formatted_address;
             $scope.raw_dropoff = $scope.dropoff.formatted_address;
+
+            console.log(cookieMan.getCookie('csrftoken'));
         };
 
         $scope.getGist = function (extra) {
@@ -267,7 +296,7 @@
                 $scope.loading = false;
                 $scope.offers = data;
 
-                console.log("request round trip: " + new Date() - request_start);
+                console.log("request round trip: " + (new Date() - request_start));
 
             })
             .error(function() {

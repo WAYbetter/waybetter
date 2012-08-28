@@ -76,8 +76,6 @@ def filter_matching_rides(matching_rides):
     return matching_rides
 
 
-##TODO_WB: remove csrf?
-@csrf_exempt
 def get_offers(request):
     order_settings = OrderSettings.fromRequest(request)
     candidate_rides = get_candidate_rides(order_settings)
@@ -115,8 +113,6 @@ def get_offers(request):
     return JSONResponse(offers)
 
 
-##TODO_WB: remove csrf?
-@csrf_exempt
 @passenger_required
 def book_ride(request, passenger):
     order_settings = OrderSettings.fromRequest(request)
