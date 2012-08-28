@@ -1,14 +1,16 @@
 import logging
 import traceback
 from django.http import HttpResponseBadRequest
+from django.utils.translation import get_language_from_request
 from django.views.decorators.csrf import csrf_exempt
 from common.tz_support import to_js_date, default_tz_now, set_default_tz_time
 from common.util import first, Enum
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
+from django.conf import settings
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required
-from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order
+from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType
 from sharing.algo_api import AlgoField
 import simplejson
 import datetime
@@ -44,7 +46,11 @@ def get_candidate_rides(order_settings):
     """
     #TODO_WB: implement
     start_dt = set_default_tz_time(datetime.datetime(2012, 8, 27, 15, 15))
-    return SharedRide.objects.filter(create_date__gte=start_dt)
+    candidates = SharedRide.objects.filter(create_date__gte=start_dt)
+    candidates = filter(lambda ride: ride.debug, candidates)
+    candidates = filter(lambda ride: sum([order.num_seats for order in ride.orders.all()]) < 3, candidates)
+
+    return candidates
 
 
 def get_matching_rides(candidate_rides, order_settings):
@@ -73,7 +79,7 @@ def filter_matching_rides(matching_rides):
 ##TODO_WB: remove csrf?
 @csrf_exempt
 def get_offers(request):
-    order_settings = OrderSettings.fromRequestData(simplejson.loads(request.GET.get("data")))
+    order_settings = OrderSettings.fromRequest(request)
     candidate_rides = get_candidate_rides(order_settings)
     matching_rides = get_matching_rides(candidate_rides, order_settings)
     filtered_rides = filter_matching_rides(matching_rides)
@@ -113,56 +119,51 @@ def get_offers(request):
 @csrf_exempt
 @passenger_required
 def book_ride(request, passenger):
-    booking_data = simplejson.loads(request.raw_post_data)
-    #TODO_WB: add missing order fields: language_code, mobile, user_agent, etc.
+    order_settings = OrderSettings.fromRequest(request)
+    request_data = simplejson.loads(request.raw_post_data)
+    ride_id = int(request_data.get("ride_id", NEW_ORDER_ID))
+    is_private = bool(request_data["settings"]["private"])
 
-    if booking_data["settings"]["private"]:
-        response = book_private_ride(booking_data, passenger)
+    if is_private:
+        response = book_private_ride(order_settings, passenger)
     else:
-        response = book_shared_ride(booking_data, passenger)
+        response = book_shared_ride(ride_id, order_settings, passenger)
 
     return response
 
-def book_private_ride(booking_data, passenger):
+def book_private_ride(order_settings, passenger):
     pass
 
 
-def book_shared_ride(booking_data, passenger):
-    ride_id = int(booking_data.get("ride_id", NEW_ORDER_ID))
+def book_shared_ride(ride_id, order_settings, passenger):
     ride = SharedRide.by_id(ride_id)
-    order_settings = OrderSettings.fromRequestData(booking_data)
 
+    # get ride data from algo
     candidates = [ride] if ride else []
-    matching_rides = get_matching_rides(candidates, order_settings) # will create ride from algo response
+    matching_rides = get_matching_rides(candidates, order_settings)
     ride_data = first(lambda match: match[AlgoField.RIDE_ID] == ride_id, matching_rides)
 
-    if not ride_data:
-        return HttpResponseBadRequest() # TODO_WB
-
     response = {'success': False}
+
+    if not ride_data:
+        return JSONResponse(response)
+
     order = Order.fromOrderSettings(order_settings, passenger, commit=False)
     order.price = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.PRICE_SHARING]
-
+    order.type = OrderType.SHARED
 
     if ride_id == NEW_ORDER_ID:
-        ride = create_shared_ride(ride_data, depart_time=order_settings.pickup_dt, debug=order_settings.debug)
-        order.ride = ride
-        for p in ride.points.all():
-            if p.type == StopType.PICKUP:
-                order.pickup_point = p
-            else:
-                order.dropoff_point = p
-        order.save()
+        ride = create_shared_ride_for_order(ride_data, order)
         response['success'] = True
 
     elif ride.lock(): # try joining existing ride
         try:
-            update_shared_ride(ride, ride_data, order)
+            update_ride_for_order(ride, ride_data, order)
             ride.unlock()
             response['success'] = True
 
         except Exception as e:
-            logging.error(traceback.format_exec())
+            logging.error(traceback.format_exc())
             ride.unlock()
 
     if response['success']:
@@ -174,19 +175,28 @@ def book_shared_ride(booking_data, passenger):
 
     return JSONResponse(response)
 
-def create_shared_ride(ride_data, depart_time, debug=False):
+def create_shared_ride_for_order(ride_data, order):
     ride = SharedRide()
-    ride.depart_time = depart_time
-    ride.debug = debug
+    ride.depart_time = order.depart_time
+    ride.debug = order.debug
     ride.arrive_time = ride.depart_time + datetime.timedelta(seconds=ride_data[AlgoField.REAL_DURATION])
     ride.save()
 
     for point_data in ride_data[AlgoField.RIDE_POINTS]:
         create_ride_point(ride, point_data)
 
+    for p in ride.points.all():
+        if p.type == StopType.PICKUP:
+            order.pickup_point = p
+        else:
+            order.dropoff_point = p
+
+    order.ride = ride
+    order.save()
+
     return ride
 
-def update_shared_ride(ride, ride_data, new_order, depart_time=None):
+def update_ride_for_order(ride, ride_data, new_order, depart_time=None):
     if not depart_time:
         #TODO_WB: decide what is the correct depart time
         depart_time = ride.depart_time
@@ -198,6 +208,8 @@ def update_shared_ride(ride, ride_data, new_order, depart_time=None):
     }
 
     ride_points_data = ride_data[AlgoField.RIDE_POINTS]
+
+    # update stop times of existing points
     for order in orders:
         pickup_point = order.pickup_point
         dropoff_point = order.dropoff_point
@@ -220,6 +232,7 @@ def update_shared_ride(ride, ride_data, new_order, depart_time=None):
                     new_order_points[ptype] = p
 
 
+    # update stop times or create points for the new order
     for point_data in ride_points_data:
         ptype = point_data[AlgoField.TYPE]
         order_ids = point_data[AlgoField.ORDER_IDS]
@@ -237,9 +250,6 @@ def update_shared_ride(ride, ride_data, new_order, depart_time=None):
 
     new_order.ride = ride
     new_order.save()
-
-    logging.info('ride %s updated' % ride.id)
-
 
 def create_ride_point(ride, point_data):
     point = RidePoint()
@@ -268,11 +278,16 @@ class OrderSettings:
     num_seats = 1
     pickup_dt = None # datetime
     luggage = False
-    private = False
+    private = False # TODO_WB: replace with order type?
     debug = False
+
+    language_code = settings.LANGUAGE_CODE
+    user_agent = None
+    mobile = None
 
     def __init__(self, num_seats=1, pickup_address=None, dropoff_address=None, pickup_dt=None, luggage=False,
                  private=False, debug=False):
+        # TODO_WB: add validations
         self.num_seats = num_seats
         self.pickup_address = pickup_address
         self.dropoff_address = dropoff_address
@@ -282,7 +297,12 @@ class OrderSettings:
         self.debug = debug
 
     @classmethod
-    def fromRequestData(cls, request_data):
+    def fromRequest(cls, request):
+        if request.method == "POST":
+            request_data = simplejson.loads(request.raw_post_data)
+        else:
+            request_data = simplejson.loads(request.GET.get("data"))
+
         pickup = request_data.get("pickup")
         dropoff = request_data.get("dropoff")
         settings = request_data.get("settings")
@@ -293,6 +313,10 @@ class OrderSettings:
         inst.pickup_dt = dateutil.parser.parse(request_data.get("pickup_dt"))
         inst.pickup_address = Address(**pickup)
         inst.dropoff_address = Address(**dropoff)
+
+        inst.mobile = request.mobile
+        inst.language_code = request.POST.get("language_code", get_language_from_request(request))
+        inst.user_agent = request.META.get("HTTP_USER_AGENT")
 
         return inst
 

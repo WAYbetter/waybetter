@@ -1084,6 +1084,11 @@ class Order(BaseModel):
         order.num_seats = order_settings.num_seats
         order.depart_time = order_settings.pickup_dt
         order.debug = order_settings.debug
+
+        order.mobile = order_settings.mobile
+        order.language_code = order_settings.language_code
+        order.user_agent = order_settings.user_agent
+
         if order_settings.private:
             order.type = OrderType.PRIVATE
 
