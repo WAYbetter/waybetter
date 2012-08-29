@@ -37,10 +37,12 @@ cron:
 
 # monthly invoices
 # create invoices should run prior to send invoices for passengers to have invoice_id
-- description: create invoices ids for passengers
-  url: /billing/create_invoice_ids/
-  schedule: 1 of month 06:00
 
-- description: send invoices to passengers
-  url: /billing/send_invoices/
-  schedule: 1 of month 08:00
+# disabled until Sep. 2nd due to VAT change - will manually create Aug invoices on Aug 31
+#- description: create invoices ids for passengers
+#  url: /billing/create_invoice_ids/
+#  schedule: 1 of month 06:00
+#
+#- description: send invoices to passengers
+#  url: /billing/send_invoices/
+#  schedule: 1 of month 08:00
