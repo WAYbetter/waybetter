@@ -274,14 +274,17 @@
                     success(
                     function (data) {
                         $log.log(data);
-                        if (!$scope.taxi_position || ($scope.taxi_position.lat != data.lat && $scope.taxi_position.lon != data.lon)) {
-                            $scope.old_taxi_position = $scope.taxi_position;
-                            $scope.taxi_position = data;
-                            if (!$scope.taxi_marker) {
+                        if (data.position){
+                            var position = data.position;
+                            if (!$scope.taxi_position || ($scope.taxi_position.lat != position.lat && $scope.taxi_position.lon != position.lon)) {
                                 $scope.old_taxi_position = $scope.taxi_position;
-                                $scope.showTaxiMarker();
+                                $scope.taxi_position = position;
+                                if (!$scope.taxi_marker) {
+                                    $scope.old_taxi_position = $scope.taxi_position;
+                                    $scope.showTaxiMarker();
+                                }
+                                $scope.updateTaxiPosition();
                             }
-                            $scope.updateTaxiPosition();
                         }
                     }).
                     error(function () {

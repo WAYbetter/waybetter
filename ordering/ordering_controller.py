@@ -23,6 +23,21 @@ def staff_m2m(request):
     return render_to_response("staff_m2m.html", RequestContext(request))
 
 
+def get_ongoing_ride_details(request):
+    order_id = request.GET.get("order_id")
+    order = Order.by_id(order_id)
+
+    response = { "success": False }
+
+    if order:
+        response["pickup_position"] = { "lat": order.from_lat, "lng": order.from_lon }
+        response["station"] = { "name": order.ride.station.name, "phone": order.ride.station.phone }
+        response["stops"] = [ {"lat": p.lat, "lng": p.lon}  for p in order.ride.pickup_points]
+        response["success"] = True
+
+    return JSONResponse(response)
+
+
 def get_defaults(request):
     #TODO_WB:
     pass

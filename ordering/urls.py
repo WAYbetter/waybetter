@@ -97,7 +97,8 @@ urlpatterns = patterns('',
 
     (r'^m2m/get_offers', 'ordering.ordering_controller.get_offers'),
     (r'^m2m/book_ride', 'ordering.ordering_controller.book_ride'),
-    (r'^m2m/test$', 'ordering.ordering_controller.staff_m2m')
+    (r'^m2m/test$', 'ordering.ordering_controller.staff_m2m'),
+    (r'^m2m/get_ongoing_ride_details', 'ordering.ordering_controller.get_ongoing_ride_details')
 
 )
 
