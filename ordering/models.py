@@ -740,7 +740,7 @@ class Passenger(BaseModel):
 
         # try to get passenger from passed token
         if not passenger:
-            token = request.POST.get(PASSENGER_TOKEN, None) or request.GET.get(PASSENGER_TOKEN)
+            token = request.META.get('HTTP_PASSENGER_TOKEN') or request.POST.get(PASSENGER_TOKEN, None) or request.GET.get(PASSENGER_TOKEN)
             if token:
                 try:
                     passenger = cls.objects.get(login_token=token)

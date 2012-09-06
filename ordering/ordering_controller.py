@@ -9,8 +9,8 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
 from djangotoolbox.http import JSONResponse
-from ordering.decorators import passenger_required
-from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType
+from ordering.decorators import passenger_required, passenger_required_no_redirect
+from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING
 from sharing.algo_api import AlgoField
 import simplejson
 import datetime
@@ -37,6 +37,29 @@ def get_ongoing_ride_details(request):
 
     return JSONResponse(response)
 
+
+def get_ongoing_order(passenger):
+    """
+    @param passenger:
+    @return: ongoing order or None
+    """
+    delta = default_tz_now() - datetime.timedelta(minutes=15)
+    ongoing_orders = list(passenger.orders.filter(depart_time__gt=delta).order_by("-depart_time"))
+    ongoing_order = first(lambda o: o.status in [ACCEPTED, APPROVED, PENDING], ongoing_orders)
+    return ongoing_order
+
+@passenger_required_no_redirect
+def sync_app_state(request, passenger):
+    logging.info(passenger)
+    response = {}
+
+    ongoing_order = get_ongoing_order(passenger)
+    if ongoing_order:
+        response["ongoing_order_id"] = ongoing_order.id
+
+
+    logging.info("get_initial_status: %s" % response)
+    return JSONResponse(response)
 
 def get_defaults(request):
     #TODO_WB:
@@ -128,7 +151,8 @@ def get_offers(request):
     return JSONResponse(offers)
 
 
-@passenger_required
+@csrf_exempt
+@passenger_required_no_redirect
 def book_ride(request, passenger):
     order_settings = OrderSettings.fromRequest(request)
     request_data = simplejson.loads(request.raw_post_data)
