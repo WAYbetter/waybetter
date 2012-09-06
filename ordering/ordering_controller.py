@@ -83,7 +83,7 @@ def get_candidate_rides(order_settings):
     @return:
     """
     #TODO_WB: implement
-    start_dt = set_default_tz_time(datetime.datetime(2012, 8, 27, 15, 15))
+    start_dt = set_default_tz_time(datetime.datetime(2012, 9, 6, 15, 15))
     candidates = SharedRide.objects.filter(create_date__gte=start_dt)
     candidates = filter(lambda ride: ride.debug, candidates)
     candidates = filter(lambda ride: sum([order.num_seats for order in ride.orders.all()]) < 3, candidates)
@@ -155,7 +155,7 @@ def get_offers(request):
 @passenger_required_no_redirect
 def book_ride(request, passenger):
     order_settings = OrderSettings.fromRequest(request)
-    request_data = simplejson.loads(request.raw_post_data)
+    request_data = simplejson.loads(request.POST.get('data'))
     ride_id = int(request_data.get("ride_id", NEW_ORDER_ID))
     is_private = bool(request_data["settings"]["private"])
 
@@ -333,10 +333,7 @@ class OrderSettings:
 
     @classmethod
     def fromRequest(cls, request):
-        if request.method == "POST":
-            request_data = simplejson.loads(request.raw_post_data)
-        else:
-            request_data = simplejson.loads(request.GET.get("data"))
+        request_data = simplejson.loads(request.REQUEST.get("data"))
 
         pickup = request_data.get("pickup")
         dropoff = request_data.get("dropoff")
