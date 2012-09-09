@@ -166,7 +166,7 @@ def get_custom_message(provider_status, default_message=None):
 
     cg_custom_error_msg = {
 #        '004': _('We are sorry but your card type is currently not supported. You can change it from %s.') % profile_link,
-        '004': _('We are sorry but your card type is currently not supported.'),
+        '004': _('The credit card can not be charged. It may be blocked or not supported in the system (American Express).'),
         '039': _('Invalid card number.'),
         '101': _('We are sorry but your card type is currently not supported.')
     }
