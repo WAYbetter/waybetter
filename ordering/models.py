@@ -665,6 +665,9 @@ class Passenger(BaseModel):
     # used to login anonymous passengers
     login_token = models.CharField(_("login token"), max_length=40, null=True, blank=True)
 
+    # used to send push notifications
+    push_token = models.CharField(_("login token"), max_length=65, null=True, blank=True)
+
     session_keys = ListField(models.CharField(max_length=32)) # session is identified by a 32-character hash
 
     # disallow ordering
