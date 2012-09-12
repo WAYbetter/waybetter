@@ -1028,10 +1028,12 @@ Home
 
     #banner {
         position: absolute;
-        top: 0;
+        background-color: #16ACD3;
+        bottom: 0;
         height: 100%;
         width: 100%;
     }
+
     #banner_content{
         width: $site-width;
         height: 100%;
@@ -1393,6 +1395,41 @@ Home
     /*#cm-map{*/
         /*direction: ltr; // fixes a loading issue: map loads to the left*/
     /*}*/
+    #banner_header {
+        height: 50px;
+        width: 100%;
+        div {
+            @include box-shadow(0px 0px 0px 1px rgba(0, 0, 0, 0.7));
+            background: #F79327;
+            width: 640px;
+            height: 50px;
+            margin: 0 auto;
+            border: 2px solid white;
+            border-radius: 0 0 6px 6px;
+            border-top: 0;
+            box-sizing: border-box;
+            padding: 8px;
+            padding-right: 40px;
+            span {
+                line-height: 33px;
+                font-weight: bold;
+                font-size: 18px;
+                color: #4d4d4d;
+            }
+            button {
+                width: 170px;
+            }
+
+        }
+    }
+
+    #banner_content {
+        height: 300px;
+    }
+
+    #map_container {
+        height: 350px;
+    }
 
     #mobile_apps{
         .img{

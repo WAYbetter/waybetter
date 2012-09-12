@@ -79,6 +79,16 @@ class PilotInterest(BaseModel):
         html = t.render(Context({}))
         send_mail_as_noreply(self.email, subject, html=html)
 
+class M2MInterest(BaseModel):
+    email = models.EmailField(_("Your Email"))
+
+    def notify(self):
+        subject = u"תודה על התעניינותך ב WAYbetter"
+        t = get_template("m2m_interest_email.html")
+        html = t.render(Context({}))
+
+        send_mail_as_noreply(self.email, subject, html=html)
+
 class HotspotInterest(BaseModel):
     suggestion = models.CharField(_("My Suggestion"), max_length=500)
     email = models.EmailField(_("My Email"))

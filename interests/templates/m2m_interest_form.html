@@ -1,0 +1,90 @@
+{% load i18n %}
+<script>
+    var form_config = {
+        dialog_config : {
+            title: "",
+            width: "400px"
+        }
+    };
+    $(function() {
+        $("#pilot_interest_form #id_email").keypress(function (e) {
+            if (e.which == 13){
+                e.stopPropagation();
+                $("#submit").trigger("click");
+                return false;
+            }
+        });
+        $("#submit").click(function(e) {
+            var form = $("#pilot_interest_form");
+
+            $.ajax({
+                url: '{% url interests.views.m2m_interest %}',
+                type: 'POST',
+                data: form.serialize(),
+                dataType: "json",
+                success: function(response) {
+                    if (! response.errors) {   // no errors!
+                        $("#pilot_interest_form, #submit").hide();
+                        $("#thank_you").fadeIn("fast");
+                    } else {                    // we got errors
+                        $(".errorlist").remove();
+                        $.each(response.errors, function(i, error) {
+                            for (var field_name in error) {
+                                var $errors = $("<ul class='errorlist'></ul>").hide();
+                                $.each(error[field_name], function(i, val) {
+                                    $errors.append($("<li></li>").text(val));
+                                });
+                                $("input[name=" + field_name + "]").before($errors);
+                                $errors.fadeIn('fast');
+                            }
+                        });
+                    }
+
+                }
+            });
+            return false;
+
+        });
+
+    });
+
+</script>
+<style type="text/css">
+    .tw{
+        margin: 25px 0;
+    }
+    .fb{
+
+    }
+</style>
+
+<div id="pilot_interest_dialog" class="dialog interest_dialog">
+    <div id="content" class="content">
+        <form id="pilot_interest_form">
+            <p>
+                בשבועות הקרובים נתחיל לאפשר הזמנת נסיעות משותפות במוניות מכל כתובת לכל כתובת בתל אביב וגוש דן!
+                <br>
+                לפרטים נוספים ולקבלת הודעה על השקת השירות, הזינו מייל.
+            </p>
+            <div class="field_container">
+                {{ form.as_p }}
+            </div>
+        </form>
+
+        <div id="thank_you" class="hidden">
+            <p>והשארו מחוברים אלינו:</p>
+
+            <div>
+                <div class="tw">
+                    <a href="https://twitter.com/WAYbetter_App" class="twitter-follow-button" data-show-count="false" data-size="large" data-show-screen-name="false" data-dnt="true" data-lang="en">Follow @WAYbetter_App</a>
+                    <script>!function(d,s,id){var js,fjs=d.getElementsByTagName(s)[0];if(!d.getElementById(id)){js=d.createElement(s);js.id=id;js.src="//platform.twitter.com/widgets.js";fjs.parentNode.insertBefore(js,fjs);}}(document,"script","twitter-wjs");</script>
+                </div>
+                <div class="fb"><iframe src="//www.facebook.com/plugins/like.php?href=http%3A%2F%2Fwww.waybetter.com&amp;send=false&amp;layout=standard&amp;width=210&amp;show_faces=false&amp;action=like&amp;colorscheme=light&amp;font&amp;height=50" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:210px; height:50px;" allowTransparency="true"></iframe></div>
+            </div>
+        </div>
+    </div>
+    <div id="button_container">
+        <button id="submit" class="wb_button purple">{% trans 'Send' %}</button>
+    </div>
+</div>
+

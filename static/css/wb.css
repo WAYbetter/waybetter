@@ -938,7 +938,8 @@ Home
     z-index: 0; }
   .wb_home #banner {
     position: absolute;
-    top: 0;
+    background-color: #16ACD3;
+    bottom: 0;
     height: 100%;
     width: 100%; }
   .wb_home #banner_content {
@@ -1267,6 +1268,34 @@ Home
   /*#cm-map{*/
   /*direction: ltr; // fixes a loading issue: map loads to the left*/
   /*}*/ }
+  .rtl.wb_home #banner_header {
+    height: 50px;
+    width: 100%; }
+    .rtl.wb_home #banner_header div {
+      -webkit-box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.7);
+      -moz-box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.7);
+      box-shadow: 0px 0px 0px 1px rgba(0, 0, 0, 0.7);
+      background: #F79327;
+      width: 640px;
+      height: 50px;
+      margin: 0 auto;
+      border: 2px solid white;
+      border-radius: 0 0 6px 6px;
+      border-top: 0;
+      box-sizing: border-box;
+      padding: 8px;
+      padding-right: 40px; }
+      .rtl.wb_home #banner_header div span {
+        line-height: 33px;
+        font-weight: bold;
+        font-size: 18px;
+        color: #4d4d4d; }
+      .rtl.wb_home #banner_header div button {
+        width: 170px; }
+  .rtl.wb_home #banner_content {
+    height: 300px; }
+  .rtl.wb_home #map_container {
+    height: 350px; }
   .rtl.wb_home #mobile_apps .img {
     background: url("/static/images/wb_site/mobile_banner_rtl_bg.png") right top no-repeat; }
   .rtl.wb_home .slidesContainer {
