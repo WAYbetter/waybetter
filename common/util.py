@@ -226,6 +226,17 @@ def get_channel_key(model, key_data=""):
     return s.hexdigest()
 
 
+def get_mobile_platform(request):
+    from common.enums import MobilePlatform
+    ua = request.META.get('HTTP_USER_AGENT', "").lower()
+    platform = MobilePlatform.Other
+    if ua.find("iphone") > -1:
+        platform = MobilePlatform.iOS
+    elif ua.find("android") > -1:
+        platform = MobilePlatform.Android
+
+    return platform
+
 def log_event(event_type, order=None, order_assignment=None, station=None, work_station=None, passenger=None,
               country=None, city=None, rating="", lat="", lon=""):
     """

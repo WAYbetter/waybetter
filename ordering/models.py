@@ -14,6 +14,7 @@ from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.utils import  translation
 from django.contrib.auth import login
+from common.enums import MobilePlatform
 from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea, CityAreaField, obj_by_attr
 from common.geo_calculations import distance_between_points
@@ -668,6 +669,7 @@ class Passenger(BaseModel):
     # used to send push notifications
     push_token = models.CharField(_("login token"), max_length=65, null=True, blank=True)
 
+    mobile_platform = models.IntegerField(choices=MobilePlatform.choices(), default=MobilePlatform.Other)
     session_keys = ListField(models.CharField(max_length=32)) # session is identified by a 32-character hash
 
     # disallow ordering
