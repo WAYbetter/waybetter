@@ -19,6 +19,8 @@ import dateutil.parser
 #import sharing.mock_algo_api as algo_api
 import sharing.algo_api as algo_api
 
+MAX_SEATS = 3
+
 def staff_m2m(request):
     return render_to_response("staff_m2m.html", RequestContext(request))
 
@@ -53,6 +55,7 @@ def sync_app_state(request, passenger):
     logging.info(passenger)
     response = {}
 
+    response["pickup_datetime_options"] = [to_js_date(default_tz_now()), to_js_date(default_tz_now() + datetime.timedelta(minutes=30)), to_js_date(default_tz_now() + datetime.timedelta(days=1))]
     ongoing_order = get_ongoing_order(passenger)
     if ongoing_order:
         response["ongoing_order_id"] = ongoing_order.id
@@ -130,20 +133,20 @@ def get_offers(request):
         if ride_id == NEW_ORDER_ID:
             offer = {
                 "pickup_time": to_js_date(order_settings.pickup_dt),
-                "ride_depart_time": to_js_date(order_settings.pickup_dt),
                 "price": price,
-                "seats_taken": 0,
+                "seats_left": MAX_SEATS,
+                "new_ride": True,
             }
 
         else:
             pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride_data[AlgoField.RIDE_POINTS])
             offer = {
                 "ride_id": ride_id,
-                "pickup_time": to_js_date(order_settings.pickup_dt + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])),
-                "ride_depart_time": to_js_date(ride.depart_time),
+                "pickup_time": to_js_date(ride.depart_time + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])),
                 "points": ["%s %s" % (p.stop_time.strftime("%H:%M"), p.address) for p in ride.points.all()],
-                "seats_taken": sum([order.num_seats for order in ride.orders.all()]),
+                "seats_left": MAX_SEATS - sum([order.num_seats for order in ride.orders.all()]),
                 "price": price,
+                "new_ride": False,
             }
 
         offers.append(offer)
@@ -155,6 +158,8 @@ def get_offers(request):
 @passenger_required_no_redirect
 def book_ride(request, passenger):
     order_settings = OrderSettings.fromRequest(request)
+    logging.info("pikcup_dt: %s" % order_settings.pickup_dt)
+
     request_data = simplejson.loads(request.POST.get('data'))
     ride_id = int(request_data.get("ride_id", NEW_ORDER_ID))
     is_private = bool(request_data["settings"]["private"])
