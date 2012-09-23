@@ -392,8 +392,34 @@ class Address:
         self.country_code = country_code
         self.address_type = address_type
 
+    @classmethod
+    def from_order(cls, order, address_type):
+        new_address = None
+        try:
+            new_address = Address(
+                        getattr(order, "%s_lat" % address_type),
+                        getattr(order, "%s_lon" % address_type),
+                        house_number=getattr(order, "%s_house_number" % address_type),
+                        street=getattr(order, "%s_street_address" % address_type),
+                        city_name=getattr(order, "%s_city" % address_type).name,
+                        description=getattr(order, "%s_raw" % address_type),
+                        country_code=getattr(order, "%s_country" % address_type).code
+                    )
+        except AttributeError, e:
+            pass
+        return new_address
+
+
     @property
     def formatted_address(self):
         return u"%s %s, %s" % (self.street, self.house_number, self.city_name)
 
+    def __eq__(self, other):
+        return self.__hash__() == other.__hash__()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return self.formatted_address.__hash__()
 
