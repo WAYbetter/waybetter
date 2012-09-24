@@ -5,15 +5,18 @@ import traceback
 from django.http import HttpResponseBadRequest
 from django.utils.translation import get_language_from_request
 from django.views.decorators.csrf import csrf_exempt
+from billing.billing_manager import get_billing_redirect_url, get_token_url
+from billing.models import BillingTransaction
+from common.decorators import force_lang
 from common.tz_support import to_js_date, default_tz_now, set_default_tz_time
 from common.util import first, Enum
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
+from django.core.urlresolvers import reverse
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required, passenger_required_no_redirect
-from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, TARIFFS
-from pricing.models import RuleSet
+from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, Passenger
 from sharing.algo_api import AlgoField
 import simplejson
 import datetime
@@ -64,6 +67,22 @@ def sync_app_state(request, passenger):
 
 
     logging.info("get_initial_status: %s" % response)
+    return JSONResponse(response)
+
+@passenger_required_no_redirect
+def get_order_billing_status(request, passenger):
+    order_id = request.GET.get("order_id")
+    order = Order.by_id(order_id)
+    status_dict = {
+        APPROVED: "approved",
+        PENDING: "pending"
+    }
+
+    if order and order.passenger == passenger:
+        response = {'status': status_dict.get(order.status)}
+    else:
+        response = {"error": "unknown order"}
+
     return JSONResponse(response)
 
 def get_defaults(request):
@@ -180,21 +199,39 @@ def get_offers(request):
 
 
 @csrf_exempt
-@passenger_required_no_redirect
-def book_ride(request, passenger):
-    order_settings = OrderSettings.fromRequest(request)
-    logging.info("pikcup_dt: %s" % order_settings.pickup_dt)
+def book_ride(request):
+    passenger = Passenger.from_request(request)
+    result = {
+        'status': '',
+        'order_id': None,
+        'redirect': '',
+        'error': ''
+    }
 
-    request_data = simplejson.loads(request.POST.get('data'))
-    ride_id = int(request_data.get("ride_id", NEW_ORDER_ID))
-    is_private = bool(request_data["settings"]["private"])
+    if passenger and passenger.user and hasattr(passenger, "billing_info"): # we have logged-in passenger with billing_info - let's proceed
+        order_settings = OrderSettings.fromRequest(request)
+        request_data = simplejson.loads(request.POST.get('data'))
+        ride_id = int(request_data.get("ride_id", NEW_ORDER_ID))
+        is_private = bool(request_data["settings"]["private"])
 
-    if is_private:
-        response = book_private_ride(order_settings, passenger)
-    else:
-        response = book_shared_ride(ride_id, order_settings, passenger)
+        if is_private:
+            order_id = book_private_ride(order_settings, passenger)
+        else:
+            order_id = book_shared_ride(ride_id, order_settings, passenger)
 
-    return response
+        result['status'] = 'success' if order_id is not None else 'failed'
+        result['order_id'] = order_id
+        result['error'] = 'Booking failed for some reason'
+
+    else: # not authorized for booking
+        if not hasattr(passenger, "billing_info"):
+            result['status'] = 'billing_failed'
+            result['redirect'] = get_token_url(request) # go to billing
+        else:
+            result['status'] = 'auth_failed'
+
+    return JSONResponse(result)
+
 
 def book_private_ride(order_settings, passenger):
     pass
@@ -203,42 +240,53 @@ def book_private_ride(order_settings, passenger):
 def book_shared_ride(ride_id, order_settings, passenger):
     ride = SharedRide.by_id(ride_id)
 
-    # get ride data from algo
+    # get ride data from algo: don't trust the client
     candidates = [ride] if ride else []
     matching_rides = get_matching_rides(candidates, order_settings)
     ride_data = first(lambda match: match[AlgoField.RIDE_ID] == ride_id, matching_rides)
 
-    response = {'success': False}
-
     if not ride_data:
-        return JSONResponse(response)
+        return None
 
     order = Order.fromOrderSettings(order_settings, passenger, commit=False)
     order.type = OrderType.SHARED
+    order.save()
 
-    if ride_id == NEW_ORDER_ID:
-        ride = create_shared_ride_for_order(ride_data, order)
-        response['success'] = True
+    billing_trx = BillingTransaction(order=order, amount=order.price, debug=order.debug)
+    billing_trx.save()
+    billing_trx.commit(callback_args={
+        "ride_id": ride_id,
+        "ride_data": ride_data
+    })
 
-    elif ride.lock(): # try joining existing ride
-        try:
-            update_ride_for_order(ride, ride_data, order)
-            ride.unlock()
-            response['success'] = True
-            #TODO_WB: notify passengers their price dropped
+    return order.id
 
-        except Exception as e:
-            logging.error(traceback.format_exc())
-            ride.unlock()
+def billing_approved_book_order(ride_id, ride_data, order):
+    from sharing.station_controller import send_ride_in_risk_notification
 
-    if response['success']:
-        response['ride'] = {
-            'ride_id': ride.id,
-            'price': order.price,
-            'stops': ["%s %s" % (p.stop_time.strftime("%H:%M"), p.address) for p in ride.points.all()]
-        }
+    try:
+        if ride_id == NEW_ORDER_ID:
+            ride = create_shared_ride_for_order(ride_data, order)
+        else:
+            ride = SharedRide.by_id(ride_id)
+            if ride and ride.lock(): # try joining existing ride
+                try:
+                    update_ride_for_order(ride, ride_data, order)
+                    ride.unlock()
+		            #TODO_WB: notify passengers their price dropped
 
-    return JSONResponse(response)
+                except Exception as e:
+                    #TODO_WB: handle this error in some way - try again, create a new ride
+                    logging.error(traceback.format_exc())
+                    ride.unlock()
+
+                    raise Exception(e.message)
+            else:
+                logging.info("ride lock failed: creating a new ride")
+                ride = create_shared_ride_for_order(ride_data, order)
+
+    except Exception as e:
+        send_ride_in_risk_notification("Failed during post billing processing: %s" % e.message, ride_id)
 
 def create_shared_ride_for_order(ride_data, order):
     ride = SharedRide()

@@ -101,6 +101,7 @@ urlpatterns = patterns('',
     (r'^m2m/sync_app_state', 'ordering.ordering_controller.sync_app_state'),
     (r'^m2m/get_ongoing_ride_details', 'ordering.ordering_controller.get_ongoing_ride_details'),
     (r'^m2m/update_push_token', 'ordering.passenger_controller.update_push_token'),
+    (r'^m2m/get_order_billing_status/$', 'ordering.ordering_controller.get_order_billing_status'),
 
 )
 
