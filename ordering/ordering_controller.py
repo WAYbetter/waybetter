@@ -2,21 +2,19 @@ from __future__ import absolute_import # we need absolute imports since ordering
 
 import logging
 import traceback
-from django.http import HttpResponseBadRequest
 from django.utils.translation import get_language_from_request
 from django.views.decorators.csrf import csrf_exempt
-from billing.billing_manager import get_billing_redirect_url, get_token_url
+from billing.billing_manager import  get_token_url
 from billing.models import BillingTransaction
-from common.decorators import force_lang
 from common.tz_support import to_js_date, default_tz_now, set_default_tz_time
 from common.util import first, Enum
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
-from django.core.urlresolvers import reverse
 from djangotoolbox.http import JSONResponse
-from ordering.decorators import passenger_required, passenger_required_no_redirect
+from ordering.decorators import  passenger_required_no_redirect
 from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, Passenger
+from pricing.models import TARIFFS, RuleSet
 from sharing.algo_api import AlgoField
 import simplejson
 import datetime
@@ -250,6 +248,7 @@ def book_shared_ride(ride_id, order_settings, passenger):
 
     order = Order.fromOrderSettings(order_settings, passenger, commit=False)
     order.type = OrderType.SHARED
+    order.price_data = get_order_price_data_from(ride_data)
     order.save()
 
     billing_trx = BillingTransaction(order=order, amount=order.price, debug=order.debug)
