@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+from __future__ import absolute_import # we need absolute imports since ordering contains pricing.py
+import pickle
 from django.core.exceptions import ValidationError
 from django.template.loader import get_template
 from django.template.context import Context
@@ -24,7 +25,7 @@ from fleet.models import FleetManager, FleetManagerRideStatus
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
 from sharing.signals import ride_status_changed_signal
-from pricing.models import RuleSet
+from pricing.models import  RuleSet, TARIFFS
 
 import re
 import time
@@ -404,6 +405,16 @@ class Ride(BaseModel):
     status = StatusField(_("status"), choices=RIDE_STATUS, default=PENDING)
     debug = models.BooleanField(default=False, editable=False)
 
+    _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
+
+    @property
+    def cost_data(self):
+        return pickle.loads(self._cost_data.encode("utf-8"))
+
+    @cost_data.setter
+    def cost_data(self, value):
+        self._cost_data = pickle.dumps(value)
+
     @property
     def pickup_points(self):
         return filter(lambda p: p.type == StopType.PICKUP, self.points.all())
@@ -531,10 +542,21 @@ class SharedRide(Ride):
 
     def serialize_for_algo(self):
         from sharing.algo_api import AlgoField
+        cost_data = self.cost_data
+        order_infos = {}
+        for order in self.orders.all():
+            order_infos[order.id] = {
+                'num_seats': order.num_seats,
+                AlgoField.PRICE_SHARING_TARIFF1: order.price_data.get(TARIFFS.TARIFF1),
+                AlgoField.PRICE_SHARING_TARIFF2: order.price_data.get(TARIFFS.TARIFF2)
+            }
+
         return {
-            AlgoField.RIDE_ID      : self.id,
-            AlgoField.RIDE_POINTS  : [rp.serialize_for_algo() for rp in sorted(self.points.all(), key=lambda p: p.stop_time)],
-            AlgoField.ORDER_INFOS  : dict([(o.id, { "num_seats": o.num_seats }) for o in self.orders.all()])
+            AlgoField.RIDE_ID           : self.id,
+            AlgoField.RIDE_POINTS       : [rp.serialize_for_algo() for rp in sorted(self.points.all(), key=lambda p: p.stop_time)],
+            AlgoField.ORDER_INFOS       : order_infos,
+            AlgoField.COST_LIST_TARIFF1 : cost_data.get(TARIFFS.TARIFF1, []),
+            AlgoField.COST_LIST_TARIFF2 : cost_data.get(TARIFFS.TARIFF2, [])
         }
     def change_status(self, old_status=None, new_status=None):
         if self._change_attr_in_transaction("status", old_status, new_status):
@@ -1056,6 +1078,26 @@ class Order(BaseModel):
     arrive_time = UTCDateTimeField(_("arrive time"), null=True, blank=True)
     price = models.FloatField(null=True, blank=True, editable=False)
     num_seats = models.PositiveIntegerField(default=1)
+
+    _price_data = models.TextField(editable=False, default=pickle.dumps(None))
+
+    @property
+    def price_data(self):
+        return pickle.loads(self._price_data.encode("utf-8"))
+
+    @price_data.setter
+    def price_data(self, value):
+        self._price_data = pickle.dumps(value)
+
+        # set order price according to received price data and tariff
+        if self.depart_time:
+            tariff = RuleSet.get_active_set(self.depart_time.date(), self.depart_time.time())
+            price = self.price_data.get(tariff.tariff_type)
+            if price and self.price != price:
+                # TODO: emit signal
+                self.price = price
+
+
     from sharing.models import HotSpot
     # note: you must be aware that legacy orders do not have a .hotspot value
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="orders", null=True, blank=True)

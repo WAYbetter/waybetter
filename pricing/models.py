@@ -1,10 +1,14 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
-from common.util import DAY_OF_WEEK_CHOICES, FIRST_WEEKDAY, LAST_WEEKDAY, convert_python_weekday, datetimeIterator
+from common.util import DAY_OF_WEEK_CHOICES, FIRST_WEEKDAY, LAST_WEEKDAY, convert_python_weekday, datetimeIterator, Enum
 from common.models import BaseModel
 
 PRIVATE_RIDE_HANDLING_FEE = 0 #NIS
+
+class TARIFFS(Enum):
+    TARIFF1 = 'tariff1'
+    TARIFF2 = 'tariff2'
 
 class RuleSet(BaseModel):
     """
@@ -13,6 +17,7 @@ class RuleSet(BaseModel):
     name = models.CharField(_("name"), max_length=50)
     station_display_name = models.CharField("name to display in station accounting", max_length=50, null=True, blank=True)
     priority = models.FloatField(_("priority"), unique=True)
+    tariff_type = models.CharField(choices=TARIFFS.choices(), max_length=20)
 
     class Meta:
         ordering = ['-priority']

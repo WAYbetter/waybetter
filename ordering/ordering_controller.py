@@ -1,3 +1,5 @@
+from __future__ import absolute_import # we need absolute imports since ordering contains pricing.py
+
 import logging
 import traceback
 from django.http import HttpResponseBadRequest
@@ -10,13 +12,13 @@ from django.template.context import RequestContext
 from django.conf import settings
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required, passenger_required_no_redirect
-from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING
+from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, TARIFFS
+from pricing.models import RuleSet
 from sharing.algo_api import AlgoField
 import simplejson
 import datetime
 import dateutil.parser
 
-#import sharing.mock_algo_api as algo_api
 import sharing.algo_api as algo_api
 
 MAX_SEATS = 3
@@ -86,7 +88,7 @@ def get_candidate_rides(order_settings):
     @return:
     """
     #TODO_WB: implement
-    start_dt = set_default_tz_time(datetime.datetime(2012, 9, 6, 15, 15))
+    start_dt = set_default_tz_time(datetime.datetime(2012, 9, 24, 13, 30))
     candidates = SharedRide.objects.filter(create_date__gte=start_dt)
     candidates = filter(lambda ride: ride.debug, candidates)
     candidates = filter(lambda ride: sum([order.num_seats for order in ride.orders.all()]) < 3, candidates)
@@ -117,6 +119,18 @@ def filter_matching_rides(matching_rides):
     return matching_rides
 
 
+def get_ride_cost_data_from(ride_data):
+    return {TARIFFS.TARIFF1: (ride_data[AlgoField.COST_LIST_TARIFF1]),
+             TARIFFS.TARIFF2: (ride_data[AlgoField.COST_LIST_TARIFF2])}
+
+def get_order_price_data_from(ride_data, order_id=NEW_ORDER_ID):
+    order_info = ride_data[AlgoField.ORDER_INFOS][str(order_id)]
+    return {
+        TARIFFS.TARIFF1: order_info[AlgoField.PRICE_SHARING_TARIFF1],
+        TARIFFS.TARIFF2: order_info[AlgoField.PRICE_SHARING_TARIFF2]
+    }
+
+
 def get_offers(request):
     order_settings = OrderSettings.fromRequest(request)
     candidate_rides = get_candidate_rides(order_settings)
@@ -124,12 +138,23 @@ def get_offers(request):
     filtered_rides = filter_matching_rides(matching_rides)
 
     offers = []
+    tariffs = RuleSet.objects.all()
 
     for ride_data in filtered_rides:
         ride_id = ride_data[AlgoField.RIDE_ID]
         ride = SharedRide.by_id(ride_id)
 
-        price = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.PRICE_SHARING]
+        # get price for offer according to tariff
+        price = None
+        for tariff in tariffs:
+            if tariff.is_active(order_settings.pickup_dt.date(), order_settings.pickup_dt.time()):
+                price = get_order_price_data_from(ride_data).get(tariff.tariff_type)
+                break
+        if not price:
+            logging.warning("get_offers missing price for %s" % order_settings.pickup_dt)
+            continue
+
+
         if ride_id == NEW_ORDER_ID:
             offer = {
                 "pickup_time": to_js_date(order_settings.pickup_dt),
@@ -189,7 +214,6 @@ def book_shared_ride(ride_id, order_settings, passenger):
         return JSONResponse(response)
 
     order = Order.fromOrderSettings(order_settings, passenger, commit=False)
-    order.price = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.PRICE_SHARING]
     order.type = OrderType.SHARED
 
     if ride_id == NEW_ORDER_ID:
@@ -201,6 +225,7 @@ def book_shared_ride(ride_id, order_settings, passenger):
             update_ride_for_order(ride, ride_data, order)
             ride.unlock()
             response['success'] = True
+            #TODO_WB: notify passengers their price dropped
 
         except Exception as e:
             logging.error(traceback.format_exc())
@@ -220,6 +245,7 @@ def create_shared_ride_for_order(ride_data, order):
     ride.depart_time = order.depart_time
     ride.debug = order.debug
     ride.arrive_time = ride.depart_time + datetime.timedelta(seconds=ride_data[AlgoField.REAL_DURATION])
+    ride.cost_data = get_ride_cost_data_from(ride_data)
     ride.save()
 
     for point_data in ride_data[AlgoField.RIDE_POINTS]:
@@ -232,6 +258,8 @@ def create_shared_ride_for_order(ride_data, order):
             order.dropoff_point = p
 
     order.ride = ride
+
+    order.price_data = get_order_price_data_from(ride_data)
     order.save()
 
     return ride
@@ -249,8 +277,11 @@ def update_ride_for_order(ride, ride_data, new_order, depart_time=None):
 
     ride_points_data = ride_data[AlgoField.RIDE_POINTS]
 
-    # update stop times of existing points
+    # update order prices and stop times of existing points
     for order in orders:
+        order.price_data = get_order_price_data_from(ride_data, order.id)
+        order.save()
+
         pickup_point = order.pickup_point
         dropoff_point = order.dropoff_point
 
@@ -289,7 +320,12 @@ def update_ride_for_order(ride, ride_data, new_order, depart_time=None):
                 new_order.dropoff_point = p
 
     new_order.ride = ride
+    new_order.price_data = get_order_price_data_from(ride_data)
     new_order.save()
+
+    ride.cost_data = get_ride_cost_data_from(ride_data)
+    ride.save()
+
 
 def create_ride_point(ride, point_data):
     point = RidePoint()

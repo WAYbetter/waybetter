@@ -39,6 +39,8 @@ COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT = 3 # minutes
 COMPUTATION_ABORT_TIMEOUT = 3 # minutes
 
 class AlgoField(Enum):
+    COST_LIST_TARIFF1 = "m_AllPrices"
+    COST_LIST_TARIFF2 = "m_AllPrices2"
     DEBUG = "m_Debug"
     DISTANCE = "m_Distance"
     DROPOFF = "eDropoff"
@@ -52,7 +54,8 @@ class AlgoField(Enum):
     OUTPUT_STAT = "m_OutputStat"
     PICKUP = "ePickup"
     POINT_ADDRESS = "m_PointAddress"
-    PRICE_SHARING = "m_PriceSharing"
+    PRICE_SHARING_TARIFF1 = "m_PriceSharing"
+    PRICE_SHARING_TARIFF2 = "m_Price2Sharing"
     REAL_DURATION = "m_RealDuration"
     RIDES = "m_Rides"
     RIDE_ID = "m_RideID"
