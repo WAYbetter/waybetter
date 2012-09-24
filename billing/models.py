@@ -12,7 +12,7 @@ from django.utils.translation import ugettext_lazy as _
 from datetime import datetime, timedelta
 
 from django.forms.models import ModelForm
-
+import pickle
 
 class InvalidOperationError(RuntimeError):
     pass
@@ -82,7 +82,7 @@ class BillingTransaction(BaseModel):
         self.charge_date = self.dn_pickup_time + timedelta(days=1)
 #        self.charge_date = self.dn_pickup_time + timedelta(minutes=15)
 
-    def commit(self):
+    def commit(self, callback_args=None):
         """
         Submits this transaction to online billing provider
 
@@ -105,7 +105,7 @@ class BillingTransaction(BaseModel):
         self._commit_transaction(token=billing_info.token,
                                  amount=self.amount_in_cents,
                                  card_expiration=billing_info.expiration_date_formatted,
-                                 action=BillingAction.COMMIT)
+                                 action=BillingAction.COMMIT, callback_args=callback_args)
 
 
     def disable(self):
@@ -130,8 +130,9 @@ class BillingTransaction(BaseModel):
                                  action=BillingAction.CHARGE, eta=eta)
 
 
-    def _commit_transaction(self, token, amount, card_expiration, action, eta=None):
+    def _commit_transaction(self, token, amount, card_expiration, action, eta=None, callback_args=None):
         billing_transaction_id = self.id
+        callback_args = pickle.dumps(callback_args)
         task = taskqueue.Task(url=reverse("billing.views.billing_task"), params=locals(), eta=eta)
 
         q = taskqueue.Queue('orders')
