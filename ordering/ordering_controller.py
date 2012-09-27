@@ -53,15 +53,16 @@ def get_ongoing_order(passenger):
     ongoing_order = first(lambda o: o.status in [ACCEPTED, APPROVED, PENDING], ongoing_orders)
     return ongoing_order
 
-@passenger_required_no_redirect
-def sync_app_state(request, passenger):
-    logging.info(passenger)
+def sync_app_state(request):
     response = {}
 
     response["pickup_datetime_options"] = [to_js_date(default_tz_now()), to_js_date(default_tz_now() + datetime.timedelta(minutes=30)), to_js_date(default_tz_now() + datetime.timedelta(days=1))]
-    ongoing_order = get_ongoing_order(passenger)
-    if ongoing_order:
-        response["ongoing_order_id"] = ongoing_order.id
+    
+    passenger = Passenger.from_request(request)
+    if passenger:
+        ongoing_order = get_ongoing_order(passenger)
+        if ongoing_order:
+            response["ongoing_order_id"] = ongoing_order.id
 
 
     logging.info("get_initial_status: %s" % response)
