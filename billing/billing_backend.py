@@ -5,8 +5,7 @@ from common.decorators import force_lang
 from common.models import Counter
 from common.urllib_adaptor import urlencode
 from common.util import get_text_from_element, get_unique_id, safe_fetch
-from ordering.models import CANCELLED, PENDING, APPROVED, CHARGED, FAILED, RideComputationStatus, IGNORED
-from django.core.urlresolvers import reverse
+from ordering.models import CANCELLED, PENDING, APPROVED, CHARGED, FAILED, IGNORED
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.context import Context
