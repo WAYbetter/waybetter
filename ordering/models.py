@@ -395,7 +395,7 @@ class RideComputation(BaseModel):
     def change_status(self, old_status=None, new_status=None, safe=True):
         return self._change_attr_in_transaction("status", old_value=old_status, new_value=new_status, safe=safe)
 
-class Ride(BaseModel):
+class BaseRide(BaseModel):
     class Meta:
         abstract = True
 
@@ -407,13 +407,13 @@ class Ride(BaseModel):
 
     _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
 
-    @property
-    def cost_data(self):
+    def get_cost_data(self):
         return pickle.loads(self._cost_data.encode("utf-8"))
 
-    @cost_data.setter
-    def cost_data(self, value):
+    def set_cost_data(self, value):
         self._cost_data = pickle.dumps(value)
+
+    cost_data = property(fget=get_cost_data, fset=set_cost_data)
 
     @property
     def pickup_points(self):
@@ -426,18 +426,20 @@ class Ride(BaseModel):
     # denormalized fields
     dn_fleet_manager_id = models.IntegerField(blank=True, null=True)
 
-class PickMeAppRide(Ride):
+class PickMeAppRide(BaseRide):
     order = models.OneToOneField('Order', related_name="pickmeapp_ride")
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="pickmeapp_rides", null=True, blank=True)
 
-
-class SharedRide(Ride):
+class SharedRide(BaseRide):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
     driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
 
-    computation = models.ForeignKey(RideComputation, verbose_name=_("computation"), related_name="rides", null=True, blank=True)
+    # 1.2 fields
+    is_private = models.BooleanField(default=False)
 
+    # < 1.2 fields
+    computation = models.ForeignKey(RideComputation, verbose_name=_("computation"), related_name="rides", null=True, blank=True)
     sent_time = UTCDateTimeField("sent time", null=True, blank=True)
     received_time = UTCDateTimeField("received time", null=True, blank=True)
 
@@ -1081,12 +1083,10 @@ class Order(BaseModel):
 
     _price_data = models.TextField(editable=False, default=pickle.dumps(None))
 
-    @property
-    def price_data(self):
+    def get_price_data(self):
         return pickle.loads(self._price_data.encode("utf-8"))
 
-    @price_data.setter
-    def price_data(self, value):
+    def set_price_data(self, value):
         self._price_data = pickle.dumps(value)
 
         # set order price according to received price data and tariff
@@ -1097,6 +1097,7 @@ class Order(BaseModel):
                 # TODO: emit signal
                 self.price = price
 
+    price_data = property(fget=get_price_data, fset=set_price_data)
 
     from sharing.models import HotSpot
     # note: you must be aware that legacy orders do not have a .hotspot value
