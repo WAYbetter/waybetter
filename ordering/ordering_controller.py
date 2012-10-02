@@ -7,7 +7,7 @@ from django.views.decorators.csrf import csrf_exempt
 from billing.billing_manager import  get_token_url
 from billing.models import BillingTransaction
 from common.tz_support import to_js_date, default_tz_now, set_default_tz_time
-from common.util import first, Enum
+from common.util import first, Enum, dict_to_str_keys
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
@@ -53,16 +53,16 @@ def get_ongoing_order(passenger):
     ongoing_order = first(lambda o: o.status in [ACCEPTED, APPROVED, PENDING], ongoing_orders)
     return ongoing_order
 
-@passenger_required_no_redirect
-def sync_app_state(request, passenger):
+def sync_app_state(request):
+    passenger = Passenger.from_request(request)
     logging.info(passenger)
-    response = {}
-
-    response["pickup_datetime_options"] = [to_js_date(default_tz_now()), to_js_date(default_tz_now() + datetime.timedelta(minutes=30)), to_js_date(default_tz_now() + datetime.timedelta(days=1))]
-    ongoing_order = get_ongoing_order(passenger)
-    if ongoing_order:
-        response["ongoing_order_id"] = ongoing_order.id
-
+    response = {"pickup_datetime_options": [to_js_date(default_tz_now()),
+                                            to_js_date(default_tz_now() + datetime.timedelta(minutes=30)),
+                                            to_js_date(default_tz_now() + datetime.timedelta(days=1))]}
+    if passenger:
+        ongoing_order = get_ongoing_order(passenger)
+        if ongoing_order:
+            response["ongoing_order_id"] = ongoing_order.id
 
     logging.info("get_initial_status: %s" % response)
     return JSONResponse(response)
@@ -105,9 +105,10 @@ def get_candidate_rides(order_settings):
     @return:
     """
     #TODO_WB: implement
-    start_dt = set_default_tz_time(datetime.datetime(2012, 9, 24, 13, 30))
+    start_dt = set_default_tz_time(datetime.datetime(2012, 10, 2, 12, 22))
     candidates = SharedRide.objects.filter(create_date__gte=start_dt)
     candidates = filter(lambda ride: ride.debug, candidates)
+    candidates = filter(lambda ride: not ride.is_private, candidates)
     candidates = filter(lambda ride: sum([order.num_seats for order in ride.orders.all()]) < 3, candidates)
 
     return candidates
@@ -150,7 +151,11 @@ def get_order_price_data_from(ride_data, order_id=NEW_ORDER_ID):
 
 def get_offers(request):
     order_settings = OrderSettings.fromRequest(request)
-    candidate_rides = get_candidate_rides(order_settings)
+    if not order_settings.private:
+        candidate_rides = get_candidate_rides(order_settings)
+    else:
+        candidate_rides = []
+
     matching_rides = get_matching_rides(candidate_rides, order_settings)
     filtered_rides = filter_matching_rides(matching_rides)
 
@@ -182,11 +187,13 @@ def get_offers(request):
 
         else:
             pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride_data[AlgoField.RIDE_POINTS])
+            ride_orders = ride.orders.all()
             offer = {
                 "ride_id": ride_id,
                 "pickup_time": to_js_date(ride.depart_time + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])),
                 "points": ["%s %s" % (p.stop_time.strftime("%H:%M"), p.address) for p in ride.points.all()],
-                "seats_left": MAX_SEATS - sum([order.num_seats for order in ride.orders.all()]),
+                "passenger_names": [o.passenger.name for o in ride_orders],
+                "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
                 "price": price,
                 "new_ride": False,
             }
@@ -195,6 +202,8 @@ def get_offers(request):
 
     return JSONResponse(offers)
 
+def ger_private_offer(request):
+    return get_offers(request)
 
 @csrf_exempt
 def book_ride(request):
@@ -210,16 +219,15 @@ def book_ride(request):
         order_settings = OrderSettings.fromRequest(request)
         request_data = simplejson.loads(request.POST.get('data'))
         ride_id = int(request_data.get("ride_id", NEW_ORDER_ID))
-        is_private = bool(request_data["settings"]["private"])
 
-        if is_private:
-            order_id = book_private_ride(order_settings, passenger)
+        order_id = create_order(order_settings, passenger, ride_id)
+
+        if order_id is not None:
+            result['status'] = 'success'
+            result['order_id'] = order_id
         else:
-            order_id = book_shared_ride(ride_id, order_settings, passenger)
-
-        result['status'] = 'success' if order_id is not None else 'failed'
-        result['order_id'] = order_id
-        result['error'] = 'Booking failed for some reason'
+            result['status'] = 'failed'
+            result['error'] = 'Booking failed for some reason'
 
     else: # not authorized for booking
         if not hasattr(passenger, "billing_info"):
@@ -231,11 +239,7 @@ def book_ride(request):
     return JSONResponse(result)
 
 
-def book_private_ride(order_settings, passenger):
-    pass
-
-
-def book_shared_ride(ride_id, order_settings, passenger):
+def create_order(order_settings, passenger, ride_id):
     ride = SharedRide.by_id(ride_id)
 
     # get ride data from algo: don't trust the client
@@ -247,9 +251,15 @@ def book_shared_ride(ride_id, order_settings, passenger):
         return None
 
     order = Order.fromOrderSettings(order_settings, passenger, commit=False)
-    order.type = OrderType.SHARED
+
+    if order_settings.private:
+        order.type = OrderType.PRIVATE
+    else:
+        order.type = OrderType.SHARED
+
     order.price_data = get_order_price_data_from(ride_data)
     order.save()
+    logging.info("created new %s order [%s]" % (OrderType.get_name(order.type), order.id))
 
     billing_trx = BillingTransaction(order=order, amount=order.price, debug=order.debug)
     billing_trx.save()
@@ -272,9 +282,9 @@ def billing_approved_book_order(ride_id, ride_data, order):
                 try:
                     update_ride_for_order(ride, ride_data, order)
                     ride.unlock()
-		            #TODO_WB: notify passengers their price dropped
+                    #TODO_WB: notify passengers their price dropped
 
-                except Exception as e:
+                except Exception, e:
                     #TODO_WB: handle this error in some way - try again, create a new ride
                     logging.error(traceback.format_exc())
                     ride.unlock()
@@ -284,7 +294,7 @@ def billing_approved_book_order(ride_id, ride_data, order):
                 logging.info("ride lock failed: creating a new ride")
                 ride = create_shared_ride_for_order(ride_data, order)
 
-    except Exception as e:
+    except Exception, e:
         send_ride_in_risk_notification("Failed during post billing processing: %s" % e.message, ride_id)
 
 def create_shared_ride_for_order(ride_data, order):
@@ -293,7 +303,10 @@ def create_shared_ride_for_order(ride_data, order):
     ride.debug = order.debug
     ride.arrive_time = ride.depart_time + datetime.timedelta(seconds=ride_data[AlgoField.REAL_DURATION])
     ride.cost_data = get_ride_cost_data_from(ride_data)
+    if order.type == OrderType.PRIVATE:
+        ride.is_private = True
     ride.save()
+    logging.info("created new ride [%s] for order [%s]" % (ride.id, order.id))
 
     for point_data in ride_data[AlgoField.RIDE_POINTS]:
         create_ride_point(ride, point_data)
@@ -422,6 +435,7 @@ class OrderSettings:
     @classmethod
     def fromRequest(cls, request):
         request_data = simplejson.loads(request.REQUEST.get("data"))
+        request_data = dict_to_str_keys(request_data)
 
         pickup = request_data.get("pickup")
         dropoff = request_data.get("dropoff")
@@ -430,6 +444,7 @@ class OrderSettings:
         inst = cls()
         inst.num_seats = int(settings["num_seats"])
         inst.debug = bool(settings["debug"])
+        inst.private = bool(settings["private"])
         inst.pickup_dt = dateutil.parser.parse(request_data.get("pickup_dt"))
         inst.pickup_address = Address(**pickup)
         inst.dropoff_address = Address(**dropoff)
