@@ -21,7 +21,7 @@ import types
 INVOICE_INFO = settings.INVOICE_INFO
 BILLING_INFO = settings.BILLING
 
-def do_J5(token, amount, card_expiration, billing_transaction_id):
+def do_J5(token, amount, card_expiration, billing_transaction_id, callback_args=None):
     billing_transaction = BillingTransaction.by_id(billing_transaction_id)
     billing_transaction.change_status(BillingStatus.PENDING, BillingStatus.PROCESSING)
     lang_code = get_language_code_for_credit_guard(billing_transaction.order.language_code)
@@ -62,7 +62,7 @@ def do_J5(token, amount, card_expiration, billing_transaction_id):
         billing_transaction.change_status(BillingStatus.PROCESSING, BillingStatus.APPROVED) #calls save
 
         if billing_transaction.order.change_status(old_status=PENDING, new_status=APPROVED):
-            billing_approved_signal.send(sender="do_J5", obj=billing_transaction)
+            billing_approved_signal.send(sender="do_J5", obj=billing_transaction, callback_args=callback_args)
             billing_transaction.charge() # setup J4
         else: # order is not PENDING (it can be marked as IGNORED when submitting to algorithm)
             billing_transaction.comments = _("We are sorry but booking for the selected time is closed, please choose a different time.<br/>Your billing information was saved, you will not be asked to provide it again.")

@@ -48,8 +48,13 @@ def bill_passenger(request):
 def billing_task(request, token, amount, card_expiration, billing_transaction_id, action):
     logging.info("billing task: transaction_id=%s" % billing_transaction_id)
     action = int(action)
+
+    callback_args = request.POST.get("callback_args")
+    if callback_args:
+        callback_args = pickle.loads(callback_args.encode("utf-8"))
+
     if action == BillingAction.COMMIT:
-        return billing_backend.do_J5(token, amount, card_expiration, billing_transaction_id)
+        return billing_backend.do_J5(token, amount, card_expiration, billing_transaction_id, callback_args=callback_args)
     elif action == BillingAction.CHARGE:
         return billing_backend.do_J4(token, amount, card_expiration, billing_transaction_id)
     else:

@@ -162,6 +162,18 @@ def first(func, iterable):
             return item
     return None
 
+def dict_to_str_keys(obj):
+    if isinstance(obj, dict):
+        result = {}
+        for k, v in obj.items():
+            new_key = str(k)
+            result[new_key] = dict_to_str_keys(v)
+
+        return result
+    else:
+        return obj
+
+
 def datetimeIterator(from_datetime=None, to_datetime=None, delta=datetime.timedelta(days=1)):
     """
     Return a generator iterating the dates between two datetime instances.

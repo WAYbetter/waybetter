@@ -39,24 +39,24 @@ def handle_approved_orders(sender, signal_type, obj, status, **kwargs):
             send_mail_as_noreply(passenger.user.email, translate_to_lang("WAYbetter Order Confirmation", order.language_code), html=msg)
             notify_by_email("Order Confirmation [%s]%s" % (order.id, " (DEBUG)" if order.debug else ""), html=msg)
 
-        # create ride
-        if order.type == OrderType.PRIVATE:
-            ride = create_single_order_ride(order)
-
-        elif order.type == OrderType.SHARED:
-            computation = computation_manger.get_hotspot_computation(order)
-
-            if computation:
-                logging.info("order [%s] added to computation [%s] %s" % (order.id, computation.id, computation.key))
-                order.computation = computation
-                order.save()
-
-                address_dir = "to" if order.hotspot_type == StopType.PICKUP else "from"
-                submit_to_prefetch(order, computation.key, address_dir)
-            else:
-                logging.info("No matching computation found for order %s" % order.id)
-                ride = create_single_order_ride(order)
-                notify_by_email("No matching computation found", "Private ride voucher was sent for order [%s]" % order.id)
+#        # create ride
+#        if order.type == OrderType.PRIVATE:
+#            ride = create_single_order_ride(order)
+#
+#        elif order.type == OrderType.SHARED:
+#            computation = computation_manger.get_hotspot_computation(order)
+#
+#            if computation:
+#                logging.info("order [%s] added to computation [%s] %s" % (order.id, computation.id, computation.key))
+#                order.computation = computation
+#                order.save()
+#
+#                address_dir = "to" if order.hotspot_type == StopType.PICKUP else "from"
+#                submit_to_prefetch(order, computation.key, address_dir)
+#            else:
+#                logging.info("No matching computation found for order %s" % order.id)
+#                ride = create_single_order_ride(order)
+#                notify_by_email("No matching computation found", "Private ride voucher was sent for order [%s]" % order.id)
 
 
 @receive_signal(order_status_changed_signal)

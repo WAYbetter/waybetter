@@ -1,22 +1,25 @@
+from __future__ import absolute_import # we need absolute imports since ordering contains pricing.py
+
 import logging
 import traceback
-from django.http import HttpResponseBadRequest
 from django.utils.translation import get_language_from_request
 from django.views.decorators.csrf import csrf_exempt
+from billing.billing_manager import  get_token_url
+from billing.models import BillingTransaction
 from common.tz_support import to_js_date, default_tz_now, set_default_tz_time
-from common.util import first, Enum
+from common.util import first, Enum, dict_to_str_keys
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
 from djangotoolbox.http import JSONResponse
-from ordering.decorators import passenger_required, passenger_required_no_redirect
+from ordering.decorators import  passenger_required_no_redirect
 from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, Passenger
+from pricing.models import TARIFFS, RuleSet
 from sharing.algo_api import AlgoField
 import simplejson
 import datetime
 import dateutil.parser
 
-#import sharing.mock_algo_api as algo_api
 import sharing.algo_api as algo_api
 
 MAX_SEATS = 3
@@ -51,18 +54,33 @@ def get_ongoing_order(passenger):
     return ongoing_order
 
 def sync_app_state(request):
-    response = {}
-
-    response["pickup_datetime_options"] = [to_js_date(default_tz_now()), to_js_date(default_tz_now() + datetime.timedelta(minutes=30)), to_js_date(default_tz_now() + datetime.timedelta(days=1))]
-    
     passenger = Passenger.from_request(request)
+    logging.info(passenger)
+    response = {"pickup_datetime_options": [to_js_date(default_tz_now()),
+                                            to_js_date(default_tz_now() + datetime.timedelta(minutes=30)),
+                                            to_js_date(default_tz_now() + datetime.timedelta(days=1))]}
     if passenger:
         ongoing_order = get_ongoing_order(passenger)
         if ongoing_order:
             response["ongoing_order_id"] = ongoing_order.id
 
-
     logging.info("get_initial_status: %s" % response)
+    return JSONResponse(response)
+
+@passenger_required_no_redirect
+def get_order_billing_status(request, passenger):
+    order_id = request.GET.get("order_id")
+    order = Order.by_id(order_id)
+    status_dict = {
+        APPROVED: "approved",
+        PENDING: "pending"
+    }
+
+    if order and order.passenger == passenger:
+        response = {'status': status_dict.get(order.status)}
+    else:
+        response = {"error": "unknown order"}
+
     return JSONResponse(response)
 
 def get_defaults(request):
@@ -87,9 +105,10 @@ def get_candidate_rides(order_settings):
     @return:
     """
     #TODO_WB: implement
-    start_dt = set_default_tz_time(datetime.datetime(2012, 9, 6, 15, 15))
+    start_dt = set_default_tz_time(datetime.datetime(2012, 10, 2, 12, 22))
     candidates = SharedRide.objects.filter(create_date__gte=start_dt)
     candidates = filter(lambda ride: ride.debug, candidates)
+    candidates = filter(lambda ride: not ride.is_private, candidates)
     candidates = filter(lambda ride: sum([order.num_seats for order in ride.orders.all()]) < 3, candidates)
 
     return candidates
@@ -118,19 +137,46 @@ def filter_matching_rides(matching_rides):
     return matching_rides
 
 
+def get_ride_cost_data_from(ride_data):
+    return {TARIFFS.TARIFF1: (ride_data[AlgoField.COST_LIST_TARIFF1]),
+             TARIFFS.TARIFF2: (ride_data[AlgoField.COST_LIST_TARIFF2])}
+
+def get_order_price_data_from(ride_data, order_id=NEW_ORDER_ID):
+    order_info = ride_data[AlgoField.ORDER_INFOS][str(order_id)]
+    return {
+        TARIFFS.TARIFF1: order_info[AlgoField.PRICE_SHARING_TARIFF1],
+        TARIFFS.TARIFF2: order_info[AlgoField.PRICE_SHARING_TARIFF2]
+    }
+
+
 def get_offers(request):
     order_settings = OrderSettings.fromRequest(request)
-    candidate_rides = get_candidate_rides(order_settings)
+    if not order_settings.private:
+        candidate_rides = get_candidate_rides(order_settings)
+    else:
+        candidate_rides = []
+
     matching_rides = get_matching_rides(candidate_rides, order_settings)
     filtered_rides = filter_matching_rides(matching_rides)
 
     offers = []
+    tariffs = RuleSet.objects.all()
 
     for ride_data in filtered_rides:
         ride_id = ride_data[AlgoField.RIDE_ID]
         ride = SharedRide.by_id(ride_id)
 
-        price = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.PRICE_SHARING]
+        # get price for offer according to tariff
+        price = None
+        for tariff in tariffs:
+            if tariff.is_active(order_settings.pickup_dt.date(), order_settings.pickup_dt.time()):
+                price = get_order_price_data_from(ride_data).get(tariff.tariff_type)
+                break
+        if not price:
+            logging.warning("get_offers missing price for %s" % order_settings.pickup_dt)
+            continue
+
+
         if ride_id == NEW_ORDER_ID:
             offer = {
                 "pickup_time": to_js_date(order_settings.pickup_dt),
@@ -141,11 +187,13 @@ def get_offers(request):
 
         else:
             pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride_data[AlgoField.RIDE_POINTS])
+            ride_orders = ride.orders.all()
             offer = {
                 "ride_id": ride_id,
                 "pickup_time": to_js_date(ride.depart_time + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])),
                 "points": ["%s %s" % (p.stop_time.strftime("%H:%M"), p.address) for p in ride.points.all()],
-                "seats_left": MAX_SEATS - sum([order.num_seats for order in ride.orders.all()]),
+                "passenger_names": [o.passenger.name for o in ride_orders],
+                "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
                 "price": price,
                 "new_ride": False,
             }
@@ -154,74 +202,111 @@ def get_offers(request):
 
     return JSONResponse(offers)
 
+def ger_private_offer(request):
+    return get_offers(request)
 
 @csrf_exempt
-@passenger_required_no_redirect
-def book_ride(request, passenger):
-    order_settings = OrderSettings.fromRequest(request)
-    logging.info("pikcup_dt: %s" % order_settings.pickup_dt)
+def book_ride(request):
+    passenger = Passenger.from_request(request)
+    result = {
+        'status': '',
+        'order_id': None,
+        'redirect': '',
+        'error': ''
+    }
 
-    request_data = simplejson.loads(request.POST.get('data'))
-    ride_id = int(request_data.get("ride_id", NEW_ORDER_ID))
-    is_private = bool(request_data["settings"]["private"])
+    if passenger and passenger.user and hasattr(passenger, "billing_info"): # we have logged-in passenger with billing_info - let's proceed
+        order_settings = OrderSettings.fromRequest(request)
+        request_data = simplejson.loads(request.POST.get('data'))
+        ride_id = int(request_data.get("ride_id", NEW_ORDER_ID))
 
-    if is_private:
-        response = book_private_ride(order_settings, passenger)
-    else:
-        response = book_shared_ride(ride_id, order_settings, passenger)
+        order_id = create_order(order_settings, passenger, ride_id)
 
-    return response
+        if order_id is not None:
+            result['status'] = 'success'
+            result['order_id'] = order_id
+        else:
+            result['status'] = 'failed'
+            result['error'] = 'Booking failed for some reason'
 
-def book_private_ride(order_settings, passenger):
-    pass
+    else: # not authorized for booking
+        if not hasattr(passenger, "billing_info"):
+            result['status'] = 'billing_failed'
+            result['redirect'] = get_token_url(request) # go to billing
+        else:
+            result['status'] = 'auth_failed'
+
+    return JSONResponse(result)
 
 
-def book_shared_ride(ride_id, order_settings, passenger):
+def create_order(order_settings, passenger, ride_id):
     ride = SharedRide.by_id(ride_id)
 
-    # get ride data from algo
+    # get ride data from algo: don't trust the client
     candidates = [ride] if ride else []
     matching_rides = get_matching_rides(candidates, order_settings)
     ride_data = first(lambda match: match[AlgoField.RIDE_ID] == ride_id, matching_rides)
 
-    response = {'success': False}
-
     if not ride_data:
-        return JSONResponse(response)
+        return None
 
     order = Order.fromOrderSettings(order_settings, passenger, commit=False)
-    order.price = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.PRICE_SHARING]
-    order.type = OrderType.SHARED
 
-    if ride_id == NEW_ORDER_ID:
-        ride = create_shared_ride_for_order(ride_data, order)
-        response['success'] = True
+    if order_settings.private:
+        order.type = OrderType.PRIVATE
+    else:
+        order.type = OrderType.SHARED
 
-    elif ride.lock(): # try joining existing ride
-        try:
-            update_ride_for_order(ride, ride_data, order)
-            ride.unlock()
-            response['success'] = True
+    order.price_data = get_order_price_data_from(ride_data)
+    order.save()
+    logging.info("created new %s order [%s]" % (OrderType.get_name(order.type), order.id))
 
-        except Exception as e:
-            logging.error(traceback.format_exc())
-            ride.unlock()
+    billing_trx = BillingTransaction(order=order, amount=order.price, debug=order.debug)
+    billing_trx.save()
+    billing_trx.commit(callback_args={
+        "ride_id": ride_id,
+        "ride_data": ride_data
+    })
 
-    if response['success']:
-        response['ride'] = {
-            'ride_id': ride.id,
-            'price': order.price,
-            'stops': ["%s %s" % (p.stop_time.strftime("%H:%M"), p.address) for p in ride.points.all()]
-        }
+    return order.id
 
-    return JSONResponse(response)
+def billing_approved_book_order(ride_id, ride_data, order):
+    from sharing.station_controller import send_ride_in_risk_notification
+
+    try:
+        if ride_id == NEW_ORDER_ID:
+            ride = create_shared_ride_for_order(ride_data, order)
+        else:
+            ride = SharedRide.by_id(ride_id)
+            if ride and ride.lock(): # try joining existing ride
+                try:
+                    update_ride_for_order(ride, ride_data, order)
+                    ride.unlock()
+                    #TODO_WB: notify passengers their price dropped
+
+                except Exception, e:
+                    #TODO_WB: handle this error in some way - try again, create a new ride
+                    logging.error(traceback.format_exc())
+                    ride.unlock()
+
+                    raise Exception(e.message)
+            else:
+                logging.info("ride lock failed: creating a new ride")
+                ride = create_shared_ride_for_order(ride_data, order)
+
+    except Exception, e:
+        send_ride_in_risk_notification("Failed during post billing processing: %s" % e.message, ride_id)
 
 def create_shared_ride_for_order(ride_data, order):
     ride = SharedRide()
     ride.depart_time = order.depart_time
     ride.debug = order.debug
     ride.arrive_time = ride.depart_time + datetime.timedelta(seconds=ride_data[AlgoField.REAL_DURATION])
+    ride.cost_data = get_ride_cost_data_from(ride_data)
+    if order.type == OrderType.PRIVATE:
+        ride.is_private = True
     ride.save()
+    logging.info("created new ride [%s] for order [%s]" % (ride.id, order.id))
 
     for point_data in ride_data[AlgoField.RIDE_POINTS]:
         create_ride_point(ride, point_data)
@@ -233,6 +318,8 @@ def create_shared_ride_for_order(ride_data, order):
             order.dropoff_point = p
 
     order.ride = ride
+
+    order.price_data = get_order_price_data_from(ride_data)
     order.save()
 
     return ride
@@ -250,8 +337,11 @@ def update_ride_for_order(ride, ride_data, new_order, depart_time=None):
 
     ride_points_data = ride_data[AlgoField.RIDE_POINTS]
 
-    # update stop times of existing points
+    # update order prices and stop times of existing points
     for order in orders:
+        order.price_data = get_order_price_data_from(ride_data, order.id)
+        order.save()
+
         pickup_point = order.pickup_point
         dropoff_point = order.dropoff_point
 
@@ -290,7 +380,12 @@ def update_ride_for_order(ride, ride_data, new_order, depart_time=None):
                 new_order.dropoff_point = p
 
     new_order.ride = ride
+    new_order.price_data = get_order_price_data_from(ride_data)
     new_order.save()
+
+    ride.cost_data = get_ride_cost_data_from(ride_data)
+    ride.save()
+
 
 def create_ride_point(ride, point_data):
     point = RidePoint()
@@ -340,6 +435,7 @@ class OrderSettings:
     @classmethod
     def fromRequest(cls, request):
         request_data = simplejson.loads(request.REQUEST.get("data"))
+        request_data = dict_to_str_keys(request_data)
 
         pickup = request_data.get("pickup")
         dropoff = request_data.get("dropoff")
@@ -348,6 +444,7 @@ class OrderSettings:
         inst = cls()
         inst.num_seats = int(settings["num_seats"])
         inst.debug = bool(settings["debug"])
+        inst.private = bool(settings["private"])
         inst.pickup_dt = dateutil.parser.parse(request_data.get("pickup_dt"))
         inst.pickup_address = Address(**pickup)
         inst.dropoff_address = Address(**dropoff)
@@ -393,8 +490,34 @@ class Address:
         self.country_code = country_code
         self.address_type = address_type
 
+    @classmethod
+    def from_order(cls, order, address_type):
+        new_address = None
+        try:
+            new_address = Address(
+                        getattr(order, "%s_lat" % address_type),
+                        getattr(order, "%s_lon" % address_type),
+                        house_number=getattr(order, "%s_house_number" % address_type),
+                        street=getattr(order, "%s_street_address" % address_type),
+                        city_name=getattr(order, "%s_city" % address_type).name,
+                        description=getattr(order, "%s_raw" % address_type),
+                        country_code=getattr(order, "%s_country" % address_type).code
+                    )
+        except AttributeError, e:
+            pass
+        return new_address
+
+
     @property
     def formatted_address(self):
         return u"%s %s, %s" % (self.street, self.house_number, self.city_name)
 
+    def __eq__(self, other):
+        return self.__hash__() == other.__hash__()
+
+    def __ne__(self, other):
+        return not self.__eq__(other)
+
+    def __hash__(self):
+        return self.formatted_address.__hash__()
 

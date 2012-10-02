@@ -39,6 +39,8 @@ COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT = 3 # minutes
 COMPUTATION_ABORT_TIMEOUT = 3 # minutes
 
 class AlgoField(Enum):
+    COST_LIST_TARIFF1 = "m_AllPrices"
+    COST_LIST_TARIFF2 = "m_AllPrices2"
     DEBUG = "m_Debug"
     DISTANCE = "m_Distance"
     DROPOFF = "eDropoff"
@@ -52,7 +54,8 @@ class AlgoField(Enum):
     OUTPUT_STAT = "m_OutputStat"
     PICKUP = "ePickup"
     POINT_ADDRESS = "m_PointAddress"
-    PRICE_SHARING = "m_PriceSharing"
+    PRICE_SHARING_TARIFF1 = "m_PriceSharing"
+    PRICE_SHARING_TARIFF2 = "m_Price2Sharing"
     REAL_DURATION = "m_RealDuration"
     RIDES = "m_Rides"
     RIDE_ID = "m_RideID"
@@ -82,7 +85,7 @@ def find_matches(candidate_rides, order_settings):
     matches = []
     if response and response.content:
         matches = simplejson.loads(response.content)[AlgoField.RIDES]
-        logging.info("%s candidates, %s matches, %s seconds" % (len(candidate_rides), len(matches) - 1, (dt2 - dt1).seconds))
+        logging.info("%s candidates (%s), %s matches, %s seconds" % (len(candidate_rides), ",".join([str(ride.id) for ride in candidate_rides]), len(matches) - 1, (dt2 - dt1).seconds))
 
     return matches
 
