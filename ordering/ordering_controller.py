@@ -54,11 +54,11 @@ def get_ongoing_order(passenger):
     return ongoing_order
 
 def sync_app_state(request):
-    passenger = Passenger.from_request(request)
-    logging.info(passenger)
     response = {"pickup_datetime_options": [to_js_date(default_tz_now()),
                                             to_js_date(default_tz_now() + datetime.timedelta(minutes=30)),
                                             to_js_date(default_tz_now() + datetime.timedelta(days=1))]}
+    
+    passenger = Passenger.from_request(request)
     if passenger:
         ongoing_order = get_ongoing_order(passenger)
         if ongoing_order:
