@@ -436,7 +436,7 @@ class SharedRide(BaseRide):
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
 
     # 1.2 fields
-    is_private = models.BooleanField(default=False)
+    can_be_joined = models.BooleanField(default=True)
 
     # < 1.2 fields
     computation = models.ForeignKey(RideComputation, verbose_name=_("computation"), related_name="rides", null=True, blank=True)

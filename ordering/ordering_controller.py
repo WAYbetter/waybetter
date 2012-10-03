@@ -108,7 +108,7 @@ def get_candidate_rides(order_settings):
     start_dt = set_default_tz_time(datetime.datetime(2012, 10, 2, 12, 22))
     candidates = SharedRide.objects.filter(create_date__gte=start_dt)
     candidates = filter(lambda ride: ride.debug, candidates)
-    candidates = filter(lambda ride: not ride.is_private, candidates)
+    candidates = filter(lambda ride: ride.can_be_joined, candidates)
     candidates = filter(lambda ride: sum([order.num_seats for order in ride.orders.all()]) < 3, candidates)
 
     return candidates
@@ -304,7 +304,7 @@ def create_shared_ride_for_order(ride_data, order):
     ride.arrive_time = ride.depart_time + datetime.timedelta(seconds=ride_data[AlgoField.REAL_DURATION])
     ride.cost_data = get_ride_cost_data_from(ride_data)
     if order.type == OrderType.PRIVATE:
-        ride.is_private = True
+        ride.can_be_joined = False
     ride.save()
     logging.info("created new ride [%s] for order [%s]" % (ride.id, order.id))
 
