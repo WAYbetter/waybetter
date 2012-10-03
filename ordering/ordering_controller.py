@@ -6,14 +6,15 @@ from django.utils.translation import get_language_from_request
 from django.views.decorators.csrf import csrf_exempt
 from billing.billing_manager import  get_token_url
 from billing.models import BillingTransaction
-from common.tz_support import to_js_date, default_tz_now, set_default_tz_time
+from common.tz_support import to_js_date, default_tz_now, set_default_tz_time, utc_now
 from common.util import first, Enum, dict_to_str_keys
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
+from django.views.decorators.cache import never_cache
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import  passenger_required_no_redirect
-from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, Passenger
+from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, Passenger, CHARGED
 from pricing.models import TARIFFS, RuleSet
 from sharing.algo_api import AlgoField
 import simplejson
@@ -88,9 +89,16 @@ def get_defaults(request):
     pass
 
 
-def get_history_suggestions(request):
-    #TODO_WB:
-    pass
+@never_cache
+@passenger_required_no_redirect
+def get_history_suggestions(request, passenger):
+    order_qs = Order.objects.filter(passenger=passenger, type__in=[OrderType.PRIVATE, OrderType.SHARED]).order_by('-depart_time')
+    # TODO_WB: remove PENDING status - used for debugging
+    orders = order_qs.filter(status__in=[PENDING, APPROVED, ACCEPTED, CHARGED], depart_time__lt=utc_now())
+    data = set([Address.from_order(o, "from") for o in orders] + [Address.from_order(o, "to") for o in orders])
+    data = [a.__dict__ for a in data]
+
+    return JSONResponse(data)
 
 
 def get_times_for_ordering(request):

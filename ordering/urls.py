@@ -103,6 +103,7 @@ urlpatterns = patterns('',
     (r'^m2m/update_push_token', 'ordering.passenger_controller.update_push_token'),
     (r'^m2m/get_order_billing_status/$', 'ordering.ordering_controller.get_order_billing_status'),
     (r'^m2m/get_private_offer/$', 'ordering.ordering_controller.ger_private_offer'),
+    (r'^m2m/get_history_suggestions/$', 'sharing.passenger_controller.get_history_suggestions'),
 
 )
 

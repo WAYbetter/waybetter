@@ -88,8 +88,6 @@ urlpatterns = patterns('',
     url(r'^register_passenger/$', 'sharing.passenger_controller.do_register_passenger', name="register_passenger"),
     url(r'^login_passenger/$', 'sharing.passenger_controller.passenger_login', name="login_passenger"),
 
-    url(r'^m2m/get_history_suggestions/$', 'sharing.passenger_controller.get_history_suggestions'),
-
     url(r'^info/$', 'sharing.content_controller.info', name="info"),
     url(r'^privacy/$', 'sharing.content_controller.privacy', name="privacy"),
     url(r'^terms/$', 'sharing.content_controller.terms', name="terms"),
