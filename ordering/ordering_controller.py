@@ -110,6 +110,60 @@ def get_history_suggestions(request, passenger):
 
     return JSONResponse(data)
 
+@never_cache
+@passenger_required_no_redirect
+def get_previous_rides(request, passenger):
+    data = []
+
+    # there can be a time frame within a previous order can have APPROVED status (not yet CHARGED)
+    order_qs = Order.objects.filter(passenger=passenger, type__in=[OrderType.PRIVATE, OrderType.SHARED]).order_by('-depart_time')
+    orders = order_qs.filter(status__in=[APPROVED, ACCEPTED, CHARGED], depart_time__lt=utc_now())
+
+    for order in orders:
+        ride = order.ride
+        if not ride:
+            continue #TODO_WB : handle this, is this a valid situation?
+
+        ride_orders = ride.orders.all()
+        #TODO_WB : replace with real data
+        ride_data = {
+            "pickup_time": to_js_date(order.pickup_point.stop_time),
+            "passenger_names": [o.passenger.name for o in ride_orders],
+            "taxi_number": 1910,
+            "station_name": u'מוניות מוני',
+            "price": order.price,
+            "billing_status": u'חוייבה',
+            }
+
+        data.append(ride_data)
+
+    #    return JSONResponse([])
+    return JSONResponse(data)
+
+
+@never_cache
+@passenger_required_no_redirect
+def get_next_rides(request, passenger):
+    data = []
+    order_qs = Order.objects.filter(passenger=passenger, type__in=[OrderType.PRIVATE, OrderType.SHARED]).order_by('-depart_time')
+    orders = order_qs.filter(status__in=[APPROVED, ACCEPTED], depart_time__gte=utc_now())
+    for order in orders:
+        ride = order.ride
+        if not ride:
+            continue #TODO_WB : handle this, is this a valid situation?
+
+        ride_orders = ride.orders.all()
+        ride_data = {
+            "pickup_time": to_js_date(order.pickup_point.stop_time),
+            "passenger_names": [o.passenger.name for o in ride_orders],
+            "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
+            "price": order.price,
+        }
+
+        data.append(ride_data)
+
+    return JSONResponse(data)
+
 
 def get_times_for_ordering(request):
     #TODO_WB:
@@ -209,7 +263,6 @@ def get_offers(request):
             offer = {
                 "ride_id": ride_id,
                 "pickup_time": to_js_date(ride.depart_time + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])),
-                "points": ["%s %s" % (p.stop_time.strftime("%H:%M"), p.address) for p in ride.points.all()],
                 "passenger_names": [o.passenger.name for o in ride_orders],
                 "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
                 "price": price,
