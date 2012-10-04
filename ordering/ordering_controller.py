@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from __future__ import absolute_import # we need absolute imports since ordering contains pricing.py
 
 import logging
@@ -32,13 +33,21 @@ def get_ongoing_ride_details(request):
     order_id = request.GET.get("order_id")
     order = Order.by_id(order_id)
 
-    response = { "success": False }
+    response = {}
 
     if order:
-        response["pickup_position"] = { "lat": order.from_lat, "lng": order.from_lon }
-        response["station"] = { "name": order.ride.station.name, "phone": order.ride.station.phone }
-        response["stops"] = [ {"lat": p.lat, "lng": p.lon}  for p in order.ride.pickup_points]
-        response["success"] = True
+        pickup_position = {"lat": order.from_lat, "lng": order.from_lon}
+        dropoff_position = {"lat": order.to_lat, "lng": order.to_lon}
+        pickup_stops = [ {"lat": p.lat, "lng": p.lon}  for p in order.ride.pickup_points]
+
+        # TODO_WB: replace with real data
+        response = {
+            "station"           : { "name": u"מוניות מוני", "phone": "0526342974" },
+            "passengers"        : [dict([('name', order.passenger.name)]) for order in order.ride.orders.all()],
+            "pickup_position"   : pickup_position,
+            "dropoff_position"  : dropoff_position,
+            "stops"             : filter(lambda stop: (stop["lat"], stop["lng"]) not in [(pickup_position["lat"], pickup_position["lng"]), (dropoff_position["lat"], dropoff_position["lng"])], pickup_stops)
+        }
 
     return JSONResponse(response)
 
@@ -48,7 +57,8 @@ def get_ongoing_order(passenger):
     @param passenger:
     @return: ongoing order or None
     """
-    delta = default_tz_now() - datetime.timedelta(minutes=15)
+    # TODO: real logic - station accepted and assigned a taxi and isr worked
+    delta = default_tz_now() - datetime.timedelta(minutes=150)
     ongoing_orders = list(passenger.orders.filter(depart_time__gt=delta).order_by("-depart_time"))
     ongoing_order = first(lambda o: o.status in [ACCEPTED, APPROVED, PENDING], ongoing_orders)
     return ongoing_order
@@ -204,6 +214,16 @@ def get_offers(request):
 
 def ger_private_offer(request):
     return get_offers(request)
+
+@csrf_exempt
+@passenger_required_no_redirect
+def cancel_order(request, passenger):
+    #TODO_WB: implemet
+    response = {'success': True,
+                'message': 'הנסיעה בוטלה. לך ברגל'}
+
+
+    return JSONResponse(response)
 
 @csrf_exempt
 def book_ride(request):
