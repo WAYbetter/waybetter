@@ -68,12 +68,15 @@ def sync_app_state(request):
     response = {"pickup_datetime_options": [to_js_date(default_tz_now()),
                                             to_js_date(default_tz_now() + datetime.timedelta(minutes=30)),
                                             to_js_date(default_tz_now() + datetime.timedelta(days=1))]}
-    
+
     passenger = Passenger.from_request(request)
     if passenger:
         ongoing_order = get_ongoing_order(passenger)
         if ongoing_order:
             response["ongoing_order_id"] = ongoing_order.id
+
+        future_orders = get_future_orders_for(passenger)
+        response["future_orders_count"] = len(future_orders)
 
     logging.info("get_initial_status: %s" % response)
     return JSONResponse(response)
@@ -145,9 +148,8 @@ def get_previous_rides(request, passenger):
 @passenger_required_no_redirect
 def get_next_rides(request, passenger):
     data = []
-    order_qs = Order.objects.filter(passenger=passenger, type__in=[OrderType.PRIVATE, OrderType.SHARED]).order_by('-depart_time')
-    orders = order_qs.filter(status__in=[APPROVED, ACCEPTED], depart_time__gte=utc_now())
-    for order in orders:
+    future_orders = get_future_orders_for(passenger)
+    for order in future_orders:
         ride = order.ride
         if not ride:
             continue #TODO_WB : handle this, is this a valid situation?
@@ -163,6 +165,10 @@ def get_next_rides(request, passenger):
         data.append(ride_data)
 
     return JSONResponse(data)
+
+def get_future_orders_for(passenger):
+    future_order_qs = Order.objects.filter(passenger=passenger, type__in=[OrderType.PRIVATE, OrderType.SHARED]).order_by('-depart_time')
+    return list(future_order_qs.filter(status__in=[APPROVED, ACCEPTED], depart_time__gte=utc_now()))
 
 
 def get_times_for_ordering(request):
