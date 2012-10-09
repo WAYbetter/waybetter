@@ -59,7 +59,7 @@ def get_ongoing_order(passenger):
     @return: ongoing order or None
     """
     # TODO: real logic - station accepted and assigned a taxi and isr worked
-    delta = default_tz_now() - datetime.timedelta(minutes=150)
+    delta = default_tz_now() - datetime.timedelta(minutes=5)
     ongoing_orders = list(passenger.orders.filter(depart_time__gt=delta).order_by("-depart_time"))
     ongoing_order = first(lambda o: o.status in [ACCEPTED, APPROVED, PENDING], ongoing_orders)
     return ongoing_order
@@ -120,7 +120,7 @@ def get_previous_rides(request, passenger):
 
     # there can be a time frame within a previous order can have APPROVED status (not yet CHARGED)
     order_qs = Order.objects.filter(passenger=passenger, type__in=[OrderType.PRIVATE, OrderType.SHARED]).order_by('-depart_time')
-    orders = order_qs.filter(status__in=[APPROVED, ACCEPTED, CHARGED], depart_time__lt=utc_now())
+    orders = order_qs.filter(status__in=[APPROVED, ACCEPTED, CHARGED], depart_time__lt=utc_now())[:5] #TODO_WB: how many to display?
 
     for order in orders:
         ride = order.ride
@@ -231,6 +231,11 @@ def get_order_price_data_from(ride_data, order_id=NEW_ORDER_ID):
 
 def get_offers(request):
     order_settings = OrderSettings.fromRequest(request)
+
+    # TODO_WB: test coverage
+    if order_settings.pickup_address.city_name.find(u"תל אביב") < 0 or order_settings.dropoff_address.city_name.find(u"תל אביב") < 0:
+        return JSONResponse({'error': u'לא ניתן להזמין לכתובת שנבחרה. אנא נסו שנית בקרוב.'})
+
     if not order_settings.private:
         candidate_rides = get_candidate_rides(order_settings)
     else:
@@ -279,7 +284,7 @@ def get_offers(request):
 
         offers.append(offer)
 
-    return JSONResponse(offers)
+    return JSONResponse({'offers': offers})
 
 def ger_private_offer(request):
     return get_offers(request)
