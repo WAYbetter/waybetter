@@ -130,6 +130,7 @@ def get_previous_rides(request, passenger):
         ride_orders = ride.orders.all()
         #TODO_WB : replace with real data
         ride_data = {
+            "order_id": order.id,
             "pickup_time": to_js_date(order.pickup_point.stop_time),
             "passenger_names": [o.passenger.name for o in ride_orders],
             "taxi_number": 1910,
@@ -156,6 +157,7 @@ def get_next_rides(request, passenger):
 
         ride_orders = ride.orders.all()
         ride_data = {
+            "order_id": order.id,
             "pickup_time": to_js_date(order.pickup_point.stop_time),
             "passenger_names": [o.passenger.name for o in ride_orders],
             "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
@@ -286,6 +288,7 @@ def ger_private_offer(request):
 @passenger_required_no_redirect
 def cancel_order(request, passenger):
     #TODO_WB: implemet
+    order_id = int(request.POST.get("order_id"), 0)
     response = {'success': True,
                 'message': 'הנסיעה בוטלה. לך ברגל'}
 
