@@ -3,6 +3,7 @@ from __future__ import absolute_import # we need absolute imports since ordering
 
 import logging
 import traceback
+from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request
 from django.views.decorators.csrf import csrf_exempt
 from billing.billing_manager import  get_token_url
@@ -14,6 +15,7 @@ from django.template.context import RequestContext
 from django.conf import settings
 from django.views.decorators.cache import never_cache
 from djangotoolbox.http import JSONResponse
+from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
 from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, Passenger, CHARGED
 from pricing.models import TARIFFS, RuleSet
@@ -101,6 +103,21 @@ def get_defaults(request):
     #TODO_WB:
     pass
 
+
+@passenger_required_no_redirect
+def update_picture(request, passenger):
+    """
+    Redirects the passenger to fb
+    """
+    from settings import FACEBOOK_CONNECT_URI, FACEBOOK_APP_ID, DEFAULT_DOMAIN
+
+    response = {}
+    if passenger:
+        callback_url = "http://%s%s" % (DEFAULT_DOMAIN, reverse(update_profile_fb, args=[passenger.id]))
+        fb_url = "%s?client_id=%s&redirect_uri=%s&scope=email" % (FACEBOOK_CONNECT_URI, FACEBOOK_APP_ID, callback_url)
+        response['redirect'] = fb_url
+
+    return JSONResponse(response)
 
 @never_cache
 @passenger_required_no_redirect

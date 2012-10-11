@@ -27,7 +27,7 @@ class FacebookSession(models.Model):
     class Meta:
         unique_together = (('user', 'uid'), ('access_token', 'expires'))
 
-    def query(self, object_id, connection_type=None, metadata=False):
+    def query(self, object_id, connection_type=None, metadata=False, fields=None):
         import urllib
         import simplejson
 
@@ -38,6 +38,8 @@ class FacebookSession(models.Model):
         params = {'access_token': self.access_token}
         if metadata:
             params['metadata'] = 1
+        if fields:
+            params['fields'] = ",".join(fields)
 
         url += '?' + urllib.urlencode(params)
         response = simplejson.load(urllib.urlopen(url))
