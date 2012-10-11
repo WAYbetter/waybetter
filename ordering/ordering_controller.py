@@ -75,6 +75,7 @@ def sync_app_state(request):
 
     passenger = Passenger.from_request(request)
     if passenger:
+        response["authenticated"] = True
         ongoing_order = get_ongoing_order(passenger)
         if ongoing_order:
             response["ongoing_order_id"] = ongoing_order.id
