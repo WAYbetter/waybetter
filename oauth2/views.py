@@ -40,6 +40,7 @@ def update_profile_fb(request, passenger_id):
             facebook_session = FacebookSession(access_token=access_token)
             profile = facebook_session.query('me', fields=['id', 'email', 'first_name', 'last_name', 'picture'])
             passenger.picture_url = profile['picture']['data']['url']
+            passenger.fb_id = profile['id']
             passenger.save()
             logging.info("passenger picture updated: %s" % passenger.picture_url)
         except Exception, e:

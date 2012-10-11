@@ -684,7 +684,10 @@ class Passenger(BaseModel):
 
     phone = models.CharField(_("phone number"), max_length=15)
     phone_verified = models.BooleanField(_("phone verified"))
+
+    #fb fields
     picture_url = models.URLField(null=True, blank=True)
+    fb_id = models.CharField(null=True, blank=True)
 
     accept_mailing = models.BooleanField(_("accept mailing"), default=True)
 

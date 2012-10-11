@@ -107,7 +107,8 @@ urlpatterns = patterns('',
     (r'^m2m/get_history_suggestions/$', 'ordering.ordering_controller.get_history_suggestions'),
     (r'^m2m/get_previous_rides/$', 'ordering.ordering_controller.get_previous_rides'),
     (r'^m2m/get_next_rides/$', 'ordering.ordering_controller.get_next_rides'),
-    (r'^m2m/update_picture/$', 'ordering.ordering_controller.update_picture'),
+    (r'^m2m/get_passenger_picture/$', 'ordering.ordering_controller.get_picture'),
+    (r'^m2m/update_passenger_picture/$', 'ordering.ordering_controller.update_picture'),
 )
 
 

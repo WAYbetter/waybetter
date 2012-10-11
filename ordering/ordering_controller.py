@@ -32,7 +32,8 @@ def staff_m2m(request):
     return render_to_response("staff_m2m.html", RequestContext(request))
 
 
-def get_ongoing_ride_details(request):
+@passenger_required_no_redirect
+def get_ongoing_ride_details(request, passenger):
     order_id = request.GET.get("order_id")
     order = Order.by_id(order_id)
 
@@ -42,11 +43,12 @@ def get_ongoing_ride_details(request):
         pickup_position = {"lat": order.from_lat, "lng": order.from_lon}
         dropoff_position = {"lat": order.to_lat, "lng": order.to_lon}
         pickup_stops = [ {"lat": p.lat, "lng": p.lon}  for p in order.ride.pickup_points]
+        passengers = filter(lambda p: p != passenger, [order.passenger for order in order.ride.orders.all()])
 
         # TODO_WB: replace with real data
         response = {
             "station"           : { "name": u"מוניות מוני", "phone": "0526342974" },
-            "passengers"        : [dict([('name', order.passenger.name)]) for order in order.ride.orders.all()],
+            "passengers"        : [{'name': passenger.name, 'picture_url': passenger.picture_url} for passenger in passengers],
             "pickup_position"   : pickup_position,
             "dropoff_position"  : dropoff_position,
             "stops"             : filter(lambda stop: (stop["lat"], stop["lng"]) not in [(pickup_position["lat"], pickup_position["lng"]), (dropoff_position["lat"], dropoff_position["lng"])], pickup_stops)
@@ -105,6 +107,14 @@ def get_defaults(request):
 
 
 @passenger_required_no_redirect
+def get_picture(request, passenger):
+    response = {}
+    if passenger.picture_url:
+        response['picture_url'] = passenger.picture_url
+    return JSONResponse(response)
+
+
+@passenger_required_no_redirect
 def update_picture(request, passenger):
     """
     Redirects the passenger to fb
@@ -145,11 +155,12 @@ def get_previous_rides(request, passenger):
             continue #TODO_WB : handle this, is this a valid situation?
 
         ride_orders = ride.orders.all()
+        passengers = filter(lambda p: p != passenger, [order.passenger for order in ride_orders])
         #TODO_WB : replace with real data
         ride_data = {
             "order_id": order.id,
             "pickup_time": to_js_date(order.pickup_point.stop_time),
-            "passenger_names": [o.passenger.name for o in ride_orders],
+            "passengers": [{'name': passenger.name, 'picture_url': passenger.picture_url} for passenger in passengers],
             "taxi_number": 1910,
             "station_name": u'מוניות מוני',
             "price": order.price,
@@ -173,10 +184,11 @@ def get_next_rides(request, passenger):
             continue #TODO_WB : handle this, is this a valid situation?
 
         ride_orders = ride.orders.all()
+        passengers = filter(lambda p: p != passenger, [order.passenger for order in ride_orders])
         ride_data = {
             "order_id": order.id,
             "pickup_time": to_js_date(order.pickup_point.stop_time),
-            "passenger_names": [o.passenger.name for o in ride_orders],
+            "passengers": [{'name': passenger.name, 'picture_url': passenger.picture_url} for passenger in passengers],
             "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
             "price": order.price,
         }
@@ -293,7 +305,7 @@ def get_offers(request):
             offer = {
                 "ride_id": ride_id,
                 "pickup_time": to_js_date(ride.depart_time + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])),
-                "passenger_names": [o.passenger.name for o in ride_orders],
+                "passengers": [{'name': order.passenger.name, 'picture_url': order.passenger.picture_url} for order in ride_orders],
                 "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
                 "price": price,
                 "new_ride": False,
