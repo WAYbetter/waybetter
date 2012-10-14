@@ -3,6 +3,8 @@ from __future__ import absolute_import # we need absolute imports since ordering
 
 import logging
 import traceback
+import urllib
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request
 from django.views.decorators.csrf import csrf_exempt
@@ -14,6 +16,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
 from django.views.decorators.cache import never_cache
+from django.http import HttpResponseRedirect
 from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
@@ -64,7 +67,7 @@ def get_ongoing_order(passenger):
     @return: ongoing order or None
     """
     # TODO: real logic - station accepted and assigned a taxi and isr worked
-#    return None
+    return None
     delta = default_tz_now() - datetime.timedelta(minutes=150)
     ongoing_orders = list(passenger.orders.filter(depart_time__gt=delta).order_by("-depart_time"))
     ongoing_order = first(lambda o: o.status in [ACCEPTED, APPROVED, PENDING], ongoing_orders)
@@ -122,15 +125,27 @@ def update_picture(request, passenger):
     """
     Redirects the passenger to fb
     """
-    from settings import FACEBOOK_CONNECT_URI, FACEBOOK_APP_ID, DEFAULT_DOMAIN
-
     response = {}
     if passenger:
-        callback_url = "http://%s%s" % (DEFAULT_DOMAIN, reverse(update_profile_fb, args=[passenger.id]))
-        fb_url = "%s?client_id=%s&redirect_uri=%s&scope=email" % (FACEBOOK_CONNECT_URI, FACEBOOK_APP_ID, callback_url)
+        callback_url = "http://%s%s" % (settings.DEFAULT_DOMAIN, reverse(update_profile_fb, args=[passenger.id]))
+        fb_url = "%s?client_id=%s&redirect_uri=%s&scope=email" % (settings.FACEBOOK_CONNECT_URI, settings.FACEBOOK_APP_ID, callback_url)
         response['redirect'] = fb_url
 
     return JSONResponse(response)
+
+def fb_share(request):
+    args = {
+        'app_id': settings.FACEBOOK_APP_ID,
+        'link': 'settings.DEFAULT_DOMAIN',
+        'picture': 'http://www.waybetter.com/static/images/wb_site/wb_beta_logo.png',
+        'name': 'WAYbetter',
+        'description': 'WAYbetter is the easiest way to get from A to B',
+        'redirect_uri': "http://%s" % settings.DEFAULT_DOMAIN,
+        'display': 'touch' if request.mobile else 'page'
+    }
+    url = "http://m.facebook.com/dialog/feed?" + urllib.urlencode(args);
+
+    return HttpResponseRedirect(url)
 
 @never_cache
 @passenger_required_no_redirect
