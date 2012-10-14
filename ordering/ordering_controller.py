@@ -14,6 +14,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
 from django.views.decorators.cache import never_cache
+from django.http import HttpResponse
 from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
@@ -74,6 +75,8 @@ def sync_app_state(request):
                                             to_js_date(default_tz_now() + datetime.timedelta(days=1))]}
 
     passenger = Passenger.from_request(request)
+    response["show_url"] = "" # change to cause child browser to open with passed url
+
     if passenger:
         response["authenticated"] = True
         ongoing_order = get_ongoing_order(passenger)
@@ -523,6 +526,10 @@ def create_ride_point(ride, point_data):
     point.save()
 
     return point
+
+@csrf_exempt
+def track_app_event(request):
+    return HttpResponse("OK")
 
 # ==============
 # HELPER CLASSES

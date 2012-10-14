@@ -109,6 +109,7 @@ urlpatterns = patterns('',
     (r'^m2m/get_next_rides/$', 'ordering.ordering_controller.get_next_rides'),
     (r'^m2m/get_passenger_picture/$', 'ordering.ordering_controller.get_picture'),
     (r'^m2m/update_passenger_picture/$', 'ordering.ordering_controller.update_picture'),
+    (r'^m2m/track_event/$', 'ordering.ordering_controller.track_app_event'),
 )
 
 

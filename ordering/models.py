@@ -687,7 +687,7 @@ class Passenger(BaseModel):
 
     #fb fields
     picture_url = models.URLField(null=True, blank=True)
-    fb_id = models.CharField(null=True, blank=True)
+    fb_id = models.CharField(null=True, blank=True, max_length=60)
 
     accept_mailing = models.BooleanField(_("accept mailing"), default=True)
 
