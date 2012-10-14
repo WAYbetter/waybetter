@@ -10,8 +10,8 @@ from django.utils.translation import get_language_from_request
 from django.views.decorators.csrf import csrf_exempt
 from billing.billing_manager import  get_token_url
 from billing.models import BillingTransaction
-from common.tz_support import to_js_date, default_tz_now, set_default_tz_time, utc_now
-from common.util import first, Enum, dict_to_str_keys
+from common.tz_support import to_js_date, default_tz_now, set_default_tz_time, utc_now, ceil_datetime
+from common.util import first, Enum, dict_to_str_keys, datetimeIterator
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
@@ -30,6 +30,7 @@ import dateutil.parser
 import sharing.algo_api as algo_api
 
 MAX_SEATS = 3
+BOOKING_INTERVAL = 10 # minutes
 
 def staff_m2m(request):
     return render_to_response("staff_m2m.html", RequestContext(request))
@@ -67,16 +68,18 @@ def get_ongoing_order(passenger):
     @return: ongoing order or None
     """
     # TODO: real logic - station accepted and assigned a taxi and isr worked
-    return None
-    delta = default_tz_now() - datetime.timedelta(minutes=150)
+    delta = default_tz_now() - datetime.timedelta(minutes=5)
     ongoing_orders = list(passenger.orders.filter(depart_time__gt=delta).order_by("-depart_time"))
     ongoing_order = first(lambda o: o.status in [ACCEPTED, APPROVED, PENDING], ongoing_orders)
     return ongoing_order
 
+@never_cache
 def sync_app_state(request):
-    response = {"pickup_datetime_options": [to_js_date(default_tz_now()),
-                                            to_js_date(default_tz_now() + datetime.timedelta(minutes=30)),
-                                            to_js_date(default_tz_now() + datetime.timedelta(days=1))]}
+    earliest_pickup_time = ceil_datetime(default_tz_now() + datetime.timedelta(minutes=10), minutes=BOOKING_INTERVAL)
+    latest_pickup_time = earliest_pickup_time + datetime.timedelta(hours=24)
+    dt_options = list(datetimeIterator(earliest_pickup_time, latest_pickup_time, delta=datetime.timedelta(minutes=BOOKING_INTERVAL)))
+
+    response = {"pickup_datetime_options": [to_js_date(opt) for opt in dt_options]}
 
     passenger = Passenger.from_request(request)
     response["show_url"] = "" # change to cause child browser to open with passed url
@@ -237,11 +240,13 @@ def get_candidate_rides(order_settings):
     @return:
     """
     #TODO_WB: implement
-    start_dt = set_default_tz_time(datetime.datetime(2012, 10, 13, 12, 22))
-    candidates = SharedRide.objects.filter(create_date__gte=start_dt)
-    candidates = filter(lambda ride: ride.debug, candidates)
+    next_few_minutes = default_tz_now() + datetime.timedelta(minutes=5)
+    pickups_in_next_few_minutes = RidePoint.objects.filter(stop_time__gte=next_few_minutes)
+
+    candidates = [p.ride for p in pickups_in_next_few_minutes]
+    candidates = filter(lambda ride: ride.debug == settings.DEBUG, candidates)
     candidates = filter(lambda ride: ride.can_be_joined, candidates)
-    candidates = filter(lambda ride: sum([order.num_seats for order in ride.orders.all()]) < 3, candidates)
+    candidates = filter(lambda ride: sum([order.num_seats for order in ride.orders.all()]) + order_settings.num_seats <= 3, candidates)
 
     return candidates
 
