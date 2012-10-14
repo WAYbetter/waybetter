@@ -110,6 +110,7 @@ urlpatterns = patterns('',
     (r'^get_passenger_picture/$', 'ordering.ordering_controller.get_picture'),
     (r'^update_passenger_picture/$', 'ordering.ordering_controller.update_picture'),
     (r'^track_event/$', 'ordering.ordering_controller.track_app_event'),
+    (r'^fb_share/$', 'ordering.ordering_controller.fb_share'),
 )
 
 

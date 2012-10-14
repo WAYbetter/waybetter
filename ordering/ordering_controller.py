@@ -3,6 +3,8 @@ from __future__ import absolute_import # we need absolute imports since ordering
 
 import logging
 import traceback
+import urllib
+from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request
 from django.views.decorators.csrf import csrf_exempt
@@ -14,7 +16,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
 from django.views.decorators.cache import never_cache
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseRedirect
 from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
@@ -44,12 +46,13 @@ def get_ongoing_ride_details(request, passenger):
         pickup_position = {"lat": order.from_lat, "lng": order.from_lon}
         dropoff_position = {"lat": order.to_lat, "lng": order.to_lon}
         pickup_stops = [ {"lat": p.lat, "lng": p.lon}  for p in order.ride.pickup_points]
-        passengers = filter(lambda p: p != passenger, [order.passenger for order in order.ride.orders.all()])
+        # TODO_WB: sort by pickup
+        sorted_orders =  order.ride.orders.all()
 
         # TODO_WB: replace with real data
         response = {
             "station"           : { "name": u"מוניות מוני", "phone": "0526342974" },
-            "passengers"        : [{'name': passenger.name, 'picture_url': passenger.picture_url} for passenger in passengers],
+            "passengers"        : [{'name': o.passenger.name, 'picture_url': o.passenger.picture_url, 'is_you': o==order} for o in sorted_orders for seat in range(o.num_seats)],
             "pickup_position"   : pickup_position,
             "dropoff_position"  : dropoff_position,
             "stops"             : filter(lambda stop: (stop["lat"], stop["lng"]) not in [(pickup_position["lat"], pickup_position["lng"]), (dropoff_position["lat"], dropoff_position["lng"])], pickup_stops)
@@ -64,7 +67,8 @@ def get_ongoing_order(passenger):
     @return: ongoing order or None
     """
     # TODO: real logic - station accepted and assigned a taxi and isr worked
-    delta = default_tz_now() - datetime.timedelta(minutes=5)
+    return None
+    delta = default_tz_now() - datetime.timedelta(minutes=150)
     ongoing_orders = list(passenger.orders.filter(depart_time__gt=delta).order_by("-depart_time"))
     ongoing_order = first(lambda o: o.status in [ACCEPTED, APPROVED, PENDING], ongoing_orders)
     return ongoing_order
@@ -123,15 +127,27 @@ def update_picture(request, passenger):
     """
     Redirects the passenger to fb
     """
-    from settings import FACEBOOK_CONNECT_URI, FACEBOOK_APP_ID, DEFAULT_DOMAIN
-
     response = {}
     if passenger:
-        callback_url = "http://%s%s" % (DEFAULT_DOMAIN, reverse(update_profile_fb, args=[passenger.id]))
-        fb_url = "%s?client_id=%s&redirect_uri=%s&scope=email" % (FACEBOOK_CONNECT_URI, FACEBOOK_APP_ID, callback_url)
+        callback_url = "http://%s%s" % (settings.DEFAULT_DOMAIN, reverse(update_profile_fb, args=[passenger.id]))
+        fb_url = "%s?client_id=%s&redirect_uri=%s&scope=email" % (settings.FACEBOOK_CONNECT_URI, settings.FACEBOOK_APP_ID, callback_url)
         response['redirect'] = fb_url
 
     return JSONResponse(response)
+
+def fb_share(request):
+    args = {
+        'app_id': settings.FACEBOOK_APP_ID,
+        'link': 'settings.DEFAULT_DOMAIN',
+        'picture': 'http://www.waybetter.com/static/images/wb_site/wb_beta_logo.png',
+        'name': 'WAYbetter',
+        'description': 'WAYbetter is the easiest way to get from A to B',
+        'redirect_uri': "http://%s" % settings.DEFAULT_DOMAIN,
+        'display': 'touch' if request.mobile else 'page'
+    }
+    url = "http://m.facebook.com/dialog/feed?" + urllib.urlencode(args);
+
+    return HttpResponseRedirect(url)
 
 @never_cache
 @passenger_required_no_redirect
@@ -158,17 +174,19 @@ def get_previous_rides(request, passenger):
         if not ride:
             continue #TODO_WB : handle this, is this a valid situation?
 
-        ride_orders = ride.orders.all()
-        passengers = filter(lambda p: p != passenger, [order.passenger for order in ride_orders])
+        other_orders = filter(lambda o: o != order, ride.orders.all())
         #TODO_WB : replace with real data
         ride_data = {
             "order_id": order.id,
             "pickup_time": to_js_date(order.pickup_point.stop_time),
-            "passengers": [{'name': passenger.name, 'picture_url': passenger.picture_url} for passenger in passengers],
+            "passengers": [{'name': order.passenger.name, 'picture_url': order.passenger.picture_url} for order in other_orders for seat in range(order.num_seats)],
+            "seats_left": MAX_SEATS - sum([order.num_seats for order in ride.orders.all()]),
+            "your_seats": order.num_seats,
             "taxi_number": 1910,
             "station_name": u'מוניות מוני',
             "price": order.price,
             "billing_status": u'חוייבה',
+            "is_private": order.type == OrderType.PRIVATE
             }
 
         data.append(ride_data)
@@ -187,14 +205,15 @@ def get_next_rides(request, passenger):
         if not ride:
             continue #TODO_WB : handle this, is this a valid situation?
 
-        ride_orders = ride.orders.all()
-        passengers = filter(lambda p: p != passenger, [order.passenger for order in ride_orders])
+        other_orders = filter(lambda o: o != order, ride.orders.all())
         ride_data = {
             "order_id": order.id,
             "pickup_time": to_js_date(order.pickup_point.stop_time),
-            "passengers": [{'name': passenger.name, 'picture_url': passenger.picture_url} for passenger in passengers],
-            "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
+            "passengers": [{'name': order.passenger.name, 'picture_url': order.passenger.picture_url} for order in other_orders for seat in range(order.num_seats)],
+            "seats_left": MAX_SEATS - sum([order.num_seats for order in ride.orders.all()]),
+            "your_seats": order.num_seats,
             "price": order.price,
+            "is_private": order.type == OrderType.PRIVATE
         }
 
         data.append(ride_data)
@@ -218,7 +237,7 @@ def get_candidate_rides(order_settings):
     @return:
     """
     #TODO_WB: implement
-    start_dt = set_default_tz_time(datetime.datetime(2012, 10, 2, 12, 22))
+    start_dt = set_default_tz_time(datetime.datetime(2012, 10, 13, 12, 22))
     candidates = SharedRide.objects.filter(create_date__gte=start_dt)
     candidates = filter(lambda ride: ride.debug, candidates)
     candidates = filter(lambda ride: ride.can_be_joined, candidates)
@@ -309,7 +328,7 @@ def get_offers(request):
             offer = {
                 "ride_id": ride_id,
                 "pickup_time": to_js_date(ride.depart_time + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])),
-                "passengers": [{'name': order.passenger.name, 'picture_url': order.passenger.picture_url} for order in ride_orders],
+                "passengers": [{'name': order.passenger.name, 'picture_url': order.passenger.picture_url} for order in ride_orders for seat in range(order.num_seats)],
                 "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
                 "price": price,
                 "new_ride": False,
