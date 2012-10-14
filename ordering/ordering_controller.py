@@ -169,6 +169,7 @@ def get_previous_rides(request, passenger):
             "station_name": u'מוניות מוני',
             "price": order.price,
             "billing_status": u'חוייבה',
+            "is_private": order.type == OrderType.PRIVATE
             }
 
         data.append(ride_data)
@@ -195,6 +196,7 @@ def get_next_rides(request, passenger):
             "seats_left": MAX_SEATS - sum([order.num_seats for order in ride.orders.all()]),
             "your_seats": order.num_seats,
             "price": order.price,
+            "is_private": order.type == OrderType.PRIVATE
         }
 
         data.append(ride_data)
