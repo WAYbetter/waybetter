@@ -4,13 +4,12 @@ from __future__ import absolute_import # we need absolute imports since ordering
 import logging
 import traceback
 import urllib
-from django.conf import settings
 from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request
 from django.views.decorators.csrf import csrf_exempt
 from billing.billing_manager import  get_token_url
 from billing.models import BillingTransaction
-from common.tz_support import to_js_date, default_tz_now, set_default_tz_time, utc_now, ceil_datetime
+from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime
 from common.util import first, Enum, dict_to_str_keys, datetimeIterator
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
@@ -31,6 +30,7 @@ import sharing.algo_api as algo_api
 
 MAX_SEATS = 3
 BOOKING_INTERVAL = 10 # minutes
+ASAP_BOOKING_TIME = 5 # minutes
 
 def staff_m2m(request):
     return render_to_response("staff_m2m.html", RequestContext(request))
@@ -364,7 +364,8 @@ def book_ride(request):
         'status': '',
         'order_id': None,
         'redirect': '',
-        'error': ''
+        'error': '',
+        'pickup_dt': None
     }
 
     if passenger and passenger.user and hasattr(passenger, "billing_info"): # we have logged-in passenger with billing_info - let's proceed
@@ -377,6 +378,7 @@ def book_ride(request):
         if order_id is not None:
             result['status'] = 'success'
             result['order_id'] = order_id
+            result['pickup_dt'] = to_js_date(Order.by_id(order_id).depart_time)
         else:
             result['status'] = 'failed'
             result['error'] = 'Booking failed for some reason'
@@ -596,14 +598,20 @@ class OrderSettings:
         pickup = request_data.get("pickup")
         dropoff = request_data.get("dropoff")
         settings = request_data.get("settings")
+        asap = request_data.get("asap")
 
         inst = cls()
         inst.num_seats = int(settings["num_seats"])
         inst.debug = bool(settings["debug"])
         inst.private = bool(settings["private"])
-        inst.pickup_dt = dateutil.parser.parse(request_data.get("pickup_dt"))
         inst.pickup_address = Address(**pickup)
         inst.dropoff_address = Address(**dropoff)
+
+        if asap:
+            inst.pickup_dt = default_tz_now() + datetime.timedelta(minutes=ASAP_BOOKING_TIME)
+            logging.info("ASAP set as %s" % inst.pickup_dt.strftime("HH:MM"))
+        else:
+            inst.pickup_dt = dateutil.parser.parse(request_data.get("pickup_dt"))
 
         inst.mobile = request.mobile
         inst.language_code = request.POST.get("language_code", get_language_from_request(request))
