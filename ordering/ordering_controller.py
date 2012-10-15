@@ -141,14 +141,14 @@ def update_picture(request, passenger):
 def fb_share(request):
     args = {
         'app_id': settings.FACEBOOK_APP_ID,
-        'link': 'settings.DEFAULT_DOMAIN',
+        'link': settings.DEFAULT_DOMAIN,
         'picture': 'http://www.waybetter.com/static/images/wb_site/wb_beta_logo.png',
         'name': 'WAYbetter',
         'description': 'WAYbetter is the easiest way to get from A to B',
         'redirect_uri': "http://%s" % settings.DEFAULT_DOMAIN,
         'display': 'touch' if request.mobile else 'page'
     }
-    url = "http://m.facebook.com/dialog/feed?" + urllib.urlencode(args);
+    url = "http://m.facebook.com/dialog/feed?" + urllib.urlencode(args)
 
     return HttpResponseRedirect(url)
 
