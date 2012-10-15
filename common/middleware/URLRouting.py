@@ -2,8 +2,8 @@ import logging
 from django.http import HttpResponseRedirect
 from django.utils.http import urlquote
 
-VER_1_1_SERVER = 'dev.latest.waybetter-app.appspot.com'
-VER_1_1_DOMAINS = [VER_1_1_SERVER, 'dev.waybetter-app.appspot.com']
+VER_1_2_SERVER = 'dev.latest.waybetter-app.appspot.com'
+VER_1_2_DOMAINS = [VER_1_2_SERVER, 'dev.waybetter-app.appspot.com']
 
 
 def get_domain_uri(request, domain_name, secure=True):
@@ -30,3 +30,13 @@ class URLRouting(object):
                 request.urlconf = "api_urls"
                 request.mobile = True
                 request.wb_app = True
+
+        # redirect app v1.2 users to VER_1_2_SERVER (unless if current host is already the redirect)
+        host = request.get_host()
+        if host not in VER_1_2_DOMAINS and user_agent_parts[0] == "WAYbetter" and user_agent_parts[2] == "1.2":
+            logging.info("redirecting v1.2: %s > %s" % (host, VER_1_2_SERVER))
+            new_uri = get_domain_uri(request, VER_1_2_SERVER, secure=False)
+
+            response = HttpResponseRedirect(new_uri)
+            response.status_code = 307  # causes PhoneGap client to resend POST data to new_uri
+            return response
