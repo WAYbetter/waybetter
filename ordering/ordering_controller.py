@@ -80,7 +80,8 @@ def sync_app_state(request):
     latest_pickup_time = earliest_pickup_time + datetime.timedelta(hours=24)
     dt_options = list(datetimeIterator(earliest_pickup_time, latest_pickup_time, delta=datetime.timedelta(minutes=BOOKING_INTERVAL)))
 
-    response = {"pickup_datetime_options": [to_js_date(opt) for opt in dt_options]}
+    response = {"pickup_datetime_options": [to_js_date(opt) for opt in dt_options],
+                "pickup_datetime_default_idx": 3}
 
     passenger = Passenger.from_request(request)
     response["show_url"] = "" # change to cause child browser to open with passed url
@@ -329,6 +330,7 @@ def get_offers(request):
                 "price": price,
                 "seats_left": MAX_SEATS,
                 "new_ride": True,
+                "comment": u"זאת נסיעה חדשה"
             }
 
         else:
@@ -341,6 +343,7 @@ def get_offers(request):
                 "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
                 "price": price,
                 "new_ride": False,
+                "comment": u"הצטרף לנסיעה זו"
             }
 
         offers.append(offer)
