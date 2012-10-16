@@ -104,12 +104,14 @@ def get_order_billing_status(request, passenger):
         APPROVED: "approved",
         PENDING: "pending"
     }
+    #TODO_WB: send error message in response.status if J5 fails for some reason
 
     if order and order.passenger == passenger:
         response = {'status': status_dict.get(order.status)}
     else:
         response = {"error": "unknown order"}
 
+    logging.info("response = %s" % response)
     return JSONResponse(response)
 
 def get_defaults(request):
