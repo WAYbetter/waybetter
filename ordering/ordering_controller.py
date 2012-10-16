@@ -68,6 +68,7 @@ def get_ongoing_order(passenger):
     @return: ongoing order or None
     """
     # TODO: real logic - station accepted and assigned a taxi and isr worked
+#    return None
     delta = default_tz_now() - datetime.timedelta(minutes=5)
     ongoing_orders = list(passenger.orders.filter(depart_time__gt=delta).order_by("-depart_time"))
     ongoing_order = first(lambda o: o.status in [ACCEPTED, APPROVED, PENDING], ongoing_orders)
@@ -216,7 +217,8 @@ def get_next_rides(request, passenger):
             "seats_left": MAX_SEATS - sum([order.num_seats for order in ride.orders.all()]),
             "your_seats": order.num_seats,
             "price": order.price,
-            "is_private": order.type == OrderType.PRIVATE
+            "is_private": order.type == OrderType.PRIVATE,
+            "billing_status": u'או פחות',
         }
 
         data.append(ride_data)
@@ -376,9 +378,11 @@ def book_ride(request):
         order_id = create_order(order_settings, passenger, ride_id)
 
         if order_id is not None:
+            order = Order.by_id(order_id)
             result['status'] = 'success'
             result['order_id'] = order_id
-            result['pickup_dt'] = to_js_date(Order.by_id(order_id).depart_time)
+            result['pickup_formatted'] = order.from_raw
+            result['pickup_dt'] = to_js_date(order.depart_time)
         else:
             result['status'] = 'failed'
             result['error'] = 'Booking failed for some reason'
