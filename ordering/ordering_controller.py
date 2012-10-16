@@ -56,7 +56,10 @@ def get_ongoing_ride_details(request, passenger):
             "passengers"        : [{'name': o.passenger.name, 'picture_url': o.passenger.picture_url, 'is_you': o==order} for o in sorted_orders for seat in range(o.num_seats)],
             "pickup_position"   : pickup_position,
             "dropoff_position"  : dropoff_position,
-            "stops"             : filter(lambda stop: (stop["lat"], stop["lng"]) not in [(pickup_position["lat"], pickup_position["lng"]), (dropoff_position["lat"], dropoff_position["lng"])], pickup_stops)
+            "stops"             : filter(lambda stop: (stop["lat"], stop["lng"]) not in [(pickup_position["lat"], pickup_position["lng"]), (dropoff_position["lat"], dropoff_position["lng"])], pickup_stops),
+            "empty_seats"       : MAX_SEATS - sum([o.num_seats for o in sorted_orders]),
+            "debug"             : settings.DEV,
+
         }
 
     return JSONResponse(response)
