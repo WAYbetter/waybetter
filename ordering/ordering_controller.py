@@ -336,12 +336,18 @@ def get_ride_cost_data_from(ride_data):
              TARIFFS.TARIFF2: (ride_data[AlgoField.COST_LIST_TARIFF2])}
 
 
-def get_order_price_data_from(ride_data, order_id=NEW_ORDER_ID):
+def get_order_price_data_from(ride_data, order_id=NEW_ORDER_ID, sharing=True):
     order_info = ride_data[AlgoField.ORDER_INFOS][str(order_id)]
-    return {
-        TARIFFS.TARIFF1: order_info[AlgoField.PRICE_SHARING_TARIFF1],
-        TARIFFS.TARIFF2: order_info[AlgoField.PRICE_SHARING_TARIFF2]
-    }
+    if sharing:
+        return {
+            TARIFFS.TARIFF1: order_info[AlgoField.PRICE_SHARING_TARIFF1],
+            TARIFFS.TARIFF2: order_info[AlgoField.PRICE_SHARING_TARIFF2]
+        }
+    else:
+        return {
+            TARIFFS.TARIFF1: order_info[AlgoField.PRICE_ALONE_TARIFF1],
+            TARIFFS.TARIFF2: order_info[AlgoField.PRICE_ALONE_TARIFF2]
+        }
 
 
 def get_offers(request):
@@ -369,14 +375,15 @@ def get_offers(request):
 
         # get price for offer according to tariff
         price = None
+        price_alone = None
         for tariff in tariffs:
             if tariff.is_active(order_settings.pickup_dt.date(), order_settings.pickup_dt.time()):
                 price = get_order_price_data_from(ride_data).get(tariff.tariff_type)
+                price_alone = get_order_price_data_from(ride_data, sharing=False).get(tariff.tariff_type)
                 break
         if not price:
             logging.warning("get_offers missing price for %s" % order_settings.pickup_dt)
             continue
-
 
         if ride_id == NEW_ORDER_ID:
             offer = {
@@ -384,10 +391,15 @@ def get_offers(request):
                 "price": price,
                 "seats_left": MAX_SEATS,
                 "new_ride": True,
-                "comment": ""  # TODO_WB: time added estimation, price save estimation
+                "comment": ""  # TODO_WB: sharing chances
             }
 
         else:
+            time_sharing = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.TIME_SHARING]
+            time_alone = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.TIME_ALONE]
+            time_addition = int((time_sharing - time_alone) / 60)
+            price_addition = int(price_alone - price)
+
             pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride_data[AlgoField.RIDE_POINTS])
             ride_orders = ride.orders.all()
             offer = {
@@ -397,7 +409,7 @@ def get_offers(request):
                 "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
                 "price": price,
                 "new_ride": False,
-                "comment": "" # TODO_WB: time added estimation, price save estimation
+                "comment": u"%s דקות תוספת זמן / חסכון %s₪" % (time_addition, price_addition)
             }
 
         offers.append(offer)
