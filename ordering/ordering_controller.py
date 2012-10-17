@@ -17,11 +17,12 @@ from django.template.context import RequestContext
 from django.conf import settings
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils.translation import ugettext as _
+from django.utils.translation import ugettext_lazy, ugettext as _
 from djangotoolbox.http import JSONResponse
+from fleet.fleet_manager import get_ride_position
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
-from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, Passenger, CHARGED
+from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, Passenger, CHARGED, RideEvent
 from pricing.models import TARIFFS, RuleSet
 from sharing.algo_api import AlgoField
 import simplejson
@@ -30,10 +31,17 @@ import dateutil.parser
 
 import sharing.algo_api as algo_api
 
+WAYBETTER_STATION_NAME = "WAYbetter"
+
 MAX_SEATS = 3
 BOOKING_INTERVAL = 10 # minutes
 ASAP_BOOKING_TIME = 5 # minutes
 MAX_RIDE_DURATION = 15 #minutes
+
+ORDER_SUCCESS_STATUS = [APPROVED, ACCEPTED, CHARGED]
+
+PREVIOUS_RIDES_TO_DISPLAY = 10
+HISTORY_SUGGESTIONS_TO_SEARCH = 30
 
 def staff_m2m(request):
     return render_to_response("staff_m2m.html", RequestContext(request))
@@ -50,14 +58,14 @@ def get_ongoing_ride_details(request, passenger):
         ride = order.ride
         station = ride.station
         station_data = {
-            'name': station.name if station else "WAYbetter",
+            'name': station.name if station else WAYBETTER_STATION_NAME,
             'phone': station.phone if station else settings.CONTACT_PHONE
         }
 
         pickup_position = {"lat": order.from_lat, "lng": order.from_lon}
         dropoff_position = {"lat": order.to_lat, "lng": order.to_lon}
         pickup_stops = [{"lat": p.lat, "lng": p.lon} for p in ride.pickup_points]  # sorted by stop_time
-        sorted_orders =  [pickup.order for pickup in pickup_stops]
+        sorted_orders = sorted(ride.orders.all(), key=lambda o: o.depart_time)
 
         # stops include other passengers stops only
         stops = filter(lambda stop: (stop["lat"], stop["lng"])
@@ -65,7 +73,7 @@ def get_ongoing_ride_details(request, passenger):
 
         # passenger appears as many times as seats she ordered
         passengers = [{'name': o.passenger.name, 'picture_url': o.passenger.picture_url, 'is_you': o==order}
-                        for o in sorted_orders for seat in range(o.num_seats)],
+                        for o in sorted_orders for seat in range(o.num_seats)]
 
         response = {
             "station"           : station_data,
@@ -89,10 +97,10 @@ def get_ongoing_order(passenger):
 
     # orders that can still be ongoing
     recently = default_tz_now() - datetime.timedelta(minutes=MAX_RIDE_DURATION)
-    possibly_ongoing_orders = passenger.orders.filter(depart_time__gt=recently).order_by("-depart_time")
+    possibly_ongoing_orders = passenger.orders.filter(depart_time__lte=default_tz_now(), depart_time__gt=recently).order_by("-depart_time")
 
     for order in possibly_ongoing_orders:
-        if order.status in [APPROVED, ACCEPTED]:  # paid for, or station already accepted
+        if order.status in ORDER_SUCCESS_STATUS:
             ongoing_order = order
         break
 
@@ -135,7 +143,7 @@ def get_order_billing_status(request, passenger):
 
     response = {}
     try:
-        billing_trx = order.billing_transactions.order_by("-create_date")[0]
+        billing_trx = sorted(order.billing_transactions.all(), lambda trx: trx.create_date)[0]
 
         if billing_trx.status == BillingStatus.APPROVED:
             response['status'] = approved
@@ -149,10 +157,6 @@ def get_order_billing_status(request, passenger):
 
     logging.info("response = %s" % response)
     return JSONResponse(response)
-
-def get_defaults(request):
-    #TODO_WB:
-    pass
 
 
 @passenger_required_no_redirect
@@ -168,13 +172,10 @@ def update_picture(request, passenger):
     """
     Redirects the passenger to fb
     """
-    response = {}
-    if passenger:
-        callback_url = "http://%s%s" % (settings.DEFAULT_DOMAIN, reverse(update_profile_fb, args=[passenger.id]))
-        fb_url = "%s?client_id=%s&redirect_uri=%s&scope=email" % (settings.FACEBOOK_CONNECT_URI, settings.FACEBOOK_APP_ID, callback_url)
-        response['redirect'] = fb_url
+    callback_url = "http://%s%s" % (settings.DEFAULT_DOMAIN, reverse(update_profile_fb, args=[passenger.id]))
+    fb_url = "%s?client_id=%s&redirect_uri=%s&scope=email" % (settings.FACEBOOK_CONNECT_URI, settings.FACEBOOK_APP_ID, callback_url)
+    return JSONResponse({'redirect': fb_url})
 
-    return JSONResponse(response)
 
 def fb_share(request):
     args = {
@@ -182,57 +183,67 @@ def fb_share(request):
         'link': settings.DEFAULT_DOMAIN,
         'picture': 'http://www.waybetter.com/static/images/wb_site/wb_beta_logo.png',
         'name': 'WAYbetter',
-        'description': 'WAYbetter is the easiest way to get from A to B',
+        'description': _('WAYbetter is the easiest way to get from A to B'),
         'redirect_uri': "http://%s" % settings.DEFAULT_DOMAIN,
         'display': 'touch' if request.mobile else 'page'
     }
-    url = "http://m.facebook.com/dialog/feed?" + urllib.urlencode(args)
+    url = "http://%s.facebook.com/dialog/feed?%s" % ("m" if request.mobile else "www", urllib.urlencode(args))
 
     return HttpResponseRedirect(url)
+
 
 @never_cache
 @passenger_required_no_redirect
 def get_history_suggestions(request, passenger):
-    order_qs = Order.objects.filter(passenger=passenger, type__in=[OrderType.PRIVATE, OrderType.SHARED]).order_by('-depart_time')
-    # TODO_WB: remove PENDING status - used for debugging
-    orders = order_qs.filter(status__in=[PENDING, APPROVED, ACCEPTED, CHARGED], depart_time__lt=utc_now())
+    orders = passenger.orders.order_by('-depart_time')[:HISTORY_SUGGESTIONS_TO_SEARCH]
+    orders = filter(lambda o: o.type != OrderType.PICKMEAPP, orders)
     data = set([Address.from_order(o, "from") for o in orders] + [Address.from_order(o, "to") for o in orders])
     data = [a.__dict__ for a in data]
 
     return JSONResponse(data)
+
 
 @never_cache
 @passenger_required_no_redirect
 def get_previous_rides(request, passenger):
     data = []
 
-    # there can be a time frame within a previous order can have APPROVED status (not yet CHARGED)
-    order_qs = Order.objects.filter(passenger=passenger, type__in=[OrderType.PRIVATE, OrderType.SHARED]).order_by('-depart_time')
-    orders = order_qs.filter(status__in=[APPROVED, ACCEPTED, CHARGED], depart_time__lt=utc_now())[:5] #TODO_WB: how many to display?
+    orders = passenger.orders.filter(depart_time__lt=utc_now(), status__in=ORDER_SUCCESS_STATUS).order_by('-depart_time')
+    orders = orders.filter(type__in=[OrderType.PRIVATE, OrderType.SHARED])[:PREVIOUS_RIDES_TO_DISPLAY]
+    seen_rides = []
 
     for order in orders:
         ride = order.ride
         if not ride:
-            continue #TODO_WB : handle this, is this a valid situation?
+            logging.error("order [%s] not valid for previous rides (order.ride is None" % order.id)
+            continue
+        if ride in seen_rides:
+            continue  # skip duplicates (in case ride has multiple orders by same passenger)
 
-        other_orders = filter(lambda o: o != order, ride.orders.all())
-        #TODO_WB : replace with real data
+        seen_rides.append(ride)
+
+        ride_orders = ride.orders.all()
+        ride_mates_orders = filter(lambda o: o != order, ride_orders)
+        ride_mates = [{'name': order.passenger.name, 'picture_url': order.passenger.picture_url}
+                                    for order in ride_mates_orders for seat in range(order.num_seats)]
+
+        dispatching_event = first(lambda e: e.taxi_id, ride.events.all())
+
         ride_data = {
             "order_id": order.id,
             "pickup_time": to_js_date(order.pickup_point.stop_time),
-            "passengers": [{'name': order.passenger.name, 'picture_url': order.passenger.picture_url} for order in other_orders for seat in range(order.num_seats)],
-            "seats_left": MAX_SEATS - sum([order.num_seats for order in ride.orders.all()]),
+            "passengers": ride_mates,
+            "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
             "your_seats": order.num_seats,
-            "taxi_number": 1910,
-            "station_name": u'מוניות מוני',
+            "taxi_number": dispatching_event.taxi_id if dispatching_event else None,
+            "station_name": ride.station.name if ride.station else WAYBETTER_STATION_NAME,
             "price": order.price,
-            "billing_status": u'חוייבה',
+            "billing_status": ugettext_lazy(order.get_status_display().title()),
             "is_private": order.type == OrderType.PRIVATE
-            }
+        }
 
         data.append(ride_data)
 
-    #    return JSONResponse([])
     return JSONResponse(data)
 
 
@@ -241,21 +252,31 @@ def get_previous_rides(request, passenger):
 def get_next_rides(request, passenger):
     data = []
     future_orders = get_future_orders_for(passenger)
+    seen_rides = []
+
     for order in future_orders:
         ride = order.ride
         if not ride:
-            continue #TODO_WB : handle this, is this a valid situation?
+            logging.error("order [%s] not valid for previous rides (order.ride is None" % order.id)
+            continue
+        if ride in seen_rides:
+            continue  # skip duplicates (in case ride has multiple orders by same passenger)
+        seen_rides.append(ride)
 
-        other_orders = filter(lambda o: o != order, ride.orders.all())
+        ride_orders = ride.orders.all()
+        ride_mates_orders = filter(lambda o: o != order, ride_orders)
+        ride_mates = [{'name': o.passenger.name, 'picture_url': o.passenger.picture_url}
+                        for o in ride_mates_orders for seat in range(o.num_seats)]
+
         ride_data = {
             "order_id": order.id,
             "pickup_time": to_js_date(order.pickup_point.stop_time),
-            "passengers": [{'name': order.passenger.name, 'picture_url': order.passenger.picture_url} for order in other_orders for seat in range(order.num_seats)],
-            "seats_left": MAX_SEATS - sum([order.num_seats for order in ride.orders.all()]),
+            "passengers": ride_mates,
+            "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
             "your_seats": order.num_seats,
             "price": order.price,
             "is_private": order.type == OrderType.PRIVATE,
-            "billing_status": u'או פחות',
+            "billing_status": _("or less"),
         }
 
         data.append(ride_data)
@@ -263,8 +284,9 @@ def get_next_rides(request, passenger):
     return JSONResponse(data)
 
 def get_future_orders_for(passenger):
-    future_order_qs = Order.objects.filter(passenger=passenger, type__in=[OrderType.PRIVATE, OrderType.SHARED]).order_by('-depart_time')
-    return list(future_order_qs.filter(status__in=[APPROVED, ACCEPTED], depart_time__gte=utc_now()))
+    future_order_qs = passenger.orders.filter(depart_time__gte=utc_now()).order_by('-depart_time')
+    future_order_qs.filter(status__in=ORDER_SUCCESS_STATUS, type__in=[OrderType.PRIVATE, OrderType.SHARED])
+    return list(future_order_qs)
 
 
 def get_times_for_ordering(request):
@@ -286,6 +308,7 @@ def get_candidate_rides(order_settings):
     candidates = filter(lambda ride: ride.debug == settings.DEBUG, candidates)
     candidates = filter(lambda ride: ride.can_be_joined, candidates)
     candidates = filter(lambda ride: sum([order.num_seats for order in ride.orders.all()]) + order_settings.num_seats <= 3, candidates)
+    candidates = list(set(candidates))
 
     return candidates
 
@@ -364,7 +387,7 @@ def get_offers(request):
                 "price": price,
                 "seats_left": MAX_SEATS,
                 "new_ride": True,
-                "comment": u"זאת נסיעה חדשה"
+                "comment": ""
             }
 
         else:
@@ -377,7 +400,7 @@ def get_offers(request):
                 "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
                 "price": price,
                 "new_ride": False,
-                "comment": u"הצטרף לנסיעה זו"
+                "comment": ""
             }
 
         offers.append(offer)
