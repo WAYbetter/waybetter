@@ -50,7 +50,7 @@ def get_ongoing_ride_details(request, passenger):
         ride = order.ride
         station = ride.station
         station_data = {
-            'name': station.name if station else _("No station"),
+            'name': station.name if station else "WAYbetter",
             'phone': station.phone if station else settings.CONTACT_PHONE
         }
 
@@ -124,18 +124,28 @@ def sync_app_state(request):
 
 @passenger_required_no_redirect
 def get_order_billing_status(request, passenger):
+    approved = "approved"
+    pending = "pending"
+
     order_id = request.GET.get("order_id")
     order = Order.by_id(order_id)
-    status_dict = {
-        APPROVED: "approved",
-        PENDING: "pending"
-    }
-    #TODO_WB: send error message in response.status if J5 fails for some reason
 
-    if order and order.passenger == passenger:
-        response = {'status': status_dict.get(order.status)}
-    else:
-        response = {"error": "unknown order"}
+    if not (order and order.passenger == passenger):
+        return JSONResponse({"error": _("You are not authorized to view the status of this order")})
+
+    response = {}
+    try:
+        billing_trx = order.billing_transactions.order_by("-create_date")[0]
+
+        if billing_trx.status == BillingStatus.APPROVED:
+            response['status'] = approved
+        elif billing_trx.status == BillingStatus.FAILED:
+            response['error'] = billing_trx.comments
+        else:
+            response['status'] = pending
+
+    except IndexError:  # no billing transactions
+        response['error'] = _("Order was not processed for billing")
 
     logging.info("response = %s" % response)
     return JSONResponse(response)
