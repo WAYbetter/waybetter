@@ -41,6 +41,7 @@ MAX_RIDE_DURATION = 15 #minutes
 ORDER_SUCCESS_STATUS = [APPROVED, ACCEPTED, CHARGED]
 
 PREVIOUS_RIDES_TO_DISPLAY = 10
+HISTORY_SUGGESTIONS_TO_SEARCH = 30
 
 def staff_m2m(request):
     return render_to_response("staff_m2m.html", RequestContext(request))
@@ -194,7 +195,7 @@ def fb_share(request):
 @never_cache
 @passenger_required_no_redirect
 def get_history_suggestions(request, passenger):
-    orders = passenger.orders.order_by('-depart_time')[:30]
+    orders = passenger.orders.order_by('-depart_time')[:HISTORY_SUGGESTIONS_TO_SEARCH]
     orders = filter(lambda o: o.type != OrderType.PICKMEAPP, orders)
     data = set([Address.from_order(o, "from") for o in orders] + [Address.from_order(o, "to") for o in orders])
     data = [a.__dict__ for a in data]
@@ -207,33 +208,39 @@ def get_history_suggestions(request, passenger):
 def get_previous_rides(request, passenger):
     data = []
 
-    order_qs = passenger.orders.filter(type__in=[OrderType.PRIVATE, OrderType.SHARED]).order_by('-depart_time')
-    orders = order_qs.filter(status__in=ORDER_SUCCESS_STATUS, depart_time__lt=utc_now())[:PREVIOUS_RIDES_TO_DISPLAY]
+    orders = passenger.orders.filter(depart_time__lt=utc_now(), status__in=ORDER_SUCCESS_STATUS).order_by('-depart_time')
+    orders = orders.filter(type__in=[OrderType.PRIVATE, OrderType.SHARED])[:PREVIOUS_RIDES_TO_DISPLAY]
+    seen_rides = []
 
     for order in orders:
         ride = order.ride
         if not ride:
             logging.error("order [%s] not valid for previous rides (order.ride is None" % order.id)
             continue
+        if ride in seen_rides:
+            continue  # skip duplicates (in case ride has multiple orders by same passenger)
+
+        seen_rides.append(ride)
 
         ride_orders = ride.orders.all()
         ride_mates_orders = filter(lambda o: o != order, ride_orders)
         ride_mates = [{'name': order.passenger.name, 'picture_url': order.passenger.picture_url}
                                     for order in ride_mates_orders for seat in range(order.num_seats)]
 
-        taxiride_position = get_ride_position(order.id)
+        dispatching_event = first(lambda e: e.taxi_id, ride.events.all())
+
         ride_data = {
             "order_id": order.id,
             "pickup_time": to_js_date(order.pickup_point.stop_time),
             "passengers": ride_mates,
             "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
             "your_seats": order.num_seats,
-            "taxi_number": taxiride_position.taxi_id if taxiride_position else None,
+            "taxi_number": dispatching_event.taxi_id if dispatching_event else None,
             "station_name": ride.station.name if ride.station else WAYBETTER_STATION_NAME,
             "price": order.price,
             "billing_status": ugettext_lazy(order.get_status_display().title()),
             "is_private": order.type == OrderType.PRIVATE
-            }
+        }
 
         data.append(ride_data)
 
@@ -245,21 +252,31 @@ def get_previous_rides(request, passenger):
 def get_next_rides(request, passenger):
     data = []
     future_orders = get_future_orders_for(passenger)
+    seen_rides = []
+
     for order in future_orders:
         ride = order.ride
         if not ride:
-            continue #TODO_WB : handle this, is this a valid situation?
+            logging.error("order [%s] not valid for previous rides (order.ride is None" % order.id)
+            continue
+        if ride in seen_rides:
+            continue  # skip duplicates (in case ride has multiple orders by same passenger)
+        seen_rides.append(ride)
 
-        other_orders = filter(lambda o: o != order, ride.orders.all())
+        ride_orders = ride.orders.all()
+        ride_mates_orders = filter(lambda o: o != order, ride_orders)
+        ride_mates = [{'name': o.passenger.name, 'picture_url': o.passenger.picture_url}
+                        for o in ride_mates_orders for seat in range(o.num_seats)]
+
         ride_data = {
             "order_id": order.id,
             "pickup_time": to_js_date(order.pickup_point.stop_time),
-            "passengers": [{'name': o.passenger.name, 'picture_url': o.passenger.picture_url} for o in other_orders for seat in range(o.num_seats)],
-            "seats_left": MAX_SEATS - sum([order.num_seats for order in ride.orders.all()]),
+            "passengers": ride_mates,
+            "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
             "your_seats": order.num_seats,
             "price": order.price,
             "is_private": order.type == OrderType.PRIVATE,
-            "billing_status": u'או פחות',
+            "billing_status": _("or less"),
         }
 
         data.append(ride_data)
@@ -267,8 +284,9 @@ def get_next_rides(request, passenger):
     return JSONResponse(data)
 
 def get_future_orders_for(passenger):
-    future_order_qs = Order.objects.filter(passenger=passenger, type__in=[OrderType.PRIVATE, OrderType.SHARED]).order_by('-depart_time')
-    return list(future_order_qs.filter(status__in=[APPROVED, ACCEPTED], depart_time__gte=utc_now()))
+    future_order_qs = passenger.orders.filter(depart_time__gte=utc_now()).order_by('-depart_time')
+    future_order_qs.filter(status__in=ORDER_SUCCESS_STATUS, type__in=[OrderType.PRIVATE, OrderType.SHARED])
+    return list(future_order_qs)
 
 
 def get_times_for_ordering(request):
@@ -369,7 +387,7 @@ def get_offers(request):
                 "price": price,
                 "seats_left": MAX_SEATS,
                 "new_ride": True,
-                "comment": u"זאת נסיעה חדשה"
+                "comment": ""
             }
 
         else:
@@ -382,7 +400,7 @@ def get_offers(request):
                 "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
                 "price": price,
                 "new_ride": False,
-                "comment": u"הצטרף לנסיעה זו"
+                "comment": ""
             }
 
         offers.append(offer)
