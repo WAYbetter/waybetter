@@ -364,7 +364,7 @@ def get_offers(request):
                 "price": price,
                 "seats_left": MAX_SEATS,
                 "new_ride": True,
-                "comment": u"זאת נסיעה חדשה"
+                "comment": u"זו נסיעה חדשה"
             }
 
         else:
