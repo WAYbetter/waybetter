@@ -19,7 +19,6 @@ from django.views.decorators.cache import never_cache
 from django.http import HttpResponse, HttpResponseRedirect
 from django.utils.translation import ugettext_lazy, ugettext as _
 from djangotoolbox.http import JSONResponse
-from fleet.fleet_manager import get_ride_position
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
 from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, Passenger, CHARGED, RideEvent
@@ -37,6 +36,8 @@ MAX_SEATS = 3
 BOOKING_INTERVAL = 10 # minutes
 ASAP_BOOKING_TIME = 5 # minutes
 MAX_RIDE_DURATION = 15 #minutes
+
+OFFERS_TIMEDELTA = datetime.timedelta(minutes=60)
 
 ORDER_SUCCESS_STATUS = [APPROVED, ACCEPTED, CHARGED]
 
@@ -289,26 +290,30 @@ def get_future_orders_for(passenger):
     return list(future_order_qs)
 
 
-def get_times_for_ordering(request):
-    #TODO_WB:
-    pass
-
-
 def get_candidate_rides(order_settings):
     """
     Get rides that might be a match for the given order_settings
     @param order_settings: C{OrderSettings}
     @return:
     """
-    #TODO_WB: implement
-    next_few_minutes = default_tz_now() + datetime.timedelta(minutes=5)
-    pickups_in_next_few_minutes = RidePoint.objects.filter(stop_time__gte=next_few_minutes)
+    requested_pickup_dt = order_settings.pickup_dt
+    earliest = max(default_tz_now(), requested_pickup_dt - OFFERS_TIMEDELTA)
+    latest = requested_pickup_dt + OFFERS_TIMEDELTA
 
-    candidates = [p.ride for p in pickups_in_next_few_minutes]
-    candidates = filter(lambda ride: ride.debug == settings.DEBUG, candidates)
+    candidate_pickups_qs = RidePoint.objects.filter(stop_time__gt=earliest, stop_time__lte=latest)
+    candidate_pickups = filter(lambda p: p.type == StopType.PICKUP, candidate_pickups_qs)
+
+    # remove duplicates: different pickups can belong to the same ride
+    candidates = set([p.ride for p in candidate_pickups])
+
+    # don't mix dev with production rides
+    candidates = filter(lambda ride: ride.debug == settings.DEV, candidates)
+
+    # remove private rides
     candidates = filter(lambda ride: ride.can_be_joined, candidates)
-    candidates = filter(lambda ride: sum([order.num_seats for order in ride.orders.all()]) + order_settings.num_seats <= 3, candidates)
-    candidates = list(set(candidates))
+
+    # remove fully booked rides
+    candidates = filter(lambda ride: sum([order.num_seats for order in ride.orders.all()]) + order_settings.num_seats <= MAX_SEATS, candidates)
 
     return candidates
 
@@ -326,32 +331,31 @@ def get_matching_rides(candidate_rides, order_settings):
     return matches
 
 
-def filter_matching_rides(matching_rides):
-    """
-    @param matching_rides: A list of JSON objects representing modified SharedRides returned by algorithm
-    @return: A filtered list of JSON objects representing modified SharedRides
-    """
-
-    #TODO_WB: implement, TBD
-    return matching_rides
-
-
 def get_ride_cost_data_from(ride_data):
     return {TARIFFS.TARIFF1: (ride_data[AlgoField.COST_LIST_TARIFF1]),
              TARIFFS.TARIFF2: (ride_data[AlgoField.COST_LIST_TARIFF2])}
 
-def get_order_price_data_from(ride_data, order_id=NEW_ORDER_ID):
+
+def get_order_price_data_from(ride_data, order_id=NEW_ORDER_ID, sharing=True):
     order_info = ride_data[AlgoField.ORDER_INFOS][str(order_id)]
-    return {
-        TARIFFS.TARIFF1: order_info[AlgoField.PRICE_SHARING_TARIFF1],
-        TARIFFS.TARIFF2: order_info[AlgoField.PRICE_SHARING_TARIFF2]
-    }
+    if sharing:
+        return {
+            TARIFFS.TARIFF1: order_info[AlgoField.PRICE_SHARING_TARIFF1],
+            TARIFFS.TARIFF2: order_info[AlgoField.PRICE_SHARING_TARIFF2]
+        }
+    else:
+        return {
+            TARIFFS.TARIFF1: order_info[AlgoField.PRICE_ALONE_TARIFF1],
+            TARIFFS.TARIFF2: order_info[AlgoField.PRICE_ALONE_TARIFF2]
+        }
 
 
 def get_offers(request):
     order_settings = OrderSettings.fromRequest(request)
 
-    # TODO_WB: test coverage
+    # TODO_WB: save all searches? in our db? use vision.bi ?
+    # TODO_WB: save the requested search params and associate with a push_token from request for later notifications of similar searches
+    # TODO_WB: real test for coverage, generate a list of uncovered addresses users tried booking to
     if order_settings.pickup_address.city_name.find(u"תל אביב") < 0 or order_settings.dropoff_address.city_name.find(u"תל אביב") < 0:
         return JSONResponse({'error': u'לא ניתן להזמין לכתובת שנבחרה. אנא נסו שנית בקרוב.'})
 
@@ -361,25 +365,25 @@ def get_offers(request):
         candidate_rides = []
 
     matching_rides = get_matching_rides(candidate_rides, order_settings)
-    filtered_rides = filter_matching_rides(matching_rides)
 
     offers = []
     tariffs = RuleSet.objects.all()
 
-    for ride_data in filtered_rides:
+    for ride_data in matching_rides:
         ride_id = ride_data[AlgoField.RIDE_ID]
         ride = SharedRide.by_id(ride_id)
 
         # get price for offer according to tariff
         price = None
+        price_alone = None
         for tariff in tariffs:
             if tariff.is_active(order_settings.pickup_dt.date(), order_settings.pickup_dt.time()):
                 price = get_order_price_data_from(ride_data).get(tariff.tariff_type)
+                price_alone = get_order_price_data_from(ride_data, sharing=False).get(tariff.tariff_type)
                 break
         if not price:
             logging.warning("get_offers missing price for %s" % order_settings.pickup_dt)
             continue
-
 
         if ride_id == NEW_ORDER_ID:
             offer = {
@@ -387,10 +391,15 @@ def get_offers(request):
                 "price": price,
                 "seats_left": MAX_SEATS,
                 "new_ride": True,
-                "comment": ""
+                "comment": ""  # TODO_WB: sharing chances
             }
 
         else:
+            time_sharing = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.TIME_SHARING]
+            time_alone = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.TIME_ALONE]
+            time_addition = int((time_sharing - time_alone) / 60)
+            price_addition = int(price_alone - price)
+
             pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride_data[AlgoField.RIDE_POINTS])
             ride_orders = ride.orders.all()
             offer = {
@@ -400,7 +409,7 @@ def get_offers(request):
                 "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
                 "price": price,
                 "new_ride": False,
-                "comment": ""
+                "comment": u"%s דקות תוספת זמן / חסכון %s₪" % (time_addition, price_addition)
             }
 
         offers.append(offer)
