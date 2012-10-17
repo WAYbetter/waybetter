@@ -1,6 +1,7 @@
 import logging
 from django.http import HttpResponseRedirect
 from django.utils.http import urlquote
+from django.conf import settings
 
 VER_1_2_SERVER = 'dev.latest.waybetter-app.appspot.com'
 VER_1_2_DOMAINS = [VER_1_2_SERVER, 'dev.waybetter-app.appspot.com']
@@ -36,7 +37,7 @@ class URLRouting(object):
 
         # redirect app v1.2 users to VER_1_2_SERVER (unless if current host is already the redirect)
         host = request.get_host()
-        if host not in VER_1_2_DOMAINS and user_agent_parts[0] == "WAYbetter" and user_agent_parts[2] == "1.2":
+        if not settings.LOCAL and host not in VER_1_2_DOMAINS and user_agent_parts[0] == "WAYbetter" and user_agent_parts[2] == "1.2":
             logging.info("redirecting v1.2: %s > %s" % (host, VER_1_2_SERVER))
             new_uri = get_domain_uri(request, VER_1_2_SERVER, secure=False)
 
