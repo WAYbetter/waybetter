@@ -378,7 +378,7 @@ def get_offers(request):
         price_alone = None
         for tariff in tariffs:
             if tariff.is_active(order_settings.pickup_dt.date(), order_settings.pickup_dt.time()):
-                price = get_order_price_data_from(ride_data).get(tariff.tariff_type)
+                price = round(get_order_price_data_from(ride_data).get(tariff.tariff_type), 2)
                 price_alone = get_order_price_data_from(ride_data, sharing=False).get(tariff.tariff_type)
                 break
         if not price:
@@ -416,7 +416,7 @@ def get_offers(request):
 
     return JSONResponse({'offers': offers})
 
-def ger_private_offer(request):
+def get_private_offer(request):
     return get_offers(request)
 
 @csrf_exempt
