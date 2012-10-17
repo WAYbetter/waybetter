@@ -417,11 +417,13 @@ class BaseRide(BaseModel):
 
     @property
     def pickup_points(self):
-        return filter(lambda p: p.type == StopType.PICKUP, self.points.all())
+        pickups = filter(lambda p: p.type == StopType.PICKUP, self.points.all())
+        return sorted(pickups, key=lambda p: p.stop_time)
 
     @property
     def dropoff_points(self):
-        return filter(lambda p: p.type == StopType.DROPOFF, self.points.all())
+        dropoffs = filter(lambda p: p.type == StopType.DROPOFF, self.points.all())
+        return sorted(dropoffs, key=lambda p: p.stop_time)
 
     # denormalized fields
     dn_fleet_manager_id = models.IntegerField(blank=True, null=True)

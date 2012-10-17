@@ -8,6 +8,7 @@ from django.core.urlresolvers import reverse
 from django.utils.translation import get_language_from_request
 from django.views.decorators.csrf import csrf_exempt
 from billing.billing_manager import  get_token_url
+from billing.enums import BillingStatus
 from billing.models import BillingTransaction
 from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime
 from common.util import first, Enum, dict_to_str_keys, datetimeIterator
@@ -16,6 +17,7 @@ from django.template.context import RequestContext
 from django.conf import settings
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponse, HttpResponseRedirect
+from django.utils.translation import ugettext as _
 from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
@@ -31,6 +33,7 @@ import sharing.algo_api as algo_api
 MAX_SEATS = 3
 BOOKING_INTERVAL = 10 # minutes
 ASAP_BOOKING_TIME = 5 # minutes
+MAX_RIDE_DURATION = 15 #minutes
 
 def staff_m2m(request):
     return render_to_response("staff_m2m.html", RequestContext(request))
@@ -43,23 +46,35 @@ def get_ongoing_ride_details(request, passenger):
 
     response = {}
 
-    if order:
+    if order and order.ride:
+        ride = order.ride
+        station = ride.station
+        station_data = {
+            'name': station.name if station else _("No station"),
+            'phone': station.phone if station else settings.CONTACT_PHONE
+        }
+
         pickup_position = {"lat": order.from_lat, "lng": order.from_lon}
         dropoff_position = {"lat": order.to_lat, "lng": order.to_lon}
-        pickup_stops = [ {"lat": p.lat, "lng": p.lon}  for p in order.ride.pickup_points]
-        # TODO_WB: sort by pickup
-        sorted_orders =  order.ride.orders.all()
+        pickup_stops = [{"lat": p.lat, "lng": p.lon} for p in ride.pickup_points]  # sorted by stop_time
+        sorted_orders =  [pickup.order for pickup in pickup_stops]
 
-        # TODO_WB: replace with real data
+        # stops include other passengers stops only
+        stops = filter(lambda stop: (stop["lat"], stop["lng"])
+                    not in [(pickup_position["lat"], pickup_position["lng"]), (dropoff_position["lat"], dropoff_position["lng"])], pickup_stops)
+
+        # passenger appears as many times as seats she ordered
+        passengers = [{'name': o.passenger.name, 'picture_url': o.passenger.picture_url, 'is_you': o==order}
+                        for o in sorted_orders for seat in range(o.num_seats)],
+
         response = {
-            "station"           : { "name": u"מוניות מוני", "phone": "0526342974" },
-            "passengers"        : [{'name': o.passenger.name, 'picture_url': o.passenger.picture_url, 'is_you': o==order} for o in sorted_orders for seat in range(o.num_seats)],
+            "station"           : station_data,
+            "passengers"        : passengers,
             "pickup_position"   : pickup_position,
             "dropoff_position"  : dropoff_position,
-            "stops"             : filter(lambda stop: (stop["lat"], stop["lng"]) not in [(pickup_position["lat"], pickup_position["lng"]), (dropoff_position["lat"], dropoff_position["lng"])], pickup_stops),
+            "stops"             : stops,
             "empty_seats"       : MAX_SEATS - sum([o.num_seats for o in sorted_orders]),
             "debug"             : settings.DEV,
-
         }
 
     return JSONResponse(response)
@@ -70,11 +85,17 @@ def get_ongoing_order(passenger):
     @param passenger:
     @return: ongoing order or None
     """
-    # TODO: real logic - station accepted and assigned a taxi and isr worked
-#    return None
-    delta = default_tz_now() - datetime.timedelta(minutes=5)
-    ongoing_orders = list(passenger.orders.filter(depart_time__gt=delta).order_by("-depart_time"))
-    ongoing_order = first(lambda o: o.status in [ACCEPTED, APPROVED, PENDING], ongoing_orders)
+    ongoing_order = None
+
+    # orders that can still be ongoing
+    recently = default_tz_now() - datetime.timedelta(minutes=MAX_RIDE_DURATION)
+    possibly_ongoing_orders = passenger.orders.filter(depart_time__gt=recently).order_by("-depart_time")
+
+    for order in possibly_ongoing_orders:
+        if order.status in [APPROVED, ACCEPTED]:  # paid for, or station already accepted
+            ongoing_order = order
+        break
+
     return ongoing_order
 
 @never_cache
@@ -84,7 +105,7 @@ def sync_app_state(request):
     dt_options = list(datetimeIterator(earliest_pickup_time, latest_pickup_time, delta=datetime.timedelta(minutes=BOOKING_INTERVAL)))
 
     response = {"pickup_datetime_options": [to_js_date(opt) for opt in dt_options],
-                "pickup_datetime_default_idx": 3}
+                "pickup_datetime_default_idx": min(3, len(dt_options))}
 
     passenger = Passenger.from_request(request)
     response["show_url"] = "" # change to cause child browser to open with passed url
