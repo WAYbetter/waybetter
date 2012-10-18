@@ -455,12 +455,11 @@ def book_ride(request):
         request_data = simplejson.loads(request.POST.get('data'))
         ride_id = int(request_data.get("ride_id", NEW_ORDER_ID))
 
-        order_id = create_order(order_settings, passenger, ride_id)
+        order = create_order(order_settings, passenger, ride_id)
 
-        if order_id is not None:
-            order = Order.by_id(order_id)
+        if order:
             result['status'] = 'success'
-            result['order_id'] = order_id
+            result['order_id'] = order.id
             result['pickup_formatted'] = order.from_raw
             result['pickup_dt'] = to_js_date(order.depart_time)
         else:
@@ -506,7 +505,7 @@ def create_order(order_settings, passenger, ride_id):
         "ride_data": ride_data
     })
 
-    return order.id
+    return order
 
 def billing_approved_book_order(ride_id, ride_data, order):
     from sharing.station_controller import send_ride_in_risk_notification
