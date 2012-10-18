@@ -35,7 +35,7 @@
 
 {% block body %}
     <div id="registration_page" data-role="page">
-        <div data-role="header">
+        <div data-role="header" data-theme="c">
             {% if not request.wb_app %}
             <a href="#" data-theme="h" data-rel="back" class="ui-btn-right">{% trans "Close" %}</a>
             {% endif %}
@@ -94,14 +94,14 @@
                     </div>
                     <div class="ui-block-b">
                         <label for="id_agree_to_terms"></label>
-                        <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms" data-theme="a"/>
+                        <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms" data-theme="a" checked="checked"/>
                     </div>
                 </div>
                 <div id="terms_error">
                     <ul class="errorlist-placeholder"></ul>
                 </div>
 
-                <button id="finish_registration" data-theme="d">{% trans "Next" %}</button>
+                <button id="finish_registration" data-theme="c">{% trans "Next" %}</button>
             </form>
 
         </div>
@@ -123,12 +123,12 @@
             <form id="validation">
                 <input name="country_code" type="hidden" value="{{ country_code }}"/>
                 <label for="local_phone">{% trans "Enter phone number" %}</label>
-                <input id="local_phone" name="local_phone" placeholder="" type="tel" data-theme="d"/>
-                <button id="validate_phone" data-theme="d">{% trans "Get verfication code (free)" %}</button>
+                <input id="local_phone" name="local_phone" placeholder="" type="tel" data-theme="c"/>
+                <button id="validate_phone" data-theme="c">{% trans "Get verfication code (free)" %}</button>
 
                 <label for="verification_code">{% trans "Enter verification code" %}</label>
-                <input id="verification_code" name="verification_code" type="tel" data-theme="d"/>
-                <button id="validate_code" data-theme="d">{% trans "Next" %}</button>
+                <input id="verification_code" name="verification_code" type="tel" data-theme="c"/>
+                <button id="validate_code" data-theme="c">{% trans "Next" %}</button>
             </form>
         </div>
     </div>

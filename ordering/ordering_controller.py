@@ -692,7 +692,7 @@ class OrderSettings:
 
         if asap:
             inst.pickup_dt = default_tz_now() + datetime.timedelta(minutes=ASAP_BOOKING_TIME)
-            logging.info("ASAP set as %s" % inst.pickup_dt.strftime("HH:MM"))
+            logging.info("ASAP set as %s" % inst.pickup_dt.strftime("%H:%M"))
         else:
             inst.pickup_dt = dateutil.parser.parse(request_data.get("pickup_dt"))
 

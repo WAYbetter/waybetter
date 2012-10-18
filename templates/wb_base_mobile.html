@@ -3,9 +3,8 @@
 {% load value_from_settings %}
 
 {% block extrastyle %}
-    <link rel="stylesheet" href="/static/css/themes/wb.min.css">
-    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile.structure-1.1.0.css" />
-{#    <link rel="stylesheet" href="http://code.jquery.com/mobile/1.1.0/jquery.mobile-1.1.0.css" />#}
+    <link rel="stylesheet" href="/static/css/themes/wb_12.min.css"/>
+    <link rel="stylesheet" href="/static/css/jquery.mobile.structure-1.1.1.min.css"/>
     <link rel="stylesheet" href="/static/css/wb.mobile.css"/>
 {% endblock extrastyle %}
 
@@ -27,6 +26,7 @@
                 defaultPageTransition       : 'slide'
 //                defaultPageTransition       : "fade"
             });
+            $.mobile.page.prototype.options.theme = "a";
             $.mobile.page.prototype.options.contentTheme = "a";
             $.mobile.page.prototype.options.backBtnText = "{% trans 'Back' %}";
             $.mobile.listview.prototype.options.dividerTheme = "a";

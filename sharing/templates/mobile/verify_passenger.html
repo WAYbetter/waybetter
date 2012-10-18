@@ -1,68 +1,59 @@
-{% extends "wb_base_site.html" %}
+{% extends "wb_base_mobile.html" %}
 {% load i18n %}
-{% block htmlclass %}verify-passenger{% endblock %}
 
-{% block top_left %}
-    {% trans "Restore Your Account" %}
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        .sep{
+            margin: 2.5em 1em 2em;
+        }
+        #phoneNotificationContainer, #codeNotificationContainer {
+            height: 1.5em;
+        }
+    </style>
 {% endblock %}
+{% block body %}
+    <div data-role="page">
+        <div data-role="header" data-theme="a">
+            <h1>{% trans "Restore Your Account" %}</h1>
+        </div>
 
-{% block content %}
-    <form id="phone_form">
-        {% csrf_token %}
-        <input name="country_code" type="hidden" value="{{ country_code }}"/>
-        <table class="full-width">
+        <div data-role="content">
+            <form id="phone_form">
+                {% csrf_token %}
+                <input name="country_code" type="hidden" value="{{ country_code }}"/>
 
-            <tr class="input-row">
-                <td class="td-label">{% trans "Mobile Phone" %}:</td>
-                <td>
-                    <input id="local_phone" name="local_phone" type="text"/>
-                </td>
-                <td>
-                    <button id="send_code" type="button" class="wb_button"
-                            disabled="disabled">{% trans "Send SMS Code" %}</button>
-                </td>
-            </tr>
-            <tr class="message-row">
-                <td></td>
-                <td class="message" colspan="2">
+                <label for="local_phone">{% trans "Mobile Phone" %}</label>
+                <input id="local_phone" name="local_phone"/>
+
+                <div id="phoneNotificationContainer">
                     <div id="phone_status" class="hidden"></div>
                     <div id="phone_error" class="error hidden">{% trans "Unknown Phone" %}.&nbsp;
-                        <a class="wb_link"
-                           href="{% url sharing.passenger_controller.registration%}">{% trans "Join WAYbetter now" %}! </a>
+                        <a href="{% url sharing.passenger_controller.registration%}">{% trans "Join WAYbetter now" %}! </a>
                     </div>
                     <div id="connection_error" class="hidden">{% trans "There was an error, please try again" %}.</div>
-                </td>
-            </tr>
+                </div>
 
-            <tr class="spacer-row"></tr>
+                <button id="send_code" disabled="disabled" data-theme="c">{% trans "Send SMS Code" %}</button>
 
-            <tr class="input-row">
-                <td class="td-label">{% trans "SMS code" %}:</td>
-                <td colspan="2">
-                    <input id="verification_code" name="verification_code" type="text"/>
-                    <span id="verification_status"></span>
-                </td>
-            </tr>
-            <tr class="message-row">
-                <td></td>
-                <td class="message" colspan="2">
+                <hr class="sep">
+
+                <label for="verification_code">{% trans "SMS code" %}</label>
+                <input id="verification_code" name="verification_code" type="text" />
+
+                <div id="codeNotificationContainer">
+                    <div id="verification_status"></div>
                     <div id="code_error" class="error hidden"></div>
-                </td>
-            </tr>
-        </table>
-    </form>
+                </div>
 
-    <div class="hr-spacer"></div>
-
-    <div id="next_container" class="align-farend">
-        <button id="next" class="wb_button blue" disabled="disabled">{% trans "Next" %} ></button>
+                <a id="next" href="{% url sharing.passenger_controller.change_credentials %}" data-role="button"
+                    data-ajax="false" class="ui-disabled" data-theme="c">{% trans "Next" %}</a>
+            </form>
+        </div>
     </div>
 {% endblock %}
 
-{% block post_content %}{% endblock %}
-
 {% block doc_ready %}
-    {{ block.super }}
     <script type="text/javascript">
         function checkPhone() {
             var $status = $("#phone_status");
@@ -82,7 +73,7 @@
                     var valid = Boolean(response);
 
                     if (valid) {
-                        $("#send_code").enable().focus();
+                        $("#send_code").enable();
                     } else {
                         $error.show();
                         $("#send_code").disable();
@@ -91,7 +82,7 @@
                 error:function () {
                     $connection_error.show();
                 },
-                complete: function(){
+                complete:function () {
                     $status.hide();
                 }
             })
@@ -137,7 +128,7 @@
                 beforeSend:function () {
                     $error.hide();
                     $code.disable();
-                    $next.disable();
+                    $next.addClass("ui-disabled");
                     $status.removeClass("error success").addClass("sending");
                 },
                 complete:function () {
@@ -145,7 +136,7 @@
                 },
                 success:function (response) {
                     $status.addClass("success");
-                    $next.enable().focus();
+                    $next.removeClass("ui-disabled");
                 },
                 error:function (response) {
                     $error.text(response.responseText || "{% trans "Wrong Code" %}").show();
@@ -167,10 +158,6 @@
             $("#send_code").click(function () {
                 sendCode();
             });
-            $("#next").click(function () {
-                window.location.href = "{% url sharing.passenger_controller.change_credentials %}";
-            });
-
             $("#verification_code").keyup(
                     function () {
                         $("#code_error").hide();

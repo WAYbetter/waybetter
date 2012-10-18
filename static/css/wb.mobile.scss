@@ -1,3 +1,8 @@
+@-webkit-keyframes spin {
+	from {-webkit-transform: rotate(0deg);}
+  	to {-webkit-transform: rotate(360deg);}
+}
+
 $pickup_color: #48a43e;
 $dropoff_color: #bb218a;
 $details_text_color: #666666;
@@ -33,16 +38,6 @@ hr {
     border-image: initial;
     @include box-shadow(0 1px white);
 }
-
-//.ui-loader{
-//    background: white;
-//    @include box-shadow(0 0 25px gray);
-//    width: 120px;
-//    margin-left: -90px;
-//}
-//.ui-icon-loading{
-//    background-image: url(/static/images/mobile/loader_normal.png);
-//}
 
 .errorlist li{
     list-style: none;
@@ -138,9 +133,78 @@ ul.narrow {
 }
 
 /* theme hacks */
-.ui-body-a{
+.ui-body-a {
     text-shadow: none;
 }
+
+.ui-btn-text {
+    text-shadow: none;
+}
+
+.ui-icon,
+.ui-icon-searchfield:after {
+    background-image: url(themes/images/icons-18-black.png)
+}
+.ui-icon-alt {
+    background-image: url(themes/images/icons-18-white.png);
+}
+
+
+.ui-body-a, .ui-overlay-a {
+    background-image: url(../images/mobile/bg_normal.png);
+    background-repeat: repeat;
+}
+
+.ui-input-text.ui-focus, .ui-input-search.ui-focus{
+    border-color: rgba(82, 168, 236, 0.8);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+}
+
+.ui-loader {
+    position: relative;
+    margin: auto;
+    left: auto;
+    width: 130px;
+    padding: 20px;
+    z-index: 2000;
+    box-shadow: none;
+    background: rgba(0, 0, 0, 0.8);
+    opacity: .88;
+    border-radius: 4px;
+}
+
+.ui-loader h1{
+    color: white;
+    font-weight: normal;
+}
+
+.ui-loader.ui-loader-verbose{ /** loader with text **/
+    margin-top: -63px ;
+}
+.ui-loader.ui-loader-default{ /** loader without text **/
+    width: 65px;
+    margin-top: -43px;
+}
+.ui-loader-default .ui-icon {
+    margin: 0 auto 10px;
+}
+
+.ui-loader .ui-icon{
+    background-color: transparent;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    opacity: 1;
+}
+
+.ui-icon-loading {
+    background-image: url(../images/mobile/loader_normal.png);
+	-webkit-transform: rotate(360deg);
+	-webkit-animation-name: spin;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-iteration-count:  infinite;
+	-webkit-animation-timing-function: linear;
+}
+
 /* end hacks */
 #welcome_page{
     p{
@@ -568,7 +632,7 @@ ul.narrow {
         margin-top: 0;
     }
     label[for="id_agree_to_terms"]{
-        margin-bottom: 0;
+        margin: 0;
         .ui-btn-inner{
             padding-right: 0;
             padding-left: 32px;
@@ -582,8 +646,9 @@ ul.narrow {
     .ui-block-a{
         width: 85%;
         font-size: 0.79em;
+        padding-right: 1em;
         span{
-            line-height: 4em;
+            /*margin-top: 1em;*/
         }
     }
     .ui-block-b{ width: 15%; }
@@ -666,6 +731,11 @@ ul.narrow {
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5),
        only screen and (min--moz-device-pixel-ratio: 1.5),
        only screen and (min-resolution: 240dpi) {
+            .ui-body-a, .ui-overlay-a {
+                background-image: url(/static/images/mobile/bg_retina.png);
+                background-size: 72px;
+            }
+
             .ride_summary {
                 .ride_discount {
                     background-image: url(/static/images/mobile/ribbon_retina.png);
@@ -716,6 +786,13 @@ ul.narrow {
                 }
 
             }
+
+            /* fixes transparent loader issue */
+            .ui-loader {
+                background: rgba(0, 0, 0, 0.8);
+                opacity: .88;
+            }
+
 }
 
 
