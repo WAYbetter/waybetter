@@ -27,13 +27,13 @@ def obj_by_attr(cls, attr_name, attr_val, safe=True):
     return obj
 
 class BaseModel(models.Model):
+    """
+    Adds common methods to our models
+    """
     locked      = models.BooleanField(default=False, editable=False)
     create_date = UTCDateTimeField(_("create date"), auto_now_add=True, null=True, blank=True)
     modify_date = UTCDateTimeField(_("modify date"), auto_now=True, null=True, blank=True)
 
-    """
-    Adds common methods to our models
-    """
     class Meta:
         abstract = True
 

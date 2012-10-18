@@ -11,7 +11,7 @@ from billing.billing_manager import  get_token_url
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction
 from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime
-from common.util import first, Enum, dict_to_str_keys, datetimeIterator
+from common.util import first, Enum, dict_to_str_keys, datetimeIterator, notify_by_email
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
@@ -21,7 +21,7 @@ from django.utils.translation import ugettext_lazy, ugettext as _
 from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
-from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, Passenger, CHARGED, RideEvent
+from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, Passenger, CHARGED, RideEvent, CANCELLED
 from pricing.models import TARIFFS, RuleSet
 from sharing.algo_api import AlgoField
 import simplejson
@@ -43,6 +43,8 @@ ORDER_SUCCESS_STATUS = [APPROVED, ACCEPTED, CHARGED]
 
 PREVIOUS_RIDES_TO_DISPLAY = 10
 HISTORY_SUGGESTIONS_TO_SEARCH = 30
+
+GENERIC_ERROR = _("Your request could not be completed.")
 
 def staff_m2m(request):
     return render_to_response("staff_m2m.html", RequestContext(request))
@@ -422,11 +424,18 @@ def get_private_offer(request):
 @csrf_exempt
 @passenger_required_no_redirect
 def cancel_order(request, passenger):
-    #TODO_WB: implemet
-    order_id = int(request.POST.get("order_id"), 0)
-    response = {'success': True,
-                'message': 'הנסיעה בוטלה. לך ברגל'}
+    """
+    Cancel an order. Current status must be APPROVED meaning J5 was successful.
+    The billing backend is responsible for not charging (J4) the order.
+    """
+    response = {'success': False,
+                'error': GENERIC_ERROR}
 
+    order = Order.by_id(request.POST.get("order_id"))
+    if order and order.passenger == passenger:
+        if order.change_status(APPROVED, CANCELLED):
+            response = {'success': True,
+                        'message': _("Order cancelled")}
 
     return JSONResponse(response)
 

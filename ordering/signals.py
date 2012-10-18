@@ -1,6 +1,6 @@
 from common.decorators import receive_signal
 from common.signals import AsyncSignal
-from common.util import  Enum
+from common.util import  Enum, notify_by_email
 import logging
 
 class SignalType(Enum):
@@ -68,6 +68,14 @@ def handle_accepted_orders(sender, signal_type, obj, status, **kwargs):
         order = obj
         if order.type == OrderType.PICKMEAPP:
             pickmeapp_ride = create_pickmeapp_ride(order)
+
+
+@receive_signal(order_status_changed_signal)
+def handle_cancelled_orders(sender, signal_type, obj, status, **kwargs):
+    from ordering.models import CANCELLED
+    if status == CANCELLED:
+        order = obj
+        notify_by_email("Order Confirmation [%s]%s" % (order.id, " (DEBUG)" if order.debug else ""), msg="CANCELLED")
 
 
 #@receive_signal(workstation_offline_signal, workstation_online_signal)
