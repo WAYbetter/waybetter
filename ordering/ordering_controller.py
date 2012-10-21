@@ -24,6 +24,7 @@ from ordering.decorators import  passenger_required_no_redirect
 from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, Passenger, CHARGED, RideEvent, CANCELLED
 from pricing.models import TARIFFS, RuleSet
 from sharing.algo_api import AlgoField
+from sharing import signals as sharing_signals
 import simplejson
 import datetime
 import dateutil.parser
@@ -35,6 +36,7 @@ WAYBETTER_STATION_NAME = "WAYbetter"
 MAX_SEATS = 3
 BOOKING_INTERVAL = 10 # minutes
 ASAP_BOOKING_TIME = 5 # minutes
+DISPATCHING_TIME = 5 #minutes
 MAX_RIDE_DURATION = 15 #minutes
 
 OFFERS_TIMEDELTA = datetime.timedelta(minutes=60)
@@ -87,6 +89,8 @@ def get_ongoing_ride_details(request, passenger):
             "empty_seats"       : MAX_SEATS - sum([o.num_seats for o in sorted_orders]),
             "debug"             : settings.DEV,
         }
+    else:
+        logging.error("ongoing ride details error for order [%s]" % order_id)
 
     return JSONResponse(response)
 
@@ -532,18 +536,18 @@ def billing_approved_book_order(ride_id, ride_data, order):
                 ride = create_shared_ride_for_order(ride_data, order)
 
     except Exception, e:
+        logging.error(traceback.format_exc())
         send_ride_in_risk_notification("Failed during post billing processing: %s" % e.message, ride_id)
 
 def create_shared_ride_for_order(ride_data, order):
     ride = SharedRide()
-    ride.depart_time = order.depart_time
     ride.debug = order.debug
-    ride.arrive_time = ride.depart_time + datetime.timedelta(seconds=ride_data[AlgoField.REAL_DURATION])
+    ride.depart_time = order.depart_time
+    ride.arrive_time = order.depart_time + datetime.timedelta(seconds=ride_data[AlgoField.REAL_DURATION])
     ride.cost_data = get_ride_cost_data_from(ride_data)
     if order.type == OrderType.PRIVATE:
         ride.can_be_joined = False
     ride.save()
-    logging.info("created new ride [%s] for order [%s]" % (ride.id, order.id))
 
     for point_data in ride_data[AlgoField.RIDE_POINTS]:
         create_ride_point(ride, point_data)
@@ -558,6 +562,9 @@ def create_shared_ride_for_order(ride_data, order):
 
     order.price_data = get_order_price_data_from(ride_data)
     order.save()
+
+    logging.info("created new ride [%s] for order [%s]" % (ride.id, order.id))
+    sharing_signals.ride_created_signal.send(sender='create_shared_ride_for_order', obj=ride)
 
     return ride
 
@@ -629,7 +636,7 @@ def create_ride_point(ride, point_data):
     point.type = StopType.PICKUP if point_data[AlgoField.TYPE] == AlgoField.PICKUP else StopType.DROPOFF
     point.lon = point_data[AlgoField.POINT_ADDRESS][AlgoField.LNG]
     point.lat = point_data[AlgoField.POINT_ADDRESS][AlgoField.LAT]
-    point.address = point_data[AlgoField.POINT_ADDRESS][AlgoField.NAME]
+    point.address = point_data[AlgoField.POINT_ADDRESS][AlgoField.ADDRESS]
     point.stop_time = ride.depart_time + datetime.timedelta(seconds=point_data[AlgoField.OFFSET_TIME])
     point.ride = ride
     point.save()

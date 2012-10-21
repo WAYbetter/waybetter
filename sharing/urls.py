@@ -47,7 +47,6 @@ urlpatterns = patterns('',
     url(r'^fax_received/$', 'sharing.station_controller.fax_received', name="fax_received"),
     url(r'^get_pending_faxes/$', 'sharing.station_controller.get_pending_faxes', name="get_pending_faxes"),
     (r'^send_dummy_fax/$', 'sharing.station_controller.send_dummy_fax_to_station'),
-    (r'^push_ride_task/$', 'sharing.sharing_dispatcher.push_ride_task'),
     (r'^services/resend_voucher/(?P<ride_id>\d+)/$', 'sharing.station_controller.resend_voucher'),
     url(r'^startup_message/$', 'sharing.passenger_controller.startup_message', name="startup_message"),
 

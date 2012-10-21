@@ -92,7 +92,11 @@ def find_matches(candidate_rides, order_settings):
     matches = []
     if response and response.content:
         matches = simplejson.loads(response.content)[AlgoField.RIDES]
-        logging.info("%s candidates (%s), %s matches, %s seconds" % (len(candidate_rides), ",".join([str(ride.id) for ride in candidate_rides]), len(matches) - 1, (dt2 - dt1).seconds))
+
+    logging.info("%s candidates [%s], %s matches +1 new, %s seconds" % (len(candidate_rides),
+                                                                        ",".join([str(ride.id) for ride in candidate_rides]),
+                                                                        len(matches) - 1,
+                                                                        (dt2 - dt1).seconds))
 
     return matches
 
@@ -387,7 +391,7 @@ def handle_calculation_result(result_id, data):
             point.type = StopType.PICKUP if point_data[AlgoField.TYPE] == AlgoField.PICKUP else StopType.DROPOFF
             point.lon = point_data[AlgoField.POINT_ADDRESS][AlgoField.LNG]
             point.lat = point_data[AlgoField.POINT_ADDRESS][AlgoField.LAT]
-            point.address = point_data[AlgoField.POINT_ADDRESS][AlgoField.NAME]
+            point.address = point_data[AlgoField.POINT_ADDRESS][AlgoField.ADDRESS]
             point.stop_time = ride.depart_time + timedelta(seconds=point_data[AlgoField.OFFSET_TIME])
             point.ride = ride
             point.save()
