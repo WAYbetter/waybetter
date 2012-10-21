@@ -24,7 +24,7 @@
                 <input name="country_code" type="hidden" value="{{ country_code }}"/>
 
                 <label for="local_phone">{% trans "Mobile Phone" %}</label>
-                <input id="local_phone" name="local_phone"/>
+                <input id="local_phone" name="local_phone" type="tel"/>
 
                 <div id="phoneNotificationContainer">
                     <div id="phone_status" class="hidden"></div>
@@ -39,7 +39,7 @@
                 <hr class="sep">
 
                 <label for="verification_code">{% trans "SMS code" %}</label>
-                <input id="verification_code" name="verification_code" type="text" />
+                <input id="verification_code" name="verification_code" type="tel" />
 
                 <div id="codeNotificationContainer">
                     <div id="verification_status"></div>
