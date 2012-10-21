@@ -291,8 +291,8 @@ def get_next_rides(request, passenger):
     return JSONResponse(data)
 
 def get_future_orders_for(passenger):
-    future_order_qs = passenger.orders.filter(depart_time__gte=utc_now()).order_by('-depart_time')
-    future_order_qs.filter(status__in=ORDER_SUCCESS_STATUS, type__in=[OrderType.PRIVATE, OrderType.SHARED])
+    future_order_qs = passenger.orders.filter(
+        depart_time__gte=utc_now(), status__in=ORDER_SUCCESS_STATUS, type__in=[OrderType.PRIVATE, OrderType.SHARED]).order_by('-depart_time')
     return list(future_order_qs)
 
 
@@ -523,7 +523,6 @@ def billing_approved_book_order(ride_id, ride_data, order):
                 try:
                     update_ride_for_order(ride, ride_data, order)
                     ride.unlock()
-                    #TODO_WB: notify passengers their price dropped
 
                 except Exception, e:
                     #TODO_WB: handle this error in some way - try again, create a new ride

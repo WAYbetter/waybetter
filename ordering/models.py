@@ -22,7 +22,7 @@ from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now, format_dt
 from fleet.models import FleetManager, FleetManagerRideStatus
-from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
+from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal, order_price_changed_signal
 from ordering.errors import UpdateStatusError
 from sharing.signals import ride_status_changed_signal
 from pricing.models import  RuleSet, TARIFFS
@@ -700,7 +700,7 @@ class Passenger(BaseModel):
     login_token = models.CharField(_("login token"), max_length=40, null=True, blank=True)
 
     # used to send push notifications
-    push_token = models.CharField(_("login token"), max_length=65, null=True, blank=True)
+    push_token = models.CharField(_("push token"), max_length=65, null=True, blank=True)
 
     mobile_platform = models.IntegerField(choices=MobilePlatform.choices(), default=MobilePlatform.Other)
     session_keys = ListField(models.CharField(max_length=32)) # session is identified by a 32-character hash
@@ -1103,8 +1103,11 @@ class Order(BaseModel):
             tariff = RuleSet.get_active_set(self.depart_time.date(), self.depart_time.time())
             price = self.price_data.get(tariff.tariff_type)
             if price and self.price != price:
-                # TODO: emit signal
+                old_price = self.price
                 self.price = price
+                # TODO_WB: can we emit the singal on save()? if we emit it here we can't be sure that save() was called and was successful
+                # problem is that in save() scope we don't have old_price in memory and must use query to get from db
+                order_price_changed_signal.send(sender="set_price_data", order=self, old_price=old_price, new_price=price)
 
     price_data = property(fget=get_price_data, fset=set_price_data)
 

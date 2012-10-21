@@ -1,6 +1,7 @@
 from common.decorators import receive_signal
 from common.signals import AsyncSignal
 from common.util import  Enum, notify_by_email
+from django.utils.translation import ugettext as _
 import logging
 
 class SignalType(Enum):
@@ -11,10 +12,13 @@ class SignalType(Enum):
     WORKSTATION_ONLINE          = 5
     WORKSTATION_OFFLINE         = 6
 
+    ORDER_PRICE_CHANGED         = 7
+
 order_created_signal                    = AsyncSignal(SignalType.ORDER_CREATED, providing_args=["obj"])
 orderassignment_created_signal          = AsyncSignal(SignalType.ASSIGNMENT_CREATED, providing_args=["obj"])
 orderassignment_status_changed_signal   = AsyncSignal(SignalType.ASSIGNMENT_STATUS_CHANGED, providing_args=["obj", "status"])
 order_status_changed_signal             = AsyncSignal(SignalType.ORDER_STATUS_CHANGED, providing_args=["obj", "status"])
+order_price_changed_signal              = AsyncSignal(SignalType.ORDER_PRICE_CHANGED, providing_args=["order", "old_price", "new_price"])
 
 workstation_online_signal               = AsyncSignal(SignalType.WORKSTATION_ONLINE, providing_args=["obj"])
 workstation_offline_signal              = AsyncSignal(SignalType.WORKSTATION_OFFLINE, providing_args=["obj"])
@@ -23,11 +27,8 @@ workstation_offline_signal              = AsyncSignal(SignalType.WORKSTATION_OFF
 def handle_approved_orders(sender, signal_type, obj, status, **kwargs):
     from common.util import notify_by_email, send_mail_as_noreply
     from common.langsupport.util import translate_to_lang
-    from ordering.models import StopType, OrderType, APPROVED
-    from ordering.util import create_single_order_ride
-    from sharing.algo_api import submit_to_prefetch
+    from ordering.models import APPROVED
     from sharing.passenger_controller import get_passenger_ride_email
-    from sharing import computation_manger
 
     if status == APPROVED:
         order = obj
@@ -38,25 +39,6 @@ def handle_approved_orders(sender, signal_type, obj, status, **kwargs):
             msg = get_passenger_ride_email(order)
             send_mail_as_noreply(passenger.user.email, translate_to_lang("WAYbetter Order Confirmation", order.language_code), html=msg)
             notify_by_email("Order Confirmation [%s]%s" % (order.id, " (DEBUG)" if order.debug else ""), html=msg)
-
-#        # create ride
-#        if order.type == OrderType.PRIVATE:
-#            ride = create_single_order_ride(order)
-#
-#        elif order.type == OrderType.SHARED:
-#            computation = computation_manger.get_hotspot_computation(order)
-#
-#            if computation:
-#                logging.info("order [%s] added to computation [%s] %s" % (order.id, computation.id, computation.key))
-#                order.computation = computation
-#                order.save()
-#
-#                address_dir = "to" if order.hotspot_type == StopType.PICKUP else "from"
-#                submit_to_prefetch(order, computation.key, address_dir)
-#            else:
-#                logging.info("No matching computation found for order %s" % order.id)
-#                ride = create_single_order_ride(order)
-#                notify_by_email("No matching computation found", "Private ride voucher was sent for order [%s]" % order.id)
 
 
 @receive_signal(order_status_changed_signal)
@@ -77,6 +59,16 @@ def handle_cancelled_orders(sender, signal_type, obj, status, **kwargs):
         order = obj
         notify_by_email("Order Confirmation [%s]%s" % (order.id, " (DEBUG)" if order.debug else ""), msg="CANCELLED")
 
+
+@receive_signal(order_price_changed_signal)
+def handle_price_updates(sender, signal_type, order, old_price, new_price, **kwargs):
+    from notification.api import push
+
+    logging.info("order [%s] price changed: %s -> %s" % (order.id, old_price, new_price))
+    if old_price and new_price:
+        savings = int(old_price - new_price)
+        if savings > 0:
+            push(order.passenger, _(u"You save extra %s NIS" % savings))
 
 #@receive_signal(workstation_offline_signal, workstation_online_signal)
 def log_connection_events(sender, signal_type, obj, **kwargs):
