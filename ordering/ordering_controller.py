@@ -703,11 +703,16 @@ class OrderSettings:
         return inst
 
     def serialize(self):
+        # TODO_WB: fill empty fields for algo when we support area based pricing
         return {
             "from_address": self.pickup_address.formatted_address,
+            "from_city": "",
+            "from_area": "",
             "from_lat": self.pickup_address.lat,
             "from_lon": self.pickup_address.lng,
             "to_address": self.dropoff_address.formatted_address,
+            "to_city": "",
+            "to_area": "",
             "to_lat": self.dropoff_address.lat,
             "to_lon": self.dropoff_address.lng,
             "num_seats": self.num_seats,

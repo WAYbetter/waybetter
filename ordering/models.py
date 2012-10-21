@@ -642,11 +642,14 @@ class RidePoint(BaseModel):
     def serialize_for_algo(self):
         from sharing.algo_api import AlgoField
         return {
+            # TODO_WB: fill empty fields for algo when we support area based pricing
             AlgoField.TYPE: "e%s" % StopType.get_name(self.type).title(),
             AlgoField.POINT_ADDRESS: {
                 AlgoField.LAT: self.lat,
                 AlgoField.LNG: self.lon,
-                AlgoField.NAME: self.address
+                AlgoField.ADDRESS: self.address,
+                AlgoField.CITY: "",
+                AlgoField.AREA: ""
             },
             AlgoField.ORDER_IDS: [o.id for o in self.orders]
         }

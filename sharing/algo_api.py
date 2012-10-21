@@ -39,6 +39,9 @@ COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT = 3 # minutes
 COMPUTATION_ABORT_TIMEOUT = 3 # minutes
 
 class AlgoField(Enum):
+    ADDRESS = "m_Address"
+    AREA = "m_Area"
+    CITY = "m_City"
     COST_LIST_TARIFF1 = "m_AllPrices"
     COST_LIST_TARIFF2 = "m_AllPrices2"
     DEBUG = "m_Debug"
