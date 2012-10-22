@@ -44,19 +44,28 @@ def bill_passenger(request):
 @catch_view_exceptions
 @internal_task_on_queue("orders")
 @require_parameters(method="POST",
-                    required_params=("token", "amount", "card_expiration", "billing_transaction_id", "action"))
-def billing_task(request, token, amount, card_expiration, billing_transaction_id, action):
+                    required_params=("token", "card_expiration", "billing_transaction_id", "action"))
+def billing_task(request, token, card_expiration, billing_transaction_id, action):
     logging.info("billing task: transaction_id=%s" % billing_transaction_id)
     action = int(action)
+
+    # update billing transaction amount
+    billing_transaction = BillingTransaction.by_id(billing_transaction_id)
+    billing_transaction.amount = billing_transaction.order.price
+    if billing_transaction.dirty_fields:
+        logging.info("billing_task [%s]: updating billing transaction amount: %s --> %s" % (BillingAction.get_name(action), billing_transaction.dirty_fields.get("amount"), billing_transaction.amount))
+        billing_transaction.save()
 
     callback_args = request.POST.get("callback_args")
     if callback_args:
         callback_args = pickle.loads(callback_args.encode("utf-8"))
 
+    amount = billing_transaction.amount_in_cents
+
     if action == BillingAction.COMMIT:
-        return billing_backend.do_J5(token, amount, card_expiration, billing_transaction_id, callback_args=callback_args)
+        return billing_backend.do_J5(token, amount, card_expiration, billing_transaction, callback_args=callback_args)
     elif action == BillingAction.CHARGE:
-        return billing_backend.do_J4(token, amount, card_expiration, billing_transaction_id)
+        return billing_backend.do_J4(token, amount, card_expiration, billing_transaction)
     else:
         raise InvalidOperationError("Unknown action for billing: %s" % action)
 

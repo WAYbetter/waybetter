@@ -1096,11 +1096,9 @@ class Order(BaseModel):
             tariff = RuleSet.get_active_set(self.depart_time.date(), self.depart_time.time())
             price = self.price_data.get(tariff.tariff_type)
             if price and self.price != price:
-                old_price = self.price
                 self.price = price
-                # TODO_WB: can we emit the singal on save()? if we emit it here we can't be sure that save() was called and was successful
-                # problem is that in save() scope we don't have old_price in memory and must use query to get from db
-                order_price_changed_signal.send(sender="set_price_data", order=self, old_price=old_price, new_price=price)
+            else:
+                logging.warning("price changed to the same price")
 
     price_data = property(fget=get_price_data, fset=set_price_data)
 
@@ -1181,6 +1179,11 @@ class Order(BaseModel):
                 self.passenger_phone = ""
 
         super(Order, self).save(*args, **kwargs)
+
+        # emit price change signal
+        if "price" in self.dirty_fields:
+            order_price_changed_signal.send(sender="set_price_data", order=self, old_price=self.dirty_fields.get("price"), new_price=self.price)
+
 
 
     def __unicode__(self):

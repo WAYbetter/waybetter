@@ -20,8 +20,7 @@ import types
 INVOICE_INFO = settings.INVOICE_INFO
 BILLING_INFO = settings.BILLING
 
-def do_J5(token, amount, card_expiration, billing_transaction_id, callback_args=None):
-    billing_transaction = BillingTransaction.by_id(billing_transaction_id)
+def do_J5(token, amount, card_expiration, billing_transaction, callback_args=None):
     billing_transaction.change_status(BillingStatus.PENDING, BillingStatus.PROCESSING)
     lang_code = get_language_code_for_credit_guard(billing_transaction.order.language_code)
 
@@ -29,7 +28,7 @@ def do_J5(token, amount, card_expiration, billing_transaction_id, callback_args=
         'card_id'						: token,
         'card_expiration'				: card_expiration,
         'total'							: amount,
-        'billing_transaction_id'		: billing_transaction_id,
+        'billing_transaction_id'		: billing_transaction.id,
         'request_id'					: get_unique_id(),
         'validation'					: "Verify",
         'language'                      : lang_code
@@ -70,8 +69,7 @@ def do_J5(token, amount, card_expiration, billing_transaction_id, callback_args=
 
     return HttpResponse("OK")
 
-def do_J4(token, amount, card_expiration, billing_transaction_id):
-    billing_transaction = BillingTransaction.by_id(billing_transaction_id)
+def do_J4(token, amount, card_expiration, billing_transaction):
     if billing_transaction.status == BillingStatus.CANCELLED or billing_transaction.order.status in [IGNORED, CANCELLED, FAILED]:
         return HttpResponse("Cancelled")
 
@@ -82,7 +80,7 @@ def do_J4(token, amount, card_expiration, billing_transaction_id):
         'card_id'						: token,
         'card_expiration'				: card_expiration,
         'total'							: amount,
-        'billing_transaction_id'		: billing_transaction_id,
+        'billing_transaction_id'		: billing_transaction.id,
         'request_id'					: get_unique_id(),
         'validation'					: "AutoComm",
         'auth_number'                   : billing_transaction.auth_number,
