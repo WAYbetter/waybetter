@@ -408,9 +408,10 @@ def get_offers(request):
 
             pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride_data[AlgoField.RIDE_POINTS])
             ride_orders = ride.orders.all()
+            ride_new_departure = compute_new_departure(ride, ride_data)
             offer = {
                 "ride_id": ride_id,
-                "pickup_time": to_js_date(ride.depart_time + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])),
+                "pickup_time": to_js_date(ride_new_departure + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])),
                 "passengers": [{'name': order.passenger.name, 'picture_url': order.passenger.picture_url} for order in ride_orders for seat in range(order.num_seats)],
                 "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
                 "price": price,
@@ -567,10 +568,8 @@ def create_shared_ride_for_order(ride_data, order):
 
     return ride
 
-def update_ride_for_order(ride, ride_data, new_order, depart_time=None):
-    if not depart_time:
-        #TODO_WB: decide what is the correct depart time
-        depart_time = ride.depart_time
+def update_ride_for_order(ride, ride_data, new_order):
+    ride.depart_time = compute_new_departure(ride, ride_data)
 
     orders = ride.orders.all()
     new_order_points = {
@@ -599,7 +598,7 @@ def update_ride_for_order(ride, ride_data, new_order, depart_time=None):
                 else:
                     p = dropoff_point
 
-                p.stop_time = depart_time + datetime.timedelta(seconds=offset)
+                p.stop_time = ride.depart_time + datetime.timedelta(seconds=offset)
                 p.save()
 
                 if NEW_ORDER_ID in order_ids:
@@ -641,6 +640,20 @@ def create_ride_point(ride, point_data):
     point.save()
 
     return point
+
+
+def compute_new_departure(ride, ride_data):
+    current_departure_time = ride.depart_time
+    first_pickup_order = ride.first_pickup.orders.all()[0]
+    first_pickup_order_id = first_pickup_order.id
+
+    pickup_ride_point_for_first_order = first(lambda rp: rp[AlgoField.TYPE] == AlgoField.PICKUP and first_pickup_order_id in rp[AlgoField.ORDER_IDS], ride_data[AlgoField.RIDE_POINTS])
+    offset_for_first_order = pickup_ride_point_for_first_order[AlgoField.OFFSET_TIME]
+    new_departure_time = current_departure_time - datetime.timedelta(seconds=offset_for_first_order)
+
+    logging.info("ride [%s] departure calc: %s <-- %s" % (ride.id, new_departure_time, current_departure_time))
+    return new_departure_time
+
 
 @csrf_exempt
 def track_app_event(request):

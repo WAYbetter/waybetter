@@ -31,9 +31,9 @@ class URLRouting(object):
                 if request.path.startswith("/api/mobile/1.2"):
                     request.urlconf = "api_1_2_urls"
                 else:
-                request.urlconf = "api_urls"
-                request.mobile = True
-                request.wb_app = True
+                    request.urlconf = "api_urls"
+                    request.mobile = True
+                    request.wb_app = True
 
         # redirect app v1.2 users to VER_1_2_SERVER (unless if current host is already the redirect)
         host = request.get_host()
