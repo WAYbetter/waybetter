@@ -30,3 +30,13 @@ def log_ride_status_update(sender, signal_type, obj, status, **kwargs):
     log = "ride %s status changed -> %s" % (ride.id, str_status)
     json = simplejson.dumps({'ride': {'id': ride.id, 'status': str_status}, 'logs': [log]})
     _log_fleet_update(json)
+
+
+@receive_signal(ride_status_changed_signal)
+def notify_passengers(sender, signal_type, obj, status, **kwargs):
+    from ordering.enums import RideStatus
+    from sharing.passenger_controller import send_ride_notifications
+
+    ride = obj
+    if status == RideStatus.ACCEPTED:
+        send_ride_notifications(ride)

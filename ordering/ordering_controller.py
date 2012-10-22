@@ -21,6 +21,7 @@ from django.utils.translation import ugettext_lazy, ugettext as _
 from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
+from ordering.enums import RideStatus
 from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, Passenger, CHARGED, RideEvent, CANCELLED
 from pricing.models import TARIFFS, RuleSet
 from sharing.algo_api import AlgoField
@@ -103,12 +104,11 @@ def get_ongoing_order(passenger):
 
     # orders that can still be ongoing
     recently = default_tz_now() - datetime.timedelta(minutes=MAX_RIDE_DURATION)
-    possibly_ongoing_orders = passenger.orders.filter(depart_time__lte=default_tz_now(), depart_time__gt=recently).order_by("-depart_time")
-
+    possibly_ongoing_orders = passenger.orders.filter(depart_time__gt=recently).order_by("-depart_time")
     for order in possibly_ongoing_orders:
-        if order.status in ORDER_SUCCESS_STATUS:
+        if order.status in ORDER_SUCCESS_STATUS and order.ride and order.ride.status == RideStatus.ACCEPTED:
             ongoing_order = order
-        break
+            break
 
     return ongoing_order
 

@@ -4,8 +4,7 @@ from push.backends.UrbanAirshipBackend import UrbanAirshipBackend
 
 PUSH_BACKEND = UrbanAirshipBackend()
 
-def push(passenger, message, data=None):
-
+def notify_passenger(passenger, message, data=None):
     logging.info(u"notification: sending push message '%s' to passenger [%s]" % (message, passenger.id))
     res = False
     if passenger.push_token:
@@ -13,10 +12,10 @@ def push(passenger, message, data=None):
             logging.warning(u"notification: push sent to inactive device: %s" % passenger.push_token)
 
         res = PUSH_BACKEND.push(passenger.push_token, passenger.mobile_platform, message, data)
+    elif passenger.phone: # fallback
+        return send_sms(passenger.phone, message)
     else:
-        logging.warning("notification: send push with no token")
-#    elif passenger.phone: # fallback
-#        return send_sms(passenger.phone, message)
+        logging.warning("notification: send push with no token and no phone")
 
     logging.info("notification: send push result: %s" % res)
     return res # couldn't send :(

@@ -4,11 +4,9 @@ from common.tz_support import default_tz_now
 from common.util import notify_by_email
 from django.utils import translation
 from django.utils.translation import ugettext as _
-from google.appengine.api.taskqueue import taskqueue
-from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from ordering.enums import RideStatus
-from ordering.models import WorkStation, PENDING, ASSIGNED, SharedRide
+from ordering.models import WorkStation, SharedRide
 from datetime import timedelta
 from ordering.util import send_msg_to_passenger
 from sharing.passenger_controller import send_ride_notifications
@@ -39,16 +37,13 @@ def dispatch_ride(ride):
 
     work_station = assign_ride(ride)
     if work_station:
-        q = taskqueue.Queue('ride-notifications')
-        task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
-        q.add(task)
+        deferred.defer(send_ride_voucher, ride_id=ride.id)
 
         if ride.dn_fleet_manager_id:
             deferred.defer(fleet_manager.create_ride, ride)
         else:
             logging.info("ride %s has no fleet manager" % ride.id)
 
-        send_ride_notifications(ride)
         if not work_station.is_online:
             notify_by_email(u"Ride [%s] dispatched to offline workstation %s" % (ride.id, work_station), msg=ride.get_log())
 

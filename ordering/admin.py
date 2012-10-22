@@ -1,4 +1,5 @@
 from google.appengine.api.taskqueue import taskqueue
+from google.appengine.ext import deferred
 from billing.enums import BillingStatus
 from common.util import blob_to_image_tag
 from django.contrib import admin, messages
@@ -92,9 +93,7 @@ class SharedRideAdmin(admin.ModelAdmin):
         sent = []
         for ride in queryset:
             if ride.station.vouchers_emails:
-                q = taskqueue.Queue('ride-notifications')
-                task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
-                q.add(task)
+                deferred.defer(send_ride_voucher, ride_id=ride.id)
                 sent.append(ride)
         if sent:
             messages.info(request, "%d vouchers sent %s" % (len(sent), [ride.station.vouchers_emails for ride in sent]))

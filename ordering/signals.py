@@ -58,17 +58,28 @@ def handle_cancelled_orders(sender, signal_type, obj, status, **kwargs):
     if status == CANCELLED:
         order = obj
         notify_by_email("Order Confirmation [%s]%s" % (order.id, " (DEBUG)" if order.debug else ""), msg="CANCELLED")
+        ride = order.ride
 
+        order.pickup_point.delete()
+        order.dropoff_point.delete()
+        order.ride = None
+        order.pickup_point = None
+        order.dropoff_point = None
+        order.save()
+
+        if ride.orders.count() == 0:
+            logging.info("ride[%s] deleted: last order cancelled" % ride.id)
+            ride.delete()
 
 @receive_signal(order_price_changed_signal)
 def handle_price_updates(sender, signal_type, order, old_price, new_price, **kwargs):
-    from notification.api import push
+    from notification.api import notify_passenger
 
     logging.info("order [%s] price changed: %s -> %s" % (order.id, old_price, new_price))
     if old_price and new_price:
         savings = int(old_price - new_price)
         if savings > 0:
-            push(order.passenger, _(u"You save extra %s NIS" % savings))
+            notify_passenger(order.passenger, _(u"You save extra %s NIS" % savings))
 
 #@receive_signal(workstation_offline_signal, workstation_online_signal)
 def log_connection_events(sender, signal_type, obj, **kwargs):
