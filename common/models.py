@@ -79,7 +79,7 @@ class BaseModel(models.Model):
         do_att_change = False
 
         current_value = getattr(self, attname)
-        if old_value:
+        if old_value is not None:
             try: # try and get the latest value from the db
                 current_value = getattr(self.__class__.objects.get(id=self.id), attname)
             except self.__class__.DoesNotExist:

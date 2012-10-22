@@ -1,6 +1,6 @@
 from django import forms
 from django.forms.models import ModelForm
-from interests.models import PilotInterest, HotspotInterest
+from interests.models import PilotInterest, HotspotInterest, M2MInterest
 from models import MobileInterest, StationInterest, BusinessInterest
 from ordering.models import Station
 
@@ -44,6 +44,15 @@ class PilotInterestForm(ModelForm):
 
     class Ajax:
         pass
+
+class M2MInterestForm(ModelForm):
+    class Meta:
+        model = M2MInterest
+        fields = ["email"]
+
+    class Ajax:
+        pass
+
 
 class HotspotInterestForm(ModelForm):
     class Meta:

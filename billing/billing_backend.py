@@ -5,8 +5,7 @@ from common.decorators import force_lang
 from common.models import Counter
 from common.urllib_adaptor import urlencode
 from common.util import get_text_from_element, get_unique_id, safe_fetch
-from ordering.models import CANCELLED, PENDING, APPROVED, CHARGED, FAILED, RideComputationStatus, IGNORED
-from django.core.urlresolvers import reverse
+from ordering.models import CANCELLED, PENDING, APPROVED, CHARGED, FAILED, IGNORED
 from django.conf import settings
 from django.http import HttpResponse
 from django.template.context import Context
@@ -166,7 +165,7 @@ def get_custom_message(provider_status, default_message=None):
 
     cg_custom_error_msg = {
 #        '004': _('We are sorry but your card type is currently not supported. You can change it from %s.') % profile_link,
-        '004': _('We are sorry but your card type is currently not supported.'),
+        '004': _('The credit card can not be charged. It may be blocked or not supported in the system (American Express).'),
         '039': _('Invalid card number.'),
         '101': _('We are sorry but your card type is currently not supported.')
     }

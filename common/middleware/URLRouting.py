@@ -31,7 +31,7 @@ class URLRouting(object):
                 if request.path.startswith("/api/mobile/1.2"):
                     request.urlconf = "api_1_2_urls"
                 else:
-                    request.urlconf = "api_urls"
+                request.urlconf = "api_urls"
                 request.mobile = True
                 request.wb_app = True
 

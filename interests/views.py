@@ -3,7 +3,7 @@ from django.template.context import RequestContext
 from django.shortcuts import render_to_response
 from djangotoolbox.http import JSONResponse
 from forms import MobileInterestForm, StationInterestForm, BusinessInterestForm
-from interests.forms import PilotInterestForm, HotspotInterestForm
+from interests.forms import PilotInterestForm, HotspotInterestForm, M2MInterestForm
 
 def interest_view(request, interest_form, interest_form_template):
     if request.method == 'POST':
@@ -34,6 +34,9 @@ def business_interest(request):
 
 def pilot_interest(request):
     return interest_view(request, PilotInterestForm, "pilot_interest_form.html")
+
+def m2m_interest(request):
+    return interest_view(request, M2MInterestForm, "m2m_interest_form.html")
 
 def hotspot_interest(request):
     return interest_view(request, HotspotInterestForm, "hotspot_interest_form.html")

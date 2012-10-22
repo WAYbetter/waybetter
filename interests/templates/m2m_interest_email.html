@@ -1,0 +1,37 @@
+{% load value_from_settings %}
+<html>
+<head>
+    <title></title>
+</head>
+<body style="direction:rtl;">
+<p style="text-align: center;">
+    <img width="207" height="207"
+         src="http://{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/email_logo.jpg"/>
+</p>
+
+<p>
+    הי,
+</p>
+<p>
+    בשבועות הקרובים תשיק WAYbetter שירות חדש ברחבי תל אביב וגוש-דן המאפשר לשתף נסיעות מונית מכל מקום, לכל מקום...
+</p>
+<p>    היתרון הגדול ב WAYbetter הוא האפשרות להצטרף למונית של משתמש אחר הנוסע באותו הכיוון, או לאפשר למשתמשים מתאימים אחרים
+    להצטרף למונית שלכם וכך לחסוך עשרות שקלים בכל נסיעה מבלי לבזבז זמן.
+    ואתם לא צריכים לעשות כלום! המערכת מבצעת את ההתאמות באופן אוטומטי ומציעה נסיעות שיתופיות במחיר מופחת. לכם נותר רק
+    להזמין בקלות, לצפות במונית מגיעה על המסך, לשלם מחיר מופחת וידוע מראש בכרטיס אשראי ולהינות מחווית שירות מתקדמת
+    וחברתית.
+</p>
+<p>    זכרו, ככל שיהיו יותר נוסעים בשירות כך יגדלו אזורי ושעות הכיסוי וגם רמת ההנחות במחירי הנסיעה, אז ספרו לחברים...
+</p>
+<p style="text-align: center">
+    <a href="{% value_from_settings FACEBOOK_APP_URL%}" style="text-decoration: none">
+        <img width="32" height="32" title="" alt="" src="http://{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/facebook.png" />
+    </a>
+    <span id="spacer" style="width: 30px; display: inline-block"></span>
+    <a href="http://twitter.com/WAybetter_app" style="text-decoration: none">
+        <img width="32" height="32" title="" alt="" src="http://{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/twitter.jpg" />
+    </a>
+</p>
+
+</body>
+</html>

@@ -8,6 +8,14 @@
         <div id="map_canvas"></div>
 
         <div id="banner">
+            {% if LANGUAGE_CODE == "he" %}
+            <div id="banner_header">
+                <div>
+                    <span>בקרוב! WAYbetter - מכל מקום, לכל מקום!</span>
+                    <button id="m2m_interest" class="wb_button blue float-farend">לפרטים נוספים</button>
+                </div>
+            </div>
+            {% endif %}
             <div id="banner_content" class="hidden">
                 <div id="banner_slides">
                     {% if LANGUAGE_CODE == "he" %}
@@ -993,11 +1001,11 @@
         });
 
         // banner
-        var colors = ["rgb(22, 172, 211)"];
+//        var colors = ["rgb(22, 172, 211)"];
 //        $("#wb_values .header").each(function() {
 //            colors.push($(this).css("color"));
 //        });
-        $("#banner").css("background", colors[getRandomInt(0, colors.length - 1)]);
+//        $("#banner").css("background", colors[getRandomInt(0, colors.length - 1)]);
         $("#banner_content").show();
 
         // slides
@@ -1020,7 +1028,9 @@
             Registrator.openFeedbackDialog();
         });
 
-        $("#sitemap ul:last").append('<li><a href="#" onclick="Registrator.openPilotInterestDialog()">{% trans "Send me info" %}</a></li>');
+        $("#m2m_interest").click(function(){
+            Registrator.openM2MInterestDialog();
+        });
     });
 
     // debug
