@@ -1,15 +1,13 @@
 import traceback
 from google.appengine.ext import deferred
-from common.tz_support import utc_now
+from common.tz_support import default_tz_now
 from common.util import notify_by_email
 from django.utils import translation
 from django.utils.translation import ugettext as _
-from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api.taskqueue import taskqueue
-from common.decorators import internal_task_on_queue, catch_view_exceptions
 from django.core.urlresolvers import reverse
-from ordering import station_connection_manager
+from django.http import HttpResponse
+from ordering.enums import RideStatus
 from ordering.models import WorkStation, PENDING, ASSIGNED, SharedRide
 from datetime import timedelta
 from ordering.util import send_msg_to_passenger
@@ -20,9 +18,24 @@ import logging
 
 MSG_DELIVERY_GRACE = 10 # seconds
 NOTIFY_STATION_DELTA = timedelta(minutes=10)
+DISPATCHING_TIME = 5 #minutes
+
+def dispatching_cron(request):
+    logging.info("cron: dispatch rides")
+
+    rides_to_dispatch = SharedRide.objects.filter(status=RideStatus.PENDING, depart_time__lte=default_tz_now() + timedelta(minutes=DISPATCHING_TIME))
+    for ride in rides_to_dispatch:
+        deferred.defer(dispatch_ride, ride)
+
+    return HttpResponse("OK")
+
 
 def dispatch_ride(ride):
     logging.info("dispatch ride [%s]" % ride.id)
+
+    if not ride.change_status(old_status=RideStatus.PENDING, new_status=RideStatus.PROCESSING):
+        logging.warning("Ride dispatched twice: %s" % ride.id)
+        return # nothing to do.
 
     work_station = assign_ride(ride)
     if work_station:
@@ -41,6 +54,7 @@ def dispatch_ride(ride):
 
     else:
         #TODO_WB: how do we handle this? cancel the orders?
+        ride.change_status(old_status=RideStatus.PROCESSING, new_status=RideStatus.PENDING)
         notify_dispatching_failed(ride)
 
 
@@ -52,8 +66,8 @@ def assign_ride(ride):
             station = work_station.station
             ride.station = station
             ride.dn_fleet_manager_id = station.fleet_manager_id
-            ride.change_status(old_status=PENDING, new_status=ASSIGNED) # calls save()
-            return work_station
+            if ride.change_status(old_status=RideStatus.PROCESSING, new_status=RideStatus.ASSIGNED): # calls save()
+                return work_station
 
         except Exception:
             notify_by_email(u"Cannot assign ride [%s]" % ride.id, msg="%s\n%s" % (ride.get_log(), traceback.format_exc()))

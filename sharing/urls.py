@@ -101,4 +101,8 @@ urlpatterns = patterns('',
     url(r'^services/get_sharing_cities/$', 'sharing.content_controller.get_sharing_cities', name="get_sharing_cities"),
     url(r'^services/get_billing_url/$', 'sharing.passenger_controller.get_billing_url'),
 
+    url(r'^cron/dispatch_rides/$', 'sharing.sharing_dispatcher.dispatching_cron'),
+
+
+
 )

@@ -36,7 +36,6 @@ WAYBETTER_STATION_NAME = "WAYbetter"
 MAX_SEATS = 3
 BOOKING_INTERVAL = 10 # minutes
 ASAP_BOOKING_TIME = 5 # minutes
-DISPATCHING_TIME = 5 #minutes
 MAX_RIDE_DURATION = 15 #minutes
 
 OFFERS_TIMEDELTA = datetime.timedelta(minutes=60)
@@ -564,7 +563,6 @@ def create_shared_ride_for_order(ride_data, order):
     order.save()
 
     logging.info("created new ride [%s] for order [%s]" % (ride.id, order.id))
-    sharing_signals.ride_created_signal.send(sender='create_shared_ride_for_order', obj=ride)
 
     return ride
 

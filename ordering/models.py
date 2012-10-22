@@ -22,6 +22,7 @@ from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now, format_dt
 from fleet.models import FleetManager, FleetManagerRideStatus
+from ordering.enums import RideStatus
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal, order_price_changed_signal
 from ordering.errors import UpdateStatusError
 from sharing.signals import ride_status_changed_signal
@@ -78,11 +79,6 @@ ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED, ugettext("failed")),
                                     (APPROVED, ugettext("approved")),
                                     (CHARGED, ugettext("charged")))
 
-RIDE_STATUS = ((PENDING, ugettext("pending")),
-                     (ASSIGNED, ugettext("assigned")),
-                     (COMPLETED, ugettext("completed")),
-                     (ACCEPTED, ugettext("accepted")),
-                     (NOT_TAKEN, ugettext("not_taken")))
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
@@ -402,7 +398,7 @@ class BaseRide(BaseModel):
     depart_time = UTCDateTimeField(_("depart time"))
     arrive_time = UTCDateTimeField(_("arrive time"))
 
-    status = StatusField(_("status"), choices=RIDE_STATUS, default=PENDING)
+    status = StatusField(_("status"), choices=RideStatus.choices(), default=RideStatus.PENDING)
     debug = models.BooleanField(default=False, editable=False)
 
     _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
@@ -562,23 +558,20 @@ class SharedRide(BaseRide):
             AlgoField.COST_LIST_TARIFF1 : cost_data.get(TARIFFS.TARIFF1, []),
             AlgoField.COST_LIST_TARIFF2 : cost_data.get(TARIFFS.TARIFF2, [])
         }
-    def change_status(self, old_status=None, new_status=None):
-        if self._change_attr_in_transaction("status", old_status, new_status):
+    def change_status(self, old_status=None, new_status=None, safe=True):
+        result = self._change_attr_in_transaction("status", old_status, new_status, safe=safe)
+        if result:
             sig_args = {
                 'sender': 'sharedride_status_changed_signal',
                 'obj': self,
                 'status': new_status
             }
             ride_status_changed_signal.send(**sig_args)
-        else:
-            raise UpdateStatusError("update shared ride status failed: %s to %s" % (old_status, new_status))
+
+        return result
 
     def get_status_label(self):
-        for key, label in RIDE_STATUS:
-            if key == self.status:
-                return label
-
-        raise ValueError("invalid status")
+        return RideStatus.get_name(self.status)
 
     def driver_jist(self):
         ws_lang_code = settings.LANGUAGES[self.station.language][0]
