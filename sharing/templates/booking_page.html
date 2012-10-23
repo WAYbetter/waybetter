@@ -1,0 +1,96 @@
+{% extends "wb_base_site.html" %}
+{% load i18n %}
+{% load value_from_settings %}
+
+{% block bodyclass %}booking-page{% endblock %}
+
+{% block header %}
+    <div id="header">
+        <h1>{% trans "Book a Ride" %}</h1>
+    </div>
+{% endblock %}
+
+{% block content %}
+    <div id="content" class="txt-middle">
+        <div class="container">
+            <div class="row">
+                <div class="span5 booking-controls">
+                    <form id="booking-form" class="form-horizontal">
+
+                        <div class="input-prepend">
+                            <span class="add-on"><i class="icon-user"></i></span>
+                            <input type="text" placeholder="{% trans "Pickup Address" %}">
+                        </div>
+                        <div class="input-prepend">
+                            <span class="add-on"><i class="icon-lock"></i></span>
+                            <input type="text" placeholder="{% trans "Dropoff Address" %}">
+                        </div>
+
+                        <hr class="dashed">
+
+                        <div class="control-group">
+                            <label class="control-label">Time</label>
+                            <div class="controls controls-row">
+                                <select name="" id="" class="span2">
+                                    <option value="">Today</option>
+                                </select>
+                                <select name="" id="" class="span2">
+                                    <option value="">Now</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Ride</label>
+                            <div class="controls controls-row">
+                                <select name="" id="" class="span4">
+                                    <option value="">Shared Ride</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Luggage</label>
+                            <div class="controls controls-row">
+                                <select name="" id="" class="span4">
+                                    <option value="">No Luggage</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Seats</label>
+                            <div class="controls controls-row">
+                                <select name="" id="" class="span4">
+                                    <option value="">1 Seat</option>
+                                </select>
+                            </div>
+                        </div>
+
+
+                        <hr class="dashed">
+
+                        <button class="btn btn-large btn-block btn-primary">{% trans "Find a Ride" %}</button>
+
+                    </form>
+                </div>
+
+                <div class="span7">
+                    <div id="map"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        var map = new google.maps.Map(document.getElementById("map"), {
+            center:new google.maps.LatLng(32.064828, 34.7764),
+            mapTypeId:google.maps.MapTypeId.ROADMAP,
+            panControl:false,
+            mapTypeControl:false,
+            zoomControl:false,
+            streetViewControl:false,
+            zoom:14
+        });
+    </script>
+{% endblock %}

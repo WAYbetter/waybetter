@@ -52,6 +52,11 @@ def staff_m2m(request):
     return render_to_response("staff_m2m.html", RequestContext(request))
 
 
+def booking_page(request):
+    lib_map = True
+    return render_to_response("booking_page.html", locals(), RequestContext(request))
+
+
 @passenger_required_no_redirect
 def get_ongoing_ride_details(request, passenger):
     order_id = request.GET.get("order_id")

@@ -96,10 +96,14 @@ urlpatterns = patterns('',
     (r'^services/ws_heartbeat/$', 'ordering.station_connection_manager.send_heartbeat'),
     (r'^ads/(?P<campaign_id>\w+)/', 'ordering.station_controller.campaign_handler'),
 
+    # pages
+    (r'^test/$', 'ordering.ordering_controller.staff_m2m'),
+    url(r'^book/$', 'ordering.ordering_controller.booking_page', name="booking_page"),
+
+    # json
     (r'^get_offers/$', 'ordering.ordering_controller.get_offers'),
     (r'^book_ride/$', 'ordering.ordering_controller.book_ride'),
     (r'^cancel_order/$', 'ordering.ordering_controller.cancel_order'),
-    (r'^test/$', 'ordering.ordering_controller.staff_m2m'),
     (r'^sync_app_state/$', 'ordering.ordering_controller.sync_app_state'),
     (r'^get_ongoing_ride_details/$', 'ordering.ordering_controller.get_ongoing_ride_details'),
     (r'^update_push_token/$', 'ordering.passenger_controller.update_push_token'),
