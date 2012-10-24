@@ -107,6 +107,10 @@
         <script type="text/javascript" src="/_ah/channel/jsapi"></script>
     {% endif %}
 
+    {% if lib_ng %}
+        <script type="text/javascript" src="/static/js/libs/angular-1.0.2.js"></script>
+    {% endif %}
+
     {% if lib_map %}
         {% if DEV %}
             <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>

@@ -53,6 +53,7 @@ def staff_m2m(request):
 
 
 def booking_page(request):
+    lib_ng = True
     lib_map = True
     return render_to_response("booking_page.html", locals(), RequestContext(request))
 
@@ -707,7 +708,7 @@ class OrderSettings:
 
         inst = cls()
         inst.num_seats = int(settings["num_seats"])
-        inst.debug = bool(settings["debug"])
+        inst.debug = bool(settings.get("debug", False))
         inst.private = bool(settings["private"])
         inst.pickup_address = Address(**pickup)
         inst.dropoff_address = Address(**dropoff)
