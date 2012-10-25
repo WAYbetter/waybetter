@@ -3,12 +3,8 @@
     height: $h;
 }
 
-
-
-/** Theme hacks **/
-body{
-    /*padding-top: 100px; // should match the height of the navbar*/
-}
+/* Theme hacks
+-------------------------------------------------- */
 .navbar-inner{
     background: white;
 }
@@ -19,7 +15,8 @@ body{
     color: gray;
 }
 
-/** elements **/
+/* General
+-------------------------------------------------- */
 #wbLogo{
     background: url(/static/images/wb_site/1.2/header.png) left top no-repeat;
     height: 42px;
@@ -27,10 +24,8 @@ body{
     padding: 0;
 }
 
-.booking-controls{
-    /*box-sizing: border-box;*/
-    /*padding: 10px;*/
-    background-color: #f5f5f5;
+#content{
+    min-height: 500px;
 }
 
 .ride-pics{
@@ -41,10 +36,10 @@ body{
         display: inline-block;
         text-align: center;
         vertical-align: top;
-        margin-left: 20px;
+        margin-right: 20px;
     }
     .ride-pics-col:last-child{
-        margin-left: 0;
+        margin-right: 0;
     }
     .ride-pic{
         border: 1px solid lightgray;
@@ -77,7 +72,8 @@ body{
 }
 
 
-/** pages **/
+/* Website pages
+-------------------------------------------------- */
 .wb-home{
     #content {
         padding-top: 66px;
@@ -95,28 +91,38 @@ body{
 }
 
 .booking-page{
+    #booking-form, #booking-summary{
+        padding: 20px;
+        background-color: #f5f5f5;
+        text-align: left;
+    }
+
     #map{
         height: 500px;
     }
     #booking-form .control-label{
-        width: 60px;
+        width: 50px;
+        margin-right: 50px;
     }
     #booking-form .controls{
-        margin-left: 70px;
+        margin-left: 0;
     }
 
-    .offers-container{
+    #offers-container{
         background: #FBFBFB;
         box-shadow: 1px 1px 6px;
-
+        background-color: #f5f5f5;
+        border-radius: 3px;
     }
     .offers-cat{
 
     }
     .offers-cat-header{
+        height: 20px;
         text-align: left;
         background: #414141;
         color: white;
+        padding: 5px;
     }
     .no-match {
          text-align: center;
@@ -131,24 +137,41 @@ body{
     }
     .offer{
         box-sizing: border-box;
-        padding: 20px 10px;
+        padding: 20px 0;
     }
     .offer-passengers{
-        height: 40px;
+        position: relative;
         border-right: 1px dotted gray;
     }
+    .offer .type-indicator{
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 10px;
+    }
+    .offer.existing .type-indicator{
+        background: #ffc57a;
+    }
+    .offer.new .type-indicator{
+        background: #7AC2FF;
+    }
     .offer-pickup-details{
+        height: 70px;
         border-right: 1px dotted gray;
     }
     .offer-price-details{
+        height: 70px;
+        padding: 20px 0;
         .price{
-            font-weight: bold;
         }
     }
     .offer-action{
-
+        box-sizing: border-box;
+        padding: 15px 15px 0;
     }
     .offer-comment{
+        padding: 15px;
         background: #E9E9E9;
     }
     .offer-sep{
@@ -172,5 +195,9 @@ body{
             background: url(../images/wb_site/1.2/shade_pixel.png);
             background-repeat: repeat-x;
         }
+    }
+    #offers-disclaimer{
+        margin-top: 15px;
+        text-align: left;
     }
 }

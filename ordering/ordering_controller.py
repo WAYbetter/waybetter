@@ -124,14 +124,19 @@ def sync_app_state(request):
     latest_pickup_time = earliest_pickup_time + datetime.timedelta(hours=24)
     dt_options = list(datetimeIterator(earliest_pickup_time, latest_pickup_time, delta=datetime.timedelta(minutes=BOOKING_INTERVAL)))
 
-    response = {"pickup_datetime_options": [to_js_date(opt) for opt in dt_options],
-                "pickup_datetime_default_idx": min(3, len(dt_options))}
+    response = {
+        "logged_in": request.user.is_authenticated(),
+        "pickup_datetime_options": [to_js_date(opt) for opt in dt_options],
+        "pickup_datetime_default_idx": min(3, len(dt_options))
+    }
 
     passenger = Passenger.from_request(request)
     response["show_url"] = "" # change to cause child browser to open with passed url
 
     if passenger:
         response["authenticated"] = True
+        response["passenger_picture_url"] = passenger.picture_url
+
         ongoing_order = get_ongoing_order(passenger)
         if ongoing_order:
             response["ongoing_order_id"] = ongoing_order.id
@@ -703,13 +708,13 @@ class OrderSettings:
 
         pickup = request_data.get("pickup")
         dropoff = request_data.get("dropoff")
-        settings = request_data.get("settings")
+        booking_settings = request_data.get("settings")
         asap = request_data.get("asap")
 
         inst = cls()
-        inst.num_seats = int(settings["num_seats"])
-        inst.debug = bool(settings.get("debug", False))
-        inst.private = bool(settings["private"])
+        inst.debug = settings.DEV
+        inst.num_seats = int(booking_settings["num_seats"])
+        inst.private = bool(booking_settings["private"])
         inst.pickup_address = Address(**pickup)
         inst.dropoff_address = Address(**dropoff)
 

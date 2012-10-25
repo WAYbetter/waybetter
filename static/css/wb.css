@@ -1,7 +1,5 @@
-/** Theme hacks **/
-body {
-  /*padding-top: 100px; // should match the height of the navbar*/ }
-
+/* Theme hacks
+-------------------------------------------------- */
 .navbar-inner {
   background: white; }
 
@@ -11,17 +9,16 @@ body {
 .navbar .nav > li > a:hover {
   color: gray; }
 
-/** elements **/
+/* General
+-------------------------------------------------- */
 #wbLogo {
   background: url(/static/images/wb_site/1.2/header.png) left top no-repeat;
   height: 42px;
   width: 242px;
   padding: 0; }
 
-.booking-controls {
-  /*box-sizing: border-box;*/
-  /*padding: 10px;*/
-  background-color: #f5f5f5; }
+#content {
+  min-height: 500px; }
 
 .ride-pics {
   position: relative;
@@ -30,9 +27,9 @@ body {
     display: inline-block;
     text-align: center;
     vertical-align: top;
-    margin-left: 20px; }
+    margin-right: 20px; }
   .ride-pics .ride-pics-col:last-child {
-    margin-left: 0; }
+    margin-right: 0; }
   .ride-pics .ride-pic {
     border: 1px solid lightgray;
     width: 50px;
@@ -54,7 +51,8 @@ body {
   .ride-pics .name {
     font-size: 13px; }
 
-/** pages **/
+/* Website pages
+-------------------------------------------------- */
 .wb-home #content {
   padding-top: 66px; }
 .wb-home #content hr {
@@ -66,19 +64,28 @@ body {
   width: 355px;
   height: 443px; }
 
+.booking-page #booking-form, .booking-page #booking-summary {
+  padding: 20px;
+  background-color: #f5f5f5;
+  text-align: left; }
 .booking-page #map {
   height: 500px; }
 .booking-page #booking-form .control-label {
-  width: 60px; }
+  width: 50px;
+  margin-right: 50px; }
 .booking-page #booking-form .controls {
-  margin-left: 70px; }
-.booking-page .offers-container {
+  margin-left: 0; }
+.booking-page #offers-container {
   background: #FBFBFB;
-  box-shadow: 1px 1px 6px; }
+  box-shadow: 1px 1px 6px;
+  background-color: #f5f5f5;
+  border-radius: 3px; }
 .booking-page .offers-cat-header {
+  height: 20px;
   text-align: left;
   background: #414141;
-  color: white; }
+  color: white;
+  padding: 5px; }
 .booking-page .no-match {
   text-align: center;
   padding: 30px;
@@ -88,15 +95,31 @@ body {
   text-shadow: 0 0 7px white; }
 .booking-page .offer {
   box-sizing: border-box;
-  padding: 20px 10px; }
+  padding: 20px 0; }
 .booking-page .offer-passengers {
-  height: 40px;
+  position: relative;
   border-right: 1px dotted gray; }
+.booking-page .offer .type-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px; }
+.booking-page .offer.existing .type-indicator {
+  background: #ffc57a; }
+.booking-page .offer.new .type-indicator {
+  background: #7AC2FF; }
 .booking-page .offer-pickup-details {
+  height: 70px;
   border-right: 1px dotted gray; }
-.booking-page .offer-price-details .price {
-  font-weight: bold; }
+.booking-page .offer-price-details {
+  height: 70px;
+  padding: 20px 0; }
+.booking-page .offer-action {
+  box-sizing: border-box;
+  padding: 15px 15px 0; }
 .booking-page .offer-comment {
+  padding: 15px;
   background: #E9E9E9; }
 .booking-page .offer-sep {
   position: relative;
@@ -115,3 +138,6 @@ body {
   .booking-page .offer-sep .shadow-m {
     background: url(../images/wb_site/1.2/shade_pixel.png);
     background-repeat: repeat-x; }
+.booking-page #offers-disclaimer {
+  margin-top: 15px;
+  text-align: left; }

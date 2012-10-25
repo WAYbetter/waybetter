@@ -34,7 +34,13 @@
                     <ul class="nav pull-right">
                         <li><a href="{% url about_us %}">{% trans "About" %}</a></li>
                         <li><a href="#">{% trans "Get the App" %}</a></li>
-                        <li><a href="{% url auth_login %}">{% trans "Login" %}</a></li>
+                        <li>
+                            {% if request.user.is_authenticated %}
+                                <a>{{ request.user.username }}</a>
+                                {% else %}
+                                <a href="{% url auth_login %}">{% trans "Login" %}</a>
+                            {% endif %}
+                        </li>
                     </ul>
                 </div>
             </div>

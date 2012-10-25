@@ -12,10 +12,12 @@
 
 {% block content %}
     <div id="content" class="txt-middle" ng-app="BookingApp">
-        <div class="container" ng-controller="BookingCtrl" ng-init="sync()">
-            <div class="row">
-                <div class="span4 booking-controls" ng-hide="offers.length">
-                    <form id="booking-form" class="form-horizontal" ng-submit="get_offers()">
+        <div class="container-fluid" ng-controller="BookingCtrl" ng-init="sync()">
+
+            <!-- no offers -->
+            <div class="row-fluid" ng-hide="offers.length">
+                <div id="booking-form" class="span4">
+                    <form class="form-horizontal" ng-submit="get_offers()">
                         <div class="input-prepend">
                             <span class="add-on"><i class="icon-map-marker"></i></span>
                             <input type="text" placeholder="{% trans "Pickup Address" %}" wb-pac address="pickup">
@@ -31,15 +33,15 @@
                             <label class="control-label">Time</label>
 
                             <div class="controls controls-row">
-                                <select class="span2 btn" ng-model="pickup_date" ng-options="item as item | wb_date:'EEE d/M' for item in pickup_date_options()"></select>
-                                <select class="span2 btn" ng-model="pickup_time" ng-options="item as item for item in pickup_time_options()"></select>
+                                <select class="span4 btn" ng-model="pickup_date" ng-options="item as item | wb_date:'EEE d/M' for item in pickup_date_options()"></select>
+                                <select class="span4 btn" ng-model="pickup_time" ng-options="item as item for item in pickup_time_options()"></select>
                             </div>
                         </div>
                         <div class="control-group">
                             <label class="control-label">Ride</label>
 
                             <div class="controls controls-row">
-                                <select class="span4 btn" ng-model="is_private"
+                                <select class="span8 btn" ng-model="is_private"
                                         ng-options="item.value as item.label for item in [{label: '{% trans 'Shared' %}', value:false}, {label: '{% trans 'Private' %}', value:true}]">>
                                 </select>
                             </div>
@@ -48,7 +50,7 @@
                             <label class="control-label">Luggage</label>
 
                             <div class="controls controls-row">
-                                <select class="span4 btn" ng-model="has_luggage"
+                                <select class="span8 btn" ng-model="has_luggage"
                                         ng-options="item.value as item.label for item in [{label: '{% trans 'No Luggage' %}', value:false}, {label: '{% trans 'With Luggage' %}', value:true}]">
                                 </select>
                             </div>
@@ -57,7 +59,7 @@
                             <label class="control-label">Seats</label>
 
                             <div class="controls controls-row">
-                                <select class="span4 btn" ng-model="num_seats"
+                                <select class="span8 btn" ng-model="num_seats"
                                         ng-options="item for item in [1,2]"></select>
                             </div>
                         </div>
@@ -67,20 +69,30 @@
                     </form>
                 </div>
 
-                <div class="span4 booking-controls" ng-show="offers.length">
-                    <h3>{% trans "Your Order Details" %}</h3>
-                    <hr class="dashed">
-                    <div>{% trans "From" %}: (( pickup.formatted_address ))</div>
-                    <div>{% trans "To" %}: (( dropoff.formatted_address ))</div>
-                    <hr class="dashed">
-                    <div>(( num_seats )) Seat</div> <!-- todo ngPluralize -->
-                </div>
-
-                <div class="span8" ng-hide="offers.length">
+                <div class="span8">
                     <div id="map" wb-map></div>
                 </div>
+            </div>
 
-                <div class="span8" ng-show="offers.length">
+            <!-- show offers -->
+            <div class="row-fluid" ng-show="offers.length">
+                <div id="booking-summary" class="span4">
+                    <h3>{% trans "Your Order Details" %}</h3>
+                    <hr class="dashed">
+                    <p>{% trans "From" %}: (( pickup.formatted_address ))</p>
+                    <p>{% trans "To" %}: (( dropoff.formatted_address ))</p>
+                    <hr class="dashed">
+                    <p ng-switch on="has_luggage">
+                        <span ng-switch-when="false">{% trans "No Luggage" %}</span>
+                        <span ng-switch-when="true">{% trans "With Luggage" %}</span>
+                    </p>
+                    <p>(( num_seats )) Seat</p> <!-- todo ngPluralize -->
+                    <p>
+                        <a class="pull-right" href="#" ng-click="reset()">{% trans "change order settings" %}</a>
+                    </p>
+                </div>
+
+                <div class="span8">
                     <div id="offers-container">
                         <div class="offers-cat">
                             <div class="offers-cat-header">{% trans "Choose a Ride to Join" %}</div>
@@ -90,13 +102,14 @@
                                         הזמינו נסיעה חדשה, ואחרים יצטרפו אליכם!
                             </div>
                             <div class="offers-list" ng-repeat="offer in existing_ride_offers() | orderBy:'pickup_time'">
-                                <offer></offer>
+                                <offer class="existing"></offer>
+                                <offer-sep></offer-sep>
                             </div>
                         </div>
                         <div class="offers-cat">
                             <div class="offers-cat-header">{% trans "Start a New Ride" %}</div>
                             <div class="offers-list" ng-repeat="offer in new_ride_offers() | orderBy:'pickup_time'">
-                                <offer></offer>
+                                <offer class="new"></offer>
                             </div>
                         </div>
                     </div>
@@ -105,6 +118,7 @@
                     </div>
                 </div>
             </div>
+
         </div>
     </div>
 {% endblock %}

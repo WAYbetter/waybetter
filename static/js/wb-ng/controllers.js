@@ -20,6 +20,7 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, 
     $scope.pickup_datetime_options =  [];
 
     $scope.offers = [];
+//    $scope.offers = [{"new_ride":true,"comment":"","price":46,"pickup_time":1351172420000,"seats_left":3}];
     $scope.selected_offer = undefined;
     $scope.private_price = undefined;
     $scope.booking_result = undefined;
@@ -80,6 +81,9 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, 
 
     $scope.sync = function () {
         BookingService.sync().then(function(data){
+            $scope.logged_in = data.logged_in;
+            $scope.passenger_picture_url = data.passenger_picture_url;
+
             $scope.ongoing_order_id = data.ongoing_order_id;
             $scope.future_orders_count = data.future_orders_count;
             $scope.pickup_datetime_default_idx = data.pickup_datetime_default_idx || 0;
@@ -87,6 +91,11 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, 
                 return new Date(string_dt);
             });
         }, function(){})
+    };
+
+    $scope.reset = function(){
+        $scope.selected_offer = undefined;
+        $scope.offers = [];
     };
 
     $scope.ready_to_order = function () {

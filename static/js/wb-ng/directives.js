@@ -7,25 +7,33 @@ module.directive("offer", function () {
         restrict: 'E',
         replace: true,
         template: '\
-        <div>\
-            <div class="offer row" ng-click="choose_offer(offer)"> \
-                <div class="offer-passengers span2"> \
+        <div class="offer">\
+            <div class="row-fluid" ng-click="choose_offer(offer)"> \
+                <div class="offer-passengers span4"> \
+                    <div class="type-indicator"></div>\
                     <ride-pics-for-offer></ride-pics-for-offer> \
                 </div> \
-                <div class="offer-pickup-details span2"> \
-                    <div>Pickup: (( offer.pickup_time | wb_date:"EEE d/M" )) ((  offer.pickup_time | date:"H:mm" )) \
-                    </div> \
+                <div class="offer-pickup-details span4"> \
+                    <strong>Pickup: (( offer.pickup_time | wb_date:"EEE d/M" )) ((  offer.pickup_time | date:"H:mm" ))</strong> \
                     <div>(( offer.seats_left )) Availabe Seats</div> \
                 </div> \
-                <div class="offer-price-details span2"> \
+                <div class="offer-price-details span4"> \
                     <strong class="price">(( offer.price | number:1 )) ₪</strong> \
                     <span>or less</span> \
                 </div> \
             </div> \
-            <div class="offer-action row" ng-show="selected_offer == offer"> \
-                <div class="offer-comment span4">(( offer.comment )) bla bla bla</div> \
-                <div class="span2"><button class="btn btn-primary btn-small" ng-click="book_ride()">Join Ride</button></div> \
+            <div class="offer-action row-fluid" ng-show="selected_offer == offer"> \
+                <div class="offer-comment span8" ng-show="offer.comment">(( offer.comment ))</div> \
+                <div class="span4 pull-right"><button class="btn btn-primary btn-large" ng-click="book_ride()">Join Ride</button></div> \
             </div> \
+        </div>'
+    }
+});
+module.directive("offerSep", function () {
+    return {
+        restrict: 'E',
+        replace: true,
+        template: '\
             <div class="offer-sep"> \
                 <table> \
                     <tr> \
@@ -35,10 +43,9 @@ module.directive("offer", function () {
                     </tr> \
                 </table> \
             </div> \
-        </div>'
+        '
     }
 });
-
 module.directive("ridePicsForOffer", function () {
     return {
         restrict: 'E',
