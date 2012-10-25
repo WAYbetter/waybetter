@@ -18,59 +18,64 @@
             <div class="row-fluid" ng-hide="offers.length">
                 <div id="booking-form" class="span4">
                     <form class="form-horizontal" ng-submit="get_offers()">
-                        <div class="input-prepend">
-                            <span class="add-on"><i class="icon-map-marker"></i></span>
-                            <input type="text" placeholder="{% trans "Pickup Address" %}" wb-pac address="pickup">
+                        <div class="row-fluid">
+                            <div class="input-prepend span12">
+                                <span class="add-on"><i class="icon-map-marker"></i></span>
+                                <input class="span11" type="text" placeholder="{% trans "Pickup Address" %}" wb-pac address="pickup">
+                            </div>
                         </div>
-                        <div class="input-prepend">
-                            <span class="add-on"><i class="icon-map-marker"></i></span>
-                            <input type="text" placeholder="{% trans "Dropoff Address" %}" wb-pac address="dropoff">
+                        <div class="row-fluid">
+                            <div class="input-prepend span12">
+                                <span class="add-on"><i class="icon-map-marker"></i></span>
+                                <input class="span11" type="text" placeholder="{% trans "Dropoff Address" %}" wb-pac address="dropoff">
+                            </div>
                         </div>
 
                         <hr class="dashed">
 
                         <div class="control-group">
-                            <label class="control-label">Time</label>
-
-                            <div class="controls controls-row">
-                                <select class="span4 btn" ng-model="pickup_date" ng-options="item as item | wb_date:'EEE d/M' for item in pickup_date_options()"></select>
-                                <select class="span4 btn" ng-model="pickup_time" ng-options="item as item for item in pickup_time_options()"></select>
+                            <label class="control-label time span2"></label>
+                            <div class="controls controls-row span10">
+                                <div class="row-fluid">
+                                    <select class="span6 btn" ng-model="pickup_date" ng-options="item as item | wb_date:'EEE d/M' for item in pickup_date_options()"></select>
+                                    <select id="pickup-time" class="span6 btn" ng-model="pickup_time" ng-options="item as item for item in pickup_time_options()"></select>
+                                </div>
                             </div>
                         </div>
                         <div class="control-group">
-                            <label class="control-label">Ride</label>
-
-                            <div class="controls controls-row">
-                                <select class="span8 btn" ng-model="is_private"
+                            <label class="control-label ride-type span2"></label>
+                            <div class="controls controls-row span10">
+                                <select class="btn btn-block" ng-model="is_private"
                                         ng-options="item.value as item.label for item in [{label: '{% trans 'Shared' %}', value:false}, {label: '{% trans 'Private' %}', value:true}]">>
                                 </select>
                             </div>
                         </div>
                         <div class="control-group">
-                            <label class="control-label">Luggage</label>
-
-                            <div class="controls controls-row">
-                                <select class="span8 btn" ng-model="has_luggage"
+                            <label class="control-label luggage span2"></label>
+                            <div class="controls controls-row span10">
+                                <select class="btn btn-block" ng-model="has_luggage"
                                         ng-options="item.value as item.label for item in [{label: '{% trans 'No Luggage' %}', value:false}, {label: '{% trans 'With Luggage' %}', value:true}]">
                                 </select>
                             </div>
                         </div>
                         <div class="control-group">
-                            <label class="control-label">Seats</label>
-
-                            <div class="controls controls-row">
-                                <select class="span8 btn" ng-model="num_seats"
+                            <label class="control-label seats span2"></label>
+                            <div class="controls controls-row span10">
+                                <select class="btn btn-block" ng-model="num_seats"
                                         ng-options="item for item in [1,2]"></select>
                             </div>
                         </div>
 
                         <hr class="dashed">
+                        <p ng-show="private_price">{% trans "Private ride price" %} (( private_price | currency:"₪"))</p>
                         <button class="btn btn-large btn-block btn-primary" ng-disabled="!ready_to_order()" type="submit">{% trans "Find a Ride" %}</button>
                     </form>
                 </div>
 
                 <div class="span8">
-                    <div id="map" wb-map></div>
+                    <div id="map-container">
+                        <div id="map" wb-map></div>
+                    </div>
                 </div>
             </div>
 

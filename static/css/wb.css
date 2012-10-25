@@ -65,16 +65,35 @@
   height: 443px; }
 
 .booking-page #booking-form, .booking-page #booking-summary {
+  height: 500px;
   padding: 20px;
-  background-color: #f5f5f5;
-  text-align: left; }
+  background-color: #F1F1F1;
+  text-align: left;
+  border-radius: 5px; }
+.booking-page #map-container {
+  box-sizing: border-box;
+  height: 500px;
+  padding: 4px;
+  border-radius: 5px;
+  overflow: hidden;
+  border: 2px solid #F1F1F1; }
 .booking-page #map {
-  height: 500px; }
+  height: 500px;
+  border-radius: 5px; }
 .booking-page #booking-form .control-label {
-  width: 50px;
-  margin-right: 50px; }
-.booking-page #booking-form .controls {
-  margin-left: 0; }
+  background: url(/static/images/wb_site/1.2/booking_icons.png) left top no-repeat; }
+.booking-page #booking-form .control-label.time {
+  background-position: 0 0; }
+.booking-page #booking-form .control-label.ride-type {
+  background-position: 0 -62px; }
+.booking-page #booking-form .control-label.luggage {
+  background-position: 0 -124px; }
+.booking-page #booking-form .control-label.seats {
+  background-position: 0 -188px; }
+.booking-page #booking-form input[type="text"] {
+  margin-bottom: 20px; }
+.booking-page #pickup-time {
+  margin-left: 1px; }
 .booking-page #offers-container {
   background: #FBFBFB;
   box-shadow: 1px 1px 6px;

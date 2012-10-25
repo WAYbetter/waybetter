@@ -41,7 +41,7 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, 
         }
     }
 
-    function booking_data(extra) {
+    function get_booking_data(extra) {
         var data = {
             pickup:$scope.pickup,
             dropoff:$scope.dropoff,
@@ -63,7 +63,7 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, 
             return;
         }
 
-        var booking_data = booking_data(({ private:true}));
+        var booking_data = get_booking_data({ private:true });
         BookingService.get_private_offers(booking_data).then(function (private_offers) {
             if (private_offers && private_offers.length) {
                 $scope.selected_offer = private_offers[0];
@@ -104,7 +104,7 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, 
 
     $scope.get_offers = function () {
         $scope.selected_offer = undefined;
-        var offers_promise = BookingService.get_offers(booking_data());
+        var offers_promise = BookingService.get_offers(get_booking_data());
 
         offers_promise.success(
             function (data) {
@@ -121,7 +121,7 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, 
 
     $scope.book_ride = function () {
         $scope.booking_result = undefined;
-        var ride_data = booking_data({ride_id:$scope.selected_offer.ride_id});
+        var ride_data = get_booking_data({ride_id:$scope.selected_offer.ride_id});
 
         var book_ride_promise = BookingService.book_ride(ride_data);
         book_ride_promise.then(function (booking_result) {
@@ -281,5 +281,18 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, 
             console.log("dt changed:", BookingService.pickup_dt);
         }
     });
+
+    $scope.$watch('is_private', function(new_val, old_val) {
+        if (!new_val) {
+            $scope.private_price = undefined;
+        }
+    });
+
+    $scope.$watch(function() {return angular.toJson([$scope.pickup_dt, $scope.is_private, $scope.pickup, $scope.dropoff])}, function() {
+        if ($scope.is_private) {
+            update_private_price();
+        }
+    });
+
 });
 

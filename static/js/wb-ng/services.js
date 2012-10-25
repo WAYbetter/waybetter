@@ -144,7 +144,7 @@ module.service("BookingService", function ($q, HttpService, DefaultMessages, Def
                 params: { data: ride_data }
             };
 
-            DefaultURLS.modalHttp(config).success(function(response) {
+            HttpService.modalHttp(config).success(function(response) {
                 if (response.offers){
                     defer.resolve(response.offers);
                 } else {
