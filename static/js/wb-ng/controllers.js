@@ -1,8 +1,13 @@
 var module = angular.module('wbControllers', ['wbServices', 'wbDefaults']);
 
 module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, NotificationService, wbEvents, DefaultMessages, ASAP) {
-    $scope.pickup = undefined;
-    $scope.dropoff = undefined;
+    $scope.logged_in = false;
+    $scope.passenger_picture_url = undefined;
+
+//    $scope.pickup = undefined;
+//    $scope.dropoff = undefined;
+    $scope.pickup = Address.fromJSON('{"street":"אלנבי","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0736683,"lng":34.76546570000005,"formatted_address":"אלנבי 1, תל אביב יפו, ישראל"}');
+    $scope.dropoff = Address.fromJSON('{"street":"מרגולין","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0586624,"lng":34.78742,"formatted_address":"מרגולין 1, תל אביב יפו, ישראל"}');
 
     $scope.has_luggage = false;
     $scope.is_private = false;
@@ -19,6 +24,7 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, 
     $scope.private_price = undefined;
     $scope.booking_result = undefined;
 
+    $scope.ASAP = ASAP;
 
     function join_date_and_time(date_dt, time_str) {
         if (time_str == ASAP){
@@ -181,6 +187,25 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, 
         return result;
     };
 
+    $scope.new_ride_offers = function() {
+        return $filter('filter')($scope.offers, {new_ride: true});
+    };
+
+    $scope.existing_ride_offers = function() {
+        return $filter('filter')($scope.offers, {new_ride: false});
+    };
+
+    $scope.choose_offer = function (offer) {
+        if ($scope.selected_offer != offer) {
+            $scope.selected_offer = offer;
+        } else {
+            $scope.selected_offer = undefined;
+        }
+    };
+
+    $scope.update_picture = function(){
+        // todo
+    };
 
     // signals and watches
     $scope.$on(wbEvents.invalid_address, function(e, place) {

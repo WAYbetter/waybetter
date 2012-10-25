@@ -21,17 +21,61 @@ body{
 
 /** elements **/
 #wbLogo{
-    background: url(/static/images/wb_site/logo_header_beta.png) left top no-repeat;
-    background-size: 70%;
-    height: 40px;
-    width: 300px;
+    background: url(/static/images/wb_site/1.2/header.png) left top no-repeat;
+    height: 42px;
+    width: 242px;
     padding: 0;
 }
 
 .booking-controls{
+    /*box-sizing: border-box;*/
     /*padding: 10px;*/
     background-color: #f5f5f5;
 }
+
+.ride-pics{
+    position: relative;
+    text-align: center;
+
+    .ride-pics-col{
+        display: inline-block;
+        text-align: center;
+        vertical-align: top;
+        margin-left: 20px;
+    }
+    .ride-pics-col:last-child{
+        margin-left: 0;
+    }
+    .ride-pic{
+        border: 1px solid lightgray;
+        width: 50px;
+        height: 50px;
+        box-sizing: border-box;
+    }
+    .ride-pic .pic{
+        width: 48px;
+        height: 48px;
+    }
+    .pic.user-picture{
+        width: 44px;
+        height: 44px;
+        padding-top: 2px;
+    }
+
+    .user-silhouette{
+        background: url(../images/wb_site/1.2/user.png) center top no-repeat;
+    }
+    .you .add-picture{
+        background: url(../images/wb_site/1.2/addphoto.png) center center no-repeat;
+    }
+    .empty-seat{
+        background: url(../images/wb_site/1.2/empty_seat.png) center center no-repeat;
+    }
+    .name{
+        font-size: 13px;
+    }
+}
+
 
 /** pages **/
 .wb-home{
@@ -59,5 +103,74 @@ body{
     }
     #booking-form .controls{
         margin-left: 70px;
+    }
+
+    .offers-container{
+        background: #FBFBFB;
+        box-shadow: 1px 1px 6px;
+
+    }
+    .offers-cat{
+
+    }
+    .offers-cat-header{
+        text-align: left;
+        background: #414141;
+        color: white;
+    }
+    .no-match {
+         text-align: center;
+         padding: 30px;
+         padding-bottom: 38px;
+         font-weight: bold;
+         font-size: 14px;
+         text-shadow: 0 0 7px white;
+    }
+    .offers-list{
+
+    }
+    .offer{
+        box-sizing: border-box;
+        padding: 20px 10px;
+    }
+    .offer-passengers{
+        height: 40px;
+        border-right: 1px dotted gray;
+    }
+    .offer-pickup-details{
+        border-right: 1px dotted gray;
+    }
+    .offer-price-details{
+        .price{
+            font-weight: bold;
+        }
+    }
+    .offer-action{
+
+    }
+    .offer-comment{
+        background: #E9E9E9;
+    }
+    .offer-sep{
+        position: relative;
+        z-index: 100;
+        table{
+            width: 100%;
+            border-spacing: 0;
+            border-collapse: collapse;
+        }
+        .shadow-r, .shadow-l{
+            width: 117px;
+            background: url(../images/wb_site/1.2/shade.png) no-repeat;
+            height: 8px;
+            padding: 0;
+        }
+        .shadow-r{
+            background-position: 0 -8px;
+        }
+        .shadow-m{
+            background: url(../images/wb_site/1.2/shade_pixel.png);
+            background-repeat: repeat-x;
+        }
     }
 }

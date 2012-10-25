@@ -1,5 +1,14 @@
 var module = angular.module('wbFilters', []);
 
+module.filter('range', function() {
+  return function(input, total) {
+    total = parseInt(total);
+    for (var i=0; i<total; i++)
+      input.push(i);
+    return input;
+  };
+});
+
 module.filter('zero_padding', function () {
     return function (input, length) {
         if (input == undefined) {

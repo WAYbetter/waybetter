@@ -1,4 +1,4 @@
-var module = angular.module('wbDirectives', ['wbGeoControllers', 'wbGeoServices']);
+var module = angular.module('wbGeoDirectives', ['wbGeoControllers', 'wbGeoServices']);
 
 module.directive("wbPac", function ($q, $timeout, PlacesService, wbEvents) {
     return {
