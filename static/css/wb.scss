@@ -3,6 +3,12 @@
     height: $h;
 }
 
+/* Angular
+-------------------------------------------------- */
+[ng\:cloak], [ng-cloak], .ng-cloak {
+  display: none;
+}
+
 /* Theme hacks
 -------------------------------------------------- */
 .navbar-inner{
@@ -13,6 +19,9 @@
 }
 .navbar .nav > li > a:hover{
     color: gray;
+}
+#header {
+    padding: 15px 0;
 }
 
 /* General
@@ -91,8 +100,7 @@
 }
 
 .booking-page{
-    #booking-form, #booking-summary{
-        height: 500px;
+    .booking-panel{
         padding: 20px;
         background-color: #F1F1F1;
         text-align: left;
@@ -125,11 +133,14 @@
         margin-left: 1px;
     }
 
-    #offers-container{
+    .booking-container{
+        position: relative;
         background: #FBFBFB;
         box-shadow: 1px 1px 6px;
         background-color: #f5f5f5;
         border-radius: 3px;
+    }
+    #offers-container{
     }
     .offers-cat{
 
@@ -150,11 +161,11 @@
          text-shadow: 0 0 7px white;
     }
     .offers-list{
-
     }
     .offer{
         box-sizing: border-box;
         padding: 20px 0;
+        cursor:pointer;
     }
     .offer-passengers{
         position: relative;
@@ -192,8 +203,8 @@
         background: #E9E9E9;
     }
     .offer-sep{
-        position: relative;
-        z-index: 100;
+        position: absolute;
+        width: 100%;
         table{
             width: 100%;
             border-spacing: 0;
@@ -216,5 +227,15 @@
     #offers-disclaimer{
         margin-top: 15px;
         text-align: left;
+    }
+    #summary{
+        padding: 10px;
+        text-align: left;
+        background-color: #F1F1F1;
+    }
+    #summary-info{
+        padding: 15px;
+    }
+    #summary-buttons{
     }
 }

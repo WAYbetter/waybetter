@@ -1,6 +1,15 @@
 var module = angular.module('wbServices', ['wbDefaults']);
 
-module.service('NotificationService', function () {});
+module.service('NotificationService', function () {
+    return {
+        alert: function(m){
+            alert(m);
+        },
+        confirm: function(m){
+            alert(m);
+        }
+    }
+});
 
 module.service('HttpService', function ($http, $timeout, HTTP_TIMEOUT) {
     return {
@@ -62,7 +71,7 @@ module.service('HttpService', function ($http, $timeout, HTTP_TIMEOUT) {
     }
 });
 
-module.service("BookingService", function ($q, HttpService, DefaultMessages, DefaultURLS) {
+module.service("BookingService", function ($q, $timeout, HttpService, DefaultMessages, DefaultURLS) {
     return {
         sync: function(){
             var defer = $q.defer();
@@ -127,12 +136,32 @@ module.service("BookingService", function ($q, HttpService, DefaultMessages, Def
         },
 
         get_order_billing_status: function(order_id) {
+            var defer = $q.defer();
             var config = {
-                method:'GET',
-                url:DefaultURLS.get_order_billing_status,
                 params: {order_id: order_id}
             };
-            return HttpService.http(config);
+
+            function poll_server() {
+                console.log("polling server for billing status:", order_id);
+                HttpService.http_get(DefaultURLS.get_order_billing_status, config).success(
+                    function (data) {
+                        if (data.status == "pending") {
+                            $timeout(poll_server, 3000)
+                        } else if (data.status == "approved") {
+                            defer.resolve("ok");
+                        } else {
+                            console.log("rejecting check_order_billing: " + data.status);
+                            defer.reject(data.status);
+                        }
+                    }).error(function (error, status) {
+                        console.log("check_order_billing failed: " + error + ", " + status);
+                        // retry
+                        $timeout(poll_server, 3000);
+                    });
+            }
+
+            poll_server();
+            return defer.promise;
         },
 
         get_private_offers: function(ride_data) {

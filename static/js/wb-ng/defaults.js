@@ -15,9 +15,10 @@ module.constant('DefaultURLS', {
 });
 module.constant('DefaultMessages', {
         connection_error:'לא ניתן להשלים את הפעולה עקב שגיאה או בעיית חיבור לרשת',
-        offers_loading_1: "מאתר נסיעות חופפות",
-        offers_loading_2: "מחשב זמני נסיעה",
-        offers_loading_3: "מעדכן מוניות",
+        loading_offers_1: "מאתר נסיעות חופפות",
+        loading_offers_2: "מחשב זמני נסיעה",
+        loading_offers_3: "מעדכן מוניות",
+        loading_book_ride: "Processing Order...",
         confirm_cancel_order: "",
         no_offers: "No matching rides found"
     }

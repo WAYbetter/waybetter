@@ -4,19 +4,17 @@
 
 {% block bodyclass %}booking-page{% endblock %}
 
-{% block header %}
-    <div id="header">
-        <h1>{% trans "Book a Ride" %}</h1>
-    </div>
-{% endblock %}
+{% block headertext %}{% trans "Book a Ride" %}{% endblock %}
 
 {% block content %}
     <div id="content" class="txt-middle" ng-app="BookingApp">
-        <div class="container-fluid" ng-controller="BookingCtrl" ng-init="sync()">
+        <div class="container" ng-controller="BookingCtrl" ng-init="sync()" ng-cloak>
+            <div class="alert alert-info" ng-show="loading_message"> (( loading_message )) </div>
+            <div class="alert alert-error" ng-show="booking_error"> (( booking_error )) </div>
 
-            <!-- no offers -->
+            <!-- step1: booking controls and map -->
             <div class="row-fluid" ng-hide="offers.length">
-                <div id="booking-form" class="span4">
+                <div id="booking-form" class="span4 booking-panel">
                     <form class="form-horizontal" ng-submit="get_offers()">
                         <div class="row-fluid">
                             <div class="input-prepend span12">
@@ -68,7 +66,7 @@
 
                         <hr class="dashed">
                         <p ng-show="private_price">{% trans "Private ride price" %} (( private_price | currency:"₪"))</p>
-                        <button class="btn btn-large btn-block btn-primary" ng-disabled="!ready_to_order()" type="submit">{% trans "Find a Ride" %}</button>
+                        <button class="btn btn-large btn-block btn-primary" ng-disabled="!ready_to_order() || loading_message" type="submit">{% trans "Find a Ride" %}</button>
                     </form>
                 </div>
 
@@ -79,9 +77,9 @@
                 </div>
             </div>
 
-            <!-- show offers -->
-            <div class="row-fluid" ng-show="offers.length">
-                <div id="booking-summary" class="span4">
+            <!-- step2: booking summary and offers -->
+            <div class="row-fluid">
+                <div class="span4 booking-panel" ng-show="offers.length">
                     <h3>{% trans "Your Order Details" %}</h3>
                     <hr class="dashed">
                     <p>{% trans "From" %}: (( pickup.formatted_address ))</p>
@@ -97,8 +95,8 @@
                     </p>
                 </div>
 
-                <div class="span8">
-                    <div id="offers-container">
+                <div class="span8" ng-show="offers.length && !booking_approved">
+                    <div id="offers-container" class="booking-container">
                         <div class="offers-cat">
                             <div class="offers-cat-header">{% trans "Choose a Ride to Join" %}</div>
                             <div class="no-match" ng-hide="existing_ride_offers().length" ng-class="{'disabled': selected_offer}">
@@ -122,8 +120,59 @@
                         {% trans "Price are determined by the Price Chart that is computed based on station cost." %}
                     </div>
                 </div>
-            </div>
 
+                <!-- step3: booking result -->
+                <div class="span8 booking-container" ng-show="booking_approved">
+                    <h1>{% trans "Order Accepted" %}</h1>
+                    <hr class="dashed">
+
+                    <div class="offer existing">
+                        <div class="row-fluid">
+                            <div class="offer-passengers span4">
+                                <div class="type-indicator"></div>
+                                <div class="ride-pics">
+                                    <div class="ride-pics-col" ng-repeat="passenger in booking_result.passengers" ng-switch on="passenger.is_you">
+                                        <ride-pics-passenger ng-switch-when="false"></ride-pics-passenger>
+                                        <ride-pics-you ng-switch-when="true"></ride-pics-you>
+                                    </div>
+                                    <ride-pics-seat ng-repeat="x in []|range:booking_result.seats_left"></ride-pics-seat>
+                                </div>
+                            </div>
+                            <div class="offer-pickup-details span4">
+                                <strong>Pickup: (( booking_result.pickup_dt | wb_date:"EEE d/M" )) (( booking_result.pickup_dt | date:"H:mm" ))</strong>
+                                <div>(( booking_result.seats_left )) {% trans "Availabe Seats" %}</div>
+                            </div>
+                            <div class="offer-price-details span4">
+                                <strong class="price">(( booking_result.price | number:1 )) ₪</strong><span>{% trans "or less" %}</span>
+                            </div>
+                        </div>
+                    </div>
+                    <offer-sep></offer-sep>
+
+                    <div id="summary">
+                        <div id="summary-info">
+                            <ul>
+                                <li>{% trans "Taxi live tracking will be available upon notification" %}</li>
+                                <li>{% trans "We will notify you in case a better taxi is found or if someone had joined your ride" %}</li>
+                                <li>{% trans "Detailed verification email was sent to " %}{{ request.user.email }}</li>
+                            </ul>
+                        </div>
+                        <hr class="dashed">
+                        <h4>{% trans "Invite friends to join WAYbetter" %}</h4>
+
+                        <div id="summary-buttons" class="row-fluid">
+                            <div class="span6">
+                                <a href="{% url ordering.ordering_controller.fb_share %}" class="btn btn-large pull-left">{% trans "Share on Facebook" %}</a>
+                            </div>
+                            <div class="span6">
+                                <a href="{% url wb_home %}" class="btn btn-large btn-primary pull-right">{% trans "Back To Home" %}</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+
+            </div>
         </div>
     </div>
 {% endblock %}

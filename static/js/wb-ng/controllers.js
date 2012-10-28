@@ -1,6 +1,6 @@
 var module = angular.module('wbControllers', ['wbServices', 'wbDefaults']);
 
-module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, NotificationService, wbEvents, DefaultMessages, ASAP) {
+module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, BookingService, NotificationService, wbEvents, DefaultMessages, ASAP) {
     $scope.logged_in = false;
     $scope.passenger_picture_url = undefined;
 
@@ -24,8 +24,19 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, 
     $scope.selected_offer = undefined;
     $scope.private_price = undefined;
     $scope.booking_result = undefined;
+    $scope.booking_approved = undefined;
+    $scope.booking_error = undefined;
 
     $scope.ASAP = ASAP;
+
+    $scope.loading_message = "";
+
+    function set_loading_message(m){
+        $scope.loading_message = m;
+    }
+    function clear_loading_message(){
+        $scope.loading_message = "";
+    }
 
     function join_date_and_time(date_dt, time_str) {
         if (time_str == ASAP){
@@ -94,8 +105,12 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, 
     };
 
     $scope.reset = function(){
-        $scope.selected_offer = undefined;
         $scope.offers = [];
+        $scope.selected_offer = undefined;
+        $scope.private_price = undefined;
+        $scope.booking_result = undefined;
+        $scope.booking_approved = undefined;
+        $scope.booking_error = undefined;
     };
 
     $scope.ready_to_order = function () {
@@ -108,6 +123,7 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, 
 
         offers_promise.success(
             function (data) {
+                clear_messages();
                 if (data.offers) {
                     $scope.offers = data.offers;
                     console.log("got offers:", data);
@@ -115,37 +131,61 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, BookingService, 
                     NotificationService.alert(data.error);
                 }
             }).error(function () {
+                clear_messages();
                 NotificationService.alert(DefaultMessages.connection_error);
             });
+
+
+        var messages = [DefaultMessages.loading_offers_1, DefaultMessages.loading_offers_2, DefaultMessages.loading_offers_3];
+        var promises = [];
+        angular.forEach(messages, function (m, i) {
+            var promise = $timeout(function () {
+                set_loading_message(m);
+            }, i * 1500);
+            promises.push(promise);
+        });
+        function clear_messages(){
+            clear_loading_message();
+            angular.forEach(promises, function (promise) {
+                $timeout.cancel(promise);
+            });
+        }
     };
 
     $scope.book_ride = function () {
         $scope.booking_result = undefined;
-        var ride_data = get_booking_data({ride_id:$scope.selected_offer.ride_id});
+        set_loading_message(DefaultMessages.loading_book_ride);
 
-        var book_ride_promise = BookingService.book_ride(ride_data);
-        book_ride_promise.then(function (booking_result) {
+        var ride_data = get_booking_data({ride_id:$scope.selected_offer.ride_id});
+        BookingService.book_ride(ride_data).then(function (booking_result) {
             console.log("book ride result: ", booking_result);
             $scope.booking_result = booking_result;
 
             var status = booking_result.status;
             var order_id = booking_result.order_id;
             if (status == 'success' && order_id) {
-
-                // todo check order billing
-
+                BookingService.get_order_billing_status(order_id).then(function() {
+                        clear_loading_message();
+                        $scope.booking_approved = true;
+                    }, function(error) {
+                        clear_loading_message();
+                        $scope.booking_approved = false;
+                        $scope.booking_error = error;
+                    });
             } else { // booking was not successful
+                clear_loading_message();
                 if (booking_result.redirect) {
                     // todo redirect
                 } else if (status == 'auth_failed') {
                     // todo login
                 } else {
-                    // todo order failed
+                    $scope.booking_error = DefaultMessages.connection_error;
                 }
             }
         }, function () { // booking request failed
             // todo order failed
-            NotificationService.alert(DefaultMessages.connection_error);
+            $scope.booking_error = DefaultMessages.connection_error;
+            clear_loading_message();
         });
     };
 

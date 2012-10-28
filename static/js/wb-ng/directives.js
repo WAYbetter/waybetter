@@ -67,7 +67,7 @@ module.directive("ridePicsYou", function () {
             <div class="ride-pics-col you"> \
                 <div class="ride-pic" ng-switch on="logged_in"> \
                     <div ng-switch-when="false" class="pic user-silhouette"></div> \
-                    <div ng-switch-when="true" ng-switch on="passenger_picture_url"> \
+                    <div ng-switch-when="true" ng-switch on="!!passenger_picture_url"> \
                         <img class="pic user-picture" border="0" ng-switch-when="true" ng-src="(( passenger_picture_url ))"> \
                         <div class="pic add-picture" ng-switch-when="false" ng-click="update_picture()"></div> \
                     </div> \

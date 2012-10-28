@@ -477,6 +477,13 @@ def book_ride(request):
             result['order_id'] = order.id
             result['pickup_formatted'] = order.from_raw
             result['pickup_dt'] = to_js_date(order.depart_time)
+            result["price"] = order.price
+
+            ride = SharedRide.by_id(ride_id)
+            ride_orders = [order] + (list(ride.orders.all()) if ride else [])
+            result["passengers"] = [{'name': o.passenger.name, 'picture_url': o.passenger.picture_url, 'is_you': o==order} for o in ride_orders for seat in range(o.num_seats)]
+            result["seats_left"] = MAX_SEATS - sum([order.num_seats for order in ride_orders])
+
         else:
             result['status'] = 'failed'
             result['error'] = 'Booking failed for some reason'
