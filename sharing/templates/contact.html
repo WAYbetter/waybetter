@@ -1,60 +1,58 @@
-{% extends "wb_info.html" %}
+{% extends "wb_base_site.html" %}
 {% load i18n %}
 
-{% block content %}
-    <div id="contact_header">{% trans "Contact WAYbetter" %}</div>
-    <table id="contact_details">
-        <tr class="details_row">
-            <td id="customer_service">
-                <table>
-                    <tr>
-                        <td class="img"></td>
-                        <td class="header">{% trans "Support and Customer Relations" %}
-                            <table class="details">
-                                <tr>
-                                    <td>{% trans "Email" %}:</td>
-                                    <td><a class="wb_link" href="mailto:support@waybetter.com">support@waybetter.com</a></td>
-                                </tr>
-                                <tr>
-                                    <td>{% trans "Tel" %}:</td>
-                                    <td>0722-555-442</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </td>
+{% block headertext %}
+    {% trans "Contact Us" %}
+{% endblock %}
 
-            <td id="offices">
-                <table>
-                    <tr>
-                        <td class="img"></td>
-                        <td class="header">{% trans "Our Offices" %}
-                            <table class="details">
-                                <tr>
-                                    <td colspan="2">{% trans "Yoni Netanyahu 6." %}</td>
-                                </tr>
-                                <tr>
-                                    <td colspan="2">{% trans "Or Yehuda 60376, Israel" %}</td>
-                                </tr>
-                                <tr>
-                                    <td>{% trans "Email" %}:</td>
-                                    <td><a class="wb_link" href="mailto:contact@waybetter.com">contact@waybetter.com</a></td>
-                                </tr>
-                                <tr>
-                                    <td>{% trans "Tel" %}:</td>
-                                    <td>03-9085008</td>
-                                </tr>
-                                <tr>
-                                    <td>{% trans "Fax" %}:</td>
-                                    <td>03-9366873</td>
-                                </tr>
-                            </table>
-                        </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-    </table>
-    
+{% block content %}
+    <div id="content">
+    	  <div class="container">
+    	    <div class="row">
+    		  <div class="span5">
+                <h2><i class="icon-envelope"></i> {% trans "Email Us" %}</h2>
+    	    <fieldset>
+    		  <div class="control-group">
+    		    <div class="controls">
+    			  <input class="span5" type="text" placeholder="{% trans "Your Full Name" %}">
+    			</div>
+    		    <div class="controls">
+    			  <input class="span5" type="text" placeholder="{% trans "Your Email" %}">
+    			</div>
+    		    <div class="controls">
+    			  <input class="span5" type="text" placeholder="{% trans "Message Subject" %}">
+    			</div>
+    			<div class="controls">
+    			  <textarea class="span5" id="textarea" rows="6" placeholder="{% trans "Your Message" %}"></textarea>
+    		    </div>
+    		  <button class="btn btn-primary">{% trans "Send Message" %}</button>
+    		  </div>
+    	    </fieldset>
+    		  </div>
+    		  <div class="span7">
+    		    <div class="row">
+    		      <div class="span3">
+    		        <h2><i class="icon-map-marker"></i> {% trans "Address" %}</h2>
+    		        <address>
+                       {% trans "Yoni Netanyahu 6." %}
+    		          <br>
+                       {% trans "Or Yehuda 60376, Israel" %}
+    				</address>
+    		      </div>
+    		      <div class="span4">
+    		        <h2><i class="icon-phone"></i> Phone</h2>
+    		        <address>
+    		          {% trans "Phone" %}: 03-9085008
+    		          <br>
+    		          {% trans "Fax" %}: 03-9366873
+    				</address>
+    		      </div>
+    		    </div>
+    			<div class="thumbnail">
+    			  <img border="0" alt="" src="http://maps.googleapis.com/maps/api/staticmap?center=המסגר+55,+תל+אביב&zoom=14&size=540x230&maptype=roadmap&sensor=false">
+    			</div>
+    		  </div>
+    		</div>
+    	  </div>
+    	</div>
 {% endblock %}
