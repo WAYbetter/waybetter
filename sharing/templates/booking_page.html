@@ -66,7 +66,7 @@
 
                         <hr class="dashed">
                         <p ng-show="private_price">{% trans "Private ride price" %} (( private_price | currency:"₪"))</p>
-                        <button class="btn btn-large btn-block btn-primary" ng-disabled="!ready_to_order() || loading_message" type="submit">{% trans "Find a Ride" %}</button>
+                        <button class="btn btn-large btn-block btn-warning" ng-disabled="!ready_to_order() || loading_message" type="submit">{% trans "Find a Ride" %}</button>
                     </form>
                 </div>
 
@@ -96,7 +96,7 @@
                 </div>
 
                 <div class="span8" ng-show="offers.length && !booking_approved">
-                    <div id="offers-container" class="booking-container">
+                    <div id="offers-container" class="booking-container" ng-class="{'blur': selected_offer}">
                         <div class="offers-cat">
                             <div class="offers-cat-header">{% trans "Choose a Ride to Join" %}</div>
                             <div class="no-match" ng-hide="existing_ride_offers().length" ng-class="{'disabled': selected_offer}">
@@ -105,14 +105,14 @@
                                         הזמינו נסיעה חדשה, ואחרים יצטרפו אליכם!
                             </div>
                             <div class="offers-list" ng-repeat="offer in existing_ride_offers() | orderBy:'pickup_time'">
-                                <offer class="existing"></offer>
+                                <offer class="existing" ng-class="{'focus': selected_offer == offer}"></offer>
                                 <offer-sep></offer-sep>
                             </div>
                         </div>
                         <div class="offers-cat">
                             <div class="offers-cat-header">{% trans "Start a New Ride" %}</div>
                             <div class="offers-list" ng-repeat="offer in new_ride_offers() | orderBy:'pickup_time'">
-                                <offer class="new"></offer>
+                                <offer class="new" ng-class="{'focus': selected_offer == offer}"></offer>
                             </div>
                         </div>
                     </div>
@@ -165,7 +165,7 @@
                                 <a href="{% url ordering.ordering_controller.fb_share %}" class="btn btn-large pull-left">{% trans "Share on Facebook" %}</a>
                             </div>
                             <div class="span6">
-                                <a href="{% url wb_home %}" class="btn btn-large btn-primary pull-right">{% trans "Back To Home" %}</a>
+                                <a href="{% url wb_home %}" class="btn btn-large btn-warning pull-right">{% trans "Back To Home" %}</a>
                             </div>
                         </div>
                     </div>

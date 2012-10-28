@@ -140,7 +140,11 @@
         background-color: #f5f5f5;
         border-radius: 3px;
     }
-    #offers-container{
+    #offers-container.blur .offers-cat-header, #offers-container.blur .no-match, #offers-container.blur .offer{
+        opacity: 0.5;
+    }
+    #offers-container.blur .offer.focus{
+        opacity: 1;
     }
     .offers-cat{
 
