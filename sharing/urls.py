@@ -93,7 +93,7 @@ urlpatterns = patterns('',
     url(r'^contact/$', 'sharing.content_controller.contact', name="contact"),
     url(r'^faq/$', 'sharing.content_controller.faq', name="faq"),
     url(r'^the_service/$', 'sharing.content_controller.the_service', name="the_service"),
-    url(r'^about_us/$', 'sharing.content_controller.about_us', name="about_us"),
+    url(r'^about/$', 'sharing.content_controller.about_us', name="about"),
     url(r'^welcome_email/$', 'sharing.content_controller.welcome_email'),
 
     url(r'^my_rides/$', 'sharing.content_controller.my_rides', name="my_rides"),

@@ -28,8 +28,8 @@
             <div class="row-fluid">
                 <div class="pull-left">
                     <h3>{% trans "Download the app now - FREE" %}</h3>
-                    <a href="#" class="btn btn-primary btn-action">{% trans "Get the iPhone App" %}</a>
-                    <a href="#" class="btn btn-primary btn-action">{% trans "Get the iPhone App" %}</a>
+                    <a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}" class="btn btn-primary btn-action">{% trans "Get the iPhone App" %}</a>
+                    <a href="{% value_from_settings ANDROID_MARKET_APP_URL %}" class="btn btn-primary btn-action">{% trans "Get the Android App" %}</a>
                 </div>
             </div>
             <hr class="dashed">

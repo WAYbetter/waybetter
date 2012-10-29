@@ -1,7 +1,12 @@
 var module = angular.module('wbMessages', []);
 
+module.constant('ASAP', "ASAP");
 module.constant('DefaultMessages', {
         today: "Today",
+        or_less: "or less",
+        pickup: "Pickup",
+        available_seats: "Availabe Seats",
+        you: "You",
         connection_error:'The operation could not be completed',
         loading_offers_1: "Searching for similar rides",
         loading_offers_2: "Computing ride duration",
