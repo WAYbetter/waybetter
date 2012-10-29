@@ -2,7 +2,6 @@ var module = angular.module('wbDefaults', []);
 
 module.constant('SupportPhone', "0722555442");
 module.constant('HTTP_TIMEOUT', 15*1000);
-module.constant('ASAP', "ASAP");
 
 module.constant('DefaultURLS', {
     book_ride: '/book_ride/',

@@ -1,5 +1,6 @@
 var module = angular.module('wbMessages', []);
 
+module.constant('ASAP', "מיידי");
 module.constant('DefaultMessages', {
         today: "היום",
         connection_error:'לא ניתן להשלים את הפעולה עקב שגיאה או בעיית חיבור לרשת',

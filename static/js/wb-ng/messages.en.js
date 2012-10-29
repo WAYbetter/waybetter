@@ -1,5 +1,6 @@
 var module = angular.module('wbMessages', []);
 
+module.constant('ASAP', "ASAP");
 module.constant('DefaultMessages', {
         today: "Today",
         connection_error:'The operation could not be completed',
