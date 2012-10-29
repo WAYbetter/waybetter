@@ -670,6 +670,7 @@ def submit_test_computation(orders, hotspot_type_raw, params, computation_set_na
     return algo_key
 
 @force_lang("en")
+@staff_member_required
 def eagle_eye(request):
     lib_ng = True
     return render_to_response("eagle_eye.html", locals(), context_instance=RequestContext(request))

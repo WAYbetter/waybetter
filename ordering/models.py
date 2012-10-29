@@ -521,8 +521,7 @@ class SharedRide(BaseRide):
             'status': self.get_status_label(),
             'taxi': self.taxi.number if self.taxi else "NA",
             'station': self.station.name if self.station else "NA",
-            'value': self.value or "NA",
-            'debug': self.debug,
+            'debug': self.debug
             }
 
     def serialize_for_ws(self):
