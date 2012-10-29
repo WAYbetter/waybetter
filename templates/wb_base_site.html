@@ -20,77 +20,80 @@
 {% endblock %}
 
 {% block body %}
-    <div class="navbar navbar-fixed-top">
-        <div class="navbar-inner">
-            <div class="container">
-                <a class="btn btn-primary btn-dropnav" data-toggle="collapse" data-target=".nav-collapse">
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </a>
-                <a id="wbLogo" class="brand" href="{% url wb_home %}"></a>
+        <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a class="btn btn-primary btn-dropnav" data-toggle="collapse" data-target=".nav-collapse">
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                        <span class="icon-bar"></span>
+                    </a>
+                    <a id="wbLogo" class="brand" href="{% url wb_home %}"></a>
 
-                <div class="nav-collapse collapse">
-                    <ul class="nav pull-right">
-                        <li><a href="{% url about_us %}">{% trans "About" %}</a></li>
-                        <li><a href="#">{% trans "Get the App" %}</a></li>
-                        <li>
-                            {% if request.user.is_authenticated %}
-                                <a>{{ request.user.username }}</a>
-                                {% else %}
-                                <a href="{% url auth_login %}">{% trans "Login" %}</a>
-                            {% endif %}
-                        </li>
-                    </ul>
+                    {% block user_tools %}
+                    <div class="nav-collapse collapse">
+                        <ul class="nav pull-right">
+                            <li><a href="{% url about_us %}">{% trans "About" %}</a></li>
+                            <li><a href="#">{% trans "Get the App" %}</a></li>
+                            <li>
+                                {% if request.user.is_authenticated %}
+                                    <a>{{ request.user.username }}</a>
+                                    {% else %}
+                                    <a href="{% url auth_login %}">{% trans "Login" %}</a>
+                                {% endif %}
+                            </li>
+                        </ul>
+                    </div>
+                    {% endblock %}
                 </div>
             </div>
         </div>
-    </div>
 
     {% block header %}{% endblock %}
     {% block content %}{% endblock %}
-
-    <div id="footer">
-        <div class="container">
-            <div class="row">
-                <div class="span3">
-                    <h3>WAYbetter</h3>
-                    <ul>
-                        <li><a href="#">{% trans "Home" %}</a></li>
-                        <li><a href="#">PickMeApp</a></li>
-                        <li><a href="#">{% trans "Terms of Use" %}</a></li>
-                        <li><a href="#">{% trans "Privacy Policy" %}</a></li>
-                    </ul>
-                </div>
-                <div class="span3">
-                    <h3>{% trans "About" %}</h3>
-                    <ul>
-                        <li><a href="#">{% trans "How it Works?" %}</a></li>
-                        <li><a href="#">{% trans "FAQ" %}</a></li>
-                        <li><a href="#">{% trans "About Us" %}</a></li>
-                        <li><a href="#">{% trans "Contact" %}</a></li>
-                        <li><a href="#">{% trans "Press" %}</a></li>
-                    </ul>
-                </div>
-                <div class="span3">
-                    <h3>{% trans "Community" %}</h3>
-                    <ul>
-                        <li><a href="#">{% trans "Blog" %}</a></li>
-                        <li><a href="#">{% trans "Facebook" %}</a></li>
-                        <li><a href="#">{% trans "Twitter" %}</a></li>
-                    </ul>
-                </div>
-                <div class="span3">
-                    <h3>{% trans "My Account" %}</h3>
-                    <ul>
-                        <li><a href="#">{% trans "My Rides" %}</a></li>
-                        <li><a href="#">{% trans "My Account" %}</a></li>
-                        <li><a href="#">{% trans "Logout" %}</a></li>
-                    </ul>
+    {% block footer %}
+        <div id="footer">
+            <div class="container">
+                <div class="row">
+                    <div class="span3">
+                        <h3>WAYbetter</h3>
+                        <ul>
+                            <li><a href="#">{% trans "Home" %}</a></li>
+                            <li><a href="#">PickMeApp</a></li>
+                            <li><a href="#">{% trans "Terms of Use" %}</a></li>
+                            <li><a href="#">{% trans "Privacy Policy" %}</a></li>
+                        </ul>
+                    </div>
+                    <div class="span3">
+                        <h3>{% trans "About" %}</h3>
+                        <ul>
+                            <li><a href="#">{% trans "How it Works?" %}</a></li>
+                            <li><a href="#">{% trans "FAQ" %}</a></li>
+                            <li><a href="#">{% trans "About Us" %}</a></li>
+                            <li><a href="#">{% trans "Contact" %}</a></li>
+                            <li><a href="#">{% trans "Press" %}</a></li>
+                        </ul>
+                    </div>
+                    <div class="span3">
+                        <h3>{% trans "Community" %}</h3>
+                        <ul>
+                            <li><a href="#">{% trans "Blog" %}</a></li>
+                            <li><a href="#">{% trans "Facebook" %}</a></li>
+                            <li><a href="#">{% trans "Twitter" %}</a></li>
+                        </ul>
+                    </div>
+                    <div class="span3">
+                        <h3>{% trans "My Account" %}</h3>
+                        <ul>
+                            <li><a href="#">{% trans "My Rides" %}</a></li>
+                            <li><a href="#">{% trans "My Account" %}</a></li>
+                            <li><a href="#">{% trans "Logout" %}</a></li>
+                        </ul>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    {% endblock %}
 
     <div id="copywrite">
         <div class="container">
