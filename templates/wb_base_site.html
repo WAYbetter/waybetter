@@ -47,7 +47,7 @@
 
                 <div class="nav-collapse collapse">
                     <ul class="nav pull-right">
-                        <li><a href="{% url about_us %}">{% trans "About" %}</a></li>
+                        <li><a href="{% url about %}">{% trans "About" %}</a></li>
                         <li><a href="#">{% trans "Get the App" %}</a></li>
                         <li>
                             {% if request.user.is_authenticated %}
@@ -82,35 +82,35 @@
                 <div class="span3">
                     <h3>WAYbetter</h3>
                     <ul>
-                        <li><a href="#">{% trans "Home" %}</a></li>
-                        <li><a href="#">PickMeApp</a></li>
-                        <li><a href="#">{% trans "Terms of Use" %}</a></li>
-                        <li><a href="#">{% trans "Privacy Policy" %}</a></li>
+                        <li><a href="{% url wb_home %}">{% trans "Home" %}</a></li>
+                        <li><a href="{% url pickmeapp %}">PickMeApp</a></li>
+                        <li><a href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
+                        <li><a href="{% url privacy %}">{% trans "Privacy Policy" %}</a></li>
                     </ul>
                 </div>
                 <div class="span3">
                     <h3>{% trans "About" %}</h3>
                     <ul>
-                        <li><a href="#">{% trans "How it Works?" %}</a></li>
-                        <li><a href="#">{% trans "FAQ" %}</a></li>
-                        <li><a href="#">{% trans "About Us" %}</a></li>
-                        <li><a href="#">{% trans "Contact" %}</a></li>
-                        <li><a href="#">{% trans "Press" %}</a></li>
+                        <li><a href="{% url about %}#howitworks">{% trans "How it Works?" %}</a></li>
+                        <li><a href="{% url about %}#faq">{% trans "FAQ" %}</a></li>
+{#                        <li><a href="#">{% trans "About Us" %}</a></li>#}
+                        <li><a href="{% url about %}#contact">{% trans "Contact" %}</a></li>
+{#                        <li><a href="#">{% trans "Press" %}</a></li>#}
                     </ul>
                 </div>
                 <div class="span3">
                     <h3>{% trans "Community" %}</h3>
                     <ul>
-                        <li><a href="#">{% trans "Blog" %}</a></li>
-                        <li><a href="#">{% trans "Facebook" %}</a></li>
-                        <li><a href="#">{% trans "Twitter" %}</a></li>
+{#                        <li><a href="#">{% trans "Blog" %}</a></li>#}
+                        <li><a href="{% value_from_settings FACEBOOK_APP_URL %}">{% trans "Facebook" %}</a></li>
+                        <li><a href="{% value_from_settings TWITTER_APP_URL %}">{% trans "Twitter" %}</a></li>
                     </ul>
                 </div>
                 <div class="span3">
                     <h3>{% trans "My Account" %}</h3>
                     <ul>
-                        <li><a href="#">{% trans "My Rides" %}</a></li>
-                        <li><a href="#">{% trans "My Account" %}</a></li>
+                        <li><a href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
+                        <li><a href="{% url user_profile %}">{% trans "My Account" %}</a></li>
                         <li><a href="{% url auth_logout %}">{% trans "Logout" %}</a></li>
                     </ul>
                 </div>
