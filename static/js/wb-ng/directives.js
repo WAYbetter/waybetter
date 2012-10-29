@@ -2,7 +2,7 @@ var module = angular.module('wbDirectives', ['wbMessages']);
 
 // todo: translate. see https://docs.djangoproject.com/en/1.3/topics/i18n/internationalization/#specifying-translation-strings-in-javascript-code
 
-module.directive("offer", function () {
+module.directive("offer", function (DefaultMessages) {
     return {
         restrict: 'E',
         replace: true,
@@ -13,12 +13,12 @@ module.directive("offer", function () {
                     <ride-pics-for-offer></ride-pics-for-offer> \
                 </div> \
                 <div class="offer-pickup-details span4"> \
-                    <strong>Pickup: (( offer.pickup_time | wb_date:"EEE d/M" )) ((  offer.pickup_time | date:"H:mm" ))</strong> \
-                    <div>(( offer.seats_left )) Availabe Seats</div> \
+                    <strong>' + DefaultMessages.pickup +  ': (( offer.pickup_time | wb_date:"EEE d/M" )) ((  offer.pickup_time | date:"H:mm" ))</strong> \
+                    <div>(( offer.seats_left )) ' + DefaultMessages.available_seats + '</div> \
                 </div> \
                 <div class="offer-price-details span4"> \
                     <strong class="price">(( offer.price | currency:"₪" ))</strong> \
-                    <span>or less</span> \
+                    <span>' + DefaultMessages.or_less + '</span> \
                 </div> \
             </div>'
     }
@@ -67,7 +67,7 @@ module.directive("ridePicsForOffer", function () {
         '
     }
 });
-module.directive("ridePicsYou", function () {
+module.directive("ridePicsYou", function (DefaultMessages) {
     return {
         restrict: 'E',
         replace: true,
@@ -80,7 +80,7 @@ module.directive("ridePicsYou", function () {
                         <div class="pic add-picture" ng-switch-when="false" ng-click="update_picture()"></div> \
                     </div> \
                 </div> \
-                <div class="name">את/ה</div> \
+                <div class="name">' + DefaultMessages.you + '</div> \
             </div> \
         '
     }

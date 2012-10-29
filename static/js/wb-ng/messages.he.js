@@ -1,7 +1,12 @@
 var module = angular.module('wbMessages', []);
 
+module.constant('ASAP', "מיידי");
 module.constant('DefaultMessages', {
         today: "היום",
+        or_less: "או פחות",
+        pickup: "איסוף",
+        available_seats: "מושבים פנויים",
+        you: "את/ה",
         connection_error:'לא ניתן להשלים את הפעולה עקב שגיאה או בעיית חיבור לרשת',
         loading_offers_1: "מאתר נסיעות חופפות",
         loading_offers_2: "מחשב זמני נסיעה",

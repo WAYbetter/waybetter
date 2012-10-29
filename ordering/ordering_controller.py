@@ -5,7 +5,6 @@ import logging
 import traceback
 import urllib
 from django.core.urlresolvers import reverse
-from django.utils.translation import get_language_from_request
 from django.views.decorators.csrf import csrf_exempt
 from billing.billing_manager import  get_token_url
 from billing.enums import BillingStatus
@@ -17,7 +16,7 @@ from django.template.context import RequestContext
 from django.conf import settings
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponse, HttpResponseRedirect
-from django.utils.translation import ugettext_lazy, ugettext as _
+from django.utils.translation import ugettext_lazy, get_language_from_request, ugettext, ugettext as _
 from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
@@ -199,7 +198,7 @@ def fb_share(request):
         'link': settings.DEFAULT_DOMAIN,
         'picture': 'http://www.waybetter.com/static/images/wb_site/wb_beta_logo.png',
         'name': 'WAYbetter',
-        'description': _('WAYbetter is the easiest way to get from A to B'),
+        'description': ugettext('WAYbetter is the easiest way to get from A to B').encode("utf-8"),
         'redirect_uri': "http://%s" % settings.DEFAULT_DOMAIN,
         'display': 'touch' if request.mobile else 'page'
     }
