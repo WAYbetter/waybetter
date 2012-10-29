@@ -3,20 +3,35 @@
 {% load value_from_settings %}
 
 {% block extrastyle %}
-    <link href="/static/themes/bootstrap-bounce/css/bootstrap.min.css" rel="stylesheet">
-	<link href="/static/themes/bootstrap-bounce/css/bootstrap-responsive.min.css" rel="stylesheet">
-	<link href="/static/themes/bootstrap-bounce/css/font-awesome.css" rel="stylesheet">
-	<link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-	<!--[if lt IE 8]>
-	  <link href="/static/themes/bootstrap-bounce/css/font-awesome-ie7.css" rel="stylesheet">
-    <![endif]-->
-    <link href="/static/themes/bootstrap-bounce/css/base.css" rel="stylesheet">
-	<link href="/static/themes/bootstrap-bounce/css/blue.css" rel="stylesheet">
+    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    {% if LANGUAGE_BIDI %}
+        <link href="/static/themes/bootstrap-bounce/css/bootstrap.min.rtl.css" rel="stylesheet">
+        <link href="/static/themes/bootstrap-bounce/css/bootstrap-responsive.min.rtl.css" rel="stylesheet">
+        <link href="/static/themes/bootstrap-bounce/css/font-awesome.rtl.css" rel="stylesheet">
+        <!--[if lt IE 8]>
+          <link href="/static/themes/bootstrap-bounce/css/font-awesome-ie7.rtl.css" rel="stylesheet">
+        <![endif]-->
+        <link href="/static/themes/bootstrap-bounce/css/base.rtl.css" rel="stylesheet">
+        <link href="/static/themes/bootstrap-bounce/css/blue.rtl.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/static/css/wb.rtl.css"/>
+
+        <link rel="stylesheet" type="text/css" href="/static/css/wb.rtl.override.css"/>
+
+    {% else %}
+        <link href="/static/themes/bootstrap-bounce/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/themes/bootstrap-bounce/css/bootstrap-responsive.min.css" rel="stylesheet">
+        <link href="/static/themes/bootstrap-bounce/css/font-awesome.css" rel="stylesheet">
+        <!--[if lt IE 8]>
+          <link href="/static/themes/bootstrap-bounce/css/font-awesome-ie7.css" rel="stylesheet">
+        <![endif]-->
+        <link href="/static/themes/bootstrap-bounce/css/base.css" rel="stylesheet">
+        <link href="/static/themes/bootstrap-bounce/css/blue.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/static/css/wb.css"/>
+    {% endif %}
+
     <!--[if lt IE 9]>
       <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
     <![endif]-->
-
-    <link rel="stylesheet" type="text/css" href="/static/css/wb.css"/>
 {% endblock %}
 
 {% block body %}
