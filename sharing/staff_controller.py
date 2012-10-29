@@ -17,7 +17,7 @@ from django.utils import simplejson, translation
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
-from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_now_min, default_tz_now_max
+from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_now_min, default_tz_now_max, IsraelTimeZone
 import dateutil
 from djangotoolbox.http import JSONResponse
 import ordering
@@ -677,11 +677,11 @@ def eagle_eye(request):
 
 @force_lang("en")
 def eagle_eye_data(request):
-    start_date = dateutil.parser.parse(request.GET.get("start_date"))
-    end_date = dateutil.parser.parse(request.GET.get("end_date"))
+    start_date = dateutil.parser.parse(request.GET.get("start_date")).astimezone(IsraelTimeZone())
+    end_date = dateutil.parser.parse(request.GET.get("end_date")).astimezone(IsraelTimeZone())
 
-    start_date = datetime.combine(start_date, set_default_tz_time(dt_time.min))
-    end_date = datetime.combine(end_date, set_default_tz_time(dt_time.max))
+    start_date = datetime.combine(start_date, dt_time.min)
+    end_date = datetime.combine(end_date, dt_time.max)
 
     logging.info("start_date = %s, end_date = %s" % (start_date, end_date))
 

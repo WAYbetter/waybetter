@@ -241,7 +241,7 @@
                 $scope.updating = true;
                 $scope.rides = [];
                 $scope.incomplete_orders = [];
-                $http.get('{% url sharing.staff_controller.eagle_eye_data %}', {params:{start_date:$scope.start_date.toISOString(), end_date:$scope.end_date.toISOString() }}).success(function (data) {
+                $http.get('{% url sharing.staff_controller.eagle_eye_data %}', {params:{start_date:$scope.start_date.toUTCString(), end_date:$scope.end_date.toUTCString() }}).success(function (data) {
                     $scope.updating = false;
                     $scope.rides = data.rides;
                     $scope.incomplete_orders = data.incomplete_orders;
