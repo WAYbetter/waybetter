@@ -11,7 +11,7 @@ from billing.billing_manager import  get_token_url
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction
 from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime
-from common.util import first, Enum, dict_to_str_keys, datetimeIterator, notify_by_email
+from common.util import first, Enum, dict_to_str_keys, datetimeIterator
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
@@ -22,10 +22,9 @@ from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
 from ordering.enums import RideStatus
-from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, PENDING, Passenger, CHARGED, RideEvent, CANCELLED
+from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED
 from pricing.models import TARIFFS, RuleSet
 from sharing.algo_api import AlgoField
-from sharing import signals as sharing_signals
 import simplejson
 import datetime
 import dateutil.parser
@@ -457,6 +456,9 @@ def cancel_order(request, passenger):
 @csrf_exempt
 def book_ride(request):
     passenger = Passenger.from_request(request)
+    request_data = simplejson.loads(request.POST.get('data'))
+    logging.info("book ride: %s\n%s" % (passenger, unicode(simplejson.dumps(request_data), "unicode-escape")))
+
     result = {
         'status': '',
         'order_id': None,
@@ -467,9 +469,7 @@ def book_ride(request):
 
     if passenger and passenger.user and hasattr(passenger, "billing_info"): # we have logged-in passenger with billing_info - let's proceed
         order_settings = OrderSettings.fromRequest(request)
-        request_data = simplejson.loads(request.POST.get('data'))
         ride_id = int(request_data.get("ride_id", NEW_ORDER_ID))
-
         order = create_order(order_settings, passenger, ride_id)
 
         if order:
@@ -489,12 +489,13 @@ def book_ride(request):
             result['error'] = 'Booking failed for some reason'
 
     else: # not authorized for booking
-        if not hasattr(passenger, "billing_info"):
+        if passenger and not hasattr(passenger, "billing_info"):
             result['status'] = 'billing_failed'
             result['redirect'] = get_token_url(request) # go to billing
         else:
             result['status'] = 'auth_failed'
 
+    logging.info("book ride result: %s" % result)
     return JSONResponse(result)
 
 

@@ -1,4 +1,4 @@
-var module = angular.module('wbDirectives', []);
+var module = angular.module('wbDirectives', ['wbDefaults']);
 
 // todo: translate. see https://docs.djangoproject.com/en/1.3/topics/i18n/internationalization/#specifying-translation-strings-in-javascript-code
 
@@ -7,8 +7,7 @@ module.directive("offer", function () {
         restrict: 'E',
         replace: true,
         template: '\
-        <div class="offer">\
-            <div class="row-fluid" ng-click="choose_offer(offer)"> \
+            <div class="offer row-fluid"> \
                 <div class="offer-passengers span4"> \
                     <div class="type-indicator"></div>\
                     <ride-pics-for-offer></ride-pics-for-offer> \
@@ -18,15 +17,24 @@ module.directive("offer", function () {
                     <div>(( offer.seats_left )) Availabe Seats</div> \
                 </div> \
                 <div class="offer-price-details span4"> \
-                    <strong class="price">(( offer.price | number:1 )) ₪</strong> \
+                    <strong class="price">(( offer.price | currency:"₪" ))</strong> \
                     <span>or less</span> \
                 </div> \
-            </div> \
-            <div class="offer-action row-fluid" ng-show="selected_offer == offer"> \
-                <div class="offer-comment span8" ng-show="offer.comment">(( offer.comment ))</div> \
-                <div class="span4 pull-right"><button class="btn btn-primary btn-large" ng-click="book_ride()">Join Ride</button></div> \
-            </div> \
-        </div>'
+            </div>'
+    }
+});
+module.directive("offerAction", function (DefaultMessages) {
+    return {
+        restrict: 'E',
+        compile: function(element, attrs){
+            var action_text = attrs.type == "existing" ? DefaultMessages.book_existing_ride_txt : DefaultMessages.book_new_ride_txt;
+            var html_text = '<div class="offer-action row-fluid">' +
+                                '<div class="offer-comment span8" ng-show="offer.comment">(( offer.comment ))</div>' +
+                                '<div class="span4 pull-right"><button class="btn btn-warning btn-block btn-large" ng-click="book_ride()" ng-disabled="loading">' + action_text +' </button></div>' +
+                                '<div class="clearfix"></div>' +
+                            '</div>';
+            element.replaceWith(html_text);
+        }
     }
 });
 module.directive("offerSep", function () {

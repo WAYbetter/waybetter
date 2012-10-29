@@ -11,7 +11,9 @@ module.constant('DefaultURLS', {
 
     get_offers: '/get_offers/',
     get_private_offers: '/get_private_offer/',
-    get_order_billing_status: '/get_order_billing_status/'
+    get_order_billing_status: '/get_order_billing_status/',
+
+    auth_failed_redirect: '/registration/'
 });
 module.constant('DefaultMessages', {
         connection_error:'לא ניתן להשלים את הפעולה עקב שגיאה או בעיית חיבור לרשת',
@@ -19,8 +21,12 @@ module.constant('DefaultMessages', {
         loading_offers_2: "מחשב זמני נסיעה",
         loading_offers_3: "מעדכן מוניות",
         loading_book_ride: "Processing Order...",
+        loading_private_offer: "Calculating private ride price",
         confirm_cancel_order: "",
-        no_offers: "No matching rides found"
+        no_offers: "No matching rides found",
+
+        book_existing_ride_txt: 'Join Ride',
+        book_new_ride_txt: 'Start New Ride'
     }
 );
 

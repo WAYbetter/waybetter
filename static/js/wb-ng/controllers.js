@@ -1,6 +1,7 @@
 var module = angular.module('wbControllers', ['wbServices', 'wbDefaults']);
 
-module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, BookingService, NotificationService, wbEvents, DefaultMessages, ASAP) {
+module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, BookingService, NotificationService, wbEvents, DefaultMessages, DefaultURLS, ASAP) {
+    $scope.loading = false;
     $scope.logged_in = false;
     $scope.passenger_picture_url = undefined;
 
@@ -32,9 +33,11 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
     $scope.loading_message = "";
 
     function set_loading_message(m){
+        $scope.loading = true;
         $scope.loading_message = m;
     }
     function clear_loading_message(){
+        $scope.loading = false;
         $scope.loading_message = "";
     }
 
@@ -74,8 +77,10 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
             return;
         }
 
+        set_loading_message(DefaultMessages.loading_private_offer);
         var booking_data = get_booking_data({ private:true });
         BookingService.get_private_offers(booking_data).then(function (private_offers) {
+            clear_loading_message();
             if (private_offers && private_offers.length) {
                 $scope.selected_offer = private_offers[0];
                 $scope.private_price = $scope.selected_offer.price;
@@ -84,9 +89,10 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
             }
 
         }, function (message) {
+            clear_loading_message();
             $scope.private_price = undefined;
             $scope.is_private = false;
-            NotificationService.alert(message);
+            $scope.booking_error = message;
         });
     }
 
@@ -175,9 +181,9 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
             } else { // booking was not successful
                 clear_loading_message();
                 if (booking_result.redirect) {
-                    // todo redirect
+                    window.location.href = booking_result.redirect;
                 } else if (status == 'auth_failed') {
-                    // todo login
+                    window.location.href = DefaultURLS.auth_failed_redirect;
                 } else {
                     $scope.booking_error = DefaultMessages.connection_error;
                 }

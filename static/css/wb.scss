@@ -31,7 +31,6 @@
   background-image: none !important;
 }
 
-
 /* Sidenav from Bootstrap docs
 -------------------------------------------------- */
 
@@ -173,17 +172,26 @@
         text-align: left;
         border-radius: 5px;
     }
+    #alerts{
+        height: 40px;
+        margin-bottom: 10px;
+        text-align: center;
+    }
     #map-container{
         box-sizing: border-box;
-        height: 500px;
+        height: 480px;
         padding: 4px;
         border-radius: 5px;
         overflow: hidden;
         border: 2px solid #F1F1F1;
     }
     #map{
-        height: 500px;
+        height: 480px;
         border-radius: 5px;
+    }
+    #booking-form{
+        box-sizing: border-box;
+        height: 480px;
     }
     #booking-form .control-label{
         background: url(/static/images/wb_site/1.2/booking_icons.png) left top no-repeat;
@@ -192,6 +200,9 @@
     #booking-form .control-label.ride-type{ background-position: 0 -62px; }
     #booking-form .control-label.luggage{ background-position: 0 -124px; }
     #booking-form .control-label.seats{ background-position: 0 -188px; }
+    #booking-form #private-price {
+        text-align: center;
+    }
 
     #booking-form input[type="text"]{
         margin-bottom: 20px;
@@ -237,6 +248,7 @@
         box-sizing: border-box;
         padding: 20px 0;
         cursor:pointer;
+        text-align: center;
     }
     .offer-passengers{
         position: relative;
@@ -258,6 +270,7 @@
     .offer-pickup-details{
         height: 70px;
         border-right: 1px dotted gray;
+        padding: 10px 0;
     }
     .offer-price-details{
         height: 70px;
@@ -267,11 +280,13 @@
     }
     .offer-action{
         box-sizing: border-box;
-        padding: 15px 15px 0;
+        padding: 15px;
     }
     .offer-comment{
-        padding: 15px;
+        padding: 11px;
         background: #E9E9E9;
+        border-radius: 5px;
+        text-align: center;
     }
     .offer-sep{
         position: absolute;
@@ -299,7 +314,15 @@
         margin-top: 15px;
         text-align: left;
     }
-    #summary{
+    #summary-header{
+        padding: 10px 70px;
+        box-sizing: border-box;
+        background: url(../images/wb_site/1.2/billing_status.png) 30px center no-repeat;
+    }
+    #summary-header + hr{
+        margin: 0;
+    }
+    #summary-footer{
         padding: 10px;
         text-align: left;
         background-color: #F1F1F1;
@@ -308,6 +331,11 @@
         padding: 15px;
     }
     #summary-buttons{
+        i.icon-facebook{
+            font-size: 1.5em;
+            line-height: .7em;
+            margin-right: .3em;
+        }
     }
 }
 

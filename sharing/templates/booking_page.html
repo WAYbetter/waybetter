@@ -7,171 +7,208 @@
 {% block headertext %}{% trans "Book a Ride" %}{% endblock %}
 
 {% block content %}
-    <div id="content" class="txt-middle" ng-app="BookingApp">
+    <div id="content" ng-app="BookingApp">
         <div class="container" ng-controller="BookingCtrl" ng-init="sync()" ng-cloak>
-            <div class="alert alert-info" ng-show="loading_message"> (( loading_message )) </div>
-            <div class="alert alert-error" ng-show="booking_error"> (( booking_error )) </div>
+            <div class="row-fluid">
 
-            <!-- step1: booking controls and map -->
-            <div class="row-fluid" ng-hide="offers.length">
-                <div id="booking-form" class="span4 booking-panel">
-                    <form class="form-horizontal" ng-submit="get_offers()">
-                        <div class="row-fluid">
-                            <div class="input-prepend span12">
-                                <span class="add-on"><i class="icon-map-marker"></i></span>
-                                <input class="span11" type="text" placeholder="{% trans "Pickup Address" %}" wb-pac address="pickup">
-                            </div>
-                        </div>
-                        <div class="row-fluid">
-                            <div class="input-prepend span12">
-                                <span class="add-on"><i class="icon-map-marker"></i></span>
-                                <input class="span11" type="text" placeholder="{% trans "Dropoff Address" %}" wb-pac address="dropoff">
-                            </div>
-                        </div>
+                <div class="span4">
 
-                        <hr class="dashed">
-
-                        <div class="control-group">
-                            <label class="control-label time span2"></label>
-                            <div class="controls controls-row span10">
-                                <div class="row-fluid">
-                                    <select class="span6 btn" ng-model="pickup_date" ng-options="item as item | wb_date:'EEE d/M' for item in pickup_date_options()"></select>
-                                    <select id="pickup-time" class="span6 btn" ng-model="pickup_time" ng-options="item as item for item in pickup_time_options()"></select>
+                    <!-- 1. Booking Form -->
+                    <div id="booking-form" class="booking-panel" ng-hide="offers.length">
+                        <form class="form-horizontal">
+                            <div class="row-fluid">
+                                <div class="input-prepend span12">
+                                    <span class="add-on"><i class="icon-map-marker"></i></span>
+                                    <input class="span11" type="text" placeholder="{% trans "Pickup Address" %}" wb-pac
+                                           address="pickup" value="(( pickup.formatted_address ))">
                                 </div>
                             </div>
-                        </div>
-                        <div class="control-group">
-                            <label class="control-label ride-type span2"></label>
-                            <div class="controls controls-row span10">
-                                <select class="btn btn-block" ng-model="is_private"
-                                        ng-options="item.value as item.label for item in [{label: '{% trans 'Shared' %}', value:false}, {label: '{% trans 'Private' %}', value:true}]">>
-                                </select>
+                            <div class="row-fluid">
+                                <div class="input-prepend span12">
+                                    <span class="add-on"><i class="icon-map-marker"></i></span>
+                                    <input class="span11" type="text" placeholder="{% trans "Dropoff Address" %}" wb-pac
+                                           address="dropoff" value="(( dropoff.formatted_address ))">
+                                </div>
                             </div>
-                        </div>
-                        <div class="control-group">
-                            <label class="control-label luggage span2"></label>
-                            <div class="controls controls-row span10">
-                                <select class="btn btn-block" ng-model="has_luggage"
-                                        ng-options="item.value as item.label for item in [{label: '{% trans 'No Luggage' %}', value:false}, {label: '{% trans 'With Luggage' %}', value:true}]">
-                                </select>
-                            </div>
-                        </div>
-                        <div class="control-group">
-                            <label class="control-label seats span2"></label>
-                            <div class="controls controls-row span10">
-                                <select class="btn btn-block" ng-model="num_seats"
-                                        ng-options="item for item in [1,2]"></select>
-                            </div>
-                        </div>
 
+                            <hr class="dashed">
+
+                            <div class="control-group">
+                                <label class="control-label time span2"></label>
+
+                                <div class="controls controls-row span10">
+                                    <div class="row-fluid">
+                                        <select class="span6 btn" ng-model="pickup_date"
+                                                ng-options="item as item | wb_date:'EEE d/M' for item in pickup_date_options()"></select>
+                                        <select id="pickup-time" class="span6 btn" ng-model="pickup_time"
+                                                ng-options="item as item for item in pickup_time_options()"></select>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label ride-type span2"></label>
+
+                                <div class="controls controls-row span10">
+                                    <select class="btn btn-block" ng-model="is_private"
+                                            ng-options="item.value as item.label for item in [{label: '{% trans 'Shared' %}', value:false}, {label: '{% trans 'Private' %}', value:true}]">>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="control-group">
+                                <label class="control-label luggage span2"></label>
+
+                                <div class="controls controls-row span10">
+                                    <select class="btn btn-block" ng-model="has_luggage"
+                                            ng-options="item.value as item.label for item in [{label: '{% trans 'No Luggage' %}', value:false}, {label: '{% trans 'With Luggage' %}', value:true}]">
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="control-group" ng-hide="private_price">
+                                <label class="control-label seats span2"></label>
+
+                                <div class="controls controls-row span10">
+                                    <select class="btn btn-block" ng-model="num_seats"
+                                            ng-options="item for item in [1,2]"></select>
+                                </div>
+                            </div>
+                            <div id="private-price" ng-show="private_price">
+                                <p class="text-info">
+                                    <strong>{% trans "Private ride price" %} (( private_price | currency:"₪"))</strong>
+                                </p>
+                            </div>
+
+                            <hr class="dashed">
+                            <button class="btn btn-large btn-block btn-warning btn-large"
+                                    ng-disabled="!ready_to_order() || loading"
+                                    ng-click="get_offers()"
+                                    type="submit">{% trans "Find a Ride" %}</button>
+                        </form>
+                    </div>
+
+                    <!-- 2. Booking Details -->
+                    <div class="booking-panel" ng-show="offers.length">
+                        <h3>{% trans "Your Order Details" %}</h3>
                         <hr class="dashed">
-                        <p ng-show="private_price">{% trans "Private ride price" %} (( private_price | currency:"₪"))</p>
-                        <button class="btn btn-large btn-block btn-warning" ng-disabled="!ready_to_order() || loading_message" type="submit">{% trans "Find a Ride" %}</button>
-                    </form>
+                        <p>{% trans "From" %}: (( pickup.formatted_address ))</p>
+
+                        <p>{% trans "To" %}: (( dropoff.formatted_address ))</p>
+                        <hr class="dashed">
+                        <p ng-switch on="has_luggage">
+                            <span ng-switch-when="false">{% trans "No Luggage" %}</span>
+                            <span ng-switch-when="true">{% trans "With Luggage" %}</span>
+                        </p>
+
+                        <p>(( num_seats )) Seat</p> <!-- todo ngPluralize -->
+                        <p class="pull-right">
+                            <a href="#" ng-click="reset()">{% trans "change order settings" %}</a>
+                        </p>
+
+                        <div class="clearfix"></div>
+                    </div>
                 </div>
 
                 <div class="span8">
-                    <div id="map-container">
+                    <div id="alerts" ng-show="loading_message || booking_error">
+                        <div class="alert alert-info" ng-show="loading_message"> (( loading_message ))</div>
+                        <div class="alert alert-error" ng-show="booking_error"> (( booking_error ))</div>
+                    </div>
+
+                    <!-- 1. Map -->
+                    <div id="map-container" ng-hide="offers.length">
                         <div id="map" wb-map></div>
                     </div>
-                </div>
-            </div>
 
-            <!-- step2: booking summary and offers -->
-            <div class="row-fluid">
-                <div class="span4 booking-panel" ng-show="offers.length">
-                    <h3>{% trans "Your Order Details" %}</h3>
-                    <hr class="dashed">
-                    <p>{% trans "From" %}: (( pickup.formatted_address ))</p>
-                    <p>{% trans "To" %}: (( dropoff.formatted_address ))</p>
-                    <hr class="dashed">
-                    <p ng-switch on="has_luggage">
-                        <span ng-switch-when="false">{% trans "No Luggage" %}</span>
-                        <span ng-switch-when="true">{% trans "With Luggage" %}</span>
-                    </p>
-                    <p>(( num_seats )) Seat</p> <!-- todo ngPluralize -->
-                    <p>
-                        <a class="pull-right" href="#" ng-click="reset()">{% trans "change order settings" %}</a>
-                    </p>
-                </div>
-
-                <div class="span8" ng-show="offers.length && !booking_approved">
-                    <div id="offers-container" class="booking-container" ng-class="{'blur': selected_offer}">
-                        <div class="offers-cat">
-                            <div class="offers-cat-header">{% trans "Choose a Ride to Join" %}</div>
-                            <div class="no-match" ng-hide="existing_ride_offers().length" ng-class="{'disabled': selected_offer}">
-                                        לא נמצאו נסיעות מתאימות.
-                                        <br>
-                                        הזמינו נסיעה חדשה, ואחרים יצטרפו אליכם!
-                            </div>
-                            <div class="offers-list" ng-repeat="offer in existing_ride_offers() | orderBy:'pickup_time'">
-                                <offer class="existing" ng-class="{'focus': selected_offer == offer}"></offer>
-                                <offer-sep></offer-sep>
-                            </div>
-                        </div>
-                        <div class="offers-cat">
-                            <div class="offers-cat-header">{% trans "Start a New Ride" %}</div>
-                            <div class="offers-list" ng-repeat="offer in new_ride_offers() | orderBy:'pickup_time'">
-                                <offer class="new" ng-class="{'focus': selected_offer == offer}"></offer>
-                            </div>
-                        </div>
-                    </div>
-                    <div id="offers-disclaimer">
-                        {% trans "Price are determined by the Price Chart that is computed based on station cost." %}
-                    </div>
-                </div>
-
-                <!-- step3: booking result -->
-                <div class="span8 booking-container" ng-show="booking_approved">
-                    <h1>{% trans "Order Accepted" %}</h1>
-                    <hr class="dashed">
-
-                    <div class="offer existing">
-                        <div class="row-fluid">
-                            <div class="offer-passengers span4">
-                                <div class="type-indicator"></div>
-                                <div class="ride-pics">
-                                    <div class="ride-pics-col" ng-repeat="passenger in booking_result.passengers" ng-switch on="passenger.is_you">
-                                        <ride-pics-passenger ng-switch-when="false"></ride-pics-passenger>
-                                        <ride-pics-you ng-switch-when="true"></ride-pics-you>
-                                    </div>
-                                    <ride-pics-seat ng-repeat="x in []|range:booking_result.seats_left"></ride-pics-seat>
+                    <!-- 2. Offers -->
+                    <div ng-show="offers.length && !booking_approved">
+                        <div id="offers-container" class="booking-container" ng-class="{'blur': selected_offer}">
+                            <div class="offers-cat">
+                                <div class="offers-cat-header">{% trans "Choose a Ride to Join" %}</div>
+                                <div class="no-match" ng-hide="existing_ride_offers().length"
+                                     ng-class="{'disabled': selected_offer}">
+                                    לא נמצאו נסיעות מתאימות.
+                                    <br>
+                                    הזמינו נסיעה חדשה, ואחרים יצטרפו אליכם!
+                                </div>
+                                <div class="offers-list"
+                                     ng-repeat="offer in existing_ride_offers() | orderBy:'pickup_time'">
+                                    <offer class="existing" ng-click="choose_offer(offer)" ng-class="{'focus': selected_offer == offer}"></offer>
+                                    <offer-action type="existing" ng-show="selected_offer == offer" ng-class="{'focus': selected_offer == offer}"></offer-action>
+                                    <offer-sep></offer-sep>
                                 </div>
                             </div>
-                            <div class="offer-pickup-details span4">
-                                <strong>Pickup: (( booking_result.pickup_dt | wb_date:"EEE d/M" )) (( booking_result.pickup_dt | date:"H:mm" ))</strong>
-                                <div>(( booking_result.seats_left )) {% trans "Availabe Seats" %}</div>
+                            <div class="offers-cat">
+                                <div class="offers-cat-header">{% trans "Start a New Ride" %}</div>
+                                <div class="offers-list" ng-repeat="offer in new_ride_offers() | orderBy:'pickup_time'">
+                                    <offer class="new" ng-click="choose_offer(offer)" ng-class="{'focus': selected_offer == offer}"></offer>
+                                    <offer-action type="new" ng-show="selected_offer == offer" ng-class="{'focus': selected_offer == offer}"></offer-action>
+                                </div>
                             </div>
-                            <div class="offer-price-details span4">
-                                <strong class="price">(( booking_result.price | number:1 )) ₪</strong><span>{% trans "or less" %}</span>
-                            </div>
+                        </div>
+                        <div id="offers-disclaimer">
+                            {% trans "Price are determined by the Price Chart that is computed based on station cost." %}
                         </div>
                     </div>
-                    <offer-sep></offer-sep>
 
-                    <div id="summary">
-                        <div id="summary-info">
-                            <ul>
-                                <li>{% trans "Taxi live tracking will be available upon notification" %}</li>
-                                <li>{% trans "We will notify you in case a better taxi is found or if someone had joined your ride" %}</li>
-                                <li>{% trans "Detailed verification email was sent to " %}{{ request.user.email }}</li>
-                            </ul>
+                    <!-- 3. Order Approved -->
+                    <div class="booking-container" ng-show="booking_approved">
+                        <div id="summary-header">
+                            <h2>{% trans "Order Accepted" %}</h2>
                         </div>
-                        <hr class="dashed">
-                        <h4>{% trans "Invite friends to join WAYbetter" %}</h4>
 
-                        <div id="summary-buttons" class="row-fluid">
-                            <div class="span6">
-                                <a href="{% url ordering.ordering_controller.fb_share %}" class="btn btn-large pull-left">{% trans "Share on Facebook" %}</a>
+                        <hr class="dashed">
+
+                        <!-- booking result -->
+                        <div class="offer existing">
+                            <div class="row-fluid">
+                                <div class="offer-passengers span4">
+                                    <div class="type-indicator"></div>
+                                    <div class="ride-pics">
+                                        <div class="ride-pics-col" ng-repeat="passenger in booking_result.passengers"
+                                             ng-switch on="passenger.is_you">
+                                            <ride-pics-passenger ng-switch-when="false"></ride-pics-passenger>
+                                            <ride-pics-you ng-switch-when="true"></ride-pics-you>
+                                        </div>
+                                        <ride-pics-seat
+                                                ng-repeat="x in []|range:booking_result.seats_left"></ride-pics-seat>
+                                    </div>
+                                </div>
+                                <div class="offer-pickup-details span4">
+                                    <strong>Pickup: (( booking_result.pickup_dt | wb_date:"EEE d/M" )) ((
+                                        booking_result.pickup_dt | date:"H:mm" ))</strong>
+
+                                    <div>(( booking_result.seats_left )) {% trans "Availabe Seats" %}</div>
+                                </div>
+                                <div class="offer-price-details span4">
+                                    <strong class="price">(( booking_result.price | currency:"₪" ))</strong><span> {% trans "or less" %}</span>
+                                </div>
                             </div>
-                            <div class="span6">
-                                <a href="{% url wb_home %}" class="btn btn-large btn-warning pull-right">{% trans "Back To Home" %}</a>
+                        </div>
+                        <offer-sep></offer-sep>
+
+                        <div id="summary-footer">
+                            <div id="summary-info">
+                                <ul>
+                                    <li>{% trans "Taxi live tracking will be available upon notification" %}</li>
+                                    <li>{% trans "We will notify you in case a better taxi is found or if someone had joined your ride" %}</li>
+                                    <li>
+                                        {% trans "Detailed verification email was sent to " %}{{ request.user.email }}</li>
+                                </ul>
+                            </div>
+                            <hr class="dashed">
+                            <h4>{% trans "Invite friends to join WAYbetter" %}</h4>
+
+                            <div id="summary-buttons" class="row-fluid">
+                                <div class="span6">
+                                    <a href="{% url ordering.ordering_controller.fb_share %}" class="btn btn-large btn-primary">
+                                        <i class="icon-facebook"></i> {% trans "Share on Facebook" %}</a>
+                                </div>
+                                <div class="span6">
+                                    <a href="{% url wb_home %}" class="btn btn-large btn-warning pull-right">{% trans "Back To Home" %}</a>
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
-
-
             </div>
         </div>
     </div>

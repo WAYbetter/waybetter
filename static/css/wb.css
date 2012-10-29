@@ -140,16 +140,23 @@
   background-color: #F1F1F1;
   text-align: left;
   border-radius: 5px; }
+.booking-page #alerts {
+  height: 40px;
+  margin-bottom: 10px;
+  text-align: center; }
 .booking-page #map-container {
   box-sizing: border-box;
-  height: 500px;
+  height: 480px;
   padding: 4px;
   border-radius: 5px;
   overflow: hidden;
   border: 2px solid #F1F1F1; }
 .booking-page #map {
-  height: 500px;
+  height: 480px;
   border-radius: 5px; }
+.booking-page #booking-form {
+  box-sizing: border-box;
+  height: 480px; }
 .booking-page #booking-form .control-label {
   background: url(/static/images/wb_site/1.2/booking_icons.png) left top no-repeat; }
 .booking-page #booking-form .control-label.time {
@@ -160,6 +167,8 @@
   background-position: 0 -124px; }
 .booking-page #booking-form .control-label.seats {
   background-position: 0 -188px; }
+.booking-page #booking-form #private-price {
+  text-align: center; }
 .booking-page #booking-form input[type="text"] {
   margin-bottom: 20px; }
 .booking-page #pickup-time {
@@ -190,7 +199,8 @@
 .booking-page .offer {
   box-sizing: border-box;
   padding: 20px 0;
-  cursor: pointer; }
+  cursor: pointer;
+  text-align: center; }
 .booking-page .offer-passengers {
   position: relative;
   border-right: 1px dotted gray; }
@@ -206,16 +216,19 @@
   background: #7AC2FF; }
 .booking-page .offer-pickup-details {
   height: 70px;
-  border-right: 1px dotted gray; }
+  border-right: 1px dotted gray;
+  padding: 10px 0; }
 .booking-page .offer-price-details {
   height: 70px;
   padding: 20px 0; }
 .booking-page .offer-action {
   box-sizing: border-box;
-  padding: 15px 15px 0; }
+  padding: 15px; }
 .booking-page .offer-comment {
-  padding: 15px;
-  background: #E9E9E9; }
+  padding: 11px;
+  background: #E9E9E9;
+  border-radius: 5px;
+  text-align: center; }
 .booking-page .offer-sep {
   position: absolute;
   width: 100%; }
@@ -236,12 +249,22 @@
 .booking-page #offers-disclaimer {
   margin-top: 15px;
   text-align: left; }
-.booking-page #summary {
+.booking-page #summary-header {
+  padding: 10px 70px;
+  box-sizing: border-box;
+  background: url(../images/wb_site/1.2/billing_status.png) 30px center no-repeat; }
+.booking-page #summary-header + hr {
+  margin: 0; }
+.booking-page #summary-footer {
   padding: 10px;
   text-align: left;
   background-color: #F1F1F1; }
 .booking-page #summary-info {
   padding: 15px; }
+.booking-page #summary-buttons i.icon-facebook {
+  font-size: 1.5em;
+  line-height: .7em;
+  margin-right: .3em; }
 
 /* About, FAQ, Contact
 -------------------------------------------------- */
