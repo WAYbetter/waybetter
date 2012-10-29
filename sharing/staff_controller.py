@@ -1,18 +1,13 @@
 # This Python file uses the following encoding: utf-8
-import calendar
-import gzip
 import os
-import pickle
 from django.contrib.auth.models import User
 from google.appengine.api import memcache
 from google.appengine.api.channel.channel import InvalidChannelClientIdError
 from common.geocode import gmaps_geocode, Bounds, gmaps_reverse_geocode
 from django.core.urlresolvers import reverse
 from google.appengine.ext.deferred import deferred
-from common.signals import async_computation_failed_signal, async_computation_completed_signal
 from google.appengine.api.channel import channel
-from billing.enums import BillingStatus
-from billing.models import BillingTransaction, BillingInfo
+from billing.models import BillingTransaction
 from common.decorators import force_lang
 from common.models import City
 from common.util import custom_render_to_response, get_uuid, base_datepicker_page, send_mail_as_noreply, is_in_hebrew
@@ -23,11 +18,12 @@ from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_now_min, default_tz_now_max
+import dateutil
 from djangotoolbox.http import JSONResponse
 import ordering
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
-from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS, Order, CHARGED, ACCEPTED, APPROVED, REJECTED, TIMED_OUT, FAILED, Passenger, SharedRide, Station
+from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS, Order, Passenger, SharedRide, IGNORED, REJECTED, FAILED, ERROR, TIMED_OUT, CANCELLED
 from pricing.views import hotspot_pricing_overview
 import sharing
 from sharing.forms import ConstraintsForm
@@ -36,6 +32,7 @@ from sharing.passenger_controller import HIDDEN_FIELDS
 from sharing.station_controller import show_ride
 from sharing.algo_api import submit_orders_for_ride_calculation
 from datetime import  datetime, date, timedelta
+from datetime import time as dt_time
 import logging
 import time
 import settings
@@ -374,8 +371,7 @@ def kpi(request):
 
 @staff_member_required
 def kpi_csv(request):
-    from analytics import kpi
-#    r = int(request.GET.get("range", 4))
+    #    r = int(request.GET.get("range", 4))
 #    deferred.defer(kpi.calc_kpi2, r)
 
 #    deferred.defer(kpi.calc_kpi3)
@@ -673,49 +669,36 @@ def submit_test_computation(orders, hotspot_type_raw, params, computation_set_na
 
     return algo_key
 
-#def orders_map():
-#    pass
-#def orders_reduce():
-#    pass
-#
-#def mapreduce_handler():
-#    pass
+@force_lang("en")
+@staff_member_required
+def eagle_eye(request):
+    lib_ng = True
+    return render_to_response("eagle_eye.html", locals(), context_instance=RequestContext(request))
 
-#class DjangoEntityInputReader(AbstractDatastoreInputReader):
-#  """An input reader that takes a Django model ('app.models.Model') and yields Keys for that model"""
-#
-#  def _iter_key_range(self, k_range):
-#    query = Query(util.for_name(self._entity_kind)).get_compiler(using="default").build_query()
-#    raw_entity_kind = query.db_table
-#
-#    query = k_range.make_ascending_datastore_query(
-#        raw_entity_kind, keys_only=True)
-#    for key in query.Run(
-#        config=datastore_query.QueryOptions(batch_size=self._batch_size)):
-#      yield key, key
-#
-#class LogPipeline(base_handler.PipelineBase):
-#    def run(self, val):
-#        logging.info("Pipeline log: %s" % val)
-#
-#class OrdersPipeline(base_handler.PipelineBase):
-#    def run(self):
-#        output = yield mapreduce_pipeline.MapreducePipeline(
-#            "order_stats",
-#            "orders_map",
-#            "orders_reduce",
-#            "DjangoEntityInputReader",
-#            "mapreduce.output_writers.BlobstoreOutputWriter",
-##            mapper_params={
-##                "blob_key": blobkey,
-##                },
-##            reducer_params={
-##                "mime_type": "text/plain",
-##                },
-#            shards=4)
-#
-#        yield LogPipeline(output)
-##        yield StoreOutput("WordCount", filekey, output)
+@force_lang("en")
+def eagle_eye_data(request):
+    start_date = dateutil.parser.parse(request.GET.get("start_date"))
+    end_date = dateutil.parser.parse(request.GET.get("end_date"))
+
+    start_date = datetime.combine(start_date, set_default_tz_time(dt_time.min))
+    end_date = datetime.combine(end_date, set_default_tz_time(dt_time.max))
+
+    rides = SharedRide.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date)
+    incomplete_orders = Order.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date)
+    incomplete_orders = filter(lambda o: o.status in [IGNORED, REJECTED, FAILED, ERROR, TIMED_OUT, CANCELLED], incomplete_orders)
+    result = {
+        'rides': [],
+        'incomplete_orders': []
+    }
+
+    for ride in rides:
+        result['rides'].append(ride.serialize_for_eagle_eye())
+
+    for order in incomplete_orders:
+        result['incomplete_orders'].append(order.serialize_for_eagle_eye())
+
+    return JSONResponse(result)
+
 
 TRACK_RIDES_CHANNEL_MEMCACHE_KEY = "track_rides_channel_memcache_key"
 #@staff_member_required

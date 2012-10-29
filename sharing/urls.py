@@ -7,6 +7,8 @@ urlpatterns = patterns('',
 
     (r'^track_rides/$', 'sharing.staff_controller.track_rides'),
     (r'^birdseye/$', 'sharing.staff_controller.birdseye_view'),
+    (r'^eagleeye/$', 'sharing.staff_controller.eagle_eye'),
+    (r'^eagleeye_data/$', 'sharing.staff_controller.eagle_eye_data'),
     (r'^kpi/$', 'sharing.staff_controller.kpi'),
     (r'^kpi_csv/$', 'sharing.staff_controller.kpi_csv'),
     (r'^count_q/$', 'sharing.staff_controller.count_query'),

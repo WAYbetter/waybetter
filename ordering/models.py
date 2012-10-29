@@ -65,19 +65,19 @@ CANCELLED = 11
 APPROVED = 12 # J5
 CHARGED = 13 # J4
 
-ASSIGNMENT_STATUS = ((PENDING, ugettext("pending")),
-                     (ASSIGNED, ugettext("assigned")),
-                     (ACCEPTED, ugettext("accepted")),
-                     (IGNORED, ugettext("ignored")),
-                     (REJECTED, ugettext("rejected")),
-                     (NOT_TAKEN, ugettext("not_taken")))
+ASSIGNMENT_STATUS = ((PENDING, _("pending")),
+                     (ASSIGNED, _("assigned")),
+                     (ACCEPTED, _("accepted")),
+                     (IGNORED, _("ignored")),
+                     (REJECTED, _("rejected")),
+                     (NOT_TAKEN, _("not_taken")))
 
-ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED, ugettext("failed")),
-                                    (ERROR, ugettext("error")),
-                                    (TIMED_OUT, ugettext("timed_out")),
-                                    (CANCELLED, ugettext("cancelled")),
-                                    (APPROVED, ugettext("approved")),
-                                    (CHARGED, ugettext("charged")))
+ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED, _("failed")),
+                                    (ERROR, _("error")),
+                                    (TIMED_OUT, _("timed_out")),
+                                    (CANCELLED, _("cancelled")),
+                                    (APPROVED, _("approved")),
+                                    (CHARGED, _("charged")))
 
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
@@ -513,6 +513,17 @@ class SharedRide(BaseRide):
            "\n".join([unicode(order) for order in orders]),
            "\n".join([unicode(order.passenger) for order in orders]))
 
+    def serialize_for_eagle_eye(self):
+        return {
+            'id': self.id,
+            'orders': [o.serialize_for_eagle_eye() for o in sorted(self.orders.all(), key=lambda o: o.depart_time, reverse=True)],
+            'start_time': to_js_date(self.depart_time),
+            'status': self.get_status_label(),
+            'taxi': self.taxi.number if self.taxi else "NA",
+            'station': self.station.name if self.station else "NA",
+            'debug': self.debug
+            }
+
     def serialize_for_ws(self):
         return {'pickups': [ { 'num_passengers': p.pickup_orders.count(),
                                'passenger_phones': [order.passenger.phone for order in p.pickup_orders.all()],
@@ -574,7 +585,7 @@ class SharedRide(BaseRide):
         return RideStatus.get_name(self.status)
 
     def driver_jist(self):
-        ws_lang_code = settings.LANGUAGES[self.station.language][0]
+        ws_lang_code = settings.LANGUAGES[self.station.language][0] if self.station else 'en'
         current_lang = translation.get_language()
         translation.activate(ws_lang_code)
 
@@ -1184,8 +1195,6 @@ class Order(BaseModel):
         if "price" in self.dirty_fields:
             order_price_changed_signal.send(sender="set_price_data", order=self, old_price=self.dirty_fields.get("price"), new_price=self.price)
 
-
-
     def __unicode__(self):
         id = self.id
         if self.to_raw:
@@ -1300,6 +1309,27 @@ class Order(BaseModel):
                 assignment.modify_date.ctime(), assignment.station.name, assignment.work_station.id, assignment.get_status_label().upper())
 
         notify_by_email(subject, msg)
+
+    def serialize_for_eagle_eye(self):
+        ride_points = list(self.ride.points.all()) if self.ride else []
+        pickup_idx = ride_points.index(self.pickup_point) + 1 if self.pickup_point else "?"
+        dropoff_idx = ride_points.index(self.dropoff_point) + 1 if self.dropoff_point else "?"
+
+        return {
+            "id": self.id,
+            "from_address": self.from_raw,
+            "pickup": to_js_date(self.pickup_point.stop_time) if self.pickup_point else "NA",
+            "pickup_idx": pickup_idx,
+            "to_address": self.to_raw,
+            "dropoff": to_js_date(self.dropoff_point.stop_time) if self.dropoff_point else "NA",
+            "dropoff_idx": dropoff_idx,
+            "create_date": to_js_date(self.create_date),
+            "passenger_name": self.passenger.name,
+            "passenger_phone": self.passenger_phone,
+            "num_seats": self.num_seats,
+            "price": self.price,
+            "status": self.get_status_label().upper()
+        }
 
     def serialize_for_sharing(self):
         return { "from_address": self.from_raw,
