@@ -99,6 +99,9 @@
         [ng\:cloak], [ng-cloak], .ng-cloak {
             display: none;
         }
+        h4 {
+            text-transform: uppercase
+        }
 
         @media (max-width: 767px) {
             .affix {
@@ -118,7 +121,7 @@
 
     <script type="text/javascript">
 
-        var app = angular.module("EagleEyeApp", ['ui']);
+        var app = angular.module("EagleEyeApp", ['ui', 'wbFilters']);
         app.config(function ($interpolateProvider, $httpProvider) {
             $interpolateProvider.startSymbol('((');
             $interpolateProvider.endSymbol('))');
@@ -186,8 +189,10 @@
 
             $scope.rides = [];
             $scope.incomplete_orders = [];
-            $scope.start_date = new Date("10/23/2012");
-            $scope.end_date = new Date("10/23/2012");
+            $scope.start_date = new Date();
+            $scope.end_date = new Date();
+//            $scope.start_date = new Date("10/23/2012");
+//            $scope.end_date = new Date("10/23/2012");
             $scope.updating = false;
             $scope.show_debug = false;
             $scope.ride_actions = {};
@@ -223,7 +228,7 @@
             };
 
             $scope.get_status_class = function (status) {
-                if (["APPROVED", "ACCEPTED"].indexOf(status.toUpperCase()) > -1) {
+                if (["APPROVED", "ACCEPTED", "CHARGED"].indexOf(status.toUpperCase()) > -1) {
                     return "label-success"
                 } else if (["ERROR", "CANCELLED", "FAILED"].indexOf(status.toUpperCase()) > -1) {
                     return "label-important"
@@ -235,9 +240,11 @@
             $scope.update = function () {
                 $scope.updating = true;
                 $scope.rides = [];
+                $scope.incomplete_orders = [];
                 $http.get('{% url sharing.staff_controller.eagle_eye_data %}', {params:{start_date:$scope.start_date.toISOString(), end_date:$scope.end_date.toISOString() }}).success(function (data) {
                     $scope.updating = false;
                     $scope.rides = data.rides;
+                    $scope.incomplete_orders = data.incomplete_orders;
                 }).error(function () {
                     $scope.updating = false;
                 })
@@ -262,20 +269,28 @@
                         <span class='add-on prepend-text'>End</span><input type='text' ng-model='end_date' ui-date class="input-small" ng-disabled="updating">
                     </div>
                     <label class="checkbox">
-                        <input type="checkbox" ng-model="show_debug"> Show Debug
+                        <input type="checkbox" ng-model="show_debug" ng-disabled="updating" > Show Debug
                     </label>
 
-                    <button ng-disabled="updating" ng-click="update()" class='btn btn-block'><i class="icon-thumbs-up"></i> Update
+                    <button ng-disabled="updating" ng-click="update()" class='btn btn-block'><i class="icon-refresh"></i> Update
                     </button>
 
                     <div ng-show="updating" class="progress progress-striped active">
                       <div class="bar" style="width: 100%;"></div>
                     </div>
+                    <hr class="dashed">
+                    <ul ng-hide="updating" class="nav nav-list ">
+                        <li class="nav-header">Jump To</li>
+                        <li ng-show="rides"><a href="#">Rides</a></li>
+                        <li ng-show="incomplete_orders"><a href="#inc-order-top">Incomplete Orders</a></li>
+                    </ul>
 
                 </form>
             </div>
 
             <div class="span10">
+                <h4 ng-show="rides" id="rides-top">Rides
+                    <small>(( rides.length | paren_wrap ))</small></h4>
                 <div class="ride-row" ng-repeat="ride in rides" ng-show="ride.debug == show_debug || !ride.debug">
                     <div class="ride-header row-fluid">
                         <div class="span4">
@@ -319,8 +334,8 @@
                             </tr>
                             <tr ng-repeat="order in ride.orders">
                                 <td>(( order.id ))</td>
-                                <td><span class="label label-info">(( order.pickup_idx ))</span> (( order.from_address )) (( order.pickup | date:'HH:mm' ))</td>
-                                <td><span class="label label-info">(( order.dropoff_idx ))</span> (( order.to_address )) (( order.dropoff | date:'HH:mm' ))</td>
+                                <td><span class="label label-info">(( order.pickup_idx ))</span> (( order.from_address )) | (( order.pickup | date:'HH:mm' ))</td>
+                                <td><span class="label label-info">(( order.dropoff_idx ))</span> (( order.to_address )) | (( order.dropoff | date:'HH:mm' ))</td>
                                 <td>(( order.create_date | date:'dd/MM/yy HH:mm' ))</td>
                                 <td>(( order.passenger_name )) (( order.passenger_phone ))</td>
                                 <td>(( order.num_seats ))</td>
@@ -332,6 +347,33 @@
                     <hr class="dashed">
                 </div>
 
+
+                <div class="inc-order-row" ng-show="incomplete_orders">
+                    <h4 id="inc-order-top">Incomplete Orders <small>(( incomplete_orders.length | paren_wrap ))</small></h4>
+                    <table class="table table-condensed table-striped">
+                        <tr>
+                            <th>ID</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Create Date</th>
+                            <th>Passenger</th>
+                            <th># Seats</th>
+                            <th>Price</th>
+                            <th>Status</th>
+                        </tr>
+                        <tr ng-repeat="order in incomplete_orders">
+                            <td>(( order.id ))</td>
+                            <td>(( order.from_address ))</td>
+                            <td>(( order.to_address ))</td>
+                            <td>(( order.create_date | date:'dd/MM/yy HH:mm' ))</td>
+                            <td>(( order.passenger_name )) (( order.passenger_phone ))</td>
+                            <td>(( order.num_seats ))</td>
+                            <td>(( order.price | currency:'₪'))</td>
+                            <td><span class="label" ng-class="get_status_class(order.status)">(( order.status ))</span></td>
+                        </tr>
+                    </table>
+
+                </div>
 
             </div>
         </div>

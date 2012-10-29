@@ -683,9 +683,14 @@ def eagle_eye_data(request):
     start_date = datetime.combine(start_date, set_default_tz_time(dt_time.min))
     end_date = datetime.combine(end_date, set_default_tz_time(dt_time.max))
 
+    logging.info("start_date = %s, end_date = %s" % (start_date, end_date))
+
     rides = SharedRide.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date)
     incomplete_orders = Order.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date)
     incomplete_orders = filter(lambda o: o.status in [IGNORED, REJECTED, FAILED, ERROR, TIMED_OUT, CANCELLED], incomplete_orders)
+
+    logging.info("incomplete_orders = %s" % incomplete_orders)
+
     result = {
         'rides': [],
         'incomplete_orders': []
