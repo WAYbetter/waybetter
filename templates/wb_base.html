@@ -49,7 +49,7 @@
     {% endblock jquery %}
 </head>
 
-<body class="{% block bodyclass %}{% endblock %}">
+<body class="{% block bodyclass %}{% endblock %}" {% block bodyattr %}{% endblock %}>
 
 {% block body %}{% endblock %}
 

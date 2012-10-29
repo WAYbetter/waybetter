@@ -16,8 +16,7 @@ def the_service(request):
     return custom_render_to_response("the_service.html", locals(), context_instance=RequestContext(request))
 
 def about_us(request):
-    page_name = page_specific_class = "about_us"
-    return custom_render_to_response("about_us.html", locals(), context_instance=RequestContext(request))
+    return custom_render_to_response("about_faq_contact.html", locals(), context_instance=RequestContext(request))
 
 def contact(request):
     page_name = page_specific_class = "contact"
