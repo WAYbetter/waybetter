@@ -1,4 +1,4 @@
-var module = angular.module('wbServices', ['wbDefaults']);
+var module = angular.module('wbServices', ['wbDefaults', 'wbMessages']);
 
 module.service('NotificationService', function () {
     return {

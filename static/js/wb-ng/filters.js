@@ -1,4 +1,4 @@
-var module = angular.module('wbFilters', []);
+var module = angular.module('wbFilters', ['wbMessages']);
 
 module.filter('range', function() {
   return function(input, total) {
@@ -34,7 +34,7 @@ module.filter('paren_wrap', function () {
     }
 });
 
-module.filter('wb_date', function ($filter) {
+module.filter('wb_date', function ($filter, DefaultMessages) {
     return function(date, format) {
         var now = new Date();
         date = new Date(date);
@@ -54,7 +54,7 @@ module.filter('wb_date', function ($filter) {
                 if (format.substring(idx + day_format.length) != "") {
                     post = $filter('date')(date, format.substring(idx + day_format.length));
                 }
-                return pre + "היום" + post;
+                return pre + DefaultMessages.today + post;
             }
         }
         return $filter('date')(date, format)

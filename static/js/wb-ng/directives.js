@@ -1,4 +1,4 @@
-var module = angular.module('wbDirectives', ['wbDefaults']);
+var module = angular.module('wbDirectives', ['wbMessages']);
 
 // todo: translate. see https://docs.djangoproject.com/en/1.3/topics/i18n/internationalization/#specifying-translation-strings-in-javascript-code
 

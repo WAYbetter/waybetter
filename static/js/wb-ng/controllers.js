@@ -1,4 +1,4 @@
-var module = angular.module('wbControllers', ['wbServices', 'wbDefaults']);
+var module = angular.module('wbControllers', ['wbServices', 'wbDefaults', 'wbMessages']);
 
 module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, BookingService, NotificationService, wbEvents, DefaultMessages, DefaultURLS, ASAP) {
     $scope.loading = false;
