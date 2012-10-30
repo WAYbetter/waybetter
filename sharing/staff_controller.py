@@ -3,6 +3,8 @@ import os
 from django.contrib.auth.models import User
 from google.appengine.api import memcache
 from google.appengine.api.channel.channel import InvalidChannelClientIdError
+from billing.enums import BillingStatus
+from common.errors import TransactionError
 from common.geocode import gmaps_geocode, Bounds, gmaps_reverse_geocode
 from django.core.urlresolvers import reverse
 from google.appengine.ext.deferred import deferred
@@ -12,7 +14,7 @@ from common.decorators import force_lang
 from common.models import City
 from common.util import custom_render_to_response, get_uuid, base_datepicker_page, send_mail_as_noreply, is_in_hebrew
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.utils import simplejson, translation
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response, get_object_or_404
@@ -20,6 +22,7 @@ from django.template.context import RequestContext
 from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_now_min, default_tz_now_max, IsraelTimeZone
 import dateutil
 from djangotoolbox.http import JSONResponse
+from fleet.fleet_manager import POSITION_CHANGED
 import ordering
 from ordering.decorators import passenger_required
 from ordering.forms import OrderForm
@@ -673,6 +676,7 @@ def submit_test_computation(orders, hotspot_type_raw, params, computation_set_na
 @staff_member_required
 def eagle_eye(request):
     lib_ng = True
+#    status_values = dict([(label.encode('utf-8').upper(), label.encode('utf-8').upper()) for key, label in ORDER_STATUS])
     return render_to_response("eagle_eye.html", locals(), context_instance=RequestContext(request))
 
 @force_lang("en")
@@ -685,7 +689,7 @@ def eagle_eye_data(request):
 
     logging.info("start_date = %s, end_date = %s" % (start_date, end_date))
 
-    rides = SharedRide.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date)
+    rides = SharedRide.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date).order_by("-depart_time")
     incomplete_orders = Order.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date)
     incomplete_orders = filter(lambda o: o.status in [IGNORED, REJECTED, FAILED, ERROR, TIMED_OUT, CANCELLED], incomplete_orders)
 
@@ -704,6 +708,32 @@ def eagle_eye_data(request):
 
     return JSONResponse(result)
 
+@staff_member_required
+@force_lang("en")
+def ride_page(request, ride_id):
+    lib_ng = True
+    lib_map = True
+    position_changed = POSITION_CHANGED
+
+    return render_to_response("ride_page.html", locals(), context_instance=RequestContext(request))
+
+@staff_member_required
+@force_lang("en")
+def cancel_billing(request, order_id):
+    order = Order.by_id(order_id)
+    for bt in order.billing_transactions.all():
+        if bt.status not in [BillingStatus.CANCELLED, BillingStatus.CHARGED]:
+            try:
+                bt.disable()
+            except TransactionError, e:
+                return HttpResponseBadRequest("Transaction[%s] could not be cancelled: %s" % (bt.id, e))
+
+    order.change_status(new_status=CANCELLED)
+    order = order.fresh_copy()
+    return JSONResponse({
+        "success": True,
+        "order": order.serialize_for_eagle_eye()
+    })
 
 TRACK_RIDES_CHANNEL_MEMCACHE_KEY = "track_rides_channel_memcache_key"
 #@staff_member_required

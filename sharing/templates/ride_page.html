@@ -1,0 +1,502 @@
+{% extends "wb_base_site.html" %}
+{% load i18n %}
+{% block footer %}{% endblock %}
+{% block header %}{% endblock %}
+{% block user_tools %}
+    <div class="nav-collapse collapse">
+        <ul class="nav pull-right">
+            <li>Ride {{ ride_id }}</li>
+        </ul>
+    </div>
+{% endblock %}
+{% block title %}Ride Events: {{ ride_id }}{% endblock %}
+{% block extrastyle %}
+    {{ block.super }}
+
+    <style type="text/css">
+        body {
+            padding-top: 50px;
+        }
+        .ui-widget {
+            font-family: inherit;
+            font-size: inherit;
+        }
+        form {
+            min-width: 100px;
+        }
+        form .progress {
+            height: 10px;
+            margin-bottom: 0;
+            margin-top: 10px;
+        }
+
+        .container > .row {
+            padding-top: 20px;
+        }
+
+        .table-striped tbody tr.selected td {
+            background-color: #0074CC;
+            color: white;
+        }
+
+        #map {
+            width: 100%;
+            min-height: 800px;
+            height: 100%;
+            margin-bottom: 10px;
+        }
+
+        #map img {
+            max-width: none;
+        }
+
+        .stop_marker {
+            position: absolute;
+            cursor: pointer;
+        }
+
+        .position_marker {
+            height: 7px;
+            width: 7px;
+            background: #8c0019;
+            border-radius: 50%;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        .stop-position-marker {
+            height: 12px;
+            width: 12px;
+            background: #2455AC;
+            position: absolute;
+            cursor: pointer;
+        }
+
+        .speed-marker {
+            height: 7px;
+            width: 7px;
+            position: absolute;
+            cursor: crosshair;
+        }
+
+        [ng\:cloak], [ng-cloak], .ng-cloak {
+          display: none;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+<div class="container" ng-app="RideApp" ng-controller="RideEventsCtrl">
+    <div class="row">
+        <div class="span2">
+            <form class="form dates-form" data-spy="affix">
+                <button ng-disabled="updating()" ng-click="fetchRides()" class='btn'><i class="icon-refresh"></i> Refresh Events
+                </button>
+                <div ng-show="updating()" class="progress progress-striped active">
+                  <div class="bar" style="width: 100%;"></div>
+                </div>
+            </form>
+        </div>
+
+        <div class="span10">
+            <div id="map" class="thumbnail" wb-map></div>
+        </div>
+    </div>
+</div>
+
+{% endblock %}
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript" src="/static/js/libs/underscore.min.js"></script>
+    <script type="text/javascript" src="/static/js/infobubble.js"></script>
+
+    <script type="text/javascript" src="/static/js/wb.geolib.js"></script>
+    <script type="text/javascript" src="/static/js/wb-ng/geo.controllers.js"></script>
+    <script type="text/javascript" src="/static/js/wb-ng/geo.services.js"></script>
+    <script type="text/javascript" src="/static/js/wb-ng/geo.directives.js"></script>
+
+    <script type="text/javascript">
+        var app = angular.module('RideApp', ['wbGeoDirectives', 'wbFilters']);
+        app.config(function ($interpolateProvider, $httpProvider) {
+            $interpolateProvider.startSymbol('((');
+            $interpolateProvider.endSymbol('))');
+
+            $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+            $httpProvider.defaults.transformRequest.push(function (data, headersGetter) {
+                if (data) {
+                    return jQuery.param(angular.fromJson(data));
+                } else {
+                    return data;
+                }
+            });
+        });
+        app.constant("RideID", "{{ ride_id }}");
+
+
+    // custom markers
+    function PositionMarker(latLng, tooltip, map, class_name) {
+        this.latlng_ = latLng;
+        this.tooltip_ = tooltip;
+        this.class_name = class_name || "position_marker";
+        this.setMap(map);
+    }
+    PositionMarker.prototype = new google.maps.OverlayView();
+    PositionMarker.prototype.setVisible = function(visible) {
+      if (visible) {
+          this.div_.style.display = "none";
+      } else {
+          this.div_.style.display = "";
+      }
+    };
+    PositionMarker.prototype.draw = function() {
+      var me = this;
+
+      // Check if the div has been created.
+      var div = this.div_;
+      if (!div) {
+        // Create a overlay text DIV
+
+        div = this.div_ = document.createElement('DIV');
+        // Create the DIV representing our StopMarker
+        div.className = this.class_name;
+        $(div).tooltip({
+            title: me.tooltip_
+        });
+
+        google.maps.event.addDomListener(div, "click", function(event) {
+          google.maps.event.trigger(me, "click");
+        });
+
+        // Then add the overlay to the DOM
+        var panes = this.getPanes();
+        panes.overlayImage.appendChild(div);
+      }
+
+      // Position the overlay
+      var point = this.getProjection().fromLatLngToDivPixel(this.latlng_);
+      if (point) {
+        div.style.left = point.x + 'px';
+        div.style.top = point.y + 'px';
+      }
+    };
+    PositionMarker.prototype.remove = function() {
+      // Check if the overlay was on the map and needs to be removed.
+      if (this.div_) {
+        this.div_.parentNode.removeChild(this.div_);
+        this.div_ = null;
+      }
+    };
+    PositionMarker.prototype.getPosition = function() {
+        return this.latlng_;
+    };
+
+    
+    // custom labels
+    function LabelMarker(label, popover_title, popover_content, latLng, map, class_name) {
+        this.latlng_ = latLng;
+        this.label_ = label;
+        this.popover_content_ = popover_content;
+        this.popover_title_ = popover_title;
+        this.class_name_ = class_name || "label-important";
+
+        this.setMap(map);
+    }
+    LabelMarker.prototype = new google.maps.OverlayView();
+    LabelMarker.prototype.setVisible = function(visible) {
+      if (visible) {
+          this.div_.style.display = "none";
+      } else {
+          this.div_.style.display = "";
+      }
+    };
+    LabelMarker.prototype.draw = function() {
+      var me = this;
+
+      // Check if the div has been created.
+      var div = this.div_;
+      if (!div) {
+        // Create a overlay text DIV
+
+        div = this.div_ = document.createElement('DIV');
+        // Create the DIV representing our StopMarker
+        div.className = "stop_marker label " + me.class_name_;
+        div.textContent = me.label_;
+
+        this.updatePopover();
+
+        google.maps.event.addDomListener(div, "click", function(event) {
+          google.maps.event.trigger(me, "click");
+        });
+
+        // Then add the overlay to the DOM
+        var panes = this.getPanes();
+        panes.overlayImage.appendChild(div);
+      }
+
+      // Position the overlay
+      var point = this.getProjection().fromLatLngToDivPixel(this.latlng_);
+      if (point) {
+        div.style.left = point.x + 'px';
+        div.style.top = point.y + 'px';
+      }
+    };
+    LabelMarker.prototype.remove = function() {
+      // Check if the overlay was on the map and needs to be removed.
+      if (this.div_) {
+        this.div_.parentNode.removeChild(this.div_);
+        this.div_ = null;
+      }
+    };
+    LabelMarker.prototype.getContent = function () {
+        return this.popover_content_;
+    };
+    LabelMarker.prototype.setContent = function (content) {
+        this.popover_content_ = content;
+        this.updatePopover();
+    };
+    LabelMarker.prototype.updatePopover = function() {
+        var me = this;
+        $(me.div_).popover({
+          title: me.popover_title_,
+          content: me.popover_content_
+        });
+    };
+    LabelMarker.prototype.getPosition = function() {
+        return this.latlng_;
+    };
+
+
+    // custom polylines
+    function ISRPolyline(latLng1, latLng2, map, options){
+        var me = this;
+        this.speed = undefined;
+        this.color = undefined;
+        this.poly = new google.maps.Polyline({
+            path:[latLng1, latLng2],
+            visible: options.visible
+        });
+        this.poly.setMap(map);
+
+        var marker;
+        google.maps.event.addListener(this.poly, 'mouseover', function(e){
+            marker = new PositionMarker(new google.maps.LatLng(e.latLng.lat(), e.latLng.lng()), parseInt(me.speed) + " kph", map, "speed-marker");
+            marker.draw();
+        });
+        google.maps.event.addListener(this.poly, 'mouseout', function(e){
+            marker.remove();
+            // marker.setMap(null);
+        });
+    }
+    ISRPolyline.prototype.destroy = function(){
+        this.poly.setMap(null);
+    };
+    ISRPolyline.prototype.show = function(){
+        this.poly.setOptions({visible: true});
+    };
+    ISRPolyline.prototype.hide = function(){
+        this.poly.setOptions({visible: false});
+    };
+    ISRPolyline.prototype.setSpeed = function(speed){
+        this.speed = speed;
+        
+        var min_speed = 0, max_speed = 100;
+        var rel_speed = speed / (max_speed - min_speed);
+
+        var r = parseInt(255*(1-rel_speed));
+        var g = parseInt(255*rel_speed);
+        var b = 0;
+
+        var color = "rgb(" + r + "," + g + ", " + b + ")";
+        this.setColor(color);
+    };
+    ISRPolyline.prototype.setColor = function(color){
+        this.color = color;
+        this.poly.setOptions({strokeColor:color});
+    };
+
+
+    var rides;
+
+   // controller
+    app.controller("RideEventsCtrl", function ($scope, $http, RideID) {
+        $scope.sharing_rides = [];
+        $scope.pickmeapp_rides = [];
+
+        $scope.position_events = [];
+        $scope.ride_stops = [];
+
+        $scope.updating = function () {
+            return $http.pendingRequests.length > 0;
+        };
+
+        $scope.reset = function () {
+            if ($scope.map_controller) {
+                angular.forEach($scope.map_controller.get_markers(), function(marker, name) {
+                    $scope.map_controller.remove_marker(name);
+                });
+            }
+
+            $scope.sharing_rides = [];
+            $scope.pickmeapp_rides = [];
+            $scope.position_events = [];
+            $scope.ride_stops = [];
+
+        };
+
+
+        $scope.fetchRides = function () {
+            var ride_id = RideID;
+            $scope.reset();
+            $http.get('{% url fleet.views.get_ride_events %}', {params:{ride_id:ride_id }}).success(
+                    function (data) {
+                        console.log(data);
+                        var ride, index;
+                        if (data[0].type == "sharing") {
+//                            ride = _.find($scope.sharing_rides, function (r) {
+//                                return r.id == ride_id
+//                            });
+//                            index = _.indexOf($scope.sharing_rides, ride);
+//                            $scope.sharing_rides[index] = data[0];
+                            $scope.showEvents(data[0]);
+                        } else {
+                            ride = _.find($scope.pickmeapp_rides, function (r) {
+                                return r.id == ride_id
+                            });
+                            index = _.indexOf($scope.pickmeapp_rides, ride);
+                            $scope.pickmeapp_rides[index] = data[0];
+                            $scope.showEvents($scope.pickmeapp_rides[index]);
+                        }
+                    }).error(function () {
+                        console.error("Error");
+                    });
+        };
+
+        $scope.getOriginEvent = function () {
+            var stops = $scope.ride_stops;
+            var origin_event;
+
+            var origin = new LatLon(stops[0].lat, stops[0].lon);
+            origin_event = _.sortBy($scope.position_events, function (e) {
+                return (new LatLon(e.lat, e.lon).distanceTo(origin));
+            })[0];
+            return origin_event;
+        };
+
+        $scope.getDestinationEvent = function () {
+            var stops = $scope.ride_stops;
+            var destination_event;
+
+            if (stops.length > 1) {
+                var destination = new LatLon(stops[stops.length - 1].lat, stops[stops.length - 1].lon);
+                destination_event = _.sortBy($scope.position_events, function (e) {
+                    return (new LatLon(e.lat, e.lon).distanceTo(destination));
+                })[0];
+            }
+
+            if ($scope.debug) {
+                return $scope.position_events[$scope.position_events.length - 1];
+            }
+            return destination_event;
+        };
+
+        $scope.showEvents = function (ride) {
+            $scope.reset();
+            var position_events = _.filter(ride.events, function (e) {
+                return e.status == "{{ position_changed }}"
+            });
+            var status_events = _.filter(ride.events, function (e) {
+                return e.status != "{{ position_changed }}"
+            });
+
+            $scope.position_events = position_events;
+            $scope.ride_stops = ride.stops
+            angular.forEach(status_events, function (e, index) {
+                $scope.showEvent(index, e);
+            });
+            angular.forEach(ride.stops, function (stop, index) {
+                $scope.showStop(index, stop);
+            });
+
+            var origin_event = $scope.getOriginEvent();
+            var destination_event = $scope.getDestinationEvent();
+
+            angular.forEach(position_events, function (e, index) {
+                var class_name = (e === origin_event || e === destination_event) ? "stop-position-marker" : undefined;
+                $scope.showPositionEvent(index, e, class_name);
+            });
+
+            setTimeout(function () {
+                $scope.map_controller.fit_markers();
+            }, 600);
+
+        };
+        $scope.refreshEvents = function () {
+            $scope.fetchRides();
+
+        };
+        $scope.showStop = function (index, stop) {
+            var marker_id = "stop_" + stop.lat + "_" + stop.lon;
+            var latLng = new google.maps.LatLng(stop.lat, stop.lon);
+            $scope.map_controller.markers[marker_id] = new LabelMarker(index + 1, stop.address, "Estimated Time: " + stop.time, latLng, $scope.map_controller.map);
+
+        };
+        $scope.showPositionEvent = function (index, event, class_name) {
+            // console.debug("show position event: ", event);
+            if (!(event.lat && event.lon)) {
+                console.log("skipping event: ", event);
+                return;
+            }
+            var event_id = "position_" + event.lat + "_" + event.lon + "_" + event.time;
+            $scope.map_controller.markers[event_id] = new PositionMarker(new google.maps.LatLng(event.lat, event.lon), event.time, $scope.map_controller.map, class_name);
+
+        };
+        $scope.showEvent = function (index, event) {
+            // console.debug("show event: ", event);
+            if (!(event.lat && event.lon)) {
+                console.log("skipping event: ", event);
+                return;
+            }
+            var event_id = "status_" + event.lat + "_" + event.lon;
+
+            var marker = $scope.map_controller.markers[event_id];
+            var content, current_content;
+            if (!marker) {
+                current_content = $('<ul class="status-list unstyled"></ul>');
+                var latLng = new google.maps.LatLng(event.lat, event.lon);
+                marker = new LabelMarker("E", "Ride Events", current_content, latLng, $scope.map_controller.map, "label-info");
+                $scope.map_controller.markers[event_id] = marker;
+            } else {
+                current_content = $(marker.getContent());
+            }
+            content = $('<li><span class="index label label-info"></span> <span class="status"></span></li><li><span class="time"></span></li>');
+            content.find(".status").text(event.status);
+            content.find(".time").text(event.time);
+            content.find(".index").text(index + 1);
+            current_content.append(content);
+            marker.setContent(current_content[0]);
+        };
+
+
+        $scope.toUnitString = function (num, unit_type) {
+            if (num === undefined) {
+                return "";
+            }
+            var precision = 0,
+                    label = "";
+            if (unit_type === "distance") {
+                precision = 1;
+                label = "km";
+            }
+            if (unit_type === "time") {
+                label = "min";
+            }
+            return String(Number(num).toFixed(precision)) + label;
+        };
+
+        // fetch rides
+        $scope.fetchRides();
+    })
+
+</script>
+{% endblock %}
+

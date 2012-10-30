@@ -24,6 +24,8 @@ urlpatterns = patterns('',
     url(r'^hotspot/textinput/$', 'sharing.staff_controller.hotspot_ordering_page', kwargs={'is_textinput': True}, name='hotspot_textinput'),
     (r'^computation_statistics/$', 'sharing.staff_controller.ride_computation_stat'),
     (r'^computation_statistics/(?P<computation_set_id>\d+)$', 'sharing.staff_controller.ride_computation_stat'),
+    (r'^staff/cancel_billing/(?P<order_id>\d+)/$', 'sharing.staff_controller.cancel_billing'),
+    (r'^staff/ride/(?P<ride_id>\d+)/$', 'sharing.staff_controller.ride_page'),
 
     (r'^passenger/home/$', 'sharing.passenger_controller.passenger_home'),
     (r'^qr/\w+/$', 'sharing.passenger_controller.passenger_home'),

@@ -516,11 +516,12 @@ class SharedRide(BaseRide):
     def serialize_for_eagle_eye(self):
         return {
             'id': self.id,
-            'orders': [o.serialize_for_eagle_eye() for o in sorted(self.orders.all(), key=lambda o: o.depart_time, reverse=True)],
+            'orders': sorted([o.serialize_for_eagle_eye() for o in self.orders.all()], key=lambda o: o['pickup'], reverse=False),
             'start_time': to_js_date(self.depart_time),
             'status': self.get_status_label(),
-            'taxi': self.taxi.number if self.taxi else "NA",
-            'station': self.station.name if self.station else "NA",
+            'taxi': self.taxi.number if self.taxi else "?",
+            'station': self.station.name if self.station else "?",
+            'shared': self.can_be_joined,
             'debug': self.debug
             }
 
