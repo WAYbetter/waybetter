@@ -1,6 +1,5 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
-{% block bodyclass %}verify-passenger{% endblock %}
 
 {% block header %}{% endblock %}
 {% block extrastyle %}
@@ -24,7 +23,7 @@
         <div class="container">
             <div class="row">
                 <div class="span12">
-                    <div class="modal modal-flat">
+                    <div class="modal modal-flat pagination-centered">
                         <div class="modal-header"><h3>{% trans "Restore Your Account" %}</h3></div>
                         <div class="modal-body">
                             <form id="phone_form">
@@ -41,7 +40,7 @@
                                             </div>
                                         </div>
                                         <div class="span4">
-                                            <button id="send_code" type="button" class="btn btn-primary" disabled="disabled">{% trans "Send SMS Code" %}</button>
+                                            <button id="send_code" type="button" class="btn btn-info" disabled="disabled">{% trans "Send SMS Code" %}</button>
                                         </div>
                                     </div>
                                     <div class="row-fluid">
@@ -66,7 +65,7 @@
 
                         </div>
                         <div class="modal-footer">
-                            <button id="next" class="btn btn-warning" disabled="disabled">{% trans "Next" %} ></button>
+                            <button id="next" class="btn btn-primary" disabled="disabled">{% trans "Next" %} ></button>
                         </div>
                     </div>
                 </div>
@@ -123,7 +122,7 @@
                     $send_code.disable().data("old_text", $send_code.text()).text("{% trans "Sending" %}");
                 },
                 success:function (d) {
-                    $send_code.text("{% trans "Code Sent" %}").addClass("btn-success");
+                    $send_code.text("{% trans "Code Sent" %}").removeClass("btn-info").addClass("btn-success");
                     $verification_code.enable().focus();
                 },
                 error:function () {
