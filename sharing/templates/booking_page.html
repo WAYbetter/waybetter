@@ -83,6 +83,9 @@
                                     ng-click="get_offers()"
                                     type="submit">{% trans "Find a Ride" %}</button>
                         </form>
+
+                        <alerts></alerts>
+
                     </div>
 
                     <!-- 2. Booking Details -->
@@ -108,11 +111,6 @@
                 </div>
 
                 <div class="span8">
-                    <div id="alerts" ng-show="loading_message || booking_error">
-                        <div class="alert alert-info" ng-show="loading_message"> (( loading_message ))</div>
-                        <div class="alert alert-error" ng-show="booking_error"> (( booking_error ))</div>
-                    </div>
-
                     <!-- 1. Map -->
                     <div id="map-container" ng-hide="offers.length">
                         <div id="map" wb-map></div>
@@ -144,6 +142,9 @@
                                 </div>
                             </div>
                         </div>
+
+                        <alerts></alerts>
+
                         <div id="offers-disclaimer">
                             {% trans "Price are determined by the Price Chart that is computed based on station cost." %}
                         </div>
@@ -152,7 +153,7 @@
                     <!-- 3. Order Approved -->
                     <div class="booking-container" ng-show="booking_approved">
                         <div id="summary-header">
-                            <h2>{% trans "Order Accepted" %}</h2>
+                            <h2><i class="icon-ok"></i>{% trans "Order Accepted" %}</h2>
                         </div>
 
                         <hr class="dashed">
@@ -240,6 +241,19 @@
                     return data;
                 }
             });
+        });
+        app.directive('alerts', function () {
+            return {
+                restrict: 'E',
+                replace: true,
+                template:
+                        '<div class="alerts" ng-show="loading_message || booking_error">' +
+                                '<div class="progress progress-striped active" ng-show="loading_message"> <div class="bar" style="width: 100%;"></div> </div>' +
+                                '<div ng-show="loading_message"> (( loading_message ))</div>' +
+                            '<div class="alert alert-error" ng-show="booking_error"> (( booking_error ))</div>' +
+                        '</div>'
+            }
+
         });
     </script>
 {% endblock %}
