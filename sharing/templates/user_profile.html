@@ -1,65 +1,119 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
 
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        form{
+            margin: 0;
+        }
+        #error .errorlist{
+            list-style: none;
+            color: #B94A48;
+        }
+
+        .row-fluid{
+            height: 25px;
+        }
+        /* .hidden via bootstrap */
+        .hidden{
+            display: none  !important;
+            visibility: hidden;
+        }
+        .visible{
+            display: inherit;
+            visibility: visible;
+        }
+        .initial-value{
+            display: inline-block;
+            margin: 0 10px;
+        }
+    </style>
+{% endblock %}
+
+
 {% block content %}
-    <div id="header">
-        {% trans "Account Details" %}
+    <div id="content">
+        <div class="container">
+            <div class="row">
+                <div class="span12">
+                    <div class="modal modal-flat">
+                        <div class="modal-header pagination-centered"><h3>{% trans "My Accout" %}</h3></div>
+
+                        <form action="" method="post">
+                            {% csrf_token %}
+
+
+                            <div class="modal-body">
+                                <div id="error">
+                                    {{ error }}
+                                </div>
+
+
+                                {% for entry in user_data %}
+                                    {% if not passenger and entry.name == 'billing' %}
+                                        {# can't change billing info if not a passenger #}
+                                    {% else %}
+                                        <div class="row-fluid">
+                                            <div class="span10">
+                                                <span>
+                                                    {% if entry.name == "fullname" %}
+                                                        <i class="icon-user"></i>
+                                                    {% else %}{% if entry.name == "email" %}
+                                                        <i class="icon-envelope"></i>
+                                                    {% else %}{% if entry.name == "mobile"%}
+                                                        <i class="icon-phone"></i>
+                                                    {% else %}{% if entry.name == "billing"%}
+                                                        <i class="icon-credit-card"></i>
+                                                    {% endif %}{% endif %}{% endif %}{% endif %}
+                                                </span>
+                                                <div id="value_{{ entry.name }}" class="initial-value">
+                                                    {% if entry.name == 'billing' %}
+                                                        &#x200E; {# force LTR for card repr #}
+                                                    {% endif %}
+                                                    {{ entry.value }}
+                                                </div>
+                                                <input id="input_{{ entry.name }}" type="text" name="{{ entry.name }}" class="new-value hidden">
+                                            </div>
+                                            <div class="span2">
+                                                <a id="change_{{ entry.name }}">{% trans "Change" %}</a>
+                                                <a id="cancel_{{ entry.name }}" class="hidden">{% trans "Cancel" %}</a>
+                                            </div>
+                                        </div>
+                                        <hr class="dashed">
+                                    {% endif %}
+                                {% endfor %}
+
+
+                                <div class="row-fluid">
+                                    <div class="span12">
+                                        <i class="icon-lock"></i>
+                                        <a class="initial-value" href="{% url sharing.passenger_controller.change_credentials %}" >{% trans "Reset Password" %}</a>
+                                    </div>
+                                </div>
+                            </div>
+
+
+                            <div class="modal-footer">
+                                <button type="submit" class="btn btn-primary">{% trans "Save Changes" %}</button>
+                            </div>
+                        </form>
+
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
-    <div id="error">
-        {{ error }}
-    </div>
-
-    <form action="" method="post">
-        {% csrf_token %}
-        <table id="details">
-            {% for entry in user_data %}
-                {% if not passenger and entry.name == 'billing' %}
-                    {# can't change billing info if not a passenger #}
-                {% else %}
-                    <tr class="details-row">
-                    <td class="label-cntr">{{ entry.label }}:</td>
-                    <td class="value-cntr">
-                        <span id="value_{{ entry.name }}" class="initial-value">
-                        {% if entry.name == 'billing' %}
-                            &#x200E; {# force LTR for card repr #}
-                        {% endif %}
-                            {{ entry.value }}
-                        </span>
-                        <input id="input_{{ entry.name }}" type="text" name="{{ entry.name }}" class="new-value hidden">
-                    </td>
-
-                    <td class="action-cntr">
-                        <span id="change_{{ entry.name }}" class="wb_link">{% trans "Change" %}</span>
-                        <span id="cancel_{{ entry.name }}" class="wb_link hidden">{% trans "Cancel" %}</span>
-
-                    </td>
-
-                {% endif %}
-            </tr>
-            {% endfor %}
-            <tr class="details-row">
-                <td class="label-cntr">{% trans "Password" %}:</td>
-                <td colspan="2">
-                    <a href="{% url sharing.passenger_controller.change_credentials %}" class="wb_link">{% trans "Reset Password" %}</a>
-                </td>
-            </tr>
-
-            <tr class="button-row">
-                <td colspan="3">
-                    <button type="submit" class="wb_button">{% trans "Save Changes" %}</button>
-                </td>
-            </tr>
-        </table>
-    </form>
 
 {% endblock %}
+
 
 {% block doc_ready %}
     {{ block.super }}
     <script type="text/javascript">
         $(function () {
             // trim whitespace generated by template
-            $(".initial-value").each(function(){
+            $(".initial-value").each(function () {
                 $(this).text($(this).text().trim());
             });
             // bind the action buttons
@@ -70,20 +124,21 @@
                 var $change = $("#change_" + name);
 
                 $change.click(function () {
-                    $value.hide();
+                    // todo: refactor this ugly code
+                    $value.removeClass("visible").addClass("hidden");
                     $input.val($value.text()); // restore initial value
-                    $input.show().focus();
+                    $input.removeClass("hidden").addClass("visible").focus();
 
-                    $change.hide();
-                    $cancel.show();
+                    $change.removeClass("visible").addClass("hidden");
+                    $cancel.removeClass("hidden").addClass("visible");
                 });
                 $cancel.click(function () {
-                    $value.show();
-                    $input.hide();
+                    $value.removeClass("hidden").addClass("visible");
+                    $input.removeClass("visible").addClass("hidden");
                     $input.val(undefined);
 
-                    $change.show();
-                    $cancel.hide();
+                    $change.removeClass("hidden").addClass("visible");
+                    $cancel.removeClass("visible").addClass("hidden");
                 });
             });
 
@@ -94,12 +149,12 @@
 
                 $(this).text("{% trans "Sending" %}...").removeClass("wb_link");
                 $.ajax({
-                    url: "{% url sharing.passenger_controller.get_billing_url %}",
-                    dataType: "json",
-                    success: function(response){
+                    url:"{% url sharing.passenger_controller.get_billing_url %}",
+                    dataType:"json",
+                    success:function (response) {
                         window.location.href = response.billing_url;
                     },
-                    error: function(){
+                    error:function () {
                         $("#change_billing").text("{% trans "Error" %}").removeClass("wb_link").addClass("error");
                     }
                 });
