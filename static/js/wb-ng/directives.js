@@ -1,22 +1,64 @@
-var module = angular.module('wbDirectives', ['wbMessages']);
+var module = angular.module('wbDirectives', ['wbMessages', 'wbFilters']);
 
-// todo: translate. see https://docs.djangoproject.com/en/1.3/topics/i18n/internationalization/#specifying-translation-strings-in-javascript-code
+module.directive("myRide", function (DefaultMessages) {
+    return {
+        restrict: 'E',
+        replace: true,
+        template: '\
+            <div class="ride row-fluid"> \
+                <div class="ride-passengers span4"> \
+                    <div class="type-indicator"></div>\
+                    <ride-pics-for-my-ride></ride-pics-for-my-ride> \
+                </div> \
+                <div class="ride-pickup-details span4"> \
+                    <strong>' + DefaultMessages.pickup +  ': (( ride.pickup_time | wb_date:"EEE d/M" )) ((  ride.pickup_time | date:"H:mm" ))</strong> \
+                    <div ng-hide="ride.is_private">(( ride.seats_left )) ' + DefaultMessages.available_seats + '</div> \
+                    <div ng-show="ride.is_private">' + DefaultMessages.private_ride + '</div> \
+                </div> \
+                <div class="ride-price-details span4"> \
+                    <strong class="price">(( ride.price | currency:"₪" ))</strong> \
+                    <span>(( ride.billing_status ))</span> \
+                </div> \
+            </div>'
+    }
+});
+module.directive("myRideAction", function (DefaultMessages) {
+    return {
+        restrict: 'E',
+        compile: function(element, attrs){
+            var action = attrs.action;
+            var action_btn_html = (action == "cancel") ?
+                '<button class="btn btn-danger btn-block btn-large" ng-click="cancel_ride(ride)">' + DefaultMessages.cancel_ride +' </button>' :
+                '<button class="btn btn-danger btn-block btn-large" ng-click="report_ride(ride)">' + DefaultMessages.report_ride +' </button>' ;
+
+            var html_text =
+                '<div class="ride-action row-fluid">' +
+                    '<div class="ride-comment span8" ng-show="ride.comment">(( ride.comment ))</div>' +
+                    '<div class="span4 pull-right">' + action_btn_html + '</div>' +
+                    '<div class="clearfix"></div>' +
+                '</div>';
+
+            element.replaceWith(html_text);
+        }
+    }
+});
+
 
 module.directive("offer", function (DefaultMessages) {
     return {
         restrict: 'E',
         replace: true,
         template: '\
-            <div class="offer row-fluid"> \
-                <div class="offer-passengers span4"> \
+            <div class="ride row-fluid"> \
+                <div class="ride-passengers span4"> \
                     <div class="type-indicator"></div>\
                     <ride-pics-for-offer></ride-pics-for-offer> \
                 </div> \
-                <div class="offer-pickup-details span4"> \
+                <div class="ride-pickup-details span4"> \
                     <strong>' + DefaultMessages.pickup +  ': (( offer.pickup_time | wb_date:"EEE d/M" )) ((  offer.pickup_time | date:"H:mm" ))</strong> \
                     <div>(( offer.seats_left )) ' + DefaultMessages.available_seats + '</div> \
                 </div> \
-                <div class="offer-price-details span4"> \
+                <div class="ride-price-details span4"> \
                     <strong class="price">(( offer.price | currency:"₪" ))</strong> \
                     <span>' + DefaultMessages.or_less + '</span> \
                 </div> \
@@ -28,8 +70,8 @@ module.directive("offerAction", function (DefaultMessages) {
         restrict: 'E',
         compile: function(element, attrs){
             var action_text = attrs.type == "existing" ? DefaultMessages.book_existing_ride_txt : DefaultMessages.book_new_ride_txt;
-            var html_text = '<div class="offer-action row-fluid">' +
-                                '<div class="offer-comment span8" ng-show="offer.comment">(( offer.comment ))</div>' +
+            var html_text = '<div class="ride-action row-fluid">' +
+                                '<div class="ride-comment span8" ng-show="offer.comment">(( offer.comment ))</div>' +
                                 '<div class="span4 pull-right"><button class="btn btn-warning btn-block btn-large" ng-click="book_ride()" ng-disabled="loading">' + action_text +' </button></div>' +
                                 '<div class="clearfix"></div>' +
                             '</div>';
@@ -37,12 +79,14 @@ module.directive("offerAction", function (DefaultMessages) {
         }
     }
 });
-module.directive("offerSep", function () {
+
+
+module.directive("rideSep", function () {
     return {
         restrict: 'E',
         replace: true,
         template: '\
-            <div class="offer-sep"> \
+            <div class="ride-sep"> \
                 <table> \
                     <tr> \
                         <td class="shadow-l"></td> \
@@ -63,6 +107,19 @@ module.directive("ridePicsForOffer", function () {
                 <ride-pics-passenger ng-repeat="passenger in offer.passengers"></ride-pics-passenger> \
                 <ride-pics-you ng-repeat="x in [] | range:num_seats"> </ride-pics-you>\
                 <ride-pics-seat ng-repeat="x in [] | range:offer.seats_left - num_seats"></ride-pics-seat>\
+            </div> \
+        '
+    }
+});
+module.directive("ridePicsForMyRide", function () {
+    return {
+        restrict: 'E',
+        replace: true,
+        template: '\
+            <div class="ride-pics"> \
+                <ride-pics-passenger ng-repeat="passenger in ride.passengers"></ride-pics-passenger> \
+                <ride-pics-you ng-repeat="x in [] | range:ride.your_seats"> </ride-pics-you>\
+                <ride-pics-seat ng-repeat="x in [] | range:ride.seats_left"></ride-pics-seat>\
             </div> \
         '
     }

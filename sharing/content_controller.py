@@ -4,9 +4,8 @@ from common.decorators import force_lang
 from common.models import City
 from django.template.context import RequestContext
 from common.util import custom_render_to_response
-from django.utils import simplejson
 from djangotoolbox.http import JSONResponse
-from ordering.models import OrderType, StationFixedPriceRule
+from ordering.decorators import passenger_required
 
 def info(request):
     return custom_render_to_response("wb_info.html", locals(), context_instance=RequestContext(request))
@@ -36,10 +35,10 @@ def faq(request):
     page_name = page_specific_class = "faq"
     return custom_render_to_response("faq.html", locals(), context_instance=RequestContext(request))
 
-def my_rides(request):
-    page_name = page_specific_class = "my_rides"
-    order_types = simplejson.dumps({'private': OrderType.PRIVATE,
-                                    'shared': OrderType.SHARED})
+@passenger_required
+def my_rides(request, passenger):
+    lib_ng = True
+    passenger_picture_url = passenger.picture_url
 
     return custom_render_to_response("my_rides.html", locals(), context_instance=RequestContext(request))
 

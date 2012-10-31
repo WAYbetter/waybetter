@@ -96,11 +96,21 @@
   height: 32px;
   padding: 0;
   color: #000000;
-  line-height: 1.5em; }
+  line-height: 1.5em;
+  margin-left: 40px; }
 
 #content {
   min-height: 500px; }
 
+.wb-container {
+  position: relative;
+  background: #FBFBFB;
+  box-shadow: 1px 1px 6px;
+  background-color: #f5f5f5;
+  border-radius: 3px; }
+
+/* Common directives
+-------------------------------------------------- */
 .ride-pics {
   position: relative;
   text-align: center; }
@@ -132,6 +142,76 @@
   .ride-pics .name {
     font-size: 13px; }
 
+.rides-container.blur .rides-cat-header, .rides-container.blur .no-match, .rides-container.blur .ride {
+  opacity: 0.5; }
+
+.rides-container.blur .ride.focus {
+  opacity: 1; }
+
+.rides-container .rides-cat-header {
+  height: 20px;
+  text-align: left;
+  background: #414141;
+  color: white;
+  padding: 5px; }
+.rides-container .no-match {
+  text-align: center;
+  padding: 30px;
+  padding-bottom: 38px;
+  font-weight: bold;
+  font-size: 14px;
+  text-shadow: 0 0 7px white; }
+.rides-container .ride {
+  box-sizing: border-box;
+  padding: 20px 0;
+  cursor: pointer;
+  text-align: center; }
+.rides-container .ride-passengers {
+  position: relative;
+  border-right: 1px dotted gray; }
+.rides-container .ride .type-indicator {
+  position: absolute;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 10px; }
+.rides-container .ride.existing .type-indicator, .rides-container .ride.shared .type-indicator {
+  background: #ffc57a; }
+.rides-container .ride.new .type-indicator, .rides-container .ride.private .type-indicator {
+  background: #7AC2FF; }
+.rides-container .ride-pickup-details {
+  height: 70px;
+  border-right: 1px dotted gray;
+  padding: 10px 0; }
+.rides-container .ride-price-details {
+  height: 70px;
+  padding: 20px 0; }
+.rides-container .ride-action {
+  box-sizing: border-box;
+  padding: 15px; }
+.rides-container .ride-comment {
+  padding: 11px;
+  background: #E9E9E9;
+  border-radius: 5px;
+  text-align: center; }
+.rides-container .ride-sep {
+  position: absolute;
+  width: 100%; }
+  .rides-container .ride-sep table {
+    width: 100%;
+    border-spacing: 0;
+    border-collapse: collapse; }
+  .rides-container .ride-sep .shadow-r, .rides-container .ride-sep .shadow-l {
+    width: 117px;
+    background: url(../images/wb_site/1.2/shade.png) no-repeat;
+    height: 8px;
+    padding: 0; }
+  .rides-container .ride-sep .shadow-r {
+    background-position: 0 -8px; }
+  .rides-container .ride-sep .shadow-m {
+    background: url(../images/wb_site/1.2/shade_pixel.png);
+    background-repeat: repeat-x; }
+
 /* Website pages
 -------------------------------------------------- */
 .wb-home #content {
@@ -144,6 +224,17 @@
   background: url(/static/images/wb_site/1.2/app_shots.png) center top no-repeat;
   width: 355px;
   height: 480px; }
+
+.my-rides-page .modal-footer .modal-buttons {
+  display: inline-block; }
+.my-rides-page .modal-footer .progress {
+  margin: 10px 0 0; }
+.my-rides-page .modal-footer .alert {
+  margin-top: 20px; }
+.my-rides-page .rides-container {
+  margin-bottom: 50px; }
+.my-rides-page .rides-container .progress {
+  margin: 0; }
 
 .booking-page .booking-panel {
   padding: 20px;
@@ -187,81 +278,8 @@
   margin-bottom: 20px; }
 .booking-page #pickup-time {
   margin-left: 1px; }
-.booking-page .booking-container {
-  position: relative;
-  background: #FBFBFB;
-  box-shadow: 1px 1px 6px;
-  background-color: #f5f5f5;
-  border-radius: 3px; }
 .booking-page #offers-container {
   margin-bottom: 10px; }
-.booking-page #offers-container.blur .offers-cat-header, .booking-page #offers-container.blur .no-match, .booking-page #offers-container.blur .offer {
-  opacity: 0.5; }
-.booking-page #offers-container.blur .offer.focus {
-  opacity: 1; }
-.booking-page .offers-cat-header {
-  height: 20px;
-  text-align: left;
-  background: #414141;
-  color: white;
-  padding: 5px; }
-.booking-page .no-match {
-  text-align: center;
-  padding: 30px;
-  padding-bottom: 38px;
-  font-weight: bold;
-  font-size: 14px;
-  text-shadow: 0 0 7px white; }
-.booking-page .offer {
-  box-sizing: border-box;
-  padding: 20px 0;
-  cursor: pointer;
-  text-align: center; }
-.booking-page .offer-passengers {
-  position: relative;
-  border-right: 1px dotted gray; }
-.booking-page .offer .type-indicator {
-  position: absolute;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  width: 10px; }
-.booking-page .offer.existing .type-indicator {
-  background: #ffc57a; }
-.booking-page .offer.new .type-indicator {
-  background: #7AC2FF; }
-.booking-page .offer-pickup-details {
-  height: 70px;
-  border-right: 1px dotted gray;
-  padding: 10px 0; }
-.booking-page .offer-price-details {
-  height: 70px;
-  padding: 20px 0; }
-.booking-page .offer-action {
-  box-sizing: border-box;
-  padding: 15px; }
-.booking-page .offer-comment {
-  padding: 11px;
-  background: #E9E9E9;
-  border-radius: 5px;
-  text-align: center; }
-.booking-page .offer-sep {
-  position: absolute;
-  width: 100%; }
-  .booking-page .offer-sep table {
-    width: 100%;
-    border-spacing: 0;
-    border-collapse: collapse; }
-  .booking-page .offer-sep .shadow-r, .booking-page .offer-sep .shadow-l {
-    width: 117px;
-    background: url(../images/wb_site/1.2/shade.png) no-repeat;
-    height: 8px;
-    padding: 0; }
-  .booking-page .offer-sep .shadow-r {
-    background-position: 0 -8px; }
-  .booking-page .offer-sep .shadow-m {
-    background: url(../images/wb_site/1.2/shade_pixel.png);
-    background-repeat: repeat-x; }
 .booking-page #offers-disclaimer {
   margin-top: 20px;
   text-align: left; }
@@ -284,8 +302,6 @@
   line-height: .7em;
   margin-right: .3em; }
 
-/* Website Pages
--------------------------------------------------- */
 .about-faq-contact .bs-docs-sidebar, .about-faq-contact section {
   padding-top: 85px; }
 .about-faq-contact .affix {

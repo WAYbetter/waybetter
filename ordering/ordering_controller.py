@@ -254,7 +254,8 @@ def get_previous_rides(request, passenger):
             "station_name": ride.station.name if ride.station else WAYBETTER_STATION_NAME,
             "price": order.price,
             "billing_status": ugettext_lazy(order.get_status_display().title()),
-            "is_private": order.type == OrderType.PRIVATE
+            "is_private": order.type == OrderType.PRIVATE,
+            "comment": ""
             }
 
         data.append(ride_data)
@@ -292,6 +293,7 @@ def get_next_rides(request, passenger):
             "price": order.price,
             "is_private": order.type == OrderType.PRIVATE,
             "billing_status": _("or less"),
+            "comment": ""
         }
 
         data.append(ride_data)

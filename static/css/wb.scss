@@ -111,12 +111,23 @@
     padding: 0;
     color:  #000000;
     line-height: 1.5em;
+    margin-left: 40px;
 }
 
 #content{
     min-height: 500px;
 }
 
+.wb-container{
+    position: relative;
+    background: #FBFBFB;
+    box-shadow: 1px 1px 6px;
+    background-color: #f5f5f5;
+    border-radius: 3px;
+}
+
+/* Common directives
+-------------------------------------------------- */
 .ride-pics{
     position: relative;
     text-align: center;
@@ -161,6 +172,101 @@
 }
 
 
+.rides-container.blur .rides-cat-header, .rides-container.blur .no-match, .rides-container.blur .ride{
+    opacity: 0.5;
+}
+.rides-container.blur .ride.focus{
+    opacity: 1;
+}
+.rides-container{
+    .rides-cat{
+
+    }
+    .rides-cat-header{
+        height: 20px;
+        text-align: left;
+        background: #414141;
+        color: white;
+        padding: 5px;
+    }
+    .no-match {
+         text-align: center;
+         padding: 30px;
+         padding-bottom: 38px;
+         font-weight: bold;
+         font-size: 14px;
+         text-shadow: 0 0 7px white;
+    }
+    .rides-list{
+    }
+    .ride{
+        box-sizing: border-box;
+        padding: 20px 0;
+        cursor:pointer;
+        text-align: center;
+    }
+    .ride-passengers{
+        position: relative;
+        border-right: 1px dotted gray;
+    }
+    .ride .type-indicator{
+        position: absolute;
+        left: 0;
+        top: 0;
+        bottom: 0;
+        width: 10px;
+    }
+    .ride.existing .type-indicator, .ride.shared .type-indicator{
+        background: #ffc57a;
+    }
+    .ride.new .type-indicator, .ride.private .type-indicator{
+        background: #7AC2FF;
+    }
+    .ride-pickup-details{
+        height: 70px;
+        border-right: 1px dotted gray;
+        padding: 10px 0;
+    }
+    .ride-price-details{
+        height: 70px;
+        padding: 20px 0;
+        .price{
+        }
+    }
+    .ride-action{
+        box-sizing: border-box;
+        padding: 15px;
+    }
+    .ride-comment{
+        padding: 11px;
+        background: #E9E9E9;
+        border-radius: 5px;
+        text-align: center;
+    }
+    .ride-sep{
+        position: absolute;
+        width: 100%;
+        table{
+            width: 100%;
+            border-spacing: 0;
+            border-collapse: collapse;
+        }
+        .shadow-r, .shadow-l{
+            width: 117px;
+            background: url(../images/wb_site/1.2/shade.png) no-repeat;
+            height: 8px;
+            padding: 0;
+        }
+        .shadow-r{
+            background-position: 0 -8px;
+        }
+        .shadow-m{
+            background: url(../images/wb_site/1.2/shade_pixel.png);
+            background-repeat: repeat-x;
+        }
+    }
+}
+
 /* Website pages
 -------------------------------------------------- */
 .wb-home{
@@ -175,6 +281,27 @@
         /*padding: 20px 0;*/
         background: url(/static/images/wb_site/1.2/app_shots.png) center top no-repeat;
         @include size(355px, 480px);
+    }
+
+}
+
+.my-rides-page{
+    .modal-footer {
+        .modal-buttons{
+            display: inline-block;
+        }
+        .progress {
+            margin: 10px 0 0;
+        }
+        .alert{
+            margin-top: 20px;
+        }
+    }
+    .rides-container{
+        margin-bottom: 50px;
+    }
+    .rides-container .progress{
+        margin: 0;
     }
 
 }
@@ -230,108 +357,8 @@
     #pickup-time{
         margin-left: 1px;
     }
-
-    .booking-container{
-        position: relative;
-        background: #FBFBFB;
-        box-shadow: 1px 1px 6px;
-        background-color: #f5f5f5;
-        border-radius: 3px;
-    }
     #offers-container{
         margin-bottom: 10px;
-    }
-    #offers-container.blur .offers-cat-header, #offers-container.blur .no-match, #offers-container.blur .offer{
-        opacity: 0.5;
-    }
-    #offers-container.blur .offer.focus{
-        opacity: 1;
-    }
-    .offers-cat{
-
-    }
-    .offers-cat-header{
-        height: 20px;
-        text-align: left;
-        background: #414141;
-        color: white;
-        padding: 5px;
-    }
-    .no-match {
-         text-align: center;
-         padding: 30px;
-         padding-bottom: 38px;
-         font-weight: bold;
-         font-size: 14px;
-         text-shadow: 0 0 7px white;
-    }
-    .offers-list{
-    }
-    .offer{
-        box-sizing: border-box;
-        padding: 20px 0;
-        cursor:pointer;
-        text-align: center;
-    }
-    .offer-passengers{
-        position: relative;
-        border-right: 1px dotted gray;
-    }
-    .offer .type-indicator{
-        position: absolute;
-        left: 0;
-        top: 0;
-        bottom: 0;
-        width: 10px;
-    }
-    .offer.existing .type-indicator{
-        background: #ffc57a;
-    }
-    .offer.new .type-indicator{
-        background: #7AC2FF;
-    }
-    .offer-pickup-details{
-        height: 70px;
-        border-right: 1px dotted gray;
-        padding: 10px 0;
-    }
-    .offer-price-details{
-        height: 70px;
-        padding: 20px 0;
-        .price{
-        }
-    }
-    .offer-action{
-        box-sizing: border-box;
-        padding: 15px;
-    }
-    .offer-comment{
-        padding: 11px;
-        background: #E9E9E9;
-        border-radius: 5px;
-        text-align: center;
-    }
-    .offer-sep{
-        position: absolute;
-        width: 100%;
-        table{
-            width: 100%;
-            border-spacing: 0;
-            border-collapse: collapse;
-        }
-        .shadow-r, .shadow-l{
-            width: 117px;
-            background: url(../images/wb_site/1.2/shade.png) no-repeat;
-            height: 8px;
-            padding: 0;
-        }
-        .shadow-r{
-            background-position: 0 -8px;
-        }
-        .shadow-m{
-            background: url(../images/wb_site/1.2/shade_pixel.png);
-            background-repeat: repeat-x;
-        }
     }
     #offers-disclaimer{
         margin-top: 20px;
@@ -365,8 +392,6 @@
     }
 }
 
-/* Website Pages
--------------------------------------------------- */
 .about-faq-contact{
     .bs-docs-sidebar, section{
         padding-top: 85px;
