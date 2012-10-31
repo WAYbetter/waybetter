@@ -83,6 +83,9 @@
                                     ng-click="get_offers()"
                                     type="submit">{% trans "Find a Ride" %}</button>
                         </form>
+
+                        <alerts></alerts>
+
                     </div>
 
                     <!-- 2. Booking Details -->
@@ -100,7 +103,7 @@
 
                         <p>(( num_seats )) Seat</p> <!-- todo ngPluralize -->
                         <p class="pull-right">
-                            <a href="#" ng-click="reset()">{% trans "change order settings" %}</a>
+                            <a href="#" ng-click="reset()" ng-show="!loading && !booking_approved">{% trans "change order settings" %}</a>
                         </p>
 
                         <div class="clearfix"></div>
@@ -108,11 +111,6 @@
                 </div>
 
                 <div class="span8">
-                    <div id="alerts" ng-show="loading_message || booking_error">
-                        <div class="alert alert-info" ng-show="loading_message"> (( loading_message ))</div>
-                        <div class="alert alert-error" ng-show="booking_error"> (( booking_error ))</div>
-                    </div>
-
                     <!-- 1. Map -->
                     <div id="map-container" ng-hide="offers.length">
                         <div id="map" wb-map></div>
@@ -120,71 +118,77 @@
 
                     <!-- 2. Offers -->
                     <div ng-show="offers.length && !booking_approved">
-                        <div id="offers-container" class="booking-container" ng-class="{'blur': selected_offer}">
-                            <div class="offers-cat">
-                                <div class="offers-cat-header">{% trans "Choose a Ride to Join" %}</div>
+                        <div id="offers-container" class="wb-container rides-container" ng-class="{'blur': selected_offer}">
+                            <div class="rides-cat">
+                                <div class="rides-cat-header">{% trans "Choose a Ride to Join" %}</div>
                                 <div class="no-match" ng-hide="existing_ride_offers().length"
                                      ng-class="{'disabled': selected_offer}">
                                     לא נמצאו נסיעות מתאימות.
                                     <br>
                                     הזמינו נסיעה חדשה, ואחרים יצטרפו אליכם!
                                 </div>
-                                <div class="offers-list"
+                                <div class="rides-list"
                                      ng-repeat="offer in existing_ride_offers() | orderBy:'pickup_time'">
                                     <offer class="existing" ng-click="choose_offer(offer)" ng-class="{'focus': selected_offer == offer}"></offer>
                                     <offer-action type="existing" ng-show="selected_offer == offer" ng-class="{'focus': selected_offer == offer}"></offer-action>
-                                    <offer-sep></offer-sep>
+                                    <ride-sep></ride-sep>
                                 </div>
                             </div>
-                            <div class="offers-cat">
-                                <div class="offers-cat-header">{% trans "Start a New Ride" %}</div>
-                                <div class="offers-list" ng-repeat="offer in new_ride_offers() | orderBy:'pickup_time'">
+                            <div class="rides-cat">
+                                <div class="rides-cat-header">{% trans "Start a New Ride" %}</div>
+                                <div class="rides-list" ng-repeat="offer in new_ride_offers() | orderBy:'pickup_time'">
                                     <offer class="new" ng-click="choose_offer(offer)" ng-class="{'focus': selected_offer == offer}"></offer>
                                     <offer-action type="new" ng-show="selected_offer == offer" ng-class="{'focus': selected_offer == offer}"></offer-action>
                                 </div>
                             </div>
                         </div>
+
+                        <alerts></alerts>
+
                         <div id="offers-disclaimer">
                             {% trans "Price are determined by the Price Chart that is computed based on station cost." %}
                         </div>
                     </div>
 
                     <!-- 3. Order Approved -->
-                    <div class="booking-container" ng-show="booking_approved">
+                    <div class="wb-container" ng-show="booking_approved">
                         <div id="summary-header">
-                            <h2>{% trans "Order Accepted" %}</h2>
+                            <h2><i class="icon-ok"></i>{% trans "Order Accepted" %}</h2>
                         </div>
 
                         <hr class="dashed">
 
                         <!-- booking result -->
-                        <div class="offer existing">
-                            <div class="row-fluid">
-                                <div class="offer-passengers span4">
-                                    <div class="type-indicator"></div>
-                                    <div class="ride-pics">
-                                        <div class="ride-pics-col" ng-repeat="passenger in booking_result.passengers"
-                                             ng-switch on="passenger.is_you">
-                                            <ride-pics-passenger ng-switch-when="false"></ride-pics-passenger>
-                                            <ride-pics-you ng-switch-when="true"></ride-pics-you>
+                        <div class="rides-container">
+                            <div class="ride existing">
+                                <div class="row-fluid">
+                                    <div class="ride-passengers span4">
+                                        <div class="type-indicator"></div>
+                                        <div class="ride-pics">
+                                            <div class="ride-pics-col"
+                                                 ng-repeat="passenger in booking_result.passengers"
+                                                 ng-switch on="passenger.is_you">
+                                                <ride-pics-passenger ng-switch-when="false"></ride-pics-passenger>
+                                                <ride-pics-you ng-switch-when="true"></ride-pics-you>
+                                            </div>
+                                            <ride-pics-seat
+                                                    ng-repeat="x in []|range:booking_result.seats_left"></ride-pics-seat>
                                         </div>
-                                        <ride-pics-seat
-                                                ng-repeat="x in []|range:booking_result.seats_left"></ride-pics-seat>
+                                    </div>
+                                    <div class="ride-pickup-details span4">
+                                        <strong>Pickup: (( booking_result.pickup_dt | wb_date:"EEE d/M" )) ((
+                                            booking_result.pickup_dt | date:"H:mm" ))</strong>
+
+                                        <div>(( booking_result.seats_left )) {% trans "Availabe Seats" %}</div>
+                                    </div>
+                                    <div class="ride-price-details span4">
+                                        <strong class="price">(( booking_result.price | currency:"₪"
+                                            ))</strong><span> {% trans "or less" %}</span>
                                     </div>
                                 </div>
-                                <div class="offer-pickup-details span4">
-                                    <strong>Pickup: (( booking_result.pickup_dt | wb_date:"EEE d/M" )) ((
-                                        booking_result.pickup_dt | date:"H:mm" ))</strong>
-
-                                    <div>(( booking_result.seats_left )) {% trans "Availabe Seats" %}</div>
-                                </div>
-                                <div class="offer-price-details span4">
-                                    <strong class="price">(( booking_result.price | currency:"₪" ))</strong><span> {% trans "or less" %}</span>
-                                </div>
                             </div>
+                            <ride-sep></ride-sep>
                         </div>
-                        <offer-sep></offer-sep>
-
                         <div id="summary-footer">
                             <div id="summary-info">
                                 <ul>
@@ -199,11 +203,13 @@
 
                             <div id="summary-buttons" class="row-fluid">
                                 <div class="span6">
-                                    <a href="{% url ordering.ordering_controller.fb_share %}" class="btn btn-large btn-primary">
+                                    <a href="{% url ordering.ordering_controller.fb_share %}"
+                                       class="btn btn-large btn-primary">
                                         <i class="icon-facebook"></i> {% trans "Share on Facebook" %}</a>
                                 </div>
                                 <div class="span6">
-                                    <a href="{% url wb_home %}" class="btn btn-large btn-warning pull-right">{% trans "Back To Home" %}</a>
+                                    <a href="{% url wb_home %}"
+                                       class="btn btn-large btn-warning pull-right">{% trans "Back To Home" %}</a>
                                 </div>
                             </div>
                         </div>
@@ -240,6 +246,19 @@
                     return data;
                 }
             });
+        });
+        app.directive('alerts', function () {
+            return {
+                restrict: 'E',
+                replace: true,
+                template:
+                        '<div class="alerts" ng-show="loading_message || booking_error">' +
+                                '<div class="progress progress-striped active" ng-show="loading_message"> <div class="bar" style="width: 100%;"></div> </div>' +
+                                '<div ng-show="loading_message"> (( loading_message ))</div>' +
+                            '<div class="alert alert-error" ng-show="booking_error"> (( booking_error ))</div>' +
+                        '</div>'
+            }
+
         });
     </script>
 {% endblock %}
