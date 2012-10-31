@@ -6,50 +6,13 @@ module.service('NotificationService', function () {
             alert(m);
         },
         confirm: function(m){
-            alert(m);
+            return window.confirm(m);
         }
     }
 });
 
 module.service('HttpService', function ($http, $timeout, HTTP_TIMEOUT) {
     return {
-        modalHttp:function (config, messages) {
-            var messages_promises = [];
-            angular.extend(config, {
-                transformRequest:$http.defaults.transformRequest.concat(function (data) {
-                    if (messages && messages.length){
-                        angular.forEach(messages, function (message, i) {
-                            var promise = $timeout(function(){
-                                // todo show message
-                            }, i*1500);
-                            messages_promises.push(promise);
-                        });
-                    } else {
-                        // todo show message
-                    }
-
-                    return data;
-                }),
-                transformResponse:$http.defaults.transformResponse.concat(function (data, headersGetter) {
-                    if (messages_promises.length) {
-                        angular.forEach(messages_promises, function (promise) {
-                            $timeout.cancel(promise);
-                            // todo hide message
-                        });
-                    } else {
-                        // todo hide message
-                    }
-
-                    if (headersGetter()['content-type'] && headersGetter()['content-type'].indexOf("json") > -1) {
-                        return angular.fromJson(data);
-                    } else {
-                        return data
-                    }
-                })
-            });
-
-            return this.http(config);
-        },
         http: function(config) {
             config = config || {};
             config.timeout = config.timeout || HTTP_TIMEOUT;
@@ -87,22 +50,14 @@ module.service("BookingService", function ($q, $timeout, HttpService, DefaultMes
         },
 
         get_offers:function (ride_data) {
-            return HttpService.modalHttp({
-                method: 'GET',
-                timeout: 60*1000,
-                url: DefaultURLS.get_offers,
-                params:{ data: ride_data}
-            }, [DefaultMessages.offers_loading_1, DefaultMessages.offers_loading_2, DefaultMessages.offers_loading_3]);
+            return HttpService.http_get(DefaultURLS.get_offers, {params: {data: ride_data}, timeout: 60*1000 });
         },
 
         book_ride:function (ride_data) {
             var defer = $q.defer();
 
-            HttpService.modalHttp({
-                method: 'POST',
-                url: DefaultURLS.book_ride,
-                data: {data: angular.toJson(ride_data)}
-            }).then(function(result){
+            HttpService.http_post(DefaultURLS.book_ride, {data: angular.toJson(ride_data)})
+                .then(function(result){
                     var booking_result = result.data;
                     if (result.data && result.data.pickup_dt){
                         booking_result.pickup_dt = new Date(result.data.pickup_dt);
@@ -119,20 +74,17 @@ module.service("BookingService", function ($q, $timeout, HttpService, DefaultMes
         cancel_order: function(order_id) {
             var result_deferred = $q.defer();
 
-            HttpService.modalHttp({
-                method:'POST',
-                url: DefaultURLS.cancel_order,
-                data:{order_id:order_id}
-            }).success(function (response) {
-                if (response.success) {
-                    result_deferred.resolve(response.message);
-                } else {
-                    result_deferred.reject(response.message);
-                }
-            }).error(function () {
-                result_deferred.reject(DefaultMessages.connection_error);
-            });
-            return result_deferred.promise;
+            HttpService.http_post(DefaultURLS.cancel_order, jQuery.param({order_id:order_id}))
+                .success(function (response) {
+                    if (response.success) {
+                        result_deferred.resolve(response.message);
+                    } else {
+                        result_deferred.reject(response.message);
+                    }
+                }).error(function () {
+                    result_deferred.reject(DefaultMessages.connection_error);
+                });
+                return result_deferred.promise;
         },
 
         get_order_billing_status: function(order_id) {
@@ -167,13 +119,7 @@ module.service("BookingService", function ($q, $timeout, HttpService, DefaultMes
         get_private_offers: function(ride_data) {
             var defer = $q.defer();
 
-            var config = {
-                method:'GET',
-                url: DefaultURLS.get_private_offers,
-                params: { data: ride_data }
-            };
-
-            HttpService.modalHttp(config).success(function(response) {
+            HttpService.http_get(DefaultURLS.get_private_offers, {params: { data: ride_data }}).success(function(response) {
                 if (response.offers){
                     defer.resolve(response.offers);
                 } else {
