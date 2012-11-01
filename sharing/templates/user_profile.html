@@ -12,20 +12,11 @@
             color: #B94A48;
         }
 
-        .row-fluid{
-            height: 25px;
+        .row-fluid .details{
+
         }
-        /* .hidden via bootstrap */
-        .hidden{
-            display: none  !important;
-            visibility: hidden;
-        }
-        .visible{
-            display: inherit;
-            visibility: visible;
-        }
-        .initial-value{
-            display: inline-block;
+
+        .initial-value, .new-value{
             margin: 0 10px;
         }
     </style>
@@ -38,7 +29,7 @@
             <div class="row">
                 <div class="span12">
                     <div class="modal modal-flat">
-                        <div class="modal-header pagination-centered"><h3>{% trans "My Accout" %}</h3></div>
+                        <div class="modal-header pagination-centered"><h3>{% trans "My Account" %}</h3></div>
 
                         <form action="" method="post">
                             {% csrf_token %}
@@ -56,23 +47,21 @@
                                     {% else %}
                                         <div class="row-fluid">
                                             <div class="span10">
-                                                <span>
-                                                    {% if entry.name == "fullname" %}
-                                                        <i class="icon-user"></i>
-                                                    {% else %}{% if entry.name == "email" %}
-                                                        <i class="icon-envelope"></i>
-                                                    {% else %}{% if entry.name == "mobile"%}
-                                                        <i class="icon-phone"></i>
-                                                    {% else %}{% if entry.name == "billing"%}
-                                                        <i class="icon-credit-card"></i>
-                                                    {% endif %}{% endif %}{% endif %}{% endif %}
-                                                </span>
-                                                <div id="value_{{ entry.name }}" class="initial-value">
+                                                {% if entry.name == "fullname" %}
+                                                    <i class="icon-user"></i>
+                                                {% else %}{% if entry.name == "email" %}
+                                                    <i class="icon-envelope"></i>
+                                                {% else %}{% if entry.name == "mobile"%}
+                                                    <i class="icon-phone"></i>
+                                                {% else %}{% if entry.name == "billing"%}
+                                                    <i class="icon-credit-card"></i>
+                                                {% endif %}{% endif %}{% endif %}{% endif %}
+                                                <span id="value_{{ entry.name }}" class="initial-value">
                                                     {% if entry.name == 'billing' %}
                                                         &#x200E; {# force LTR for card repr #}
                                                     {% endif %}
                                                     {{ entry.value }}
-                                                </div>
+                                                </span>
                                                 <input id="input_{{ entry.name }}" type="text" name="{{ entry.name }}" class="new-value hidden">
                                             </div>
                                             <div class="span2">
@@ -92,7 +81,6 @@
                                     </div>
                                 </div>
                             </div>
-
 
                             <div class="modal-footer">
                                 <button type="submit" class="btn btn-primary">{% trans "Save Changes" %}</button>
@@ -124,21 +112,20 @@
                 var $change = $("#change_" + name);
 
                 $change.click(function () {
-                    // todo: refactor this ugly code
-                    $value.removeClass("visible").addClass("hidden");
+                    $value.addClass("hidden");
                     $input.val($value.text()); // restore initial value
-                    $input.removeClass("hidden").addClass("visible").focus();
+                    $input.removeClass("hidden").focus();
 
-                    $change.removeClass("visible").addClass("hidden");
-                    $cancel.removeClass("hidden").addClass("visible");
+                    $change.addClass("hidden");
+                    $cancel.removeClass("hidden");
                 });
                 $cancel.click(function () {
-                    $value.removeClass("hidden").addClass("visible");
-                    $input.removeClass("visible").addClass("hidden");
+                    $value.removeClass("hidden");
+                    $input.addClass("hidden");
                     $input.val(undefined);
 
-                    $change.removeClass("hidden").addClass("visible");
-                    $cancel.removeClass("visible").addClass("hidden");
+                    $change.removeClass("hidden");
+                    $cancel.addClass("hidden");
                 });
             });
 
