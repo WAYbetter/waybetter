@@ -123,9 +123,13 @@
                     <div class="span3">
                         <h3>{% trans "My Account" %}</h3>
                         <ul>
-                        <li><a href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
-                        <li><a href="{% url user_profile %}">{% trans "My Account" %}</a></li>
-                        <li><a href="{% url auth_logout %}">{% trans "Logout" %}</a></li>
+                        {% if request.user.is_authenticated %}
+                            <li><a href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
+                            <li><a href="{% url user_profile %}">{% trans "My Account" %}</a></li>
+                            <li><a href="{% url auth_logout %}">{% trans "Logout" %}</a></li>
+                        {% else %}
+                            <li><a href="{% url auth_login %}">{% trans "Login" %}</a></li>
+                        {% endif %}
                         </ul>
                     </div>
                 </div>
