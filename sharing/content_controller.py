@@ -7,19 +7,8 @@ from common.util import custom_render_to_response
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required
 
-def info(request):
-    return custom_render_to_response("wb_info.html", locals(), context_instance=RequestContext(request))
-
-def the_service(request):
-    page_name = page_specific_class = "the_service"
-    return custom_render_to_response("the_service.html", locals(), context_instance=RequestContext(request))
-
-def about_us(request):
+def about(request):
     return custom_render_to_response("about_faq_contact.html", locals(), context_instance=RequestContext(request))
-
-def contact(request):
-    page_name = page_specific_class = "contact"
-    return custom_render_to_response("contact.html", locals(), context_instance=RequestContext(request))
 
 @force_lang("he") # for now show this page only in hebrew
 def privacy(request):
@@ -30,10 +19,6 @@ def privacy(request):
 def terms(request):
     page_name = page_specific_class = "terms"
     return custom_render_to_response("terms_of_service.html", locals(), context_instance=RequestContext(request))
-
-def faq(request):
-    page_name = page_specific_class = "faq"
-    return custom_render_to_response("faq.html", locals(), context_instance=RequestContext(request))
 
 @passenger_required
 def my_rides(request, passenger):

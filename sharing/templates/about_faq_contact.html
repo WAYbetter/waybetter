@@ -73,3 +73,10 @@
         </div>
     </div>
 {% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        document.getElementById("howitworks").scrollIntoView(true);
+    </script>
+{% endblock %}
