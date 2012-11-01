@@ -1,3 +1,8 @@
+@mixin border-box{
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
 @mixin size($w, $h){
     width: $w;
     height: $h;
@@ -145,7 +150,7 @@
         border: 1px solid lightgray;
         width: 50px;
         height: 50px;
-        box-sizing: border-box;
+        @include border-box;
     }
     .ride-pic .pic{
         width: 48px;
@@ -200,7 +205,7 @@
     .rides-list{
     }
     .ride{
-        box-sizing: border-box;
+        @include border-box;
         padding: 20px 0;
         cursor:pointer;
         text-align: center;
@@ -234,7 +239,7 @@
         }
     }
     .ride-action{
-        box-sizing: border-box;
+        @include border-box;
         padding: 15px;
     }
     .ride-comment{
@@ -321,7 +326,7 @@
         }
     }
     #map-container{
-        box-sizing: border-box;
+        @include border-box;
         height: 480px;
         padding: 4px;
         border-radius: 5px;
@@ -333,7 +338,7 @@
         border-radius: 5px;
     }
     #booking-form{
-        box-sizing: border-box;
+        @include border-box;
     }
     #booking-form .controls{
         margin-left: auto;
@@ -366,7 +371,7 @@
     }
     #summary-header{
         padding: 10px;
-        box-sizing: border-box;
+        @include border-box;
         .icon-ok{
             margin-right: 10px;
             color: green;
