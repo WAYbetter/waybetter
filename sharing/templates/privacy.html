@@ -1,8 +1,22 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
 
-{% block top_left %}{% trans "Privacy Statement" %}{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        .header{
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+
+{% block headertext %}{% trans "Privacy Statement" %}{% endblock %}
 
 {% block content %}
-    {% trans 'privacy_content' %}
+    <div id="content">
+        <div class="container">
+            {% trans 'privacy_content' %}
+        </div>
+    </div>
 {% endblock %}

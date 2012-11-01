@@ -1,8 +1,20 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
 
-{% block top_left %}{% trans "Terms of Service" %}{% endblock %}
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        .header{
+            font-weight: bold;
+        }
+    </style>
+{% endblock %}
+{% block headertext %}{% trans "Terms of Service" %}{% endblock %}
 
 {% block content %}
-{% trans 'terms_content' %}
+    <div id="content">
+        <div class="container">
+            {% trans 'terms_content' %}
+        </div>
+    </div>
 {% endblock %}
