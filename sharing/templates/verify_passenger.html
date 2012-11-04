@@ -1,10 +1,12 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
 
-{% block header %}{% endblock %}
 {% block extrastyle %}
     {{ block.super }}
     <style type="text/css">
+        .modal-header{
+            border-bottom: none;
+        }
         #verification_status{
             display: none;
         }
@@ -18,13 +20,16 @@
     </style>
 {% endblock %}
 
+{% block headertext %}
+    {% trans "Restore Your Account" %}
+{% endblock %}
 {% block content %}
     <div id="content">
         <div class="container">
             <div class="row">
                 <div class="span12">
                     <div class="modal modal-flat pagination-centered">
-                        <div class="modal-header"><h3>{% trans "Restore Your Account" %}</h3></div>
+                        <div class="modal-header"></div>
                         <div class="modal-body">
                             <form id="phone_form">
                                 {% csrf_token %}

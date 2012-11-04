@@ -4,6 +4,9 @@
 {% block extrastyle %}
     {{ block.super }}
     <style type="text/css">
+        .modal-header{
+            border-bottom: none;
+        }
         form{
             margin: 0;
         }
@@ -22,6 +25,9 @@
     </style>
 {% endblock %}
 
+{% block headertext %}
+    {% trans "My Account" %}
+{% endblock %}
 
 {% block content %}
     <div id="content">
@@ -29,7 +35,7 @@
             <div class="row">
                 <div class="span12">
                     <div class="modal modal-flat">
-                        <div class="modal-header pagination-centered"><h3>{% trans "My Account" %}</h3></div>
+                        <div class="modal-header pagination-centered"></div>
 
                         <form action="" method="post">
                             {% csrf_token %}

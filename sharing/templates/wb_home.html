@@ -8,13 +8,13 @@
     <div id="landing">
         <div class="container">
             <div class="row">
-                <div class="span7">
+                <div class="span6">
                     <h1>{% trans "Why pay for unused taxi seats?" %}</h1>
-                    <h4>{% trans "WAYbetter allows you to easily save lots of money by grabbing a seat on taxis of others, or by simply allowing others to join your taxi!" %}</h4>
-                    <p><a href="{% url booking_page %}" class="btn btn-warning btn-large"><i class="wb-icon-taxi"></i> {% trans "Book a Ride" %}</a></p>
+                    <p id="landing-text">{% trans "פול קגאמה נערץ במערב בזכות קידומה הכלכלי של ארצו ושיקומה מהריסות רצח העם ב-1994. ברואנדה סבורים רבים שהוא מנהיג דיקטטורה נוקשה" %}</p>
+                    <a id="book-ride-btn" href="{% url booking_page %}" class="btn btn-warning btn-large"><i class="wb-icon-taxi"></i> {% trans "Book a Ride" %}</a>
                 </div>
-                <div class="span5">
-                    <div id="appShots" class="visible-desktop"></div>
+                <div class="span6" id="app-shots-container">
+                    <div id="app-shots" class="visible-desktop"></div>
                 </div>
             </div>
         </div>
@@ -26,38 +26,37 @@
     <div id="content" class="txt-middle">
         <div class="container">
             <div class="row-fluid">
-                <div class="pull-left">
+                <div class="pull-left" id="download-app-btns">
                     <h3>{% trans "Download the app now - FREE" %}</h3>
-                    <a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}" class="btn btn-primary btn-action"><i class="wb-icon wb-icon-apple"></i> {% trans "Get the iPhone App" %}</a>
-                    <a href="{% value_from_settings ANDROID_MARKET_APP_URL %}" class="btn btn-primary btn-action"><i class="wb-icon wb-icon-android"></i> {% trans "Get the Android App" %}</a>
+                    <a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}" class="btn btn-info btn-action"><i class="wb-icon wb-icon-apple"></i> אפליקציה ל iPhone</a>
+                    <a href="{% value_from_settings ANDROID_MARKET_APP_URL %}" class="btn btn-info btn-action second"><i class="wb-icon wb-icon-android"></i> אפליקציה ל Android</a>
                 </div>
             </div>
             <hr class="dashed">
-            <div class="row">
+            <div id="features" class="row">
                 <div class="span4 bouncy">
                     <div class="icon_wrapper">
                         <i class="icon-th-large"></i>
                     </div>
-                    <h2>Modern and Minimalistic</h2>
+                    <div class="header">אורך בינוני</div>
 
-                    <p>Bounce was built on the awesome Twitter Bootstrap so you have easy access to all of its
-                        features.</p>
+                    <p>פול קגאמה נערץ במערב בזכות קידומה הכלכלי של ארצו ושיקומה מהריסות רצח העם ב-1994. ברואנדה סבורים רבים שהוא מנהיג דיקטטורה נוקשה.</p>
                 </div>
                 <div class="span4 bouncy">
                     <div class="icon_wrapper">
                         <i class="icon-flag"></i>
                     </div>
-                    <h2>Awesome Typography</h2>
+                    <div class="header">משהו יותר ארוך טיפה</div>
 
-                    <p>Bounce uses free open-source Google Web Fonts as well as the iconic Font Awesome.</p>
+                    <p>פול קגאמה נערץ במערב בזכות קידומה הכלכלי של ארצו ושיקומה מהריסות רצח העם ב-1994. ברואנדה סבורים רבים שהוא מנהיג דיקטטורה נוקשה.</p>
                 </div>
                 <div class="span4 bouncy">
                     <div class="icon_wrapper">
                         <i class="icon-plane"></i>
                     </div>
-                    <h2>Launch Ready</h2>
+                    <div class="header">קצר</div>
 
-                    <p>Bounce comes with several pages, giving you a head start on creating a unique design.</p>
+                    <p>פול קגאמה נערץ במערב בזכות קידומה הכלכלי של ארצו ושיקומה מהריסות רצח העם ב-1994. ברואנדה סבורים רבים שהוא מנהיג דיקטטורה נוקשה.</p>
                 </div>
             </div>
         </div>

@@ -5,25 +5,50 @@
 
 /* Theme hacks
 -------------------------------------------------- */
+.btn {
+  padding: 10px auto;
+  font-weight: bold;
+  font-size: 18px; }
+
+.navbar-fixed-top .navbar-inner {
+  border-bottom: 0 none;
+  -webkit-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  -moz-box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.5);
+  filter: none;
+  padding: 10px 0; }
+
 .navbar-inner {
   background: white; }
 
 .navbar .nav > li > a {
-  color: black; }
-
-.navbar .nav > li > a:hover {
-  color: gray; }
+  color: #5F5F5F; }
 
 .navbar .nav li.dropdown.open > .dropdown-toggle, .navbar .nav li.dropdown.active > .dropdown-toggle, .navbar .nav li.dropdown.open.active > .dropdown-toggle {
   background-color: inherit; }
+
+.navbar .nav > li > a:hover {
+  color: #979797;
+  -moz-transform: translateY(-3px);
+  -webkit-transform: translateY(-3px);
+  -o-transform: translateY(-3px);
+  -ms-transform: translateY(-3px);
+  transform: translateY(-3px); }
+
+.navbar .nav > li.active > a, .navbar .nav > li.active:hover > a {
+  background: none repeat scroll 0 0 transparent;
+  border-bottom: 2px solid #308CCF;
+  color: #308CCF;
+  padding-bottom: 4px; }
+
+.nav-collapse.collapse {
+  height: auto!important;
+  overflow: visible!important; }
 
 #header {
   padding: 15px 0; }
   #header h1, #header h2, #header h3, #header h4, #header h5, #header h6 {
     font-weight: normal; }
-
-#landing h1, #landing h2, #landing h3, #landing h4, #landing h5, #landing h6 {
-  font-weight: normal; }
 
 .bs-docs-sidenav a i.icon-chevron-right {
   background-image: none !important; }
@@ -90,17 +115,20 @@
 
 /* General
 -------------------------------------------------- */
-#wbLogo {
+#wb-logo {
+  font-family: 'Titillium Web', sans-serif;
   background: url(/static/images/wb_site/1.2/logo_header.png) left bottom no-repeat;
   width: 180px;
   height: 32px;
   padding: 0;
   color: #000000;
-  line-height: 1.5em;
-  margin-left: 40px; }
+  margin-left: 30px;
+  font-size: 28px;
+  font-weight: normal;
+  line-height: 34px; }
 
 #content {
-  min-height: 500px; }
+  min-height: 100px; }
 
 .wb-container {
   position: relative;
@@ -220,16 +248,36 @@
 
 /* Website pages
 -------------------------------------------------- */
-.wb-home #content {
-  padding-top: 66px; }
-.wb-home #content hr {
-  margin: 150px 0 50px; }
-.wb-home #appShots {
+.wb-home #landing {
+  padding: 30px 0 80px;
+  background-image: url(/static/images/wb_site/1.2/taxi.png);
+  background-position: center bottom;
+  background-repeat: no-repeat; }
+.wb-home #landing h1 {
+  color: #333; }
+.wb-home #landing-text {
+  max-width: 320px; }
+.wb-home #book-ride-btn {
+  width: 200px;
+  margin-top: 20px; }
+.wb-home #app-shots-container {
+  position: relative; }
+.wb-home #app-shots {
   position: absolute;
-  /*padding: 20px 0;*/
+  top: -15px;
+  right: 0;
   background: url(/static/images/wb_site/1.2/app_shots.png) center top no-repeat;
   width: 355px;
-  height: 480px; }
+  height: 430px; }
+.wb-home #content {
+  padding-top: 20px; }
+.wb-home #content hr {
+  margin: 30px 0 50px; }
+.wb-home #download-app-btns .btn.second {
+  margin-left: 30px; }
+.wb-home #features .header {
+  font-size: 24px;
+  line-height: 36px; }
 
 .my-rides-page .modal-footer .modal-buttons {
   display: inline-block; }

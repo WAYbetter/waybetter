@@ -4,10 +4,11 @@
 
 {% block extrastyle %}
     <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link href='http://fonts.googleapis.com/css?family=Titillium+Web:400,700italic,700' rel='stylesheet' type='text/css'>
     <link href='/static/css/font-waybetter.css' rel='stylesheet' type='text/css'>
+
     {% if LANGUAGE_BIDI %}
         <link href="/static/themes/bootstrap-bounce/css/bootstrap.min.rtl.css" rel="stylesheet">
-        <link href="/static/themes/bootstrap-bounce/css/bootstrap-responsive.min.rtl.css" rel="stylesheet">
         <link href="/static/themes/bootstrap-bounce/css/font-awesome.rtl.css" rel="stylesheet">
         <!--[if lt IE 8]>
           <link href="/static/themes/bootstrap-bounce/css/font-awesome-ie7.rtl.css" rel="stylesheet">
@@ -20,7 +21,6 @@
 
     {% else %}
         <link href="/static/themes/bootstrap-bounce/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/static/themes/bootstrap-bounce/css/bootstrap-responsive.min.css" rel="stylesheet">
         <link href="/static/themes/bootstrap-bounce/css/font-awesome.css" rel="stylesheet">
         <!--[if lt IE 8]>
           <link href="/static/themes/bootstrap-bounce/css/font-awesome-ie7.css" rel="stylesheet">
@@ -46,31 +46,32 @@
                         <span class="icon-bar"></span>
                     </a>
 
-                    <a id="wbLogo" class="brand" href="{% url wb_home %}"><strong>WAY</strong>better</a>
+                    <a id="wb-logo" class="brand" href="{% url wb_home %}"><strong>WAY</strong>better</a>
 
                     <div class="nav-collapse collapse">
-                        <ul class="nav pull-right">
-                        <li><a href="{% url about %}"><i class="icon-heart-empty"></i>{% trans "About" %}</a></li>
-                        <li class="dropdown">
-                            <a href class="dropdown-toggle" data-toggle="dropdown"><i class="icon-arrow-down"></i>{% trans "Get the App" %}<b class="caret"></b></a>
-                            <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                                <li><a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}">{% trans "iPhone" %}</a></li>
-                                <li><a href="{% value_from_settings ANDROID_MARKET_APP_URL %}">{% trans "Android" %}</a></li>
-                            </ul>
-                        </li>
-
-                        {% if request.user.is_authenticated %}
+                        <ul id="header-links" class="nav pull-right">
+                            <li><a href="{% url wb_home %}">{% trans "Home" %}</a></li>
+                            <li><a href="{% url about %}">{% trans "About" %}</a></li>
                             <li class="dropdown">
-                                <a class="dropdown-toggle" data-toggle="dropdown"><i class="icon-user"></i>{{ request.user.username }}<b class="caret"></b></a>
+                                <a href class="dropdown-toggle" data-toggle="dropdown">{% trans "Get the App" %}</a>
                                 <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                                    <li><a href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
-                                    <li><a href="{% url user_profile %}">{% trans "My Account" %}</a></li>
-                                    <li><a href="{% url auth_logout %}">{% trans "Logout" %}</a></li>
+                                    <li><a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}">{% trans "iPhone" %}</a></li>
+                                    <li><a href="{% value_from_settings ANDROID_MARKET_APP_URL %}">{% trans "Android" %}</a></li>
                                 </ul>
                             </li>
-                        {% else %}
-                            <li><a href="{% url auth_login %}">{% trans "Login" %}</a></li>
-                        {% endif %}
+
+                            {% if request.user.is_authenticated %}
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown">{{ request.user.username }}<b class="caret"></b></a>
+                                    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                        <li><a href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
+                                        <li><a href="{% url user_profile %}">{% trans "My Account" %}</a></li>
+                                        <li><a href="{% url auth_logout %}">{% trans "Logout" %}</a></li>
+                                    </ul>
+                                </li>
+                            {% else %}
+                                <li><a href="{% url auth_login %}">{% trans "Login" %}</a></li>
+                            {% endif %}
                         </ul>
                     </div>
                 </div>
@@ -188,6 +189,7 @@
     {{ block.super }}
     <script type="text/javascript">
         $(function () {
+            $("#header-links > li > a[href='" + window.location.pathname + "']").parents("li").addClass("active");
             $("#totop").click(function () {
                 $("body, html").animate({
                     scrollTop:0

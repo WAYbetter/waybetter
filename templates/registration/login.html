@@ -5,6 +5,9 @@
 {% block extrastyle %}
     {{ block.super }}
     <style type="text/css">
+        .modal-header{
+            border-bottom: none;
+        }
         form{
             margin: 0;
         }
@@ -18,15 +21,17 @@
     </style>
 {% endblock %}
 
+{% block headertext %}
+    {% trans "Login to WAYbetter" %}
+{% endblock %}
+
 {% block content %}
     <div id="content" class="txt-middle">
         <div class="container">
             <div class="row">
                 <div class="span12">
                     <div class="modal modal-flat">
-                        <div class="modal-header">
-                            <h3>{% trans "Login to WAYbetter" %}</h3>
-                        </div>
+                        <div class="modal-header"></div>
                         <form method="post" id="login-form">
 
                             <div class="modal-body">
