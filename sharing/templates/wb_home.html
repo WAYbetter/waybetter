@@ -11,7 +11,7 @@
                 <div class="span7">
                     <h1>{% trans "Why pay for unused taxi seats?" %}</h1>
                     <h4>{% trans "WAYbetter allows you to easily save lots of money by grabbing a seat on taxis of others, or by simply allowing others to join your taxi!" %}</h4>
-                    <p><a href="{% url booking_page %}" class="btn btn-warning btn-large"><i class="icon-road"></i> {% trans "Book a Ride" %}</a></p>
+                    <p><a href="{% url booking_page %}" class="btn btn-warning btn-large"><i class="wb-icon-taxi"></i> {% trans "Book a Ride" %}</a></p>
                 </div>
                 <div class="span5">
                     <div id="appShots" class="visible-desktop"></div>
@@ -28,8 +28,8 @@
             <div class="row-fluid">
                 <div class="pull-left">
                     <h3>{% trans "Download the app now - FREE" %}</h3>
-                    <a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}" class="btn btn-primary btn-action">{% trans "Get the iPhone App" %}</a>
-                    <a href="{% value_from_settings ANDROID_MARKET_APP_URL %}" class="btn btn-primary btn-action">{% trans "Get the Android App" %}</a>
+                    <a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}" class="btn btn-primary btn-action"><i class="wb-icon wb-icon-apple"></i> {% trans "Get the iPhone App" %}</a>
+                    <a href="{% value_from_settings ANDROID_MARKET_APP_URL %}" class="btn btn-primary btn-action"><i class="wb-icon wb-icon-android"></i> {% trans "Get the Android App" %}</a>
                 </div>
             </div>
             <hr class="dashed">
