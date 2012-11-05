@@ -65,7 +65,8 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
                 num_seats:parseInt($scope.num_seats),
                 private:$scope.is_private,
                 luggage:$scope.has_luggage
-            }
+            },
+            offers: $scope.offers // will be stored in session to capture current booking
         };
 
         angular.extend(data, extra);
@@ -96,18 +97,45 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
         });
     }
 
-    $scope.sync = function () {
+    $scope.sync = function (continue_booking) {
         BookingService.sync().then(function(data){
             $scope.logged_in = data.logged_in;
             $scope.passenger_picture_url = data.passenger_picture_url;
 
-            $scope.ongoing_order_id = data.ongoing_order_id;
-            $scope.future_orders_count = data.future_orders_count;
-            $scope.pickup_datetime_default_idx = data.pickup_datetime_default_idx || 0;
-            $scope.pickup_datetime_options = data.pickup_datetime_options.map(function(string_dt) {
-                return new Date(string_dt);
-            });
-        }, function(){})
+            if (!continue_booking) {
+                // populating datetime options triggers a watch that sets pickup_dt
+                // but when booking continues we use the server's pickup_dt instead of what the watch sets
+
+                $scope.pickup_datetime_default_idx = data.pickup_datetime_default_idx || 0;
+                $scope.pickup_datetime_options = data.pickup_datetime_options.map(function (string_dt) {
+                    return new Date(string_dt);
+                });
+            }
+
+            if (continue_booking && data.booking_data){ // continue an interrupted booking process
+                console.log("booking continued", data.booking_data);
+
+                var booking_data = angular.fromJson(data.booking_data);
+
+                $scope.offers = booking_data.offers;
+                $scope.pickup = Address.fromJSON(booking_data.pickup);
+                $scope.dropoff = Address.fromJSON(booking_data.dropoff);
+                $scope.pickup_dt = booking_data.asap ? ASAP :  new Date(booking_data.pickup_dt);
+                $scope.num_seats = booking_data.settings.num_seats;
+                $scope.is_private = booking_data.settings.private;
+                $scope.has_luggage = booking_data.settings.luggage;
+
+                if (booking_data.ride_id){
+                    $scope.selected_offer = $scope.offers.filter(function(offer){ return offer.ride_id == booking_data.ride_id})[0];
+                } else {
+                    $scope.selected_offer = $scope.offers.filter(function(offer){ return offer.new_ride })[0];
+                }
+
+                if ($scope.ready_to_order()){
+                    $scope.book_ride();
+                }
+            }
+        }, angular.noop)
     };
 
     $scope.reset = function(){
@@ -324,7 +352,7 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
     $scope.$watch(function() { return angular.toJson([$scope.pickup_date, $scope.pickup_time]) }, function() {
         if ($scope.pickup_date && $scope.pickup_time) {
             $scope.pickup_dt = join_date_and_time($scope.pickup_date, $scope.pickup_time);
-            console.log("dt changed:", BookingService.pickup_dt);
+            console.log("dt changed:", $scope.pickup_dt);
         }
     });
 

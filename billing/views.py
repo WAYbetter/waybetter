@@ -25,7 +25,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, passenger_required
-from ordering.models import SharedRide, COMPLETED, ACCEPTED, CURRENT_ORDER_KEY
+from ordering.models import SharedRide, COMPLETED, ACCEPTED, CURRENT_ORDER_KEY, CURRENT_BOOKING_DATA_KEY
 
 class InvoiceActions(Enum):
     CREATE_ID	= 0
@@ -91,17 +91,11 @@ def transaction_ok(request, passenger):
     billing_info = BillingInfo(**kwargs)
     billing_info.save()
 
-    order = request.session.get(CURRENT_ORDER_KEY)
-    logging.info("order = %s" % order)
-    if order:
-        order = order.fresh_copy() # update the order
-        logging.info("order.passenger = %s" % order.passenger)
-        if order.price and order.passenger == passenger:
-            logging.info("Billing order: %s" % order)
-            # redirect to bill order
-            return HttpResponseRedirect(get_billing_redirect_url(request, order, passenger))
-        
-    return HttpResponseRedirect(reverse("wb_home"))
+    if request.session.get(CURRENT_BOOKING_DATA_KEY):
+        logging.info("redirect /booking/continued after billing registration: %s" % passenger)
+        return HttpResponseRedirect(reverse("booking_continued"))
+    else:
+        return HttpResponseRedirect(reverse("wb_home"))
 
 
 @passenger_required
