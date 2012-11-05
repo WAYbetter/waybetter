@@ -23,10 +23,6 @@
             overflow-x: hidden;
         }
 
-        /*.next-rides > table > tbody > tr {*/
-            /*background: rgba(252, 226, 226, 1);*/
-        /*}*/
-
         table > tbody > tr.ride-details {
             background: none;
         }
@@ -343,6 +339,15 @@
             }
         });
     });
+
+
+    // setup a default exception handler
+    app.factory('$exceptionHandler', function(ErrorService) {
+        return function(exception, cause) {
+            ErrorService.error_handler();
+        };
+    });
+
     app.constant("Status", {
         'ASSIGNED':'ASSIGNED',
         'ACCEPTED':'ACCEPTED',
@@ -485,6 +490,7 @@
             AirService.call("set_title", "WAYbetter - {{ station_name }}");
 
             $scope.sync_state();
+
         };
 
         $scope.updating = function () {
