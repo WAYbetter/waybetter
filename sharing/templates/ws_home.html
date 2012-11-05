@@ -407,9 +407,6 @@
 
     app.controller("GoogleChannelController", function ($scope, ErrorService, AirService, Defaults) {
         return {
-            scope: $scope,
-            channel: undefined,
-            socket: undefined,
             on_message:function (msg) {
                 AirService.log("on_message: ", msg.data);
                 $scope.pending_push = false;
@@ -423,6 +420,10 @@
                 if (data.action == "update_all") {
                     $scope.sync_state();
                 }
+                if (data.action == "refresh") {
+                    ErrorService.error_handler()
+                }
+
                 if (data.heartbeat) {
                     AirService.log("heartbeat received");
                     $scope.last_heartbeat = new Date(); // save last heartbeat time
@@ -433,51 +434,51 @@
                 }
             },
             on_error:function () {
-                AirService.log("on_error");
-                $scope.$apply(function () {
-                    ErrorService.error_handler.apply(ErrorService, arguments);
-                });
-
+                AirService.log("channel: on_error");
+                ErrorService.error_handler();
             },
             on_open:function () {
-//                console.log("on_open")
-
+                AirService.log("channel: on_open");
+                $scope.channel_opened = true;
             },
             on_close:function () {
-//                console.log("on_close")
+                AirService.log("channel: on_close");
+                ErrorService.error_handler();
             }
         }
     });
 
     app.directive("googleChannelDirective", function () {
+        var channel = new goog.appengine.Channel("{{ channel_token }}");
+        var socket = channel.open();
+
         return {
             restrict:'M',
             controller:'GoogleChannelController',
             link:function (scope, element, attrs, controller) {
-                controller.channel = new goog.appengine.Channel("{{ channel_token }}");
-                controller.socket = controller.channel.open();
-                controller.socket.onmessage = function () {
+                socket.onmessage = function () {
                     controller.on_message.apply(controller, arguments);
                 };
-                controller.socket.onerror = function () {
+                socket.onerror = function () {
                     controller.on_error.apply(controller, arguments);
                 };
-                controller.socket.onopen = function () {
+                socket.onopen = function () {
                     controller.on_open.apply(controller, arguments);
                 };
-                controller.socket.onclose = function () {
+                socket.onclose = function () {
                     controller.on_close.apply(controller, arguments);
                 };
             }
         }
     });
 
-    app.controller("WorkstationCtrl", function($scope, $http, $filter, Tabs, Status, AirService, ErrorService, Defaults) {
+    app.controller("WorkstationCtrl", function($scope, $http, $filter, $timeout, Tabs, Status, AirService, ErrorService, Defaults) {
         $scope.tabs = Tabs;
         $scope.status = Status;
         $scope.error_service = ErrorService;
         $scope.pending_push = false;
         $scope.last_heartbeat = undefined;
+        $scope.channel_opened = false;
 
         $scope.rides = [];
         $scope.history_rides = [];
@@ -490,6 +491,14 @@
             AirService.call("set_title", "WAYbetter - {{ station_name }}");
 
             $scope.sync_state();
+
+            // check that the channel is open
+            $timeout(function () {
+                if (! $scope.channel_opened) {
+                    AirService.log("channel failed to open");
+                    ErrorService.error_handler();
+                }
+            }, 1000 * 10);
 
         };
 
