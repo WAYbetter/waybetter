@@ -85,6 +85,7 @@ LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGE
 MAX_STATION_DISTANCE_KM = 10
 CURRENT_PASSENGER_KEY = "current_passenger"
 CURRENT_ORDER_KEY = "current_order"
+CURRENT_BOOKING_DATA_KEY = "current_booking_data"
 
 class RideComputationStatus(Enum):
     PENDING     = 1

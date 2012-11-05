@@ -21,7 +21,7 @@ from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
 from ordering.enums import RideStatus
-from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED
+from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY
 from pricing.models import TARIFFS, RuleSet
 from sharing.algo_api import AlgoField
 import simplejson
@@ -50,9 +50,15 @@ def staff_m2m(request):
     return render_to_response("staff_m2m.html", RequestContext(request))
 
 
-def booking_page(request):
+def booking_page(request, continued=False):
     lib_ng = True
     lib_map = True
+
+    if continued:
+        continue_booking = simplejson.dumps(True)
+    else:
+        request.session[CURRENT_BOOKING_DATA_KEY] = None
+
     return render_to_response("booking_page.html", locals(), RequestContext(request))
 
 
@@ -125,7 +131,8 @@ def sync_app_state(request):
     response = {
         "logged_in": request.user.is_authenticated(),
         "pickup_datetime_options": [to_js_date(opt) for opt in dt_options],
-        "pickup_datetime_default_idx": min(3, len(dt_options))
+        "pickup_datetime_default_idx": min(3, len(dt_options)),
+        "booking_data": request.session.get(CURRENT_BOOKING_DATA_KEY)
     }
 
     passenger = Passenger.from_request(request)
@@ -489,7 +496,9 @@ def book_ride(request):
             result['status'] = 'failed'
             result['error'] = 'Booking failed for some reason'
 
-    else: # not authorized for booking
+    else:  # not authorized for booking, save current booking state in session
+        request.session[CURRENT_BOOKING_DATA_KEY] = request_data
+
         if passenger and not hasattr(passenger, "billing_info"):
             result['status'] = 'billing_failed'
             result['redirect'] = get_token_url(request) # go to billing
