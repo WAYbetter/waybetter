@@ -372,8 +372,6 @@ def get_offers(request):
     # TODO_WB: save all searches? in our db? use vision.bi ?
     # TODO_WB: save the requested search params and associate with a push_token from request for later notifications of similar searches
     # TODO_WB: real test for coverage, generate a list of uncovered addresses users tried booking to
-    if order_settings.pickup_address.city_name.find(u"תל אביב") < 0 or order_settings.dropoff_address.city_name.find(u"תל אביב") < 0:
-        return JSONResponse({'error': u'לא ניתן להזמין לכתובת שנבחרה. אנא נסו שנית בקרוב.'})
 
     if not order_settings.private:
         candidate_rides = get_candidate_rides(order_settings)
@@ -381,6 +379,8 @@ def get_offers(request):
         candidate_rides = []
 
     matching_rides = get_matching_rides(candidate_rides, order_settings)
+    if not matching_rides:
+        return JSONResponse({'error': u'לא ניתן להזמין לכתובת שנבחרה. אנא נסו שנית בקרוב.'})
 
     offers = []
     tariffs = RuleSet.objects.all()
@@ -397,7 +397,7 @@ def get_offers(request):
                 price = round(get_order_price_data_from(ride_data).get(tariff.tariff_type), 2)
                 price_alone = get_order_price_data_from(ride_data, sharing=False).get(tariff.tariff_type)
                 break
-        if not price:
+        if not price > 0:
             logging.warning("get_offers missing price for %s" % order_settings.pickup_dt)
             continue
 
@@ -650,9 +650,12 @@ def update_ride_for_order(ride, ride_data, new_order):
 def create_ride_point(ride, point_data):
     point = RidePoint()
     point.type = StopType.PICKUP if point_data[AlgoField.TYPE] == AlgoField.PICKUP else StopType.DROPOFF
+
     point.lon = point_data[AlgoField.POINT_ADDRESS][AlgoField.LNG]
     point.lat = point_data[AlgoField.POINT_ADDRESS][AlgoField.LAT]
     point.address = point_data[AlgoField.POINT_ADDRESS][AlgoField.ADDRESS]
+    point.city_name= point_data[AlgoField.POINT_ADDRESS][AlgoField.CITY]
+
     point.stop_time = ride.depart_time + datetime.timedelta(seconds=point_data[AlgoField.OFFSET_TIME])
     point.ride = ride
     point.save()
@@ -743,12 +746,12 @@ class OrderSettings:
         # TODO_WB: fill empty fields for algo when we support area based pricing
         return {
             "from_address": self.pickup_address.formatted_address,
-            "from_city": "",
+            "from_city": self.pickup_address.city_name,
             "from_area": "",
             "from_lat": self.pickup_address.lat,
             "from_lon": self.pickup_address.lng,
             "to_address": self.dropoff_address.formatted_address,
-            "to_city": "",
+            "to_city": self.dropoff_address.city_name,
             "to_area": "",
             "to_lat": self.dropoff_address.lat,
             "to_lon": self.dropoff_address.lng,

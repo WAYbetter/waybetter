@@ -624,6 +624,7 @@ class RidePoint(BaseModel):
     lon = models.FloatField(_("longtitude"))
     lat = models.FloatField(_("latitude"))
     address = models.CharField(_("address"), max_length=200, null=True, blank=True)
+    city_name = models.CharField(_("city name"), max_length=200, null=True, blank=True)
 
     def __unicode__(self):
         return u"RidePoint [%d]" % self.id
@@ -653,7 +654,7 @@ class RidePoint(BaseModel):
                 AlgoField.LAT: self.lat,
                 AlgoField.LNG: self.lon,
                 AlgoField.ADDRESS: self.address,
-                AlgoField.CITY: "",
+                AlgoField.CITY: self.city_name,
                 AlgoField.AREA: ""
             },
             AlgoField.ORDER_IDS: [o.id for o in self.orders]
