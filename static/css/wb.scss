@@ -34,7 +34,12 @@
 
 /* Theme hacks
 -------------------------------------------------- */
-.btn{
+h3{
+    font-size: 20px;
+    font-weight: normal;
+}
+
+.btn-large{
     padding: 10px auto;
     font-weight: bold;
     font-size: 18px;
@@ -83,6 +88,10 @@
     h1, h2, h3, h4, h5, h6{
         font-weight: normal;
     }
+}
+
+#footer{
+    padding-bottom: 40px;
 }
 
 .bs-docs-sidenav a i.icon-chevron-right{
@@ -178,8 +187,14 @@
     border-radius: 3px;
 }
 
-/* Common directives
+/* Common UI
 -------------------------------------------------- */
+.btn-bubble{
+    border-radius: 15px;
+    padding: 0px 3px;
+    font-size: 18px;
+}
+
 .ride-pics{
     position: relative;
     text-align: center;
@@ -234,6 +249,9 @@
     .rides-cat{
 
     }
+    .rides-cat-header.top{
+        border-radius: 3px 3px 0 0;
+    }
     .rides-cat-header{
         height: 20px;
         text-align: left;
@@ -278,6 +296,7 @@
         height: 70px;
         border-right: 1px dotted gray;
         padding: 10px 0;
+        text-align: left;
     }
     .ride-price-details{
         height: 70px;
@@ -392,8 +411,10 @@
         background-color: #F1F1F1;
         text-align: left;
         border-radius: 5px;
+        h3 { margin: 0; color: #308CCF; }
     }
     .alerts{
+        margin-top: 10px;
         margin-bottom: 10px;
         text-align: center;
         .progress{
@@ -414,29 +435,17 @@
     }
     #booking-form{
         @include border-box;
-    }
-    #booking-form .controls{
-        margin-left: auto;
-    }
-    #booking-form .control-label{
-        width: 35px;
-        margin-right: 5px;
-        background: url(/static/images/wb_site/1.2/booking_icons.png) left top no-repeat;
-    }
-    #booking-form .control-label.time{ background-position: 0 0; }
-    #booking-form .control-label.ride-type{ background-position: 0 -62px; }
-    #booking-form .control-label.luggage{ background-position: 0 -124px; }
-    #booking-form .control-label.seats{ background-position: 0 -188px; }
-    #booking-form #private-price {
-        text-align: center;
+        form{
+            margin: 0;
+        }
+        .row-fluid{
+            margin-bottom: 15px;
+        }
+        #private-price{
+            text-align: center;
+        }
     }
 
-    #booking-form input[type="text"]{
-        margin-bottom: 20px;
-    }
-    #pickup-time{
-        margin-left: 1px;
-    }
     #offers-container{
         margin-bottom: 10px;
     }

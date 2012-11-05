@@ -5,7 +5,11 @@
 
 /* Theme hacks
 -------------------------------------------------- */
-.btn {
+h3 {
+  font-size: 20px;
+  font-weight: normal; }
+
+.btn-large {
   padding: 10px auto;
   font-weight: bold;
   font-size: 18px; }
@@ -49,6 +53,9 @@
   padding: 15px 0; }
   #header h1, #header h2, #header h3, #header h4, #header h5, #header h6 {
     font-weight: normal; }
+
+#footer {
+  padding-bottom: 40px; }
 
 .bs-docs-sidenav a i.icon-chevron-right {
   background-image: none !important; }
@@ -137,8 +144,13 @@
   background-color: #f5f5f5;
   border-radius: 3px; }
 
-/* Common directives
+/* Common UI
 -------------------------------------------------- */
+.btn-bubble {
+  border-radius: 15px;
+  padding: 0px 3px;
+  font-size: 18px; }
+
 .ride-pics {
   position: relative;
   text-align: center; }
@@ -178,6 +190,8 @@
 .rides-container.blur .ride.focus {
   opacity: 1; }
 
+.rides-container .rides-cat-header.top {
+  border-radius: 3px 3px 0 0; }
 .rides-container .rides-cat-header {
   height: 20px;
   text-align: left;
@@ -214,7 +228,8 @@
 .rides-container .ride-pickup-details {
   height: 70px;
   border-right: 1px dotted gray;
-  padding: 10px 0; }
+  padding: 10px 0;
+  text-align: left; }
 .rides-container .ride-price-details {
   height: 70px;
   padding: 20px 0; }
@@ -295,7 +310,11 @@
   background-color: #F1F1F1;
   text-align: left;
   border-radius: 5px; }
+  .booking-page .booking-panel h3 {
+    margin: 0;
+    color: #308CCF; }
 .booking-page .alerts {
+  margin-top: 10px;
   margin-bottom: 10px;
   text-align: center; }
   .booking-page .alerts .progress {
@@ -316,26 +335,12 @@
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box; }
-.booking-page #booking-form .controls {
-  margin-left: auto; }
-.booking-page #booking-form .control-label {
-  width: 35px;
-  margin-right: 5px;
-  background: url(/static/images/wb_site/1.2/booking_icons.png) left top no-repeat; }
-.booking-page #booking-form .control-label.time {
-  background-position: 0 0; }
-.booking-page #booking-form .control-label.ride-type {
-  background-position: 0 -62px; }
-.booking-page #booking-form .control-label.luggage {
-  background-position: 0 -124px; }
-.booking-page #booking-form .control-label.seats {
-  background-position: 0 -188px; }
-.booking-page #booking-form #private-price {
-  text-align: center; }
-.booking-page #booking-form input[type="text"] {
-  margin-bottom: 20px; }
-.booking-page #pickup-time {
-  margin-left: 1px; }
+  .booking-page #booking-form form {
+    margin: 0; }
+  .booking-page #booking-form .row-fluid {
+    margin-bottom: 15px; }
+  .booking-page #booking-form #private-price {
+    text-align: center; }
 .booking-page #offers-container {
   margin-bottom: 10px; }
 .booking-page #offers-disclaimer {

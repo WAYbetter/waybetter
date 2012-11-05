@@ -50,7 +50,7 @@ module.directive("offer", function (DefaultMessages) {
         replace: true,
         template: '\
             <div class="ride row-fluid"> \
-                <div class="ride-passengers span4"> \
+                <div class="ride-passengers span5"> \
                     <div class="type-indicator"></div>\
                     <ride-pics-for-offer></ride-pics-for-offer> \
                 </div> \
@@ -58,7 +58,7 @@ module.directive("offer", function (DefaultMessages) {
                     <strong>' + DefaultMessages.pickup +  ': (( offer.pickup_time | wb_date:"EEE d/M" )) ((  offer.pickup_time | date:"H:mm" ))</strong> \
                     <div>(( offer.seats_left )) ' + DefaultMessages.available_seats + '</div> \
                 </div> \
-                <div class="ride-price-details span4"> \
+                <div class="ride-price-details span3"> \
                     <strong class="price">(( offer.price | currency:"₪" ))</strong> \
                     <span>' + DefaultMessages.or_less + '</span> \
                 </div> \
