@@ -24,6 +24,15 @@ module.filter('zero_padding', function () {
         return out;
     }
 });
+
+module.filter('join_prop', function () {
+    return function (input, prop, delimiter) {
+        return input.map(function (element) {
+            return element[prop]
+        }).join(delimiter)
+    }
+});
+
 module.filter('paren_wrap', function () {
     return function (input, length) {
         if (input == undefined) {

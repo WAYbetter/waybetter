@@ -40,3 +40,13 @@ def notify_passengers(sender, signal_type, obj, status, **kwargs):
     ride = obj
     if status == RideStatus.ACCEPTED:
         send_ride_notifications(ride)
+
+@receive_signal(ride_status_changed_signal)
+def update_ws(sender, signal_type, obj, status, **kwargs):
+    from sharing.station_controller import update_ride
+
+    ride = obj
+    station = ride.station
+
+    for ws in station.work_stations.filter(is_online=True):
+        update_ride(ws, ride)

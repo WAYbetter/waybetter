@@ -114,6 +114,7 @@ def handle_dead_workstations(request):
 def send_heartbeat(request):
     current_version = get_current_version()
     for ws in WorkStation.objects.filter(is_online=True):
+        logging.info("sending heartbeat to: %s" % ws)
         _do_push(ws, {"heartbeat": current_version})
 
     return HttpResponse("OK")
