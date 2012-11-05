@@ -435,6 +435,7 @@ class SharedRide(BaseRide):
 
     # 1.2 fields
     can_be_joined = models.BooleanField(default=True)
+    taxi_number = models.CharField(max_length=20, null=True, blank=True)
 
     # < 1.2 fields
     computation = models.ForeignKey(RideComputation, verbose_name=_("computation"), related_name="rides", null=True, blank=True)
@@ -519,28 +520,25 @@ class SharedRide(BaseRide):
             'orders': sorted([o.serialize_for_eagle_eye() for o in self.orders.all()], key=lambda o: o['pickup'], reverse=False),
             'start_time': to_js_date(self.depart_time),
             'status': self.get_status_label(),
-            'taxi': self.taxi.number if self.taxi else "?",
+            'taxi': self.taxi_number,
             'station': self.station.name if self.station else "?",
             'shared': self.can_be_joined,
             'debug': self.debug
             }
 
     def serialize_for_ws(self):
-        return {'pickups': [ { 'num_passengers': p.pickup_orders.count(),
-                               'passenger_phones': [order.passenger.phone for order in p.pickup_orders.all()],
-                               'address': p.address,
-                               'time': p.stop_time.strftime("%H:%M") } for p in self.points.filter(type=StopType.PICKUP).order_by("stop_time")],
-                'dropoffs': [ { 'num_passengers' : p.dropoff_orders.count(),
-                                'address': p.address,
-                                'passenger_phones': [order.passenger.phone for order in p.dropoff_orders.all()],
-                                'time': p.stop_time.strftime("%H:%M") } for p in self.points.filter(type=StopType.DROPOFF).order_by("stop_time")],
+
+        return {'stops' : [ { 'address'     : p.address,
+                              'time'        : to_js_date(p.stop_time),
+                              'type'        : StopType.get_name(p.type),
+                              'passengers'  : [{'name': o.passenger.name, 'phone': o.passenger.phone} for o in p.orders.all()]
+                            } for p in self.points.all().order_by("stop_time") ],
+                'passengers': [{'name': o.passenger.name, 'phone': o.passenger.phone} for o in self.orders.all() ],
                 'depart_time': to_js_date(self.depart_time),
                 'arrive_time': to_js_date(self.arrive_time),
                 'id': self.id,
-                'status': self.status,
-                'driver': {'name': self.driver.name, 'id': self.driver.id} if self.driver else "",
-                'taxi': {'number': self.taxi.number, 'id': self.taxi.id} if self.taxi else "",
-                'value': self.value or "",
+                'status': RideStatus.get_name(self.status),
+                'taxi':  self.taxi_number,
                 'debug': self.debug,
                 'driver_jist': self.driver_jist()
         }
