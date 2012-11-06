@@ -11,16 +11,13 @@ from datetime import timedelta
 from ordering.util import send_msg_to_passenger
 from pricing.models import RuleSet
 from sharing.algo_api import AlgoField
-from sharing.station_controller import send_ride_voucher
-from fleet import fleet_manager
 import logging
 
 DISPATCHING_TIME = timedelta(hours=24)
 
 def dispatching_cron(request):
-    logging.info("cron: dispatch rides")
-
     rides_to_dispatch = SharedRide.objects.filter(status=RideStatus.PENDING, depart_time__lte=default_tz_now() + DISPATCHING_TIME)
+    logging.info("cron: dispatch rides: %s" % rides_to_dispatch)
     for ride in rides_to_dispatch:
         deferred.defer(dispatch_ride, ride)
 
@@ -34,34 +31,24 @@ def dispatch_ride(ride):
         logging.warning("Ride dispatched twice: %s" % ride.id)
         return # nothing to do.
 
-    work_station = assign_ride(ride)
-    if work_station:
-        deferred.defer(send_ride_voucher, ride_id=ride.id)
+    station = assign_ride(ride)
+    if not station:
+        from sharing.station_controller import send_ride_in_risk_notification
 
-        if ride.dn_fleet_manager_id:
-            deferred.defer(fleet_manager.create_ride, ride)
-        else:
-            logging.info("ride %s has no fleet manager" % ride.id)
-
-        if not work_station.is_online:
-            notify_by_email(u"Ride [%s] dispatched to offline workstation %s" % (ride.id, work_station), msg=ride.get_log())
-
-    else:
         #TODO_WB: how do we handle this? cancel the orders?
         ride.change_status(old_status=RideStatus.PROCESSING, new_status=RideStatus.PENDING)
-        notify_dispatching_failed(ride)
+        send_ride_in_risk_notification(u"No station found for ride: %s" % ride.id, ride.id)
 
 
 def assign_ride(ride):
-    work_station = choose_workstation(ride)
-
-    if work_station:
+    station = choose_station(ride)
+    logging.info("ride [%s] was assigned to station: %s" % (ride.id, station))
+    if station:
         try:
-            station = work_station.station
             ride.station = station
             ride.dn_fleet_manager_id = station.fleet_manager_id
             if ride.change_status(old_status=RideStatus.PROCESSING, new_status=RideStatus.ASSIGNED): # calls save()
-                return work_station
+                return station
 
         except Exception:
             notify_by_email(u"Cannot assign ride [%s]" % ride.id, msg="%s\n%s" % (ride.get_log(), traceback.format_exc()))
@@ -69,7 +56,8 @@ def assign_ride(ride):
     return None
 
 
-def choose_workstation(ride):
+def choose_station(ride):
+    logging.info("ride cost data: %s" % ride.cost_data)
     cost_models = []
     tariffs = RuleSet.objects.all()
     for tariff in tariffs:
@@ -86,29 +74,17 @@ def choose_workstation(ride):
             logging.info("%s pricing model found stations: %s" % (pricing_model_name, pricing_model_stations))
 
 
-    ws_list = [ws for station in stations for ws in station.work_stations.filter(accept_shared_rides=True)]
+#    ws_list = [ws for station in stations for ws in station.work_stations.filter(accept_shared_rides=True)]
 
     if ride.debug:
         logging.info("filtering debug ws")
-        ws_list = filter(lambda ws: ws.accept_debug, ws_list)
+        stations = filter(lambda station: station.accept_debug, stations)
 
-    logging.info("ws list: %s" % ws_list)
+    logging.info("stations list: %s" % stations)
 
-    if ws_list:
-        return ws_list[0]
+    if stations:
+        return stations[0]
 
     else:
         logging.error(u"No sharing stations found %s" % ride.get_log())
         return None
-
-
-def notify_dispatching_failed(ride):
-    current_lang = translation.get_language()
-    for order in ride.orders.all():
-        translation.activate(order.language_code)
-        msg = _("We are sorry, but order #%s could not be completed") % order.id
-        send_msg_to_passenger(order.passenger, msg)
-
-    translation.activate(current_lang)
-
-    notify_by_email(u"Ride [%s] Dispatching failed" % ride.id, msg=ride.get_log())

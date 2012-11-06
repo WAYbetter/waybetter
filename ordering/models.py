@@ -157,6 +157,7 @@ class Station(BaseModel):
     stop_price = models.FloatField(_("stop price"), default=0)
 
     pricing_model_name = models.CharField(_("pricing model name"), null=True, blank=True, max_length=10, editable=True)
+    accept_debug = models.BooleanField(_("Accept debug"), default=False)
 
     payday = models.IntegerField(_("payday"), max_length=2, default=10) # day of month the drivers get paid
 
@@ -405,6 +406,8 @@ class BaseRide(BaseModel):
     status = StatusField(_("status"), choices=RideStatus.choices(), default=RideStatus.PENDING)
     debug = models.BooleanField(default=False, editable=False)
 
+    taxi_number = models.CharField(max_length=20, null=True, blank=True)
+
     _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
 
     def get_cost_data(self):
@@ -439,7 +442,6 @@ class SharedRide(BaseRide):
 
     # 1.2 fields
     can_be_joined = models.BooleanField(default=True)
-    taxi_number = models.CharField(max_length=20, null=True, blank=True)
 
     # < 1.2 fields
     computation = models.ForeignKey(RideComputation, verbose_name=_("computation"), related_name="rides", null=True, blank=True)

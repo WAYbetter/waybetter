@@ -33,22 +33,28 @@ def log_ride_status_update(sender, signal_type, obj, status, **kwargs):
 
 
 @receive_signal(ride_status_changed_signal)
-def notify_passengers(sender, signal_type, obj, status, **kwargs):
+def handle_accepted_ride(sender, signal_type, obj, status, **kwargs):
     from ordering.enums import RideStatus
+    from ordering.models import SharedRide
     from sharing.passenger_controller import send_ride_notifications
+    from sharing.station_controller import send_ride_voucher
+    from google.appengine.ext import deferred
+    from fleet import fleet_manager
 
     ride = obj
-    if status == RideStatus.ACCEPTED:
+    if isinstance(ride, SharedRide) and status == RideStatus.ACCEPTED:
+        if ride.dn_fleet_manager_id:
+            deferred.defer(fleet_manager.create_ride, ride)
+        else:
+            logging.info("ride %s has no fleet manager" % ride.id)
+
+        deferred.defer(send_ride_voucher, ride_id=ride.id)
+
         send_ride_notifications(ride)
 
 @receive_signal(ride_status_changed_signal)
 def update_ws(sender, signal_type, obj, status, **kwargs):
     from sharing.station_controller import update_ride
-
+    logging.info("update_ws signal")
     ride = obj
-    station = ride.station
-    if station:
-        for ws in station.work_stations.all(): # maybe send only to online stations?
-            update_ride(ws, ride)
-    else:
-        logging.info("no station on changed ride")
+    update_ride(ride)

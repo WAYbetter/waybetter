@@ -308,8 +308,9 @@
 
 
     // setup a default exception handler
-    app.factory('$exceptionHandler', function(ErrorService) {
+    app.factory('$exceptionHandler', function(ErrorService, AirService) {
         return function(exception, cause) {
+            AirService.log("exception: ", exception);
             ErrorService.error_handler();
         };
     });
@@ -382,6 +383,9 @@
                 if (data.action == "exit") {
                     AirService.call("exit_app", true); // exit silently
                 }
+                if (data.action == "remove_ride") {
+                    $scope.remove_ride(data.ride);
+                }
                 if (data.action == "update_all") {
                     $scope.sync_state();
                 }
@@ -445,7 +449,7 @@
         $scope.status = Status;
         $scope.error_service = ErrorService;
         $scope.pending_push = false;
-        $scope.last_heartbeat = undefined;
+        $scope.last_heartbeat = new Date();
         $scope.channel_opened = false;
 
         $scope.rides = [];
@@ -475,14 +479,21 @@
         };
 
         $scope.update_ride = function (updated_ride, expand) {
-            angular.forEach($scope.rides, function(ride) {
-                if (ride.id == updated_ride.id) {
-                    angular.extend(ride, updated_ride);
-                    if (expand) {
-                        $scope.selected_ride = ride;
-                    }
-                }
-            });
+            var ride = filter($scope.rides, {id: updated_ride.id});
+            if (ride.length) {
+                angular.extend(ride[0], updated_ride);
+            } else {
+                $scope.rides.push(updated_ride);
+            }
+            if (expand) {
+                $scope.selected_ride = filter($scope.rides, {id: updated_ride.id})[0];
+            }
+        };
+
+        $scope.remove_ride = function(ride_to_remove) {
+            $scope.rides = $scope.rides.filter(function (ride) {
+                return ride.id != ride_to_remove.id
+            })
         };
 
         $scope.current_rides = function() {
@@ -548,7 +559,7 @@
 
         // watch for new 'NEXT' rides
         $scope.$watch(function () {
-            return $filter('filter')($scope.rides, {'tab':Tabs.NEXT, 'status':Status.ASSIGNED}).length;
+            return filter($scope.rides, {'tab':Tabs.NEXT, 'status':Status.ASSIGNED, future: false}).length;
         }, function(needs_attention_rides) {
             if (needs_attention_rides) {
                 AirService.call("start_notification_sound")
@@ -593,6 +604,7 @@
 
         setInterval(function () {
             $scope.$apply(function () {
+                AirService.log("heartbeat check");
                 if (new Date() - $scope.last_heartbeat > 2.5 * Defaults.heartbeat_check_interval) {
                     AirService.log("heartbeat check failed");
                     ErrorService.error_handler();
