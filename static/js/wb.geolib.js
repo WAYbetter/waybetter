@@ -24,7 +24,7 @@ Address.prototype = {
     isValid: function () {
         return !!(this.lat && this.lng && this.street && isNumber(this.house_number))
     },
-    get formatted_address() {
+    formatted_address: function() {
         return this.street + " " + this.house_number + ", " + this.city_name;
     }
 };
