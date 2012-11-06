@@ -12,7 +12,7 @@ module.constant('DefaultURLS', {
     get_private_offers: '/get_private_offer/',
     get_order_billing_status: '/get_order_billing_status/',
 
-    auth_failed_redirect: '/registration/'
+    auth_failed_redirect: '/accounts/login/?next=/booking/continued/'
 });
 
 module.constant('wbEvents', {

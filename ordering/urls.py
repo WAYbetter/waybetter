@@ -98,7 +98,8 @@ urlpatterns = patterns('',
 
     # pages
     (r'^test/$', 'ordering.ordering_controller.staff_m2m'),
-    url(r'^book/$', 'ordering.ordering_controller.booking_page', name="booking_page"),
+    (r'^booking/$', 'ordering.ordering_controller.booking_page', {'continued': False}, "booking_page"),
+    (r'^booking/continued/$', 'ordering.ordering_controller.booking_page', {'continued': True}, "booking_continued"),
 
     # json
     (r'^get_offers/$', 'ordering.ordering_controller.get_offers'),

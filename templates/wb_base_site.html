@@ -36,16 +36,9 @@
 {% endblock %}
 
 {% block body %}
-        <div class="navbar navbar-fixed-top">
+    <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container">
-                    <!-- mobile viewport menu -->
-                    <a class="btn btn-primary btn-dropnav" data-toggle="collapse" data-target=".nav-collapse">
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                        <span class="icon-bar"></span>
-                    </a>
-
                     <a id="wb-logo" class="brand" href="{% url wb_home %}"><strong>WAY</strong>better</a>
 
                     <div class="nav-collapse collapse">
@@ -91,9 +84,10 @@
     {% endblock %}
 
     {% block content %}{% endblock %}
+
     {% block footer %}
         <div id="footer">
-            <div class="container">
+            <div id="footer-links" class="container">
                 <div class="row">
                     <div class="span3">
                         <h3>WAYbetter</h3>
@@ -136,20 +130,20 @@
                     </div>
                 </div>
             </div>
-        </div>
-    {% endblock %}
-
-    <div id="copywrite">
-        <div class="container">
-            <div class="row">
-                <div class="span12">
-                    <p id="totop" class="pull-right">{% trans "Back to Top" %}<i class="icon-arrow-up"></i></p>
-                    <p id="copy-ltd" class="pull-left">&copy; 2012 WAYbetter LTD. </p>
-                    <div class="clearfix"></div>
+            <div id="copywrite"> <!-- typo in bonce template, leave it for css -->
+                <div class="container">
+                    <div class="row">
+                        <div class="span12">
+                            <p id="totop" class="pull-right">{% trans "Back to Top" %}<i class="icon-arrow-up"></i></p>
+                            <p id="copy-ltd" class="pull-left">&copy; 2012 WAYbetter LTD. </p>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
+    {% endblock %}
+
 {% endblock body %}
 
 {% block scripts %}

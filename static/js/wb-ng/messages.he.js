@@ -5,6 +5,8 @@ module.constant('DefaultMessages', {
         today: "היום",
         or_less: "או פחות",
         pickup: "איסוף",
+        pickup_address: "כתובת מוצא",
+        dropoff_address: "כתובת יעד",
         available_seats: "מושבים פנויים",
         you: "את/ה",
         private_ride: "נסיעה פרטית",
@@ -16,11 +18,13 @@ module.constant('DefaultMessages', {
         loading_private_offer: "מחשב מחיר נסיעה פרטית",
         no_offers: "לא נמצאו נסיעות מתאימות",
 
+        missing_house_number: "השלם מספר בית",
+        unknown_address: "כתובת לא ידועה",
+
         book_existing_ride_txt: 'הצטרף לנסיעה',
         book_new_ride_txt: 'התחל נסיעה חדשה',
         confirm_cancel_order: "האם לבטל את הנסיעה?",
         cancel_ride: 'בטל נסיעה',
         report_ride: 'דווח על בעיה'
-
     }
 );

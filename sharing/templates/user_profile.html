@@ -4,6 +4,10 @@
 {% block extrastyle %}
     {{ block.super }}
     <style type="text/css">
+        .hidden {
+          display: none;
+          visibility: hidden;
+        }
         .modal-header{
             border-bottom: none;
         }
@@ -68,7 +72,10 @@
                                                     {% endif %}
                                                     {{ entry.value }}
                                                 </span>
-                                                <input id="input_{{ entry.name }}" type="text" name="{{ entry.name }}" class="new-value hidden">
+
+                                                {% if entry.name != "billing" %}
+                                                    <input id="input_{{ entry.name }}" type="text" name="{{ entry.name }}" class="new-value hidden">
+                                                {% endif %}
                                             </div>
                                             <div class="span2">
                                                 <a id="change_{{ entry.name }}">{% trans "Change" %}</a>

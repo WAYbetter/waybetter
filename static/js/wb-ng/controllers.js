@@ -5,10 +5,13 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
     $scope.logged_in = false;
     $scope.passenger_picture_url = undefined;
 
-//    $scope.pickup = undefined;
-//    $scope.dropoff = undefined;
-    $scope.pickup = Address.fromJSON('{"street":"אלנבי","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0736683,"lng":34.76546570000005,"formatted_address":"אלנבי 1, תל אביב יפו, ישראל"}');
-    $scope.dropoff = Address.fromJSON('{"street":"מרגולין","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0586624,"lng":34.78742,"formatted_address":"מרגולין 1, תל אביב יפו, ישראל"}');
+    $scope.pickup = undefined;
+    $scope.dropoff = undefined;
+    $scope.pickup_error = undefined;
+    $scope.dropoff_error = undefined;
+
+//    $scope.pickup = Address.fromJSON('{"street":"אלנבי","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0736683,"lng":34.76546570000005}');
+//    $scope.dropoff = Address.fromJSON('{"street":"מרגולין","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0586624,"lng":34.78742}');
 
     $scope.has_luggage = false;
     $scope.is_private = false;
@@ -65,7 +68,11 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
                 num_seats:parseInt($scope.num_seats),
                 private:$scope.is_private,
                 luggage:$scope.has_luggage
-            }
+            },
+
+            // will be stored in session to capture current booking
+            offers: $scope.offers,
+            selected_offer: $scope.selected_offer
         };
 
         angular.extend(data, extra);
@@ -96,18 +103,41 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
         });
     }
 
-    $scope.sync = function () {
+    $scope.sync = function (continue_booking) {
         BookingService.sync().then(function(data){
             $scope.logged_in = data.logged_in;
             $scope.passenger_picture_url = data.passenger_picture_url;
 
-            $scope.ongoing_order_id = data.ongoing_order_id;
-            $scope.future_orders_count = data.future_orders_count;
-            $scope.pickup_datetime_default_idx = data.pickup_datetime_default_idx || 0;
-            $scope.pickup_datetime_options = data.pickup_datetime_options.map(function(string_dt) {
-                return new Date(string_dt);
-            });
-        }, function(){})
+            if (!continue_booking) {
+                // populating datetime options triggers a watch that sets pickup_dt
+                // but when booking continues we use the server's pickup_dt instead of what the watch sets
+
+                $scope.pickup_datetime_default_idx = data.pickup_datetime_default_idx || 0;
+                $scope.pickup_datetime_options = data.pickup_datetime_options.map(function (string_dt) {
+                    return new Date(string_dt);
+                });
+            }
+
+            if (continue_booking && data.booking_data){ // continue an interrupted booking process
+                console.log("booking continued", data.booking_data);
+
+                var booking_data = angular.fromJson(data.booking_data);
+
+                $scope.pickup = Address.fromJSON(booking_data.pickup);
+                $scope.dropoff = Address.fromJSON(booking_data.dropoff);
+                $scope.pickup_dt = booking_data.asap ? ASAP :  new Date(booking_data.pickup_dt);
+                $scope.num_seats = booking_data.settings.num_seats;
+                $scope.is_private = booking_data.settings.private;
+                $scope.has_luggage = booking_data.settings.luggage;
+
+                $scope.offers = booking_data.offers;
+                $scope.selected_offer = booking_data.selected_offer;
+
+                if ($scope.ready_to_order()){
+                    $scope.book_ride();
+                }
+            }
+        }, angular.noop)
     };
 
     $scope.reset = function(){
@@ -263,15 +293,18 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
     };
 
     // signals and watches
-    $scope.$on(wbEvents.invalid_address, function(e, place) {
+    $scope.$on(wbEvents.invalid_address, function(e, place, input_type) {
         console.log("invalid address", place);
+        $scope[input_type + "_error"] = DefaultMessages.unknown_address;
     });
 
-    $scope.$on(wbEvents.missing_hn, function(e, place_address, element) {
+    $scope.$on(wbEvents.missing_hn, function(e, place_address, element, input_type) {
         console.log("missing_hn", place_address, element);
+        $scope[input_type + "_error"] = DefaultMessages.missing_house_number;
     });
 
     $scope.$watch('pickup', function (new_address) {
+        $scope.pickup_error = false;
         if (new_address && new_address.isValid()) {
             $scope.map_controller.add_marker(new_address, {name:'pickup', icon: {url:'/static/images/pickup_marker.png', anchor: "bottom", width:35, height:40 }});
             $scope.map_controller.fit_markers();
@@ -281,6 +314,7 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
     });
 
     $scope.$watch('dropoff', function (new_address) {
+        $scope.dropoff_error = false;
         if (new_address && new_address.isValid()) {
             $scope.map_controller.add_marker(new_address, {name:'dropoff', icon: {url:'/static/images/dropoff_marker.png', anchor: "bottom",  width:35, height:40 }});
             $scope.map_controller.fit_markers();
@@ -324,7 +358,7 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
     $scope.$watch(function() { return angular.toJson([$scope.pickup_date, $scope.pickup_time]) }, function() {
         if ($scope.pickup_date && $scope.pickup_time) {
             $scope.pickup_dt = join_date_and_time($scope.pickup_date, $scope.pickup_time);
-            console.log("dt changed:", BookingService.pickup_dt);
+            console.log("dt changed:", $scope.pickup_dt);
         }
     });
 
