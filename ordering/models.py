@@ -105,7 +105,7 @@ class OrderType(Enum):
     SHARED        = 2
 
 class Station(BaseModel):
-    user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
+    user = models.OneToOneField(User, verbose_name=_("user"), related_name="station", editable=False)
     name = models.CharField(_("station name"), max_length=50)
     license_number = models.CharField(_("license number"), max_length=30)
     website_url = models.URLField(_("website"), max_length=255, null=True, blank=True)
@@ -155,6 +155,9 @@ class Station(BaseModel):
     internal_rating = models.FloatField(_("internal rating"), default=0)
 
     stop_price = models.FloatField(_("stop price"), default=0)
+
+    pricing_model_name = models.CharField(_("pricing model name"), null=True, blank=True, max_length=10, editable=True)
+
     payday = models.IntegerField(_("payday"), max_length=2, default=10) # day of month the drivers get paid
 
     page_description = models.CharField(_("page description"), null=True, blank=True, max_length=255)

@@ -47,6 +47,8 @@ def update_ws(sender, signal_type, obj, status, **kwargs):
 
     ride = obj
     station = ride.station
-
-    for ws in station.work_stations.filter(is_online=True):
-        update_ride(ws, ride)
+    if station:
+        for ws in station.work_stations.all(): # maybe send only to online stations?
+            update_ride(ws, ride)
+    else:
+        logging.info("no station on changed ride")
