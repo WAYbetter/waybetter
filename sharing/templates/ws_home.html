@@ -21,6 +21,11 @@
         body {
             padding-top: 40px;
             overflow-x: hidden;
+            font-size: 16px;
+        }
+        .progress-info.progress-striped .bar, .progress-striped .bar-info {
+            font-size: 16px;
+            line-height: 16px;
         }
 
         table > tbody > tr.ride-details {
@@ -143,10 +148,6 @@
             <li ng-class="{'active': current_tab == tabs.CURRENT}" ng-click="current_tab = tabs.CURRENT"><a href="#">נסיעות נוכחיות <span
                     class="badge badge-success" ng-show="current_rides().length">(( current_rides().length ))</span></a></li>
 
-            <li class="divider-vertical"></li>
-
-            <li ng-class="{'active': current_tab == tabs.FUTURE}" ng-click="current_tab = tabs.FUTURE"><a href="#">נסיעות עתידיות <span
-                    class="badge badge-info" ng-show="future_rides().length">(( future_rides().length ))</span></a></li>
 
 {#            <li class="divider-vertical"></li>#}
 {##}
@@ -237,7 +238,7 @@
                 </table>
                 <ng-switch on="ride.status == status.VIEWED">
                     <button class="btn btn-large btn-danger bold" ng-switch-when="true" ng-click="accept_ride(ride)" ng-disabled="updating()"><i class="icon-ok-sign"></i> ההזמנה התקבלה בתחנה</button>
-                    <div class="alert alert-success well-center" ng-switch-when="false">
+                    <div class="alert alert-success well-center" ng-switch-when="false" ng-hide="ride.future">
                         <strong>אישור נשלח לנוסעים. נא לצוות מונית</strong>
                     </div>
                 </ng-switch>
@@ -248,43 +249,6 @@
     <div class="row pagination-centered">
         <div class="well well-large well-center" ng-hide="next_rides().length">
 אין נסיעות לטיפול
-        </div>
-    </div>
-</div>
-
-<!-- FUTURE RIDES -->
-<div class="future-rides" ng-show="current_tab == tabs.FUTURE">
-    <table class="table rides-table" ng-show="future_rides().length">
-        <tbody ng-repeat="ride in future_rides()" >
-        <tr ng-click="select_ride(ride)" ng-class="get_ride_class(ride)">
-            <td>(( ride.depart_time | date:"HH:mm"))</td>
-            <td>
-                (( ride.stops | join_prop:'address':' > ' ))
-            </td>
-            <td>(( ride.passengers | join_prop:"name":", " ))</td>
-        </tr>
-        <tr class="ride-details" ng-show="selected_ride == ride">
-            <td colspan="3">
-                <h4>נסיעה מספר (( ride.id ))</h4>
-                <table class="table table-condensed table-striped">
-                    <tr ng-repeat="stop in ride.stops">
-                        <td><i ng-class="{'icon-arrow-up': stop.type == 'PICKUP', 'icon-arrow-down': stop.type == 'DROPOFF'}"></i></td>
-                        <td>(( stop.address ))</td>
-                        <td>
-                            <span ng-repeat="passenger in stop.passengers">
-                                (( passenger.name )) <span class="muted">(( passenger.phone ))</span>
-                                <span ng-hide="$last">, </span>
-                            </span>
-                         </td>
-                    </tr>
-                </table>
-            </td>
-        </tr>
-        </tbody>
-    </table>
-    <div class="row pagination-centered">
-        <div class="well well-large well-center" ng-hide="future_rides().length">
-            אין נסיעות עתידיות
         </div>
     </div>
 </div>
@@ -363,7 +327,6 @@
     });
 
     app.constant("Tabs", {
-        FUTURE: "FUTURE",
         CURRENT: "CURRENT",
         NEXT: "NEXT",
         HISTORY: "HISTORY"
@@ -473,6 +436,9 @@
     });
 
     app.controller("WorkstationCtrl", function($scope, $http, $filter, $timeout, Tabs, Status, AirService, ErrorService, Defaults) {
+        var filter = $filter("filter"),
+            order_by = $filter("orderBy");
+
         $scope.tabs = Tabs;
         $scope.status = Status;
         $scope.error_service = ErrorService;
@@ -518,13 +484,10 @@
         };
 
         $scope.current_rides = function() {
-            return $filter('filter')($scope.rides, {'tab':Tabs.CURRENT});
-        };
-        $scope.future_rides = function() {
-            return $filter('filter')($scope.rides, {'tab':Tabs.FUTURE});
+            return filter($scope.rides, {'tab':Tabs.CURRENT});
         };
         $scope.next_rides = function() {
-            return $filter('filter')($scope.rides, {'tab':Tabs.NEXT});
+            return order_by(filter($scope.rides, {'tab':Tabs.NEXT}), "depart_time");
         };
 
         $scope.sync_state = function () {
@@ -540,7 +503,7 @@
         $scope.select_ride = function (ride) {
             if ($scope.selected_ride == ride ) {
                 $scope.selected_ride = undefined;
-            } else if (ride.tab == Tabs.NEXT && ride.status == Status.ASSIGNED) {
+            } else if (ride.tab == Tabs.NEXT && ride.status == Status.ASSIGNED && !ride.future) {
                 $scope.pending_push = true;
                 $http.post("/ride_viewed/" + ride.id + "/").error(function() {
                     ErrorService.error_handler();
@@ -561,14 +524,16 @@
             var result = "";
             if (ride.tab == Tabs.CURRENT) {
                 result = "ride-green"
-            } else if (ride.tab == Tabs.FUTURE) {
-                result = "ride-blue"
             } else if (ride.tab == Tabs.NEXT) {
                 if (ride.status == Status.ASSIGNED) {
-                    result = "ride-red blink"
+                    if (ride.future) {
+                        result = "ride-blue"
+                    } else {
+                        result = "ride-red blink"
+                    }
                 } else if (ride.status == Status.VIEWED) {
                     result = "ride-red"
-                } else {
+                } else { // accepted
                     result = "ride-yellow"
                 }
             }
@@ -604,9 +569,13 @@
             $scope.$apply(function() {
                 var start_handle_time = new Date().getTime() + {{ handle_time }} * 60 * 1000;
                 angular.forEach($scope.rides, function (ride) {
-                    if (ride.depart_time >= start_handle_time) {
-                        ride.tab = Tabs.FUTURE;
-                    } else if (ride.taxi) {
+                    var is_future = (ride.depart_time >= start_handle_time && ride.status == Status.ASSIGNED);
+                    if (ride.future && !is_future && $scope.selected_ride == ride){ // currently viewing a future ride that is turned into 'next' ride
+                        $scope.selected_ride = undefined;
+                    }
+                    ride.future = is_future;
+
+                    if (ride.taxi) {
                         ride.tab = Tabs.CURRENT;
                     } else if (ride.status != Status.COMPLETED) {
                         if (ride.tab != Tabs.NEXT) {
