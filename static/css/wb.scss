@@ -32,6 +32,37 @@
   display: none;
 }
 
+/* Page Setup - body fills viewport, footer at bottom
+-------------------------------------------------- */
+html{
+    height: 100%;
+}
+body{
+    @include border-box;
+    min-height: 100%;
+    padding-top: 60px !important;  /* override @media style */
+    padding-bottom: 256px;  /* height of the footer */
+}
+
+#header {
+    padding: 15px 0;
+    h1, h2, h3, h4, h5, h6{
+        font-weight: normal;
+    }
+}
+
+#footer{
+    position: absolute;
+    bottom: 0;
+    @include border-box;
+    height: 256px;  /* height of the footer */
+    width: 100%;
+    padding-bottom: 0;
+}
+#footer-links{
+    padding-bottom: 40px;
+}
+
 /* Theme hacks
 -------------------------------------------------- */
 h3{
@@ -81,17 +112,6 @@ h3{
 .nav-collapse.collapse {
     height: auto!important;
     overflow: visible!important;
-}
-
-#header {
-    padding: 15px 0;
-    h1, h2, h3, h4, h5, h6{
-        font-weight: normal;
-    }
-}
-
-#footer{
-    padding-bottom: 40px;
 }
 
 .bs-docs-sidenav a i.icon-chevron-right{
