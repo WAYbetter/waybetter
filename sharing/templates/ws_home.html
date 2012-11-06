@@ -89,8 +89,8 @@
             margin-right: 5px;
         }
 
-        .ride-details td {
-            text-align: center
+        .ride-details > td {
+            text-align: center;
         }
         .bold {
             font-weight: bold;
@@ -98,8 +98,12 @@
         
         .ride-details > td {
             border-bottom: 1px solid #797979;
-            padding: 0;
+            padding: 0 10px;
             padding-bottom: 18px;
+        }
+
+        .ride-details i {
+            margin: 0 9px;
         }
 
         .rides-table tr.muted {
@@ -181,8 +185,7 @@
                     <h4>נסיעה מספר (( ride.id ))</h4>
                     <table class="table table-condensed table-striped">
                         <tr ng-repeat="stop in ride.stops">
-                            <td><i ng-class="{'icon-arrow-up': stop.type == 'PICKUP', 'icon-arrow-down': stop.type == 'DROPOFF'}"></i></td>
-                            <td>(( stop.address ))</td>
+                            <td><i ng-class="{'icon-arrow-up': stop.type == 'PICKUP', 'icon-arrow-down': stop.type == 'DROPOFF'}"></i> (( stop.address ))</td>
                             <td>
                                 <span ng-repeat="passenger in stop.passengers">
                                     (( passenger.name )) <span class="muted">(( passenger.phone ))</span>
@@ -225,8 +228,7 @@
                 <h4>נסיעה מספר (( ride.id ))</h4>
                 <table class="table table-condensed table-striped">
                     <tr ng-repeat="stop in ride.stops">
-                        <td><i ng-class="{'icon-arrow-up': stop.type == 'PICKUP', 'icon-arrow-down': stop.type == 'DROPOFF'}"></i></td>
-                        <td>(( stop.address ))</td>
+                        <td><i ng-class="{'icon-arrow-up': stop.type == 'PICKUP', 'icon-arrow-down': stop.type == 'DROPOFF'}"></i> (( stop.address ))</td>
                         <td>
                             <span ng-repeat="passenger in stop.passengers">
                                 (( passenger.name )) <span class="muted">(( passenger.phone ))</span>
