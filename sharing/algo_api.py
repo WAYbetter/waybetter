@@ -50,6 +50,7 @@ class AlgoField(Enum):
     DURATION = "m_Duration"
     LAT = "m_Latitude"
     LNG = "m_Longitude"
+    MODEL_ID = "m_ModelID"
     NAME = "m_Name"
     OFFSET_TIME = "m_offset_time"
     ORDER_IDS = "m_OrderIDs"
@@ -66,8 +67,8 @@ class AlgoField(Enum):
     RIDE_ID = "m_RideID"
     RIDE_POINTS = "m_RidePoints"
     TIME_ALONE = "m_TimeAlone"
-    TIME_SHARING = "m_TimeSharing"
     TIME_SECONDS = "m_TimeSeconds"
+    TIME_SHARING = "m_TimeSharing"
     TYPE = "m_Type"
 
 

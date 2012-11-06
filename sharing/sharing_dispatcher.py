@@ -6,22 +6,21 @@ from django.utils import translation
 from django.utils.translation import ugettext as _
 from django.http import HttpResponse
 from ordering.enums import RideStatus
-from ordering.models import WorkStation, SharedRide
+from ordering.models import  SharedRide, Station
 from datetime import timedelta
 from ordering.util import send_msg_to_passenger
-from sharing.passenger_controller import send_ride_notifications
+from pricing.models import RuleSet
+from sharing.algo_api import AlgoField
 from sharing.station_controller import send_ride_voucher
 from fleet import fleet_manager
 import logging
 
-MSG_DELIVERY_GRACE = 10 # seconds
-NOTIFY_STATION_DELTA = timedelta(minutes=10)
-DISPATCHING_TIME = 5 #minutes
+DISPATCHING_TIME = timedelta(hours=24)
 
 def dispatching_cron(request):
     logging.info("cron: dispatch rides")
 
-    rides_to_dispatch = SharedRide.objects.filter(status=RideStatus.PENDING, depart_time__lte=default_tz_now() + timedelta(minutes=DISPATCHING_TIME))
+    rides_to_dispatch = SharedRide.objects.filter(status=RideStatus.PENDING, depart_time__lte=default_tz_now() + DISPATCHING_TIME)
     for ride in rides_to_dispatch:
         deferred.defer(dispatch_ride, ride)
 
@@ -71,10 +70,29 @@ def assign_ride(ride):
 
 
 def choose_workstation(ride):
-    ws_list = WorkStation.objects.filter(accept_shared_rides=True)
+    cost_models = []
+    tariffs = RuleSet.objects.all()
+    for tariff in tariffs:
+        if tariff.is_active(ride.depart_time.date(), ride.depart_time.time()):
+            cost_models = ride.cost_data.get(tariff.tariff_type)
+            break
+
+    stations = []
+    if cost_models:
+        for cost_model in cost_models:
+            pricing_model_name = cost_model[AlgoField.MODEL_ID]
+            pricing_model_stations = Station.objects.filter(pricing_model_name=pricing_model_name)
+            stations += pricing_model_stations
+            logging.info("%s pricing model found stations: %s" % (pricing_model_name, pricing_model_stations))
+
+
+    ws_list = [ws for station in stations for ws in station.work_stations.filter(accept_shared_rides=True)]
 
     if ride.debug:
-        ws_list = ws_list.filter(accept_debug=True)
+        logging.info("filtering debug ws")
+        ws_list = filter(lambda ws: ws.accept_debug, ws_list)
+
+    logging.info("ws list: %s" % ws_list)
 
     if ws_list:
         return ws_list[0]
