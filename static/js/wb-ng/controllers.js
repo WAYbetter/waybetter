@@ -281,6 +281,10 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
     };
 
     $scope.choose_offer = function (offer) {
+        if ($scope.loading){
+            return;
+        }
+
         if ($scope.selected_offer != offer) {
             $scope.selected_offer = offer;
         } else {

@@ -462,21 +462,21 @@ select {
     }
     #booking-form{
         @include border-box;
-        form{
-            margin: 0;
-        }
+        text-align: center;
         .address-input-error{
             margin-bottom: 4px;
             padding-top: 4px;
             padding-bottom: 4px;
         }
-        .row-fluid{
-            margin-bottom: 15px;
-        }
-        #private-price{
-            text-align: center;
-        }
     }
+    .booking-form-row{
+        margin-bottom: 15px;
+        input { width: 219px; }
+        select { width: 231px; }
+        #pickup-date { width: 110px;}
+        #pickup-time { width: 80px;}
+    }
+
     #offers-container{
         margin-bottom: 10px;
     }
