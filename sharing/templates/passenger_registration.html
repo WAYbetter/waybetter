@@ -2,7 +2,7 @@
 {% load i18n %}
 {% load value_from_settings %}
 
-{% block header %}{% endblock %}
+{% block headertext %}{% trans "Join WAYbetter" %}{% endblock %}
 {% block extrastyle %}
     {{ block.super }}
     <style type="text/css">
@@ -58,7 +58,6 @@
                     <div class="span12">
                         <div class="modal modal-flat">
                             <div class="modal-header pagination-centered">
-                                <h3>{% trans "Join WAYbetter" %}</h3>
                                 <ul class="breadcrumb">
                                     <li {% if step == "auth" %}class="active"{% endif %}>
                                         {% trans "Account Information" %}<span class="divider">/</span></li>

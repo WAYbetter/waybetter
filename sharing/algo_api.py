@@ -93,10 +93,10 @@ def find_matches(candidate_rides, order_settings):
     if response and response.content:
         matches = simplejson.loads(response.content)[AlgoField.RIDES]
 
-    logging.info("%s candidates [%s], %s matches +1 new, %s seconds" % (len(candidate_rides),
-                                                                        ",".join([str(ride.id) for ride in candidate_rides]),
-                                                                        len(matches) - 1,
-                                                                        (dt2 - dt1).seconds))
+    logging.info("%s candidates [%s], %s matches, %s seconds" % (len(candidate_rides),
+                                                                ",".join([str(ride.id) for ride in candidate_rides]),
+                                                                len(matches),
+                                                                (dt2 - dt1).seconds))
 
     return matches
 

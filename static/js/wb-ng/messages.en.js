@@ -5,6 +5,8 @@ module.constant('DefaultMessages', {
         today: "Today",
         or_less: "or less",
         pickup: "Pickup",
+        pickup_address: "pickup address",
+        dropoff_address: "dropoff address",
         available_seats: "Availabe Seats",
         you: "You",
         private_ride: "Private Ride",
@@ -15,6 +17,9 @@ module.constant('DefaultMessages', {
         loading_book_ride: "Processing Order...",
         loading_private_offer: "Calculating private ride price",
         no_offers: "No matching rides found",
+
+        missing_house_number: "missing house number",
+        unknown_address: "unknown address",
 
         book_existing_ride_txt: 'Join Ride',
         book_new_ride_txt: 'Start New Ride',
