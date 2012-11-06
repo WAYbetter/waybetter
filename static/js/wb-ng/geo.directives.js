@@ -8,6 +8,7 @@ module.directive("wbPac", function ($q, $timeout, PlacesService, wbEvents) {
 
             google.maps.event.addListener(pac, 'place_changed', function () {
                 var place = pac.getPlace();
+                scope[attrs.address] = undefined;
 
                 scope.$apply(function () {
                     $q.when(PlacesService.get_valid_place(place, element.val()))
@@ -17,15 +18,15 @@ module.directive("wbPac", function ($q, $timeout, PlacesService, wbEvents) {
                                 if (place_address.isValid()) {
                                     scope[attrs.address] = place_address;
                                 } else {
-                                    scope.$emit(wbEvents.invalid_address, place);
+                                    scope.$emit(wbEvents.invalid_address, place, attrs.address);
                                 }
                             }
                             else if (result.missing_hn) {
-                                scope.$emit(wbEvents.missing_hn, place_address, element);
+                                scope.$emit(wbEvents.missing_hn, place_address, element, attrs.address);
                             }
                         },
                         function (status) {
-                            scope.$emit(wbEvents.invalid_address, place);
+                            scope.$emit(wbEvents.invalid_address, place, attrs.address);
                             console.log("WAYbetterLog: PlacesService.get_valid_place failed with status " + status);
                         });
                 });
