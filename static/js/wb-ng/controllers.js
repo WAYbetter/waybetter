@@ -1,6 +1,7 @@
 var module = angular.module('wbControllers', ['wbServices', 'wbDefaults', 'wbMessages']);
 
 module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, BookingService, NotificationService, wbEvents, DefaultMessages, DefaultURLS, ASAP) {
+    $scope.continuing = false;  // continuing booking an order after login/registration
     $scope.loading = false;
     $scope.logged_in = false;
     $scope.passenger_picture_url = undefined;
@@ -119,6 +120,8 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
             }
 
             if (continue_booking && data.booking_data){ // continue an interrupted booking process
+                $scope.continuing = true;
+
                 console.log("booking continued", data.booking_data);
 
                 var booking_data = angular.fromJson(data.booking_data);
@@ -373,7 +376,7 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
     });
 
     $scope.$watch(function() {return angular.toJson([$scope.pickup_dt, $scope.is_private, $scope.pickup, $scope.dropoff])}, function() {
-        if ($scope.is_private) {
+        if ($scope.is_private && !$scope.continuing) {
             update_private_price();
         }
     });

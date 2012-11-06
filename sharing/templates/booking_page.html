@@ -28,7 +28,7 @@
 
                 <div class="span4">
                     <!-- 1. Booking Form -->
-                    <div id="booking-form" class="booking-panel" ng-hide="offers.length">
+                    <div id="booking-form" class="booking-panel" ng-hide="offers.length || booking_approved">
 
                         <div class="control-group booking-form-row" ng-class="{'error': pickup_error}">
                             <div class="alert alert-error address-input-error" ng-show="pickup_error">(( pickup_error ))</div>
@@ -90,17 +90,17 @@
 
                         <hr class="dashed">
 
-                        <button class="btn btn-large btn-block btn-warning btn-large"
-                                ng-disabled="!ready_to_order() || loading"
-                                ng-click="get_offers()"
-                                type="submit">{% trans "Find a Ride" %}</button>
+                        <div ng-switch on="is_private">
+                            <button ng-switch-when="false" class="btn btn-large btn-block btn-warning btn-large" ng-disabled="!ready_to_order() || loading" ng-click="get_offers()">{% trans "Find a Ride" %}</button>
+                            <button ng-switch-when="true" class="btn btn-large btn-block btn-warning btn-large" ng-disabled="!ready_to_order() || loading" ng-click="book_ride()">{% trans "Book Ride" %}</button>
+                        </div>
 
                         <alerts></alerts>
 
                     </div>
 
                     <!-- 2. Booking Details -->
-                    <div class="booking-panel" ng-show="offers.length">
+                    <div class="booking-panel" ng-show="offers.length || booking_approved">
                         <h3>{% trans "Your Order Details" %}</h3>
 
                         <hr class="dashed">
@@ -126,7 +126,7 @@
 
                 <div class="span8">
                     <!-- 1. Map -->
-                    <div id="map-container" ng-hide="offers.length">
+                    <div id="map-container" ng-hide="offers.length || booking_approved">
                         <div id="map" wb-map></div>
                     </div>
 
