@@ -42,6 +42,9 @@
             margin-bottom: 0;
             margin-top: 10px;
         }
+        select {
+            -webkit-appearance: menulist;
+        }
         .dropdown-menu a[disabled=disabled] {
             color: gray;
         }
@@ -104,6 +107,9 @@
         .label {
             font-size: 11px;
         }
+        .rides-container {
+            margin-left: 200px;
+        }
         h4 {
             text-transform: uppercase
         }
@@ -148,15 +154,17 @@
                     'TIMED_OUT':'TIMED_OUT',
                     'REJECTED':'REJECTED',
                     'ASSIGNED':'ASSIGNED',
+                    'VIEWED':'VIEWED',
                     'FAILED':'FAILED',
                     'ERROR':'ERROR',
                     'CANCELLED':'CANCELLED',
                     'ACCEPTED':'ACCEPTED',
                     'APPROVED':'APPROVED',
                     'PENDING':'PENDING',
-                    'CHARGED':'CHARGED'
+                    'CHARGED':'CHARGED',
+                    'COMPLETED':'COMPLETED'
                 });
-        app.controller("EagleEyeCtrl", function ($scope, $http, $q, Status) {
+        app.controller("EagleEyeCtrl", function ($scope, $http, $q, $filter, Status) {
             function RideActions(ride) {
                 var self = this;
                 this.ride = ride;
@@ -170,8 +178,23 @@
                         title:"View on Map",
                         enabled:true_fn,
                         run:view_on_map
+                    },
+                    {
+                        title: "Re-Assign to Station",
+                        enabled: true_fn,
+                        run: reassign_ride
                     }
                 ];
+
+                function reassign_ride() {
+                    $scope.selected_ride = self.ride;
+                    $scope.selected_station = $filter('filter')($scope.stations, {id: self.ride.station.id})[0];
+                    $scope.choose_station_for_assignment().then(function(station) {
+                        $http.post("/staff/reassign_ride/", {ride_id: self.ride.id, station_id: station.id}).success(function(data) {
+                            angular.extend(self.ride, data.ride);
+                        })
+                    });
+                }
 
                 function view_on_map() {
                     console.log("view_on_map: " + self.ride.id);
@@ -240,6 +263,10 @@
 
             $scope.rides = [];
             $scope.incomplete_orders = [];
+            {% autoescape off %}
+            $scope.stations = {{ stations }};
+            {% endautoescape %}
+            $scope.selected_station = undefined;
             $scope.start_date = new Date();
             $scope.end_date = new Date();
 //            $scope.start_date = new Date("10/23/2012");
@@ -259,7 +286,15 @@
                 $("#confirm-modal").modal();
                 return $scope.confirm_defer.promise;
             };
+            
+            $scope.choose_station_for_assignment = function () {
+                $scope.assignment_defer = $q.defer();
+                $("#reassign-modal").modal();
 
+                return $scope.assignment_defer.promise;
+
+            };
+        
             $scope.select_ride = function (ride) {
                 if (ride == $scope.selected_ride) {
                     $scope.selected_ride = undefined
@@ -291,11 +326,11 @@
             $scope.get_ride_status_class = function(ride) {
                 var status = ride.status.toUpperCase();
 
-                if ([Status.ACCEPTED].indexOf(status) > -1) {
+                if ([Status.ACCEPTED, Status.COMPLETED].indexOf(status) > -1) {
                     return "label-success"
                 } else if ([Status.ERROR, Status.CANCELLED, Status.FAILED].indexOf(status) > -1) {
                     return "label-important"
-                } else if ([Status.PENDING, Status.ASSIGNED].indexOf(status) > -1) {
+                } else if ([Status.PENDING, Status.ASSIGNED, Status.VIEWED].indexOf(status) > -1) {
                     return "label-warning"
                 }
             };
@@ -361,14 +396,14 @@
                 </form>
             </div>
 
-            <div class="span10">
+            <div class="span10 rides-container">
                 <h4 ng-show="rides" id="rides-top">Rides
                     <small>(( rides.length | paren_wrap ))</small></h4>
 
                 <div class="ride-row" ng-repeat="ride in rides" ng-show="ride.debug == show_debug || !ride.debug">
                     <div class="ride-header row-fluid">
                         <div class="span4">
-                            (( ride.station ))
+                            (( ride.station.name ))
                             <small class="muted">(( ride.taxi | paren_wrap ))</small>
                         </div>
                         <div class="span4 center">
@@ -505,6 +540,22 @@
                 <button class="btn btn-danger" data-dismiss="modal" ng-click="confirm_defer.resolve()">OK</button>
             </div>
         </div>
+
+        <div class="modal hide fade" id="reassign-modal" role="dialog">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3>Reassign Ride</h3>
+            </div>
+            <div class="modal-body">
+                <p>Choose a station to reassign ride to:</p>
+                <select name="selected_station" ng-options="s.name for s in stations" ng-model="selected_station"></select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" ng-click="assignment_defer.reject()">Cancel</button>
+                <button class="btn btn-danger" data-dismiss="modal" ng-click="assignment_defer.resolve(selected_station)" ng-disabled="selected_station.id == selected_ride.station.id">OK, Reassign Ride</button>
+            </div>
+        </div>
+
 
 
     </div>

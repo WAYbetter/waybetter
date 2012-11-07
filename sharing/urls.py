@@ -26,6 +26,7 @@ urlpatterns = patterns('',
     (r'^computation_statistics/(?P<computation_set_id>\d+)$', 'sharing.staff_controller.ride_computation_stat'),
     (r'^staff/cancel_billing/(?P<order_id>\d+)/$', 'sharing.staff_controller.cancel_billing'),
     (r'^staff/ride/(?P<ride_id>\d+)/$', 'sharing.staff_controller.ride_page'),
+    (r'^staff/reassign_ride/$', 'sharing.staff_controller.manual_assign_ride'),
 
     (r'^passenger/home/$', 'sharing.passenger_controller.passenger_home'),
     (r'^qr/\w+/$', 'sharing.passenger_controller.passenger_home'),

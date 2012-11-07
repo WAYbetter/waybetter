@@ -21,12 +21,14 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
 from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_now_min, default_tz_now_max, IsraelTimeZone
 import dateutil
+from django.views.decorators.csrf import csrf_exempt
 from djangotoolbox.http import JSONResponse
-from fleet.fleet_manager import POSITION_CHANGED
+from fleet.fleet_manager import POSITION_CHANGED, cancel_ride
 import ordering
 from ordering.decorators import passenger_required
+from ordering.enums import RideStatus
 from ordering.forms import OrderForm
-from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS, Order, Passenger, SharedRide, IGNORED, REJECTED, FAILED, ERROR, TIMED_OUT, CANCELLED
+from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS, Order, Passenger, SharedRide, IGNORED, REJECTED, FAILED, ERROR, TIMED_OUT, CANCELLED, Station
 from pricing.views import hotspot_pricing_overview
 import sharing
 from sharing.forms import ConstraintsForm
@@ -675,6 +677,7 @@ def submit_test_computation(orders, hotspot_type_raw, params, computation_set_na
 @staff_member_required
 def eagle_eye(request):
     lib_ng = True
+    stations = simplejson.dumps([{"name": s.name, "id": s.id} for s in Station.objects.all()]);
 #    status_values = dict([(label.encode('utf-8').upper(), label.encode('utf-8').upper()) for key, label in ORDER_STATUS])
     return render_to_response("eagle_eye.html", locals(), context_instance=RequestContext(request))
 
@@ -707,9 +710,20 @@ def eagle_eye_data(request):
 
     return JSONResponse(result)
 
+@csrf_exempt
+@staff_member_required
+@force_lang("en")
 def manual_assign_ride(request):
-    pass # TODO_WB
+    ride_id = request.POST.get("ride_id")
+    station_id = request.POST.get("station_id")
+    ride = SharedRide.by_id(ride_id)
+    station = Station.by_id(station_id)
+    if station and ride.station != station:
+        cancel_ride(ride)
+        ride.station = station
+        ride.change_status(new_status=RideStatus.ASSIGNED)
 
+    return JSONResponse({'ride': ride.serialize_for_eagle_eye()})
 
 @staff_member_required
 @force_lang("en")

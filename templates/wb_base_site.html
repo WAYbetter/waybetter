@@ -40,7 +40,7 @@
             <div class="navbar-inner">
                 <div class="container">
                     <a id="wb-logo" class="brand" href="{% url wb_home %}"><strong>WAY</strong>better</a>
-
+                    {% block user_tools %}
                     <div class="nav-collapse collapse">
                         <ul id="header-links" class="nav pull-right">
                             <li><a href="{% url wb_home %}">{% trans "Home" %}</a></li>
@@ -67,6 +67,7 @@
                             {% endif %}
                         </ul>
                     </div>
+                    {% endblock %}
                 </div>
             </div>
         </div>

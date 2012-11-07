@@ -528,7 +528,7 @@ class SharedRide(BaseRide):
             'start_time': to_js_date(self.depart_time),
             'status': self.get_status_label(),
             'taxi': self.taxi_number,
-            'station': self.station.name if self.station else "?",
+            'station': {"name": self.station.name, "id": self.station.id} if self.station else {},
             'shared': self.can_be_joined,
             'debug': self.debug
             }
