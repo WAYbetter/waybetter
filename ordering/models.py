@@ -19,7 +19,7 @@ from common.enums import MobilePlatform
 from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea, CityAreaField, obj_by_attr
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64
+from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64, get_uuid
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now, format_dt
 from fleet.models import FleetManager, FleetManagerRideStatus
 from ordering.enums import RideStatus
@@ -405,6 +405,7 @@ class BaseRide(BaseModel):
 
     status = StatusField(_("status"), choices=RideStatus.choices(), default=RideStatus.PENDING)
     debug = models.BooleanField(default=False, editable=False)
+    uuid = models.CharField(max_length=32, null=True, blank=True, default=get_uuid())
 
     taxi_number = models.CharField(max_length=20, null=True, blank=True)
 

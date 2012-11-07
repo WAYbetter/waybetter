@@ -29,7 +29,7 @@ def cancel_ride(ride):
     try:
         assert ride.dn_fleet_manager_id, "ride [%s] is not associated with a fleet manager" % ride.id
         ride_fm = FleetManager.by_id(ride.dn_fleet_manager_id)
-        result = ride_fm.cancel_ride(ride.id)
+        result = ride_fm.cancel_ride(ride.uuid)
         return bool(result)
     except Exception, e:
         logging.error(traceback.format_exc())

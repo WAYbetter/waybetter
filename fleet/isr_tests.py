@@ -2,6 +2,7 @@ import random
 import datetime
 from django.contrib.auth.models import User
 from common.models import City
+from common.util import get_uuid
 from fleet import fleet_manager
 from fleet.models import FleetManager
 from ordering.models import Order, Passenger, Station, ASSIGNED
@@ -34,6 +35,7 @@ class FakeSharedRide(object):
     def __init__(self, orders):
         self.orders = FakeOrdersManager(orders)
         self.status = 0
+        self.uuid = get_uuid()
     def get_status_display(self):
         return self.status
 
