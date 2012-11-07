@@ -32,7 +32,6 @@ import sharing
 from sharing.forms import ConstraintsForm
 from sharing.models import HotSpot
 from sharing.passenger_controller import HIDDEN_FIELDS
-from sharing.station_controller import show_ride
 from sharing.algo_api import submit_orders_for_ride_calculation
 from datetime import  datetime, date, timedelta
 from datetime import time as dt_time
@@ -237,7 +236,7 @@ def calc_orders_data_csv(recipient, batch_size, offset=0, csv_bytestring=u"", ca
                         if rule.is_active(order.from_lat, order.from_lon, order.to_lat, order.to_lon,ride.depart_time.date(), ride.depart_time.time()):
                             cost = rule.price
 
-                link = "http://%s/%s" % (link_domain , reverse(show_ride, args=[ride.id]))
+                link = "http://%s/%s" % (link_domain , reverse(ride_page, args=[ride.id]))
 
                 order_data = [depart_day, depart_time, arrive_day, arrive_time, ordering_td_format, passenger_name,
                               order.from_raw, order.from_lat, order.from_lon, order.to_raw, order.to_lat, order.to_lon,

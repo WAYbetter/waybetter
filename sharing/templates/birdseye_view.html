@@ -167,7 +167,7 @@
             if (ride){
                 $table.attr("id", "ridetable_" + ride.id);
                 var $ridelink = $('<a>#' + ride.id + '</a>')
-                        .attr("href", "{% url sharing.station_controller.show_ride %}" + ride.id);
+                        .attr("href", "{% url sharing.staff_controller.ride_page %}" + ride.id);
 
                 var $td = $('<td></td>').append('<span>ride </span>', $ridelink, '<span> departing at ' + ride.depart_time + ' </span>');
                 var $ridetitle = $('<th></th>').attr("colspan", fields.length).addClass("ridetitle").append($td);

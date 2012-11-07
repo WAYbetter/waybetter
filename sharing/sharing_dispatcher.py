@@ -15,6 +15,8 @@ DISPATCHING_TIME = timedelta(hours=24)
 START_MONITORING_TIME = timedelta(minutes=1)
 STOP_MONITORING_TIME = timedelta(minutes=10)
 
+WS_SHOULD_HANDLE_TIME = 12  # minutes
+
 SHOULD_VIEW_TIME = timedelta(minutes=9)
 SHOULD_ACCEPT_TIME = timedelta(minutes=7)
 SHOULD_ASSIGN_TIME = timedelta(minutes=4)

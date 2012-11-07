@@ -11,7 +11,8 @@ import station_connection_manager
 from common.models import Country
 from common.forms import MandatoryInlineFormset
 from sharing.sharing_dispatcher import dispatch_ride
-from sharing.station_controller import show_ride, send_ride_voucher
+from sharing.station_controller import send_ride_voucher
+from sharing.staff_controller import ride_page
 import forms
 
 
@@ -67,7 +68,7 @@ class SharedRideAdmin(admin.ModelAdmin):
         return obj.taxi.number
 
     def map(self, obj):
-        return '<a href="%s">map</a>' % reverse(show_ride, args=[obj.id])
+        return '<a href="%s">map</a>' % reverse(ride_page, args=[obj.id])
     map.allow_tags = True
 
     actions = ['dispatch', 'resend_voucher']
