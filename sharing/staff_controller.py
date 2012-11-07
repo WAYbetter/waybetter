@@ -708,6 +708,10 @@ def eagle_eye_data(request):
 
     return JSONResponse(result)
 
+def manual_assign_ride(request):
+    pass # TODO_WB
+
+
 @staff_member_required
 @force_lang("en")
 def ride_page(request, ride_id):

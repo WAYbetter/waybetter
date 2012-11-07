@@ -2,27 +2,52 @@ import traceback
 from google.appengine.ext import deferred
 from common.tz_support import default_tz_now
 from common.util import notify_by_email
-from django.utils import translation
-from django.utils.translation import ugettext as _
 from django.http import HttpResponse
 from ordering.enums import RideStatus
 from ordering.models import  SharedRide, Station
 from datetime import timedelta
-from ordering.util import send_msg_to_passenger
 from pricing.models import RuleSet
 from sharing.algo_api import AlgoField
 import logging
 
 DISPATCHING_TIME = timedelta(hours=24)
 
+START_MONITORING_TIME = timedelta(minutes=1)
+STOP_MONITORING_TIME = timedelta(minutes=10)
+
+SHOULD_VIEW_TIME = timedelta(minutes=9)
+SHOULD_ACCEPT_TIME = timedelta(minutes=7)
+SHOULD_ASSIGN_TIME = timedelta(minutes=4)
+MARK_COMPLETE_TIME = timedelta(hours=1)
+
 def dispatching_cron(request):
+    from sharing.station_controller import send_ride_in_risk_notification
+
     rides_to_dispatch = SharedRide.objects.filter(status=RideStatus.PENDING, depart_time__lte=default_tz_now() + DISPATCHING_TIME)
     logging.info("cron: dispatch rides: %s" % rides_to_dispatch)
     for ride in rides_to_dispatch:
         deferred.defer(dispatch_ride, ride)
 
+    rides_to_monitor = SharedRide.objects.filter(depart_time__gte=default_tz_now() - START_MONITORING_TIME, depart_time__lte=default_tz_now() + STOP_MONITORING_TIME)
+    logging.info("cron: monitored rides: %s" % rides_to_monitor)
+    for ride in rides_to_monitor:
+        if ride.depart_time <= default_tz_now() + SHOULD_ASSIGN_TIME and not ride.taxi_number:
+            send_ride_in_risk_notification(u"Ride was not assigned to a taxi", ride.id)
+        elif ride.depart_time <= default_tz_now() + SHOULD_ACCEPT_TIME and ride.status != RideStatus.ACCEPTED:
+            send_ride_in_risk_notification(u"Ride was not accepted by station", ride.id)
+        elif ride.depart_time <= default_tz_now() + SHOULD_VIEW_TIME and ride.status not in [RideStatus.VIEWED, RideStatus.ACCEPTED]:
+            send_ride_in_risk_notification(u"Ride was not viewed by dispatcher", ride.id)
+
+    rides_to_complete = SharedRide.objects.filter(status=RideStatus.ACCEPTED, depart_time__lte=default_tz_now() - MARK_COMPLETE_TIME)
+    for ride in rides_to_complete:
+        if not ride.change_status(old_status=RideStatus.ACCEPTED, new_status=RideStatus.COMPLETED):
+            logging.error("ride [%s] was not marked COMPLETED" % ride.id)
+
     return HttpResponse("OK")
 
+def force_assign_ride(ride, station):
+    ride.station = station
+    ride.change_status(new_status=RideStatus.ASSIGNED) # calls save and sends signal to update ws module
 
 def dispatch_ride(ride):
     logging.info("dispatch ride [%s]" % ride.id)
