@@ -465,7 +465,7 @@ def cancel_order(request, passenger):
 def book_ride(request):
     passenger = Passenger.from_request(request)
     request_data = simplejson.loads(request.POST.get('data'))
-    logging.info("book ride: %s\n%s" % (passenger, unicode(simplejson.dumps(request_data), "unicode-escape")))
+    logging.info(u"book ride: %s\n%s" % (passenger, unicode(simplejson.dumps(request_data), "unicode-escape")))
 
     result = {
         'status': '',
