@@ -45,7 +45,7 @@ module.directive("wbMap", function ($timeout) {
                 mapTypeId:google.maps.MapTypeId.ROADMAP,
                 panControl: false,
                 mapTypeControl: false,
-                zoomControl: false,
+                zoomControl: true,
                 streetViewControl: false,
                 zoom:14
             });

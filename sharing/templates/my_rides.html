@@ -91,7 +91,7 @@
     <script type="text/javascript">
         var app = angular.module('MyRidesApp', ['wbServices', 'wbDirectives']);
 
-        app.config(function ($interpolateProvider, $httpProvider) {
+        app.config(function ($interpolateProvider) {
             $interpolateProvider.startSymbol('((');
             $interpolateProvider.endSymbol('))');
         });

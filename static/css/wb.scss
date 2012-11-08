@@ -1,3 +1,9 @@
+$wb-blue: #34bcd3;
+$wb-gray: #555;
+$wb-orange: #ff9300;
+$wb-magenta: #ed1c91;
+$wb-green: #35b54b;
+
 @mixin border-box{
     box-sizing: border-box;
     -moz-box-sizing: border-box;
@@ -8,22 +14,13 @@
     height: $h;
 }
 
-@mixin flip-horizontal {
-    -moz-transform: scaleX(-1);
-    -webkit-transform: scaleX(-1);
-    -o-transform: scaleX(-1);
-    transform: scaleX(-1);
-    -ms-filter: fliph; /*IE*/
-    filter: fliph; /*IE*/
-}
-
-@mixin flip-vertical {
-    -moz-transform: scaleY(-1);
-    -webkit-transform: scaleY(-1);
-    -o-transform: scaleY(-1);
-    transform: scaleY(-1);
-    -ms-filter: flipv; /*IE*/
-    filter: flipv; /*IE*/
+@mixin transform($t) {
+    -moz-transform: $t;
+    -webkit-transform: $t;
+    -o-transform: $t;
+    transform: $t;
+    -ms-filter: $t; /*IE*/
+    filter: $t; /*IE*/
 }
 
 /* Angular
@@ -66,7 +63,7 @@ body{
 /* Theme hacks
 -------------------------------------------------- */
 #header, #landing{
-    background-color: #34bcd3;
+    background-color: $wb-blue;
 }
 #header h1, #landing h1{
     text-shadow: 0 1px 2px rgba(83, 83, 83, 0.52);
@@ -75,15 +72,15 @@ body{
 }
 
 #content, #footer, #footer a {
-    color: #555;
+    color: $wb-gray;
 }
 
 #footer h3{
     text-transform: none;
-    color: #34BCD3;
+    color: $wb-blue;
 }
 #copywrite {
-    background: none repeat scroll 0 0 #555;
+    background: none repeat scroll 0 0 $wb-gray;
     color: white;
 }
 
@@ -97,8 +94,11 @@ select {
     line-height: 12px;
 }
 
-.bouncy:hover i {
-    color: #FF9300;
+.bouncy:hover {
+    i.wb-icon-bulb{ color: $wb-orange; }
+    i.icon-heart{ color: $wb-magenta; }
+    i.icon-magic{ color: $wb-green; }
+
 }
 
 .btn-large{
@@ -137,13 +137,22 @@ select {
 
 .navbar .nav > li.active > a, .navbar .nav > li.active:hover > a {
     background: none repeat scroll 0 0 transparent;
-    border-bottom: 2px solid #34BCD3;
-    color: #34BCD3;
+    border-bottom: 2px solid $wb-blue;
+    color: $wb-blue;
     padding-bottom: 4px;
+}
+.nav-list > .active > a, .nav-list > .active > a:hover {
+    background-color: $wb-blue;
 }
 .nav-collapse.collapse {
     height: auto!important;
     overflow: visible!important;
+}
+
+@media (max-width: 979px){
+    .navbar .nav-collapse .nav > li.active > a, .navbar .nav-collapse .nav > li.active:hover > a, .navbar .nav-collapse .nav .active > a, .navbar .nav-collapse .nav .active > a:hover, .navbar .nav-collapse .nav .active > a:focus{
+        background-color: transparent;
+    }
 }
 
 .bs-docs-sidenav a i.icon-chevron-right{
@@ -173,6 +182,7 @@ select {
   margin: 0 0 -1px;
   padding: 8px 14px;
   border: 1px solid #e5e5e5;
+  color: $wb-gray;
 }
 .bs-docs-sidenav > li:first-child > a {
   -webkit-border-radius: 6px 6px 0 0;
@@ -234,10 +244,9 @@ select {
 
 .wb-container{
     position: relative;
-    background: #FBFBFB;
     box-shadow: 1px 1px 6px;
-    background-color: #f5f5f5;
     border-radius: 3px;
+    background: white;
 }
 
 /* Common UI
@@ -350,11 +359,17 @@ select {
         border-right: 1px dotted gray;
         padding: 10px 0;
         text-align: left;
+        font-size: 16px;
+        .time{
+        }
     }
     .ride-price-details{
         height: 70px;
-        padding: 20px 0;
+        padding: 13px 0;
+        font-size: 16px;
         .price{
+            font-weight: bold;
+            font-size: 24px;
         }
     }
     .ride-action{
@@ -418,19 +433,35 @@ select {
         @include size(355px, 430px);
     }
     #content {
-        padding-top: 20px;
+        padding-top: 45px;
     }
     #content hr{
-        margin: 30px 0 50px;
+        margin: 60px 0 30px;
     }
-    #download-app-btns .btn.second{
-        margin-left: 30px;
+
+    #download-app{
+        strong{
+             position: relative;
+             bottom: 19px;
+            font-size: 16px;
+         }
+        .available-on-the {
+            display: inline-block;
+            @include size(152px, 50px);
+            background: url(/static/images/wb_site/1.2/appstores.png);
+            background-repeat: no-repeat;
+            margin-left: 28px;
+        }
+        .available-on-the.appstore { background-position: center top; }
+        .available-on-the.market { background-position: center -65px; }
     }
+
     #features {
         .header{
             font-size: 24px;
             line-height: 36px;
         }
+        p { padding: 0 20px; }
     }
 }
 
@@ -461,7 +492,10 @@ select {
         background-color: #F1F1F1;
         text-align: left;
         border-radius: 5px;
-        h3 { margin: 0; color: #308CCF; }
+        h3 {
+            margin: 0;
+            font-weight: bold;
+        }
     }
     .alerts{
         margin-top: 10px;
@@ -482,6 +516,7 @@ select {
     #map{
         height: 480px;
         border-radius: 5px;
+        .gmnoprint img{ max-width: none; }  /* map zoom controls. override max-width set by bootstrap  */
     }
     #booking-form{
         @include border-box;
@@ -504,27 +539,31 @@ select {
         margin-bottom: 10px;
     }
     #offers-disclaimer{
-        margin-top: 20px;
+        margin-top: 10px;
         text-align: left;
     }
     #summary-header{
         padding: 10px;
         @include border-box;
+        h2 {
+            font-size: 20px;
+            font-weight: bold;
+        }
         .icon-ok{
             margin-right: 10px;
             color: green;
         }
     }
-    #summary-header + hr{
-        margin: 0;
-    }
+    #summary-header + hr { margin: 0 }
     #summary-footer{
         padding: 10px;
         text-align: left;
-        background-color: #F1F1F1;
     }
     #summary-info{
         padding: 15px;
+    }
+    #summary-info + hr{
+        margin: 0;
     }
     #summary-buttons{
         i.icon-facebook{
@@ -542,7 +581,48 @@ select {
     .affix{
         top: 80px;
     }
-    h1{
+    .header{
         margin-top: 0;
+        font-size: 24px;
+    }
+    .main-content{ font-size: 16px; }
+    #howitworks #features{
+        margin: 40px 0 0;
+        list-style: none;
+    }
+    #howitworks #features .item{
+        position: relative;
+        padding-left: 50px;
+        margin-bottom: 30px;
+        .icon, .text{
+            display: inline-block;
+        }
+        .icon{
+            position: absolute;
+            top: 11px;
+            left: 0;
+            i {font-size: 32px;}
+        }
+        .title{
+            font-weight: bold;
+            font-size: 16px;
+        }
+    }
+
+    #faq .qa{
+        margin-bottom: 25px;
+    }
+    #faq .question {
+        display: block;
+        margin-bottom: 5px;
+        font-size: 16px;
+        font-weight: bold;
+        color: $wb-gray;
+        cursor: pointer;
+        i {line-height: 18px;}
+    }
+
+    #faq .answer {
+        font-size: 14px;
     }
 }

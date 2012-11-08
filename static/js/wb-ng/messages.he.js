@@ -22,7 +22,7 @@ module.constant('DefaultMessages', {
         unknown_address: "כתובת לא ידועה",
 
         book_existing_ride_txt: 'הצטרף לנסיעה',
-        book_new_ride_txt: 'התחל נסיעה חדשה',
+        book_new_ride_txt: 'הזמן נסיעה',
         confirm_cancel_order: "האם לבטל את הנסיעה?",
         cancel_ride: 'בטל נסיעה',
         report_ride: 'דווח על בעיה'

@@ -4,7 +4,7 @@
 
 {% block bodyclass %}booking-page{% endblock %}
 
-{% block headertext %}{% trans "Book a Ride" %}{% endblock %}
+{% block headertext %}{% trans "תפוס/התחל נסיעה" %}{% endblock %}
 
 {% block content %}
     <div id="content" ng-app="BookingApp">
@@ -134,7 +134,7 @@
                     <div ng-show="offers.length && !booking_approved">
                         <div id="offers-container" class="wb-container rides-container" ng-class="{'blur': selected_offer}">
                             <div class="rides-cat">
-                                <div class="rides-cat-header top">{% trans "Choose a Ride to Join" %}</div>
+                                <div class="rides-cat-header top">הצטרף לנסיעה קיימת</div>
                                 <div class="no-match" ng-hide="existing_ride_offers().length"
                                      ng-class="{'disabled': selected_offer}">
                                     לא נמצאו נסיעות מתאימות.
@@ -149,7 +149,7 @@
                                 </div>
                             </div>
                             <div class="rides-cat">
-                                <div class="rides-cat-header">{% trans "Start a New Ride" %}</div>
+                                <div class="rides-cat-header">הזמן נסיעה חדשה</div>
                                 <div class="rides-list" ng-repeat="offer in new_ride_offers() | orderBy:'pickup_time'">
                                     <offer class="new" ng-click="choose_offer(offer)" ng-class="{'focus': selected_offer == offer}"></offer>
                                     <offer-action type="new" ng-show="selected_offer == offer" ng-class="{'focus': selected_offer == offer}"></offer-action>
@@ -159,8 +159,9 @@
 
                         <alerts></alerts>
 
-                        <div id="offers-disclaimer">
-                            {% trans "Price are determined by the Price Chart that is computed based on station cost." %}
+                        <div id="offers-disclaimer" class="muted"><i class="icon-asterisk"> </i>
+                            מחיר הנסיעה נקבע על פי מחירון תחנת המוניות באזורך.<br>
+                            במידה ויצטרף נוסע נוסף למונית, המחיר יירד ואתם תקבלו הודעה שחסכתם כסף.<br>
                         </div>
                     </div>
 
@@ -190,38 +191,38 @@
                                         </div>
                                     </div>
                                     <div class="ride-pickup-details span4">
-                                        <strong>Pickup: (( booking_result.pickup_dt | wb_date:"EEE d/M" )) ((
+                                        <strong>איסוף: (( booking_result.pickup_dt | wb_date:"EEE d/M" )) ((
                                             booking_result.pickup_dt | date:"H:mm" ))</strong>
 
                                         <div>(( booking_result.seats_left )) {% trans "Availabe Seats" %}</div>
                                     </div>
                                     <div class="ride-price-details span3">
-                                        <strong class="price">(( booking_result.price | currency:"₪"
-                                            ))</strong><span> {% trans "or less" %}</span>
+                                        <strong class="price">(( booking_result.price | currency:"₪"))</strong>
+                                        <div> {% trans "or less" %}</div>
                                     </div>
                                 </div>
                             </div>
-                            <ride-sep></ride-sep>
-                        </div>
-                        <div id="summary-footer">
-                            <div id="summary-info">
-                                <ul>
-                                    <li>{% trans "Taxi live tracking will be available upon notification" %}</li>
-                                    <li>{% trans "We will notify you in case a better taxi is found or if someone had joined your ride" %}</li>
-                                    <li>
-                                        {% trans "Detailed verification email was sent to " %}{{ request.user.email }}</li>
-                                </ul>
-                            </div>
-                            <hr class="dashed">
-                            <h4>{% trans "Invite friends to join WAYbetter" %}</h4>
-
-                            <div id="summary-buttons">
-                                <a href="{% url ordering.ordering_controller.fb_share %}" class="btn btn-large btn-primary pull-right"> <i class="icon-facebook"></i> {% trans "Share on Facebook" %}</a>
-                                <a href="{% url wb_home %}" class="btn btn-large btn-warning pull-left">{% trans "Back To Home" %}</a>
-                                <div class="clearfix"></div>
-                            </div>
                         </div>
                     </div>
+
+                    <div id="summary-footer" ng-show="booking_approved">
+                        <div id="summary-info">
+                            <ul>
+                                <li>הודעה תשלח עם יציאת המונית לכיוונך, וניתן יהיה לצפות בה מגיעה על המפה באפליקציית הסמארטפון</li>
+                                <li>אישור הזמנה נשלח ל- {{ request.user.email }}</li>
+                            </ul>
+                        </div>
+
+                        <hr class="dashed">
+
+                        <h4>הזמן חברים להנות מWAYbetter</h4>
+                        <div id="summary-buttons">
+                            <a href="{% url ordering.ordering_controller.fb_share %}" class="btn btn btn-primary pull-left"> <i class="icon-facebook"></i> {% trans "Share on Facebook" %}</a>
+                            <a href="{% url wb_home %}" class="btn btn btn-warning pull-right">{% trans "Back To Home" %}</a>
+                            <div class="clearfix"></div>
+                        </div>
+                    </div>
+
                 </div>
             </div>
         </div>
