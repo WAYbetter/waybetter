@@ -25,7 +25,7 @@ from fleet.models import FleetManager, FleetManagerRideStatus
 from ordering.enums import RideStatus
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal, order_price_changed_signal
 from ordering.errors import UpdateStatusError
-from sharing.signals import ride_status_changed_signal
+from sharing.signals import ride_status_changed_signal, ride_updated_signal
 from pricing.models import  RuleSet, TARIFFS
 
 import re
@@ -1215,6 +1215,8 @@ class Order(BaseModel):
         # emit price change signal
         if "price" in self.dirty_fields:
             order_price_changed_signal.send(sender="set_price_data", order=self, old_price=self.dirty_fields.get("price"), new_price=self.price)
+
+        ride_updated_signal.send(sender="ride_save", obj=self)
 
     def __unicode__(self):
         id = self.id

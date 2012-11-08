@@ -9,8 +9,10 @@ import logging
 class SignalType(Enum):
     RIDE_CREATED               = 1
     RIDE_STATUS_CHANGED        = 2
+    RIDE_UPDATED               = 3
 
 ride_created_signal                    = AsyncSignal(SignalType.RIDE_CREATED, providing_args=["obj"])
+ride_updated_signal                    = AsyncSignal(SignalType.RIDE_UPDATED, providing_args=["obj"])
 ride_status_changed_signal             = AsyncSignal(SignalType.RIDE_STATUS_CHANGED, providing_args=["obj", "status"])
 
 @receive_signal(ride_created_signal)
@@ -82,7 +84,7 @@ def handle_accepted_ride(sender, signal_type, obj, status, **kwargs):
 
         send_ride_notifications(ride)
 
-@receive_signal(ride_status_changed_signal)
+@receive_signal(ride_updated_signal)
 def update_ws(sender, signal_type, obj, status, **kwargs):
     from sharing.station_controller import update_ride
     logging.info("update_ws signal")
