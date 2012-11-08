@@ -39,6 +39,25 @@ body {
 
 /* Theme hacks
 -------------------------------------------------- */
+#header, #landing {
+  background-color: #34bcd3; }
+
+#header h1, #landing h1 {
+  text-shadow: 0 1px 2px rgba(83, 83, 83, 0.52);
+  font-weight: bold;
+  color: white; }
+
+#content, #footer, #footer a {
+  color: #555555; }
+
+#footer h3 {
+  text-transform: none;
+  color: #34bcd3; }
+
+#copywrite {
+  background: none repeat scroll 0 0 #555555;
+  color: white; }
+
 h3 {
   font-size: 20px;
   font-weight: normal; }
@@ -46,6 +65,13 @@ h3 {
 select {
   -webkit-appearance: none;
   line-height: 12px; }
+
+.bouncy:hover i.wb-icon-bulb {
+  color: #ff9300; }
+.bouncy:hover i.icon-heart {
+  color: #ed1c91; }
+.bouncy:hover i.icon-magic {
+  color: #35b54b; }
 
 .btn-large {
   padding: 10px auto;
@@ -64,6 +90,7 @@ select {
   background: white; }
 
 .navbar .nav > li > a {
+  font-size: 14px;
   color: #5F5F5F; }
 
 .navbar .nav li.dropdown.open > .dropdown-toggle, .navbar .nav li.dropdown.active > .dropdown-toggle, .navbar .nav li.dropdown.open.active > .dropdown-toggle {
@@ -79,13 +106,20 @@ select {
 
 .navbar .nav > li.active > a, .navbar .nav > li.active:hover > a {
   background: none repeat scroll 0 0 transparent;
-  border-bottom: 2px solid #308CCF;
-  color: #308CCF;
+  border-bottom: 2px solid #34bcd3;
+  color: #34bcd3;
   padding-bottom: 4px; }
+
+.nav-list > .active > a, .nav-list > .active > a:hover {
+  background-color: #34bcd3; }
 
 .nav-collapse.collapse {
   height: auto!important;
   overflow: visible!important; }
+
+@media (max-width: 979px) {
+  .navbar .nav-collapse .nav > li.active > a, .navbar .nav-collapse .nav > li.active:hover > a, .navbar .nav-collapse .nav .active > a, .navbar .nav-collapse .nav .active > a:hover, .navbar .nav-collapse .nav .active > a:focus {
+    background-color: transparent; } }
 
 .bs-docs-sidenav a i.icon-chevron-right {
   background-image: none !important; }
@@ -111,7 +145,8 @@ select {
   *width: 190px;
   margin: 0 0 -1px;
   padding: 8px 14px;
-  border: 1px solid #e5e5e5; }
+  border: 1px solid #e5e5e5;
+  color: #555555; }
 
 .bs-docs-sidenav > li:first-child > a {
   -webkit-border-radius: 6px 6px 0 0;
@@ -162,6 +197,7 @@ select {
   margin-left: 30px;
   font-size: 28px;
   font-weight: normal;
+  text-align: right;
   line-height: 34px;
   text-align: right; }
 
@@ -170,10 +206,9 @@ select {
 
 .wb-container {
   position: relative;
-  background: #FBFBFB;
   box-shadow: 1px 1px 6px;
-  background-color: #f5f5f5;
-  border-radius: 3px; }
+  border-radius: 3px;
+  background: white; }
 
 /* Common UI
 -------------------------------------------------- */
@@ -260,10 +295,15 @@ select {
   height: 70px;
   border-right: 1px dotted gray;
   padding: 10px 0;
-  text-align: left; }
+  text-align: left;
+  font-size: 16px; }
 .rides-container .ride-price-details {
   height: 70px;
-  padding: 20px 0; }
+  padding: 13px 0;
+  font-size: 16px; }
+  .rides-container .ride-price-details .price {
+    font-weight: bold;
+    font-size: 24px; }
 .rides-container .ride-action {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -298,11 +338,7 @@ select {
   padding: 30px 0 80px;
   background-image: url(/static/images/wb_site/1.2/taxi_faces.png);
   background-position: center bottom;
-  background-repeat: no-repeat;
-  background-color: #34bcd3; }
-.wb-home #landing h1 {
-  color: white;
-  text-shadow: 0 1px 2px #535353; }
+  background-repeat: no-repeat; }
 .wb-home #landing-text {
   max-width: 320px; }
 .wb-home #book-ride-btn {
@@ -318,14 +354,29 @@ select {
   width: 355px;
   height: 430px; }
 .wb-home #content {
-  padding-top: 20px; }
+  padding-top: 45px; }
 .wb-home #content hr {
-  margin: 30px 0 50px; }
-.wb-home #download-app-btns .btn.second {
-  margin-left: 30px; }
+  margin: 60px 0 30px; }
+.wb-home #download-app strong {
+  position: relative;
+  bottom: 19px;
+  font-size: 16px; }
+.wb-home #download-app .available-on-the {
+  display: inline-block;
+  width: 152px;
+  height: 50px;
+  background: url(/static/images/wb_site/1.2/appstores.png);
+  background-repeat: no-repeat;
+  margin-left: 28px; }
+.wb-home #download-app .available-on-the.appstore {
+  background-position: center top; }
+.wb-home #download-app .available-on-the.market {
+  background-position: center -65px; }
 .wb-home #features .header {
   font-size: 24px;
   line-height: 36px; }
+.wb-home #features p {
+  padding: 0 20px; }
 
 .my-rides-page .modal-footer .modal-buttons {
   display: inline-block; }
@@ -345,7 +396,7 @@ select {
   border-radius: 5px; }
   .booking-page .booking-panel h3 {
     margin: 0;
-    color: #308CCF; }
+    font-weight: bold; }
 .booking-page .alerts {
   margin-top: 10px;
   margin-bottom: 10px;
@@ -363,7 +414,10 @@ select {
   border: 2px solid #F1F1F1; }
 .booking-page #map {
   height: 480px;
-  border-radius: 5px; }
+  border-radius: 5px;
+  /* map zoom controls. override max-width set by bootstrap  */ }
+  .booking-page #map .gmnoprint img {
+    max-width: none; }
 .booking-page #booking-form {
   box-sizing: border-box;
   -moz-box-sizing: border-box;
@@ -386,13 +440,16 @@ select {
 .booking-page #offers-container {
   margin-bottom: 10px; }
 .booking-page #offers-disclaimer {
-  margin-top: 20px;
+  margin-top: 10px;
   text-align: left; }
 .booking-page #summary-header {
   padding: 10px;
   box-sizing: border-box;
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box; }
+  .booking-page #summary-header h2 {
+    font-size: 20px;
+    font-weight: bold; }
   .booking-page #summary-header .icon-ok {
     margin-right: 10px;
     color: green; }
@@ -400,10 +457,11 @@ select {
   margin: 0; }
 .booking-page #summary-footer {
   padding: 10px;
-  text-align: left;
-  background-color: #F1F1F1; }
+  text-align: left; }
 .booking-page #summary-info {
   padding: 15px; }
+.booking-page #summary-info + hr {
+  margin: 0; }
 .booking-page #summary-buttons i.icon-facebook {
   font-size: 1.5em;
   line-height: .7em;
@@ -413,5 +471,39 @@ select {
   padding-top: 85px; }
 .about-faq-contact .affix {
   top: 80px; }
-.about-faq-contact h1 {
-  margin-top: 0; }
+.about-faq-contact .header {
+  margin-top: 0;
+  font-size: 24px; }
+.about-faq-contact .main-content {
+  font-size: 16px; }
+.about-faq-contact #howitworks #features {
+  margin: 40px 0 0;
+  list-style: none; }
+.about-faq-contact #howitworks #features .item {
+  position: relative;
+  padding-left: 50px;
+  margin-bottom: 30px; }
+  .about-faq-contact #howitworks #features .item .icon, .about-faq-contact #howitworks #features .item .text {
+    display: inline-block; }
+  .about-faq-contact #howitworks #features .item .icon {
+    position: absolute;
+    top: 11px;
+    left: 0; }
+    .about-faq-contact #howitworks #features .item .icon i {
+      font-size: 32px; }
+  .about-faq-contact #howitworks #features .item .title {
+    font-weight: bold;
+    font-size: 16px; }
+.about-faq-contact #faq .qa {
+  margin-bottom: 25px; }
+.about-faq-contact #faq .question {
+  display: block;
+  margin-bottom: 5px;
+  font-size: 16px;
+  font-weight: bold;
+  color: #555555;
+  cursor: pointer; }
+  .about-faq-contact #faq .question i {
+    line-height: 18px; }
+.about-faq-contact #faq .answer {
+  font-size: 14px; }
