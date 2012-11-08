@@ -419,6 +419,18 @@ class BaseRide(BaseModel):
 
     cost_data = property(fget=get_cost_data, fset=set_cost_data)
 
+    @classmethod
+    def by_uuid(cls, uuid):
+        ride = None
+        try:
+            ride = SharedRide.objects.get(uuid=uuid)
+        except SharedRide.DoesNotExist:
+            try:
+                ride = PickMeAppRide.objects.get(uuid=uuid)
+            except PickMeAppRide.DoesNotExist:
+                pass
+        return ride
+
     @property
     def pickup_points(self):
         pickups = filter(lambda p: p.type == StopType.PICKUP, self.points.all())

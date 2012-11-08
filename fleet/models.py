@@ -35,7 +35,7 @@ class FleetManagerRide(object):
         assert timestamp is None or isinstance(timestamp, datetime.datetime)
         assert FleetManagerRideStatus.contains(status), "Unknown FleetManagerRideStatus: %s" % raw_status
 
-        self.id = long(id)
+        self.id = id
         self.status = status
         self.taxi_id = long(taxi_id) if taxi_id else None
         self.station_id = long(station_id) if station_id else None
@@ -65,27 +65,27 @@ class FleetManagerRide(object):
 
 class TaxiRidePosition(object):
     """ An object representing the position of a taxi assigned to a ride by a fleet manager backend """
-    def __init__(self, station_id, taxi_id, order_id, lat, lon, timestamp):
+    def __init__(self, station_id, taxi_id, ride_uuid, lat, lon, timestamp):
         """ Constructor.
         @param station_id: Number
         @param taxi_id: Number
-        @param order_id: Number
+        @param ride_uuid: Number
         @param lat: Float
         @param lon: Float
         @param timestamp: datetime.datetime
         """
-        assert all([station_id, taxi_id, order_id, lat, lon])
+        assert all([station_id, taxi_id, ride_uuid, lat, lon])
         assert timestamp is None or isinstance(timestamp, datetime.datetime)
 
         self.station_id = long(station_id)
         self.taxi_id = long(taxi_id)
-        self.order_id = long(order_id)
+        self.ride_uuid = ride_uuid
         self.lat = float(lat)
         self.lon = float(lon)
         self.timestamp = timestamp
 
     def __str__(self):
-        s = "Taxi %s.%s Ride %s AT %s,%s" % (self.station_id, self.taxi_id, self.order_id, self.lat, self.lon)
+        s = "Taxi %s.%s Ride %s AT %s,%s" % (self.station_id, self.taxi_id, self.ride_uuid, self.lat, self.lon)
         if self.timestamp:
             s += " ON %s" % self.timestamp.strftime("%H:%M:%S")
         return s

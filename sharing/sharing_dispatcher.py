@@ -31,7 +31,7 @@ def dispatching_cron(request):
     for ride in rides_to_dispatch:
         deferred.defer(dispatch_ride, ride)
 
-    rides_to_monitor = SharedRide.objects.filter(depart_time__gte=default_tz_now() - START_MONITORING_TIME, depart_time__lte=default_tz_now() + STOP_MONITORING_TIME)
+    rides_to_monitor = SharedRide.objects.filter(depart_time__gte=default_tz_now() - START_MONITORING_TIME, depart_time__lte=default_tz_now() + STOP_MONITORING_TIME, status__in=[RideStatus.PROCESSING, RideStatus.ACCEPTED, RideStatus.PENDING, RideStatus.ASSIGNED, RideStatus.VIEWED])
     logging.info("cron: monitored rides: %s" % rides_to_monitor)
     for ride in rides_to_monitor:
         if ride.depart_time <= default_tz_now() + MUST_ACCEPT_TIME and ride.status != RideStatus.ACCEPTED:
