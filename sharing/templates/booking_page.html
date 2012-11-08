@@ -92,7 +92,7 @@
 
                         <div ng-switch on="is_private">
                             <button ng-switch-when="false" class="btn btn-large btn-block btn-warning btn-large" ng-disabled="!ready_to_order() || loading" ng-click="get_offers()">{% trans "Find a Ride" %}</button>
-                            <button ng-switch-when="true" class="btn btn-large btn-block btn-warning btn-large" ng-disabled="!ready_to_order() || loading" ng-click="book_ride()">{% trans "Book Ride" %}</button>
+                            <button ng-switch-when="true" class="btn btn-large btn-block btn-warning btn-large" ng-disabled="!ready_to_order() || loading" ng-click="book_ride()">הזמן נסיעה פרטית</button>
                         </div>
 
                         <alerts></alerts>

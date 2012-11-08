@@ -11,10 +11,12 @@ module.constant('DefaultMessages', {
         you: "You",
         private_ride: "Private Ride",
         connection_error:'The operation could not be completed',
+        billing_error:'Billing was not approved',
         loading_offers_1: "Searching for similar rides",
         loading_offers_2: "Computing ride duration",
         loading_offers_3: "Updating taxis",
-        loading_book_ride: "Processing Order...",
+        loading_book_ride: "Processing order",
+        loading_billing: "Processing billing",
         loading_private_offer: "Calculating private ride price",
         no_offers: "No matching rides found",
 
