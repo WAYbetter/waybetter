@@ -65,6 +65,28 @@ body{
 
 /* Theme hacks
 -------------------------------------------------- */
+#header, #landing{
+    background-color: #34bcd3;
+}
+#header h1, #landing h1{
+    text-shadow: 0 1px 2px rgba(83, 83, 83, 0.52);
+    font-weight: bold;
+    color: white;
+}
+
+#content, #footer, #footer a {
+    color: #555;
+}
+
+#footer h3{
+    text-transform: none;
+    color: #34BCD3;
+}
+#copywrite {
+    background: none repeat scroll 0 0 #555;
+    color: white;
+}
+
 h3{
     font-size: 20px;
     font-weight: normal;
@@ -73,6 +95,10 @@ h3{
 select {
     -webkit-appearance: none;
     line-height: 12px;
+}
+
+.bouncy:hover i {
+    color: #FF9300;
 }
 
 .btn-large{
@@ -93,6 +119,7 @@ select {
     background: white;
 }
 .navbar .nav > li > a{
+    font-size: 14px;
     color: #5F5F5F;
 }
 .navbar .nav li.dropdown.open > .dropdown-toggle, .navbar .nav li.dropdown.active > .dropdown-toggle, .navbar .nav li.dropdown.open.active > .dropdown-toggle{
@@ -110,8 +137,8 @@ select {
 
 .navbar .nav > li.active > a, .navbar .nav > li.active:hover > a {
     background: none repeat scroll 0 0 transparent;
-    border-bottom: 2px solid #308CCF;
-    color: #308CCF;
+    border-bottom: 2px solid #34BCD3;
+    color: #34BCD3;
     padding-bottom: 4px;
 }
 .nav-collapse.collapse {
@@ -197,6 +224,7 @@ select {
     margin-left: 30px;
     font-size: 28px;
     font-weight: normal;
+    text-align: right;
     line-height: 34px;
 }
 
@@ -371,11 +399,6 @@ select {
         background-image: url(/static/images/wb_site/1.2/taxi_faces.png);
         background-position:  center bottom;
         background-repeat: no-repeat;
-        background-color: #34bcd3;
-    }
-    #landing h1{
-        color: white;
-        text-shadow: 0 1px 2px #535353;
     }
     #landing-text{
         max-width: 320px;
