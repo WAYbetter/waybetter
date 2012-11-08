@@ -27,7 +27,7 @@
         .page {
             min-height: 600px;
         }
-        .container > .row {
+        .container-fluid > .row-fluid {
             padding-top: 20px;
         }
         .right {
@@ -365,8 +365,8 @@
 {% endblock %}
 
 {% block content %}
-    <div class="ng-cloak container page" ng-app="EagleEyeApp" ng-controller="EagleEyeCtrl">
-        <div class="row">
+    <div class="ng-cloak container-fluid page" ng-app="EagleEyeApp" ng-controller="EagleEyeCtrl">
+        <div class="row-fluid">
             <div class="span2">
                 <form class="form dates-form well well-small" data-spy="affix">
                     <div class="input-prepend">

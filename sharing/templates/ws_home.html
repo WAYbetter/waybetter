@@ -583,21 +583,25 @@
             $scope.$apply(function() {
                 var start_handle_time = new Date().getTime() + {{ handle_time }} * 60 * 1000;
                 angular.forEach($scope.rides, function (ride) {
-                    var is_future = (ride.depart_time >= start_handle_time && ride.status == Status.ASSIGNED);
-                    if (ride.future && !is_future && $scope.selected_ride == ride){ // currently viewing a future ride that is turned into 'next' ride
-                        $scope.selected_ride = undefined;
-                    }
-                    ride.future = is_future;
-
-                    if (ride.taxi) {
-                        ride.tab = Tabs.CURRENT;
-                    } else if (ride.status != Status.COMPLETED) {
-                        if (ride.tab != Tabs.NEXT) {
-                            ride.tab = Tabs.NEXT;
-                            $scope.current_tab = Tabs.NEXT;
-                        }
+                    if ([Status.FAILED, Status.COMPLETED].indexOf(ride.status) > -1) {
+                        ride.tab = undefined; // don't show these rides
                     } else {
-                        ride.tab = undefined;
+                        var is_future = (ride.depart_time >= start_handle_time && ride.status == Status.ASSIGNED);
+                        if (ride.future && !is_future && $scope.selected_ride == ride){ // currently viewing a future ride that is turned into 'next' ride
+                            $scope.selected_ride = undefined;
+                        }
+                        ride.future = is_future;
+
+                        if (ride.taxi) {
+                            ride.tab = Tabs.CURRENT;
+                        } else if (ride.status != Status.COMPLETED) {
+                            if (ride.tab != Tabs.NEXT) {
+                                ride.tab = Tabs.NEXT;
+                                $scope.current_tab = Tabs.NEXT;
+                            }
+                        } else {
+                            ride.tab = undefined;
+                        }
                     }
                 })
             });

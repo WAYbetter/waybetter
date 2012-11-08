@@ -12,7 +12,7 @@ import logging
 
 DISPATCHING_TIME = timedelta(hours=24)
 
-START_MONITORING_TIME = timedelta(minutes=1)
+START_MONITORING_TIME = timedelta(minutes=60)
 STOP_MONITORING_TIME = timedelta(minutes=10)
 
 WS_SHOULD_HANDLE_TIME = 12  # minutes

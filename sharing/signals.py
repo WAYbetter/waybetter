@@ -37,14 +37,15 @@ def log_ride_status_update(sender, signal_type, obj, status, **kwargs):
 @receive_signal(ride_status_changed_signal)
 def handle_failed_ride(sender, signal_type, obj, status, **kwargs):
     from ordering.enums import RideStatus
-    from ordering.models import CANCELLED
+    from ordering.models import FAILED
     from fleet.fleet_manager import cancel_ride
     from sharing.station_controller import send_ride_in_risk_notification
     from notification.api import notify_passenger
 
-
     ride = obj
     if ride.status == RideStatus.FAILED:
+        logging.info("handling FAILED ride: %s" % ride.id)
+
         current_lang = translation.get_language()
         # cancel ride
         cancel_ride(ride)
@@ -54,7 +55,7 @@ def handle_failed_ride(sender, signal_type, obj, status, **kwargs):
 
         # cancel orders and notify passengers
         for order in ride.orders.all():
-            order.change_status(new_status=CANCELLED)
+            order.change_status(new_status=FAILED)
             translation.activate(order.language_code)
 
             notify_passenger(order.passenger, _("We're sorry but we couldn't find a taxi for you this time. (Order: %s)") % order.id)
