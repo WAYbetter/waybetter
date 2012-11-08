@@ -8,6 +8,7 @@ from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required
 
 def about(request):
+    lib_ng = True
     return custom_render_to_response("about_faq_contact.html", locals(), context_instance=RequestContext(request))
 
 @force_lang("he") # for now show this page only in hebrew

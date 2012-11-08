@@ -17,7 +17,7 @@ module.directive("myRide", function (DefaultMessages) {
                 </div> \
                 <div class="ride-price-details span4"> \
                     <strong class="price">(( ride.price | currency:"₪" ))</strong> \
-                    <span>(( ride.billing_status ))</span> \
+                    <div>(( ride.billing_status ))</div> \
                 </div> \
             </div>'
     }
@@ -54,14 +54,16 @@ module.directive("offer", function (DefaultMessages, ASAP) {
                     <div class="type-indicator"></div>\
                     <ride-pics-for-offer></ride-pics-for-offer> \
                 </div> \
-                <div class="ride-pickup-details span4" ng-switch on="offer.new_ride && pickup_dt == ASAP"> \
-                    <strong ng-switch-when="false">' + DefaultMessages.pickup +  ': (( offer.pickup_time | wb_date:"EEE d/M" )) ((  offer.pickup_time | date:"H:mm" ))</strong> \
-                    <strong ng-switch-when="true">' + DefaultMessages.pickup +  ': ' + (( ASAP )) + '</strong> \
+                <div class="ride-pickup-details span4"> \
+                    <div ng-switch on="offer.new_ride && pickup_dt == ASAP" class="time">\
+                        <strong ng-switch-when="false">' + DefaultMessages.pickup +  ': (( offer.pickup_time | wb_date:"EEE d/M" )) ((  offer.pickup_time | date:"H:mm" ))</strong> \
+                        <strong ng-switch-when="true">' + DefaultMessages.pickup +  ': ' + (( ASAP )) + '</strong> \
+                    </div>\
                     <div>(( offer.seats_left )) ' + DefaultMessages.available_seats + '</div> \
                 </div> \
                 <div class="ride-price-details span3"> \
                     <strong class="price">(( offer.price | currency:"₪" ))</strong> \
-                    <span>' + DefaultMessages.or_less + '</span> \
+                    <div>' + DefaultMessages.or_less + '</span> \
                 </div> \
             </div>'
     }

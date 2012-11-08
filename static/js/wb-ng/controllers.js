@@ -193,6 +193,7 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
 
     $scope.book_ride = function () {
         $scope.booking_result = undefined;
+        $scope.booking_error = undefined;
         set_loading_message(DefaultMessages.loading_book_ride);
 
         var ride_data = get_booking_data({ride_id:$scope.selected_offer.ride_id});
@@ -203,13 +204,14 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
             var status = booking_result.status;
             var order_id = booking_result.order_id;
             if (status == 'success' && order_id) {
+                set_loading_message(DefaultMessages.loading_billing);
                 BookingService.get_order_billing_status(order_id).then(function() {
                         clear_loading_message();
                         $scope.booking_approved = true;
                     }, function(error) {
                         clear_loading_message();
                         $scope.booking_approved = false;
-                        $scope.booking_error = error;
+                        $scope.booking_error = DefaultMessages.billing_error;
                     });
             } else { // booking was not successful
                 clear_loading_message();
@@ -218,7 +220,7 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
                 } else if (status == 'auth_failed') {
                     window.location.href = DefaultURLS.auth_failed_redirect;
                 } else {
-                    $scope.booking_error = DefaultMessages.connection_error;
+                    $scope.booking_error = booking_result.error || DefaultMessages.connection_error;
                 }
             }
         }, function () { // booking request failed

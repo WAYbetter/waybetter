@@ -34,7 +34,7 @@ WAYBETTER_STATION_NAME = "WAYbetter"
 
 MAX_SEATS = 3
 BOOKING_INTERVAL = 10 # minutes
-ASAP_BOOKING_TIME = 5 # minutes
+ASAP_BOOKING_TIME = 7 # minutes
 MAX_RIDE_DURATION = 15 #minutes
 
 OFFERS_TIMEDELTA = datetime.timedelta(minutes=60)
@@ -323,22 +323,18 @@ def get_candidate_rides(order_settings):
     earliest = max(default_tz_now(), requested_pickup_dt - OFFERS_TIMEDELTA)
     latest = requested_pickup_dt + OFFERS_TIMEDELTA
 
-    candidate_pickups_qs = RidePoint.objects.filter(stop_time__gt=earliest, stop_time__lte=latest)
-    candidate_pickups = filter(lambda p: p.type == StopType.PICKUP, candidate_pickups_qs)
-
-    # remove duplicates: different pickups can belong to the same ride
-    candidates = set([p.ride for p in candidate_pickups])
-
-    # don't mix dev with production rides
-    candidates = filter(lambda ride: ride.debug == settings.DEV, candidates)
-
-    # remove private rides
-    candidates = filter(lambda ride: ride.can_be_joined, candidates)
-
-    # remove fully booked rides
-    candidates = filter(lambda ride: sum([order.num_seats for order in ride.orders.all()]) + order_settings.num_seats <= MAX_SEATS, candidates)
+    candidates = SharedRide.objects.filter(depart_time__gt=earliest, depart_time__lte=latest)
+    candidates = filter(lambda candidate: is_valid_candidate(candidate, order_settings), candidates)
 
     return candidates
+
+
+def is_valid_candidate(ride, order_settings):
+    return ride.debug == settings.DEV and \
+           ride.can_be_joined and \
+           ride.depart_time > default_tz_now() + datetime.timedelta(minutes=ASAP_BOOKING_TIME) and \
+           ride.status in [RideStatus.PENDING, RideStatus.ASSIGNED] and \
+           sum([order.num_seats for order in ride.orders.all()]) + order_settings.num_seats <= MAX_SEATS
 
 
 def get_matching_rides(candidate_rides, order_settings):
@@ -433,7 +429,7 @@ def get_offers(request):
                 "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
                 "price": price,
                 "new_ride": False,
-                "comment": u"%s דקות תוספת זמן / חסכון %s₪" % (time_addition, price_addition)
+                "comment": u"תוספת זמן: %s דקות / חסכון של %s₪ או יותר" % (time_addition, price_addition)
             }
 
         offers.append(offer)
@@ -477,8 +473,18 @@ def book_ride(request):
 
     if passenger and passenger.user and hasattr(passenger, "billing_info"): # we have logged-in passenger with billing_info - let's proceed
         order_settings = OrderSettings.fromRequest(request)
-        ride_id = int(request_data.get("ride_id", NEW_ORDER_ID))
-        order = create_order(order_settings, passenger, ride_id)
+        ride = SharedRide.by_id(request_data.get("ride_id"))  # is None if starting a new ride
+
+        order = None
+        if ride:  # if joining a ride check it is a valid candidate
+            if is_valid_candidate(ride, order_settings):
+                order = create_order(order_settings, passenger, ride)
+            else:
+                logging.warning("tried booking an invalid ride candidate")
+                result['error'] = _("Sorry, but this ride has been closed for booking")
+        else:
+            order = create_order(order_settings, passenger, ride)
+
 
         if order:
             result['status'] = 'success'
@@ -487,14 +493,12 @@ def book_ride(request):
             result['pickup_dt'] = to_js_date(order.depart_time)
             result["price"] = order.price
 
-            ride = SharedRide.by_id(ride_id)
             ride_orders = [order] + (list(ride.orders.all()) if ride else [])
             result["passengers"] = [{'name': o.passenger.name, 'picture_url': o.passenger.picture_url, 'is_you': o==order} for o in ride_orders for seat in range(o.num_seats)]
             result["seats_left"] = MAX_SEATS - sum([order.num_seats for order in ride_orders])
 
         else:
             result['status'] = 'failed'
-            result['error'] = 'Booking failed for some reason'
 
     else:  # not authorized for booking, save current booking state in session
         request.session[CURRENT_BOOKING_DATA_KEY] = request_data
@@ -509,8 +513,8 @@ def book_ride(request):
     return JSONResponse(result)
 
 
-def create_order(order_settings, passenger, ride_id):
-    ride = SharedRide.by_id(ride_id)
+def create_order(order_settings, passenger, ride):
+    ride_id = ride.id if ride else NEW_ORDER_ID
 
     # get ride data from algo: don't trust the client
     candidates = [ride] if ride else []

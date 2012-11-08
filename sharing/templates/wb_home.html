@@ -8,12 +8,12 @@
     <div id="landing">
         <div class="container">
             <div class="row">
-                <div class="span6">
-                    <h1>{% trans "Why pay for unused taxi seats?" %}</h1>
-                    <p id="landing-text">{% trans "פול קגאמה נערץ במערב בזכות קידומה הכלכלי של ארצו ושיקומה מהריסות רצח העם ב-1994. ברואנדה סבורים רבים שהוא מנהיג דיקטטורה נוקשה" %}</p>
-                    <a id="book-ride-btn" href="{% url booking_page %}" class="btn btn-warning btn-large"><i class="wb-icon-taxi"></i> {% trans "Book a Ride" %}</a>
+                <div class="span7">
+                    <h1>{% trans "תופסים טרמפ על מונית ספיישל..." %}</h1>
+                    <p id="landing-text">{% trans "במקום לשלם לבד על מונית שלמה, תופסים מונית שנוסעת במסלול ובזמן שמתאים לכם, חולקים את התשלום עם שאר הנוסעים והופכים מקומות פנויים לחיסכון כספי גדול עבור כולם!" %}</p>
+                    <a id="book-ride-btn" href="{% url booking_page %}" class="btn btn-warning btn-large"><i class="wb-icon-taxi"></i> {% trans "תפוס/התחל נסיעה" %}</a>
                 </div>
-                <div class="span6" id="app-shots-container">
+                <div class="span5" id="app-shots-container">
                     <div id="app-shots" class="visible-desktop"></div>
                 </div>
             </div>
@@ -26,37 +26,34 @@
     <div id="content" class="txt-middle">
         <div class="container">
             <div class="row-fluid">
-                <div class="pull-left" id="download-app-btns">
-                    <h3>{% trans "Download the app now - FREE" %}</h3>
-                    <a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}" class="btn btn-info btn-action btn-large"><i class="wb-icon wb-icon-apple"></i> אפליקציה ל iPhone</a>
-                    <a href="{% value_from_settings ANDROID_MARKET_APP_URL %}" class="btn btn-info btn-action btn-large second"><i class="wb-icon wb-icon-android"></i> אפליקציה ל Android</a>
+                <div id="download-app" class="pull-left">
+                    <strong>{% trans "הורידו את האפליקציה - חינם" %}</strong>
+                    <a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}" class="available-on-the appstore"></a>
+                    <a href="{% value_from_settings ANDROID_MARKET_APP_URL %}" class="available-on-the market"></a>
                 </div>
             </div>
             <hr class="dashed">
             <div id="features" class="row">
                 <div class="span4 bouncy">
                     <div class="icon_wrapper">
-                        <i class="icon-th-large"></i>
+                        <i class="wb-icon-bulb"></i>
                     </div>
-                    <div class="header">אורך בינוני</div>
-
-                    <p>פול קגאמה נערץ במערב בזכות קידומה הכלכלי של ארצו ושיקומה מהריסות רצח העם ב-1994. ברואנדה סבורים רבים שהוא מנהיג דיקטטורה נוקשה.</p>
+                    <div class="header">{% trans "חכם יותר" %}</div>
+                    <p>{% trans "סעו בדרך חברתית שחוסכת לכולם ועל הדרך תצמצמו זיהום אוויר, בזבוז דלק, פקקים ורעש. אולי אפילו תכירו אנשים מעניינים..." %}</p>
                 </div>
                 <div class="span4 bouncy">
                     <div class="icon_wrapper">
-                        <i class="icon-flag"></i>
+                        <i class="icon-heart"></i>
                     </div>
-                    <div class="header">משהו יותר ארוך טיפה</div>
-
-                    <p>פול קגאמה נערץ במערב בזכות קידומה הכלכלי של ארצו ושיקומה מהריסות רצח העם ב-1994. ברואנדה סבורים רבים שהוא מנהיג דיקטטורה נוקשה.</p>
+                    <div class="header">{% trans "נוח יותר" %}</div>
+                    <p>{% trans 'כנסו לאפליקציה או לאתר, הזמינו בקלות מונית מתאימה וסעו בשקט "מדלת לדלת" בלי להתעסק עם כסף במונית ובמחיר ידוע מראש.' %}</p>
                 </div>
                 <div class="span4 bouncy">
                     <div class="icon_wrapper">
-                        <i class="icon-plane"></i>
+                        <i class="icon-magic"></i>
                     </div>
-                    <div class="header">קצר</div>
-
-                    <p>פול קגאמה נערץ במערב בזכות קידומה הכלכלי של ארצו ושיקומה מהריסות רצח העם ב-1994. ברואנדה סבורים רבים שהוא מנהיג דיקטטורה נוקשה.</p>
+                    <div class="header">{% trans "משתלם יותר" %}</div>
+                    <p>{% trans "במקום לשלם סתם על מקומות ריקים שתפו את הנסיעה, שלמו רק על חלקכם בה ותשלמו הרבה פחות מהמחיר הרגיל." %}</p>
                 </div>
             </div>
         </div>
