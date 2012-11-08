@@ -20,6 +20,7 @@ WS_SHOULD_HANDLE_TIME = 12  # minutes
 SHOULD_VIEW_TIME = timedelta(minutes=9)
 SHOULD_ACCEPT_TIME = timedelta(minutes=7)
 SHOULD_ASSIGN_TIME = timedelta(minutes=4)
+MUST_ACCEPT_TIME = timedelta(minutes=3)
 MARK_COMPLETE_TIME = timedelta(hours=1)
 
 def dispatching_cron(request):
@@ -33,7 +34,9 @@ def dispatching_cron(request):
     rides_to_monitor = SharedRide.objects.filter(depart_time__gte=default_tz_now() - START_MONITORING_TIME, depart_time__lte=default_tz_now() + STOP_MONITORING_TIME)
     logging.info("cron: monitored rides: %s" % rides_to_monitor)
     for ride in rides_to_monitor:
-        if ride.depart_time <= default_tz_now() + SHOULD_ASSIGN_TIME and not ride.taxi_number:
+        if ride.depart_time <= default_tz_now() + MUST_ACCEPT_TIME and ride.status != RideStatus.ACCEPTED:
+            ride.change_status(new_status=RideStatus.FAILED)
+        elif ride.depart_time <= default_tz_now() + SHOULD_ASSIGN_TIME and not ride.taxi_number:
             send_ride_in_risk_notification(u"Ride was not assigned to a taxi", ride.id)
         elif ride.depart_time <= default_tz_now() + SHOULD_ACCEPT_TIME and ride.status != RideStatus.ACCEPTED:
             send_ride_in_risk_notification(u"Ride was not accepted by station", ride.id)

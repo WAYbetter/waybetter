@@ -1,7 +1,9 @@
+from django.utils.translation import ugettext_lazy as _
 from common.decorators import receive_signal
 from common.signals import AsyncSignal
 from common.util import  Enum
-from django.utils import simplejson
+from django.utils import simplejson, translation
+
 import logging
 
 class SignalType(Enum):
@@ -31,6 +33,33 @@ def log_ride_status_update(sender, signal_type, obj, status, **kwargs):
     json = simplejson.dumps({'ride': {'id': ride.id, 'status': str_status}, 'logs': [log]})
     _log_fleet_update(json)
 
+
+@receive_signal(ride_status_changed_signal)
+def handle_failed_ride(sender, signal_type, obj, status, **kwargs):
+    from ordering.enums import RideStatus
+    from ordering.models import CANCELLED
+    from fleet.fleet_manager import cancel_ride
+    from sharing.station_controller import send_ride_in_risk_notification
+    from notification.api import notify_passenger
+
+
+    ride = obj
+    if ride.status == RideStatus.FAILED:
+        current_lang = translation.get_language()
+        # cancel ride
+        cancel_ride(ride)
+
+        # notify us
+        send_ride_in_risk_notification(u"Ride failed because it was not accepted in time", ride.id)
+
+        # cancel orders and notify passengers
+        for order in ride.orders.all():
+            order.change_status(new_status=CANCELLED)
+            translation.activate(order.language_code)
+
+            notify_passenger(order.passenger, _("We're sorry but we couldn't find a taxi for you this time. (Order: %s)") % order.id)
+
+        translation.activate(current_lang)
 
 @receive_signal(ride_status_changed_signal)
 def handle_accepted_ride(sender, signal_type, obj, status, **kwargs):

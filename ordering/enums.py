@@ -6,4 +6,5 @@ class RideStatus(Enum):
     VIEWED          = 3
     PENDING         = 5
     COMPLETED       = 10
+    FAILED          = 11
     PROCESSING      = 100

@@ -17,6 +17,7 @@ from common.decorators import catch_view_exceptions, internal_task_on_queue
 from common.util import notify_by_email
 from common.route import calculate_time_and_distance
 from django.contrib.sessions.models import Session
+from ordering.enums import RideStatus
 from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation, OrderType, StopType, RideComputation, RideEvent
 import logging
 import traceback
@@ -195,7 +196,12 @@ def maintenance_task(request):
 
 def do_task():
     # maintenance method goes here
-    remove_duplicate_ride_events()
+    rides = SharedRide.objects.filter(status=RideStatus.PENDING, depart_time__lte=default_tz_now() - datetime.timedelta(hours=24))
+    for ride in rides:
+        logging.info("marking ride as complete: %s" % ride.id)
+        ride.change_status(new_status=RideStatus.COMPLETED, silent=True)
+
+    logging.info("cleanup done")
 
 
 def exec_src(src):

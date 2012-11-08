@@ -575,9 +575,9 @@ class SharedRide(BaseRide):
             AlgoField.COST_LIST_TARIFF1 : cost_data.get(TARIFFS.TARIFF1, []),
             AlgoField.COST_LIST_TARIFF2 : cost_data.get(TARIFFS.TARIFF2, [])
         }
-    def change_status(self, old_status=None, new_status=None, safe=True):
+    def change_status(self, old_status=None, new_status=None, safe=True, silent=False):
         result = self._change_attr_in_transaction("status", old_status, new_status, safe=safe)
-        if result:
+        if result and not silent:
             sig_args = {
                 'sender': 'sharedride_status_changed_signal',
                 'obj': self,
@@ -965,6 +965,8 @@ class WorkStation(BaseModel):
 
 
 def build_installer_for_workstation(instance, url):
+    logging.info("building installer for WS [%s]: %s" % (instance, url))
+
     if instance.token is None or len(instance.token) == 0:
         instance.token = generate_random_token(alpha_or_digit_only=True)
     if instance.installer_url is None or len(instance.installer_url) == 0:

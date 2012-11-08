@@ -321,7 +321,8 @@
         'APPROVED':'APPROVED',
         'PENDING':'PENDING',
         'VIEWED':'VIEWED',
-        'COMPLETED':'COMPLETED'
+        'COMPLETED':'COMPLETED',
+        'FAILED':'FAILED'
     });
 
     app.constant("Defaults", {
@@ -563,10 +564,8 @@
         }, function(needs_attention_rides) {
             if (needs_attention_rides) {
                 AirService.call("start_notification_sound");
-                AirService.call("set_always_infront", true);
             } else {
                 AirService.call("stop_notification_sound");
-                AirService.call("set_always_infront", false);
             }
         });
         
