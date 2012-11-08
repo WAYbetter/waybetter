@@ -4,6 +4,7 @@ import traceback
 import pickle
 from google.appengine.api import memcache
 from common.tz_support import default_tz_now
+from common.util import get_uuid
 from fleet.models import FleetManager, FleetManagerRideStatus
 from ordering.models import RideEvent, Order, OrderType, PickMeAppRide, SharedRide, BaseRide
 import signals as fleet_signals
@@ -16,6 +17,10 @@ def create_ride(ride):
         assert station, "ride [%s] is not assigned to a station" % ride.id
         assert station.fleet_station_id, "station %s has no fleet_station_id" % ride.station.name
         assert ride.dn_fleet_manager_id, "ride [%s] is not associated with a fleet manager" % ride.id
+
+        # refresh uuid so that we can re-insert this ride into fleet_manager db without conflict
+        ride.uuid = get_uuid()
+        ride.save()
 
         ride_fm = FleetManager.by_id(ride.dn_fleet_manager_id)
         result = ride_fm.create_ride(ride, ride.station)
