@@ -714,14 +714,20 @@ def eagle_eye_data(request):
 @staff_member_required
 @force_lang("en")
 def manual_assign_ride(request):
+    from sharing.station_controller import update_data
+
     ride_id = request.POST.get("ride_id")
     station_id = request.POST.get("station_id")
     ride = SharedRide.by_id(ride_id)
     station = Station.by_id(station_id)
     if station and ride.station != station:
         cancel_ride(ride)
+        old_station = ride.station
+
         ride.station = station
         ride.change_status(new_status=RideStatus.ASSIGNED)
+
+        update_data(old_station)
 
     return JSONResponse({'ride': ride.serialize_for_eagle_eye()})
 
