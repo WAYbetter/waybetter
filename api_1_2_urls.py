@@ -12,6 +12,10 @@ urlpatterns = patterns('',
 #    ('^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
 #    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
 
+    # 1.2 specific URLs
+    (r'^%s/faq/' % api_prefix, 'django.views.generic.simple.direct_to_template', {'template': 'mobile/faq.html'}, "faq"),
+    # end specific URLs
+
     url(r'^$', 'sharing.passenger_controller.passenger_home', name='wb_home'),
 
     (r'^%s/accounts/' % api_prefix, include('registration.backends.station.urls')),
