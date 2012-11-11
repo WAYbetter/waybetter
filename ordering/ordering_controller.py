@@ -27,8 +27,8 @@ from sharing.algo_api import AlgoField
 import simplejson
 import datetime
 import dateutil.parser
-
 import sharing.algo_api as algo_api
+
 
 WAYBETTER_STATION_NAME = "WAYbetter"
 
@@ -125,7 +125,7 @@ def get_ongoing_order(passenger):
 @never_cache
 def sync_app_state(request):
     earliest_pickup_time = ceil_datetime(default_tz_now() + datetime.timedelta(minutes=10), minutes=BOOKING_INTERVAL)
-    latest_pickup_time = earliest_pickup_time + datetime.timedelta(hours=24)
+    latest_pickup_time = earliest_pickup_time + datetime.timedelta(hours=(24*3))
     dt_options = list(datetimeIterator(earliest_pickup_time, latest_pickup_time, delta=datetime.timedelta(minutes=BOOKING_INTERVAL)))
 
     response = {
@@ -446,14 +446,21 @@ def cancel_order(request, passenger):
     Cancel an order. Current status must be APPROVED meaning J5 was successful.
     The billing backend is responsible for not charging (J4) the order.
     """
+    from sharing.sharing_dispatcher import WS_SHOULD_HANDLE_TIME
     response = {'success': False,
                 'error': GENERIC_ERROR}
 
     order = Order.by_id(request.POST.get("order_id"))
+    cancel_allowed = False
     if order and order.passenger == passenger:
-        if order.change_status(APPROVED, CANCELLED):
-            response = {'success': True,
-                        'message': _("Order cancelled")}
+        cancel_allowed = True
+        ride = order.ride
+        if ride:
+            cancel_allowed = ride.depart_time > default_tz_now() + datetime.timedelta(minutes=WS_SHOULD_HANDLE_TIME)
+
+    if cancel_allowed and order.change_status(APPROVED, CANCELLED):
+        response = {'success': True,
+                    'message': _("Order cancelled")}
 
     return JSONResponse(response)
 

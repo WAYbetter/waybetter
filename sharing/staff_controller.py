@@ -731,6 +731,17 @@ def manual_assign_ride(request):
 
     return JSONResponse({'ride': ride.serialize_for_eagle_eye()})
 
+
+@csrf_exempt
+@staff_member_required
+@force_lang("en")
+def mark_ride_complete(request, ride_id):
+    ride = SharedRide.by_id(ride_id)
+    ride.change_status(new_status=RideStatus.COMPLETED, silent=True)
+
+    return JSONResponse({'ride': ride.serialize_for_eagle_eye()})
+
+
 @staff_member_required
 @force_lang("en")
 def ride_page(request, ride_id):
