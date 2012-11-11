@@ -166,6 +166,9 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
                 if (data.offers) {
                     $scope.offers = data.offers;
                     console.log("got offers:", data);
+                    if ($scope.offers.length == 1) {  // no rides to join
+                        $scope.choose_offer($scope.offers[0]);
+                    }
                 } else if (data.error) {
                     NotificationService.alert(data.error);
                 }
