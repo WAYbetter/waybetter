@@ -170,7 +170,7 @@ def get_order_billing_status(request, passenger):
         if billing_trx.status == BillingStatus.APPROVED:
             response['status'] = approved
         elif billing_trx.status == BillingStatus.FAILED:
-            response['error'] = billing_trx.comments
+            response['error'] = _("This card cannot be charged. It may be expired, blocked or not yet supported by WAYbetter (American Express)")
         else:
             response['status'] = pending
 
