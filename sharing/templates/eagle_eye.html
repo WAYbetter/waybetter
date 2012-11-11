@@ -183,8 +183,30 @@
                         title: "Re-Assign to Station",
                         enabled: true_fn,
                         run: reassign_ride
+                    },
+                    {
+                        title: "Mark as COMPLETED",
+                        enabled:function () {
+                            return self.ride.status != Status.COMPLETED
+                        },
+                        run: mark_as_complete
                     }
                 ];
+
+                function mark_as_complete() {
+                    $http.post("/staff/mark_ride_complete/" + self.ride.id + "/").success(
+                            function (data) {
+                                angular.extend(self.ride, data.ride);
+                                $scope.modal_header = "Mark Complete";
+                                $scope.modal_body = "Ride " + self.ride.id + " was marked as COMPLETED";
+                                $("#success-modal").modal();
+                            }).error(function (err) {
+                                $scope.modal_header = "Mark Complete";
+                                $scope.modal_body = err;
+                                $("#fail-modal").modal();
+                            });
+                }
+
 
                 function reassign_ride() {
                     $scope.selected_ride = self.ride;
@@ -420,7 +442,7 @@
                                     <i class="icon-cog"></i>
                                     <span class="caret"></span>
                                 </a>
-                                <ul class="dropdown-menu">
+                                <ul class="dropdown-menu pull-right">
                                     <li><a href="#" disabled="disabled">Ride ((ride.id))</a></li>
                                     <li class="divider"></li>
                                     <li ng-repeat="action in get_ride_actions(ride)"><a href="#" ng-click="run(action)" ng-disabled="!action.enabled()">(( action.title ))</a></li>
@@ -457,7 +479,7 @@
                                             <i class="icon-cog"></i>
                                             <span class="caret"></span>
                                         </a>
-                                        <ul class="dropdown-menu">
+                                        <ul class="dropdown-menu pull-right">
                                             <li><a href="#" disabled="disabled">Order ((order.id))</a></li>
                                             <li class="divider"></li>
                                             <li ng-repeat="action in get_order_actions(order)"><a href="#" ng-click="run(action)" ng-disabled="!action.enabled()">((
