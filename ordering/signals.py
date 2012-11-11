@@ -72,9 +72,10 @@ def handle_cancelled_orders(sender, signal_type, obj, status, **kwargs):
             ride.delete()
 
 @receive_signal(order_price_changed_signal)
-def handle_price_updates(sender, signal_type, order, old_price, new_price, **kwargs):
+def handle_price_updates(sender, signal_type, obj, old_price, new_price, **kwargs):
     from notification.api import notify_passenger
 
+    order = obj
     logging.info("order [%s] price changed: %s -> %s" % (order.id, old_price, new_price))
     if old_price and new_price:
         savings = int(old_price - new_price)

@@ -464,6 +464,10 @@ class SharedRide(BaseRide):
     _value = models.FloatField(null=True, blank=True, editable=False) # the value of this ride to the assigned station
     _stops = models.IntegerField(null=True, blank=True, editable=False)
 
+    def save(self, *args, **kwargs):
+        super(SharedRide, self).save(*args, **kwargs)
+        ride_updated_signal.send(sender="ride_save", obj=self)
+
     @property
     def cost(self):
         return self.value
@@ -1214,9 +1218,7 @@ class Order(BaseModel):
 
         # emit price change signal
         if "price" in self.dirty_fields:
-            order_price_changed_signal.send(sender="set_price_data", order=self, old_price=self.dirty_fields.get("price"), new_price=self.price)
-
-        ride_updated_signal.send(sender="ride_save", obj=self)
+            order_price_changed_signal.send(sender="set_price_data", obj=self, old_price=self.dirty_fields.get("price"), new_price=self.price)
 
     def __unicode__(self):
         id = self.id

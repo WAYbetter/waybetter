@@ -85,7 +85,7 @@ def handle_accepted_ride(sender, signal_type, obj, status, **kwargs):
         send_ride_notifications(ride)
 
 @receive_signal(ride_updated_signal)
-def update_ws(sender, signal_type, obj, status, **kwargs):
+def update_ws(sender, signal_type, obj, **kwargs):
     from sharing.station_controller import update_ride
     logging.info("update_ws signal")
     ride = obj
