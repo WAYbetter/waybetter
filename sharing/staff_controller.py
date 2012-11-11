@@ -762,12 +762,7 @@ def cancel_billing(request, order_id):
             except TransactionError, e:
                 return HttpResponseBadRequest("Transaction[%s] could not be cancelled: %s" % (bt.id, e))
 
-    order.change_status(new_status=CANCELLED)
-    order = order.fresh_copy()
-    return JSONResponse({
-        "success": True,
-        "order": order.serialize_for_eagle_eye()
-    })
+    return JSONResponse({ "success": True })
 
 TRACK_RIDES_CHANNEL_MEMCACHE_KEY = "track_rides_channel_memcache_key"
 #@staff_member_required

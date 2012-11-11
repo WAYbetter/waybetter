@@ -263,8 +263,7 @@
                                 $http.get("/staff/cancel_billing/" + (self.order.id) + "/")
                                     .success(function (data) {
                                         $scope.modal_header = title;
-                                        $scope.modal_body = "All billing transactions where cancelled";
-                                        self.order.status = data.order.status;
+                                        $scope.modal_body = "All billing transactions were cancelled";
                                         $("#success-modal").modal();
                                     })
                                     .error(function (err) {
