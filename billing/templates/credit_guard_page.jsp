@@ -7,6 +7,13 @@
 <%@ include file="/merchantPages/WebSources/includes/main.jsp" %>
 -->
 
+<%
+String langdir="ltr";
+if(lang.equals("HE")){
+    langdir="rtl";
+}
+%>
+
 {% extends "wb_base_site.html" %}
 {% load i18n %}
 {% block htmlclass %}{{ block.super }} <%=langdir%>{% endblock %}

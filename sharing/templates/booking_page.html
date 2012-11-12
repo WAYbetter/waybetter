@@ -135,12 +135,6 @@
                         <div id="offers-container" class="wb-container rides-container" ng-class="{'blur': selected_offer}">
                             <div class="rides-cat" ng-show="existing_ride_offers().length">
                                 <div class="rides-cat-header top">הצטרף לנסיעה קיימת</div>
-                                <div class="no-match" ng-hide="existing_ride_offers().length"
-                                     ng-class="{'disabled': selected_offer}">
-                                    לא נמצאו נסיעות מתאימות.
-                                    <br>
-                                    הזמינו נסיעה חדשה, ואחרים יצטרפו אליכם!
-                                </div>
                                 <div class="rides-list"
                                      ng-repeat="offer in existing_ride_offers() | orderBy:'pickup_time'">
                                     <offer class="existing" ng-click="choose_offer(offer)" ng-class="{'focus': selected_offer == offer}"></offer>
