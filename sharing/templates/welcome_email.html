@@ -3,50 +3,40 @@
 <head>
     <title></title>
 </head>
+
 <body style="direction:rtl">
 
-<p style="text-align: center;">
-    <img width="207" height="207"
-         src="http://{% value_from_settings DEFAULT_DOMAIN %}/static/images/wb_site/email_logo.jpg"/>
+<p>
+הי {{ passenger_name }}!
 </p>
 
 <p>
-    אנו שמחים על הצטרפותך ל-WAYbetter
-    השירות מאפשר לנסוע במונית ספיישל משותפת ולחסוך עד 80% ממחיר הנסיעה, אפילו אם נסעתם לבד!
+    אנו שמחים שנרשמת ל- WAYbetter: הפלטפורמה שמאפשרת לשתף מוניות ולהפוך מקומות פנויים לחסכון כספי גדול עבור כולם!
 </p>
 
-<p>
-    בנוסף WAYbetter מאפשרת להנות מחוויה שירות מתקדמת:
-</p>
+בנוסף לחיסכון אתם יכולים:
 <ul>
-    <li>הזמנה מהירה וקלה באתר ובאפליקציות לטלפונים חכמים</li>
-    <li>סעו בלי ארנק: שלמו על הנסיעות באשראי ובחשבונית חודשית מרוכזת</li>
-    <li>קבלו תזכורת ב SMS חינם כ10 דקות לפני הגעת המונית</li>
-    <li>תחנות מוניות מורשות ומובילות</li>
-    <li>ועוד...</li>
+    <li>להזמין במהירות ובקלות באתר ובאפליקציות לטלפונים חכמים</li>
+    <li>לעקוב אחרי מיקום המונית בזמן אמת על גבי המפה באפליקציה</li>
+    <li>לנסוע בלי ארנק ולשלם על הנסיעות באשראי ובחשבונית חודשית מרוכזת</li>
+    <li>להינות משירות של התחנות המוניות המורשות המובילות באיזור</li>
 </ul>
+ועוד...
 
 <p>
-    בשלב זה, אנו מרשתים את העיר ב"נקודות מרכזיות" שאפשר לנסוע מהן או אליהן מכל מקום בעיר.
-    <br>
-    סעו לנקודות המוצעות, ספרו לנו לאן אתם צריכים את השירות וספרו לחברים.
-    <br>
-    יחד נרשת את העיר בתחבורה יעילה, ירוקה, מפנקת ומשתלמת.
+    ♥ אז נתראה במונית!
 </p>
 
 <p>
-    <a href="http://{% value_from_settings DEFAULT_DOMAIN %}{% url wb_home %}">www.waybetter.com</a>
-    <br>
-    <br>
-    <a href="http://{% value_from_settings DEFAULT_DOMAIN %}{% url about %}">עלינו</a>
-    <br>
-    <br>
-    <a href="http://{% value_from_settings DEFAULT_DOMAIN %}{% url about %}">אודות השירות</a>
+    <img src="http://{% value_from_settings DEFAULT_DOMAIN %}/static/images/welcome_email_logo.png" style="vertical-align: text-bottom;">
+    <a href="http://{% value_from_settings DEFAULT_DOMAIN %}{% url wb_home %}">WAYbetter</a>
 </p>
 
-<p style="font-weight: bold;">
-    נתראה במונית!
+<p>
+עקבו אחרינו <a href="{% value_from_settings FACEBOOK_APP_URL %}" target="_blank">בפייסבוק</a>
+    <a href="{% value_from_settings TWITTER_APP_URL %}" target="_blank">ובטוויטר</a>
 </p>
+
 
 </body>
 </html>

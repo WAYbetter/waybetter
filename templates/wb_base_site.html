@@ -49,8 +49,8 @@
                             <li class="dropdown">
                                 <a href class="dropdown-toggle" data-toggle="dropdown">{% trans "Get the App" %}</a>
                                 <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
-                                    <li><a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}">{% trans "iPhone" %}</a></li>
-                                    <li><a href="{% value_from_settings ANDROID_MARKET_APP_URL %}">{% trans "Android" %}</a></li>
+                                    <li><a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}" target="_blank">{% trans "iPhone" %}</a></li>
+                                    <li><a href="{% value_from_settings ANDROID_MARKET_APP_URL %}" target="_blank">{% trans "Android" %}</a></li>
                                 </ul>
                             </li>
 
@@ -95,7 +95,7 @@
                         <h3>WAYbetter</h3>
                         <ul>
                         <li><a href="{% url wb_home %}">{% trans "Home" %}</a></li>
-                        <li><a href="{% url booking_page %}">הזמן נסיעה</a></li>
+                        <li><a href="{% url booking_page %}">הזמנת נסיעה</a></li>
                         <li><a href="{% url pickmeapp %}">PickMeApp</a></li>
                         <li><a href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
                         <li><a href="{% url privacy %}">{% trans "Privacy Policy" %}</a></li>
@@ -115,8 +115,8 @@
                         <h3>{% trans "Community" %}</h3>
                         <ul>
 {#                        <li><a href="#">{% trans "Blog" %}</a></li>#}
-                        <li><a href="{% value_from_settings FACEBOOK_APP_URL %}">{% trans "Facebook" %}</a><i class="icon-facebook"></i></li>
-                        <li><a href="{% value_from_settings TWITTER_APP_URL %}">{% trans "Twitter" %}</a><i class="icon-twitter"></i></li>
+                        <li><a href="{% value_from_settings FACEBOOK_APP_URL %}" target="_blank">{% trans "Facebook" %}</a><i class="icon-facebook"></i></li>
+                        <li><a href="{% value_from_settings TWITTER_APP_URL %}" target="_blank">{% trans "Twitter" %}</a><i class="icon-twitter"></i></li>
                         </ul>
                     </div>
                     <div class="span3">

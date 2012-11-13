@@ -205,9 +205,10 @@ def fb_share(request):
     args = {
         'app_id': settings.FACEBOOK_APP_ID,
         'link': settings.DEFAULT_DOMAIN,
-        'picture': 'http://www.waybetter.com/static/images/wb_site/wb_beta_logo.png',
+        'picture': 'http://%s/static/images/fb_share_logo.png' % settings.DEFAULT_DOMAIN,
         'name': 'WAYbetter',
-        'description': ugettext('WAYbetter is the easiest way to get from A to B').encode("utf-8"),
+        'caption': u"הצטרפו למהפכת המוניות המשותפות WAYbetter:".encode("utf-8"),
+        'description': u"מתקדם יותר, חכם יותר, נוח יותר ומשתלם הרבה יותר!".encode("utf-8"),
         'redirect_uri': "http://%s" % settings.DEFAULT_DOMAIN,
         'display': 'touch' if request.mobile else 'page'
     }

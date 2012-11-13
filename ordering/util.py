@@ -134,7 +134,9 @@ def create_user(username, password="", email="", first_name="", last_name="", sa
     # welcome the new user
     if user.email:
         t = get_template("welcome_email.html")
-        send_mail_as_noreply(user.email, u"WAYbetter - %s" % ugettext("Shared Taxi Rides"), html=t.render(Context()))
+        context = Context({'passenger_name': user.first_name or ''})
+
+        send_mail_as_noreply(user.email, u"WAYbetter - %s" % ugettext("Shared Taxi Rides"), html=t.render(context))
 
     logging.info("welcome new user: %s" % user)
     return user
