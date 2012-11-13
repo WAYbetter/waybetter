@@ -145,10 +145,12 @@ def calc_users_data_csv(recipient ,offset=0, csv_bytestring=u""):
         link = "http://%s/%s" % (link_domain , reverse(view_user_orders, args=[user.id]))
         last_login = user.last_login.strftime(datetime_format)
         date_joined = user.date_joined.strftime(datetime_format)
-        full_name = user.get_full_name()
+        first_name = user.first_name
+        last_name = user.last_name
         email = user.email
         phone = ""
         billing_info = ""
+        first_order_date = ""
         last_order_date = ""
         num_orders_mobile = ""
         num_orders_website = ""
@@ -163,7 +165,8 @@ def calc_users_data_csv(recipient ,offset=0, csv_bytestring=u""):
 
             num_orders = len(orders)
             if num_orders:
-                last_order_date = orders[0].create_date.strftime(datetime_format)
+                first_order_date = orders[0].create_date.strftime(datetime_format)
+                last_order_date = orders[-1].create_date.strftime(datetime_format)
                 dispatched_orders = filter(lambda o: o.ride, orders)
                 total_payment = sum([order.price for order in dispatched_orders])
                 num_rides = len(dispatched_orders)
@@ -174,7 +177,7 @@ def calc_users_data_csv(recipient ,offset=0, csv_bytestring=u""):
         except Passenger.MultipleObjectsReturned:
             pass
 
-        user_data = [last_login, last_order_date, date_joined, full_name, email, phone, num_orders_mobile, num_orders_website, num_rides, billing_info, total_payment, link]
+        user_data = [last_login, first_order_date, last_order_date, date_joined, first_name, last_name, email, phone, num_orders_mobile, num_orders_website, num_rides, billing_info, total_payment, link]
         csv_bytestring += u",".join([unicode(i).replace(",", "") for i in user_data])
         csv_bytestring += u"\n"
 
@@ -183,13 +186,14 @@ def calc_users_data_csv(recipient ,offset=0, csv_bytestring=u""):
     else:
         logging.info("all done, sending data...")
         timestamp = date.today()
+        logging.info(csv_bytestring)
         send_mail_as_noreply(recipient, "Users data %s" % timestamp, attachments=[("users_data_%s.csv" % timestamp, csv_bytestring)])
 
 
 @staff_member_required
 def send_users_data_csv(request):
     recipient = ["dev@waybetter.com"]
-    col_names = ["Last Seen", "Last Ordered", "Joined", "Name", "email", "Phone", "#mobile orders", "#website orders", "#rides", "billing", "total payment", "view orders"]
+    col_names = ["Last Login", "First Ordered", "Last Ordered", "Joined", "First Name", "Last Name", "email", "Phone", "#mobile orders", "#website orders", "#rides", "billing", "total payment", "view orders"]
     deferred.defer(calc_users_data_csv, recipient, offset=0, csv_bytestring=u"%s\n" % u",".join(col_names))
 
     return HttpResponse("An email will be sent to %s in a couple of minutes" % recipient)
