@@ -18,6 +18,7 @@ module.constant('DefaultMessages', {
         loading_book_ride: "מבצע הזמנה",
         loading_billing: "מאמת אמצעי תשלום",
         loading_private_offer: "מחשב מחיר נסיעה פרטית",
+        loading_update_picture: "מפנה אל Facebook",
         no_offers: "לא נמצאו נסיעות מתאימות",
 
         missing_house_number: "השלם מספר בית",

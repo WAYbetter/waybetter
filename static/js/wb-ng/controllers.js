@@ -72,6 +72,7 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
             },
 
             // will be stored in session to capture current booking
+            do_book: false,
             offers: $scope.offers,
             selected_offer: $scope.selected_offer
         };
@@ -120,6 +121,9 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
             }
 
             if (continue_booking && data.booking_data){ // continue an interrupted booking process
+
+
+                // todo: redirect to fresh booking process if data is corrup
                 $scope.continuing = true;
 
                 console.log("booking continued", data.booking_data);
@@ -134,9 +138,12 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
                 $scope.has_luggage = booking_data.settings.luggage;
 
                 $scope.offers = booking_data.offers;
-                $scope.selected_offer = booking_data.selected_offer;
+                if (booking_data.selected_offer){
+                    $scope.selected_offer = $scope.offers.filter(function(offer){return offer.ride_id == booking_data.selected_offer.ride_id})[0];
+                }
 
-                if ($scope.ready_to_order()){
+                if (booking_data.do_book  && $scope.ready_to_order()){
+                    console.log("re-booking");
                     $scope.book_ride();
                 }
             }
@@ -199,7 +206,10 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
         $scope.booking_error = undefined;
         set_loading_message(DefaultMessages.loading_book_ride);
 
-        var ride_data = get_booking_data({ride_id:$scope.selected_offer.ride_id});
+        var ride_data = get_booking_data({
+            do_book: true,  // re-book in case booking continues later
+            ride_id:$scope.selected_offer.ride_id
+        });
         BookingService.book_ride(ride_data).then(function (booking_result) {
             console.log("book ride result: ", booking_result);
             $scope.booking_result = booking_result;
@@ -301,11 +311,21 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
     };
 
     $scope.update_picture = function(){
-        // todo: support redirecting to DefaultURLS.booking_continued with current booking data
-        AuthService.update_picture(window.location.pathname).then(function(data){
-            window.location.href = data.redirect;
-        }, function(){
-            NotificationService.alert(DefaultMessages.connection_error);
+        function _update_picture(){
+            AuthService.update_picture(DefaultURLS.booking_continued).then(function (data) {
+                window.location.href = data.redirect;
+            }, function () {
+                NotificationService.alert(DefaultMessages.connection_error);
+            });
+        }
+
+        var booking_data = get_booking_data();
+        set_loading_message(DefaultMessages.loading_update_picture);
+        BookingService.set_booking_data(booking_data).then(function(){
+            console.log("set data succes");
+            _update_picture();
+        }, function() {
+            clear_loading_message();
         });
     };
 

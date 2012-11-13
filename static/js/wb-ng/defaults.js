@@ -3,6 +3,7 @@ var module = angular.module('wbDefaults', []);
 module.constant('SupportPhone', "0722555442");
 module.constant('HTTP_TIMEOUT', 15*1000);
 
+var booking_continued = '/booking/continued/';
 module.constant('DefaultURLS', {
     book_ride: '/book_ride/',
     cancel_order: '/cancel_order/',
@@ -12,8 +13,11 @@ module.constant('DefaultURLS', {
     get_private_offers: '/get_private_offer/',
     get_order_billing_status: '/get_order_billing_status/',
 
+    set_booking_data: '/booking/set_data/',
+
+    booking_continued: booking_continued,
     update_picture: '/update_passenger_picture/',
-    auth_failed_redirect: '/accounts/login/?next=/booking/continued/'
+    auth_failed_redirect: '/accounts/login/?next=' + booking_continued
 });
 
 module.constant('wbEvents', {

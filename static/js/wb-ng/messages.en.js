@@ -18,6 +18,7 @@ module.constant('DefaultMessages', {
         loading_book_ride: "Processing order",
         loading_billing: "Processing billing",
         loading_private_offer: "Calculating private ride price",
+        loading_update_picture: "Redirecting to Facebook",
         no_offers: "No matching rides found",
 
         missing_house_number: "missing house number",

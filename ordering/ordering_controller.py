@@ -510,7 +510,7 @@ def book_ride(request):
             result['status'] = 'failed'
 
     else:  # not authorized for booking, save current booking state in session
-        request.session[CURRENT_BOOKING_DATA_KEY] = request_data
+        set_current_booking_data(request)
 
         if passenger and not hasattr(passenger, "billing_info"):
             result['status'] = 'billing_failed'
@@ -521,6 +521,13 @@ def book_ride(request):
     logging.info("book ride result: %s" % result)
     return JSONResponse(result)
 
+@csrf_exempt
+def set_current_booking_data(request):
+    request_data = simplejson.loads(request.POST.get('data'))
+    request.session[CURRENT_BOOKING_DATA_KEY] = request_data
+    logging.info("set booking data")
+
+    return HttpResponse("OK")
 
 def create_order(order_settings, passenger, ride):
     ride_id = ride.id if ride else NEW_ORDER_ID

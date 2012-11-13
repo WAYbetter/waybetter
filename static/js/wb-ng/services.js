@@ -70,6 +70,16 @@ module.service("BookingService", function ($q, $timeout, HttpService, DefaultMes
             return HttpService.http_get(DefaultURLS.get_offers, {params: {data: ride_data}, timeout: 60*1000 });
         },
 
+        set_booking_data: function(ride_data){
+            var defer = $q.defer();
+
+            HttpService.http_post(DefaultURLS.set_booking_data, {data: angular.toJson(ride_data)})
+                .success(function(){defer.resolve()})
+                .error(function(){defer.reject()});
+
+            return defer.promise;
+        },
+
         book_ride:function (ride_data) {
             var defer = $q.defer();
 
