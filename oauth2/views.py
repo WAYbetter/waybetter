@@ -11,7 +11,7 @@ from oauth2.models import FacebookSession
 import logging
 from settings import DEFAULT_DOMAIN
 
-def update_profile_fb(request, passenger_id):
+def update_profile_fb(request, passenger_id, next):
     """
     Callback after passenger approved us to get his data from fb
     """
@@ -23,7 +23,7 @@ def update_profile_fb(request, passenger_id):
         args = {
             'client_id': settings.FACEBOOK_APP_ID,
             # redirect_uri MUST match the one passed in step1 (redirecting to fb)
-            'redirect_uri': "http://%s%s" % (DEFAULT_DOMAIN, reverse(update_profile_fb, args=[passenger.id])),
+            'redirect_uri': "http://%s%s" % (DEFAULT_DOMAIN, reverse(update_profile_fb, args=[passenger.id, next])),
             'client_secret': settings.FACEBOOK_APP_SECRET,
             'code': request.GET['code'],
             }
@@ -47,7 +47,8 @@ def update_profile_fb(request, passenger_id):
         except Exception, e:
             pass
 
-    return HttpResponseRedirect(reverse("wb_home"))
+    next = next or reverse("wb_home")
+    return HttpResponseRedirect(next)
 
 
 def facebook_login(request):

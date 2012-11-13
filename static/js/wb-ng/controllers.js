@@ -1,6 +1,6 @@
 var module = angular.module('wbControllers', ['wbServices', 'wbDefaults', 'wbMessages']);
 
-module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, BookingService, NotificationService, wbEvents, DefaultMessages, DefaultURLS, ASAP) {
+module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, BookingService, AuthService, NotificationService, wbEvents, DefaultMessages, DefaultURLS, ASAP) {
     $scope.continuing = false;  // continuing booking an order after login/registration
     $scope.loading = false;
     $scope.logged_in = false;
@@ -301,7 +301,12 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
     };
 
     $scope.update_picture = function(){
-        // todo
+        // todo: support redirecting to DefaultURLS.booking_continued with current booking data
+        AuthService.update_picture(window.location.pathname).then(function(data){
+            window.location.href = data.redirect;
+        }, function(){
+            NotificationService.alert(DefaultMessages.connection_error);
+        });
     };
 
     // signals and watches

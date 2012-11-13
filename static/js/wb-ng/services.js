@@ -34,6 +34,23 @@ module.service('HttpService', function ($http, $timeout, HTTP_TIMEOUT) {
     }
 });
 
+module.service("AuthService", function($q, HttpService, DefaultURLS){
+    return {
+        update_picture: function(redirect_when_done){
+            var defer = $q.defer();
+
+            HttpService.http_get(DefaultURLS.update_picture, { params:{next:encodeURIComponent(redirect_when_done)} })
+                .success(function (data) {
+                    defer.resolve(data);
+                }).error(function(){
+                    defer.reject();
+                });
+
+            return defer.promise;
+        }
+    }
+});
+
 module.service("BookingService", function ($q, $timeout, HttpService, DefaultMessages, DefaultURLS) {
     return {
         sync: function(){

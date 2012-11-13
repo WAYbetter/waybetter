@@ -12,6 +12,7 @@ module.constant('DefaultURLS', {
     get_private_offers: '/get_private_offer/',
     get_order_billing_status: '/get_order_billing_status/',
 
+    update_picture: '/update_passenger_picture/',
     auth_failed_redirect: '/accounts/login/?next=/booking/continued/'
 });
 
