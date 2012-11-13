@@ -29,8 +29,8 @@ if(lang.equals("HE")){
 {% endblock %}
 
 {% block extrastyle %}
-    <link href='http://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
-    <link href='http://fonts.googleapis.com/css?family=Titillium+Web:400,700italic,700' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Open+Sans' rel='stylesheet' type='text/css'>
+    <link href='https://fonts.googleapis.com/css?family=Titillium+Web:400,700italic,700' rel='stylesheet' type='text/css'>
     <link href='/static/css/font-waybetter.css' rel='stylesheet' type='text/css'>
 
     <% if (lang.equals("HE")) { %>
@@ -97,8 +97,8 @@ if(lang.equals("HE")){
             width: 177px;
         }
         .icon-question-sign{
-            font-size: 24px;
-            line-height: 20px;
+            font-size: 22px;
+            line-height: 24px;
         }
         #wb_CVVhelp{
             display: none;
@@ -110,7 +110,8 @@ if(lang.equals("HE")){
         }
 
         #safe{
-            margin-top: 30px;
+            max-width: 560px;
+            margin: 30px auto;
         }
 
         #certificates{

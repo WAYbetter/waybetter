@@ -34,6 +34,23 @@ module.service('HttpService', function ($http, $timeout, HTTP_TIMEOUT) {
     }
 });
 
+module.service("AuthService", function($q, HttpService, DefaultURLS){
+    return {
+        update_picture: function(redirect_when_done){
+            var defer = $q.defer();
+
+            HttpService.http_get(DefaultURLS.update_picture, { params:{next:encodeURIComponent(redirect_when_done)} })
+                .success(function (data) {
+                    defer.resolve(data);
+                }).error(function(){
+                    defer.reject();
+                });
+
+            return defer.promise;
+        }
+    }
+});
+
 module.service("BookingService", function ($q, $timeout, HttpService, DefaultMessages, DefaultURLS) {
     return {
         sync: function(){
@@ -51,6 +68,16 @@ module.service("BookingService", function ($q, $timeout, HttpService, DefaultMes
 
         get_offers:function (ride_data) {
             return HttpService.http_get(DefaultURLS.get_offers, {params: {data: ride_data}, timeout: 60*1000 });
+        },
+
+        set_booking_data: function(ride_data){
+            var defer = $q.defer();
+
+            HttpService.http_post(DefaultURLS.set_booking_data, {data: angular.toJson(ride_data)})
+                .success(function(){defer.resolve()})
+                .error(function(){defer.reject()});
+
+            return defer.promise;
         },
 
         book_ride:function (ride_data) {

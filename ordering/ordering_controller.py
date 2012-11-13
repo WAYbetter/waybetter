@@ -194,7 +194,9 @@ def update_picture(request, passenger):
     """
     Redirects the passenger to fb
     """
-    callback_url = "http://%s%s" % (settings.DEFAULT_DOMAIN, reverse(update_profile_fb, args=[passenger.id]))
+    next = request.GET.get("next")  # where to go after process is done
+
+    callback_url = "http://%s%s" % (settings.DEFAULT_DOMAIN, reverse(update_profile_fb, args=[passenger.id, next]))
     fb_url = "%s?client_id=%s&redirect_uri=%s&scope=email" % (settings.FACEBOOK_CONNECT_URI, settings.FACEBOOK_APP_ID, callback_url)
     return JSONResponse({'redirect': fb_url})
 
@@ -203,9 +205,10 @@ def fb_share(request):
     args = {
         'app_id': settings.FACEBOOK_APP_ID,
         'link': settings.DEFAULT_DOMAIN,
-        'picture': 'http://www.waybetter.com/static/images/wb_site/wb_beta_logo.png',
+        'picture': 'http://%s/static/images/fb_share_logo.png' % settings.DEFAULT_DOMAIN,
         'name': 'WAYbetter',
-        'description': ugettext('WAYbetter is the easiest way to get from A to B').encode("utf-8"),
+        'caption': u"הצטרפו למהפכת המוניות המשותפות WAYbetter:".encode("utf-8"),
+        'description': u"מתקדם יותר, חכם יותר, נוח יותר ומשתלם הרבה יותר!".encode("utf-8"),
         'redirect_uri': "http://%s" % settings.DEFAULT_DOMAIN,
         'display': 'touch' if request.mobile else 'page'
     }
@@ -508,7 +511,7 @@ def book_ride(request):
             result['status'] = 'failed'
 
     else:  # not authorized for booking, save current booking state in session
-        request.session[CURRENT_BOOKING_DATA_KEY] = request_data
+        set_current_booking_data(request)
 
         if passenger and not hasattr(passenger, "billing_info"):
             result['status'] = 'billing_failed'
@@ -519,6 +522,13 @@ def book_ride(request):
     logging.info("book ride result: %s" % result)
     return JSONResponse(result)
 
+@csrf_exempt
+def set_current_booking_data(request):
+    request_data = simplejson.loads(request.POST.get('data'))
+    request.session[CURRENT_BOOKING_DATA_KEY] = request_data
+    logging.info("set booking data")
+
+    return HttpResponse("OK")
 
 def create_order(order_settings, passenger, ride):
     ride_id = ride.id if ride else NEW_ORDER_ID

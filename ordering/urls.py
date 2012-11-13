@@ -100,6 +100,7 @@ urlpatterns = patterns('',
     (r'^test/$', 'ordering.ordering_controller.staff_m2m'),
     (r'^booking/$', 'ordering.ordering_controller.booking_page', {'continued': False}, "booking_page"),
     (r'^booking/continued/$', 'ordering.ordering_controller.booking_page', {'continued': True}, "booking_continued"),
+    (r'^booking/set_data/$', 'ordering.ordering_controller.set_current_booking_data'),
 
     # json
     (r'^get_offers/$', 'ordering.ordering_controller.get_offers'),
