@@ -8,6 +8,7 @@ module.constant('DefaultMessages', {
         pickup_address: "pickup address",
         dropoff_address: "dropoff address",
         available_seats: "Availabe Seats",
+        new_taxi: "New Taxi",
         you: "You",
         private_ride: "Private Ride",
         connection_error:'The operation could not be completed',

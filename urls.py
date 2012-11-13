@@ -16,10 +16,11 @@ BaseModelAdmin.ordering = ("id", )
 admin.autodiscover()
 
 urlpatterns = patterns('',
-#    ('^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
-#    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
+                       #    ('^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
+                       #    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
 
-    url(r'^$', 'sharing.passenger_controller.passenger_home', name='wb_home'),
+    (r'^$', 'ordering.ordering_controller.home', {}, 'wb_home'),
+    (r'^noapps/$', 'ordering.ordering_controller.home', {'suggest_apps': False}, 'wb_home_noapps'),
 
     (r'^accounts/', include('registration.backends.station.urls')),
     (r'^oauth2/', include('oauth2.urls')),
@@ -33,7 +34,7 @@ urlpatterns = patterns('',
     (r'^admin/cpanel/$', 'sharing.staff_controller.control_panel'),
 
     (r'^admin/', include(admin.site.urls)),
-    # TODO_WB: prefix with pickmeapp - WILL BREAK WORKSTATION LOGIN
+                       # TODO_WB: prefix with pickmeapp - WILL BREAK WORKSTATION LOGIN
     (r'^', include('ordering.urls')),
     (r'^', include('sharing.urls')),
     (r'^', include('analytics.urls')),

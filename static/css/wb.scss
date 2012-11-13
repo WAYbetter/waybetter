@@ -23,6 +23,14 @@ $wb-green: #35b54b;
     filter: $t; /*IE*/
 }
 
+@mixin transition($transition) {
+    -webkit-transition: $transition;
+    -moz-transition: $transition;
+    -ms-transition: $transition;
+    -o-transition: $transition;
+    transition: $transition;
+}
+
 /* Angular
 -------------------------------------------------- */
 [ng\:cloak], [ng-cloak], .ng-cloak {
@@ -444,6 +452,10 @@ select {
             background: url(/static/images/wb_site/1.2/appstores.png);
             background-repeat: no-repeat;
             margin-left: 28px;
+        }
+        .available-on-the:hover{
+            @include transform(translateY(-3px));
+            @include transition(all .2s linear);
         }
         .available-on-the.appstore { background-position: center top; }
         .available-on-the.market { background-position: center -65px; }

@@ -59,7 +59,10 @@ module.directive("offer", function (DefaultMessages, ASAP) {
                         <strong ng-switch-when="false">' + DefaultMessages.pickup +  ': (( offer.pickup_time | wb_date:"EEE d/M" )) ((  offer.pickup_time | date:"H:mm" ))</strong> \
                         <strong ng-switch-when="true">' + DefaultMessages.pickup +  ': ' + (( ASAP )) + '</strong> \
                     </div>\
-                    <div>(( offer.seats_left )) ' + DefaultMessages.available_seats + '</div> \
+                    <div ng-switch on="offer.new_ride">\
+                        <div ng-switch-when="false">(( offer.seats_left )) ' + DefaultMessages.available_seats + '</div> \
+                        <div ng-switch-when="true">' + DefaultMessages.new_taxi + '</div> \
+                    </div>\
                 </div> \
                 <div class="ride-price-details span3"> \
                     <strong class="price">(( offer.price | currency:"₪" ))</strong> \

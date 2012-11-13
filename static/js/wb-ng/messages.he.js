@@ -8,6 +8,7 @@ module.constant('DefaultMessages', {
         pickup_address: "כתובת מוצא",
         dropoff_address: "כתובת יעד",
         available_seats: "מושבים פנויים",
+        new_taxi: "מונית חדשה",
         you: "את/ה",
         private_ride: "נסיעה פרטית",
         connection_error:'לא ניתן להשלים את הפעולה עקב שגיאה או בעיית חיבור לרשת',

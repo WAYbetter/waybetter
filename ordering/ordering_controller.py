@@ -49,6 +49,17 @@ GENERIC_ERROR = _("Your request could not be completed.")
 def staff_m2m(request):
     return render_to_response("staff_m2m.html", RequestContext(request))
 
+def home(request, suggest_apps=True):
+    user_agent_lower = request.META.get("HTTP_USER_AGENT", "").lower()
+    is_android =  user_agent_lower.find("android") > -1
+    is_ios =  user_agent_lower.find("iphone") > -1
+
+    suggest_apps = (is_android or is_ios) and suggest_apps
+    if suggest_apps:
+        return render_to_response('mobile/suggest_apps.html', locals(), context_instance=RequestContext(request))
+
+    return render_to_response('wb_home.html', locals(), context_instance=RequestContext(request))
+
 
 def booking_page(request, continued=False):
     lib_ng = True

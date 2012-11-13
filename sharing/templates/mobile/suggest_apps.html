@@ -1,0 +1,35 @@
+{% extends "wb_base_mobile.html" %}
+{% load i18n %}
+{% load value_from_settings %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style>
+    html{
+        text-align: center;
+    }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div id="privacy_page" data-role="page" data-theme="a">
+        <div data-role="header">
+            <h1>{% trans "Get the WAYbetter App" %}</h1>
+        </div>
+        <div data-role="content">
+            {% if is_android %}
+                You are using an Android<br>
+                <a href="{% value_from_settings ANDROID_MARKET_APP_URL %}" class="available-on-the market">Market Link</a>
+            {% endif %}
+            {% if is_ios %}
+                You are using iOS<br>
+                <a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}" class="available-on-the appstore">Appstore Link</a>
+            {% endif %}
+            <br>
+            <br>
+            <br>
+            <br>
+            <a rel="external" href="{% url wb_home_noapps %}">Just take me to the homepage man</a>
+        </div>
+    </div>
+{% endblock %}
