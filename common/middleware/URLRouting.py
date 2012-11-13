@@ -2,7 +2,7 @@ import logging
 from django.http import HttpResponseRedirect
 from django.utils.http import urlquote
 
-VER_1_2_SERVER = 'dev.latest.waybetter-app.appspot.com'
+VER_1_2_SERVER = 'staging.latest.waybetter-app.appspot.com'
 VER_1_2_DOMAINS = [VER_1_2_SERVER, 'dev.waybetter-app.appspot.com']
 
 
