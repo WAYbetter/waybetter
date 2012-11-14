@@ -2,34 +2,41 @@
 {% load i18n %}
 {% load value_from_settings %}
 
-{% block extrastyle %}
-    {{ block.super }}
-    <style>
-    html{
-        text-align: center;
-    }
-    </style>
-{% endblock %}
-
 {% block body %}
-    <div id="privacy_page" data-role="page" data-theme="a">
-        <div data-role="header">
-            <h1>{% trans "Get the WAYbetter App" %}</h1>
+    <div id="suggest_apps_page" data-role="page" data-theme="a">
+
+        <div id="logo-container">
+            <div id="logo-wrapper">
+                <div id="logo">
+                    <div class="image"></div>
+                    <div class="name"><span class="bold">WAY</span>better</div>
+                    <div class="text">the social taxi app</div>
+                </div>
+            </div>
+            <div class="shadow-sep">
+                <table>
+                    <tr>
+                        <td class="shadow-l"></td>
+                        <td class="shadow-m"></td>
+                        <td class="shadow-r"></td>
+                    </tr>
+                </table>
+            </div>
         </div>
-        <div data-role="content">
+
+        <div id="buttons-container">
+            <!-- This page should be served only to droids an ios, we don't have other apps.. -->
             {% if is_android %}
-                You are using an Android<br>
-                <a href="{% value_from_settings ANDROID_MARKET_APP_URL %}" class="available-on-the market">Market Link</a>
+                <a data-role="button" data-theme="c" rel="external" href="{% value_from_settings ANDROID_MARKET_APP_URL %}">הורידו
+                    אפליקציה לנייד</a>
             {% endif %}
+
             {% if is_ios %}
-                You are using iOS<br>
-                <a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}" class="available-on-the appstore">Appstore Link</a>
+                <a data-role="button" data-theme="c" rel="external" href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}">הורידו
+                    אפליקציה לנייד</a>
             {% endif %}
-            <br>
-            <br>
-            <br>
-            <br>
-            <a rel="external" href="{% url wb_home_noapps %}">Just take me to the homepage man</a>
+
+            <a data-role="button" data-theme="c" rel="external" href="{% url wb_home_noapps %}">גלשו לאתר האינטרנט</a>
         </div>
     </div>
 {% endblock %}
