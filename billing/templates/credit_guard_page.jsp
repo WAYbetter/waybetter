@@ -87,6 +87,7 @@ if(lang.equals("HE")){
             height: auto;
         }
         #creditForm .controls{
+            vertical-align: top;
             width: 220px;
         }
         #expiration-date select{
@@ -98,7 +99,7 @@ if(lang.equals("HE")){
         }
         .icon-question-sign{
             font-size: 22px;
-            line-height: 24px;
+            line-height: 18px;
         }
         #wb_CVVhelp{
             display: none;
