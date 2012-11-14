@@ -101,7 +101,7 @@ def choose_station(ride):
             pricing_model_name = cost_model[AlgoField.MODEL_ID]
             pricing_model_stations = Station.objects.filter(pricing_model_name=pricing_model_name)
             stations += pricing_model_stations
-            logging.info("%s pricing model found stations: %s" % (pricing_model_name, pricing_model_stations))
+            logging.info(u"%s pricing model found stations: %s" % (pricing_model_name, u",".join([unicode(station.name) for station in pricing_model_stations])))
 
 
 #    ws_list = [ws for station in stations for ws in station.work_stations.filter(accept_shared_rides=True)]
