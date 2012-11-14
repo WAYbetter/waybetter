@@ -1,4 +1,5 @@
 import traceback
+from google.appengine.ext import deferred
 from common.decorators import internal_task_on_queue, catch_view_exceptions, receive_signal
 from common.util import Enum, get_uuid
 from django.core.urlresolvers import reverse
@@ -79,19 +80,12 @@ class AsyncSignal(TypedSignal):
 
             signal_data = AsyncSignal.dump_signal_data(args)
 
-            t = taskqueue.Task(url=reverse(send_async), params={"signal_data": signal_data}, name="send-signal-%s-%s-%s" % (sender, self.signal_type, get_uuid()))
-            q = taskqueue.Queue('signals')
-            q.add(t)
+            deferred.defer(send_async, signal_data=signal_data, _queue="signals", _name="send-signal-%s-%s-%s" % (sender, self.signal_type, get_uuid()))
 
         return None # discard the responses
 
 
-@csrf_exempt
-@catch_view_exceptions
-@internal_task_on_queue("signals")
-def send_async(request):
-    signal_data = request.POST.get("signal_data")
-
+def send_async(signal_data):
     try:
         d = AsyncSignal.load_signal_data(signal_data)
         logging.info("broadcasting signal sender=%s signal_type=%s" % (d.get("sender"), d.get("signal_type")))

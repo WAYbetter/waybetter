@@ -92,7 +92,7 @@ class TaxiRidePosition(object):
 
     def serialize(self):
         d = {}
-        for attr in ["station_id", "taxi_id", "order_id", "lat", "lon"]:
+        for attr in ["station_id", "taxi_id", "ride_uuid", "lat", "lon"]:
             d[attr] = getattr(self, attr)
         d["timestamp"] = to_js_date(self.timestamp)
         return d

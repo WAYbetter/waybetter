@@ -27,12 +27,12 @@ def dispatching_cron(request):
     from sharing.station_controller import send_ride_in_risk_notification
 
     rides_to_dispatch = SharedRide.objects.filter(status=RideStatus.PENDING, depart_time__lte=default_tz_now() + DISPATCHING_TIME)
-    logging.info("cron: dispatch rides: %s" % rides_to_dispatch)
+    logging.info(u"cron: dispatch rides: %s" % rides_to_dispatch)
     for ride in rides_to_dispatch:
         deferred.defer(dispatch_ride, ride)
 
     rides_to_monitor = SharedRide.objects.filter(depart_time__gte=default_tz_now() - START_MONITORING_TIME, depart_time__lte=default_tz_now() + STOP_MONITORING_TIME, status__in=[RideStatus.PROCESSING, RideStatus.ACCEPTED, RideStatus.PENDING, RideStatus.ASSIGNED, RideStatus.VIEWED])
-    logging.info("cron: monitored rides: %s" % rides_to_monitor)
+    logging.info(u"cron: monitored rides: %s" % rides_to_monitor)
     for ride in rides_to_monitor:
         if ride.depart_time <= default_tz_now() + MUST_ACCEPT_TIME and ride.status != RideStatus.ACCEPTED:
             ride.change_status(new_status=RideStatus.FAILED)
@@ -46,7 +46,7 @@ def dispatching_cron(request):
     rides_to_complete = SharedRide.objects.filter(status=RideStatus.ACCEPTED, depart_time__lte=default_tz_now() - MARK_COMPLETE_TIME)
     for ride in rides_to_complete:
         if not ride.change_status(old_status=RideStatus.ACCEPTED, new_status=RideStatus.COMPLETED):
-            logging.error("ride [%s] was not marked COMPLETED" % ride.id)
+            logging.error(u"ride [%s] was not marked COMPLETED" % ride.id)
 
     return HttpResponse("OK")
 
@@ -55,10 +55,10 @@ def force_assign_ride(ride, station):
     ride.change_status(new_status=RideStatus.ASSIGNED) # calls save and sends signal to update ws module
 
 def dispatch_ride(ride):
-    logging.info("dispatch ride [%s]" % ride.id)
+    logging.info(u"dispatch ride [%s]" % ride.id)
 
     if not ride.change_status(old_status=RideStatus.PENDING, new_status=RideStatus.PROCESSING):
-        logging.warning("Ride dispatched twice: %s" % ride.id)
+        logging.warning(u"Ride dispatched twice: %s" % ride.id)
         return # nothing to do.
 
     station = assign_ride(ride)
@@ -72,7 +72,7 @@ def dispatch_ride(ride):
 
 def assign_ride(ride):
     station = choose_station(ride)
-    logging.info("ride [%s] was assigned to station: %s" % (ride.id, station))
+    logging.info(u"ride [%s] was assigned to station: %s" % (ride.id, station))
     if station:
         try:
             ride.station = station
@@ -87,7 +87,7 @@ def assign_ride(ride):
 
 
 def choose_station(ride):
-    logging.info("ride cost data: %s" % ride.cost_data)
+    logging.info(u"ride cost data: %s" % ride.cost_data)
     cost_models = []
     tariffs = RuleSet.objects.all()
     for tariff in tariffs:
@@ -107,10 +107,10 @@ def choose_station(ride):
 #    ws_list = [ws for station in stations for ws in station.work_stations.filter(accept_shared_rides=True)]
 
     if ride.debug:
-        logging.info("filtering debug ws")
+        logging.info(u"filtering debug ws")
         stations = filter(lambda station: station.accept_debug, stations)
 
-    logging.info("stations list: %s" % stations)
+    logging.info(u"stations list: %s" % stations)
 
     if stations:
         return stations[0]
