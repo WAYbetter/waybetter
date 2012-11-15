@@ -718,7 +718,7 @@ def eagle_eye_data(request):
 @staff_member_required
 @force_lang("en")
 def manual_assign_ride(request):
-    from sharing.station_controller import update_data
+    from sharing.station_controller import update_data, update_ride
     from sharing.sharing_dispatcher import assign_ride
 
     ride_id = request.POST.get("ride_id")

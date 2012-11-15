@@ -50,9 +50,6 @@ def dispatching_cron(request):
 
     return HttpResponse("OK")
 
-def force_assign_ride(ride, station):
-    ride.station = station
-    ride.change_status(new_status=RideStatus.ASSIGNED) # calls save and sends signal to update ws module
 
 def dispatch_ride(ride):
     logging.info(u"dispatch ride [%s]" % ride.id)
@@ -75,16 +72,17 @@ def dispatch_ride(ride):
         send_ride_in_risk_notification(u"No station found for ride: %s" % ride.id, ride.id)
 
 
-def assign_ride(ride, station=None):
-    if not station:  # not given a station to assign so choose one
-        station = choose_station(ride)
+def assign_ride(ride, force_station=None):
+    station = force_station or choose_station(ride)
 
     logging.info(u"ride [%s] was assigned to station: %s" % (ride.id, station))
     if station:
         try:
             ride.station = station
             ride.dn_fleet_manager_id = station.fleet_manager_id
-            if ride.change_status(old_status=RideStatus.PROCESSING, new_status=RideStatus.ASSIGNED): # calls save()
+            if force_station and ride.change_status(new_status=RideStatus.ASSIGNED): # calls save()
+                return station
+            elif ride.change_status(old_status=RideStatus.PROCESSING, new_status=RideStatus.ASSIGNED): # calls save()
                 return station
 
         except Exception:
