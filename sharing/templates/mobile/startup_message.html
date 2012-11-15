@@ -1,13 +1,18 @@
+{% load value_from_settings %}
 <div id="startup_message" data-role="page">
     <div data-role="header">
-        <h1>Update Required</h1>
+        <h1>עדכון הכרחי</h1>
     </div>
     <div data-role="content">
         <p>
-            We are sorry for the inconvenience but you must update the application in order to book a ride.
+כדי להנות משירות WAYbetter יש לעדכן את האפליקציה שברשותכם
         </p>
-        <p>(It takes only 10 seconds)</p>
-        <a href="/" data-direction="reverse" data-role="button" data-theme="d">Update Now</a>
-        <a href="#" data-rel="back" data-direction="reverse" data-role="button">Close</a>
+        {% if is_android %}
+            <a data-role="button" data-theme="c" rel="external" href="{% value_from_settings ANDROID_MARKET_APP_URL %}">עדכן אפליקציה עכשיו</a>
+        {% endif %}
+
+        {% if is_ios %}
+            <a data-role="button" data-theme="c" rel="external" href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}">עדכן אפליקציה עכשיו</a>
+        {% endif %}
     </div>
 </div>
