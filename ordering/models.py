@@ -476,8 +476,7 @@ class SharedRide(BaseRide):
     def value(self):
         if not self._value and self.station:
             logging.info("updating value for SharedRide[%s]" % self.id)
-            self._value = self.station.get_ride_price(self)
-            self.save()
+            self.update(_value=self.station.get_ride_price(self))
 
         return self._value
 
@@ -505,8 +504,7 @@ class SharedRide(BaseRide):
         """
         if not self._stops:
             logging.info("updating stops for SharedRide[%s]" % self.id)
-            self._stops = len(set([(p.lat, p.lon) for p in self.points.all()])) - 1 # don't count the starting point
-            self.save()
+            self.update(_stops=len(set([(p.lat, p.lon) for p in self.points.all()])) - 1) # don't count the starting point
 
         return self._stops
 
