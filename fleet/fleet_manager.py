@@ -19,8 +19,7 @@ def create_ride(ride):
         assert ride.dn_fleet_manager_id, "ride [%s] is not associated with a fleet manager" % ride.id
 
         # refresh uuid so that we can re-insert this ride into fleet_manager db without conflict
-        ride.uuid = get_uuid()
-        ride.save()
+        ride.update(uuid=get_uuid())
 
         ride_fm = FleetManager.by_id(ride.dn_fleet_manager_id)
         result = ride_fm.create_ride(ride, ride.station)

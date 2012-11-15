@@ -27,9 +27,8 @@ def ride_created(sender, signal_type, obj, **kwargs):
         pickmeapp_dispatcher.dispatch_ride(ride)
 
 @receive_signal(ride_status_changed_signal)
-def log_ride_status_update(sender, signal_type, obj, status, **kwargs):
+def log_ride_status_update(sender, signal_type, ride, status, **kwargs):
     from sharing.staff_controller import _log_fleet_update
-    ride = obj
     str_status = ride.get_status_display()
     log = "ride %s status changed -> %s" % (ride.id, str_status)
     json = simplejson.dumps({'ride': {'id': ride.id, 'status': str_status}, 'logs': [log]})
@@ -37,14 +36,13 @@ def log_ride_status_update(sender, signal_type, obj, status, **kwargs):
 
 
 @receive_signal(ride_status_changed_signal)
-def handle_failed_ride(sender, signal_type, obj, status, **kwargs):
+def handle_failed_ride(sender, signal_type, ride, status, **kwargs):
     from ordering.enums import RideStatus
     from ordering.models import FAILED
     from fleet.fleet_manager import cancel_ride
     from sharing.station_controller import send_ride_in_risk_notification
     from notification.api import notify_passenger
 
-    ride = obj
     if ride.status == RideStatus.FAILED:
         logging.info("handling FAILED ride: %s" % ride.id)
 
@@ -65,7 +63,7 @@ def handle_failed_ride(sender, signal_type, obj, status, **kwargs):
         translation.activate(current_lang)
 
 @receive_signal(ride_status_changed_signal)
-def handle_accepted_ride(sender, signal_type, obj, status, **kwargs):
+def handle_accepted_ride(sender, signal_type, ride, status, **kwargs):
     from ordering.enums import RideStatus
     from ordering.models import SharedRide
     from sharing.passenger_controller import send_ride_notifications
@@ -73,7 +71,6 @@ def handle_accepted_ride(sender, signal_type, obj, status, **kwargs):
     from google.appengine.ext import deferred
     from fleet import fleet_manager
 
-    ride = obj
     if isinstance(ride, SharedRide) and status == RideStatus.ACCEPTED:
         if ride.dn_fleet_manager_id:
             deferred.defer(fleet_manager.create_ride, ride)
@@ -85,8 +82,7 @@ def handle_accepted_ride(sender, signal_type, obj, status, **kwargs):
         send_ride_notifications(ride)
 
 @receive_signal(ride_updated_signal)
-def update_ws(sender, signal_type, obj, **kwargs):
+def update_ws(sender, signal_type, ride, **kwargs):
     from sharing.station_controller import update_ride
     logging.info("update_ws signal")
-    ride = obj
     update_ride(ride)

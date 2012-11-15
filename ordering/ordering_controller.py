@@ -633,7 +633,7 @@ def create_shared_ride_for_order(ride_data, order):
     return ride
 
 def update_ride_for_order(ride, ride_data, new_order):
-    ride.depart_time = compute_new_departure(ride, ride_data)
+    depart_time = compute_new_departure(ride, ride_data)
 
     orders = ride.orders.all()
     new_order_points = {
@@ -662,7 +662,7 @@ def update_ride_for_order(ride, ride_data, new_order):
                 else:
                     p = dropoff_point
 
-                p.stop_time = ride.depart_time + datetime.timedelta(seconds=offset)
+                p.stop_time = depart_time + datetime.timedelta(seconds=offset)
                 p.save()
 
                 if NEW_ORDER_ID in order_ids:
@@ -689,8 +689,7 @@ def update_ride_for_order(ride, ride_data, new_order):
     new_order.price_data = get_order_price_data_from(ride_data)
     new_order.save()
 
-    ride.cost_data = get_ride_cost_data_from(ride_data)
-    ride.save()
+    ride.update(depart_time=depart_time, cost_data=get_ride_cost_data_from(ride_data))
 
 
 def create_ride_point(ride, point_data):

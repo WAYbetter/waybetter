@@ -52,6 +52,18 @@ class BaseModel(models.Model):
     def fresh_copy(self):
         return type(self).by_id(self.id)
 
+    def update(self, **kwargs):
+        """
+        Update only the given properties of this entity on a fresh copy to avoid overwriting with stale values
+        @param kwargs:
+        """
+        fresh = self.fresh_copy()
+        for prop_name, val in kwargs.items():
+            setattr(fresh, prop_name, val)
+            setattr(self, prop_name, val)
+
+        fresh.save()
+
     @classmethod
     def by_id(cls, id, safe=True):
         return obj_by_attr(cls, "id", id, safe=safe)
@@ -104,6 +116,7 @@ class BaseModel(models.Model):
             do_att_change = True
 
         if do_att_change:
+#            self.update(**{attname:new_value})
             setattr(self, attname, new_value)
             self.save()
             logging.info("%s[%s] : updated %s in transaction (%s --> %s)" % (self.__class__.__name__, self.id, attname, str(current_value), str(new_value)))

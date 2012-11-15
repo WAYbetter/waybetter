@@ -466,7 +466,7 @@ class SharedRide(BaseRide):
 
     def save(self, *args, **kwargs):
         super(SharedRide, self).save(*args, **kwargs)
-        ride_updated_signal.send(sender="ride_save", obj=self)
+        ride_updated_signal.send(sender="ride_save", ride=self)
 
     @property
     def cost(self):
@@ -596,7 +596,7 @@ class SharedRide(BaseRide):
         if result and not silent:
             sig_args = {
                 'sender': 'sharedride_status_changed_signal',
-                'obj': self,
+                'ride': self,
                 'status': new_status
             }
             ride_status_changed_signal.send(**sig_args)
