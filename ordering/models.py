@@ -1574,6 +1574,63 @@ class Feedback(BaseModel):
 
         return field_names
 
+
+class SearchRequest(BaseModel):
+    passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="search_requests", null=True, blank=True)
+
+    from_lon = models.FloatField(_("from_lon"))
+    from_lat = models.FloatField(_("from_lat"))
+    from_address = models.CharField(_("from address"), max_length=50)
+    from_city = models.CharField(_("from city"), max_length=50)
+
+    to_lon = models.FloatField(_("to_lon"), null=True, blank=True)
+    to_lat = models.FloatField(_("to_lat"), null=True, blank=True)
+    to_address = models.CharField(_("to address"), max_length=50, null=True, blank=True)
+    to_city = models.CharField(_("to city"), max_length=50, null=True, blank=True)
+
+    num_seats = models.PositiveIntegerField(default=1)
+
+    pickup_dt = UTCDateTimeField("pickup dt", null=True, blank=True)
+
+    mobile = models.BooleanField("mobile", default=False)
+    private = models.BooleanField("private", default=False)
+    luggage = models.BooleanField("luggage", default=False)
+    debug = models.BooleanField("debug", default=False)
+
+    language_code = models.CharField("language_code", max_length=5)
+    user_agent = models.CharField("user agent", max_length=250, null=True, blank=True)
+
+    @classmethod
+    def fromOrderSettings(cls, order_settings, passenger):
+        sr = cls()
+        if passenger:
+            sr.passenger = passenger
+
+        sr.from_address = order_settings.pickup_address.formatted_address
+        sr.from_city = order_settings.pickup_address.city_name
+        sr.from_lat = order_settings.pickup_address.lat
+        sr.from_lon = order_settings.pickup_address.lng
+
+        sr.to_address = order_settings.dropoff_address.formatted_address
+        sr.to_city = order_settings.dropoff_address.city_name
+        sr.to_lat = order_settings.dropoff_address.lat
+        sr.to_lon = order_settings.dropoff_address.lng
+
+        sr.num_seats = order_settings.num_seats
+        sr.pickup_dt = order_settings.pickup_dt
+
+        sr.luggage = order_settings.luggage
+        sr.private = order_settings.private
+        sr.debug = order_settings.debug
+        sr.mobile = order_settings.mobile
+
+        sr.language_code = order_settings.language_code
+        sr.user_agent = order_settings.user_agent
+
+        return sr
+
+
+
 for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
     for type in FEEDBACK_TYPES:
         models.CharField(FEEDBACK_CATEGORIES_NAMES[i], max_length=100, null=True, blank=True).contribute_to_class(

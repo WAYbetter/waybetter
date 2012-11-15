@@ -21,7 +21,7 @@ from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
 from ordering.enums import RideStatus
-from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY
+from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY, SearchRequest
 from pricing.models import TARIFFS, RuleSet
 from sharing.algo_api import AlgoField
 import simplejson
@@ -385,6 +385,9 @@ def get_order_price_data_from(ride_data, order_id=NEW_ORDER_ID, sharing=True):
 
 def get_offers(request):
     order_settings = OrderSettings.fromRequest(request)
+
+    sr = SearchRequest.fromOrderSettings(order_settings, Passenger.from_request(request))
+    sr.save()
 
     # TODO_WB: save all searches? in our db? use vision.bi ?
     # TODO_WB: save the requested search params and associate with a push_token from request for later notifications of similar searches
