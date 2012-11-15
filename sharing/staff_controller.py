@@ -719,6 +719,7 @@ def eagle_eye_data(request):
 @force_lang("en")
 def manual_assign_ride(request):
     from sharing.station_controller import update_data
+    from sharing.sharing_dispatcher import assign_ride
 
     ride_id = request.POST.get("ride_id")
     station_id = request.POST.get("station_id")
@@ -728,8 +729,7 @@ def manual_assign_ride(request):
         cancel_ride(ride)
         old_station = ride.station
 
-        ride.station = station
-        ride.change_status(new_status=RideStatus.ASSIGNED)
+        assign_ride(ride, station)
 
         if old_station:
             update_data(old_station)

@@ -75,8 +75,10 @@ def dispatch_ride(ride):
         send_ride_in_risk_notification(u"No station found for ride: %s" % ride.id, ride.id)
 
 
-def assign_ride(ride):
-    station = choose_station(ride)
+def assign_ride(ride, station=None):
+    if not station:  # not given a station to assign so choose one
+        station = choose_station(ride)
+
     logging.info(u"ride [%s] was assigned to station: %s" % (ride.id, station))
     if station:
         try:
