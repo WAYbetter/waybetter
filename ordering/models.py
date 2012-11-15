@@ -405,7 +405,7 @@ class BaseRide(BaseModel):
 
     status = StatusField(_("status"), choices=RideStatus.choices(), default=RideStatus.PENDING)
     debug = models.BooleanField(default=False, editable=False)
-    uuid = models.CharField(max_length=32, null=True, blank=True, default=get_uuid())
+    uuid = models.CharField(max_length=32, null=True, blank=True, default=get_uuid)
 
     taxi_number = models.CharField(max_length=20, null=True, blank=True)
 
