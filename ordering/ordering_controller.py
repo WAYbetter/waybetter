@@ -15,7 +15,7 @@ from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
 from django.views.decorators.cache import never_cache
-from django.http import HttpResponse, HttpResponseRedirect
+from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
 from django.utils.translation import ugettext_lazy, get_language_from_request, ugettext, ugettext as _
 from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
@@ -451,7 +451,12 @@ def get_offers(request):
     return JSONResponse({'offers': offers})
 
 def get_private_offer(request):
-    return get_offers(request)
+    res = get_offers(request)
+    content = simplejson.loads(res.content)
+    if 'error' in content:
+        return HttpResponseBadRequest(content['error'])
+    else:
+        return res
 
 @csrf_exempt
 @passenger_required_no_redirect
