@@ -267,9 +267,9 @@ if(lang.equals("HE")){
 {% block doc_ready %}
     <script type="text/javascript">
         $(function() {
-            $("#wb-logo").click(function() {
-                window.location.href = "http://www.waybetter.com";
-            });
+            $("#wb-logo").attr("href", "http://www.waybetter.com");  // in context of this page '/' links to creditguard
+            $("#cardNumber").hide();  // fix weird rendering bug in chrome
+            $("#cardNumber").show();
             $("#qm").bind("mouseover mouseout", function() {
                 var $help = $("#wb_CVVhelp");
                 if ($help.is(":visible")) {
