@@ -731,7 +731,8 @@ def manual_assign_ride(request):
         ride.station = station
         ride.change_status(new_status=RideStatus.ASSIGNED)
 
-        update_data(old_station)
+        if old_station:
+            update_data(old_station)
 
     return JSONResponse({'ride': ride.serialize_for_eagle_eye()})
 

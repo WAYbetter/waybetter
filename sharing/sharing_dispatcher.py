@@ -61,7 +61,12 @@ def dispatch_ride(ride):
         logging.warning(u"Ride dispatched twice: %s" % ride.id)
         return # nothing to do.
 
-    station = assign_ride(ride)
+    try:
+        station = assign_ride(ride)
+    except Exception, e:
+        logging.error("assign ride raised exception: %s" % traceback.format_exc())
+        station = None
+
     if not station:
         from sharing.station_controller import send_ride_in_risk_notification
 
@@ -110,7 +115,7 @@ def choose_station(ride):
         logging.info(u"filtering debug ws")
         stations = filter(lambda station: station.accept_debug, stations)
 
-    logging.info(u"stations list: %s" % stations)
+    logging.info(u"stations list: %s" % u",".join([unicode(station.name) for station in stations]))
 
     if stations:
         return stations[0]

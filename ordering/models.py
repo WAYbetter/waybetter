@@ -886,7 +886,7 @@ class WorkStation(BaseModel):
         super(WorkStation, self).__init__(*args, **kwargs)
         self._is_online_old = self.is_online
 
-    user = models.OneToOneField(User, verbose_name=_("user"), related_name="work_station")
+    user = models.OneToOneField(User, verbose_name=_("user"), related_name="work_station", editable=False)
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="work_stations")
     token = models.CharField(_("token"), max_length=50, null=True, blank=True)
