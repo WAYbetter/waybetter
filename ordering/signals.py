@@ -18,7 +18,7 @@ order_created_signal                    = AsyncSignal(SignalType.ORDER_CREATED, 
 orderassignment_created_signal          = AsyncSignal(SignalType.ASSIGNMENT_CREATED, providing_args=["obj"])
 orderassignment_status_changed_signal   = AsyncSignal(SignalType.ASSIGNMENT_STATUS_CHANGED, providing_args=["obj", "status"])
 order_status_changed_signal             = AsyncSignal(SignalType.ORDER_STATUS_CHANGED, providing_args=["obj", "status"])
-order_price_changed_signal              = AsyncSignal(SignalType.ORDER_PRICE_CHANGED, providing_args=["order", "old_price", "new_price"])
+order_price_changed_signal              = AsyncSignal(SignalType.ORDER_PRICE_CHANGED, providing_args=["order", "joined_passenger", "old_price", "new_price"])
 
 workstation_online_signal               = AsyncSignal(SignalType.WORKSTATION_ONLINE, providing_args=["obj"])
 workstation_offline_signal              = AsyncSignal(SignalType.WORKSTATION_OFFLINE, providing_args=["obj"])
@@ -72,15 +72,14 @@ def handle_cancelled_orders(sender, signal_type, obj, status, **kwargs):
             ride.delete()
 
 @receive_signal(order_price_changed_signal)
-def handle_price_updates(sender, signal_type, obj, old_price, new_price, **kwargs):
+def handle_price_updates(sender, signal_type, order, joined_passenger, old_price, new_price, **kwargs):
     from notification.api import notify_passenger
 
-    order = obj
     logging.info("order [%s] price changed: %s -> %s" % (order.id, old_price, new_price))
     if old_price and new_price:
         savings = int(old_price - new_price)
         if savings > 0:
-            notify_passenger(order.passenger, _(u"You save extra %s NIS" % savings))
+            notify_passenger(order.passenger, _(u"%(name)s joined your taxi - you save %(savings)s NIS!") % {"name": joined_passenger.name, "savings": savings})
 
 #@receive_signal(workstation_offline_signal, workstation_online_signal)
 def log_connection_events(sender, signal_type, obj, **kwargs):
