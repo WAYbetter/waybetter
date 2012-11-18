@@ -515,6 +515,8 @@
         };
 
         $scope.select_ride = function (ride) {
+            if ($scope.updating){ return }  // prevent duplicate calls issued by double clicks
+
             if ($scope.selected_ride == ride ) {
                 $scope.selected_ride = undefined;
             } else if (ride.tab == Tabs.NEXT && ride.status == Status.ASSIGNED && !ride.future) {
@@ -528,6 +530,8 @@
         };
 
         $scope.accept_ride = function(ride) {
+            if ($scope.updating){ return }  // prevent duplicate calls issued by double clicks
+
             $scope.pending_push = true;
             $http.post("/ride_accepted/" + ride.id + "/").error(function() {
                 ErrorService.error_handler();
