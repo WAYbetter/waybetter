@@ -5,6 +5,9 @@ module.directive("wbPac", function ($q, $timeout, PlacesService, wbEvents) {
         restrict:'A',
         link:function (scope, element, attrs) {
             var pac = new google.maps.places.Autocomplete(element[0], {});
+            scope.$on(wbEvents.map_ready, function(e, map){
+                pac.bindTo('bounds', map);
+            });
 
             google.maps.event.addListener(pac, 'place_changed', function () {
                 var place = pac.getPlace();
@@ -34,23 +37,28 @@ module.directive("wbPac", function ($q, $timeout, PlacesService, wbEvents) {
         }
     }
 });
-module.directive("wbMap", function ($timeout) {
+module.directive("wbMap", function ($timeout, wbEvents) {
     return {
         restrict:'A',
         controller:'GoogleMapController',
         priority: 10,
         link:function (scope, element, attrs, controller) {
-            controller.map = new google.maps.Map(element[0], {
+            var map = new google.maps.Map(element[0], {
                 center:new google.maps.LatLng(32.064828,34.7764),
                 mapTypeId:google.maps.MapTypeId.ROADMAP,
                 panControl: false,
                 mapTypeControl: false,
-                zoomControl: true,
                 streetViewControl: false,
+                zoomControl: true,
+                zoomControlOptions: {
+                    style: google.maps.ZoomControlStyle.SMALL
+                  },
                 zoom:14
             });
 
+            controller.map = map;
             scope.map_controller = controller;
+            scope.$emit(wbEvents.map_ready, map);
         }
     }
 });

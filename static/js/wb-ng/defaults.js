@@ -21,6 +21,7 @@ module.constant('DefaultURLS', {
 });
 
 module.constant('wbEvents', {
+    map_ready: "map_ready",
     missing_hn: "missing_hn",
     invalid_address: "invalid_address"
 });
