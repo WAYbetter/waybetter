@@ -1214,10 +1214,6 @@ class Order(BaseModel):
 
         super(Order, self).save(*args, **kwargs)
 
-        # emit price change signal
-        if "price" in self.dirty_fields:
-            order_price_changed_signal.send(sender="set_price_data", obj=self, old_price=self.dirty_fields.get("price"), new_price=self.price)
-
     def __unicode__(self):
         id = self.id
         if self.to_raw:

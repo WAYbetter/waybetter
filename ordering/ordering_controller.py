@@ -22,6 +22,7 @@ from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
 from ordering.enums import RideStatus
 from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY, SearchRequest
+from ordering.signals import order_price_changed_signal
 from pricing.models import TARIFFS, RuleSet
 from sharing.algo_api import AlgoField
 import simplejson
@@ -648,7 +649,9 @@ def update_ride_for_order(ride, ride_data, new_order):
 
     # update order prices and stop times of existing points
     for order in orders:
+        old_price = order.price
         order.price_data = get_order_price_data_from(ride_data, order.id)
+        order_price_changed_signal.send(sender="update_ride_for_order", order=order, joined_passenger=new_order.passenger, old_price=old_price, new_price=order.price)
         order.save()
 
         pickup_point = order.pickup_point
