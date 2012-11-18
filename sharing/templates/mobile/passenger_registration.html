@@ -36,9 +36,6 @@
 {% block body %}
     <div id="registration_page" data-role="page">
         <div data-role="header" data-theme="c">
-            {% if not request.wb_app %}
-            <a href="#" data-theme="h" data-rel="back" class="ui-btn-right">{% trans "Close" %}</a>
-            {% endif %}
             <h1>{% trans "Join WAYbetter" %}</h1>
             <table class="registration-progress-bar">
                 <tr>
@@ -108,7 +105,7 @@
     </div>
 
     <div id="validation_page" data-role="page">
-        <div data-role="header">
+        <div data-role="header" data-theme="c">
             <h1>{% trans "Join WAYbetter" %}</h1>
             <table class="registration-progress-bar">
                 <tr>
