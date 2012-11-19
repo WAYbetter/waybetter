@@ -91,7 +91,7 @@ def transaction_ok(request, passenger):
     billing_info = BillingInfo(**kwargs)
     billing_info.save()
 
-    if request.session.get(CURRENT_BOOKING_DATA_KEY):
+    if request.session.get(CURRENT_BOOKING_DATA_KEY) and not request.mobile:  # continue booking process, mobile continues by closing child browser
         logging.info("redirect /booking/continued after billing registration: %s" % passenger)
         return HttpResponseRedirect(reverse("booking_continued"))
     else:
