@@ -678,9 +678,17 @@ def update_ride_for_order(ride, ride_data, new_order):
 
     # update order prices and stop times of existing points
     for order in orders:
-        old_price = order.get_billing_amount()
+        old_billing_amount = order.get_billing_amount()
+
+        # set new order.price
         order.price_data = get_order_price_data_from(ride_data, order.id)
-        order_price_changed_signal.send(sender="update_ride_for_order", order=order, joined_passenger=new_order.passenger, old_price=old_price, new_price=order.get_billing_amount())
+
+        if order.price <= old_billing_amount:  # if algo got a better deal for this user then this will be what he pays
+            order.discount = None
+        else:  #  update discount so that user doesn't pay more than promised
+            order.discount = old_billing_amount - order.price
+
+        order_price_changed_signal.send(sender="update_ride_for_order", order=order, joined_passenger=new_order.passenger, old_price=old_billing_amount, new_price=order.get_billing_amount())
         order.save()
 
         pickup_point = order.pickup_point
