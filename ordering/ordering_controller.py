@@ -470,11 +470,11 @@ def get_offers(request):
             offers.append({
                 "ride_id": DISCOUNTED_ORDER_ID,
                 "pickup_time": to_js_date(order_settings.pickup_dt),
-                "passengers": [{'name': 'הסדרן', 'picture_url': 'https://lh3.googleusercontent.com/Qi1drFNLru8kkos_oWPFkf7rDSOm9dq3I0OlMG90NMlNDUcgePTmT08PN46XFZaVAVRF7a_qPAUT1YX3Zg1Bcj_hghLPTInAvHifX_gUz7SxnCO2Jqc'}],
+                "passengers": [{'name': u'*מתנה*', 'picture_url': 'https://lh3.googleusercontent.com/Qi1drFNLru8kkos_oWPFkf7rDSOm9dq3I0OlMG90NMlNDUcgePTmT08PN46XFZaVAVRF7a_qPAUT1YX3Zg1Bcj_hghLPTInAvHifX_gUz7SxnCO2Jqc'}],
                 "seats_left": MAX_SEATS - 1,
                 "price": new_ride_price - discount,
                 "new_ride": False,  # disguise as an exisiting ride
-                "comment": u"הסדרן סידר לך הנחה של %s₪" % discount
+                "comment": u"הזמן ראשון וקבל ₪%g הנחה מובטחת" % discount
             })
 
 
