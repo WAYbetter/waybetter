@@ -74,6 +74,7 @@ def handle_cancelled_orders(sender, signal_type, obj, status, **kwargs):
             assigned_station = ride.station
             ride.delete()
 
+            logging.info("ride[%s] updating assigned_station: %s" % (ride.id, assigned_station.id))
             if assigned_station:
                 update_data(assigned_station)
 
