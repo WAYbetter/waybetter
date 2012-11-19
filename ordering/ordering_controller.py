@@ -546,12 +546,7 @@ def book_ride(request):
                 result['error'] = _("Sorry, but this ride has been closed for booking")
 
         else:  # new or discounted ride
-            order = create_order(order_settings, passenger)
-            if order and discounted_ride:
-                discount = compute_discount(order_settings, order.price)
-                if discount:
-                    order.update(discount=discount)
-
+            order = create_order(order_settings, passenger, discounted=discounted_ride)
 
         if order:
             result['status'] = 'success'
@@ -587,7 +582,7 @@ def set_current_booking_data(request):
 
     return HttpResponse("OK")
 
-def create_order(order_settings, passenger, ride=None):
+def create_order(order_settings, passenger, ride=None, discounted=False):
     """
     Returns a created Order or None
     """
@@ -609,6 +604,9 @@ def create_order(order_settings, passenger, ride=None):
         order.type = OrderType.SHARED
 
     order.price_data = get_order_price_data_from(ride_data)
+    if discounted:
+        order.discount = compute_discount(order_settings, order.price)
+
     order.save()
     logging.info("created new %s order [%s]" % (OrderType.get_name(order.type), order.id))
 
