@@ -11,8 +11,8 @@ module.controller("BookingCtrl", function ($scope, $q, $filter, $timeout, Bookin
     $scope.pickup_error = undefined;
     $scope.dropoff_error = undefined;
 
-//    $scope.pickup = Address.fromJSON('{"street":"אלנבי","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0736683,"lng":34.76546570000005}');
-//    $scope.dropoff = Address.fromJSON('{"street":"מרגולין","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0586624,"lng":34.78742}');
+    $scope.pickup = Address.fromJSON('{"street":"אלנבי","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0736683,"lng":34.76546570000005}');
+    $scope.dropoff = Address.fromJSON('{"street":"מרגולין","house_number":"1","city_name":"תל אביב יפו","country_code":"IL","lat":32.0586624,"lng":34.78742}');
 
     $scope.has_luggage = false;
     $scope.is_private = false;

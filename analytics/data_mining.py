@@ -143,7 +143,7 @@ def monthly_summary():
         rides = SharedRide.objects.filter(create_date__gte=start, create_date__lte=end, debug=False)
         orders = [order for ride in rides for order in ride.orders.all()]
         expense = sum([ride.cost for ride in rides])
-        income = sum([order.price for order in orders])
+        income = sum([order.get_billing_amount() for order in orders])
         money_data[start.strftime("%d/%m/%Y")] = [expense, income]
 
         # filter only ramat hachyal orders
@@ -152,7 +152,7 @@ def monthly_summary():
         passengers = set([o.passenger for o in ramat_hachayal_orders])
         for p in passengers:
             p_orders = filter(lambda o: o.passenger == p, ramat_hachayal_orders)
-            p_money = sum([o.price for o in p_orders])
+            p_money = sum([o.get_billing_amount() for o in p_orders])
             new_vals = [len(p_orders), p_money]
 
             if passenger_data.has_key(p):
@@ -375,8 +375,8 @@ def v1_VS_v1_1_csv():
 
             # passengers, income, expense, city area
             for order in orders:
-                day_data['income'] += order.price
-                interval_data['%s_income' % version] += order.price
+                day_data['income'] += order.get_billing_amount()
+                interval_data['%s_income' % version] += order.get_billing_amount()
                 interval_data['%s_passengers' % version].add(order.passenger.id)
 
                 city_area = None
@@ -389,7 +389,7 @@ def v1_VS_v1_1_csv():
                     # area data
                     city_areas_data.setdefault(city_area.name, city_area_initial_values.copy())
                     city_areas_data[city_area.name]['%s_orders' % version] += 1
-                    city_areas_data[city_area.name]['%s_income' % version] += order.price
+                    city_areas_data[city_area.name]['%s_income' % version] += order.get_billing_amount()
 
             interval_data['%s_num_passengers' % version] = len(interval_data['%s_passengers' % version])
 

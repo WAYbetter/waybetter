@@ -51,7 +51,7 @@ def billing_task(request, token, card_expiration, billing_transaction_id, action
 
     # update billing transaction amount
     billing_transaction = BillingTransaction.by_id(billing_transaction_id)
-    billing_transaction.amount = billing_transaction.order.price
+    billing_transaction.amount = billing_transaction.order.get_billing_amount()
     if billing_transaction.dirty_fields:
         logging.info("billing_task [%s]: updating billing transaction amount: %s --> %s" % (BillingAction.get_name(action), billing_transaction.dirty_fields.get("amount"), billing_transaction.amount))
         billing_transaction.save()
