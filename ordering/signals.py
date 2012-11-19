@@ -55,6 +55,8 @@ def handle_accepted_orders(sender, signal_type, obj, status, **kwargs):
 @receive_signal(order_status_changed_signal)
 def handle_cancelled_orders(sender, signal_type, obj, status, **kwargs):
     from ordering.models import CANCELLED
+    from sharing.station_controller import update_data
+
     if status == CANCELLED:
         order = obj
         notify_by_email("Order Confirmation [%s]%s" % (order.id, " (DEBUG)" if order.debug else ""), msg="CANCELLED")
@@ -69,7 +71,11 @@ def handle_cancelled_orders(sender, signal_type, obj, status, **kwargs):
 
         if ride.orders.count() == 0:
             logging.info("ride[%s] deleted: last order cancelled" % ride.id)
+            assigned_station = ride.station
             ride.delete()
+
+            if assigned_station:
+                update_data(assigned_station)
 
 @receive_signal(order_price_changed_signal)
 def handle_price_updates(sender, signal_type, order, joined_passenger, old_price, new_price, **kwargs):
