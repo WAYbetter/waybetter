@@ -393,7 +393,6 @@ def get_offers(request):
 
     # TODO_WB: save all searches? in our db? use vision.bi ?
     # TODO_WB: save the requested search params and associate with a push_token from request for later notifications of similar searches
-    # TODO_WB: real test for coverage, generate a list of uncovered addresses users tried booking to
 
     if not order_settings.private:
         candidate_rides = get_candidate_rides(order_settings)
