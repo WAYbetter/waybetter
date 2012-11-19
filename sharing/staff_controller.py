@@ -168,7 +168,7 @@ def calc_users_data_csv(recipient ,offset=0, csv_bytestring=u""):
                 first_order_date = orders[0].create_date.strftime(datetime_format)
                 last_order_date = orders[-1].create_date.strftime(datetime_format)
                 dispatched_orders = filter(lambda o: o.ride, orders)
-                total_payment = sum([order.price for order in dispatched_orders])
+                total_payment = sum([order.get_billing_amount() for order in dispatched_orders])
                 num_rides = len(dispatched_orders)
                 num_orders_mobile = len(filter(lambda o: o.mobile, orders))
                 num_orders_website = num_orders - num_orders_mobile
@@ -230,7 +230,7 @@ def calc_orders_data_csv(recipient, batch_size, offset=0, csv_bytestring=u"", ca
 
                 passenger_name = order.passenger.full_name
                 shared = "yes" if count_orders > 1 else ""
-                price = order.price
+                price = order.get_billing_amount()
                 cost = 0
 
                 if calc_cost:
@@ -423,7 +423,7 @@ def birdseye_view(request):
                 'passenger': " ".join(passenger_details) if passenger_details else na,
                 'type': OrderType.get_name(o.type),
                 'status': o.get_status_label(),
-                'price': o.price,
+                'price': o.get_billing_amount(),
                 'debug': 'Yes' if o.debug else 'No'
         }
 

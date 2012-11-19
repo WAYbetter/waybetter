@@ -274,7 +274,7 @@ def get_previous_rides(request, passenger):
             "your_seats": order.num_seats,
             "taxi_number": dispatching_event.taxi_id if dispatching_event else None,
             "station_name": ride.station.name if ride.station else WAYBETTER_STATION_NAME,
-            "price": order.price,
+            "price": order.get_billing_amount(),
             "billing_status": ugettext_lazy(order.get_status_display().title()),
             "is_private": order.type == OrderType.PRIVATE,
             "comment": ""
@@ -312,7 +312,7 @@ def get_next_rides(request, passenger):
             "passengers": ride_mates,
             "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
             "your_seats": order.num_seats,
-            "price": order.price,
+            "price": order.get_billing_amount(),
             "is_private": order.type == OrderType.PRIVATE,
             "billing_status": _("or less"),
             "comment": ""
@@ -547,7 +547,7 @@ def book_ride(request):
             result['order_id'] = order.id
             result['pickup_formatted'] = order.from_raw
             result['pickup_dt'] = to_js_date(order.depart_time)
-            result["price"] = order.price
+            result["price"] = order.get_billing_amount()
 
             ride_orders = [order] + ( list(ride_to_join.orders.all()) if ride_to_join else [] )
             result["passengers"] = [{'name': o.passenger.name, 'picture_url': o.passenger.picture_url, 'is_you': o==order} for o in ride_orders for seat in range(o.num_seats)]
@@ -601,7 +601,7 @@ def create_order(order_settings, passenger, ride=None):
     order.save()
     logging.info("created new %s order [%s]" % (OrderType.get_name(order.type), order.id))
 
-    billing_trx = BillingTransaction(order=order, amount=order.price, debug=order.debug)
+    billing_trx = BillingTransaction(order=order, amount=order.get_billing_amount(), debug=order.debug)
     billing_trx.save()
     billing_trx.commit(callback_args={
         "ride_id": ride_id,
@@ -678,9 +678,9 @@ def update_ride_for_order(ride, ride_data, new_order):
 
     # update order prices and stop times of existing points
     for order in orders:
-        old_price = order.price
+        old_price = order.get_billing_amount()
         order.price_data = get_order_price_data_from(ride_data, order.id)
-        order_price_changed_signal.send(sender="update_ride_for_order", order=order, joined_passenger=new_order.passenger, old_price=old_price, new_price=order.price)
+        order_price_changed_signal.send(sender="update_ride_for_order", order=order, joined_passenger=new_order.passenger, old_price=old_price, new_price=order.get_billing_amount())
         order.save()
 
         pickup_point = order.pickup_point

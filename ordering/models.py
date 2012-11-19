@@ -1139,7 +1139,11 @@ class Order(BaseModel):
     price_data = property(fget=get_price_data, fset=set_price_data)
 
     def get_billing_amount(self):
-        return self.price - self.discount
+        val = self.price or 0
+        if self.discount:
+            val -= self.discount
+
+        return max(0, val)  # never return a negative amount - it may cause crediting money to a user
 
     from sharing.models import HotSpot
     # note: you must be aware that legacy orders do not have a .hotspot value
@@ -1351,7 +1355,7 @@ class Order(BaseModel):
             "passenger_name": self.passenger.name,
             "passenger_phone": self.passenger_phone,
             "num_seats": self.num_seats,
-            "price": self.price,
+            "price": self.get_billing_amount(),
             "status": self.get_status_label().upper()
         }
 
@@ -1385,7 +1389,7 @@ class Order(BaseModel):
             'to_house_number'     : self.to_house_number,
             'num_seats'           : self.num_seats,
             'when'                : self.get_pickup_str(),
-            'price'               : self.price
+            'price'               : self.get_billing_amount()
         }
 
 class OrderAssignment(BaseModel):
