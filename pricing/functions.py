@@ -1,5 +1,6 @@
 import logging
 import random
+from common.tz_support import TZ_INFO
 from common.util import convert_python_weekday
 from pricing.models import DiscountRule
 
@@ -12,9 +13,11 @@ TWO_SEATS_PRICE_FACTOR = 0.4 # add this to the delta between base_price and popu
 
 def compute_discount(order_settings, price):
     for discount_rule in DiscountRule.objects.all():
+        pickup_dt = order_settings.pickup_dt.astimezone(TZ_INFO["Asia/Jerusalem"])
+
         if discount_rule.is_active(order_settings.pickup_address.lat, order_settings.pickup_address.lng,
                                    order_settings.dropoff_address.lat, order_settings.dropoff_address.lng,
-                                   order_settings.pickup_dt.date(), order_settings.pickup_dt.time()):
+                                   pickup_dt.date(), pickup_dt.time()):
 
             return discount_rule.get_discount(price)
 
