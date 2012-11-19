@@ -1356,6 +1356,7 @@ class Order(BaseModel):
             "passenger_phone": self.passenger_phone,
             "num_seats": self.num_seats,
             "price": self.get_billing_amount(),
+            "discount": self.discount,
             "status": self.get_status_label().upper()
         }
 

@@ -461,6 +461,7 @@
                                 <th>Passenger</th>
                                 <th># Seats</th>
                                 <th>Price</th>
+                                <th>Discount</th>
                                 <th>Status</th>
                                 <th>&nbsp;</th>
                             </tr>
@@ -471,6 +472,7 @@
                                 <td>(( order.passenger_name )) (( order.passenger_phone ))</td>
                                 <td>(( order.num_seats ))</td>
                                 <td>(( order.price | currency:'₪'))</td>
+                                <td>(( order.discount | currency:'₪'))</td>
                                 <td><span class="label" ng-class="get_order_status_class(order)">(( order.status ))</span></td>
                                 <td>
                                     <div class="btn-group">
@@ -503,6 +505,7 @@
                             <th>Passenger</th>
                             <th># Seats</th>
                             <th>Price</th>
+                            <th>Discount</th>
                             <th>Status</th>
                         </tr>
                         <tr ng-repeat="order in incomplete_orders">
@@ -513,6 +516,7 @@
                             <td>(( order.passenger_name )) (( order.passenger_phone ))</td>
                             <td>(( order.num_seats ))</td>
                             <td>(( order.price | currency:'₪'))</td>
+                            <td>(( order.discount | currency:'₪'))</td>
                             <td><span class="label" ng-class="get_order_status_class(order)">(( order.status ))</span></td>
                         </tr>
                     </table>

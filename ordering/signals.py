@@ -77,7 +77,7 @@ def handle_price_updates(sender, signal_type, order, joined_passenger, old_price
 
     logging.info("order [%s] price changed: %s -> %s" % (order.id, old_price, new_price))
     if old_price and new_price:
-        savings = int(old_price - new_price)
+        savings = "%g" % (old_price - new_price)
         if savings > 0:
             notify_passenger(order.passenger, _(u"%(name)s joined your taxi - you save %(savings)s NIS!") % {"name": joined_passenger.name, "savings": savings})
 

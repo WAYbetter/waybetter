@@ -2,7 +2,7 @@ from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
 from common.util import DAY_OF_WEEK_CHOICES, FIRST_WEEKDAY, LAST_WEEKDAY, convert_python_weekday, datetimeIterator, Enum
-from common.models import BaseModel
+from common.models import BaseModel, CityAreaField
 
 PRIVATE_RIDE_HANDLING_FEE = 0 #NIS
 
@@ -136,3 +136,35 @@ class AbstractTemporalRule(BaseModel):
 
 class TemporalRule(AbstractTemporalRule):
     rule_set = models.ForeignKey(RuleSet, verbose_name=_("rule set"), related_name="rules", null=True, blank=True)
+
+
+class DiscountRule(AbstractTemporalRule):
+    percent = models.FloatField(_("percent"), null=True, blank=True)
+    amount = models.FloatField(_("amount"), null=True, blank=True)
+
+    from_city_area = CityAreaField(verbose_name=_("from city area"), related_name="fixed_price_rules_1")
+    to_city_area = CityAreaField(verbose_name=_("to city area"), related_name="fixed_price_rules_2")
+
+    bidi = models.BooleanField(verbose_name=_("bidirectional"), default=False)
+
+    def clean(self):
+        if not (bool(self.percent) ^ bool(self.amount)):
+            raise ValidationError("Must set discount percent or amount but not both")
+
+        super(DiscountRule, self).clean()
+
+    def is_active(self, from_lat, from_lon, to_lat, to_lon, day, t):
+        contains = self.from_city_area.contains(from_lat, from_lon) and self.to_city_area.contains(to_lat, to_lon)
+        if self.bidi:
+            contains = contains or (self.from_city_area.contains(to_lat, to_lon) and self.to_city_area.contains(from_lat, from_lon))
+
+        return contains and super(DiscountRule, self).is_active(day, t)
+
+    def get_discount(self, price):
+        round_to = 0.5
+
+        if self.amount:
+            return min(self.amount, price)  # max discount is the price itself
+        elif self.percent:
+            discount = self.percent * price / 100
+            return discount - (discount % round_to)  # 12.75 -> 12.5

@@ -1,6 +1,7 @@
 import logging
 import random
 from common.util import convert_python_weekday
+from pricing.models import DiscountRule
 
 HANDLING_FEE = 2 # NIS
 MAX_DISCOUNT_FACTOR = 0.6 # the discount for 100% popularity
@@ -8,6 +9,17 @@ TWO_SEATS_PRICE_FACTOR = 0.4 # add this to the delta between base_price and popu
 
 #def get_base_sharing_price(cost):
 #   return cost + HANDLING_FEE
+
+def compute_discount(order_settings, price):
+    for discount_rule in DiscountRule.objects.all():
+        if discount_rule.is_active(order_settings.pickup_address.lat, order_settings.pickup_address.lng,
+                                   order_settings.dropoff_address.lat, order_settings.dropoff_address.lng,
+                                   order_settings.pickup_dt.date(), order_settings.pickup_dt.time()):
+
+            return discount_rule.get_discount(price)
+
+    return None
+
 
 def get_base_sharing_price(start_lat, start_lon, end_lat, end_lon, d, t, estimated_distance=None, estimated_duration=None, meter_rules=None):
     from ordering.pricing import estimate_cost, CostType
