@@ -1,7 +1,7 @@
 {% load value_from_settings %}
 <!doctype html>
-<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}"
-      class="{{ page_specific_class }} {% if LANGUAGE_BIDI %}rtl{% endif %} {% block htmlclass %}{% endblock %}">
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}
+      class="{{ page_specific_class }} {% if LANGUAGE_BIDI %}rtl{% endif %}" {% block htmlattr %}{% endblock %}>
 <head>
     {% load i18n %}
 
@@ -35,21 +35,33 @@
 
     {% block extrahead %}{% endblock %}
 
-    {% block extrastyle %}
-        <!-- css concatenated and minified via ant build script-->
-        <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
-        <link rel="stylesheet" type="text/css" href="/static/css/wb.css"/>
-        <!-- end css-->
-    {% endblock %}
+    <!-- Styles -->
+    <link href='/static/css/font-waybetter.css' rel='stylesheet' type='text/css'>
+    <style type="text/css">
+        @font-face {
+          font-family: 'Titillium Web';
+          font-style: normal;
+          font-weight: 400;
+          src: local('Titillium Web'), local('TitilliumWeb-Regular'), url(/static/css/fonts/TitilliumWeb-Regular.ttf) format('truetype');
+        }
+        @font-face {
+          font-family: 'Titillium Web';
+          font-style: normal;
+          font-weight: 700;
+          src: local('Titillium WebBold'), local('TitilliumWeb-Bold'), url(/static/css/fonts/TitilliumWeb-Bold.ttf) format('truetype');
+        }
+    </style>
+    {% block extrastyle %}{% endblock %}
 
-
+    <!-- jQuery -->
     {% block jquery %}
-    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.6.4/jquery.min.js"></script>
-    <script>window.jQuery || document.write('<script src="/static/js/libs/jquery-1.6.4.min.js">\x3C/script>')</script>
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/static/js/libs/jquery-1.8.2.min.js">\x3C/script>')</script>
     {% endblock jquery %}
+
 </head>
 
-<body class="{% block bodyclass %}{% endblock %}">
+<body class="{% block bodyclass %}{% endblock %}" {% block bodyattr %}{% endblock %}>
 
 {% block body %}{% endblock %}
 

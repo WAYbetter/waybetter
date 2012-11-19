@@ -2,247 +2,168 @@
 {% load i18n %}
 {% load value_from_settings %}
 
-{% block bodyclass %}base-site{% endblock %}
+{% block extrastyle %}
+    {% if LANGUAGE_BIDI %}
+        <link href="/static/themes/bootstrap-bounce/css/bootstrap.min.rtl.css" rel="stylesheet">
+        <link href="/static/themes/bootstrap-bounce/css/font-awesome.rtl.css" rel="stylesheet">
+        <!--[if lt IE 8]>
+          <link href="/static/themes/bootstrap-bounce/css/font-awesome-ie7.rtl.css" rel="stylesheet">
+        <![endif]-->
+        <link href="/static/themes/bootstrap-bounce/css/base.rtl.css" rel="stylesheet">
+        <link href="/static/themes/bootstrap-bounce/css/blue.rtl.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/static/css/wb.rtl.css"/>
+
+        <link rel="stylesheet" type="text/css" href="/static/css/wb.rtl.override.css"/>
+
+    {% else %}
+        <link href="/static/themes/bootstrap-bounce/css/bootstrap.min.css" rel="stylesheet">
+        <link href="/static/themes/bootstrap-bounce/css/font-awesome.css" rel="stylesheet">
+        <!--[if lt IE 8]>
+          <link href="/static/themes/bootstrap-bounce/css/font-awesome-ie7.css" rel="stylesheet">
+        <![endif]-->
+        <link href="/static/themes/bootstrap-bounce/css/base.css" rel="stylesheet">
+        <link href="/static/themes/bootstrap-bounce/css/blue.css" rel="stylesheet">
+        <link rel="stylesheet" type="text/css" href="/static/css/wb.css"/>
+    {% endif %}
+
+    <!--[if lt IE 9]>
+      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
+    <![endif]-->
+{% endblock %}
 
 {% block body %}
-    <!-- Container -->
-    <div id="main-container">
+    <div class="navbar navbar-fixed-top">
+            <div class="navbar-inner">
+                <div class="container">
+                    <a id="wb-logo" class="brand" href="{% url wb_home %}"><strong>WAY</strong>better</a>
+                    {% block user_tools %}
+                    <div class="nav-collapse collapse">
+                        <ul id="header-links" class="nav pull-right">
+                            <li><a href="{% url wb_home %}"><i class="icon-home"></i></a></li>
+                            <li><a href="{% url booking_page %}"><i class="wb-icon-taxi"></i></a></li>
+                            <li><a href="{% url about %}">{% trans "About" %}</a></li>
+                            <li class="dropdown">
+                                <a href class="dropdown-toggle" data-toggle="dropdown">{% trans "Get the App" %}</a>
+                                <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                    <li><a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}" target="_blank">{% trans "iPhone" %}</a></li>
+                                    <li><a href="{% value_from_settings ANDROID_MARKET_APP_URL %}" target="_blank">{% trans "Android" %}</a></li>
+                                </ul>
+                            </li>
 
-        {% if not is_popup %}
-            <!-- Header -->
-            <div id="header-container">
-                <div id="site-header">
-                    <div class="clickable" id="wb_logo"></div>
-                    {% block header_links %}
-                        <ul class="links hz">
-                            <li class="first">
-                                {% if LANGUAGE_CODE == "he" %}
-                                    <a id="change_lang" class="menu_link clickable" data-code="en">English</a>
-                                {% else %}
-                                    <a id="change_lang" class="menu_link clickable" data-code="he">עברית</a>
-                                {% endif %}
-                            </li>
-                            <li><a name="about" class="menu_link dropdown-trigger">{% trans "About" %}</a></li>
-                            <li><a href="{% value_from_settings FACEBOOK_APP_URL%}" target="_blank" class="menu_link">{% trans "Facebook" %}</a></li>
-                            <li>
-                                {% if request.user.is_authenticated %}
-                                    <a name="account" class="menu_link dropdown-trigger bold">{% trans "Hi" %}
-                                        {% if request.user.first_name %}
-                                            {{ request.user.first_name }}
-                                        {% else %}
-                                            {{ request.user.username }}
-                                        {% endif %}
-                                    </a>
-                                {% else %}
-                                    <a class="menu_link" href="{% url auth_login %}">{% trans "Log-in" %}</a>
-                                {% endif %}
-                            </li>
+                            {% if request.user.is_authenticated %}
+                                <li class="dropdown">
+                                    <a class="dropdown-toggle" data-toggle="dropdown">{{ request.user.username }}<b class="caret"></b></a>
+                                    <ul class="dropdown-menu" role="menu" aria-labelledby="dLabel">
+                                        <li><a href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
+                                        <li><a href="{% url user_profile %}">{% trans "My Account" %}</a></li>
+                                        <li><a href="{% url auth_logout %}">{% trans "Logout" %}</a></li>
+                                    </ul>
+                                </li>
+                            {% else %}
+                                <li><a href="{% url auth_login %}">{% trans "Login" %}</a></li>
+                            {% endif %}
                         </ul>
+                    </div>
                     {% endblock %}
-                    <div class="clear"></div>
                 </div>
-
-                <ul class="wbdropdown-list hidden" name="lang" id="lang_dropdown">
-                    <li data-code="he" class="clickable"><a>עברית</a></li>
-                    <li data-code="en" class="clickable"><a>English</a></li>
-                </ul>
-                <ul class="wbdropdown-list hidden" name="about">
-                    <li><a href="{% url the_service %}">{% trans "The Service" %}</a></li>
-                    <li><a href="{% url about_us %}">{% trans "About Us" %}</a></li>
-                    <li><a href="{% url faq %}">{% trans "FAQ" %}</a></li>
-                    <li><a href="{% url contact %}">{% trans "Contact Us" %}</a></li>
-                </ul>
-                <ul class="wbdropdown-list hidden" name="account">
-                    {% if request.user.is_authenticated %}
-                        <li><a href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
-                        <li><a href="{% url user_profile %}">{% trans "Account Details" %}</a></li>
-                        <li><a href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
-                    {% else %}
-                        <li><a href="{% url auth_login %}">{% trans "Log In" %}</a></li>
-                        <li><a href="{% url join %}">{% trans "Join" %}</a></li>
-                    {% endif %}
-                </ul>
-
-                <form action="/i18n/setlang/" method="post" id="lang_form" class="hidden">
-                    {% csrf_token %}
-                    <input type="hidden" name="language" id="language"/>
-                </form>
-
             </div>
-            <!-- END Header -->
-        {% endif %}
-
-
-        <!-- Content -->
-        <div class="clear"></div>
-
-        <div id="content-container" class="{% block mainclass %}{% endblock %}">
-
-            {% block pre_content %}
-                <div id="top-container">
-                    <div id="top-left">
-                        {% block top_left %}{% endblock %}
-                    </div>
-                    <div id="top-right">
-                        {% block top_right %}{% endblock %}
-                    </div>
-                    <div class="clear"></div>
-                </div>
-            {% endblock %}
-
-            <div id="site-content">
-                {% block content %}{% endblock content %}
-            </div>
-
-            {% block post_content %}
-                <div id="values_learnmore">
-                    <div class="service learnmore-content wb-tooltip">
-                        <div class="header">WAYbetter {% trans "Service" %}</div>
-                        <div class="content">{% trans "learnmore_service_content" %}</div>
-                    </div>
-                    <div class="community learnmore-content wb-tooltip">
-                        <div class="header">WAYbetter {% trans "Community" %}</div>
-                        <div class="content">{% trans "learnmore_community_content" %}</div>
-                    </div>
-                    <div class="env learnmore-content wb-tooltip">
-                        <div class="header">WAYbetter {% trans "Environment" %}</div>
-                        <div class="content">{% trans "learnmore_environment_content" %}</div>
-                    </div>
-                    <div class="eff learnmore-content wb-tooltip">
-                        <div class="header">WAYbetter {% trans "Efficiency" %}</div>
-                        <div class="content">{% trans "learnmore_efficiency_content" %}</div>
-                    </div>
-                </div>
-
-                <div id="wb_values">
-                    <div class="value service" data-value-name="service">
-                        <span class="header">{% trans "Service" %}</span>
-                        {% trans "gist_service_content" %}
-                    </div>
-                    <div class="value community" data-value-name="community">
-                        <span class="header">{% trans "Community" %}</span>
-                        {% trans "gist_community_content" %}
-                    </div>
-                    <div class="value env" data-value-name="env">
-                        <span class="header">{% trans "Environment" %}</span>
-                        {% trans "gist_environment_content" %}
-                    </div>
-                    <div class="value eff last" data-value-name="eff">
-                        <span class="header">{% trans "Efficiency" %}</span>
-                        {% trans "gist_efficiency_content" %}
-                    </div>
-                </div>
-            {% endblock %}
         </div>
 
-        <div class="clear"></div>
-        <!-- END Content -->
+    {% block header %}
+        <div id="header">
+            <div class="container">
+                <div class="row">
+                    <div class="span12">
+                        <h1>{% block headertext %}{% endblock %}</h1>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endblock %}
 
-        {% if not is_popup %}
-            <div id="footer-container">
-                <div id="site-footer">
-                    {% block footer %}
-                        <div id="sitemap">
-                            <ul>
-                                <li>WAYbetter</li>
-                                <li><a href="{% url wb_home %}">{% trans "Home" %}</a></li>
-                                <li><a href="{% url pickmeapp %}">{% trans "PickMeApp" %}</a></li>
-                                <li><a href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
-                                <li><a href="{% url privacy %}">{% trans "Privacy Policy" %}</a></li>
-                            </ul>
-                            <ul>
-                                <li><a>{% trans "About" %}</a></li>
-                                <li><a href="{% url the_service %}">{% trans "The Service" %}</a></li>
-                                <li><a href="{% url about_us %}">{% trans "About Us" %}</a></li>
-                                <li><a href="{% url faq %}">{% trans "FAQ" %}</a></li>
-                                <li><a href="{% url contact %}">{% trans "Contact Us" %}</a></li>
-                            </ul>
-                            <ul>
-                                <li><a>{% trans "Community" %}</a></li>
-                                <li><a href="{% value_from_settings FACEBOOK_APP_URL%}" target="_blank">{% trans "Facebook" %}</a></li>
-                            </ul>
+    {% block content %}{% endblock %}
 
-                            <ul>
-                                {% if request.user.is_authenticated %}
-                                    <li><a>{% trans "My Account" %}</a></li>
-                                    <li><a href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
-                                    <li><a href="{% url user_profile %}">{% trans "Account Details" %}</a></li>
-                                    <li><a href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
-                                {% else %}
-                                    <li><a href="{% url auth_login %}">{% trans "Log In" %}</a></li>
-                                    <li>
-                                        <a href="{% url join %}">{% trans "Join" %}</a>
-                                    </li>
-                                {% endif %}
-
-                            </ul>
+    {% block footer %}
+        <div id="footer">
+            <div id="footer-links" class="container">
+                <div class="row">
+                    <div class="span3">
+                        <h3>WAYbetter</h3>
+                        <ul>
+                        <li><a href="{% url wb_home %}">{% trans "Home" %}</a></li>
+                        <li><a href="{% url booking_page %}">הזמנת נסיעה</a></li>
+                        <li><a href="{% url pickmeapp %}">PickMeApp</a></li>
+                        <li><a href="{% url terms %}">{% trans "Terms of Use" %}</a></li>
+                        <li><a href="{% url privacy %}">{% trans "Privacy Policy" %}</a></li>
+                        </ul>
+                    </div>
+                    <div class="span3">
+                        <h3>{% trans "About" %}</h3>
+                        <ul>
+                        <li><a href="{% url about %}#howitworks">{% trans "How it Works?" %}</a></li>
+                        <li><a href="{% url about %}#faq">{% trans "FAQ" %}</a></li>
+{#                        <li><a href="#">{% trans "About Us" %}</a></li>#}
+                        <li><a href="{% url about %}#contact">צרו קשר</a></li>
+{#                        <li><a href="#">{% trans "Press" %}</a></li>#}
+                        </ul>
+                    </div>
+                    <div class="span3">
+                        <h3>{% trans "Community" %}</h3>
+                        <ul>
+{#                        <li><a href="#">{% trans "Blog" %}</a></li>#}
+                        <li><a href="{% value_from_settings FACEBOOK_APP_URL %}" target="_blank">{% trans "Facebook" %}</a><i class="icon-facebook"></i></li>
+                        <li><a href="{% value_from_settings TWITTER_APP_URL %}" target="_blank">{% trans "Twitter" %}</a><i class="icon-twitter"></i></li>
+                        </ul>
+                    </div>
+                    <div class="span3">
+                        <h3>{% trans "My Account" %}</h3>
+                        <ul>
+                        {% if request.user.is_authenticated %}
+                            <li><a href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
+                            <li><a href="{% url user_profile %}">{% trans "My Account" %}</a></li>
+                            <li><a href="{% url auth_logout %}">{% trans "Logout" %}</a></li>
+                        {% else %}
+                            <li><a href="{% url auth_login %}">{% trans "Login" %}</a></li>
+                        {% endif %}
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            <div id="copywrite"> <!-- typo in bonce template, leave it for css -->
+                <div class="container">
+                    <div class="row">
+                        <div class="span12">
+                            <p id="totop" class="pull-right">{% trans "Back to Top" %}<i class="icon-arrow-up"></i></p>
+                            <p id="copy-ltd" class="pull-left">&copy; 2012 WAYbetter LTD. </p>
+                            <div class="clearfix"></div>
                         </div>
-                        <div id="footer_tools">
-                            <div class="ltr dropdown-trigger white" name="lang">
-                                <div class="footer-icon lang"></div>
-                                <div class="lang-code">
-                                    {{ LANGUAGE_CODE|capfirst }}
-                                </div>
-                            </div>
-                            <div class="footer-icon fb clickable"></div>
-{#                            <div class="footer-icon tt"></div>#}
-                        </div>
-                        <div class="clear"></div>
-                    {% endblock %}
-                    {% block post_footer %}{% endblock %}
+                    </div>
                 </div>
-                {% block copyright %}
-                   <div id="copyright-container">
-                       <div id="copyright" class="ltr">© 2012 WAYbetter™ LTD. All rights reserved. Patent pending.</div>
-                   </div>
-                {% endblock %}
-            </div>
-        {% endif %}
-
-    </div>
-    <!-- END Container -->
-
-    <div id="gcf_dialog" class="hidden">
-        <div class="intro">
-            <div>{% trans "To view WAYbetter in Internet Explorer you need to install" %}</div>
-            <div><span class="get_gcf wb_link">Google Chrome Frame Plugin</span> ({% trans "Free" %})</div>
-        </div>
-        <button class="get_gcf">{% trans "Install Google Chrome Frame" %}</button>
-        <div class="or">{% trans "Or, use one of these browsers" %}:</div>
-        <div class="broswers">
-            <div class="dl-browser chrome">
-                <div class="img"></div>
-                <div class="wb_link">Chrome</div>
-            </div>
-            <div class="dl-browser safari">
-                <div class="img"></div>
-                <div class="wb_link">Safari</div>
-            </div>
-            <div class="dl-browser firefox">
-                <div class="img"></div>
-                <div class="wb_link">Firefox</div>
             </div>
         </div>
-    </div>
+    {% endblock %}
 
 {% endblock body %}
 
-{% block extrastyle %}
-    {{ block.super }}
-{% endblock %}
-
 {% block scripts %}
-    <script type="text/javascript"
-            src="http://ajax.microsoft.com/ajax/jquery.validate/1.7/jquery.validate.pack.js"></script>
-    {% if LANGUAGE_CODE == 'he' %}
-        <script type="text/javascript" src="/static/js/mylibs/jquery.ui.datepicker-he.js"></script>
-    {% endif %}
-
     {{ block.super }}
+
+    <script src="/static/themes/bootstrap-bounce/js/bootstrap.min.js"></script>
 
     <!-- commonly used libraries -->
     {% if lib_channel %}
         <script type="text/javascript" src="/_ah/channel/jsapi"></script>
+    {% endif %}
+
+    {% if lib_ng %}
+        <script type="text/javascript" src="/static/js/libs/angular-1.0.2.min.js"></script>
+        {% if LANGUAGE_CODE == "he" %}
+            <script type="text/javascript" src="/static/js/wb-ng/angular-locale_he.js"></script>
+            <script type="text/javascript" src="/static/js/wb-ng/messages.he.js"></script>
+        {% else %}
+            <script type="text/javascript" src="/static/js/wb-ng/messages.en.js"></script>
+        {% endif %}
+        <script type="text/javascript" src="/static/js/wb-ng/filters.js"></script>
     {% endif %}
 
     {% if lib_map %}
@@ -252,143 +173,22 @@
             <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key={% value_from_settings GOOGLE_API_BROWSER_KEY %}&libraries=places&sensor=false&language=he"></script>
         {% endif %}
     {% endif %}
-
-    <!-- when not dev these scripts should be included in the concatenated js by build script-->
-    {% if DEV %}
-        <!-- scripts concatenated and minified via ant build script-->
-        <script type="text/javascript" src="/static/js/mylibs/jquery.ui.stars.min.js"></script>
-        <script type="text/javascript" src="/static/js/mylibs/jquery.placeheld.min.js"></script>
-        <script type="text/javascript" src="/static/js/mylibs/jquery.marquee.js"></script>
-        <script type="text/javascript" src="/static/js/mylibs/jquery.form.js"></script>
-        <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.js"></script>
-        <script type="text/javascript" src="/static/js/mylibs/jquery.ajax_forms.validation.js"></script>
-        <script type="text/javascript" src="/static/js/mylibs/jquery.formset.min.js"></script>
-        <script type="text/javascript" src="/static/js/mylibs/jquery.nivo.slider.pack.min.js"></script>
-
-        <script type="text/javascript" src="/static/js/mylibs/tooltip.js"></script>
-
-        <script type="text/javascript" src="/static/js/helpers.js"></script>
-        <script type="text/javascript" src="/static/js/registration.js"></script>
-
-        <!-- end scripts-->
-    {% endif %}
-
 {% endblock scripts %}
+
+{% block helpers_init %}
+    <!-- no super call intentionally -->
+{% endblock %}
 
 {% block doc_ready %}
     {{ block.super }}
-
-    <script>
-        function getGCF(popup) {
-            // no admin privileges needed version
-            var gcf_url = 'http://www.google.com/chromeframe/eula.html?user=true';
-            if (popup)
-                window.open(gcf_url, '_getGCF');
-            else
-                window.location.href = gcf_url;
-        }
-        function getChrome() { window.location.href = 'http://www.mozilla.com/firefox/'; }
-        function getSafari() { window.location.href = 'http://www.apple.com/safari/'; }
-        function getFirefox() { window.location.href = 'http://www.google.com/chrome/'; }
-    </script>
-    <!--[if IE ]>
-        <script src="//ajax.googleapis.com/ajax/libs/chrome-frame/1.0.2/CFInstall.min.js"></script>
-        <script>
-        window.attachEvent("onload",function(){
-            CFInstall.check({
-                destination: '{% url wb_home %}',
-                onmissing:function(){
-                    $(".get_gcf").click(function() { getGCF(true); });
-                    $(".dl-browser.firefox").click(function(){getChrome()});
-                    $(".dl-browser.chrome").click(function(){getFirefox()});
-                    $(".dl-browser.safari").click(function(){getSafari()});
-                    $("#gcf_dialog").dialog({
-                        title: '{% trans "Get yourself a modern browser" %}',
-                        width: 500,
-                        modal: true,
-                        resizable: false,
-                        close: function() {
-                            getGCF(false);
-                        }
-                    });
-                }
-            })
-        })
-        </script>
-    <![endif]-->
     <script type="text/javascript">
-        $(document).ready(function() {
-            $("#wb_logo").click(function() {
-                window.location.href = "{% url wb_home %}";
-            });
-            $(".footer-icon.fb").click(function () {
-                window.location.href = "{% value_from_settings FACEBOOK_APP_URL%}";
-            });
-
-            // dropdown triggers and lists
-            $("html").click(function(e) {
-                var $target = $(e.target);
-                $(".wbdropdown-list").hide();
-                var $trigger = ($target.hasClass("dropdown-trigger")) ? $target : $target.parents(".dropdown-trigger").eq(0);
-                if ($trigger){
-                    var name = $trigger.attr("name");
-                    $(".wbdropdown-list[name='" + name + "']").show();
-                }
-            });
-            $(".dropdown-trigger").click(function() {
-                var offset = $(this).offset();
-                offset.top = offset.top + $(this).height() + 5;
-
-                var name = $(this).attr("name");
-                var $list = $(".wbdropdown-list[name='" + name + "']");
-                if ($("html").hasClass("rtl")) {
-                    offset.left = offset.left - ($list.outerWidth() - $(this).outerWidth()) + 1;
-                }
-                $list.show().offset(offset);
-            });
-
-            // language
-            $("#change_lang, #lang_dropdown li").click(function() {
-                var code = $(this).data("code");
-                logGAEvent("languages", "change language", code);
-
-                if (code != "{{ LANGUAGE_CODE }}" && !$(this).hasClass("disabled")) {
-                    $("#lang_form #language").val(code);
-                    $("#lang_form").submit();
-                }
-            });
-
-            // values tooltips
-            $("#wb_values .value").each(function() {
-                var name = $(this).data("value-name");
-                var position, left;
-                if ($("html").hasClass("rtl")) {
-                    position = "center right";
-                    left = 6;
-                    if (name == "service" || name == "community") {
-                        position = "center left";
-                        left = -left;
-                    }
-                }
-                else {
-                    position = "center left";
-                    left = -6;
-                    if (name == "service" || name == "community") {
-                        position = "center right";
-                        left = -left;
-                    }
-                }
-                $(this).tooltip({
-                    effect: 'fade',
-//                    relative: true,
-                    delay: 3,
-                    position: position,
-                    offset: [-80, left],
-                    tip: "#values_learnmore ." + name,
-                    events:{
-                        def: "mouseover, mouseleave"
-                    }
-                });
+        $(function () {
+            $("#header-links > li > a[href='" + window.location.pathname + "']").parents("li").addClass("active");
+            $("#totop").click(function () {
+                $("body, html").animate({
+                    scrollTop:0
+                }, 300);
+                return false;
             });
         });
     </script>

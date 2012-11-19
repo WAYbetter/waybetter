@@ -1,4 +1,5 @@
 from google.appengine.api.taskqueue import taskqueue
+from google.appengine.ext import deferred
 from billing.enums import BillingStatus
 from common.util import blob_to_image_tag
 from django.contrib import admin, messages
@@ -10,7 +11,8 @@ import station_connection_manager
 from common.models import Country
 from common.forms import MandatoryInlineFormset
 from sharing.sharing_dispatcher import dispatch_ride
-from sharing.station_controller import show_ride, send_ride_voucher
+from sharing.station_controller import send_ride_voucher
+from sharing.staff_controller import ride_page
 import forms
 
 
@@ -66,7 +68,7 @@ class SharedRideAdmin(admin.ModelAdmin):
         return obj.taxi.number
 
     def map(self, obj):
-        return '<a href="%s">map</a>' % reverse(show_ride, args=[obj.id])
+        return '<a href="%s">map</a>' % reverse(ride_page, args=[obj.id])
     map.allow_tags = True
 
     actions = ['dispatch', 'resend_voucher']
@@ -92,9 +94,7 @@ class SharedRideAdmin(admin.ModelAdmin):
         sent = []
         for ride in queryset:
             if ride.station.vouchers_emails:
-                q = taskqueue.Queue('ride-notifications')
-                task = taskqueue.Task(url=reverse(send_ride_voucher), params={"ride_id": ride.id})
-                q.add(task)
+                deferred.defer(send_ride_voucher, ride_id=ride.id)
                 sent.append(ride)
         if sent:
             messages.info(request, "%d vouchers sent %s" % (len(sent), [ride.station.vouchers_emails for ride in sent]))

@@ -1,8 +1,8 @@
 import traceback
+from google.appengine.ext import deferred
 from common.decorators import internal_task_on_queue, catch_view_exceptions, receive_signal
-from common.models import BaseModel
+from common.util import Enum, get_uuid
 from django.core.urlresolvers import reverse
-from django.db import models
 from django.dispatch.dispatcher import Signal, _make_id
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -11,39 +11,7 @@ from google.appengine.api.channel.channel import InvalidChannelClientIdError
 from google.appengine.api import taskqueue, memcache, channel
 import logging
 import pickle
-from common.util import Enum
 
-class SignalStore(BaseModel):
-    '''
-    A simple model to hold signal data until processed
-    '''
-    pickled_value = models.TextField("pickled value")
-
-    def get_signal_data(self):
-        data = pickle.loads(self.pickled_value.encode("utf-8"))
-        if "obj_id" in data:
-            obj_id = data.pop("obj_id")
-            obj_type = data.pop("obj_type")
-            obj = obj_type.objects.get(id=obj_id)
-            data["obj"] = obj
-
-        return data
-
-    def set_signal_data(self, data):
-        if "obj" in data:
-            o = data.pop("obj")
-            data["obj_id"] = o.id
-            data["obj_type"] = type(o)
-
-        try:
-            self.pickled_value = pickle.dumps(data)
-        except pickle.PicklingError, e:
-            trace = traceback.format_exc()
-            logging.error("PicklingError caught:\n %s" % trace)
-            raise
-
-#    define signal_data property
-    signal_data = property(get_signal_data, set_signal_data)
 
 class TypedSignal(Signal):
     '''
@@ -61,11 +29,37 @@ class TypedSignal(Signal):
         super(TypedSignal, self).__init__(providing_args.append("signal_type"))
         TypedSignal.all.add(self)
 
+
 class AsyncSignal(TypedSignal):
     """
     A sub-class of TypedSignal that sends the signal asynchronously
     to registered receivers
     """
+    @staticmethod
+    def dump_signal_data(data):
+        if "obj" in data:
+            o = data.pop("obj")
+            data["obj_id"] = o.id
+            data["obj_type"] = type(o)
+
+        try:
+            return pickle.dumps(data)
+        except pickle.PicklingError, e:
+            trace = traceback.format_exc()
+            logging.error("PicklingError caught:\n %s" % trace)
+            raise
+
+    @staticmethod
+    def load_signal_data(pickled_data):
+        data = pickle.loads(pickled_data.encode("utf-8"))
+        if "obj_id" in data:
+            obj_id = data.pop("obj_id")
+            obj_type = data.pop("obj_type")
+            obj = obj_type.objects.get(id=obj_id)
+            data["obj"] = obj
+
+        return data
+
     def send(self, sender, **named):
         """
         Send this signal asynchronously to the registered receivers
@@ -84,35 +78,28 @@ class AsyncSignal(TypedSignal):
             args = {"receiver": receiver, "sender": sender, "signal_type": self.signal_type}
             args.update(named)
 
-            # store the signal to the signal store
-            stored_signal = SignalStore(signal_data=args)
-            stored_signal.save()
+            signal_data = AsyncSignal.dump_signal_data(args)
 
-            t = taskqueue.Task(url=reverse(send_async), params={"id": stored_signal.id}, name="send-signal-%s" % stored_signal.id)
-            q = taskqueue.Queue('signals')
-            q.add(t)
+            deferred.defer(send_async, signal_data=signal_data, _queue="signals", _name="send-signal-%s-%s-%s" % (sender, self.signal_type, get_uuid()))
 
         return None # discard the responses
 
-@csrf_exempt
-@catch_view_exceptions
-@internal_task_on_queue("signals")
-def send_async(request):
-    id = request.POST.get("id")
-    logging.info("broadcasting signal: %s" % id)
+
+def send_async(signal_data):
     try:
-        stored_signal = SignalStore.by_id(id)
-        d = stored_signal.signal_data
+        d = AsyncSignal.load_signal_data(signal_data)
+        logging.info("broadcasting signal sender=%s signal_type=%s" % (d.get("sender"), d.get("signal_type")))
 
         receiver = d.pop("receiver")
         receiver(**d)
 
-        stored_signal.delete() # delete the signal unless there was an exception
     except Exception, e: # prevent this signal from being re-dispatched in case of error
         trace = traceback.format_exc()
         logging.error("Error dispatching signal: %s: %s: %s\n%s" % (id, type(e).__name__, e.message, trace))
 
     return HttpResponse("OK")
+
+
 class AsyncComputationSignalType(Enum):
     SUBMITTED                   = 1
     COMPLETED                   = 2

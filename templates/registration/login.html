@@ -1,194 +1,90 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
 {% load value_from_settings %}
-{% block htmlclass %}login_page{% endblock %}
 
 {% block extrastyle %}
     {{ block.super }}
-    <style>
-        #site-content{
-            width: 350px;
-            padding: 25px 15px;
+    <style type="text/css">
+        .modal-header{
+            border-bottom: none;
         }
-        #top-container{
-            width: 380px;
+        form{
+            margin: 0;
         }
-        label {
-            padding-right: 15px;
-            font-weight: bold;
-            font-size: 13px;
-        }
-
-        .centered {
-            text-align: center;
-        }
-
-        .wb_button {
-            min-width: 113px;
-        }
-
-        #login_or_join {
-            margin: 0 auto;
-        }
-
-        .rtl label {
-            padding-right: 0;
-            padding-left: 15px;
-        }
-
-        #id_username, #id_password {
-            width: 200px;
-        }
-
-        .spacer-row {
-            height: 25px;
-        }
-
-        #buttons{
-            padding-top: 15px;
-        }
-
-        .login-button-row {
-            text-align: right;
-        }
-
-        .rtl .login-button-row {
-            text-align: left;
-        }
-
-        .login-button-row.join, .hr-spacer{
-            padding-top: 20px;
-        }
-
-        #not_member_text {
-            padding-right: 15px;
-            font-size: 13px;
-        }
-
-        .rtl #not_member_text {
-            padding-right: 0;
-            padding-left: 15px;
-        }
-
-        .vrule-cntr {
-            padding: 0 35px;
-        }
-
-        .vrule {
-            height: 115px;
-            width: 0;
-            border-left: 1px solid gray;
-            margin: 0 auto;
-        }
-
-        .or {
-            padding: 4px 0;
-        }
-
-        #fb_login_button {
-            width: 155px;
-        }
-
-        .errorlist {
+        .errorlist{
             list-style: none;
+            color: #B94A48;
         }
-
-        .errorlist li {
-            color: red;
+        .field-error{
+            margin-bottom: 15px;
         }
-
     </style>
 {% endblock %}
 
-{% block top_left %}
-    {% if request.session.current_order %} {# CURRENT_ORDER_KEY #}
-        {% trans "Login to Complete Your Order" %}
-    {% else %}
-        {% trans "Login To Your Account" %}
-    {% endif %}
-{% endblock %}
-
-{% block top_right %}
-    <span>{% trans "New to WAYbetter?" %}</span>
-    <a href="{% url join %}" class="wb_link">{% trans "Join!" %}</a>
+{% block headertext %}
+    {% trans "Login to WAYbetter" %}
 {% endblock %}
 
 {% block content %}
-    <table id="login_or_join">
-        <tr>
-            <td>
-                {{ form.non_field_errors }}
-                <form method="post" id="login-form">{% csrf_token %}
-                    <table class="full-width">
-                        <input type="hidden" name="next" value="{{ next }}"/>
-                        <input type="hidden" name="token" id="id_token">
+    <div id="content" class="txt-middle">
+        <div class="container">
+            <div class="row">
+                <div class="span12">
+                    <div class="modal modal-flat">
+                        <div class="modal-header"></div>
+                        <form method="post" id="login-form">
 
-                        <tr class="login-input-row">
-                            <td>
-                                <label for="id_username">{% trans 'Email' %}:</label>
-                            </td>
-                            <td>
-                                <input type="email" name="username" id="id_username"/>
-                            </td>
-                        </tr>
-                        <tr class="spacer-row"></tr>
-                        <tr class="login-input-row">
-                            <td>
-                                <label for="id_password">{% trans 'Password' %}:</label>
-                            </td>
-                            <td>
-                                <input type="password" name="password" id="id_password"/>
-                            </td>
-                        </tr>
-                        <tr class="forgot-password-row">
-                            <td></td>
-                            <td>
-                                {% trans "Forgot password" %}
-                                <a class="wb_link" href="{% url sharing.passenger_controller.verify_passenger %}">{% trans "Click Here" %}</a>
-                            </td>
-                        </tr>
-                    </table>
+                            <div class="modal-body">
+                                <div id="non-field">{{ form.non_field_errors }}</div>
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ next }}"/>
+                                <input type="hidden" name="token" id="id_token">
 
-                    <div id="buttons">
-                        <div class="login-button-row">
-                            <input type="submit" class="wb_button blue" value="{% trans 'Login' %}"/>
-                        </div>
+                                <fieldset>
+                                    <div class="control-group">
+                                        <div class="controls">
+                                            <div class="input-prepend">
+                                                <span class="add-on"><i class="icon-envelope"></i></span>
+                                                <input type="text" name="username" id="id_username" placeholder="{% trans "Email" %}" class="span3"/>
+                                            </div>
+                                            <div class="field-error">
+                                                {{ form.username.errors }}
+                                            </div>
+                                        </div>
+                                        <div class="controls">
+                                            <div class="input-prepend">
+                                                <span class="add-on"><i class="icon-lock"></i></span>
+                                                <input type="password" name="password" id="id_password" placeholder="{% trans "Password" %}" class="span3"/>
+                                            </div>
+                                            <div class="field-error">
+                                                {{ form.password.errors }}
+                                            </div>
+                                            <span>{% trans "Forgot password" %}</span>
+                                            <a href="{% url sharing.passenger_controller.verify_passenger %}">{% trans "Click Here" %}</a>
+                                        </div>
+                                    </div>
+                                </fieldset>
 
-                        <div class="hr-spacer"></div>
-
-                        <div class="login-button-row join">
-                            <span id="not_member_text" class="bold">{% trans "Not a WAYbetter member" %}?</span>
-                            <button id="join_btn" class="wb_button">{% trans "Join Now" %}</button>
-                        </div>
+                            </div>
+                            <div class="modal-footer">
+                                <a class="btn btn-warning pull-left" href="{% url join %}">{% trans "Join Now" %}</a>
+                                <input type="submit" class="btn btn-primary" value="{% trans 'Login' %}"/>
+                            </div>
+                        </form>
                     </div>
-                </form>
+                </div>
+            </div>
+        </div>
+    </div>
 
-            </td>
-{#            <td class="vrule-cntr">#}
-{#                <div class="vrule"></div>#}
-{#                <div class="or centered">{% trans "OR" %}</div>#}
-{#                <div class="vrule"></div>#}
-{#            </td>#}
-{#            <td>#}
-                {#                <a id="fb_login_button" href="{% value_from_settings FACEBOOK_LOGIN_LINK %}"></a>#}
-{#                <a style="color: #BCBCBC" id="fb_login_button"></a>#}
-{##}
-{#                <div style="text-align: center; color: #BCBCBC">{% trans "Coming Soon" %}...</div>#}
-{#            </td>#}
-        </tr>
-
-    </table>
     <script type="text/javascript">
 
         $(function () {
+            $("#non-field .errorlist").addClass("alert alert-error");
+
             init();
             $("#id_username").bind("change blur", function () {
                 $(this).val($(this).val().toLowerCase());
-            });
-
-            $("#join_btn").click(function (e) {
-                e.preventDefault();
-                window.location.href = "{% url join %}";
             });
         });
 
@@ -210,5 +106,3 @@
 
     </script>
 {% endblock %}
-
-{% block post_content %}{% endblock %}

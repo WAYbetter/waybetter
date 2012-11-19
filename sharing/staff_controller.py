@@ -1,41 +1,42 @@
 # This Python file uses the following encoding: utf-8
-import calendar
-import gzip
 import os
-import pickle
 from django.contrib.auth.models import User
 from google.appengine.api import memcache
 from google.appengine.api.channel.channel import InvalidChannelClientIdError
+from billing.enums import BillingStatus
+from common.errors import TransactionError
 from common.geocode import gmaps_geocode, Bounds, gmaps_reverse_geocode
 from django.core.urlresolvers import reverse
 from google.appengine.ext.deferred import deferred
-from common.signals import async_computation_failed_signal, async_computation_completed_signal
 from google.appengine.api.channel import channel
-from billing.enums import BillingStatus
-from billing.models import BillingTransaction, BillingInfo
+from billing.models import BillingTransaction
 from common.decorators import force_lang
 from common.models import City
 from common.util import custom_render_to_response, get_uuid, base_datepicker_page, send_mail_as_noreply, is_in_hebrew
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import HttpResponse
+from django.http import HttpResponse, HttpResponseBadRequest
 from django.utils import simplejson, translation
 from django.utils.translation import get_language_from_request
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template.context import RequestContext
-from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_now_min, default_tz_now_max
+from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_now_min, default_tz_now_max, IsraelTimeZone
+import dateutil
+from django.views.decorators.csrf import csrf_exempt
 from djangotoolbox.http import JSONResponse
+from fleet.fleet_manager import POSITION_CHANGED, cancel_ride
 import ordering
 from ordering.decorators import passenger_required
+from ordering.enums import RideStatus
 from ordering.forms import OrderForm
-from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS, Order, CHARGED, ACCEPTED, APPROVED, REJECTED, TIMED_OUT, FAILED, Passenger, SharedRide, Station
+from ordering.models import StopType, RideComputation, RideComputationSet, OrderType, RideComputationStatus, ORDER_STATUS, Order, Passenger, SharedRide, IGNORED, REJECTED, FAILED, ERROR, TIMED_OUT, CANCELLED, Station
 from pricing.views import hotspot_pricing_overview
 import sharing
 from sharing.forms import ConstraintsForm
 from sharing.models import HotSpot
 from sharing.passenger_controller import HIDDEN_FIELDS
-from sharing.station_controller import show_ride
 from sharing.algo_api import submit_orders_for_ride_calculation
 from datetime import  datetime, date, timedelta
+from datetime import time as dt_time
 import logging
 import time
 import settings
@@ -167,7 +168,7 @@ def calc_users_data_csv(recipient ,offset=0, csv_bytestring=u""):
                 first_order_date = orders[0].create_date.strftime(datetime_format)
                 last_order_date = orders[-1].create_date.strftime(datetime_format)
                 dispatched_orders = filter(lambda o: o.ride, orders)
-                total_payment = sum([order.price for order in dispatched_orders])
+                total_payment = sum([order.get_billing_amount() for order in dispatched_orders])
                 num_rides = len(dispatched_orders)
                 num_orders_mobile = len(filter(lambda o: o.mobile, orders))
                 num_orders_website = num_orders - num_orders_mobile
@@ -229,7 +230,7 @@ def calc_orders_data_csv(recipient, batch_size, offset=0, csv_bytestring=u"", ca
 
                 passenger_name = order.passenger.full_name
                 shared = "yes" if count_orders > 1 else ""
-                price = order.price
+                price = order.get_billing_amount()
                 cost = 0
 
                 if calc_cost:
@@ -241,7 +242,7 @@ def calc_orders_data_csv(recipient, batch_size, offset=0, csv_bytestring=u"", ca
                         if rule.is_active(order.from_lat, order.from_lon, order.to_lat, order.to_lon,ride.depart_time.date(), ride.depart_time.time()):
                             cost = rule.price
 
-                link = "http://%s/%s" % (link_domain , reverse(show_ride, args=[ride.id]))
+                link = "http://%s/%s" % (link_domain , reverse(ride_page, args=[ride.id]))
 
                 order_data = [depart_day, depart_time, arrive_day, arrive_time, ordering_td_format, passenger_name,
                               order.from_raw, order.from_lat, order.from_lon, order.to_raw, order.to_lat, order.to_lon,
@@ -378,8 +379,7 @@ def kpi(request):
 
 @staff_member_required
 def kpi_csv(request):
-    from analytics import kpi
-#    r = int(request.GET.get("range", 4))
+    #    r = int(request.GET.get("range", 4))
 #    deferred.defer(kpi.calc_kpi2, r)
 
 #    deferred.defer(kpi.calc_kpi3)
@@ -423,7 +423,7 @@ def birdseye_view(request):
                 'passenger': " ".join(passenger_details) if passenger_details else na,
                 'type': OrderType.get_name(o.type),
                 'status': o.get_status_label(),
-                'price': o.price,
+                'price': o.get_billing_amount(),
                 'debug': 'Yes' if o.debug else 'No'
         }
 
@@ -677,49 +677,97 @@ def submit_test_computation(orders, hotspot_type_raw, params, computation_set_na
 
     return algo_key
 
-#def orders_map():
-#    pass
-#def orders_reduce():
-#    pass
-#
-#def mapreduce_handler():
-#    pass
+@force_lang("en")
+@staff_member_required
+def eagle_eye(request):
+    lib_ng = True
+    stations = simplejson.dumps([{"name": s.name, "id": s.id} for s in Station.objects.all()]);
+#    status_values = dict([(label.encode('utf-8').upper(), label.encode('utf-8').upper()) for key, label in ORDER_STATUS])
+    return render_to_response("eagle_eye.html", locals(), context_instance=RequestContext(request))
 
-#class DjangoEntityInputReader(AbstractDatastoreInputReader):
-#  """An input reader that takes a Django model ('app.models.Model') and yields Keys for that model"""
-#
-#  def _iter_key_range(self, k_range):
-#    query = Query(util.for_name(self._entity_kind)).get_compiler(using="default").build_query()
-#    raw_entity_kind = query.db_table
-#
-#    query = k_range.make_ascending_datastore_query(
-#        raw_entity_kind, keys_only=True)
-#    for key in query.Run(
-#        config=datastore_query.QueryOptions(batch_size=self._batch_size)):
-#      yield key, key
-#
-#class LogPipeline(base_handler.PipelineBase):
-#    def run(self, val):
-#        logging.info("Pipeline log: %s" % val)
-#
-#class OrdersPipeline(base_handler.PipelineBase):
-#    def run(self):
-#        output = yield mapreduce_pipeline.MapreducePipeline(
-#            "order_stats",
-#            "orders_map",
-#            "orders_reduce",
-#            "DjangoEntityInputReader",
-#            "mapreduce.output_writers.BlobstoreOutputWriter",
-##            mapper_params={
-##                "blob_key": blobkey,
-##                },
-##            reducer_params={
-##                "mime_type": "text/plain",
-##                },
-#            shards=4)
-#
-#        yield LogPipeline(output)
-##        yield StoreOutput("WordCount", filekey, output)
+@force_lang("en")
+def eagle_eye_data(request):
+    start_date = dateutil.parser.parse(request.GET.get("start_date")).astimezone(IsraelTimeZone())
+    end_date = dateutil.parser.parse(request.GET.get("end_date")).astimezone(IsraelTimeZone())
+
+    start_date = datetime.combine(start_date, dt_time.min)
+    end_date = datetime.combine(end_date, dt_time.max)
+
+    logging.info("start_date = %s, end_date = %s" % (start_date, end_date))
+
+    rides = SharedRide.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date).order_by("-depart_time")
+    incomplete_orders = Order.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date)
+    incomplete_orders = filter(lambda o: o.status in [IGNORED, REJECTED, FAILED, ERROR, TIMED_OUT, CANCELLED], incomplete_orders)
+
+    logging.info("incomplete_orders = %s" % incomplete_orders)
+
+    result = {
+        'rides': [],
+        'incomplete_orders': []
+    }
+
+    for ride in rides:
+        result['rides'].append(ride.serialize_for_eagle_eye())
+
+    for order in incomplete_orders:
+        result['incomplete_orders'].append(order.serialize_for_eagle_eye())
+
+    return JSONResponse(result)
+
+@csrf_exempt
+@staff_member_required
+@force_lang("en")
+def manual_assign_ride(request):
+    from sharing.station_controller import update_data, update_ride
+    from sharing.sharing_dispatcher import assign_ride
+
+    ride_id = request.POST.get("ride_id")
+    station_id = request.POST.get("station_id")
+    ride = SharedRide.by_id(ride_id)
+    station = Station.by_id(station_id)
+    if station and ride.station != station:
+        cancel_ride(ride)
+        old_station = ride.station
+
+        assign_ride(ride, station)
+
+        if old_station:
+            update_data(old_station)
+
+    return JSONResponse({'ride': ride.serialize_for_eagle_eye()})
+
+
+@csrf_exempt
+@staff_member_required
+@force_lang("en")
+def mark_ride_complete(request, ride_id):
+    ride = SharedRide.by_id(ride_id)
+    ride.change_status(new_status=RideStatus.COMPLETED, silent=True)
+
+    return JSONResponse({'ride': ride.serialize_for_eagle_eye()})
+
+
+@staff_member_required
+@force_lang("en")
+def ride_page(request, ride_id):
+    lib_ng = True
+    lib_map = True
+    position_changed = POSITION_CHANGED
+
+    return render_to_response("ride_page.html", locals(), context_instance=RequestContext(request))
+
+@staff_member_required
+@force_lang("en")
+def cancel_billing(request, order_id):
+    order = Order.by_id(order_id)
+    for bt in order.billing_transactions.all():
+        if bt.status not in [BillingStatus.CANCELLED, BillingStatus.CHARGED]:
+            try:
+                bt.disable()
+            except TransactionError, e:
+                return HttpResponseBadRequest("Transaction[%s] could not be cancelled: %s" % (bt.id, e))
+
+    return JSONResponse({ "success": True })
 
 TRACK_RIDES_CHANNEL_MEMCACHE_KEY = "track_rides_channel_memcache_key"
 #@staff_member_required

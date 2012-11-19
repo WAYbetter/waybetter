@@ -340,9 +340,9 @@ class StationProfileForm(forms.Form, Id2Model):
 
 
 class CredentialsForm(forms.Form):
-    email = forms.EmailField(label=_("Email Address"), max_length=75)
-    new_password1 = forms.CharField(label=_("New password"), widget=forms.PasswordInput, required=True)
-    new_password2 = forms.CharField(label=_("Re password"), widget=forms.PasswordInput, required=True)
+    email = forms.EmailField(label=_("Email Address"), max_length=75, widget=forms.TextInput(attrs={'placeholder': _("Email Address")}))
+    new_password1 = forms.CharField(label=_("New password"), widget=forms.PasswordInput(attrs={'placeholder': _("New password")}), required=True)
+    new_password2 = forms.CharField(label=_("Re password"), widget=forms.PasswordInput(attrs={'placeholder': _("Re password")}), required=True)
 
     def __init__(self, user, *args, **kwargs):
         self.user = user

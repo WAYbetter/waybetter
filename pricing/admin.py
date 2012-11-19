@@ -1,6 +1,6 @@
 from django.contrib import admin
 from common.forms import MandatoryInlineFormset
-from pricing.models import RuleSet, TemporalRule
+from pricing.models import RuleSet, TemporalRule, DiscountRule
 
 
 class TemporalRuleAdmin(admin.ModelAdmin):
@@ -32,6 +32,10 @@ class RuleSetAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "priority"]
     inlines = [InlineTemporalRuleAdmin]
 
-    
+
+class DiscountRuleAdmin(admin.ModelAdmin):
+    pass
+
 #admin.site.register(TemporalRule, TemporalRuleAdmin)
 admin.site.register(RuleSet, RuleSetAdmin)
+admin.site.register(DiscountRule, DiscountRuleAdmin)

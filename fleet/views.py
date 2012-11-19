@@ -112,8 +112,6 @@ def get_ride_events(request):
     import dateutil.parser
 
     ride_id = request.GET.get("ride_id")
-    from_date = dateutil.parser.parse(request.GET.get("from_date"))
-    to_date = dateutil.parser.parse(request.GET.get("to_date"))
     shared_rides = {}
     pickmeapp_rides = {}
 
@@ -121,6 +119,9 @@ def get_ride_events(request):
         ride = SharedRide.by_id(ride_id) or PickMeAppRide.by_id(ride_id)
         events = ride.events.all()
     else:
+        from_date = dateutil.parser.parse(request.GET.get("from_date"))
+        to_date = dateutil.parser.parse(request.GET.get("to_date"))
+
         from_date = datetime.datetime.combine(from_date, set_default_tz_time(datetime.time.min))
         to_date = datetime.datetime.combine(to_date, set_default_tz_time(datetime.time.max))
 

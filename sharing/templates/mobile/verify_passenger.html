@@ -1,0 +1,177 @@
+{% extends "wb_base_mobile.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        .sep{
+            margin: 2.5em 1em 2em;
+        }
+        #phoneNotificationContainer, #codeNotificationContainer {
+            height: 1.5em;
+        }
+    </style>
+{% endblock %}
+{% block body %}
+    <div data-role="page">
+        <div data-role="header" data-theme="a">
+            <h1>{% trans "Restore Your Account" %}</h1>
+        </div>
+
+        <div data-role="content">
+            <form id="phone_form">
+                {% csrf_token %}
+                <input name="country_code" type="hidden" value="{{ country_code }}"/>
+
+                <label for="local_phone">{% trans "Mobile Phone" %}</label>
+                <input id="local_phone" name="local_phone" type="tel"/>
+
+                <div id="phoneNotificationContainer">
+                    <div id="phone_status" class="hidden"></div>
+                    <div id="phone_error" class="error hidden">{% trans "Unknown Phone" %}.&nbsp;
+                        <a href="{% url sharing.passenger_controller.registration%}">{% trans "Join WAYbetter now" %}! </a>
+                    </div>
+                    <div id="connection_error" class="hidden">{% trans "There was an error, please try again" %}.</div>
+                </div>
+
+                <button id="send_code" disabled="disabled" data-theme="c">{% trans "Send SMS Code" %}</button>
+
+                <hr class="sep">
+
+                <label for="verification_code">{% trans "SMS code" %}</label>
+                <input id="verification_code" name="verification_code" type="tel" />
+
+                <div id="codeNotificationContainer">
+                    <div id="verification_status"></div>
+                    <div id="code_error" class="error hidden"></div>
+                </div>
+
+                <a id="next" href="{% url sharing.passenger_controller.change_credentials %}" data-role="button"
+                    data-ajax="false" class="ui-disabled" data-theme="c">{% trans "Next" %}</a>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block doc_ready %}
+    <script type="text/javascript">
+        function checkPhone() {
+            var $status = $("#phone_status");
+            var $error = $("#phone_error");
+            var $connection_error = $("#connection_error");
+
+            $.ajax({
+                url:"{% url ordering.passenger_controller.check_phone_registered %}",
+                data:{ local_phone:$("#local_phone").val() },
+                beforeSend:function () {
+                    clearCode();
+                    $error.hide();
+                    $connection_error.hide();
+                    $status.text("{% trans 'Checking' %}...").show();
+                },
+                success:function (response) {
+                    var valid = Boolean(response);
+
+                    if (valid) {
+                        $("#send_code").enable();
+                    } else {
+                        $error.show();
+                        $("#send_code").disable();
+                    }
+                },
+                error:function () {
+                    $connection_error.show();
+                },
+                complete:function () {
+                    $status.hide();
+                }
+            })
+
+        }
+
+        function sendCode() {
+            var $that = $("#send_code");
+            $.ajax({
+                url:"{% url send_verification_code %}",
+                data:$("#phone_form").serialize(),
+                type:"POST",
+                beforeSend:function () {
+                    clearCode();
+                    $that.disable().data("old_text", $that.text()).text("{% trans "Sending" %}");
+                },
+                success:function (d) {
+                    $that.text("{% trans "Code Sent" %}");
+                    $("#verification_code").enable().focus();
+                },
+                error:function () {
+                    $that.text($that.data("old_text")).enable();
+                }
+            })
+        }
+
+        function clearCode() {
+            $("#verification_code").val("");
+            $("#code_error").hide();
+        }
+
+        function checkCode() {
+            var data = $("#phone_form").serialize();
+            var $code = $("#verification_code");
+            var $status = $("#verification_status");
+            var $error = $("#code_error");
+            var $next = $("#next");
+
+            $.ajax({
+                url:"{% url sharing.passenger_controller.verify_passenger %}",
+                type:"POST",
+                data:data,
+                beforeSend:function () {
+                    $error.hide();
+                    $code.disable();
+                    $next.addClass("ui-disabled");
+                    $status.removeClass("error success").addClass("sending");
+                },
+                complete:function () {
+                    $status.removeClass("sending");
+                },
+                success:function (response) {
+                    $status.addClass("success");
+                    $next.removeClass("ui-disabled");
+                },
+                error:function (response) {
+                    $error.text(response.responseText || "{% trans "Wrong Code" %}").show();
+                    $status.addClass("error");
+                    $code.enable();
+
+                }
+
+            })
+        }
+        $(function () {
+
+            $("#local_phone").focus().keyup(function () {
+                clearCode();
+                if ($(this).val().length > 9) {
+                    checkPhone();
+                }
+            });
+            $("#send_code").click(function () {
+                sendCode();
+            });
+            $("#verification_code").keyup(
+                    function () {
+                        $("#code_error").hide();
+                        var val = $(this).val();
+                        if (val && val.length == 4) {
+                            checkCode();
+                        }
+                    }).keydown(function (event) {
+                        var permittedKeys = [8, 37, 38, 39, 40, 46];
+                        if ($(this).val().length >= 4 && $.inArray(event.which, permittedKeys) < 0) {
+                            return false;
+                        }
+                    });
+        });
+
+    </script>
+{% endblock %}

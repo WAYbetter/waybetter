@@ -1,0 +1,42 @@
+{% extends "wb_base_mobile.html" %}
+{% load i18n %}
+{% load value_from_settings %}
+
+{% block body %}
+    <div id="suggest_apps_page" data-role="page" data-theme="a">
+
+        <div id="logo-container">
+            <div id="logo-wrapper">
+                <div id="logo">
+                    <div class="image"></div>
+                    <div class="name"><span class="bold">WAY</span>better</div>
+                    <div class="text">the social taxi app</div>
+                </div>
+            </div>
+            <div class="shadow-sep">
+                <table>
+                    <tr>
+                        <td class="shadow-l"></td>
+                        <td class="shadow-m"></td>
+                        <td class="shadow-r"></td>
+                    </tr>
+                </table>
+            </div>
+        </div>
+
+        <div id="buttons-container">
+            <!-- This page should be served only to droids an ios, we don't have other apps.. -->
+            {% if is_android %}
+                <a data-role="button" data-theme="c" rel="external" href="{% value_from_settings ANDROID_MARKET_APP_URL %}">הורידו
+                    אפליקציה לנייד</a>
+            {% endif %}
+
+            {% if is_ios %}
+                <a data-role="button" data-theme="c" rel="external" href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}">הורידו
+                    אפליקציה לנייד</a>
+            {% endif %}
+
+            <a data-role="button" data-theme="c" rel="external" href="{% url wb_home_noapps %}">גלשו לאתר האינטרנט</a>
+        </div>
+    </div>
+{% endblock %}

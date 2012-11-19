@@ -4,9 +4,23 @@
 {% block extrastyle %}
     {{ block.super }}
     <style>
-    .q {
+    .ui-body-a, .ui-overlay-a {
+        border: 1px solid #B3B3B3;
+        color: #454545;
+        background: white;
+        background-image: -webkit-gradient(linear,left top,left bottom,from( #F1F1E9 ),to( #F1F1E9 ));
+        background-image: -webkit-linear-gradient( #F1F1E9,#F1F1E9 );
+        background-image: -moz-linear-gradient( #F1F1E9,#F1F1E9 );
+        background-image: -ms-linear-gradient( #F1F1E9,#F1F1E9 );
+        background-image: -o-linear-gradient( #F1F1E9,#F1F1E9 );
+        background-image: linear-gradient( #F1F1E9,#F1F1E9 );
+    }
+    .qa{
+        margin-bottom: 1.5em;
+    }
+    .question {
         font-weight: bold;
-        margin: 1em 0;
+        margin-bottom: 0.5em;
     }
     </style>
 {% endblock %}
@@ -15,12 +29,72 @@
     <div id="faq_page" data-role="page" data-theme="a">
         <div data-role="header">
             <h1>{% trans "FAQ" %}</h1>
-            {% if not request.wb_app %}
-            <a href="#" data-rel="back" class="ui-btn-right" data-theme="h">{% trans 'Back' %}</a>
-            {% endif %}
         </div>
         <div data-role="content">
-            {% trans "faq_content" %}
+            <div class="qa">
+                <div class="question collapsed" data-toggle="collapse" href="#answer1"><i class="icon-question-sign"></i> מה זה WAYbetter?</div>
+                <div class="answer collapse" id="answer1">WAYbetter זו פלטפורמה חכמה להזמנת מוניות ספיישל משותפות המאפשרת גם להינות מחווית הזמנה ונסיעה טובות יותר, וגם לחסוך כסף בכל נסיעה הודות לשיתוף עם נוסעים אחרים.</div>
+            </div>
+
+            <div class="qa">
+                <div class="question collapsed" data-toggle="collapse" href="#answer2"><i class="icon-question-sign"></i> איך מזמינים נסיעה משותפת?</div>
+                <div class="answer collapse" id="answer2">
+                    פשוט מאוד.
+                    <ol>
+                        <li>מזינים את מסלול הנסיעה הרצוי (מוצא, יעד, וזמן האיסוף המועדף)</li>
+                        <li>מקבלים רשימת מוניות אליהן ניתן להצטרף ובוחרים מונית מועדפת (על פי שעת האיסוף, המחיר ומסלול השיתוף).<br>
+                            בנוסף, ניתן להזמין מונית חדשה ובכך לאפשר לנוסעים אחרים להצטרף אליכם.
+                        </li>
+                        <li>זהו, ההזמנה הסתיימה. הנסיעה הוזמנה.</li>
+                    </ol>
+                    כמה דקות לפני הגעת המונית אליכם תקבלו הודעת תזכורת, תוכלו לצפות במונית נוסעת אליכם בזמן אמת ולראות את המסלול המשותף שבנינו בשבילכם.
+                </div>
+            </div>
+
+            <div class="qa">
+                <div class="question collapsed" data-toggle="collapse" href="#answer3"><i class="icon-question-sign"></i> כמה זה יעלה לי?</div>
+                <div class="answer collapse" id="answer3">ב-WAYbetter המחיר ידוע מראש ונקבע על פי מחירון קבוע של תחנת המוניות באיזורכם.<br>
+                    בעת ההזמנה תוכלו לראות את המחיר, ובמידה ויצטרף נוסע נוסף למונית או שהמערכת תמצא מונית טובה יותר עבורכם, המחיר יירד ואתם תקבלו הודעה שחסכתם כסף!<br>
+                    בכל מקרה, המחיר לעולם לא יעלה. בהתחייבות!<br>
+                </div>
+            </div>
+
+            <div class="qa">
+                <div class="question collapsed" data-toggle="collapse" href="#answer4"><i class="icon-question-sign"></i> האם יש תשלומים נוספים, פרט לתשלום על הנסיעה?</div>
+                <div class="answer collapse" id="answer4">לא. אתם משלמים אך ורק על הנסיעות שלכם.
+                    <br>לא נסעתם, לא שילמתם.
+                </div>
+            </div>
+
+            <div class="qa">
+                <div class="question collapsed" data-toggle="collapse" href="#answer5"><i class="icon-question-sign"></i> איך זה עובד?</div>
+                <div class="answer collapse" id="answer5">WAYbetter פיתחה אלגוריתם חכם היודע למצוא במהירות נוסעים בעלי מסלול חופף, תוך התחשבות בפרמטרים של מחיר מינימלי, רמת שירות מעולה, מצב התנועה בעיר ועוד.
+                    <br>בזכות הטכנולוגיה המתקדמת אתם לא צריכים לעשות דבר, רק להזמין, ולנסוע. ללא דאגות.
+                </div>
+            </div>
+
+            <div class="qa">
+                <div class="question collapsed" data-toggle="collapse" href="#answer7"><i class="icon-question-sign"></i> איך משלמים עבור הנסיעות?</div>
+                <div class="answer collapse" id="answer7">כחלק מתפיסת השירות שלנו, אנו מאמינים שההתעסקות עם כסף מזומן, עודף, ואיסוף קבלות פוגעות בחווית השירות. אנו רוצים לספק חוויה בה אתם עולים ויורדים מן המונית באופן חופשי, מבלי להתעסק בכל אלה. לכן, אנו מאפשרים לשלם עבור כל הנסיעות באופן אוטומטי בחשבון הקשור בכרטיס אשראי. אחת לחודש נשלח אליכם במייל חשבונית אחת מפורטת הכוללת את הנסיעות שביצעתם במהלך החודש האחרון.</div>
+            </div>
+
+            <div class="qa">
+                <div class="question collapsed" data-toggle="collapse" href="#answer8"><i class="icon-question-sign"></i> האם ניתן לבטל נסיעות?</div>
+                <div class="answer collapse" id="answer8">כן, נסיעות המוזמנות מראש ניתנות לביטול עד לכחצי שעה לפני זמן האיסוף. נסיעות אשר יבוטלו עד לזמן זה לא יחוייבו כלל.</div>
+            </div>
+
+            <div class="qa">
+                <div class="question collapsed" data-toggle="collapse" href="#answer9"><i class="icon-question-sign"></i> הזמנתי נסיעה, והמונית לא הגיעה. מה עלי לעשות?</div>
+                <div class="answer collapse" id="answer9">אנו עושים כל מאמץ כדי לספק לכל הצדדים המעורבים את האפשרות להתמודד עם מצבים כאלה. בהודעת התזכורת לנסיעה אנו מצרפים את פרטי תחנת המוניות ובאתר תמצא את פרטינו, כולל מספר הטלפון שלנו. אל תהססו להשתמש במידע זה, צרו קשר ונדאג לשרתך.
+                    <br>במקרה והנסיעה לא יצאה לפועל בכל זאת: סמנו נסיעה זו ברשימת "הנסיעות שלי" ואנו נערוך בירור אל מול כל הגורמים הרלוונטיים, ובהתאם נזכה את חשבונך.</div>
+            </div>
+
+            <div class="qa">
+                <div class="question collapsed" data-toggle="collapse" href="#answer10"><i class="icon-question-sign"></i> כמה זמן מראש צריך להזמין את הנסיעה?</div>
+                <div class="answer collapse" id="answer10">ניתן להזמין נסיעה מיידית ואז זמן שליחת המונית מהתחנה הוא שייקבע את שעת האיסוף.
+                    <br><strong>עם זאת...</strong> על מנת למקסם את הסיכויים לשתף את הנסיעה מומלץ להזמין מראש, כך יותר אנשים יראו כי אתם נוסעים וישמחו להצטרף אליכם ולחסוך כסף.
+                </div>
+            </div>
         </div>
     </div>
 {% endblock %}

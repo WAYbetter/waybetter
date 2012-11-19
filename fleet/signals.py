@@ -10,6 +10,7 @@ from django.utils.translation import gettext_noop as _
 from fleet.models import FleetManagerRideStatus
 from django.conf import settings
 
+
 class SignalType(Enum):
     TAXIRIDE_POSITION_CHANGED   = 1
     RIDE_STATUS_CHANGED         = 2
@@ -27,13 +28,21 @@ def log_fmr_update(sender, signal_type, **kwargs):
     _log_fleet_update(json)
 
 @receive_signal(fmr_update_signal)
-def notify_passenger(sender, signal_type, **kwargs):
-    from ordering.models import Order
+def handle_assign_to_taxi(sender, signal_type, **kwargs):
+    from ordering.models import BaseRide, PickMeAppRide
+    from sharing.station_controller import update_ride
+
     fmr = kwargs["fmr"]
     if fmr.status == FleetManagerRideStatus.ASSIGNED_TO_TAXI:
+
         logging.info("ASSIGNED_TO_TAXI received: notifying passengers: %s" % fmr.id)
-        order = Order.by_id(fmr.id)
-        deferred.defer(do_notify_passenger, order, _countdown=40) # wait 40 seconds and then notify passengers
+        ride = BaseRide.by_uuid(fmr.id)
+
+        if fmr.taxi_id and fmr.taxi_id != ride.taxi_number:
+            ride.update(taxi_number=fmr.taxi_id)
+
+            if isinstance(ride, PickMeAppRide): # PickmeAppRide: send via SMS
+                deferred.defer(do_notify_passenger, ride.order, _countdown=40) # wait 40 seconds and then notify passengers
 
 def do_notify_passenger(order):
     from ordering.util import send_msg_to_passenger

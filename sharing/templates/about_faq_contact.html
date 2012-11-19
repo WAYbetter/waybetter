@@ -1,0 +1,163 @@
+{% extends "wb_base_site.html" %}
+{% load i18n %}
+{% load value_from_settings %}
+
+{% block bodyclass %}about-faq-contact{% endblock %}
+{% block bodyattr %}data-spy="scroll" data-target=".bs-docs-sidebar"{% endblock %}
+
+{% block header %}{% endblock %}
+
+{% block content %}
+    <div id="content" ng-app="AboutPageApp" ng-cloak>
+        <div class="container">
+            <div class="row">
+                <div class="span4 bs-docs-sidebar">
+                    <ul class="nav nav-list bs-docs-sidenav span3" data-spy="affix" data-offset-top="200">
+                        <li class="active"><a href="#howitworks"><i class="icon-chevron-right"></i> {% trans "How it Works" %}?</a>
+                        </li>
+                        <li><a href="#faq"><i class="icon-chevron-right"></i> {% trans "FAQ" %}</a></li>
+                        <li><a href="#contact"><i class="icon-chevron-right"></i> צרו קשר</a></li>
+                    </ul>
+                </div>
+
+                <div class="span8">
+                    <div></div>
+
+                    <section id="howitworks" ng-controller="HowItWorksCtrl">
+                        <h1 class="header">{% trans "How it Works" %}?</h1>
+                        <hr class="dashed">
+
+                        <p class="main-content">
+                            <strong>פשוט מאוד: כנסו לאפליקציית הסמארטפון או לאתר וקבעו מאיפה, לאיפה ומתי אתם רוצים לנסוע.</strong> המערכת תאתר ותציע מוניות שנוסעות או צפויות לנסוע במסלול המתאים, תציג לכם את הנוסעים בהן ותאפשר לכם לבחור לאיזו נסיעה להצטרף.
+                        </p>
+                        <p class="main-content">
+                            <strong>תמיד תוכלו גם לפתוח נסיעה חדשה משלכם</strong> - משותפת וחסכונית או פרטית במחיר מלא כרצונכם. התשלום מבוצע באשראי ישירות דרך חשבונכם כך שאין צורך להתווכח עם הנהג על המחיר או לחפש כסף קטן... פשוט מזמינים, עולים, נוסעים ומגיעים.
+                        </p>
+
+                        <ul id="features">
+                            <li class="item"  ng-repeat="item in features">
+                                <div class="icon"><i class="(( item.icon_name ))"></i></div>
+                                <div class="text">
+                                    <div class="title">(( item.title ))</div>
+                                    (( item.content ))
+                                </div>
+                            </li>
+                        </ul>
+
+                        <h1 class="header">למה בכלל?</h1>
+                        <p class="main-content">
+                            החזון שלנו הוא להשתמש בטכנולוגיות חדשות כדי להביא את עולם התחבורה הציבורית אל המאה ה-21. להפוך אותו למתקדם יותר, חברתי, ידידותי לסביבה והגיוני למשתמש. אנחנו מאמינים שעם הטכנולוגיות הזמינות כיום, התחבורה  הציבורית יכולה וחייבת להתאים את עצמה אליכם ולא להפך. להיות נוחה יותר, גמישה, מדויקת, יעילה, חכמה, ובעיקר חסכונית. המשימה שלנו היא לפתח מוצרים ושירותים מגוונים שיגרמו לזה לקרות.
+                        </p>
+                    </section>
+
+                    <section id="faq">
+                        <h1 class="header">{% trans "Frequently Asked Questions" %}</h1>
+                        <hr class="dashed">
+
+                        <div class="qa">
+                            <div class="question collapsed" data-toggle="collapse" href="#answer1"><i class="icon-question-sign"></i> מה זה WAYbetter?</div>
+                            <div class="answer collapse" id="answer1">WAYbetter זו פלטפורמה חכמה להזמנת מוניות ספיישל משותפות המאפשרת גם ליהנות מחוויית הזמנה ונסיעה טובה יותר, וגם לחסוך כסף בכל נסיעה הודות לשיתוף עם נוסעים אחרים.</div>
+                        </div>
+
+                        <div class="qa">
+                            <div class="question collapsed" data-toggle="collapse" href="#answer2"><i class="icon-question-sign"></i> איך מזמינים נסיעה משותפת?</div>
+                            <div class="answer collapse" id="answer2">
+                                פשוט מאוד.
+                                <ol>
+                                    <li>מזינים את מסלול הנסיעה הרצוי (מוצא, יעד, וזמן האיסוף המועדף)</li>
+                                    <li>מקבלים רשימת מוניות אליהן ניתן להצטרף ובוחרים מונית מועדפת (על פי שעת האיסוף, המחיר ומסלול השיתוף).<br>
+                                        בנוסף, ניתן להזמין מונית חדשה ובכך לאפשר לנוסעים אחרים להצטרף אליכם.
+                                    </li>
+                                    <li>זהו, ההזמנה הסתיימה. הנסיעה הוזמנה.</li>
+                                </ol>
+                                כמה דקות לפני הגעת המונית אליכם תקבלו הודעת תזכורת, תוכלו לעקוב בזמן אמת אחרי מיקום המונית על גבי המפה באפליקציה ולראות את המסלול המשותף שבנינו בשבילכם.
+                            </div>
+                        </div>
+
+                        <div class="qa">
+                            <div class="question collapsed" data-toggle="collapse" href="#answer3"><i class="icon-question-sign"></i> כמה זה יעלה לי?</div>
+                            <div class="answer collapse" id="answer3">ב-WAYbetter המחיר ידוע מראש ונקבע על פי המחירונים הקבועים של תחנות המוניות באיזורכם.<br>
+                                בעת ההזמנה תוכלו לראות את המחיר, ובמידה ויצטרף נוסע נוסף למונית או שהמערכת תמצא מונית טובה יותר עבורכם, המחיר יירד ואתם תקבלו הודעה שחסכתם כסף!<br>
+                                בכל מקרה, המחיר לעולם לא יעלה. בהתחייבות!<br>
+                            </div>
+                        </div>
+
+                        <div class="qa">
+                            <div class="question collapsed" data-toggle="collapse" href="#answer4"><i class="icon-question-sign"></i> האם יש תשלומים נוספים, פרט לתשלום על הנסיעה?</div>
+                            <div class="answer collapse" id="answer4">לא. אתם משלמים אך ורק על הנסיעות שלכם.
+                                <br>לא נסעתם, לא שילמתם.
+                            </div>
+                        </div>
+
+                        <div class="qa">
+                            <div class="question collapsed" data-toggle="collapse" href="#answer5"><i class="icon-question-sign"></i> איך זה עובד?</div>
+                            <div class="answer collapse" id="answer5">WAYbetter פיתחה אלגוריתם חכם היודע למצוא במהירות נוסעים בעלי מסלול חופף, תוך התחשבות בפרמטרים של מחיר מינימלי, רמת שירות מעולה, מצב התנועה בעיר ועוד.
+                                <br>בזכות הטכנולוגיה המתקדמת אתם לא צריכים לעשות דבר, רק להזמין, ולנסוע. ללא דאגות.
+                            </div>
+                        </div>
+
+                        <div class="qa">
+                            <div class="question collapsed" data-toggle="collapse" href="#answer7"><i class="icon-question-sign"></i> איך משלמים עבור הנסיעות?</div>
+                            <div class="answer collapse" id="answer7">כחלק מתפיסת השירות שלנו, אנו מאמינים שההתעסקות עם כסף מזומן, עודף, ואיסוף קבלות פוגעת בחוויית השירות. אנו רוצים לספק חוויה בה אתם עולים ויורדים מן המונית באופן חופשי, מבלי להתעסק בכל אלה. לכן, אנו מאפשרים לשלם עבור כל הנסיעות באופן אוטומטי בחשבון הקשור בכרטיס אשראי. אחת לחודש נשלח אליכם במייל חשבונית אחת מפורטת הכוללת את הנסיעות שביצעתם במהלך החודש האחרון.</div>
+                        </div>
+
+                        <div class="qa">
+                            <div class="question collapsed" data-toggle="collapse" href="#answer8"><i class="icon-question-sign"></i> האם ניתן לבטל נסיעות?</div>
+                            <div class="answer collapse" id="answer8">כן, באפשרותכם לבטל נסיעות שהזמנתם עד לכעשרים דקות לפני זמן האיסוף ולא תחויבו כלל.</div>
+                        </div>
+
+                        <div class="qa">
+                            <div class="question collapsed" data-toggle="collapse" href="#answer9"><i class="icon-question-sign"></i> הזמנתי נסיעה, והמונית לא הגיעה. מה עלי לעשות?</div>
+                            <div class="answer collapse" id="answer9">אנו עושים כל מאמץ כדי לספק לכל הצדדים המעורבים את האפשרות להתמודד עם מצבים כאלה. בהודעת התזכורת לנסיעה אנו מצרפים את פרטי תחנת המוניות ובאתר תמצאו את פרטינו, כולל מספר הטלפון שלנו. אל תהססו להשתמש במידע זה, צרו קשר ונדאג לשרתכם.
+                            <br>במקרה והנסיעה לא יצאה לפועל בכל זאת: סמנו נסיעה זו ברשימת "הנסיעות שלי" ואנו נערוך בירור אל מול כל הגורמים הרלוונטיים, ובהתאם נזכה את חשבונכם.</div>
+                        </div>
+
+                        <div class="qa">
+                            <div class="question collapsed" data-toggle="collapse" href="#answer10"><i class="icon-question-sign"></i> כמה זמן מראש צריך להזמין את הנסיעה?</div>
+                            <div class="answer collapse" id="answer10">ניתן להזמין נסיעה מיידית ואז זמן שליחת המונית מהתחנה הוא שייקבע את שעת האיסוף.
+                                <br><strong>עם זאת...</strong> על מנת למקסם את הסיכויים לשתף את הנסיעה מומלץ להזמין מראש, כך יותר אנשים יראו כי אתם נוסעים וישמחו להצטרף אליכם ולחסוך כסף.
+                            </div>
+                        </div>
+
+                    </section>
+
+                    <section id="contact">
+                        <h1 class="header">צרו קשר</h1>
+                        <hr class="dashed">
+
+                        <address>
+                            <strong>תמיכה ושירות לקוחות</strong><br>
+                            אימייל: <a href="mailto:{% value_from_settings SUPPORT_EMAIL %}">{% value_from_settings SUPPORT_EMAIL %}</a><br>
+                            טלפון: {% value_from_settings CONTACT_PHONE %}
+                        </address>
+                    </section>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        var app = angular.module("AboutPageApp", []);
+        app.config(function ($interpolateProvider) {
+            $interpolateProvider.startSymbol('((');
+            $interpolateProvider.endSymbol('))');
+        });
+        app.controller("HowItWorksCtrl", function ($scope) {
+            $scope.features = [
+                {'title': 'משתלם', 'content': 'במקום לשלם על מקומות ריקים, ממלאים יחד מונית ומתחלקים במחיר.', 'icon_name': 'icon-hand-left'},
+                {'title': 'יעיל', 'content': 'מזמינים בקלות דרך אפליקציית הסמאטרפון או האתר ונוסעים "מדלת לדלת".', 'icon_name': 'icon-magic'},
+                {'title': 'מסודר', 'content': 'בלי חכמות בלי הפתעות, אתם יודעים מראש כמה תשלמו והמחיר יכול רק לרדת.', 'icon_name': 'wb-icon-checkboard'},
+                {'title': 'נוח', 'content': 'בלי להתעסק עם מזומן, מחיר ותשלום במונית: פשוט עולים, נוסעים ויורדים.', 'icon_name': 'wb-icon-heart'},
+                {'title': 'מהיר', 'content': 'מוצאים בשניות מונית מתאימה וזמינה מתוך מאגר ענק שמתעדכן בזמן אמת.', 'icon_name': 'wb-icon-bunny'},
+                {'title': 'חברתי', 'content': 'יחד חוסכים יותר ומשיגים יותר. טוב לכולם: לנוסעים, לנהגים ולסביבה.', 'icon_name': 'wb-icon-fish'},
+                {'title': 'ירוק', 'content': 'פחות מוניות חצי ריקות, פחות פקקים ורעש, פחות זיהום אוויר ופחות בזבוז דלק.', 'icon_name': 'wb-icon-tree'},
+                {'title': 'מהנה', 'content': 'לקשקש עם הנהג זה נחמד אבל להכיר אנשים חדשים במונית זה פשוט כיף.', 'icon_name': 'wb-icon-matka'}
+            ];
+
+            document.getElementById("howitworks").scrollIntoView(true);
+        });
+    </script>
+{% endblock %}

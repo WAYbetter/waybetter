@@ -1,0 +1,84 @@
+@font-face {
+    font-family: 'FontWAYbetter';
+    src: url('fonts/font-waybetter.eot');
+    src: url('fonts/font-waybetter.eot?#iefix') format('embedded-opentype'),
+         url('fonts/font-waybetter.woff') format('woff'),
+         url('fonts/font-waybetter.ttf') format('truetype');
+    font-weight: normal;
+    font-style: normal;
+}
+
+[class^="wb-icon-"],
+[class*=" wb-icon-"] {
+    font-size: 26px;
+    background-image: none;
+    vertical-align: middle;
+    width:auto;
+}
+[class^="wb-icon-"]:before,
+[class*=" wb-icon-"]:before {
+  font-family: FontWAYbetter;
+  font-weight: normal;
+  font-style: normal;
+  display: inline-block;
+  text-decoration: inherit;
+  vertical-align: top;
+}
+
+a [class^="wb-icon-"],
+a [class*=" wb-icon-"] {
+  display: inline-block;
+  text-decoration: inherit;
+}
+/* makes the font 33% larger relative to the icon container */
+.wb-icon-large:before {
+  vertical-align: middle;
+  font-size: 1.3333333333333333em;
+}
+.btn [class^="wb-icon-"],
+.nav-tabs [class^="wb-icon-"],
+.btn [class*=" wb-icon-"],
+.nav-tabs [class*=" wb-icon-"] {
+  /* keeps button heights with and without icons the same */
+
+  line-height: .9em;
+}
+li [class^="wb-icon-"],
+li [class*=" wb-icon-"] {
+  display: inline-block;
+  width: 1.25em;
+  text-align: center;
+}
+li .wb-icon-large:before,
+li .wb-icon-large:before {
+  /* 1.5 increased font size for wb-icon-large * 1.25 width */
+
+  width: 1.875em;
+}
+ul.icons {
+  list-style-type: none;
+  margin-left: 2em;
+  text-indent: -0.8em;
+}
+ul.icons li [class^="wb-icon-"],
+ul.icons li [class*=" wb-icon-"] {
+  width: .8em;
+}
+ul.icons li .wb-icon-large:before,
+ul.icons li .wb-icon-large:before {
+  /* 1.5 increased font size for wb-icon-large * 1.25 width */
+
+  vertical-align: initial;
+}
+
+.wb-icon-taxi:before { content: "a"; }
+.wb-icon-android:before { content: "b"; }
+.wb-icon-apple:before { content: "c"; }
+.wb-icon-plane:before { content: "d"; }
+.wb-icon-checkboard:before { content: "e"; }
+.wb-icon-fish:before { content: "f"; }
+.wb-icon-tree:before { content: "g"; }
+.wb-icon-matka:before { content: "h"; }
+.wb-icon-bunny:before { content: "i"; }
+.wb-icon-heart:before { content: "j"; }
+.wb-icon-bulb:before { content: "k"; }

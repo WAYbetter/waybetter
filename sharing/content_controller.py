@@ -1,27 +1,17 @@
 # This Python file uses the following encoding: utf-8
 from django.shortcuts import render_to_response
+from django.template.loader import get_template
 from common.decorators import force_lang
 from common.models import City
-from django.template.context import RequestContext
+from django.template.context import RequestContext, Context
 from common.util import custom_render_to_response
-from django.utils import simplejson
+from django.http import HttpResponse
 from djangotoolbox.http import JSONResponse
-from ordering.models import OrderType, StationFixedPriceRule
+from ordering.decorators import passenger_required
 
-def info(request):
-    return custom_render_to_response("wb_info.html", locals(), context_instance=RequestContext(request))
-
-def the_service(request):
-    page_name = page_specific_class = "the_service"
-    return custom_render_to_response("the_service.html", locals(), context_instance=RequestContext(request))
-
-def about_us(request):
-    page_name = page_specific_class = "about_us"
-    return custom_render_to_response("about_us.html", locals(), context_instance=RequestContext(request))
-
-def contact(request):
-    page_name = page_specific_class = "contact"
-    return custom_render_to_response("contact.html", locals(), context_instance=RequestContext(request))
+def about(request):
+    lib_ng = True
+    return custom_render_to_response("about_faq_contact.html", locals(), context_instance=RequestContext(request))
 
 @force_lang("he") # for now show this page only in hebrew
 def privacy(request):
@@ -33,14 +23,10 @@ def terms(request):
     page_name = page_specific_class = "terms"
     return custom_render_to_response("terms_of_service.html", locals(), context_instance=RequestContext(request))
 
-def faq(request):
-    page_name = page_specific_class = "faq"
-    return custom_render_to_response("faq.html", locals(), context_instance=RequestContext(request))
-
-def my_rides(request):
-    page_name = page_specific_class = "my_rides"
-    order_types = simplejson.dumps({'private': OrderType.PRIVATE,
-                                    'shared': OrderType.SHARED})
+@passenger_required
+def my_rides(request, passenger):
+    lib_ng = True
+    passenger_picture_url = passenger.picture_url
 
     return custom_render_to_response("my_rides.html", locals(), context_instance=RequestContext(request))
 
@@ -67,4 +53,6 @@ def get_sharing_cities_data():
     return [{'id': city.id, 'name': city.name} for city in cities]
 
 def welcome_email(request):
-    return render_to_response("welcome_email.html")
+    t = get_template("welcome_email.html")
+    context = Context({'passenger_name': u"שי"})
+    return HttpResponse(t.render(context))

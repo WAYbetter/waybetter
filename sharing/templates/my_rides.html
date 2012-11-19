@@ -1,64 +1,173 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
+{% load value_from_settings %}
 
-{% block top_left %}{% trans "My Account" %}{% endblock %}
-{% block top_right %}
-    <ul class="content_links">
-        <li><a id="li_my_rides" href="{% url my_rides %}">{% trans "My Rides" %}</a></li>
-        <li><a id="li_my_profile" href="{% url user_profile %}">{% trans "My Profile" %}</a></li>
-        <li><a id="li_logout" href="{% url auth_logout %}">{% trans "Log Out" %}</a></li>
-    </ul>
+{% block bodyclass %} my-rides-page {% endblock %}
+{% block headertext %}
+    {% trans "My Rides" %}
 {% endblock %}
 
 {% block content %}
-    <div id="next_rides_container" class="hidden">
-        <div class="header"></div>
-        <table id="next_rides" class="myrides-table">
-            {% include "myrides_table.html" %}
-        </table>
+    <div id="content" ng-app="MyRidesApp">
+        <div class="container" ng-controller="MyRidesCtrl" ng-init='init()' ng-cloak>
+
+            <!-- Confirmation Modal -->
+            <div id="cancel-confirm-modal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                    <h3 id="myModalLabel">{% trans "Really cancel order?" %}</h3>
+                </div>
+                <div class="modal-body">
+                    <p>{% trans "You will not be charged" %}</p>
+                </div>
+                <div class="modal-footer">
+                    <div class="modal-buttons">
+                        <button class="btn" data-dismiss="modal" aria-hidden="true" ng-disabled="loading_cancel">{% trans "No" %}</button>
+                        <button class="btn btn-primary" ng-click="do_cancel_ride(selected_ride)" ng-disabled="loading_cancel">{% trans "Yes, Cancel it" %}</button>
+                        <div class="progress progress-striped active" ng-show="loading_cancel">
+                            <div class="bar" style="width: 100%;"></div>
+                        </div>
+                    </div>
+                    <div class="alert alert-error pagination-centered" ng-show="error_cancel">(( error_cancel ))</div>
+                </div>
+            </div>
+
+
+            <div class="row-fluid">
+                <div class="span3"></div>
+
+                <div class="span9">
+
+                    <!-- Next Rides -->
+                    <div class="wb-container rides-container" ng-class="{'blur': selected_ride}">
+                        <div class="rides-cat">
+                            <div class="rides-cat-header">נסיעות עתידיות</div>
+                            <div class="alert alert-error" ng-show="error_next">(( error_next ))</div>
+                            <div class="progress progress-striped active" ng-show="loading_next && !error_next"> <div class="bar" style="width: 100%;"></div></div>
+
+                            <div class="no-match" ng-show="next_rides.length == 0 && !loading_next" ng-class="{'disabled': selected_ride}">
+                                {% trans "No Rides" %}
+                            </div>
+                            <div class="ride-list" ng-repeat="ride in next_rides | orderBy:'pickup_time'">
+                                <my-ride ng-click="select_ride(ride)" ng-class="{'focus': selected_ride == ride, 'private': ride.is_private, 'shared': !ride.is_private}"></my-ride>
+                                <my-ride-action action="cancel" ng-show="selected_ride == ride" ng-class="{'focus': selected_ride == ride}"></my-ride-action>
+                                <ride-sep></ride-sep>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Previous Rides -->
+                    <div class="wb-container rides-container" ng-class="{'blur': selected_ride}">
+                        <div class="rides-cat">
+                            <div class="rides-cat-header">{% trans "Previous Rides" %}</div>
+                            <div class="alert alert-error" ng-show="error_previous">(( error_previous ))</div>
+                            <div class="progress progress-striped active" ng-show="loading_previous && !error_previous"> <div class="bar" style="width: 100%;"></div></div>
+
+                            <div class="no-match" ng-show="previous_rides.length == 0 && !loading_previous"
+                                 ng-class="{'disabled': selected_ride}">
+                                {% trans "No Rides" %}
+                            </div>
+                            <div class="ride-list" ng-repeat="ride in previous_rides | orderBy:'pickup_time'">
+                                <my-ride ng-click="select_ride(ride)" ng-class="{'focus': selected_ride == ride, 'private': ride.is_private, 'shared': !ride.is_private}"></my-ride>
+                                <my-ride-action action="report" ng-show="selected_ride == ride" ng-class="{'focus': selected_ride == ride}"></my-ride-action>
+                                <ride-sep></ride-sep>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+        </div>
     </div>
 
-    <div id="previous_rides_container" class="hidden">
-        <div class="header"></div>
-        <table id="previous_rides" class="myrides-table">
-            {% include "myrides_table.html" %}
-        </table>
-    </div>
-
-    <div id="myrides_tooltip" class="hidden">
-        {% include "myrides_tooltips.html" %}
-    </div>
 {% endblock %}
 
-{% block doc_ready %}
+{% block scripts %}
     {{ block.super }}
+    <script type="text/javascript" src="/static/js/wb-ng/defaults.js"></script>
+    <script type="text/javascript" src="/static/js/wb-ng/directives.js"></script>
+    <script type="text/javascript" src="/static/js/wb-ng/services.js"></script>
+
     <script type="text/javascript">
-        $(function() {
-            var page_name = "{{ page_name }}";
-            $("#li_" + page_name).addClass("active");
+        var app = angular.module('MyRidesApp', ['wbServices', 'wbDirectives']);
+
+        app.config(function ($interpolateProvider) {
+            $interpolateProvider.startSymbol('((');
+            $interpolateProvider.endSymbol('))');
         });
+        app.controller('MyRidesCtrl', ['$scope', 'HttpService', 'BookingService', 'DefaultMessages', function($scope, HttpService, BookingService, DefaultMessages) {
 
-        {% autoescape off %}
-            var order_types = {{ order_types }};
-        {% endautoescape%}
+            function toggle_cancel_confirm(show){
+                if (show){
+                    $scope.error_cancel = undefined;
+                    $('#cancel-confirm-modal').modal('show');
+                } else {
+                    $('#cancel-confirm-modal').modal('hide');
+                }
+            }
 
-        MyRidesHelper.init({
-            {% if LANGUAGE_BIDI %}
-                rtl: true,
-            {% endif %}
-            order_types: order_types,
-            next_rides_table: "#next_rides",
-            next_rides_container: "#next_rides_container",
-            previous_rides_table: "#previous_rides"
-        });
+            $scope.init = function () {
+                $scope.loading_next = true;
+                $scope.loading_previous = true;
+                $scope.loading_cancel = false;
 
-        MyRidesHelper.getData({'get_next_rides': true, 'get_previous_rides': true}, {
-                    success: function(has_next, has_previous) {
-                        $("#next_rides_container .header").text((has_next) ? "{% trans "Next Rides" %}" : "{% trans "No Next Rides" %}");
-                        $("#previous_rides_container .header").text((has_previous) ? "{% trans "Previous Rides" %}" : "{% trans "No Previous Rides" %}");
+                $scope.error_next = undefined;
+                $scope.error_previous = undefined;
+                $scope.error_cancel = undefined;
 
-                        $("#previous_rides_container, #next_rides_container").fadeIn("fast");
-                    }
-                });
+                $scope.selected_ride = undefined;
+                $scope.next_rides = [];
+                $scope.previous_rides = [];
+
+                $scope.logged_in = true; // there should always be a logged-in passenger when this page is displayed
+                $scope.passenger_picture_url = "{{ passenger_picture_url }}";
+
+                HttpService.http_get("{% url ordering.ordering_controller.get_next_rides %}")
+                        .success( function (data) {
+                            $scope.next_rides = data;
+                            $scope.loading_next = false;
+                        }).error(function () {
+                            $scope.error_next = DefaultMessages.connection_error;
+                        });
+
+                HttpService.http_get("{% url ordering.ordering_controller.get_previous_rides %}")
+                        .success( function (data) {
+                            $scope.previous_rides = data;
+                            $scope.loading_previous = false;
+                        }).error(function () {
+                            $scope.error_previous = DefaultMessages.connection_error;
+                        });
+            };
+
+            $scope.select_ride = function(ride){
+                if ($scope.selected_ride == ride){
+                    $scope.selected_ride = undefined;
+                } else {
+                    $scope.selected_ride = ride;
+                }
+            };
+
+            $scope.cancel_ride = function(ride){
+                toggle_cancel_confirm(true);
+            };
+
+            $scope.do_cancel_ride = function(ride){
+                $scope.loading_cancel = true;
+
+                BookingService.cancel_order(ride.order_id).then(function () {
+                        $scope.loading_cancel = false;
+                        toggle_cancel_confirm(false);
+                        $scope.init();
+                },
+                    function () {
+                        $scope.loading_cancel = false;
+                        $scope.error_cancel = DefaultMessages.connection_error;
+                })
+            };
+
+            $scope.report_ride = function(ride){
+                window.open("mailto:{% value_from_settings SUPPORT_EMAIL %}?subject={% trans "Report Order #" %}" + ride.order_id, "_blank");
+            };
+        }]);
     </script>
 {% endblock %}

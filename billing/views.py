@@ -25,7 +25,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, passenger_required
-from ordering.models import SharedRide, COMPLETED, ACCEPTED, CURRENT_ORDER_KEY
+from ordering.models import SharedRide, COMPLETED, ACCEPTED, CURRENT_ORDER_KEY, CURRENT_BOOKING_DATA_KEY
 
 class InvoiceActions(Enum):
     CREATE_ID	= 0
@@ -44,14 +44,28 @@ def bill_passenger(request):
 @catch_view_exceptions
 @internal_task_on_queue("orders")
 @require_parameters(method="POST",
-                    required_params=("token", "amount", "card_expiration", "billing_transaction_id", "action"))
-def billing_task(request, token, amount, card_expiration, billing_transaction_id, action):
+                    required_params=("token", "card_expiration", "billing_transaction_id", "action"))
+def billing_task(request, token, card_expiration, billing_transaction_id, action):
     logging.info("billing task: transaction_id=%s" % billing_transaction_id)
     action = int(action)
+
+    # update billing transaction amount
+    billing_transaction = BillingTransaction.by_id(billing_transaction_id)
+    billing_transaction.amount = billing_transaction.order.get_billing_amount()
+    if billing_transaction.dirty_fields:
+        logging.info("billing_task [%s]: updating billing transaction amount: %s --> %s" % (BillingAction.get_name(action), billing_transaction.dirty_fields.get("amount"), billing_transaction.amount))
+        billing_transaction.save()
+
+    callback_args = request.POST.get("callback_args")
+    if callback_args:
+        callback_args = pickle.loads(callback_args.encode("utf-8"))
+
+    amount = billing_transaction.amount_in_cents
+
     if action == BillingAction.COMMIT:
-        return billing_backend.do_J5(token, amount, card_expiration, billing_transaction_id)
+        return billing_backend.do_J5(token, amount, card_expiration, billing_transaction, callback_args=callback_args)
     elif action == BillingAction.CHARGE:
-        return billing_backend.do_J4(token, amount, card_expiration, billing_transaction_id)
+        return billing_backend.do_J4(token, amount, card_expiration, billing_transaction)
     else:
         raise InvalidOperationError("Unknown action for billing: %s" % action)
 
@@ -77,17 +91,11 @@ def transaction_ok(request, passenger):
     billing_info = BillingInfo(**kwargs)
     billing_info.save()
 
-    order = request.session.get(CURRENT_ORDER_KEY)
-    logging.info("order = %s" % order)
-    if order:
-        order = order.fresh_copy() # update the order
-        logging.info("order.passenger = %s" % order.passenger)
-        if order.price and order.passenger == passenger:
-            logging.info("Billing order: %s" % order)
-            # redirect to bill order
-            return HttpResponseRedirect(get_billing_redirect_url(request, order, passenger))
-        
-    return HttpResponseRedirect(reverse("wb_home"))
+    if request.session.get(CURRENT_BOOKING_DATA_KEY):
+        logging.info("redirect /booking/continued after billing registration: %s" % passenger)
+        return HttpResponseRedirect(reverse("booking_continued"))
+    else:
+        return HttpResponseRedirect(reverse("wb_home"))
 
 
 @passenger_required

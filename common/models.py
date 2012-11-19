@@ -27,17 +27,42 @@ def obj_by_attr(cls, attr_name, attr_val, safe=True):
     return obj
 
 class BaseModel(models.Model):
-    create_date = UTCDateTimeField(_("create date"), auto_now_add=True, null=True, blank=True)
-    modify_date = UTCDateTimeField(_("modify date"), auto_now=True, null=True, blank=True)
-
     """
     Adds common methods to our models
     """
+    locked      = models.BooleanField(default=False, editable=False)
+    create_date = UTCDateTimeField(_("create date"), auto_now_add=True, null=True, blank=True)
+    modify_date = UTCDateTimeField(_("modify date"), auto_now=True, null=True, blank=True)
+
     class Meta:
         abstract = True
 
+    def __init__(self, *args, **kwargs):
+        super(BaseModel, self).__init__(*args, **kwargs)
+        self._original_state = self._as_dict()
+
+    def _as_dict(self):
+        return dict([(f.name, getattr(self, f.name)) for f in self._meta.local_fields if not f.rel])
+
+    @property
+    def dirty_fields(self):
+        new_state = self._as_dict()
+        return dict([(key, value) for key, value in self._original_state.iteritems() if value != new_state[key]])
+
     def fresh_copy(self):
         return type(self).by_id(self.id)
+
+    def update(self, **kwargs):
+        """
+        Update only the given properties of this entity on a fresh copy to avoid overwriting with stale values
+        @param kwargs:
+        """
+        fresh = self.fresh_copy()
+        for prop_name, val in kwargs.items():
+            setattr(fresh, prop_name, val)
+            setattr(self, prop_name, val)
+
+        fresh.save()
 
     @classmethod
     def by_id(cls, id, safe=True):
@@ -57,6 +82,12 @@ class BaseModel(models.Model):
             return cls.objects.all()[0]
         except:
             return None
+
+    def lock(self):
+        return self._change_attr_in_transaction('locked', False, True)
+
+    def unlock(self):
+        return self._change_attr_in_transaction('locked', new_value=False)
 
     @run_in_transaction
     def _change_attr_in_transaction(self, attname, old_value=None, new_value=None, safe=True):
@@ -85,6 +116,7 @@ class BaseModel(models.Model):
             do_att_change = True
 
         if do_att_change:
+#            self.update(**{attname:new_value})
             setattr(self, attname, new_value)
             self.save()
             logging.info("%s[%s] : updated %s in transaction (%s --> %s)" % (self.__class__.__name__, self.id, attname, str(current_value), str(new_value)))

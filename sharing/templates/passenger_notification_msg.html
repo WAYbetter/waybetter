@@ -1,5 +1,2 @@
-{% load i18n %}
-{% autoescape off %}{% trans "Taxi is on the way!" %}{% if shared %} *{% trans "shared" %}*{% endif %}
-{% for order in orders_data %}{% trans "_pickupat" %}{{ order.pickup_time }} {{ order.pickup_address }}{% endfor %}{% endautoescape %}
-{{ station_name }} {{ contact_phone }}
-*{% trans "Tell the driver you’re with WAYbetter and the paper is at the station" %}*
+{% load i18n %}{% autoescape off %}{% trans "Taxi is on the way!" %} {% trans "_pickupat" %}- {{ pickup_time }}, {% trans 'You can view your taxi location in our app' %}{% endautoescape %}
+*{% if taxi_number %}{% trans "taxi" %}- {{ taxi_number }} {% endif %}{% trans "_station" %} {{ station_name }}, {% trans "Tell the driver you’re with WAYbetter and the paper is at the station" %}*

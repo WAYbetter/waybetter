@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 
-from __future__ import absolute_import
+from __future__ import absolute_import # we need absolute imports since ordering contains pricing.py
+import pickle
 from django.core.exceptions import ValidationError
 from django.template.loader import get_template
 from django.template.context import Context
@@ -14,16 +15,18 @@ from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.utils import  translation
 from django.contrib.auth import login
+from common.enums import MobilePlatform
 from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea, CityAreaField, obj_by_attr
 from common.geo_calculations import distance_between_points
-from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64
+from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64, get_uuid
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now, format_dt
 from fleet.models import FleetManager, FleetManagerRideStatus
-from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
+from ordering.enums import RideStatus
+from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal, order_price_changed_signal
 from ordering.errors import UpdateStatusError
-from sharing.signals import ride_status_changed_signal
-from pricing.models import RuleSet
+from sharing.signals import ride_status_changed_signal, ride_updated_signal
+from pricing.models import  RuleSet, TARIFFS
 
 import re
 import time
@@ -31,6 +34,9 @@ import urllib
 import logging
 import datetime
 import common.urllib_adaptor as urllib2
+
+NEW_ORDER_ID = 0
+DISCOUNTED_ORDER_ID = "DISCOUNT"
 
 SHARING_TIME_FACTOR = 1.25
 SHARING_TIME_MINUTES = 10
@@ -60,31 +66,27 @@ CANCELLED = 11
 APPROVED = 12 # J5
 CHARGED = 13 # J4
 
-ASSIGNMENT_STATUS = ((PENDING, ugettext("pending")),
-                     (ASSIGNED, ugettext("assigned")),
-                     (ACCEPTED, ugettext("accepted")),
-                     (IGNORED, ugettext("ignored")),
-                     (REJECTED, ugettext("rejected")),
-                     (NOT_TAKEN, ugettext("not_taken")))
+ASSIGNMENT_STATUS = ((PENDING, _("pending")),
+                     (ASSIGNED, _("assigned")),
+                     (ACCEPTED, _("accepted")),
+                     (IGNORED, _("ignored")),
+                     (REJECTED, _("rejected")),
+                     (NOT_TAKEN, _("not_taken")))
 
-ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED, ugettext("failed")),
-                                    (ERROR, ugettext("error")),
-                                    (TIMED_OUT, ugettext("timed_out")),
-                                    (CANCELLED, ugettext("cancelled")),
-                                    (APPROVED, ugettext("approved")),
-                                    (CHARGED, ugettext("charged")))
+ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED, _("failed")),
+                                    (ERROR, _("error")),
+                                    (TIMED_OUT, _("timed_out")),
+                                    (CANCELLED, _("cancelled")),
+                                    (APPROVED, _("approved")),
+                                    (CHARGED, _("charged")))
 
-RIDE_STATUS = ((PENDING, ugettext("pending")),
-                     (ASSIGNED, ugettext("assigned")),
-                     (COMPLETED, ugettext("completed")),
-                     (ACCEPTED, ugettext("accepted")),
-                     (NOT_TAKEN, ugettext("not_taken")))
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
 MAX_STATION_DISTANCE_KM = 10
 CURRENT_PASSENGER_KEY = "current_passenger"
 CURRENT_ORDER_KEY = "current_order"
+CURRENT_BOOKING_DATA_KEY = "current_booking_data"
 
 class RideComputationStatus(Enum):
     PENDING     = 1
@@ -104,7 +106,7 @@ class OrderType(Enum):
     SHARED        = 2
 
 class Station(BaseModel):
-    user = models.OneToOneField(User, verbose_name=_("user"), related_name="station")
+    user = models.OneToOneField(User, verbose_name=_("user"), related_name="station", editable=False)
     name = models.CharField(_("station name"), max_length=50)
     license_number = models.CharField(_("license number"), max_length=30)
     website_url = models.URLField(_("website"), max_length=255, null=True, blank=True)
@@ -154,6 +156,10 @@ class Station(BaseModel):
     internal_rating = models.FloatField(_("internal rating"), default=0)
 
     stop_price = models.FloatField(_("stop price"), default=0)
+
+    pricing_model_name = models.CharField(_("pricing model name"), null=True, blank=True, max_length=10, editable=True)
+    accept_debug = models.BooleanField(_("Accept debug"), default=False)
+
     payday = models.IntegerField(_("payday"), max_length=2, default=10) # day of month the drivers get paid
 
     page_description = models.CharField(_("page description"), null=True, blank=True, max_length=255)
@@ -391,36 +397,77 @@ class RideComputation(BaseModel):
     def change_status(self, old_status=None, new_status=None, safe=True):
         return self._change_attr_in_transaction("status", old_value=old_status, new_value=new_status, safe=safe)
 
-class Ride(BaseModel):
+class BaseRide(BaseModel):
     class Meta:
         abstract = True
 
     depart_time = UTCDateTimeField(_("depart time"))
     arrive_time = UTCDateTimeField(_("arrive time"))
 
-    status = StatusField(_("status"), choices=RIDE_STATUS, default=PENDING)
+    status = StatusField(_("status"), choices=RideStatus.choices(), default=RideStatus.PENDING)
     debug = models.BooleanField(default=False, editable=False)
+    uuid = models.CharField(max_length=32, null=True, blank=True, default=get_uuid)
+
+    taxi_number = models.CharField(max_length=20, null=True, blank=True)
+
+    _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
+
+    def get_cost_data(self):
+        return pickle.loads(self._cost_data.encode("utf-8"))
+
+    def set_cost_data(self, value):
+        self._cost_data = pickle.dumps(value)
+
+    cost_data = property(fget=get_cost_data, fset=set_cost_data)
+
+    @classmethod
+    def by_uuid(cls, uuid):
+        ride = None
+        try:
+            ride = SharedRide.objects.get(uuid=uuid)
+        except SharedRide.DoesNotExist:
+            try:
+                ride = PickMeAppRide.objects.get(uuid=uuid)
+            except PickMeAppRide.DoesNotExist:
+                pass
+        return ride
+
+    @property
+    def pickup_points(self):
+        pickups = filter(lambda p: p.type == StopType.PICKUP, self.points.all())
+        return sorted(pickups, key=lambda p: p.stop_time)
+
+    @property
+    def dropoff_points(self):
+        dropoffs = filter(lambda p: p.type == StopType.DROPOFF, self.points.all())
+        return sorted(dropoffs, key=lambda p: p.stop_time)
 
     # denormalized fields
     dn_fleet_manager_id = models.IntegerField(blank=True, null=True)
 
-class PickMeAppRide(Ride):
+class PickMeAppRide(BaseRide):
     order = models.OneToOneField('Order', related_name="pickmeapp_ride")
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="pickmeapp_rides", null=True, blank=True)
 
-
-class SharedRide(Ride):
+class SharedRide(BaseRide):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
     driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
 
-    computation = models.ForeignKey(RideComputation, verbose_name=_("computation"), related_name="rides", null=True, blank=True)
+    # 1.2 fields
+    can_be_joined = models.BooleanField(default=True)
 
+    # < 1.2 fields
+    computation = models.ForeignKey(RideComputation, verbose_name=_("computation"), related_name="rides", null=True, blank=True)
     sent_time = UTCDateTimeField("sent time", null=True, blank=True)
     received_time = UTCDateTimeField("received time", null=True, blank=True)
 
     _value = models.FloatField(null=True, blank=True, editable=False) # the value of this ride to the assigned station
     _stops = models.IntegerField(null=True, blank=True, editable=False)
+
+    def save(self, *args, **kwargs):
+        super(SharedRide, self).save(*args, **kwargs)
+        ride_updated_signal.send(sender="ride_save", ride=self)
 
     @property
     def cost(self):
@@ -430,8 +477,7 @@ class SharedRide(Ride):
     def value(self):
         if not self._value and self.station:
             logging.info("updating value for SharedRide[%s]" % self.id)
-            self._value = self.station.get_ride_price(self)
-            self.save()
+            self.update(_value=self.station.get_ride_price(self))
 
         return self._value
 
@@ -459,8 +505,7 @@ class SharedRide(Ride):
         """
         if not self._stops:
             logging.info("updating stops for SharedRide[%s]" % self.id)
-            self._stops = len(set([(p.lat, p.lon) for p in self.points.all()])) - 1 # don't count the starting point
-            self.save()
+            self.update(_stops=len(set([(p.lat, p.lon) for p in self.points.all()])) - 1) # don't count the starting point
 
         return self._stops
 
@@ -491,22 +536,31 @@ class SharedRide(Ride):
            "\n".join([unicode(order) for order in orders]),
            "\n".join([unicode(order.passenger) for order in orders]))
 
+    def serialize_for_eagle_eye(self):
+        return {
+            'id': self.id,
+            'orders': sorted([o.serialize_for_eagle_eye() for o in self.orders.all()], key=lambda o: o['pickup'], reverse=False),
+            'start_time': to_js_date(self.depart_time),
+            'status': self.get_status_label(),
+            'taxi': self.taxi_number,
+            'station': {"name": self.station.name, "id": self.station.id} if self.station else {},
+            'shared': self.can_be_joined,
+            'debug': self.debug
+            }
+
     def serialize_for_ws(self):
-        return {'pickups': [ { 'num_passengers': p.pickup_orders.count(),
-                               'passenger_phones': [order.passenger.phone for order in p.pickup_orders.all()],
-                               'address': p.address,
-                               'time': p.stop_time.strftime("%H:%M") } for p in self.points.filter(type=StopType.PICKUP).order_by("stop_time")],
-                'dropoffs': [ { 'num_passengers' : p.dropoff_orders.count(),
-                                'address': p.address,
-                                'passenger_phones': [order.passenger.phone for order in p.dropoff_orders.all()],
-                                'time': p.stop_time.strftime("%H:%M") } for p in self.points.filter(type=StopType.DROPOFF).order_by("stop_time")],
+
+        return {'stops' : [ { 'address'     : p.address,
+                              'time'        : to_js_date(p.stop_time),
+                              'type'        : StopType.get_name(p.type),
+                              'passengers'  : [{'name': o.passenger.name, 'phone': o.passenger.phone} for o in p.orders.all()]
+                            } for p in self.points.all().order_by("stop_time") ],
+                'passengers': [{'name': o.passenger.name, 'phone': o.passenger.phone} for o in self.orders.all() ],
                 'depart_time': to_js_date(self.depart_time),
                 'arrive_time': to_js_date(self.arrive_time),
                 'id': self.id,
-                'status': self.status,
-                'driver': {'name': self.driver.name, 'id': self.driver.id} if self.driver else "",
-                'taxi': {'number': self.taxi.number, 'id': self.taxi.id} if self.taxi else "",
-                'value': self.value or "",
+                'status': RideStatus.get_name(self.status),
+                'taxi':  self.taxi_number,
                 'debug': self.debug,
                 'driver_jist': self.driver_jist()
         }
@@ -517,26 +571,42 @@ class SharedRide(Ride):
             "timeout"           : (self.depart_time - RIDE_SENTINEL_GRACE - utc_now()).seconds,
             "id"                : self.id
         }
-    def change_status(self, old_status=None, new_status=None):
-        if self._change_attr_in_transaction("status", old_status, new_status):
+
+    def serialize_for_algo(self):
+        from sharing.algo_api import AlgoField
+        cost_data = self.cost_data
+        order_infos = {}
+        for order in self.orders.all():
+            order_infos[order.id] = {
+                'num_seats': order.num_seats,
+                AlgoField.PRICE_SHARING_TARIFF1: order.price_data.get(TARIFFS.TARIFF1),
+                AlgoField.PRICE_SHARING_TARIFF2: order.price_data.get(TARIFFS.TARIFF2)
+            }
+
+        return {
+            AlgoField.RIDE_ID           : self.id,
+            AlgoField.RIDE_POINTS       : [rp.serialize_for_algo() for rp in sorted(self.points.all(), key=lambda p: p.stop_time)],
+            AlgoField.ORDER_INFOS       : order_infos,
+            AlgoField.COST_LIST_TARIFF1 : cost_data.get(TARIFFS.TARIFF1, []),
+            AlgoField.COST_LIST_TARIFF2 : cost_data.get(TARIFFS.TARIFF2, [])
+        }
+    def change_status(self, old_status=None, new_status=None, safe=True, silent=False):
+        result = self._change_attr_in_transaction("status", old_status, new_status, safe=safe)
+        if result and not silent:
             sig_args = {
                 'sender': 'sharedride_status_changed_signal',
-                'obj': self,
+                'ride': self,
                 'status': new_status
             }
             ride_status_changed_signal.send(**sig_args)
-        else:
-            raise UpdateStatusError("update shared ride status failed: %s to %s" % (old_status, new_status))
+
+        return result
 
     def get_status_label(self):
-        for key, label in RIDE_STATUS:
-            if key == self.status:
-                return label
-
-        raise ValueError("invalid status")
+        return RideStatus.get_name(self.status)
 
     def driver_jist(self):
-        ws_lang_code = settings.LANGUAGES[self.station.language][0]
+        ws_lang_code = settings.LANGUAGES[self.station.language][0] if self.station else 'en'
         current_lang = translation.get_language()
         translation.activate(ws_lang_code)
 
@@ -563,6 +633,9 @@ class SharedRide(Ride):
 
 
 class RidePoint(BaseModel):
+    class Meta:
+        ordering = ('stop_time',)
+
     ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="points", null=True, blank=True)
 
     stop_time = UTCDateTimeField(_("stop time"))
@@ -571,6 +644,7 @@ class RidePoint(BaseModel):
     lon = models.FloatField(_("longtitude"))
     lat = models.FloatField(_("latitude"))
     address = models.CharField(_("address"), max_length=200, null=True, blank=True)
+    city_name = models.CharField(_("city name"), max_length=200, null=True, blank=True)
 
     def __unicode__(self):
         return u"RidePoint [%d]" % self.id
@@ -579,12 +653,31 @@ class RidePoint(BaseModel):
     def clean_address(self):
         return re.sub(",?\s+תל אביב יפו".decode("utf-8"), "", self.address)
 
+    @property
+    def orders(self):
+        return self.pickup_orders.all() if self.type == StopType.PICKUP else self.dropoff_orders.all()
+
     def serialize_for_status_page(self):
         return {
             "lon"       : self.lon,
             "lat"       : self.lat,
             "address"   : self.address,
             "time"      : self.stop_time.strftime("%d/%m/%y %H:%M")
+        }
+
+    def serialize_for_algo(self):
+        from sharing.algo_api import AlgoField
+        return {
+            # TODO_WB: fill empty fields for algo when we support area based pricing
+            AlgoField.TYPE: "e%s" % StopType.get_name(self.type).title(),
+            AlgoField.POINT_ADDRESS: {
+                AlgoField.LAT: self.lat,
+                AlgoField.LNG: self.lon,
+                AlgoField.ADDRESS: self.address,
+                AlgoField.CITY: self.city_name,
+                AlgoField.AREA: ""
+            },
+            AlgoField.ORDER_IDS: [o.id for o in self.orders]
         }
 
 class RideEvent(BaseModel):
@@ -623,11 +716,19 @@ class Passenger(BaseModel):
     phone = models.CharField(_("phone number"), max_length=15)
     phone_verified = models.BooleanField(_("phone verified"))
 
+    #fb fields
+    picture_url = models.URLField(null=True, blank=True)
+    fb_id = models.CharField(null=True, blank=True, max_length=60)
+
     accept_mailing = models.BooleanField(_("accept mailing"), default=True)
 
     # used to login anonymous passengers
     login_token = models.CharField(_("login token"), max_length=40, null=True, blank=True)
 
+    # used to send push notifications
+    push_token = models.CharField(_("push token"), max_length=65, null=True, blank=True)
+
+    mobile_platform = models.IntegerField(choices=MobilePlatform.choices(), default=MobilePlatform.Other)
     session_keys = ListField(models.CharField(max_length=32)) # session is identified by a 32-character hash
 
     # disallow ordering
@@ -703,7 +804,7 @@ class Passenger(BaseModel):
 
         # try to get passenger from passed token
         if not passenger:
-            token = request.POST.get(PASSENGER_TOKEN, None) or request.GET.get(PASSENGER_TOKEN)
+            token = request.META.get('HTTP_PASSENGER_TOKEN') or request.POST.get(PASSENGER_TOKEN, None) or request.GET.get(PASSENGER_TOKEN)
             if token:
                 try:
                     passenger = cls.objects.get(login_token=token)
@@ -784,7 +885,7 @@ class WorkStation(BaseModel):
         super(WorkStation, self).__init__(*args, **kwargs)
         self._is_online_old = self.is_online
 
-    user = models.OneToOneField(User, verbose_name=_("user"), related_name="work_station")
+    user = models.OneToOneField(User, verbose_name=_("user"), related_name="work_station", editable=False)
 
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="work_stations")
     token = models.CharField(_("token"), max_length=50, null=True, blank=True)
@@ -879,6 +980,8 @@ class WorkStation(BaseModel):
 
 
 def build_installer_for_workstation(instance, url):
+    logging.info("building installer for WS [%s]: %s" % (instance, url))
+
     if instance.token is None or len(instance.token) == 0:
         instance.token = generate_random_token(alpha_or_digit_only=True)
     if instance.installer_url is None or len(instance.installer_url) == 0:
@@ -1013,7 +1116,35 @@ class Order(BaseModel):
     depart_time = UTCDateTimeField(_("depart time"), null=True, blank=True)
     arrive_time = UTCDateTimeField(_("arrive time"), null=True, blank=True)
     price = models.FloatField(null=True, blank=True, editable=False)
+    discount = models.FloatField(null=True, blank=True, editable=False)
     num_seats = models.PositiveIntegerField(default=1)
+
+    _price_data = models.TextField(editable=False, default=pickle.dumps(None))
+
+    def get_price_data(self):
+        return pickle.loads(self._price_data.encode("utf-8"))
+
+    def set_price_data(self, value):
+        self._price_data = pickle.dumps(value)
+
+        # set order price according to received price data and tariff
+        if self.depart_time:
+            tariff = RuleSet.get_active_set(self.depart_time.date(), self.depart_time.time())
+            price = self.price_data.get(tariff.tariff_type)
+            if price and self.price != price:
+                self.price = price
+            else:
+                logging.warning("price changed to the same price")
+
+    price_data = property(fget=get_price_data, fset=set_price_data)
+
+    def get_billing_amount(self):
+        val = self.price or 0
+        if self.discount:
+            val -= self.discount
+
+        return max(0, val)  # never return a negative amount - it may cause crediting money to a user
+
     from sharing.models import HotSpot
     # note: you must be aware that legacy orders do not have a .hotspot value
     hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="orders", null=True, blank=True)
@@ -1029,6 +1160,37 @@ class Order(BaseModel):
     passenger_id = models.IntegerField(_("passenger id"), null=True, blank=True)
 
     api_user = models.ForeignKey(APIUser, verbose_name=_("api user"), related_name="orders", null=True, blank=True)
+
+    @classmethod
+    def fromOrderSettings(cls, order_settings, passenger, commit=True):
+        def _populate_address_fields(order, order_type, address):
+            setattr(order, "%s_raw" % order_type, address.formatted_address)
+            setattr(order, "%s_lat" % order_type, address.lat)
+            setattr(order, "%s_lon" % order_type, address.lng)
+            setattr(order, "%s_house_number" % order_type, address.house_number)
+            setattr(order, "%s_street_address" % order_type, address.street)
+            setattr(order, "%s_city" % order_type, City.objects.get(name=address.city_name))
+            setattr(order, "%s_country" % order_type, Country.objects.get(code=address.country_code))
+
+        order = cls()
+        _populate_address_fields(order, "from", order_settings.pickup_address)
+        _populate_address_fields(order, "to", order_settings.dropoff_address)
+        order.num_seats = order_settings.num_seats
+        order.depart_time = order_settings.pickup_dt
+        order.debug = order_settings.debug
+
+        order.mobile = order_settings.mobile
+        order.language_code = order_settings.language_code
+        order.user_agent = order_settings.user_agent
+
+        if order_settings.private:
+            order.type = OrderType.PRIVATE
+
+        order.passenger = passenger
+        if commit:
+            order.save()
+
+        return order
 
     @property
     def invoice_description(self):
@@ -1060,7 +1222,6 @@ class Order(BaseModel):
                 self.passenger_phone = ""
 
         super(Order, self).save(*args, **kwargs)
-
 
     def __unicode__(self):
         id = self.id
@@ -1177,6 +1338,28 @@ class Order(BaseModel):
 
         notify_by_email(subject, msg)
 
+    def serialize_for_eagle_eye(self):
+        ride_points = list(self.ride.points.all()) if self.ride else []
+        pickup_idx = ride_points.index(self.pickup_point) + 1 if self.pickup_point else "?"
+        dropoff_idx = ride_points.index(self.dropoff_point) + 1 if self.dropoff_point else "?"
+
+        return {
+            "id": self.id,
+            "from_address": self.from_raw,
+            "pickup": to_js_date(self.pickup_point.stop_time) if self.pickup_point else "NA",
+            "pickup_idx": pickup_idx,
+            "to_address": self.to_raw,
+            "dropoff": to_js_date(self.dropoff_point.stop_time) if self.dropoff_point else "NA",
+            "dropoff_idx": dropoff_idx,
+            "create_date": to_js_date(self.create_date),
+            "passenger_name": self.passenger.name,
+            "passenger_phone": self.passenger_phone,
+            "num_seats": self.num_seats,
+            "price": self.get_billing_amount(),
+            "discount": self.discount,
+            "status": self.get_status_label().upper()
+        }
+
     def serialize_for_sharing(self):
         return { "from_address": self.from_raw,
                  "from_lat": self.from_lat,
@@ -1207,7 +1390,7 @@ class Order(BaseModel):
             'to_house_number'     : self.to_house_number,
             'num_seats'           : self.num_seats,
             'when'                : self.get_pickup_str(),
-            'price'               : self.price
+            'price'               : self.get_billing_amount()
         }
 
 class OrderAssignment(BaseModel):
@@ -1396,6 +1579,64 @@ class Feedback(BaseModel):
                 field_names.append("%s_%s" % (type.lower(), category.lower().replace(" ", "_")))
 
         return field_names
+
+
+class SearchRequest(BaseModel):
+    # TODO_WB: consider adding fields: num of offers returened, chosen offer
+    passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="search_requests", null=True, blank=True)
+
+    from_lon = models.FloatField(_("from_lon"))
+    from_lat = models.FloatField(_("from_lat"))
+    from_address = models.CharField(_("from address"), max_length=50)
+    from_city = models.CharField(_("from city"), max_length=50)
+
+    to_lon = models.FloatField(_("to_lon"), null=True, blank=True)
+    to_lat = models.FloatField(_("to_lat"), null=True, blank=True)
+    to_address = models.CharField(_("to address"), max_length=50, null=True, blank=True)
+    to_city = models.CharField(_("to city"), max_length=50, null=True, blank=True)
+
+    num_seats = models.PositiveIntegerField(default=1)
+
+    pickup_dt = UTCDateTimeField("pickup dt", null=True, blank=True)
+
+    mobile = models.BooleanField("mobile", default=False)
+    private = models.BooleanField("private", default=False)
+    luggage = models.BooleanField("luggage", default=False)
+    debug = models.BooleanField("debug", default=False)
+
+    language_code = models.CharField("language_code", max_length=5)
+    user_agent = models.CharField("user agent", max_length=250, null=True, blank=True)
+
+    @classmethod
+    def fromOrderSettings(cls, order_settings, passenger):
+        sr = cls()
+        if passenger:
+            sr.passenger = passenger
+
+        sr.from_address = order_settings.pickup_address.formatted_address
+        sr.from_city = order_settings.pickup_address.city_name
+        sr.from_lat = order_settings.pickup_address.lat
+        sr.from_lon = order_settings.pickup_address.lng
+
+        sr.to_address = order_settings.dropoff_address.formatted_address
+        sr.to_city = order_settings.dropoff_address.city_name
+        sr.to_lat = order_settings.dropoff_address.lat
+        sr.to_lon = order_settings.dropoff_address.lng
+
+        sr.num_seats = order_settings.num_seats
+        sr.pickup_dt = order_settings.pickup_dt
+
+        sr.luggage = order_settings.luggage
+        sr.private = order_settings.private
+        sr.debug = order_settings.debug
+        sr.mobile = order_settings.mobile
+
+        sr.language_code = order_settings.language_code
+        sr.user_agent = order_settings.user_agent
+
+        return sr
+
+
 
 for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
     for type in FEEDBACK_TYPES:

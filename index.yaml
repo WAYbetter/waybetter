@@ -612,6 +612,11 @@ indexes:
 - kind: ordering_ridepoint
   properties:
   - name: ride_id
+  - name: stop_time
+
+- kind: ordering_ridepoint
+  properties:
+  - name: ride_id
   - name: type
   - name: stop_time
 
@@ -634,13 +639,7 @@ indexes:
 
 - kind: ordering_sharedride
   properties:
-  - name: driver_id
-  - name: status
-  - name: depart_time
-
-- kind: ordering_sharedride
-  properties:
-  - name: driver_id
+  - name: station_id
   - name: status
   - name: depart_time
     direction: desc

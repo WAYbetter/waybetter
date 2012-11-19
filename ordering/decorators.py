@@ -62,6 +62,7 @@ def work_station_required(function):
             work_station = WorkStation.objects.get(user=request.user)
             kwargs["work_station"] = work_station
         except WorkStation.DoesNotExist:
+            logging.warning("work_station_required rejected request")
             from django.contrib.auth import REDIRECT_FIELD_NAME
             next = urlquote(request.get_full_path())
             login_url = settings.LOGIN_URL

@@ -1,0 +1,589 @@
+{% extends "wb_base_site.html" %}
+{% load i18n %}
+{% block footer %}{% endblock %}
+{% block header %}{% endblock %}
+{% block title %}EagleEye™{% endblock %}
+{% block user_tools %}
+    <div class="nav-collapse collapse">
+        <ul class="nav pull-right">
+            <li>EagleEye™</li>
+        </ul>
+    </div>
+{% endblock %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
+
+    <style type="text/css">
+        .ui-widget {
+            font-family: inherit;
+            font-size: inherit;
+        }
+
+        .btn > i{
+            line-height: 14px !important;
+        }
+        .page {
+            min-height: 600px;
+        }
+        .container-fluid > .row-fluid {
+            padding-top: 20px;
+        }
+        .right {
+            text-align: right;
+        }
+        .center {
+            text-align: center;
+        }
+
+        form .progress {
+            height: 10px;
+            margin-bottom: 0;
+            margin-top: 10px;
+        }
+        select {
+            -webkit-appearance: menulist;
+        }
+        .dropdown-menu a[disabled=disabled] {
+            color: gray;
+        }
+
+        .dropdown-menu a[disabled=disabled]:hover {
+            color: gray;
+            background:inherit;
+        }
+
+        .ride-row {
+            margin-bottom: 25px;
+        }
+        .ride-header {
+            font-size: larger;
+            padding-top: 10px;
+            padding-left: 10px;
+            background: #ECECEC;
+            box-sizing: border-box;
+            border-bottom: 1px solid #CCC;
+        }
+
+        .subtitle {
+            display: block;
+            padding: 3px 15px;
+            font-size: 11px;
+            font-weight: bold;
+            line-height: 20px;
+            color: #999;
+            text-transform: uppercase;
+        }
+
+        .orders-table {
+            font-size: small;
+
+        }
+        .orders-table th {
+            text-transform: uppercase;
+            font-size: 11px;
+        }
+
+        .input-prepend .prepend-text {
+            min-width: 35px;
+        }
+
+        #success-modal .icon-ok {
+            color: green;
+        }
+
+        #fail-modal .icon-remove {
+            color: red;
+        }
+
+        #confirm-modal .icon-warning-sign {
+            color: #F89406;
+        }
+
+        [ng\:cloak], [ng-cloak], .ng-cloak {
+            display: none;
+        }
+        .label {
+            font-size: 11px;
+        }
+        .rides-container {
+            margin-left: 200px;
+        }
+        h4 {
+            text-transform: uppercase
+        }
+
+        @media (max-width: 767px) {
+            .affix {
+                position: static;
+                width: auto;
+                top: 0;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.16/jquery-ui.min.js"></script>
+    <script>window.jQuery.ui || document.write('<script src="/static/js/libs/jquery-ui-1.8.13.min.js">\x3C/script>')</script>
+    <script type="text/javascript" src="/static/js/libs/angular-ui.min.js"></script>
+
+    <script type="text/javascript">
+
+        var app = angular.module("EagleEyeApp", ['ui', 'wbFilters']);
+        app.config(function ($interpolateProvider, $httpProvider) {
+            $interpolateProvider.startSymbol('((');
+            $interpolateProvider.endSymbol('))');
+
+            $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+            $httpProvider.defaults.transformRequest.push(function (data, headersGetter) {
+                if (data) {
+                    return jQuery.param(angular.fromJson(data));
+                } else {
+                    return data;
+                }
+            });
+        });
+
+        function true_fn() { return true }
+        app.constant("Status", {
+                    'IGNORED':'IGNORED',
+                    'NOT_TAKEN':'NOT_TAKEN',
+                    'TIMED_OUT':'TIMED_OUT',
+                    'REJECTED':'REJECTED',
+                    'ASSIGNED':'ASSIGNED',
+                    'VIEWED':'VIEWED',
+                    'FAILED':'FAILED',
+                    'ERROR':'ERROR',
+                    'CANCELLED':'CANCELLED',
+                    'ACCEPTED':'ACCEPTED',
+                    'APPROVED':'APPROVED',
+                    'PENDING':'PENDING',
+                    'CHARGED':'CHARGED',
+                    'COMPLETED':'COMPLETED'
+                });
+        app.controller("EagleEyeCtrl", function ($scope, $http, $q, $filter, Status) {
+            function RideActions(ride) {
+                var self = this;
+                this.ride = ride;
+                this.actions = [
+                    {
+                        title:"Resend Voucher",
+                        enabled:true_fn,
+                        run:resend_voucher
+                    },
+                    {
+                        title:"View on Map",
+                        enabled:true_fn,
+                        run:view_on_map
+                    },
+                    {
+                        title: "Re-Assign to Station",
+                        enabled: true_fn,
+                        run: reassign_ride
+                    },
+                    {
+                        title: "Mark as COMPLETED",
+                        enabled:function () {
+                            return self.ride.status != Status.COMPLETED
+                        },
+                        run: mark_as_complete
+                    }
+                ];
+
+                function mark_as_complete() {
+                    $http.post("/staff/mark_ride_complete/" + self.ride.id + "/").success(
+                            function (data) {
+                                angular.extend(self.ride, data.ride);
+                                $scope.modal_header = "Mark Complete";
+                                $scope.modal_body = "Ride " + self.ride.id + " was marked as COMPLETED";
+                                $("#success-modal").modal();
+                            }).error(function (err) {
+                                $scope.modal_header = "Mark Complete";
+                                $scope.modal_body = err;
+                                $("#fail-modal").modal();
+                            });
+                }
+
+
+                function reassign_ride() {
+                    $scope.selected_ride = self.ride;
+                    $scope.selected_station = $filter('filter')($scope.stations, {id: self.ride.station.id})[0];
+                    $scope.choose_station_for_assignment().then(function(station) {
+                        $http.post("/staff/reassign_ride/", {ride_id: self.ride.id, station_id: station.id}).success(function(data) {
+                            angular.extend(self.ride, data.ride);
+                        })
+                    });
+                }
+
+                function view_on_map() {
+                    console.log("view_on_map: " + self.ride.id);
+                    window.open("/staff/ride/" + self.ride.id, '_blank');
+                }
+
+                function resend_voucher() {
+                    $http.get("/services/resend_voucher/" + (self.ride.id) + "/")
+                        .success(function () {
+                            $scope.modal_header = "Resend Voucher";
+                            $scope.modal_body = "Voucher for ride " +  self.ride.id +  " was re-sent";
+                            $("#success-modal").modal();
+                        })
+                        .error(function (err) {
+                            $scope.modal_header = "Resend Voucher";
+                            $scope.modal_body = err;
+                            $("#fail-modal").modal();
+                        });
+                    console.log("resend_voucher: " + self.ride.id);
+
+                }
+
+                function cancel_ride() {
+                    console.log("cancel_ride: " + self.ride.id);
+                    $scope.confirm("Cancel Ride", "Are you sure you want to cancel ride " + self.ride.id + "?").then(function () {
+                        alert("call cancel");
+                    });
+
+                }
+            }
+
+            function OrderActions(order) {
+                var self = this;
+                this.order = order;
+                this.actions = [
+                    {
+                        title: "Cancel Billing",
+                        enabled: function () {
+                            return self.order.status != Status.CHARGED && self.order.status != Status.CANCELLED
+                        },
+                        run:function () {
+                            var title = "Cancel Billing";
+                            $scope.confirm(title, "Are you sure you want to cancel the billing for order " + self.order.id + "?").then(function () {
+                                $http.get("/staff/cancel_billing/" + (self.order.id) + "/")
+                                    .success(function (data) {
+                                        $scope.modal_header = title;
+                                        $scope.modal_body = "All billing transactions were cancelled";
+                                        $("#success-modal").modal();
+                                    })
+                                    .error(function (err) {
+                                        $scope.modal_header = title;
+                                        $scope.modal_body = err;
+                                        $("#fail-modal").modal();
+                                    });
+
+                            })
+                        }
+
+                    }
+                ];
+            }
+
+            var ride_actions = {};
+            var order_actions = {};
+
+            $scope.rides = [];
+            $scope.incomplete_orders = [];
+            {% autoescape off %}
+            $scope.stations = {{ stations }};
+            {% endautoescape %}
+            $scope.selected_station = undefined;
+            $scope.start_date = new Date();
+            $scope.end_date = new Date();
+//            $scope.start_date = new Date("10/23/2012");
+//            $scope.end_date = new Date("10/23/2012");
+            $scope.updating = false;
+            $scope.show_debug = false;
+            $scope.confirm_defer = undefined;
+
+            $scope.updating = function() {
+                return $http.pendingRequests.length > 0;
+            };
+
+            $scope.confirm = function (title, body) {
+                $scope.confirm_defer = $q.defer();
+                $scope.modal_header = title;
+                $scope.modal_body = body;
+                $("#confirm-modal").modal();
+                return $scope.confirm_defer.promise;
+            };
+            
+            $scope.choose_station_for_assignment = function () {
+                $scope.assignment_defer = $q.defer();
+                $("#reassign-modal").modal();
+
+                return $scope.assignment_defer.promise;
+
+            };
+        
+            $scope.select_ride = function (ride) {
+                if (ride == $scope.selected_ride) {
+                    $scope.selected_ride = undefined
+                } else {
+                    $scope.selected_ride = ride;
+                }
+            };
+
+            $scope.get_ride_actions = function (ride) {
+                if (!ride_actions[ride.id]) { // this is needed so that ng-repeat will have a 'stable' model and not get a new object for each call
+                    ride_actions[ride.id] = new RideActions(ride);
+                }
+                return ride_actions[ride.id].actions;
+            };
+            
+            $scope.get_order_actions = function (order) {
+                if (!order_actions[order.id]) { // this is needed so that ng-repeat will have a 'stable' model and not get a new object for each call
+                    order_actions[order.id] = new OrderActions(order);
+                }
+                return order_actions[order.id].actions;
+            };
+
+            $scope.run = function (action) {
+                if (action.enabled()) {
+                    action.run();
+                }
+            };
+
+            $scope.get_ride_status_class = function(ride) {
+                var status = ride.status.toUpperCase();
+
+                if ([Status.ACCEPTED, Status.COMPLETED].indexOf(status) > -1) {
+                    return "label-success"
+                } else if ([Status.ERROR, Status.CANCELLED, Status.FAILED].indexOf(status) > -1) {
+                    return "label-important"
+                } else if ([Status.PENDING, Status.ASSIGNED, Status.VIEWED].indexOf(status) > -1) {
+                    return "label-warning"
+                }
+            };
+
+            $scope.get_order_status_class = function(order) {
+                var status = order.status.toUpperCase();
+
+                if ([Status.CHARGED].indexOf(status) > -1) {
+                    return "label-success"
+                } else if ([Status.ERROR, Status.CANCELLED, Status.FAILED].indexOf(status) > -1) {
+                    return "label-important"
+                } else if ([Status.PENDING, Status.ASSIGNED].indexOf(status) > -1) {
+                    return "label-warning"
+                }
+
+
+            };
+
+            $scope.update = function () {
+                $scope.rides = [];
+                $scope.incomplete_orders = [];
+                $http.get('{% url sharing.staff_controller.eagle_eye_data %}', {params:{start_date:$scope.start_date.toUTCString(), end_date:$scope.end_date.toUTCString() }}).success(function (data) {
+                    $scope.rides = data.rides;
+                    $scope.incomplete_orders = data.incomplete_orders;
+                });
+            };
+
+            $scope.update();
+        });
+
+    </script>
+{% endblock %}
+
+{% block content %}
+    <div class="ng-cloak container-fluid page" ng-app="EagleEyeApp" ng-controller="EagleEyeCtrl">
+        <div class="row-fluid">
+            <div class="span2">
+                <form class="form dates-form well well-small" data-spy="affix">
+                    <div class="input-prepend">
+                        <span class="add-on prepend-text" id="">Start</span><input type='text' ng-model='start_date' ui-date class="input-small"
+                                                                                   ng-disabled="updating()">
+                    </div>
+                    <div class="input-prepend">
+                        <span class='add-on prepend-text'>End</span><input type='text' ng-model='end_date' ui-date class="input-small" ng-disabled="updating()">
+                    </div>
+                    <label class="checkbox">
+                        <input type="checkbox" ng-model="show_debug" ng-disabled="updating()" > Show Debug
+                    </label>
+
+                    <button ng-disabled="updating()" ng-click="update()" class='btn btn-block'><i class="icon-refresh"></i> Update
+                    </button>
+
+                    <div ng-show="updating()" class="progress progress-striped active">
+                      <div class="bar" style="width: 100%;"></div>
+                    </div>
+                    <hr class="dashed">
+                    <ul ng-hide="updating()" class="nav nav-list ">
+                        <li class="nav-header">Jump To</li>
+                        <li ng-show="rides"><a href="#">Rides</a></li>
+                        <li ng-show="incomplete_orders"><a href="#inc-order-top">Incomplete Orders</a></li>
+                    </ul>
+
+                </form>
+            </div>
+
+            <div class="span10 rides-container">
+                <h4 ng-show="rides" id="rides-top">Rides
+                    <small>(( rides.length | paren_wrap ))</small></h4>
+
+                <div class="ride-row" ng-repeat="ride in rides" ng-show="ride.debug == show_debug || !ride.debug">
+                    <div class="ride-header row-fluid">
+                        <div class="span4">
+                            (( ride.station.name ))
+                            <small class="muted">(( ride.taxi | paren_wrap ))</small>
+                        </div>
+                        <div class="span4 center">
+                            (( ride.start_time | date:'dd/MM/yy - HH:mm' ))
+                        </div>
+                        <div class="span3 right">
+                            <span class="label" ng-show="ride.debug">DEBUG</span>
+                            <span class="label" ng-show="!ride.shared">PRIVATE</span>
+                            <span class="label" ng-class="get_ride_status_class(ride)">(( ride.status ))</span>
+                        </div>
+                        <div class="span1">
+                            <div class="btn-group">
+                                <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#" ng-disabled="updating()">
+                                    <i class="icon-cog"></i>
+                                    <span class="caret"></span>
+                                </a>
+                                <ul class="dropdown-menu pull-right">
+                                    <li><a href="#" disabled="disabled">Ride ((ride.id))</a></li>
+                                    <li class="divider"></li>
+                                    <li ng-repeat="action in get_ride_actions(ride)"><a href="#" ng-click="run(action)" ng-disabled="!action.enabled()">(( action.title ))</a></li>
+                                </ul>
+                            </div>
+
+                        </div>
+
+                    </div>
+                    <div class="ride-body" >
+                        <div class="subtitle">Orders</div>
+                        <table class="table table-condensed table-striped orders-table">
+                            <tr>
+                                <th>From</th>
+                                <th>To</th>
+                                <th>Create Date</th>
+                                <th>Passenger</th>
+                                <th># Seats</th>
+                                <th>Price</th>
+                                <th>Discount</th>
+                                <th>Status</th>
+                                <th>&nbsp;</th>
+                            </tr>
+                            <tr ng-repeat="order in ride.orders">
+                                <td><span class="label label-info">(( order.pickup_idx ))</span> (( order.from_address )) | (( order.pickup | date:'HH:mm' ))</td>
+                                <td><span class="label label-info">(( order.dropoff_idx ))</span> (( order.to_address )) | (( order.dropoff | date:'HH:mm' ))</td>
+                                <td>(( order.create_date | date:'dd/MM/yy HH:mm' ))</td>
+                                <td>(( order.passenger_name )) (( order.passenger_phone ))</td>
+                                <td>(( order.num_seats ))</td>
+                                <td>(( order.price | currency:'₪'))</td>
+                                <td>(( order.discount | currency:'₪'))</td>
+                                <td><span class="label" ng-class="get_order_status_class(order)">(( order.status ))</span></td>
+                                <td>
+                                    <div class="btn-group">
+                                        <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#" ng-disabled="updating()">
+                                            <i class="icon-cog"></i>
+                                            <span class="caret"></span>
+                                        </a>
+                                        <ul class="dropdown-menu pull-right">
+                                            <li><a href="#" disabled="disabled">Order ((order.id))</a></li>
+                                            <li class="divider"></li>
+                                            <li ng-repeat="action in get_order_actions(order)"><a href="#" ng-click="run(action)" ng-disabled="!action.enabled()">((
+                                                action.title ))</a></li>
+                                        </ul>
+                                    </div>
+                                </td>
+                            </tr>
+                        </table>
+                    </div>
+                    <hr class="dashed">
+                </div>
+
+                <div class="inc-order-row" ng-show="incomplete_orders">
+                    <h4 id="inc-order-top">Incomplete Orders <small>(( incomplete_orders.length | paren_wrap ))</small></h4>
+                    <table class="table table-condensed table-striped orders-table">
+                        <tr>
+                            <th>ID</th>
+                            <th>From</th>
+                            <th>To</th>
+                            <th>Create Date</th>
+                            <th>Passenger</th>
+                            <th># Seats</th>
+                            <th>Price</th>
+                            <th>Discount</th>
+                            <th>Status</th>
+                        </tr>
+                        <tr ng-repeat="order in incomplete_orders">
+                            <td>(( order.id ))</td>
+                            <td>(( order.from_address ))</td>
+                            <td>(( order.to_address ))</td>
+                            <td>(( order.create_date | date:'dd/MM/yy HH:mm' ))</td>
+                            <td>(( order.passenger_name )) (( order.passenger_phone ))</td>
+                            <td>(( order.num_seats ))</td>
+                            <td>(( order.price | currency:'₪'))</td>
+                            <td>(( order.discount | currency:'₪'))</td>
+                            <td><span class="label" ng-class="get_order_status_class(order)">(( order.status ))</span></td>
+                        </tr>
+                    </table>
+
+                </div>
+
+            </div>
+        </div>
+
+        <div class="modal hide fade" id="success-modal" role="dialog">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3><i class="icon-ok"></i> (( modal_header ))</h3>
+            </div>
+            <div class="modal-body">
+                <p>(( modal_body ))</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+        <div class="modal hide fade" id="fail-modal" role="dialog">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3><i class="icon-remove"></i> (( modal_header ))</h3>
+            </div>
+            <div class="modal-body">
+                <p>(( modal_body ))</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal">Close</button>
+            </div>
+        </div>
+
+        <div class="modal hide fade" id="confirm-modal" role="dialog">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3><i class="icon-warning-sign"></i> (( modal_header ))</h3>
+            </div>
+            <div class="modal-body">
+                <p>(( modal_body ))</p>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" ng-click="confirm_defer.reject()">Cancel</button>
+                <button class="btn btn-danger" data-dismiss="modal" ng-click="confirm_defer.resolve()">OK</button>
+            </div>
+        </div>
+
+        <div class="modal hide fade" id="reassign-modal" role="dialog">
+            <div class="modal-header">
+                <button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
+                <h3>Reassign Ride</h3>
+            </div>
+            <div class="modal-body">
+                <p>Choose a station to reassign ride to:</p>
+                <select name="selected_station" ng-options="s.name for s in stations" ng-model="selected_station"></select>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-dismiss="modal" ng-click="assignment_defer.reject()">Cancel</button>
+                <button class="btn btn-danger" data-dismiss="modal" ng-click="assignment_defer.resolve(selected_station)" ng-disabled="selected_station.id == selected_ride.station.id">OK, Reassign Ride</button>
+            </div>
+        </div>
+
+
+
+    </div>
+
+
+{% endblock %}

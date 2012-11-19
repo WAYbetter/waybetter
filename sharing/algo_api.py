@@ -8,7 +8,7 @@ from django.core.urlresolvers import reverse
 from django.http import HttpResponse
 from django.utils import simplejson
 from common.decorators import internal_task_on_queue, catch_view_exceptions, catch_view_exceptions_retry
-from common.util import safe_fetch, notify_by_email, get_uuid, safe_json_loads
+from common.util import safe_fetch, notify_by_email, get_uuid, safe_json_loads, Enum
 from ordering.models import  Order, SharedRide, RidePoint, StopType, RideComputation, APPROVED, RideComputationStatus, IGNORED, CANCELLED, SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS
 from ordering.util import create_single_order_ride
 from sharing import signals
@@ -19,9 +19,11 @@ from django.conf import settings
 
 DEBUG = 1
 WAZE = 3
-TELMAP = 4
+GOOGLE = 4
 
-SHARING_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % TELMAP
+M2M_ENGINE_DOMAIN = "http://waybetter-route-service3.appspot.com/m2malgo"
+
+SHARING_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % GOOGLE
 SEC_SHARING_ENGINE_DOMAIN = "http://waybetter-route-service-backup.appspot.com"
 
 SHARING_ENGINE_URL = "/".join([SHARING_ENGINE_DOMAIN, "routeservicega1"])
@@ -35,6 +37,70 @@ COMPUTATION_ABORT = 3
 
 COMPUTATION_SUBMIT_TO_SECONDARY_TIMEOUT = 3 # minutes
 COMPUTATION_ABORT_TIMEOUT = 3 # minutes
+
+class AlgoField(Enum):
+    ADDRESS = "m_Address"
+    AREA = "m_Area"
+    CITY = "m_City"
+    COST_LIST_TARIFF1 = "m_AllCosts"
+    COST_LIST_TARIFF2 = "m_AllCosts2"
+    DEBUG = "m_Debug"
+    DISTANCE = "m_Distance"
+    DROPOFF = "eDropoff"
+    DURATION = "m_Duration"
+    LAT = "m_Latitude"
+    LNG = "m_Longitude"
+    MODEL_ID = "m_ModelID"
+    NAME = "m_Name"
+    OFFSET_TIME = "m_offset_time"
+    ORDER_IDS = "m_OrderIDs"
+    ORDER_INFOS = "m_OrderInfos"
+    OUTPUT_STAT = "m_OutputStat"
+    PICKUP = "ePickup"
+    POINT_ADDRESS = "m_PointAddress"
+    PRICE_ALONE_TARIFF1 = "m_PriceAlone"
+    PRICE_ALONE_TARIFF2 = "m_Price2Alone"
+    PRICE_SHARING_TARIFF1 = "m_PriceSharing"
+    PRICE_SHARING_TARIFF2 = "m_Price2Sharing"
+    REAL_DURATION = "m_RealDuration"
+    RIDES = "m_Rides"
+    RIDE_ID = "m_RideID"
+    RIDE_POINTS = "m_RidePoints"
+    TIME_ALONE = "m_TimeAlone"
+    TIME_SECONDS = "m_TimeSeconds"
+    TIME_SHARING = "m_TimeSharing"
+    TYPE = "m_Type"
+
+
+def find_matches(candidate_rides, order_settings):
+    payload = {
+        AlgoField.RIDES : [r.serialize_for_algo() for r in candidate_rides],
+        "order"         : order_settings.serialize(),
+        "parameters"    : {
+            "debug"                     : order_settings.debug,
+            'toleration_factor_minutes' : SHARING_TIME_MINUTES,
+            'toleration_factor_meters'  : SHARING_DISTANCE_METERS
+        }
+    }
+
+    payload = simplejson.dumps(payload)
+    logging.info(u"submit=%s" % unicode(payload, "unicode-escape"))
+    dt1 = datetime.now()
+    response = safe_fetch(M2M_ENGINE_DOMAIN, payload="submit=%s" % payload, method=POST, deadline=50)
+    dt2 = datetime.now()
+    logging.info("response=%s" % response.content)
+
+    matches = []
+    if response and response.content:
+        matches = simplejson.loads(response.content)[AlgoField.RIDES]
+
+    logging.info("%s candidates [%s], %s matches, %s seconds" % (len(candidate_rides),
+                                                                ",".join([str(ride.id) for ride in candidate_rides]),
+                                                                len(matches),
+                                                                (dt2 - dt1).seconds))
+
+    return matches
+
 
 def calculate_route(start_lat, start_lon, end_lat, end_lon):
     payload = urllib.urlencode({
@@ -61,8 +127,8 @@ def calculate_route(start_lat, start_lon, end_lat, end_lon):
             logging.error(route["Error"])
         else:
             result = {
-                "estimated_distance": float(route["m_Distance"]),
-                "estimated_duration": float(route["m_TimeSeconds"])
+                "estimated_distance": float(route[AlgoField.DISTANCE]),
+                "estimated_duration": float(route[AlgoField.TIME_SECONDS])
             }
 
     return result
@@ -307,31 +373,31 @@ def handle_calculation_result(result_id, data):
 
     logging.info("data = %s" % data)
 
-    debug = bool(data.get("m_Debug"))
-    for ride_data in data["m_Rides"]:
+    debug = bool(data.get(AlgoField.DEBUG))
+    for ride_data in data[AlgoField.RIDES]:
         ride = SharedRide()
         ride.debug = debug
         ride.computation = computation
 
-        first_point = ride_data["m_RidePoints"][0]
-        first_order_id = int(first_point["m_OrderIDs"][0])
+        first_point = ride_data[AlgoField.RIDE_POINTS][0]
+        first_order_id = int(first_point[AlgoField.ORDER_IDS][0])
         first_order = Order.by_id(first_order_id)
         ride.depart_time = first_order.depart_time
-        ride.arrive_time = ride.depart_time + timedelta(seconds=ride_data["m_Duration"])
+        ride.arrive_time = ride.depart_time + timedelta(seconds=ride_data[AlgoField.DURATION])
 
         ride.save()
 
-        for point_data in ride_data["m_RidePoints"]:
+        for point_data in ride_data[AlgoField.RIDE_POINTS]:
             point = RidePoint()
-            point.type = StopType.PICKUP if point_data["m_Type"] == "ePickup" else StopType.DROPOFF
-            point.lon = point_data["m_PointAddress"]["m_Longitude"]
-            point.lat = point_data["m_PointAddress"]["m_Latitude"]
-            point.address = point_data["m_PointAddress"]["m_Name"]
-            point.stop_time = ride.depart_time + timedelta(seconds=point_data["m_offset_time"])
+            point.type = StopType.PICKUP if point_data[AlgoField.TYPE] == AlgoField.PICKUP else StopType.DROPOFF
+            point.lon = point_data[AlgoField.POINT_ADDRESS][AlgoField.LNG]
+            point.lat = point_data[AlgoField.POINT_ADDRESS][AlgoField.LAT]
+            point.address = point_data[AlgoField.POINT_ADDRESS][AlgoField.ADDRESS]
+            point.stop_time = ride.depart_time + timedelta(seconds=point_data[AlgoField.OFFSET_TIME])
             point.ride = ride
             point.save()
 
-            for order_id in point_data["m_OrderIDs"]:
+            for order_id in point_data[AlgoField.ORDER_IDS]:
                 order = Order.by_id(int(order_id))
                 order.ride = ride
                 if point.type == StopType.PICKUP:
@@ -342,5 +408,5 @@ def handle_calculation_result(result_id, data):
 
         signals.ride_created_signal.send(sender='fetch_ride_results', obj=ride)
 
-    computation.statistics = simplejson.dumps(data.get("m_OutputStat"))
+    computation.statistics = simplejson.dumps(data.get(AlgoField.OUTPUT_STAT))
     computation.change_status(new_status=RideComputationStatus.COMPLETED) # saves

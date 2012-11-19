@@ -1,7 +1,18 @@
+@-webkit-keyframes spin {
+	from {-webkit-transform: rotate(0deg);}
+  	to {-webkit-transform: rotate(360deg);}
+}
+
 $pickup_color: #48a43e;
 $dropoff_color: #bb218a;
 $details_text_color: #666666;
 $hotspot_color: #ed2489;
+
+@mixin border-box{
+    box-sizing: border-box;
+    -moz-box-sizing: border-box;
+    -webkit-box-sizing: border-box;
+}
 
 @mixin border-radius($r){
     -webkit-border-radius: $r;
@@ -33,16 +44,6 @@ hr {
     border-image: initial;
     @include box-shadow(0 1px white);
 }
-
-//.ui-loader{
-//    background: white;
-//    @include box-shadow(0 0 25px gray);
-//    width: 120px;
-//    margin-left: -90px;
-//}
-//.ui-icon-loading{
-//    background-image: url(/static/images/mobile/loader_normal.png);
-//}
 
 .errorlist li{
     list-style: none;
@@ -138,386 +139,147 @@ ul.narrow {
 }
 
 /* theme hacks */
-.ui-body-a{
+.ui-body-a {
     text-shadow: none;
 }
+
+.ui-btn-text {
+    text-shadow: none;
+}
+
+.ui-icon,
+.ui-icon-searchfield:after {
+    background-image: url(themes/images/icons-18-black.png)
+}
+.ui-icon-alt {
+    background-image: url(themes/images/icons-18-white.png);
+}
+
+
+.ui-body-a, .ui-overlay-a {
+    background-image: url(../images/mobile/bg_normal.png);
+    background-repeat: repeat;
+}
+
+.ui-input-text.ui-focus, .ui-input-search.ui-focus{
+    border-color: rgba(82, 168, 236, 0.8);
+    box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
+}
+
+.ui-loader {
+    position: relative;
+    margin: auto;
+    left: auto;
+    width: 130px;
+    padding: 20px;
+    z-index: 2000;
+    box-shadow: none;
+    background: rgba(0, 0, 0, 0.8);
+    opacity: .88;
+    border-radius: 4px;
+}
+
+.ui-loader h1{
+    color: white;
+    font-weight: normal;
+}
+
+.ui-loader.ui-loader-verbose{ /** loader with text **/
+    margin-top: -63px ;
+}
+.ui-loader.ui-loader-default{ /** loader without text **/
+    width: 65px;
+    margin-top: -43px;
+}
+.ui-loader-default .ui-icon {
+    margin: 0 auto 10px;
+}
+
+.ui-loader .ui-icon{
+    background-color: transparent;
+    background-size: 100%;
+    background-repeat: no-repeat;
+    opacity: 1;
+}
+
+.ui-icon-loading {
+    background-image: url(../images/mobile/loader_normal.png);
+	-webkit-transform: rotate(360deg);
+	-webkit-animation-name: spin;
+	-webkit-animation-duration: 1s;
+	-webkit-animation-iteration-count:  infinite;
+	-webkit-animation-timing-function: linear;
+}
+
 /* end hacks */
-#welcome_page{
-    p{
-        color: #656565;
-        text-shadow: 0 0.15em 0 white;
-        font-size: 0.9em;
-    }
-    .text{
-        position: relative;
-        top: -0.8em;
-    }
-    .buttons{
-        margin-top: 1.4em;
-        .first{
-            margin-bottom: 1.2em;
-        }
-    }
-    .welcome-img{
-        width: 178px;
-        height: 82px;
-        background: url(/static/images/mobile/welcome.png) left top no-repeat;
-        margin: 0 auto;
-        margin-top: 35px;
-    }
-}
 
-#home{
-    .ui-icon{
-        background: url(/static/images/mobile/home_icons.png) center 0 no-repeat;
-        width: 43px;
-        height: 43px;
-        margin-left: -21.5px;
-        @include border-radius(0);
-    }
-    .ui-btn-active{
-        .ui-icon{
-            background: url(/static/images/mobile/home_icons_white.png) center 0 no-repeat;
-            width: 43px;
-            height: 43px;
-            margin-left: -21.5px;
-            @include border-radius(0);
-        }
-        .ui-icon-shadow{
-            @include box-shadow(none);
-        }
-    }
-    .bubble {
-        position: absolute;
-        top:-.3em;
-        right: -.3em;
-        color:white;
-        border-radius: 15px;
-        padding: 0.2em .5em;
-        border: 0.15em solid;
 
-        @include box-shadow(0px 2px 4px 0px #666666);
+/* Mobile Pages
+-------------------------------------------------- */
 
-        text-shadow: 0px -1px 0px black;
-        filter: dropshadow(color=#690000, offx=0, offy=-1);
-
-        background: #d60419; /* Old browsers */
-        background: -moz-linear-gradient(top,  #d60419 0%, #a80002 100%); /* FF3.6+ */
-        background: -webkit-gradient(linear, left top, left bottom, color-stop(0%,#d60419), color-stop(100%,#a80002)); /* Chrome,Safari4+ */
-        background: -webkit-linear-gradient(top,  #d60419 0%,#a80002 100%); /* Chrome10+,Safari5.1+ */
-        background: -o-linear-gradient(top,  #d60419 0%,#a80002 100%); /* Opera 11.10+ */
-        background: -ms-linear-gradient(top,  #d60419 0%,#a80002 100%); /* IE10+ */
-        background: linear-gradient(top,  #d60419 0%,#a80002 100%); /* W3C */
-    }
-    $offset: -50px;
-    #myrides_btn .ui-icon, #myrides_login_btn .ui-icon{ background-position: center 1*$offset; }
-    #share_btn .ui-icon{ background-position: center 2*$offset - 4 ; }
-    #settings_btn .ui-icon{ background-position: center 3*$offset - 4; }
-    #feedback_btn .ui-icon{ background-position: center 4*$offset - 4; }
-
-    .ui-btn-inner{
-        padding-top: 50px;
-    }
-    .sub-header {
-        color: white;
-        text-shadow: none;
-        text-align: center;
-        font-size: 1.2em;
-        font-weight: bold;
-        background-color: #4bacc4;
-        padding: .7em 0;
-        border-bottom: 1px solid rgba(0,0,0,0.5);
-    }
-    .quarter {
-        width: 25%;
-    }
-    .half {
-        width: 50%;
-    }
-}
-
-#booking_page{
-    #switch_direction_container{
-        position: relative;
-        width: 95%;
-        margin: 0 auto;
-        top: -0.8em;
-    }
-    .desc {
-        color: #7c7c7c;
-        font-size: 13px;
-    }
-    .type, .label_box{
-        @extend .bold;
-    }
-
-    .booking_widget {
-        position: relative;
-        top: -0.7em;
-        a {
-            padding-top: 0.2em;
-            padding-bottom: 0.6em;
-        }
-    }
-    hr{
-        position: relative;
-        top: -0.9em;
-    }
-    #calculate_ride_btn {
-        top: -0.5em;
-    }
-
-    #choose_time_btn {
-        .header {
-            display: inline-block;
-            margin: .6em 0 .3em 0;
-        }
-        .desc {
-            display: inline;
-            font-size: 1em;
-            font-weight: bold;
-            color: #424242;
-        }
-    }
-}
-
-#choose_ride_page, #ride_details_page, #myride_details_page{
-    .ui-content{
-        padding-top: 0.1em;
-    }
-    a[href="#ride_details_page"], a[href="#choose_ride_page"]{
-        margin-bottom: 0.7em;
-        margin-left: 0;
-        margin-right: 0;
-    }
-    .order-details-link {
-        text-align: center;
-        color: #666;
-        padding: 1em 0;
-        a {
-            font-weight: normal;
-        }
-    }
-    .ride_summary {
-        background: white;
-        padding: 0.7em 1.3em;
-        color: $details_text_color;
-        text-shadow: none;
-        @include box-shadow(0 0 0.4em 0.01em #404040);
-        hr {margin-top: 0.8em;}
-        h3 {
-            text-align: right;
-            margin: 0;
-        }
-        h3.shared{ color: #31A1D0; }
-        h3.private{ color: #D07619; }
-        .ui-btn{
-            margin: 0;
-        }
-        .details{ line-height: 1em; }
-        .price .value, .price .label {
-            font-size: 1.7em;
-            @extend .bold;
-        }
-        .ride_discount {
-            float: left;
-            position: relative;
-            padding-top: 0.3em;
-            left: -2em;
-            top: 2.5em;
-            height: 69px;
-            width: 65px;
-            color: white;
-            @extend .bold;
-            text-align: center;
-            background-image: url(/static/images/mobile/ribbon_normal.png);
-            background-repeat: no-repeat;
-        }
-    }
-}
-
-#ride_details_page, #myride_details_page {
-    .ride_summary{
-        font-weight: bold;
-        line-height: 1.2em;
-        padding: 1.5em 1.3em;
-    }
-
-    hr{
-        margin-bottom: 1.3em;
-    }
-    .details_label, .details_label_type{
-        @extend .bold;
-    }
-    .pickup {
-        .details_label {
-            @include box-color($pickup_color);
-        }
-        .details_label_type {
-            color: $pickup_color;
-        }
-    }
-    .dropoff {
-        .details_label {
-            @include box-color($dropoff_color);
-        }
-        .details_label_type {
-            color: $dropoff_color;
-        }
-    }
-    .desc {
-        color: #7c7c7c;
-        font-size: 13px;
-        font-weight: normal;
-    }
-    .hotspot{
-        .name {margin-bottom: 0;}
-        .desc {margin-top: 0;}
-    }
-    .when p{
-        margin-bottom: 0;
-    }
-}
-
-#myride_details_page{
-    .ui-content{
-        padding-top: 15px;
-    }
-    .ride_summary{
-        padding: 1em;
-        hr{
-            margin: 1.5em 0;
-        }
-    }
-    .details_label{
-        line-height: 1.8em;
-    }
-    .when{
-        margin-bottom: 1em;
-    }
-    .ride_details_comment{
-        margin: 1em;
-    }
-}
-
-#address_page{
-    .street-hn-cntr{
-        position: relative;
-        height: 3.3em;
-        padding: 0 .4em 0 1em; // change to 0 .4em 0 .2em for iphone native
-    }
-    $sa_width: 60%;
-    .street-cntr{
-        width: $sa_width;
-        margin-left: 1em;
-        float: right;
-    }
-    .hn-cntr{
-        width: 90-$sa_width;
-        float:left;
-    }
-}
-
-#hotspot_page{
-    #hotspot_list{
-        line-height: 1.3em;
-    }
-    li.suggest_hotspot {
-        a {
-            h1 {
-                text-align: center;
-                color: #BBBBBB;
-            }
-        }
-    }
-}
-
-#about_page{
-    .about_icon{
-        width: 124px;
-        height: 124px;
-        background: url(/static/images/mobile/about_logo.png) left top no-repeat;
-        margin: 0 auto;
-    }
-    .about_header{
-        /*font-size: 1em;*/
-        text-align: left;
-    }
-    .copyright{
-        margin: 2em auto 3em auto;
-        font-size: 1em;
-        text-align: center;
-        direction: ltr;
-    }
-    #partners_logos{
-        width: 275px;
-        height: 180px;
-        background: url(/static/images/mobile/Mapa_Telmap.png) left top no-repeat;
-        margin: 0 auto;
-    }
-}
-
-#share_page{
-    .note{
-        font-size: 0.85em;
-        color: #666;
-    }
-}
-
-#login_page, #login_or_register_page {
-    .ui-content{
-        color: #424242;
-        input {
-            margin-top: 20px;
-        }
-        .ui-btn{
-           margin: auto 0;
-        }
-    }
-    #login-form{
-        position: relative;
-        top: -0.5em;
-    }
-    #id_password{
-        margin-bottom: 1.1em;
-    }
-
+.shadow-sep{
+    direction: ltr !important;
+    position: absolute;
+    width: 100%;
     table{
         width: 100%;
-        margin: 0.5em auto;
+        border-spacing: 0;
+        border-collapse: collapse;
     }
-    td{
-        width: 33%;
-    }
-
-    #advtgs {
-        text-align: center;
-        margin-top: 1em;
-    }
-    #advtgs ul {
-        line-height: 2em;
-        list-style: none;
-        margin-top: 0;
+    .shadow-r, .shadow-l{
+        width: 117px;
+        background: url(../images/wb_site/1.2/shade.png) no-repeat;
+        height: 8px;
         padding: 0;
     }
-    li:before{
-        content: "* ";
+    .shadow-r{
+        background-position: 0 -8px;
     }
-
-
+    .shadow-m{
+        background: url(../images/wb_site/1.2/shade_pixel.png);
+        background-repeat: repeat-x;
+    }
 }
 
-#myrides_page{
-    .ui-li-divider{
-        font-size: 0.85em;
+#suggest_apps_page{
+    #logo-container{
+        position: absolute;
+        top: 0;
+        bottom: 150px; // height of #buttons-container
+        left: 0;
+        right: 0;
+        text-align: center;
+        background: white;
+        .shadow-sep { bottom: -7px; }
     }
-    p.ui-li-desc{
-        font-size: 0.85em;;
-        font-weight: bold;
-        line-height: 1.5em;
-        color: #666;
+    #buttons-container{
+        position: absolute;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        height: 150px;
+        padding: 20px;
+        @include border-box;
+        a[data-role="button"]{
+            margin-bottom: 20px;
+        }
     }
-
+    #logo-wrapper{
+        position: absolute;
+        bottom: 30%;
+        text-align: center;
+        width:100%;
+    }
+    #logo{
+        font-family: 'Titillium Web';
+    }
+    #logo .image{
+        height: 63px;
+        background: url(../images/logo/logo.png) center center no-repeat;
+        margin-bottom: 20px;
+    }
+    #logo .name{ font-size: 38px; line-height: 32px; }
+    #logo .text{ font-size: 24px; }
 }
 
 #registration_page ,#validation_page, #credit_guard_page{
@@ -568,10 +330,10 @@ ul.narrow {
         margin-top: 0;
     }
     label[for="id_agree_to_terms"]{
-        margin-bottom: 0;
+        margin: 0;
         .ui-btn-inner{
             padding-right: 0;
-            padding-left: 43px;
+            padding-left: 32px;
             height: 1em;
         }
     }
@@ -582,8 +344,9 @@ ul.narrow {
     .ui-block-a{
         width: 85%;
         font-size: 0.79em;
+        padding-right: 1em;
         span{
-            line-height: 4em;
+            /*margin-top: 1em;*/
         }
     }
     .ui-block-b{ width: 15%; }
@@ -612,48 +375,6 @@ ul.narrow {
     }
 }
 
-#trx_page{
-    color: #666666;
-    #order_status {
-        background: white;
-        padding: 0.7em 1.3em;
-        @include box-shadow(0 0 0.4em 0.01em #404040);
-    }
-    #order_status h3 {
-        text-align: center;
-    }
-    #order_status .status_details {
-        text-align: center;
-    }
-    #status_help{
-        font-size: 0.8em;
-        margin-bottom: 1.8em;
-    }
-    #status_icon {
-        width: 85px;
-        height: 100px;
-        margin: 0 auto;
-    }
-    #status_icon.processing {
-        width: 100px;
-        background: url(/static/images/wb_site/loading_large.gif) left 0 no-repeat;
-        margin-bottom: 1em;
-    }
-
-    #status_icon.approved {
-        background: url(/static/images/wb_site/processing_icons.png) left -84px no-repeat;
-    }
-
-    #status_icon.failed {
-        background: url(/static/images/wb_site/processing_icons.png) left 10px no-repeat;
-    }
-    #note{
-        font-size: 0.8em;
-        margin-top: 3em;
-        color: #555555;
-    }
-}
-
 .faq, #faq_page{
     .q{
         font-weight: bold;
@@ -666,13 +387,11 @@ ul.narrow {
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5),
        only screen and (min--moz-device-pixel-ratio: 1.5),
        only screen and (min-resolution: 240dpi) {
-            .ride_summary {
-                .ride_discount {
-                    background-image: url(/static/images/mobile/ribbon_retina.png);
-                    background-repeat: no-repeat;
-                    @include background-size(65px 69px);
-                }
+            .ui-body-a, .ui-overlay-a {
+                background-image: url(/static/images/mobile/bg_retina.png);
+                background-size: 72px;
             }
+
             .top_tri{
                     background-image: url(/static/images/mobile/top_tri__retina.png);
                     background-repeat: no-repeat;
@@ -697,24 +416,15 @@ ul.narrow {
                 }
 
             }
-            #welcome_page {
-                .welcome-img {
-                    background-image: url(/static/images/mobile/welcome_retina.png);
-                    @include background-size(178px 82px);
-                }
+            /* fixes transparent loader issue */
+            .ui-loader {
+                background: rgba(0, 0, 0, 0.8);
+                opacity: .88;
             }
-            #home {
-                .ui-icon {
-                    @include background-size(43px 242px);
-                    background-image: url(/static/images/mobile/home_icons_retina.png);
-                }
-                .ui-btn-active {
-                    .ui-icon {
-                        background-image: url(/static/images/mobile/home_icons_white_retina.png);
-                        @include background-size(43px 242px);
-                    }
-                }
 
+            #suggest_apps_page #logo .image {
+                background: url(../images/logo/logo-retina) center center no-repeat;
+                @include background-size(87px 63px);
             }
 }
 

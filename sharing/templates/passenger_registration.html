@@ -2,212 +2,187 @@
 {% load i18n %}
 {% load value_from_settings %}
 
-{% block content %}
-    {#    {% if order %}#}
-    {#        <div>#}
-    {#            Order Details:<br>{{ order }}<br> {{ order.value }} NIS#}
-    {#        </div>#}
-    {#    {% endif %}#}
+{% block headertext %}{% trans "Join WAYbetter" %}{% endblock %}
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        .breadcrumb{
+            background-color: inherit;
+            margin-bottom: 0;
+            padding: 5px 0;
+        }
+        .breadcrumb li{
+            color: #999;
+        }
+        .breadcrumb .active{
+            color: inherit;
+        }
+        .errorlist{
+            list-style: none;
+            color: #B94A48;
+            margin: 0;
+        }
 
-    <table id="progress">
-        <tr>
-            <td class="step {% if step == "auth" %}current{% endif %}">1. {% trans "Account Information" %}</td>
-            <td class="step {% if step == "phone" %}current{% endif %}">2. {% trans "Phone Verification" %}</td>
-            <td class="step">3. {% trans "Billing Information" %}</td>
-        </tr>
-    </table>
 
-    <div class="spacer top"></div>
+        #verification_status{
+            width: 122px;
+            display: inline-block;
+            font-size: 24px;
+            line-height: 21px;
+        }
+        #verification_status i {
+            visibility: hidden;
+        }
+        #verification_status.success i.icon-ok-sign {
+            color: green;
+            visibility: visible;
+        }
+        #verification_status.error i.icon-remove {
+            color: #B94A48;
+            visibility: visible;
+        }
 
-    {% if step == "auth" %}
-        <div class="header-row">
-            <span class="step-header">{% trans "Account Information" %}</span>
-
-            <span class="login float-farend">
-                <span class="bold">{% trans "Already a member?" %}</span>
-                <a href="{{ login_link }}" class="wb_link">{% trans "Sign In" %}</a>
-            </span>
-        </div>
-
-        <table id="auth_step">
-            <tr>
-{#                <td class="fb">#}
-{#                    {% trans "Use your Facebook account for fast registration:" %}#}
-                    {#                    <a id="fb_login_button" href="{% value_from_settings FACEBOOK_LOGIN_LINK %}"></a>#}
-{#                    <a id="fb_login_button"></a>#}
-{#                    <div style="text-align: center; color: #BCBCBC">{% trans "Coming Soon" %}...</div>#}
-{#                </td>#}
-{#                <td class="vrule-cntr">#}
-{#                    <div class="vrule"></div>#}
-{#                    <div class="or">{% trans "OR" %}</div>#}
-{#                    <div class="vrule"></div>#}
-{#                </td>#}
-                <td>
-                    {% load ajax_form_utils %}
-                    <form id="auth_form">
-                        {% csrf_token %}
-                        <table id="user_details">
-                            {% for hidden in form.hidden_fields %}
-                                {{ hidden }}
-                            {% endfor %}
-                            {% for field in form.visible_fields %}
-                                {% if field.html_name != "agree_to_terms" %}
-                                    <tr class="input-row">
-                                        <th>{{ field.label_tag }}</th>
-                                        <td>{{ field }}
-                                            <ul class="errorlist hidden">{{ field.errors }}</ul>
-                                        </td>
-                                    </tr>
-                                {% endif %}
-                            {% endfor %}
-                            <tr>
-                                <td></td>
-                                <td id="terms_container">
-                                        <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms"/>
-                                        <label for="id_agree_to_terms">{% trans "I agree to the" %}
-                                            <a class="wb_link" target="_blank"
-                                               href="{% url terms %}">{% trans "Terms Of Use" %} </a>
-                                            {% trans "and" %} <a class="wb_link" target="_blank"
-                                                                 href="{% url privacy %}">{% trans "Privacy Statement" %}.</a>
-                                        </label>
-                                        <ul class="errorlist hidden"></ul>
-                                </td>
-                            </tr>
-                        </table>
-                    </form>
-                </td>
-            </tr>
-        </table>
-
-    {% else %}
-
-        <table id="phone_step">
-            <tr class="header-raw">
-                <td colspan="2">
-                    <span class="step-header">{% trans "Phone Verification" %}</span>
-                </td>
-            </tr>
-            <tr>
-                <td class="form cntr">
-                    <form id="phone_form">
-                        {% csrf_token %}
-                        <input name="country_code" type="hidden" value="{{ country_code }}"/>
-                        <table>
-                            <tr class="phone cntr">
-                                <td>
-                                    <label for="local_phone">{% trans "Mobile Phone" %}</label>
-                                </td>
-                                <td>
-                                    <input id="local_phone" name="local_phone" type="text"/>
-                                </td>
-                            </tr>
-                            <tr class="btn cntr">
-                                <td></td>
-                                <td>
-                                    <div id="sms_button_container">
-                                        <button id="validate_phone" type="button" class="wb_button"
-                                                disabled="disabled">{% trans "Send SMS Code" %}</button>
-                                        {#                                        <div id="didnt_get_code">#}
-                                        {#                                            <a class="wb_link"#}
-                                        {#                                               href="mailto:support@waybetter.com?subject={% trans "I didn't get the SMS code" %}">{% trans "I didn't get the SMS code" %}</a>#}
-                                        {#                                        </div>#}
-                                    </div>
-                                </td>
-                            </tr>
-                            <tr class="code cntr">
-                                <td>
-                                    <label for="verification_code">{% trans "Enter Code" %}</label>
-                                </td>
-                                <td>
-                                    <input id="verification_code" name="verification_code" type="text"/>
-                                    <span id="verification_status"></span>
-                                </td>
-                            </tr>
-                        </table>
-
-                    </form>
-                </td>
-                <td class="img cntr">
-                    <div class="sms-img"></div>
-                </td>
-            </tr>
-        </table>
-    {% endif %}
-
-    <div class="spacer bottom"></div>
-
-    <div id="next_container">
-        {% if step == "auth" %}
-            <span id="bottom_login">
-                {% trans "Already a member?" %} <a href="{{ login_link }}" class="wb_link">{% trans "Sign In" %}</a>
-            </span>
-            <button id="finish_auth" class="wb_button">{% trans "Next" %} ></button>
-        {% else %}
-            <button id="finish_phone" class="wb_button" disabled="disabled">{% trans "Next" %} ></button>
-        {% endif %}
-    </div>
-
+    </style>
 {% endblock %}
 
-{% block post_content %}{% endblock %}
+{#    {% if order %}#}
+{#        <div>#}
+{#            Order Details:<br>{{ order }}<br> {{ order.value }} NIS#}
+{#        </div>#}
+{#    {% endif %}#}
+
+{% block content %}
+        <div id="content">
+            <div class="container">
+                <div class="row">
+                    <div class="span12">
+                        <div class="modal modal-flat">
+                            <div class="modal-header pagination-centered">
+                                <ul class="breadcrumb">
+                                    <li {% if step == "auth" %}class="active"{% endif %}>
+                                        {% trans "Account Information" %}<span class="divider">/</span></li>
+                                    <li {% if step == "phone" %}class="active"{% endif %}>
+                                        {% trans "Phone Verification" %}<span class="divider">/</span></li>
+                                    <li>{% trans "Billing Information" %}</li>
+                                </ul>
+                            </div>
+
+                            {% if step == "auth" %}
+                                <div class="modal-body">
+                                    <form id="auth_form" class="form-horizontal">
+                                        {% csrf_token %}
+                                        {% for field in form.hidden_fields %} {{ field }}{% endfor %}
+                                        {% for field in form.visible_fields %}
+                                            {% ifnotequal field.html_name "agree_to_terms"  %}
+                                                <div class="control-group">
+                                                    <div class="control-label"><label for="{{ field.html_name }}">{{ field.label }}</label></div>
+                                                    <div class="controls">
+                                                        {{ field }}
+                                                        <ul class="errorlist">{{ field.errors }}</ul>
+                                                    </div>
+                                                </div>
+                                            {% endifnotequal %}
+                                        {% endfor %}
+
+                                        <div class="control-group">
+                                            <div class="controls">
+                                                <label class="checkbox">
+                                                    <input type="checkbox" name="agree_to_terms" id="id_agree_to_terms">
+                                                    {% trans "I agree to the" %}
+                                                    <a class="wb_link" target="_blank" href="{% url terms %}">{% trans "Terms Of Use" %} </a>
+                                                    {% trans "and" %} <a class="wb_link" target="_blank" href="{% url privacy %}">{% trans "Privacy Statement" %}.</a>
+                                                    <ul class="errorlist hidden"></ul>
+                                                </label>
+                                            </div>
+                                        </div>
+                                    </form>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button id="finish_auth" class="btn btn-primary pull-right">{% trans "Next" %}</button>
+                                    <a href="{{ login_link }}" class="btn btn-warning pull-left">{% trans "Already a member?" %}</a>
+                                </div>
+
+                            {% else %} <!-- step == phone -->
+                                <div class="modal-body">
+                                    <form id="phone_form" class="form-horizontal pagination-centered">
+                                        {% csrf_token %}
+                                        <input name="country_code" type="hidden" value="{{ country_code }}"/>
+
+                                        <div class="control-group">
+                                            <div class="input-prepend">
+                                                <span class="add-on"><i class="icon-phone"></i></span>
+                                                <input id="local_phone" name="local_phone" type="text" placeholder="{% trans "Mobile Phone" %}"/>
+                                            </div>
+                                            <button id="validate_phone" class="btn btn-warning" disabled="disabled">{% trans "Send SMS Code" %}</button>
+                                        </div>
+                                        <div class="control-group">
+                                            <div class="input-prepend">
+                                                <span class="add-on"><i class="icon-comments"></i></span>
+                                                <input id="verification_code" name="verification_code" type="text" placeholder="{% trans "SMS code" %}"/>
+                                            </div>
+                                            <span id="verification_status">
+                                                <i class="icon-ok-sign"></i>
+                                                <i class="icon-remove"></i>
+                                            </span>
+                                        </div>
+                                    </form>
+                                </div>
+                                <div class="modal-footer">
+                                    <button id="finish_phone" class="btn btn-primary" disabled="disabled">{% trans "Next" %}</button>
+                                </div>
+
+                            {% endif %} <!-- end steps -->
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+{% endblock %}
+
 
 {% block doc_ready %}
     {{ block.super }}
 
-    <script type="text/javascript">
-        $(function () {
-            // set login links from base template
-            $("[href='{% url auth_login %}']").attr("href", "{{ login_link }}");
-        });
-    </script>
+
     <script type="text/javascript">
         var GA_EVENT_CATEGORY = "registration";
 
         {% if step == "auth" %}
 
             $(function () {
-                var validations = {% render_ajax_fields form %};
-                $('#auth_form').validation(validations, {
-                    on_form_valid:function (event, form) {
-                        $("#finish_auth").enable();
-                    }
-                });
+                $("#auth_form input").not(":hidden").first().focus();
 
-                $("#finish_auth").click(function () {
+                var $finish_auth = $("#finish_auth");
+                $finish_auth.click(function () {
                     $.ajax({
                         url:"{% url register_user %}",
                         type:"POST",
                         data:$("#auth_form").serialize(),
                         beforeSend:function () {
-                            var $that = $("#finish_auth");
-                            $that.disable().data("old_text", $that.text()).text("{% trans "Sending" %}");
+                            $finish_auth.disable();
+                        },
+                        complete: function(){
+                            $finish_auth.enable();
                         },
                         success:function (response) {
                             $(".errorlist").empty();
                             if (response.errors) {
-                                $("#finish_auth").text($("#finish_auth").data("old_text")).enable();
                                 $.each(response.errors, function (i, e) {
                                     $("#id_" + e.field_name).siblings(".errorlist").replaceWith(e.errors_ul);
                                 });
                             }
                             else {
                                 gaHitPage("user_registered.html");
-                                if (response.redirect) {
-                                    window.location.href = response.redirect;
-                                }
-                                else {
-                                    window.location.href = "{% url wb_home %}";
-                                }
+                                if (response.redirect) { window.location.href = response.redirect; }
+                                else { window.location.href = "{% url wb_home %}"; }
                             }
                         },
                         error:function () {
-                            $("#finish_auth").text($("#finish_auth").data("old_text")).enable();
                             alert("{% trans "An error occurred, please try again" %}.");
                         }
                     });
                 });
-
-                $("#auth_form input").not(":hidden").first().focus();
 
                 // Google Analytics
                 $("#id_name").one("keyup", function () {
@@ -225,78 +200,74 @@
                 $("#id_agree_to_terms").one("click", function () {
                     logGAEvent(GA_EVENT_CATEGORY, "i agree");
                 });
-                $("#finish_auth").bind("click", function () {
+                $finish_auth.bind("click", function () {
                     logGAEvent(GA_EVENT_CATEGORY, "next", "details");
                 });
-
-
             });
 
         {% else %}
+            var $local_phone = $("#local_phone"),
+                $validate_phone = $("#validate_phone"),
+                $verification_code = $("#verification_code"),
+                $finish_phone = $("#finish_phone");
 
             function updateValidatePhoneButtonState() {
-                var $local_phone = $("#local_phone");
                 $local_phone.val($local_phone.val().split(/\D+/).join(""));
                 if ($local_phone.val().length > 9) {
-                    $("#validate_phone").enable();
+                    $validate_phone.enable();
                 } else {
-                    $("#validate_phone").disable();
+                    $validate_phone.disable();
                 }
             }
 
             function sendCode() {
-                var $that = $("#validate_phone");
                 $.ajax({
                     url:"{% url send_verification_code %}",
                     data:$("#phone_form").serialize(),
                     type:"POST",
                     beforeSend:function () {
-                        $that.disable().data("old_text", $that.text()).text("{% trans "Sending" %}");
+                        $validate_phone.disable();
                     },
                     success:function (d) {
-                        $that.text("{% trans "Code Sent" %}");
-                        $("#local_phone").one("keydown", function () {
-                            $that.text($that.data("old_text")).enable();
-
-                        });
-                        $("#verification_code").enable().focus();
+                        $validate_phone.text("{% trans "Code Sent" %}").removeClass("btn-warning").addClass("btn-success");
+                        $verification_code.enable().focus();
+                        $local_phone.one("keydown", function () { $validate_phone.enable(); });
                     },
                     error:function () {
-                        alert("error");
-                        $that.text($that.data("old_text")).enable();
+                        $validate_phone.enable();
                     }
                 })
             }
 
             $(function () {
-                $("#finish_phone").disable();
+                $local_phone.focus();
+                $finish_phone.disable();
+                $verification_code.disable();
+
                 updateValidatePhoneButtonState();
-                $("#local_phone").keyup(function (e) {
+                $local_phone.keyup(function (e) {
                     updateValidatePhoneButtonState();
-                    if (e.which == 13) {
-                        sendCode();
-                    }
+                    if (e.which == 13) { sendCode(); }
                 });
 
-                $("#validate_phone").click(function () {
+                $validate_phone.click(function () {
                     sendCode();
                 });
 
-                $("#verification_code").keyup(
+                $verification_code.keyup(
                         function () {
                             var val = $(this).val();
                             if (val && val.length == 4) {
                                 var data = $("#phone_form").serialize();
                                 var $status = $("#verification_status");
-                                var $code = $("#verification_code");
-                                $code.disable();
+                                $verification_code.disable();
 
                                 $.ajax({
                                     url:"{% url register_passenger %}",
                                     type:"POST",
                                     data:data,
                                     beforeSend:function () {
-                                        $("#finish_phone").disable();
+                                        $finish_phone.disable();
                                         $status.removeClass("error success").addClass("sending");
                                     },
                                     complete:function () {
@@ -305,7 +276,7 @@
                                     success:function (response) {
                                         $status.addClass("success");
                                         $("#phone_form input").disable();
-                                        $("#finish_phone").enable().unbind("click").bind("click", function (e) {
+                                        $finish_phone.enable().unbind("click").bind("click", function (e) {
                                             e.preventDefault();
                                             window.location.href = response.redirect;
                                         });
@@ -313,34 +284,31 @@
                                         gaHitPage("phone_verified.html")
                                     },
                                     error:function (response) {
-                                        Registrator.openWBErrorDialog("{% trans 'OOPS...' %}", response.responseText, undefined);
                                         $status.addClass("error");
-                                        $code.enable();
+                                        $verification_code.enable();
                                     }
 
                                 })
                             }
                         }).keydown(function (event) {
                             var permittedKeys = [8, 37, 38, 39, 40, 46];
-
                             if ($(this).val().length >= 4 && $.inArray(event.which, permittedKeys) < 0) {
                                 return false;
                             }
                         });
 
-                $("#local_phone").focus();
 
                 // Google Analytics
-                $("#finish_phone").bind("click", function () {
+                $finish_phone.bind("click", function () {
                     logGAEvent(GA_EVENT_CATEGORY, "next", "phone");
                 });
-                $("#validate_phone").bind("click", function () {
+                $validate_phone.bind("click", function () {
                     logGAEvent(GA_EVENT_CATEGORY, "send validation code");
                 });
-                $("#local_phone").one("keyup", function () {
+                $local_phone.one("keyup", function () {
                     logGAEvent(GA_EVENT_CATEGORY, "insert phone number");
                 });
-                $("#verification_code").one("keyup", function () {
+                $verification_code.one("keyup", function () {
                     logGAEvent(GA_EVENT_CATEGORY, "insert validation code");
                 });
             });

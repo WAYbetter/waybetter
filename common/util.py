@@ -156,6 +156,24 @@ def is_empty(str):
     """
     return not str or len(str.strip()) == 0
 
+def first(func, iterable):
+    for item in iterable:
+        if func(item):
+            return item
+    return None
+
+def dict_to_str_keys(obj):
+    if isinstance(obj, dict):
+        result = {}
+        for k, v in obj.items():
+            new_key = str(k)
+            result[new_key] = dict_to_str_keys(v)
+
+        return result
+    else:
+        return obj
+
+
 def datetimeIterator(from_datetime=None, to_datetime=None, delta=datetime.timedelta(days=1)):
     """
     Return a generator iterating the dates between two datetime instances.
@@ -219,6 +237,17 @@ def get_channel_key(model, key_data=""):
     s.update(u"channel_key_%s_%d_%s" % (cls.__name__.lower(), model.id, key_data))
     return s.hexdigest()
 
+
+def get_mobile_platform(request):
+    from common.enums import MobilePlatform
+    ua = request.META.get('HTTP_USER_AGENT', "").lower()
+    platform = MobilePlatform.Other
+    if ua.find("iphone") > -1:
+        platform = MobilePlatform.iOS
+    elif ua.find("android") > -1:
+        platform = MobilePlatform.Android
+
+    return platform
 
 def log_event(event_type, order=None, order_assignment=None, station=None, work_station=None, passenger=None,
               country=None, city=None, rating="", lat="", lon=""):

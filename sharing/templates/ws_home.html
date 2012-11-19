@@ -1,663 +1,627 @@
-{% extends "wb_base.html" %}
-{% load i18n %}
+{% load value_from_settings %}
+<!doctype html>
+<html xmlns="http://www.w3.org/1999/xhtml" lang="{{ LANGUAGE_CODE }}" xml:lang="{{ LANGUAGE_CODE }}" {% if LANGUAGE_BIDI %}dir="rtl"{% endif %}
+      class=" {% if LANGUAGE_BIDI %}rtl{% endif %}" ng-app="WorkstationApp">
+<head>
+    {% load i18n %}
+    <meta charset="utf-8">
+{% if LANGUAGE_BIDI %}
+    <link href="/static/themes/bootstrap-bounce/css/bootstrap.min.rtl.css" rel="stylesheet">
+    <link href="/static/themes/bootstrap-bounce/css/font-awesome.rtl.css" rel="stylesheet">
+{% else %}
+   <link href="/static/themes/bootstrap-bounce/css/bootstrap.min.css" rel="stylesheet">
+   <link href="/static/themes/bootstrap-bounce/css/font-awesome.css" rel="stylesheet">
+   <link rel="stylesheet" type="text/css" href="/static/css/wb.css"/>
+{% endif %}
 
-{% block extrastyle %}
-    <link rel="stylesheet" href="/static/css/cupertino-modified/jquery-ui-1.8.16.custom.css" type="text/css" media="all">
-    <link rel="stylesheet" href="/static/css/ws.css" type="text/css" media="all">
-{% endblock %}
+    <style type="text/css">
+        * {
+            -webkit-user-select: none
+        }
+        body {
+            padding-top: 40px;
+            overflow-x: hidden;
+            font-size: 16px;
+        }
+        .progress-info.progress-striped .bar, .progress-striped .bar-info {
+            font-size: 16px;
+            line-height: 16px;
+        }
 
-{% block body %}
-    <div id="loader" class="ui-widget-header">{% trans 'Please wait, connecting' %}</div>
-    <div id="header" class="ui-widget-header">
-        <div id="options_button" class="toolbar_button"></div>
-        <div id="expand_collapse_button" class="toolbar_button">{% trans "Hide List" %}</div>
-        <div id="summary">
-            <span id="untaken_counter" class="untaken_count"></span> <span
-                class="untaken_count"> {% trans "Pending" %}</span>
-            |
-            <span id="taken_counter" class="taken_count"></span> <span
-                class="taken_count"> {% trans "Ready to go" %}</span>
-        </div>
-        <div id="tools_button" class="toolbar_button">{% trans "Manage" %}</div>
-        <div class="clear"></div>
-    </div>
-    <div id="ride_accordion_container">
-        <div id="ride_accordion"></div>
-    </div>
-    <div id="footer" class="ui-widget-header">
-        <div id="online_status" class="offline">{% trans 'Connecting' %}</div>
-        <div id="station_name">{{ work_station.station.name }}</div>
+        table > tbody > tr.ride-details {
+            background: none;
+        }
+        .ride-green {
+            background-color: #DFF0D8;
+        }
+        .ride-blue {
+            background-color: #D9EDF7;
+        }
+        .ride-yellow {
+            background-color: #FCF8E3;
+        }
+        .ride-red {
+            background-color: #F2DEDE;
 
-    </div>
-    <div id="option_menu">
-        <ul>
-            <li id="snap_right_action">{% trans "Snap to right corner" %}</li>
-            <li id="snap_left_action">{% trans "Snap to left corner" %}</li>
-        </ul>
-    </div>
+        }
+        @-webkit-keyframes blink {
+            0% {
+                background:#F2DEDE;
+            }
+            50% {
+                background:#B94A48;
+                color:white;
+            }
+            100% {
+                background:#F2DEDE;
+            }
+        }
 
-{% endblock %}
+        .loading {
+            width: 100px;
+            margin-bottom: 0;
+        }
 
-{% block doc_ready %}
+        .ride-red.blink {
+            -webkit-animation: blink 1s;
+            -webkit-animation-timing-function: ease-in-out;
+            -webkit-animation-iteration-count: infinite;
+        }
+
+        .rides-table tbody + tbody {
+            border-top: 1px solid #797979;
+        }
+
+        .rides-table > tbody > tr {
+            cursor: pointer;
+        }
+
+        .rides-table th, .rides-table td {
+            border-top: none;
+        }
+
+
+        .rides-table table {
+            cursor: default;
+        }
+        .horizontal-space {
+            margin-left: 5px;
+            margin-right: 5px;
+        }
+
+        .ride-details > td {
+            text-align: center;
+        }
+        .bold {
+            font-weight: bold;
+        }
+        
+        .ride-details > td {
+            border-bottom: 1px solid #797979;
+            padding: 0 10px;
+            padding-bottom: 18px;
+        }
+
+        .ride-details i {
+            margin: 0 9px;
+        }
+
+        .rides-table tr.muted {
+            border-top: 1px solid #BEBEBE;
+        }
+        .well-center {
+            display: inline-block;
+            margin-top: 20px;
+            width:50%;
+        }
+
+        .navbar-inner {
+            border-radius: 0;
+        }
+
+        #error_modal .icon-exclamation-sign {
+            font-size: 30px;
+            color: #B94A48;
+        }
+
+        #error_modal.fade.in {
+            top: 290px;
+        }
+        
+        [ng\:cloak], [ng-cloak], .ng-cloak {
+            display: none;
+        }
+    </style>
+
+    <script src="//ajax.googleapis.com/ajax/libs/jquery/1.8.2/jquery.min.js"></script>
+    <script>window.jQuery || document.write('<script src="/static/js/libs/jquery-1.8.2.min.js">\x3C/script>')</script>
     <script type="text/javascript" src="/_ah/channel/jsapi"></script>
-    <script type="text/javascript" src="/static/js/mylibs/jquery.countdown.min.js"></script>
+</head>
+<body ng-controller="WorkstationCtrl" ng-cloak ng-init="init()">
+<!-- directive: google-channel-directive -->
 
-    <script type="text/javascript">
-    var not_assigned_msg = "{% trans "Not Assigned Yet" %}";
-    var missed_msg = "{% trans "Missed" %}";
-    var minimize_label = "{% trans 'Hide' %}";
-    var maximize_label = "{% trans 'Show' %}";
-    var online_label = "{% trans 'Online Status: OK' %}";
-    var offline_label = "{% trans 'Online Status: ERROR' %}";
-    var is_minimized = true;
-    var is_online = false;
-    var minimize_nag_interval = 30; // seconds
-    var hearbeat_check_interval = 60 * 1000; // 30 seconds
-    var taken = 0;
-    var untaken = 0;
-    var current_version = "{{ current_version }}";
-    var last_heartbeat = new Date();
-    var exit_app_seq = false;
+<!-- NAVBAR -->
+<div class="navbar navbar-fixed-top">
+    <div class="navbar-inner">
+        <ul class="nav">
+            <li ng-class="{'active': current_tab == tabs.NEXT}" ng-click="current_tab = tabs.NEXT"><a href="#">נסיעות לטיפול <span
+                    class="badge badge-important" ng-show="next_rides().length">(( next_rides().length ))</span></a></li>
 
-    {% autoescape off %}
-        var rides_data = {{ rides_data }};
-        var taxi_driver_data = {{ taxis_data }};
-        var init_token = "{{ token }}";
-        var channel_opened = false;
-        var channel;
-        var socket;
-    {% endautoescape %}
+            <li class="divider-vertical"></li>
 
-    onError = function (XMLHttpRequest, textStatus, errorThrown) {
-        set_online(false);
-        is_in_error = true;
-        if (XMLHttpRequest) {
-            last_error_text = XMLHttpRequest.responseText;
-        } else {
-           last_error_text = "{% trans 'No connection to server' %}";
-        }
-        if (window.parentSandboxBridge) {
-            if (! window.parentSandboxBridge.is_error()) { // already in error state
-                //TODO: fix this on the air side as well - make sure only one instance of the refresh task is running
-                parentSandboxBridge.set_error_state(false);
-                parentSandboxBridge.refresh();
-                parentSandboxBridge.set_error_state(true);
+            <li ng-class="{'active': current_tab == tabs.CURRENT}" ng-click="current_tab = tabs.CURRENT"><a href="#">נסיעות נוכחיות <span
+                    class="badge badge-success" ng-show="current_rides().length">(( current_rides().length ))</span></a></li>
+
+
+{#            <li class="divider-vertical"></li>#}
+{##}
+{#            <li ng-class="{'active': current_tab == tabs.HISTORY}" ng-click="current_tab = tabs.HISTORY"><a href="#">היסטוריה</a></li>#}
+        </ul>
+
+        <ul class="nav pull-right" ng-show="updating()">
+            <li><a href="#">
+                <div class="progress progress-info progress-striped active loading">
+                  <div class="bar" style="width: 100%">טוען</div>
+                </div>
+            </a></li>
+        </ul>
+
+    </div>
+</div>
+
+<!-- CURRENT RIDES -->
+<div class="current-rides" ng-show="current_tab == tabs.CURRENT">
+    <table class="table rides-table" ng-show="current_rides().length">
+            <tbody ng-repeat="ride in current_rides()">
+            <tr ng-click="select_ride(ride)" ng-class="get_ride_class(ride)">
+                <td>(( ride.depart_time | date:"HH:mm"))</td>
+                <td>
+                    מונית (( ride.taxi ))
+                </td>
+                <td>(( ride.passengers | join_prop:"name":", " ))</td>
+            </tr>
+            <tr class="ride-details" ng-show="selected_ride == ride">
+                <td colspan="3">
+                    <h4>נסיעה מספר (( ride.id ))</h4>
+                    <table class="table table-condensed table-striped">
+                        <tr ng-repeat="stop in ride.stops">
+                            <td><i ng-class="{'icon-arrow-up': stop.type == 'PICKUP', 'icon-arrow-down': stop.type == 'DROPOFF'}"></i> (( stop.address ))</td>
+                            <td>
+                                <span ng-repeat="passenger in stop.passengers">
+                                    (( passenger.name )) <span class="muted">(( passenger.phone ))</span>
+                                    <span ng-hide="$last">, </span>
+                                </span>
+
+                             </td>
+                        </tr>
+                    </table>
+                    <div class="alert alert-success well-center">
+                        הנסיעה אושרה! מונית (( ride.taxi ))
+                    </div>
+                </td>
+            </tr>
+            </tbody>
+        </table>
+    <div class="row pagination-centered">
+        <div class="well well-large well-center" ng-hide="current_rides().length">
+            אין נסיעות נוכחיות
+        </div>
+    </div>
+</div>
+
+<!-- NEXT RIDES -->
+<div class="next-rides" ng-show="current_tab == tabs.NEXT">
+    <table class="table rides-table" ng-show="next_rides().length">
+        <tbody ng-repeat="ride in next_rides()">
+        <tr ng-click="select_ride(ride)" ng-class="get_ride_class(ride)">
+            <td>(( ride.depart_time | date:"HH:mm"))</td>
+            <td>
+                <span ng-repeat="stop in ride.stops">
+                    (( stop.address )) <i class="icon-chevron-left horizontal-space" ng-hide="$last"></i>
+                </span>
+
+            </td>
+            <td>(( ride.passengers | join_prop:"name":", " ))</td>
+        </tr>
+        <tr class="ride-details" ng-show="selected_ride == ride">
+            <td colspan="3">
+                <h4>נסיעה מספר (( ride.id ))</h4>
+                <table class="table table-condensed table-striped">
+                    <tr ng-repeat="stop in ride.stops">
+                        <td><i ng-class="{'icon-arrow-up': stop.type == 'PICKUP', 'icon-arrow-down': stop.type == 'DROPOFF'}"></i> (( stop.address ))</td>
+                        <td>
+                            <span ng-repeat="passenger in stop.passengers">
+                                (( passenger.name )) <span class="muted">(( passenger.phone ))</span>
+                                <span ng-hide="$last">, </span>
+                            </span>
+
+                         </td>
+                    </tr>
+                </table>
+                <ng-switch on="ride.status == status.VIEWED">
+                    <button class="btn btn-large btn-danger bold" ng-switch-when="true" ng-click="accept_ride(ride)" ng-disabled="updating()"><i class="icon-ok-sign"></i> ההזמנה התקבלה בתחנה</button>
+                    <div class="alert alert-success well-center" ng-switch-when="false" ng-hide="ride.future">
+                        <strong>אישור נשלח לנוסעים. נא לצוות מונית</strong>
+                    </div>
+                </ng-switch>
+            </td>
+        </tr>
+        </tbody>
+    </table>
+    <div class="row pagination-centered">
+        <div class="well well-large well-center" ng-hide="next_rides().length">
+אין נסיעות לטיפול
+        </div>
+    </div>
+</div>
+
+<!-- HISTORY RIDES -->
+<div class="history-rides" ng-show="current_tab == tabs.HISTORY">
+    <div class="row pagination-centered">
+        <div class="well well-large well-center" ng-hide="history_rides.length">
+אין נסיעות בהיסטוריה
+        </div>
+    </div>
+</div>
+
+<!-- ERROR MODAL -->
+<div class="modal hide fade" id="error_modal">
+  <div class="modal-header">
+    <h3><i class="icon-exclamation-sign"></i> שגיאה</h3>
+  </div>
+  <div class="modal-body">
+    <p>אירעה שגיאה - אנא המתן</p>
+
+      <div class="progress progress-danger progress-striped active">
+          <div class="bar" style="width: 100%"></div>
+      </div>
+
+  </div>
+</div>
+
+<script src="/static/themes/bootstrap-bounce/js/bootstrap.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/angular-1.0.2.min.js"></script>
+
+{% if LANGUAGE_CODE == "he" %}
+    <script type="text/javascript" src="/static/js/wb-ng/messages.he.js"></script>
+{% else %}
+    <script type="text/javascript" src="/static/js/wb-ng/messages.en.js"></script>
+{% endif %}
+<script type="text/javascript" src="/static/js/wb-ng/filters.js"></script>
+<script type="text/javascript" src="/static/js/utils.js"></script>
+
+<script type="text/javascript">
+    var app = angular.module("WorkstationApp", ['wbFilters']);
+    app.config(function ($interpolateProvider, $httpProvider) {
+        $interpolateProvider.startSymbol('((');
+        $interpolateProvider.endSymbol('))');
+
+        $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+        $httpProvider.defaults.transformRequest.push(function (data, headersGetter) {
+            if (data) {
+                return jQuery.param(angular.fromJson(data));
+            } else {
+                return data;
             }
-        }
-    };
+        });
+    });
 
-    setupChannel = function(token) {
-        $("#wcs-iframe").remove();
 
-        channel = new goog.appengine.Channel(token);
-        socket = channel.open();
-        socket.onerror = function() {
-            trace("channel error");
-            onError();
+    // setup a default exception handler
+    app.factory('$exceptionHandler', function(ErrorService, AirService) {
+        return function(exception, cause) {
+            AirService.log("exception: ", exception);
+            ErrorService.error_handler();
         };
-        socket.onclose = function() {
-            trace("channel closed");
-            onError()
-        };
-        socket.onopen = function() {
-            set_online(true);
-            trace("channel opened");
-            channel_opened = true;
-            air("set_error_state", false);
-        };
-        socket.onmessage = function(msg) {
-            air("trace", "channel message received: " + msg.data);
+    });
 
-            try {
-                var data = $.parseJSON(msg.data);
-                if (data.heartbeat) {
-                    last_heartbeat = new Date();
-                    if (data.heartbeat != current_version) {
-                        air("trace", "new version detected: " + data.heartbeat);
-                        onError();
-                    }
+    app.constant("Status", {
+        'ASSIGNED':'ASSIGNED',
+        'ACCEPTED':'ACCEPTED',
+        'APPROVED':'APPROVED',
+        'PENDING':'PENDING',
+        'VIEWED':'VIEWED',
+        'COMPLETED':'COMPLETED',
+        'FAILED':'FAILED'
+    });
+
+    app.constant("Defaults", {
+        version: "{{ current_version }}",
+        heartbeat_check_interval: 30 * 1000
+    });
+
+    app.constant("Tabs", {
+        CURRENT: "CURRENT",
+        NEXT: "NEXT",
+        HISTORY: "HISTORY"
+    });
+
+    app.service("AirService", function() {
+        return {
+            call: function() {
+                var args = Array.prototype.slice.call(arguments);
+//                console.log("AirService.call: " , args);
+                var func_name = args.shift();
+                if (window.parentSandboxBridge && window.parentSandboxBridge[func_name]) {
+                    return window.parentSandboxBridge[func_name].apply(window.parentSandboxBridge, args);
                 } else {
-                    if ($("#ride_header_" + data.id + ", #ride_div_" + data.id).length < 2) { // render if data (ride) is new or rendered incorrectly
-                        $("#ride_header_" + data.id + ", #ride_div_" + data.id).remove();
-                        renderRide(data);
-                        air("play_notification_sound");
-                    }
+                    return false
                 }
-            } catch (e) {
-                trace("error parsing: " + JSON.stringify(e))
-            }
-            acknowledgeMessage(msg);
-        };
-
-        $(document).oneTime("10s", function() {
-            if (! channel_opened) {
-                trace("Channel did not open correctly");
-                onError();
-            }
-        })
-    };
-
-    acknowledgeMessage = function(msg) {
-        try {
-            $.ajax({
-                url: "{% url ordering.station_controller.message_received %}",
-                type: "POST",
-                data: {msg_data: msg.data}
-            });
-        } catch (e) {
-            trace("error during message_received: " + e);
-        }
-    };
-
-    set_online = function(online) {
-        var $online_status = $("#online_status"),
-                $loader = $("#loader"),
-                $content = $("#ride_accordion_container"),
-                $header = $("#header");
-
-        is_online = online;
-        if (online) {
-            $online_status.addClass("online").removeClass("offline");
-            $online_status.text(online_label);
-            $loader.hide();
-            $header.add($content).show();
-            updateCounters();
-        } else {
-            air("minimize");
-            $online_status.addClass("offline").removeClass("online");
-            $online_status.text(offline_label);
-            $header.add($content).hide();
-            $loader.show();
-        }
-    };
-
-    populateDrivers = function($driver_select, $taxi_selector, taxi_id) {
-        var prev_val = $driver_select.val();
-        $driver_select.empty().disable();
-        var taxi = $.grep(taxi_driver_data, function(e) {
-            return e.id == taxi_id;
-        })[0];
-        if (taxi) {
-            $.each(taxi.drivers, function(i, driver) {
-                var opt = $('<option value="' + driver.id + '">' + driver.name + '</option>').appendTo($driver_select);
-                if (driver.id == prev_val) {
-                    $driver_select.val(prev_val);
-                }
-            });
-
-            if (taxi.drivers.length > 1 && ! $taxi_selector.is(":disabled")) {
-                $driver_select.enable();
-            }
-        }
-    };
-
-    populateTaxis = function() {
-
-        $(".taxi_selector").each(function(i, selector) {
-            $(this).empty();
-            $.each(taxi_driver_data, function(i, taxi) {
-                $(selector).append('<option value="' + taxi.id + '">' + taxi.number + '</option>');
-            });
-            $(this).val($(this).data("orig_val"));
-            if ($(this).data("is_enabled")) {
-                $(this).enable();
-            }
-            $(this).change(); // trigger populateDrivers
-        });
-    };
-
-    getTaxiDriverData = function(populate) {
-        if (populate) {
-            $(".taxi_selector").each(function(i, e) {
-                $(this).data("orig_val", $(this).val());
-                $(this).data("is_enabled", $(this).is(":enabled"));
-            });
-            $(".taxi_selector").empty().disable().append('<option>' + "{% trans "Updating..." %}" + '</option>');
-        }
-        try {
-            $.ajax({
-                url: "{% url sharing.station_controller.station_taxidrivers %}",
-                type: "GET",
-                data: {"get_taxis": true},
-                dataType: 'json',
-                success: function(response) {
-                    try {
-                        taxi_driver_data = response.taxis_data;
-                        if (populate) {
-                            populateTaxis();
-                        }
-                    } catch (e) {
-                        trace("error in populateTaxis" + e);
-                        onError();
-                    }
-                }
-            });
-        } catch (e) {
-            trace("error in getTaxiDriverData" + e);
-            onError();
-        }
-
-    };
-
-    renderTable = function(ride) {
-        var $table = $('<table></table>');
-        $table.append("<tr class='spacer'><td colspan=3></td></tr>"); // spacer
-        $table.append("<tr class='spacer'><td colspan=2 class='table_header'>{% trans 'Pickups' %}</td><td class='table_header'>{% trans '# of Passengers' %}</td></tr>"); // spacer
-
-        $.each(ride.pickups, function(i, p) {
-            $table.append(renderPointRow(p, 'pickup'));
-        });
-
-        $table.append("<tr class='spacer'><td colspan=3></td></tr>"); // spacer
-        $table.append("<tr class='spacer'><td colspan=3 class='table_header'>{% trans 'Dropoffs' %}</td></tr>"); // spacer
-
-        $.each(ride.dropoffs, function(i, p) {
-            $table.append(renderPointRow(p, "dropoff"));
-        });
-
-        return $table;
-    };
-
-    renderPointRow = function(point_data, class_name) {
-        var row_content = "<tr class='"+ class_name +"'><td>" + point_data.time + "</td><td>" + point_data.address + "</td><td>" + point_data.num_passengers;
-        if (point_data.num_passengers == 1) {
-            row_content += "&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;" + "{% trans "Tel" %}': " + point_data.passenger_phones[0];
-        }
-        row_content += "</td></tr>";
-        return $(row_content);
-    };
-
-    renderInfo = function(ride) {
-        var link = "{% url sharing.station_controller.show_ride %}" + ride.id;
-        var $map_link = $('<a class="map_link" href="#" target="_blank">{% trans "Show Points On Map" %}</a>')
-                .click(function(e) {
-                    e.preventDefault();
-                    window.open(link, "Map View", 'width=800,height=600,resizable=no');
-                });
-
-        var $copy_link = $('<a class="map_link copy_link" href="#">{% trans "Copy Info" %}</a>').click(function() {
-            if (air("copy", ride.driver_jist)) {
-                flashMessage("{% trans "Ride Copied" %}");
-            } else {
-                flashError("{% trans "Failed Copying" %}");
-            }
-            return false;
-        });
-
-        var $value = $('<span class="ride_value">{% trans "Value" %}:' + ride.value + ' ₪</span>');
-
-        return $('<div class="ride_info"></div>').append($value, $map_link, $copy_link, '<div class="clear"></div>');
-    };
-
-    renderMatcher = function(ride) {
-        var $driver_label = '<label for="driver_sel_' + ride.id + '"> {% trans 'Driver' %}' + '</label>';
-        var $driver_selector = $('<select class="driver_selector"></select>').attr("id", "driver_sel_" + ride.id);
-
-        var $taxi_label = '<label for="taxi_sel_' + ride.id + '"> {% trans 'Taxi No.' %}' + '</label>';
-        var $taxi_selector = $('<select class="taxi_selector"></select>').attr("id", "taxi_sel_" + ride.id);
-
-        if (ride.taxi && ride.driver) { // accepted ride
-            $taxi_selector.append('<option value="' + ride.taxi.id + '">' + ride.taxi.number + '</option>').disable();
-            $driver_selector.append('<option value="' + ride.driver.id + '">' + ride.driver.name + '</option>').disable();
-        }
-        else {
-            $taxi_selector.change(function() {
-                populateDrivers($driver_selector, $taxi_selector, $(this).val());
-            });
-        }
-
-        var $add_driver = $('<a class="add_driver">{% trans "+ Add" %}</a>');
-        var $selectors = $('<div class="select_tools"></div>')
-                .append($taxi_label, $taxi_selector, $driver_label, $driver_selector);
-
-        var $accept_button = $('<div class="accept_button">{% trans 'Finish' %}</div>').attr("id", "accept_ride_" + ride.id).button()
-                .click(function() {
-                    var that = this;
-                    if ($taxi_selector.val() && $driver_selector.val()) {
-                        $.ajax({
-                            url: '{% url sharing.station_controller.accept_ride %}',
-                            type: 'POST',
-                            dataType: "json",
-                            data: { 'ride_id': ride.id,
-                                'taxi_id': $taxi_selector.val(),
-                                'driver_id': $driver_selector.val() },
-                            beforeSend: function() {
-                                $(that).button("disable");
-                            },
-                            success: function(response) {
-                                try {
-                                    acceptRide(response.ride);
-                                } catch (e) {
-                                    trace("error in acceptRide" + e);
-                                    onError();
-                                }
-                            },
-                            error: function(response) {
-                                trace(response);
-                                alert(response.responseText);
-                                $(that).button("enable");
-                            }
-                        });
-                    }
-                    else {
-                        alert("{% trans "Please choose taxi and driver" %}");
-                    }
-                });
-        return $('<div class="ride_matcher" id="matcher_' + ride.id + '"></div>')
-                .append($accept_button, $selectors, '<div class="clear"></div>');
-    };
-
-
-    renderRide = function(ride) {
-        updateCounters({{ assigned }});
-        ride.depart_time = new Date(ride.depart_time);
-        var $ride_header = $('<h3 class="ride_header"></h3>').attr("id", "ride_header_" + ride.id)
-                .append('<span class="date">' + getFullDate(ride.depart_time) + '</span>')
-                .append('<span class="seperator"> - </span>')
-                .append('<span class="pickup">' + ride.pickups[0].address + '</span>')
-                .append('<span class="status not_assigned">' + not_assigned_msg + '</span>')
-
-                .data("status", ride.status);
-
-        // if ride is today, show exact time
-        if (ride.depart_time.getDate() == (new Date()).getDate()) {
-            $ride_header.find(".date").html('{% trans "Today" %}, ' + getFullTime(ride.depart_time));
-        }
-
-        var $ride_div = $('<div class="ride_div"></div>').attr("id", "ride_div_" + ride.id).data("ride_time", ride.depart_time);
-        $ride_div.append(renderTable(ride), renderInfo(ride), renderMatcher(ride));
-
-        if (ride.debug) {
-            var $close_btn = $('<span href="#" class="action_link"></span>').text('x').click(function(e) {
-                var that = this;
-                $.ajax({
-                    url: '{% url sharing.station_controller.complete_ride %}',
-                    type: 'POST',
-                    data: { 'ride_id': ride.id, 'force': 1 },
-                    beforeSend: function() {
-                        $(that).button("disable");
-                    },
-                    success: function() {
-                        $ride_header.remove();
-                        $ride_div.remove();
-                        updateCounters({{ accepted }});
-                        updateCounters({{ completed }});
-                    },
-                    error: function() {
-                        $(that).button("enable");
-                        alert("error closing");
-                    }
-                });
-                return false; // prevent the accordion opening
-            });
-            $ride_header.prepend($close_btn);
-        }
-
-        // re-create the accordion and open it where it was opened
-        var $accordion = $("#ride_accordion");
-        var $active_header = $("[id^=ride_header_]")[$accordion.accordion("option", "active")];
-        var append_after = getRenderPosition(ride);
-        if (append_after) {
-            $(append_after).after($ride_header, $ride_div);
-        }
-        else { // put it first
-            $accordion.prepend($ride_header, $ride_div);
-        }
-
-        $accordion.accordion("destroy").accordion({ autoHeight: false, active: $("[id^=ride_header_]").index($active_header) });
-        // install timer
-        $("#ride_header_" + ride.id).oneTime(Math.max(ride.depart_time - new Date(), 0), function() {
-            if ($(this).data("status") == {{ assigned }}) {
-                timeoutRide(ride);
-            }
-        });
-
-        populateTaxis();
-    };
-
-    getRenderPosition = function(ride) {
-        // returns the ride_div after which to append the new ride_header and ride_div, or
-        // undefined if no such ride_div exists (i.e., the new ride should be first).
-        // assumes existing rides in the page are ordered by ride time.
-
-        var append_after = undefined;
-
-        $("[id^='ride_div_']").each(function(i, ride_div) {
-            if ($(this).data("ride_time") <= ride.depart_time) {
-                append_after = this;
-            }
-            else {
-                return false; // break
-            }
-        });
-        return append_after;
-    };
-
-    timeoutRide = function(ride) {
-        var $rh = $("#ride_header_" + ride.id);
-        $rh.data("status", {{ timed_out }}).addClass("timed_out");
-        $rh.find(".status").empty().text(missed_msg);
-
-        var $rd = $("#ride_div_" + ride.id);
-        $rd.find("select").attr("disabled", "");
-        $rd.find(".accept_button").button("disable");
-        // ajax to server?
-    };
-
-    acceptRide = function(ride) {
-        var $rh = $("#ride_header_" + ride.id);
-        $rh.data("status", {{ accepted }}).addClass("accepted");
-        $rh.find(".pickup").after('<span class="seperator"> - </span>',
-                '<span class="taxi"> {% trans 'Taxi No.' %}' + ride.taxi.number + ' </span>');
-
-        var $rd = $("#ride_div_" + ride.id);
-        $rd.find("select").disable();
-        $rd.find(".accept_button").button("disable");
-
-        var $complete_ride = $('<span href="#" class="action_link"></span>').text("{% trans 'Ride Started' %}").click(function(e) {
-            var that = this;
-            $.ajax({
-                url: '{% url sharing.station_controller.complete_ride %}',
-                type: 'POST',
-                data: { 'ride_id': ride.id },
-                beforeSend: function() {
-                    $(that).button("disable");
-                },
-                success: function() {
-                    $rh.remove();
-                    $rd.remove();
-                },
-                error: function() {
-                    $(that).button("enable");
-                    alert("error marking ride as finished");
-                }
-            });
-            return false; // prevent the accordion opening
-        });
-
-        ride.depart_time = new Date(ride.depart_time);
-        if (ride.depart_time > new Date()) { // future order, show countdown
-            var $countdown = $('<span></span>').countdown(
-                    { compact: true, format: 'MS', until: ride.depart_time,
-                        onExpiry:function() {
-                            $rh.find(".status").empty().append($complete_ride);
-                        }
-                    });
-            $rh.find(".status").empty().removeClass("not_assigned").append("{% trans 'Ride in'%} ", $countdown, " {% trans 'min' %}");
-        }
-        else {
-            $rh.find(".status").empty().append($complete_ride);
-        }
-
-        updateCounters({{ accepted }});
-
-    };
-
-    updateCounters = function(status) {
-        taken = parseInt($("#taken_counter").text(), 10);
-        untaken = parseInt($("#untaken_counter").text(), 10);
-
-        switch (status) {
-            case {{ assigned }}:
-                $("#untaken_counter").text(++untaken);
-                break;
-            case {{ accepted }}:
-                $("#taken_counter").text(++taken);
-                $("#untaken_counter").text(--untaken);
-                break;
-            case {{ completed }}:
-                $("#taken_counter").text(--taken);
-
-        }
-        if (is_online) {
-            if (taken + untaken > 0) {
-                maximize();
-                $("#expand_collapse_button").enable()
-            } else {
-                minimize();
-                $("#expand_collapse_button").disable()
-            }
-        }
-    };
-
-    trace = function(str) {
-        air("trace", str);
-        if (window.console) {
-            console.log(str)
-        }
-    };
-
-    maximize = function() {
-        air("maximize", null, 450);
-        $("#expand_collapse_button").button("option", "label", minimize_label).removeClass("not_taken");
-        $("#ride_accordion_container").add("#summary").show();
-        $(document).stopTime("minimize_nag");
-        is_minimized = false;
-    };
-    minimize = function() {
-        air("minimize");
-        $("#expand_collapse_button").button("option", "label", maximize_label);
-        if (taken + untaken > 0) {
-            $("#expand_collapse_button").addClass("not_taken");
-            $(document).stopTime("minimize_nag");
-            $(document).oneTime(minimize_nag_interval * 1000, "minimize_nag", function() {
-                updateCounters();
-            });
-        }
-        $("#ride_accordion_container").add("#summary").hide();
-        is_minimized = true;
-
-
-    };
-    toggleExpandCollapse = function() {
-        if (is_minimized) {
-            maximize();
-        } else {
-            minimize();
-        }
-    };
-
-    setupHearbeatCheck = function() {
-        $(document).everyTime(hearbeat_check_interval, "check_heartbeat", function() {
-            if (new Date() - last_heartbeat > 2.5 * hearbeat_check_interval) {
-                trace("heartbeat check failed");
-                onError();
-            }
-        })
-    };
-
-    init = function() {
-        set_online(false);
-
-        $("#tools_button").button().click(function(e) {
-            var win = window.open("{% url sharing.station_controller.station_tools %}", "station_tools", "width=800,height=600,resizable=0,scrollbars=1");
-            var offset = 10;
-            var x = $(window).width() + offset;
-            if (window.screenLeft > 0) { // module is snapped to right
-                x = window.screenLeft - 800 - offset;
-            }
-            
-            win.moveTo(x, window.screenTop);
-
-        });
-        $("#options_button").button({
-            icons: {
-                primary: "ui-icon-gear"
             },
-            text: false
-        }).click(function() {
-            var $menu = $("#option_menu");
-            if ($menu.is(":visible")) {
-                $menu.fadeOut("fast");
-            } else {
-                var pos = $(this).offset();
-                var width = $(this).width();
-                //show the menu directly over the placeholder
-
-                $menu.css({ "left": (pos.left + width + 5) + "px", "top":pos.top + "px" });
-                $menu.fadeIn("fast");
+            log: function () {
+                var args = Array.prototype.slice.call(arguments);
+                if (window.parentSandboxBridge && window.parentSandboxBridge.trace) {
+                    window.parentSandboxBridge.trace(args.join(", "))
+                } else if (window.console) {
+                    console.log.apply(console, args);
+                }
             }
-        });
-
-        $("#option_menu li").click(function() {
-            $("#option_menu").fadeOut("fast")
-        });
-
-        $("#snap_left_action").click(function() {
-            air("snap_left");
-            if (!is_minimized) {
-                maximize();
-            }
-        });
-        $("#snap_right_action").click(function() {
-            air("snap_right");
-            if (!is_minimized) {
-                maximize();
-            }
-        });
-
-        $("#expand_collapse_button").text(minimize_label).button().click(toggleExpandCollapse);
-
-        $("#untaken_counter, #taken_counter").text(0);
-        $("#untaken_counter").dblclick(function(e) {
-            exit_app_seq = true;
-            $(document).oneTime("5s", function() {
-                exit_app_seq = false;
-            })
-        });
-        $("#taken_counter").dblclick(function(e) {
-            if (exit_app_seq) {
-                trace("exiting app");
-                air("exit_app", true)
-            }
-        });
-
-
-        $.each(rides_data, function(i, ride) {
-            renderRide(ride);
-
-            if (ride.status == {{ accepted }}) {
-                acceptRide(ride);
-            }
-            if (ride.status == {{ timed_out }}) {
-                timeoutRide(ride);
-            }
-        });
-
-        air("set_app_loaded", true);
-        air("set_visible", true);
-        updateCounters();
-        setupChannel(init_token);
-        setupHearbeatCheck();
-    };
-
-    $(function() {
-        try {
-            init();
-        } catch (e) {
-            trace("error in init(): " + e);
-            onError();
         }
     });
-    </script>
-{% endblock %}
+
+    app.service("ErrorService", function() {
+        return {
+            is_error: false,
+            error_handler:function () {
+                this.is_error = true;
+                $("#error_modal").modal({
+                    keyboard: false,
+                    backdrop: "static"
+                });
+            }
+        }
+    });
+
+    app.controller("GoogleChannelController", function ($scope, ErrorService, AirService, Defaults) {
+        return {
+            on_message:function (msg) {
+                AirService.log("on_message: ", msg.data);
+                $scope.pending_push = false;
+                var data = angular.fromJson(msg.data);
+                if (data.action == "update_ride") {
+                    $scope.update_ride(data.ride, data.expand_ride);
+                }
+                if (data.action == "exit") {
+                    AirService.call("exit_app", true); // exit silently
+                }
+                if (data.action == "remove_ride") {
+                    $scope.remove_ride(data.ride);
+                }
+                if (data.action == "update_all") {
+                    $scope.sync_state();
+                }
+                if (data.action == "refresh") {
+                    ErrorService.error_handler()
+                }
+
+                if (data.heartbeat) {
+                    AirService.log("heartbeat received");
+                    $scope.last_heartbeat = new Date(); // save last heartbeat time
+                    if (data.heartbeat != Defaults.version) { // new version detected
+                        AirService.log("new version detected: ", data.heartbeat);
+                        ErrorService.error_handler();
+                    }
+                }
+            },
+            on_error:function () {
+                AirService.log("channel: on_error");
+                ErrorService.error_handler();
+            },
+            on_open:function () {
+                AirService.log("channel: on_open");
+                $scope.channel_opened = true;
+            },
+            on_close:function () {
+                AirService.log("channel: on_close");
+                ErrorService.error_handler();
+            }
+        }
+    });
+
+    app.directive("googleChannelDirective", function () {
+        var channel = new goog.appengine.Channel("{{ channel_token }}");
+        var socket = channel.open();
+
+        return {
+            restrict:'M',
+            controller:'GoogleChannelController',
+            link:function (scope, element, attrs, controller) {
+                socket.onmessage = function () {
+                    controller.on_message.apply(controller, arguments);
+                };
+                socket.onerror = function () {
+                    controller.on_error.apply(controller, arguments);
+                };
+                socket.onopen = function () {
+                    controller.on_open.apply(controller, arguments);
+                };
+                socket.onclose = function () {
+                    controller.on_close.apply(controller, arguments);
+                };
+            }
+        }
+    });
+
+    app.controller("WorkstationCtrl", function($scope, $http, $filter, $timeout, Tabs, Status, AirService, ErrorService, Defaults) {
+        var filter = $filter("filter"),
+            order_by = $filter("orderBy");
+
+        $scope.tabs = Tabs;
+        $scope.status = Status;
+        $scope.error_service = ErrorService;
+        $scope.pending_push = false;
+        $scope.last_heartbeat = new Date();
+        $scope.channel_opened = false;
+
+        $scope.rides = [];
+        $scope.history_rides = [];
+        $scope.current_tab = Tabs.NEXT;
+        $scope.selected_ride = undefined;
+
+        $scope.init = function () {
+            AirService.call("set_app_loaded", true);
+            AirService.call("set_visible", true);
+            AirService.call("set_title", "WAYbetter - {{ station_name }}");
+
+            $scope.sync_state();
+
+            // check that the channel is open
+            $timeout(function () {
+                if (! $scope.channel_opened) {
+                    AirService.log("channel failed to open");
+                    ErrorService.error_handler();
+                }
+            }, 1000 * 10);
+
+        };
+
+        $scope.updating = function () {
+            return $http.pendingRequests.length > 0 || $scope.pending_push;
+        };
+
+        $scope.update_ride = function (updated_ride, expand) {
+            var ride = filter($scope.rides, {id: updated_ride.id});
+            if (ride.length) {
+                angular.extend(ride[0], updated_ride);
+            } else {
+                $scope.rides.push(updated_ride);
+            }
+            if (expand) {
+                $scope.selected_ride = filter($scope.rides, {id: updated_ride.id})[0];
+            }
+        };
+
+        $scope.remove_ride = function(ride_to_remove) {
+            $scope.rides = $scope.rides.filter(function (ride) {
+                return ride.id != ride_to_remove.id
+            })
+        };
+
+        $scope.current_rides = function() {
+            return filter($scope.rides, {'tab':Tabs.CURRENT});
+        };
+        $scope.next_rides = function() {
+            return order_by(filter($scope.rides, {'tab':Tabs.NEXT}), "depart_time");
+        };
+
+        $scope.sync_state = function () {
+            $http.get("{% url sharing.station_controller.sharing_workstation_data %}").success(function (data) {
+                $scope.rides = data.rides;
+            })
+            .error(function(err) {
+//                console.log("sync_state error: ", err);
+                ErrorService.error_handler();
+            })
+        };
+
+        $scope.select_ride = function (ride) {
+            if ($scope.updating()){ return }  // prevent duplicate calls issued by double clicks
+
+            if ($scope.selected_ride == ride ) {
+                $scope.selected_ride = undefined;
+            } else if (ride.tab == Tabs.NEXT && ride.status == Status.ASSIGNED && !ride.future) {
+                $scope.pending_push = true;
+                $http.post("/ride_viewed/" + ride.id + "/").error(function() {
+                    ErrorService.error_handler();
+                })
+            } else {
+                $scope.selected_ride = ride;
+            }
+        };
+
+        $scope.accept_ride = function(ride) {
+            if ($scope.updating()){ return }  // prevent duplicate calls issued by double clicks
+
+            $scope.pending_push = true;
+            $http.post("/ride_accepted/" + ride.id + "/").error(function() {
+                ErrorService.error_handler();
+            });
+        };
+
+        $scope.get_ride_class = function (ride) {
+            var result = "";
+            if (ride.tab == Tabs.CURRENT) {
+                result = "ride-green"
+            } else if (ride.tab == Tabs.NEXT) {
+                if (ride.status == Status.ASSIGNED) {
+                    if (ride.future) {
+                        result = "ride-blue"
+                    } else {
+                        result = "ride-red blink"
+                    }
+                } else if (ride.status == Status.VIEWED) {
+                    result = "ride-red"
+                } else { // accepted
+                    result = "ride-yellow"
+                }
+            }
+
+            if ($scope.selected_ride && ride != $scope.selected_ride) {
+                result += " muted"
+            }
+            return result;
+        };
+
+        // watch for new 'NEXT' rides
+        $scope.$watch(function () {
+            return filter($scope.rides, {'tab':Tabs.NEXT, 'status':Status.ASSIGNED, future: false}).length;
+        }, function(needs_attention_rides) {
+            if (needs_attention_rides) {
+                AirService.call("start_notification_sound");
+            } else {
+                AirService.call("stop_notification_sound");
+            }
+        });
+        
+        // update air about error
+        $scope.$watch("error_service.is_error", function (is_error) {
+            AirService.call("set_error_state", is_error);
+        });
+        
+        $scope.$watch("current_tab", function (selected_tab) {
+            $scope.selected_ride = undefined;
+        });
+
+        setInterval(function () {
+            // assign rides to tabs according to ride depart time and taxi assignment
+            $scope.$apply(function() {
+                var start_handle_time = new Date().getTime() + {{ handle_time }} * 60 * 1000;
+                angular.forEach($scope.rides, function (ride) {
+                    if ([Status.FAILED, Status.COMPLETED].indexOf(ride.status) > -1) {
+                        ride.tab = undefined; // don't show these rides
+                    } else {
+                        var is_future = (ride.depart_time >= start_handle_time && ride.status == Status.ASSIGNED);
+                        if (ride.future && !is_future && $scope.selected_ride == ride){ // currently viewing a future ride that is turned into 'next' ride
+                            $scope.selected_ride = undefined;
+                        }
+                        ride.future = is_future;
+
+                        if (ride.taxi) {
+                            ride.tab = Tabs.CURRENT;
+                        } else if (ride.status != Status.COMPLETED) {
+                            if (ride.tab != Tabs.NEXT) {
+                                ride.tab = Tabs.NEXT;
+                                $scope.current_tab = Tabs.NEXT;
+                            }
+                        } else {
+                            ride.tab = undefined;
+                        }
+                    }
+                })
+            });
+        }, 1000);
+
+        setInterval(function () {
+            $scope.$apply(function () {
+                AirService.log("heartbeat check");
+                if (new Date() - $scope.last_heartbeat > 2.5 * Defaults.heartbeat_check_interval) {
+                    AirService.log("heartbeat check failed");
+                    ErrorService.error_handler();
+                }
+            })
+        }, Defaults.heartbeat_check_interval);
+
+    });
+</script>
+</body>
+</html>
