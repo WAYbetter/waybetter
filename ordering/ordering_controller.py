@@ -21,7 +21,7 @@ from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
 from ordering.enums import RideStatus
-from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY, SearchRequest
+from ordering.models import SharedRide, NEW_ORDER_ID, DISCOUNTED_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY, SearchRequest
 from ordering.signals import order_price_changed_signal
 from pricing.models import TARIFFS, RuleSet
 from sharing.algo_api import AlgoField
@@ -452,6 +452,22 @@ def get_offers(request):
 
         offers.append(offer)
 
+
+
+    # discounted offer
+    # TODO: when to show discount
+    discount = price * 0.5
+    offers.append({
+        "ride_id": DISCOUNTED_ORDER_ID,
+        "pickup_time": to_js_date(order_settings.pickup_dt),
+        "passengers": [{'name': 'Discount man', 'picture_url': 'https://lh3.googleusercontent.com/Qi1drFNLru8kkos_oWPFkf7rDSOm9dq3I0OlMG90NMlNDUcgePTmT08PN46XFZaVAVRF7a_qPAUT1YX3Zg1Bcj_hghLPTInAvHifX_gUz7SxnCO2Jqc'}],
+        "seats_left": MAX_SEATS - 1,
+        "price": price - discount,
+        "new_ride": False,
+        "comment": u"קיבלת הנחה של %s₪" % discount
+    })
+
+
     return JSONResponse({'offers': offers})
 
 def get_private_offer(request):
@@ -503,17 +519,27 @@ def book_ride(request):
 
     if passenger and passenger.user and hasattr(passenger, "billing_info"): # we have logged-in passenger with billing_info - let's proceed
         order_settings = OrderSettings.fromRequest(request)
-        ride = SharedRide.by_id(request_data.get("ride_id"))  # is None if starting a new ride
+        ride_id = request_data.get("ride_id")
+
+        new_ride = (ride_id == NEW_ORDER_ID)
+        discounted_ride = (ride_id == DISCOUNTED_ORDER_ID)
+
+        join_ride = not (new_ride or discounted_ride)
+        ride_to_join = SharedRide.by_id(ride_id) if join_ride else None
 
         order = None
-        if ride:  # if joining a ride check it is a valid candidate
-            if is_valid_candidate(ride, order_settings):
-                order = create_order(order_settings, passenger, ride)
+        if ride_to_join:  # check it is indeed a valid candidate
+            if is_valid_candidate(ride_to_join, order_settings):
+                order = create_order(order_settings, passenger, ride=ride_to_join)
             else:
                 logging.warning("tried booking an invalid ride candidate")
                 result['error'] = _("Sorry, but this ride has been closed for booking")
+
         else:
-            order = create_order(order_settings, passenger, ride)
+            order = create_order(order_settings, passenger)
+            if order and discounted_ride:
+                discount = 0.5 * order.price  # TODO_WB: compute discount
+                order.update(discount=discount)
 
 
         if order:
@@ -523,7 +549,7 @@ def book_ride(request):
             result['pickup_dt'] = to_js_date(order.depart_time)
             result["price"] = order.price
 
-            ride_orders = [order] + (list(ride.orders.all()) if ride else [])
+            ride_orders = [order] + ( list(ride_to_join.orders.all()) if ride_to_join else [] )
             result["passengers"] = [{'name': o.passenger.name, 'picture_url': o.passenger.picture_url, 'is_you': o==order} for o in ride_orders for seat in range(o.num_seats)]
             result["seats_left"] = MAX_SEATS - sum([order.num_seats for order in ride_orders])
 
@@ -550,7 +576,10 @@ def set_current_booking_data(request):
 
     return HttpResponse("OK")
 
-def create_order(order_settings, passenger, ride):
+def create_order(order_settings, passenger, ride=None):
+    """
+    Returns a created Order or None
+    """
     ride_id = ride.id if ride else NEW_ORDER_ID
 
     # get ride data from algo: don't trust the client
