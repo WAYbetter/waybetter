@@ -1,5 +1,4 @@
 # This Python file uses the following encoding: utf-8
-from django.shortcuts import render_to_response
 from django.template.loader import get_template
 from common.decorators import force_lang
 from common.models import City

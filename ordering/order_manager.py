@@ -3,7 +3,7 @@ from google.appengine.api import taskqueue
 from django.shortcuts import get_object_or_404, render_to_response
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
-from django.http import HttpResponse, HttpResponseForbidden, HttpResponseServerError, HttpResponseBadRequest
+from django.http import HttpResponse, HttpResponseForbidden, HttpResponseBadRequest
 from django.core.serializers import serialize
 from django.conf import settings
 from django.utils.translation import ugettext as _, ugettext_noop

@@ -7,11 +7,9 @@ from common.signals import async_computation_failed_signal, async_computation_co
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction, BillingInfo
 from common.util import    send_mail_as_noreply
-from common.tz_support import  default_tz_now, set_default_tz_time, default_tz_now_min, default_tz_now_max
-from ordering.models import  RideComputation, OrderType, Order, CHARGED, ACCEPTED, APPROVED, REJECTED, TIMED_OUT, FAILED, Passenger, SharedRide, Station, RideComputationStatus
-import datetime
+from common.tz_support import  default_tz_now, default_tz_now_min, default_tz_now_max
+from ordering.models import   OrderType, Order, CHARGED, ACCEPTED, APPROVED, REJECTED, TIMED_OUT, FAILED, Passenger, SharedRide, Station
 import logging
-from sharing.models import HotSpotPopularityRule
 
 CSV_SEP = ";"
 LIST_SEP = ","
@@ -25,9 +23,6 @@ def write_csv_line(csv, list_of_values):
     csv += CSV_SEP.join([unicode(v).replace(CSV_SEP, "") for v in list_of_values])
     csv += u"\n"
     return csv
-
-def v1_VS_v1_1_csv(hotspot):
-    pass
 
 def calc_kpi_data(start_date, end_date, channel_id, token):
     def format_number(value, places=2, curr='', sep=',', dp='.',

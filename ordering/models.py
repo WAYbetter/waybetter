@@ -23,7 +23,7 @@ from common.util import get_international_phone, generate_random_token, notify_b
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now, format_dt
 from fleet.models import FleetManager, FleetManagerRideStatus
 from ordering.enums import RideStatus
-from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal, order_price_changed_signal
+from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
 from sharing.signals import ride_status_changed_signal, ride_updated_signal
 from pricing.models import  RuleSet, TARIFFS
@@ -87,14 +87,6 @@ MAX_STATION_DISTANCE_KM = 10
 CURRENT_PASSENGER_KEY = "current_passenger"
 CURRENT_ORDER_KEY = "current_order"
 CURRENT_BOOKING_DATA_KEY = "current_booking_data"
-
-class RideComputationStatus(Enum):
-    PENDING     = 1
-    SUBMITTED   = 2
-    COMPLETED   = 3
-    ABORTED     = 4
-    PROCESSING  = 5
-    IGNORED     = 6
 
 class StopType(Enum):
     PICKUP  = 0
@@ -269,7 +261,6 @@ class Station(BaseModel):
     def delete_workstations(self):
         self.work_stations.all().delete()
 
-
 class StationFixedPriceRule(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="fixed_prices")
     rule_set = models.ForeignKey(RuleSet, verbose_name=_("rule set"))
@@ -281,7 +272,6 @@ class StationFixedPriceRule(BaseModel):
         contains = (self.city_area_1.contains(lat1, lon1) and self.city_area_2.contains(lat2, lon2)) or \
                    (self.city_area_2.contains(lat1, lon1) and self.city_area_1.contains(lat2, lon2))
         return contains and self.rule_set.is_active(day, t)
-
 
 class Driver(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="drivers")
@@ -366,37 +356,6 @@ class TaxiDriverRelation(BaseModel):
         if self.taxi.station != self.driver.station:
             raise ValidationError("Driver and Taxi must belong to the same station")
 
-
-class RideComputationSet(BaseModel):
-    name = models.CharField(_("name"), max_length=50)
-
-    @property
-    def orders(self):
-        computations = self.members.filter(status=RideComputationStatus.COMPLETED)
-        computation = filter(lambda c: c.orders.count(), computations)[0]
-        return computation.orders.all()
-
-
-class RideComputation(BaseModel):
-    set = models.ForeignKey(RideComputationSet, verbose_name=_("Computation set"), related_name="members", null=True, blank=True)
-    key = models.CharField(max_length=150, null=True, blank=True, editable=False)
-    algo_key = models.CharField(max_length=150, null=True, blank=True, editable=False)
-
-    debug = models.BooleanField(default=False, editable=False)
-    status = StatusField(_("status"), choices=RideComputationStatus.choices(), default=RideComputationStatus.PENDING)
-
-    hotspot_type = models.IntegerField(choices=StopType.choices(), null=True, blank=True)
-    hotspot_datetime = UTCDateTimeField(null=True, blank=True)
-
-    submit_datetime = UTCDateTimeField(editable=False, null=True, blank=True)
-
-    toleration_factor = models.FloatField(null=True, blank=True)
-    toleration_factor_minutes = models.FloatField(null=True, blank=True)
-    statistics = models.TextField(null=True, blank=True)
-
-    def change_status(self, old_status=None, new_status=None, safe=True):
-        return self._change_attr_in_transaction("status", old_value=old_status, new_value=new_status, safe=safe)
-
 class BaseRide(BaseModel):
     class Meta:
         abstract = True
@@ -453,14 +412,7 @@ class SharedRide(BaseRide):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
     driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
-
-    # 1.2 fields
     can_be_joined = models.BooleanField(default=True)
-
-    # < 1.2 fields
-    computation = models.ForeignKey(RideComputation, verbose_name=_("computation"), related_name="rides", null=True, blank=True)
-    sent_time = UTCDateTimeField("sent time", null=True, blank=True)
-    received_time = UTCDateTimeField("received time", null=True, blank=True)
 
     _value = models.FloatField(null=True, blank=True, editable=False) # the value of this ride to the assigned station
     _stops = models.IntegerField(null=True, blank=True, editable=False)
@@ -1109,7 +1061,6 @@ class Order(BaseModel):
 
     # sharing fields
     ride = models.ForeignKey(SharedRide, verbose_name=_("ride"), related_name="orders", null=True, blank=True)
-    computation = models.ForeignKey(RideComputation, related_name="orders", null=True, blank=True)
     pickup_point = models.ForeignKey(RidePoint, verbose_name=_("pickup point"), related_name="pickup_orders", null=True, blank=True)
     dropoff_point = models.ForeignKey(RidePoint, verbose_name=_("dropoff point"), related_name="dropoff_orders", null=True, blank=True)
     depart_time = UTCDateTimeField(_("depart time"), null=True, blank=True)
@@ -1143,11 +1094,6 @@ class Order(BaseModel):
             val -= self.discount
 
         return max(0, val)  # never return a negative amount - it may cause crediting money to a user
-
-    from sharing.models import HotSpot
-    # note: you must be aware that legacy orders do not have a .hotspot value
-    hotspot = models.ForeignKey(HotSpot, verbose_name=_("hotspot"), related_name="orders", null=True, blank=True)
-    hotspot_type = models.IntegerField(choices=StopType.choices(), null=True, blank=True)
 
     # ratings
     passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)

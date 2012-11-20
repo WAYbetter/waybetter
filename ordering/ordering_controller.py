@@ -16,7 +16,7 @@ from django.template.context import RequestContext
 from django.conf import settings
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponse, HttpResponseRedirect, HttpResponseBadRequest
-from django.utils.translation import ugettext_lazy, get_language_from_request, ugettext, ugettext as _
+from django.utils.translation import ugettext_lazy, get_language_from_request, ugettext as _
 from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect

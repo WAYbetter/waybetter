@@ -18,7 +18,7 @@ from common.util import notify_by_email
 from common.route import calculate_time_and_distance
 from django.contrib.sessions.models import Session
 from ordering.enums import RideStatus
-from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation, OrderType, StopType, RideComputation, RideEvent
+from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation, OrderType, RideEvent
 import logging
 import traceback
 import datetime
@@ -448,31 +448,6 @@ def fix_orders_house_number():
                 order.save()
             except Exception, e:
                 logging.error("Could not save order: %d: %s" % (order.id, e.message))
-
-
-def fix_orders_type(offset=0):
-    batch_size = 1000
-    logging.info("*** starting at: %s ***" % offset)
-    orders = Order.objects.all()[offset:offset + batch_size]
-    for order in orders:
-        try:
-            if order.price or order.computation_id:
-                logging.info("%s: order[%s] skipped. type is %s" % (offset, order.id, order.get_type_display()))
-            else:
-                order.type = OrderType.PICKMEAPP
-                order.save()
-                logging.info("%s: order[%s] saved" % (offset, order.id))
-
-        except Exception, e:
-            logging.info("%s order[%s] exception: %s" % (offset, order.id, e.message))
-
-        offset += 1
-
-    if orders:
-        logging.info("setting deferred task [offset=%s]" % offset)
-        deferred.defer(fix_orders_type, offset=offset, _queue="maintenance")
-    else:
-        logging.info("done at %s" % offset)
 
 
 def remove_duplicate_ride_events(start=0):

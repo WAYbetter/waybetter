@@ -4,8 +4,6 @@ from django.utils.translation import ugettext_lazy as _
 from common.util import DAY_OF_WEEK_CHOICES, FIRST_WEEKDAY, LAST_WEEKDAY, convert_python_weekday, datetimeIterator, Enum
 from common.models import BaseModel, CityAreaField
 
-PRIVATE_RIDE_HANDLING_FEE = 0 #NIS
-
 class TARIFFS(Enum):
     TARIFF1 = 'tariff1'
     TARIFF2 = 'tariff2'

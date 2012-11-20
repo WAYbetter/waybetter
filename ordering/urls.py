@@ -1,6 +1,5 @@
 from django.conf.urls.defaults import *
 from django.conf.urls.defaults import url
-from django.views.generic.simple import direct_to_template
 
 urlpatterns = patterns('',
     # TODO_WB: extract pickmeapp urls out of here

@@ -1,12 +1,10 @@
-from google.appengine.api.taskqueue import taskqueue
 from google.appengine.ext import deferred
 from billing.enums import BillingStatus
 from common.util import blob_to_image_tag
 from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
-from django.forms.models import BaseInlineFormSet
-from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, Feedback, Business, SharedRide, RidePoint, Driver, Taxi, TaxiDriverRelation, StationFixedPriceRule, CHARGED, CANCELLED, Device, InstalledApp, RideComputation, RideComputationSet
+from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, Feedback, Business, SharedRide, RidePoint, Driver, Taxi, TaxiDriverRelation, StationFixedPriceRule, CHARGED, CANCELLED, InstalledApp
 import station_connection_manager
 from common.models import Country
 from common.forms import MandatoryInlineFormset
@@ -53,13 +51,10 @@ class OrderAdmin(admin.ModelAdmin):
 
 class SharedRideAdmin(admin.ModelAdmin):
     inlines = [OrderInlineAdmin,]
-    list_display = ["id", "create_date", "debug", "num_orders", "computation_id", "depart_time", "arrive_time", "status", "map", "station", "taxi_number", "driver_name"]
+    list_display = ["id", "create_date", "debug", "num_orders", "depart_time", "arrive_time", "status", "map", "station", "taxi_number", "driver_name"]
 
     def num_orders(self, obj):
         return obj.orders.count()
-
-    def computation_id(self, obj):
-        return obj.computation.id
 
     def driver_name(self, obj):
         return obj.driver.name
@@ -107,43 +102,6 @@ class RidePointAdmin(admin.ModelAdmin):
 
     def ride_id(self, obj):
         return obj.ride_id
-
-class RideComputationAdmin(admin.ModelAdmin):
-    def send_computation(modeladmin, request, queryset):
-        from sharing.algo_api import submit_computations
-        from datetime import datetime
-
-        for ride_computation in queryset:
-            submit_computations(ride_computation.key, datetime.now())
-
-        messages.info(request, "sent to algo: %s" % ",".join([str(rc.id) for rc in queryset]))
-
-    send_computation.short_description = "Send computation to algo"
-
-    list_display = ["create_date", "id", "debug", "status", "num_orders", "key", "algo_key", "set_name"]
-    inlines = [OrderInlineAdmin,]
-    actions = [send_computation]
-
-    def num_orders(self, obj):
-        return obj.orders.count()
-
-    def set_name(self, obj):
-        return '<a href="%s">%s</a>' % (reverse('sharing.staff_controller.ride_computation_stat', kwargs={'computation_set_id': obj.set.id}), obj.set.name)
-    set_name.allow_tags = True
-
-class RideComputationInlineAdmin(admin.TabularInline):
-    model = RideComputation
-    extra = 0
-
-class RideComputationSetAdmin(admin.ModelAdmin):
-    list_display = ["id", "name", "statistics"]
-    inlines = [RideComputationInlineAdmin]
-
-    def statistics(self, obj):
-        return '<a href="%s">%s</a>' % (reverse('sharing.staff_controller.ride_computation_stat', kwargs={'computation_set_id': obj.id}),_("View"))
-
-    statistics.allow_tags = True
-
 
 class TaxiAdmin(admin.ModelAdmin):
     list_display = ["id", "dn_station_name", "number"]
@@ -336,8 +294,6 @@ class InstalledAppAdmin(admin.ModelAdmin):
 
 admin.site.register(SharedRide, SharedRideAdmin)
 admin.site.register(RidePoint, RidePointAdmin)
-admin.site.register(RideComputation, RideComputationAdmin)
-admin.site.register(RideComputationSet, RideComputationSetAdmin)
 admin.site.register(Taxi, TaxiAdmin)
 admin.site.register(Driver, DriverAdmin)
 admin.site.register(TaxiDriverRelation, TaxiDriverRelationAdmin)

@@ -3,7 +3,7 @@ import logging
 from google.appengine.api import memcache
 from metrics.models import WorkStationMetric
 from metrics.util import sort_by_metrics
-from ordering.models import OrderAssignment, Station, WorkStation
+from ordering.models import OrderAssignment, WorkStation
 from ordering.signals import orderassignment_created_signal
 from ordering.station_connection_manager import is_workstation_available
 from ordering.errors import  NoWorkStationFoundError, UpdateStatusError

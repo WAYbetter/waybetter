@@ -114,21 +114,7 @@
                 }
             });
         }
-        if (window.MyRidesHelper) {
-            MyRidesHelper.init({
-                urls: {
-                    get_myrides_data: "{% url sharing.passenger_controller.get_myrides_data %}",
-                    get_order_status: "{% url sharing.passenger_controller.get_order_status %}",
-                    cancel_order: "{% url sharing.passenger_controller.cancel_order %}"
-                },
-                messages: {
-                    cancel_ride_link: "{% trans 'Cancel Ride' %}",
-                    ride_cancelled: "{% trans 'Ride cancelled.' %}",
-                    cancel_text: "{% trans 'Info/Cancel' %}",
-                    report_text: "{% trans 'Report Ride' %}"
-                }
-            });
-        }
+
     </script>
 {% endblock helpers_init %}
 
