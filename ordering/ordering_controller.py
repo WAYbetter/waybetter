@@ -271,7 +271,7 @@ def get_previous_rides(request, passenger):
             "order_id": order.id,
             "pickup_time": to_js_date(order.pickup_point.stop_time),
             "passengers": ride_mates,
-            "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
+            "seats_left": MAX_SEATS - sum([o.num_seats for o in ride_orders]),
             "your_seats": order.num_seats,
             "taxi_number": dispatching_event.taxi_id if dispatching_event else None,
             "station_name": ride.station.name if ride.station else WAYBETTER_STATION_NAME,
