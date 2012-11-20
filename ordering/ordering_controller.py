@@ -33,13 +33,14 @@ import sharing.algo_api as algo_api
 
 
 WAYBETTER_STATION_NAME = "WAYbetter"
+CLOSE_CHILD_BROWSER_URI = "https://waybetter-app.appspot.com"
 
 MAX_SEATS = 3
 BOOKING_INTERVAL = 10 # minutes
 ASAP_BOOKING_TIME = 10 # minutes
 MAX_RIDE_DURATION = 20 #minutes
 
-OFFERS_TIMEDELTA = datetime.timedelta(minutes=60)
+OFFERS_TIMEDELTA = datetime.timedelta(hours=3)
 
 ORDER_SUCCESS_STATUS = [APPROVED, ACCEPTED, CHARGED]
 
@@ -222,7 +223,7 @@ def fb_share(request):
         'name': 'WAYbetter',
         'caption': u"הצטרפו למהפכת המוניות המשותפות WAYbetter:".encode("utf-8"),
         'description': u"מתקדם יותר, חכם יותר, נוח יותר ומשתלם הרבה יותר!".encode("utf-8"),
-        'redirect_uri': "http://%s" % settings.DEFAULT_DOMAIN,
+        'redirect_uri': CLOSE_CHILD_BROWSER_URI if request.mobile else "http://%s" % settings.DEFAULT_DOMAIN,
         'display': 'touch' if request.mobile else 'page'
     }
     url = "http://%s.facebook.com/dialog/feed?%s" % ("m" if request.mobile else "www", urllib.urlencode(args))
