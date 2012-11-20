@@ -36,8 +36,8 @@ WAYBETTER_STATION_NAME = "WAYbetter"
 
 MAX_SEATS = 3
 BOOKING_INTERVAL = 10 # minutes
-ASAP_BOOKING_TIME = 7 # minutes
-MAX_RIDE_DURATION = 15 #minutes
+ASAP_BOOKING_TIME = 10 # minutes
+MAX_RIDE_DURATION = 20 #minutes
 
 OFFERS_TIMEDELTA = datetime.timedelta(minutes=60)
 
@@ -697,7 +697,9 @@ def update_ride_for_order(ride, ride_data, new_order):
         else:  #  update discount so that user doesn't pay more than promised
             order.discount = order.price - old_billing_amount
 
-        order_price_changed_signal.send(sender="update_ride_for_order", order=order, joined_passenger=new_order.passenger, old_price=old_billing_amount, new_price=order.get_billing_amount())
+        if order.get_billing_amount() < old_billing_amount:
+            order_price_changed_signal.send(sender="update_ride_for_order", order=order, joined_passenger=new_order.passenger, old_price=old_billing_amount, new_price=order.get_billing_amount())
+
         order.save()
 
         pickup_point = order.pickup_point
