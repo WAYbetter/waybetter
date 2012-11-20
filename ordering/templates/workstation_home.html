@@ -573,11 +573,7 @@
                 trace("socket: onmessage");
                 try {
                     var data = $.parseJSON(msg.data);
-                    if (data.message_type && data.message_type == "fax") {
-                        faxTeaser(data);
-                    } else {
-                        onOrder(data);
-                    }
+                    onOrder(data);
                     $.ajax({
                         url: "{% url ordering.station_controller.message_received %}",
                         type: "POST",
@@ -657,16 +653,6 @@
                 success: onOrder,
                 error: onError
             });
-            $.ajax({
-                url: "{% url get_pending_faxes %}",
-                dataType: "json",
-                success: function(faxes) {
-                    $.each(faxes, function(i,e) {
-                        faxTeaser(e);
-                    })
-                },
-                error: onError
-            })
         }
 
         function onOrder(data) {
@@ -725,75 +711,7 @@
             handleAddRow();
             handleOrder();
         }
-        function renderFaxDetails(fax_data) {
-            var send_button = $('<div class="accept_button_bg button_txt fax_button" title="{% trans 'Voucher Received - Sending Taxi' %}"></div>').text('{% trans 'Voucher Received - Sending Taxi' %}').click(function () {
-                trace("fax received");
-                $("#" + fax_data.id).remove();
-                $('#pb_' + fax_data.id).remove();
-                setStateSending(fax_data.id);
-                $.ajax({
-                    url: "{% url fax_received %}",
-                    type: 'POST',
-                    data: {ride_id: fax_data.id},
-                    error: onError,
-                    complete: function() {
-                        handleRemoveRow();
-                        handleRemoveRow();
-                    }
-                });
-            });
 
-            var timeout_interval = fax_data.timeout;
-//            var initial_val = (timeout_interval - fax_data.seconds_passed) / timeout_interval * 100;
-            var initial_val = 100;
-            var progress_indicator = getProgressIndicator(fax_data.id, timeout_interval, initial_val, function () {
-                trace("fax timeout reached");
-            });
-            var buttons_div = $("<div class='controls'></div>").append(send_button);
-
-            var names = fax_data.names;
-
-            var info_div = $("<div class='addresses'></div>")
-                    .append($("<div class='names'></div>").append(names));
-
-            var client_name = fax_data.pickup_address;
-            info_div.append($("<div class='client'></div>").append('<span class="label">{% trans "Pickup" %}: </span>').append(client_name));
-
-            $("#pb_" + fax_data.id).empty().append(progress_indicator);
-            var rendered_order = $("#" + fax_data.id).empty().addClass("details")
-                    .append(info_div)
-                    .append(buttons_div);
-
-            rendered_order.show();
-
-            // fix icon location
-            send_button.css({'background-position':send_button.outerWidth() - 25 +"px, center"});
-        }
-        function faxTeaser(fax_data) {
-            var show_button_container = $('<div class="show_button_container"></div>');
-            var show_button = $('<div class="button_txt button_bg show_button"></div>').text('{% trans 'Show Details' %}');
-
-            show_button_container.append($('<div></div>').append(show_button));
-
-
-            var incoming_text = "{% trans 'A Voucher Was Sent To The Station' %}";
-            var rendered_order = $("<div class='order teaser fax'></div>").attr('id', fax_data.id).data("state", ORDER_IS_SHOWING)
-                    .append($("<div class='teaser_txt'></div>").append(incoming_text))
-                    .append(show_button_container);
-
-            $(rendered_order).click(function(){
-                rendered_order.data("state", "");
-                stopFussing();
-                renderFaxDetails(fax_data);
-           });
-
-            var progress_bar = $("<div class='pb-row fax'></div>").attr('id', 'pb_' + fax_data.id);
-            $("#orders").append(rendered_order).append(progress_bar);
-            rendered_order.show();
-            handleAddRow();
-            handleAddRow();
-            handleOrder();
-        }
         function checkVersion() {
             $.ajax({
                 url: "{% url ordering.station_controller.current_version %}",

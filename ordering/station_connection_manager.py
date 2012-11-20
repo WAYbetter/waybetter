@@ -30,18 +30,6 @@ def check_connection(ws):
 
     _do_push(ws, orders)
 
-def push_fax(ws, fax_data):
-    logging.info("push_fax: %s" % fax_data)
-    fax_data.update({'message_type': 'fax'})
-    _do_push(ws, fax_data)
-
-def push_ride(ws, ride):
-    ride.sent_time = utc_now()
-    ride.save()
-    data = ride.serialize_for_ws() # TODO: serialize for ws
-    data.update({'message_type': 'ride'})
-    _do_push(ws, data)
-
 def push_order(order_assignment):
     """
     Retrieve the order and workstation from an assignment and add the order to the workstation's queue.
