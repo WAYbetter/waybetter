@@ -158,7 +158,7 @@ class Station(BaseModel):
     stop_price = models.FloatField(_("stop price"), default=0)
 
     pricing_model_name = models.CharField(_("pricing model name"), null=True, blank=True, max_length=10, editable=True)
-    accept_debug = models.BooleanField(_("Accept debug"), default=False)
+    debug = models.BooleanField(_("debug station"), default=False)
 
     payday = models.IntegerField(_("payday"), max_length=2, default=10) # day of month the drivers get paid
 
@@ -894,7 +894,6 @@ class WorkStation(BaseModel):
     accept_orders = models.BooleanField(_("Accept orders"), default=True)
     accept_unconfined_orders = models.BooleanField(default=True, help_text="Accept orders not confined to a station e.g., booked from PickMeApp")
     accept_shared_rides = models.BooleanField(_("Accept Shared Rides"), default=False)
-    accept_debug = models.BooleanField(_("Accept debug"), default=False)
 
     last_assignment_date = UTCDateTimeField(_("last order date"), null=True, blank=True,
                                             default=datetime.datetime(1, 1, 1))

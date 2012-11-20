@@ -111,9 +111,8 @@ def choose_station(ride):
 
 #    ws_list = [ws for station in stations for ws in station.work_stations.filter(accept_shared_rides=True)]
 
-    if ride.debug:
-        logging.info(u"filtering debug ws")
-        stations = filter(lambda station: station.accept_debug, stations)
+    # make sure debug and real orders don't mix
+    stations = filter(lambda station: station.debug == ride.debug, stations)
 
     logging.info(u"stations list: %s" % u",".join([unicode(station.name) for station in stations]))
 
