@@ -262,8 +262,8 @@ def get_previous_rides(request, passenger):
 
         ride_orders = ride.orders.all()
         ride_mates_orders = filter(lambda o: o != order, ride_orders)
-        ride_mates = [{'name': order.passenger.name, 'picture_url': order.passenger.picture_url}
-                                    for order in ride_mates_orders for seat in range(order.num_seats)]
+        ride_mates = [{'name': mate_order.passenger.name, 'picture_url': mate_order.passenger.picture_url}
+                                    for mate_order in ride_mates_orders for seat in range(order.num_seats)]
 
         dispatching_event = first(lambda e: e.taxi_id, ride.events.all())
 
