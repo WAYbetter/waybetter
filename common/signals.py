@@ -1,14 +1,12 @@
 import traceback
 from google.appengine.ext import deferred
-from common.decorators import internal_task_on_queue, catch_view_exceptions, receive_signal
+from common.decorators import   receive_signal
 from common.util import Enum, get_uuid
-from django.core.urlresolvers import reverse
 from django.dispatch.dispatcher import Signal, _make_id
 from django.http import HttpResponse
-from django.views.decorators.csrf import csrf_exempt
 from django.utils import simplejson
 from google.appengine.api.channel.channel import InvalidChannelClientIdError
-from google.appengine.api import taskqueue, memcache, channel
+from google.appengine.api import  memcache, channel
 import logging
 import pickle
 

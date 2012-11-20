@@ -14,7 +14,7 @@ STATUS_MESSAGES = {
     FAILED: ugettext_noop("No available taxi at the moment. Please try again soon.")
 }
 
-@receive_signal(order_created_signal, order_status_changed_signal, orderassignment_created_signal, orderassignment_status_changed_signal)
+#@receive_signal(order_created_signal, order_status_changed_signal, orderassignment_created_signal, orderassignment_status_changed_signal)
 def order_tracker(sender, signal_type, obj, **kwargs):
     """
     Handler for all async signals

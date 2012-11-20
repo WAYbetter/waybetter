@@ -1186,7 +1186,7 @@ class Order(BaseModel):
         if success:
             sig_args = {
                 'sender': 'order_status_changed_signal',
-                'obj': self,
+                'order': self,
                 'status': new_status
             }
             order_status_changed_signal.send(**sig_args)
@@ -1209,23 +1209,6 @@ class Order(BaseModel):
         else:
             return -1
 
-    def get_pickup_str(self):
-        if self.pickup_point:  # a ride was created and we know the exact pickup time
-            pickup_datetime = self.pickup_point.stop_time
-            time_str = pickup_datetime.strftime("%H:%M")
-
-        else:  # estimated pickup time
-            pickup_datetime = self.depart_time
-            time_str = pickup_datetime.strftime("%H:%M")
-            if self.type == OrderType.SHARED and self.hotspot_type == StopType.DROPOFF:
-                pickup_with_sharing = pickup_datetime + datetime.timedelta(seconds=SHARING_TIME_MINUTES * 60)
-                time_str = u"%s-%s" % (pickup_datetime.strftime("%H:%M"), pickup_with_sharing.strftime("%H:%M"))
-
-        d = _("Today") if pickup_datetime.date() == default_tz_now().date() else pickup_datetime.strftime("%d/%m/%Y")
-        pickup_str = u"%s, %s" % (d, time_str)
-
-        return pickup_str
-    
     def get_status_label(self):
         for key, label in ORDER_STATUS:
             if key == self.status:
@@ -1317,27 +1300,6 @@ class Order(BaseModel):
                  "to_lat": self.to_lat,
                  "to_lon": self.to_lon,
                  "num_seats": self.num_seats}
-
-    def serialize_for_myrides(self):
-        return {
-            'id'                  : self.id,
-            'type'                : self.type,
-            'from'                : self.from_raw,
-            'from_lon'            : self.from_lon,
-            'from_lat'            : self.from_lat,
-            'from_city'           : self.from_city.name,
-            'from_street_address' : self.from_street_address,
-            'from_house_number'   : self.from_house_number,
-            'to'                  : self.to_raw,
-            'to_lon'              : self.to_lon,
-            'to_lat'              : self.to_lat,
-            'to_city'             : self.to_city.name,
-            'to_street_address'   : self.to_street_address,
-            'to_house_number'     : self.to_house_number,
-            'num_seats'           : self.num_seats,
-            'when'                : self.get_pickup_str(),
-            'price'               : self.get_billing_amount()
-        }
 
 class OrderAssignment(BaseModel):
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")

@@ -17,14 +17,14 @@ class SignalType(Enum):
 order_created_signal                    = AsyncSignal(SignalType.ORDER_CREATED, providing_args=["obj"])
 orderassignment_created_signal          = AsyncSignal(SignalType.ASSIGNMENT_CREATED, providing_args=["obj"])
 orderassignment_status_changed_signal   = AsyncSignal(SignalType.ASSIGNMENT_STATUS_CHANGED, providing_args=["obj", "status"])
-order_status_changed_signal             = AsyncSignal(SignalType.ORDER_STATUS_CHANGED, providing_args=["obj", "status"])
+order_status_changed_signal             = AsyncSignal(SignalType.ORDER_STATUS_CHANGED, providing_args=["order", "status"])
 order_price_changed_signal              = AsyncSignal(SignalType.ORDER_PRICE_CHANGED, providing_args=["order", "joined_passenger", "old_price", "new_price"])
 
 workstation_online_signal               = AsyncSignal(SignalType.WORKSTATION_ONLINE, providing_args=["obj"])
 workstation_offline_signal              = AsyncSignal(SignalType.WORKSTATION_OFFLINE, providing_args=["obj"])
 
 @receive_signal(order_status_changed_signal)
-def handle_approved_orders(sender, signal_type, obj, status, **kwargs):
+def handle_approved_orders(sender, signal_type, order, status, **kwargs):
     from common.util import notify_by_email, send_mail_as_noreply
     from common.langsupport.util import translate_to_lang
     from ordering.models import APPROVED
@@ -32,7 +32,6 @@ def handle_approved_orders(sender, signal_type, obj, status, **kwargs):
 
     logging.info("handle_approved_orders: %s" % status)
     if status == APPROVED:
-        order = obj
 
         # send confirmation email
         passenger = order.passenger
@@ -43,23 +42,21 @@ def handle_approved_orders(sender, signal_type, obj, status, **kwargs):
 
 
 @receive_signal(order_status_changed_signal)
-def handle_accepted_orders(sender, signal_type, obj, status, **kwargs):
+def handle_accepted_orders(sender, signal_type, order, status, **kwargs):
     from ordering.models import ACCEPTED, OrderType
     from ordering.util import create_pickmeapp_ride
 
     if status == ACCEPTED:
-        order = obj
         if order.type == OrderType.PICKMEAPP:
             pickmeapp_ride = create_pickmeapp_ride(order)
 
 
 @receive_signal(order_status_changed_signal)
-def handle_cancelled_orders(sender, signal_type, obj, status, **kwargs):
+def handle_cancelled_orders(sender, signal_type, order, status, **kwargs):
     from ordering.models import CANCELLED
     from sharing.station_controller import update_data
 
     if status == CANCELLED:
-        order = obj
         notify_by_email("Order Confirmation [%s]%s" % (order.id, " (DEBUG)" if order.debug else ""), msg="CANCELLED")
         ride = order.ride
 
