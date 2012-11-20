@@ -193,7 +193,7 @@ def calc_orders_data_csv(recipient, batch_size, offset=0, csv_bytestring=u"", ca
                         station_cost_rules = list(ride.station.fixed_prices.all())
                         logging.info("got new prices from station %s (was %s)" % (ride.station, station))
                     for rule in station_cost_rules:
-                        if rule.is_active(order.from_lat, order.from_lon, order.to_lat, order.to_lon,ride.depart_time.date(), ride.depart_time.time()):
+                        if rule.is_active(order.from_lat, order.from_lon, order.to_lat, order.to_lon, ride.depart_time):
                             cost = rule.price
 
                 link = "http://%s/%s" % (link_domain , reverse(ride_page, args=[ride.id]))

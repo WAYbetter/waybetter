@@ -193,7 +193,7 @@ class Station(BaseModel):
         price_rules = set()
         for rule in self.fixed_prices.all():
             for order in orders:
-                if rule.is_active(order.pickup_point.lat, order.pickup_point.lon, order.dropoff_point.lat, order.dropoff_point.lon, shared_ride.depart_time.date(), shared_ride.depart_time.time()):
+                if rule.is_active(order.pickup_point.lat, order.pickup_point.lon, order.dropoff_point.lat, order.dropoff_point.lon, shared_ride.depart_time):
                     price_rules.add(rule)
                     priced_orders.add(order)
 
@@ -268,10 +268,10 @@ class StationFixedPriceRule(BaseModel):
     city_area_2 = CityAreaField(verbose_name=_("city area 2"), related_name="fixed_price_rules_2")
     price = models.FloatField(_("price"))
 
-    def is_active(self, lat1, lon1, lat2, lon2, day, t):
+    def is_active(self, lat1, lon1, lat2, lon2, dt):
         contains = (self.city_area_1.contains(lat1, lon1) and self.city_area_2.contains(lat2, lon2)) or \
                    (self.city_area_2.contains(lat1, lon1) and self.city_area_1.contains(lat2, lon2))
-        return contains and self.rule_set.is_active(day, t)
+        return contains and self.rule_set.is_active(dt)
 
 class Driver(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="drivers")
@@ -1079,7 +1079,7 @@ class Order(BaseModel):
 
         # set order price according to received price data and tariff
         if self.depart_time:
-            tariff = RuleSet.get_active_set(self.depart_time.date(), self.depart_time.time())
+            tariff = RuleSet.get_active_set(self.depart_time)
             price = self.price_data.get(tariff.tariff_type)
             if price and self.price != price:
                 self.price = price

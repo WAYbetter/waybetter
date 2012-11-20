@@ -1,6 +1,7 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
+from common.tz_support import TZ_INFO
 from common.util import DAY_OF_WEEK_CHOICES, FIRST_WEEKDAY, LAST_WEEKDAY, convert_python_weekday, datetimeIterator, Enum
 from common.models import BaseModel, CityAreaField
 
@@ -23,17 +24,17 @@ class RuleSet(BaseModel):
     def __unicode__(self):
         return self.name
 
-    def is_active(self, day, t):
+    def is_active(self, dt):
         for rule in self.rules.all():
-            if rule.is_active(day, t):
+            if rule.is_active(dt):
                 return True
 
         return False
 
     @classmethod
-    def get_active_set(cls, day, t):
+    def get_active_set(cls, dt):
         for rule_set in cls.objects.all():
-            if rule_set.is_active(day, t):
+            if rule_set.is_active(dt):
                 return rule_set
 
         return None
@@ -81,13 +82,17 @@ class AbstractTemporalRule(BaseModel):
         elif self.from_hour > self.to_hour:
             raise ValidationError("Invalid hour range")
 
-    def is_active(self, day, t=None):
+    def is_active(self, dt):
         """
         Check if the rule is active on day, or on day and time.
-        @param day: a datetime.date instance
-        @param t: a datetime.time instance
+        @param dt: a datetime instance
         @return: True if rule is active, else False
         """
+        dt = dt.astimezone(TZ_INFO["Asia/Jerusalem"])
+
+        day = dt.date()
+        t = dt.time()
+
         if self.from_date and self.to_date and self.from_date <= day <= self.to_date:
             return True if t is None else self.from_hour <= t <= self.to_hour
         elif convert_python_weekday(day.weekday()) in self.get_weekdays():
@@ -151,12 +156,12 @@ class DiscountRule(AbstractTemporalRule):
 
         super(DiscountRule, self).clean()
 
-    def is_active(self, from_lat, from_lon, to_lat, to_lon, day, t):
+    def is_active(self, from_lat, from_lon, to_lat, to_lon, dt):
         contains = self.from_city_area.contains(from_lat, from_lon) and self.to_city_area.contains(to_lat, to_lon)
         if self.bidi:
             contains = contains or (self.from_city_area.contains(to_lat, to_lon) and self.to_city_area.contains(from_lat, from_lon))
 
-        return contains and super(DiscountRule, self).is_active(day, t)
+        return contains and super(DiscountRule, self).is_active(dt)
 
     def get_discount(self, price):
         round_to = 0.5

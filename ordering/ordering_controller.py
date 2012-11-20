@@ -418,7 +418,7 @@ def get_offers(request):
         price = None
         price_alone = None
         for tariff in tariffs:
-            if tariff.is_active(order_settings.pickup_dt.date(), order_settings.pickup_dt.time()):
+            if tariff.is_active(order_settings.pickup_dt):
                 price = round(get_order_price_data_from(ride_data).get(tariff.tariff_type), 2)
                 price_alone = get_order_price_data_from(ride_data, sharing=False).get(tariff.tariff_type)
                 break

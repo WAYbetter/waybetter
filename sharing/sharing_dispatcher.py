@@ -94,11 +94,9 @@ def assign_ride(ride, force_station=None):
 def choose_station(ride):
     logging.info(u"ride cost data: %s" % ride.cost_data)
     cost_models = []
-    tariffs = RuleSet.objects.all()
-    for tariff in tariffs:
-        if tariff.is_active(ride.depart_time.date(), ride.depart_time.time()):
-            cost_models = ride.cost_data.get(tariff.tariff_type)
-            break
+    tariff = RuleSet.get_active_set(ride.depart_time)
+    if tariff:
+        cost_models = ride.cost_data.get(tariff.tariff_type)
 
     stations = []
     if cost_models:
