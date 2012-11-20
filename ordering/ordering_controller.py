@@ -498,7 +498,7 @@ def cancel_order(request, passenger):
     """
     from sharing.sharing_dispatcher import WS_SHOULD_HANDLE_TIME
     response = {'success': False,
-                'error': GENERIC_ERROR}
+                'message': _("This order cannot be cancelled anymore")}
 
     order = Order.by_id(request.POST.get("order_id"))
     cancel_allowed = False
