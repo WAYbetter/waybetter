@@ -26,7 +26,7 @@ from ordering.enums import RideStatus
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
 from sharing.signals import ride_status_changed_signal, ride_updated_signal
-from pricing.models import  RuleSet, TARIFFS
+from pricing.models import  RuleSet, TARIFFS, DiscountRule
 
 import re
 import time
@@ -1067,6 +1067,7 @@ class Order(BaseModel):
     arrive_time = UTCDateTimeField(_("arrive time"), null=True, blank=True)
     price = models.FloatField(null=True, blank=True, editable=False)
     discount = models.FloatField(null=True, blank=True, editable=False)
+    discount_rule = models.ForeignKey(DiscountRule, verbose_name=_("discount rule"), related_name="orders", null=True, blank=True, editable=False)
     num_seats = models.PositiveIntegerField(default=1)
 
     _price_data = models.TextField(editable=False, default=pickle.dumps(None))

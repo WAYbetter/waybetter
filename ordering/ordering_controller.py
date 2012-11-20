@@ -9,7 +9,7 @@ from django.views.decorators.csrf import csrf_exempt
 from billing.billing_manager import  get_token_url
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction
-from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime
+from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime, trim_seconds
 from common.util import first, Enum, dict_to_str_keys, datetimeIterator
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
@@ -23,8 +23,9 @@ from ordering.decorators import  passenger_required_no_redirect
 from ordering.enums import RideStatus
 from ordering.models import SharedRide, NEW_ORDER_ID, DISCOUNTED_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY, SearchRequest
 from ordering.signals import order_price_changed_signal
-from pricing.functions import compute_discount
+from pricing.functions import get_discount_rules_and_dt, find_discount_rule
 from pricing.models import TARIFFS, RuleSet
+from settings import DEFAULT_DOMAIN
 from sharing.algo_api import AlgoField
 import simplejson
 import datetime
@@ -40,7 +41,7 @@ BOOKING_INTERVAL = 10 # minutes
 ASAP_BOOKING_TIME = 10 # minutes
 MAX_RIDE_DURATION = 20 #minutes
 
-OFFERS_TIMEDELTA = datetime.timedelta(hours=3)
+OFFERS_TIMEDELTA = datetime.timedelta(hours=5)
 
 ORDER_SUCCESS_STATUS = [APPROVED, ACCEPTED, CHARGED]
 
@@ -138,7 +139,7 @@ def get_ongoing_order(passenger):
 
 @never_cache
 def sync_app_state(request):
-    earliest_pickup_time = ceil_datetime(default_tz_now() + datetime.timedelta(minutes=10), minutes=BOOKING_INTERVAL)
+    earliest_pickup_time = ceil_datetime(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=10), minutes=BOOKING_INTERVAL)
     latest_pickup_time = earliest_pickup_time + datetime.timedelta(hours=(24*3))
     dt_options = list(datetimeIterator(earliest_pickup_time, latest_pickup_time, delta=datetime.timedelta(minutes=BOOKING_INTERVAL)))
 
@@ -407,28 +408,24 @@ def get_offers(request):
         return JSONResponse({'error': u'לא ניתן להזמין לכתובת שנבחרה. אנא נסו שנית בקרוב.'})
 
     offers = []
-    new_ride_price = None
 
-    tariffs = RuleSet.objects.all()
+    start_ride_algo_data = None
 
     for ride_data in matching_rides:
         ride_id = ride_data[AlgoField.RIDE_ID]
         ride = SharedRide.by_id(ride_id)
 
         # get price for offer according to tariff
-        price = None
-        price_alone = None
-        for tariff in tariffs:
-            if tariff.is_active(order_settings.pickup_dt):
-                price = round(get_order_price_data_from(ride_data).get(tariff.tariff_type), 2)
-                price_alone = get_order_price_data_from(ride_data, sharing=False).get(tariff.tariff_type)
-                break
+        tariff = RuleSet.get_active_set(order_settings.pickup_dt)
+        price = get_order_price_data_from(ride_data).get(tariff.tariff_type) if tariff else None
+        price_alone = get_order_price_data_from(ride_data, sharing=False).get(tariff.tariff_type) if tariff else None
+
         if not price > 0:
             logging.warning("get_offers missing price for %s" % order_settings.pickup_dt)
             continue
 
-        if ride_id == NEW_ORDER_ID:
-            new_ride_price = price
+        if ride_id == NEW_ORDER_ID:  # start a new ride
+            start_ride_algo_data = ride_data
             offer = {
                 "pickup_time": to_js_date(order_settings.pickup_dt),
                 "price": price,
@@ -437,11 +434,10 @@ def get_offers(request):
                 "comment": ""  # TODO_WB: sharing chances
             }
 
-        else:
+        else:  # sharing offers
             time_sharing = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.TIME_SHARING]
             time_alone = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.TIME_ALONE]
             time_addition = int((time_sharing - time_alone) / 60)
-            price_addition = int(price_alone - price)
 
             pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride_data[AlgoField.RIDE_POINTS])
             ride_orders = ride.orders.all()
@@ -453,7 +449,7 @@ def get_offers(request):
                 "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
                 "price": price,
                 "new_ride": False,
-                "comment": u"תוספת זמן: %s דקות / חסכון של %s₪ או יותר" % (time_addition, price_addition)
+                "comment": u"תוספת זמן: %s דקות / חסכון של %s₪ או יותר" % (time_addition, "%g" % (price_alone - price))
             }
 
             # good enough offer found, no discounts
@@ -464,19 +460,23 @@ def get_offers(request):
 
 
     # add discounted offer if relevant
-    if look_for_discounts and new_ride_price:
-        discount = compute_discount(order_settings, new_ride_price)
+    if look_for_discounts and start_ride_algo_data:
+        discount_dts_tuples = get_discount_rules_and_dt(order_settings, order_settings.pickup_dt - OFFERS_TIMEDELTA, order_settings.pickup_dt + OFFERS_TIMEDELTA, datetime.timedelta(minutes=BOOKING_INTERVAL))
 
-        if discount:
-            offers.append({
-                "ride_id": DISCOUNTED_ORDER_ID,
-                "pickup_time": to_js_date(order_settings.pickup_dt),
-                "passengers": [{'name': u'*מתנה*', 'picture_url': 'https://lh3.googleusercontent.com/Qi1drFNLru8kkos_oWPFkf7rDSOm9dq3I0OlMG90NMlNDUcgePTmT08PN46XFZaVAVRF7a_qPAUT1YX3Zg1Bcj_hghLPTInAvHifX_gUz7SxnCO2Jqc'}],
-                "seats_left": MAX_SEATS - 1,
-                "price": new_ride_price - discount,
-                "new_ride": False,  # disguise as an exisiting ride
-                "comment": u"הזמן ראשון וקבל ₪%g הנחה מובטחת" % discount
-            })
+        for discount_rule, discount_dt in discount_dts_tuples:
+            tariff_for_discount_offer = RuleSet.get_active_set(discount_dt)
+            base_price_for_discount_offer = get_order_price_data_from(start_ride_algo_data).get(tariff_for_discount_offer.tariff_type) if tariff_for_discount_offer else None
+            if base_price_for_discount_offer:
+                discount = discount_rule.get_discount(base_price_for_discount_offer)
+                offers.append({
+                    "ride_id": DISCOUNTED_ORDER_ID,
+                    "pickup_time": to_js_date(discount_dt),
+                    "passengers": [{'name': u'*מתנה*', 'picture_url': 'http://%s/static/images/wb_site/1.2/discount_passenger.png' % DEFAULT_DOMAIN}],
+                    "seats_left": MAX_SEATS - 1,
+                    "price": base_price_for_discount_offer - discount,
+                    "new_ride": False,  # disguise as an exisiting ride
+                    "comment": u"הזמן ראשון וקבל ₪%g הנחה מובטחת" % discount
+                })
 
 
     return JSONResponse({'offers': offers})
@@ -606,7 +606,12 @@ def create_order(order_settings, passenger, ride=None, discounted=False):
 
     order.price_data = get_order_price_data_from(ride_data)
     if discounted:
-        order.discount = compute_discount(order_settings, order.price)
+        discount_rule = find_discount_rule(order_settings)
+        if discount_rule:
+            order.discount = discount_rule.get_discount(order.price)
+            order.discount_rule = discount_rule
+        else:
+            logging.warning("Expected a discount but no discount returned")
 
     order.save()
     logging.info("created new %s order [%s]" % (OrderType.get_name(order.type), order.id))

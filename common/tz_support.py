@@ -110,6 +110,9 @@ class UTCDateTimeField(models.DateTimeField):
 def utc_now():
     return datetime.datetime.now(TZ_INFO["UTC"])
 
+def trim_seconds(dt):
+    return dt.replace(second=0, microsecond=0)
+
 def default_tz_now():
     return datetime.datetime.now(TZ_INFO["Asia/Jerusalem"])
 

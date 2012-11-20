@@ -1,3 +1,4 @@
+import logging
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext_lazy as _
@@ -100,6 +101,20 @@ class AbstractTemporalRule(BaseModel):
 
         return False
 
+    def get_closest_active(self, dt_target, dt_start, dt_end, delta):
+
+        dt_itr = datetimeIterator(from_datetime=dt_start, to_datetime=dt_end, delta=delta)
+        active_dts = []
+
+        for dt in dt_itr:
+            if self.is_active(dt):
+                active_dts.append(dt)
+
+        if active_dts:
+            active_dts = sorted(active_dts, key=lambda dt: abs(dt - dt_target))
+            return active_dts[0]
+
+        return None
 
     def get_dates(self, start_date=None, end_date=None):
         """
@@ -145,8 +160,8 @@ class DiscountRule(AbstractTemporalRule):
     percent = models.FloatField(_("percent"), null=True, blank=True)
     amount = models.FloatField(_("amount"), null=True, blank=True)
 
-    from_city_area = CityAreaField(verbose_name=_("from city area"), related_name="fixed_price_rules_1")
-    to_city_area = CityAreaField(verbose_name=_("to city area"), related_name="fixed_price_rules_2")
+    from_city_area = CityAreaField(verbose_name=_("from city area"), related_name="discount_rules_1")
+    to_city_area = CityAreaField(verbose_name=_("to city area"), related_name="discount_rules_2")
 
     bidi = models.BooleanField(verbose_name=_("bidirectional"), default=False)
 
@@ -156,12 +171,12 @@ class DiscountRule(AbstractTemporalRule):
 
         super(DiscountRule, self).clean()
 
-    def is_active(self, from_lat, from_lon, to_lat, to_lon, dt):
+    def is_active_in_areas(self, dt, from_lat, from_lon, to_lat, to_lon):
         contains = self.from_city_area.contains(from_lat, from_lon) and self.to_city_area.contains(to_lat, to_lon)
         if self.bidi:
             contains = contains or (self.from_city_area.contains(to_lat, to_lon) and self.to_city_area.contains(from_lat, from_lon))
 
-        return contains and super(DiscountRule, self).is_active(dt)
+        return contains and self.is_active(dt)
 
     def get_discount(self, price):
         round_to = 0.5

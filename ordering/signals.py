@@ -30,6 +30,7 @@ def handle_approved_orders(sender, signal_type, obj, status, **kwargs):
     from ordering.models import APPROVED
     from sharing.passenger_controller import get_passenger_ride_email
 
+    logging.info("handle_approved_orders: %s" % status)
     if status == APPROVED:
         order = obj
 
