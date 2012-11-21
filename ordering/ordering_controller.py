@@ -600,6 +600,12 @@ def create_order(order_settings, passenger, ride=None, discounted=False):
 
     order = Order.fromOrderSettings(order_settings, passenger, commit=False)
 
+    if ride:  # if joining a ride, order departure is as shown in offer, not what was submitted in order_settings
+        ride_departure = compute_new_departure(ride, ride_data)
+        pickup_ride_point_for_new_order = first(lambda rp: rp[AlgoField.TYPE] == AlgoField.PICKUP and NEW_ORDER_ID in rp[AlgoField.ORDER_IDS], ride_data[AlgoField.RIDE_POINTS])
+        offset_for_new_order = pickup_ride_point_for_new_order[AlgoField.OFFSET_TIME]
+        order.depart_time = ride_departure + datetime.timedelta(seconds=offset_for_new_order)
+
     if order_settings.private:
         order.type = OrderType.PRIVATE
     else:
@@ -737,7 +743,7 @@ def update_ride_for_order(ride, ride_data, new_order):
 
         if NEW_ORDER_ID in order_ids:
             if len(order_ids) == 1:  # new point
-                p = create_ride_point(ride, point_data)
+                p = create_ride_point(ride, point_data, depart_time=depart_time)
             else:
                 p = new_order_points[ptype]
 
@@ -753,7 +759,13 @@ def update_ride_for_order(ride, ride_data, new_order):
     ride.update(depart_time=depart_time, cost_data=get_ride_cost_data_from(ride_data))
 
 
-def create_ride_point(ride, point_data):
+def create_ride_point(ride, point_data, depart_time=None):
+    """
+    @param depart_time: ride depart time to compute offsets from
+    """
+    if not depart_time:
+        depart_time = ride.depart_time
+
     point = RidePoint()
     point.type = StopType.PICKUP if point_data[AlgoField.TYPE] == AlgoField.PICKUP else StopType.DROPOFF
 
@@ -762,7 +774,7 @@ def create_ride_point(ride, point_data):
     point.address = point_data[AlgoField.POINT_ADDRESS][AlgoField.ADDRESS]
     point.city_name= point_data[AlgoField.POINT_ADDRESS][AlgoField.CITY]
 
-    point.stop_time = ride.depart_time + datetime.timedelta(seconds=point_data[AlgoField.OFFSET_TIME])
+    point.stop_time = depart_time + datetime.timedelta(seconds=point_data[AlgoField.OFFSET_TIME])
     point.ride = ride
     point.save()
 
