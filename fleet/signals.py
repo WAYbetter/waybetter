@@ -30,19 +30,17 @@ def log_fmr_update(sender, signal_type, **kwargs):
 @receive_signal(fmr_update_signal)
 def handle_assign_to_taxi(sender, signal_type, **kwargs):
     from ordering.models import BaseRide, PickMeAppRide
-    from sharing.station_controller import update_ride
 
     fmr = kwargs["fmr"]
-    if fmr.status == FleetManagerRideStatus.ASSIGNED_TO_TAXI:
+    ride = BaseRide.by_uuid(fmr.id)
 
-        logging.info("ASSIGNED_TO_TAXI received: notifying passengers: %s" % fmr.id)
-        ride = BaseRide.by_uuid(fmr.id)
+    logging.info(u"fleet update received: %s" % fmr)
+    if fmr.taxi_id and fmr.taxi_id != ride.taxi_number:
+        logging.info("taxi number changed: %s -> %s" % (ride.taxi_number, fmr.taxi_id))
+        ride.update(taxi_number=fmr.taxi_id)
+        if isinstance(ride, PickMeAppRide): # PickmeAppRide: send via SMS
+            deferred.defer(do_notify_passenger, ride.order, _countdown=40) # wait 40 seconds and then notify passengers
 
-        if fmr.taxi_id and fmr.taxi_id != ride.taxi_number:
-            ride.update(taxi_number=fmr.taxi_id)
-
-            if isinstance(ride, PickMeAppRide): # PickmeAppRide: send via SMS
-                deferred.defer(do_notify_passenger, ride.order, _countdown=40) # wait 40 seconds and then notify passengers
 
 def do_notify_passenger(order):
     from ordering.util import send_msg_to_passenger

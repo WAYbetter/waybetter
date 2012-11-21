@@ -123,14 +123,14 @@ def update_positions(ride_positions):
 
 
 
-def get_ride_position(order_id):
+def get_ride_position(ride):
     """
     Get the latest known taxi position for a ride.
-    @param order_id:
+    @param ride: ride to track
     @return: A C{TaxiRidePosition} or None
     """
     trp = None
-    cached_trp = memcache.get(_get_key(order_id), namespace=FM_MEMCACHE_NAMESPACE)
+    cached_trp = memcache.get(_get_key(ride.uuid), namespace=FM_MEMCACHE_NAMESPACE)
     if cached_trp:
         trp = pickle.loads(cached_trp)
 
