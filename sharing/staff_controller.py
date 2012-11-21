@@ -19,7 +19,7 @@ from common.tz_support import   set_default_tz_time, default_tz_now_min, default
 import dateutil
 from django.views.decorators.csrf import csrf_exempt
 from djangotoolbox.http import JSONResponse
-from fleet.fleet_manager import POSITION_CHANGED, cancel_ride
+from fleet import fleet_manager
 import ordering
 from ordering.enums import RideStatus
 from ordering.models import OrderType, Order, Passenger, SharedRide, IGNORED, REJECTED, FAILED, ERROR, TIMED_OUT, CANCELLED, Station
@@ -77,15 +77,11 @@ def control_panel(request):
     return render_to_response("staff_cpanel.html", locals(), context_instance=RequestContext(request))
 
 @staff_member_required
-def view_user_orders(request, user_id):
-    user = User.objects.get(id=user_id)
-    try:
-        passenger = user.passenger
-        orders = sorted(passenger.orders.filter(type=OrderType.SHARED, debug=False), key=lambda order: order.create_date)
-        title = "View sharing order for user: %s [%s]" % (user.get_full_name(), user.email)
-
-    except Passenger.DoesNotExist:
-        title = "User is not a passenger"
+def view_passenger_orders(request, passenger_id):
+    passenger = Passenger.by_id(passenger_id)
+    user = passenger.user
+    orders = sorted(passenger.orders.filter(type=OrderType.SHARED, debug=False), key=lambda order: order.create_date)
+    title = "View sharing order for passenger: %s [%s]" % (user.get_full_name(), user.email)
 
     return custom_render_to_response("staff_user_orders.html", locals(), context_instance=RequestContext(request))
 
@@ -97,7 +93,7 @@ def calc_users_data_csv(recipient ,offset=0, csv_bytestring=u""):
     logging.info("querying users %s->%s" % (offset, offset + batch_size))
     users = User.objects.order_by("-last_login")[offset: offset + batch_size]
     for user in users:
-        link = "http://%s/%s" % (link_domain , reverse(view_user_orders, args=[user.id]))
+        link = ""
         last_login = user.last_login.strftime(datetime_format)
         date_joined = user.date_joined.strftime(datetime_format)
         first_name = user.first_name
@@ -113,6 +109,7 @@ def calc_users_data_csv(recipient ,offset=0, csv_bytestring=u""):
         total_payment = ""
         try:
             passenger = user.passenger
+            link = "http://%s/%s" % (link_domain , reverse(view_passenger_orders, args=[passenger.id]))
             phone = passenger.phone
             if hasattr(passenger, "billing_info"):
                 billing_info = "yes"
@@ -392,7 +389,7 @@ def manual_assign_ride(request):
     ride = SharedRide.by_id(ride_id)
     station = Station.by_id(station_id)
     if station and ride.station != station:
-        cancel_ride(ride)
+        fleet_manager.cancel_ride(ride)
         old_station = ride.station
 
         assign_ride(ride, station)
@@ -401,6 +398,19 @@ def manual_assign_ride(request):
             update_data(old_station)
 
     return JSONResponse({'ride': ride.serialize_for_eagle_eye()})
+
+@csrf_exempt
+@staff_member_required
+@force_lang("en")
+def resend_to_fleet_manager(request, ride_id):
+    resend_result = False
+
+    ride = SharedRide.by_id(ride_id)
+    cancel_result = fleet_manager.cancel_ride(ride)
+    if cancel_result:
+        resend_result = fleet_manager.create_ride(ride)
+
+    return JSONResponse({'result': resend_result})
 
 @csrf_exempt
 @staff_member_required
@@ -416,7 +426,7 @@ def mark_ride_complete(request, ride_id):
 def ride_page(request, ride_id):
     lib_ng = True
     lib_map = True
-    position_changed = POSITION_CHANGED
+    position_changed = fleet_manager.POSITION_CHANGED
 
     return render_to_response("ride_page.html", locals(), context_instance=RequestContext(request))
 

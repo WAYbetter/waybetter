@@ -495,7 +495,8 @@ class SharedRide(BaseRide):
             'start_time': to_js_date(self.depart_time),
             'status': self.get_status_label(),
             'taxi': self.taxi_number,
-            'station': {"name": self.station.name, "id": self.station.id} if self.station else {},
+            'station': {"name": self.station.name, "id": self.station.id,
+                        "fleet_manager": self.station.fleet_manager.name if self.station.fleet_manager else None} if self.station else {},
             'shared': self.can_be_joined,
             'debug': self.debug
             }
@@ -1176,7 +1177,7 @@ class Order(BaseModel):
         else:
             return u"[%d] %s from %s" % (id, ugettext("order"), self.from_raw)
 
-    def change_status(self, old_status=None, new_status=None):
+    def change_status(self, old_status=None, new_status=None, silent=False):
         """
         1. update status in transaction,
         2. send signal if update was successful,
@@ -1184,15 +1185,16 @@ class Order(BaseModel):
         """
         success = self._change_attr_in_transaction("status", old_status, new_status)
         if success:
-            sig_args = {
-                'sender': 'order_status_changed_signal',
-                'order': self,
-                'status': new_status
-            }
-            order_status_changed_signal.send(**sig_args)
+            if not silent:
+                sig_args = {
+                    'sender': 'order_status_changed_signal',
+                    'order': self,
+                    'status': new_status
+                }
+                order_status_changed_signal.send(**sig_args)
 
-            if new_status in [TIMED_OUT, FAILED, ERROR]:
-                self.notify()
+                if new_status in [TIMED_OUT, FAILED, ERROR]:
+                    self.notify()
 
             return success
 
@@ -1268,6 +1270,7 @@ class Order(BaseModel):
         notify_by_email(subject, msg)
 
     def serialize_for_eagle_eye(self):
+        from billing.enums import BillingStatus
         ride_points = list(self.ride.points.all()) if self.ride else []
         pickup_idx = ride_points.index(self.pickup_point) + 1 if self.pickup_point else "?"
         dropoff_idx = ride_points.index(self.dropoff_point) + 1 if self.dropoff_point else "?"
@@ -1281,25 +1284,18 @@ class Order(BaseModel):
             "dropoff": to_js_date(self.dropoff_point.stop_time) if self.dropoff_point else "NA",
             "dropoff_idx": dropoff_idx,
             "create_date": to_js_date(self.create_date),
+            "passenger_id": self.passenger.id,
+            "passenger_picture_url": self.passenger.picture_url,
             "passenger_name": self.passenger.name,
             "passenger_phone": self.passenger_phone,
             "num_seats": self.num_seats,
             "price": self.get_billing_amount(),
             "discount": self.discount,
-            "status": self.get_status_label().upper()
+            "status": self.get_status_label().upper(),
+            "billing_status": [BillingStatus.get_name(trx.status) for trx in self.billing_transactions.all()],
+            "booked_by_app": self.mobile
         }
 
-    def serialize_for_sharing(self):
-        return { "from_address": self.from_raw,
-                 "from_lat": self.from_lat,
-                 "from_lon": self.from_lon,
-                 "id": self.id,
-                 "order_time": time.mktime(self.create_date.timetuple()),
-                 "passenger_id": self.passenger_id,
-                 "to_address": self.to_raw,
-                 "to_lat": self.to_lat,
-                 "to_lon": self.to_lon,
-                 "num_seats": self.num_seats}
 
 class OrderAssignment(BaseModel):
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="assignments")

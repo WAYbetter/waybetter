@@ -121,6 +121,20 @@
                 top: 0;
             }
         }
+
+        .booking-details i{
+            margin-right: 3px;
+        }
+        .passenger-details{
+            cursor: pointer;
+        }
+        .passenger-picture{
+            margin-right: 3px;
+            max-width: 17px;
+        }
+        [class^="wb-icon-"]{
+            font-size: 14px;
+        }
     </style>
 {% endblock %}
 
@@ -164,6 +178,31 @@
                     'CHARGED':'CHARGED',
                     'COMPLETED':'COMPLETED'
                 });
+
+        app.directive("passengerDetails", function () {
+            return {
+                restrict: 'E',
+                replace: true,
+                template:
+                        '<div ng-click="view_passenger(order.passenger_id)" class="passenger-details">' +
+                            '<img class="passenger-picture" ng-src="(( order.passenger_picture_url ))">' +
+                            '<i class="icon-user passenger-picture" ng-hide="order.passenger_picture_url"></i>' +
+                            '(( order.passenger_name )) (( order.passenger_phone ))' +
+                        '</div>'
+            }
+        });
+        app.directive("bookingDetails", function () {
+            return {
+                restrict: 'E',
+                replace: true,
+                template:
+                        '<div class="booking-details">' +
+                            '<i ng-class="{\'icon-phone\': order.booked_by_app, \'icon-home\': !order.booked_by_app}"></i>' +
+                            '(( order.create_date | date:"dd/MM/yy HH:mm" ))</td>' +
+                        '</div>'
+            }
+        });
+
         app.controller("EagleEyeCtrl", function ($scope, $http, $q, $filter, Status) {
             function RideActions(ride) {
                 var self = this;
@@ -173,6 +212,13 @@
                         title:"Resend Voucher",
                         enabled:true_fn,
                         run:resend_voucher
+                    },
+                    {
+                        title: "Resend to " + self.ride.station.fleet_manager,
+                        enabled: function(){
+                            return self.ride.status == Status.ACCEPTED && self.ride.station.fleet_manager != undefined
+                        },
+                        run: resend_to_fleet_manager
                     },
                     {
                         title:"View on Map",
@@ -236,7 +282,33 @@
                             $("#fail-modal").modal();
                         });
                     console.log("resend_voucher: " + self.ride.id);
+                }
 
+                function resend_to_fleet_manager(){
+                    var fleet_manager_name = self.ride.station.fleet_manager;
+                    function _success(){
+                        $scope.modal_header = "Resend ride " + self.ride.id;
+                        $scope.modal_body = "Ride was successfully sent to " + fleet_manager_name;
+                        $("#success-modal").modal();
+                    }
+                    function _fail(){
+                        $scope.modal_header = "Resend ride " + self.ride.id;
+                        $scope.modal_body = "Sending to " + fleet_manager_name + " failed";
+                        $("#fail-modal").modal();
+                    }
+
+                    $scope.confirm("Send again to " + fleet_manager_name + "?", "This will cancel the existing ride (if any) and send it again as a new one")
+                        .then(function(){
+                                $http.get("/staff/resend_to_fleet_manager/" + self.ride.id + "/")
+                                    .success(function(data) {
+                                            if (data && data.result){
+                                                _success();
+                                            } else { _fail() }
+                                        })
+                                    .error(function() { _fail() });
+
+                                console.log("resend_to_fleet_manager: " + self.ride.id);
+                            })
                 }
 
                 function cancel_ride() {
@@ -324,6 +396,10 @@
                 }
             };
 
+            $scope.view_passenger = function(passenger_id){
+                window.open("/staff/view_passenger_orders/" + passenger_id + "/", '_blank');
+            };
+
             $scope.get_ride_actions = function (ride) {
                 if (!ride_actions[ride.id]) { // this is needed so that ng-repeat will have a 'stable' model and not get a new object for each call
                     ride_actions[ride.id] = new RideActions(ride);
@@ -379,6 +455,15 @@
                 });
             };
 
+            $scope.num_rides = function(){
+                if ($scope.show_debug){
+                    return $scope.rides.length;
+                } else{
+                    return $scope.rides.filter(function(ride) { return !ride.debug}).length;
+                }
+
+            };
+
             $scope.update();
         });
 
@@ -419,16 +504,17 @@
 
             <div class="span10 rides-container">
                 <h4 ng-show="rides" id="rides-top">Rides
-                    <small>(( rides.length | paren_wrap ))</small></h4>
+                    <small>(( num_rides() | paren_wrap ))</small></h4>
 
                 <div class="ride-row" ng-repeat="ride in rides" ng-show="ride.debug == show_debug || !ride.debug">
                     <div class="ride-header row-fluid">
                         <div class="span4">
                             (( ride.station.name ))
-                            <small class="muted">(( ride.taxi | paren_wrap ))</small>
+                            &#x200E;<small class="muted" ng-show="ride.taxi"><i class="wb-icon-taxi"></i>(( ride.taxi ))</small>
                         </div>
                         <div class="span4 center">
-                            (( ride.start_time | date:'dd/MM/yy - HH:mm' ))
+                            <strong>(( ride.start_time | date:'HH:mm' ))</strong>
+                            <small>(( ride.start_time | date:'MMM dd' ))</small>
                         </div>
                         <div class="span3 right">
                             <span class="label" ng-show="ride.debug">DEBUG</span>
@@ -462,17 +548,19 @@
                                 <th># Seats</th>
                                 <th>Price</th>
                                 <th>Discount</th>
+                                <th>Billing</th>
                                 <th>Status</th>
                                 <th>&nbsp;</th>
                             </tr>
                             <tr ng-repeat="order in ride.orders">
                                 <td><span class="label label-info">(( order.pickup_idx ))</span> (( order.from_address )) | (( order.pickup | date:'HH:mm' ))</td>
                                 <td><span class="label label-info">(( order.dropoff_idx ))</span> (( order.to_address )) | (( order.dropoff | date:'HH:mm' ))</td>
-                                <td>(( order.create_date | date:'dd/MM/yy HH:mm' ))</td>
-                                <td>(( order.passenger_name )) (( order.passenger_phone ))</td>
+                                <td><booking-details></booking-details></td>
+                                <td><passenger-details></passenger-details></td>
                                 <td>(( order.num_seats ))</td>
                                 <td>(( order.price | currency:'₪'))</td>
                                 <td>(( order.discount | currency:'₪'))</td>
+                                <td>(( order.billing_status.join(', ') ))</td>
                                 <td><span class="label" ng-class="get_order_status_class(order)">(( order.status ))</span></td>
                                 <td>
                                     <div class="btn-group">
@@ -506,17 +594,19 @@
                             <th># Seats</th>
                             <th>Price</th>
                             <th>Discount</th>
+                            <th>Billing</th>
                             <th>Status</th>
                         </tr>
                         <tr ng-repeat="order in incomplete_orders">
                             <td>(( order.id ))</td>
                             <td>(( order.from_address ))</td>
                             <td>(( order.to_address ))</td>
-                            <td>(( order.create_date | date:'dd/MM/yy HH:mm' ))</td>
-                            <td>(( order.passenger_name )) (( order.passenger_phone ))</td>
+                            <td><booking-details></booking-details></td>
+                            <td><passenger-details></passenger-details></td>
                             <td>(( order.num_seats ))</td>
                             <td>(( order.price | currency:'₪'))</td>
                             <td>(( order.discount | currency:'₪'))</td>
+                            <td>(( order.billing_status.join(', ') ))</td>
                             <td><span class="label" ng-class="get_order_status_class(order)">(( order.status ))</span></td>
                         </tr>
                     </table>
@@ -577,7 +667,9 @@
             </div>
             <div class="modal-footer">
                 <button class="btn" data-dismiss="modal" ng-click="assignment_defer.reject()">Cancel</button>
-                <button class="btn btn-danger" data-dismiss="modal" ng-click="assignment_defer.resolve(selected_station)" ng-disabled="selected_station.id == selected_ride.station.id">OK, Reassign Ride</button>
+                <button class="btn btn-danger" data-dismiss="modal" ng-click="assignment_defer.resolve(selected_station)"
+                        ng-disabled="selected_ride.status == Status.ASSIGNED && selected_station.id == selected_ride.station.id">OK, Reassign Ride</button>
+                        <!-- don't allow re-assigning to the same station if status is ASSIGNED -->
             </div>
         </div>
 
