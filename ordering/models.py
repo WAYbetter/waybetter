@@ -1176,7 +1176,7 @@ class Order(BaseModel):
         else:
             return u"[%d] %s from %s" % (id, ugettext("order"), self.from_raw)
 
-    def change_status(self, old_status=None, new_status=None):
+    def change_status(self, old_status=None, new_status=None, silent=False):
         """
         1. update status in transaction,
         2. send signal if update was successful,
@@ -1184,15 +1184,16 @@ class Order(BaseModel):
         """
         success = self._change_attr_in_transaction("status", old_status, new_status)
         if success:
-            sig_args = {
-                'sender': 'order_status_changed_signal',
-                'order': self,
-                'status': new_status
-            }
-            order_status_changed_signal.send(**sig_args)
+            if not silent:
+                sig_args = {
+                    'sender': 'order_status_changed_signal',
+                    'order': self,
+                    'status': new_status
+                }
+                order_status_changed_signal.send(**sig_args)
 
-            if new_status in [TIMED_OUT, FAILED, ERROR]:
-                self.notify()
+                if new_status in [TIMED_OUT, FAILED, ERROR]:
+                    self.notify()
 
             return success
 
