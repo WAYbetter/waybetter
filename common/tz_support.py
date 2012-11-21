@@ -110,6 +110,13 @@ class UTCDateTimeField(models.DateTimeField):
 def utc_now():
     return datetime.datetime.now(TZ_INFO["UTC"])
 
+def normalize_naive_israel_dt(dt):
+    """
+    @param dt: a naive datetime object in israel time
+    @return: a tz aware utc converted datetime
+    """
+    return dt.replace(tzinfo=TZ_INFO['Asia/Jerusalem']).astimezone(TZ_INFO['UTC'])
+
 def trim_seconds(dt):
     return dt.replace(second=0, microsecond=0)
 
