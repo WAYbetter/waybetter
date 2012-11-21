@@ -689,6 +689,7 @@ def create_shared_ride_for_order(ride_data, order):
 
 def update_ride_for_order(ride, ride_data, new_order):
     depart_time = compute_new_departure(ride, ride_data)
+    #TODO_WB: what about arrive_time?
 
     orders = ride.orders.all()
     new_order_points = {
