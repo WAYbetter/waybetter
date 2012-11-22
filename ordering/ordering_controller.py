@@ -461,7 +461,7 @@ def get_offers(request):
 
     # add discounted offer if relevant
     if look_for_discounts and start_ride_algo_data:
-        earliest_offer_dt = max(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=ASAP_BOOKING_TIME), order_settings.pickup_dt - OFFERS_TIMEDELTA)
+        earliest_offer_dt = ceil_datetime(max(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=ASAP_BOOKING_TIME), order_settings.pickup_dt - OFFERS_TIMEDELTA), minutes=BOOKING_INTERVAL)
         discount_dts_tuples = get_discount_rules_and_dt(order_settings, earliest_offer_dt, order_settings.pickup_dt + OFFERS_TIMEDELTA, datetime.timedelta(minutes=BOOKING_INTERVAL))
 
         for discount_rule, discount_dt in discount_dts_tuples:
