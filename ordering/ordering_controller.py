@@ -139,7 +139,7 @@ def get_ongoing_order(passenger):
 
 @never_cache
 def sync_app_state(request):
-    earliest_pickup_time = ceil_datetime(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=10), minutes=BOOKING_INTERVAL)
+    earliest_pickup_time = ceil_datetime(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=ASAP_BOOKING_TIME), minutes=BOOKING_INTERVAL)
     latest_pickup_time = earliest_pickup_time + datetime.timedelta(hours=(24*3))
     dt_options = list(datetimeIterator(earliest_pickup_time, latest_pickup_time, delta=datetime.timedelta(minutes=BOOKING_INTERVAL)))
 
@@ -547,8 +547,12 @@ def book_ride(request):
                 logging.warning("tried booking an invalid ride candidate")
                 result['error'] = _("Sorry, but this ride has been closed for booking")
 
-        else:  # new or discounted ride
-            order = create_order(order_settings, passenger, discounted=discounted_ride)
+        else:  # new or discounted ride, check pickup time isn't before ASAP (minus a couple seconds to allow booking to exactly ASAP)
+            if order_settings.pickup_dt <= default_tz_now() + datetime.timedelta(minutes=ASAP_BOOKING_TIME) - datetime.timedelta(seconds=10):
+                logging.warning("tried booking to expired pickup time %s" % order_settings.pickup_dt)
+                result['error'] = _("Please choose a later pickup time")
+            else:
+                order = create_order(order_settings, passenger, discounted=discounted_ride)
 
         if order:
             result['status'] = 'success'
