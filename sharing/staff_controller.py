@@ -344,7 +344,16 @@ def kpi_csv(request):
 @staff_member_required
 def eagle_eye(request):
     lib_ng = True
-    stations = simplejson.dumps([{"name": s.name, "id": s.id} for s in Station.objects.all()]);
+    stations = []
+    for station in Station.objects.all():
+        try:
+            sharing_ws = station.work_stations.filter(accept_shared_rides=True)[0]
+        except Exception:
+            sharing_ws = None
+
+        stations.append({"name": station.name, "id": station.id, "online_status": sharing_ws.is_online if sharing_ws else False})
+
+    stations = simplejson.dumps(stations)
 #    status_values = dict([(label.encode('utf-8').upper(), label.encode('utf-8').upper()) for key, label in ORDER_STATUS])
     return render_to_response("eagle_eye.html", locals(), context_instance=RequestContext(request))
 

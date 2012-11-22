@@ -238,9 +238,9 @@ def get_channel_key(model, key_data=""):
     return s.hexdigest()
 
 
-def get_mobile_platform(request):
+def get_mobile_platform(user_agent):
     from common.enums import MobilePlatform
-    ua = request.META.get('HTTP_USER_AGENT', "").lower()
+    ua = user_agent.lower()
     platform = MobilePlatform.Other
     if ua.find("iphone") > -1:
         platform = MobilePlatform.iOS

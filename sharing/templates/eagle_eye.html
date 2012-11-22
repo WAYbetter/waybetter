@@ -66,6 +66,8 @@
             border-bottom: 1px solid #CCC;
         }
 
+        .ride-header .icon-bolt{ color: rgb(206, 111, 111); }
+        .ride-header .icon-bolt.online{ color: rgb(13, 204, 13); }
         .subtitle {
             display: block;
             padding: 3px 15px;
@@ -178,7 +180,12 @@
                     'CHARGED':'CHARGED',
                     'COMPLETED':'COMPLETED'
                 });
-
+        app.constant("MobilePlatform", {
+                Other    : 0,
+                iOS      : 1,
+                Android  : 2
+                }
+        );
         app.directive("passengerDetails", function () {
             return {
                 restrict: 'E',
@@ -196,14 +203,12 @@
                 restrict: 'E',
                 replace: true,
                 template:
-                        '<div class="booking-details">' +
-                            '<i ng-class="{\'icon-phone\': order.booked_by_app, \'icon-home\': !order.booked_by_app}"></i>' +
-                            '(( order.create_date | date:"dd/MM/yy HH:mm" ))</td>' +
+                        '<div class="booking-details"><i ng-class="booked_by_icon(order)"> </i>(( order.create_date | date:"dd/MM/yy HH:mm" ))</td>' +
                         '</div>'
             }
         });
 
-        app.controller("EagleEyeCtrl", function ($scope, $http, $q, $filter, Status) {
+        app.controller("EagleEyeCtrl", function ($scope, $http, $q, $filter, Status, MobilePlatform) {
             function RideActions(ride) {
                 var self = this;
                 this.ride = ride;
@@ -455,6 +460,16 @@
                 });
             };
 
+            $scope.booked_by_icon = function(order){
+                if (order.booked_by == MobilePlatform.Android){
+                    return "wb-icon-android";
+                } else if (order.booked_by == MobilePlatform.iOS){
+                    return "wb-icon-apple";
+                } else {
+                    return "icon-home";
+                }
+            };
+
             $scope.num_rides = function(){
                 if ($scope.show_debug){
                     return $scope.rides.length;
@@ -462,6 +477,12 @@
                     return $scope.rides.filter(function(ride) { return !ride.debug}).length;
                 }
 
+            };
+
+            $scope.online_status = function(station){
+                if (station && station.id){
+                    return $scope.stations.filter(function(s){ return s.id == station.id })[0].online_status;
+                }
             };
 
             $scope.update();
@@ -509,6 +530,7 @@
                 <div class="ride-row" ng-repeat="ride in rides" ng-show="ride.debug == show_debug || !ride.debug">
                     <div class="ride-header row-fluid">
                         <div class="span4">
+                            <i class="icon-bolt" ng-show="ride.station" ng-class="{'online': online_status(ride.station)}" title="Online status"> </i>
                             (( ride.station.name ))
                             &#x200E;<small class="muted" ng-show="ride.taxi"><i class="wb-icon-taxi"></i>(( ride.taxi ))</small>
                         </div>
