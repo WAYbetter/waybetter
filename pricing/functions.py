@@ -1,20 +1,6 @@
 import logging
 from pricing.models import DiscountRule
 
-def find_discount_rule(order_settings):
-    res = None
-    for discount_rule in DiscountRule.objects.all():
-        pickup_dt = order_settings.pickup_dt
-
-        if discount_rule.is_active_in_areas(pickup_dt, order_settings.pickup_address.lat, order_settings.pickup_address.lng,
-                                   order_settings.dropoff_address.lat, order_settings.dropoff_address.lng):
-
-            res = discount_rule
-            break
-
-    logging.info("compute_discount returned: %s" % res)
-    return res
-
 def get_discount_rules_and_dt(order_settings, start_dt, end_dt, delta):
     active_discounts = []
     pickup_dt = order_settings.pickup_dt

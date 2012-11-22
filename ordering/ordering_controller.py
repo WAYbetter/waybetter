@@ -6,11 +6,12 @@ import traceback
 import urllib
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
+from google.appengine.api import memcache
 from billing.billing_manager import  get_token_url
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction
 from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime, trim_seconds
-from common.util import first, Enum, dict_to_str_keys, datetimeIterator
+from common.util import first, Enum, dict_to_str_keys, datetimeIterator, get_uuid
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
@@ -21,10 +22,10 @@ from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
 from ordering.enums import RideStatus
-from ordering.models import SharedRide, NEW_ORDER_ID, DISCOUNTED_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY, SearchRequest
+from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY, SearchRequest
 from ordering.signals import order_price_changed_signal
-from pricing.functions import get_discount_rules_and_dt, find_discount_rule
-from pricing.models import TARIFFS, RuleSet
+from pricing.functions import get_discount_rules_and_dt
+from pricing.models import TARIFFS, RuleSet, DiscountRule
 from settings import DEFAULT_DOMAIN
 from sharing.algo_api import AlgoField
 import simplejson
@@ -35,6 +36,9 @@ import sharing.algo_api as algo_api
 
 WAYBETTER_STATION_NAME = "WAYbetter"
 CLOSE_CHILD_BROWSER_URI = "https://waybetter-app.appspot.com"
+
+DISCOUNTED_OFFER_PREFIX = "fjsh34897dfasg3478o5"
+DISCOUNTED_OFFERS_NS = "DISCOUNTED_OFFERS"
 
 MAX_SEATS = 3
 BOOKING_INTERVAL = 10 # minutes
@@ -337,6 +341,7 @@ def get_candidate_rides(order_settings):
     @param order_settings: C{OrderSettings}
     @return:
     """
+    return []
     requested_pickup_dt = order_settings.pickup_dt
     earliest = max(default_tz_now(), requested_pickup_dt - OFFERS_TIMEDELTA)
     latest = requested_pickup_dt + OFFERS_TIMEDELTA
@@ -469,8 +474,10 @@ def get_offers(request):
             base_price_for_discount_offer = get_order_price_data_from(start_ride_algo_data).get(tariff_for_discount_offer.tariff_type) if tariff_for_discount_offer else None
             if base_price_for_discount_offer:
                 discount = discount_rule.get_discount(base_price_for_discount_offer)
+                offer_key = "%s_%s" % (DISCOUNTED_OFFER_PREFIX, get_uuid())
+                memcache.set(offer_key, {'discount_rule_id': discount_rule.id, 'pickup_dt': discount_dt}, namespace=DISCOUNTED_OFFERS_NS)
                 offers.append({
-                    "ride_id": DISCOUNTED_ORDER_ID,
+                    "ride_id": offer_key,
                     "pickup_time": to_js_date(discount_dt),
                     "passengers": [{'name': u'*מתנה*', 'picture_url': 'http://%s/static/images/wb_site/1.2/discount_passenger.png' % DEFAULT_DOMAIN}],
                     "seats_left": MAX_SEATS - 1,
@@ -534,7 +541,7 @@ def book_ride(request):
         ride_id = request_data.get("ride_id")
 
         new_ride = (ride_id == NEW_ORDER_ID)
-        discounted_ride = (ride_id == DISCOUNTED_ORDER_ID)
+        discounted_ride = (ride_id.startswith(DISCOUNTED_OFFER_PREFIX))
 
         join_ride = not (new_ride or discounted_ride)
         ride_to_join = SharedRide.by_id(ride_id) if join_ride else None
@@ -552,7 +559,12 @@ def book_ride(request):
                 logging.warning("tried booking to expired pickup time %s" % order_settings.pickup_dt)
                 result['error'] = _("Please choose a later pickup time")
             else:
-                order = create_order(order_settings, passenger, discounted=discounted_ride)
+                if discounted_ride:
+                    discounted_offer = memcache.get(ride_id, namespace=DISCOUNTED_OFFERS_NS)
+                    order = create_order(order_settings, passenger, discounted_offer=discounted_offer)
+                else:
+                    order = create_order(order_settings, passenger)
+
 
         if order:
             result['status'] = 'success'
@@ -588,7 +600,7 @@ def set_current_booking_data(request):
 
     return HttpResponse("OK")
 
-def create_order(order_settings, passenger, ride=None, discounted=False):
+def create_order(order_settings, passenger, ride=None, discounted_offer=None):
     """
     Returns a created Order or None
     """
@@ -616,13 +628,17 @@ def create_order(order_settings, passenger, ride=None, discounted=False):
         order.type = OrderType.SHARED
 
     order.price_data = get_order_price_data_from(ride_data)
-    if discounted:
-        discount_rule = find_discount_rule(order_settings)
-        if discount_rule:
-            order.discount = discount_rule.get_discount(order.price)
+    if discounted_offer:
+        discount_rule = DiscountRule.by_id(discounted_offer["discount_rule_id"])
+        order.depart_time = discounted_offer["pickup_dt"]
+        if discount_rule and discount_rule.is_active_in_areas(order.depart_time, order_settings.pickup_address.lat, order_settings.pickup_address.lng, order_settings.dropoff_address.lat, order_settings.dropoff_address.lng):
+            discount = discount_rule.get_discount(order.price)
+            logging.info(u"discount rule %s granting discount %s" % (discount_rule.name, discount))
+            order.discount = discount
             order.discount_rule = discount_rule
         else:
-            logging.warning("Expected a discount but no discount returned")
+            logging.error("Expected a discount but discount doesn't exist or isn't active")
+            return None
 
     order.save()
     logging.info("created new %s order [%s]" % (OrderType.get_name(order.type), order.id))
