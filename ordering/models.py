@@ -20,7 +20,7 @@ from djangotoolbox.fields import BlobField, ListField
 from common.models import BaseModel, Country, City, CityArea, CityAreaField, obj_by_attr
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64, get_uuid
-from common.tz_support import UTCDateTimeField, utc_now, to_js_date, default_tz_now, format_dt
+from common.tz_support import UTCDateTimeField, utc_now, to_js_date, format_dt
 from fleet.models import FleetManager, FleetManagerRideStatus
 from ordering.enums import RideStatus
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
@@ -368,6 +368,7 @@ class BaseRide(BaseModel):
     uuid = models.CharField(max_length=32, null=True, blank=True, default=get_uuid)
 
     taxi_number = models.CharField(max_length=20, null=True, blank=True)
+    distance = models.IntegerField(_("distance"), null=True, blank=True) # in meters
 
     _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
 

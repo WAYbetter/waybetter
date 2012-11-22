@@ -24,9 +24,8 @@ from ordering.enums import RideStatus
 from ordering.models import SharedRide, NEW_ORDER_ID, DISCOUNTED_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY, SearchRequest
 from ordering.signals import order_price_changed_signal
 from pricing.functions import get_discount_rules_and_dt, find_discount_rule
-from pricing.models import TARIFFS, RuleSet
+from pricing.models import  RuleSet
 from settings import DEFAULT_DOMAIN
-from sharing.algo_api import AlgoField
 import simplejson
 import datetime
 import dateutil.parser
@@ -361,31 +360,11 @@ def get_matching_rides(candidate_rides, order_settings):
 
     @param candidate_rides:
     @param order_settings:
-    @return: A list of JSON objects representing modified SharedRides
+    @return: A list of RideData objects representing modified SharedRides
     """
 
     matches = algo_api.find_matches(candidate_rides, order_settings)
-    return matches
-
-
-def get_ride_cost_data_from(ride_data):
-    return {TARIFFS.TARIFF1: (ride_data[AlgoField.COST_LIST_TARIFF1]),
-             TARIFFS.TARIFF2: (ride_data[AlgoField.COST_LIST_TARIFF2])}
-
-
-def get_order_price_data_from(ride_data, order_id=NEW_ORDER_ID, sharing=True):
-    order_info = ride_data[AlgoField.ORDER_INFOS][str(order_id)]
-    if sharing:
-        return {
-            TARIFFS.TARIFF1: order_info[AlgoField.PRICE_SHARING_TARIFF1],
-            TARIFFS.TARIFF2: order_info[AlgoField.PRICE_SHARING_TARIFF2]
-        }
-    else:
-        return {
-            TARIFFS.TARIFF1: order_info[AlgoField.PRICE_ALONE_TARIFF1],
-            TARIFFS.TARIFF2: order_info[AlgoField.PRICE_ALONE_TARIFF2]
-        }
-
+    return [algo_api.RideData(match) for match in matches]
 
 def get_offers(request):
     order_settings = OrderSettings.fromRequest(request)
@@ -412,13 +391,13 @@ def get_offers(request):
     start_ride_algo_data = None
 
     for ride_data in matching_rides:
-        ride_id = ride_data[AlgoField.RIDE_ID]
+        ride_id = ride_data.ride_id
         ride = SharedRide.by_id(ride_id)
 
         # get price for offer according to tariff
         tariff = RuleSet.get_active_set(order_settings.pickup_dt)
-        price = get_order_price_data_from(ride_data).get(tariff.tariff_type) if tariff else None
-        price_alone = get_order_price_data_from(ride_data, sharing=False).get(tariff.tariff_type) if tariff else None
+        price = ride_data.order_price_data(NEW_ORDER_ID).get(tariff.tariff_type) if tariff else None
+        price_alone = ride_data.order_price_data(NEW_ORDER_ID, sharing=False).get(tariff.tariff_type) if tariff else None
 
         if not price > 0:
             logging.warning("get_offers missing price for %s" % order_settings.pickup_dt)
@@ -435,13 +414,13 @@ def get_offers(request):
             }
 
         else:  # sharing offers
-            time_sharing = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.TIME_SHARING]
-            time_alone = ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.TIME_ALONE]
+            time_sharing = ride_data.order_time(NEW_ORDER_ID)
+            time_alone = ride_data.order_time(NEW_ORDER_ID, sharing=False)
             time_addition = int((time_sharing - time_alone) / 60)
 
-            pickup_point = first(lambda p: NEW_ORDER_ID in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, ride_data[AlgoField.RIDE_POINTS])
+            pickup_point = ride_data.order_pickup_point(NEW_ORDER_ID)
             ride_orders = ride.orders.all()
-            pickup_time = compute_new_departure(ride, ride_data) + datetime.timedelta(seconds=pickup_point[AlgoField.OFFSET_TIME])
+            pickup_time = compute_new_departure(ride, ride_data) + datetime.timedelta(seconds=pickup_point.offset)
             offer = {
                 "ride_id": ride_id,
                 "pickup_time": to_js_date(pickup_time),
@@ -466,7 +445,7 @@ def get_offers(request):
 
         for discount_rule, discount_dt in discount_dts_tuples:
             tariff_for_discount_offer = RuleSet.get_active_set(discount_dt)
-            base_price_for_discount_offer = get_order_price_data_from(start_ride_algo_data).get(tariff_for_discount_offer.tariff_type) if tariff_for_discount_offer else None
+            base_price_for_discount_offer = start_ride_algo_data.order_price_data(NEW_ORDER_ID).get(tariff_for_discount_offer.tariff_type) if tariff_for_discount_offer else None
             if base_price_for_discount_offer:
                 discount = discount_rule.get_discount(base_price_for_discount_offer)
                 offers.append({
@@ -593,7 +572,7 @@ def create_order(order_settings, passenger, ride=None, discounted=False):
     # get ride data from algo: don't trust the client
     candidates = [ride] if ride else []
     matching_rides = get_matching_rides(candidates, order_settings)
-    ride_data = first(lambda match: match[AlgoField.RIDE_ID] == ride_id, matching_rides)
+    ride_data = first(lambda match: match.ride_id == ride_id, matching_rides)
 
     if not ride_data:
         return None
@@ -602,16 +581,15 @@ def create_order(order_settings, passenger, ride=None, discounted=False):
 
     if ride:  # if joining a ride, order departure is as shown in offer, not what was submitted in order_settings
         ride_departure = compute_new_departure(ride, ride_data)
-        pickup_ride_point_for_new_order = first(lambda rp: rp[AlgoField.TYPE] == AlgoField.PICKUP and NEW_ORDER_ID in rp[AlgoField.ORDER_IDS], ride_data[AlgoField.RIDE_POINTS])
-        offset_for_new_order = pickup_ride_point_for_new_order[AlgoField.OFFSET_TIME]
-        order.depart_time = ride_departure + datetime.timedelta(seconds=offset_for_new_order)
+        new_order_pickup_point = ride_data.order_pickup_point(NEW_ORDER_ID)
+        order.depart_time = ride_departure + datetime.timedelta(seconds=new_order_pickup_point.offset)
 
     if order_settings.private:
         order.type = OrderType.PRIVATE
     else:
         order.type = OrderType.SHARED
 
-    order.price_data = get_order_price_data_from(ride_data)
+    order.price_data = ride_data.order_price_data(NEW_ORDER_ID)
     if discounted:
         discount_rule = find_discount_rule(order_settings)
         if discount_rule:
@@ -663,13 +641,14 @@ def create_shared_ride_for_order(ride_data, order):
     ride = SharedRide()
     ride.debug = order.debug
     ride.depart_time = order.depart_time
-    ride.arrive_time = order.depart_time + datetime.timedelta(seconds=ride_data[AlgoField.REAL_DURATION])
-    ride.cost_data = get_ride_cost_data_from(ride_data)
+    ride.arrive_time = order.depart_time + datetime.timedelta(seconds=ride_data.duration)
+    ride.duration = ride_data.duration
+    ride.cost_data =  ride_data.cost_data
     if order.type == OrderType.PRIVATE:
         ride.can_be_joined = False
     ride.save()
 
-    for point_data in ride_data[AlgoField.RIDE_POINTS]:
+    for point_data in ride_data.points:
         create_ride_point(ride, point_data)
 
     for p in ride.points.all():
@@ -680,7 +659,7 @@ def create_shared_ride_for_order(ride_data, order):
 
     order.ride = ride
 
-    order.price_data = get_order_price_data_from(ride_data)
+    order.price_data = ride_data.order_price_data(NEW_ORDER_ID)
     order.save()
 
     logging.info("created new ride [%s] for order [%s]" % (ride.id, order.id))
@@ -689,22 +668,21 @@ def create_shared_ride_for_order(ride_data, order):
 
 def update_ride_for_order(ride, ride_data, new_order):
     depart_time = compute_new_departure(ride, ride_data)
-    #TODO_WB: what about arrive_time?
 
     orders = ride.orders.all()
     new_order_points = {
-        AlgoField.PICKUP: None,
-        AlgoField.DROPOFF: None
+        StopType.PICKUP: None,
+        StopType.DROPOFF: None
     }
 
-    ride_points_data = ride_data[AlgoField.RIDE_POINTS]
+    ride_points = ride_data.points
 
     # update order prices and stop times of existing points
     for order in orders:
         old_billing_amount = order.get_billing_amount()
 
         # set new order.price
-        order.price_data = get_order_price_data_from(ride_data, order.id)
+        order.price_data = ride_data.order_price_data(order.id)
 
         if order.price <= old_billing_amount:  # if algo got a better deal for this user then this will be what he pays
             order.discount = None
@@ -719,13 +697,13 @@ def update_ride_for_order(ride, ride_data, new_order):
         pickup_point = order.pickup_point
         dropoff_point = order.dropoff_point
 
-        for point_data in ride_points_data:
-            order_ids = point_data[AlgoField.ORDER_IDS]
-            ptype = point_data[AlgoField.TYPE]
-            offset = point_data[AlgoField.OFFSET_TIME]
+        for point_data in ride_points:
+            order_ids = point_data.order_ids
+            point_stop_type = point_data.stop_type
+            offset = point_data.offset
 
             if order.id in order_ids:
-                if ptype == AlgoField.PICKUP:
+                if point_stop_type == StopType.PICKUP:
                     p = pickup_point
                 else:
                     p = dropoff_point
@@ -734,19 +712,19 @@ def update_ride_for_order(ride, ride_data, new_order):
                 p.save()
 
                 if NEW_ORDER_ID in order_ids:
-                    new_order_points[ptype] = p
+                    new_order_points[point_stop_type] = p
 
 
     # update stop times or create points for the new order
-    for point_data in ride_points_data:
-        ptype = point_data[AlgoField.TYPE]
-        order_ids = point_data[AlgoField.ORDER_IDS]
+    for point_data in ride_points:
+        point_stop_type = point_data.stop_type
+        order_ids = point_data.order_ids
 
         if NEW_ORDER_ID in order_ids:
             if len(order_ids) == 1:  # new point
                 p = create_ride_point(ride, point_data, depart_time=depart_time)
             else:
-                p = new_order_points[ptype]
+                p = new_order_points[point_stop_type]
 
             if p.type == StopType.PICKUP:
                 new_order.pickup_point = p
@@ -754,10 +732,10 @@ def update_ride_for_order(ride, ride_data, new_order):
                 new_order.dropoff_point = p
 
     new_order.ride = ride
-    new_order.price_data = get_order_price_data_from(ride_data)
+    new_order.price_data = ride_data.order_price_data(NEW_ORDER_ID)
     new_order.save()
 
-    ride.update(depart_time=depart_time, cost_data=get_ride_cost_data_from(ride_data))
+    ride.update(depart_time=depart_time, distance=ride_data.distance, arrive_time=depart_time + datetime.timedelta(seconds=ride_data.duration), cost_data=ride_data.cost_data)
 
 
 def create_ride_point(ride, point_data, depart_time=None):
@@ -768,14 +746,14 @@ def create_ride_point(ride, point_data, depart_time=None):
         depart_time = ride.depart_time
 
     point = RidePoint()
-    point.type = StopType.PICKUP if point_data[AlgoField.TYPE] == AlgoField.PICKUP else StopType.DROPOFF
+    point.type = point_data.stop_type
 
-    point.lon = point_data[AlgoField.POINT_ADDRESS][AlgoField.LNG]
-    point.lat = point_data[AlgoField.POINT_ADDRESS][AlgoField.LAT]
-    point.address = point_data[AlgoField.POINT_ADDRESS][AlgoField.ADDRESS]
-    point.city_name= point_data[AlgoField.POINT_ADDRESS][AlgoField.CITY]
+    point.lon = point_data.lon
+    point.lat = point_data.lat
+    point.address = point_data.address
+    point.city_name= point_data.city_name
 
-    point.stop_time = depart_time + datetime.timedelta(seconds=point_data[AlgoField.OFFSET_TIME])
+    point.stop_time = depart_time + datetime.timedelta(seconds=point_data.offset)
     point.ride = ride
     point.save()
 
@@ -785,11 +763,9 @@ def create_ride_point(ride, point_data, depart_time=None):
 def compute_new_departure(ride, ride_data):
     current_departure_time = ride.depart_time
     first_pickup_order = ride.first_pickup.orders.all()[0]
-    first_pickup_order_id = first_pickup_order.id
 
-    pickup_ride_point_for_first_order = first(lambda rp: rp[AlgoField.TYPE] == AlgoField.PICKUP and first_pickup_order_id in rp[AlgoField.ORDER_IDS], ride_data[AlgoField.RIDE_POINTS])
-    offset_for_first_order = pickup_ride_point_for_first_order[AlgoField.OFFSET_TIME]
-    new_departure_time = current_departure_time - datetime.timedelta(seconds=offset_for_first_order)
+    first_order_pickup_point = ride_data.order_pickup_point(first_pickup_order.id)
+    new_departure_time = current_departure_time - datetime.timedelta(seconds=first_order_pickup_point.offset)
 
     logging.info("ride [%s] departure calc: %s <-- %s" % (ride.id, new_departure_time, current_departure_time))
     return new_departure_time
