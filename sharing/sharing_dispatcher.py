@@ -75,7 +75,7 @@ def dispatch_ride(ride):
 def assign_ride(ride, force_station=None):
     station = force_station or choose_station(ride)
 
-    logging.info(u"ride [%s] was assigned to station: %s" % (ride.id, station))
+    logging.info(u"trying to assign ride [%s] to station: %s" % (ride.id, station))
     if station:
         try:
             ride.station = station
@@ -84,6 +84,8 @@ def assign_ride(ride, force_station=None):
                 return station
             elif ride.change_status(old_status=RideStatus.PROCESSING, new_status=RideStatus.ASSIGNED): # calls save()
                 return station
+
+            logging.info(u"ride[%s] was successfully assigned to station %s" % (ride.id, station))
 
         except Exception:
             notify_by_email(u"Cannot assign ride [%s]" % ride.id, msg="%s\n%s" % (ride.get_log(), traceback.format_exc()))

@@ -15,7 +15,7 @@
     </style>
 </head>
 <body>
-<h1>Ride In Risk: [{{ ride_id }}: {{ ride_status }}], {{ depart_time }}</h1>
+<h1>Ride In Risk [{{ ride_id }} {{ ride_status }}] {{ depart_time }}</h1>
 <div>
     <b>
         Reason:
@@ -34,7 +34,7 @@
 
 <div>
     <b>Station: </b>
-    {{ station_name }}
+    {{ station_name }} {% if online_status %}[{{ online_status|yesno:"ONLINE,OFFLINE" }}]{% endif %}
     <ul>
         {% for p in station_phones %}
             <li>{{ p }}</li>
