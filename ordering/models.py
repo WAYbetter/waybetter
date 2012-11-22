@@ -367,6 +367,7 @@ class BaseRide(BaseModel):
     uuid = models.CharField(max_length=32, null=True, blank=True, default=get_uuid)
 
     taxi_number = models.CharField(max_length=20, null=True, blank=True)
+    distance = models.IntegerField(_("distance"), null=True, blank=True) # in meters
 
     _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
 

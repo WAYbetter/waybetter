@@ -1,10 +1,11 @@
 from google.appengine.api.urlfetch import  POST
 from django.utils import simplejson
-from common.util import safe_fetch, Enum
-from ordering.models import SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS
+from common.util import safe_fetch, Enum, first
+from ordering.models import SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS, StopType, NEW_ORDER_ID
 from datetime import  datetime
 import urllib
 import logging
+from pricing.models import TARIFFS
 
 DEBUG = 1
 WAZE = 3
@@ -45,7 +46,105 @@ class AlgoField(Enum):
     TIME_ALONE = "m_TimeAlone"
     TIME_SECONDS = "m_TimeSeconds"
     TIME_SHARING = "m_TimeSharing"
+    TOTAL_DISTANCE = "m_TotalDistance"
     TYPE = "m_Type"
+
+class RideData(object):
+    """
+    A helper class to access ride data returned by the algorithm
+    """
+    def __init__(self, raw_ride_data):
+        self.raw_ride_data = raw_ride_data
+
+    @property
+    def ride_id(self):
+        return self.raw_ride_data[AlgoField.RIDE_ID]
+
+    @property
+    def duration(self):
+        return self.raw_ride_data[AlgoField.REAL_DURATION]
+
+    @property
+    def distance(self):
+        return self.raw_ride_data[AlgoField.TOTAL_DISTANCE]
+
+    @property
+    def time_sharing(self):
+        return self.raw_ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.TIME_SHARING]
+
+    @property
+    def cost_data(self):
+        return {
+            TARIFFS.TARIFF1: (self.raw_ride_data[AlgoField.COST_LIST_TARIFF1]),
+            TARIFFS.TARIFF2: (self.raw_ride_data[AlgoField.COST_LIST_TARIFF2])
+        }
+
+    @property
+    def points(self):
+        return [PointData(raw_point_data) for raw_point_data in self.raw_ride_data[AlgoField.RIDE_POINTS]]
+
+    def order_price_data(self, order_id, sharing=True):
+        order_info = self.raw_ride_data[AlgoField.ORDER_INFOS][str(order_id)]
+        if sharing:
+            return {
+                TARIFFS.TARIFF1: order_info[AlgoField.PRICE_SHARING_TARIFF1],
+                TARIFFS.TARIFF2: order_info[AlgoField.PRICE_SHARING_TARIFF2]
+            }
+        else:
+            return {
+                TARIFFS.TARIFF1: order_info[AlgoField.PRICE_ALONE_TARIFF1],
+                TARIFFS.TARIFF2: order_info[AlgoField.PRICE_ALONE_TARIFF2]
+            }
+
+    def order_time(self, order_id, sharing=True):
+        if sharing:
+            return self.raw_ride_data[AlgoField.ORDER_INFOS][str(order_id)][AlgoField.TIME_SHARING]
+        else:
+            return self.raw_ride_data[AlgoField.ORDER_INFOS][str(order_id)][AlgoField.TIME_ALONE]
+
+    def order_pickup_point(self, order_id):
+        """
+        @param order_id: order id to look up
+        @return: a PointData object for the point data of the given order id. If order id is not found returns None
+        """
+        raw_pickup_data = first(lambda p: order_id in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, self.raw_ride_data[AlgoField.RIDE_POINTS])
+        return PointData(raw_pickup_data) if raw_pickup_data else None
+
+class PointData(object):
+    """
+    A helper class for point data returned by the algorithm
+    """
+    def __init__(self, raw_point_data):
+        self.raw_point_data = raw_point_data
+
+    @property
+    def offset(self):
+        return self.raw_point_data[AlgoField.OFFSET_TIME]
+
+    @property
+    def lon(self):
+        return self.raw_point_data[AlgoField.POINT_ADDRESS][AlgoField.LNG]
+
+    @property
+    def lat(self):
+        return self.raw_point_data[AlgoField.POINT_ADDRESS][AlgoField.LAT]
+
+    @property
+    def address(self):
+        return self.raw_point_data[AlgoField.POINT_ADDRESS][AlgoField.ADDRESS]
+
+    @property
+    def city_name(self):
+        return self.raw_point_data[AlgoField.POINT_ADDRESS][AlgoField.CITY]
+
+    @property
+    def stop_type(self):
+        return StopType.PICKUP if self.raw_point_data[AlgoField.TYPE] == AlgoField.PICKUP else StopType.DROPOFF
+
+    @property
+    def order_ids(self):
+        return self.raw_point_data[AlgoField.ORDER_IDS]
+
 
 def find_matches(candidate_rides, order_settings):
     payload = {
