@@ -38,7 +38,7 @@
                 <th style="border:1px dotted #aaa">{% trans "Price" %}</th>
             </tr>
             <tr>
-                <td style="border:1px dotted #aaa; direction:ltr">{% trans "minutes" %} &#177;10 {{ depart_time }}</td>
+                <td style="border:1px dotted #aaa;">{{ depart_time|date:"D d/n/y" }} {{ LANGUAGE_BIDI|yesno:"&#x200E;,"|safe }}&#177;10 {% trans "minutes" %}</td>
                 <td style="border:1px dotted #aaa">{{ num_seats }}</td>
                 <td style="border:1px dotted #aaa; font-weight: bold">{{ price }} &#8362;</td>
             </tr>
