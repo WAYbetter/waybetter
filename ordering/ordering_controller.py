@@ -341,7 +341,6 @@ def get_candidate_rides(order_settings):
     @param order_settings: C{OrderSettings}
     @return:
     """
-    return []
     requested_pickup_dt = order_settings.pickup_dt
     earliest = max(default_tz_now(), requested_pickup_dt - OFFERS_TIMEDELTA)
     latest = requested_pickup_dt + OFFERS_TIMEDELTA
@@ -541,7 +540,7 @@ def book_ride(request):
         ride_id = request_data.get("ride_id")
 
         new_ride = (ride_id == NEW_ORDER_ID)
-        discounted_ride = (ride_id.startswith(DISCOUNTED_OFFER_PREFIX))
+        discounted_ride = (ride_id and str(ride_id).startswith(DISCOUNTED_OFFER_PREFIX))
 
         join_ride = not (new_ride or discounted_ride)
         ride_to_join = SharedRide.by_id(ride_id) if join_ride else None
