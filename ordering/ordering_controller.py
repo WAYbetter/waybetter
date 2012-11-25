@@ -22,15 +22,17 @@ from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
 from ordering.enums import RideStatus
-from ordering.models import SharedRide, NEW_ORDER_ID, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY, SearchRequest
+from ordering.models import SharedRide, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY, SearchRequest
 from ordering.signals import order_price_changed_signal
-from pricing.functions import get_discount_rules_and_dt, find_discount_rule
-from pricing.models import  RuleSet
+from pricing.functions import get_discount_rules_and_dt
+from pricing.models import  RuleSet, DiscountRule
 from settings import DEFAULT_DOMAIN
+from sharing.algo_api import NEW_ORDER_ID
 import simplejson
 import datetime
 import dateutil.parser
 import sharing.algo_api as algo_api
+
 
 
 WAYBETTER_STATION_NAME = "WAYbetter"
@@ -400,8 +402,8 @@ def get_offers(request):
 
         # get price for offer according to tariff
         tariff = RuleSet.get_active_set(order_settings.pickup_dt)
-        price = ride_data.order_price_data(NEW_ORDER_ID).get(tariff.tariff_type) if tariff else None
-        price_alone = ride_data.order_price_data(NEW_ORDER_ID, sharing=False).get(tariff.tariff_type) if tariff else None
+        price = ride_data.order_price(NEW_ORDER_ID, tariff)
+        price_alone = ride_data.order_price(NEW_ORDER_ID, tariff, sharing=False)
 
         if not price > 0:
             logging.warning("get_offers missing price for %s" % order_settings.pickup_dt)
@@ -449,7 +451,7 @@ def get_offers(request):
 
         for discount_rule, discount_dt in discount_dts_tuples:
             tariff_for_discount_offer = RuleSet.get_active_set(discount_dt)
-            base_price_for_discount_offer = start_ride_algo_data.order_price_data(NEW_ORDER_ID).get(tariff_for_discount_offer.tariff_type) if tariff_for_discount_offer else None
+            base_price_for_discount_offer = start_ride_algo_data.order_price(NEW_ORDER_ID, tariff_for_discount_offer)
             if base_price_for_discount_offer:
                 discount = discount_rule.get_discount(base_price_for_discount_offer)
                 offer_key = "%s_%s" % (DISCOUNTED_OFFER_PREFIX, get_uuid())
@@ -607,10 +609,10 @@ def create_order(order_settings, passenger, ride=None, discounted_offer=None):
     order.price_data = ride_data.order_price_data(NEW_ORDER_ID)
     if discounted_offer:
         discount_rule = DiscountRule.by_id(discounted_offer["discount_rule_id"])
-		order.depart_time = discounted_offer["pickup_dt"]
+        order.depart_time = discounted_offer["pickup_dt"]
         if discount_rule and discount_rule.is_active_in_areas(order.depart_time, order_settings.pickup_address.lat, order_settings.pickup_address.lng, order_settings.dropoff_address.lat, order_settings.dropoff_address.lng):
-			discount = discount_rule.get_discount(order.price)
-			logging.info(u"discount rule %s granting discount %s" % (discount_rule.name, discount))
+            discount = discount_rule.get_discount(order.price)
+            logging.info(u"discount rule %s granting discount %s" % (discount_rule.name, discount))
             order.discount = discount
             order.discount_rule = discount_rule
         else:

@@ -1,11 +1,13 @@
 from google.appengine.api.urlfetch import  POST
 from django.utils import simplejson
 from common.util import safe_fetch, Enum, first
-from ordering.models import SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS, StopType, NEW_ORDER_ID
+from ordering.models import SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS, StopType
 from datetime import  datetime
 import urllib
 import logging
 from pricing.models import TARIFFS
+
+NEW_ORDER_ID = 0
 
 DEBUG = 1
 WAZE = 3
@@ -69,10 +71,6 @@ class RideData(object):
         return self.raw_ride_data[AlgoField.TOTAL_DISTANCE]
 
     @property
-    def time_sharing(self):
-        return self.raw_ride_data[AlgoField.ORDER_INFOS][str(NEW_ORDER_ID)][AlgoField.TIME_SHARING]
-
-    @property
     def cost_data(self):
         return {
             TARIFFS.TARIFF1: (self.raw_ride_data[AlgoField.COST_LIST_TARIFF1]),
@@ -95,6 +93,13 @@ class RideData(object):
                 TARIFFS.TARIFF1: order_info[AlgoField.PRICE_ALONE_TARIFF1],
                 TARIFFS.TARIFF2: order_info[AlgoField.PRICE_ALONE_TARIFF2]
             }
+
+    def order_price(self, order_id, tariff, sharing=True):
+        if not tariff:
+            return None
+
+        price_data = self.order_price_data(order_id, sharing=sharing)
+        return price_data.get(tariff.tariff_type)
 
     def order_time(self, order_id, sharing=True):
         if sharing:
