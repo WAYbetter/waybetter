@@ -16,6 +16,7 @@ class CityAreaAdmin(admin.TabularInline):
     model = CityArea
     form = CityAreaInlineForm
     extra = 0
+    ordering = ["_city_order"]
 
 
 class CityAdmin(admin.ModelAdmin):

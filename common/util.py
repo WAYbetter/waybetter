@@ -173,6 +173,20 @@ def dict_to_str_keys(obj):
     else:
         return obj
 
+def clean_values(dic):
+    """
+    Clean quotes from dictionary values
+    @param dic: input dictionary
+    @return: returns the modified dictionary
+    """
+    for k,v in dic.items():
+        if isinstance(v, str) or isinstance(v, unicode):
+            dic[k] = v.replace('"', '').replace("'", "")
+        elif isinstance(v, dict):
+            dic[k] = clean_values(v)
+
+    return dic
+
 
 def datetimeIterator(from_datetime=None, to_datetime=None, delta=datetime.timedelta(days=1)):
     """

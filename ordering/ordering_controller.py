@@ -10,8 +10,9 @@ from google.appengine.api import memcache
 from billing.billing_manager import  get_token_url
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction
+from common.models import CityArea
 from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime, trim_seconds
-from common.util import first, Enum, dict_to_str_keys, datetimeIterator, get_uuid
+from common.util import first, Enum, dict_to_str_keys, datetimeIterator, get_uuid, clean_values
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
@@ -829,6 +830,13 @@ class OrderSettings:
         self.private = private
         self.debug = debug
 
+    def get_city_area(self, address):
+        for city_area in CityArea.objects.all():
+            if city_area.contains(address.lat, address.lng):
+                return city_area.name
+
+        return ""
+
     @classmethod
     def fromRequest(cls, request):
         request_data = simplejson.loads(request.REQUEST.get("data"))
@@ -859,21 +867,20 @@ class OrderSettings:
         return inst
 
     def serialize(self):
-        # TODO_WB: fill empty fields for algo when we support area based pricing
-        return {
-            "from_address": self.pickup_address.formatted_address,
-            "from_city": self.pickup_address.city_name,
-            "from_area": "",
-            "from_lat": self.pickup_address.lat,
-            "from_lon": self.pickup_address.lng,
-            "to_address": self.dropoff_address.formatted_address,
-            "to_city": self.dropoff_address.city_name,
-            "to_area": "",
-            "to_lat": self.dropoff_address.lat,
-            "to_lon": self.dropoff_address.lng,
-            "num_seats": self.num_seats,
-            "id": NEW_ORDER_ID
-        }
+        result = {"from_address": self.pickup_address.formatted_address,
+                  "from_city": self.pickup_address.city_name,
+                  "from_area": self.get_city_area(self.pickup_address),
+                  "from_lat": self.pickup_address.lat,
+                  "from_lon": self.pickup_address.lng,
+                  "to_address": self.dropoff_address.formatted_address,
+                  "to_city": self.dropoff_address.city_name,
+                  "to_area": self.get_city_area(self.dropoff_address),
+                  "to_lat": self.dropoff_address.lat,
+                  "to_lon": self.dropoff_address.lng,
+                  "num_seats": self.num_seats,
+                  "id": NEW_ORDER_ID}
+
+        return clean_values(result)
 
 
 class Address:
