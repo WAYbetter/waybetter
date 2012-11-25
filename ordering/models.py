@@ -327,6 +327,7 @@ class BaseRide(BaseModel):
     depart_time = UTCDateTimeField(_("depart time"))
     arrive_time = UTCDateTimeField(_("arrive time"))
 
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
     status = StatusField(_("status"), choices=RideStatus.choices(), default=RideStatus.PENDING)
     debug = models.BooleanField(default=False, editable=False)
     uuid = models.CharField(max_length=32, null=True, blank=True, default=get_uuid)
@@ -342,8 +343,31 @@ class BaseRide(BaseModel):
 
     def set_cost_data(self, value):
         self._cost_data = pickle.dumps(value)
+        self.update_cost()
 
     cost_data = property(fget=get_cost_data, fset=set_cost_data)
+
+    def update_cost(self):
+        logging.info(u"update cost for ride [%s] assigned to [%s]" % (self.id, self.station))
+
+        if not self.station:
+            return
+
+        if self.station.pricing_model_name:
+            tariff = RuleSet.get_active_set(self.depart_time)
+            cost = self.cost_data.for_model_by_tariff(self.station.pricing_model_name, tariff)
+
+            if cost:
+                if cost != self.cost:
+                    logging.info("updating cost: %s -> %s" % (self.cost, cost))
+                    self.update(cost=cost)
+                else:
+                    logging.info("cost has not changed")
+            else:
+                logging.error(u"cost for tariff=%s not found in cost data %s" % (tariff.name, self.cost_data))
+
+        else:
+            logging.error("assigned to station with no pricing model")
 
     @classmethod
     def by_uuid(cls, uuid):
@@ -372,10 +396,8 @@ class BaseRide(BaseModel):
 
 class PickMeAppRide(BaseRide):
     order = models.OneToOneField('Order', related_name="pickmeapp_ride")
-    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="pickmeapp_rides", null=True, blank=True)
 
 class SharedRide(BaseRide):
-    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
     driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
     can_be_joined = models.BooleanField(default=True)
@@ -447,6 +469,7 @@ class SharedRide(BaseRide):
             'orders': sorted([o.serialize_for_eagle_eye() for o in self.orders.all()], key=lambda o: o['pickup'], reverse=False),
             'start_time': to_js_date(self.depart_time),
             'status': self.get_status_label(),
+            'cost': self.cost,
             'taxi': self.taxi_number,
             'station': {"name": self.station.name, "id": self.station.id,
                         "fleet_manager": self.station.fleet_manager.name if self.station.fleet_manager else None} if self.station else {},
@@ -480,7 +503,6 @@ class SharedRide(BaseRide):
 
     def serialize_for_algo(self):
         from sharing.algo_api import AlgoField
-        cost_data = self.cost_data
         order_infos = {}
         for order in self.orders.all():
             order_infos[order.id] = {
@@ -493,8 +515,8 @@ class SharedRide(BaseRide):
             AlgoField.RIDE_ID           : self.id,
             AlgoField.RIDE_POINTS       : [rp.serialize_for_algo() for rp in sorted(self.points.all(), key=lambda p: p.stop_time)],
             AlgoField.ORDER_INFOS       : order_infos,
-            AlgoField.COST_LIST_TARIFF1 : cost_data.get(TARIFFS.TARIFF1, []),
-            AlgoField.COST_LIST_TARIFF2 : cost_data.get(TARIFFS.TARIFF2, [])
+            AlgoField.COST_LIST_TARIFF1 : self.cost_data.for_tariff_type(TARIFFS.TARIFF1),
+            AlgoField.COST_LIST_TARIFF2 : self.cost_data.for_tariff_type(TARIFFS.TARIFF2)
         }
     def change_status(self, old_status=None, new_status=None, safe=True, silent=False):
         result = self._change_attr_in_transaction("status", old_status, new_status, safe=safe)

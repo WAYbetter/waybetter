@@ -196,10 +196,25 @@ def maintenance_task(request):
 
 def do_task():
     # maintenance method goes here
-    rides = SharedRide.objects.filter(status=RideStatus.PENDING, depart_time__lte=default_tz_now() - datetime.timedelta(hours=24))
-    for ride in rides:
-        logging.info("marking ride as complete: %s" % ride.id)
-        ride.change_status(new_status=RideStatus.COMPLETED, silent=True)
+
+
+    # fix rides cost data
+    from sharing.algo_api import CostData, AlgoField
+    from pricing.models import TARIFFS
+
+    for ride in SharedRide.objects.all():
+        if not ride.cost_data:
+            continue
+
+        try:
+            ride.update(cost_data=CostData({
+                AlgoField.COST_LIST_TARIFF1: ride.cost_data.get(TARIFFS.TARIFF1),
+                AlgoField.COST_LIST_TARIFF2: ride.cost_data.get(TARIFFS.TARIFF2)
+            }))
+            logging.info("updated cost data for ride %s" % ride.id)
+
+        except Exception:
+            logging.error(traceback.format_exc())
 
     logging.info("cleanup done")
 

@@ -7,7 +7,6 @@ from ordering.enums import RideStatus
 from ordering.models import  SharedRide, Station
 from datetime import timedelta
 from pricing.models import RuleSet
-from sharing.algo_api import AlgoField
 import logging
 
 DISPATCHING_TIME = timedelta(hours=24)
@@ -74,42 +73,37 @@ def dispatch_ride(ride):
 
 def assign_ride(ride, force_station=None):
     station = force_station or choose_station(ride)
+    assigned_station = None
 
-    logging.info(u"trying to assign ride [%s] to station: %s" % (ride.id, station))
+    logging.info(u"assigning ride [%s] to station: %s" % (ride.id, station))
     if station:
         try:
             ride.station = station
             ride.dn_fleet_manager_id = station.fleet_manager_id
             if force_station and ride.change_status(new_status=RideStatus.ASSIGNED): # calls save()
-                return station
+                assigned_station = station
             elif ride.change_status(old_status=RideStatus.PROCESSING, new_status=RideStatus.ASSIGNED): # calls save()
-                return station
-
-            logging.info(u"ride[%s] was successfully assigned to station %s" % (ride.id, station))
+                assigned_station = station
 
         except Exception:
             notify_by_email(u"Cannot assign ride [%s]" % ride.id, msg="%s\n%s" % (ride.get_log(), traceback.format_exc()))
+
+    if assigned_station:
+        ride.update_cost()
+        logging.info(u"ride[%s] was successfully assigned to station %s" % (ride.id, assigned_station))
+        return assigned_station
 
     return None
 
 
 def choose_station(ride):
-    logging.info(u"ride cost data: %s" % ride.cost_data)
-    cost_models = []
     tariff = RuleSet.get_active_set(ride.depart_time)
-    if tariff:
-        cost_models = ride.cost_data.get(tariff.tariff_type)
 
-    stations = []
-    if cost_models:
-        for cost_model in cost_models:
-            pricing_model_name = cost_model[AlgoField.MODEL_ID]
-            pricing_model_stations = Station.objects.filter(pricing_model_name=pricing_model_name)
-            stations += pricing_model_stations
-            logging.info(u"%s pricing model found stations: %s" % (pricing_model_name, u",".join([unicode(station.name) for station in pricing_model_stations])))
+    pricing_model_names = ride.cost_data.model_names_for_tariff(tariff)
+    logging.info(u"found pricing models: %s" % u",".join([unicode(model_name) for model_name in pricing_model_names]))
 
-
-#    ws_list = [ws for station in stations for ws in station.work_stations.filter(accept_shared_rides=True)]
+    stations = Station.objects.filter(pricing_model_name__in=pricing_model_names)
+    logging.info(u"found stations: %s" % u",".join([unicode(station.name) for station in stations]))
 
     # make sure debug and real orders don't mix
     stations = filter(lambda station: station.debug == ride.debug, stations)
