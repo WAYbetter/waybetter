@@ -536,9 +536,10 @@
                         </div>
                         <div class="span4 center">
                             <strong>(( ride.start_time | date:'HH:mm' ))</strong>
-                            <small>(( ride.start_time | date:'MMM dd' ))</small>
+                            <small>(( ride.start_time | date:'EEE, MMM dd' ))</small>
                         </div>
                         <div class="span3 right">
+                            <strong ng-show="ride.station.name">(( ride.cost | currency:'₪'))</strong>
                             <span class="label" ng-show="ride.debug">DEBUG</span>
                             <span class="label" ng-show="!ride.shared">PRIVATE</span>
                             <span class="label" ng-class="get_ride_status_class(ride)">(( ride.status ))</span>
@@ -555,7 +556,6 @@
                                     <li ng-repeat="action in get_ride_actions(ride)"><a href="#" ng-click="run(action)" ng-disabled="!action.enabled()">(( action.title ))</a></li>
                                 </ul>
                             </div>
-
                         </div>
 
                     </div>

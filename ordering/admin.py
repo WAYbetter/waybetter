@@ -4,7 +4,7 @@ from common.util import blob_to_image_tag
 from django.contrib import admin, messages
 from django.core.urlresolvers import reverse
 from django.utils.translation import ugettext as _
-from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, Feedback, Business, SharedRide, RidePoint, Driver, Taxi, TaxiDriverRelation, StationFixedPriceRule, CHARGED, CANCELLED, InstalledApp
+from ordering.models import Passenger, Order, OrderAssignment, Station, WorkStation, Phone, MeteredRateRule, FlatRateRule, Feedback, Business, SharedRide, RidePoint, Driver, Taxi, TaxiDriverRelation, CHARGED, CANCELLED, InstalledApp
 import station_connection_manager
 from common.models import Country
 from common.forms import MandatoryInlineFormset
@@ -153,10 +153,6 @@ class PhoneAdmin(admin.TabularInline):
     formset = MandatoryInlineFormset
     extra = 2
 
-class StationFixedPriceRuleAdmin(admin.TabularInline):
-    model = StationFixedPriceRule
-    extra = 1
-
 def build_workstations(modeladmin, request, queryset):
     for station in queryset:
         station.delete_workstations()
@@ -166,7 +162,7 @@ build_workstations.short_description = "Build workstations"
 
 class StationAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "logo_img"]
-    inlines = [PhoneAdmin, StationFixedPriceRuleAdmin]
+    inlines = [PhoneAdmin]
     exclude = ["geohash", "lat", "lon", "number_of_ratings", "average_rating", "last_assignment_date"]
     form = forms.StationAdminForm
     actions = [build_workstations]

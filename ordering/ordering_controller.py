@@ -319,7 +319,7 @@ def get_next_rides(request, passenger):
             "order_id": order.id,
             "pickup_time": to_js_date(order.pickup_point.stop_time),
             "passengers": ride_mates,
-            "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
+            "seats_left": MAX_SEATS - sum([o.num_seats for o in ride_orders]),
             "your_seats": order.num_seats,
             "price": order.get_billing_amount(),
             "is_private": order.type == OrderType.PRIVATE,

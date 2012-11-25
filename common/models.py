@@ -57,12 +57,15 @@ class BaseModel(models.Model):
         Update only the given properties of this entity on a fresh copy to avoid overwriting with stale values
         @param kwargs:
         """
-        fresh = self.fresh_copy()
         for prop_name, val in kwargs.items():
-            setattr(fresh, prop_name, val)
             setattr(self, prop_name, val)
 
-        fresh.save()
+        fresh = self.fresh_copy()
+        if fresh:  # entity exists in db
+            for prop_name, val in kwargs.items():
+                setattr(fresh, prop_name, val)
+
+            fresh.save()
 
     @classmethod
     def by_id(cls, id, safe=True):

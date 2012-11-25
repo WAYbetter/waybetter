@@ -37,6 +37,7 @@ class AlgoField(Enum):
     OUTPUT_STAT = "m_OutputStat"
     PICKUP = "ePickup"
     POINT_ADDRESS = "m_PointAddress"
+    PRICE = "m_Price"
     PRICE_ALONE_TARIFF1 = "m_PriceAlone"
     PRICE_ALONE_TARIFF2 = "m_Price2Alone"
     PRICE_SHARING_TARIFF1 = "m_PriceSharing"
@@ -72,10 +73,7 @@ class RideData(object):
 
     @property
     def cost_data(self):
-        return {
-            TARIFFS.TARIFF1: (self.raw_ride_data[AlgoField.COST_LIST_TARIFF1]),
-            TARIFFS.TARIFF2: (self.raw_ride_data[AlgoField.COST_LIST_TARIFF2])
-        }
+        return CostData(self.raw_ride_data)
 
     @property
     def points(self):
@@ -149,6 +147,54 @@ class PointData(object):
     @property
     def order_ids(self):
         return self.raw_point_data[AlgoField.ORDER_IDS]
+
+
+class CostData(object):
+    def __init__(self, raw_ride_data):
+        self.cost_data = {
+            TARIFFS.TARIFF1: raw_ride_data[AlgoField.COST_LIST_TARIFF1],
+            TARIFFS.TARIFF2: raw_ride_data[AlgoField.COST_LIST_TARIFF2]
+        }
+
+    def __str__(self):
+        return self.cost_data.__str__()
+
+    def __unicode__(self):
+        return self.cost_data.__unicode__()
+
+    def for_tariff_type(self, tariff_type):
+        """
+        @param tariff_type: a value of pricing.models.TARIFFS
+        return a list of {AlgoField.MODEL_ID: '', AlgoField.PRICE: ''} objects
+        """
+        return self.cost_data.get(tariff_type, [])
+
+    def for_tariff(self, tariff):
+        """
+        @param tariff: RuleSet instance or None
+        return a list of {AlgoField.MODEL_ID: '', AlgoField.PRICE: ''} objects
+        """
+        if not tariff:
+            return []
+
+        return self.for_tariff_type(tariff.tariff_type)
+
+    def for_model_by_tariff(self, model_name, tariff):
+        """
+        returns None or the cost for the given pricing model and tariff
+        """
+        cost_models = self.for_tariff(tariff)
+        for cost_model in cost_models:
+            if cost_model[AlgoField.MODEL_ID] == model_name:
+                return cost_model[AlgoField.PRICE]
+
+        return None
+
+    def model_names_for_tariff(self, tariff):
+        """
+        returns a list of pricing models names (strings) for given tariff
+        """
+        return [entry[AlgoField.MODEL_ID] for entry in self.for_tariff(tariff)]
 
 
 def find_matches(candidate_rides, order_settings):

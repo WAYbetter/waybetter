@@ -179,28 +179,6 @@ class Station(BaseModel):
         else:
             return "http://taxiapp.co.il"
 
-    def get_ride_price(self, shared_ride, rules_only=False):
-        """
-        Get the station's pricing for a shared ride.
-        @param shared_ride: a SharedRide
-        @return: the price, or None if price is not defined for all orders of the shared ride.
-        """
-        orders = set(shared_ride.orders.all())
-        priced_orders = set()
-        price_rules = set()
-        for rule in self.fixed_prices.all():
-            for order in orders:
-                if rule.is_active(order.pickup_point.lat, order.pickup_point.lon, order.dropoff_point.lat, order.dropoff_point.lon, shared_ride.depart_time):
-                    price_rules.add(rule)
-                    priced_orders.add(order)
-
-        if rules_only:
-            return price_rules
-        elif price_rules and priced_orders == orders:
-            return max([pr.price for pr in price_rules]) + self.stop_price * shared_ride.charged_stops
-        else:
-            return None
-
     def is_in_valid_distance(self, order=None, from_lon=None, from_lat=None, to_lon=None, to_lat=None):
         if not (self.lat and self.lon): # ignore station with unknown address
             return False
@@ -258,17 +236,6 @@ class Station(BaseModel):
     def delete_workstations(self):
         self.work_stations.all().delete()
 
-class StationFixedPriceRule(BaseModel):
-    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="fixed_prices")
-    rule_set = models.ForeignKey(RuleSet, verbose_name=_("rule set"))
-    city_area_1 = CityAreaField(verbose_name=_("city area 1"), related_name="fixed_price_rules_1")
-    city_area_2 = CityAreaField(verbose_name=_("city area 2"), related_name="fixed_price_rules_2")
-    price = models.FloatField(_("price"))
-
-    def is_active(self, lat1, lon1, lat2, lon2, dt):
-        contains = (self.city_area_1.contains(lat1, lon1) and self.city_area_2.contains(lat2, lon2)) or \
-                   (self.city_area_2.contains(lat1, lon1) and self.city_area_1.contains(lat2, lon2))
-        return contains and self.rule_set.is_active(dt)
 
 class Driver(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="drivers")
@@ -360,6 +327,7 @@ class BaseRide(BaseModel):
     depart_time = UTCDateTimeField(_("depart time"))
     arrive_time = UTCDateTimeField(_("arrive time"))
 
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
     status = StatusField(_("status"), choices=RideStatus.choices(), default=RideStatus.PENDING)
     debug = models.BooleanField(default=False, editable=False)
     uuid = models.CharField(max_length=32, null=True, blank=True, default=get_uuid)
@@ -367,6 +335,7 @@ class BaseRide(BaseModel):
     taxi_number = models.CharField(max_length=20, null=True, blank=True)
     distance = models.IntegerField(_("distance"), null=True, blank=True) # in meters
 
+    cost = models.FloatField(null=True, blank=True, editable=False)
     _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
 
     def get_cost_data(self):
@@ -374,8 +343,31 @@ class BaseRide(BaseModel):
 
     def set_cost_data(self, value):
         self._cost_data = pickle.dumps(value)
+        self.update_cost()
 
     cost_data = property(fget=get_cost_data, fset=set_cost_data)
+
+    def update_cost(self):
+        logging.info(u"update cost for ride [%s] assigned to [%s]" % (self.id, self.station))
+
+        if not self.station:
+            return
+
+        if self.station.pricing_model_name:
+            tariff = RuleSet.get_active_set(self.depart_time)
+            cost = self.cost_data.for_model_by_tariff(self.station.pricing_model_name, tariff)
+
+            if cost:
+                if cost != self.cost:
+                    logging.info("updating cost: %s -> %s" % (self.cost, cost))
+                    self.update(cost=cost)
+                else:
+                    logging.info("cost has not changed")
+            else:
+                logging.error(u"cost for tariff=%s not found in cost data %s" % (tariff.name, self.cost_data))
+
+        else:
+            logging.error("assigned to station with no pricing model")
 
     @classmethod
     def by_uuid(cls, uuid):
@@ -404,32 +396,17 @@ class BaseRide(BaseModel):
 
 class PickMeAppRide(BaseRide):
     order = models.OneToOneField('Order', related_name="pickmeapp_ride")
-    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="pickmeapp_rides", null=True, blank=True)
 
 class SharedRide(BaseRide):
-    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
     driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
     can_be_joined = models.BooleanField(default=True)
 
-    _value = models.FloatField(null=True, blank=True, editable=False) # the value of this ride to the assigned station
     _stops = models.IntegerField(null=True, blank=True, editable=False)
 
     def save(self, *args, **kwargs):
         super(SharedRide, self).save(*args, **kwargs)
         ride_updated_signal.send(sender="ride_save", ride=self)
-
-    @property
-    def cost(self):
-        return self.value
-
-    @property
-    def value(self):
-        if not self._value and self.station:
-            logging.info("updating value for SharedRide[%s]" % self.id)
-            self.update(_value=self.station.get_ride_price(self))
-
-        return self._value
 
     @property
     def first_pickup(self):
@@ -492,6 +469,7 @@ class SharedRide(BaseRide):
             'orders': sorted([o.serialize_for_eagle_eye() for o in self.orders.all()], key=lambda o: o['pickup'], reverse=False),
             'start_time': to_js_date(self.depart_time),
             'status': self.get_status_label(),
+            'cost': self.cost,
             'taxi': self.taxi_number,
             'station': {"name": self.station.name, "id": self.station.id,
                         "fleet_manager": self.station.fleet_manager.name if self.station.fleet_manager else None} if self.station else {},
@@ -525,7 +503,6 @@ class SharedRide(BaseRide):
 
     def serialize_for_algo(self):
         from sharing.algo_api import AlgoField
-        cost_data = self.cost_data
         order_infos = {}
         for order in self.orders.all():
             order_infos[order.id] = {
@@ -538,8 +515,8 @@ class SharedRide(BaseRide):
             AlgoField.RIDE_ID           : self.id,
             AlgoField.RIDE_POINTS       : [rp.serialize_for_algo() for rp in sorted(self.points.all(), key=lambda p: p.stop_time)],
             AlgoField.ORDER_INFOS       : order_infos,
-            AlgoField.COST_LIST_TARIFF1 : cost_data.get(TARIFFS.TARIFF1, []),
-            AlgoField.COST_LIST_TARIFF2 : cost_data.get(TARIFFS.TARIFF2, [])
+            AlgoField.COST_LIST_TARIFF1 : self.cost_data.for_tariff_type(TARIFFS.TARIFF1),
+            AlgoField.COST_LIST_TARIFF2 : self.cost_data.for_tariff_type(TARIFFS.TARIFF2)
         }
         return clean_values(result)
 
