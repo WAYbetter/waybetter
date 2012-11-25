@@ -134,6 +134,9 @@
             margin-right: 3px;
             max-width: 17px;
         }
+        .discount_link i {
+            color: 
+        }
         [class^="wb-icon-"]{
             font-size: 14px;
         }
@@ -581,7 +584,7 @@
                                 <td><passenger-details></passenger-details></td>
                                 <td>(( order.num_seats ))</td>
                                 <td>(( order.price | currency:'₪'))</td>
-                                <td>(( order.discount | currency:'₪'))</td>
+                                <td><a ng-href="/admin/pricing/discountrule/((order.discount_id))/" ng-show="order.discount_id" target="_blank" class='discount_link'><i class='icon-asterisk'></i></a>  (( order.discount | currency:'₪'))</td>
                                 <td>(( order.billing_status.join(', ') ))</td>
                                 <td><span class="label" ng-class="get_order_status_class(order)">(( order.status ))</span></td>
                                 <td>

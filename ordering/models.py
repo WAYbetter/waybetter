@@ -1275,6 +1275,7 @@ class Order(BaseModel):
 
         return {
             "id": self.id,
+            "discount_id": self.discount_rule_id,
             "from_address": self.from_raw,
             "pickup": to_js_date(self.pickup_point.stop_time) if self.pickup_point else "NA",
             "pickup_idx": pickup_idx,
