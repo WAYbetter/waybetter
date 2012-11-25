@@ -334,6 +334,7 @@ class BaseRide(BaseModel):
     taxi_number = models.CharField(max_length=20, null=True, blank=True)
     distance = models.IntegerField(_("distance"), null=True, blank=True) # in meters
 
+    cost = models.FloatField(null=True, blank=True, editable=False)
     _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
 
     def get_cost_data(self):
@@ -379,25 +380,11 @@ class SharedRide(BaseRide):
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
     can_be_joined = models.BooleanField(default=True)
 
-    _value = models.FloatField(null=True, blank=True, editable=False) # the value of this ride to the assigned station
     _stops = models.IntegerField(null=True, blank=True, editable=False)
 
     def save(self, *args, **kwargs):
         super(SharedRide, self).save(*args, **kwargs)
         ride_updated_signal.send(sender="ride_save", ride=self)
-
-    @property
-    def cost(self):
-        return self.value
-
-    @property
-    def value(self):
-        if not self._value and self.station:
-            logging.info("updating value for SharedRide[%s]" % self.id)
-            # XXX
-#            self.update(_value=self.station.get_ride_price(self))
-
-        return self._value
 
     @property
     def first_pickup(self):

@@ -332,12 +332,6 @@ def measure_count():
     logging.info(Passenger.objects.all().count())
 
 
-def update_shared_rides():
-    for sr in SharedRide.objects.filter(debug=False):
-        logging.info("SharedRide[%s]" % sr.id)
-        logging.info("value: %s" % sr.value)
-        logging.info("stops: %s" % sr.stops)
-
 # maintenance methods
 def create_passenger_dup_phones():
     phones_counter = {}

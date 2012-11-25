@@ -138,7 +138,7 @@ def calc_kpi_data(start_date, end_date, channel_id, token):
                                      2) if shared_rides else "No Shared Rides",
             "shared_rides": len(shared_rides) if shared_rides else "No Shared Rides",
             "income": round(sum([bt.amount for bt in all_trx]), 2),
-            "expenses": sum([sr.value for sr in shared_rides])
+            "expenses": sum([sr.cost for sr in shared_rides])
         }
 
         for key, val in data.iteritems():
@@ -274,7 +274,7 @@ def calc_ny_sharing(offset=0, count=0, value=0):
     shared_rides = SharedRide.objects.filter(station=s)[offset: offset + batch_size]
     for sr in shared_rides:
         count += 1
-        value += sr.value
+        value += sr.cost
 
     if shared_rides:
         deferred.defer(calc_ny_sharing, offset=offset + batch_size + 1, count=count, value=value)
