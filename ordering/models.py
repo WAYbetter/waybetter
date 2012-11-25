@@ -179,28 +179,6 @@ class Station(BaseModel):
         else:
             return "http://taxiapp.co.il"
 
-    def get_ride_price(self, shared_ride, rules_only=False):
-        """
-        Get the station's pricing for a shared ride.
-        @param shared_ride: a SharedRide
-        @return: the price, or None if price is not defined for all orders of the shared ride.
-        """
-        orders = set(shared_ride.orders.all())
-        priced_orders = set()
-        price_rules = set()
-        for rule in self.fixed_prices.all():
-            for order in orders:
-                if rule.is_active(order.pickup_point.lat, order.pickup_point.lon, order.dropoff_point.lat, order.dropoff_point.lon, shared_ride.depart_time):
-                    price_rules.add(rule)
-                    priced_orders.add(order)
-
-        if rules_only:
-            return price_rules
-        elif price_rules and priced_orders == orders:
-            return max([pr.price for pr in price_rules]) + self.stop_price * shared_ride.charged_stops
-        else:
-            return None
-
     def is_in_valid_distance(self, order=None, from_lon=None, from_lat=None, to_lon=None, to_lat=None):
         if not (self.lat and self.lon): # ignore station with unknown address
             return False
@@ -258,17 +236,6 @@ class Station(BaseModel):
     def delete_workstations(self):
         self.work_stations.all().delete()
 
-class StationFixedPriceRule(BaseModel):
-    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="fixed_prices")
-    rule_set = models.ForeignKey(RuleSet, verbose_name=_("rule set"))
-    city_area_1 = CityAreaField(verbose_name=_("city area 1"), related_name="fixed_price_rules_1")
-    city_area_2 = CityAreaField(verbose_name=_("city area 2"), related_name="fixed_price_rules_2")
-    price = models.FloatField(_("price"))
-
-    def is_active(self, lat1, lon1, lat2, lon2, dt):
-        contains = (self.city_area_1.contains(lat1, lon1) and self.city_area_2.contains(lat2, lon2)) or \
-                   (self.city_area_2.contains(lat1, lon1) and self.city_area_1.contains(lat2, lon2))
-        return contains and self.rule_set.is_active(dt)
 
 class Driver(BaseModel):
     station = models.ForeignKey(Station, verbose_name=_("station"), related_name="drivers")
@@ -427,7 +394,8 @@ class SharedRide(BaseRide):
     def value(self):
         if not self._value and self.station:
             logging.info("updating value for SharedRide[%s]" % self.id)
-            self.update(_value=self.station.get_ride_price(self))
+            # XXX
+#            self.update(_value=self.station.get_ride_price(self))
 
         return self._value
 
