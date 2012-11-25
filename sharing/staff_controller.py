@@ -424,9 +424,9 @@ def resend_to_fleet_manager(request, ride_id):
 @csrf_exempt
 @staff_member_required
 @force_lang("en")
-def mark_ride_complete(request, ride_id):
+def accept_ride(request, ride_id):
     ride = SharedRide.by_id(ride_id)
-    ride.change_status(new_status=RideStatus.COMPLETED, silent=True)
+    ride.change_status(new_status=RideStatus.ACCEPTED)
 
     return JSONResponse({'ride': ride.serialize_for_eagle_eye()})
 

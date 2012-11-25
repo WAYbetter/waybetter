@@ -214,6 +214,11 @@
                 this.ride = ride;
                 this.actions = [
                     {
+                        title:"View on Map",
+                        enabled:true_fn,
+                        run:view_on_map
+                    },
+                    {
                         title:"Resend Voucher",
                         enabled:true_fn,
                         run:resend_voucher
@@ -226,33 +231,28 @@
                         run: resend_to_fleet_manager
                     },
                     {
-                        title:"View on Map",
-                        enabled:true_fn,
-                        run:view_on_map
-                    },
-                    {
                         title: "Re-Assign to Station",
                         enabled: true_fn,
                         run: reassign_ride
                     },
                     {
-                        title: "Mark as COMPLETED",
+                        title: "Mark as ACCEPTED",
                         enabled:function () {
-                            return self.ride.status != Status.COMPLETED
+                            return self.ride.status != Status.ACCEPTED
                         },
-                        run: mark_as_complete
+                        run: mark_as_accepted
                     }
                 ];
 
-                function mark_as_complete() {
-                    $http.post("/staff/mark_ride_complete/" + self.ride.id + "/").success(
+                function mark_as_accepted() {
+                    $http.post("/staff/accept_ride/" + self.ride.id + "/").success(
                             function (data) {
                                 angular.extend(self.ride, data.ride);
-                                $scope.modal_header = "Mark Complete";
-                                $scope.modal_body = "Ride " + self.ride.id + " was marked as COMPLETED";
+                                $scope.modal_header = "Accept Ride";
+                                $scope.modal_body = "Ride " + self.ride.id + " was marked as ACCEPTED";
                                 $("#success-modal").modal();
                             }).error(function (err) {
-                                $scope.modal_header = "Mark Complete";
+                                $scope.modal_header = "Accept Ride";
                                 $scope.modal_body = err;
                                 $("#fail-modal").modal();
                             });

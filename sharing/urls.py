@@ -19,7 +19,7 @@ urlpatterns = patterns('',
     (r'^staff/ride/(?P<ride_id>\d+)/$', 'sharing.staff_controller.ride_page'),
     (r'^staff/reassign_ride/$', 'sharing.staff_controller.manual_assign_ride'),
     (r'^staff/resend_to_fleet_manager/(?P<ride_id>\d+)/$', 'sharing.staff_controller.resend_to_fleet_manager'),
-    (r'^staff/mark_ride_complete/(?P<ride_id>\d+)/$', 'sharing.staff_controller.mark_ride_complete'),
+    (r'^staff/accept_ride/(?P<ride_id>\d+)/$', 'sharing.staff_controller.accept_ride'),
 
     (r'^passenger/home/$', 'sharing.passenger_controller.passenger_home'),
     (r'^qr/\w+/$', 'sharing.passenger_controller.passenger_home'),
