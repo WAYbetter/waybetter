@@ -86,15 +86,15 @@
 לצרכי ניהול בלבד:
 <table border="1" cellspacing="0" cellpadding="5" width="100%">
     <tr>
-        <td>{% trans "City Area" %} 1</td>
-        <td>{% trans "City Area" %} 2</td>
-        <td>{% trans "Points" %}</td>
+        <td>{% trans "Distance" %}</td>
+        <td>{% trans "City Area Code Name" %}</td>
+        <td>{% trans "Number of Passengers" %}</td>
         <td>{% trans "Tariff" %}</td>
     </tr>
     <tr>
-        <td>{{ city_area_1 }}</td>
-        <td>{{ city_area_2 }}</td>
-        <td>{{ points }}</td>
+        <td>{{ distance }} {% trans "km" %}</td>
+        <td></td>
+        <td>{{ charged_stops }}</td>
         <td>{{ tariff }}</td>
     </tr>
 </table>

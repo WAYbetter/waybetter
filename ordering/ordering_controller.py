@@ -664,7 +664,7 @@ def create_shared_ride_for_order(ride_data, order):
     ride.debug = order.debug
     ride.depart_time = order.depart_time
     ride.arrive_time = order.depart_time + datetime.timedelta(seconds=ride_data.duration)
-    ride.duration = ride_data.duration
+    ride.distance = ride_data.distance
     ride.cost_data =  ride_data.cost_data
     if order.type == OrderType.PRIVATE:
         ride.can_be_joined = False

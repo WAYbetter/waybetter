@@ -16,7 +16,6 @@ from django.utils import simplejson
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from common.tz_support import   set_default_tz_time, default_tz_now_min, default_tz_now_max, IsraelTimeZone
-import dateutil
 from django.views.decorators.csrf import csrf_exempt
 from djangotoolbox.http import JSONResponse
 from fleet import fleet_manager
@@ -359,6 +358,7 @@ def eagle_eye(request):
 
 @force_lang("en")
 def eagle_eye_data(request):
+    import dateutil
     start_date = dateutil.parser.parse(request.GET.get("start_date")).astimezone(IsraelTimeZone())
     end_date = dateutil.parser.parse(request.GET.get("end_date")).astimezone(IsraelTimeZone())
 
