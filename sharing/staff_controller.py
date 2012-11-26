@@ -342,7 +342,8 @@ def kpi_csv(request):
 @force_lang("en")
 @staff_member_required
 def eagle_eye(request):
-    lib_ng = True
+    import dateutil
+
     stations = []
     for station in Station.objects.all():
         try:
@@ -350,41 +351,32 @@ def eagle_eye(request):
         except Exception:
             sharing_ws = None
 
-        stations.append({"name": station.name, "id": station.id, "online_status": sharing_ws.is_online if sharing_ws else False})
+        stations.append({"name": station.name, "id": station.id, "debug": station.debug, "online_status": sharing_ws.is_online if sharing_ws else False})
 
-    stations = simplejson.dumps(stations)
-#    status_values = dict([(label.encode('utf-8').upper(), label.encode('utf-8').upper()) for key, label in ORDER_STATUS])
-    return render_to_response("eagle_eye.html", locals(), context_instance=RequestContext(request))
+    if request.is_ajax():
+        start_date = dateutil.parser.parse(request.GET.get("start_date")).astimezone(IsraelTimeZone())
+        end_date = dateutil.parser.parse(request.GET.get("end_date")).astimezone(IsraelTimeZone())
 
-@force_lang("en")
-def eagle_eye_data(request):
-    import dateutil
-    start_date = dateutil.parser.parse(request.GET.get("start_date")).astimezone(IsraelTimeZone())
-    end_date = dateutil.parser.parse(request.GET.get("end_date")).astimezone(IsraelTimeZone())
+        start_date = datetime.combine(start_date, dt_time.min)
+        end_date = datetime.combine(end_date, dt_time.max)
 
-    start_date = datetime.combine(start_date, dt_time.min)
-    end_date = datetime.combine(end_date, dt_time.max)
+        rides = SharedRide.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date).order_by("-depart_time")
+        incomplete_orders = Order.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date)
+        incomplete_orders = filter(lambda o: o.status in [IGNORED, REJECTED, FAILED, ERROR, TIMED_OUT, CANCELLED], incomplete_orders)
 
-    logging.info("start_date = %s, end_date = %s" % (start_date, end_date))
+        result = {
+            'rides': [r.serialize_for_eagle_eye() for r in rides],
+            'incomplete_orders': [o.serialize_for_eagle_eye() for o in incomplete_orders],
+            'stations': stations
+        }
 
-    rides = SharedRide.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date).order_by("-depart_time")
-    incomplete_orders = Order.objects.filter(depart_time__gte=start_date, depart_time__lte=end_date)
-    incomplete_orders = filter(lambda o: o.status in [IGNORED, REJECTED, FAILED, ERROR, TIMED_OUT, CANCELLED], incomplete_orders)
+        return JSONResponse(result)
 
-    logging.info("incomplete_orders = %s" % incomplete_orders)
+    else:
+        lib_ng = True
+        stations = simplejson.dumps(stations)
+        return render_to_response("eagle_eye.html", locals(), context_instance=RequestContext(request))
 
-    result = {
-        'rides': [],
-        'incomplete_orders': []
-    }
-
-    for ride in rides:
-        result['rides'].append(ride.serialize_for_eagle_eye())
-
-    for order in incomplete_orders:
-        result['incomplete_orders'].append(order.serialize_for_eagle_eye())
-
-    return JSONResponse(result)
 
 @csrf_exempt
 @staff_member_required

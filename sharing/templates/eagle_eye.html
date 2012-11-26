@@ -1,5 +1,6 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
+{% load value_from_settings %}
 {% block footer %}{% endblock %}
 {% block header %}{% endblock %}
 {% block title %}EagleEye™{% endblock %}
@@ -370,7 +371,7 @@
 //            $scope.start_date = new Date("10/23/2012");
 //            $scope.end_date = new Date("10/23/2012");
             $scope.updating = false;
-            $scope.show_debug = false;
+            $scope.show_debug = ("{% value_from_settings DEBUG %}" == "True");
             $scope.confirm_defer = undefined;
 
             $scope.updating = function() {
@@ -454,9 +455,10 @@
             $scope.update = function () {
                 $scope.rides = [];
                 $scope.incomplete_orders = [];
-                $http.get('{% url sharing.staff_controller.eagle_eye_data %}', {params:{start_date:$scope.start_date.toUTCString(), end_date:$scope.end_date.toUTCString() }}).success(function (data) {
+                $http.get('{% url sharing.staff_controller.eagle_eye %}', {params:{start_date:$scope.start_date.toUTCString(), end_date:$scope.end_date.toUTCString() }}).success(function (data) {
                     $scope.rides = data.rides;
                     $scope.incomplete_orders = data.incomplete_orders;
+                    $scope.stations = data.stations;
                 });
             };
 
@@ -470,11 +472,11 @@
                 }
             };
 
-            $scope.num_rides = function(){
-                if ($scope.show_debug){
-                    return $scope.rides.length;
-                } else{
-                    return $scope.rides.filter(function(ride) { return !ride.debug}).length;
+            $scope.counters = function(){
+                var rides = $scope.rides.filter(function(ride) { return ride.debug == $scope.show_debug});
+                return {
+                    rides: rides.length,
+                    orders: rides.map(function(r) {return r.orders.length}).sum()
                 }
 
             };
@@ -504,7 +506,7 @@
                         <span class='add-on prepend-text'>End</span><input type='text' ng-model='end_date' ui-date class="input-small" ng-disabled="updating()">
                     </div>
                     <label class="checkbox">
-                        <input type="checkbox" ng-model="show_debug" ng-disabled="updating()" > Show Debug
+                        <input type="checkbox" ng-model="show_debug" ng-disabled="updating()" > Debug Mode
                     </label>
 
                     <button ng-disabled="updating()" ng-click="update()" class='btn btn-block'><i class="icon-refresh"></i> Update
@@ -524,10 +526,11 @@
             </div>
 
             <div class="span10 rides-container">
-                <h4 ng-show="rides" id="rides-top">Rides
-                    <small>(( num_rides() | paren_wrap ))</small></h4>
+                <h4 ng-show="rides" id="rides-top">
+                    (( counters()['rides'] )) Rides
+                    <small>(( counters()['orders'] + ' Orders' | paren_wrap ))</small></h4>
 
-                <div class="ride-row" ng-repeat="ride in rides" ng-show="ride.debug == show_debug || !ride.debug">
+                <div class="ride-row" ng-repeat="ride in rides" ng-show="ride.debug == show_debug">
                     <div class="ride-header row-fluid">
                         <div class="span4">
                             <i class="icon-bolt" ng-show="ride.station" ng-class="{'online': online_status(ride.station)}" title="Online status"> </i>
@@ -685,7 +688,7 @@
             </div>
             <div class="modal-body">
                 <p>Choose a station to reassign ride to:</p>
-                <select name="selected_station" ng-options="s.name for s in stations" ng-model="selected_station"></select>
+                <select name="selected_station" ng-options="s.name for s in stations | filter:s.debug==show_debug" ng-model="selected_station"></select>
             </div>
             <div class="modal-footer">
                 <button class="btn" data-dismiss="modal" ng-click="assignment_defer.reject()">Cancel</button>
