@@ -660,6 +660,8 @@ def billing_approved_book_order(ride_id, ride_data, order):
         send_ride_in_risk_notification("Failed during post billing processing: %s" % e.message, ride_id)
 
 def create_shared_ride_for_order(ride_data, order):
+    logging.info(u"creating shared ride from ride_data %s" % ride_data)
+
     ride = SharedRide()
     ride.debug = order.debug
     ride.depart_time = order.depart_time
