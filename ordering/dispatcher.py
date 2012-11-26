@@ -117,6 +117,9 @@ def compute_ws_list(order):
     # exclude work stations that don't accept orders
     ws_qs = ws_qs.exclude(accept_orders=False)
 
+    # don't mix debug and production
+    ws_qs = filter(lambda ws: ws.station.debug == order.debug, ws_qs)
+
     # include only work stations within valid distance, or confining station
     ws_qs = filter(lambda ws: ws.station.is_in_valid_distance(order=order) or ws.station == order.confining_station, ws_qs)
 
