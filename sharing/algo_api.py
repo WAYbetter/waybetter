@@ -52,6 +52,17 @@ class AlgoField(Enum):
     TOTAL_DISTANCE = "m_TotalDistance"
     TYPE = "m_Type"
 
+    # pricing
+    PRICING_TYPE = "m_PricingType"
+    INTERCITY_RANGES = "eInterCityRanges"
+    INTERCITY_KM = "eInterCityKM"
+    INTRACITY_AREAS = "eIntraCitiesAreas"
+    ADDITIONAL_METERS = "m_AdditionalMeters"
+    ORIGIN_AREA = "m_OriginCityArea"
+    DESTINATION_AREA = "m_DestinationCityArea"
+    RANGE_NAME = "m_RangeName"
+
+
 class RideData(object):
     """
     A helper class to access ride data returned by the algorithm
@@ -172,29 +183,55 @@ class CostData(object):
     def for_tariff(self, tariff):
         """
         @param tariff: RuleSet instance or None
-        return a list of {AlgoField.MODEL_ID: '', AlgoField.PRICE: ''} objects
+        return a list of CostDetail objects
         """
         if not tariff:
             return []
 
         return self.for_tariff_type(tariff.tariff_type)
 
-    def for_model_by_tariff(self, model_name, tariff):
-        """
-        returns None or the cost for the given pricing model and tariff
-        """
-        cost_models = self.for_tariff(tariff)
-        for cost_model in cost_models:
-            if cost_model[AlgoField.MODEL_ID] == model_name:
-                return cost_model[AlgoField.PRICE]
-
-        return None
-
     def model_names_for_tariff(self, tariff):
         """
         returns a list of pricing models names (strings) for given tariff
         """
         return [entry[AlgoField.MODEL_ID] for entry in self.for_tariff(tariff)]
+
+    def get_details(self, tariff, model_name):
+        details = {}
+
+        list_of_cost_details = self.for_tariff(tariff)
+        for entry in list_of_cost_details:
+            if entry[AlgoField.MODEL_ID] == model_name:
+                details = entry
+
+        return CostDetails(details)
+
+
+class CostDetails:
+    def __init__(self, details=None):
+        self._details = details or {}
+
+    @property
+    def model(self):
+        return self._details.get(AlgoField.MODEL_ID)
+    @property
+    def cost(self):
+        return self._details.get(AlgoField.PRICE)
+    @property
+    def range(self):
+        return self._details.get(AlgoField.RANGE_NAME)
+    @property
+    def origin_area(self):
+        return self._details.get(AlgoField.ORIGIN_AREA)
+    @property
+    def destination_area(self):
+        return self._details.get(AlgoField.DESTINATION_AREA)
+    @property
+    def additional_meters(self):
+        return self._details.get(AlgoField.ADDITIONAL_METERS)
+    @property
+    def type(self):
+        return self._details.get(AlgoField.PRICING_TYPE)
 
 
 def find_matches(candidate_rides, order_settings):

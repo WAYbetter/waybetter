@@ -355,7 +355,8 @@ class BaseRide(BaseModel):
 
         if self.station.pricing_model_name:
             tariff = RuleSet.get_active_set(self.depart_time)
-            cost = self.cost_data.for_model_by_tariff(self.station.pricing_model_name, tariff)
+            cost_details = self.cost_data.get_details(tariff, self.station.pricing_model_name)
+            cost = cost_details.cost
 
             if cost:
                 if cost != self.cost:
