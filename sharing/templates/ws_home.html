@@ -444,7 +444,9 @@
 
     app.controller("WorkstationCtrl", function($scope, $http, $filter, $timeout, Tabs, Status, AirService, ErrorService, Defaults) {
         var filter = $filter("filter"),
-            order_by = $filter("orderBy");
+            order_by = $filter("orderBy"),
+            last_click_dt = new Date(),
+            always_on_top_id = undefined;
 
         $scope.tabs = Tabs;
         $scope.status = Status;
@@ -515,8 +517,9 @@
         };
 
         $scope.select_ride = function (ride) {
-            if ($scope.updating()){ return }  // prevent duplicate calls issued by double clicks
+            if ($scope.updating() || (new Date() - last_click_dt) < 500 ){ return }  // prevent duplicate calls issued by double clicks
 
+            last_click_dt = new Date();
             if ($scope.selected_ride == ride ) {
                 $scope.selected_ride = undefined;
             } else if (ride.tab == Tabs.NEXT && ride.status == Status.ASSIGNED && !ride.future) {
@@ -570,6 +573,23 @@
                 AirService.call("start_notification_sound");
             } else {
                 AirService.call("stop_notification_sound");
+            }
+        });
+
+        $scope.$watch(function () {
+            return filter($scope.rides, {'tab':Tabs.NEXT}).length;
+        }, function(active_rides) {
+            if (active_rides) {
+                if (! always_on_top_id) {
+                    always_on_top_id = setInterval(function () {
+                        AirService.call("set_always_infront", false);
+                        AirService.call("set_always_infront", true);
+                    }, 1000)
+                }
+            } else {
+                if (always_on_top_id) {
+                    clearInterval(always_on_top_id)
+                }
             }
         });
         
