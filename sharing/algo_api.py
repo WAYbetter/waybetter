@@ -197,14 +197,15 @@ class CostData(object):
         return [entry[AlgoField.MODEL_ID] for entry in self.for_tariff(tariff)]
 
     def get_details(self, tariff, model_name):
-        details = {}
-
+        """
+        returns CostDetails instance or None
+        """
         list_of_cost_details = self.for_tariff(tariff)
         for entry in list_of_cost_details:
             if entry[AlgoField.MODEL_ID] == model_name:
-                details = entry
+                return CostDetails(entry)
 
-        return CostDetails(details)
+        return None
 
 
 class CostDetails:
@@ -221,15 +222,12 @@ class CostDetails:
             'cost': obj.cost,
             'type': obj.type,
             'range': obj.range,
+            'by_areas': obj.by_areas,
+            'origin_area': "%s, %s" % (obj.origin_area.get("City"), obj.origin_area.get("Area")) if obj.by_areas else '',
+            'destination_area': "%s, %s" % (obj.destination_area.get("City"), obj.destination_area.get("Area")) if obj.by_areas else '',
             'additional_meters': obj.additional_meters
         }
 
-        if obj.origin_area.get(AlgoField.CITY):
-            srz.update({'origin_area': "%s, %s" % (obj.origin_area.get(AlgoField.CITY), obj.origin_area.get(AlgoField.AREA))})
-        if obj.destination_area.get(AlgoField.CITY):
-            srz.update({'destination_area': "%s, %s" % (obj.destination_area.get(AlgoField.CITY), obj.destination_area.get(AlgoField.AREA))})
-
-        logging.info(srz)
         return srz
 
     @property
@@ -253,6 +251,9 @@ class CostDetails:
     @property
     def type(self):
         return self._details.get(AlgoField.PRICING_TYPE)
+    @property
+    def by_areas(self):
+        return self.type == AlgoField.INTRACITY_AREAS
 
 
 def find_matches(candidate_rides, order_settings):

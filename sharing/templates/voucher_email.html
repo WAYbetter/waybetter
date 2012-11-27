@@ -86,15 +86,27 @@
 לצרכי ניהול בלבד:
 <table border="1" cellspacing="0" cellpadding="5" width="100%">
     <tr>
-        <td>{% trans "Distance" %}</td>
-        <td>{% trans "City Area Code Name" %}</td>
+        {% if cost_details.by_areas %}
+            <td>{% trans "From Area" %}</td>
+            <td>{% trans "To Area" %}</td>
+        {% else %}
+            <td>{% trans "Distance" %}</td>
+            <td>{% trans "City Area Code Name" %}</td>
+        {% endif %}
+
         <td>{% trans "Number of Matches" %}</td>
         <td>{% trans "Tariff" %}</td>
     </tr>
     <tr>
-        <td>{{ distance }} {% trans "km" %}</td>
-        <td></td>
-        <td>{{ charged_stops }}</td>
+        {% if cost_details.by_areas %}
+            <td>{{ cost_details.origin_area }}</td>
+            <td>{{ cost_details.destination_area }}</td>
+        {% else %}
+            <td>{{ distance }} {% trans "km" %}</td>
+            <td>{{ cost_details.range }}</td>
+        {% endif %}
+
+        <td>{{ ride.charged_stops }}</td>
         <td>{{ tariff }}</td>
     </tr>
 </table>

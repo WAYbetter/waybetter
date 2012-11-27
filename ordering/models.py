@@ -17,7 +17,7 @@ from django.utils import  translation
 from django.contrib.auth import login
 from common.enums import MobilePlatform
 from djangotoolbox.fields import BlobField, ListField
-from common.models import BaseModel, Country, City, CityArea, CityAreaField, obj_by_attr
+from common.models import BaseModel, Country, City, CityArea, obj_by_attr
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64, get_uuid, get_mobile_platform, clean_values
 from common.tz_support import UTCDateTimeField, utc_now, to_js_date, format_dt
@@ -349,30 +349,27 @@ class BaseRide(BaseModel):
 
     @property
     def cost_details(self):
+        if not (self.cost_data and self.station):
+            return None
+
         tariff = RuleSet.get_active_set(self.depart_time)
-        pricing_model_name = self.station.pricing_model_name if self.station else ''
-        return self.cost_data.get_details(tariff, pricing_model_name)
+        return self.cost_data.get_details(tariff, self.station.pricing_model_name)
 
     def update_cost(self):
         logging.info(u"update cost for ride [%s] assigned to [%s]" % (self.id, self.station))
 
-        if not self.station:
-            return
+        new_cost = None
+        if self.cost_details and self.cost_details.cost:
+            new_cost = self.cost_details.cost
 
-        if self.station.pricing_model_name:
-            cost = self.cost_details.cost
-
-            if cost:
-                if cost != self.cost:
-                    logging.info("updating cost: %s -> %s" % (self.cost, cost))
-                    self.update(cost=cost)
-                else:
-                    logging.info("cost has not changed")
-            else:
-                logging.error(u"cost for tariff=%s not found in cost data %s" % (tariff.name, self.cost_data))
-
+        if new_cost and new_cost != self.cost:
+            logging.info("updating cost: %s -> %s" % (self.cost, new_cost))
+            self.update(cost=new_cost)
+        elif new_cost:
+            logging.info("cost has not changed: %s" % self.cost)
         else:
-            logging.error("assigned to station with no pricing model")
+            logging.error("no cost found %s" % self.cost_data)
+
 
     @classmethod
     def by_uuid(cls, uuid):
