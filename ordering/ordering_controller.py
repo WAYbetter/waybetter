@@ -146,7 +146,7 @@ def get_ongoing_order(passenger):
 @never_cache
 def sync_app_state(request):
     earliest_pickup_time = ceil_datetime(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=ASAP_BOOKING_TIME), minutes=BOOKING_INTERVAL)
-    latest_pickup_time = earliest_pickup_time + datetime.timedelta(hours=(24*3))
+    latest_pickup_time = earliest_pickup_time + datetime.timedelta(hours=(24*14))
     dt_options = list(datetimeIterator(earliest_pickup_time, latest_pickup_time, delta=datetime.timedelta(minutes=BOOKING_INTERVAL)))
 
     response = {
@@ -460,7 +460,7 @@ def get_offers(request):
                 offers.append({
                     "ride_id": offer_key,
                     "pickup_time": to_js_date(discount_dt),
-                    "passengers": [{'name': u'*מתנה*', 'picture_url': 'http://%s/static/images/wb_site/1.2/discount_passenger.png' % DEFAULT_DOMAIN}],
+                    "passengers": [{'name': discount_rule.display_name, 'picture_url': discount_rule.picture_url}],
                     "seats_left": MAX_SEATS - 1,
                     "price": base_price_for_discount_offer - discount,
                     "new_ride": False,  # disguise as an exisiting ride

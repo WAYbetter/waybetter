@@ -1,7 +1,6 @@
-import logging
 from django.db import models
 from django.core.exceptions import ValidationError
-from django.utils.translation import ugettext_lazy as _
+from django.utils.translation import ugettext, ugettext_lazy as _
 from common.tz_support import TZ_INFO
 from common.util import DAY_OF_WEEK_CHOICES, FIRST_WEEKDAY, LAST_WEEKDAY, convert_python_weekday, datetimeIterator, Enum
 from common.models import BaseModel, CityAreaField
@@ -160,8 +159,14 @@ class DiscountRule(AbstractTemporalRule):
     percent = models.FloatField(_("percent"), null=True, blank=True)
     amount = models.FloatField(_("amount"), null=True, blank=True)
 
-    from_city_area = CityAreaField(verbose_name=_("from city area"), related_name="discount_rules_1")
-    to_city_area = CityAreaField(verbose_name=_("to city area"), related_name="discount_rules_2")
+    picture_url = models.URLField(max_length=255, null=True, blank=True, help_text="Will be used as the passenger picture")
+    display_name = models.CharField(max_length=25, null=True, blank=True, help_text="Will be used as the passenger name")
+
+    from_city_area = CityAreaField(verbose_name=_("from city area"), null=True, blank=True, related_name="discount_rules_1")
+    from_everywhere = models.BooleanField(verbose_name=_("from everywhere"), default=False)
+
+    to_city_area = CityAreaField(verbose_name=_("to city area"), null=True, blank=True, related_name="discount_rules_2")
+    to_everywhere = models.BooleanField(verbose_name=_("to everywhere"), default=False)
 
     bidi = models.BooleanField(verbose_name=_("bidirectional"), default=False)
 
@@ -169,14 +174,36 @@ class DiscountRule(AbstractTemporalRule):
         if not (bool(self.percent) ^ bool(self.amount)):
             raise ValidationError("Must set discount percent or amount but not both")
 
+        if not (bool(self.from_everywhere) ^ bool(self.from_city_area)):
+            raise ValidationError("Must choose FROM where the discount is active")
+
+        if not (bool(self.to_everywhere) ^ bool(self.to_city_area)):
+            raise ValidationError("Must choose TO where the discount is active")
+
+        if not self.picture_url:
+            self.picture_url = 'http://www.waybetter.com/static/images/wb_site/1.2/discount_passenger.png'
+
+        if not self.display_name:
+            self.display_name = ugettext("*Gift*")
+
         super(DiscountRule, self).clean()
 
     def is_active_in_areas(self, dt, from_lat, from_lon, to_lat, to_lon):
-        contains = self.from_city_area.contains(from_lat, from_lon) and self.to_city_area.contains(to_lat, to_lon)
-        if self.bidi:
-            contains = contains or (self.from_city_area.contains(to_lat, to_lon) and self.to_city_area.contains(from_lat, from_lon))
+        if not self.is_active(dt):
+            return False
 
-        return contains and self.is_active(dt)
+        active_from = self.from_everywhere
+        active_to = self.to_everywhere
+
+        if not (active_from and active_to):
+            active_from = active_from or self.from_city_area.contains(from_lat, from_lon)
+            active_to = active_to or self.to_city_area.contains(to_lat, to_lon)
+
+            if self.bidi and not (active_from and active_to):  # try the other direction
+                active_from = active_from or self.from_city_area.contains(to_lat, to_lon)
+                active_to = active_to or self.to_city_area.contains(from_lat, from_lon)
+
+        return active_from and active_to
 
     def get_discount(self, price):
         round_to = 0.5
