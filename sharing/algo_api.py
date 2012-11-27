@@ -171,7 +171,7 @@ class CostData(object):
         return self.cost_data.__str__()
 
     def __unicode__(self):
-        return self.cost_data.__unicode__()
+        return unicode(self.cost_data)
 
     def for_tariff_type(self, tariff_type):
         """
@@ -210,6 +210,27 @@ class CostData(object):
 class CostDetails:
     def __init__(self, details=None):
         self._details = details or {}
+
+    @staticmethod
+    def serialize(obj):
+        if not isinstance(obj, CostDetails):
+            return None
+
+        srz = {
+            'model': obj.model,
+            'cost': obj.cost,
+            'type': obj.type,
+            'range': obj.range,
+            'additional_meters': obj.additional_meters
+        }
+
+        if obj.origin_area.get(AlgoField.CITY):
+            srz.update({'origin_area': "%s, %s" % (obj.origin_area.get(AlgoField.CITY), obj.origin_area.get(AlgoField.AREA))})
+        if obj.destination_area.get(AlgoField.CITY):
+            srz.update({'destination_area': "%s, %s" % (obj.destination_area.get(AlgoField.CITY), obj.destination_area.get(AlgoField.AREA))})
+
+        logging.info(srz)
+        return srz
 
     @property
     def model(self):

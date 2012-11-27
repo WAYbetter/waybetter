@@ -347,6 +347,12 @@ class BaseRide(BaseModel):
 
     cost_data = property(fget=get_cost_data, fset=set_cost_data)
 
+    @property
+    def cost_details(self):
+        tariff = RuleSet.get_active_set(self.depart_time)
+        pricing_model_name = self.station.pricing_model_name if self.station else ''
+        return self.cost_data.get_details(tariff, pricing_model_name)
+
     def update_cost(self):
         logging.info(u"update cost for ride [%s] assigned to [%s]" % (self.id, self.station))
 
@@ -354,9 +360,7 @@ class BaseRide(BaseModel):
             return
 
         if self.station.pricing_model_name:
-            tariff = RuleSet.get_active_set(self.depart_time)
-            cost_details = self.cost_data.get_details(tariff, self.station.pricing_model_name)
-            cost = cost_details.cost
+            cost = self.cost_details.cost
 
             if cost:
                 if cost != self.cost:
@@ -465,12 +469,13 @@ class SharedRide(BaseRide):
            "\n".join([unicode(order.passenger) for order in orders]))
 
     def serialize_for_eagle_eye(self):
+        from sharing.algo_api import CostDetails
         return {
             'id': self.id,
             'orders': sorted([o.serialize_for_eagle_eye() for o in self.orders.all()], key=lambda o: o['pickup'], reverse=False),
             'start_time': to_js_date(self.depart_time),
             'status': self.get_status_label(),
-            'cost': self.cost,
+            'cost_details': CostDetails.serialize(self.cost_details),
             'taxi': self.taxi_number,
             'station': {"name": self.station.name, "id": self.station.id,
                         "fleet_manager": self.station.fleet_manager.name if self.station.fleet_manager else None} if self.station else {},

@@ -17,6 +17,17 @@
     <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
 
     <style type="text/css">
+        .popover{
+            z-index: 10000;
+            margin-right: 10px;
+            max-width: 200px;
+        }
+        .popover.right{
+            text-align: left;
+        }
+        .popover-title{
+            font-weight: bold;
+        }
         .ui-widget {
             font-family: inherit;
             font-size: inherit;
@@ -66,18 +77,12 @@
             box-sizing: border-box;
             border-bottom: 1px solid #CCC;
         }
+        .ride-body{
+            background-color: rgba(241, 241, 241, 0.72);
+        }
 
         .ride-header .icon-bolt{ color: rgb(206, 111, 111); }
         .ride-header .icon-bolt.online{ color: rgb(13, 204, 13); }
-        .subtitle {
-            display: block;
-            padding: 3px 15px;
-            font-size: 11px;
-            font-weight: bold;
-            line-height: 20px;
-            color: #999;
-            text-transform: uppercase;
-        }
 
         .orders-table {
             font-size: small;
@@ -187,6 +192,26 @@
                 Android  : 2
                 }
         );
+        app.directive("costDetails", function () {
+            return {
+                link: function(scope, element, attrs){
+                    var revenue = scope.ride.orders.map(function(o) {return o.price}).sum();
+                    var details = scope.ride.cost_details;
+                    $(element[0]).popover({
+                        title: 'Profit: ' + (details.cost - revenue) + '₪',
+                        trigger: 'click',
+                        html: true,
+                        content:
+                                '<div>Model: ' + details.model + '</div>' +
+                                '<div>Type: ' + details.type + '</div>' +
+                                '<div>Range: ' + details.range + '</div>' +
+                                '<div>Origin Area: ' + (details.origin_area || "None") + '</div>' +
+                                '<div>Destination Area: ' + (details.destination_area || "None") + '</div>' +
+                                '<div>Additional KM: ' + details.additional_meters/1000.0 + '</div>'
+                    });
+                }
+            }
+        });
         app.directive("passengerDetails", function () {
             return {
                 restrict: 'E',
@@ -542,7 +567,7 @@
                             <small>(( ride.start_time | date:'EEE, MMM dd' ))</small>
                         </div>
                         <div class="span3 right">
-                            <strong ng-show="ride.station.name">(( ride.cost | currency:'₪'))</strong>
+                            <strong ng-show="ride.station.name" cost-details>(( ride.cost_details.cost | currency:'₪'))</strong>
                             <span class="label" ng-show="ride.debug">DEBUG</span>
                             <span class="label" ng-show="!ride.shared">PRIVATE</span>
                             <span class="label" ng-class="get_ride_status_class(ride)">(( ride.status ))</span>
@@ -563,12 +588,11 @@
 
                     </div>
                     <div class="ride-body" >
-                        <div class="subtitle">Orders</div>
-                        <table class="table table-condensed table-striped orders-table">
+                        <table class="table table-condensed orders-table">
                             <tr>
                                 <th>From</th>
                                 <th>To</th>
-                                <th>Create Date</th>
+                                <th>Created</th>
                                 <th>Passenger</th>
                                 <th># Seats</th>
                                 <th>Price</th>
@@ -609,12 +633,12 @@
 
                 <div class="inc-order-row" ng-show="incomplete_orders">
                     <h4 id="inc-order-top">Incomplete Orders <small>(( incomplete_orders.length | paren_wrap ))</small></h4>
-                    <table class="table table-condensed table-striped orders-table">
+                    <table class="table table-condensed orders-table">
                         <tr>
                             <th>ID</th>
                             <th>From</th>
                             <th>To</th>
-                            <th>Create Date</th>
+                            <th>Created</th>
                             <th>Passenger</th>
                             <th># Seats</th>
                             <th>Price</th>
