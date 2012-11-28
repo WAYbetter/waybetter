@@ -327,49 +327,12 @@ class BaseRide(BaseModel):
     depart_time = UTCDateTimeField(_("depart time"))
     arrive_time = UTCDateTimeField(_("arrive time"))
 
-    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
     status = StatusField(_("status"), choices=RideStatus.choices(), default=RideStatus.PENDING)
     debug = models.BooleanField(default=False, editable=False)
     uuid = models.CharField(max_length=32, null=True, blank=True, default=get_uuid)
 
     taxi_number = models.CharField(max_length=20, null=True, blank=True)
     distance = models.IntegerField(_("distance"), null=True, blank=True) # in meters
-
-    cost = models.FloatField(null=True, blank=True, editable=False)
-    _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
-
-    def get_cost_data(self):
-        return pickle.loads(self._cost_data.encode("utf-8"))
-
-    def set_cost_data(self, value):
-        self._cost_data = pickle.dumps(value)
-        self.update_cost()
-
-    cost_data = property(fget=get_cost_data, fset=set_cost_data)
-
-    @property
-    def cost_details(self):
-        if not (self.cost_data and self.station):
-            return None
-
-        tariff = RuleSet.get_active_set(self.depart_time)
-        return self.cost_data.get_details(tariff, self.station.pricing_model_name)
-
-    def update_cost(self):
-        logging.info(u"update cost for ride [%s] assigned to [%s]" % (self.id, self.station))
-
-        new_cost = None
-        if self.cost_details and self.cost_details.cost:
-            new_cost = self.cost_details.cost
-
-        if new_cost and new_cost != self.cost:
-            logging.info("updating cost: %s -> %s" % (self.cost, new_cost))
-            self.update(cost=new_cost)
-        elif new_cost:
-            logging.info("cost has not changed: %s" % self.cost)
-        else:
-            logging.error("no cost found %s" % self.cost_data)
-
 
     @classmethod
     def by_uuid(cls, uuid):
@@ -398,17 +361,55 @@ class BaseRide(BaseModel):
 
 class PickMeAppRide(BaseRide):
     order = models.OneToOneField('Order', related_name="pickmeapp_ride")
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="pickmeapp_rides", null=True, blank=True)
 
 class SharedRide(BaseRide):
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
     driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
     can_be_joined = models.BooleanField(default=True)
+
+    cost = models.FloatField(null=True, blank=True, editable=False)
+    _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
 
     _stops = models.IntegerField(null=True, blank=True, editable=False)
 
     def save(self, *args, **kwargs):
         super(SharedRide, self).save(*args, **kwargs)
         ride_updated_signal.send(sender="ride_save", ride=self)
+
+    def get_cost_data(self):
+        return pickle.loads(self._cost_data.encode("utf-8"))
+
+    def set_cost_data(self, value):
+        self._cost_data = pickle.dumps(value)
+        self.update_cost()
+
+    cost_data = property(fget=get_cost_data, fset=set_cost_data)
+
+    def update_cost(self):
+        logging.info(u"update cost for ride [%s]" % self.id)
+
+        new_cost = None
+        if self.cost_details and self.cost_details.cost:
+            new_cost = self.cost_details.cost
+
+        if new_cost and new_cost != self.cost:
+            logging.info("updating cost: %s -> %s" % (self.cost, new_cost))
+            self.update(cost=new_cost)
+        elif new_cost:
+            logging.info("cost has not changed: %s" % self.cost)
+        else:
+            logging.error("no cost found %s" % self.cost_data)
+
+    @property
+    def cost_details(self):
+        """ a CostDetails instance or None """
+        if not (self.cost_data and self.station):
+            return None
+
+        tariff = RuleSet.get_active_set(self.depart_time)
+        return self.cost_data.get_details(tariff, self.station.pricing_model_name)
 
     @property
     def first_pickup(self):
