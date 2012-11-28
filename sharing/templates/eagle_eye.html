@@ -656,7 +656,7 @@
                     (( counters()['rides'] )) Rides
                     <small>(( counters()['orders'] + ' Orders' | paren_wrap ))</small></h4>
 
-                <div class="ride-row" ng-repeat="ride in rides|orderBy:'start_time'" ng-show="ride.debug == show_debug">
+                <div class="ride-row" ng-repeat="ride in rides|orderBy:'-start_time'" ng-show="ride.debug == show_debug">
                     <div class="ride">
                         <div class="ride-header row-fluid">
                             <div class="span4">
