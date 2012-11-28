@@ -15,8 +15,10 @@ from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.utils import  translation
 from django.contrib.auth import login
-from common.enums import MobilePlatform
 from djangotoolbox.fields import BlobField, ListField
+from billing.enums import BillingStatus
+from common.enums import MobilePlatform
+from common.errors import TransactionError
 from common.models import BaseModel, Country, City, CityArea, obj_by_attr
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64, get_uuid, get_mobile_platform, clean_values
@@ -1062,7 +1064,19 @@ class Order(BaseModel):
     discount_rule = models.ForeignKey(DiscountRule, verbose_name=_("discount rule"), related_name="orders", null=True, blank=True, editable=False)
     num_seats = models.PositiveIntegerField(default=1)
 
+    # see @price_data
     _price_data = models.TextField(editable=False, default=pickle.dumps(None))
+
+    # ratings
+    passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)
+
+    # denormalized fields
+    station_name = models.CharField(_("station name"), max_length=50, null=True, blank=True)
+    station_id = models.IntegerField(_("station id"), null=True, blank=True)
+    passenger_phone = models.CharField(_("passenger phone"), max_length=50, null=True, blank=True)
+    passenger_id = models.IntegerField(_("passenger id"), null=True, blank=True)
+
+    api_user = models.ForeignKey(APIUser, verbose_name=_("api user"), related_name="orders", null=True, blank=True)
 
     def get_price_data(self):
         return pickle.loads(self._price_data.encode("utf-8"))
@@ -1088,16 +1102,16 @@ class Order(BaseModel):
 
         return max(0, val)  # never return a negative amount - it may cause crediting money to a user
 
-    # ratings
-    passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)
-
-    # denormalized fields
-    station_name = models.CharField(_("station name"), max_length=50, null=True, blank=True)
-    station_id = models.IntegerField(_("station id"), null=True, blank=True)
-    passenger_phone = models.CharField(_("passenger phone"), max_length=50, null=True, blank=True)
-    passenger_id = models.IntegerField(_("passenger id"), null=True, blank=True)
-
-    api_user = models.ForeignKey(APIUser, verbose_name=_("api user"), related_name="orders", null=True, blank=True)
+    def cancel_billing(self):
+        res = True
+        for bt in self.billing_transactions.all():
+            if bt.status not in [BillingStatus.CANCELLED, BillingStatus.CHARGED]:
+                try:
+                    bt.disable()
+                except TransactionError, e:
+                    res = False
+                    logging.error("Transaction[%s] could not be cancelled: %s" % (bt.id, e))
+        return res
 
     @classmethod
     def fromOrderSettings(cls, order_settings, passenger, commit=True):

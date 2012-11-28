@@ -68,6 +68,9 @@
             float: right;
             padding-left: 5px;
         }
+        .cog-container .btn-group{
+            display: inline-block;
+        }
 
         .ride {
             border: 1px solid rgba(206, 203, 203, 0.9);
@@ -235,8 +238,8 @@
                                     '<div>Destination: ' + (details.destination_area || "None") + '</div>';
                         }
                         $(element[0]).popover({
-                            title: (revenue - details.cost).toFixed(2) + '₪ Profit',
-                            trigger: 'click',
+                            title: (revenue - details.cost).toFixed(2) + '₪ ' + (revenue > details.cost ? 'profit' : 'deficit'),
+                            trigger: 'hover',
                             html: true,
                             content: content
                         });
@@ -383,6 +386,9 @@
                 }
             }
 
+            // Order Actions
+            ////////////////
+
             function OrderActions(order) {
                 var self = this;
                 this.order = order;
@@ -393,26 +399,72 @@
                             return self.order.status != Status.CHARGED && self.order.status != Status.CANCELLED
                         },
                         run:function () {
-                            var title = "Cancel Billing";
-                            $scope.confirm(title, "Are you sure you want to cancel the billing for order " + self.order.id + "?").then(function () {
-                                $http.get("/staff/cancel_billing/" + (self.order.id) + "/")
-                                    .success(function (data) {
-                                        $scope.modal_header = title;
-                                        $scope.modal_body = "All billing transactions were cancelled";
-                                        $("#success-modal").modal();
-                                    })
-                                    .error(function (err) {
-                                        $scope.modal_header = title;
-                                        $scope.modal_body = err;
-                                        $("#fail-modal").modal();
-                                    });
-
-                            })
+                            cancel_billing(self.order)
                         }
+                    },
 
+                    {
+                        title: "Cancel Order",
+                        enabled: function () {
+                            return self.order.status != Status.CHARGED && self.order.status != Status.CANCELLED
+                        },
+                        run: function () {
+                            cancel_order(self.order)
+                        }
                     }
+
                 ];
             }
+
+            function cancel_billing(order){
+                var title = "Cancel Billing";
+                function _err(){
+                    $scope.modal_header = title;
+                    $scope.modal_body = "There was an error when cancelling billing.";
+                    $("#fail-modal").modal();
+                }
+                $scope.confirm(title, "Are you sure you want to cancel the billing for order " + order.id + "?").then(function () {
+                    $http.get("/staff/cancel_billing/" + (order.id) + "/")
+                        .success(function (data) {
+                            if (data.success){
+                                $scope.modal_header = title;
+                                $scope.modal_body = "All billing transactions were cancelled";
+                                $("#success-modal").modal();
+                            }
+                            else { _err() }
+                        })
+                        .error(function () {
+                                _err();
+                        });
+                })
+            }
+
+            function cancel_order(order){
+                var title = "Cancel Order " + (order.id);
+                function _err(){
+                    $scope.modal_header = title;
+                    $scope.modal_body = "There was an error when cancelling the order. Refresh the page to see its current status.";
+                    $("#fail-modal").modal();
+                }
+                $scope.confirm(title, "Are you sure you want to cancel " + order.passenger_name + "'s order? Billing will be cancelled as well.").then(function () {
+                    $http.get("/staff/cancel_order/" + (order.id) + "/")
+                            .success(function (data) {
+                                if (data.success){
+                                    $scope.modal_header = title;
+                                    $scope.modal_body = "Order was cancelled";
+                                    $("#success-modal").modal();
+                                } else { _err() }
+                            })
+                            .error(function () {
+                                _err();
+                            });
+                })
+            }
+
+
+            // Scope
+            ////////
+
 
             var ride_actions = {};
             var order_actions = {};
@@ -505,8 +557,6 @@
                 } else if ([Status.PENDING, Status.ASSIGNED].indexOf(status) > -1) {
                     return "label-warning"
                 }
-
-
             };
 
             $scope.update = function () {
@@ -516,6 +566,16 @@
                     $scope.rides = data.rides;
                     $scope.incomplete_orders = data.incomplete_orders;
                     $scope.stations = data.stations;
+                });
+            };
+            $scope.update_ride = function(ride){
+                $http.get('{% url sharing.staff_controller.eagle_eye %}', {params:{ride_id: ride.id}}).success(function (updated_ride) {
+                    for (var i=0; i<$scope.rides.length; i++){
+                        if ($scope.rides[i].id == updated_ride.id){
+                            $scope.rides[i] = updated_ride;
+                            break;
+                        }
+                    }
                 });
             };
 
@@ -587,7 +647,7 @@
                     (( counters()['rides'] )) Rides
                     <small>(( counters()['orders'] + ' Orders' | paren_wrap ))</small></h4>
 
-                <div class="ride-row" ng-repeat="ride in rides" ng-show="ride.debug == show_debug">
+                <div class="ride-row" ng-repeat="ride in rides|orderBy:'start_time'" ng-show="ride.debug == show_debug">
                     <div class="ride">
                         <div class="ride-header row-fluid">
                             <div class="span4">
@@ -606,6 +666,7 @@
                                 <span class="label" ng-class="get_ride_status_class(ride)">(( ride.status ))</span>
 
                                 <div class="cog-container">
+                                    <a class="btn btn-small" ng-click="update_ride(ride)"><i class="icon-refresh"></i></a>
                                     <div class="btn-group">
                                         <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#" ng-disabled="updating()">
                                             <i class="icon-cog"></i>
