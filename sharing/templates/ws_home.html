@@ -607,6 +607,7 @@
                 if (always_on_top_id) {
                     clearInterval(always_on_top_id)
                 }
+                AirService.call("set_always_infront", false);
             }
         });
         

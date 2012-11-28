@@ -718,7 +718,7 @@
             </div>
             <div class="modal-body">
                 <p>Choose a station to reassign ride to:</p>
-                <select name="selected_station" ng-options="s.name for s in stations | filter:s.debug==show_debug" ng-model="selected_station"></select>
+                <select name="selected_station" ng-options="s.name for s in stations | filter:{debug:show_debug}" ng-model="selected_station"></select>
             </div>
             <div class="modal-footer">
                 <button class="btn" data-dismiss="modal" ng-click="assignment_defer.reject()">Cancel</button>
