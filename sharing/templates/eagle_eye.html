@@ -257,7 +257,7 @@
                 template:
                         '<div ng-click="view_passenger(order.passenger_id)" class="passenger-details">' +
                             '<img class="passenger-picture" ng-src="(( order.passenger_picture_url ))" ng-repeat="x in []|range:order.num_seats">' +
-                            '<i class="icon-user passenger-picture" ng-hide="order.passenger_picture_url"></i>' +
+                            '<i class="icon-user passenger-picture" ng-hide="order.passenger_picture_url" ng-repeat="x in []|range:order.num_seats"></i>' +
                             '(( order.passenger_name )) (( order.passenger_phone ))' +
                         '</div>'
             }
