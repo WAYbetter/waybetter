@@ -15,8 +15,10 @@ from django.contrib.auth.models import User
 from django.contrib.sessions.models import Session
 from django.utils import  translation
 from django.contrib.auth import login
-from common.enums import MobilePlatform
 from djangotoolbox.fields import BlobField, ListField
+from billing.enums import BillingStatus
+from common.enums import MobilePlatform
+from common.errors import TransactionError
 from common.models import BaseModel, Country, City, CityArea, obj_by_attr
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64, get_uuid, get_mobile_platform, clean_values
@@ -327,49 +329,12 @@ class BaseRide(BaseModel):
     depart_time = UTCDateTimeField(_("depart time"))
     arrive_time = UTCDateTimeField(_("arrive time"))
 
-    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
     status = StatusField(_("status"), choices=RideStatus.choices(), default=RideStatus.PENDING)
     debug = models.BooleanField(default=False, editable=False)
     uuid = models.CharField(max_length=32, null=True, blank=True, default=get_uuid)
 
     taxi_number = models.CharField(max_length=20, null=True, blank=True)
     distance = models.IntegerField(_("distance"), null=True, blank=True) # in meters
-
-    cost = models.FloatField(null=True, blank=True, editable=False)
-    _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
-
-    def get_cost_data(self):
-        return pickle.loads(self._cost_data.encode("utf-8"))
-
-    def set_cost_data(self, value):
-        self._cost_data = pickle.dumps(value)
-        self.update_cost()
-
-    cost_data = property(fget=get_cost_data, fset=set_cost_data)
-
-    @property
-    def cost_details(self):
-        if not (self.cost_data and self.station):
-            return None
-
-        tariff = RuleSet.get_active_set(self.depart_time)
-        return self.cost_data.get_details(tariff, self.station.pricing_model_name)
-
-    def update_cost(self):
-        logging.info(u"update cost for ride [%s] assigned to [%s]" % (self.id, self.station))
-
-        new_cost = None
-        if self.cost_details and self.cost_details.cost:
-            new_cost = self.cost_details.cost
-
-        if new_cost and new_cost != self.cost:
-            logging.info("updating cost: %s -> %s" % (self.cost, new_cost))
-            self.update(cost=new_cost)
-        elif new_cost:
-            logging.info("cost has not changed: %s" % self.cost)
-        else:
-            logging.error("no cost found %s" % self.cost_data)
-
 
     @classmethod
     def by_uuid(cls, uuid):
@@ -398,17 +363,55 @@ class BaseRide(BaseModel):
 
 class PickMeAppRide(BaseRide):
     order = models.OneToOneField('Order', related_name="pickmeapp_ride")
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="pickmeapp_rides", null=True, blank=True)
 
 class SharedRide(BaseRide):
+    station = models.ForeignKey(Station, verbose_name=_("station"), related_name="rides", null=True, blank=True)
     driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
     can_be_joined = models.BooleanField(default=True)
+
+    cost = models.FloatField(null=True, blank=True, editable=False)
+    _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
 
     _stops = models.IntegerField(null=True, blank=True, editable=False)
 
     def save(self, *args, **kwargs):
         super(SharedRide, self).save(*args, **kwargs)
         ride_updated_signal.send(sender="ride_save", ride=self)
+
+    def get_cost_data(self):
+        return pickle.loads(self._cost_data.encode("utf-8"))
+
+    def set_cost_data(self, value):
+        self._cost_data = pickle.dumps(value)
+        self.update_cost()
+
+    cost_data = property(fget=get_cost_data, fset=set_cost_data)
+
+    def update_cost(self):
+        logging.info(u"update cost for ride [%s]" % self.id)
+
+        new_cost = None
+        if self.cost_details and self.cost_details.cost:
+            new_cost = self.cost_details.cost
+
+        if new_cost and new_cost != self.cost:
+            logging.info("updating cost: %s -> %s" % (self.cost, new_cost))
+            self.update(cost=new_cost)
+        elif new_cost:
+            logging.info("cost has not changed: %s" % self.cost)
+        else:
+            logging.error("no cost found %s" % self.cost_data)
+
+    @property
+    def cost_details(self):
+        """ a CostDetails instance or None """
+        if not (self.cost_data and self.station):
+            return None
+
+        tariff = RuleSet.get_active_set(self.depart_time)
+        return self.cost_data.get_details(tariff, self.station.pricing_model_name)
 
     @property
     def first_pickup(self):
@@ -1061,7 +1064,19 @@ class Order(BaseModel):
     discount_rule = models.ForeignKey(DiscountRule, verbose_name=_("discount rule"), related_name="orders", null=True, blank=True, editable=False)
     num_seats = models.PositiveIntegerField(default=1)
 
+    # see @price_data
     _price_data = models.TextField(editable=False, default=pickle.dumps(None))
+
+    # ratings
+    passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)
+
+    # denormalized fields
+    station_name = models.CharField(_("station name"), max_length=50, null=True, blank=True)
+    station_id = models.IntegerField(_("station id"), null=True, blank=True)
+    passenger_phone = models.CharField(_("passenger phone"), max_length=50, null=True, blank=True)
+    passenger_id = models.IntegerField(_("passenger id"), null=True, blank=True)
+
+    api_user = models.ForeignKey(APIUser, verbose_name=_("api user"), related_name="orders", null=True, blank=True)
 
     def get_price_data(self):
         return pickle.loads(self._price_data.encode("utf-8"))
@@ -1087,16 +1102,16 @@ class Order(BaseModel):
 
         return max(0, val)  # never return a negative amount - it may cause crediting money to a user
 
-    # ratings
-    passenger_rating = models.IntegerField(_("passenger rating"), choices=RATING_CHOICES, null=True, blank=True)
-
-    # denormalized fields
-    station_name = models.CharField(_("station name"), max_length=50, null=True, blank=True)
-    station_id = models.IntegerField(_("station id"), null=True, blank=True)
-    passenger_phone = models.CharField(_("passenger phone"), max_length=50, null=True, blank=True)
-    passenger_id = models.IntegerField(_("passenger id"), null=True, blank=True)
-
-    api_user = models.ForeignKey(APIUser, verbose_name=_("api user"), related_name="orders", null=True, blank=True)
+    def cancel_billing(self):
+        res = True
+        for bt in self.billing_transactions.all():
+            if bt.status not in [BillingStatus.CANCELLED, BillingStatus.CHARGED]:
+                try:
+                    bt.disable()
+                except TransactionError, e:
+                    res = False
+                    logging.error("Transaction[%s] could not be cancelled: %s" % (bt.id, e))
+        return res
 
     @classmethod
     def fromOrderSettings(cls, order_settings, passenger, commit=True):

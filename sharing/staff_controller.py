@@ -40,10 +40,8 @@ def control_panel(request):
             {'name': 'Kpi', 'url': reverse(kpi)},
             {'name': 'EagleEye', 'url': reverse(eagle_eye)},
             {'name': 'Track rides and taxis', 'url': reverse(track_rides)},
-            {'name': 'Hotspot pricing', 'url': reverse(hotspot_pricing_overview)},
             {'name': 'Sharing orders map', 'url': reverse(sharing_orders_map)},
             {'name': 'PickMeApp orders map', 'url': reverse(pickmeapp_orders_map)},
-            {'name': 'Google maps testing page', 'url': reverse(gmaps)},
     ]
     data_generators = [
             {'name': 'Send users data', 'url': reverse(send_users_data_csv)},
@@ -355,6 +353,11 @@ def eagle_eye(request):
         stations.append({"name": station.name, "id": station.id, "debug": station.debug, "online_status": sharing_ws.is_online if sharing_ws else False})
 
     if request.is_ajax():
+        ride_id = request.GET.get("ride_id")
+        if ride_id:  # update specific ride's data
+            return JSONResponse(SharedRide.by_id(ride_id).serialize_for_eagle_eye())
+
+        # get all rides data
         start_date = dateutil.parser.parse(request.GET.get("start_date")).astimezone(IsraelTimeZone())
         end_date = dateutil.parser.parse(request.GET.get("end_date")).astimezone(IsraelTimeZone())
 
@@ -462,16 +465,23 @@ def station_snapshot_img(request, station_id):
 
 @staff_member_required
 @force_lang("en")
+def cancel_order(request, order_id):
+    res = False
+
+    order = Order.by_id(order_id)
+    order.cancel_billing()
+    if order.change_status(new_status=CANCELLED):
+        res = True
+
+    return JSONResponse({'success': res})
+
+@staff_member_required
+@force_lang("en")
 def cancel_billing(request, order_id):
     order = Order.by_id(order_id)
-    for bt in order.billing_transactions.all():
-        if bt.status not in [BillingStatus.CANCELLED, BillingStatus.CHARGED]:
-            try:
-                bt.disable()
-            except TransactionError, e:
-                return HttpResponseBadRequest("Transaction[%s] could not be cancelled: %s" % (bt.id, e))
+    res = order.cancel_billing()
+    return JSONResponse({'success': res})
 
-    return JSONResponse({ "success": True })
 
 TRACK_RIDES_CHANNEL_MEMCACHE_KEY = "track_rides_channel_memcache_key"
 #@staff_member_required

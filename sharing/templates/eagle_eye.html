@@ -17,10 +17,11 @@
     <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
 
     <style type="text/css">
+
         .popover{
             z-index: 10000;
             margin-right: 10px;
-            max-width: 220px;
+            max-width: 190px;
         }
         .popover.right{
             text-align: left;
@@ -35,9 +36,6 @@
 
         .btn > i{
             line-height: 14px !important;
-        }
-        .page {
-            min-height: 600px;
         }
         .container-fluid > .row-fluid {
             padding-top: 20px;
@@ -66,13 +64,23 @@
             background:inherit;
         }
 
+        .cog-container{
+            float: right;
+            padding-left: 5px;
+        }
+        .cog-container .btn-group{
+            display: inline-block;
+        }
+
+        .ride {
+            border: 1px solid rgba(206, 203, 203, 0.9);
+        }
         .ride-row {
-            margin-bottom: 25px;
+            margin-bottom: 40px;
         }
         .ride-header {
             font-size: larger;
-            padding-top: 10px;
-            padding-left: 10px;
+            padding: 10px 5px 2px 10px;
             background: #ECECEC;
             box-sizing: border-box;
             border-bottom: 1px solid #CCC;
@@ -82,17 +90,24 @@
         }
         .cost{
             cursor: pointer;
+            margin-right: 20px;
         }
         .ride-header .icon-bolt{ color: rgb(206, 111, 111); }
         .ride-header .icon-bolt.online{ color: rgb(13, 204, 13); }
 
         .orders-table {
             font-size: small;
-
+            margin-bottom: 0;
         }
         .orders-table th {
             text-transform: uppercase;
-            font-size: 11px;
+            font-size: 10px;
+        }
+        th.long{
+            width: 20%;
+        }
+        th.medium{
+            width: 15%;
         }
 
         .input-prepend .prepend-text {
@@ -117,8 +132,10 @@
         .label {
             font-size: 11px;
         }
-        .rides-container {
-            margin-left: 200px;
+        .label-debug{
+            color: #b94a48;
+            background-color: #f2dede;
+            border-color: #eed3d7;
         }
         h4 {
             text-transform: uppercase
@@ -134,6 +151,9 @@
 
         .booking-details i.icon-home{
             margin-right: 3px;
+        }
+        i.icon-gift{
+            color: #ed1c91;
         }
         .passenger-details{
             cursor: pointer;
@@ -199,18 +219,31 @@
                 link: function(scope, element, attrs){
                     var revenue = scope.ride.orders.map(function(o) {return o.price}).sum();
                     var details = scope.ride.cost_details;
-                    $(element[0]).popover({
-                        title: 'Profit: ' + (revenue - details.cost) + '₪',
-                        trigger: 'click',
-                        html: true,
-                        content:
-                                '<div>Model: ' + details.model + '</div>' +
-                                '<div>Type: ' + details.type + '</div>' +
-                                '<div>Range: ' + details.range + '</div>' +
-                                '<div>Origin Area: ' + (details.origin_area || "None") + '</div>' +
-                                '<div>Destination Area: ' + (details.destination_area || "None") + '</div>' +
-                                '<div>Additional KM: ' + details.additional_meters/1000.0 + '</div>'
-                    });
+                    if (details){
+                        var content =
+                                '<div>' +
+                                '<strong>' + details.model + '</strong>' +
+                                '<span> (' + details.type + ')</span>' +
+                                '</div>';
+
+                        if (details.range){
+                            content += '<div>Range: ' + details.range + '</div>';
+                        }
+                        if (details.additional_meters){
+                            content += '<div>Additional KM: ' + (details.additional_meters / 1000.0).toFixed(2) + '</div>';
+                        }
+                        if (details.by_areas){
+                            content +=
+                                    '<div>Origin: ' + (details.origin_area || "None") + '</div>' +
+                                    '<div>Destination: ' + (details.destination_area || "None") + '</div>';
+                        }
+                        $(element[0]).popover({
+                            title: (revenue - details.cost).toFixed(2) + '₪ ' + (revenue > details.cost ? 'profit' : 'deficit'),
+                            trigger: 'hover',
+                            html: true,
+                            content: content
+                        });
+                    }
                 }
             }
         });
@@ -220,7 +253,7 @@
                 replace: true,
                 template:
                         '<div ng-click="view_passenger(order.passenger_id)" class="passenger-details">' +
-                            '<img class="passenger-picture" ng-src="(( order.passenger_picture_url ))">' +
+                            '<img class="passenger-picture" ng-src="(( order.passenger_picture_url ))" ng-repeat="x in []|range:order.num_seats">' +
                             '<i class="icon-user passenger-picture" ng-hide="order.passenger_picture_url"></i>' +
                             '(( order.passenger_name )) (( order.passenger_phone ))' +
                         '</div>'
@@ -353,6 +386,9 @@
                 }
             }
 
+            // Order Actions
+            ////////////////
+
             function OrderActions(order) {
                 var self = this;
                 this.order = order;
@@ -363,26 +399,72 @@
                             return self.order.status != Status.CHARGED && self.order.status != Status.CANCELLED
                         },
                         run:function () {
-                            var title = "Cancel Billing";
-                            $scope.confirm(title, "Are you sure you want to cancel the billing for order " + self.order.id + "?").then(function () {
-                                $http.get("/staff/cancel_billing/" + (self.order.id) + "/")
-                                    .success(function (data) {
-                                        $scope.modal_header = title;
-                                        $scope.modal_body = "All billing transactions were cancelled";
-                                        $("#success-modal").modal();
-                                    })
-                                    .error(function (err) {
-                                        $scope.modal_header = title;
-                                        $scope.modal_body = err;
-                                        $("#fail-modal").modal();
-                                    });
-
-                            })
+                            cancel_billing(self.order)
                         }
+                    },
 
+                    {
+                        title: "Cancel Order",
+                        enabled: function () {
+                            return self.order.status != Status.CHARGED && self.order.status != Status.CANCELLED
+                        },
+                        run: function () {
+                            cancel_order(self.order)
+                        }
                     }
+
                 ];
             }
+
+            function cancel_billing(order){
+                var title = "Cancel Billing";
+                function _err(){
+                    $scope.modal_header = title;
+                    $scope.modal_body = "There was an error when cancelling billing.";
+                    $("#fail-modal").modal();
+                }
+                $scope.confirm(title, "Are you sure you want to cancel the billing for order " + order.id + "?").then(function () {
+                    $http.get("/staff/cancel_billing/" + (order.id) + "/")
+                        .success(function (data) {
+                            if (data.success){
+                                $scope.modal_header = title;
+                                $scope.modal_body = "All billing transactions were cancelled";
+                                $("#success-modal").modal();
+                            }
+                            else { _err() }
+                        })
+                        .error(function () {
+                                _err();
+                        });
+                })
+            }
+
+            function cancel_order(order){
+                var title = "Cancel Order " + (order.id);
+                function _err(){
+                    $scope.modal_header = title;
+                    $scope.modal_body = "There was an error when cancelling the order. Refresh the page to see its current status.";
+                    $("#fail-modal").modal();
+                }
+                $scope.confirm(title, "Are you sure you want to cancel " + order.passenger_name + "'s order? Billing will be cancelled as well.").then(function () {
+                    $http.get("/staff/cancel_order/" + (order.id) + "/")
+                            .success(function (data) {
+                                if (data.success){
+                                    $scope.modal_header = title;
+                                    $scope.modal_body = "Order was cancelled";
+                                    $("#success-modal").modal();
+                                } else { _err() }
+                            })
+                            .error(function () {
+                                _err();
+                            });
+                })
+            }
+
+
+            // Scope
+            ////////
+
 
             var ride_actions = {};
             var order_actions = {};
@@ -475,8 +557,6 @@
                 } else if ([Status.PENDING, Status.ASSIGNED].indexOf(status) > -1) {
                     return "label-warning"
                 }
-
-
             };
 
             $scope.update = function () {
@@ -486,6 +566,16 @@
                     $scope.rides = data.rides;
                     $scope.incomplete_orders = data.incomplete_orders;
                     $scope.stations = data.stations;
+                });
+            };
+            $scope.update_ride = function(ride){
+                $http.get('{% url sharing.staff_controller.eagle_eye %}', {params:{ride_id: ride.id}}).success(function (updated_ride) {
+                    for (var i=0; i<$scope.rides.length; i++){
+                        if ($scope.rides[i].id == updated_ride.id){
+                            $scope.rides[i] = updated_ride;
+                            break;
+                        }
+                    }
                 });
             };
 
@@ -546,7 +636,6 @@
                     <div ng-show="updating()" class="progress progress-striped active">
                       <div class="bar" style="width: 100%;"></div>
                     </div>
-                    <hr class="dashed">
                     <ul ng-hide="updating()" class="nav nav-list ">
                         <li class="nav-header">Jump To</li>
                         <li ng-show="rides"><a href="#">Rides</a></li>
@@ -556,85 +645,87 @@
                 </form>
             </div>
 
-            <div class="span10 rides-container">
+            <div class="span10">
+                <div ng-show="show_debug" class="alert alert-error">DEBUG Mode Active</div>
                 <h4 ng-show="rides" id="rides-top">
                     (( counters()['rides'] )) Rides
                     <small>(( counters()['orders'] + ' Orders' | paren_wrap ))</small></h4>
 
-                <div class="ride-row" ng-repeat="ride in rides" ng-show="ride.debug == show_debug">
-                    <div class="ride-header row-fluid">
-                        <div class="span4">
+                <div class="ride-row" ng-repeat="ride in rides|orderBy:'start_time'" ng-show="ride.debug == show_debug">
+                    <div class="ride">
+                        <div class="ride-header row-fluid">
+                            <div class="span4">
                             <i class="icon-bolt" ng-show="ride.station" ng-class="{'online': online_status(ride.station)}" title="Online status" ng-click="show_snapshots(ride.station)"> </i>
-                            (( ride.station.name ))
-                            &#x200E;<small class="muted" ng-show="ride.taxi"><i class="wb-icon-taxi"></i>(( ride.taxi ))</small>
-                        </div>
-                        <div class="span4 center">
-                            <strong>(( ride.start_time | date:'HH:mm' ))</strong>
-                            <small>(( ride.start_time | date:'EEE, MMM dd' ))</small>
-                        </div>
-                        <div class="span3 right">
-                            <strong ng-show="ride.station.name" cost-details class="cost">(( ride.cost_details.cost | currency:'₪'))</strong>
-                            <span class="label" ng-show="ride.debug">DEBUG</span>
-                            <span class="label" ng-show="!ride.shared">PRIVATE</span>
-                            <span class="label" ng-class="get_ride_status_class(ride)">(( ride.status ))</span>
-                        </div>
-                        <div class="span1">
-                            <div class="btn-group">
-                                <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#" ng-disabled="updating()">
-                                    <i class="icon-cog"></i>
-                                    <span class="caret"></span>
-                                </a>
-                                <ul class="dropdown-menu pull-right">
-                                    <li><a href="#" disabled="disabled">Ride ((ride.id))</a></li>
-                                    <li class="divider"></li>
-                                    <li ng-repeat="action in get_ride_actions(ride)"><a href="#" ng-click="run(action)" ng-disabled="!action.enabled()">(( action.title ))</a></li>
-                                </ul>
+                                (( ride.station.name ))
+                                &#x200E;<small class="muted" ng-show="ride.taxi"><i class="wb-icon-taxi"></i>(( ride.taxi ))</small>
                             </div>
-                        </div>
+                            <div class="span4 center">
+                                <strong>(( ride.start_time | date:'HH:mm' ))</strong>
+                                <small>(( ride.start_time | date:'EEE, MMM dd' ))</small>
+                            </div>
+                            <div class="span4 right">
+                                <strong ng-show="ride.station.name" cost-details class="cost">(( ride.cost_details.cost | currency:'₪'))</strong>
+                                <span class="label" ng-show="!ride.shared">PRIVATE</span>
+                                <span class="label" ng-class="get_ride_status_class(ride)">(( ride.status ))</span>
 
-                    </div>
-                    <div class="ride-body" >
-                        <table class="table table-condensed orders-table">
-                            <tr>
-                                <th>From</th>
-                                <th>To</th>
-                                <th>Created</th>
-                                <th>Passenger</th>
-                                <th># Seats</th>
-                                <th>Price</th>
-                                <th>Discount</th>
-                                <th>Billing</th>
-                                <th>Status</th>
-                                <th>&nbsp;</th>
-                            </tr>
-                            <tr ng-repeat="order in ride.orders">
-                                <td><span class="label label-info">(( order.pickup_idx ))</span> (( order.from_address )) | (( order.pickup | date:'HH:mm' ))</td>
-                                <td><span class="label label-info">(( order.dropoff_idx ))</span> (( order.to_address )) | (( order.dropoff | date:'HH:mm' ))</td>
-                                <td><booking-details></booking-details></td>
-                                <td><passenger-details></passenger-details></td>
-                                <td>(( order.num_seats ))</td>
-                                <td>(( order.price | currency:'₪'))</td>
-                                <td><a ng-href="/admin/pricing/discountrule/((order.discount_id))/" ng-show="order.discount_id" target="_blank" class='discount_link'><i class='icon-asterisk'></i></a>  (( order.discount | currency:'₪'))</td>
-                                <td>(( order.billing_status.join(', ') ))</td>
-                                <td><span class="label" ng-class="get_order_status_class(order)">(( order.status ))</span></td>
-                                <td>
+                                <div class="cog-container">
+                                    <a class="btn btn-small" ng-click="update_ride(ride)"><i class="icon-refresh"></i></a>
                                     <div class="btn-group">
                                         <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#" ng-disabled="updating()">
                                             <i class="icon-cog"></i>
                                             <span class="caret"></span>
                                         </a>
                                         <ul class="dropdown-menu pull-right">
-                                            <li><a href="#" disabled="disabled">Order ((order.id))</a></li>
+                                            <li><a href="#" disabled="disabled">Ride ((ride.id))</a></li>
                                             <li class="divider"></li>
-                                            <li ng-repeat="action in get_order_actions(order)"><a href="#" ng-click="run(action)" ng-disabled="!action.enabled()">((
-                                                action.title ))</a></li>
+                                            <li ng-repeat="action in get_ride_actions(ride)"><a href="#" ng-click="run(action)" ng-disabled="!action.enabled()">(( action.title ))</a></li>
                                         </ul>
                                     </div>
-                                </td>
-                            </tr>
-                        </table>
+                                </div>
+                            </div>
+
+                        </div>
+                        <div class="ride-body" >
+                            <table class="table table-condensed orders-table">
+                                <tr>
+                                    <th class="long">From</th>
+                                    <th class="long">To</th>
+                                    <th>Created</th>
+                                    <th class="medium">Passenger</th>
+                                    <th>Price</th>
+                                    <th>Discount</th>
+                                    <th>Billing</th>
+                                    <th>Status</th>
+                                </tr>
+                                <tr ng-repeat="order in ride.orders">
+                                    <td><span class="label label-info">(( order.pickup_idx ))</span> (( order.from_address )) | (( order.pickup | date:'HH:mm' ))</td>
+                                    <td><span class="label label-info">(( order.dropoff_idx ))</span> (( order.to_address )) | (( order.dropoff | date:'HH:mm' ))</td>
+                                    <td><booking-details></booking-details></td>
+                                    <td><passenger-details></passenger-details></td>
+                                    <td>(( order.price | currency:'₪'))</td>
+                                    <td>(( order.discount | currency:'₪')) <a ng-href="/admin/pricing/discountrule/((order.discount_id))/" ng-show="order.discount_id" target="_blank" class='discount_link'><i class='icon-gift'></i></a></td>
+                                    <td>(( order.billing_status.join(', ') ))</td>
+                                    <td>
+                                        <span class="label" ng-class="get_order_status_class(order)">(( order.status ))</span>
+                                        <div class="cog-container">
+                                            <div class="btn-group">
+                                                <a class="btn btn-small dropdown-toggle" data-toggle="dropdown" href="#" ng-disabled="updating()">
+                                                    <i class="icon-cog"></i>
+                                                    <span class="caret"></span>
+                                                </a>
+                                                <ul class="dropdown-menu pull-right">
+                                                    <li><a href="#" disabled="disabled">Order ((order.id))</a></li>
+                                                    <li class="divider"></li>
+                                                    <li ng-repeat="action in get_order_actions(order)"><a href="#" ng-click="run(action)" ng-disabled="!action.enabled()">((
+                                                        action.title ))</a></li>
+                                                </ul>
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                            </table>
+                        </div>
                     </div>
-                    <hr class="dashed">
                 </div>
 
                 <div class="inc-order-row" ng-show="incomplete_orders">
@@ -727,10 +818,5 @@
                         <!-- don't allow re-assigning to the same station if status is ASSIGNED -->
             </div>
         </div>
-
-
-
     </div>
-
-
 {% endblock %}
