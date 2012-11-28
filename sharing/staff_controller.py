@@ -27,6 +27,7 @@ from datetime import time as dt_time
 import logging
 import settings
 import re
+from sharing.station_controller import WORKSTATION_SNAPSHOTS_NS
 
 POINT_ID_REGEXPT = re.compile("^(p\d+)_")
 LANG_CODE = "he"
@@ -430,6 +431,34 @@ def ride_page(request, ride_id):
     position_changed = fleet_manager.POSITION_CHANGED
 
     return render_to_response("ride_page.html", locals(), context_instance=RequestContext(request))
+
+@staff_member_required
+@force_lang("en")
+def station_snapshot(request, station_id):
+    lib_ng = True
+    memcache.set(str(station_id), "", namespace=WORKSTATION_SNAPSHOTS_NS)
+    station = Station.by_id(station_id)
+    return render_to_response("station_snapshot.html", locals(), context_instance=RequestContext(request))
+
+
+@staff_member_required
+@force_lang("en")
+def station_snapshot_update(request, station_id):
+    from ordering.station_connection_manager import _do_push
+    station = Station.by_id(station_id)
+    # send push
+    ws = station.work_stations.filter(accept_shared_rides=True)[0]
+    if ws:
+        _do_push(ws, {"action": "get_snapshot"})
+
+    return HttpResponse("OK")
+
+
+@staff_member_required
+@force_lang("en")
+def station_snapshot_img(request, station_id):
+    img_data = memcache.get(str(station_id), namespace=WORKSTATION_SNAPSHOTS_NS)
+    return JSONResponse({ "img_data": img_data })
 
 @staff_member_required
 @force_lang("en")

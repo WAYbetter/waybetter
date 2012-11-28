@@ -514,6 +514,10 @@
                 }
             };
 
+            $scope.show_snapshots = function (station) {
+                window.open('/staff/station_snapshot/' + station.id +'/', '_blank');
+            };
+
             $scope.update();
         });
 
@@ -560,7 +564,7 @@
                 <div class="ride-row" ng-repeat="ride in rides" ng-show="ride.debug == show_debug">
                     <div class="ride-header row-fluid">
                         <div class="span4">
-                            <i class="icon-bolt" ng-show="ride.station" ng-class="{'online': online_status(ride.station)}" title="Online status"> </i>
+                            <i class="icon-bolt" ng-show="ride.station" ng-class="{'online': online_status(ride.station)}" title="Online status" ng-click="show_snapshots(ride.station)"> </i>
                             (( ride.station.name ))
                             &#x200E;<small class="muted" ng-show="ride.taxi"><i class="wb-icon-taxi"></i>(( ride.taxi ))</small>
                         </div>

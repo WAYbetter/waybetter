@@ -289,6 +289,8 @@
 {% endif %}
 <script type="text/javascript" src="/static/js/wb-ng/filters.js"></script>
 <script type="text/javascript" src="/static/js/utils.js"></script>
+<script type="text/javascript" src="/static/js/libs/html2canvas.min.js"></script>
+<script type="text/javascript" src="/static/js/libs/jquery.plugin.html2canvas.js"></script>
 
 <script type="text/javascript">
     var app = angular.module("WorkstationApp", ['wbFilters']);
@@ -393,6 +395,9 @@
                 if (data.action == "refresh") {
                     ErrorService.error_handler()
                 }
+                if (data.action == "get_snapshot") {
+                    $scope.render_app();
+                }
 
                 if (data.heartbeat) {
                     AirService.log("heartbeat received");
@@ -459,6 +464,17 @@
         $scope.history_rides = [];
         $scope.current_tab = Tabs.NEXT;
         $scope.selected_ride = undefined;
+
+        $scope.render_app = function() {
+            $("body").html2canvas({
+                onrendered : function(canvas) {
+                    var img_data = canvas.toDataURL();
+                    $http.post("/workstation/snapshot/", {
+                        img_data: img_data
+                    })
+                }
+            });
+        };
 
         $scope.init = function () {
             AirService.call("set_app_loaded", true);
@@ -584,6 +600,7 @@
                     always_on_top_id = setInterval(function () {
                         AirService.call("set_always_infront", false);
                         AirService.call("set_always_infront", true);
+                        AirService.call("center");
                     }, 1000)
                 }
             } else {
