@@ -43,6 +43,9 @@
         .right {
             text-align: right;
         }
+        .left {
+            text-align: left;
+        }
         .center {
             text-align: center;
         }
@@ -306,7 +309,8 @@
                 ];
 
                 function mark_as_accepted() {
-                    $http.post("/staff/accept_ride/" + self.ride.id + "/").success(
+                    $scope.confirm("Are You Sure?", "If you mark as ACCEPTED passengers will be notified.").then(function () {
+                        $http.post("/staff/accept_ride/" + self.ride.id + "/").success(
                             function (data) {
                                 angular.extend(self.ride, data.ride);
                                 $scope.modal_header = "Accept Ride";
@@ -317,6 +321,7 @@
                                 $scope.modal_body = err;
                                 $("#fail-modal").modal();
                             });
+                    });
                 }
 
 
@@ -675,7 +680,7 @@
                                             <i class="icon-cog"></i>
                                             <span class="caret"></span>
                                         </a>
-                                        <ul class="dropdown-menu pull-right">
+                                        <ul class="dropdown-menu pull-right left">
                                             <li><a href="#" disabled="disabled">Ride ((ride.id))</a></li>
                                             <li class="divider"></li>
                                             <li ng-repeat="action in get_ride_actions(ride)"><a href="#" ng-click="run(action)" ng-disabled="!action.enabled()">(( action.title ))</a></li>

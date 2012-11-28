@@ -402,6 +402,7 @@ class SharedRide(BaseRide):
         elif new_cost:
             logging.info("cost has not changed: %s" % self.cost)
         else:
+            self.update(cost=None)
             logging.error("no cost found %s" % self.cost_data)
 
     @property
