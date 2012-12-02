@@ -605,7 +605,8 @@
                 }
             } else {
                 if (always_on_top_id) {
-                    clearInterval(always_on_top_id)
+                    clearInterval(always_on_top_id);
+                    always_on_top_id = undefined;
                 }
                 AirService.call("set_always_infront", false);
             }
