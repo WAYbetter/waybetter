@@ -457,6 +457,13 @@ def get_offers(request):
                 discount = discount_rule.get_discount(base_price_for_discount_offer)
                 offer_key = "%s_%s" % (DISCOUNTED_OFFER_PREFIX, get_uuid())
                 memcache.set(offer_key, {'discount_rule_id': discount_rule.id, 'pickup_dt': discount_dt}, namespace=DISCOUNTED_OFFERS_NS)
+
+                offer_text = u"הזמן ראשון וקבל ₪%g הנחה מובטחת" % discount
+                if discount_rule.offer_text:
+                    offer_text = discount_rule.offer_text
+                    if offer_text.find("%g") > -1:  # render discount amount
+                        offer_text %= discount
+
                 offers.append({
                     "ride_id": offer_key,
                     "pickup_time": to_js_date(discount_dt),
@@ -464,7 +471,7 @@ def get_offers(request):
                     "seats_left": MAX_SEATS - 1,
                     "price": base_price_for_discount_offer - discount,
                     "new_ride": False,  # disguise as an exisiting ride
-                    "comment": u"הזמן ראשון וקבל ₪%g הנחה מובטחת" % discount
+                    "comment": offer_text
                 })
 
 

@@ -161,6 +161,7 @@ class DiscountRule(AbstractTemporalRule):
 
     picture_url = models.URLField(max_length=255, null=True, blank=True, help_text="Will be used as the passenger picture")
     display_name = models.CharField(max_length=25, null=True, blank=True, help_text="Will be used as the passenger name")
+    offer_text = models.CharField(max_length=105, null=True, blank=True, help_text="Will be used as the offer text")
 
     from_city_area = CityAreaField(verbose_name=_("from city area"), null=True, blank=True, related_name="discount_rules_1")
     from_everywhere = models.BooleanField(verbose_name=_("from everywhere"), default=False)
