@@ -6,13 +6,21 @@ class CountryAdmin(admin.ModelAdmin):
     list_display = ["id", "name", "code", "dial_code"]
 
 
+class CityAreaAdmin(admin.ModelAdmin):
+    list_display = ["id", "name", "city_name", "for_pricing"]
+
+    def city_name(self, obj):
+        if obj.city:
+            return obj.city.name
+
+        return ""
 
 class CityAreaInlineForm(ModelForm):
     class Meta:
         model = CityArea
         fields = ["name", "color", "points", "city"]
 
-class CityAreaAdmin(admin.TabularInline):
+class CityAreaInlineAdmin(admin.TabularInline):
     model = CityArea
     form = CityAreaInlineForm
     extra = 0
@@ -20,7 +28,7 @@ class CityAreaAdmin(admin.TabularInline):
 
 
 class CityAdmin(admin.ModelAdmin):
-    inlines = [CityAreaAdmin]
+    inlines = [CityAreaInlineAdmin]
 
 
 class MessageAdmin(admin.ModelAdmin):
@@ -30,4 +38,4 @@ class MessageAdmin(admin.ModelAdmin):
 admin.site.register(Message, MessageAdmin)
 #admin.site.register(Country,CountryAdmin)
 admin.site.register(City, CityAdmin)
-#admin.site.register(CityArea, CityAreaAdmin)
+admin.site.register(CityArea, CityAreaAdmin)

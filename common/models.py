@@ -237,6 +237,7 @@ class CityArea(BaseModel):
     points = ListFieldWithUI(models.FloatField(), verbose_name=_("Edit Points"))
     color = ColorField(default="#ffff00")
     city = models.ForeignKey(City, verbose_name=_("city"), related_name="city_areas")
+    for_pricing = models.BooleanField(default=False, editable=False)
 
     def __unicode__(self):
         return self.name

@@ -833,7 +833,7 @@ class OrderSettings:
         self.debug = debug
 
     def get_city_area(self, address):
-        for city_area in CityArea.objects.all():
+        for city_area in CityArea.objects.filter(for_pricing=True):
             if city_area.contains(address.lat, address.lng):
                 return city_area.name
 
