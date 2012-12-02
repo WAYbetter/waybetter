@@ -1,8 +1,6 @@
 from django.conf.urls.defaults import *
 
 urlpatterns = patterns('',
-    (r'^track_rides/$', 'sharing.staff_controller.track_rides'),
-
     (r'^eagleeye/$', 'sharing.staff_controller.eagle_eye'),
     (r'^kpi/$', 'sharing.staff_controller.kpi'),
     (r'^kpi_csv/$', 'sharing.staff_controller.kpi_csv'),

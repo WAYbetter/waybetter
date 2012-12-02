@@ -26,14 +26,6 @@ def ride_created(sender, signal_type, obj, **kwargs):
     if isinstance(ride, PickMeAppRide):
         pickmeapp_dispatcher.dispatch_ride(ride)
 
-@receive_signal(ride_status_changed_signal)
-def log_ride_status_update(sender, signal_type, ride, status, **kwargs):
-    from sharing.staff_controller import _log_fleet_update
-    str_status = ride.get_status_display()
-    log = "ride %s status changed -> %s" % (ride.id, str_status)
-    json = simplejson.dumps({'ride': {'id': ride.id, 'status': str_status}, 'logs': [log]})
-    _log_fleet_update(json)
-
 
 @receive_signal(ride_status_changed_signal)
 def handle_failed_ride(sender, signal_type, ride, status, **kwargs):

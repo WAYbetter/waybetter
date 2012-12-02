@@ -39,7 +39,6 @@ def control_panel(request):
     admin_links = [
             {'name': 'Kpi', 'url': reverse(kpi)},
             {'name': 'EagleEye', 'url': reverse(eagle_eye)},
-            {'name': 'Track rides and taxis', 'url': reverse(track_rides)},
             {'name': 'Sharing orders map', 'url': reverse(sharing_orders_map)},
             {'name': 'PickMeApp orders map', 'url': reverse(pickmeapp_orders_map)},
     ]
@@ -481,37 +480,3 @@ def cancel_billing(request, order_id):
     order = Order.by_id(order_id)
     res = order.cancel_billing()
     return JSONResponse({'success': res})
-
-
-TRACK_RIDES_CHANNEL_MEMCACHE_KEY = "track_rides_channel_memcache_key"
-#@staff_member_required
-@force_lang("en")
-def track_rides(request):
-    lib_channel = True
-    lib_map = True
-
-    channel_id = get_uuid()
-    cids = memcache.get(TRACK_RIDES_CHANNEL_MEMCACHE_KEY) or []
-    cids.append(channel_id)
-    memcache.set(TRACK_RIDES_CHANNEL_MEMCACHE_KEY, cids)
-
-    token = channel.create_channel(channel_id)
-
-#    ongoing_rides = fleet_manager.get_ongoing_rides()
-#    fmr = FleetManagerRide(1234, 5, 123, 32.1, 34.1, datetime.now(), "raw_status")
-#    ongoing_rides = [fmr]
-    return render_to_response("staff_track_rides.html", locals(), context_instance=RequestContext(request))
-
-def _log_fleet_update(json):
-    logging.info("fleet update: %s" % json)
-    cids = memcache.get(TRACK_RIDES_CHANNEL_MEMCACHE_KEY) or []
-    live_cids = []
-
-    for cid in cids:
-        try:
-            channel.send_message(cid, json)
-            live_cids.append(cid)
-        except InvalidChannelClientIdError, e:
-            pass
-
-    memcache.set(TRACK_RIDES_CHANNEL_MEMCACHE_KEY, live_cids)
