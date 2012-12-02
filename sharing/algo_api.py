@@ -1,6 +1,7 @@
 from google.appengine.api.urlfetch import  POST
+from common.models import CityArea
 from django.utils import simplejson
-from common.util import safe_fetch, Enum, first
+from common.util import safe_fetch, Enum, first, clean_values
 from ordering.models import SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS, StopType
 from datetime import  datetime
 import urllib
@@ -123,6 +124,7 @@ class RideData(object):
         """
         raw_pickup_data = first(lambda p: order_id in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, self.raw_ride_data[AlgoField.RIDE_POINTS])
         return PointData(raw_pickup_data) if raw_pickup_data else None
+
 
 class PointData(object):
     """
@@ -256,15 +258,22 @@ class CostDetails:
         return self.type == AlgoField.INTRACITY_AREAS
 
 
+def get_parameters(extra=None):
+    params = {
+        'toleration_factor_minutes': SHARING_TIME_MINUTES,
+        'toleration_factor_meters': SHARING_DISTANCE_METERS
+    }
+
+    if extra:
+        params.update(extra)
+    return params
+
+
 def find_matches(candidate_rides, order_settings):
     payload = {
         AlgoField.RIDES : [r.serialize_for_algo() for r in candidate_rides],
-        "order"         : order_settings.serialize(),
-        "parameters"    : {
-            "debug"                     : order_settings.debug,
-            'toleration_factor_minutes' : SHARING_TIME_MINUTES,
-            'toleration_factor_meters'  : SHARING_DISTANCE_METERS
-        }
+        "order"         : serialize_order_settings(order_settings),
+        "parameters"    : get_parameters(extra={"debug": order_settings.debug})
     }
 
     payload = simplejson.dumps(payload)
@@ -278,12 +287,34 @@ def find_matches(candidate_rides, order_settings):
     if response and response.content:
         matches = simplejson.loads(response.content)[AlgoField.RIDES]
 
-    logging.info("%s candidates [%s], %s matches, %s seconds" % (len(candidate_rides),
+    logging.info("%s candidates [%s], %s matches (+1 new), %s seconds" % (len(candidate_rides),
                                                                 ",".join([str(ride.id) for ride in candidate_rides]),
-                                                                len(matches),
+                                                                max(0, len(matches)-1),
                                                                 (dt2 - dt1).seconds))
 
-    return matches
+    return [RideData(match) for match in matches]
+
+
+def recalc_ride(orders):
+    """
+    Calculate a shared ride from a list of orders
+    """
+    payload = {
+        "orders": [serialize_order(o) for o in orders],
+        "parameters": get_parameters()
+    }
+
+    payload = simplejson.dumps(payload)
+    logging.info(u"recalc=%s" % unicode(payload, "unicode-escape"))
+    response = safe_fetch(M2M_ENGINE_DOMAIN, payload="recalc=%s" % payload, method=POST, deadline=50)
+    logging.info("response=%s" % response.content)
+
+    if response and response.content:
+        ride_data = simplejson.loads(response.content)[AlgoField.RIDES][0]
+        return RideData(ride_data)
+
+    return None
+
 
 def calculate_route(start_lat, start_lon, end_lat, end_lon):
     payload = urllib.urlencode({
@@ -315,3 +346,51 @@ def calculate_route(start_lat, start_lon, end_lat, end_lon):
             }
 
     return result
+
+
+def get_pricing_area_name(lat, lng):
+    name = ""
+
+    pricing_area = CityArea.get_pricing_area(lat, lng)
+    if pricing_area:
+        name = pricing_area.name
+
+    return name
+
+
+def serialize_order(order):
+    result = {
+        "id": order.id,
+        "num_seats": order.num_seats,
+        "from_address": order.from_street_address,
+        "from_area": get_pricing_area_name(order.from_lat, order.from_lon),
+        "from_city": order.from_city.name,
+        "from_lat": order.from_lat,
+        "from_lon": order.from_lon,
+        "to_address": order.to_street_address,
+        "to_area": get_pricing_area_name(order.to_lat, order.to_lon),
+        "to_city": order.to_city.name,
+        "to_lat": order.to_lat,
+        "to_lon": order.to_lon
+    }
+
+    return clean_values(result)
+
+
+def serialize_order_settings(order_settings):
+    result = {
+        "id": NEW_ORDER_ID,
+        "num_seats": order_settings.num_seats,
+        "from_address": order_settings.pickup_address.formatted_address,
+        "from_city": order_settings.pickup_address.city_name,
+        "from_area": get_pricing_area_name(order_settings.pickup_address.lat, order_settings.pickup_address.lng),
+        "from_lat": order_settings.pickup_address.lat,
+        "from_lon": order_settings.pickup_address.lng,
+        "to_address": order_settings.dropoff_address.formatted_address,
+        "to_city": order_settings.dropoff_address.city_name,
+        "to_area": get_pricing_area_name(order_settings.dropoff_address.lat, order_settings.dropoff_address.lng),
+        "to_lat": order_settings.dropoff_address.lat,
+        "to_lon": order_settings.dropoff_address.lng,
+    }
+
+    return clean_values(result)

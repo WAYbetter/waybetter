@@ -371,7 +371,7 @@ def get_matching_rides(candidate_rides, order_settings):
     """
 
     matches = algo_api.find_matches(candidate_rides, order_settings)
-    return [algo_api.RideData(match) for match in matches]
+    return matches
 
 def get_offers(request):
     order_settings = OrderSettings.fromRequest(request)
@@ -839,13 +839,6 @@ class OrderSettings:
         self.private = private
         self.debug = debug
 
-    def get_city_area(self, address):
-        for city_area in CityArea.objects.filter(for_pricing=True):
-            if city_area.contains(address.lat, address.lng):
-                return city_area.name
-
-        return ""
-
     @classmethod
     def fromRequest(cls, request):
         request_data = simplejson.loads(request.REQUEST.get("data"))
@@ -875,22 +868,6 @@ class OrderSettings:
 
         return inst
 
-    def serialize(self):
-        result = {"from_address": self.pickup_address.formatted_address,
-                  "from_city": self.pickup_address.city_name,
-                  "from_area": self.get_city_area(self.pickup_address),
-                  "from_lat": self.pickup_address.lat,
-                  "from_lon": self.pickup_address.lng,
-                  "to_address": self.dropoff_address.formatted_address,
-                  "to_city": self.dropoff_address.city_name,
-                  "to_area": self.get_city_area(self.dropoff_address),
-                  "to_lat": self.dropoff_address.lat,
-                  "to_lon": self.dropoff_address.lng,
-                  "num_seats": self.num_seats,
-                  "id": NEW_ORDER_ID}
-
-        return clean_values(result)
-
 
 class Address:
     lat = 0.0
@@ -902,7 +879,7 @@ class Address:
     description = ""
     address_type = None
 
-    def __init__(self, lat, lng, house_number=None, street=None, city_name=None, description=None, country_code=None,
+    def __init__(self, lat, lng, house_number=None, street=None, city_name=None, description=None, country_code=settings.DEFAULT_COUNTRY_CODE,
                  address_type=AddressType.STREET_ADDRESS, **kwargs):
         self.lat = float(lat)
         self.lng = float(lng)

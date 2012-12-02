@@ -242,6 +242,14 @@ class CityArea(BaseModel):
     def __unicode__(self):
         return self.name
 
+    @classmethod
+    def get_pricing_area(cls, lat, lng):
+        for city_area in cls.objects.filter(for_pricing=True):
+                if city_area.contains(lat, lng):
+                    return city_area
+
+        return None
+
     @property
     def polygon(self):
         return Polygon(self.points)
