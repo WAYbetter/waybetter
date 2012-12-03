@@ -115,13 +115,26 @@ class RideData(object):
         else:
             return self.raw_ride_data[AlgoField.ORDER_INFOS][str(order_id)][AlgoField.TIME_ALONE]
 
+    def order_pickup_offset(self, order_id):
+        return self.get_order_point(AlgoField.PICKUP, order_id).offset
+
+    def order_dropoff_offset(self, order_id):
+        return self.get_order_point(AlgoField.DROPOFF, order_id).offset
+
     def order_pickup_point(self, order_id):
+        return self.get_order_point(AlgoField.PICKUP, order_id)
+
+    def order_dropoff_point(self, order_id):
+        return self.get_order_point(AlgoField.DROPOFF, order_id)
+
+    def get_order_point(self, point_type, order_id):
         """
+        @param point_type: AlgoField.PICKUP or AlgoField.DROPOFF
         @param order_id: order id to look up
         @return: a PointData object for the point data of the given order id. If order id is not found returns None
         """
-        raw_pickup_data = first(lambda p: order_id in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, self.raw_ride_data[AlgoField.RIDE_POINTS])
-        return PointData(raw_pickup_data) if raw_pickup_data else None
+        raw_point_data = first(lambda p: order_id in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == point_type, self.raw_ride_data[AlgoField.RIDE_POINTS])
+        return PointData(raw_point_data) if raw_point_data else None
 
 
 class PointData(object):

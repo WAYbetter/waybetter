@@ -10,8 +10,10 @@ class SignalType(Enum):
     RIDE_CREATED               = 1
     RIDE_STATUS_CHANGED        = 2
     RIDE_UPDATED               = 3
+    RIDE_DELETED               = 4
 
 ride_created_signal                    = AsyncSignal(SignalType.RIDE_CREATED, providing_args=["obj"])
+ride_deleted_signal                    = AsyncSignal(SignalType.RIDE_DELETED, providing_args=["ride"])
 ride_updated_signal                    = AsyncSignal(SignalType.RIDE_UPDATED, providing_args=["obj"])
 ride_status_changed_signal             = AsyncSignal(SignalType.RIDE_STATUS_CHANGED, providing_args=["obj", "status"])
 
@@ -25,6 +27,17 @@ def ride_created(sender, signal_type, obj, **kwargs):
 
     if isinstance(ride, PickMeAppRide):
         pickmeapp_dispatcher.dispatch_ride(ride)
+
+
+@receive_signal(ride_deleted_signal)
+def handle_deleted_ride(sender, signal_type, ride, **kwargs):
+    from sharing.station_controller import update_data
+
+    logging.info("handle_deleted_ride")
+    assigned_station = ride.station
+    if assigned_station:
+        logging.info("updating assigned_station: %s" % assigned_station.id)
+        update_data(assigned_station)
 
 
 @receive_signal(ride_status_changed_signal)

@@ -10,9 +10,8 @@ from google.appengine.api import memcache
 from billing.billing_manager import  get_token_url
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction
-from common.models import CityArea
 from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime, trim_seconds
-from common.util import first, Enum, dict_to_str_keys, datetimeIterator, get_uuid, clean_values
+from common.util import first, Enum, dict_to_str_keys, datetimeIterator, get_uuid
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
@@ -27,13 +26,12 @@ from ordering.models import SharedRide, RidePoint, StopType, Order, OrderType, A
 from ordering.signals import order_price_changed_signal
 from pricing.functions import get_discount_rules_and_dt
 from pricing.models import  RuleSet, DiscountRule
-from settings import DEFAULT_DOMAIN
 from sharing.algo_api import NEW_ORDER_ID
+from sharing.signals import ride_deleted_signal
 import simplejson
 import datetime
 import dateutil.parser
 import sharing.algo_api as algo_api
-
 
 
 WAYBETTER_STATION_NAME = "WAYbetter"
@@ -768,6 +766,48 @@ def update_ride_for_order(ride, ride_data, new_order):
 
     ride.update(depart_time=depart_time, distance=ride_data.distance, arrive_time=depart_time + datetime.timedelta(seconds=ride_data.duration), cost_data=ride_data.cost_data)
 
+def update_ride_remove_order(order):
+    ride = order.ride
+    logging.info("remove order[%s] from ride[%s]" % (order.id, ride.id))
+
+    order.pickup_point.delete()
+    order.dropoff_point.delete()
+    order.ride = None
+    order.pickup_point = None
+    order.dropoff_point = None
+    order.save()
+    logging.info("order detached, ride now has %s orders" % ride.orders.count())
+
+    if ride.orders.count() == 0:
+        logging.info("ride[%s] deleted: last order cancelled" % ride.id)
+        ride.delete()
+        ride_deleted_signal.send(sender="update_ride_remove_order", ride=ride)
+    else:
+        ride_data = algo_api.recalc_ride(ride.orders.all())
+        update_ride(ride, ride_data)
+
+
+def update_ride(ride, ride_data):
+    depart_time = compute_new_departure(ride, ride_data)
+    for order in ride.orders.all():
+        new_pickup_time = depart_time + datetime.timedelta(seconds=ride_data.order_pickup_offset(order.id))
+        new_dropoff_time = depart_time + datetime.timedelta(seconds=ride_data.order_dropoff_offset(order.id))
+
+        logging.info("updating stop times for order [%s]:\n" \
+                     "pickup time %s -> %s\n" \
+                     "dropoff time %s -> %s" % (order.id, order.pickup_point.stop_time, new_pickup_time, order.dropoff_point.stop_time, new_dropoff_time))
+        order.pickup_point.stop_time = new_pickup_time
+        order.pickup_point.save()
+
+        order.dropoff_point.stop_time = new_dropoff_time
+        order.dropoff_point.save()
+
+    ride.update(depart_time=depart_time,
+                arrive_time=depart_time + datetime.timedelta(seconds=ride_data.duration),
+                distance=ride_data.distance,
+                cost_data=ride_data.cost_data)
+
+    # TODO_WB: notify passengers when pickup times change?
 
 def create_ride_point(ride, point_data, depart_time=None):
     """
@@ -792,6 +832,9 @@ def create_ride_point(ride, point_data, depart_time=None):
 
 
 def compute_new_departure(ride, ride_data):
+    """
+    Compute new depart time so that the first pickup time doesn't change; i.e. ride departs earlier if needed.
+    """
     current_departure_time = ride.depart_time
     first_pickup_order = ride.first_pickup.orders.all()[0]
 
