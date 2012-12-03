@@ -8,14 +8,16 @@
 {% if LANGUAGE_BIDI %}
     <link href="/static/themes/bootstrap-bounce/css/bootstrap.min.rtl.css" rel="stylesheet">
     <link href="/static/themes/bootstrap-bounce/css/font-awesome.rtl.css" rel="stylesheet">
+    <link href="/static/css/font-waybetter.css" rel="stylesheet" type="text/css">
 {% else %}
    <link href="/static/themes/bootstrap-bounce/css/bootstrap.min.css" rel="stylesheet">
    <link href="/static/themes/bootstrap-bounce/css/font-awesome.css" rel="stylesheet">
+    <link href="/static/css/font-waybetter.css" rel="stylesheet" type="text/css">
    <link rel="stylesheet" type="text/css" href="/static/css/wb.css"/>
 {% endif %}
 
     <style type="text/css">
-        * {
+        div, span, td, table, tr {
             -webkit-user-select: none
         }
         body {
@@ -38,7 +40,7 @@
             background-color: #D9EDF7;
         }
         .ride-yellow {
-            background-color: #FCF8E3;
+            background-color: #FDDBAA;
         }
         .ride-red {
             background-color: #F2DEDE;
@@ -46,14 +48,15 @@
         }
         @-webkit-keyframes blink {
             0% {
-                background:#F2DEDE;
+                background:#faa732;
             }
             50% {
-                background:#B94A48;
-                color:white;
+                /*background: #bd362f;*/
+                background: white;
+                /*color:white;*/
             }
             100% {
-                background:#F2DEDE;
+                background:#faa732;
             }
         }
 
@@ -62,7 +65,7 @@
             margin-bottom: 0;
         }
 
-        .ride-red.blink {
+        .blink {
             -webkit-animation: blink 1s;
             -webkit-animation-timing-function: ease-in-out;
             -webkit-animation-iteration-count: infinite;
@@ -106,6 +109,15 @@
             margin: 0 9px;
         }
 
+        .ride-details-footer {
+            position: relative;
+        }
+        .close-details {
+            position:absolute;
+            left: 0;
+            bottom: 0;
+        }
+
         .rides-table tr.muted {
             border-top: 1px solid #BEBEBE;
         }
@@ -127,7 +139,79 @@
         #error_modal.fade.in {
             top: 290px;
         }
-        
+
+        .ride-details-ongoing {
+            display: table;
+            width: 100%;
+        }
+        .ride-details-ongoing > div {
+            display: table-cell;
+            width: auto;
+        }
+        .ride-details-ongoing > .ride-details-pickup {
+            width: 150px;
+        }
+
+        .ride-details-table  td {
+            border-right: 1px solid #999;
+        }
+        .ride-details-table td:first-child {
+            border-right: none;
+        }
+        .ride-details-container {
+            background: white;
+            padding: 5px;
+            border: 1px solid #999;
+        }
+        .p-bar {
+            vertical-align: middle;
+        }
+        .p-bar > .progress {
+            margin-bottom: 10px;
+        }
+        .view-ride-btn {
+            width: 100%;
+            font-size: large;
+            font-weight: bold;
+            margin-bottom: -6px;
+            margin-top: -10px;
+        }
+        .waiting {
+            font-size: 30px;
+            display: inline-block;
+            margin-left: 10px;
+        }
+        .waiting-done {
+            color:green;
+        }
+        .waiting-error {
+            color:#bd362f;
+        }
+        .manual-dispatch-form {
+            height: 30px;
+        }
+        .manual-dispatch-form > button {
+            position: absolute;
+            right: 0;
+            bottom: 0;
+        }
+        .manual-dispatch-form > div {
+            position: absolute;
+            left: 0;
+            bottom: 0;
+        }
+        .manual-dispatch-form > div > * {
+            margin-right: 10px;
+        }
+        .manual-dispatch-form  i{
+            font-size: 16px;
+        }
+
+
+        .center {
+            text-align: center !important;
+        }
+
         [ng\:cloak], [ng-cloak], .ng-cloak {
             display: none;
         }
@@ -144,18 +228,13 @@
 <div class="navbar navbar-fixed-top">
     <div class="navbar-inner">
         <ul class="nav">
-            <li ng-class="{'active': current_tab == tabs.NEXT}" ng-click="current_tab = tabs.NEXT"><a href="#">נסיעות לטיפול <span
+            <li ng-class="{'active': current_tab == tabs.ONGOING}" ng-click="current_tab = tabs.ONGOING"><a href="#">נסיעות <span
                     class="badge badge-important" ng-show="next_rides().length">(( next_rides().length ))</span></a></li>
 
             <li class="divider-vertical"></li>
 
-            <li ng-class="{'active': current_tab == tabs.CURRENT}" ng-click="current_tab = tabs.CURRENT"><a href="#">נסיעות נוכחיות <span
-                    class="badge badge-success" ng-show="current_rides().length">(( current_rides().length ))</span></a></li>
-
-
-{#            <li class="divider-vertical"></li>#}
-{##}
-{#            <li ng-class="{'active': current_tab == tabs.HISTORY}" ng-click="current_tab = tabs.HISTORY"><a href="#">היסטוריה</a></li>#}
+            <li ng-class="{'active': current_tab == tabs.HISTORY}" ng-click="current_tab = tabs.HISTORY"><a href="#">היסטוריה <span
+                    class="badge badge-success" ng-show="history_rides().length">(( history_rides().length ))</span></a></li>
         </ul>
 
         <ul class="nav pull-right" ng-show="updating()">
@@ -169,10 +248,10 @@
     </div>
 </div>
 
-<!-- CURRENT RIDES -->
-<div class="current-rides" ng-show="current_tab == tabs.CURRENT">
-    <table class="table rides-table" ng-show="current_rides().length">
-            <tbody ng-repeat="ride in current_rides()">
+<!-- HISTORY RIDES -->
+<div class="current-rides" ng-show="current_tab == tabs.HISTORY">
+    <table class="table rides-table" ng-show="history_rides().length">
+            <tbody ng-repeat="ride in history_rides()">
             <tr ng-click="select_ride(ride)" ng-class="get_ride_class(ride)">
                 <td>(( ride.depart_time | date:"HH:mm"))</td>
                 <td>
@@ -203,66 +282,118 @@
             </tbody>
         </table>
     <div class="row pagination-centered">
-        <div class="well well-large well-center" ng-hide="current_rides().length">
-            אין נסיעות נוכחיות
+        <div class="well well-large well-center" ng-hide="history_rides().length">
+            אין נסיעות בהיסטוריה
         </div>
     </div>
 </div>
 
-<!-- NEXT RIDES -->
-<div class="next-rides" ng-show="current_tab == tabs.NEXT">
-    <table class="table rides-table" ng-show="next_rides().length">
-        <tbody ng-repeat="ride in next_rides()">
-        <tr ng-click="select_ride(ride)" ng-class="get_ride_class(ride)">
-            <td>(( ride.depart_time | date:"HH:mm"))</td>
-            <td>
-                <span ng-repeat="stop in ride.stops">
-                    (( stop.address )) <i class="icon-chevron-left horizontal-space" ng-hide="$last"></i>
-                </span>
+<!-- ONGOING RIDES -->
+<div class="next-rides" ng-show="current_tab == tabs.ONGOING">
+    <table class="table rides-table" ng-show="ongoing_rides().length">
+        <tbody ng-repeat="ride in ongoing_rides()" ng-switch on="get_state(ride)">
 
-            </td>
-            <td>(( ride.passengers | join_prop:"name":", " ))</td>
-        </tr>
-        <tr class="ride-details" ng-show="selected_ride == ride">
-            <td colspan="3">
-                <h4>נסיעה מספר (( ride.id ))</h4>
-                <table class="table table-condensed table-striped">
-                    <tr ng-repeat="stop in ride.stops">
-                        <td><i ng-class="{'icon-arrow-up': stop.type == 'PICKUP', 'icon-arrow-down': stop.type == 'DROPOFF'}"></i> (( stop.address ))</td>
-                        <td>
-                            <span ng-repeat="passenger in stop.passengers">
-                                (( passenger.name )) <span class="muted">(( passenger.phone ))</span>
-                                <span ng-hide="$last">, </span>
-                            </span>
+            <!-- future ride -->
+            <tr ng-switch-when="future" ng-class="get_ride_class(ride)">
+                <td>(( ride.depart_time | date:"HH:mm"))</td>
+                <td>
+                    <span ng-repeat="stop in ride.stops">
+                        (( stop.address )) <i class="icon-chevron-left horizontal-space" ng-hide="$last"></i>
+                    </span>
+                </td>
+                <td>(( ride.passengers | join_prop:"name":", " ))</td>
+            </tr>
 
-                         </td>
-                    </tr>
-                </table>
-                <ng-switch on="ride.status == status.VIEWED">
-                    <button class="btn btn-large btn-danger bold" ng-switch-when="true" ng-click="accept_ride(ride)" ng-disabled="updating()"><i class="icon-ok-sign"></i> ההזמנה התקבלה בתחנה</button>
-                    <div class="alert alert-success well-center" ng-switch-when="false" ng-hide="ride.future">
-                        <strong>אישור נשלח לנוסעים. נא לצוות מונית</strong>
+            <tr ng-switch-when="ongoing" ng-class="get_ride_class(ride)" ng-click="view_ride(ride)">
+                <td>(( ride.depart_time | date:"HH:mm"))</td>
+                <td>
+                    <span ng-repeat="stop in ride.stops">
+                        (( stop.address )) <i class="icon-chevron-left horizontal-space" ng-hide="$last"></i>
+                    </span>
+                </td>
+                <td><button class="btn view-ride-btn" ng-click="view_ride(ride)">קבל נסיעה</button></td>
+            </tr>
+
+            <tr ng-switch-when="viewed" ng-class="get_ride_class(ride)">
+                <td colspan="3">
+                    <div class="ride-details-container">
+                        <wb-ride-details ride="ride"></wb-ride-details>
+                        <hr>
+                        <div class="ride-details-footer">
+                            <div>
+                                <div>
+                                    <h1 ng-show="!ride.taxi" class="waiting">שבץ מונית בבקשה</h1>
+                                    <h1 ng-show="ride.taxi && ride.status != status.ACCEPTED" class="waiting"> מחכה לאישור מונית ((ride.taxi))</h1>
+                                    <h1 ng-show="ride.taxi && ride.status == status.ACCEPTED" class="waiting waiting-done"><i class="icon-ok"></i> מונית ((ride.taxi))</h1>
+                                    <a href="#" ng-click="re_assign_ride(ride)">שבץ מונית מחדש</a>
+                                </div>
+                            </div>
+                            <div>
+                                <div>
+                                    <div ng-hide="ride.status == 'ACCEPTED'" class="p-bar" >
+                                        <wb-progress value="get_progress_value(ride)" class="progress-striped progress-info active" ride="ride" ></wb-progress>
+                                    </div>
+                                    <div ng-show="ride.taxi && ride.status == status.ACCEPTED">
+                                        ואוצ'ר נשלח
+                                    </div>
+                                </div>
+                                <div>
+                                    <div ng-show="ride.taxi && ride.status == status.ACCEPTED" class="close-details">
+                                        <button class="btn btn-success btn-large" style="width:100px" ng-click="ride.keep_open = false">סגור</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
                     </div>
-                </ng-switch>
-            </td>
-        </tr>
+                </td>
+            </tr>
+
+            <tr ng-switch-when="expired" ng-class="get_ride_class(ride)">
+                <td colspan="3">
+                    <div class="ride-details-container">
+                        <wb-ride-details ride="ride"></wb-ride-details>
+                        <hr>
+                        <div class="ride-details-footer">
+                            <div>
+                                <div>
+                                    <h1 class="waiting waiting-error">יש לסיים את הטיפול בנסיעה!</h1>
+                                    <a href="#" ng-click="re_assign_ride(ride)">שבץ מונית מחדש</a>
+                                </div>
+                                <div>
+                                    <p>אם ניתן, שבץ בתכנה - אחרת שבץ ידנית</p>
+                                </div>
+                            </div>
+                            <div class="form-inline manual-dispatch-form">
+                                <button class="btn btn-danger" ng-click="no_service(ride)" ng-disabled="ride.no_service_sent">אין מונית</button>
+                                <div>
+                                    <div class="input-prepend">
+                                        <span class="add-on">מונית #</span>
+                                        <input class="span1" type="number" min="0" ng-model="ride.taxi">
+                                    </div>
+                                    <div class="input-prepend input-append">
+                                        <span class="add-on">איסוף בעוד</span>
+                                        <input class="span1" type="number" min="1" max="10" ng-model="ride.pickup_estimate">
+                                        <span class="add-on">דקות</span>
+                                    </div>
+                                    <button class="btn btn-success" style="width: 80px;" ng-disabled="! (ride.taxi && ride.pickup_estimate)" ng-click="manual_dispatch(ride)">שלח</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </td>
+            </tr>
+
+
         </tbody>
     </table>
+
     <div class="row pagination-centered">
-        <div class="well well-large well-center" ng-hide="next_rides().length">
+        <div class="well well-large well-center" ng-hide="ongoing_rides().length">
 אין נסיעות לטיפול
         </div>
     </div>
 </div>
 
-<!-- HISTORY RIDES -->
-<div class="history-rides" ng-show="current_tab == tabs.HISTORY">
-    <div class="row pagination-centered">
-        <div class="well well-large well-center" ng-hide="history_rides.length">
-אין נסיעות בהיסטוריה
-        </div>
-    </div>
-</div>
 
 <!-- ERROR MODAL -->
 <div class="modal hide fade" id="error_modal">
@@ -333,8 +464,7 @@
     });
 
     app.constant("Tabs", {
-        CURRENT: "CURRENT",
-        NEXT: "NEXT",
+        ONGOING: "ONGOING",
         HISTORY: "HISTORY"
     });
 
@@ -423,6 +553,53 @@
         }
     });
 
+    app.directive("wbProgress", function () {
+       return {
+           restrict: 'E',
+           replace: true,
+           scope: {
+               value: '=',
+               'class': '@',
+               ride: '='
+           },
+           template: '<div class="progress ((class))"><div class="bar" style="width: (( value ))%"></div></div>'
+       }
+    });
+
+    app.directive("wbRideDetails", function () {
+       return {
+           restrict: 'E',
+           replace: true,
+           scope: {
+               ride: '='
+           },
+           template:
+                   '<div class="ride-details-ongoing">' +
+                        '<div class="ride-details-pickup">' +
+                            '<h1>(( ride.depart_time | date:"HH:mm" ))</h1>' +
+                            '<p class="muted">איסוף ראשון</p>' +
+                        '</div>' +
+                        '<div>' +
+                            '<table class="table table-striped ride-details-table">' +
+                            '<tbody>' +
+                            '<tr ng-repeat="stop in ride.stops">' +
+                               '<td>(( stop.address ))</td>' +
+                               '<td>' +
+                                   '<div ng-repeat="passenger in stop.passengers" ng-show="stop.type == \'PICKUP\'">' +
+                                     '  (( passenger.name )) (( passenger.phone | paren_wrap ))' +
+                                   '</div>' +
+                                   '<div ng-repeat="passenger in stop.passengers" ng-show="stop.type == \'DROPOFF\'">' +
+                                       '(( passenger.name )) (הורדה)' +
+                                   '</div>' +
+                               '</td>' +
+                           '</tr>' +
+                           '</tbody>' +
+                           '</table>' +
+                        '</div>' +
+                   '</div>'
+       }
+    });
+
     app.directive("googleChannelDirective", function () {
         var channel = new goog.appengine.Channel("{{ channel_token }}");
         var socket = channel.open();
@@ -462,7 +639,7 @@
 
         $scope.rides = [];
         $scope.history_rides = [];
-        $scope.current_tab = Tabs.NEXT;
+        $scope.current_tab = Tabs.ONGOING;
         $scope.selected_ride = undefined;
 
         $scope.render_app = function() {
@@ -497,6 +674,37 @@
             return $http.pendingRequests.length > 0 || $scope.pending_push;
         };
 
+        $scope.no_service = function (ride) {
+            AirService.log("no service for ride: " + ride.id);
+            ride.no_service_sent = true;
+            $http.post("/no_service_for_ride/{0}/".format(ride.id)).error(function (error) {
+                AirService.log("no service failed");
+                ErrorService.error_handler();
+            });
+
+        };
+
+        $scope.manual_dispatch = function (ride) {
+            AirService.log("manual dispatch for ride: " + ride.id);
+            $http.post("/manual_dispatch_ride/{0}/".format(ride.id), {
+                taxi_number: ride.taxi,
+                pickup_estimate: ride.pickup_estimate
+            }).error(function (error) {
+                AirService.log("manual dispatch failed");
+                ErrorService.error_handler();
+            });
+        };
+
+        $scope.re_assign_ride = function (ride) {
+            AirService.log("reassign ride: " + ride.id);
+            $http.post("/reassign_ride/{0}/".format(ride.id)).error(function (error) {
+                AirService.log("reassign ride failed");
+                ErrorService.error_handler();
+            });
+
+        };
+
+
         $scope.update_ride = function (updated_ride, expand) {
             var ride = filter($scope.rides, {id: updated_ride.id});
             if (ride.length) {
@@ -515,11 +723,41 @@
             })
         };
 
-        $scope.current_rides = function() {
-            return filter($scope.rides, {'tab':Tabs.CURRENT});
+        $scope.history_rides = function() {
+            return filter($scope.rides, {'tab':Tabs.HISTORY});
         };
-        $scope.next_rides = function() {
-            return order_by(filter($scope.rides, {'tab':Tabs.NEXT}), "depart_time");
+        $scope.ongoing_rides = function() {
+            return order_by(filter($scope.rides, {'tab':Tabs.ONGOING}), "depart_time");
+        };
+
+        $scope.get_state = function (ride) {
+            if ($scope.get_progress_value(ride)) {
+                if (ride.future) {
+                    return "future"
+                } else if (ride.status == Status.ASSIGNED) {
+                    return "ongoing"
+                } else {
+                    return "viewed"
+                }
+            } else if (ride.status != Status.ACCEPTED) {
+                return "expired"
+            } else {
+                return "viewed"
+            }
+
+        };
+
+        $scope.get_progress_value = function (ride) {
+            var depart_time = new Date(ride.depart_time);
+            var view_buffer = 3; // minutes
+            var total_seconds = ({{ WS_SHOULD_HANDLE_TIME }} - view_buffer) * 60;
+            var seconds_remain = (depart_time - new Date() - (view_buffer * 60 * 1000)) / 1000;
+            if (seconds_remain >= 1) {
+                return Math.round(seconds_remain / total_seconds * 100);
+            } else {
+                return 0;
+            }
+
         };
 
         $scope.sync_state = function () {
@@ -532,58 +770,51 @@
             })
         };
 
+        $scope.view_ride = function (ride) {
+            ride.keep_open = true; // mark this ride so it is not removed automatically
+            $scope.pending_push = true;
+            $http.post("/ride_viewed/{0}/".format(ride.id)).error(function() {
+                ErrorService.error_handler();
+            })
+        };
+
+        // history rides toggle
         $scope.select_ride = function (ride) {
             if ($scope.updating() || (new Date() - last_click_dt) < 500 ){ return }  // prevent duplicate calls issued by double clicks
 
             last_click_dt = new Date();
             if ($scope.selected_ride == ride ) {
                 $scope.selected_ride = undefined;
-            } else if (ride.tab == Tabs.NEXT && ride.status == Status.ASSIGNED && !ride.future) {
-                $scope.pending_push = true;
-                $http.post("/ride_viewed/" + ride.id + "/").error(function() {
-                    ErrorService.error_handler();
-                })
             } else {
                 $scope.selected_ride = ride;
             }
         };
 
-        $scope.accept_ride = function(ride) {
-            if ($scope.updating()){ return }  // prevent duplicate calls issued by double clicks
-
-            $scope.pending_push = true;
-            $http.post("/ride_accepted/" + ride.id + "/").error(function() {
-                ErrorService.error_handler();
-            });
-        };
-
         $scope.get_ride_class = function (ride) {
             var result = "";
-            if (ride.tab == Tabs.CURRENT) {
-                result = "ride-green"
-            } else if (ride.tab == Tabs.NEXT) {
-                if (ride.status == Status.ASSIGNED) {
-                    if (ride.future) {
-                        result = "ride-blue"
-                    } else {
-                        result = "ride-red blink"
-                    }
-                } else if (ride.status == Status.VIEWED) {
-                    result = "ride-red"
-                } else { // accepted
+            if (ride.tab == Tabs.HISTORY) {
+                result = "ride-green";
+
+                // mute non-selected ride in history tab
+                if ($scope.selected_ride && ride != $scope.selected_ride) {
+                    result += " muted"
+                }
+            } else if (ride.tab == Tabs.ONGOING) {
+                var state = $scope.get_state(ride);
+                if (state != 'future') {
                     result = "ride-yellow"
+                }
+                if (state == "ongoing" || state == "expired") {
+                    result += " blink"
                 }
             }
 
-            if ($scope.selected_ride && ride != $scope.selected_ride) {
-                result += " muted"
-            }
             return result;
         };
 
-        // watch for new 'NEXT' rides
+        // watch for new 'ONGOING' rides
         $scope.$watch(function () {
-            return filter($scope.rides, {'tab':Tabs.NEXT, 'status':Status.ASSIGNED, future: false}).length;
+            return filter($scope.rides, {'tab':Tabs.ONGOING, 'status':Status.ASSIGNED, future: false}).length;
         }, function(needs_attention_rides) {
             if (needs_attention_rides) {
                 AirService.call("start_notification_sound");
@@ -593,7 +824,7 @@
         });
 
         $scope.$watch(function () {
-            return filter($scope.rides, {'tab':Tabs.NEXT}).length;
+            return filter($scope.rides, {'tab':Tabs.ONGOING}).length;
         }, function(active_rides) {
             if (active_rides) {
                 if (! always_on_top_id) {
@@ -634,12 +865,15 @@
                         }
                         ride.future = is_future;
 
-                        if (ride.taxi) {
-                            ride.tab = Tabs.CURRENT;
+
+
+                        if (ride.taxi && ride.status != Status.VIEWED && !ride.keep_open) {
+                            ride.tab = Tabs.HISTORY;
                         } else if (ride.status != Status.COMPLETED) {
-                            if (ride.tab != Tabs.NEXT) {
-                                ride.tab = Tabs.NEXT;
-                                $scope.current_tab = Tabs.NEXT;
+                            if (ride.tab != Tabs.ONGOING) {
+                                ride.tab = Tabs.ONGOING;
+                                ride.keep_open = true;
+                                $scope.current_tab = Tabs.ONGOING;
                             }
                         } else {
                             ride.tab = undefined;

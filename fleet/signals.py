@@ -29,7 +29,7 @@ def log_fmr_update(sender, signal_type, **kwargs):
 
 @receive_signal(fmr_update_signal)
 def handle_assign_to_taxi(sender, signal_type, **kwargs):
-    from ordering.models import BaseRide, PickMeAppRide
+    from ordering.models import BaseRide, PickMeAppRide, SharedRide, RideStatus
 
     fmr = kwargs["fmr"]
     ride = BaseRide.by_uuid(fmr.id)
@@ -40,6 +40,13 @@ def handle_assign_to_taxi(sender, signal_type, **kwargs):
         ride.update(taxi_number=fmr.taxi_id)
         if isinstance(ride, PickMeAppRide): # PickmeAppRide: send via SMS
             deferred.defer(do_notify_passenger, ride.order, _countdown=40) # wait 40 seconds and then notify passengers
+
+    if isinstance(ride, SharedRide):
+        accepted_statuses = [FleetManagerRideStatus.DRIVER_ACCEPTED, FleetManagerRideStatus.ASSIGNED_TO_TAXI, FleetManagerRideStatus.WAITING_FOR_PASSENGER,
+                    FleetManagerRideStatus.PASSENGER_PICKUP, FleetManagerRideStatus.PASSENGER_DROPOFF]
+
+        if fmr.taxi_id and fmr.status in accepted_statuses and ride.status == RideStatus.VIEWED:
+                    ride.change_status(old_status=RideStatus.VIEWED, new_status=RideStatus.ACCEPTED)
 
 
 def do_notify_passenger(order):
