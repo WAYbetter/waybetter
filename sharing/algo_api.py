@@ -1,6 +1,7 @@
 from google.appengine.api.urlfetch import  POST
 from common.models import CityArea
 from django.utils import simplejson
+from django.conf import settings
 from common.util import safe_fetch, Enum, first, clean_values
 from ordering.models import SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS, StopType
 from datetime import  datetime
@@ -10,13 +11,10 @@ from pricing.models import TARIFFS
 
 NEW_ORDER_ID = 0
 
-DEBUG = 1
-WAZE = 3
-GOOGLE = 4
+ALGO_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % (4 if settings.DEV else 3)
 
-M2M_ENGINE_DOMAIN = "http://waybetter-route-service3.appspot.com/m2malgo"
-SHARING_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % GOOGLE
-ROUTING_URL = "/".join([SHARING_ENGINE_DOMAIN, "routes"])
+M2M_ENGINE_URL = "%s/m2malgo" % ALGO_ENGINE_DOMAIN
+ROUTING_URL = "%s/routes" % ALGO_ENGINE_DOMAIN
 
 class AlgoField(Enum):
     ADDRESS = "m_Address"
@@ -279,7 +277,7 @@ def find_matches(candidate_rides, order_settings):
     payload = simplejson.dumps(payload)
     logging.info(u"submit=%s" % unicode(payload, "unicode-escape"))
     dt1 = datetime.now()
-    response = safe_fetch(M2M_ENGINE_DOMAIN, payload="submit=%s" % payload, method=POST, deadline=50)
+    response = safe_fetch(M2M_ENGINE_URL, payload="submit=%s" % payload, method=POST, deadline=50)
     dt2 = datetime.now()
     logging.info("response=%s" % response.content)
 
@@ -306,7 +304,7 @@ def recalc_ride(orders):
 
     payload = simplejson.dumps(payload)
     logging.info(u"recalc=%s" % unicode(payload, "unicode-escape"))
-    response = safe_fetch(M2M_ENGINE_DOMAIN, payload="recalc=%s" % payload, method=POST, deadline=50)
+    response = safe_fetch(M2M_ENGINE_URL, payload="recalc=%s" % payload, method=POST, deadline=50)
     logging.info("response=%s" % response.content)
 
     if response and response.content:
