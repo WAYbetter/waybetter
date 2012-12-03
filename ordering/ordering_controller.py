@@ -647,7 +647,7 @@ def billing_approved_book_order(ride_id, ride_data, order):
             ride = SharedRide.by_id(ride_id)
             if ride and ride.lock(): # try joining existing ride
                 try:
-                    update_ride_for_order(ride, ride_data, order)
+                    update_ride_add_order(ride, ride_data, order)
                     ride.unlock()
 
                 except Exception, e:
@@ -695,19 +695,34 @@ def create_shared_ride_for_order(ride_data, order):
 
     return ride
 
-def update_ride_for_order(ride, ride_data, new_order):
-    depart_time = compute_new_departure(ride, ride_data)
+def update_ride_add_order(ride, ride_data, new_order):
+    already_existed_orders = list(ride.orders.all())  # not including the new order
 
-    orders = ride.orders.all()
-    new_order_points = {
-        StopType.PICKUP: None,
-        StopType.DROPOFF: None
-    }
+    # create or update points for the new order
+    for point_data in [ride_data.order_pickup_point(NEW_ORDER_ID), ride_data.order_dropoff_point(NEW_ORDER_ID)]:
+        if len(point_data.order_ids) == 1:  # new point
+            point = create_ride_point(ride, point_data)
 
-    ride_points = ride_data.points
+        else:  # find existing point
+            existing_order_id = first(lambda id: id != NEW_ORDER_ID, point_data.order_ids)
+            existing_order = Order.by_id(existing_order_id)
+            point = existing_order.pickup_point if point_data.stop_type == StopType.PICKUP else existing_order.dropoff_point
+            logging.info("joining existing point %s" % point.id)
 
-    # update order prices and stop times of existing points
-    for order in orders:
+        if point_data.stop_type == StopType.PICKUP:
+            new_order.pickup_point = point
+        else:
+            new_order.dropoff_point = point
+
+    new_order.ride = ride
+    new_order.price_data = ride_data.order_price_data(NEW_ORDER_ID)
+    new_order.save()
+
+    # new order created so we now update stop times, distance, cost ...
+    update_ride(ride, ride_data, orders=already_existed_orders)
+
+    # ride was updated so now we can update prices for already existed orders
+    for order in already_existed_orders:
         old_billing_amount = order.get_billing_amount()
 
         # set new order.price
@@ -719,52 +734,10 @@ def update_ride_for_order(ride, ride_data, new_order):
             order.discount = order.price - old_billing_amount
 
         if order.get_billing_amount() < old_billing_amount:
-            order_price_changed_signal.send(sender="update_ride_for_order", order=order, joined_passenger=new_order.passenger, old_price=old_billing_amount, new_price=order.get_billing_amount())
+            order_price_changed_signal.send(sender="update_ride_add_order", order=order, joined_passenger=new_order.passenger, old_price=old_billing_amount, new_price=order.get_billing_amount())
 
         order.save()
 
-        pickup_point = order.pickup_point
-        dropoff_point = order.dropoff_point
-
-        for point_data in ride_points:
-            order_ids = point_data.order_ids
-            point_stop_type = point_data.stop_type
-            offset = point_data.offset
-
-            if order.id in order_ids:
-                if point_stop_type == StopType.PICKUP:
-                    p = pickup_point
-                else:
-                    p = dropoff_point
-
-                p.stop_time = depart_time + datetime.timedelta(seconds=offset)
-                p.save()
-
-                if NEW_ORDER_ID in order_ids:
-                    new_order_points[point_stop_type] = p
-
-
-    # update stop times or create points for the new order
-    for point_data in ride_points:
-        point_stop_type = point_data.stop_type
-        order_ids = point_data.order_ids
-
-        if NEW_ORDER_ID in order_ids:
-            if len(order_ids) == 1:  # new point
-                p = create_ride_point(ride, point_data, depart_time=depart_time)
-            else:
-                p = new_order_points[point_stop_type]
-
-            if p.type == StopType.PICKUP:
-                new_order.pickup_point = p
-            else:
-                new_order.dropoff_point = p
-
-    new_order.ride = ride
-    new_order.price_data = ride_data.order_price_data(NEW_ORDER_ID)
-    new_order.save()
-
-    ride.update(depart_time=depart_time, distance=ride_data.distance, arrive_time=depart_time + datetime.timedelta(seconds=ride_data.duration), cost_data=ride_data.cost_data)
 
 def update_ride_remove_order(order):
     ride = order.ride
@@ -787,11 +760,20 @@ def update_ride_remove_order(order):
         update_ride(ride, ride_data)
 
 
-def update_ride(ride, ride_data):
+def update_ride(ride, ride_data, orders=None):
+    """
+    ride_data for an exisiting ride can change when a passenger joins or leaves a ride.
+    update ride from ride_data: distance, cost, depart time and stop times for its RidePoints.
+
+    @param orders: the orders to update. when a new order is joined we don't need to update it (note it exists in ride_data as NEW_ORDER_ID)
+    """
+    if not orders:
+        orders = ride.orders.all()
+
     depart_time = compute_new_departure(ride, ride_data)
-    for order in ride.orders.all():
-        new_pickup_time = depart_time + datetime.timedelta(seconds=ride_data.order_pickup_offset(order.id))
-        new_dropoff_time = depart_time + datetime.timedelta(seconds=ride_data.order_dropoff_offset(order.id))
+    for order in orders:
+        new_pickup_time = depart_time + datetime.timedelta(seconds=ride_data.order_pickup_point(order.id).offset)
+        new_dropoff_time = depart_time + datetime.timedelta(seconds=ride_data.order_dropoff_point(order.id).offset)
 
         logging.info("updating stop times for order [%s]:\n" \
                      "pickup time %s -> %s\n" \
@@ -828,6 +810,7 @@ def create_ride_point(ride, point_data, depart_time=None):
     point.ride = ride
     point.save()
 
+    logging.info("created new ride point [%s]" % point.id)
     return point
 
 

@@ -3,7 +3,7 @@ from common.models import CityArea
 from django.utils import simplejson
 from django.conf import settings
 from common.util import safe_fetch, Enum, first, clean_values
-from ordering.models import SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS, StopType
+from ordering.models import SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS, StopType, Order
 from datetime import  datetime
 import urllib
 import logging
@@ -114,12 +114,6 @@ class RideData(object):
             return self.raw_ride_data[AlgoField.ORDER_INFOS][str(order_id)][AlgoField.TIME_SHARING]
         else:
             return self.raw_ride_data[AlgoField.ORDER_INFOS][str(order_id)][AlgoField.TIME_ALONE]
-
-    def order_pickup_offset(self, order_id):
-        return self.get_order_point(AlgoField.PICKUP, order_id).offset
-
-    def order_dropoff_offset(self, order_id):
-        return self.get_order_point(AlgoField.DROPOFF, order_id).offset
 
     def order_pickup_point(self, order_id):
         return self.get_order_point(AlgoField.PICKUP, order_id)
