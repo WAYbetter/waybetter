@@ -10,9 +10,8 @@ from google.appengine.api import memcache
 from billing.billing_manager import  get_token_url
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction
-from common.models import CityArea
 from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime, trim_seconds
-from common.util import first, Enum, dict_to_str_keys, datetimeIterator, get_uuid, clean_values
+from common.util import first, Enum, dict_to_str_keys, datetimeIterator, get_uuid
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
 from django.conf import settings
@@ -27,13 +26,12 @@ from ordering.models import SharedRide, RidePoint, StopType, Order, OrderType, A
 from ordering.signals import order_price_changed_signal
 from pricing.functions import get_discount_rules_and_dt
 from pricing.models import  RuleSet, DiscountRule
-from settings import DEFAULT_DOMAIN
 from sharing.algo_api import NEW_ORDER_ID
+from sharing.signals import ride_deleted_signal
 import simplejson
 import datetime
 import dateutil.parser
 import sharing.algo_api as algo_api
-
 
 
 WAYBETTER_STATION_NAME = "WAYbetter"
@@ -649,7 +647,7 @@ def billing_approved_book_order(ride_id, ride_data, order):
             ride = SharedRide.by_id(ride_id)
             if ride and ride.lock(): # try joining existing ride
                 try:
-                    update_ride_for_order(ride, ride_data, order)
+                    update_ride_add_order(ride, ride_data, order)
                     ride.unlock()
 
                 except Exception, e:
@@ -697,19 +695,36 @@ def create_shared_ride_for_order(ride_data, order):
 
     return ride
 
-def update_ride_for_order(ride, ride_data, new_order):
-    depart_time = compute_new_departure(ride, ride_data)
+def update_ride_add_order(ride, ride_data, new_order):
+    # important:
+    # connect new_order to ride ONLY AFTER update_ride is done.
+    # If not, new_order will turn up in ride.orders.all() queries which doesn't reflect the state of the ride prior to joining
 
-    orders = ride.orders.all()
-    new_order_points = {
-        StopType.PICKUP: None,
-        StopType.DROPOFF: None
-    }
+    # new order created so we now update stop times, distance, cost ...
+    update_ride(ride, ride_data)
 
-    ride_points = ride_data.points
+    # create or update points for the new order
+    for point_data in [ride_data.order_pickup_point(NEW_ORDER_ID), ride_data.order_dropoff_point(NEW_ORDER_ID)]:
+        if len(point_data.order_ids) == 1:  # new point
+            point = create_ride_point(ride, point_data)
 
-    # update order prices and stop times of existing points
-    for order in orders:
+        else:  # find existing point
+            existing_order_id = first(lambda id: id != NEW_ORDER_ID, point_data.order_ids)
+            existing_order = Order.by_id(existing_order_id)
+            point = existing_order.pickup_point if point_data.stop_type == StopType.PICKUP else existing_order.dropoff_point
+            logging.info("joining existing point %s" % point.id)
+
+        if point_data.stop_type == StopType.PICKUP:
+            new_order.pickup_point = point
+        else:
+            new_order.dropoff_point = point
+
+    new_order.price_data = ride_data.order_price_data(NEW_ORDER_ID)
+    new_order.ride = ride
+    new_order.save()
+
+    # ride was updated so now we can update prices for already existed orders
+    for order in ride.orders.all():
         old_billing_amount = order.get_billing_amount()
 
         # set new order.price
@@ -721,53 +736,57 @@ def update_ride_for_order(ride, ride_data, new_order):
             order.discount = order.price - old_billing_amount
 
         if order.get_billing_amount() < old_billing_amount:
-            order_price_changed_signal.send(sender="update_ride_for_order", order=order, joined_passenger=new_order.passenger, old_price=old_billing_amount, new_price=order.get_billing_amount())
+            order_price_changed_signal.send(sender="update_ride_add_order", order=order, joined_passenger=new_order.passenger, old_price=old_billing_amount, new_price=order.get_billing_amount())
 
         order.save()
 
-        pickup_point = order.pickup_point
-        dropoff_point = order.dropoff_point
 
-        for point_data in ride_points:
-            order_ids = point_data.order_ids
-            point_stop_type = point_data.stop_type
-            offset = point_data.offset
+def update_ride_remove_order(order):
+    ride = order.ride
+    logging.info("remove order[%s] from ride[%s]" % (order.id, ride.id))
 
-            if order.id in order_ids:
-                if point_stop_type == StopType.PICKUP:
-                    p = pickup_point
-                else:
-                    p = dropoff_point
+    order.pickup_point.delete()
+    order.dropoff_point.delete()
+    order.ride = None
+    order.pickup_point = None
+    order.dropoff_point = None
+    order.save()
+    logging.info("order detached, ride now has %s orders" % ride.orders.count())
 
-                p.stop_time = depart_time + datetime.timedelta(seconds=offset)
-                p.save()
+    if ride.orders.count() == 0:
+        logging.info("ride[%s] deleted: last order cancelled" % ride.id)
+        ride.delete()
+        ride_deleted_signal.send(sender="update_ride_remove_order", ride=ride)
+    else:
+        ride_data = algo_api.recalc_ride(ride.orders.all())
+        update_ride(ride, ride_data)
 
-                if NEW_ORDER_ID in order_ids:
-                    new_order_points[point_stop_type] = p
 
+def update_ride(ride, ride_data):
+    """
+    ride_data for an exisiting ride can change when a passenger joins or leaves a ride.
+    update ride from ride_data: distance, cost, depart time and stop times for its RidePoints.
+    """
+    depart_time = compute_new_departure(ride, ride_data)
+    for order in ride.orders.all():
+        new_pickup_time = depart_time + datetime.timedelta(seconds=ride_data.order_pickup_point(order.id).offset)
+        new_dropoff_time = depart_time + datetime.timedelta(seconds=ride_data.order_dropoff_point(order.id).offset)
 
-    # update stop times or create points for the new order
-    for point_data in ride_points:
-        point_stop_type = point_data.stop_type
-        order_ids = point_data.order_ids
+        logging.info("updating stop times for order [%s]:\n" \
+                     "pickup time %s -> %s\n" \
+                     "dropoff time %s -> %s" % (order.id, order.pickup_point.stop_time, new_pickup_time, order.dropoff_point.stop_time, new_dropoff_time))
+        order.pickup_point.stop_time = new_pickup_time
+        order.pickup_point.save()
 
-        if NEW_ORDER_ID in order_ids:
-            if len(order_ids) == 1:  # new point
-                p = create_ride_point(ride, point_data, depart_time=depart_time)
-            else:
-                p = new_order_points[point_stop_type]
+        order.dropoff_point.stop_time = new_dropoff_time
+        order.dropoff_point.save()
 
-            if p.type == StopType.PICKUP:
-                new_order.pickup_point = p
-            else:
-                new_order.dropoff_point = p
+    ride.update(depart_time=depart_time,
+                arrive_time=depart_time + datetime.timedelta(seconds=ride_data.duration),
+                distance=ride_data.distance,
+                cost_data=ride_data.cost_data)
 
-    new_order.ride = ride
-    new_order.price_data = ride_data.order_price_data(NEW_ORDER_ID)
-    new_order.save()
-
-    ride.update(depart_time=depart_time, distance=ride_data.distance, arrive_time=depart_time + datetime.timedelta(seconds=ride_data.duration), cost_data=ride_data.cost_data)
-
+    # TODO_WB: notify passengers when pickup times change?
 
 def create_ride_point(ride, point_data, depart_time=None):
     """
@@ -788,10 +807,14 @@ def create_ride_point(ride, point_data, depart_time=None):
     point.ride = ride
     point.save()
 
+    logging.info("created new ride point [%s]" % point.id)
     return point
 
 
 def compute_new_departure(ride, ride_data):
+    """
+    Compute new depart time so that the first pickup time doesn't change; i.e. ride departs earlier if needed.
+    """
     current_departure_time = ride.depart_time
     first_pickup_order = ride.first_pickup.orders.all()[0]
 

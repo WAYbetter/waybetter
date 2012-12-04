@@ -1,8 +1,9 @@
 from google.appengine.api.urlfetch import  POST
 from common.models import CityArea
 from django.utils import simplejson
+from django.conf import settings
 from common.util import safe_fetch, Enum, first, clean_values
-from ordering.models import SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS, StopType
+from ordering.models import SHARING_TIME_MINUTES, SHARING_DISTANCE_METERS, StopType, Order
 from datetime import  datetime
 import urllib
 import logging
@@ -10,13 +11,10 @@ from pricing.models import TARIFFS
 
 NEW_ORDER_ID = 0
 
-DEBUG = 1
-WAZE = 3
-GOOGLE = 4
+ALGO_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % (4 if settings.DEV else 3)
 
-M2M_ENGINE_DOMAIN = "http://waybetter-route-service3.appspot.com/m2malgo"
-SHARING_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % GOOGLE
-ROUTING_URL = "/".join([SHARING_ENGINE_DOMAIN, "routes"])
+M2M_ENGINE_URL = "%s/m2malgo" % ALGO_ENGINE_DOMAIN
+ROUTING_URL = "%s/routes" % ALGO_ENGINE_DOMAIN
 
 class AlgoField(Enum):
     ADDRESS = "m_Address"
@@ -118,12 +116,19 @@ class RideData(object):
             return self.raw_ride_data[AlgoField.ORDER_INFOS][str(order_id)][AlgoField.TIME_ALONE]
 
     def order_pickup_point(self, order_id):
+        return self.get_order_point(AlgoField.PICKUP, order_id)
+
+    def order_dropoff_point(self, order_id):
+        return self.get_order_point(AlgoField.DROPOFF, order_id)
+
+    def get_order_point(self, point_type, order_id):
         """
+        @param point_type: AlgoField.PICKUP or AlgoField.DROPOFF
         @param order_id: order id to look up
         @return: a PointData object for the point data of the given order id. If order id is not found returns None
         """
-        raw_pickup_data = first(lambda p: order_id in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == AlgoField.PICKUP, self.raw_ride_data[AlgoField.RIDE_POINTS])
-        return PointData(raw_pickup_data) if raw_pickup_data else None
+        raw_point_data = first(lambda p: order_id in p[AlgoField.ORDER_IDS] and p[AlgoField.TYPE] == point_type, self.raw_ride_data[AlgoField.RIDE_POINTS])
+        return PointData(raw_point_data) if raw_point_data else None
 
 
 class PointData(object):
@@ -279,7 +284,7 @@ def find_matches(candidate_rides, order_settings):
     payload = simplejson.dumps(payload)
     logging.info(u"submit=%s" % unicode(payload, "unicode-escape"))
     dt1 = datetime.now()
-    response = safe_fetch(M2M_ENGINE_DOMAIN, payload="submit=%s" % payload, method=POST, deadline=50)
+    response = safe_fetch(M2M_ENGINE_URL, payload="submit=%s" % payload, method=POST, deadline=50)
     dt2 = datetime.now()
     logging.info("response=%s" % response.content)
 
@@ -306,7 +311,7 @@ def recalc_ride(orders):
 
     payload = simplejson.dumps(payload)
     logging.info(u"recalc=%s" % unicode(payload, "unicode-escape"))
-    response = safe_fetch(M2M_ENGINE_DOMAIN, payload="recalc=%s" % payload, method=POST, deadline=50)
+    response = safe_fetch(M2M_ENGINE_URL, payload="recalc=%s" % payload, method=POST, deadline=50)
     logging.info("response=%s" % response.content)
 
     if response and response.content:
