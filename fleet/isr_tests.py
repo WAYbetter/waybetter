@@ -41,13 +41,13 @@ class FakeSharedRide(object):
 
 def create_ride(address, comments, passenger_phone, first_name, last_name, start_time, finish_time, station_id, as_raw_output):
     from common.tz_support import set_default_tz_time
-    from common.geocode import gmaps_geocode
+    from geo.coder import geocode
 
     if not address:
         return "Please choose a valid street address: street, house number and city"
 
     lat, lon, city, street, house_number = None, None, None, None, None
-    results = gmaps_geocode(address, lang_code="he")
+    results = geocode(address, lang_code="he")
     if results:
         result = results[0]
         if "street_address" in result["types"]:
