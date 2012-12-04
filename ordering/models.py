@@ -370,6 +370,7 @@ class SharedRide(BaseRide):
     driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
     can_be_joined = models.BooleanField(default=True)
+    pickup_estimate = models.IntegerField(null=True, blank=True, editable=False) # an estimate given by the station dispatcher in minutes
 
     cost = models.FloatField(null=True, blank=True, editable=False)
     _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
@@ -403,7 +404,7 @@ class SharedRide(BaseRide):
             logging.info("cost has not changed: %s" % self.cost)
         else:
             self.update(cost=None)
-            logging.error("no cost found %s" % self.cost_data)
+            logging.info("no cost found %s" % self.cost_data)
 
     @property
     def cost_details(self):
