@@ -5,7 +5,7 @@
 {% block header %}{% endblock %}
 {% block title %}EagleEye™{% endblock %}
 {% block user_tools %}
-    <div class="nav-collapse collapse">
+    <div class="nav-collapse collapse visible-desktop">
         <ul class="nav pull-right">
             <li>EagleEye™</li>
         </ul>
@@ -14,10 +14,15 @@
 
 {% block extrastyle %}
     {{ block.super }}
+    <link rel="stylesheet" href="/static/css/bootstrap/css/bootstrap-responsive.min.css" type="text/css" media="all">
     <link rel="stylesheet" href="/static/css/jquery-ui-1.8.14.smoothness.css" type="text/css" media="all">
 
     <style type="text/css">
-
+        @media (max-width: 979px){
+            body {
+                padding-top: 0 !important;
+            }
+        }
         .popover{
             z-index: 10000;
             margin-right: 10px;

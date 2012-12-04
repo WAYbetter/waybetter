@@ -149,6 +149,10 @@
     {{ block.super }}
 
     <script src="/static/themes/bootstrap-bounce/js/bootstrap.min.js"></script>
+    <script type="text/javascript">
+        // bootstrap dropdown hotfix for touch devices - see https://github.com/twitter/bootstrap/issues/5094
+        $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
+    </script>
 
     <!-- commonly used libraries -->
     {% if lib_channel %}
