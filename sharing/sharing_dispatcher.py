@@ -1,4 +1,5 @@
 import traceback
+from django.conf import settings
 from google.appengine.ext import deferred
 from common.tz_support import default_tz_now
 from common.util import notify_by_email
@@ -25,12 +26,12 @@ MARK_COMPLETE_TIME = timedelta(hours=1)
 def dispatching_cron(request):
     from sharing.station_controller import send_ride_in_risk_notification
 
-    rides_to_dispatch = SharedRide.objects.filter(status=RideStatus.PENDING, depart_time__lte=default_tz_now() + DISPATCHING_TIME)
+    rides_to_dispatch = SharedRide.objects.filter(debug=settings.DEV, status=RideStatus.PENDING, depart_time__lte=default_tz_now() + DISPATCHING_TIME)
     logging.info(u"cron: dispatch rides: %s" % rides_to_dispatch)
     for ride in rides_to_dispatch:
         deferred.defer(dispatch_ride, ride)
 
-    rides_to_monitor = SharedRide.objects.filter(depart_time__gte=default_tz_now() - START_MONITORING_TIME, depart_time__lte=default_tz_now() + STOP_MONITORING_TIME, status__in=[RideStatus.PROCESSING, RideStatus.ACCEPTED, RideStatus.PENDING, RideStatus.ASSIGNED, RideStatus.VIEWED])
+    rides_to_monitor = SharedRide.objects.filter(debug=settings.DEV, depart_time__gte=default_tz_now() - START_MONITORING_TIME, depart_time__lte=default_tz_now() + STOP_MONITORING_TIME, status__in=[RideStatus.PROCESSING, RideStatus.ACCEPTED, RideStatus.PENDING, RideStatus.ASSIGNED, RideStatus.VIEWED])
     logging.info(u"cron: monitored rides: %s" % rides_to_monitor)
     for ride in rides_to_monitor:
         if default_tz_now() - ride.depart_time >= MUST_ACCEPT_TIME and ride.status != RideStatus.ACCEPTED:
@@ -42,7 +43,7 @@ def dispatching_cron(request):
         elif ride.depart_time <= default_tz_now() + SHOULD_VIEW_TIME and ride.status not in [RideStatus.VIEWED, RideStatus.ACCEPTED]:
             send_ride_in_risk_notification(u"Ride was not viewed by dispatcher", ride.id)
 
-    rides_to_complete = SharedRide.objects.filter(status=RideStatus.ACCEPTED, depart_time__lte=default_tz_now() - MARK_COMPLETE_TIME)
+    rides_to_complete = SharedRide.objects.filter(debug=settings.DEV, status=RideStatus.ACCEPTED, depart_time__lte=default_tz_now() - MARK_COMPLETE_TIME)
     for ride in rides_to_complete:
         if not ride.change_status(old_status=RideStatus.ACCEPTED, new_status=RideStatus.COMPLETED):
             logging.error(u"ride [%s] was not marked COMPLETED" % ride.id)
