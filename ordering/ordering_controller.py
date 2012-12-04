@@ -696,7 +696,12 @@ def create_shared_ride_for_order(ride_data, order):
     return ride
 
 def update_ride_add_order(ride, ride_data, new_order):
-    already_existed_orders = list(ride.orders.all())  # not including the new order
+    # important:
+    # connect new_order to ride ONLY AFTER update_ride is done.
+    # If not, new_order will turn up in ride.orders.all() queries which doesn't reflect the state of the ride prior to joining
+
+    # new order created so we now update stop times, distance, cost ...
+    update_ride(ride, ride_data)
 
     # create or update points for the new order
     for point_data in [ride_data.order_pickup_point(NEW_ORDER_ID), ride_data.order_dropoff_point(NEW_ORDER_ID)]:
@@ -714,15 +719,12 @@ def update_ride_add_order(ride, ride_data, new_order):
         else:
             new_order.dropoff_point = point
 
-    new_order.ride = ride
     new_order.price_data = ride_data.order_price_data(NEW_ORDER_ID)
+    new_order.ride = ride
     new_order.save()
 
-    # new order created so we now update stop times, distance, cost ...
-    update_ride(ride, ride_data, orders=already_existed_orders)
-
     # ride was updated so now we can update prices for already existed orders
-    for order in already_existed_orders:
+    for order in ride.orders.all():
         old_billing_amount = order.get_billing_amount()
 
         # set new order.price
@@ -760,18 +762,13 @@ def update_ride_remove_order(order):
         update_ride(ride, ride_data)
 
 
-def update_ride(ride, ride_data, orders=None):
+def update_ride(ride, ride_data):
     """
     ride_data for an exisiting ride can change when a passenger joins or leaves a ride.
     update ride from ride_data: distance, cost, depart time and stop times for its RidePoints.
-
-    @param orders: the orders to update. when a new order is joined we don't need to update it (note it exists in ride_data as NEW_ORDER_ID)
     """
-    if not orders:
-        orders = ride.orders.all()
-
     depart_time = compute_new_departure(ride, ride_data)
-    for order in orders:
+    for order in ride.orders.all():
         new_pickup_time = depart_time + datetime.timedelta(seconds=ride_data.order_pickup_point(order.id).offset)
         new_dropoff_time = depart_time + datetime.timedelta(seconds=ride_data.order_dropoff_point(order.id).offset)
 
