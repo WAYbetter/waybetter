@@ -496,6 +496,7 @@
 //            $scope.start_date = new Date("10/23/2012");
 //            $scope.end_date = new Date("10/23/2012");
             $scope.updating = false;
+            $scope.show_all_stations = false;
             $scope.show_debug = ("{% value_from_settings DEBUG %}" == "True");
             $scope.confirm_defer = undefined;
 
@@ -825,7 +826,13 @@
             </div>
             <div class="modal-body">
                 <p>Choose a station to reassign ride to:</p>
-                <select name="selected_station" ng-options="s.name for s in stations | filter:{debug:show_debug}" ng-model="selected_station"></select>
+                <select ng-hide="show_all_stations" ng-options="s.name for s in stations | filter:{debug:show_debug}" ng-model="selected_station"></select>
+                <select ng-show="show_all_stations" ng-options="s.name for s in stations" ng-model="selected_station"></select>
+
+                <label class="checkbox">
+                  <input type="checkbox" ng-model="show_all_stations">
+                  I know what I'm doing, show me all the stations
+                </label>
             </div>
             <div class="modal-footer">
                 <button class="btn" data-dismiss="modal" ng-click="assignment_defer.reject()">Cancel</button>
