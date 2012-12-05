@@ -7,10 +7,12 @@ import urllib
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api import memcache
+from google.appengine.ext import deferred
+from analytics.models import BIEvent, BIEventType, SearchRequest, RideOffer
 from billing.billing_manager import  get_token_url
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction
-from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime, trim_seconds
+from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime, trim_seconds, TZ_INFO
 from common.util import first, Enum, dict_to_str_keys, datetimeIterator, get_uuid
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
@@ -22,7 +24,7 @@ from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
 from ordering.enums import RideStatus
-from ordering.models import SharedRide, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY, SearchRequest
+from ordering.models import SharedRide, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY
 from ordering.signals import order_price_changed_signal
 from pricing.functions import get_discount_rules_and_dt
 from pricing.models import  RuleSet, DiscountRule
@@ -77,6 +79,8 @@ def booking_page(request, continued=False):
         continue_booking = simplejson.dumps(True)
     else:
         request.session[CURRENT_BOOKING_DATA_KEY] = None
+
+    BIEvent.log(BIEventType.BOOKING_START, request=request, passenger=Passenger.from_request(request))
 
     return render_to_response("booking_page.html", locals(), RequestContext(request))
 
@@ -374,10 +378,6 @@ def get_matching_rides(candidate_rides, order_settings):
 def get_offers(request):
     order_settings = OrderSettings.fromRequest(request)
 
-    sr = SearchRequest.fromOrderSettings(order_settings, Passenger.from_request(request))
-    sr.save()
-
-    # TODO_WB: save all searches? in our db? use vision.bi ?
     # TODO_WB: save the requested search params and associate with a push_token from request for later notifications of similar searches
 
     if not order_settings.private:
@@ -472,8 +472,27 @@ def get_offers(request):
                     "comment": offer_text
                 })
 
-
+    deferred.defer(save_search_req_and_offers, Passenger.from_request(request), order_settings, offers)
     return JSONResponse({'offers': offers})
+
+def save_search_req_and_offers(passenger, order_settings, offers):
+    sr = SearchRequest.fromOrderSettings(order_settings, passenger)
+    sr.save()
+
+    for offer in offers:
+        pickup_dt = offer['pickup_time'] / 1000
+        pickup_dt = datetime.datetime.fromtimestamp(pickup_dt).replace(tzinfo=TZ_INFO["UTC"]).astimezone(TZ_INFO['Asia/Jerusalem'])
+        ride_offer = RideOffer(search_req=sr, ride_key=offer.get('ride_id'), ride=SharedRide.by_id(offer.get('ride_id')), pickup_dt=pickup_dt, seats_left=offer['seats_left'], price=offer['price'], new_ride=offer['new_ride'])
+
+        if str(offer.get('ride_id')).startswith(DISCOUNTED_OFFER_PREFIX):
+            discounted_offer = memcache.get(offer.get('ride_id'), namespace=DISCOUNTED_OFFERS_NS)
+            discount_rule = DiscountRule.by_id(discounted_offer["discount_rule_id"])
+            if discount_rule:
+                ride_offer.discount_rule = discount_rule
+                ride_offer.new_ride = True # this is actually a new ride
+
+        ride_offer.save()
+
 
 def get_private_offer(request):
     res = get_offers(request)
@@ -561,7 +580,9 @@ def book_ride(request):
 
             ride_orders = [order] + ( list(ride_to_join.orders.all()) if ride_to_join else [] )
             result["passengers"] = [{'name': o.passenger.name, 'picture_url': o.passenger.picture_url, 'is_you': o==order} for o in ride_orders for seat in range(o.num_seats)]
-            result["seats_left"] = MAX_SEATS - sum([order.num_seats for order in ride_orders])
+            result["seats_left"] = MAX_SEATS - sum([o.num_seats for o in ride_orders])
+
+            deferred.defer(join_offer_and_order, order, request_data)
 
         else:
             result['status'] = 'failed'
@@ -577,6 +598,19 @@ def book_ride(request):
 
     logging.info("book ride result: %s" % result)
     return JSONResponse(result)
+
+def join_offer_and_order(order, request_data):
+    # connect the order the the offer that was clicked
+    last_search_req = SearchRequest.objects.filter(passenger=order.passenger).order_by("-create_date")[0]
+    logging.info("joining order %s to offers from search request %s" % (order, last_search_req))
+    offer_ride_key = request_data.get("ride_id")
+    if last_search_req:
+        for offer in last_search_req.offers.all():
+            if offer.ride_key == str(offer_ride_key):
+                offer.order = order
+                offer.save()
+                break
+
 
 @csrf_exempt
 def set_current_booking_data(request):
@@ -824,6 +858,16 @@ def compute_new_departure(ride, ride_data):
 
 @csrf_exempt
 def track_app_event(request):
+    event_name = request.POST.get("name")
+    logging.info("Track app event: %s" % event_name)
+
+    passenger = Passenger.from_request(request)
+    if event_name:
+        if event_name == "APPLICATION_INSTALL":
+            BIEvent.log(BIEventType.APP_INSTALL, request=request, passenger=passenger)
+        elif event_name == "APPLICATION_OPEN":
+            BIEvent.log(BIEventType.BOOKING_START, request=request, passenger=passenger)
+
     return HttpResponse("OK")
 
 # ==============

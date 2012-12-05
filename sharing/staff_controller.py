@@ -341,6 +341,7 @@ def kpi_csv(request):
 @staff_member_required
 def eagle_eye(request):
     import dateutil
+    from dateutil.parser import parse
 
     stations = []
     for station in Station.objects.all():
@@ -357,8 +358,8 @@ def eagle_eye(request):
             return JSONResponse(SharedRide.by_id(ride_id).serialize_for_eagle_eye())
 
         # get all rides data
-        start_date = dateutil.parser.parse(request.GET.get("start_date")).astimezone(IsraelTimeZone())
-        end_date = dateutil.parser.parse(request.GET.get("end_date")).astimezone(IsraelTimeZone())
+        start_date = parse(request.GET.get("start_date")).astimezone(IsraelTimeZone())
+        end_date = parse(request.GET.get("end_date")).astimezone(IsraelTimeZone())
 
         start_date = datetime.combine(start_date, dt_time.min)
         end_date = datetime.combine(end_date, dt_time.max)

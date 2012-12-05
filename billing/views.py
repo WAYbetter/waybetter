@@ -1,21 +1,16 @@
 # Create your views here.
-from StringIO import StringIO
-from datetime import  date, datetime, timedelta, time
+from datetime import  date, datetime, timedelta
 import logging
 import csv
 import calendar
 import itertools
 import pickle
-from django.contrib.admin.views.decorators import staff_member_required
 from google.appengine.api.taskqueue import taskqueue
-from google.appengine.ext.deferred import deferred
 from billing import billing_backend
 from billing.billing_backend import send_invoices_passenger, create_invoice_passenger, get_custom_message
-from billing.billing_manager import get_billing_redirect_url
 from billing.enums import BillingStatus, BillingAction
-from common.forms import DatePickerForm
-from common.tz_support import default_tz_now, default_tz_time_max, default_tz_time_min, default_tz_now_max, format_dt
-from common.util import custom_render_to_response, notify_by_email, Enum, send_mail_as_noreply, base_datepicker_page, ga_track_event
+from common.tz_support import default_tz_now, default_tz_time_max, default_tz_time_min
+from common.util import custom_render_to_response, notify_by_email, Enum, ga_track_event
 from django.core.urlresolvers import reverse
 from django.utils import translation
 from django.views.decorators.csrf import csrf_exempt
@@ -25,7 +20,7 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, passenger_required
-from ordering.models import SharedRide, COMPLETED, ACCEPTED, CURRENT_ORDER_KEY, CURRENT_BOOKING_DATA_KEY
+from ordering.models import    CURRENT_ORDER_KEY, CURRENT_BOOKING_DATA_KEY
 
 class InvoiceActions(Enum):
     CREATE_ID	= 0
@@ -72,6 +67,8 @@ def billing_task(request, token, card_expiration, billing_transaction_id, action
 
 @passenger_required_no_redirect
 def transaction_ok(request, passenger):
+    from analytics.models import BIEvent, BIEventType
+
     #TODO: handle errors
     #TODO: makesure referrer is creditguard
     ga_track_event(request, "registration", "credit_card_validation", "approved")
@@ -90,6 +87,8 @@ def transaction_ok(request, passenger):
     # save new billing info
     billing_info = BillingInfo(**kwargs)
     billing_info.save()
+
+    BIEvent.log(BIEventType.BILLING_INFO_COMPLETE, passenger=passenger)
 
     if request.session.get(CURRENT_BOOKING_DATA_KEY) and not request.mobile:  # continue booking process, mobile continues by closing child browser
         logging.info("redirect /booking/continued after billing registration: %s" % passenger)
