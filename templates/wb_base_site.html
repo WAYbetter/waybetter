@@ -177,6 +177,14 @@
             <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?key={% value_from_settings GOOGLE_API_BROWSER_KEY %}&libraries=places&sensor=false&language=he"></script>
         {% endif %}
     {% endif %}
+
+    {% if lib_geo %}
+        <script type="text/javascript" src="/static/js/wb.geolib.js"></script>
+        <script type="text/javascript" src="/static/js/wb-ng/geo.controllers.js"></script>
+        <script type="text/javascript" src="/static/js/wb-ng/geo.services.js"></script>
+        <script type="text/javascript" src="/static/js/wb-ng/geo.directives.js"></script>
+    {% endif %}
+
 {% endblock scripts %}
 
 {% block helpers_init %}

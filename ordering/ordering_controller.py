@@ -72,6 +72,7 @@ def home(request, suggest_apps=True):
 def booking_page(request, continued=False):
     lib_ng = True
     lib_map = True
+    lib_geo = True
 
     if continued:
         continue_booking = simplejson.dumps(True)
