@@ -700,8 +700,7 @@ def update_ride_add_order(ride, ride_data, new_order):
     # connect new_order to ride ONLY AFTER update_ride is done.
     # If not, new_order will turn up in ride.orders.all() queries which doesn't reflect the state of the ride prior to joining
 
-    # new order created so we now update stop times, distance, cost ...
-    update_ride(ride, ride_data)
+    update_ride(ride, ride_data, new_order=new_order)
 
     # create or update points for the new order
     for point_data in [ride_data.order_pickup_point(NEW_ORDER_ID), ride_data.order_dropoff_point(NEW_ORDER_ID)]:
@@ -722,23 +721,6 @@ def update_ride_add_order(ride, ride_data, new_order):
     new_order.price_data = ride_data.order_price_data(NEW_ORDER_ID)
     new_order.ride = ride
     new_order.save()
-
-    # ride was updated so now we can update prices for already existed orders
-    for order in ride.orders.all():
-        old_billing_amount = order.get_billing_amount()
-
-        # set new order.price
-        order.price_data = ride_data.order_price_data(order.id)
-
-        if order.price <= old_billing_amount:  # if algo got a better deal for this user then this will be what he pays
-            order.discount = None
-        else:  #  update discount so that user doesn't pay more than promised
-            order.discount = order.price - old_billing_amount
-
-        if order.get_billing_amount() < old_billing_amount:
-            order_price_changed_signal.send(sender="update_ride_add_order", order=order, joined_passenger=new_order.passenger, old_price=old_billing_amount, new_price=order.get_billing_amount())
-
-        order.save()
 
 
 def update_ride_remove_order(order):
@@ -762,24 +744,39 @@ def update_ride_remove_order(order):
         update_ride(ride, ride_data)
 
 
-def update_ride(ride, ride_data):
+def update_ride(ride, ride_data, new_order=None):
     """
     ride_data for an exisiting ride can change when a passenger joins or leaves a ride.
-    update ride from ride_data: distance, cost, depart time and stop times for its RidePoints.
+    update ride from ride_data: distance, cost, depart time, price for its orders and stop times for its RidePoints.
+    in case new_order exists we assume that ride_data references it as NEW_ORDER_ID
     """
     depart_time = compute_new_departure(ride, ride_data)
     for order in ride.orders.all():
+        # update stop times
         new_pickup_time = depart_time + datetime.timedelta(seconds=ride_data.order_pickup_point(order.id).offset)
         new_dropoff_time = depart_time + datetime.timedelta(seconds=ride_data.order_dropoff_point(order.id).offset)
 
         logging.info("updating stop times for order [%s]:\n" \
                      "pickup time %s -> %s\n" \
                      "dropoff time %s -> %s" % (order.id, order.pickup_point.stop_time, new_pickup_time, order.dropoff_point.stop_time, new_dropoff_time))
-        order.pickup_point.stop_time = new_pickup_time
-        order.pickup_point.save()
 
-        order.dropoff_point.stop_time = new_dropoff_time
-        order.dropoff_point.save()
+        order.pickup_point.update(stop_time=new_pickup_time)
+        order.dropoff_point.update(stop_time=new_dropoff_time)
+
+        # update prices
+        old_billing_amount = order.get_billing_amount()
+        order.price_data = ride_data.order_price_data(order.id)  # sets new order.price
+
+        if order.price <= old_billing_amount:  # if algo got a better deal for this user then this will be what he pays
+            order.discount = None
+        else:  #  update discount so that user doesn't pay more than promised
+            order.discount = order.price - old_billing_amount
+
+        order.save()
+
+        if new_order and order.get_billing_amount() < old_billing_amount:  # we need a new_order for the joined passenger name
+            order_price_changed_signal.send(sender="update_ride_add_order", order=order, joined_passenger=new_order.passenger, old_price=old_billing_amount, new_price=order.get_billing_amount())
+
 
     ride.update(depart_time=depart_time,
                 arrive_time=depart_time + datetime.timedelta(seconds=ride_data.duration),
