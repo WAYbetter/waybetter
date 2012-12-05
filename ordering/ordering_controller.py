@@ -832,10 +832,6 @@ def track_app_event(request):
 # ==============
 # HELPER CLASSES
 # ==============
-class AddressType(Enum):
-    STREET_ADDRESS = 0
-    POI = 1
-
 
 class OrderSettings:
     pickup_address = None # Address instance
@@ -900,10 +896,8 @@ class Address:
     city_name = ""
     country_code = ""
     description = ""
-    address_type = None
 
-    def __init__(self, lat, lng, house_number=None, street=None, city_name=None, description=None, country_code=settings.DEFAULT_COUNTRY_CODE,
-                 address_type=AddressType.STREET_ADDRESS, **kwargs):
+    def __init__(self, lat, lng, house_number=None, street=None, city_name=None, description=None, country_code=settings.DEFAULT_COUNTRY_CODE, **kwargs):
         self.lat = float(lat)
         self.lng = float(lng)
 
@@ -912,7 +906,6 @@ class Address:
         self.city_name = city_name
         self.description = description
         self.country_code = country_code
-        self.address_type = address_type
 
     @classmethod
     def from_order(cls, order, address_type):
