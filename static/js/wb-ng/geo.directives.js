@@ -11,6 +11,8 @@ module.directive("wbPac", function ($q, $timeout, PlacesService, wbEvents) {
 
             google.maps.event.addListener(pac, 'place_changed', function () {
                 var place = pac.getPlace();
+                scope.$emit(wbEvents.place_changed, place);
+
                 scope[attrs.address] = undefined;
 
                 scope.$apply(function () {

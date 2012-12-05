@@ -1,8 +1,8 @@
 from django.conf import settings
+from django.core.exceptions import ValidationError
 from django.db import models
-from django.utils.translation import ugettext_lazy as _
 
-from common.models import Country, City
+from common.models import BaseModel, Country, City
 from geo.enums import PlaceType
 
 class GoogleBounds(object):
@@ -16,18 +16,21 @@ class GoogleBounds(object):
         return "%s,%s|%s,%s" % (self.sw_lat, self.sw_lon, self.ne_lat, self.ne_lon)
 
 
-class Place(models.Model):
+class Place(BaseModel):
     name = models.CharField(max_length=255)
     description = models.CharField(max_length=255)
     type = models.IntegerField(choices=PlaceType.choices())
 
     country = models.ForeignKey(Country, related_name="places")
     city = models.ForeignKey(City, related_name="places")
-    street = models.CharField(max_length=50, null=True, blank=True)
-    house_number = models.CharField(max_length=10, null=True, blank=True)
+    street = models.CharField(max_length=50, blank=True)
+    house_number = models.CharField(max_length=10, blank=True)
 
     lon = models.FloatField()
     lat = models.FloatField()
+
+    dn_country_name = models.CharField(max_length=255)
+    dn_city_name = models.CharField(max_length=255)
 
     @property
     def address(self):
@@ -37,12 +40,27 @@ class Place(models.Model):
             return ""
 
     def save(self, *args, **kwargs):
-        if not self.country:
-            self.country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
+        if self.name == '':
+                raise ValidationError('Name is required')
 
+        self.country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
         if self.street and self.house_number:
             self.type = PlaceType.STREET_ADDRESS
         else:
             self.type = PlaceType.POI
 
+        self.dn_country_name = self.country.name
+        self.dn_city_name = self.city.name
         super(Place, self).save(*args, **kwargs)
+
+    def serialize(self):
+        return {
+            'id': self.id,
+            'name': self.name,
+            'description': self.description,
+            'city_name': self.dn_city_name,
+            'street': self.street,
+            'house_number': self.house_number,
+            'lon': self.lon,
+            'lat': self.lat
+        }
