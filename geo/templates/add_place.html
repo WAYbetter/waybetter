@@ -4,7 +4,29 @@
 {% endblock %}
 
 {% block content %}
-    <div id="content" ng-app="AddPlaceApp">
-        <div class="container"></div>
+    <div id="content" ng-app="PlaceAdminApp">
+        <div class="container" ng-controller="CreatePlaceCtrl">
+            <div class="row">
+                <div class="span8">
+                    {{ foo }}
+                </div>
+                <div class="span4">
+                    <div id="map-container" ng-hide="offers.length || booking_approved">
+                        <div id="map" wb-map></div>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+        var app = angular.module('PlaceAdminApp', ['wbGeoDirectives']);
+
+        app.controller('CreatePlaceCtrl', function ($scope) {
+            $scope.foo = "foo";
+        })
+    </script>
 {% endblock %}

@@ -9,7 +9,7 @@ def add_place(request):
     lib_geo = True
 
     if request.method == "GET":
-        return render_to_response("add_place.html")
+        return render_to_response("add_place.html", locals())
     else:
         place = Place()
         place.save()

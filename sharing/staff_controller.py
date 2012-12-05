@@ -430,6 +430,7 @@ def accept_ride(request, ride_id):
 def ride_page(request, ride_id):
     lib_ng = True
     lib_map = True
+    lib_geo = True
     position_changed = fleet_manager.POSITION_CHANGED
 
     return render_to_response("ride_page.html", locals(), context_instance=RequestContext(request))

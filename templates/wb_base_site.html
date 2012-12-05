@@ -161,13 +161,14 @@
 
     {% if lib_ng %}
         <script type="text/javascript" src="/static/js/libs/angular-1.0.2.min.js"></script>
+        <script type="text/javascript" src="/static/js/wb-ng/filters.js"></script>
+        <script type="text/javascript" src="/static/js/wb-ng/defaults.js"></script>
         {% if LANGUAGE_CODE == "he" %}
             <script type="text/javascript" src="/static/js/wb-ng/angular-locale_he.js"></script>
             <script type="text/javascript" src="/static/js/wb-ng/messages.he.js"></script>
         {% else %}
             <script type="text/javascript" src="/static/js/wb-ng/messages.en.js"></script>
         {% endif %}
-        <script type="text/javascript" src="/static/js/wb-ng/filters.js"></script>
     {% endif %}
 
     {% if lib_map %}
