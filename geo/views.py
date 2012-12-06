@@ -9,6 +9,16 @@ import simplejson
 from common.models import City
 from geo.models import Place
 
+def playground(request):
+    lib_ng = True
+    lib_map = True
+    lib_geo = True
+
+    places = simplejson.dumps([place.serialize() for place in Place.objects.all()])
+
+    return render_to_response("playground.html", locals())
+
+
 def get_places(request):
     return JSONResponse({"places": [place.serialize() for place in Place.objects.all()]})
 

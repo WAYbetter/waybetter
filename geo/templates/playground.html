@@ -1,0 +1,96 @@
+{% extends "wb_base_site.html" %}
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        #map {
+            width: 300px;
+            height: 250px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div id="content" ng-app="PlacePlaygroundApp" ng-cloak>
+        <div class="container" ng-controller="PlaygroundCtrl">
+            <div class="row">
+                <div class="span8">
+                    <div class="input-prepend">
+                        <span class="add-on"><i class="icon-map-marker"></i></span>
+                        <input type="text" ng-model="user_input">
+                    </div>
+
+                    <div class="row">
+                        <ul ng-show="user_input" ng-repeat="place in places|filter:user_input">
+                            <li>(( place.name )) <span class="badge badge-success">wb</span></li>
+                        </ul>
+                        <ul ng-repeat="result in predictions">
+                            <li>(( result.description )) <span class="badge badge-info">g</span></li>
+                        </ul>
+                    </div>
+
+                    <hr class="dashed">
+
+                    <h1>Geocoding results</h1>
+                    <ul ng-repeat="result in geocoding_results">
+                        <li>
+                            <div>(( pprint(result) ))</div>
+                        </li>
+                    </ul>
+
+                </div>
+                <div class="span4">
+                    <div id="map" wb-map></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+        var app = angular.module('PlacePlaygroundApp', ['wbDefaults', 'wbGeoDirectives', 'wbGeoServices']);
+
+        app.config(function ($interpolateProvider) {
+            $interpolateProvider.startSymbol('((');
+            $interpolateProvider.endSymbol('))');
+        });
+        app.controller('PlaygroundCtrl', function ($scope, $http, $q, GeocodingService, AutocompleteService, PlacesService, wbEvents) {
+            $scope.places_service = PlacesService;
+
+            $scope.user_input = undefined;
+            $scope.geocoding_results = [];
+            $scope.predictions = [];
+
+            {% autoescape off %}
+            $scope.places = {{ places }};
+            {% endautoescape %}
+
+            $scope.pprint = function(json_obj){
+                return JSON.stringify(json_obj, undefined, 2);
+            };
+
+            $scope.$watch("user_input", function (val) {
+                if (!val){
+                    $scope.predictions = [];
+                    return;
+                }
+
+                AutocompleteService.get_predictions(val).then(function (result) {
+                    $scope.predictions = result;
+                });
+            });
+
+            $scope.$watch("predictions", function (predictions) {
+                $scope.geocoding_results = [];
+                if (!predictions.length){
+                    return;
+                }
+                var prediction_strings = predictions.map(function(pre){return pre.description});
+                GeocodingService.bulk_geocode(prediction_strings).then(function(results){
+                    $scope.geocoding_results = results;
+                });
+            });
+        });
+    </script>
+{% endblock %}

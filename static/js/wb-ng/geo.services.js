@@ -61,6 +61,39 @@ module.service("GeocodingService", function ($q, $rootScope) {
                 address:address_string
             });
         },
+        bulk_geocode: function(list_of_address_string){
+            console.log("bulk geocode started");
+
+            var defer = $q.defer(),
+                results = [],
+                completed = 0;
+
+            angular.forEach(list_of_address_string, function(address_string, idx){
+                geocoder.geocode({address: address_string}, function (result, status) {
+                    completed++;
+                    if (status == google.maps.GeocoderStatus.OK && result.length) {
+                        console.log("bulk geocode #" + (idx+1) + " of " + list_of_address_string.length);
+                        results[idx] = result;
+                    } else {
+                        console.log("bulk geocode #" + (idx+1) + " failed: " + status);
+                        results[idx] = undefined;
+                    }
+                    if (list_of_address_string.length == completed) {
+                        console.log("bulk geocode completed");
+                        if ($rootScope.$$phase){
+                            setTimeout(function(){  // $digest already in progress
+                                console.log("exec delayed $apply");
+                                $rootScope.$apply(defer.resolve(results));
+                            }, 500)
+                        } else {
+                            $rootScope.$apply(defer.resolve(results));
+                        }
+                    }
+                })
+            });
+
+            return defer.promise;
+        },
         reverse_geocode: function(lat, lng){
             return this._do_geocoding_request({
                 latLng:new google.maps.LatLng(lat, lng)
@@ -153,6 +186,27 @@ module.service("GeocodingService", function ($q, $rootScope) {
                 });
 
             return defer.promise;
+        }
+    }
+});
+
+module.service("AutocompleteService", function ($q) {
+    var service = new google.maps.places.AutocompleteService();
+
+    return {
+        get_predictions: function(string){
+            var deferred = $q.defer();
+            var query = {input: string};
+
+            service.getQueryPredictions(query, function (result, status) {
+                if (status == google.maps.GeocoderStatus.OK && result.length) {
+                    deferred.resolve(result);
+                }
+                else {
+                    deferred.reject(status);
+                }
+            });
+            return deferred.promise;
         }
     }
 });
