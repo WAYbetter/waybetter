@@ -1,5 +1,5 @@
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import HttpResponseBadRequest
+from django.http import HttpResponseBadRequest, HttpResponse
 from django.shortcuts import render_to_response
 from django.views.decorators.csrf import csrf_exempt
 from djangotoolbox.http import JSONResponse
@@ -8,6 +8,9 @@ import simplejson
 
 from common.models import City
 from geo.models import Place
+
+def get_places(request):
+    return JSONResponse({"places": [place.serialize() for place in Place.objects.all()]})
 
 @csrf_exempt  # TODO_WB: teach angular to pass csrf_token in headers
 @staff_member_required

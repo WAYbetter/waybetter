@@ -63,7 +63,7 @@ class Place(BaseModel):
         return {
             'id': self.id,
             'name': self.name,
-            'aliases': ",".join(self.aliases),
+            'aliases': self.aliases,
             'description': self.description,
             'city_name': self.dn_city_name,
             'street': self.street,
