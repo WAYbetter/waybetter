@@ -26,8 +26,11 @@ def crud_place(request):
         place_data = payload["data"]
 
         if action in ["create", "update"]:
-            place_data["city"] = City.objects.get(name=place_data["city_name"].strip())
-            del(place_data["city_name"])
+            if place_data.get("city_name"):
+                place_data["city"] = City.objects.get(name=place_data["city_name"].strip())
+                del(place_data["city_name"])
+
+            place_data["aliases"] = place_data["aliases"].split(",")
 
             if action == "create":
                 place = Place(**place_data)

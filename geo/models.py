@@ -3,6 +3,7 @@ from django.core.exceptions import ValidationError
 from django.db import models
 
 from common.models import BaseModel, Country, City
+from djangotoolbox.fields import ListField
 from geo.enums import PlaceType
 
 class GoogleBounds(object):
@@ -17,12 +18,14 @@ class GoogleBounds(object):
 
 
 class Place(BaseModel):
-    name = models.CharField(max_length=255)
-    description = models.CharField(max_length=255)
     type = models.IntegerField(choices=PlaceType.choices())
 
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+    aliases = ListField(models.CharField(max_length=32))
+
     country = models.ForeignKey(Country, related_name="places")
-    city = models.ForeignKey(City, related_name="places")
+    city = models.ForeignKey(City, related_name="places", null=True, blank=True)
     street = models.CharField(max_length=50, blank=True)
     house_number = models.CharField(max_length=10, blank=True)
 
@@ -41,22 +44,26 @@ class Place(BaseModel):
 
     def save(self, *args, **kwargs):
         if self.name == '':
-                raise ValidationError('Name is required')
+            raise ValidationError('Name is required')
 
         self.country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
+        self.dn_country_name = self.country.name
+
+        if self.city:
+            self.dn_city_name = self.city.name
+
         if self.street and self.house_number:
             self.type = PlaceType.STREET_ADDRESS
         else:
             self.type = PlaceType.POI
 
-        self.dn_country_name = self.country.name
-        self.dn_city_name = self.city.name
         super(Place, self).save(*args, **kwargs)
 
     def serialize(self):
         return {
             'id': self.id,
             'name': self.name,
+            'aliases': ",".join(self.aliases),
             'description': self.description,
             'city_name': self.dn_city_name,
             'street': self.street,

@@ -9,7 +9,7 @@
     </style>
 {% endblock %}
 
-{% block headertext %}CRUD Place{% endblock %}
+{% block headertext %}Places Admin{% endblock %}
 
 {% block content %}
     <div id="content" ng-app="PlaceAdminApp" ng-cloak>
@@ -34,9 +34,9 @@
                             <div class="controls">
                                 <input type="text" wb-pac>
                                 <div>
-                                    <div ng-show="place.city_name"><strong>City</strong> ((place.city_name))</div>
-                                    <div ng-show="place.street"><strong>Street</strong> ((place.street))</div>
-                                    <div ng-show="place.house_number"><strong>House</strong> ((place.house_number))</div>
+                                    <div><strong>City</strong> ((place.city_name))</div>
+                                    <div><strong>Street</strong> ((place.street))</div>
+                                    <div><strong>House</strong> ((place.house_number))</div>
                                 </div>
                             </div>
                         </div>
@@ -51,6 +51,10 @@
                         <div class="control-group">
                             <label class="control-label">Longitude</label>
                             <div class="controls"><input type="text" ng-model="place.lon"></div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Aliases</label>
+                            <div class="controls"><input type="text" ng-model="place.aliases"></div>
                         </div>
                         <div class="control-group">
                             <div class="controls"><button class="btn btn-primary" ng-show="mode=='create'" ng-click="create()">Create</button></div>
@@ -72,12 +76,13 @@
                     <h1>So far we have created the following places</h1>
                     <table class="table table-striped">
                         <thead>
-                            <th ng-repeat="label in ['Name', 'Description', 'City', 'Street', 'House', '']">(( label ))</th>
+                            <th ng-repeat="label in ['Name', 'Description', 'Aliases', 'City', 'Street', 'House', '']">(( label ))</th>
                         </thead>
                         <tbody>
                             <tr ng-repeat="place in places|orderBy:'-id' ">
                                 <td>(( place.name ))</td>
                                 <td>(( place.description ))</td>
+                                <td>(( place.aliases ))</td>
                                 <td>(( place.city_name ))</td>
                                 <td>(( place.street ))</td>
                                 <td>(( place.house_number ))</td>
@@ -100,6 +105,19 @@
     <script type="text/javascript">
         var app = angular.module('PlaceAdminApp', ['wbDefaults', 'wbGeoDirectives']);
 
+        function fresh_place(){
+            return {
+                name:undefined,
+                description:undefined,
+                aliases:[],
+
+                city_name:undefined,
+                street:undefined,
+                house_number:undefined,
+                lat:undefined,
+                lon:undefined
+            }
+        }
         app.config(function ($interpolateProvider) {
             $interpolateProvider.startSymbol('((');
             $interpolateProvider.endSymbol('))');
@@ -113,16 +131,7 @@
             $scope.places = {{ places }};
             {% endautoescape %}
 
-            $scope.place = {
-                name: undefined,
-                description: undefined,
-
-                city_name: undefined,
-                street: undefined,
-                house_number: undefined,
-                lat: undefined,
-                lon: undefined
-            };
+            $scope.place = fresh_place();
 
             $scope.$on(wbEvents.place_changed, function (e, pac_result) {
                 var place_address = Address.fromPlace(pac_result);
@@ -155,7 +164,7 @@
                 $scope.mode = 'edit';
             };
             $scope.stop_editing = function(){
-                $scope.place = {};
+                $scope.place = fresh_place();
                 $scope.mode = 'create';
             };
 
@@ -163,6 +172,7 @@
                 $scope.do_crud_action("remove", place).then(function(data){
                     if (data.success) {
                         $scope.places = $scope.places.filter(function(p){ return p.id != place.id });
+                        $scope.place = fresh_place();
                     } else {
                         alert("failed");
                     }
@@ -178,6 +188,7 @@
                             break;
                         }
                     }
+                    $scope.place = fresh_place();
                 }, function(error){ alert("failed") })
             };
 
@@ -187,6 +198,7 @@
                 }
                 $scope.do_crud_action("create", $scope.place).then(function(data){
                     $scope.places.push(data.place);
+                    $scope.place = fresh_place();
                 }, function(error){ alert("failed") })
             };
 
