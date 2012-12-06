@@ -89,25 +89,16 @@ class RideData(object):
     def points(self):
         return [PointData(raw_point_data) for raw_point_data in self.raw_ride_data[AlgoField.RIDE_POINTS]]
 
-    def order_price_data(self, order_id, sharing=True):
-        order_info = self.raw_ride_data[AlgoField.ORDER_INFOS][str(order_id)]
-        if sharing:
-            return {
-                TARIFFS.TARIFF1: order_info[AlgoField.PRICE_SHARING_TARIFF1],
-                TARIFFS.TARIFF2: order_info[AlgoField.PRICE_SHARING_TARIFF2]
-            }
-        else:
-            return {
-                TARIFFS.TARIFF1: order_info[AlgoField.PRICE_ALONE_TARIFF1],
-                TARIFFS.TARIFF2: order_info[AlgoField.PRICE_ALONE_TARIFF2]
-            }
+    def order_price_data(self, order_id):
+        order_data = self.raw_ride_data[AlgoField.ORDER_INFOS][str(order_id)]
+        return PriceData(order_data)
 
     def order_price(self, order_id, tariff, sharing=True):
         if not tariff:
             return None
 
-        price_data = self.order_price_data(order_id, sharing=sharing)
-        return price_data.get(tariff.tariff_type)
+        price_data = self.order_price_data(order_id)
+        return price_data.for_tariff_type(tariff.tariff_type, sharing=sharing)
 
     def order_time(self, order_id, sharing=True):
         if sharing:
@@ -165,6 +156,30 @@ class PointData(object):
     @property
     def order_ids(self):
         return self.raw_point_data[AlgoField.ORDER_IDS]
+
+class PriceData(object):
+    def __init__(self, raw_order_data):
+        self.sharing_price_data = {
+            TARIFFS.TARIFF1: raw_order_data[AlgoField.PRICE_SHARING_TARIFF1],
+            TARIFFS.TARIFF2: raw_order_data[AlgoField.PRICE_SHARING_TARIFF2]
+        }
+
+        self.alone_price_data = {
+            TARIFFS.TARIFF1: raw_order_data[AlgoField.PRICE_ALONE_TARIFF1],
+            TARIFFS.TARIFF2: raw_order_data[AlgoField.PRICE_ALONE_TARIFF2]
+        }
+
+    def __str__(self):
+        return "sharing: %s, alone: %s" % (self.sharing_price_data.__str__(), self.alone_price_data.__str__())
+
+    def __unicode__(self):
+        return unicode(self.__str__())
+
+    def for_tariff_type(self, tariff_type, sharing=True):
+        if sharing:
+            return self.sharing_price_data.get(tariff_type)
+        else:
+            return self.alone_price_data.get(tariff_type)
 
 
 class CostData(object):

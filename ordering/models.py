@@ -514,8 +514,8 @@ class SharedRide(BaseRide):
         for order in self.orders.all():
             order_infos[order.id] = {
                 'num_seats': order.num_seats,
-                AlgoField.PRICE_SHARING_TARIFF1: order.price_data.get(TARIFFS.TARIFF1),
-                AlgoField.PRICE_SHARING_TARIFF2: order.price_data.get(TARIFFS.TARIFF2)
+                AlgoField.PRICE_SHARING_TARIFF1: order.price_data.for_tariff_type(TARIFFS.TARIFF1),
+                AlgoField.PRICE_SHARING_TARIFF2: order.price_data.for_tariff_type(TARIFFS.TARIFF2)
             }
 
         result = {
@@ -1061,6 +1061,7 @@ class Order(BaseModel):
     depart_time = UTCDateTimeField(_("depart time"), null=True, blank=True)
     arrive_time = UTCDateTimeField(_("arrive time"), null=True, blank=True)
     price = models.FloatField(null=True, blank=True, editable=False)
+    price_alone = models.FloatField(null=True, blank=True, editable=False)
     discount = models.FloatField(null=True, blank=True, editable=False)
     discount_rule = models.ForeignKey(DiscountRule, verbose_name=_("discount rule"), related_name="orders", null=True, blank=True, editable=False)
     num_seats = models.PositiveIntegerField(default=1)
@@ -1088,9 +1089,10 @@ class Order(BaseModel):
         # set order price according to received price data and tariff
         if self.depart_time:
             tariff = RuleSet.get_active_set(self.depart_time)
-            price = self.price_data.get(tariff.tariff_type)
+            price = self.price_data.for_tariff_type(tariff.tariff_type)
             if price and self.price != price:
                 self.price = price
+                self.price_alone = self.price_data.for_tariff_type(tariff.tariff_type, sharing=False)
             else:
                 logging.warning("price changed to the same price")
 
