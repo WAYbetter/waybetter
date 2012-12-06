@@ -7,14 +7,14 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2012-11-29 13:05+0200\n"
-"PO-Revision-Date: 2012-11-29 13:06+0200\n"
-"Last-Translator: amir <amir@waybetter.com>\n"
+"POT-Creation-Date: 2012-12-06 12:43+0200\n"
+"PO-Revision-Date: 2012-12-06 12:44+0200\n"
+"Last-Translator: Guy Kremnitzer <guy@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
-"Language: \n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
+"Language: \n"
 "X-Translated-Using: django-rosetta 0.5.6\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
 
@@ -70,73 +70,137 @@ msgstr "עיר"
 msgid "Station"
 msgstr "תחנה"
 
-#: analytics/models.py:10
-#: ordering/models.py:579
+#: analytics/models.py:18
+#: ordering/models.py:580
 msgid "type"
 msgstr "סוג"
 
-#: analytics/models.py:12
-#: ordering/models.py:1182
-#: ordering/models.py:1184
-#: ordering/models.py:1308
-#: ordering/models.py:1405
+#: analytics/models.py:20
+#: analytics/models.py:103
+#: analytics/models.py:115
+#: ordering/models.py:1185
+#: ordering/models.py:1187
+#: ordering/models.py:1311
+#: ordering/models.py:1408
 msgid "order"
 msgstr "הזמנה"
 
-#: analytics/models.py:13
+#: analytics/models.py:21
 msgid "order assignment"
 msgstr "הקצאת הזמנה"
 
-#: analytics/models.py:14
-#: ordering/models.py:1309
+#: analytics/models.py:22
+#: ordering/models.py:1312
 msgid "work station"
 msgstr "עמדת עבודה"
 
-#: analytics/models.py:15
+#: analytics/models.py:23
 #: ordering/models.py:243
 #: ordering/models.py:276
 #: ordering/models.py:366
 #: ordering/models.py:369
-#: ordering/models.py:819
-#: ordering/models.py:837
-#: ordering/models.py:1003
-#: ordering/models.py:1310
+#: ordering/models.py:820
+#: ordering/models.py:838
+#: ordering/models.py:1004
+#: ordering/models.py:1313
 msgid "station"
 msgstr "תחנה"
 
-#: analytics/models.py:16
-#: ordering/models.py:771
-#: ordering/models.py:989
-#: ordering/models.py:1002
-#: ordering/models.py:1473
-#: ordering/models.py:1497
+#: analytics/models.py:24
+#: analytics/models.py:46
+#: analytics/models.py:114
+#: ordering/models.py:772
+#: ordering/models.py:990
+#: ordering/models.py:1003
+#: ordering/models.py:1476
 msgid "passenger"
 msgstr "נוסע"
 
-#: analytics/models.py:17
+#: analytics/models.py:25
 #: common/models.py:191
 #: ordering/models.py:133
-#: ordering/models.py:658
-#: ordering/models.py:1414
-#: ordering/models.py:1442
-#: ordering/models.py:1461
+#: ordering/models.py:659
+#: ordering/models.py:1417
+#: ordering/models.py:1445
+#: ordering/models.py:1464
 #: registration/forms.py:72
 #: sharing/models.py:16
 msgid "country"
 msgstr "מדינה"
 
-#: analytics/models.py:18
+#: analytics/models.py:26
 #: common/models.py:239
 #: interests/models.py:27
 #: ordering/models.py:134
-#: ordering/models.py:779
+#: ordering/models.py:780
 #: sharing/models.py:17
 msgid "city"
 msgstr "עיר"
 
-#: analytics/models.py:19
+#: analytics/models.py:27
 msgid "ratings"
 msgstr "דירוגים"
+
+#: analytics/models.py:48
+#: ordering/models.py:1027
+msgid "from_lon"
+msgstr "מ-אורך"
+
+#: analytics/models.py:49
+#: ordering/models.py:1028
+msgid "from_lat"
+msgstr "מ-רוחב"
+
+#: analytics/models.py:50
+#: ordering/models.py:1030
+#: ordering/models.py:1324
+msgid "from address"
+msgstr "מ-כתובת"
+
+#: analytics/models.py:51
+#: ordering/models.py:1018
+msgid "from city"
+msgstr "מעיר"
+
+#: analytics/models.py:53
+#: ordering/models.py:1042
+msgid "to_lon"
+msgstr "ל-אורך"
+
+#: analytics/models.py:54
+#: ordering/models.py:1043
+msgid "to_lat"
+msgstr "ל-רוחב"
+
+#: analytics/models.py:55
+#: ordering/models.py:1045
+#: ordering/models.py:1325
+msgid "to address"
+msgstr "ל-כתובת"
+
+#: analytics/models.py:56
+#: ordering/models.py:1034
+msgid "to city"
+msgstr "ל-עיר"
+
+#: analytics/models.py:100
+msgid "search request"
+msgstr ""
+
+#: analytics/models.py:104
+#: ordering/models.py:1067
+msgid "discount rule"
+msgstr "הנחה"
+
+#: analytics/models.py:117
+#, fuzzy
+msgid "lon"
+msgstr "ל-אורך"
+
+#: analytics/models.py:118
+#, fuzzy
+msgid "lat"
+msgstr "בשעה"
 
 #: analytics/views.py:182
 #: ordering/station_controller.py:401
@@ -215,10 +279,10 @@ msgstr "שליחה"
 #: common/models.py:236
 #: interests/models.py:26
 #: ordering/models.py:244
-#: ordering/models.py:982
-#: ordering/models.py:1412
-#: ordering/models.py:1440
-#: ordering/models.py:1459
+#: ordering/models.py:983
+#: ordering/models.py:1415
+#: ordering/models.py:1443
+#: ordering/models.py:1462
 #: pricing/models.py:16
 #: pricing/models.py:49
 msgid "name"
@@ -289,7 +353,7 @@ msgid "dropoff"
 msgstr "יעד"
 
 #: billing/models.py:56
-#: ordering/models.py:1052
+#: ordering/models.py:1053
 msgid "pickup time"
 msgstr "שעת איסוף"
 
@@ -485,8 +549,6 @@ msgstr "וידוא סיסמה (עוד פעם)"
 #: common/templates/login_form.html:5
 #: common/templates/login_form.html:49
 #: common/templates/phone_verification_form.html:90
-#: intermediate/templates/wb_base_site.html:63
-#: intermediate/templates/wb_base_site.html:126
 #: ordering/templates/base_passenger.html:146
 #: ordering/templates/base_station.html:50
 #: ordering/templates/business_tab.html:17
@@ -539,7 +601,6 @@ msgid "OK"
 msgstr "אישור"
 
 #: common/templates/error_page.html:16
-#: intermediate/templates/wb_base_site.html:93
 #: templates/wb_base_site.html:93
 #: templates/admin/billing/billingtransaction/change_form.html:18
 msgid "Home"
@@ -852,14 +913,14 @@ msgstr "שטוח הדף"
 msgid "flat pages"
 msgstr "שטוח עמודים"
 
-#: fleet/signals.py:50
+#: fleet/signals.py:48
 msgid "To view your taxi: "
 msgstr "(beta) לצפייה במונית:"
 
 #: interests/models.py:28
 #: interests/models.py:47
 #: ordering/forms.py:415
-#: ordering/models.py:774
+#: ordering/models.py:775
 msgid "contact person"
 msgstr "איש קשר"
 
@@ -955,139 +1016,6 @@ msgstr "אם בא לך להיות בין הראשונים להשתמש בשיר�
 #: interests/templates/pilot_interest_form.html:70
 msgid "Thanks. We'll contact you soon."
 msgstr "תודה. ניצור אתך קשר בקרוב."
-
-#: intermediate/templates/wb_base.html:19
-#: ordering/util.py:139
-msgid "Shared Taxi Rides"
-msgstr "מוניות ספיישל משותפות"
-
-#: intermediate/templates/wb_base.html:22
-msgid "Revolution in Transportation: Shared taxi rides to Hotspots. Book a shared taxi online: comfortable, hassle free ride, save tens of dollars."
-msgstr "מהפכה בתחבורה: מוניות לכולם! הזמינו מונית בלחיצה וסעו בנוחות, בלי ארנק, בלי דאגות ותוך חסכון של עד 80% לנסיעה"
-
-#: intermediate/templates/wb_base.html:23
-#: templates/wb_base.html:22
-msgid "smart,iPhone,way better,order taxi, share"
-msgstr "מונית,משותפת,ווי-בטר,הזמנת מונית,מונית תל אביב,רמת החייל,חינם,אפליקציה,סביבה, שיתוף"
-
-#: intermediate/templates/wb_base.html:27
-msgid "Half Price Taxi Rides"
-msgstr "מוניות לכולם, בחצי מחיר"
-
-#: intermediate/templates/wb_base.html:29
-msgid "Revolution in Transportation: Half-priced taxi rides. Book a shared taxi online: comfortable, hassle free ride, save tens of dollars."
-msgstr "מהפכה בתחבורה: מונית בחצי מחיר!הזמינו מונית בלחיצה וסעו בנוחות, בלי ארנק, בלי דאגות ותוך חסכון של עשרות שקלים לנסיעה."
-
-#: intermediate/templates/wb_base.html:95
-#: templates/wb_base.html:99
-msgid "Social revolution in public transportation. WAYbetter allows you to order shared taxi rides , for a (very) low fixed price. It’s green, it’s fast and it’s cheap. Check it out: www.waybetter.com"
-msgstr ""
-"WAYbetter - אפליקציה חברתית חדשה שעושה מהפכה בתחבורה.\\n"
-"באפליקציה ניתן להזמין נסיעות משותפות במונית ספיישל, תוך חסכון אדיר (ומובטח) של עשרות שקלים לנסיעה.\\n"
-"זה משתלם, זה חברתי וזה ירוק.\\n"
-"\\n"
-"חייבים לנסות:\\n"
-"www.waybetter.com"
-
-#: intermediate/templates/wb_base_site.html:44
-#: intermediate/templates/wb_base_site.html:101
-#: ordering/templates/info.html:28
-#: ordering/templates/mobile/passenger_home.html:230
-#: ordering/templates/mobile/passenger_home.html:273
-#: templates/base.html:139
-#: templates/wb_base_site.html:44
-#: templates/wb_base_site.html.py:101
-msgid "About"
-msgstr "אודות"
-
-#: intermediate/templates/wb_base_site.html:46
-#: templates/wb_base_site.html:46
-msgid "Get the App"
-msgstr "הורידו את האפליקציה"
-
-#: intermediate/templates/wb_base_site.html:48
-#: templates/wb_base_site.html:48
-#, fuzzy
-msgid "iPhone"
-msgstr "טלפון"
-
-#: intermediate/templates/wb_base_site.html:49
-#: templates/wb_base_site.html:49
-#, fuzzy
-msgid "Android"
-msgstr "מדינה"
-
-#: intermediate/templates/wb_base_site.html:57
-#: intermediate/templates/wb_base_site.html:122
-#: ordering/templates/mobile/passenger_home.html:158
-#: ordering/templates/mobile/passenger_home.html:204
-#: sharing/templates/my_rides.html:7
-#: templates/wb_base_site.html:57
-#: templates/wb_base_site.html.py:122
-msgid "My Rides"
-msgstr "הנסיעות שלי"
-
-#: intermediate/templates/wb_base_site.html:58
-#: intermediate/templates/wb_base_site.html:119
-#: intermediate/templates/wb_base_site.html:123
-#: sharing/templates/user_profile.html:49
-#: templates/wb_base_site.html:58
-#: templates/wb_base_site.html.py:119
-#: templates/wb_base_site.html:123
-msgid "My Account"
-msgstr "החשבון שלי"
-
-#: intermediate/templates/wb_base_site.html:59
-#: intermediate/templates/wb_base_site.html:124
-#: templates/wb_base_site.html:59
-#: templates/wb_base_site.html.py:124
-msgid "Logout"
-msgstr "התנתק"
-
-#: intermediate/templates/wb_base_site.html:96
-#: templates/wb_base_site.html:96
-msgid "Terms of Use"
-msgstr "תנאי שימוש"
-
-#: intermediate/templates/wb_base_site.html:97
-#: ordering/templates/terms.html:18
-#: sharing/templates/mobile/passenger_registration.html:146
-#: sharing/templates/mobile/privacy.html:16
-#: templates/wb_base_site.html:97
-msgid "Privacy Policy"
-msgstr "מדיניות פרטיות"
-
-#: intermediate/templates/wb_base_site.html:103
-#: templates/wb_base_site.html:103
-msgid "How it Works?"
-msgstr "איך זה עובד?"
-
-#: intermediate/templates/wb_base_site.html:104
-#: sharing/templates/about_faq_contact.html:18
-#: sharing/templates/mobile/faq.html:31
-#: templates/wb_base_site.html:104
-msgid "FAQ"
-msgstr "שאלות נפוצות"
-
-#: intermediate/templates/wb_base_site.html:111
-#: templates/wb_base_site.html:111
-msgid "Community"
-msgstr "קהילה"
-
-#: intermediate/templates/wb_base_site.html:114
-#: templates/wb_base_site.html:114
-msgid "Facebook"
-msgstr "פייסבוק"
-
-#: intermediate/templates/wb_base_site.html:115
-#: templates/wb_base_site.html:115
-msgid "Twitter"
-msgstr "טוויטר"
-
-#: intermediate/templates/wb_base_site.html:136
-#: templates/wb_base_site.html:136
-msgid "Back to Top"
-msgstr "למעלה"
 
 #: openid_consumer/views.py:96
 msgid "i-names are not supported"
@@ -1214,7 +1142,7 @@ msgstr "כתובת"
 
 #: ordering/forms.py:231
 #: ordering/forms.py:387
-#: ordering/models.py:659
+#: ordering/models.py:660
 msgid "Default station"
 msgstr "תחנה מועדפת"
 
@@ -1281,7 +1209,7 @@ msgid "Invalid address"
 msgstr "כתובת לא חוקית"
 
 #: ordering/forms.py:343
-#: sharing/passenger_controller.py:144
+#: sharing/passenger_controller.py:145
 msgid "Email Address"
 msgstr "כתובת אימייל"
 
@@ -1356,8 +1284,8 @@ msgid "charged"
 msgstr "חוייבה"
 
 #: ordering/models.py:100
-#: ordering/models.py:656
-#: ordering/models.py:835
+#: ordering/models.py:657
+#: ordering/models.py:836
 #: registration/models.py:170
 msgid "user"
 msgstr "משתמש"
@@ -1366,8 +1294,8 @@ msgstr "משתמש"
 #: ordering/models.py:248
 #: ordering/models.py:280
 #: ordering/models.py:310
-#: ordering/models.py:853
-#: ordering/models.py:1075
+#: ordering/models.py:854
+#: ordering/models.py:1077
 #: registration/forms.py:50
 msgid "station name"
 msgstr "שם תחנה"
@@ -1433,12 +1361,12 @@ msgid "fax number"
 msgstr "מספר פקס"
 
 #: ordering/models.py:122
-#: ordering/models.py:845
+#: ordering/models.py:846
 msgid "last order date"
 msgstr "תאריך הזמנה אחרונה"
 
 #: ordering/models.py:125
-#: ordering/models.py:785
+#: ordering/models.py:786
 msgid "confine orders"
 msgstr "אל תחפשו לי מונית בתחנות אחרות"
 
@@ -1463,9 +1391,9 @@ msgid "postal code"
 msgstr "מיקוד"
 
 #: ordering/models.py:137
-#: ordering/models.py:583
-#: ordering/models.py:777
-#: ordering/models.py:780
+#: ordering/models.py:584
+#: ordering/models.py:778
+#: ordering/models.py:781
 #: ordering/templates/passenger_profile.html:13
 #: registration/forms.py:80
 #: sharing/models.py:18
@@ -1478,15 +1406,15 @@ msgid "goehash"
 msgstr "goehash"
 
 #: ordering/models.py:139
-#: ordering/models.py:581
-#: ordering/models.py:782
+#: ordering/models.py:582
+#: ordering/models.py:783
 #: sharing/models.py:20
 msgid "longtitude"
 msgstr "אורך"
 
 #: ordering/models.py:140
-#: ordering/models.py:582
-#: ordering/models.py:783
+#: ordering/models.py:583
+#: ordering/models.py:784
 #: sharing/models.py:21
 msgid "latitude"
 msgstr "רוחב"
@@ -1533,8 +1461,8 @@ msgid "application terms"
 msgstr "תוקף"
 
 #: ordering/models.py:245
-#: ordering/models.py:663
-#: ordering/models.py:817
+#: ordering/models.py:664
+#: ordering/models.py:818
 msgid "phone number"
 msgstr "מספר טלפון"
 
@@ -1547,23 +1475,22 @@ msgid "driver"
 msgstr "נהג"
 
 #: ordering/models.py:308
-#: sharing/templates/passenger_notification_msg.html:2
 msgid "taxi"
 msgstr "מונית"
 
 #: ordering/models.py:329
-#: ordering/models.py:1061
+#: ordering/models.py:1062
 msgid "depart time"
 msgstr "שעת יציאה"
 
 #: ordering/models.py:330
-#: ordering/models.py:1062
+#: ordering/models.py:1063
 msgid "arrive time"
 msgstr "שעת הגעה"
 
 #: ordering/models.py:332
-#: ordering/models.py:1013
-#: ordering/models.py:1312
+#: ordering/models.py:1014
+#: ordering/models.py:1315
 msgid "status"
 msgstr "מצב"
 
@@ -1579,454 +1506,408 @@ msgstr "הוקצתה לנהג"
 msgid "assigned taxi"
 msgstr "הוקצתה למונית"
 
-#: ordering/models.py:576
-#: ordering/models.py:1058
+#: ordering/models.py:577
+#: ordering/models.py:1059
 msgid "ride"
 msgstr "נסיעה"
 
-#: ordering/models.py:578
+#: ordering/models.py:579
 msgid "stop time"
 msgstr "זמן עצירה"
 
-#: ordering/models.py:584
+#: ordering/models.py:585
 msgid "city name"
 msgstr "שם עיר"
 
-#: ordering/models.py:660
+#: ordering/models.py:661
 msgid "Default sharing station"
 msgstr "תחנה מועדפת לSharing"
 
-#: ordering/models.py:661
-#: ordering/models.py:1004
+#: ordering/models.py:662
+#: ordering/models.py:1005
 msgid "originating station"
 msgstr "תחנת המקור"
 
-#: ordering/models.py:664
+#: ordering/models.py:665
 msgid "phone verified"
 msgstr "טלפון מאומת"
 
-#: ordering/models.py:670
+#: ordering/models.py:671
 msgid "accept mailing"
 msgstr "מסכים לקבל אימיילים"
 
-#: ordering/models.py:673
+#: ordering/models.py:674
 #, fuzzy
 msgid "login token"
 msgstr "מפתח"
 
-#: ordering/models.py:676
+#: ordering/models.py:677
 #, fuzzy
 msgid "push token"
 msgstr "מפתח"
 
-#: ordering/models.py:682
+#: ordering/models.py:683
 msgid "banned"
 msgstr "חסום"
 
-#: ordering/models.py:684
+#: ordering/models.py:685
 msgid "invoice id"
 msgstr "מזהה חשבונית"
 
-#: ordering/models.py:773
-#: ordering/models.py:1320
+#: ordering/models.py:774
+#: ordering/models.py:1323
 #: ordering/templates/passenger_profile.html:9
 msgid "business name"
 msgstr "שם עסק"
 
-#: ordering/models.py:781
+#: ordering/models.py:782
 msgid "house_number"
 msgstr "מספר בית"
 
-#: ordering/models.py:794
+#: ordering/models.py:795
 msgid "business welcome mail subject"
 msgstr "WAYbetterתודה שהצטרפת ל "
 
-#: ordering/models.py:838
+#: ordering/models.py:839
 msgid "token"
 msgstr "מפתח"
 
-#: ordering/models.py:839
+#: ordering/models.py:840
 msgid "installer URL"
 msgstr "כתובת ההתקנה"
 
-#: ordering/models.py:840
+#: ordering/models.py:841
 msgid "was installed"
 msgstr "הותקן"
 
-#: ordering/models.py:841
+#: ordering/models.py:842
 msgid "Accept orders"
 msgstr "מקבלים הזמנות"
 
-#: ordering/models.py:843
+#: ordering/models.py:844
 msgid "Accept Shared Rides"
 msgstr "מקבלת נסיעות Sharing"
 
-#: ordering/models.py:848
+#: ordering/models.py:849
 msgid "channel_id"
 msgstr ""
 
-#: ordering/models.py:849
+#: ordering/models.py:850
 msgid "is online"
 msgstr "מחובר"
 
-#: ordering/models.py:852
-#: ordering/models.py:1076
+#: ordering/models.py:853
+#: ordering/models.py:1078
 msgid "station id"
 msgstr "זיהוי תחנה"
 
-#: ordering/models.py:953
+#: ordering/models.py:954
 msgid "Unrated"
 msgstr "ללא דירוג"
 
-#: ordering/models.py:954
+#: ordering/models.py:955
 msgid "Very poor"
 msgstr "גרוע מאוד"
 
-#: ordering/models.py:955
+#: ordering/models.py:956
 msgid "Not so bad"
 msgstr "לא כל כך נורא"
 
-#: ordering/models.py:956
+#: ordering/models.py:957
 msgid "Average"
 msgstr "ממוצע"
 
-#: ordering/models.py:957
+#: ordering/models.py:958
 msgid "Good"
 msgstr "טוב"
 
-#: ordering/models.py:958
+#: ordering/models.py:959
 msgid "Perfect"
 msgstr "מצויין"
 
-#: ordering/models.py:964
+#: ordering/models.py:965
 msgid "udid"
 msgstr "udid"
 
-#: ordering/models.py:965
+#: ordering/models.py:966
 msgid "gudid"
 msgstr "gudid"
 
-#: ordering/models.py:967
+#: ordering/models.py:968
 #, fuzzy
 msgid "origin"
 msgstr "כניסה"
 
-#: ordering/models.py:980
+#: ordering/models.py:981
 #, fuzzy
 msgid "app udid"
 msgstr "אייקון אפליקציה"
 
-#: ordering/models.py:981
+#: ordering/models.py:982
 #, fuzzy
 msgid "conversion id"
 msgstr "זיהוי תחנה"
 
-#: ordering/models.py:983
-#: ordering/models.py:1011
+#: ordering/models.py:984
+#: ordering/models.py:1012
 #, fuzzy
 msgid "user agent"
 msgstr "שם משתמש"
 
-#: ordering/models.py:985
+#: ordering/models.py:986
 msgid "blocked"
 msgstr ""
 
-#: ordering/models.py:987
+#: ordering/models.py:988
 #, fuzzy
 msgid "install count"
 msgstr "%d התקנה נוצרה"
 
-#: ordering/models.py:990
+#: ordering/models.py:991
 #, fuzzy
 msgid "device"
 msgstr "שירות"
 
-#: ordering/models.py:1006
+#: ordering/models.py:1007
 msgid "confining station"
 msgstr "מוגבלת לתחנה"
 
-#: ordering/models.py:1010
+#: ordering/models.py:1011
 msgid "mobile"
 msgstr "טלפונים ניידים"
 
-#: ordering/models.py:1014
+#: ordering/models.py:1015
 msgid "order language"
 msgstr "שפה"
 
-#: ordering/models.py:1016
+#: ordering/models.py:1017
 msgid "from country"
 msgstr "ממדינה"
 
-#: ordering/models.py:1017
-#: ordering/models.py:1502
-msgid "from city"
-msgstr "מעיר"
-
-#: ordering/models.py:1018
-#: pricing/models.py:165
+#: ordering/models.py:1019
+#: pricing/models.py:166
 msgid "from city area"
 msgstr "מאיזור בעיר"
 
-#: ordering/models.py:1020
+#: ordering/models.py:1021
 msgid "from postal code"
 msgstr "מ-מיקוד"
 
-#: ordering/models.py:1021
+#: ordering/models.py:1022
 msgid "from street address"
 msgstr "מ-שם רחוב"
 
-#: ordering/models.py:1022
+#: ordering/models.py:1023
 msgid "from_house_number"
 msgstr "מבית מספר"
 
-#: ordering/models.py:1025
+#: ordering/models.py:1026
 msgid "from goehash"
 msgstr "מ-גאוהאש"
 
-#: ordering/models.py:1026
-#: ordering/models.py:1499
-msgid "from_lon"
-msgstr "מ-אורך"
-
-#: ordering/models.py:1027
-#: ordering/models.py:1500
-msgid "from_lat"
-msgstr "מ-רוחב"
-
-#: ordering/models.py:1029
-#: ordering/models.py:1321
-#: ordering/models.py:1501
-msgid "from address"
-msgstr "מ-כתובת"
-
-#: ordering/models.py:1031
+#: ordering/models.py:1032
 msgid "to country"
 msgstr "ל-מדינה"
 
-#: ordering/models.py:1033
-#: ordering/models.py:1507
-msgid "to city"
-msgstr "ל-עיר"
-
-#: ordering/models.py:1034
-#: pricing/models.py:168
+#: ordering/models.py:1035
+#: pricing/models.py:169
 msgid "to city area"
 msgstr "ל-איזור בעיר"
 
-#: ordering/models.py:1036
+#: ordering/models.py:1037
 msgid "to postal code"
 msgstr "ל-מיקוד"
 
-#: ordering/models.py:1037
+#: ordering/models.py:1038
 msgid "to street address"
 msgstr "ל-שם רחוב"
 
-#: ordering/models.py:1038
+#: ordering/models.py:1039
 msgid "to_house_number"
 msgstr "אל בית מספר"
 
-#: ordering/models.py:1040
+#: ordering/models.py:1041
 msgid "to goehash"
 msgstr "ל-גאוהאש"
 
-#: ordering/models.py:1041
-#: ordering/models.py:1504
-msgid "to_lon"
-msgstr "ל-אורך"
-
-#: ordering/models.py:1042
-#: ordering/models.py:1505
-msgid "to_lat"
-msgstr "ל-רוחב"
-
-#: ordering/models.py:1044
-#: ordering/models.py:1322
-#: ordering/models.py:1506
-msgid "to address"
-msgstr "ל-כתובת"
-
-#: ordering/models.py:1048
+#: ordering/models.py:1049
 #, fuzzy
 msgid "installed_app"
 msgstr "הותקן"
 
-#: ordering/models.py:1053
+#: ordering/models.py:1054
 msgid "future pickup"
 msgstr "איסוף עתידי"
 
-#: ordering/models.py:1059
+#: ordering/models.py:1060
 msgid "pickup point"
 msgstr "נקודת מוצא"
 
-#: ordering/models.py:1060
+#: ordering/models.py:1061
 msgid "dropoff point"
 msgstr "נקודת יעד"
 
-#: ordering/models.py:1065
-msgid "discount rule"
-msgstr "הנחה"
-
-#: ordering/models.py:1072
+#: ordering/models.py:1074
 msgid "passenger rating"
 msgstr "דירוג נוסע"
 
-#: ordering/models.py:1077
+#: ordering/models.py:1079
 msgid "passenger phone"
 msgstr "מס' טלפון נוסע"
 
-#: ordering/models.py:1078
+#: ordering/models.py:1080
 msgid "passenger id"
 msgstr "זיהוי נוסע"
 
-#: ordering/models.py:1080
+#: ordering/models.py:1082
 msgid "api user"
 msgstr " API משתמש"
 
-#: ordering/models.py:1151
+#: ordering/models.py:1154
 msgid "private"
 msgstr "פרטית"
 
-#: ordering/models.py:1153
+#: ordering/models.py:1156
 msgid "shared"
 msgstr "משותפת"
 
-#: ordering/models.py:1155
+#: ordering/models.py:1158
 #, python-format
 msgid "%(date)s: Taxi ride from %(pickup)s to %(dropoff)s %(seats)s"
 msgstr "%(date)s: נסיעת מונית מ%(pickup)s ל%(dropoff)s %(seats)s"
 
-#: ordering/models.py:1159
+#: ordering/models.py:1162
 #: sharing/templates/booking_page.html:115
 msgid "seats"
 msgstr "מושבים"
 
-#: ordering/models.py:1314
+#: ordering/models.py:1317
 msgid "show date"
 msgstr "הצג תאריך"
 
-#: ordering/models.py:1316
+#: ordering/models.py:1319
 msgid "pickup_address_in_ws_lang"
 msgstr "כתובת איסוף מתורגמת עבור תחנה"
 
-#: ordering/models.py:1317
+#: ordering/models.py:1320
 msgid "dropoff_address_in_ws_lang"
 msgstr "כתובת הורדה מתורגמת עבור תחנה"
 
-#: ordering/models.py:1405
+#: ordering/models.py:1408
 msgid "assigned to station:"
 msgstr "הוקצה לתחנה:"
 
-#: ordering/models.py:1408
+#: ordering/models.py:1411
 msgid "Standard cab"
 msgstr "מונית רגילה"
 
-#: ordering/models.py:1413
-#: ordering/models.py:1441
-#: ordering/models.py:1460
+#: ordering/models.py:1416
+#: ordering/models.py:1444
+#: ordering/models.py:1463
 msgid "is active"
 msgstr "פעיל"
 
-#: ordering/models.py:1417
+#: ordering/models.py:1420
 #: pricing/models.py:54
 msgid "from day"
 msgstr "מיום"
 
-#: ordering/models.py:1418
+#: ordering/models.py:1421
 #: pricing/models.py:55
 msgid "to day"
 msgstr "ליום"
 
-#: ordering/models.py:1419
-#: ordering/models.py:1447
+#: ordering/models.py:1422
+#: ordering/models.py:1450
 #: pricing/models.py:57
 msgid "from hour"
 msgstr "משעה"
 
-#: ordering/models.py:1420
-#: ordering/models.py:1448
+#: ordering/models.py:1423
+#: ordering/models.py:1451
 #: pricing/models.py:58
 msgid "to hour"
 msgstr "עד שעה"
 
-#: ordering/models.py:1422
+#: ordering/models.py:1425
 msgid "from duration (s)"
 msgstr "מ-משך (שניות)"
 
-#: ordering/models.py:1422
-#: ordering/models.py:1423
-#: ordering/models.py:1431
+#: ordering/models.py:1425
+#: ordering/models.py:1426
+#: ordering/models.py:1434
 msgid "In seconds"
 msgstr "בשניות"
 
-#: ordering/models.py:1423
+#: ordering/models.py:1426
 msgid "to duration (s)"
 msgstr "ל-משך (שניות)"
 
-#: ordering/models.py:1426
+#: ordering/models.py:1429
 msgid "from distance (m)"
 msgstr "מ-מרחק (מטרים)"
 
-#: ordering/models.py:1426
-#: ordering/models.py:1427
+#: ordering/models.py:1429
 #: ordering/models.py:1430
+#: ordering/models.py:1433
 msgid "In meters"
 msgstr "במטרים"
 
-#: ordering/models.py:1427
+#: ordering/models.py:1430
 msgid "to distance (m)"
 msgstr "ל-מרחק (מטרים)"
 
-#: ordering/models.py:1430
+#: ordering/models.py:1433
 msgid "tick distance (m)"
 msgstr "מרחק תקתוק (מטרים)"
 
-#: ordering/models.py:1431
+#: ordering/models.py:1434
 msgid "tick time (s)"
 msgstr "זמן תקתוק (שניות)"
 
-#: ordering/models.py:1432
+#: ordering/models.py:1435
 msgid "cost per tick"
 msgstr "מחיר לכל תקתוק"
 
-#: ordering/models.py:1433
-#: ordering/models.py:1452
-#: ordering/models.py:1463
+#: ordering/models.py:1436
+#: ordering/models.py:1455
+#: ordering/models.py:1466
 msgid "fixed cost"
 msgstr "מחיר מחירון"
 
-#: ordering/models.py:1444
+#: ordering/models.py:1447
 msgid "city 1"
 msgstr "עיר 1"
 
-#: ordering/models.py:1445
+#: ordering/models.py:1448
 msgid "city 2"
 msgstr "עיר 2"
 
-#: ordering/models.py:1449
+#: ordering/models.py:1452
 msgid "from day-of-week"
 msgstr "מ-יום בשבוע"
 
-#: ordering/models.py:1450
+#: ordering/models.py:1453
 msgid "to day-of-week"
 msgstr "ל-יום בשבוע"
 
-#: ordering/models.py:1469
+#: ordering/models.py:1472
 msgid "Website"
 msgstr "האתר"
 
-#: ordering/models.py:1469
+#: ordering/models.py:1472
 msgid "Booking"
 msgstr "ההזמנה"
 
-#: ordering/models.py:1469
+#: ordering/models.py:1472
 msgid "Registration"
 msgstr "ההרשמה"
 
-#: ordering/models.py:1469
+#: ordering/models.py:1472
 msgid "Taxi Ride"
 msgstr "הנסיעה במונית"
 
-#: ordering/models.py:1469
+#: ordering/models.py:1472
 msgid "Other"
 msgstr "אחר"
 
@@ -2143,36 +2024,36 @@ msgstr "לא נמצאה מונית פנויה. אנא נסו שנית מאוחר
 msgid "Your request could not be completed."
 msgstr "הפעולה נכשלה"
 
-#: ordering/ordering_controller.py:185
+#: ordering/ordering_controller.py:187
 msgid "You are not authorized to view the status of this order"
 msgstr "אינך מורשה לצפות בנסיעה זו"
 
-#: ordering/ordering_controller.py:194
+#: ordering/ordering_controller.py:196
 msgid "This card cannot be charged. It may be expired, blocked or not yet supported by WAYbetter (American Express)"
 msgstr "לא ניתן לבצע חיוב בכרטיס זה. ייתכן והכרטיס חסום או שאינו נתמך במערכת (אמריקן אקספרס)."
 
-#: ordering/ordering_controller.py:199
+#: ordering/ordering_controller.py:201
 msgid "Order was not processed for billing"
 msgstr "לא בוצע תשלום עבור נסיעה זו"
 
-#: ordering/ordering_controller.py:326
+#: ordering/ordering_controller.py:328
 #: sharing/templates/booking_page.html:195
 msgid "or less"
 msgstr "או פחות"
 
-#: ordering/ordering_controller.py:490
+#: ordering/ordering_controller.py:514
 msgid "This order cannot be cancelled anymore"
 msgstr "לא ניתן לבטל נסיעה זו"
 
-#: ordering/ordering_controller.py:502
+#: ordering/ordering_controller.py:526
 msgid "Order cancelled"
 msgstr "הנסיעה בוטלה"
 
-#: ordering/ordering_controller.py:536
+#: ordering/ordering_controller.py:560
 msgid "Sorry, but this ride has been closed for booking"
 msgstr "מצטערים, אך כבר לא ניתן להצטרף לנסיעה זאת"
 
-#: ordering/ordering_controller.py:541
+#: ordering/ordering_controller.py:565
 msgid "Please choose a later pickup time"
 msgstr "בבקשה בחר זמן איסוף מאוחר יותר"
 
@@ -2227,12 +2108,12 @@ msgid "Verification code: %s"
 msgstr "קוד אימות: %s"
 
 #: ordering/passenger_controller.py:523
-#: sharing/passenger_controller.py:352
+#: sharing/passenger_controller.py:353
 msgid "Error validating phone (check that your browser accepts cookies)"
 msgstr "אימות טלפון נכשל: יש לאפשרקבלת עוגיות (cookies) בדפדפן"
 
 #: ordering/passenger_controller.py:526
-#: sharing/passenger_controller.py:354
+#: sharing/passenger_controller.py:355
 msgid "Invalid verification code"
 msgstr "קוד SMS שגוי"
 
@@ -2258,7 +2139,7 @@ msgstr "לא ניתן להציג את פרטי נסיעה זו"
 msgid "This ride has expired"
 msgstr "נסיעה זו כבר הסתיימה"
 
-#: ordering/signals.py:87
+#: ordering/signals.py:72
 #, python-format
 msgid "%(name)s joined your taxi - you save %(savings)s NIS!"
 msgstr "%(name)s הצטרפ/ה למונית שלך - חסכת %(savings)s שקלים!"
@@ -2279,6 +2160,10 @@ msgstr "ללא התייחסות"
 #, python-format
 msgid "%s Taxi station"
 msgstr "מונית %s"
+
+#: ordering/util.py:139
+msgid "Shared Taxi Rides"
+msgstr "מוניות ספיישל משותפות"
 
 #: ordering/util.py:152
 #, python-format
@@ -2618,17 +2503,31 @@ msgstr ""
 msgid "Upload specific pricing rules (inter-city taarif in CSV format)"
 msgstr "טען כללים תמחור ספציפי (בינעירוניים taarif בפורמט CSV)"
 
+#: ordering/templates/info.html:28
+#: ordering/templates/mobile/passenger_home.html:230
+#: ordering/templates/mobile/passenger_home.html:273
+#: templates/base.html:139
+#: templates/wb_base_site.html:44
+#: templates/wb_base_site.html.py:101
+msgid "About"
+msgstr "אודות"
+
 #: ordering/templates/info.html:29
 #: templates/base.html:140
 msgid "Press"
 msgstr "תקשורת"
 
-#: ordering/templates/info.html:34
-#: templates/base.html:145
+#: ordering/templates/info.html:31
+#: templates/base.html:142
+msgid "Help"
+msgstr "עזרה"
+
+#: ordering/templates/info.html:33
+#: templates/base.html:144
 msgid "Terms"
 msgstr "תנאי שימוש"
 
-#: ordering/templates/info.html:35
+#: ordering/templates/info.html:34
 #: ordering/templates/passenger_home.html:67
 msgid "TAXI"
 msgstr "TAXI"
@@ -3025,7 +2924,7 @@ msgid "Station Manager?"
 msgstr "מנהל תחנה?"
 
 #: ordering/templates/stations.html:31
-#: templates/base.html:146
+#: templates/base.html:145
 msgid "Station Entrance"
 msgstr "כניסת תחנות"
 
@@ -3056,6 +2955,13 @@ msgstr ""
 "נוכח אילוצים תנועתיים ואחרים, הגם ש  WAYbetter עושה כל מאמץ על מנת שהמידע והערכות מחיר וזמן יהיו מדויקות,תתכן סטייה או אי התאמה בין המידע שניתן לבין המציאות. WAYbetter לא תהא אחראית לכל טעות, שגיאה, או חוסר התאמה של המידע ו/או הנתונים שניתנו . כמו כן WAYbetter לא תישא בכל נזק ו/או הוצאה שיגרמו עקב מעשים או מחדלים כמפורט לעיל.\n"
 "המשתמש בשירות מתחייב שלא לבצע שימוש לרעה או כל שימוש שאינו לצורך הזמנת מונית ממשית.\n"
 "WAYbetter תהא רשאית, על פי שיקול דעתה הבלעדי, להפסיק את מתן השירות או לערוך בו שינויים.    "
+
+#: ordering/templates/terms.html:18
+#: sharing/templates/mobile/passenger_registration.html:146
+#: sharing/templates/mobile/privacy.html:16
+#: templates/wb_base_site.html:97
+msgid "Privacy Policy"
+msgstr "מדיניות פרטיות"
 
 #: ordering/templates/terms.html:19
 msgid "web_actual_privacy_policy"
@@ -3230,6 +3136,14 @@ msgstr "אין נסיעות"
 msgid "GPS"
 msgstr "GPS"
 
+#: ordering/templates/mobile/passenger_home.html:158
+#: ordering/templates/mobile/passenger_home.html:204
+#: sharing/templates/my_rides.html:7
+#: templates/wb_base_site.html:57
+#: templates/wb_base_site.html.py:122
+msgid "My Rides"
+msgstr "הנסיעות שלי"
+
 #: ordering/templates/mobile/passenger_home.html:169
 #: templates/mobile/base.html:69
 msgid "Select Address"
@@ -3325,19 +3239,19 @@ msgstr "אחוז"
 msgid "amount"
 msgstr "סכום"
 
-#: pricing/models.py:166
+#: pricing/models.py:167
 msgid "from everywhere"
 msgstr "מכל מקום"
 
-#: pricing/models.py:169
+#: pricing/models.py:170
 msgid "to everywhere"
 msgstr "לכל מקום"
 
-#: pricing/models.py:171
+#: pricing/models.py:172
 msgid "bidirectional"
 msgstr "דו כווני"
 
-#: pricing/models.py:187
+#: pricing/models.py:188
 msgid "*Gift*"
 msgstr "*מתנה*"
 
@@ -3414,7 +3328,7 @@ msgid "registration profiles"
 msgstr "פרופילי הרשמה"
 
 #: sharing/forms.py:12
-#: sharing/passenger_controller.py:143
+#: sharing/passenger_controller.py:144
 msgid "Full Name"
 msgstr "שם מלא"
 
@@ -3454,57 +3368,57 @@ msgstr "דקות"
 msgid "radius"
 msgstr "רדיוס"
 
-#: sharing/passenger_controller.py:53
-#: sharing/passenger_controller.py:55
+#: sharing/passenger_controller.py:54
+#: sharing/passenger_controller.py:56
 msgid "Not found"
 msgstr "לא קיים"
 
-#: sharing/passenger_controller.py:121
 #: sharing/passenger_controller.py:122
+#: sharing/passenger_controller.py:123
 msgid "Not Entered"
 msgstr "לא קיים"
 
-#: sharing/passenger_controller.py:140
+#: sharing/passenger_controller.py:141
 msgid "Exp"
 msgstr "תוקף"
 
-#: sharing/passenger_controller.py:145
+#: sharing/passenger_controller.py:146
 #: sharing/templates/passenger_registration.html:115
 #: sharing/templates/verify_passenger.html:43
 #: sharing/templates/mobile/verify_passenger.html:26
 msgid "Mobile Phone"
 msgstr "טלפון נייד"
 
-#: sharing/passenger_controller.py:146
+#: sharing/passenger_controller.py:147
 msgid "Billing Info"
 msgstr "פרטי חיוב"
 
-#: sharing/passenger_controller.py:193
+#: sharing/passenger_controller.py:194
 msgid "We have encountered an error. Please try again."
 msgstr "אופס, התרחשה שגיאה. אנא נסו שוב."
 
-#: sharing/passenger_controller.py:290
+#: sharing/passenger_controller.py:291
 msgid "You must be logged in to validate your phone."
 msgstr "עלייך להכנס לחשבונך לפני ביצוע אימות טלפון."
 
-#: sharing/passenger_controller.py:309
+#: sharing/passenger_controller.py:310
 msgid "We are sorry but your phone cannot be changed now. We will contact you to resolve this issue as soon as possible"
 msgstr "אנו מצטערים אך לא ניתן לשנות את מספר הטלפון כרגע. ניצור איתך קשר בקרוב כדי לפתור זאת"
 
-#: sharing/passenger_controller.py:364
+#: sharing/passenger_controller.py:365
 msgid "We're sorry but your phone appears to used by multiple users. Please contact support@waybetter.com to resolve this issue."
 msgstr "הטלפון שלך נמצא בשימוש על ידי כמה נוסעים. אנא פנה אל contact@waybetter.com לקבלת עזרה."
 
-#: sharing/passenger_controller.py:400
+#: sharing/passenger_controller.py:412
 msgid "WAYbetter ride"
 msgstr "נסיעת מונית WAYbetter"
 
-#: sharing/passenger_controller.py:400
+#: sharing/passenger_controller.py:412
 #: sharing/templates/booking_page.html:16
 msgid "Private ride"
 msgstr "נסיעת מונית פרטית"
 
-#: sharing/signals.py:61
+#: sharing/signals.py:67
 #, python-format
 msgid "We're sorry but we couldn't find a taxi for you this time. (Order: %s)"
 msgstr "אנו מצטערים אך לא הצלחנו למצוא לך מונית הפעם (הזמנה: %s)"
@@ -3513,6 +3427,12 @@ msgstr "אנו מצטערים אך לא הצלחנו למצוא לך מונית 
 #: sharing/templates/about_faq_contact.html:27
 msgid "How it Works"
 msgstr "איך זה עובד"
+
+#: sharing/templates/about_faq_contact.html:18
+#: sharing/templates/mobile/faq.html:31
+#: templates/wb_base_site.html:104
+msgid "FAQ"
+msgstr "שאלות נפוצות"
 
 #: sharing/templates/about_faq_contact.html:54
 msgid "Frequently Asked Questions"
@@ -3620,20 +3540,14 @@ msgid "Report Order #"
 msgstr "דווח על נסיעה #"
 
 #: sharing/templates/passenger_notification_msg.html:1
-msgid "Taxi is on the way!"
-msgstr "המונית בדרך!"
+#, python-format
+msgid "Taxi %(taxi_number)s is on the way! Pickup in %(pickup_time)s minutes. You can track the taxi position in our app"
+msgstr "מונית %(taxi_number)s בדרך! איסוף בעוד %(pickup_time)s דקות. ניתן לעקוב אחר מיקום המונית באפליקציה."
 
 #: sharing/templates/passenger_notification_msg.html:1
-msgid "_pickupat"
-msgstr "איסוף ב"
-
-#: sharing/templates/passenger_notification_msg.html:2
-msgid "_station"
-msgstr "תחנת"
-
-#: sharing/templates/passenger_notification_msg.html:2
-msgid "Tell the driver you’re with WAYbetter and the paper is at the station"
-msgstr "אמרו לנהג שאתם WAYbetter ושהפתק בתחנה"
+#, python-format
+msgid "Taxi is on the way! Pickup in %(pickup_time)s minutes. You can track the taxi position in our app"
+msgstr "מונית בדרך! איסוף בעוד %(pickup_time)s דקות. ניתן לעקוב אחר מיקום המונית באפליקציה."
 
 #: sharing/templates/passenger_registration.html:63
 msgid "Account Information"
@@ -3762,6 +3676,13 @@ msgstr "<p>    תנאי השימוש המפורטים להלן (להלן – \"�
 #: sharing/templates/the_service.html:8
 msgid "the_service_content"
 msgstr "<p class=\"header\"> WAYbetter מציעה אלטרנטיבה תחבורתית חדשה ומשתלמת, נסיעה שיתופית במונית ספיישל תוך חסכון של עשרות שקלים ושמירה על איכות הסביבה.</p><div class=\"content\"><p>היתרון  הגדול של WAYbetter הוא שאתם לא צריכים למצוא שותפים לנסיעה ולא צריכים לעשות כלום כדי לשלם פחות, רק להזמין נסיעה, ולשלם את המחיר המופחת <span class=\"bold\">(אפילו אם נסעתם לבד!)</span>.</p><p>איך זה מתאפשר? <br>אנו מאפשרים לנסוע מכל מקום בעיר ל\"נקודות-מרכזיות\": שכונות מגורים, אירועים, מרכזי עסקים וכו'... (וחזור) בהן אנו יודעים כי יש די ביקוש כדי לייעל את צי המוניות ולאפשר חסכון משמעותי.</p><p><span class=\"remember\">זכרו</span>, WAYbetter היא בשביל ובזכות משתמשיה. אתם אלה המאפשרים לייעל את המוניות וכך להוזיל את מחירן. ככל שיותר אנשים יזמינו ב-WAYbetter כך מחירי הנסיעה יצנחו, הזמינות תגדל, ואיזורי הכיסוי יתרחבו, עד שנרשת את העיר כולה.</p><p>איך אתם יכולים לעזור?<ol><li>סעו. כל נסיעה מאפשרת לייעל ולהוזיל, לכם ולשאר החברים ב WAYbetter.</li><li>ספרו לחברים- המליצו להם לנסות את השירות (זה מגניב, נוח, מהיר, סביבתי ועוד...)</li><li>ספרו לנו מה הנקודות המרכזיות שלכם (כאן). כך נוכל להוסיף איזורי כיסוי נוספים ולרשת את העיר כולה.</li></p></div>"
+
+#: sharing/templates/user_profile.html:49
+#: templates/wb_base_site.html:58
+#: templates/wb_base_site.html.py:119
+#: templates/wb_base_site.html:123
+msgid "My Account"
+msgstr "החשבון שלי"
 
 #: sharing/templates/user_profile.html:116
 msgid "Reset Password"
@@ -3965,13 +3886,70 @@ msgstr "WAYbetter - The Social Taxi App"
 msgid "Revolution in Transportation: Share your ride, pay less"
 msgstr "מהפכה בתחבורה: משתפים מוניות וחוסכים"
 
+#: templates/wb_base.html:22
+msgid "smart,iPhone,way better,order taxi, share"
+msgstr "מונית,משותפת,ווי-בטר,הזמנת מונית,מונית תל אביב,רמת החייל,חינם,אפליקציה,סביבה, שיתוף"
+
 #: templates/wb_base.html:26
 msgid "WAYbetter. The Social Taxi App"
 msgstr "WAYbetter. The Social Taxi App"
 
+#: templates/wb_base.html:99
+msgid "Social revolution in public transportation. WAYbetter allows you to order shared taxi rides , for a (very) low fixed price. It’s green, it’s fast and it’s cheap. Check it out: www.waybetter.com"
+msgstr ""
+"WAYbetter - אפליקציה חברתית חדשה שעושה מהפכה בתחבורה.\\n"
+"באפליקציה ניתן להזמין נסיעות משותפות במונית ספיישל, תוך חסכון אדיר (ומובטח) של עשרות שקלים לנסיעה.\\n"
+"זה משתלם, זה חברתי וזה ירוק.\\n"
+"\\n"
+"חייבים לנסות:\\n"
+"www.waybetter.com"
+
 #: templates/wb_base_mobile.html:25
 msgid "Thinking..."
 msgstr "חושב..."
+
+#: templates/wb_base_site.html:46
+msgid "Get the App"
+msgstr "הורידו את האפליקציה"
+
+#: templates/wb_base_site.html:48
+#, fuzzy
+msgid "iPhone"
+msgstr "טלפון"
+
+#: templates/wb_base_site.html:49
+#, fuzzy
+msgid "Android"
+msgstr "מדינה"
+
+#: templates/wb_base_site.html:59
+#: templates/wb_base_site.html.py:124
+msgid "Logout"
+msgstr "התנתק"
+
+#: templates/wb_base_site.html:96
+msgid "Terms of Use"
+msgstr "תנאי שימוש"
+
+#: templates/wb_base_site.html:103
+msgid "How it Works?"
+msgstr "איך זה עובד?"
+
+#: templates/wb_base_site.html:111
+msgid "Community"
+msgstr "קהילה"
+
+#: templates/wb_base_site.html:114
+msgid "Facebook"
+msgstr "פייסבוק"
+
+#: templates/wb_base_site.html:115
+msgid "Twitter"
+msgstr "טוויטר"
+
+#: templates/wb_base_site.html:136
+msgid "Back to Top"
+msgstr "למעלה"
 
 #: templates/admin/billing/billingtransaction/change_form.html:21
 msgid "Add"
@@ -4062,6 +4040,36 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
 
+#~ msgid ""
+#~ "Revolution in Transportation: Shared taxi rides to Hotspots. Book a "
+#~ "shared taxi online: comfortable, hassle free ride, save tens of dollars."
+#~ msgstr ""
+#~ "מהפכה בתחבורה: מוניות לכולם! הזמינו מונית בלחיצה וסעו בנוחות, בלי ארנק, "
+#~ "בלי דאגות ותוך חסכון של עד 80% לנסיעה"
+
+#~ msgid "Half Price Taxi Rides"
+#~ msgstr "מוניות לכולם, בחצי מחיר"
+
+#~ msgid ""
+#~ "Revolution in Transportation: Half-priced taxi rides. Book a shared taxi "
+#~ "online: comfortable, hassle free ride, save tens of dollars."
+#~ msgstr ""
+#~ "מהפכה בתחבורה: מונית בחצי מחיר!הזמינו מונית בלחיצה וסעו בנוחות, בלי ארנק, "
+#~ "בלי דאגות ותוך חסכון של עשרות שקלים לנסיעה."
+
+#~ msgid "Taxi is on the way!"
+#~ msgstr "המונית בדרך!"
+
+#~ msgid "_pickupat"
+#~ msgstr "איסוף ב"
+
+#~ msgid "_station"
+#~ msgstr "תחנת"
+
+#~ msgid ""
+#~ "Tell the driver you’re with WAYbetter and the paper is at the station"
+#~ msgstr "אמרו לנהג שאתם WAYbetter ושהפתק בתחנה"
+
 #~ msgid "You can view your taxi location in our app"
 #~ msgstr "ניתן לעקוב אחרי מיקום המונית באפליקציה"
 
@@ -4079,9 +4087,6 @@ msgstr "שגיאה בבודק האיות"
 
 #~ msgid "Today"
 #~ msgstr "היום"
-
-#~ msgid "Help"
-#~ msgstr "עזרה"
 
 #~ msgid "Points"
 #~ msgstr "נקודות"
@@ -4996,9 +5001,6 @@ msgstr "שגיאה בבודק האיות"
 #~ "terms of service"
 #~ msgstr ""
 #~ "הערכות הזמן והמחיר המקוריים מתבססות על תחשיב אוטומטי - כמפורט בתנאי השימוש"
-
-#~ msgid "at"
-#~ msgstr "בשעה"
 
 #~ msgid "Please choose from list"
 #~ msgstr "בבקשה בחר מהרשימה"
