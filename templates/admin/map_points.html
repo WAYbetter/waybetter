@@ -68,10 +68,9 @@
     <script src="//ajax.googleapis.com/ajax/libs/jqueryui/1.8.13/jquery-ui.min.js"></script>
     <script src="/static/js/libs/jquery.colorPicker.min.js"></script>
     <script src="/static/js/libs/jquery.tablednd_0_5.min.js"></script>
-    <script src="http://api.telmap.com/maps/api/js?sensor=false"></script>
+    <script type="text/javascript" src="http://maps.googleapis.com/maps/api/js?libraries=places&sensor=false&language=he"></script>
     <script type="text/javascript" src="/static/js/utils.js"></script>
     <script type="text/javascript" src="/static/js/wb_init.js"></script>
-    <script src="/static/js/ordering.js"></script>
 
     <script type="text/javascript">
     function addColor(text, element) {
@@ -959,6 +958,7 @@ $.widget("ui.selectmenu", {
         currently_editing_id	: undefined,
         drag_marker			    : undefined,
         undo_buffers            : {},
+        map                     : undefined,
 
         removeDragMarker        : function () {
             if (this.drag_marker) {
@@ -969,25 +969,25 @@ $.widget("ui.selectmenu", {
 
         removeListeners         : function () {
             $.each(this.map_listeners, function(i, e) {
-                telmap.maps.event.removeListener(e);
+                google.maps.event.removeListener(e);
             });
 
             $.each(this.polygon_listeners, function(i, e) {
-                telmap.maps.event.removeListener(e);
+                google.maps.event.removeListener(e);
             });
         },
 
         centerMap               : function () {
             var that = this;
-            var bounds = new telmap.maps.LatLngBounds();
+            var bounds = new google.maps.LatLngBounds();
             $.each(that.polygons, function(i, polygon) {
-                $.each(polygon.getPath().array, function(i, point) {
+                $.each(polygon.getPath().getArray(), function(i, point) {
                     bounds.extend(point);
                 })
             });
 
-            OrderingHelper.map.fitBounds(bounds);
-            OrderingHelper.map.panToBounds(bounds);
+            that.map.fitBounds(bounds);
+            that.map.panToBounds(bounds);
         },
 
         renderPolygons          : function () {
@@ -1008,8 +1008,9 @@ $.widget("ui.selectmenu", {
         },
 
         updatePolygonPoint      : function (polygon, index, lat, lng, insert) {
-            var path = polygon.getPath() || new telmap.maps.MVCArray([]);
-            var point = new telmap.maps.LatLng(lat, lng);
+            var that = this;
+            var path = polygon.getPath() || new google.maps.MVCArray([]);
+            var point = new google.maps.LatLng(lat, lng);
 
             if (index > path.getLength() || index < 0) {
                 path.push(point);
@@ -1022,7 +1023,7 @@ $.widget("ui.selectmenu", {
                 }
             }
             polygon.setPath(path);
-            polygon.setMap(OrderingHelper.map);
+            polygon.setMap(that.map);
             return index;
 
         },
@@ -1052,23 +1053,23 @@ $.widget("ui.selectmenu", {
                         index = opts.index
                     }
                 }
-                that.polygons[id] = new telmap.maps.Polygon({
+                that.polygons[id] = new google.maps.Polygon({
                     fillColor: color,
                     fillOpacity: 0.55,
                     strokeColor: color,
                     strokeOpacity: 0.9,
                     strokeWeight: 2,
-                    path: new telmap.maps.MVCArray([]),
+                    path: new google.maps.MVCArray([]),
                     zIndex: index
                 });
 
                 // redispatch mouse events to map
-                telmap.maps.event.addListener(that.polygons[id], "click", function(e) {
-                    telmap.maps.event.trigger(OrderingHelper.map, "click", e);
-                });
-                telmap.maps.event.addListener(that.polygons[id], "mousemove", function(e) {
-                    telmap.maps.event.trigger(OrderingHelper.map, "mousemove", e);
-                });
+//                google.maps.event.addListener(that.polygons[id], "click", function(e) {
+//                    google.maps.event.trigger(that.map, "click", e);
+//                });
+//                google.maps.event.addListener(that.polygons[id], "mousemove", function(e) {
+//                    google.maps.event.trigger(that.map, "mousemove", e);
+//                });
             }
             return that.polygons[id];
         },
@@ -1084,7 +1085,7 @@ $.widget("ui.selectmenu", {
                 var path = that.getPolygon(that.currently_editing_id).getPath();
                 if (path) {
                     var val_array = [];
-                    $.each(path.array, function(i, e) {
+                    $.each(path.getArray(), function(i, e) {
                         val_array.push(e.lat());
                         val_array.push(e.lng());
                     });
@@ -1101,7 +1102,7 @@ $.widget("ui.selectmenu", {
                 $("#edit-" + id).addClass("editing").text("Done");
 
                 var polygon = that.getPolygon(that.currently_editing_id);
-                that.map_listeners.push(telmap.maps.event.addListener(OrderingHelper.map, 'click', function(e) {
+                that.map_listeners.push(google.maps.event.addListener(that.map, 'click', function(e) {
                     if (! that.undo_buffers[polygon]) {
                         that.undo_buffers[polygon] = []
                     }
@@ -1109,7 +1110,7 @@ $.widget("ui.selectmenu", {
 
                     // add the point in the correct index
                     if (polygon.getPath() && polygon.getPath().getLength() > 2) {
-                        var path = polygon.getPath().array;
+                        var path = polygon.getPath().getArray();
                         var edges = path.map(function(pp, i) { // create a list of edges
                             return new Array(path[i % path.length], path[(i + 1) % path.length]);
                         });
@@ -1131,7 +1132,7 @@ $.widget("ui.selectmenu", {
 
                 }));
 
-                that.map_listeners.push(telmap.maps.event.addListener(OrderingHelper.map, 'rightclick', function(e) {
+                that.map_listeners.push(google.maps.event.addListener(that.map, 'rightclick', function(e) {
                     var undo_buffer = that.undo_buffers[polygon];
                     if (undo_buffer && undo_buffer.length) {
                         var last_index = undo_buffer.pop();
@@ -1142,8 +1143,12 @@ $.widget("ui.selectmenu", {
                     }
                 }));
 
-                that.map_listeners.push(telmap.maps.event.addListener(OrderingHelper.map, "mousemove", function(e) {
-                    var distances = $.map(polygon.getPath().array, function(p, i) {
+                that.map_listeners.push(google.maps.event.addListener(that.map, "mousemove", function(e) {
+                    if (that.dragging) {
+                        return true;
+                    }
+                    console.log(e.latLng.x, e.latLng.y);
+                    var distances = $.map(polygon.getPath().getArray(), function(p, i) {
                         return that.pointDistance(p, e.latLng);
                     });
                     var min_index = distances.indexOf(Math.min.apply(null, distances));
@@ -1176,19 +1181,24 @@ $.widget("ui.selectmenu", {
             that.removeDragMarker();
             var path = polygon.getPath();
             var point = path.getAt(point_index);
-            var icon_image = new telmap.maps.MarkerImage("/static/images/polygon_drag_marker.png", undefined, undefined, {x:5, y:5});
-            that.drag_marker = new telmap.maps.Marker({
-                map:        OrderingHelper.map,
+            var icon_image = new google.maps.MarkerImage("/static/images/polygon_drag_marker.png", undefined, undefined, {x:5, y:5});
+            that.drag_marker = new google.maps.Marker({
+                map:        that.map,
                 position:   point,
                 draggable:  true,
                 icon:       icon_image,
                 cursor:     'move',
                 title:      'Drag to edit polygon (' + point.x + ',' + point.y + ')'
             });
-            telmap.maps.event.addListener(that.drag_marker, 'dragend', function(e) {
+            google.maps.event.addListener(that.drag_marker, 'dragstart', function(e) {
+                console.log("dragstart", e);
+                that.dragging = true;
+            });
+            google.maps.event.addListener(that.drag_marker, 'dragend', function(e) {
+                that.dragging = false;
                 path.setAt(point_index, that.drag_marker.getPosition());
                 polygon.setPath(path);
-                polygon.setMap(OrderingHelper.map);
+                polygon.setMap(that.map);
             });
         },
         deletePoint             : function (index) {
@@ -1199,7 +1209,7 @@ $.widget("ui.selectmenu", {
                 if (index) { // delete point at given index
                     path.removeAt(index);
                 } else { // delete piont at current drag_marker location
-                    $.each(path.array, function(i, p) {
+                    $.each(path.getArray(), function(i, p) {
                         if (p == that.drag_marker.getPosition()) {
                             path.removeAt(i);
                             return false;
@@ -1304,10 +1314,10 @@ $.widget("ui.selectmenu", {
             return true;
         });
 
-        OrderingHelper.init({
-            telmap_user:                "{% value_from_settings "TELMAP_API_USER" %}",
-            telmap_password:            "{% value_from_settings "TELMAP_API_PASSWORD" %}",
-            telmap_languages:           "he"
+        MapPointsHelper.map = new google.maps.Map(document.getElementById("map"), {
+            center:new google.maps.LatLng(32.091301,34.780888),
+            zoom:8,
+            mapTypeId:google.maps.MapTypeId.ROADMAP
         });
     });
 
