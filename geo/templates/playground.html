@@ -20,22 +20,17 @@
                     </div>
 
                     <div class="row">
-                        <ul ng-show="user_input" ng-repeat="place in places|filter:user_input">
+                        <ul ng-repeat="place in places| emptyifblank:user_input | filter:user_input">
                             <li>(( place.name )) <span class="badge badge-success">wb</span></li>
                         </ul>
-                        <ul ng-repeat="result in predictions">
-                            <li>(( result.description )) <span class="badge badge-info">g</span></li>
+                        <ul ng-repeat="suggestion in suggestions">
+                            <li>
+                                <span>(( pprint(suggestion) ))</span>
+                                <span ng-show="suggestion.missing_hn" class="badge badge-important">invalid</span>
+                                <span ng-show="suggestion.missing_hn" class="badge badge-warning">missing hn</span>
+                            </li>
                         </ul>
                     </div>
-
-                    <hr class="dashed">
-
-                    <h1>Geocoding results</h1>
-                    <ul ng-repeat="result in geocoding_results">
-                        <li>
-                            <div>(( pprint(result) ))</div>
-                        </li>
-                    </ul>
 
                 </div>
                 <div class="span4">
@@ -55,42 +50,40 @@
             $interpolateProvider.startSymbol('((');
             $interpolateProvider.endSymbol('))');
         });
+        app.filter("emptyifblank", function(){ return function(object, query){
+            if(!query)
+                return {};
+            else
+                return object;
+        }});
         app.controller('PlaygroundCtrl', function ($scope, $http, $q, GeocodingService, AutocompleteService, PlacesService, wbEvents) {
-            $scope.places_service = PlacesService;
+            $scope.autocomplete_service = AutocompleteService;
 
             $scope.user_input = undefined;
-            $scope.geocoding_results = [];
-            $scope.predictions = [];
+            $scope.suggestions = [];
 
             {% autoescape off %}
             $scope.places = {{ places }};
             {% endautoescape %}
 
-            $scope.pprint = function(json_obj){
-                return JSON.stringify(json_obj, undefined, 2);
+            $scope.pprint = function(suggestion){
+                if (suggestion && suggestion.place){
+                    return suggestion.place.formatted_address;
+                }
+                return "undefined";
             };
 
             $scope.$watch("user_input", function (val) {
                 if (!val){
-                    $scope.predictions = [];
+                    $scope.suggestions = [];
                     return;
                 }
 
-                AutocompleteService.get_predictions(val).then(function (result) {
-                    $scope.predictions = result;
-                });
+                AutocompleteService.get_suggestions(val).then(function (results) {
+                    $scope.suggestions = results;
+                }, function(){ });
             });
 
-            $scope.$watch("predictions", function (predictions) {
-                $scope.geocoding_results = [];
-                if (!predictions.length){
-                    return;
-                }
-                var prediction_strings = predictions.map(function(pre){return pre.description});
-                GeocodingService.bulk_geocode(prediction_strings).then(function(results){
-                    $scope.geocoding_results = results;
-                });
-            });
         });
     </script>
 {% endblock %}

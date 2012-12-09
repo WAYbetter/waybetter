@@ -39,19 +39,29 @@ module.service("DirectionsService", function ($q) {
 
 module.service("GeocodingService", function ($q, $rootScope) {
     var geocoder = new google.maps.Geocoder();
+    var ongoing_requests = 0;
+
     return {
         _do_geocoding_request: function(request){
             var deferred = $q.defer();
+            ongoing_requests++;
 
             geocoder.geocode(request, function (result, status) {
-                $rootScope.$apply(function() {
-                    if (status == google.maps.GeocoderStatus.OK && result.length) {
-                        deferred.resolve(result);
-                    }
-                    else {
-                        deferred.reject(status);
-                    }
-                });
+                ongoing_requests--;
+
+                if (status == google.maps.GeocoderStatus.OK && result.length) {
+                    deferred.resolve(result);
+                }
+                else {
+                    console.log("GeocodingService: " + status + " " + request.address);
+                    deferred.reject(status);
+                }
+
+                if (ongoing_requests === 0 && !$rootScope.$$phase){
+                    console.log("GeocodingService: $apply()");
+                    $rootScope.$apply();
+                }
+
             });
 
             return deferred.promise;
@@ -60,39 +70,6 @@ module.service("GeocodingService", function ($q, $rootScope) {
             return this._do_geocoding_request({
                 address:address_string
             });
-        },
-        bulk_geocode: function(list_of_address_string){
-            console.log("bulk geocode started");
-
-            var defer = $q.defer(),
-                results = [],
-                completed = 0;
-
-            angular.forEach(list_of_address_string, function(address_string, idx){
-                geocoder.geocode({address: address_string}, function (result, status) {
-                    completed++;
-                    if (status == google.maps.GeocoderStatus.OK && result.length) {
-                        console.log("bulk geocode #" + (idx+1) + " of " + list_of_address_string.length);
-                        results[idx] = result;
-                    } else {
-                        console.log("bulk geocode #" + (idx+1) + " failed: " + status);
-                        results[idx] = undefined;
-                    }
-                    if (list_of_address_string.length == completed) {
-                        console.log("bulk geocode completed");
-                        if ($rootScope.$$phase){
-                            setTimeout(function(){  // $digest already in progress
-                                console.log("exec delayed $apply");
-                                $rootScope.$apply(defer.resolve(results));
-                            }, 500)
-                        } else {
-                            $rootScope.$apply(defer.resolve(results));
-                        }
-                    }
-                })
-            });
-
-            return defer.promise;
         },
         reverse_geocode: function(lat, lng){
             return this._do_geocoding_request({
@@ -190,8 +167,9 @@ module.service("GeocodingService", function ($q, $rootScope) {
     }
 });
 
-module.service("AutocompleteService", function ($q) {
+module.service("AutocompleteService", function ($rootScope, $q, GeocodingService, PlacesService ) {
     var service = new google.maps.places.AutocompleteService();
+    var get_suggestions_defer = undefined;
 
     return {
         get_predictions: function(string){
@@ -205,8 +183,82 @@ module.service("AutocompleteService", function ($q) {
                 else {
                     deferred.reject(status);
                 }
+
+                if (!$rootScope.$$phase){
+                    $rootScope.$apply();
+                }
             });
             return deferred.promise;
+        },
+        get_suggestion_for_prediction: function(prediction, user_input){
+            var defer = $q.defer();
+
+            GeocodingService.geocode(prediction.description).then(
+                function(geocoding_results){
+                    $q.when(PlacesService.get_valid_place(geocoding_results[0], user_input)).then(
+                        function(validity_result){
+                            defer.resolve(validity_result);
+                        },
+                        function(){
+                            defer.reject("no validity result");
+                        }
+                    )
+                },
+                function(){
+                    defer.reject("geocoding for prediction failed");
+                }
+            );
+
+            return defer.promise;
+        },
+        get_suggestions: function(user_input){
+            console.log("AutocompleteService: get_suggestions for " + user_input);
+
+            if (get_suggestions_defer){
+                console.log("AutocompleteService: rejecting previous get_suggestions");
+                get_suggestions_defer.reject("new call started");
+            }
+            get_suggestions_defer = $q.defer();
+
+            var self = this,
+                suggestions = [];
+
+            self.get_predictions(user_input).then(
+                function(predictions){
+                    console.log("got predictions", predictions.map(function(pre){return pre.description}));
+
+                    var completed = 0;
+                    angular.forEach(predictions, function(prediction, idx){
+                        self.get_suggestion_for_prediction(prediction).then(
+                            function(valid_place){
+                                completed++;
+                                suggestions[idx] = valid_place;
+                                if (predictions.length == completed){
+                                    get_suggestions_defer.resolve(suggestions);
+                                    if (!$rootScope.$$phase){
+                                        $rootScope.$apply();
+                                    }
+                                }
+                            },
+                            function (){
+                                completed++;
+                                suggestions[idx] = undefined;
+                                if (predictions.length == completed){
+                                    get_suggestions_defer.resolve(suggestions);
+                                    if (!$rootScope.$$phase){
+                                        $rootScope.$apply();
+                                    }
+                                }
+                            }
+                        )
+                    })
+                },
+                function(){
+                    get_suggestions_defer.reject("get predictions failed");
+                }
+            );
+
+            return get_suggestions_defer.promise;
         }
     }
 });
@@ -247,7 +299,7 @@ module.service("PlacesService", function ($q, GeocodingService) {
 
                 GeocodingService.reverse_geocode(place.geometry.location.lat(), place.geometry.location.lng()).then(
                     function (places) {
-                        console.log("WAYbetterLog: reverse geocode results", places);
+                        console.log("WAYbetterLog: reverse geocode results for " + place.formatted_address, places);
                         for (var i = 0; i < places.length; i++) {
                             var result_of_reverse = self.validate_place(places[i], user_input);
                             if (result_of_reverse.valid) {
