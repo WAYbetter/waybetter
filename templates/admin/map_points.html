@@ -1078,14 +1078,21 @@ $.widget("ui.selectmenu", {
         stopEditingPolygon      : function() {
             var that = this;
             if (that.currently_editing_id) {
+                that.removeListeners();
+
                 $("#edit-" + that.currently_editing_id).removeClass("editing").text("Edit");
 
                 // update stored val
                 var polygon = that.getPolygon(that.currently_editing_id);
+
                 polygon.setEditable(false);
 
                 var path = polygon.getPath();
                 if (path) {
+                    var btnDelete = that.getDeleteButton(path.btnDeleteImageUrl);
+                    if (btnDelete.length != 0) {
+                        btnDelete.unbind('click', path.btnDeleteClickHandler);
+                    }
                     var val_array = [];
                     $.each(path.getArray(), function(i, e) {
                         val_array.push(e.lat());
@@ -1096,15 +1103,18 @@ $.widget("ui.selectmenu", {
                 that.currently_editing_id = undefined;
             }
         },
+        getDeleteButton: function (imageUrl) {
+            return  $("img[src$='" + imageUrl + "']");
+        },
         doEditPolygon           : function (id) {
+            var that = this;
+
             function addDeleteButton(poly, imageUrl) {
                 function pointUpdated(index) {
-                    function getDeleteButton(imageUrl) {
-                        return  $("img[src$='" + imageUrl + "']");
-                    }
+
 
                     var path = this;
-                    var btnDelete = getDeleteButton(path.btnDeleteImageUrl);
+                    var btnDelete = that.getDeleteButton(path.btnDeleteImageUrl);
 
                     if (btnDelete.length === 0) {
                         var undoimg = $("img[src$='http://maps.gstatic.com/mapfiles/undo_poly.png']");
@@ -1113,7 +1123,7 @@ $.widget("ui.selectmenu", {
                         undoimg.parent().parent().append('<div style="overflow-x: hidden; overflow-y: hidden; position: absolute; width: 30px; height: 27px;top:21px;"><img src="' + path.btnDeleteImageUrl + '" class="deletePoly" style="height:auto; width:auto; position: absolute; left:0;"/></div>');
 
                         // now get that button back again!
-                        btnDelete = getDeleteButton(path.btnDeleteImageUrl);
+                        btnDelete = that.getDeleteButton(path.btnDeleteImageUrl);
                         btnDelete.hover(function () {
                                     $(this).css('left', '-30px');
                                     return false;
@@ -1132,6 +1142,9 @@ $.widget("ui.selectmenu", {
                     if (path.btnDeleteClickHandler)
                         btnDelete.unbind('click', path.btnDeleteClickHandler);
 
+                    if (index >= path.getArray().length) {
+                        index = path.getArray().length - 1;
+                    }
                     // now add a handler for removing the passed in index
                     path.btnDeleteClickHandler = function () {
                         path.removeAt(index);
@@ -1149,13 +1162,20 @@ $.widget("ui.selectmenu", {
             }
 
 
-            var that = this;
             if (id != that.currently_editing_id) {
                 that.stopEditingPolygon();
                 that.currently_editing_id = id;
                 $("#edit-" + id).addClass("editing").text("Done");
 
                 var polygon = that.getPolygon(that.currently_editing_id);
+                if (polygon.getPath().getArray().length == 0) { // this is a new polygon
+                    that.map_listeners.push(google.maps.event.addListenerOnce(that.map, 'click', function(e) {
+                        that.updatePolygonPoint(polygon, -1, e.latLng.lat(), e.latLng.lng());
+                        that.updatePolygonPoint(polygon, -1, e.latLng.lat()+0.005, e.latLng.lng());
+                        that.updatePolygonPoint(polygon, -1, e.latLng.lat()+0.005, e.latLng.lng()+0.005);
+                        that.updatePolygonPoint(polygon, -1, e.latLng.lat(), e.latLng.lng()+0.005);
+                    }));
+                }
                 polygon.setEditable(true);
                 addDeleteButton(polygon, '/static/images/delete_marker.png');
             } else {
@@ -1234,7 +1254,7 @@ $.widget("ui.selectmenu", {
         removeAllPolygons       : function() {
             var that = this;
             $.each(that.polygons, function (p_id, polygon) {
-                polygon.setPath();
+                polygon.getPath().clear();
                 polygon.setMap(null);
             });
             that.polygons = {};
