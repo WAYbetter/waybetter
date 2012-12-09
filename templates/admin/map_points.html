@@ -1059,6 +1059,8 @@ $.widget("ui.selectmenu", {
                     strokeColor: color,
                     strokeOpacity: 0.9,
                     strokeWeight: 2,
+                    clickable: false,
+                    editable: false,
                     path: new google.maps.MVCArray([]),
                     zIndex: index
                 });
@@ -1076,13 +1078,13 @@ $.widget("ui.selectmenu", {
         stopEditingPolygon      : function() {
             var that = this;
             if (that.currently_editing_id) {
-                // clear old listeners
-                that.removeListeners();
-                that.removeDragMarker();
                 $("#edit-" + that.currently_editing_id).removeClass("editing").text("Edit");
 
                 // update stored val
-                var path = that.getPolygon(that.currently_editing_id).getPath();
+                var polygon = that.getPolygon(that.currently_editing_id);
+                polygon.setEditable(false);
+
+                var path = polygon.getPath();
                 if (path) {
                     var val_array = [];
                     $.each(path.getArray(), function(i, e) {
@@ -1095,6 +1097,58 @@ $.widget("ui.selectmenu", {
             }
         },
         doEditPolygon           : function (id) {
+            function addDeleteButton(poly, imageUrl) {
+                function pointUpdated(index) {
+                    function getDeleteButton(imageUrl) {
+                        return  $("img[src$='" + imageUrl + "']");
+                    }
+
+                    var path = this;
+                    var btnDelete = getDeleteButton(path.btnDeleteImageUrl);
+
+                    if (btnDelete.length === 0) {
+                        var undoimg = $("img[src$='http://maps.gstatic.com/mapfiles/undo_poly.png']");
+
+                        undoimg.parent().css('height', '21px !important');
+                        undoimg.parent().parent().append('<div style="overflow-x: hidden; overflow-y: hidden; position: absolute; width: 30px; height: 27px;top:21px;"><img src="' + path.btnDeleteImageUrl + '" class="deletePoly" style="height:auto; width:auto; position: absolute; left:0;"/></div>');
+
+                        // now get that button back again!
+                        btnDelete = getDeleteButton(path.btnDeleteImageUrl);
+                        btnDelete.hover(function () {
+                                    $(this).css('left', '-30px');
+                                    return false;
+                                },
+                                function () {
+                                    $(this).css('left', '0px');
+                                    return false;
+                                });
+                        btnDelete.mousedown(function () {
+                            $(this).css('left', '-60px');
+                            return false;
+                        });
+                    }
+
+                    // if we've already attached a handler, remove it
+                    if (path.btnDeleteClickHandler)
+                        btnDelete.unbind('click', path.btnDeleteClickHandler);
+
+                    // now add a handler for removing the passed in index
+                    path.btnDeleteClickHandler = function () {
+                        path.removeAt(index);
+                        return false;
+                    };
+                    btnDelete.click(path.btnDeleteClickHandler);
+                }
+
+                var path = poly.getPath();
+                path["btnDeleteClickHandler"] = {};
+                path["btnDeleteImageUrl"] = imageUrl;
+
+                google.maps.event.addListener(poly.getPath(), 'set_at', pointUpdated);
+                google.maps.event.addListener(poly.getPath(), 'insert_at', pointUpdated);
+            }
+
+
             var that = this;
             if (id != that.currently_editing_id) {
                 that.stopEditingPolygon();
@@ -1102,60 +1156,8 @@ $.widget("ui.selectmenu", {
                 $("#edit-" + id).addClass("editing").text("Done");
 
                 var polygon = that.getPolygon(that.currently_editing_id);
-                that.map_listeners.push(google.maps.event.addListener(that.map, 'click', function(e) {
-                    if (! that.undo_buffers[polygon]) {
-                        that.undo_buffers[polygon] = []
-                    }
-                    var index;
-
-                    // add the point in the correct index
-                    if (polygon.getPath() && polygon.getPath().getLength() > 2) {
-                        var path = polygon.getPath().getArray();
-                        var edges = path.map(function(pp, i) { // create a list of edges
-                            return new Array(path[i % path.length], path[(i + 1) % path.length]);
-                        });
-                        var min_distance = Infinity;
-                        var min_edge = undefined;
-                        $.each(edges, function (i, edge) {
-                            var distance = that.distanceFromEdge(e.latLng, edge[0], edge[1]);
-                            if (distance < min_distance) {
-                                min_distance = distance;
-                                min_edge = edge;
-                            }
-                        });
-                        index = that.updatePolygonPoint(polygon, edges.indexOf(min_edge) + 1, e.latLng.lat(), e.latLng.lng(), true);
-                    } else {
-                        index = that.updatePolygonPoint(polygon, -1, e.latLng.lat(), e.latLng.lng());
-                    }
-
-                    that.undo_buffers[polygon].push(index);
-
-                }));
-
-                that.map_listeners.push(google.maps.event.addListener(that.map, 'rightclick', function(e) {
-                    var undo_buffer = that.undo_buffers[polygon];
-                    if (undo_buffer && undo_buffer.length) {
-                        var last_index = undo_buffer.pop();
-                        that.undo_buffers[polygon] = undo_buffer;
-                        that.deletePoint(last_index);
-                    } else {
-                        that.deletePoint();
-                    }
-                }));
-
-                that.map_listeners.push(google.maps.event.addListener(that.map, "mousemove", function(e) {
-                    if (that.dragging) {
-                        return true;
-                    }
-                    console.log(e.latLng.x, e.latLng.y);
-                    var distances = $.map(polygon.getPath().getArray(), function(p, i) {
-                        return that.pointDistance(p, e.latLng);
-                    });
-                    var min_index = distances.indexOf(Math.min.apply(null, distances));
-                    if (! that.drag_marker || that.drag_marker.getPosition() != polygon.getPath().getAt(min_index)) {
-                        that.createDragMarker(polygon, min_index);
-                    }
-                }));
+                polygon.setEditable(true);
+                addDeleteButton(polygon, '/static/images/delete_marker.png');
             } else {
                 that.stopEditingPolygon();
             }
