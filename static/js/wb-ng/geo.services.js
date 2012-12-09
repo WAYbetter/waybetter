@@ -169,7 +169,6 @@ module.service("GeocodingService", function ($q, $rootScope) {
 
 module.service("AutocompleteService", function ($rootScope, $q, GeocodingService, PlacesService ) {
     var service = new google.maps.places.AutocompleteService();
-    var get_suggestions_defer = undefined;
 
     return {
         get_predictions: function(string){
@@ -190,7 +189,7 @@ module.service("AutocompleteService", function ($rootScope, $q, GeocodingService
             });
             return deferred.promise;
         },
-        get_suggestion_for_prediction: function(prediction, user_input){
+        get_suggestion: function(prediction, user_input){
             var defer = $q.defer();
 
             GeocodingService.geocode(prediction.description).then(
@@ -210,55 +209,6 @@ module.service("AutocompleteService", function ($rootScope, $q, GeocodingService
             );
 
             return defer.promise;
-        },
-        get_suggestions: function(user_input){
-            console.log("AutocompleteService: get_suggestions for " + user_input);
-
-            if (get_suggestions_defer){
-                console.log("AutocompleteService: rejecting previous get_suggestions");
-                get_suggestions_defer.reject("new call started");
-            }
-            get_suggestions_defer = $q.defer();
-
-            var self = this,
-                suggestions = [];
-
-            self.get_predictions(user_input).then(
-                function(predictions){
-                    console.log("got predictions", predictions.map(function(pre){return pre.description}));
-
-                    var completed = 0;
-                    angular.forEach(predictions, function(prediction, idx){
-                        self.get_suggestion_for_prediction(prediction).then(
-                            function(valid_place){
-                                completed++;
-                                suggestions[idx] = valid_place;
-                                if (predictions.length == completed){
-                                    get_suggestions_defer.resolve(suggestions);
-                                    if (!$rootScope.$$phase){
-                                        $rootScope.$apply();
-                                    }
-                                }
-                            },
-                            function (){
-                                completed++;
-                                suggestions[idx] = undefined;
-                                if (predictions.length == completed){
-                                    get_suggestions_defer.resolve(suggestions);
-                                    if (!$rootScope.$$phase){
-                                        $rootScope.$apply();
-                                    }
-                                }
-                            }
-                        )
-                    })
-                },
-                function(){
-                    get_suggestions_defer.reject("get predictions failed");
-                }
-            );
-
-            return get_suggestions_defer.promise;
         }
     }
 });

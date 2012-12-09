@@ -21,14 +21,10 @@
 
                     <div class="row">
                         <ul ng-repeat="place in places| emptyifblank:user_input | filter:user_input">
-                            <li>(( place.name )) <span class="badge badge-success">wb</span></li>
+                            <li ng-click="choose_place(place)">(( place.name )) <span class="badge badge-success">wb</span></li>
                         </ul>
-                        <ul ng-repeat="suggestion in suggestions">
-                            <li>
-                                <span>(( pprint(suggestion) ))</span>
-                                <span ng-show="suggestion.missing_hn" class="badge badge-important">invalid</span>
-                                <span ng-show="suggestion.missing_hn" class="badge badge-warning">missing hn</span>
-                            </li>
+                        <ul ng-repeat="prediction in predictions">
+                            <li ng-click="choose_prediction(prediction)">(( prediction.description )) <span class="badge badge-info">g</span></li>
                         </ul>
                     </div>
 
@@ -60,27 +56,41 @@
             $scope.autocomplete_service = AutocompleteService;
 
             $scope.user_input = undefined;
-            $scope.suggestions = [];
+            $scope.predictions = [];
 
             {% autoescape off %}
             $scope.places = {{ places }};
             {% endautoescape %}
 
-            $scope.pprint = function(suggestion){
-                if (suggestion && suggestion.place){
-                    return suggestion.place.formatted_address;
+            $scope.pprint = function(prediction){
+                if (prediction && prediction.place){
+                    return prediction.place.formatted_address;
                 }
                 return "undefined";
             };
 
+            $scope.choose_place = function(place){
+
+            };
+
+            $scope.choose_prediction = function(prediction){
+                AutocompleteService.get_suggestion_for_prediction(prediction).then(function(suggestion){
+                    if (suggestion.missing_hn){
+                        alert("missing house number");
+                    } else{
+                        var address = Address.fromPlace(suggestion);
+                        console.log(address);
+                    }
+                })
+            };
             $scope.$watch("user_input", function (val) {
                 if (!val){
-                    $scope.suggestions = [];
+                    $scope.predictions = [];
                     return;
                 }
 
-                AutocompleteService.get_suggestions(val).then(function (results) {
-                    $scope.suggestions = results;
+                AutocompleteService.get_predictions(val).then(function (results) {
+                    $scope.predictions = results;
                 }, function(){ });
             });
 
