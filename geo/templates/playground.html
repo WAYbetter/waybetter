@@ -78,7 +78,7 @@
                     if (suggestion.missing_hn){
                         alert("missing house number");
                     } else{
-                        var address = Address.fromPlace(suggestion);
+                        var address = Address.fromGoogleResult(suggestion);
                         console.log(address);
                     }
                 })

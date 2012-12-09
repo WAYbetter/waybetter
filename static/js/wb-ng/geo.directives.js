@@ -18,7 +18,7 @@ module.directive("wbPac", function ($q, $timeout, PlacesService, wbEvents) {
                 scope.$apply(function () {
                     $q.when(PlacesService.get_valid_place(place, element.val()))
                         .then(function (result) {
-                            var place_address = Address.fromPlace(result.place);
+                            var place_address = Address.fromGoogleResult(result.place);
                             if (result.valid) {
                                 if (place_address.isValid()) {
                                     scope[attrs.address] = place_address;

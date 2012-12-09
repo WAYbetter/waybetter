@@ -134,7 +134,7 @@
             $scope.place = fresh_place();
 
             $scope.$on(wbEvents.place_changed, function (e, pac_result) {
-                var place_address = Address.fromPlace(pac_result);
+                var place_address = Address.fromGoogleResult(pac_result);
 
                 $scope.place.city_name = place_address.city_name;
                 $scope.place.street = place_address.street;

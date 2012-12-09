@@ -29,7 +29,7 @@ Address.prototype = {
     }
 };
 
-Address.fromPlace = function (place) {
+Address.fromGoogleResult = function (place) {
     function _get_component_value(type) {
         var res = undefined;
         if (!place.address_components) {
