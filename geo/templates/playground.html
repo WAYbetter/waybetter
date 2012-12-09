@@ -11,7 +11,7 @@
 
 {% block content %}
     <div id="content" ng-app="PlacePlaygroundApp" ng-cloak>
-        <div class="container" ng-controller="PlaygroundCtrl">
+        <div class="container" ng-controller="PlaygroundCtrl" ng-init="init()">
             <div class="row">
                 <div class="span8">
                     <div class="input-prepend">
@@ -52,16 +52,21 @@
             else
                 return object;
         }});
-        app.controller('PlaygroundCtrl', function ($scope, $http, $q, GeocodingService, AutocompleteService, PlacesService, wbEvents) {
+        app.controller('PlaygroundCtrl', function ($scope, $http, $q, $filter, GeocodingService, AutocompleteService, PlacesService, wbEvents) {
             $scope.autocomplete_service = AutocompleteService;
 
             $scope.user_input = undefined;
             $scope.predictions = [];
 
-            {% autoescape off %}
-            $scope.places = {{ places }};
-            {% endautoescape %}
+            $scope.places = [];
+            $scope.blacklist = [];
 
+            $scope.init = function(){
+                $http.get("{% url geo.views.get_places %}").success(function(data){
+                    $scope.places = data.places;
+                    $scope.blacklist = data.blacklist;
+                })
+            };
             $scope.pprint = function(prediction){
                 if (prediction && prediction.place){
                     return prediction.place.formatted_address;
@@ -70,11 +75,13 @@
             };
 
             $scope.choose_place = function(place){
-
+                var address = Address.fromPlace(place);
+                console.log(address);
             };
 
             $scope.choose_prediction = function(prediction){
-                AutocompleteService.get_suggestion_for_prediction(prediction).then(function(suggestion){
+                AutocompleteService.get_suggestion(prediction).then(function(suggestion){
+                    console.log("suggestion resolve");
                     if (suggestion.missing_hn){
                         alert("missing house number");
                     } else{
@@ -90,7 +97,7 @@
                 }
 
                 AutocompleteService.get_predictions(val).then(function (results) {
-                    $scope.predictions = results;
+                    $scope.predictions = results.filter(function(pre){return $scope.blacklist.indexOf(pre.description) < 0});
                 }, function(){ });
             });
 

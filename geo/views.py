@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponseBadRequest, HttpResponse
 from django.shortcuts import render_to_response
@@ -20,7 +22,10 @@ def playground(request):
 
 
 def get_places(request):
-    return JSONResponse({"places": [place.serialize() for place in Place.objects.all()]})
+    return JSONResponse({
+        "places": [place.serialize() for place in Place.objects.all()],
+        "blacklist": []
+    })
 
 @csrf_exempt  # TODO_WB: teach angular to pass csrf_token in headers
 @staff_member_required

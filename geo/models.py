@@ -69,5 +69,6 @@ class Place(BaseModel):
             'street': self.street,
             'house_number': self.house_number,
             'lon': self.lon,
-            'lat': self.lat
+            'lat': self.lat,
+            'country_code': settings.DEFAULT_COUNTRY_CODE
         }
