@@ -443,10 +443,6 @@ class SharedRide(BaseRide):
 
         return self._stops
 
-    @property
-    def charged_stops(self):
-        return self.stops - 1
-
     def get_log(self):
         orders = list(self.orders.all())
         return u"""
