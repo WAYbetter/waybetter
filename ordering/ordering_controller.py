@@ -442,38 +442,56 @@ def get_offers(request):
 
         offers.append(offer)
 
-
-    # add discounted offer if relevant
+    # add discounted offers if relevant
     if look_for_discounts and start_ride_algo_data:
-        earliest_offer_dt = ceil_datetime(max(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=ASAP_BOOKING_TIME), order_settings.pickup_dt - OFFERS_TIMEDELTA), minutes=BOOKING_INTERVAL)
-        discount_dts_tuples = get_discount_rules_and_dt(order_settings, earliest_offer_dt, order_settings.pickup_dt + OFFERS_TIMEDELTA, datetime.timedelta(minutes=BOOKING_INTERVAL))
-
-        for discount_rule, discount_dt in discount_dts_tuples:
-            tariff_for_discount_offer = RuleSet.get_active_set(discount_dt)
-            base_price_for_discount_offer = start_ride_algo_data.order_price(NEW_ORDER_ID, tariff_for_discount_offer)
-            if base_price_for_discount_offer:
-                discount = discount_rule.get_discount(base_price_for_discount_offer)
-                offer_key = "%s_%s" % (DISCOUNTED_OFFER_PREFIX, get_uuid())
-                memcache.set(offer_key, {'discount_rule_id': discount_rule.id, 'pickup_dt': discount_dt}, namespace=DISCOUNTED_OFFERS_NS)
-
-                offer_text = u"הזמן ראשון וקבל ₪%g הנחה מובטחת" % discount
-                if discount_rule.offer_text:
-                    offer_text = discount_rule.offer_text
-                    if offer_text.find("%g") > -1:  # render discount amount
-                        offer_text %= discount
-
-                offers.append({
-                    "ride_id": offer_key,
-                    "pickup_time": to_js_date(discount_dt),
-                    "passengers": [{'name': discount_rule.display_name, 'picture_url': discount_rule.picture_url}],
-                    "seats_left": MAX_SEATS - 1,
-                    "price": base_price_for_discount_offer - discount,
-                    "new_ride": False,  # disguise as an exisiting ride
-                    "comment": offer_text
-                })
+        offers += get_discounted_offers(request, order_settings, start_ride_algo_data)
 
     deferred.defer(save_search_req_and_offers, Passenger.from_request(request), order_settings, offers)
     return JSONResponse({'offers': offers})
+
+
+def get_discounted_offers(request, order_settings, start_ride_algo_data):
+    discounted_offers = []
+
+    user_email_domain = None
+    if request.user.is_authenticated() and request.user.email:
+        user_email_domain = request.user.email.split("@")[1]
+
+    logging.info("get discounted offers @%s" % user_email_domain)
+
+    earliest_offer_dt = ceil_datetime(max(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=ASAP_BOOKING_TIME), order_settings.pickup_dt - OFFERS_TIMEDELTA), minutes=BOOKING_INTERVAL)
+    discount_dts_tuples = get_discount_rules_and_dt(order_settings, earliest_offer_dt, order_settings.pickup_dt + OFFERS_TIMEDELTA, datetime.timedelta(minutes=BOOKING_INTERVAL))
+
+    for discount_rule, discount_dt in discount_dts_tuples:
+        if discount_rule.email_domains and (user_email_domain not in discount_rule.email_domains):
+            logging.info("skipping: %s - only for %s" % (discount_rule.name, ", ".join(discount_rule.email_domains)))
+            continue
+
+        tariff_for_discount_offer = RuleSet.get_active_set(discount_dt)
+        base_price_for_discount_offer = start_ride_algo_data.order_price(NEW_ORDER_ID, tariff_for_discount_offer)
+        if base_price_for_discount_offer:
+            discount = discount_rule.get_discount(base_price_for_discount_offer)
+            offer_key = "%s_%s" % (DISCOUNTED_OFFER_PREFIX, get_uuid())
+            memcache.set(offer_key, {'discount_rule_id': discount_rule.id, 'pickup_dt': discount_dt}, namespace=DISCOUNTED_OFFERS_NS)
+
+            offer_text = u"הזמן ראשון וקבל ₪%g הנחה מובטחת" % discount
+            if discount_rule.offer_text:
+                offer_text = discount_rule.offer_text
+                if offer_text.find("%g") > -1:  # render discount amount
+                    offer_text %= discount
+
+            discounted_offers.append({
+                "ride_id": offer_key,
+                "pickup_time": to_js_date(discount_dt),
+                "passengers": [{'name': discount_rule.display_name, 'picture_url': discount_rule.picture_url}],
+                "seats_left": MAX_SEATS - 1,
+                "price": base_price_for_discount_offer - discount,
+                "new_ride": False,  # disguise as an exisiting ride
+                "comment": offer_text
+            })
+
+    return discounted_offers
+
 
 def save_search_req_and_offers(passenger, order_settings, offers):
     sr = SearchRequest.fromOrderSettings(order_settings, passenger)

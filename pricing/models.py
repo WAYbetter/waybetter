@@ -1,9 +1,12 @@
 from django.db import models
 from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext, ugettext_lazy as _
+import logging
+
 from common.tz_support import TZ_INFO
 from common.util import DAY_OF_WEEK_CHOICES, FIRST_WEEKDAY, LAST_WEEKDAY, convert_python_weekday, datetimeIterator, Enum
 from common.models import BaseModel, CityAreaField
+from common.widgets import EditableListField
 
 class TARIFFS(Enum):
     TARIFF1 = 'tariff1'
@@ -173,6 +176,8 @@ class DiscountRule(AbstractTemporalRule):
 
     bidi = models.BooleanField(verbose_name=_("bidirectional"), default=False)
 
+    email_domains = EditableListField(models.CharField(max_length=255), null=True, blank=True)
+
     def clean(self):
         if not (bool(self.percent) ^ bool(self.amount)):
             raise ValidationError("Must set discount percent or amount but not both")
@@ -199,13 +204,11 @@ class DiscountRule(AbstractTemporalRule):
         if not self.is_active(dt):
             return False
 
-        import logging
         from_address, to_address = pickup_address.formatted_address, dropoff_address.formatted_address
         from_lat, from_lon = pickup_address.lat, pickup_address.lng
         to_lat, to_lon = dropoff_address.lat, dropoff_address.lng
 
-        logging.info(self.from_address)
-        logging.info(from_address)
+        logging.info("checking if %s is active at %s %s" % (self.name, from_address, to_address))
 
         active_from = self.from_everywhere or (self.from_address and self.from_address == from_address)
         active_to = self.to_everywhere or (self.to_address and self.to_address == to_address)
