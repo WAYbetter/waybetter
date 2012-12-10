@@ -443,6 +443,14 @@ class SharedRide(BaseRide):
 
         return self._stops
 
+    @property
+    def passengers(self):
+        return list(set([o.passenger for p in self.points.all() for o in p.orders.all()]))
+
+    @property
+    def charged_stops(self):
+        return self.stops - 1
+
     def get_log(self):
         orders = list(self.orders.all())
         return u"""
@@ -560,6 +568,8 @@ class RidePoint(BaseModel):
     lat = models.FloatField(_("latitude"))
     address = models.CharField(_("address"), max_length=200, null=True, blank=True)
     city_name = models.CharField(_("city name"), max_length=200, null=True, blank=True)
+
+    dispatched = models.BooleanField("dispatched", default=False)
 
     def __unicode__(self):
         return u"RidePoint [%d]" % self.id

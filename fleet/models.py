@@ -124,8 +124,21 @@ class AbstractFleetManagerBackend(object):
         """
         raise NotImplementedError()
 
+    @classmethod
+    def send_message(cls, message, station_id, taxi_number):
+        """Send a text message to taxi
 
-class FleetManager(BaseModel, AbstractFleetManagerBackend):
+        @param cls:
+        @param message:
+        @param station_id:
+        @param taxi_number:
+
+        @return: True/False on success/fail.
+        """
+        raise NotImplementedError()
+
+
+class FleetManager(BaseModel):
     name = models.CharField(max_length=50)
     backend_path = models.CharField(max_length=50) # e.g., fleet.backends.isr.ISR
 
@@ -161,3 +174,6 @@ class FleetManager(BaseModel, AbstractFleetManagerBackend):
 
     def get_ride(self, ride_id):
         return self.backend.get_ride(ride_id)
+
+    def send_message(self, message, station_id, taxi_number):
+        return self.backend.send_message(message, station_id, taxi_number)
