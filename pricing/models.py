@@ -210,8 +210,14 @@ class DiscountRule(AbstractTemporalRule):
 
         logging.info("checking if %s is active at %s %s" % (self.name, from_address, to_address))
 
-        active_from = self.from_everywhere or (self.from_address and self.from_address == from_address)
-        active_to = self.to_everywhere or (self.to_address and self.to_address == to_address)
+        active_from = self.from_everywhere
+        active_to = self.to_everywhere
+
+        if (not active_from) and self.from_address:
+            active_from = self.from_address == from_address or (self.bidi and self.from_address == to_address)
+
+        if (not active_to) and self.to_address:
+            active_to = self.to_address == to_address or (self.bidi and self.to_address == from_address)
 
         if (not active_from) and self.from_city_area:
             active_from = self.from_city_area.contains(from_lat, from_lon) or (self.bidi and self.from_city_area.contains(to_lat, to_lon))
