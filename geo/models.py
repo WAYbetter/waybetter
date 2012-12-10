@@ -21,7 +21,13 @@ class Place(BaseModel):
     type = models.IntegerField(choices=PlaceType.choices())
 
     name = models.CharField(max_length=255)
+    name_for_station = models.CharField(max_length=255)
+    name_for_user = models.CharField(max_length=255, default=name)
+
     description = models.CharField(max_length=255)
+    description_for_station = models.CharField(max_length=255)
+    description_for_user = models.CharField(max_length=255, default=description)
+
     aliases = ListField(models.CharField(max_length=32))
 
     country = models.ForeignKey(Country, related_name="places")
@@ -45,6 +51,9 @@ class Place(BaseModel):
     def save(self, *args, **kwargs):
         if self.name == '':
             raise ValidationError('Name is required')
+
+        self.name_for_station = self.name_for_user = self.name
+        self.description_for_station = self.description_for_user = self.description
 
         self.country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
         self.dn_country_name = self.country.name

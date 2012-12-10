@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 
+from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.http import HttpResponseBadRequest, HttpResponse
 from django.shortcuts import render_to_response
@@ -22,9 +23,28 @@ def playground(request):
 
 
 def get_places(request):
+    def place_to_suggestion(place, name=None):
+        return {
+            'name': name or place.name_for_user,
+            'description': place.description_for_user,
+            'city_name': place.dn_city_name,
+            'street': place.street,
+            'house_number': place.house_number,
+            'lon': place.lon,
+            'lat': place.lat,
+            'country_code': settings.DEFAULT_COUNTRY_CODE
+        }
+
+    places_data = []
+    for place in Place.objects.all():
+        places_data.append(place_to_suggestion(place))
+
+        for alias in place.aliases:
+            places_data.append(place_to_suggestion(place, name=alias))
+
     return JSONResponse({
-        "places": [place.serialize() for place in Place.objects.all()],
-        "blacklist": []
+        "places": places_data,
+        "blacklist": ['תל אביב, ישראל']
     })
 
 @csrf_exempt  # TODO_WB: teach angular to pass csrf_token in headers
@@ -48,7 +68,7 @@ def crud_place(request):
                 place_data["city"] = City.objects.get(name=place_data["city_name"].strip())
                 del(place_data["city_name"])
 
-            place_data["aliases"] = place_data["aliases"].split(",")
+            place_data["aliases"] = place_data["aliases"]
 
             if action == "create":
                 place = Place(**place_data)
