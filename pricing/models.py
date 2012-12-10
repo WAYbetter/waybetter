@@ -165,9 +165,11 @@ class DiscountRule(AbstractTemporalRule):
 
     from_city_area = CityAreaField(verbose_name=_("from city area"), null=True, blank=True, related_name="discount_rules_1")
     from_everywhere = models.BooleanField(verbose_name=_("from everywhere"), default=False)
+    from_address = models.CharField(_("from address"), max_length=80, null=True, blank=True)
 
     to_city_area = CityAreaField(verbose_name=_("to city area"), null=True, blank=True, related_name="discount_rules_2")
     to_everywhere = models.BooleanField(verbose_name=_("to everywhere"), default=False)
+    to_address = models.CharField(_("to address"), max_length=80, null=True, blank=True)
 
     bidi = models.BooleanField(verbose_name=_("bidirectional"), default=False)
 
@@ -175,10 +177,10 @@ class DiscountRule(AbstractTemporalRule):
         if not (bool(self.percent) ^ bool(self.amount)):
             raise ValidationError("Must set discount percent or amount but not both")
 
-        if not (bool(self.from_everywhere) ^ bool(self.from_city_area)):
+        if not (sum([self.from_everywhere, bool(self.from_city_area), bool(self.from_address)]) == 1):
             raise ValidationError("Must choose FROM where the discount is active")
 
-        if not (bool(self.to_everywhere) ^ bool(self.to_city_area)):
+        if not (sum([self.to_everywhere, bool(self.to_city_area), bool(self.to_address)]) == 1):
             raise ValidationError("Must choose TO where the discount is active")
 
         if not self.picture_url:
@@ -189,20 +191,30 @@ class DiscountRule(AbstractTemporalRule):
 
         super(DiscountRule, self).clean()
 
-    def is_active_in_areas(self, dt, from_lat, from_lon, to_lat, to_lon):
+    def is_active_at(self, dt, pickup_address, dropoff_address):
+        """
+        @param pickup_address: Address instance
+        @param dropoff_address: Address instance
+        """
         if not self.is_active(dt):
             return False
 
-        active_from = self.from_everywhere
-        active_to = self.to_everywhere
+        import logging
+        from_address, to_address = pickup_address.formatted_address, dropoff_address.formatted_address
+        from_lat, from_lon = pickup_address.lat, pickup_address.lng
+        to_lat, to_lon = dropoff_address.lat, dropoff_address.lng
 
-        if not (active_from and active_to):
-            active_from = active_from or self.from_city_area.contains(from_lat, from_lon)
-            active_to = active_to or self.to_city_area.contains(to_lat, to_lon)
+        logging.info(self.from_address)
+        logging.info(from_address)
 
-            if self.bidi and not (active_from and active_to):  # try the other direction
-                active_from = active_from or self.from_city_area.contains(to_lat, to_lon)
-                active_to = active_to or self.to_city_area.contains(from_lat, from_lon)
+        active_from = self.from_everywhere or (self.from_address and self.from_address == from_address)
+        active_to = self.to_everywhere or (self.to_address and self.to_address == to_address)
+
+        if (not active_from) and self.from_city_area:
+            active_from = self.from_city_area.contains(from_lat, from_lon) or (self.bidi and self.from_city_area.contains(to_lat, to_lon))
+
+        if (not active_to) and self.to_city_area:
+            active_to = self.to_city_area.contains(to_lat, to_lon) or (self.bidi and self.to_city_area.contains(from_lat, from_lon))
 
         return active_from and active_to
 

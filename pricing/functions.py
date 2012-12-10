@@ -7,12 +7,12 @@ def get_discount_rules_and_dt(order_settings, start_dt, end_dt, delta):
 
     for discount_rule in DiscountRule.objects.all():
         active_dt = None
-        if discount_rule.is_active_in_areas(pickup_dt, order_settings.pickup_address.lat, order_settings.pickup_address.lng, order_settings.dropoff_address.lat, order_settings.dropoff_address.lng): # we have an exact match for this pickup_dt
+        if discount_rule.is_active_at(pickup_dt, order_settings.pickup_address, order_settings.dropoff_address): # we have an exact match for this pickup_dt
             active_dt = pickup_dt
 
         else: # no exact match found for this rule, search for next best
             first_active_dt = discount_rule.get_closest_active(pickup_dt, start_dt, end_dt, delta)
-            if first_active_dt and discount_rule.is_active_in_areas(first_active_dt, order_settings.pickup_address.lat, order_settings.pickup_address.lng, order_settings.dropoff_address.lat, order_settings.dropoff_address.lng):
+            if first_active_dt and discount_rule.is_active_at(first_active_dt, order_settings.pickup_address, order_settings.dropoff_address):
                 active_dt = first_active_dt
 
         if active_dt:

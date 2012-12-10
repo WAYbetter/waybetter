@@ -651,7 +651,7 @@ def create_order(order_settings, passenger, ride=None, discounted_offer=None):
     if discounted_offer:
         discount_rule = DiscountRule.by_id(discounted_offer["discount_rule_id"])
         order.depart_time = discounted_offer["pickup_dt"]
-        if discount_rule and discount_rule.is_active_in_areas(order.depart_time, order_settings.pickup_address.lat, order_settings.pickup_address.lng, order_settings.dropoff_address.lat, order_settings.dropoff_address.lng):
+        if discount_rule and discount_rule.is_active_at(order.depart_time, order_settings.pickup_address, order_settings.dropoff_address):
             discount = discount_rule.get_discount(order.price)
             logging.info(u"discount rule %s granting discount %s" % (discount_rule.name, discount))
             order.discount = discount
