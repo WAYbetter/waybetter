@@ -1,21 +1,21 @@
+# -*- coding: utf-8 -*-
+
 from django.conf import settings
 from django.contrib.admin.views.decorators import staff_member_required
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from django.http import HttpResponse
 from django.shortcuts import render_to_response
-from django.template.context import RequestContext, Context
+from django.template.context import RequestContext
 from django.utils.translation import ugettext as _
-from django.template.loader import get_template
 from djangotoolbox.http import JSONResponse
 from google.appengine.api import xmpp, memcache
 from common.models import Country
 from common.util import custom_render_to_response, ga_track_event
-from ordering.models import WorkStation, SharedRide, StopType
+from ordering.models import WorkStation
 import logging
 
 # DeadlineExceededError can live in two different places
-from sharing.station_controller import print_voucher, STATION_PICKUP_OFFSET
 
 ASYNC_MEMCACHE_KEY = "ASYNC-COMPUTATION-%s"
 try:
