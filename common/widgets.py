@@ -8,6 +8,22 @@ from django.forms.widgets import Input
 from django import forms
 from django.db import models as db_models
 
+class EditableListField(ListField):
+    def formfield(self, **kwargs):
+        return db_models.Field.formfield(self, CommaSeparatedListField, **kwargs)
+
+class CommaSeparatedListField(forms.CharField):
+    def prepare_value(self, value):
+        if value:
+            return ', '.join(value)
+        else:
+            return ''
+
+    def to_python(self, value):
+        if not value:
+            return []
+        return [item.strip() for item in value.split(',')]
+
 class EmailInput(Input):
     input_type = 'email'
     def __init__(self, attrs=None):
