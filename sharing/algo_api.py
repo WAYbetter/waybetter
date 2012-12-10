@@ -291,7 +291,7 @@ def get_parameters(extra=None):
 
 def find_matches(candidate_rides, order_settings):
     payload = {
-        AlgoField.RIDES : [r.serialize_for_algo() for r in candidate_rides],
+        AlgoField.RIDES : [serialize_shared_ride(r) for r in candidate_rides],
         "order"         : serialize_order_settings(order_settings),
         "parameters"    : get_parameters(extra={"debug": order_settings.debug})
     }
@@ -413,4 +413,40 @@ def serialize_order_settings(order_settings):
         "to_lon": order_settings.dropoff_address.lng,
     }
 
+    return clean_values(result)
+
+def serialize_ride_point(ride_point):
+    from sharing.algo_api import AlgoField
+
+    result = {
+        AlgoField.TYPE: "e%s" % StopType.get_name(ride_point.type).title(),
+        AlgoField.POINT_ADDRESS: {
+            AlgoField.LAT: ride_point.lat,
+            AlgoField.LNG: ride_point.lon,
+            AlgoField.ADDRESS: ride_point.address,
+            AlgoField.CITY: ride_point.city_name,
+            AlgoField.AREA: get_pricing_area_name(ride_point.lat, ride_point.lon),
+        },
+        AlgoField.ORDER_IDS: [o.id for o in ride_point.orders]
+    }
+
+    return clean_values(result)
+
+def serialize_shared_ride(ride):
+    from sharing.algo_api import AlgoField
+    order_infos = {}
+    for order in ride.orders.all():
+        order_infos[order.id] = {
+            'num_seats': order.num_seats,
+            AlgoField.PRICE_SHARING_TARIFF1: order.price_data.for_tariff_type(TARIFFS.TARIFF1),
+            AlgoField.PRICE_SHARING_TARIFF2: order.price_data.for_tariff_type(TARIFFS.TARIFF2)
+        }
+
+    result = {
+        AlgoField.RIDE_ID           : ride.id,
+        AlgoField.RIDE_POINTS       : [serialize_ride_point(rp) for rp in sorted(ride.points.all(), key=lambda p: p.stop_time)],
+        AlgoField.ORDER_INFOS       : order_infos,
+        AlgoField.COST_LIST_TARIFF1 : ride.cost_data.for_tariff_type(TARIFFS.TARIFF1),
+        AlgoField.COST_LIST_TARIFF2 : ride.cost_data.for_tariff_type(TARIFFS.TARIFF2)
+    }
     return clean_values(result)

@@ -509,25 +509,6 @@ class SharedRide(BaseRide):
             "id"                : self.id
         }
 
-    def serialize_for_algo(self):
-        from sharing.algo_api import AlgoField
-        order_infos = {}
-        for order in self.orders.all():
-            order_infos[order.id] = {
-                'num_seats': order.num_seats,
-                AlgoField.PRICE_SHARING_TARIFF1: order.price_data.for_tariff_type(TARIFFS.TARIFF1),
-                AlgoField.PRICE_SHARING_TARIFF2: order.price_data.for_tariff_type(TARIFFS.TARIFF2)
-            }
-
-        result = {
-            AlgoField.RIDE_ID           : self.id,
-            AlgoField.RIDE_POINTS       : [rp.serialize_for_algo() for rp in sorted(self.points.all(), key=lambda p: p.stop_time)],
-            AlgoField.ORDER_INFOS       : order_infos,
-            AlgoField.COST_LIST_TARIFF1 : self.cost_data.for_tariff_type(TARIFFS.TARIFF1),
-            AlgoField.COST_LIST_TARIFF2 : self.cost_data.for_tariff_type(TARIFFS.TARIFF2)
-        }
-        return clean_values(result)
-
     def change_status(self, old_status=None, new_status=None, safe=True, silent=False):
         result = self._change_attr_in_transaction("status", old_status, new_status, safe=safe)
         if result and not silent:
@@ -592,14 +573,6 @@ class RidePoint(BaseModel):
         return re.sub(",?\s+תל אביב יפו".decode("utf-8"), "", self.address)
 
     @property
-    def city_area_name(self):
-        for city_area in CityArea.objects.all():
-            if city_area.contains(self.lat, self.lon):
-                return city_area.name
-
-        return ""
-
-    @property
     def orders(self):
         return self.pickup_orders.all() if self.type == StopType.PICKUP else self.dropoff_orders.all()
 
@@ -611,22 +584,6 @@ class RidePoint(BaseModel):
             "time"      : self.stop_time.strftime("%d/%m/%y %H:%M")
         }
 
-    def serialize_for_algo(self):
-        from sharing.algo_api import AlgoField
-
-        result = {
-            AlgoField.TYPE: "e%s" % StopType.get_name(self.type).title(),
-            AlgoField.POINT_ADDRESS: {
-                AlgoField.LAT: self.lat,
-                AlgoField.LNG: self.lon,
-                AlgoField.ADDRESS: self.address,
-                AlgoField.CITY: self.city_name,
-                AlgoField.AREA: self.city_area_name
-            },
-            AlgoField.ORDER_IDS: [o.id for o in self.orders]
-        }
-
-        return clean_values(result)
 
 class RideEvent(BaseModel):
     shared_ride = models.ForeignKey(SharedRide, related_name="events", blank=True, null=True)
