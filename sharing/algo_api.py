@@ -293,7 +293,7 @@ def find_matches(candidate_rides, order_settings):
     payload = {
         AlgoField.RIDES : [serialize_shared_ride(r) for r in candidate_rides],
         "order"         : serialize_order_settings(order_settings),
-        "parameters"    : get_parameters(extra={"debug": order_settings.debug})
+        "parameters"    : get_parameters(extra={"debug": True}) #order_settings.debug})
     }
 
     payload = simplejson.dumps(payload)
