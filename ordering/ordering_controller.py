@@ -799,13 +799,17 @@ def update_ride_remove_order(order):
 
 def update_ride(ride, ride_data, new_order=None):
     """
-    ride_data for an exisiting ride can change when a passenger joins or leaves a ride.
-    update ride from ride_data: distance, cost, depart time, price for its orders and stop times for its RidePoints.
-    in case new_order exists we assume that ride_data references it as NEW_ORDER_ID
+    Update a SharedRide when passengers join or leave.
+    What is updated: distance, cost, depart time, price for each Order and stop times for its RidePoints.
+
+    @param ride      :  The SharedRide to update.
+    @param ride_data :  A RideData instance containing the updated data for the ride.
+                        In case new_order is passed we assume it is referred to with NEW_ORDER_ID
+    @param new_order :  None or the order joining. We assume it NOT POINTING to the ride - isn't returned when calling ride.orders.all()
     """
     depart_time = compute_new_departure(ride, ride_data)
     for order in ride.orders.all():
-        # update stop times
+        # update stop times TODO_WB: notify passengers when pickup times change?
         new_pickup_time = depart_time + datetime.timedelta(seconds=ride_data.order_pickup_point(order.id).offset)
         new_dropoff_time = depart_time + datetime.timedelta(seconds=ride_data.order_dropoff_point(order.id).offset)
 
@@ -836,7 +840,9 @@ def update_ride(ride, ride_data, new_order=None):
                 distance=ride_data.distance,
                 cost_data=ride_data.cost_data)
 
-    # TODO_WB: notify passengers when pickup times change?
+    # The station executing the ride may change: mark the ride as pending so it will be re-dispatched.
+    # For example, if someone from newcity joins a ride assigned to an oldcity station, we need to find a newcity station
+    ride.change_status(new_status=RideStatus.PENDING)
 
 def create_ride_point(ride, point_data, depart_time=None):
     """
