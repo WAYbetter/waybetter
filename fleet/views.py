@@ -170,17 +170,19 @@ def get_ride_events(request):
     for e in events:
         taxi = e.taxi_id
         if e.shared_ride_id:
-            if e.shared_ride_id in shared_rides:
-                shared_rides[e.shared_ride_id]["events"].append(e.serialize_for_status_page())
-                if taxi and not shared_rides[e.shared_ride_id]['taxi']:
-                    shared_rides[e.shared_ride_id]['taxi'] = taxi
+            key = str(e.shared_ride_id)
+            if key in shared_rides:
+                shared_rides[key]["events"].append(e.serialize_for_status_page())
+                if taxi and not shared_rides[key]['taxi']:
+                    shared_rides[key]['taxi'] = taxi
             else:
                 logging.error(u"miss configured events! %s not found in %s" % (e.shared_ride_id, shared_rides))
         elif e.pickmeapp_ride_id:
-            if e.pickmeapp_ride_id in pickmeapp_rides:
-                pickmeapp_rides[e.pickmeapp_ride_id]["events"].append(e.serialize_for_status_page())
-                if taxi and not pickmeapp_rides[e.pickmeapp_ride_id]['taxi']:
-                    pickmeapp_rides[e.pickmeapp_ride_id]['taxi'] = taxi
+            key = str(e.pickmeapp_ride_id)
+            if key in pickmeapp_rides:
+                pickmeapp_rides[key]["events"].append(e.serialize_for_status_page())
+                if taxi and not pickmeapp_rides[key]['taxi']:
+                    pickmeapp_rides[key]['taxi'] = taxi
             else:
                 logging.error(u"miss configured events! %s not found in %s" % (e.pickmeapp_ride_id, pickmeapp_rides))
 
