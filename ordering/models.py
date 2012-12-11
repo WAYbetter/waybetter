@@ -443,6 +443,10 @@ class SharedRide(BaseRide):
 
         return self._stops
 
+    @property
+    def passengers(self):
+        return list(set([o.passenger for p in self.points.all() for o in p.orders.all()]))
+
     def get_log(self):
         orders = list(self.orders.all())
         return u"""
@@ -561,6 +565,8 @@ class RidePoint(BaseModel):
     address = models.CharField(_("address"), max_length=200, null=True, blank=True)
     city_name = models.CharField(_("city name"), max_length=200, null=True, blank=True)
 
+    dispatched = models.BooleanField("dispatched", default=False)
+
     def __unicode__(self):
         return u"RidePoint [%d]" % self.id
 
@@ -585,7 +591,7 @@ class RideEvent(BaseModel):
     shared_ride = models.ForeignKey(SharedRide, related_name="events", blank=True, null=True)
     pickmeapp_ride = models.ForeignKey(PickMeAppRide, related_name="events", blank=True, null=True)
     status = models.IntegerField(choices=FleetManagerRideStatus.choices(), default=FleetManagerRideStatus.PENDING)
-    raw_status = models.CharField(max_length=128, null=True, blank=True)
+    raw_status = models.CharField(max_length=150, null=True, blank=True)
     lat = models.FloatField(null=True, blank=True)
     lon = models.FloatField(null=True, blank=True)
     taxi_id = models.IntegerField(null=True, blank=True)

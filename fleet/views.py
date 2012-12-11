@@ -109,6 +109,42 @@ def isr_status_page(request):
 
 @staff_member_required
 def get_ride_events(request):
+    def _add_shared_ride(ride_id):
+        ride = SharedRide.by_id(ride_id)
+        shared_rides[ride_id] = {
+            "id"        : ride.id,
+            "type"      : "sharing",
+            "taxi"      : ride.taxi_number,
+            "stops"     : [p.serialize_for_status_page() for p in sorted(ride.points.all(), key=lambda p: p.stop_time)],
+            "events"    : []
+        }
+        return ride
+
+    def _add_pickmeapp_ride(ride_id):
+        ride = PickMeAppRide.by_id(ride_id)
+        order = ride.order
+        stops = [{"lon": order.from_lon,
+                 "lat": order.from_lat,
+                 "address": order.from_raw,
+                 "time": order.create_date.strftime("%d/%m/%y %H:%M")}]
+
+        if order.to_lon and order.to_lat:
+            stops.append({
+                "lon": order.to_lon,
+                "lat": order.to_lat,
+                "address": order.to_raw,
+                "time": order.create_date.strftime("%d/%m/%y %H:%M")})
+
+        pickmeapp_rides[ride_id] = {
+            "id"        : ride.id,
+            "type"      : "pickmeapp",
+            "taxi"      : ride.taxi_number,
+            "stops"     : stops,
+            "events"    : []
+
+        }
+        return ride
+
     import dateutil.parser
 
     ride_id = request.GET.get("ride_id")
@@ -116,8 +152,11 @@ def get_ride_events(request):
     pickmeapp_rides = {}
 
     if ride_id:
-        ride = SharedRide.by_id(ride_id) or PickMeAppRide.by_id(ride_id)
-        events = ride.events.all()
+        ride = _add_shared_ride(ride_id)
+        if not ride:
+            ride = _add_pickmeapp_ride(ride_id)
+
+        events = ride.events.all() if ride else []
     else:
         from_date = dateutil.parser.parse(request.GET.get("from_date"))
         to_date = dateutil.parser.parse(request.GET.get("to_date"))
@@ -136,42 +175,15 @@ def get_ride_events(request):
                 if taxi and not shared_rides[e.shared_ride_id]['taxi']:
                     shared_rides[e.shared_ride_id]['taxi'] = taxi
             else:
-                ride = SharedRide.by_id(e.shared_ride_id)
-                shared_rides[e.shared_ride_id] = {
-                    "id"        : ride.id,
-                    "type"      : "sharing",
-                    "taxi"      : taxi,
-                    "stops"     : [p.serialize_for_status_page() for p in sorted(ride.points.all(), key=lambda p: p.stop_time)],
-                    "events"    : [e.serialize_for_status_page()]
-                }
+                logging.error("miss configured events!")
         elif e.pickmeapp_ride_id:
             if e.pickmeapp_ride_id in pickmeapp_rides:
                 pickmeapp_rides[e.pickmeapp_ride_id]["events"].append(e.serialize_for_status_page())
                 if taxi and not pickmeapp_rides[e.pickmeapp_ride_id]['taxi']:
                     pickmeapp_rides[e.pickmeapp_ride_id]['taxi'] = taxi
             else:
-                ride = PickMeAppRide.by_id(e.pickmeapp_ride_id)
-                order = ride.order
-                stops = [{"lon": order.from_lon,
-                         "lat": order.from_lat,
-                         "address": order.from_raw,
-                         "time": order.create_date.strftime("%d/%m/%y %H:%M")}]
+                logging.error("miss configured events!")
 
-                if order.to_lon and order.to_lat:
-                    stops.append({
-                        "lon": order.to_lon,
-                        "lat": order.to_lat,
-                        "address": order.to_raw,
-                        "time": order.create_date.strftime("%d/%m/%y %H:%M")})
-
-                pickmeapp_rides[e.pickmeapp_ride_id] = {
-                    "id"        : ride.id,
-                    "type"      : "pickmeapp",
-                    "taxi"      : taxi,
-                    "stops"     : stops,
-                    "events"    : [e.serialize_for_status_page()]
-
-                }
     result = shared_rides.values() + pickmeapp_rides.values()
 
     return JSONResponse(result)

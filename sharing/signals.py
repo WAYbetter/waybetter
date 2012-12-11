@@ -1,11 +1,13 @@
-from google.appengine.ext import deferred
-from django.utils.translation import ugettext_lazy as _
 from common.decorators import receive_signal
 from common.signals import AsyncSignal
 from common.util import  Enum
-from django.utils import simplejson, translation
-
+from datetime import timedelta
+from django.utils import  translation
+from django.utils.translation import ugettext_lazy as _
+from google.appengine.ext import deferred
 import logging
+
+RIDE_TEXT_TIMEOUT = 120
 
 class SignalType(Enum):
     RIDE_CREATED               = 1
@@ -87,11 +89,32 @@ def handle_accepted_ride(sender, signal_type, ride, status, **kwargs):
     from ordering.models import SharedRide
     from sharing.passenger_controller import send_ride_notifications
     from sharing.station_controller import send_ride_voucher
+    from fleet.fleet_manager import send_ride_intro_text
+
 
     if isinstance(ride, SharedRide) and status == RideStatus.ACCEPTED:
         deferred.defer(send_ride_voucher, ride_id=ride.id)
         send_ride_notifications(ride)
 
+        points = ride.points.all().order_by("stop_time")
+        current_point = points[0]
+        deferred.defer(ride_text_sentinel, ride=ride, current_point=current_point, _eta=(current_point.stop_time - timedelta(seconds=RIDE_TEXT_TIMEOUT)) )
+        send_ride_intro_text(ride)
+
+def ride_text_sentinel(ride, current_point):
+    from fleet.fleet_manager import send_ride_point_text
+
+    points = list(ride.points.all().order_by("stop_time"))
+    next_point = None
+    try: # setup sentinel for next point
+        next_point = points[points.index(current_point) +1]
+        deferred.defer(ride_text_sentinel, ride=ride, current_point=next_point, _eta=(next_point.stop_time - timedelta(seconds=RIDE_TEXT_TIMEOUT)) )
+    except IndexError:
+        pass
+
+    if not current_point.dispatched:
+        current_point.update(dispatched=True)
+        send_ride_point_text(ride, current_point, next_point=next_point)
 
 @receive_signal(ride_updated_signal)
 def update_ws(sender, signal_type, ride, **kwargs):
