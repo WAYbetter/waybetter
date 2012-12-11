@@ -780,13 +780,21 @@ def update_ride_remove_order(order):
     ride = order.ride
     logging.info("remove order[%s] from ride[%s]" % (order.id, ride.id))
 
-    order.pickup_point.delete()
-    order.dropoff_point.delete()
+    pickup_point = order.pickup_point
+    dropoff_point = order.dropoff_point
     order.ride = None
     order.pickup_point = None
     order.dropoff_point = None
     order.save()
     logging.info("order detached, ride now has %s orders" % ride.orders.count())
+
+    if pickup_point.orders.count() == 0:
+        pickup_point.delete()
+        logging.info("order [%s] pickup point deleted" % order.id)
+
+    if dropoff_point.orders.count() == 0:
+        dropoff_point.delete()
+        logging.info("order [%s] dropoff point deleted" % order.id)
 
     if ride.orders.count() == 0:
         logging.info("ride[%s] deleted: last order cancelled" % ride.id)

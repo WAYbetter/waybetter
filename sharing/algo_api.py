@@ -11,7 +11,7 @@ from pricing.models import TARIFFS
 
 NEW_ORDER_ID = 0
 
-ALGO_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % (4) # if settings.DEV else 3)
+ALGO_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % (4 if settings.DEV else 3)
 
 M2M_ENGINE_URL = "%s/m2malgo" % ALGO_ENGINE_DOMAIN
 ROUTING_URL = "%s/routes" % ALGO_ENGINE_DOMAIN
@@ -293,7 +293,7 @@ def find_matches(candidate_rides, order_settings):
     payload = {
         AlgoField.RIDES : [serialize_shared_ride(r) for r in candidate_rides],
         "order"         : serialize_order_settings(order_settings),
-        "parameters"    : get_parameters(extra={"debug": True}) #order_settings.debug})
+        "parameters"    : get_parameters(extra={"debug": order_settings.debug})
     }
 
     payload = simplejson.dumps(payload)
