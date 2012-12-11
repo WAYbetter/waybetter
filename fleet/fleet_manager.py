@@ -78,6 +78,13 @@ def send_message(ride, message):
         ride_fm = FleetManager.by_id(ride.dn_fleet_manager_id)
         result = ride_fm.send_message(message, ride.station.fleet_station_id, ride.taxi_number)
 
+        # log a RideEvent about his message
+        rp = get_ride_position(ride)
+        e = RideEvent(pickmeapp_ride=None, shared_ride=ride,
+                      status=FleetManagerRideStatus.MESSAGE_SENT, raw_status=message, lat=rp.lat if rp else None, lon=rp.lon if rp else None, taxi_id=ride.taxi_number, timestamp=default_tz_now())
+        e.save()
+
+
         return result
     except Exception, e:
         logging.error(traceback.format_exc())

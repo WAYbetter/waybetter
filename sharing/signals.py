@@ -109,7 +109,7 @@ def ride_text_sentinel(ride, current_point):
     try: # setup sentinel for next point
         next_point = points[points.index(current_point) +1]
         deferred.defer(ride_text_sentinel, ride=ride, current_point=next_point, _eta=(next_point.stop_time - timedelta(seconds=RIDE_TEXT_TIMEOUT)) )
-    except ValueError:
+    except IndexError:
         pass
 
     if not current_point.dispatched:

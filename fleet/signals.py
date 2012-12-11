@@ -54,7 +54,7 @@ def send_ride_texts(sender, signal_type, positions, **kwargs):
             active_points = ride.points.filter(dispatched=False).order_by("stop_time")
             if active_points:
                 current_point = active_points[0]
-                next_point = active_points[0] if len(active_points) > 1 else None
+                next_point = active_points[1] if len(active_points) > 1 else None
 
                 if distance_between_points(position.lat, position.lon, current_point.lat, current_point.lon) < RIDE_TEXT_THRESHOLD:
                     current_point.update(dispatched=True)

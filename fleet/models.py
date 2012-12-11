@@ -17,6 +17,7 @@ class FleetManagerRideStatus(Enum):
     COMPLETED = 7
     CANCELLED = 8
     POSITION_CHANGED = 9
+    MESSAGE_SENT = 10
 
 class FleetManagerRide(object):
     """ An object representing a ride by a fleet manager backend. """

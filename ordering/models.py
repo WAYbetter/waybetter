@@ -447,10 +447,6 @@ class SharedRide(BaseRide):
     def passengers(self):
         return list(set([o.passenger for p in self.points.all() for o in p.orders.all()]))
 
-    @property
-    def charged_stops(self):
-        return self.stops - 1
-
     def get_log(self):
         orders = list(self.orders.all())
         return u"""
@@ -595,7 +591,7 @@ class RideEvent(BaseModel):
     shared_ride = models.ForeignKey(SharedRide, related_name="events", blank=True, null=True)
     pickmeapp_ride = models.ForeignKey(PickMeAppRide, related_name="events", blank=True, null=True)
     status = models.IntegerField(choices=FleetManagerRideStatus.choices(), default=FleetManagerRideStatus.PENDING)
-    raw_status = models.CharField(max_length=128, null=True, blank=True)
+    raw_status = models.CharField(max_length=150, null=True, blank=True)
     lat = models.FloatField(null=True, blank=True)
     lon = models.FloatField(null=True, blank=True)
     taxi_id = models.IntegerField(null=True, blank=True)
