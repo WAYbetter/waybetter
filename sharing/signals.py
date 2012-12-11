@@ -112,6 +112,7 @@ def ride_text_sentinel(ride, current_point):
     except IndexError:
         pass
 
+    current_point = current_point.fresh_copy()
     if not current_point.dispatched:
         current_point.update(dispatched=True)
         send_ride_point_text(ride, current_point, next_point=next_point)

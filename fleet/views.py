@@ -175,14 +175,14 @@ def get_ride_events(request):
                 if taxi and not shared_rides[e.shared_ride_id]['taxi']:
                     shared_rides[e.shared_ride_id]['taxi'] = taxi
             else:
-                logging.error("miss configured events!")
+                logging.error(u"miss configured events! %s not found in %s" % (e.shared_ride_id, shared_rides))
         elif e.pickmeapp_ride_id:
             if e.pickmeapp_ride_id in pickmeapp_rides:
                 pickmeapp_rides[e.pickmeapp_ride_id]["events"].append(e.serialize_for_status_page())
                 if taxi and not pickmeapp_rides[e.pickmeapp_ride_id]['taxi']:
                     pickmeapp_rides[e.pickmeapp_ride_id]['taxi'] = taxi
             else:
-                logging.error("miss configured events!")
+                logging.error(u"miss configured events! %s not found in %s" % (e.pickmeapp_ride_id, pickmeapp_rides))
 
     result = shared_rides.values() + pickmeapp_rides.values()
 

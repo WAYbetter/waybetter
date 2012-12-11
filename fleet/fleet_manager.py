@@ -117,7 +117,8 @@ def send_ride_point_text(ride, ride_point, next_point=None):
 
 def send_ride_intro_text(ride):
     passengers = ride.passengers
-    message = u"נסיעת ויי בטר - %d נוסעים" % len(passengers)
+    pickups = ride.points.filter(type=StopType.PICKUP)
+    message = u"נסיעת ויי בטר - %d איסופים" % pickups.count()
     first_point = ride.points.all().order_by("stop_time")[0]
 
     type = u"איסוף" if first_point.type == StopType.PICKUP else u"הורדה"
