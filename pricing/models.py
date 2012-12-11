@@ -208,7 +208,7 @@ class DiscountRule(AbstractTemporalRule):
         from_lat, from_lon = pickup_address.lat, pickup_address.lng
         to_lat, to_lon = dropoff_address.lat, dropoff_address.lng
 
-        logging.info("checking if %s is active at %s %s" % (self.name, from_address, to_address))
+        logging.info("checking if %s is active at %s %s %s" % (self.name, dt, from_address, to_address))
 
         active_from = self.from_everywhere
         active_to = self.to_everywhere
