@@ -11,7 +11,7 @@ from pricing.models import TARIFFS
 
 NEW_ORDER_ID = 0
 
-ALGO_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % (4 if settings.DEV else 3)
+ALGO_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % (4) # if settings.DEV else 3)
 
 M2M_ENGINE_URL = "%s/m2malgo" % ALGO_ENGINE_DOMAIN
 ROUTING_URL = "%s/routes" % ALGO_ENGINE_DOMAIN
