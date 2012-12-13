@@ -54,7 +54,7 @@
                         </div>
                         <div class="control-group">
                             <label class="control-label">Aliases</label>
-                            <div class="controls"><input type="text" ng-model="place.aliases"></div>
+                            <div class="controls"><input type="text" ng-change="update_aliases(raw_aliases)" ng-model="raw_aliases"></div>
                         </div>
                         <div class="control-group">
                             <div class="controls"><button class="btn btn-primary" ng-show="mode=='create'" ng-click="create()">Create</button></div>
@@ -82,7 +82,7 @@
                             <tr ng-repeat="place in places|orderBy:'-id' ">
                                 <td>(( place.name ))</td>
                                 <td>(( place.description ))</td>
-                                <td>(( place.aliases ))</td>
+                                <td>(( place.aliases.join(", ") ))</td>
                                 <td>(( place.city_name ))</td>
                                 <td>(( place.street ))</td>
                                 <td>(( place.house_number ))</td>
@@ -132,6 +132,7 @@
             {% endautoescape %}
 
             $scope.place = fresh_place();
+            $scope.raw_aliases = "";
 
             $scope.$on(wbEvents.place_changed, function (e, pac_result) {
                 var place_address = Address.fromGoogleResult(pac_result);
@@ -213,6 +214,19 @@
 
                 return defer.promise;
             };
+
+            $scope.update_aliases = function(raw_aliases){
+                var aliases = raw_aliases.split(",");
+                angular.forEach(aliases, function(alias, idx){
+                    aliases[idx] = alias.trim();
+                });
+                $scope.place.aliases = aliases;
+            };
+
+            $scope.$watch("place.aliases", function (aliases) {
+                $scope.raw_aliases = aliases.join(", ");
+
+            });
         });
     </script>
 {% endblock %}
