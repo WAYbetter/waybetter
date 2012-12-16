@@ -101,11 +101,12 @@ def _passengers_line(passengers, show_phones=True):
 
 def send_ride_point_text(ride, ride_point, next_point=None):
     ride_points = list(ride.points.all().order_by("stop_time"))
-    is_first = ride == ride_points[0]
-    passengers = ride.passengers
+    is_first = ride_point == ride_points[0]
+    passengers = ride_point.passengers
     long_passenger_list = (len(passengers) > 2)
+    ride_point.update(dispatched=True)
 
-    message = u"נסיעת WAYbetter - הפתק בתחנה\n" if not long_passenger_list and is_first else u""
+    message = u"נסיעת WAYbetter - הפתק בתחנה\n" if (not long_passenger_list) and is_first else u""
 
     type = u"איסוף" if ride_point.type == StopType.PICKUP else u"הורדה"
     message = u"%s%s %s %s" % (message, type, _clean_address(ride_point.address), ride_point.stop_time.strftime("%H:%M"))

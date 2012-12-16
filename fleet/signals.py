@@ -57,7 +57,6 @@ def send_ride_texts(sender, signal_type, positions, **kwargs):
                 next_point = active_points[1] if len(active_points) > 1 else None
 
                 if distance_between_points(position.lat, position.lon, current_point.lat, current_point.lon) < RIDE_TEXT_THRESHOLD:
-                    current_point.update(dispatched=True)
                     send_ride_point_text(ride, current_point, next_point=next_point)
 
 def do_notify_passenger(order):

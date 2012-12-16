@@ -103,11 +103,15 @@ def handle_accepted_ride(sender, signal_type, ride, status, **kwargs):
 
 def ride_text_sentinel(ride, current_point):
     from fleet.fleet_manager import send_ride_point_text
+    logging.info(u"ride_text_sentinel: current point [%s]" % current_point)
 
     points = list(ride.points.all().order_by("stop_time"))
+    logging.info(u"all points: %s" % points)
     if current_point == points[-1]: # this is the last point
+        logging.info("current point is last")
         return # last point was announced in previous message, no need to repeat
 
+    logging.info("current point is not last")
     next_point = None
     try: # setup sentinel for next point
         next_point = points[points.index(current_point) +1]
@@ -117,7 +121,6 @@ def ride_text_sentinel(ride, current_point):
 
     current_point = current_point.fresh_copy()
     if not current_point.dispatched: # send ride text if not sent by now by position trigger
-        current_point.update(dispatched=True)
         send_ride_point_text(ride, current_point, next_point=next_point)
 
 @receive_signal(ride_updated_signal)

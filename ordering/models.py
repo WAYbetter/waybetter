@@ -578,6 +578,10 @@ class RidePoint(BaseModel):
     def orders(self):
         return self.pickup_orders.all() if self.type == StopType.PICKUP else self.dropoff_orders.all()
 
+    @property
+    def passengers(self):
+        return list(set([o.passenger for o in self.orders]))
+
     def serialize_for_status_page(self):
         return {
             "lon"       : self.lon,
