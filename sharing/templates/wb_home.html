@@ -44,6 +44,9 @@
 
         app.controller("wbHomeCtrl", function($scope) {
             $scope.active_tab = "facebook";
+            $scope.total_savings = "{{ money_saved.value }}";
+            $scope.total_orders = "{{ total_orders.value }}";
+            
             $scope.prev = function () {
                 jQuery.stackGallery.previousMedia();
             };
@@ -103,6 +106,7 @@
         //init component
         jQuery.stackGallery('#componentWrapper', stack_settings);
         stack_settings = null;
+        
 
     });
 
@@ -192,15 +196,12 @@
                 </div>
                 <div class="span5">
                     <div class="well row-fluid savings-box">
-                        <div class="span3">
-                            <div class="taxi_faces"></div>
-                        </div>
-                        <div class="span9 saving-counters">
+                        <div class="span12 saving-counters">
                             <div>
-                                <wb-counter value="{{ total_orders.value }}"></wb-counter> {% trans "נסיעות הוזמנו" %}
+                                <wb-counter value="(( total_orders ))"></wb-counter> {% trans "נסיעות הוזמנו" %}
                             </div>
                             <div>
-                                <wb-counter value="{{ money_saved.value }}"></wb-counter> {% trans "₪ נחסכו" %}
+                                <wb-counter value="(( total_savings ))"></wb-counter> {% trans "₪ נחסכו" %}
                             </div>
                         </div>
                     </div>
