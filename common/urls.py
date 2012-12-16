@@ -55,5 +55,8 @@ urlpatterns = patterns('',
     # services
     (r'^services/osrm_proxy/(?P<service_name>\w+)/$', 'common.geocode.osrm_proxy'),
 
+    # cron
+    (r'^cron/calc_counters/$', 'common.cron.calc_counters'),
+
 )
 

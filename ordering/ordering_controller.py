@@ -12,6 +12,7 @@ from analytics.models import BIEvent, BIEventType, SearchRequest, RideOffer
 from billing.billing_manager import  get_token_url
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction
+from common.models import Counter
 from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime, trim_seconds, TZ_INFO
 from common.util import first, Enum, dict_to_str_keys, datetimeIterator, get_uuid
 from django.shortcuts import render_to_response
@@ -63,6 +64,10 @@ def home(request, suggest_apps=True):
     user_agent_lower = request.META.get("HTTP_USER_AGENT", "").lower()
     is_android =  user_agent_lower.find("android") > -1
     is_ios =  user_agent_lower.find("iphone") > -1
+    lib_ng = True
+
+    total_orders = Counter.objects.get(name="total_orders")
+    money_saved = Counter.objects.get(name="money_saved")
 
     suggest_apps = (is_android or is_ios) and suggest_apps
     if suggest_apps:
