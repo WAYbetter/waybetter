@@ -89,7 +89,7 @@ def handle_accepted_ride(sender, signal_type, ride, status, **kwargs):
     from ordering.models import SharedRide
     from sharing.passenger_controller import send_ride_notifications
     from sharing.station_controller import send_ride_voucher
-    from fleet.fleet_manager import send_ride_intro_text
+    from fleet.fleet_manager import send_ride_point_text
 
 
     if isinstance(ride, SharedRide) and status == RideStatus.ACCEPTED:
@@ -99,12 +99,15 @@ def handle_accepted_ride(sender, signal_type, ride, status, **kwargs):
         points = ride.points.all().order_by("stop_time")
         current_point = points[0]
         deferred.defer(ride_text_sentinel, ride=ride, current_point=current_point, _eta=(current_point.stop_time - timedelta(seconds=RIDE_TEXT_TIMEOUT)) )
-        send_ride_intro_text(ride)
+        send_ride_point_text(ride, current_point, next_point=points[1])
 
 def ride_text_sentinel(ride, current_point):
     from fleet.fleet_manager import send_ride_point_text
 
     points = list(ride.points.all().order_by("stop_time"))
+    if current_point == points[-1]: # this is the last point
+        return # last point was announced in previous message, no need to repeat
+
     next_point = None
     try: # setup sentinel for next point
         next_point = points[points.index(current_point) +1]
@@ -113,7 +116,7 @@ def ride_text_sentinel(ride, current_point):
         pass
 
     current_point = current_point.fresh_copy()
-    if not current_point.dispatched:
+    if not current_point.dispatched: # send ride text if not sent by now by position trigger
         current_point.update(dispatched=True)
         send_ride_point_text(ride, current_point, next_point=next_point)
 
