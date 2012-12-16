@@ -95,37 +95,33 @@ def _clean_address(address):
 
 def _passengers_line(passengers, show_phones=True):
     if show_phones:
-        return ",".join([u"%s %s" % (p.phone, p.name[:7]) for p in passengers])
+        return u", ".join([u"%s %s" % (p.phone, p.name[:7]) for p in passengers])
     else:
-        return ",".join([p.name[:10] for p in passengers])
+        return u", ".join([p.name[:10] for p in passengers])
 
 def send_ride_point_text(ride, ride_point, next_point=None):
+    ride_points = list(ride.points.all().order_by("stop_time"))
+    is_first = ride == ride_points[0]
+    passengers = ride.passengers
+    long_passenger_list = (len(passengers) > 2)
+
+    message = u"נסיעת WAYbetter - הפתק בתחנה\n" if not long_passenger_list and is_first else u""
+
     type = u"איסוף" if ride_point.type == StopType.PICKUP else u"הורדה"
+    message = u"%s%s %s %s" % (message, type, _clean_address(ride_point.address), ride_point.stop_time.strftime("%H:%M"))
 
-    message = u"%s %s - %s" % (type, ride_point.stop_time.strftime("%H:%M"), _clean_address(ride_point.address))
-    passengers = ride.passengers
-    message = u"%s\n%s" % (message, _passengers_line(passengers[:2], show_phones=(ride_point.type==StopType.PICKUP)))
-    if passengers[2:]:
+    if long_passenger_list:
+        message = u"%s\n%s" % (message, _passengers_line(passengers[:2], show_phones=(ride_point.type==StopType.PICKUP)))
         message = u"%s\n%s" % (message, _passengers_line(passengers[2:], show_phones=(ride_point.type==StopType.PICKUP)))
-
-    if next_point:
-        message = u"%s\nהמשך %s - %s" % (message, next_point.stop_time.strftime("%H:%M"), _clean_address(next_point.address))
     else:
-        message = u"%s\n%s" % (message, u"התשלום יועבר לתחנה בסוף החודש, תודה!")
+        message = u"%s\n%s" % (message, _passengers_line(passengers, show_phones=(ride_point.type==StopType.PICKUP)))
 
-    return send_message(ride, message)
+    if next_point == ride_points[-1]: # next_point is the last point in ride
+        type = u"סיום"
+    else:
+        type = u"איסוף" if next_point.type == StopType.PICKUP else u"הורדה"
 
-def send_ride_intro_text(ride):
-    passengers = ride.passengers
-    pickups = ride.points.filter(type=StopType.PICKUP)
-    message = u"נסיעת ויי בטר - %d איסופים" % pickups.count()
-    first_point = ride.points.all().order_by("stop_time")[0]
-
-    type = u"איסוף" if first_point.type == StopType.PICKUP else u"הורדה"
-
-    message = u"%s\n%s %s - %s" % (message, type, first_point.stop_time.strftime("%H:%M"), _clean_address(first_point.address))
-    message = u"%s\n%s" % (message, _passengers_line(passengers))
-    message = u"%s\n%s" % (message, u"נסיעת פתקית - אישור תשלום נמצא בתחנה")
+    message = u"%s\n%s %s %s" % (message, type, _clean_address(next_point.address), next_point.stop_time.strftime("%H:%M"))
 
     return send_message(ride, message)
 
