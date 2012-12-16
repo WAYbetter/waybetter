@@ -35,12 +35,12 @@
     <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
                 <div class="container">
-                    <a id="wb-logo" class="brand" href="{% url wb_home %}"><strong>WAY</strong>better</a>
+                    <a id="wb-logo" class="brand" href="{% url wb_home %}"></a>
                     {% block user_tools %}
                     <div class="nav-collapse collapse">
                         <ul id="header-links" class="nav pull-right">
-                            <li><a href="{% url wb_home %}"><i class="icon-home"></i></a></li>
-                            <li><a href="{% url booking_page %}"><i class="wb-icon-taxi"></i></a></li>
+                            <li><a href="{% value_from_settings TWITTER_APP_URL %}" class="link-icon"><i class="icon-twitter-sign"></i></a></li>
+                            <li><a href="{% value_from_settings FACEBOOK_APP_URL %}" class="link-icon"><i class="icon-facebook-sign"></i></a></li>
                             <li><a href="{% url about %}">{% trans "About" %}</a></li>
                             <li class="dropdown">
                                 <a href class="dropdown-toggle" data-toggle="dropdown">{% trans "Get the App" %}</a>
@@ -186,7 +186,7 @@
 {% block doc_ready %}
     {{ block.super }}
     <script type="text/javascript">
-        $(function () {
+        jQuery(function ($) {
             $("#header-links > li > a[href='" + window.location.pathname + "']").parents("li").addClass("active");
             $("#totop").click(function () {
                 $("body, html").animate({
