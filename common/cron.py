@@ -12,7 +12,7 @@ def calc_counters(request):
     end_date = default_tz_now_max() - timedelta(days=1)
 
     total_orders, created = Counter.objects.get_or_create(name="total_orders")
-    total_orders.value = Order.objects.filter(type=OrderType.SHARED, debug=False).count()
+    total_orders.value = Order.objects.filter(type=OrderType.SHARED, debug=False, status=CHARGED).count()
     total_orders.save()
 
     money_saved, created = Counter.objects.get_or_create(name="money_saved")

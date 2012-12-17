@@ -431,6 +431,10 @@ def get_offers(request):
             pickup_point = ride_data.order_pickup_point(NEW_ORDER_ID)
             ride_orders = ride.orders.all()
             pickup_time = compute_new_departure(ride, ride_data) + datetime.timedelta(seconds=pickup_point.offset)
+            if pickup_time < default_tz_now() + datetime.timedelta(minutes=ASAP_BOOKING_TIME):
+                logging.info("skipping offer because pickup_time is too soon: %s" % pickup_time)
+                continue
+
             offer = {
                 "ride_id": ride_id,
                 "pickup_time": to_js_date(pickup_time),
