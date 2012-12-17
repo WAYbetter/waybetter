@@ -865,7 +865,7 @@
             $scope.$apply(function() {
                 var start_handle_time = new Date().getTime() + {{ handle_time }} * 60 * 1000;
                 angular.forEach($scope.rides, function (ride) {
-                    if ([Status.FAILED, Status.COMPLETED].indexOf(ride.status) > -1) {
+                    if ([Status.FAILED, Status.COMPLETED, Status.PENDING].indexOf(ride.status) > -1) {
                         ride.tab = undefined; // don't show these rides
                     } else {
                         var is_future = (ride.depart_time >= start_handle_time && ride.status == Status.ASSIGNED);
