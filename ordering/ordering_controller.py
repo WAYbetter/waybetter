@@ -242,9 +242,18 @@ def fb_share(request):
 def get_history_suggestions(request, passenger):
     orders = passenger.orders.order_by('-depart_time')[:HISTORY_SUGGESTIONS_TO_SEARCH]
     orders = filter(lambda o: o.type != OrderType.PICKMEAPP, orders)
-    data = set([Address.from_order(o, "from") for o in orders] + [Address.from_order(o, "to") for o in orders])
-    data = [a.__dict__ for a in data]
 
+    addresses = []
+    for order in orders:
+        address = Address.from_order(order, "from")
+        if address not in addresses:
+            addresses.append(address)
+
+        address = Address.from_order(order, "to")
+        if address not in addresses:
+            addresses.append(address)
+
+    data = [a.__dict__ for a in addresses]
     return JSONResponse(data)
 
 
