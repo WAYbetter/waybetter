@@ -624,17 +624,22 @@ def book_ride(request):
 
 def join_offer_and_order(order, request_data):
     # connect the order the the offer that was clicked
-    last_search_req = SearchRequest.objects.filter(passenger=order.passenger).order_by("-create_date")[0]
-    logging.info("joining order %s to offers from search request %s" % (order.id, last_search_req.id))
     offer_ride_key = request_data.get("ride_id")
-    if last_search_req:
-        for offer in last_search_req.offers.all():
-            if offer.ride_key == (str(offer_ride_key) if offer_ride_key else None):
-                logging.info("offer %s was joined with order %s" % (offer.id, order.id))
-                offer.order = order
-                offer.save()
-                break
+    logging.info("join_offer_and_order: offer_ride_key = '%s'" % offer_ride_key)
 
+    last_search_req = SearchRequest.objects.filter(passenger=order.passenger).order_by("-create_date")
+    if last_search_req: # ok, search was performed by a logged-in passenger
+       offers = last_search_req[0].offers.all()
+       for offer in offers:
+           logging.info("checking offer [%s]: '%s'" % (offer.id, offer.ride_key))
+           if offer.ride_key == (str(offer_ride_key) if offer_ride_key else None):
+               logging.info("offer %s was joined with order %s" % (offer.id, order.id))
+               offer.order = order
+               offer.save()
+               break
+
+    else:
+        logging.warning("search request was done anonymously, can't attach offer to order")
 
 @csrf_exempt
 def set_current_booking_data(request):
