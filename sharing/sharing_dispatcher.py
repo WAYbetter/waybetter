@@ -9,6 +9,7 @@ from ordering.models import  SharedRide, Station
 from datetime import timedelta
 from pricing.models import RuleSet
 import logging
+from sharing.station_controller import  remove_ride
 
 DISPATCHING_TIME = timedelta(hours=24)
 
@@ -76,8 +77,12 @@ def assign_ride(ride, force_station=None):
     logging.info(u"assigning ride [%s] to station: %s" % (ride.id, station))
     if station:
         try:
+            old_station = ride.station
             ride.station = station
             ride.dn_fleet_manager_id = station.fleet_manager_id
+            if old_station:
+                remove_ride(old_station, ride)
+
             if force_station and ride.change_status(new_status=RideStatus.ASSIGNED): # calls save()
                 assigned_station = station
             elif ride.change_status(old_status=RideStatus.PROCESSING, new_status=RideStatus.ASSIGNED): # calls save()

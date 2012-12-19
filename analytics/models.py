@@ -1,3 +1,4 @@
+from django.conf import settings
 from common.tz_support import UTCDateTimeField
 from django.db import models
 from django.utils.translation import ugettext_lazy as _
@@ -12,7 +13,7 @@ class BIEventType(Enum):
     APP_INSTALL             = 1
     BOOKING_START           = 2
     BILLING_INFO_COMPLETE   = 3
-
+    REGISTRATION_START      = 4
 
 class AnalyticsEvent(BaseModel):
     type = models.IntegerField(_("type"), choices=EventType.choices())
@@ -113,6 +114,8 @@ class BIEvent(BaseModel):
 
     passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="+", null=True, blank=True)
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="+", null=True, blank=True)
+    mobile = models.BooleanField(_("mobile"), default=False)
+    debug = models.BooleanField(_("debug"), default=False)
 
     lon = models.FloatField(_("lon"), null=True, blank=True)
     lat = models.FloatField(_("lat"), null=True, blank=True)
@@ -123,5 +126,7 @@ class BIEvent(BaseModel):
         new_event = BIEvent(event_type=event_type, **kwargs)
         if request:
             new_event.user_agent = request.META.get("HTTP_USER_AGENT")
+            new_event.mobile = request.mobile
+            new_event.debug = settings.DEV
 
         new_event.save()

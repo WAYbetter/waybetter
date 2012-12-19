@@ -2,16 +2,13 @@
 import os
 from django.contrib.auth.models import User
 from google.appengine.api import memcache
-from google.appengine.api.channel.channel import InvalidChannelClientIdError
-from billing.enums import BillingStatus
-from common.errors import TransactionError
 from django.core.urlresolvers import reverse
 from google.appengine.ext.deferred import deferred
 from google.appengine.api.channel import channel
 from common.decorators import force_lang
 from common.util import custom_render_to_response, get_uuid, base_datepicker_page, send_mail_as_noreply
 from django.contrib.admin.views.decorators import staff_member_required
-from django.http import HttpResponse, HttpResponseBadRequest
+from django.http import HttpResponse
 from django.utils import simplejson
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
@@ -340,7 +337,6 @@ def kpi_csv(request):
 @force_lang("en")
 @staff_member_required
 def eagle_eye(request):
-    import dateutil
     from dateutil.parser import parse
 
     stations = []
@@ -386,7 +382,6 @@ def eagle_eye(request):
 @staff_member_required
 @force_lang("en")
 def manual_assign_ride(request):
-    from sharing.station_controller import update_data
     from sharing.sharing_dispatcher import assign_ride
 
     ride_id = request.POST.get("ride_id")
@@ -395,12 +390,7 @@ def manual_assign_ride(request):
     station = Station.by_id(station_id)
     if station and ride.station != station:
         fleet_manager.cancel_ride(ride)
-        old_station = ride.station
-
         assign_ride(ride, station)
-
-        if old_station:
-            update_data(old_station)
 
     return JSONResponse({'ride': ride.serialize_for_eagle_eye()})
 

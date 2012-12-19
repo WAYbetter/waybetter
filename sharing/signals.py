@@ -34,14 +34,13 @@ def ride_created(sender, signal_type, obj, **kwargs):
 
 @receive_signal(ride_deleted_signal)
 def handle_deleted_ride(sender, signal_type, ride, **kwargs):
-    from sharing.station_controller import update_data
+    from sharing.station_controller import update_all
 
     logging.info("handle_deleted_ride")
     assigned_station = ride.station
     if assigned_station:
         logging.info("updating assigned_station: %s" % assigned_station.id)
-        update_data(assigned_station)
-
+        update_all(assigned_station)
 
 @receive_signal(ride_status_changed_signal)
 def handle_failed_ride(sender, signal_type, ride, status, **kwargs):

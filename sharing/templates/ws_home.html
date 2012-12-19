@@ -757,7 +757,7 @@
 
         $scope.get_progress_value = function (ride) {
             var depart_time = new Date(ride.depart_time);
-            var view_buffer = 3; // minutes
+            var view_buffer = 5; // minutes
             var total_seconds = ({{ WS_SHOULD_HANDLE_TIME }} - view_buffer) * 60;
             var seconds_remain = (depart_time - new Date() - (view_buffer * 60 * 1000)) / 1000;
             if (seconds_remain >= 1) {
@@ -765,7 +765,6 @@
             } else {
                 return 0;
             }
-
         };
 
         $scope.sync_state = function () {
