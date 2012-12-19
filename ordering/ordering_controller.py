@@ -24,6 +24,7 @@ from ordering.decorators import  passenger_required_no_redirect
 from ordering.enums import RideStatus
 from ordering.models import SharedRide, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY, SearchRequest
 from ordering.signals import order_price_changed_signal
+from ordering.passenger_controller import get_position_for_order
 from pricing.functions import get_discount_rules_and_dt
 from pricing.models import  RuleSet, DiscountRule
 from sharing.algo_api import NEW_ORDER_ID
@@ -99,6 +100,14 @@ def get_ongoing_ride_details(request, passenger):
 
         pickup_position = {"lat": order.from_lat, "lng": order.from_lon}
         dropoff_position = {"lat": order.to_lat, "lng": order.to_lon}
+
+        if settings.DEV:
+            pickup_position = {"lat": 32.05253, "lng": 34.77716}  # this is the first mock location
+
+        taxi_position = get_position_for_order(order, use_mock=settings.DEBUG)
+        if taxi_position:
+            taxi_position = {"lat": taxi_position.lat, "lng": taxi_position.lon}
+
         pickup_stops = [{"lat": p.lat, "lng": p.lon} for p in ride.pickup_points]  # sorted by stop_time
         sorted_orders = sorted(ride.orders.all(), key=lambda o: o.depart_time)
 
@@ -113,6 +122,8 @@ def get_ongoing_ride_details(request, passenger):
         response = {
             "station"           : station_data,
             "passengers"        : passengers,
+            "taxi_position"     : taxi_position,
+            "taxi_number"       : ride.taxi_number,
             "pickup_position"   : pickup_position,
             "dropoff_position"  : dropoff_position,
             "stops"             : stops,
