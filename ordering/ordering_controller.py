@@ -83,8 +83,7 @@ def booking_page(request, continued=False):
     return render_to_response("booking_page.html", locals(), RequestContext(request))
 
 
-@passenger_required_no_redirect
-def get_ongoing_ride_details(request, passenger):
+def get_ongoing_ride_details(request):
     order_id = request.GET.get("order_id")
     order = Order.by_id(order_id)
 
@@ -100,9 +99,6 @@ def get_ongoing_ride_details(request, passenger):
 
         pickup_position = {"lat": order.from_lat, "lng": order.from_lon}
         dropoff_position = {"lat": order.to_lat, "lng": order.to_lon}
-
-        if settings.DEV:
-            pickup_position = {"lat": 32.05253, "lng": 34.77716}  # this is the first mock location
 
         taxi_position = get_position_for_order(order, use_mock=settings.DEBUG)
         if taxi_position:
