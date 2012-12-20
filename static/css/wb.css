@@ -40,7 +40,9 @@ body {
 /* Theme hacks
 -------------------------------------------------- */
 #header, #landing {
-  background-color: #34bcd3; }
+  background-color: #34bcd3;
+  padding: 20px 0;
+  overflow: hidden; }
 
 #header h1, #landing h1 {
   text-shadow: 0 1px 2px rgba(83, 83, 83, 0.52);
@@ -186,8 +188,8 @@ select {
 #wb-logo {
   font-family: 'Titillium Web', sans-serif;
   background: url(/static/images/wb_site/1.2/logo_header.png) left bottom no-repeat;
-  width: 180px;
-  height: 32px;
+  width: 213px;
+  height: 44px;
   padding: 0;
   color: #000000;
   margin-left: 30px;
@@ -196,9 +198,17 @@ select {
   text-align: right;
   line-height: 34px;
   text-align: right; }
+  #wb-logo .tagline {
+    color: #555555; }
 
-#header-links .wb-icon-taxi {
-  font-size: 14px; }
+#header-links .link-icon {
+  padding: 12px 0px 10px; }
+#header-links i {
+  font-size: 32px; }
+#header-links .icon-twitter-sign {
+  color: #1285a7; }
+#header-links .icon-facebook-sign {
+  color: #2d5aa1; }
 
 #content {
   min-height: 100px; }
@@ -334,16 +344,51 @@ select {
 
 /* Website pages
 -------------------------------------------------- */
-.wb-home #landing {
-  padding: 30px 0 80px;
-  background-image: url(/static/images/wb_site/1.2/taxi_faces.png);
-  background-position: center bottom;
-  background-repeat: no-repeat; }
-.wb-home #landing-text {
-  max-width: 320px; }
-.wb-home #book-ride-btn {
-  width: 200px;
+.wb-home #landing h1 {
+  max-width: 370px; }
+.wb-home .ticker-container {
+  direction: ltr;
+  display: inline-block; }
+  .wb-home .ticker-container .ticker-item {
+    font-weight: bold;
+    font-size: 35px;
+    display: inline-block;
+    background-image: url(/static/images/wb_site/1.2/ticker.png);
+    width: 30px;
+    height: 47px;
+    line-height: 43px;
+    text-align: center;
+    margin: 7px 3px; }
+.wb-home .savings-box .span4 {
+  text-align: center; }
+.wb-home .savings-box .taxi_faces {
+  background-image: url(/static/images/wb_site/1.2/colorful_taxi.png);
+  width: 96px;
+  height: 85px;
+  display: inline-block;
   margin-top: 20px; }
+.wb-home .tabs {
+  margin-bottom: 0; }
+.wb-home .tabs-content {
+  background: white;
+  border: 1px solid #ddd;
+  border-top: none;
+  padding: 10px;
+  padding-top: 20px; }
+  .wb-home .tabs-content .tab {
+    max-height: 260px;
+    overflow: hidden; }
+.wb-home .saving-counters {
+  font-weight: bold; }
+.wb-home #landing-text {
+  max-width: 382px;
+  font-size: 16px; }
+.wb-home #book-ride-btn {
+  width: 150px;
+  margin-top: 20px;
+  height: 40px;
+  line-height: 39px;
+  font-size: 20px; }
 .wb-home #app-shots-container {
   position: relative; }
 .wb-home #app-shots {
@@ -354,20 +399,21 @@ select {
   width: 355px;
   height: 430px; }
 .wb-home #content {
-  padding-top: 45px; }
-.wb-home #content hr {
-  margin: 60px 0 30px; }
+  padding-top: 25px; }
 .wb-home #download-app strong {
   position: relative;
-  bottom: 19px;
-  font-size: 16px; }
+  margin-bottom: 10px;
+  font-size: 16px;
+  display: block;
+  text-align: center; }
 .wb-home #download-app .available-on-the {
   display: inline-block;
   width: 152px;
   height: 50px;
   background: url(/static/images/wb_site/1.2/appstores.png);
   background-repeat: no-repeat;
-  margin-left: 28px; }
+  margin-right: 14px;
+  margin-left: 14px; }
 .wb-home #download-app .available-on-the:hover {
   -moz-transform: translateY(-3px);
   -webkit-transform: translateY(-3px);
@@ -389,8 +435,14 @@ select {
 .wb-home #features .header {
   font-size: 24px;
   line-height: 36px; }
+.wb-home #features .row-fluid {
+  margin-bottom: 60px; }
+.wb-home #features .icon_wrapper {
+  text-align: center; }
+  .wb-home #features .icon_wrapper i {
+    line-height: 73px; }
 .wb-home #features p {
-  padding: 0 20px; }
+  max-width: 400px; }
 
 .my-rides-page .modal-footer .modal-buttons {
   display: inline-block; }

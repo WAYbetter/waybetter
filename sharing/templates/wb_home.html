@@ -3,59 +3,230 @@
 {% load value_from_settings %}
 
 {% block bodyclass %}wb-home{% endblock %}
+{% block bodyattr %}ng-app="wbHomeApp" ng-controller="wbHomeCtrl"{% endblock %}
+
+{% block jquery %}
+    <script type="text/javascript" src="/static/stack_gallery/js/jquery-1.7.min.js"></script>
+{% endblock %}
+
+
+{% block scripts %}
+    {{ block.super }}
+
+{#    <link rel="stylesheet" href="/static/stack_gallery/css/prettyPhoto.css" type="text/css" media="screen" />#}
+    <link rel="stylesheet" type="text/css" href="/static/stack_gallery/css/stackGallery_horizontal.css" />
+
+    <script type="text/javascript" src="/static/stack_gallery/js/jquery.easing.1.3.js"></script>
+    <script type="text/javascript">jQuery.noConflict();</script>
+{#    <script type="text/javascript" src="/static/stack_gallery/js/jquery.prettyPhoto.js" charset="utf-8"></script>#}
+    <script type="text/javascript" src="/static/stack_gallery/js/jquery.transform-0.9.3.min.js" ></script>
+{#    <script type="text/javascript" src="/static/stack_gallery/js/jquery.cj-swipe.js"></script>#}
+    <script type="text/javascript" src="/static/stack_gallery/js/jquery.stackGallery.min.js"></script>
+
+    <script type="text/javascript" src="/static/js/wb-ng/directives.js"></script>
+    <script type="text/javascript" src="/static/js/wb-ng/defaults.js"></script>
+
+    <script type="text/javascript">
+        var app = angular.module('wbHomeApp', ['wbDirectives']);
+        app.config(function ($interpolateProvider, $httpProvider) {
+            $interpolateProvider.startSymbol('((');
+            $interpolateProvider.endSymbol('))');
+
+            $httpProvider.defaults.headers.post['Content-Type'] = 'application/x-www-form-urlencoded';
+            $httpProvider.defaults.transformRequest.push(function (data, headersGetter) {
+                if (data) {
+                    return jQuery.param(angular.fromJson(data));
+                } else {
+                    return data;
+                }
+            });
+        });
+
+        app.controller("wbHomeCtrl", function($scope) {
+            $scope.active_tab = "facebook";
+            $scope.total_savings = "{{ money_saved.value }}";
+            $scope.total_orders = "{{ total_orders.value }}";
+            
+            $scope.prev = function () {
+                jQuery.stackGallery.previousMedia();
+            };
+            $scope.next = function () {
+                jQuery.stackGallery.nextMedia();
+            }
+        })
+    </script>
+    <script type="text/javascript">
+        function stackGalleryReady() {
+            //function called when component is ready to receive public method calls
+            //console.log('stackGalleryReady');
+        }
+
+        function detailActivated() {
+            //function called when prettyphoto (in this case) is being triggered (in which case slideshow if is on, automatically stops, then later when prettyphoto is closed, slideshow is resumed)
+            //console.log('detailActivated');
+        }
+
+        function detailClosed() {
+            //function called when prettyphoto (in this case) is closed
+            //console.log('detailClosed');
+        }
+
+        function beforeSlideChange(slideNum) {
+            //function called before slide change (plus ORIGINAL! slide number returned)
+            //(ORIGINAL slide number is slide number in unmodified stack from the bottom as slides are listed in html '.componentPlaylist' element, 1st slide from the bottom = 0 slide number, second slide from the bottom = 1 slide number, etc...)
+            //console.log('beforeSlideChange, slideNum = ', slideNum);
+        }
+
+        function afterSlideChange(slideNum) {
+            //function called after slide change (plus ORIGINAL! slide number returned)
+            //console.log('afterSlideChange, slideNum = ', slideNum);
+        }
+    // SETTINGS
+    var stack_settings = {
+        /* slideshowLayout: horizontalLeft, horizontalRight, verticalAbove, verticalRound */
+        slideshowLayout:'horizontalLeft',
+        /* slideshowDirection: forward, backward */
+        slideshowDirection:'forward',
+        /* controlsAlignment: rightCenter, topCenter */
+        controlsAlignment:'rightCenter',
+        /* fullSize: slides 100% size of the componentWrapper, true/false. */
+        fullSize:false,
+        /* slideshowDelay: slideshow delay, in miliseconds */
+        slideshowDelay:6000,
+        /* slideshowOn: true/false */
+        slideshowOn:true,
+        /* useRotation: true, false */
+        useRotation:true,
+        /* swipeOn: enter slide number(s) for which you want swipe applied separated by comma (counting starts from 0) */
+        swipeOn:''
+    };
+
+    jQuery(window).load(function () {
+
+        //init component
+        jQuery.stackGallery('#componentWrapper', stack_settings);
+        stack_settings = null;
+        
+
+    });
+
+    </script>
+{% endblock %}
+
 
 {% block header %}
     <div id="landing">
         <div class="container">
-            <div class="row">
+            <div class="row-fluid">
                 <div class="span7">
-                    <h1>{% trans "תופסים טרמפ על מונית ספיישל..." %}</h1>
+                    <h1>{% trans " תופסים טרמפ על מונית ספיישל וחוסכים בגדול " %}</h1>
                     <p id="landing-text">{% trans "במקום לשלם לבד על מונית שלמה, תופסים מונית שנוסעת במסלול ובזמן שמתאים לכם, חולקים את התשלום עם שאר הנוסעים והופכים מקומות פנויים לחיסכון כספי גדול עבור כולם!" %}</p>
-                    <a id="book-ride-btn" href="{% url booking_page %}" class="btn btn-warning btn-large"><i class="wb-icon-taxi"></i> {% trans "תפוס/התחל נסיעה" %}</a>
+                    <a id="book-ride-btn" href="{% url booking_page %}" class="btn btn-warning btn-large"><i class="wb-icon-taxi"></i> {% trans "הזמן נסיעה" %}</a>
                 </div>
-                <div class="span5" id="app-shots-container">
-                    <div id="app-shots" class="visible-desktop"></div>
+                <div class="span5">
+                    <div id="componentWrapper">
+{#                        <div ng-click="next()" class="slide-control next"></div>#}
+                        <div class="componentPlaylist">
+                            <div class="slide" >
+                                <div class="scaler">
+                                    <img class='stack_img' src='/static/stack_gallery/1.png' width='346' height='259' alt=''/>
+                                </div>
+                            </div>
+                            <div class="slide" >
+                                <div class="scaler">
+                                    <img class='stack_img' src='/static/stack_gallery/2.png' width='346' height='259' alt=''/>
+                                </div>
+                            </div>
+                            <div class="slide" >
+                                <div class="scaler">
+                                    <img class='stack_img' src='/static/stack_gallery/3.png' width='346' height='259' alt=''/>
+                                </div>
+                            </div>
+                        </div>
+{#                        <div ng-click="prev()" class="slide-control prev"></div>#}
+                    </div>
+
                 </div>
             </div>
         </div>
-    </div>
     </div>
 {% endblock %}
 
 {% block content %}
-    <div id="content" class="txt-middle">
+    <div id="content" class="" >
         <div class="container">
             <div class="row-fluid">
-                <div id="download-app" class="pull-left">
-                    <strong>{% trans "הורידו את האפליקציה - חינם" %}</strong>
-                    <a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}" target="_blank" class="available-on-the appstore"></a>
-                    <a href="{% value_from_settings ANDROID_MARKET_APP_URL %}" target="_blank" class="available-on-the market"></a>
-                </div>
-            </div>
-            <hr class="dashed">
-            <div id="features" class="row">
-                <div class="span4 bouncy">
-                    <div class="icon_wrapper">
-                        <i class="wb-icon-bulb"></i>
+                <div class="span7">
+                    <div id="download-app" class="row-fluid txt-middle">
+                        <strong>{% trans "הורידו את האפליקציה - חינם" %}</strong>
+                        <a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}" target="_blank" class="available-on-the appstore"></a>
+                        <a href="{% value_from_settings ANDROID_MARKET_APP_URL %}" target="_blank" class="available-on-the market"></a>
+                        <hr class="dashed">
                     </div>
-                    <div class="header">{% trans "חכם יותר" %}</div>
-                    <p>{% trans "סעו בדרך חברתית שחוסכת לכולם ועל הדרך תצמצמו זיהום אוויר, בזבוז דלק, פקקים ורעש. אולי אפילו תכירו אנשים מעניינים..." %}</p>
-                </div>
-                <div class="span4 bouncy">
-                    <div class="icon_wrapper">
-                        <i class="icon-heart"></i>
+
+                    <div id="features" >
+                        <div class="bouncy row-fluid">
+                            <div class="icon_wrapper span2">
+                                <i class="wb-icon-bulb"></i>
+                            </div>
+                            <div class="span10">
+                                <div class="header">{% trans "חכם יותר" %}</div>
+                                <p>{% trans "סעו בדרך חברתית שחוסכת לכולם ועל הדרך תצמצמו זיהום אוויר, בזבוז דלק, פקקים ורעש. אולי אפילו תכירו אנשים מעניינים..." %}</p>
+                            </div>
+                        </div>
+                        <div class="bouncy row-fluid">
+                            <div class="icon_wrapper span2">
+                                <i class="icon-heart"></i>
+                            </div>
+                            <div class="span10">
+                                <div class="header">{% trans "נוח יותר" %}</div>
+                                <p>{% trans 'כנסו לאפליקציה או לאתר, הזמינו בקלות מונית מתאימה וסעו בשקט "מדלת לדלת" בלי להתעסק עם כסף במונית ובמחיר ידוע מראש.' %}</p>
+                            </div>
+                        </div>
+                        <div class="bouncy row-fluid">
+                            <div class="icon_wrapper span2">
+                                <i class="icon-magic"></i>
+                            </div>
+                            <div class="span10">
+                                <div class="header">{% trans "משתלם יותר" %}</div>
+                                <p>{% trans "במקום לשלם סתם על מקומות ריקים שתפו את הנסיעה, שלמו רק על חלקכם בה ותשלמו הרבה פחות מהמחיר הרגיל." %}</p>
+                            </div>
+                        </div>
                     </div>
-                    <div class="header">{% trans "נוח יותר" %}</div>
-                    <p>{% trans 'כנסו לאפליקציה או לאתר, הזמינו בקלות מונית מתאימה וסעו בשקט "מדלת לדלת" בלי להתעסק עם כסף במונית ובמחיר ידוע מראש.' %}</p>
                 </div>
-                <div class="span4 bouncy">
-                    <div class="icon_wrapper">
-                        <i class="icon-magic"></i>
+                <div class="span5">
+                    <div class="well row-fluid savings-box">
+                        <div class="span12 saving-counters">
+                            <div>
+                                <wb-counter value="(( total_orders ))"></wb-counter> {% trans "נסיעות הוזמנו" %}
+                            </div>
+                            <div>
+                                <wb-counter value="(( total_savings ))"></wb-counter> {% trans "₪ נחסכו" %}
+                            </div>
+                        </div>
                     </div>
-                    <div class="header">{% trans "משתלם יותר" %}</div>
-                    <p>{% trans "במקום לשלם סתם על מקומות ריקים שתפו את הנסיעה, שלמו רק על חלקכם בה ותשלמו הרבה פחות מהמחיר הרגיל." %}</p>
+                    <div class="well row-fluid">
+{#                        <ul class="nav nav-tabs tabs">#}
+{#                          <li ng-class="{'active': active_tab == 'hotspots'}" ng-click="active_tab = 'hotspots'">#}
+{#                              <a href="#" >HotSpots <i class="icon-flag"></i></a>#}
+{#                          </li>#}
+{#                          <li ng-class="{'active': active_tab == 'facebook'}" ng-click="active_tab = 'facebook'">#}
+{#                              <a href="#" >Facebook <i class="icon-facebook-sign"></i></a>#}
+{#                          </li>#}
+{#                        </ul>#}
+                        <div class="tabs-content">
+                            <div class="tab" ng-show="active_tab == 'facebook'">
+                                <iframe src="//www.facebook.com/plugins/likebox.php?href=https%3A%2F%2Fwww.facebook.com%2Fpages%2FWAYbetter%2F131114610286539&amp;width=358&amp;height=395&amp;show_faces=false&amp;colorscheme=light&amp;stream=true&amp;border_color&amp;header=false&amp;appId=154631364550681" scrolling="no" frameborder="0" style="border:none; overflow:hidden; width:358px; height:395px;" allowTransparency="true"></iframe>
+                            </div>
+                            <div class="tab" ng-show="active_tab == 'hotspots'">
+                                hotspots
+                            </div>
+                        </div>
+
+                    </div>
                 </div>
             </div>
         </div>
+
     </div>
 {% endblock %}

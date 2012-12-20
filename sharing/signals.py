@@ -1,10 +1,13 @@
-from django.utils.translation import ugettext_lazy as _
 from common.decorators import receive_signal
 from common.signals import AsyncSignal
 from common.util import  Enum
-from django.utils import simplejson, translation
-
+from datetime import timedelta
+from django.utils import  translation
+from django.utils.translation import ugettext_lazy as _
+from google.appengine.ext import deferred
 import logging
+
+RIDE_TEXT_TIMEOUT = 120
 
 class SignalType(Enum):
     RIDE_CREATED               = 1
@@ -31,14 +34,13 @@ def ride_created(sender, signal_type, obj, **kwargs):
 
 @receive_signal(ride_deleted_signal)
 def handle_deleted_ride(sender, signal_type, ride, **kwargs):
-    from sharing.station_controller import update_data
+    from sharing.station_controller import update_all
 
     logging.info("handle_deleted_ride")
     assigned_station = ride.station
     if assigned_station:
         logging.info("updating assigned_station: %s" % assigned_station.id)
-        update_data(assigned_station)
-
+        update_all(assigned_station)
 
 @receive_signal(ride_status_changed_signal)
 def handle_failed_ride(sender, signal_type, ride, status, **kwargs):
@@ -68,23 +70,57 @@ def handle_failed_ride(sender, signal_type, ride, status, **kwargs):
         translation.activate(current_lang)
 
 @receive_signal(ride_status_changed_signal)
-def handle_accepted_ride(sender, signal_type, ride, status, **kwargs):
+def handle_viewed_ride(sender, signal_type, ride, status, **kwargs):
     from ordering.enums import RideStatus
     from ordering.models import SharedRide
-    from sharing.passenger_controller import send_ride_notifications
-    from sharing.station_controller import send_ride_voucher
-    from google.appengine.ext import deferred
     from fleet import fleet_manager
 
-    if isinstance(ride, SharedRide) and status == RideStatus.ACCEPTED:
+    if isinstance(ride, SharedRide) and status == RideStatus.VIEWED:
         if ride.dn_fleet_manager_id:
             deferred.defer(fleet_manager.create_ride, ride)
         else:
             logging.info("ride %s has no fleet manager" % ride.id)
 
-        deferred.defer(send_ride_voucher, ride_id=ride.id)
 
+@receive_signal(ride_status_changed_signal)
+def handle_accepted_ride(sender, signal_type, ride, status, **kwargs):
+    from ordering.enums import RideStatus
+    from ordering.models import SharedRide
+    from sharing.passenger_controller import send_ride_notifications
+    from sharing.station_controller import send_ride_voucher
+    from fleet.fleet_manager import send_ride_point_text
+
+
+    if isinstance(ride, SharedRide) and status == RideStatus.ACCEPTED:
+        deferred.defer(send_ride_voucher, ride_id=ride.id)
         send_ride_notifications(ride)
+
+        points = ride.points.all().order_by("stop_time")
+        current_point = points[0]
+        deferred.defer(ride_text_sentinel, ride=ride, current_point=current_point, _eta=(current_point.stop_time - timedelta(seconds=RIDE_TEXT_TIMEOUT)) )
+        send_ride_point_text(ride, current_point, next_point=points[1])
+
+def ride_text_sentinel(ride, current_point):
+    from fleet.fleet_manager import send_ride_point_text
+    logging.info(u"ride_text_sentinel: current point [%s]" % current_point)
+
+    points = list(ride.points.all().order_by("stop_time"))
+    logging.info(u"all points: %s" % points)
+    if current_point == points[-1]: # this is the last point
+        logging.info("current point is last")
+        return # last point was announced in previous message, no need to repeat
+
+    logging.info("current point is not last")
+    next_point = None
+    try: # setup sentinel for next point
+        next_point = points[points.index(current_point) +1]
+        deferred.defer(ride_text_sentinel, ride=ride, current_point=next_point, _eta=(next_point.stop_time - timedelta(seconds=RIDE_TEXT_TIMEOUT)) )
+    except IndexError:
+        pass
+
+    current_point = current_point.fresh_copy()
+    if not current_point.dispatched: # send ride text if not sent by now by position trigger
+        send_ride_point_text(ride, current_point, next_point=next_point)
 
 @receive_signal(ride_updated_signal)
 def update_ws(sender, signal_type, ride, **kwargs):

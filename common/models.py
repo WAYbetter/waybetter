@@ -18,7 +18,7 @@ def obj_by_attr(cls, attr_name, attr_val, safe=True):
     try:
         filter_dict = {attr_name: attr_val}
         obj = cls.objects.get(**filter_dict)
-    except cls.DoesNotExist, e:
+    except Exception, e:
         if safe:
             obj = None
         else:

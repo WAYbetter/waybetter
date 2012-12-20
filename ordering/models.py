@@ -370,6 +370,7 @@ class SharedRide(BaseRide):
     driver = models.ForeignKey(Driver, verbose_name=_("assigned driver"), related_name="rides", null=True, blank=True)
     taxi = models.ForeignKey(Taxi, verbose_name=_("assigned taxi"), related_name="rides", null=True, blank=True)
     can_be_joined = models.BooleanField(default=True)
+    pickup_estimate = models.IntegerField(null=True, blank=True, editable=False) # an estimate given by the station dispatcher in minutes
 
     cost = models.FloatField(null=True, blank=True, editable=False)
     _cost_data = models.TextField(editable=False, default=pickle.dumps(None))
@@ -403,7 +404,7 @@ class SharedRide(BaseRide):
             logging.info("cost has not changed: %s" % self.cost)
         else:
             self.update(cost=None)
-            logging.warning("no cost found %s" % self.cost_data)
+            logging.info("no cost found %s" % self.cost_data)
 
     @property
     def cost_details(self):
@@ -443,8 +444,8 @@ class SharedRide(BaseRide):
         return self._stops
 
     @property
-    def charged_stops(self):
-        return self.stops - 1
+    def passengers(self):
+        return list(set([o.passenger for p in self.points.all() for o in p.orders.all()]))
 
     def get_log(self):
         orders = list(self.orders.all())
@@ -508,25 +509,6 @@ class SharedRide(BaseRide):
             "id"                : self.id
         }
 
-    def serialize_for_algo(self):
-        from sharing.algo_api import AlgoField
-        order_infos = {}
-        for order in self.orders.all():
-            order_infos[order.id] = {
-                'num_seats': order.num_seats,
-                AlgoField.PRICE_SHARING_TARIFF1: order.price_data.get(TARIFFS.TARIFF1),
-                AlgoField.PRICE_SHARING_TARIFF2: order.price_data.get(TARIFFS.TARIFF2)
-            }
-
-        result = {
-            AlgoField.RIDE_ID           : self.id,
-            AlgoField.RIDE_POINTS       : [rp.serialize_for_algo() for rp in sorted(self.points.all(), key=lambda p: p.stop_time)],
-            AlgoField.ORDER_INFOS       : order_infos,
-            AlgoField.COST_LIST_TARIFF1 : self.cost_data.for_tariff_type(TARIFFS.TARIFF1),
-            AlgoField.COST_LIST_TARIFF2 : self.cost_data.for_tariff_type(TARIFFS.TARIFF2)
-        }
-        return clean_values(result)
-
     def change_status(self, old_status=None, new_status=None, safe=True, silent=False):
         result = self._change_attr_in_transaction("status", old_status, new_status, safe=safe)
         if result and not silent:
@@ -583,6 +565,8 @@ class RidePoint(BaseModel):
     address = models.CharField(_("address"), max_length=200, null=True, blank=True)
     city_name = models.CharField(_("city name"), max_length=200, null=True, blank=True)
 
+    dispatched = models.BooleanField("dispatched", default=False)
+
     def __unicode__(self):
         return u"RidePoint [%d]" % self.id
 
@@ -591,16 +575,12 @@ class RidePoint(BaseModel):
         return re.sub(",?\s+תל אביב יפו".decode("utf-8"), "", self.address)
 
     @property
-    def city_area_name(self):
-        for city_area in CityArea.objects.all():
-            if city_area.contains(self.lat, self.lon):
-                return city_area.name
-
-        return ""
-
-    @property
     def orders(self):
         return self.pickup_orders.all() if self.type == StopType.PICKUP else self.dropoff_orders.all()
+
+    @property
+    def passengers(self):
+        return list(set([o.passenger for o in self.orders]))
 
     def serialize_for_status_page(self):
         return {
@@ -610,28 +590,12 @@ class RidePoint(BaseModel):
             "time"      : self.stop_time.strftime("%d/%m/%y %H:%M")
         }
 
-    def serialize_for_algo(self):
-        from sharing.algo_api import AlgoField
-
-        result = {
-            AlgoField.TYPE: "e%s" % StopType.get_name(self.type).title(),
-            AlgoField.POINT_ADDRESS: {
-                AlgoField.LAT: self.lat,
-                AlgoField.LNG: self.lon,
-                AlgoField.ADDRESS: self.address,
-                AlgoField.CITY: self.city_name,
-                AlgoField.AREA: self.city_area_name
-            },
-            AlgoField.ORDER_IDS: [o.id for o in self.orders]
-        }
-
-        return clean_values(result)
 
 class RideEvent(BaseModel):
     shared_ride = models.ForeignKey(SharedRide, related_name="events", blank=True, null=True)
     pickmeapp_ride = models.ForeignKey(PickMeAppRide, related_name="events", blank=True, null=True)
     status = models.IntegerField(choices=FleetManagerRideStatus.choices(), default=FleetManagerRideStatus.PENDING)
-    raw_status = models.CharField(max_length=128, null=True, blank=True)
+    raw_status = models.CharField(max_length=150, null=True, blank=True)
     lat = models.FloatField(null=True, blank=True)
     lon = models.FloatField(null=True, blank=True)
     taxi_id = models.IntegerField(null=True, blank=True)
@@ -1061,6 +1025,7 @@ class Order(BaseModel):
     depart_time = UTCDateTimeField(_("depart time"), null=True, blank=True)
     arrive_time = UTCDateTimeField(_("arrive time"), null=True, blank=True)
     price = models.FloatField(null=True, blank=True, editable=False)
+    price_alone = models.FloatField(null=True, blank=True, editable=False)
     discount = models.FloatField(null=True, blank=True, editable=False)
     discount_rule = models.ForeignKey(DiscountRule, verbose_name=_("discount rule"), related_name="orders", null=True, blank=True, editable=False)
     num_seats = models.PositiveIntegerField(default=1)
@@ -1088,9 +1053,10 @@ class Order(BaseModel):
         # set order price according to received price data and tariff
         if self.depart_time:
             tariff = RuleSet.get_active_set(self.depart_time)
-            price = self.price_data.get(tariff.tariff_type)
+            price = self.price_data.for_tariff_type(tariff.tariff_type)
             if price and self.price != price:
                 self.price = price
+                self.price_alone = self.price_data.for_tariff_type(tariff.tariff_type, sharing=False)
             else:
                 logging.warning("price changed to the same price")
 
@@ -1490,64 +1456,6 @@ class Feedback(BaseModel):
                 field_names.append("%s_%s" % (type.lower(), category.lower().replace(" ", "_")))
 
         return field_names
-
-
-class SearchRequest(BaseModel):
-    # TODO_WB: consider adding fields: num of offers returened, chosen offer
-    passenger = models.ForeignKey(Passenger, verbose_name=_("passenger"), related_name="search_requests", null=True, blank=True)
-
-    from_lon = models.FloatField(_("from_lon"))
-    from_lat = models.FloatField(_("from_lat"))
-    from_address = models.CharField(_("from address"), max_length=50)
-    from_city = models.CharField(_("from city"), max_length=50)
-
-    to_lon = models.FloatField(_("to_lon"), null=True, blank=True)
-    to_lat = models.FloatField(_("to_lat"), null=True, blank=True)
-    to_address = models.CharField(_("to address"), max_length=50, null=True, blank=True)
-    to_city = models.CharField(_("to city"), max_length=50, null=True, blank=True)
-
-    num_seats = models.PositiveIntegerField(default=1)
-
-    pickup_dt = UTCDateTimeField("pickup dt", null=True, blank=True)
-
-    mobile = models.BooleanField("mobile", default=False)
-    private = models.BooleanField("private", default=False)
-    luggage = models.BooleanField("luggage", default=False)
-    debug = models.BooleanField("debug", default=False)
-
-    language_code = models.CharField("language_code", max_length=5)
-    user_agent = models.CharField("user agent", max_length=250, null=True, blank=True)
-
-    @classmethod
-    def fromOrderSettings(cls, order_settings, passenger):
-        sr = cls()
-        if passenger:
-            sr.passenger = passenger
-
-        sr.from_address = order_settings.pickup_address.formatted_address
-        sr.from_city = order_settings.pickup_address.city_name
-        sr.from_lat = order_settings.pickup_address.lat
-        sr.from_lon = order_settings.pickup_address.lng
-
-        sr.to_address = order_settings.dropoff_address.formatted_address
-        sr.to_city = order_settings.dropoff_address.city_name
-        sr.to_lat = order_settings.dropoff_address.lat
-        sr.to_lon = order_settings.dropoff_address.lng
-
-        sr.num_seats = order_settings.num_seats
-        sr.pickup_dt = order_settings.pickup_dt
-
-        sr.luggage = order_settings.luggage
-        sr.private = order_settings.private
-        sr.debug = order_settings.debug
-        sr.mobile = order_settings.mobile
-
-        sr.language_code = order_settings.language_code
-        sr.user_agent = order_settings.user_agent
-
-        return sr
-
-
 
 for i, category in zip(range(len(FEEDBACK_CATEGORIES)), FEEDBACK_CATEGORIES):
     for type in FEEDBACK_TYPES:

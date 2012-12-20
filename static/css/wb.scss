@@ -72,6 +72,8 @@ body{
 -------------------------------------------------- */
 #header, #landing{
     background-color: $wb-blue;
+    padding: 20px 0;
+    overflow: hidden;
 }
 #header h1, #landing h1{
     text-shadow: 0 1px 2px rgba(83, 83, 83, 0.52);
@@ -229,8 +231,8 @@ select {
 #wb-logo{
     font-family: 'Titillium Web', sans-serif;
     background: url(/static/images/wb_site/1.2/logo_header.png) left bottom no-repeat;
-    width: 180px;
-    height: 32px;
+    width: 213px;
+    height: 44px;
     padding: 0;
     color:  #000000;
     margin-left: 30px;
@@ -239,11 +241,23 @@ select {
     text-align: right;
     line-height: 34px;
     text-align: right;
+    .tagline {
+        color: #555555
+    }
 }
 
 #header-links{
-    .wb-icon-taxi{
-        font-size: 14px;
+    .link-icon {
+        padding: 12px 0px 10px;
+    }
+    i {
+        font-size: 32px;
+    }
+    .icon-twitter-sign {
+        color: #1285a7;
+    }
+    .icon-facebook-sign {
+        color: #2d5aa1;
     }
 }
 
@@ -419,18 +433,66 @@ select {
 /* Website pages
 -------------------------------------------------- */
 .wb-home{
-    #landing{
-        padding: 30px 0 80px;
-        background-image: url(/static/images/wb_site/1.2/taxi_faces.png);
-        background-position:  center bottom;
-        background-repeat: no-repeat;
+    #landing {
+        h1 {
+            max-width: 370px;
+        }
+    }
+    .ticker-container {
+        direction: ltr;
+        display: inline-block;
+        .ticker-item {
+            font-weight: bold;
+            font-size: 35px;
+            display: inline-block;
+            background-image: url(/static/images/wb_site/1.2/ticker.png);
+            width:30px;
+            height: 47px;
+            line-height: 43px;
+            text-align: center;
+            margin: 7px 3px;
+        }
+    }
+    .savings-box {
+        .span4 {
+            text-align: center;
+        }
+        .taxi_faces {
+            background-image: url(/static/images/wb_site/1.2/colorful_taxi.png);
+            width: 96px;
+            height: 85px;
+            display: inline-block;
+            margin-top: 20px;
+        }
+
+    }
+    .tabs {
+        margin-bottom:0;
+    }
+    .tabs-content {
+        background: white;
+        border: 1px solid #ddd;
+        border-top: none;
+        padding: 10px;
+        padding-top: 20px;
+        .tab {
+            max-height: 260px;
+            overflow: hidden;
+        }
+    }
+    .saving-counters {
+        font-weight: bold;
     }
     #landing-text{
-        max-width: 320px;
+        max-width: 382px;
+        font-size: 16px;
     }
     #book-ride-btn{
-        width: 200px;
+        width: 150px;
         margin-top: 20px;
+        height: 40px;
+        line-height: 39px;
+        font-size: 20px;
     }
     #app-shots-container{
         position: relative;
@@ -443,24 +505,24 @@ select {
         @include size(355px, 430px);
     }
     #content {
-        padding-top: 45px;
-    }
-    #content hr{
-        margin: 60px 0 30px;
+        padding-top: 25px;
     }
 
     #download-app{
         strong{
              position: relative;
-             bottom: 19px;
-            font-size: 16px;
+             margin-bottom: 10px;
+             font-size: 16px;
+             display: block;
+             text-align: center;
          }
         .available-on-the {
             display: inline-block;
             @include size(152px, 50px);
             background: url(/static/images/wb_site/1.2/appstores.png);
             background-repeat: no-repeat;
-            margin-left: 28px;
+            margin-right: 14px;
+            margin-left: 14px;
         }
         .available-on-the:hover{
             @include transform(translateY(-3px));
@@ -475,7 +537,18 @@ select {
             font-size: 24px;
             line-height: 36px;
         }
-        p { padding: 0 20px; }
+        .row-fluid {
+            margin-bottom: 60px;
+        }
+        .icon_wrapper {
+            text-align: center;
+            i {
+                line-height: 73px;
+            }
+        }
+        p {
+            max-width: 400px;
+        }
     }
 }
 

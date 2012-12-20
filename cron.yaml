@@ -7,6 +7,10 @@ cron:
   url: /cron/dispatch_rides/
   schedule: every 1 minutes
 
+- description: order statistics calculator
+  url: /common/cron/calc_counters/
+  schedule: every day 12:00
+
 #- description: keep alive dev
 #  url: /
 #  schedule: every 2 minutes

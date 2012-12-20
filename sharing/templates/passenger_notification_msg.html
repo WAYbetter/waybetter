@@ -1,2 +1,1 @@
-{% load i18n %}{% autoescape off %}{% trans "Taxi is on the way!" %} {% trans "_pickupat" %}- {{ pickup_time }}{% endautoescape %}
-*{% if taxi_number %}{% trans "taxi" %}- {{ taxi_number }} {% endif %}{% trans "_station" %} {{ station_name }}, {% trans "Tell the driver you’re with WAYbetter and the paper is at the station" %}*
+{% load i18n %}{% autoescape off %}{% if taxi_number %}{% blocktrans %}Taxi {{ taxi_number }} is on the way! Pickup in {{ pickup_time }} minutes. You can track the taxi position in our app{% endblocktrans %}{% else %}{% blocktrans %}Taxi is on the way! Pickup in {{ pickup_time }} minutes. You can track the taxi position in our app{% endblocktrans %}{% endif %}{% endautoescape %}

@@ -1,5 +1,32 @@
 var module = angular.module('wbDirectives', ['wbMessages', 'wbFilters']);
 
+module.directive("wbCounter", function () {
+    return {
+        restrict:'E',
+        scope:{
+            value:"@"
+        },
+        replace:true,
+        link:function (scope, element, attrs) {
+            function render() {
+                var container = "<div class='ticker-container'>{0}</div>";
+                var inner = "";
+                var parts = scope.value ? scope.value.toString().split("") : [];
+                for (var i = 0; i < parts.length; i++) {
+                    inner += "<div class='ticker-item'>{0}</div>".format(parts[i]);
+                }
+                element.html(container.format(inner));
+            }
+
+            console.log(scope);
+            scope.$watch("value", function () {
+                console.log("value changed = " + scope.value);
+                render();
+            });
+        }
+    }
+});
+
 module.directive("myRide", function (DefaultMessages) {
     return {
         restrict: 'E',

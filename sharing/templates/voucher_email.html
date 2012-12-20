@@ -74,7 +74,7 @@
         <td>
             <h3>{% trans "Radio Number" %}</h3>
         </td>
-        <td><hr></td>
+        <td>{{ taxi }}</td>
     </tr>
 </table>
 <h2 style="text-align: center">{% trans "Please send address to driver via the application" %}</h2>
@@ -91,6 +91,7 @@
             <td>{% trans "To Area" %}</td>
         {% else %}
             <td>{% trans "Distance" %}</td>
+            <td>{% trans "Additional KM" %}</td>
             <td>{% trans "City Area Code Name" %}</td>
         {% endif %}
 
@@ -103,10 +104,11 @@
             <td>{{ cost_details.destination_area }}</td>
         {% else %}
             <td>{{ distance }} {% trans "km" %}</td>
+            <td>{% if additional_km %}{{ additional_km }} {% trans "km" %}{% endif %}</td>
             <td>{{ cost_details.range }}</td>
         {% endif %}
 
-        <td>{{ ride.charged_stops }}</td>
+        <td>{{ charged_stops }}</td>
         <td>{{ tariff }}</td>
     </tr>
 </table>

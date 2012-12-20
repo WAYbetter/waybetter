@@ -7,10 +7,13 @@ import urllib
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api import memcache
+from google.appengine.ext import deferred
+from analytics.models import BIEvent, BIEventType, SearchRequest, RideOffer
 from billing.billing_manager import  get_token_url
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction
-from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime, trim_seconds
+from common.models import Counter
+from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime, trim_seconds, TZ_INFO
 from common.util import first, Enum, dict_to_str_keys, datetimeIterator, get_uuid
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
@@ -22,7 +25,7 @@ from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
 from ordering.enums import RideStatus
-from ordering.models import SharedRide, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY, SearchRequest
+from ordering.models import SharedRide, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY
 from ordering.signals import order_price_changed_signal
 from ordering.passenger_controller import get_position_for_order
 from pricing.functions import get_discount_rules_and_dt
@@ -62,6 +65,10 @@ def home(request, suggest_apps=True):
     user_agent_lower = request.META.get("HTTP_USER_AGENT", "").lower()
     is_android =  user_agent_lower.find("android") > -1
     is_ios =  user_agent_lower.find("iphone") > -1
+    lib_ng = True
+
+    total_orders = Counter.objects.get(name="total_orders")
+    money_saved = Counter.objects.get(name="money_saved")
 
     suggest_apps = (is_android or is_ios) and suggest_apps
     if suggest_apps:
@@ -79,6 +86,8 @@ def booking_page(request, continued=False):
         continue_booking = simplejson.dumps(True)
     else:
         request.session[CURRENT_BOOKING_DATA_KEY] = None
+
+    BIEvent.log(BIEventType.BOOKING_START, request=request, passenger=Passenger.from_request(request))
 
     return render_to_response("booking_page.html", locals(), RequestContext(request))
 
@@ -391,10 +400,6 @@ def get_matching_rides(candidate_rides, order_settings):
 def get_offers(request):
     order_settings = OrderSettings.fromRequest(request)
 
-    sr = SearchRequest.fromOrderSettings(order_settings, Passenger.from_request(request))
-    sr.save()
-
-    # TODO_WB: save all searches? in our db? use vision.bi ?
     # TODO_WB: save the requested search params and associate with a push_token from request for later notifications of similar searches
 
     if not order_settings.private:
@@ -443,6 +448,10 @@ def get_offers(request):
             pickup_point = ride_data.order_pickup_point(NEW_ORDER_ID)
             ride_orders = ride.orders.all()
             pickup_time = compute_new_departure(ride, ride_data) + datetime.timedelta(seconds=pickup_point.offset)
+            if pickup_time < default_tz_now() + datetime.timedelta(minutes=ASAP_BOOKING_TIME):
+                logging.info("skipping offer because pickup_time is too soon: %s" % pickup_time)
+                continue
+
             offer = {
                 "ride_id": ride_id,
                 "pickup_time": to_js_date(pickup_time),
@@ -459,38 +468,75 @@ def get_offers(request):
 
         offers.append(offer)
 
-
-    # add discounted offer if relevant
+    # add discounted offers if relevant
     if look_for_discounts and start_ride_algo_data:
-        earliest_offer_dt = ceil_datetime(max(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=ASAP_BOOKING_TIME), order_settings.pickup_dt - OFFERS_TIMEDELTA), minutes=BOOKING_INTERVAL)
-        discount_dts_tuples = get_discount_rules_and_dt(order_settings, earliest_offer_dt, order_settings.pickup_dt + OFFERS_TIMEDELTA, datetime.timedelta(minutes=BOOKING_INTERVAL))
+        offers += get_discounted_offers(request, order_settings, start_ride_algo_data)
 
-        for discount_rule, discount_dt in discount_dts_tuples:
-            tariff_for_discount_offer = RuleSet.get_active_set(discount_dt)
-            base_price_for_discount_offer = start_ride_algo_data.order_price(NEW_ORDER_ID, tariff_for_discount_offer)
-            if base_price_for_discount_offer:
-                discount = discount_rule.get_discount(base_price_for_discount_offer)
-                offer_key = "%s_%s" % (DISCOUNTED_OFFER_PREFIX, get_uuid())
-                memcache.set(offer_key, {'discount_rule_id': discount_rule.id, 'pickup_dt': discount_dt}, namespace=DISCOUNTED_OFFERS_NS)
-
-                offer_text = u"הזמן ראשון וקבל ₪%g הנחה מובטחת" % discount
-                if discount_rule.offer_text:
-                    offer_text = discount_rule.offer_text
-                    if offer_text.find("%g") > -1:  # render discount amount
-                        offer_text %= discount
-
-                offers.append({
-                    "ride_id": offer_key,
-                    "pickup_time": to_js_date(discount_dt),
-                    "passengers": [{'name': discount_rule.display_name, 'picture_url': discount_rule.picture_url}],
-                    "seats_left": MAX_SEATS - 1,
-                    "price": base_price_for_discount_offer - discount,
-                    "new_ride": False,  # disguise as an exisiting ride
-                    "comment": offer_text
-                })
-
-
+    deferred.defer(save_search_req_and_offers, Passenger.from_request(request), order_settings, offers)
     return JSONResponse({'offers': offers})
+
+
+def get_discounted_offers(request, order_settings, start_ride_algo_data):
+    discounted_offers = []
+
+    user_email_domain = None
+    if request.user.is_authenticated() and request.user.email:
+        user_email_domain = request.user.email.split("@")[1]
+
+    logging.info("get discounted offers @%s" % user_email_domain)
+
+    earliest_offer_dt = ceil_datetime(max(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=ASAP_BOOKING_TIME), order_settings.pickup_dt - OFFERS_TIMEDELTA), minutes=BOOKING_INTERVAL)
+    discount_dts_tuples = get_discount_rules_and_dt(order_settings, earliest_offer_dt, order_settings.pickup_dt + OFFERS_TIMEDELTA, datetime.timedelta(minutes=BOOKING_INTERVAL))
+
+    for discount_rule, discount_dt in discount_dts_tuples:
+        if discount_rule.email_domains and (user_email_domain not in discount_rule.email_domains):
+            logging.info("skipping: %s - only for %s" % (discount_rule.name, ", ".join(discount_rule.email_domains)))
+            continue
+
+        tariff_for_discount_offer = RuleSet.get_active_set(discount_dt)
+        base_price_for_discount_offer = start_ride_algo_data.order_price(NEW_ORDER_ID, tariff_for_discount_offer)
+        if base_price_for_discount_offer:
+            discount = discount_rule.get_discount(base_price_for_discount_offer)
+            offer_key = "%s_%s" % (DISCOUNTED_OFFER_PREFIX, get_uuid())
+            memcache.set(offer_key, {'discount_rule_id': discount_rule.id, 'pickup_dt': discount_dt}, namespace=DISCOUNTED_OFFERS_NS)
+
+            offer_text = u"הזמן ראשון וקבל ₪%g הנחה מובטחת" % discount
+            if discount_rule.offer_text:
+                offer_text = discount_rule.offer_text
+                if offer_text.find("%g") > -1:  # render discount amount
+                    offer_text %= discount
+
+            discounted_offers.append({
+                "ride_id": offer_key,
+                "pickup_time": to_js_date(discount_dt),
+                "passengers": [{'name': discount_rule.display_name, 'picture_url': discount_rule.picture_url}],
+                "seats_left": MAX_SEATS - 1,
+                "price": base_price_for_discount_offer - discount,
+                "new_ride": False,  # disguise as an exisiting ride
+                "comment": offer_text
+            })
+
+    return discounted_offers
+
+
+def save_search_req_and_offers(passenger, order_settings, offers):
+    sr = SearchRequest.fromOrderSettings(order_settings, passenger)
+    sr.save()
+
+    for offer in offers:
+        pickup_dt = offer['pickup_time'] / 1000
+        pickup_dt = datetime.datetime.fromtimestamp(pickup_dt).replace(tzinfo=TZ_INFO["UTC"]).astimezone(TZ_INFO['Asia/Jerusalem'])
+        ride_offer = RideOffer(search_req=sr, ride_key=offer.get('ride_id'), ride=SharedRide.by_id(offer.get('ride_id')), pickup_dt=pickup_dt, seats_left=offer['seats_left'], price=offer['price'], new_ride=offer['new_ride'])
+
+        if str(offer.get('ride_id')).startswith(DISCOUNTED_OFFER_PREFIX):
+            discounted_offer = memcache.get(offer.get('ride_id'), namespace=DISCOUNTED_OFFERS_NS)
+            discount_rule = DiscountRule.by_id(discounted_offer["discount_rule_id"])
+            if discount_rule:
+                ride_offer.discount_rule = discount_rule
+                ride_offer.new_ride = True # this is actually a new ride
+
+        ride_offer.save()
+
 
 def get_private_offer(request):
     res = get_offers(request)
@@ -578,7 +624,9 @@ def book_ride(request):
 
             ride_orders = [order] + ( list(ride_to_join.orders.all()) if ride_to_join else [] )
             result["passengers"] = [{'name': o.passenger.name, 'picture_url': o.passenger.picture_url, 'is_you': o==order} for o in ride_orders for seat in range(o.num_seats)]
-            result["seats_left"] = MAX_SEATS - sum([order.num_seats for order in ride_orders])
+            result["seats_left"] = MAX_SEATS - sum([o.num_seats for o in ride_orders])
+
+            deferred.defer(join_offer_and_order, order, request_data)
 
         else:
             result['status'] = 'failed'
@@ -594,6 +642,25 @@ def book_ride(request):
 
     logging.info("book ride result: %s" % result)
     return JSONResponse(result)
+
+def join_offer_and_order(order, request_data):
+    # connect the order the the offer that was clicked
+    offer_ride_key = request_data.get("ride_id")
+    logging.info("join_offer_and_order: offer_ride_key = '%s'" % offer_ride_key)
+
+    last_search_req = SearchRequest.objects.filter(passenger=order.passenger).order_by("-create_date")
+    if last_search_req: # ok, search was performed by a logged-in passenger
+       offers = last_search_req[0].offers.all()
+       for offer in offers:
+           logging.info("checking offer [%s]: '%s'" % (offer.id, offer.ride_key))
+           if offer.ride_key == (str(offer_ride_key) if offer_ride_key else None):
+               logging.info("offer %s was joined with order %s" % (offer.id, order.id))
+               offer.order = order
+               offer.save()
+               break
+
+    else:
+        logging.warning("search request was done anonymously, can't attach offer to order")
 
 @csrf_exempt
 def set_current_booking_data(request):
@@ -633,7 +700,7 @@ def create_order(order_settings, passenger, ride=None, discounted_offer=None):
     if discounted_offer:
         discount_rule = DiscountRule.by_id(discounted_offer["discount_rule_id"])
         order.depart_time = discounted_offer["pickup_dt"]
-        if discount_rule and discount_rule.is_active_in_areas(order.depart_time, order_settings.pickup_address.lat, order_settings.pickup_address.lng, order_settings.dropoff_address.lat, order_settings.dropoff_address.lng):
+        if discount_rule and discount_rule.is_active_at(order.depart_time, order_settings.pickup_address, order_settings.dropoff_address):
             discount = discount_rule.get_discount(order.price)
             logging.info(u"discount rule %s granting discount %s" % (discount_rule.name, discount))
             order.discount = discount
@@ -717,8 +784,7 @@ def update_ride_add_order(ride, ride_data, new_order):
     # connect new_order to ride ONLY AFTER update_ride is done.
     # If not, new_order will turn up in ride.orders.all() queries which doesn't reflect the state of the ride prior to joining
 
-    # new order created so we now update stop times, distance, cost ...
-    update_ride(ride, ride_data)
+    update_ride(ride, ride_data, new_order=new_order)
 
     # create or update points for the new order
     for point_data in [ride_data.order_pickup_point(NEW_ORDER_ID), ride_data.order_dropoff_point(NEW_ORDER_ID)]:
@@ -740,35 +806,26 @@ def update_ride_add_order(ride, ride_data, new_order):
     new_order.ride = ride
     new_order.save()
 
-    # ride was updated so now we can update prices for already existed orders
-    for order in ride.orders.all():
-        old_billing_amount = order.get_billing_amount()
-
-        # set new order.price
-        order.price_data = ride_data.order_price_data(order.id)
-
-        if order.price <= old_billing_amount:  # if algo got a better deal for this user then this will be what he pays
-            order.discount = None
-        else:  #  update discount so that user doesn't pay more than promised
-            order.discount = order.price - old_billing_amount
-
-        if order.get_billing_amount() < old_billing_amount:
-            order_price_changed_signal.send(sender="update_ride_add_order", order=order, joined_passenger=new_order.passenger, old_price=old_billing_amount, new_price=order.get_billing_amount())
-
-        order.save()
-
 
 def update_ride_remove_order(order):
     ride = order.ride
     logging.info("remove order[%s] from ride[%s]" % (order.id, ride.id))
 
-    order.pickup_point.delete()
-    order.dropoff_point.delete()
+    pickup_point = order.pickup_point
+    dropoff_point = order.dropoff_point
     order.ride = None
     order.pickup_point = None
     order.dropoff_point = None
     order.save()
     logging.info("order detached, ride now has %s orders" % ride.orders.count())
+
+    if pickup_point.orders.count() == 0:
+        pickup_point.delete()
+        logging.info("order [%s] pickup point deleted" % order.id)
+
+    if dropoff_point.orders.count() == 0:
+        dropoff_point.delete()
+        logging.info("order [%s] dropoff point deleted" % order.id)
 
     if ride.orders.count() == 0:
         logging.info("ride[%s] deleted: last order cancelled" % ride.id)
@@ -779,31 +836,52 @@ def update_ride_remove_order(order):
         update_ride(ride, ride_data)
 
 
-def update_ride(ride, ride_data):
+def update_ride(ride, ride_data, new_order=None):
     """
-    ride_data for an exisiting ride can change when a passenger joins or leaves a ride.
-    update ride from ride_data: distance, cost, depart time and stop times for its RidePoints.
+    Update a SharedRide when passengers join or leave.
+    What is updated: distance, cost, depart time, price for each Order and stop times for its RidePoints.
+
+    @param ride      :  The SharedRide to update.
+    @param ride_data :  A RideData instance containing the updated data for the ride.
+                        In case new_order is passed we assume it is referred to with NEW_ORDER_ID
+    @param new_order :  None or the order joining. We assume it NOT POINTING to the ride - isn't returned when calling ride.orders.all()
     """
     depart_time = compute_new_departure(ride, ride_data)
     for order in ride.orders.all():
+        # update stop times TODO_WB: notify passengers when pickup times change?
         new_pickup_time = depart_time + datetime.timedelta(seconds=ride_data.order_pickup_point(order.id).offset)
         new_dropoff_time = depart_time + datetime.timedelta(seconds=ride_data.order_dropoff_point(order.id).offset)
 
         logging.info("updating stop times for order [%s]:\n" \
                      "pickup time %s -> %s\n" \
                      "dropoff time %s -> %s" % (order.id, order.pickup_point.stop_time, new_pickup_time, order.dropoff_point.stop_time, new_dropoff_time))
-        order.pickup_point.stop_time = new_pickup_time
-        order.pickup_point.save()
 
-        order.dropoff_point.stop_time = new_dropoff_time
-        order.dropoff_point.save()
+        order.pickup_point.update(stop_time=new_pickup_time)
+        order.dropoff_point.update(stop_time=new_dropoff_time)
+
+        # update prices
+        old_billing_amount = order.get_billing_amount()
+        order.price_data = ride_data.order_price_data(order.id)  # sets new order.price
+
+        if order.price <= old_billing_amount:  # if algo got a better deal for this user then this will be what he pays
+            order.discount = None
+        else:  #  update discount so that user doesn't pay more than promised
+            order.discount = order.price - old_billing_amount
+
+        order.save()
+
+        if new_order and order.get_billing_amount() < old_billing_amount:  # we need a new_order for the joined passenger name
+            order_price_changed_signal.send(sender="update_ride_add_order", order=order, joined_passenger=new_order.passenger, old_price=old_billing_amount, new_price=order.get_billing_amount())
+
 
     ride.update(depart_time=depart_time,
                 arrive_time=depart_time + datetime.timedelta(seconds=ride_data.duration),
                 distance=ride_data.distance,
                 cost_data=ride_data.cost_data)
 
-    # TODO_WB: notify passengers when pickup times change?
+    # The station executing the ride may change: mark the ride as pending so it will be re-dispatched.
+    # For example, if someone from newcity joins a ride assigned to an oldcity station, we need to find a newcity station
+    ride.change_status(new_status=RideStatus.PENDING)
 
 def create_ride_point(ride, point_data, depart_time=None):
     """
@@ -844,6 +922,16 @@ def compute_new_departure(ride, ride_data):
 
 @csrf_exempt
 def track_app_event(request):
+    event_name = request.POST.get("name")
+    logging.info("Track app event: %s" % event_name)
+
+    passenger = Passenger.from_request(request)
+    if event_name:
+        if event_name == "APPLICATION_INSTALL":
+            BIEvent.log(BIEventType.APP_INSTALL, request=request, passenger=passenger)
+        elif event_name == "APPLICATION_OPEN":
+            BIEvent.log(BIEventType.BOOKING_START, request=request, passenger=passenger)
+
     return HttpResponse("OK")
 
 # ==============

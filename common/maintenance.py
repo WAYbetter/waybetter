@@ -17,12 +17,11 @@ from common.decorators import catch_view_exceptions, internal_task_on_queue
 from common.util import notify_by_email
 from common.route import calculate_time_and_distance
 from django.contrib.sessions.models import Session
-from ordering.enums import RideStatus
-from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation, OrderType, RideEvent
+from ordering.models import  Order, Passenger, OrderAssignment, SharedRide, TaxiDriverRelation, RideEvent
+from djangoappengine.db.utils import get_cursor, set_cursor
 import logging
 import traceback
 import datetime
-
 
 TEL_AVIV_POINTS = [
     #        {'lat': 32.09174, 'lon': 34.777443}, {'lat': 32.090103, 'lon': 34.777744},
@@ -49,6 +48,52 @@ TEL_AVIV_POINTS = [
         {'lat': 32.112648, 'lon': 34.833992}, {'lat': 32.111465, 'lon': 34.8335},
         {'lat': 32.108658, 'lon': 34.83316}, {'lat': 32.052555, 'lon': 34.77172}]
 
+
+
+class Mapper(object):
+    QUERY = None
+
+    def map(self, entity):
+        pass
+
+    def run(self, start=None, batch_size=100, count=0):
+        logging.info("Mapper run start at: %s" % count)
+        if start:
+            logging.info("start cursor = %s" % start)
+            q = set_cursor(self.QUERY, start)
+        else:
+            q = self.QUERY
+
+        entities = q[0:batch_size]
+        try:
+            end_cursor = get_cursor(entities)
+        except :
+            logging.error(traceback.format_exc())
+            return
+
+        for entity in entities:
+            logging.info("Mapper entity: %s" % entity)
+            count += 1
+            self.map(entity)
+
+        if entities:
+            deferred.defer(self.run, start=end_cursor, count=count, _queue="maintenance")
+
+class BIEventMapper(Mapper):
+    from analytics.models import BIEvent
+
+    QUERY = BIEvent.objects.all()
+    def map(self, entity):
+        from common.middleware.minidetector import search_strings
+        if entity.user_agent:
+            s = entity.user_agent.lower()
+            entity.mobile = False
+            for ua in search_strings:
+                if ua in s:
+                    entity.mobile = True
+
+            entity.save()
+            logging.info("event.mobile = %s" % entity.mobile)
 
 @catch_view_exceptions
 def fleet_manager_test(request):
@@ -197,27 +242,8 @@ def maintenance_task(request):
 def do_task():
     # maintenance method goes here
 
-
-    # fix rides cost data
-    from sharing.algo_api import CostData, AlgoField
-    from pricing.models import TARIFFS
-
-    for ride in SharedRide.objects.all():
-        if not ride.cost_data:
-            continue
-
-        try:
-            ride.update(cost_data=CostData({
-                AlgoField.COST_LIST_TARIFF1: ride.cost_data.get(TARIFFS.TARIFF1),
-                AlgoField.COST_LIST_TARIFF2: ride.cost_data.get(TARIFFS.TARIFF2)
-            }))
-            logging.info("updated cost data for ride %s" % ride.id)
-
-        except Exception:
-            logging.error(traceback.format_exc())
-
-    logging.info("cleanup done")
-
+    #fix bi events mobile property
+    BIEventMapper().run()
 
 def exec_src(src):
     try:

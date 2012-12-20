@@ -194,6 +194,12 @@ indexes:
   - name: city_id
   - name: _city_order
 
+- kind: analytics_searchrequest
+  properties:
+  - name: passenger_id
+  - name: create_date
+    direction: desc
+
 - kind: ordering_driver
   properties:
   - name: is_active
@@ -514,6 +520,12 @@ indexes:
   - name: to_city_id
   - name: create_date
 
+- kind: ordering_order
+  properties:
+  - name: debug
+  - name: type
+  - name: create_date
+
 - kind: ordering_orderassignment
   properties:
   - name: order_id
@@ -616,6 +628,12 @@ indexes:
   properties:
   - name: ride_id
   - name: type
+  - name: stop_time
+
+- kind: ordering_ridepoint
+  properties:
+  - name: dispatched
+  - name: ride_id
   - name: stop_time
 
 - kind: ordering_ridepoint

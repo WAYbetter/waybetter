@@ -1,12 +1,15 @@
+# -*- coding: utf-8 -*-
+
 from datetime import timedelta
 import logging
+import re
 import traceback
 import pickle
 from google.appengine.api import memcache
 from common.tz_support import default_tz_now
 from common.util import get_uuid
 from fleet.models import FleetManager, FleetManagerRideStatus
-from ordering.models import RideEvent, Order, OrderType, PickMeAppRide, SharedRide, BaseRide
+from ordering.models import RideEvent, PickMeAppRide, SharedRide, BaseRide, StopType
 import signals as fleet_signals
 
 POSITION_CHANGED = "Position Changed"
@@ -63,6 +66,65 @@ def get_ongoing_rides(backend=None):
     logging.info("get ongoing rides for fleet %s: %s" % (backend.name if backend else "ALL", rides))
     return rides
 
+def send_message(ride, message):
+    logging.info(u"send_message '%s' to ride: %s" % (message, ride.id))
+    try:
+        station = ride.station
+        assert station, "ride [%s] is not assigned to a station" % ride.id
+        assert station.fleet_station_id, "station %s has no fleet_station_id" % ride.station.name
+        assert ride.dn_fleet_manager_id, "ride [%s] is not associated with a fleet manager" % ride.id
+        assert ride.taxi_number, "ride [%s] is not associated with a taxi number" % ride.id
+
+        ride_fm = FleetManager.by_id(ride.dn_fleet_manager_id)
+        result = ride_fm.send_message(message, ride.station.fleet_station_id, ride.taxi_number)
+
+        # log a RideEvent about his message
+        rp = get_ride_position(ride)
+        e = RideEvent(pickmeapp_ride=None, shared_ride=ride,
+                      status=FleetManagerRideStatus.MESSAGE_SENT, raw_status=message, lat=rp.lat if rp else None, lon=rp.lon if rp else None, taxi_id=ride.taxi_number, timestamp=default_tz_now())
+        e.save()
+
+
+        return result
+    except Exception, e:
+        logging.error(traceback.format_exc())
+        return False
+
+def _clean_address(address):
+    return re.sub(u",?\s+תל אביב יפו", u" תא", address)
+
+def _passengers_line(passengers, show_phones=True):
+    if show_phones:
+        return u", ".join([u"%s %s" % (p.phone, p.name[:7]) for p in passengers])
+    else:
+        return u", ".join([p.name[:10] for p in passengers])
+
+def send_ride_point_text(ride, ride_point, next_point=None):
+    ride_points = list(ride.points.all().order_by("stop_time"))
+    is_first = ride_point == ride_points[0]
+    passengers = ride_point.passengers
+    long_passenger_list = (len(passengers) > 2)
+    ride_point.update(dispatched=True)
+
+    message = u"נסיעת WAYbetter - הפתק בתחנה\n" if (not long_passenger_list) and is_first else u""
+
+    type = u"איסוף" if ride_point.type == StopType.PICKUP else u"הורדה"
+    message = u"%s%s %s %s" % (message, type, _clean_address(ride_point.address), ride_point.stop_time.strftime("%H:%M"))
+
+    if long_passenger_list:
+        message = u"%s\n%s" % (message, _passengers_line(passengers[:2], show_phones=(ride_point.type==StopType.PICKUP)))
+        message = u"%s\n%s" % (message, _passengers_line(passengers[2:], show_phones=(ride_point.type==StopType.PICKUP)))
+    else:
+        message = u"%s\n%s" % (message, _passengers_line(passengers, show_phones=(ride_point.type==StopType.PICKUP)))
+
+    if next_point == ride_points[-1]: # next_point is the last point in ride
+        type = u"סיום"
+    else:
+        type = u"איסוף" if next_point.type == StopType.PICKUP else u"הורדה"
+
+    message = u"%s\n%s %s %s" % (message, type, _clean_address(next_point.address), next_point.stop_time.strftime("%H:%M"))
+
+    return send_message(ride, message)
 
 def update_ride(fmr):
     """
@@ -85,7 +147,6 @@ def update_ride(fmr):
     wb_ride = pickmeapp_ride or shared_ride
     logging.info("fleet manager: ride [%s] not updated. fmr_status=%s raw_status=%s)" %
                  (wb_ride.id, FleetManagerRideStatus.get_name(fmr.status), fmr.raw_status))
-
 
 FM_MEMCACHE_NAMESPACE = "fm_ns"
 _get_key = lambda ride_uuid: 'position_%s' % ride_uuid
@@ -120,9 +181,6 @@ def update_positions(ride_positions):
         else:
             logging.info("old position received: %s[%s:%s]" % (rp.ride_uuid, rp.lat, rp.lon))
 
-
-
-
 def get_ride_position(ride):
     """
     Get the latest known taxi position for a ride.
@@ -139,7 +197,6 @@ def get_ride_position(ride):
         logging.warning("no position found position for ride: %s" % ride.uuid)
 
     return trp
-
 
 def rides_from_uuid(ride_uuid):
     ride = BaseRide.by_uuid(ride_uuid)
