@@ -33,11 +33,14 @@
                             <label class="control-label">Address</label>
                             <div class="controls">
                                 <input type="text" wb-pac>
-                                <div>
-                                    <div><strong>City</strong> ((place.city_name))</div>
-                                    <div><strong>Street</strong> ((place.street))</div>
-                                    <div><strong>House</strong> ((place.house_number))</div>
-                                </div>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">City</label>
+                            <div class="controls">
+                                <input required type="text" ng-model="place.city_name">
+                                <div><strong>Street</strong> ((place.street))</div>
+                                <div><strong>House</strong> ((place.house_number))</div>
                             </div>
                         </div>
                         <div class="control-group">

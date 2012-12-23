@@ -31,7 +31,7 @@ class Place(BaseModel):
     aliases = ListField(models.CharField(max_length=32))
 
     country = models.ForeignKey(Country, related_name="places")
-    city = models.ForeignKey(City, related_name="places", null=True, blank=True)
+    city = models.ForeignKey(City, related_name="places")
     street = models.CharField(max_length=50, blank=True)
     house_number = models.CharField(max_length=10, blank=True)
 
@@ -57,9 +57,7 @@ class Place(BaseModel):
 
         self.country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
         self.dn_country_name = self.country.name
-
-        if self.city:
-            self.dn_city_name = self.city.name
+        self.dn_city_name = self.city.name
 
         if self.street and self.house_number:
             self.type = PlaceType.STREET_ADDRESS
