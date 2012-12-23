@@ -131,6 +131,8 @@ def get_ongoing_ride_details(request):
             "taxi_number"       : ride.taxi_number,
             "pickup_position"   : pickup_position,
             "dropoff_position"  : dropoff_position,
+            'passenger_picked_up': order.pickup_point.dispatched,
+            'passenger_delivered': order.dropoff_point.dispatched,
             "stops"             : stops,
             "empty_seats"       : MAX_SEATS - sum([o.num_seats for o in sorted_orders]),
             "debug"             : settings.DEV,
