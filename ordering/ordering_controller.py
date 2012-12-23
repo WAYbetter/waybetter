@@ -982,6 +982,10 @@ class OrderSettings:
         inst.pickup_address = Address(**pickup)
         inst.dropoff_address = Address(**dropoff)
 
+        # TODO_WB: save extra data when pickup/dropoff have place_id field
+        logging.info("pickup_place_id: %s" % pickup.get("place_id"))
+        logging.info("dropoff_place_id: %s" % dropoff.get("place_id"))
+
         if asap:
             inst.pickup_dt = default_tz_now() + datetime.timedelta(minutes=ASAP_BOOKING_TIME)
             logging.info("ASAP set as %s" % inst.pickup_dt.strftime("%H:%M"))
@@ -1002,15 +1006,17 @@ class Address:
     street = ""
     city_name = ""
     country_code = ""
+    name = ""
     description = ""
 
-    def __init__(self, lat, lng, house_number=None, street=None, city_name=None, description=None, country_code=settings.DEFAULT_COUNTRY_CODE, **kwargs):
+    def __init__(self, lat, lng, house_number=None, street=None, city_name=None, name=None, description=None, country_code=settings.DEFAULT_COUNTRY_CODE, **kwargs):
         self.lat = float(lat)
         self.lng = float(lng)
 
         self.house_number = house_number
         self.street = street
         self.city_name = city_name
+        self.name = name
         self.description = description
         self.country_code = country_code
 
@@ -1034,7 +1040,11 @@ class Address:
 
     @property
     def formatted_address(self):
-        return u"%s %s, %s" % (self.street, self.house_number, self.city_name)
+        if all([self.street, self.house_number, self.city_name]):
+            return u"%s %s, %s" % (self.street, self.house_number, self.city_name)
+        else:
+            return self.name or ""
+
 
     def __eq__(self, other):
         return self.__hash__() == other.__hash__()

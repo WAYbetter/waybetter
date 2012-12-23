@@ -9,6 +9,7 @@ from djangotoolbox.http import JSONResponse
 import logging
 import simplejson
 
+from common.util import dict_to_str_keys
 from common.models import City
 from geo.models import Place
 
@@ -25,6 +26,7 @@ def playground(request):
 def get_places(request):
     def place_to_suggestion(place, name=None):
         return {
+            'id': place.id,
             'name': name or place.name_for_user,
             'description': place.description_for_user,
             'city_name': place.dn_city_name,
@@ -62,6 +64,7 @@ def crud_place(request):
         payload = simplejson.loads(request.raw_post_data)
         action = payload["action"]
         place_data = payload["data"]
+        place_data = dict_to_str_keys(place_data)
 
         if action in ["create", "update"]:
             if place_data.get("city_name"):
