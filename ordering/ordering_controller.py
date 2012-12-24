@@ -240,13 +240,30 @@ def update_picture(request, passenger):
 
 
 def fb_share(request):
+    context = request.GET.get("context")
+    data = simplejson.loads(request.GET.get("data", ""))
+    logging.info("fb share context %s" % context)
+    logging.info("fb share data %s" % data)
+
+    caption = u"הצטרפו למהפכת המוניות המשותפות WAYbetter:"
+    description = u"מתקדם יותר, חכם יותר, נוח יותר ומשתלם הרבה יותר!"
+
+    if context == 'order_approved':
+        order = Order.by_id(data.get('order_id'))
+        savings = order.price - order.get_billing_amount()
+
+        if savings:
+            caption = u"חסכתי %s₪ על מונית משותפת מ%s ל%s. תצטרפו אלי ונחסוך יחד יותר..." % (savings, order.from_raw, order.to_raw)
+        else:
+            caption = u"הזמנתי מונית משותפת מ%s ל%s. תצטרפו אלי ונחסוך יחד יותר..." % (order.from_raw, order.to_raw)
+
     args = {
         'app_id': settings.FACEBOOK_APP_ID,
         'link': settings.DEFAULT_DOMAIN,
         'picture': 'http://%s/static/images/fb_share_logo.png' % settings.DEFAULT_DOMAIN,
         'name': 'WAYbetter',
-        'caption': u"הצטרפו למהפכת המוניות המשותפות WAYbetter:".encode("utf-8"),
-        'description': u"מתקדם יותר, חכם יותר, נוח יותר ומשתלם הרבה יותר!".encode("utf-8"),
+        'caption': caption.encode("utf-8"),
+        'description': description.encode("utf-8"),
         'redirect_uri': CLOSE_CHILD_BROWSER_URI if request.mobile else "http://%s" % settings.DEFAULT_DOMAIN,
         'display': 'touch' if request.mobile else 'page'
     }
