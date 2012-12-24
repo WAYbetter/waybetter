@@ -29,14 +29,28 @@ Address.prototype = {
     }
 };
 
-Address.fromPlace = function (place) {
+Address.fromPlace = function(place){
+    var address = new Address();
+
+    address.lat = place.lat;
+    address.lng = place.lon;
+
+    address.street = place.street;
+    address.house_number = place.house_number;
+    address.city_name = place.city_name;
+    address.country_code = place.country_code;
+
+    return address;
+};
+
+Address.fromGoogleResult = function (result) {
     function _get_component_value(type) {
         var res = undefined;
-        if (!place.address_components) {
+        if (!result.address_components) {
             return res
         }
 
-        angular.forEach(place.address_components, function (component) {
+        angular.forEach(result.address_components, function (component) {
             if (component.types && $.inArray(type, component.types) > -1) {
                 res = component.short_name;
             }
@@ -47,14 +61,13 @@ Address.fromPlace = function (place) {
 
     var address = new Address();
 
-    address.lat = place.geometry.location.lat();
-    address.lng = place.geometry.location.lng();
+    address.lat = result.geometry.location.lat();
+    address.lng = result.geometry.location.lng();
 
     address.street = _get_component_value("route");
     address.house_number = _get_component_value("street_number");
     address.city_name = _get_component_value("locality");
     address.country_code = _get_component_value("country");
-
 
     return address
 };

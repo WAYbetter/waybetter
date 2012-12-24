@@ -1,0 +1,235 @@
+{% extends "wb_base_site.html" %}
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        #map{
+            width: 380px;
+            height: 250px;
+        }
+    </style>
+{% endblock %}
+
+{% block headertext %}Places Admin{% endblock %}
+
+{% block content %}
+    <div id="content" ng-app="PlaceAdminApp" ng-cloak>
+        <div class="container" ng-controller="CreatePlaceCtrl">
+            <div class="row">
+                <div class="span12">
+                    <div ng-show="mode=='create'" class="alert alert-info">Create New Place</div>
+                    <div ng-show="mode=='edit'" class="alert alert-error">Edit Place #((place.id))
+                        <button type="button" class="close" ng-click="stop_editing()">×</button>
+                    </div>
+                </div>
+            </div>
+            <div class="row">
+                <div class="span6">
+                    <form class="form-horizontal" name="crud_place_form">
+                        <div class="control-group">
+                            <label class="control-label">Name</label>
+                            <div class="controls"><input required type="text" ng-model="place.name"></div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Address</label>
+                            <div class="controls">
+                                <input type="text" wb-pac>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">City</label>
+                            <div class="controls">
+                                <input required type="text" ng-model="place.city_name">
+                                <div><strong>Street</strong> ((place.street))</div>
+                                <div><strong>House</strong> ((place.house_number))</div>
+                            </div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Description</label>
+                            <div class="controls"><input type="text" ng-model="place.description"></div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Latitude</label>
+                            <div class="controls"><input type="text" ng-model="place.lat"></div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Longitude</label>
+                            <div class="controls"><input type="text" ng-model="place.lon"></div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Aliases</label>
+                            <div class="controls"><input type="text" ng-change="update_aliases(raw_aliases)" ng-model="raw_aliases"></div>
+                        </div>
+                        <div class="control-group">
+                            <div class="controls"><button class="btn btn-primary" ng-show="mode=='create'" ng-click="create()">Create</button></div>
+                            <div class="controls"><button class="btn btn-primary" ng-show="mode=='edit'" ng-click="update()">Update</button></div>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="span5">
+                    <div id="map" wb-map></div>
+                </div>
+            </div>
+
+
+            <div class="row" ng-show="places.length">
+                <hr class="dashed">
+
+                <div class="span12">
+                    <h1>So far we have created the following places</h1>
+                    <table class="table table-striped">
+                        <thead>
+                            <th ng-repeat="label in ['Name', 'Description', 'Aliases', 'City', 'Street', 'House', '']">(( label ))</th>
+                        </thead>
+                        <tbody>
+                            <tr ng-repeat="place in places|orderBy:'-id' ">
+                                <td>(( place.name ))</td>
+                                <td>(( place.description ))</td>
+                                <td>(( place.aliases.join(", ") ))</td>
+                                <td>(( place.city_name ))</td>
+                                <td>(( place.street ))</td>
+                                <td>(( place.house_number ))</td>
+                                <td>
+                                    <button class="btn btn-small" ng-click="edit(place)">Edit</button>
+                                    <button type="button" class="close" ng-click="remove(place)">×</button>
+                                </td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+        var app = angular.module('PlaceAdminApp', ['wbDefaults', 'wbGeoDirectives']);
+
+        function fresh_place(){
+            return {
+                name:undefined,
+                description:undefined,
+                aliases:[],
+
+                city_name:undefined,
+                street:undefined,
+                house_number:undefined,
+                lat:undefined,
+                lon:undefined
+            }
+        }
+        app.config(function ($interpolateProvider) {
+            $interpolateProvider.startSymbol('((');
+            $interpolateProvider.endSymbol('))');
+        });
+        app.controller('CreatePlaceCtrl', function ($scope, $http, $q, wbEvents) {
+            $scope.mode = "create";
+
+            $scope.map_marker = undefined;
+
+            {% autoescape off %}
+            $scope.places = {{ places }};
+            {% endautoescape %}
+
+            $scope.place = fresh_place();
+            $scope.raw_aliases = "";
+
+            $scope.$on(wbEvents.place_changed, function (e, pac_result) {
+                var place_address = Address.fromGoogleResult(pac_result);
+
+                $scope.place.city_name = place_address.city_name;
+                $scope.place.street = place_address.street;
+                $scope.place.house_number = place_address.house_number;
+                $scope.place.lat = place_address.lat;
+                $scope.place.lon = place_address.lng;
+
+            });
+
+            $scope.$watch(function() { return angular.toJson([$scope.place.lat, $scope.place.lon]) }, function(){
+                if ($scope.map_marker){
+                    $scope.map_marker.setMap(null);
+                }
+                if ($scope.place.lat && $scope.place.lon){
+                    var latLng = new google.maps.LatLng($scope.place.lat, $scope.place.lon);
+                    $scope.map_marker = new google.maps.Marker({
+                        map:$scope.map_controller.map,
+                        position:latLng,
+                        clickable:false
+                    });
+                    $scope.map_controller.map.setCenter(latLng);
+                }
+            });
+
+            $scope.edit = function(place){
+                $scope.place = angular.extend({}, place);
+                $scope.mode = 'edit';
+            };
+            $scope.stop_editing = function(){
+                $scope.place = fresh_place();
+                $scope.mode = 'create';
+            };
+
+            $scope.remove = function(place){
+                $scope.do_crud_action("remove", place).then(function(data){
+                    if (data.success) {
+                        $scope.places = $scope.places.filter(function(p){ return p.id != place.id });
+                        $scope.place = fresh_place();
+                    } else {
+                        alert("failed");
+                    }
+                }, function(error){ alert("failed") })
+            };
+
+            $scope.update = function(){
+                $scope.do_crud_action("update", $scope.place).then(function(data){
+                    $scope.stop_editing();
+                    for (var i=0; i<$scope.places.length; i++){
+                        if ($scope.places[i].id == data.place.id){
+                            $scope.places[i] = data.place;
+                            break;
+                        }
+                    }
+                    $scope.place = fresh_place();
+                }, function(error){ alert("failed") })
+            };
+
+            $scope.create = function(){
+                if (!$scope.crud_place_form.$valid){
+                    return
+                }
+                $scope.do_crud_action("create", $scope.place).then(function(data){
+                    $scope.places.push(data.place);
+                    $scope.place = fresh_place();
+                }, function(error){ alert("failed") })
+            };
+
+            $scope.do_crud_action = function(name, data){
+                var defer = $q.defer();
+
+                $http.post("{% url geo.views.crud_place %}", {action: name, data: data}).success(function(data){
+                    defer.resolve(data)
+                }).error(function(error){
+                    defer.reject(error);
+                });
+
+                return defer.promise;
+            };
+
+            $scope.update_aliases = function(raw_aliases){
+                var aliases = raw_aliases.split(",");
+                angular.forEach(aliases, function(alias, idx){
+                    aliases[idx] = alias.trim();
+                });
+                $scope.place.aliases = aliases;
+            };
+
+            $scope.$watch("place.aliases", function (aliases) {
+                $scope.raw_aliases = aliases.join(", ");
+
+            });
+        });
+    </script>
+{% endblock %}

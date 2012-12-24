@@ -11,12 +11,14 @@ module.directive("wbPac", function ($q, $timeout, PlacesService, wbEvents) {
 
             google.maps.event.addListener(pac, 'place_changed', function () {
                 var place = pac.getPlace();
+                scope.$emit(wbEvents.place_changed, place);
+
                 scope[attrs.address] = undefined;
 
                 scope.$apply(function () {
                     $q.when(PlacesService.get_valid_place(place, element.val()))
                         .then(function (result) {
-                            var place_address = Address.fromPlace(result.place);
+                            var place_address = Address.fromGoogleResult(result.place);
                             if (result.valid) {
                                 if (place_address.isValid()) {
                                     scope[attrs.address] = place_address;

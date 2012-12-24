@@ -1,0 +1,106 @@
+{% extends "wb_base_site.html" %}
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        #map {
+            width: 300px;
+            height: 250px;
+        }
+    </style>
+{% endblock %}
+
+{% block content %}
+    <div id="content" ng-app="PlacePlaygroundApp" ng-cloak>
+        <div class="container" ng-controller="PlaygroundCtrl" ng-init="init()">
+            <div class="row">
+                <div class="span8">
+                    <div class="input-prepend">
+                        <span class="add-on"><i class="icon-map-marker"></i></span>
+                        <input type="text" ng-model="user_input">
+                    </div>
+
+                    <div class="row">
+                        <ul ng-repeat="place in places| emptyifblank:user_input | filter:user_input">
+                            <li ng-click="choose_place(place)">(( place.name )) <span class="badge badge-success">wb</span></li>
+                        </ul>
+                        <ul ng-repeat="prediction in predictions">
+                            <li ng-click="choose_prediction(prediction)">(( prediction.description )) <span class="badge badge-info">g</span></li>
+                        </ul>
+                    </div>
+
+                </div>
+                <div class="span4">
+                    <div id="map" wb-map></div>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+        var app = angular.module('PlacePlaygroundApp', ['wbDefaults', 'wbGeoDirectives', 'wbGeoServices']);
+
+        app.config(function ($interpolateProvider) {
+            $interpolateProvider.startSymbol('((');
+            $interpolateProvider.endSymbol('))');
+        });
+        app.filter("emptyifblank", function(){ return function(object, query){
+            if(!query)
+                return {};
+            else
+                return object;
+        }});
+        app.controller('PlaygroundCtrl', function ($scope, $http, $q, $filter, GeocodingService, AutocompleteService, PlacesService, wbEvents) {
+            $scope.autocomplete_service = AutocompleteService;
+
+            $scope.user_input = undefined;
+            $scope.predictions = [];
+
+            $scope.places = [];
+            $scope.blacklist = [];
+
+            $scope.init = function(){
+                $http.get("{% url geo.views.get_places %}").success(function(data){
+                    $scope.places = data.places;
+                    $scope.blacklist = data.blacklist;
+                })
+            };
+            $scope.pprint = function(prediction){
+                if (prediction && prediction.place){
+                    return prediction.place.formatted_address;
+                }
+                return "undefined";
+            };
+
+            $scope.choose_place = function(place){
+                var address = Address.fromPlace(place);
+                console.log(address);
+            };
+
+            $scope.choose_prediction = function(prediction){
+                AutocompleteService.get_suggestion(prediction).then(function(suggestion){
+                    console.log("suggestion resolve");
+                    if (suggestion.missing_hn){
+                        alert("missing house number");
+                    } else{
+                        var address = Address.fromGoogleResult(suggestion);
+                        console.log(address);
+                    }
+                })
+            };
+            $scope.$watch("user_input", function (val) {
+                if (!val){
+                    $scope.predictions = [];
+                    return;
+                }
+
+                AutocompleteService.get_predictions(val).then(function (results) {
+                    $scope.predictions = results.filter(function(pre){return $scope.blacklist.indexOf(pre.description) < 0});
+                }, function(){ });
+            });
+
+        });
+    </script>
+{% endblock %}

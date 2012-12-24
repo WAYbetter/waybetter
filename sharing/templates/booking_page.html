@@ -226,14 +226,9 @@
 {% block scripts %}
     {{ block.super }}
 
-    <script type="text/javascript" src="/static/js/wb.geolib.js"></script>
     <script type="text/javascript" src="/static/js/wb-ng/controllers.js"></script>
     <script type="text/javascript" src="/static/js/wb-ng/services.js"></script>
     <script type="text/javascript" src="/static/js/wb-ng/directives.js"></script>
-    <script type="text/javascript" src="/static/js/wb-ng/defaults.js"></script>
-    <script type="text/javascript" src="/static/js/wb-ng/geo.controllers.js"></script>
-    <script type="text/javascript" src="/static/js/wb-ng/geo.services.js"></script>
-    <script type="text/javascript" src="/static/js/wb-ng/geo.directives.js"></script>
 
     <script type="text/javascript">
         var app = angular.module('BookingApp', ['wbControllers', 'wbDirectives', 'wbGeoDirectives', 'wbFilters']);

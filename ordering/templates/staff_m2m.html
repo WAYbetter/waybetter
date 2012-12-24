@@ -177,7 +177,7 @@
                             var place = scope[pac_name].getPlace();
 
                             // update scope via $apply
-                            scope.$apply(function(s) {  s[attrs.wbPac] = Address.fromPlace(place) });
+                            scope.$apply(function(s) {  s[attrs.wbPac] = Address.fromGoogleResult(place) });
                         });
 
                         // invalidate on user input
@@ -206,7 +206,7 @@
     Address.prototype.isValid = function() {
                 return !!(this.lat && this.lng && this.street)
     };
-    Address.fromPlace = function(place) {
+    Address.fromGoogleResult = function(place) {
         function _getAddressComponent(type) {
             var res = undefined;
             $.each(place.address_components, function (i, component) {

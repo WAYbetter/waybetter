@@ -27,6 +27,7 @@ from ordering.decorators import  passenger_required_no_redirect
 from ordering.enums import RideStatus
 from ordering.models import SharedRide, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY
 from ordering.signals import order_price_changed_signal
+from ordering.passenger_controller import get_position_for_order
 from pricing.functions import get_discount_rules_and_dt
 from pricing.models import  RuleSet, DiscountRule
 from sharing.algo_api import NEW_ORDER_ID
@@ -79,6 +80,7 @@ def home(request, suggest_apps=True):
 def booking_page(request, continued=False):
     lib_ng = True
     lib_map = True
+    lib_geo = True
 
     if continued:
         continue_booking = simplejson.dumps(True)
@@ -90,8 +92,7 @@ def booking_page(request, continued=False):
     return render_to_response("booking_page.html", locals(), RequestContext(request))
 
 
-@passenger_required_no_redirect
-def get_ongoing_ride_details(request, passenger):
+def get_ongoing_ride_details(request):
     order_id = request.GET.get("order_id")
     order = Order.by_id(order_id)
 
@@ -107,6 +108,11 @@ def get_ongoing_ride_details(request, passenger):
 
         pickup_position = {"lat": order.from_lat, "lng": order.from_lon}
         dropoff_position = {"lat": order.to_lat, "lng": order.to_lon}
+
+        taxi_position = get_position_for_order(order, use_mock=settings.DEBUG)
+        if taxi_position:
+            taxi_position = {"lat": taxi_position.lat, "lng": taxi_position.lon}
+
         pickup_stops = [{"lat": p.lat, "lng": p.lon} for p in ride.pickup_points]  # sorted by stop_time
         sorted_orders = sorted(ride.orders.all(), key=lambda o: o.depart_time)
 
@@ -121,8 +127,12 @@ def get_ongoing_ride_details(request, passenger):
         response = {
             "station"           : station_data,
             "passengers"        : passengers,
+            "taxi_position"     : taxi_position,
+            "taxi_number"       : ride.taxi_number,
             "pickup_position"   : pickup_position,
             "dropoff_position"  : dropoff_position,
+            'passenger_picked_up': order.pickup_point.dispatched,
+            'passenger_delivered': order.dropoff_point.dispatched,
             "stops"             : stops,
             "empty_seats"       : MAX_SEATS - sum([o.num_seats for o in sorted_orders]),
             "debug"             : settings.DEV,
@@ -250,9 +260,18 @@ def fb_share(request):
 def get_history_suggestions(request, passenger):
     orders = passenger.orders.order_by('-depart_time')[:HISTORY_SUGGESTIONS_TO_SEARCH]
     orders = filter(lambda o: o.type != OrderType.PICKMEAPP, orders)
-    data = set([Address.from_order(o, "from") for o in orders] + [Address.from_order(o, "to") for o in orders])
-    data = [a.__dict__ for a in data]
 
+    addresses = []
+    for order in orders:
+        address = Address.from_order(order, "from")
+        if address not in addresses:
+            addresses.append(address)
+
+        address = Address.from_order(order, "to")
+        if address not in addresses:
+            addresses.append(address)
+
+    data = [a.__dict__ for a in addresses]
     return JSONResponse(data)
 
 
@@ -920,10 +939,6 @@ def track_app_event(request):
 # ==============
 # HELPER CLASSES
 # ==============
-class AddressType(Enum):
-    STREET_ADDRESS = 0
-    POI = 1
-
 
 class OrderSettings:
     pickup_address = None # Address instance
@@ -967,6 +982,10 @@ class OrderSettings:
         inst.pickup_address = Address(**pickup)
         inst.dropoff_address = Address(**dropoff)
 
+        # TODO_WB: save extra data when pickup/dropoff have place_id field
+        logging.info("pickup_place_id: %s" % pickup.get("place_id"))
+        logging.info("dropoff_place_id: %s" % dropoff.get("place_id"))
+
         if asap:
             inst.pickup_dt = default_tz_now() + datetime.timedelta(minutes=ASAP_BOOKING_TIME)
             logging.info("ASAP set as %s" % inst.pickup_dt.strftime("%H:%M"))
@@ -987,20 +1006,19 @@ class Address:
     street = ""
     city_name = ""
     country_code = ""
+    name = ""
     description = ""
-    address_type = None
 
-    def __init__(self, lat, lng, house_number=None, street=None, city_name=None, description=None, country_code=settings.DEFAULT_COUNTRY_CODE,
-                 address_type=AddressType.STREET_ADDRESS, **kwargs):
+    def __init__(self, lat, lng, house_number=None, street=None, city_name=None, name=None, description=None, country_code=settings.DEFAULT_COUNTRY_CODE, **kwargs):
         self.lat = float(lat)
         self.lng = float(lng)
 
         self.house_number = house_number
         self.street = street
         self.city_name = city_name
+        self.name = name
         self.description = description
         self.country_code = country_code
-        self.address_type = address_type
 
     @classmethod
     def from_order(cls, order, address_type):
@@ -1022,7 +1040,11 @@ class Address:
 
     @property
     def formatted_address(self):
-        return u"%s %s, %s" % (self.street, self.house_number, self.city_name)
+        if all([self.street, self.house_number, self.city_name]):
+            return u"%s %s, %s" % (self.street, self.house_number, self.city_name)
+        else:
+            return self.name or ""
+
 
     def __eq__(self, other):
         return self.__hash__() == other.__hash__()

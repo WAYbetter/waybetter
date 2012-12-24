@@ -191,6 +191,10 @@ def get_ride_position(ride):
     cached_trp = memcache.get(_get_key(ride.uuid), namespace=FM_MEMCACHE_NAMESPACE)
     if cached_trp:
         trp = pickle.loads(cached_trp)
+        logging.info("found position for ride: %s" % ride.uuid)
+        logging.info("position.timestamp = %s, stale? = %s" % (trp.timestamp, (trp.timestamp < default_tz_now() - timedelta(minutes=15))))
+    else:
+        logging.warning("no position found position for ride: %s" % ride.uuid)
 
     return trp
 

@@ -39,19 +39,29 @@ module.service("DirectionsService", function ($q) {
 
 module.service("GeocodingService", function ($q, $rootScope) {
     var geocoder = new google.maps.Geocoder();
+    var ongoing_requests = 0;
+
     return {
         _do_geocoding_request: function(request){
             var deferred = $q.defer();
+            ongoing_requests++;
 
             geocoder.geocode(request, function (result, status) {
-                $rootScope.$apply(function() {
-                    if (status == google.maps.GeocoderStatus.OK && result.length) {
-                        deferred.resolve(result);
-                    }
-                    else {
-                        deferred.reject(status);
-                    }
-                });
+                ongoing_requests--;
+
+                if (status == google.maps.GeocoderStatus.OK && result.length) {
+                    deferred.resolve(result);
+                }
+                else {
+                    console.log("GeocodingService: " + status + " " + request.address);
+                    deferred.reject(status);
+                }
+
+                if (ongoing_requests === 0 && !$rootScope.$$phase){
+                    console.log("GeocodingService: $apply()");
+                    $rootScope.$apply();
+                }
+
             });
 
             return deferred.promise;
@@ -157,6 +167,52 @@ module.service("GeocodingService", function ($q, $rootScope) {
     }
 });
 
+module.service("AutocompleteService", function ($rootScope, $q, GeocodingService, PlacesService ) {
+    var service = new google.maps.places.AutocompleteService();
+
+    return {
+        get_predictions: function(string){
+            var deferred = $q.defer();
+            var query = {input: string};
+
+            service.getQueryPredictions(query, function (result, status) {
+                if (status == google.maps.GeocoderStatus.OK && result.length) {
+                    deferred.resolve(result);
+                }
+                else {
+                    deferred.reject(status);
+                }
+
+                if (!$rootScope.$$phase){
+                    $rootScope.$apply();
+                }
+            });
+            return deferred.promise;
+        },
+        get_suggestion: function(prediction, user_input){
+            var defer = $q.defer();
+
+            GeocodingService.geocode(prediction.description).then(
+                function(geocoding_results){
+                    $q.when(PlacesService.get_valid_place(geocoding_results[0], user_input)).then(
+                        function(validity_result){
+                            defer.resolve(validity_result);
+                        },
+                        function(){
+                            defer.reject("no validity result");
+                        }
+                    )
+                },
+                function(){
+                    defer.reject("geocoding for prediction failed");
+                }
+            );
+
+            return defer.promise;
+        }
+    }
+});
+
 module.service("PlacesService", function ($q, GeocodingService) {
     var REQUIRED_PROPERTIES = ["geometry", "address_components"],
         POI_TYPES = ["establishment", "train_station", "transit_station"];
@@ -193,7 +249,7 @@ module.service("PlacesService", function ($q, GeocodingService) {
 
                 GeocodingService.reverse_geocode(place.geometry.location.lat(), place.geometry.location.lng()).then(
                     function (places) {
-                        console.log("WAYbetterLog: reverse geocode results", places);
+                        console.log("WAYbetterLog: reverse geocode results for " + place.formatted_address, places);
                         for (var i = 0; i < places.length; i++) {
                             var result_of_reverse = self.validate_place(places[i], user_input);
                             if (result_of_reverse.valid) {
