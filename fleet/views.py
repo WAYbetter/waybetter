@@ -2,6 +2,7 @@ import logging
 import traceback
 import inspect
 import datetime
+from django.core.urlresolvers import reverse
 from django.http import HttpResponse, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
@@ -14,6 +15,19 @@ from djangotoolbox.http import JSONResponse
 from fleet import fleet_manager
 from fleet.fleet_manager import POSITION_CHANGED
 from ordering.models import SharedRide, RideEvent, PickMeAppRide
+
+@staff_member_required
+@force_lang("en")
+def simulator(request):
+    from backends.isr_proxy import update_positions
+    lib_ng = True
+    lib_map = True
+    lib_geo = True
+
+    domain = settings.DEFAULT_DOMAIN
+    path = reverse(update_positions)
+
+    return render_to_response("simulator.html", locals(), RequestContext(request))
 
 def create_ny_isr_ride(request, ride_id):
     ride = SharedRide.by_id(ride_id)

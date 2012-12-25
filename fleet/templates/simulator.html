@@ -1,0 +1,130 @@
+{% extends "wb_base_site.html" %}
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        #map {
+            width: 500px;
+            height: 400px;
+            float: right;
+        }
+    </style>
+{% endblock %}
+
+{% block headertext %}ISR Positions Simulator{% endblock %}
+
+{% block content %}
+    <div id="content" ng-app="FleetSimulatorApp" ng-cloak>
+        <div class="container" ng-controller="SimulatorCtrl">
+
+            <div class="row-fluid">
+                <div class="span5">
+                    <form>
+                        <div class="control-group">
+                            <label class="control-label">Taxi Number</label>
+
+                            <div class="controls"><input required type="text" ng-model="taxi_number"></div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Operator ID</label>
+
+                            <div class="controls"><input required type="text" ng-model="operator_id"></div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Timestamp</label>
+
+                            <div class="controls"><input required type="text" ng-model="timestamp"></div>
+                        </div>
+                        <div class="control-group">
+                            <label class="control-label">Position</label>
+
+                            <div class="controls">
+                                ((lat)), ((lng))
+                            </div>
+                        </div>
+                    </form>
+
+                    <div class="row-fluid">
+                        The following data will be sent to <strong>(( domain ))</strong>:
+                        <pre>((formatted_post_data))</pre>
+                        <div>
+                            <button class="btn btn-warning" ng-disabled="sending" ng-click="post()">CREATE POSITION</button>
+                        </div>
+                    </div>
+
+                </div>
+
+                <div class="span7">
+                    <div id="map" wb-map></div>
+                </div>
+            </div>
+
+        </div>
+    </div>
+{% endblock %}
+
+{% block scripts %}
+    {{ block.super }}
+    <script type="text/javascript">
+        var app = angular.module('FleetSimulatorApp', ['wbDefaults', 'wbGeoDirectives']);
+
+        app.config(function ($interpolateProvider) {
+            $interpolateProvider.startSymbol('((');
+            $interpolateProvider.endSymbol('))');
+        });
+        app.controller('SimulatorCtrl', function ($scope, $http, $timeout, wbEvents) {
+            $scope.domain = "{{ domain }}";
+            $scope.path = "{{ path }}";
+
+            $scope.taxi_number = "123";
+            $scope.operator_id = "8";
+            $scope.timestamp = "2012-12-09T16:22:16.62425+00:00";
+            $scope.lat = "32.061883";
+            $scope.lng = "34.770246";
+
+            $scope.get_post_data = function () {
+                return {
+                    "Vehicle_ID":$scope.taxi_number,
+                    "Operator_ID":$scope.operator_id,
+                    "Timestamp":$scope.timestamp,
+                    "Lat":$scope.lat,
+                    "Lon":$scope.lng
+                }
+            }
+
+            $scope.post = function () {
+                $scope.sending = true;
+                $http.post("http://" + $scope.domain + $scope.path, angular.toJson([$scope.get_post_data()]))
+                        .success(function () {
+                            $scope.sending = false;
+                        })
+                        .error(function () {
+                            $scope.sending = false;
+                        });
+            }
+
+
+            function update_timestamp () {
+                var d = new Date();
+                $scope.timestamp = d.toISOString();
+                $timeout(update_timestamp, 3000);
+            }
+
+            update_timestamp();
+
+            $scope.$watch(function(){return angular.toJson($scope.get_post_data())}, function (json) {
+                $scope.formatted_post_data = JSON.stringify(angular.fromJson(json), undefined, 2);
+            });
+
+            $scope.$on(wbEvents.map_click, function (e, lat, lng) {
+                $scope.$apply(function () {
+                    $scope.lat = lat;
+                    $scope.lng = lng;
+                    $scope.map_controller.remove_marker("taxi_position");
+                    $scope.map_controller.add_marker({lat: $scope.lat, lng: $scope.lng}, {name: "taxi_position"});
+
+                })
+            });
+        });
+
+    </script>
+{% endblock %}

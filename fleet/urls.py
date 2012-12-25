@@ -1,5 +1,7 @@
 from django.conf.urls.defaults import *
 urlpatterns = patterns('',
+    (r'^simulator/$', 'fleet.views.simulator'),
+
     (r'^get/ride/$', 'fleet.views.get_ride'),
     (r'^get/ride/(?P<ride_id>\d+)/$', 'fleet.views.get_ride'),
 
