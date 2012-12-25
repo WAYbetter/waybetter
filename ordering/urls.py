@@ -21,7 +21,6 @@ urlpatterns = patterns('',
     (r'^station/analytics/$', 'ordering.station_controller.station_analytics'),
     (r'^o/(?P<order_id>\d+)/$', 'ordering.passenger_controller.track_order'),
     (r'^get_order_position/(?P<order_id>\d+)/$', 'ordering.passenger_controller.get_order_position'),
-    (r'^init_mock_positions/(?P<order_id>\d+)/$', 'ordering.passenger_controller.init_mock_positions'),
 
     (r'^passenger/logout/$', 'django.contrib.auth.views.logout'),
     (r'^workstation/logout/$', 'django.contrib.auth.views.logout'),
