@@ -109,7 +109,7 @@ def get_ongoing_ride_details(request):
         pickup_position = {"lat": order.from_lat, "lng": order.from_lon}
         dropoff_position = {"lat": order.to_lat, "lng": order.to_lon}
 
-        taxi_position = get_position_for_order(order, use_mock=settings.DEBUG)
+        taxi_position = get_position_for_order(order)
         if taxi_position:
             taxi_position = {"lat": taxi_position.lat, "lng": taxi_position.lon}
 
@@ -134,7 +134,6 @@ def get_ongoing_ride_details(request):
             'passenger_picked_up': order.pickup_point.visited,
             "stops"             : stops,
             "empty_seats"       : MAX_SEATS - sum([o.num_seats for o in sorted_orders]),
-            "debug"             : settings.DEV,
         }
     else:
         logging.error("ongoing ride details error for order [%s]" % order_id)
