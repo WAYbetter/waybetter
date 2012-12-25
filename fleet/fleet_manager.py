@@ -6,6 +6,7 @@ import re
 import traceback
 import pickle
 from google.appengine.api import memcache
+from common.geo_calculations import distance_between_points
 from common.tz_support import default_tz_now
 from common.util import get_uuid
 from fleet.models import FleetManager, FleetManagerRideStatus
@@ -13,6 +14,7 @@ from ordering.models import RideEvent, PickMeAppRide, SharedRide, BaseRide, Stop
 import signals as fleet_signals
 
 POSITION_CHANGED = "Position Changed"
+DISTANCE_CONSIDERED_AS_VISITED_IN_METERS = 70
 
 def create_ride(ride):
     try:
@@ -178,6 +180,12 @@ def update_positions(ride_positions):
                               lon=rp.lon, taxi_id=rp.taxi_id, timestamp=rp.timestamp)
                 e.save()
                 logging.info("new ride event created: %s" % e)
+            if shared_ride:
+                for point in shared_ride.points.all():
+                    distance = distance_between_points(point.lat, point.lon, rp.lat, rp.lon) * 1000
+                    if distance <= DISTANCE_CONSIDERED_AS_VISITED_IN_METERS:
+                        point.update(visited=True)
+                        logging.info("%s %s visited" % (point.get_type_display(), point.id))
         else:
             logging.info("old position received: %s[%s:%s]" % (rp.ride_uuid, rp.lat, rp.lon))
 

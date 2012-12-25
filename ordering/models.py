@@ -566,6 +566,7 @@ class RidePoint(BaseModel):
     city_name = models.CharField(_("city name"), max_length=200, null=True, blank=True)
 
     dispatched = models.BooleanField("dispatched", default=False)
+    visited = models.BooleanField("visited", default=False)  # indicates a taxi visited this point
 
     def __unicode__(self):
         return u"RidePoint [%d]" % self.id

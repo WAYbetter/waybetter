@@ -131,8 +131,8 @@ def get_ongoing_ride_details(request):
             "taxi_number"       : ride.taxi_number,
             "pickup_position"   : pickup_position,
             "dropoff_position"  : dropoff_position,
-            'passenger_picked_up': order.pickup_point.dispatched,
-            'passenger_delivered': order.dropoff_point.dispatched,
+            'passenger_picked_up': order.pickup_point.visited,
+            'passenger_delivered': order.dropoff_point.visited,
             "stops"             : stops,
             "empty_seats"       : MAX_SEATS - sum([o.num_seats for o in sorted_orders]),
             "debug"             : settings.DEV,
@@ -154,7 +154,10 @@ def get_ongoing_order(passenger):
     recently = default_tz_now() - datetime.timedelta(minutes=MAX_RIDE_DURATION)
     possibly_ongoing_orders = passenger.orders.filter(depart_time__gt=recently).order_by("-depart_time")
     for order in possibly_ongoing_orders:
-        if order.status in ORDER_SUCCESS_STATUS and order.ride and order.ride.status == RideStatus.ACCEPTED:
+        if all([ order.status in ORDER_SUCCESS_STATUS,
+                 order.ride and order.ride.status == RideStatus.ACCEPTED,
+                 order.dropoff_point and not order.dropoff_point.visited ]):
+
             ongoing_order = order
             break
 
@@ -187,7 +190,10 @@ def sync_app_state(request):
         future_orders = get_future_orders_for(passenger)
         response["future_orders_count"] = len(future_orders)
 
-    logging.info("get_initial_status: %s" % response)
+    trimed_response = response.copy()
+    trimed_response['pickup_datetime_options'] = response['pickup_datetime_options'][:9] + ['...']
+    logging.info("get_initial_status: %s" % trimed_response)
+
     return JSONResponse(response)
 
 @passenger_required_no_redirect
