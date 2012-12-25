@@ -1,31 +1,6 @@
 var module = angular.module('wbGeoControllers', []);
 
 module.controller("GoogleMapController", function ($timeout) {
-    function get_marker_image (icon) {
-        console.log("get_marker_image: " + angular.toJson(icon));
-        var anchor_point, marker;
-        if (icon) {
-            var icon_size = new google.maps.Size(icon.width, icon.height);
-            var hd_icon_size = new google.maps.Size(icon.width * 2, icon.height * 2);
-            var hd_icon_url = icon.url.replace(".png", "_retina.png");
-
-            if (icon.anchor === "bottom") {
-                anchor_point = new google.maps.Point(icon.width / 2, icon.height);
-            } else { // middle
-                anchor_point = new google.maps.Point(icon.width / 2, icon.height / 2);
-            }
-
-            if (window.devicePixelRatio && window.devicePixelRatio >= 2) {
-                console.log("using retina image", window.devicePixelRatio, hd_icon_url);
-                marker = new google.maps.MarkerImage(hd_icon_url, hd_icon_size, undefined, anchor_point, icon_size);
-            } else {
-                console.log("using normal image", icon.url);
-                marker = new google.maps.MarkerImage(icon.url, icon_size, undefined, anchor_point, icon_size);
-            }
-        }
-        return marker;
-    }
-
     return {
         map:undefined,
         markers:{},
@@ -55,9 +30,6 @@ module.controller("GoogleMapController", function ($timeout) {
                 clickable:false
 
             }, options);
-
-            options.icon = get_marker_image(options.icon);
-            options.optimized = false;
 
             this.remove_marker(options.name);
             var marker = new google.maps.Marker(options);

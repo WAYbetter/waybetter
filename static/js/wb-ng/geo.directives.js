@@ -58,6 +58,13 @@ module.directive("wbMap", function ($timeout, wbEvents) {
                 zoom:14
             });
 
+            google.maps.event.addListener(map, 'click', function (e) {
+                var lat = e.latLng.lat(),
+                    lng = e.latLng.lng();
+
+                scope.$emit(wbEvents.map_click, lat, lng);
+            });
+
             controller.map = map;
             scope.map_controller = controller;
             scope.$emit(wbEvents.map_ready, map);
