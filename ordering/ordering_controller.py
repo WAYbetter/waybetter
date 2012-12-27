@@ -331,7 +331,10 @@ def get_previous_rides(request, passenger):
             "taxi_number": dispatching_event.taxi_id if dispatching_event else None,
             "station_name": ride.station.name if ride.station else WAYBETTER_STATION_NAME,
             "price": order.get_billing_amount(),
+            "price_alone": order.price_alone,
             "billing_status": ugettext_lazy(order.get_status_display().title()),
+            "pickup": order.from_raw,
+            "dropoff": order.to_raw,
             "is_private": order.type == OrderType.PRIVATE,
             "comment": ""
             }
@@ -369,7 +372,10 @@ def get_next_rides(request, passenger):
             "seats_left": MAX_SEATS - sum([o.num_seats for o in ride_orders]),
             "your_seats": order.num_seats,
             "price": order.get_billing_amount(),
+            "price_alone": order.price_alone,
             "is_private": order.type == OrderType.PRIVATE,
+            "pickup": order.from_raw,
+            "dropoff": order.to_raw,
             "billing_status": _("or less"),
             "comment": ""
         }
