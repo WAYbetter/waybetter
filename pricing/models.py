@@ -161,6 +161,7 @@ class TemporalRule(AbstractTemporalRule):
 class DiscountRule(AbstractTemporalRule):
     percent = models.FloatField(_("percent"), null=True, blank=True)
     amount = models.FloatField(_("amount"), null=True, blank=True)
+    fixed_price = models.FloatField(_("fixed_price"), null=True, blank=True)
 
     picture_url = models.URLField(max_length=255, null=True, blank=True, help_text="Will be used as the passenger picture")
     display_name = models.CharField(max_length=25, null=True, blank=True, help_text="Will be used as the passenger name")
@@ -179,8 +180,8 @@ class DiscountRule(AbstractTemporalRule):
     email_domains = EditableListField(models.CharField(max_length=255), null=True, blank=True)
 
     def clean(self):
-        if not (bool(self.percent) ^ bool(self.amount)):
-            raise ValidationError("Must set discount percent or amount but not both")
+        if not (sum([bool(self.percent), bool(self.amount), bool(self.fixed_price)]) == 1):
+            raise ValidationError("Only one discount is allowed - percent OR amount OR fixed_price")
 
         if not (sum([self.from_everywhere, bool(self.from_city_area), bool(self.from_address)]) == 1):
             raise ValidationError("Must choose FROM where the discount is active")
@@ -229,9 +230,14 @@ class DiscountRule(AbstractTemporalRule):
 
     def get_discount(self, price):
         round_to = 0.5
+        discount = 0
 
-        if self.amount:
-            return min(self.amount, price)  # max discount is the price itself
+        if self.fixed_price:
+            new_price  = min(self.fixed_price, price)
+            discount = price - new_price
+        elif self.amount:
+            discount = min(self.amount, price)  # discount amount must be smaller than price
         elif self.percent:
             discount = self.percent * price / 100
-            return discount - (discount % round_to)  # 12.75 -> 12.5
+
+        return discount - (discount % round_to)  # 12.75 -> 12.5

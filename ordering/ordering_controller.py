@@ -513,13 +513,17 @@ def get_discounted_offers(request, order_settings, start_ride_algo_data):
 
     for discount_rule, discount_dt in discount_dts_tuples:
         if discount_rule.email_domains and (user_email_domain not in discount_rule.email_domains):
-            logging.info("skipping: %s - only for %s" % (discount_rule.name, ", ".join(discount_rule.email_domains)))
+            logging.info(u"skipping: %s - only for %s" % (discount_rule.name, ", ".join(discount_rule.email_domains)))
             continue
 
         tariff_for_discount_offer = RuleSet.get_active_set(discount_dt)
         base_price_for_discount_offer = start_ride_algo_data.order_price(NEW_ORDER_ID, tariff_for_discount_offer)
         if base_price_for_discount_offer:
             discount = discount_rule.get_discount(base_price_for_discount_offer)
+            if discount == 0:
+                logging.info(u"skipping %s: grants zero discount" % discount_rule.name)
+                continue
+
             offer_key = "%s_%s" % (DISCOUNTED_OFFER_PREFIX, get_uuid())
             memcache.set(offer_key, {'discount_rule_id': discount_rule.id, 'pickup_dt': discount_dt}, namespace=DISCOUNTED_OFFERS_NS)
 
