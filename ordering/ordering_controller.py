@@ -13,7 +13,7 @@ from billing.billing_manager import  get_token_url
 from billing.enums import BillingStatus
 from billing.models import BillingTransaction
 from common.models import Counter
-from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime, trim_seconds, TZ_INFO
+from common.tz_support import to_js_date, default_tz_now, utc_now, ceil_datetime, trim_seconds, TZ_INFO, TZ_JERUSALEM
 from common.util import first, Enum, dict_to_str_keys, datetimeIterator, get_uuid
 from django.shortcuts import render_to_response
 from django.template.context import RequestContext
@@ -45,8 +45,6 @@ DISCOUNTED_OFFER_PREFIX = "fjsh34897dfasg3478o5"
 DISCOUNTED_OFFERS_NS = "DISCOUNTED_OFFERS"
 
 MAX_SEATS = 3
-BOOKING_INTERVAL = 10 # minutes
-ASAP_BOOKING_TIME = 10 # minutes
 MAX_RIDE_DURATION = 20 #minutes
 
 OFFERS_TIMEDELTA = datetime.timedelta(hours=5)
@@ -57,6 +55,20 @@ PREVIOUS_RIDES_TO_DISPLAY = 10
 HISTORY_SUGGESTIONS_TO_SEARCH = 30
 
 GENERIC_ERROR = _("Your request could not be completed.")
+
+def booking_interval():
+    # 2012 SYLVESTER
+    if datetime.datetime(2012, 12, 31, 20, 00, tzinfo=TZ_JERUSALEM) <= default_tz_now() <= datetime.datetime(2013, 1, 1, 5, 30, tzinfo=TZ_JERUSALEM):
+        return 30  # minutes
+
+    return 10  # minutes
+
+def asap_interval():
+    # 2012 SYLVESTER
+    if datetime.datetime(2012, 12, 31, 20, 00, tzinfo=TZ_JERUSALEM) <= default_tz_now() <= datetime.datetime(2013, 1, 1, 5, 30, tzinfo=TZ_JERUSALEM):
+        return 30  # minutes
+
+    return 10 # minutes
 
 def staff_m2m(request):
     return render_to_response("staff_m2m.html", RequestContext(request))
@@ -163,9 +175,9 @@ def get_ongoing_order(passenger):
 
 @never_cache
 def sync_app_state(request):
-    earliest_pickup_time = ceil_datetime(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=ASAP_BOOKING_TIME), minutes=BOOKING_INTERVAL)
+    earliest_pickup_time = ceil_datetime(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=asap_interval()), minutes=booking_interval())
     latest_pickup_time = earliest_pickup_time + datetime.timedelta(hours=(24*14))
-    dt_options = list(datetimeIterator(earliest_pickup_time, latest_pickup_time, delta=datetime.timedelta(minutes=BOOKING_INTERVAL)))
+    dt_options = list(datetimeIterator(earliest_pickup_time, latest_pickup_time, delta=datetime.timedelta(minutes=booking_interval())))
 
     response = {
         "logged_in": request.user.is_authenticated(),
@@ -403,7 +415,7 @@ def get_candidate_rides(order_settings):
 def is_valid_candidate(ride, order_settings):
     return ride.debug == settings.DEV and \
            ride.can_be_joined and \
-           ride.depart_time > default_tz_now() + datetime.timedelta(minutes=ASAP_BOOKING_TIME) and \
+           ride.depart_time > default_tz_now() + datetime.timedelta(minutes=asap_interval()) and \
            ride.status in [RideStatus.PENDING, RideStatus.ASSIGNED] and \
            sum([order.num_seats for order in ride.orders.all()]) + order_settings.num_seats <= MAX_SEATS
 
@@ -471,7 +483,7 @@ def get_offers(request):
             pickup_point = ride_data.order_pickup_point(NEW_ORDER_ID)
             ride_orders = ride.orders.all()
             pickup_time = compute_new_departure(ride, ride_data) + datetime.timedelta(seconds=pickup_point.offset)
-            if pickup_time < default_tz_now() + datetime.timedelta(minutes=ASAP_BOOKING_TIME):
+            if pickup_time < default_tz_now() + datetime.timedelta(minutes=asap_interval()):
                 logging.info("skipping offer because pickup_time is too soon: %s" % pickup_time)
                 continue
 
@@ -508,8 +520,8 @@ def get_discounted_offers(request, order_settings, start_ride_algo_data):
 
     logging.info("get discounted offers @%s" % user_email_domain)
 
-    earliest_offer_dt = ceil_datetime(max(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=ASAP_BOOKING_TIME), order_settings.pickup_dt - OFFERS_TIMEDELTA), minutes=BOOKING_INTERVAL)
-    discount_dts_tuples = get_discount_rules_and_dt(order_settings, earliest_offer_dt, order_settings.pickup_dt + OFFERS_TIMEDELTA, datetime.timedelta(minutes=BOOKING_INTERVAL))
+    earliest_offer_dt = ceil_datetime(max(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=asap_interval()), order_settings.pickup_dt - OFFERS_TIMEDELTA), minutes=booking_interval())
+    discount_dts_tuples = get_discount_rules_and_dt(order_settings, earliest_offer_dt, order_settings.pickup_dt + OFFERS_TIMEDELTA, datetime.timedelta(minutes=booking_interval()))
 
     for discount_rule, discount_dt in discount_dts_tuples:
         if discount_rule.email_domains and (user_email_domain not in discount_rule.email_domains):
@@ -631,7 +643,7 @@ def book_ride(request):
                 result['error'] = _("Sorry, but this ride has been closed for booking")
 
         else:  # new or discounted ride, check pickup time isn't before ASAP (minus a couple seconds to allow booking to exactly ASAP)
-            if order_settings.pickup_dt <= default_tz_now() + datetime.timedelta(minutes=ASAP_BOOKING_TIME) - datetime.timedelta(seconds=10):
+            if order_settings.pickup_dt <= default_tz_now() + datetime.timedelta(minutes=asap_interval()) - datetime.timedelta(seconds=10):
                 logging.warning("tried booking to expired pickup time %s" % order_settings.pickup_dt)
                 result['error'] = _("Please choose a later pickup time")
             else:
@@ -1012,7 +1024,7 @@ class OrderSettings:
         logging.info("dropoff_place_id: %s" % dropoff.get("place_id"))
 
         if asap:
-            inst.pickup_dt = default_tz_now() + datetime.timedelta(minutes=ASAP_BOOKING_TIME)
+            inst.pickup_dt = default_tz_now() + datetime.timedelta(minutes=asap_interval())
             logging.info("ASAP set as %s" % inst.pickup_dt.strftime("%H:%M"))
         else:
             inst.pickup_dt = dateutil.parser.parse(request_data.get("pickup_dt"))

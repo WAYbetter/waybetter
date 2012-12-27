@@ -64,6 +64,8 @@ TZ_INFO = {
     "Asia/Jerusalem": IsraelTimeZone()
 }
 
+TZ_JERUSALEM = TZ_INFO["Asia/Jerusalem"]
+
 class UTCDateTimeField(models.DateTimeField):
     '''
     A time zone aware DateTime field.
