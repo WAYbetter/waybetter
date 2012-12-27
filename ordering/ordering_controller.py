@@ -182,7 +182,8 @@ def sync_app_state(request):
     response = {
         "logged_in": request.user.is_authenticated(),
         "pickup_datetime_options": [to_js_date(opt) for opt in dt_options],
-        "pickup_datetime_default_idx": min(3, len(dt_options)),
+        "pickup_datetime_default_idx": 0,
+        "asap_as_default": False,
         "booking_data": request.session.get(CURRENT_BOOKING_DATA_KEY)
     }
 
