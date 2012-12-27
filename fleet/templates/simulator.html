@@ -117,11 +117,10 @@
 
             $scope.$on(wbEvents.map_click, function (e, lat, lng) {
                 $scope.$apply(function () {
-                    $scope.lat = lat;
-                    $scope.lng = lng;
+                    $scope.lat = String(lat);
+                    $scope.lng = String(lng);
                     $scope.map_controller.remove_marker("taxi_position");
                     $scope.map_controller.add_marker({lat: $scope.lat, lng: $scope.lng}, {name: "taxi_position"});
-
                 })
             });
         });
