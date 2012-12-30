@@ -514,6 +514,8 @@ def get_offers(request):
     if look_for_discounts and start_ride_algo_data:
         offers += get_discounted_offers(request, order_settings, start_ride_algo_data)
 
+    offers = sorted(offers, key=lambda  o: o.depart_time, reverse=True)
+
     deferred.defer(save_search_req_and_offers, Passenger.from_request(request), order_settings, offers)
     return JSONResponse({'offers': offers})
 
@@ -555,10 +557,12 @@ def get_discounted_offers(request, order_settings, start_ride_algo_data):
             discounted_offers.append({
                 "ride_id": offer_key,
                 "pickup_time": to_js_date(discount_dt),
-                "passengers": [{'name': discount_rule.display_name, 'picture_url': discount_rule.picture_url}],
-                "seats_left": MAX_SEATS - 1,
+                "discount_picture_url": discount_rule.picture_url,
+                "discount_name": discount_rule.display_name,
+                "passengers": [],
+                "seats_left": MAX_SEATS,
                 "price": base_price_for_discount_offer - discount,
-                "new_ride": False,  # disguise as an exisiting ride
+                "new_ride": True,  # disguise as an exisiting ride
                 "comment": offer_text
             })
 
