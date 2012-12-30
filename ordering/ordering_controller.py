@@ -514,7 +514,7 @@ def get_offers(request):
     if look_for_discounts and start_ride_algo_data:
         offers += get_discounted_offers(request, order_settings, start_ride_algo_data)
 
-    offers = sorted(offers, key=lambda  o: o.depart_time, reverse=True)
+    offers = sorted(offers, key=lambda  o: o["pickup_time"], reverse=False)
 
     deferred.defer(save_search_req_and_offers, Passenger.from_request(request), order_settings, offers)
     return JSONResponse({'offers': offers})
@@ -994,7 +994,7 @@ class OrderSettings:
 
     num_seats = 1
     pickup_dt = None # datetime
-    luggage = False
+    luggage = 0
     private = False # TODO_WB: replace with order type?
     debug = False
 
@@ -1002,7 +1002,7 @@ class OrderSettings:
     user_agent = None
     mobile = None
 
-    def __init__(self, num_seats=1, pickup_address=None, dropoff_address=None, pickup_dt=None, luggage=False,
+    def __init__(self, num_seats=1, pickup_address=None, dropoff_address=None, pickup_dt=None, luggage=0,
                  private=False, debug=False):
         # TODO_WB: add validations
         self.num_seats = num_seats
@@ -1023,9 +1023,11 @@ class OrderSettings:
         booking_settings = request_data.get("settings")
         asap = request_data.get("asap")
 
+
         inst = cls()
         inst.debug = settings.DEV
         inst.num_seats = int(booking_settings["num_seats"])
+        inst.luggage = int(booking_settings["luggage"])
         inst.private = bool(booking_settings["private"])
         inst.pickup_address = Address(**pickup)
         inst.dropoff_address = Address(**dropoff)

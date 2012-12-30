@@ -62,7 +62,7 @@ class SearchRequest(BaseModel):
 
     mobile = models.BooleanField("mobile", default=False)
     private = models.BooleanField("private", default=False)
-    luggage = models.BooleanField("luggage", default=False)
+    luggage = models.IntegerField("luggage", default=0)
     debug = models.BooleanField("debug", default=False)
 
     language_code = models.CharField("language_code", max_length=5)
