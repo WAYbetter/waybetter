@@ -1089,9 +1089,10 @@ class Order(BaseModel):
             setattr(order, "%s_lon" % order_type, address.lng)
             setattr(order, "%s_house_number" % order_type, address.house_number)
             setattr(order, "%s_street_address" % order_type, address.street)
+            country = Country.objects.get(code=address.country_code)
+            setattr(order, "%s_country" % order_type, country)
+            setattr(order, "%s_city" % order_type, City.objects.get_or_create(name=address.city_name, country=country)[0])
 
-            setattr(order, "%s_city" % order_type, City.objects.get_or_create(name=address.city_name)[0])
-            setattr(order, "%s_country" % order_type, Country.objects.get(code=address.country_code))
 
         order = cls()
         _populate_address_fields(order, "from", order_settings.pickup_address)
