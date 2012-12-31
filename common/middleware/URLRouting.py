@@ -8,11 +8,17 @@ class URLRouting(object):
     """
     @staticmethod
     def process_request(request):
+        app, device, version = None, None, None
+
         user_agent_parts = request.META.get("HTTP_USER_AGENT", "").split("/")
-        if request.path.startswith("/api/") or \
-           (user_agent_parts and user_agent_parts[0] == "WAYbetter" and user_agent_parts[1] == "iPhone"):
+        if len(user_agent_parts) > 2:
+            app, device, version = user_agent_parts[:3]
+
+        if request.path.startswith("/api/") or (app == "WAYbetter" and device == "iPhone"):
                 logging.info("using alternate urlconf: %s" % user_agent_parts)
-                if request.path.startswith("/api/mobile/1.2"):
+                if version == "1.2.1":
+                    request.urlconf = "api_1_2_1_urls"
+                elif version == "1.2":
                     request.urlconf = "api_1_2_urls"
                 else:
                     request.urlconf = "api_urls"
