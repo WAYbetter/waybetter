@@ -5,10 +5,13 @@ from push.backends.UrbanAirshipBackend import UrbanAirshipBackend
 
 PUSH_BACKEND = UrbanAirshipBackend()
 
-def notify_passenger(passenger, message, data=None):
+def notify_passenger(passenger, message, data=None, force_sms=False):
     logging.info(u"notification: sending push message '%s' to passenger [%s]" % (message, passenger.id))
     res = False
-    if passenger.push_token and passenger.mobile_platform != MobilePlatform.Android:
+    if force_sms and passenger.phone:
+        return send_sms(passenger.phone, message)
+
+    if passenger.push_token:
         if not PUSH_BACKEND.is_active(passenger.push_token, passenger.mobile_platform):
             logging.warning(u"notification: push sent to inactive device: %s" % passenger.push_token)
 
