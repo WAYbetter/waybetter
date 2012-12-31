@@ -183,7 +183,7 @@ def sync_app_state(request):
         "logged_in": request.user.is_authenticated(),
         "pickup_datetime_options": [to_js_date(opt) for opt in dt_options],
         "pickup_datetime_default_idx": 0,
-        "asap_as_default": False,
+        "asap_as_default": True,
         "booking_data": request.session.get(CURRENT_BOOKING_DATA_KEY)
     }
 
@@ -475,11 +475,12 @@ def get_offers(request):
         if ride_id == NEW_ORDER_ID:  # start a new ride
             start_ride_algo_data = ride_data
             offer = {
+                "asap": order_settings.asap,
                 "pickup_time": to_js_date(order_settings.pickup_dt),
                 "price": price,
                 "seats_left": MAX_SEATS,
                 "new_ride": True,
-                "comment": ""  # TODO_WB: sharing chances
+                "comment": u"הזמן ראשון ואחרים יצטרפו אליך"  # TODO_WB: sharing chances
             }
 
         else:  # sharing offers
@@ -571,7 +572,7 @@ def get_discounted_offers(request, order_settings, start_ride_algo_data):
                 "comment": offer_text
             }
 
-            if True:  # TODO_WB: only for 1.2.0 client
+            if not request.META.get("HTTP_USER_AGENT", "").startswith("WAYbetter/iPhone/1.2.1"):  # only for client < 1.2.1
                 discount_offer_data.update({
                     "seats_left": MAX_SEATS - 1,
                     "passengers": [{'name': discount_rule.display_name, 'picture_url': discount_rule.picture_url}]
@@ -1006,6 +1007,7 @@ class OrderSettings:
     dropoff_address = None # Address instance
 
     num_seats = 1
+    asap = False
     pickup_dt = None # datetime
     luggage = 0
     private = False # TODO_WB: replace with order type?
@@ -1015,12 +1017,13 @@ class OrderSettings:
     user_agent = None
     mobile = None
 
-    def __init__(self, num_seats=1, pickup_address=None, dropoff_address=None, pickup_dt=None, luggage=0,
+    def __init__(self, num_seats=1, pickup_address=None, dropoff_address=None, asap=False, pickup_dt=None, luggage=0,
                  private=False, debug=False):
         # TODO_WB: add validations
         self.num_seats = num_seats
         self.pickup_address = pickup_address
         self.dropoff_address = dropoff_address
+        self.asap = asap
         self.pickup_dt = pickup_dt
         self.luggage = luggage
         self.private = private
@@ -1050,6 +1053,7 @@ class OrderSettings:
         logging.info("dropoff_place_id: %s" % dropoff.get("place_id"))
 
         if asap:
+            inst.asap = True
             inst.pickup_dt = default_tz_now() + datetime.timedelta(minutes=asap_interval())
             logging.info("ASAP set as %s" % inst.pickup_dt.strftime("%H:%M"))
         else:
