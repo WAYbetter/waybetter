@@ -511,6 +511,11 @@ def get_offers(request):
         offers.append(offer)
 
     # add discounted offers if relevant
+
+    ## override
+    look_for_discounts = True
+    ## override
+
     if look_for_discounts and start_ride_algo_data:
         offers += get_discounted_offers(request, order_settings, start_ride_algo_data)
 
