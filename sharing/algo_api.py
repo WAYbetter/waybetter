@@ -1,3 +1,5 @@
+# -*- coding: utf-8 -*-
+
 from google.appengine.api.urlfetch import  POST
 from common.models import CityArea
 from django.utils import simplejson
@@ -15,6 +17,36 @@ ALGO_ENGINE_DOMAIN = "http://waybetter-route-service%s.appspot.com" % (4 if sett
 
 M2M_ENGINE_URL = "%s/m2malgo" % ALGO_ENGINE_DOMAIN
 ROUTING_URL = "%s/routes" % ALGO_ENGINE_DOMAIN
+
+class ALGO_CITY(Enum):
+    TEL_AVIV = u'תל אביב יפו'
+    BNEI_BRAK = u'בני ברק'
+    GIVATAYIM = u'גבעתיים',
+    RAMAT_GAN = u'רמת גן',
+    RAMAT_HASHARON = u'רמת השרון',
+    HERZLIYYA = u'הרצליה',
+    RAANANA = u'רעננה'
+
+
+ALGO_CITY_ALIASES = {
+    'tel aviv': ALGO_CITY.TEL_AVIV,
+    'bnei brak': ALGO_CITY.BNEI_BRAK,
+    'givatayim': ALGO_CITY.GIVATAYIM,
+    'ramat gan': ALGO_CITY.RAMAT_GAN,
+    'ramat hasharon': ALGO_CITY.RAMAT_HASHARON,
+    'herzliyya': ALGO_CITY.HERZLIYYA,
+    'raanana': ALGO_CITY.RAANANA
+}
+
+def to_algo_city_name(raw_city_name):
+    if ALGO_CITY.contains(raw_city_name):
+        return raw_city_name
+
+    else:
+        clean_raw = raw_city_name.lower().replace("'", "").strip()
+        logging.info("clean raw " + clean_raw)
+        return ALGO_CITY_ALIASES.get(clean_raw, raw_city_name)
+
 
 class AlgoField(Enum):
     ADDRESS = "m_Address"
@@ -384,12 +416,12 @@ def serialize_order(order):
         "num_seats": order.num_seats,
         "from_address": order.from_street_address,
         "from_area": get_pricing_area_name(order.from_lat, order.from_lon),
-        "from_city": order.from_city.name,
+        "from_city": to_algo_city_name(order.from_city.name),
         "from_lat": order.from_lat,
         "from_lon": order.from_lon,
         "to_address": order.to_street_address,
         "to_area": get_pricing_area_name(order.to_lat, order.to_lon),
-        "to_city": order.to_city.name,
+        "to_city": to_algo_city_name(order.to_city.name),
         "to_lat": order.to_lat,
         "to_lon": order.to_lon
     }
@@ -402,12 +434,12 @@ def serialize_order_settings(order_settings):
         "id": NEW_ORDER_ID,
         "num_seats": order_settings.num_seats,
         "from_address": order_settings.pickup_address.formatted_address,
-        "from_city": order_settings.pickup_address.city_name,
+        "from_city": to_algo_city_name(order_settings.pickup_address.city_name),
         "from_area": get_pricing_area_name(order_settings.pickup_address.lat, order_settings.pickup_address.lng),
         "from_lat": order_settings.pickup_address.lat,
         "from_lon": order_settings.pickup_address.lng,
         "to_address": order_settings.dropoff_address.formatted_address,
-        "to_city": order_settings.dropoff_address.city_name,
+        "to_city": to_algo_city_name(order_settings.dropoff_address.city_name),
         "to_area": get_pricing_area_name(order_settings.dropoff_address.lat, order_settings.dropoff_address.lng),
         "to_lat": order_settings.dropoff_address.lat,
         "to_lon": order_settings.dropoff_address.lng,
@@ -416,8 +448,6 @@ def serialize_order_settings(order_settings):
     return clean_values(result)
 
 def serialize_ride_point(ride_point):
-    from sharing.algo_api import AlgoField
-
     result = {
         AlgoField.TYPE: "e%s" % StopType.get_name(ride_point.type).title(),
         AlgoField.POINT_ADDRESS: {
@@ -433,7 +463,6 @@ def serialize_ride_point(ride_point):
     return clean_values(result)
 
 def serialize_shared_ride(ride):
-    from sharing.algo_api import AlgoField
     order_infos = {}
     for order in ride.orders.all():
         order_infos[order.id] = {
