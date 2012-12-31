@@ -559,7 +559,7 @@ def get_discounted_offers(request, order_settings, start_ride_algo_data):
                 if offer_text.find("%g") > -1:  # render discount amount
                     offer_text %= discount
 
-            discounted_offers.append({
+            discount_offer_data = {
                 "ride_id": offer_key,
                 "pickup_time": to_js_date(discount_dt),
                 "discount_picture_url": discount_rule.picture_url,
@@ -569,7 +569,15 @@ def get_discounted_offers(request, order_settings, start_ride_algo_data):
                 "price": base_price_for_discount_offer - discount,
                 "new_ride": True,  # disguise as an exisiting ride
                 "comment": offer_text
-            })
+            }
+
+            if True:  # TODO_WB: only for 1.2.0 client
+                discount_offer_data.update({
+                    "seats_left": MAX_SEATS - 1,
+                    "passengers": [{'name': discount_rule.display_name, 'picture_url': discount_rule.picture_url}]
+                })
+
+            discounted_offers.append(discount_offer_data)
 
     return discounted_offers
 
