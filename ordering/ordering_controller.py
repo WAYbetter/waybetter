@@ -39,7 +39,6 @@ import sharing.algo_api as algo_api
 
 
 WAYBETTER_STATION_NAME = "WAYbetter"
-CLOSE_CHILD_BROWSER_URI = "https://waybetter-app.appspot.com"
 
 DISCOUNTED_OFFER_PREFIX = "fjsh34897dfasg3478o5"
 DISCOUNTED_OFFERS_NS = "DISCOUNTED_OFFERS"
@@ -249,7 +248,8 @@ def update_picture(request, passenger):
     """
     Redirects the passenger to fb
     """
-    next = request.GET.get("next")  # where to go after process is done
+    # where to go after process is done
+    next = settings.CLOSE_CHILD_BROWSER_URI if request.mobile else request.GET.get("next")
 
     callback_url = "http://%s%s" % (settings.DEFAULT_DOMAIN, reverse(update_profile_fb, args=[passenger.id, next]))
     fb_url = "%s?client_id=%s&redirect_uri=%s&scope=email" % (settings.FACEBOOK_CONNECT_URI, settings.FACEBOOK_APP_ID, callback_url)
@@ -280,7 +280,7 @@ def fb_share(request):
         'name': 'WAYbetter',
         'caption': caption.encode("utf-8"),
         'description': description.encode("utf-8"),
-        'redirect_uri': CLOSE_CHILD_BROWSER_URI if request.mobile else "http://%s" % settings.DEFAULT_DOMAIN,
+        'redirect_uri': settings.CLOSE_CHILD_BROWSER_URI if request.mobile else "http://%s" % settings.DEFAULT_DOMAIN,
         'display': 'touch' if request.mobile else 'page'
     }
     url = "http://%s.facebook.com/dialog/feed?%s" % ("m" if request.mobile else "www", urllib.urlencode(args))

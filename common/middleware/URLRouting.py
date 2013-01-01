@@ -15,6 +15,7 @@ class URLRouting(object):
             app, device, version = user_agent_parts[:3]
 
         if app == "WAYbetter":
+            logging.info("WAYbetter mobile app detected")
             request.mobile = True
             request.wb_app = True
 
