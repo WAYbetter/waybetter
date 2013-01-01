@@ -14,16 +14,9 @@ class URLRouting(object):
         if len(user_agent_parts) > 2:
             app, device, version = user_agent_parts[:3]
 
-        if request.path.startswith("/api/") or (app == "WAYbetter" and device == "iPhone"):
-                logging.info("using alternate urlconf: %s" % user_agent_parts)
-                if version == "1.2.1":
-                    request.urlconf = "api_1_2_1_urls"
-                elif version == "1.2":
-                    request.urlconf = "api_1_2_urls"
-                else:
-                    request.urlconf = "api_urls"
-                    request.mobile = True
-                    request.wb_app = True
+        if app == "WAYbetter":
+            request.mobile = True
+            request.wb_app = True
 
 
 def is_ws_1_2_module(request):

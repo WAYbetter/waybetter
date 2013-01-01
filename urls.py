@@ -15,16 +15,12 @@ BaseModelAdmin.ordering = ("id", )
 
 admin.autodiscover()
 
-urlpatterns = patterns('',
-                       #    ('^$', 'django.views.generic.simple.direct_to_template', {'template': 'home.html'}),
-                       #    (r'^accounts/login/$', 'django.contrib.auth.views.login'),
-
+baseurls = patterns('',
     (r'^$', 'ordering.ordering_controller.home', {}, 'wb_home'),
     (r'^noapps/$', 'ordering.ordering_controller.home', {'suggest_apps': False}, 'wb_home_noapps'),
 
     (r'^accounts/', include('registration.backends.station.urls')),
     (r'^oauth2/', include('oauth2.urls')),
-    (r'^api/v%d/' % CURRENT_VERSION, include('api.urls')),
     (r'^common/', include('common.urls')),
     (r'^geo/', include('geo.urls')),
     (r'^billing/', include('billing.urls')),
@@ -34,8 +30,7 @@ urlpatterns = patterns('',
     (r'^admin/cpanel/$', 'sharing.staff_controller.control_panel'),
 
     (r'^admin/', include(admin.site.urls)),
-                       # TODO_WB: prefix with pickmeapp - WILL BREAK WORKSTATION LOGIN
-    (r'^', include('ordering.urls')),
+    (r'^', include('ordering.urls')),  # TODO_WB: prefix with pickmeapp - WILL BREAK WORKSTATION LOGIN
     (r'^', include('sharing.urls')),
     (r'^', include('analytics.urls')),
     (r'^interests/', include('interests.urls')),
@@ -47,12 +42,23 @@ urlpatterns = patterns('',
     (r'^robots\.txt$', 'django.views.generic.simple.direct_to_template', {'template': 'robots.txt', 'mimetype': 'text/plain'}),
 )
 
-from django.conf import settings
-if 'rosetta' in settings.INSTALLED_APPS:
-    urlpatterns += patterns('',
-        url(r'^rosetta/', include('rosetta.urls')),
-    )
+apiurls = patterns('',
+    (r'^api/v%d/' % CURRENT_VERSION, include('api.urls')),
+    (r'', include(baseurls))
+)
 
+v1_2_urls = patterns('',
+    (r'^faq/', 'django.views.generic.simple.direct_to_template', {'template': 'mobile/faq.html'}, "faq"),
+    (r'', include(baseurls)),
+)
 
+v1_2_1_urls = patterns('',
+    (r'', include(baseurls)),
+)
 
-#(r'^passenger/(?P<username>\w+)/$', 'ordering.views.passenger_home'),
+urlpatterns = patterns('',
+    (r'', include(baseurls)),
+    (r'^api/', include(apiurls)),
+    (r'^api/mobile/1.2/', include(v1_2_urls)),
+    (r'^api/mobile/1.2.1/', include(v1_2_1_urls)),
+)
