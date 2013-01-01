@@ -258,9 +258,8 @@ def update_picture(request, passenger):
 
 def fb_share(request):
     context = request.GET.get("context")
-    data = simplejson.loads(request.GET.get("data", ""))
-    logging.info("fb share context %s" % context)
-    logging.info("fb share data %s" % data)
+    raw_data = request.GET.get("data")
+    data = simplejson.loads(raw_data) if raw_data else None
 
     caption = u"הצטרפו למהפכת המוניות המשותפות WAYbetter:"
     description = u"מתקדם יותר, חכם יותר, נוח יותר ומשתלם הרבה יותר!"
