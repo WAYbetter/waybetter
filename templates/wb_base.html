@@ -5,6 +5,16 @@
 <head>
     {% load i18n %}
 
+    <script type="text/javascript">
+        // clean hash appended by facebook so child browser will close arrrrrrrrr!!!@@##$$@#
+        var fb_hash = "#_-_";
+        var hash = window.location.hash;
+        if (hash == fb_hash) {
+            window.location.href = window.location.href.replace(fb_hash, '');
+        }
+    </script>
+
+
     <meta charset="utf-8">
     <meta name="google-site-verification" content="6M7E60YhxlrZR6e8sXaMr2_9hy-TwfdXM-orIbAlwXA"/>
 

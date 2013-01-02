@@ -13,14 +13,6 @@
 {% block scripts %}
     {{ block.super }}
 
-    <script type="text/javascript">
-        // clean hash so child browser will close after facebook redirects
-        var fb_crap = "#_-_";
-        if (window.location.hash == fb_crap) {
-            window.location.href = window.location.href.replace(fb_crap, '');
-        }
-    </script>
-
 {#    <link rel="stylesheet" href="/static/stack_gallery/css/prettyPhoto.css" type="text/css" media="screen" />#}
     <link rel="stylesheet" type="text/css" href="/static/stack_gallery/css/stackGallery_horizontal.css" />
 
