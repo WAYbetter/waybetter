@@ -7,10 +7,10 @@
 
     <script type="text/javascript">
         // clean hash appended by facebook so child browser will close arrrrrrrrr!!!@@##$$@#
-        var fb_hash = "#_-_";
-        var hash = window.location.hash;
-        if (hash == fb_hash) {
-            window.location.href = window.location.href.replace(fb_hash, '');
+        var fb_hashes = ["#_-_", "#_=_"];
+        var found_hash_idx = fb_hashes.indexOf(window.location.hash);
+        if (found_hash_idx > -1) {
+            window.location.href = window.location.href.replace(fb_hashes[found_hash_idx], '');
         }
     </script>
 
@@ -36,7 +36,7 @@
     <meta property="og:title" content="{% trans 'WAYbetter. The Social Taxi App' %}"/>
     <meta property="og:description" content="{% trans 'Revolution in Transportation: Share your ride, pay less'%}"/>
     <meta property="og:type" content="website"/>
-    <meta property="og:image" content="http://waybetter.com/static/images/fb_share_logo.png"
+    <meta property="og:image" content="http://waybetter.com/static/images/fb_share_logo.png">
     <meta property="og:url" content="http://www.waybetter.com"/>
     <meta property="og:site_name" content="WAYbetter"/>
     <meta property="fb:app_id" content="280509678631025"/>
