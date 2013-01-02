@@ -4,6 +4,7 @@ from __future__ import absolute_import # we need absolute imports since ordering
 import logging
 import traceback
 import urllib
+import re
 from django.core.urlresolvers import reverse
 from django.views.decorators.csrf import csrf_exempt
 from google.appengine.api import memcache
@@ -55,6 +56,8 @@ PREVIOUS_RIDES_TO_DISPLAY = 10
 HISTORY_SUGGESTIONS_TO_SEARCH = 30
 
 GENERIC_ERROR = _("Your request could not be completed.")
+
+RE_2_1_AGENT = re.compile(r"WAYbetter/\S+/1.2.1/")
 
 def booking_interval():
     # 2012 SYLVESTER
@@ -571,7 +574,9 @@ def get_discounted_offers(request, order_settings, start_ride_algo_data):
                 "comment": offer_text
             }
 
-            if not request.META.get("HTTP_USER_AGENT", "").startswith("WAYbetter/iPhone/1.2.1"):  # only for client < 1.2.1
+
+            user_agent = request.META.get("HTTP_USER_AGENT", "")
+            if RE_2_1_AGENT.match(user_agent) is None:  # only for client < 1.2.1
                 discount_offer_data.update({
                     "seats_left": MAX_SEATS - 1,
                     "passengers": [{'name': discount_rule.display_name, 'picture_url': discount_rule.picture_url}]
