@@ -1,59 +1,70 @@
 {% extends "wb_base_site.html" %}
 {% load i18n %}
 
+{% block headertext %}View Passenger{% endblock %}
 {% block extrastyle %}
     {{ block.super }}
     <style type="text/css">
-        .orders_history_table {
-            border-spacing: 0 3px;
+        a {
+            color: inherit;
         }
 
-        .orders_history_table tr:nth-child(odd) {
-            background-color: white;
-        }
-
-        .orders_history_table tr:nth-child(even) {
-            background-color: #e7f1fa;
-        }
-
-        tr {
-            height: 40px;
-        }
-
-        .th {
-            font-weight: bold;
-        }
     </style>
 {% endblock %}
 
-{% block top_left %}
-    <span dir="ltr">
-        {{ title }}
-    </span>
-{% endblock %}
-
 {% block content %}
-    <h1>{% trans "Phone" %}: {{ passenger.phone }}</h1>
-    <table class="orders_history_table full-width">
-        <thead>
-        <tr>
-            <td class="th">{% trans "Date" %}</td>
-            <td class="th">{% trans "From" %}</td>
-            <td class="th">{% trans "To" %}</td>
-            <td class="th">{% trans "Status" %}</td>
-            <td class="th"></td>
-        </tr>
-        </thead>
+    <div id="content">
+        <div class="container">
+            <div class="row-fluid">
+                <div class="span12">
+                    <h1>
+                        {% if passenger.picture_url %}
+                            <img src="{{ passenger.picture_url }}" alt="">
+                        {% else %}
+                            <i class="icon-user"></i>
+                        {% endif %}
+                        {{ passenger.name }}
+                    </h1>
 
-        {% for order in orders %}
-            <tr>
-                <td>{{ order.create_date }}</td>
-                <td>{{ order.from_raw }}</td>
-                <td>{{ order.to_raw }}</td>
-                <td>{{ order.get_status_display }}</td>
-                <td>{{ order.mobile|yesno:"Mobile,Website" }}</td>
-            </tr>
-        {% endfor %}
-    </table>
+                    <div>
+                        <strong><i class="icon-phone"></i> <a href="tel:{{ passenger.phone }}">{{ passenger.phone }}</a></strong>
+                        <br>
+                        <strong><i class="icon-envelope"></i> <a
+                                href="mailto:{{ passenger.user.email }}">{{ passenger.user.email }}</a></strong>
+                    </div>
+                </div>
+            </div>
+        <div class="row-fluid">
+            <h1>{{ num_orders }} orders</h1>
+            <table class="table table-striped">
+                <thead>
+                <tr>
+                    <th class="th">{% trans "#" %}</th>
+                    <th class="th">{% trans "Depart" %}</th>
+                    <th class="th">{% trans "From" %}</th>
+                    <th class="th">{% trans "To" %}</th>
+                    <th class="th">{% trans "Status" %}</th>
+                    <th class="th">{% trans "Created" %}</th>
+                    <th class="th">{% trans "Booked by" %}</th>
+                    <th class="th">{% trans "Type" %}</th>
+                </tr>
+                </thead>
+
+                {% for order in orders %}
+                    <tr>
+                        <td>{{ order.id }}</td>
+                        <td>{{ order.depart_time }}</td>
+                        <td>{{ order.from_raw }}</td>
+                        <td>{{ order.to_raw }}</td>
+                        <td>{{ order.get_status_display }}</td>
+                        <td>{{ order.create_date }}</td>
+                        <td>{{ order.mobile|yesno:"Mobile,Website" }}</td>
+                        <td>{{ order.get_type_display }}</td>
+                    </tr>
+                {% endfor %}
+            </table>
+        </div>
+        </div>
+    </div>
 
 {% endblock %}

@@ -316,6 +316,13 @@
                             return self.ride.status != Status.ACCEPTED
                         },
                         run: mark_as_accepted
+                    },
+                    {
+                        title: "Mark as COMPLETED",
+                        enabled:function () {
+                            return self.ride.status != Status.COMPLETED
+                        },
+                        run: mark_as_completed
                     }
                 ];
 
@@ -335,6 +342,22 @@
                     });
                 }
 
+                function mark_as_completed() {
+                    var modal_header = "Complete Ride";
+                    $scope.confirm("Are You Sure?", "COMPLETED rides are moved to the history tab of the station module.").then(function () {
+                        $http.post("/staff/complete_ride/" + self.ride.id + "/").success(
+                            function (data) {
+                                angular.extend(self.ride, data.ride);
+                                $scope.modal_header = modal_header;
+                                $scope.modal_body = "Ride " + self.ride.id + " was marked as COMPLETED";
+                                $("#success-modal").modal();
+                            }).error(function (err) {
+                                $scope.modal_header = modal_header;
+                                $scope.modal_body = err;
+                                $("#fail-modal").modal();
+                            });
+                    });
+                }
 
                 function reassign_ride() {
                     $scope.selected_ride = self.ride;
@@ -709,6 +732,7 @@
                                     <th class="long">To</th>
                                     <th>Created</th>
                                     <th class="medium">Passenger</th>
+                                    <th>Base</th>
                                     <th>Price</th>
                                     <th>Discount</th>
                                     <th>Billing</th>
@@ -719,6 +743,7 @@
                                     <td><span class="label label-info">(( order.dropoff_idx ))</span> (( order.to_address )) | (( order.dropoff | date:'HH:mm' ))</td>
                                     <td><booking-details></booking-details></td>
                                     <td><passenger-details></passenger-details></td>
+                                    <td>(( order.price_alone | currency:'₪'))</td>
                                     <td>(( order.price | currency:'₪'))</td>
                                     <td>(( order.discount | currency:'₪')) <a ng-href="/admin/pricing/discountrule/((order.discount_id))/" ng-show="order.discount_id" target="_blank" class='discount_link'><i class='icon-gift'></i></a></td>
                                     <td>(( order.billing_status.join(', ') ))</td>
@@ -750,6 +775,7 @@
                     <table class="table table-condensed orders-table">
                         <tr>
                             <th>ID</th>
+                            <th>Depart</th>
                             <th>From</th>
                             <th>To</th>
                             <th>Created</th>
@@ -762,6 +788,7 @@
                         </tr>
                         <tr ng-repeat="order in incomplete_orders">
                             <td>(( order.id ))</td>
+                            <td>(( order.depart_time | date:"dd/MM/yy HH:mm" ))</td>
                             <td>(( order.from_address ))</td>
                             <td>(( order.to_address ))</td>
                             <td><booking-details></booking-details></td>

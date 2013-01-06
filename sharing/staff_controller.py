@@ -74,7 +74,8 @@ def control_panel(request):
 def view_passenger_orders(request, passenger_id):
     passenger = Passenger.by_id(passenger_id)
     user = passenger.user
-    orders = sorted(passenger.orders.filter(type=OrderType.SHARED, debug=False), key=lambda order: order.create_date)
+    orders = sorted(passenger.orders.filter(type__in=[OrderType.SHARED, OrderType.PRIVATE], debug=False), key=lambda order: order.create_date, reverse=True)
+    num_orders = len(orders)
     title = "View sharing order for passenger: %s [%s]" % (user.get_full_name(), user.email)
 
     return custom_render_to_response("staff_user_orders.html", locals(), context_instance=RequestContext(request))
@@ -413,6 +414,16 @@ def resend_to_fleet_manager(request, ride_id):
 def accept_ride(request, ride_id):
     ride = SharedRide.by_id(ride_id)
     ride.change_status(new_status=RideStatus.ACCEPTED)
+
+    return JSONResponse({'ride': ride.serialize_for_eagle_eye()})
+
+
+@csrf_exempt
+@staff_member_required
+@force_lang("en")
+def complete_ride(request, ride_id):
+    ride = SharedRide.by_id(ride_id)
+    ride.change_status(new_status=RideStatus.COMPLETED)
 
     return JSONResponse({'ride': ride.serialize_for_eagle_eye()})
 
