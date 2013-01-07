@@ -53,12 +53,13 @@ v1_2_urls = patterns('',
 )
 
 v1_2_1_urls = patterns('',
+    (r'^faq/', 'django.views.generic.simple.direct_to_template', {'template': 'mobile/faq.html'}, "faq"),
     (r'', include(baseurls)),
 )
 
 urlpatterns = patterns('',
-    (r'', include(baseurls)),
     (r'^api/', include(apiurls)),
     (r'^api/mobile/1.2/', include(v1_2_urls)),
     (r'^api/mobile/1.2.1/', include(v1_2_1_urls)),
+    (r'', include(baseurls)),
 )
