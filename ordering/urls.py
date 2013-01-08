@@ -101,6 +101,10 @@ urlpatterns = patterns('',
     (r'^booking/continued/$', 'ordering.ordering_controller.booking_page', {'continued': True}, "booking_continued"),
     (r'^booking/set_data/$', 'ordering.ordering_controller.set_current_booking_data'),
 
+    # account
+    (r'^apply_promo_code/$', 'ordering.account_controller.apply_promo_code'),
+    (r'^get_billing_url/$', 'ordering.account_controller.get_billing_url'),
+
     # json
     (r'^get_offers/$', 'ordering.ordering_controller.get_offers'),
     (r'^book_ride/$', 'ordering.ordering_controller.book_ride'),

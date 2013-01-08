@@ -178,7 +178,7 @@
 
                 $(this).text("{% trans "Sending" %}...").removeClass("wb_link");
                 $.ajax({
-                    url:"{% url sharing.passenger_controller.get_billing_url %}",
+                    url:"{% url ordering.account_controller.get_billing_url %}",
                     dataType:"json",
                     success:function (response) {
                         window.location.href = response.billing_url;

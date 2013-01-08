@@ -8,6 +8,10 @@
             margin-bottom: 15px;
         }
 
+        #billing:active{
+            background: #d3d3d3;
+        }
+
         label{
             margin-bottom: 2px !important;
         }
@@ -15,21 +19,41 @@
             margin: 0 !important;
         }
 
-        #promo-code{
-            display: inline-block;
-            width: 60%;
-            float: left;
+        .input-append{
+            position: relative;
         }
-        #submit-promo{
-            display: inline-block;
-            width: 30%;
+        .input-append:after{
+            content: '';
+            display:table;
+            clear: both;
+        }
+        .input-append input{
+            float: left;
+            -webkit-border-radius: 4px;
+            -moz-border-radius: 4px;
+            border-radius: 4px;
+        }
+        .input-append button{
+            position: absolute;
+            right: 0;
+            height: 100%;
+            margin: 0;
+            margin-left: -1px;
+            -webkit-border-radius: 0 4px 4px 0;
+            -moz-border-radius: 0 4px 4px 0;
+            border-radius: 0 4px 4px 0;
+        }
+
+        .rtl .input-append input{
+            width: 100%;
             float: right;
         }
-        .rtl #promo-code{
-            float: right;
-        }
-        .rtl #submit-promo{
-            float: left;
+        .rtl .input-append button{
+            right: auto;
+            left: 0;
+            -webkit-border-radius: 4px 0 0 4px;
+            -moz-border-radius: 4px 0 0 4px;
+            border-radius: 4px 0 0 4px;
         }
     </style>
 {% endblock %}
@@ -38,9 +62,6 @@
     <div data-role="page" data-theme="a">
         <div data-role="header" class="top-header ui-header ui-bar-a" role="banner">
             <div class="header-center ng-binding">{% trans 'Your Account' %}</div>
-            <div class="header-left top-header-button ng-binding">
-                <a href="{% url wb_home %}">{% trans 'Close' %}</a>
-            </div>
         </div>
 
         <div data-role="content">
@@ -52,7 +73,7 @@
                         <label for="name">{% trans "Your Name" %}</label>
                     </div>
                     <div class="control">
-                        <input type="text" id="name" name="name" required>
+                        <input type="text" id="name" name="name" required value={{ name }}>
                     </div>
                 </div>
                 <div class="form-row">
@@ -60,7 +81,7 @@
                         <label for="phone">{% trans "Mobile Phone" %}</label>
 
                         <div class="control">
-                            <input type="tel" name="phone" id="phone" required>
+                            <input type="tel" name="phone" id="phone" required value="{{ phone }}">
                         </div>
                     </div>
                 </div>
@@ -69,7 +90,7 @@
                         <label for="email">{% trans "Email" %}</label>
                     </div>
                     <div class="control">
-                        <input type="email" name="email" id="email" required>
+                        <input type="email" name="email" id="email" required value="{{ email }}">
                     </div>
                 </div>
                 <div class="form-row">
@@ -77,7 +98,7 @@
                         <label for="password">{% trans "Choose Password" %}</label>
                     </div>
                     <div class="control">
-                        <input type="text" name="password" id="password" required>
+                        <input type="password" name="password" id="password" required value="{% if email %}********{% endif %}">
                     </div>
                 </div>
                 <div class="form-row">
@@ -85,7 +106,7 @@
                         <label for="billing">{% trans "Payment Method" %}</label>
                     </div>
                     <div class="control">
-                        <input type="text" name="billing" id="billing">
+                        <input readonly type="text" name="billing" id="billing" value="{% if billing_info %}&#x200E;**** **** **** {{ billing_info }}{% endif %}">
                     </div>
                 </div>
 
@@ -102,8 +123,10 @@
                         <label for="promo-code">{% trans "Promo Code" %}</label>
                     </div>
                     <div class="control">
-                        <input type="text" name="promo-code" id="promo-code">
-                        <button id="submit-promo" data-role="none" class="btn btn-warning btn-block btn-large" type="button">{% trans 'Submit' %}</button>
+                        <div class="input-append">
+                            <input type="text" name="promo-code" id="promo-code">
+                            <button id="apply-promo" data-role="none" class="btn" type="button">{% trans 'Submit' %}</button>
+                        </div>
                     </div>
                 </div>
             </form>
@@ -114,18 +137,53 @@
 {% block doc_ready %}
     {{ block.super }}
     <script type="text/javascript">
-        var submit = $("#submit");
+        // todo form validation
+        // todo angular?
+        // todo modal loader across all mobile pages
 
-        submit.click(function(){
+        var form = $("#registration_form");
+        var submit = $("#submit");
+        var billing = $("#billing");
+        var apply_promo = $("#apply-promo");
+
+        function register(){
             $.ajax({
                 type: 'POST',
-                data: $("#registration_form").serialize()
+                data: form.serialize()
             }).done(function(success_response){
-                window.location.href = success_response.redirect;
+                window.location.href = success_response.billing_url;
             }).fail(function(error_response){
                 alert(error_response.responseText);
             });
-        });
+        }
+        function change_billing(){
+            $.ajax({
+                url:"{% url ordering.account_controller.get_billing_url %}",
+                dataType:"json"
+            }).done(function (response) {
+                window.location.href = response.billing_url;
+            }).fail(function () {
+                // todo
+            });
+        }
+        function do_apply_promo(){
+            $.ajax({
+                url: "{% url ordering.account_controller.apply_promo_code %}"
+            }).done(function(){
+                alert("OK");
+            }).fail(function(){
+                alert("FAILED");
+            });
+        }
+
+        submit.click(register);
+        apply_promo.click(do_apply_promo);
+
+        {% if request.user.is_authenticated %}
+            billing.click(change_billing);
+            {% else %}
+            billing.click(register);
+        {% endif %}
     </script>
 
 {% endblock %}
