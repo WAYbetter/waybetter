@@ -48,6 +48,7 @@ apiurls = patterns('',
 )
 
 v1_2_urls = patterns('',
+    (r'^registration/$', 'ordering.account_controller.registration'),
     (r'^faq/', 'django.views.generic.simple.direct_to_template', {'template': 'mobile/faq.html'}, "faq"),
     (r'', include(baseurls)),
 )

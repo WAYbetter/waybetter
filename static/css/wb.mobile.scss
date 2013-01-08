@@ -167,7 +167,6 @@ ul.narrow {
 
 }
 
-
 .ui-input-text.ui-focus, .ui-input-search.ui-focus{
     border-color: rgba(82, 168, 236, 0.8);
     box-shadow: inset 0 1px 1px rgba(0, 0, 0, 0.075), 0 0 8px rgba(82, 168, 236, 0.6);
@@ -287,99 +286,6 @@ ul.narrow {
     }
     #logo .name{ font-size: 38px; line-height: 32px; }
     #logo .text{ font-size: 24px; }
-}
-
-#registration_page ,#validation_page, #credit_guard_page{
-    .ui-header{
-        h1{
-            margin-right: 80px;
-        }
-    }
-    .ui-bar-a{
-        border-bottom: 1px solid white;
-    }
-    table.registration-progress-bar {
-        width: 100%;
-        height: 2em;
-        border: none;
-        border-spacing: 1px;
-        border-collapse: collapse;
-
-        td{
-            border-left: 1px solid white;
-            background-color: #DFDDDD;
-            color: #9C9C9C;
-            text-align: center;
-            text-shadow: none;
-            font-weight: normal;
-            width: 33%;
-        }
-        td.current{
-            color: white;
-            font-weight: bold;
-            background-color: #919191;
-            @extend .top_tri;
-        }
-        td.done{
-            color: #DFDDDD;
-            background: #919191;
-        }
-    }
-}
-
-#registration_page{
-    label {
-        color: #404040;
-        line-height: 1em;
-        margin-top: 0.5em;
-    }
-    label[for="id_name"]{
-        margin-top: 0;
-    }
-    label[for="id_agree_to_terms"]{
-        margin: 0;
-        .ui-btn-inner{
-            padding-right: 0;
-            padding-left: 32px;
-            height: 1em;
-        }
-    }
-    .ui-checkbox{
-        width: 2.5em;
-        margin-left: 0;
-    }
-    .ui-block-a{
-        width: 85%;
-        font-size: 0.79em;
-        padding-right: 1em;
-        span{
-            /*margin-top: 1em;*/
-        }
-    }
-    .ui-block-b{ width: 15%; }
-    ul.errorlist{
-        padding: 0;
-        margin: 0;
-        font-size: 0.8em;
-        color: red;
-    }
-
-    #fb_connect{
-        background: url("/static/images/wb_site/fb_disabled.jpeg") -1px 0 no-repeat;
-        width: 170px;
-        height: 28px;
-    }
-}
-
-#validation_page{
-    .ui-content{
-        color: #424242;
-        input{
-           position: relative;
-           right: 0.3em;
-           width: 93%;
-        }
-    }
 }
 
 .faq, #faq_page{
