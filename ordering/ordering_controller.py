@@ -556,7 +556,7 @@ def get_discounted_offers(request, order_settings, start_ride_algo_data):
             offer_key = "%s_%s" % (DISCOUNTED_OFFER_PREFIX, get_uuid())
             memcache.set(offer_key, {'discount_rule_id': discount_rule.id, 'pickup_dt': discount_dt}, namespace=DISCOUNTED_OFFERS_NS)
 
-            offer_text = u"הזמן ראשון וקבל ₪%g הנחה מובטחת" % discount
+            offer_text = u"המחיר כולל הנחה של ₪%g" % discount
             if discount_rule.offer_text:
                 offer_text = discount_rule.offer_text
                 if offer_text.find("%g") > -1:  # render discount amount
