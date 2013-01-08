@@ -34,7 +34,7 @@ DATABASES = {
             # in-memory datastore). Useful for testing with larger datasets
             # or when debugging concurrency/async issues (separate processes
             # will share a common db state, rather than syncing on startup).
-            # 'use_sqlite': True,
+            'use_sqlite': True,
             }
     },
 }
