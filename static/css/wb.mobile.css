@@ -5,64 +5,8 @@
   to {
     -webkit-transform: rotate(360deg); } }
 
-hr {
-  border: none;
-  border-top: 1px solid #9a9a9a;
-  border-image: initial;
-  -webkit-box-shadow: 0 1px white;
-  -moz-box-shadow: 0 1px white;
-  box-shadow: 0 1px white; }
-
-.errorlist li {
-  list-style: none; }
-
-.ui-btn-hidden {
-  line-height: inherit; }
-
-.ui-icon-none {
-  background: transparent;
-  background-image: none; }
-
-/* make theme-e look and feel disabled - remove hover and up states */
-.ui-btn-down-e {
-  border: 1px solid #bfbfbf;
-  background: #eeeeee;
-  font-weight: bold;
-  color: #ababab;
-  text-shadow: 0 1px 1px #f6f6f6;
-  background-image: -webkit-linear-gradient(top, white, white);
-  /* Chrome 10 , Saf5.1  */
-  background-image: -moz-linear-gradient(top, white, white);
-  /* FF3.6 */
-  background-image: -ms-linear-gradient(top, white, white);
-  /* IE10 */
-  background-image: -o-linear-gradient(top, white, white);
-  /* Opera 11.10  */
-  background-image: linear-gradient(top, white, white); }
-  .ui-btn-down-e a.ui-link-inherit {
-    color: #ababab; }
-
-.ui-btn-hover-e {
-  border: 1px solid #bfbfbf;
-  background: #eeeeee;
-  font-weight: bold;
-  color: #ababab;
-  text-shadow: 0 1px 1px #f6f6f6;
-  background-image: -webkit-linear-gradient(top, white, white);
-  /* Chrome 10 , Saf5.1  */
-  background-image: -moz-linear-gradient(top, white, white);
-  /* FF3.6 */
-  background-image: -ms-linear-gradient(top, white, white);
-  /* IE10 */
-  background-image: -o-linear-gradient(top, white, white);
-  /* Opera 11.10  */
-  background-image: linear-gradient(top, white, white); }
-  .ui-btn-hover-e a.ui-link-inherit {
-    color: #ababab; }
-
-ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
-  padding-top: .2em;
-  padding-bottom: .2em; }
+body {
+  font-family: 'Titillium Web'; }
 
 .hidden {
   display: none; }
@@ -73,47 +17,24 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
 .center {
   text-align: center !important; }
 
-.top_tri {
-  background-image: url(/static/images/mobile/top_tri_normal.png);
-  background-position: center top;
-  background-repeat: no-repeat;
-  -moz-background-size: 15px 9px;
-  -o-background-size: 15px 9px;
-  -webkit-background-size: 15px 9px;
-  background-size: 15px 9px; }
-
-.ui-header a[href="/"], .ui-header a[href="#home"], .ui-header #reset_booking_page {
-  width: 45px; }
-.ui-header a[href="/"] .ui-icon, .ui-header a[href="#home"] .ui-icon {
-  background: url(/static/images/mobile/wb_logo_18px.png) left 0 no-repeat;
-  -webkit-border-radius: 0;
-  -moz-border-radius: 0;
-  border-radius: 0;
-  -webkit-box-shadow: none;
-  -moz-box-shadow: none;
-  box-shadow: none;
-  margin: 0 auto; }
-.ui-header .ui-icon-wb_reset {
-  background: url(/static/images/mobile/refresh.png) left 0 no-repeat;
-  margin: 0 auto; }
-
-.wb-header {
-  background: white;
-  border: none;
-  height: 42px;
-  background: url(/static/images/mobile/header.png) center 0 no-repeat;
-  background-color: white;
-  margin: 0 auto;
-  -webkit-box-shadow: 0 0 5px black;
-  -moz-box-shadow: 0 0 5px black;
-  box-shadow: 0 0 5px black; }
-
-/* theme hacks */
-.ui-body-a {
-  text-shadow: none; }
+.ui-body-a, .ui-overlay-a {
+  color: white;
+  text-shadow: none;
+  background-image: url(../images/mobile/bg_normal.png);
+  background-repeat: repeat; }
+  .ui-body-a input, .ui-overlay-a input {
+    border-radius: 0;
+    color: black; }
 
 .ui-btn-text {
   text-shadow: none; }
+
+.ui-btn-hidden {
+  line-height: inherit; }
+
+.ui-icon-none {
+  background: transparent;
+  background-image: none; }
 
 .ui-icon,
 .ui-icon-searchfield:after {
@@ -121,14 +42,6 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
 
 .ui-icon-alt {
   background-image: url(themes/images/icons-18-white.png); }
-
-.ui-body-a, .ui-overlay-a {
-  color: white;
-  background-image: url(../images/mobile/bg_normal.png);
-  background-repeat: repeat; }
-  .ui-body-a input, .ui-overlay-a input {
-    border-radius: 0;
-    color: black; }
 
 .ui-input-text.ui-focus, .ui-input-search.ui-focus {
   border-color: rgba(82, 168, 236, 0.8);
@@ -176,92 +89,11 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
   -webkit-animation-iteration-count: infinite;
   -webkit-animation-timing-function: linear; }
 
-/* end hacks */
-/* Mobile Pages
--------------------------------------------------- */
-.shadow-sep {
-  direction: ltr !important;
-  position: absolute;
-  width: 100%; }
-  .shadow-sep table {
-    width: 100%;
-    border-spacing: 0;
-    border-collapse: collapse; }
-  .shadow-sep .shadow-r, .shadow-sep .shadow-l {
-    width: 117px;
-    background: url(../images/wb_site/1.2/shade.png) no-repeat;
-    height: 8px;
-    padding: 0; }
-  .shadow-sep .shadow-r {
-    background-position: 0 -8px; }
-  .shadow-sep .shadow-m {
-    background: url(../images/wb_site/1.2/shade_pixel.png);
-    background-repeat: repeat-x; }
-
-#suggest_apps_page #logo-container {
-  position: absolute;
-  top: 0;
-  bottom: 150px;
-  left: 0;
-  right: 0;
-  text-align: center;
-  background: white; }
-  #suggest_apps_page #logo-container .shadow-sep {
-    bottom: -7px; }
-#suggest_apps_page #buttons-container {
-  position: absolute;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  height: 150px;
-  padding: 20px;
-  box-sizing: border-box;
-  -moz-box-sizing: border-box;
-  -webkit-box-sizing: border-box; }
-  #suggest_apps_page #buttons-container a[data-role="button"] {
-    margin-bottom: 20px; }
-#suggest_apps_page #logo-wrapper {
-  position: absolute;
-  bottom: 30%;
-  text-align: center;
-  width: 100%; }
-#suggest_apps_page #logo {
-  font-family: 'Titillium Web'; }
-#suggest_apps_page #logo .image {
-  height: 63px;
-  background: url(../images/logo/logo.png) center center no-repeat;
-  margin-bottom: 20px; }
-#suggest_apps_page #logo .name {
-  font-size: 38px;
-  line-height: 32px; }
-#suggest_apps_page #logo .text {
-  font-size: 24px; }
-
-.faq .q, #faq_page .q {
-  font-weight: bold; }
-.faq .a, #faq_page .a {
-  color: #3B3B3B; }
-
 /* for HD devices (iPhone retina, etc.) */
 @media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (min-resolution: 240dpi) {
   .ui-body-a, .ui-overlay-a {
     background-image: url(/static/images/mobile/bg_retina.png);
     background-size: 72px; }
-
-  .top_tri {
-    background-image: url(/static/images/mobile/top_tri__retina.png);
-    background-repeat: no-repeat;
-    -moz-background-size: 15px 9px;
-    -o-background-size: 15px 9px;
-    -webkit-background-size: 15px 9px;
-    background-size: 15px 9px; }
-
-  .wb-header {
-    background-image: url(/static/images/mobile/header_retina.png);
-    -moz-background-size: 242px 42px;
-    -o-background-size: 242px 42px;
-    -webkit-background-size: 242px 42px;
-    background-size: 242px 42px; }
 
   .ui-icon-loading {
     background-image: url(/static/images/mobile/loader_retina.png);
@@ -270,30 +102,10 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
     -webkit-background-size: 35px 35px;
     background-size: 35px 35px; }
 
-  .ui-header a[href="/"] .ui-icon, .ui-header a[href="#home"] .ui-icon {
-    background-image: url(/static/images/mobile/wb_logo_retina.png);
-    -moz-background-size: 18px 18px;
-    -o-background-size: 18px 18px;
-    -webkit-background-size: 18px 18px;
-    background-size: 18px 18px; }
-  .ui-header .ui-icon-wb_reset {
-    background: url(/static/images/mobile/refresh_retina.png) left 0 no-repeat;
-    -moz-background-size: 18px 18px;
-    -o-background-size: 18px 18px;
-    -webkit-background-size: 18px 18px;
-    background-size: 18px 18px; }
-
   /* fixes transparent loader issue */
   .ui-loader {
     background: rgba(0, 0, 0, 0.8);
-    opacity: .88; }
-
-  #suggest_apps_page #logo .image {
-    background: url(../images/logo/logo-retina) center center no-repeat;
-    -moz-background-size: 87px 63px;
-    -o-background-size: 87px 63px;
-    -webkit-background-size: 87px 63px;
-    background-size: 87px 63px; } }
+    opacity: .88; } }
 /* RTL */
 .rtl .ui-page, .rtl .ui-loader {
   direction: rtl; }
@@ -346,9 +158,7 @@ ul.narrow .ui-li-has-arrow .ui-btn-inner a.ui-link-inherit {
     display: inline-block;
     position: relative; }
 
-/*
- * END HEADER
-*/
+/* END HEADER */
 /*
 * Bootstrap v2.2.2 - BUTTONS ONLY !!!
 */
@@ -735,6 +545,4 @@ button.btn.btn-mini, input[type="submit"].btn.btn-mini {
 .btn.btn-large {
   padding: 8px 19px; }
 
-/*
- * END BUTTONS
-*/
+/* END BUTTONS */

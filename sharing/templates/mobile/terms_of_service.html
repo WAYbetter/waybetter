@@ -12,11 +12,8 @@
 
 {% block body %}
     <div id="terms_page" data-role="page" data-theme="a">
-        <div data-role="header">
-            <h1>{% trans "Terms of Service" %}</h1>
-            {% if not request.wb_app %}
-            <a href="#" data-rel="back" class="ui-btn-right" data-theme="h">{% trans 'Back' %}</a>
-            {% endif %}
+        <div data-role="header" class="top-header ui-header ui-bar-a" role="banner">
+            <div class="header-center">{% trans "Terms of Service" %}</div>
         </div>
         <div data-role="content" class="terms">
             {% trans "terms_content" %}
