@@ -1,0 +1,131 @@
+{% extends "wb_base_mobile.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        .form-row {
+            margin-bottom: 15px;
+        }
+
+        label{
+            margin-bottom: 2px !important;
+        }
+        input {
+            margin: 0 !important;
+        }
+
+        #promo-code{
+            display: inline-block;
+            width: 60%;
+            float: left;
+        }
+        #submit-promo{
+            display: inline-block;
+            width: 30%;
+            float: right;
+        }
+        .rtl #promo-code{
+            float: right;
+        }
+        .rtl #submit-promo{
+            float: left;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div data-role="page" data-theme="a">
+        <div data-role="header" class="top-header ui-header ui-bar-a" role="banner">
+            <div class="header-center ng-binding">{% trans 'Your Account' %}</div>
+            <div class="header-left top-header-button ng-binding">
+                <a href="{% url wb_home %}">{% trans 'Close' %}</a>
+            </div>
+        </div>
+
+        <div data-role="content">
+            <form method="post" id="registration_form" data-ajax="false">
+                {% csrf_token %}
+
+                <div class="form-row">
+                    <div class="label">
+                        <label for="name">{% trans "Your Name" %}</label>
+                    </div>
+                    <div class="control">
+                        <input type="text" id="name" name="name" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="label">
+                        <label for="phone">{% trans "Mobile Phone" %}</label>
+
+                        <div class="control">
+                            <input type="tel" name="phone" id="phone" required>
+                        </div>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="label">
+                        <label for="email">{% trans "Email" %}</label>
+                    </div>
+                    <div class="control">
+                        <input type="email" name="email" id="email" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="label">
+                        <label for="password">{% trans "Choose Password" %}</label>
+                    </div>
+                    <div class="control">
+                        <input type="text" name="password" id="password" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="label">
+                        <label for="billing">{% trans "Payment Method" %}</label>
+                    </div>
+                    <div class="control">
+                        <input type="text" name="billing" id="billing">
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    <div class="control">
+                        <button id="submit" data-role="none" class="btn btn-warning btn-block btn-large" type="button">{% trans 'SAVE' %}</button>
+                    </div>
+                </div>
+
+                <hr>
+
+                <div class="form-row">
+                    <div class="label">
+                        <label for="promo-code">{% trans "Promo Code" %}</label>
+                    </div>
+                    <div class="control">
+                        <input type="text" name="promo-code" id="promo-code">
+                        <button id="submit-promo" data-role="none" class="btn btn-warning btn-block btn-large" type="button">{% trans 'Submit' %}</button>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+{% endblock %}
+
+{% block doc_ready %}
+    {{ block.super }}
+    <script type="text/javascript">
+        var submit = $("#submit");
+
+        submit.click(function(){
+            $.ajax({
+                type: 'POST',
+                data: $("#registration_form").serialize()
+            }).done(function(success_response){
+                window.location.href = success_response.redirect;
+            }).fail(function(error_response){
+                alert(error_response.responseText);
+            });
+        });
+    </script>
+
+{% endblock %}
