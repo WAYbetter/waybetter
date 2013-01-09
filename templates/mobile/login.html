@@ -1,0 +1,39 @@
+{% extends "wb_base_mobile.html" %}
+{% load i18n %}
+
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        .errorlist{
+            list-style: none;
+        }
+        .field-error{
+            margin-bottom: 15px;
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+
+    <div id="login_page" data-role="page" data-theme="a" data-ajax="false">
+        <div data-role="header" class="top-header">
+            <div class="header-center">{% trans 'Login' %}</div>
+        </div>
+
+        <div data-role="content">
+            <form id="login-form" method="post" data-ajax="false">
+                {% csrf_token %}
+                <div id="non-field">{{ form.non_field_errors }}</div>
+                <input type="email" name="username" placeholder="{% trans 'Email' %}"/>
+                <input type="password" name="password" placeholder="{% trans 'Password' %}"/>
+
+                <button class="btn btn-block btn-info btn-large" type="submit" data-role="none">{% trans 'Login' %}</button>
+            </form>
+
+            <div class="forgot_password">
+                <a href="{% url sharing.passenger_controller.verify_passenger %}">{% trans 'Forgot password' %}</a>
+            </div>
+        </div>
+    </div>
+
+{% endblock %}
