@@ -55,7 +55,8 @@ def registration_view(request):
 
         user = register_new_user(request)
         if user:
-            return get_billing_url(request)
+            redirect = settings.CLOSE_CHILD_BROWSER_URI
+            return JSONResponse({'redirect': redirect})
         else:
             return JSONResponse({'error': _("Registration failed")})
 

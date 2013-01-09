@@ -263,7 +263,7 @@
                     type:'POST',
                     data:form.serialize()
                 }).done(function (response) {
-                            if (response.billing_url) window.location.href = response.billing_url;
+                            if (response.redirect) window.location.href = response.redirect;
                             else if (response.account_exists) {
                                 if (confirm(response.error + "\n{% trans 'Login?' %}")) {
                                     window.location.href = "{% url auth_login %}";
