@@ -70,6 +70,9 @@ def register_new_user(request):
     password = request.POST.get("password")
     phone = request.POST.get("phone")
 
+    if not all([name, email, password, phone]):
+        return None
+
     first_name, last_name = get_name_parts(name)
     user = create_user(email, password, email, first_name, last_name)
     user = authenticate(username=user.username, password=password)
