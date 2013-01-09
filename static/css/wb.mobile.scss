@@ -92,7 +92,7 @@
   padding: 20px;
   z-index: 2000;
   box-shadow: none;
-  background: rgba(0, 0, 0, 0.8);
+  background: transparent;
   opacity: .88;
   border-radius: 4px;
 }
@@ -123,6 +123,21 @@
   -webkit-animation-duration: 1s;
   -webkit-animation-iteration-count:  infinite;
   -webkit-animation-timing-function: linear;
+}
+#glasspane {
+  display: none;
+  position: absolute;
+  text-align: center;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 1000;
+  background: rgba(0, 0, 0, 0.8);
+  opacity: .88;
+}
+.ui-loading #glasspane{
+  display: block;
 }
 // End Theme hacks
 
