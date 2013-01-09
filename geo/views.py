@@ -46,7 +46,7 @@ def get_places(request):
 
     return JSONResponse({
         "places": places_data,
-        "blacklist": ['תל אביב, ישראל']
+        "blacklist": ['תל אביב, ישראל', 'היכל נוקיה, תל אביב יפו, ישראל', 'היכל נוקיה, תל אביב יפו, מחוז תל אביב, ישראל', 'היכל נוקיה ניהול והשקעות בע"מ, תל אביב יפו, ישראל' ]
     })
 
 @csrf_exempt  # TODO_WB: teach angular to pass csrf_token in headers
