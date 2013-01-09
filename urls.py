@@ -3,6 +3,7 @@ dbindexer.autodiscover()
 
 from django.conf.urls.defaults import *
 from django.contrib import admin
+from django.contrib.auth import views as auth_views
 from api.urls import CURRENT_VERSION
 
 # override the default ordering of ModelAdmin to avoid creating indexes of the form:
@@ -48,6 +49,7 @@ apiurls = patterns('',
 )
 
 v1_2_urls = patterns('',
+    (r'^accounts/login/$', auth_views.login, {'template_name': 'mobile/login.html'}),
     (r'^user/profile/$', 'ordering.account_controller.account_view'),
     (r'^registration/$', 'ordering.account_controller.registration_view'),
     (r'^faq/', 'django.views.generic.simple.direct_to_template', {'template': 'mobile/faq.html'}, "faq"),
@@ -55,6 +57,7 @@ v1_2_urls = patterns('',
 )
 
 v1_2_1_urls = patterns('',
+    (r'^accounts/login/$', auth_views.login, {'template_name': 'mobile/login.html'}),
     (r'^user/profile/$', 'ordering.account_controller.account_view'),
     (r'^registration/$', 'ordering.account_controller.registration_view'),
     (r'^faq/', 'django.views.generic.simple.direct_to_template', {'template': 'mobile/faq.html'}, "faq"),
