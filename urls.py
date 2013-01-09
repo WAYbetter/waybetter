@@ -48,14 +48,14 @@ apiurls = patterns('',
 )
 
 v1_2_urls = patterns('',
-    (r'^account/$', 'ordering.account_controller.account_view'),
+    (r'^user/profile/$', 'ordering.account_controller.account_view'),
     (r'^registration/$', 'ordering.account_controller.registration_view'),
     (r'^faq/', 'django.views.generic.simple.direct_to_template', {'template': 'mobile/faq.html'}, "faq"),
     (r'', include(baseurls)),
 )
 
 v1_2_1_urls = patterns('',
-    (r'^account/$', 'ordering.account_controller.account_view'),
+    (r'^user/profile/$', 'ordering.account_controller.account_view'),
     (r'^registration/$', 'ordering.account_controller.registration_view'),
     (r'^faq/', 'django.views.generic.simple.direct_to_template', {'template': 'mobile/faq.html'}, "faq"),
     (r'', include(baseurls)),

@@ -1,5 +1,6 @@
 {% extends "wb_base_mobile.html" %}
 {% load i18n %}
+{% load value_from_settings %}
 
 {% block extrastyle %}
     {{ block.super }}
@@ -7,12 +8,11 @@
         .form-row {
             margin-bottom: 15px;
         }
-
-        #billing:active{
-            background: #d3d3d3;
+        .control{
+            position: relative;
         }
-
         label{
+            font-size: 14px !important;
             margin-bottom: 2px !important;
         }
         input {
@@ -55,16 +55,56 @@
             -moz-border-radius: 4px 0 0 4px;
             border-radius: 4px 0 0 4px;
         }
+
+        #billing{
+            padding-left: 35px;
+        }
+        .rtl #billing{
+            padding-left: .4em;
+            padding-right: 35px;
+        }
+
+        #billing:active{
+            background: #d3d3d3;
+        }
+        .icon-lock{
+            color: #5E5E5E;
+            position: absolute;
+            left: 15px;
+            font-size: 1.5em;
+            padding-top: 10px;
+            height: 29px;
+        }
+        .rtl .icon-lock{
+            left: auto;
+            right: 15px;
+        }
+
+        #disclaimer{
+            font-size: 12px;
+            text-align: center;
+        }
+        #disclaimer input{
+            position: relative;
+            top: 3px;
+        }
+        #disclaimer a{
+            color: white;
+            text-decoration: none;
+        }
     </style>
 {% endblock %}
 
 {% block body %}
     <div data-role="page" data-theme="a">
         <div data-role="header" class="top-header ui-header ui-bar-a" role="banner">
-            <div class="header-center ng-binding">{% trans 'Your Account' %}</div>
+            <div class="header-center ng-binding">{{ title }}</div>
         </div>
 
         <div data-role="content">
+
+            <div id="glasspane"></div>
+
             <form method="post" id="registration_form" data-ajax="false">
                 {% csrf_token %}
 
@@ -81,7 +121,7 @@
                         <label for="phone">{% trans "Mobile Phone" %}</label>
 
                         <div class="control">
-                            <input type="tel" name="phone" id="phone" required value="{{ phone }}">
+                            <input type="tel" pattern="[0-9]{10}" name="phone" id="phone" required value="{{ phone }}">
                         </div>
                     </div>
                 </div>
@@ -95,7 +135,7 @@
                 </div>
                 <div class="form-row">
                     <div class="label">
-                        <label for="password">{% trans "Choose Password" %}</label>
+                        <label for="password">{% trans "Password" %}</label>
                     </div>
                     <div class="control">
                         <input type="password" name="password" id="password" required value="{% if email %}********{% endif %}">
@@ -106,40 +146,101 @@
                         <label for="billing">{% trans "Payment Method" %}</label>
                     </div>
                     <div class="control">
+                        <i class="icon-lock"></i>
                         <input readonly type="text" name="billing" id="billing" value="{% if billing_info %}&#x200E;**** **** **** {{ billing_info }}{% endif %}">
                     </div>
                 </div>
 
                 <div class="form-row">
                     <div class="control">
-                        <button id="submit" data-role="none" class="btn btn-warning btn-block btn-large" type="button">{% trans 'SAVE' %}</button>
-                    </div>
-                </div>
-
-                <hr>
-
-                <div class="form-row">
-                    <div class="label">
-                        <label for="promo-code">{% trans "Promo Code" %}</label>
-                    </div>
-                    <div class="control">
-                        <div class="input-append">
-                            <input type="text" name="promo-code" id="promo-code">
-                            <button id="apply-promo" data-role="none" class="btn" type="button">{% trans 'Submit' %}</button>
-                        </div>
+                        <button id="submit" data-role="none" class="btn btn-warning btn-block btn-large" type="submit">{% trans 'SAVE' %}</button>
+                        {% if not request.user.is_authenticated %}
+                            <div id="disclaimer">
+                                <input type="checkbox" name="agree" id="agree" checked required data-role="none">
+                                <span>
+                                    <a href="#terms_page" data-transition="slideup" data-role="none">{% trans "I accept the Terms Of Use" %}</a>
+                                    <a href="#privacy_page" data-transition="slideup" data-role="none"> {% trans " and Privacy Statement" %}.</a>
+                                </span>
+                            </div>
+                        {% endif %}
                     </div>
                 </div>
             </form>
+
+{# uncomment if/when we have promo codes #}
+{#            <hr>#}
+{##}
+{#            <div class="form-row">#}
+{#                <div class="label">#}
+{#                    <label for="promo-code">{% trans "Promo Code" %}</label>#}
+{#                </div>#}
+{#                <div class="control">#}
+{#                    <div class="input-append">#}
+{#                        <input type="text" name="promo-code" id="promo-code">#}
+{#                        <button id="apply-promo" data-role="none" class="btn" type="button">{% trans 'Submit' %}</button>#}
+{#                    </div>#}
+{#                </div>#}
+{#            </div>#}
+
         </div>
+    </div>
+
+    <div id="terms_page" data-role="page" data-theme="a">
+        <div data-role="header" class="top-header ui-header ui-bar-a" role="banner">
+            <div class="header-center ng-binding">{% trans "Terms of Service" %}</div>
+            <div class="header-left top-header-button">
+                <a href="#" data-rel="back" data-transition="slidedown">{% trans "Close" %}</a>
+            </div>
+        </div>
+        <div data-role="content">{% trans "terms_content" %}</div>
+    </div>
+
+    <div id="privacy_page" data-role="page" data-theme="a">
+        <div data-role="header" class="top-header ui-header ui-bar-a" role="banner">
+            <div class="header-center ng-binding">{% trans "Privacy Policy" %}</div>
+            <div class="header-left top-header-button">
+                <a href="#" data-rel="back" data-transition="slidedown">{% trans "Close" %}</a>
+            </div>
+        </div>
+        <div data-role="content" class="privacy">{% trans "privacy_content" %}</div>
     </div>
 {% endblock %}
 
 {% block doc_ready %}
     {{ block.super }}
     <script type="text/javascript">
-        // todo form validation
-        // todo angular?
-        // todo modal loader across all mobile pages
+
+        // html5 form validation rocks!
+        var fname = document.getElementById("name"),
+            phone = document.getElementById("phone"),
+            email = document.getElementById("email"),
+            password = document.getElementById("password"),
+            agree = document.getElementById("agree");
+
+        var fields = [fname, phone, email, password, agree];
+
+        for (var i = 0; i < fields.length; i++) {
+            fields[i].oninput = function(e) {
+                e.target.setCustomValidity("");
+            };
+
+            fields[i].oninvalid = function(e) {
+                e.target.setCustomValidity("");
+                if (e.target.validity.valueMissing){
+                    e.target.setCustomValidity("{% trans 'This field is required' %}");
+                }
+                if (e.target == agree){
+                    if (agree.validity.valueMissing) agree.setCustomValidity("{% trans 'Please agree to join' %}");
+                }
+                if (e.target == phone){
+                    if (phone.validity.patternMismatch) phone.setCustomValidity("{% trans 'Please enter a 10 digit mobile number' %}");
+                }
+                if (e.target == email){
+                    if (email.validity.patternMismatch) email.setCustomValidity("{% trans 'Please enter a valid email address' %}");
+                }
+            };
+        }
+        // end validation setup
 
         var form = $("#registration_form");
         var submit = $("#submit");
@@ -150,10 +251,19 @@
             $.ajax({
                 type: 'POST',
                 data: form.serialize()
-            }).done(function(success_response){
-                window.location.href = success_response.billing_url;
+            }).done(function(response){
+                if (response.billing_url) window.location.href = response.billing_url;
+                else if (response.account_exists){
+                    if (confirm(response.error + "\n{% trans 'Login?' %}")){
+                        window.location.href = "{% url auth_login %}";
+                    }
+                }
+                else{
+                    alert(response.error || "{% trans 'Registration Failed' %}");
+                }
+
             }).fail(function(error_response){
-                alert(error_response.responseText);
+                alert("{% trans 'Registration Failed' %}");
             });
         }
         function change_billing(){
@@ -176,13 +286,20 @@
             });
         }
 
-        submit.click(register);
+        form.submit(function (e) {
+            e.preventDefault();
+            register();
+        });
+
         apply_promo.click(do_apply_promo);
 
         {% if request.user.is_authenticated %}
             billing.click(change_billing);
-            {% else %}
-            billing.click(register);
+        {% else %}
+            billing.click(function () {
+                // trigger browser form validation and submit if it is valid
+                submit.click();
+            });
         {% endif %}
     </script>
 

@@ -1,13 +1,14 @@
 import hashlib
 import logging
+from analytics.models import BIEvent, BIEventType
 from billing.billing_manager import get_token_url
+from common.models import Country
+from common.util import generate_random_token, notify_by_email
 from django.contrib.auth.models import User
 from django.utils.translation import ugettext as _
-from common.models import Country
-from common.util import generate_random_token
 from django.conf import settings
 from django.contrib.auth import authenticate, login
-from django.http import  HttpResponseBadRequest, HttpResponseNotAllowed, HttpResponse
+from django.http import HttpResponseNotAllowed, HttpResponse
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from djangotoolbox.http import JSONResponse
@@ -15,24 +16,28 @@ from ordering.models import Passenger, CURRENT_PASSENGER_KEY
 from ordering.util import get_name_parts, create_user, create_passenger
 
 def account_view(request):
-    if request.user.is_authenticated():
-            user = request.user
-            passenger = user.passenger
-            name = user.get_full_name()
-            email = user.email
-            phone = passenger.phone
-            billing_info = passenger.billing_info.card_repr[-4:] if hasattr(passenger, "billing_info") else None
-
-            return render_to_response("mobile/account_registration.html", locals(), RequestContext(request))
-    else:
+    if not request.user.is_authenticated():
         return registration_view(request)
+
+    user = request.user
+    passenger = user.passenger
+    name = user.get_full_name()
+    email = user.email
+    phone = passenger.phone
+    billing_info = passenger.billing_info.card_repr[-4:] if hasattr(passenger, "billing_info") else None
+
+    title = _("Your Account")
+    return render_to_response("mobile/account_registration.html", locals(), RequestContext(request))
+
 
 def registration_view(request):
     if request.user.is_authenticated():
         return account_view(request)
 
     if request.method == 'GET':
-        # TODO: BI log
+        BIEvent.log(BIEventType.REGISTRATION_START, request=request)
+
+        title = _("Join WAYbetter")
         return render_to_response("mobile/account_registration.html", locals(), RequestContext(request))
 
     elif request.method == 'POST':
@@ -40,28 +45,19 @@ def registration_view(request):
         phone = request.POST.get("phone")
         country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
 
-        try:  # TODO: email already exists
-            user = User.objects.get(username=email)
-            if user:
-                logging.info("email %s already registered" % email)# notify?
-                return HttpResponseBadRequest(_("Email already registered"))
-        except User.DoesNotExist:
-            pass
+        if User.objects.filter(username=email).count() > 0:
+            notify_by_email("Help! I can't register!", msg="email %s already registered\n%s" % (email, phone))
+            return JSONResponse({'account_exists': True, 'error': _("Email already registered")})
 
-        try:  # TODO: phone already exists
-            passenger = Passenger.objects.get(phone=phone, country=country)
-            if passenger:
-                logging.info("phone %s already registered" % phone) # notify?
-                return HttpResponseBadRequest(_("Phone already registered"))
-        except Passenger.DoesNotExist:
-            pass
-
+        if Passenger.objects.filter(phone=phone, country=country).count() > 0:
+            notify_by_email("Help! I can't register!", msg="phone %s already registered\n%s" % (phone, email))
+            return JSONResponse({'account_exists': True, 'error': _("Phone already registered")})
 
         user = register_new_user(request)
         if user:
             return get_billing_url(request)
         else:
-            return HttpResponseBadRequest(_('Registration failed'))
+            return JSONResponse({'error': _("Registration failed")})
 
     else:
         return HttpResponseNotAllowed(request.method)
