@@ -4,16 +4,11 @@
 {% block extrastyle %}
     {{ block.super }}
     <style>
-    .ui-body-a, .ui-overlay-a {
-        border: 1px solid #B3B3B3;
-        color: #454545;
-        background: white;
-        background-image: -webkit-gradient(linear,left top,left bottom,from( #F1F1E9 ),to( #F1F1E9 ));
-        background-image: -webkit-linear-gradient( #F1F1E9,#F1F1E9 );
-        background-image: -moz-linear-gradient( #F1F1E9,#F1F1E9 );
-        background-image: -ms-linear-gradient( #F1F1E9,#F1F1E9 );
-        background-image: -o-linear-gradient( #F1F1E9,#F1F1E9 );
-        background-image: linear-gradient( #F1F1E9,#F1F1E9 );
+    .q{
+        font-weight: bold;
+    }
+    .a{
+        color: #3B3B3B;
     }
     .qa{
         margin-bottom: 1.5em;
@@ -27,8 +22,8 @@
 
 {% block body %}
     <div id="faq_page" data-role="page" data-theme="a">
-        <div data-role="header">
-            <h1>{% trans "FAQ" %}</h1>
+        <div data-role="header" class="top-header ui-header ui-bar-a" role="banner">
+            <div class="header-center ng-binding">{% trans "FAQ" %}</div>
         </div>
         <div data-role="content">
             <div class="qa">

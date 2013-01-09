@@ -2,6 +2,94 @@
 {% load i18n %}
 {% load value_from_settings %}
 
+{% block extrastyle %}
+    {{ block.super }}
+    <style type="text/css">
+        #logo-container {
+            position: absolute;
+            top: 0;
+            bottom: 150px;
+            left: 0;
+            right: 0;
+            text-align: center;
+            background: white;
+        }
+
+        .shadow-sep{
+            direction: ltr !important;
+            position: absolute;
+            width: 100%;
+            bottom: -7px;
+        }
+        .shadow-sep table{
+            width: 100%;
+            border-spacing: 0;
+            border-collapse: collapse;
+        }
+        .shadow-sep .shadow-r, .shadow-l{
+            width: 117px;
+            background: url(/static/images/wb_site/1.2/shade.png) no-repeat;
+            height: 8px;
+            padding: 0;
+        }
+        .shadow-sep .shadow-r{
+            background-position: 0 -8px;
+        }
+        .shadow-sep .shadow-m{
+            background: url(/static/images/wb_site/1.2/shade_pixel.png);
+            background-repeat: repeat-x;
+        }
+
+        #buttons-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 150px;
+            padding: 20px;
+            box-sizing: border-box;
+            -moz-box-sizing: border-box;
+            -webkit-box-sizing: border-box;
+        }
+
+        #buttons-container a[data-role="button"] {
+            margin-bottom: 20px;
+        }
+
+        #logo-wrapper {
+            position: absolute;
+            bottom: 30%;
+            text-align: center;
+            width: 100%;
+        }
+
+        #logo {
+            color: black;
+        }
+
+        #logo .image {
+            height: 63px;
+            background: url(/static/images/logo/logo.png) center center no-repeat;
+            margin-bottom: 20px;
+        }
+
+        #logo .name {
+            font-size: 38px;
+            line-height: 32px;
+        }
+
+        #logo .text {
+            font-size: 24px;
+        }
+
+        @media only screen and (-webkit-min-device-pixel-ratio: 1.5), only screen and (min--moz-device-pixel-ratio: 1.5), only screen and (min-resolution: 240dpi) {
+            #logo .image {
+                background: url(/static/images/logo/logo-retina) center center no-repeat;
+                background-size: 87px, 63px;
+            }
+        }
+    </style>
+{% endblock %}
 {% block body %}
     <div id="suggest_apps_page" data-role="page" data-theme="a">
 
