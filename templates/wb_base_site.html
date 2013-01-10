@@ -2,35 +2,6 @@
 {% load i18n %}
 {% load value_from_settings %}
 
-{% block extrastyle %}
-    {% if LANGUAGE_BIDI %}
-        <link href="/static/themes/bootstrap-bounce/css/bootstrap.min.rtl.css" rel="stylesheet">
-        <link href="/static/themes/bootstrap-bounce/css/font-awesome.rtl.css" rel="stylesheet">
-        <!--[if lt IE 8]>
-          <link href="/static/themes/bootstrap-bounce/css/font-awesome-ie7.rtl.css" rel="stylesheet">
-        <![endif]-->
-        <link href="/static/themes/bootstrap-bounce/css/base.rtl.css" rel="stylesheet">
-        <link href="/static/themes/bootstrap-bounce/css/blue.rtl.css" rel="stylesheet">
-        <link rel="stylesheet" type="text/css" href="/static/css/wb.rtl.css"/>
-
-        <link rel="stylesheet" type="text/css" href="/static/css/wb.rtl.override.css"/>
-
-    {% else %}
-        <link href="/static/themes/bootstrap-bounce/css/bootstrap.min.css" rel="stylesheet">
-        <link href="/static/themes/bootstrap-bounce/css/font-awesome.css" rel="stylesheet">
-        <!--[if lt IE 8]>
-          <link href="/static/themes/bootstrap-bounce/css/font-awesome-ie7.css" rel="stylesheet">
-        <![endif]-->
-        <link href="/static/themes/bootstrap-bounce/css/base.css" rel="stylesheet">
-        <link href="/static/themes/bootstrap-bounce/css/blue.css" rel="stylesheet">
-        <link rel="stylesheet" type="text/css" href="/static/css/wb.css"/>
-    {% endif %}
-
-    <!--[if lt IE 9]>
-      <script src="http://html5shim.googlecode.com/svn/trunk/html5.js"></script>
-    <![endif]-->
-{% endblock %}
-
 {% block body %}
     <div class="navbar navbar-fixed-top">
             <div class="navbar-inner">
@@ -147,12 +118,6 @@
 
 {% block scripts %}
     {{ block.super }}
-
-    <script src="/static/themes/bootstrap-bounce/js/bootstrap.min.js"></script>
-    <script type="text/javascript">
-        // bootstrap dropdown hotfix for touch devices - see https://github.com/twitter/bootstrap/issues/5094
-        $('body').on('touchstart.dropdown', '.dropdown-menu', function (e) { e.stopPropagation(); });
-    </script>
 
     <!-- commonly used libraries -->
     {% if lib_channel %}

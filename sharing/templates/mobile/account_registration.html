@@ -12,62 +12,15 @@
     {{ block.super }}
     <style type="text/css">
         .form-row {
-            margin-bottom: 15px;
-        }
-        .control{
             position: relative;
+            margin-bottom: 25px;
         }
-        label{
-            font-size: 14px !important;
-            margin-bottom: 2px !important;
+        .input-append .add-on, .input-prepend .add-on{
+            width: 35%;
         }
-        input {
+        .input-append input, .input-prepend input{
             margin: 0 !important;
-        }
-
-        .input-append{
-            position: relative;
-        }
-        .input-append:after{
-            content: '';
-            display:table;
-            clear: both;
-        }
-        .input-append input{
-            float: left;
-            -webkit-border-radius: 4px;
-            -moz-border-radius: 4px;
-            border-radius: 4px;
-        }
-        .input-append button{
-            position: absolute;
-            right: 0;
-            height: 100%;
-            margin: 0;
-            margin-left: -1px;
-            -webkit-border-radius: 0 4px 4px 0;
-            -moz-border-radius: 0 4px 4px 0;
-            border-radius: 0 4px 4px 0;
-        }
-
-        .rtl .input-append input{
-            width: 100%;
-            float: right;
-        }
-        .rtl .input-append button{
-            right: auto;
-            left: 0;
-            -webkit-border-radius: 4px 0 0 4px;
-            -moz-border-radius: 4px 0 0 4px;
-            border-radius: 4px 0 0 4px;
-        }
-
-        #billing_input{
-            padding-left: 35px;
-        }
-        .rtl #billing_input{
-            padding-left: .4em;
-            padding-right: 35px;
+            width: 55%;
         }
 
         #billing_input:active{
@@ -75,15 +28,6 @@
         }
         .icon-lock{
             color: #5E5E5E;
-            position: absolute;
-            left: 15px;
-            font-size: 1.5em;
-            padding-top: 10px;
-            height: 29px;
-        }
-        .rtl .icon-lock{
-            left: auto;
-            right: 15px;
         }
 
         #billing_submit{
@@ -105,8 +49,7 @@
             text-align: center;
         }
         #disclaimer input{
-            position: relative;
-            top: 3px;
+            margin: 0;
         }
         #disclaimer a{
             color: white;
@@ -128,62 +71,48 @@
                 {% csrf_token %}
 
                 <div class="form-row">
-                    <div class="label">
-                        <label for="name">{% trans "Your Name" %}</label>
-                    </div>
-                    <div class="control">
-                        <input type="text" id="name" name="name" required value="{{ name }}">
+                    <div class="input-prepend">
+                        <span class="add-on">{% trans "Your Name" %}</span>
+                        <input type="text" id="name" name="name" required value="{{ name }}" data-role="none">
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="label">
-                        <label for="phone">{% trans "Mobile Phone" %}</label>
-
-                        <div class="control">
-                            <input type="tel" pattern="[0-9]{10}" name="phone" id="phone" required value="{{ phone }}">
-                        </div>
+                    <div class="input-prepend">
+                        <span class="add-on">{% trans "Mobile Phone" %}</span>
+                        <input type="tel" pattern="[0-9]{10}" name="phone" id="phone" required value="{{ phone }}" data-role="none">
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="label">
-                        <label for="email">{% trans "Email" %}</label>
-                    </div>
-                    <div class="control">
-                        <input type="email" name="email" id="email" required value="{{ email }}">
+                    <div class="input-prepend">
+                        <span class="add-on">{% trans "Email" %}</span>
+                        <input type="email" name="email" id="email" required value="{{ email }}" data-role="none">
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="label">
-                        <label for="password">{% trans "Password" %}</label>
-                    </div>
-                    <div class="control">
-                        <input type="password" name="password" id="password" required value="{{ password }}">
+                    <div class="input-prepend">
+                        <span class="add-on">{% trans "Password" %}</span>
+                        <input type="password" name="password" id="password" required value="{{ password }}" data-role="none">
                     </div>
                 </div>
                 <div class="form-row">
-                    <div class="label">
-                        <label for="billing_input">{% trans "Payment Method" %}</label>
+                    <div class="input-prepend">
+                        <span class="add-on"><i class="icon-lock"></i> {% trans "Payment Method" %}</span>
+                        <input type="text" name="billing_input" id="billing_input" value="{% if billing_info %}&#x200E;**** **** **** {{ billing_info }}{% endif %}" data-role="none">
                     </div>
-                    <div class="control">
-                        <i class="icon-lock"></i>
-                        <input readonly type="text" name="billing_input" id="billing_input" value="{% if billing_info %}&#x200E;**** **** **** {{ billing_info }}{% endif %}">
-                        <button id="billing_submit" data-role="none" type="submit"></button>
-                    </div>
+                    <button id="billing_submit" data-role="none" type="submit"></button>
                 </div>
 
                 <div class="form-row">
-                    <div class="control">
-                        <button id="submit" data-role="none" class="btn btn-warning btn-block btn-large" type="submit">{% trans 'SAVE_AS_IN_SAVE_A_FILE' %}</button>
-                        {% if not request.user.is_authenticated %}
-                            <div id="disclaimer">
-                                <input type="checkbox" name="agree" id="agree" checked required data-role="none">
+                    <button id="submit" data-role="none" class="btn btn-warning btn-block btn-large" type="submit">{% trans 'SAVE_AS_IN_SAVE_A_FILE' %}</button>
+                    {% if not request.user.is_authenticated %}
+                        <div id="disclaimer">
+                            <input type="checkbox" name="agree" id="agree" checked required data-role="none">
                                 <span>
                                     {% trans "I have read and agree to the" %} <a href="#terms_page" data-transition="slideup" data-role="none">{% trans "Terms Of Use" %}</a>
                                       {% trans 'and' %} <a href="#privacy_page" data-transition="slideup" data-role="none"> {% trans "Privacy Statement" %}</a>.
                                 </span>
-                            </div>
-                        {% endif %}
-                    </div>
+                        </div>
+                    {% endif %}
                 </div>
             </form>
 
@@ -194,7 +123,7 @@
 {#                <div class="label">#}
 {#                    <label for="promo-code">{% trans "Promo Code" %}</label>#}
 {#                </div>#}
-{#                <div class="control">#}
+{#                <div class="input-prepend">#}
 {#                    <div class="input-append">#}
 {#                        <input type="text" name="promo-code" id="promo-code">#}
 {#                        <button id="apply-promo" data-role="none" class="btn" type="button">{% trans 'Submit' %}</button>#}

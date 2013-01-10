@@ -10,6 +10,9 @@
         #phoneNotificationContainer, #codeNotificationContainer {
             height: 1.5em;
         }
+        input{
+            height: auto !important;
+        }
     </style>
 {% endblock %}
 {% block body %}
@@ -147,8 +150,8 @@
 
             })
         }
-        $(function () {
 
+        $(function () {
             $("#local_phone").focus().keyup(function () {
                 clearCode();
                 if ($(this).val().length > 9) {
