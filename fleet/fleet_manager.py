@@ -93,7 +93,7 @@ def send_message(ride, message):
         return False
 
 def _clean_address(address):
-    return re.sub(u",?\s+תל אביב יפו", u" תא", address)
+    return re.sub(u",?\s+תל אביב יפו", u" תא", address)[0:31]
 
 def _passengers_line(passengers, show_phones=True):
     if show_phones:
