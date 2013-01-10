@@ -104,6 +104,29 @@ def fleet_manager_test(request):
     from fleet.backends.isr_proxy import ISRProxy
     return HttpResponse(ISRProxy.is_ok())
 
+def build_places(csv_path):
+    import csv
+    from geo.models import Place
+    from common.models import Country, City
+    from django.conf import settings
+
+    israel = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
+    ta = City.objects.get(name="תל אביב יפו")
+    reader = csv.reader(open(csv_path), delimiter=",")
+    for row in reader:
+        if len(row) == 4:
+            place = Place()
+            place.lon = row[0]
+            place.lat = row[1]
+            place.name = row[2]
+            place.description = row[3]
+            place.country = israel
+            place.city = ta
+            place.save()
+            logging.info("new place created: %s" % row)
+        else:
+            logging.info("skipping row: %s" % row)
+
 
 @catch_view_exceptions
 def run_billing_service_test(request):

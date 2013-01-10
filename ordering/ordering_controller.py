@@ -1084,7 +1084,7 @@ class Address:
         self.lat = float(lat)
         self.lng = float(lng)
 
-        self.house_number = house_number
+        self.house_number = int(house_number) if house_number else None
         self.street = street
         self.city_name = city_name
         self.name = name
@@ -1114,7 +1114,10 @@ class Address:
         if all([self.street, self.house_number, self.city_name]):
             return u"%s %s, %s" % (self.street, self.house_number, self.city_name)
         else:
-            return self.name or ""
+            if self.name and self.description:
+                return u"%s %s" % (self.name, self.description)
+            else:
+                return self.name or ""
 
 
     def __eq__(self, other):
