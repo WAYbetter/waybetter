@@ -53,6 +53,7 @@
         }
         #disclaimer a{
             color: white;
+            text-decoration: underline;
         }
     </style>
 {% endblock %}
@@ -106,11 +107,11 @@
                     <button id="submit" data-role="none" class="btn btn-warning btn-block btn-large" type="submit">{% trans 'SAVE_AS_IN_SAVE_A_FILE' %}</button>
                     {% if not request.user.is_authenticated %}
                         <div id="disclaimer">
-                            <input type="checkbox" name="agree" id="agree" checked required data-role="none">
-                                <span>
-                                    {% trans "I have read and agree to the" %} <a href="#terms_page" data-transition="slideup" data-role="none">{% trans "Terms Of Use" %}</a>
-                                      {% trans 'and' %} <a href="#privacy_page" data-transition="slideup" data-role="none"> {% trans "Privacy Statement" %}</a>.
-                                </span>
+                        <input type="checkbox" name="agree" id="agree" checked required data-role="none">
+                            <span>
+                                {% trans "I have read and agree to the" %} <a href="#terms_page" data-transition="slideup" data-role="none">{% trans "Terms Of Use" %}</a>
+                                  {% trans 'and' %} <a href="#privacy_page" data-transition="slideup" data-role="none"> {% trans "Privacy Statement" %}</a>.
+                            </span>
                         </div>
                     {% endif %}
                 </div>
