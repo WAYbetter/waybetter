@@ -15,24 +15,48 @@ from django.http import HttpResponseNotAllowed, HttpResponse, HttpResponseRedire
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from djangotoolbox.http import JSONResponse
+from ordering.errors import UpdateUserError
 from ordering.models import Passenger, CURRENT_PASSENGER_KEY
-from ordering.util import get_name_parts, create_user, create_passenger
+from ordering.util import get_name_parts, create_user, create_passenger, update_user_details
 
 def account_view(request):
     if not request.user.is_authenticated():
-        return registration_view(request)
+        return HttpResponseRedirect(reverse(registration_view))
+
+    PASSWORD_MASK = "********"
 
     user = request.user
     passenger = user.passenger
-    name = user.get_full_name()
-    email = user.email
-    phone = passenger.phone
-    billing_info = passenger.billing_info.card_repr[-4:] if hasattr(passenger, "billing_info") else None
 
-    # todo: handle post requests to update account details
+    if request.method == 'GET':
+        name = user.get_full_name()
+        email = user.email
+        password = PASSWORD_MASK
+        phone = passenger.phone
+        billing_info = passenger.billing_info.card_repr[-4:] if hasattr(passenger, "billing_info") else None
 
-    title = _("Your Account")
-    return render_to_response("mobile/account_registration.html", locals(), RequestContext(request))
+        title = _("Your Account")
+        return render_to_response("mobile/account_registration.html", locals(), RequestContext(request))
+
+    elif request.method == 'POST':
+        new_email = request.POST.get("email", "").strip() or None
+        new_first_name, new_last_name = get_name_parts(request.POST.get("name") or None)
+        new_password = request.POST.get("password", "").replace(PASSWORD_MASK, "") or None
+        new_phone = request.POST.get("phone", "") or None
+
+        try:
+            user = update_user_details(user, first_name=new_first_name, last_name=new_last_name, email=new_email, password=new_password, phone=new_phone)
+            if new_password:
+                user = authenticate(username=user.username, password=new_password)
+                login(request, user)
+        except UpdateUserError, e:
+            return JSONResponse({'error': e.message})
+
+        # success
+        return JSONResponse({'redirect': reverse(account_view), 'billing_url': (get_token_url(request))})
+
+    else:
+        return HttpResponseNotAllowed(request.method)
 
 
 def registration_view(request):

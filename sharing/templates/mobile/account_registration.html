@@ -157,7 +157,7 @@
                         <label for="password">{% trans "Password" %}</label>
                     </div>
                     <div class="control">
-                        <input type="password" name="password" id="password" required value="{% if email %}********{% endif %}">
+                        <input type="password" name="password" id="password" required value="{{ password }}">
                     </div>
                 </div>
                 <div class="form-row">

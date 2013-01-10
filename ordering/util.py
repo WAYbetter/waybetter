@@ -146,11 +146,15 @@ def update_user_details(user, **kwargs):
     """
     raises UpdateUserError if new email or username are registered to other users
     """
+    logging.info("update_user_details %s" % kwargs)
+    ALREADY_TAKEN_ERROR_MSG = ugettext("%s already registered")
+    MULTIPLE_ERROR_MSG = ugettext("We're sorry but your %s appears to used by multiple users. Please contact support@waybetter.com to resolve this issue.")
+
+    handled_fields = ["email", "username", "password", "phone"]
     new_email = kwargs.get("email")
     new_username = kwargs.get("username")
-
-    taken_error_msg = ugettext("%s already registered")
-    multiple_error_msg = ugettext("We're sorry but your %s appears to used by multiple users. Please contact support@waybetter.com to resolve this issue.")
+    new_password = kwargs.get('password')
+    new_phone = kwargs.get('phone')
 
     if new_email and new_username: # new username and new email must match
         if new_email != new_username:
@@ -161,42 +165,59 @@ def update_user_details(user, **kwargs):
         except User.DoesNotExist:
             existing_user_username = None
         except User.MultipleObjectsReturned:
-            raise UpdateUserError(multiple_error_msg % ugettext("username"))
+            raise UpdateUserError(MULTIPLE_ERROR_MSG % ugettext("username"))
 
         if existing_user_username and existing_user_username != user:
-            raise UpdateUserError(taken_error_msg % ugettext("username"))
-    elif new_email: # check new email is not taken
+            raise UpdateUserError(ALREADY_TAKEN_ERROR_MSG % ugettext("username"))
+    elif new_email and new_email != user.email: # check new email is not taken
         try:
-            existing_user_email = User.objects.get(email=new_email)
+            new_email_user = User.objects.get(email=new_email)
+            if new_email_user:
+                raise UpdateUserError(ALREADY_TAKEN_ERROR_MSG % ugettext("email"))
+
         except User.DoesNotExist:
-            existing_user_email = None
+            # updating email incurs updating the username
+            user.username = new_email
+            user.email = new_email
+
         except User.MultipleObjectsReturned:
-            raise UpdateUserError(multiple_error_msg % ugettext("email"))
+            raise UpdateUserError(MULTIPLE_ERROR_MSG % ugettext("email"))
 
-        if existing_user_email and existing_user_email != user:
-            raise UpdateUserError(taken_error_msg % ugettext("email"))
-
-        # updating email incurs updating the username
-        kwargs["username"] = new_email
-
-    save = False
-
-    new_password = kwargs.pop('password', None)
     if new_password:
         user.set_password(new_password)
-        save = True
+
+    # update passenger's phone
+    if new_phone:
+        try:
+            passenger = user.passenger
+        except Passenger.DoesNotExist:
+            raise UpdateUserError(ugettext("User is not a passenger"))
+
+        if new_phone != passenger.phone:
+            try:
+                new_phone_passenger = Passenger.objects.get(phone=new_phone)
+                if new_phone_passenger:
+                    raise UpdateUserError(ALREADY_TAKEN_ERROR_MSG % ugettext("phone"))
+
+            except Passenger.DoesNotExist:
+                logging.info("updating passenger phone %s --> %s" % (passenger.phone, new_phone))
+                passenger.phone = new_phone
+                passenger.save()
+
+            except Passenger.MultipleObjectsReturned:
+                raise UpdateUserError(MULTIPLE_ERROR_MSG % ugettext("phone"))
 
     for k,v in kwargs.items():
-        if v and getattr(user, k) != v:
+        if k in handled_fields:
+            continue
+        elif v and getattr(user, k) != v:
             setattr(user, k, v)
-            save = True
 
-    if save:
-        user.save()
+    user.save()
 
-        # local import to avoid import issues
-        from billing.billing_manager import update_invoice_info
-        update_invoice_info(user)
+    # local import to avoid import issues
+    from billing.billing_manager import update_invoice_info
+    update_invoice_info(user)
 
     return user
 
