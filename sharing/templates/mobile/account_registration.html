@@ -62,15 +62,15 @@
             border-radius: 4px 0 0 4px;
         }
 
-        #billing{
+        #billing_input{
             padding-left: 35px;
         }
-        .rtl #billing{
+        .rtl #billing_input{
             padding-left: .4em;
             padding-right: 35px;
         }
 
-        #billing:active{
+        #billing_input:active{
             background: #d3d3d3;
         }
         .icon-lock{
@@ -86,7 +86,21 @@
             right: 15px;
         }
 
+        #billing_submit{
+            position: absolute;
+            top: 0;
+            height: 100%;
+            width: 100%;
+            margin: 0;
+            z-index: 10;
+            opacity: 0;
+        }
+
+        #submit{
+            margin-top: 20px;
+        }
         #disclaimer{
+            padding-top: 10px;
             font-size: 12px;
             text-align: center;
         }
@@ -96,7 +110,6 @@
         }
         #disclaimer a{
             color: white;
-            text-decoration: none;
         }
     </style>
 {% endblock %}
@@ -149,11 +162,12 @@
                 </div>
                 <div class="form-row">
                     <div class="label">
-                        <label for="billing">{% trans "Payment Method" %}</label>
+                        <label for="billing_input">{% trans "Payment Method" %}</label>
                     </div>
                     <div class="control">
                         <i class="icon-lock"></i>
-                        <input readonly type="text" name="billing" id="billing" value="{% if billing_info %}&#x200E;**** **** **** {{ billing_info }}{% endif %}">
+                        <input readonly type="text" name="billing_input" id="billing_input" value="{% if billing_info %}&#x200E;**** **** **** {{ billing_info }}{% endif %}">
+                        <button id="billing_submit" data-role="none" type="submit"></button>
                     </div>
                 </div>
 
@@ -164,8 +178,8 @@
                             <div id="disclaimer">
                                 <input type="checkbox" name="agree" id="agree" checked required data-role="none">
                                 <span>
-                                    <a href="#terms_page" data-transition="slideup" data-role="none">{% trans "I accept the Terms Of Use" %}</a>
-                                    <a href="#privacy_page" data-transition="slideup" data-role="none"> {% trans " and Privacy Statement" %}.</a>
+                                    {% trans "I have read and agree to the" %} <a href="#terms_page" data-transition="slideup" data-role="none">{% trans "Terms Of Use" %}</a>
+                                      {% trans 'and' %} <a href="#privacy_page" data-transition="slideup" data-role="none"> {% trans "Privacy Statement" %}</a>.
                                 </span>
                             </div>
                         {% endif %}
@@ -216,14 +230,15 @@
     {{ block.super }}
     <script type="text/javascript">
         jQuery.webshims.polyfill('forms'); // must be called before doc ready
+
         $(function(){
 
-        // html5 form validation rocks!
+            // html5 form validation rocks!
             var fname = document.getElementById("name"),
-                    phone = document.getElementById("phone"),
-                    email = document.getElementById("email"),
-                    password = document.getElementById("password"),
-                    agree = document.getElementById("agree");
+                phone = document.getElementById("phone"),
+                email = document.getElementById("email"),
+                password = document.getElementById("password"),
+                agree = document.getElementById("agree");
 
             var fields = [fname, phone, email, password];
             {% if not request.user.is_authenticated %}
@@ -255,65 +270,55 @@
 
             var form = $("#registration_form");
             var submit = $("#submit");
-            var billing = $("#billing");
+            var billing_submit = $("#billing_submit");
             var apply_promo = $("#apply-promo");
 
-            function register() {
+            function submit_form(continue_to_billing) {
+                if (!form.checkValidity()) return;
+
                 $.ajax({
                     type:'POST',
                     data:form.serialize()
                 }).done(function (response) {
-                            if (response.redirect) window.location.href = response.redirect;
-                            else if (response.account_exists) {
-                                if (confirm(response.error + "\n{% trans 'Login?' %}")) {
-                                    window.location.href = "{% url mobile_auth_login %}";
-                                }
-                            }
-                            else {
-                                alert(response.error || "{% trans 'Registration Failed' %}");
-                            }
+                    if (continue_to_billing && response.billing_url) {window.location.href = response.billing_url; return; }
+                    if (response.redirect) {window.location.href = response.redirect; return; }
 
-                        }).fail(function (error_response) {
-                            alert("{% trans 'Registration Failed' %}");
-                        });
-            }
+                    if (response.account_exists) {
+                        if (confirm(response.error + "\n{% trans 'Login?' %}")) {
+                            window.location.href = "{% url mobile_auth_login %}";
+                        }
+                    }
+                    else {  // we have an error
+                        alert(response.error || "{% trans 'An error occurred. Please try again.' %}");
+                    }
 
-            function change_billing() {
-                $.ajax({
-                    url:"{% url ordering.account_controller.get_billing_url %}",
-                    dataType:"json"
-                }).done(function (response) {
-                            window.location.href = response.billing_url;
-                        }).fail(function () {
-                            // todo
-                        });
+                }).fail(function (error_response) {
+                    alert("{% trans 'An error occurred. Please try again.' %}");
+                });
             }
 
             function do_apply_promo() {
                 $.ajax({
                     url:"{% url ordering.account_controller.apply_promo_code %}"
                 }).done(function () {
-                            alert("OK");
-                        }).fail(function () {
-                            alert("FAILED");
-                        });
+                    alert("OK");
+                }).fail(function () {
+                    alert("FAILED");
+                });
             }
 
             form.submit(function (e) {
+                // validation only, don't submit
                 e.preventDefault();
-                register();
+            });
+            submit.click(function () {
+                submit_form(false);
+            });
+            billing_submit.click(function () {
+                submit_form(true);
             });
 
             apply_promo.click(do_apply_promo);
-
-            {% if request.user.is_authenticated %}
-                billing.click(change_billing);
-            {% else %}
-                billing.click(function () {
-                    // trigger browser form validation and submit if it is valid
-                    submit.click();
-                });
-            {% endif %}
         });
     </script>
 

@@ -5,10 +5,13 @@ from billing.billing_manager import get_token_url
 from common.models import Country
 from common.util import generate_random_token, notify_by_email
 from django.contrib.auth.models import User
+from django.core.exceptions import ValidationError
+from django.core.urlresolvers import reverse
+from django.core.validators import validate_email
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponseNotAllowed, HttpResponse
+from django.http import HttpResponseNotAllowed, HttpResponse, HttpResponseRedirect
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from djangotoolbox.http import JSONResponse
@@ -26,13 +29,15 @@ def account_view(request):
     phone = passenger.phone
     billing_info = passenger.billing_info.card_repr[-4:] if hasattr(passenger, "billing_info") else None
 
+    # todo: handle post requests to update account details
+
     title = _("Your Account")
     return render_to_response("mobile/account_registration.html", locals(), RequestContext(request))
 
 
 def registration_view(request):
     if request.user.is_authenticated():
-        return account_view(request)
+        return HttpResponseRedirect(reverse(account_view))
 
     if request.method == 'GET':
         BIEvent.log(BIEventType.REGISTRATION_START, request=request)
@@ -43,12 +48,17 @@ def registration_view(request):
     elif request.method == 'POST':
         email = request.POST.get("email")
         phone = request.POST.get("phone")
-        country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
+
+        try:
+            validate_email(email)
+        except ValidationError:
+            return JSONResponse({'error': _("Invalid email")})
 
         if User.objects.filter(username=email).count() > 0:
             notify_by_email("Help! I can't register!", msg="email %s already registered\n%s" % (email, phone))
             return JSONResponse({'account_exists': True, 'error': _("Email already registered")})
 
+        country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
         if Passenger.objects.filter(phone=phone, country=country).count() > 0:
             notify_by_email("Help! I can't register!", msg="phone %s already registered\n%s" % (phone, email))
             return JSONResponse({'account_exists': True, 'error': _("Phone already registered")})
@@ -56,7 +66,7 @@ def registration_view(request):
         user = register_new_user(request)
         if user:
             redirect = settings.CLOSE_CHILD_BROWSER_URI
-            return JSONResponse({'redirect': redirect})
+            return JSONResponse({'redirect': redirect, 'billing_url': (get_token_url(request))})
         else:
             return JSONResponse({'error': _("Registration failed")})
 
