@@ -25,13 +25,23 @@ if(lang.equals("HE")){
         body {
             direction: <%=langdir%>;
         }
-
-        .ui-icon, .ui-icon-searchfield::after {
-            background-image: url("/static/css/themes/images/icons-18-white.png");
-
+        select {
+            width: 100%;
+            height: 33px;
+            border-radius: 0;
+            -webkit-border-radius: 0;
+            -moz-border-radius: 0;
         }
-        .ui-bar-a{
-            border-bottom: 1px solid white;
+        input[type="text"], input[type="tel"]{
+            width: 100%;
+            height: 33px;
+        }
+
+        div[data-role="header"] h1{
+            line-height: 1;
+        }
+        #payment-header{
+            color: white;
         }
 
         #wb_CVVhelp {
@@ -59,7 +69,7 @@ if(lang.equals("HE")){
 
         #cvv {
             display: inline-block;
-            width: 50%;
+            width: 47%;
         }
 
         #lock {
@@ -92,40 +102,16 @@ if(lang.equals("HE")){
 
 {% block body %}
     <div id="credit_guard_page" data-role="page" data-theme="a">
-        <div data-role="header">
-            <h1>
+        <div data-role="header" class="top-header ui-header ui-bar-a" role="banner">
+            <div class="header-center ng-binding">
                 <% if (lang.equals("HE")) { %>
-                    הצטרף לWAYbetter
+                    אמצעי תשלום
                 <% } else { %>
-                    Join WAYbetter
+                    Payment Method
                 <% } %>
-            </h1>
-            <table class="registration-progress-bar">
-                <tr>
-                    <td class="done">1.
-                        <% if (lang.equals("HE")) { %>
-                            פרטים
-                        <% } else { %>
-                            Details
-                        <% } %>
-                    </td>
-                    <td class="done">2.
-                        <% if (lang.equals("HE")) { %>
-                            טלפון
-                        <% } else { %>
-                            Phone
-                        <% } %>
-                    </td>
-                    <td class="current">3.
-                        <% if (lang.equals("HE")) { %>
-                            פרטי חיוב
-                        <% } else { %>
-                            Billing
-                        <% } %>
-                    </td>
-                </tr>
-            </table>
+            </div>
         </div>
+
         <div data-role="content">
             <table id="payment-header">
                 <tr>
@@ -163,54 +149,59 @@ if(lang.equals("HE")){
             <hr>
 
             <form id="creditForm" onsubmit="return formValidator(0);" method="POST" action="ProcessCreditCard">
-                <input type="hidden" name="txId" value="<%=mpiTxnId%>"/>
-                <input type="hidden" name="lang" value="EN"/>
-                <input type="hidden" name="track2" value="" autocomplete="off"/>
-                <input type="hidden" name="last4d" value="" autocomplete="off"/>
-                <input type="hidden" name="cavv" value="" autocomplete="off"/>
-                <input type="hidden" name="eci" value="" autocomplete="off"/>
-                <input type="hidden" name="transactionCode" value="Phone" autocomplete="off"/>
+                <input data-role="none" type="hidden" name="txId" value="<%=mpiTxnId%>"/>
+                <input data-role="none" type="hidden" name="lang" value="EN"/>
+                <input data-role="none" type="hidden" name="track2" value="" autocomplete="off"/>
+                <input data-role="none" type="hidden" name="last4d" value="" autocomplete="off"/>
+                <input data-role="none" type="hidden" name="cavv" value="" autocomplete="off"/>
+                <input data-role="none" type="hidden" name="eci" value="" autocomplete="off"/>
+                <input data-role="none" type="hidden" name="transactionCode" value="Phone" autocomplete="off"/>
 
                 <label for="cardNumber"><%=CCNumber%></label>
-                <input type="tel" id="cardNumber" name="cardNumber" maxlength="19" autocomplete="off"/>
+                <input data-role="none" type="tel" id="cardNumber" name="cardNumber" maxlength="19" autocomplete="off"/>
 
                 <label for="expYear"><%=CCExp%></label>
 
-                <div class="ui-grid-a">
-                    <div class="ui-block-a">
-                        <select id="expYear" name="expYear">
-                            <%=expYear%>
-                        </select>
-                    </div>
-                    <div class="ui-block-b">
-                        <select id="expMonth" name="expMonth">
-                            <option value="01">01</option>
-                            <option value="02">02</option>
-                            <option value="03">03</option>
-                            <option value="04">04</option>
-                            <option value="05">05</option>
-                            <option value="06">06</option>
-                            <option value="07">07</option>
-                            <option value="08">08</option>
-                            <option value="09">09</option>
-                            <option value="10">10</option>
-                            <option value="11">11</option>
-                            <option value="12">12</option>
-                        </select>
-                    </div>
+                <div>
+                    <table style="width: 100%">
+                        <tr>
+                            <td style="width: 47%">
+                                <select data-role="none" id="expYear" name="expYear">
+                                    <%=expYear%>
+                                </select>
+                            </td>
+                            <td></td>
+                            <td style="width: 47%">
+                                <select data-role="none" id="expMonth" name="expMonth">
+                                    <option value="01">01</option>
+                                    <option value="02">02</option>
+                                    <option value="03">03</option>
+                                    <option value="04">04</option>
+                                    <option value="05">05</option>
+                                    <option value="06">06</option>
+                                    <option value="07">07</option>
+                                    <option value="08">08</option>
+                                    <option value="09">09</option>
+                                    <option value="10">10</option>
+                                    <option value="11">11</option>
+                                    <option value="12">12</option>
+                                </select>
+                            </td>
+                        </tr>
+                    </table>
                 </div>
 
                 <label for="cvv">CVV</label>
-                <input type="tel" name="cvv" id="cvv" maxlength="4" autocomplete="off"/>
+                <input data-role="none" type="tel" name="cvv" id="cvv" maxlength="4" autocomplete="off"/>
                 <a href="#cvv_dialog" data-rel="dialog">
                     <span id="qm" src="merchantPages/WebSources/images/qm.png"></span>
                 </a>
 
 
                 <label for="personalId"><%=CCPId%></label>
-                <input type="tel" id="personalId" name="personalId" maxlength="9" autocomplete="off"/>
+                <input data-role="none" type="tel" id="personalId" name="personalId" maxlength="9" autocomplete="off"/>
 
-                <input type="submit" id="submitBtn" data-theme="d" value="<%=formSend%>"/>
+                <input type="submit" id="submitBtn" value="<%=formSend%>" class="btn btn-block btn-info btn-large" data-role="none"/>
                 <div class="hidden">
                     {# need this to avoid js errors from CreditGuard's scripts #}
                     <input id="resetBtn" type="reset" value="<%=formReset%>"/>
@@ -235,19 +226,13 @@ if(lang.equals("HE")){
         $(document).ready(function() {
             $.mobile.ajaxEnabled = false;
 
-            var month = String((new Date).getMonth() + 1);
-            if (month < 10){
-                month = "0" + month;
-            }
-            $("#expMonth").val(month).selectmenu().selectmenu("refresh");
-
             $("#cardNumber, #cvv, #personalId").keyup(function() {
                 var valid = Boolean($("#cardNumber").val() && $("#cvv").val() && $("#personalId").val());
                 if (valid){
-                    $("#submitBtn").button().button("enable");
+                    $("#submitBtn").enable();
                 }
                 else{
-                    $("#submitBtn").button().button("disable");
+                    $("#submitBtn").disable();
                 }
             }).trigger("keyup");
         });
