@@ -280,6 +280,26 @@ select {
     font-size: 18px;
 }
 
+.download-apps{
+  strong{
+    position: relative;
+    margin-bottom: 10px;
+    font-size: 16px;
+    display: block;
+    text-align: center;
+  }
+  .available-on-the {
+    display: inline-block;
+    @include size(152px, 50px);
+    background: url(/static/images/wb_site/1.2/appstores.png);
+    background-repeat: no-repeat;
+    margin-right: 14px;
+    margin-left: 14px;
+  }
+  .available-on-the.appstore { background-position: center top; }
+  .available-on-the.market { background-position: center -65px; }
+}
+
 .ride-pics{
     position: relative;
     text-align: center;
@@ -430,6 +450,50 @@ select {
     }
 }
 
+/* IE modal
+****************************************************/
+#ie-modal {
+  .modal-body{
+    max-height: none;
+    text-align: center;
+  }
+  .header{
+    margin: 15px;
+    strong{
+      font-size: 22px;
+    }
+  }
+  .no-ie{
+    display: inline-block;
+    width: 60px;
+    height: 60px;
+    //background: url() left top no-repeat;
+  }
+  .download-apps{
+    margin: 25px 0;
+  }
+  .download-apps .available-on-the{
+    margin-top: 15px;
+  }
+  .dl-browser {
+    display: inline-block;
+    width: 63px;
+    margin: 10px;
+    padding-top: 75px;
+    vertical-align: top;
+  }
+  $offset: -64px;
+  .dl-browser.chrome{
+    background: url(/static/images/wb_site/browsers.png) $offset*0 top no-repeat;
+  }
+  .dl-browser.safari{
+    background: url(/static/images/wb_site/browsers.png) $offset*1 top no-repeat;
+  }
+  .dl-browser.firefox{
+    background: url(/static/images/wb_site/browsers.png) $offset*2 top no-repeat;
+  }
+}
+
 /* Website pages
 -------------------------------------------------- */
 .wb-home{
@@ -508,28 +572,11 @@ select {
         padding-top: 25px;
     }
 
-    #download-app{
-        strong{
-             position: relative;
-             margin-bottom: 10px;
-             font-size: 16px;
-             display: block;
-             text-align: center;
-         }
-        .available-on-the {
-            display: inline-block;
-            @include size(152px, 50px);
-            background: url(/static/images/wb_site/1.2/appstores.png);
-            background-repeat: no-repeat;
-            margin-right: 14px;
-            margin-left: 14px;
-        }
+    .download-apps.bouncy{
         .available-on-the:hover{
             @include transform(translateY(-3px));
             @include transition(all .2s linear);
         }
-        .available-on-the.appstore { background-position: center top; }
-        .available-on-the.market { background-position: center -65px; }
     }
 
     #features {

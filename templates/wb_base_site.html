@@ -114,6 +114,37 @@
         </div>
     {% endblock %}
 
+
+    <!--[if IE]>
+    <div id="ie-modal-backdrop" class="modal-backdrop  in"></div>
+    <div id="ie-modal" class="modal" role="dialog" data-show="true">
+        <div class="modal-body">
+            <button type="button" class="close" onclick="document.body.removeChild(document.getElementById('ie-modal-backdrop'));
+                                                         document.body.removeChild(document.getElementById('ie-modal'))">×</button>
+
+            <div class="header">
+                <strong>{% trans "No internet explorer support" %}</strong>
+                <div>{% trans "interactive elements may not work" %}</div>
+            </div>
+
+            <img src="/static/images/wb_site/no-ie.png" class="no-ie"></img>
+
+            <div class="download-apps">
+                <div>{% trans "Download mobile application" %}:</div>
+                <a href="{% value_from_settings APPLE_WAYBETTER_ITUNES_URL %}" target="_blank" class="available-on-the appstore"></a>
+                <a href="{% value_from_settings ANDROID_MARKET_APP_URL %}" target="_blank" class="available-on-the market"></a>
+            </div>
+
+            <div class="browsers">
+                <div>{% trans 'or use one of these browsers' %}:</div>
+                <a href="http://www.google.com/chrome/" target="_blank" class="dl-browser chrome">Chrome</a>
+                <a href="http://www.apple.com/safari/" target="_blank" class="dl-browser safari">Safari</a>
+                <a href="http://www.mozilla.com/firefox/" target="_blank" class="dl-browser firefox">Firefox</a>
+            </div>
+        </div>
+    </div>
+    <![endif]-->
+
 {% endblock body %}
 
 {% block scripts %}

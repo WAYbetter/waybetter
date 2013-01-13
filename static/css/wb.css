@@ -186,7 +186,7 @@ select {
 /* General
 -------------------------------------------------- */
 #wb-logo {
-  font-family: 'Titillium Web', sans-serif;
+  font-family: "Titillium Web", sans-serif;
   background: url(/static/images/wb_site/1.2/logo_header.png) left bottom no-repeat;
   width: 213px;
   height: 44px;
@@ -226,6 +226,25 @@ select {
   padding: 0px 3px;
   font-size: 18px; }
 
+.download-apps strong {
+  position: relative;
+  margin-bottom: 10px;
+  font-size: 16px;
+  display: block;
+  text-align: center; }
+.download-apps .available-on-the {
+  display: inline-block;
+  width: 152px;
+  height: 50px;
+  background: url(/static/images/wb_site/1.2/appstores.png);
+  background-repeat: no-repeat;
+  margin-right: 14px;
+  margin-left: 14px; }
+.download-apps .available-on-the.appstore {
+  background-position: center top; }
+.download-apps .available-on-the.market {
+  background-position: center -65px; }
+
 .ride-pics {
   position: relative;
   text-align: center; }
@@ -237,7 +256,7 @@ select {
   .ride-pics .ride-pics-col:last-child {
     margin-right: 0; }
   .ride-pics .ride-pic {
-    border: 1px solid lightgray;
+    border: 1px solid lightgrey;
     width: 50px;
     height: 50px;
     box-sizing: border-box;
@@ -342,6 +361,36 @@ select {
     background: url(../images/wb_site/1.2/shade_pixel.png);
     background-repeat: repeat-x; }
 
+/* IE modal
+****************************************************/
+#ie-modal .modal-body {
+  max-height: none;
+  text-align: center; }
+#ie-modal .header {
+  margin: 15px; }
+  #ie-modal .header strong {
+    font-size: 22px; }
+#ie-modal .no-ie {
+  display: inline-block;
+  width: 60px;
+  height: 60px; }
+#ie-modal .download-apps {
+  margin: 25px 0; }
+#ie-modal .download-apps .available-on-the {
+  margin-top: 15px; }
+#ie-modal .dl-browser {
+  display: inline-block;
+  width: 63px;
+  margin: 10px;
+  padding-top: 75px;
+  vertical-align: top; }
+#ie-modal .dl-browser.chrome {
+  background: url(/static/images/wb_site/browsers.png) 0px top no-repeat; }
+#ie-modal .dl-browser.safari {
+  background: url(/static/images/wb_site/browsers.png) -64px top no-repeat; }
+#ie-modal .dl-browser.firefox {
+  background: url(/static/images/wb_site/browsers.png) -128px top no-repeat; }
+
 /* Website pages
 -------------------------------------------------- */
 .wb-home #landing h1 {
@@ -371,7 +420,7 @@ select {
   margin-bottom: 0; }
 .wb-home .tabs-content {
   background: white;
-  border: 1px solid #ddd;
+  border: 1px solid #dddddd;
   border-top: none;
   padding: 10px;
   padding-top: 20px; }
@@ -400,21 +449,7 @@ select {
   height: 430px; }
 .wb-home #content {
   padding-top: 25px; }
-.wb-home #download-app strong {
-  position: relative;
-  margin-bottom: 10px;
-  font-size: 16px;
-  display: block;
-  text-align: center; }
-.wb-home #download-app .available-on-the {
-  display: inline-block;
-  width: 152px;
-  height: 50px;
-  background: url(/static/images/wb_site/1.2/appstores.png);
-  background-repeat: no-repeat;
-  margin-right: 14px;
-  margin-left: 14px; }
-.wb-home #download-app .available-on-the:hover {
+.wb-home .download-apps.bouncy .available-on-the:hover {
   -moz-transform: translateY(-3px);
   -webkit-transform: translateY(-3px);
   -o-transform: translateY(-3px);
@@ -428,10 +463,6 @@ select {
   -ms-transition: all 0.2s linear;
   -o-transition: all 0.2s linear;
   transition: all 0.2s linear; }
-.wb-home #download-app .available-on-the.appstore {
-  background-position: center top; }
-.wb-home #download-app .available-on-the.market {
-  background-position: center -65px; }
 .wb-home #features .header {
   font-size: 24px;
   line-height: 36px; }
@@ -477,7 +508,7 @@ select {
   padding: 4px;
   border-radius: 5px;
   overflow: hidden;
-  border: 2px solid #F1F1F1; }
+  border: 2px solid #f1f1f1; }
 .booking-page #map {
   height: 480px;
   border-radius: 5px;
