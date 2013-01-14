@@ -53,6 +53,7 @@ urlpatterns = patterns('',
                                                             'mimetype': 'text/javascript' }),
 
     # services
+    (r'^services/confirm_sms/$', 'common.sms_notification.confirm_sms'),
     (r'^services/osrm_proxy/(?P<service_name>\w+)/$', 'common.geocode.osrm_proxy'),
 
     # cron
