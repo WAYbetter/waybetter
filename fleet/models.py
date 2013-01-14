@@ -101,11 +101,14 @@ class TaxiRidePosition(object):
 
 class AbstractFleetManagerBackend(object):
     @classmethod
-    def create_ride(cls, ride, station):
+    def create_ride(cls, ride, station, taxi_number=None):
         """Create a ride on the fleet manager backend.
         @param ride: an C{ordering.SharedRide} instance.
         @param station: the C{Station} which will receive the ride.
+        @param: taxi_number: optional - assign ride to taxi
         @return: a C{FleetManagerRide} instance, or None if creation failed.
+
+
         """
         raise NotImplementedError()
 
@@ -167,8 +170,8 @@ class FleetManager(BaseModel):
     def __unicode__(self):
         return self.name
 
-    def create_ride(self, ride, station):
-        return self.backend.create_ride(ride, station)
+    def create_ride(self, ride, station, taxi_number=None):
+        return self.backend.create_ride(ride, station, taxi_number=taxi_number)
 
     def cancel_ride(self, ride_id):
         return self.backend.cancel_ride(ride_id)

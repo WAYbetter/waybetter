@@ -27,7 +27,7 @@ def create_ride(ride):
         ride.update(uuid=get_uuid())
 
         ride_fm = FleetManager.by_id(ride.dn_fleet_manager_id)
-        result = ride_fm.create_ride(ride, ride.station)
+        result = ride_fm.create_ride(ride, ride.station, taxi_number=ride.taxi_number)
         return bool(result)
     except Exception, e:
         logging.error(traceback.format_exc())
