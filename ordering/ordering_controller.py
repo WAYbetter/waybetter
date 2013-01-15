@@ -482,7 +482,7 @@ def get_offers(request):
                 "price": price,
                 "seats_left": MAX_SEATS,
                 "new_ride": True,
-                "comment": u"הזמן ראשון ואחרים יצטרפו אליך"  # TODO_WB: sharing chances
+                "comment": _(u"You will be updated when someone joins")  # TODO_WB: sharing chances
             }
 
         else:  # sharing offers
@@ -504,7 +504,7 @@ def get_offers(request):
                 "seats_left": MAX_SEATS - sum([order.num_seats for order in ride_orders]),
                 "price": price,
                 "new_ride": False,
-                "comment": u"תוספת זמן: %s דקות / חסכון של %s₪ או יותר" % (time_addition, "%g" % (price_alone - price))
+                "comment": _(u"Money saved: %(money_saved)s NIS or more – additional time: %(time_added)s min") % {'time_added': time_addition, 'money_saved': "%g" % (price_alone - price)}
             }
 
             # good enough offer found, no discounts
@@ -556,7 +556,7 @@ def get_discounted_offers(request, order_settings, start_ride_algo_data):
             offer_key = "%s_%s" % (DISCOUNTED_OFFER_PREFIX, get_uuid())
             memcache.set(offer_key, {'discount_rule_id': discount_rule.id, 'pickup_dt': discount_dt}, namespace=DISCOUNTED_OFFERS_NS)
 
-            offer_text = u"המחיר כולל הנחה של ₪%g" % discount
+            offer_text = _(u"The price includes a discount of %g NIS") % discount
             if discount_rule.offer_text:
                 offer_text = discount_rule.offer_text
                 if offer_text.find("%g") > -1:  # render discount amount
