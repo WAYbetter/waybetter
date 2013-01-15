@@ -117,7 +117,7 @@ def get_ongoing_ride_details(request):
         station = ride.station
         station_data = {
             'name': station.name if station else WAYBETTER_STATION_NAME,
-            'phone': station.phone if station else settings.CONTACT_PHONE
+            'phone': settings.CONTACT_PHONE
         }
 
         pickup_position = {"lat": order.from_lat, "lng": order.from_lon}
