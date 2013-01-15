@@ -8,6 +8,8 @@ from common.util import DAY_OF_WEEK_CHOICES, FIRST_WEEKDAY, LAST_WEEKDAY, conver
 from common.models import BaseModel, CityAreaField
 from common.widgets import EditableListField
 
+from linguo.models import MultilingualModel
+
 class TARIFFS(Enum):
     TARIFF1 = 'tariff1'
     TARIFF2 = 'tariff2'
@@ -158,7 +160,7 @@ class TemporalRule(AbstractTemporalRule):
     rule_set = models.ForeignKey(RuleSet, verbose_name=_("rule set"), related_name="rules", null=True, blank=True)
 
 
-class DiscountRule(AbstractTemporalRule):
+class DiscountRule(MultilingualModel, AbstractTemporalRule):
     percent = models.FloatField(_("percent"), null=True, blank=True)
     amount = models.FloatField(_("amount"), null=True, blank=True)
     fixed_price = models.FloatField(_("fixed_price"), null=True, blank=True)
@@ -178,6 +180,10 @@ class DiscountRule(AbstractTemporalRule):
     bidi = models.BooleanField(verbose_name=_("bidirectional"), default=False)
 
     email_domains = EditableListField(models.CharField(max_length=255), null=True, blank=True)
+
+    class Meta:
+        # translatable fields
+        translate = ('display_name', 'offer_text', 'from_address', 'to_address')
 
     def clean(self):
         if not (sum([bool(self.percent), bool(self.amount), bool(self.fixed_price)]) == 1):
