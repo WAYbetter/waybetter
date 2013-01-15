@@ -25,6 +25,10 @@ if(lang.equals("HE")){
         body {
             direction: <%=langdir%>;
         }
+
+        form{
+            margin: 0;
+        }
         select {
             width: 100%;
             height: 33px;
@@ -34,14 +38,17 @@ if(lang.equals("HE")){
         }
         input[type="text"], input[type="tel"]{
             width: 100%;
-            height: 33px;
+            height: 23px;
+            padding: 4px 0;
+        }
+
+        .icon-lock{
+            font-size: 18px;
+            line-height: 0.5;
         }
 
         div[data-role="header"] h1{
             line-height: 1;
-        }
-        #payment-header{
-            color: white;
         }
 
         #wb_CVVhelp {
@@ -52,19 +59,11 @@ if(lang.equals("HE")){
         }
 
         #qm {
-            display: inline-block;
-            height: 18px;
-            width: 18px;
-            position: relative;
-            top: 3px;
+            color: white;
+            text-decoration: none;
+            font-size: 26px;
+            padding: 5px;
             cursor: pointer;
-            background: url("/static/images/wb_site/question_mark.png") left 0 no-repeat;
-            <% if (langdir.equals("ltr")) { %>
-                margin-left: 30px;
-            <% } else { %>
-                margin-right: 30px;
-            <% } %>
-
         }
 
         #cvv {
@@ -72,20 +71,25 @@ if(lang.equals("HE")){
             width: 47%;
         }
 
-        #lock {
-            width: 90px;
-            height: 90px;
-            background: url("/static/images/wb_site/pci_lock.png") left center no-repeat;
-        }
 
         label.ui-input-text, label.ui-select {
             margin-top: 10px;
         }
 
         #personalId {
-            margin-bottom: 40px;
+            margin-bottom: 20px;
         }
 
+        hr {
+            width: 90%;
+            margin: 0 auto;
+        }
+        #disclaimer{
+            padding-top: 10px;
+            width: 90%;
+            margin: 0 auto;
+            color: #B4B3B3;
+        }
     </style>
 
 {% endblock %}
@@ -104,6 +108,7 @@ if(lang.equals("HE")){
     <div id="credit_guard_page" data-role="page" data-theme="a">
         <div data-role="header" class="top-header ui-header ui-bar-a" role="banner">
             <div class="header-center ng-binding">
+                <i class="icon-lock"></i>
                 <% if (lang.equals("HE")) { %>
                     אמצעי תשלום
                 <% } else { %>
@@ -113,40 +118,6 @@ if(lang.equals("HE")){
         </div>
 
         <div data-role="content">
-            <table id="payment-header">
-                <tr>
-                    <td id="lock"></td>
-                    <td>
-                        <span class="bold">
-                            <% if (lang.equals("HE")) { %>
-                                תשלום מאובטח
-                            <% } else { %>
-                                Secured Payment
-                            <% } %>
-                        </span>
-                        <br>
-                        <% if (lang.equals("HE")) { %>
-                            התשלום עבור הנסיעות בלבד
-                        <% } else { %>
-                            Payments are for rides only
-                        <% } %>
-                        <br>
-                        <% if (lang.equals("HE")) { %>
-                            החיוב מתבצע לאחר ביצוע הנסיעות
-                        <% } else { %>
-                            Charging is only after your pickup
-                        <% } %>
-                        <br>
-                        <% if (lang.equals("HE")) { %>
-                            חשבונית חודשית מפורטת נשלחת במייל
-                        <% } else { %>
-                            Monthly invoice will be sent by email
-                        <% } %>
-                    </td>
-                </tr>
-            </table>
-
-            <hr>
 
             <form id="creditForm" onsubmit="return formValidator(0);" method="POST" action="ProcessCreditCard">
                 <input data-role="none" type="hidden" name="txId" value="<%=mpiTxnId%>"/>
@@ -194,7 +165,7 @@ if(lang.equals("HE")){
                 <label for="cvv">CVV</label>
                 <input data-role="none" type="tel" name="cvv" id="cvv" maxlength="4" autocomplete="off"/>
                 <a href="#cvv_dialog" data-rel="dialog">
-                    <span id="qm" src="merchantPages/WebSources/images/qm.png"></span>
+                    <i id="qm" class="icon-question-sign"></i>
                 </a>
 
 
@@ -208,6 +179,17 @@ if(lang.equals("HE")){
                 </div>
             </form>
         </div>
+
+        <hr>
+
+        <div id="disclaimer">
+            <% if (lang.equals("HE")) { %>
+                התשלום עבור הנסיעות בלבד. החיוב מתבצע לאחר ביצוע הנסיעות. חשבונית חודשית מפורטת נשלחת במייל.
+            <% } else { %>
+                Payments are for rides only and charged only after your pickup. Monthly invoice will be sent by email.
+            <% } %>
+        </div>
+
     </div>
 
     <div id="cvv_dialog" data-role="page">
