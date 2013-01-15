@@ -164,6 +164,17 @@ def total_seconds(td):
     # See: http://docs.python.org/library/datetime.html#datetime.timedelta.total_seconds
     return (td.microseconds + (td.seconds + td.days * 24 * 3600) * 10**6) / 10**6
 
+def unix_time(dt):
+    """
+    returns to number of seconds since 1/1/1970
+    @param dt: must be a tz aware datetime
+    @return:
+    """
+    epoch = datetime.datetime.utcfromtimestamp(0).replace(tzinfo=TZ_INFO["UTC"])
+    delta = dt.astimezone(TZ_INFO["UTC"]) - epoch
+    return total_seconds(delta)
+
+
 def to_task_name_safe(t):
     return t.ctime().replace(":","_").replace(" ","_")
 
