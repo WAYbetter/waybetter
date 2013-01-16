@@ -220,11 +220,14 @@ class DiscountRule(MultilingualModel, AbstractTemporalRule):
         active_from = self.from_everywhere
         active_to = self.to_everywhere
 
+        from_address_translations = self.get_translations("from_address")
+        to_address_translations = self.get_translations("to_address")
+
         if (not active_from) and self.from_address:
-            active_from = self.from_address == from_address or (self.bidi and self.from_address == to_address)
+            active_from = from_address in from_address_translations or (self.bidi and to_address in to_address_translations)
 
         if (not active_to) and self.to_address:
-            active_to = self.to_address == to_address or (self.bidi and self.to_address == from_address)
+            active_to = to_address in to_address_translations or (self.bidi and from_address in to_address_translations)
 
         if (not active_from) and self.from_city_area:
             active_from = self.from_city_area.contains(from_lat, from_lon) or (self.bidi and self.from_city_area.contains(to_lat, to_lon))
