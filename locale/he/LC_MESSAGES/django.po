@@ -7,8 +7,8 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2013-01-15 10:36+0000\n"
-"PO-Revision-Date: 2013-01-15 12:37+0200\n"
+"POT-Creation-Date: 2013-01-16 10:40+0000\n"
+"PO-Revision-Date: 2013-01-16 12:43+0200\n"
 "Last-Translator: amir <amir@waybetter.com>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
 "Language: \n"
@@ -565,8 +565,8 @@ msgstr "וידוא סיסמה (עוד פעם)"
 #: common/templates/login_form.html:5
 #: common/templates/login_form.html:49
 #: common/templates/phone_verification_form.html:90
-#: intermediate/templates/wb_base_site.html:63
-#: intermediate/templates/wb_base_site.html:126
+#: intermediate/templates/wb_base_site.html:34
+#: intermediate/templates/wb_base_site.html:97
 #: ordering/templates/base_passenger.html:146
 #: ordering/templates/base_station.html:50
 #: ordering/templates/business_tab.html:17
@@ -621,7 +621,7 @@ msgid "OK"
 msgstr "אישור"
 
 #: common/templates/error_page.html:16
-#: intermediate/templates/wb_base_site.html:93
+#: intermediate/templates/wb_base_site.html:64
 #: templates/wb_base_site.html:64
 #: templates/admin/billing/billingtransaction/change_form.html:18
 msgid "Home"
@@ -769,7 +769,6 @@ msgid "An SMS with ride details will be sent soon"
 msgstr "התחנות הקרובות מחפשות עבורך מונית פנויה. הודעת SMS עם פרטי הנסיעה תשלח אליך מיד..."
 
 #: common/templates/registration_form.html:24
-#: ordering/account_controller.py:83
 #: ordering/forms.py:259
 #: ordering/passenger_controller.py:622
 #: ordering/templates/business_registration.html:58
@@ -1066,7 +1065,7 @@ msgstr "מונית,משותפת,ווי-בטר,הזמנת מונית,מונית �
 msgid "WAYbetter. The Social Taxi App"
 msgstr "WAYbetter. The Social Taxi App"
 
-#: intermediate/templates/wb_base.html:103
+#: intermediate/templates/wb_base.html:138
 #: templates/wb_base.html:144
 msgid "Social revolution in public transportation. WAYbetter allows you to order shared taxi rides , for a (very) low fixed price. It’s green, it’s fast and it’s cheap. Check it out: www.waybetter.com"
 msgstr ""
@@ -1077,8 +1076,8 @@ msgstr ""
 "חייבים לנסות:\\n"
 "www.waybetter.com"
 
-#: intermediate/templates/wb_base_site.html:44
-#: intermediate/templates/wb_base_site.html:101
+#: intermediate/templates/wb_base_site.html:15
+#: intermediate/templates/wb_base_site.html:72
 #: ordering/templates/info.html:28
 #: ordering/templates/mobile/passenger_home.html:230
 #: ordering/templates/mobile/passenger_home.html:273
@@ -1088,23 +1087,23 @@ msgstr ""
 msgid "About"
 msgstr "אודות"
 
-#: intermediate/templates/wb_base_site.html:46
+#: intermediate/templates/wb_base_site.html:17
 #: templates/wb_base_site.html:17
 msgid "Get the App"
 msgstr "הורידו את האפליקציה"
 
-#: intermediate/templates/wb_base_site.html:48
+#: intermediate/templates/wb_base_site.html:19
 #: templates/wb_base_site.html:19
 msgid "iPhone"
 msgstr "iPhone"
 
-#: intermediate/templates/wb_base_site.html:49
+#: intermediate/templates/wb_base_site.html:20
 #: templates/wb_base_site.html:20
 msgid "Android"
 msgstr "Android"
 
-#: intermediate/templates/wb_base_site.html:57
-#: intermediate/templates/wb_base_site.html:122
+#: intermediate/templates/wb_base_site.html:28
+#: intermediate/templates/wb_base_site.html:93
 #: ordering/templates/mobile/passenger_home.html:158
 #: ordering/templates/mobile/passenger_home.html:204
 #: sharing/templates/my_rides.html:7
@@ -1113,9 +1112,9 @@ msgstr "Android"
 msgid "My Rides"
 msgstr "הנסיעות שלי"
 
-#: intermediate/templates/wb_base_site.html:58
-#: intermediate/templates/wb_base_site.html:119
-#: intermediate/templates/wb_base_site.html:123
+#: intermediate/templates/wb_base_site.html:29
+#: intermediate/templates/wb_base_site.html:90
+#: intermediate/templates/wb_base_site.html:94
 #: sharing/templates/user_profile.html:49
 #: templates/wb_base_site.html:29
 #: templates/wb_base_site.html.py:90
@@ -1123,19 +1122,19 @@ msgstr "הנסיעות שלי"
 msgid "My Account"
 msgstr "החשבון שלי"
 
-#: intermediate/templates/wb_base_site.html:59
-#: intermediate/templates/wb_base_site.html:124
+#: intermediate/templates/wb_base_site.html:30
+#: intermediate/templates/wb_base_site.html:95
 #: templates/wb_base_site.html:30
 #: templates/wb_base_site.html.py:95
 msgid "Logout"
 msgstr "התנתק"
 
-#: intermediate/templates/wb_base_site.html:96
+#: intermediate/templates/wb_base_site.html:67
 #: templates/wb_base_site.html:67
 msgid "Terms of Use"
 msgstr "תנאי שימוש"
 
-#: intermediate/templates/wb_base_site.html:97
+#: intermediate/templates/wb_base_site.html:68
 #: ordering/templates/terms.html:18
 #: sharing/templates/mobile/account_registration.html:152
 #: sharing/templates/mobile/privacy.html:16
@@ -1143,37 +1142,57 @@ msgstr "תנאי שימוש"
 msgid "Privacy Policy"
 msgstr "מדיניות פרטיות"
 
-#: intermediate/templates/wb_base_site.html:103
+#: intermediate/templates/wb_base_site.html:74
 #: templates/wb_base_site.html:74
 msgid "How it Works?"
 msgstr "איך זה עובד?"
 
-#: intermediate/templates/wb_base_site.html:104
+#: intermediate/templates/wb_base_site.html:75
 #: sharing/templates/about_faq_contact.html:18
 #: sharing/templates/mobile/faq.html:26
 #: templates/wb_base_site.html:75
 msgid "FAQ"
 msgstr "שאלות נפוצות"
 
-#: intermediate/templates/wb_base_site.html:111
+#: intermediate/templates/wb_base_site.html:82
 #: templates/wb_base_site.html:82
 msgid "Community"
 msgstr "קהילה"
 
-#: intermediate/templates/wb_base_site.html:114
+#: intermediate/templates/wb_base_site.html:85
 #: templates/wb_base_site.html:85
 msgid "Facebook"
 msgstr "פייסבוק"
 
-#: intermediate/templates/wb_base_site.html:115
+#: intermediate/templates/wb_base_site.html:86
 #: templates/wb_base_site.html:86
 msgid "Twitter"
 msgstr "טוויטר"
 
-#: intermediate/templates/wb_base_site.html:136
+#: intermediate/templates/wb_base_site.html:107
 #: templates/wb_base_site.html:107
 msgid "Back to Top"
 msgstr "למעלה"
+
+#: intermediate/templates/wb_base_site.html:126
+#: templates/wb_base_site.html:126
+msgid "No internet explorer support"
+msgstr "האתר לא נתמך בדפדפן זה"
+
+#: intermediate/templates/wb_base_site.html:127
+#: templates/wb_base_site.html:127
+msgid "interactive elements may not work"
+msgstr "אינטרנט אקספלורר אינו תומך באלמנטים אינטרקטיביים"
+
+#: intermediate/templates/wb_base_site.html:133
+#: templates/wb_base_site.html:133
+msgid "Download mobile application"
+msgstr "הורידו אפליקציה לנייד"
+
+#: intermediate/templates/wb_base_site.html:139
+#: templates/wb_base_site.html:139
+msgid "or use one of these browsers"
+msgstr "או השתמשו באחד מהדפדפנים הבאים"
 
 #: openid_consumer/views.py:96
 msgid "i-names are not supported"
@@ -1216,11 +1235,19 @@ msgstr "החשבון שלך"
 msgid "Invalid email"
 msgstr "כתובת אימייל לא חוקית"
 
-#: ordering/account_controller.py:88
-msgid "Phone already registered"
-msgstr "הטלפון כבר רשום"
+#: ordering/account_controller.py:84
+msgid "This email address was registered by another user."
+msgstr "אימייל כבר רשום במערכת."
 
-#: ordering/account_controller.py:95
+#: ordering/account_controller.py:91
+msgid "This phone number is registered to multiple passengers. Please contact support for help."
+msgstr "מספר הטלפון רשום במערכת יותר מפעם אחת. צרו קשר עם התמיכה לקבלת עזרה."
+
+#: ordering/account_controller.py:97
+msgid "This phone number was registered by another user. Please contact support for help."
+msgstr "מספר הטלפון רשום במערכת. צרו קשר עם התמיכה לקבלת עזרה."
+
+#: ordering/account_controller.py:110
 msgid "Registration failed"
 msgstr "ההרשמה נכשלה"
 
@@ -3608,11 +3635,11 @@ msgstr "אנו מצטערים אך לא ניתן לשנות את מספר הטל
 msgid "We're sorry but your phone appears to used by multiple users. Please contact support@waybetter.com to resolve this issue."
 msgstr "הטלפון שלך נמצא בשימוש על ידי כמה נוסעים. אנא פנה אל contact@waybetter.com לקבלת עזרה."
 
-#: sharing/passenger_controller.py:413
+#: sharing/passenger_controller.py:423
 msgid "WAYbetter ride"
 msgstr "נסיעת מונית WAYbetter"
 
-#: sharing/passenger_controller.py:413
+#: sharing/passenger_controller.py:423
 #: sharing/templates/booking_page.html:16
 msgid "Private ride"
 msgstr "נסיעת מונית פרטית"
@@ -4111,22 +4138,6 @@ msgstr "אין חיבור לשרת"
 msgid "Thinking..."
 msgstr "חושב..."
 
-#: templates/wb_base_site.html:126
-msgid "No internet explorer support"
-msgstr "האתר לא נתמך בדפדפן זה"
-
-#: templates/wb_base_site.html:127
-msgid "interactive elements may not work"
-msgstr "אינטרנט אקספלורר אינו תומך באלמנטים אינטרקטיביים"
-
-#: templates/wb_base_site.html:133
-msgid "Download mobile application"
-msgstr "הורידו אפליקציה לנייד"
-
-#: templates/wb_base_site.html:139
-msgid "or use one of these browsers"
-msgstr "או השתמשו באחד מהדפדפנים הבאים"
-
 #: templates/admin/billing/billingtransaction/change_form.html:21
 msgid "Add"
 msgstr "הוספה"
@@ -4216,6 +4227,9 @@ msgstr "קוד אימות נשלח אליך בSMS. נא להזין להפעלת 
 #: tinymce/views.py:68
 msgid "Error running spellchecker"
 msgstr "שגיאה בבודק האיות"
+
+#~ msgid "Phone already registered"
+#~ msgstr "הטלפון כבר רשום"
 
 #~ msgid "Book first and others will join you"
 #~ msgstr "הזמן ראשון ואחרים יצטרפו אליך"

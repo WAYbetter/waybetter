@@ -78,16 +78,31 @@ def registration_view(request):
         except ValidationError:
             return JSONResponse({'error': _("Invalid email")})
 
+        # fail if email is registered
         if User.objects.filter(username=email).count() > 0:
             notify_by_email("Help! I can't register!", msg="email %s already registered\n%s" % (email, phone))
-            return JSONResponse({'account_exists': True, 'error': _("Email already registered")})
+            return JSONResponse({'account_exists': True, 'error': _("This email address was registered by another user.")})
 
+        # fail if phone is registered to more than 1 passenger
         country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
-        if Passenger.objects.filter(phone=phone, country=country).count() > 0:
-            notify_by_email("Help! I can't register!", msg="phone %s already registered\n%s" % (phone, email))
-            return JSONResponse({'account_exists': True, 'error': _("Phone already registered")})
+        existing_passengers = Passenger.objects.filter(phone=phone, country=country)
+        if len(existing_passengers) > 1:
+            notify_by_email("Help! I can't register!", msg="phone %s registered to multiple passengers\n%s" % (phone, existing_passengers))
+            return JSONResponse({'failed': True, 'error': _("This phone number is registered to multiple passengers. Please contact support for help.")})
 
-        user = register_new_user(request)
+        # fail if phone is registered to 1 passenger but this passenger has a user
+        existing_passengers_users = [existing_passenger.user for existing_passenger in existing_passengers]
+        if any(existing_passengers_users):
+            notify_by_email("Help! I can't register!", msg="phone %s already registered to another user\n%s\n%s" % (phone, email, existing_passengers_users))
+            return JSONResponse({'failed': True, 'error': _("This phone number was registered by another user. Please contact support for help.")})
+
+        # by now we know:
+        # 1. email is not registered; we will create a new user
+        # 2. phone is not registered; we will create a new passenger
+        #   OR
+        # 3. phone registered to a passenger with NO user; we will keep the passenger and create a user for her
+        passenger = existing_passengers[0] if existing_passengers else None
+        user = register_new_user(request, passenger)
         if user:
             redirect = settings.CLOSE_CHILD_BROWSER_URI
             return JSONResponse({'redirect': redirect, 'billing_url': (get_token_url(request))})
@@ -97,7 +112,7 @@ def registration_view(request):
     else:
         return HttpResponseNotAllowed(request.method)
 
-def register_new_user(request):
+def register_new_user(request, passenger=None):
     logging.info("registration %s" % request.POST)
 
     name = request.POST.get("name")
@@ -113,9 +128,13 @@ def register_new_user(request):
     user = authenticate(username=user.username, password=password)
     login(request, user)
 
-    country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
-    passenger = create_passenger(request.user, country, phone, save=False)
-    passenger.login_token = hashlib.sha1(generate_random_token(length=40)).hexdigest()
+    if passenger:
+        passenger.user = user
+    else:  # create a new one
+        country = Country.objects.get(code=settings.DEFAULT_COUNTRY_CODE)
+        passenger = create_passenger(request.user, country, phone, save=False)
+        passenger.login_token = hashlib.sha1(generate_random_token(length=40)).hexdigest()
+
     passenger.save()
 
     request.session[CURRENT_PASSENGER_KEY] = passenger
