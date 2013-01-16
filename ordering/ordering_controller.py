@@ -455,7 +455,7 @@ def get_offers(request):
 
     matching_rides = get_matching_rides(candidate_rides, order_settings)
     if not matching_rides:
-        return JSONResponse({'error': u'לא ניתן להזמין לכתובת שנבחרה. אנא נסו שנית בקרוב.'})
+        return JSONResponse({'error': u'מצטערים, הכתובת המבוקשת אינה באיזורי הכיסוי עדיין'})
 
     offers = []
 
