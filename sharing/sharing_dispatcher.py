@@ -11,7 +11,7 @@ from pricing.models import RuleSet
 import logging
 from sharing.station_controller import  remove_ride
 
-DISPATCHING_TIME = timedelta(hours=24)
+DISPATCHING_TIME = timedelta(hours=12)
 
 START_MONITORING_TIME = timedelta(minutes=60)
 STOP_MONITORING_TIME = timedelta(minutes=10)
