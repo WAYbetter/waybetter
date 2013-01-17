@@ -80,6 +80,10 @@ if(lang.equals("HE")){
             margin-bottom: 20px;
         }
 
+        #submitBtn{
+            color: white;
+        }
+
         hr {
             width: 90%;
             margin: 0 auto;
@@ -172,7 +176,7 @@ if(lang.equals("HE")){
                 <label for="personalId"><%=CCPId%></label>
                 <input data-role="none" type="tel" id="personalId" name="personalId" maxlength="9" autocomplete="off"/>
 
-                <input type="submit" id="submitBtn" value="<%=formSend%>" class="btn btn-block btn-info btn-large" data-role="none"/>
+                <input type="submit" id="submitBtn" value="<% if (lang.equals("HE")) { %>שמירה<% } else { %>SAVE<% } %>" class="btn btn-block btn-info btn-large" data-role="none"/>
                 <div class="hidden">
                     {# need this to avoid js errors from CreditGuard's scripts #}
                     <input id="resetBtn" type="reset" value="<%=formReset%>"/>
