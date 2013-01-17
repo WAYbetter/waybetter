@@ -103,6 +103,9 @@
                         <input type="text" name="billing_input" id="billing_input" value="{% if billing_info %}&#x200E;**** **** **** {{ billing_info }}{% endif %}" data-role="none">
                     </div>
                     <button id="billing_submit" data-role="none" type="submit"></button>
+                    {% if credit_card_error %}
+                        <div><i class="icon-exclamation-sign"></i> {{ credit_card_error }}</div>
+                    {% endif %}
                 </div>
 
                 <div class="form-row">

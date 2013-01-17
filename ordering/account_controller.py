@@ -36,6 +36,7 @@ def account_view(request):
         billing_info = passenger.billing_info.card_repr[-4:] if hasattr(passenger, "billing_info") else None
 
         title = _("Your Account")
+        credit_card_error = request.session.get('credit_card_error', '')
         return render_to_response("mobile/account_registration.html", locals(), RequestContext(request))
 
     elif request.method == 'POST':

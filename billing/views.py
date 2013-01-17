@@ -12,6 +12,7 @@ from billing.enums import BillingStatus, BillingAction
 from common.tz_support import default_tz_now, default_tz_time_max, default_tz_time_min
 from common.util import custom_render_to_response, notify_by_email, Enum, ga_track_event
 from django.core.urlresolvers import reverse
+from django.conf import settings
 from django.utils import translation
 from django.views.decorators.csrf import csrf_exempt
 from billing.models import BillingForm, InvalidOperationError, BillingTransaction, BillingInfo
@@ -20,7 +21,10 @@ from django.http import HttpResponse, HttpResponseRedirect
 from django.template.context import RequestContext
 from djangotoolbox.http import JSONResponse
 from ordering.decorators import passenger_required_no_redirect, passenger_required
-from ordering.models import    CURRENT_ORDER_KEY, CURRENT_BOOKING_DATA_KEY
+from ordering.models import CURRENT_ORDER_KEY, CURRENT_BOOKING_DATA_KEY, Passenger
+
+from ordering.account_controller import account_view as mobile_account_view, registration_view as mobile_registration_view
+from sharing.passenger_controller import user_profile as web_account_view, registration as web_registration_view
 
 class InvoiceActions(Enum):
     CREATE_ID	= 0
@@ -65,9 +69,14 @@ def billing_task(request, token, card_expiration, billing_transaction_id, action
         raise InvalidOperationError("Unknown action for billing: %s" % action)
 
 
-@passenger_required_no_redirect
-def transaction_ok(request, passenger):
+def transaction_ok(request):
     from analytics.models import BIEvent, BIEventType
+
+    passenger = Passenger.from_request(request)
+    if not passenger:
+        logging.info("[transaction_ok] not a passenger")
+        registration_url = reverse(mobile_registration_view if request.mobiel else web_registration_view)
+        return HttpResponseRedirect(registration_url)
 
     #TODO: handle errors
     #TODO: makesure referrer is creditguard
@@ -90,11 +99,13 @@ def transaction_ok(request, passenger):
 
     BIEvent.log(BIEventType.BILLING_INFO_COMPLETE, passenger=passenger, request=request)
 
-    if request.session.get(CURRENT_BOOKING_DATA_KEY) and not request.mobile:  # continue booking process, mobile continues by closing child browser
-        logging.info("redirect /booking/continued after billing registration: %s" % passenger)
-        return HttpResponseRedirect(reverse("booking_continued"))
+    if request.session.get(CURRENT_BOOKING_DATA_KEY): # continue booking process
+        continue_booking_url = settings.CLOSE_CHILD_BROWSER_URI if request.mobile else reverse("booking_continued")
+        logging.info("[transaction_ok] continue booking after billing registration --> %s" % continue_booking_url)
+        return HttpResponseRedirect(continue_booking_url)
     else:
-        return HttpResponseRedirect(reverse("wb_home"))
+        account_url = reverse(mobile_account_view if request.mobile else web_account_view)
+        return HttpResponseRedirect(account_url)
 
 
 @passenger_required
@@ -115,13 +126,14 @@ def transaction_error(request):
     if request.GET.get("lang") == u"HE":
         request.encoding = "cp1255"
 
-    page_specific_class = "error-page"
     error_code = request.GET.get("ErrorCode")
     error_text = get_custom_message(error_code, request.GET.get("ErrorText"))
 
     ga_track_event(request, "registration", "credit_card_validation", "not_approved", int(error_code))
 
-    return custom_render_to_response("error_page.html", locals(), context_instance=RequestContext(request))
+    request.session['credit_card_error'] = error_text
+    account_url = reverse(mobile_account_view if request.mobile else web_account_view)
+    return HttpResponseRedirect(account_url)
 
 @passenger_required_no_redirect
 def get_trx_status(request, passenger):
