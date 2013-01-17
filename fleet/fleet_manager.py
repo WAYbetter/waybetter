@@ -17,6 +17,7 @@ POSITION_CHANGED = "Position Changed"
 DISTANCE_CONSIDERED_AS_VISITED_IN_METERS = 70
 
 def create_ride(ride):
+    logging.info("[create_ride] ride = '%s'" % ride)
     try:
         station = ride.station
         assert station, "ride [%s] is not assigned to a station" % ride.id
@@ -35,11 +36,13 @@ def create_ride(ride):
 
 
 def cancel_ride(ride):
+    logging.info("[cancel_ride] ride = '%s'" % ride)
     try:
         assert ride.dn_fleet_manager_id, "ride [%s] is not associated with a fleet manager" % ride.id
         ride_fm = FleetManager.by_id(ride.dn_fleet_manager_id)
-        result = ride_fm.cancel_ride(ride.uuid)
-        return bool(result)
+        result = bool(ride_fm.cancel_ride(ride.uuid))
+        logging.info("[cancel_ride] result = '%s'" % result)
+        return result
     except Exception, e:
         logging.error(traceback.format_exc())
         return False
@@ -120,10 +123,11 @@ def send_ride_point_text(ride, ride_point, next_point=None):
     passengers = ride_point.passengers
     ride_point.update(dispatched=True)
 
-    message = u"ווי בטר- %g שח הפתק בתחנה- %s כתובות:\n" % (ride.cost, len(ride_points)) if is_first else u""
+    message = u"ווי בטר- %g שח הפתק בתחנה- %s כתובות:\n" % (ride.cost, len(ride_points) - 1) if is_first else u""
     message += u"%s\n" % _address_line(ride_points, ride_point)
     message += u"%s\n" % _passengers_line(passengers, show_phones=(ride_point.type==StopType.PICKUP))
-    message += _address_line(ride_points, next_point)
+    if next_point:
+        message += _address_line(ride_points, next_point)
 
     return send_message(ride, message)
 
@@ -201,7 +205,7 @@ def get_ride_position(ride):
         logging.info("found position for ride: %s" % ride.uuid)
         logging.info("position.timestamp = %s, stale? = %s" % (trp.timestamp, (trp.timestamp < default_tz_now() - timedelta(minutes=15))))
     else:
-        logging.warning("no position found position for ride: %s" % ride.uuid)
+        logging.warning("no position found for ride: %s (%s)" % (ride.uuid, ride.id))
 
     return trp
 

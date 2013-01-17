@@ -393,7 +393,7 @@
                                         <input class="span1" type="number" min="1" max="15" ng-model="ride.pickup_estimate">
                                         <span class="add-on">דקות</span>
                                     </div>
-                                    <button class="btn btn-success" style="width: 80px;" ng-disabled="! (ride.taxi && ride.pickup_estimate)" ng-click="manual_dispatch(ride)">שלח</button>
+                                    <button class="btn btn-success" style="width: 80px;" ng-disabled="!(ride.taxi && ride.pickup_estimate) || updating()" ng-click="manual_dispatch(ride)">שלח</button>
                                 </div>
                             </div>
                         </div>
