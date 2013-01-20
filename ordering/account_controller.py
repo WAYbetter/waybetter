@@ -15,8 +15,9 @@ from django.http import HttpResponseNotAllowed, HttpResponse, HttpResponseRedire
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from djangotoolbox.http import JSONResponse
+from ordering.decorators import passenger_required
 from ordering.errors import UpdateUserError
-from ordering.models import Passenger, CURRENT_PASSENGER_KEY
+from ordering.models import Passenger, CURRENT_PASSENGER_KEY, PromoCodeActivation
 from ordering.util import get_name_parts, create_user, create_passenger, update_user_details
 
 def account_view(request):
@@ -147,5 +148,17 @@ def get_billing_url(request):
     return JSONResponse({'billing_url': (get_token_url(request))})
 
 
-def apply_promo_code(request):
+@passenger_required
+def apply_promo_code(request, passenger):
+    from pricing.models import PromoCode
+
+    code = request.POST.get("promo_code")
+    promo_code = PromoCode.objects.get(code=code)
+    activate_promo_code(promo_code, passenger)
+
     return HttpResponse("OK")
+
+
+def activate_promo_code(promo_code, passenger):
+   activation = PromoCodeActivation(passenger=passenger, promo_code=promo_code, promotion=promo_code.promotion)
+   activation.save()

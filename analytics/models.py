@@ -6,7 +6,7 @@ from django.utils.translation import ugettext_lazy as _
 from ordering.models import Order, WorkStation, Station, OrderAssignment, Passenger, SharedRide
 from common.util import EventType, Enum
 from common.models import Country, City, BaseModel
-from pricing.models import DiscountRule
+from pricing.models import DiscountRule, Promotion, PromoCode
 
 
 class BIEventType(Enum):
@@ -103,6 +103,8 @@ class RideOffer(BaseModel):
 
     order = models.ForeignKey(Order, verbose_name=_("order"), related_name="+", null=True, blank=True)
     discount_rule = models.ForeignKey(DiscountRule, verbose_name=_("discount rule"), related_name="+", null=True, blank=True)
+    promotion = models.ForeignKey(Promotion, verbose_name=_("promotion"), related_name="+", null=True, blank=True)
+    promo_code = models.ForeignKey(PromoCode, verbose_name=_("promo code"), related_name="+", null=True, blank=True)
     ride = models.ForeignKey(SharedRide, verbose_name="shared ride", related_name='+', null=True, blank=True)
     pickup_dt = UTCDateTimeField("pickup datetime", null=True, blank=True)
     seats_left = models.IntegerField("seats left", null=True, blank=True)

@@ -29,8 +29,8 @@ from ordering.enums import RideStatus
 from ordering.models import SharedRide, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY
 from ordering.signals import order_price_changed_signal
 from ordering.passenger_controller import get_position_for_order
-from pricing.functions import get_discount_rules_and_dt
-from pricing.models import  RuleSet, DiscountRule
+from pricing.functions import get_discounts_data
+from pricing.models import  RuleSet, DiscountRule, Promotion, PromoCode
 from sharing.algo_api import NEW_ORDER_ID
 from sharing.signals import ride_deleted_signal
 import simplejson
@@ -529,21 +529,23 @@ def get_offers(request):
 
 
 def get_discounted_offers(request, order_settings, start_ride_algo_data):
+    user = request.user if request.user.is_authenticated() else None
+
     discounted_offers = []
 
-    user_email_domain = None
-    if request.user.is_authenticated() and request.user.email:
-        user_email_domain = request.user.email.split("@")[1]
-
-    logging.info("get discounted offers @%s" % user_email_domain)
-
     earliest_offer_dt = ceil_datetime(max(trim_seconds(default_tz_now()) + datetime.timedelta(minutes=asap_interval()), order_settings.pickup_dt - OFFERS_TIMEDELTA), minutes=booking_interval())
-    discount_dts_tuples = get_discount_rules_and_dt(order_settings, earliest_offer_dt, order_settings.pickup_dt + OFFERS_TIMEDELTA, datetime.timedelta(minutes=booking_interval()))
+    discounts_data = get_discounts_data(order_settings,
+        earliest_offer_dt,
+        order_settings.pickup_dt + OFFERS_TIMEDELTA,
+        datetime.timedelta(minutes=booking_interval()),
+        user = user
+    )
 
-    for discount_rule, discount_dt in discount_dts_tuples:
-        if discount_rule.email_domains and (user_email_domain not in discount_rule.email_domains):
-            logging.info(u"skipping: %s - only for %s" % (discount_rule.name, ", ".join(discount_rule.email_domains)))
-            continue
+    for discount_data in discounts_data:
+        discount_rule = discount_data.get("discount_rule")
+        discount_dt = discount_data.get("discount_dt")
+        promo_code = discount_data.get("promo_code")
+        promotion = discount_data.get("promotion")
 
         tariff_for_discount_offer = RuleSet.get_active_set(discount_dt)
         base_price_for_discount_offer = start_ride_algo_data.order_price(NEW_ORDER_ID, tariff_for_discount_offer)
@@ -554,7 +556,12 @@ def get_discounted_offers(request, order_settings, start_ride_algo_data):
                 continue
 
             offer_key = "%s_%s" % (DISCOUNTED_OFFER_PREFIX, get_uuid())
-            memcache.set(offer_key, {'discount_rule_id': discount_rule.id, 'pickup_dt': discount_dt}, namespace=DISCOUNTED_OFFERS_NS)
+            memcache.set(offer_key, {
+                'discount_rule_id': discount_rule.id,
+                'pickup_dt': discount_dt,
+                'promo_code_id': promo_code.id if promo_code else None,
+                'promotion_id': promotion.id if promotion else None
+                }, namespace=DISCOUNTED_OFFERS_NS)
 
             offer_text = _(u"The price includes a discount of %g NIS") % discount
             if discount_rule.offer_text:
@@ -570,7 +577,7 @@ def get_discounted_offers(request, order_settings, start_ride_algo_data):
                 "passengers": [],
                 "seats_left": MAX_SEATS,
                 "price": base_price_for_discount_offer - discount,
-                "new_ride": True,  # disguise as an exisiting ride
+                "new_ride": True,
                 "comment": offer_text
             }
 
@@ -601,6 +608,8 @@ def save_search_req_and_offers(passenger, order_settings, offers):
             discount_rule = DiscountRule.by_id(discounted_offer["discount_rule_id"])
             if discount_rule:
                 ride_offer.discount_rule = discount_rule
+                ride_offer.promotion = Promotion.by_id(discounted_offer.get("promotion_id"))
+                ride_offer.promo_code = PromoCode.by_id(discounted_offer.get("promo_code_id"))
                 ride_offer.new_ride = True # this is actually a new ride
 
         ride_offer.save()
@@ -678,6 +687,7 @@ def book_ride(request):
             else:
                 if discounted_ride:
                     discounted_offer = memcache.get(ride_id, namespace=DISCOUNTED_OFFERS_NS)
+                    logging.info("[book_ride] discounted_offer = %s" % discounted_offer)
                     order = create_order(order_settings, passenger, discounted_offer=discounted_offer)
                 else:
                     order = create_order(order_settings, passenger)
@@ -768,6 +778,10 @@ def create_order(order_settings, passenger, ride=None, discounted_offer=None):
     if discounted_offer:
         discount_rule = DiscountRule.by_id(discounted_offer["discount_rule_id"])
         order.depart_time = discounted_offer["pickup_dt"]
+
+        order.promotion = Promotion.by_id(discounted_offer.get("promotion_id"))
+        order.promo_code = PromoCode.by_id(discounted_offer.get("promo_code_id"))
+
         if discount_rule and discount_rule.is_active_at(order.depart_time, order_settings.pickup_address, order_settings.dropoff_address):
             discount = discount_rule.get_discount(order.price)
             logging.info(u"discount rule %s granting discount %s" % (discount_rule.name, discount))
@@ -791,6 +805,8 @@ def create_order(order_settings, passenger, ride=None, discounted_offer=None):
 
 def billing_approved_book_order(ride_id, ride_data, order):
     from sharing.station_controller import send_ride_in_risk_notification
+
+    # TODO_WB: redeem promo
 
     try:
         if ride_id == NEW_ORDER_ID:

@@ -1039,6 +1039,8 @@ class Order(BaseModel):
     price_alone = models.FloatField(null=True, blank=True, editable=False)
     discount = models.FloatField(null=True, blank=True, editable=False)
     discount_rule = models.ForeignKey(DiscountRule, verbose_name=_("discount rule"), related_name="orders", null=True, blank=True, editable=False)
+    promotion = models.ForeignKey(Promotion, verbose_name=_("promotion"), related_name="orders", null=True, blank=True, editable=False)
+    promo_code = models.ForeignKey(PromoCode, verbose_name=_("promo code"), related_name="orders", null=True, blank=True, editable=False)
     num_seats = models.PositiveIntegerField(default=1)
 
     # see @price_data
