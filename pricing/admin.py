@@ -1,6 +1,6 @@
 from django.contrib import admin
 from common.forms import MandatoryInlineFormset
-from pricing.models import RuleSet, TemporalRule, DiscountRule
+from pricing.models import RuleSet, TemporalRule, DiscountRule, Promotion, PromoCode
 
 
 class TemporalRuleAdmin(admin.ModelAdmin):
@@ -36,6 +36,14 @@ class RuleSetAdmin(admin.ModelAdmin):
 class DiscountRuleAdmin(admin.ModelAdmin):
     pass
 
+
+class PromotionAdmin(admin.ModelAdmin):
+    class PromoCodeInlineAdmin(admin.StackedInline):
+        model = PromoCode
+
+    inlines = [PromoCodeInlineAdmin]
+
 #admin.site.register(TemporalRule, TemporalRuleAdmin)
 admin.site.register(RuleSet, RuleSetAdmin)
 admin.site.register(DiscountRule, DiscountRuleAdmin)
+admin.site.register(Promotion, PromotionAdmin)

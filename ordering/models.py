@@ -28,7 +28,7 @@ from ordering.enums import RideStatus
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
 from ordering.errors import UpdateStatusError
 from sharing.signals import ride_status_changed_signal, ride_updated_signal
-from pricing.models import  RuleSet, TARIFFS, DiscountRule
+from pricing.models import  RuleSet, DiscountRule, Promotion, PromoCode
 
 import re
 import time
@@ -731,6 +731,16 @@ class Passenger(BaseModel):
 
     def __unicode__(self):
         return u"Passenger: %s, %s" % (self.phone, self.name)
+
+class PromoCodeActivation(BaseModel):
+    promotion = models.ForeignKey(Promotion)
+    promo_code = models.ForeignKey(PromoCode)
+    passenger = models.ForeignKey(Passenger)
+
+    consumed = models.BooleanField(default=False)
+
+    def redeem(self):
+        pass
 
 class Business(BaseModel):
     passenger = models.OneToOneField(Passenger, verbose_name=_("passenger"), related_name="_business")

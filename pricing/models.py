@@ -3,7 +3,7 @@ from django.core.exceptions import ValidationError
 from django.utils.translation import ugettext, ugettext_lazy as _
 import logging
 
-from common.tz_support import TZ_INFO
+from common.tz_support import TZ_INFO, UTCDateTimeField
 from common.util import DAY_OF_WEEK_CHOICES, FIRST_WEEKDAY, LAST_WEEKDAY, convert_python_weekday, datetimeIterator, Enum
 from common.models import BaseModel, CityAreaField
 from common.widgets import EditableListField
@@ -168,6 +168,7 @@ class DiscountRule(MultilingualModel, AbstractTemporalRule):
     picture_url = models.URLField(max_length=255, null=True, blank=True, help_text="Will be used as the passenger picture")
     display_name = models.CharField(max_length=25, null=True, blank=True, help_text="Will be used as the passenger name")
     offer_text = models.CharField(max_length=105, null=True, blank=True, help_text="Will be used as the offer text")
+    visible = models.BooleanField(default=True, editable=False)
 
     from_city_area = CityAreaField(verbose_name=_("from city area"), null=True, blank=True, related_name="discount_rules_1")
     from_everywhere = models.BooleanField(verbose_name=_("from everywhere"), default=False)
@@ -250,3 +251,27 @@ class DiscountRule(MultilingualModel, AbstractTemporalRule):
             discount = self.percent * price / 100
 
         return discount - (discount % round_to)  # 12.75 -> 12.5
+
+
+class Promotion(BaseModel):
+    name = models.CharField(max_length=255)
+    description = models.CharField(max_length=255)
+
+    start_dt = UTCDateTimeField()
+    end_dt = UTCDateTimeField()
+    quantity = models.IntegerField()
+    discount_rule = models.ForeignKey(DiscountRule, related_name="promotions")
+
+    first_ride_only = models.BooleanField(default=False)
+
+    description_for_user = models.CharField(max_length=512, help_text=_("what will be displayed in the user's account page"))
+
+    def save(self, *args, **kwargs):
+        self.discount_rule.visible = False
+        self.discount_rule.save()
+
+        super(Promotion, self).save(*args, **kwargs)
+
+class PromoCode(BaseModel):
+    promotion = models.ForeignKey(Promotion)
+    code = models.CharField(max_length=12)
