@@ -1265,6 +1265,8 @@ class Order(BaseModel):
         return {
             "id": self.id,
             "discount_id": self.discount_rule_id,
+            "promotion_id": self.promotion_id,
+            "promo_code": self.promo_code.code if self.promo_code else None,
             "from_address": self.from_raw,
             "pickup": to_js_date(self.pickup_point.stop_time) if self.pickup_point else "NA",
             "pickup_idx": pickup_idx,

@@ -163,6 +163,10 @@
         i.icon-gift{
             color: #ed1c91;
         }
+        .promotion_link{
+            white-space: nowrap;
+            color: #2E2E2E;
+        }
         .passenger-details{
             cursor: pointer;
         }
@@ -745,7 +749,15 @@
                                     <td><passenger-details></passenger-details></td>
                                     <td>(( order.price_alone | currency:'₪'))</td>
                                     <td>(( order.price | currency:'₪'))</td>
-                                    <td>(( order.discount | currency:'₪')) <a ng-href="/admin/pricing/discountrule/((order.discount_id))/" ng-show="order.discount_id" target="_blank" class='discount_link'><i class='icon-gift'></i></a></td>
+                                    <td>
+                                        <div>
+                                            (( order.discount | currency:'₪'))
+                                            <a ng-href="/admin/pricing/discountrule/((order.discount_id))/" ng-show="order.discount_id" target="_blank" class='discount_link'><i class='icon-gift'></i></a>
+                                        </div>
+                                        <div>
+                                            <a ng-href="/admin/pricing/promotion/((order.promotion_id))/" ng-show="order.promotion_id" target="_blank" class='promotion_link'><i class='icon-barcode'></i> ((order.promo_code))</a>
+                                        </div>
+                                    </td>
                                     <td>(( order.billing_status.join(', ') ))</td>
                                     <td>
                                         <span class="label" ng-class="get_order_status_class(order)">(( order.status ))</span>
