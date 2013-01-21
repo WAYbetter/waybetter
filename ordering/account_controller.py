@@ -38,6 +38,8 @@ def account_view(request):
 
         title = _("Your Account")
         credit_card_error = request.session.get('credit_card_error', '')
+
+        promo_activations = PromoCodeActivation.objects.filter(passenger=passenger)
         return render_to_response("mobile/account_registration.html", locals(), RequestContext(request))
 
     elif request.method == 'POST':

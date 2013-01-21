@@ -57,6 +57,14 @@
             color: white;
             text-decoration: underline;
         }
+
+        #apply-promo{
+            font-size: initial;
+            height: 33px;
+        }
+        .promo-code.consumed{
+            text-decoration: line-through;
+        }
     </style>
 {% endblock %}
 
@@ -122,21 +130,27 @@
                 </div>
             </form>
 
-{# uncomment if/when we have promo codes #}
-{#            <hr>#}
-{##}
-{#            <div class="form-row">#}
-{#                <div class="label">#}
-{#                    <label for="promo-code">{% trans "Promo Code" %}</label>#}
-{#                </div>#}
-{#                <div class="input-prepend">#}
-{#                    <div class="input-append">#}
-{#                        <input type="text" name="promo-code" id="promo-code">#}
-{#                        <button id="apply-promo" data-role="none" class="btn" type="button">{% trans 'Submit' %}</button>#}
-{#                    </div>#}
-{#                </div>#}
-{#            </div>#}
+            <hr>
 
+            <div class="form-row">
+                <div id="active-promos">
+                    {% trans "Your Promo Codes" %}:
+                    <ul>
+                        {% for activation in promo_activations %}
+                            <li class="promo-code {% if activation.promo_code.consumed %}consumed{% endif %}">
+                                {{ activation.promotion.description_for_user }} <span>&lrm;#{{ activation.promo_code.code }}</span>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                </div>
+            </div>
+            <div class="form-row">
+                {% trans "Apply Promo Code" %}:
+                <div class="input-append">
+                    <input type="text" name="promo-code" id="promo-code" data-role="none">
+                    <button id="apply-promo" class="btn" type="button" data-role="none">{% trans 'Submit' %}</button>
+                </div>
+            </div>
         </div>
     </div>
 
