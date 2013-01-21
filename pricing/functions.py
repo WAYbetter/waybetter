@@ -1,8 +1,18 @@
 import logging
 from ordering.models import PromoCodeActivation
+from pricing.data_objects import DiscountData
 from pricing.models import DiscountRule
 
-def get_discounts_data(order_settings, start_dt, end_dt, delta, user=None):
+def compute_discounts_data(order_settings, start_dt, end_dt, delta, user=None):
+    """
+
+    @param order_settings:
+    @param start_dt:
+    @param end_dt:
+    @param delta:
+    @param user:
+    @return: a list of DiscountData objects
+    """
     passenger = None
     user_email_domain = None
     if user:
@@ -12,7 +22,7 @@ def get_discounts_data(order_settings, start_dt, end_dt, delta, user=None):
 
     logging.info("get discounts  @%s" % user_email_domain)
 
-    active_discounts = []
+    discounts_data = []
 
     for discount_rule in DiscountRule.objects.filter(open_to_all=True):
         if discount_rule.email_domains and (user_email_domain not in discount_rule.email_domains):
@@ -21,10 +31,7 @@ def get_discounts_data(order_settings, start_dt, end_dt, delta, user=None):
 
         active_dt = get_active_dt(discount_rule, order_settings, start_dt, end_dt, delta)
         if active_dt:
-            active_discounts.append({
-                'discount_rule': discount_rule,
-                'discount_dt': active_dt,
-            })
+            discounts_data.append(DiscountData(active_dt, discount_rule))
 
     if passenger:
         promo_activations = PromoCodeActivation.objects.filter(passenger=passenger, consumed=False)
@@ -40,15 +47,10 @@ def get_discounts_data(order_settings, start_dt, end_dt, delta, user=None):
             seen_promo_discounts.append(promo_discount_rule)
             active_dt = get_active_dt(promo_discount_rule, order_settings, start_dt, end_dt, delta)
             if active_dt:
-                active_discounts.append({
-                    'discount_rule': promo_discount_rule,
-                    'discount_dt': active_dt,
-                    'promo_code': promo_code,
-                    'promotion': promotion
-                })
+                discounts_data.append(DiscountData(active_dt, promo_discount_rule, promotion=promotion, promo_code=promo_code))
 
-    logging.info("active discounts: %s" % active_discounts)
-    return active_discounts
+    logging.info("active discounts: %s" % discounts_data)
+    return discounts_data
 
 
 def get_active_dt(discount_rule, order_settings, start_dt, end_dt, delta):
