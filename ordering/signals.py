@@ -53,12 +53,15 @@ def handle_accepted_orders(sender, signal_type, order, status, **kwargs):
 
 @receive_signal(order_status_changed_signal)
 def handle_cancelled_orders(sender, signal_type, order, status, **kwargs):
-    from ordering.models import CANCELLED
+    from ordering.models import CANCELLED, PromoCodeActivation
     from ordering.ordering_controller import update_ride_remove_order
 
     if status == CANCELLED:
         notify_by_email("Order Confirmation [%s]%s" % (order.id, " (DEBUG)" if order.debug else ""), msg="CANCELLED")
         update_ride_remove_order(order)
+        if order.promo_code:
+            promo_activation = PromoCodeActivation.objects.get(passenger=order.passenger, promo_code=order.promo_code)
+            promo_activation.forfeit()
 
 
 @receive_signal(order_price_changed_signal)

@@ -26,7 +26,7 @@ from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
 from ordering.enums import RideStatus
-from ordering.models import SharedRide, RidePoint, StopType, Order, OrderType, APPROVED, Passenger, CANCELLED, CURRENT_BOOKING_DATA_KEY, ORDER_SUCCESS_STATUS
+from ordering.models import SharedRide, RidePoint, StopType, Order, OrderType, APPROVED, Passenger, CANCELLED, CURRENT_BOOKING_DATA_KEY, ORDER_SUCCESS_STATUS, PromoCodeActivation
 from ordering.signals import order_price_changed_signal
 from ordering.passenger_controller import get_position_for_order
 from pricing.data_objects import DiscountData
@@ -787,7 +787,8 @@ def create_order(order_settings, passenger, ride=None, discount_data=None):
     billing_trx.save()
     billing_trx.commit(callback_args={
         "ride_id": ride_id,
-        "ride_data": ride_data
+        "ride_data": ride_data,
+        "discount_data": DiscountData.dump(discount_data)
     })
 
     return order
@@ -812,7 +813,7 @@ def apply_discount_data(order, order_settings, discount_data):
 
     # apply promotion
     if discount_data.promotion:
-        if discount_data.promotion.applies_to(order):
+        if discount_data.promotion.applies_to(order.passenger):
             order.promotion = discount_data.promotion
             order.promo_code = discount_data.promo_code
         else:
@@ -822,10 +823,17 @@ def apply_discount_data(order, order_settings, discount_data):
     return order
 
 
-def billing_approved_book_order(ride_id, ride_data, order):
+def billing_approved_book_order(callback_args, order):
     from sharing.station_controller import send_ride_in_risk_notification
 
-    # TODO_WB: redeem promo
+    ride_id = callback_args.get("ride_id")
+    ride_data = callback_args.get("ride_data")
+    discount_data = callback_args.get("discount_data")
+    discount_data = DiscountData.load(discount_data) if discount_data else None
+
+    if not (ride_id is not None and ride_data):
+        logging.error("no ride_id or ride_data for on_billing_trx_approved")
+        return
 
     try:
         if ride_id == NEW_ORDER_ID:
@@ -850,6 +858,10 @@ def billing_approved_book_order(ride_id, ride_data, order):
     except Exception, e:
         logging.error(traceback.format_exc())
         send_ride_in_risk_notification("Failed during post billing processing: %s" % e.message, ride_id)
+
+    if discount_data.promo_code:
+        promo_activation = PromoCodeActivation.objects.get(passenger=order.passenger, promo_code=discount_data.promo_code)
+        promo_activation.redeem()
 
 def create_shared_ride_for_order(ride_data, order):
     logging.info(u"creating shared ride from ride_data %s" % ride_data)

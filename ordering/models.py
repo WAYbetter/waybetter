@@ -741,6 +741,10 @@ class Passenger(BaseModel):
         return u"Passenger: %s, %s" % (self.phone, self.name)
 
 class PromoCodeActivation(BaseModel):
+    """
+    Indicates that a passenger activated a promo code. A passenger is allowed to activate a promo code only once, hence
+    querying PromoCodeActivation.objects.get(passenger, promo_code) should return at most one object.
+    """
     promotion = models.ForeignKey(Promotion)
     promo_code = models.ForeignKey(PromoCode)
     passenger = models.ForeignKey(Passenger)
@@ -748,7 +752,19 @@ class PromoCodeActivation(BaseModel):
     consumed = models.BooleanField(default=False)
 
     def redeem(self):
-        pass
+        if self.promotion.applies_once:
+            self.consumed = True
+            self.save()
+
+        logging.info("[PromoCodeActivation.redeem] %s consumed = %s" % (self.promo_code.code, self.consumed))
+
+    def forfeit(self):
+        if self.promotion.applies_once:
+            num_orders_with_same_promotion = self.passenger.successful_orders.filter(promotion=self.promotion).count()
+            self.consumed = num_orders_with_same_promotion > 0
+            self.save()
+
+        logging.info("[PromoCodeActivation.forfeit] %s consumed = %s" % (self.promo_code.code, self.consumed))
 
 class Business(BaseModel):
     passenger = models.OneToOneField(Passenger, verbose_name=_("passenger"), related_name="_business")

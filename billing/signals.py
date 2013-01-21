@@ -29,11 +29,5 @@ def on_billing_trx_approved(sender, signal_type, obj, callback_args, **kwargs):
     from ordering.ordering_controller import billing_approved_book_order
     trx = obj
     if callback_args:
-        ride_id = callback_args.get("ride_id")
-        ride_data = callback_args.get("ride_data")
-        if ride_id is not None and ride_data:
-            billing_approved_book_order(ride_id, ride_data, trx.order)
-        else:
-            logging.warning("no ride_id or ride_data for on_billing_trx_approved")
-
+        billing_approved_book_order(callback_args, trx.order)
 

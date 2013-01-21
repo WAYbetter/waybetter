@@ -271,15 +271,21 @@ class Promotion(BaseModel):
         self.discount_rule.open_to_all = False
         self.discount_rule.save()
 
+        if self.first_ride_only:
+            self.applies_once = True
+
         super(Promotion, self).save(*args, **kwargs)
 
-    def applies_to(self, order):
-        if self.first_ride_only:
-            return order.passenger.successful_orders.count() == 0
-        if self.applies_once:
-            return order.passenger.successful_orders.filter(promotion=self) == 0
+    def applies_to(self, passenger):
+        result = True
 
-        return True
+        if self.first_ride_only:
+            result = passenger.successful_orders.count() == 0
+        if self.applies_once:
+            result = passenger.successful_orders.filter(promotion=self).count() == 0
+
+        logging.info(u"[Promotion.applies_to] %s = %s" % (self.name, result))
+        return result
 
 class PromoCode(BaseModel):
     promotion = models.ForeignKey(Promotion)

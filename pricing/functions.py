@@ -43,8 +43,11 @@ def compute_discounts_data(order_settings, start_dt, end_dt, delta, user=None):
 
             if promo_discount_rule in seen_promo_discounts:
                 continue
-
             seen_promo_discounts.append(promo_discount_rule)
+
+            if passenger and not promotion.applies_to(passenger):
+                continue
+
             active_dt = get_active_dt(promo_discount_rule, order_settings, start_dt, end_dt, delta)
             if active_dt:
                 discounts_data.append(DiscountData(active_dt, promo_discount_rule, promotion=promotion, promo_code=promo_code))
