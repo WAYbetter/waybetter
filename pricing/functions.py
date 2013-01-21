@@ -14,7 +14,7 @@ def get_discounts_data(order_settings, start_dt, end_dt, delta, user=None):
 
     active_discounts = []
 
-    for discount_rule in DiscountRule.objects.filter(visible=True):
+    for discount_rule in DiscountRule.objects.filter(open_to_all=True):
         if discount_rule.email_domains and (user_email_domain not in discount_rule.email_domains):
             logging.info(u"skipping: %s - only for %s" % (discount_rule.name, ", ".join(discount_rule.email_domains)))
             continue

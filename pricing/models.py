@@ -168,7 +168,7 @@ class DiscountRule(MultilingualModel, AbstractTemporalRule):
     picture_url = models.URLField(max_length=255, null=True, blank=True, help_text="Will be used as the passenger picture")
     display_name = models.CharField(max_length=25, null=True, blank=True, help_text="Will be used as the passenger name")
     offer_text = models.CharField(max_length=105, null=True, blank=True, help_text="Will be used as the offer text")
-    visible = models.BooleanField(default=True, editable=False)
+    open_to_all = models.BooleanField(default=True, editable=False)
 
     from_city_area = CityAreaField(verbose_name=_("from city area"), null=True, blank=True, related_name="discount_rules_1")
     from_everywhere = models.BooleanField(verbose_name=_("from everywhere"), default=False)
@@ -267,7 +267,7 @@ class Promotion(BaseModel):
     description_for_user = models.CharField(max_length=512, help_text=_("what will be displayed in the user's account page"))
 
     def save(self, *args, **kwargs):
-        self.discount_rule.visible = False
+        self.discount_rule.open_to_all = False
         self.discount_rule.save()
 
         super(Promotion, self).save(*args, **kwargs)
