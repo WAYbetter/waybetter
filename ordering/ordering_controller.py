@@ -26,7 +26,7 @@ from djangotoolbox.http import JSONResponse
 from oauth2.views import update_profile_fb
 from ordering.decorators import  passenger_required_no_redirect
 from ordering.enums import RideStatus
-from ordering.models import SharedRide, RidePoint, StopType, Order, OrderType, ACCEPTED, APPROVED, Passenger, CHARGED, CANCELLED, CURRENT_BOOKING_DATA_KEY
+from ordering.models import SharedRide, RidePoint, StopType, Order, OrderType, APPROVED, Passenger, CANCELLED, CURRENT_BOOKING_DATA_KEY, ORDER_SUCCESS_STATUS
 from ordering.signals import order_price_changed_signal
 from ordering.passenger_controller import get_position_for_order
 from pricing.data_objects import DiscountData
@@ -49,8 +49,6 @@ MAX_SEATS = 3
 MAX_RIDE_DURATION = 20 #minutes
 
 OFFERS_TIMEDELTA = datetime.timedelta(hours=2)
-
-ORDER_SUCCESS_STATUS = [APPROVED, ACCEPTED, CHARGED]
 
 PREVIOUS_RIDES_TO_DISPLAY = 10
 HISTORY_SUGGESTIONS_TO_SEARCH = 30
@@ -813,9 +811,13 @@ def apply_discount_data(order, order_settings, discount_data):
     order.discount_rule = discount_rule
 
     # apply promotion
-    # TODO_WB: check promotion.is active
-    order.promotion = discount_data.promotion
-    order.promo_code = discount_data.promo_code
+    if discount_data.promotion:
+        if discount_data.promotion.applies_to(order):
+            order.promotion = discount_data.promotion
+            order.promo_code = discount_data.promo_code
+        else:
+            logging.error(u"[apply_discount_data] promotion %s can not be applied to this order" % discount_data.promotion)
+            return None
 
     return order
 

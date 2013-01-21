@@ -263,6 +263,7 @@ class Promotion(BaseModel):
     discount_rule = models.ForeignKey(DiscountRule, related_name="promotions")
 
     first_ride_only = models.BooleanField(default=False)
+    applies_once = models.BooleanField(default=False)
 
     description_for_user = models.CharField(max_length=512, help_text=_("what will be displayed in the user's account page"))
 
@@ -271,6 +272,14 @@ class Promotion(BaseModel):
         self.discount_rule.save()
 
         super(Promotion, self).save(*args, **kwargs)
+
+    def applies_to(self, order):
+        if self.first_ride_only:
+            return order.passenger.successful_orders.count() == 0
+        if self.applies_once:
+            return order.passenger.successful_orders.filter(promotion=self) == 0
+
+        return True
 
 class PromoCode(BaseModel):
     promotion = models.ForeignKey(Promotion)

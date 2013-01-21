@@ -79,6 +79,7 @@ ORDER_STATUS = ASSIGNMENT_STATUS + ((FAILED, _("failed")),
                                     (APPROVED, _("approved")),
                                     (CHARGED, _("charged")))
 
+ORDER_SUCCESS_STATUS = [APPROVED, ACCEPTED, CHARGED]
 
 LANGUAGE_CHOICES = [(i, name) for i, (code, name) in enumerate(settings.LANGUAGES)]
 
@@ -669,6 +670,13 @@ class Passenger(BaseModel):
             pass
 
         return UNKNOWN_USER
+
+    @property
+    def successful_orders(self):
+        """
+        @return: A quesryset of successful orders booked by the passenger
+        """
+        return self.orders.filter(status__in=ORDER_SUCCESS_STATUS)
 
     def _get_business(self):
         try:
