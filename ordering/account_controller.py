@@ -11,7 +11,7 @@ from django.core.validators import validate_email
 from django.utils.translation import ugettext as _
 from django.conf import settings
 from django.contrib.auth import authenticate, login
-from django.http import HttpResponseNotAllowed, HttpResponse, HttpResponseRedirect
+from django.http import HttpResponseNotAllowed, HttpResponseRedirect, HttpResponseBadRequest
 from django.shortcuts import render_to_response
 from django.template import RequestContext
 from djangotoolbox.http import JSONResponse
@@ -152,15 +152,14 @@ def get_billing_url(request):
 
 @passenger_required
 def apply_promo_code(request, passenger):
-    from pricing.models import PromoCode
-
     code = request.POST.get("promo_code")
-    promo_code = PromoCode.objects.get(code=code)
-    activate_promo_code(promo_code, passenger)
-
-    return HttpResponse("OK")
-
-
-def activate_promo_code(promo_code, passenger):
-   activation = PromoCodeActivation(passenger=passenger, promo_code=promo_code, promotion=promo_code.promotion)
-   activation.save()
+    logging.info("[apply_promo_code] code = %s" % code)
+    try:
+        activation = PromoCodeActivation.create(code, passenger)
+        return JSONResponse({
+            'description_for_user': activation.promotion.description_for_user,
+            'promo_code': activation.promo_code.code
+        })
+    except ValueError, e:
+        logging.error("[apply_promo_code] %s" % e.message)
+        return HttpResponseBadRequest(e.message)

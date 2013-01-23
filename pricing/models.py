@@ -259,7 +259,7 @@ class Promotion(BaseModel):
 
     start_dt = UTCDateTimeField()
     end_dt = UTCDateTimeField()
-    quantity = models.IntegerField()
+    quota = models.IntegerField(null=True, blank=True)
     discount_rule = models.ForeignKey(DiscountRule, related_name="promotions")
 
     first_ride_only = models.BooleanField(default=False)

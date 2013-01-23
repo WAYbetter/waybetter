@@ -11,6 +11,10 @@
 {% block extrastyle %}
     {{ block.super }}
     <style type="text/css">
+        .section-title {
+            margin-top: 8px;
+            margin-bottom: 2px;
+        }
         .form-row {
             position: relative;
             margin-bottom: 25px;
@@ -58,9 +62,14 @@
             text-decoration: underline;
         }
 
+        #promo-code{
+            width: 70%;
+        }
         #apply-promo{
             font-size: initial;
+            width: 26%;
             height: 33px;
+            margin-bottom: 10px;
         }
         .promo-code.consumed{
             text-decoration: line-through;
@@ -132,24 +141,22 @@
 
             <hr>
 
-            <div class="form-row">
-                <div id="active-promos">
-                    {% trans "Your Promo Codes" %}:
-                    <ul>
-                        {% for activation in promo_activations %}
-                            <li class="promo-code {% if activation.promo_code.consumed %}consumed{% endif %}">
-                                {{ activation.promotion.description_for_user }} <span>&lrm;#{{ activation.promo_code.code }}</span>
-                            </li>
-                        {% endfor %}
-                    </ul>
-                </div>
-            </div>
-            <div class="form-row">
-                {% trans "Apply Promo Code" %}:
+            <div id="promos">
+                <div class="section-title">{% trans "Apply Promo Code" %}:</div>
                 <div class="input-append">
                     <input type="text" name="promo-code" id="promo-code" data-role="none">
                     <button id="apply-promo" class="btn" type="button" data-role="none">{% trans 'Submit' %}</button>
                 </div>
+
+                <div class="section-title">{% trans "Active Promotions in Your Account" %}:</div>
+                <ul id="promos-list">
+                    {% for activation in promo_activations %}
+                        <li class="promo-code {% if activation.promo_code.consumed %}consumed{% endif %}">
+                            {{ activation.promotion.description_for_user }} <span>&lrm;#{{ activation.promo_code.code }}</span>
+                        </li>
+                    {% endfor %}
+                </ul>
+
             </div>
         </div>
     </div>
@@ -220,7 +227,9 @@
             var form = $("#registration_form");
             var submit = $("#submit");
             var billing_submit = $("#billing_submit");
+            var promo_code = $("#promo-code");
             var apply_promo = $("#apply-promo");
+            var promos_list = $("#promos-list");
 
             function submit_form(continue_to_billing) {
                 if (!form.checkValidity()) return;
@@ -248,12 +257,18 @@
 
             function do_apply_promo() {
                 $.ajax({
-                    url:"{% url ordering.account_controller.apply_promo_code %}"
-                }).done(function () {
-                    alert("OK");
-                }).fail(function () {
-                    alert("FAILED");
+                    type: 'POST',
+                    url:"{% url ordering.account_controller.apply_promo_code %}",
+                    data: {promo_code: promo_code.val()}
+                }).done(function (promotion) {
+                    promos_list.append(render_promotion(promotion));
+                }).fail(function (jqXHR, textStatus) {
+                    alert(jqXHR.responseText);
                 });
+            }
+
+            function render_promotion(promotion){
+                return '<li class="promo-code">' + promotion.description_for_user + ' <span>&lrm;#' + promotion.promo_code + '</span></li>';
             }
 
             form.submit(function (e) {

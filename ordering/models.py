@@ -22,7 +22,7 @@ from common.errors import TransactionError
 from common.models import BaseModel, Country, City, CityArea, obj_by_attr
 from common.geo_calculations import distance_between_points
 from common.util import get_international_phone, generate_random_token, notify_by_email, send_mail_as_noreply, get_model_from_request, phone_validator, StatusField, get_channel_key, Enum, DAY_OF_WEEK_CHOICES, generate_random_token_64, get_uuid, get_mobile_platform, clean_values
-from common.tz_support import UTCDateTimeField, utc_now, to_js_date, format_dt
+from common.tz_support import UTCDateTimeField, utc_now, to_js_date, format_dt, default_tz_now
 from fleet.models import FleetManager, FleetManagerRideStatus
 from ordering.enums import RideStatus
 from ordering.signals import order_status_changed_signal, orderassignment_status_changed_signal, workstation_offline_signal, workstation_online_signal
@@ -750,6 +750,47 @@ class PromoCodeActivation(BaseModel):
     passenger = models.ForeignKey(Passenger)
 
     consumed = models.BooleanField(default=False)
+
+    @classmethod
+    def create(cls, code, passenger):
+        """
+        create a new PromoCodeActivation if:
+        1. valid promo code (there is a PromoCode with this code)
+        2. the promotion has not expired
+        3. passenger has not activated this code
+
+        @param code: the promo code String
+        @param passenger: the Passenger who activated the promo code
+        @return: PromoCodeActivation
+        @raise: ValueError in cases as above
+        """
+        try:
+            promo_code = PromoCode.objects.get(code=code)
+            activation = cls.objects.get(promo_code=promo_code, passenger=passenger)
+
+            raise ValueError(ugettext("Promo Already Activated"))
+
+        except PromoCode.DoesNotExist:
+            raise ValueError(ugettext("Invalid promo code"))
+
+        # create new PromoCodeActivation
+        except cls.DoesNotExist:
+            promotion = promo_code.promotion
+
+            # if promotion is expired
+            if not promotion.start_dt <= default_tz_now() <= promotion.end_dt:
+                raise ValueError(ugettext("Promotion expired"))
+
+            # if promotion is over its quota limit
+            if not cls.objects.filter(promotion=promotion).count() < promotion.quota:
+                raise ValueError(ugettext("Promotion reached quota limit"))
+
+            activation = cls(promo_code=promo_code, promotion=promotion, passenger=passenger)
+            activation.save()
+            logging.info("[PromoCodeActivation.create] activation created %s" % activation.id)
+
+        return activation
+
 
     def redeem(self):
         if self.promotion.applies_once:
