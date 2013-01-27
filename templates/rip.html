@@ -1,0 +1,115 @@
+{% extends "wb_base_site.html" %}
+
+{% block extrastyle %}
+    <style type="text/css">
+        * {
+            font-family: 'Titillium Web', sans-serif;
+        }
+
+        body {
+            direction: ltr;
+            text-align: center;
+            padding-top: 0 !important;
+            padding-bottom: 0;
+        }
+
+        #container {
+            position: absolute;
+            top: 10%;
+            left: 0;
+            right: 0;
+        }
+
+        #logo-container {
+            padding-right: 50px;
+            border-right: 1px dotted;
+            display: inline-block;
+        }
+
+        #logo {
+            width: 115px;
+            height: 108px;
+            padding-top: 5px;
+            background: url(../static/images/wb_site/logo_rip.png) left bottom no-repeat;
+        }
+
+        #text {
+            padding-left: 50px;
+            display: inline-block;
+        }
+
+        #en {
+            text-align: left;
+        }
+
+        #he {
+            direction: rtl;
+            text-align: right;
+            margin-bottom: 30px;
+        }
+
+        #text strong {
+            display: block;
+        }
+
+        #footer {
+            height: initial;
+            padding: 10px;
+            font-size: 12px;
+            color: white;
+            background: #555;
+            text-align: center;
+        }
+
+        #footer a {
+            color: #60C8FC;
+        }
+
+        #footer a:hover {
+            padding-right: 0;
+            color: #60C8FC;
+        }
+
+        @media (max-width: 600px) {
+            #logo-container {
+                display: block;
+                border-right: none;
+                padding-right: 0;
+            }
+            #logo{
+                margin: 0 auto;
+            }
+            #text {
+                display: block;
+                padding-top: 50px;
+                padding-left: 15px;
+                padding-right: 15px;
+                max-width: 350px;
+                margin: 0 auto;
+            }
+        }
+    </style>
+{% endblock %}
+
+{% block body %}
+    <div id="container">
+        <div id="logo-container">
+            <div id="logo"></div>
+        </div>
+        <div id="text">
+            <div id="he">
+                <strong>שירות WAYbetter אינו פעיל.</strong>
+                תודה לכל המשתמשים היקרים שהיו שותפים שלנו לדרך
+            </div>
+            <div id="en">
+                <strong>WAYbetter service is no longer active.</strong>
+                Thanks to all our users for sharing this way with us
+            </div>
+        </div>
+    </div>
+
+    <div id="footer">
+        <div>Contact us: <a href="mailto:contact@waybetter.com">contact@waybetter.com</a></div>
+        <div>All rights reserved to WAYbetter LTD</div>
+    </div>
+{% endblock %}

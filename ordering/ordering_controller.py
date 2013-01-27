@@ -76,6 +76,8 @@ def staff_m2m(request):
     return render_to_response("staff_m2m.html", RequestContext(request))
 
 def home(request, suggest_apps=True):
+    return render_to_response('rip.html', locals(), context_instance=RequestContext(request))
+
     user_agent_lower = request.META.get("HTTP_USER_AGENT", "").lower()
     is_android =  user_agent_lower.find("android") > -1
     is_ios =  user_agent_lower.find("iphone") > -1
