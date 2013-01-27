@@ -39,7 +39,7 @@ import datetime
 import dateutil.parser
 import sharing.algo_api as algo_api
 
-SERVICE_NOT_AVAILABLE_MSG = _("Service is not available")
+SERVICE_NOT_AVAILABLE_MSG = _("WAYbetter service is no longer active. Thanks to all our users for sharing this way with us")
 
 WAYBETTER_STATION_NAME = "WAYbetter"
 
