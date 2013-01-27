@@ -39,6 +39,7 @@ import datetime
 import dateutil.parser
 import sharing.algo_api as algo_api
 
+SERVICE_NOT_AVAILABLE_MSG = _("Service is not available")
 
 WAYBETTER_STATION_NAME = "WAYbetter"
 
@@ -441,6 +442,11 @@ def get_matching_rides(candidate_rides, order_settings):
     return matches
 
 def get_offers(request):
+    return JSONResponse({
+        'status': 'failed',
+        'error': SERVICE_NOT_AVAILABLE_MSG
+    })
+
     order_settings = OrderSettings.fromRequest(request)
 
     # TODO_WB: save the requested search params and associate with a push_token from request for later notifications of similar searches
@@ -642,6 +648,11 @@ def cancel_order(request, passenger):
 
 @csrf_exempt
 def book_ride(request):
+    return JSONResponse({
+        'status': 'failed',
+        'error': SERVICE_NOT_AVAILABLE_MSG
+    })
+
     passenger = Passenger.from_request(request)
     request_data = simplejson.loads(request.POST.get('data'))
     logging.info(u"book ride: %s\n%s" % (passenger, unicode(simplejson.dumps(request_data), "unicode-escape")))
