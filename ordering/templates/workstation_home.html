@@ -510,7 +510,9 @@
         var socket;
 
         $(document).ready(function() {
-            window.parentSandboxBridge.exit_app();
+            {% if shutdown %}
+                window.parentSandboxBridge.exit_app();
+            {% endif %}
 
             // setup bridge functions
             window.childSandboxBridge = {
