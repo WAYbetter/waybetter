@@ -672,6 +672,8 @@
         };
 
         $scope.init = function () {
+            AirService.call("exit_app", true);
+
             AirService.call("set_app_loaded", true);
             AirService.call("set_visible", true);
             AirService.call("set_title", "WAYbetter - {{ station_name }}");

@@ -510,6 +510,8 @@
         var socket;
 
         $(document).ready(function() {
+            window.parentSandboxBridge.exit_app();
+
             // setup bridge functions
             window.childSandboxBridge = {
                 updateOnline    : function() {
